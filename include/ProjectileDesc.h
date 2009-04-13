@@ -80,7 +80,7 @@ struct proj_t {
 	Proj_Trail Trail;
 	
 	// Timer (When the timer is finished)
-	Proj_Timer Timer;
+	Proj_LX56Timer Timer;
 	
 	// Hit (When hitting the terrain)
 	Proj_Action	Hit;
@@ -96,8 +96,8 @@ struct proj_t {
 	// Player hit
 	Proj_Action PlyHit;
 	
-	// projectile hits
-	std::vector<Proj_ProjHit> ProjHits; // new since beta9
+	// new events
+	std::vector<Proj_EventAndAction> actions; // new since beta9
 	
 	// if we have no action from other events
 	Proj_Action Fallback; // new since beta9	

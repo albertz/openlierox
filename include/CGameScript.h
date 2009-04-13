@@ -84,13 +84,12 @@ struct weapon_t;
 struct proj_t;
 struct Proj_SpawnInfo;
 struct Proj_Action;
-struct Proj_ProjHit;
 
 
 class CGameScript {
 	friend struct Proj_SpawnInfo;
 	friend struct Proj_Action;
-	friend struct Proj_ProjHit;
+	friend struct Proj_ProjHitEvent;
 public:
 	// Constructor
 	CGameScript() {

@@ -275,18 +275,16 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 
 
 
-bool Proj_Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
 	float f = prj->getTimeVarRandom();
 	if(Time > 0 && (Time + TimeVar * f) < prj->getLife()) {
 		eventInfo.timerHit = true;
-		return Proj_Event::checkEvent(eventInfo, prj);
+		return true;
 	}
 	return false;
 }
 
-bool Proj_ProjHit::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {
-	if(!Proj_Event::checkEvent(ev, prj)) return false;
-	
+bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {	
 	/*
 	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect
 	 * but probably we don't have much projectiles where we have to do this check.
@@ -413,9 +411,9 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	// projectiles are spawned and never destroyed) and prevent more important projectiles from spawning.
 	// These conditions test for those projectiles and remove them
 	bool hasAnyAction = pi->Hit.hasAction() || pi->PlyHit.hasAction() || pi->Timer.hasAction();
-	for(size_t i = 0; i < pi->ProjHits.size(); ++i) {
+	for(size_t i = 0; i < pi->actions.size(); ++i) {
 		if(hasAnyAction) break;
-		hasAnyAction |= pi->ProjHits[i].hasAction();
+		hasAnyAction |= pi->actions[i].hasAction();
 	}
 	if (!hasAnyAction) // Isn't destroyed by any event
 		if (!pi->Animating || (pi->Animating && (pi->AnimType != ANI_ONCE || pi->bmpImage == NULL))) // Isn't destroyed after animation ends

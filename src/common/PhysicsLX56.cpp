@@ -620,10 +620,12 @@ public:
 			}
 		}
 
-		for(size_t i = 0; i < pi->ProjHits.size(); ++i) {
-			pi->ProjHits[i].checkAndApply(eventInfo, prj, &doActionInfo);
-		}
+		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(dt);
 		
+		for(size_t i = 0; i < pi->actions.size(); ++i) {
+			pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
+		}
+				
 		if(!doActionInfo.hasAnyEffect()) {
 			//notes << "no eff" << endl;
 			pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(dt), prj, &doActionInfo);

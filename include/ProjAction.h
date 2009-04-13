@@ -16,7 +16,9 @@
 
 #include <string>
 #include <list>
+#include <vector>
 #include <limits.h>
+#include <cassert>
 #include "StaticAssert.h"
 #include "types.h"
 #include "CVec.h"
@@ -186,52 +188,121 @@ struct Proj_Action {
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
 	void applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
-	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter = 0);	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter = 0);
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };
 
-struct Proj_Event {
-	Proj_Event* otherEvent;
-	Proj_Event() : otherEvent(NULL) {}
-	virtual ~Proj_Event() { if(otherEvent) delete otherEvent; otherEvent = NULL; }
-	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
-		if(otherEvent) return otherEvent->checkEvent(eventInfo, prj); return true;
-	}
+struct _Proj_Event {
+	virtual ~_Proj_Event() {}
+	virtual bool canMatch() const { return true; }
+	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const = 0;
+	virtual bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) { return true; }
+	virtual bool read(CGameScript* gs, FILE* fp) { return true; }
+	virtual bool write(CGameScript* gs, FILE* fp) { return true; }
 };
 
-struct Proj_EventAndAction : Proj_Action, Proj_Event {
-	virtual bool hasAction() const { return Proj_Action::hasAction(); }
-	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
-		if(hasAction() && checkEvent(eventInfo, prj)) { applyTo(eventInfo, prj, info); return true; } return false;
-	}	
+struct Proj_TimerEvent : _Proj_Event {
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const { return false; } // TODO ...
 };
 
-struct Proj_Timer : Proj_EventAndAction {
-	Proj_Timer() : Time(0) {}
-	
-	float	Time;
-	float	TimeVar;
-	
-	bool hasAction() const { return Proj_Action::hasAction() && Time > 0; }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
-};
-
-
-struct Proj_ProjHit : Proj_EventAndAction {
-	Proj_ProjHit() : Target(NULL), MinHitCount(1), HitCount(-1), Width(-1), Height(-1) {}
+struct Proj_ProjHitEvent : _Proj_Event {
+	Proj_ProjHitEvent() : Target(NULL), MinHitCount(1), HitCount(-1), Width(-1), Height(-1) {}
 	
 	proj_t* Target; // NULL -> any target
 	int		MinHitCount;
 	int		HitCount; // exact hit count (ignored iff <0)
 	int		Width, Height; // custom w/h for collision check area
 	
-	bool hasAction() const { return Proj_Action::hasAction() && MinHitCount >= 1; }
+	bool canMatch() const { return MinHitCount >= 1; }
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
 	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
+};
+
+// Event struct that contains all possible events.
+// This is for some simplification and speed up.
+struct Proj_Event {
+	enum Type {
+		PET_UNSET = 0,
+		PET_TIMER = 1,
+		PET_PROJHIT = 2,
+		__PET_LBOUND = INT_MIN,
+		__PET_UBOUND = INT_MAX
+	} type;
+	static_assert(sizeof(Type) == sizeof(int), Proj_Event_Type__SizeCheck);
+	
+	Proj_Event(Type t = PET_UNSET) : type(t) {}
+	Proj_TimerEvent timer;
+	Proj_ProjHitEvent projHit;
+	
+	_Proj_Event* get() {
+		switch(type) {
+			case PET_UNSET: return NULL;
+			case PET_TIMER: return &timer;
+			case PET_PROJHIT: return &projHit;
+			case __PET_LBOUND: case __PET_UBOUND: return NULL;
+		}
+		return NULL;
+	}
+
+	const _Proj_Event* get() const { // copy of above function
+		switch(type) {
+			case PET_UNSET: return NULL;
+			case PET_TIMER: return &timer;
+			case PET_PROJHIT: return &projHit;
+			case __PET_LBOUND: case __PET_UBOUND: return NULL;
+		}
+		return NULL;
+	}
+	
+	bool canMatch() const { return get()->canMatch(); }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const { return get()->checkEvent(eventInfo, prj); }
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
+};
+
+struct Proj_EventAndAction : Proj_Action {
+	typedef std::vector<Proj_Event> Events;
+	Events events;
+	Proj_EventAndAction() { Type = PJ_NOTHING; }
+	bool hasAction() const {
+		if(!Proj_Action::hasAction()) return false;
+		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->canMatch()) return false;
+		return true;
+	}
+	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+		if(!hasAction()) return false;
+		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->checkEvent(eventInfo, prj)) return false;
+		applyTo(eventInfo, prj, info);
+		return true;
+	}	
+
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
+};
+
+
+
+struct Proj_LX56Timer : Proj_Action {
+	Proj_LX56Timer() : Time(0) {}
+	
+	float	Time;
+	float	TimeVar;
+	
+	bool canMatch() const { return Time > 0; }
+	bool hasAction() const { return Proj_Action::hasAction() && canMatch(); }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
+	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+		if(!hasAction()) return false;
+		if(!checkEvent(eventInfo, prj)) return false;
+		applyTo(eventInfo, prj, info);
+		return true;
+	}
 };
 
 

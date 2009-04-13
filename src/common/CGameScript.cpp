@@ -371,9 +371,9 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fwrite_endian<Uint32>(fp, proj->ProjHits.size());
-		for(Uint32 i = 0; i < proj->ProjHits.size(); ++i) {
-			proj->ProjHits[i].write(this, fp);
+		fwrite_endian<Uint32>(fp, proj->actions.size());
+		for(Uint32 i = 0; i < proj->actions.size(); ++i) {
+			proj->actions[i].write(this, fp);
 		}
 	}
 	
@@ -650,7 +650,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread_compat(proj->Timer.Time,	sizeof(float),1,fp);
 	EndianSwap(proj->Timer.Time);
 	fread_compat(proj->Timer.TimeVar,	sizeof(float),1,fp);
-	EndianSwap(proj->Timer.TimeVar);
+	EndianSwap(proj->Timer.timer.TimeVar);
 	fread_compat(proj->Trail.Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Trail.Type);
 	fread_endian<int>(fp, proj->UseCustomGravity);
@@ -885,9 +885,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	if(Header.Version > GS_LX56_VERSION) {
 		Uint32 projHitC = 0;
 		fread_endian<Uint32>(fp, projHitC);
-		proj->ProjHits.resize(projHitC);
+		proj->actions.resize(projHitC);
 		for(Uint32 i = 0; i < projHitC; ++i) {
-			proj->ProjHits[i].read(this, fp);
+			proj->actions[i].read(this, fp);
 		}
 	}
 	
@@ -1623,15 +1623,17 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	{
 		int projHitC = 0;
-		ReadInteger(file, "General", "ProjHitNum", &projHitC, 0);
-		if(projHitC < 0) projHitC = 0;
-		proj->ProjHits.resize(projHitC);
+		ReadInteger(file, "General", "ActionNum", &projHitC, 0);
 		for(int i = 0; i < projHitC; ++i) {
-			proj->ProjHits[i].readFromIni(this, dir, file, "ProjHit" + itoa(i+1));
-
-			if(!proj->ProjHits[i].hasAction()) {
-				warnings << "section ProjHit" << (i+1) << " (" << pfile << ") doesn't have any effect" << endl;
+			Proj_EventAndAction act;
+			if(!act.readFromIni(this, dir, file, "Action" + itoa(i+1))) continue;
+			
+			if(!act.hasAction()) {
+				warnings << "section Action" << (i+1) << " (" << pfile << ") doesn't have any effect" << endl;
+				continue;
 			}
+			
+			proj->actions.push_back(act);
 		}
 	}
 
@@ -1973,32 +1975,93 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	return true;
 }
 
-bool Proj_ProjHit::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	Proj_Action::readFromIni(gs, dir, file, section);
+bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	if(!ReadKeyword(file, section, "Type", (int*)&type, type)) return false;
+	if(get() == NULL) return false;
+	return get()->readFromIni(gs, dir, file, section);
+}
+
+bool Proj_Event::read(CGameScript* gs, FILE* fp) {
+	fread_endian<int>(fp, (int&)type);
+	if(get() == NULL) return false;
+	return get()->read(gs, fp);	
+}
+
+bool Proj_Event::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<int>(fp, type);
+	if(get() == NULL) return false;
+	return get()->write(gs, fp);
+}
+
+bool Proj_EventAndAction::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	std::string eventSection;
+	ReadString(file, section, "Event", eventSection, eventSection);
+	if(eventSection == "") {
+		warnings << file << ":" << section << ": Event not set" << endl;
+		return false;
+	}
+
+	while(eventSection != "") {
+		if(events.size() > 1000) {
+			warnings << file << ":" << section << ": Probably there is a loop definition for Event" << endl;
+			events.clear();
+			return false;
+		}
+		Proj_Event ev;
+		if(!ev.readFromIni(gs, dir, file, eventSection)) return events.size() > 0;
+		events.push_back(ev);
+		if(!ReadString(file, std::string(eventSection), "AndEvent", eventSection, eventSection)) break;
+	}
 	
+	return Proj_Action::readFromIni(gs, dir, file, section);
+}
+
+bool Proj_EventAndAction::read(CGameScript* gs, FILE* fp) {
+	Uint32 eventNum = 0;
+	fread_endian<Uint32>(fp, eventNum);
+	events.resize(eventNum);
+	
+	for(Uint32 i = 0; i < eventNum; ++i)
+		if(!events[i].read(gs, fp)) {
+			errors << "Proj_EventAndAction: error while reading game script projectile actions" << endl;
+			events.clear(); // would crash otherwise
+			return false;
+		}
+	
+	return Proj_Action::read(gs, fp);
+}
+
+bool Proj_EventAndAction::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<Uint32>(fp, events.size());
+	
+	for(Uint32 i = 0; i < events.size(); ++i)
+		events[i].write(gs, fp);
+	
+	return Proj_Action::write(gs, fp);	
+}
+
+
+bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
 	ReadInteger(file, section, "HitCount", &HitCount, HitCount);
 	ReadInteger(file, section, "Width", &Width, Width);
 	ReadInteger(file, section, "Height", &Height, Height);	
-
+	
 	std::string prjfile;
 	ReadString(file, section, "Target", prjfile, "");
 	if(prjfile != "")
 		Target = gs->CompileProjectile(dir, prjfile);
 	else
 		Target = NULL;
-	
 	return true;
 }
 
-bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
+bool Proj_ProjHitEvent::read(CGameScript* gs, FILE* fp) {
 	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
-		errors << "Proj_ProjHit::read called for old GS version" << endl;
+		errors << "Proj_ProjHitEvent::read called for old GS version" << endl;
 		return false;
 	}
-
-	Proj_Action::read(gs, fp);
-
+		
 	fread_endian<int>(fp, MinHitCount);
 	fread_endian<int>(fp, HitCount);
 	fread_endian<int>(fp, Width);
@@ -2010,17 +2073,15 @@ bool Proj_ProjHit::read(CGameScript* gs, FILE* fp) {
 		Target = gs->LoadProjectile(fp);
 	else
 		Target = NULL;
-	return !hasSpecificTarget || Target != NULL;
+	return !hasSpecificTarget || Target != NULL;	
 }
 
-bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
+bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 	if(gs->GetHeader()->Version <= GS_LX56_VERSION) {
-		errors << "Proj_ProjHit::write called for old GS version" << endl;
+		errors << "Proj_ProjHitEvent::write called for old GS version" << endl;
 		return false;
 	}
-
-	Proj_Action::write(gs, fp);
-
+	
 	fwrite_endian<int>(fp, MinHitCount);
 	fwrite_endian<int>(fp, HitCount);
 	fwrite_endian<int>(fp, Width);
@@ -2028,7 +2089,6 @@ bool Proj_ProjHit::write(CGameScript* gs, FILE* fp) {
 	
 	fwrite_endian<char>(fp, Target != NULL);
 	if(Target) return gs->SaveProjectile(Target, fp);
-	return true;
+	return true;	
 }
-
 
