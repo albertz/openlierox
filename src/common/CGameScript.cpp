@@ -2106,7 +2106,13 @@ bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 
 bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
-	ReadInteger(file, section, "HitCount", &HitCount, HitCount);
+	ReadInteger(file, section, "MaxHitCount", &MaxHitCount, MaxHitCount);
+	
+	if(MaxHitCount >= 0 && MaxHitCount < MinHitCount) {
+		warnings << file << ":" << section << ": ignoring MaxHitCount because MaxHitCount < MinHitCount" << endl;
+		MaxHitCount = -1;
+	}
+		
 	ReadInteger(file, section, "Width", &Width, Width);
 	ReadInteger(file, section, "Height", &Height, Height);	
 	
@@ -2126,7 +2132,7 @@ bool Proj_ProjHitEvent::read(CGameScript* gs, FILE* fp) {
 	}
 		
 	fread_endian<int>(fp, MinHitCount);
-	fread_endian<int>(fp, HitCount);
+	fread_endian<int>(fp, MaxHitCount);
 	fread_endian<int>(fp, Width);
 	fread_endian<int>(fp, Height);
 	
@@ -2146,7 +2152,7 @@ bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 	}
 	
 	fwrite_endian<int>(fp, MinHitCount);
-	fwrite_endian<int>(fp, HitCount);
+	fwrite_endian<int>(fp, MaxHitCount);
 	fwrite_endian<int>(fp, Width);
 	fwrite_endian<int>(fp, Height);
 	

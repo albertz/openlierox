@@ -309,7 +309,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 	if(last > 0 && !Repeat) return false;
 	
 	if(UseGlobalTime) {		
-		float cur = cClient->serverTime().seconds();
+		float cur = eventInfo.serverTime.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(last == 0) {
 			float startTime = cur - prj->getLife();
 			float mstart = startTime; FMOD(mstart, Delay);
@@ -354,11 +354,11 @@ bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) co
 
 		ev.projCols.push_back(p);
 
-		if(HitCount < 0 && ev.projCols.size() >= (size_t)MinHitCount) break; // no need to check further
-		if(ev.projCols.size() > (size_t)HitCount) break; // no need to check further
+		if(MaxHitCount < 0 && ev.projCols.size() >= (size_t)MinHitCount) break; // no need to check further
+		if(ev.projCols.size() > (size_t)MaxHitCount) break; // no need to check further
 	}
 	
-	if(ev.projCols.size() >= (size_t)MinHitCount && (HitCount < 0 || ev.projCols.size() == (size_t)HitCount))
+	if(ev.projCols.size() >= (size_t)MinHitCount && (MaxHitCount < 0 || ev.projCols.size() <= (size_t)MaxHitCount))
 		return true;
 	return false;
 }

@@ -147,12 +147,13 @@ struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
 	std::list<const CProjectile*> projCols;
 	bool timerHit;
+	TimeDiff serverTime; 
 	TimeDiff dt;
 	
-	Proj_EventOccurInfo(TimeDiff _dt) : colType(NULL), timerHit(false), dt(_dt) {}
-	static Proj_EventOccurInfo Unspec(TimeDiff _dt) { return Proj_EventOccurInfo(_dt); }
-	static Proj_EventOccurInfo Timer(TimeDiff _dt) { Proj_EventOccurInfo e(_dt); e.timerHit = true; return e; }
-	static Proj_EventOccurInfo Col(TimeDiff _dt, const ProjCollisionType* col) { Proj_EventOccurInfo e(_dt); e.colType = col; return e; }	
+	Proj_EventOccurInfo(TimeDiff t, TimeDiff _dt) : colType(NULL), timerHit(false), serverTime(t), dt(_dt) {}
+	static Proj_EventOccurInfo Unspec(TimeDiff t, TimeDiff _dt) { return Proj_EventOccurInfo(t, _dt); }
+	static Proj_EventOccurInfo Timer(TimeDiff t, TimeDiff _dt) { Proj_EventOccurInfo e(t, _dt); e.timerHit = true; return e; }
+	static Proj_EventOccurInfo Col(TimeDiff t, TimeDiff _dt, const ProjCollisionType* col) { Proj_EventOccurInfo e(t, _dt); e.colType = col; return e; }	
 };
 
 struct Proj_Action {
@@ -220,14 +221,13 @@ struct Proj_TimerEvent : _Proj_Event {
 };
 
 struct Proj_ProjHitEvent : _Proj_Event {
-	Proj_ProjHitEvent() : Target(NULL), MinHitCount(1), HitCount(-1), Width(-1), Height(-1) {}
+	Proj_ProjHitEvent() : Target(NULL), MinHitCount(1), MaxHitCount(-1), Width(-1), Height(-1) {}
 	
 	proj_t* Target; // NULL -> any target
-	int		MinHitCount;
-	int		HitCount; // exact hit count (ignored iff <0)
+	int		MinHitCount, MaxHitCount;
 	int		Width, Height; // custom w/h for collision check area
 	
-	bool canMatch() const { return MinHitCount >= 1; }
+	bool canMatch() const { return MaxHitCount < 0 || MaxHitCount >= MinHitCount; }
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
 	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	

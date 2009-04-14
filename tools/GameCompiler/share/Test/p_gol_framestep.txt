@@ -3,7 +3,7 @@
 
 [General]
 Type = PRJ_RECT
-Colour1 = 0,255,255,0
+Colour1 = 0,255,255,100
 Width = 16
 Height = 16
 Gravity = 0
@@ -41,7 +41,7 @@ Projectiles = true
 
 [WaitTime2]
 Type = Timer
-Delay = 0.15
+Delay = 0.05
 Repeat = false
 
 [RightCellsAmount]
@@ -50,7 +50,8 @@ Type = ProjHit
 Target = p_gol_framestep_alife.txt
 Width = 32
 Height = 32
-HitCount = 3
+MinHitCount = 3
+MaxHitCount = 3
 
 [Action3.Projectile]
 Projectile = p_gol_cell.txt

@@ -588,15 +588,22 @@ public:
 
 		Proj_DoActionInfo doActionInfo;
 		const proj_t *pi = prj->GetProjInfo();
-
-
+		TimeDiff serverTime = cClient->serverTime();
+		{
+			TimeDiff timeDiff = TimeDiff(currentTime - prj->fLastSimulationTime);
+			if(timeDiff >= serverTime)
+				serverTime = TimeDiff(0); // strange case
+			else
+				serverTime -= timeDiff;
+		}
+		
 		// Check if the timer is up
-		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(dt), prj, &doActionInfo);
+		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
 
 		// Simulate the projectile
 		ProjCollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 
-		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(dt, &result);
+		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
 		
 		/*
 		===================
@@ -620,7 +627,7 @@ public:
 			}
 		}
 
-		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(dt);
+		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
 		
 		for(size_t i = 0; i < pi->actions.size(); ++i) {
 			pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
@@ -628,7 +635,7 @@ public:
 				
 		if(!doActionInfo.hasAnyEffect()) {
 			//notes << "no eff" << endl;
-			pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(dt), prj, &doActionInfo);
+			pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
 		}
 		
 		doActionInfo.execute(prj, currentTime);
@@ -638,9 +645,7 @@ public:
 	}
 
 	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime) {
-		const float orig_dt = 0.01f;
-
-		// TODO: all the event-handling in here (the game logic) should be moved, it does not belong to physics
+		const TimeDiff orig_dt = TimeDiff(0.01f);
 
 	simulateProjectilesStart:
 		if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
@@ -650,7 +655,7 @@ public:
 			simulateProjectile( cClient->fLastSimulationTime, p );
 		}
 
-		cClient->fLastSimulationTime += TimeDiff(orig_dt);
+		cClient->fLastSimulationTime += orig_dt;
 		goto simulateProjectilesStart;
 	}
 
