@@ -40,7 +40,7 @@ struct TimeDiff {
 	Uint64 milliseconds() const { return timeDiff; }
 	
 	TimeDiff operator+(const TimeDiff& td) const { return TimeDiff(timeDiff + td.timeDiff); }
-	TimeDiff operator-(const TimeDiff& td) const { return TimeDiff(timeDiff - td.timeDiff); }	
+	TimeDiff operator-(const TimeDiff& td) const { assert(timeDiff >= td.timeDiff); return TimeDiff(timeDiff - td.timeDiff); }
 	float operator/(const TimeDiff& td) const { return (float)timeDiff / (float)td.timeDiff; }
 	TimeDiff operator*(float f) const { return TimeDiff((Uint64)(timeDiff * f)); }
 	

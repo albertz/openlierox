@@ -590,7 +590,7 @@ public:
 		const proj_t *pi = prj->GetProjInfo();
 		TimeDiff serverTime = cClient->serverTime();
 		{
-			TimeDiff timeDiff = TimeDiff(currentTime - prj->fLastSimulationTime);
+			TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
 			if(timeDiff >= serverTime)
 				serverTime = TimeDiff(0); // strange case
 			else

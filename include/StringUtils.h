@@ -215,28 +215,28 @@ inline std::string::iterator PositionToIterator(std::string& str, size_t pos)  {
 
 template<typename T>
 T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&), bool& failed) {
-	std::istringstream iss(s); T t;
+	std::istringstream iss(s); T t = T();
 	failed = (iss >> f >> t).fail();
 	return t;
 }
 
 template<typename T>
 T from_string(const std::string& s, std::ios_base& (*f)(std::ios_base&)) {
-	std::istringstream iss(s); T t;
+	std::istringstream iss(s); T t = T();
 	iss >> f >> t;
 	return t;
 }
 
 template<typename T>
 T from_string(const std::string& s, bool& failed) {
-	std::istringstream iss(s); T t;
+	std::istringstream iss(s); T t = T();
 	failed = (iss >> t).fail();
 	return t;
 }
 
 template<typename T>
 T from_string(const std::string& s) {
-	std::istringstream iss(s); T t;
+	std::istringstream iss(s); T t = T();
 	iss >> t;
 	return t;
 }
