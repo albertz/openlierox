@@ -316,20 +316,22 @@ def parseWormDied(sig):
 	except IOError:
 		io.msg("ERROR: Unable to open pwn0meter.txt")
 
-	if(deaderID == killerID):
+	if not killerID in io.getComputerWormList():
+		if deaderID == killerID:
+			try:
+				ranking.rank[worms[killerID].Name][2] += 1
+			except KeyError:
+				ranking.rank[worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
+		else:
+			try:
+				ranking.rank[worms[killerID].Name][0] += 1
+			except KeyError:
+				ranking.rank[worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
+	if not deaderID in io.getComputerWormList():
 		try:
-			ranking.rank[worms[killerID].Name][2] += 1
+			ranking.rank[worms[deaderID].Name][1] += 1
 		except KeyError:
-			ranking.rank[worms[killerID].Name] = [0,0,1,len(ranking.rank)+1]
-	else:
-		try:
-			ranking.rank[worms[killerID].Name][0] += 1
-		except KeyError:
-			ranking.rank[worms[killerID].Name] = [1,0,0,len(ranking.rank)+1]
-	try:
-		ranking.rank[worms[deaderID].Name][1] += 1
-	except KeyError:
-		ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
+			ranking.rank[worms[deaderID].Name] = [0,1,0,len(ranking.rank)+1]
 
 def parseWormSpawned(sig):
 	global worms
