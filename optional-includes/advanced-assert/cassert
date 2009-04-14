@@ -51,7 +51,7 @@ __attribute__((error("assertion always false")))
 
 #undef assert
 #define assert(x)	{ \
-	if(is_known_at_ct(x)) { \
+	if(is_known_at_ct(!(x))) { \
 		if(strcmp(TOSTRING(x), "false") == 0) { rt_assert(x); } \
  		else if(!(x)) assert_failed_statically(); } \
 	else rt_assert(x); }
