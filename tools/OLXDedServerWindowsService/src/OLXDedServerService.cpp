@@ -1,7 +1,6 @@
 
 #include <windows.h>
-//#include <tchar.h>
-//#include <strsafe.h>
+#include <tlhelp32.h>
 #include <string.h>
 #include <stdio.h>
 #include "OLXDedServerServiceMsgs.h"
@@ -189,16 +188,35 @@ VOID SvcInit( DWORD dwArgc, LPTSTR *lpszArgv)
         // Check whether to stop the service.
         if( WaitForSingleObject(ghSvcStopEvent, 1000) != WAIT_TIMEOUT )
         {
-			// First try to terminate OLX gracefully by sending Ctrl-C
-			// TODO: this doesn't work anyway, make some other method maybe
-			/*
-			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
-			Sleep( 20 );
-			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
-			GenerateConsoleCtrlEvent( CTRL_BREAK_EVENT, pi.dwProcessId );
-			*/
 			PostThreadMessage( pi.dwThreadId, WM_CLOSE, 0, 0 );
-			PostThreadMessage( pi.dwThreadId, WM_CLOSE, 0, 0 );
+				
+			HANDLE hThreadSnap = INVALID_HANDLE_VALUE; 
+			THREADENTRY32 te32; 
+			// Take a snapshot of all running threads  
+			hThreadSnap = CreateToolhelp32Snapshot( TH32CS_SNAPTHREAD, 0 ); 
+			if( hThreadSnap != INVALID_HANDLE_VALUE )
+			{
+				// Fill in the size of the structure before using it. 
+				te32.dwSize = sizeof(THREADENTRY32); 
+
+				// Retrieve information about the first thread,
+				// and exit if unsuccessful
+				if( Thread32First( hThreadSnap, &te32 ) ) 
+				{
+					// Now walk the thread list of the system,
+					// and display information about each thread
+					// associated with the specified process
+					do 
+					{ 
+						if( te32.th32OwnerProcessID == pi.dwProcessId )
+						{
+			  				PostThreadMessage( te32.th32ThreadID, WM_CLOSE, 0, 0 );
+						}
+					} while( Thread32Next(hThreadSnap, &te32 ) ); 
+				}
+				CloseHandle( hThreadSnap );			
+			}
+			
 			// Kill it
 			Sleep( 2000 );
 			TerminateProcess( pi.hProcess, 0 );

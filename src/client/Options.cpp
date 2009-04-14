@@ -314,8 +314,15 @@ bool GameOptions::LoadFromDisc()
 		}
 	}
 
-	notes << "Reading game options from " << GetFullFileName("cfg/options.cfg") << endl;
-	notes << "Will write game options to " << GetWriteFullFileName("cfg/options.cfg", true) << endl;
+	std::string optionsFilename = "cfg/options.cfg";
+	if(bDedicated)
+	{
+		if( IsFileAvailable("cfg/options_dedicated.cfg") )
+			optionsFilename = "cfg/options_dedicated.cfg";
+	}
+
+	notes << "Reading game options from " << GetFullFileName(optionsFilename) << endl;
+	notes << "Will write game options to " << GetWriteFullFileName(optionsFilename, true) << endl;
 	
 	// define parser handler
 	class MyIniReader : public IniReader {
@@ -340,11 +347,11 @@ bool GameOptions::LoadFromDisc()
 			return true;
 		}
 	}
-	iniReader("cfg/options.cfg", this);
+	iniReader(optionsFilename, this);
 
 	// parse the file now
 	if( ! iniReader.Parse() ) {
-		hints << "cfg/options.cfg not found, will use standards" << endl;
+		hints << optionsFilename << " not found, will use standards" << endl;
 	}
 
 
