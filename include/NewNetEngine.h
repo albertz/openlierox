@@ -219,23 +219,23 @@ void NetSyncedRandom_Restore();
 */
 
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
-#define MASK 0xffffffffUL
+#define NSRMASK 0xffffffffUL
 
 static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state )
 {
   unsigned b1, b2, b3, b4;
 
-  b1 = ((((NetSyncedRandom_state.z1 << 6UL) & MASK) ^ NetSyncedRandom_state.z1) >> 13UL);
-  NetSyncedRandom_state.z1 = ((((NetSyncedRandom_state.z1 & 4294967294UL) << 18UL) & MASK) ^ b1);
+  b1 = ((((NetSyncedRandom_state.z1 << 6UL) & NSRMASK) ^ NetSyncedRandom_state.z1) >> 13UL);
+  NetSyncedRandom_state.z1 = ((((NetSyncedRandom_state.z1 & 4294967294UL) << 18UL) & NSRMASK) ^ b1);
 
-  b2 = ((((NetSyncedRandom_state.z2 << 2UL) & MASK) ^ NetSyncedRandom_state.z2) >> 27UL);
-  NetSyncedRandom_state.z2 = ((((NetSyncedRandom_state.z2 & 4294967288UL) << 2UL) & MASK) ^ b2);
+  b2 = ((((NetSyncedRandom_state.z2 << 2UL) & NSRMASK) ^ NetSyncedRandom_state.z2) >> 27UL);
+  NetSyncedRandom_state.z2 = ((((NetSyncedRandom_state.z2 & 4294967288UL) << 2UL) & NSRMASK) ^ b2);
 
-  b3 = ((((NetSyncedRandom_state.z3 << 13UL) & MASK) ^ NetSyncedRandom_state.z3) >> 21UL);
-  NetSyncedRandom_state.z3 = ((((NetSyncedRandom_state.z3 & 4294967280UL) << 7UL) & MASK) ^ b3);
+  b3 = ((((NetSyncedRandom_state.z3 << 13UL) & NSRMASK) ^ NetSyncedRandom_state.z3) >> 21UL);
+  NetSyncedRandom_state.z3 = ((((NetSyncedRandom_state.z3 & 4294967280UL) << 7UL) & NSRMASK) ^ b3);
 
-  b4 = ((((NetSyncedRandom_state.z4 << 3UL) & MASK) ^ NetSyncedRandom_state.z4) >> 12UL);
-  NetSyncedRandom_state.z4 = ((((NetSyncedRandom_state.z4 & 4294967168UL) << 13UL) & MASK) ^ b4);
+  b4 = ((((NetSyncedRandom_state.z4 << 3UL) & NSRMASK) ^ NetSyncedRandom_state.z4) >> 12UL);
+  NetSyncedRandom_state.z4 = ((((NetSyncedRandom_state.z4 & 4294967168UL) << 13UL) & NSRMASK) ^ b4);
 
   return (NetSyncedRandom_state.z1 ^ NetSyncedRandom_state.z2 ^ NetSyncedRandom_state.z3 ^ NetSyncedRandom_state.z4);
 
@@ -250,7 +250,7 @@ static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state 
 };
 
 #undef LCG
-#undef MASK
+#undef NSRMASK
 
 } // namespace
 
