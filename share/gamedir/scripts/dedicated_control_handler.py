@@ -310,7 +310,7 @@ def parseWormDied(sig):
 		return
 
 	try:
-		f = open(io.getFullFileName("pwn0meter.txt"),"a")
+		f = open(io.getWriteFullFileName("pwn0meter.txt"),"a")
 		if not killerID in io.getComputerWormList():
 			f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()

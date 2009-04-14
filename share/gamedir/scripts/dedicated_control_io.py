@@ -202,6 +202,9 @@ def getGameType():
 def getFullFileName(fn):
 	return SendCommand( "getfullfilename \"%s\"" % fn )[0]
 
+def getWriteFullFileName(fn):
+	return SendCommand( "getwritefullfilename \"%s\"" % fn )[0]
+
 
 # Use this to write to stdout (standard output)
 def msg(string):

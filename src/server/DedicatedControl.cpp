@@ -935,6 +935,14 @@ struct DedIntern {
 		
 		caller->pushReturnArg(GetAbsolutePath(GetFullFileName(fn, NULL)));
 	}
+
+	void Cmd_GetWriteFullFileName(DedInterface* caller, std::string param) {
+		std::string fn = param;
+		TrimSpaces(fn);
+		StripQuotes(fn);
+		
+		caller->pushReturnArg(GetAbsolutePath(GetWriteFullFileName(fn)));
+	}
 	
 	void Cmd_StartLobby(DedInterface* caller, std::string param) {
 		if(state != S_INACTIVE) {
@@ -1279,6 +1287,8 @@ struct DedIntern {
 			Cmd_GetWormSkin(command.sender, params);
 		else if(cmd == "getfullfilename")
 			Cmd_GetFullFileName(command.sender, params);
+		else if(cmd == "getwritefullfilename")
+			Cmd_GetWriteFullFileName(command.sender, params);
 
 		else if(cmd == "connect")
 			Cmd_Connect(command.sender, params);
