@@ -12,40 +12,45 @@ ActionNum = 4
 [Hit]
 Type = GoThrough
 
-[WaitTime]
-Type = Timer
-Delay = 0.1
-Repeat = false
-
 [Action1]
-Event = ProjHit1
+Event = WaitTimeAlifeCheck
 Type = Disappear2
 
-[ProjHit1]
-AndEvent = WaitTime
-Type = ProjHit
-Target = p_gol_framestep_alife.txt
-
-[Action2]
-Event = ProjHit2
-Type = Disappear2
-
-[ProjHit2]
-AndEvent = WaitTime
-Type = ProjHit
-Target = p_gol_framestep.txt
-
-[Action3]
-Event = RightCellsAmount
-Projectiles = true
-
-[WaitTime2]
+[WaitTimeAlifeCheck]
+AndEvent = AlifeCheck
 Type = Timer
 Delay = 0.05
 Repeat = false
 
+[AlifeCheck]
+Type = ProjHit
+Target = p_gol_framestep_alife.txt
+
+[Action2]
+Event = WaitTimeOthersCheck
+Type = Disappear2
+
+[WaitTimeOthersCheck]
+AndEvent = OthersCheck
+Type = Timer
+Delay = 0.05
+Repeat = false
+
+[OthersCheck]
+Type = ProjHit
+Target = p_gol_framestep.txt
+
+[Action3]
+Event = TimeRightCellsAmount
+Projectiles = true
+
+[TimeRightCellsAmount]
+AndEvent = RightCellsAmount
+Type = Timer
+Delay = 0.1
+Repeat = false
+
 [RightCellsAmount]
-AndEvent = WaitTime2
 Type = ProjHit
 Target = p_gol_framestep_alife.txt
 Width = 32
@@ -57,5 +62,10 @@ MaxHitCount = 3
 Projectile = p_gol_cell.txt
 
 [Action4]
-Event = WaitTime2
+Event = EndWaitTime
 Type = Disappear2
+
+[EndWaitTime]
+Type = Timer
+Delay = 0.1
+Repeat = false

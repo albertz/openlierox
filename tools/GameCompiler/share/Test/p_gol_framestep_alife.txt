@@ -15,7 +15,6 @@ Type = GoThrough
 [Action1]
 Event = Time_GoodCellsAmount
 Projectiles = true
-Type = Disappear2
 
 [Time_GoodCellsAmount]
 Type = Timer
