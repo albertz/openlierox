@@ -1007,6 +1007,12 @@ bool Menu_GameSettings_Frame()
 							RegisteredVar* var = CScriptableVars::GetVar( features->getMouseOverSIndex() );
 							if(var) desc = var->longDesc;
 						}
+						std::vector<std::string> lines = splitstring(desc, (size_t)-1, 450, tLX->cFont);
+						desc = "";
+						for(std::vector<std::string>::iterator i = lines.begin(); i != lines.end(); ++i) {
+							if(i != lines.begin()) desc += "\n";
+							desc += *i;
+						}
 						featuresLabel->setText( desc );
 					}
 				}

@@ -337,7 +337,6 @@ static void split_by_space(const std::string& str, std::string& before_space, st
 //////////////////////
 // Splits the string to pieces that none of the pieces can be longer than maxlen and wider than maxwidth
 // TODO: maxlen is the raw len of the next, not the unicode len
-// TODO: perhaps it is not the best way to return a std::vector; but I still have to think about it how to do better (perhaps a functional solution...)
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, CFont& font)
 {
 	std::vector<std::string> result;
