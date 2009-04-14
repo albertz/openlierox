@@ -654,7 +654,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	fread_compat(proj->Timer.Time,	sizeof(float),1,fp);
 	EndianSwap(proj->Timer.Time);
 	fread_compat(proj->Timer.TimeVar,	sizeof(float),1,fp);
-	EndianSwap(proj->Timer.timer.TimeVar);
+	EndianSwap(proj->Timer.TimeVar);
 	fread_compat(proj->Trail.Type,			sizeof(int),  1,fp);
 	EndianSwap(proj->Trail.Type);
 	fread_endian<int>(fp, proj->UseCustomGravity);
