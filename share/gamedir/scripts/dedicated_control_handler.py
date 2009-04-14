@@ -226,7 +226,7 @@ def parseNewWorm(wormID, name):
 		if not name in ranking.auth:
 			ranking.auth[name] = getWormSkin(wormID)
 			try:
-				f = open("pwn0meter_auth.txt","a")
+				f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
 				f.write( name + "\t" + str(ranking.auth[name][0]) + " " + ranking.auth[name][1] + "\n" )
 				f.close()
 			except IOError:
@@ -310,8 +310,9 @@ def parseWormDied(sig):
 		return
 
 	try:
-		f = open("pwn0meter.txt","a")
-		f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
+		f = open(io.getFullFileName("pwn0meter.txt"),"a")
+		if not killerID in io.getComputerWormList():
+			f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
 		io.msg("ERROR: Unable to open pwn0meter.txt")

@@ -4,7 +4,7 @@ import dedicated_control_io as io
 def ParseRank(useRatios = True):
         #io.messageLog("ParseRank: Opening pwn0meter.txt", io.LOG_INFO)
         try:
-            f = open("pwn0meter.txt","r")
+            f = open(io.getFullFileName("pwn0meter.txt"),"r")
         except IOError:
             return {}
         l = f.readline()
@@ -117,7 +117,7 @@ def refreshRank(useRatios = True):
 def ParseAuthInfo():
 
         try:
-            f = open("pwn0meter_auth.txt","r")
+            f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
         except IOError:
             return {}
 
