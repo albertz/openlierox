@@ -39,7 +39,7 @@ float Proj_SpawnParent::fixedRandomFloat() const {
 	switch(type) {
 		case PSPT_NOTHING: return -1;
 		case PSPT_SHOT: return GetFixedRandomNum(shot->nRandom);
-		case PSPT_PROJ: return proj->getRandomFloat(); 
+		case PSPT_PROJ: return proj->getRandomFloat();
 	}
 	return -1;	
 }
@@ -286,6 +286,33 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			info->spawnprojectiles = true;
 	}
 	
+	if(UseOverwriteOwnSpeed)
+		info->OverwriteOwnSpeed = &OverwriteOwnSpeed;
+	
+	if(ChangeOwnSpeed != MatrixD2<float>(1.0f))
+		info->ChangeOwnSpeed = &ChangeOwnSpeed;
+	
+	if(UseOverwriteTargetSpeed) {
+		if(eventInfo.colType && eventInfo.colType->withWorm) {
+			cClient->getWorm(eventInfo.colType->wormId)->velocity() = OverwriteTargetSpeed;
+		}
+		
+		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+			(*p)->setNewVel(OverwriteTargetSpeed);
+		}
+	}
+	
+	if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) {
+		if(eventInfo.colType && eventInfo.colType->withWorm) {
+			CVec& v = cClient->getWorm(eventInfo.colType->wormId)->velocity();
+			v = ChangeTargetSpeed * v;
+		}
+		
+		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+			(*p)->setNewVel( ChangeTargetSpeed * (*p)->GetVelocity() );
+		}
+	}
+	
 	if(additionalAction) {
 		Proj_EventOccurInfo ev(eventInfo);
 		ev.timerHit = false; // remove LX56 timer flag
@@ -339,7 +366,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 }
 
 
-static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, const CProjectile* p) {
+static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, CProjectile* p) {
 	if(p == prj) return true;
 	if(info.Target && p->getProjInfo() != info.Target) return true;
 	if(info.Width >= 0 && info.Height >= 0) { if(!prj->CollisionWith(p, info.Width/2, info.Height/2)) return true; }
@@ -453,6 +480,12 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		deleteAfter = true;
 	}
 
+	if(OverwriteOwnSpeed)
+		prj->setNewVel(*OverwriteOwnSpeed);
+	
+	if(ChangeOwnSpeed)
+		prj->setNewVel( *ChangeOwnSpeed * prj->GetVelocity() );
+	
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
 		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );

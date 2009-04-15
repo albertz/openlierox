@@ -146,7 +146,7 @@ struct Proj_DoActionInfo;
 
 struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
-	std::set<const CProjectile*> projCols;
+	std::set<CProjectile*> projCols;
 	bool timerHit;
 	TimeDiff serverTime; 
 	TimeDiff dt;
@@ -161,7 +161,9 @@ struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	GoThroughSpeed(1.0f), UseOverwriteOwnSpeed(false), UseOverwriteTargetSpeed(false),
+	GoThroughSpeed(1.0f),
+	UseOverwriteOwnSpeed(false), ChangeOwnSpeed(1.0f),
+	UseOverwriteTargetSpeed(false), ChangeTargetSpeed(1.0f),
 	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
@@ -189,10 +191,10 @@ struct Proj_Action {
 	float	GoThroughSpeed;
 	bool	UseOverwriteOwnSpeed;
 	VectorD2<float> OverwriteOwnSpeed;
-	VectorD2<float> ChangeOwnSpeed;
+	MatrixD2<float> ChangeOwnSpeed;
 	bool	UseOverwriteTargetSpeed;
 	VectorD2<float> OverwriteTargetSpeed;
-	VectorD2<float> ChangeTargetSpeed;
+	MatrixD2<float> ChangeTargetSpeed;
 	Proj_Action* additionalAction;
 	
 	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
@@ -333,6 +335,7 @@ struct Proj_DoActionInfo {
 	explode(false), damage(-1), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
+	OverwriteOwnSpeed(NULL), ChangeOwnSpeed(NULL),
 	playSound(false) {}
 	
 	bool	explode;
@@ -346,6 +349,9 @@ struct Proj_DoActionInfo {
 	
 	bool	spawnprojectiles;
 	std::list<const Proj_SpawnInfo*> otherSpawns;
+	
+	const VectorD2<float>* OverwriteOwnSpeed;
+	const MatrixD2<float>* ChangeOwnSpeed;
 
 	bool	playSound;
 	

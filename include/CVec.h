@@ -142,6 +142,9 @@ struct MatrixD2 {
 	MatrixD2(_T x1, _T y1, _T x2, _T y2) : v1(x1,y1), v2(x2,y2) {}
 	static MatrixD2 Rotation(_T x, _T y) { return MatrixD2(x,y,-y,x); }
 	
+	template<typename _T2> bool operator==(const MatrixD2<_T2>& m) const { return v1 == m.v1 && v2 == m.v2; }
+	template<typename _T2> bool operator!=(const MatrixD2<_T2>& m) const { return !(*this == m); }
+
 	VectorD2<_T> operator*(const VectorD2<_T>& v) const {
 		return VectorD2<_T>( v1.x * v.x + v2.x * v.y, v1.y * v.x + v2.y * v.y );
 	}

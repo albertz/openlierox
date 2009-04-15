@@ -1937,9 +1937,9 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadKeyword(file, section, "UseOverwriteOwnSpeed", &UseOverwriteOwnSpeed, UseOverwriteOwnSpeed);
 	ReadKeyword(file, section, "UseOverwriteTargetSpeed", &UseOverwriteTargetSpeed, UseOverwriteTargetSpeed);
 	ReadVectorD2(file, section, "OverwriteOwnSpeed", OverwriteOwnSpeed, OverwriteOwnSpeed);
-	ReadVectorD2(file, section, "ChangeOwnSpeed", ChangeOwnSpeed, ChangeOwnSpeed);
+	ReadMatrixD2(file, section, "ChangeOwnSpeed", ChangeOwnSpeed, ChangeOwnSpeed);
 	ReadVectorD2(file, section, "OverwriteTargetSpeed", OverwriteTargetSpeed, OverwriteTargetSpeed);
-	ReadVectorD2(file, section, "ChangeTargetSpeed", ChangeTargetSpeed, ChangeTargetSpeed);
+	ReadMatrixD2(file, section, "ChangeTargetSpeed", ChangeTargetSpeed, ChangeTargetSpeed);
 	
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
@@ -1988,9 +1988,9 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<char>(fp, UseOverwriteOwnSpeed);
 	fread_endian<char>(fp, UseOverwriteTargetSpeed);
 	fread_endian_V<float>(fp, OverwriteOwnSpeed);
-	fread_endian_V<float>(fp, ChangeOwnSpeed);
+	fread_endian_M<float>(fp, ChangeOwnSpeed);
 	fread_endian_V<float>(fp, OverwriteTargetSpeed);
-	fread_endian_V<float>(fp, ChangeTargetSpeed);
+	fread_endian_M<float>(fp, ChangeTargetSpeed);
 	
 	bool haveAddAction = false;
 	fread_endian<char>(fp, haveAddAction);
@@ -2019,9 +2019,9 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<char>(fp, UseOverwriteOwnSpeed);
 	fwrite_endian<char>(fp, UseOverwriteTargetSpeed);
 	fwrite_endian_V<float>(fp, OverwriteOwnSpeed);
-	fwrite_endian_V<float>(fp, ChangeOwnSpeed);
+	fwrite_endian_M<float>(fp, ChangeOwnSpeed);
 	fwrite_endian_V<float>(fp, OverwriteTargetSpeed);
-	fwrite_endian_V<float>(fp, ChangeTargetSpeed);
+	fwrite_endian_M<float>(fp, ChangeTargetSpeed);
 	
 	if(!additionalAction)
 		fwrite_endian<char>(fp, 0);

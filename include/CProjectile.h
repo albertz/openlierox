@@ -196,7 +196,7 @@ public:
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
-	void	updateCollMapInfo(const VectorD2<int>* oldPos = NULL, const VectorD2<int>* oldRadius = NULL) const;
+	void	updateCollMapInfo(const VectorD2<int>* oldPos = NULL, const VectorD2<int>* oldRadius = NULL);
 	
 	// HINT: saves the current time of the simulation
 	// we need to save this also per projectile as they can have different

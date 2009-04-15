@@ -235,7 +235,7 @@ public:
 		
 		long index(const CMap* m) const;
 	};
-	typedef std::set<const CProjectile*> ProjectileSet;
+	typedef std::set<CProjectile*> ProjectileSet;
 	typedef SafeVector<ProjectileSet> ProjectilePosMap;
 	ProjectilePosMap projPosMap;
 	
