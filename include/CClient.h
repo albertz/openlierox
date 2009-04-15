@@ -19,6 +19,8 @@
 
 #include <string>
 #include <vector>
+#include <map>
+#include <set>
 #include "FastVector.h"
 #include "CWeather.h"
 #include "CChatBox.h"
@@ -217,9 +219,25 @@ private:
 	// Projectiles
 	typedef FastVector<CProjectile,MAX_PROJECTILES> Projectiles;
 	Projectiles	cProjectiles;
-
 	Projectiles	NewNet_SavedProjectiles;
-
+	
+public:
+	struct MapPosIndex {
+		static const int GRIDW = 20, GRIDH = 20;
+		int x, y;
+		MapPosIndex(int _x = 0, int _y = 0) : x(_x), y(_y) {}
+		MapPosIndex(const VectorD2<int>& v) { x = v.x / GRIDW; y = v.y / GRIDH; }
+		MapPosIndex bottomNeighbor() const { MapPosIndex ret(*this); ret.y++; return ret; }
+		MapPosIndex rightNeighbor() const { MapPosIndex ret(*this); ret.x++; return ret; }
+		bool operator==(const MapPosIndex& i) const { return x == i.x && y == i.y; }
+		bool operator!=(const MapPosIndex& i) const { return !(*this == i); }
+		bool operator<(const MapPosIndex& i) const { return y < i.y || (y == i.y && x < i.x); }
+	};
+	typedef std::set<const CProjectile*> ProjectileSet;
+	typedef std::map<MapPosIndex, ProjectileSet> ProjectilePosMap;
+	ProjectilePosMap projPosMap;
+	
+private:	
 	// Frames
 	frame_t		tFrames[NUM_FRAMES];
 

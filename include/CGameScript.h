@@ -94,6 +94,7 @@ public:
 	// Constructor
 	CGameScript() {
 		loaded = false;
+		needCollisionInfo = false;
 		NumWeapons = 0;
 		Weapons = NULL;
         pModLog = NULL;
@@ -127,9 +128,11 @@ private:
 
 	typedef std::map<int, proj_t*> Projectiles;
 	typedef std::map<std::string, int, stringcaseless> ProjFileMap;
-	ProjFileMap projFileIndexes;
+	ProjFileMap projFileIndexes; // only for compiling
+	std::set<proj_t*> savedProjs; // only for saving
+	
 	Projectiles projectiles;
-	std::set<proj_t*> savedProjs;
+	bool		needCollisionInfo;
 	
 	// Ninja Rope
 	int			RopeLength;
@@ -205,6 +208,8 @@ public:
 	int		getRestLength()				{ return RestLength; }
 	float	getStrength()				{ return Strength; }
 
+	bool	getNeedCollisionInfo()		{ return needCollisionInfo; }
+	
 	const gs_worm_t	*getWorm()	const	{ return &Worm; }
 
 	int		getProjectileCount() const	{ return projectiles.size(); }

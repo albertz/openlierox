@@ -76,7 +76,6 @@ public:
 		fLastTrailProj = AbsTime(0);
 		iRandom = 0;
         fRotation = 0;
-		rx = ry = 0;
 	}
 
 
@@ -111,7 +110,7 @@ private:
 	CVec		vPosition;
 	CVec		vVelocity;
 	float		fRotation;
-	int			rx, ry;
+	VectorD2<int> radius;
 
 	// Network
 	int			iRandom;
@@ -174,7 +173,7 @@ public:
 	float&	life()					{ return fLife; }
 
 	float&	extra()					{ return fExtra; }
-	proj_t* getProjInfo()			{ return tProjInfo; }
+	proj_t* getProjInfo() const 	{ return tProjInfo; }
 	float&	rotation()				{ return fRotation; }
 	void	setFrameDelta(bool d)	{ bFrameDelta = d; }
 	bool	getFrameDelta()			{ return bFrameDelta; }
@@ -184,6 +183,7 @@ public:
 
 	CVec	GetPosition()		{ return vPosition; }
 	CVec	GetVelocity()		{ return vVelocity; }
+	VectorD2<int> getRadius()	{ return radius; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
 	int		GetOwner() const			{ return iOwner; }
 	bool	hasOwner() const	{ return iOwner >= 0 && iOwner < MAX_WORMS; }
@@ -196,6 +196,8 @@ public:
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
+	void	updateCollMapInfo(const VectorD2<int>* oldPos = NULL, const VectorD2<int>* oldRadius = NULL) const;
+	
 	// HINT: saves the current time of the simulation
 	// we need to save this also per projectile as they can have different
 	// simulation times (different times of spawning or remote projectiles)

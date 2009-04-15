@@ -1082,7 +1082,8 @@ size_t CGameScript::GetMemorySize()
 void CGameScript::Shutdown()
 {
 	loaded = false;
-
+	needCollisionInfo = false;
+	
     // Close the log file
     if(pModLog) {
         fclose(pModLog);
@@ -2105,6 +2106,8 @@ bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	gs->needCollisionInfo = true;
+	
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
 	ReadInteger(file, section, "MaxHitCount", &MaxHitCount, MaxHitCount);
 	
@@ -2130,7 +2133,8 @@ bool Proj_ProjHitEvent::read(CGameScript* gs, FILE* fp) {
 		errors << "Proj_ProjHitEvent::read called for old GS version" << endl;
 		return false;
 	}
-		
+	
+	gs->needCollisionInfo = true;
 	fread_endian<int>(fp, MinHitCount);
 	fread_endian<int>(fp, MaxHitCount);
 	fread_endian<int>(fp, Width);

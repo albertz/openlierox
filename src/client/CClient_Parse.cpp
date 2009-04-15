@@ -876,6 +876,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     // Read the weapon restrictions
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
     client->cWeaponRestrictions.readList(bs);
+	
+	client->projPosMap.clear();
+	client->cProjectiles.clear();
 
 	client->tGameInfo.features[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;

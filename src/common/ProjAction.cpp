@@ -338,26 +338,37 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 	return false;
 }
 
-bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {	
-	/*
-	 * NOTE: We just iterate through all projectiles at the moment. This is not perfect
-	 * but probably we don't have much projectiles where we have to do this check.
-	 * As it is a fixed array, I am even note sure if more intelligent (but more complex)
-	 * databases for projectiles would really give an improvement.
-	 */
-	for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-		CProjectile* p = i->get();
-		if(p == prj) continue;
-		if(Target && p->getProjInfo() != Target) continue;
-		if(Width >= 0 && Height >= 0) { if(!prj->CollisionWith(p, Width/2, Height/2)) continue; }
-		else { if(!prj->CollisionWith(p)) continue; }
 
-		ev.projCols.push_back(p);
+static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, const CProjectile* p) {
+	if(p == prj) return true;
+	if(info.Target && p->getProjInfo() != info.Target) return true;
+	if(info.Width >= 0 && info.Height >= 0) { if(!prj->CollisionWith(p, info.Width/2, info.Height/2)) return true; }
+	else { if(!prj->CollisionWith(p)) return true; }
 
-		if(MaxHitCount < 0 && ev.projCols.size() >= (size_t)MinHitCount) break; // no need to check further
-		if(ev.projCols.size() > (size_t)MaxHitCount) break; // no need to check further
-	}
+	ev.projCols.insert(p);
+
+	if(info.MaxHitCount < 0 && ev.projCols.size() >= (size_t)info.MinHitCount) return false; // no need to check further
+	if(ev.projCols.size() > (size_t)info.MaxHitCount) return false; // no need to check further
 	
+	return true;
+}
+
+template<bool TOP, bool LEFT>
+static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) {
+	return CClient::MapPosIndex( p + VectorD2<int>(LEFT ? -r.x : r.x, TOP ? -r.y : r.y) );
+}
+
+bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {
+	const VectorD2<int> vPosition = prj->GetPosition();
+	const VectorD2<int> radius = prj->getRadius();
+	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
+		for(int y = MPI<true,true>(vPosition,radius).y; y <= MPI<false,true>(vPosition,radius).y; ++y) {
+			CClient::ProjectileSet& projs = cClient->projPosMap[CClient::MapPosIndex(x,y)];
+			for(CClient::ProjectileSet::const_iterator p = projs.begin(); p != projs.end(); ++p)
+				if(!checkProjHit(*this, ev, prj, *p)) goto finalChecks;
+		}
+	
+finalChecks:
 	if(ev.projCols.size() >= (size_t)MinHitCount && (MaxHitCount < 0 || ev.projCols.size() <= (size_t)MaxHitCount))
 		return true;
 	return false;
@@ -450,17 +461,17 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	if(spawnprojectiles) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime);		
+		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime);
 	}
 
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, *i, currentTime);		
+		projectile_doProjSpawn(prj, *i, currentTime);
 	}
 	
 	if(playSound) {
-		PlaySoundSample(pi->smpSample);		
+		PlaySoundSample(pi->smpSample);
 	}
 	
 	// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed

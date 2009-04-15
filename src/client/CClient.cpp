@@ -79,6 +79,7 @@ void CClient::Clear()
 	}
 	cRemoteWorms = NULL;
 	cProjectiles.clear();
+	projPosMap.clear();
 	cMap = NULL;
 	bMapGrabbed = false;
 	if( cNetChan )
@@ -208,6 +209,7 @@ void CClient::MinorClear()
 	}
 
 	cProjectiles.clear();
+	projPosMap.clear();
 
 	for(i=0; i<MAX_BONUSES; i++)
 		cBonuses[i].setUsed(false);
@@ -2211,6 +2213,7 @@ void CClient::Shutdown() {
 
 	// Projectiles
 	cProjectiles.clear();
+	projPosMap.clear();
 
 	// Map
 	if(tLX->iGameType == GME_JOIN) {

@@ -15,6 +15,7 @@
 #define __PROJACTION_H__
 
 #include <string>
+#include <set>
 #include <list>
 #include <vector>
 #include <limits.h>
@@ -145,7 +146,7 @@ struct Proj_DoActionInfo;
 
 struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
-	std::list<const CProjectile*> projCols;
+	std::set<const CProjectile*> projCols;
 	bool timerHit;
 	TimeDiff serverTime; 
 	TimeDiff dt;

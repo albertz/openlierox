@@ -54,8 +54,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	vPosition = _pos;
 	vVelocity = _vel;
 	fRotation = (float)_rot;
-	rx = tProjInfo->Width / 2;
-	ry = tProjInfo->Height / 2;
+	radius.x = tProjInfo->Width / 2;
+	radius.y = tProjInfo->Height / 2;
 	
 	fLastTrailProj = AbsTime();
 	iRandom = _random;
@@ -104,6 +104,8 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now? 
 	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
 		&& (tProjInfo->Hit.Type != PJ_BOUNCE || (int)tProjInfo->Hit.BounceCoeff == 1);  // Changes speed on bounce
+
+	updateCollMapInfo();
 }
 
 
@@ -196,16 +198,16 @@ bool CProjectile::MapBoundsCollision(int px, int py)
 	CMap* map = cClient->getMap();
 	CollisionSide = 0;
 
-	if (px - rx < 0)
+	if (px - radius.x < 0)
 		CollisionSide |= COL_LEFT;
 
-	if (px + rx >= (int)map->GetWidth())
+	if (px + radius.x >= (int)map->GetWidth())
 		CollisionSide |= COL_RIGHT;
 
-	if (py - ry < 0)
+	if (py - radius.y < 0)
 		CollisionSide |= COL_TOP;
 
-	if (py + ry >= (int)map->GetHeight())
+	if (py + radius.y >= (int)map->GetHeight())
 		CollisionSide |= COL_BOTTOM;
 
 	return CollisionSide != 0;
@@ -221,23 +223,23 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 	ColInfo res = { 0, 0, 0, 0, false, true };
 
 	// if we are small, we can make a fast check
-	if(rx*2 < map->getGridWidth() && ry*2 < map->getGridHeight()) {
+	if(radius.x*2 < map->getGridWidth() && radius.y*2 < map->getGridHeight()) {
 		// If the current cells are empty, don't check for the collision
-		const int gf1 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
-		const int gf2 = (py - ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
-		const int gf3 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px - rx) / map->getGridWidth();
-		const int gf4 = (py + ry) / map->getGridHeight() * map->getGridCols() + (px + rx) / map->getGridWidth();
+		const int gf1 = (py - radius.y) / map->getGridHeight() * map->getGridCols() + (px - radius.x) / map->getGridWidth();
+		const int gf2 = (py - radius.y) / map->getGridHeight() * map->getGridCols() + (px + radius.x) / map->getGridWidth();
+		const int gf3 = (py + radius.y) / map->getGridHeight() * map->getGridCols() + (px - radius.x) / map->getGridWidth();
+		const int gf4 = (py + radius.y) / map->getGridHeight() * map->getGridCols() + (px + radius.x) / map->getGridWidth();
 		const uchar *pf = map->getAbsoluteGridFlags();
 		if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
 			return res;
 	}
 
 	// Check for the collision
-	for(int y = py - ry; y <= py + ry; ++y) {
+	for(int y = py - radius.y; y <= py + radius.y; ++y) {
 		// this is safe because in SimulateFrame, we do map bound checks
-		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - rx;
+		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - radius.x;
 
-		for(int x = px - rx; x <= px + rx; ++x) {
+		for(int x = px - radius.x; x <= px + radius.x; ++x) {
 
 			// Solid pixel
 			if(*pf & (PX_DIRT|PX_ROCK)) {
@@ -592,11 +594,11 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 		}
 		
 		case PRJ_CIRCLE:
-			DrawCircleFilled(bmpDest, x, y, rx*2, ry*2, iColour);
+			DrawCircleFilled(bmpDest, x, y, radius.x*2, radius.y*2, iColour);
 			return;
 			
 		case PRJ_RECT:
-			DrawRectFill(bmpDest, x - rx*2, y - ry*2, x + rx*2, y + rx*2, iColour);
+			DrawRectFill(bmpDest, x - radius.x*2, y - radius.y*2, x + radius.x*2, y + radius.x*2, iColour);
 			return;
 			
 		case PRJ_POLYGON:
@@ -844,13 +846,54 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 }
 
 bool CProjectile::CollisionWith(const CProjectile* prj) const {
-	return CollisionWith(prj, rx, ry);
+	return CollisionWith(prj, radius.x, radius.y);
 }
 
 bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
 	// TODO: not 100% correct
-	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->rx;
-	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->ry;
+	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->radius.x;
+	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->radius.y;
 	return overlapX && overlapY;
 }
 
+
+template<bool TOP, bool LEFT>
+static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) {
+	return CClient::MapPosIndex( p + VectorD2<int>(LEFT ? -r.x : r.x, TOP ? -r.y : r.y) );
+}
+
+template<bool INSERT>
+static void updateMap(const CProjectile* prj, const VectorD2<int>& p, const VectorD2<int>& r) {
+	for(int x = MPI<true,true>(p,r).x; x <= MPI<true,false>(p,r).x; ++x)
+		for(int y = MPI<true,true>(p,r).y; y <= MPI<false,true>(p,r).y; ++y)
+			if(INSERT)
+				cClient->projPosMap[CClient::MapPosIndex(x,y)].insert(prj);
+			else
+				cClient->projPosMap[CClient::MapPosIndex(x,y)].erase(prj);
+}
+
+void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<int>* oldRadius) const {
+	if(!cClient->getGameScript()->getNeedCollisionInfo()) return;
+	
+	if(!isUsed()) { // not used anymore
+		if(oldPos && oldRadius)
+			updateMap<false>(this, *oldPos, *oldRadius);
+		return;
+	}
+	
+	if(oldPos && oldRadius) {
+		if(
+		   (MPI<true,true>(*oldPos,*oldRadius) == MPI<true,true>(vPosition,radius)) &&
+		   (MPI<true,false>(*oldPos,*oldRadius) == MPI<true,false>(vPosition,radius)) &&
+		   (MPI<false,true>(*oldPos,*oldRadius) == MPI<false,true>(vPosition,radius)) &&
+		   (MPI<false,false>(*oldPos,*oldRadius) == MPI<false,false>(vPosition,radius))) {
+			return; // nothing has changed
+		}
+		
+		// delete from all
+		updateMap<false>(this, *oldPos, *oldRadius);
+	}
+	
+	// add to all
+	updateMap<true>(this, vPosition, radius);
+}

@@ -582,66 +582,72 @@ public:
 		const TimeDiff orig_dt = TimeDiff(0.01f);
 		const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
-	simulateProjectileStart:
-		if(prj->fLastSimulationTime + orig_dt > currentTime) return;
+		VectorD2<int> oldPos(prj->GetPosition());
+		VectorD2<int> oldRadius(prj->getRadius());
+	
+simulateProjectileStart:
+		if(prj->fLastSimulationTime + orig_dt > currentTime) goto finalMapPosIndexUpdate;
 		prj->fLastSimulationTime += orig_dt;
-
-		Proj_DoActionInfo doActionInfo;
-		const proj_t *pi = prj->GetProjInfo();
-		TimeDiff serverTime = cClient->serverTime();
 		{
-			TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
-			if(timeDiff >= serverTime)
-				serverTime = TimeDiff(0); // strange case
-			else
-				serverTime -= timeDiff;
-		}
-		
-		// Check if the timer is up
-		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
-
-		// Simulate the projectile
-		ProjCollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
-
-		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
-		
-		/*
-		===================
-		Terrain Collision
-		===================
-		*/
-		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {			
-			pi->Hit.applyTo(eventInfo, prj, &doActionInfo);
-		}
-
-		/*
-		===================
-		Worm Collision
-		===================
-		*/
-		if( result.withWorm && !doActionInfo.explode) {
-			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
-			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
-			if( !preventSelfShooting || NewNet::Active() ) {
-				pi->PlyHit.applyTo(eventInfo, prj, &doActionInfo);
+			Proj_DoActionInfo doActionInfo;
+			const proj_t *pi = prj->GetProjInfo();
+			TimeDiff serverTime = cClient->serverTime();
+			{
+				TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
+				if(timeDiff >= serverTime)
+					serverTime = TimeDiff(0); // strange case
+				else
+					serverTime -= timeDiff;
 			}
+			
+			// Check if the timer is up
+			pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
+	
+			// Simulate the projectile
+			ProjCollisionType result = simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
+	
+			Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
+			
+			/*
+			===================
+			Terrain Collision
+			===================
+			*/
+			if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {
+				pi->Hit.applyTo(eventInfo, prj, &doActionInfo);
+			}
+	
+			/*
+			===================
+			Worm Collision
+			===================
+			*/
+			if( result.withWorm && !doActionInfo.explode) {
+				bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
+				preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
+				if( !preventSelfShooting || NewNet::Active() ) {
+					pi->PlyHit.applyTo(eventInfo, prj, &doActionInfo);
+				}
+			}
+	
+			if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
+			
+			for(size_t i = 0; i < pi->actions.size(); ++i) {
+				pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
+			}
+					
+			if(!doActionInfo.hasAnyEffect()) {
+				//notes << "no eff" << endl;
+				pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
+			}
+			
+			doActionInfo.execute(prj, currentTime);
+			if(doActionInfo.deleteAfter) goto finalMapPosIndexUpdate;
 		}
-
-		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
-		
-		for(size_t i = 0; i < pi->actions.size(); ++i) {
-			pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
-		}
-				
-		if(!doActionInfo.hasAnyEffect()) {
-			//notes << "no eff" << endl;
-			pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
-		}
-		
-		doActionInfo.execute(prj, currentTime);
-		if(doActionInfo.deleteAfter) return;
-		
 		goto simulateProjectileStart;
+		
+finalMapPosIndexUpdate:
+		prj->updateCollMapInfo(&oldPos, &oldRadius);
 	}
 
 	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime) {
