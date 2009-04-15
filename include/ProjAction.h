@@ -190,6 +190,8 @@ struct Proj_Action {
 	// new since Beta9:
 	
 	float	GoThroughSpeed;
+	VectorD2<int>	ChangeRadius;
+	
 	bool	UseOverwriteOwnSpeed;
 	VectorD2<float> OverwriteOwnSpeed;
 	MatrixD2<float> ChangeOwnSpeed;
@@ -394,6 +396,8 @@ struct Proj_DoActionInfo {
 	const VectorD2<float>* OverwriteOwnSpeed;
 	const MatrixD2<float>* ChangeOwnSpeed;
 
+	VectorD2<int>	ChangeRadius;
+	
 	bool	playSound;
 	
 	bool hasAnyEffect() const; // NOTE: sound doesn't count

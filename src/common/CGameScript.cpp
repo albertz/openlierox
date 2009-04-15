@@ -1935,7 +1935,8 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadInteger(file,section,"BounceExplode",&BounceExplode,BounceExplode);
 
 	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
-
+	ReadVectorD2(file, section, "ChangeRadius", ChangeRadius, ChangeRadius);
+	
 	if(ReadVectorD2(file, section, "OverwriteOwnSpeed", OverwriteOwnSpeed, OverwriteOwnSpeed))
 		UseOverwriteOwnSpeed = true;
 	ReadMatrixD2(file, section, "ChangeOwnSpeed", ChangeOwnSpeed, ChangeOwnSpeed);
@@ -1987,6 +1988,7 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, BounceCoeff);
 	fread_endian<int>(fp, BounceExplode);
 	fread_endian<float>(fp, GoThroughSpeed);
+	fread_endian_V<int>(fp, ChangeRadius);
 	fread_endian<char>(fp, UseOverwriteOwnSpeed);
 	fread_endian<char>(fp, UseOverwriteTargetSpeed);
 	fread_endian_V<float>(fp, OverwriteOwnSpeed);
@@ -2018,6 +2020,7 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<float>(fp, BounceCoeff);
 	fwrite_endian<int>(fp, BounceExplode);
 	fwrite_endian<float>(fp, GoThroughSpeed);
+	fwrite_endian_V<int>(fp, ChangeRadius);
 	fwrite_endian<char>(fp, UseOverwriteOwnSpeed);
 	fwrite_endian<char>(fp, UseOverwriteTargetSpeed);
 	fwrite_endian_V<float>(fp, OverwriteOwnSpeed);
