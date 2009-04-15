@@ -345,6 +345,7 @@ class server_t { public:
 		SetNetAddrValid(sAddress, false);
 		bAllowConnectDuringGame = false;
 		bBehindNat = false;
+		UdpMasterserverIndex = 0;
 	}
 
 	server_t(const server_t& s)  { operator=(s); }
@@ -374,6 +375,7 @@ class server_t { public:
 			bAllowConnectDuringGame = oth.bAllowConnectDuringGame;
 			tVersion = oth.tVersion;
 			bBehindNat = oth.bBehindNat;
+			UdpMasterserverIndex = oth.UdpMasterserverIndex;
 		}
 		return *this;
 	}
@@ -405,6 +407,7 @@ class server_t { public:
 	Version tVersion;
 
 	bool	bBehindNat;	// Accessible only from UDP masterserver
+	int		UdpMasterserverIndex; // Udp masterserver index
 };
 
 
@@ -471,7 +474,7 @@ bool		Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer);
 void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
 void		Menu_SvrList_QueryServer(server_t *svr);
 void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
-void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs);
+void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
 void		Menu_SvrList_RefreshList();
 void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
 void		Menu_SvrList_UpdateList();
@@ -481,8 +484,8 @@ void        Menu_SvrList_SaveList(const std::string& szFilename);
 void        Menu_SvrList_LoadList(const std::string& szFilename);
 void        Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h);
 void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
-// Returns true if server is registered on UDP masterserver and won't respond on pinging
-bool		Menu_SvrList_ServerBehindNat(const std::string& szAddress);
+// Returns non-empty UDP masterserver address if server is registered on this UDP masterserver and won't respond on pinging
+std::string	Menu_SvrList_GetUdpMasterserverForServer(const std::string& szAddress);
 
 // Main menu
 void	Menu_MainInitialize();

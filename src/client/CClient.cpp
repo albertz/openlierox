@@ -1326,8 +1326,9 @@ void CClient::Connect(const std::string& address)
 	}
 
 	// Connecting to a server behind a NAT?
-	if(DeprecatedGUI::Menu_SvrList_ServerBehindNat(strServerAddr))  {
+	if(DeprecatedGUI::Menu_SvrList_GetUdpMasterserverForServer(strServerAddr) != "")  {
 		bConnectingBehindNat = true;
+		sUdpMasterserverAddress = DeprecatedGUI::Menu_SvrList_GetUdpMasterserverForServer(strServerAddr);
 
 		// Start UDP NAT traversal immediately - we know for sure that
 		// the host is registered on UDP masterserver and won't respond on ping
@@ -1402,28 +1403,9 @@ void CClient::ConnectingBehindNAT()
 	switch (iNatTraverseState)  {
 	case NAT_RESOLVING_DNS:  {
 
-		// Get the first UDP masterserver
-		std::string address;
-		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt","rt");
-		if(fp1)  {
-			while( !feof(fp1) )  {
-				std::string line = ReadUntil(fp1);
-				TrimSpaces(line);
-
-				if( line.length() == 0 )
-					continue;
-
-				if( line.find(":") == std::string::npos )
-					continue;
-				address = line;
-				break;
-			}
-			fclose(fp1);
-		}
-
 		// Resolve the UDP master server address
 		SetNetAddrValid(cServerAddr, false);
-		if(!GetNetAddrFromNameAsync(address, cServerAddr)) {
+		if(!GetNetAddrFromNameAsync(sUdpMasterserverAddress, cServerAddr)) {
 			iNetStatus = NET_DISCONNECTED;
 			bBadConnection = true;
 			strBadConnectMsg = "Unknown error while resolving address";

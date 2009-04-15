@@ -1409,7 +1409,7 @@ void Menu_SvrList_FillList(CListview *lv)
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
 
-		bool processing = s->bProcessing && !Menu_SvrList_ServerBehindNat( s->szAddress );
+		bool processing = s->bProcessing && Menu_SvrList_GetUdpMasterserverForServer( s->szAddress ) == "";
 
 		// Ping Image
 		int num = 3;
@@ -1463,7 +1463,8 @@ void Menu_SvrList_FillList(CListview *lv)
         else
 		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
 
-		bool unknownData = ( s->bProcessing || num == 3 ) && ! Menu_SvrList_ServerBehindNat( s->szAddress );
+		bool unknownData = ( s->bProcessing || num == 3 ) && 
+							Menu_SvrList_GetUdpMasterserverForServer( s->szAddress ) == "";
 
 		// Players
 		lv->AddSubitem(LVS_TEXT,
@@ -1757,9 +1758,9 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 			// If we didn't query this server, then we should ignore it
 		}
 
-		else if(cmd == "lx::serverlist2")
+		else if(cmd == "lx::serverlist2") // This should not happen, we have another thread for polling UDP servers
 		{
-			Menu_SvrList_ParseUdpServerlist(bs);
+			Menu_SvrList_ParseUdpServerlist(bs, 0);
 			update = true;
 		}
 
@@ -1830,13 +1831,14 @@ size_t threadId = 0;
 
 struct UdpServerlistData  {
 	CBytestream *bs;
-	UdpServerlistData(CBytestream *b) : bs(b) {}
+	int UdpServerIndex;
+	UdpServerlistData(CBytestream *b, int _UdpServerIndex) : bs(b), UdpServerIndex(_UdpServerIndex) {}
 };
 
 void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
 {
 	if (iNetMode == net_internet) // Only add them if the Internet tab is active
-		Menu_SvrList_ParseUdpServerlist(data.bs);
+		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex);
 	delete data.bs;
 }
 
@@ -1868,7 +1870,9 @@ int Menu_SvrList_UpdaterThread(void *id)
 	}
 
 	// Get serverlist from all the servers in the file
-	for (std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it)  {
+	int UdpServerIndex = 0;
+	for (std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it, ++UdpServerIndex)  
+	{
 		std::string& server = *it;
 		NetworkAddr addr;
 		if (server.find(':') == std::string::npos)
@@ -1882,7 +1886,6 @@ int Menu_SvrList_UpdaterThread(void *id)
 		if (!GetNetAddrFromNameAsync(domain, addr))
 			continue;
 
-		// TODO: THIS IS BLOCKING, REMOVE THAT!
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
 			SDL_Delay(40);
@@ -1928,7 +1931,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-				serverlistEvent.pushToMainQueue(UdpServerlistData(bs));
+				serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
 				bs = new CBytestream(); // old bs pointer is in mainqueue now
 				firstPacket = false;
@@ -1976,7 +1979,7 @@ void Menu_SvrList_UpdateUDPList()
 	tUpdateThreads[threadId] = thread;
 }
 
-void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
+void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
@@ -2010,6 +2013,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs)
 			svr->tVersion = version;
 			svr->bAllowConnectDuringGame = allowConnectDuringGame;
 			svr->bBehindNat = true;
+			svr->UdpMasterserverIndex = UdpMasterserverIndex;
 		}
 	};
 
@@ -2087,13 +2091,22 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
     fclose(fp);
 }
 
-bool Menu_SvrList_ServerBehindNat(const std::string & addr)
+std::string Menu_SvrList_GetUdpMasterserverForServer(const std::string & addr)
 {
 	server_t * svr = Menu_SvrList_FindServerStr(addr);
 	if( !svr )
-		return false;
-	return svr->bBehindNat;
+		return "";
+	if( !svr->bBehindNat );
+		return "";
+
+	int idx = 0;
+	for( std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it, ++idx )
+		if( idx == svr->UdpMasterserverIndex )
+			return *it;
+
+	return "";
 }
+
 
 bool bGotDetails = false;
 bool bOldLxBug = false;

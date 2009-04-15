@@ -402,6 +402,7 @@ private:
 	AbsTime		fLastChallengeSent;
 	AbsTime		fLastTraverseSent;
 	int			iNatTryPort;
+	std::string sUdpMasterserverAddress;
 
 public:
 	// HINT: saves the current time of the simulation
