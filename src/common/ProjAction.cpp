@@ -319,6 +319,8 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		}
 	}
 	
+	info->ChangeRadius += ChangeRadius;
+	
 	if(additionalAction) {
 		Proj_EventOccurInfo ev(eventInfo);
 		ev.timerHit = false; // remove LX56 timer flag
@@ -541,6 +543,12 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	
 	if(ChangeOwnSpeed)
 		prj->setNewVel( *ChangeOwnSpeed * prj->GetVelocity() );
+	
+	{
+		prj->radius += ChangeRadius;
+		if(prj->radius.x < 0) prj->radius.x = 0;
+		if(prj->radius.y < 0) prj->radius.y = 0;
+	}
 	
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile

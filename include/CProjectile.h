@@ -30,6 +30,7 @@ class CWorm;
 class Sounds;
 class CViewport;
 struct proj_t;
+struct Proj_DoActionInfo;
 
 #define		MAX_PROJECTILES	3000
 
@@ -65,6 +66,7 @@ typedef std::map<const Proj_TimerEvent*, float> ProjTimerInfo; // saves CProj->f
 
 class CProjectile {
 	friend struct Proj_TimerEvent;
+	friend struct Proj_DoActionInfo;
 public:
 	// Constructor
 	CProjectile() {
