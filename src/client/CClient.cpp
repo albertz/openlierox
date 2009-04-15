@@ -2432,9 +2432,18 @@ int CClient::getNumRemoteWorms()
 void CClient::NewNet_SaveProjectiles()
 {
 	NewNet_SavedProjectiles = cProjectiles;
-};
+}
 
 void CClient::NewNet_LoadProjectiles()
 {
 	cProjectiles = NewNet_SavedProjectiles;
-};
+}
+
+long CClient::MapPosIndex::index(const CMap* m) const {
+	if(x < 0 || y < 0) return -1;
+	const int w = m->GetWidth() / GRIDW + 1;
+	const int h = m->GetHeight() / GRIDH + 1;
+	if(x >= w || y >= h) return -1;
+	return y * w + x;
+}
+

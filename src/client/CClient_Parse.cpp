@@ -878,6 +878,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     client->cWeaponRestrictions.readList(bs);
 	
 	client->projPosMap.clear();
+	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(client->cMap->GetWidth(), client->cMap->GetHeight())).index(client->cMap) );
 	client->cProjectiles.clear();
 
 	client->tGameInfo.features[FT_GameSpeed] = 1.0f;

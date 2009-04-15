@@ -363,8 +363,9 @@ bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) co
 	const VectorD2<int> radius = prj->getRadius();
 	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
 		for(int y = MPI<true,true>(vPosition,radius).y; y <= MPI<false,true>(vPosition,radius).y; ++y) {
-			CClient::ProjectileSet& projs = cClient->projPosMap[CClient::MapPosIndex(x,y)];
-			for(CClient::ProjectileSet::const_iterator p = projs.begin(); p != projs.end(); ++p)
+			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
+			if(projs == NULL) continue;
+			for(CClient::ProjectileSet::const_iterator p = projs->begin(); p != projs->end(); ++p)
 				if(!checkProjHit(*this, ev, prj, *p)) goto finalChecks;
 		}
 	

@@ -865,11 +865,14 @@ static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) 
 template<bool INSERT>
 static void updateMap(const CProjectile* prj, const VectorD2<int>& p, const VectorD2<int>& r) {
 	for(int x = MPI<true,true>(p,r).x; x <= MPI<true,false>(p,r).x; ++x)
-		for(int y = MPI<true,true>(p,r).y; y <= MPI<false,true>(p,r).y; ++y)
+		for(int y = MPI<true,true>(p,r).y; y <= MPI<false,true>(p,r).y; ++y) {
+			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
+			if(projs == NULL) continue;
 			if(INSERT)
-				cClient->projPosMap[CClient::MapPosIndex(x,y)].insert(prj);
+				projs->insert(prj);
 			else
-				cClient->projPosMap[CClient::MapPosIndex(x,y)].erase(prj);
+				projs->erase(prj);
+		}
 }
 
 void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<int>* oldRadius) const {
