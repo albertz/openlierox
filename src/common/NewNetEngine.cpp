@@ -94,8 +94,10 @@ void DisableAdvancedFeatures()
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
 	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
-	 //tLXOptions->tGameInfo.bAllowStrafing = false;
-	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // Should be the same for all clients
+	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
+	 tLXOptions->tGameInfo.features[FT_ImmediateStart] = false;
+	 tLXOptions->tGameInfo.features[FT_AllowWeaponsChange] = false;
+	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // We just ignore it now
 	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
 	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
 	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;

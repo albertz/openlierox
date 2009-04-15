@@ -76,6 +76,7 @@
 #include "FontHandling.h"
 #include "Frame.h"
 #include "Functors.h"
+#include "Geometry.h"
 #include "GfxPrimitives.h"
 #include "GuiPrimitives.h"
 #include "HTTP.h"

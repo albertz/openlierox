@@ -37,7 +37,10 @@ class CGameMode;
 struct WormJoinInfo;
 class FlagInfo;
 
-#define		MAX_CHALLENGES		1024
+enum { 
+	MAX_CHALLENGES = 1024,
+	MAX_SERVER_SOCKETS = 4, // = max UDP masterservers
+};
 
 
 // Challenge structure
@@ -139,7 +142,7 @@ private:
 	int			iLastVictim;	// TODO: what is this good for
 
 	// Network
-	NetworkSocket	tSocket;
+	NetworkSocket	tSockets[MAX_SERVER_SOCKETS];
 	int				nPort;
 	std::vector<NatConnection>	tNatClients;
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector

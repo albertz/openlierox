@@ -84,7 +84,8 @@ void GameServer::Clear()
 	bGameOver = false;
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
-	InvalidateSocketState(tSocket);
+	for( int i=0; i < MAX_SERVER_SOCKETS; i++ )
+		InvalidateSocketState(tSockets[i]);
 	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)  {
 		InvalidateSocketState(it->tConnectHereSocket);
 		InvalidateSocketState(it->tTraverseSocket);
@@ -142,48 +143,48 @@ int GameServer::StartServer()
 
 	// Open the socket
 	nPort = tLXOptions->iNetworkPort;
-	tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
-	if(!IsSocketStateValid(tSocket)) {
+	tSockets[0] = OpenUnreliableSocket(tLXOptions->iNetworkPort);
+	if(!IsSocketStateValid(tSockets[0])) {
 		hints << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
 		if( cClient->RebindSocket() ) {	// If client has taken that port, free it
-			tSocket = OpenUnreliableSocket(tLXOptions->iNetworkPort);
+			tSockets[0] = OpenUnreliableSocket(tLXOptions->iNetworkPort);
 		}
 
-		if(!IsSocketStateValid(tSocket)) {
+		if(!IsSocketStateValid(tSockets[0])) {
 			hints << "Server: client rebinding didn't work, trying random port" << endl;
-			tSocket = OpenUnreliableSocket(0);
+			tSockets[0] = OpenUnreliableSocket(0);
 		}
 		
-		if(!IsSocketStateValid(tSocket)) {
+		if(!IsSocketStateValid(tSockets[0])) {
 			hints << "Server: we cannot even open a random port!" << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
 		
-		NetworkAddr a; GetLocalNetAddr(tSocket, a);
+		NetworkAddr a; GetLocalNetAddr(tSockets[0], a);
 		nPort = GetNetAddrPort(a);
 	}
-	if(!ListenSocket(tSocket)) {
+	if(!ListenSocket(tSockets[0])) {
 		SetError( "Server Error: cannot start listening" );
 		return false;
 	}
-
-	/*if(tLX->iGameType == GME_HOST )
+	
+	for( int i = 1; i < MAX_SERVER_SOCKETS; i++ )
 	{
-		for( int f=0; f<MAX_CLIENTS; f++ )
-		{
-			tNatTraverseSockets[f] = OpenUnreliableSocket(0);
-			if(!IsSocketStateValid(tNatTraverseSockets[f])) {
-				continue;
-			}
-			if(!ListenSocket(tNatTraverseSockets[f])) {
-				continue;
-			}
+		tSockets[i] = OpenUnreliableSocket(0);
+		if(!IsSocketStateValid(tSockets[i])) {
+			hints << "Server: we cannot open a random port!" << endl;
+			SetError("Server Error: Could not open UDP socket");
+			return false;
 		}
-	}*/
+		if(!ListenSocket(tSockets[i])) {
+			SetError( "Server Error: cannot start listening" );
+			return false;
+		}
+	}
 
 	NetworkAddr addr;
-	GetLocalNetAddr(tSocket, addr);
+	GetLocalNetAddr(tSockets[0], addr);
 	// TODO: Why is that stored in debug_string ???
 	NetAddrToString(addr, tLX->debug_string);
 	hints << "server started on " <<  tLX->debug_string << endl;
@@ -344,22 +345,6 @@ mapCreate:
 	
 	
 	bRandomMap = false;
-	/*
-	if(stringcasecmp(tGameInfo.sMapFile,"_random_") == 0)
-		bRandomMap = true;
-
-	if(bRandomMap) {
-		cMap->New(504,350,"dirt");
-		cMap->ApplyRandomLayout( &tGameInfo.sMapRandom );
-
-		// Free the random layout
-		if( tGameInfo.sMapRandom.psObjects )
-			delete[] tGameInfo.sMapRandom.psObjects;
-		tGameInfo.sMapRandom.psObjects = NULL;
-		tGameInfo.sMapRandom.bUsed = false;
-
-	} else {
-	*/
 	{
 		timer = SDL_GetTicks()/1000.0f;
 		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
@@ -493,7 +478,8 @@ mapCreate:
 		DedicatedControl::Get()->WeaponSelections_Signal();
 
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	RemoveSocketFromNotifierGroup( tSocket );
+	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
+		RemoveSocketFromNotifierGroup( tSockets[i] );
 	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
 		if (IsSocketStateValid(it->tTraverseSocket))
 			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
@@ -901,8 +887,11 @@ bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
 // Read packets
 bool GameServer::ReadPackets()
 {
-	// Main socket
-	bool anythingNew = ReadPacketsFromSocket(tSocket);
+	bool anythingNew = false;
+	// Main sockets
+	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
+		if( ReadPacketsFromSocket(tSockets[i]) )
+			anythingNew = true;
 
 	// Traverse sockets
 	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
@@ -982,7 +971,7 @@ void GameServer::RegisterServer()
 	// We don't know the external IP, just use the local one
 	// Doesn't matter what IP we use because the masterserver finds it out by itself anyways
 	NetworkAddr addr;
-	GetLocalNetAddr(tSocket, addr);
+	GetLocalNetAddr(tSockets[0], addr);
 	NetAddrToString(addr, addr_name);
 
 	// Remove port from IP
@@ -1048,6 +1037,11 @@ void GameServer::RegisterServerUdp()
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
+		if( f >= MAX_SERVER_SOCKETS )
+		{
+			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
+			break;
+		}
 		NetworkAddr addr;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
@@ -1062,15 +1056,15 @@ void GameServer::RegisterServerUdp()
 
 		notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSocket, addr );
+		SetRemoteNetAddr( tSockets[f], addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Send(tSocket);
+		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f]);
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
@@ -1084,8 +1078,7 @@ void GameServer::RegisterServerUdp()
 		bs.writeByte(serverAllowsConnectDuringGame());
 		
 
-		bs.Send(tSocket);
-		return;	// Only one UDP masterserver is supported
+		bs.Send(tSockets[f]);
 	}
 }
 
@@ -1093,6 +1086,11 @@ void GameServer::DeRegisterServerUdp()
 {
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{
+		if( f >= MAX_SERVER_SOCKETS )
+		{
+			notes << "UDP masterserver list too big, max " << int(MAX_SERVER_SOCKETS) << " entries supported" << endl;
+			break;
+		}
 		NetworkAddr addr;
 		if( tUdpMasterServers[f].find(":") == std::string::npos )
 			continue;
@@ -1104,22 +1102,21 @@ void GameServer::DeRegisterServerUdp()
 			continue;
 		}
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSocket, addr );
+		SetRemoteNetAddr( tSockets[f], addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSocket);
-		bs.Send(tSocket);
-		bs.Send(tSocket);
+		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f]);
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::deregister");
 
-		bs.Send(tSocket);
-		return;	// Only one UDP masterserver is supported
+		bs.Send(tSockets[f]);
 	}
 }
 
@@ -1160,7 +1157,7 @@ bool GameServer::DeRegisterServer()
 	std::string addr_name;
 	NetworkAddr addr;
 
-	GetLocalNetAddr(tSocket, addr);
+	GetLocalNetAddr(tSockets[0], addr);
 	NetAddrToString(addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
@@ -2213,11 +2210,14 @@ void GameServer::Shutdown()
 		SendDisconnect();
 	}
 
-	if(IsSocketStateValid(tSocket))
+	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
 	{
-		CloseSocket(tSocket);
+		if(IsSocketStateValid(tSockets[i]))
+		{
+			CloseSocket(tSockets[i]);
+		}
+		InvalidateSocketState(tSockets[i]);
 	}
-	InvalidateSocketState(tSocket);
 
 	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)
 		it->Close();
