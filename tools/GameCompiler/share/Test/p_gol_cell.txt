@@ -12,7 +12,8 @@ Dampening = 0.1
 ActionNum = 2
 
 [PlayerHit]
-Type = Nothing
+Type = GoThrough
+OverwriteTargetSpeed = 0,-2
 
 [Hit]
 Type = GoThrough

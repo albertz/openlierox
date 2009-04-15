@@ -1934,11 +1934,11 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 
 	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
 
-	ReadKeyword(file, section, "UseOverwriteOwnSpeed", &UseOverwriteOwnSpeed, UseOverwriteOwnSpeed);
-	ReadKeyword(file, section, "UseOverwriteTargetSpeed", &UseOverwriteTargetSpeed, UseOverwriteTargetSpeed);
-	ReadVectorD2(file, section, "OverwriteOwnSpeed", OverwriteOwnSpeed, OverwriteOwnSpeed);
+	if(ReadVectorD2(file, section, "OverwriteOwnSpeed", OverwriteOwnSpeed, OverwriteOwnSpeed))
+		UseOverwriteOwnSpeed = true;
 	ReadMatrixD2(file, section, "ChangeOwnSpeed", ChangeOwnSpeed, ChangeOwnSpeed);
-	ReadVectorD2(file, section, "OverwriteTargetSpeed", OverwriteTargetSpeed, OverwriteTargetSpeed);
+	if(ReadVectorD2(file, section, "OverwriteTargetSpeed", OverwriteTargetSpeed, OverwriteTargetSpeed))
+		UseOverwriteTargetSpeed = true;
 	ReadMatrixD2(file, section, "ChangeTargetSpeed", ChangeTargetSpeed, ChangeTargetSpeed);
 	
 	if(Projectiles)

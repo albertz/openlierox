@@ -134,14 +134,16 @@ static ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 
 			int ret = proj->ProjWormColl(curpos, worms);
 			if (ret >= 0)  {
-				if (enddt) {
-					if (len != 0)
-						*enddt = dt * p / len;
-					else
-						*enddt = dt;
+				if(proj->GetProjInfo()->PlyHit.Type != PJ_GOTHROUGH) {
+					if (enddt) {
+						if (len != 0)
+							*enddt = dt * p / len;
+						else
+							*enddt = dt;
+					}
+					proj->setNewPosition( curpos ); // save the new position at the first collision
+					proj->setNewVel( vFrameOldVel ); // don't get faster
 				}
-				proj->setNewPosition( curpos ); // save the new position at the first collision
-				proj->setNewVel( vFrameOldVel ); // don't get faster
 				return ProjCollisionType::Worm(ret);
 			}
 		}
@@ -800,7 +802,10 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	int wx,wy;
 
 	const static int wsize = 4;
-
+	VectorD2<int> maxdist(wsize, wsize);
+	if(radius.x >= 2 || radius.y >= 2)
+		maxdist += radius - VectorD2<int>(2,2);
+	
 	CWorm* ownerWorm = NULL;
 	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
 		ownerWorm = &worms[this->iOwner];
@@ -823,7 +828,7 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 		wy = (int)w->getPos().y;
 
 		// AABB - Point test
-		if( abs(wx-px) < wsize && abs(wy-py) < wsize) {
+		if( abs(wx-px) < maxdist.x && abs(wy-py) < maxdist.y) {
 
 			CollisionSide = 0;
 

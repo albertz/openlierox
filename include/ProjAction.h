@@ -167,7 +167,8 @@ struct Proj_Action {
 	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
-	Proj_Action& operator=(const Proj_Action& a);
+	
+	Proj_Action& operator=(const Proj_Action& a); // IMPORTANT: don't forget to update this after adding new attributes
 	
 	//  --------- LX56 start ----------
 	Proj_ActionType Type;

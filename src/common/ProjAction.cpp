@@ -172,6 +172,12 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	BounceExplode = a.BounceExplode;
 	Proj = a.Proj;
 	GoThroughSpeed = a.GoThroughSpeed;
+	UseOverwriteOwnSpeed = a.UseOverwriteOwnSpeed;
+	OverwriteOwnSpeed = a.OverwriteOwnSpeed;
+	ChangeOwnSpeed = a.ChangeOwnSpeed;
+	UseOverwriteTargetSpeed = a.UseOverwriteTargetSpeed;
+	OverwriteTargetSpeed = a.OverwriteTargetSpeed;
+	ChangeTargetSpeed = a.ChangeTargetSpeed;
 	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
 	
 	return *this;
