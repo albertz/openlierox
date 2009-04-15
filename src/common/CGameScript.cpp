@@ -1287,6 +1287,8 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("GoThrough", PJ_GOTHROUGH);
 	AddKeyword("Timer", Proj_Event::PET_TIMER); 
 	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
+	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
+	AddKeyword("TerrainHit", Proj_Event::PET_TERRAINHIT); 
 	AddKeyword("TRL_NONE",TRL_NONE);
 	AddKeyword("TRL_SMOKE",TRL_SMOKE);
 	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
@@ -2185,3 +2187,51 @@ bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 	return true;	
 }
 
+
+
+bool Proj_WormHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "SameWormAsProjOwner", &SameWormAsProjOwner, SameWormAsProjOwner);
+	ReadKeyword(file, section, "SameTeamAsProjOwner", &SameTeamAsProjOwner, SameTeamAsProjOwner);
+	ReadKeyword(file, section, "DiffWormAsProjOwner", &DiffWormAsProjOwner, DiffWormAsProjOwner);
+	ReadKeyword(file, section, "DiffTeamAsProjOwner", &DiffTeamAsProjOwner, DiffTeamAsProjOwner);
+	return true;
+}
+
+bool Proj_WormHitEvent::read(CGameScript* gs, FILE* fp) {
+	fread_endian<char>(fp, SameWormAsProjOwner);
+	fread_endian<char>(fp, SameTeamAsProjOwner);
+	fread_endian<char>(fp, DiffWormAsProjOwner);
+	fread_endian<char>(fp, DiffTeamAsProjOwner);
+	return true;
+}
+
+bool Proj_WormHitEvent::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<char>(fp, SameWormAsProjOwner);
+	fwrite_endian<char>(fp, SameTeamAsProjOwner);
+	fwrite_endian<char>(fp, DiffWormAsProjOwner);
+	fwrite_endian<char>(fp, DiffTeamAsProjOwner);
+	return true;
+}
+
+
+
+bool Proj_TerrainHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+	ReadKeyword(file, section, "MapBound", &MapBound, MapBound);
+	ReadKeyword(file, section, "Dirt", &Dirt, Dirt);
+	ReadKeyword(file, section, "Rock", &Rock, Rock);
+	return true;
+}
+
+bool Proj_TerrainHitEvent::read(CGameScript* gs, FILE* fp) {
+	fread_endian<char>(fp, MapBound);
+	fread_endian<char>(fp, Dirt);
+	fread_endian<char>(fp, Rock);
+	return true;
+}
+
+bool Proj_TerrainHitEvent::write(CGameScript* gs, FILE* fp) {
+	fwrite_endian<char>(fp, MapBound);
+	fwrite_endian<char>(fp, Dirt);
+	fwrite_endian<char>(fp, Rock);
+	return true;
+}

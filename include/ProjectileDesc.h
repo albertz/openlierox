@@ -109,18 +109,6 @@ struct proj_t {
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
 	SoundSample * smpSample;
 	
-	
-	// new since Beta9
-	
-	
-	
-	// not implemented yet:
-	bool WormOwnerInjure; // SelfInjure=true in options will overwrite this
-	bool WormOwenrHit; // SelfHit=true in options will overwrite this
-	bool TeamInjure; // TeamInjure=true in options will overwrite this
-	bool TeamHit; // TeamHit=true in options will overwrite this
-	
-	
 };
 
 

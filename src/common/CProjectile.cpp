@@ -431,7 +431,9 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 
 	// Check for a collision
 	if(c.collided && HandleCollision(c, vFrameOldPos, vOldVel, dt)) {
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN));
+		int colmask = PJC_TERRAIN;
+		if(c.onlyDirt) colmask |= PJC_DIRT;
+		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(colmask));
 	}
 
 	// the move was safe, save the position

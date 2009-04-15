@@ -44,6 +44,7 @@ struct proj_t;
 #define     PJC_TERRAIN     0x01
 #define     PJC_WORM        0x02
 #define		PJC_MAPBORDER	0x04
+#define     PJC_DIRT     	0x08
 
 
 

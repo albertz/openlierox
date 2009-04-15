@@ -196,6 +196,7 @@ struct Proj_Action {
 	bool	UseOverwriteTargetSpeed;
 	VectorD2<float> OverwriteTargetSpeed;
 	MatrixD2<float> ChangeTargetSpeed;
+	
 	Proj_Action* additionalAction;
 	
 	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
@@ -246,6 +247,37 @@ struct Proj_ProjHitEvent : _Proj_Event {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
+struct Proj_WormHitEvent : _Proj_Event {
+	Proj_WormHitEvent() : SameWormAsProjOwner(false), SameTeamAsProjOwner(false), DiffWormAsProjOwner(false), DiffTeamAsProjOwner(false) {}
+	
+	bool SameWormAsProjOwner;
+	bool SameTeamAsProjOwner;
+	bool DiffWormAsProjOwner;
+	bool DiffTeamAsProjOwner;
+	
+	bool canMatch() const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
+
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
+};
+
+struct Proj_TerrainHitEvent : _Proj_Event {
+	Proj_TerrainHitEvent() : MapBound(false), Dirt(false), Rock(false) {}
+	
+	bool MapBound;
+	bool Dirt;
+	bool Rock;
+	
+	bool canMatch() const { return (MapBound ? 1 : 0) + (Dirt ? 1 : 0) + (Rock ? 1 : 0) <= 1; }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
+
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
+};
+
 // Event struct that contains all possible events.
 // This is for some simplification and speed up.
 struct Proj_Event {
@@ -253,6 +285,8 @@ struct Proj_Event {
 		PET_UNSET = 0,
 		PET_TIMER = 1,
 		PET_PROJHIT = 2,
+		PET_WORMHIT = 3,
+		PET_TERRAINHIT = 4,
 		__PET_LBOUND = INT_MIN,
 		__PET_UBOUND = INT_MAX
 	} type;
@@ -261,12 +295,16 @@ struct Proj_Event {
 	Proj_Event(Type t = PET_UNSET) : type(t) {}
 	Proj_TimerEvent timer;
 	Proj_ProjHitEvent projHit;
+	Proj_WormHitEvent wormHit;
+	Proj_TerrainHitEvent terrainHit;
 	
 	_Proj_Event* get() {
 		switch(type) {
 			case PET_UNSET: return NULL;
 			case PET_TIMER: return &timer;
 			case PET_PROJHIT: return &projHit;
+			case PET_WORMHIT: return &wormHit;
+			case PET_TERRAINHIT: return &terrainHit;
 			case __PET_LBOUND: case __PET_UBOUND: return NULL;
 		}
 		return NULL;
@@ -277,6 +315,8 @@ struct Proj_Event {
 			case PET_UNSET: return NULL;
 			case PET_TIMER: return &timer;
 			case PET_PROJHIT: return &projHit;
+			case PET_WORMHIT: return &wormHit;
+			case PET_TERRAINHIT: return &terrainHit;
 			case __PET_LBOUND: case __PET_UBOUND: return NULL;
 		}
 		return NULL;

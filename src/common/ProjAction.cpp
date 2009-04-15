@@ -410,6 +410,56 @@ finalChecks:
 
 
 
+bool Proj_WormHitEvent::canMatch() const {
+	if(SameWormAsProjOwner) {
+		if(DiffWormAsProjOwner || DiffTeamAsProjOwner) return false;
+		return true;
+	}
+	
+	if(DiffWormAsProjOwner) {
+		return !SameTeamAsProjOwner;
+	}
+	
+	if(SameTeamAsProjOwner) return !DiffTeamAsProjOwner;
+	
+	return true;
+}
+
+bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
+	const int worm = eventInfo.colType->wormId;
+	const int team = cClient->getWorm(worm)->getTeam();
+	
+	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
+	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
+	
+	if(prj->GetOwner() < 0 || prj->GetOwner() >= MAX_WORMS)
+		return SameTeamAsProjOwner;
+	
+	const int projTeam = cClient->getWorm(prj->GetOwner())->getTeam();
+	if(SameTeamAsProjOwner && projTeam != team) return false;
+	if(DiffTeamAsProjOwner && projTeam == team) return false;
+	
+	return true;
+}
+
+
+
+bool Proj_TerrainHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+	if(eventInfo.colType == NULL || eventInfo.colType->withWorm) return false;
+	
+	const int colMask = eventInfo.colType->colMask;
+	if(MapBound && (colMask & PJC_MAPBORDER) == PJC_NONE) return false;
+	if(Dirt && (colMask & PJC_DIRT) == PJC_NONE) return false;
+	if(Rock && colMask != PJC_TERRAIN) return false;
+
+	return true;
+}
+
+
+
+
+
 
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
