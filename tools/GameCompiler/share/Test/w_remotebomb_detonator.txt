@@ -1,0 +1,15 @@
+
+[General]
+Name = Remote Bomb Detonator
+Class = WCL_GRENADE
+Recoil = 0
+Recharge = 20
+Drain = 0
+ROF = 1
+
+[Projectile]
+Amount = 1
+Speed = 20
+Spread = 0
+Projectile = p_remotebomb_detonator.txt
+

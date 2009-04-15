@@ -79,6 +79,7 @@ public:
 		fLastTrailProj = AbsTime(0);
 		iRandom = 0;
         fRotation = 0;
+		health = 0;
 	}
 
 
@@ -102,6 +103,7 @@ private:
 	Color		iColour;
 	AbsTime		fIgnoreWormCollBeforeTime;
 	ProjTimerInfo timerInfo;
+	int			health;
 	
 	// Projectile trail
 	AbsTime		fLastTrailProj;
@@ -199,6 +201,9 @@ public:
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
+	void	injure(int damage) { health -= damage; }
+	int		getHealth() const { return health; }
+	
 	void	updateCollMapInfo(const VectorD2<int>* oldPos = NULL, const VectorD2<int>* oldRadius = NULL);
 	
 	// HINT: saves the current time of the simulation

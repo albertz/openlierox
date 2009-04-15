@@ -1,0 +1,31 @@
+
+[General]
+Type = PRJ_CIRCLE
+Width = 2
+Height = 2
+Colour1 = 255,0,0,200
+ActionNum = 1
+Gravity = 0
+Dampening = 0.1
+Timer = 1
+
+[Hit]
+Type = Nothing
+
+[PlayerHit]
+Type = Injure
+Damage = 50
+
+[Action1]
+Event = GrowTimer
+Type = Nothing
+ChangeRadius = 3,3
+
+[GrowTimer]
+Type = Timer
+Delay = 0.1
+Repeat = true
+
+[Time]
+Type = Explode
+Damage = 50

@@ -1,0 +1,52 @@
+
+[General]
+Type = PRJ_CIRCLE
+Width = 100
+Height = 100
+Colour1 = 255,255,255,10
+ActionNum = 4
+Gravity = 0
+Dampening = 0.1
+
+[Hit]
+Type = Nothing
+
+[PlayerHit]
+Type = GoThrough
+
+[Action1]
+Event = GrowTimer
+Type = Nothing
+ChangeRadius = 40,40
+
+[Action2]
+Event = EndTimer
+Type = Disappear2
+
+[GrowTimer]
+Type = Timer
+Delay = 0.1
+Repeat = true
+
+[EndTimer]
+Type = Timer
+Delay = 1
+Repeat = false
+
+[Action3]
+Event = BombHit
+Type = InjureProj
+Damage = 1000
+
+[Action4]
+Event = SelfHit
+Type = Disappear2
+
+[BombHit]
+Type = ProjHit
+Target = p_remotebomb.txt
+
+[SelfHit]
+Type = ProjHit
+Target = p_remotebomb_detonator.txt
+

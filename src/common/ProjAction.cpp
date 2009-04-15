@@ -172,6 +172,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	BounceExplode = a.BounceExplode;
 	Proj = a.Proj;
 	GoThroughSpeed = a.GoThroughSpeed;
+	ChangeRadius = a.ChangeRadius;
 	UseOverwriteOwnSpeed = a.UseOverwriteOwnSpeed;
 	OverwriteOwnSpeed = a.OverwriteOwnSpeed;
 	ChangeOwnSpeed = a.ChangeOwnSpeed;
@@ -246,7 +247,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		case PJ_GREENDIRT:
 			info->grndirt = true;
 			if(eventInfo.timerHit && Shake > info->shake)
-				info->shake = Shake;				
+				info->shake = Shake;
 			break;
 			
 		case PJ_DISAPPEAR2:
@@ -273,6 +274,11 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			}
 			push_worm = false;
 			if(eventInfo.timerHit) spawnprojs = false;
+			break;
+		
+		case PJ_INJUREPROJ:
+			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p)
+				(*p)->injure(Damage);
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
@@ -343,7 +349,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 	float& last = prj->timerInfo[this];
 	if(last > 0 && !Repeat) return false;
 	
-	if(UseGlobalTime) {		
+	if(UseGlobalTime) {
 		float cur = eventInfo.serverTime.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(last == 0) {
 			float startTime = cur - prj->getLife();
@@ -510,6 +516,8 @@ bool Proj_DoActionInfo::hasAnyEffect() const {
 	if(explode) return true;
 	if(dirt || grndirt) return true;
 	if(trailprojspawn || spawnprojectiles || otherSpawns.size() > 0) return true;
+	if(OverwriteOwnSpeed || ChangeOwnSpeed) return true;
+	if(ChangeRadius != VectorD2<int>()) return true;
 	if(deleteAfter) return true;
 	return false;
 }

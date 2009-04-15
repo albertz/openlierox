@@ -635,11 +635,12 @@ simulateProjectileStart:
 			for(size_t i = 0; i < pi->actions.size(); ++i) {
 				pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
 			}
-					
-			if(!doActionInfo.hasAnyEffect()) {
-				//notes << "no eff" << endl;
+				
+			if(prj->getHealth() < 0)
+				pi->Death.applyTo(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
+			
+			if(!doActionInfo.hasAnyEffect())
 				pi->Fallback.applyTo(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
-			}
 			
 			doActionInfo.execute(prj, currentTime);
 			if(doActionInfo.deleteAfter) goto finalMapPosIndexUpdate;

@@ -375,6 +375,11 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
+		proj->Death.write(this, fp);
+		proj->Fallback.write(this, fp);
+	}
+	
+	if(Header.Version > GS_LX56_VERSION) {
 		fwrite_endian<Uint32>(fp, proj->actions.size());
 		for(Uint32 i = 0; i < proj->actions.size(); ++i) {
 			proj->actions[i].write(this, fp);
@@ -398,20 +403,6 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		SaveProjectile(proj->GeneralSpawnInfo.Proj,fp);
 	}
 
-	if(Header.Version > GS_LX56_VERSION) {
-		if(proj->Timer.Projectiles) {
-			fwrite_endian<char>(fp, proj->Timer.Proj.isSet());
-			if(proj->Timer.Proj.isSet()) proj->Timer.Proj.write(this, fp);
-		}
-		if(proj->Hit.Projectiles) {
-			fwrite_endian<char>(fp, proj->Hit.Proj.isSet());
-			if(proj->Hit.Proj.isSet()) proj->Hit.Proj.write(this, fp);
-		}
-		if(proj->PlyHit.Projectiles) {
-			fwrite_endian<char>(fp, proj->PlyHit.Proj.isSet());
-			if(proj->PlyHit.Proj.isSet()) proj->PlyHit.Proj.write(this, fp);		
-		}
-	}
 
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
@@ -686,6 +677,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Rotating = false;
 	proj->RotIncrement = 0;
 	proj->Timer.Shake = 0;
+	proj->Death.Type = PJ_NOTHING;
 	proj->Fallback.Type = PJ_NOTHING;
 
 	switch(proj->Type) {
@@ -887,6 +879,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 
 	if(Header.Version > GS_LX56_VERSION) {
+		proj->Death.read(this, fp);
+		proj->Fallback.read(this, fp);
+	}
+	
+	if(Header.Version > GS_LX56_VERSION) {
 		Uint32 projHitC = 0;
 		fread_endian<Uint32>(fp, projHitC);
 		proj->actions.resize(projHitC);
@@ -915,21 +912,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
 	}
 
-	if(Header.Version > GS_LX56_VERSION) {
-		if(proj->Timer.Projectiles) {
-			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
-			if(projIsSet) proj->Timer.Proj.read(this, fp);
-		}
-		if(proj->Hit.Projectiles) {
-			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
-			if(projIsSet) proj->Hit.Proj.read(this, fp);	
-		}
-		if(proj->PlyHit.Projectiles) {
-			bool projIsSet = false; fread_endian<char>(fp, projIsSet);
-			if(projIsSet) proj->PlyHit.Proj.read(this, fp);
-		}
-	}
-	
+
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
 
@@ -1278,6 +1261,7 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("Bounce",PJ_BOUNCE);
 	AddKeyword("Explode",PJ_EXPLODE);
 	AddKeyword("Injure",PJ_INJURE);
+	AddKeyword("InjureProj",PJ_INJUREPROJ);
 	AddKeyword("Carve",PJ_CARVE);
 	AddKeyword("Dirt",PJ_DIRT);
 	AddKeyword("GreenDirt",PJ_GREENDIRT);
@@ -1582,10 +1566,6 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			warnings << "UseProjVelocity is set in Projectile-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
 			proj->GeneralSpawnInfo.UseParentVelocityForSpread = false;
 		}
-		
-		if(proj->Timer.needGeneralSpawnInfo() || proj->Hit.needGeneralSpawnInfo() || proj->PlyHit.needGeneralSpawnInfo() || proj->Fallback.needGeneralSpawnInfo()) // HINT: not complete but it's not that important
-			if(!proj->GeneralSpawnInfo.isSet())
-				warnings << "Projectile section (" << pfile << ") is not specified correctly but needed" << endl;
 	}
 	
 	proj->Hit.readFromIni(this, dir, file, "Hit");
@@ -1686,6 +1666,16 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		if(proj->Fallback.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 			warnings << dir << "/" << pfile << ": Fallback section wants to spawn projectiles but there is no spawning information" << endl;
 			proj->Fallback.Projectiles = false;
+		}
+	}
+	
+	{
+		proj->Death.Type = PJ_NOTHING;
+		proj->Death.readFromIni(this, dir, file, "Death");
+
+		if(proj->Death.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
+			warnings << dir << "/" << pfile << ": Death section wants to spawn projectiles but there is no spawning information" << endl;
+			proj->Death.Projectiles = false;
 		}
 	}
 	
@@ -1996,6 +1986,8 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian_V<float>(fp, OverwriteTargetSpeed);
 	fread_endian_M<float>(fp, ChangeTargetSpeed);
 	
+	if(Projectiles) Proj.read(gs, fp);
+	
 	bool haveAddAction = false;
 	fread_endian<char>(fp, haveAddAction);
 	if(haveAddAction) {
@@ -2027,6 +2019,8 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian_M<float>(fp, ChangeOwnSpeed);
 	fwrite_endian_V<float>(fp, OverwriteTargetSpeed);
 	fwrite_endian_M<float>(fp, ChangeTargetSpeed);
+	
+	if(Projectiles) Proj.write(gs, fp);
 	
 	if(!additionalAction)
 		fwrite_endian<char>(fp, 0);

@@ -133,6 +133,7 @@ enum Proj_ActionType {
 	PJ_NOTHING = 8,
 	PJ_DISAPPEAR2 = 9,
 	PJ_GOTHROUGH = 10,
+	PJ_INJUREPROJ = 11,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
@@ -201,7 +202,16 @@ struct Proj_Action {
 	
 	Proj_Action* additionalAction;
 	
-	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
+	bool hasAction() const {
+		if(Type != PJ_NOTHING) return true;
+		if(Projectiles) return true;
+		if(ChangeRadius != VectorD2<int>()) return true;
+		if(UseOverwriteOwnSpeed) return true;
+		if(UseOverwriteTargetSpeed) return true;
+		if(ChangeOwnSpeed != MatrixD2<float>(1.0f)) return true;
+		if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) return true;
+		return (additionalAction && additionalAction->hasAction());
+	}
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
 	void applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
 
@@ -341,7 +351,7 @@ struct Proj_EventAndAction : Proj_Action {
 		return true;
 	}
 	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
-		if(!hasAction()) return false;
+		//if(!hasAction()) return false;
 		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->checkEvent(eventInfo, prj)) return false;
 		applyTo(eventInfo, prj, info);
 		return true;

@@ -1,0 +1,26 @@
+###################
+# Projectile: Grenade
+
+
+[General]
+Type = PRJ_IMAGE
+Image = grenade.png
+Rotating = true
+RotIncrement = 90
+RotSpeed = 400
+
+[Hit]
+Type = Bounce
+BounceCoeff = 0.6
+
+[PlayerHit]
+Type = Nothing
+
+[Death]
+Type = Explode
+Damage = 50
+Projectiles = true
+
+[Death.Projectile]
+Projectile = p_remotebomb_expl.txt
+
