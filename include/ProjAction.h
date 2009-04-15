@@ -161,7 +161,8 @@ struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	GoThroughSpeed(1.0f), additionalAction(NULL) { Proj.Amount = 1; }
+	GoThroughSpeed(1.0f), UseOverwriteOwnSpeed(false), UseOverwriteTargetSpeed(false),
+	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
 	Proj_Action& operator=(const Proj_Action& a);
@@ -186,6 +187,12 @@ struct Proj_Action {
 	// new since Beta9:
 	
 	float	GoThroughSpeed;
+	bool	UseOverwriteOwnSpeed;
+	VectorD2<float> OverwriteOwnSpeed;
+	VectorD2<float> ChangeOwnSpeed;
+	bool	UseOverwriteTargetSpeed;
+	VectorD2<float> OverwriteTargetSpeed;
+	VectorD2<float> ChangeTargetSpeed;
 	Proj_Action* additionalAction;
 	
 	bool hasAction() const { return Type != PJ_NOTHING || Projectiles || (additionalAction && additionalAction->hasAction()); }
