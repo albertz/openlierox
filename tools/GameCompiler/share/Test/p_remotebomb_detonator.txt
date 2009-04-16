@@ -45,6 +45,7 @@ Type = Disappear2
 [BombHit]
 Type = ProjHit
 Target = p_remotebomb.txt
+SameWormAsProjOwner = true
 
 [SelfHit]
 Type = ProjHit
