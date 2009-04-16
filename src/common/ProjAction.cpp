@@ -440,15 +440,12 @@ bool Proj_WormHitEvent::canMatch() const {
 }
 
 bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
-	const int team = (worm >= 0 && worm < MAX_WORMS) ? -1 : cClient->getWorm(worm)->getTeam();
+	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getWorm(worm)->getTeam() : -1;
 	
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
 	
-	if(prj->GetOwner() < 0 || prj->GetOwner() >= MAX_WORMS)
-		return SameTeamAsProjOwner;
-	
-	const int projTeam = cClient->getWorm(prj->GetOwner())->getTeam();
+	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getWorm(prj->GetOwner())->getTeam() : -1;
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
 	
