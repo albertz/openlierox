@@ -165,6 +165,7 @@ struct Proj_Action {
 	GoThroughSpeed(1.0f),
 	UseOverwriteOwnSpeed(false), ChangeOwnSpeed(1.0f),
 	UseOverwriteTargetSpeed(false), ChangeTargetSpeed(1.0f),
+	HeadingToNextWormSpeed(0), HeadingToNextOtherWormSpeed(0), HeadingToNextEnemyWormSpeed(0), HeadingToNextTeamMateSpeed(0),
 	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
@@ -202,6 +203,11 @@ struct Proj_Action {
 	MatrixD2<float> ChangeTargetSpeed;
 	VectorD2<float> DiffTargetSpeed;
 	
+	float	HeadingToNextWormSpeed;
+	float	HeadingToNextOtherWormSpeed;
+	float	HeadingToNextEnemyWormSpeed;
+	float	HeadingToNextTeamMateSpeed;
+	
 	Proj_Action* additionalAction;
 	
 	bool hasAction() const {
@@ -214,6 +220,7 @@ struct Proj_Action {
 		if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) return true;
 		if(DiffOwnSpeed != VectorD2<float>()) return true;
 		if(DiffTargetSpeed != VectorD2<float>()) return true;
+		if(HeadingToNextWormSpeed || HeadingToNextOtherWormSpeed || HeadingToNextEnemyWormSpeed || HeadingToNextTeamMateSpeed) return true;
 		return (additionalAction && additionalAction->hasAction());
 	}
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
