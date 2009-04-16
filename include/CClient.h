@@ -612,7 +612,8 @@ public:
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName()			{ return szServerName; }
 
-	int getGeneralGameType()					{ return tGameInfo.iGeneralGameType; }
+	int getGeneralGameType() const				{ return tGameInfo.iGeneralGameType; }
+	bool isTeamGame() const						{ return tGameInfo.iGeneralGameType == GMT_TEAMS; }
 
 	const Version& getClientVersion()				{ return cClientVersion; }
 	void setClientVersion(const Version& v);

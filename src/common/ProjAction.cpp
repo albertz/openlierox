@@ -7,6 +7,7 @@
  *
  */
 
+#include <cmath>
 #include "ProjAction.h"
 #include "CGameScript.h"
 #include "CWorm.h"
@@ -180,10 +181,91 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	OverwriteTargetSpeed = a.OverwriteTargetSpeed;
 	ChangeTargetSpeed = a.ChangeTargetSpeed;
 	DiffOwnSpeed = a.DiffOwnSpeed;
-	DiffTargetSpeed = a.DiffTargetSpeed;	
+	DiffTargetSpeed = a.DiffTargetSpeed;
+	HeadingToNextWormSpeed = a.HeadingToNextWormSpeed;
+	HeadingToNextOtherWormSpeed = a.HeadingToNextOtherWormSpeed;
+	HeadingToNextEnemyWormSpeed = a.HeadingToNextEnemyWormSpeed;
+	HeadingToNextTeamMateSpeed = a.HeadingToNextTeamMateSpeed;	
 	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
 	
 	return *this;
+}
+
+
+static VectorD2<float> wormAngleDiff(CWorm* w, CProjectile* prj) {
+	CVec diff = w->getPos() - prj->GetPosition(); NormalizeVector(&diff);
+	return MatrixD2<float>::Rotation(diff.x, -diff.y) * prj->GetVelocity();
+}
+
+static CWorm* nearestWorm(CVec pos) {
+	CWorm* best = NULL;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cClient->getRemoteWorms()[i];
+		if(!w->isUsed()) continue;
+		if(!w->getAlive()) continue;
+		if(best == NULL) { best = w; continue; }
+		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
+			best = w; 
+	}
+	return best;
+}
+
+static CWorm* nearestOtherWorm(CVec pos, int worm) {
+	CWorm* best = NULL;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cClient->getRemoteWorms()[i];
+		if(i == worm) continue;
+		if(!w->isUsed()) continue;
+		if(!w->getAlive()) continue;
+		if(best == NULL) { best = w; continue; }
+		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
+			best = w; 
+	}
+	return best;	
+}
+
+static CWorm* nearestEnemyWorm(CVec pos, int worm) {
+	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
+	CWorm* best = NULL;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cClient->getRemoteWorms()[i];
+		if(i == worm) continue;
+		if(!w->isUsed()) continue;
+		if(!w->getAlive()) continue;
+		if(cClient->isTeamGame() && team == w->getTeam()) continue;
+		if(best == NULL) { best = w; continue; }
+		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
+			best = w; 
+	}
+	return best;
+	
+}
+
+static CWorm* nearestTeamMate(CVec pos, int worm) {
+	if(!cClient->isTeamGame()) return NULL;
+	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
+	CWorm* best = NULL;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cClient->getRemoteWorms()[i];
+		if(i == worm) continue;
+		if(!w->isUsed()) continue;
+		if(!w->getAlive()) continue;
+		if(team != w->getTeam()) continue;
+		if(best == NULL) { best = w; continue; }
+		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
+			best = w; 
+	}
+	return best;	
+}
+
+static MatrixD2<float> getVelChangeForProj(CWorm* w, CProjectile* prj, float maxAngle) {
+	if(w == NULL) return MatrixD2<float>(1.0f);
+
+	VectorD2<float> angleDiffV = wormAngleDiff(w, prj);
+	float angleDiff = atan2f(angleDiffV.y, angleDiffV.x);
+	if(fabs(angleDiff) > fabs(maxAngle)) angleDiff = maxAngle * SIGN(angleDiff);
+	
+	return MatrixD2<float>::Rotation(cos(-angleDiff), sin(-angleDiff));
 }
 
 void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
@@ -300,16 +382,29 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			info->spawnprojectiles = true;
 	}
 	
-	if(UseOverwriteOwnSpeed)
-		info->OverwriteOwnSpeed = &OverwriteOwnSpeed;
-	
-	info->ChangeOwnSpeed *= ChangeOwnSpeed;
-	
+	if(UseOverwriteOwnSpeed) info->OverwriteOwnSpeed = &OverwriteOwnSpeed;
+	info->ChangeOwnSpeed = ChangeOwnSpeed * info->ChangeOwnSpeed;
 	info->DiffOwnSpeed += DiffOwnSpeed;
+	
+	if(HeadingToNextWormSpeed) {
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestWorm(prj->GetPosition()), prj, HeadingToNextWormSpeed) * info->ChangeOwnSpeed;
+	}
+
+	if(HeadingToNextOtherWormSpeed) {
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestOtherWorm(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextOtherWormSpeed) * info->ChangeOwnSpeed;
+	}
+
+	if(HeadingToNextEnemyWormSpeed) {
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestEnemyWorm(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextEnemyWormSpeed) * info->ChangeOwnSpeed;
+	}
+
+	if(HeadingToNextTeamMateSpeed) {
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestTeamMate(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextTeamMateSpeed) * info->ChangeOwnSpeed;
+	}
 	
 	if(UseOverwriteTargetSpeed) {
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			cClient->getWorm(eventInfo.colType->wormId)->velocity() = OverwriteTargetSpeed;
+			cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() = OverwriteTargetSpeed;
 		}
 		
 		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
@@ -319,7 +414,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	
 	if(ChangeTargetSpeed != MatrixD2<float>(1.0f) || DiffTargetSpeed != VectorD2<float>()) {
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			CVec& v = cClient->getWorm(eventInfo.colType->wormId)->velocity();
+			CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
 			v = ChangeTargetSpeed * v + DiffTargetSpeed;
 		}
 		
@@ -442,8 +537,8 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
 	
-	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getWorm(worm)->getTeam() : -1;
-	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getWorm(prj->GetOwner())->getTeam() : -1;
+	const int team = (worm >= 0 && worm < MAX_WORMS) ?cClient->getRemoteWorms()[worm].getTeam() : -1;
+	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj->GetOwner()].getTeam() : -1;
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
 	
