@@ -379,7 +379,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	CWorm* ownerWorm = NULL;
 	if(owner >= 0 && owner < MAX_WORMS) {
 		ownerWorm = &this->getRemoteWorms()[owner];
-		if(!ownerWorm->isUsed() || ownerWorm->getFlag())
+		if(!ownerWorm->isUsed())
 			ownerWorm = NULL;
 	}
 

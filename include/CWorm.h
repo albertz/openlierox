@@ -336,8 +336,6 @@ private:
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
-	bool		bNoShooting; // TODO: variable unused, remove it (used in VIP and CTF which are removed)
-    bool		bFlag; // TODO: variable unused, remove it (used in VIP and CTF which are removed)
 	AFK_TYPE	iAFK;
 	std::string	sAFKMessage;
 
@@ -596,15 +594,8 @@ public:
 	bool		isShooting()				{ return tState.bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
 
-	bool		getVIP()				{ return bNoShooting; }
-	void		setVIP(bool _s)				{ bNoShooting = _s; }
-
 	bool		isSpectating()				{ return bSpectating; }
 	void		setSpectating(bool _s)		{ bSpectating = _s; }
-
-	// TODO: the sense of this isn't clear; so make it clear
-	bool		getFlag()				{ return bFlag; }
-	void		setFlag(bool _f)			{ bFlag = _f; bNoShooting = _f; }
 
 	AFK_TYPE	getAFK()				{ return iAFK; }
 	const std::string & getAFKMessage()		{ return sAFKMessage; }

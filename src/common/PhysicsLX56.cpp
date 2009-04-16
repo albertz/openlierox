@@ -782,8 +782,6 @@ finalMapPosIndexUpdate:
 					continue;
 				if(worms[i].getID() == owner->getID())
 					continue;
-				if(worms[i].getFlag())
-					continue;
 				if(!worms[i].isVisible(owner))
 					continue;
 

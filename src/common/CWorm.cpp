@@ -148,9 +148,6 @@ void CWorm::Clear()
 
 	bAlreadyKilled = false;
 
-	bNoShooting = false;
-	bFlag = false;
-
 	fLastSimulationTime = tLX->currentTime;
 	
 	
@@ -1340,7 +1337,6 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( bRopeDownOnce );
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
-	COPY( bNoShooting );
 	COPY( bAlreadyKilled );
 	COPY( fLastAirJumpTime );
 	
@@ -1393,7 +1389,6 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( bRopeDownOnce );
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
-	COPY( bNoShooting );
 	COPY( bAlreadyKilled );
 	COPY( fLastAirJumpTime );
 	

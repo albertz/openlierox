@@ -815,13 +815,13 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	CWorm* ownerWorm = NULL;
 	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
 		ownerWorm = &worms[this->iOwner];
-		if(!ownerWorm->isUsed() || ownerWorm->getFlag())
+		if(!ownerWorm->isUsed())
 			ownerWorm = NULL;
 	}
 	
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed() || !w->getAlive() || w->getFlag())
+		if(!w->isUsed() || !w->getAlive())
 			continue;
 		
 		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())

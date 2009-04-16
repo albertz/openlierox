@@ -196,10 +196,6 @@ bool CWorm::checkPacketNeeded()
 	if (vVelocity.GetLength2())
 		return true;
 
-	// Flag
-	if(getFlag())
-		return true;
-
 	// Rope
 	return cNinjaRope.writeNeeded();
 }

@@ -360,7 +360,6 @@ int CClient::Initialize()
 		cRemoteWorms[i].setTagIT(false);
 		cRemoteWorms[i].setTagTime(TimeDiff(0));
 		cRemoteWorms[i].setTeam(0);
-		cRemoteWorms[i].setFlag(false);
 		cRemoteWorms[i].setUsed(false);
 		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
 	}
