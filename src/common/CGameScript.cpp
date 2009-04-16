@@ -1933,6 +1933,8 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	if(ReadVectorD2(file, section, "OverwriteTargetSpeed", OverwriteTargetSpeed, OverwriteTargetSpeed))
 		UseOverwriteTargetSpeed = true;
 	ReadMatrixD2(file, section, "ChangeTargetSpeed", ChangeTargetSpeed, ChangeTargetSpeed);
+	ReadVectorD2(file, section, "DiffOwnSpeed", DiffOwnSpeed, DiffOwnSpeed);
+	ReadVectorD2(file, section, "DiffTargetSpeed", DiffTargetSpeed, DiffTargetSpeed);
 	
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
@@ -1985,6 +1987,8 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian_M<float>(fp, ChangeOwnSpeed);
 	fread_endian_V<float>(fp, OverwriteTargetSpeed);
 	fread_endian_M<float>(fp, ChangeTargetSpeed);
+	fread_endian_V<float>(fp, DiffOwnSpeed);
+	fread_endian_V<float>(fp, DiffTargetSpeed);
 	
 	if(Projectiles) Proj.read(gs, fp);
 	
@@ -2019,6 +2023,8 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian_M<float>(fp, ChangeOwnSpeed);
 	fwrite_endian_V<float>(fp, OverwriteTargetSpeed);
 	fwrite_endian_M<float>(fp, ChangeTargetSpeed);
+	fwrite_endian_V<float>(fp, DiffOwnSpeed);
+	fwrite_endian_V<float>(fp, DiffTargetSpeed);
 	
 	if(Projectiles) Proj.write(gs, fp);
 	

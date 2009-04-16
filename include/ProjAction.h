@@ -196,9 +196,11 @@ struct Proj_Action {
 	bool	UseOverwriteOwnSpeed;
 	VectorD2<float> OverwriteOwnSpeed;
 	MatrixD2<float> ChangeOwnSpeed;
+	VectorD2<float> DiffOwnSpeed;
 	bool	UseOverwriteTargetSpeed;
 	VectorD2<float> OverwriteTargetSpeed;
 	MatrixD2<float> ChangeTargetSpeed;
+	VectorD2<float> DiffTargetSpeed;
 	
 	Proj_Action* additionalAction;
 	
@@ -210,6 +212,8 @@ struct Proj_Action {
 		if(UseOverwriteTargetSpeed) return true;
 		if(ChangeOwnSpeed != MatrixD2<float>(1.0f)) return true;
 		if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) return true;
+		if(DiffOwnSpeed != VectorD2<float>()) return true;
+		if(DiffTargetSpeed != VectorD2<float>()) return true;
 		return (additionalAction && additionalAction->hasAction());
 	}
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
@@ -351,7 +355,6 @@ struct Proj_EventAndAction : Proj_Action {
 		return true;
 	}
 	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
-		//if(!hasAction()) return false;
 		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->checkEvent(eventInfo, prj)) return false;
 		applyTo(eventInfo, prj, info);
 		return true;
@@ -405,6 +408,7 @@ struct Proj_DoActionInfo {
 	
 	const VectorD2<float>* OverwriteOwnSpeed;
 	const MatrixD2<float>* ChangeOwnSpeed;
+	VectorD2<float> DiffOwnSpeed;
 
 	VectorD2<int>	ChangeRadius;
 	

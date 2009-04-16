@@ -179,6 +179,8 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	UseOverwriteTargetSpeed = a.UseOverwriteTargetSpeed;
 	OverwriteTargetSpeed = a.OverwriteTargetSpeed;
 	ChangeTargetSpeed = a.ChangeTargetSpeed;
+	DiffOwnSpeed = a.DiffOwnSpeed;
+	DiffTargetSpeed = a.DiffTargetSpeed;	
 	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
 	
 	return *this;
@@ -304,6 +306,8 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	if(ChangeOwnSpeed != MatrixD2<float>(1.0f))
 		info->ChangeOwnSpeed = &ChangeOwnSpeed;
 	
+	info->DiffOwnSpeed += DiffOwnSpeed;
+	
 	if(UseOverwriteTargetSpeed) {
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
 			cClient->getWorm(eventInfo.colType->wormId)->velocity() = OverwriteTargetSpeed;
@@ -314,14 +318,14 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		}
 	}
 	
-	if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) {
+	if(ChangeTargetSpeed != MatrixD2<float>(1.0f) || DiffTargetSpeed != VectorD2<float>()) {
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
 			CVec& v = cClient->getWorm(eventInfo.colType->wormId)->velocity();
-			v = ChangeTargetSpeed * v;
+			v = ChangeTargetSpeed * v + DiffTargetSpeed;
 		}
 		
 		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
-			(*p)->setNewVel( ChangeTargetSpeed * (*p)->GetVelocity() );
+			(*p)->setNewVel( ChangeTargetSpeed * (*p)->GetVelocity() + DiffTargetSpeed );
 		}
 	}
 	
@@ -517,6 +521,7 @@ bool Proj_DoActionInfo::hasAnyEffect() const {
 	if(dirt || grndirt) return true;
 	if(trailprojspawn || spawnprojectiles || otherSpawns.size() > 0) return true;
 	if(OverwriteOwnSpeed || ChangeOwnSpeed) return true;
+	if(DiffOwnSpeed != VectorD2<float>()) return true;
 	if(ChangeRadius != VectorD2<int>()) return true;
 	if(deleteAfter) return true;
 	return false;
@@ -551,6 +556,8 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	
 	if(ChangeOwnSpeed)
 		prj->setNewVel( *ChangeOwnSpeed * prj->GetVelocity() );
+	
+	prj->setNewVel( prj->GetVelocity() + DiffOwnSpeed );
 	
 	{
 		prj->radius += ChangeRadius;
