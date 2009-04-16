@@ -11,7 +11,8 @@ Sound = throw.wav
 
 [Projectile]
 Amount = 1
-Speed = 20
+Speed = 0
 Spread = 0
-Projectile = p_gol_init.txt
-
+Projectile = p_gol_cell.txt
+SnapToGrid = 16,16
+AddParentVel = false
