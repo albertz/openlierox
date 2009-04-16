@@ -2158,6 +2158,8 @@ bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
 	gs->needCollisionInfo = true;
 	
+	ownerWorm.readFromIni(gs, dir, file, section);
+	
 	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
 	ReadInteger(file, section, "MaxHitCount", &MaxHitCount, MaxHitCount);
 	
@@ -2183,7 +2185,9 @@ bool Proj_ProjHitEvent::read(CGameScript* gs, FILE* fp) {
 		errors << "Proj_ProjHitEvent::read called for old GS version" << endl;
 		return false;
 	}
-	
+
+	ownerWorm.read(gs, fp);
+
 	gs->needCollisionInfo = true;
 	fread_endian<int>(fp, MinHitCount);
 	fread_endian<int>(fp, MaxHitCount);
@@ -2204,6 +2208,8 @@ bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 		errors << "Proj_ProjHitEvent::write called for old GS version" << endl;
 		return false;
 	}
+
+	ownerWorm.write(gs, fp);
 	
 	fwrite_endian<int>(fp, MinHitCount);
 	fwrite_endian<int>(fp, MaxHitCount);

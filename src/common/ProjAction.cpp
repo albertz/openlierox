@@ -386,7 +386,9 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 
 static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, CProjectile* p) {
 	if(p == prj) return true;
-	if(info.Target && p->getProjInfo() != info.Target) return true;
+	if(info.Target && p->getProjInfo() != info.Target) return true;	
+	if(!info.ownerWorm.match(prj->GetOwner(), p)) return true;
+	
 	if(info.Width >= 0 && info.Height >= 0) { if(!prj->CollisionWith(p, info.Width/2, info.Height/2)) return true; }
 	else { if(!prj->CollisionWith(p)) return true; }
 
@@ -437,10 +439,8 @@ bool Proj_WormHitEvent::canMatch() const {
 	return true;
 }
 
-bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
-	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
-	const int worm = eventInfo.colType->wormId;
-	const int team = cClient->getWorm(worm)->getTeam();
+bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
+	const int team = (worm >= 0 && worm < MAX_WORMS) ? -1 : cClient->getWorm(worm)->getTeam();
 	
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
@@ -453,6 +453,11 @@ bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* 
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
 	
 	return true;
+}
+
+bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
+	return match(eventInfo.colType->wormId, prj);	
 }
 
 

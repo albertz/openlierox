@@ -248,21 +248,6 @@ struct Proj_TimerEvent : _Proj_Event {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
-struct Proj_ProjHitEvent : _Proj_Event {
-	Proj_ProjHitEvent() : Target(NULL), MinHitCount(1), MaxHitCount(-1), Width(-1), Height(-1) {}
-	
-	proj_t* Target; // NULL -> any target
-	int		MinHitCount, MaxHitCount;
-	int		Width, Height; // custom w/h for collision check area
-	
-	bool canMatch() const { return MaxHitCount < 0 || MaxHitCount >= MinHitCount; }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
-	
-	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
-	bool read(CGameScript* gs, FILE* fp);
-	bool write(CGameScript* gs, FILE* fp);
-};
-
 struct Proj_WormHitEvent : _Proj_Event {
 	Proj_WormHitEvent() : SameWormAsProjOwner(false), SameTeamAsProjOwner(false), DiffWormAsProjOwner(false), DiffTeamAsProjOwner(false) {}
 	
@@ -272,12 +257,34 @@ struct Proj_WormHitEvent : _Proj_Event {
 	bool DiffTeamAsProjOwner;
 	
 	bool canMatch() const;
+	bool match(int worm, CProjectile* prj) const;
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
-
+	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };
+
+struct Proj_ProjHitEvent : _Proj_Event {
+	Proj_ProjHitEvent() :
+	Target(NULL), MinHitCount(1), MaxHitCount(-1), Width(-1), Height(-1) {}
+	
+	proj_t* Target; // NULL -> any target
+	int		MinHitCount, MaxHitCount;
+	int		Width, Height; // custom w/h for collision check area
+	Proj_WormHitEvent ownerWorm;
+	
+	bool canMatch() const {
+		if(MaxHitCount >= 0 && MaxHitCount < MinHitCount) return false;	
+		return ownerWorm.canMatch();
+	}
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const;
+	
+	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
+	bool read(CGameScript* gs, FILE* fp);
+	bool write(CGameScript* gs, FILE* fp);
+};
+
 
 struct Proj_TerrainHitEvent : _Proj_Event {
 	Proj_TerrainHitEvent() : MapBound(false), Dirt(false), Rock(false) {}

@@ -2,10 +2,10 @@
 [General]
 Name = Remote Bomb
 Class = WCL_GRENADE
-Recoil = 5
-Recharge = 100
-Drain = 100
-ROF = 1
+Recoil = 0
+Recharge = 1
+Drain = 10
+ROF = 500
 
 [Projectile]
 Amount = 1

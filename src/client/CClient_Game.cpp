@@ -565,7 +565,9 @@ void CClient::PlayerShoot(CWorm *w)
 		return;
 	}
 
-	// TODO: what is the effect of this?
+	// Safe the ROF time (Rate of Fire). That's the pause time after each shot.
+	// In simulateWormWeapon, we decrease this by deltatime and
+	// the next shot is allowed if lastfire<=0.
 	Slot->LastFire = Slot->Weapon->ROF;
 
 	// Special weapons get processed differently
