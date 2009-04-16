@@ -1,0 +1,35 @@
+
+[General]
+Type = PRJ_IMAGE
+Image = missile.png
+Trail = TRL_SMOKE
+UseAngle = true
+AngleImages = 16
+ActionNum = 2
+Gravity = 0
+
+[Hit]
+Type = Explode
+Damage = 50
+
+[PlayerHit]
+Type = GoThrough
+
+[Action1]
+Event = Timer
+HeadingToNextOtherWormSpeed = 30
+
+[Timer]
+Type = Timer
+Repeat = true
+Delay = 0.1
+
+
+[Action2]
+Event = HitEnemy
+Type = Injure
+Damage = 8
+
+[HitEnemy]
+Type = WormHit
+DiffWormAsProjOwner = true

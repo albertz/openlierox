@@ -260,7 +260,8 @@ static CWorm* nearestTeamMate(CVec pos, int worm) {
 
 static MatrixD2<float> getVelChangeForProj(CWorm* w, CProjectile* prj, float maxAngle) {
 	if(w == NULL) return MatrixD2<float>(1.0f);
-
+	maxAngle *= PI / 180.0f;
+	
 	VectorD2<float> angleDiffV = wormAngleDiff(w, prj);
 	float angleDiff = atan2f(angleDiffV.y, angleDiffV.x);
 	if(fabs(angleDiff) > fabs(maxAngle)) angleDiff = maxAngle * SIGN(angleDiff);
