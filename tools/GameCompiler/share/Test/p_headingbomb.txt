@@ -32,4 +32,4 @@ Damage = 8
 
 [HitEnemy]
 Type = WormHit
-DiffWormAsProjOwner = true
+EnemyOfProjOwner = true
