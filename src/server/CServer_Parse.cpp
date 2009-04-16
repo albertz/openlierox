@@ -289,11 +289,16 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 	for (short i = 0; i < cl->getNumWorms(); i++) {
 		CWorm *w = cl->getWorm(i);
 
+		bool wasShootingBefore = w->getWormState()->bShoot;
 		w->readPacket(bs, server->cWorms);
 
 		// If the worm is shooting, handle it
 		if (w->getWormState()->bShoot && w->getAlive() && server->iState == SVS_PLAYING)
 			server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
+		
+		// handle FinalProj for weapon
+		if(wasShootingBefore && !w->getWormState()->bShoot)
+			server->WormShootEnd(w);
 	}
 }
 

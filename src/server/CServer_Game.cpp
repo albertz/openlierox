@@ -440,6 +440,59 @@ void GameServer::SpawnBonus()
 }
 
 
+void GameServer::WormShootEnd(CWorm* w) {
+	// Don't shoot when the game is over
+	if (cClient->isGameOver())
+		return;
+	
+	if(!getGameMode()->Shoot(w))
+		return;
+
+	wpnslot_t *Slot = w->getCurWeapon();
+
+	// Don't shoot with banned weapons
+	if (!Slot->Enabled)
+		return;
+	
+	if(!Slot->Weapon) {
+		warnings << "WormShootEnd: trying to shoot with an unitialized weapon!" << endl;
+		return;
+	}
+	
+	if(!Slot->Weapon->FinalProj.isSet())
+		return;
+
+	// Get the direction angle
+	float Angle = w->getAngle();
+	if(w->getDirection() == DIR_LEFT)
+		Angle=180-Angle;
+	
+	if(Angle < 0)
+		Angle+=360;
+	if(Angle > 360)
+		Angle-=360;
+	if(Angle == 360)
+		Angle=0;
+	
+	float speed = 0.0f;
+	
+	CVec vel = *w->getVelocity();
+	speed = NormalizeVector( &vel );
+	
+	TimeDiff time = getServerTime();
+	if( w->hasOwnServerTime() )
+		time = w->serverTime();
+	
+	// Add the shot to ALL the connected clients shootlist
+	CServerConnection *cl = getClients();
+	for(short i=0; i<MAX_CLIENTS; i++,cl++) {
+		if(cl->getStatus() == NET_DISCONNECTED)
+			continue;
+		
+		cl->getShootList()->addShoot(time, speed, (int)Angle, w, true);
+	}
+}
+
 ///////////////////
 // Worm is shooting
 void GameServer::WormShoot(CWorm *w)
@@ -464,7 +517,7 @@ void GameServer::WormShoot(CWorm *w)
 		return;
 
 	if(!Slot->Weapon) {
-		printf("WARNING: trying to shoot with an unitialized weapon!\n");
+		warnings << "WormShoot: trying to shoot with an unitialized weapon!" << endl;
 		return;
 	}
 
@@ -509,7 +562,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		cl->getShootList()->addShoot(time, speed, (int)Angle, w);
+		cl->getShootList()->addShoot(time, speed, (int)Angle, w, false);
 	}
 
 	

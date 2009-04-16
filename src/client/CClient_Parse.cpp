@@ -2200,11 +2200,11 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
 	if(!client->bGameReady || client->bGameOver)  {
 		printf("CClientNetEngine::ParseSingleShot: not playing - ignoring\n");
-		CShootList::skipSingle(bs); // Skip to get to the correct position
+		CShootList::skipSingle(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
 
-	client->cShootList.readSingle(bs, client->cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readSingle(bs, client->getServerVersion(), client->cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
 	client->ProcessServerShotList();
@@ -2218,11 +2218,11 @@ void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
 	if(!client->bGameReady || client->bGameOver)  {
 		printf("CClientNetEngine::ParseMultiShot: not playing - ignoring\n");
-		CShootList::skipMulti(bs); // Skip to get to the correct position
+		CShootList::skipMulti(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
 
-	client->cShootList.readMulti(bs, client->cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readMulti(bs, client->getServerVersion(), client->cGameScript.get()->GetNumWeapons() - 1);
 
 	// Process the shots
 	client->ProcessServerShotList();

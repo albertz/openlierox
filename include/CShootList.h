@@ -20,6 +20,7 @@
 
 class CBytestream;
 class CWorm;
+class Version;
 
 
 // Shoot Main flags
@@ -27,15 +28,12 @@ class CWorm;
 #define		SMF_LARGESPEED	0x02
 #define		SMF_NEGSPEED	0x04
 
-
-// Shoot Offsets (positive values)
+// Shoot Offsets
 #define		SHF_TIMEOFF		0x01
 #define		SHF_XPOSOFF		0x02
 #define		SHF_YPOSOFF		0x04
 #define		SHF_ANGLEOFF	0x08
 #define		SHF_SPEEDOFF	0x10
-
-// Shoot Offsets (negative values)
 #define		SHF_NG_XPOSOFF	0x20
 #define		SHF_NG_YPOSOFF	0x40
 #define		SHF_EXTRAFLAGS	0x80
@@ -55,9 +53,7 @@ class CWorm;
 
 
 // Weapon Shooting structure
-class shoot_t {
-public:
-
+struct shoot_t {
 	TimeDiff	fTime;
 	int		nWeapon;
 	CVec	cPos;
@@ -68,7 +64,7 @@ public:
 	int		nWormID;
 
 	int		devID;
-
+	bool	release;
 };
 
 
@@ -106,22 +102,22 @@ public:
 	bool		Initialize();
 	void		Shutdown();
 
-	bool		addShoot(TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm);
+	bool		addShoot(TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release);
 
-	bool		writePacket(CBytestream *bs);
+	bool		writePacket(CBytestream *bs, const Version& receiverVer);
 	
 private:
-	void		writeSingle(CBytestream *bs, int index);
-	void		writeMulti(CBytestream *bs, int index);
-	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
+	void		writeSingle(CBytestream *bs, const Version& receiverVer, int index);
+	void		writeMulti(CBytestream *bs, const Version& receiverVer, int index);
+	void		writeSmallShot(shoot_t *psFirst, CBytestream *bs, const Version& receiverVer, int index);
 
 public:
-	void		readSingle(CBytestream *bs, int max_weapon_id);
-	static bool skipSingle(CBytestream *bs);
-	void		readMulti(CBytestream *bs, int max_weapon_id);
-	static bool skipMulti(CBytestream *bs);
-	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, int index);
-	static bool	skipSmallShot(CBytestream *bs);
+	void		readSingle(CBytestream *bs, const Version& senderVer, int max_weapon_id);
+	static bool skipSingle(CBytestream *bs, const Version& senderVer);
+	void		readMulti(CBytestream *bs, const Version& senderVer, int max_weapon_id);
+	static bool skipMulti(CBytestream *bs, const Version& senderVer);
+	void		readSmallShot(shoot_t *psFirst, CBytestream *bs, const Version& senderVer, int index);
+	static bool	skipSmallShot(CBytestream *bs, const Version& senderVer);
 
 	void		Clear();
 

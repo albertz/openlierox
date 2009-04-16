@@ -200,6 +200,7 @@ public:
 	
 	void		SpawnBonus();
 	void		WormShoot(CWorm *w);
+	void		WormShootEnd(CWorm* w);
     void        RecheckGame();
 
 	void		gotoLobby();

@@ -77,7 +77,7 @@ shoot_t *CShootList::getShot( int index )
 ///////////////////
 // Add a shot to the list
 // (done on server-side from GameServer::WormShoot)
-bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm )
+bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release )
 {
 	assert( pcWorm );
 	assert( m_psShoot );
@@ -101,7 +101,8 @@ bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWo
 	psShot->nSpeed = (int)( fSpeed*100 );
 	psShot->nWeapon = pcWorm->getCurWeapon()->Weapon->ID;
 	psShot->nWormID = pcWorm->getID();
-
+	psShot->release = release;
+	
 	// Debuging
 	psShot->devID = 0;
 	if(m_nNumShootings > 1)
@@ -115,7 +116,7 @@ bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWo
 // Write the shoot list to a bytestream
 // Returns true if good (even if we didn't write anything)
 // Returns false if the packet couldn't be written (overflow)
-bool CShootList::writePacket( CBytestream *bs )
+bool CShootList::writePacket( CBytestream *bs, const Version& receiverVer )
 {
 	CBytestream strm;
 
@@ -125,10 +126,10 @@ bool CShootList::writePacket( CBytestream *bs )
 
 	// Single shot
 	if( m_nNumShootings == 1 )
-		writeSingle( &strm, 0 );
+		writeSingle( &strm, receiverVer, 0 );
 	else
 		// Multiple shots
-		writeMulti( &strm, 0 );
+		writeMulti( &strm, receiverVer, 0 );
 
 
 	// Otherwise, append the shootlist onto the bytestream
@@ -142,7 +143,7 @@ bool CShootList::writePacket( CBytestream *bs )
 
 ///////////////////
 // A single shot packet
-void CShootList::writeSingle( CBytestream *bs, int index )
+void CShootList::writeSingle( CBytestream *bs, const Version& receiverVer, int index )
 {
 	byte	flags = 0;
 	shoot_t *psShot = &m_psShoot[index];
@@ -187,12 +188,18 @@ void CShootList::writeSingle( CBytestream *bs, int index )
 	}
 	else
 		bs->writeByte( psShot->nSpeed );
+	
+	if(receiverVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		bs->writeBit(psShot->release);
+		bs->SkipRestBits();
+	}
 }
 
 
 ///////////////////
 // A multiple shot packet
-void CShootList::writeMulti( CBytestream *bs, int index )
+void CShootList::writeMulti( CBytestream *bs, const Version& receiverVer, int index )
 {
 	// If index is over the limit, exit
 	if( index >= m_nNumShootings )
@@ -200,7 +207,7 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 
 	// If index is the last shot, send a single shot & exit
 	if( index == m_nNumShootings-1 ) {
-		writeSingle( bs, index );
+		writeSingle( bs, receiverVer, index );
 		return;
 	}
 
@@ -231,11 +238,11 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 
 	// If we can only send 1, send the 'single' packet
 	if( num == 1 ) {
-		writeSingle(bs, index);
+		writeSingle(bs, receiverVer, index);
 
 		// If we could only send one shot, but we still have more shots to send, send them
 		if( m_nNumShootings > 1)
-			writeMulti(bs, index+1);
+			writeMulti(bs, receiverVer, index+1);
 		return;
 	}
 
@@ -287,19 +294,25 @@ void CShootList::writeMulti( CBytestream *bs, int index )
 	}
 
 	bs->writeByte( speed );
-
+	
+	if(receiverVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		bs->writeBit(psShot->release);
+		bs->SkipRestBits();
+	}
+	
 	// Send out the following shots
 	for(i=1; i<num; i++)
-		writeSmallShot( &m_psShoot[index+i-1], bs, index+i );
+		writeSmallShot( &m_psShoot[index+i-1], bs, receiverVer, index+i );
 
 	// Continue writing out multiple packets until all shots are written
-	writeMulti( bs, index+num );
+	writeMulti( bs, receiverVer, index+num );
 }
 
 
 ///////////////////
 // Write a small shot out
-void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
+void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, const Version& receiverVer, int index )
 {
 	byte	flags = 0;
 	byte	extraflags = 0;
@@ -413,13 +426,19 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 		bs->writeByte( (int)psFirst->cWormVel.x - (int)psShot->cWormVel.x );
 	if( extraflags & SHF_NG_YWRMVEL )
 		bs->writeByte( (int)psFirst->cWormVel.y - (int)psShot->cWormVel.y );
+
+	if(receiverVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		bs->writeBit(psShot->release);
+		bs->SkipRestBits();
+	}	
 }
 
 
 
 ///////////////////
 // Read a single shot packet
-void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
+void CShootList::readSingle( CBytestream *bs, const Version& senderVer, int max_weapon_id )
 {
 	// Clear the list
 	Clear();
@@ -463,13 +482,21 @@ void CShootList::readSingle( CBytestream *bs, int max_weapon_id )
 	// Convert the velocity
 	psShot->cWormVel = CVec( (float)vx, (float)vy );
 
+	if(senderVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		psShot->release = bs->readBit();
+		bs->SkipRestBits();
+	}
+	else
+		psShot->release = false;
+	
 	m_nNumShootings++;
 }
 
 
 ///////////////////
 // Read a multi shot packet
-void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
+void CShootList::readMulti( CBytestream *bs, const Version& senderVer, int max_weapon_id )
 {
 	// Clear the list
 	Clear();
@@ -513,17 +540,25 @@ void CShootList::readMulti( CBytestream *bs, int max_weapon_id )
 	// Convert the velocity
 	psShot->cWormVel = CVec( (float)vx, (float)vy );
 
+	if(senderVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		psShot->release = bs->readBit();
+		bs->SkipRestBits();
+	}
+	else
+		psShot->release = false;
+	
 	m_nNumShootings++;
 
 	// Read the following shots
 	for(i=1; i<num; i++)
-		readSmallShot( &m_psShoot[i-1], bs, i );
+		readSmallShot( &m_psShoot[i-1], bs, senderVer, i );
 }
 
 
 ///////////////////
 // Read a small shot
-void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
+void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, const Version& senderVer, int index )
 {
 	byte	flags = 0;
 	byte	extraflags = 0;
@@ -610,24 +645,36 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, int index )
 		psShot->cWormVel.y=( psShot->cWormVel.y - (float)vely );
 	}
 
+	if(senderVer >= OLXBetaVersion(9)) {
+		bs->ResetBitPos();
+		psShot->release = bs->readBit();
+		bs->SkipRestBits();
+	}
+	else
+		psShot->release = false;
+
 	m_nNumShootings++;
 }
 
 
-bool CShootList::skipSingle(CBytestream *bs)  {
-	return bs->Skip(17);
+bool CShootList::skipSingle(CBytestream *bs, const Version& senderVer)  {
+	if(senderVer >= OLXBetaVersion(9))
+		return bs->Skip(18);
+	else
+		return bs->Skip(17);
 }
-bool CShootList::skipMulti(CBytestream *bs)  {
+bool CShootList::skipMulti(CBytestream *bs, const Version& senderVer)  {
 	bs->Skip(7);
 	byte num = bs->readByte();
 	bs->Skip(10);
-	for (byte i = 0; i < num - 1;i++) skipSmallShot(bs);
+	if(senderVer >= OLXBetaVersion(9)) bs->Skip(1);
+	for (byte i = 0; i < num - 1;i++) skipSmallShot(bs, senderVer);
 	return bs->isPosAtEnd();
 }
 
 ////////////////
 // Skip the small shot packet
-bool CShootList::skipSmallShot(CBytestream *bs)
+bool CShootList::skipSmallShot(CBytestream *bs, const Version& senderVer)
 {
 	// For comments see the above function
 	byte flags = bs->readByte();
@@ -674,5 +721,7 @@ bool CShootList::skipSmallShot(CBytestream *bs)
 	if( extraflags & SHF_NG_YWRMVEL )
 		bs->Skip(1);
 
+	if(senderVer >= OLXBetaVersion(9)) bs->Skip(1);
+	
 	return bs->isPosAtEnd();
 }

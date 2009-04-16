@@ -480,7 +480,7 @@ bool GameServer::SendUpdate()
 				CBytestream shootBs;
 
 				// Send the shootlist
-				if( sh->writePacket(&shootBs) )
+				if( sh->writePacket(&shootBs, cl->getClientVersion()) )
 					sh->Clear();
 
 				if(!cl->isLocalClient())

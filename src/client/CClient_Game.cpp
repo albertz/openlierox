@@ -1141,7 +1141,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 
 		if(!w->isUsed())  {
-			printf("WARNING: unused worm was shooting\n");
+			notes << "ProcessShot: unused worm was shooting" << endl;
 			return;
 		}
 		
@@ -1158,14 +1158,19 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		return;
 	}
 
-	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
-
 	// Safety check
-	if (wpn->ID < 0)  {
-		warnings << "ProcessShot: weapon ID less than zero. Guilty worm: " << shot->nWormID << endl;
+	if (shot->nWeapon < 0 || shot->nWeapon >= cGameScript.get()->GetNumWeapons())  {
+		warnings << "ProcessShot: weapon ID invalid. Guilty worm: " << shot->nWormID << endl;
 		return;
 	}
+	
+	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
+	if(shot->release) { // the shot key was released
+		wpn->FinalProj.apply(shot, fSpawnTime);
+		return;
+	}
+	
 	// Process beam weapons differently
 	if(wpn->Type == WPN_BEAM) {
 		ProcessShot_Beam(shot);
