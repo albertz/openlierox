@@ -140,18 +140,31 @@ int CGameScript::Save(const std::string& filename)
 			fwrite_endian_compat((wpn->Recharge*10.f),  sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->Drain),     sizeof(float),  1, fp);
 			fwrite_endian_compat((wpn->ROF*1000.0f),       sizeof(float),  1, fp);
-			fwrite_endian_compat((wpn->Proj.Speed), sizeof(int),    1, fp);
-			fwrite_endian_compat((wpn->Proj.SpeedVar),sizeof(float),1, fp);
-			fwrite_endian_compat((wpn->Proj.Spread),sizeof(float),  1, fp);
-			fwrite_endian_compat((wpn->Proj.Amount),sizeof(int),    1, fp);
-			fwrite_endian<int>(fp, wpn->LaserSight);
 
-			fwrite_endian<int>(fp, wpn->UseSound);
-			if(wpn->UseSound)
-                writeString(wpn->SndFilename, fp);
+			if(Header.Version <= GS_LX56_VERSION) {
+				fwrite_endian_compat((wpn->Proj.Speed), sizeof(int),    1, fp);
+				fwrite_endian_compat((wpn->Proj.SpeedVar),sizeof(float),1, fp);
+				fwrite_endian_compat((wpn->Proj.Spread),sizeof(float),  1, fp);
+				fwrite_endian_compat((wpn->Proj.Amount),sizeof(int),    1, fp);
+				fwrite_endian<int>(fp, wpn->LaserSight);
 
-			// Recursively save the projectile id's
-			SaveProjectile(wpn->Proj.Proj,fp);
+				fwrite_endian<int>(fp, wpn->UseSound);
+				if(wpn->UseSound)
+					writeString(wpn->SndFilename, fp);
+
+				// Recursively save the projectile id's
+				SaveProjectile(wpn->Proj.Proj,fp);
+			}
+			else { // newer GS versions
+				fwrite_endian<char>(fp, wpn->LaserSight);
+				
+				fwrite_endian<char>(fp, wpn->UseSound);
+				if(wpn->UseSound)
+					writeString(wpn->SndFilename, fp);
+				
+				// Recursively save the projectile id's
+				wpn->Proj.write(this, fp);
+			}
 		}
 	}
 
@@ -548,7 +561,6 @@ int CGameScript::Load(const std::string& dir)
 
 		// Projectile
 		if(wpn->Type == WPN_PROJECTILE) {
-
 			fread_compat(wpn->Class,sizeof(int),1,fp);
 			EndianSwap(wpn->Class);
 			fread_compat(wpn->Recoil,sizeof(int),1,fp);
@@ -559,27 +571,40 @@ int CGameScript::Load(const std::string& dir)
 			EndianSwap(wpn->Drain);
 			fread_compat(wpn->ROF,sizeof(float),1,fp);
 			EndianSwap(wpn->ROF);
-			fread_compat(wpn->Proj.Speed,sizeof(int),1,fp);
-			EndianSwap(wpn->Proj.Speed);
-			fread_compat(wpn->Proj.SpeedVar,sizeof(float),1,fp);
-			EndianSwap(wpn->Proj.SpeedVar);
-			fread_compat(wpn->Proj.Spread,sizeof(float),1,fp);
-			EndianSwap(wpn->Proj.Spread);
-			fread_compat(wpn->Proj.Amount,sizeof(int),1,fp);
-			EndianSwap(wpn->Proj.Amount);
-			fread_endian<int>(fp, wpn->LaserSight);
 
-			fread_endian<int>(fp, wpn->UseSound);
+			if(Header.Version <= GS_LX56_VERSION) {
+				fread_compat(wpn->Proj.Speed,sizeof(int),1,fp);
+				EndianSwap(wpn->Proj.Speed);
+				fread_compat(wpn->Proj.SpeedVar,sizeof(float),1,fp);
+				EndianSwap(wpn->Proj.SpeedVar);
+				fread_compat(wpn->Proj.Spread,sizeof(float),1,fp);
+				EndianSwap(wpn->Proj.Spread);
+				fread_compat(wpn->Proj.Amount,sizeof(int),1,fp);
+				EndianSwap(wpn->Proj.Amount);
+				fread_endian<int>(fp, wpn->LaserSight);
+
+				fread_endian<int>(fp, wpn->UseSound);
+				if(wpn->UseSound)
+					wpn->SndFilename = readString(fp);
+
+				wpn->Proj.Proj = LoadProjectile(fp);
+			}
+			else { // newer GS versions
+				fread_endian<char>(fp, wpn->LaserSight);
+				
+				fread_endian<char>(fp, wpn->UseSound);
+				if(wpn->UseSound)
+					wpn->SndFilename = readString(fp);
+				
+				wpn->Proj.read(this, fp);
+			}
+
 			if(wpn->UseSound) {
-                wpn->SndFilename = readString(fp);
-
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
 				if(wpn->smpSample == NULL)
 					wpn->UseSound = false;
 			}
-
-			wpn->Proj.Proj = LoadProjectile(fp);
 		}
 
 		wpn->ROF /= 1000.0f;
