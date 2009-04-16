@@ -597,7 +597,7 @@ bool CUdpFileDownloader::receive( CBytestream * bs )
 		data.append( bs->readData(chunkSize) );
 		notes << "CFileDownloaderInGame::receive() - error, not receiving!" << endl;
 		if( Decompress( data, &unpacked ) )
-			if( strStartsWith(unpacked, "ABORT:" + std::string('\0')) )
+			if( strStartsWith(unpacked, "ABORT:" + std::string( 1, '\0' )) )
 			{
 				notes << "CFileDownloaderInGame::receive() - abort received" << endl;
 				bWasAborted = true;
