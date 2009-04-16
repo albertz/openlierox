@@ -17,7 +17,7 @@ Type = GoThrough
 
 [Action1]
 Event = Timer
-HeadingToNextOtherWormSpeed = 30
+HeadingToNextEnemyWormSpeed = 30
 
 [Timer]
 Type = Timer
