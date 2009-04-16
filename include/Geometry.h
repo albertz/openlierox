@@ -13,6 +13,7 @@
 #include <list>
 #include <vector>
 #include <SDL.h>
+#include <cmath>
 #include "CVec.h"
 
 
@@ -51,6 +52,46 @@ struct Polygon2D {
 
 void TestPolygonDrawing(SDL_Surface* s);
 void TestCircleDrawing(SDL_Surface* s);
+
+
+// This class is basically for collision checks (used in projectile simulation).
+// Everything should be kept so simple that basically everything here will be optimised out.
+template<typename T>
+struct Shape {
+	enum Type { ST_RECT, ST_CIRCLE } type;
+	VectorD2<T> pos;
+	VectorD2<T> radius;
+	Shape() : type(ST_RECT) {}
+	static Shape Circle(const VectorD2<T>& p, const VectorD2<T>& r) { Shape ret; ret.type = ST_CIRCLE; ret.pos = p; ret.radius = r; return ret; }
+	static Shape Rect(const VectorD2<T>& p, const VectorD2<T>& r) { Shape ret; ret.type = ST_RECT; ret.pos = p; ret.radius = r; return ret; }	
+
+	bool CollisionWith(const Shape& s) const {
+		if(type == ST_RECT && s.type == ST_RECT) {
+			bool overlapX = std::abs(pos.x - s.pos.x) < radius.x + s.radius.x;
+			bool overlapY = std::abs(pos.y - s.pos.y) < radius.y + s.radius.y;
+			return overlapX && overlapY;
+		} else if(type == ST_RECT && s.type == ST_CIRCLE) {
+			VectorD2<int> nearest;
+			if(pos.x + radius.x <= s.pos.x)
+				nearest.x = pos.x + radius.x;
+			else if(pos.x - radius.x <= s.pos.x)
+				nearest.x = s.pos.x;				
+			else
+				nearest.x = pos.x - radius.x;
+			if(pos.y + radius.y <= s.pos.y)
+				nearest.y = pos.y + radius.y;
+			else if(pos.y - radius.y <= s.pos.y)
+				nearest.y = s.pos.y;
+			else
+				nearest.y = pos.y - radius.y;
+			return (nearest - s.pos).GetLength2() < s.radius.GetLength2();
+		} else if(type == ST_CIRCLE && s.type == ST_RECT) {
+			return s.CollisionWith(*this);
+		} else { // both are circles
+			return (pos - s.pos).GetLength2() < (radius + s.radius).GetLength2();
+		}
+	}
+};
 
 
 #endif

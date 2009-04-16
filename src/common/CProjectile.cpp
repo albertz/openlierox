@@ -27,6 +27,7 @@
 #include "Debug.h"
 #include "ProjectileDesc.h"
 #include "Physics.h"
+#include "Geometry.h"
 
 
 void CProjectile::setUnused() {
@@ -242,8 +243,12 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 		// this is safe because in SimulateFrame, we do map bound checks
 		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - radius.x;
 
-		for(int x = px - radius.x; x <= px + radius.x; ++x) {
+		for(int x = px - radius.x; x <= px + radius.x; ++x, ++pf) {
 
+			if(tProjInfo->Type == PRJ_CIRCLE && (VectorD2<int>(x,y) - VectorD2<int>(px,py)).GetLength2() > radius.GetLength2())
+				// outside the range, skip this
+				continue;
+			
 			// Solid pixel
 			if(*pf & (PX_DIRT|PX_ROCK)) {
 				if (y < py)
@@ -259,8 +264,6 @@ CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 					res.onlyDirt = false;
 				res.collided = true;
 			}
-
-			pf++;
 		}
 	}
 
@@ -800,14 +803,11 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 // TODO: move to physics?
 int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 {
-	int px = (int)pos.x;
-	int py = (int)pos.y;
-	int wx,wy;
-
-	const static int wsize = 4;
-	VectorD2<int> maxdist(wsize, wsize);
-	if(radius.x >= 2 || radius.y >= 2)
-		maxdist += radius - VectorD2<int>(2,2);
+	Shape<int> s; s.pos = pos;
+	s.radius = radius - VectorD2<int>(2,2);
+	if(s.radius.x < 0) s.radius.x = 0;
+	if(s.radius.y < 0) s.radius.y = 0;	
+	if(tProjInfo->Type == PRJ_CIRCLE) s.type = Shape<int>::ST_CIRCLE;
 	
 	CWorm* ownerWorm = NULL;
 	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
@@ -827,22 +827,21 @@ int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 		if(ownerWorm && !cClient->getGameLobby()->features[FT_SelfHit] && w == ownerWorm)
 			continue;
 		
-		wx = (int)w->getPos().x;
-		wy = (int)w->getPos().y;
-
-		// AABB - Point test
-		if( abs(wx-px) < maxdist.x && abs(wy-py) < maxdist.y) {
+		const static int wsize = 4;
+		Shape<int> worm; worm.pos = w->getPos(); worm.radius = VectorD2<int>(wsize, wsize);
+		
+		if(s.CollisionWith(worm)) {
 
 			CollisionSide = 0;
 
 			// Calculate the side of the collision (obsolete??)
-			if(px < wx-2)
+			if(s.pos.x < worm.pos.x-2)
 				CollisionSide |= COL_LEFT;
-			else if(px > wx+2)
+			else if(s.pos.x > worm.pos.x+2)
 				CollisionSide |= COL_RIGHT;
-			if(py < wy-2)
+			if(s.pos.y < worm.pos.y-2)
 				CollisionSide |= COL_TOP;
-			else if(py > wy+2)
+			else if(s.pos.y > worm.pos.y+2)
 				CollisionSide |= COL_BOTTOM;
 
 			return i;
@@ -858,14 +857,12 @@ bool CProjectile::CollisionWith(const CProjectile* prj) const {
 }
 
 bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
-	if(tProjInfo->Type == PRJ_CIRCLE) {
-		// TODO ...
-	}
+	Shape<int> s1; s1.pos = vPosition; s1.radius.x = rx; s1.radius.y = ry;
+	Shape<int> s2; s2.pos = prj->vPosition; s2.radius = prj->radius;
+	if(tProjInfo->Type == PRJ_CIRCLE) s1.type = Shape<int>::ST_CIRCLE;
+	if(prj->tProjInfo->Type == PRJ_CIRCLE) s2.type = Shape<int>::ST_CIRCLE;
 	
-	// TODO: not 100% correct
-	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->radius.x;
-	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->radius.y;
-	return overlapX && overlapY;
+	return s1.CollisionWith(s2);
 }
 
 
