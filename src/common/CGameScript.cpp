@@ -166,6 +166,9 @@ int CGameScript::Save(const std::string& filename)
 				wpn->Proj.write(this, fp);
 			}
 		}
+
+		if(Header.Version > GS_LX56_VERSION)
+			wpn->FinalProj.write(this, fp);	
 	}
 
 	// Extra stuff
@@ -609,6 +612,9 @@ int CGameScript::Load(const std::string& dir)
 
 		wpn->ROF /= 1000.0f;
 		wpn->Recharge /= 10.0f;
+		
+		if(Header.Version > GS_LX56_VERSION)
+			wpn->FinalProj.read(this, fp);
 	}
 
 
@@ -1446,6 +1452,8 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		warnings << "projectile not set for weapon " << weapon << endl;
 		return false;
 	}
+	
+	Weap->FinalProj.readFromIni(this, dir, file, "FinalProj");
 	
 	return true;
 }

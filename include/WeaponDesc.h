@@ -89,7 +89,10 @@ struct SoundSample;
 
 // Weapon structure
 struct weapon_t {
-	weapon_t() : ID(0), smpSample(NULL) { Proj.UseRandomRot = true; Proj.Useangle = true; Proj.AddParentVel = true; }
+	weapon_t() : ID(0), smpSample(NULL) {
+		Proj.UseRandomRot = true; Proj.Useangle = true; Proj.AddParentVel = true;
+		FinalProj.UseRandomRot = true; FinalProj.Useangle = true; FinalProj.AddParentVel = true;	
+	}
 	
 	int		ID;
 	std::string	Name; // (was 64b before)
@@ -107,6 +110,9 @@ struct weapon_t {
 	// Projectile
 	Proj_SpawnInfo Proj;
 
+	// when fire key got released
+	Proj_SpawnInfo FinalProj;
+	
 	// Beam
 	Wpn_Beam Bm;
 
