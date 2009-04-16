@@ -398,7 +398,7 @@ struct Proj_DoActionInfo {
 	explode(false), damage(-1), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
-	OverwriteOwnSpeed(NULL), ChangeOwnSpeed(NULL),
+	OverwriteOwnSpeed(NULL), ChangeOwnSpeed(1.0f),
 	playSound(false) {}
 	
 	bool	explode;
@@ -414,7 +414,7 @@ struct Proj_DoActionInfo {
 	std::list<const Proj_SpawnInfo*> otherSpawns;
 	
 	const VectorD2<float>* OverwriteOwnSpeed;
-	const MatrixD2<float>* ChangeOwnSpeed;
+	MatrixD2<float> ChangeOwnSpeed;
 	VectorD2<float> DiffOwnSpeed;
 
 	VectorD2<int>	ChangeRadius;

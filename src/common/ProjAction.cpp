@@ -303,8 +303,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	if(UseOverwriteOwnSpeed)
 		info->OverwriteOwnSpeed = &OverwriteOwnSpeed;
 	
-	if(ChangeOwnSpeed != MatrixD2<float>(1.0f))
-		info->ChangeOwnSpeed = &ChangeOwnSpeed;
+	info->ChangeOwnSpeed *= ChangeOwnSpeed;
 	
 	info->DiffOwnSpeed += DiffOwnSpeed;
 	
@@ -521,7 +520,8 @@ bool Proj_DoActionInfo::hasAnyEffect() const {
 	if(explode) return true;
 	if(dirt || grndirt) return true;
 	if(trailprojspawn || spawnprojectiles || otherSpawns.size() > 0) return true;
-	if(OverwriteOwnSpeed || ChangeOwnSpeed) return true;
+	if(OverwriteOwnSpeed) return true;
+	if(ChangeOwnSpeed != MatrixD2<float>(1.0f)) return true;
 	if(DiffOwnSpeed != VectorD2<float>()) return true;
 	if(ChangeRadius != VectorD2<int>()) return true;
 	if(deleteAfter) return true;
@@ -555,8 +555,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	if(OverwriteOwnSpeed)
 		prj->setNewVel(*OverwriteOwnSpeed);
 	
-	if(ChangeOwnSpeed)
-		prj->setNewVel( *ChangeOwnSpeed * prj->GetVelocity() );
+	prj->setNewVel( ChangeOwnSpeed * prj->GetVelocity() );
 	
 	prj->setNewVel( prj->GetVelocity() + DiffOwnSpeed );
 	
