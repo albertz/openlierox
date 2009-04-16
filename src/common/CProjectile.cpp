@@ -858,6 +858,10 @@ bool CProjectile::CollisionWith(const CProjectile* prj) const {
 }
 
 bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
+	if(tProjInfo->Type == PRJ_CIRCLE) {
+		// TODO ...
+	}
+	
 	// TODO: not 100% correct
 	bool overlapX = std::abs(prj->vPosition.x - vPosition.x) < rx + prj->radius.x;
 	bool overlapY = std::abs(prj->vPosition.y - vPosition.y) < ry + prj->radius.y;
