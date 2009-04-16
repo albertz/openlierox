@@ -256,12 +256,14 @@ struct Proj_TimerEvent : _Proj_Event {
 };
 
 struct Proj_WormHitEvent : _Proj_Event {
-	Proj_WormHitEvent() : SameWormAsProjOwner(false), SameTeamAsProjOwner(false), DiffWormAsProjOwner(false), DiffTeamAsProjOwner(false) {}
+	Proj_WormHitEvent() : SameWormAsProjOwner(false), SameTeamAsProjOwner(false), DiffWormAsProjOwner(false), DiffTeamAsProjOwner(false), TeamMateOfProjOwner(false), EnemyOfProjOwner(false) {}
 	
 	bool SameWormAsProjOwner;
 	bool SameTeamAsProjOwner;
 	bool DiffWormAsProjOwner;
 	bool DiffTeamAsProjOwner;
+	bool TeamMateOfProjOwner;
+	bool EnemyOfProjOwner;
 	
 	bool canMatch() const;
 	bool match(int worm, CProjectile* prj) const;

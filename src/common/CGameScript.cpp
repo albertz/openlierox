@@ -2249,6 +2249,8 @@ bool Proj_WormHitEvent::readFromIni(CGameScript* gs, const std::string& dir, con
 	ReadKeyword(file, section, "SameTeamAsProjOwner", &SameTeamAsProjOwner, SameTeamAsProjOwner);
 	ReadKeyword(file, section, "DiffWormAsProjOwner", &DiffWormAsProjOwner, DiffWormAsProjOwner);
 	ReadKeyword(file, section, "DiffTeamAsProjOwner", &DiffTeamAsProjOwner, DiffTeamAsProjOwner);
+	ReadKeyword(file, section, "TeamMateOfProjOwner", &TeamMateOfProjOwner, TeamMateOfProjOwner);	
+	ReadKeyword(file, section, "EnemyOfProjOwner", &EnemyOfProjOwner, EnemyOfProjOwner);	
 	return true;
 }
 
@@ -2257,6 +2259,8 @@ bool Proj_WormHitEvent::read(CGameScript* gs, FILE* fp) {
 	fread_endian<char>(fp, SameTeamAsProjOwner);
 	fread_endian<char>(fp, DiffWormAsProjOwner);
 	fread_endian<char>(fp, DiffTeamAsProjOwner);
+	fread_endian<char>(fp, TeamMateOfProjOwner);
+	fread_endian<char>(fp, EnemyOfProjOwner);
 	return true;
 }
 
@@ -2265,6 +2269,8 @@ bool Proj_WormHitEvent::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<char>(fp, SameTeamAsProjOwner);
 	fwrite_endian<char>(fp, DiffWormAsProjOwner);
 	fwrite_endian<char>(fp, DiffTeamAsProjOwner);
+	fwrite_endian<char>(fp, TeamMateOfProjOwner);
+	fwrite_endian<char>(fp, EnemyOfProjOwner);
 	return true;
 }
 

@@ -521,15 +521,17 @@ finalChecks:
 
 bool Proj_WormHitEvent::canMatch() const {
 	if(SameWormAsProjOwner) {
-		if(DiffWormAsProjOwner || DiffTeamAsProjOwner) return false;
+		if(DiffWormAsProjOwner || DiffTeamAsProjOwner || EnemyOfProjOwner) return false;
 		return true;
 	}
-	
-	if(DiffWormAsProjOwner) {
-		return !SameTeamAsProjOwner;
+		
+	if(SameTeamAsProjOwner) {
+		if(DiffTeamAsProjOwner) return false;
+		if(EnemyOfProjOwner) return false;
+		return true;
 	}
-	
-	if(SameTeamAsProjOwner) return !DiffTeamAsProjOwner;
+
+	if(TeamMateOfProjOwner) return !EnemyOfProjOwner;
 	
 	return true;
 }
@@ -542,6 +544,11 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj->GetOwner()].getTeam() : -1;
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
+	
+	if(TeamMateOfProjOwner && !cClient->isTeamGame() && prj->GetOwner() != worm) return false; 
+	if(TeamMateOfProjOwner && cClient->isTeamGame() && projTeam != team) return false; 
+	if(EnemyOfProjOwner && prj->GetOwner() == worm) return false;
+	if(EnemyOfProjOwner && cClient->isTeamGame() && projTeam == team) return false;
 	
 	return true;
 }
