@@ -13,7 +13,8 @@ ActionNum = 2
 
 [PlayerHit]
 Type = GoThrough
-OverwriteTargetSpeed = 0,-2
+ChangeTargetSpeed = 1,0,0,-1
+#DiffTargetSpeed = 0,-2
 
 [Hit]
 Type = GoThrough

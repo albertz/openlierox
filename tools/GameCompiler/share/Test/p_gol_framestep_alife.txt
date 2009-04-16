@@ -13,7 +13,8 @@ ActionNum = 2
 Type = GoThrough
 
 [PlayerHit]
-Type = Nothing
+Type = GoThrough
+ChangeTargetSpeed = 1,0,0,-1
 
 [Action1]
 Event = Time_GoodCellsAmount

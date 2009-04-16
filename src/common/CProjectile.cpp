@@ -803,11 +803,14 @@ int CProjectile::CheckWormCollision(CWorm *worms)
 // TODO: move to physics?
 int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 {
-	Shape<int> s; s.pos = pos;
-	s.radius = radius - VectorD2<int>(2,2);
-	if(s.radius.x < 0) s.radius.x = 0;
-	if(s.radius.y < 0) s.radius.y = 0;	
-	if(tProjInfo->Type == PRJ_CIRCLE) s.type = Shape<int>::ST_CIRCLE;
+	Shape<int> s; s.pos = pos; s.radius = radius;
+	if(tProjInfo->Type == PRJ_CIRCLE)
+		s.type = Shape<int>::ST_CIRCLE;
+	else {
+		// that's LX56 behaviour...
+		if(s.radius.x <= 2) s.radius.x = 0;
+		if(s.radius.y <= 2) s.radius.y = 0;
+	}
 	
 	CWorm* ownerWorm = NULL;
 	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
