@@ -12,7 +12,7 @@ ModName = Test Mod
 
 
 [Weapons]
-NumWeapons = 9
+NumWeapons = 11
 Weapon1 = w_beamtest1.txt
 Weapon2 = w_beamtest2.txt
 Weapon3 = w_polygontest.txt
@@ -22,6 +22,8 @@ Weapon6 = w_remotebomb.txt
 Weapon7 = w_remotebomb_detonator.txt
 Weapon8 = w_remotebomb_direct.txt
 Weapon9 = w_headingbomb.txt
+Weapon10 = w_seekerbot.txt
+Weapon11 = w_oneremotebomb.txt
 
 [NinjaRope]
 RopeLength = 300

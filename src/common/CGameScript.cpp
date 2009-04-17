@@ -389,11 +389,6 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 		if(proj->Tch.UseSound)
 			writeString(proj->Tch.SndFilename, fp);
 	}
-
-	if(Header.Version > GS_LX56_VERSION) {
-		proj->Death.write(this, fp);
-		proj->Fallback.write(this, fp);
-	}
 	
 	if(Header.Version > GS_LX56_VERSION) {
 		fwrite_endian<Uint32>(fp, proj->actions.size());
@@ -708,8 +703,6 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	proj->Rotating = false;
 	proj->RotIncrement = 0;
 	proj->Timer.Shake = 0;
-	proj->Death.Type = PJ_NOTHING;
-	proj->Fallback.Type = PJ_NOTHING;
 
 	switch(proj->Type) {
 		case PRJ_POLYGON: {
@@ -907,11 +900,6 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		if(proj->Tch.UseSound) {
 			proj->Tch.SndFilename = readString(fp);
 		}
-	}
-
-	if(Header.Version > GS_LX56_VERSION) {
-		proj->Death.read(this, fp);
-		proj->Fallback.read(this, fp);
 	}
 	
 	if(Header.Version > GS_LX56_VERSION) {
@@ -1304,6 +1292,8 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
 	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
 	AddKeyword("TerrainHit", Proj_Event::PET_TERRAINHIT); 
+	AddKeyword("Death", Proj_Event::PET_DEATH); 
+	AddKeyword("Fallback", Proj_Event::PET_FALLBACK); 
 	AddKeyword("TRL_NONE",TRL_NONE);
 	AddKeyword("TRL_SMOKE",TRL_SMOKE);
 	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
@@ -1690,28 +1680,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			
 			proj->actions.push_back(act);
 		}
-	}
-
-	{
-		proj->Fallback.Type = PJ_NOTHING;
-		proj->Fallback.readFromIni(this, dir, file, "Fallback");
-
-		if(proj->Fallback.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
-			warnings << dir << "/" << pfile << ": Fallback section wants to spawn projectiles but there is no spawning information" << endl;
-			proj->Fallback.Projectiles = false;
-		}
-	}
-	
-	{
-		proj->Death.Type = PJ_NOTHING;
-		proj->Death.readFromIni(this, dir, file, "Death");
-
-		if(proj->Death.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
-			warnings << dir << "/" << pfile << ": Death section wants to spawn projectiles but there is no spawning information" << endl;
-			proj->Death.Projectiles = false;
-		}
-	}
-	
+	}	
 	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {

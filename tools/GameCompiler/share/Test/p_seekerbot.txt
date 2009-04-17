@@ -1,0 +1,47 @@
+
+[General]
+Type = PRJ_CIRCLE
+Colour1 = 0,0,255,200
+ActionNum = 3
+Gravity = 0
+
+[Hit]
+Type = GoThrough
+
+[PlayerHit]
+Type = GoThrough
+
+[Action1]
+Event = Timer
+HeadingToNextEnemyWormSpeed = 20
+
+[Timer]
+Type = Timer
+Repeat = true
+Delay = 0.1
+
+
+[Action2]
+Event = HitEnemy
+Projectiles = true
+Type = Disappear2
+
+[Action2.Projectile]
+Projectile = p_remotebomb_expl.txt
+
+[HitEnemy]
+Type = WormHit
+EnemyOfProjOwner = true
+
+
+[Action3]
+Event = TimeOut
+Projectiles = true
+Type = Disappear2
+
+[Action3.Projectile]
+Projectile = p_remotebomb_expl.txt
+
+[TimeOut]
+Type = Timer
+Delay = 10

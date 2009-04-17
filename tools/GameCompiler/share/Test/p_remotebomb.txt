@@ -8,6 +8,7 @@ Image = grenade.png
 Rotating = true
 RotIncrement = 90
 RotSpeed = 400
+ActionNum = 1
 
 [Hit]
 Type = Bounce
@@ -16,11 +17,15 @@ BounceCoeff = 0.6
 [PlayerHit]
 Type = Nothing
 
-[Death]
+[Action1]
 Type = Explode
 Damage = 50
 Projectiles = true
+Event = Death
 
-[Death.Projectile]
+[Death]
+Type = Death
+
+[Action1.Projectile]
 Projectile = p_remotebomb_expl.txt
 

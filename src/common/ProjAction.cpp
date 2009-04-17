@@ -355,7 +355,9 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
 			if(eventInfo.colType && !eventInfo.colType->withWorm && eventInfo.colType->colMask & PJC_MAPBORDER) {
 				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-				info->deleteAfter = true;
+				if((prj->GetPosition().x < 0 || prj->GetPosition().x > cClient->getMap()->GetWidth())
+				&& (prj->GetPosition().y < 0 || prj->GetPosition().y > cClient->getMap()->GetHeight()))
+					info->deleteAfter = true;
 			}
 			push_worm = false;
 			if(eventInfo.timerHit) spawnprojs = false;
@@ -435,7 +437,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 
 
 
-bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
 	float f = prj->getTimeVarRandom();
 	if(Time > 0 && (Time + TimeVar * f) < prj->getLife()) {
 		eventInfo.timerHit = true;
@@ -444,7 +446,7 @@ bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	return false;
 }
 
-bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
 	float& last = prj->timerInfo[this];
 	if(last > 0 && !Repeat) return false;
 	
@@ -500,7 +502,7 @@ static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) 
 	return CClient::MapPosIndex( p + VectorD2<int>(LEFT ? -r.x : r.x, TOP ? -r.y : r.y) );
 }
 
-bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj) const {
+bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, Proj_DoActionInfo*) const {
 	const VectorD2<int> vPosition = prj->GetPosition();
 	const VectorD2<int> radius = prj->getRadius();
 	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
@@ -553,14 +555,14 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	return true;
 }
 
-bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
 	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
 	return match(eventInfo.colType->wormId, prj);	
 }
 
 
 
-bool Proj_TerrainHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj) const {
+bool Proj_TerrainHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
 	if(eventInfo.colType == NULL || eventInfo.colType->withWorm) return false;
 	
 	const int colMask = eventInfo.colType->colMask;
@@ -571,6 +573,14 @@ bool Proj_TerrainHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectil
 	return true;
 }
 
+
+bool Proj_DeathEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
+	return prj->getHealth() < 0;
+}
+
+bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+	return !info->hasAnyEffect();
+}
 
 
 

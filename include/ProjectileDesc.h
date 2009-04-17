@@ -98,13 +98,7 @@ struct proj_t {
 	
 	// new events
 	std::vector<Proj_EventAndAction> actions; // new since beta9
-	
-	// if health < 0
-	Proj_Action Death; // new since beta9
-	
-	// if we have no action from other events
-	Proj_Action Fallback; // new since beta9	
-	
+		
 	// event proj spawning (if no specific spawnInfo is set in Proj_Action)
 	Proj_SpawnInfo GeneralSpawnInfo;
 	

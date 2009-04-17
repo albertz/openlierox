@@ -1,0 +1,48 @@
+
+[General]
+Type = PRJ_RECT
+Colour1 = 255,255,255,100
+Width = 200
+Height = 200
+Gravity = 0
+Dampening = 0
+ActionNum = 3
+
+[PlayerHit]
+Type = Nothing
+
+[Hit]
+Type = GoThrough
+
+[Action1]
+Event = SelfHit
+Type = Disappear2
+
+[SelfHit]
+Type = ProjHit
+Target = p_oneremotebomb_init.txt
+SameWormAsProjOwner = true
+
+[Action2]
+Event = BeginFallback
+Projectiles = true
+
+[BeginFallback]
+Type = Timer
+Delay = 0
+Repeat = false
+AndEvent = Fallback
+
+[Fallback]
+Type = Fallback
+
+[Action2.Projectile]
+Projectile = p_remotebomb.txt
+
+[Action3]
+Type = Disappear2
+Event = WaitTime
+
+[WaitTime]
+Type = Timer
+Delay = 0.5

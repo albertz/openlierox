@@ -1,0 +1,20 @@
+
+[General]
+Name = One Remote Bomb
+Class = WCL_GRENADE
+Recoil = 0
+Recharge = 1
+Drain = 10
+ROF = 100
+
+[Projectile]
+Amount = 1
+Speed = 100
+Spread = 0
+Projectile = p_oneremotebomb_init.txt
+
+[FinalProj]
+Amount = 1
+Speed = 20
+Spread = 0
+Projectile = p_remotebomb_detonator.txt
