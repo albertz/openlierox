@@ -212,7 +212,7 @@ public:
 	
 	const gs_worm_t	*getWorm()	const	{ return &Worm; }
 
-	int		getProjectileCount() const	{ return projectiles.size(); }
+	size_t	getProjectileCount() const	{ return projectiles.size(); }
 	
 	bool		Compile(const std::string& dir);
 	

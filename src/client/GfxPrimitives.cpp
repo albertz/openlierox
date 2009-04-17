@@ -2063,7 +2063,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
 	if(r.x + r.w < bmpDest->clip_rect.x) return;
 	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
-	r.w = MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
+	r.w = (Uint16)MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
 	
 	if(doReloadLines) reloadLines();
 		
@@ -2097,7 +2097,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Col
 	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
 	if(r.x + r.w < bmpDest->clip_rect.x) return;
 	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
-	r.w = MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
+	r.w = (Uint16)MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
 	
 	const int bpp = bmpDest->format->BytesPerPixel;
 	int wx = v->GetWorldX();

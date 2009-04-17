@@ -2096,7 +2096,7 @@ std::string Menu_SvrList_GetUdpMasterserverForServer(const std::string & addr)
 	server_t * svr = Menu_SvrList_FindServerStr(addr);
 	if( !svr )
 		return "";
-	if( !svr->bBehindNat );
+	if( !svr->bBehindNat )
 		return "";
 
 	int idx = 0;

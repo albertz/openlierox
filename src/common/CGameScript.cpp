@@ -240,7 +240,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
     // Pixel type
 	switch(proj->Type) {
 		case PRJ_POLYGON:
-			fwrite_endian<Uint32>(fp, proj->polygon.points.size());
+			fwrite_endian<Uint32>(fp, (Uint32)proj->polygon.points.size());
 			for(Polygon2D::Points::iterator p = proj->polygon.points.begin(); p != proj->polygon.points.end(); ++p) {
 				fwrite_endian<int>(fp, p->x);
 				fwrite_endian<int>(fp, p->y);				
@@ -391,7 +391,7 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	}
 	
 	if(Header.Version > GS_LX56_VERSION) {
-		fwrite_endian<Uint32>(fp, proj->actions.size());
+		fwrite_endian<Uint32>(fp, (Uint32)proj->actions.size());
 		for(Uint32 i = 0; i < proj->actions.size(); ++i) {
 			proj->actions[i].write(this, fp);
 		}
@@ -599,7 +599,11 @@ int CGameScript::Load(const std::string& dir)
 
 			if(wpn->UseSound) {
 				// Load the sample
+#if !defined(_CONSOLE)
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
+#else
+				wpn->smpSample = NULL;
+#endif
 				if(wpn->smpSample == NULL)
 					wpn->UseSound = false;
 			}
@@ -659,7 +663,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			return f->second;
 	}
 	else
-		projIndex = projectiles.size();
+		projIndex = (int)projectiles.size();
 		
 	proj_t *proj = new proj_t;
 	if(proj == NULL)
@@ -744,8 +748,12 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		}
 		case PRJ_IMAGE:
 			proj->ImgFilename = readString(fp);
-			
+		
+#if !defined(_CONSOLE)
 			proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
+#else
+			proj->bmpImage = NULL;
+#endif
 			if(!proj->bmpImage)
 				modLog("Could not open image '" + proj->ImgFilename + "'");
 			
@@ -815,7 +823,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	
 	if(!bDedicated && proj->Hit.UseSound) {
 		// Load the sample
+#if !defined(_CONSOLE)
 		proj->smpSample = LoadGSSample(sDirectory,proj->Hit.SndFilename);
+#else
+		proj->smpSample = NULL;
+#endif
 		
 		if(proj->smpSample == NULL) {
 			proj->Hit.UseSound = false;
@@ -961,7 +973,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	return proj;
 }
 
-
+#ifndef _CONSOLE
 ///////////////////
 // Load an image
 SDL_Surface * CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
@@ -986,7 +998,6 @@ SDL_Surface * CGameScript::LoadGSImage(const std::string& dir, const std::string
 	return img.get();
 }
 
-
 ///////////////////
 // Load a sample
 SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
@@ -1009,6 +1020,7 @@ SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::strin
 	return smp.get();
 }
 
+#endif
 
 
 ///////////////////
@@ -1415,10 +1427,13 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
 		Weap->UseSound = true;
 	
+	Weap->smpSample = NULL;
+#ifndef _CONSOLE
 		if(!bDedicated) {
 			// Load the sample
 			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
-		}	
+		}
+#endif
 	}
 	
 	Weap->Proj.readFromIni(this, dir, file, "Projectile");
@@ -1478,7 +1493,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	if(proj == NULL)
 		return NULL;
 
-	int projIndex = projectiles.size();
+	int projIndex = (int)projectiles.size();
 	projectiles[projIndex] = proj;	
 	projFileIndexes[pfile] = projIndex;
 	
@@ -1525,7 +1540,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		case PRJ_POLYGON:
 			for(size_t i = 0; ; ++i) {
 				VectorD2<int> p;
-				if( ReadVectorD2(file,"General", "P" + itoa(i+1), p) ) {
+				if( ReadVectorD2(file,"General", "P" + itoa((unsigned)i+1), p) ) {
 					proj->polygon.points.push_back(p);
 				} else
 					break;
@@ -1544,7 +1559,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		case PRJ_PIXEL:
 			for(size_t i = 0; ; ++i) {
 				Color col;
-				if( ReadColour(file,"General","Colour" + itoa(i+1), col, Color()) ) {
+				if( ReadColour(file,"General","Colour" + itoa((unsigned)i+1), col, Color()) ) {
 					proj->Colour.push_back(col);
 				} else
 					break;
@@ -1572,7 +1587,11 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			}
 	
 			if(!bDedicated) {
+#if !defined(_CONSOLE)
 				proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
+#else
+				proj->bmpImage = NULL;
+#endif
 				if(!proj->bmpImage)
 					modLog("Could not open image '" + proj->ImgFilename + "'");
 			}
@@ -1593,12 +1612,16 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	proj->Hit.readFromIni(this, dir, file, "Hit");
 	if(!bDedicated && proj->Hit.UseSound) {
+#if !defined(_CONSOLE)
 		// Load the sample
 		proj->smpSample = LoadGSSample(dir, proj->Hit.SndFilename);
 		
 		if(proj->smpSample == NULL) {
 			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
 		}
+#else
+		proj->smpSample = NULL;
+#endif
 	}
 	
 	if(proj->Hit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
@@ -2122,7 +2145,7 @@ bool Proj_EventAndAction::read(CGameScript* gs, FILE* fp) {
 }
 
 bool Proj_EventAndAction::write(CGameScript* gs, FILE* fp) {
-	fwrite_endian<Uint32>(fp, events.size());
+	fwrite_endian<Uint32>(fp, (Uint32)events.size());
 	
 	for(Uint32 i = 0; i < events.size(); ++i)
 		events[i].write(gs, fp);
