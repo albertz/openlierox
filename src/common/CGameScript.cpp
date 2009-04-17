@@ -746,13 +746,11 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		case PRJ_IMAGE:
 			proj->ImgFilename = readString(fp);
 		
-#if !defined(_CONSOLE)
-			proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
-#else
-			proj->bmpImage = NULL;
-#endif
-			if(!proj->bmpImage)
-				modLog("Could not open image '" + proj->ImgFilename + "'");
+			if(!bDedicated) {
+				proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
+				if(!proj->bmpImage)
+					modLog("Could not open image '" + proj->ImgFilename + "'");
+			}
 			
 			fread_endian<int>(fp, proj->Rotating);
 			fread_compat(proj->RotIncrement, sizeof(int), 1, fp);
@@ -1578,11 +1576,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			}
 	
 			if(!bDedicated) {
-#if !defined(_CONSOLE)
 				proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
-#else
-				proj->bmpImage = NULL;
-#endif
 				if(!proj->bmpImage)
 					modLog("Could not open image '" + proj->ImgFilename + "'");
 			}
