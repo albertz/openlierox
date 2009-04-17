@@ -315,12 +315,6 @@ bool GameOptions::LoadFromDisc()
 	}
 
 	std::string optionsFilename = "cfg/options.cfg";
-	if(bDedicated)
-	{
-		if( IsFileAvailable("cfg/options_dedicated.cfg") )
-			optionsFilename = "cfg/options_dedicated.cfg";
-	}
-
 	notes << "Reading game options from " << GetFullFileName(optionsFilename) << endl;
 	notes << "Will write game options to " << GetWriteFullFileName(optionsFilename, true) << endl;
 	
