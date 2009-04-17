@@ -485,6 +485,10 @@ static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev,
 	if(p == prj) return true;
 	if(info.Target && p->getProjInfo() != info.Target) return true;	
 	if(!info.ownerWorm.match(prj->GetOwner(), p)) return true;
+	if(info.TargetHealthIsMore && p->getHealth() <= prj->getHealth()) return true;
+	if(info.TargetHealthIsLess && p->getHealth() >= prj->getHealth()) return true;
+	if(info.TargetTimeIsMore && p->getLife() <= prj->getLife()) return true;
+	if(info.TargetTimeIsLess && p->getLife() >= prj->getLife()) return true;
 	
 	if(info.Width >= 0 && info.Height >= 0) { if(!prj->CollisionWith(p, info.Width/2, info.Height/2)) return true; }
 	else { if(!prj->CollisionWith(p)) return true; }
