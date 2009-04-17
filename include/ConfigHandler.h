@@ -55,7 +55,7 @@ bool ReadArray(const std::string& filename, const std::string& section, const st
 	
 	std::vector<std::string> arr = explode(string,",");
 	for (size_t i=0; i< MIN(num,arr.size()); i++)
-		data[i] = (T)from_string<int>(arr[i]);
+		data[i] = from_string<T>(arr[i]);
 	
 	return num == arr.size();
 }
