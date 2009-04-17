@@ -691,6 +691,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	// Other game details
 	client->tGameInfo.iGeneralGameType = bs->readInt(1);
+	if( client->tGameInfo.iGeneralGameType > GMT_MAX || client->tGameInfo.iGeneralGameType < 0 )
+		client->tGameInfo.iGeneralGameType = GMT_NORMAL;
 	client->tGameInfo.gameMode = NULL;
 	client->tGameInfo.sGameMode = guessGeneralGameTypeName(client->tGameInfo.iGeneralGameType);
 
@@ -2027,6 +2029,8 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     client->tGameInfo.sModName = bs->readString();
     client->tGameInfo.sModDir = bs->readString();
 	client->tGameInfo.iGeneralGameType = bs->readByte();
+	if( client->tGameInfo.iGeneralGameType > GMT_MAX || client->tGameInfo.iGeneralGameType < 0 )
+		client->tGameInfo.iGeneralGameType = GMT_NORMAL;
 	client->tGameInfo.sGameMode = "";
 	client->tGameInfo.gameMode = NULL;
 	client->tGameInfo.iLives = bs->readInt16();

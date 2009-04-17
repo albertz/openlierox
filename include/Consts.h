@@ -61,7 +61,8 @@ enum {
 	GMT_NORMAL = 0,  // Worms appear as normal
 	GMT_TEAMS,   // Worms appear in teams
 	GMT_TIME,    // One worm appears special, worms have a time attribute
-	GMT_DIRT     // There is a dirt counter
+	GMT_DIRT,     // There is a dirt counter
+	GMT_MAX = GMT_DIRT
 };
 
 enum AFK_TYPE {
