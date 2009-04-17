@@ -172,10 +172,8 @@ public:
 
     void        modLog(const std::string& text);
 
-#ifndef _CONSOLE
 	SDL_Surface * LoadGSImage(const std::string& dir, const std::string& filename);
 	SoundSample * LoadGSSample(const std::string& dir, const std::string& filename);
-#endif
 
 	const gs_header_t	*GetHeader()				{ return &Header; }
 	static bool	isCompatibleWith(int scriptVer, const Version& ver) {

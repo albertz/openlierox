@@ -597,13 +597,10 @@ int CGameScript::Load(const std::string& dir)
 				wpn->Proj.read(this, fp);
 			}
 
-			if(wpn->UseSound) {
+			if(!bDedicated && wpn->UseSound) {
 				// Load the sample
-#if !defined(_CONSOLE)
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
-#else
-				wpn->smpSample = NULL;
-#endif
+
 				if(wpn->smpSample == NULL)
 					wpn->UseSound = false;
 			}
@@ -823,18 +820,13 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	
 	if(!bDedicated && proj->Hit.UseSound) {
 		// Load the sample
-#if !defined(_CONSOLE)
 		proj->smpSample = LoadGSSample(sDirectory,proj->Hit.SndFilename);
-#else
-		proj->smpSample = NULL;
-#endif
 		
 		if(proj->smpSample == NULL) {
 			proj->Hit.UseSound = false;
 			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
 		}
-	} else
-		proj->smpSample = NULL;
+	}
 	
 
 
@@ -973,11 +965,12 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	return proj;
 }
 
-#ifndef _CONSOLE
 ///////////////////
 // Load an image
 SDL_Surface * CGameScript::LoadGSImage(const std::string& dir, const std::string& filename)
 {
+	if(bDedicated) return NULL;
+
 	SmartPointer<SDL_Surface> img = NULL;
 
 	// First, check the gfx directory in the mod dir
@@ -1002,6 +995,8 @@ SDL_Surface * CGameScript::LoadGSImage(const std::string& dir, const std::string
 // Load a sample
 SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::string& filename)
 {
+	if(bDedicated) return NULL;
+	
 	SmartPointer<SoundSample> smp = NULL;
 
 	// First, check the sfx directory in the mod dir
@@ -1020,7 +1015,6 @@ SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::strin
 	return smp.get();
 }
 
-#endif
 
 
 ///////////////////
@@ -1427,13 +1421,10 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
 		Weap->UseSound = true;
 	
-	Weap->smpSample = NULL;
-#ifndef _CONSOLE
 		if(!bDedicated) {
 			// Load the sample
 			Weap->smpSample = LoadGSSample(dir,Weap->SndFilename);
 		}
-#endif
 	}
 	
 	Weap->Proj.readFromIni(this, dir, file, "Projectile");
@@ -1612,16 +1603,12 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	proj->Hit.readFromIni(this, dir, file, "Hit");
 	if(!bDedicated && proj->Hit.UseSound) {
-#if !defined(_CONSOLE)
 		// Load the sample
 		proj->smpSample = LoadGSSample(dir, proj->Hit.SndFilename);
 		
 		if(proj->smpSample == NULL) {
 			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
 		}
-#else
-		proj->smpSample = NULL;
-#endif
 	}
 	
 	if(proj->Hit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
