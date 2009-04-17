@@ -276,15 +276,20 @@ struct Proj_WormHitEvent : _Proj_Event {
 
 struct Proj_ProjHitEvent : _Proj_Event {
 	Proj_ProjHitEvent() :
-	Target(NULL), MinHitCount(1), MaxHitCount(-1), Width(-1), Height(-1) {}
+	Target(NULL), MinHitCount(1), MaxHitCount(-1), Width(-1), Height(-1),
+	TargetHealthIsMore(false), TargetHealthIsLess(false), TargetTimeIsMore(false), TargetTimeIsLess(false) {}
 	
 	proj_t* Target; // NULL -> any target
 	int		MinHitCount, MaxHitCount;
 	int		Width, Height; // custom w/h for collision check area
+	bool	TargetHealthIsMore, TargetHealthIsLess;
+	bool	TargetTimeIsMore, TargetTimeIsLess;
 	Proj_WormHitEvent ownerWorm;
 	
 	bool canMatch() const {
-		if(MaxHitCount >= 0 && MaxHitCount < MinHitCount) return false;	
+		if(MaxHitCount >= 0 && MaxHitCount < MinHitCount) return false;
+		if(TargetHealthIsMore && TargetHealthIsLess) return false;
+		if(TargetTimeIsMore && TargetTimeIsLess) return false;
 		return ownerWorm.canMatch();
 	}
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;

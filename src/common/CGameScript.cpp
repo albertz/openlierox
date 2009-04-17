@@ -2061,7 +2061,14 @@ bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const std:
 		warnings << file << ":" << section << ": Type attribute is invalid for event" << endl;
 		return false;
 	}
-	return get()->readFromIni(gs, dir, file, section);
+	if(!get()->readFromIni(gs, dir, file, section))
+		return false;
+	
+	if(!get()->canMatch()) {
+		warnings << file << ":" << section << ": Event can never occur with these settings" << endl;
+		return false;
+	}
+	return true;
 }
 
 bool Proj_Event::read(CGameScript* gs, FILE* fp) {
@@ -2161,6 +2168,11 @@ bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, con
 	ReadInteger(file, section, "Width", &Width, Width);
 	ReadInteger(file, section, "Height", &Height, Height);	
 	
+	ReadKeyword(file, section, "TargetHealthIsMore", &TargetHealthIsMore, TargetHealthIsMore);
+	ReadKeyword(file, section, "TargetHealthIsLess", &TargetHealthIsLess, TargetHealthIsLess);
+	ReadKeyword(file, section, "TargetTimeIsMore", &TargetTimeIsMore, TargetTimeIsMore);
+	ReadKeyword(file, section, "TargetTimeIsLess", &TargetTimeIsLess, TargetTimeIsLess);
+	
 	std::string prjfile;
 	ReadString(file, section, "Target", prjfile, "");
 	if(prjfile != "")
@@ -2183,6 +2195,10 @@ bool Proj_ProjHitEvent::read(CGameScript* gs, FILE* fp) {
 	fread_endian<int>(fp, MaxHitCount);
 	fread_endian<int>(fp, Width);
 	fread_endian<int>(fp, Height);
+	fread_endian<char>(fp, TargetHealthIsMore);
+	fread_endian<char>(fp, TargetHealthIsLess);
+	fread_endian<char>(fp, TargetTimeIsMore);
+	fread_endian<char>(fp, TargetTimeIsLess);
 	
 	bool hasSpecificTarget = false;
 	fread_endian<char>(fp, hasSpecificTarget);
@@ -2205,6 +2221,10 @@ bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<int>(fp, MaxHitCount);
 	fwrite_endian<int>(fp, Width);
 	fwrite_endian<int>(fp, Height);
+	fwrite_endian<char>(fp, TargetHealthIsMore);
+	fwrite_endian<char>(fp, TargetHealthIsLess);
+	fwrite_endian<char>(fp, TargetTimeIsMore);
+	fwrite_endian<char>(fp, TargetTimeIsLess);
 	
 	fwrite_endian<char>(fp, Target != NULL);
 	if(Target) return gs->SaveProjectile(Target, fp);
