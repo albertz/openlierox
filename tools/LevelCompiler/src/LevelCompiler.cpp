@@ -3,7 +3,7 @@
 #include <zlib.h>
 
 // Some basic defines
-#define WINDOW_WIDTH 300
+#define WINDOW_WIDTH 500
 #define BROWSE_BTN_WIDTH 30
 #define SPACING 10
 
@@ -25,18 +25,21 @@ class LevelCompilerApp : public wxApp
 	wxString commandLineFront;
 	wxString commandLineBack;
 	wxString commandLineMat;
+	wxString commandLineFrontHiRes;
+	wxString commandLineBackHiRes;
 	wxString commandLineName;
 	wxString commandLineOut;
 };
 
 // The function that does all the work :)
-void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name);
+void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
+					const wxString& frontHiRes, const wxString& backHiRes, const std::string& additionalData);
 
 // Basic functions
-int max(const int vals[])
+int max(const int vals[], int size)
 {
 	int res = vals[0];
-	for (int i = 1; i < sizeof(vals)/sizeof(int); i++)
+	for (int i = 1; i < size; i++)
 		if (vals[i] > res) 
 			res = vals[i];
 
@@ -61,6 +64,10 @@ enum {
 	lc_Back,
 	lc_BrowseMat,
 	lc_Mat,
+	lc_BrowseFrontHiRes,
+	lc_FrontHiRes,
+	lc_BrowseBackHiRes,
+	lc_BackHiRes,
 	lc_Name,
 	lc_Compile,
 	lc_Exit,
@@ -89,17 +96,23 @@ private:
 	wxButton *btnBrowseFront;
 	wxButton *btnBrowseBack;
 	wxButton *btnBrowseMat;
+	wxButton *btnBrowseFrontHiRes;
+	wxButton *btnBrowseBackHiRes;
 	wxButton *btnCompile;
 	wxButton *btnExit;
 
 	wxTextCtrl *txtFront;
 	wxTextCtrl *txtBack;
 	wxTextCtrl *txtMat;
+	wxTextCtrl *txtFrontHiRes;
+	wxTextCtrl *txtBackHiRes;
 	wxTextCtrl *txtName;
 
 	wxStaticText *lblFront;
 	wxStaticText *lblBack;
 	wxStaticText *lblMat;
+	wxStaticText *lblFrontHiRes;
+	wxStaticText *lblBackHiRes;
 	wxStaticText *lblName;
 
 	wxPanel *pnlMain;
@@ -113,6 +126,8 @@ protected:
 	void OnBrowseFrontClick(wxCommandEvent& evt);
 	void OnBrowseBackClick(wxCommandEvent& evt);
 	void OnBrowseMatClick(wxCommandEvent& evt);
+	void OnBrowseFrontHiResClick(wxCommandEvent& evt);
+	void OnBrowseBackHiResClick(wxCommandEvent& evt);
 	void OnCompileClick(wxCommandEvent& evt);
 	void OnExitClick(wxCommandEvent& evt);
 
@@ -125,6 +140,8 @@ BEGIN_EVENT_TABLE(LevelCompilerFrame, wxFrame)
 EVT_BUTTON(lc_BrowseFront, LevelCompilerFrame::OnBrowseFrontClick)
 EVT_BUTTON(lc_BrowseBack, LevelCompilerFrame::OnBrowseBackClick)
 EVT_BUTTON(lc_BrowseMat, LevelCompilerFrame::OnBrowseMatClick)
+EVT_BUTTON(lc_BrowseFrontHiRes, LevelCompilerFrame::OnBrowseFrontHiResClick)
+EVT_BUTTON(lc_BrowseBackHiRes, LevelCompilerFrame::OnBrowseBackHiResClick)
 EVT_BUTTON(lc_Compile, LevelCompilerFrame::OnCompileClick)
 EVT_BUTTON(lc_Exit, LevelCompilerFrame::OnExitClick)
 END_EVENT_TABLE()
@@ -138,9 +155,10 @@ bool LevelCompilerApp::OnInit()
 	if( !commandLineFront.IsEmpty() )
 	{
 		try {
-			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName);
+			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName, 
+							commandLineFrontHiRes, commandLineBackHiRes, "");
 		} catch (Exception &e) {
-			printf("An error occured while compiling: %s\n", e.message.c_str());
+			printf("An error occured while compiling: %s\n", (const char *)e.message.mb_str());
 			return false;
 		}
 		return true;
@@ -160,6 +178,8 @@ void LevelCompilerApp::OnInitCmdLine(wxCmdLineParser& parser)
 		{ wxCMD_LINE_PARAM, NULL, NULL, _T("MaterialImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 		{ wxCMD_LINE_PARAM, NULL, NULL, _T("\"Level Name\""), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 		{ wxCMD_LINE_PARAM, NULL, NULL, _T("OutputFile"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("FrontHiResImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
+		{ wxCMD_LINE_PARAM, NULL, NULL, _T("BackHiResImage"), wxCMD_LINE_VAL_STRING, wxCMD_LINE_PARAM_OPTIONAL},
 		{ wxCMD_LINE_NONE }
 	};
 
@@ -177,9 +197,16 @@ bool LevelCompilerApp::OnCmdLineParsed(wxCmdLineParser& parser)
 		commandLineName = parser.GetParam(3);
 	
 		if(parser.GetParamCount() >= 5)
+		{
 			commandLineOut = parser.GetParam(4);
+		}
 		else
 			commandLineOut = commandLineName + (wxChar)".lxl";
+		if(parser.GetParamCount() >= 7)
+		{
+			commandLineFrontHiRes = parser.GetParam(5);
+			commandLineBackHiRes = parser.GetParam(6);
+		}
 	}
 	else if(parser.GetParamCount() > 0 && parser.GetParamCount() < 4)
 	{
@@ -207,15 +234,21 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	lblFront = new wxStaticText(pnlMain, wxID_ANY, _T("Front image:"));
 	lblBack = new wxStaticText(pnlMain, wxID_ANY, _T("Back image:"));
 	lblMat = new wxStaticText(pnlMain, wxID_ANY, _T("Material image:"));
+	lblFrontHiRes = new wxStaticText(pnlMain, wxID_ANY, _T("Front hi-res image (optional):"));
+	lblBackHiRes = new wxStaticText(pnlMain, wxID_ANY, _T("Back hi-res image (optional):"));
 	lblName = new wxStaticText(pnlMain, wxID_ANY, _T("Level name:"));
 	btnBrowseFront = new wxButton(pnlMain, lc_BrowseFront, _T("..."));
 	btnBrowseBack = new wxButton(pnlMain, lc_BrowseBack, _T("..."));
 	btnBrowseMat = new wxButton(pnlMain, lc_BrowseMat, _T("..."));
+	btnBrowseFrontHiRes = new wxButton(pnlMain, lc_BrowseFrontHiRes, _T("..."));
+	btnBrowseBackHiRes = new wxButton(pnlMain, lc_BrowseBackHiRes, _T("..."));
 	btnCompile = new wxButton(pnlMain, lc_Compile, _T("&Compile"));
 	btnExit = new wxButton(pnlMain, lc_Exit, _T("&Exit"));
 	txtFront = new wxTextCtrl(pnlMain, lc_Front);
 	txtBack = new wxTextCtrl(pnlMain, lc_Back);
 	txtMat = new wxTextCtrl(pnlMain, lc_Mat);
+	txtFrontHiRes = new wxTextCtrl(pnlMain, lc_FrontHiRes);
+	txtBackHiRes = new wxTextCtrl(pnlMain, lc_BackHiRes);
 	txtName = new wxTextCtrl(pnlMain, lc_Name);
 	dlgSelectFile = new wxFileDialog(this, wxFileSelectorPromptStr, wxEmptyString, wxEmptyString, 
 					_T("All supported files|*.bmp;*.png;*.jpg;*.gif;*.pcx;*.tif;*.tiff;*.pnm;*.xpm;*.tga|Bitmap Images (*.bmp)|*.bmp|PNG Images (*.png)|*.png|JPG Images (*.jpg)|*.jpg|GIF Images (*.gif)|*.gif|PCX Images (*.pcx)|*.pcx|Tiff Images (*.tif, *.tiff)|*.tif;*.tiff|PNM Images (*.pnm)|*.pnm|XPM Images (*.xpm)|*.xpm|Targa Images (*.tga)|*.tga|All files (*.*)|*.*"),wxFD_OPEN);
@@ -227,15 +260,15 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	pnlMain->SetSize(this->GetClientSize());
 	const int buttonHeight = btnBrowseFront->GetSize().GetHeight();
 	const int clientWidth = pnlMain->GetClientSize().GetWidth();
-	const int lblWidths[] = {lblFront->GetSize().GetWidth(), lblBack->GetSize().GetWidth(), lblMat->GetSize().GetWidth(), lblName->GetSize().GetWidth()};
-	const int maxLabelWidth = max(lblWidths) + 2*SPACING;
+	const int lblWidths[] = {lblFront->GetSize().GetWidth(), lblBack->GetSize().GetWidth(), lblMat->GetSize().GetWidth(), lblName->GetSize().GetWidth(), lblFrontHiRes->GetSize().GetWidth(), lblBackHiRes->GetSize().GetWidth()};
+	const int maxLabelWidth = max(lblWidths, sizeof(lblWidths)/sizeof(lblWidths[0])) + 2*SPACING;
 
 	btnBrowseFront->SetSize(clientWidth - BROWSE_BTN_WIDTH - SPACING, SPACING, BROWSE_BTN_WIDTH, -1);
 	txtFront->SetSize(SPACING + maxLabelWidth, btnBrowseFront->GetPosition().y, btnBrowseFront->GetPosition().x - 2*SPACING - maxLabelWidth, btnBrowseFront->GetSize().GetHeight());
 	lblFront->SetPosition(wxPoint(SPACING, txtFront->GetPosition().y + (txtFront->GetSize().GetHeight() - lblFront->GetSize().GetHeight())/2));
 
 	btnBrowseBack->SetSize(clientWidth - BROWSE_BTN_WIDTH - SPACING, btnBrowseFront->GetPosition().y + btnBrowseFront->GetSize().GetHeight() + SPACING, BROWSE_BTN_WIDTH, -1);
-	btnBrowseBack->SetSize(-1, -1, BROWSE_BTN_WIDTH, -1);
+	//btnBrowseBack->SetSize(-1, -1, BROWSE_BTN_WIDTH, -1);
 	txtBack->SetSize(SPACING + maxLabelWidth, btnBrowseBack->GetPosition().y, btnBrowseBack->GetPosition().x - 2*SPACING - maxLabelWidth, btnBrowseBack->GetSize().GetHeight());
 	lblBack->SetPosition(wxPoint(SPACING, txtBack->GetPosition().y + (txtBack->GetSize().GetHeight() - lblBack->GetSize().GetHeight())/2));
 
@@ -243,7 +276,15 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	txtMat->SetSize(SPACING + maxLabelWidth, btnBrowseMat->GetPosition().y, btnBrowseMat->GetPosition().x - 2*SPACING - maxLabelWidth, btnBrowseMat->GetSize().GetHeight());
 	lblMat->SetPosition(wxPoint(SPACING, txtMat->GetPosition().y + (txtMat->GetSize().GetHeight() - lblMat->GetSize().GetHeight())/2));
 
-	txtName->SetSize(SPACING + maxLabelWidth, txtMat->GetPosition().y + txtMat->GetSize().GetHeight() + SPACING, clientWidth - 2*SPACING - maxLabelWidth, txtMat->GetSize().GetHeight());
+	btnBrowseFrontHiRes->SetSize(clientWidth - BROWSE_BTN_WIDTH - SPACING, btnBrowseMat->GetPosition().y + btnBrowseMat->GetSize().GetHeight() + SPACING, BROWSE_BTN_WIDTH, -1);
+	txtFrontHiRes->SetSize(SPACING + maxLabelWidth, btnBrowseFrontHiRes->GetPosition().y, btnBrowseFrontHiRes->GetPosition().x - 2*SPACING - maxLabelWidth, btnBrowseFrontHiRes->GetSize().GetHeight());
+	lblFrontHiRes->SetPosition(wxPoint(SPACING, txtFrontHiRes->GetPosition().y + (txtFrontHiRes->GetSize().GetHeight() - lblFrontHiRes->GetSize().GetHeight())/2));
+
+	btnBrowseBackHiRes->SetSize(clientWidth - BROWSE_BTN_WIDTH - SPACING, btnBrowseFrontHiRes->GetPosition().y + btnBrowseFrontHiRes->GetSize().GetHeight() + SPACING, BROWSE_BTN_WIDTH, -1);
+	txtBackHiRes->SetSize(SPACING + maxLabelWidth, btnBrowseBackHiRes->GetPosition().y, btnBrowseBackHiRes->GetPosition().x - 2*SPACING - maxLabelWidth, btnBrowseBackHiRes->GetSize().GetHeight());
+	lblBackHiRes->SetPosition(wxPoint(SPACING, txtBackHiRes->GetPosition().y + (txtBackHiRes->GetSize().GetHeight() - lblBackHiRes->GetSize().GetHeight())/2));
+
+	txtName->SetSize(SPACING + maxLabelWidth, txtBackHiRes->GetPosition().y + txtBackHiRes->GetSize().GetHeight() + SPACING, clientWidth - 2*SPACING - maxLabelWidth, txtBackHiRes->GetSize().GetHeight());
 	lblName->SetPosition(wxPoint(SPACING, txtName->GetPosition().y + (txtName->GetSize().GetHeight() - lblName->GetSize().GetHeight())/2));
 
 	btnCompile->SetPosition(wxPoint(clientWidth/2 - btnCompile->GetSize().GetWidth() - SPACING/2, txtName->GetPosition().y + txtName->GetSize().GetHeight() + SPACING));
@@ -253,7 +294,7 @@ LevelCompilerFrame::LevelCompilerFrame(const wxString& title) : wxFrame(NULL, wx
 	dlgSelectFile->SetDirectory(wxGetHomeDir());
 
 	// Setup dimensions and position
-	this->SetClientSize(WINDOW_WIDTH, 6*SPACING + txtFront->GetSize().GetHeight() + txtBack->GetSize().GetHeight() + txtMat->GetSize().GetHeight() + txtName->GetSize().GetHeight() + btnCompile->GetSize().GetHeight());
+	this->SetClientSize(WINDOW_WIDTH, 8*SPACING + txtFront->GetSize().GetHeight() + txtBack->GetSize().GetHeight() + txtMat->GetSize().GetHeight() + txtFrontHiRes->GetSize().GetHeight() + txtBackHiRes->GetSize().GetHeight() + txtName->GetSize().GetHeight() + btnCompile->GetSize().GetHeight());
 	this->CentreOnScreen();
 }
 
@@ -263,15 +304,21 @@ LevelCompilerFrame::~LevelCompilerFrame()
 	delete lblFront;
 	delete lblBack;
 	delete lblMat;
+	delete lblFrontHiRes;
+	delete lblBackHiRes;
 	delete lblName;
 	delete btnBrowseFront;
 	delete btnBrowseBack;
 	delete btnBrowseMat;
+	delete btnBrowseFrontHiRes;
+	delete btnBrowseBackHiRes;
 	delete btnCompile;
 	delete btnExit;
 	delete txtFront;
 	delete txtBack;
 	delete txtMat;
+	delete txtFrontHiRes;
+	delete txtBackHiRes;
 	delete txtName;
 	delete pnlMain;
 	delete dlgSelectFile;
@@ -302,6 +349,22 @@ void LevelCompilerFrame::OnBrowseMatClick(wxCommandEvent &evt)
 	}
 }
 
+void LevelCompilerFrame::OnBrowseBackHiResClick(wxCommandEvent &evt)
+{
+	// Let the user choose the file
+	if (dlgSelectFile->ShowModal() == wxID_OK)  {
+		txtBackHiRes->SetValue(dlgSelectFile->GetPath());
+	}
+}
+
+void LevelCompilerFrame::OnBrowseFrontHiResClick(wxCommandEvent &evt)
+{
+	// Let the user choose the file
+	if (dlgSelectFile->ShowModal() == wxID_OK)  {
+		txtFrontHiRes->SetValue(dlgSelectFile->GetPath());
+	}
+}
+
 void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 {
 	// Let the user choose the path to save to
@@ -309,7 +372,8 @@ void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 	if (dlgSaveFile->ShowModal() == wxID_OK)  {
 		try  {
 			CompileLevel(txtFront->GetValue(), txtBack->GetValue(), txtMat->GetValue(), 
-				dlgSaveFile->GetPath(), txtName->GetValue());
+				dlgSaveFile->GetPath(), txtName->GetValue(),
+				txtFrontHiRes->GetValue(), txtBackHiRes->GetValue(), "");
 			wxMessageBox(_T("Level successfully compiled!"), _T("Success"));
 		} catch (Exception &e) {
 			wxMessageBox(_T("An error occured while compiling:\n") + e.message, _T("Compiler error"));
@@ -323,7 +387,8 @@ void LevelCompilerFrame::OnExitClick(wxCommandEvent &evt)
 	Close();
 }
 
-void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name)
+void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
+					const wxString& frontHiRes, const wxString& backHiRes, const std::string& additionalData)
 {
 	// Name check
 	if (name.size() == 0)
@@ -339,6 +404,13 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	wxImage frontImage;
 	wxImage backImage;
 	wxImage matImage;
+
+	bool useHiRes = true;
+	if( frontHiRes == _T("") )
+		useHiRes = false;
+		
+	wxImage frontImageHiRes;
+	wxImage backImageHiRes;
 
 	if (!frontImage.LoadFile(front))  {
 		fclose(fp);
@@ -356,6 +428,21 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		fclose(fp);
 		wxRemove(out);
 		throw Exception(_T("Could not load the material image."));
+	}
+	
+    if( useHiRes )
+	{
+		if (!frontImageHiRes.LoadFile(front))  {
+			fclose(fp);
+			wxRemove(out);
+			throw Exception(_T("Could not load the hi-res front image."));
+		}
+    
+		if (!backImageHiRes.LoadFile(back))  {
+			fclose(fp);
+			wxRemove(out);
+			throw Exception(_T("Could not load the hi-res background image."));
+		}
 	}
 
 	// Check the dimensions
@@ -385,6 +472,19 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		fclose(fp);
 		wxRemove(out);
 		throw Exception(_T("The level height cannot be less than 191 pixels."));
+	}
+	
+	if( useHiRes )
+	{
+		if( frontImageHiRes.GetWidth() != backImageHiRes.GetWidth() || 
+			frontImageHiRes.GetWidth() != frontImage.GetWidth() * 2 ||
+			frontImageHiRes.GetHeight() != backImageHiRes.GetHeight() || 
+			frontImageHiRes.GetHeight() != frontImage.GetHeight() * 2 ) 
+		{
+			fclose(fp);
+			wxRemove(out);
+			throw Exception(_T("Hi-res image dimensions should be 2x normal image dimensions"));
+		}
 	}
 
 	// Write out the header
@@ -466,6 +566,25 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
 	fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
 	fwrite(compressedData, compressedSize, 1, fp);
+	
+	if( useHiRes )
+	{
+		delete[] data;
+		delete[] compressedData;
+		uncompressedSize = 6 * 4 * width * height + additionalData.size(); // Frontsize * 3 + Backsize * 3 , sizes * 4
+
+		data = new wxByte[uncompressedSize];
+		memcpy(data, backImageHiRes.GetData(), 3 * 4 * width * height); // Copy the back image
+		memcpy(data + 3 * 4 * width * height, frontImageHiRes.GetData(), 3 * 4 * width * height); // Copy the front image
+		memcpy(data + 6 * 4 * width * height, additionalData.c_str(), additionalData.size() );
+		compressedData = new wxByte[(int)(uncompressedSize * 1.1f) + 12];
+		if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) {
+			// Write out the compressed data
+			fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
+			fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
+			fwrite(compressedData, compressedSize, 1, fp);
+		}
+	}
 
 	// Cleanups
 	fclose(fp);
