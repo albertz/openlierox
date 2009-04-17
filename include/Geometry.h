@@ -10,6 +10,7 @@
 #ifndef __OLX__GEOMETRY_H__
 #define __OLX__GEOMETRY_H__
 
+#include <stdlib.h>
 #include <list>
 #include <vector>
 #include <SDL.h>
@@ -53,6 +54,11 @@ struct Polygon2D {
 void TestPolygonDrawing(SDL_Surface* s);
 void TestCircleDrawing(SDL_Surface* s);
 
+// Stubs to work around inconsistent function naming in C++ libs
+static inline float AbsValue( float value ) { return std::abs(value); } // std::cmath
+static inline double AbsValue( double value ) {	return std::abs(value); } // std::cmath
+static inline int AbsValue( int value ) { return abs(value); } // stdlib.h
+static inline long long AbsValue( long long value ) { return llabs(value); } // stdlib.h
 
 // This class is basically for collision checks (used in projectile simulation).
 // Everything should be kept so simple that basically everything here will be optimised out.
@@ -67,8 +73,8 @@ struct Shape {
 
 	bool CollisionWith(const Shape& s) const {
 		if(type == ST_RECT && s.type == ST_RECT) {
-			bool overlapX = std::abs(pos.x - s.pos.x) < radius.x + s.radius.x;
-			bool overlapY = std::abs(pos.y - s.pos.y) < radius.y + s.radius.y;
+			bool overlapX = AbsValue(pos.x - s.pos.x) < radius.x + s.radius.x;
+			bool overlapY = AbsValue(pos.y - s.pos.y) < radius.y + s.radius.y;
 			return overlapX && overlapY;
 		} else if(type == ST_RECT && s.type == ST_CIRCLE) {
 			VectorD2<int> nearest;

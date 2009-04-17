@@ -108,6 +108,7 @@
 #include "ReadWriteLock.h"
 #include "Ref.h"
 #include "RemoteHost.h"
+#include "SafeVector.h"
 #include "sex.h"
 #include "SmartPointer.h"
 #include "Sounds.h"
