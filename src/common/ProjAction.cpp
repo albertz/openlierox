@@ -452,36 +452,43 @@ bool Proj_LX56Timer::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj
 }
 
 bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
-	float& last = prj->timerInfo[this];
-	if(last > 0 && !Repeat) return false;
+	ProjTimerState& state = prj->timerInfo[this];
+	if(state.c > 0 && !Repeat) return PermanentMode == 1;
 	
 	if(UseGlobalTime) {
 		float cur = eventInfo.serverTime.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed];
-		if(last == 0) {
+		if(state.c == 0) {
 			float startTime = cur - prj->getLife();
 			float mstart = startTime; FMOD(mstart, Delay);
 			float next = startTime - mstart + Delay;
 			if(cur >= next) {
-				last = cur;
-				return true;
+				state.c++;
+				state.last = cur;
+				if(PermanentMode == 0) return true;
 			}
 		}
 		else {
-			float mcur = last; FMOD(last, Delay);
-			float next = last - mcur + Delay;			
+			float mcur = state.last; FMOD(mcur, Delay);
+			float next = state.last - mcur + Delay;			
 			if(cur >= next) {
-				last = cur;
-				return true;
+				state.c++;
+				state.last = cur;
+				if(PermanentMode == 0) return true;
 			}
 		}
 	}
 	else { // not global time
-		if(last + Delay <= prj->getLife()) {
-			last = prj->getLife();
-			return true;
+		if(state.last + Delay <= prj->getLife()) {
+			state.c++;
+			state.last = prj->getLife();
+			if(PermanentMode == 0) return true;
 		}
 	}
 	
+	if(PermanentMode > 0)
+		return state.c % (PermanentMode + 1) != 0;
+	else if(PermanentMode < 0)
+		return state.c % (-PermanentMode + 1) == 0;
 	return false;
 }
 

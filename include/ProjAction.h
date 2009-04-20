@@ -242,11 +242,12 @@ struct _Proj_Event {
 };
 
 struct Proj_TimerEvent : _Proj_Event {
-	Proj_TimerEvent() : Delay(1), Repeat(true), UseGlobalTime(false) {}
+	Proj_TimerEvent() : Delay(1), Repeat(true), UseGlobalTime(false), PermanentMode(0) {}
 	
 	float	Delay;
 	bool	Repeat;
 	bool	UseGlobalTime;
+	int		PermanentMode;
 	
 	bool canMatch() const { return Delay >= 0; }
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;

@@ -62,7 +62,13 @@ struct ProjCollisionType {
 };
 
 struct Proj_TimerEvent;
-typedef std::map<const Proj_TimerEvent*, float> ProjTimerInfo; // saves CProj->fLife of last event hit
+struct ProjTimerState {
+	ProjTimerState() : last(0), c(0) {}
+	float last;
+	Uint32 c;
+};
+
+typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves CProj->fLife of last event hit
 
 class CProjectile {
 	friend struct Proj_TimerEvent;

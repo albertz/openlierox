@@ -1312,6 +1312,7 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("true",true);
 	AddKeyword("false",false);
 	
+	sDirectory = dir;
 	
 	int num,n;
 	std::string filename = dir + "/Main.txt";
@@ -2150,6 +2151,7 @@ bool Proj_TimerEvent::readFromIni(CGameScript* gs, const std::string& dir, const
 	ReadFloat(file, section, "Delay", &Delay, Delay);
 	ReadKeyword(file, section, "Repeat", &Repeat, Repeat);
 	ReadKeyword(file, section, "UseGlobalTime", &UseGlobalTime, UseGlobalTime);	
+	ReadInteger(file, section, "PermanentMode", &PermanentMode, PermanentMode);
 	return true;
 }
 
@@ -2157,6 +2159,7 @@ bool Proj_TimerEvent::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, Delay);
 	fread_endian<char>(fp, Repeat);
 	fread_endian<char>(fp, UseGlobalTime);
+	fread_endian<int>(fp, PermanentMode);
 	return true;
 }
 
@@ -2164,6 +2167,7 @@ bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<float>(fp, Delay);
 	fwrite_endian<char>(fp, Repeat);
 	fwrite_endian<char>(fp, UseGlobalTime);
+	fwrite_endian<int>(fp, PermanentMode);
 	return true;
 }
 
