@@ -811,21 +811,21 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			fread_compat(proj->Hit.Damage,		sizeof(int),1,fp);
 			EndianSwap(proj->Hit.Damage);
 		}
+
+		if(!bDedicated && proj->Hit.UseSound) {
+			// Load the sample
+			proj->Hit.Sound = LoadGSSample(sDirectory,proj->Hit.SndFilename);
+			
+			if(proj->Hit.Sound == NULL) {
+				proj->Hit.UseSound = false;
+				modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
+			}
+		}		
 	}
 	else { // newer GS version
 		proj->Hit.read(this, fp);
 	}
-	
-	if(!bDedicated && proj->Hit.UseSound) {
-		// Load the sample
-		proj->smpSample = LoadGSSample(sDirectory,proj->Hit.SndFilename);
 		
-		if(proj->smpSample == NULL) {
-			proj->Hit.UseSound = false;
-			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
-		}
-	}
-	
 
 
 
@@ -1292,6 +1292,7 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("Nothing",PJ_NOTHING);
 	AddKeyword("Disappear2", PJ_DISAPPEAR2);
 	AddKeyword("GoThrough", PJ_GOTHROUGH);
+	AddKeyword("PlaySound", PJ_PLAYSOUND);
 	AddKeyword("Timer", Proj_Event::PET_TIMER); 
 	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
 	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
@@ -1596,14 +1597,6 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	}
 	
 	proj->Hit.readFromIni(this, dir, file, "Hit");
-	if(!bDedicated && proj->Hit.UseSound) {
-		// Load the sample
-		proj->smpSample = LoadGSSample(dir, proj->Hit.SndFilename);
-		
-		if(proj->smpSample == NULL) {
-			modLog("Could not open sound '" + proj->Hit.SndFilename + "'");
-		}
-	}
 	
 	if(proj->Hit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 		warnings << dir << "/" << pfile << ": Hit section wants to spawn projectiles but there is no spawning information" << endl;
@@ -1617,7 +1610,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		if(proj->Timer.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 			warnings << dir << "/" << pfile << ": Timer section wants to spawn projectiles but there is no spawning information" << endl;
 			proj->Timer.Projectiles = false;
-		}
+		}		
 	}
 
 	// Player hit
@@ -1634,7 +1627,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->PlyHit.BounceExplode = 0;
 	}
 	
-	if(proj->PlyHit.UseSound) {
+	if(proj->PlyHit.UseSound && proj->PlyHit.Type != PJ_PLAYSOUND) {
 		warnings << "projectile " << file << " has sound set, which was not supported earlier, thus it's ignored now" << endl;
 		proj->PlyHit.UseSound = false;
 	}
@@ -1924,7 +1917,15 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 		
 	UseSound = false;
 	if(ReadString(file,section,"Sound",SndFilename,"")) {
-		UseSound = true;			
+		UseSound = true;
+
+		if(!bDedicated) {
+			// Load the sample
+			Sound = gs->LoadGSSample(dir, SndFilename);
+			
+			if(Sound == NULL)
+				gs->modLog(file + ":" + section + ": Could not open sound '" + SndFilename + "'");
+		}
 	}
 	
 	ReadFloat(file,section,"BounceCoeff",&BounceCoeff,BounceCoeff);
@@ -1987,7 +1988,17 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<int>(fp, Damage);
 	fread_endian<int>(fp, Shake);
 	fread_endian<char>(fp, UseSound);	
-	if(UseSound) SndFilename = readString(fp);
+	if(UseSound) {
+		SndFilename = readString(fp);
+
+		if(!bDedicated) {
+			// Load the sample
+			Sound = gs->LoadGSSample(gs->sDirectory, SndFilename);
+			
+			if(Sound == NULL)
+				gs->modLog("Could not open sound '" + SndFilename + "'");
+		}
+	}
 	fread_endian<float>(fp, BounceCoeff);
 	fread_endian<int>(fp, BounceExplode);
 	fread_endian<float>(fp, GoThroughSpeed);

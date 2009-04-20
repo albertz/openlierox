@@ -25,10 +25,9 @@
 #include "CVec.h"
 
 struct proj_t;
-
-
 class CProjectile;
 struct shoot_t;
+struct SoundSample;
 
 struct Proj_SpawnParent {
 	union {
@@ -134,6 +133,7 @@ enum Proj_ActionType {
 	PJ_DISAPPEAR2 = 9,
 	PJ_GOTHROUGH = 10,
 	PJ_INJUREPROJ = 11,
+	PJ_PLAYSOUND = 12,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
@@ -162,7 +162,7 @@ struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	GoThroughSpeed(1.0f),
+	Sound(NULL), GoThroughSpeed(1.0f),
 	UseOverwriteOwnSpeed(false), ChangeOwnSpeed(1.0f),
 	UseOverwriteTargetSpeed(false), ChangeTargetSpeed(1.0f),
 	HeadingToNextWormSpeed(0), HeadingToNextOtherWormSpeed(0), HeadingToNextEnemyWormSpeed(0), HeadingToNextTeamMateSpeed(0),
@@ -191,6 +191,7 @@ struct Proj_Action {
 	
 	// new since Beta9:
 	
+	SoundSample* Sound;
 	float	GoThroughSpeed;
 	VectorD2<int>	ChangeRadius;
 	
@@ -430,7 +431,7 @@ struct Proj_DoActionInfo {
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
 	OverwriteOwnSpeed(NULL), ChangeOwnSpeed(1.0f),
-	playSound(false) {}
+	sound(NULL) {}
 	
 	bool	explode;
 	int		damage;
@@ -450,7 +451,7 @@ struct Proj_DoActionInfo {
 
 	VectorD2<int>	ChangeRadius;
 	
-	bool	playSound;
+	SoundSample*	sound;
 	
 	bool hasAnyEffect() const; // NOTE: sound doesn't count
 	void execute(CProjectile* const prj, const AbsTime currentTime);

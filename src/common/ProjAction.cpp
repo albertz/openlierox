@@ -294,8 +294,8 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 				info->shake = Shake;
 			
 			// Play the hit sound
-			if(UseSound)
-				info->playSound = true;
+			if(UseSound && Sound)
+				info->sound = Sound;
 			break;
 			
 			// Bounce
@@ -366,6 +366,11 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		case PJ_INJUREPROJ:
 			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p)
 				(*p)->injure(Damage);
+			break;
+		
+		case PJ_PLAYSOUND:
+			if(UseSound && Sound)
+				info->sound = Sound;
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
@@ -700,8 +705,8 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		projectile_doProjSpawn(prj, *i, currentTime);
 	}
 	
-	if(playSound) {
-		PlaySoundSample(pi->smpSample);
+	if(sound) {
+		PlaySoundSample(sound);
 	}
 	
 	// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed

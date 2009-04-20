@@ -52,7 +52,7 @@ static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 // Projectile structure
 struct proj_t {
-	proj_t() : bmpImage(NULL), smpSample(NULL) {}
+	proj_t() : bmpImage(NULL) {}
 	
 	std::string	filename;		// Compiler use (was 64b before)
 	
@@ -104,7 +104,6 @@ struct proj_t {
 	
 	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
-	SoundSample * smpSample;
 	
 };
 
