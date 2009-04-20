@@ -1,0 +1,14 @@
+
+[General]
+Name = Delayed Heading Bomb
+Class = WCL_GRENADE
+Recoil = 0
+Recharge = 1
+Drain = 10
+ROF = 100
+
+[Projectile]
+Amount = 1
+Speed = 300
+Spread = 0
+Projectile = p_delayedheadingbomb.txt

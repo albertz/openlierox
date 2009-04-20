@@ -172,6 +172,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	BounceCoeff = a.BounceCoeff;
 	BounceExplode = a.BounceExplode;
 	Proj = a.Proj;
+	Sound = a.Sound;
 	GoThroughSpeed = a.GoThroughSpeed;
 	ChangeRadius = a.ChangeRadius;
 	UseOverwriteOwnSpeed = a.UseOverwriteOwnSpeed;
@@ -185,7 +186,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	HeadingToNextWormSpeed = a.HeadingToNextWormSpeed;
 	HeadingToNextOtherWormSpeed = a.HeadingToNextOtherWormSpeed;
 	HeadingToNextEnemyWormSpeed = a.HeadingToNextEnemyWormSpeed;
-	HeadingToNextTeamMateSpeed = a.HeadingToNextTeamMateSpeed;	
+	HeadingToNextTeamMateSpeed = a.HeadingToNextTeamMateSpeed;
 	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
 	
 	return *this;
