@@ -1945,6 +1945,7 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadVectorD2(file, section, "DiffTargetSpeed", DiffTargetSpeed, DiffTargetSpeed);
 	
 	ReadFloat(file, section, "HeadingToNextWormSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
+	ReadFloat(file, section, "HeadingToOwnerSpeed", &HeadingToOwnerSpeed, HeadingToOwnerSpeed);
 	ReadFloat(file, section, "HeadingToNextOtherWormSpeed", &HeadingToNextOtherWormSpeed, HeadingToNextOtherWormSpeed);
 	ReadFloat(file, section, "HeadingToNextEnemyWormSpeed", &HeadingToNextEnemyWormSpeed, HeadingToNextEnemyWormSpeed);
 	ReadFloat(file, section, "HeadingToNextTeamMateSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
@@ -2013,6 +2014,7 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian_V<float>(fp, DiffOwnSpeed);
 	fread_endian_V<float>(fp, DiffTargetSpeed);
 	fread_endian<float>(fp, HeadingToNextWormSpeed);
+	fread_endian<float>(fp, HeadingToOwnerSpeed);	
 	fread_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fread_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fread_endian<float>(fp, HeadingToNextTeamMateSpeed);
@@ -2053,6 +2055,7 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian_V<float>(fp, DiffOwnSpeed);
 	fwrite_endian_V<float>(fp, DiffTargetSpeed);
 	fwrite_endian<float>(fp, HeadingToNextWormSpeed);
+	fwrite_endian<float>(fp, HeadingToOwnerSpeed);	
 	fwrite_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextTeamMateSpeed);

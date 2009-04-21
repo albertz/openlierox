@@ -165,7 +165,7 @@ struct Proj_Action {
 	Sound(NULL), GoThroughSpeed(1.0f),
 	UseOverwriteOwnSpeed(false), ChangeOwnSpeed(1.0f),
 	UseOverwriteTargetSpeed(false), ChangeTargetSpeed(1.0f),
-	HeadingToNextWormSpeed(0), HeadingToNextOtherWormSpeed(0), HeadingToNextEnemyWormSpeed(0), HeadingToNextTeamMateSpeed(0),
+	HeadingToNextWormSpeed(0), HeadingToOwnerSpeed(0), HeadingToNextOtherWormSpeed(0), HeadingToNextEnemyWormSpeed(0), HeadingToNextTeamMateSpeed(0),
 	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
@@ -205,6 +205,7 @@ struct Proj_Action {
 	VectorD2<float> DiffTargetSpeed;
 	
 	float	HeadingToNextWormSpeed;
+	float	HeadingToOwnerSpeed;
 	float	HeadingToNextOtherWormSpeed;
 	float	HeadingToNextEnemyWormSpeed;
 	float	HeadingToNextTeamMateSpeed;

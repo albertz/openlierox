@@ -184,6 +184,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	DiffOwnSpeed = a.DiffOwnSpeed;
 	DiffTargetSpeed = a.DiffTargetSpeed;
 	HeadingToNextWormSpeed = a.HeadingToNextWormSpeed;
+	HeadingToOwnerSpeed = a.HeadingToOwnerSpeed;
 	HeadingToNextOtherWormSpeed = a.HeadingToNextOtherWormSpeed;
 	HeadingToNextEnemyWormSpeed = a.HeadingToNextEnemyWormSpeed;
 	HeadingToNextTeamMateSpeed = a.HeadingToNextTeamMateSpeed;
@@ -399,6 +400,10 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		info->ChangeOwnSpeed = getVelChangeForProj(nearestWorm(prj->GetPosition()), prj, HeadingToNextWormSpeed) * info->ChangeOwnSpeed;
 	}
 
+	if(HeadingToOwnerSpeed && prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
+		info->ChangeOwnSpeed = getVelChangeForProj(&cClient->getRemoteWorms()[prj->GetOwner()], prj, HeadingToOwnerSpeed) * info->ChangeOwnSpeed;
+	}
+	
 	if(HeadingToNextOtherWormSpeed) {
 		info->ChangeOwnSpeed = getVelChangeForProj(nearestOtherWorm(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextOtherWormSpeed) * info->ChangeOwnSpeed;
 	}
