@@ -1712,9 +1712,11 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 // Kick a worm out of the server
 void GameServer::kickWorm(int wormID, const std::string& sReason)
 {
-	if (!cWorms)
+	if (!cWorms) {
+		errors << "kickWorm: worms not initialised" << endl;
 		return;
-
+	}
+	
 	if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		hints << "kickWorm: worm ID " << itoa(wormID) << " is invalid" << endl;
 		return;

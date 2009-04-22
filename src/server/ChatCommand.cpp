@@ -257,6 +257,9 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
+	if(!cServer->getWorms()[id].isUsed())
+		return "Worm " + itoa(id) + " is not used";
+	
 	CServerConnection *target = cServer->getClient(id);
 	if(target)
 		if (target->isLocalClient())
@@ -289,7 +292,7 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 				return "You don't have privilges to ban the player";
 		}
 	} else
-		return "Didn't found related client";
+		return "Didn't found your client";
 
 	return "";
 }
