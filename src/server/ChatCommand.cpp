@@ -277,17 +277,19 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	CServerConnection *remote_cl = cServer->getClient(sender_id);
 	if (remote_cl)  {
 		bool rights = action == ACT_KICK ? remote_cl->getRights()->Kick : remote_cl->getRights()->Ban;
-		if (rights)
+		if (rights) {
 			if (action == ACT_KICK)
 				cServer->kickWorm(id, reason);
 			else
 				cServer->banWorm(id, reason);
-		else
+		} else {
 			if (action == ACT_KICK)
 				return "You don't have privilges to kick the player";
 			else
 				return "You don't have privilges to ban the player";
-	}
+		}
+	} else
+		return "Didn't found related client";
 
 	return "";
 }
