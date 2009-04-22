@@ -1431,6 +1431,8 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 // WARNING: We are using SendWormsOut here, that means that we cannot use the specific client anymore
 // because it has a different local worm amount and it would screw up the network.
 void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms) {
+	// Unset client is allowed to repair broken state where a worm does not have a client.
+	if(!cl) warnings << "RemoveClientWorms: called with undefined client" << endl;
 	std::list<byte> wormsOutList;
 	
 	int i;
@@ -1445,7 +1447,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 			continue;			
 		}
 		
-		cl->RemoveWorm((*w)->getID());
+		if(cl) cl->RemoveWorm((*w)->getID());
 		
 		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
 		
@@ -1743,7 +1745,32 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	CServerConnection *cl = w->getClient();
 	if( !cl ) {
 		errors << "worm " << wormID << " cannot be kicked, the client is unknown" << endl;
-		return;
+		goto searchOtherClient;
+	}
+	
+	if(!cl->OwnsWorm(wormID)) {
+		errors << "kickWorm: client " << cl->debugName() << " does not have worm " << wormID << endl;
+
+	searchOtherClient:		
+		cl = NULL;
+		for(int i = 0; i < MAX_CLIENTS; ++i) {
+			CServerConnection* c = &this->cClients[i];
+			if(c->OwnsWorm(wormID)) {
+				hints << "but found other client " << c->debugName() << " which have this worm " << wormID << endl;
+				cl = c;
+				break;
+			}
+		}
+		
+		if(!cl) {
+			hints << "Force removal of worm " << wormID << endl;
+			std::set<CWorm*> worms; worms.insert(w);
+			RemoveClientWorms(NULL, worms);
+			return;
+		}
+		
+		// we found another client, so continue with that one
+		w->setClient(cl);
 	}
 	
 	// Local worms are handled another way
@@ -1784,7 +1811,8 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 
 
 	// Drop the whole client
-	// TODO: only kick this worm, not the whole client
+	// It's not possible to kick a single worm because the network would be screwed up.
+	// The client needs to reconnect if it wants to change the worm amount.
 	DropClient(cl, CLL_KICK, sReason);
 }
 
