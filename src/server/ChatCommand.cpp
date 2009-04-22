@@ -461,10 +461,9 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	// Get the name
 	std::string name;
 	for (std::vector<std::string>::const_iterator it = params.begin(); it != params.end(); it++)  {
+		if(it != params.begin()) name += ' ';
 		name += *it;
-		name += ' ';
 	}
-	name.erase(name.size() - 1);  // erase the last space
 
 	name = RemoveSpecialChars(name); // Strip unicode characters
 	if (name.size() > 32)  // Check if not too long
