@@ -105,6 +105,7 @@ public:
 		bmpDebugImage = NULL;
 #endif
 		bmpBackImage = NULL;
+		bmpBackImageHiRes = NULL;
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
         bmpGreenMask = NULL;
@@ -116,14 +117,9 @@ public:
 		Objects = NULL;
 
 		bMiniMapDirty = true;
-        //sRandomLayout.bUsed = false;
 
-		FlagSpawnX = -1;
-		FlagSpawnY = -1;
-		BaseStartX = -1;
-		BaseStartY = -1;
-		BaseEndX   = -1;
-		BaseEndY   = -1;
+		
+		AdditionalData = "";
 		
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
@@ -152,10 +148,11 @@ private:
 	
 	SmartPointer<SDL_Surface> bmpImage;
 	SmartPointer<SDL_Surface> bmpDrawImage;
-	SmartPointer<SDL_Surface> bmpBackImage;    
+	SmartPointer<SDL_Surface> bmpBackImage;
+	SmartPointer<SDL_Surface> bmpBackImageHiRes;
 	SmartPointer<SDL_Surface> bmpMiniMap;
     SmartPointer<SDL_Surface> bmpGreenMask;
-	uchar		*PixelFlags;  
+	uchar		*PixelFlags;
     SmartPointer<SDL_Surface> bmpShadowMap;
 #ifdef _AI_DEBUG
 	SmartPointer<SDL_Surface> bmpDebugImage;
@@ -180,13 +177,7 @@ private:
 	int			NumObjects;
 	object_t	*Objects;
 
-	// CTF
-	short		FlagSpawnX;
-	short		FlagSpawnY;
-	short		BaseStartX;
-	short		BaseStartY;
-	short		BaseEndX;
-	short		BaseEndY;
+	std::string	AdditionalData; // Not used currently, maybe will contain CTF info in Beta10
 
 	// Save/restore from memory, for commit/rollback net mechanism
 	bool		bMapSavingToMemory;
@@ -227,14 +218,13 @@ public:
 	bool		LoadOriginal(FILE *fp);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
-	bool		LoadImageFormat(FILE *fp, bool ctf);	
+	bool		LoadImageFormat(FILE *fp, bool ctf);
+	bool		LoadImageFormatHiRes(FILE *fp); // Called from LoadImageFormat()
 	void		Clear();
 
 	inline std::string getName()			{ return Name; }
 	inline std::string getFilename()		{ return FileName; }
 	
-    //void		ApplyRandom();
-    //void        ApplyRandomLayout(maprandom_t *psRandom);
 
 	void		UpdateDrawImage(int x, int y, int w, int h);
 
@@ -339,9 +329,6 @@ public:
 
 	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
 
-    //inline maprandom_t *getRandomLayout()  { return &sRandomLayout; }
-
-
 	inline uint			GetWidth() const	{ return Width; }
 	inline uint			GetHeight()	const	{ return Height; }
 	inline uint			GetMinimapWidth() const { return MinimapWidth; }
@@ -360,11 +347,6 @@ public:
 	inline bool			getCreated()	{ return Created; }
 	
 	
-	// TODO: why is this converted to CVec? either use directly CVec or don't use it at all! every conversion take performance away
-	inline CVec		getFlagSpawn()		{ return CVec(FlagSpawnX, FlagSpawnY); }
-	inline CVec		getBaseStart()		{ return CVec(BaseStartX, BaseStartY); }
-	inline CVec		getBaseEnd()		{ return CVec(BaseEndX, BaseEndY); }
-
 	// TODO: this needs to be made much more general to be as fast as the current routines
 	
 	// _F has to be a functor with provides compatible functions to:

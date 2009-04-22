@@ -432,13 +432,13 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	
     if( useHiRes )
 	{
-		if (!frontImageHiRes.LoadFile(front))  {
+		if (!frontImageHiRes.LoadFile(frontHiRes))  {
 			fclose(fp);
 			wxRemove(out);
 			throw Exception(_T("Could not load the hi-res front image."));
 		}
     
-		if (!backImageHiRes.LoadFile(back))  {
+		if (!backImageHiRes.LoadFile(backHiRes))  {
 			fclose(fp);
 			wxRemove(out);
 			throw Exception(_T("Could not load the hi-res background image."));
@@ -476,10 +476,10 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	
 	if( useHiRes )
 	{
-		if( frontImageHiRes.GetWidth() != backImageHiRes.GetWidth() || 
-			frontImageHiRes.GetWidth() != frontImage.GetWidth() * 2 ||
-			frontImageHiRes.GetHeight() != backImageHiRes.GetHeight() || 
-			frontImageHiRes.GetHeight() != frontImage.GetHeight() * 2 ) 
+		if( (frontImageHiRes.GetWidth() != backImageHiRes.GetWidth()) ||
+			(frontImageHiRes.GetWidth() != frontImage.GetWidth() * 2) ||
+			(frontImageHiRes.GetHeight() != backImageHiRes.GetHeight()) ||
+			(frontImageHiRes.GetHeight() != frontImage.GetHeight() * 2) )
 		{
 			fclose(fp);
 			wxRemove(out);
@@ -542,8 +542,8 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	memcpy(data, backImage.GetData(), 3 * width * height); // Copy the back image
 	memcpy(data + 3 * width * height, frontImage.GetData(), 3 * width * height); // Copy the front image
 	memcpy(data + 6 * width * height, pxFlags, width * height); // Copy the pixel flags
-	uLongf csize;
-	wxByte *compressedData = new wxByte[(int)(uncompressedSize * 1.1f) + 12];
+	uLongf csize = (int)(uncompressedSize * 1.1f) + 12;
+	wxByte *compressedData = new wxByte[csize];
 	if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) {
 		delete[] pxFlags;
 		delete[] data;
@@ -574,16 +574,26 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		uncompressedSize = 6 * 4 * width * height + additionalData.size(); // Frontsize * 3 + Backsize * 3 , sizes * 4
 
 		data = new wxByte[uncompressedSize];
-		memcpy(data, backImageHiRes.GetData(), 3 * 4 * width * height); // Copy the back image
-		memcpy(data + 3 * 4 * width * height, frontImageHiRes.GetData(), 3 * 4 * width * height); // Copy the front image
+		memcpy(data, frontImageHiRes.GetData(), 3 * 4 * width * height); // Copy the back image
+		memcpy(data + 3 * 4 * width * height, backImageHiRes.GetData(), 3 * 4 * width * height); // Copy the front image
 		memcpy(data + 6 * 4 * width * height, additionalData.c_str(), additionalData.size() );
-		compressedData = new wxByte[(int)(uncompressedSize * 1.1f) + 12];
-		if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) {
-			// Write out the compressed data
-			fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
-			fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
-			fwrite(compressedData, compressedSize, 1, fp);
+		csize = (int)(uncompressedSize * 1.1f) + 12;
+		compressedData = new wxByte[csize];
+		if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) 
+		{
+			delete[] data;
+			delete[] compressedData;
+			fclose(fp);
+			wxRemove(out);
+			throw Exception(_T("Could not compress the data."));
 		}
+		compressedSize = csize;
+		// Write out the compressed data
+		const char * safetyHeader = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+		fwrite(safetyHeader, strlen(safetyHeader)+1, 1, fp);
+		fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
+		fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
+		fwrite(compressedData, compressedSize, 1, fp);
 	}
 
 	// Cleanups

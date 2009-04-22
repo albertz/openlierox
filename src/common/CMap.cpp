@@ -83,27 +83,20 @@ bool CMap::NewFrom(CMap* map)
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
-
-	// TODO: do we need this? why is this commented out? please comment or delete
-	/*
-	sRandomLayout = map->sRandomLayout;
-	if (sRandomLayout.psObjects != NULL && sRandomLayout.nNumObjects > 0)  {
-		sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
-		if (sRandomLayout.psObjects)  {
-			memcpy(sRandomLayout.psObjects, map->sRandomLayout.psObjects, sRandomLayout.nNumObjects * sizeof(object_t));
-		} else {
-			sRandomLayout.bUsed = false;
+	bmpBackImageHiRes = NULL;
+	if( map->bmpBackImageHiRes.get() )
+	{
+		bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
+		if( ! bmpBackImageHiRes.get() )
+		{
+			errors("CMap::NewFrom(): ERROR: cannot create bmpBackImageHiRes\n");
+			return false;
 		}
+		DrawImage(bmpBackImageHiRes.get(), map->bmpBackImageHiRes, 0, 0);
 	}
-	*/
-
-	FlagSpawnX = map->FlagSpawnX;
-	FlagSpawnY = map->FlagSpawnY;
-	BaseStartX	= map->BaseStartX;
-	BaseStartY	= map->BaseStartY;
-	BaseEndX	= map->BaseEndX;
-	BaseEndY	= map->BaseEndY;
-
+	
+	AdditionalData = map->AdditionalData;
+	
 	bMapSavingToMemory = false;
 	bmpSavedImage = NULL;
 	if( savedPixelFlags )
@@ -152,6 +145,8 @@ size_t CMap::GetMemorySize()
 #endif
 	if( bmpSavedImage.get() != NULL )
 		res += GetSurfaceMemorySize(bmpSavedImage.get()) + Width * Height; // Saved pixel flags
+	if( bmpBackImageHiRes.get() )
+		res += GetSurfaceMemorySize(bmpBackImageHiRes.get());
 	return res;
 }
 
@@ -245,150 +240,6 @@ void CMap::Clear()
 {
 	TileMap();
 }
-
-
-///////////////////
-// Apply a random set to the map
-/*
-void CMap::ApplyRandom()
-{
-	int n, x, y, i;
-    int objCount = 0;
-
-    int nNumRocks = 15;
-    int nNumMisc = 30;
-    int nNumHoles = 10;
-    int nNumHoleGroup = 20;
-
-    // Setup the random layout
-    sRandomLayout.bUsed = true;
-    sRandomLayout.nNumObjects = nNumRocks + nNumMisc + (nNumHoles * nNumHoleGroup);
-    sRandomLayout.szTheme = Theme.name;
-
-    sRandomLayout.psObjects = new object_t[sRandomLayout.nNumObjects];
-    if( !sRandomLayout.psObjects )  {
-        warnings("Warning: Out of memory for CMap::ApplyRandom()\n");
-		return;
-	}
-
-	// Repaint the minimap after this
-	bMiniMapDirty = true;
-
-	// Spawn 15 random rocks
-	for(n = 0; n < nNumRocks; n++) {
-		x = (int)(fabs(GetRandomNum()) * (float)Width);
-		y = (int)(fabs(GetRandomNum()) * (float)Height);
-		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumStones);
-
-        // Store the object
-        sRandomLayout.psObjects[objCount].Type = OBJ_STONE;
-        sRandomLayout.psObjects[objCount].Size = i;
-        sRandomLayout.psObjects[objCount].X = x;
-        sRandomLayout.psObjects[objCount].Y = y;
-        objCount++;
-
-		PlaceStone(i, CVec( (float)x, (float)y ));
-	}
-
-	// Spawn 20 random misc
-	for(n = 0; n < nNumMisc; n++) {
-		x = (int)(fabs(GetRandomNum()) * (float)Width);
-		y = (int)(fabs(GetRandomNum()) * (float)Height);
-		i = (int)(fabs(GetRandomNum()) * (float)Theme.NumMisc);
-
-        // Store the object
-        sRandomLayout.psObjects[objCount].Type = OBJ_MISC;
-        sRandomLayout.psObjects[objCount].Size = i;
-        sRandomLayout.psObjects[objCount].X = x;
-        sRandomLayout.psObjects[objCount].Y = y;
-        objCount++;
-
-		PlaceMisc(i, CVec( (float)x, (float)y ));
-	}
-
-
-	// Spawn 10 random holes
-	for(n = 0; n < nNumHoles; n++) {
-		x = (int)(fabs(GetRandomNum()) * (float)Width);
-		y = (int)(fabs(GetRandomNum()) * (float)Height);
-
-		// Spawn a hole group of holes around this hole
-		for(int i = 0; i < nNumHoleGroup; i++) {
-			int a = (int) (GetRandomNum() * (float)15);
-			int b = (int) (GetRandomNum() * (float)15);
-
-            // Store the object
-            sRandomLayout.psObjects[objCount].Type = OBJ_HOLE;
-            sRandomLayout.psObjects[objCount].Size = 4;
-            sRandomLayout.psObjects[objCount].X = x + a;
-            sRandomLayout.psObjects[objCount].Y = y + b;
-            objCount++;
-
-			CarveHole(4, CVec( (float)(x + a), (float)(y + b) ));
-		}
-	}
-
-    // Calculate the total dirt count
-    CalculateDirtCount();
-
-	UpdateMiniMap();
-}
-
-
-///////////////////
-// Apply a random set
-void CMap::ApplyRandomLayout(maprandom_t *psRandom)
-{
-    assert(psRandom);
-
-    // Load the theme
-    LoadTheme(psRandom->szTheme);
-
-    // Tile the map
-    TileMap();
-
-    // Apply the objects
-	if (psRandom->psObjects)  {
-		for( int i = 0; i < psRandom->nNumObjects; i++ ) {
-			if( psRandom->psObjects ) {
-
-				switch(psRandom->psObjects[i].Type) {
-
-					// Stone
-					case OBJ_STONE:
-						PlaceStone(psRandom->psObjects[i].Size,
-							CVec(
-								(float)(psRandom->psObjects[i].X),
-								(float)(psRandom->psObjects[i].Y)));
-						break;
-
-					// Misc
-					case OBJ_MISC:
-						PlaceMisc(psRandom->psObjects[i].Size,
-							CVec(
-								(float)(psRandom->psObjects[i].X),
-								(float)(psRandom->psObjects[i].Y)));
-						break;
-
-					// Hole
-					case OBJ_HOLE:
-						CarveHole(psRandom->psObjects[i].Size,
-							CVec(
-								(float)(psRandom->psObjects[i].X),
-								(float)(psRandom->psObjects[i].Y)));
-						break;
-				}
-			}
-		}
-	}
-
-    // Calculate the total dirt count
-    CalculateDirtCount();
-
-	//CalculateShadowMap();
-	UpdateMiniMap(true);
-}
-*/
 
 ///////////////////
 // Load the theme
@@ -613,41 +464,81 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 	// Update the bmpImage according to pixel flags
 	if (update_image)  {
-		LOCK_OR_QUIT(bmpImage);
-		LOCK_OR_QUIT(bmpBackImage);
-
-		// Init the variables
-		Uint8 *img_pixel, *back_pixel;
-		Uint16 ImgRowStep, BackRowStep, FlagsRowStep;
-		uchar *pf;
-		byte bpp = bmpImage.get()->format->BytesPerPixel;
-
-		img_pixel = (Uint8 *)bmpImage.get()->pixels + y * bmpImage.get()->pitch + x * bpp;
-		back_pixel = (Uint8 *)bmpBackImage.get()->pixels + y * bmpBackImage.get()->pitch + x * bpp;
-		pf = PixelFlags + y * Width + x;
-
-		ImgRowStep = bmpImage.get()->pitch - (w * bpp);
-		BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
-		FlagsRowStep = Width - w;
 
 		// Update
-		for (i = h; i; --i)  {
-			for (j = w; j; --j)  {
-				if (*pf & PX_EMPTY) // Empty pixel - copy from the background image
-					memcpy(img_pixel, back_pixel, bpp);
+		if( bmpBackImageHiRes.get() )
+		{
+			LOCK_OR_QUIT(bmpDrawImage);
+			LOCK_OR_QUIT(bmpBackImageHiRes);
+			Uint8 *img_pixel, *back_pixel;
+			Uint16 ImgRowStep, FlagsRowStep, ImgRowSize;
+			uchar *pf;
+			byte bpp = bmpDrawImage.get()->format->BytesPerPixel;
+			byte bppX2 = bpp * 2;
 
-				img_pixel += bpp;
-				back_pixel += bpp;
-				pf++;
+			img_pixel = (Uint8 *)bmpDrawImage.get()->pixels + y * 2 * bmpDrawImage.get()->pitch + x * 2 * bpp;
+			back_pixel = (Uint8 *)bmpBackImageHiRes.get()->pixels + y * 2 * bmpBackImageHiRes.get()->pitch + x * 2 * bpp;
+			pf = PixelFlags + y * Width + x;
+
+			ImgRowSize = bmpDrawImage.get()->pitch;
+			ImgRowStep = ImgRowSize * 2 - (w * bpp * 2);
+			FlagsRowStep = Width - w;
+
+			for (i = h; i; --i)  {
+				for (j = w; j; --j)  {
+					if (*pf & PX_EMPTY) // Empty pixel - copy from the background image
+					{
+						memcpy(img_pixel, back_pixel, bppX2);
+						memcpy(img_pixel + ImgRowSize, back_pixel + ImgRowSize, bppX2);
+					}
+
+					img_pixel += bppX2;
+					back_pixel += bppX2;
+					pf++;
+				}
+
+				img_pixel += ImgRowStep;
+				back_pixel += ImgRowStep;
+				pf += FlagsRowStep;
 			}
-
-			img_pixel += ImgRowStep;
-			back_pixel += BackRowStep;
-			pf += FlagsRowStep;
+			UnlockSurface(bmpDrawImage);
+			UnlockSurface(bmpBackImageHiRes);
 		}
+		else
+		{
+			LOCK_OR_QUIT(bmpImage);
+			LOCK_OR_QUIT(bmpBackImage);
 
-		UnlockSurface(bmpImage);
-		UnlockSurface(bmpBackImage);
+			// Init the variables
+			Uint8 *img_pixel, *back_pixel;
+			Uint16 ImgRowStep, BackRowStep, FlagsRowStep;
+			uchar *pf;
+			byte bpp = bmpImage.get()->format->BytesPerPixel;
+
+			img_pixel = (Uint8 *)bmpImage.get()->pixels + y * bmpImage.get()->pitch + x * bpp;
+			back_pixel = (Uint8 *)bmpBackImage.get()->pixels + y * bmpBackImage.get()->pitch + x * bpp;
+			pf = PixelFlags + y * Width + x;
+
+			ImgRowStep = bmpImage.get()->pitch - (w * bpp);
+			BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
+			FlagsRowStep = Width - w;
+			for (i = h; i; --i)  {
+				for (j = w; j; --j)  {
+					if (*pf & PX_EMPTY) // Empty pixel - copy from the background image
+						memcpy(img_pixel, back_pixel, bpp);
+
+					img_pixel += bpp;
+					back_pixel += bpp;
+					pf++;
+				}
+
+				img_pixel += ImgRowStep;
+				back_pixel += BackRowStep;
+				pf += FlagsRowStep;
+			}
+			UnlockSurface(bmpImage);
+			UnlockSurface(bmpBackImage);
+		}
 	}
 
 	unlockFlags();
@@ -730,6 +621,8 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
 	if(bDedicated) return;
+	if( bmpBackImageHiRes.get() )
+		return;
 	if(tLXOptions->bAntiAliasing)
 		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
 	else
@@ -1166,58 +1059,98 @@ int CMap::CarveHole(int size, CVec pos)
 	
 	if (!LockSurface(hole))
 		return 0;
-	if (!LockSurface(bmpImage))
-		return 0;
 
 	Uint8* hole_px = (Uint8 *)hole.get()->pixels;
-	Uint8* mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
 	uchar* PixelFlag = PixelFlags + map_y * Width + map_x;
 
 	int HoleRowStep = hole.get()->pitch - (w * bpp);
-	int MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
 	int PixelFlagRowStep = Width - w;
-
-
 
 	// Lock
 	lockFlags();
 
-	for(int hy = h; hy; --hy)  {
-		for(int hx = w; hx; --hx) {
+	if( bmpBackImageHiRes.get() ) // Hi-res image
+	{
+		if (!LockSurface(bmpDrawImage))
+			return 0;
+		Uint8* mapimage_px = (Uint8 *)bmpDrawImage.get()->pixels + map_y * 2 * bmpDrawImage.get()->pitch + map_x * bpp * 2;
+		int MapImageRowSize = bmpDrawImage.get()->pitch;
+		int MapImageRowStep = bmpDrawImage.get()->pitch * 2 - (w * bpp * 2);
+		for(int hy = h; hy; --hy)  
+		{
+			for(int hx = w; hx; --hx) 
+			{
+				if (*PixelFlag & PX_DIRT)  // Carve only dirt
+				{
+					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+					// Set the flag to empty
+					if(CurrentPixel == tLX->clPink) 
+					{
+						// Increase the dirt count
+						nNumDirt++;
+						*PixelFlag = PX_EMPTY;
+					} 
+					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)
+					{
+						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
+						PutPixelToAddr(mapimage_px+bpp, CurrentPixel, bpp);
+						PutPixelToAddr(mapimage_px+MapImageRowSize, CurrentPixel, bpp);
+						PutPixelToAddr(mapimage_px+MapImageRowSize+bpp, CurrentPixel, bpp);
+					}
+				}
+				hole_px += bpp;
+				mapimage_px += bpp * 2;
+				PixelFlag++;
+			}
+			hole_px += HoleRowStep;
+			mapimage_px += MapImageRowStep;
+			PixelFlag += PixelFlagRowStep;
+		}
+		UnlockSurface(bmpDrawImage);
+	}
+	else // Low-res image
+	{
+		if (!LockSurface(bmpImage))
+			return 0;
+		Uint8* mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
+		int MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
+		for(int hy = h; hy; --hy)  {
+			for(int hx = w; hx; --hx) {
 
-			// Carve only dirt
-			if (*PixelFlag & PX_DIRT)  {
+				// Carve only dirt
+				if (*PixelFlag & PX_DIRT)  {
 
-				Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
+					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
 
-				// Set the flag to empty
-				if(CurrentPixel == tLX->clPink) {
+					// Set the flag to empty
+					if(CurrentPixel == tLX->clPink) {
 
-					// Increase the dirt count
-					nNumDirt++;
+						// Increase the dirt count
+						nNumDirt++;
 
-					*PixelFlag = PX_EMPTY;
+						*PixelFlag = PX_EMPTY;
 
-				// Put pixels that are not black/pink (eg, brown)
-				} else if(CurrentPixel != tLX->clBlack)
-					PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
+					// Put pixels that are not black/pink (eg, brown)
+					} else if(CurrentPixel != tLX->clBlack)
+						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
+				}
+
+				hole_px += bpp;
+				mapimage_px += bpp;
+				PixelFlag++;
+
 			}
 
-			hole_px += bpp;
-			mapimage_px += bpp;
-			PixelFlag++;
-
+			hole_px += HoleRowStep;
+			mapimage_px += MapImageRowStep;
+			PixelFlag += PixelFlagRowStep;
 		}
-
-		hole_px += HoleRowStep;
-		mapimage_px += MapImageRowStep;
-		PixelFlag += PixelFlagRowStep;
+		UnlockSurface(bmpImage);
 	}
 
 	unlockFlags();
 
 	UnlockSurface(hole);
-	UnlockSurface(bmpImage);
 
 	if(nNumDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
@@ -1348,7 +1281,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 	int x,y;
 	int w,h;
 	int ix,iy;
-	Uint32 pixel;
+	Uint32 pixel, pixel2;
 	uchar flag;
 
     int nDirtCount = 0;
@@ -1369,8 +1302,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 
 	if (!LockSurface(hole))
-		return 0;
-	if (!LockSurface(bmpImage))
 		return 0;
 	if (!LockSurface(Theme.bmpFronttile))
 		return 0;
@@ -1393,49 +1324,105 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	lockFlags();
 
-	// Go through the pixels in the hole, setting the flags to dirt
-	for(y = hole_clip_y, dy = clip_y; dy < clip_h; y++, dy++) {
+	if( bmpBackImageHiRes.get() ) // Hi-res image
+	{
+		if (!LockSurface(bmpDrawImage))
+			return 0;
+		// Go through the pixels in the hole, setting the flags to dirt
+		int DrawImagePitch = bmpDrawImage.get()->pitch;
+		for(y = hole_clip_y, dy = clip_y; dy < clip_h; y++, dy++) {
 
-		p = (Uint8 *)hole.get()->pixels + y * hole.get()->pitch + hole_clip_x * hole.get()->format->BytesPerPixel;
-		px = PixelFlags + dy * Width + clip_x;
-		p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
+			p = (Uint8 *)hole.get()->pixels + y * hole.get()->pitch + hole_clip_x * hole.get()->format->BytesPerPixel;
+			px = PixelFlags + dy * Width + clip_x;
+			p2 = (Uint8 *)bmpDrawImage.get()->pixels + dy * 2 * bmpDrawImage.get()->pitch + clip_x * 2 * bmpDrawImage.get()->format->BytesPerPixel;
 
-		for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
+			for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
 
-			pixel = GetPixelFromAddr(p, screenbpp);
-			flag = *(uchar *)px;
+				pixel = GetPixelFromAddr(p, screenbpp);
+				flag = *(uchar *)px;
 
-			ix = dx % Theme.bmpFronttile.get()->w;
-			iy = dy % Theme.bmpFronttile.get()->h;
+				ix = dx % Theme.bmpFronttile.get()->w;
+				iy = dy % Theme.bmpFronttile.get()->h;
 
-			// Set the flag to empty
-			if(!IsTransparent(hole.get(), pixel) && !(flag & PX_ROCK)) {
-                if( flag & PX_EMPTY )
+				// Set the flag to empty
+				if(!IsTransparent(hole.get(), pixel) && !(flag & PX_ROCK)) {
+                    if( flag & PX_EMPTY )
+                        nDirtCount++;
+
+					*(uchar*)px = PX_DIRT;
+					pixel2 = GetPixel(Theme.bmpFronttile.get(), ix, iy);
+					// Place the dirt image
+					PutPixelToAddr(p2, pixel2, screenbpp);
+					PutPixelToAddr(p2+screenbpp, pixel2, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch, pixel2, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch+screenbpp, pixel2, screenbpp);
+				}
+
+				// Put pixels that are not black/pink (eg, brown)
+                if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
+					PutPixelToAddr(p2, pixel, screenbpp);
+					PutPixelToAddr(p2+screenbpp, pixel, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch, pixel, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch+screenbpp, pixel, screenbpp);
+                    *(uchar*)px = PX_DIRT;
                     nDirtCount++;
+                }
 
-				*(uchar*)px = PX_DIRT;
-
-				// Place the dirt image
-				PutPixelToAddr(p2, GetPixel(Theme.bmpFronttile.get(), ix, iy), screenbpp);
+				p += screenbpp;
+				p2 += screenbpp * 2;
+				px++;
 			}
-
-			// Put pixels that are not black/pink (eg, brown)
-            if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
-				PutPixelToAddr(p2, pixel, screenbpp);
-                *(uchar*)px = PX_DIRT;
-                nDirtCount++;
-            }
-
-			p += screenbpp;
-			p2 += screenbpp;
-			px++;
 		}
+		UnlockSurface(bmpDrawImage);
+	}
+	else // Low-res image
+	{
+		if (!LockSurface(bmpImage))
+			return 0;
+		// Go through the pixels in the hole, setting the flags to dirt
+		for(y = hole_clip_y, dy = clip_y; dy < clip_h; y++, dy++) {
+
+			p = (Uint8 *)hole.get()->pixels + y * hole.get()->pitch + hole_clip_x * hole.get()->format->BytesPerPixel;
+			px = PixelFlags + dy * Width + clip_x;
+			p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
+
+			for(x=hole_clip_x,dx=clip_x;dx<clip_w;x++,dx++) {
+
+				pixel = GetPixelFromAddr(p, screenbpp);
+				flag = *(uchar *)px;
+
+				ix = dx % Theme.bmpFronttile.get()->w;
+				iy = dy % Theme.bmpFronttile.get()->h;
+
+				// Set the flag to empty
+				if(!IsTransparent(hole.get(), pixel) && !(flag & PX_ROCK)) {
+                    if( flag & PX_EMPTY )
+                        nDirtCount++;
+
+					*(uchar*)px = PX_DIRT;
+
+					// Place the dirt image
+					PutPixelToAddr(p2, GetPixel(Theme.bmpFronttile.get(), ix, iy), screenbpp);
+				}
+
+				// Put pixels that are not black/pink (eg, brown)
+                if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
+					PutPixelToAddr(p2, pixel, screenbpp);
+                    *(uchar*)px = PX_DIRT;
+                    nDirtCount++;
+                }
+
+				p += screenbpp;
+				p2 += screenbpp;
+				px++;
+			}
+		}
+		UnlockSurface(bmpImage);
 	}
 
 	unlockFlags();
 
 	UnlockSurface(hole);
-	UnlockSurface(bmpImage);
 	UnlockSurface(Theme.bmpFronttile);
 
 	UpdateArea(sx, sy, w, h);
@@ -1485,9 +1472,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 	if (!LockSurface(bmpGreenMask))
 		return 0;
-	if (!LockSurface(bmpImage))
-		return 0;
-
 
 	Uint8 *p;
 	uchar *px;
@@ -1508,49 +1492,105 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 	lockFlags();
 
-	// Go through the pixels in the hole, setting the flags to dirt
-	for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
+	if( bmpBackImageHiRes.get() ) // Hi-res image
+	{
+		if (!LockSurface(bmpDrawImage))
+			return 0;
+		// Go through the pixels in the hole, setting the flags to dirt
+		int DrawImagePitch = bmpDrawImage.get()->pitch;
+		for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
 
-		p = (Uint8*)bmpGreenMask.get()->pixels
-			+ y * bmpGreenMask.get()->pitch
-			+ green_clip_x * bmpGreenMask.get()->format->BytesPerPixel;
-		px = PixelFlags + dy * Width + clip_x;
-		p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
+			p = (Uint8*)bmpGreenMask.get()->pixels
+				+ y * bmpGreenMask.get()->pitch
+				+ green_clip_x * bmpGreenMask.get()->format->BytesPerPixel;
+			px = PixelFlags + dy * Width + clip_x;
+			p2 = (Uint8 *)bmpDrawImage.get()->pixels + dy * 2 * bmpDrawImage.get()->pitch + clip_x * 2 * bmpDrawImage.get()->format->BytesPerPixel;
 
-		for(x = green_clip_x, dx=clip_x; dx < clip_w; x++, dx++) {
+			for(x = green_clip_x, dx=clip_x; dx < clip_w; x++, dx++) {
 
-			pixel = GetPixelFromAddr(p,screenbpp);
-			flag = *(uchar*)px;
+				pixel = GetPixelFromAddr(p,screenbpp);
+				flag = *(uchar*)px;
 
-			// Set the flag to dirt
-			if(pixel == green && (flag & PX_EMPTY)) {
-				*(uchar*)px = PX_DIRT;
-                nGreenCount++;
+				// Set the flag to dirt
+				if(pixel == green && (flag & PX_EMPTY)) {
+					*(uchar*)px = PX_DIRT;
+					nGreenCount++;
 
-                // Place a random green pixel
-                gr = greens[ GetRandomInt(3) ];
+					// Place a random green pixel
+					gr = greens[ GetRandomInt(3) ];
 
-				// Place the green pixel
-				PutPixelToAddr(p2, gr, screenbpp);
+					// Place the green pixel
+					PutPixelToAddr(p2, gr, screenbpp);
+					PutPixelToAddr(p2+screenbpp, gr, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch, gr, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch+screenbpp, gr, screenbpp);
+				}
+
+				// Put pixels that are not green/pink (eg, dark green)
+                if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
+					PutPixelToAddr(p2, pixel, screenbpp);
+					PutPixelToAddr(p2+screenbpp, pixel, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch, pixel, screenbpp);
+					PutPixelToAddr(p2+DrawImagePitch+screenbpp, pixel, screenbpp);
+					*(uchar*)px = PX_DIRT;
+					nGreenCount++;
+                }
+
+				p += screenbpp;
+				p2 += screenbpp * 2;
+				px++;
 			}
-
-			// Put pixels that are not green/pink (eg, dark green)
-            if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
-				PutPixelToAddr(p2, pixel, screenbpp);
-                *(uchar*)px = PX_DIRT;
-                nGreenCount++;
-            }
-
-			p += screenbpp;
-			p2 += screenbpp;
-			px++;
 		}
+		UnlockSurface(bmpDrawImage);
+	}
+	else // Low-res image
+	{
+		if (!LockSurface(bmpImage))
+			return 0;
+		// Go through the pixels in the hole, setting the flags to dirt
+		for(y = green_clip_y, dy=clip_y; dy < clip_h; y++, dy++) {
+
+			p = (Uint8*)bmpGreenMask.get()->pixels
+				+ y * bmpGreenMask.get()->pitch
+				+ green_clip_x * bmpGreenMask.get()->format->BytesPerPixel;
+			px = PixelFlags + dy * Width + clip_x;
+			p2 = (Uint8 *)bmpImage.get()->pixels + dy * bmpImage.get()->pitch + clip_x * bmpImage.get()->format->BytesPerPixel;
+
+			for(x = green_clip_x, dx=clip_x; dx < clip_w; x++, dx++) {
+
+				pixel = GetPixelFromAddr(p,screenbpp);
+				flag = *(uchar*)px;
+
+				// Set the flag to dirt
+				if(pixel == green && (flag & PX_EMPTY)) {
+					*(uchar*)px = PX_DIRT;
+                    nGreenCount++;
+
+                    // Place a random green pixel
+                    gr = greens[ GetRandomInt(3) ];
+
+					// Place the green pixel
+					PutPixelToAddr(p2, gr, screenbpp);
+				}
+
+				// Put pixels that are not green/pink (eg, dark green)
+                if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
+					PutPixelToAddr(p2, pixel, screenbpp);
+                    *(uchar*)px = PX_DIRT;
+                    nGreenCount++;
+                }
+
+				p += screenbpp;
+				p2 += screenbpp;
+				px++;
+			}
+		}
+		UnlockSurface(bmpImage);
 	}
 
 	unlockFlags();
 
 	UnlockSurface(bmpGreenMask);
-	UnlockSurface(bmpImage);
 
 	// Nothing placed, no need to update
 	if (nGreenCount)  {
@@ -1586,7 +1626,6 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 
 	int screenbpp = getMainPixelFormat()->BytesPerPixel;
 
-	LOCK_OR_QUIT(bmpImage);
 	LOCK_OR_QUIT(bmpShadowMap);
 
 	lockFlags();
@@ -1596,50 +1635,99 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 	int clip_h = MIN(sy + h, Height);
 	int clip_w = MIN(sx + w, Width);
 
-	for(y = clip_y; y < clip_h; y++) {
+	if( bmpBackImageHiRes.get() ) // Hi-res image
+	{
+		LOCK_OR_QUIT(bmpDrawImage);
+		int DrawImagePitch = bmpDrawImage.get()->pitch;
+		int ShadowMapPitch = bmpShadowMap.get()->pitch;
+		for(y = clip_y; y < clip_h; y++) 
+		{
+			px = PixelFlags + y * Width + clip_x;
+			for(x = clip_x; x < clip_w; x++) 
+			{
+				flag = *(uchar *)px;
+				// Edge hack
+				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
+					//flag = PX_EMPTY;
+				if(!(flag & PX_EMPTY)) 
+				{
+					ox = x+1; oy = y+1;
+					// Draw the shadow
+					for(n = 0; n < SHADOW_DROP; n++) 
+					{
+						// Clipping
+						if(ox >= Width) break;
+						if(oy >= Height) break;
 
-		px = PixelFlags + y * Width + clip_x;
+						p = PixelFlags + oy * Width + ox;
+						if(!( (*(uchar *)p) & PX_EMPTY))
+							break;
 
-		for(x = clip_x; x < clip_w; x++) {
+						pixel = (Uint8*)bmpDrawImage.get()->pixels + oy*2*DrawImagePitch + ox*2*screenbpp;
+						src = (Uint8*)bmpShadowMap.get()->pixels + oy*ShadowMapPitch + ox*screenbpp;
+						memcpy(pixel, src, screenbpp);
+						memcpy(pixel+screenbpp, src, screenbpp);
+						memcpy(pixel+DrawImagePitch, src, screenbpp);
+						memcpy(pixel+DrawImagePitch+screenbpp, src, screenbpp);
 
-			flag = *(uchar *)px;
-
-			// Edge hack
-			//if(x==0 || y==0 || x==Width-1 || y==Height-1)
-				//flag = PX_EMPTY;
-
-			if(!(flag & PX_EMPTY)) {
-				ox = x+1; oy = y+1;
-
-				// Draw the shadow
-				for(n = 0; n < SHADOW_DROP; n++) {
-
-					// Clipping
-					if(ox >= Width) break;
-					if(oy >= Height) break;
-
-					p = PixelFlags + oy * Width + ox;
-					if(!( (*(uchar *)p) & PX_EMPTY))
-						break;
-
-                    offset = oy*bmpImage.get()->pitch + ox*screenbpp;
-                    pixel = (Uint8*)bmpImage.get()->pixels + offset;
-                    src = (Uint8*)bmpShadowMap.get()->pixels + offset;
-					memcpy(pixel, src, screenbpp);
-
-					*(uchar *)p |= PX_EMPTY | PX_SHADOW;
-					ox++; oy++;
+						*(uchar *)p |= PX_EMPTY | PX_SHADOW;
+						ox++; oy++;
+					}
 				}
-			}
 
-			px++;
+				px++;
+			}
 		}
+		UnlockSurface(bmpDrawImage);
+	}
+	else // Low-res image
+	{
+		LOCK_OR_QUIT(bmpImage);
+		for(y = clip_y; y < clip_h; y++) {
+
+			px = PixelFlags + y * Width + clip_x;
+
+			for(x = clip_x; x < clip_w; x++) {
+
+				flag = *(uchar *)px;
+
+				// Edge hack
+				//if(x==0 || y==0 || x==Width-1 || y==Height-1)
+					//flag = PX_EMPTY;
+
+				if(!(flag & PX_EMPTY)) {
+					ox = x+1; oy = y+1;
+
+					// Draw the shadow
+					for(n = 0; n < SHADOW_DROP; n++) {
+
+						// Clipping
+						if(ox >= Width) break;
+						if(oy >= Height) break;
+
+						p = PixelFlags + oy * Width + ox;
+						if(!( (*(uchar *)p) & PX_EMPTY))
+							break;
+
+                        offset = oy*bmpImage.get()->pitch + ox*screenbpp;
+                        pixel = (Uint8*)bmpImage.get()->pixels + offset;
+                        src = (Uint8*)bmpShadowMap.get()->pixels + offset;
+						memcpy(pixel, src, screenbpp);
+
+						*(uchar *)p |= PX_EMPTY | PX_SHADOW;
+						ox++; oy++;
+					}
+				}
+
+				px++;
+			}
+		}
+		UnlockSurface(bmpImage);
 	}
 
 	unlockFlags();
 
 	UnlockSurface(bmpShadowMap);
-	UnlockSurface(bmpImage);
 
 	bMiniMapDirty = true;
 }
@@ -1863,10 +1951,20 @@ void CMap::UpdateMiniMap(bool force)
 	if(bDedicated) return;
 	if(!bMiniMapDirty && !force) return;
 
-	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+	if( bmpBackImageHiRes.get() )
+	{
+		if (tLXOptions->bAntiAliasing)
+			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		else
+			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+	}
 	else
-		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+	{
+		if (tLXOptions->bAntiAliasing)
+			DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		else
+			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+	}
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
@@ -1883,17 +1981,34 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 	if (bMiniMapDirty)
 		return;
 
-	// Calculate ratios
-	const float xratio = (float)bmpMiniMap.get()->w / (float)bmpImage.get()->w;
-	const float yratio = (float)bmpMiniMap.get()->h / (float)bmpImage.get()->h;
+	if( bmpBackImageHiRes.get() )
+	{
+		// Calculate ratios
+		const float xratio = (float)bmpMiniMap.get()->w / (float)bmpDrawImage.get()->w;
+		const float yratio = (float)bmpMiniMap.get()->h / (float)bmpDrawImage.get()->h;
 
-	const int dx = (int)((float)x * xratio);
-	const int dy = (int)((float)y * yratio);
+		const int dx = (int)((float)x * xratio);
+		const int dy = (int)((float)y * yratio);
 
-	if (tLXOptions->bAntiAliasing)
-		DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+		if (tLXOptions->bAntiAliasing)
+			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+		else
+			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	}
 	else
-		DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	{
+		// Calculate ratios
+		const float xratio = (float)bmpMiniMap.get()->w / (float)bmpImage.get()->w;
+		const float yratio = (float)bmpMiniMap.get()->h / (float)bmpImage.get()->h;
+
+		const int dx = (int)((float)x * xratio);
+		const int dy = (int)((float)y * yratio);
+
+		if (tLXOptions->bAntiAliasing)
+			DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+		else
+			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	}
 }
 
 
@@ -2063,7 +2178,7 @@ bool CMap::Load(const std::string& filename)
 	}
 
 	// CTF map?
-	bool ctf = (id == "LieroX CTF Level");
+	bool ctf = (id == "LieroX CTF Level"); // TODO: there's no CTF maps around, and it was a hack, remove it
 
 	Name = freadfixedcstr(fp, 64);
 
@@ -2378,6 +2493,8 @@ bool CMap::SaveImageFormat(FILE *fp)
 	delete[] pSource;
 	delete[] pDest;
 
+	// TODO: save hi-res image here
+	
 	fclose(fp);
 	return true;
 }
@@ -2415,7 +2532,15 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 		delete[] pDest;
 		return false;
 	}
-	destsize = lng_dsize; // WARNING: possible overflow ; TODO: do a check for it?
+	destsize = lng_dsize;
+	if( destsize < Width * Height * 3 * 2 )
+	{
+		errors("CMap::LoadImageFormat(): image too small for Width*Height");
+		fclose(fp);
+		delete[] pSource;
+		delete[] pDest;
+		return false;
+	}
 
 	delete[] pSource;  // not needed anymore
 
@@ -2432,15 +2557,14 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	Uint8* curpixel = (Uint8*)bmpBackImage.get()->pixels;
 	Uint8* PixelRow = curpixel;
 
-	// TODO: Check if pDest is big enough
-
+	Uint8 bpp = bmpImage.get()->format->BytesPerPixel;
 	// Load the back image
 	for (y = 0; y < Height; y++, PixelRow += bmpBackImage.get()->pitch)  {
 		curpixel = PixelRow;
-		for (x = 0; x < Width; x++, curpixel += bmpBackImage.get()->format->BytesPerPixel)  {
+		for (x = 0; x < Width; x++, curpixel += bpp)  {
 			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
 			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bmpBackImage.get()->format->BytesPerPixel);
+			PutPixelToAddr(curpixel, curcolor, bpp);
 		}
 	}
 
@@ -2449,10 +2573,10 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	PixelRow = curpixel;
 	for (y = 0; y < Height; y++, PixelRow += bmpImage.get()->pitch)  {
 		curpixel = PixelRow;
-		for (x = 0;x < Width; x++, curpixel += bmpImage.get()->format->BytesPerPixel)  {
+		for (x = 0;x < Width; x++, curpixel += bpp)  {
 			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
 			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bmpImage.get()->format->BytesPerPixel);
+			PutPixelToAddr(curpixel, curcolor, bpp);
 		}
 	}
 
@@ -2468,13 +2592,13 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	lockFlags();
 
-	for(y=0; y<Height; y++,PixelRow+=bmpImage.get()->pitch,BackPixelRow+=bmpBackImage.get()->pitch) {
+	for(y=0; y<Height; y++,PixelRow+=bmpImage.get()->pitch, BackPixelRow+=bmpBackImage.get()->pitch) {
 		curpixel = PixelRow;
 		backpixel = BackPixelRow;
-		for(x=0; x<Width; x++,curpixel+=bmpImage.get()->format->BytesPerPixel,backpixel+=bmpBackImage.get()->format->BytesPerPixel) {
+		for(x=0; x<Width; x++, curpixel+=bpp, backpixel+=bpp) {
 			PixelFlags[n] = pDest[p++];
 			if(PixelFlags[n] & PX_EMPTY)
-				memcpy(curpixel, backpixel, bmpImage.get()->format->BytesPerPixel);
+				memcpy(curpixel, backpixel, bpp);
 			if(PixelFlags[n] & PX_DIRT)
 				nTotalDirtCount++;
 			n++;
@@ -2488,12 +2612,14 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	// Load the CTF gametype variables
 	if (ctf)  {
-		fread_endian<short>(fp, FlagSpawnX);
-		fread_endian<short>(fp, FlagSpawnY);
-		fread_endian<short>(fp, BaseStartX);
-		fread_endian<short>(fp, BaseStartY);
-		fread_endian<short>(fp, BaseEndX);
-		fread_endian<short>(fp, BaseEndY);
+		warnings << "CMap::LoadImageFormat(): trying to load old-format CTF map, we do not support this anymore" << endl;
+		short dummy;
+		fread_endian<short>(fp, dummy);
+		fread_endian<short>(fp, dummy);
+		fread_endian<short>(fp, dummy);
+		fread_endian<short>(fp, dummy);
+		fread_endian<short>(fp, dummy);
+		fread_endian<short>(fp, dummy);
 	}
 
 	//SDL_SaveBMP(pxf, "mat.bmp");
@@ -2502,6 +2628,9 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 	// Delete the data
 	delete[] pDest;
+
+	// Try to load hi-res images
+	LoadImageFormatHiRes(fp);
 
 	fclose(fp);
 
@@ -2527,6 +2656,128 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	return true;
 }
 
+///////////////////
+// Load the high-resolution images
+bool CMap::LoadImageFormatHiRes(FILE *fp)
+{
+	if( feof(fp) )
+		return false;
+	const char * safetyHeader = "OLX hi-res data";
+	char safetyCheck[32] = "";
+	memset( safetyCheck, 0, sizeof(safetyCheck) );
+	fread(safetyCheck, 1, strlen(safetyHeader)+1, fp);
+	if( strcmp( safetyHeader, safetyCheck ) != 0 )
+		return false;
+	
+	hints << "CMap: Loading high-resolution level images" << endl;
+	
+	Uint32 size, destsize;
+	fread_compat(size, sizeof(Uint32), 1, fp);
+	EndianSwap(size);
+	fread_compat(destsize, sizeof(Uint32), 1, fp);
+	EndianSwap(destsize);
+
+	// Allocate the memory
+	uchar *pSource = new uchar[size];
+	uchar *pDest = new uchar[destsize];
+
+	fread(pSource, size*sizeof(uchar), 1, fp);
+
+	ulong lng_dsize = destsize;
+	int ret = uncompress( pDest, &lng_dsize, pSource, size );
+	if( ret != Z_OK ) 
+	{
+		warnings << "CMap::LoadImageFormatHiRes(): failed to load hi-res image, using low-res image, ret " << ret <<
+					" compressed size " << size << " uncompressed " << destsize << " should be greater than " << Width * Height * 4 * 3 * 2 << endl;
+		lng_dsize = 0;
+	}
+	destsize = lng_dsize;
+	if( destsize < Width * Height * 4 * 3 * 2 )
+	{
+		warnings << "CMap::LoadImageFormatHiRes(): hi-res image too small, using low-res image" << endl;
+	}
+	else
+	{
+		bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
+		if(bmpBackImageHiRes.get() == NULL) 
+		{
+			warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
+		}
+		else
+		{
+			// Lock surfaces
+			LOCK_OR_FAIL(bmpDrawImage);
+			LOCK_OR_FAIL(bmpBackImageHiRes);
+
+			Uint32 p=0;
+			Uint32 curcolor=0;
+			Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
+			Uint8* PixelRow = curpixel;
+			Uint32 x, y;
+			Uint8 bpp = bmpDrawImage.get()->format->BytesPerPixel;
+
+			// Load the front image
+			for (y = 0; y < Height*2; y++, PixelRow += bmpDrawImage.get()->pitch)  {
+				curpixel = PixelRow;
+				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
+					curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+					p += 3;
+					PutPixelToAddr(curpixel, curcolor, bpp);
+				}
+			}
+
+			curpixel = (Uint8*)bmpBackImageHiRes.get()->pixels;
+			PixelRow = curpixel;
+			// Load the back image
+			for (y = 0; y < Height*2; y++, PixelRow += bmpBackImageHiRes.get()->pitch)  {
+				curpixel = PixelRow;
+				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
+					curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+					p += 3;
+					PutPixelToAddr(curpixel, curcolor, bpp);
+				}
+			}
+
+			// Update image according to the pixel flags
+			int n=0;
+
+			curpixel = (Uint8 *)bmpDrawImage.get()->pixels;
+			PixelRow = curpixel;
+			Uint8 *backpixel = (Uint8 *)bmpBackImageHiRes.get()->pixels;
+			Uint8 *BackPixelRow = backpixel;
+
+			lockFlags();
+			Uint8 bppX2 = bpp*2;
+			int pitch = bmpDrawImage.get()->pitch;
+			for(y=0; y<Height; y++, PixelRow+=pitch*2, BackPixelRow+=pitch*2 ) 
+			{
+				curpixel = PixelRow;
+				backpixel = BackPixelRow;
+				for(x=0; x<Width; x++, curpixel+=bppX2, backpixel+=bppX2)
+				{
+					if(PixelFlags[n] & PX_EMPTY)
+					{
+						memcpy(curpixel, backpixel, bppX2);
+						memcpy(curpixel+pitch, backpixel+pitch, bppX2);
+					}
+					n++;
+				}
+			}
+			unlockFlags();
+
+			UnlockSurface(bmpBackImageHiRes);
+			UnlockSurface(bmpDrawImage);
+			
+			AdditionalData = std::string( (char * )(pDest + Width * Height * 4 * 3 * 2), destsize - Width * Height * 4 * 3 * 2 );
+			if( AdditionalData.size() > 0 )
+				warnings << "CMap::LoadImageFormatHiRes(): non-zero additional data, we don't use it yet" << endl;
+		}
+	}
+	delete[] pSource;
+	delete[] pDest;
+
+	return (bmpBackImageHiRes.get() != NULL);
+};
 
 ///////////////////
 // Load an original version of a liero level
@@ -2762,7 +3013,11 @@ void CMap::NewNet_SaveToMemory()
 	bMapSavingToMemory = true;
 	if( bmpSavedImage.get() == NULL )
 	{
-		bmpSavedImage = gfxCreateSurface(Width, Height);
+		if( bmpBackImageHiRes.get() )
+			bmpSavedImage = gfxCreateSurface(Width*2, Height*2);
+		else
+			bmpSavedImage = gfxCreateSurface(Width, Height);
+			
 		if( bmpSavedImage.get() == NULL )
 		{
 			errors("Error: CMap::SaveToMemory(): cannot allocate GFX surface\n");
@@ -2795,18 +3050,27 @@ void CMap::NewNet_RestoreFromMemory()
 		int startY = it->Y*MAP_SAVE_CHUNK;
 		int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
 
-		LOCK_OR_QUIT(bmpImage);
 		LOCK_OR_QUIT(bmpSavedImage);
 		lockFlags();
 	
-		DrawImageAdv( bmpImage.get(), bmpSavedImage, startX, startY, startX, startY, sizeX, sizeY );
+		if( bmpBackImageHiRes.get() )
+		{
+			LOCK_OR_QUIT(bmpDrawImage);
+			DrawImageAdv( bmpDrawImage.get(), bmpSavedImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
+			UnlockSurface(bmpDrawImage);
+		}
+		else
+		{
+			LOCK_OR_QUIT(bmpImage);
+			DrawImageAdv( bmpImage.get(), bmpSavedImage, startX, startY, startX, startY, sizeX, sizeY );
+			UnlockSurface(bmpImage);
+		}
 
 		for( int y=startY; y<startY+sizeY; y++ )
 			memcpy( PixelFlags + y*Width + startX, savedPixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
 	
 		unlockFlags();
 		UnlockSurface(bmpSavedImage);
-		UnlockSurface(bmpImage);
 		
 		if( tLXOptions->bShadows )
 		{
@@ -2860,18 +3124,27 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 				int startY = fy*MAP_SAVE_CHUNK;
 				int sizeY = MIN( MAP_SAVE_CHUNK, Height - startY  );
 
-				LOCK_OR_QUIT(bmpImage);
 				LOCK_OR_QUIT(bmpSavedImage);
 				lockFlags();
 				
-				DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
+				if( bmpBackImageHiRes.get() )
+				{
+					LOCK_OR_QUIT(bmpDrawImage);
+					DrawImageAdv( bmpSavedImage.get(), bmpDrawImage, startX*2, startY*2, startX*2, startY*2, sizeX*2, sizeY*2 );
+					UnlockSurface(bmpDrawImage);
+				}
+				else
+				{
+					LOCK_OR_QUIT(bmpImage);
+					DrawImageAdv( bmpSavedImage.get(), bmpImage, startX, startY, startX, startY, sizeX, sizeY );
+					UnlockSurface(bmpImage);
+				}
 
 				for( int y=startY; y<startY+sizeY; y++ )
 					memcpy( savedPixelFlags + y*Width + startX, PixelFlags + y*Width + startX, sizeX*sizeof(uchar) );
 
 				unlockFlags();
 				UnlockSurface(bmpSavedImage);
-				UnlockSurface(bmpImage);
 			};
 };
 
@@ -2894,6 +3167,7 @@ void CMap::Shutdown()
 		bmpBackImage = NULL;
 		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;
+		bmpBackImageHiRes = NULL;
 
 		if(PixelFlags)
 			delete[] PixelFlags;
@@ -2911,15 +3185,7 @@ void CMap::Shutdown()
 			delete[] Objects;
 		Objects = NULL;
 		NumObjects = 0;
-
-		/*
-        if( sRandomLayout.bUsed ) {
-            sRandomLayout.bUsed = false;
-            if( sRandomLayout.psObjects )
-                delete[] sRandomLayout.psObjects;
-            sRandomLayout.psObjects = NULL;
-        }
-        */
+		AdditionalData = "";
 
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
@@ -2936,13 +3202,14 @@ void CMap::Shutdown()
 		bmpDebugImage = NULL;
 #endif
 		bmpBackImage = NULL;
+		bmpBackImageHiRes = NULL;
 		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		//sRandomLayout.psObjects = NULL;
+		AdditionalData = "";
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
 		savedPixelFlags = NULL;
