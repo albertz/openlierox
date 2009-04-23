@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		23026E520D5D1BC50021934B /* PhysicsLX56.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23026E510D5D1BC50021934B /* PhysicsLX56.cpp */; };
+		23026E520D5D1BC50021934B /* PhysicsLX56.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23026E510D5D1BC50021934B /* PhysicsLX56.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		23026E570D5D1D4C0021934B /* Physics.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23026E560D5D1D4C0021934B /* Physics.cpp */; };
 		230668390D40B44D005B4451 /* IniReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230668380D40B44D005B4451 /* IniReader.cpp */; };
 		2306CBC60E6AB42A00132D3B /* condition.c in Sources */ = {isa = PBXBuildFile; fileRef = 2306CBBB0E6AB42A00132D3B /* condition.c */; };

@@ -458,6 +458,9 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	if (!sender->getRights()->NameChange && !tLXOptions->tGameInfo.bAllowNickChange && !sender->getRights()->Override)
 		return "You don't have sufficient privileges to change your nick";
 
+	if(sender->getNumWorms() == 0)
+		return "Your client doesn't have any worms";
+	
 	// Get the name
 	std::string name;
 	for (std::vector<std::string>::const_iterator it = params.begin(); it != params.end(); it++)  {
@@ -487,7 +490,8 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 
 	// Send the notification
 	cServer->SendGlobalText(oldname + " is now known as " + name, TXT_NORMAL);
-
+	notes << "worm rename: " << sender->getWorm(0)->getID() << ":" << oldname << " renamed to " << sender->getWorm(0)->getName() << endl;
+	
 	return "";
 }
 
