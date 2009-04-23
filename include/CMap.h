@@ -119,7 +119,7 @@ public:
 		bMiniMapDirty = true;
 
 		
-		AdditionalData = "";
+		AdditionalData.clear();
 		
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
@@ -177,7 +177,7 @@ private:
 	int			NumObjects;
 	object_t	*Objects;
 
-	std::string	AdditionalData; // Not used currently, maybe will contain CTF info in Beta10
+	std::map< std::string, std::string > AdditionalData; // Not used currently, maybe will contain CTF info in Beta10
 
 	// Save/restore from memory, for commit/rollback net mechanism
 	bool		bMapSavingToMemory;

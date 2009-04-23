@@ -2669,8 +2669,6 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 	if( strcmp( safetyHeader, safetyCheck ) != 0 )
 		return false;
 	
-	hints << "CMap: Loading high-resolution level images" << endl;
-	
 	Uint32 size, destsize;
 	fread_compat(size, sizeof(Uint32), 1, fp);
 	EndianSwap(size);
@@ -2692,9 +2690,46 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 		lng_dsize = 0;
 	}
 	destsize = lng_dsize;
-	if( destsize < Width * Height * 4 * 3 * 2 )
+
+	// Fill up additional data
+	AdditionalData.clear();
+	Uint32 pos = 0;
+	Uint32 AdditionalDataSize = *(Uint32 *)(pDest + pos);
+	EndianSwap(AdditionalDataSize);
+	pos += 4;
+	if( AdditionalDataSize + 4 > destsize )
 	{
-		warnings << "CMap::LoadImageFormatHiRes(): hi-res image too small, using low-res image" << endl;
+		warnings << "CMap::LoadImageFormatHiRes(): wrong additional data size " << AdditionalDataSize << endl;
+	}
+	else
+	{
+		bool nameChunk = true;
+		std::string nameChunkData;
+		while( AdditionalDataSize + 4 > pos ) // 4 bytes of whole data size
+		{
+			Uint32 chunkSize = *(Uint32 *)(pDest + pos);
+			EndianSwap(chunkSize);
+			if( chunkSize + pos > AdditionalDataSize )
+			{
+				warnings << "CMap::LoadImageFormatHiRes(): wrong additional data chunk size " << chunkSize << endl;
+				break;
+			}
+			pos += 4;
+
+			if( nameChunk )
+				nameChunkData = std::string( (char *)(pDest + pos), chunkSize );
+			else
+				AdditionalData[nameChunkData] = std::string( (char *)(pDest + pos), chunkSize );
+
+			nameChunk = !nameChunk;
+			pos += chunkSize;
+		}
+	}
+	pos = AdditionalDataSize + 4;
+
+	if( destsize < pos + Width * Height * 4 * 3 * 2 )
+	{
+		hints << "CMap: hi-res image too small or absent" << endl;
 	}
 	else
 	{
@@ -2705,11 +2740,11 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 		}
 		else
 		{
+			hints << "CMap: Loading high-resolution level images" << endl;
 			// Lock surfaces
 			LOCK_OR_FAIL(bmpDrawImage);
 			LOCK_OR_FAIL(bmpBackImageHiRes);
 
-			Uint32 p=0;
 			Uint32 curcolor=0;
 			Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
 			Uint8* PixelRow = curpixel;
@@ -2720,8 +2755,8 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 			for (y = 0; y < Height*2; y++, PixelRow += bmpDrawImage.get()->pitch)  {
 				curpixel = PixelRow;
 				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-					curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-					p += 3;
+					curcolor = MakeColour(pDest[pos], pDest[pos+1], pDest[pos+2]);
+					pos += 3;
 					PutPixelToAddr(curpixel, curcolor, bpp);
 				}
 			}
@@ -2732,8 +2767,8 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 			for (y = 0; y < Height*2; y++, PixelRow += bmpBackImageHiRes.get()->pitch)  {
 				curpixel = PixelRow;
 				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-					curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-					p += 3;
+					curcolor = MakeColour(pDest[pos], pDest[pos+1], pDest[pos+2]);
+					pos += 3;
 					PutPixelToAddr(curpixel, curcolor, bpp);
 				}
 			}
@@ -2764,13 +2799,8 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 				}
 			}
 			unlockFlags();
-
 			UnlockSurface(bmpBackImageHiRes);
 			UnlockSurface(bmpDrawImage);
-			
-			AdditionalData = std::string( (char * )(pDest + Width * Height * 4 * 3 * 2), destsize - Width * Height * 4 * 3 * 2 );
-			if( AdditionalData.size() > 0 )
-				warnings << "CMap::LoadImageFormatHiRes(): non-zero additional data, we don't use it yet" << endl;
 		}
 	}
 	delete[] pSource;
@@ -3185,7 +3215,7 @@ void CMap::Shutdown()
 			delete[] Objects;
 		Objects = NULL;
 		NumObjects = 0;
-		AdditionalData = "";
+		AdditionalData.clear();
 
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
@@ -3209,7 +3239,7 @@ void CMap::Shutdown()
 		GridFlags = NULL;
 		AbsoluteGridFlags = NULL;
 		Objects = NULL;
-		AdditionalData = "";
+		AdditionalData.clear();
 		bMapSavingToMemory = false;
 		bmpSavedImage = NULL;
 		savedPixelFlags = NULL;

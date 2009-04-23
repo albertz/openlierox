@@ -1,3 +1,6 @@
+#include <string>
+#include <map>
+
 #include <wx/wx.h>
 #include <wx/cmdline.h>
 #include <zlib.h>
@@ -33,7 +36,7 @@ class LevelCompilerApp : public wxApp
 
 // The function that does all the work :)
 void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
-					const wxString& frontHiRes, const wxString& backHiRes, const std::string& additionalData);
+					const wxString& frontHiRes, const wxString& backHiRes, const std::map< std::string, std::string >& additionalData);
 
 // Basic functions
 int max(const int vals[], int size)
@@ -156,7 +159,7 @@ bool LevelCompilerApp::OnInit()
 	{
 		try {
 			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName, 
-							commandLineFrontHiRes, commandLineBackHiRes, "");
+							commandLineFrontHiRes, commandLineBackHiRes, std::map< std::string, std::string > () );
 		} catch (Exception &e) {
 			printf("An error occured while compiling: %s\n", (const char *)e.message.mb_str());
 			return false;
@@ -373,7 +376,7 @@ void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 		try  {
 			CompileLevel(txtFront->GetValue(), txtBack->GetValue(), txtMat->GetValue(), 
 				dlgSaveFile->GetPath(), txtName->GetValue(),
-				txtFrontHiRes->GetValue(), txtBackHiRes->GetValue(), "");
+				txtFrontHiRes->GetValue(), txtBackHiRes->GetValue(), std::map< std::string, std::string > () );
 			wxMessageBox(_T("Level successfully compiled!"), _T("Success"));
 		} catch (Exception &e) {
 			wxMessageBox(_T("An error occured while compiling:\n") + e.message, _T("Compiler error"));
@@ -388,7 +391,7 @@ void LevelCompilerFrame::OnExitClick(wxCommandEvent &evt)
 }
 
 void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
-					const wxString& frontHiRes, const wxString& backHiRes, const std::string& additionalData)
+					const wxString& frontHiRes, const wxString& backHiRes, const std::map< std::string, std::string > & additionalData)
 {
 	// Name check
 	if (name.size() == 0)
@@ -500,8 +503,8 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	fwrite(levelName, sizeof(levelName), 1, fp);
 
 	// Dimensions
-	const wxUint32 width = (wxUint32)widths[0];
-	const wxUint32 height = (wxUint32)heights[0];
+	wxUint32 width = (wxUint32)widths[0];
+	wxUint32 height = (wxUint32)heights[0];
 	fwrite(&wxUINT32_SWAP_ON_BE(width), 4, 1, fp);
 	fwrite(&wxUINT32_SWAP_ON_BE(height), 4, 1, fp);
 
@@ -567,16 +570,36 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
 	fwrite(compressedData, compressedSize, 1, fp);
 	
-	if( useHiRes )
+	if( useHiRes || !additionalData.empty() )
 	{
+		if( !useHiRes )
+			width = height = 0; // Write only additional data
 		delete[] data;
 		delete[] compressedData;
-		uncompressedSize = 6 * 4 * width * height + additionalData.size(); // Frontsize * 3 + Backsize * 3 , sizes * 4
+		std::string additionalDataRaw;
+		for( std::map< std::string, std::string >::const_iterator it = additionalData.begin(); 
+				it != additionalData.end(); it++ )
+		{
+			wxUint32 size = wxUINT32_SWAP_ON_BE( it->first.size() );
+			additionalDataRaw += std::string( (char *)(&size), 4 );
+			additionalDataRaw += it->first;
+			size = wxUINT32_SWAP_ON_BE( it->second.size() );
+			additionalDataRaw += std::string( (char *)(&size), 4 );
+			additionalDataRaw += it->second;
+		}
+		
+		uncompressedSize = 6 * 4 * width * height + additionalDataRaw.size() + 4;
 
 		data = new wxByte[uncompressedSize];
-		memcpy(data, frontImageHiRes.GetData(), 3 * 4 * width * height); // Copy the back image
-		memcpy(data + 3 * 4 * width * height, backImageHiRes.GetData(), 3 * 4 * width * height); // Copy the front image
-		memcpy(data + 6 * 4 * width * height, additionalData.c_str(), additionalData.size() );
+		wxUint32 pos = 0;
+		wxUint32 size = wxUINT32_SWAP_ON_BE( additionalDataRaw.size() );
+		memcpy(data + pos, &size, 4 );
+		pos += 4;
+		memcpy(data + pos, additionalDataRaw.c_str(), additionalDataRaw.size() );
+		pos += additionalDataRaw.size();
+		memcpy(data + pos, frontImageHiRes.GetData(), 3 * 4 * width * height);
+		pos += 3 * 4 * width * height;
+		memcpy(data + pos, backImageHiRes.GetData(), 3 * 4 * width * height);
 		csize = (int)(uncompressedSize * 1.1f) + 12;
 		compressedData = new wxByte[csize];
 		if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) 
