@@ -234,7 +234,7 @@
 		EAD99F840C063ECA003BE563 /* Command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C290BEFCEB400C6547E /* Command.cpp */; };
 		EAD99F850C063ECA003BE563 /* ConfigHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2A0BEFCEB400C6547E /* ConfigHandler.cpp */; };
 		EAD99F860C063ECA003BE563 /* Console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2B0BEFCEB400C6547E /* Console.cpp */; };
-		EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */; };
+		EAD99F870C063ECA003BE563 /* CProjectile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C2C0BEFCEB400C6547E /* CProjectile.cpp */; settings = {COMPILER_FLAGS = "-Os"; }; };
 		EAD99F890C063ECA003BE563 /* CServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C400BEFCEB400C6547E /* CServer.cpp */; };
 		EAD99F8A0C063ECA003BE563 /* CServer_Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C410BEFCEB400C6547E /* CServer_Game.cpp */; };
 		EAD99F8B0C063ECA003BE563 /* CServer_Parse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C420BEFCEB400C6547E /* CServer_Parse.cpp */; };
