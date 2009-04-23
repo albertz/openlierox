@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="windows-1250"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="8.00"
 	Name="LevelCompiler"
 	ProjectGUID="{4BC4EAFF-3536-4B2E-AF2D-B10700EB15B5}"
 	RootNamespace="LevelCompiler"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS"
+				PreprocessorDefinitions="WIN32;DEBUG;_WINDOWS;ZLIB_WIN32_NODLL"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -62,7 +62,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="comctl32.lib Rpcrt4.lib zlib.lib wxbase28ud.lib wxmsw28ud_core.lib wxjpegd.lib wxpngd.lib wxtiffd.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;../msvc 2008/libs&quot;"
+				AdditionalLibraryDirectories="&quot;../msvc 2008/libs&quot;;../../../../build/msvc/libs"
 				IgnoreDefaultLibraryNames="libc.lib;msvcrt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -98,8 +98,8 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
-			WholeProgramOptimization="1"
+			CharacterSet="2"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -120,9 +120,10 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;ZLIB_WIN32_NODLL"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="0"
+				EnableFunctionLevelLinking="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -138,14 +139,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="comctl32.lib Rpcrt4.lib wxbase28u.lib wxmsw28u_core.lib wxjpeg.lib wxpng.lib wxtiff.lib"
-				LinkIncremental="1"
+				AdditionalDependencies="comctl32.lib Rpcrt4.lib wxbase28.lib wxmsw28_core.lib wxtiff.lib wxjpeg.lib wxpng.lib wxzlib.lib libcmt.lib"
+				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
-				IgnoreDefaultLibraryNames="libc.lib;msvcrtd.lib"
+				IgnoreDefaultLibraryNames="msvcrt.lib;mscmrt.lib;mscprt.lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
 			/>
 			<Tool
