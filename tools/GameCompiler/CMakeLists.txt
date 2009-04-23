@@ -27,6 +27,7 @@ ADD_DEFINITIONS(${SDLCFLAGS})
 
 SET(SRCS src/main.cpp)
 SET(OLX_SRCS ../../src/common/ConfigHandler.cpp
+../../src/common/ProjAction.cpp
 ../../src/common/CGameScript.cpp
 ../../src/common/Version.cpp ../../src/common/Debug.cpp
 ../../src/common/StringUtils.cpp ../../src/common/StringBuf.cpp
