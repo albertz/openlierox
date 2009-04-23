@@ -189,7 +189,7 @@ inline std::string FixedWidthStr_LeftFill(const std::string& str, size_t w, char
 }
 
 inline void StripQuotes(std::string& value) {
-	if( value.size() > 2 )
+	if( value.size() >= 2 )
 		if( value[0] == '"' && value[value.size()-1] == '"' )
 			value = value.substr( 1, value.size()-2 );	
 }

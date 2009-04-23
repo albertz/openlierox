@@ -851,12 +851,13 @@ struct DedIntern {
 	}
 
 	void Cmd_SetVar(DedInterface* caller, const std::string& params) {
-		if( params.find(" ") == std::string::npos ) {
+		size_t f = params.find(" ");
+		if( f == std::string::npos ) {
 			caller->writeMsg("SetVar: wrong params: " + params);
 			return;
 		}
-		std::string var = params.substr( 0, params.find(" ") );
-		std::string value = params.substr( params.find(" ")+1 );
+		std::string var = params.substr( 0, f );
+		std::string value = params.substr( f + 1 );
 		TrimSpaces( var );
 		TrimSpaces( value );
 		StripQuotes( value );
