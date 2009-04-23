@@ -3,6 +3,7 @@
 
 #include <wx/wx.h>
 #include <wx/cmdline.h>
+#include <wx/mstream.h>
 #include <zlib.h>
 
 // Some basic defines
@@ -36,6 +37,7 @@ class LevelCompilerApp : public wxApp
 
 // The function that does all the work :)
 void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
+					const wxString& OutFile,
 					const wxString& frontHiRes, const wxString& backHiRes, const std::map< std::string, std::string >& additionalData);
 
 // Basic functions
@@ -158,8 +160,9 @@ bool LevelCompilerApp::OnInit()
 	if( !commandLineFront.IsEmpty() )
 	{
 		try {
-			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName, 
+			CompileLevel(commandLineFront, commandLineBack, commandLineMat, commandLineOut, commandLineName, commandLineOut,
 							commandLineFrontHiRes, commandLineBackHiRes, std::map< std::string, std::string > () );
+			printf("Level compiled to file: %s\n", (const char *)commandLineName.mb_str());
 		} catch (Exception &e) {
 			printf("An error occured while compiling: %s\n", (const char *)e.message.mb_str());
 			return false;
@@ -375,7 +378,7 @@ void LevelCompilerFrame::OnCompileClick(wxCommandEvent &evt)
 	if (dlgSaveFile->ShowModal() == wxID_OK)  {
 		try  {
 			CompileLevel(txtFront->GetValue(), txtBack->GetValue(), txtMat->GetValue(), 
-				dlgSaveFile->GetPath(), txtName->GetValue(),
+				dlgSaveFile->GetPath(), txtName->GetValue(), _T(""),
 				txtFrontHiRes->GetValue(), txtBackHiRes->GetValue(), std::map< std::string, std::string > () );
 			wxMessageBox(_T("Level successfully compiled!"), _T("Success"));
 		} catch (Exception &e) {
@@ -391,6 +394,7 @@ void LevelCompilerFrame::OnExitClick(wxCommandEvent &evt)
 }
 
 void CompileLevel(const wxString& front, const wxString& back, const wxString& mat, const wxString& out, const wxString& name,
+					const wxString& OutFile,
 					const wxString& frontHiRes, const wxString& backHiRes, const std::map< std::string, std::string > & additionalData)
 {
 	// Name check
@@ -398,7 +402,12 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		throw Exception(_T("No name specified."));
 
 	// Open the file
-	FILE *fp = wxFopen(out.c_str(), _T("wb"));
+	FILE *fp = NULL;
+	if( OutFile == _T("") )
+		fp = wxFopen(out.c_str(), _T("wb"));
+	else
+		fp = fopen((const char *)OutFile.mb_str(), "wb");
+	
 	if (fp == NULL)
 		throw Exception(_T("Could not create the output file."));
 
@@ -503,8 +512,8 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	fwrite(levelName, sizeof(levelName), 1, fp);
 
 	// Dimensions
-	wxUint32 width = (wxUint32)widths[0];
-	wxUint32 height = (wxUint32)heights[0];
+	const wxUint32 width = (wxUint32)widths[0];
+	const wxUint32 height = (wxUint32)heights[0];
 	fwrite(&wxUINT32_SWAP_ON_BE(width), 4, 1, fp);
 	fwrite(&wxUINT32_SWAP_ON_BE(height), 4, 1, fp);
 
@@ -572,8 +581,6 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	
 	if( useHiRes || !additionalData.empty() )
 	{
-		if( !useHiRes )
-			width = height = 0; // Write only additional data
 		delete[] data;
 		delete[] compressedData;
 		std::string additionalDataRaw;
@@ -588,18 +595,12 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 			additionalDataRaw += it->second;
 		}
 		
-		uncompressedSize = 6 * 4 * width * height + additionalDataRaw.size() + 4;
+		uncompressedSize = additionalDataRaw.size() + 4;
 
 		data = new wxByte[uncompressedSize];
-		wxUint32 pos = 0;
 		wxUint32 size = wxUINT32_SWAP_ON_BE( additionalDataRaw.size() );
-		memcpy(data + pos, &size, 4 );
-		pos += 4;
-		memcpy(data + pos, additionalDataRaw.c_str(), additionalDataRaw.size() );
-		pos += additionalDataRaw.size();
-		memcpy(data + pos, frontImageHiRes.GetData(), 3 * 4 * width * height);
-		pos += 3 * 4 * width * height;
-		memcpy(data + pos, backImageHiRes.GetData(), 3 * 4 * width * height);
+		memcpy(data, &size, 4 );
+		memcpy(data + 4, additionalDataRaw.c_str(), additionalDataRaw.size() );
 		csize = (int)(uncompressedSize * 1.1f) + 12;
 		compressedData = new wxByte[csize];
 		if (compress2(compressedData, &csize, data, uncompressedSize, 9) != Z_OK) 
@@ -612,11 +613,33 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		}
 		compressedSize = csize;
 		// Write out the compressed data
-		const char * safetyHeader = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
-		fwrite(safetyHeader, strlen(safetyHeader)+1, 1, fp);
+		const char * safetyHeaderData = "OLX additional data"; // OLX will check for this string if the file contains junk at the end
+		fwrite(safetyHeaderData, strlen(safetyHeaderData)+1, 1, fp);
 		fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
 		fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
 		fwrite(compressedData, compressedSize, 1, fp);
+
+		if( useHiRes )
+		{
+			// Move all image data to first image
+			wxImage combinedImage( frontImageHiRes.Resize( wxSize(width*2, height*4), wxPoint(0, 0), 0, 0, 0 ) );
+			memcpy(((char *)combinedImage.GetData()) + 3 * 4 * width * height, backImageHiRes.GetData(), 3 * 4 * width * height);
+			wxMemoryOutputStream str;
+			if( !combinedImage.SaveFile( str, wxBITMAP_TYPE_PNG ) )
+			{
+				fclose(fp);
+				wxRemove(out);
+				delete[] pxFlags;
+				delete[] data;
+				delete[] compressedData;
+				throw Exception(_T("Cannot save hi-res images to stream"));
+			};
+			const char * safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+			fwrite(safetyHeaderHiRes, strlen(safetyHeaderHiRes)+1, 1, fp);
+			compressedSize = str.GetOutputStreamBuffer()->Tell();
+			fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
+			fwrite(str.GetOutputStreamBuffer()->GetBufferStart(), str.GetOutputStreamBuffer()->Tell(), 1, fp);
+		}
 	}
 
 	// Cleanups

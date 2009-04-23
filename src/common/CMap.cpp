@@ -17,6 +17,9 @@
 #include <assert.h>
 #include <zlib.h>
 #include <list>
+#ifndef DEDICATED_ONLY
+#include <gd.h>
+#endif
 
 
 #include "LieroX.h"
@@ -2662,11 +2665,11 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 {
 	if( feof(fp) )
 		return false;
-	const char * safetyHeader = "OLX hi-res data";
-	char safetyCheck[32] = "";
+	const char * safetyHeaderData = "OLX additional data"; // OLX will check for this string if the file contains junk at the end
+	char safetyCheck[64] = "";
 	memset( safetyCheck, 0, sizeof(safetyCheck) );
-	fread(safetyCheck, 1, strlen(safetyHeader)+1, fp);
-	if( strcmp( safetyHeader, safetyCheck ) != 0 )
+	fread(safetyCheck, 1, strlen(safetyHeaderData)+1, fp);
+	if( strcmp( safetyHeaderData, safetyCheck ) != 0 )
 		return false;
 	
 	Uint32 size, destsize;
@@ -2725,86 +2728,108 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 			pos += chunkSize;
 		}
 	}
-	pos = AdditionalDataSize + 4;
-
-	if( destsize < pos + Width * Height * 4 * 3 * 2 )
-	{
-		hints << "CMap: hi-res image too small or absent" << endl;
-	}
-	else
-	{
-		bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
-		if(bmpBackImageHiRes.get() == NULL) 
-		{
-			warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
-		}
-		else
-		{
-			hints << "CMap: Loading high-resolution level images" << endl;
-			// Lock surfaces
-			LOCK_OR_FAIL(bmpDrawImage);
-			LOCK_OR_FAIL(bmpBackImageHiRes);
-
-			Uint32 curcolor=0;
-			Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
-			Uint8* PixelRow = curpixel;
-			Uint32 x, y;
-			Uint8 bpp = bmpDrawImage.get()->format->BytesPerPixel;
-
-			// Load the front image
-			for (y = 0; y < Height*2; y++, PixelRow += bmpDrawImage.get()->pitch)  {
-				curpixel = PixelRow;
-				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-					curcolor = MakeColour(pDest[pos], pDest[pos+1], pDest[pos+2]);
-					pos += 3;
-					PutPixelToAddr(curpixel, curcolor, bpp);
-				}
-			}
-
-			curpixel = (Uint8*)bmpBackImageHiRes.get()->pixels;
-			PixelRow = curpixel;
-			// Load the back image
-			for (y = 0; y < Height*2; y++, PixelRow += bmpBackImageHiRes.get()->pitch)  {
-				curpixel = PixelRow;
-				for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-					curcolor = MakeColour(pDest[pos], pDest[pos+1], pDest[pos+2]);
-					pos += 3;
-					PutPixelToAddr(curpixel, curcolor, bpp);
-				}
-			}
-
-			// Update image according to the pixel flags
-			int n=0;
-
-			curpixel = (Uint8 *)bmpDrawImage.get()->pixels;
-			PixelRow = curpixel;
-			Uint8 *backpixel = (Uint8 *)bmpBackImageHiRes.get()->pixels;
-			Uint8 *BackPixelRow = backpixel;
-
-			lockFlags();
-			Uint8 bppX2 = bpp*2;
-			int pitch = bmpDrawImage.get()->pitch;
-			for(y=0; y<Height; y++, PixelRow+=pitch*2, BackPixelRow+=pitch*2 ) 
-			{
-				curpixel = PixelRow;
-				backpixel = BackPixelRow;
-				for(x=0; x<Width; x++, curpixel+=bppX2, backpixel+=bppX2)
-				{
-					if(PixelFlags[n] & PX_EMPTY)
-					{
-						memcpy(curpixel, backpixel, bppX2);
-						memcpy(curpixel+pitch, backpixel+pitch, bppX2);
-					}
-					n++;
-				}
-			}
-			unlockFlags();
-			UnlockSurface(bmpBackImageHiRes);
-			UnlockSurface(bmpDrawImage);
-		}
-	}
 	delete[] pSource;
 	delete[] pDest;
+
+#ifndef DEDICATED_ONLY
+
+	if( feof(fp) )
+		return false;
+	const char * safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+	memset( safetyCheck, 0, sizeof(safetyCheck) );
+	fread(safetyCheck, 1, strlen(safetyHeaderHiRes)+1, fp);
+	if( strcmp( safetyHeaderHiRes, safetyCheck ) != 0 )
+		return false;
+
+	size = 0;
+	fread_compat(size, sizeof(Uint32), 1, fp);
+	EndianSwap(size);
+	pSource = new uchar[size];
+	fread(pSource, size*sizeof(uchar), 1, fp);
+	gdImagePtr gdImage = gdImageCreateFromPngPtr( size, pSource );
+	delete[] pSource;
+	
+	if( !gdImage || gdImageSX(gdImage) != (int)Width * 2 || gdImageSY(gdImage) != (int)Height * 4 )
+	{
+		warnings << "CMap: hi-res image loading failed" << endl;
+		if( gdImage )
+			gdImageDestroy(gdImage);
+		return false;
+	}
+
+	bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
+	if(bmpBackImageHiRes.get() == NULL) 
+	{
+		warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
+		gdImageDestroy(gdImage);
+		return false;
+	}
+	
+	hints << "CMap: Loading high-res level images" << endl;
+	// Lock surfaces
+	LOCK_OR_FAIL(bmpDrawImage);
+	LOCK_OR_FAIL(bmpBackImageHiRes);
+
+	Uint32 curcolor=0;
+	Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
+	Uint8* PixelRow = curpixel;
+	Uint32 x, y;
+	Uint8 bpp = bmpDrawImage.get()->format->BytesPerPixel;
+
+	// Load the front image
+	for (y = 0; y < Height*2; y++, PixelRow += bmpDrawImage.get()->pitch)  {
+		curpixel = PixelRow;
+		for (x = 0; x < Width*2; x++, curpixel += bpp)  {
+			curcolor = gdImageGetTrueColorPixel( gdImage, x, y ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
+			curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
+			PutPixelToAddr(curpixel, curcolor, bpp);
+		}
+	}
+
+	curpixel = (Uint8*)bmpBackImageHiRes.get()->pixels;
+	PixelRow = curpixel;
+	int HeightX2 = Height*2;
+	// Load the back image
+	for (y = 0; y < Height*2; y++, PixelRow += bmpBackImageHiRes.get()->pitch)  {
+		curpixel = PixelRow;
+		for (x = 0; x < Width*2; x++, curpixel += bpp)  {
+			curcolor = gdImageGetTrueColorPixel( gdImage, x, y + HeightX2 ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
+			curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
+			PutPixelToAddr(curpixel, curcolor, bpp);
+		}
+	}
+
+	// Update image according to the pixel flags
+	int n=0;
+
+	curpixel = (Uint8 *)bmpDrawImage.get()->pixels;
+	PixelRow = curpixel;
+	Uint8 *backpixel = (Uint8 *)bmpBackImageHiRes.get()->pixels;
+	Uint8 *BackPixelRow = backpixel;
+
+	lockFlags();
+	Uint8 bppX2 = bpp*2;
+	int pitch = bmpDrawImage.get()->pitch;
+	for(y=0; y<Height; y++, PixelRow+=pitch*2, BackPixelRow+=pitch*2 ) 
+	{
+		curpixel = PixelRow;
+		backpixel = BackPixelRow;
+		for(x=0; x<Width; x++, curpixel+=bppX2, backpixel+=bppX2)
+		{
+			if(PixelFlags[n] & PX_EMPTY)
+			{
+				memcpy(curpixel, backpixel, bppX2);
+				memcpy(curpixel+pitch, backpixel+pitch, bppX2);
+			}
+			n++;
+		}
+	}
+	unlockFlags();
+	UnlockSurface(bmpBackImageHiRes);
+	UnlockSurface(bmpDrawImage);
+
+	gdImageDestroy(gdImage);
+#endif // DEDICATED_ONLY
 
 	return (bmpBackImageHiRes.get() != NULL);
 };
