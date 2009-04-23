@@ -178,3 +178,6 @@ SDL_PixelFormat defaultFallbackFormat =
 };
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
+
+class CClient;
+CClient* cClient = NULL;
