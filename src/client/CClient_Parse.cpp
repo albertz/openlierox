@@ -113,9 +113,6 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 		}
 	}
 
-	else if (cmd == "lx:mouseAllowed")
-		client->bHostAllowsMouse = true;
-
 	else if (cmd == "lx:strafingAllowed")
 		client->bHostAllowsStrafing = true;
 
@@ -336,7 +333,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 
 	if(!isReconnect) {
-		client->bHostAllowsMouse = false;
 		client->bHostAllowsStrafing = false;
 	}
 	

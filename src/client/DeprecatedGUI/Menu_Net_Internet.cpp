@@ -151,12 +151,15 @@ void Menu_Net_NETShutdown()
 		if( iNetMode == net_internet )  {
 			Menu_SvrList_SaveList("cfg/svrlist.dat");
 
-			// Save the column widths
-			for (int i=0;i<7;i++)
-				tLXOptions->iInternetList[i] = cInternet.SendMessage(mi_ServerList,LVM_GETCOLUMNWIDTH,i,0);
+			CListview* l = (CListview *)cInternet.getWidget(mi_ServerList);
+			if(l) {
+				// Save the column widths
+				for (int i=0;i<7;i++)
+					tLXOptions->iInternetList[i] = l->GetColumnWidth(i);
 
-			// Save the sorting column
-			tLXOptions->iInternetSortColumn = ((CListview *)cInternet.getWidget(mi_ServerList))->GetSortColumn();
+				// Save the sorting column
+				tLXOptions->iInternetSortColumn = l->GetSortColumn();
+			}
 		}
 
 		// Save the selected player

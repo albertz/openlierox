@@ -959,7 +959,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	NetworkAddr		adrFrom;
 	int				p, player = -1;
 	int				numplayers;
-	CServerConnection		/*	*cl,*/ *newcl;
+	CServerConnection	*newcl = NULL;
 
 	//printf("Got Connect packet\n");
 
@@ -1164,9 +1164,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	
 	// Calculate number of current players on this server
 	numplayers = 0;
-	CWorm *w = cWorms;
-	for (p = 0;p < MAX_WORMS;p++, w++) {
-		if (w->isUsed())
+	for (p = 0; p < MAX_WORMS; p++) {
+		if (cWorms[p].isUsed())
 			numplayers++;
 	}
 	if(numplayers != iNumPlayers)
@@ -1449,29 +1448,32 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 	bytestr.Send(net_socket);
 
-	// Let them know our version
-	bytestr.Clear();
-	bytestr.writeInt(-1, 4);
-	// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
-	// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
-	bytestr.writeString("lx::openbeta3");
-	// sadly we have to send this for Beta4
-	// we are sending the version string already in the challenge
-	bytestr.writeInt(-1, 4);
-	bytestr.writeString("lx::version");
-	bytestr.writeString(GetFullGameName());
-	bytestr.Send(net_socket);
-
-	//if (tLXOptions->tGameInfo.bAllowMouseAiming)
-	{
+	// If we now the client version already, we can avoid this for newer clients.
+	if(newcl->getClientVersion() <= OLXBetaVersion(4)) {
+		// Let them know our version
+		bytestr.Clear();
+		bytestr.writeInt(-1, 4);
+		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
+		// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
+		bytestr.writeString("lx::openbeta3");
+		// sadly we have to send this for Beta4
+		// we are sending the version string already in the challenge
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx::version");
+		bytestr.writeString(GetFullGameName());
+		bytestr.Send(net_socket);
+	}
+	
+	// In older clients, it was possible to disallow that (which doesn't really make sense).
+	// In >=Beta9, we just always can use it. So we have to tell old clients that it's OK.
+	if(newcl->getClientVersion() <= OLXBetaVersion(8)) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:mouseAllowed");
 		bytestr.Send(net_socket);
 	}
 
-	if (tLXOptions->tGameInfo.bAllowStrafing)
-	{
+	if (tLXOptions->tGameInfo.bAllowStrafing) {
 		bytestr.Clear();
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:strafingAllowed");
@@ -1480,49 +1482,64 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	
 	NotifyUserOnEvent(); // new player connected; if user is away, notify him
 
-
-	// Tell all the connected clients the info about these worm(s)
-	bytestr.Clear();
-
-	//
-	// Resend data about all worms to everybody
-	// This is so the new client knows about all the worms
-	// And the current client knows about the new worms
-	//
-	w = cWorms;
-	for (int i = 0;i < MAX_WORMS;i++, w++) {
-
-		if (!w->isUsed())
-			continue;
-
-		bytestr.writeByte(S2C_WORMINFO);
-		bytestr.writeInt(w->getID(), 1);
-		w->writeInfo(&bytestr);
+	{
+		// Tell all the connected clients the info about these worm(s)
+		// Send all information about all worms to new client.
+		bytestr.Clear();
+		
+		CWorm* w = cWorms;
+		for (int i = 0;i < MAX_WORMS;i++, w++) {
+			
+			if (!w->isUsed())
+				continue;
+			
+			bytestr.writeByte(S2C_WORMINFO);
+			bytestr.writeInt(w->getID(), 1);
+			w->writeInfo(&bytestr);
+		}
+		
+		newcl->getNetEngine()->SendPacket(&bytestr);
 	}
-
-	SendGlobalPacket(&bytestr);
-
 	
-	// just inform everybody in case the client is not compatible
+	{
+		// Send info about new worms to other clients.
+		bytestr.Clear();
+		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			bytestr.writeByte(S2C_WORMINFO);
+			bytestr.writeInt((*w)->getID(), 1);
+			(*w)->writeInfo(&bytestr);
+		}
+
+		for(int j = 0; j < MAX_CLIENTS; ++j) {
+			CServerConnection* cl = &cClients[j];
+			if(cl == newcl) continue;
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getNetEngine() == NULL) continue;
+			cl->getNetEngine()->SendPacket(&bytestr);
+		}
+	}
+	
+	
+	// Just inform everybody in case the client is not compatible.
+	// If ingame, we kicked the player already earlier if not compatible.
 	checkVersionCompatibility(newcl, false);
 
+	
 	if( iState == SVS_LOBBY )
-		UpdateGameLobby(); // tell everybody about game lobby details
-	else
-		// TODO: is that needed? in theory, we should send all important things also in prepare game
-		newcl->getNetEngine()->SendUpdateLobbyGame(); // send him the game lobby details
-
+		// tell new client about game lobby details
+		newcl->getNetEngine()->SendUpdateLobbyGame();
+	
 	if (tLX->iGameType != GME_LOCAL) {
 		if( iState == SVS_LOBBY )
 			SendWormLobbyUpdate(); // to everbody
-		else
+		/*else
 		{
 			for( int i=0; i<MAX_CLIENTS; i++ )
 				if( & cClients[i] != newcl )
 					SendWormLobbyUpdate( & cClients[i], newcl); // send only data about new client
 				else
 					SendWormLobbyUpdate(newcl); // send only to new client
-		}
+		}*/
 	}
 	
 	// Update players listbox
@@ -1549,6 +1566,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			(*w)->Prepare(true);
 		}
 		
+		/*
 		// TODO: why is that needed? some lines above, we already have sent exactly that (as a global package)
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
@@ -1569,13 +1587,16 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			}
 			
 			newcl->getNetEngine()->SendPacket(&b);
-		}
+		}*/
 
+		// TODO: This should only be needed if gamemode or other stuff changed it to some unexpected value.
+		// Should we perhaps change it? Or let gamemode (or other code) just take care about this anyway?
+		/*
 		// Set some info about the new worms
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
 				cClients[ii].getNetEngine()->SendWormScore( (*w) );
-		}
+		}*/
 		
 		newcl->getNetEngine()->SendPrepareGame();
 		
@@ -1597,8 +1618,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			if(CServerNetEngine::isWormPropertyDefault(*w)) continue;
 			
 			for( int i = 0; i < MAX_CLIENTS; i++ ) {
-				if( newcl == &cClients[i] || cClients[i].getStatus() != NET_CONNECTED )
-					continue;
+				if( newcl == &cClients[i] ) continue;
+				if( cClients[i].getStatus() != NET_CONNECTED ) continue;
 				cClients[i].getNetEngine()->SendWormProperties(*w); // if we have changed them in prepare or so
 			}
 		}

@@ -91,14 +91,28 @@ public:
 		// it locks until there is a SDL_mutexV. But *always* call SDL_mutexV from the same thread which has
 		// called SDL_mutexP before (else you get serious trouble). Also never call SDL_mutexV when there
 		// was no SDL_mutexP before.
-	};
+	}
 
 	~ScopedLock() {
 		SDL_mutexV(data_mutex);
-	};
+	}
 
 	SDL_mutex* getMutex() { return data_mutex; };	// For usage with SDL_CondWait(), DON'T call SDL_mutexP( lock.getMutex() );
 };
+
+class ScopedReadLock {
+private:
+	ReadWriteLock& lock;
+	
+	// Non-copyable
+	ScopedReadLock( const ScopedReadLock& l ) : lock(l.lock) { assert(false); };
+	ScopedReadLock & operator= ( const ScopedReadLock & ) { assert(false); return *this; };
+	
+public:
+	ScopedReadLock( ReadWriteLock& l ): lock(l) { l.startReadAccess(); }
+	~ScopedReadLock() { lock.endReadAccess(); }	
+};
+
 
 // TODO: add ReadScopedLock and WriteScopedLock classes for ReadWriteLock
 

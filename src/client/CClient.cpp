@@ -145,7 +145,6 @@ void CClient::Clear()
     }
 
 	cServerVersion.reset();
-	bHostAllowsMouse = false;
 	bHostAllowsStrafing = false;
 
 	bDownloadingMap = false;
@@ -304,7 +303,6 @@ CClient::CClient() {
 	bMuted = false;
 	bRepaintChatbox = true;
 		
-	bHostAllowsMouse = false;
 	fLastFileRequest = tLX->currentTime;
 	
 	bDownloadingMap = false;
@@ -1266,8 +1264,10 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	//tGameInfo.iNumPlayers = 1;
 		
 	tLX->iGameType = GME_JOIN;
-	if(!cClient->Initialize())
+	if(!cClient->Initialize()) {
+		warnings << "JoinServer: Could not initialize client" << endl;
 		return false;
+	}
 	
 	cClient->setNumWorms(0);
 	// Add the player to the list
@@ -1291,6 +1291,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 // Start a connection with the server
 void CClient::Connect(const std::string& address)
 {
+	notes << "Client connect to " << address << endl;
 	iNetStatus = NET_CONNECTING;
 	reconnectingAmount = 0;
 	strServerAddr_HumanReadable = strServerAddr = address;

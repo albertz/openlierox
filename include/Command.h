@@ -78,6 +78,7 @@ void	Cmd_Quit();
 void	Cmd_Volume();
 void	Cmd_Sound();
 void	Cmd_ServerSideHealth();
+void	Cmd_Connect();
 
 
 

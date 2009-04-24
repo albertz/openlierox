@@ -54,8 +54,9 @@ void GameServer::SendGlobalPacket(CBytestream *bs)
 	// Assume reliable
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
-		if(cl->getNetEngine())
-			cl->getNetEngine()->SendPacket(bs);
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+		if(cl->getNetEngine() == NULL) continue;
+		cl->getNetEngine()->SendPacket(bs);
 	}
 }
 
@@ -64,8 +65,10 @@ void GameServer::SendGlobalPacket(CBytestream *bs, const Version& minVersion)
 	// Assume reliable
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
-		if(cl->getNetEngine() && cl->getClientVersion() >= minVersion)
-			cl->getNetEngine()->SendPacket(bs);
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+		if(cl->getNetEngine() == NULL) continue;
+		if(cl->getClientVersion() < minVersion) continue;
+		cl->getNetEngine()->SendPacket(bs);
 	}
 }
 
@@ -122,6 +125,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 void CServerNetEngine::WritePrepareGame(CBytestream *bs) 
 {
 	bs->writeByte(S2C_PREPAREGAME);
+	// TODO: if that is always false, why do we have a variable for it?
 	bs->writeBool(server->bRandomMap);	// Always false as of now
 	if(!server->bRandomMap)
 		bs->writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
@@ -202,13 +206,17 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// TODO: it's hacky, don't have any ideas now how to make it nice
-	bool spectate = false;	
-	if( cl->getNumWorms() > 0 && cl->getWorm(0)->isSpectating() )
-		spectate = true;
+	bool spectate = true;
+	for(int i = 0; i < cl->getNumWorms(); ++i)
+		if(!cl->getWorm(i)->isSpectating()) {
+			spectate = false;
+			break;
+		}
 
 	bs->writeBool( server->serverChoosesWeapons() || spectate );
 	
 	// We send random weapons from server in GameServer::StartGame()
+	// TODO: Where are we doing that?
 }
 
 void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs) 
@@ -676,10 +684,9 @@ void GameServer::UpdateGameLobby()
 void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 {
     CBytestream bytestr;
-    short c,i;
 
     CServerConnection *cl = server->cClients;
-	for(c=0; c<MAX_CLIENTS; c++,cl++) 
+	for(short c=0; c<MAX_CLIENTS; c++,cl++) 
 	{
 	    if( target )
 	    {
@@ -693,7 +700,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 
         // Set the client worms lobby ready state
         bool ready = false;
-	    for(i=0; i < cl->getNumWorms(); i++) {
+	    for(short i=0; i < cl->getNumWorms(); i++) {
 		    lobbyworm_t *l = cl->getWorm(i)->getLobby();
 		    if(l)
 			    ready = l->bReady;
@@ -704,7 +711,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 			bytestr.writeByte(S2C_UPDATELOBBY);
 			bytestr.writeByte(cl->getNumWorms());
 			bytestr.writeByte(ready);
-			for(i=0; i<cl->getNumWorms(); i++) {
+			for(short i=0; i<cl->getNumWorms(); i++) {
 				bytestr.writeByte(cl->getWorm(i)->getID());
 				bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
 			}
@@ -795,8 +802,12 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnect
 	if(receiver)
 		receiver->getNetEngine()->SendUpdateLobby(target);
 	else
-		for( int i = 0; i < MAX_CLIENTS; i++ )
+		for( int i = 0; i < MAX_CLIENTS; i++ ) {
+			if(cClients[i].getStatus() == NET_DISCONNECTED) continue;
+			if(cClients[i].getStatus() == NET_ZOMBIE) continue;			
+			if(cClients[i].getNetEngine() == NULL) continue;
 			cClients[i].getNetEngine()->SendUpdateLobby(target);
+		}
 }
 
 

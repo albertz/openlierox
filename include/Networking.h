@@ -88,6 +88,7 @@ bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr);
 bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr);
 bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr);
 bool	IsNetAddrValid(const NetworkAddr& addr);
+bool	IsNetAddrAvailable(const NetworkAddr& addr);
 bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
 void	ResetNetAddr(NetworkAddr& addr);
 bool	StringToNetAddr(const std::string& string, NetworkAddr& addr);

@@ -678,6 +678,8 @@ bool	Menu_CGuiSkinInitialize();
 void	Menu_CGuiSkinFrame();
 void	Menu_CGuiSkinShutdown();
 
+void	Menu_Current_Shutdown();
+	
 } // namespace DeprecatedGUI
 
 #endif  //  __MENU_H__DEPRECATED_GUI__

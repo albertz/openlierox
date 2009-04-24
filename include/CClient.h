@@ -341,7 +341,6 @@ private:
 	TimeDiff	fSendWait;
 	AbsTime		fLastUpdateSent;
 	std::string	szServerName;
-	bool		bHostAllowsMouse;
 	bool		bHostAllowsStrafing;
 	Version		cClientVersion;
 	Version		cServerVersion;
@@ -622,7 +621,6 @@ public:
 
 	FeatureCompatibleSettingList& getUnknownFeatures() { return otherGameInfo; } // Both unknown and server-side features here
 	
-	bool isHostAllowingMouse()					{ return bHostAllowsMouse; }
 	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }
 
 	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tLX->iGameType == GME_LOCAL; }

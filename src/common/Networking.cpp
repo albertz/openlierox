@@ -271,6 +271,9 @@ static void sigpipe_handler(int i) {
  */
 
 
+bool bNetworkInited = false;
+ReadWriteLock nlSystemUseChangeLock;
+
 
 typedef std::map<std::string, std::pair< NLaddress, AbsTime > > dnsCacheT; // Second parameter is expiration time of DNS record
 ThreadVar<dnsCacheT>* dnsCache = NULL;
@@ -287,6 +290,8 @@ static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDi
 }
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
+	ScopedReadLock lock(nlSystemUseChangeLock);
+	if(dnsCache == NULL) return false;
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	dnsCacheT::iterator it = dns.get().find(name);
 	if(it != dns.get().end()) {
@@ -302,9 +307,6 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 }
 
 
-
-bool bNetworkInited = false;
-ReadWriteLock nlSystemUseChangeLock;
 
 /////////////////////
 // Initializes network
@@ -1213,5 +1215,11 @@ bool isDataAvailable(NetworkSocket sock) {
 	return ret > 0;
 }
 
-
+// In some cases, e.g. if the network is not connected, some IPs are
+// not available. Most likely, without any network, you just have
+// 127.* in the routing table.
+bool IsNetAddrAvailable(const NetworkAddr& addr) {
+	// TODO: implement...
+	return true;
+}
 

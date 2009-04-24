@@ -170,10 +170,12 @@ bool Menu_Initialize(bool *game)
 
 	// Send some random data to some random IP
 	if (IsSocketStateValid(tMenu->tSocket[SCK_FOO]))  {
-		// TODO: why?
 		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
-		SetRemoteNetAddr(tMenu->tSocket[SCK_FOO], a);
-		WriteSocket(tMenu->tSocket[SCK_FOO], "foo");
+		// For example, if no network is connected, you likely only have 127.* in your routing table.
+		if(IsNetAddrAvailable(a)) {
+			SetRemoteNetAddr(tMenu->tSocket[SCK_FOO], a);
+			WriteSocket(tMenu->tSocket[SCK_FOO], "foo");
+		}
 	}
 
 	// Add default widget IDs to the widget list
@@ -1184,7 +1186,6 @@ void Menu_SvrList_Shutdown()
 static void SendBroadcastPing(int port) {
 	// Broadcast a ping on the LAN
 	CBytestream bs;
-	bs.Clear();
 	bs.writeInt(-1,4);
 	bs.writeString("lx::ping");
 	
@@ -1211,8 +1212,11 @@ void Menu_SvrList_PingLAN()
 // Ping a server
 void Menu_SvrList_PingServer(server_t *svr)
 {
+	// If not available, probably the network is not connected right now.
+	if(!IsNetAddrAvailable(svr->sAddress)) return;
+	
 	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
-
+	
 	CBytestream bs;
 	bs.writeInt(-1,4);
 	bs.writeString("lx::ping");
@@ -2539,4 +2543,34 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	lvInfo.Draw( VideoPostProcessor::videoSurface() );
 }
 
+void Menu_Current_Shutdown() {
+	// TODO: Is there any more clean method to shutdown the current menu?
+	Menu_MainShutdown();
+	Menu_LocalShutdown();
+	Menu_PlayerShutdown();
+	Menu_MapEdShutdown();
+	Menu_GameSettingsShutdown();
+	Menu_WeaponsRestrictionsShutdown();
+	Menu_WeaponPresetsShutdown();
+	Menu_BanListShutdown();
+	Menu_ServerSettingsShutdown();
+	Menu_OptionsShutdown();
+	Menu_FloatingOptionsShutdown();
+	Menu_SpeedTest_Shutdown();
+	Menu_NetShutdown();
+	Menu_Net_MainShutdown();
+	Menu_Net_HostPlyShutdown();
+	Menu_Net_HostLobbyShutdown();
+	Menu_Net_LANShutdown();
+	Menu_Net_JoinShutdown();
+	Menu_Net_FavouritesShutdown();
+	Menu_Net_NewsShutdown();
+	Menu_Net_JoinShutdown();
+	Menu_Net_ChatShutdown();
+	Menu_Net_JoinConnectionShutdown();
+	Menu_Net_JoinLobbyShutdown();
+	Menu_Net_NETShutdown();
+	Menu_CGuiSkinShutdown();
+}
+	
 } // namespace DeprecatedGUI

@@ -109,8 +109,15 @@ bool Menu_MapEdInitialize()
 void Menu_MapEdShutdown()
 {
 	cMaped.Shutdown();
-	cMap->Shutdown(); delete cMap; cMap = NULL;
-	delete cMapedView; cMapedView = NULL;
+	if(cMap) {
+		cMap->Shutdown();
+		delete cMap;
+		cMap = NULL;
+	}
+	if(cMapedView) {
+		delete cMapedView;
+		cMapedView = NULL;
+	}
 }
 
 

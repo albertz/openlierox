@@ -730,6 +730,23 @@ void Cmd_SendIrcMessage()  {
 		GetGlobalIRC()->sendChat(msg);
 }
 
+void Cmd_Connect() {
+	// Check arguments
+	if (Cmd_GetNumArgs() <= 1)  {
+		Con_AddText(CNC_NORMAL, "Usage: connect server[:port]");
+	}
+
+	std::string server = Cmd_GetArg(1);
+	if(!JoinServer(server, server, tLXOptions->sLastSelectedPlayer)) return;
+	
+	DeprecatedGUI::Menu_Current_Shutdown();
+	
+	// goto the joining dialog
+	DeprecatedGUI::Menu_NetInitialize();
+	DeprecatedGUI::Menu_Net_JoinInitialize(server);
+	DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::net_internet;
+}
+
 void Cmd_Initialize() {
 
     // Add some console commands
@@ -761,5 +778,5 @@ void Cmd_Initialize() {
 	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
 	Cmd_AddCommand("irc", Cmd_SendIrcMessage);
 	Cmd_AddCommand("chat", Cmd_SendIrcMessage);
-
+	Cmd_AddCommand("connect", Cmd_Connect);
 }
