@@ -160,6 +160,11 @@ static nl_netdriver_t netdrivers[] =
     }
 };
 
+
+
+#define	MIN(X,Y)	((X) < (Y) ? (X) : (Y))
+
+
 /*
 
  Internal helper functions.
@@ -563,7 +568,7 @@ NL_EXP NLboolean NL_APIENTRY nlInit(void)
         nlState.socketStats = NL_FALSE;
         nlState.nl_big_endian_data = NL_TRUE;
 
-        for(i=0;i<MAX_NET_DRIVERS;i++)
+        for(i=0;i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
         {
             if(netdrivers[i].name == NULL)
             {
@@ -1319,7 +1324,7 @@ NL_EXP NLboolean NL_APIENTRY nlSelectNetwork(NLenum network)
         return NL_FALSE;
     }
 
-    for(i=0;i<MAX_NET_DRIVERS;i++)
+    for(i=0;i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
     {
         if(netdrivers[i].name == NULL)
         {
