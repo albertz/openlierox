@@ -66,9 +66,10 @@ MESSAGE( "CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}" )
 MESSAGE( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 MESSAGE( "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}" )
 MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
-MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
-MESSAGE( "ADVASSERT = ${ADVASSERT}" )
-MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
+# commented out because only devs need these options anyway
+#MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
+#MESSAGE( "ADVASSERT = ${ADVASSERT}" )
+#MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
 
 PROJECT(openlierox)
 
