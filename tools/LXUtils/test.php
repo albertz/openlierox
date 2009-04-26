@@ -8,13 +8,20 @@
     -->
     <h1>Level Info Test</h1>
     <?php
-    require "lx_level.php";
+    $PATH = "./";
+    if (defined("LXUTILS_PATH"))
+      $PATH = LXUTILS_PATH;
+    if ($PATH[strlen($PATH) - 1] != '/' && $PATH[strlen($PATH) - 1] != '\\')
+      $PATH .= '/';
     
-    $levelInfo = LXLevelInfoAdv("JukkeDome.lxl");  // Get the level info
+    
+    require $PATH . "lx_level.php";
+    
+    $levelInfo = LXLevelInfoAdv($PATH . "JukkeDome.lxl");  // Get the level info
     if ($levelInfo === false)
       echo "Could not get the level info!<br>\n";
     else  {
-      imagepng($levelInfo->MinimapImage, "preview.png");  // Save the minimap as png
+      imagepng($levelInfo->MinimapImage, $PATH . "preview.png");  // Save the minimap as png
       
       // Print the level info
       echo "<b>Width:</b> " . $levelInfo->Width . "<br>\n";
@@ -22,7 +29,7 @@
       echo "<b>Theme:</b> " . $levelInfo->Theme . "<br>\n";
       echo "<b>Name:</b> " . $levelInfo->Name . "<br>\n";
       echo "<b>Preview:</b></br>\n";
-      echo "<img src=\"preview.png\" alt=\"Preview not available\">\n";
+      echo "<img src=\"" . $PATH . "preview.png\" alt=\"Preview not available\">\n";
      
       // Clean up the rubbish 
       $levelInfo->Destroy();
@@ -35,11 +42,11 @@
     <h1>Original Liero Level Info Test</h1>
     <?php
     
-    $origLevelInfo = LXLevelInfoAdv("fallout2.lev");  // Get the level info
+    $origLevelInfo = LXLevelInfoAdv($PATH . "fallout2.lev");  // Get the level info
     if ($origLevelInfo === false)
       echo "Could not get the original level info!<br>\n";
     else  {
-      imagepng($origLevelInfo->MinimapImage, "preview_orig.png");  // Save the minimap as png
+      imagepng($origLevelInfo->MinimapImage, $PATH . "preview_orig.png");  // Save the minimap as png
       
       // Print the level info
       echo "<b>Width:</b> " . $origLevelInfo->Width . "<br>\n";
@@ -47,7 +54,7 @@
       echo "<b>Theme:</b> " . $origLevelInfo->Theme . "<br>\n";
       echo "<b>Name:</b> " . $origLevelInfo->Name . "<br>\n";
       echo "<b>Preview:</b></br>\n";
-      echo "<img src=\"preview_orig.png\" alt=\"Preview not available\">\n";
+      echo "<img src=\"" . $PATH . "preview_orig.png\" alt=\"Preview not available\">\n";
      
       // Clean up the rubbish 
       $origLevelInfo->Destroy();
@@ -59,9 +66,9 @@
     -->
     <h1>Mod Info Test</h1>
     <?php
-    require "lx_mod.php";
+    require $PATH . "lx_mod.php";
     
-    $modInfo = LXModInfo(".");  // Get the mod info
+    $modInfo = LXModInfo($PATH);  // Get the mod info
     if ($modInfo === false)
       echo "Could not get the mod info!<br>\n";
     else  {     
@@ -96,15 +103,15 @@
     -->
     <h1>Skin Test</h1>
     <?php  
-    require "lx_skin.php";
+    require $PATH . "lx_skin.php";
     
     // Create an animation from default.png, with default color
-    $animSkin = LXSkinToAnimGIF("default.png");
+    $animSkin = LXSkinToAnimGIF($PATH . "default.png");
     if ($animSkin === false) {
       echo "Could not create an animated GIF.<br>\n";
     } else {
       // Save the animation to a file
-      $fp = fopen("default_animated.gif", "wb");
+      $fp = fopen($PATH . "default_animated.gif", "wb");
       if ($fp) {
         fwrite($fp, $animSkin);
         fclose($fp);
@@ -126,18 +133,18 @@
     Array("frame" => 12, "flipped" => true, "color" => Array(0, 0, 255)),
     Array("frame" => 19, "flipped" => true, "color" => -1));
     
-    $animSkin2 = LXSkinToAnimGifAdv("default.png", $def, 20, 0);
+    $animSkin2 = LXSkinToAnimGifAdv($PATH . "default.png", $def, 20, 0);
     if ($animSkin2 === false) {
       echo "Could not create an advanced animated GIF.<br>\n";
     } else {
       // Save the animation to a file
-      $fp = fopen("default_advanimated.gif", "wb");
+      $fp = fopen($PATH . "default_advanimated.gif", "wb");
       if ($fp) {
         fwrite($fp, $animSkin2);
         fclose($fp);
         unset($animSkin2); // Cleanup
         
-        echo "<img src=\"default_advanimated.gif\" alt=\"\"><br>\n"; // Display it
+        echo "<img src=\"" . $PATH . "default_advanimated.gif\" alt=\"\"><br>\n"; // Display it
       } else {
         echo "Could not write out the advanced animation.<br>\n";
       }
@@ -145,14 +152,14 @@
     
     // Get the 10th frame from the skin, make it red + flipped and display it
     // HINT: now it returns GD image, not GIF data
-    $skinFrame = LXSkinGetFrame("default.png", 10, true, Array(255, 0, 0)); 
+    $skinFrame = LXSkinGetFrame($PATH . "default.png", 10, true, Array(255, 0, 0)); 
     if ($skinFrame === false) {
       echo "Could not get the frame from skin.<br>\n";
     } else {
-      imagepng($skinFrame, "default_frame.png");
+      imagepng($skinFrame, $PATH . "default_frame.png");
       imagedestroy($skinFrame); // Cleanup
       
-      echo "<img src=\"default_frame.png\" alt=\"\"><br>\n";
+      echo "<img src=\"" . $PATH . "default_frame.png\" alt=\"\"><br>\n";
     }
             
     ?>
@@ -162,7 +169,7 @@
     -->
     <h1>Server List Test</h1>
     <?php
-    require "lx_network.php";
+    require $PATH . "lx_network.php";
     
     $masterservers[0] = "http://lieroxtreme.thegaminguniverse.com/server/svr_list.php";
     $masterservers[1] = "http://thelobby.altervista.org/server/svr_list.php";

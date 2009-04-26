@@ -12,7 +12,7 @@ function BinToInt32LE($bin)
 {
   // Thank you, php.net :)
   $binary_data = substr($bin, 0, 4);
-  $unpacked_data = unpack("V", $binary_data);
+  $unpacked_data = @unpack("V", $binary_data);
   return $unpacked_data[1];
 }
 
@@ -22,7 +22,7 @@ function BinToInt32BE($bin)
 {
   // Thank you, php.net :)
   $binary_data = substr($bin, 0, 4);
-  $unpacked_data = unpack("N", $binary_data);
+  $unpacked_data = @unpack("N", $binary_data);
   return $unpacked_data[1];
 }
 
@@ -32,7 +32,7 @@ function BinToInt16LE($bin)
 {
   // Thank you, php.net :)
   $binary_data = substr($bin, 0, 2);
-  $unpacked_data = unpack("v", $binary_data);
+  $unpacked_data = @unpack("v", $binary_data);
   return $unpacked_data[1];
 }
 
@@ -42,7 +42,7 @@ function BinToInt16BE($bin)
 {
   // Thank you, php.net :)
   $binary_data = substr($bin, 0, 2);
-  $unpacked_data = unpack("n", $binary_data);
+  $unpacked_data = @unpack("n", $binary_data);
   return $unpacked_data[1];
 }
 
@@ -51,7 +51,7 @@ function BinToInt16BE($bin)
 function BinToFloatLE($bin)
 {
   $binary_data = substr($bin, 0, 4);
-  $unpacked_data = $unpacked_data = unpack("f", $binary_data); // Lil endian
+  $unpacked_data = $unpacked_data = @unpack("f", $binary_data); // Lil endian
   
   // Dirty endian check
   if (pack("L", 123456) == pack("N", 123456))  {

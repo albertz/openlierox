@@ -26,6 +26,9 @@ define("ORIGINAL_SIZE2", 176402);                 // Original Liero level filesi
 define("ORIGINAL_POWERLEVEL_SIZE", 177178);       // Original Liero powerlevel filesize
 define("PALETTE_SIZE", 768);                      // Size of the color palette (in bytes), for original levels
 
+if (!defined("LXUTILS_PATH"))
+  define("LXUTILS_PATH", ".");
+
 // Structures
 
 ////////////////////////////
@@ -81,11 +84,24 @@ function LXLevelInfo($level)
   $fp = fopen($level, "rb");
   if (!$fp)
     return false;
+   
+  // If an unknown extension is given, try to autodetect the format
+  if (strcasecmp($extension, "lxl") != 0)  {
+    $returnValue = ReadBasicLXLevelInfo($fp);
+    fclose($fp);
+    if ($returnValue === false)  {
+      return LXOriginalLevelInfo($level);
+    }
     
-  // Read basic information
-  $returnValue = ReadBasicLXLevelInfo($fp);
-  if ($returnValue === false)
-    return false;
+  // LXL level
+  } else {
+    
+    // Read basic information
+    $returnValue = ReadBasicLXLevelInfo($fp);
+    fclose($fp);
+    if ($returnValue === false)
+      return false;
+  }
     
   return $returnValue;
 }
@@ -104,20 +120,39 @@ function LXLevelInfo($level)
 // NOTE: call Destroy() on the result when you don't need it anymore
 function LXLevelInfoAdv($level, $minimap_w = 128, $minimap_h = 96, $hq = false)
 {
+  // Get the extension
+  $tmp = explode(".", $level);
+  $extension = "";
+  if (count($tmp) > 1)
+    $extension = $tmp[1];
+    
   // Check for original Liero level
-  list(, $extension) = explode(".", $level);
   if (strcasecmp($extension, "lev") == 0)
     return LXOriginalLevelInfoEnhanced($level, $minimap_w, $minimap_h, $hq);
-
+    
   // Open the file
   $fp = fopen($level, "rb");
   if (!$fp)
     return false;
     
-  // Read basic information
-  $returnValue = ReadBasicLXLevelInfo($fp);
-  if ($returnValue === false)
-    return false;
+  // Unknown extension, try to autodetect the format
+  $returnValue = false;
+  if (strcasecmp($extension, "lxl") != 0) {
+    $returnValue = ReadBasicLXLevelInfo($fp);  // Try LXL
+    if ($returnValue === false)  {
+      fclose($fp);
+      return LXOriginalLevelInfoEnhanced($level, $minimap_w, $minimap_h, $hq); // Try LEV
+    }
+    
+  // .lxl extension
+  } else {
+    // Read basic information
+    $returnValue = ReadBasicLXLevelInfo($fp);
+    if ($returnValue === false)  {
+      fclose($fp);
+      return false;
+    }
+  }
   
   // Get the level image (depends on format)
   $level_image = false;
@@ -129,6 +164,9 @@ function LXLevelInfoAdv($level, $minimap_w = 128, $minimap_h = 96, $hq = false)
       $level_image = LoadPixmapFormat($fp, $returnValue->Width, $returnValue->Height, $returnValue->Theme, $returnValue->ObjectCount);
     break;
   }
+  
+  // Not needed anymore
+  fclose($fp);
   
   // Loading the image preview failed
   if (!$level_image)
@@ -171,7 +209,7 @@ function ReadBasicLXLevelInfo($fp)
   $version = ReadInt32LE($fp);
   
   // Check the header
-  if (($id != "LieroX Level" && id != "LieroX CTF Level") || $version != MAP_VERSION)
+  if (($id != "LieroX Level" && $id != "LieroX CTF Level") || $version != MAP_VERSION)
     return false;
 
     
@@ -327,7 +365,12 @@ function LXOriginalLevelInfoEnhanced($level, $minimap_w = 128, $minimap_h = 96, 
   // Load the palette (not a powerlevel file)
   $palette = "";
   if (!$powerlevel)  {
-    $fpal = fopen("lieropal.act", "rb");
+    // Open the palette from LXUTILS directory
+    $dir = LXUTILS_PATH;
+    if ($dir[strlen($dir) - 1] != '/' && $dir[strlen($dir) - 1] != '\\')
+      $dir .= '/';
+    $fpal = fopen($dir . "lieropal.act", "rb");
+    
     if (!$fpal)  {
       fclose($fp);
       return false;
@@ -416,8 +459,14 @@ function LXOriginalLevelInfoEnhanced($level, $minimap_w = 128, $minimap_h = 96, 
 function ReadBasicOriginalLevelInfo($level)
 {
   // Liero levels don't contain a name, we just take the filename
-  list($name) = explode(".", $level);
-  $name = ucfirst($name); 
+  $parts = explode("/", $level);
+  if (count($parts) > 1)  {
+    $parts = explode(".", $parts[count($parts) - 1]);
+    $name = $parts[0];
+    $name = ucfirst($name); 
+  } else {
+    $name = $level;
+  }
     
   // Liero levels have fixed dimensions and theme
   $returnValue = new MapInfo;

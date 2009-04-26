@@ -189,22 +189,20 @@ function GetSkinFrame($img, $frame, $flipped, $color)
         // Define colorized pixels
         $cr = $cg = $cb = 0;
         
-        // If the mask is pink or black, don't colorize
-        if (($mr == 255 && $mg == 0 && $mb == 255) ||
-            ($mr == 0 && $mg == 0 && $mb == 0)) {
+        // If the mask is pink, use transparent
+        if ($mr == 255 && $mg == 0 && $mb == 255) {
           
           imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $transparent);
           
+        // Don't colorize (just copy)
+        } else if (($mr == 0 && $mg == 0 && $mb == 0) || $color == -1)  {
+          imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $pixel);
+          
         // Colorize the pixel    
         } else {
-          if ($color == -1)  {
-            imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $pixel);
-            continue;
-          } else {
-            $cr = min(($r / 96) * $color[0], 255);
-            $cg = min(($g / 156) * $color[1], 255);
-            $cb = min(($b / 252) * $color[2], 255);
-          } 
+          $cr = min(($r / 96) * $color[0], 255);
+          $cg = min(($g / 156) * $color[1], 255);
+          $cb = min(($b / 252) * $color[2], 255);
           
           // Make sure the pixel is not the magic pink
           if ($cr == 255 && $cg == 0 && $cb == 255) {
