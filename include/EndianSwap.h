@@ -12,6 +12,7 @@
 
 #include <SDL.h>
 #include <cstdio>
+#include <algorithm>
 #include "StaticAssert.h"
 #include "CVec.h"
 
@@ -20,24 +21,23 @@
 #pragma warning(disable: 4800)
 #endif
 
-#define ByteSwap5(x) ByteSwap((unsigned char *) &x,sizeof(x))
-
-inline static void ByteSwap(unsigned char * b, int n) {
-	register int i = 0;
-	register int j = n - 1;
-	register unsigned char tmp;
-	while(i < j) {
-		tmp = b[i]; b[i] = b[j]; b[j] = tmp;
-		i++, j--;
+template <int n>
+void ByteSwap(unsigned char * b) {
+	static_assert(n == 1 || n % 2 == 0, n_must_be_equal);
+	for(int i = 0; i < n/2; ++i) {
+		std::swap(b[i], b[n - i - 1]);
 	}
 }
 
-extern unsigned char byteswap_buffer[16];
-
 template <typename T>
 T GetByteSwapped(T b) {
-	ByteSwap(&b, sizeof(T));
+	ByteSwap<sizeof(T)>(&b);
 	return b;
+}
+
+template <typename T>
+void ByteSwap5(T& x) {
+	ByteSwap<sizeof(T)>((unsigned char*) &x);
 }
 
 #if !defined(SDL_BYTEORDER)
@@ -90,10 +90,9 @@ static size_t fread_endian(FILE* stream, _D& d) {
 	T data;
 	size_t ret = fread(&data, sizeof(T), 1, stream);
 	EndianSwap(data);
-	if(ret > 0) d = data;
+	if(ret > 0) d = (_D)data;
 	return ret;
 }
-
 
 
 template<typename T1, typename T2>

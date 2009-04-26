@@ -1985,11 +1985,11 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 		return false;
 	}
 	
-	fread_endian<int>(fp, (int&)Type);
+	fread_endian<int>(fp, Type);
 	fread_endian<char>(fp, Projectiles);
 	fread_endian<int>(fp, Damage);
 	fread_endian<int>(fp, Shake);
-	fread_endian<char>(fp, UseSound);	
+	fread_endian<char>(fp, UseSound);
 	if(UseSound) {
 		SndFilename = readString(fp);
 
@@ -2091,7 +2091,7 @@ bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const std:
 }
 
 bool Proj_Event::read(CGameScript* gs, FILE* fp) {
-	fread_endian<int>(fp, (int&)type);
+	fread_endian<int>(fp, type);
 	if(get() == NULL) return false;
 	return get()->read(gs, fp);	
 }

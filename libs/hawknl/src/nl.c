@@ -1833,9 +1833,14 @@ NL_EXP NLfloat   NL_APIENTRY nlSwapf(NLfloat f)
 {
     if(NL_SWAP_TRUE)
     {
-        NLulong temp = (NLulong)nlSwapl(*(NLulong *)&f);
+	union {
+		NLlong l;
+		NLfloat f;
+	} tmp;
+	tmp.f = f;
+        tmp.l = nlSwapl(tmp.l);
 
-        return *((float *)&temp);
+        return tmp.f;
     }
     else
     {
