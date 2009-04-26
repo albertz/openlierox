@@ -66,10 +66,9 @@ MESSAGE( "CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}" )
 MESSAGE( "CMAKE_C_FLAGS = ${CMAKE_C_FLAGS}" )
 MESSAGE( "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}" )
 MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
-# commented out to not spam too much about dev-only settings
-#MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
-#MESSAGE( "ADVASSERT = ${ADVASSERT}" )
-#MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
+MESSAGE( "PCH = ${PCH} (Precompiled header, CMake 2.6 only)" )
+MESSAGE( "ADVASSERT = ${ADVASSERT}" )
+MESSAGE( "PYTHON_DED_EMBEDDED = ${PYTHON_DED_EMBEDDED}" )
 
 PROJECT(openlierox)
 
@@ -81,11 +80,6 @@ INCLUDE_DIRECTORIES(libs/pstreams)
 IF(ADVASSERT)
 	INCLUDE_DIRECTORIES(optional-includes/advanced-assert)
 ENDIF(ADVASSERT)
-
-IF(FREADWRITE_WUR_HACK)
-	ADD_DEFINITIONS(-include optional-includes/hacks/freadwrite_wur.h)
-ENDIF(FREADWRITE_WUR_HACK)
-
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)

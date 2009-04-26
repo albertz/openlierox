@@ -1090,7 +1090,10 @@ namespace redi
           case 0 :
             // this is the new process, exec command
             {
-				if(working_dir != "") chdir(working_dir.c_str());
+				if(working_dir != "") {
+					if(chdir(working_dir.c_str()) == -1)
+						::_exit(errno);
+				}
               char** arg_v = new char*[argv.size()+1];
               for (std::size_t i = 0; i < argv.size(); ++i)
               {
