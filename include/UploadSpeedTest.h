@@ -21,7 +21,7 @@ public:
 	UploadSpeedTest();
 	UploadSpeedTest(const std::string& test_url);
 	UploadSpeedTest(const UploadSpeedTest& oth) { operator =(oth); }
-	UploadSpeedTest& operator =(const UploadSpeedTest& oth)  { assert(false); }
+	UploadSpeedTest& operator =(const UploadSpeedTest& oth)  { assert(false); return *this; }
 
 	~UploadSpeedTest();
 

@@ -652,7 +652,7 @@ int CGameScript::Load(const std::string& dir)
 // Load a projectile
 proj_t *CGameScript::LoadProjectile(FILE *fp)
 {
-	int projIndex;
+	int projIndex = -1;
 	if(Header.Version > GS_LX56_VERSION) {
 		fread_endian<int>(fp, projIndex);
 		std::map<int, proj_t*>::iterator f = projectiles.find(projIndex);

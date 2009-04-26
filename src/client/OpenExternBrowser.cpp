@@ -86,8 +86,11 @@ void OpenLinkInExternBrowser(const std::string& url) {
 	} else
 		notes << "Using " << browser << " as your default browser" << endl;
 	
-	::system((browser + " " + url + " &").c_str());
-	
+	int r = ::system((browser + " " + url + " &").c_str());
+	if(r == -1)
+		warnings << "error when executing " << browser << endl;
+	else if(r > 0)
+		warnings << browser << " returned with error" << endl;
 #endif
 }
 

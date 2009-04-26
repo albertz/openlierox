@@ -86,7 +86,9 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 	uchar cmd;
 
 	while (!bs->isPosAtEnd()) {
+#ifdef DEBUG
 		size_t startPos = bs->GetPos();
+#endif
 		cmd = bs->readInt(1);
 
 		switch (cmd) {
