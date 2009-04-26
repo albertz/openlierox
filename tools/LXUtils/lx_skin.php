@@ -157,7 +157,7 @@ function GetSkinFrame($img, $frame, $flipped, $color)
     return false;
     
   // Allocate the pink (transparent) color first
-  $transparent = imagecolorallocate($result, 255, 0, 255);
+  $transparent = imagecolorallocatealpha($result, 255, 255, 255, 0);
     
   // Set the transparent color
   imagecolortransparent($result, $transparent);
@@ -175,12 +175,9 @@ function GetSkinFrame($img, $frame, $flipped, $color)
       $g = ($pixel >> 8) & 0xFF;
       $b = $pixel & 0xFF;
      
-      // If no colorizing, just copy the pixel
-      if ($color == -1)  {
-        imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $pixel);  
-        
+       
       // Colorize before copying
-      } else {
+      {
         // Get the mask
         $mask = imagecolorat($img, $x + $frame_start, $y + SKIN_HEIGHT / 2);
         
@@ -195,26 +192,30 @@ function GetSkinFrame($img, $frame, $flipped, $color)
         // If the mask is pink or black, don't colorize
         if (($mr == 255 && $mg == 0 && $mb == 255) ||
             ($mr == 0 && $mg == 0 && $mb == 0)) {
-          $cr = $r;
-          $cg = $g;
-          $cb = $b;
+          
+          imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $transparent);
           
         // Colorize the pixel    
         } else {
-          $cr = min(($r / 96) * $color[0], 255);
-          $cg = min(($g / 156) * $color[1], 255);
-          $cb = min(($b / 252) * $color[2], 255);
+          if ($color == -1)  {
+            imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $pixel);
+            continue;
+          } else {
+            $cr = min(($r / 96) * $color[0], 255);
+            $cg = min(($g / 156) * $color[1], 255);
+            $cb = min(($b / 252) * $color[2], 255);
+          } 
           
           // Make sure the pixel is not the magic pink
           if ($cr == 255 && $cg == 0 && $cb == 255) {
             $cr = 240;
             $cb = 240;
           }
+          
+          // Put the colorized pixel
+          $colorized = imagecolorallocate($result, $cr, $cg, $cb);
+          imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $colorized);          
         }
-        
-        // Put the colorized pixel
-        $colorized = imagecolorallocate($result, $cr, $cg, $cb);
-        imagesetpixel($result, $flipped ? FRAME_WIDTH - 1 - $x : $x, $y, $colorized);
       }     
     }
   }
@@ -264,7 +265,10 @@ function LoadImage($filename)
     
     case "downloaded":
       $loaded_image = imagecreatefromstring($file_contents);
-    break; 
+    break;
+    
+    default:
+      $loaded_image = imagecreatefrompng($filename);
   }
   
   // Check if successfully loaded

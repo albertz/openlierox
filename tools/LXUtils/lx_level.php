@@ -70,7 +70,7 @@ class MapInfo  {
 // false on error
 // MapInfo structure on success, images are set to 0
 // NOTE: call Destroy() on the result when you don't need it anymore
-function LXLevelInfo($level, $minimap_w = 128, $minimap_h = 96, $hq = false)
+function LXLevelInfo($level)
 {
   // Check for original Liero level
   list(, $extension) = explode(".", $level);
