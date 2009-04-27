@@ -219,7 +219,10 @@ public:
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
 	bool		LoadImageFormat(FILE *fp, bool ctf);
-	bool		LoadImageFormatHiRes(FILE *fp); // Called from LoadImageFormat()
+	void		LoadAdditionalLevelData(FILE *fp); // Called from LoadImageFormat()
+	void		LoadLevelConfig(uchar *pSource, Uint32 size); // Called from LoadAdditionalLevelData()
+	void		LoadLevelImageHiRes(uchar *pSource, Uint32 size); // Called from LoadAdditionalLevelData()
+
 	void		Clear();
 
 	inline std::string getName()			{ return Name; }

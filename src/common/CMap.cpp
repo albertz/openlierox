@@ -2633,7 +2633,7 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	delete[] pDest;
 
 	// Try to load hi-res images
-	LoadImageFormatHiRes(fp);
+	LoadAdditionalLevelData(fp);
 
 	fclose(fp);
 
@@ -2661,35 +2661,53 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 
 ///////////////////
 // Load the high-resolution images
-bool CMap::LoadImageFormatHiRes(FILE *fp)
+void CMap::LoadAdditionalLevelData(FILE *fp)
 {
-	if( feof(fp) )
-		return false;
-	const char * safetyHeaderData = "OLX additional data"; // OLX will check for this string if the file contains junk at the end
-	char safetyCheck[64] = "";
-	memset( safetyCheck, 0, sizeof(safetyCheck) );
-	fread(safetyCheck, 1, strlen(safetyHeaderData)+1, fp);
-	if( strcmp( safetyHeaderData, safetyCheck ) != 0 )
-		return false;
+	const char safetyHeaderConfig[17] = "OLX level config";
+	const char safetyHeaderHiRes[16] = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+	while( !feof(fp) )
+	{
+		char chunkName[17] = "";
+		memset( chunkName, 0, sizeof(chunkName) );
+		fread( chunkName, 1, 16, fp);
+		chunkName[16] = 0;
+		Uint32 size = 0;
+		fread_compat(size, sizeof(Uint32), 1, fp);
+		uchar *pSource = new uchar[size];
+		fread(pSource, size*sizeof(uchar), 1, fp);
+		if( strncmp( chunkName, safetyHeaderHiRes, 16 ) == 0 )
+			LoadLevelImageHiRes( pSource, size );
+		else
+		if( strncmp( chunkName, safetyHeaderConfig, 16 ) == 0 )
+			LoadLevelConfig( pSource, size );
+		else
+			warnings << "Unknown additional data found in level file: " << chunkName << ", size " << size << endl;
+
+		delete [] pSource;
+	}
+
+}
+
+
+///////////////////
+// Load level config, such as CTF base spawnpoints
+void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
+{
+	warnings << "CMap::LoadLevelConfig(): level config is not used yet in this version of OLX" << endl;
+	// TODO: test if this code works
 	
-	Uint32 size, destsize;
-	fread_compat(size, sizeof(Uint32), 1, fp);
-	EndianSwap(size);
-	fread_compat(destsize, sizeof(Uint32), 1, fp);
+	Uint32 destsize;
+	destsize = *(Uint32 *)(pSource);
 	EndianSwap(destsize);
 
 	// Allocate the memory
-	uchar *pSource = new uchar[size];
 	uchar *pDest = new uchar[destsize];
 
-	fread(pSource, size*sizeof(uchar), 1, fp);
-
 	ulong lng_dsize = destsize;
-	int ret = uncompress( pDest, &lng_dsize, pSource, size );
+	int ret = uncompress( pDest, &lng_dsize, pSource + sizeof(Uint32), size - sizeof(Uint32) );
 	if( ret != Z_OK ) 
 	{
-		warnings << "CMap::LoadImageFormatHiRes(): failed to load hi-res image, using low-res image, ret " << ret <<
-					" compressed size " << size << " uncompressed " << destsize << " should be greater than " << Width * Height * 4 * 3 * 2 << endl;
+		warnings << "CMap::LoadLevelImageHiRes(): failed to load hi-res image, using low-res image" << endl;
 		lng_dsize = 0;
 	}
 	destsize = lng_dsize;
@@ -2702,7 +2720,7 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 	pos += 4;
 	if( AdditionalDataSize + 4 > destsize )
 	{
-		warnings << "CMap::LoadImageFormatHiRes(): wrong additional data size " << AdditionalDataSize << endl;
+		warnings << "CMap::LoadLevelImageHiRes(): wrong additional data size " << AdditionalDataSize << endl;
 	}
 	else
 	{
@@ -2728,33 +2746,24 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 			pos += chunkSize;
 		}
 	}
-	delete[] pSource;
 	delete[] pDest;
+}
 
-#ifndef DEDICATED_ONLY
+///////////////////
+// Load the high-resolution images
+void CMap::LoadLevelImageHiRes(uchar *pSource, Uint32 size)
+{
 
-	if( feof(fp) )
-		return false;
-	const char * safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
-	memset( safetyCheck, 0, sizeof(safetyCheck) );
-	fread(safetyCheck, 1, strlen(safetyHeaderHiRes)+1, fp);
-	if( strcmp( safetyHeaderHiRes, safetyCheck ) != 0 )
-		return false;
+#ifndef DEDICATED_ONLY // Hi-res images are not needed for dedicated server, it uses only material image which is in low-res data
 
-	size = 0;
-	fread_compat(size, sizeof(Uint32), 1, fp);
-	EndianSwap(size);
-	pSource = new uchar[size];
-	fread(pSource, size*sizeof(uchar), 1, fp);
 	gdImagePtr gdImage = gdImageCreateFromPngPtr( size, pSource );
-	delete[] pSource;
 	
 	if( !gdImage || gdImageSX(gdImage) != (int)Width * 2 || gdImageSY(gdImage) != (int)Height * 4 )
 	{
 		warnings << "CMap: hi-res image loading failed" << endl;
 		if( gdImage )
 			gdImageDestroy(gdImage);
-		return false;
+		return;
 	}
 
 	bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
@@ -2762,13 +2771,13 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 	{
 		warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
 		gdImageDestroy(gdImage);
-		return false;
+		return;
 	}
 	
 	hints << "CMap: Loading high-res level images" << endl;
 	// Lock surfaces
-	LOCK_OR_FAIL(bmpDrawImage);
-	LOCK_OR_FAIL(bmpBackImageHiRes);
+	LOCK_OR_QUIT(bmpDrawImage);
+	LOCK_OR_QUIT(bmpBackImageHiRes);
 
 	Uint32 curcolor=0;
 	Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
@@ -2829,9 +2838,9 @@ bool CMap::LoadImageFormatHiRes(FILE *fp)
 	UnlockSurface(bmpDrawImage);
 
 	gdImageDestroy(gdImage);
+
 #endif // DEDICATED_ONLY
 
-	return (bmpBackImageHiRes.get() != NULL);
 };
 
 ///////////////////

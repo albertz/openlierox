@@ -578,11 +578,36 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 	fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
 	fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
 	fwrite(compressedData, compressedSize, 1, fp);
+
+	delete[] pxFlags;
+	delete[] data;
+	delete[] compressedData;
 	
-	if( useHiRes || !additionalData.empty() )
+	// OLX additional data is chunked, chunk looks like this: 
+	// 16 bytes of safety header, which starts with 4-byte string "OLX "
+	// then goes 4 bytes of chunk size, then chunk data
+	if( useHiRes )
 	{
-		delete[] data;
-		delete[] compressedData;
+		// Move all image data to first image, so it will compress better
+		wxImage combinedImage( frontImageHiRes.Resize( wxSize(width*2, height*4), wxPoint(0, 0), 0, 0, 0 ) );
+		memcpy(((char *)combinedImage.GetData()) + 3 * 4 * width * height, backImageHiRes.GetData(), 3 * 4 * width * height);
+		wxMemoryOutputStream str;
+		if( !combinedImage.SaveFile( str, wxBITMAP_TYPE_PNG ) )
+		{
+			fclose(fp);
+			wxRemove(out);
+			throw Exception(_T("Cannot save hi-res images to stream"));
+		};
+		const char safetyHeaderHiRes[16] = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+		fwrite(safetyHeaderHiRes, 16, 1, fp);
+		compressedSize = str.GetOutputStreamBuffer()->Tell();
+		fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
+		fwrite(str.GetOutputStreamBuffer()->GetBufferStart(), str.GetOutputStreamBuffer()->Tell(), 1, fp);
+	}
+	
+	if( !additionalData.empty() )
+	{
+		// TODO: this is untested!
 		std::string additionalDataRaw;
 		for( std::map< std::string, std::string >::const_iterator it = additionalData.begin(); 
 				it != additionalData.end(); it++ )
@@ -613,40 +638,16 @@ void CompileLevel(const wxString& front, const wxString& back, const wxString& m
 		}
 		compressedSize = csize;
 		// Write out the compressed data
-		const char * safetyHeaderData = "OLX additional data"; // OLX will check for this string if the file contains junk at the end
-		fwrite(safetyHeaderData, strlen(safetyHeaderData)+1, 1, fp);
-		fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
+		const char safetyHeaderData[17] = "OLX level config"; // OLX will check for this string if the file contains junk at the end
+		fwrite(safetyHeaderData, 16, 1, fp);
+		wxUint32 SizeTotal = compressedSize+4;
+		fwrite(&wxUINT32_SWAP_ON_BE(SizeTotal), 4, 1, fp); // Count 4 bytes of uncompressedSize with compressedData
 		fwrite(&wxUINT32_SWAP_ON_BE(uncompressedSize), 4, 1, fp);
 		fwrite(compressedData, compressedSize, 1, fp);
-
-		if( useHiRes )
-		{
-			// Move all image data to first image
-			wxImage combinedImage( frontImageHiRes.Resize( wxSize(width*2, height*4), wxPoint(0, 0), 0, 0, 0 ) );
-			memcpy(((char *)combinedImage.GetData()) + 3 * 4 * width * height, backImageHiRes.GetData(), 3 * 4 * width * height);
-			wxMemoryOutputStream str;
-			if( !combinedImage.SaveFile( str, wxBITMAP_TYPE_PNG ) )
-			{
-				fclose(fp);
-				wxRemove(out);
-				delete[] pxFlags;
-				delete[] data;
-				delete[] compressedData;
-				throw Exception(_T("Cannot save hi-res images to stream"));
-			};
-			const char * safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
-			fwrite(safetyHeaderHiRes, strlen(safetyHeaderHiRes)+1, 1, fp);
-			compressedSize = str.GetOutputStreamBuffer()->Tell();
-			fwrite(&wxUINT32_SWAP_ON_BE(compressedSize), 4, 1, fp);
-			fwrite(str.GetOutputStreamBuffer()->GetBufferStart(), str.GetOutputStreamBuffer()->Tell(), 1, fp);
-		}
 	}
 
 	// Cleanups
 	fclose(fp);
-	delete[] pxFlags;
-	delete[] data;
-	delete[] compressedData;
 }
 
 IMPLEMENT_APP(LevelCompilerApp)
