@@ -2211,7 +2211,8 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
 	if(!client->bGameReady || client->bGameOver)  {
-		printf("CClientNetEngine::ParseSingleShot: not playing - ignoring\n");
+		if(client->bGameReady)
+			notes << "CClientNetEngine::ParseSingleShot: game over - ignoring" << endl;
 		CShootList::skipSingle(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
@@ -2229,7 +2230,8 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
 	if(!client->bGameReady || client->bGameOver)  {
-		printf("CClientNetEngine::ParseMultiShot: not playing - ignoring\n");
+		if(client->bGameReady)
+			notes << "CClientNetEngine::ParseMultiShot: game over - ignoring" << endl;
 		CShootList::skipMulti(bs, client->getServerVersion()); // Skip to get to the correct position
 		return;
 	}
