@@ -1110,13 +1110,13 @@ void CClient::NewNet_Frame()
 		out.Clear();
 		out.writeByte( C2S_NEWNET_KEYS );
 		out.writeByte( getWorm(0)->getID() );
-	};
+	}
 	
 	if( NewNet::ChecksumRecalculated() )
 		getNetEngine()->SendNewNetChecksum();
 
 	cNetChan->AddReliablePacketToSend(packet);
-};
+}
 
 ///////////////////
 // Read the packets

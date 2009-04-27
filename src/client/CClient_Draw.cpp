@@ -1164,7 +1164,7 @@ void CClient::SimulateHud()
 		// Console
 		if(!bChat_Typing && !bGameMenu && !bViewportMgr)
 			Con_Process(tLX->fDeltaTime);
-
+		
 		// Viewport manager
 		if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con)
 			InitializeViewportManager();

@@ -540,12 +540,11 @@ void doActionInMainThread(Action* act) {
 static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
-	ResetQuitEngineFlag();
 	while(!tLX->bQuitGame) {
 		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
 		
 		menu_startgame = false; // the menu has a reference to this variable
-		
+		ResetQuitEngineFlag();
 		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
 		
 		if(!menu_startgame) {
