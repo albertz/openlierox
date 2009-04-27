@@ -866,10 +866,13 @@ private:
 ///////////////////
 // Initialize the AI
 bool CWormBotInputHandler::AI_Initialize() {
-    assert(cClient->getMap() != NULL);
-
     // Because this can be called multiple times, shutdown any previous allocated data
     AI_Shutdown();
+
+	if(cClient->getMap() == NULL) {
+		errors << "CWormBotInputHandler::AI_Initialize(): map not set" << endl;
+		return false;
+	}
 
     // Allocate the Open/Close grid
     nGridCols = cClient->getMap()->getGridCols();
