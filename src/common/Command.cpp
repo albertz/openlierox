@@ -744,7 +744,9 @@ void Cmd_Connect() {
 	// goto the joining dialog
 	DeprecatedGUI::Menu_NetInitialize();
 	DeprecatedGUI::Menu_Net_JoinInitialize(server);
-	DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::net_internet;
+	
+	// when we leave the server
+	DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
 }
 
 void Cmd_Initialize() {

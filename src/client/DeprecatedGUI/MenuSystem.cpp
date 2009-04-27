@@ -209,46 +209,9 @@ void Menu_LoadFrontendInfo()
 // Shutdown the menu
 void Menu_Shutdown()
 {
+	Menu_Current_Shutdown();
+	
 	if(tMenu) {
-		// Shutdown all sub-menus
-		if(!bDedicated)
-		switch(tMenu->iMenuType) {
-
-			// Main
-			case MNU_MAIN:
-				Menu_MainShutdown();
-				break;
-
-			// Local
-			case MNU_LOCAL:
-				Menu_LocalShutdown();
-				break;
-
-			// News
-			case MNU_NETWORK:
-				Menu_NetShutdown();
-				break;
-
-			// Player
-			case MNU_PLAYER:
-				Menu_PlayerShutdown();
-				break;
-
-			// Map editor
-			case MNU_MAPED:
-				Menu_MapEdShutdown();
-				break;
-
-			// Options
-			case MNU_OPTIONS:
-				Menu_OptionsShutdown();
-				break;
-
-			case MNU_GUISKIN:
-				Menu_CGuiSkinShutdown();
-				break;
-		}
-
 		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
 		{
 			CloseSocket(tMenu->tSocket[SCK_LAN]);
@@ -261,13 +224,12 @@ void Menu_Shutdown()
 		{
 			CloseSocket(tMenu->tSocket[SCK_FOO]);
 		}
-
+		
 		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
 		InvalidateSocketState(tMenu->tSocket[SCK_NET]);
 		InvalidateSocketState(tMenu->tSocket[SCK_FOO]);
-
+		
 		// The rest get free'd in the cache
-		assert(tMenu);
 		delete tMenu;
 		tMenu = NULL;
 	}
@@ -2544,8 +2506,48 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 }
 
 void Menu_Current_Shutdown() {
-	// TODO: Is there any more clean method to shutdown the current menu?
-	Menu_MainShutdown();
+	if(!tMenu) return;
+	
+	// Shutdown all sub-menus
+	if(!bDedicated)
+		switch(tMenu->iMenuType) {
+				
+				// Main
+			case MNU_MAIN:
+				Menu_MainShutdown();
+				break;
+				
+				// Local
+			case MNU_LOCAL:
+				Menu_LocalShutdown();
+				break;
+				
+				// News
+			case MNU_NETWORK:
+				Menu_NetShutdown();
+				break;
+				
+				// Player
+			case MNU_PLAYER:
+				Menu_PlayerShutdown();
+				break;
+				
+				// Map editor
+			case MNU_MAPED:
+				Menu_MapEdShutdown();
+				break;
+				
+				// Options
+			case MNU_OPTIONS:
+				Menu_OptionsShutdown();
+				break;
+				
+			case MNU_GUISKIN:
+				Menu_CGuiSkinShutdown();
+				break;
+		}
+	
+	/*Menu_MainShutdown();
 	Menu_LocalShutdown();
 	Menu_PlayerShutdown();
 	Menu_MapEdShutdown();
@@ -2570,7 +2572,7 @@ void Menu_Current_Shutdown() {
 	Menu_Net_JoinConnectionShutdown();
 	Menu_Net_JoinLobbyShutdown();
 	Menu_Net_NETShutdown();
-	Menu_CGuiSkinShutdown();
+	Menu_CGuiSkinShutdown();*/
 }
 	
 } // namespace DeprecatedGUI
