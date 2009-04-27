@@ -1976,10 +1976,8 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 	
-	byte id;
-
 	for(byte i=0;i<count;i++) {
-		id = bs->readByte();
+		byte id = bs->readByte();
 
 		if (id >= MAX_WORMS)  {
 			hints << "CClientNetEngine::ParseUpdateWorms: invalid worm ID (" << id << ")" << endl;
