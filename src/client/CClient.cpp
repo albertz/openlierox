@@ -2028,6 +2028,8 @@ void CClient::RemoveWorm(int id)
 		if(cRemoteWorms[id].getLobby())
 			cRemoteWorms[id].getLobby()->iType = LBY_OPEN;
 	}
+	else
+		errors << "CClient::RemoveWorm: cRemoteWorms not set" << endl;
 }
 
 bool CClient::isWormVisibleOnAnyViewport(int worm) const {

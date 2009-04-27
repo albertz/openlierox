@@ -1949,6 +1949,20 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 
 		return;
 	}
+	
+	if(!client->bGameReady) {
+		// We could receive an update if we didn't got the preparegame package yet.
+		// This is because all the data about the preparegame could be sent in multiple packages
+		// and each reliable package can contain a worm update.
+		
+		// Skip to the right position
+		for (byte i=0;i<count;i++)  {
+			bs->Skip(1);
+			CWorm::skipPacketState(bs);
+		}
+
+		return;
+	}
 
 	if(client->getMap() == NULL) {
 		hints << "CClientNetEngine::ParseUpdateWorms: received update without initialised map" << endl;
