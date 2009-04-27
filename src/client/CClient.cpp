@@ -1239,7 +1239,7 @@ void CClient::SendPackets()
 		for(unsigned int i=0;i<iNumWorms;i++)
 		{
 			// getGameReady = what server thinks. getWeaponsReady = what we know.
-			serverThinksWeAreNotReadyWhenWeAre = serverThinksWeAreNotReadyWhenWeAre || (!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady());
+			serverThinksWeAreNotReadyWhenWeAre |= !cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady();
 		}
 
 
@@ -1247,9 +1247,14 @@ void CClient::SendPackets()
 		if (serverThinksWeAreNotReadyWhenWeAre)
 		{
 			fSendWait += tLX->fDeltaTime;
-			if (fSendWait.seconds() > 1.0)
-			{
-				notes << "CClient::SendPackets::Re-sending ready packet" << endl;
+			if (fSendWait.seconds() > 1.0) {
+				notes << "CClient::SendPackets: Server thinks that ";
+				for(unsigned int i=0;i<iNumWorms;i++) {
+					if(!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady())
+						notes << "; " << i << ":" << cLocalWorms[i]->getName();
+				}
+				notes << " is not ready" << endl;
+				
 				fSendWait = 0.0f;
 				cNetEngine->SendGameReady();
 			}
