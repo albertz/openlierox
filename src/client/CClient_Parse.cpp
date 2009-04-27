@@ -1882,7 +1882,7 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 
 	if(numworms < 1 || numworms > MAX_PLAYERS) {
 		// bad packet
-		printf("CClientNetEngine::ParseWormsOut: bad numworms count ("+itoa(numworms)+")\n");
+		hints << "CClientNetEngine::ParseWormsOut: bad numworms count (" << int(numworms) << ")" << endl;
 
 		// Skip to the right position
 		bs->Skip(numworms);
@@ -1895,13 +1895,13 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 		byte id = bs->readByte();
 
 		if( id >= MAX_WORMS) {
-			printf("CClientNetEngine::ParseWormsOut: invalid worm ID ("+itoa(id)+")\n");
+			hints << "CClientNetEngine::ParseWormsOut: invalid worm ID (" << int(id) << ")" << endl;
 			continue;
 		}
 
 		CWorm *w = &client->cRemoteWorms[id];
 		if(!w->isUsed()) {
-			warnings << "ParseWormsOut: worm " << id << " is not used anymore" << endl;
+			warnings << "ParseWormsOut: worm " << int(id) << " is not used anymore" << endl;
 			continue;
 		}
 		

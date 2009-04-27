@@ -577,7 +577,7 @@ float	Menu_SpeedTest_GetSpeed();
 
 
 // Main net
-bool	Menu_NetInitialize();
+bool	Menu_NetInitialize(bool withSubMenu = true);
 void	Menu_Net_GotoHostLobby();
 void	Menu_NetFrame();
 void	Menu_NetShutdown();

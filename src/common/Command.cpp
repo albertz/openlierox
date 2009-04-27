@@ -736,13 +736,21 @@ void Cmd_Connect() {
 		Con_AddText(CNC_NORMAL, "Usage: connect server[:port]");
 	}
 
+	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
+		cClient->Disconnect();
+
+	if(!tLX->bQuitEngine) { // we are in game
+		SetQuitEngineFlag("Cmd_Connect & in game");
+		DeprecatedGUI::Menu_SetSkipStart(true);
+	}
+	else // we are in a menu
+		DeprecatedGUI::Menu_Current_Shutdown();
+	
 	std::string server = Cmd_GetArg(1);
 	if(!JoinServer(server, server, tLXOptions->sLastSelectedPlayer)) return;
 	
-	DeprecatedGUI::Menu_Current_Shutdown();
-	
 	// goto the joining dialog
-	DeprecatedGUI::Menu_NetInitialize();
+	DeprecatedGUI::Menu_NetInitialize(false);
 	DeprecatedGUI::Menu_Net_JoinInitialize(server);
 	
 	// when we leave the server

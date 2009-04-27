@@ -929,7 +929,8 @@ void GameLoopFrame()
 			}
 		}
 
-		cClient->Draw(VideoPostProcessor::videoSurface());
+		if(tLX && !tLX->bQuitEngine)
+			cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 
@@ -938,13 +939,15 @@ void GameLoopFrame()
 		cClient->Frame();
 		cServer->Frame();
 
-		cClient->Draw(VideoPostProcessor::videoSurface());
+		if(tLX && !tLX->bQuitEngine)
+			cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 	// Joined
 	case GME_JOIN:
 		cClient->Frame();
-		cClient->Draw(VideoPostProcessor::videoSurface());
+		if(tLX && !tLX->bQuitEngine)
+			cClient->Draw(VideoPostProcessor::videoSurface());
 		break;
 
 	} // SWITCH
@@ -967,6 +970,11 @@ void QuittoMenu()
 // Go to local menu
 void GotoLocalMenu()
 {
+	if(tLX->iGameType == GME_HOST) {
+		warnings << "called GotoLocalMenu as host, ignoring..." << endl;
+		return;
+	}
+
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
 	DeprecatedGUI::Menu_SetSkipStart(true);
@@ -977,11 +985,6 @@ void GotoLocalMenu()
 // Go to local menu
 void GotoNetMenu()
 {
-	if(tLX->iGameType == GME_HOST) {
-		warnings << "called GotoLocalMenu as host, ignoring..." << endl;
-		return;
-	}
-
 	notes << "GotoNetMenu" << endl;
 	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();

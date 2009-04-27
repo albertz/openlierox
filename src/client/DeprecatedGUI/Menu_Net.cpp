@@ -53,7 +53,7 @@ SDL_Rect tLoadingRect;
 
 ///////////////////
 // Initialize the net menu
-bool Menu_NetInitialize()
+bool Menu_NetInitialize(bool withSubMenu)
 {
 	if(bDedicated) return true; // just ignore
 	
@@ -91,25 +91,26 @@ bool Menu_NetInitialize()
 	InitializeIRC();
 
 	// Return back to the menu we came from
-	switch(tMenu->iReturnTo)  {
-	case net_internet:
-		Menu_Net_NETInitialize();
-		break;
-	case net_lan:
-		Menu_Net_LANInitialize();
-		break;
-	case net_favourites:
-		Menu_Net_FavouritesInitialize();
-		break;
-	case net_news:
-		Menu_Net_NewsInitialize();
-		break;
-	case net_chat:
-		Menu_Net_ChatInitialize();
-		break;
-	default:
-		Menu_Net_NETInitialize();
-	}
+	if(withSubMenu)
+		switch(tMenu->iReturnTo)  {
+		case net_internet:
+			Menu_Net_NETInitialize();
+			break;
+		case net_lan:
+			Menu_Net_LANInitialize();
+			break;
+		case net_favourites:
+			Menu_Net_FavouritesInitialize();
+			break;
+		case net_news:
+			Menu_Net_NewsInitialize();
+			break;
+		case net_chat:
+			Menu_Net_ChatInitialize();
+			break;
+		default:
+			Menu_Net_NETInitialize();
+		}
 
 	return true;
 }
