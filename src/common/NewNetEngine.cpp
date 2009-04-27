@@ -207,8 +207,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 	return checksum;
 };
 
-/*
-TODO: unused ...
+#ifdef DEBUG
 static unsigned getMapChecksum()
 {
 	unsigned checksum = 0;
@@ -220,7 +219,7 @@ static unsigned getMapChecksum()
 	cClient->getMap()->unlockFlags();
 	return checksum;
 }
-*/
+#endif
 
 void PlayerLeft(int id)
 {
