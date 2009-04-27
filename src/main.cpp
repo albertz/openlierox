@@ -536,6 +536,7 @@ void doActionInMainThread(Action* act) {
 }
 
 
+static std::string quitEngineFlagReason;
 
 static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
@@ -599,7 +600,7 @@ static int MainLoopThread(void*) {
 		
 		PhysicsEngine::Get()->uninitGame();
 		
-		notes << "GameLoopEnd" << endl;
+		notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
 		
@@ -1193,7 +1194,6 @@ void ShutdownLieroX()
 	notes << "Everything was shut down" << endl;
 }
 
-std::string quitEngineFlagReason;
 
 void ResetQuitEngineFlag() {
 	tLX->bQuitEngine = false;

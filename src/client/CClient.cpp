@@ -71,8 +71,7 @@ void CClient::Clear()
 	tGameInfo.fTimeLimit = -100;
 	otherGameInfo.clear();
 	iNumWorms = 0;
-	int i;
-	for(i=0;i<MAX_PLAYERS;i++)
+	for(int i=0;i<MAX_PLAYERS;i++)
 	{
 		cLocalWorms[i] = NULL;
 		tProfiles[i] = NULL;
@@ -136,7 +135,7 @@ void CClient::Clear()
 	cShootList.Shutdown();
 	cWeaponRestrictions.Shutdown();
 
-    for(i=0; i<NUM_VIEWPORTS; i++) {
+    for(int i=0; i<NUM_VIEWPORTS; i++) {
         cViewports[i].setUsed(false);
 		cViewports[i].setTarget(NULL);
         cViewports[i].setID(i);

@@ -342,7 +342,7 @@ void Menu_NetShutdown()
 // Go to the join lobby
 void GotoJoinLobby()
 {
-    printf("GotoJoinLobby()\n");
+    notes << "GotoJoinLobby()" << endl;
 	
 	using namespace DeprecatedGUI;
 	

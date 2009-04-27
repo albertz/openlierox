@@ -31,7 +31,7 @@
 #include "CClientNetEngine.h"
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
-
+#include "ProfileSystem.h"
 
 
 
@@ -755,7 +755,9 @@ void Cmd_Connect() {
 	}
 	
 	std::string server = Cmd_GetArg(1);
-	if(!JoinServer(server, server, tLXOptions->sLastSelectedPlayer)) return;
+	std::string player = tLXOptions->sLastSelectedPlayer;
+	if(player == "" && GetProfiles()) player = GetProfiles()->sName;
+	if(!JoinServer(server, server, player)) return;
 	
 	// goto the joining dialog
 	DeprecatedGUI::Menu_SetSkipStart(true);
