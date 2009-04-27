@@ -490,7 +490,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 
 	if (!bUsed)  {
-		warnings << "readPacketState called on an unused worm!" << endl;
+		warnings << "Client: readPacketState called on unused worm " << getID() << ":" << getName() << endl;
 		skipPacketState(bs);
 		return;
 	}
