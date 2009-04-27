@@ -1080,6 +1080,10 @@ void CClient::Frame()
 
 	SimulateHud();
 
+	// could be that some console command wants to quit
+	if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
+		return;
+	
 	if((bGameRunning || iNetStatus == NET_PLAYING) && !bWaitingForMap && !bWaitingForMod)
 	{
 		if( NewNet::Active() )

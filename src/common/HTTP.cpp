@@ -66,7 +66,7 @@ void AutoSetupHTTPProxy()
 {
 	// User doesn't wish an automatic proxy setup
 	if (!tLXOptions->bAutoSetupHttpProxy) {
-		notes << "AutoSetupHTTPProxy is disabled";
+		notes << "AutoSetupHTTPProxy is disabled, ";
 		if(tLXOptions->sHttpProxy != "")
 			notes << "using proxy " << tLXOptions->sHttpProxy << endl;
 		else

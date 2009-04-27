@@ -698,6 +698,11 @@ void CWorm::readStatUpdate(CBytestream *bs)
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
+	if(!bGameReady) {
+		// Can happen at connect-during-game.
+		return;
+	}
+	
     // Check
 	if (cur > 4)  {
 		warnings << "CWorm::readStatUpdate: current weapon not in range, ignored." << endl;

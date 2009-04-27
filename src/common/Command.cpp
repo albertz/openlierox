@@ -651,7 +651,16 @@ void Cmd_BadWord() {
 }
 
 void Cmd_Quit() {
-	SetQuitEngineFlag("Console Cmd_Quit");
+	if(!DeprecatedGUI::tMenu || !DeprecatedGUI::tMenu->bMenuRunning) {
+		if(tLX && tLX->iGameType == GME_JOIN) {
+			if(cClient && cClient->getStatus() != NET_DISCONNECTED)
+				cClient->Disconnect();		
+		}
+
+		SetQuitEngineFlag("Console Cmd_Quit");
+
+	} else
+		Con_AddText(CNC_NORMAL, "quit has no effect in menu");
 }
 
 ///////////////////
@@ -739,17 +748,17 @@ void Cmd_Connect() {
 	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Disconnect();
 
-	if(!tLX->bQuitEngine) { // we are in game
+	DeprecatedGUI::Menu_Current_Shutdown();
+
+	if(!DeprecatedGUI::tMenu || !DeprecatedGUI::tMenu->bMenuRunning) { // we are in game
 		SetQuitEngineFlag("Cmd_Connect & in game");
-		DeprecatedGUI::Menu_SetSkipStart(true);
 	}
-	else // we are in a menu
-		DeprecatedGUI::Menu_Current_Shutdown();
 	
 	std::string server = Cmd_GetArg(1);
 	if(!JoinServer(server, server, tLXOptions->sLastSelectedPlayer)) return;
 	
 	// goto the joining dialog
+	DeprecatedGUI::Menu_SetSkipStart(true);
 	DeprecatedGUI::Menu_NetInitialize(false);
 	DeprecatedGUI::Menu_Net_JoinInitialize(server);
 	
@@ -785,7 +794,7 @@ void Cmd_Initialize() {
 	Cmd_AddCommand("exit", Cmd_Quit);
 	Cmd_AddCommand("volume", Cmd_Volume);
 	Cmd_AddCommand("sound", Cmd_Sound);
-	Cmd_AddCommand("ssh", Cmd_ServerSideHealth);
+	Cmd_AddCommand("ssh", Cmd_ServerSideHealth, true);
 	Cmd_AddCommand("irc", Cmd_SendIrcMessage);
 	Cmd_AddCommand("chat", Cmd_SendIrcMessage);
 	Cmd_AddCommand("connect", Cmd_Connect);

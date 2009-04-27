@@ -1162,9 +1162,14 @@ void CClient::SimulateHud()
 
 	if (bGameReady)  {
 		// Console
-		if(!bChat_Typing && !bGameMenu && !bViewportMgr)
+		if(!bChat_Typing && !bGameMenu && !bViewportMgr) {
 			Con_Process(tLX->fDeltaTime);
-		
+			
+			// could be that some command wants to quit
+			if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
+				return;
+		}
+
 		// Viewport manager
 		if(cViewportMgr.isDownOnce() && !bChat_Typing && !bGameMenu && !con)
 			InitializeViewportManager();
