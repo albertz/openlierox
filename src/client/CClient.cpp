@@ -1987,15 +1987,17 @@ void CClient::RemoveWorm(int id)
 	}
 	
 	bool found = false;
-	int i,j;
-	for (i=0;i<MAX_PLAYERS;i++)  {
+	for (int i=0;i<MAX_PLAYERS;i++)  {
 		if (cLocalWorms[i])  {
+			if(i >= getNumWorms()) {
+				warnings << "Client:RemoveWorm: own worm " << cLocalWorms[i]->getID() << ":" << cLocalWorms[i]->getName() << " should not exist" << endl;
+			}
 			if (cLocalWorms[i]->getID() == id)  {
 				found = true;
 				iNumWorms--;
 				cLocalWorms[i] = NULL;
 				tProfiles[i] = NULL;
-				for (j=i;j<MAX_PLAYERS-1;j++)  {
+				for (int j=i;j<MAX_PLAYERS-1;j++)  {
 					cLocalWorms[j] = cLocalWorms[j+1];
 					tProfiles[j] = tProfiles[j+1];
 				}

@@ -933,7 +933,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			if(isReconnect && w->isPrepared())
 				continue;
 			
-			notes << "preparing worm " << i << ":" << w->getName() << " for battle" << endl;
+			notes << "Client: preparing worm " << i << ":" << w->getName() << " for battle" << endl;
 			
 			// (If this is a local game?), we need to reload the worm graphics
 			// We do this again because we've only just found out what type of game it is
