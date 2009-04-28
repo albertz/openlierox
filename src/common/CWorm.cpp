@@ -156,11 +156,7 @@ void CWorm::Clear()
 		m_inputHandler = NULL;
 	}
 	
-	for( i=0; i<MAX_WORMS; i++ )
-	{
-		cDamageReport[i].damage = 0;
-		cDamageReport[i].lastTime = 0;
-	}
+	cDamageReport.clear();
 }
 
 
@@ -431,11 +427,7 @@ void CWorm::Spawn(CVec position) {
 			m_inputHandler->onRespawn();
 	}
 
-	for( int i=0; i<MAX_WORMS; i++ )
-	{
-		cDamageReport[i].damage = 0;
-		cDamageReport[i].lastTime = 0;
-	}
+	cDamageReport.clear();
 }
 
 
@@ -758,10 +750,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	{
 		// Sort them first
 		std::map< AbsTime, int > DamageReportDrawOrder;
-		int i;
-		for( i=0; i<MAX_WORMS; i++ )
-			if( cDamageReport[i].damage != 0 )
-				DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
+		for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); it++ )
+				DamageReportDrawOrder[it->second.lastTime] = it->first;
 		// Draw
 		if( ! DamageReportDrawOrder.empty() )
 		{
@@ -784,7 +774,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				if( tLXOptions->bColorizeDamageByWorm )
 				{
 					damageSum = cDamageReport[id].damage;
-					damageColor = cClient->getRemoteWorms()[id].getGameColour();
+					if( id >= 0 && id < MAX_WORMS )
+						damageColor = cClient->getRemoteWorms()[id].getGameColour();
 				}
 				std::string damageStr = itoa( damageSum );
 				if( damageSum < 0 )
@@ -801,15 +792,19 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			// Clean up expired damage report values
 			if( tLXOptions->bColorizeDamageByWorm )
 			{
-				for( int i=0; i<MAX_WORMS; i++ )
-					if( GetPhysicsTime() > cDamageReport[i].lastTime + 1.5f )
-						cDamageReport[i].damage = 0;
+				for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); it++ )
+				{
+					if( GetPhysicsTime() > it->second.lastTime + 1.5f )
+					{
+						cDamageReport.erase(it);
+						it = cDamageReport.begin();
+					}
+				}
 			}
 			else
 			{
 				if( GetPhysicsTime() > DamageReportDrawOrder.begin()->first + 1.5f )
-					for( int i=0; i<MAX_WORMS; i++ )
-						cDamageReport[i].damage = 0;
+					cDamageReport.clear();
 			}
 		}
 	}
@@ -1339,13 +1334,12 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( iCurrentWeapon );
 	COPY( bAlreadyKilled );
 	COPY( fLastAirJumpTime );
+	COPY( cDamageReport );
 	
 	COPY( NewNet_random );
 	
 	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
 		COPY( tWeapons[i] );
-	for( int i=0; i<MAX_WORMS; i++ )
-		COPY( cDamageReport[i] );
 	#undef COPY
 };
 
@@ -1391,13 +1385,12 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( iCurrentWeapon );
 	COPY( bAlreadyKilled );
 	COPY( fLastAirJumpTime );
+	COPY( cDamageReport );
 	
 	COPY( NewNet_random );
 	
 	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
 		COPY( tWeapons[i] );
-	for( int i=0; i<MAX_WORMS; i++ )
-		COPY( cDamageReport[i] );
 	#undef COPY
 };
 

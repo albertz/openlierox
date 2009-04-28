@@ -527,19 +527,22 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	// Clean up expired damage report values
 	if( tLXOptions->bColorizeDamageByWorm )
 	{
-		for( int i=0; i<MAX_WORMS; i++ )
-			if( GetPhysicsTime() > cDamageReport[i].lastTime + 1.5f )
-				cDamageReport[i].damage = 0;
+		for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); it++ )
+		{
+			if( GetPhysicsTime() > it->second.lastTime + 1.5f )
+			{
+				cDamageReport.erase(it);
+				it = cDamageReport.begin();
+			}
+		}
 	}
 	else
 	{
 		std::map< AbsTime, int > DamageReportDrawOrder;
-		for( int i=0; i<MAX_WORMS; i++ )
-			if( cDamageReport[i].damage != 0 )
-				DamageReportDrawOrder[cDamageReport[i].lastTime] = i;
+		for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); it++ )
+				DamageReportDrawOrder[it->second.lastTime] = it->first;
 		if( ! DamageReportDrawOrder.empty() && GetPhysicsTime() > DamageReportDrawOrder.begin()->first + 1.5f )
-			for( int i=0; i<MAX_WORMS; i++ )
-				cDamageReport[i].damage = 0;
+				cDamageReport.clear();
 	}
 }
 
