@@ -2,7 +2,8 @@
 
 cmake_minimum_required(VERSION 2.4)
 
-SET(OLXROOTDIR  ${CMAKE_CURRENT_SOURCE_DIR})
+# Note: This must be a relative path because AUX_SOURCE_DIRECTORY would not work otherwise with CMake 2.4
+SET(OLXROOTDIR .)
 include(${OLXROOTDIR}/CMakeOlxCommon.cmake)
 
 ADD_EXECUTABLE(openlierox ${OLXROOTDIR}/src/main.cpp ${ALL_SRCS})
