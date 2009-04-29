@@ -73,22 +73,10 @@ own_xml2_config() {
 get_olx_version() {
 	VERSION=""
 	if [ -e VERSION ]; then
-		VERSION=$(cat VERSION)
+		VERSION="$(cat VERSION)"
 	else
-		VERSION=$(grep LX_VERSION include/Version.h | \
-			grep define | grep -o -e "\".*\"" | cut -d "\"" -f 2)
-	fi
-	if [ -d .svn ]; then
-		if type svn >/dev/null 2>&1; then
-			VERSION="${VERSION}_r$(svn info | grep "Revision:" | cut -d " " -f 2)"
-		fi
-	fi
-	if [ -d .git ]; then
-		if type git >/dev/null 2>&1; then
-			VERSION="${VERSION}_r$(git describe | sed 's/.*-\(.*\)-.*/\1/')"
-			# Warning: version = number of commits since last tagged object
-			# and it may be different from SF.net git if you merged some commits
-		fi
+		VERSION="$(grep LX_VERSION src/common/Version.cpp | \
+			grep define | grep -o -e "\".*\"" | cut -d "\"" -f 2)"
 	fi
 	echo "$VERSION"
 }
