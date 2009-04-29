@@ -2,7 +2,7 @@
 
 cmake_minimum_required(VERSION 2.4)
 
-SET(OLXROOTDIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
+SET(OLXROOTDIR ../..)
 include(${OLXROOTDIR}/CMakeOlxCommon.cmake)
 
 SET(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../..)
