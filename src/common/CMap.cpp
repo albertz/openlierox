@@ -2644,15 +2644,15 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	// Delete the data
 	delete[] pDest;
 
-	// Try to load hi-res images
+	// Try to load additional data (like hi-res images)
 	LoadAdditionalLevelData(fp);
 
 	fclose(fp);
 
 	Created = true;
 
-    // Calculate the shadowmap
-    CalculateShadowMap();
+	// Calculate the shadowmap
+	CalculateShadowMap();
 
 	ApplyShadow(0,0,Width,Height);
 
@@ -2662,8 +2662,8 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	// Update the minimap
 	UpdateMiniMap(true);
 
-    // Calculate the grid
-    calculateGrid();
+	// Calculate the grid
+	calculateGrid();
 
 	// Save the map to cache
 	SaveToCache();
@@ -2678,10 +2678,13 @@ void CMap::LoadAdditionalLevelData(FILE *fp)
 	while( !feof(fp) && !ferror(fp) )
 	{
 		std::string chunkName;
-		fread_fixedwidthstr<16>(chunkName, fp);
+		if(!fread_fixedwidthstr<16>(chunkName, fp)) {
+			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+			break;
+		}
 		Uint32 size = 0;
 		if(fread_endian<Uint32>(fp, size) == 0) {
-			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+			errors << "CMap::LoadAdditionalLevelData: error while reading (attribute " << chunkName << ")" << endl;
 			break;
 		}
 		uchar *pSource = new uchar[size];
