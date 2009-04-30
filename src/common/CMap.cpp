@@ -2675,8 +2675,6 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 // Load the high-resolution images
 void CMap::LoadAdditionalLevelData(FILE *fp)
 {
-	const char* safetyHeaderConfig = "OLX level config";
-	const char* safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
 	while( !feof(fp) && !ferror(fp) )
 	{
 		std::string chunkName;
@@ -2697,10 +2695,10 @@ void CMap::LoadAdditionalLevelData(FILE *fp)
 			break;
 		}
 		
-		if( stringcaseequal( chunkName, safetyHeaderHiRes) )
+		if( stringcaseequal( chunkName, "OLX hi-res data") )
 			LoadLevelImageHiRes( pSource, size );
 		else
-		if( stringcaseequal( chunkName, safetyHeaderConfig) )
+		if( stringcaseequal( chunkName, "OLX level config") )
 			LoadLevelConfig( pSource, size );
 		else
 			warnings << "Unknown additional data found in level file: " << chunkName << ", size " << size << endl;
