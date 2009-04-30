@@ -163,6 +163,24 @@
     }
             
     ?>
+    
+    <!--
+    FRONTEND
+    -->
+    <h1>Frontend Test</h1>
+    <?php
+    require $PATH . "lx_frontend.php";
+    
+    // Create a preview from the frontend zip file (320x240, high quality)
+    $preview = LXCreateFrontendPreview($PATH . "frontend.zip", 640, 480, true);
+    if ($preview === false)
+      echo "Could not get the frontend preview";
+    else {
+      imagepng($preview, $PATH . "frontend_preview.png");
+      imagedestroy($preview);
+      echo "<img src=\"" . $PATH . "frontend_preview.png\" alt=\"Frontend preview\" /><br />";
+    }
+    ?>    
         
     <!--
     SERVER LIST

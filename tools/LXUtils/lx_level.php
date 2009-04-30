@@ -27,7 +27,7 @@ define("ORIGINAL_POWERLEVEL_SIZE", 177178);       // Original Liero powerlevel f
 define("PALETTE_SIZE", 768);                      // Size of the color palette (in bytes), for original levels
 
 if (!defined("LXUTILS_PATH"))
-  define("LXUTILS_PATH", ".");
+  define("LXUTILS_PATH", "./");
 
 // Structures
 
