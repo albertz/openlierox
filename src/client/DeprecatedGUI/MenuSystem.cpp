@@ -1314,6 +1314,7 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual)
 	svr->nMaxPlayers = 0;
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
+	svr->nPing = -3; // Put it at the end of server list, after NAT servers
 
 	return svr;
 }
@@ -1437,8 +1438,8 @@ void Menu_SvrList_FillList(CListview *lv)
 					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
 					   NULL, NULL);
 
-		if (s->nPing == -2) // Server behind a NAT
-			lv->AddSubitem(LVS_TEXT, "N/A", NULL, NULL);
+		if (s->nPing <= -2) // Server behind a NAT or not queried, it will add spaces if s->nPing == -3 so not queried servers will be below NAT ones
+			lv->AddSubitem(LVS_TEXT, "N/A" + std::string(' ', -2 - s->nPing), NULL, NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
 

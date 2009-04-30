@@ -355,7 +355,7 @@ class server_t { public:
 			bIgnore = oth.bIgnore;
 			bProcessing = oth.bProcessing;
 			bManual = oth.bManual;
-			nPings = oth.nPing;
+			nPings = oth.nPings;
 			nQueries = oth.nQueries;
 			bgotPong = oth.bgotPong;
 			bgotQuery = oth.bgotQuery;
