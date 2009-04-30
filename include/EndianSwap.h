@@ -60,7 +60,7 @@ static size_t fwrite_endian_compat_wrapper(FILE* stream, T d) {
 	static_assert(nmemb == 1, nmemb__equals1);
 	static_assert(size == sizeof(T), size__mismatch);
 	EndianSwap(d);
-	return fwrite(&d, sizeof(T), 1, stream);	
+	return fwrite(&d, sizeof(T), 1, stream);
 }
 
 #define fwrite_endian_compat(d, size, nmemb, stream) \

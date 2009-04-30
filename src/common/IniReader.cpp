@@ -32,9 +32,9 @@ bool IniReader::Parse() {
 	std::string section;
 	std::string value;
 	
-	while(!feof(f)) {
-		unsigned char c;
-		fread(&c, 1, 1, f);
+	while(!feof(f) && !ferror(f)) {
+		unsigned char c = 0;
+		if(fread(&c, 1, 1, f) == 0) break;
 
 		switch(state) {
 		case S_DEFAULT:

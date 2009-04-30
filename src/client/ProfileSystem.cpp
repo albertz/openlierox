@@ -22,6 +22,7 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
+#include "FileUtils.h"
 
 profile_t	*tProfiles = NULL;
 
@@ -48,15 +49,13 @@ int LoadProfiles()
 	//
 
 	// Check ID
-	char id[32];
-	fread(id, sizeof(char), 32, fp);
-	id[10] = '\0';
-	if(strcmp(id, "lx:profile") != 0) {
-		std::string tmp = "Could not load profiles: \""+std::string(id)+"\" is not equal to \"lx:profile\"";
-		printf("ERROR: " + tmp + "\n");
+	std::string id;
+	fread_fixedwidthstr<32>(id, fp);
+	if(id != "lx:profile") {
+		errors << "Could not load profiles: \"" << id << "\" is not equal to \"lx:profile\"" << endl;
 
-        // Add the default players
-        AddDefaultPlayers();
+		// Add the default players
+		AddDefaultPlayers();
 		fclose(fp);
 		return false;
 	}

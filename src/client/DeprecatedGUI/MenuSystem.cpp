@@ -39,6 +39,7 @@
 #include "OLXG15.h"
 #include "Timer.h"
 #include "IRC.h"
+#include "FileUtils.h"
 
 
 // TODO: move this out here
@@ -421,7 +422,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 // TODO: move this to CMap
 std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 {
-	char	id[32], name[128];
+	std::string	id, name;
 	Sint32		version;
 
 	FILE *fp;
@@ -434,14 +435,12 @@ std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
 
 	// Liero Xtreme level
 	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
-
-		fread(id,		sizeof(char),	32,	fp);
+		fread_fixedwidthstr<32>(id, fp);
 		fread_compat(version,	sizeof(version),	1,	fp);
 		EndianSwap(version);
-		fread(name,		sizeof(char),	64,	fp);
-		fix_markend(id); fix_markend(name);
+		fread_fixedwidthstr<64>(name, fp);
 
-		if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
+		if(((id == "LieroX Level") || (id == "LieroX CTF Level")) && version == MAP_VERSION) {
 			fclose(fp);
 			return name;
 		}

@@ -41,6 +41,8 @@
 #include "Cache.h"
 #include "Debug.h"
 #include "FlagInfo.h"
+#include "FileUtils.h"
+#include "EndianSwap.h"
 
 
 ////////////////////
@@ -2258,9 +2260,14 @@ bool CMap::Load(const std::string& filename)
 	uchar *bitmask = new uchar[size];
 	if (!bitmask)  {
 		errors("CMap::Load: Could not create bit mask\n");
+		fclose(fp);
 		return false;
 	}
-	fread(bitmask,size,1,fp);
+	if(fread(bitmask,sizeof(uchar),size,fp) < size) {
+		errors << "CMap::Load: could not read bitmask" << endl;
+		fclose(fp);
+		return false;
+	}
 
 	static const unsigned char mask[] = {1,2,4,8,16,32,64,128};
 
@@ -2521,11 +2528,16 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 	uchar *pDest = new uchar[destsize];
 
 	if(!pSource || !pDest) {
+		errors << "CMap::LoadImageFormat: not enough memory" << endl;
 		fclose(fp);
 		return false;
 	}
 
-	fread(pSource, size*sizeof(uchar), 1, fp);
+	if(fread(pSource, sizeof(uchar), size, fp) < size) {
+		errors << "CMap::LoadImageFormat: cannot read data" << endl;
+		fclose(fp);
+		return false;
+	}
 
 	ulong lng_dsize = destsize;
 	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
@@ -2663,22 +2675,32 @@ bool CMap::LoadImageFormat(FILE *fp, bool ctf)
 // Load the high-resolution images
 void CMap::LoadAdditionalLevelData(FILE *fp)
 {
-	const char safetyHeaderConfig[17] = "OLX level config";
-	const char safetyHeaderHiRes[16] = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
-	while( !feof(fp) )
+	const char* safetyHeaderConfig = "OLX level config";
+	const char* safetyHeaderHiRes = "OLX hi-res data"; // OLX will check for this string if the file contains junk at the end
+	while( !feof(fp) && !ferror(fp) )
 	{
-		char chunkName[17] = "";
-		memset( chunkName, 0, sizeof(chunkName) );
-		fread( chunkName, 1, 16, fp);
-		chunkName[16] = 0;
+		std::string chunkName;
+		fread_fixedwidthstr<16>(chunkName, fp);
 		Uint32 size = 0;
-		fread_compat(size, sizeof(Uint32), 1, fp);
+		if(fread_endian<Uint32>(fp, size) == 0) {
+			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+			break;
+		}
 		uchar *pSource = new uchar[size];
-		fread(pSource, size*sizeof(uchar), 1, fp);
-		if( strncmp( chunkName, safetyHeaderHiRes, 16 ) == 0 )
+		if(pSource == NULL) {
+			errors << "CMap::LoadAdditionalLevelData: not enough memory" << endl;
+			break;
+		}
+		if(fread(pSource, sizeof(uchar), size, fp) < size) {
+			delete[] pSource;
+			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
+			break;
+		}
+		
+		if( stringcaseequal( chunkName, safetyHeaderHiRes) )
 			LoadLevelImageHiRes( pSource, size );
 		else
-		if( strncmp( chunkName, safetyHeaderConfig, 16 ) == 0 )
+		if( stringcaseequal( chunkName, safetyHeaderConfig) )
 			LoadLevelConfig( pSource, size );
 		else
 			warnings << "Unknown additional data found in level file: " << chunkName << ", size " << size << endl;
@@ -2694,10 +2716,11 @@ void CMap::LoadAdditionalLevelData(FILE *fp)
 void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
 {
 	warnings << "CMap::LoadLevelConfig(): level config is not used yet in this version of OLX" << endl;
+	return;
+
 	// TODO: test if this code works
 	
-	Uint32 destsize;
-	destsize = *(Uint32 *)(pSource);
+	Uint32 destsize = *(Uint32 *)(pSource);
 	EndianSwap(destsize);
 
 	// Allocate the memory
@@ -2707,7 +2730,7 @@ void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
 	int ret = uncompress( pDest, &lng_dsize, pSource + sizeof(Uint32), size - sizeof(Uint32) );
 	if( ret != Z_OK ) 
 	{
-		warnings << "CMap::LoadLevelImageHiRes(): failed to load hi-res image, using low-res image" << endl;
+		warnings << "CMap::LoadLevelConfig(): failed to load hi-res image, using low-res image" << endl;
 		lng_dsize = 0;
 	}
 	destsize = lng_dsize;
@@ -2720,7 +2743,7 @@ void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
 	pos += 4;
 	if( AdditionalDataSize + 4 > destsize )
 	{
-		warnings << "CMap::LoadLevelImageHiRes(): wrong additional data size " << AdditionalDataSize << endl;
+		warnings << "CMap::LoadLevelConfig(): wrong additional data size " << AdditionalDataSize << endl;
 	}
 	else
 	{
@@ -2732,7 +2755,7 @@ void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
 			EndianSwap(chunkSize);
 			if( chunkSize + pos > AdditionalDataSize )
 			{
-				warnings << "CMap::LoadImageFormatHiRes(): wrong additional data chunk size " << chunkSize << endl;
+				warnings << "CMap::LoadLevelConfig(): wrong additional data chunk size " << chunkSize << endl;
 				break;
 			}
 			pos += 4;
@@ -2753,8 +2776,9 @@ void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
 // Load the high-resolution images
 void CMap::LoadLevelImageHiRes(uchar *pSource, Uint32 size)
 {
-
 #ifndef DEDICATED_ONLY // Hi-res images are not needed for dedicated server, it uses only material image which is in low-res data
+
+	if(bDedicated) return;
 
 	gdImagePtr gdImage = gdImageCreateFromPngPtr( size, pSource );
 	
@@ -2892,7 +2916,10 @@ bool CMap::LoadOriginal(FILE *fp)
 			return false;
 		}
 
-		fread(palette,sizeof(uchar),768,fpal);
+		if(fread(palette,sizeof(uchar),768,fpal) < 768) {
+			fclose(fpal);
+			return false;
+		}
 		fclose(fpal);
 	}
 
@@ -2911,15 +2938,18 @@ imageMapCreate:
 		return false;
 	}
 
-	fread(bytearr,sizeof(uchar),Width*Height,fp);
+	if(fread(bytearr,sizeof(uchar),Width*Height,fp) < Width*Height) {
+		errors << "CMap::LoadOriginal: cannot read file" << endl;
+		fclose(fp);
+		return false;
+	}
 
 	// Load the palette from the same file if it's a powerlevel
 	if(Powerlevel) {
-		char id[11];
+		std::string id;
 		// Load id
-		fread(id,sizeof(uchar),10,fp);
-		id[10] = '\0';
-		if(stricmp(id,"POWERLEVEL") != 0) {
+		fread_fixedwidthstr<10>(id,fp);
+		if(!stringcaseequal(id,"POWERLEVEL")) {
 			delete[] palette;
 			delete[] bytearr;
 			fclose(fp);
@@ -2927,7 +2957,10 @@ imageMapCreate:
 		}
 
 		// Load the palette
-		fread(palette,sizeof(uchar),768,fp);
+		if(fread(palette,sizeof(uchar),768,fp) < 768) {
+			fclose(fp);
+			return false;
+		}
 
 		// Convert the 6bit colours to 8bit colours
 		for(n=0;n<768;n++) {

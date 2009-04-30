@@ -139,7 +139,7 @@ typedef struct nl_cond_t *NLcond;
 /* misc. */
 typedef int NLint;
 typedef unsigned int NLuint;
-typedef unsigned int NLenum;
+typedef unsigned long NLenum;
 typedef void NLvoid;
 typedef NLlong NLsocket;
 /* NOTE: NLchar is only to be used for external strings

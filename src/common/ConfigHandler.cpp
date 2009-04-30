@@ -209,7 +209,10 @@ static int GetString(const std::string& filename, const std::string& section, co
 
 	// Check for UTF-8 encoded file and skip the UTF-8 mark if it is
 	uchar utf8mark[3];
-	fread(utf8mark, sizeof(utf8mark)/sizeof(uchar), 1, config);
+	if(fread(utf8mark, sizeof(utf8mark)/sizeof(uchar), 1, config) == 0) {
+		fclose(config);
+		return false;
+	}
 	if (utf8mark[0] != 0xEF || utf8mark[1] != 0xBB || utf8mark[2] != 0xBF)
 		fseek(config, 0, SEEK_SET); // Not a UTF-8 file, jump back to the beginning
 

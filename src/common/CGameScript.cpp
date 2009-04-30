@@ -65,13 +65,13 @@ static std::string readString(FILE *fp)
 {
 	char buf[256];
 	
-    uchar length;
-    fread( &length, sizeof(uchar), 1, fp );
-    fread( buf,sizeof(char), length, fp );
+	uchar length;
+	if(fread( &length, sizeof(uchar), 1, fp ) == 0) return "";
+	if(fread( buf,sizeof(char), length, fp ) < length) return "";
 	
-    buf[length] = '\0';
+	buf[length] = '\0';
 	
-    return buf;
+	return buf;
 }
 
 
@@ -729,10 +729,9 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			for(size_t i = 0; i < NumColours; ++i) {
 				if(Header.Version <= GS_LX56_VERSION) {
 					int color[3] = {0,0,0};
-					fread(color,sizeof(int),3,fp);
-					EndianSwap(color[0]);
-					EndianSwap(color[1]);
-					EndianSwap(color[2]);
+					fread_endian<int>(fp, color[0]);
+					fread_endian<int>(fp, color[1]);
+					fread_endian<int>(fp, color[2]);
 					proj->Colour[i] = Color(color[0],color[1],color[2]);
 				} else {
 					fread_compat(proj->Colour[i].r,1,1,fp);

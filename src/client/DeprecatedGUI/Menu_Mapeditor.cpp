@@ -15,7 +15,6 @@
 
 
 #include "LieroX.h"
-
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
@@ -26,6 +25,7 @@
 #include "DeprecatedGUI/CTextbox.h"
 #include "Sounds.h"
 #include "EndianSwap.h"
+#include "FileUtils.h"
 
 
 namespace DeprecatedGUI {
@@ -655,16 +655,13 @@ enum  {
 			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
 				FILE *fp = OpenGameFile(filename,"rb");
 				if(fp) {
-					char id[33];
+					std::string id, name;
 					int version = 0;
-					char name[65];
-					fread(id,		sizeof(char),	32,	fp);
+					fread_fixedwidthstr<32>(id, fp);
 					fread_endian<int>(fp, version);
-					fread(name,		sizeof(char),	64,	fp);
-					id[32] = '\0';
-					name[64] = '\0';
+					fread_fixedwidthstr<64>(name, fp);
 
-					if((strcmp(id,"LieroX Level") == 0 || strcmp(id,"LieroX CTF Level") == 0) && version == MAP_VERSION) {
+					if(((id == "LieroX Level") || (id == "LieroX CTF Level")) && version == MAP_VERSION) {
 
 						if(!lv->getItem(f)) {
 							lv->AddItem(f,0,tLX->clListView);
