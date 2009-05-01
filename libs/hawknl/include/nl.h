@@ -68,8 +68,7 @@ extern "C" {
   /* define NL_WIN_THREADS to use native Windows threads instead of pthreads */
   #define NL_WIN_THREADS
   #ifdef _MSC_VER
-    #pragma warning (disable:4514) /* disable "unreferenced inline function has
-                                    been removed" warning */
+    #pragma warning (disable:4514) /* disable "unreferenced inline function has been removed" warning */
   #endif /* _MSC_VER */
   /* The default build for Windows is as a DLL. */
   /* If you want a static library, define WIN_STATIC_LIB. */

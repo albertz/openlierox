@@ -325,7 +325,8 @@ static void nlReturnSocket(NLsocket socket)
     }
 }
 
-void nlFreeSocket(NLsocket socket)
+static void nlFreeSocket(NLsocket socket);
+static void nlFreeSocket(NLsocket socket)
 {
     nl_socket_t     *sock = nlSockets[socket];
 
@@ -568,7 +569,7 @@ NL_EXP NLboolean NL_APIENTRY nlInit(void)
         nlState.socketStats = NL_FALSE;
         nlState.nl_big_endian_data = NL_TRUE;
 
-        for(i=0;i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
+        for(i=0;(unsigned int)i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
         {
             if(netdrivers[i].name == NULL)
             {
@@ -1324,7 +1325,7 @@ NL_EXP NLboolean NL_APIENTRY nlSelectNetwork(NLenum network)
         return NL_FALSE;
     }
 
-    for(i=0;i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
+    for(i=0;(unsigned int)i<MIN(MAX_NET_DRIVERS, sizeof(netdrivers)/sizeof(nl_netdriver_t));i++)
     {
         if(netdrivers[i].name == NULL)
         {
@@ -1839,7 +1840,7 @@ NL_EXP NLfloat   NL_APIENTRY nlSwapf(NLfloat f)
     if(NL_SWAP_TRUE)
     {
 	union {
-		NLlong l;
+		NLulong l;
 		NLfloat f;
 	} tmp;
 	tmp.f = f;

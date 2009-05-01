@@ -369,7 +369,6 @@
 		2306CBFF0E6AC55E00132D3B /* GuiPrimitives.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GuiPrimitives.h; sourceTree = "<group>"; };
 		2306CC000E6AC55E00132D3B /* OLX_g15logo_ver4.xbm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = OLX_g15logo_ver4.xbm; sourceTree = "<group>"; };
 		2306CC010E6AC55E00132D3B /* OLXG15.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXG15.h; sourceTree = "<group>"; };
-		2306CC020E6AC55E00132D3B /* RemoteHost.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RemoteHost.h; sourceTree = "<group>"; };
 		2306CC050E6AC55E00132D3B /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };
 		2306CC060E6AC55E00132D3B /* CBackground.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBackground.h; sourceTree = "<group>"; };
 		2306CC070E6AC55E00132D3B /* CBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBar.h; sourceTree = "<group>"; };
@@ -1282,7 +1281,6 @@
 				2306CBFF0E6AC55E00132D3B /* GuiPrimitives.h */,
 				2306CC000E6AC55E00132D3B /* OLX_g15logo_ver4.xbm */,
 				2306CC010E6AC55E00132D3B /* OLXG15.h */,
-				2306CC020E6AC55E00132D3B /* RemoteHost.h */,
 				2306CC270E6AC55E00132D3B /* StringBuf.h */,
 				2306CC280E6AC55E00132D3B /* StyleVar.h */,
 				2306CC290E6AC55E00132D3B /* XMLutils.h */,
@@ -2420,7 +2418,6 @@
 				GCC_MODEL_PPC64 = YES;
 				GCC_MODEL_TUNING = "";
 				GCC_ONE_BYTE_BOOL = YES;
-				GCC_PFE_FILE_C_DIALECTS = "c++";
 				GCC_UNROLL_LOOPS = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
