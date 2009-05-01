@@ -1770,12 +1770,8 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 
 	if((numworms < 0 || numworms > MAX_PLAYERS) && tLX->iGameType != GME_LOCAL) {
 		// bad packet
-		printf("CClientNetEngine::ParseCLReady: invalid numworms ("+itoa(numworms)+")\n");
-		// Skip to get the right position
-		for (short i=0;i<numworms;i++)  {
-			bs->Skip(1); // id
-			CWorm::skipWeapons(bs);
-		}
+		hints << "CClientNetEngine::ParseCLReady: invalid numworms (" << numworms << ")" << endl;
+		bs->SkipAll();
 		return;
 	}
 
@@ -1783,22 +1779,26 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 	for(short i=0;i<numworms;i++) {
 		byte id = bs->readByte();
 
-		if( id >= MAX_WORMS) {
-			printf("CClientNetEngine::ParseCLReady: bad worm ID ("+itoa(id)+")\n");
+		if(id >= MAX_WORMS) {
+			hints << "CClientNetEngine::ParseCLReady: bad worm ID (" << int(id) << ")" << endl;
+			bs->SkipAll();
+			return;
+		}
+
+		if(!client->cRemoteWorms) {
+			warnings << "Client: got CLReady with uninit worms" << endl;
+			// Skip the info and if end of packet, just end
+			if (CWorm::skipWeapons(bs))	break;
 			continue;
 		}
-
+		
 		CWorm* w = &client->cRemoteWorms[id];
-		if(w) {
-			w->setGameReady(true);
 
-			// Read the weapon info
-			w->readWeapons(bs);
-		} else {
-			// Skip the info and if end of packet, just end
-			if (CWorm::skipWeapons(bs))
-				break;
-		}
+		notes << "Client: worm " << int(id) << ":" << w->getName() << " got ready" << endl;
+		w->setGameReady(true);
+
+		// Read the weapon info
+		w->readWeapons(bs);
 
 	}
 
