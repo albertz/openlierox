@@ -90,8 +90,13 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
 		for (int i = 0;i < cl->getNumWorms();i++) {
+			if(!cl->getWorm(i) || !cl->getWorm(i)->isUsed()) {
+				errors << "SendClientReady: local worm nr " << i << " is wrong" << endl;
+				goto SendReadySeperatly; // we cannot send them together 
+			}
+
 			// Send the weapon info here (also contains id)
-			server->cWorms[cl->getWorm(i)->getID()].writeWeapons(&bytes);
+			cl->getWorm(i)->writeWeapons(&bytes);
 		}
 		
 		if(receiver)
@@ -103,21 +108,21 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
 		// Otherwise, 0.56b would not parse the packet correctly
 	} else {
-		int written = 0;
-		int id = 0;
-		while (written < cl->getNumWorms())  {
-			if (cl->getWorm(id) && cl->getWorm(id)->isUsed())  {
-				CBytestream bytes;
-				bytes.writeByte(S2C_CLREADY);
-				bytes.writeByte(1);
-				server->cWorms[cl->getWorm(written)->getID()].writeWeapons(&bytes);
-				if(receiver)
-					receiver->getNetEngine()->SendPacket(&bytes);
-				else
-					server->SendGlobalPacket(&bytes);
-				written++;
+	SendReadySeperatly:
+		for (int i = 0; i < cl->getNumWorms(); i++) {
+			if(!cl->getWorm(i) || !cl->getWorm(i)->isUsed()) {
+				errors << "SendClientReady: local worm nr " << i << " is wrong" << endl;
+				continue;
 			}
-			id++;
+			
+			CBytestream bytes;
+			bytes.writeByte(S2C_CLREADY);
+			bytes.writeByte(1);
+			cl->getWorm(i)->writeWeapons(&bytes);
+			if(receiver)
+				receiver->getNetEngine()->SendPacket(&bytes);
+			else
+				server->SendGlobalPacket(&bytes);
 		}
 	}
 }

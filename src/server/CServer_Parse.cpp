@@ -252,6 +252,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 				continue;
 			}
 			if(server->serverChoosesWeapons()) {
+				// we already made a warning about that
 				CWorm::skipWeapons(bs);
 				continue;
 			}
