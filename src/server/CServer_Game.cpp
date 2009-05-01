@@ -697,8 +697,11 @@ void GameServer::CheckReadyClient()
 		if(client->getStatus() == NET_DISCONNECTED || client->getStatus() == NET_ZOMBIE || client->getNumWorms() == 0)
 			continue;
 
-		if(!client->getGameReady())
+		if(!client->getGameReady()) {
+			notes << "CheckReadyClient: " << client->debugName() << " is not ready yet" << endl;
 			allready = false;
+			break;
+		}
 	}
 
 	// All ready to go?
