@@ -85,7 +85,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		// have to send this.
 	//}
 
-	if (cl->getNumWorms() <= 2)  {
+	if (receiver->getClientVersion() >= OLXBetaVersion(8) || cl->getNumWorms() <= 2)  {
 		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
@@ -104,11 +104,12 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		else
 			server->SendGlobalPacket(&bytes);
 		
-		// TODO: I don't understand this comment. Please be more clear. (Is this meant for the "else"?)
-		// HACK: because of old 0.56b clients we have to pretend there are clients handling the bots
-		// Otherwise, 0.56b would not parse the packet correctly
-	} else {
+	} else { // old client && numworms > 2
+
+		// Note: LX56 assumes that a client can have only 2 worms.
+		
 	SendReadySeperatly:
+		
 		for (int i = 0; i < cl->getNumWorms(); i++) {
 			if(!cl->getWorm(i) || !cl->getWorm(i)->isUsed()) {
 				errors << "SendClientReady: local worm nr " << i << " is wrong" << endl;

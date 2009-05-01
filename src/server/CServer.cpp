@@ -1719,7 +1719,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 	}
 	
-	if( wormID < 0 || wormID >= MAX_PLAYERS )  {
+	if( wormID < 0 || wormID >= MAX_WORMS )  {
 		hints << "kickWorm: worm ID " << itoa(wormID) << " is invalid" << endl;
 		return;
 	}
@@ -1777,7 +1777,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	if (cl->isLocalClient())  {
 		if (cl->OwnsWorm(w->getID()))  {
 			
-			// to avoid a broken stream
+			// to avoid a broken stream with local client
 			SyncServerAndClient();
 			
 			// check if we didn't already removed the worm from inside that SyncServerAndClient
