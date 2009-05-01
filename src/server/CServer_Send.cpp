@@ -85,7 +85,7 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		// have to send this.
 	//}
 
-	if (receiver->getClientVersion() >= OLXBetaVersion(8) || cl->getNumWorms() <= 2)  {
+	if ((receiver && receiver->getClientVersion() >= OLXBetaVersion(8)) || cl->getNumWorms() <= 2)  {
 		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
 		bytes.writeByte(cl->getNumWorms());
