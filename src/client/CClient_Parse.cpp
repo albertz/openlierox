@@ -1777,6 +1777,11 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 
 
 	for(short i=0;i<numworms;i++) {
+		if(bs->isPosAtEnd()) {
+			hints << "CClientNetEngine::ParseCLReady: package messed up" << endl;
+			return;
+		}
+		
 		byte id = bs->readByte();
 
 		if(id >= MAX_WORMS) {
