@@ -959,7 +959,6 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 ///////////////////
 // Handle a 'connect' message
 void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
-	CBytestream		bytestr;
 	NetworkAddr		adrFrom;
 	int				p, player = -1;
 	int				numplayers;
@@ -1006,7 +1005,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	// Read packet
 	ProtocolVersion = bs->readInt(1);
 	if (ProtocolVersion != PROTOCOL_VERSION) {
-		printf("Wrong protocol version, server protocol version is %d\n", PROTOCOL_VERSION);
+		hints << "Wrong protocol version " << ProtocolVersion << ", server protocol version is " << int(PROTOCOL_VERSION) << endl;
 
 		// Get the string to send
 		std::string buf;
@@ -1016,7 +1015,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			buf = " ";
 
 		// Wrong protocol version, don't connect client
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(buf));
@@ -1031,7 +1030,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
 		printf("Banned client %s was trying to connect\n", szAddress.c_str());
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sYouAreBanned));
@@ -1086,7 +1085,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		// Ran out of challenges
 		if (!reconnectFrom && i == MAX_CHALLENGES ) {
 			notes << "No connection verification for client found" << endl;
-			bytestr.Clear();
+			CBytestream bytestr;
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sNoIpVerification));
@@ -1096,7 +1095,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 		if (!reconnectFrom && !valid_challenge)  {
 			notes << "Bad connection verification of client" << endl;
-			bytestr.Clear();
+			CBytestream bytestr;
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBadVerification));
@@ -1182,7 +1181,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << numplayers << endl;
 		std::string msg;
 
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sNoEmptySlots));
@@ -1194,7 +1193,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	int max_players = (tLX->iGameType == GME_HOST ? tLXOptions->tGameInfo.iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
 	if (!newcl->isLocalClient() && numplayers + numworms > max_players) {
 		notes << "I am full, so the new client cannot join" << endl;
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(networkTexts->sServerFull));
@@ -1232,7 +1231,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		if(! newcl->createChannel( std::min(clientVersion, GetGameVersion() ) ) )
 		{	// This should not happen - just in case
 			errors << "Cannot create CChannel for client - invalid client version " << clientVersion.asString() << endl;
-			bytestr.Clear();
+			CBytestream bytestr;
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString("Your client is incompatible to this server"));
@@ -1269,7 +1268,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		std::string msg;
 		if(!checkVersionCompatibility(newcl, false, false, &msg)) {
 			notes << "ParseConnect: " << newcl->debugName(false) << " is too old: " << msg << endl;
-			bytestr.Clear();
+			CBytestream bytestr;
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString("Your OpenLieroX version is too old, please update.\n" + msg));
@@ -1342,7 +1341,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		// If bots aren't allowed, disconnect the client
 		if (newWorms[i].m_type == PRF_COMPUTER && !tLXOptions->bAllowRemoteBots && !strincludes(szAddress, "127.0.0.1"))  {
 			hints << "Bot was trying to connect from " << newcl->debugName() << endl;
-			bytestr.Clear();
+			CBytestream bytestr;
 			bytestr.writeInt(-1, 4);
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
@@ -1440,22 +1439,24 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		CheckForFillWithBots();
 	numworms = newcl->getNumWorms();
 	SetRemoteNetAddr(net_socket, adrFrom); // it could have been changed
-	
-	// Let em know they connected good
-	bytestr.Clear();
-	bytestr.writeInt(-1, 4);
-	bytestr.writeString("lx::goodconnection");
 
-	// Tell the client the id's of the worms
-	for (int i = 0;i < newcl->getNumWorms(); i++)
-		bytestr.writeInt(newcl->getWorm(i)->getID(), 1);
+	{
+		// Let em know they connected good
+		CBytestream bytestr;
+		bytestr.writeInt(-1, 4);
+		bytestr.writeString("lx::goodconnection");
 
-	bytestr.Send(net_socket);
+		// Tell the client the id's of the worms
+		for (int i = 0;i < newcl->getNumWorms(); i++)
+			bytestr.writeInt(newcl->getWorm(i)->getID(), 1);
+
+		bytestr.Send(net_socket);
+	}
 
 	// If we now the client version already, we can avoid this for newer clients.
 	if(newcl->getClientVersion() <= OLXBetaVersion(4)) {
 		// Let them know our version
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		// sadly we have to send this because it was not thought about any forward-compatibility when it was implemented in Beta3
 		// Server version is also added to challenge packet so client will receive it for sure (or won't connect at all).
@@ -1471,14 +1472,14 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	// In older clients, it was possible to disallow that (which doesn't really make sense).
 	// In >=Beta9, we just always can use it. So we have to tell old clients that it's OK.
 	if(newcl->getClientVersion() <= OLXBetaVersion(8)) {
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:mouseAllowed");
 		bytestr.Send(net_socket);
 	}
 
 	if (tLXOptions->tGameInfo.bAllowStrafing) {
-		bytestr.Clear();
+		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:strafingAllowed");
 		bytestr.Send(net_socket);
@@ -1489,7 +1490,6 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	{
 		// Tell all the connected clients the info about these worm(s)
 		// Send all information about all worms to new client.
-		bytestr.Clear();
 		
 		CWorm* w = cWorms;
 		for (int i = 0;i < MAX_WORMS;i++, w++) {
@@ -1497,29 +1497,29 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			if (!w->isUsed())
 				continue;
 			
+			CBytestream bytestr;
 			bytestr.writeByte(S2C_WORMINFO);
 			bytestr.writeInt(w->getID(), 1);
 			w->writeInfo(&bytestr);
-		}
-		
-		newcl->getNetEngine()->SendPacket(&bytestr);
+			newcl->getNetEngine()->SendPacket(&bytestr);
+		}		
 	}
 	
 	{
 		// Send info about new worms to other clients.
-		bytestr.Clear();
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+			CBytestream bytestr;
 			bytestr.writeByte(S2C_WORMINFO);
 			bytestr.writeInt((*w)->getID(), 1);
 			(*w)->writeInfo(&bytestr);
-		}
 
-		for(int j = 0; j < MAX_CLIENTS; ++j) {
-			CServerConnection* cl = &cClients[j];
-			if(cl == newcl) continue;
-			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
-			if(cl->getNetEngine() == NULL) continue;
-			cl->getNetEngine()->SendPacket(&bytestr);
+			for(int j = 0; j < MAX_CLIENTS; ++j) {
+				CServerConnection* cl = &cClients[j];
+				if(cl == newcl) continue;
+				if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+				if(cl->getNetEngine() == NULL) continue;
+				cl->getNetEngine()->SendPacket(&bytestr);
+			}			
 		}
 	}
 	
