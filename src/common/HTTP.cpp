@@ -1602,7 +1602,6 @@ bool CHttp::ProcessInternal()
 			if(!ConnectSocket(tSocket, tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
-					if(sProxyHost != tLXOptions->sHttpProxy) notes << "System proxy is: " << tLXOptions->sHttpProxy << endl;	
 					// The re-requesting must be done in the main thread, send a notification and quit
 					m_thread->onRetry.pushToMainQueue( 
 						SmartPointer<HttpRetryEventData>(new HttpRetryEventData(this, sHost + sUrl, sDataToSend)));

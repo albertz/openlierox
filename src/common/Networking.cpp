@@ -71,22 +71,22 @@ public:
 	}
 };
 
-typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrPtr;
-DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrPtr );
+typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
+DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrSmartPtr );
 
 DECLARE_INTERNDATA_CLASS__WITH_INIT( NetworkSocket, NLsocket, NL_INVALID );
 
 
-static NLsocket* getNLsocket(NetworkSocket* socket) {
+static NLsocket& getNLsocket(NetworkSocket& socket) {
 	return NetworkSocketData(socket);
 }
 
 static NLaddress* getNLaddr(NetworkAddr& addr) {
-	return NetworkAddrData(&addr)->get();
+	return NetworkAddrData(addr).get();
 }
 
 static const NLaddress* getNLaddr(const NetworkAddr& addr) {
-	return NetworkAddrData(&addr)->get();
+	return NetworkAddrData(addr).get();
 }
 
 
@@ -96,7 +96,7 @@ void test_NetworkSmartPointer() {
 	for(int i = 0; i < 100; i++)
 	{
 		printf("creating SP\n");
-		NetAddrPtr sp;
+		NetAddrSmartPtr sp;
 		printf("destroying SP\n");
 	}
 
@@ -134,7 +134,7 @@ static bool isSocketInGroup(NLint group, NetworkSocket sock) {
 	NLint len = NL_MAX_GROUP_SOCKETS;
 	nlGroupGetSockets( group, sockets, &len );
 	for( int f = 0; f < len; f++ )
-		if( sockets[f] == *getNLsocket(&sock) )
+		if( sockets[f] == getNLsocket(sock) )
 			return true;
 
 	return false;
@@ -240,7 +240,7 @@ void AddSocketToNotifierGroup( NetworkSocket sock )
 	SdlNetEvent_Init();
 
 	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )  {
-		nlGroupAddSocket( SdlNetEventGroup, *getNLsocket(&sock) );
+		nlGroupAddSocket( SdlNetEventGroup, getNLsocket(sock) );
 		SdlNetEventSocketCount++;
 	}
 }
@@ -249,7 +249,7 @@ void RemoveSocketFromNotifierGroup( NetworkSocket sock )
 {
 	SdlNetEvent_Init();
 
-	if (nlGroupDeleteSocket( SdlNetEventGroup, *getNLsocket(&sock) ) && SdlNetEventSocketCount > 0)
+	if (nlGroupDeleteSocket( SdlNetEventGroup, getNLsocket(sock) ) && SdlNetEventSocketCount > 0)
 		SdlNetEventSocketCount--;
 }
 
@@ -284,10 +284,11 @@ void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff ex
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
 }
 
+/*
 static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = TimeDiff(600.0f) ) {
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
 	dns.get()[name] = std::make_pair( addr, tLX->currentTime + expireTime );
-}
+}*/
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
@@ -765,7 +766,7 @@ static void nlPrepareClose(NLsocket socket) {
 
 NetworkSocket OpenReliableSocket(unsigned short port) {
 	NetworkSocket ret;
-	*getNLsocket(&ret) = nlOpen(port, NL_RELIABLE);
+	getNLsocket(ret) = nlOpen(port, NL_RELIABLE);
 	if (IsSocketStateValid(ret))
 		AddSocketToNotifierGroup(ret);
 #ifdef DEBUG
@@ -777,7 +778,7 @@ NetworkSocket OpenReliableSocket(unsigned short port) {
 
 NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
-	*getNLsocket(&ret) = nlOpen(port, NL_UNRELIABLE);
+	getNLsocket(ret) = nlOpen(port, NL_UNRELIABLE);
 	if (!IsSocketStateValid(ret))  {
 #ifdef DEBUG
 		errors << "OpenUnreliableSocket: " << GetLastErrorStr() << endl;
@@ -790,7 +791,7 @@ NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
 
 NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 	NetworkSocket ret;
-	*getNLsocket(&ret) = nlOpen(port, NL_BROADCAST);
+	getNLsocket(ret) = nlOpen(port, NL_BROADCAST);
 	if (!IsSocketStateValid(ret))  {
 #ifdef DEBUG
 		errors << "OpenBroadcastSocket: " << GetLastErrorStr() << endl;
@@ -803,12 +804,12 @@ NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
 
 bool ConnectSocket(NetworkSocket sock, const NetworkAddr& addr) {
 	AddSocketToNotifierGroup(sock);
-	return (nlConnect(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
+	return (nlConnect(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool ListenSocket(NetworkSocket sock) {
 	AddSocketToNotifierGroup(sock);
-	return (nlListen(*getNLsocket(&sock)) != NL_FALSE);
+	return (nlListen(getNLsocket(sock)) != NL_FALSE);
 }
 
 bool CloseSocket(NetworkSocket& sock) {
@@ -824,9 +825,9 @@ bool CloseSocket(NetworkSocket& sock) {
 			int ret = -1;
 			if(bNetworkInited) { // only do that if we have the network system still up
 				// this should already close the socket but not lock other parts in HawkNL
-				nlPrepareClose(*getNLsocket(&sock));
+				nlPrepareClose(getNLsocket(sock));
 				// hopefully this does not block anymore
-				ret = (nlClose(*getNLsocket(&sock)) != NL_FALSE) ? 0 : -1;
+				ret = (nlClose(getNLsocket(sock)) != NL_FALSE) ? 0 : -1;
 			}
 			nlSystemUseChangeLock.endReadAccess();
 			return ret;
@@ -845,7 +846,7 @@ bool CloseSocket(NetworkSocket& sock) {
 }
 
 int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
-	NLint ret = nlWrite(*getNLsocket(&sock), buffer, nbytes);
+	NLint ret = nlWrite(getNLsocket(sock), buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
@@ -867,7 +868,7 @@ int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
 }
 
 int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
-	NLint ret = nlRead(*getNLsocket(&sock), buffer, nbytes);
+	NLint ret = nlRead(getNLsocket(sock), buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
@@ -882,7 +883,7 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 }
 
 bool IsSocketStateValid(NetworkSocket sock) {
-	return (*getNLsocket(&sock) != NL_INVALID);
+	return (getNLsocket(sock) != NL_INVALID);
 }
 
 
@@ -891,11 +892,11 @@ bool IsSocketStateValid(NetworkSocket sock) {
 
 
 bool IsSocketReady(NetworkSocket sock)  {
-	return IsSocketStateValid(sock) && nlUpdateState(*getNLsocket(&sock));
+	return IsSocketStateValid(sock) && nlUpdateState(getNLsocket(sock));
 }
 
 void InvalidateSocketState(NetworkSocket& sock) {
-	*NetworkSocketData(&sock) = NL_INVALID;
+	NetworkSocketData(sock) = NL_INVALID;
 }
 
 
@@ -906,7 +907,7 @@ void InvalidateSocketState(NetworkSocket& sock) {
 void WaitForSocketWrite(NetworkSocket sock, int timeout)
 {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	nlGroupAddSocket(group, NetworkSocketData(sock));
 	NLsocket s;
 	nlPollGroup(group, NL_WRITE_STATUS, &s, 1, (NLint)timeout);
 	nlGroupDestroy(group);
@@ -917,7 +918,7 @@ void WaitForSocketWrite(NetworkSocket sock, int timeout)
 void WaitForSocketRead(NetworkSocket sock, int timeout)
 {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	nlGroupAddSocket(group, NetworkSocketData(sock));
 	NLsocket s;
 	nlPollGroup(group, NL_READ_STATUS, &s, 1, (NLint)timeout);
 	nlGroupDestroy(group);
@@ -928,7 +929,7 @@ void WaitForSocketRead(NetworkSocket sock, int timeout)
 void WaitForSocketReadOrWrite(NetworkSocket sock, int timeout)
 {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, *NetworkSocketData(&sock));
+	nlGroupAddSocket(group, NetworkSocketData(sock));
 	NLsocket s;
 
 	if (timeout < 0)  {
@@ -985,21 +986,21 @@ bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
-		return (nlGetLocalAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
+		return (nlGetLocalAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
-		return (nlGetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
+		return (nlGetRemoteAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else
-		return (nlSetRemoteAddr(*getNLsocket(&sock), getNLaddr(addr)) != NL_FALSE);
+		return (nlSetRemoteAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
 }
 
 bool IsNetAddrValid(const NetworkAddr& addr) {
@@ -1175,12 +1176,12 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
-		NetAddrPtr address;
+		NetAddrSmartPtr address;
 		
 		int handle() {
 			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-				AddToDnsCache(addr_name, *address.get());
+				AddToDnsCache(addr_name, NetworkAddr(address));
 			}
 			
 			// TODO: handle failures here? there should be, but we only have the valid field
@@ -1195,11 +1196,10 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 		}
 	};
 	GetAddrFromNameAsync_Executer* data = new GetAddrFromNameAsync_Executer();
-	if(data == NULL)
-        return false;
+	if(data == NULL) return false;
 	data->name = "GetNetAddrFromNameAsync for " + name;
     data->addr_name = name;
-    data->address = *NetworkAddrData(&addr);
+    data->address = NetworkAddrData(addr);
 
 	taskManager->start(data, false);
     return true;
@@ -1208,7 +1208,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
 bool isDataAvailable(NetworkSocket sock) {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket( group, *getNLsocket(&sock) );
+	nlGroupAddSocket( group, getNLsocket(sock) );
 	NLsocket sock_out[2];
 	int ret = nlPollGroup( group, NL_READ_STATUS, sock_out, 1, 0 );
 	nlGroupDestroy(group);

@@ -1572,6 +1572,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		
 		/*
 		// TODO: why is that needed? some lines above, we already have sent exactly that (as a global package)
+		// We have send out all worm info, that's the S2C_WORMINFO packet.
 		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 		// teams they are on
 		if( getGameMode()->GameTeams() > 1 ) {

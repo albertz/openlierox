@@ -348,7 +348,7 @@ IpToCountryDB::IpToCountryDB(const std::string &dbfile) {
 
 void IpToCountryDB::LoadDBFile(const std::string& dbfile) {
 	if (tLXOptions->bUseIpToCountry)
-		IpToCountryDBData(this)->loadFile( dbfile );
+		IpToCountryDBData(*this).loadFile( dbfile );
 }
 
 
@@ -385,7 +385,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& Address)
 
 	DBEntry entry;
 	try  {
-		entry = IpToCountryDBData(this)->getEntry(ip);
+		entry = IpToCountryDBData(*this).getEntry(ip);
 		Result = entry.Info;
 	} catch (...)  {
 		Result.Continent = "Unknown continent";
@@ -407,15 +407,15 @@ SmartPointer<SDL_Surface> IpToCountryDB::GetCountryFlag(const std::string& short
 }
 
 int IpToCountryDB::GetProgress()  {
-	return IpToCountryDBData(this)->getProgress();
+	return IpToCountryDBData(*this).getProgress();
 }
 
 bool IpToCountryDB::Loaded()  {
-	if (IpToCountryDBData(this)->file)
+	if (IpToCountryDBData(*this).file)
 	{
-		SDL_LockMutex(IpToCountryDBData(this)->dataMutex);
-		bool finished = IpToCountryDBData(this)->csvReader.readingFinished();
-		SDL_UnlockMutex(IpToCountryDBData(this)->dataMutex);
+		SDL_LockMutex(IpToCountryDBData(*this).dataMutex);
+		bool finished = IpToCountryDBData(*this).csvReader.readingFinished();
+		SDL_UnlockMutex(IpToCountryDBData(*this).dataMutex);
 		return finished;
 	}
 	else
