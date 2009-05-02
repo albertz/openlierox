@@ -1609,8 +1609,16 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		// TODO: what is the information of this hint? and does it apply here anyway?
 		// Cannot send anything after S2C_PREPAREGAME because of bug in old 0.56 clients - Beta5+ does not have this bug
 
-		// send the client all already selected weapons of the other worms
-		SendWeapons(newcl);
+		// In ParseImReady, we will inform other clients that this new client got ready.
+		// Here, we inform the new client about other ready clients.
+		// This sends also the weapons.
+		CServerConnection *cl = cClients;
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getNumWorms() == 0) continue;
+			if(!cl->getGameReady()) continue;
+			cl->getNetEngine()->SendClientReady(newcl);
+		}
 		
 		m_flagInfo->sendCurrentState(newcl);
 				
@@ -1629,19 +1637,6 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		}
 
 		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
-		
-		/*
-		 // commented out because we should do that, when we get the ImReady from client
-		 
-		// inform new client about other ready clients
-		CServerConnection *cl = cClients;
-		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
-			// Client not connected or no worms
-			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
-				continue;
-
-			cl->getNetEngine()->SendClientReady(newcl);
-		} */				
 	}
 }
 
