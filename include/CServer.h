@@ -316,6 +316,7 @@ public:
 	int		getLastBot() const;
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode
 	bool	isTeamEmpty(int t) const;
+	int		getTeamWormNum(int t) const;
 	bool	allWormsHaveFullLives() const;
 	
 	bool	serverChoosesWeapons();

@@ -42,6 +42,7 @@
 #include "CGameMode.h"
 #include "ProfileSystem.h"
 #include "FlagInfo.h"
+#include "Utils.h"
 
 GameServer	*cServer = NULL;
 
@@ -771,6 +772,14 @@ int GameServer::getFirstEmptyTeam() const {
 	return -1;
 }
 
+int GameServer::getTeamWormNum(int t) const {
+	int c = 0;
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		if(cWorms[i].isUsed() && cWorms[i].getTeam() == t)
+			c++;
+	}
+	return c;
+}
 
 ///////////////////
 // Main server frame
@@ -1689,17 +1698,21 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 			DedicatedControl::Get()->NewWorm_Signal(w);
 				
 		if(tLX->iGameType == GME_HOST && tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
-			w->setTeam(-1); // set it invalid to have correct firstEmpty
+			w->setTeam(-1); // set it invalid to not count it
 			
-			int firstEmpty = getFirstEmptyTeam();
-			//notes << "random(" << tLXOptions->iRandomTeamForNewWorm << "): firstempty=" << firstEmpty << endl;
-			if(firstEmpty >= 0 && firstEmpty <= tLXOptions->iRandomTeamForNewWorm)
-				w->setTeam(firstEmpty);
-			else {
-				int team = GetRandomInt(MIN(tLXOptions->iRandomTeamForNewWorm, getGameMode()->GameTeams() - 1));
-				//notes << "   randomteam=" << team << endl;
-				w->setTeam(team);
+			typedef int WormCount;
+			typedef int TeamIndex;
+			typedef std::vector<TeamIndex> Teams;
+			typedef std::map<WormCount, Teams> TeamMap;
+			TeamMap teams;
+			for(int t = 0; t <= tLXOptions->iRandomTeamForNewWorm && t < getGameMode()->GameTeams(); t++) {
+				teams[getTeamWormNum(t)].push_back(t);
 			}
+			TeamMap::iterator first = teams.begin(); // get the list of the teams with lowest worm count
+			int team = *first->second.begin();
+			if(first->first > 0) // means that there is no empy team (0-randomteamfornewform)
+				team = randomChoiceFrom(first->second);
+			w->setTeam(team);
 			// we will send a WormLobbyUpdate later anyway
 		}
 		
