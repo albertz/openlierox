@@ -279,16 +279,11 @@ typedef std::map<std::string, std::pair< NLaddress, AbsTime > > dnsCacheT; // Se
 ThreadVar<dnsCacheT>* dnsCache = NULL;
 
 void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime ) {
+	ScopedReadLock lock(nlSystemUseChangeLock);
+	if(dnsCache == NULL) return;
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	// We don't have any
 	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
 }
-
-/*
-static void AddToDnsCache(const std::string& name, const NLaddress& addr, TimeDiff expireTime = TimeDiff(600.0f) ) {
-	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	dns.get()[name] = std::make_pair( addr, tLX->currentTime + expireTime );
-}*/
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 	ScopedReadLock lock(nlSystemUseChangeLock);
