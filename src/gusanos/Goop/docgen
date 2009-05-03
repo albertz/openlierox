@@ -1,0 +1,5 @@
+#!/bin/sh
+
+python docgen.py doc/game_actions
+cd lua
+python ../docgen.py ../doc/lua

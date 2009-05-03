@@ -1,0 +1,49 @@
+{
+#include <string>
+#include <stdexcept>
+#include <iostream>
+
+}
+
+% alias any { [\000-\377] } ;
+% namespace OmfgGUI ;
+
+DOT : "." ;
+HASH : "#" ;
+COLON : ":" ;
+SEMICOLON : ";" ;
+LBRACE : "{" ;
+RBRACE : "}" ;
+COMMA : "," ;
+GT : ">" ;
+
+STRING : [a-zA-Z0-9._\\\-%()/]* {
+	CONSTRUCT(b, e) : str(b, e) { }
+
+	std::string str;
+} ;
+
+SKIP : [\ \r\t] = { skip(); } ;
+COMMENT : "//"[^\r\n\000]* = { skip(); } ;
+LINE : "\n" = { linecounter(); skip(); } ;
+QUOTESTRING : [\"][^\"]*[\"] = STRING<b + 1, e - 1> ;
+
+property<Context::GSSselector& sel> = STRING<name> COLON
+	$( std::list<std::string>& v = sel.addProperty(name->str); )
+	(
+	| STRING<value> $( v.push_back(value->str); )
+	| HASH STRING<value> $( v.push_back('#' + value->str); )
+	)*
+;
+
+clause<> = $( Context::GSSselector& sel = self->addSelector(); )
+	(
+	| DOT STRING<class_>  $( sel.addClass(class_->str); )
+	| HASH STRING<id>     $( sel.addID(id->str); )
+	| COLON STRING<state> $( sel.addState(state->str); )
+	| GT STRING<group>    $( sel.addGroup(group->str); )
+	| STRING<tag>         $( sel.addTag(tag->str); )
+	)* LBRACE property<sel> (SEMICOLON [property<sel>])* RBRACE
+;
+	
+document<> = clause* ;

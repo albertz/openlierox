@@ -1,0 +1,67 @@
+CC= g++
+CFLAGS= -O3 -I ../loadpng -I ../Console  -I ../GUI -I/usr/include/fmod -I/usr/include/boost-1_32/
+LIBS= -L../Console -L../GUI/detail -lpng -lz `allegro-config --libs` -lzoidcom -lgcon -lfmod \
+      -lboost_filesystem-gcc -lboost_signals-gcc -lomfggui --export-dynamic
+DEFINES= 
+BIN= ../gusanos.exe
+OBJECTS= \
+	liero.o \
+	material.o \
+	menu.o \
+	net_worm.o \
+	network.o \
+	ninjarope.o \
+	parser.o \
+	part_type.o \
+	particle.o \
+	player.o \
+	player_ai.o \
+	player_input.o \
+	player_options.o \
+	resource_list.o \
+	server.o \
+	sfx.o \
+	sound.o \
+	sprite.o \
+	vec.o \
+	viewport.o \
+	weapon.o \
+	weapon_type.o \
+	worm.o \
+	base_worm.o \
+	client.o \
+	distortion.o \
+	events.o \
+	font.o \
+	game.o \
+	game_actions.o \
+	gconsole.o \
+	gfx.o \
+	gui.o \
+	guilist.o \
+	gusanos.o \
+	keyboard.o \
+	keys.o \
+	level.o \
+	animators.o \
+	base_action.o \
+	base_animator.o \
+	base_object.o \
+	base_player.o \
+	loaders/gusanos.o \
+	loaders/liero.o \
+	loaders/lierox.o \
+	loaders/losp.o \
+	proxy_player.o \
+	objects_list.o \
+	../loadpng/loadpng.o ../loadpng/regpng.o ../loadpng/savepng.o
+	
+
+$(BIN): $(OBJECTS)
+	$(CC) -o $(BIN) $(OBJECTS) $(CFLAGS) $(LIBS)
+
+.cpp.o:
+	$(CC) -c $< -o $@ $(CFLAGS) $(DEFINES)
+
+clean:
+	rm $(OBJECTS)

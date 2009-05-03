@@ -1,0 +1,26 @@
+Import('env')
+
+env = env.Copy()
+env.Append(LIBS = Split("""
+	omfggui omfghttp omfgconsole 
+	omfgscript glua loadpng omfgutil""")
+	)
+
+if env.conf != 'mingw-cross':
+	env.ParseConfig('allegro-config --libs --cppflags')
+	
+env.Append(LIBS = env.confLibs('boost_filesystem boost_signals fmod png zoidcom z'))
+
+if env.conf == 'mingw-cross':
+	env.Append(LIBS = Split("alleg ws2_32"))
+	        
+# add more platforms here
+
+exename = 'gusanos'
+if env.build == 'dedserv' or env.build == 'dedserv-debug':
+	exename += '-ded'
+env.Program(env.getBinName(exename),
+	env.getObjects() +
+	env.getObjects('lua') +
+	env.getObjects('blitters') +
+	env.getObjects('loaders'))

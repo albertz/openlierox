@@ -1,0 +1,5 @@
+Import('env')
+
+if not env.noParsers:
+	env.Parser('detail/gss-grammar.h', 'detail/gss-grammar.pg')
+env.StaticLibrary(env.getLibName('omfggui'), env.getObjects(['detail', 'lua']))

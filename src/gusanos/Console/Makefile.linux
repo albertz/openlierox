@@ -1,0 +1,22 @@
+CC= g++
+OBJECTS= \
+alias.o \
+bindings.o \
+command.o \
+console.o \
+consoleitem.o \
+special_command.o \
+text.o \
+variables.o
+
+CFLAGS= -O3
+LIBRARY= libgcon.a
+
+$(LIBRARY): $(OBJECTS)
+	ar rs $@ $^
+
+.cpp.o:
+	$(CC) -c $< $(CFLAGS) $(DEFINES)
+
+clean:
+	rm $(OBJECTS)

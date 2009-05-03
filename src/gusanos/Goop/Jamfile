@@ -1,0 +1,39 @@
+HDRS += ../GUI ../Console /usr/include/boost-1_32 /usr/include/fmod ../loadpng ;
+
+LIBRARY loadpng :
+	../loadpng/loadpng.c ../loadpng/regpng.c ../loadpng/savepng.c ;
+
+LIBRARY omfgui :
+	../GUI/detail/button.cpp ../GUI/detail/list.cpp ../GUI/detail/xml.cpp
+	../GUI/detail/context.cpp ../GUI/detail/wnd.cpp ;
+
+LIBRARY console :
+	../Console/alias.cpp ../Console/consoleitem.cpp
+	../Console/bindings.cpp ../Console/special_command.cpp
+	../Console/command.cpp ../Console/text.cpp
+	../Console/console.cpp ../Console/variables.cpp ;
+
+LIBRARY loaders :
+	loaders/gusanos.cpp loaders/liero.cpp loaders/lierox.cpp
+	loaders/losp.cpp ;
+
+MAIN gusanos :
+	animators.cpp gconsole.cpp network.cpp server.cpp
+	base_action.cpp gfx.cpp ninjarope.cpp sfx.cpp
+	base_animator.cpp gui.cpp objects_list.cpp sound.cpp
+	base_object.cpp guilist.cpp parser.cpp sprite.cpp
+	base_player.cpp gusanos.cpp part_type.cpp vec.cpp
+	base_worm.cpp keyboard.cpp particle.cpp viewport.cpp
+	client.cpp keys.cpp player.cpp weapon.cpp
+	distortion.cpp level.cpp player_ai.cpp weapon_type.cpp
+	events.cpp liero.cpp player_input.cpp worm.cpp
+	font.cpp material.cpp player_options.cpp
+	game.cpp menu.cpp proxy_player.cpp
+	game_actions.cpp net_worm.cpp resource_list.cpp ;
+
+LIBS gusanos : loadpng omfgui console loaders ;
+
+LINKLIBS = -lpng -lz -lfmod -lm -lpthread -ldl -lzoidcom
+	-lboost_filesystem-gcc -lboost_signals-gcc
+	-lalleg-4.1.18 -lalleg_unsharable ;
+

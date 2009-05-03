@@ -1,0 +1,72 @@
+====== Gusanos ChangeLog ======
+
+===== Version 0.9c (Unreleased) =====
+
+	* **Backwards compatibility issues:**
+		* Added use_ammo action to weapon scripts. This function must be used to drain ammo from weapons from now on.
+		* Lua (deprecated functionality will still be available for a transition period):
+			* Deprecated all get_* functions (except in Bitstream) in favour of functions without the "get_" part.
+			* Deprecated colors specified as three parameters in favour of passing the result of the //color// function.
+			* Deprecated //gfx_draw_box// in favour of the draw_box method in Bitmap.
+	* Default mod:
+		* Updated weapons so that they are more net friendly.
+		* Converted all wavs to ogg format.
+		* Converted all bmps to png format.
+		* Expanded the menu a bit. Now it includes a local game menu and some options.
+
+	* OmfgScript:
+		* Added //sync_shot// and //sync_reload// flag properties to weapons to improve and fix some netplay issues.
+		* Added network_init property to particle scripts.
+	* Fixed problem with map loading sequence on servers.
+	* Made network disconnection asynchronous.
+	* Fixed a problem with the server list on computers without internet connection.
+	* Added checkbox control to GUI (tag //check//).
+	* Revamped GSS parser.
+	* Corrected window mouse focusing order.
+	* Made master server register server port number.
+	* Added some ammo syncing to reduce problems with clients wrongly thinking they're out of ammo.
+	* Made gusanos unload the level and other things when the server disconnects.
+	* Fixed a memory leak with explosions.
+	* Added mod listing and mod tab-completion.
+	* Fixed weapon switching when number of selected weapons is less than the max.
+	* Made animators favour accuracy over performance.
+	* Added lua distortion and light generator support (and deprecated the old system).
+	* Added dark_mode variable to level config and removed vid_dark_mode console variable.
+	* Master server only lists servers with the same version as you.
+	* Made line_to_origin obey blender mode even without wu_pixels on.
+	* Fixed the bug that let you add bots with the //addbot// command on the network game client.
+	* Optimized the occluded sprites and lights so that they dont render if they cant be seen.
+	* Made the console image and the bitmap fonts not hardcoded to bmp format
+	* Fixed alpha wu-pixels in 16-bit mode.
+	* Added SV_NINJAROPE_MAX_LENGTH console variable.
+	* Added CL_SHOW_DEATH_MESSAGES console variable.
+	* Added CL_LOG_DEATH_MESSAGES console variable.
+	* Improved lua bindings:
+		* Callbacks:
+			* bindings.gameEnded
+			* bindings.gameNetworkInit
+			* bindings.playerRemoved
+			* bindings.localplayerEvent
+		* Functions:
+			* color
+			* console_register_control
+			* gfx_set_alphach
+			* map ( sets host to 0 and changes map )
+		* Added Sound class and 'sounds' resource table.
+		* Added drawing methods to Bitmap class:
+			* draw_box (existed previously as the global function gfx_draw_box which is now deprecated)
+			* line
+			* linewu
+			* hline
+			* putpixel
+			* putpixelwu
+		* Added NetworkParticleEvent class.
+		* Made Worm inherit properly from Object.
+		* Added //set_replication// to Particle class.
+		* Added //damage// and //set_spd// to Object class.
+		* Added //is_local// to Player class.
+		* Added //from_map// to Viewport class.
+		* Made SpriteSet:render and (for alpha) Font:render obey blending mode.
+		* Fixed unstable error handling and improved error detection considerably.
+		* Cleaned up lua error reporting to work with error parsers.
+
