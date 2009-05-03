@@ -1,0 +1,5 @@
+sprite = explosion4.png
+blender = NONE
+alpha = 255
+dest_alpha = -1
+timeout = 45

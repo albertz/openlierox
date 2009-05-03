@@ -1,0 +1,12 @@
+
+blender = add
+alpha = 0
+bounce_factor = 1
+repeat = 4
+col_layer = -1
+
+on timer(45)
+ remove()
+
+on timer(0)
+ shoot_particles ( manipspark2.obj , 1 )

@@ -1,0 +1,26 @@
+>byip#menu
+{
+	background: #000000;
+	border: #404040;
+	top: 100; left: 40; right: -40;
+	height: 60;
+	alpha: 255;
+}
+
+>byip#win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+>byip#ipfield
+{
+	top: 5;
+	left: 5; right: -5;
+	height: 18;
+	border: #404040;
+	background: #000000;
+	color: #CFCFCF;
+}

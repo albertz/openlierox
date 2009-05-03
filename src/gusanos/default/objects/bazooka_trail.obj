@@ -1,0 +1,13 @@
+
+gravity = 0.00
+damping = 0.97
+sprite = rybfade.png
+anim_duration = 35
+anim_type = right_once
+render_layer = 3
+
+on ground_collision()
+ remove()
+
+on timer(40, 40)
+ remove()

@@ -1,0 +1,13 @@
+list { font-family: Liero ; }
+edit { font-family: Liero ; }
+
+#scoreList
+{
+	border: #000000;
+	background: #0C0C0C;
+	top: 10;
+	bottom: -10;
+	left: 60;
+	right: -60;
+	alpha: 90;
+}

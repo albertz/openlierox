@@ -1,0 +1,8 @@
+
+<group id="host-menu">
+	<window id="host-win">
+		<button id="host" label="Host" />
+		<button id="back" label="Back" />
+		<list id="maplist" />
+	</window>
+</group>

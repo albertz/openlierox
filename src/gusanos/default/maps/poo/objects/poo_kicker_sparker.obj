@@ -1,0 +1,8 @@
+invisible = false
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ shoot_particles(poo_kicker_sparks.obj, 20, 0.3, 0.6, distribution = 10 )

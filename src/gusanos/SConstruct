@@ -1,0 +1,80 @@
+###
+# Vermes
+# Scons build file
+# See INSTALL for instructions
+###
+import os
+from glob import glob
+
+###
+# Create an environment
+###
+env = Environment()
+libs = []
+
+###
+# Force toolset under Windows
+###
+if env['PLATFORM'] == 'win32':
+	env = Environment(tools = ['mingw'])
+	print "Forcing MinGW - MSVC++ not supported"
+
+###
+# The default program to build is vermes
+###
+env.Default('vermes' + env['PROGSUFFIX'])
+
+###
+# Libraries to be built from source
+###
+libs += ['omfgconsole', 'omfghttp', 'omfgutil', 'omfgui', 'omfgscript', 
+			'loadpng', 'glua']
+					
+###
+# Libraries to be picked up from the system
+###
+libs += ['zoidcom', 'boost_filesystem', 'boost_signals', 'png', 'z', 'alut', 
+			'openal', 'vorbisfile']
+
+###
+# Platform specific tools and libraries
+###
+if env['PLATFORM'] == 'win32':
+	env.Append(CPPDEFINES = ' -DWINDOWS')
+	libs += ['wsock32', 'alleg']
+else:
+	allegro = Split(os.popen('allegro-config --libs').read())
+	libs += [x for x in allegro if x[:2] != '-L']
+
+###
+# Debug command-line option
+###
+if ARGUMENTS.get('debug', 0):
+	print "Debug environment"
+	env.Append(CCFLAGS = ' -g -Wall')
+	env.Append(CPPDEFINES = ' -DDEBUG')
+else:
+	print "Release environment"
+	env.Append(CCFLAGS = ' -O3')
+
+###
+# Build the source libraries
+###
+env.StaticLibrary('omfgconsole', glob('src/console/*.cpp'))
+env.StaticLibrary('omfghttp', glob('src/http/*.cpp'))
+env.StaticLibrary('omfgutil', glob('src/util/*.cpp'))
+env.StaticLibrary('omfgscript', glob('src/omfgscript/*.cpp'))
+env.StaticLibrary('loadpng', glob('src/loadpng/*.c'))
+env.StaticLibrary('omfgui', glob('src/gui/detail/*.cpp') 
+								+ glob('src/gui/lua/*.cpp'))									
+env.StaticLibrary('glua', glob('src/lua51/*.c') 
+							+ glob('src/lua51/luaapi/*.cpp'))
+
+###
+# Build the main program
+###
+env.Program('vermes', glob('src/*.cpp') + glob('src/loaders/*.cpp')
+						+ glob('src/lua/*.cpp') + glob('src/blitters/*.cpp')
+						+ ['src/util/text.o']
+					, LIBS = libs
+					, LIBPATH = ['.', '/usr/local/lib', '/usr/lib'])

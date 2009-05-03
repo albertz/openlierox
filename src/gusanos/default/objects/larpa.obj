@@ -1,0 +1,15 @@
+sprite = larpa.png
+gravity = 0.001
+
+on ground_collision()
+ create_explosion( explosion3.exp )
+ remove()
+
+on timer(5)
+ shoot_particles ( larpa_trail.obj , 1 ,  0, 0.15, 0.3)
+
+on detect_range(2.5, 0)
+ damage( 20 )
+ create_explosion( explosion3.exp )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ remove()

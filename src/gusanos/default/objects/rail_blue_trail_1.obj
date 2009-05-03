@@ -1,0 +1,10 @@
+repeat = 10
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(3)
+ create_explosion ( rail_blue_trail_2.exp )
+ remove()

@@ -1,0 +1,10 @@
+
+<group id="connect-menu">
+	<window id="connect-win">
+		<button id="connect" label="Connect" />
+		<button id="refresh" label="Refresh" />
+		<button id="byip" label="By IP" />
+		<button id="back" label="Back" />
+		<list id="serverlist" />
+	</window>
+</group>

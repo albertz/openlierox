@@ -1,0 +1,12 @@
+
+blender = add
+alpha = 0
+gravity = 0.009
+bounce_factor = 1
+repeat = 3
+
+on timer(45)
+ remove()
+
+on timer(0)
+ shoot_particles ( spark2.obj , 1 )

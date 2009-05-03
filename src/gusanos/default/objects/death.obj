@@ -1,0 +1,8 @@
+
+on creation()
+ shoot_particles ( meat.obj , 10 , 0.5, 1 , 0.5 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodgen.obj , 20 , 0.8, 1, 0.5 )
+ shoot_particles ( blood.obj , 100 , 0.5, 1, 0.5 )
+ play_sound_static( [death1.ogg, death2.ogg, death3.ogg], 100 )
+ remove()
