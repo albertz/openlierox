@@ -644,56 +644,20 @@ enum  {
 
 
 
-	class LevelListFiller { public:
+	struct LevelListFiller {
 		CListview* lv;
 		LevelListFiller(CListview* l) : lv(l) {}
-		inline bool operator() (const std::string& filename) {
-			size_t pos = findLastPathSep(filename);
-			std::string f = filename.substr(pos+1);
-
-			// Liero Xtreme level
-			if( stringcasecmp(GetFileExtension(filename), "lxl") == 0) {
-				FILE *fp = OpenGameFile(filename,"rb");
-				if(fp) {
-					std::string id, name;
-					int version = 0;
-					fread_fixedwidthstr<32>(id, fp);
-					fread_endian<int>(fp, version);
-					fread_fixedwidthstr<64>(name, fp);
-
-					if(((id == "LieroX Level") || (id == "LieroX CTF Level")) && version == MAP_VERSION) {
-
-						if(!lv->getItem(f)) {
-							lv->AddItem(f,0,tLX->clListView);
-							lv->AddSubitem(LVS_TEXT, name, NULL, NULL);
-						}
-					}
-					fclose(fp);
+		bool operator() (const std::string& filename) {
+			std::string mapName = CMap::GetLevelName(filename, true);
+			if(mapName != "") {
+				std::string baseFile = GetBaseFilename(filename);
+				
+				if(!lv->getItem(baseFile)) {
+					lv->AddItem(baseFile, 0, tLX->clListView);
+					lv->AddSubitem(LVS_TEXT, mapName, NULL, NULL);
 				}
 			}
-
-			// Liero level
-			if( stringcasecmp(GetFileExtension(filename), "lev") == 0) {
-				FILE *fp = OpenGameFile(filename,"rb");
-
-				if(fp) {
-					// Make sure it's the right size to be a liero level
-					fseek(fp,0,SEEK_END);
-					// 176400 is liero maps
-					// 176402 is worm hole maps (same, but 2 bytes bigger)
-					// 177178 is a powerlevel
-					if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-
-						if(lv->getItem(f)) {
-							lv->AddItem(f,0,tLX->clListView);
-							lv->AddSubitem(LVS_TEXT, f, NULL, NULL);
-						}
-					}
-
-					fclose(fp);
-				}
-			}
-
+			
 			return true;
 		}
 	};
