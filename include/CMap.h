@@ -63,7 +63,7 @@ class CWorm;
 
 
 // Theme structure
-class theme_t { public:
+struct theme_t {
 	std::string	name;
 	Uint32		iDefaultColour;
 	SmartPointer<SDL_Surface> bmpFronttile;
@@ -79,8 +79,14 @@ class theme_t { public:
 
 
 class CPlayer;
+class MapLoader;
+class ML_OrigLiero;
+class ML_LieroX;
 
 class CMap {
+	friend class MapLoader;
+	friend class ML_OrigLiero;
+	friend class ML_LieroX;
 private:
 	// just don't do that
 	CMap(const CMap&) { assert(false); }
@@ -215,13 +221,8 @@ public:
 	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
-	bool		LoadOriginal(FILE *fp);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
-	bool		LoadImageFormat(FILE *fp, bool ctf);
-	void		LoadAdditionalLevelData(FILE *fp); // Called from LoadImageFormat()
-	void		LoadLevelConfig(uchar *pSource, Uint32 size); // Called from LoadAdditionalLevelData()
-	void		LoadLevelImageHiRes(uchar *pSource, Uint32 size); // Called from LoadAdditionalLevelData()
 
 	void		Clear();
 

@@ -14,12 +14,9 @@
 // Jason Boettcher
 
 
-#include <assert.h>
+#include <cassert>
 #include <zlib.h>
 #include <list>
-#ifndef DEDICATED_ONLY
-#include <gd.h>
-#endif
 
 
 #include "LieroX.h"
@@ -43,6 +40,7 @@
 #include "FlagInfo.h"
 #include "FileUtils.h"
 #include "EndianSwap.h"
+#include "MapLoader.h"
 
 
 ////////////////////
@@ -2138,199 +2136,46 @@ bool CMap::Load(const std::string& filename)
 		warnings("WARNING: loading unnamed map, ignoring ...\n");
 		return true;
 	}
-
+	
 	// Already loaded?
 	if (FileName == filename && Created)  {
 		notes("HINT: map " + filename + " is already loaded\n");
 		return true;
 	}
-
-
+	
+	
 	FileName = filename;
-
+	
 	// try loading a previously cached map
 	if(LoadFromCache()) {
 		// everything is ok
 		notes << "reusing cached map for " << filename << endl;
 		return true;
 	}
-
-	FILE *fp = OpenGameFile(filename,"rb");
-	if(fp == NULL) {
-		warnings << "level " << filename << " does not exist" << endl;
+	
+	MapLoader* loader = MapLoader::open(filename);
+	if(!loader) {
+		warnings << "level " << filename << " couldn't be loaded" << endl;
 		return false;
 	}
-
-	bMiniMapDirty = true;
-    //sRandomLayout.bUsed = false;
-
-	// Check if it's an original liero level
-	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 ) {
-		return LoadOriginal(fp);
-	}
-
-	// Header
-	std::string id = freadfixedcstr(fp, 32);
-	int		version;
-	fread_compat(version,		sizeof(int),	1,	fp);
-	EndianSwap(version);
-
-	// Check to make sure it's a valid level file
-	if((id != "LieroX Level" && id != "LieroX CTF Level") || version != MAP_VERSION) {
-		errors <<"CMap::Load: " << filename << " is not a valid level file (" << id << ") or wrong version (" << version << ")" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	// CTF map?
-	bool ctf = (id == "LieroX CTF Level"); // TODO: there's no CTF maps around, and it was a hack, remove it
-
-	Name = freadfixedcstr(fp, 64);
-
-	fread_compat(Width,		sizeof(int),	1,	fp);
-	EndianSwap(Width);
-	fread_compat(Height,		sizeof(int),	1,	fp);
-	EndianSwap(Height);
-	fread_compat(Type,		sizeof(int),	1,	fp);
-	EndianSwap(Type);
-	std::string Theme_Name;
-	Theme_Name = freadfixedcstr(fp, 32);
-	int		numobj;
-	fread_compat(numobj,		sizeof(int),	1,	fp);
-	EndianSwap(numobj);
-
-/*
-	notes("Level info:\n");
-	notes("  id = %s\n", id);
-	notes("  version = %i\n", version);
-	notes("  Name = %s\n", Name);
-	notes("  Width = %i\n", Width);
-	notes("  Height = %i\n", Height);
-	notes("  Type = %i\n", Type);
-	notes("  Theme_Name = %s\n", Theme_Name);
-	notes("  numobj = %i\n", numobj);
-*/
-
-	// Load the images if in an image format
-	if(Type == MPT_IMAGE)
+	
 	{
-		// Allocate the map
-	createMap:
-		if(!Create(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
-			errors << "CMap::Load (" << filename << "): cannot allocate map" << endl;
-			if(cCache.GetEntryCount() > 0) {
-				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-				cCache.Clear();
-				goto createMap;
-			}
-			fclose(fp);
+		bool res = loader->parseData(this);
+		delete loader;
+		if(!res) {
+			warnings << "level " << filename << " is corrupted" << endl;
 			return false;
 		}
-
-		// Load the image format
-		notes << "CMap::Load: level " << filename << " is in image format" << endl;
-		return LoadImageFormat(fp, ctf);
-	} else if (ctf)  {
-		errors("pixmap format is not supported for CTF levels\n");
-		return false;
 	}
-
-
-
-	// Create a blank map
-	if(!New(Width, Height, Theme_Name, MinimapWidth, MinimapHeight)) {
-		errors << "CMap::Load (" << filename << "): cannot create map" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	// Lock the surfaces
-	LOCK_OR_FAIL(bmpImage);
-	LOCK_OR_FAIL(bmpBackImage);
-
-	// Dirt map
-	size_t n,i,j,x=0;
-	Uint8 *p1 = (Uint8 *)bmpImage.get()->pixels;
-	Uint8 *p2 = (Uint8 *)bmpBackImage.get()->pixels;
-	Uint8 *dstrow = p1;
-	Uint8 *srcrow = p2;
-
-	// Load the bitmask, 1 bit == 1 pixel with a yes/no dirt flag
-	uint size = Width*Height/8;
-	uchar *bitmask = new uchar[size];
-	if (!bitmask)  {
-		errors("CMap::Load: Could not create bit mask\n");
-		fclose(fp);
-		return false;
-	}
-	if(fread(bitmask,sizeof(uchar),size,fp) < size) {
-		errors << "CMap::Load: could not read bitmask" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	static const unsigned char mask[] = {1,2,4,8,16,32,64,128};
-
-	nTotalDirtCount = Width*Height;  // Calculate the dirt count
-
-	lockFlags();
-
-	for(n = 0, i = 0; i < size; i++, x += 8) {
-		if (x >= Width)  {
-			srcrow += bmpBackImage.get()->pitch;
-			dstrow += bmpImage.get()->pitch;
-			p1 = dstrow;
-			p2 = srcrow;
-			x = 0;
-		}
-
-		// 1 bit == 1 pixel with a yes/no dirt flag
-		for(j = 0; j < 8;
-			j++,
-			n++,
-			p1 += bmpImage.get()->format->BytesPerPixel,
-			p2 += bmpBackImage.get()->format->BytesPerPixel) {
-
-			if(bitmask[i] & mask[j])  {
-				PixelFlags[n] = PX_EMPTY;
-				nTotalDirtCount--;
-				memcpy(p1, p2, bmpImage.get()->format->BytesPerPixel);
-			}
-		}
-	}
-
-	unlockFlags();
-
-	delete[] bitmask;
-
-	// Unlock the surfaces
-	UnlockSurface(bmpImage);
-	UnlockSurface(bmpBackImage);
-
-	// Objects
-	object_t o;
-	NumObjects = 0;
-	for(i = 0; (int)i < numobj; i++) {
-		fread_compat(o.Type,	sizeof(int),	1,	fp);
-		EndianSwap(o.Type);
-		fread_compat(o.Size,	sizeof(int),	1,	fp);
-		EndianSwap(o.Size);
-		fread_compat(o.X,	    sizeof(int),	1,	fp);
-		EndianSwap(o.X);
-        fread_compat(o.Y,	    sizeof(int),	1,	fp);
-		EndianSwap(o.Y);
-
-		// Place the object
-		if(o.Type == OBJ_STONE)
-			PlaceStone(o.Size, CVec((float)o.X, (float)o.Y));
-		else if(o.Type == OBJ_MISC)
-			PlaceMisc(o.Size, CVec((float)o.X, (float)o.Y));
-	}
-
-	// Close the file
-	fclose(fp);
-
-
+	
+	
+	bMiniMapDirty = true;
+	Created = true;
+    //sRandomLayout.bUsed = false;
+	
+    // Calculate the shadowmap
+	CalculateShadowMap();
+	
 	// Apply the shadow
 	ApplyShadow(0, 0, Width, Height);
 
@@ -2342,9 +2187,6 @@ bool CMap::Load(const std::string& filename)
 
     // Calculate the total dirt count
     CalculateDirtCount();
-
-    // Calculate the shadowmap
-    CalculateShadowMap();
 
     // Calculate the grid
     calculateGrid();
@@ -2506,537 +2348,6 @@ bool CMap::SaveImageFormat(FILE *fp)
 	// TODO: save hi-res image here
 	
 	fclose(fp);
-	return true;
-}
-
-
-///////////////////
-// Load the image format
-bool CMap::LoadImageFormat(FILE *fp, bool ctf)
-{
-	// Load the details
-	Uint32 size, destsize;
-	uint x,y,n,p;
-
-	fread_compat(size, sizeof(Uint32), 1, fp);
-	EndianSwap(size);
-	fread_compat(destsize, sizeof(Uint32), 1, fp);
-	EndianSwap(destsize);
-
-	// Allocate the memory
-	uchar *pSource = new uchar[size];
-	uchar *pDest = new uchar[destsize];
-
-	if(!pSource || !pDest) {
-		errors << "CMap::LoadImageFormat: not enough memory" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	if(fread(pSource, sizeof(uchar), size, fp) < size) {
-		errors << "CMap::LoadImageFormat: cannot read data" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	ulong lng_dsize = destsize;
-	if( uncompress( pDest, &lng_dsize, pSource, size ) != Z_OK ) {
-		errors("Failed decompression\n");
-		fclose(fp);
-		delete[] pSource;
-		delete[] pDest;
-		return false;
-	}
-	destsize = lng_dsize;
-	if( destsize < Width * Height * 3 * 2 )
-	{
-		errors("CMap::LoadImageFormat(): image too small for Width*Height");
-		fclose(fp);
-		delete[] pSource;
-		delete[] pDest;
-		return false;
-	}
-
-	delete[] pSource;  // not needed anymore
-
-	//
-	// Translate the data
-	//
-
-	// Lock surfaces
-	LOCK_OR_FAIL(bmpBackImage);
-	LOCK_OR_FAIL(bmpImage);
-
-	p=0;
-	Uint32 curcolor=0;
-	Uint8* curpixel = (Uint8*)bmpBackImage.get()->pixels;
-	Uint8* PixelRow = curpixel;
-
-	Uint8 bpp = bmpImage.get()->format->BytesPerPixel;
-	// Load the back image
-	for (y = 0; y < Height; y++, PixelRow += bmpBackImage.get()->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0; x < Width; x++, curpixel += bpp)  {
-			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bpp);
-		}
-	}
-
-	// Load the front image
-	curpixel = (Uint8 *)bmpImage.get()->pixels;
-	PixelRow = curpixel;
-	for (y = 0; y < Height; y++, PixelRow += bmpImage.get()->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0;x < Width; x++, curpixel += bpp)  {
-			curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
-			p += 3;
-			PutPixelToAddr(curpixel, curcolor, bpp);
-		}
-	}
-
-
-	// Load the pixel flags and calculate dirt count
-	n=0;
-	nTotalDirtCount = 0;
-
-	curpixel = (Uint8 *)bmpImage.get()->pixels;
-	PixelRow = curpixel;
-	Uint8 *backpixel = (Uint8 *)bmpBackImage.get()->pixels;
-	Uint8 *BackPixelRow = backpixel;
-
-	lockFlags();
-
-	for(y=0; y<Height; y++,PixelRow+=bmpImage.get()->pitch, BackPixelRow+=bmpBackImage.get()->pitch) {
-		curpixel = PixelRow;
-		backpixel = BackPixelRow;
-		for(x=0; x<Width; x++, curpixel+=bpp, backpixel+=bpp) {
-			PixelFlags[n] = pDest[p++];
-			if(PixelFlags[n] & PX_EMPTY)
-				memcpy(curpixel, backpixel, bpp);
-			if(PixelFlags[n] & PX_DIRT)
-				nTotalDirtCount++;
-			n++;
-		}
-	}
-	unlockFlags();
-
-	// Unlock the surfaces
-	UnlockSurface(bmpBackImage);
-	UnlockSurface(bmpImage);
-
-	// Load the CTF gametype variables
-	if (ctf)  {
-		warnings << "CMap::LoadImageFormat(): trying to load old-format CTF map, we do not support this anymore" << endl;
-		short dummy;
-		fread_endian<short>(fp, dummy);
-		fread_endian<short>(fp, dummy);
-		fread_endian<short>(fp, dummy);
-		fread_endian<short>(fp, dummy);
-		fread_endian<short>(fp, dummy);
-		fread_endian<short>(fp, dummy);
-	}
-
-	//SDL_SaveBMP(pxf, "mat.bmp");
-	//SDL_SaveBMP(bmpImage, "front.bmp");
-	//SDL_SaveBMP(bmpBackImage, "back.bmp");
-
-	// Delete the data
-	delete[] pDest;
-
-	// Try to load additional data (like hi-res images)
-	LoadAdditionalLevelData(fp);
-
-	fclose(fp);
-
-	Created = true;
-
-	// Calculate the shadowmap
-	CalculateShadowMap();
-
-	ApplyShadow(0,0,Width,Height);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage.get()->w, bmpImage.get()->h);
-
-	// Update the minimap
-	UpdateMiniMap(true);
-
-	// Calculate the grid
-	calculateGrid();
-
-	// Save the map to cache
-	SaveToCache();
-
-	return true;
-}
-
-///////////////////
-// Load the high-resolution images
-void CMap::LoadAdditionalLevelData(FILE *fp)
-{
-	while( !feof(fp) && !ferror(fp) )
-	{
-		std::string chunkName;
-		if(!fread_fixedwidthstr<16>(chunkName, fp)) {
-			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
-			break;
-		}
-		Uint32 size = 0;
-		if(fread_endian<Uint32>(fp, size) == 0) {
-			errors << "CMap::LoadAdditionalLevelData: error while reading (attribute " << chunkName << ")" << endl;
-			break;
-		}
-		uchar *pSource = new uchar[size];
-		if(pSource == NULL) {
-			errors << "CMap::LoadAdditionalLevelData: not enough memory" << endl;
-			break;
-		}
-		if(fread(pSource, sizeof(uchar), size, fp) < size) {
-			delete[] pSource;
-			errors << "CMap::LoadAdditionalLevelData: error while reading" << endl;
-			break;
-		}
-		
-		if( stringcaseequal( chunkName, "OLX hi-res data") )
-			LoadLevelImageHiRes( pSource, size );
-		else
-		if( stringcaseequal( chunkName, "OLX level config") )
-			LoadLevelConfig( pSource, size );
-		else
-			warnings << "Unknown additional data found in level file: " << chunkName << ", size " << size << endl;
-
-		delete [] pSource;
-	}
-
-}
-
-
-///////////////////
-// Load level config, such as CTF base spawnpoints
-void CMap::LoadLevelConfig(uchar *pSource, Uint32 size)
-{
-	warnings << "CMap::LoadLevelConfig(): level config is not used yet in this version of OLX" << endl;
-	return;
-
-	// TODO: test if this code works
-	
-	Uint32 destsize = *(Uint32 *)(pSource);
-	EndianSwap(destsize);
-
-	// Allocate the memory
-	uchar *pDest = new uchar[destsize];
-
-	ulong lng_dsize = destsize;
-	int ret = uncompress( pDest, &lng_dsize, pSource + sizeof(Uint32), size - sizeof(Uint32) );
-	if( ret != Z_OK ) 
-	{
-		warnings << "CMap::LoadLevelConfig(): failed to load hi-res image, using low-res image" << endl;
-		lng_dsize = 0;
-	}
-	destsize = lng_dsize;
-
-	// Fill up additional data
-	AdditionalData.clear();
-	Uint32 pos = 0;
-	Uint32 AdditionalDataSize = *(Uint32 *)(pDest + pos);
-	EndianSwap(AdditionalDataSize);
-	pos += 4;
-	if( AdditionalDataSize + 4 > destsize )
-	{
-		warnings << "CMap::LoadLevelConfig(): wrong additional data size " << AdditionalDataSize << endl;
-	}
-	else
-	{
-		bool nameChunk = true;
-		std::string nameChunkData;
-		while( AdditionalDataSize + 4 > pos ) // 4 bytes of whole data size
-		{
-			Uint32 chunkSize = *(Uint32 *)(pDest + pos);
-			EndianSwap(chunkSize);
-			if( chunkSize + pos > AdditionalDataSize )
-			{
-				warnings << "CMap::LoadLevelConfig(): wrong additional data chunk size " << chunkSize << endl;
-				break;
-			}
-			pos += 4;
-
-			if( nameChunk )
-				nameChunkData = std::string( (char *)(pDest + pos), chunkSize );
-			else
-				AdditionalData[nameChunkData] = std::string( (char *)(pDest + pos), chunkSize );
-
-			nameChunk = !nameChunk;
-			pos += chunkSize;
-		}
-	}
-	delete[] pDest;
-}
-
-///////////////////
-// Load the high-resolution images
-void CMap::LoadLevelImageHiRes(uchar *pSource, Uint32 size)
-{
-#ifndef DEDICATED_ONLY // Hi-res images are not needed for dedicated server, it uses only material image which is in low-res data
-
-	if(bDedicated) return;
-
-	gdImagePtr gdImage = gdImageCreateFromPngPtr( size, pSource );
-	
-	if( !gdImage || gdImageSX(gdImage) != (int)Width * 2 || gdImageSY(gdImage) != (int)Height * 4 )
-	{
-		warnings << "CMap: hi-res image loading failed" << endl;
-		if( gdImage )
-			gdImageDestroy(gdImage);
-		return;
-	}
-
-	bmpBackImageHiRes = gfxCreateSurface(Width*2, Height*2);
-	if(bmpBackImageHiRes.get() == NULL) 
-	{
-		warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
-		gdImageDestroy(gdImage);
-		return;
-	}
-	
-	hints << "CMap: Loading high-res level images" << endl;
-	// Lock surfaces
-	LOCK_OR_QUIT(bmpDrawImage);
-	LOCK_OR_QUIT(bmpBackImageHiRes);
-
-	Uint32 curcolor=0;
-	Uint8* curpixel = (Uint8*)bmpDrawImage.get()->pixels;
-	Uint8* PixelRow = curpixel;
-	Uint32 x, y;
-	Uint8 bpp = bmpDrawImage.get()->format->BytesPerPixel;
-
-	// Load the front image
-	for (y = 0; y < Height*2; y++, PixelRow += bmpDrawImage.get()->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-			curcolor = gdImageGetTrueColorPixel( gdImage, x, y ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
-			curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
-			PutPixelToAddr(curpixel, curcolor, bpp);
-		}
-	}
-
-	curpixel = (Uint8*)bmpBackImageHiRes.get()->pixels;
-	PixelRow = curpixel;
-	int HeightX2 = Height*2;
-	// Load the back image
-	for (y = 0; y < Height*2; y++, PixelRow += bmpBackImageHiRes.get()->pitch)  {
-		curpixel = PixelRow;
-		for (x = 0; x < Width*2; x++, curpixel += bpp)  {
-			curcolor = gdImageGetTrueColorPixel( gdImage, x, y + HeightX2 ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
-			curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
-			PutPixelToAddr(curpixel, curcolor, bpp);
-		}
-	}
-
-	// Update image according to the pixel flags
-	int n=0;
-
-	curpixel = (Uint8 *)bmpDrawImage.get()->pixels;
-	PixelRow = curpixel;
-	Uint8 *backpixel = (Uint8 *)bmpBackImageHiRes.get()->pixels;
-	Uint8 *BackPixelRow = backpixel;
-
-	lockFlags();
-	Uint8 bppX2 = bpp*2;
-	int pitch = bmpDrawImage.get()->pitch;
-	for(y=0; y<Height; y++, PixelRow+=pitch*2, BackPixelRow+=pitch*2 ) 
-	{
-		curpixel = PixelRow;
-		backpixel = BackPixelRow;
-		for(x=0; x<Width; x++, curpixel+=bppX2, backpixel+=bppX2)
-		{
-			if(PixelFlags[n] & PX_EMPTY)
-			{
-				memcpy(curpixel, backpixel, bppX2);
-				memcpy(curpixel+pitch, backpixel+pitch, bppX2);
-			}
-			n++;
-		}
-	}
-	unlockFlags();
-	UnlockSurface(bmpBackImageHiRes);
-	UnlockSurface(bmpDrawImage);
-
-	gdImageDestroy(gdImage);
-
-#endif // DEDICATED_ONLY
-
-};
-
-///////////////////
-// Load an original version of a liero level
-bool CMap::LoadOriginal(FILE *fp)
-{
-	bool Powerlevel = false;
-	uchar *palette = NULL;
-	uint x,y,n;
-
-	// Validate the liero level
-	fseek(fp,0,SEEK_END);
-	size_t length = ftell(fp);
-
-	// check for powerlevel
-	if(length != 176400 && length != 176402) {
-		if(length == 177178)
-			Powerlevel = true;
-		else {
-			// bad file
-			fclose(fp);
-			return false;
-		}
-	}
-
-	fseek(fp,0,SEEK_SET);
-
-	// Default is a dirt theme for the background & dirtballs
-	if( !New(504,350,"dirt") ) {
-		fclose(fp);
-		return false;
-	}
-
-	// Image type of map
-	Type = MPT_IMAGE;
-
-	palette = new uchar[768];
-	if( palette == NULL) {
-		errors << "CMap::LoadOriginal: ERROR: not enough memory for palette" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	// Load the palette
-	if(!Powerlevel) {
-		FILE *fpal = OpenGameFile("data/lieropal.act","rb");
-		if(!fpal) {
-			fclose(fp);
-			return false;
-		}
-
-		if(fread(palette,sizeof(uchar),768,fpal) < 768) {
-			fclose(fpal);
-			return false;
-		}
-		fclose(fpal);
-	}
-
-	// Load the image map
-imageMapCreate:
-	uchar *bytearr = new uchar[Width*Height];
-	if(bytearr == NULL) {
-		errors << "CMap::LoadOriginal: ERROR: not enough memory for bytearr" << endl;
-		if(cCache.GetEntryCount() > 0) {
-			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-			cCache.Clear();
-			goto imageMapCreate;
-		}
-		delete[] palette;
-		fclose(fp);
-		return false;
-	}
-
-	if(fread(bytearr,sizeof(uchar),Width*Height,fp) < Width*Height) {
-		errors << "CMap::LoadOriginal: cannot read file" << endl;
-		fclose(fp);
-		return false;
-	}
-
-	// Load the palette from the same file if it's a powerlevel
-	if(Powerlevel) {
-		std::string id;
-		// Load id
-		fread_fixedwidthstr<10>(id,fp);
-		if(!stringcaseequal(id,"POWERLEVEL")) {
-			delete[] palette;
-			delete[] bytearr;
-			fclose(fp);
-			return false;
-		}
-
-		// Load the palette
-		if(fread(palette,sizeof(uchar),768,fp) < 768) {
-			fclose(fp);
-			return false;
-		}
-
-		// Convert the 6bit colours to 8bit colours
-		for(n=0;n<768;n++) {
-			float f = (float)palette[n] / 63.0f * 255.0f;
-			palette[n] = (int)f;
-		}
-	}
-
-	// Set the image
-	LOCK_OR_FAIL(bmpBackImage);
-	LOCK_OR_FAIL(bmpImage);
-	lockFlags();
-	n=0;
-	for(y=0;y<Height;y++) {
-		for(x=0;x<Width;x++) {
-			uchar p = bytearr[n];
-			uchar type = PX_EMPTY;
-			//if(p >= 0 && p <= 255) {
-
-				// Dirt
-				if( (p >= 12 && p <= 18) ||
-					(p >= 55 && p <= 58) ||
-					(p >= 82 && p <= 84) ||
-					(p >= 94 && p <= 103) ||
-					(p >= 120 && p <= 123) ||
-					(p >= 176 && p <= 180))
-					type = PX_DIRT;
-
-				// Rock
-				else if( (p >= 19 && p <= 29) ||
-					(p >= 59 && p <= 61) ||
-					(p >= 85 && p <= 87) ||
-					(p >= 91 && p <= 93) ||
-					(p >= 123 && p <= 125) ||
-					p==104)
-					type = PX_ROCK;
-
-				PutPixel(bmpImage.get(),x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
-				if(type == PX_EMPTY)
-					PutPixel(bmpBackImage.get(),x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
-				SetPixelFlag(x,y,type);
-			//}
-			n++;
-		}
-	}
-	unlockFlags();
-	UnlockSurface(bmpImage);
-	UnlockSurface(bmpBackImage);
-
-	delete[] palette;
-	delete[] bytearr;
-
-	fclose(fp);
-
-    // Calculate the total dirt count
-    CalculateDirtCount();
-
-    // Calculate the shadowmap
-    CalculateShadowMap();
-
-	// Apply shadow
-	ApplyShadow(0,0,Width,Height);
-
-	// Update the minimap
-	UpdateMiniMap(true);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage.get()->w, bmpImage.get()->h);
-
-    // Calculate the grid
-    calculateGrid();
-
-	// Cache this map
-	SaveToCache();
-
 	return true;
 }
 
@@ -3510,46 +2821,10 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
 // TODO: move this to CMap
 std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 {
-	std::string	id, name;
-	Sint32		version;
-	
-	FILE *fp;
-	if(abs_filename)
-		fp = fopen(filename.c_str(), "rb");
-	else
-		fp = OpenGameFile("levels/" + filename, "rb");
-	
-	if(!fp) return "";
-	
-	// Liero Xtreme level
-	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
-		fread_fixedwidthstr<32>(id, fp);
-		fread_compat(version,	sizeof(version),	1,	fp);
-		EndianSwap(version);
-		fread_fixedwidthstr<64>(name, fp);
-		
-		if(((id == "LieroX Level") || (id == "LieroX CTF Level")) && version == MAP_VERSION) {
-			fclose(fp);
-			return name;
-		}
-	}
-	
-	// Liero level
-	else if( stringcaseequal(GetFileExtension(filename), "lev") ) {
-		
-		// Make sure it's the right size to be a liero level
-		fseek(fp,0,SEEK_END);
-		// 176400 is liero maps
-		// 176402 is worm hole maps (same, but 2 bytes bigger)
-		// 177178 is a powerlevel
-		if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-			fclose(fp);
-			return GetBaseFilename(filename);
-		}
-	}
-	
-	fclose(fp);
-	
-	// no level
-	return "";
+	MapLoader* loader = MapLoader::open(abs_filename ? filename : ("levels/" + filename), abs_filename);
+	if(!loader) return "";
+
+	std::string name = loader->header().name;
+	delete loader;
+	return name;
 }

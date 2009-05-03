@@ -123,6 +123,7 @@
 		239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACAE40E6AD46900C4216A /* XMLutils.cpp */; };
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
+		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
 		23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
@@ -560,6 +561,9 @@
 		23AFF03B0F701755005B964D /* Ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ref.h; sourceTree = "<group>"; };
 		23AFF03C0F70175F005B964D /* Functors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functors.h; sourceTree = "<group>"; };
 		23AFF05A0F701804005B964D /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
+		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
+		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
 		23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPool.cpp; sourceTree = "<group>"; };
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
@@ -1219,6 +1223,7 @@
 				23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */,
 				23EAC0960F4204DF00CA55CF /* Process.cpp */,
 				2350DC170F84FB4800DFAD78 /* ProjAction.cpp */,
+				23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1361,6 +1366,8 @@
 				238F2DF20F74138C0016D617 /* FlagInfo.h */,
 				23671C760F80D6D000416803 /* StaticAssert.h */,
 				2365F1460F8E7322008885A9 /* Geometry.h */,
+				23C5AC3A0FADB032005A36AE /* MapLoader.h */,
+				23C5AC3D0FADB842005A36AE /* PreInitVar.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -1821,6 +1828,7 @@
 				238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */,
 				2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */,
 				2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */,
+				23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
