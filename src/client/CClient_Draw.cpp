@@ -820,8 +820,9 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		// Weather
 		//cWeather.Draw(bmpDest, v);
 
-		// When game menu is visible, it covers all this anyway, so we won't bother to draw it)
-		if (!bGameMenu)  {
+		// Earlier: When game menu is visible, it covers all this anyway, so we won't bother to draw it)
+		// We draw it anyway now because we could use some nice alpha blending or so
+		if (/*!bGameMenu*/ true)  {
 			if (cMap)
 				cMap->Draw(bmpDest, v);
 
