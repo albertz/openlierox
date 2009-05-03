@@ -32,7 +32,7 @@
 #include "DedicatedControl.h"
 #include "FindFile.h"
 #include "StringUtils.h"
-#include "DeprecatedGUI/Menu.h"
+#include "CMap.h"
 #include "ProfileSystem.h"
 #include "CClient.h"
 #include "CServer.h"
@@ -51,6 +51,7 @@
 #include "CGameMode.h"
 #include "Cache.h"
 #include "AuxLib.h"
+#include "DeprecatedGUI/Menu.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4996)
@@ -995,7 +996,7 @@ struct DedIntern {
 
 		if(tLXOptions->tGameInfo.sMapFile == "")
 			tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
-		tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
+		tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
 
 		Sig_LobbyStarted();
 	}

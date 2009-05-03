@@ -417,55 +417,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 	DrawImageAdv(bmpDest,tMenu->bmpSubTitles, 0, id*70, x,y, tMenu->bmpSubTitles.get()->w, 65);
 }
 
-///////////////////
-// Get the level name from specified file
-// TODO: move this to CMap
-std::string Menu_GetLevelName(const std::string& filename, bool abs_filename)
-{
-	std::string	id, name;
-	Sint32		version;
-
-	FILE *fp;
-	if(abs_filename)
-		fp = fopen(filename.c_str(), "rb");
-	else
-		fp = OpenGameFile("levels/" + filename, "rb");
-
-	if(!fp) return "";
-
-	// Liero Xtreme level
-	if( stringcaseequal(GetFileExtension(filename), "lxl") ) {
-		fread_fixedwidthstr<32>(id, fp);
-		fread_compat(version,	sizeof(version),	1,	fp);
-		EndianSwap(version);
-		fread_fixedwidthstr<64>(name, fp);
-
-		if(((id == "LieroX Level") || (id == "LieroX CTF Level")) && version == MAP_VERSION) {
-			fclose(fp);
-			return name;
-		}
-	}
-
-	// Liero level
-	else if( stringcaseequal(GetFileExtension(filename), "lev") ) {
-
-		// Make sure it's the right size to be a liero level
-		fseek(fp,0,SEEK_END);
-		// 176400 is liero maps
-		// 176402 is worm hole maps (same, but 2 bytes bigger)
-		// 177178 is a powerlevel
-		if( ftell(fp) == 176400 || ftell(fp) == 176402 || ftell(fp) == 177178) {
-			fclose(fp);
-			return GetBaseFilename(filename);
-		}
-	}
-
-	fclose(fp);
-
-	// no level
-	return "";
-}
-
+	
 ////////////////
 // Draws advanced box
 void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
@@ -1042,7 +994,7 @@ void Menu_AddDefaultWidgets()
 		CCombobox* cmb;
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
-			std::string mapName = Menu_GetLevelName(filename, true);
+			std::string mapName = CMap::GetLevelName(filename, true);
 			if(mapName.size() != 0)
 				cmb->addItem(GetBaseFilename(filename), mapName);
 
@@ -2182,7 +2134,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					// Adjust the map name
 					if (szMapName.find("levels/") == 0)
 						szMapName.erase(0,7); // Remove the path if present
-					szMapName = Menu_GetLevelName(szMapName);
+					szMapName = CMap::GetLevelName(szMapName);
 
 
                     szModName = inbs.readString(256);

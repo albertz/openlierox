@@ -23,9 +23,10 @@
 #include "DedicatedControl.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
-#include "DeprecatedGUI/Menu.h"
+#include "CMap.h"
 #include "FindFile.h"
 #include "Debug.h"
+#include "DeprecatedGUI/Menu.h"
 
 
 //////////////////
@@ -904,7 +905,7 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 	// Check if the level is available
 	if (!IsFileAvailable("levels/"  + level))
 		return "Level \"" + level + "\" not available";
-	std::string name = DeprecatedGUI::Menu_GetLevelName(level);
+	std::string name = CMap::GetLevelName(level);
 	if (!name.size())
 		return "The level file is corrupted";
 

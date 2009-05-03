@@ -22,7 +22,6 @@
 #include "Cache.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "DeprecatedGUI/Menu.h"
 #include "console.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
@@ -40,6 +39,7 @@
 #include "XMLutils.h"
 #include "CClientNetEngine.h"
 #include "CChannel.h"
+#include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "ProfileSystem.h"
 #include "IRC.h"
@@ -49,6 +49,7 @@
 #include "CGameMode.h"
 #include "ConversationLogger.h"
 #include "FlagInfo.h"
+#include "CMap.h"
 
 
 #ifdef _MSC_VER
@@ -2069,7 +2070,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 
 	// Convert the map filename to map name
 	if (client->bHaveMap)  {
-		std::string MapName = DeprecatedGUI::Menu_GetLevelName(client->tGameInfo.sMapFile);
+		std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
 		client->tGameInfo.sMapName = (MapName != "") ? MapName : client->tGameInfo.sMapFile;
 	}
 

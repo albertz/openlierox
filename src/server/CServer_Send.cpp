@@ -27,7 +27,7 @@
 #include "Timer.h"
 #include "Consts.h"
 #include "CChannel.h"
-#include "DeprecatedGUI/Menu.h"
+#include "CMap.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif
@@ -680,7 +680,7 @@ void GameServer::UpdateGameLobby()
 	}
 	
 	// Read map/mod name from map/mod file
-	tLXOptions->tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(tLXOptions->tGameInfo.sMapFile);
+	tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
 	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
 	
 	m_clientsNeedLobbyUpdate = true;

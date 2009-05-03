@@ -46,6 +46,7 @@
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "FlagInfo.h"
+#include "CMap.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -636,7 +637,7 @@ void CClient::FinishMapDownloads()
 	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
 		if (tGameInfo.sMapFile == sMapDownloadName)  {
 			bHaveMap = true;
-			tGameInfo.sMapName = DeprecatedGUI::Menu_GetLevelName(sMapDownloadName);
+			tGameInfo.sMapName = CMap::GetLevelName(sMapDownloadName);
 			if (tMapDlCallback)
 				tMapDlCallback();
 		}

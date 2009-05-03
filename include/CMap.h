@@ -225,9 +225,9 @@ public:
 
 	void		Clear();
 
-	inline std::string getName()			{ return Name; }
-	inline std::string getFilename()		{ return FileName; }
-	
+	std::string getName()			{ return Name; }
+	std::string getFilename()		{ return FileName; }
+	static std::string GetLevelName(const std::string& filename, bool abs_filename = false);
 
 	void		UpdateDrawImage(int x, int y, int w, int h);
 
@@ -328,26 +328,26 @@ public:
 	void		NewNet_RestoreFromMemory();
 	void		NewNet_Deinit();
 
-	inline theme_t		*GetTheme()		{ return &Theme; }
+	theme_t		*GetTheme()		{ return &Theme; }
 
 	void		DEBUG_DrawPixelFlags(int x, int y, int w, int h);
 
-	inline uint			GetWidth() const	{ return Width; }
-	inline uint			GetHeight()	const	{ return Height; }
-	inline uint			GetMinimapWidth() const { return MinimapWidth; }
-	inline uint			GetMinimapHeight() const { return MinimapHeight; }
+	uint			GetWidth() const	{ return Width; }
+	uint			GetHeight()	const	{ return Height; }
+	uint			GetMinimapWidth() const { return MinimapWidth; }
+	uint			GetMinimapHeight() const { return MinimapHeight; }
 	void				SetMinimapDimensions(uint _w, uint _h);
-    inline uint         GetDirtCount() const { return nTotalDirtCount; }
+    uint         GetDirtCount() const { return nTotalDirtCount; }
 
-    inline int         getGridCols() const  { return nGridCols; }
-    inline int         getGridRows() const  { return nGridRows; }
-    inline int         getGridWidth() const { return nGridWidth; }
-    inline int         getGridHeight() const { return nGridHeight; }
-    inline const uchar *getGridFlags() const { 
+    int         getGridCols() const  { return nGridCols; }
+    int         getGridRows() const  { return nGridRows; }
+    int         getGridWidth() const { return nGridWidth; }
+    int         getGridHeight() const { return nGridHeight; }
+    const uchar *getGridFlags() const { 
 		return GridFlags; 
 	}
-	inline const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
-	inline bool			getCreated()	{ return Created; }
+	const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
+	bool			getCreated()	{ return Created; }
 	
 	
 	// TODO: this needs to be made much more general to be as fast as the current routines
@@ -355,7 +355,7 @@ public:
 	// _F has to be a functor with provides compatible functions to:
 	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
 	template<typename _T, typename _F>
-	inline void walkPixels(OLXRect<_T> r, _F walker) {
+	void walkPixels(OLXRect<_T> r, _F walker) {
 		if(!r.clipWith(SDLRect(0, 0, Width, Height)))
 			return;
 		
