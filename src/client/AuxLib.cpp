@@ -1175,9 +1175,9 @@ void setCurThreadPriority(float p) {
 	
 #elif defined(__APPLE__)
 	//int curp = getpriority(PRIO_DARWIN_THREAD, 0); 
-	int newp = p >= 0 ? 0 : 1;
+	//int newp = p >= 0 ? 0 : 1;
 	//notes << "curp:" << curp << ", newp:" << newp << endl;
-	setpriority(PRIO_DARWIN_THREAD, 0, newp);
+	//setpriority(PRIO_DARWIN_THREAD, 0, newp);
 #endif
 }
 
