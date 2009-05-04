@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #if defined (_WIN32_WCE)
 #define errno GetLastError()
@@ -52,12 +53,13 @@ static volatile NLboolean reuseaddress = NL_FALSE;
 static NLmutex  portlock; /* In memory of my step-father, Don Portlock,
                                        who passed away Jan 12, 2001 - Phil */
 
-static volatile NLushort newport = 1024;
+static volatile uint16_t newport = 1024;
 
 static NLushort loopback_getNextPort(void)
 {
     (void)nlMutexLock(&portlock);
-    if(++newport > 65535)
+    ++newport;
+    if(newport < 1024)
     {
         newport = 1024;
     }
