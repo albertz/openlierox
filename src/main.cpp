@@ -146,7 +146,6 @@ char* GetAppPath() { return apppath; }
 sigjmp_buf longJumpBuffer;
 #endif
 
-static SDL_mutex* videoFrameMutex = NULL;
 static ThreadPoolItem* mainLoopThread = NULL;
 static int MainLoopThread(void*);
 
@@ -213,8 +212,88 @@ static void startMainLockDetector() {
 
 static bool menu_startgame = false;
 
-static bool videoModeReady = true;
-static int needVideoFrame = 0;
+struct VideoHandler {
+	SDL_mutex* mutex;
+	SDL_cond* sign;
+	int framesInQueue;
+	bool videoModeReady;
+	
+	VideoHandler() : mutex(NULL), sign(NULL), framesInQueue(0), videoModeReady(true) {
+		mutex = SDL_CreateMutex();
+		sign = SDL_CreateCond();
+	}
+	
+	~VideoHandler() {
+		SDL_DestroyMutex(mutex); mutex = NULL;
+		SDL_DestroyCond(sign); sign = NULL;
+	}
+	
+	void frame() {
+		{
+			ScopedLock lock(mutex);
+			if(!videoModeReady) return;
+			SDL_CondSignal(sign);
+			if(framesInQueue > 0) framesInQueue--;
+			else return;
+			VideoPostProcessor::process();
+		}
+		
+		flipRealVideo();
+	}
+	
+	void setVideoMode() {
+		bool makeFrame = false;
+		{
+			ScopedLock lock(mutex);
+			SetVideoMode();
+			videoModeReady = true;
+			
+			if(framesInQueue > 0) {
+				framesInQueue = 0;
+				makeFrame = true;
+				VideoPostProcessor::process();
+				SDL_CondSignal(sign);
+			}
+		}
+		
+		if(makeFrame)
+			flipRealVideo();
+	}
+	
+	void pushFrame() {
+		// wait for current drawing
+		ScopedLock lock(mutex);
+	
+		while(framesInQueue > 0)
+			SDL_CondWait(sign, mutex);
+		
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT;
+		ev.user.code = UE_DoVideoFrame;
+		if(SDL_PushEvent(&ev) == 0) {
+			framesInQueue++;
+			VideoPostProcessor::flipBuffers();
+		} else
+			warnings << "failed to push videoframeevent" << endl;
+		
+	}
+	
+	void requestSetVideoMode() {
+		ScopedLock lock(mutex);
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT;
+		ev.user.code = UE_DoSetVideoMode;
+		if(SDL_PushEvent(&ev) == 0) {
+			videoModeReady = false;
+			while(!videoModeReady)
+				SDL_CondWait(sign, mutex);
+		}
+		else
+			warnings << "failed to push setvideomode event" << endl;
+	}
+};
+
+static VideoHandler videoHandler;
 
 ///////////////////
 // Main entry point
@@ -333,6 +412,12 @@ startpoint:
 		return -1;
 	}
 
+	// speedup for Menu_Start()
+	DrawLoading(85, "Loading main menu");
+	DeprecatedGUI::iSkipStart = true;
+	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
+	DeprecatedGUI::Menu_MainInitialize();
+	
 	// Initialize chat logging
 	convoLogger = new ConversationLogger();
 	if (tLXOptions->bLogConvos)
@@ -365,8 +450,6 @@ startpoint:
 		startFunctionData = NULL;
 	}
 
-	needVideoFrame = false;
-	videoFrameMutex = SDL_CreateMutex();
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
 	startMainLockDetector();
@@ -380,24 +463,13 @@ startpoint:
 			while( SDL_WaitEvent(&ev) ) {
 				if(ev.type == SDL_USEREVENT) {
 					switch(ev.user.code) {
-						case UE_QuitEventThread: goto quit;
+						case UE_QuitEventThread:
+							goto quit;
 						case UE_DoVideoFrame:
-							{
-								ScopedLock lock(videoFrameMutex);
-								if(!needVideoFrame && !ev.user.data1) continue; // data1!=0 -> forceRedraw
-								if(needVideoFrame > 0) needVideoFrame--;
-								if(!videoModeReady) continue;
-								VideoPostProcessor::process();
-							}
-							flipRealVideo();
+							videoHandler.frame();
 							continue;
 						case UE_DoSetVideoMode:
-							if(!videoModeReady) {
-								SDL_mutexP(videoFrameMutex);
-								SetVideoMode();
-								videoModeReady = true;
-								SDL_mutexV(videoFrameMutex);
-							}
+							videoHandler.setVideoMode();
 							continue;
 						case UE_DoActionInMainThread:
 							((Action*)ev.user.data1)->handle();
@@ -416,8 +488,6 @@ startpoint:
 quit:
 	threadPool->wait(mainLoopThread, NULL);
 	mainLoopThread = NULL;
-	SDL_DestroyMutex(videoFrameMutex);
-	videoFrameMutex = NULL;
 	
 	PhysicsEngine::UnInit();
 
@@ -478,44 +548,14 @@ void SetCrashHandlerReturnPoint(const char* name) {
 #endif	
 }
 
-void doVideoFrameInMainThread(bool forceRedraw) {
+void doVideoFrameInMainThread() {
 	if(bDedicated) return;
-	
-	// don't push too much events if we have not drawn yet
-	if(needVideoFrame >= 2) return;
-	
-	{
-		// wait for current drawing
-		ScopedLock lock(videoFrameMutex);
-		if(needVideoFrame >= 2) return; // again the check (now we have for sure a correct value)
-		needVideoFrame++;
-		VideoPostProcessor::flipBuffers();		
-	}
-
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT;
-	ev.user.code = UE_DoVideoFrame;
-	ev.user.data1 = forceRedraw ? (void*)1 : NULL;
-	if(SDL_PushEvent(&ev) != 0) {
-		warnings << "failed to push videoframeevent" << endl;
-	}
+	videoHandler.pushFrame();
 }
 
 void doSetVideoModeInMainThread() {
 	if(bDedicated) return;
-	
-	SDL_Event ev;
-	ev.type = SDL_USEREVENT;
-	ev.user.code = UE_DoSetVideoMode;
-	videoModeReady = false;
-	if(SDL_PushEvent(&ev) == 0) {
-		while(!videoModeReady) {
-			SDL_Delay(10);
-			// put this thread into sleep (other thread should have locked this mutex)
-			SDL_mutexP(videoFrameMutex);
-			SDL_mutexV(videoFrameMutex);
-		}
-	}
+	videoHandler.requestSetVideoMode();
 }
 
 void doActionInMainThread(Action* act) {
@@ -594,7 +634,7 @@ static int MainLoopThread(void*) {
 			// Main frame
 			GameLoopFrame();
 			
-			doVideoFrameInMainThread(false);
+			doVideoFrameInMainThread();
 			CapFPS();
 		}
 		
