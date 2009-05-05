@@ -1180,13 +1180,14 @@ void Menu_SvrList_RefreshList()
 	// Set all the servers to be pinged
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++) 
 	{
-        Menu_SvrList_RefreshServer(&(*it), false);
+		if( ! it->bBehindNat )
+			Menu_SvrList_RefreshServer(&(*it), false);
 	}
 
 	// Update the GUI
 	Timer("Menu_SvrList_RefreshList ping waiter", null, NULL, PingWait, true).startHeadless();
 
-	Menu_SvrList_UpdateUDPList();
+	//Menu_SvrList_UpdateUDPList(); // It adds duplicate server entries
 }
 
 
@@ -1743,7 +1744,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 *
 ************************/
 
-std::list<std::string> tUdpServers;
+std::list<std::string> tUdpServers; // TODO: remove this array, we have server_t::bBehindNat for that
 std::map<size_t, ThreadPoolItem *> tUpdateThreads;
 size_t threadId = 0;
 
