@@ -53,3 +53,7 @@ apt-get install subversion cmake build-essential libsdl1.2-dev ...
 Quick command for OpenBSD:
 pkg_add subversion cmake sdl sdl-image sdl-mixer libxml gd
 
+Quick command for FreeBSD/PC-BSD:
+pkg_add -r subversion cmake sdl sdl_image sdl_mixer libxml2 gd
+cmake -DHAWKNL_BUILTIN=1 -DLIBZIP_BUILTIN=1 .
+
