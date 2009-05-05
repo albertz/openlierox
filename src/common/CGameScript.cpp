@@ -443,6 +443,9 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 // Load the game script from a file (game)
 int CGameScript::Load(const std::string& dir)
 {
+	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+	
 	// Already cached externally
 	/*
 	// Try cache first

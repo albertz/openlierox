@@ -692,6 +692,12 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 // draw a simple loading animation
 void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg);
 
+struct ScopedBackgroundLoadingAni {
+	struct Data; Data* data;
+	ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg);
+	~ScopedBackgroundLoadingAni();
+};
+
 
 /////////////////////
 // Draws a simple linear gradient

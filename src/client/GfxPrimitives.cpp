@@ -38,6 +38,7 @@
 #include "CViewport.h"
 #include "Geometry.h"
 #include "Timer.h"
+#include "ReadWriteLock.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -1791,9 +1792,7 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 
 void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg) {
 	static const int STEPS = 12;
-	int cur = -1;
-	if(tLX)
-		cur = int(((tLX->currentTime.milliseconds() % 1000)) * STEPS * 0.001f);
+	int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
 	for(int i = 0; i < STEPS; ++i) {
 		const float a = PI * 2.0 * i / STEPS;
 		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
@@ -1801,6 +1800,69 @@ void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg
 		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
 	}
 }
+
+struct ScopedBackgroundLoadingAni::Data {
+	ThreadPoolItem* thread;
+	SDL_mutex* mutex;
+	bool quit;
+	SDL_cond* breakSig;
+	SmartPointer<SDL_Surface> screenBackup;
+
+	Data() : thread(NULL), mutex(NULL), quit(false), breakSig(NULL) {
+		breakSig = SDL_CreateCond();
+		mutex = SDL_CreateMutex();
+		screenBackup = gfxCreateSurface(640,480);
+		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
+	}
+	~Data() {
+		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
+		SDL_DestroyCond(breakSig); breakSig = NULL;
+		SDL_DestroyMutex(mutex); mutex = NULL;
+	}
+};
+
+ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg) {
+	data = new Data();
+	struct Animator : Action {
+		int x, y, rx, ry;
+		Color fg, bg;
+		Data* data;
+		
+		int handle() {
+			ScopedLock lock(data->mutex);
+			while(!data->quit) {
+				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
+				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg);
+				doVideoFrameInMainThread();
+				
+				SDL_CondWaitTimeout(data->breakSig, data->mutex, 10);
+			}
+			return 0;
+		}
+	};
+	
+	Animator* anim = new Animator();
+	anim->x = x;
+	anim->y = y;
+	anim->rx = rx;
+	anim->ry = ry;
+	anim->fg = fg;
+	anim->bg = bg;
+	anim->data = data;
+	
+	data->thread = threadPool->start(anim, "Background Loading animation");
+}
+
+ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
+	{
+		ScopedLock lock(data->mutex);
+		data->quit = true;
+		SDL_CondSignal(data->breakSig);
+	}
+	threadPool->wait(data->thread);
+	delete data; data = NULL;
+}
+
 
 
 
