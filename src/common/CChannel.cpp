@@ -494,6 +494,7 @@ bool CChannel2::Process(CBytestream *bs)
 		PongSequence = -1;
 		// Traffic shaping occurs here - change DataPacketTimeout according to received ping
 		// Change the value slowly, to avoid peaks
+		// TODO: I haven't really tested it this thing does any good, but it seems to work okay.
 		DataPacketTimeout = ( iPing/1000.0f/DATA_PACKET_TIMEOUT_PING_COEFF + DataPacketTimeout*9.0f ) / 10.0f; 
 	};
 

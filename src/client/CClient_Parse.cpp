@@ -366,9 +366,13 @@ void CClientNetEngine::ParsePong()
 // Parse the server's servertime request reply
 void CClientNetEngine::ParseTimeIs(CBytestream* bs)
 {
-	TimeDiff time = TimeDiff(bs->readFloat());
-	if (time > client->fServertime)
-		client->fServertime = time;
+	float serverTime = bs->readFloat();
+	if( serverTime > 0.0 )
+	{
+		TimeDiff time = TimeDiff(serverTime);
+		if (time > client->fServertime)
+			client->fServertime = time;
+	}
 
 	// This is the response of the lx::time packet, which is sent instead of the lx::ping.
 	// Therefore we should also handle this as a normal response to a ping.
