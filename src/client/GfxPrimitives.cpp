@@ -1786,6 +1786,25 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 	}
 }
 
+
+
+
+void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg) {
+	static const int STEPS = 8;
+	int cur = -1;
+	if(tLX)
+		cur = int(((tLX->currentTime.milliseconds() % 1000) + (500 / STEPS)) * STEPS * 0.001f);
+	for(int i = 0; i < STEPS; ++i) {
+		const float a = PI * 2.0 * i / STEPS;
+		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
+		
+		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 10, ry / 10, (i == cur) ? fg : bg);
+	}
+}
+
+
+
+
 void TestCircleDrawing(SDL_Surface* s) {
 	for(int i = 0; i < 10; i += 3) {
 		DrawCircleFilled(s, i*50, i*25, i*25, i*25, Color(i*20,255,0,128));

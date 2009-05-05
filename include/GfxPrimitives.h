@@ -689,6 +689,8 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color);
 // x,y is center
 void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
 
+// draw a simple loading animation
+void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg);
 
 
 /////////////////////
