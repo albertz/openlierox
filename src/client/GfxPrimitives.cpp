@@ -1771,7 +1771,7 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 	
 	float f = float(rx) / float(ry);
 	for(int _y = innerRectH + 1; _y < ry; _y++) {
-		int w = int(f * sqrt(float(ry*ry - _y*_y)));
+		int w = int(f * sqrt(float(ry*ry - _y*_y))) - 1;
 			
 		DrawHLine(bmpDest, x - w, x + w, y - _y, color);
 		DrawHLine(bmpDest, x - w, x + w, y + _y, color);
@@ -1779,7 +1779,7 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 
 	f = 1.0f / f;
 	for(int _x = innerRectW + 1; _x < rx; _x++) {
-		int h = int(f * sqrt(float(rx*rx - _x*_x)));
+		int h = int(f * sqrt(float(rx*rx - _x*_x))) - 1;
 			
 		DrawVLine(bmpDest, y - h, y + h, x - _x, color);
 		DrawVLine(bmpDest, y - h, y + h, x + _x, color);
@@ -1790,15 +1790,15 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 
 
 void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg) {
-	static const int STEPS = 8;
+	static const int STEPS = 12;
 	int cur = -1;
 	if(tLX)
-		cur = int(((tLX->currentTime.milliseconds() % 1000) + (500 / STEPS)) * STEPS * 0.001f);
+		cur = int(((tLX->currentTime.milliseconds() % 1000)) * STEPS * 0.001f);
 	for(int i = 0; i < STEPS; ++i) {
 		const float a = PI * 2.0 * i / STEPS;
 		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
 		
-		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 10, ry / 10, (i == cur) ? fg : bg);
+		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
 	}
 }
 
