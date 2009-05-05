@@ -245,6 +245,8 @@ void DumpCallstack(void (*LineOutFct) (const std::string&))
 
 #else
 
+#warning No DumpCallstack implementation for this arch/sys
+
 void DumpCallstackPrintf(void* callpnt) {
 	printf("DumpCallstackPrintf not implemented\n");
 }
