@@ -232,7 +232,7 @@ struct VideoHandler {
 		{
 			ScopedLock lock(mutex);
 			if(!videoModeReady) return;
-			SDL_CondSignal(sign);
+			SDL_CondBroadcast(sign);
 			if(framesInQueue > 0) framesInQueue--;
 			else return;
 			VideoPostProcessor::process();
@@ -247,12 +247,12 @@ struct VideoHandler {
 			ScopedLock lock(mutex);
 			SetVideoMode();
 			videoModeReady = true;
+			SDL_CondBroadcast(sign);
 			
 			if(framesInQueue > 0) {
 				framesInQueue = 0;
 				makeFrame = true;
 				VideoPostProcessor::process();
-				SDL_CondSignal(sign);
 			}
 		}
 		
