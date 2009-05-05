@@ -21,7 +21,7 @@
 
 
 struct ML_OrigLiero : MapLoader {
-	static const long Width = 503, Height = 350;
+	static const long Width = 504, Height = 350;
 	PIVar(bool,false) Powerlevel;
 	
 	std::string format() { return "Original Liero"; }
