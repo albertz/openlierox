@@ -43,6 +43,12 @@
 #include <unistd.h>
 #endif
 
+#ifdef __FREEBSD__
+#include <sys/sysctl.h>
+#include <vm/vm_param.h>
+#include <sys/vmmeter.h>
+#endif
+
 #ifndef WIN32
 #include <sys/types.h>
 #include <sys/resource.h>
@@ -1198,31 +1204,39 @@ size_t GetFreeSysMemory() {
 	kret = host_statistics (mach_host_self(), HOST_VM_INFO,(host_info_t)&page_info, &count);
 	return page_info.free_count * pagesize;
 #elif defined(__WIN64__)
-    MEMORYSTATUSEX memStatex;
-    memStatex.dwLength = sizeof (memStatex);
-    ::GlobalMemoryStatusEx (&memStatex);
-    return memStatex.ullAvailPhys;
+	MEMORYSTATUSEX memStatex;
+	memStatex.dwLength = sizeof (memStatex);
+	::GlobalMemoryStatusEx (&memStatex);
+	return memStatex.ullAvailPhys;
 #elif defined(__WIN32__)
-    MEMORYSTATUS memStatus;
-    memStatus.dwLength = sizeof(MEMORYSTATUS);
-    ::GlobalMemoryStatus(&memStatus);
-    return memStatus.dwAvailPhys;
+	MEMORYSTATUS memStatus;
+	memStatus.dwLength = sizeof(MEMORYSTATUS);
+	::GlobalMemoryStatus(&memStatus);
+	return memStatus.dwAvailPhys;
 #elif defined(__SUN__) && defined(_SC_AVPHYS_PAGES)
-    return sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGESIZE);
-//#elif defined(__FREEBSD__) -- might use sysctl() to find it out, probably
-#else
+	return sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGESIZE);
+#elif defined(__FREEBSD__)
+	int vm_vmtotal[] = { CTL_VM, VM_METER };
+	struct vmtotal vmdata;
 
-    // get it from /proc/meminfo
-    FILE *fp = fopen("/proc/meminfo", "r");
-    if ( fp )
-    {
+	size_t len = sizeof(vmdata);
+        int result = sysctl(vm_vmtotal, sizeof(vm_vmtotal) / sizeof(*vm_vmtotal), &vmdata, &len, NULL, 0);
+	if(result != 0) return 0;
+
+	return vmdata.t_free * sysconf(_SC_PAGESIZE);
+#elif defined(__linux__)
+
+	// get it from /proc/meminfo
+	FILE *fp = fopen("/proc/meminfo", "r");
+	if ( fp )
+	{
 		unsigned long freeMem = 0;
 		unsigned long buffersMem = 0;
 		unsigned long cachedMem = 0;
 		struct SearchTerm { const char* name; unsigned long* var; };
 		SearchTerm terms[] = { {"MemFree:", &freeMem}, {"Buffers:", &buffersMem}, {"Cached:", &cachedMem} };
 				
-        char buf[1024];
+		char buf[1024];
 		int n = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
 		buf[sizeof(buf)-1] = '\0';
 		if(n > 0) {
@@ -1235,11 +1249,14 @@ size_t GetFreeSysMemory() {
 			}
 		}
 				
-        fclose(fp);
+		fclose(fp);
 		// it's written in KB in meminfo
-        return ((size_t)freeMem + (size_t)buffersMem + (size_t)cachedMem) * 1024;
-    }
+		return ((size_t)freeMem + (size_t)buffersMem + (size_t)cachedMem) * 1024;
+	}
 	
 	return 0;
+#else
+#warning No GetFreeSysMemory implementation for this arch/sys
+	return 50 * 1024 * 1024; // return 50 MB (really randomly made up, but helps for cache system)
 #endif
 }

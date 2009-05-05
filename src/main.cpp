@@ -309,6 +309,7 @@ int main(int argc, char *argv[])
 #ifdef DEDICATED_ONLY
 	hints << "This is a DEDICATED_ONLY build." << endl;
 #endif
+	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
 
 #ifdef DEBUG
 	// TODO: any reason for this?
