@@ -43,3 +43,13 @@ tested version: 0.8
 Gentoo: dev-libs/libxml2
 Debian: libxml2-dev
 tested versions: 2.6.26
+
+
+----
+
+Quick command for Debian/Ubuntu:
+apt-get install subversion cmake build-essential libsdl1.2-dev ...
+
+Quick command for OpenBSD:
+pkg_add subversion cmake sdl sdl-image sdl-mixer libxml gd
+

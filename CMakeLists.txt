@@ -84,7 +84,7 @@ ENDIF(ADVASSERT)
 
 # TODO: don't hardcode path here
 INCLUDE_DIRECTORIES(/usr/include/libxml2)
-
+INCLUDE_DIRECTORIES(/usr/local/include/libxml2)
 
 AUX_SOURCE_DIRECTORY(src/client CLIENT_SRCS)
 AUX_SOURCE_DIRECTORY(src/client/DeprecatedGUI CLIENT_SRCS_GUI_OLD)

@@ -92,8 +92,8 @@ public:
 	virtual _T* get() { return &array[i]; }
 };
 
-template< typename _T, typename _S >
-typename Iterator<_T>::Ref GetIterator(_S& s) { return s.iterator(); }
+template< typename __T, typename __C >
+typename Iterator<__T>::Ref GetIterator(__C& s) { return s.iterator(); }
 
 template< typename _T >
 typename Iterator<_T>::Ref GetIterator(std::set<_T>& s) { return new STLIterator<std::set<_T>,_T>(s); }

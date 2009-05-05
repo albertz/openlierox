@@ -358,13 +358,12 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <sys/wait.h>
 #include <ctype.h>
 #include <unistd.h>
+
+#ifdef __linux__
 #include <execinfo.h>
-#include <ucontext.h>
-
-
 /* get REG_EIP / REG_RIP from ucontext.h */
-//#define __USE_GNU
 #include <ucontext.h>
+#endif
 
 #ifndef EIP
 #define EIP     14
@@ -473,42 +472,54 @@ public:
 		 http://www.linuxjournal.com/article/6391 */
 		
 		void *pnt = NULL;
-#if defined(__x86_64__)
-#	if defined(__APPLE__)
+#if defined(__APPLE__)
+#	if defined(__x86_64__)
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext->__ss.__rip ;
-#	else
-		ucontext_t* uc = (ucontext_t*) secret;
-		pnt = (void*) uc->uc_mcontext.gregs[REG_RIP] ;
-#	endif
-#elif defined(__hppa__)
+#	elif defined(__hppa__)
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0x3UL ;
-#elif (defined (__ppc__)) || (defined (__powerpc__))
-#	if defined(__APPLE__)
+#	elif (defined (__ppc__)) || (defined (__powerpc__))
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext->__ss.__srr0 ;
-#	else
-		ucontext_t* uc = (ucontext_t*) secret;
-		pnt = (void*) uc->uc_mcontext.regs->nip ;
-#	endif
-#elif defined(__sparc__)
+#	elif defined(__sparc__)
 		struct sigcontext* sc = (struct sigcontext*) secret;
-#	if __WORDSIZE == 64
+#		if __WORDSIZE == 64
 		pnt = (void*) scp->sigc_regs.tpc ;
-#	else
+#		else
 		pnt = (void*) scp->si_regs.pc ;
-#	endif
-#elif defined(__i386__)
-#	if defined(__APPLE__)
+#		endif
+#	elif defined(__i386__)
 		ucontext_t* uc = (ucontext_t*) secret;
 		pnt = (void*) uc->uc_mcontext->__ss.__eip ;
 #	else
+#		warning mcontext is not defined for this arch, thus a dumped backtrace could be crippled
+#	endif
+#elif defined(__linux__)
+#	if defined(__x86_64__)
 		ucontext_t* uc = (ucontext_t*) secret;
-		pnt = (void*) uc->uc_mcontext.gregs[REG_EIP] ;		
+		pnt = (void*) uc->uc_mcontext.gregs[REG_RIP] ;
+#	elif defined(__hppa__)
+		ucontext_t* uc = (ucontext_t*) secret;
+		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0x3UL ;
+#	elif (defined (__ppc__)) || (defined (__powerpc__))
+		ucontext_t* uc = (ucontext_t*) secret;
+		pnt = (void*) uc->uc_mcontext.regs->nip ;
+#	elif defined(__sparc__)
+		struct sigcontext* sc = (struct sigcontext*) secret;
+#		if __WORDSIZE == 64
+		pnt = (void*) scp->sigc_regs.tpc ;
+#		else
+		pnt = (void*) scp->si_regs.pc ;
+#		endif
+#	elif defined(__i386__)
+		ucontext_t* uc = (ucontext_t*) secret;
+		pnt = (void*) uc->uc_mcontext.gregs[REG_EIP] ;
+#	else
+#		warning mcontext is not defined for this arch, thus a dumped backtrace could be crippled
 #	endif
 #else
-#	warning mcontext is not defined for this arch, thus a dumped backtrace could be crippled
+#	warning mcontest is not defined for this system, thus a dumped backtraced could be crippled
 #endif
 		
 		/* potentially correct for other archs:

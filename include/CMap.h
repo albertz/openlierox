@@ -191,9 +191,8 @@ private:
 	uchar *		savedPixelFlags;
 	enum { MAP_SAVE_CHUNK = 16 };
 	struct SavedMapCoord_t {
-		SavedMapCoord_t( int _X=0, int _Y=0 ): X(_X), Y(_Y) {};
-		int X;
-		int Y;
+		int X, Y;
+		SavedMapCoord_t(int x = 0, int y = 0) : X(x), Y(y) {}
 		bool operator < (const SavedMapCoord_t & m) const
 		{
 			if( Y < m.Y ) return true;

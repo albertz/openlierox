@@ -168,7 +168,7 @@ void OlxWriteCoreDump(const char* file_postfix) {
 
 #endif
 
-#if (defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)) && !defined(__MINGW32_VERSION)
+#if (defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)) && (defined(__APPLE__) || defined(__linux__))
 
 #include <execinfo.h>
 #include <stdio.h>
@@ -203,7 +203,7 @@ void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 	free(strs);
 }
 
-#else
+#elif defined(WIN32)
 
 #include "StackWalker.h"  // Call Luke Stackwalker for help
 
@@ -241,6 +241,16 @@ void DumpCallstack(void (*LineOutFct) (const std::string&))
 {  
 	PrintStackWalker sw(LineOutFct);
 	sw.ShowCallstack();
+}
+
+#else
+
+void DumpCallstackPrintf(void* callpnt) {
+	printf("DumpCallstackPrintf not implemented\n");
+}
+
+void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
+	printf("DumpCallstack not implemented\n");
 }
 
 #endif
