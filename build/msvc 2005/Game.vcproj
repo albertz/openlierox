@@ -91,6 +91,7 @@
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile="obj/debug_ded/OpenLieroX.pdb"
 				SubSystem="1"
+				EnableCOMDATFolding="0"
 				TargetMachine="1"
 			/>
 			<Tool
