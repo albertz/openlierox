@@ -33,9 +33,11 @@
 #include <cstring>
 
 #if defined(__APPLE__)
-#import <mach/host_info.h>
-#import <mach/mach_host.h>
-#import <sys/sysctl.h>
+#include <mach/host_info.h>
+#include <mach/mach_host.h>
+#include <mach/mach_init.h>
+#include <sys/sysctl.h>
+#include <mach/mach_traps.h>
 #elif defined(WIN32) || defined(WIN64)
 #include <windows.h>
 #else

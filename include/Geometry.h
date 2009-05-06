@@ -66,7 +66,6 @@ public:
 	bool intersectsCircle(VectorD2<int>& midpoint, int radius) const;  // TODO: create a Circle2D class
 	bool intersectsBitmap(VectorD2<int>& pos, SDL_Surface *bitmap) const;
 
-	// TODO: move this out here
 	// This file should contain only methods for working with the analytical shapes, rasterization should be in GfxPrimitives
 	void drawFilled(SDL_Surface* s, int x, int y, Color col);
 	void drawFilled(SDL_Surface* s, int x, int y, CViewport *v, Color col);

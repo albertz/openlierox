@@ -359,7 +359,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <ctype.h>
 #include <unistd.h>
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__APPLE__)
 #include <execinfo.h>
 /* get REG_EIP / REG_RIP from ucontext.h */
 #include <ucontext.h>
@@ -481,7 +481,11 @@ public:
 		pnt = (void*) uc->uc_mcontext.sc_iaoq[0] & ~0x3UL ;
 #	elif (defined (__ppc__)) || (defined (__powerpc__))
 		ucontext_t* uc = (ucontext_t*) secret;
+#		if __DARWIN_UNIX03
 		pnt = (void*) uc->uc_mcontext->__ss.__srr0 ;
+#		else
+		pnt = (void*) uc->uc_mcontext->ss.srr0 ;
+#		endif
 #	elif defined(__sparc__)
 		struct sigcontext* sc = (struct sigcontext*) secret;
 #		if __WORDSIZE == 64
@@ -491,7 +495,11 @@ public:
 #		endif
 #	elif defined(__i386__)
 		ucontext_t* uc = (ucontext_t*) secret;
+#		if __DARWIN_UNIX03
 		pnt = (void*) uc->uc_mcontext->__ss.__eip ;
+#		else
+		pnt = (void*) uc->uc_mcontext->ss.eip ;
+#		endif
 #	else
 #		warning mcontext is not defined for this arch, thus a dumped backtrace could be crippled
 #	endif
