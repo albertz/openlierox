@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 	RootNamespace="OpenLieroX"
@@ -16,428 +16,6 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory=".\../../distrib/win32"
-			IntermediateDirectory=".\obj/Debug"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="_DEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\../../share/gamedir/Game.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="0"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER"
-				MinimalRebuild="true"
-				ExceptionHandling="1"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\obj/Debug/Game.pch"
-				AssemblerListingLocation=".\obj/Debug/"
-				ObjectFile=".\obj/Debug/"
-				ProgramDataBaseFileName=".\obj/Debug/"
-				BrowseInformation="0"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				Detect64BitPortabilityProblems="false"
-				DebugInformationFormat="4"
-				ForcedIncludeFiles="win32memleakdebug.h"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="_DEBUG"
-				Culture="2057"
-				AdditionalIncludeDirectories="../../include"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
-				LinkIncremental="2"
-				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile="obj/debug/OpenLieroX.pdb"
-				SubSystem="2"
-				LinkTimeCodeGeneration="0"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile="obj/debug/Game.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory=".\../../distrib/win32/"
-			IntermediateDirectory=".\obj/Release"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			WholeProgramOptimization="1"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-				Description="Updating revision number..."
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\../../share/gamedir/Game.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;ZLIB_WIN32_NODLL"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\obj/Release/Game.pch"
-				AssemblerListingLocation=".\obj/Release/"
-				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName="..\..\distrib\win32\"
-				BrowseInformation="1"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="3081"
-				AdditionalIncludeDirectories="../../include"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\distrib\win32\OpenLieroX.map"
-				MapExports="true"
-				SubSystem="2"
-				LinkTimeCodeGeneration="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile="obj/debug/Game.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-				CommandLine=""
-			/>
-		</Configuration>
-		<Configuration
-			Name="Profile|Win32"
-			OutputDirectory="../../distrib/win32/"
-			IntermediateDirectory=".\obj/debug"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\obj/debug/Game.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;WITH_MEDIAPLAYER"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\obj/debug/Game.pch"
-				AssemblerListingLocation=".\obj/debug/"
-				ObjectFile=".\obj/debug/"
-				ProgramDataBaseFileName=".\obj/debug/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="3081"
-				AdditionalIncludeDirectories="../../include"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
-				OutputFile="../../distrib/win32/OpenLieroX_profile.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC"
-				SubSystem="2"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile=".\obj/debug/Game.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Dedicated server|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
-			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\../../share/gamedir/Game.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="2"
-				EnableIntrinsicFunctions="true"
-				FavorSizeOrSpeed="1"
-				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				RuntimeTypeInfo="true"
-				PrecompiledHeaderFile=".\obj/Release/Game.pch"
-				AssemblerListingLocation=".\obj/Release/"
-				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName="..\..\distrib\win32\"
-				BrowseInformation="0"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				DebugInformationFormat="3"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="3081"
-				AdditionalIncludeDirectories="../../include"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot;"
-				OutputFile="../../distrib/win32/OpenLieroX.exe"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC"
-				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
-				GenerateMapFile="true"
-				MapFileName="..\..\distrib\win32\OpenLieroX.map"
-				MapExports="true"
-				SubSystem="2"
-				LinkTimeCodeGeneration="1"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-				SuppressStartupBanner="true"
-				OutputFile="obj/debug/Game.bsc"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCWebDeploymentTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Dedicated server (debug)|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
@@ -543,7 +121,7 @@
 			/>
 		</Configuration>
 		<Configuration
-			Name="Dedicated server (release)|Win32"
+			Name="Release|Win32"
 			OutputDirectory="$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
@@ -577,7 +155,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				InlineFunctionExpansion="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
@@ -596,6 +174,7 @@
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
+				CallingConvention="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -681,42 +260,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\AuxLib.h"
@@ -736,42 +279,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -805,42 +312,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CBytestream.h"
@@ -860,42 +331,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -929,42 +364,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CFont.h"
@@ -984,42 +383,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1065,42 +428,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\client\ConversationLogger.cpp"
@@ -1131,42 +458,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CssParser.h"
@@ -1190,42 +481,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1271,42 +526,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Error.h"
@@ -1345,42 +564,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\FindFile.h"
@@ -1400,43 +583,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-						WarningLevel="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1478,42 +624,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\IpToCountryDB.cpp"
@@ -1529,42 +639,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1599,42 +673,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1720,42 +758,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\sex.h"
@@ -1795,42 +797,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1888,42 +854,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Timer.h"
@@ -1951,42 +881,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2037,42 +931,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CBanList.h"
@@ -2099,42 +957,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CBonus.h"
@@ -2154,42 +976,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2231,42 +1017,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\client\CClient_Game.cpp"
@@ -2282,42 +1032,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2347,42 +1061,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\client\CClient_Send.cpp"
@@ -2405,42 +1083,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CGameScript.cpp"
@@ -2456,42 +1098,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2539,43 +1145,6 @@
 						Name="VCCLCompilerTool"
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions=""
-						WarningLevel="3"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
 			</File>
@@ -2597,42 +1166,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2666,42 +1199,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CProjectile.h"
@@ -2721,42 +1218,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2790,42 +1251,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\server\CServer_Parse.cpp"
@@ -2848,42 +1273,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\server\CServer_Send.cpp"
@@ -2899,42 +1288,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -2968,42 +1321,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CShootList.h"
@@ -3023,42 +1340,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3092,42 +1373,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CWeather.h"
@@ -3147,42 +1392,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3216,42 +1425,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CWorm_SendRecv.cpp"
@@ -3267,42 +1440,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3332,42 +1469,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CWormBot.h"
@@ -3387,42 +1488,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3464,42 +1529,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Entity.h"
@@ -3515,6 +1544,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\InputEvents.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\MapLoader.cpp"
 				>
 			</File>
 			<File
@@ -3547,42 +1580,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3669,42 +1666,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -3910,42 +1871,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)\$(InputName)1.obj"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\DeprecatedGUI\Graphics.h"
@@ -4115,42 +2040,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\con_cmd.h"
@@ -4170,42 +2059,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4279,42 +2132,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\Misc.cpp"
@@ -4337,42 +2154,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\common\Networking.cpp"
@@ -4388,42 +2169,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4457,42 +2202,6 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\Options.h"
@@ -4512,42 +2221,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4607,46 +2280,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CAnimation.h"
@@ -4666,42 +2299,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4732,42 +2329,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4811,46 +2372,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CButton.h"
@@ -4871,46 +2392,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -4947,46 +2428,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CCombobox.h"
@@ -5006,42 +2447,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5069,46 +2474,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5145,46 +2510,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CGuiSkinnedLayout.h"
@@ -5213,46 +2538,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CImage.h"
@@ -5272,42 +2557,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5343,46 +2592,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CInputBox.h"
@@ -5402,42 +2611,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5471,42 +2644,6 @@
 						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CLabel.h"
@@ -5526,42 +2663,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5597,46 +2698,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CListview.h"
@@ -5663,42 +2724,6 @@
 						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CMapEditor.h"
@@ -5718,42 +2743,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5789,46 +2778,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CMenu.h"
@@ -5848,42 +2797,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -5917,42 +2830,6 @@
 						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CommonDialogs.h"
@@ -5972,42 +2849,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6035,46 +2876,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6111,46 +2912,6 @@
 						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CSlider.h"
@@ -6170,42 +2931,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6233,46 +2958,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6315,42 +3000,6 @@
 						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\SkinnedGUI\CToggleButton.h"
@@ -6371,46 +3020,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -6449,42 +3058,6 @@
 						ObjectFile=".\obj/Release/SkinnedGUI/"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\FontHandling.h"
@@ -6504,42 +3077,6 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Profile|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Release/SkinnedGUI/"
-						ObjectFile=".\obj/Release/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (debug)|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AssemblerListingLocation=".\obj/Debug/SkinnedGUI/"
-						ObjectFile=".\obj/Debug/SkinnedGUI/"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Dedicated server (release)|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

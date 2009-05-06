@@ -118,13 +118,15 @@ void SetWormBeamEntity(int worm, Color col, const Line& startLine, const Line& e
 	drawBeamInfos[worm].col = col;
 	drawBeamInfos[worm].hasWidth = true;
 	drawBeamInfos[worm].p.clear();
-	drawBeamInfos[worm].p.points.push_back( startLine.start );
+	drawBeamInfos[worm].p.startPointAdding();
+	drawBeamInfos[worm].p.addPoint( startLine.start );
 	if(startLine.start != startLine.end)
-		drawBeamInfos[worm].p.points.push_back( startLine.end );
-	drawBeamInfos[worm].p.points.push_back( endLine.start );
+		drawBeamInfos[worm].p.addPoint( startLine.end );
+	drawBeamInfos[worm].p.addPoint( endLine.start );
 	if(endLine.start != endLine.end)
-		drawBeamInfos[worm].p.points.push_back( endLine.end );
-	drawBeamInfos[worm].p.points.push_back( startLine.start );
+		drawBeamInfos[worm].p.addPoint( endLine.end );
+	drawBeamInfos[worm].p.addPoint( startLine.start );
+	drawBeamInfos[worm].p.endPointAdding();
 }
 
 void SetWormBeamEntity(int worm, Color col, VectorD2<int> startPos, VectorD2<int> endPos) {

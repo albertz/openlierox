@@ -30,25 +30,46 @@ struct Line {
 	bool isBeforeStart(int x, int y) const;
 	bool isAfterEnd(int x, int y) const;
 	bool containsY(int y, int& x, bool aimsDown) const;
+	bool isHorizontal() const;
+	bool intersects(const Line& l) const;
+	float distFromPoint(VectorD2<int>& vec) const;
 };
 
 class CViewport;
 
-struct Polygon2D {
+class Polygon2D {
+public:
 	typedef std::list< VectorD2<int> > Points;
-	Points points;
 	typedef std::vector< Line > Lines;
+
+private:
+	Points points;	
 	Lines lines;
-	bool doReloadLines;
+	Lines horizLines;  // Horizontal lines are treated as special cases in the scanline algo
+	SDL_Rect overlay;
+	bool addingPoints;
+
+public:
 	
-	Polygon2D() : doReloadLines(true) {}
-	void clear() { points.clear(); lines.clear(); doReloadLines = true; }
-	void reloadLines();
-	bool getNext(int x, int y, int& nextx, bool inside) const;
+	Polygon2D() : addingPoints(false) {}
+	Polygon2D(const Points& pts);
+	void clear() { points.clear(); lines.clear(); horizLines.clear(); }
+	bool isInside(int x, int y) const;
+	void startPointAdding();
+	void addPoint(const VectorD2<int>& pt);
+	void endPointAdding();
+	const Points& getPoints() const { return points; }
 	SDL_Rect minOverlayRect() const;
 	SDL_Rect minOverlayRect(CViewport* v) const;
+	bool intersects(const Polygon2D& poly) const;
+	bool intersectsRect(const SDL_Rect& r) const;  // TODO: create a Rect2D class
+	bool intersectsCircle(VectorD2<int>& midpoint, int radius) const;  // TODO: create a Circle2D class
+	bool intersectsBitmap(VectorD2<int>& pos, SDL_Surface *bitmap) const;
+
+	// TODO: move this out here
+	// This file should contain only methods for working with the analytical shapes, rasterization should be in GfxPrimitives
 	void drawFilled(SDL_Surface* s, int x, int y, Color col);
-	void drawFilled(SDL_Surface* s, int x, int y, CViewport* v, Color col); // interpret as ingame coordinates and use viewport
+	void drawFilled(SDL_Surface* s, int x, int y, CViewport *v, Color col);
 };
 
 void TestPolygonDrawing(SDL_Surface* s);

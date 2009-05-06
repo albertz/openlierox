@@ -6,20 +6,11 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
-		Dedicated server (debug)|Win32 = Dedicated server (debug)|Win32
-		Dedicated server (release)|Win32 = Dedicated server (release)|Win32
-		Profile|Win32 = Profile|Win32
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Debug|Win32.ActiveCfg = Debug|Win32
 		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Debug|Win32.Build.0 = Debug|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Dedicated server (debug)|Win32.ActiveCfg = Dedicated server (debug)|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Dedicated server (debug)|Win32.Build.0 = Dedicated server (debug)|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Dedicated server (release)|Win32.ActiveCfg = Dedicated server (release)|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Dedicated server (release)|Win32.Build.0 = Dedicated server (release)|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Profile|Win32.ActiveCfg = Profile|Win32
-		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Profile|Win32.Build.0 = Profile|Win32
 		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Release|Win32.ActiveCfg = Release|Win32
 		{EA0C2715-65F3-4238-AA7E-B3A92D706334}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection

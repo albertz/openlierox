@@ -240,8 +240,8 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
     // Pixel type
 	switch(proj->Type) {
 		case PRJ_POLYGON:
-			fwrite_endian<Uint32>(fp, (Uint32)proj->polygon.points.size());
-			for(Polygon2D::Points::iterator p = proj->polygon.points.begin(); p != proj->polygon.points.end(); ++p) {
+			fwrite_endian<Uint32>(fp, (Uint32)proj->polygon.getPoints().size());
+			for(Polygon2D::Points::const_iterator p = proj->polygon.getPoints().begin(); p != proj->polygon.getPoints().end(); ++p) {
 				fwrite_endian<int>(fp, p->x);
 				fwrite_endian<int>(fp, p->y);				
 			}
@@ -713,12 +713,14 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			proj->polygon.clear();
 			Uint32 NumPoints = 0;
 			fread_endian<Uint32>(fp, NumPoints);
+			proj->polygon.startPointAdding();
 			for(Uint32 i = 0; i < NumPoints; ++i) {
 				VectorD2<int> p;
 				fread_endian<int>(fp, p.x);
 				fread_endian<int>(fp, p.y);
-				proj->polygon.points.push_back(p);
+				proj->polygon.addPoint(p);
 			}
+			proj->polygon.endPointAdding();
 		}
 			// fallthrough to read color
 		case PRJ_RECT:	
@@ -1531,20 +1533,20 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->polygon.clear();
 	switch(proj->Type) {
 		case PRJ_POLYGON:
-			for(size_t i = 0; ; ++i) {
+			proj->polygon.startPointAdding();
+			for(size_t i = 0; ; ++i) {				
 				VectorD2<int> p;
-				if( ReadVectorD2(file,"General", "P" + itoa((unsigned)i+1), p) ) {
-					proj->polygon.points.push_back(p);
+				if( ReadVectorD2(file,"General", "P" + itoa((unsigned)i+1), p) ) {		
+					proj->polygon.addPoint(p);
 				} else
 					break;
 			}
-			if(proj->polygon.points.size() == 0) {
+			proj->polygon.endPointAdding();
+
+			if(proj->polygon.getPoints().empty()) {
 				warnings << "no points specified for PRJ_POLYGON projectile " << pfile << "; fallback to PRJ_PIXEL" << endl;
 				proj->Type = PRJ_PIXEL;
 			}
-			else
-				// put the first point to the end to have a closed figure
-				proj->polygon.points.push_back( *proj->polygon.points.begin() );
 			
 			// fallthrough to read color
 		case PRJ_RECT:	

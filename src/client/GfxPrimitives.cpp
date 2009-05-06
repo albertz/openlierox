@@ -23,6 +23,7 @@
 #include <gd.h>
 #endif
 #include <SDL.h>
+#include <algorithm>
 
 #include "LieroX.h"
 #include "Options.h"
@@ -1794,7 +1795,7 @@ void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg
 	static const int STEPS = 12;
 	int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
 	for(int i = 0; i < STEPS; ++i) {
-		const float a = PI * 2.0 * i / STEPS;
+		const float a = PI * 2.0f * i / STEPS;
 		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
 		
 		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
@@ -2042,143 +2043,324 @@ bool Line::containsY(int y, int& x, bool aimsDown) const {
 	return false;	
 }
 
-void Polygon2D::reloadLines() {
-	if(points.size() == 0) {
-		warnings << "Polygon2D::reloadLines: no points set" << endl;
+bool Line::isHorizontal() const
+{
+	return start.y == end.y;
+}
+
+bool Line::intersects(const Line& l) const
+{
+	// Get the analytical intersection and check that it is located on one of the lines
+
+	// ax + by + c = 0
+	const VectorD2<int> v1 = (end - start).orthogonal(); // a = v1.x, b = v1.y
+	const VectorD2<int> v2 = (l.end - l.start).orthogonal();
+	const int c1 = -v1.x * start.x - v1.y * start.y;
+	const int c2 = -v2.x * l.start.x - v2.y * l.start.y;
+
+	// Use determinants
+	// | b1 c1 | 
+	// | b2 c2 |
+	// --------- = Xp
+	// | a1 b1 |
+	// | a2 b2 |
+	//
+	// | c1 a1 | 
+	// | c2 a2 |
+	// --------- = Yp
+	// | a1 b1 |
+	// | a2 b2 |
+	const int denom = v1.x * v2.y - v2.x * v1.y;
+	if (!denom)  // Parallel
+		return (float)v1.x / v2.x == (float)c1/c2;  // Check for identity
+	const int xp_numer = v1.y * c2 - v2.y * c1;
+	const int yp_numer = c1 * v2.x - c2 * v1.x;
+
+	const int xp = xp_numer / denom;
+	const int yp = yp_numer / denom;
+
+	int res = abs(end.y - yp) + abs(start.y - yp) - abs(end.y - start.y);
+	res += abs(l.end.y - yp) + abs(l.start.y - yp) - abs(l.end.y - l.start.y);
+	res += abs(end.x - xp) + abs(start.x - xp) - abs(end.x - start.x);
+	res += abs(l.end.x - xp) + abs(l.start.x - xp) - abs(l.end.x - l.start.x);
+
+	//if (!res) DrawRectFill2x2(VideoPostProcessor::videoSurface(), xp, yp, Color(0, 255, 0));
+	return res == 0;
+}
+
+float Line::distFromPoint(VectorD2<int> &vec) const
+{
+	// ax + by + c = 0
+	const VectorD2<int> v1 = (end - start).orthogonal(); // a = v1.x, b = v1.y
+	const int c1 = -v1.x * start.x - v1.y * start.y;
+	
+	float dist = abs(v1.x * vec.x + v1.y * vec.y + c1) / v1.GetLength();
+	return dist;
+}
+
+Polygon2D::Polygon2D(const Points& pts)
+{
+	// Add the points one by one
+	// We have to do this because the internal representation may vary from what we get
+	startPointAdding();
+	for (Points::const_iterator it = pts.begin(); it != pts.end(); ++it)
+		addPoint(*it);
+	endPointAdding();
+}
+
+void Polygon2D::addPoint(const VectorD2<int>& pt)
+{
+	assert(addingPoints);
+	points.push_back(pt);
+}
+
+void Polygon2D::startPointAdding()
+{
+	addingPoints = true;
+}
+
+void Polygon2D::endPointAdding()
+{
+	assert(addingPoints);
+
+	// Build and pre-process the polygon
+	if (points.size() < 3)
 		return;
-	}
-	doReloadLines = false;
-	lines.clear();
-	lines.reserve(points.size() - 1);
-	Points::const_iterator j = points.begin(); ++j;
-	for(Points::const_iterator i = points.begin(); j != points.end(); ++i, ++j) {
-		Line l; l.start = *i; l.end = *j;
-		lines.push_back(l);
-	}
-}
 
+	int minx = points.begin()->x;
+	int miny = points.begin()->y;
+	int maxx = minx;
+	int maxy = miny;
 
-bool Polygon2D::getNext(int x, int y, int& nextx, bool inside) const {
-	bool haveAny = false;
-	for(Lines::const_iterator l = lines.begin(); l != lines.end(); ++l) {
-		int lx;
-		if(l->containsY(y, lx, !inside) && lx >= x) {
-			if(!haveAny || lx < nextx) {
-				haveAny = true;
-				if(lx == x && !inside)
-					nextx = lx + 1; // hack to go forward in such cases
-				else
-					nextx = lx;
-			}
+	// Create the lines
+	Points::iterator it1 = points.begin();
+	Points::iterator it2 = points.begin();
+	++it2;
+	for (; it2 != points.end(); ++it2, ++it1)  {
+		// Update min and max for X
+		minx = MIN(minx, MIN(it2->x, it1->x));
+		maxx = MAX(maxx, MAX(it2->x, it1->x));
+
+		// Make sure it always goes from top to bottom
+		if (it2->y < it1->y)  {
+			lines.push_back(Line(*it2, *it1));
+			miny = MIN(miny, it2->y);
+			maxy = MAX(maxy, it1->y);
+		} else if (it2->y == it1->y)  {
+			horizLines.push_back(Line(*it1, *it2));  // Horizontal lines are treated special
+			miny = MIN(miny, it1->y);
+			maxy = MAX(maxy, it1->y);
+		} else {
+			lines.push_back(Line(*it1, *it2));
+			miny = MIN(miny, it1->y);
+			maxy = MAX(maxy, it2->y);
 		}
+		
 	}
-	return haveAny;
-}
 
+	// Calculate the overlay rect
+	overlay.x = minx;
+	overlay.y = miny;
+	overlay.w = maxx - minx;
+	overlay.h = maxy - miny;
+
+	// Close the polygon if necessary
+	if (*points.begin() != *points.rbegin())  {
+		if (points.begin()->y < points.rbegin()->y)
+			lines.push_back(Line(*points.begin(), *points.rbegin()));
+		else if (points.begin()->y == points.rbegin()->y)
+			horizLines.push_back(Line(*points.begin(), *points.rbegin()));
+		else
+			lines.push_back(Line(*points.rbegin(), *points.begin()));
+	}
+
+	addingPoints = false;
+}
 
 SDL_Rect Polygon2D::minOverlayRect() const {
-	SDL_Rect r = {0,0,0,0};
-	for(Points::const_iterator i = points.begin(); i != points.end(); ++i) {
-		if(i == points.begin()) {
-			r.x = i->x;
-			r.y = i->y;
-		}
-		else {
-			if(r.x > i->x) {
-				r.w += r.x - i->x;
-				r.x = i->x;
-			} else if(r.x + r.w < i->x) {
-				r.w = i->x - r.x;
-			}
-			if(r.y > i->y) {
-				r.h += r.y - i->y;
-				r.y = i->y;
-			} else if(r.y + r.h < i->y) {
-				r.h = i->y - r.y;
-			}
-		}
-	}
-	return r;
+	assert(!addingPoints);
+	return overlay;
 }
 
 SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
-	int wx = v->GetWorldX();
-	int wy = v->GetWorldY();
-	int l = v->GetLeft();
-	int t = v->GetTop();
+	assert(!addingPoints);
+	const int wx = v->GetWorldX();
+	const int wy = v->GetWorldY();
+	const int l = v->GetLeft();
+	const int t = v->GetTop();
 
 #define Tx(x) ((x - wx) * 2 + l)
 #define Ty(y) ((y - wy) * 2 + t)
 	
-	SDL_Rect r = {0,0,0,0};
-	for(Points::const_iterator i = points.begin(); i != points.end(); ++i) {
-		if(i == points.begin()) {
-			r.x = Tx(i->x);
-			r.y = Ty(i->y);
-		}
-		else {
-			if(r.x > Tx(i->x)) {
-				r.w += r.x - Tx(i->x);
-				r.x = Tx(i->x);
-			} else if(r.x + r.w < Tx(i->x)) {
-				r.w = Tx(i->x) - r.x;
-			}
-			if(r.y > Ty(i->y)) {
-				r.h += r.y - Ty(i->y);
-				r.y = Ty(i->y);
-			} else if(r.y + r.h < Ty(i->y)) {
-				r.h = Ty(i->y) - r.y;
-			}
-		}
-	}
+	SDL_Rect r = { Ty(overlay.x), Ty(overlay.y), overlay.w * 2, overlay.h * 2};
 
 #undef Tx
 #undef Ty	
 	return r;
 }
 
-void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
-	SDL_Rect r = minOverlayRect(); r.x += x; r.y += y;
-	
-	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
-	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
-	if(r.x + r.w < bmpDest->clip_rect.x) return;
-	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
-	r.w = (Uint16)MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
-	
-	if(doReloadLines) reloadLines();
-		
-	const int bpp = bmpDest->format->BytesPerPixel;
+bool Polygon2D::isInside(int x, int y) const
+{
+	// Check the overlay rect first
+	if (x < overlay.x || x >= overlay.x + overlay.w || y < overlay.y || y >= overlay.y + overlay.h)
+		return false;
 
-	LOCK_OR_QUIT(bmpDest);
-	
-	// Draw the fill rect
-	r.x -= x; r.y -= y;
-	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int _y = r.y; _y < r.y + r.h; ++_y) {
-		int _x = r.x;
-		while(_x < r.x + r.w && getNext(_x, _y, _x, true)) {
-			int endx = r.x + r.w;
-			getNext(_x, _y, endx, false); endx = MIN(endx, r.x + r.w);
-			Uint8 *px = (Uint8 *)bmpDest->pixels + (_y + y) * bmpDest->pitch + (_x + x) * bpp;
-			for(; _x < endx; ++_x, px += bpp) {
-				if(_x + x < bmpDest->clip_rect.x) continue;
-				putter.put(px, bmpDest->format, col);
-			}
+	// Run one scanline in the level of the point and check that the point is inside
+	int *isc = new int[lines.size()];
+	unsigned isc_count = 0;
+	for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it)  {
+		if (it->start.y <= y && y < it->end.y)  {
+			const float slope = (float)(it->start.x - it->end.x) / (it->start.y - it->end.y);
+			isc[isc_count] = (int)(slope * (y - it->start.y)) + it->start.x; // Calculate the intersection
+			++isc_count;
 		}
 	}
-	
+
+	std::sort(isc, isc + isc_count);
+	for (unsigned i = 0; i < isc_count; i += 2)
+		if (isc[i] <= x && x <= isc[i + 1])  {
+			delete[] isc;
+			return true;
+		}
+	delete[] isc;
+
+	// Check horizontal lines
+	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)
+		if (y == it->start.y && it->start.x <= x && x <= it->end.x)
+			return true;
+
+	return false;
+}
+
+bool Polygon2D::intersects(const Polygon2D& poly) const
+{
+	// First check the overlay rect
+	SDL_Rect tmp = overlay;
+	if (!ClipRefRectWith(tmp.x, tmp.y, tmp.w, tmp.h, (SDLRect)poly.overlay))
+		return false;
+
+	// Check for line intersection
+	for (Lines::const_iterator it1 = lines.begin(); it1 != lines.end(); ++it1)  {
+		for (Lines::const_iterator it2 = poly.lines.begin(); it2 != poly.lines.end(); ++it2)
+			if (it1->intersects(*it2))
+				return true;
+		for (Lines::const_iterator it2 = poly.horizLines.begin(); it2 != poly.horizLines.end(); ++it2)
+			if (it1->intersects(*it2))
+				return true;
+	}
+
+	// Horizontal lines
+	for (Lines::const_iterator it1 = horizLines.begin(); it1 != horizLines.end(); ++it1)  {
+		for (Lines::const_iterator it2 = poly.lines.begin(); it2 != poly.lines.end(); ++it2)
+			if (it1->intersects(*it2))
+				return true;
+		for (Lines::const_iterator it2 = poly.horizLines.begin(); it2 != poly.horizLines.end(); ++it2)  {
+			if (it1->start.y == it2->start.y && it1->intersects(*it2))
+				return true;
+		}
+	}
+
+	// Can happen when the whole polygon is inside the other one
+	return isInside(poly.points.begin()->x, poly.points.begin()->y) 
+		|| poly.isInside(points.begin()->x, points.begin()->y);
+}
+
+bool Polygon2D::intersectsRect(const SDL_Rect &r) const
+{
+	// First check the overlay rect
+	SDL_Rect tmp = overlay;
+	if (!ClipRefRectWith(tmp.x, tmp.y, tmp.w, tmp.h, (SDLRect)r))
+		return false;
+
+	Line l1(VectorD2<int>(r.x, r.y), VectorD2<int>(r.x + r.w, r.y));
+	Line l2(VectorD2<int>(r.x + r.w, r.y), VectorD2<int>(r.x + r.w, r.y + r.h));
+	Line l3(VectorD2<int>(r.x + r.w, r.y + r.h), VectorD2<int>(r.x, r.y + r.h));
+	Line l4(VectorD2<int>(r.x, r.y + r.h), VectorD2<int>(r.x, r.y));
+
+	for (Lines::const_iterator it = lines.begin(); it != lines.end(); it++)  {
+		if (it->intersects(l1) || it->intersects(l2) || it->intersects(l3) || it->intersects(l4))
+			return true;
+	}
+
+	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)  {
+		if (it->intersects(l1) || it->intersects(l2) || it->intersects(l3) || it->intersects(l4))
+			return true;		
+	}
+
+	return false;
+}
+
+bool Polygon2D::intersectsCircle(VectorD2<int> &midpoint, int radius) const
+{
+
+	for (Lines::const_iterator it = lines.begin(); it != lines.end(); it++)  {
+		if (it->distFromPoint(midpoint) <= radius)
+			return true;
+	}
+
+	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)  {
+		if (it->distFromPoint(midpoint) <= radius)
+			return true;		
+	}
+
+	return false;
+}
+
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
+	if (lines.size() + horizLines.size() < 3)
+		return;
+
+	assert(!addingPoints);
+
+	LOCK_OR_QUIT(bmpDest);
+
+	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
+
+	// Run the scanline algorithm
+	const int maxy = MIN(overlay.y + overlay.h, bmpDest->clip_rect.y + bmpDest->clip_rect.h);
+	int *isc = new int[lines.size()];
+	unsigned isc_count;
+	for (int y = MAX(overlay.y + 1, (int)bmpDest->clip_rect.y); y < maxy; y++)  {
+		// Get intersections
+		isc_count = 0;
+		for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it)  {
+			assert(it->start.y <= it->end.y);
+
+			// Check for an intersection
+			if (it->start.y < y && it->end.y >= y)  {
+				const float slope = (float)(it->start.x - it->end.x) / (it->start.y - it->end.y);
+				isc[isc_count] = (int)(slope * (y - it->start.y)) + it->start.x; // Calculate the intersection
+				++isc_count;
+			}
+		}
+
+
+		// Make sure the intersection count is even and not zero
+		assert(isc_count >= 2 && ((isc_count & 1) == 0));
+
+		// Sort by X
+		std::sort(isc, isc + isc_count);
+
+		// Draw the scanline using even-odd rule
+		for (unsigned i = 0; i < isc_count; i += 2)  {
+			const int maxx = MIN(isc[i + 1], bmpDest->clip_rect.x + bmpDest->clip_rect.w - 1);
+			int x = MAX(isc[i], (int)bmpDest->clip_rect.x);
+			Uint8 *addr = GetPixelAddr(bmpDest, x, y);
+			for (; x <= maxx; x++, addr += bmpDest->format->BytesPerPixel)
+				putter.put(addr, bmpDest->format, col);
+		}
+	}
+	delete[] isc;
+
 	UnlockSurface(bmpDest);
+
+	// Draw horizontal lines (special cases, cannot be checked for intersections)
+	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)
+		DrawHLine(bmpDest, it->start.x, it->end.x, it->start.y, col);
 }
 
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Color col) {
 	SDL_Rect r = minOverlayRect(v); r.x += x*2; r.y += y*2; 
-	
-	// Clipping (only y, x cannot be done because algo doesn't work otherwise)
-	if(!OneSideClip(r.y, r.h, bmpDest->clip_rect.y, bmpDest->clip_rect.h)) return;
-	if(r.x + r.w < bmpDest->clip_rect.x) return;
-	if(r.x >= bmpDest->clip_rect.x + bmpDest->clip_rect.w) return;
-	r.w = (Uint16)MIN(r.w, bmpDest->clip_rect.x + bmpDest->clip_rect.w - r.x);
 	
 	const int bpp = bmpDest->format->BytesPerPixel;
 	int wx = v->GetWorldX();
@@ -2186,83 +2368,77 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Col
 	int l = v->GetLeft();
 	int t = v->GetTop();
 	
-	// transform back
-	r.x -= x*2; r.y -= y*2;
-	r.x = (r.x - l) / 2 + wx;
-	r.y = (r.y - t) / 2 + wy;
-	r.w /= 2; r.h /= 2;
-	
+
 #define Tx(x) ((x - wx) * 2 + l)
 #define Ty(y) ((y - wy) * 2 + t)
 
-	if(doReloadLines) reloadLines();
+	Polygon2D big;
+	big.startPointAdding();
+	for (std::list<VectorD2<int>>::iterator p = points.begin(); p != points.end(); p++)
+		big.addPoint(VectorD2<int>(Tx(p->x), Ty(p->y)));
+	big.endPointAdding();
 
-	LOCK_OR_QUIT(bmpDest);
-	
-	// Draw the fill rect
-	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-	for (int _y = r.y; _y < r.y + r.h; ++_y) {
-		int _x = r.x;
-		while(_x < r.x + r.w && getNext(_x, _y, _x, true)) {
-			int endx = r.x + r.w;
-			getNext(_x, _y, endx, false); endx = MIN(endx, r.x + r.w);
-			Uint8 *px = (Uint8 *)bmpDest->pixels + Ty(_y + y) * bmpDest->pitch + Tx(_x + x) * bpp;
-			for(; _x < endx; ++_x, px += bpp * 2) {
-				if(Tx(_x + x) < bmpDest->clip_rect.x) continue;
-				putter.put(px, bmpDest->format, col);
-				putter.put(px + bpp, bmpDest->format, col);
-				putter.put(px + bmpDest->pitch, bmpDest->format, col);
-				putter.put(px + bmpDest->pitch + bpp, bmpDest->format, col);
-			}
-		}
-	}
-	
-	UnlockSurface(bmpDest);
+	big.drawFilled(bmpDest, x, y, col);
 	
 #undef Tx
 #undef Ty
 }
 
-
+#include "InputEvents.h"
 void TestPolygonDrawing(SDL_Surface* surf) {
+	Color on(255, 0, 0, 128);
+	Color off(0, 255, 0, 128);
+
 	// star
 	Polygon2D p;
-	p.points.push_back( VectorD2<int>(100, 0) );
-	p.points.push_back( VectorD2<int>(110, 90) );
-	p.points.push_back( VectorD2<int>(200, 100) );
-	p.points.push_back( VectorD2<int>(110, 110) );
-	p.points.push_back( VectorD2<int>(100, 200) );
-	p.points.push_back( VectorD2<int>(90, 110) );
-	p.points.push_back( VectorD2<int>(0, 100) );
-	p.points.push_back( VectorD2<int>(90, 90) );
-	p.points.push_back( VectorD2<int>(100, 0) );	
-	p.drawFilled(surf, 0, 0, Color(0,255,0,128));
+	p.startPointAdding();
+	p.addPoint( VectorD2<int>(100, 0) );
+	p.addPoint( VectorD2<int>(110, 90) );
+	p.addPoint( VectorD2<int>(200, 100) );
+	p.addPoint( VectorD2<int>(110, 110) );
+	p.addPoint( VectorD2<int>(100, 200) );
+	p.addPoint( VectorD2<int>(90, 110) );
+	p.addPoint( VectorD2<int>(0, 100) );
+	p.addPoint( VectorD2<int>(90, 90) );
+	p.addPoint( VectorD2<int>(100, 0) );
+	p.endPointAdding();
+	p.drawFilled(surf, 0, 0, p.isInside(GetMouse()->X, GetMouse()->Y) ? on : off);
 	
 	// triangle
 	Polygon2D q;
-	q.points.push_back( VectorD2<int>(310, 10) );
-	q.points.push_back( VectorD2<int>(400, 20) );
-	q.points.push_back( VectorD2<int>(390, 100) );
-	q.points.push_back( VectorD2<int>(310, 10) );
-	q.drawFilled(surf, 0, 0, Color(0,255,0,128));
+	q.startPointAdding();
+	q.addPoint( VectorD2<int>(310, 10) );
+	q.addPoint( VectorD2<int>(400, 20) );
+	q.addPoint( VectorD2<int>(390, 100) );
+	q.addPoint( VectorD2<int>(310, 10) );
+	q.endPointAdding();
+	q.drawFilled(surf, 0, 0, q.isInside(GetMouse()->X, GetMouse()->Y) ? on : off);
 	
 	// rectangle
 	Polygon2D r;
-	r.points.push_back( VectorD2<int>(10, 240) );
-	r.points.push_back( VectorD2<int>(200, 240) );
-	r.points.push_back( VectorD2<int>(200, 400) );
-	r.points.push_back( VectorD2<int>(10, 400) );
-	r.points.push_back( VectorD2<int>(10, 240) );
-	r.drawFilled(surf, 0, 0, Color(0,255,0,128));
+	r.startPointAdding();
+	r.addPoint( VectorD2<int>(10, 240) );
+	r.addPoint( VectorD2<int>(200, 240) );
+	r.addPoint( VectorD2<int>(200, 400) );
+	r.addPoint( VectorD2<int>(10, 400) );
+	r.addPoint( VectorD2<int>(10, 240) );
+	r.endPointAdding();
+	r.drawFilled(surf, 0, 0, r.isInside(GetMouse()->X, GetMouse()->Y) ? on : off);
+
+	/*Line l1(VectorD2<int>(10, 10), VectorD2<int>(200, 200));
+	Line l2(VectorD2<int>(10, 200), VectorD2<int>(200, 10));
+	assert(l1.intersects(l2));*/
 
 	// quadrangle (like worms beam)
 	Polygon2D s;
-	s.points.push_back( VectorD2<int>(230, 240) );
-	s.points.push_back( VectorD2<int>(250, 230) );
-	s.points.push_back( VectorD2<int>(300, 380) );
-	s.points.push_back( VectorD2<int>(260, 400) );
-	s.points.push_back( VectorD2<int>(230, 240) );
-	s.drawFilled(surf, 0, 0, Color(0,255,0,128));
+	s.startPointAdding();
+	s.addPoint( VectorD2<int>(230, 240) );
+	s.addPoint( VectorD2<int>(250, 230) );
+	s.addPoint( VectorD2<int>(300, 380) );
+	s.addPoint( VectorD2<int>(260, 400) );
+	s.addPoint( VectorD2<int>(230, 240) );
+	s.endPointAdding();
+	s.drawFilled(surf, 0, 0, s.isInside(GetMouse()->X, GetMouse()->Y) ? on : off);
 
 	// rotating long triangle
 	Polygon2D t;
@@ -2274,11 +2450,13 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	VectorD2<int> t2(200, 0); t2 = rot * t2;
 	VectorD2<int> t3(0, 20); t3 = rot * t3;
 	notes << t1.x << "," << t1.y << ";" << t2.x << "," << t2.y << ";" << t3.x << "," << t3.y << endl;
-	t.points.push_back(t1);
-	t.points.push_back(t2);
-	t.points.push_back(t3);
-	t.points.push_back(t1);
-	t.drawFilled(surf, 70, 400, Color(0,0,255,160));
+	t.startPointAdding();
+	t.addPoint(t1);
+	t.addPoint(t2);
+	t.addPoint(t3);
+	t.addPoint(t1);
+	t.endPointAdding();
+	t.drawFilled(surf, 70, 400, p.isInside(GetMouse()->X, GetMouse()->Y) ? on : Color(0, 0, 255, 160));
 	
 }
 
