@@ -2192,7 +2192,7 @@ SDL_Rect Polygon2D::minOverlayRect(CViewport* v) const {
 #define Tx(x) ((x - wx) * 2 + l)
 #define Ty(y) ((y - wy) * 2 + t)
 	
-	SDL_Rect r = { Ty(overlay.x), Ty(overlay.y), overlay.w * 2, overlay.h * 2};
+	SDL_Rect r = { Tx(overlay.x), Ty(overlay.y), overlay.w * 2, overlay.h * 2};
 
 #undef Tx
 #undef Ty	
@@ -2362,7 +2362,6 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Color col) {
 	SDL_Rect r = minOverlayRect(v); r.x += x*2; r.y += y*2; 
 	
-	const int bpp = bmpDest->format->BytesPerPixel;
 	int wx = v->GetWorldX();
 	int wy = v->GetWorldY();
 	int l = v->GetLeft();
