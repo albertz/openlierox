@@ -2374,7 +2374,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Col
 
 	Polygon2D big;
 	big.startPointAdding();
-	for (std::list<VectorD2<int>>::iterator p = points.begin(); p != points.end(); p++)
+	for (std::list< VectorD2<int> >::iterator p = points.begin(); p != points.end(); p++)
 		big.addPoint(VectorD2<int>(Tx(p->x), Ty(p->y)));
 	big.endPointAdding();
 
