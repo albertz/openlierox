@@ -1795,7 +1795,7 @@ void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg
 	static const int STEPS = 12;
 	int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
 	for(int i = 0; i < STEPS; ++i) {
-		const float a = PI * 2.0f * i / STEPS;
+		const float a = (float)PI * 2.0f * i / STEPS;
 		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
 		
 		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);

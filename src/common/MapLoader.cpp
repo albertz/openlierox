@@ -20,7 +20,8 @@
 #include "FileUtils.h"
 
 
-struct ML_OrigLiero : MapLoader {
+class ML_OrigLiero : public MapLoader {
+public:
 	static const long Width = 504, Height = 350;
 	PIVar(bool,false) Powerlevel;
 	
@@ -170,7 +171,7 @@ struct ML_OrigLiero : MapLoader {
 };
 
 
-struct ML_LieroX : MapLoader {
+class ML_LieroX : public MapLoader {
 	
 	std::string id;
 	PIVar(int,0) Type;
@@ -461,7 +462,7 @@ struct ML_LieroX : MapLoader {
 			return;
 		}
 		
-		m->bmpBackImageHiRes = gfxCreateSurface(head.width*2, head.height*2);
+		m->bmpBackImageHiRes = gfxCreateSurface((int)head.width*2, (int)head.height*2);
 		if(m->bmpBackImageHiRes.get() == NULL) 
 		{
 			warnings << "CMap::LoadImageFormatHiRes(): bmpBackImageHiRes creation failed, using low-res image" << endl;
@@ -483,7 +484,7 @@ struct ML_LieroX : MapLoader {
 		for (Sint64 y = 0; y < head.height*2; y++, PixelRow += m->bmpDrawImage.get()->pitch)  {
 			curpixel = PixelRow;
 			for (Sint64 x = 0; x < head.width*2; x++, curpixel += bpp)  {
-				curcolor = gdImageGetTrueColorPixel( gdImage, x, y ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
+				curcolor = gdImageGetTrueColorPixel( gdImage, (int)x, (int)y ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
 				curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
@@ -496,7 +497,7 @@ struct ML_LieroX : MapLoader {
 		for (Sint64 y = 0; y < head.height*2; y++, PixelRow += m->bmpBackImageHiRes.get()->pitch)  {
 			curpixel = PixelRow;
 			for (Sint64 x = 0; x < head.width*2; x++, curpixel += bpp)  {
-				curcolor = gdImageGetTrueColorPixel( gdImage, x, y + HeightX2 ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
+				curcolor = gdImageGetTrueColorPixel( gdImage, (int)x, (int)y + (int)HeightX2 ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
 				curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
@@ -540,10 +541,10 @@ struct ML_LieroX : MapLoader {
 	
 	bool parseData(CMap* m) {
 		m->Name = head.name;
-		m->Width = head.width;
-		m->Height = head.height;
+		m->Width = (int)head.width;
+		m->Height = (int)head.height;
 		m->Type = Type;
-		const int Width = head.width, Height = head.height;
+		const int Width = (int)head.width, Height = (int)head.height;
 		
 		
 		/*
