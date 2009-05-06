@@ -2206,23 +2206,19 @@ bool Polygon2D::isInside(int x, int y) const
 		return false;
 
 	// Run one scanline in the level of the point and check that the point is inside
-	int *isc = new int[lines.size()];
-	unsigned isc_count = 0;
+	std::vector<int> isc; isc.reserve(lines.size());
 	for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it)  {
 		if (it->start.y <= y && y < it->end.y)  {
 			const float slope = (float)(it->start.x - it->end.x) / (it->start.y - it->end.y);
-			isc[isc_count] = (int)(slope * (y - it->start.y)) + it->start.x; // Calculate the intersection
-			++isc_count;
+			isc.push_back( (int)(slope * (y - it->start.y)) + it->start.x ); // Calculate the intersection
 		}
 	}
 
-	std::sort(isc, isc + isc_count);
-	for (unsigned i = 0; i < isc_count; i += 2)
+	std::sort(isc.begin(), isc.end());
+	for (unsigned i = 0; i < isc.size(); i += 2)
 		if (isc[i] <= x && x <= isc[i + 1])  {
-			delete[] isc;
 			return true;
 		}
-	delete[] isc;
 
 	// Check horizontal lines
 	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)
