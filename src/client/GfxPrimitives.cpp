@@ -2347,7 +2347,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 				putter.put(addr, bmpDest->format, col);
 		}
 
-		//isc.clear();
+		isc.clear();
 	}
 
 	UnlockSurface(bmpDest);
