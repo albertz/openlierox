@@ -2437,12 +2437,9 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	Polygon2D t;
 	float ta = (GetTime() - AbsTime()).seconds();
 	MatrixD2<float> rot = MatrixD2<float>::Rotation(cos(ta), sin(ta));
-	notes << "M:" << rot.v1.x << "," << rot.v1.y << ";" << rot.v2.x << "," << rot.v2.y << endl;
-	//rot = MatrixD2<float>(1.0f);
 	VectorD2<int> t1(0, -20); t1 = rot * t1;
 	VectorD2<int> t2(200, 0); t2 = rot * t2;
 	VectorD2<int> t3(0, 20); t3 = rot * t3;
-	notes << t1.x << "," << t1.y << ";" << t2.x << "," << t2.y << ";" << t3.x << "," << t3.y << endl;
 	t.startPointAdding();
 	t.addPoint(t1);
 	t.addPoint(t2);
@@ -2451,6 +2448,22 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 	t.endPointAdding();
 	t.drawFilled(surf, 70, 400, p.isInside(GetMouse()->X, GetMouse()->Y) ? on : Color(0, 0, 255, 160));
 	
+	// a crown
+	Polygon2D u;
+	u.startPointAdding();
+	{
+		const int x = 400, y = 100, w = 200, h = 300;
+		const int C = 10;
+		u.addPoint( VectorD2<int>(x,y) );
+		u.addPoint( VectorD2<int>(x+w,y) );
+		for(int i = C - 1; i >= 0; --i) {
+			const int _x = x + w * i / C;
+			u.addPoint( VectorD2<int>(_x + w/(C*2),y+h) );
+			u.addPoint( VectorD2<int>(_x,y + h/4) );
+		}
+	}
+	u.endPointAdding();
+	u.drawFilled(surf, 0,0, u.isInside(GetMouse()->X, GetMouse()->Y) ? on : off);
 }
 
 
