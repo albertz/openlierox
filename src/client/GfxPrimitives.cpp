@@ -2314,11 +2314,10 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 
 	// Run the scanline algorithm
 	const int maxy = MIN(overlay.y + overlay.h, bmpDest->clip_rect.y + bmpDest->clip_rect.h);
-	int *isc = new int[lines.size()];
-	unsigned isc_count;
+	std::vector<int> isc; isc.resize(lines.size());
 	for (int y = MAX(overlay.y + 1, (int)bmpDest->clip_rect.y); y < maxy; y++)  {
 		// Get intersections
-		isc_count = 0;
+		unsigned long isc_count = 0;
 		for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it)  {
 			assert(it->start.y <= it->end.y);
 
@@ -2335,7 +2334,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 		assert(isc_count >= 2 && ((isc_count & 1) == 0));
 
 		// Sort by X
-		std::sort(isc, isc + isc_count);
+		std::sort(&isc[0], &isc[isc_count]);
 
 		// Draw the scanline using even-odd rule
 		for (unsigned i = 0; i < isc_count; i += 2)  {
@@ -2346,7 +2345,6 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 				putter.put(addr, bmpDest->format, col);
 		}
 	}
-	delete[] isc;
 
 	UnlockSurface(bmpDest);
 
