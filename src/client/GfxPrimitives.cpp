@@ -2314,36 +2314,40 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 
 	// Run the scanline algorithm
 	const int maxy = MIN(overlay.y + overlay.h, bmpDest->clip_rect.y + bmpDest->clip_rect.h);
-	std::vector<int> isc; isc.resize(lines.size());
+	std::vector<int> isc;
+	isc.reserve(lines.size());
+	
 	for (int y = MAX(overlay.y + 1, (int)bmpDest->clip_rect.y); y < maxy; y++)  {
+		
+
 		// Get intersections
-		unsigned long isc_count = 0;
 		for (Lines::const_iterator it = lines.begin(); it != lines.end(); ++it)  {
 			assert(it->start.y <= it->end.y);
 
 			// Check for an intersection
 			if (it->start.y < y && it->end.y >= y)  {
 				const float slope = (float)(it->start.x - it->end.x) / (it->start.y - it->end.y);
-				isc[isc_count] = (int)(slope * (y - it->start.y)) + it->start.x; // Calculate the intersection
-				++isc_count;
+				isc.push_back((int)(slope * (y - it->start.y)) + it->start.x); // Calculate the intersection
 			}
 		}
 
 
 		// Make sure the intersection count is even and not zero
-		assert(isc_count >= 2 && ((isc_count & 1) == 0));
+		assert(isc.size() >= 2 && ((isc.size() & 1) == 0));
 
 		// Sort by X
-		std::sort(&isc[0], &isc[isc_count]);
+		std::sort(isc.begin(), isc.end());
 
 		// Draw the scanline using even-odd rule
-		for (unsigned i = 0; i < isc_count; i += 2)  {
+		for (unsigned i = 0; i < isc.size(); i += 2)  {
 			const int maxx = MIN(isc[i + 1], bmpDest->clip_rect.x + bmpDest->clip_rect.w - 1);
 			int x = MAX(isc[i], (int)bmpDest->clip_rect.x);
 			Uint8 *addr = GetPixelAddr(bmpDest, x, y);
 			for (; x <= maxx; x++, addr += bmpDest->format->BytesPerPixel)
 				putter.put(addr, bmpDest->format, col);
 		}
+
+		//isc.clear();
 	}
 
 	UnlockSurface(bmpDest);
