@@ -32,7 +32,7 @@ static KeywordMap Keywords;
 
 
 // Internal
-static int	GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn = false);
+static bool	GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn = false);
 
 
 ///////////////////
@@ -83,7 +83,7 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 
 ///////////////////
 // Read an interger from a file
-int ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
+bool ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
 {
 	std::string string;
 
@@ -100,7 +100,7 @@ int ReadInteger(const std::string& filename, const std::string& section, const s
 
 ///////////////////
 // Read a string from a file
-int ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn)
+bool ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn)
 {
 	value = defaultv;
 
@@ -118,7 +118,7 @@ int ReadString(const std::string& filename, const std::string& section, const st
 
 ///////////////////
 // Read a float from a file
-int ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
+bool ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv)
 {
 	std::string string;
 
@@ -134,7 +134,7 @@ int ReadFloat(const std::string& filename, const std::string& section, const std
 
 
 
-int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv) {
+bool ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv) {
 	std::string string;
 	
 	value = defaultv;
@@ -149,7 +149,7 @@ int ReadColour(const std::string& filename, const std::string& section, const st
 
 //////////////////
 // Reads an array of integers
-int ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
+bool ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items)
 {
 	std::string string;
 
@@ -167,7 +167,7 @@ int ReadIntArray(const std::string& filename, const std::string& section, const 
 
 ///////////////////
 // Read a string
-static int GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn)
+static bool GetString(const std::string& filename, const std::string& section, const std::string& key, std::string& string, bool abs_fn)
 {
 	FILE	*config = NULL;
 	std::string	Line;

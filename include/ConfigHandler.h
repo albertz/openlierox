@@ -34,14 +34,14 @@
 
 
 // Value reading
-int		ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn = false);
-int		ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
-int		ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv);
-int		ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items);
+bool	ReadString(const std::string& filename, const std::string& section, const std::string& key, std::string& value, std::string defaultv, bool abs_fn = false);
+bool	ReadInteger(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
+bool	ReadFloat(const std::string& filename, const std::string& section, const std::string& key, float *value, float defaultv);
+bool	ReadIntArray(const std::string& filename, const std::string& section, const std::string& key, int *array, int num_items);
 
 
 struct Color;
-int		ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv);
+bool	ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv);
 
 
 
