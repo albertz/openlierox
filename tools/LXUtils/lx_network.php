@@ -194,7 +194,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   
   // Lives
   $lives = BinToInt16BE($response);
-  if ($lives == 65535)
+  if ($lives == 65535 || $lives == 65534)
     $lives = "unlimited";
   $response = substr($response, 2);
   
@@ -230,7 +230,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
     $worms[$i]->Kills = BinToInt16LE($response);
     $response = substr($response, 2);
     
-    $worms[$i]->Lives = "&ndash;"; // We don't know the lives yet
+    $worms[$i]->Lives = "-"; // We don't know the lives yet
     $worms[$i]->IP = ""; // We don't know the IP yet
   }
   
@@ -242,7 +242,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
       if ($worms[$i]->Lives == 65535)
         $worms[$i]->Lives = "out";
       if ($worms[$i]->Lives == 65534)
-        $worms[$i]->Lives = "&ndash;";
+        $worms[$i]->Lives = "-";
       $response = substr($response, 2);    
     }
   }
