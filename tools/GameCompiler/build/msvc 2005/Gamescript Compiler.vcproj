@@ -98,7 +98,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -118,6 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="../../../../include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_DEPRECATE;_SDL_main_h"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -137,6 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="SDL.lib"
 				OutputFile="$(ProjectDir)..\..\distrib\gc.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
@@ -180,15 +182,31 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\..\src\CGameScript.cpp"
+				RelativePath="..\..\..\..\src\common\CGameScript.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\ConfigHandler.cpp"
+				RelativePath="..\..\..\..\src\common\ConfigHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\common\Debug.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\src\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\common\ProjAction.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\common\StringUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\common\Version.cpp"
 				>
 			</File>
 		</Filter>
@@ -197,22 +215,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\..\src\CGameScript.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\ConfigHandler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\CVec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\main.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
