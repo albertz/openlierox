@@ -3401,9 +3401,9 @@ void CWormBotInputHandler::AI_DrawPath()
 	if (!bmpDest.get())
 		return;
 
-	const Uint32 NodeColour = m_worm->cSkin.getColor();
-	const Uint32 HighColour = MakeColour(255, 0, 0);
-	const Uint32 LineColour = tLX->clWhite;
+	const Color NodeColour = m_worm->cSkin.getColor();
+	const Color HighColour = Color(255, 0, 0);
+	const Color LineColour = tLX->clWhite;
 
 	// Go down the path
 	NEW_ai_node_t *node = NEW_psCurrentNode;
