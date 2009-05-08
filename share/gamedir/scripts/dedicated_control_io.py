@@ -91,9 +91,15 @@ def startLobby(port):
 	else:
 		SendCommand( "startlobby" )
 
-# Force the server into starting the game (weapon selections screen)
+# start the game (weapon selections screen)
 def startGame():
-	SendCommand( "startgame" )
+	msgs = SendCommand( "startgame" )
+	if len(msgs) > 0:
+		for m in msgs():
+			messageLog(m, LOG_ERROR)
+		return False
+	else:
+		return True
 
 # Use this to force the server into lobby - it will abort current game but won't kick connected worms
 def gotoLobby():

@@ -925,6 +925,8 @@ int InitializeLieroX()
 // Game loop
 void GameLoopFrame()
 {
+	HandlePendingCommands();
+	
 	if(bDedicated)
 		DedicatedControl::Get()->GameLoop_Frame();
 

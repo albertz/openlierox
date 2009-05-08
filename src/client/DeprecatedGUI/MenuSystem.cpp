@@ -270,11 +270,15 @@ void Menu_SetSkipStart(int s)
 }
 
 void Menu_Frame() {
+	HandlePendingCommands();
+	
 	if(bDedicated) {
 		DedicatedControl::Get()->Menu_Frame();
 		return;
 	}
 
+	if(!tMenu->bMenuRunning) return; // could be already quitted
+	
 	Menu_RedrawMouse(true);
 
 #ifdef WITH_G15
@@ -349,6 +353,7 @@ void Menu_Loop()
 		AbsTime oldtime = tLX->currentTime;
 
 		Menu_Frame();
+		if(!tMenu->bMenuRunning) break;
 		CapFPS();
 		SetCrashHandlerReturnPoint("Menu_Loop");
 		

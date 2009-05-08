@@ -63,6 +63,8 @@ void Menu_MainInitialize()
 	tMenu->bMenuRunning = true;
 	tMenu->iMenuType = MNU_MAIN;
 
+	if(bDedicated) return;
+	
 	// Create the buffer
 	assert(tMenu->bmpBuffer.get());
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_wob,0,0);

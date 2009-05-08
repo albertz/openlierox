@@ -47,6 +47,7 @@
 #include "CServerNetEngine.h"
 #include "FlagInfo.h"
 #include "CMap.h"
+#include "DedicatedControl.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -1291,6 +1292,9 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	tLX->iGameType = GME_JOIN;
 	cClient->Connect(addr);
 	
+	if(DedicatedControl::Get())
+		DedicatedControl::Get()->Connecting_Signal(addr);
+
 	return true;
 }
 

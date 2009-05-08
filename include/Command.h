@@ -24,62 +24,52 @@
 #include <vector>
 
 
-#define		MAX_ARGS		32
-#define		MAX_ARGLENGTH	128
-
-
-// Command structure
-class command_t { public:
-	std::string		strName;
-	void			(*func) ( void );
-	bool			bHidden;
-
-	command_t	*Next;
-};
-
-
-// Arguments
-int		Cmd_GetNumArgs();
-void	Cmd_AddArg(const std::string& text);
-std::string Cmd_GetArg(int a);
-
-
-
-// Command routines
-command_t	*Cmd_GetCommand(const std::string& strName);
-bool	Cmd_ParseLine(const std::string& text);
-int		Cmd_AutoComplete(std::string& strVar);
-int		Cmd_AddCommand(const std::string& strName, void (*func) ( void ), bool hide = false);
-void	Cmd_Initialize();
-void	Cmd_Free();
-
 std::vector<std::string> ParseParams(const std::string& params);
 
 
-// User commands
-void    Cmd_Kick();
-void	Cmd_Ban();
-void	Cmd_KickId();
-void	Cmd_BanId();
-void    Cmd_Mute();
-void	Cmd_MuteId();
-void	Cmd_Unmute();
-void	Cmd_UnmuteId();
-void	Cmd_Crash();
-void	Cmd_CoreDump();
-void	Cmd_Suicide();
-void	Cmd_Unstuck();
-void	Cmd_WantsJoin();
-void	Cmd_RenameServer();
-void	Cmd_Help();
-void	Cmd_About();
-void	Cmd_BadWord();
-void	Cmd_Quit();
-void	Cmd_Volume();
-void	Cmd_Sound();
-void	Cmd_ServerSideHealth();
-void	Cmd_Connect();
 
+void	Cmd_Initialize();
+void	Cmd_Free();
+
+bool	Cmd_ParseLine(const std::string& text);
+int		Cmd_AutoComplete(std::string& strVar);
+
+
+
+
+
+/*
+	The intended way to use:
+	
+	After pushing a CLI::Command to the command queue, you have to wait
+	and you will get multiple pushReturnArg calls and at the end a
+	finalizeReturn call. You can do any further handling in the finalizeReturn
+	call.
+	
+	At the very end, you also get a finishedCommand call. This one is ignored
+	in most CLI implementations. The chat CLI uses is to destroy itself
+	because it has an own instance for each executed command.
+*/
+struct CmdLineIntf {
+	virtual void pushReturnArg(const std::string& str) = 0;
+	virtual void finalizeReturn() = 0;
+	virtual void writeMsg(const std::string& msg) = 0;
+	virtual void finishedCommand(const std::string& cmd) {} // gets called after a cmd was executed from this CLI
+	virtual ~CmdLineIntf() {}
+	
+	struct Command {
+		CmdLineIntf* sender;
+		std::string cmd;
+		Command(CmdLineIntf* s, const std::string& c) : sender(s), cmd(c) {}
+	};
+};
+
+
+// pushs a command into the command queue
+void Execute(const CmdLineIntf::Command& cmd);
+inline void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
+
+void HandlePendingCommands();
 
 
 #endif  //  __CON_COMMAND_H__

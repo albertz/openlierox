@@ -144,9 +144,6 @@ def signalHandler(sig):
 		elif header == "quit":
 			gameState = GAME_QUIT
 			exit()
-		#elif header == "errorstartlobby": # ignore this for now, we get it if we are already in lobby
-		#	gameState = GAME_QUIT
-		#	io.messageLog("errorstartlobby",io.LOG_ERROR)
 	
 		elif header == "backtolobby" or header == "lobbystarted":
 			if cfg.RANKING:
@@ -154,10 +151,6 @@ def signalHandler(sig):
 			gameState = GAME_LOBBY
 			sentStartGame = False
 			controlHandler()
-		elif header == "errorstartgame":
-			gameState = GAME_LOBBY
-			io.messageLog("errorstartgame",io.LOG_ERROR)
-			sentStartGame = False
 	
 		elif header == "weaponselections":
 			gameState = GAME_WEAPONS
@@ -555,10 +548,13 @@ def controlHandlerDefault():
 						else:
 							io.setvar("GameOptions.GameInfo.GameType", 0)
 
-					io.startGame()
-					sentStartGame = True
-					if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
-						io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
+					if io.startGame():
+						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
+							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)	
+						sentStartGame = True
+					else:
+						io.chatMsg("Game could not be started")
+						oldGameState == GAME_PLAYING # hack that it resets at next control handler call
 					
 	if gameState == GAME_WEAPONS:
 

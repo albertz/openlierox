@@ -20,13 +20,14 @@
 #include "CWorm.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
-#include "DedicatedControl.h"
+#include "Command.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
 #include "CMap.h"
 #include "FindFile.h"
 #include "Debug.h"
 #include "DeprecatedGUI/Menu.h"
+#include "DedicatedControl.h"
 
 
 //////////////////
@@ -1014,18 +1015,14 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 	if (!cl || !cl->getRights()->Dedicated)
 		return "You do not have sufficient privileges for dedicated control";
 	
-	if(DedicatedControl::Get()) {
-		std::string cmd = "";
-		for(std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); ++i) {
-			if(i != params.begin()) cmd += " ";
-			cmd += *i;
-		}
-		DedicatedControl::Get()->Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), cmd) );
-		
-		return "";
+	std::string cmd = "";
+	for(std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); ++i) {
+		if(i != params.begin()) cmd += " ";
+		cmd += *i;
 	}
+	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), cmd) );
 	
-	return "dedicated control is not available";
+	return "";
 }
 
 std::string ProcessScript(const std::vector<std::string>& params, int sender_id) {
@@ -1045,7 +1042,7 @@ std::string ProcessScript(const std::vector<std::string>& params, int sender_id)
 		return "You do not have sufficient privileges for changing the dedicated script";
 	
 	if(DedicatedControl::Get()) {
-		DedicatedControl::Get()->Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), "script " + params[0]) );
+		Execute( new ChatDedHandler(sender_id), "script " + params[0] );
 		
 		return "";
 	}

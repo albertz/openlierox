@@ -409,7 +409,7 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 			std::string buf;
 			getline(owner->pipe.out(), buf);
 			
-			DedicatedControl::Get()->Execute( Command(owner, buf) );
+			Execute( owner, buf );
 		}
 		return 0;
 	}
@@ -468,7 +468,7 @@ struct StdinCmdLineIntf : CmdLineIntf {
 				}
 			}
 
-			DedicatedControl::Get()->Execute( Command(owner, buf) );
+			Execute( owner, buf );
 		}
 		return 0;
 	}	
@@ -484,9 +484,6 @@ struct DedIntern {
 	ScriptCmdLineIntf* scriptInterface;
 	StdinCmdLineIntf* stdinInterface;
 	
-	SDL_mutex* pendingCommandsMutex;
-	std::list<CmdLineIntf::Command> pendingCommands;
-	
 	bool quitSignal;
 	SDL_mutex* pendingSignalsMutex;
 	bool waitingForNextSignal;
@@ -501,12 +498,11 @@ struct DedIntern {
 
 	DedIntern() :
 		scriptInterface(NULL), stdinInterface(NULL),
-		pendingCommandsMutex(NULL), quitSignal(false),
+		quitSignal(false),
 		pendingSignalsMutex(NULL), waitingForNextSignal(false),
 		state(S_INACTIVE)
 	{
 		dedicatedControlInstance->internData = this;
-		pendingCommandsMutex = SDL_CreateMutex();
 		pendingSignalsMutex = SDL_CreateMutex();
 
 		scriptInterface = new ScriptCmdLineIntf();
@@ -520,7 +516,6 @@ struct DedIntern {
 		delete stdinInterface; stdinInterface = NULL;
 		delete scriptInterface; scriptInterface = NULL;
 		
-		SDL_DestroyMutex(pendingCommandsMutex);
 		SDL_DestroyMutex(pendingSignalsMutex);
 
 		notes << "DedicatedControl destroyed" << endl;
@@ -564,12 +559,7 @@ struct DedIntern {
 		pushSignal(name, args);
 	}
 	
-	void Execute(const CmdLineIntf::Command& command) {
-		ScopedLock lock(pendingCommandsMutex);
-		pendingCommands.push_back(command);
-	}
 
-	
 	// -------------------------------
 	// ------- state -----------------
 
@@ -586,727 +576,10 @@ struct DedIntern {
 		};
 	State state;
 
-	// TODO: Move this
-	static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
-	{
-		if(id <0 || id >= MAX_WORMS) {
-			caller->writeMsg(request + " : Faulty ID " + itoa(id));
-			return NULL;
-		}
-		CWorm *w = cServer->getWorms() + id;
-		if(!w->isUsed()) {
-			caller->writeMsg(request + " : ID " + itoa(id) + " not in use");
-			return NULL;
-		}
-		return w;
-	}
 
 	// --------------------------------
 	// ---- commands ------------------
 
-	void Cmd_Quit(CmdLineIntf* caller) {
-		*DeprecatedGUI::bGame = false; // this means if we were in menu => quit
-		DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
-
-		tLX->bQuitGame = true; // quit main-main-loop
-		SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
-	}
-
-	void Cmd_Message(CmdLineIntf* caller, const std::string& msg) {
-		hints << "DedicatedControl: message: " << msg << endl;
-	}
-	
-	void Cmd_Script(CmdLineIntf* caller, const std::string& script) {
-		if(IsAbsolutePath(script)) {
-			caller->writeMsg("Error: absolute path names are not allowed for script command");
-			return;
-		}
-
-		if(script.find("..") != std::string::npos) {
-			caller->writeMsg("Error: invalid script filename: " + script);
-			return;
-		}
-		
-		{
-			ScopedLock lock(pendingSignalsMutex);
-			waitingForNextSignal = false;
-			pendingSignals.clear();
-		}
-
-		if(script == "" || script == "/dev/null")
-			scriptInterface->loadScript("/dev/null");
-		else
-			scriptInterface->loadScript("scripts/" + script);
-	}
-
-	// adds a worm to the game (By string - id is way to complicated)
-	void Cmd_AddBot(CmdLineIntf* caller, const std::string & params)
-	{
-		if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
-			caller->writeMsg("Too many worms!");
-			return;
-		}
-		
-		// try to find the requested worm
-		if(params != "") {
-			std::string localWorm = params;
-			TrimSpaces(localWorm);
-			StripQuotes(localWorm);
-			
-			profile_t *p = FindProfile(localWorm);
-			if(p) {
-				cClient->AddWorm(p);
-				return;
-			}
-			
-			caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead"); 
-		}
-		
-		cClient->AddRandomBot();
-	}
-
-	void Cmd_KickBot(CmdLineIntf* caller, const std::string& params) {
-		std::string reason = params;
-		if(reason == "") reason = "Dedicated command";
-		int worm = cServer->getLastBot();
-		if(worm < 0) {
-			caller->writeMsg("there is no bot on the server");
-			return;
-		}
-		cServer->kickWorm(worm, reason);
-	}
-	
-	void Cmd_KillBots(CmdLineIntf* caller, const std::string & params) {
-		for( int f=0; f<cClient->getNumWorms(); f++ )
-			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
-			{
-				cServer->getWorms()[cClient->getWorm(f)->getID()].setLives(0);
-				cClient->getNetEngine()->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
-			}
-	}
-
-	// Kick and ban will both function using ID
-	// It's up to the control-program to supply the ID
-	// - if it sends a string atoi will fail at converting it to something sensible
-	void Cmd_KickWorm(CmdLineIntf* caller, const std::string & params)
-	{
-		std::string reason = "";
-		int id = -1;
-		std::vector<std::string> sSplit = explode(params," ");
-
-		if (sSplit.size() == 1)
-			id = atoi(params);
-		else if (sSplit.size() >= 2) {
-			id = atoi(sSplit[0]);
-			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++) {
-				if(it == sSplit.begin())
-					continue;
-				reason += *it;
-				reason += " ";
-			}
-			TrimSpaces(reason);
-		}
-		else {
-			caller->writeMsg("KickWorm: Wrong syntax");
-			return;
-		}
-
-		if(!CheckWorm(caller, id, "KickWorm"))
-			return;
-
-		cServer->kickWorm(id,reason);
-	}
-
-	void Cmd_BanWorm(CmdLineIntf* caller, const std::string & params)
-	{
-		std::string reason = "";
-		int id = -1;
-		std::vector<std::string> sSplit = explode(params," ");
-
-		if (sSplit.size() == 1)
-			id = atoi(params);
-		else if (sSplit.size() >= 2) {
-			id = atoi(sSplit[0]);
-			for(std::vector<std::string>::iterator it = sSplit.begin();it != sSplit.end(); it++) {
-				if(it == sSplit.begin())
-					continue;
-				reason += *it;
-				if (it+1 != sSplit.end())
-					reason += " ";
-			}
-		}
-		else {
-			caller->writeMsg("BanWorm: Wrong syntax");
-			return;
-		}
-		if(!CheckWorm(caller, id, "BanWorm"))
-			return;
-
-		cServer->banWorm(id,reason);
-	}
-
-	// TODO: Add name muting, if wanted.
-	void Cmd_MuteWorm(CmdLineIntf* caller, const std::string & params)
-	{
-		int id = -1;
-		id = atoi(params);
-		if(!CheckWorm(caller, id, "MuteWorm"))
-			return;
-
-		cServer->muteWorm(id);
-	}
-
-	void Cmd_SetWormTeam(CmdLineIntf* caller, const std::string & params)
-	{
-		std::vector<std::string> param = ParseParams(params);
-		if(param.size() != 2) {
-			caller->writeMsg("SetWormTeam: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
-			return;
-		}
-		
-		int id = atoi(param[0]);
-		int team = atoi(param[1]);
-
-		CWorm *w = CheckWorm(caller, id,"SetWormTeam");
-		if (!w) return;
-
-		if( team < 0 || team > 3 ) {
-			caller->writeMsg("SetWormTeam: invalid team number");
-			return;
-		}
-
-		w->getLobby()->iTeam = team;
-		w->setTeam(team);
-		cServer->UpdateWorms();
-		cServer->SendWormLobbyUpdate();
-		cServer->RecheckGame();
-	}
-
-	void Cmd_SetWormSpeedFactor(CmdLineIntf* caller, const std::string& params) {
-		std::vector<std::string> param = ParseParams(params);
-		if(param.size() != 2) {
-			caller->writeMsg("Cmd_SetWormSpeedFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
-			return;
-		}
-		
-		int id = atoi(param[0]);
-		float factor = atof(param[1]);
-		if(!CheckWorm(caller, id, "Cmd_SetWormSpeedFactor")) return;
-		
-		cServer->SetWormSpeedFactor(id, factor);
-	}
-
-	void Cmd_SetWormDamageFactor(CmdLineIntf* caller, const std::string& params) {
-		std::vector<std::string> param = ParseParams(params);
-		if(param.size() != 2) {
-			caller->writeMsg("Cmd_SetWormDamageFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
-			return;
-		}
-		
-		int id = atoi(param[0]);
-		float factor = atof(param[1]);
-		if(!CheckWorm(caller, id, "Cmd_SetWormDamageFactor")) return;
-		
-		cServer->SetWormDamageFactor(id, factor);
-	}
-
-	void Cmd_SetWormCanUseNinja(CmdLineIntf* caller, const std::string& params) {
-		std::vector<std::string> param = ParseParams(params);
-		if(param.size() != 2) {
-			caller->writeMsg("Cmd_SetWormCanUseNinja: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
-			return;
-		}
-		
-		int id = atoi(param[0]);
-		bool canUse = from_string<bool>(param[1]);
-		if(!CheckWorm(caller, id, "Cmd_SetWormCanUseNinja")) return;
-		
-		cServer->SetWormCanUseNinja(id, canUse);
-	}
-
-	void Cmd_SetWormCanAirJump(CmdLineIntf* caller, const std::string& params) {
-		std::vector<std::string> param = ParseParams(params);
-		if(param.size() != 2) {
-			caller->writeMsg("Cmd_SetWormCanAirJump: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
-			return;
-		}
-		
-		int id = atoi(param[0]);
-		bool canUse = from_string<bool>(param[1]);
-		if(!CheckWorm(caller, id, "Cmd_SetWormCanAirJump")) return;
-		
-		cServer->SetWormCanAirJump(id, canUse);
-	}
-	
-	void Cmd_AuthorizeWorm(CmdLineIntf* caller, const std::string& params) {
-		if( params.find(" ") == std::string::npos ) {
-			caller->writeMsg("SetVar: wrong params: " + params);
-			return;
-		}
-		int id = -1;
-		id = atoi(params);
-		if(!CheckWorm(caller, id, "AuthorizeWorm"))
-			return;
-
-		cServer->authorizeWorm(id);
-	}
-
-	void Cmd_SetVar(CmdLineIntf* caller, const std::string& params) {
-		size_t f = params.find(" ");
-		if( f == std::string::npos ) {
-			caller->writeMsg("SetVar: wrong params: " + params);
-			return;
-		}
-		std::string var = params.substr( 0, f );
-		std::string value = params.substr( f + 1 );
-		TrimSpaces( var );
-		TrimSpaces( value );
-		StripQuotes( value );
-
-		RegisteredVar* varptr = CScriptableVars::GetVar(var);
-		if( varptr == NULL )
-		{
-			caller->writeMsg("SetVar: no var with name " + var);
-			notes << "Available vars:\n" << CScriptableVars::DumpVars() << endl;
-			notes << "\nFor Python ded control script:\n" << endl;
-			for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
-			{
-				notes << "setvar( \"" << it->first << "\", ";
-				if( it->second.var.type == SVT_BOOL )
-					notes << (int) * it->second.var.b;
-				else if( it->second.var.type == SVT_INT )
-					notes << * it->second.var.i;
-				else if( it->second.var.type == SVT_FLOAT )
-					notes << * it->second.var.f;
-				else if( it->second.var.type == SVT_STRING )
-					notes << "\"" << * it->second.var.s << "\"";
-				else if( it->second.var.type == SVT_COLOR )
-					notes << ColToHex(*it->second.var.cl);
-				else
-					notes << "\"\"";
-				notes << ")" << endl;
-			}
-			return;
-		}
-
-		if( varptr->var.type == SVT_CALLBACK ) {
-			caller->writeMsg("SetVar: callbacks are not allowed");
-			// If we want supoort for that, I would suggest a seperated command like "call ...".
-			return;
-		}
-		
-		CScriptableVars::SetVarByString(varptr->var, value);
-
-		//notes << "DedicatedControl: SetVar " << var << " = " << value << endl;
-
-		cServer->UpdateGameLobby();
-	}
-
-	void Cmd_GetVar(CmdLineIntf* caller, const std::string& params) {
-		if( params.find(" ") != std::string::npos ) {
-			caller->writeMsg("GetVar: wrong params: " + params);
-			return;
-		}
-		std::string var = params;
-		TrimSpaces( var );
-		RegisteredVar* varptr = CScriptableVars::GetVar(var);
-		if( varptr == NULL ) {
-			caller->writeMsg("GetVar: no var with name " + var);
-			return;
-		}
-		
-		if( varptr->var.type == SVT_CALLBACK ) {
-			caller->writeMsg("GetVar: callbacks are not allowed");
-			// If we want supoort for that, I would suggest a seperated command like "call ...".
-			return;
-		}
-		
-		if( varptr->var.s == &tLXOptions->sServerPassword ) {
-			caller->writeMsg("GetVar: this variable is restricted");
-			// If you want to check if a worm is authorized, use another function for that.
-			return;
-		}
-		
-		caller->pushReturnArg(varptr->var.toString());
-	}
-	
-	void Cmd_GetFullFileName(CmdLineIntf* caller, std::string param) {
-		std::string fn = param;
-		TrimSpaces(fn);
-		StripQuotes(fn);
-		
-		caller->pushReturnArg(GetAbsolutePath(GetFullFileName(fn, NULL)));
-	}
-
-	void Cmd_GetWriteFullFileName(CmdLineIntf* caller, std::string param) {
-		std::string fn = param;
-		TrimSpaces(fn);
-		StripQuotes(fn);
-		
-		caller->pushReturnArg(GetAbsolutePath(GetWriteFullFileName(fn)));
-	}
-	
-	void Cmd_StartLobby(CmdLineIntf* caller, std::string param) {
-		if(state != S_INACTIVE) {
-			caller->writeMsg("we cannot start the lobby in current state");
-			caller->writeMsg("stop lobby/game if you want to restart it");
-			return; // just ignore it and stay in current state
-		}
-		
-		if( param != "" ) {
-			int port = atoi(param);
-			if( port )
-				tLXOptions->iNetworkPort = port;
-		}
-
-		tLXOptions->tGameInfo.iMaxPlayers = CLAMP(tLXOptions->tGameInfo.iMaxPlayers, 2, (int)MAX_PLAYERS);
-
-		tLX->iGameType = GME_HOST;
-
-		cClient->Shutdown();
-		cClient->Clear();
-
-		// Start the server
-		if(!cServer->StartServer()) {
-			// Crappy
-			caller->writeMsg("ERROR: Server wouldn't start");
-			Sig_ErrorStartLobby();
-			return;
-		}
-
-		// Lets connect me to the server
-		if(!cClient->Initialize()) {
-			// Crappy
-			caller->writeMsg("ERROR: Client wouldn't initialize");
-			Sig_ErrorStartLobby();
-			return;
-		}
-		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
-
-		if(tLXOptions->tGameInfo.sModDir == "")
-			tLXOptions->tGameInfo.sModDir = "MW 1.0";
-		if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {
-			caller->writeMsg("no mod for dedicated, " + tLXOptions->tGameInfo.sModDir + " not found");
-			// TODO..
-		}
-
-		// Get the game type
-		if(tLXOptions->tGameInfo.gameMode == NULL)
-			tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
-
-		if(tLXOptions->tGameInfo.sMapFile == "")
-			tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
-		tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
-
-		Sig_LobbyStarted();
-	}
-
-	void Cmd_StartGame(CmdLineIntf* caller) {
-		if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames]) {
-			caller->writeMsg("cannot start game, too few players");
-			Sig_ErrorStartGame();
-			return;
-		}
-
-		// Start the game
-		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
-		if(!cServer->StartGame()) {
-			caller->writeMsg("cannot start game, got some error");
-			cCache.ClearExtraEntries(); // just to be sure
-			Sig_ErrorStartGame();
-			return;			
-		}
-
-		// Leave the frontend
-		*DeprecatedGUI::bGame = true;
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-		tLX->iGameType = GME_HOST;
-	}
-
-	void Cmd_Map(CmdLineIntf* caller, const std::string& params) {
-		std::string filename = params;
-		TrimSpaces(filename);
-		StripQuotes(filename);
-		
-		if(filename == "") {
-			caller->writeMsg("specify map filename");
-			return;
-		}
-		
-		if(filename.find(".") == std::string::npos)
-			filename += ".lxl";
-		
-		// TODO: search through all levels and match name if we don't have a proper filename
-		// Don't do this explicitly though, we should cache the list (and also use it
-		// everywhere else where we need it).
-		
-		tLXOptions->tGameInfo.sMapFile = filename;
-		cServer->UpdateGameLobby();
-	}
-	
-	void Cmd_GotoLobby(CmdLineIntf* caller) {
-		cServer->gotoLobby();
-		*DeprecatedGUI::bGame = false;
-		DeprecatedGUI::tMenu->bMenuRunning = true;
-	}
-
-	void Cmd_ChatMessage(CmdLineIntf* caller, const std::string& msg, int type = TXT_NOTICE) {
-		cServer->SendGlobalText(msg, type);
-	}
-
-	void Cmd_PrivateMessage(CmdLineIntf* caller, const std::string& params, int type = TXT_NOTICE) {
-		int id = -1;
-		id = atoi(params);
-		CWorm *w = CheckWorm(caller, id, "PrivateMessage");
-		if( !w || !w->getClient() || !w->getClient()->getNetEngine() )
-			return;
-
-		std::string msg;
-		if( params.find(" ") != std::string::npos )
-			msg = params.substr( params.find(" ")+1 );
-
-		w->getClient()->getNetEngine()->SendText(msg, type);
-	}
-
-	void Cmd_GetWormList(CmdLineIntf* caller, const std::string& params)
-	{
-		CWorm *w = cServer->getWorms();
-		for(int i=0; i < MAX_WORMS; i++, w++)
-		{
-			if(!w->isUsed())
-				continue;
-
-			caller->pushReturnArg(itoa(w->getID()));
-		}
-	}
-
-	void Cmd_GetComputerWormList(CmdLineIntf* caller) {
-		CWorm *w = cServer->getWorms();
-		for(int i = 0; i < MAX_WORMS; i++, w++) {
-			if(w->isUsed() && w->getType() == PRF_COMPUTER)
-				caller->pushReturnArg(itoa(w->getID()));
-		}
-	}
-	
-	void Cmd_GetWormName(CmdLineIntf* caller, const std::string& params) {
-		int id = atoi(params);
-		CWorm* w = CheckWorm(caller, id, "GetWormName");
-		if(!w) return;
-		caller->pushReturnArg(w->getName());
-	}
-
-	void Cmd_GetWormTeam(CmdLineIntf* caller, const std::string& params) {
-		int id = atoi(params);
-		CWorm* w = CheckWorm(caller, id, "GetWormTeam");
-		if(!w) return;
-		caller->pushReturnArg(itoa(w->getTeam()));
-	}
-	
-	void Cmd_GetWormIp(CmdLineIntf* caller, const std::string& params) {
-		int id = -1;
-		id = atoi(params);
-		CWorm* w = CheckWorm(caller, id, "GetWormIp");
-
-		// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
-		std::string str_addr;
-		if(w && w->getClient() && w->getClient()->getChannel())
-			NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
-		if (str_addr != "")
-			caller->pushReturnArg(str_addr);
-		else
-			caller->writeMsg("GetWormIp: str_addr == \"\"");
-	}
-
-	void Cmd_GetWormLocationInfo(CmdLineIntf* caller, const std::string& params) {
-		int id = -1;
-		id = atoi(params);
-		CWorm* w = CheckWorm(caller, id,"GetWormCountryInfo");
-		if (!w)
-		{
-			return;
-		}
-
-		std::string str_addr;
-		IpInfo info;
-
-		NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
-		if (str_addr != "")
-		{
-			info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-			caller->pushReturnArg(info.Continent);
-			caller->pushReturnArg(info.Country);
-			caller->pushReturnArg(info.CountryShortcut);
-		}
-		else
-		{
-			caller->writeMsg("GetWormCountryInfo: str_addr == \"\"");
-		}
-	}
-
-	void Cmd_GetWormPing(CmdLineIntf* caller, const std::string& params) {
-		int id = -1;
-		id = atoi(params);
-		CWorm* w = CheckWorm(caller, id, "GetWormPing");
-		if(!w || !w->getClient() || !w->getClient()->getChannel())
-			return;
-
-		caller->pushReturnArg(itoa(w->getClient()->getChannel()->getPing()));
-	}
-
-	void Cmd_GetWormSkin(CmdLineIntf* caller, const std::string& params) {
-		int id = -1;
-		id = atoi(params);
-		CWorm* w = CheckWorm(caller, id, "GetWormSkin");
-		if (!w)
-		{
-			caller->pushReturnArg(0);
-			caller->pushReturnArg("Default.png");
-			return;
-		}
-
-		caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().get()));
-		caller->pushReturnArg(w->getSkin().getFileName());
-	}
-
-	void Cmd_Connect(CmdLineIntf* caller, const std::string& params) {
-		JoinServer(params, params, "");
-		// TODO: move to JoinServer
-		Sig_Connecting(params);
-	}
-
-	void Cmd_DumpGameState(CmdLineIntf* caller, const std::string& params) {
-		cServer->DumpGameState();
-	}	
-
-	void Cmd_DumpSysState(CmdLineIntf* caller, const std::string& params) {
-		hints << "System state:" << endl;
-		cServer->DumpGameState();
-		// TODO: client game state
-		hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
-		hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
-	}	
-	
-	void Cmd_SaveConfig(CmdLineIntf* caller) {
-		tLXOptions->SaveToDisc();
-	}
-
-	void HandleCommand(const CmdLineIntf::Command& command) {
-		std::string cmd = command.cmd; TrimSpaces(cmd);
-		std::string params;
-		size_t f = cmd.find(' ');
-		if(f != std::string::npos) {
-			params = cmd.substr(f + 1);
-			TrimSpaces(params);
-			cmd = cmd.substr(0, f);
-		}
-		stringlwr(cmd);
-		if(cmd == "") return;
-
-		// TODO: merge these commands with ingame console commands (Commands.cpp)
-		if(cmd == "nextsignal") {
-			ScopedLock lock(pendingSignalsMutex);
-			if(pendingSignals.size() > 0) {
-				Signal sig = pendingSignals.front();
-				pendingSignals.pop_front();
-				command.sender->pushReturnArg(sig.name);
-				for(std::list<std::string>::iterator i = sig.args.begin(); i != sig.args.end(); ++i)
-					command.sender->pushReturnArg(*i);
-			}
-			else {
-				// do nothing, we will send the next signal when it arrives
-				waitingForNextSignal = true;
-				return;
-			}
-		}
-		else if(cmd == "quit")
-			Cmd_Quit(command.sender);
-		else if(cmd == "saveconfig")
-			Cmd_SaveConfig(command.sender);
-		else if(cmd == "setvar")
-			Cmd_SetVar(command.sender, params);
-		else if(cmd == "getvar")
-			Cmd_GetVar(command.sender, params);			
-		else if(cmd == "script")
-			Cmd_Script(command.sender, params);
-		else if(cmd == "msg")
-			Cmd_Message(command.sender, params);
-		else if(cmd == "chatmsg")
-			Cmd_ChatMessage(command.sender, params);
-		else if(cmd == "privatemsg")
-			Cmd_PrivateMessage(command.sender, params);
-		else if(cmd == "startlobby")
-			Cmd_StartLobby(command.sender, params);
-		else if(cmd == "startgame")
-			Cmd_StartGame(command.sender);
-		else if(cmd == "gotolobby")
-			Cmd_GotoLobby(command.sender);
-		else if(cmd == "map")
-			Cmd_Map(command.sender, params);
-
-		else if(cmd == "addbot")
-			Cmd_AddBot(command.sender, params);
-		else if(cmd == "kickbot")
-			Cmd_KickBot(command.sender, params);
-		else if(cmd == "killbots")
-			Cmd_KillBots(command.sender, params);
-
-		else if(cmd == "kickworm")
-			Cmd_KickWorm(command.sender, params);
-		else if(cmd == "banworm")
-			Cmd_BanWorm(command.sender, params);
-		else if(cmd == "muteworm")
-			Cmd_MuteWorm(command.sender, params);
-
-		else if(cmd == "setwormteam")
-			Cmd_SetWormTeam(command.sender, params);
-		else if(cmd == "setwormspeedfactor")
-			Cmd_SetWormSpeedFactor(command.sender, params);
-		else if(cmd == "setwormdamagefactor")
-			Cmd_SetWormDamageFactor(command.sender, params);
-		else if(cmd == "setwormcanuseninja")
-			Cmd_SetWormCanUseNinja(command.sender, params);
-		else if(cmd == "setwormcanairjump")
-			Cmd_SetWormCanAirJump(command.sender, params);
-
-		else if(cmd == "authorizeworm")
-			Cmd_AuthorizeWorm(command.sender, params);
-
-		else if(cmd =="getwormlist")
-			Cmd_GetWormList(command.sender, params);
-		else if(cmd == "getcomputerwormlist")
-			Cmd_GetComputerWormList(command.sender);
-		else if(cmd == "getwormname")
-			Cmd_GetWormName(command.sender, params);
-		else if(cmd == "getwormteam")
-			Cmd_GetWormTeam(command.sender, params);
-		else if(cmd == "getwormip")
-			Cmd_GetWormIp(command.sender, params);
-		else if(cmd == "getwormlocationinfo")
-			Cmd_GetWormLocationInfo(command.sender, params);
-		else if(cmd == "getwormping")
-			Cmd_GetWormPing(command.sender, params);
-		else if(cmd == "getwormskin")
-			Cmd_GetWormSkin(command.sender, params);
-		else if(cmd == "getfullfilename")
-			Cmd_GetFullFileName(command.sender, params);
-		else if(cmd == "getwritefullfilename")
-			Cmd_GetWriteFullFileName(command.sender, params);
-
-		else if(cmd == "connect")
-			Cmd_Connect(command.sender, params);
-
-		else if(cmd == "dumpgamestate")
-			Cmd_DumpGameState(command.sender, params);		
-		else if(cmd == "dumpsysstate")
-			Cmd_DumpSysState(command.sender, params);		
-		
-		else if(Cmd_ParseLine(cmd + " " + params)) {}
-		else {
-			command.sender->writeMsg("unknown command: " + cmd + " " + params);
-		}
-		
-		command.sender->finalizeReturn();
-	}
 
 	// ----------------------------------
 	// ----------- signals --------------
@@ -1326,8 +599,6 @@ struct DedIntern {
 	void Sig_WeaponSelections() { pushSignal("weaponselections"); state = S_SVRWEAPONS; }
 	void Sig_GameStarted() { pushSignal("gamestarted"); state = S_SVRPLAYING; }
 	void Sig_BackToLobby() { pushSignal("backtolobby"); state = S_SVRLOBBY; }
-	void Sig_ErrorStartLobby() { pushSignal("errorstartlobby"); state = S_INACTIVE; }
-	void Sig_ErrorStartGame() { pushSignal("errorstartgame"); }
 	void Sig_Quit() { pushSignal("quit"); scriptInterface->closePipe(); state = S_INACTIVE; }
 
 	void Sig_Connecting(const std::string& addr) { pushSignal("connecting", addr); state = S_CLICONNECTING; }
@@ -1423,25 +694,6 @@ struct DedIntern {
 			lastTimeHandlerCalled = tLX->currentTime;
 		}
 
-#ifdef PYTHON_DED_EMBEDDED
-		if( ! usePython )
-#endif
-		{
-			SDL_mutexP(pendingCommandsMutex);
-			std::list<CmdLineIntf::Command> cmds;
-			cmds.swap(pendingCommands);
-			SDL_mutexV(pendingCommandsMutex);
-			
-			while( cmds.size() > 0 ) {
-				CmdLineIntf::Command command = cmds.front();
-				cmds.pop_front();
-
-				HandleCommand(command);
-				command.sender->finishedCommand(command.cmd);
-			}
-		}
-
-		ProcessEvents();
 
 		// Some debugging stuff
 		// TODO: This really much spams my logs. There should be a better way to inform about this.
@@ -1529,10 +781,12 @@ bool DedicatedControl::Init_priv() {
 // This is the main game loop, the one that do all the simulation etc.
 void DedicatedControl::GameLoopStart_Signal() { internData->Sig_GameLoopStart(); }
 void DedicatedControl::GameLoopEnd_Signal() { internData->Sig_GameLoopEnd(); }
+void DedicatedControl::LobbyStarted_Signal() { internData->Sig_LobbyStarted(); }
 void DedicatedControl::BackToServerLobby_Signal() { internData->Sig_BackToLobby(); }
 void DedicatedControl::BackToClientLobby_Signal() { internData->Sig_ClientGotoLobby(); }
 void DedicatedControl::WeaponSelections_Signal() { internData->Sig_WeaponSelections(); }
 void DedicatedControl::GameStarted_Signal() { internData->Sig_GameStarted(); }
+void DedicatedControl::Connecting_Signal(const std::string& addr) { internData->Sig_Connecting(addr); }
 void DedicatedControl::NewWorm_Signal(CWorm* w) { internData->Sig_NewWorm(w); }
 void DedicatedControl::WormLeft_Signal(CWorm* w) { internData->Sig_WormLeft(w); }
 void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { internData->Sig_ChatMessage(w,message); }
@@ -1545,4 +799,37 @@ void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ internData->Sig_WormA
 void DedicatedControl::Menu_Frame() { internData->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { internData->Frame_Basic(); }
 
-void DedicatedControl::Execute(CmdLineIntf::Command cmd) { internData->Execute(cmd); }
+void DedicatedControl::ChangeScript(const std::string& filename) {
+	{
+		ScopedLock lock(internData->pendingSignalsMutex);
+		internData->waitingForNextSignal = false;
+		internData->pendingSignals.clear();
+	}
+
+	if(filename == "" || filename == "/dev/null")
+		internData->scriptInterface->loadScript("/dev/null");
+	else
+		internData->scriptInterface->loadScript("scripts/" + filename);
+}
+
+bool DedicatedControl::GetNextSignal(CmdLineIntf* sender) {
+	if(sender != internData->scriptInterface) {
+		sender->writeMsg("nextsignal can only be called from the dedicated script");
+		return true; // true means that finalizeReturn() should be called from caller of this func
+	}
+	
+	ScopedLock lock(internData->pendingSignalsMutex);
+	if(internData->pendingSignals.size() > 0) {
+		DedIntern::Signal sig = internData->pendingSignals.front();
+		internData->pendingSignals.pop_front();
+		sender->pushReturnArg(sig.name);
+		for(std::list<std::string>::iterator i = sig.args.begin(); i != sig.args.end(); ++i)
+			sender->pushReturnArg(*i);
+		return true;
+	}
+	else {
+		// do nothing, we will send the next signal when it arrives
+		internData->waitingForNextSignal = true;
+		return false;
+	}
+}
