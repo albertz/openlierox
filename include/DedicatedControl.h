@@ -13,22 +13,22 @@
 #include <string>
 
 
-struct DedInterface {
+struct CmdLineIntf {
 	virtual void pushReturnArg(const std::string& str) = 0;
 	virtual void finalizeReturn() = 0;
 	virtual void writeMsg(const std::string& msg) = 0;
 	virtual void finishedCommand(const std::string& cmd) {}
-	virtual ~DedInterface() {}
+	virtual ~CmdLineIntf() {}
 	
 	struct Command {
-		DedInterface* sender;
+		CmdLineIntf* sender;
 		std::string cmd;
-		Command(DedInterface* s, const std::string& c) : sender(s), cmd(c) {}
+		Command(CmdLineIntf* s, const std::string& c) : sender(s), cmd(c) {}
 	};
 };
 
 
-
+struct DedIntern;
 class CWorm;
 
 class DedicatedControl {
@@ -36,7 +36,7 @@ private:
 	DedicatedControl(); ~DedicatedControl();
 	bool Init_priv();
 public:
-	void* internData;
+	DedIntern* internData;
 	
 	static bool Init(); static void Uninit();
 	static DedicatedControl* Get();
@@ -56,7 +56,7 @@ public:
 	void WormGotAdmin_Signal(CWorm* worm);
 	void WormAuthorized_Signal(CWorm* worm);
 	
-	void Execute(DedInterface::Command cmd);
+	void Execute(CmdLineIntf::Command cmd);
 	
 	void Menu_Frame();
 	void GameLoop_Frame();

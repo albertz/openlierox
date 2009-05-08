@@ -970,7 +970,7 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 }
 
 
-struct ChatDedHandler : DedInterface {
+struct ChatDedHandler : CmdLineIntf {
 	int sender_id;
 	ChatDedHandler(int i) : sender_id(i) {}
 	
@@ -1020,7 +1020,7 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 			if(i != params.begin()) cmd += " ";
 			cmd += *i;
 		}
-		DedicatedControl::Get()->Execute( DedInterface::Command(new ChatDedHandler(sender_id), cmd) );
+		DedicatedControl::Get()->Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), cmd) );
 		
 		return "";
 	}
@@ -1045,7 +1045,7 @@ std::string ProcessScript(const std::vector<std::string>& params, int sender_id)
 		return "You do not have sufficient privileges for changing the dedicated script";
 	
 	if(DedicatedControl::Get()) {
-		DedicatedControl::Get()->Execute( DedInterface::Command(new ChatDedHandler(sender_id), "script " + params[0]) );
+		DedicatedControl::Get()->Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), "script " + params[0]) );
 		
 		return "";
 	}

@@ -81,7 +81,7 @@ void DedicatedControl::Uninit() {
 
 
 
-struct ScriptDedInterface : DedInterface {
+struct ScriptCmdLineIntf : CmdLineIntf {
 	Process pipe;
 	ThreadPoolItem* thread;
 	
@@ -96,7 +96,7 @@ struct ScriptDedInterface : DedInterface {
 #endif
 
 
-	ScriptDedInterface() : thread(NULL) {
+	ScriptCmdLineIntf() : thread(NULL) {
 #ifdef PYTHON_DED_EMBEDDED
 		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
 		Py_Initialize();
@@ -110,7 +110,7 @@ struct ScriptDedInterface : DedInterface {
 #endif
 	}
 	
-	~ScriptDedInterface() {
+	~ScriptCmdLineIntf() {
 		breakCurrentScript();
 
 #ifdef PYTHON_DED_EMBEDDED
@@ -218,7 +218,7 @@ struct ScriptDedInterface : DedInterface {
 				return false;
 			}
 
-			thread = threadPool->start(&ScriptDedInterface::pipeThreadFunc, this, "Ded pipe watcher");
+			thread = threadPool->start(&ScriptCmdLineIntf::pipeThreadFunc, this, "Ded pipe watcher");
 		}
 		else
 			notes << "Dedicated server: not running any script" << endl;
@@ -403,7 +403,7 @@ struct ScriptDedInterface : DedInterface {
 	
 	// reading lines from pipe-out and put them to pipeOutput
 	static int pipeThreadFunc(void* o) {
-		ScriptDedInterface* owner = (ScriptDedInterface*)o;
+		ScriptCmdLineIntf* owner = (ScriptCmdLineIntf*)o;
 
 		while(!owner->pipe.out().eof()) {
 			std::string buf;
@@ -416,14 +416,14 @@ struct ScriptDedInterface : DedInterface {
 	
 };
 
-struct StdinDedInterface : DedInterface {
+struct StdinCmdLineIntf : CmdLineIntf {
 	ThreadPoolItem* thread;
 	
-	StdinDedInterface() {
-		thread = threadPool->start(&StdinDedInterface::stdinThreadFunc, this, "Ded stdin watcher");
+	StdinCmdLineIntf() {
+		thread = threadPool->start(&StdinCmdLineIntf::stdinThreadFunc, this, "Ded stdin watcher");
 	}
 	
-	~StdinDedInterface() {
+	~StdinCmdLineIntf() {
 		notes << "waiting for stdinThread ..." << endl;
 		threadPool->wait(thread, NULL);
 		thread = NULL;
@@ -444,7 +444,7 @@ struct StdinDedInterface : DedInterface {
 	
 	// reading lines from stdin and put them to pipeOutput
 	static int stdinThreadFunc(void* o) {
-		StdinDedInterface* owner = (StdinDedInterface*)o;
+		StdinCmdLineIntf* owner = (StdinCmdLineIntf*)o;
 
 #ifndef WIN32
 		// TODO: there's no fcntl for Windows!
@@ -481,11 +481,11 @@ struct DedIntern {
 
 	static DedIntern* Get() { return (DedIntern*)dedicatedControlInstance->internData; }
 
-	ScriptDedInterface* scriptInterface;
-	StdinDedInterface* stdinInterface;
+	ScriptCmdLineIntf* scriptInterface;
+	StdinCmdLineIntf* stdinInterface;
 	
 	SDL_mutex* pendingCommandsMutex;
-	std::list<DedInterface::Command> pendingCommands;
+	std::list<CmdLineIntf::Command> pendingCommands;
 	
 	bool quitSignal;
 	SDL_mutex* pendingSignalsMutex;
@@ -509,8 +509,8 @@ struct DedIntern {
 		pendingCommandsMutex = SDL_CreateMutex();
 		pendingSignalsMutex = SDL_CreateMutex();
 
-		scriptInterface = new ScriptDedInterface();
-		stdinInterface = new StdinDedInterface();
+		scriptInterface = new ScriptCmdLineIntf();
+		stdinInterface = new StdinCmdLineIntf();
 	}
 	
 	~DedIntern() {
@@ -564,7 +564,7 @@ struct DedIntern {
 		pushSignal(name, args);
 	}
 	
-	void Execute(const DedInterface::Command& command) {
+	void Execute(const CmdLineIntf::Command& command) {
 		ScopedLock lock(pendingCommandsMutex);
 		pendingCommands.push_back(command);
 	}
@@ -587,7 +587,7 @@ struct DedIntern {
 	State state;
 
 	// TODO: Move this
-	static CWorm* CheckWorm(DedInterface* caller, int id, const std::string& request)
+	static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 	{
 		if(id <0 || id >= MAX_WORMS) {
 			caller->writeMsg(request + " : Faulty ID " + itoa(id));
@@ -604,7 +604,7 @@ struct DedIntern {
 	// --------------------------------
 	// ---- commands ------------------
 
-	void Cmd_Quit(DedInterface* caller) {
+	void Cmd_Quit(CmdLineIntf* caller) {
 		*DeprecatedGUI::bGame = false; // this means if we were in menu => quit
 		DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
 
@@ -612,11 +612,11 @@ struct DedIntern {
 		SetQuitEngineFlag("DedicatedControl::Cmd_Quit()"); // quit main-game-loop
 	}
 
-	void Cmd_Message(DedInterface* caller, const std::string& msg) {
+	void Cmd_Message(CmdLineIntf* caller, const std::string& msg) {
 		hints << "DedicatedControl: message: " << msg << endl;
 	}
 	
-	void Cmd_Script(DedInterface* caller, const std::string& script) {
+	void Cmd_Script(CmdLineIntf* caller, const std::string& script) {
 		if(IsAbsolutePath(script)) {
 			caller->writeMsg("Error: absolute path names are not allowed for script command");
 			return;
@@ -640,7 +640,7 @@ struct DedIntern {
 	}
 
 	// adds a worm to the game (By string - id is way to complicated)
-	void Cmd_AddBot(DedInterface* caller, const std::string & params)
+	void Cmd_AddBot(CmdLineIntf* caller, const std::string & params)
 	{
 		if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
 			caller->writeMsg("Too many worms!");
@@ -665,7 +665,7 @@ struct DedIntern {
 		cClient->AddRandomBot();
 	}
 
-	void Cmd_KickBot(DedInterface* caller, const std::string& params) {
+	void Cmd_KickBot(CmdLineIntf* caller, const std::string& params) {
 		std::string reason = params;
 		if(reason == "") reason = "Dedicated command";
 		int worm = cServer->getLastBot();
@@ -676,7 +676,7 @@ struct DedIntern {
 		cServer->kickWorm(worm, reason);
 	}
 	
-	void Cmd_KillBots(DedInterface* caller, const std::string & params) {
+	void Cmd_KillBots(CmdLineIntf* caller, const std::string & params) {
 		for( int f=0; f<cClient->getNumWorms(); f++ )
 			if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
 			{
@@ -688,7 +688,7 @@ struct DedIntern {
 	// Kick and ban will both function using ID
 	// It's up to the control-program to supply the ID
 	// - if it sends a string atoi will fail at converting it to something sensible
-	void Cmd_KickWorm(DedInterface* caller, const std::string & params)
+	void Cmd_KickWorm(CmdLineIntf* caller, const std::string & params)
 	{
 		std::string reason = "";
 		int id = -1;
@@ -717,7 +717,7 @@ struct DedIntern {
 		cServer->kickWorm(id,reason);
 	}
 
-	void Cmd_BanWorm(DedInterface* caller, const std::string & params)
+	void Cmd_BanWorm(CmdLineIntf* caller, const std::string & params)
 	{
 		std::string reason = "";
 		int id = -1;
@@ -746,7 +746,7 @@ struct DedIntern {
 	}
 
 	// TODO: Add name muting, if wanted.
-	void Cmd_MuteWorm(DedInterface* caller, const std::string & params)
+	void Cmd_MuteWorm(CmdLineIntf* caller, const std::string & params)
 	{
 		int id = -1;
 		id = atoi(params);
@@ -756,7 +756,7 @@ struct DedIntern {
 		cServer->muteWorm(id);
 	}
 
-	void Cmd_SetWormTeam(DedInterface* caller, const std::string & params)
+	void Cmd_SetWormTeam(CmdLineIntf* caller, const std::string & params)
 	{
 		std::vector<std::string> param = ParseParams(params);
 		if(param.size() != 2) {
@@ -782,7 +782,7 @@ struct DedIntern {
 		cServer->RecheckGame();
 	}
 
-	void Cmd_SetWormSpeedFactor(DedInterface* caller, const std::string& params) {
+	void Cmd_SetWormSpeedFactor(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> param = ParseParams(params);
 		if(param.size() != 2) {
 			caller->writeMsg("Cmd_SetWormSpeedFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
@@ -796,7 +796,7 @@ struct DedIntern {
 		cServer->SetWormSpeedFactor(id, factor);
 	}
 
-	void Cmd_SetWormDamageFactor(DedInterface* caller, const std::string& params) {
+	void Cmd_SetWormDamageFactor(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> param = ParseParams(params);
 		if(param.size() != 2) {
 			caller->writeMsg("Cmd_SetWormDamageFactor: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
@@ -810,7 +810,7 @@ struct DedIntern {
 		cServer->SetWormDamageFactor(id, factor);
 	}
 
-	void Cmd_SetWormCanUseNinja(DedInterface* caller, const std::string& params) {
+	void Cmd_SetWormCanUseNinja(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> param = ParseParams(params);
 		if(param.size() != 2) {
 			caller->writeMsg("Cmd_SetWormCanUseNinja: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
@@ -824,7 +824,7 @@ struct DedIntern {
 		cServer->SetWormCanUseNinja(id, canUse);
 	}
 
-	void Cmd_SetWormCanAirJump(DedInterface* caller, const std::string& params) {
+	void Cmd_SetWormCanAirJump(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> param = ParseParams(params);
 		if(param.size() != 2) {
 			caller->writeMsg("Cmd_SetWormCanAirJump: should be 2 parameters, given are " + itoa(param.size()) + ": " + params);
@@ -838,7 +838,7 @@ struct DedIntern {
 		cServer->SetWormCanAirJump(id, canUse);
 	}
 	
-	void Cmd_AuthorizeWorm(DedInterface* caller, const std::string& params) {
+	void Cmd_AuthorizeWorm(CmdLineIntf* caller, const std::string& params) {
 		if( params.find(" ") == std::string::npos ) {
 			caller->writeMsg("SetVar: wrong params: " + params);
 			return;
@@ -851,7 +851,7 @@ struct DedIntern {
 		cServer->authorizeWorm(id);
 	}
 
-	void Cmd_SetVar(DedInterface* caller, const std::string& params) {
+	void Cmd_SetVar(CmdLineIntf* caller, const std::string& params) {
 		size_t f = params.find(" ");
 		if( f == std::string::npos ) {
 			caller->writeMsg("SetVar: wrong params: " + params);
@@ -902,7 +902,7 @@ struct DedIntern {
 		cServer->UpdateGameLobby();
 	}
 
-	void Cmd_GetVar(DedInterface* caller, const std::string& params) {
+	void Cmd_GetVar(CmdLineIntf* caller, const std::string& params) {
 		if( params.find(" ") != std::string::npos ) {
 			caller->writeMsg("GetVar: wrong params: " + params);
 			return;
@@ -930,7 +930,7 @@ struct DedIntern {
 		caller->pushReturnArg(varptr->var.toString());
 	}
 	
-	void Cmd_GetFullFileName(DedInterface* caller, std::string param) {
+	void Cmd_GetFullFileName(CmdLineIntf* caller, std::string param) {
 		std::string fn = param;
 		TrimSpaces(fn);
 		StripQuotes(fn);
@@ -938,7 +938,7 @@ struct DedIntern {
 		caller->pushReturnArg(GetAbsolutePath(GetFullFileName(fn, NULL)));
 	}
 
-	void Cmd_GetWriteFullFileName(DedInterface* caller, std::string param) {
+	void Cmd_GetWriteFullFileName(CmdLineIntf* caller, std::string param) {
 		std::string fn = param;
 		TrimSpaces(fn);
 		StripQuotes(fn);
@@ -946,7 +946,7 @@ struct DedIntern {
 		caller->pushReturnArg(GetAbsolutePath(GetWriteFullFileName(fn)));
 	}
 	
-	void Cmd_StartLobby(DedInterface* caller, std::string param) {
+	void Cmd_StartLobby(CmdLineIntf* caller, std::string param) {
 		if(state != S_INACTIVE) {
 			caller->writeMsg("we cannot start the lobby in current state");
 			caller->writeMsg("stop lobby/game if you want to restart it");
@@ -1001,7 +1001,7 @@ struct DedIntern {
 		Sig_LobbyStarted();
 	}
 
-	void Cmd_StartGame(DedInterface* caller) {
+	void Cmd_StartGame(CmdLineIntf* caller) {
 		if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames]) {
 			caller->writeMsg("cannot start game, too few players");
 			Sig_ErrorStartGame();
@@ -1023,7 +1023,7 @@ struct DedIntern {
 		tLX->iGameType = GME_HOST;
 	}
 
-	void Cmd_Map(DedInterface* caller, const std::string& params) {
+	void Cmd_Map(CmdLineIntf* caller, const std::string& params) {
 		std::string filename = params;
 		TrimSpaces(filename);
 		StripQuotes(filename);
@@ -1044,17 +1044,17 @@ struct DedIntern {
 		cServer->UpdateGameLobby();
 	}
 	
-	void Cmd_GotoLobby(DedInterface* caller) {
+	void Cmd_GotoLobby(CmdLineIntf* caller) {
 		cServer->gotoLobby();
 		*DeprecatedGUI::bGame = false;
 		DeprecatedGUI::tMenu->bMenuRunning = true;
 	}
 
-	void Cmd_ChatMessage(DedInterface* caller, const std::string& msg, int type = TXT_NOTICE) {
+	void Cmd_ChatMessage(CmdLineIntf* caller, const std::string& msg, int type = TXT_NOTICE) {
 		cServer->SendGlobalText(msg, type);
 	}
 
-	void Cmd_PrivateMessage(DedInterface* caller, const std::string& params, int type = TXT_NOTICE) {
+	void Cmd_PrivateMessage(CmdLineIntf* caller, const std::string& params, int type = TXT_NOTICE) {
 		int id = -1;
 		id = atoi(params);
 		CWorm *w = CheckWorm(caller, id, "PrivateMessage");
@@ -1068,7 +1068,7 @@ struct DedIntern {
 		w->getClient()->getNetEngine()->SendText(msg, type);
 	}
 
-	void Cmd_GetWormList(DedInterface* caller, const std::string& params)
+	void Cmd_GetWormList(CmdLineIntf* caller, const std::string& params)
 	{
 		CWorm *w = cServer->getWorms();
 		for(int i=0; i < MAX_WORMS; i++, w++)
@@ -1080,7 +1080,7 @@ struct DedIntern {
 		}
 	}
 
-	void Cmd_GetComputerWormList(DedInterface* caller) {
+	void Cmd_GetComputerWormList(CmdLineIntf* caller) {
 		CWorm *w = cServer->getWorms();
 		for(int i = 0; i < MAX_WORMS; i++, w++) {
 			if(w->isUsed() && w->getType() == PRF_COMPUTER)
@@ -1088,21 +1088,21 @@ struct DedIntern {
 		}
 	}
 	
-	void Cmd_GetWormName(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormName(CmdLineIntf* caller, const std::string& params) {
 		int id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormName");
 		if(!w) return;
 		caller->pushReturnArg(w->getName());
 	}
 
-	void Cmd_GetWormTeam(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormTeam(CmdLineIntf* caller, const std::string& params) {
 		int id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormTeam");
 		if(!w) return;
 		caller->pushReturnArg(itoa(w->getTeam()));
 	}
 	
-	void Cmd_GetWormIp(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormIp(CmdLineIntf* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormIp");
@@ -1117,7 +1117,7 @@ struct DedIntern {
 			caller->writeMsg("GetWormIp: str_addr == \"\"");
 	}
 
-	void Cmd_GetWormLocationInfo(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormLocationInfo(CmdLineIntf* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(caller, id,"GetWormCountryInfo");
@@ -1143,7 +1143,7 @@ struct DedIntern {
 		}
 	}
 
-	void Cmd_GetWormPing(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormPing(CmdLineIntf* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormPing");
@@ -1153,7 +1153,7 @@ struct DedIntern {
 		caller->pushReturnArg(itoa(w->getClient()->getChannel()->getPing()));
 	}
 
-	void Cmd_GetWormSkin(DedInterface* caller, const std::string& params) {
+	void Cmd_GetWormSkin(CmdLineIntf* caller, const std::string& params) {
 		int id = -1;
 		id = atoi(params);
 		CWorm* w = CheckWorm(caller, id, "GetWormSkin");
@@ -1168,17 +1168,17 @@ struct DedIntern {
 		caller->pushReturnArg(w->getSkin().getFileName());
 	}
 
-	void Cmd_Connect(DedInterface* caller, const std::string& params) {
+	void Cmd_Connect(CmdLineIntf* caller, const std::string& params) {
 		JoinServer(params, params, "");
 		// TODO: move to JoinServer
 		Sig_Connecting(params);
 	}
 
-	void Cmd_DumpGameState(DedInterface* caller, const std::string& params) {
+	void Cmd_DumpGameState(CmdLineIntf* caller, const std::string& params) {
 		cServer->DumpGameState();
 	}	
 
-	void Cmd_DumpSysState(DedInterface* caller, const std::string& params) {
+	void Cmd_DumpSysState(CmdLineIntf* caller, const std::string& params) {
 		hints << "System state:" << endl;
 		cServer->DumpGameState();
 		// TODO: client game state
@@ -1186,11 +1186,11 @@ struct DedIntern {
 		hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
 	}	
 	
-	void Cmd_SaveConfig(DedInterface* caller) {
+	void Cmd_SaveConfig(CmdLineIntf* caller) {
 		tLXOptions->SaveToDisc();
 	}
 
-	void HandleCommand(const DedInterface::Command& command) {
+	void HandleCommand(const CmdLineIntf::Command& command) {
 		std::string cmd = command.cmd; TrimSpaces(cmd);
 		std::string params;
 		size_t f = cmd.find(' ');
@@ -1428,12 +1428,12 @@ struct DedIntern {
 #endif
 		{
 			SDL_mutexP(pendingCommandsMutex);
-			std::list<DedInterface::Command> cmds;
+			std::list<CmdLineIntf::Command> cmds;
 			cmds.swap(pendingCommands);
 			SDL_mutexV(pendingCommandsMutex);
 			
 			while( cmds.size() > 0 ) {
-				DedInterface::Command command = cmds.front();
+				CmdLineIntf::Command command = cmds.front();
 				cmds.pop_front();
 
 				HandleCommand(command);
@@ -1501,10 +1501,11 @@ PyMethodDef DedIntern::DedScriptEngineMethods[3] = {
 #endif
 
 DedicatedControl::DedicatedControl() : internData(NULL) {}
-DedicatedControl::~DedicatedControl() {	if(internData) delete (DedIntern*)internData; internData = NULL; }
+DedicatedControl::~DedicatedControl() { if(internData) delete internData; internData = NULL; }
 
+// gets called from static DedicatedControl::Init()
 bool DedicatedControl::Init_priv() {
-	DedIntern* dedIntern = new DedIntern;
+	DedIntern* dedIntern = new DedIntern; // constr will assign this->internData to this obj
 	if(tLXOptions->sDedicatedScript != "" && tLXOptions->sDedicatedScript != "/dev/null") {
 		if(IsAbsolutePath(tLXOptions->sDedicatedScript)) {
 			dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
@@ -1544,4 +1545,4 @@ void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ DedIntern::Get()->Sig
 void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
 
-void DedicatedControl::Execute(DedInterface::Command cmd) { DedIntern::Get()->Execute(cmd); }
+void DedicatedControl::Execute(CmdLineIntf::Command cmd) { DedIntern::Get()->Execute(cmd); }
