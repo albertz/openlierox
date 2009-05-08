@@ -11,7 +11,7 @@
 #define __COLOR_H__
 
 #include <SDL.h>
-
+#include <cassert>
 
 ///////////////////
 // If you want to use the adress of some Uint32 directly with memcpy or similar, use this
@@ -102,6 +102,7 @@ struct Color {
 
 	Uint32 get() const { return get(getMainPixelFormat()); }
 	Uint32 get(SDL_PixelFormat *f) const { return SDL_MapRGBA(f, r, g, b, a); }
+	Uint32 getDefault() const { return (Uint32(r) << 24) | (Uint32(g) << 16) | (Uint32(b) << 8) | Uint32(a); }
 	void set(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	
 	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
@@ -109,6 +110,14 @@ struct Color {
 	
 	Color operator * ( float f ) const { return Color( Uint8(r*f), Uint8(g*f), Uint8(b*f), a ); };
 	Color operator + ( const Color & c ) const { return Color( r+c.r, g+c.g, b+c.b, (a+c.a)/2 ); };
+	bool operator<(const Color& c) const {
+		if(r != c.r) return r < c.r;
+		if(g != c.g) return g < c.g;
+		if(b != c.b) return b < c.b;
+		return a < c.a;
+	}
+	Uint8& operator[](int i) { switch(i) { case 0: return r; case 1: return g; case 2: return b; case 3: return a; default: assert(false); } return *((Uint8*)NULL); }
+	Uint8 operator[](int i) const { switch(i) { case 0: return r; case 1: return g; case 2: return b; case 3: return a; default: assert(false); } return 0; }
 };
 
 #endif

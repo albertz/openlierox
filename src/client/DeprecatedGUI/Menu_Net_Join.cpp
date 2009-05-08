@@ -369,7 +369,7 @@ static void updateDetailsList(CListview* l) {
 	lv_item_t* i;
 	lv_subitem_t* si;
 	l->SaveScrollbarPos();
-	Uint32 defaultColor = tLX->clPrivateText;
+	Color defaultColor = tLX->clPrivateText;
 	SETI; si->sText = cClient->getServerName(); // servername
 	SETI;
 	if(cClient->getHaveMap()) {
@@ -460,7 +460,7 @@ static void updateDetailsList(CListview* l) {
 			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
 			
 			si = i->tSubitems->tNext;
-			Uint32 col;
+			Color col;
 			switch(f->get().type) {
 				case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
 				case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;

@@ -290,11 +290,10 @@ bool CMap::LoadTheme(const std::string& _theme)
 		UnlockSurface(Theme.bmpFronttile);
 		SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
 		LOCK_OR_FAIL(hole);
-		Uint32 pixel = 0;
 		if(hole.get()) {
 			for(y=0; y<hole.get()->h; y++) {
 				for(x=0; x<hole.get()->w; x++) {
-					pixel = GetPixel(hole.get(),x,y);
+					Color pixel = Color(hole.get()->format, GetPixel(hole.get(),x,y));
 					if(pixel != tLX->clBlack && pixel != tLX->clPink)  {
 						Theme.iDefaultColour = pixel;
 						break;
@@ -1034,6 +1033,7 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 // Carve a hole in the map
 //
 // Returns the number of dirt pixels carved
+// IMPORTANT: hole and map must have same gfx format
 int CMap::CarveHole(int size, CVec pos)
 {
 	// Just clamp it and continue
@@ -1087,13 +1087,13 @@ int CMap::CarveHole(int size, CVec pos)
 				{
 					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
 					// Set the flag to empty
-					if(CurrentPixel == tLX->clPink) 
+					if(CurrentPixel == tLX->clPink.get(hole.get()->format)) 
 					{
 						// Increase the dirt count
 						nNumDirt++;
 						*PixelFlag = PX_EMPTY;
 					} 
-					else if(CurrentPixel != tLX->clBlack) // Put pixels that are not black/pink (eg, brown)
+					else if(CurrentPixel != tLX->clBlack.get(hole.get()->format)) // Put pixels that are not black/pink (eg, brown)
 					{
 						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
 						PutPixelToAddr(mapimage_px+bpp, CurrentPixel, bpp);
@@ -1126,7 +1126,7 @@ int CMap::CarveHole(int size, CVec pos)
 					Uint32 CurrentPixel = GetPixelFromAddr(hole_px, bpp);
 
 					// Set the flag to empty
-					if(CurrentPixel == tLX->clPink) {
+					if(CurrentPixel == tLX->clPink.get(hole.get()->format)) {
 
 						// Increase the dirt count
 						nNumDirt++;
@@ -1134,7 +1134,7 @@ int CMap::CarveHole(int size, CVec pos)
 						*PixelFlag = PX_EMPTY;
 
 					// Put pixels that are not black/pink (eg, brown)
-					} else if(CurrentPixel != tLX->clBlack)
+					} else if(CurrentPixel != tLX->clBlack.get(hole.get()->format))
 						PutPixelToAddr(mapimage_px, CurrentPixel, bpp);
 				}
 
@@ -1296,7 +1296,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	// Calculate half
 	hole = Theme.bmpHoles[size];
-	Uint32 pink = tLX->clPink;
+	Uint32 pink = tLX->clPink.get(hole.get()->format);
 	w = hole.get()->w;
 	h = hole.get()->h;
 
@@ -1931,14 +1931,14 @@ void CMap::PlaceMisc(int id, CVec pos)
 ///////////////////
 // Put a pixel onto the front image buffer
 // TODO: atm, this isnt used at all; some outcommented usage is in debug parts of AI; so shouldn't we put the pixel on the debug image then?
-void CMap::PutImagePixel(uint x, uint y, Uint32 colour)
+void CMap::PutImagePixel(uint x, uint y, Color colour)
 {
     // Checking edges
 	if(x >= Width || y >= Height)
 		return;
 
 	LOCK_OR_QUIT(bmpImage)
-    PutPixel(bmpImage.get(), x, y, colour);
+    PutPixel(bmpImage.get(), x, y, colour.get(bmpImage.get()->format));
 	UnlockSurface(bmpImage);
 
 	x *= 2;
@@ -2106,8 +2106,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 		if(!w->getAlive() || !w->isUsed() || !cClient->isWormVisibleOnAnyViewport(n))
 			continue;
 
-		Uint8 r,g,b,a;
-		GetColour4(w->getGameColour(), bmpMiniMap.get()->format, &r,&g,&b,&a);
+		Color gameCol = w->getGameColour();
 
 		// Our worms are bigger
 		bool big = false;
@@ -2119,7 +2118,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 			big = w->getTagIT()!=0;
 		}
 		
-		drawOnMiniMap(bmpDest, x, y, w->getPos(), r, g, b, big, false);
+		drawOnMiniMap(bmpDest, x, y, w->getPos(), gameCol.r, gameCol.g, gameCol.b, big, false);
 	}
 	
 	if(cClient && cClient->getGameReady()) {
@@ -2650,7 +2649,7 @@ void CMap::ClearDebugImage() {
 int CarveHole(CVec pos)
 {
 	int x,y;
-	Uint32 Colour = cClient->getMap()->GetTheme()->iDefaultColour;
+	Color Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
 	y = MAX(MIN((int)pos.y, (int)cClient->getMap()->GetHeight() - 1), 0);

@@ -51,7 +51,6 @@ class CWidget;
 
 // It's called ScriptCallback but it's used only for widgets, so contains link to widget that raised an event.
 typedef void ( * ScriptCallback_t ) ( const std::string & param, DeprecatedGUI::CWidget * source );
-typedef Uint32 Color_t;
 
 // These typenr are also used for network, so don't change them.
 enum ScriptVarType_t
@@ -77,22 +76,22 @@ struct ScriptVar_t
 	int i;
 	float f;
 	std::string s;
-	Color_t c;	// color
+	Color c;	// color
 
 	// No callback here - we cannot assign callbacks to each other
-	ScriptVar_t(): type(SVT_BOOL), isUnsigned(false), b(false), i(0), f(0.0), s(""), c(0) { };
-	ScriptVar_t( bool v ): type(SVT_BOOL), isUnsigned(false), b(v), i(0), f(0.0), s(""), c(0) { };
-	ScriptVar_t( int v ): type(SVT_INT), isUnsigned(false), b(false), i(v), f(0.0), s(""), c(0) { };
-	ScriptVar_t( float v ): type(SVT_FLOAT), isUnsigned(false), b(false), i(0), f(v), s(""), c(0) { };
-	ScriptVar_t( const std::string & v ): type(SVT_STRING), isUnsigned(false), b(false), i(0), f(0.0), s(v), c(0) { };
-	ScriptVar_t( const char * v ): type(SVT_STRING), isUnsigned(false), b(false), i(0), f(0.0), s(v), c(0) { };
-	ScriptVar_t( Color_t v ): type(SVT_COLOR), isUnsigned(false), b(false), i(0), f(0.0), s(""), c(v) { };
+	ScriptVar_t(): type(SVT_BOOL), isUnsigned(false), b(false), i(0), f(0.0), s(""), c() { }
+	ScriptVar_t( bool v ): type(SVT_BOOL), isUnsigned(false), b(v), i(0), f(0.0), s(""), c() { }
+	ScriptVar_t( int v ): type(SVT_INT), isUnsigned(false), b(false), i(v), f(0.0), s(""), c() { }
+	ScriptVar_t( float v ): type(SVT_FLOAT), isUnsigned(false), b(false), i(0), f(v), s(""), c() { }
+	ScriptVar_t( const std::string & v ): type(SVT_STRING), isUnsigned(false), b(false), i(0), f(0.0), s(v), c() { }
+	ScriptVar_t( const char * v ): type(SVT_STRING), isUnsigned(false), b(false), i(0), f(0.0), s(v), c() { }
+	ScriptVar_t( Color v ): type(SVT_COLOR), isUnsigned(false), b(false), i(0), f(0.0), s(""), c(v) { }
 	
 	operator bool() const { assert(type == SVT_BOOL); return b; }
 	operator int() const { assert(type == SVT_INT); return i; }
 	operator float() const { assert(type == SVT_FLOAT); return f; }
 	operator std::string() const { assert(type == SVT_STRING); return s; }
-	operator Color_t() const { assert(type == SVT_COLOR); return c; }
+	operator Color() const { assert(type == SVT_COLOR); return c; }
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
 		switch(type) {
@@ -132,7 +131,7 @@ template<> inline ScriptVarType_t GetType<bool>() { return SVT_BOOL; }
 template<> inline ScriptVarType_t GetType<int>() { return SVT_INT; }
 template<> inline ScriptVarType_t GetType<float>() { return SVT_FLOAT; }
 template<> inline ScriptVarType_t GetType<std::string>() { return SVT_STRING; }
-template<> inline ScriptVarType_t GetType<Color_t>() { return SVT_COLOR; }
+template<> inline ScriptVarType_t GetType<Color>() { return SVT_COLOR; }
 
 struct _DynamicVar {
 	virtual ~_DynamicVar() {}
@@ -151,6 +150,12 @@ struct DynamicVar : _DynamicVar {
 	virtual void fromScriptVar(const ScriptVar_t& var) { set(var); }
 };
 
+struct UndefColor {
+	Uint8 r, g, b, a;
+	UndefColor& operator=(const Color& c) { r = c.r; g = c.g; b = c.b; a = c.a; return *this; }
+	operator Color() const { return Color(r,g,b,a); }
+};
+
 // Pointer to any in-game var - var should be global or static
 struct ScriptVarPtr_t
 {
@@ -164,7 +169,7 @@ struct ScriptVarPtr_t
 		int * i;
 		float * f;
 		std::string * s;
-		Color_t * cl;
+		Color * cl;
 		ScriptCallback_t cb;
 		_DynamicVar* dynVar;
 	};
@@ -174,7 +179,7 @@ struct ScriptVarPtr_t
 		int idef;
 		float fdef;
 		const char * sdef;	// Not std::string to keep this structure plain-old-data
-		Color_t cldef;
+		UndefColor cldef;
 		// No default value for skin callback, 'cause it's not saved into cfg file
 	};
 	ScriptVarPtr_t(): type(SVT_CALLBACK), isUnsigned(false) { b = NULL; } // Invalid value initially (all pointer are NULL in union)
@@ -182,14 +187,14 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( int * v, int def = 0 ): type(SVT_INT), isUnsigned(false) { i = v; idef = def; }
 	ScriptVarPtr_t( float * v, float def = 0.0 ): type(SVT_FLOAT), isUnsigned(false) { f = v; fdef = def; }
 	ScriptVarPtr_t( std::string * v, const char * def = "" ): type(SVT_STRING), isUnsigned(false) { s = v; sdef = def; }
-	ScriptVarPtr_t( Color_t * v, Color_t def = MakeColour(255,0,255) ): type(SVT_COLOR), isUnsigned(false) { cl = v; cldef = def; }
+	ScriptVarPtr_t( Color * v, Color def = Color(255,0,255) ): type(SVT_COLOR), isUnsigned(false) { cl = v; cldef = def; }
 	ScriptVarPtr_t( ScriptCallback_t v ): type(SVT_CALLBACK), isUnsigned(false) { cb = v; }
 	
 	ScriptVarPtr_t( DynamicVar<bool>* v, bool def ): type(SVT_DYNAMIC), isUnsigned(false), bdef(def) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<int>* v, int def ): type(SVT_DYNAMIC), isUnsigned(false), idef(def) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<float>* v, float def ): type(SVT_DYNAMIC), isUnsigned(false), fdef(def) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<std::string>* v, const char * def ): type(SVT_DYNAMIC), isUnsigned(false), sdef(def) { dynVar = v; }
-	ScriptVarPtr_t( DynamicVar<Color_t>* v, Color_t def ): type(SVT_DYNAMIC), isUnsigned(false), cldef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<Color>* v, Color def ): type(SVT_DYNAMIC), isUnsigned(false) { dynVar = v; cldef = def; }
 	
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type), isUnsigned(v->isUnsigned)  {
 		switch(type) {
@@ -214,7 +219,7 @@ template<> inline bool* getPointer<bool>(ScriptVarPtr_t& varPtr) { if(varPtr.typ
 template<> inline int* getPointer<int>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_INT) return NULL; return varPtr.i; }
 template<> inline float* getPointer<float>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_FLOAT) return NULL; return varPtr.f; }
 template<> inline std::string* getPointer<std::string>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_STRING) return NULL; return varPtr.s; }
-template<> inline Color_t* getPointer<Color_t>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_COLOR) return NULL; return varPtr.cl; }
+template<> inline Color* getPointer<Color>(ScriptVarPtr_t& varPtr) { if(varPtr.type != SVT_COLOR) return NULL; return varPtr.cl; }
 
 
 
@@ -259,7 +264,7 @@ struct RegisteredVar {
 		group = g;
 	}
 	
-	RegisteredVar( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
+	RegisteredVar( Color & v, const std::string & c, Color def = Color(255,0,255), 
 									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
 	{
 		var = ScriptVarPtr_t( &v, def ); 
@@ -396,7 +401,7 @@ public:
 				return *this; 
 			}
 
-		VarRegisterHelper & operator() ( Color_t & v, const std::string & c, Color_t def = MakeColour(255,0,255), 
+		VarRegisterHelper & operator() ( Color & v, const std::string & c, Color def = Color(255,0,255), 
 											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
 			{
 				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);

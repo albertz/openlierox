@@ -122,12 +122,7 @@ void CListview::Draw(SDL_Surface * bmpDest)
 			if(y >= iY + iHeight) break;
 
 			// Background colour?
-			if(item->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
-				if (item->iBgAlpha == SDL_ALPHA_OPAQUE)
-					DrawRectFill(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour);
-				else
-					DrawRectFillA(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
-			}
+			DrawRectFill(bmpDest, x - 2, y, right_bound, y + h - 2, item->iBgColour);
 
 			// Selected?
 			if(item->bSelected && bShowSelect) {
@@ -162,17 +157,12 @@ void CListview::Draw(SDL_Surface * bmpDest)
 					int itemWidth = 0;
 					if(sub->bVisible) {
 						// Background colour
-						if(sub->iBgAlpha != SDL_ALPHA_TRANSPARENT)  {
-							if (sub->iBgAlpha == SDL_ALPHA_OPAQUE)
-								DrawRectFill(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour);
-							else
-								DrawRectFillA(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour, item->iBgAlpha);
-						}
+						DrawRectFill(bmpDest, x - 2, y, col ? MIN(col->iWidth - 8, right_bound) : right_bound, y + h - 2, item->iBgColour);
 
 						switch(sub->iType)  {
 						case LVS_TEXT:  {
 							// Get the colour
-							Uint32 colour = item->iColour;
+							Color colour = item->iColour;
 							if (sub->iColour != tLX->clPink)
 								colour = sub->iColour;
 
@@ -282,7 +272,7 @@ void CListview::AddColumn(const std::string& sText, int iWidth) {
 
 ///////////////////
 // Add a column to the list view
-void CListview::AddColumn(const std::string& sText, int iWidth, Uint32 iColour)
+void CListview::AddColumn(const std::string& sText, int iWidth, Color iColour)
 {
 	lv_column_t *col;
 
@@ -354,7 +344,7 @@ void CListview::AddColumn(const std::string& sText, int iWidth, Uint32 iColour)
 
 ///////////////////
 // Add an item to the list view
-lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, int iColour)
+lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, Color iColour)
 {
 	lv_item_t *item = new lv_item_t;
 
@@ -372,7 +362,7 @@ lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, int iColour
 	item->iHeight = tLX->cFont.GetHeight();			// Text height
 	item->iColour = iColour;
 	item->iBgColour = tLX->clBlack;
-	item->iBgAlpha = SDL_ALPHA_TRANSPARENT;
+	item->iBgColour.a = SDL_ALPHA_TRANSPARENT;
     item->_iID = iItemID++;
 
 	// Add it to the list
@@ -416,7 +406,7 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour, const std::string& tooltip)
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip)
 {
 	// No last item
 	if (!tLastItem)  {
@@ -446,8 +436,8 @@ void CListview::AddSubitem(int iType, const std::string& sText, const SmartPoint
 		sub->iColour = tLastItem->iColour;
 	else
 		sub->iColour = iColour;
-	sub->iBgAlpha = SDL_ALPHA_TRANSPARENT;
 	sub->iBgColour = tLX->clBlack;
+	sub->iBgColour.a = SDL_ALPHA_TRANSPARENT;
 
 	// Set special info
 	switch (iType)  {

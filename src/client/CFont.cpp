@@ -152,7 +152,7 @@ void CFont::Parse() {
 
 ///////////////////
 // Precalculate a font's colour
-void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour) {
+void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour) {
 	Uint32 pixel;
 	int x, y;
 
@@ -163,8 +163,7 @@ void CFont::PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colou
 	LOCK_OR_QUIT(bmpFont);
 
 	Uint8 R, G, B, A;
-	Uint8 sr, sg, sb;
-	GetColour3(colour, getMainPixelFormat(), &sr, &sg, &sb);
+	const Uint8 sr = colour.r, sg = colour.g, sb = colour.b;
 
 	// Outline font: replace white pixels with appropriate color, put black pixels
 	if (OutlineFont) {
@@ -214,7 +213,7 @@ int CFont::GetHeight(const std::string& buf) {
 ///////////////////
 // Draws a font at X, Y, but visible only in specified rect
 // HINT: not thread-safe
-void CFont::DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string &txt)  {
+void CFont::DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Color col, const std::string &txt)  {
 	// Set the special clipping rectangle and then draw the font
 	SDL_Rect newrect;
 	newrect.x = rectX;
@@ -229,7 +228,7 @@ void CFont::DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, in
 
 ///////////////////
 // Draw a font (advanced)
-void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Color col, const std::string& txt) {
 
 	if (txt.size() == 0)
 		return;
@@ -463,12 +462,12 @@ int CFont::GetCharacterWidth(UnicodeChar c)
 
 ///////////////////
 // Draws the text in centre alignment
-void CFont::DrawCentre(SDL_Surface * dst, int x, int y, Uint32 col, const std::string& txt) {
+void CFont::DrawCentre(SDL_Surface * dst, int x, int y, Color col, const std::string& txt) {
 	Draw(dst, x - GetWidth(txt) / 2, y, col, txt);
 }
 
 ///////////////////
 // Draw's the text in centre alignment
-void CFont::DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt) {
+void CFont::DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Color col, const std::string& txt) {
 	DrawAdv(dst, MAX(min_x, x - GetWidth(txt) / 2), y, max_w, col, txt);
 }

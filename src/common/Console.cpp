@@ -378,7 +378,7 @@ void Con_Draw(SDL_Surface * bmpDest)
 	int texty = y+Console->bmpConPic.get()->h-28;
 	std::string buf;
 
-	const Uint32 Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,
+	const Color Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,
 		                 tLX->clConsoleDev, tLX->clConsoleChat };
 
 	DrawImage(bmpDest,Console->bmpConPic,0,y);

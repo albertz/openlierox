@@ -420,7 +420,7 @@ void Menu_DrawSubTitleAdv(SDL_Surface * bmpDest, int id, int y)
 	
 ////////////////
 // Draws advanced box
-void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int border, Uint32 LightColour, Uint32 DarkColour, Uint32 BgColour, uchar type)
+void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int border, Color LightColour, Color DarkColour, Color BgColour, uchar type)
 {
 	// First draw the background
 	if (BgColour != tLX->clPink)
@@ -433,16 +433,15 @@ void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int bo
 
 	// Switch the light and dark colour when inset
 	if (type == BX_INSET)  {
-		Uint32 tmp = LightColour;
+		Color tmp = LightColour;
 		LightColour = DarkColour;
 		DarkColour = tmp;
 	}
 
 	// Create gradient when needed
 	int r_step,g_step,b_step;
-	Uint8 r1,g1,b1,r2,g2,b2;
-	GetColour3(DarkColour,bmpDest->format, &r1,&g1,&b1);
-	GetColour3(LightColour,bmpDest->format, &r2,&g2,&b2);
+	const Uint8 r1 = DarkColour.r, g1 = DarkColour.g, b1 = DarkColour.b;
+	const Uint8 r2 = LightColour.r, g2 = LightColour.b, b2 = LightColour.b;
 
 	if (type != BX_SOLID)  {
 		r_step = (r2-r1)/border;
@@ -464,16 +463,15 @@ void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int bo
 // Draw a box
 void Menu_DrawBox(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
-    Uint32 dark = tLX->clBoxDark;
-    Uint32 light = tLX->clBoxLight;
+	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, tLX->clBoxLight);
+    //DrawRect( bmpDest,x+2, y+2, x2-2,y2-2, tLX->clBoxDark);
+	DrawHLine(bmpDest,x+2, x2-1,y,  tLX->clBoxDark);
+	DrawHLine(bmpDest,x+2, x2-1,y2, tLX->clBoxDark);
 
-	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, light);
-    //DrawRect( bmpDest,x+2, y+2, x2-2,y2-2, dark);
-	DrawHLine(bmpDest,x+2, x2-1,y,  dark);
-	DrawHLine(bmpDest,x+2, x2-1,y2, dark);
+	DrawVLine(bmpDest,y+2, y2-1,x,  tLX->clBoxDark);
+	DrawVLine(bmpDest,y+2, y2-1,x2, tLX->clBoxDark);
 
-	DrawVLine(bmpDest,y+2, y2-1,x,  dark);
-	DrawVLine(bmpDest,y+2, y2-1,x2, dark);
+    Uint32 dark = tLX->clBoxDark.get(bmpDest->format);
 
 	LOCK_OR_QUIT(bmpDest);
 	PutPixel( bmpDest,x+1, y+1,     dark);
@@ -494,15 +492,14 @@ void Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 	if (y < 0) { y2 += y; y = 0; }
 	if (y2 >= bmpDest->h) { y2 = bmpDest->h - 1; }
 
-    Uint32 dark = tLX->clBoxDark;
-    Uint32 light = tLX->clBoxLight;
+	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, tLX->clBoxDark);
+	DrawHLine(bmpDest,x+2, x2-1,y,  tLX->clBoxLight);
+	DrawHLine(bmpDest,x+2, x2-1,y2, tLX->clBoxLight);
 
-	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, dark);
-	DrawHLine(bmpDest,x+2, x2-1,y,  light);
-	DrawHLine(bmpDest,x+2, x2-1,y2, light);
+	DrawVLine(bmpDest,y+2, y2-1,x,  tLX->clBoxLight);
+	DrawVLine(bmpDest,y+2, y2-1,x2, tLX->clBoxLight);
 
-	DrawVLine(bmpDest,y+2, y2-1,x,  light);
-	DrawVLine(bmpDest,y+2, y2-1,x2, light);
+	Uint32 light = tLX->clBoxLight.get(bmpDest->format);
 
 	LOCK_OR_QUIT(bmpDest);
 	if(PointInRect(x+1,y+1,bmpDest->clip_rect)) PutPixel( bmpDest,x+1, y+1,     light);
@@ -518,8 +515,8 @@ void Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 void Menu_DrawWinButton(SDL_Surface * bmpDest, int x, int y, int w, int h, bool down)
 {
     DrawRectFill(bmpDest, x,y, x+w, y+h, tLX->clWinBtnBody);
-    Uint32 dark = tLX->clWinBtnDark;
-    Uint32 light = tLX->clWinBtnLight;
+    const Color dark = tLX->clWinBtnDark;
+    const Color light = tLX->clWinBtnLight;
     if(down) {
         DrawHLine(bmpDest, x, x+w, y, dark);
         DrawHLine(bmpDest, x, x+w, y+h, light);
@@ -1363,7 +1360,7 @@ void Menu_SvrList_FillList(CListview *lv)
 			state += 2;
 
 		// Colour
-		int colour = tLX->clListView;
+		Color colour = tLX->clListView;
 		if(processing)
 			colour = tLX->clDisabled;
 
@@ -2408,7 +2405,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			}
 			
 			foreach( FeatureCompatibleSettingList::Feature&, it, features.list ){
-				Uint32 col;
+				Color col;
 				switch(it->get().type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;
 					case FeatureCompatibleSettingList::Feature::FCSL_INCOMPATIBLE: col = tLX->clError; break;

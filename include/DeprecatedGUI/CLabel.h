@@ -21,6 +21,8 @@
 
 #include "InputEvents.h"
 #include "StringUtils.h"
+#include "Color.h"
+
 
 namespace DeprecatedGUI {
 
@@ -39,7 +41,7 @@ public:
 	CLabel() {}
 
 	// Constructor
-	CLabel(const std::string& text, Uint32 col, bool center = false) {
+	CLabel(const std::string& text, Color col, bool center = false) {
 		sText = text;
 		iColour = col;
 		iType = wid_Label;
@@ -55,7 +57,7 @@ private:
 	// Attributes
 
 	std::string	sText;
-	Uint32	iColour;
+	Color		iColour;
 	bool		bCenter;
 
 	bool		*bVar;
@@ -92,7 +94,7 @@ public:
 
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	void	ChangeColour(Uint32 col)			{ iColour = col; }
+	void	ChangeColour(Color col)			{ iColour = col; }
 	void	setText(const std::string& sStr)	{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);};
 
 	// Draw the label

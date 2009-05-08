@@ -266,7 +266,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 {
 	int		x,y,px;
 	ushort i;
-	Uint32	Colour = cMap->GetTheme()->iDefaultColour;
+	Color	Colour = cMap->GetTheme()->iDefaultColour;
     bool    gotDirt = false;
 
 	// Go through until we find dirt to throw around
@@ -518,7 +518,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 void CClient::SendCarve(CVec pos)
 {
 	int x,y,n,px;
-	Uint32 Colour = cMap->GetTheme()->iDefaultColour;
+	Color Colour = cMap->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
 	y = MIN((int)pos.y,cMap->GetHeight()-1);
@@ -670,7 +670,7 @@ void CClient::DrawBeam(CWorm *w)
 	Color col = Slot->Weapon->Bm.Colour;
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to DrawBeam.
-	if(col.get() != tLX->clPink && w->isVisibleForEverybody())
+	if(col != tLX->clPink && w->isVisibleForEverybody())
 		drawBeam = true;
 
 	std::list<CWorm*> worms;

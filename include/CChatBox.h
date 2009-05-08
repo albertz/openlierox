@@ -21,7 +21,7 @@
 #include <list>
 #include "Protocol.h"
 #include "types.h"
-
+#include "Color.h"
 
 #define MAX_LLENGTH		128
 
@@ -29,7 +29,7 @@
 // Line structure
 struct line_t {
 	std::string	strLine;
-	Uint32	iColour;
+	Color	iColour;
 	TXT_TYPE iTextType;
 	AbsTime	fTime;
 	size_t iID;
@@ -58,7 +58,7 @@ private:
 public:
 	// Methods
 	void	Clear();
-	void    AddText(const std::string& txt, int colour, TXT_TYPE TextType, const AbsTime& time);
+	void    AddText(const std::string& txt, Color colour, TXT_TYPE TextType, const AbsTime& time);
 
     // Variables
 	lines_iterator Begin()  { return Lines.begin(); }

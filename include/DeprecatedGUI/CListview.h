@@ -70,12 +70,12 @@ enum  {
 
 
 // Column structure
-class lv_column_t { public:
+struct lv_column_t {
 	std::string	sText;
 	int			iWidth;
 	bool		bDown;
 	int			iSorted; // -1 = unsorted, 0 = descending, 1 = ascending
-	Uint32		iColour;
+	Color		iColour;
 
 	lv_column_t *tNext;
 
@@ -83,7 +83,7 @@ class lv_column_t { public:
 
 
 // Sub item structure
-class lv_subitem_t { public:
+struct lv_subitem_t {
 	lv_subitem_t() : tWidget(NULL), fMouseOverTime(0) {} // safety
 	~lv_subitem_t()  { if (tWidget) delete tWidget; }
 
@@ -95,9 +95,8 @@ class lv_subitem_t { public:
 	bool		bVisible;
 	int			iExtra;
 	int			iValign;
-	Uint32		iColour;
-	Uint32		iBgColour;
-	Uint8		iBgAlpha;
+	Color		iColour;
+	Color		iBgColour;
 
 	TimeDiff	fMouseOverTime;
 	lv_subitem_t *tNext;
@@ -112,9 +111,8 @@ class lv_item_t { public:
     int         _iID;
 	bool		bSelected;
 	int			iHeight;
-	Uint32		iColour;
-	Uint32		iBgColour;
-	Uint8		iBgAlpha;
+	Color		iColour;
+	Color		iBgColour;
 
 	lv_subitem_t *tSubitems;
 
@@ -245,10 +243,10 @@ public:
 	int		GetSortColumn();
 
 	void	AddColumn(const std::string& sText, int iWidth);
-	void	AddColumn(const std::string& sText, int iWidth, Uint32 iColour);
-	lv_item_t* AddItem(const std::string& sIndex, int iIndex, int iColour);
+	void	AddColumn(const std::string& sText, int iWidth, Color iColour);
+	lv_item_t* AddItem(const std::string& sIndex, int iIndex, Color iColour);
 	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "");
-	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Uint32 iColour, const std::string& tooltip = "");
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip = "");
 
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);
@@ -308,11 +306,11 @@ public:
 		w->setShowSelect( ! p[1].b );
 		w->setDrawBorder( ! p[2].b );
 		return w;
-	};
+	}
 
 	void	ProcessGuiSkinEvent(int iEvent)
 	{
-	};
+	}
 };
 
 } // namespace DeprecatedGUI

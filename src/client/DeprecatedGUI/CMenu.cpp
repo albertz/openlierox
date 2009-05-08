@@ -161,7 +161,7 @@ void CMenu::Draw(SDL_Surface * bmpDest)
 			AntiAliasedLine(bmpDest, X + 2 + fh, y + fh*2 - 3, X + 2 + fh*2, y + 3, tLX->clPopupMenu, PutPixelA);
 			AntiAliasedLine(bmpDest, X + 5, y + fh + 1, X + 2 + fh, y + fh*2 - 4, tLX->clPopupMenu, PutPixelA);
 			AntiAliasedLine(bmpDest, X + 2 + fh, y + fh*2 - 4, X + 2 + fh*2, y + 2, tLX->clPopupMenu, PutPixelA);
-			PutPixel(bmpDest, X + 5, y + fh + 2, tLX->clMenuBackground);
+			PutPixel(bmpDest, X + 5, y + fh + 2, tLX->clMenuBackground.get(bmpDest->format));
 		}
 
         y += tLX->cFont.GetHeight();

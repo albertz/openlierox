@@ -26,6 +26,7 @@
 #include "Cursor.h"
 #include "FindFile.h"
 #include "XMLutils.h"
+#include "Color.h"
 
 
 namespace DeprecatedGUI {
@@ -36,7 +37,7 @@ namespace DeprecatedGUI {
 	//static bool xmlGetBool(xmlNodePtr Node, const std::string& Name);
 	//static int xmlGetInt(xmlNodePtr Node, const std::string& Name);
 	//static float xmlGetFloat(xmlNodePtr Node, const std::string& Name);
-	static Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name);
+	static Color xmlGetColor(xmlNodePtr Node, const std::string& Name);
 	//static std::string xmlGetString(xmlNodePtr Node, const std::string& Name);
 	// Get the text inside element, like "<label rect="..."> Label text </label>"
 	static std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node);
@@ -288,7 +289,7 @@ float xmlGetFloat(xmlNodePtr Node, const std::string& Name)
 
 ///////////////////
 // Get a colour from the specified property
-Uint32 xmlGetColor(xmlNodePtr Node, const std::string& Name)
+Color xmlGetColor(xmlNodePtr Node, const std::string& Name)
 {
 	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)

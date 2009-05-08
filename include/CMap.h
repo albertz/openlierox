@@ -25,6 +25,7 @@
 #include "LieroX.h" // for maprandom_t
 #include "GfxPrimitives.h" // for Rectangle<>
 #include "CClient.h" // only for cClient->getMap() for fastTraceLine()
+#include "Color.h"
 
 class CViewport;
 class CCache;
@@ -65,7 +66,7 @@ class CWorm;
 // Theme structure
 struct theme_t {
 	std::string	name;
-	Uint32		iDefaultColour;
+	Color		iDefaultColour;
 	SmartPointer<SDL_Surface> bmpFronttile;
 	SmartPointer<SDL_Surface> bmpBacktile;
 
@@ -263,7 +264,7 @@ public:
     static std::string findRandomTheme();
     static bool validateTheme(const std::string& name);
 
-    void        PutImagePixel(uint x, uint y, Uint32 colour);
+    void        PutImagePixel(uint x, uint y, Color colour);
 
 	void		Draw(SDL_Surface *bmpDest, CViewport *view);
 	void		Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worldY);	// For CMapEditor

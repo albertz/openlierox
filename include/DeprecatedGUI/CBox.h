@@ -25,7 +25,7 @@ enum {
 class CBox : public CWidget {
 public:
 	// Constructor
-	CBox(int round,int border,Uint32 lightcolour,Uint32 darkcolour, Uint32 bgcolour) {
+	CBox(int round, int border, Color lightcolour, Color darkcolour, Color bgcolour) {
 		iType = wid_Frame;
 		iRound = round;
 		iBorder = border;
@@ -39,9 +39,9 @@ private:
     // Attributes
 	int		iRound;
 	int		iBorder;
-	Uint32	iLightColour;
-	Uint32	iDarkColour;
-	Uint32	iBgColour;
+	Color	iLightColour;
+	Color	iDarkColour;
+	Color	iBgColour;
 
 	SmartPointer<SDL_Surface> bmpBuffer;
 
@@ -56,12 +56,12 @@ public:
 	int				getRound()				{ return iRound; }
 	void			setBorder(int border)		{ iBorder = border; }
 	int				getBorder()				{ return iBorder; }
-	void			setLightColour(Uint32 col)	{ iLightColour = col; }
-	Uint32			getLightColour()		{ return iLightColour; }
-	void			setDarkColour(Uint32 col)	{ iDarkColour = col;  }
-	Uint32			getDarkColour()			{ return iDarkColour; }
-	void			setBgColour(Uint32 col)		{ iBgColour = col; }
-	int				getBgColour()			{ return iBgColour; }
+	void			setLightColour(Color col)	{ iLightColour = col; }
+	Color			getLightColour()		{ return iLightColour; }
+	void			setDarkColour(Color col)	{ iDarkColour = col;  }
+	Color			getDarkColour()			{ return iDarkColour; }
+	void			setBgColour(Color col)		{ iBgColour = col; }
+	Color			getBgColour()			{ return iBgColour; }
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return CheckEvent(); }

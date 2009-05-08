@@ -438,12 +438,11 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	// TODO: create some good way to allow custom colors
 
 	bool team = false;
-	Uint8 r=0,g=0,b=0;
 
 	// Destroy any previous graphics
 	FreeGraphics();
 
-	Uint32 colour = cSkin.getDefaultColor();
+	Color colour = cSkin.getDefaultColor();
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
 		team = true;
@@ -452,7 +451,6 @@ bool CWorm::ChangeGraphics(int generalgametype)
 
 	// Use the colours set on the network
 	// Profile or team colours will override this
-	GetColour3(colour, getMainPixelFormat(), &r, &g, &b);
 
 	// Colourise the giblets
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
@@ -466,7 +464,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 ///////////////////
 // Change the graphics of an image
 SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, bool team)
-{
+{	
 	SmartPointer<SDL_Surface> img;
 	SmartPointer<SDL_Surface> loaded;
 
@@ -488,20 +486,19 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	SetColorKey(img.get());
 
 
+	// TODO: clean up this function
+
 	// Set the colour of the img
 	int x,y;
-	Uint8 r,g,b;
 	Uint32 pixel;
 
-	Uint32 colour = cSkin.getColor();
+	Color colour = cSkin.getColor();
 	if (team)
 		colour = tLX->clTeamColors[iTeam];
 
-	GetColour3(colour,getMainPixelFormat(),&r,&g,&b);
-
-	int ColR = r;
-	int ColG = g;
-	int ColB = b;
+	int ColR = colour.r;
+	int ColG = colour.g;
+	int ColB = colour.b;
 	float r2,g2,b2;
 
 	float dr, dg, db;
@@ -516,6 +513,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 		for(x = 0; x < img.get()->w; x++) {
 
 			pixel = GetPixel(img.get(),x,y);
+			Uint8 r,g,b;
 			GetColour3(pixel,img.get()->format,&r,&g,&b);
 
 			// Ignore pink & gun colours
@@ -541,12 +539,12 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 			b2 = MIN(255.0f,b2);
 
 			// Make sure it isn't exactly 'magic pink'
-			if(MakeColour((int)r2, (int)g2, (int)b2) == tLX->clPink) {
+			if(Color((int)r2, (int)g2, (int)b2) == tLX->clPink) {
 				r2=240;
 				b2=240;
 			}
 
-			PutPixel(img.get(),x,y, MakeColour((int)r2, (int)g2, (int)b2));
+			PutPixel(img.get(),x,y, Color((int)r2, (int)g2, (int)b2).get(img.get()->format));
 		}
 	}
 
@@ -764,7 +762,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			std::map< AbsTime, int > :: const_iterator it;
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 				damageSum += cDamageReport[it->second].damage;
-			Uint32 damageColor = damageSum >= 0 ? Color( 0xff, 0x80, 0x40 ).get() : Color( 0x40, 0xff, 0 ).get() ; // Red or green
+			Color damageColor = damageSum >= 0 ? Color( 0xff, 0x80, 0x40 ) : Color( 0x40, 0xff, 0 ) ; // Red or green
 			
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 			{
@@ -987,10 +985,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if( sAFKMessage != "" )
 			WormName += " " + sAFKMessage;
 		if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
-			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)  {
-				Uint32 col = tLX->clTeamColors[iTeam];
-				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,col,WormName);
-			} // if
+			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clTeamColors[iTeam],WormName);
 			else
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
 		} else { // local human worm
@@ -1233,7 +1229,7 @@ void CWorm::setTagIT(bool _t)
 	bTagIT = _t; 
 }
 
-Uint32 CWorm::getGameColour()
+Color CWorm::getGameColour()
 {
 	switch(cClient->getGameLobby()->iGeneralGameType) {
 		case GMT_TEAMS:

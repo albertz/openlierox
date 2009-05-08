@@ -202,9 +202,12 @@ void FlagInfo::drawOnMiniMap(CMap* cMap, SDL_Surface* bmpDest, uint miniX, uint 
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
 		Flag& flag = i->second;
 
-		Uint8 r = 255,g=255,b=255,a=255;
-		if(flag.id >= 0 && flag.id < 4)
-			GetColour4(tLX->clTeamColors[flag.id], getMainPixelFormat(), &r,&g,&b,&a);
+		Uint8 r = 255,g=255,b=255;
+		if(flag.id >= 0 && flag.id < 4) {
+			r = tLX->clTeamColors[flag.id].r;
+			g = tLX->clTeamColors[flag.id].g;
+			b = tLX->clTeamColors[flag.id].b;
+		}
 		
 		cMap->drawOnMiniMap(bmpDest, miniX, miniY, flag.spawnPoint.pos, r, g, b, true, true);
 		

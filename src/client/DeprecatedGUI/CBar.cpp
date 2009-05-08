@@ -61,7 +61,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 		int bar_h = (bmpBar.get()->h - NumForeStates) / (numstates);
 		int bar_w = (bmpBar.get()->w - NumForeStates) / (numstates);
 
-		Uint32 clLabel = tLX->clWhite;
+		Color clLabel = tLX->clWhite;
 		
 		// Draw the progress bitmap over the background depending on progress direction
 		int w, h;
@@ -108,11 +108,6 @@ void CBar::Draw(SDL_Surface * dst)  {
 			warnings("Bad bar type in CBar::Draw\n");
 			return;
 		}
-
-		// bmpBar is an alpha surface so we need to convert the color from GetPixel
-		Uint8 r, g, b;
-		GetColour3(clLabel, bmpBar.get()->format, &r, &g, &b);
-		clLabel = MakeColour(r, g, b);
 
 		if (LabelVisible)
 			tLX->cFont.Draw(dst, LabelX, LabelY, clLabel, progress); // Label

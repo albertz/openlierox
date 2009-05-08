@@ -88,9 +88,7 @@ bool CClient::InitializeDrawing()
 		if (!bmpIngameScoreBg.get())
 			return false;
 
-		Uint8 r,g,b;
-		GetColour3(tLX->clScoreBackground, getMainPixelFormat(), &r, &g, &b);
-		FillSurface(bmpIngameScoreBg.get(), SDL_MapRGBA(bmpIngameScoreBg->format, r, g, b, 128));
+		FillSurface(bmpIngameScoreBg.get(), tLX->clScoreBackground);
 	}
 	InitializeIngameScore(true);
 
@@ -634,7 +632,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	
 		int iTLMinutes = (int)fabs(fTimeLeft);
 		int iTLSeconds = (int)(fTimeLeft*60.0f) - iTLMinutes*60;
-		Uint32 clTimeLabel;
+		Color clTimeLabel;
 	
 		if(iTLMinutes <= 0 && iTLSeconds < 10)
 			clTimeLabel = tLX->clTimeLeftWarnLabel;
@@ -1689,12 +1687,10 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 		// Go through each team
 		DeprecatedGUI::CListview *lv = Left;
-		int team, score;
-		Uint32 colour;
 
 		for(n = 0; n < 4; n++) {
-			team = iTeamList[n];
-			score = getTeamScore(team);
+			int team = iTeamList[n];
+			int score = getTeamScore(team);
 
 			// Check if the team has any players
 			if(getTeamWormCount(team) == 0)
@@ -1705,7 +1701,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv = Right;
 
 			// Header
-			colour = tLX->clTeamColors[team];
+			Color colour = tLX->clTeamColors[team];
 
 			lv->AddItem(teamnames[team], n + 1024, colour);
 
@@ -2389,7 +2385,7 @@ void CClient::InitializeIngameScore(bool WaitForPlayers)
 void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListview *Right, bool WaitForPlayers)
 {
 	DeprecatedGUI::CListview *lv = Left;
-	Uint32 iColor;
+	Color iColor;
 
 	// Clear them first
 	Left->Clear();
@@ -2412,8 +2408,8 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 		if (p->getLocal() && (p->getType() != PRF_COMPUTER || tLX->iGameType == GME_JOIN))  {
 			DeprecatedGUI::lv_item_t *it = lv->getItem(i);
-			it->iBgAlpha = 64;
 			it->iBgColour = tLX->clScoreHighlight;
+			it->iBgColour.a = 64;
 		}
 
 		// ID

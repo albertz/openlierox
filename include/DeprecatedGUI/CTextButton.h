@@ -18,6 +18,7 @@
 #define __CTEXTBUTTON_H__DEPRECATED_GUI__
 
 #include "DeprecatedGUI/CLabel.h"
+#include "Color.h"
 
 namespace DeprecatedGUI {
 
@@ -29,7 +30,7 @@ enum {
 class CTextButton : public CLabel {
 public:
 
-	CTextButton(const std::string& text, Uint32 colNormal, Uint32 colGlow):
+	CTextButton(const std::string& text, Color colNormal, Color colGlow):
 		CLabel ( text, colNormal )
 	{
 		iColNormal = colNormal;
@@ -41,8 +42,8 @@ public:
 private:
 	// Attributes
 
-	Uint32	iColNormal;
-	Uint32	iColGlow;
+	Color	iColNormal;
+	Color	iColGlow;
 	bool	bMouseOver;
 	CGuiSkin::CallbackHandler cClick;
 
@@ -69,13 +70,13 @@ public:
 		w->cClick.Init( p[3].s, w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
-	};
+	}
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
 		if( iEvent == TXB_MOUSEUP )
 			cClick.Call();
-	};
+	}
 };
 
 }; // namespace DeprecatedGUI

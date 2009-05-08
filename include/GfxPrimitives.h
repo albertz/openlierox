@@ -740,15 +740,11 @@ inline void	DrawRect(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color 
 inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Uint32 color, Uint8 alpha)  {
 	Color col(bmpDest->format, color); col.a = alpha;
 	DrawRectFill(bmpDest, x, y, x2, y2, col);
-	/*SmartPointer<SDL_Surface> tmp = gfxCreateSurfaceAlpha(x2-x,y2-y);
-	Uint8 r,g,b;
-	GetColour3(color,bmpDest->format,&r,&g,&b);
-	if (tmp.get() != NULL)  {
-		// TODO: optimise
-		Uint32 friendly_col = SDL_MapRGBA(tmp.get()->format,r,g,b,alpha);
-		SDL_FillRect(tmp.get(),NULL,friendly_col);
-		DrawImage(bmpDest,tmp,x,y);
-	}*/
+}
+
+inline void DrawRectFillA(SDL_Surface * bmpDest, int x, int y, int x2, int y2, Color color, Uint8 alpha)  {
+	color.a = alpha;
+	DrawRectFill(bmpDest, x, y, x2, y2, color);
 }
 
 //////////////////

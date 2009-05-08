@@ -23,6 +23,8 @@ namespace DeprecatedGUI {
 // Draw the frame into a buffer
 void CBox::PreDraw()
 {
+	// TODO: clean up this function (eg, to much different usage of same var, too much most-upper-level vars, ...)
+	
 	// If the width or height of the box has changed, create new buffer
 	if (bmpBuffer.get())  {
 		if (iWidth != bmpBuffer.get()->w || iHeight != bmpBuffer.get()->h)  {
@@ -65,25 +67,21 @@ void CBox::PreDraw()
 	line_bottom = iHeight - MAX(iRound,iBorder);
 
 	// Color handling
-	Uint32 cur_col = iDarkColour;
+	Color cur_col = iDarkColour;
 
 	// Create gradient
-	Uint8 dark_r,dark_g,dark_b;
-	GetColour3(iDarkColour,bmpBuffer.get()->format,&dark_r,&dark_g,&dark_b);
-	Uint8 light_r,light_g,light_b;
-	GetColour3(iLightColour,bmpBuffer.get()->format,&light_r,&light_g,&light_b);
 	int rstep=0,gstep=0,bstep=0;
 	if (iBorder)  {
-		rstep = (light_r-dark_r)/iBorder;
-		gstep = (light_g-dark_g)/iBorder;
-		bstep = (light_b-dark_b)/iBorder;
+		rstep = (iLightColour.r-iDarkColour.r)/iBorder;
+		rstep = (iLightColour.g-iDarkColour.g)/iBorder;
+		rstep = (iLightColour.b-iDarkColour.b)/iBorder;
 	}
 
 	// Top line
 	int j;
 	for (j=0; j<iBorder; j++)  {
 		DrawHLine(bmpBuffer.get(),line_left,line_right,j,cur_col);
-		cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+		cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 	}
 
 	cur_col = iDarkColour;
@@ -91,7 +89,7 @@ void CBox::PreDraw()
 	// Bottom line
 	for (j=0; j<iBorder; j++)  {
 		DrawHLine(bmpBuffer.get(),line_left,line_right,iHeight-j-1,cur_col);
-		cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+		cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 	}
 
 	cur_col = iDarkColour;
@@ -99,7 +97,7 @@ void CBox::PreDraw()
 	// Left line
 	for (j=0; j<iBorder; j++)  {
 		DrawVLine(bmpBuffer.get(),line_top,line_bottom,j,cur_col);
-		cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+		cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 	}
 
 	cur_col = iDarkColour;
@@ -107,7 +105,7 @@ void CBox::PreDraw()
 	// Right line
 	for (j=0; j<iBorder; j++)  {
 		DrawVLine(bmpBuffer.get(),line_top,line_bottom,iWidth-j-1,cur_col);
-		cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+		cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 	}
 
 
@@ -134,8 +132,8 @@ void CBox::PreDraw()
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
 			
-			PutPixel(bmpBuffer.get(),x,y,cur_col);
-			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
+			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -146,8 +144,8 @@ void CBox::PreDraw()
 		for (j=0; j<iBorder; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,cur_col);
-			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
+			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -158,8 +156,8 @@ void CBox::PreDraw()
 		for (j=0; j<iBorder; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,cur_col);
-			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
+			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -170,8 +168,8 @@ void CBox::PreDraw()
 		for (j=0; j<iBorder; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,cur_col);
-			cur_col = MakeColour(dark_r+rstep*(j+1),dark_g+gstep*(j+1),dark_b+bstep*(j+1));
+			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
+			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -198,7 +196,7 @@ void CBox::PreDraw()
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,iBgColour);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour.get(bmpBuffer->format));
 		}
 	}
 
@@ -208,7 +206,7 @@ void CBox::PreDraw()
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,iBgColour);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour.get(bmpBuffer->format));
 		}
 	}
 	
@@ -218,7 +216,7 @@ void CBox::PreDraw()
 		for (j=iBorder; j<iRound-iBorder+2; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,iBgColour);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour.get(bmpBuffer->format));
 		}
 	}
 
@@ -228,7 +226,7 @@ void CBox::PreDraw()
 		for (j=iBorder; j<=iRound-iBorder+2; j++)  {
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
-			PutPixel(bmpBuffer.get(),x,y,iBgColour);
+			PutPixel(bmpBuffer.get(),x,y,iBgColour.get(bmpBuffer->format));
 		}
 	}
 
@@ -270,7 +268,7 @@ int	CBox::CheckEvent()
 		// Mouse over transparent pixel? No event
 		if (!LockSurface(bmpBuffer))
 			return BOX_NONE;
-		if(GetPixel(bmpBuffer.get(),x,y) == tLX->clPink)  {
+		if(Color(bmpBuffer.get()->format, GetPixel(bmpBuffer.get(),x,y)) == tLX->clPink)  {
 			UnlockSurface(bmpBuffer);
 			return BOX_NOEVENT;
 		}

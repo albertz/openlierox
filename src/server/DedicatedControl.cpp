@@ -881,7 +881,7 @@ struct DedIntern {
 				else if( it->second.var.type == SVT_STRING )
 					notes << "\"" << * it->second.var.s << "\"";
 				else if( it->second.var.type == SVT_COLOR )
-					notes << "0x" << hex(*it->second.var.cl);
+					notes << ColToHex(*it->second.var.cl);
 				else
 					notes << "\"\"";
 				notes << ")" << endl;
@@ -1164,7 +1164,7 @@ struct DedIntern {
 			return;
 		}
 
-		caller->pushReturnArg(itoa(w->getSkin().getDefaultColor()));
+		caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().get()));
 		caller->pushReturnArg(w->getSkin().getFileName());
 	}
 

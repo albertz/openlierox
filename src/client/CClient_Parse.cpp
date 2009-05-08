@@ -1366,7 +1366,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	if( type > TXT_TEAMPM )
 		type = TXT_TEAMPM;
 
-	Uint32 col = tLX->clWhite;
+	Color col = tLX->clWhite;
 	int	t = client->getNumWorms() == 0 ? 0 : client->cLocalWorms[0]->getTeam();
 	switch(type) {
 		// Chat

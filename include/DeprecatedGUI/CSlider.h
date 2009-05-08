@@ -19,7 +19,7 @@
 
 #include <string>
 #include "InputEvents.h"
-
+#include "Color.h"
 
 namespace DeprecatedGUI {
 
@@ -41,7 +41,7 @@ class CSlider : public CWidget {
 public:
 	// Constructor
 	CSlider(int max, int min = 0, int val = 0, bool showText = false, int textPosX = 0, int textPosY = 0, 
-				Uint32 textColor = 0, float valueScale = 1.0f, const std::string & appendText = "" ) {
+				Color textColor = 0, float valueScale = 1.0f, const std::string & appendText = "" ) {
 		Create();
 		iType = wid_Slider;
 		iMax = max;
@@ -67,7 +67,7 @@ private:
 	bool	bShowText;
 	int		iTextPosX;
 	int		iTextPosY;
-	Uint32	iTextColor;
+	Color	iTextColor;
 	float	fValueScale;
 	std::string sAppendText;
 	CGuiSkin::CallbackHandler cClick;
@@ -110,7 +110,7 @@ public:
 			w->setValue( *w->iVar );
 		w->cClick.Init( p[3].s, w );
 		return w;
-	};
+	}
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
@@ -118,14 +118,14 @@ public:
 		{
 			if( iVar )
 				setValue( *iVar );
-		};
+		}
 		if( iEvent == SLD_CHANGE )
 		{
 			if( iVar )
 				*iVar = iValue;
 			cClick.Call();
-		};
-	};
+		}
+	}
 };
 
 }; // namespace DeprecatedGUI

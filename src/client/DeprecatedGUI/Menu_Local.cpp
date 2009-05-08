@@ -1193,8 +1193,8 @@ bool Menu_WeaponsRestrictions_Frame()
 
 
         int y = 190 + (j++)*20;
-        Uint32 Colour = tLX->clNormalLabel;
-		Uint32 StateColour = Colour;
+        Color Colour = tLX->clNormalLabel;
+		Color StateColour = Colour;
 		if( (*it)->psLink->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
 			StateColour = tLX->clSubHeading;
 		if( (*it)->psLink->nState == wpr_banned )

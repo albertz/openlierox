@@ -417,7 +417,7 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 
 ////////////////////////
 // Colorize the skin
-void CGameSkin::Colorize(Uint32 col)
+void CGameSkin::Colorize(Color col)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -440,8 +440,8 @@ void CGameSkin::Colorize(Uint32 col)
 	LOCK_OR_QUIT(bmpMirrored);
 
 	// Get the color
-	Uint8 colR, colG, colB;
-	GetColour3(col, getMainPixelFormat(), &colR, &colG, &colB);
+	// TODO: cleanup
+	const Uint8 colR = col.r, colG = col.g, colB = col.b;
 
     // Set the colour of the worm
 	const Uint32 black = SDL_MapRGB(bmpSurface->format, 0, 0, 0);

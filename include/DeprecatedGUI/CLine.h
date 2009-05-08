@@ -10,6 +10,9 @@
 #ifndef __CLINE_H__DEPRECATED_GUI__
 #define __CLINE_H__DEPRECATED_GUI__
 
+#include "Color.h"
+
+
 namespace DeprecatedGUI {
 
 // Line events
@@ -21,7 +24,7 @@ enum {
 class CLine : public CWidget {
 public:
 	// Constructor
-	CLine(int x1, int y1, int dx, int dy, Uint32 col) {
+	CLine(int x1, int y1, int dx, int dy, Color col) {
 		iX = x1;
 		iY = y1;
 		iWidth = dx;
@@ -32,7 +35,7 @@ public:
 
 private:
 	// Attributes
-	Uint32	iColour;
+	Color	iColour;
 
 public:
 	// Methods
@@ -69,9 +72,9 @@ public:
 		CWidget * w = new CLine( x, y, x+dx, y+dy, p[0].c );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
-	};
+	}
 	
-	void	ProcessGuiSkinEvent(int iEvent) {};
+	void	ProcessGuiSkinEvent(int iEvent) {}
 };
 
 }; // namespace DeprecatedGUI

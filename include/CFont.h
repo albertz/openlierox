@@ -61,21 +61,21 @@ private:
 	SmartPointer<SDL_Surface> bmpWhite;
 	SmartPointer<SDL_Surface> bmpGreen;
 
-	Uint32 f_white;
-	Uint32 f_green;
+	Color f_white;
+	Color f_green;
 
 public:
 	// Methods
 
 	int					Load(const std::string& fontname, bool _colour);
 
-	inline void			Draw(SDL_Surface * dst, int x, int y, Uint32 col, const std::string& txt)  {
+	inline void			Draw(SDL_Surface * dst, int x, int y, Color col, const std::string& txt)  {
 		DrawAdv(dst, x, y, 99999, col, txt);
 	}
-	void				DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Uint32 col, const std::string& txt);
-	void				DrawCentre(SDL_Surface * dst, int x, int y, Uint32 col, const std::string& txt);
-	void				DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Uint32 col, const std::string& txt);
-	void				DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Uint32 col, const std::string& txt);
+	void				DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Color col, const std::string& txt);
+	void				DrawCentre(SDL_Surface * dst, int x, int y, Color col, const std::string& txt);
+	void				DrawCentreAdv(SDL_Surface * dst, int x, int y, int min_x, int max_w, Color col, const std::string& txt);
+	void				DrawInRect(SDL_Surface * dst, int x, int y, int rectX, int rectY, int rectW, int rectH, Color col, const std::string& txt);
 	void				DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c);
 
 	void				Shutdown();
@@ -121,7 +121,7 @@ public:
 private:
 	bool				IsColumnFree(int x);
 	void				Parse();
-	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Uint32 colour);
+	void				PreCalculate(const SmartPointer<SDL_Surface> & bmpSurf, Color colour);
 	
 	// Internal functions for glyph drawing, first one for normal fonts, second one for outline fonts
 	// These do the fast glyph blit without any additional checks or clipping

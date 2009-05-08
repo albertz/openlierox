@@ -18,6 +18,7 @@
 
 #include "GfxPrimitives.h"
 #include "SmartPointer.h"
+#include "Color.h"
 
 // Some basic defines
 #define CPU_WIDTH 10
@@ -38,8 +39,8 @@ private:
 	SmartPointer<SDL_Surface>	bmpMirroredShadow;
 	SmartPointer<SDL_Surface>	bmpPreview;
 	std::string					sFileName;
-	Uint32						iColor;
-	Uint32						iDefaultColor;
+	Color						iColor;
+	Color						iDefaultColor;
 	bool						bColorized;
 	int							iBotIcon;
 	int							iFrameWidth;  // Width of one frame
@@ -66,7 +67,7 @@ public:
 
 	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored);
 	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored);
-	void	Colorize(Uint32 col);
+	void	Colorize(Color col);
 	void	RemoveColorization()	{ Colorize(iDefaultColor); }
 	void	Change(const std::string& file);
 	SmartPointer<SDL_Surface>& getPreview()	{ return bmpPreview; }
@@ -74,8 +75,8 @@ public:
 	const std::string& getFileName() const  { return sFileName; }
 	int getBotIcon() const	{ return iBotIcon; }
 	void setBotIcon(int _i) { iBotIcon = _i; }
-	Uint32 getColor() const	{ return iColor; }
-	Uint32 getDefaultColor() const	{ return iDefaultColor; }
+	Color getColor() const	{ return iColor; }
+	Color getDefaultColor() const	{ return iDefaultColor; }
 	void setDefaultColor(Uint32 _c)	{ iDefaultColor = _c; }
 	int getFrameCount() const;
 	int getSkinWidth() const { return iSkinWidth; }

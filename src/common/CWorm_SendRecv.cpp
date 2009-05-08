@@ -38,11 +38,8 @@ void CWorm::writeInfo(CBytestream *bs)
 	bs->writeInt(iTeam, 1);
 	bs->writeString(cSkin.getFileName());
 
-	Uint8 rgb[3];
-    GetColour3(cSkin.getDefaultColor(), getMainPixelFormat(), &rgb[0], &rgb[1], &rgb[2]);
-
 	for(short i = 0; i < 3; i++)
-		bs->writeInt(rgb[i], 1);
+		bs->writeInt(cSkin.getDefaultColor()[i], 1);
 }
 
 
