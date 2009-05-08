@@ -133,31 +133,18 @@ int ReadFloat(const std::string& filename, const std::string& section, const std
 }
 
 
-//////////////////
-// Read a colour
-// converts it into screensurface->format
-int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Uint32 *value, Uint32 defaultv)
-{
-	std::string string;
-
-	*value = defaultv;
-
-	if(!GetString(filename,section,key,string))
-		return false;
-
-	*value = StrToCol(string).get();
-
-	return true;
-
-}
-
 
 int ReadColour(const std::string& filename, const std::string& section, const std::string& key, Color& value, const Color& defaultv) {
-	Uint32 col = 0;
-	int ret = ReadColour(filename, section, key, &col, defaultv.get());
-	if(ret)
-		value = Color(col);
-	return ret;
+	std::string string;
+	
+	value = defaultv;
+	
+	if(!GetString(filename,section,key,string))
+		return false;
+	
+	value = StrToCol(string);
+	
+	return true;
 }
 
 //////////////////
