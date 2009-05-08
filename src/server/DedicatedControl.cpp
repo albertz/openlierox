@@ -1527,22 +1527,22 @@ bool DedicatedControl::Init_priv() {
 
 
 // This is the main game loop, the one that do all the simulation etc.
-void DedicatedControl::GameLoopStart_Signal() { DedIntern::Get()->Sig_GameLoopStart(); }
-void DedicatedControl::GameLoopEnd_Signal() { DedIntern::Get()->Sig_GameLoopEnd(); }
-void DedicatedControl::BackToServerLobby_Signal() { DedIntern::Get()->Sig_BackToLobby(); }
-void DedicatedControl::BackToClientLobby_Signal() { DedIntern::Get()->Sig_ClientGotoLobby(); }
-void DedicatedControl::WeaponSelections_Signal() { DedIntern::Get()->Sig_WeaponSelections(); }
-void DedicatedControl::GameStarted_Signal() { DedIntern::Get()->Sig_GameStarted(); }
-void DedicatedControl::NewWorm_Signal(CWorm* w) { DedIntern::Get()->Sig_NewWorm(w); }
-void DedicatedControl::WormLeft_Signal(CWorm* w) { DedIntern::Get()->Sig_WormLeft(w); }
-void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { DedIntern::Get()->Sig_ChatMessage(w,message); }
-void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { DedIntern::Get()->Sig_PrivateMessage(w,to,message); }
-void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { DedIntern::Get()->Sig_WormDied(worm->getID(), killer ? killer->getID() : -1); }
-void DedicatedControl::WormSpawned_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormSpawned(worm); };
-void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormGotAdmin(worm); };
-void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ DedIntern::Get()->Sig_WormAuthorized(worm); };
+void DedicatedControl::GameLoopStart_Signal() { internData->Sig_GameLoopStart(); }
+void DedicatedControl::GameLoopEnd_Signal() { internData->Sig_GameLoopEnd(); }
+void DedicatedControl::BackToServerLobby_Signal() { internData->Sig_BackToLobby(); }
+void DedicatedControl::BackToClientLobby_Signal() { internData->Sig_ClientGotoLobby(); }
+void DedicatedControl::WeaponSelections_Signal() { internData->Sig_WeaponSelections(); }
+void DedicatedControl::GameStarted_Signal() { internData->Sig_GameStarted(); }
+void DedicatedControl::NewWorm_Signal(CWorm* w) { internData->Sig_NewWorm(w); }
+void DedicatedControl::WormLeft_Signal(CWorm* w) { internData->Sig_WormLeft(w); }
+void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { internData->Sig_ChatMessage(w,message); }
+void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { internData->Sig_PrivateMessage(w,to,message); }
+void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { internData->Sig_WormDied(worm->getID(), killer ? killer->getID() : -1); }
+void DedicatedControl::WormSpawned_Signal(CWorm* worm){ internData->Sig_WormSpawned(worm); };
+void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ internData->Sig_WormGotAdmin(worm); };
+void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ internData->Sig_WormAuthorized(worm); };
 
-void DedicatedControl::Menu_Frame() { DedIntern::Get()->Frame_Basic(); }
-void DedicatedControl::GameLoop_Frame() { DedIntern::Get()->Frame_Basic(); }
+void DedicatedControl::Menu_Frame() { internData->Frame_Basic(); }
+void DedicatedControl::GameLoop_Frame() { internData->Frame_Basic(); }
 
-void DedicatedControl::Execute(CmdLineIntf::Command cmd) { DedIntern::Get()->Execute(cmd); }
+void DedicatedControl::Execute(CmdLineIntf::Command cmd) { internData->Execute(cmd); }
