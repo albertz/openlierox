@@ -2305,7 +2305,7 @@ bool Polygon2D::intersectsCircle(VectorD2<int> &midpoint, int radius) const
 	return false;
 }
 
-void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
+void Polygon2D::drawFilled(SDL_Surface* bmpDest, int _x, int _y, Color col) {
 	if (lines.size() + horizLines.size() < 3)
 		return;
 
@@ -2316,11 +2316,11 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 
 	// Run the scanline algorithm
-	const int maxy = MIN(overlay.y + overlay.h, bmpDest->clip_rect.y + bmpDest->clip_rect.h);
+	const int maxy = MIN(overlay.y + _y + overlay.h, bmpDest->clip_rect.y + bmpDest->clip_rect.h - 1);
 	std::vector<int> isc;
 	isc.reserve(lines.size());
 	
-	for (int y = MAX(overlay.y + 1, (int)bmpDest->clip_rect.y); y < maxy; y++)  {
+	for (int y = MAX(overlay.y + _y + 1, (int)bmpDest->clip_rect.y); y <= maxy; y++)  {
 		
 
 		// Get intersections
@@ -2328,9 +2328,9 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 			assert(it->start.y <= it->end.y);
 
 			// Check for an intersection
-			if (it->start.y < y && it->end.y >= y)  {
+			if (it->start.y + _y < y && it->end.y + _y >= y)  {
 				const float slope = (float)(it->start.x - it->end.x) / (it->start.y - it->end.y);
-				isc.push_back((int)(slope * (y - it->start.y)) + it->start.x); // Calculate the intersection
+				isc.push_back((int)(slope * (y - _y - it->start.y)) + it->start.x + _x); // Calculate the intersection
 			}
 		}
 
@@ -2357,7 +2357,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, Color col) {
 
 	// Draw horizontal lines (special cases, cannot be checked for intersections)
 	for (Lines::const_iterator it = horizLines.begin(); it != horizLines.end(); ++it)
-		DrawHLine(bmpDest, it->start.x, it->end.x, it->start.y, col);
+		DrawHLine(bmpDest, it->start.x + _x, it->end.x + _x, it->start.y + _y, col);
 }
 
 void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Color col) {
@@ -2378,7 +2378,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Col
 		big.addPoint(VectorD2<int>(Tx(p->x), Ty(p->y)));
 	big.endPointAdding();
 
-	big.drawFilled(bmpDest, x, y, col);
+	big.drawFilled(bmpDest, x * 2, y * 2, col);
 	
 #undef Tx
 #undef Ty
@@ -2387,7 +2387,7 @@ void Polygon2D::drawFilled(SDL_Surface* bmpDest, int x, int y, CViewport* v, Col
 #include "InputEvents.h"
 void TestPolygonDrawing(SDL_Surface* surf) {
 	Color on(255, 0, 0, 128);
-	Color off(0, 255, 0, 128);
+	Color off(0, 255, 0, 128); 
 
 	// star
 	Polygon2D p;
