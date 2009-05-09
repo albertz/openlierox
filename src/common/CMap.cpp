@@ -950,6 +950,8 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
 
+	assert(bmpDest && bmpObj && bmpShadowMap.get() && view);
+
 	const ShadowClipInfo i = ClipShadow(bmpDest, bmpObj, bmpShadowMap.get(), sx, sy, w, h, view, wx, wy);
 	if (!i.h || !i.w)
 		return;
