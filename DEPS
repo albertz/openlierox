@@ -48,12 +48,13 @@ tested versions: 2.6.26
 ----
 
 Quick command for Debian/Ubuntu:
-apt-get install subversion cmake build-essential libsdl1.2-dev ...
+sudo apt-get install build-essential subversion cmake libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev
+cmake -D HAWKNL_BUILTIN=1 -D DEBUG=0 -D X11=1 .
 
 Quick command for OpenBSD:
 pkg_add subversion cmake sdl sdl-image sdl-mixer libxml gd
 
 Quick command for FreeBSD/PC-BSD:
 pkg_add -r subversion cmake sdl sdl_image sdl_mixer libxml2 gd
-cmake -DHAWKNL_BUILTIN=1 -DLIBZIP_BUILTIN=1 .
+cmake -DHAWKNL_BUILTIN=1 -DLIBZIP_BUILTIN=1 -D DEBUG=0 .
 
