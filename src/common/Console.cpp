@@ -109,7 +109,6 @@ void Con_Hide()
 	Console->fPosition = 1;
 	Console->fBlinkTime = 0;
 	Console->iBlinkState = 1;
-	con_timer->start();
 }
 
 
