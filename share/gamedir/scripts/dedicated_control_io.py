@@ -107,13 +107,13 @@ def gotoLobby():
 
 def addBot(worm = None):
 	if worm:
-		SendCommand( "addbot " + str(worm) )
+		SendCommand( "addbot \"%s\"" % str(worm) )
 	else:
 		SendCommand( "addbot" )
 
 def kickBot(msg = None):
 	if msg:
-		SendCommand( "kickbot " + str(msg) )
+		SendCommand( "kickbot \"%s\"" % str(msg) )
 	else:
 		SendCommand( "kickbot" )
 
@@ -125,15 +125,15 @@ def killBots():
 # for kicking/banning.
 def kickWorm(iID, reason = ""):
 	if reason != "":
-		SendCommand( "kickworm " + str(iID) + " " + str(reason) )
+		SendCommand( "kickworm %i \"%s\"" % (int(iID), str(reason)) )
 	else:
-		SendCommand( "kickworm " + str(iID) )
+		SendCommand( "kickworm %i" % int(iID) )
 
 def banWorm(iID, reason = ""):
 	if reason != "":
-		SendCommand( "banworm " + str(iID) + " " + str(reason) )
+		SendCommand( "banworm %i \"%s\"" % (int(iID), str(reason)) )
 	else:
-		SendCommand( "banworm " + str(iID) )
+		SendCommand( "banworm %i" % int(iID) )
 
 def muteWorm(iID):
 	SendCommand( "muteworm " + str(iID) )
