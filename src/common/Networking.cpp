@@ -1022,32 +1022,45 @@ static bool isStringValidIP(const std::string& str) {
 	size_t p = 0;
 	int numC = 0;
 	int numLen = 0;
+	bool readingPort = false;
 	while(p < str.size()) {
 		if(str[p] == '.') {
-			if(numC >= 3) return false;
-			if(!numLen) return false;
+			if (numC >= 3)
+				return false;
+			if (!numLen)
+				return false;
+			if (readingPort)
+				return false;
+
 			numC++; numLen = 0;
 			p++; continue;
 		}
 		
 		if(str[p] == ':') {
-			if(numC < 3) return false;
-			if(!numLen) return false;
+			if (numC < 3)
+				return false;
+			if (!numLen)
+				return false;
+			if (readingPort)
+				return false;
+
+			readingPort = true;
 			numC++; numLen = 0;
 			p++; continue;
 		}
 		
 		if(str[p] >= '0' && str[p] <= '9') {
 			numLen++;
-			if(numLen > 3) return false;
+			if(numLen > (readingPort ? 5 : 3))
+				return false;
+
 			p++; continue;
 		}
 		
 		return false;
 	}
 	
-	if(numC >= 3 && numLen > 0) return true;
-	return false;
+	return (numC >= 3 && numLen > 0);
 }
 
 // accepts "%i.%i.%i.%i[:%l]" as input
