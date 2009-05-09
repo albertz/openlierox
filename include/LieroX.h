@@ -41,13 +41,6 @@ class IpToCountryDB;
 
 
 
-// Screenshot structure
-class screenshot_t { public:
-	std::string sDir;
-	std::string	sData;
-};
-
-
 // Game types
 enum GameType_t {
 	GME_LOCAL=0,
@@ -56,7 +49,7 @@ enum GameType_t {
 };
 
 // LieroX structure
-class lierox_t { public:
+struct lierox_t {
 	lierox_t() :
 			bVideoModeChanged(false), bQuitGame(false), bQuitEngine(false), bQuitCtrlC(false)
 			, iGameType(GME_LOCAL), bHosted(false) {}
@@ -66,8 +59,6 @@ class lierox_t { public:
 							// it is not clamped unlike the above one
 	CFont	cFont;
 	CFont	cOutlineFont;
-
-	std::list<screenshot_t>	tScreenshotQueue;
 
 	bool	bVideoModeChanged;
 

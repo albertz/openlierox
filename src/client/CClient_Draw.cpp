@@ -712,10 +712,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 			// If this is a tournament, take screenshot of the final screen
 			if (tLXOptions->bMatchLogging && tLX->iGameType != GME_LOCAL)  {
-				screenshot_t scrn;
-				scrn.sDir = "game_results";
-				GetLogData(scrn.sData);
-				tLX->tScreenshotQueue.push_back(scrn);
+				std::string data;
+				GetLogData(data);
+				PushScreenshot("game_results", data);
 			}
 
 			was_gameovermenu = true;

@@ -543,25 +543,44 @@ void CapFPS() {
 		SDL_Delay(1);
 }
 
+
+// Screenshot structure
+struct screenshot_t {
+	std::string sDir;
+	std::string	sData;
+};
+
+struct ScreenshotQueue {
+	std::list<screenshot_t> queue;
+	SDL_mutex* mutex;
+	ScreenshotQueue() : mutex(NULL) { mutex = SDL_CreateMutex(); }
+	~ScreenshotQueue() { SDL_DestroyMutex(mutex); mutex = NULL; }
+};
+
+static ScreenshotQueue screenshotQueue;
+
+void PushScreenshot(const std::string& dir, const std::string& data) {
+	screenshot_t scr; scr.sDir = dir; scr.sData = data;
+	ScopedLock lock(screenshotQueue.mutex);
+	screenshotQueue.queue.push_back(scr);
+}
+
+static void TakeScreenshot(const std::string& scr_path, const std::string& additional_data);
+
 ////////////////
 // Process any screenshots
 void ProcessScreenshots()
 {
-	// Check if user pressed screenshot key
-	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
-		screenshot_t scr;
-		scr.sData = "";
-		scr.sDir = "scrshots";
-		tLX->tScreenshotQueue.push_back(scr);
+	std::list<screenshot_t> scrs;
+	{
+		ScopedLock lock(screenshotQueue.mutex);
+		scrs.swap(screenshotQueue.queue);
 	}
-
+	
 	// Process all the screenhots in the queue
-	for (std::list<screenshot_t>::iterator it = tLX->tScreenshotQueue.begin(); it != tLX->tScreenshotQueue.end(); it++)  {
+	for (std::list<screenshot_t>::iterator it = scrs.begin(); it != scrs.end(); it++)  {
 		TakeScreenshot(it->sDir, it->sData);
 	}
-
-	// Clear the queue
-	tLX->tScreenshotQueue.clear();
 }
 
 
@@ -995,7 +1014,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 
 ///////////////////
 // Take a screenshot
-void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
+static void TakeScreenshot(const std::string& scr_path, const std::string& additional_data)
 {
 	if (scr_path.empty()) // Check
 		return;

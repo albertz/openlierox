@@ -279,6 +279,11 @@ void Menu_Frame() {
 
 	if(!tMenu->bMenuRunning) return; // could be already quitted
 	
+	// Check if user pressed screenshot key
+	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
+		PushScreenshot("scrshots", "");
+	}
+	
 	Menu_RedrawMouse(true);
 
 #ifdef WITH_G15

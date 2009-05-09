@@ -933,6 +933,11 @@ void GameLoopFrame()
     if(tLX->bQuitEngine)
         return;
 
+	// Check if user pressed screenshot key
+	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
+		PushScreenshot("scrshots", "");
+	}
+	
 	// Switch between window and fullscreen mode
 	// Switch only if delta time is low enough. This is because when the game does not
 	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
