@@ -1746,7 +1746,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 *
 ************************/
 
-std::list<std::string> tUdpServers; // TODO: remove this array, we have server_t::bBehindNat for that
+std::list<std::string> tUdpMasterServers;
 std::map<size_t, ThreadPoolItem *> tUpdateThreads;
 size_t threadId = 0;
 
@@ -1792,7 +1792,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 	// Get serverlist from all the servers in the file
 	int UdpServerIndex = 0;
-	for (std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it, ++UdpServerIndex)  
+	for (std::list<std::string>::iterator it = tUdpMasterServers.begin(); it != tUdpMasterServers.end(); ++it, ++UdpServerIndex)  
 	{
 		std::string& server = *it;
 		NetworkAddr addr;
@@ -1874,7 +1874,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 void Menu_SvrList_UpdateUDPList()
 {
-	if (tUdpServers.size() == 0)  {  // Load the list of servers only if not already loaded
+	if (tUdpMasterServers.size() == 0)  {  // Load the list of servers only if not already loaded
 		// Open the masterservers file
 		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
 		if(!fp1)  {
@@ -1890,7 +1890,7 @@ void Menu_SvrList_UpdateUDPList()
 			if( szLine.length() == 0 )
 				continue;
 
-			tUdpServers.push_back(szLine);
+			tUdpMasterServers.push_back(szLine);
 		}
 		fclose(fp1);
 	}
@@ -2021,7 +2021,7 @@ std::string Menu_SvrList_GetUdpMasterserverForServer(const std::string & addr)
 		return "";
 
 	int idx = 0;
-	for( std::list<std::string>::iterator it = tUdpServers.begin(); it != tUdpServers.end(); ++it, ++idx )
+	for( std::list<std::string>::iterator it = tUdpMasterServers.begin(); it != tUdpMasterServers.end(); ++it, ++idx )
 		if( idx == svr->UdpMasterserverIndex )
 			return *it;
 
