@@ -971,7 +971,7 @@ void GameServer::SendPackets()
 // Register the server
 void GameServer::RegisterServer()
 {
-	if (tMasterServers.size() == 0)
+	if (tMasterServers.size() == 0 || tLX->iGameType != GME_HOST)
 		return;
 
 	// Create the url
