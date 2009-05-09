@@ -214,15 +214,15 @@ def getWriteFullFileName(fn):
 
 # Use this to write to stdout (standard output)
 def msg(string):
-	SendCommand( "msg " + str(string) )
+	SendCommand( "msg \"%s\"" % str(string) )
 
 # Send a chat message
 def chatMsg(string):
-	SendCommand( "chatmsg " + str(string) )
+	SendCommand( "chatmsg \"%s\"" % str(string) )
 
 # Send a private chat message
 def privateMsg(iID, string):
-	SendCommand( "privatemsg %i %s" % ( int(iID), str(string) ) )
+	SendCommand( "privatemsg %i \"%s\"" % ( int(iID), str(string) ) )
 
 
 #Log Severity
