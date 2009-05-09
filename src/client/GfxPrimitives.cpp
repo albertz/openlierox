@@ -1826,6 +1826,9 @@ struct ScopedBackgroundLoadingAni::Data {
 };
 
 ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg) {
+	data = NULL;
+	if(bDedicated) return;
+	
 	data = new Data();
 	struct Animator : Action {
 		int x, y, rx, ry;
@@ -1858,13 +1861,15 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 }
 
 ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
-	{
-		ScopedLock lock(data->mutex);
-		data->quit = true;
-		SDL_CondSignal(data->breakSig);
+	if(data) {
+		{
+			ScopedLock lock(data->mutex);
+			data->quit = true;
+			SDL_CondSignal(data->breakSig);
+		}
+		threadPool->wait(data->thread);
+		delete data; data = NULL;
 	}
-	threadPool->wait(data->thread);
-	delete data; data = NULL;
 }
 
 
