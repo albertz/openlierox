@@ -2420,6 +2420,7 @@
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-DDEBUG",
+					"-D_AI_DEBUG",
 					"-pthread",
 				);
 				OTHER_LDFLAGS = (

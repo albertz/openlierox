@@ -3682,13 +3682,14 @@ void CWormBotInputHandler::AI_Carve()
 bool CWormBotInputHandler::AI_Jump()
 {
 	// Don't jump so often
-	if (GetTime() - fLastJump > 1.0f)  {
+	if ((GetTime() - fLastJump).seconds() > 0.3f)  {
 		fLastJump = GetTime();
-		m_worm->tState.bJump = m_worm->bOnGround;
+		m_worm->tState.bJump = m_worm->bOnGround || m_worm->canAirJump();
 	}
-	else  {
+	// TODO: why this? we should have reset it anyway. and multiple calls to AI_Jump should not make it false again
+	/*else  {
 		m_worm->tState.bJump = false;
-	}
+	}*/
 
 	return m_worm->tState.bJump;
 }
@@ -3938,6 +3939,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 		// we currently have no visible node
 		if (!NEW_psCurrentNode)  {
+			//notes << "AI: no current node" << endl;
 			nAIState = AI_THINK;
 			AI_SimpleMove(psAITarget != NULL);
 			return;
@@ -4101,6 +4103,7 @@ find_one_visible_node:
 		fireNinja = false;
 	}
 
+	bool stillAimingRopeSpot = false;
     if(fireNinja) {
     	// set it to false, only if we pass the following checks, set it to true again
 		fireNinja = false;
@@ -4111,7 +4114,8 @@ find_one_visible_node:
 
 		// Aim
 		bool aim = AI_SetAim(ropespot);
-
+		if(!aim) stillAimingRopeSpot = true;
+		
         /*
           Got aim, so shoot a ninja rope
           also shoot, if we are not on ground
@@ -4150,10 +4154,15 @@ find_one_visible_node:
     } else { // not fireNinja
 
 		// Aim at the node
-		if(!we_see_the_target) AI_SetAim(nodePos);
+		if(!we_see_the_target && !stillAimingRopeSpot) AI_SetAim(nodePos);
 
+		if(m_worm->canAirJump()) {
+			if(m_worm->vPos.y > NEW_psCurrentNode->fY + 10 && fabs(m_worm->vPos.y - NEW_psCurrentNode->fY) > fabs(m_worm->vPos.x - NEW_psCurrentNode->fX))
+				AI_Jump();
+			ws->bMove = true;
+		}
 		// If the node is above us by a little, jump
-		if((m_worm->vPos.y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10) {
+		else if((m_worm->vPos.y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10) {
 			if (!AI_Jump())
 				ws->bMove = true; // if we should not jump, move
 		}
