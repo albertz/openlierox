@@ -32,12 +32,6 @@ struct Race : public CGameMode {
 	
 	std::vector<CVec> wayPoints;
 	
-	void initFlag(int t, const CVec& pos) {
-		// currently, just use this easy method to find a spot for the flag
-		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
-		cServer->flagInfo()->applyInitFlag(t, spawnPoint);
-	}
-	
 	std::string flagName(int t) {
 		return "way point " + itoa(t + 1);
 	}
@@ -67,6 +61,10 @@ struct Race : public CGameMode {
 								  (cServer->getMap()->GetHeight() * 0.2 * y + cServer->getMap()->GetHeight() * 0.8)));
 				int t = (y == 0) ? x : (3 - x);
 				wayPoints[t] = cServer->FindSpotCloseToPos(goodPos, badPos, false);
+				
+				if(!tLXOptions->tGameInfo.features[FT_InstantAirJump])
+					// set the place to the ground
+					wayPoints[t] = cServer->getMap()->groundPos(wayPoints[t]) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
 			}
 	}
 	
@@ -94,7 +92,7 @@ struct Race : public CGameMode {
 		
 		if(!cServer->flagInfo()->getFlag(getWormFlag(worm))) {
 			// we have to create the new flag, there isn't any yet
-			initFlag(getWormFlag(worm), wayPoints[1]);
+			cServer->flagInfo()->applyInitFlag(getWormFlag(worm), wayPoints[1]);
 			nextGoals[getWormFlag(worm)] = 1;
 		}
 		
