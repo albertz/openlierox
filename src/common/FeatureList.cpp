@@ -73,6 +73,10 @@ Feature featureArray[] = {
 			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
 			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_CaptureTheFlag,	 0.1f, 3.0f, true),
+	Feature("Race_Rounds", "Rounds", "Amount of rounds",
+			5,5,					OLXBetaVersion(9),		GIG_Race,		-1, 100, true),
+	Feature("Race_AllowWeapons", "Allow weapons", "If disabled, you cannot shoot",
+			false,false,			OLXBetaVersion(9),		GIG_Race,		true),
 
 	Feature::Unset()
 };

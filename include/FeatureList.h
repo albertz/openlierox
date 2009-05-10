@@ -95,6 +95,8 @@ enum FeatureIndex {
 	FT_ImmediateStart,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
+	FT_Race_Rounds,
+	FT_Race_AllowWeapons,
  
  	__FTI_BOTTOM
 };

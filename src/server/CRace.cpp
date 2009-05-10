@@ -130,7 +130,44 @@ struct Race : public CGameMode {
 		}
 	}
 	
-	
+	virtual bool Shoot(CWorm* worm) {
+		return tLXOptions->tGameInfo.features[FT_Race_AllowWeapons];
+	}
+
+	virtual bool CheckGameOver() {
+		if(int(tLXOptions->tGameInfo.features[FT_Race_Rounds]) > 0) {
+			for(int i = 0; i < MAX_WORMS; ++i) {
+				CWorm* w = &cServer->getWorms()[i];
+				if(!w->isUsed()) continue;
+				if(w->getKills() >= int(tLXOptions->tGameInfo.features[FT_Race_Rounds])) {
+					return true;
+				}
+			}
+		}
+
+		bool allOut = true;
+		for(int i = 0; i < MAX_WORMS; i++)
+			if(cServer->getWorms()[i].isUsed()) {
+				if(cServer->getWorms()[i].getLives() != WRM_OUT || cServer->getWorms()[i].getAlive()) {
+					allOut = false;
+					break;
+				}
+			}
+		if(allOut) return true;
+		
+		// Check if the timelimit has been reached
+		if(TimeLimit() > 0) {
+			if (cServer->getServerTime() > TimeLimit()) {
+				if(networkTexts->sTimeLimit != "<none>")
+					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
+				notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+				notes << " -> game over" << endl;
+				return true;
+			}
+		}
+		
+		return false;
+	}
 };
 
 struct TeamRace : public Race {
@@ -158,11 +195,10 @@ struct TeamRace : public Race {
 	
 	virtual void PrepareGame() {
 		Race::PrepareGame();
-		
 	}
 
 	virtual void addScore(CWorm* w) {
-		teamScore[w->getTeam()]++;
+		teamScore[CLAMP(w->getTeam(),0,MAXTEAMS-1)]++;
 		cServer->SendTeamScoreUpdate();
 		//cServer->SendGlobalText(worm->getName() + " scored for " + TeamName(worm->getTeam()), TXT_NORMAL);
 	}
@@ -192,10 +228,9 @@ struct TeamRace : public Race {
 	}
 	
 	virtual bool CheckGameOver() {
-		// currently we use killlimit as teamscorelimit
-		if(tLXOptions->tGameInfo.iKillLimit >= 0) {
+		if(int(tLXOptions->tGameInfo.features[FT_Race_Rounds]) > 0) {
 			for(int i = 0; i < MAXTEAMS; ++i) {
-				if(teamScore[i] >= tLXOptions->tGameInfo.iKillLimit) {
+				if(teamScore[i] >= int(tLXOptions->tGameInfo.features[FT_Race_Rounds])) {
 					return true;
 				}
 			}
