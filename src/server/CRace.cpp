@@ -131,7 +131,7 @@ struct Race : public CGameMode {
 	}
 	
 	virtual bool Shoot(CWorm* worm) {
-		return tLXOptions->tGameInfo.features[FT_Race_AllowWeapons];
+		return cClient->getGameLobby()->features[FT_Race_AllowWeapons];
 	}
 
 	virtual bool CheckGameOver() {

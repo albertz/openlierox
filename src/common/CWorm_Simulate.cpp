@@ -695,11 +695,6 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
 		m_worm->bWeaponsReady = true;
-
-	if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK)) {
-		// just skip weapon selection in HideAndSeek games
-		m_worm->bWeaponsReady = true;
-	}
 }
 
 
@@ -715,6 +710,14 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	if(bDedicated) {
 		warnings << "doWeaponSelectionFrame: we have a local human input in our dedicated server" << endl; 
 		return; // just for safty; atm this function only handles non-bot players
+	}
+
+	// do that check here instead of initWeaponSelection() because at that time,
+	// not all params of the gamemode are set
+	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
+		// just skip weapon selection in game modes where shooting is not possible (e.g. hidenseek)
+		m_worm->bWeaponsReady = true;
+		return;
 	}
 	
 	int l = 0;
