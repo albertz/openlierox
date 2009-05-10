@@ -2465,7 +2465,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 	SDL_Rect newclip = {x, y, WAIT_COL_W, h};
 	ScopedSurfaceClip clip(bmpDest, newclip);
 
-	DrawRectFillA(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground, 128);
+	DrawRectFill(bmpDest, x, y, x + WAIT_COL_W, y + h, tLX->clScoreBackground);
 
 	int cur_y = y + 5;
 	for (int i=0; i < num && (it != last); i++, it++)  {

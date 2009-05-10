@@ -274,6 +274,7 @@ void InitializeColors()  {
 	ReadColour(colorfile,"Colours","ScrollbarShadow",		tLX->clScrollbarShadow,	tLX->clScrollbarShadow);
 	ReadColour(colorfile,"Colours","ChatBoxBackground",		tLX->clChatBoxBackground,	tLX->clChatBoxBackground);
 	ReadColour(colorfile,"Colours","ScoreBack",				tLX->clScoreBackground,	tLX->clScoreBackground);
+	if(tLX->clScoreBackground.a == 255) tLX->clScoreBackground.a = 128;
 	ReadColour(colorfile,"Colours","ScoreHighlight",		tLX->clScoreHighlight,		tLX->clScoreHighlight);
 	ReadColour(colorfile,"Colours","CurrentSettBack",		tLX->clCurrentSettingsBg,	tLX->clCurrentSettingsBg);
 	ReadColour(colorfile,"Colours","DialogCaption",			tLX->clDialogCaption,		tLX->clDialogCaption);
