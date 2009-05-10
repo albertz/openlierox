@@ -124,6 +124,7 @@
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
+		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
 		23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
@@ -564,6 +565,7 @@
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
+		23C5B0480FB67692005A36AE /* CRace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CRace.cpp; sourceTree = "<group>"; };
 		23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPool.cpp; sourceTree = "<group>"; };
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
@@ -1247,6 +1249,7 @@
 				EA430C430BEFCEB400C6547E /* CServer_Send.cpp */,
 				23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */,
 				238F2E690F741B300016D617 /* CaptureTheFlag.cpp */,
+				23C5B0480FB67692005A36AE /* CRace.cpp */,
 			);
 			path = server;
 			sourceTree = "<group>";
@@ -1829,6 +1832,7 @@
 				2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */,
 				2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */,
 				23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */,
+				23C5B0490FB67693005A36AE /* CRace.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

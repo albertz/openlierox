@@ -614,6 +614,11 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			if(cWorms[i].isUsed())
 				cWorms[i].setAlive(false);
 		}
+		
+		// Prepare the gamemode
+		notes << "preparing game mode " << getGameMode()->Name() << endl;
+		getGameMode()->PrepareGame();
+		
 		for(int i=0;i<MAX_WORMS;i++) {
 			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
 				SpawnWorm( & cWorms[i] );
@@ -622,10 +627,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		}
 
 		DumpGameState();
-		
-		// Prepare the gamemode
-		notes << "preparing game mode " << getGameMode()->Name() << endl;
-		getGameMode()->PrepareGame();
 	}
 
 	if(firstStart)

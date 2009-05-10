@@ -1816,15 +1816,21 @@ static void updateAddedWorms(CClient* cl) {
 					bytestr.writeByte(S2C_WORMINFO);
 					bytestr.writeInt(w->getID(), 1);
 					w->writeInfo(&bytestr);				
-					for(int ii = 0; ii < MAX_CLIENTS; ii++)
-						if(!cServer->getClients()[ii].isLocalClient())
-							cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+					for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+						if(cServer->getClients()[ii].isLocalClient()) continue;
+						if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+						if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+						cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+					}
 				}
 				
 				// handling for connect during game
 				if( cServer->getState() != SVS_LOBBY ) {
-					for(int ii = 0; ii < MAX_CLIENTS; ii++)
+					for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+						if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+						if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
 						cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
+					}
 				}
 				
 				// now add the worm on the client

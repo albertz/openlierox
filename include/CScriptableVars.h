@@ -36,6 +36,7 @@ enum GameInfoGroup
 	
 	GIG_HideAndSeek,
 	GIG_CaptureTheFlag,
+	GIG_Race,
 	
 	GIG_Size
 };

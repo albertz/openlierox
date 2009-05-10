@@ -308,18 +308,22 @@ extern CGameMode* gameMode_Tag;
 extern CGameMode* gameMode_Demolitions;
 extern CGameMode* gameMode_HideAndSeek;
 extern CGameMode* gameMode_CaptureTheFlag;
+extern CGameMode* gameMode_Race;
+extern CGameMode* gameMode_TeamRace;
 
 
 static std::vector<CGameMode*> gameModes;
 
 void InitGameModes() {
-	gameModes.resize(6);
+	gameModes.resize(8);
 	gameModes[0] = gameMode_DeathMatch;
 	gameModes[1] = gameMode_TeamDeathMatch;
 	gameModes[2] = gameMode_Tag;
 	gameModes[3] = gameMode_Demolitions;
 	gameModes[4] = gameMode_HideAndSeek;
 	gameModes[5] = gameMode_CaptureTheFlag;
+	gameModes[6] = gameMode_Race;
+	gameModes[7] = gameMode_TeamRace;
 }
 
 CGameMode* GameMode(GameModeIndex i) {
