@@ -989,7 +989,9 @@ void CWormBotInputHandler::startGame() {
 		cClient->getGameLobby()->gameMode == GameMode(GM_TEAMDEATH) ||
 		cClient->getGameLobby()->gameMode == GameMode(GM_TAG) ||
 		cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_CTF))
+		cClient->getGameLobby()->gameMode == GameMode(GM_CTF) ||
+	    cClient->getGameLobby()->gameMode == GameMode(GM_RACE) ||
+	    cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE))
 	{
 		// it's fine, we support that game mode
 	}
@@ -1239,6 +1241,18 @@ bool CWormBotInputHandler::findNewTarget() {
 			nAIState = AI_MOVINGTOTARGET;
 			return true;
 		}
+	}
+	else if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE)) {		
+		int t = m_worm->getID();
+		if(cClient->isTeamGame()) t = m_worm->getTeam();
+
+		Flag* flag = cClient->flagInfo()->getFlag(t);
+		if(!flag) return false; // strange
+		
+		nAITargetType = AIT_POSITION;
+		nAIState = AI_MOVINGTOTARGET;
+		cPosTarget = flag->spawnPoint.pos;
+		return true;
 	}
 	else {
 		// TODO: also check for GM_DEMOLITIONS (whereby killing other worms is not completly bad in this mode)
@@ -1971,6 +1985,10 @@ bool CWormBotInputHandler::AI_Shoot()
 		// there is no shooting in this gamemode
 		return false;
 	}
+	
+	if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE))
+		// dont care about shooting in this mod, just try to be fast
+		return false;
 	
 	if(!canShootRightNowWithCurWeapon(m_worm)) return false;
 	
@@ -3689,6 +3707,22 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		return;
 	}
 
+	if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE)) {		
+		int t = m_worm->getID();
+		if(cClient->isTeamGame()) t = m_worm->getTeam();
+		
+		Flag* flag = cClient->flagInfo()->getFlag(t);
+		if(!flag) { // strange
+			nAIState = AI_THINK;
+			return;
+		}
+		
+		if((cPosTarget - flag->spawnPoint.pos).GetLength2() > 10.0f) {
+			nAIState = AI_THINK;
+			return;
+		}
+	}
+	
     // Clear the state
 	ws->bMove = false;
 	ws->bShoot = false;

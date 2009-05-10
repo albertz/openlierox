@@ -52,7 +52,9 @@ enum GameModeIndex {
 	GM_TAG,
 	GM_DEMOLITIONS,
 	GM_HIDEANDSEEK,
-	GM_CTF
+	GM_CTF,
+	GM_RACE,
+	GM_TEAMRACE,
 };
 
 // Game mode types
