@@ -131,6 +131,7 @@ struct Race : public CGameMode {
 	}
 	
 	virtual bool Shoot(CWorm* worm) {
+		// get that information from client because both client&server can check this
 		return cClient->getGameLobby()->features[FT_Race_AllowWeapons];
 	}
 
