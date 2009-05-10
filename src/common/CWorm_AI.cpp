@@ -4157,7 +4157,7 @@ find_one_visible_node:
 		if(!we_see_the_target && !stillAimingRopeSpot) AI_SetAim(nodePos);
 
 		if(m_worm->canAirJump()) {
-			if(m_worm->vPos.y > NEW_psCurrentNode->fY + 10 && fabs(m_worm->vPos.y - NEW_psCurrentNode->fY) > fabs(m_worm->vPos.x - NEW_psCurrentNode->fX))
+			if((m_worm->vPos.y > NEW_psCurrentNode->fY + 10) && fabs(m_worm->vPos.y - NEW_psCurrentNode->fY) > fabs(m_worm->vPos.x - NEW_psCurrentNode->fX))
 				AI_Jump();
 			ws->bMove = true;
 		}
@@ -4192,7 +4192,7 @@ find_one_visible_node:
         fStuckTime += tLX->fDeltaTime;
 
         // Have we been stuck for a few seconds?
-        if(fStuckTime > 3) {
+        if(fStuckTime.seconds() > 3) {
             // Jump, move, carve, switch directions and release the ninja rope
 			AI_Jump();
             ws->bMove = true;
