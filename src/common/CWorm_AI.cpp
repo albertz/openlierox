@@ -3474,10 +3474,10 @@ public:
 
 		CVec suggestion((float)x, (float)y);
 
-		float len = (worm->getPos() - suggestion).GetLength2();
-		if(len < 30.0f) // just ignore too close targets
+		float len = (worm->getPos() - suggestion).GetLength();
+		if(len < 30.0f) // just ignore too close spots
 			return false;
-		
+			
 		float trg_dist = (suggestion - target).GetLength();
 		trg_dist = (trg_dist != 0) ? (1.0f / trg_dist) : 999999999999999.0f; // the closer we are the better it is
 		float angle_dif = (aimDir - suggestion / suggestion.GetLength()).GetLength();
@@ -3507,6 +3507,8 @@ public:
 // Finds the best spot to shoot rope to if we want to get to trg
 CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 {
+	
+	
 	// Get the direction angle
 	CVec dir = trg - m_worm->vPos;
 	dir *= m_worm->cNinjaRope.getMaxLength() / dir.GetLength();
