@@ -257,7 +257,7 @@ bool Menu_OptionsInitialize()
 
 
 	// System
-	const Color lineCol = tLX->clHeading.derived(0,0,0,-200);
+	const Color lineCol = tLX->clLine; //tLX->clHeading.derived(0,0,0,-200);
 	const int starty = 130;
 	y = starty;
 	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0);
