@@ -147,11 +147,33 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 								victim->getName(), 1), TXT_NORMAL);
 }
 
+static int getWormHitKillLimit() {
+	if(tLXOptions->tGameInfo.iKillLimit <= 0) return -1;
+	
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* w = &cServer->getWorms()[i];
+		if(!w->isUsed()) continue;
+		if(w->getKills() >= tLXOptions->tGameInfo.iKillLimit)
+			return i;
+	}
+	
+	return -1;
+}
+
 bool CGameMode::CheckGameOver() {
 	// In game?
 	if (!cServer || cServer->getState() == SVS_LOBBY || cServer->getGameOver())
 		return true;
 
+	// check for maxkills
+	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+		int w = getWormHitKillLimit();
+		if(w >= 0) {
+			notes << "worm " << w << " hit the kill limit" << endl;
+			return true;
+		}
+	}
+	
 	// Check if the timelimit has been reached
 	if(TimeLimit() > 0) {
 		if (cServer->getServerTime() > TimeLimit()) {
@@ -217,6 +239,12 @@ int CGameMode::HighestScoredWorm() {
 }
 
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
+	// Kills very first (in case there was a kill limit)
+	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+		if (w1->getKills() > w2->getKills()) return 1;
+		if (w1->getKills() < w2->getKills()) return -1;		
+	}
+	
 	// Lives first
 	if(tLXOptions->tGameInfo.iLives >= 0) {
 		if (w1->getLives() > w2->getLives()) return 1;
