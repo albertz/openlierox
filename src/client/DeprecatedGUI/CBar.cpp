@@ -61,7 +61,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 		int bar_h = (bmpBar.get()->h - NumForeStates) / (numstates);
 		int bar_w = (bmpBar.get()->w - NumForeStates) / (numstates);
 
-		Color clLabel = tLX->clWhite;
+		Uint32 clLabel = 0; // same format as bmpBar
 		
 		// Draw the progress bitmap over the background depending on progress direction
 		int w, h;
@@ -110,7 +110,7 @@ void CBar::Draw(SDL_Surface * dst)  {
 		}
 
 		if (LabelVisible)
-			tLX->cFont.Draw(dst, LabelX, LabelY, clLabel, progress); // Label
+			tLX->cFont.Draw(dst, LabelX, LabelY, Color(bmpBar->format, clLabel), progress); // Label
 
 		
 	} else {  // No bitmap, just draw the simplest bar without any options

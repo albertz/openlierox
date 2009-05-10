@@ -955,11 +955,11 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 			if (WeaponBar)  {
 				if(Slot->Reloading)  {
-					WeaponBar->SetForeColor(MakeColour(128,64,64));  // In case it's not loaded properly
+					WeaponBar->SetForeColor(Color(128,64,64));  // In case it's not loaded properly
 					WeaponBar->SetCurrentForeState(1);  // Loading state
 					WeaponBar->SetCurrentBgState(1);
 				} else {
-					WeaponBar->SetForeColor(MakeColour(64,64,255));
+					WeaponBar->SetForeColor(Color(64,64,255));
 					WeaponBar->SetCurrentForeState(0);  // "Shooting" state
 					WeaponBar->SetCurrentBgState(0);
 				}
