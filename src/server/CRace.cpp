@@ -116,7 +116,12 @@ struct Race : public CGameMode {
 	}
 	
 	virtual void hitFlagSpawnPoint(CWorm* worm, Flag* flag) {
-		if(getWormFlag(worm) == flag->id) { // own base			
+		if(getWormFlag(worm) == flag->id) {
+			if(flag->holderWorm == worm->getID())
+				cServer->flagInfo()->applySetBack(flag);
+			else
+				cServer->flagInfo()->applyHolderWorm(flag, worm->getID());
+			
 			nextGoals[getWormFlag(worm)] = (nextGoals[getWormFlag(worm)] + 1) % 4;
 			cServer->flagInfo()->applySpawnPos(flag, wayPoints[nextGoals[getWormFlag(worm)]]);
 
