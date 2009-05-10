@@ -975,10 +975,11 @@ struct ChatDedHandler : CmdLineIntf {
 	int sender_id;
 	ChatDedHandler(int i) : sender_id(i) {}
 	
-	void msg(const std::string& str) {
+	void msg(const std::string& str, CmdLineMsgType type = CNC_NOTIFY) {
 		CWorm *w = &cServer->getWorms()[sender_id];
 		if(!w->isUsed()) return;
 		if(!w->getClient()) return;
+		// TODO: handle type
 		w->getClient()->getNetEngine()->SendText(str, TXT_PRIVATE);
 	}
 	
@@ -989,8 +990,8 @@ struct ChatDedHandler : CmdLineIntf {
 		msg("Dedicated.");
 	}
 	
-	virtual void writeMsg(const std::string& str) {
-		msg("Dedicated: " + str);
+	virtual void writeMsg(const std::string& str, CmdLineMsgType type) {
+		msg("Dedicated: " + str, type);
 	}
 	
 	virtual void finishedCommand(const std::string& cmd) {

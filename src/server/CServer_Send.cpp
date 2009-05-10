@@ -241,6 +241,10 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 ///////////////////
 // Send all the clients a string of text
 void GameServer::SendGlobalText(const std::string& text, int type) {
+	if(!cClients) {
+		errors << "GS:SendGlobalText: clients not initialised" << endl;
+		return;
+	}
 	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)

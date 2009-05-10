@@ -35,17 +35,8 @@
 #define		MAX_CONLINES	15
 #define		MAX_CONHISTORY	10
 
-// Colours
-#define		CNC_NORMAL		0
-#define		CNC_NOTIFY		1//MakeColour(200,200,200)
-#define		CNC_ERROR		2//MakeColour(255,0,0)
-#define		CNC_WARNING		3//MakeColour(200,128,128)
-#define		CNC_DEV			4//MakeColour(100,100,255)
-#define		CNC_CHAT		5//MakeColour(100,255,100)
 
-
-
-class conline_t { public:
+struct conline_t {
 	int			Colour;
 	std::string	strText;
 };

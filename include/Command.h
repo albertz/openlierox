@@ -37,6 +37,16 @@ int		Cmd_AutoComplete(std::string& strVar);
 
 
 
+// Colours
+enum CmdLineMsgType {
+	CNC_NORMAL = 0,
+	CNC_NOTIFY = 1, //MakeColour(200,200,200)
+	CNC_ERROR = 2, //MakeColour(255,0,0)
+	CNC_WARNING = 3, //MakeColour(200,128,128)
+	CNC_DEV = 4, //MakeColour(100,100,255)
+	CNC_CHAT = 5, //MakeColour(100,255,100)
+};
+
 
 /*
 	The intended way to use:
@@ -53,7 +63,7 @@ int		Cmd_AutoComplete(std::string& strVar);
 struct CmdLineIntf {
 	virtual void pushReturnArg(const std::string& str) = 0;
 	virtual void finalizeReturn() = 0;
-	virtual void writeMsg(const std::string& msg) = 0;
+	virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) = 0;
 	virtual void finishedCommand(const std::string& cmd) {} // gets called after a cmd was executed from this CLI
 	virtual ~CmdLineIntf() {}
 	

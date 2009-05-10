@@ -310,7 +310,8 @@ public:
 	CHttp *getHttp()  { return &tHttp; }
 	CServerConnection *getClients() { return cClients; }
 	TimeDiff	getServerTime() { return fServertime; }
-
+	bool		isServerRunning() const { return cWorms && cClients; }
+	
 	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getNumBots() const;
 	int		getLastBot() const;

@@ -131,7 +131,8 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 		pipeOut() << "." << endl;
 	}
 
-	void writeMsg(const std::string& str) {
+	void writeMsg(const std::string& str, CmdLineMsgType type) {
+		// TODO: handle type
 		hints << "Script Dedicated: " << str << endl;
 	}
 
@@ -437,7 +438,8 @@ struct StdinCmdLineIntf : CmdLineIntf {
 		notes << "Dedicated return." << endl;
 	}
 
-	void writeMsg(const std::string& str) {
+	void writeMsg(const std::string& str, CmdLineMsgType type) {
+		// TODO: handle type
 		hints << "STDIN Dedicated: " << str << endl;
 	}
 	

@@ -1547,6 +1547,7 @@ int GameServer::getNumBots() const {
 }
 
 int GameServer::getLastBot() const {
+	if(!cWorms) return -1;
 	CWorm *w = cWorms + MAX_WORMS - 1;
 	for(int i = MAX_WORMS - 1; i >= 0; i--, w--) {
 		if(w->isUsed() && w->getType() == PRF_COMPUTER)
