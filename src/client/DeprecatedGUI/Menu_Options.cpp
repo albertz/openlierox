@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CSlider.h"
+#include "DeprecatedGUI/CLine.h"
 #include "IpToCountryDB.h"
 #include "ConversationLogger.h"
 
@@ -256,9 +257,12 @@ bool Menu_OptionsInitialize()
 
 
 	// System
+	const Color lineCol = tLX->clHeading.derived(0,0,0,-200);
 	const int starty = 130;
 	y = starty;
-	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
+	cOpt_System.Add( new CLabel("Video",tLX->clHeading),              Static, 40, y, 0,0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 90, 0);
+	y += 20;
 	cOpt_System.Add( new CLabel("Fullscreen",tLX->clNormalLabel),       Static, 60, y, 0,0);
 	cOpt_System.Add( new CLabel("Colour depth",tLX->clNormalLabel),       Static, 175, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bFullscreen),os_Fullscreen, 140, y, 17,17);
@@ -266,7 +270,9 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CCheckbox(tLXOptions->bOpenGL),    os_OpenGL, 590, y, 17,17);
 
 	y += 20;
-	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, y, 0,0); y += 20;
+	cOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, y, 0,0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 90, y + 8, 620 - 90, 0);
+	y += 20;
 	cOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, y, 17,17);
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
@@ -279,8 +285,9 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 2, 110, 20);
 	
 	y += 20;
-	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0); y += 20;
-
+	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 110, y + 8, 620 - 110, 0);	
+	y += 20;
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, y, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, y - 2, 100,tLX->cFont.GetHeight());
 	
@@ -303,8 +310,9 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CCheckbox(tLXOptions->bCheckBandwidthSanity),  os_NetworkUploadCheck, 530, y,17,17);
 	
 	y += 20;
-	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, y, 0,0); y += 20;
-
+	cOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, y, 0,0);
+	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 130, y + 8, 620 - 130, 0);	
+	y += 20;
 	cOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bShowFPS),   os_ShowFPS, 200, y, 17,17);
 

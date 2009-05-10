@@ -13,6 +13,9 @@
 #include <SDL.h>
 #include <cassert>
 
+#include "MathLib.h"
+
+
 ///////////////////
 // If you want to use the adress of some Uint32 directly with memcpy or similar, use this
 inline Uint32 SDLColourToNativeColour(Uint32 pixel, short bpp) {
@@ -103,6 +106,13 @@ struct Color {
 	Uint32 get() const { return get(getMainPixelFormat()); }
 	Uint32 get(SDL_PixelFormat *f) const { return SDL_MapRGBA(f, r, g, b, a); }
 	Uint32 getDefault() const { return (Uint32(r) << 24) | (Uint32(g) << 16) | (Uint32(b) << 8) | Uint32(a); }
+	Color derived(Sint16 _r, Sint16 _g, Sint16 _b, Sint16 _a) const {
+		return Color(
+					 Uint8(CLAMP(_r + r, 0, 255)),
+					 Uint8(CLAMP(_g + g, 0, 255)),
+					 Uint8(CLAMP(_b + b, 0, 255)),
+					 Uint8(CLAMP(_a + a, 0, 255)));
+	}
 	void set(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	
 	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
