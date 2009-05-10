@@ -3462,7 +3462,7 @@ public:
 	float best_value;
 
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
-        target.y -= 10.0f; // a bit higher is always better
+        target.y -= 50.0f; // a bit higher is always better
 
         aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
 	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
@@ -3473,11 +3473,16 @@ public:
 	bool operator()(int x, int y) {
 
 		CVec suggestion((float)x, (float)y);
-		float trg_dist = (suggestion - target).GetLength2();
-		trg_dist = (trg_dist != 0) ? (1.0f / trg_dist) : 999999999999999.0f; // the closer we are the better it is
-		float angle_dif = (aimDir - suggestion / suggestion.GetLength()).GetLength2();
-		angle_dif = (angle_dif != 0) ? (1.0f / angle_dif) : 999999999999999.0f; // the closer the angle the better it is
+
 		float len = (worm->getPos() - suggestion).GetLength2();
+		if(len < 30.0f) // just ignore too close targets
+			return false;
+		
+		float trg_dist = (suggestion - target).GetLength();
+		trg_dist = (trg_dist != 0) ? (1.0f / trg_dist) : 999999999999999.0f; // the closer we are the better it is
+		float angle_dif = (aimDir - suggestion / suggestion.GetLength()).GetLength();
+		angle_dif = (angle_dif != 0) ? (1.0f / angle_dif) : 999999999999999.0f; // the closer the angle the better it is
+		
 		len = -len * (len - 100.0f); // 0 is bad and everything behind 50.0f also
 		if(len < 0) len = 0.0f;
 
@@ -3486,7 +3491,7 @@ public:
 		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
 
 		// FIX: if we want to go up, then ignore angle and len
-		if(worm->getPos().y - target.y > 10.0f)
+		if(worm->getPos().y - target.y > 60.0f)
 			value = trg_dist;
 
 		if(best_value < value) {
@@ -3512,13 +3517,13 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 	float ang = 0;
 
 	SquareMatrix<float> step_m = SquareMatrix<float>::RotateMatrix(-step);
-	bestropespot_collision_action action(m_worm, trg + CVec(0,-50));
+	bestropespot_collision_action action(m_worm, trg);
 
 	for(ang=0; ang<(float)PI; dir=step_m(dir), ang+=step) {
 		fastTraceLine(m_worm->vPos+dir, m_worm->vPos, PX_ROCK|PX_DIRT, action);
 	}
 
-	if(action.best.x < 0) // we don't find any spot
+	if(action.best_value < 0) // we don't find any spot
 		return trg;
 	else
 		return action.best;
@@ -3677,14 +3682,34 @@ void CWormBotInputHandler::AI_Carve()
 	}
 }
 
+
+static float estimateYDiffAfterJump(CWorm* w, float dt) {
+	const float jumpForce = w->getGameScript()->getWorm()->JumpForce;
+	//const float drag = w->getGameScript()->getWorm()->AirFriction; // ignoring for now
+	const float grav = w->getGameScript()->getWorm()->Gravity;
+
+	return grav*dt*dt*0.5f + jumpForce*dt;
+}
+
+static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
+	if(!node) return false;
+	
+	float dy = estimateYDiffAfterJump(w, 0.3f);
+	if(!traceWormLine(CVec(node->fX, node->fY), w->getPos() + CVec(0,dy)))
+		return true;
+	
+	return false;
+}
+
+
 ///////////////////
 // AI jumping, returns true if we really jumped
 bool CWormBotInputHandler::AI_Jump()
 {
 	// Don't jump so often
-	if ((GetTime() - fLastJump).seconds() > 0.3f)  {
+	if ((GetTime() - fLastJump).seconds() > 0.3f && (m_worm->bOnGround || m_worm->canAirJump()) && !isJumpingGivingDisadvantage(NEW_psCurrentNode, m_worm))  {
 		fLastJump = GetTime();
-		m_worm->tState.bJump = m_worm->bOnGround || m_worm->canAirJump();
+		m_worm->tState.bJump = true;
 	}
 	// TODO: why this? we should have reset it anyway. and multiple calls to AI_Jump should not make it false again
 	/*else  {
@@ -3804,6 +3829,11 @@ void CWormBotInputHandler::AI_MoveToTarget()
         ws->bMove = true;
 		AI_Jump();
 
+		if (tLX->currentTime-fLastFace >= 0.5f)  {
+			m_worm->iDirection = !m_worm->iDirection;
+			fLastFace = tLX->currentTime;
+		}
+		
         if(tLX->currentTime - fStuckPause > 2.0f)
             bStuck = false;
 
@@ -4196,16 +4226,12 @@ find_one_visible_node:
             // Jump, move, carve, switch directions and release the ninja rope
 			AI_Jump();
             ws->bMove = true;
+			ws->bCarve = true;
 
 /*			AI_Carve(); */
 
             bStuck = true;
             fStuckPause = tLX->currentTime;
-
-			if (tLX->currentTime-fLastFace >= 0.5f)  {
-				m_worm->iDirection = !m_worm->iDirection;
-				fLastFace = tLX->currentTime;
-			}
 
             m_worm->fAngle -= m_worm->cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
@@ -4234,6 +4260,13 @@ find_one_visible_node:
 
     }
 
+	{
+		// i wonder a bit, it seems that no code is ever setting the iDirection (if we just want to walk and have no shooting target)
+		// worm is running just against wall because of that
+		if (tLX->currentTime - fLastFace > 0.5f)
+			AI_SetAim(CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY));
+	}
+	
 	if(canShoot)
 		// only move if we are away from the next node
 		ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
