@@ -3462,7 +3462,7 @@ public:
 	float best_value;
 
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
-        target.y -= 50.0f; // a bit higher is always better
+        target.y -= 30.0f; // a bit higher is always better
 
         aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
 	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
@@ -3477,13 +3477,17 @@ public:
 		float len = (worm->getPos() - suggestion).GetLength();
 		if(len < 30.0f) // just ignore too close spots
 			return false;
-			
+		
+		if(worm->getPos().y > target.y && (y > worm->getPos().y - 10))
+			// suggestion is lower than worm but we want to get higher -> ignore
+			return false;
+		
 		float trg_dist = (suggestion - target).GetLength();
 		trg_dist = (trg_dist != 0) ? (1.0f / trg_dist) : 999999999999999.0f; // the closer we are the better it is
 		float angle_dif = (aimDir - suggestion / suggestion.GetLength()).GetLength();
 		angle_dif = (angle_dif != 0) ? (1.0f / angle_dif) : 999999999999999.0f; // the closer the angle the better it is
 		
-		len = -len * (len - 100.0f); // 0 is bad and everything behind 50.0f also
+		len = -len * (len - 200.0f); // 0 is bad and everything behind 100.0f also
 		if(len < 0) len = 0.0f;
 
 		// HINT: these constant multiplicators are the critical values in the calculation
@@ -3491,7 +3495,7 @@ public:
 		//printf("value: %f, %f, %f, %f\n", trg_dist, angle_dif, len, value);
 
 		// FIX: if we want to go up, then ignore angle and len
-		if(worm->getPos().y - target.y > 60.0f)
+		if(worm->getPos().y - target.y > 40.0f)
 			value = trg_dist;
 
 		if(best_value < value) {
@@ -3703,6 +3707,23 @@ static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
 	return false;
 }
 
+static float estimateXDiffAfterMove(CWorm* w, float dt) {
+	const gs_worm_t *wd = w->getGameScript()->getWorm();
+	worm_state_t *ws = w->getWormState();
+	float speed = w->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
+	if(ws->iDirection == DIR_LEFT) speed = -speed;
+	
+	return CLAMP(w->getVelocity()->x + speed * 90.0f, -30.0f, 30.0f) * dt;
+}
+
+static bool isMoveGivingDisadvantage(CVec target, CWorm* w) {
+	float dx = estimateXDiffAfterMove(w, 0.3f);
+	
+	if(!traceWormLine(target, w->getPos() + CVec(dx,0)))
+		return true;
+	
+	return false;
+}
 
 ///////////////////
 // AI jumping, returns true if we really jumped
@@ -4136,13 +4157,14 @@ find_one_visible_node:
 	}
 
 	bool stillAimingRopeSpot = false;
+	CVec ropespot;
     if(fireNinja) {
     	// set it to false, only if we pass the following checks, set it to true again
 		fireNinja = false;
 
 		// there could be multiple good ropespot and if we already aim at one then we should use this
 		// AI_GetBestRopeSpot takes care therefore also of fAngle
-		CVec ropespot = AI_GetBestRopeSpot(nodePos);
+		ropespot = AI_GetBestRopeSpot(nodePos);
 
 		// Aim
 		bool aim = AI_SetAim(ropespot);
@@ -4195,8 +4217,14 @@ find_one_visible_node:
 		}
 		// If the node is above us by a little, jump
 		else if((m_worm->vPos.y-NEW_psCurrentNode->fY) <= 30 && (m_worm->vPos.y - NEW_psCurrentNode->fY) > 10) {
-			if (!AI_Jump())
+			if (!AI_Jump()) {
 				ws->bMove = true; // if we should not jump, move
+			}
+		}
+		
+		if(stillAimingRopeSpot && isMoveGivingDisadvantage(m_worm->getPos() + (ropespot - m_worm->getPos()) * 0.8f, m_worm)) {
+			ws->bMove = false;
+			return;
 		}
 	}
 
@@ -4262,13 +4290,6 @@ find_one_visible_node:
 
     }
 
-	{
-		// i wonder a bit, it seems that no code is ever setting the iDirection (if we just want to walk and have no shooting target)
-		// worm is running just against wall because of that
-		if (tLX->currentTime - fLastFace > 0.5f)
-			AI_SetAim(CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY));
-	}
-	
 	if(canShoot)
 		// only move if we are away from the next node
 		ws->bMove = fabs(m_worm->vPos.x - NEW_psCurrentNode->fX) > 3.0f;
