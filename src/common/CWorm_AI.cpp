@@ -1656,21 +1656,19 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 
 	NormalizeVector(&tgDir);
 
-	if (tLX->currentTime - fLastFace > 0.5f)  {  // prevent turning
-	// Make me face the target
-		if(tgPos.x > m_worm->vPos.x)
-			m_worm->iDirection = DIR_RIGHT;
-		else
-			m_worm->iDirection = DIR_LEFT;
+	int wantedDir = (tgDir.x < 0) ? DIR_LEFT : DIR_RIGHT;
+	if (tLX->currentTime - fLastFace > 0.3f)  {  // prevent turning
+		// Make me face the target
+		m_worm->iDirection = wantedDir;
 
 		fLastFace = tLX->currentTime;
 	}
-
+	
 	// Aim at the target
 	float ang = (float)atan2(tgDir.x, tgDir.y);
 	ang = RAD2DEG(ang);
 
-	if(m_worm->iDirection == DIR_LEFT)
+	if(wantedDir == DIR_LEFT)
 		ang+=90;
 	else
 		ang = -ang + 90;
