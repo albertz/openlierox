@@ -26,14 +26,15 @@
 
 std::vector<std::string> ParseParams(const std::string& params);
 
+struct CmdLineIntf;
+class AutocompletionInfo;
 
 
 void	Cmd_Initialize();
 void	Cmd_Free();
 
 bool	Cmd_ParseLine(const std::string& text);
-int		Cmd_AutoComplete(std::string& strVar);
-
+bool	Cmd_AutoComplete(CmdLineIntf* cli, AutocompletionInfo* autocomplete);
 
 
 
@@ -72,6 +73,8 @@ struct CmdLineIntf {
 		std::string cmd;
 		Command(CmdLineIntf* s, const std::string& c) : sender(s), cmd(c) {}
 	};
+
+
 };
 
 

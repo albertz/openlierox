@@ -256,7 +256,7 @@ void Con_ProcessCharacter(const KeyboardEvent& input)
 	// Tab
 	if(input.ch == '\t') {
 		// Auto-complete
-		Cmd_AutoComplete(Console->Line[0].strText);
+		//Cmd_AutoComplete(Console->Line[0].strText);
 		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
 		Console->icurHistory = -1;
 		return;

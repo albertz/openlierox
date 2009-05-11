@@ -14,8 +14,11 @@
 
 #define INVALID_THREAD_ID (Uint32)-1
 
+class Condition;
+
 // Mutex wrapper class with some extra debugging checks
 class Mutex  {
+	friend class Condition;
 private:
 	SDL_mutex *m_mutex;
 
@@ -24,19 +27,25 @@ private:
 #endif
 
 public:
-#ifdef DEBUG
+/*#ifdef DEBUG
 	Mutex();
 	~Mutex();
 	void lock();
 	void unlock();
 
 	static void test();
-#else
+#else */
 	Mutex()			{ m_mutex = SDL_CreateMutex(); }
 	~Mutex()		{ SDL_DestroyMutex(m_mutex); }
 	void lock()		{ SDL_LockMutex(m_mutex); }
 	void unlock()	{ SDL_UnlockMutex(m_mutex); }
-#endif
+//#endif
+	
+	struct ScopedLock {
+		Mutex& mutex;
+		ScopedLock(Mutex& m) : mutex(m) { mutex.lock(); }
+		~ScopedLock() { mutex.unlock(); }
+	};
 };
 
 #endif // __MUTEX_H__

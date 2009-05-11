@@ -138,7 +138,7 @@ bool Cmd_ParseLine(const std::string& text)
 
 ///////////////////
 // Auto complete a command
-int Cmd_AutoComplete(std::string& strVar)
+bool Cmd_AutoComplete(CmdLineIntf* cli, AutocompletionInfo* autocomplete)
 {
 	// TODO ...
 	return false;

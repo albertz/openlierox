@@ -14,6 +14,9 @@
 
 #ifdef DEBUG
 
+// TODO: This code is threadsafe and thus not very usable.
+
+/*
 Mutex::Mutex()
 {
 	m_mutex = SDL_CreateMutex(); 
@@ -56,10 +59,10 @@ void Mutex::unlock()
 
 	SDL_UnlockMutex(m_mutex); 
 }
-
+*/
 
 // Testing stuff
-
+/*
 int thread_release_main(void *m)
 {
 	Mutex *mutex = (Mutex *)m;
@@ -68,21 +71,21 @@ int thread_release_main(void *m)
 }
 
 
-
 void Mutex::test()
 {
 	Mutex mtx;
 
 	// Lock in one thread and unlock in another one
-	/*SDL_Thread *rel = SDL_CreateThread(thread_release_main, &mtx);
+	SDL_Thread *rel = SDL_CreateThread(thread_release_main, &mtx);
 	SDL_WaitThread(rel, NULL);
-	mtx.unlock();*/
+	mtx.unlock();
 
 	// Deadlock
-	/*mtx.lock();
-	mtx.lock();*/
+	mtx.lock();
+	mtx.lock();
 
 	//mtx.lock();  // Lock and then destroy
 }
+*/
 
 #endif
