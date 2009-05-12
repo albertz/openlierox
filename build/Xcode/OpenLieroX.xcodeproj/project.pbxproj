@@ -566,6 +566,10 @@
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
 		23C5B0480FB67692005A36AE /* CRace.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CRace.cpp; sourceTree = "<group>"; };
+		23C5B33F0FB9D763005A36AE /* Autocompletion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Autocompletion.h; sourceTree = "<group>"; };
+		23C5B3400FB9D763005A36AE /* Condition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Condition.h; sourceTree = "<group>"; };
+		23C5B3410FB9D763005A36AE /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileUtils.h; sourceTree = "<group>"; };
+		23C5B3420FB9D763005A36AE /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mutex.h; sourceTree = "<group>"; };
 		23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ThreadPool.cpp; sourceTree = "<group>"; };
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
@@ -1257,6 +1261,10 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23C5B33F0FB9D763005A36AE /* Autocompletion.h */,
+				23C5B3400FB9D763005A36AE /* Condition.h */,
+				23C5B3410FB9D763005A36AE /* FileUtils.h */,
+				23C5B3420FB9D763005A36AE /* Mutex.h */,
 				2350DBEF0F84DC5900DFAD78 /* ProjAction.h */,
 				2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */,
 				238F337A0F756F650016D617 /* CGameSkin.h */,
