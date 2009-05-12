@@ -40,6 +40,7 @@
 #include "Timer.h"
 #include "IRC.h"
 #include "FileUtils.h"
+#include "Command.h"
 
 
 // TODO: move this out here

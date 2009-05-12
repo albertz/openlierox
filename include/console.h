@@ -20,48 +20,7 @@
 #define __CONSOLE_H__
 
 #include <SDL.h>
-#include "SmartPointer.h"
-#include "Command.h"
-#include "Unicode.h"
-#include "InputEvents.h"
-
-// Console states
-#define		CON_HIDDEN		0
-#define		CON_DROPPING	1
-#define		CON_DOWN		2
-#define		CON_HIDING		3
-
-#define		MAX_CONLENGTH	256
-#define		MAX_CONLINES	15
-#define		MAX_CONHISTORY	10
-
-
-struct conline_t {
-	int			Colour;
-	std::string	strText;
-};
-
-
-class console_t { public:
-
-	int			iState;
-	float		fPosition;
-	UnicodeChar	iLastchar;
-
-	size_t		iCurpos;
-	conline_t	Line[MAX_CONLINES];
-
-	int			icurHistory;
-	int			iNumHistory;
-	conline_t	History[MAX_CONHISTORY];
-
-	int			iBlinkState; // 1 - displayed, 0 - hidden
-	AbsTime		fBlinkTime;  
-
-    SmartPointer<SDL_Surface> bmpConPic;
-
-};
-
+#include "types.h"
 
 
 // Routines

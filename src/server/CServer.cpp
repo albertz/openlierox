@@ -43,11 +43,10 @@
 #include "ProfileSystem.h"
 #include "FlagInfo.h"
 #include "Utils.h"
+#include "Command.h"
+
 
 GameServer	*cServer = NULL;
-
-// Bots' clients
-CServerConnection *cBots = NULL;
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);

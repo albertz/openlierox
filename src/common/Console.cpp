@@ -15,6 +15,7 @@
 // Created 7/4/02
 // Jason Boettcher
 
+#include <list>
 #include "ThreadPool.h"
 #include "LieroX.h"
 #include "Debug.h"
@@ -28,6 +29,86 @@
 #include "MathLib.h"
 #include "ReadWriteLock.h"
 #include "Timer.h"
+#include "Mutex.h"
+#include "Condition.h"
+#include "PreInitVar.h"
+#include "Autocompletion.h"
+#include "Command.h"
+
+
+
+
+// Console states
+#define		CON_HIDDEN		0
+#define		CON_DROPPING	1
+#define		CON_DOWN		2
+#define		CON_HIDING		3
+
+#define		MAX_CONLENGTH	256
+#define		MAX_CONLINES	15
+#define		MAX_CONHISTORY	10
+
+
+struct conline_t {
+	int			Colour;
+	std::string	strText;
+};
+
+
+class console_t { public:
+		
+		int			iState;
+	float		fPosition;
+	UnicodeChar	iLastchar;
+	
+	size_t		iCurpos;
+	conline_t	Line[MAX_CONLINES];
+	
+	int			icurHistory;
+	int			iNumHistory;
+	conline_t	History[MAX_CONHISTORY];
+	
+	int			iBlinkState; // 1 - displayed, 0 - hidden
+	AbsTime		fBlinkTime;
+	
+	SmartPointer<SDL_Surface> bmpConPic;
+	
+};
+
+
+
+struct IngameConsole {
+	struct KeyQueue {
+		Mutex mutex;
+		Condition cond;
+		std::list<KeyboardEvent> queue;
+	}
+	keyQueue;
+
+	struct Input {
+		Mutex mutex;
+		AutocompletionInfo::InputState state;
+		
+		AutocompletionInfo::InputState get() {
+			Mutex::ScopedLock lock(mutex);
+			return state;
+		}
+		void set(const AutocompletionInfo::InputState& s) {
+			Mutex::ScopedLock lock(mutex);
+			state = s;
+		}
+	}
+	input;
+	
+	void pushKey(const KeyboardEvent& input) {
+		Mutex::ScopedLock lock(keyQueue.mutex);
+		keyQueue.queue.push_back(input);
+		keyQueue.cond.broadcast();
+	}
+	
+	
+	
+};
 
 console_t	*Console = NULL;
 

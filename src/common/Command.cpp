@@ -42,6 +42,7 @@
 #include "IpToCountryDB.h"
 #include "Unicode.h"
 #include "Autocompletion.h"
+#include "Command.h"
 
 
 ParamSeps ParseParams_Seps(const std::string& params) {

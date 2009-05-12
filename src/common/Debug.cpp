@@ -10,6 +10,7 @@
 #include "Debug.h"
 #include "StringUtils.h"
 #include "CrashHandler.h"
+#include "Command.h"
 
 #ifdef WIN32
 
