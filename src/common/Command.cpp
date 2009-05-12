@@ -40,33 +40,34 @@
 #include "CServerNetEngine.h"
 #include "CChannel.h"
 #include "IpToCountryDB.h"
+#include "Unicode.h"
 
 
-
-std::vector<std::string> ParseParams(const std::string& params) {
+ParamSeps ParseParams_Seps(const std::string& params) {
 	bool quote = false;
-	std::string	token;
-	std::vector<std::string> res;
+	size_t start = 0;
+	ParamSeps res;
+	ParamSeps::iterator lastentry = res.begin();
 	
-	std::string::const_iterator i = params.begin();
-	for(; i != params.end(); i++) {
-		
+	const_string_iterator i (params);
+	for(; i.pos < params.size(); IncUtf8StringIterator(i, const_string_iterator(params, params.size()))) {
+
 		// Check delimeters
 		if(*i == ' ' || *i == ',') {
-			if(!token.empty())
-				res.push_back(token);
-			token = "";
+			if(start < i.pos)
+				lastentry = res.insert(lastentry, ParamSeps::value_type(start, i.pos - start));
+			start = i.pos + 1;
 			
 			continue;
 		}
-		
+
+		// TODO: do we really want this?
 		// Check comments
-		std::string::const_iterator i2 = i; i2++;
-		if (i2 != params.end())  {
-			if(*i == '/' && *i2 == '/') {
-				if(!token.empty())
-					res.push_back(token);
-				token = "";
+		if (i.pos + 1 < params.size())  {
+			if(*i == '/' && params[i.pos+1] == '/') {
+				if(start < i.pos)
+					lastentry = res.insert(lastentry, ParamSeps::value_type(start, i.pos - start));
+				start = params.size();
 				
 				// Just end here
 				break;
@@ -76,37 +77,43 @@ std::vector<std::string> ParseParams(const std::string& params) {
 		// Check quotes
 		if(*i == '"') {
 			quote = true;
+			i.pos++;
+			start = i.pos;
 			
 			// Read until another quote
-			for(i++; i != params.end(); i++) {
+			for(; i.pos < params.size(); IncUtf8StringIterator(i, const_string_iterator(params, params.size()))) {
 				
 				if(*i == '"') {
 					quote = false;
 					break;
 				}
-				
-				token += *i;
 			}
 			if(quote) break; // if we are still in the quote, break (else we would make an addition i++ => crash)
-			res.push_back(token);
-			token = "";
+			lastentry = res.insert(lastentry, ParamSeps::value_type(start, i.pos - start));
+			start = i.pos + 1;
 			continue;
 		}
-		
-		// Normal text
-		token += *i;
 	}
 	
 	// Add the last token, only if it's not in unfinished quotes
-	if(!token.empty() && !quote) {
-		res.push_back(token);
+	if(start < params.size() && !quote) {
+		lastentry = res.insert(lastentry, ParamSeps::value_type(start, params.size() - start));
 	}
-		
+	
 	return res;
 }
 
 
-struct IngameConsole : CmdLineIntf {
+std::vector<std::string> ParseParams(const std::string& params) {
+	std::vector<std::string> res;
+	ParamSeps seps = ParseParams_Seps(params);
+	for(ParamSeps::iterator i = seps.begin(); i != seps.end(); ++i)
+		res.push_back(params.substr(i->first, i->second));
+	return res;
+}
+
+
+struct IngameConsoleOutput : CmdLineIntf {
 	void pushReturnArg(const std::string& str) {
 		Con_AddText(CNC_NOTIFY, ":- " + str, false);
 	}
@@ -117,10 +124,10 @@ struct IngameConsole : CmdLineIntf {
 
 	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
 		Con_AddText(int(type), msg, false);
-	}	
+	}
 };
 
-static IngameConsole ingameConsole;
+static IngameConsoleOutput ingameConsoleOut;
 
 ///////////////////
 // Parse a line of text
@@ -130,19 +137,11 @@ bool Cmd_ParseLine(const std::string& text)
 	TrimSpaces(cmd);
 	if(cmd == "") return false;
 
-	Execute(&ingameConsole, cmd);
+	Execute(&ingameConsoleOut, cmd);
 	return true;
 }
 
 
-
-///////////////////
-// Auto complete a command
-bool Cmd_AutoComplete(CmdLineIntf* cli, AutocompletionInfo* autocomplete)
-{
-	// TODO ...
-	return false;
-}
 
 ///////////////////
 // Free the commands
@@ -1464,4 +1463,17 @@ void HandlePendingCommands() {
 		HandleCommand(command);
 		command.sender->finishedCommand(command.cmd);
 	}
+}
+
+
+
+
+
+///////////////////
+// Auto complete a command
+bool Cmd_AutoComplete(CmdLineIntf& cli, AutocompletionInfo& autocomplete)
+{
+	
+	// TODO ...
+	return false;
 }

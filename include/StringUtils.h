@@ -342,4 +342,20 @@ struct stringcaseless {
 	}
 };
 
+
+struct const_string_iterator {
+	const std::string& str;
+	size_t pos;
+
+	const_string_iterator(const std::string& s, size_t p = 0) : str(s), pos(p) {}
+	const_string_iterator& operator++() { pos++; return *this; }
+	
+	bool operator==(const const_string_iterator& i) const {
+		return &str == &i.str && (pos == i.pos || (pos > str.size() && i.pos > str.size()));
+	}
+	bool operator!=(const const_string_iterator& i) const { return !(*this == i); }
+
+	char operator*() const { return str[pos]; }
+};
+
 #endif

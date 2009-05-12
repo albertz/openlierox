@@ -36,7 +36,7 @@ inline size_t IncUtf8StringIterator(_Iterator1& it, const _Iterator2& last) {
 	if(it == last) return 0;
 	unsigned char c;
 	size_t res = 1;
-	for(it++; last != it; it++, res++) {
+	for(++it; last != it; ++it, ++res) {
 		c = *it;
 		if(!(c&0x80) || ((c&0xC0) == 0xC0)) break;
 	}

@@ -22,8 +22,11 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
+typedef std::map<size_t,size_t> ParamSeps;
 
+ParamSeps ParseParams_Seps(const std::string& params);
 std::vector<std::string> ParseParams(const std::string& params);
 
 struct CmdLineIntf;
@@ -34,7 +37,7 @@ void	Cmd_Initialize();
 void	Cmd_Free();
 
 bool	Cmd_ParseLine(const std::string& text);
-bool	Cmd_AutoComplete(CmdLineIntf* cli, AutocompletionInfo* autocomplete);
+bool	Cmd_AutoComplete(CmdLineIntf& cli, AutocompletionInfo& autocomplete);
 
 
 
