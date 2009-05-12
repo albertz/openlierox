@@ -70,7 +70,6 @@ bool	Con_IsInited();
 void	Con_Shutdown();
 void	Con_Toggle();
 void	Con_Process(TimeDiff dt);
-void	Con_ProcessCharacter(const KeyboardEvent& input);
 void	Con_Hide();
 void	Con_Draw(SDL_Surface * bmpDest);
 

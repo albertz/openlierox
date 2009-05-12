@@ -1295,7 +1295,7 @@ void lierox_t::setupInputs() {
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 	cIrcChat.Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
 	cConsoleToggle.Setup(tLXOptions->sGeneralControls[SIN_CONSOLETOGGLE]);
-	
+
 	if(cClient)
 		cClient->SetupGameInputs();
 	else
