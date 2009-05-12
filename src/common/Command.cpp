@@ -251,7 +251,7 @@ public:
 	void exec(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> ps = ParseParams(params);
 		if(ps.size() < minParams || ps.size() > maxParams) {
-			caller->writeMsg(minMaxStr() + " param" + ((maxParams > 1) ? "s" : "") + " needed, usage: " + usageStr());
+			caller->writeMsg(minMaxStr() + " param" + ((maxParams == 1) ? "" : "s") + " needed, usage: " + usageStr());
 			//caller->writeMsg("bad cmd: " + name + " " + params);
 			return;
 		}
