@@ -135,6 +135,9 @@ std::string sFloatingOpt_InputNames[] = {
 	"Strafe"
 };
 
+static const int sFloatingOpt_InputNames__size = sizeof(sFloatingOpt_InputNames) / sizeof(std::string);
+static_assert( sFloatingOpt_InputNames__size == __SIN_PLY_BOTTOM - 5, inputopts__sizecheck );
+
 
 ///////////////////
 // Initialize the options
@@ -180,7 +183,7 @@ bool Menu_FloatingOptionsInitialize()
 	cFloatingOpt_Controls.Add( new CLabel("General Controls", tLX->clHeading),Static, 390, 150, 0,0);
 
 	int y = 190;
-	for(i=0;i<9;i++,y+=25) {
+	for(i=0;i< sFloatingOpt_InputNames__size ;i++,y+=25) {
 		cFloatingOpt_Controls.Add( new CLabel(sFloatingOpt_InputNames[i],tLX->clNormalLabel), Static, 40, y, 0,0);
 
 		cFloatingOpt_Controls.Add( new CInputbox(SIN_UP+i, tLXOptions->sPlayerControls[0][SIN_UP+i], tMenu->bmpInputbox, sFloatingOpt_InputNames[i]),
@@ -277,7 +280,7 @@ bool Menu_FloatingOptionsInitialize()
 	t->setText(itoa(tLXOptions->nMaxFPS));
 
 
-	std::string NetworkSpeeds[] = {	"Modem", "ISDN", "LAN" };
+	std::string NetworkSpeeds[] = {	"Modem", "ISDN", "DSL/LAN" };
 	for(i=0; i<3; i++)
 		cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeeds[i], i);
 
