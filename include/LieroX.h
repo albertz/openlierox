@@ -194,6 +194,7 @@ extern	lierox_t		*tLX;
 extern  CInput			*cTakeScreenshot;
 extern  CInput			*cSwitchMode;
 extern  CInput			*cIrcChat;
+extern  CInput			*cConsoleToggle;
 extern  bool			bDisableSound; // only true in dedicated mode or if soundinit failed; it's false even if you did not activate sound
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;

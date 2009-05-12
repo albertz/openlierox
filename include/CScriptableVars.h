@@ -42,7 +42,7 @@ enum GameInfoGroup
 };
 
 // And their descriptions - don't forget to edit them in Options.cpp if you change GameInfoGroup_t
-extern const char * GameInfoGroupDescriptions[GIG_Size][2];
+extern const char * GameInfoGroupDescriptions[][2];
 
 
 

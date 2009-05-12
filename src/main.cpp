@@ -68,6 +68,7 @@ lierox_t	*tLX = NULL;
 CInput		*cTakeScreenshot = NULL;
 CInput		*cSwitchMode = NULL;
 CInput		*cIrcChat = NULL;
+CInput		*cConsoleToggle = NULL;
 
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
@@ -428,10 +429,12 @@ startpoint:
 	cTakeScreenshot = new CInput();
 	cSwitchMode = new CInput();
 	cIrcChat = new CInput();
+	cConsoleToggle = new CInput();
 	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
 	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 	cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
-
+	cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
+	
 
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();

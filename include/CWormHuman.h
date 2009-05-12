@@ -56,7 +56,7 @@ public:
 	
 	
 	// Input
-	void		setupInputs(const controls_t& Inputs);
+	void		setupInputs(const PlyControls& Inputs);
 	void		initInputSystem();
 	void		stopInputSystem();
 	

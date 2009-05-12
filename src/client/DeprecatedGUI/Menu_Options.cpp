@@ -128,6 +128,7 @@ enum {
 	oc_Gen_ToggleTopBar,
 	oc_Gen_TeamChat,
 	oc_Gen_IrcChat,
+	oc_Gen_ConsoleToggle,
 };
 
 
@@ -254,7 +255,11 @@ bool Menu_OptionsInitialize()
 	cOpt_Controls.Add( new CInputbox(SIN_IRCCHAT, tLXOptions->sGeneralControls[SIN_IRCCHAT], tMenu->bmpInputbox, "IRC chat"),
 						   oc_Gen_IrcChat, 525, 415, 50,17);
 
-
+	cOpt_Controls.Add( new CLabel("Toggle console", tLX->clNormalLabel), Static, 390, 440, 0,0);
+	cOpt_Controls.Add( new CInputbox(SIN_CONSOLETOGGLE, tLXOptions->sGeneralControls[SIN_CONSOLETOGGLE], tMenu->bmpInputbox, "Console"),
+	                   oc_Gen_ConsoleToggle, 525, 440, 50,17);
+	
+	
 
 	// System
 	const Color lineCol = tLX->clLine; //tLX->clHeading.derived(0,0,0,-200);
@@ -1001,23 +1006,22 @@ void Menu_OptionsWaitInput(int ply, const std::string& name, CInputbox *b)
 		tLXOptions->sGeneralControls[b->getValue()] = b->getText();
 
 	// Disable quick weapon selection keys if they collide with other keys
-	for( int ply1 = 0; ply1 < 2; ply1 ++ )
+	for( uint ply1 = 0; ply1 < tLXOptions->sPlayerControls.size(); ply1 ++ )
 	{
 		for( int key1 = SIN_WEAPON1; key1 <= SIN_WEAPON5; key1 ++ )
 		{
-			for( int ply2 = 0; ply2 < 2; ply2 ++ )
+			for( uint ply2 = 0; ply2 < tLXOptions->sPlayerControls.size(); ply2 ++ )
 				for( int key2 = SIN_UP; key2 < SIN_WEAPON1; key2 ++ )
 					if( tLXOptions->sPlayerControls[ply1][key1] ==
 						tLXOptions->sPlayerControls[ply2][key2] )
 						tLXOptions->sPlayerControls[ply1][key1] = "";
-			int lastkey = SIN_IRCCHAT;
 
-			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
+			for( int key2 = SIN_CHAT; key2 < __SIN_GENERAL_BOTTOM; key2 ++ )
 				if( tLXOptions->sPlayerControls[ply1][key1] ==
 					tLXOptions->sGeneralControls[key2] )
 					tLXOptions->sPlayerControls[ply1][key1] = "";
-		};
-	};
+		}
+	}
 
 
 	Mouse->Down = 0;

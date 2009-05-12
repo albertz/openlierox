@@ -103,7 +103,7 @@ public:
 	bool	inView(CVec pos);	
 	void	Shake(int amount);
 
-    void    setupInputs(const controls_t& Inputs);
+    void    setupInputs(const PlyControls& Inputs);
 
     void    reset();
 

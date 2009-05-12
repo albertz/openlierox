@@ -22,6 +22,7 @@
 #include <string>
 #include <cassert>
 #include "FeatureList.h"
+#include "StaticAssert.h"
 
 // Setup input id's
 enum {
@@ -42,12 +43,14 @@ enum {
 	SIN_WEAPON2,
 	SIN_WEAPON3,
 	SIN_WEAPON4,
-	SIN_WEAPON5
+	SIN_WEAPON5,
+
+	__SIN_PLY_BOTTOM
 };
 
 // General controls
 enum {
-	SIN_CHAT,
+	SIN_CHAT = 0,
     SIN_SCORE,
 	SIN_HEALTH,
 	SIN_SETTINGS,
@@ -56,7 +59,10 @@ enum {
 	SIN_SWITCHMODE,
 	SIN_TOGGLETOPBAR,
 	SIN_TEAMCHAT,
-	SIN_IRCCHAT
+	SIN_IRCCHAT,
+	SIN_CONSOLETOGGLE,
+
+	__SIN_GENERAL_BOTTOM
 };
 
 
@@ -77,16 +83,20 @@ enum {
 };
 
 // input controls structure (for local players)
+template<short count>
 class controls_t {
 private:
-	std::string ctrl[14];
+	std::string ctrl[count];
 public:
-	std::string& operator[] (const short i) { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
-	const std::string& operator[] (const short i) const { assert(i >= 0 && (unsigned)i < sizeof(ctrl)/sizeof(std::string) ); return ctrl[i]; }
+	std::string& operator[] (const short i) { assert(i >= 0 && (unsigned)i < count ); return ctrl[i]; }
+	const std::string& operator[] (const short i) const { assert(i >= 0 && (unsigned)i < count ); return ctrl[i]; }
 
-	unsigned short ControlCount() const  { return sizeof(ctrl)/sizeof(std::string); }
+	short ControlCount() const  { return count; }
 	// TODO: add specific functions
 };
+
+typedef controls_t<__SIN_PLY_BOTTOM> PlyControls;
+typedef controls_t<__SIN_GENERAL_BOTTOM> GeneralControls;
 
 
 // Network strings
@@ -214,8 +224,8 @@ public:
 	bool	bFirstHosting;
 
 	// Controls
-	std::vector<controls_t> sPlayerControls; // sPC[playernr][controlnr]
-	controls_t	sGeneralControls;
+	std::vector<PlyControls> sPlayerControls; // sPC[playernr][controlnr]
+	GeneralControls	sGeneralControls;
 
 	// Game
 	int		iBloodAmount;

@@ -587,7 +587,7 @@ void CWormHumanInputHandler::startGame() {
 
 ///////////////////
 // Setup the inputs
-void CWormHumanInputHandler::setupInputs(const controls_t& Inputs)
+void CWormHumanInputHandler::setupInputs(const PlyControls& Inputs)
 {
 	//bUsesMouse = false;
 	for (byte i=0;i<Inputs.ControlCount(); i++)

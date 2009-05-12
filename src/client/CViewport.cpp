@@ -45,7 +45,7 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
 
 ///////////////////
 // Setup the keyboard inputs for freelook
-void CViewport::setupInputs(const controls_t& Inputs)
+void CViewport::setupInputs(const PlyControls& Inputs)
 {
 	cUp = new CInput();
 	cDown = new CInput();
