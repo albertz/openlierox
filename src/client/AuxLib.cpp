@@ -1281,3 +1281,28 @@ size_t GetFreeSysMemory() {
 	return 50 * 1024 * 1024; // return 50 MB (really randomly made up, but helps for cache system)
 #endif
 }
+
+
+
+void lierox_t::setupInputs() {
+	if(!tLXOptions) {
+		errors << "lierox_t::setupInputs: tLXOptions not set" << endl;
+		return;
+	}
+	
+	// Setup global keys
+	cTakeScreenshot.Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
+	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
+	cIrcChat.Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
+	cConsoleToggle.Setup(tLXOptions->sGeneralControls[SIN_CONSOLETOGGLE]);
+	
+	if(cClient)
+		cClient->SetupGameInputs();
+	else
+		warnings << "lierox_t::setupInputs: cClient not set" << endl;
+}
+
+bool lierox_t::isAnyControlKeyDown() const {
+	return cTakeScreenshot.isDown() || cSwitchMode.isDown() || cIrcChat.isDown() || cConsoleToggle.isDown();
+}
+

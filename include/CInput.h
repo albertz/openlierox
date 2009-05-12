@@ -71,7 +71,7 @@ private:
 	bool	bDown;
 
 private:
-	int		wasDown_withoutRepeats();
+	int		wasDown_withoutRepeats() const;
 
 public:
 	// Methods
@@ -93,13 +93,13 @@ public:
 	bool	isJoystickThrottle();
 
 	bool	isUp();
-	bool	isDown();
+	bool	isDown() const;
 	bool	isDownOnce();
-	int wasDown(bool withRepeats) {
+	int wasDown(bool withRepeats) const {
 		if(withRepeats) return wasDown();
 		else return wasDown_withoutRepeats();
 	}
-	int		wasDown(); // checks if there was such an event in the queue; returns the count of presses (down-events)
+	int		wasDown() const; // checks if there was such an event in the queue; returns the count of presses (down-events)
 	int		wasUp(); // checks if there was an keyup-event; returns the count of up-events
 
 	std::string getEventName() { return m_EventName; }

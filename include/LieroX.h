@@ -163,6 +163,14 @@ struct lierox_t {
 
 
 	std::string	debug_string;
+
+
+	CInput		cTakeScreenshot;
+	CInput		cSwitchMode;
+	CInput		cIrcChat;
+	CInput		cConsoleToggle;
+	void setupInputs();
+	bool isAnyControlKeyDown() const;
 };
 
 
@@ -190,11 +198,6 @@ class maprandom_t { public:
 
 
 extern	lierox_t		*tLX;
-//extern	game_t			tGameInfo;
-extern  CInput			*cTakeScreenshot;
-extern  CInput			*cSwitchMode;
-extern  CInput			*cIrcChat;
-extern  CInput			*cConsoleToggle;
 extern  bool			bDisableSound; // only true in dedicated mode or if soundinit failed; it's false even if you did not activate sound
 extern	bool			bDedicated;
 extern  bool			bJoystickSupport;

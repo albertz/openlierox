@@ -572,13 +572,8 @@ void Menu_OptionsFrame()
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
 					Menu_OptionsWaitInput(ply, b->getName(), b);
-					// Re-setup the Take Screenshot, Switch Mode and Media Player keys
-					if (ev->iControlID == oc_Gen_TakeScreenshot)
-						cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-					if (ev->iControlID == oc_Gen_SwitchMode)
-						cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-					if (ev->iControlID == oc_Gen_IrcChat)
-						cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
+
+					tLX->setupInputs(); // just resetup all
 				}
 			}
 		}

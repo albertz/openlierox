@@ -291,20 +291,20 @@ void ChatWidget_ChatDeregisterCallbacks()
 bool CChatWidget::GlobalEnabled()
 {
 	//hints << "CChatWidget::GlobalEnabled() " << GlobalChatWidget_enabled << " cIrcChat->isDownOnce() " << cIrcChat->isDownOnce() << " " << cIrcChat->isDown() << endl;
-	if( cIrcChat->isDownOnce() )
+	if( tLX->cIrcChat.isDownOnce() )
 	{
 		GlobalChatWidget_enabled = ! GlobalChatWidget_enabled;
 	}
-	cIrcChat->reset();
+	tLX->cIrcChat.reset();
 	if( WasKeyboardEventHappening(SDLK_ESCAPE,false) )
 		GlobalChatWidget_enabled = false;
 	return GlobalChatWidget_enabled;
-};
+}
 
 void CChatWidget::GlobalSetEnabled()
 {
 	GlobalChatWidget_enabled = true;
-};
+}
 
 static CChatWidget * globalChat = NULL;
 

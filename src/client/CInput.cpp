@@ -402,11 +402,10 @@ int CInput::Wait(std::string& strText)
 {
 	mouse_t *Mouse = GetMouse();
 	keyboard_t *kb = GetKeyboard();
-	unsigned int n,i;
 
 	// First check the mouse
-	for(n = 0; n < MAX_MOUSEBUTTONS; n++) {
-		i = n;
+	for(uint n = 0; n < MAX_MOUSEBUTTONS; n++) {
+		uint i = n;
 		if(Mouse->Up & SDL_BUTTON(n)) {
 			// Swap rmb id wih mmb (mouse buttons)
 			switch (n)  {
@@ -419,14 +418,17 @@ int CInput::Wait(std::string& strText)
 	}
 
 	// Keyboard
-	if (kb->queueLength > 0)  {
-		for(n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
-			if(kb->keyQueue[0].sym == Keys[n].value) {
+	for(int i = 0; i < kb->queueLength; ++i) {
+		if(kb->keyQueue[i].down) continue;
+		
+		for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++) {
+			if(kb->keyQueue[i].sym == Keys[n].value) {
 #ifdef WIN32
+				// TODO: does this hack also work for keyup?
 				// TODO: remove this hack here
 				// Workaround for right alt key which is reported as LCTRL + RALT on windib driver
-				if (kb->queueLength > 1 && kb->keyQueue[0].sym == SDLK_LCTRL)  {
-					if (kb->keyQueue[1].sym == SDLK_RALT)  {
+				if (i+1 < kb->queueLength && kb->keyQueue[i].sym == SDLK_LCTRL)  {
+					if (kb->keyQueue[i+1].sym == SDLK_RALT)  {
 						strText = "ralt";
 						return true;
 					}
@@ -440,8 +442,8 @@ int CInput::Wait(std::string& strText)
 
 		// Our description is not enough, let's call SDL for help
 		// We use SDL only for the left unknown keys to stay backward and forward compatible.
-		if (kb->keyQueue[0].sym != SDLK_ESCAPE)  {
-			strText = SDL_GetKeyName((SDLKey)kb->keyQueue[0].sym);
+		if (kb->keyQueue[i].sym != SDLK_ESCAPE)  {
+			strText = SDL_GetKeyName((SDLKey)kb->keyQueue[i].sym);
 			return true;
 		}
 	}
@@ -449,7 +451,7 @@ int CInput::Wait(std::string& strText)
 #ifndef DEDICATED_ONLY
 	// joystick
 	// TODO: more joysticks
-	for(n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
+	for(uint n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
 		int i = Joysticks[n].text[3] - '1'; // at pos 3, there is the number ("joy1_...")
 
 		// Check if any of the axes has been moved or a button press occured
@@ -629,7 +631,7 @@ bool CInput::isUp()
 
 ///////////////////
 // Returns if the input is down
-bool CInput::isDown()
+bool CInput::isDown() const
 {
 	switch(Type) {
 
@@ -664,12 +666,12 @@ bool CInput::isDownOnce()
 	return nDownOnce != 0;
 }
 
-int CInput::wasDown_withoutRepeats() {
+int CInput::wasDown_withoutRepeats() const {
 	return nDownOnce;
 }
 
 // goes through the event-signals and searches for the event
-int CInput::wasDown() {
+int CInput::wasDown() const {
 	int counter = 0;
 
 	switch(Type) {

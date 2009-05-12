@@ -2406,8 +2406,8 @@ void CClient::SetupGameInputs()
 	}
 
 	// TODO: allow more viewports here
-    getViewports()[0].setupInputs( tLXOptions->sPlayerControls[0] );
-    getViewports()[1].setupInputs( tLXOptions->sPlayerControls[1] );
+	cViewports[0].setupInputs( tLXOptions->sPlayerControls[0] );
+	cViewports[1].setupInputs( tLXOptions->sPlayerControls[1] );
 	
 
 	// General key shortcuts

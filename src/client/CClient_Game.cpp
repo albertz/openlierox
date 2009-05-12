@@ -1449,7 +1449,7 @@ void CClient::processChatter()
 				cShowSettings.isDown() ||
 				cToggleTopBar.isDown() ||
 				(input.sym == SDLK_BACKQUOTE) ||
-				cTakeScreenshot->isDown();
+				tLX->isAnyControlKeyDown();
 
 			if(controls) continue;
 

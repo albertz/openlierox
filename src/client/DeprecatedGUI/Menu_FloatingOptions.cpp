@@ -38,15 +38,6 @@ bool bChangedVideoMode = false;
 bool bChangedAntiAliasing = false;
 bool bShowFloatingOptions = false;
 
-void SetupGameInputs()
-{
-	// Setup global keys
-	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-
-	cClient->SetupGameInputs();
-}
-
 
 int iFloatingOptionsMode = 0;
 CGuiLayout	cFloatingOptions;
@@ -469,8 +460,8 @@ void Menu_FloatingOptionsFrame()
 					// Get an input
 					CInputbox *b = (CInputbox *)ev->cWidget;
 					Menu_FloatingOptionsWaitInput(ply, b->getName(), b);
-					
-					SetupGameInputs();
+
+					tLX->setupInputs();
 
 				}
 			}
@@ -772,18 +763,17 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 		tLXOptions->sGeneralControls[b->getValue()] = b->getText();
 
 	// Disable quick weapon selection keys if they collide with other keys
-	for( int ply1 = 0; ply1 < 2; ply1 ++ )
+	for( uint ply1 = 0; ply1 < tLXOptions->sPlayerControls.size(); ply1 ++ )
 	{
 		for( int key1 = SIN_WEAPON1; key1 <= SIN_WEAPON5; key1 ++ )
 		{
-			for( int ply2 = 0; ply2 < 2; ply2 ++ )
+			for( uint ply2 = 0; ply2 < tLXOptions->sPlayerControls.size(); ply2 ++ )
 				for( int key2 = SIN_UP; key2 < SIN_WEAPON1; key2 ++ )
 					if( tLXOptions->sPlayerControls[ply1][key1] ==
 						tLXOptions->sPlayerControls[ply2][key2] )
 						tLXOptions->sPlayerControls[ply1][key1] = "";
-			int lastkey = SIN_TEAMCHAT;
 
-			for( int key2 = SIN_CHAT; key2 < lastkey; key2 ++ )
+			for( int key2 = SIN_CHAT; key2 < __SIN_GENERAL_BOTTOM; key2 ++ )
 				if( tLXOptions->sPlayerControls[ply1][key1] ==
 					tLXOptions->sGeneralControls[key2] )
 					tLXOptions->sPlayerControls[ply1][key1] = "";

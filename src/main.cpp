@@ -65,11 +65,6 @@
 
 lierox_t	*tLX = NULL;
 
-CInput		*cTakeScreenshot = NULL;
-CInput		*cSwitchMode = NULL;
-CInput		*cIrcChat = NULL;
-CInput		*cConsoleToggle = NULL;
-
 bool        bDisableSound = false;
 #ifdef DEDICATED_ONLY
 bool		bDedicated = true;
@@ -425,16 +420,8 @@ startpoint:
 	if (tLXOptions->bLogConvos)
 		convoLogger->startLogging();
 
-	// Setup the global keys	
-	cTakeScreenshot = new CInput();
-	cSwitchMode = new CInput();
-	cIrcChat = new CInput();
-	cConsoleToggle = new CInput();
-	cTakeScreenshot->Setup(tLXOptions->sGeneralControls[SIN_SCREENSHOTS]);
-	cSwitchMode->Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
-	cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
-	cIrcChat->Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
-	
+	// Setup the global keys
+	tLX->setupInputs();
 
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();
@@ -496,10 +483,7 @@ quit:
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
-	delete cSwitchMode; cSwitchMode = NULL;
-	delete cTakeScreenshot; cTakeScreenshot = NULL;	
-	delete cIrcChat; cIrcChat = NULL;
-	
+
 	notes << "waiting for all left threads and tasks" << endl;
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
@@ -937,7 +921,7 @@ void GameLoopFrame()
         return;
 
 	// Check if user pressed screenshot key
-	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
+	if (tLX->cTakeScreenshot.isDownOnce())  {
 		PushScreenshot("scrshots", "");
 	}
 	
@@ -945,14 +929,14 @@ void GameLoopFrame()
 	// Switch only if delta time is low enough. This is because when the game does not
 	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
 	// would switch to window and here we would switch again to fullscreen which is stupid.
-	if( cSwitchMode->isUp() && tLX && tLX->fRealDeltaTime < 1.0f )  {
+	if( tLX->cSwitchMode.isUp() && tLX && tLX->fRealDeltaTime < 1.0f )  {
 		// Set to fullscreen
 		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
 
 		// Set the new video mode
 		doSetVideoModeInMainThread();
 
-		cSwitchMode->reset();
+		tLX->cSwitchMode.reset();
 	}
 
 #ifdef WITH_G15

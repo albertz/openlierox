@@ -280,7 +280,7 @@ void Menu_Frame() {
 	if(!tMenu->bMenuRunning) return; // could be already quitted
 	
 	// Check if user pressed screenshot key
-	if (cTakeScreenshot && cTakeScreenshot->isDownOnce())  {
+	if (tLX->cTakeScreenshot.isDownOnce())  {
 		PushScreenshot("scrshots", "");
 	}
 	
