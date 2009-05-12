@@ -41,6 +41,7 @@
 #include "CChannel.h"
 #include "IpToCountryDB.h"
 #include "Unicode.h"
+#include "Autocompletion.h"
 
 
 ParamSeps ParseParams_Seps(const std::string& params) {
@@ -227,6 +228,7 @@ public:
 	bool hidden;
 
 	std::string minMaxStr() const {
+		if(minParams == maxParams) return itoa(minParams);
 		std::string s = itoa(minParams) + "-";
 		if(maxParams == UINT_MAX) s += "*";
 		else s += itoa(maxParams);
@@ -249,7 +251,7 @@ public:
 	void exec(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> ps = ParseParams(params);
 		if(ps.size() < minParams || ps.size() > maxParams) {
-			caller->writeMsg(minMaxStr() + " params needed, usage: " + usageStr());
+			caller->writeMsg(minMaxStr() + " param" + ((maxParams > 1) ? "s" : "") + " needed, usage: " + usageStr());
 			//caller->writeMsg("bad cmd: " + name + " " + params);
 			return;
 		}
@@ -1467,13 +1469,144 @@ void HandlePendingCommands() {
 
 
 
+struct AutocompleteRequest {
+	CmdLineIntf& cli;
+	AutocompletionInfo& autocomplete;
+	AutocompletionInfo::InputState old;
+	
+	std::string pretxt, posttxt;
+	std::string token;
+	size_t tokenpos;
 
+	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isFull) const {
+		AutocompletionInfo::InputState ret;
+		ret.text = pretxt + repl;
+		ret.pos = pretxt.size() + repl.size();
+		if((posttxt.size() > 0 && posttxt[0] != ' ') || posttxt.empty()) {
+			ret.text += " ";
+			if(isFull) ret.pos++;
+		}
+		ret.text += posttxt;
+		return ret;
+	}
+
+};
+
+static bool autoCompleteCommand(AutocompleteRequest& request) {
+	CommandMap::iterator it = commands.lower_bound(request.token);
+	if(it == commands.end()) {
+		request.cli.writeMsg("no such command", CNC_DEV);
+		return false;
+	}
+
+	if(!subStrCaseEqual(it->first, request.token, request.token.size())) {
+		request.cli.writeMsg("no such command", CNC_DEV);
+		return false;
+	}
+	
+	std::list<std::string> possibilities;
+	
+	for(CommandMap::iterator j = it; j != commands.end(); ++j) {
+		if(subStrCaseEqual(request.token, j->first, request.token.size()))
+			possibilities.push_back(j->first);
+		else
+			break;
+	}
+	
+	if(possibilities.size() == 0) {
+		// strange though..
+		request.cli.writeMsg("unknown command", CNC_DEV);
+		return false;
+	}
+	
+	if(possibilities.size() == 1) {
+		// we have exactly one solution
+		request.autocomplete.pushReplace(request.old, request.completeSuggestion(possibilities.front(), true));
+		return true;
+	}
+	
+	size_t l = maxStartingEqualStr(possibilities);
+	if(l > request.token.size()) {
+		// we can complete to some longer sequence
+		request.autocomplete.pushReplace(request.old, request.completeSuggestion(possibilities.front().substr(0,l), false));
+		return true;
+	}
+	
+	// send list of all possibilities
+	std::string possStr;
+	for(std::list<std::string>::iterator j = possibilities.begin(); j != possibilities.end(); ++j) {
+		if(possStr.size() > 0) possStr += " ";
+		possStr += *j;
+	}
+	request.autocomplete.pushFail(request.old);
+	request.cli.writeMsg(possStr);
+	return false;
+}
 
 ///////////////////
 // Auto complete a command
-bool Cmd_AutoComplete(CmdLineIntf& cli, AutocompletionInfo& autocomplete)
+bool Cmd_AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete)
 {
+	ParamSeps seps = ParseParams_Seps(text);
+	if(seps.size() == 0) {
+		// TODO: or list all commands?
+		autocomplete.pushFail(AutocompletionInfo::InputState(text, pos));
+		return false;
+	}
 	
-	// TODO ...
+	if(pos < seps.begin()->first) {
+		// special case -> use command autocompletion
+		size_t start = seps.begin()->first;
+		AutocompleteRequest request = {
+			cli, autocomplete, AutocompletionInfo::InputState(text, pos),
+			"", text.substr(start),
+			"", 0
+		};
+		return autoCompleteCommand(request);
+	}
+ 
+	ParamSeps::iterator it = seps.lower_bound(pos);
+	if(it == seps.end()) {
+		// TODO: find next parameter and list information / possibilities
+		autocomplete.pushFail(AutocompletionInfo::InputState(text, pos));
+		return false;
+	}
+
+	Command* cmd = NULL;
+	if(it != seps.begin() || pos > it->first + it->second) {
+		// it means that the command is already complete, or at least should be
+		std::string cmdStr = text.substr(seps.begin()->first, seps.begin()->second);
+		cmd = Cmd_GetCommand(cmdStr);
+		if(!cmd) {
+			cli.writeMsg("command unknown", CNC_DEV);
+			autocomplete.pushFail(AutocompletionInfo::InputState(text, pos));
+			return false;
+		}
+	}
+		
+	if(cmd && pos > it->first + it->second) {
+		if(it == seps.begin()) {
+			// pos is after cmd but before first param, so give desc about cmd
+			cli.writeMsg(cmd->fullDesc(), CNC_DEV);
+		}
+		else {
+			// TODO: find next parameter (after #it) and list information / poss
+		}
+		autocomplete.pushFail(AutocompletionInfo::InputState(text, pos));
+		return false;
+	}
+
+	// it is the correct corresponding param to pos
+
+	AutocompleteRequest request = {
+		cli, autocomplete, AutocompletionInfo::InputState(text, pos),
+		text.substr(0, it->first), text.substr(it->first + it->second),
+		text.substr(it->first, it->second), pos - it->first
+	};
+	
+	if(it == seps.begin())
+		return autoCompleteCommand(request);
+	
+	// TODO: autocompletion for parameters
 	return false;
 }

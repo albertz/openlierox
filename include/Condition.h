@@ -23,7 +23,7 @@ public:
 	void signal() { SDL_CondSignal(cond); }
 	void broadcast() { SDL_CondBroadcast(cond); }
 	void wait(Mutex& mutex) { SDL_CondWait(cond, mutex.m_mutex); }
-	bool wait(Mutex& mutex, Uint32 ms) { return SDL_CondWaitTimeout(cond, mutex.m_mutex, ms) != SDL_MUTEX_TIMEOUT; }
+	bool wait(Mutex& mutex, Uint32 ms) { return SDL_CondWaitTimeout(cond, mutex.m_mutex, ms) != SDL_MUTEX_TIMEDOUT; }
 };
 
 #endif

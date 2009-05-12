@@ -37,7 +37,7 @@ void	Cmd_Initialize();
 void	Cmd_Free();
 
 bool	Cmd_ParseLine(const std::string& text);
-bool	Cmd_AutoComplete(CmdLineIntf& cli, AutocompletionInfo& autocomplete);
+bool	Cmd_AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete);
 
 
 
