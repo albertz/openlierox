@@ -103,7 +103,8 @@ struct IngameConsole : CmdLineIntf {
 	void addHistoryEntry(const std::string& text) {
 		// no need to lock because we only access it in handleKey()
 		for(History::iterator i = history.begin(); i != history.end();) {
-			if(*i == text) i = history.erase(i);
+			std::string buf = *i; TrimSpaces(buf);
+			if(*i == text || buf == "") i = history.erase(i);
 			else ++i;
 		}
 		history.push_back(text);
@@ -207,7 +208,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 	}
 	
 	// Delete
-	if(ev.ch == SDLK_DELETE)  {
+	if(ev.sym == SDLK_DELETE)  {
 		if(input.text.size() > 0) {
 			Mutex::ScopedLock lock(inputMutex);
 
@@ -371,7 +372,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 			}
 		}
 		else
-			notes << "Ingame console: char '" << GetUtf8FromUnicode(ev.ch) << "' cannot be displayed and is ignored" << endl;
+			notes << "Ingame console: char '" << GetUtf8FromUnicode(ev.ch) << "'(" << itoa(ev.ch) << ") cannot be displayed and is ignored" << endl;
 		
 		goto finalHandleKey;
 	}
