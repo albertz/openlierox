@@ -782,14 +782,16 @@ void CClient::SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_p
 	proj->Spawn(_proj,pos,vel,rot,owner,_random,remotetime, ignoreWormCollBeforeTime);
 }
 
-static int CompareLives(int l1, int l2)
-{
-	if (l1 == l2)
-		return 0;
-	if (l1 < 0 && l2 < 0)
-		return (l1 > l2) ? -1 : 1;
-	return (l1 < l2) ? -1 : 1;
-}
+struct ScoreCompare {
+	CClient* cl;
+	ScoreCompare(CClient* c) : cl(c) {}
+	bool operator()(int i, int j) const {
+		CWorm *w1 = &cl->getRemoteWorms()[i], *w2 = &cl->getRemoteWorms()[j];
+		if(cl->getGameLobby()->gameMode) return cl->getGameLobby()->gameMode->CompareWormsScore(w1, w2) > 0;
+		return GameMode(GM_DEATHMATCH)->CompareWormsScore(w1, w2) > 0;
+	}
+};
+
 
 ///////////////////
 // Update the scoreboard
@@ -858,56 +860,7 @@ void CClient::UpdateScoreboard()
 	if(iScorePlayers < 2)
 		return;
 
-
-	// Sort the array
-	for(i=0; i<iScorePlayers; i++) {
-		for(j=0; j<iScorePlayers-1-i; j++) {
-			if(getGeneralGameType() == GMT_TIME) {
-
-				// TAG
-				if(cRemoteWorms[iScoreboard[j]].getTagTime() < cRemoteWorms[iScoreboard[j + 1]].getTagTime()) {
-				   // Swap the 2 scoreboard entries
-					s = iScoreboard[j];
-					iScoreboard[j] = iScoreboard[j+1];
-					iScoreboard[j+1] = s;
-				}
-
-            } else {
-				if( tGameInfo.gameMode == GameMode(GM_DEMOLITIONS) ) {
-
-					// DEMOLITIONS
-					if(cRemoteWorms[iScoreboard[j]].getDirtCount() < cRemoteWorms[iScoreboard[j + 1]].getDirtCount()) {
-						// Swap the 2 scoreboard entries
-						s = iScoreboard[j];
-						iScoreboard[j] = iScoreboard[j+1];
-						iScoreboard[j+1] = s;
-					}
-
-				} else {
-					// DEATHMATCH or TEAM DEATHMATCH
-					// HINT: WRM_OUT (-1) < WRM_UNLIM (-2)
-					int res = CompareLives(cRemoteWorms[iScoreboard[j]].getLives(), cRemoteWorms[iScoreboard[j + 1]].getLives());
-					if(res < 0)  {
-
-						// Swap the 2 scoreboard entries
-						s = iScoreboard[j];
-						iScoreboard[j] = iScoreboard[j+1];
-						iScoreboard[j+1] = s;
-					} else if(res == 0) {
-
-						// Equal lives, so compare kills
-						if(cRemoteWorms[iScoreboard[j]].getKills() < cRemoteWorms[iScoreboard[j + 1]].getKills()) {
-
-							// Swap the 2 scoreboard entries
-							s = iScoreboard[j];
-							iScoreboard[j] = iScoreboard[j+1];
-							iScoreboard[j+1] = s;
-						}
-					}
-				}
-			}
-		}
-	}
+	std::sort(&iScoreboard[0], &iScoreboard[iScorePlayers], ScoreCompare(this));
 
 	bUpdateScore = true;
 }
