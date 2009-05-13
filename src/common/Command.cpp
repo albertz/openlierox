@@ -510,7 +510,7 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		SetQuitEngineFlag("Console Cmd_Quit");
 		
 	} else
-		caller->writeMsg("quit has no effect in menu", CNC_WARNING);
+		caller->writeMsg("disconnect has no effect in menu", CNC_WARNING);
 }
 
 COMMAND(volume, "set sound volume", "0-100", 1, 1);
@@ -1443,9 +1443,16 @@ struct AutocompleteRequest {
 		AutocompletionInfo::InputState ret;
 		ret.text = pretxt + repl;
 		ret.pos = pretxt.size() + repl.size();
-		if((posttxt.size() > 0 && posttxt[0] != ' ') || posttxt.empty()) {
+		if((posttxt.size() > 0 && posttxt[0] != ' ')) {
 			ret.text += " ";
 			if(isFull) ret.pos++;
+		}
+		else if(posttxt.size() > 0 && posttxt[0] == ' ') {
+			if(isFull) ret.pos++;
+		}
+		else if(posttxt.empty() && isFull) {
+			ret.text += " ";
+			ret.pos++;
 		}
 		ret.text += posttxt;
 		return ret;
@@ -1468,10 +1475,9 @@ static bool autoCompleteCommand(AutocompleteRequest& request) {
 	std::list<std::string> possibilities;
 	
 	for(CommandMap::iterator j = it; j != commands.end(); ++j) {
-		if(subStrCaseEqual(request.token, j->first, request.token.size())) {
-			//notes << "poss: " << j->first << ", token: " << request.token << endl;
+		if(subStrCaseEqual(request.token, j->first, request.token.size()))
 			possibilities.push_back(j->first);
-		} else
+		else
 			break;
 	}
 	
