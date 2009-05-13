@@ -361,13 +361,17 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 
 	// Normal key
 	if(ev.ch > 31) {
-		std::string buf = GetUtf8FromUnicode(ev.ch);
-		{
-			Mutex::ScopedLock lock(inputMutex);
-			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
-			input.text = input.text.substr(0, input.pos) + buf + input.text.substr(input.pos);
-			input.pos += buf.size();
+		if(tLX && tLX->cFont.CanDisplayCharacter(ev.ch)) {
+			std::string buf = GetUtf8FromUnicode(ev.ch);
+			{
+				Mutex::ScopedLock lock(inputMutex);
+				input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+				input.text = input.text.substr(0, input.pos) + buf + input.text.substr(input.pos);
+				input.pos += buf.size();
+			}
 		}
+		else
+			notes << "Ingame console: char '" << GetUtf8FromUnicode(ev.ch) << "' cannot be displayed and is ignored" << endl;
 		
 		goto finalHandleKey;
 	}
