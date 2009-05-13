@@ -1523,19 +1523,14 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 	
 	ParamSeps seps = ParseParams_Seps(text);
 	if(seps.size() == 0) {
-		// TODO: or list all commands?
+		// no text at all
 		return false;
 	}
 	
 	ParamSeps::value_type firstSep = *seps.begin();
 	if(pos < firstSep.first) {
-		// special case -> use command autocompletion
-		AutocompleteRequest request = {
-			cli, autocomplete, AutocompletionInfo::InputState(text, pos),
-			"", text.substr(pos),
-			"", 0
-		};
-		return autoCompleteCommand(request);
+		// before any txt
+		return false;
 	}
  
 	ParamSeps::iterator it = seps.lower_bound(pos);
@@ -1553,13 +1548,21 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 	}
 		
 	if(pos > it->first + it->second) {
-		if(cmd && it == seps.begin()) {
-			// pos is after cmd but before first param, so give desc about cmd
-			cli.writeMsg(cmd->fullDesc(), CNC_DEV);
+		// we are between two parameters
+		if(cmd) {
+			if(it == seps.begin()) {
+				// pos is after cmd but before first param, so give desc about cmd
+				cli.writeMsg(cmd->fullDesc(), CNC_DEV);
+			}
+			else {
+				// TODO: find next parameter (after #it) and list information / poss
+				// While we don't have that yet, just print usage
+				cli.writeMsg(cmd->fullDesc(), CNC_DEV);
+			}
 		}
-		else {
-			// TODO: find next parameter (after #it) and list information / poss
-		}
+		else
+			cli.writeMsg("command unknown", CNC_DEV);
+		
 		return false;
 	}
 
@@ -1573,8 +1576,15 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 	
 	if(it == seps.begin())
 		return autoCompleteCommand(request);
+
+	if(!cmd) {
+		cli.writeMsg("command unknown", CNC_DEV);
+		return false;
+	}
 	
 	// TODO: autocompletion for parameters
+	// While we don't have that yet, just print usage
+	cli.writeMsg(cmd->fullDesc(), CNC_DEV);
 	return false;
 }
 
