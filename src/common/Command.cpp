@@ -296,12 +296,12 @@ static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
 	
 	CommandMap::iterator it = commands.lower_bound(request.token);
 	if(it == commands.end()) {
-		request.cli.writeMsg("no such command", CNC_DEV);
+		request.cli.writeMsg("no such command", CNC_WARNING);
 		return false;
 	}
 	
 	if(!subStrCaseEqual(it->first, request.token, request.token.size())) {
-		request.cli.writeMsg("no such command", CNC_DEV);
+		request.cli.writeMsg("no such command", CNC_WARNING);
 		return false;
 	}
 	
@@ -316,7 +316,7 @@ static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
 	
 	if(possibilities.size() == 0) {
 		// strange though..
-		request.cli.writeMsg("unknown command", CNC_DEV);
+		request.cli.writeMsg("unknown command", CNC_WARNING);
 		return false;
 	}
 	
@@ -343,7 +343,62 @@ static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
 	return false;
 }
 
-
+static bool autoCompleteVar(Command*, AutocompleteRequest& request) {
+	std::list<std::string> possibilities;
+	
+	for(CScriptableVars::const_iterator it = CScriptableVars::lower_bound(request.token); it != CScriptableVars::Vars().end(); ++it) {
+		// ignore callbacks
+		if(it->second.var.type == SVT_CALLBACK) continue;
+		
+		if( subStrCaseEqual(request.token, it->first, request.token.size()) ) {
+			std::string nextComplete = it->first.substr(0, request.token.size());
+			for(size_t f = request.token.size();; ++f) {
+				if(f >= it->first.size()) break;
+				nextComplete += it->first[f];
+				if(it->first[f] == '.') break;
+			}
+			
+			if(possibilities.size() == 0 || *possibilities.rbegin() != nextComplete) {
+				possibilities.push_back(nextComplete);
+			}
+		}
+		else
+			break;
+	}
+	
+	if(possibilities.size() == 0) {
+		request.cli.writeMsg("unknown variable", CNC_WARNING);
+		return false;
+	}
+	
+	if(possibilities.size() == 1) {
+		// we have exactly one solution
+		bool isComplete = possibilities.front().size() > 0 && possibilities.front()[possibilities.front().size()-1] != '.';
+		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front(), isComplete));
+		return true;
+	}
+	
+	size_t l = maxStartingEqualStr(possibilities);
+	if(l > request.token.size()) {
+		// we can complete to some longer sequence
+		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front().substr(0, l), false));
+		return true;
+	}
+	
+	// send list of all possibilities
+	std::string possStr;
+	size_t startSugPos = 0;
+	for(size_t p = 0; p < request.token.size(); ++p)
+		if(request.token[p] == '.') {
+			startSugPos = p + 1;
+		}
+	for(std::list<std::string>::iterator j = possibilities.begin(); j != possibilities.end(); ++j) {
+		if(possStr.size() > 0) possStr += " ";
+		possStr += j->substr(startSugPos);
+	}
+	request.cli.writeMsg(possStr);
+	return false;
+}
 
 
 ///////////////////
@@ -1083,7 +1138,7 @@ void Cmd_authorizeWorm::exec(CmdLineIntf* caller, const std::vector<std::string>
 	cServer->authorizeWorm(id);
 }
 
-COMMAND(setVar, "set variable", "variable value", 2, 2);
+COMMAND_EXTRA(setVar, "set variable", "variable value", 2, 2, paramCompleters[0] = &autoCompleteVar);
 void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	std::string var = params[0];
 	std::string value = params[1];
@@ -1126,7 +1181,7 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	cServer->UpdateGameLobby();
 }
 
-COMMAND(getVar, "read variable", "variable", 1, 1);
+COMMAND_EXTRA(getVar, "read variable", "variable", 1, 1, paramCompleters[0] = &autoCompleteVar);
 void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	std::string var = params[0];
 	
@@ -1577,7 +1632,7 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 		std::string cmdStr = text.substr(firstSep.first, firstSep.second);
 		cmd = Cmd_GetCommand(cmdStr);
 		if(!cmd) {
-			cli.writeMsg("command unknown", CNC_DEV);
+			cli.writeMsg("command unknown", CNC_WARNING);
 			return false;
 		}
 	}
@@ -1599,7 +1654,7 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 			return cmd->completeParam(paramIndex, request);
 		}
 		else
-			cli.writeMsg("command unknown", CNC_DEV);
+			cli.writeMsg("command unknown", CNC_WARNING);
 		
 		return false;
 	}
@@ -1615,7 +1670,7 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 		return autoCompleteCommand(NULL, request);
 
 	if(!cmd) {
-		cli.writeMsg("command unknown", CNC_DEV);
+		cli.writeMsg("command unknown", CNC_WARNING);
 		return false;
 	}
 

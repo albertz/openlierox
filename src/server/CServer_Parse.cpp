@@ -481,8 +481,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 		
 		// TODO: Move it out here and make it more general (add it to ChatCommand structure).
 		if(cmd->tProcFunc == &ProcessSetVar && cmdStart.size() == 2) {
-			// TODO: make faster with lower_bound(), upper_bound() and correct sorting of m_vars
-			for(CScriptableVars::const_iterator it = CScriptableVars::Vars().begin(); it != CScriptableVars::Vars().end(); ++it) {
+			for(CScriptableVars::const_iterator it = CScriptableVars::lower_bound(cmdStart[1]); it != CScriptableVars::Vars().end(); ++it) {
 				// ignore callbacks
 				if(it->second.var.type == SVT_CALLBACK) continue;
 				
@@ -498,6 +497,8 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 						possibilities.push_back(nextComplete);
 					}
 				}
+				else
+					break;
 			}
 
 			if(possibilities.size() == 0) {
