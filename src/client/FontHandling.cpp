@@ -283,38 +283,54 @@ size_t GetPosByTextWidth(const std::string& text, int width, CFont *fnt)
 }
 
 
-std::string strip(const std::string& buf, int width)
+
+static bool strip(std::string::const_iterator& it, const std::string::const_iterator& end, size_t width, std::string& res, size_t& resw)
 {
 	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	if (buf.size() == 0)
-		return "";
-	std::string result;
-	result = buf;
-	for(size_t j=result.length()-1; tLX->cFont.GetWidth(result) > width && j != 0; j--)
-		result.erase(result.length()-1);
+	resw = 0;
+	res = "";
+	if(it == end) return false;
+	
+	while(it != end) {
+		UnicodeChar c = GetNextUnicodeFromUtf8(it, end);
+		int cw = tLX->cFont.GetCharacterWidth(c) + tLX->cFont.GetSpacing();
+		if(cw + resw > width) return true;
+		resw += cw;
+		res += GetUtf8FromUnicode(c);
+	}
 
-	return result;
+	return false;
 }
 
 bool stripdot(std::string& buf, int width)
 {
 	if (buf.size() == 0)
 		return false;
-
-	// TODO: this width depends on tLX->cFont; this is no solution, fix it
-	int dotwidth = tLX->cFont.GetWidth("...");
-	bool stripped = false;
-	for(size_t j=buf.length()-1; tLX->cFont.GetWidth(buf) > width && j != 0; j--)  {
-		buf.erase(buf.length()-1);
-		stripped = true;
+	
+	// TODO: this width depends on tLX->cFont; this is no solution, fix it	
+	
+	width += tLX->cFont.GetSpacing(); // add one spacing because we can ignore the last
+	
+	int dotwidth = tLX->cFont.GetCharacterWidth('.') + tLX->cFont.GetSpacing();
+	if(dotwidth * 3 > width) {
+		const int dotcount = width / dotwidth;
+		buf = std::string(dotcount, '.');
+		return true;
 	}
-
-	if(stripped)  {
-		buf = strip(buf,tLX->cFont.GetWidth(buf)-dotwidth);
-		buf += "...";
-	}
-
-	return stripped;
+	dotwidth *= 3;
+	
+	std::string::const_iterator it = buf.begin();
+	size_t resw = 0;
+	std::string res;
+	if(!strip(it, buf.end(), width - dotwidth, res, resw))
+		return false;
+	
+	std::string rest;
+	if(!strip(it, buf.end(), dotwidth, rest, resw))
+		return false;
+	
+	buf = res + "...";
+	return true;
 }
 
 

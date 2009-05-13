@@ -114,6 +114,7 @@ struct Race : public CGameMode {
 	virtual void addScore(CWorm* w) {
 		w->AddKill();
 		sendWormScoreUpdate(w);
+		cServer->SendGlobalText(TeamNameForWorm(w) + " is in round " + itoa(Round(w)), TXT_NORMAL);
 	}
 	
 	virtual std::string TeamNameForWorm(CWorm* w) {
@@ -133,11 +134,7 @@ struct Race : public CGameMode {
 			
 			nextGoals[getWormFlag(worm)] = (nextGoals[getWormFlag(worm)] + 1) % WPNUM;
 			cServer->flagInfo()->applySpawnPos(flag, wayPoints[nextGoals[getWormFlag(worm)]]);
-
-			if(nextGoals[getWormFlag(worm)] == 1)
-				cServer->SendGlobalText(TeamNameForWorm(worm) + " is in round " + itoa(Round(worm)), TXT_NORMAL);
-			
-			
+						
 			if(nextGoals[getWormFlag(worm)] == 1) {
 				// we made one round
 				addScore(worm);
@@ -264,8 +261,7 @@ struct TeamRace : public Race {
 		teamScore[CLAMP(w->getTeam(),0,MAXTEAMS-1)]++;
 		cServer->SendTeamScoreUpdate();
 		// also add score for this specifc worm
-		w->AddKill();
-		sendWormScoreUpdate(w);
+		Race::addScore(w);
 	}
 	
 	virtual int getWormFlag(CWorm* worm) {

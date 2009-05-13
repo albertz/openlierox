@@ -321,17 +321,17 @@ void CFont::DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Color col, const
 		if (char_h == 0)
 			continue;
 
-		// Precached fonts
-		if (bmpCached.get()) {
-			DrawImageAdv(dst, bmpCached, CharacterOffset[l], 0, x, y, FontWidth[l], bmpFont.get()->h);
-			x += FontWidth[l] + Spacing;
-			continue;
-		}
-
 		// Horizontal clipping
 		int char_x = x;
 		int char_w = FontWidth[l];
 		if (!OneSideClip(char_x, char_w, newrect.x, newrect.w))  {
+			x += FontWidth[l] + Spacing;
+			continue;
+		}
+
+		// Precached fonts
+		if (bmpCached.get()) {
+			DrawImageAdv(dst, bmpCached, CharacterOffset[l], 0, x, y, FontWidth[l], bmpFont.get()->h);
 			x += FontWidth[l] + Spacing;
 			continue;
 		}
