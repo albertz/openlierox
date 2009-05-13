@@ -162,4 +162,10 @@ inline std::string Utf8ToSystemNative(const std::string& utf8str) { return utf8s
 inline std::string SystemNativeToUtf8(const std::string& natstr) { return natstr; }
 #endif
 
+size_t TransformRawToUtf8Pos(const std::string& text, size_t pos);
+size_t TransformUtf8PosToRaw(const std::string& text, size_t pos);
+inline size_t TransformRawToUtf8ToRaw(const std::string& src, size_t srcpos, const std::string& dest) {
+	return TransformUtf8PosToRaw(dest, TransformRawToUtf8Pos(src, srcpos));
+}
+
 #endif

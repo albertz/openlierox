@@ -286,8 +286,9 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 		
 		{
 			Mutex::ScopedLock lock(inputMutex);
+			// Note: don't reset input.pos because it's nice if we can remember that			
+			input.pos = TransformRawToUtf8ToRaw(input.text, input.pos, "");
 			input.text = "";
-			// Note: don't reset input.pos because it's nice if we can remember that
 		}
 
 		// Parse the line
@@ -330,10 +331,12 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 	// Up arrow
 	if(ev.sym == SDLK_UP) {
 		if(historyPos != history.begin()) {
+			std::string oldtext = input.text;
 			historyPos--;
 			
 			Mutex::ScopedLock lock(inputMutex);
 			input.text = *historyPos;
+			input.pos = TransformRawToUtf8ToRaw(oldtext, input.pos, input.text);
 		}
 	
 		goto finalHandleKey;
@@ -342,6 +345,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 	// Down arrow
 	if(ev.sym == SDLK_DOWN) {
 		if(historyPos != history.end()) {
+			std::string oldtext = input.text;
 			historyPos++;
 			
 			Mutex::ScopedLock lock(inputMutex);
@@ -349,10 +353,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 				input.text = backupInputBuffer;
 			else
 				input.text = *historyPos;
-		}
-		else {
-			Mutex::ScopedLock lock(inputMutex);
-			input.text = backupInputBuffer;
+			input.pos = TransformRawToUtf8ToRaw(oldtext, input.pos, input.text);
 		}
 		
 		goto finalHandleKey;

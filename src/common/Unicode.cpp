@@ -15,7 +15,7 @@
 
 #include "Unicode.h"
 #include "MathLib.h" // for SIGN
-
+#include "StringUtils.h"
 
 
 // Table used for removing diacritics and other backward incompatible characters
@@ -1093,3 +1093,30 @@ std::string SystemNativeToUtf8(const std::string& natstr)
 }
 
 #endif
+
+
+
+size_t TransformRawToUtf8Pos(const std::string& text, size_t pos) {
+	const_string_iterator newpos(text);
+	size_t count = 0;
+	while(newpos.pos < pos && newpos.pos < text.size()) {
+		IncUtf8StringIterator(newpos, const_string_iterator(text, text.size()));
+		count++;
+	}
+	if(newpos.pos < pos)
+		count += pos - newpos.pos;
+	return count;
+}
+
+size_t TransformUtf8PosToRaw(const std::string& text, size_t pos) {
+	const_string_iterator newpos(text);
+	size_t count = 0;
+	while(count < pos && newpos.pos < text.size()) {
+		IncUtf8StringIterator(newpos, const_string_iterator(text, text.size()));
+		count++;
+	}
+	if(count < pos)
+		newpos.pos += pos - count;
+	return newpos.pos;
+}
+
