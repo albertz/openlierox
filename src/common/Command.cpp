@@ -157,6 +157,40 @@ std::vector<std::string> ParseParams(const std::string& params) {
 
 
 
+
+struct AutocompleteRequest {
+	CmdLineIntf& cli;
+	AutocompletionInfo& autocomplete;
+	AutocompletionInfo::InputState old;
+	
+	std::string pretxt, posttxt;
+	std::string token;
+	size_t tokenpos;
+	
+	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isFull) const {
+		AutocompletionInfo::InputState ret;
+		ret.text = pretxt + repl;
+		ret.pos = pretxt.size() + repl.size();
+		if((posttxt.size() > 0 && posttxt[0] != ' ')) {
+			ret.text += " ";
+			if(isFull) ret.pos++;
+		}
+		else if(posttxt.size() > 0 && posttxt[0] == ' ') {
+			if(isFull) ret.pos++;
+		}
+		else if(posttxt.empty() && isFull) {
+			ret.text += " ";
+			ret.pos++;
+		}
+		ret.text += posttxt;
+		return ret;
+	}
+	
+};
+
+
+
+
 // TODO: Move this
 static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 {
@@ -178,6 +212,11 @@ static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 }
 
 
+
+class Command;
+typedef bool (*AutoCompleteFct) (Command*, AutocompleteRequest&);
+
+
 class Command {
 public:
 	virtual ~Command() {}
@@ -186,6 +225,7 @@ public:
 	std::string desc;
 	std::string usage;
 	unsigned int minParams, maxParams;
+	std::map<unsigned int, AutoCompleteFct> paramCompleters;
 	bool hidden;
 
 	std::string minMaxStr() const {
@@ -212,12 +252,29 @@ public:
 	void exec(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> ps = ParseParams(params);
 		if(ps.size() < minParams || ps.size() > maxParams) {
-			caller->writeMsg(minMaxStr() + " param" + ((maxParams == 1) ? "" : "s") + " needed, usage: " + usageStr());
+			caller->writeMsg(minMaxStr() + " param" + ((maxParams == 1) ? "" : "s") + " needed, usage: " + usageStr(), CNC_DEV);
 			//caller->writeMsg("bad cmd: " + name + " " + params);
 			return;
 		}
 		
 		exec(caller, ps);
+	}
+	
+	bool completeParam(unsigned int i, AutocompleteRequest& request) {
+		if(i + 1 > maxParams) {
+			if(request.token != "")
+				request.cli.writeMsg(name + " takes " + minMaxStr() + " param" + ((maxParams == 1) ? "" : "s") + ", " + itoa(i + 1) + " given", CNC_DEV);
+			else
+				request.cli.writeMsg(name + " - " + desc, CNC_DEV);
+			return false;
+		}
+		
+		std::map<unsigned int, AutoCompleteFct>::iterator p = paramCompleters.find(i);
+		if(p != paramCompleters.end()) return (*p->second)(this, request);
+
+		// no custom completer, so just write usage
+		request.cli.writeMsg(fullDesc(), CNC_DEV);
+		return false;
 	}
 	
 protected:
@@ -227,6 +284,65 @@ protected:
 
 typedef std::map<std::string, Command*, stringcaseless> CommandMap;
 static CommandMap commands;
+
+
+
+
+static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
+	if(request.token == "") {
+		request.cli.writeMsg("please enter a command", CNC_DEV);
+		return false;
+	}
+	
+	CommandMap::iterator it = commands.lower_bound(request.token);
+	if(it == commands.end()) {
+		request.cli.writeMsg("no such command", CNC_DEV);
+		return false;
+	}
+	
+	if(!subStrCaseEqual(it->first, request.token, request.token.size())) {
+		request.cli.writeMsg("no such command", CNC_DEV);
+		return false;
+	}
+	
+	std::list<std::string> possibilities;
+	
+	for(CommandMap::iterator j = it; j != commands.end(); ++j) {
+		if(subStrCaseEqual(request.token, j->first, request.token.size()))
+			possibilities.push_back(j->first);
+		else
+			break;
+	}
+	
+	if(possibilities.size() == 0) {
+		// strange though..
+		request.cli.writeMsg("unknown command", CNC_DEV);
+		return false;
+	}
+	
+	if(possibilities.size() == 1) {
+		// we have exactly one solution
+		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front(), true));
+		return true;
+	}
+	
+	size_t l = maxStartingEqualStr(possibilities);
+	if(l > request.token.size()) {
+		// we can complete to some longer sequence
+		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front().substr(0,l), false));
+		return true;
+	}
+	
+	// send list of all possibilities
+	std::string possStr;
+	for(std::list<std::string>::iterator j = possibilities.begin(); j != possibilities.end(); ++j) {
+		if(possStr.size() > 0) possStr += " ";
+		possStr += *j;
+	}
+	request.cli.writeMsg(possStr);
+	return false;
+}
+
 
 
 
@@ -439,7 +555,7 @@ void Cmd_serverName::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	cServer->setName(params[0]);
 }
 
-COMMAND(help, "list available commands or shows desription/usage of specific command", "[command]", 0, 1);
+COMMAND_EXTRA(help, "list available commands or shows desription/usage of specific command", "[command]", 0, 1, paramCompleters[0] = &autoCompleteCommand);
 void Cmd_help::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(params.size() > 0) {
 		CommandMap::iterator it = commands.lower_bound(params[0]);
@@ -447,7 +563,7 @@ void Cmd_help::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 			if(!stringcaseequal(it->first, params[0]))
 				caller->writeMsg("Help: Was that a typo? Did you mean '" + it->first + "'?", CNC_WARNING);
 			if(!stringcaseequal(it->second->name, it->first))
-				caller->writeMsg(it->first + " is an alias for " + it->second->name);
+				caller->pushReturnArg(it->first + " is an alias for " + it->second->name);
 			caller->pushReturnArg(it->second->usageStr());
 			caller->pushReturnArg(it->second->desc);
 			return;
@@ -1429,87 +1545,6 @@ void HandlePendingCommands() {
 }
 
 
-
-struct AutocompleteRequest {
-	CmdLineIntf& cli;
-	AutocompletionInfo& autocomplete;
-	AutocompletionInfo::InputState old;
-	
-	std::string pretxt, posttxt;
-	std::string token;
-	size_t tokenpos;
-
-	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isFull) const {
-		AutocompletionInfo::InputState ret;
-		ret.text = pretxt + repl;
-		ret.pos = pretxt.size() + repl.size();
-		if((posttxt.size() > 0 && posttxt[0] != ' ')) {
-			ret.text += " ";
-			if(isFull) ret.pos++;
-		}
-		else if(posttxt.size() > 0 && posttxt[0] == ' ') {
-			if(isFull) ret.pos++;
-		}
-		else if(posttxt.empty() && isFull) {
-			ret.text += " ";
-			ret.pos++;
-		}
-		ret.text += posttxt;
-		return ret;
-	}
-
-};
-
-static bool autoCompleteCommand(AutocompleteRequest& request) {
-	CommandMap::iterator it = commands.lower_bound(request.token);
-	if(it == commands.end()) {
-		request.cli.writeMsg("no such command", CNC_DEV);
-		return false;
-	}
-
-	if(!subStrCaseEqual(it->first, request.token, request.token.size())) {
-		request.cli.writeMsg("no such command", CNC_DEV);
-		return false;
-	}
-	
-	std::list<std::string> possibilities;
-	
-	for(CommandMap::iterator j = it; j != commands.end(); ++j) {
-		if(subStrCaseEqual(request.token, j->first, request.token.size()))
-			possibilities.push_back(j->first);
-		else
-			break;
-	}
-	
-	if(possibilities.size() == 0) {
-		// strange though..
-		request.cli.writeMsg("unknown command", CNC_DEV);
-		return false;
-	}
-	
-	if(possibilities.size() == 1) {
-		// we have exactly one solution
-		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front(), true));
-		return true;
-	}
-	
-	size_t l = maxStartingEqualStr(possibilities);
-	if(l > request.token.size()) {
-		// we can complete to some longer sequence
-		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front().substr(0,l), false));
-		return true;
-	}
-	
-	// send list of all possibilities
-	std::string possStr;
-	for(std::list<std::string>::iterator j = possibilities.begin(); j != possibilities.end(); ++j) {
-		if(possStr.size() > 0) possStr += " ";
-		possStr += *j;
-	}
-	request.cli.writeMsg(possStr);
-	return false;
-}
-
 ///////////////////
 // Auto complete a command
 bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete)
@@ -1547,18 +1582,21 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 		}
 	}
 		
+	unsigned int paramIndex = 0;
+	for(ParamSeps::iterator j = seps.begin(); j != it; ++j, ++paramIndex) {}
+
 	if(pos > it->first + it->second) {
-		// we are between two parameters
+		// we are between two parameters or at the very end
 		if(cmd) {
-			if(it == seps.begin()) {
-				// pos is after cmd but before first param, so give desc about cmd
-				cli.writeMsg(cmd->fullDesc(), CNC_DEV);
-			}
-			else {
-				// TODO: find next parameter (after #it) and list information / poss
-				// While we don't have that yet, just print usage
-				cli.writeMsg(cmd->fullDesc(), CNC_DEV);
-			}
+			// it is the correct corresponding param to pos
+			AutocompleteRequest request = {
+				cli, autocomplete, AutocompletionInfo::InputState(text, pos),
+				text.substr(0, pos), text.substr(pos),
+				"", 0
+			};
+
+			// Note: just use paramIndex as it is because we want to point to next param
+			return cmd->completeParam(paramIndex, request);
 		}
 		else
 			cli.writeMsg("command unknown", CNC_DEV);
@@ -1567,24 +1605,21 @@ bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, Autocom
 	}
 
 	// it is the correct corresponding param to pos
-
 	AutocompleteRequest request = {
 		cli, autocomplete, AutocompletionInfo::InputState(text, pos),
-		text.substr(0, it->first), text.substr(it->first + it->second),
-		text.substr(it->first, it->second), pos - it->first
+			text.substr(0, it->first), text.substr(it->first + it->second),
+			text.substr(it->first, it->second), pos - it->first
 	};
 	
 	if(it == seps.begin())
-		return autoCompleteCommand(request);
+		return autoCompleteCommand(NULL, request);
 
 	if(!cmd) {
 		cli.writeMsg("command unknown", CNC_DEV);
 		return false;
 	}
-	
-	// TODO: autocompletion for parameters
-	// While we don't have that yet, just print usage
-	cli.writeMsg(cmd->fullDesc(), CNC_DEV);
-	return false;
+
+	if(paramIndex > 0) paramIndex--;
+	return cmd->completeParam(paramIndex, request);
 }
 
