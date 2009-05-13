@@ -149,7 +149,8 @@ struct IngameConsole : CmdLineIntf {
 	}
 	
 	virtual void finalizeReturn() {
-		Con_AddText(CNC_NOTIFY, ":.", false);
+		// Place is too short for this.
+		//Con_AddText(CNC_NOTIFY, ":.", false);
 	}
 	
 	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
