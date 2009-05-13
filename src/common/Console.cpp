@@ -286,6 +286,7 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 		{
 			Mutex::ScopedLock lock(inputMutex);
 			input.text = "";
+			// Note: don't reset input.pos because it's nice if we can remember that
 		}
 
 		// Parse the line
