@@ -486,7 +486,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 				if(it->second.var.type == SVT_CALLBACK) continue;
 				
 				if( subStrCaseEqual(cmdStart[1], it->first, cmdStart[1].size()) ) {
-					std::string nextComplete = cmdStart[1];
+					std::string nextComplete = it->first.substr(0, cmdStart[1].size());
 					for(size_t f = cmdStart[1].size();; ++f) {
 						if(f >= it->first.size()) { nextComplete += ' '; break; }
 						nextComplete += it->first[f];
@@ -519,7 +519,17 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 			}
 			
 			// send list of all possibilities
-			cl->getNetEngine()->SendChatCommandCompletionList(startStr, possibilities);
+			size_t startSugPos = 0;
+			for(size_t p = 0; p < cmdStart[1].size(); ++p)
+				if(cmdStart[1][p] == '.') {
+					startSugPos = p + 1;
+				}
+			std::list<std::string> possNew;
+			while(possibilities.size() > 0) {
+				possNew.push_back(possibilities.front().substr(startSugPos));
+				possibilities.pop_front();
+			}
+			cl->getNetEngine()->SendChatCommandCompletionList(startStr, possNew);
 			return;
 		}
 		
