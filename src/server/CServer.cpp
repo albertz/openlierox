@@ -2312,49 +2312,49 @@ float GameServer::getMaxUploadBandwidth() {
 }
 
 void GameServer::DumpGameState() {
-	notes << "Server '" << this->getName() << "' game state:" << endl;
+	hints << "Server '" << this->getName() << "' game state:" << endl;
 	switch(iState) {
-		case SVS_LOBBY: notes << " * in lobby"; break;
-		case SVS_GAME: notes << " * weapon selection"; break;
-		case SVS_PLAYING: notes << " * playing"; break;
-		default: notes << " * INVALID STATE " << iState; break;
+		case SVS_LOBBY: hints << " * in lobby"; break;
+		case SVS_GAME: hints << " * weapon selection"; break;
+		case SVS_PLAYING: hints << " * playing"; break;
+		default: hints << " * INVALID STATE " << iState; break;
 	}
-	if(iState != SVS_LOBBY && bGameOver) notes << ", game is over";
+	if(iState != SVS_LOBBY && bGameOver) hints << ", game is over";
 	bool teamGame = true;
 	if(getGameMode()) {
 		teamGame = getGameMode()->GameTeams() > 1;
-		notes << ", " << getGameMode()->Name() << endl;
+		hints << ", " << getGameMode()->Name() << endl;
 	} else
-		notes << ", GAMEMODE UNSET" << endl;
-	notes << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
-	notes << ", lives=" << tLXOptions->tGameInfo.iLives;
-	notes << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
-	notes << " (curtime=" << fServertime.seconds() << ")" << endl;
+		hints << ", GAMEMODE UNSET" << endl;
+	hints << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
+	hints << ", lives=" << tLXOptions->tGameInfo.iLives;
+	hints << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
+	hints << " (curtime=" << fServertime.seconds() << ")" << endl;
 	if(cWorms) {
 		for(int i = 0; i < MAX_WORMS; ++i) {
 			CWorm* w = &cWorms[i];
 			if(w->isUsed()) {
-				notes << " + " << i;
+				hints << " + " << i;
 				if(i != w->getID()) notes << "(WRONG ID:" << w->getID() << ")";
-				notes << ":'" << w->getName() << "'";
-				if(w->getType() == PRF_COMPUTER) notes << "(bot)";
-				if(teamGame) notes << ", team " << w->getTeam();
+				hints << ":'" << w->getName() << "'";
+				if(w->getType() == PRF_COMPUTER) hints << "(bot)";
+				if(teamGame) hints << ", team " << w->getTeam();
 				if(w->getAlive())
-					notes << ", alive";
+					hints << ", alive";
 				else
-					notes << ", dead";
-				if(!w->getWeaponsReady()) notes << ", still weapons selecting";
-				notes << ", lives=" << w->getLives();
-				notes << ", kills=" << w->getKills();
+					hints << ", dead";
+				if(!w->getWeaponsReady()) hints << ", still weapons selecting";
+				hints << ", lives=" << w->getLives();
+				hints << ", kills=" << w->getKills();
 				if(w->getClient())
-					notes << " on " << w->getClient()->debugName(false);
+					hints << " on " << w->getClient()->debugName(false);
 				else
-					notes << " WITH UNSET CLIENT";
-				notes << endl;
+					hints << " WITH UNSET CLIENT";
+				hints << endl;
 			}
 		}
 	} else
-		notes << " - cWorms not set" << endl;
+		hints << " - worms not initialised" << endl;
 }
 
 
