@@ -286,18 +286,16 @@ void IngameConsole::handleKey(const KeyboardEvent& ev) {
 		{
 			Mutex::ScopedLock lock(inputMutex);
 			input.text = "";
-			input.pos = 0;
 		}
 
-		Con_AddText(CNC_NORMAL, "]" + cmd);
-		
 		// Parse the line
 		TrimSpaces(cmd);
-		if(cmd != "")
+		if(cmd != "") {
+			Con_AddText(CNC_NORMAL, "]" + cmd);
 			Execute(this, cmd);
-		
-		if(cmd != "")
 			addHistoryEntry(cmd);
+		}
+	
 		invalidateHistoryPos();
 		
 		goto finalHandleKey;
