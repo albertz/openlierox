@@ -885,8 +885,6 @@ int InitializeLieroX()
 		return false;
 	}
 
-	Cmd_Initialize();	// Initialize console commands
-	
 	DrawLoading(45, "Loading sounds");
 
 	// Load the sounds
@@ -1190,9 +1188,6 @@ void ShutdownLieroX()
 #endif //WITH_G15
 	// Entitites
 	ShutdownEntities();
-
-	// Console commands
-	Cmd_Free();
 
 	// Event system
 	ShutdownEventSystem();

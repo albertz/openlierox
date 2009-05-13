@@ -55,9 +55,9 @@ struct conline_t {
 };
 
 
-class console_t { public:
+struct console_t {
 		
-		int			iState;
+	int			iState;
 	float		fPosition;
 	UnicodeChar	iLastchar;
 	
@@ -77,38 +77,309 @@ class console_t { public:
 
 
 
-struct IngameConsole {
-	struct KeyQueue {
-		Mutex mutex;
-		Condition cond;
-		std::list<KeyboardEvent> queue;
-	}
-	keyQueue;
 
-	struct Input {
-		Mutex mutex;
-		AutocompletionInfo::InputState state;
-		
-		AutocompletionInfo::InputState get() {
-			Mutex::ScopedLock lock(mutex);
-			return state;
-		}
-		void set(const AutocompletionInfo::InputState& s) {
-			Mutex::ScopedLock lock(mutex);
-			state = s;
-		}
-	}
-	input;
+
+struct IngameConsole : CmdLineIntf {
+	ThreadPoolItem* thread;
+	Mutex mutex;
+	Condition changeSignal;
+	PIVar(bool,false) quit;
+	
+	std::list<KeyboardEvent> keyQueue;
+	AutocompletionInfo::InputState input;
+	Mutex inputMutex;
+	
+	typedef std::list<std::string> History;
+	History history;
+	std::string backupInputBuffer;
+	History::iterator historyPos;
 	
 	void pushKey(const KeyboardEvent& input) {
-		Mutex::ScopedLock lock(keyQueue.mutex);
-		keyQueue.queue.push_back(input);
-		keyQueue.cond.broadcast();
+		Mutex::ScopedLock lock(mutex);
+		keyQueue.push_back(input);
+		changeSignal.broadcast();
+	}
+
+	void addHistoryEntry(const std::string& text) {
+		// no need to lock because we only access it in handleKey()
+		for(History::iterator i = history.begin(); i != history.end();) {
+			if(*i == text) i = history.erase(i);
+			else ++i;
+		}
+		history.push_back(text);
+		if(history.size() > MAX_CONHISTORY)
+			history.pop_front();
+		invalidateHistoryPos();
+	}
+
+	void invalidateHistoryPos() {
+		historyPos = history.end();
+	}
+	
+	void handleKey(const KeyboardEvent& queue);
+	
+	void handleKeys(std::list<KeyboardEvent>& queue) {
+		while(queue.size() > 0) {
+			KeyboardEvent ev = queue.front();
+			queue.pop_front();
+			handleKey(ev);
+		}
+	}
+	
+	int handler() {
+		Mutex::ScopedLock lock(mutex);
+		while(!quit) {
+			{
+				std::list<KeyboardEvent> queue; queue.swap(keyQueue);
+				mutex.unlock();
+				handleKeys(queue);
+				mutex.lock();
+			}
+
+			if(keyQueue.size() > 0) continue;
+			changeSignal.wait(mutex);
+		}
+		return 0;
+	}
+
+	// -------- CmdLineIntf ---------
+	
+	virtual void pushReturnArg(const std::string& str) {
+		Con_AddText(CNC_NOTIFY, ":- " + str, false);
+	}
+	
+	virtual void finalizeReturn() {
+		Con_AddText(CNC_NOTIFY, ":.", false);
+	}
+	
+	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+		Con_AddText(int(type), msg, false);
+	}
+
+	// ------------------------------
+	
+	IngameConsole() : thread(NULL) {
+		invalidateHistoryPos();
+	}
+	
+	~IngameConsole() {
+		stopThread();
+	}
+
+	void stopThread() {
+		if(thread) {
+			{
+				Mutex::ScopedLock lock(mutex);
+				quit = true;
+				changeSignal.broadcast();
+			}
+			threadPool->wait(thread);
+			thread = NULL;
+		}
+	}
+	
+	void startThread() {
+		stopThread();
+		thread = StartMemberFuncInThread(IngameConsole, IngameConsole::handler, "IngameConsole handler");
+	}
+};
+
+static IngameConsole ingameConsole;
+
+
+void IngameConsole::handleKey(const KeyboardEvent& ev) {
+	if(!ev.down) return;
+
+	// Backspace
+	if(ev.sym == SDLK_BACKSPACE) {
+		if(input.pos > 0) {
+			Mutex::ScopedLock lock(inputMutex);
+
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			const_string_iterator newpos(input.text, input.pos);
+			DecUtf8StringIterator(newpos, const_string_iterator(input.text, 0));
+
+			input.text.erase(newpos.pos, input.pos - newpos.pos);
+			input.pos = newpos.pos;
+		}
+		goto finalHandleKey;
+	}
+	
+	// Delete
+	if(ev.ch == SDLK_DELETE)  {
+		if(input.text.size() > 0) {
+			Mutex::ScopedLock lock(inputMutex);
+
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			const_string_iterator nextpos(input.text, input.pos);
+			IncUtf8StringIterator(nextpos, const_string_iterator(input.text, input.text.size()));
+
+			input.text.erase(input.pos, nextpos.pos - input.pos);
+		}
+		goto finalHandleKey;
+	}
+	
+	// Left arrow
+	if(ev.sym == SDLK_LEFT)  {
+		if(input.pos > 0) {
+			Mutex::ScopedLock lock(inputMutex);
+
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			const_string_iterator newpos(input.text, input.pos);
+			DecUtf8StringIterator(newpos, const_string_iterator(input.text, 0));
+
+			input.pos = newpos.pos;
+		}
+		goto finalHandleKey;
+	}
+	
+	// Right arrow
+	if(ev.sym == SDLK_RIGHT)  {
+		if(input.pos < input.text.size()) {
+			Mutex::ScopedLock lock(inputMutex);
+
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			const_string_iterator nextpos(input.text, input.pos);
+			IncUtf8StringIterator(nextpos, const_string_iterator(input.text, input.text.size()));
+
+			input.pos = nextpos.pos;
+		}
+		goto finalHandleKey;
+	}
+	
+	// Home
+	if(ev.sym == SDLK_HOME)  {
+		Mutex::ScopedLock lock(inputMutex);
+		input.pos = 0;
+		goto finalHandleKey;
+	}
+	
+	// End
+	if(ev.sym == SDLK_END)  {
+		Mutex::ScopedLock lock(inputMutex);
+		input.pos = input.text.size();
+		goto finalHandleKey;
+	}
+	
+	// Paste
+	if(ev.ch == 22)  {
+		// Get the text
+		std::string buf = copy_from_clipboard();
+		
+		// Paste
+		{
+			Mutex::ScopedLock lock(inputMutex);
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			input.text = input.text.substr(0, input.pos) + buf + input.text.substr(input.pos);
+			input.pos += buf.size();
+		}
+		
+		goto finalHandleKey;
 	}
 	
 	
+	// Enter key
+	if(ev.ch == '\n' || ev.ch == '\r') {
+
+		std::string cmd = input.text;
+		
+		{
+			Mutex::ScopedLock lock(inputMutex);
+			input.text = "";
+			input.pos = 0;
+		}
+
+		Con_AddText(CNC_NORMAL, "]" + cmd);
+		
+		// Parse the line
+		TrimSpaces(cmd);
+		if(cmd != "")
+			Execute(this, cmd);
+		
+		if(cmd != "")
+			addHistoryEntry(cmd);
+		invalidateHistoryPos();
+		
+		goto finalHandleKey;
+	}
 	
-};
+	// Tab
+	if(ev.ch == '\t') {
+		{
+			Mutex::ScopedLock lock(inputMutex);
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+		}
+		
+		// Auto-complete
+		AutocompletionInfo autoCompleteInfo;
+		AutoComplete(input.text, input.pos, *this, autoCompleteInfo);
+		bool fail = false;
+		AutocompletionInfo::InputState newState;
+		autoCompleteInfo.popWait(input, newState, fail);
+		if(!fail) {
+			Mutex::ScopedLock lock(inputMutex);
+			input = newState;
+		}
+		
+		goto finalHandleKey;
+	}
+	
+	// Normal key
+	if(ev.ch > 31) {
+		std::string buf = GetUtf8FromUnicode(ev.ch);
+		{
+			Mutex::ScopedLock lock(inputMutex);
+			input.pos = CLAMP(input.pos, size_t(0), input.text.size()); // safty
+			input.text = input.text.substr(0, input.pos) + buf + input.text.substr(input.pos);
+			input.pos += buf.size();
+		}
+		
+		goto finalHandleKey;
+	}
+	
+	
+	// Handle the history keys
+	
+	// Up arrow
+	if(ev.sym == SDLK_UP) {
+		if(historyPos != history.begin()) {
+			historyPos--;
+			
+			Mutex::ScopedLock lock(inputMutex);
+			input.text = *historyPos;
+		}
+	
+		goto finalHandleKey;
+	}
+	
+	// Down arrow
+	if(ev.sym == SDLK_DOWN) {
+		if(historyPos != history.end()) {
+			historyPos++;
+			
+			Mutex::ScopedLock lock(inputMutex);
+			if(historyPos == history.end())
+				input.text = backupInputBuffer;
+			else
+				input.text = *historyPos;
+		}
+		else {
+			Mutex::ScopedLock lock(inputMutex);
+			input.text = backupInputBuffer;
+		}
+		
+		goto finalHandleKey;
+	}
+
+finalHandleKey:
+	if(historyPos != history.end())
+		*historyPos = input.text;
+	else
+		backupInputBuffer = input.text;
+}
+
+
+
 
 console_t	*Console = NULL;
 
@@ -132,6 +403,7 @@ int Con_Initialize()
 	if(Console == NULL)
 		return false;
 
+
 	Console->fPosition = 1.0f;
 	Console->iState = CON_HIDDEN;
 	Console->iLastchar = 0;
@@ -149,6 +421,8 @@ int Con_Initialize()
 	for(n=0;n<MAX_CONHISTORY;n++)
 		Console->History[n].strText = "";
 
+	ingameConsole.startThread();
+	
     Console->bmpConPic = LoadGameImage("data/gfx/console.png");
     if(!Console->bmpConPic.get())
         return false;
@@ -243,146 +517,17 @@ void Con_Process(TimeDiff dt)
 static void Con_ProcessCharacter(const KeyboardEvent& input)
 {
 	if(!input.down) return;
-
+	
 	if( input.sym == SDLK_ESCAPE ) {
 		if (Console->iState != CON_HIDING && Console->iState != CON_HIDDEN)
 			Con_Toggle();
 		return;
 	}
-
+	
 	if(Console->iState != CON_DOWN && Console->iState != CON_DROPPING)
 		return;
 
-
-
-	// Backspace
-	if(input.sym == SDLK_BACKSPACE) {
-		if(Console->iCurpos > 0)  {
-			Utf8Erase(Console->Line[0].strText, --Console->iCurpos, 1);
-		}
-		Console->icurHistory = -1;
-		return;
-	}
-
-	// Delete
-	if(input.ch == SDLK_DELETE)  {
-		if(Utf8StringSize(Console->Line[0].strText) > 0 && Utf8StringSize(Console->Line[0].strText) > Console->iCurpos)  {
-			Utf8Erase(Console->Line[0].strText, Console->iCurpos, 1);
-		}
-		Console->icurHistory = -1;
-		return;
-	}
-
-	// Left arrow
-	if(input.sym == SDLK_LEFT)  {
-		if(Console->iCurpos > 0)
-			Console->iCurpos--;
-		return;
-	}
-
-	// Right arrow
-	if(input.sym == SDLK_RIGHT)  {
-		if(Console->iCurpos < Utf8StringSize(Console->Line[0].strText))
-			Console->iCurpos++;
-		return;
-	}
-
-	// Home
-	if(input.sym == SDLK_HOME)  {
-		Console->iCurpos = 0;
-		return;
-	}
-
-	// End
-	if(input.sym == SDLK_END)  {
-		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
-		return;
-	}
-
-	// Paste
-	if(input.ch == 22)  {
-		// Safety
-		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
-			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
-
-		// Get the text
-		std::string buf;
-		buf = copy_from_clipboard();
-
-		// Paste
-		Console->Line[0].Colour = CNC_NORMAL;
-		Utf8Insert(Console->Line[0].strText, Console->iCurpos, buf);
-		Console->iCurpos += Utf8StringSize(buf);
-		Console->icurHistory = -1;
-
-		return;
-	}
-
-
-	// Enter key
-	if(input.ch == '\n' || input.ch == '\r') {
-
-		Con_AddText(CNC_NORMAL, "]" + Console->Line[0].strText);
-
-		// Parse the line
-		Cmd_ParseLine(Console->Line[0].strText);
-		Con_AddHistory(Console->Line[0].strText);
-
-
-		Console->Line[0].strText = "";
-		Console->iCurpos = 0;
-
-		return;
-	}
-
-	// Tab
-	if(input.ch == '\t') {
-		// Auto-complete
-		//Cmd_AutoComplete(Console->Line[0].strText);
-		Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
-		Console->icurHistory = -1;
-		return;
-	}
-
-	// Normal key
-	if(input.ch > 31) {
-		// Safety
-		if (Console->iCurpos > Utf8StringSize(Console->Line[0].strText))
-			Console->iCurpos = Utf8StringSize(Console->Line[0].strText);
-
-		Console->Line[0].Colour = CNC_NORMAL;
-		InsertUnicodeChar(Console->Line[0].strText, Console->iCurpos++, input.ch);
-		Console->icurHistory = -1;
-	}
-
-
-	// Handle the history keys
-
-	// Up arrow
-	if(input.sym == SDLK_UP) {
-		Console->icurHistory++;
-		Console->icurHistory = MIN(Console->icurHistory,Console->iNumHistory-1);
-
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			Console->Line[0].strText =  Console->History[Console->icurHistory].strText;
-			Console->iCurpos = Console->Line[0].strText.size();
-		}
-	}
-
-	// Down arrow
-	if(input.sym == SDLK_DOWN) {
-		Console->icurHistory--;
-		if(Console->icurHistory >= 0) {
-			Console->Line[0].Colour = CNC_NORMAL;
-			Console->Line[0].strText = Console->History[Console->icurHistory].strText;
-		} else {
-			Console->Line[0].strText = "";
-		}
-
-		Console->icurHistory = MAX(Console->icurHistory,-1);
-	}
-
+	ingameConsole.pushKey(input);
 }
 
 
@@ -432,21 +577,6 @@ void Con_AddText(int colour, const std::string& text, bool alsoToLogger)
 }
 
 
-///////////////////
-// Add a command to the history
-void Con_AddHistory(const std::string& text)
-{
-	// Move the history up one, dropping the last
-	for(int n = MAX_CONHISTORY - 2; n >= 0; n--)
-		Console->History[n+1].strText = Console->History[n].strText;
-
-	Console->icurHistory = -1;
-	Console->iNumHistory++;
-	Console->iNumHistory = MIN(Console->iNumHistory, MAX_CONHISTORY - 1);
-
-	Console->History[0].strText = text;
-}
-
 
 ///////////////////
 // Draw the console
@@ -457,39 +587,45 @@ void Con_Draw(SDL_Surface * bmpDest)
 
 	int y = (int)(-Console->fPosition * (float)Console->bmpConPic.get()->h);
 	int texty = y+Console->bmpConPic.get()->h-28;
-	std::string buf;
 
 	const Color Colours[6] = {tLX->clConsoleNormal, tLX->clConsoleNotify, tLX->clConsoleError, tLX->clConsoleWarning,
 		                 tLX->clConsoleDev, tLX->clConsoleChat };
 
 	DrawImage(bmpDest,Console->bmpConPic,0,y);
 
+	AutocompletionInfo::InputState input;
+	{
+		Mutex::ScopedLock lock(ingameConsole.inputMutex);
+		input = ingameConsole.input;
+	}
 
 	// Draw the lines of text
 	for(int n = 0; n < MAX_CONLINES; n++, texty -= 15) {
-		buf = "";
-
+		std::string buf = "";
 
 		if(n==0)
-			buf = "]";
-		buf += Console->Line[n].strText;
+			buf = "]" + input.text;
+		else
+			buf = Console->Line[n].strText;
 
 		Console->fBlinkTime += tLX->fDeltaTime;
 		if (Console->fBlinkTime > AbsTime(10.0f)) {
 			Console->iBlinkState = !Console->iBlinkState;
 			Console->fBlinkTime = 0;
 		}
-		if(n==0 && Console->iBlinkState)  {
+
+		// looks nicer without blinking, doesn't it?
+		if(n==0 /*&& Console->iBlinkState*/)  {
 			DrawVLine(
 				bmpDest,
 				texty, texty + tLX->cFont.GetHeight(),
-				16 + tLX->cFont.GetWidth(
-					Utf8SubStr(Console->Line[n].strText, 0, Console->iCurpos)),
+				16 + tLX->cFont.GetWidth(input.text.substr(0, input.pos)),
 				tLX->clConsoleCursor);
 		}
 
 		if (n)
 			stripdot(buf, Console->bmpConPic->w - 10);  // Don't make the text overlap
+
 		tLX->cFont.Draw(bmpDest, 12, texty, Colours[Console->Line[n].Colour], buf);
 	}
 }
@@ -507,6 +643,8 @@ bool Con_IsVisible()
 // Shutdown the console
 void Con_Shutdown()
 {
+	ingameConsole.stopThread();
+	
 	if(Console)
 		delete Console;
 	Console = NULL;
@@ -518,4 +656,10 @@ void Con_Shutdown()
 	if (con_timer)
 		delete con_timer;
 	con_timer = NULL;
+}
+
+
+
+void Con_Execute(const std::string& cmd) {
+	Execute(&ingameConsole, cmd);
 }

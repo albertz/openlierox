@@ -33,12 +33,6 @@ struct CmdLineIntf;
 class AutocompletionInfo;
 
 
-void	Cmd_Initialize();
-void	Cmd_Free();
-
-bool	Cmd_ParseLine(const std::string& text);
-bool	Cmd_AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete);
-
 
 
 // Colours
@@ -84,6 +78,8 @@ struct CmdLineIntf {
 // pushs a command into the command queue
 void Execute(const CmdLineIntf::Command& cmd);
 inline void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
+
+bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete);
 
 void HandlePendingCommands();
 

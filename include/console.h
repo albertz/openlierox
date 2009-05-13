@@ -33,11 +33,12 @@ void	Con_Hide();
 void	Con_Draw(SDL_Surface * bmpDest);
 
 void	Con_AddText(int colour, const std::string& text, bool alsoToLogger = true);
-void	Con_AddHistory(const std::string& text);
-
-void	Con_Parse();
 
 bool	Con_IsVisible();
+
+// if you want to execute something and get the output on the ingame console
+void	Con_Execute(const std::string& cmd);
+
 
 
 #endif  //  __CONSOLE_H__

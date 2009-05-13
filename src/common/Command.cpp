@@ -115,41 +115,7 @@ std::vector<std::string> ParseParams(const std::string& params) {
 }
 
 
-struct IngameConsoleOutput : CmdLineIntf {
-	void pushReturnArg(const std::string& str) {
-		Con_AddText(CNC_NOTIFY, ":- " + str, false);
-	}
-	
-	void finalizeReturn() {
-		Con_AddText(CNC_NOTIFY, ":.", false);
-	}
 
-	virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
-		Con_AddText(int(type), msg, false);
-	}
-};
-
-static IngameConsoleOutput ingameConsoleOut;
-
-///////////////////
-// Parse a line of text
-bool Cmd_ParseLine(const std::string& text)
-{
-	std::string cmd = text;
-	TrimSpaces(cmd);
-	if(cmd == "") return false;
-
-	Execute(&ingameConsoleOut, cmd);
-	return true;
-}
-
-
-
-///////////////////
-// Free the commands
-void Cmd_Free()
-{
-}
 
 ///////////////////
 // Converts ID as string to an integer, returns -1 on fail
@@ -187,12 +153,6 @@ void Cmd_Free()
 
 ======================================
 */
-
-void Cmd_Initialize() {
-}
-
-
-
 
 
 
@@ -1546,7 +1506,7 @@ static bool autoCompleteCommand(AutocompleteRequest& request) {
 
 ///////////////////
 // Auto complete a command
-bool Cmd_AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete)
+bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete)
 {
 	ParamSeps seps = ParseParams_Seps(text);
 	if(seps.size() == 0) {

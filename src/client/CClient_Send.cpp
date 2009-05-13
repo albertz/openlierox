@@ -29,6 +29,7 @@
 #include "CChannel.h"
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
+#include "console.h"
 
 
 
@@ -166,9 +167,11 @@ void CClientNetEngine::SendText(const std::string& sText, std::string sWormName)
 			sText.find("/me ") != 0) // Ignores "/me" special command
 		{
 			// Try if we can execute the same command in console (mainly for "/suicide" command to work on all servers)
-			if( ! Cmd_ParseLine(sText.substr(1)) ) {
+			if( !subStrCaseEqual( sText.substr(1), "suicide", 7 ) )
+			    Con_Execute(sText.substr(1));
+			else
 				client->cChatbox.AddText("HINT: server cannot execute commands, only OLX beta3+ can", tLX->clNotice, TXT_NOTICE, tLX->currentTime);
-			}
+			
 			return;
 
 		} else if (chat_command &&

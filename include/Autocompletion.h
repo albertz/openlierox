@@ -14,14 +14,17 @@
 #include "Mutex.h"
 #include "PreInitVar.h"
 #include "Condition.h"
+#include "Event.h"
 
 class AutocompletionInfo {
 public:
 	struct InputState {
-		InputState() : pos(0) {}
-		InputState(const std::string& t, size_t p) : text(t), pos(p) {}
 		std::string text;
 		size_t pos;
+		InputState() : pos(0) {}
+		InputState(const std::string& t, size_t p) : text(t), pos(p) {}
+		bool operator==(const InputState& s) const { return text == s.text && pos == s.pos; }
+		bool operator!=(const InputState& s) const { return !(*this == s); }
 	};
 	
 private:
@@ -31,7 +34,7 @@ private:
 	PIVar(bool,false) fail;
 	InputState old;
 	InputState replace;
-	
+
 public:
 	void pushReplace(const InputState& old, const InputState& replace) {
 		Mutex::ScopedLock lock(mutex);
@@ -49,12 +52,40 @@ public:
 		cond.signal();
 	}
 	
-	bool waitForReplace(InputState& replace) {
+private:
+	bool pop__unsafe(const InputState& old, InputState& replace, bool& fail) {
+		if(!isSet) return false;
+		isSet = false;
+		if(old != this->old) {
+			fail = true;
+			return true;
+		}
+		if(this->fail) {
+			fail = true;
+			return true;
+		}
+		fail = false;
+		replace = this->replace;
+		return true;
+	}
+
+public:
+	void popWait(const InputState& old, InputState& replace, bool& fail) {
 		Mutex::ScopedLock lock(mutex);
 		while(!isSet) cond.wait(mutex);
-		replace = this->replace;
-		return !fail;
+		pop__unsafe(old, replace, fail);
 	}
+
+	bool pop(const InputState& old, InputState& replace, bool& fail) {
+		Mutex::ScopedLock lock(mutex);
+		return pop__unsafe(old, replace, fail);
+	}
+
+	bool haveSet() {
+		Mutex::ScopedLock lock(mutex);
+		return isSet;
+	}
+
 };
 
 

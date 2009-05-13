@@ -62,8 +62,8 @@ inline size_t DecUtf8StringIterator(_Iterator1& it, const _Iterator2& first) {
 	if(it == first) return 0;
 	size_t res = 1;
 	unsigned char c;
-	it--;
-	for(; first != it; it--, res++) {
+	--it;
+	for(; first != it; --it, ++res) {
 		c = *it;
 		if(!(c&0x80) || ((c&0xC0) == 0xC0)) break;
 	}

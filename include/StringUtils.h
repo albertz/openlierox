@@ -349,6 +349,7 @@ struct const_string_iterator {
 
 	const_string_iterator(const std::string& s, size_t p = 0) : str(s), pos(p) {}
 	const_string_iterator& operator++() { pos++; return *this; }
+	const_string_iterator& operator--() { assert(pos > 0); pos--; return *this; }
 	
 	bool operator==(const const_string_iterator& i) const {
 		return &str == &i.str && (pos == i.pos || (pos > str.size() && i.pos > str.size()));

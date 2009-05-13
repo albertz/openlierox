@@ -66,5 +66,26 @@ extern ThreadPool* threadPool;
 void InitThreadPool();
 void UnInitThreadPool();
 
+
+
+template<typename _T>
+struct _ThreadFuncWrapper {
+	typedef int (_T::* FuncPointer)();
+	template< FuncPointer _func >
+		struct Wrapper {
+			static int wrapper(void* obj) {
+				return (((_T*)obj) ->* _func)();
+			}
+			
+			static ThreadPoolItem* startThread(_T* const obj, const std::string& name) {
+				return threadPool->start((ThreadFunc)&wrapper, (void*)obj, name);
+			}
+		};
+};
+
+#define StartMemberFuncInThread(T, memberfunc, name) \
+_ThreadFuncWrapper<T>::Wrapper<&memberfunc>::startThread(this, name)
+
+
 #endif
 
