@@ -15,6 +15,7 @@
 #include "PreInitVar.h"
 #include "Condition.h"
 #include "Event.h"
+#include "Debug.h"
 
 class AutocompletionInfo {
 public:
@@ -36,19 +37,21 @@ private:
 	InputState replace;
 
 public:
-	void pushReplace(const InputState& old, const InputState& replace) {
+
+	// You are supposed to call setReplace and in the end, call finalize.
+
+	void setReplace(const InputState& old, const InputState& replace) {
 		Mutex::ScopedLock lock(mutex);
 		isSet = true;
 		fail = false;
 		this->old = old;
 		this->replace = replace;
-		cond.signal();
 	}
 
-	void pushFail(const InputState& old) {
+	void finalize() {
 		Mutex::ScopedLock lock(mutex);
+		if(!isSet) fail = true;
 		isSet = true;
-		fail = true;
 		cond.signal();
 	}
 	
@@ -56,11 +59,11 @@ private:
 	bool pop__unsafe(const InputState& old, InputState& replace, bool& fail) {
 		if(!isSet) return false;
 		isSet = false;
-		if(old != this->old) {
+		if(this->fail) {
 			fail = true;
 			return true;
 		}
-		if(this->fail) {
+		if(old != this->old) {
 			fail = true;
 			return true;
 		}
