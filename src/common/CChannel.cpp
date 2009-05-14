@@ -645,13 +645,21 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	bs.writeInt( LastReliableIn, 2 );
 
 	// Add reliable packet to ReliableOut buffer
-	while( (int)ReliableOut.size() < MaxNonAcknowledgedPackets && !Messages.empty() )
+	while( (int)ReliableOut.size() < MaxNonAcknowledgedPackets && ! Messages.empty() && ! ReliableStreamBandwidthLimitHit() )
 	{
 		LastAddedToOut ++ ;
 		if( LastAddedToOut >= SEQUENCE_WRAPAROUND )
 			LastAddedToOut = 0;
+
 		ReliableOut.push_back( std::make_pair( Messages.front(), LastAddedToOut ) );
 		Messages.pop_front();
+
+		while( ! Messages.empty() && 
+				ReliableOut.back().first.GetLength() + Messages.front().GetLength() <= MAX_PACKET_SIZE - RELIABLE_HEADER_LEN )
+		{
+			ReliableOut.back().first.Append( & Messages.front() );
+			Messages.pop_front();
+		}
 	};
 
 	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
@@ -672,7 +680,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 		SequenceDiff( LastReliablePacketSent, LastReliableOut ) >= MaxNonAcknowledgedPackets &&
 		tLX->currentTime - fLastSent >= DataPacketTimeout )
 	{
-		NextReliablePacketToSend = LastReliableOut;	
+		NextReliablePacketToSend = LastReliableOut;
 	}
 	
 	// Add packet headers and data - send all packets with indexes from NextReliablePacketToSend and up.
@@ -688,7 +696,8 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->second, NextReliablePacketToSend ) >= 0 )
 		{
-			if( bs.GetLength() + 4 + packetData.GetLength() + it->first.GetLength() > MAX_PACKET_SIZE && !firstPacket )
+			if( ! CheckReliableStreamBandwidthLimit( it->first.GetLength() + 4 ) ||
+				( bs.GetLength() + 4 + packetData.GetLength() + it->first.GetLength() > MAX_PACKET_SIZE && ! firstPacket ) )
 				break;
 
 			if( !firstPacket )
@@ -745,7 +754,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 
-		cOutgoingRate.addData( tLX->currentTime, 0 );		
+		cOutgoingRate.addData( tLX->currentTime, 0 );
 		return;
 	}
 
@@ -1183,17 +1192,13 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	bs.writeInt( LastReliableIn, 2 );
 
 	// Add reliable packet to ReliableOut buffer
-	while( (int)ReliableOut.size() < MaxNonAcknowledgedPackets && !Messages.empty() )
+	while( (int)ReliableOut.size() < MaxNonAcknowledgedPackets && !Messages.empty() && ! ReliableStreamBandwidthLimitHit() )
 	{
 		LastAddedToOut ++ ;
 		if( LastAddedToOut >= SEQUENCE_WRAPAROUND )
 			LastAddedToOut = 0;
-		if( Messages.front().GetLength() <= MAX_FRAGMENTED_PACKET_SIZE )
-		{
-			ReliableOut.push_back( Packet_t( Messages.front(), LastAddedToOut, false ) );
-			Messages.pop_front();
-		}
-		else
+
+		if( Messages.front().GetLength() > MAX_FRAGMENTED_PACKET_SIZE )
 		{
 			// Fragment the packet
 			Messages.front().ResetPosToBegin();
@@ -1204,6 +1209,17 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 			bs.writeData( Messages.front().readData() );
 			Messages.front() = bs;
 		}
+		else
+		{
+			ReliableOut.push_back( Packet_t( Messages.front(), LastAddedToOut, false ) );
+			Messages.pop_front();
+			while( ! Messages.empty() && 
+					ReliableOut.back().data.GetLength() + Messages.front().GetLength() <= MAX_FRAGMENTED_PACKET_SIZE )
+			{
+				ReliableOut.back().data.Append( & Messages.front() );
+				Messages.pop_front();
+			}
+		};
 	};
 
 	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
@@ -1241,7 +1257,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->idx, NextReliablePacketToSend ) >= 0 )
 		{
-			if( bs.GetLength() + 4 + packetData.GetLength() + it->data.GetLength() > MAX_PACKET_SIZE-2 && !firstPacket )  // Substract CRC16 size
+			if( ! CheckReliableStreamBandwidthLimit( it->data.GetLength() + 4 ) ||
+				( bs.GetLength() + 4 + packetData.GetLength() + it->data.GetLength() > MAX_PACKET_SIZE-2 && !firstPacket ) )  // Substract CRC16 size
 				break;
 
 			if( !firstPacket )
@@ -1300,7 +1317,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		// non-acknowledged packets for halfsecond.
 		// CChannel_056b will always send packet on each frame, so we're conserving bandwidth compared to it, hehe.
 		
-		cOutgoingRate.addData( tLX->currentTime, 0 );		
+		cOutgoingRate.addData( tLX->currentTime, 0 );
 		return;
 	}
 
