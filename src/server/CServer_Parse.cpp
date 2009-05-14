@@ -1626,7 +1626,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		// This sends also the weapons.
 		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
-			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getStatus() != NET_CONNECTED) continue;
 			if(cl->getNumWorms() == 0) continue;
 			if(!cl->getGameReady()) continue;
 			cl->getNetEngine()->SendClientReady(newcl);
@@ -1649,6 +1649,25 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		}
 
 		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
+	}
+	
+	// Share reliable channel bandwidth equally between all clients - 
+	// the amount of reliable data that should be transmitted is more-less the same for each client
+	// But we finetuning the delay between reliable packets
+	int clientsAmount = 0;
+	for(int c = 0; c < MAX_CLIENTS; c++) 
+	{
+		if(cClients[c].getStatus() != NET_CONNECTED) 
+			continue;
+		clientsAmount ++;
+	}
+	for(int c = 0; c < MAX_CLIENTS; c++) 
+	{
+		if(cClients[c].getStatus() != NET_CONNECTED) 
+			continue;
+		// TODO: finetune this coefficients
+		cClients[c].getChannel()->LimitReliableStreamBandwidth( getMaxUploadBandwidth() / clientsAmount * 0.5f, 
+																4.0f + cClients[c].getNetSpeed() );
 	}
 }
 

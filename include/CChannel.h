@@ -185,7 +185,7 @@ public:
 	
 	virtual void	recheckSeqs() {} // Implemented only in CChannel_056b, not required for others
 
-	void			LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPacketRate = 5.0f, float BandwidthCounterMaxValue = 1024.0f );
+	void			LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPacketRate = 5.0f, float BandwidthCounterMaxValue = 512.0f );
 };
 
 // CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.
