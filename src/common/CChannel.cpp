@@ -47,6 +47,11 @@ void CChannel::Clear()
 	iCurrentIncomingBytes = 0;
 	iCurrentOutgoingBytes = 0;
 	Messages.clear();
+	
+	ReliableStreamBandwidthCounter = 0.0f;
+	ReliableStreamLastSentTime = tLX->currentTime;
+	ReliableStreamBandwidthCounterLastUpdate = tLX->currentTime;
+	LimitReliableStreamBandwidth( -1.0f, 5.0f, 1024.0f );
 };
 
 ///////////////////
@@ -78,18 +83,79 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	if(bs.GetLength() == 0)
 		return;
 
-	// If no messages at all, add the first one
-	if (Messages.size() == 0)  {
-		Messages.push_back(bs);
-		return;
+	Messages.push_back(bs);
+	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
+}
+
+void CChannel::UpdateTransmitStatistics( int sentDataSize )
+{
+	// Update statistics
+	iOutgoingBytes += sentDataSize;
+	iCurrentOutgoingBytes += sentDataSize;
+	fLastSent = tLX->currentTime;
+
+	// Calculate the bytes per second
+	cOutgoingRate.addData( tLX->currentTime, sentDataSize );
+}
+
+void CChannel::UpdateReceiveStatistics( int receivedDataSize )
+{
+	// Got a packet (good or bad), update the received time
+	fLastPckRecvd = tLX->currentTime;
+
+	// Update statistics - calculate the bytes per second
+	// TODO: it was Bytestream->GetRestLen() before for iIncomingBytes and iCurrentIncomingBytes,
+	// so skipped packet header, I think it's not that important, check this Albert and remove this TODO
+	iIncomingBytes += receivedDataSize;
+	iCurrentIncomingBytes += receivedDataSize;
+	cIncomingRate.addData( tLX->currentTime, receivedDataSize );
+}
+
+void CChannel::LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPacketRate, float BandwidthCounterMaxValue )
+{
+	ReliableStreamBandwidthLimit = BandwidthLimit;
+	ReliableStreamMaxPacketRate = MaxPacketRate;
+	ReliableStreamBandwidthCounterMaxValue = BandwidthCounterMaxValue;
+	// That's all, we won't reset ReliableStreamBandwidthCounter here
+};
+
+void CChannel::UpdateReliableStreamBandwidthCounter()
+{
+	ReliableStreamBandwidthCounter += 
+		( tLX->currentTime - ReliableStreamBandwidthCounterLastUpdate ).seconds() *
+		ReliableStreamBandwidthLimit;
+
+	ReliableStreamBandwidthCounterLastUpdate = tLX->currentTime;
+	
+	if( ReliableStreamBandwidthCounter > ReliableStreamBandwidthCounterMaxValue )
+		ReliableStreamBandwidthCounter = ReliableStreamBandwidthCounterMaxValue;
+};
+
+bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend )
+{
+	if( ReliableStreamBandwidthLimit <= 0 ) // No bandwidth limit
+		return true;
+
+	if( ReliableStreamBandwidthCounter >= dataSizeToSend ||
+		// Allow sending packets that exceed MaxValue, if Counter == MaxValue, then Counter will become negative
+		ReliableStreamBandwidthCounter >= ReliableStreamBandwidthCounterMaxValue ) 
+	{
+		ReliableStreamBandwidthCounter -= dataSizeToSend;
+		ReliableStreamLastSentTime = tLX->currentTime;
+		return true;
 	}
 
-	// Some reliable messages already in queue, see if we should already split the packet
-	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_PACKET_SIZE - RELIABLE_HEADER_LEN)
-		Messages.push_back(bs);
-	else
-		Messages.rbegin()->Append(&bs);
-}
+	return false;
+};
+
+bool CChannel::ReliableStreamBandwidthLimitHit()
+{
+	if( ReliableStreamBandwidthLimit <= 0 ||
+		ReliableStreamBandwidthCounter >= ReliableStreamBandwidthCounterMaxValue / 2.0f ||
+		ReliableStreamLastSentTime + 1.0f / ReliableStreamMaxPacketRate <= tLX->currentTime )
+		return false;
+	return true;
+};
 
 ///////////////////
 // CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.
@@ -121,12 +187,17 @@ void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
 // Transmitt data, as well as handling reliable packets
 void CChannel_056b::Transmit( CBytestream *bs )
 {
+	UpdateReliableStreamBandwidthCounter();
+	
 	CBytestream outpack;
 	Uint32 SendReliable = 0;
 	ulong r1,r2;
 
 	// If the remote side dropped the last reliable packet, re-send it
-	if(iIncomingAcknowledged > iLast_ReliableSequence && iIncoming_ReliableAcknowledged != iReliableSequence)  {
+	if( iIncomingAcknowledged > iLast_ReliableSequence && 
+		iIncoming_ReliableAcknowledged != iReliableSequence &&
+		CheckReliableStreamBandwidthLimit( Reliable.GetLength() ) )
+	{
 		//printf("Remote side dropped a reliable packet, resending...\n");
 		SendReliable = 1;
 	}
@@ -135,10 +206,16 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// We send reliable message in these cases:
 	// 1. The reliable buffer is empty, we copy the reliable message into it and send it
 	// 2. We need to refresh ping
-	if(Reliable.GetLength() == 0 && (Messages.size() > 0 || (tLX->currentTime >= fLastPingSent + 1.0f && iPongSequence == -1))) {
-		if (Messages.size() > 0)  {
-			Reliable = *Messages.begin();
-			Messages.erase(Messages.begin());
+	if( Reliable.GetLength() == 0 && 
+		! ReliableStreamBandwidthLimitHit() &&
+		( !Messages.empty() || (tLX->currentTime >= fLastPingSent + 1.0f && iPongSequence == -1)))
+	{
+		while( ! Messages.empty() && 
+				Reliable.GetLength() + Messages.front().GetLength() <= MAX_PACKET_SIZE - RELIABLE_HEADER_LEN &&
+				CheckReliableStreamBandwidthLimit( Messages.front().GetLength() ) )
+		{
+				Reliable.Append( & Messages.front() );
+				Messages.pop_front();
 		}
 
 		// XOR the reliable sequence
@@ -184,13 +261,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	SetRemoteNetAddr(Socket, RemoteAddr);
 	outpack.Send(Socket);
 
-	// Update statistics
-	iOutgoingBytes += outpack.GetLength();
-	iCurrentOutgoingBytes += outpack.GetLength();
-	fLastSent = tLX->currentTime; //GetTime();
-
-	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->currentTime, outpack.GetLength() );
+	UpdateTransmitStatistics( outpack.GetLength() );
 }
 
 
@@ -207,13 +278,11 @@ bool CChannel_056b::Process(CBytestream *bs)
 	if( bs->GetLength() == 0 )
 		return false;
 
-	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->currentTime;
+	UpdateReceiveStatistics( bs->GetLength() );
 
 	// Read the reliable packet header
 	Sequence = bs->readInt(4);
 	SequenceAck = bs->readInt(4);
-
 
 	// Get the reliable bits
 	ReliableMessage = Sequence >> 31;
@@ -222,11 +291,6 @@ bool CChannel_056b::Process(CBytestream *bs)
 	// Get rid of the reliable bits
 	Sequence &= ~(1<<31);
 	SequenceAck &= ~(1<<31);
-
-	// Calculate the bytes per second
-	iIncomingBytes += bs->GetRestLen();
-	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
 
 	// Get rid of the old packets
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
@@ -440,13 +504,7 @@ bool CChannel2::Process(CBytestream *bs)
 	if( bs->GetLength() == 0 )
 		return GetPacketFromBuffer(bs);
 
-	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->currentTime;
-
-	// Update statistics - calculate the bytes per second
-	iIncomingBytes += bs->GetRestLen();
-	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
+	UpdateReceiveStatistics( bs->GetLength() );
 
 	// Acknowledged packets info processing
 
@@ -565,6 +623,7 @@ bool CChannel2::Process(CBytestream *bs)
 
 void CChannel2::Transmit(CBytestream *unreliableData)
 {
+	UpdateReliableStreamBandwidthCounter();
 
 	#ifdef DEBUG
 	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
@@ -697,13 +756,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	LastReliableIn_SentWithLastPacket = LastReliableIn;
 	LastReliablePacketSent = NextReliablePacketToSend;
 
-	// Update statistics
-	iOutgoingBytes += bs.GetLength();
-	iCurrentOutgoingBytes += bs.GetLength();
-	fLastSent = tLX->currentTime; //GetTime();
-
-	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->currentTime, bs.GetLength() );
+	UpdateTransmitStatistics( bs.GetLength() );
 };
 
 
@@ -896,7 +949,7 @@ void TestCChannelRobustness()
 };
 
 /*
-The format packet is the same as with CChannel2, but with CRC16 added at the beginning,
+The format for packet is the same as with CChannel2, but with CRC16 added at the beginning,
 and with indicator that packet is split into several smaller packets.
 Packet won't contain four leading 0xFF because of CRC16, because two other bytes are acknowledged packet index.
 
@@ -978,13 +1031,7 @@ bool CChannel3::Process(CBytestream *bs)
 	if( bs->GetLength() == 0 )
 		return GetPacketFromBuffer(bs);
 
-	// Got a packet (good or bad), update the received time
-	fLastPckRecvd = tLX->currentTime;
-
-	// Update statistics - calculate the bytes per second
-	iIncomingBytes += bs->GetRestLen();
-	iCurrentIncomingBytes += bs->GetRestLen();
-	cIncomingRate.addData( tLX->currentTime, bs->GetLength() );
+	UpdateReceiveStatistics( bs->GetLength() );
 	
 	// CRC16 check
 	
@@ -1114,6 +1161,7 @@ bool CChannel3::Process(CBytestream *bs)
 
 void CChannel3::Transmit(CBytestream *unreliableData)
 {
+	UpdateReliableStreamBandwidthCounter();
 
 	#ifdef DEBUG
 	// Very simple laggy connection emulation - send next packet once per DEBUG_SIMULATE_LAGGY_CONNECTION_SEND_DELAY
@@ -1269,36 +1317,16 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	LastReliableIn_SentWithLastPacket = LastReliableIn;
 	LastReliablePacketSent = NextReliablePacketToSend;
 
-	// Update statistics
-	iOutgoingBytes += bs1.GetLength();
-	iCurrentOutgoingBytes += bs1.GetLength();
-	fLastSent = tLX->currentTime; //GetTime();
-
-	// Calculate the bytes per second
-	cOutgoingRate.addData( tLX->currentTime, bs1.GetLength() );
+	UpdateTransmitStatistics( bs1.GetLength() );
 }
 
 void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChannel but without error msg
 {
-	if (bs.GetLength() > MAX_FRAGMENTED_PACKET_SIZE)  {
-		Messages.push_back(bs);
-		return;
-	}
-
 	if(bs.GetLength() == 0)
 		return;
 
-	// If no messages at all, add the first one
-	if (Messages.size() == 0)  {
-		Messages.push_back(bs);
-		return;
-	}
-
-	// Some reliable messages already in queue, see if we should already split the packet
-	if (bs.GetLength() + (Messages.rbegin()->GetLength()) > MAX_FRAGMENTED_PACKET_SIZE)
-		Messages.push_back(bs);
-	else
-		Messages.rbegin()->Append(&bs);
+	Messages.push_back(bs);
+	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
 

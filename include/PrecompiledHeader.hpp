@@ -18,6 +18,7 @@
 // We're compiling C-code here, HawkNL most probably
 #else
 
+#include "Autocompletion.h"
 #include "AuxLib.h"
 #include "Cache.h"
 #include "CBanList.h"
@@ -39,6 +40,7 @@
 #include "CNinjaRope.h"
 #include "Color.h"
 #include "Command.h"
+#include "Condition.h"
 #include "ConfigHandler.h"
 #include "console.h"
 #include "Consts.h"
