@@ -241,6 +241,10 @@
 			Filter="cpp, h"
 			>
 			<File
+				RelativePath="..\..\include\Autocompletion.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\AuxLib.cpp"
 				>
 				<FileConfiguration
@@ -406,6 +410,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Color.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\Condition.h"
 				>
 			</File>
 			<File
@@ -625,6 +633,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\include\InputEvents.h"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\IpToCountryDB.cpp"
@@ -1544,10 +1556,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\include\InputEvents.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\MapLoader.cpp"
 				>
 			</File>
@@ -1630,6 +1638,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\server\CHideAndSeek.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\server\CRace.cpp"
 					>
 				</File>
 				<File
