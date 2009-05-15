@@ -80,6 +80,12 @@ struct Race : public CGameMode {
 	typedef int WayPointID;
 	std::map<FlagID,WayPointID> nextGoals;
 	
+	WayPointID getNextGoal(FlagID id) {
+		std::map<FlagID,WayPointID>::iterator f = nextGoals.find(id);
+		if(f == nextGoals.end()) return 1;
+		else return f->second;
+	}
+	
 	virtual bool Spawn(CWorm* worm, CVec pos) {
 		if(wayPoints.size() == 0) {
 			errors << "Race::Spawn: not prepared yet" << endl;
@@ -189,18 +195,21 @@ struct Race : public CGameMode {
 		CompareGoals(Race* r) : race(r) {}
 		
 		int comp(CWorm* w1, CWorm* w2) {
+			// this is if we want to do the compare but the game has not started yet
+			if(race->wayPoints.size() == 0) return 0;
+			
 			{
 				// compare next goals
-				int lastGoal1 = (race->nextGoals[race->getWormFlag(w1)] + WPNUM - 1) % WPNUM;
-				int lastGoal2 = (race->nextGoals[race->getWormFlag(w2)] + WPNUM - 1) % WPNUM;
+				int lastGoal1 = (race->getNextGoal(race->getWormFlag(w1)) + WPNUM - 1) % WPNUM;
+				int lastGoal2 = (race->getNextGoal(race->getWormFlag(w2)) + WPNUM - 1) % WPNUM;
 				if(lastGoal1 > lastGoal2) return 1;
 				if(lastGoal1 < lastGoal2) return -1;
 			}
 			
 			{
 				// compare distance to next goals (they should be the same for both worms)
-				float dist1 = (race->wayPoints[race->nextGoals[race->getWormFlag(w1)]] - w1->getPos()).GetLength2();
-				float dist2 = (race->wayPoints[race->nextGoals[race->getWormFlag(w2)]] - w2->getPos()).GetLength2();
+				float dist1 = (race->wayPoints[race->getNextGoal(race->getWormFlag(w1))] - w1->getPos()).GetLength2();
+				float dist2 = (race->wayPoints[race->getNextGoal(race->getWormFlag(w2))] - w2->getPos()).GetLength2();
 				if(dist1 < dist2) return 1; // it's better to be more close
 				if(dist1 > dist2) return -1;
 			}
@@ -226,7 +235,7 @@ struct Race : public CGameMode {
 			if(d != 0) return d;
 		}
 		
-		// fallback (very unprobable that this will be used)
+		// fallback (very unprobable that this will be used in game)
 		return CGameMode::CompareWormsScore(w1, w2);
 	}
 };
