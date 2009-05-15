@@ -140,12 +140,13 @@ ADD_DEFINITIONS(-Wall)
 
 IF(DEBUG)
 	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
-	#Always optimize these files - they make debug build unusable otherwise
-	SET_SOURCE_FILES_PROPERTIES(	src/common/CProjectile.cpp 
-									src/common/ProjAction.cpp 
-									src/common/PhysicsLX56.cpp 
-									PROPERTIES COMPILE_FLAGS -O3)
 ENDIF(DEBUG)
+
+#Always optimize these files - they make debug build unusable otherwise
+SET_SOURCE_FILES_PROPERTIES(	src/common/CProjectile.cpp 
+								src/common/ProjAction.cpp 
+								src/common/PhysicsLX56.cpp 
+								PROPERTIES COMPILE_FLAGS -O3)
 
 EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
