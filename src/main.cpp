@@ -307,7 +307,8 @@ int main(int argc, char *argv[])
 	hints << "This is a DEDICATED_ONLY build." << endl;
 #endif
 	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
-
+	notes << "Current time: " << GetDateTimeText() << endl;
+	
 #ifdef DEBUG
 	// TODO: any reason for this?
 	//setvbuf(stdout, NULL, _IOLBF, 1024);

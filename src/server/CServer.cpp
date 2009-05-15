@@ -44,6 +44,7 @@
 #include "FlagInfo.h"
 #include "Utils.h"
 #include "Command.h"
+#include "AuxLib.h"
 
 
 GameServer	*cServer = NULL;
@@ -304,7 +305,7 @@ int GameServer::StartGame()
 	CBytestream bs;
 	float timer;
 	
-	notes << "GameServer::StartGame() mod " << tLXOptions->tGameInfo.sModName << endl;
+	notes << "GameServer::StartGame(), mod: " << tLXOptions->tGameInfo.sModName << ", time: " << GetDateTimeText() << endl;
 
 	// Check
 	if (!cWorms) { errors << "StartGame(): Worms not initialized" << endl; return false; }

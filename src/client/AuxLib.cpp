@@ -1306,3 +1306,17 @@ bool lierox_t::isAnyControlKeyDown() const {
 	return cTakeScreenshot.isDown() || cSwitchMode.isDown() || cIrcChat.isDown() || cConsoleToggle.isDown();
 }
 
+
+
+std::string GetDateTimeText()
+{
+	time_t t = time(NULL);
+
+	if (t == -1)
+		return "";
+	
+	std::string timeStr = ctime(&t);
+	TrimSpaces(timeStr);
+	return timeStr;
+}
+

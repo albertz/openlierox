@@ -55,7 +55,7 @@ void		setCurThreadName(const std::string& name);
 void		setCurThreadPriority(float p); // p in [-1,1], whereby 0 is standard
 
 size_t		GetFreeSysMemory(); // returnes available physical memory in bytes
-
+std::string	GetDateTimeText();
 
 #ifdef DEBUG
 bool		HandleDebugCommand(const std::string& cmd);

@@ -1520,6 +1520,7 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	// TODO: client game state
 	hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
 	hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
+	hints << "Current time: " << GetDateTimeText() << endl;
 }
 
 COMMAND(saveConfig, "save current config", "", 0, 0);
