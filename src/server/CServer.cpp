@@ -86,12 +86,10 @@ void GameServer::Clear()
 	fLastBonusTime = 0;
 	for( int i=0; i < MAX_SERVER_SOCKETS; i++ )
 		InvalidateSocketState(tSockets[i]);
-	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)  {
-		InvalidateSocketState(it->tConnectHereSocket);
-		InvalidateSocketState(it->tTraverseSocket);
-		it->fLastUsed = AbsTime();
-		it->bClientConnected = false;
-	}
+	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)
+		it->Close();
+	tNatClients.clear();
+
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
 	fRegisterUdpTime = AbsTime();
@@ -480,7 +478,7 @@ mapCreate:
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
 		RemoveSocketFromNotifierGroup( tSockets[i] );
-	for(std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+	for(std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
 		if (IsSocketStateValid(it->tTraverseSocket))
 			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
 		if (IsSocketStateValid(it->tConnectHereSocket))
@@ -903,7 +901,7 @@ bool GameServer::ReadPackets()
 			anythingNew = true;
 
 	// Traverse sockets
-	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
 		if (ReadPacketsFromSocket(it->tTraverseSocket))  {
 			anythingNew = true;
 			if (!it->bClientConnected)  {
@@ -1218,20 +1216,22 @@ void GameServer::CheckTimeouts()
 		return;
 
 	// Check for NAT traversal sockets that are too old
-	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end();)  {
 		if ((tLX->currentTime - it->fLastUsed) >= 10.0f)  {
-			NetworkAddr a;
-			GetRemoteNetAddr(it->tTraverseSocket, a);
 			std::string addr;
-			NetAddrToString(a, addr);
+			NetAddrToString(it->tAddress, addr);
 			notes << "A NAT traverse connection timed out: " << addr << endl;
-			it->Close();
-			tNatClients.erase(it);
-			it = tNatClients.begin();
-
-			if (tNatClients.empty())
-				break;
-		}
+			if (it == tNatClients.begin())  {
+				tNatClients.erase(it);
+				it = tNatClients.begin();
+			} else {
+				std::list<NatConnection>::iterator it2 = it;
+				it2++;
+				tNatClients.erase(it);
+				it = it2;
+			}
+		} else
+			it++;
 	}
 
 	// Cycle through clients
@@ -2263,8 +2263,9 @@ void GameServer::Shutdown()
 		InvalidateSocketState(tSockets[i]);
 	}
 
-	for (std::vector<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)
+	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)
 		it->Close();
+	tNatClients.clear();
 
 	if(cClients) {
 		delete[] cClients;

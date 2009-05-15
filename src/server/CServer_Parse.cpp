@@ -1903,11 +1903,15 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 	// Get the server and the connecting client addresses
 	GetRemoteNetAddr(tSocket, adrFrom);
 	std::string adrClientStr = bs->readString();
-	StringToNetAddr( adrClientStr, adrClient );
+	if (!StringToNetAddr( adrClientStr, adrClient ))  {
+		errors << "GameServer: the address specified in ParseTraverse is invalid: " << adrClientStr << endl;
+		return;
+	}
 	notes << "GameServer: Got a traverse from client " << adrClientStr << endl;
 
 	// Open a new connection for the client
 	NatConnection newcl;
+	newcl.tAddress = adrClient;
 	newcl.tTraverseSocket = OpenUnreliableSocket(0);
 	newcl.tConnectHereSocket = OpenUnreliableSocket(0);
 	if (!IsSocketStateValid(newcl.tTraverseSocket))  {

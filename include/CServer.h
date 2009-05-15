@@ -87,6 +87,7 @@ public:
 			tConnectHereSocket = nat.tConnectHereSocket;
 			fLastUsed = nat.fLastUsed;
 			bClientConnected = nat.bClientConnected;
+			tAddress = nat.tAddress;
 
 			return *this;
 		}
@@ -95,6 +96,7 @@ public:
 
 		NetworkSocket	tTraverseSocket;
 		NetworkSocket	tConnectHereSocket;
+		NetworkAddr		tAddress;
 		AbsTime			fLastUsed;
 		bool			bClientConnected;
 	};
@@ -144,7 +146,7 @@ private:
 	// Network
 	NetworkSocket	tSockets[MAX_SERVER_SOCKETS];
 	int				nPort;
-	std::vector<NatConnection>	tNatClients;
+	std::list<NatConnection>	tNatClients;
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
