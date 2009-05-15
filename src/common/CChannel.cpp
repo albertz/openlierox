@@ -196,7 +196,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	// If the remote side dropped the last reliable packet, re-send it
 	if( iIncomingAcknowledged > iLast_ReliableSequence && 
 		iIncoming_ReliableAcknowledged != iReliableSequence &&
-		CheckReliableStreamBandwidthLimit( Reliable.GetLength() ) )
+		CheckReliableStreamBandwidthLimit( (float)Reliable.GetLength() ) )
 	{
 		//printf("Remote side dropped a reliable packet, resending...\n");
 		SendReliable = 1;
@@ -212,7 +212,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 	{
 		while( ! Messages.empty() && 
 				Reliable.GetLength() + Messages.front().GetLength() <= MAX_PACKET_SIZE - RELIABLE_HEADER_LEN &&
-				CheckReliableStreamBandwidthLimit( Messages.front().GetLength() ) )
+				CheckReliableStreamBandwidthLimit( (float)Messages.front().GetLength() ) )
 		{
 				Reliable.Append( & Messages.front() );
 				Messages.pop_front();
@@ -696,7 +696,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->second, NextReliablePacketToSend ) >= 0 )
 		{
-			if( ! CheckReliableStreamBandwidthLimit( it->first.GetLength() + 4 ) ||
+			if( ! CheckReliableStreamBandwidthLimit( (float)(it->first.GetLength() + 4) ) ||
 				( bs.GetLength() + 4 + packetData.GetLength() + it->first.GetLength() > MAX_PACKET_SIZE && ! firstPacket ) )
 				break;
 
@@ -1257,7 +1257,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	{
 		if( SequenceDiff( it->idx, NextReliablePacketToSend ) >= 0 )
 		{
-			if( ! CheckReliableStreamBandwidthLimit( it->data.GetLength() + 4 ) ||
+			if( ! CheckReliableStreamBandwidthLimit( (float)(it->data.GetLength() + 4) ) ||
 				( bs.GetLength() + 4 + packetData.GetLength() + it->data.GetLength() > MAX_PACKET_SIZE-2 && !firstPacket ) )  // Substract CRC16 size
 				break;
 

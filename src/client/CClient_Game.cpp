@@ -13,6 +13,7 @@
 // Created 21/7/02
 // Jason Boettcher
 
+#include <algorithm>
 
 #include "LieroX.h"
 #include "Clipboard.h"

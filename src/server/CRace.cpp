@@ -7,6 +7,7 @@
  *
  */
 
+#include <algorithm>
 #include "CGameMode.h"
 #include "CServer.h"
 #include "CWorm.h"
@@ -54,12 +55,12 @@ struct Race : public CGameMode {
 			for(int y = 0; y <= 1; y++) {
 				std::list<CVec> goodPos;
 				goodPos.push_back(CVec(
-								  (cServer->getMap()->GetWidth() * 0.8 * x + cServer->getMap()->GetWidth() * 0.2),
-								  (cServer->getMap()->GetHeight() * 0.8 * y + cServer->getMap()->GetHeight() * 0.2)));
+								  (cServer->getMap()->GetWidth() * 0.8f * x + cServer->getMap()->GetWidth() * 0.2f),
+								  (cServer->getMap()->GetHeight() * 0.8f * y + cServer->getMap()->GetHeight() * 0.2f)));
 				std::list<CVec> badPos;
 				badPos.push_back(CVec(
-								  (cServer->getMap()->GetWidth() * 0.2 * x + cServer->getMap()->GetWidth() * 0.8),
-								  (cServer->getMap()->GetHeight() * 0.2 * y + cServer->getMap()->GetHeight() * 0.8)));
+								  (cServer->getMap()->GetWidth() * 0.2f * x + cServer->getMap()->GetWidth() * 0.8f),
+								  (cServer->getMap()->GetHeight() * 0.2f * y + cServer->getMap()->GetHeight() * 0.8f)));
 				int t = (y == 0) ? x : (3 - x);
 				wayPoints[t] = cServer->FindSpotCloseToPos(goodPos, badPos, false);
 				
