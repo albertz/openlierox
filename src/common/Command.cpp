@@ -277,6 +277,16 @@ public:
 		return false;
 	}
 	
+	CWorm* getWorm(CmdLineIntf* caller, const std::string& param) {
+		bool fail = true;
+		int id = from_string<int>(param, fail);
+		if(fail) {
+			printUsage(caller);
+			return NULL;
+		}
+		return CheckWorm(caller, id, name);
+	}
+	
 protected:
 	virtual void exec(CmdLineIntf* caller, const std::vector<std::string>& params) = 0;
 	
@@ -1342,18 +1352,10 @@ void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 
 COMMAND(privateMsg, "give a private message to a worm", "id text", 2, 2);
 void Cmd_privateMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
-	
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	
-	CWorm *w = CheckWorm(caller, id, name); if(!w) return;
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
+
 	if( !w->getClient() || !w->getClient()->getNetEngine() ) {
-		caller->writeMsg("worm " + itoa(id) + " is somehow crippled");
+		caller->writeMsg("worm " + itoa(w->getID()) + " is somehow crippled");
 		return;
 	}
 
@@ -1367,7 +1369,7 @@ void Cmd_getWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
 	CWorm *w = cServer->getWorms();
-	if(w == NULL) return;
+	if(w == NULL) return; // just to be sure but should be handled already
 	for(int i=0; i < MAX_WORMS; i++, w++)
 	{
 		if(!w->isUsed())
@@ -1389,46 +1391,20 @@ void Cmd_getComputerWormList::exec(CmdLineIntf* caller, const std::vector<std::s
 }
 
 COMMAND(getWormName, "get worm name", "id", 1, 1);
-void Cmd_getWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
-	
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
-	
+void Cmd_getWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {	
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(w->getName());
 }
 
 COMMAND(getWormTeam, "get worm team", "id", 1, 1);
 void Cmd_getWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
-	
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
-	
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(itoa(w->getTeam()));
 }
 
 COMMAND(getWormIp, "get worm IP", "id", 1, 1);
 void Cmd_getWormIp::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
-
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	
 	// TODO: Perhaps we can cut out the second argument for the signal- but that would lead to the signal being much larger. Is it worth it?
 	std::string str_addr;
@@ -1442,13 +1418,7 @@ void Cmd_getWormIp::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 
 COMMAND(getWormLocationInfo, "get worm location info", "id", 1, 1);
 void Cmd_getWormLocationInfo::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 
 	std::string str_addr;
 	IpInfo info;
@@ -1470,16 +1440,10 @@ void Cmd_getWormLocationInfo::exec(CmdLineIntf* caller, const std::vector<std::s
 
 COMMAND(getWormPing, "get worm ping", "id", 1, 1);
 void Cmd_getWormPing::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	
 	if(!w->getClient() || !w->getClient()->getChannel()) {
-		caller->writeMsg("worm " + itoa(id) + " has a crippled connection");
+		caller->writeMsg("worm " + itoa(w->getID()) + " has a crippled connection");
 		return;
 	}
 
@@ -1488,17 +1452,26 @@ void Cmd_getWormPing::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND(getWormSkin, "get worm skin", "id", 1, 1);
 void Cmd_getWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	bool fail = true;
-	int id = from_string<int>(params[0], fail);
-	if(fail) {
-		printUsage(caller);
-		return;
-	}
-	CWorm* w = CheckWorm(caller, id, name); if(!w) return;
-
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(itoa(w->getSkin().getDefaultColor().get()));
 	caller->pushReturnArg(w->getSkin().getFileName());
 }
+
+COMMAND(getWormPos, "get worm position", "id", 1, 1);
+void Cmd_getWormPos::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
+	caller->pushReturnArg(ftoa(w->getPos().x));
+	caller->pushReturnArg(ftoa(w->getPos().y));
+}
+
+COMMAND(getWormVelocity, "get worm velocity", "id", 1, 1);
+void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
+	caller->pushReturnArg(ftoa(w->velocity().x));
+	caller->pushReturnArg(ftoa(w->velocity().y));
+}
+
+
 
 /*
 COMMAND(connect, "connect to server", "serveraddress", 1, 1);
