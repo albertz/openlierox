@@ -1221,15 +1221,10 @@ void GameServer::CheckTimeouts()
 			std::string addr;
 			NetAddrToString(it->tAddress, addr);
 			notes << "A NAT traverse connection timed out: " << addr << endl;
-			if (it == tNatClients.begin())  {
-				tNatClients.erase(it);
-				it = tNatClients.begin();
-			} else {
-				std::list<NatConnection>::iterator it2 = it;
-				it2++;
-				tNatClients.erase(it);
-				it = it2;
-			}
+			std::list<NatConnection>::iterator it2 = it;
+			it2++;
+			tNatClients.erase(it);
+			it = it2;
 		} else
 			it++;
 	}
