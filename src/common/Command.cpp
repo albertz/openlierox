@@ -1340,8 +1340,8 @@ void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	cServer->SendGlobalText(msg, type);
 }
 
-COMMAND(privateMessage, "give a private message to a worm", "id text", 2, 2);
-void Cmd_privateMessage::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+COMMAND(privateMsg, "give a private message to a worm", "id text", 2, 2);
+void Cmd_privateMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
 	bool fail = true;
