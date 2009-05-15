@@ -269,6 +269,10 @@ inline bool from_string<bool>(const std::string& s) {
 	else return ( atoi(s1) != 0 );
 }
 
+template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail);
+template<> inline VectorD2<int> from_string< VectorD2<int> >(const std::string& s) { bool f; return from_string< VectorD2<int> >(s, f); }
+
+
 inline std::string ftoa(float val, int precision = -1)
 {
 	std::string res = to_string<float>(val);

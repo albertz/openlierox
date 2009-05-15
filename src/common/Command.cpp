@@ -1471,6 +1471,51 @@ void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::strin
 	caller->pushReturnArg(ftoa(w->velocity().y));
 }
 
+static CMap* getCurrentMap() {
+	CMap* m = cServer ? cServer->getMap() : NULL;
+	if(!m && cClient) m = cClient->getMap();
+	return m;
+}
+
+COMMAND(mapInfo, "get map info", "", 0, 0);
+void Cmd_mapInfo::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CMap* m = getCurrentMap();
+	if(!m)
+		caller->writeMsg("map not loaded", CNC_ERROR);
+	else {
+		caller->pushReturnArg(m->getName());
+		caller->pushReturnArg(m->getFilename());
+		caller->pushReturnArg(itoa(m->GetWidth()));
+		caller->pushReturnArg(itoa(m->GetHeight()));
+	}
+}
+
+COMMAND(findSpot, "find randm free spot in map (close to pos)", "[(x,y)]", 0, 1);
+void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
+	if(cServer->getMap() == NULL) {
+		caller->writeMsg("map not loaded", CNC_ERROR);
+		return;
+	}
+	
+	VectorD2<int> v;
+	if(params.size() == 0)
+		v = cServer->FindSpot();
+	else {
+		bool fail = false;
+		VectorD2<int> closev = from_string< VectorD2<int> >(params[0], fail);
+		if(fail) {
+			printUsage(caller);
+			return;
+		}
+		v = cServer->FindSpotCloseToPos(closev);
+	}
+	
+	caller->pushReturnArg(itoa(v.x));
+	caller->pushReturnArg(itoa(v.y));
+}
+
+
 
 
 /*
