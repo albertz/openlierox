@@ -676,7 +676,7 @@ class ML_LieroX : public MapLoader {
 
 
 MapLoader* MapLoader::open(const std::string& filename, bool abs_filename) {
-	FILE* fp = abs_filename ? fopen(filename.c_str(), "rb") : OpenGameFile(filename, "rb");
+	FILE* fp = abs_filename ? fopen(Utf8ToSystemNative(filename).c_str(), "rb") : OpenGameFile(filename, "rb");
 	if(fp == NULL) {
 		warnings << "level " << filename << " does not exist" << endl;
 		return NULL;
