@@ -527,7 +527,7 @@ bool CChannel2::Process(CBytestream *bs)
 	iPacketsGood++;	// Update statistics
 
 	// Delete acknowledged packets from buffer
-	for( PacketList_t::iterator it = ReliableOut.begin(), it1; it != ReliableOut.end(); )
+	for( PacketList_t::iterator it = ReliableOut.begin(); it != ReliableOut.end(); )
 	{
 		bool erase = false;
 		if( SequenceDiff( LastReliableOut, it->second ) >= 0 )
@@ -536,14 +536,10 @@ bool CChannel2::Process(CBytestream *bs)
 			if( seqAckList[f] == it->second )
 				erase = true;
 		if(erase)
-		{
-			it1 = it;
-			it++;
-			ReliableOut.erase(it1);
-		}
+			it = ReliableOut.erase(it);
 		else
 			it++;
-	};
+	}
 
 	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
 	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
@@ -1072,7 +1068,7 @@ bool CChannel3::Process(CBytestream *bs)
 	iPacketsGood++;	// Update statistics
 
 	// Delete acknowledged packets from buffer
-	for( PacketList_t::iterator it = ReliableOut.begin(), it1; it != ReliableOut.end(); )
+	for( PacketList_t::iterator it = ReliableOut.begin(); it != ReliableOut.end(); )
 	{
 		bool erase = false;
 		if( SequenceDiff( LastReliableOut, it->idx ) >= 0 )
@@ -1081,14 +1077,10 @@ bool CChannel3::Process(CBytestream *bs)
 			if( seqAckList[f] == it->idx )
 				erase = true;
 		if(erase)
-		{
-			it1 = it;
-			it++;
-			ReliableOut.erase(it1);
-		}
+			it = ReliableOut.erase(it);
 		else
 			it++;
-	};
+	}
 
 	// Calculate ping ( with LastReliableOut, not with last packet - should be fair enough )
 	if( PongSequence != -1 && SequenceDiff( LastReliableOut, PongSequence ) >= 0 )
