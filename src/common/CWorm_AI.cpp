@@ -709,17 +709,18 @@ private:
 		}
 	}
 
-public:
-	bool isReady() {
-		Mutex::ScopedLock lock(mutex);
-		return thread_is_ready;
-	}
-
+	
 	// HINT: threadSearch is the only function, who should set this to true again!
 	// a set to false means for threadSearch, that it should start the search now
 	void setReady(bool state) {
 		Mutex::ScopedLock lock(mutex);
 		thread_is_ready = state;
+	}
+	
+public:
+	bool isReady() {
+		Mutex::ScopedLock lock(mutex);
+		return thread_is_ready;
 	}
 
 	// WARNING: not thread safe; call isReady before
@@ -900,9 +901,8 @@ bool CWormBotInputHandler::AI_Initialize() {
 // Shutdown the AI stuff
 void CWormBotInputHandler::AI_Shutdown()
 {
-	if(pathSearcher) {
-		delete ((searchpath_base*)pathSearcher);
-	}
+	if(pathSearcher)
+		delete pathSearcher;
 	pathSearcher = NULL;
 
 	// in every case, the nodes of the current path are not handled by pathSearcher
@@ -3020,7 +3020,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	if(force_break) {
 		bPathFinished = false;
 		fSearchStartTime = tLX->currentTime;
-		((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
+		pathSearcher->restartThreadSearch(m_worm->vPos, trg);
 
 		return false;
 	}
@@ -3030,10 +3030,10 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 	// TODO: something has to be changed here, because the name bPathFinished doesn't indicates this
 	if(!bPathFinished) {
 		// have we finished a current search?
-		if(((searchpath_base*)pathSearcher)->isReady()) {
+		if(pathSearcher->isReady()) {
 
 			bPathFinished = true;
-			NEW_ai_node_t* res = ((searchpath_base*)pathSearcher)->resultedPath();
+			NEW_ai_node_t* res = pathSearcher->resultedPath();
 
 			// have we found something?
 			if(res) {
@@ -3046,7 +3046,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 				NEW_psCurrentNode = NEW_psPath;
 
 				// prevent it from deleting the current path (it will be deleted, when the new path is found)
-				((searchpath_base*)pathSearcher)->removePathFromList(NEW_psPath);
+				pathSearcher->removePathFromList(NEW_psPath);
 
 
 				fLastCreated = tLX->currentTime;
@@ -3058,9 +3058,9 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 		} else { // the searcher is still searching ...
 
 			// restart search in some cases
-			if(!((searchpath_base*)pathSearcher)->shouldRestartThread() && (tLX->currentTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, ((searchpath_base*)pathSearcher)->start) || !traceWormLine(trg, ((searchpath_base*)pathSearcher)->target))) {
+			if(!pathSearcher->shouldRestartThread() && (tLX->currentTime - fSearchStartTime >= 5.0f || !traceWormLine(m_worm->vPos, pathSearcher->start) || !traceWormLine(trg, pathSearcher->target))) {
 				fSearchStartTime = tLX->currentTime;
-				((searchpath_base*)pathSearcher)->restartThreadSearch(m_worm->vPos, trg);
+				pathSearcher->restartThreadSearch(m_worm->vPos, trg);
 			}
 
 			return false;
@@ -3090,10 +3090,10 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 
 	// start a new search
 	fSearchStartTime = tLX->currentTime;
-	((searchpath_base*)pathSearcher)->target.x = (int)trg.x;
-	((searchpath_base*)pathSearcher)->target.y = (int)trg.y;
-	((searchpath_base*)pathSearcher)->start = VectorD2<int>(m_worm->vPos);
-	((searchpath_base*)pathSearcher)->startThreadSearch();
+	pathSearcher->target.x = (int)trg.x;
+	pathSearcher->target.y = (int)trg.y;
+	pathSearcher->start = VectorD2<int>(m_worm->vPos);
+	pathSearcher->startThreadSearch();
 
 	return false;
 }

@@ -15,6 +15,8 @@
 
 #include "CWorm.h"
 
+class searchpath_base;
+
 class CWormBotInputHandler : public CWormInputHandler {
 public:
 	CWormBotInputHandler(CWorm* w);
@@ -76,8 +78,7 @@ protected:
 	bool		bPathFinished;
 	AbsTime		fSearchStartTime;
 	
-	// its type is searchpath_base*; defined in CWorm_AI.cpp
-	void*		pathSearcher;
+	searchpath_base*	pathSearcher;
 	
 	NEW_ai_node_t	*NEW_psPath;
 	NEW_ai_node_t	*NEW_psCurrentNode;
