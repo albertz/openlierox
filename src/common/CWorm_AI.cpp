@@ -588,7 +588,7 @@ private:
 		return last_node;
 	}
 
-	// it searches for the path (recursive algo)
+	// it searches for the path (dynamic algo, sort of A*)
 	NEW_ai_node_t* findPath(VectorD2<int> start) {
 		areas_stack.clear();
 		addAreaNode(start, NULL);
