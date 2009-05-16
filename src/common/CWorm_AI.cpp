@@ -261,26 +261,24 @@ public:
 	public:
 
 		// needed for area_set (for area search function getArea(p))
-		class area_v1__less {
-		public:
+		struct area_v1__less {
 			// this is a well-defined transitive ordering after the v1-vector of the matrix
 			bool operator()(const area_item* a, const area_item* b) const {
-				if(!a || !b) return false; // this isn't handled correctly, but this should never happen
+				if(!a || !b) return a < b; // this should never happen
 				return a->area.v1 < b->area.v1;
 			}
 		};
 
 		// needed for area_set (for area search function getBestArea)
-		class expected_min_total_dist__less {
-		public:
+		struct expected_min_total_dist__less {
 			// this is a well-defined transitive ordering after the v1-vector of the matrix
 			bool operator()(const area_item* a, const area_item* b) const {
-				if(!a || !b) return false; // this isn't handled correctly, but this should never happen
+				if(!a || !b) return a < b; // this should never happen
 				return a->expected_min_total_dist() < b->expected_min_total_dist();
 			}
 		};
 
-		searchpath_base* base;
+		searchpath_base* const base;
 
 		// this will save the state, if we still have to check a specific end
 		// at the rectangle or not
@@ -291,7 +289,7 @@ public:
 		short checklistColStart;
 		short checklistColWidth;
 
-		SquareMatrix<int> area;
+		const SquareMatrix<int> area;
 		area_item* lastArea; // the area where we came from
 		double dist_from_source; // distance from startpoint
 
@@ -341,7 +339,7 @@ public:
 				(area.getCenter() - conPoint).GetLength();
 		}
 
-		area_item(searchpath_base* b) :
+		area_item(searchpath_base* b, const SquareMatrix<int>& a) :
 			base(b),
 			checklistRows(0),
 			checklistRowStart(0),
@@ -349,6 +347,7 @@ public:
 			checklistCols(0),
 			checklistColStart(0),
 			checklistColWidth(5),
+			area(a),
 			lastArea(NULL),
 			dist_from_source(0) {}
 
@@ -646,8 +645,7 @@ public:
 		cClient->getMap()->unlockFlags(false);
 		// add only if area is big enough
 		if(area.v2.x-area.v1.x >= wormsize && area.v2.y-area.v1.y >= wormsize) {
-			a = new area_item(this);
-			a->area = area;
+			a = new area_item(this, area);
 			a->initChecklists();
 			a->setLastArea(lastArea);
 			areas.insert(a);
