@@ -654,13 +654,18 @@ public:
 
 	// this function will start the search, if it was not started right now
 	// WARNING: the searcher-thread will clear all current saved nodes
-	void startThreadSearch() {
-
+	bool startThreadSearch() {
+		if(!cClient->getGameReady()) {
+			errors << "AI searchpath: cannot search yet, game not ready" << endl;
+			return false;
+		}
+		
 		// if we are still searching, do nothing
-		if(!isReady()) return;
+		if(!isReady()) return false;
 
 		// this is the signal to start the search
 		setReady(false);
+		return true;
 	}
 
 private:
