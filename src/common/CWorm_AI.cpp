@@ -44,6 +44,7 @@
 #include "FlagInfo.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "Mutex.h"
 
 
 // used by searchpath algo
@@ -490,7 +491,6 @@ public:
         thread_is_ready(true),
 		break_thread_signal(0),
 		restart_thread_searching_signal(0) {
-		thread_mut = SDL_CreateMutex();
 		thread = threadPool->start(threadSearch, this, "AI worm pathfinding");
 		if(!thread)
 			errors << "could not create AI thread" << endl;
@@ -502,8 +502,6 @@ public:
 		if(thread) threadPool->wait(thread, NULL);
 		else warnings << "AI thread already uninitialized" << endl;
 		thread = NULL;
-		if(thread_mut) SDL_DestroyMutex(thread_mut);
-		thread_mut = NULL;
 		
 		clear();
 	}
@@ -699,11 +697,10 @@ private:
 				// HINT: both locks (of shouldRestartThread and the following) are seperated
 				//       this don't make any trouble, because here is the only place where we
 				//       reset it and we have always restart_thread_searching_signal==true here
-				base->lock();
+				Mutex::ScopedLock lock(base->mutex);
 				base->restart_thread_searching_signal = 0;
 				base->start = base->restart_thread_searching_newdata.start;
 				base->target = base->restart_thread_searching_newdata.target;
-				base->unlock();
 				continue;
 			}
 
@@ -714,19 +711,15 @@ private:
 
 public:
 	bool isReady() {
-		bool ret = false;
-		lock();
-		ret = thread_is_ready;
-		unlock();
-		return ret;
+		Mutex::ScopedLock lock(mutex);
+		return thread_is_ready;
 	}
 
 	// HINT: threadSearch is the only function, who should set this to true again!
 	// a set to false means for threadSearch, that it should start the search now
 	void setReady(bool state) {
-		lock();
+		Mutex::ScopedLock lock(mutex);
 		thread_is_ready = state;
-		unlock();
 	}
 
 	// WARNING: not thread safe; call isReady before
@@ -736,19 +729,18 @@ public:
 
 	void restartThreadSearch(VectorD2<int> newstart, VectorD2<int> newtarget) {
 		// set signal
-		lock();
+		Mutex::ScopedLock lock(mutex);
 		thread_is_ready = false;
 		restart_thread_searching_newdata.start = newstart;
 		restart_thread_searching_newdata.target = newtarget;
 		// HINT: the reading of this isn't synchronized
 		restart_thread_searching_signal = 1;
-		unlock();
 	}
 
 private:
 	NEW_ai_node_t* resulted_path;
 	ThreadPoolItem* thread;
-	SDL_mutex* thread_mut;
+	Mutex mutex;
 	bool thread_is_ready;
 	int break_thread_signal;
 	int restart_thread_searching_signal;
@@ -771,14 +763,6 @@ public:
 	}
 
 private:
-	void lock() {
-		SDL_mutexP(thread_mut);
-	}
-
-	void unlock() {
-		SDL_mutexV(thread_mut);
-	}
-
 	void completeNodesInfo(NEW_ai_node_t* start) {
 		NEW_ai_node_t* last = NULL;
 		for(NEW_ai_node_t* n = start; n; n = n->psNext) {
