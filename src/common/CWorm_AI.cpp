@@ -474,8 +474,8 @@ public:
 
 	}; // class area_item
 
-	typedef std::multiset< area_item*, area_item::area_v1__less > area_set;
-	typedef std::multiset< area_item*, area_item::expected_min_total_dist__less > area_stack_set;
+	typedef std::set< area_item*, area_item::area_v1__less > area_set;
+	typedef std::set< area_item*, area_item::expected_min_total_dist__less > area_stack_set;
 	typedef std::set< NEW_ai_node_t* > node_set;
 
 	// these neccessary attributes have to be set manually
