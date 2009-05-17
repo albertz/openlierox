@@ -559,7 +559,6 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 // Randomize the weapons
 void CWorm::GetRandomWeapons()
 {
-	int lastenabled = 0;
 	int num,n;
 
 	for(short i=0; i<5; i++) {
@@ -567,7 +566,7 @@ void CWorm::GetRandomWeapons()
 
 		// Cycle through weapons starting from the random one until we get an enabled weapon
 		n=num;
-		lastenabled = 0;
+		int lastenabled = -1;
 		while(true) {
 			// Wrap around
 			if(n >= cGameScript->GetNumWeapons())
@@ -585,7 +584,7 @@ void CWorm::GetRandomWeapons()
 			// If this weapon is enabled AND we have not selected it already, then exit the loop
 			if(cWeaponRest->isEnabled( (cGameScript->GetWeapons()+n)->Name ))  {
 				if (!bSelected)
-				  break;
+					break;
 				lastenabled = n;
 			}
 
@@ -598,7 +597,14 @@ void CWorm::GetRandomWeapons()
 			}
 
 		}  // while
-		tWeapons[i].Weapon = cGameScript->GetWeapons()+n;
+		if(n >= 0 && n < cGameScript->GetNumWeapons()) {
+			tWeapons[i].Weapon = cGameScript->GetWeapons()+n;
+			tWeapons[i].Enabled = true;
+		}
+		else {
+			tWeapons[i].Weapon = NULL;
+			tWeapons[i].Enabled = false;
+		}
 	}
 
 }
@@ -615,7 +621,7 @@ bool CWorm::shouldDoOwnWeaponSelection() {
 void CWorm::CloneWeaponsFrom(CWorm* w) {
 	for(int i = 0; i < 5; ++i) {
 		tWeapons[i].Weapon = w->getWeapon(i)->Weapon;
-		tWeapons[i].Enabled = tWeapons[i].Weapon != NULL;
+		tWeapons[i].Enabled = w->getWeapon(i)->Enabled;
 		
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
@@ -1109,10 +1115,17 @@ bool CWorm::GiveBonus(CBonus *b)
 	if(b->getType() == BNS_WEAPON) {
 
 		// Replace our current weapon
-		tWeapons[iCurrentWeapon].Weapon = cGameScript->GetWeapons() + b->getWeapon();
-		tWeapons[iCurrentWeapon].Charge = 1;
-		tWeapons[iCurrentWeapon].Reloading = false;
-
+		if(b->getWeapon() >= 0 && b->getWeapon() < cGameScript->GetNumWeapons()) {
+			tWeapons[iCurrentWeapon].Weapon = cGameScript->GetWeapons() + b->getWeapon();
+			tWeapons[iCurrentWeapon].Charge = 1;
+			tWeapons[iCurrentWeapon].Reloading = false;
+			tWeapons[iCurrentWeapon].Enabled = true;
+		}
+		else {
+			warnings << "selected bonus has invalid weapon " << b->getWeapon() << endl;
+			// do nothing
+		}
+		
 		return true;
 	}
 

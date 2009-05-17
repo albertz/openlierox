@@ -32,7 +32,7 @@ bin="/dev/null"
 [ -e core* ] && get_backtrace ../../bin/openlierox core*
 mv core* ../.. 2>/dev/null
 
-if [ "$(cat /proc/sys/kernel/core_pattern)" != "" ]; then
+if [ -e /proc/sys/kernel/core_pattern ] && [ "$(cat /proc/sys/kernel/core_pattern)" != "" ]; then
 	corefile="$(sh -c "echo $(cat /proc/sys/kernel/core_pattern | sed -e "s/%e/openlierox/g" -e "s/%p/*/g" -e "s/%u/$(id -u)/g" -e "s/%t/*/g")")"
 	if [ -e "$corefile" ]; then
 		echo "found corefile $corefile"

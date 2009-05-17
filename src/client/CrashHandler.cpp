@@ -360,7 +360,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 #include <unistd.h>
 
 #if defined(__linux__) || defined(__APPLE__)
-#include <execinfo.h>
+// TODO: why is execinfo needed here? at least on MacOSX, it's not needed here
+//#include <execinfo.h>
 /* get REG_EIP / REG_RIP from ucontext.h */
 #include <ucontext.h>
 #endif

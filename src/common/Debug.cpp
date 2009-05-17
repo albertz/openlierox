@@ -171,7 +171,22 @@ void OlxWriteCoreDump(const char* file_postfix) {
 
 #endif
 
-#if (defined(__GLIBCXX__) || defined(__GLIBC__) || !defined(WIN32)) && (defined(__APPLE__) || defined(__linux__))
+// ----------------- core dump code end -------------
+
+
+// --------------- backtrace stuff start --------------
+
+#ifndef HAVE_EXECINFO
+#	if defined(__linux__)
+#		define HAVE_EXECINFO 1
+#	elif defined(__DARWIN_VERS_1050)
+#		define HAVE_EXECINFO 1
+#	else
+#		define HAVE_EXECINFO 0
+#	endif
+#endif
+
+#if HAVE_EXECINFO
 
 #include <execinfo.h>
 #include <stdio.h>

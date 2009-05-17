@@ -595,10 +595,13 @@ void CWorm::writeWeapons(CBytestream *bs)
 	bs->writeByte(iID);
 
 	for(ushort i=0; i<5; i++) {
-		if(tWeapons[i].Weapon)
-			bs->writeByte(tWeapons[i].Weapon->ID);
-		else {
-			bs->writeByte(0);
+		if(tWeapons[i].Weapon) {
+			if(tWeapons[i].Enabled)
+				bs->writeByte(tWeapons[i].Weapon->ID);
+			else
+				bs->writeByte(255);
+		} else {
+			bs->writeByte(255);
 			errors << "tWeapons[" << i << "].Weapon not set" << endl;
 		}
 	}
@@ -611,26 +614,30 @@ void CWorm::readWeapons(CBytestream *bs)
 {
 	notes << "weapons for " << iID << ":" << sName << ": ";
 	
-	ushort i;
-	int id;
-
-	for(i=0; i<5; i++) {
+	for(ushort i=0; i<5; i++) {
 		if(i > 0) notes << ", ";
-		id = bs->readByte();
+		int id = bs->readByte();
 
 		tWeapons[i].Weapon = NULL;
-		tWeapons[i].Enabled = true;
+		tWeapons[i].Enabled = false;
 
 		if(cGameScript) {
 			if(id >= 0 && id < cGameScript->GetNumWeapons()) {
 				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
+				tWeapons[i].Enabled = true;
 				notes << tWeapons[i].Weapon->Name;
+			}
+			else if(id == 255) { // special case to unset weapon
+				// TODO: fix rest of code that this doesn't crash!!
+				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
+				tWeapons[i].Enabled = false;
+				notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
 				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
 				tWeapons[i].Enabled = false;
-				notes << id;
+				notes << id << "?";
 			}
 		} else {
 			errors << "readWeapons: cGameScript == NULL" << endl;
@@ -641,7 +648,7 @@ void CWorm::readWeapons(CBytestream *bs)
 	notes << endl;
 
 	// Reset the weapons
-	for(i=0; i<5; i++) {
+	for(ushort i=0; i<5; i++) {
 		tWeapons[i].Charge = 1;
 		tWeapons[i].Reloading = false;
 		tWeapons[i].SlotNum = i;
@@ -706,8 +713,8 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		return;
 	}
 
-	if(tWeapons[cur].Weapon == NULL) {
-		warnings << "readStatUpdate: Weapon == NULL" << endl;
+	if(tWeapons[cur].Weapon == NULL || !tWeapons[cur].Enabled) {
+		warnings << "readStatUpdate: Weapon " << int(cur) << " not enabled" << endl;
 		return;
 	}
 

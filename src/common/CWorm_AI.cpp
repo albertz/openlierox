@@ -274,8 +274,17 @@ public:
 		struct expected_min_total_dist__less {
 			// this is a well-defined transitive ordering after the v1-vector of the matrix
 			bool operator()(const area_item* a, const area_item* b) const {
-				if(!a || !b) return a < b; // this should never happen
-				return a->expected_min_total_dist() < b->expected_min_total_dist();
+				if(!a || !b) {
+					errors << "UNSET AREA IN ORDER" << endl;
+					return a < b; // this should never happen
+				}
+				bool ret = a->expected_min_total_dist() < b->expected_min_total_dist();
+				if(ret) {
+					if(b->expected_min_total_dist() < a->expected_min_total_dist()) {
+						errors << "WRONG ORDERING" << endl;
+					}
+				}
+				return ret;
 			}
 		};
 

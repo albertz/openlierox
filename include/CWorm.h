@@ -79,6 +79,7 @@ struct wpnslot_t {
 	bool		Reloading;
 	float		LastFire;
 	bool		Enabled;
+	wpnslot_t() : Weapon(NULL), SlotNum(0), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
 };
 
 struct randweapons_t {
