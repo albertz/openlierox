@@ -173,6 +173,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "dedicated_control" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
+		( tLXOptions->bLogTimestamps, "Misc.LogTimestamps", true )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 

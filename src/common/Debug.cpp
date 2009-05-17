@@ -12,6 +12,8 @@
 #include "CrashHandler.h"
 #include "Command.h"
 
+#include <time.h>
+
 #ifdef WIN32
 
 void RaiseDebugger() {
@@ -258,6 +260,19 @@ void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 
 #endif
 
+std::string GetLogTimeStamp()
+{
+	char buf[64];
+	const time_t unif_time = time(NULL);
+	struct tm *t = localtime(&unif_time);
+	if (t == NULL)
+		return "";
+	
+	strftime(buf, sizeof(buf), "[%H:%M:%S] ", t);
+	fix_markend(buf);
+	return std::string(buf);
+}
+
 Logger notes(0,2,1000, "n: ");
 Logger hints(0,1,100, "H: ");
 Logger warnings(0,0,10, "W: ");
@@ -310,9 +325,14 @@ template<int col> void ConPrint(const std::string& str) {
 // true if last was newline
 static bool logger_output(Logger& log, const std::string& buf) {
 	bool ret = true;
+
+	std::string prefix = log.prefix;
+	if (tLXOptions && tLXOptions->bLogTimestamps)
+		prefix = GetLogTimeStamp() + prefix;
+
 	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
-		ret = PrettyPrint(log.prefix, buf, CoutPrint, log.lastWasNewline);
+		ret = PrettyPrint(prefix, buf, CoutPrint, log.lastWasNewline);
 		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);
 	}
@@ -324,15 +344,15 @@ static bool logger_output(Logger& log, const std::string& buf) {
 		if(!strStartsWith(buf, "Ingame console: ")) {
 			// we are not safing explicitly a color in the Logger, thus we try to assume a good color from the verbosity level
 			if(log.minIngameConVerb < 0)
-				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_ERROR>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_ERROR>, log.lastWasNewline);
 			else if(log.minIngameConVerb == 0)
-				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_WARNING>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_WARNING>, log.lastWasNewline);
 			else if(log.minIngameConVerb == 1)
-				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_NOTIFY>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NOTIFY>, log.lastWasNewline);
 			else if(log.minIngameConVerb < 5)
-				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_NORMAL>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NORMAL>, log.lastWasNewline);
 			else // >=5
-				ret = PrettyPrint(log.prefix, buf, ConPrint<CNC_DEV>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_DEV>, log.lastWasNewline);
 		}
 		if(tLXOptions->iVerbosity >= log.minCallstackVerb) {
 			DumpCallstack(ConPrint<CNC_DEV>);
