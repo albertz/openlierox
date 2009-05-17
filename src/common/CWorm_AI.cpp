@@ -278,10 +278,16 @@ public:
 					errors << "UNSET AREA IN ORDER" << endl;
 					return a < b; // this should never happen
 				}
-				bool ret = a->expected_min_total_dist() < b->expected_min_total_dist();
+				double dista = a->expected_min_total_dist();
+				double distb = b->expected_min_total_dist();
+				bool ret = dista < distb;
 				if(ret) {
-					if(b->expected_min_total_dist() < a->expected_min_total_dist()) {
-						errors << "WRONG ORDERING" << endl;
+					if(distb < dista) {
+						errors << "WRONG ORDERING, " << dista << " and " << distb << endl;
+						std::string tmpa((char*)&dista, sizeof(double));
+						std::string tmpb((char*)&distb, sizeof(double));
+						HexDump(GetConstIterator(tmpa), printOnLogger<notes>);
+						HexDump(GetConstIterator(tmpb), printOnLogger<notes>);
 					}
 				}
 				return ret;
@@ -497,7 +503,7 @@ public:
 	searchpath_base() :
 		resulted_path(NULL),
 		thread(NULL),
-        thread_is_ready(true),
+		thread_is_ready(true),
 		break_thread_signal(0),
 		restart_thread_searching_signal(0) {
 		thread = threadPool->start(threadSearch, this, "AI worm pathfinding");
