@@ -93,6 +93,7 @@ enum FeatureIndex {
 	FT_RelativeAirJumpDelay,
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
+	FT_CTF_ScoreLimit,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
 	FT_Race_Rounds,

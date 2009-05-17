@@ -69,6 +69,8 @@ Feature featureArray[] = {
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
 			false,	false,			Version(),				GIG_Advanced,	true),
+	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
+			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100, true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
 			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
