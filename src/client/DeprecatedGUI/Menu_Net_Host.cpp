@@ -1073,9 +1073,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == TXT_CHANGE) {
 					std::string buf;
 					cHostLobby.SendMessage(hl_Lives, TXS_GETTEXT, &buf, 0);
+					TrimSpaces(buf);
+					bool fail = false;
 					if(buf != "")
-						tLXOptions->tGameInfo.iLives = atoi(buf);
-					else
+						tLXOptions->tGameInfo.iLives = from_string<int>(buf, fail);
+					if(buf == "" || fail)
 						tLXOptions->tGameInfo.iLives = -2;
 
 					cServer->UpdateGameLobby();
@@ -1088,9 +1090,11 @@ void Menu_Net_HostLobbyFrame(int mouse)
 				if(ev->iEventMsg == TXT_CHANGE) {
 					std::string buf;
 					cHostLobby.SendMessage(hl_MaxKills, TXS_GETTEXT, &buf, 0);
+					TrimSpaces(buf);
+					bool fail = false;
 					if(buf != "")
-						tLXOptions->tGameInfo.iKillLimit = atoi(buf);
-					else
+						tLXOptions->tGameInfo.iKillLimit = from_string<int>(buf, fail);
+					if(buf == "" || fail)
 						tLXOptions->tGameInfo.iKillLimit = -2;
 
 					cServer->UpdateGameLobby();
