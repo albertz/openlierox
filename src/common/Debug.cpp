@@ -262,6 +262,7 @@ void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
 
 std::string GetLogTimeStamp()
 {
+	// TODO: please recode this, don't use C-strings!
 	char buf[64];
 	const time_t unif_time = time(NULL);
 	struct tm *t = localtime(&unif_time);
