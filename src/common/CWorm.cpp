@@ -559,13 +559,11 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 // Randomize the weapons
 void CWorm::GetRandomWeapons()
 {
-	int num,n;
-
 	for(short i=0; i<5; i++) {
-		num = MAX(1, GetRandomInt(cGameScript->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
+		int num = MAX(1, GetRandomInt(cGameScript->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
 		// Cycle through weapons starting from the random one until we get an enabled weapon
-		n=num;
+		int n=num;
 		int lastenabled = -1;
 		while(true) {
 			// Wrap around
@@ -575,7 +573,7 @@ void CWorm::GetRandomWeapons()
 			// Have we already got this weapon?
 			bool bSelected = false;
 			for(int k=0; k<i; k++) {
-				if((cGameScript->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
+				if(tWeapons[k].Weapon && (cGameScript->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
 					bSelected = true;
 					break;
 				}

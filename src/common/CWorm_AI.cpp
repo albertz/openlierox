@@ -4543,6 +4543,10 @@ void CWormBotInputHandler::initWeaponSelection() {
 			m_worm->GetRandomWeapons();
 			AI_SetGameType(GAM_OTHER);
 		}
+
+		// Note: Right now, it's as easy as this. But it could be more complicated later and we have to update this then.
+		for(int i = 0; i < 5; ++i)
+			m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
 		
 		m_worm->setWeaponsReady(true);
 	}

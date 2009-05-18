@@ -674,6 +674,9 @@ void CWormHumanInputHandler::initWeaponSelection() {
 			
             m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript ) );
         }
+		
+		if(m_worm->tWeapons[i].Weapon)
+			m_worm->tWeapons[i].Enabled = true;
 	}
 	
 	

@@ -1023,18 +1023,18 @@ SoundSample * CGameScript::LoadGSSample(const std::string& dir, const std::strin
 // Find a weapon based on its name
 const weapon_t *CGameScript::FindWeapon(const std::string& name)
 {
-	int n;
-
+	if(!Weapons) return NULL;
+	if(name == "") return NULL;
+	
 	// Go through each weapon
 	weapon_t *wpn = Weapons;
-	for(n=0;n<NumWeapons;n++,wpn++) {
+	for(int n=0;n<NumWeapons;n++,wpn++) {
 
 		if(stringcaseequal(wpn->Name, name))
 			return wpn;
 	}
 
-	// Instead of returning NULL, just return the first weapon
-	return Weapons;
+	return NULL;
 }
 
 
