@@ -274,23 +274,13 @@ public:
 		struct expected_min_total_dist__less {
 			// this is a well-defined transitive ordering after the v1-vector of the matrix
 			bool operator()(const area_item* a, const area_item* b) const {
-				if(!a || !b) {
-					errors << "UNSET AREA IN ORDER" << endl;
-					return a < b; // this should never happen
-				}
+				if(!a || !b) return a < b; // this should never happen
 				double dista = a->expected_min_total_dist();
 				double distb = b->expected_min_total_dist();
-				bool ret = dista < distb;
-				if(ret) {
-					if(distb < dista) {
-						errors << "WRONG ORDERING, " << dista << " and " << distb << endl;
-						std::string tmpa((char*)&dista, sizeof(double));
-						std::string tmpb((char*)&distb, sizeof(double));
-						HexDump(GetConstIterator(tmpa), printOnLogger<notes>);
-						HexDump(GetConstIterator(tmpb), printOnLogger<notes>);
-					}
-				}
-				return ret;
+				// In some rare cases (depending on optimisation and hardware, (a<b)&&(b<a) is true here.
+				// To make it a valid order, we have to make the additional check.
+				if(fabs(dista - distb) < 0.0001) return false;
+				return dista < distb;
 			}
 		};
 
