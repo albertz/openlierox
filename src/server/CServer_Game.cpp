@@ -512,7 +512,7 @@ void GameServer::WormShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
-	// Don't shoot with banned weapons
+	// Don't shoot with disabld weapons
 	if (!Slot->Enabled)
 		return;
 
@@ -528,9 +528,28 @@ void GameServer::WormShoot(CWorm *w)
 
 
 	// Must be a projectile
-	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM)
+	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM) {
+		// It's not a projectile, so the client is handling this, but we take track of charge to disable weapon if needed.
+		
+		// Drain the Weapon charge
+		Slot->Charge -= Slot->Weapon->Drain / 100;
+		if(Slot->Charge <= 0) {
+			Slot->Charge = 0;
+			
+			if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
+				Slot->Enabled = false;
+				Slot->Weapon = NULL;
+				// TODO: move that out here
+				CBytestream bs;
+				bs.writeByte(S2C_WORMWEAPONINFO);
+				w->writeWeapons(&bs);
+				cServer->SendGlobalPacket(&bs);			
+			} else
+				Slot->Reloading = true;
+		}
 		return;
-
+	}
+	
 	// Get the direction angle
 	float Angle = w->getAngle();
 	if(w->getDirection() == DIR_LEFT)
@@ -576,7 +595,17 @@ void GameServer::WormShoot(CWorm *w)
 	Slot->Charge -= Slot->Weapon->Drain / 100;
 	if(Slot->Charge <= 0) {
 		Slot->Charge = 0;
-		Slot->Reloading = true;
+		
+		if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
+			Slot->Enabled = false;
+			Slot->Weapon = NULL;
+			// TODO: move that out here
+			CBytestream bs;
+			bs.writeByte(S2C_WORMWEAPONINFO);
+			w->writeWeapons(&bs);
+			cServer->SendGlobalPacket(&bs);			
+		} else
+			Slot->Reloading = true;
 	}
 }
 

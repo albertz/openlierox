@@ -69,6 +69,8 @@ Feature featureArray[] = {
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
 			false,	false,			Version(),				GIG_Advanced,	true),
+	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated)",
+			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons,	true),
 	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
 			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100, true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
