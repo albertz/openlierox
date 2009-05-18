@@ -384,8 +384,6 @@ void GameServer::SpawnBonus()
 
 	// NOTE: Increase to 2 when we want to use the fullcharge bonus
 	int type = (GetRandomInt(999) >= tLXOptions->tGameInfo.fBonusHealthToWeaponChance * 1000.0f) ? BNS_HEALTH : BNS_WEAPON;
-	int wpn = GetRandomInt(cGameScript.get()->GetNumWeapons()-1);
-
 
 	// Find a free bonus spot
 	CBonus *b = cBonuses;
@@ -402,24 +400,12 @@ void GameServer::SpawnBonus()
 	if(spot == -1)
 		return;
 
-
-	// Check if the weapon chosen is enabled or a 'bonus' weapon in the restrictions
-	int orig = wpn;
-	while(1) {
-		int state = cWeaponRestrictions.getWeaponState( (cGameScript.get()->GetWeapons()+wpn)->Name );
-
-		if( state != wpr_banned )
-			break;
-
-		wpn++;
-		if( wpn >= cGameScript.get()->GetNumWeapons())
-			wpn=0;
-
-		// No good weapons? Just leave with original choice
-		if( wpn == orig )
-			break;
-	}
-
+	std::vector<int> goodWpns;
+	for(int i = 0; i < cGameScript.get()->GetNumWeapons(); ++i)
+		if(cWeaponRestrictions.getWeaponState( (cGameScript.get()->GetWeapons()+i)->Name ) != wpr_banned)
+			goodWpns.push_back(i);
+	
+	int wpn = randomChoiceFrom(goodWpns);
 
 	b->Spawn(pos, type, wpn, cGameScript.get());
 
