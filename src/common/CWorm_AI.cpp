@@ -1768,7 +1768,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 	// search a good projectile weapon
 	int i = 0;
     for (i=0; i<5; i++) {
-    	if(m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
+    	if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
 			type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
 
@@ -1794,7 +1794,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 
 	// accept also beam-weapons as a second choice
     for (i=0; i<5; i++)
- 		if(m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+ 		if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
     // No suitable weapons
@@ -1816,10 +1816,8 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	wpnslot_t* wpnslot = m_worm->getWeapon(m_worm->getCurrentWeapon());
 	const weapon_t* wpn = wpnslot ? wpnslot->Weapon : NULL;
 	proj_t* wpnproj = wpn ? wpn->Proj.Proj : NULL;
-	if(!wpnproj) {
-		errors << "cannot determinit wpnproj" << endl;
+	if(!wpnproj) // no valid weapon
 		return false;
-	}
 
 	// Exchange endpoints and velocity if needed
 	float x_vel = 1;
@@ -1936,6 +1934,7 @@ static bool canShootRightNowWithCurWeapon(CWorm* w) {
 	// and look also at CClient::ShootSpecial for special weapons like jetpack
 	
 	wpnslot_t *Slot = w->getCurWeapon();
+	if(!Slot) return false;
 	
 	if(Slot->Reloading)
 		return false;
@@ -1947,9 +1946,8 @@ static bool canShootRightNowWithCurWeapon(CWorm* w) {
 	if (!Slot->Enabled)
 		return false;
 	
-	if(!Slot->Weapon) {
+	if(!Slot->Weapon)
 		return false;
-	}
 
 	if(Slot->Weapon->Type == WPN_SPECIAL) {
 		switch(Slot->Weapon->Special) {
@@ -2083,8 +2081,9 @@ bool CWormBotInputHandler::AI_Shoot()
 	bool bShoot = false;
 
     // Aim in the right direction to account of weapon speed, gravity and worm velocity
-	const weapon_t *weap = m_worm->getCurWeapon()->Weapon;
-	if(weap && weap->Proj.Proj)  {
+	const weapon_t *weap = m_worm->getCurWeapon() ? m_worm->getCurWeapon()->Weapon : NULL;
+	if(!weap) return false;
+	if(weap->Proj.Proj)  {
 		switch (weap->Proj.Proj->Hit.Type)  {
 			//case PJ_NOTHING:
 			//case PJ_CARVE:
@@ -2469,8 +2468,8 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     //
     if(cTrgPos.y > cClient->getMap()->GetHeight()-50 && fDistance < 200) {
 		for (int i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 					if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE)
 						return i;
     }
@@ -2490,14 +2489,14 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
         // First try beam
 		int i;
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					//if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL)
@@ -2515,14 +2514,14 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		// First try beam
 		int i;
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If beam not available, try projectile
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 					/*if (tWeapons[i].Weapon->Proj.Proj->Type == PRJ_PIXEL || tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)*/
@@ -2539,22 +2538,22 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 		// First try projectile
 		int i;
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 					if( m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_DIRT
 					&& m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type != PJ_GREENDIRT)
 						return i;
 
 		// If projectile not available, try beam
 		for (i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading)
-				if (m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 					return i;
 
 		// If everything fails, try some random weapons
 		int num=0;
 		for (i=0; i<5; i++, num=GetRandomInt(4))
-			if (!m_worm->tWeapons[num].Reloading)
+			if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
 				return num;
 
 		//return -1;
@@ -2577,7 +2576,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 
 		// try projectile weapons
 		for (int i=0; i<5; i++)
-			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
+			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
 				if (m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_EXPLODE || m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type == PJ_BOUNCE)
 					return i;
 
@@ -2591,7 +2590,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // Shoot a beam (we cant suicide with that)
 	int i;
 	for (i=0; i<5; i++)
-		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
+		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
 
@@ -2606,12 +2605,12 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 	// If everything fails, try some random weapons
 	int num = GetRandomInt(4);
 	for (i=0; i<5; i++, num=GetRandomInt(4))
-		if (!m_worm->tWeapons[num].Reloading)
+		if (!m_worm->tWeapons[num].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
 			return num;
 
 	// If everything fails, try all weapons
 	for (i=0; i<5; i++)
-		if (!m_worm->tWeapons[i].Reloading)
+		if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
 			return num;
 
 //	printf("simply everything failed, no luck with that\n");
@@ -2773,8 +2772,14 @@ CVec CWormBotInputHandler::AI_FindClosestFreeCell(CVec vPoint)
 // Trace the line for the current weapon
 int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 {
-   assert( cClient->getMap() );
+	if( cClient->getMap() == NULL) {
+		errors << "AI:traceWeaponLine: map == NULL" << endl;
+		return 0;
+	}
 
+	if(!m_worm->getCurWeapon() || !m_worm->getCurWeapon()->Weapon)
+		return 0;
+	
     // Trace a line from the worm to length or until it hits something
 	CVec    pos = m_worm->vPos;
 	CVec    dir = target-pos;
@@ -4101,7 +4106,7 @@ find_one_visible_node:
 
 			// If there's no dirt around and we have jetpack in our arsenal, lets use it!
 			for (short i=0;i<5;i++) {
-				if (m_worm->tWeapons[i].Weapon->Recoil < 0 && !m_worm->tWeapons[i].Reloading)  {
+				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon->Recoil < 0 && !m_worm->tWeapons[i].Reloading)  {
 					m_worm->iCurrentWeapon = i;
 					ws->bShoot = AI_SetAim(nodePos);
 					if(ws->bShoot) fireNinja = false;
@@ -4331,7 +4336,7 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 
 	// Check what weapons we have
 	for (int i=0; i < 5; i++)  {
-		if (m_worm->tWeapons[i].Weapon->Proj.Proj)  {
+		if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Proj.Proj)  {
 			// Get the gravity
 			int gravity = 100;  // Default
 			if (m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity)

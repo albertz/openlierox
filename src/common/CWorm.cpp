@@ -975,8 +975,6 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if(bForceWeapon_Name || ((CWormHumanInputHandler*)m_inputHandler)->getInputWeapon().isDown()) {
 			if(Slot->Weapon)
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-30,tLX->clPlayerName,Slot->Weapon->Name);
-			else
-				warnings << "Slot->Weapon == NULL for local worm" << endl;
 
 			if( tLX->currentTime > fForceWeapon_Time )
 				bForceWeapon_Name = false;

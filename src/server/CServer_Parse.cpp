@@ -694,11 +694,18 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				if (b->getType() == BNS_WEAPON) {
 
 					if (curwpn >= 0 && curwpn < 5) {
-
 						wpnslot_t *wpn = w->getWeapon(curwpn);
-						wpn->Weapon = server->cGameScript.get()->GetWeapons() + b->getWeapon();
-						wpn->Charge = 1;
-						wpn->Reloading = false;
+						if(b->getWeapon() >= 0 && b->getWeapon() < server->cGameScript->GetNumWeapons()) {
+							wpn->Weapon = server->cGameScript.get()->GetWeapons() + b->getWeapon();
+							wpn->Enabled = true;
+							wpn->Charge = 1;
+							wpn->Reloading = false;
+						}
+						else {
+							notes << "worm " << w->getID() << " selected invalid bonus weapon" << endl;
+							wpn->Weapon = NULL;
+							wpn->Enabled = false;
+						}
 					}
 				}
 

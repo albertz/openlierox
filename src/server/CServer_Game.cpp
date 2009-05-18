@@ -450,7 +450,7 @@ void GameServer::WormShootEnd(CWorm* w) {
 
 	wpnslot_t *Slot = w->getCurWeapon();
 
-	// Don't shoot with banned weapons
+	// Don't shoot with disabled weapons
 	if (!Slot->Enabled)
 		return;
 	

@@ -670,13 +670,12 @@ void CWormHumanInputHandler::initWeaponSelection() {
 		m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->tProfile->sWeaponSlots[i] );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
-        if( !m_worm->cWeaponRest->isEnabled( m_worm->tWeapons[i].Weapon->Name ) || !m_worm->cGameScript->weaponExists( m_worm->tWeapons[i].Weapon->Name ) ) {
+        if( m_worm->tWeapons[i].Weapon && (!m_worm->cWeaponRest->isEnabled( m_worm->tWeapons[i].Weapon->Name ) || !m_worm->cGameScript->weaponExists( m_worm->tWeapons[i].Weapon->Name ) ) ) {
 			
             m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript ) );
         }
 		
-		if(m_worm->tWeapons[i].Weapon)
-			m_worm->tWeapons[i].Enabled = true;
+		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
 	}
 	
 	
@@ -748,11 +747,12 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	int y = t + 100;
 	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
 		
-		//tLX->cFont.Draw(bmpDest, centrex-69, y+1, 0,"%s", tWeapons[i].Weapon->Name.c_str());
-		if(m_worm->iCurrentWeapon == i)
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionActive,  m_worm->tWeapons[i].Weapon->Name);
-		else
-			tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, tLX->clWeaponSelectionDefault,  m_worm->tWeapons[i].Weapon->Name);
+		std::string slotDesc;
+		if(m_worm->tWeapons[i].Weapon) slotDesc = m_worm->tWeapons[i].Weapon->Name;
+		else slotDesc = "* INVALID WEAPON *";
+		Color col = tLX->clWeaponSelectionActive;		
+		if(m_worm->iCurrentWeapon != i) col = tLX->clWeaponSelectionDefault;
+		tLX->cOutlineFont.Draw(bmpDest, centrex-70, y, col,  slotDesc);
 		
 		if (bChat_Typing)  {
 			y += 18;
@@ -763,29 +763,34 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 		if(m_worm->iCurrentWeapon == i && !bChat_Typing) {
 			int change = cRight.wasDown() - cLeft.wasDown();
 			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
-			int id = m_worm->tWeapons[i].Weapon->ID;
+			int id = m_worm->tWeapons[i].Weapon ? m_worm->tWeapons[i].Weapon->ID : 0;
 			if(change > 0) while(change) {
 				id++; MOD(id, m_worm->cGameScript->GetNumWeapons());
 				if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
 					change--;
-				if(id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
+				if(!m_worm->tWeapons[i].Weapon && id == 0)
+					break;
+				if(m_worm->tWeapons[i].Weapon && id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
 					break;
 			} else
 				if(change < 0) while(change) {
 					id--; MOD(id, m_worm->cGameScript->GetNumWeapons());
 					if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
 						change++;
-					if(id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
+					if(!m_worm->tWeapons[i].Weapon && id == 0)
+						break;
+					if(m_worm->tWeapons[i].Weapon && id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
 						break;
 				}
 			m_worm->tWeapons[i].Weapon = &m_worm->cGameScript->GetWeapons()[id];
+			m_worm->tWeapons[i].Enabled = true;
 		}
 		
 		y += 18;
 	}
 	
 	for(i=0;i<5;i++)
-		m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon->Name;
+		m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon ? m_worm->tWeapons[i].Weapon->Name : "";
 	
     // Note: The extra weapon weapon is the 'random' button
     if(m_worm->iCurrentWeapon == m_worm->iNumWeaponSlots) {
@@ -809,7 +814,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 			
 			// Set our profile to the weapons (so we can save it later)
 			for(byte i=0;i<5;i++)
-				m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon->Name;
+				m_worm->tProfile->sWeaponSlots[i] = m_worm->tWeapons[i].Weapon ? m_worm->tWeapons[i].Weapon->Name : "";
 		}
 	}
 	

@@ -595,14 +595,15 @@ void CWorm::writeWeapons(CBytestream *bs)
 	bs->writeByte(iID);
 
 	for(ushort i=0; i<5; i++) {
-		if(tWeapons[i].Weapon) {
-			if(tWeapons[i].Enabled)
+		if(tWeapons[i].Enabled) {
+			if(tWeapons[i].Weapon)
 				bs->writeByte(tWeapons[i].Weapon->ID);
-			else
+			else {
 				bs->writeByte(255);
-		} else {
+				errors << "tWeapons[" << i << "].Weapon not set" << endl;
+			}
+		} else { // not enabled weapon
 			bs->writeByte(255);
-			errors << "tWeapons[" << i << "].Weapon not set" << endl;
 		}
 	}
 }
@@ -628,14 +629,13 @@ void CWorm::readWeapons(CBytestream *bs)
 				notes << tWeapons[i].Weapon->Name;
 			}
 			else if(id == 255) { // special case to unset weapon
-				// TODO: fix rest of code that this doesn't crash!!
-				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
+				tWeapons[i].Weapon = NULL;
 				tWeapons[i].Enabled = false;
 				notes << "UNSET";
 			}
 			else {
 				warnings << "Error when reading weapons (ID is over num weapons)" << endl;
-				tWeapons[i].Weapon = cGameScript->GetWeapons();  // Just use the first one (to avoid crashes)
+				tWeapons[i].Weapon = NULL;
 				tWeapons[i].Enabled = false;
 				notes << id << "?";
 			}
@@ -713,8 +713,11 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		return;
 	}
 
-	if(tWeapons[cur].Weapon == NULL || !tWeapons[cur].Enabled) {
-		warnings << "readStatUpdate: Weapon " << int(cur) << " not enabled" << endl;
+	if(!tWeapons[cur].Enabled)
+		return;
+	
+	if(tWeapons[cur].Weapon == NULL) {
+		warnings << "readStatUpdate: Weapon " << int(cur) << " not set" << endl;
 		return;
 	}
 

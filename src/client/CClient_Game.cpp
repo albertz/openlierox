@@ -561,6 +561,9 @@ void CClient::PlayerShoot(CWorm *w)
 	if(Slot->LastFire>0)
 		return;
 
+	if(!Slot->Enabled)
+		return;
+	
 	if(!Slot->Weapon) {
 		errors << "PlayerShoot: Slot->Weapon not set. Guilty worm: " << itoa(w->getID()) << " with name " << w->getName() << endl;
 		return;

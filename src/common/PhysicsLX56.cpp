@@ -455,6 +455,8 @@ public:
 
 		if(!Slot->Weapon) return;
 
+		//if(!Slot->Enabled) return;
+		
 		if(Slot->LastFire > 0)
 			Slot->LastFire -= dt.seconds();
 
