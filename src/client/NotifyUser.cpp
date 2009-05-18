@@ -28,6 +28,7 @@ void ClearUserNotify() {}
 	#include <SDL.h>
 	#include <SDL_syswm.h>
 
+// Should be called from main thread because SDL does not lock X11 display properly
 void x11_SetDemandsAttention( bool v ) {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
@@ -115,7 +116,15 @@ void NotifyUserOnEvent()
 
 #elif defined(X11)
 
-	x11_SetDemandsAttention(true);
+	struct SetDemandsAttentionAction: public Action
+	{
+		int handle()
+		{
+			x11_SetDemandsAttention(true);
+			return 0;
+		} 
+	};
+	doActionInMainThread( new SetDemandsAttentionAction );
 
 #else
 
@@ -131,7 +140,15 @@ void ClearUserNotify() {
 	NMRemove( notePtr );	
 #elif defined(WIN32)
 #elif defined(X11)
-	x11_SetDemandsAttention(false);
+	struct ClearDemandsAttentionAction: public Action
+	{
+		int handle()
+		{
+			x11_SetDemandsAttention(false);
+			return 0;
+		} 
+	};
+	doActionInMainThread( new ClearDemandsAttentionAction );
 #endif
 }
 

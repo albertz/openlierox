@@ -470,6 +470,10 @@ startpoint:
 							continue;
 					}
 				}
+				if( ev.type == SDL_SYSWMEVENT ) {
+					EvHndl_SysWmEvent_MainThread( &ev );
+					continue;
+				}
 				mainQueue->push(ev);
 			}
 			

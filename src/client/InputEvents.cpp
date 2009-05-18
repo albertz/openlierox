@@ -386,8 +386,8 @@ static void EvHndl_Quit(SDL_Event*) {
 		DeprecatedGUI::tMenu->bMenuRunning = false;
 }
 
-static void EvHndl_SysWmEvent(SDL_Event* ev) {
-	handle_system_event(*ev);
+void EvHndl_SysWmEvent_MainThread(SDL_Event* ev) {
+	handle_system_event(*ev); // Callback for clipboard on X11, should be called every time new event arrived
 }
 
 static void EvHndl_VideoExpose(SDL_Event*) {}
@@ -417,7 +417,7 @@ void InitEventSystem() {
 	sdlEvents[SDL_MOUSEBUTTONDOWN].handler() = getEventHandler(&EvHndl_MouseButtonDown);
 	sdlEvents[SDL_MOUSEBUTTONUP].handler() = getEventHandler(&EvHndl_MouseButtonUp);
 	sdlEvents[SDL_QUIT].handler() = getEventHandler(&EvHndl_Quit);
-	sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent);
+	//sdlEvents[SDL_SYSWMEVENT].handler() = getEventHandler(&EvHndl_SysWmEvent); // Should be done from main thread
 	sdlEvents[SDL_VIDEOEXPOSE].handler() = getEventHandler(&EvHndl_VideoExpose);
 	sdlEvents[SDL_USEREVENT].handler() = getEventHandler(&EvHndl_UserEvent);
 

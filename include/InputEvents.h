@@ -113,6 +113,9 @@ bool		WaitForNextEvent(); // waits for next event and handles all of then; retur
 bool		EventSystemInited();
 bool		IsWaitingForEvent();
 
+// Should be called on SDL_SYSWMEVENT from main thread
+void		EvHndl_SysWmEvent_MainThread(SDL_Event* ev);
+
 keyboard_t	*GetKeyboard();
 mouse_t		*GetMouse();
 SDL_Event	*GetEvent();

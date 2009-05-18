@@ -42,6 +42,8 @@
 #include <unistd.h>
 #include <SDL_syswm.h>
 
+#include "Mutex.h"
+#include "Condition.h"
 
 /**
  The following are two classes which wrap the SDL's interface to X, including
@@ -190,9 +192,22 @@ public:
 */
 static std::string clipboard_string;
 
+// Wrappers to make all X11 calls inside main thread
+static Mutex clipboardMainthreadMutex;
+static bool clipboardMainthreadCopyTo = false;
 
 void handle_system_event(const SDL_Event& event)
 {
+	Mutex::ScopedLock lock( clipboardMainthreadMutex );
+
+	if( clipboardMainthreadCopyTo )
+	{
+		clipboardMainthreadCopyTo = false;
+		UseX x11;
+		XSetSelectionOwner(x11->dpy(), XA_PRIMARY, x11->window(), CurrentTime);
+		XSetSelectionOwner(x11->dpy(), x11->XA_CLIPBOARD(), x11->window(), CurrentTime);
+	}
+	
 	XEvent& xev = event.syswm.msg->event.xevent;
 	if (xev.type == SelectionRequest) {
 		UseX x11;
@@ -257,20 +272,6 @@ void handle_system_event(const SDL_Event& event)
 	}
 }
 
-void copy_to_clipboard(const std::string& text)
-{
-	if (text.empty()) {
-		return;
-	}
-
-	clipboard_string = text;
-
-	UseX x11;
-
-	XSetSelectionOwner(x11->dpy(), XA_PRIMARY, x11->window(), CurrentTime);
-	XSetSelectionOwner(x11->dpy(), x11->XA_CLIPBOARD(), x11->window(), CurrentTime);
-}
-
 
 //Tries to grab a given target. Returns true if successful, false otherwise
 static bool try_grab_target(Atom target, std::string& ret)
@@ -332,11 +333,8 @@ static bool try_grab_target(Atom target, std::string& ret)
 	return false;
 }
 
-std::string copy_from_clipboard()
+static std::string copy_from_clipboard_internal()
 {
-	if (!clipboard_string.empty())
-		return clipboard_string; //in-wesnoth copy-paste
-
 	std::string ret;
 
 	UseX x11;
@@ -355,6 +353,46 @@ std::string copy_from_clipboard()
 
 
 	return "";
+}
+
+static Condition clipboardMainthreadCond;
+static std::string clipboardMainthreadCopyFromString;
+
+std::string copy_from_clipboard()
+{
+	Mutex::ScopedLock lock( clipboardMainthreadMutex );
+
+	if (!clipboard_string.empty())
+		return clipboard_string; //in-wesnoth copy-paste
+
+	clipboardMainthreadCopyFromString = "";
+
+	struct CopyFromClipboardAction: public Action
+	{
+		int handle()
+		{
+			Mutex::ScopedLock lock( clipboardMainthreadMutex );
+			clipboardMainthreadCopyFromString = copy_from_clipboard_internal();
+			clipboardMainthreadCond.signal();
+			return 0;
+		} 
+	};
+	doActionInMainThread( new CopyFromClipboardAction );
+
+	clipboardMainthreadCond.wait( clipboardMainthreadMutex, 500 );
+
+	return clipboardMainthreadCopyFromString;
+}
+
+void copy_to_clipboard(const std::string& text)
+{
+	if (text.empty()) {
+		return;
+	}
+
+	Mutex::ScopedLock lock( clipboardMainthreadMutex );
+	clipboard_string = text;
+	clipboardMainthreadCopyTo = true;
 }
 
 #endif
