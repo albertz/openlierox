@@ -405,8 +405,9 @@ void GameServer::SpawnBonus()
 		if(cWeaponRestrictions.getWeaponState( (cGameScript.get()->GetWeapons()+i)->Name ) != wpr_banned)
 			goodWpns.push_back(i);
 	
-	int wpn = randomChoiceFrom(goodWpns);
-
+	int wpn = (goodWpns.size() > 0) ? randomChoiceFrom(goodWpns) : -1;
+	if(type == BNS_WEAPON && wpn < 0) return; // no weapon found
+	
 	b->Spawn(pos, type, wpn, cGameScript.get());
 
 
