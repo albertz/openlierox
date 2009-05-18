@@ -41,7 +41,7 @@ struct VectorD2 {
 		x = (_T)cp.x; y = (_T)cp.y;
 	}
 
-	float GetLength() const { return (float)sqrt((float)x*x + (float)y*y); }
+	float GetLength() const { return sqrtf((float)x*x + (float)y*y); }
 	_T GetLength2() const { return x*x + y*y; };
 
 	float GetAngle() const { return (float)atan2((float)y,(float)x); }
