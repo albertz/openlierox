@@ -379,7 +379,7 @@ std::string copy_from_clipboard()
 	};
 	doActionInMainThread( new CopyFromClipboardAction );
 
-	clipboardMainthreadCond.wait( clipboardMainthreadMutex, 500 );
+	clipboardMainthreadCond.wait( clipboardMainthreadMutex );
 
 	return clipboardMainthreadCopyFromString;
 }
