@@ -44,6 +44,8 @@
 
 #include "Mutex.h"
 #include "Condition.h"
+#include "ThreadPool.h"
+#include "AuxLib.h"
 
 /**
  The following are two classes which wrap the SDL's interface to X, including
