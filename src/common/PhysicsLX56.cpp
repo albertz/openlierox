@@ -381,7 +381,7 @@ public:
 				// the same as it was in the time of the collision (before the ground had dampened the worm)
 				// This behavior is more like old LX
 				if (simulationTime - worm->getCollisionTime() <= 0.15f)
-					worm->getVelocity()->x = worm->getCollisionVel().x * 0.8f; // Dampen only a bit
+					worm->getVelocity()->x = worm->getCollisionVel().x * 0.6f; // Dampen only a bit
 			}
 			else
 			{
