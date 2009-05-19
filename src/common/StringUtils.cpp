@@ -724,6 +724,7 @@ std::string StripHtmlTags( const std::string & src )
 	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
 
 	xmlFree(doc);
+	xmlResetLastError();
 
 	// Remove all "\r" and spaces at the beginning of the line
 	// TODO: use some faster method, like str.find_first_of(" \n\r\t")
