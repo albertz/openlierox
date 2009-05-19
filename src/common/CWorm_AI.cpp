@@ -1463,7 +1463,25 @@ void CWormBotInputHandler::AI_Think()
         if(AI_FindHealth())
             return;
 
-
+	{
+		// search for weapon if we need some
+		int wpnNum = 0;
+		for(int i = 0; i < 5; ++i)
+			if(m_worm->tWeapons[i].Enabled && m_worm->tWeapons[i].Weapon)
+				wpnNum++;
+		if(wpnNum < 5) {
+			if(AI_FindBonus(BNS_WEAPON)) {
+				// select disabled weapon (which should be replaced by bonus)
+				for(int i = 0; i < 5; ++i)
+					if(!m_worm->tWeapons[i].Enabled || !m_worm->tWeapons[i].Weapon) {
+						m_worm->iCurrentWeapon = i;
+						break;
+					}
+				return;
+			}
+		}
+	}
+	
     // Search for an unfriendly worm
     if(findNewTarget()) {
 		AI_CreatePath();
@@ -1534,10 +1552,14 @@ bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
 }
 
 
+bool CWormBotInputHandler::AI_FindHealth() {
+	return AI_FindBonus(BNS_HEALTH);
+}
+
 ///////////////////
 // Find a health pack
 // Returns true if we found one
-bool CWormBotInputHandler::AI_FindHealth()
+bool CWormBotInputHandler::AI_FindBonus(int bonustype)
 {
 	if (!cClient->getGameLobby()->bBonusesOn)
 		return false;
@@ -1550,7 +1572,7 @@ bool CWormBotInputHandler::AI_FindHealth()
 
     // Find the closest health bonus
     for(i=0; i<MAX_BONUSES; i++) {
-        if(pcBonusList[i].getUsed() && pcBonusList[i].getType() == BNS_HEALTH) {
+        if(pcBonusList[i].getUsed() && pcBonusList[i].getType() == bonustype) {
 
             d2 = (pcBonusList[i].getPosition() - m_worm->vPos).GetLength2();
 
