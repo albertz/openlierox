@@ -648,7 +648,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		tLX->cFont.Draw(bmpDest,tInterfaceSettings.TimeLeftX+DeprecatedGUI::gfxGame.bmpClock.get()->w+5, tInterfaceSettings.TimeLeftY, clTimeLabel, cstr_buf);
 	}
 
-	if( sSpectatorViewportMsg != "" )
+	if( sSpectatorViewportMsg != "" && !isGameOver() )
 		tLX->cOutlineFont.DrawCentre( bmpDest, 320, 200, tLX->clPingLabel, sSpectatorViewportMsg );
 
 	if(tLXOptions->bShowNetRates) {
@@ -2310,7 +2310,7 @@ void CClient::ProcessSpectatorViewportKeys()
 	{
 		if( tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 6.0f )
 		{
-			if( cLocalWorms[0]->getLives() != WRM_OUT )
+			if( cLocalWorms[0]->getLives() != WRM_OUT && cLocalWorms[0]->getType() == PRF_HUMAN )
 				sSpectatorViewportMsg = "Spectator mode - waiting for respawn";
 			else
 				sSpectatorViewportMsg = "Spectator mode";
