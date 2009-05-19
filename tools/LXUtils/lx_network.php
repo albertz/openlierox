@@ -20,10 +20,10 @@ define("NAT_RESTRICTED", "Port restricted NAT");
 
 // Variable types for advanced features
 define("SVT_BOOL", 0);
-define("SVT_INT", 0);
-define("SVT_FLOAT", 0);
-define("SVT_STRING", 0);
-define("SVT_COLOR", 0);
+define("SVT_INT", 1);
+define("SVT_FLOAT", 2);
+define("SVT_STRING", 3);
+define("SVT_COLOR", 4);
 
 // Structures
 
@@ -111,6 +111,22 @@ class FastServerInfo  {
 
 // Public functions
 
+//////////////////////////
+// Converts the given version string to a nice human readable string
+function LXHumanVersion($version)
+{
+	$version = trim($version);
+	if ($version == "" || !strpos($version, "/"))
+		return "LieroX 0.56b";
+		
+	list($name, $vernum) = explode("/", $version);
+	if (!strpos($vernum, "_"))
+		return $name . " " . $vernum;
+		
+	$subnums = explode("_", $vernum);
+	return $name . " " . $subnums[0] . " " . $subnums[1];
+}
+
 /////////////////////////
 // Gets the server info for a server specified in $ip
 // Parameters:
@@ -184,7 +200,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   $response = substr($response, strlen($mod_name) + 1);
   
   // Game mode
-  $game_modes = Array("Deathmatch", "Team Deathmatch", "Tag", "Demolitions");
+  $game_modes = Array("Death Match", "Team Death Match", "Tag", "Demolitions");
   $game_mode = ord($response[0]);
   if ($game_mode >= 0 && $game_mode < count($game_modes))
     $game_mode = $game_modes[$game_mode];  // Convert to string representation
@@ -225,6 +241,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
     // Worm name
     $worms[$i]->Name = BinToStr($response);
     $response = substr($response, strlen($worms[$i]->Name) + 1);
+    $worms[$i]->Name = LXConvertOldCompString($worms[$i]->Name);
     
     // Kills
     $worms[$i]->Kills = BinToInt16LE($response);
@@ -235,8 +252,8 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   }
   
   // Lives (only OLX beta 3+)
-  $version = "OpenLieroX/0.57_beta3";
   if (strlen($response) >= $num_players * 2)  {
+  	$version = "OpenLieroX/0.57_beta3";
     for ($i = 0; $i < $num_players; $i++)  {
       $worms[$i]->Lives = BinToInt16LE($response);
       if ($worms[$i]->Lives == 65535)
@@ -248,8 +265,8 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   }
   
   // IP addresses (only OLX beta 4+)
-  $version = "OpenLieroX/0.57_beta4";
   if (strlen($response))  {
+    $version = "OpenLieroX/0.57_beta4";
     for ($i = 0; $i < $num_players; $i++)  {
       $worms[$i]->IP = BinToStr($response);
       $response = substr($response, strlen($worms[$i]->IP) + 1);
@@ -262,9 +279,16 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
     $response = substr($response, strlen($version) + 1);
   }
   
+  // Get the beta version number
+  $vernum = 0;
+  if ($p = strpos($version, "beta"))  {
+		$p += 4;
+		list($vernum, ) = explode("_", substr($version, $p));
+	}
+  
   // Game speed
   $game_speed = 1.0;
-  if (strlen($response))  {
+  if (strlen($response))  {  // Since beta 9 this is in feature list
     $game_speed = BinToFloatLE($response);
     $response = substr($response, 4);  
   }
@@ -320,6 +344,10 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
       $response = substr($response, 1);   
       
       $features[] = $ft; // Add        
+      
+      // Safety
+      if (strlen($response) == 0)
+      	break;
     }
   }
   
@@ -332,7 +360,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   
   // Fill in the info
   $returnValue = new ServerInfo;
-  $returnValue->Name = $name;
+  $returnValue->Name = LXConvertOldCompString($name);
   $returnValue->Ping = $ping;
   $returnValue->MaxPlayers = $max_players;
   $returnValue->NumPlayers = $num_players;
@@ -420,7 +448,7 @@ function LXFastInfo($ip, $timeout = 2000)
 
   // Fill in the info
   $returnValue = new FastServerInfo;
-  $returnValue->Name = $name;
+  $returnValue->Name = LXConvertOldCompString($name);
   $returnValue->Ping = $ping;
   $returnValue->NumPlayers = $num_players;
   $returnValue->MaxPlayers = $max_players;
@@ -553,7 +581,7 @@ function LXGetUdpServerList($masterservers, $timeout = 3000)
 				$info->Addr = substr($response, 0, $pos1);
 				$pos1 += 1;
 				$pos2 = strpos($response, chr(0x00), $pos1);
-				$info->Name = substr($response, $pos1, $pos2 - $pos1);
+				$info->Name = LXConvertOldCompString(substr($response, $pos1, $pos2 - $pos1));
 				$pos2 += 1;
 				$info->NumPlayers = ord($response[$pos2]);
 				$pos2 += 1;
@@ -748,4 +776,57 @@ function SendPacketAndWaitResponses($ip, $packet, $timeout, $maxreplies = -1, $s
   	return false;
   	
   return $response;
+}
+
+///////////////////////////
+// Converts OLX's special compatibility string to a normal UTF-8 string
+function LXConvertOldCompString($str)
+{
+	$res = "";
+	$l = strlen($str);
+	for ($i = 0; $i < $l; $i++)  {
+		$c = ord($str[$i]);
+		
+		// 6-byte UTF8
+		if ($c >= 0xFC)  {
+			if ($l - $i < 6)
+				return $res;
+			$res .= substr($str, $i, 6);
+			$i += 6;
+			
+		// 5-byte UTF8
+		} else if ($c >= 0xF8)  {
+			if ($l - $i < 5)
+				return $res;
+			$res .= substr($str, $i, 5);
+			$i += 5;			
+			
+		// 4-byte UTF8
+		} else if ($c >= 0xF0)  {
+			if ($l - $i < 4)
+				return $res;
+			$res .= substr($str, $i, 4);
+			$i += 4;	
+			
+		// 3-byte UTF8	
+		} else if ($c >= 0xE0)  {
+			if ($l - $i < 3)
+				return $res;
+			$res .= substr($str, $i, 3);
+			$i += 3;
+			
+		// 2-byte UTF8		
+		} else if ($c >= 0xC0)  {
+			if ($l - $i < 2)
+				return $res;
+			$res .= substr($str, $i, 2);
+			$i += 2;			
+			
+		// Normal ASCII character
+		} else {
+			$res .= $str[$i]; 
+		}
+	}
+	
+	return $res;
 }
