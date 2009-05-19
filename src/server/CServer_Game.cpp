@@ -427,26 +427,20 @@ void GameServer::SpawnBonus()
 }
 
 
-void GameServer::WormShootEnd(CWorm* w) {
+void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	// Don't shoot when the game is over
 	if (cClient->isGameOver())
 		return;
 	
 	if(!getGameMode()->Shoot(w))
 		return;
-
-	wpnslot_t *Slot = w->getCurWeapon();
-
-	// Don't shoot with disabled weapons
-	if (!Slot->Enabled)
-		return;
 	
-	if(!Slot->Weapon) {
+	if(!wpn) {
 		warnings << "WormShootEnd: trying to shoot with an unitialized weapon!" << endl;
 		return;
 	}
 	
-	if(!Slot->Weapon->FinalProj.isSet())
+	if(!wpn->FinalProj.isSet())
 		return;
 
 	// Get the direction angle
@@ -476,7 +470,7 @@ void GameServer::WormShootEnd(CWorm* w) {
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 		
-		cl->getShootList()->addShoot(time, speed, (int)Angle, w, true);
+		cl->getShootList()->addShoot(wpn->ID, time, speed, (int)Angle, w, true);
 	}
 }
 
@@ -568,7 +562,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(cl->getStatus() == NET_DISCONNECTED)
 			continue;
 
-		cl->getShootList()->addShoot(time, speed, (int)Angle, w, false);
+		cl->getShootList()->addShoot(Slot->Weapon->ID, time, speed, (int)Angle, w, false);
 	}
 
 	

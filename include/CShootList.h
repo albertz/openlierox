@@ -102,7 +102,7 @@ public:
 	bool		Initialize();
 	void		Shutdown();
 
-	bool		addShoot(TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release);
+	bool		addShoot(int weaponID, TimeDiff serverTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release);
 
 	bool		writePacket(CBytestream *bs, const Version& receiverVer);
 	

@@ -77,7 +77,7 @@ shoot_t *CShootList::getShot( int index )
 ///////////////////
 // Add a shot to the list
 // (done on server-side from GameServer::WormShoot)
-bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release )
+bool CShootList::addShoot( int weaponID, TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWorm, bool release )
 {
 	assert( pcWorm );
 	assert( m_psShoot );
@@ -99,7 +99,7 @@ bool CShootList::addShoot( TimeDiff fTime, float fSpeed, int nAngle, CWorm *pcWo
 	psShot->nAngle = nAngle;
 	psShot->nRandom = GetRandomInt(255);
 	psShot->nSpeed = (int)( fSpeed*100 );
-	psShot->nWeapon = pcWorm->getCurWeapon()->Weapon->ID;
+	psShot->nWeapon = weaponID;
 	psShot->nWormID = pcWorm->getID();
 	psShot->release = release;
 	

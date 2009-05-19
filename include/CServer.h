@@ -36,6 +36,7 @@ class Version;
 class CGameMode;
 struct WormJoinInfo;
 class FlagInfo;
+struct weapon_t;
 
 enum { 
 	MAX_CHALLENGES = 1024,
@@ -202,7 +203,7 @@ public:
 	
 	void		SpawnBonus();
 	void		WormShoot(CWorm *w);
-	void		WormShootEnd(CWorm* w);
+	void		WormShootEnd(CWorm* w, const weapon_t* weapon);
     void        RecheckGame();
 
 	void		gotoLobby();

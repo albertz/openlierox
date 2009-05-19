@@ -294,6 +294,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 		CWorm *w = cl->getWorm(i);
 
 		bool wasShootingBefore = w->getWormState()->bShoot;
+		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
 		w->readPacket(bs, server->cWorms);
 
 		// If the worm is shooting, handle it
@@ -301,8 +302,8 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 			server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 		
 		// handle FinalProj for weapon
-		if(wasShootingBefore && !w->getWormState()->bShoot)
-			server->WormShootEnd(w);
+		if(oldWeapon && (wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon))
+			server->WormShootEnd(w, oldWeapon);
 	}
 }
 
@@ -695,6 +696,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 					if (curwpn >= 0 && curwpn < 5) {
 						wpnslot_t *wpn = w->getWeapon(curwpn);
+						const weapon_t* oldWeapon = wpn->Weapon;
 						if(b->getWeapon() >= 0 && b->getWeapon() < server->cGameScript->GetNumWeapons()) {
 							wpn->Weapon = server->cGameScript.get()->GetWeapons() + b->getWeapon();
 							wpn->Enabled = true;
@@ -706,6 +708,10 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 							wpn->Weapon = NULL;
 							wpn->Enabled = false;
 						}
+						
+						// handle worm shoot end if needed
+						if(oldWeapon && wpn->Weapon != oldWeapon && w->getWormState()->bShoot)
+							server->WormShootEnd(w, oldWeapon);
 					}
 				}
 
@@ -862,7 +868,7 @@ void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
 		server->DropClient(cl, CLL_KICK, "Game state was de-synced in new net engine!");
 		server->SendGlobalText( "Game state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
 	}
-};
+}
 
 /*
 ===========================
