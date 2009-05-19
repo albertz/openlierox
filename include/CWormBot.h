@@ -96,7 +96,8 @@ public:
 	
 	void		AI_Respawn();
     void        AI_Think();
-    bool        AI_FindHealth();
+	bool		AI_FindHealth();
+    bool        AI_FindBonus(int bonustype);
     bool        AI_SetAim(CVec cPos);
     CVec        AI_GetTargetPos();
 	
