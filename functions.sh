@@ -26,8 +26,9 @@ test_exec() {
 #	$1 - parameter-name
 # example: stdin=-Iinclude, $1=-I  =>  stdout=include
 grep_param() {
+	grepexpr=$(echo $1 | sed -e "s/-/[-]/")
 	for p in $(xargs); do
-		echo "$p" | grep "${1/-/\-}" | sed -e "s/$1//"
+		echo "$p" | grep "$grepexpr" | sed -e "s/$1//"
 	done
 }
 
