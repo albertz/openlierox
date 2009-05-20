@@ -302,7 +302,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 			server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
 		
 		// handle FinalProj for weapon
-		if(oldWeapon && (wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon))
+		if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
 			server->WormShootEnd(w, oldWeapon);
 	}
 }
