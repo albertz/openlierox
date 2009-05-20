@@ -2640,14 +2640,31 @@
 	<sys/wait.h>
 	<ctype.h>
 
-1229622944 source:/home/karel/openlierox/src/client/AuxLib.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/AuxLib.cpp
 	<iomanip>
 	<time.h>
 	<SDL.h>
 	<SDL_syswm.h>
-	<stdlib.h>
+	<SDL_opengl.h>
+	<cstdlib>
+	<sstream>
+	<cstring>
+	<mach/host_info.h>
+	<mach/mach_host.h>
+	<mach/mach_init.h>
+	<sys/sysctl.h>
+	<mach/mach_traps.h>
+	<windows.h>
+	<cstdio>
+	<unistd.h>
+	<sys/sysctl.h>
+	<vm/vm_param.h>
+	<sys/vmmeter.h>
+	<sys/types.h>
+	<sys/resource.h>
+	<unistd.h>
 	"Cache.h"
+	"Debug.h"
 	"AuxLib.h"
 	"Error.h"
 	"DeprecatedGUI/Menu.h"
@@ -2661,10 +2678,10 @@
 	"types.h"
 	"CClient.h"
 	"CServer.h"
-	<SDL_thread.h>
+	"Geometry.h"
 	"CClient.h"
 
-1210237575 /usr/include/SDL/SDL.h
+1235099063 /usr/include/SDL/SDL.h
 	"SDL_main.h"
 	"SDL_stdinc.h"
 	"SDL_audio.h"
@@ -2683,14 +2700,14 @@
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_main.h
+1235099063 /usr/include/SDL/SDL_main.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_stdinc.h
+1235099063 /usr/include/SDL/SDL_stdinc.h
 	"SDL_config.h"
 	<sys/types.h>
 	<stdio.h>
@@ -2712,20 +2729,21 @@
 	<alloca.h>
 	<malloc.h>
 	<malloc.h>
+	<malloc.h>
 	<stdlib.h>
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_config.h
+1235099063 /usr/include/SDL/SDL_config.h
 	"SDL_platform.h"
 	<stdarg.h>
 
-1210237575 /usr/include/SDL/SDL_platform.h
+1235099063 /usr/include/SDL/SDL_platform.h
 
-1210237575 /usr/include/SDL/begin_code.h
+1235099063 /usr/include/SDL/begin_code.h
 
-1210237575 /usr/include/SDL/close_code.h
+1235099063 /usr/include/SDL/close_code.h
 
-1210237575 /usr/include/SDL/SDL_audio.h
+1235099063 /usr/include/SDL/SDL_audio.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_endian.h"
@@ -2735,23 +2753,23 @@
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_error.h
+1235099063 /usr/include/SDL/SDL_error.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_endian.h
+1235099063 /usr/include/SDL/SDL_endian.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_mutex.h
+1235099063 /usr/include/SDL/SDL_mutex.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_thread.h
+1235099063 /usr/include/SDL/SDL_thread.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_mutex.h"
@@ -2759,24 +2777,24 @@
 	<process.h>
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_rwops.h
+1235099063 /usr/include/SDL/SDL_rwops.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_cdrom.h
+1235099063 /usr/include/SDL/SDL_cdrom.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_cpuinfo.h
+1235099063 /usr/include/SDL/SDL_cpuinfo.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_events.h
+1235099063 /usr/include/SDL/SDL_events.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_active.h"
@@ -2787,63 +2805,63 @@
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_active.h
+1235099063 /usr/include/SDL/SDL_active.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_keyboard.h
+1235099063 /usr/include/SDL/SDL_keyboard.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_keysym.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_keysym.h
+1235099063 /usr/include/SDL/SDL_keysym.h
 
-1210237575 /usr/include/SDL/SDL_mouse.h
+1235099063 /usr/include/SDL/SDL_mouse.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_video.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_video.h
+1235099063 /usr/include/SDL/SDL_video.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_rwops.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_joystick.h
+1235099063 /usr/include/SDL/SDL_joystick.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_quit.h
+1235099063 /usr/include/SDL/SDL_quit.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 
-1210237575 /usr/include/SDL/SDL_loadso.h
-	"SDL_stdinc.h"
-	"SDL_error.h"
-	"begin_code.h"
-	"close_code.h"
-
-1210237575 /usr/include/SDL/SDL_timer.h
+1235099063 /usr/include/SDL/SDL_loadso.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_version.h
+1235099063 /usr/include/SDL/SDL_timer.h
+	"SDL_stdinc.h"
+	"SDL_error.h"
+	"begin_code.h"
+	"close_code.h"
+
+1235099063 /usr/include/SDL/SDL_version.h
 	"SDL_stdinc.h"
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_syswm.h
+1235099063 /usr/include/SDL/SDL_syswm.h
 	"SDL_stdinc.h"
 	"SDL_error.h"
 	"SDL_version.h"
@@ -2856,36 +2874,41 @@
 	<Ph.h>
 	"close_code.h"
 
-1228662081 /home/karel/openlierox/include/Cache.h
+1242812143 /home/karel/openlierox/include/Cache.h
 	<SDL.h>
 	<vector>
 	<map>
 	<set>
 	<list>
+	<cassert>
 	"SmartPointer.h"
+	"types.h"
 
-1228662081 /home/karel/openlierox/include/SmartPointer.h
+1242812143 /home/karel/openlierox/include/SmartPointer.h
 	<limits.h>
-	<assert.h>
+	<cassert>
+	<SDL_mutex.h>
 	<map>
-	<execinfo.h>
-	<SDL_thread.h>
-	"Utils.h"
+	"Debug.h"
+	"Functors.h"
+	"ThreadPool.h"
 
-1228662081 /home/karel/openlierox/include/Utils.h
+1242812143 /home/karel/openlierox/include/Utils.h
 	<stddef.h>
+	<vector>
+	<cassert>
+	"MathLib.h"
 
-1228662081 /home/karel/openlierox/include/AuxLib.h
+1242812143 /home/karel/openlierox/include/AuxLib.h
 	<SDL.h>
 	<string>
 	<windows.h>
 	"SmartPointer.h"
 
-1228662080 /home/karel/openlierox/include/Error.h
-	<dbghelp.h>
+1242812143 /home/karel/openlierox/include/Error.h
 	<string>
 
-1229622944 /home/karel/openlierox/include/DeprecatedGUI/Menu.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/Menu.h
 	<SDL.h>
 	<string>
 	"DeprecatedGUI/CWidgetList.h"
@@ -2896,107 +2919,125 @@
 	"DeprecatedGUI/CListview.h"
 	"CWpnRest.h"
 	"CClient.h"
-	"CWormSkin.h"
+	"CGameSkin.h"
 	"CWorm.h"
+	"Color.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CWidgetList.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CWidgetList.h
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CCombobox.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CCombobox.h
 	<list>
 	"StringUtils.h"
 	"InputEvents.h"
 	"DeprecatedGUI/CScrollbar.h"
 
-1228662081 /home/karel/openlierox/include/StringUtils.h
+1242812143 /home/karel/openlierox/include/StringUtils.h
 	<SDL.h>
 	<cstdio>
 	<string>
 	<sstream>
 	<vector>
+	<cassert>
 	<list>
+	<limits.h>
 	"types.h"
 	"Color.h"
+	"Iterator.h"
 
-1228662081 /home/karel/openlierox/include/types.h
-
-1228662081 /home/karel/openlierox/include/Color.h
+1242812143 /home/karel/openlierox/include/types.h
 	<SDL.h>
-	"SmartPointer.h"
+	<cassert>
 
-1228662081 /home/karel/openlierox/include/InputEvents.h
+1242812143 /home/karel/openlierox/include/Color.h
+	<SDL.h>
+	<cassert>
+	"MathLib.h"
+
+1242812143 /home/karel/openlierox/include/InputEvents.h
 	<vector>
 	"Unicode.h"
 	"Event.h"
+	"EventQueue.h"
 
-1228662081 /home/karel/openlierox/include/Unicode.h
+1242812143 /home/karel/openlierox/include/Unicode.h
 	<SDL.h>
 	<string>
-	"Utils.h"
 
-1228662081 /home/karel/openlierox/include/Event.h
+1242812143 /home/karel/openlierox/include/Event.h
+	<SDL.h>
 	"types.h"
+	"Ref.h"
+	"SmartPointer.h"
+	"EventQueue.h"
 	"Utils.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CScrollbar.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CScrollbar.h
 	"InputEvents.h"
 	"DeprecatedGUI/CWidget.h"
 	"DeprecatedGUI/CGuiLayout.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CWidget.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CWidget.h
 	"InputEvents.h"
 	"types.h"
 	"windows.h"
 	"DeprecatedGUI/CGuiSkin.h"
 	"SmartPointer.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CGuiSkin.h
+1232890187 /home/karel/openlierox/include/DeprecatedGUI/CGuiSkin.h
 	<string>
 	<map>
 	<vector>
 	<list>
 	"CScriptableVars.h"
 
-1228662081 /home/karel/openlierox/include/CScriptableVars.h
+1242812143 /home/karel/openlierox/include/CScriptableVars.h
+	<SDL.h>
 	<string>
 	<map>
 	<vector>
 	<list>
+	<cassert>
 	"Color.h"
+	"StringUtils.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CGuiLayout.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CGuiLayout.h
 	"DeprecatedGUI/CWidget.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CInputBox.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CInputBox.h
 	"InputEvents.h"
 	"DeprecatedGUI/CGuiSkinnedLayout.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CGuiSkinnedLayout.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CGuiSkinnedLayout.h
 	"DeprecatedGUI/CWidget.h"
 	"DeprecatedGUI/CGuiLayout.h"
 	"DeprecatedGUI/CWidgetList.h"
 	<string>
 	<map>
 
-1228662081 /home/karel/openlierox/include/Networking.h
+1242812143 /home/karel/openlierox/include/Networking.h
 	<string>
 	<SDL.h>
-	"Utils.h"
+	"types.h"
+	"InternDataClass.h"
 
-1228662081 /home/karel/openlierox/include/CBytestream.h
+1242812143 /home/karel/openlierox/include/CBytestream.h
 	<SDL.h>
 	<string>
 	"types.h"
 	"Networking.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CListview.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CListview.h
 	<string>
 	"DeprecatedGUI/CWidget.h"
 	"DeprecatedGUI/CScrollbar.h"
 
-1228662081 /home/karel/openlierox/include/CWpnRest.h
+1242812143 /home/karel/openlierox/include/CWpnRest.h
 
-1229622944 /home/karel/openlierox/include/CClient.h
+1242812143 /home/karel/openlierox/include/CClient.h
 	<string>
+	<vector>
+	<map>
+	<set>
 	"FastVector.h"
 	"CWeather.h"
 	"CChatBox.h"
@@ -3012,94 +3053,112 @@
 	"Consts.h"
 	"LieroX.h"
 	"CViewport.h"
+	"SafeVector.h"
 
-1228662081 /home/karel/openlierox/include/FastVector.h
+1242812143 /home/karel/openlierox/include/FastVector.h
 	"Iterator.h"
 	"Event.h"
 	"MathLib.h"
 
-1228662081 /home/karel/openlierox/include/Iterator.h
-	"Utils.h"
+1242812143 /home/karel/openlierox/include/Iterator.h
+	<set>
+	<map>
+	<vector>
+	<list>
+	<string>
+	"Ref.h"
 
-1228662081 /home/karel/openlierox/include/MathLib.h
+1242812143 /home/karel/openlierox/include/MathLib.h
 	<cmath>
 	"CVec.h"
-	"Utils.h"
 
-1228662081 /home/karel/openlierox/include/CVec.h
-	<math.h>
+1242812143 /home/karel/openlierox/include/CVec.h
+	<cmath>
 
-1228662081 /home/karel/openlierox/include/CWeather.h
+1242812143 /home/karel/openlierox/include/CWeather.h
 	<SDL.h>
 	"CVec.h"
 	"SmartPointer.h"
 
-1228662080 /home/karel/openlierox/include/CChatBox.h
+1242812143 /home/karel/openlierox/include/CChatBox.h
 	<SDL.h>
 	<list>
 	"Protocol.h"
+	"types.h"
+	"Color.h"
 
-1228662081 /home/karel/openlierox/include/Protocol.h
+1242812143 /home/karel/openlierox/include/Protocol.h
 
-1228662081 /home/karel/openlierox/include/CShootList.h
+1242812143 /home/karel/openlierox/include/CShootList.h
 
-1228662081 /home/karel/openlierox/include/Version.h
+1242812143 /home/karel/openlierox/include/Version.h
 	<string>
 	"StringUtils.h"
 
-1228662081 /home/karel/openlierox/include/FileDownload.h
+1242812143 /home/karel/openlierox/include/FileDownload.h
 	<list>
 	<vector>
 	<string>
 	<map>
 	<stdio.h>
-	<SDL_thread.h>
+	"ThreadPool.h"
 	<SDL_mutex.h>
 	"HTTP.h"
 	"types.h"
 	"CBytestream.h"
 
-1228662081 /home/karel/openlierox/include/HTTP.h
+1242812143 /home/karel/openlierox/include/HTTP.h
 	<string>
 	"Networking.h"
+	"Event.h"
+	"SmartPointer.h"
+	"ThreadPool.h"
+	<SDL_mutex.h>
 
 1228662081 /home/karel/openlierox/include/Frame.h
 	<SDL.h>
 
-1228662081 /home/karel/openlierox/include/CProjectile.h
+1242812143 /home/karel/openlierox/include/CProjectile.h
 	<string>
+	<vector>
+	<map>
 	"Event.h"
+	"types.h"
+	"Color.h"
+	"Consts.h"
 
-1228662081 /home/karel/openlierox/include/Consts.h
+1242812143 /home/karel/openlierox/include/Consts.h
 
-1229622944 /home/karel/openlierox/include/LieroX.h
+1242812143 /home/karel/openlierox/include/LieroX.h
 	<list>
 	<string>
+	<setjmp.h>
 	"Options.h"
 	"CFont.h"
 	"CVec.h"
 	"Consts.h"
 	"CInput.h"
 	"types.h"
-	<windows.h>
 
-1229622944 /home/karel/openlierox/include/Options.h
+1242812143 /home/karel/openlierox/include/Options.h
 	<map>
 	<vector>
 	<string>
 	<cassert>
+	"FeatureList.h"
+	"StaticAssert.h"
 
-1228662081 /home/karel/openlierox/include/CFont.h
+1242812143 /home/karel/openlierox/include/CFont.h
 	<SDL.h>
 	<vector>
 	"Unicode.h"
 	"SmartPointer.h"
 	"Color.h"
 
-1228662081 /home/karel/openlierox/include/CInput.h
+1242812143 /home/karel/openlierox/include/CInput.h
 	<string>
 
-1228662081 /home/karel/openlierox/include/CViewport.h
+1242812143 /home/karel/openlierox/include/CViewport.h
 	<SDL.h>
 	"CInput.h"
 	"CVec.h"
@@ -3110,13 +3169,15 @@
 	"GfxPrimitives.h"
 	"SmartPointer.h"
 
-1228662081 /home/karel/openlierox/include/GfxPrimitives.h
+1242812143 /home/karel/openlierox/include/GfxPrimitives.h
 	<SDL.h>
 	<SDL_image.h>
 	<string>
 	<assert.h>
 	"Color.h"
 	"SmartPointer.h"
+	"Debug.h"
+	"CVec.h"
 
 1202786454 /usr/include/SDL/SDL_image.h
 	"SDL.h"
@@ -3124,28 +3185,32 @@
 	"begin_code.h"
 	"close_code.h"
 
-1228662081 /home/karel/openlierox/include/CWorm.h
+1242812143 /home/karel/openlierox/include/CWorm.h
 	<cassert>
 	"LieroX.h"
 	"CProjectile.h"
 	"CNinjaRope.h"
 	"CWpnRest.h"
 	"Options.h"
-	"Utils.h"
 	"Frame.h"
 	"DeprecatedGUI/CBar.h"
 	"CMap.h"
-	"CWormSkin.h"
+	"CGameSkin.h"
+	"Entity.h"
+	"NewNetEngine.h"
+	"Version.h"
+	"NewNetEngine.h"
 	"CBytestream.h"
 
-1228662081 /home/karel/openlierox/include/CNinjaRope.h
+1242812143 /home/karel/openlierox/include/CNinjaRope.h
 	"CVec.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CBar.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CBar.h
 	<SDL.h>
 	"MathLib.h"
+	"Color.h"
 
-1228662081 /home/karel/openlierox/include/CMap.h
+1242812143 /home/karel/openlierox/include/CMap.h
 	<SDL.h>
 	<string>
 	<set>
@@ -3153,17 +3218,21 @@
 	"SmartPointer.h"
 	"LieroX.h"
 	"GfxPrimitives.h"
+	"CClient.h"
+	"Color.h"
 
-1228662081 /home/karel/openlierox/include/ReadWriteLock.h
+1242812143 /home/karel/openlierox/include/ReadWriteLock.h
 	<SDL.h>
-	<SDL_thread.h>
+	"ThreadPool.h"
+	"Debug.h"
 
-1228662081 /home/karel/openlierox/include/FindFile.h
+1242812143 /home/karel/openlierox/include/FindFile.h
 	<fstream>
 	<string>
 	<list>
 	<vector>
 	"Unicode.h"
+	"Debug.h"
 	<dirent.h>
 	<unistd.h>
 	<sys/types.h>
@@ -3172,12 +3241,13 @@
 	<io.h>
 	<direct.h>
 
-1228662081 /home/karel/openlierox/include/Sounds.h
+1242812143 /home/karel/openlierox/include/Sounds.h
 	"CVec.h"
 	"SmartPointer.h"
+	"types.h"
 	<SDL_mixer.h>
 
-1211442441 /usr/include/SDL/SDL_mixer.h
+1225930757 /usr/include/SDL/SDL_mixer.h
 	"SDL_types.h"
 	"SDL_rwops.h"
 	"SDL_audio.h"
@@ -3186,22 +3256,24 @@
 	"begin_code.h"
 	"close_code.h"
 
-1210237575 /usr/include/SDL/SDL_types.h
+1235099063 /usr/include/SDL/SDL_types.h
 	"SDL_stdinc.h"
 
-1228662081 /home/karel/openlierox/include/Timer.h
+1242812143 /home/karel/openlierox/include/Timer.h
 	<string>
 	<SDL.h>
+	<cassert>
 	"Event.h"
+	"types.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CChatBox.cpp
+1242812163 source:/home/karel/openlierox/src/client/CChatBox.cpp
 	"LieroX.h"
 	"StringUtils.h"
 	"CChatBox.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CClient_Draw.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/CClient_Draw.cpp
 	"LieroX.h"
+	"Debug.h"
 	"ConfigHandler.h"
 	"CClient.h"
 	"CServer.h"
@@ -3223,6 +3295,7 @@
 	"DeprecatedGUI/CLine.h"
 	"DeprecatedGUI/CCombobox.h"
 	"DeprecatedGUI/CCheckbox.h"
+	"DeprecatedGUI/CChatWidget.h"
 	"InputEvents.h"
 	"AuxLib.h"
 	"Timer.h"
@@ -3233,12 +3306,19 @@
 	"CServerConnection.h"
 	"ProfileSystem.h"
 	"IRC.h"
+	"CGameMode.h"
+	"FlagInfo.h"
+	"WeaponDesc.h"
 
-1228662081 /home/karel/openlierox/include/ConfigHandler.h
-	<string>
+1242812143 /home/karel/openlierox/include/ConfigHandler.h
 	"CVec.h"
+	"StringUtils.h"
+	"MathLib.h"
+	<string>
+	<SDL.h>
+	<vector>
 
-1229622944 /home/karel/openlierox/include/CServer.h
+1242812143 /home/karel/openlierox/include/CServer.h
 	<string>
 	"Networking.h"
 	"SmartPointer.h"
@@ -3251,94 +3331,109 @@
 	"CWpnRest.h"
 	"LieroX.h"
 
-1228662081 /home/karel/openlierox/include/CGameScript.h
+1242812143 /home/karel/openlierox/include/CGameScript.h
+	<map>
+	<set>
 	"Sounds.h"
 	"GfxPrimitives.h"
 	"CProjectile.h"
+	"Version.h"
+	"Color.h"
+	"StaticAssert.h"
+	"StringUtils.h"
 
-1228662081 /home/karel/openlierox/include/CBonus.h
+1242812143 /home/karel/openlierox/include/CBonus.h
 	"CVec.h"
 
-1228662081 /home/karel/openlierox/include/CBanList.h
+1242812143 /home/karel/openlierox/include/CBanList.h
 	<string>
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/Graphics.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/Graphics.h
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CMenu.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CMenu.h
 	"InputEvents.h"
 	<list>
 
-1228662081 /home/karel/openlierox/include/console.h
+1242812143 /home/karel/openlierox/include/console.h
 	<SDL.h>
-	"SmartPointer.h"
-	"Command.h"
-	"Unicode.h"
-	"InputEvents.h"
+	"types.h"
 
-1228662081 /home/karel/openlierox/include/Command.h
+1242812143 /home/karel/openlierox/include/Command.h
 	<string>
+	<vector>
+	<map>
 
-1228662081 /home/karel/openlierox/include/CWormBot.h
+1242812143 /home/karel/openlierox/include/CWormBot.h
 	"CWorm.h"
 
-1228662081 /home/karel/openlierox/include/Entity.h
+1242812143 /home/karel/openlierox/include/Entity.h
 	<SDL.h>
+	<vector>
 	"Event.h"
+	"Color.h"
+	"CVec.h"
 
-1228662081 /home/karel/openlierox/include/Cursor.h
+1242812143 /home/karel/openlierox/include/Cursor.h
 	<string>
 	<SDL.h>
 	"SmartPointer.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CButton.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CButton.h
 	"InputEvents.h"
 	"GfxPrimitives.h"
 	"Cursor.h"
+	"Menu.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CLabel.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CLabel.h
 	"InputEvents.h"
 	"StringUtils.h"
+	"Color.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CImage.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CImage.h
 	"InputEvents.h"
 	"GfxPrimitives.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CLine.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CLine.h
+	"Color.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CCheckbox.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CCheckbox.h
 	"InputEvents.h"
 
 1228662081 /home/karel/openlierox/include/Clipboard.h
 	<string>
 	<SDL.h>
 
-1229622944 /home/karel/openlierox/include/CClientNetEngine.h
+1242812143 /home/karel/openlierox/include/CClientNetEngine.h
 	<string>
 	"Consts.h"
 
-1228662081 /home/karel/openlierox/include/CChannel.h
-	"CBytestream.h"
+1242812143 /home/karel/openlierox/include/CChannel.h
 	<list>
+	"CBytestream.h"
+	"types.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CBrowser.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CBrowser.h
 	"InputEvents.h"
 	<libxml/HTMLparser.h>
 	<stack>
 	"LieroX.h"
 	"Timer.h"
 	"Protocol.h"
+	"CScrollbar.h"
+	"HTTP.h"
+	"GfxPrimitives.h"
 
-1227036521 /usr/include/libxml2/libxml/HTMLparser.h
+1239224416 /usr/include/libxml2/libxml/HTMLparser.h
 	<libxml/xmlversion.h>
 	<libxml/parser.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlversion.h
+1239224416 /usr/include/libxml2/libxml/xmlversion.h
 	<libxml/xmlexports.h>
 	<ansidecl.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlexports.h
+1239224416 /usr/include/libxml2/libxml/xmlexports.h
 
-1227036521 /usr/include/libxml2/libxml/parser.h
+1239224416 /usr/include/libxml2/libxml/parser.h
 	<stdarg.h>
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
@@ -3352,37 +3447,37 @@
 	<libxml/xmlIO.h>
 	<libxml/globals.h>
 
-1227036521 /usr/include/libxml2/libxml/tree.h
+1239224416 /usr/include/libxml2/libxml/tree.h
 	<stdio.h>
 	<libxml/xmlversion.h>
 	<libxml/xmlstring.h>
 	<libxml/xmlregexp.h>
 	<libxml/xmlmemory.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlstring.h
+1239224416 /usr/include/libxml2/libxml/xmlstring.h
 	<stdarg.h>
 	<libxml/xmlversion.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlregexp.h
+1239224416 /usr/include/libxml2/libxml/xmlregexp.h
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
 	<libxml/dict.h>
 
-1227036521 /usr/include/libxml2/libxml/dict.h
+1239224416 /usr/include/libxml2/libxml/dict.h
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlmemory.h
+1239224416 /usr/include/libxml2/libxml/xmlmemory.h
 	<stdio.h>
 	<libxml/xmlversion.h>
 	<libxml/threads.h>
 	<libxml/globals.h>
 
-1227036521 /usr/include/libxml2/libxml/threads.h
+1239224416 /usr/include/libxml2/libxml/threads.h
 	<libxml/xmlversion.h>
 	<libxml/globals.h>
 
-1227036521 /usr/include/libxml2/libxml/globals.h
+1239224416 /usr/include/libxml2/libxml/globals.h
 	<libxml/xmlversion.h>
 	<libxml/parser.h>
 	<libxml/xmlerror.h>
@@ -3391,33 +3486,33 @@
 	<libxml/xmlmemory.h>
 	<libxml/threads.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlerror.h
+1239224416 /usr/include/libxml2/libxml/xmlerror.h
 	<libxml/parser.h>
 
-1227036521 /usr/include/libxml2/libxml/SAX.h
+1239224416 /usr/include/libxml2/libxml/SAX.h
 	<stdio.h>
 	<stdlib.h>
 	<libxml/xmlversion.h>
 	<libxml/parser.h>
 	<libxml/xlink.h>
 
-1227036521 /usr/include/libxml2/libxml/xlink.h
+1239224416 /usr/include/libxml2/libxml/xlink.h
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
 
-1227036521 /usr/include/libxml2/libxml/SAX2.h
+1239224416 /usr/include/libxml2/libxml/SAX2.h
 	<stdio.h>
 	<stdlib.h>
 	<libxml/xmlversion.h>
 	<libxml/parser.h>
 	<libxml/xlink.h>
 
-1227036521 /usr/include/libxml2/libxml/hash.h
+1239224416 /usr/include/libxml2/libxml/hash.h
 	<libxml/xmlversion.h>
 	<libxml/parser.h>
 	<libxml/dict.h>
 
-1227036521 /usr/include/libxml2/libxml/valid.h
+1239224416 /usr/include/libxml2/libxml/valid.h
 	<libxml/xmlversion.h>
 	<libxml/xmlerror.h>
 	<libxml/tree.h>
@@ -3425,24 +3520,24 @@
 	<libxml/xmlautomata.h>
 	<libxml/xmlregexp.h>
 
-1227036521 /usr/include/libxml2/libxml/list.h
+1239224416 /usr/include/libxml2/libxml/list.h
 	<libxml/xmlversion.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlautomata.h
+1239224416 /usr/include/libxml2/libxml/xmlautomata.h
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
 	<libxml/xmlregexp.h>
 
-1227036521 /usr/include/libxml2/libxml/entities.h
+1239224416 /usr/include/libxml2/libxml/entities.h
 	<libxml/xmlversion.h>
 	<libxml/tree.h>
 
-1227036521 /usr/include/libxml2/libxml/encoding.h
+1239224416 /usr/include/libxml2/libxml/encoding.h
 	<libxml/xmlversion.h>
 	<iconv.h>
 	<libxml/tree.h>
 
-1227036521 /usr/include/libxml2/libxml/xmlIO.h
+1239224416 /usr/include/libxml2/libxml/xmlIO.h
 	<stdio.h>
 	<libxml/xmlversion.h>
 	<libxml/globals.h>
@@ -3450,7 +3545,7 @@
 	<libxml/parser.h>
 	<libxml/encoding.h>
 
-1228662080 /home/karel/openlierox/include/CServerConnection.h
+1242812143 /home/karel/openlierox/include/CServerConnection.h
 	<string>
 	"CBytestream.h"
 	"CShootList.h"
@@ -3459,27 +3554,29 @@
 	"Version.h"
 	"FileDownload.h"
 
-1228662081 /home/karel/openlierox/include/ProfileSystem.h
+1242812143 /home/karel/openlierox/include/ProfileSystem.h
 	<SDL.h>
 	<string>
 	<stdlib.h>
 	"SmartPointer.h"
-	"CWormSkin.h"
+	"CGameSkin.h"
 
-1228662081 /home/karel/openlierox/include/IRC.h
+1242812143 /home/karel/openlierox/include/IRC.h
 	<vector>
 	<list>
+	<set>
 	"Networking.h"
 	"Timer.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CClient_Game.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/CClient_Game.cpp
+	<algorithm>
 	"LieroX.h"
 	"Clipboard.h"
 	"AuxLib.h"
 	"MathLib.h"
 	"CClient.h"
 	"CServer.h"
+	"CServerConnection.h"
 	"CBonus.h"
 	"console.h"
 	"GfxPrimitives.h"
@@ -3492,21 +3589,26 @@
 	"CClient.h"
 	"CClientNetEngine.h"
 	"ProfileSystem.h"
+	"Debug.h"
+	"NewNetEngine.h"
+	"CGameMode.h"
+	"CHideAndSeek.h"
+	"ProjectileDesc.h"
+	"WeaponDesc.h"
 
-1228662081 /home/karel/openlierox/include/Physics.h
+1242812143 /home/karel/openlierox/include/Physics.h
 	<string>
 	"CVec.h"
 	"Iterator.h"
+	"types.h"
 
-1229622944 source:/home/karel/openlierox/src/client/CClient_Parse.cpp
-	<assert.h>
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/CClient_Parse.cpp
+	<cassert>
 	<time.h>
 	"LieroX.h"
 	"Cache.h"
 	"CClient.h"
 	"CServer.h"
-	"DeprecatedGUI/Menu.h"
 	"console.h"
 	"GfxPrimitives.h"
 	"FindFile.h"
@@ -3524,26 +3626,36 @@
 	"XMLutils.h"
 	"CClientNetEngine.h"
 	"CChannel.h"
+	"DeprecatedGUI/Menu.h"
 	"DeprecatedGUI/CBrowser.h"
 	"ProfileSystem.h"
 	"IRC.h"
 	"CWormHuman.h"
 	"CWormBot.h"
+	"Debug.h"
+	"CGameMode.h"
+	"ConversationLogger.h"
+	"FlagInfo.h"
+	"CMap.h"
 
-1228662081 /home/karel/openlierox/include/EndianSwap.h
+1242812143 /home/karel/openlierox/include/EndianSwap.h
 	<SDL.h>
+	<cstdio>
+	<algorithm>
+	"StaticAssert.h"
+	"CVec.h"
 
 1228662081 /home/karel/openlierox/include/NotifyUser.h
 
-1228662081 /home/karel/openlierox/include/XMLutils.h
+1242812143 /home/karel/openlierox/include/XMLutils.h
 	<string>
 	<libxml/xmlmemory.h>
 	"Color.h"
 
-1228662081 /home/karel/openlierox/include/CWormHuman.h
+1242812143 /home/karel/openlierox/include/CWormHuman.h
 	"CWorm.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CClient_Send.cpp
+1242812163 source:/home/karel/openlierox/src/client/CClient_Send.cpp
 	"LieroX.h"
 	"CClientNetEngine.h"
 	"StringUtils.h"
@@ -3559,23 +3671,24 @@
 	"CChannel.h"
 	"DeprecatedGUI/Menu.h"
 	"IRC.h"
+	"console.h"
 
-1228662081 /home/karel/openlierox/include/ChatCommand.h
+1242812143 /home/karel/openlierox/include/ChatCommand.h
 	<string>
 	<vector>
 
-1228662085 source:/home/karel/openlierox/src/client/CFont.cpp
+1242812163 source:/home/karel/openlierox/src/client/CFont.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"PixelFunctors.h"
 	"Unicode.h"
 	"MathLib.h"
 
-1228662081 /home/karel/openlierox/include/PixelFunctors.h
+1242812143 /home/karel/openlierox/include/PixelFunctors.h
+	<cassert>
 
-1228662085 source:/home/karel/openlierox/src/client/CInput.cpp
+1242812163 source:/home/karel/openlierox/src/client/CInput.cpp
 	<assert.h>
-	<iostream>
 	"LieroX.h"
 	"AuxLib.h"
 	"Error.h"
@@ -3584,7 +3697,7 @@
 	"StringUtils.h"
 	"CInput.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CNinjaRope.cpp
+1242812163 source:/home/karel/openlierox/src/client/CNinjaRope.cpp
 	<assert.h>
 	"LieroX.h"
 	"DeprecatedGUI/Graphics.h"
@@ -3595,15 +3708,15 @@
 	"CClient.h"
 	"CGameScript.h"
 
-1229622944 source:/home/karel/openlierox/src/client/CViewport.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/CViewport.cpp
 	"LieroX.h"
+	"Debug.h"
 	"CClient.h"
 	"Options.h"
 	"CWorm.h"
 	"MathLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/CWeather.cpp
+1242812163 source:/home/karel/openlierox/src/client/CWeather.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"CViewport.h"
@@ -3618,8 +3731,9 @@
 	"MathLib.h"
 	"LieroX.h"
 
-1228662085 source:/home/karel/openlierox/src/client/Cache.cpp
+1242812163 source:/home/karel/openlierox/src/client/Cache.cpp
 	"LieroX.h"
+	"Debug.h"
 	"Sounds.h"
 	"Cache.h"
 	"GfxPrimitives.h"
@@ -3629,21 +3743,26 @@
 	"StringUtils.h"
 	"Timer.h"
 	"Options.h"
+	"AuxLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/Clipboard.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/Clipboard.cpp
 	<algorithm>
 	"Clipboard.h"
 	"Unicode.h"
+	"Debug.h"
 	<X11/Xlib.h>
 	<unistd.h>
 	<SDL_syswm.h>
+	"Mutex.h"
+	"Condition.h"
+	"ThreadPool.h"
+	"AuxLib.h"
 	<windows.h>
 	"StringUtils.h"
 	<Clipboard.h>
 	<Carbon/Carbon.h>
 
-1229622944 source:/home/karel/openlierox/src/client/CrashHandler.cpp
+1242812163 source:/home/karel/openlierox/src/client/CrashHandler.cpp
 	"CrashHandler.h"
 	"StringUtils.h"
 	"Version.h"
@@ -3654,11 +3773,13 @@
 	"CServer.h"
 	"DedicatedControl.h"
 	"StringUtils.h"
-	<iostream>
+	"Debug.h"
+	"ConversationLogger.h"
 	<DbgHelp.h>
 	<ShlObj.h>
 	"FindFile.h"
 	"Cache.h"
+	"CGameMode.h"
 	<stdio.h>
 	<stdlib.h>
 	<signal.h>
@@ -3666,13 +3787,14 @@
 	<sys/wait.h>
 	<ctype.h>
 	<unistd.h>
+	<ucontext.h>
 
-1228662081 /home/karel/openlierox/include/CrashHandler.h
+1242812143 /home/karel/openlierox/include/CrashHandler.h
 
-1228662081 /home/karel/openlierox/include/DedicatedControl.h
+1242812143 /home/karel/openlierox/include/DedicatedControl.h
 	<string>
 
-1229622944 source:/home/karel/openlierox/src/client/Cursor.cpp
+1242812163 source:/home/karel/openlierox/src/client/Cursor.cpp
 	"LieroX.h"
 	"FindFile.h"
 	"InputEvents.h"
@@ -3682,7 +3804,7 @@
 	"types.h"
 	"Timer.h"
 
-1228662085 source:/home/karel/openlierox/src/client/Entity.cpp
+1242812163 source:/home/karel/openlierox/src/client/Entity.cpp
 	"LieroX.h"
 	"Options.h"
 	"GfxPrimitives.h"
@@ -3692,24 +3814,28 @@
 	"FastVector.h"
 	"CViewport.h"
 	"CMap.h"
+	"CWorm.h"
+	"Consts.h"
+	"Geometry.h"
 
-1228662085 source:/home/karel/openlierox/src/client/Error.cpp
+1242812163 source:/home/karel/openlierox/src/client/Error.cpp
 	<stdarg.h>
-	<iostream>
 	"LieroX.h"
+	"Debug.h"
 	"AuxLib.h"
 	"Error.h"
 	"FindFile.h"
 	"StringUtils.h"
 	"Version.h"
 
-1228662085 source:/home/karel/openlierox/src/client/GfxPrimitives.cpp
-	<iostream>
-	<assert.h>
+1242812163 source:/home/karel/openlierox/src/client/GfxPrimitives.cpp
+	<cassert>
 	<gd.h>
 	<SDL.h>
+	<algorithm>
 	"LieroX.h"
 	"Options.h"
+	"Debug.h"
 	"MathLib.h"
 	"GfxPrimitives.h"
 	"Cache.h"
@@ -3717,12 +3843,18 @@
 	"StringUtils.h"
 	"AuxLib.h"
 	"PixelFunctors.h"
+	"Utils.h"
+	"CViewport.h"
+	"Geometry.h"
+	"Timer.h"
+	"ReadWriteLock.h"
+	"InputEvents.h"
 
-1228662085 source:/home/karel/openlierox/src/client/InputEvents.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/InputEvents.cpp
 	<set>
 	"Clipboard.h"
 	"LieroX.h"
+	"EventQueue.h"
 	"InputEvents.h"
 	"AuxLib.h"
 	"DeprecatedGUI/Menu.h"
@@ -3732,10 +3864,10 @@
 	"NotifyUser.h"
 	"Event.h"
 
-1229622944 source:/home/karel/openlierox/src/client/Options.cpp
+1242812163 source:/home/karel/openlierox/src/client/Options.cpp
 	<ctype.h>
-	<iostream>
 	"LieroX.h"
+	"Debug.h"
 	"FindFile.h"
 	"StringUtils.h"
 	"Options.h"
@@ -3744,11 +3876,14 @@
 	"CScriptableVars.h"
 	"IniReader.h"
 	"Version.h"
+	"Iterator.h"
+	"CGameMode.h"
+	"StaticAssert.h"
 
 1228662081 /home/karel/openlierox/include/IniReader.h
 	<string>
 
-1228662085 source:/home/karel/openlierox/src/client/ProfileSystem.cpp
+1242812163 source:/home/karel/openlierox/src/client/ProfileSystem.cpp
 	<assert.h>
 	"LieroX.h"
 	"ProfileSystem.h"
@@ -3756,11 +3891,13 @@
 	"GfxPrimitives.h"
 	"FindFile.h"
 	"StringUtils.h"
+	"FileUtils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/Sounds.cpp
+1242812163 source:/home/karel/openlierox/src/client/Sounds.cpp
 	<SDL.h>
 	<stdlib.h>
 	"LieroX.h"
+	"Debug.h"
 	"AuxLib.h"
 	"Cache.h"
 	"StringUtils.h"
@@ -3770,48 +3907,53 @@
 	"Options.h"
 	"FindFile.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CBonus.cpp
+1242812159 source:/home/karel/openlierox/src/common/CBonus.cpp
 	"LieroX.h"
 	"CBonus.h"
 	"DeprecatedGUI/Graphics.h"
 	"GfxPrimitives.h"
-	"CGameScript.h"
+	"WeaponDesc.h"
 	"CViewport.h"
+	"CGameScript.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CBytestream.cpp
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/CBytestream.cpp
+	<cassert>
 	<stdarg.h>
-	<iostream>
 	<iomanip>
 	"CBytestream.h"
 	"EndianSwap.h"
 	"StringUtils.h"
 	"MathLib.h"
+	"CScriptableVars.h"
+	"Debug.h"
+	"Iterator.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CChannel.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/CChannel.cpp
 	<map>
 	"LieroX.h"
+	"Debug.h"
 	"CChannel.h"
 	"StringUtils.h"
 	"Timer.h"
 	"MathLib.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CGameScript.cpp
-	<stdarg.h>
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/CGameScript.cpp
+	<cstdarg>
 	"EndianSwap.h"
 	"LieroX.h"
+	"Debug.h"
 	"FindFile.h"
 	"StringUtils.h"
 	"CGameScript.h"
 	"Error.h"
+	"ConfigHandler.h"
+	"ProjectileDesc.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CMap.cpp
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/CMap.cpp
+	<cassert>
 	<zlib.h>
 	<list>
-	<iostream>
 	"LieroX.h"
 	"CViewport.h"
 	"CMap.h"
@@ -3829,8 +3971,13 @@
 	"CServer.h"
 	"ProfileSystem.h"
 	"Cache.h"
+	"Debug.h"
+	"FlagInfo.h"
+	"FileUtils.h"
+	"EndianSwap.h"
+	"MapLoader.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CProjectile.cpp
+1242812159 source:/home/karel/openlierox/src/common/CProjectile.cpp
 	"LieroX.h"
 	"CGameScript.h"
 	"GfxPrimitives.h"
@@ -3841,25 +3988,28 @@
 	"MathLib.h"
 	"CClient.h"
 	"ProfileSystem.h"
+	"Debug.h"
+	"ProjectileDesc.h"
+	"Physics.h"
+	"Geometry.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CScriptableVars.cpp
+1242812159 source:/home/karel/openlierox/src/common/CScriptableVars.cpp
 	"CScriptableVars.h"
+	"Debug.h"
 	"StringUtils.h"
-	<iostream>
 	<sstream>
 
-1228662084 source:/home/karel/openlierox/src/common/CShootList.cpp
+1242812159 source:/home/karel/openlierox/src/common/CShootList.cpp
 	<assert.h>
 	"LieroX.h"
 	"CShootList.h"
 	"CWorm.h"
 	"Protocol.h"
 	"MathLib.h"
-	"CGameScript.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CWorm.cpp
-	<iostream>
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/CWorm.cpp
+	<cassert>
 	"LieroX.h"
 	"ProfileSystem.h"
 	"CClient.h"
@@ -3871,9 +4021,14 @@
 	"MathLib.h"
 	"CServerConnection.h"
 	"CWormHuman.h"
+	"Debug.h"
+	"CGameMode.h"
+	"FlagInfo.h"
+	"Physics.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CWorm_AI.cpp
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/CWorm_AI.cpp
+	<cassert>
 	<set>
 	"LieroX.h"
 	"CGameScript.h"
@@ -3888,10 +4043,17 @@
 	"Sounds.h"
 	"ProfileSystem.h"
 	"CWormBot.h"
+	"Debug.h"
+	"CGameMode.h"
+	"CHideAndSeek.h"
+	"FlagInfo.h"
+	"ProjectileDesc.h"
+	"WeaponDesc.h"
+	"Mutex.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CWorm_SendRecv.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/CWorm_SendRecv.cpp
 	"LieroX.h"
+	"Debug.h"
 	"GfxPrimitives.h"
 	"CWorm.h"
 	"Protocol.h"
@@ -3899,10 +4061,10 @@
 	"MathLib.h"
 	"CClient.h"
 	"CServerConnection.h"
+	"WeaponDesc.h"
 	"ProfileSystem.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CWorm_Simulate.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/CWorm_Simulate.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"GfxPrimitives.h"
@@ -3912,12 +4074,15 @@
 	"Entity.h"
 	"CClient.h"
 	"CServerConnection.h"
-	"Utils.h"
 	"CWormHuman.h"
 	"ProfileSystem.h"
 	"CGameScript.h"
+	"Debug.h"
+	"CGameMode.h"
+	"Physics.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CWpnRest.cpp
+1242812159 source:/home/karel/openlierox/src/common/CWpnRest.cpp
 	<assert.h>
 	"LieroX.h"
 	"CGameScript.h"
@@ -3926,10 +4091,12 @@
 	"CWpnRest.h"
 	"CBytestream.h"
 	"MathLib.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/Command.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/Command.cpp
+	<limits.h>
 	"LieroX.h"
+	"Debug.h"
 	"CServer.h"
 	"CClient.h"
 	"console.h"
@@ -3941,20 +4108,36 @@
 	"CClientNetEngine.h"
 	"DeprecatedGUI/Menu.h"
 	"IRC.h"
+	"ProfileSystem.h"
+	"FindFile.h"
+	"DedicatedControl.h"
+	"CGameMode.h"
+	"Cache.h"
+	"CServerConnection.h"
+	"CServerNetEngine.h"
+	"CChannel.h"
+	"IpToCountryDB.h"
+	"Unicode.h"
+	"Autocompletion.h"
+	"Command.h"
 
 1228662081 /home/karel/openlierox/include/sex.h
 	<string>
 
-1228662084 source:/home/karel/openlierox/src/common/ConfigHandler.cpp
+1242812159 source:/home/karel/openlierox/src/common/ConfigHandler.cpp
+	<map>
+	<string>
 	"LieroX.h"
 	"ConfigHandler.h"
 	"FindFile.h"
 	"StringUtils.h"
 	"MathLib.h"
 
-1228662084 source:/home/karel/openlierox/src/common/Console.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/Console.cpp
+	<list>
+	"ThreadPool.h"
 	"LieroX.h"
+	"Debug.h"
 	"Clipboard.h"
 	"AuxLib.h"
 	"console.h"
@@ -3963,8 +4146,15 @@
 	"StringUtils.h"
 	"Options.h"
 	"MathLib.h"
+	"ReadWriteLock.h"
+	"Timer.h"
+	"Mutex.h"
+	"Condition.h"
+	"PreInitVar.h"
+	"Autocompletion.h"
+	"Command.h"
 
-1228662084 source:/home/karel/openlierox/src/common/CssParser.cpp
+1242812159 source:/home/karel/openlierox/src/common/CssParser.cpp
 	<assert.h>
 	<algorithm>
 	"CssParser.h"
@@ -3980,29 +4170,30 @@
 	"StringBuf.h"
 	"StyleVar.h"
 
-1228662081 /home/karel/openlierox/include/StringBuf.h
+1242812143 /home/karel/openlierox/include/StringBuf.h
 	<string>
 	<vector>
 
 1228662081 /home/karel/openlierox/include/StyleVar.h
 	<SDL.h>
 
-1228662084 source:/home/karel/openlierox/src/common/FileDownload.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/FileDownload.cpp
 	"LieroX.h"
 	"Options.h"
+	"Debug.h"
 	"StringUtils.h"
 	"FindFile.h"
 	"EndianSwap.h"
 	"FileDownload.h"
 	"MathLib.h"
 
-1229622944 source:/home/karel/openlierox/src/common/FindFile.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/FindFile.cpp
 	"FindFile.h"
 	"StringUtils.h"
 	"Options.h"
+	"Debug.h"
 	<shlobj.h>
+	<tr1/unordered_set>
 	<ext/hash_set>
 	<hash_set>
 	<pwd.h>
@@ -4010,13 +4201,13 @@
 	<unistd.h>
 	<SDL.h>
 
-1228662084 source:/home/karel/openlierox/src/common/HTTP.cpp
-	<iostream>
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/HTTP.cpp
+	<cassert>
 	<windows.h>
 	<wininet.h>
 	<stdlib.h>
 	"LieroX.h"
+	"Debug.h"
 	"Options.h"
 	"HTTP.h"
 	"Timer.h"
@@ -4024,19 +4215,22 @@
 	"types.h"
 	"Version.h"
 	"MathLib.h"
+	"InputEvents.h"
+	"ReadWriteLock.h"
 
-1228662084 source:/home/karel/openlierox/src/common/IniReader.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/IniReader.cpp
 	"IniReader.h"
 	"FindFile.h"
+	"Debug.h"
 
-1229622944 source:/home/karel/openlierox/src/common/IpToCountryDB.cpp
+1242812159 source:/home/karel/openlierox/src/common/IpToCountryDB.cpp
 	<SDL.h>
-	<SDL_thread.h>
+	"ThreadPool.h"
 	<SDL_mutex.h>
-	<iostream>
 	<map>
+	<algorithm>
 	"Options.h"
+	"Debug.h"
 	"TSVar.h"
 	"IpToCountryDB.h"
 	"FindFile.h"
@@ -4044,52 +4238,55 @@
 	"CsvReader.h"
 	"Timer.h"
 	"InputEvents.h"
+	"GfxPrimitives.h"
 
 1228662081 /home/karel/openlierox/include/TSVar.h
 
-1228662081 /home/karel/openlierox/include/IpToCountryDB.h
+1242812143 /home/karel/openlierox/include/IpToCountryDB.h
 	<string>
-	"Utils.h"
+	"SmartPointer.h"
+	"InternDataClass.h"
 
-1228662081 /home/karel/openlierox/include/CsvReader.h
+1242812143 /home/karel/openlierox/include/CsvReader.h
 	<istream>
 	<string>
 
-1228662084 source:/home/karel/openlierox/src/common/MathLib.cpp
+1242812159 source:/home/karel/openlierox/src/common/MathLib.cpp
+	<cassert>
 	<stdlib.h>
-	<math.h>
+	<cmath>
 	<time.h>
 	<SDL_timer.h>
 	"MathLib.h"
 
-1228662084 source:/home/karel/openlierox/src/common/Misc.cpp
-	<stdarg.h>
-	<iostream>
-	<assert.h>
+1242812159 source:/home/karel/openlierox/src/common/Misc.cpp
+	<cstdarg>
+	<cassert>
 	"LieroX.h"
+	"Debug.h"
 	"GfxPrimitives.h"
 	"InputEvents.h"
 	"StringUtils.h"
 	"RandomNumberList.h"
 
-1228662081 /home/karel/openlierox/include/RandomNumberList.h
+1242812143 /home/karel/openlierox/include/RandomNumberList.h
 
-1228662084 source:/home/karel/openlierox/src/common/Networking.cpp
-	<SDL_syswm.h>
-	<SDL_thread.h>
+1242812159 source:/home/karel/openlierox/src/common/Networking.cpp
+	"ThreadPool.h"
 	<signal.h>
 	"LieroX.h"
+	"Debug.h"
 	"Options.h"
 	"Error.h"
 	"Networking.h"
-	"Utils.h"
 	"StringUtils.h"
 	"SmartPointer.h"
 	"Timer.h"
-	"Utils.h"
 	"ThreadVar.h"
 	"MathLib.h"
 	"InputEvents.h"
+	"TaskManager.h"
+	"ReadWriteLock.h"
 	<map>
 	<nl.h>
 	<memory.h>
@@ -4117,27 +4314,28 @@
 	<netdb.h>
 	<sys/ioctl.h>
 
-1228662081 /home/karel/openlierox/include/ThreadVar.h
+1232890189 /home/karel/openlierox/include/ThreadVar.h
 	"ReadWriteLock.h"
 
 1214511401 /home/karel/openlierox/libs/hawknl/src/wsock.h
 	"../include/nl.h"
 	<winsock.h>
 
-1214511400 /home/karel/openlierox/libs/hawknl/include/nl.h
+1242812166 /home/karel/openlierox/libs/hawknl/include/nl.h
 	<string.h>
 	<stdlib.h>
 
-1228662084 source:/home/karel/openlierox/src/common/Physics.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/Physics.cpp
 	"Physics.h"
 	"PhysicsLX56.h"
+	"Debug.h"
+	"NewNetEngine.h"
+	"LieroX.h"
 
 1228662081 /home/karel/openlierox/include/PhysicsLX56.h
 	"Physics.h"
 
-1228662084 source:/home/karel/openlierox/src/common/PhysicsLX56.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/PhysicsLX56.cpp
 	"LieroX.h"
 	"ProfileSystem.h"
 	"Physics.h"
@@ -4149,11 +4347,15 @@
 	"CBonus.h"
 	"CClient.h"
 	"console.h"
+	"Debug.h"
+	"CServer.h"
+	"FlagInfo.h"
+	"ProjectileDesc.h"
+	"WeaponDesc.h"
 
-1228662084 source:/home/karel/openlierox/src/common/StringUtils.cpp
+1242812159 source:/home/karel/openlierox/src/common/StringUtils.cpp
 	"LieroX.h"
 	"StringUtils.h"
-	"Utils.h"
 	"GfxPrimitives.h"
 	"CFont.h"
 	"ConfigHandler.h"
@@ -4166,34 +4368,37 @@
 	<libxml/HTMLparser.h>
 	<zlib.h>
 
-1228662084 source:/home/karel/openlierox/src/common/Timer.cpp
+1242812159 source:/home/karel/openlierox/src/common/Timer.cpp
 	<list>
-	<SDL_thread.h>
+	"ThreadPool.h"
 	<time.h>
-	<assert.h>
+	<cassert>
 	"Timer.h"
+	"Debug.h"
 	"InputEvents.h"
 
-1228662084 source:/home/karel/openlierox/src/common/Unicode.cpp
+1242812159 source:/home/karel/openlierox/src/common/Unicode.cpp
 	"Unicode.h"
 	"MathLib.h"
+	"StringUtils.h"
 	<windows.h>
 
-1228662084 source:/home/karel/openlierox/src/common/Version.cpp
-	<iostream>
-	<cstdio>
+1242812159 source:/home/karel/openlierox/src/common/Version.cpp
 	"Version.h"
 	"LieroX.h"
+	"Debug.h"
 	"AuxLib.h"
+	"Version_generated.h"
 
-1228662084 source:/home/karel/openlierox/src/common/sex.cpp
+1242812159 source:/home/karel/openlierox/src/common/sex.cpp
 	"sex.h"
 	"MathLib.h"
 	"StringUtils.h"
 
-1228662085 source:/home/karel/openlierox/src/main.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/main.cpp
 	<assert.h>
+	<setjmp.h>
+	<sstream>
 	"LieroX.h"
 	"IpToCountryDB.h"
 	"AuxLib.h"
@@ -4216,22 +4421,27 @@
 	"CssParser.h"
 	"FontHandling.h"
 	"Timer.h"
-	"Utils.h"
 	"CChannel.h"
 	"Cache.h"
 	"ProfileSystem.h"
 	"IRC.h"
 	"Music.h"
+	"Debug.h"
+	"TaskManager.h"
+	"CGameMode.h"
+	"ConversationLogger.h"
+	"StaticAssert.h"
+	"Command.h"
 	"DeprecatedGUI/CBar.h"
 	"DeprecatedGUI/Graphics.h"
 	"DeprecatedGUI/Menu.h"
+	"DeprecatedGUI/CChatWidget.h"
 	"SkinnedGUI/CGuiSkin.h"
 	<dirent.h>
 	<sys/stat.h>
 	<libxml/parser.h>
 
-1228662081 /home/karel/openlierox/include/OLXG15.h
-	<iostream>
+1242812143 /home/karel/openlierox/include/OLXG15.h
 	<sys/types.h>
 	<sys/stat.h>
 	<cstdio>
@@ -4249,17 +4459,16 @@
 	<string>
 	"InputEvents.h"
 
-1228662081 source:/home/karel/openlierox/src/server/CBanList.cpp
+1242812152 source:/home/karel/openlierox/src/server/CBanList.cpp
 	"LieroX.h"
 	"FindFile.h"
 	"CBanList.h"
 	"StringUtils.h"
 
-1229622944 source:/home/karel/openlierox/src/server/CServer.cpp
+1242812152 source:/home/karel/openlierox/src/server/CServer.cpp
 	<stdarg.h>
 	<vector>
 	<sstream>
-	<iostream>
 	<time.h>
 	"LieroX.h"
 	"Cache.h"
@@ -4279,15 +4488,22 @@
 	"CServerNetEngine.h"
 	"CChannel.h"
 	"CServerConnection.h"
+	"Debug.h"
+	"CGameMode.h"
+	"ProfileSystem.h"
+	"FlagInfo.h"
+	"Utils.h"
+	"Command.h"
+	"AuxLib.h"
 
-1229622944 /home/karel/openlierox/include/CServerNetEngine.h
+1242812143 /home/karel/openlierox/include/CServerNetEngine.h
 	"CWorm.h"
 	"CVec.h"
 
-1228662081 source:/home/karel/openlierox/src/server/CServer_Game.cpp
-	<iostream>
+1242812152 source:/home/karel/openlierox/src/server/CServer_Game.cpp
 	"LieroX.h"
 	"CServer.h"
+	"Debug.h"
 	"CServerConnection.h"
 	"CServerNetEngine.h"
 	"StringUtils.h"
@@ -4297,9 +4513,11 @@
 	"DedicatedControl.h"
 	"Physics.h"
 	"DeprecatedGUI/Menu.h"
+	"CGameMode.h"
+	"FlagInfo.h"
+	"WeaponDesc.h"
 
-1229622944 source:/home/karel/openlierox/src/server/CServer_Parse.cpp
-	<iostream>
+1242812152 source:/home/karel/openlierox/src/server/CServer_Parse.cpp
 	"LieroX.h"
 	"FindFile.h"
 	"CServer.h"
@@ -4321,12 +4539,16 @@
 	"XMLutils.h"
 	"CClientNetEngine.h"
 	"IpToCountryDB.h"
+	"Debug.h"
+	"CGameMode.h"
+	"FlagInfo.h"
+	"WeaponDesc.h"
 
-1229622944 source:/home/karel/openlierox/src/server/CServer_Send.cpp
+1242812152 source:/home/karel/openlierox/src/server/CServer_Send.cpp
 	<vector>
-	<iostream>
 	"LieroX.h"
 	"CServer.h"
+	"Debug.h"
 	"StringUtils.h"
 	"CServerConnection.h"
 	"CServerNetEngine.h"
@@ -4335,35 +4557,42 @@
 	"Timer.h"
 	"Consts.h"
 	"CChannel.h"
-	"DeprecatedGUI/Menu.h"
+	"CMap.h"
 	"MathLib.h"
+	"CGameMode.h"
 
-1228662081 source:/home/karel/openlierox/src/server/ChatCommand.cpp
+1242812152 source:/home/karel/openlierox/src/server/ChatCommand.cpp
 	"StringUtils.h"
-	"Utils.h"
 	"ChatCommand.h"
 	"Protocol.h"
 	"CServer.h"
 	"CWorm.h"
 	"CServerConnection.h"
 	"CServerNetEngine.h"
-	"DedicatedControl.h"
+	"Command.h"
 	"CClient.h"
 	"CClientNetEngine.h"
+	"CMap.h"
+	"FindFile.h"
+	"Debug.h"
+	"DeprecatedGUI/Menu.h"
+	"DedicatedControl.h"
 
-1228662081 source:/home/karel/openlierox/src/server/DedicatedControl.cpp
-	<iostream>
+1242812152 source:/home/karel/openlierox/src/server/DedicatedControl.cpp
+	<Python.h>
 	<string>
 	<sstream>
 	<stdexcept>
-	<SDL_thread.h>
+	"ThreadPool.h"
 	<fcntl.h>
+	<iostream>
+	"Debug.h"
 	"LieroX.h"
 	"IpToCountryDB.h"
 	"DedicatedControl.h"
 	"FindFile.h"
 	"StringUtils.h"
-	"DeprecatedGUI/Menu.h"
+	"CMap.h"
 	"ProfileSystem.h"
 	"CClient.h"
 	"CServer.h"
@@ -4376,8 +4605,13 @@
 	"CChannel.h"
 	"CServerConnection.h"
 	"CServerNetEngine.h"
-	<boost/process.hpp>
-	<pstream.h>
+	"Command.h"
+	"Process.h"
+	"Event.h"
+	"CGameMode.h"
+	"Cache.h"
+	"AuxLib.h"
+	"DeprecatedGUI/Menu.h"
 
 1214511400 /home/karel/openlierox/libs/boost_process/boost/process.hpp
 	<boost/process/config.hpp>
@@ -4627,7 +4861,7 @@
 	<boost/process/detail/win32_ops.hpp>
 	<boost/process/win32_child.hpp>
 
-1223662758 /home/karel/openlierox/libs/pstreams/pstream.h
+1242812166 /home/karel/openlierox/libs/pstreams/pstream.h
 	<ios>
 	<streambuf>
 	<istream>
@@ -4648,7 +4882,7 @@
 	<fcntl.h>
 	<stdio.h>
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CAnimation.cpp
+1242812160 source:/home/karel/openlierox/src/client/SkinnedGUI/CAnimation.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"MathLib.h"
@@ -4657,12 +4891,12 @@
 	"SkinnedGUI/CAnimation.h"
 	"XMLutils.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CAnimation.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CAnimation.h
 	"SkinnedGUI/CWidget.h"
 	"Timer.h"
 	"SkinnedGUI/CBorder.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CWidget.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CWidget.h
 	<libxml/xmlmemory.h>
 	<libxml/parser.h>
 	"InputEvents.h"
@@ -4671,16 +4905,17 @@
 	"SkinnedGUI/CWidgetEffect.h"
 	"CssParser.h"
 	"SmartPointer.h"
+	"Debug.h"
 
 1228662070 /home/karel/openlierox/include/SkinnedGUI/CWidgetEffect.h
 	"SmartPointer.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CBorder.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CBorder.h
 	"CssParser.h"
 	"Color.h"
 	"SmartPointer.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CBackground.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CBackground.cpp
 	"SkinnedGUI/CBackground.h"
 	"StringUtils.h"
 	"GfxPrimitives.h"
@@ -4692,13 +4927,12 @@
 	"Color.h"
 	"SmartPointer.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CBorder.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CBorder.cpp
 	"SkinnedGUI/CBorder.h"
 	"StringUtils.h"
 	"GfxPrimitives.h"
 	"FindFile.h"
 	"MathLib.h"
-	"Utils.h"
 
 1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CButton.cpp
 	"LieroX.h"
@@ -4710,7 +4944,7 @@
 	"SkinnedGUI/CButton.h"
 	"XMLutils.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CButton.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CButton.h
 	"SkinnedGUI/CWidget.h"
 	"SkinnedGUI/CBackground.h"
 	"SkinnedGUI/CBorder.h"
@@ -4727,7 +4961,7 @@
 	"XMLutils.h"
 	"GuiPrimitives.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CCheckbox.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CCheckbox.h
 	"SkinnedGUI/CWidget.h"
 	"SkinnedGUI/CBorder.h"
 	"SkinnedGUI/CBackground.h"
@@ -4735,7 +4969,7 @@
 1228662081 /home/karel/openlierox/include/GuiPrimitives.h
 	"Color.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CCombobox.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CCombobox.cpp
 	<assert.h>
 	<algorithm>
 	"LieroX.h"
@@ -4748,7 +4982,7 @@
 	"FindFile.h"
 	"XMLutils.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CCombobox.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CCombobox.h
 	<list>
 	"GfxPrimitives.h"
 	"SkinnedGUI/CWidget.h"
@@ -4756,7 +4990,7 @@
 	"SkinnedGUI/CButton.h"
 	"SkinnedGUI/CItem.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CScrollbar.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CScrollbar.h
 	"SkinnedGUI/CWidget.h"
 	"Timer.h"
 	"Color.h"
@@ -4769,7 +5003,7 @@
 	"FontHandling.h"
 	"SmartPointer.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CListview.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CListview.h
 	<string>
 	"SkinnedGUI/CWidget.h"
 	"SkinnedGUI/CScrollbar.h"
@@ -4797,7 +5031,7 @@
 	"SkinnedGUI/CBackground.h"
 	"SkinnedGUI/CBorder.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CGuiSkin.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CGuiSkin.cpp
 	"SkinnedGUI/CGuiSkin.h"
 	"FindFile.h"
 	"StringUtils.h"
@@ -4829,7 +5063,7 @@
 1228662070 /home/karel/openlierox/include/SkinnedGUI/CImageButton.h
 	"SkinnedGUI/CWidget.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CInputBox.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CInputBox.h
 	"SkinnedGUI/CDialog.h"
 
 1228662070 /home/karel/openlierox/include/SkinnedGUI/CLabel.h
@@ -4850,7 +5084,7 @@
 	"CMap.h"
 	"Cursor.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CMarquee.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CMarquee.h
 	"SkinnedGUI/CWidget.h"
 	"Timer.h"
 	"SkinnedGUI/CBorder.h"
@@ -4875,7 +5109,7 @@
 	"SkinnedGUI/CWidget.h"
 	"SkinnedGUI/CLabel.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CSlider.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CSlider.h
 	<string>
 	"SkinnedGUI/CWidget.h"
 	"Color.h"
@@ -4885,7 +5119,7 @@
 	"SkinnedGUI/CGuiSkinnedLayout.h"
 	"SkinnedGUI/CButton.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CTextbox.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CTextbox.h
 	"SkinnedGUI/CWidget.h"
 	"SkinnedGUI/CBorder.h"
 	"SkinnedGUI/CBackground.h"
@@ -4895,13 +5129,13 @@
 1228662070 /home/karel/openlierox/include/SkinnedGUI/CToggleButton.h
 	"SkinnedGUI/CImageButton.h"
 
-1228662084 source:/home/karel/openlierox/src/client/SkinnedGUI/CGuiSkinnedLayout.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CGuiSkinnedLayout.cpp
 	<libxml/xmlmemory.h>
 	<libxml/parser.h>
 	"SkinnedGUI/CGuiSkinnedLayout.h"
 	"SkinnedGUI/CGuiSkin.h"
 	"LieroX.h"
+	"Debug.h"
 	"Cursor.h"
 	"MathLib.h"
 	"GfxPrimitives.h"
@@ -4910,12 +5144,12 @@
 	"XMLutils.h"
 	"FindFile.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CImage.cpp
+1232890190 source:/home/karel/openlierox/src/client/SkinnedGUI/CImage.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"SkinnedGUI/CImage.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CImage.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CImage.h
 	"SkinnedGUI/CWidget.h"
 
 1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CImageButton.cpp
@@ -4955,7 +5189,7 @@
 	"GfxPrimitives.h"
 	"XMLutils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CListview.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CListview.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"StringUtils.h"
@@ -4976,7 +5210,7 @@
 	"CMap.h"
 	"SkinnedGUI/CMapEditor.h"
 
-1228662084 source:/home/karel/openlierox/src/client/SkinnedGUI/CMarquee.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CMarquee.cpp
 	"SkinnedGUI/CMarquee.h"
 	"LieroX.h"
 	"XMLutils.h"
@@ -4991,7 +5225,7 @@
 	"SkinnedGUI/CMenu.h"
 	"XMLutils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CMinimap.cpp
+1242812160 source:/home/karel/openlierox/src/client/SkinnedGUI/CMinimap.cpp
 	"Options.h"
 	"SkinnedGUI/CMinimap.h"
 	"XMLutils.h"
@@ -5006,7 +5240,7 @@
 	"XMLutils.h"
 	"FindFile.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CScrollbar.cpp
+1242812160 source:/home/karel/openlierox/src/client/SkinnedGUI/CScrollbar.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"MathLib.h"
@@ -5032,7 +5266,7 @@
 	"MathLib.h"
 	"XMLutils.h"
 
-1228662084 source:/home/karel/openlierox/src/client/SkinnedGUI/CTextbox.cpp
+1242812159 source:/home/karel/openlierox/src/client/SkinnedGUI/CTextbox.cpp
 	<string>
 	"Clipboard.h"
 	"LieroX.h"
@@ -5050,13 +5284,13 @@
 	"SkinnedGUI/CToggleButton.h"
 	"LieroX.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CWidget.cpp
+1242812160 source:/home/karel/openlierox/src/client/SkinnedGUI/CWidget.cpp
 	"SkinnedGUI/CWidget.h"
 	"MathLib.h"
 	"GfxPrimitives.h"
 	"XMLutils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/SkinnedGUI/CommonDialogs.cpp
+1242812160 source:/home/karel/openlierox/src/client/SkinnedGUI/CommonDialogs.cpp
 	"LieroX.h"
 	"SkinnedGUI/CommonDialogs.h"
 	"SkinnedGUI/CButton.h"
@@ -5074,13 +5308,13 @@
 	"AuxLib.h"
 	"Options.h"
 
-1228662070 /home/karel/openlierox/include/SkinnedGUI/CommonDialogs.h
+1242812125 /home/karel/openlierox/include/SkinnedGUI/CommonDialogs.h
 	"SkinnedGUI/CDialog.h"
 	"GfxPrimitives.h"
 	"CGameScript.h"
 	"CWpnRest.h"
 
-1229622944 source:/home/karel/openlierox/src/client/CClient.cpp
+1242812163 source:/home/karel/openlierox/src/client/CClient.cpp
 	"LieroX.h"
 	"ProfileSystem.h"
 	"CClient.h"
@@ -5108,6 +5342,13 @@
 	"IRC.h"
 	"NotifyUser.h"
 	"CWormHuman.h"
+	"Debug.h"
+	"ConversationLogger.h"
+	"CServerConnection.h"
+	"CServerNetEngine.h"
+	"FlagInfo.h"
+	"CMap.h"
+	"DedicatedControl.h"
 	<zip.h>
 
 1223662758 /home/karel/openlierox/libs/libzip/zip.h
@@ -5115,24 +5356,24 @@
 	<stdio.h>
 	<time.h>
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CAnimation.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CAnimation.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CAnimation.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CAnimation.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CAnimation.h
 	"InputEvents.h"
 	"GfxPrimitives.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBar.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBar.cpp
 	"LieroX.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CBar.h"
 	"StringUtils.h"
 	"MathLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBox.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBox.cpp
 	"LieroX.h"
 	"MathLib.h"
 	"DeprecatedGUI/Menu.h"
@@ -5140,10 +5381,10 @@
 	"StringUtils.h"
 	"DeprecatedGUI/CBox.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CBox.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CBox.h
 	"InputEvents.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBrowser.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CBrowser.cpp
 	"LieroX.h"
 	<stack>
 	"DeprecatedGUI/Menu.h"
@@ -5159,20 +5400,22 @@
 	"Timer.h"
 	"AuxLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CButton.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CButton.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CButton.h"
+	"GuiPrimitives.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CCheckbox.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CCheckbox.cpp
+	<cassert>
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"StringUtils.h"
 	"DeprecatedGUI/CCheckbox.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CCombobox.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CCombobox.cpp
 	<assert.h>
 	<algorithm>
 	"LieroX.h"
@@ -5182,11 +5425,12 @@
 	"GfxPrimitives.h"
 	"StringUtils.h"
 	"Timer.h"
+	"Debug.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiLayout.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiLayout.cpp
 	<assert.h>
-	<iostream>
 	"LieroX.h"
+	"Debug.h"
 	"AuxLib.h"
 	"DeprecatedGUI/Menu.h"
 	"StringUtils.h"
@@ -5197,21 +5441,22 @@
 	"DeprecatedGUI/CLabel.h"
 	"DeprecatedGUI/CSlider.h"
 	"DeprecatedGUI/CTextbox.h"
+	"XMLutils.h"
 	<libxml/xmlmemory.h>
 	<libxml/parser.h>
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CSlider.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CSlider.h
 	<string>
 	"InputEvents.h"
+	"Color.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CTextbox.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CTextbox.h
 	"InputEvents.h"
 	"Cursor.h"
 	"Timer.h"
 	"Event.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiSkin.cpp
-	<iostream>
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiSkin.cpp
 	<sstream>
 	<libxml/xmlmemory.h>
 	<libxml/parser.h>
@@ -5226,18 +5471,20 @@
 	"StringUtils.h"
 	"Cursor.h"
 	"FindFile.h"
+	"XMLutils.h"
+	"Color.h"
 	"DeprecatedGUI/CAnimation.h"
 	"DeprecatedGUI/CBox.h"
 	"DeprecatedGUI/CLabel.h"
 	"DeprecatedGUI/CLine.h"
 	"DeprecatedGUI/CProgressbar.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CProgressbar.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CProgressbar.h
 	"DeprecatedGUI/CBar.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiSkinnedLayout.cpp
-	<iostream>
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CGuiSkinnedLayout.cpp
 	"LieroX.h"
+	"Debug.h"
 	"DeprecatedGUI/CGuiSkinnedLayout.h"
 	"DeprecatedGUI/CGuiSkin.h"
 	"AuxLib.h"
@@ -5251,59 +5498,60 @@
 	"DeprecatedGUI/CSlider.h"
 	"DeprecatedGUI/CTextbox.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CImage.cpp
+1232890190 source:/home/karel/openlierox/src/client/DeprecatedGUI/CImage.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CImage.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CInputBox.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CInputBox.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"CInput.h"
 	"DeprecatedGUI/CInputBox.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CListview.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CListview.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"StringUtils.h"
 	"Cursor.h"
+	"Timer.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CMenu.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CMenu.cpp
 	<assert.h>
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CMenu.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CScrollbar.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CScrollbar.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Graphics.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CSlider.cpp
+1232890190 source:/home/karel/openlierox/src/client/DeprecatedGUI/CSlider.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Graphics.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CSlider.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTextButton.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTextButton.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CTextButton.h"
 	"Cursor.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CTextButton.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CTextButton.h
 	"DeprecatedGUI/CLabel.h"
+	"Color.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTextbox.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTextbox.cpp
 	"LieroX.h"
-	<iostream>
 	<string>
 	"Clipboard.h"
 	"AuxLib.h"
@@ -5312,28 +5560,28 @@
 	"StringUtils.h"
 	"DeprecatedGUI/CTextbox.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTitleButton.cpp
+1232890190 source:/home/karel/openlierox/src/client/DeprecatedGUI/CTitleButton.cpp
 	"DeprecatedGUI/Menu.h"
 	"GfxPrimitives.h"
 	"DeprecatedGUI/CTitleButton.h"
 
-1228662076 /home/karel/openlierox/include/DeprecatedGUI/CTitleButton.h
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CTitleButton.h
 	"InputEvents.h"
 	"Cursor.h"
 	"DeprecatedGUI/CWidget.h"
 	"types.h"
 	"DeprecatedGUI/CGuiLayout.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CWidget.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CWidget.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 	"StringUtils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/CWidgetList.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CWidgetList.cpp
 	"LieroX.h"
 	"DeprecatedGUI/Menu.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Graphics.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Graphics.cpp
 	"LieroX.h"
 	"FindFile.h"
 	"GfxPrimitives.h"
@@ -5341,11 +5589,12 @@
 	"Cursor.h"
 	"ConfigHandler.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/MenuSystem.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/MenuSystem.cpp
 	<assert.h>
-	<iostream>
 	<set>
+	"Debug.h"
 	"LieroX.h"
+	"console.h"
 	"EndianSwap.h"
 	"AuxLib.h"
 	"Error.h"
@@ -5364,8 +5613,10 @@
 	"OLXG15.h"
 	"Timer.h"
 	"IRC.h"
+	"FileUtils.h"
+	"Command.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_FloatingOptions.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_FloatingOptions.cpp
 	"Options.h"
 	"Sounds.h"
 	"CClient.h"
@@ -5380,8 +5631,10 @@
 	"DeprecatedGUI/CCheckbox.h"
 	"DeprecatedGUI/CTextbox.h"
 	"DeprecatedGUI/CSlider.h"
+	"Music.h"
+	"ConversationLogger.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Local.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Local.cpp
 	<assert.h>
 	<string>
 	"LieroX.h"
@@ -5402,10 +5655,16 @@
 	"DeprecatedGUI/CSlider.h"
 	"DeprecatedGUI/CCheckbox.h"
 	"DeprecatedGUI/CTextButton.h"
+	"DeprecatedGUI/CListview.h"
+	"DeprecatedGUI/CGuiSkinnedLayout.h"
+	"DeprecatedGUI/CBrowser.h"
 	"Sounds.h"
 	"ProfileSystem.h"
+	"FeatureList.h"
+	"Options.h"
+	"CGameMode.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Main.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Main.cpp
 	<assert.h>
 	"LieroX.h"
 	"AuxLib.h"
@@ -5422,7 +5681,7 @@
 	"DeprecatedGUI/CBrowser.h"
 	"Sounds.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Mapeditor.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Mapeditor.cpp
 	"LieroX.h"
 	"AuxLib.h"
 	"DeprecatedGUI/Graphics.h"
@@ -5433,9 +5692,10 @@
 	"DeprecatedGUI/CButton.h"
 	"DeprecatedGUI/CTextbox.h"
 	"Sounds.h"
+	"EndianSwap.h"
+	"FileUtils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net.cpp
-	<iostream>
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"Error.h"
@@ -5447,8 +5707,10 @@
 	"DeprecatedGUI/CLabel.h"
 	"AuxLib.h"
 	"IRC.h"
+	"DedicatedControl.h"
+	"Debug.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Chat.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Chat.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"DeprecatedGUI/Graphics.h"
@@ -5460,12 +5722,13 @@
 	"DeprecatedGUI/CTextbox.h"
 	"DeprecatedGUI/CLabel.h"
 	"DeprecatedGUI/CCheckbox.h"
-	"IRC.h"
+	"DeprecatedGUI/CChatWidget.h"
 	"StringUtils.h"
 	"AuxLib.h"
 	"NotifyUser.h"
+	"IRC.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Favourites.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Favourites.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"Clipboard.h"
@@ -5480,8 +5743,9 @@
 	"DeprecatedGUI/CMenu.h"
 	"DeprecatedGUI/CTextbox.h"
 	"ProfileSystem.h"
+	"Debug.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Host.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Host.cpp
 	"LieroX.h"
 	"IpToCountryDB.h"
 	"DeprecatedGUI/Graphics.h"
@@ -5510,9 +5774,12 @@
 	"CChannel.h"
 	"CServerConnection.h"
 	"ProfileSystem.h"
+	"Debug.h"
+	"console.h"
+	"CGameMode.h"
+	"DeprecatedGUI/CChatWidget.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Internet.cpp
-	<iostream>
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Internet.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"Clipboard.h"
@@ -5530,11 +5797,12 @@
 	"DeprecatedGUI/CCombobox.h"
 	"DeprecatedGUI/CMenu.h"
 	"DeprecatedGUI/CTextbox.h"
+	"DeprecatedGUI/CChatWidget.h"
 	"ProfileSystem.h"
 	"IpToCountryDB.h"
+	"Debug.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Join.cpp
-	<iostream>
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Join.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"CClient.h"
@@ -5554,8 +5822,11 @@
 	"DeprecatedGUI/CBrowser.h"
 	"AuxLib.h"
 	"CClientNetEngine.h"
+	"Debug.h"
+	"console.h"
+	"DeprecatedGUI/CChatWidget.h"
 
-1229622944 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Lan.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Lan.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"Clipboard.h"
@@ -5569,8 +5840,9 @@
 	"DeprecatedGUI/CMenu.h"
 	"Timer.h"
 	"ProfileSystem.h"
+	"Debug.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Main.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_Main.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"DeprecatedGUI/Graphics.h"
@@ -5581,7 +5853,7 @@
 	"DeprecatedGUI/CLabel.h"
 	"AuxLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_News.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Net_News.cpp
 	"LieroX.h"
 	"FindFile.h"
 	"Sounds.h"
@@ -5595,7 +5867,7 @@
 	"StringUtils.h"
 	"AuxLib.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Options.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Options.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"Music.h"
@@ -5605,14 +5877,17 @@
 	"GfxPrimitives.h"
 	"FindFile.h"
 	"StringUtils.h"
+	"DeprecatedGUI/CAnimation.h"
 	"DeprecatedGUI/CButton.h"
 	"DeprecatedGUI/CLabel.h"
 	"DeprecatedGUI/CCheckbox.h"
 	"DeprecatedGUI/CTextbox.h"
 	"DeprecatedGUI/CSlider.h"
+	"DeprecatedGUI/CLine.h"
 	"IpToCountryDB.h"
+	"ConversationLogger.h"
 
-1228662085 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Player.cpp
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_Player.cpp
 	"LieroX.h"
 	"Sounds.h"
 	"DeprecatedGUI/Graphics.h"
@@ -5628,8 +5903,7 @@
 	"AuxLib.h"
 	"ProfileSystem.h"
 
-1228662085 source:/home/karel/openlierox/src/client/IRC.cpp
-	<iostream>
+1242812163 source:/home/karel/openlierox/src/client/IRC.cpp
 	"IRC.h"
 	"LieroX.h"
 	"FindFile.h"
@@ -5643,8 +5917,9 @@
 
 1228662081 /home/karel/openlierox/include/libirc_rfcnumeric.h
 
-1228662085 source:/home/karel/openlierox/src/client/NotifyUser.cpp
+1242812163 source:/home/karel/openlierox/src/client/NotifyUser.cpp
 	"NotifyUser.h"
+	"Debug.h"
 	<Carbon/Carbon.h>
 	<windows.h>
 	<SDL.h>
@@ -5652,26 +5927,27 @@
 	<X11/Xlib.h>
 	<SDL.h>
 	<SDL_syswm.h>
-	<iostream>
 	"InputEvents.h"
 	"Sounds.h"
 	"AuxLib.h"
+	"LieroX.h"
+	<windows.h>
 
 1228662084 source:/home/karel/openlierox/src/common/XMLutils.cpp
 	"XMLutils.h"
 	"StringUtils.h"
 
-1228662085 source:/home/karel/openlierox/src/client/FontHandling.cpp
+1242812163 source:/home/karel/openlierox/src/client/FontHandling.cpp
 	"FontHandling.h"
 	"StringUtils.h"
 	"GfxPrimitives.h"
 	"CFont.h"
 	"MathLib.h"
+	"LieroX.h"
 	<map>
 
-1228662085 source:/home/karel/openlierox/src/client/OpenExternBrowser.cpp
+1242812163 source:/home/karel/openlierox/src/client/OpenExternBrowser.cpp
 	<string>
-	<iostream>
 	<list>
 	<cstdlib>
 	<Carbon/Carbon.h>
@@ -5679,8 +5955,10 @@
 	<CoreServices/CoreServices.h>
 	<windows.h>
 	<shellapi.h>
+	"Debug.h"
+	"LieroX.h"
 
-1229622944 source:/home/karel/openlierox/src/server/CServerConnection.cpp
+1242812152 source:/home/karel/openlierox/src/server/CServerConnection.cpp
 	"LieroX.h"
 	"ProfileSystem.h"
 	"CServerConnection.h"
@@ -5697,22 +5975,23 @@
 	"Networking.h"
 	"CServerNetEngine.h"
 	"CChannel.h"
-	<iostream>
+	"Debug.h"
 
-1228662084 source:/home/karel/openlierox/src/common/StringBuf.cpp
-	<iostream>
+1242812159 source:/home/karel/openlierox/src/common/StringBuf.cpp
 	"StringBuf.h"
 	"StringUtils.h"
+	"Debug.h"
+	"Utils.h"
 
 1228662085 source:/home/karel/openlierox/src/client/GuiPrimitives.cpp
 	"GuiPrimitives.h"
 	"GfxPrimitives.h"
 	"MathLib.h"
 
-1229622944 source:/home/karel/openlierox/src/client/Music.cpp
+1242812163 source:/home/karel/openlierox/src/client/Music.cpp
 	"Music.h"
 	<set>
-	<SDL_thread.h>
+	"ThreadPool.h"
 	<SDL_mutex.h>
 	"FindFile.h"
 	"Sounds.h"
@@ -5842,4 +6121,433 @@
 	<pthread.h>
 	<sched.h>
 	<unistd.h>
+
+1242812143 /home/karel/openlierox/include/FeatureList.h
+	<string>
+	<set>
+	<map>
+	"Iterator.h"
+	"CScriptableVars.h"
+	"Version.h"
+
+1242812143 /home/karel/openlierox/include/Debug.h
+	<string>
+	<cassert>
+	"StringUtils.h"
+
+1235099063 /usr/include/SDL/SDL_opengl.h
+	"SDL_config.h"
+	<windows.h>
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<gl.h>
+	<glu.h>
+	<GL/gl.h>
+	<GL/glu.h>
+	<windows.h>
+	<stddef.h>
+
+1242812143 /home/karel/openlierox/include/Ref.h
+
+1242812143 /home/karel/openlierox/include/Functors.h
+
+1242812143 /home/karel/openlierox/include/ThreadPool.h
+	<set>
+	<string>
+
+1242812143 /home/karel/openlierox/include/EventQueue.h
+	<cassert>
+	"ThreadPool.h"
+
+1242812143 /home/karel/openlierox/include/InternDataClass.h
+
+1242812143 /home/karel/openlierox/include/StaticAssert.h
+
+1242812143 /home/karel/openlierox/include/SafeVector.h
+	<cstring>
+
+1242812143 /home/karel/openlierox/include/CGameSkin.h
+	"GfxPrimitives.h"
+	"SmartPointer.h"
+	"Color.h"
+
+1242812143 /home/karel/openlierox/include/NewNetEngine.h
+	<string>
+	"CBytestream.h"
+	"Consts.h"
+
+1242812143 /home/karel/openlierox/include/Geometry.h
+	<list>
+	<vector>
+	<SDL.h>
+	<cmath>
+	<cstdlib>
+	"CVec.h"
+
+1242812128 /home/karel/openlierox/include/DeprecatedGUI/CChatWidget.h
+	"DeprecatedGUI/CGuiSkinnedLayout.h"
+	"DeprecatedGUI/CBrowser.h"
+	"DeprecatedGUI/CTextbox.h"
+	"DeprecatedGUI/CListview.h"
+
+1242812143 /home/karel/openlierox/include/CGameMode.h
+	"CVec.h"
+	"Iterator.h"
+	"Consts.h"
+	"Options.h"
+	<string>
+
+1242812143 /home/karel/openlierox/include/FlagInfo.h
+	"CVec.h"
+	"types.h"
+
+1242812143 /home/karel/openlierox/include/WeaponDesc.h
+	<string>
+	<SDL.h>
+	"StaticAssert.h"
+	"ProjAction.h"
+	"Color.h"
+
+1242812143 /home/karel/openlierox/include/ProjAction.h
+	<string>
+	<set>
+	<list>
+	<vector>
+	<limits.h>
+	<cassert>
+	"StaticAssert.h"
+	"types.h"
+	"CVec.h"
+
+1242812143 /home/karel/openlierox/include/CHideAndSeek.h
+
+1242812143 /home/karel/openlierox/include/ProjectileDesc.h
+	<string>
+	<vector>
+	"StaticAssert.h"
+	"ProjAction.h"
+	"Geometry.h"
+
+1242812143 /home/karel/openlierox/include/ConversationLogger.h
+	<string>
+	<cstdio>
+	"Protocol.h"
+
+1242812143 /home/karel/openlierox/include/Mutex.h
+	<SDL_mutex.h>
+
+1242812143 /home/karel/openlierox/include/Condition.h
+	<SDL_mutex.h>
+	"Mutex.h"
+
+1242812143 /home/karel/openlierox/include/FileUtils.h
+	<cstdio>
+
+1242812143 /home/karel/openlierox/include/MapLoader.h
+	<string>
+	<cstdio>
+	<SDL.h>
+
+1242812143 /home/karel/openlierox/include/Autocompletion.h
+	<string>
+	"Mutex.h"
+	"PreInitVar.h"
+	"Condition.h"
+	"Event.h"
+	"Debug.h"
+
+1242812143 /home/karel/openlierox/include/PreInitVar.h
+
+1242812143 /home/karel/openlierox/include/TaskManager.h
+	<SDL_thread.h>
+	<string>
+	<set>
+	<list>
+	"ThreadPool.h"
+
+1242812143 /home/karel/openlierox/include/Version_generated.h
+
+1242812143 /home/karel/openlierox/include/Process.h
+	<iostream>
+	<string>
+	<vector>
+
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/CChatWidget.cpp
+	<set>
+	"DeprecatedGUI/CChatWidget.h"
+	"LieroX.h"
+	"Sounds.h"
+	"DeprecatedGUI/Graphics.h"
+	"DeprecatedGUI/Menu.h"
+	"GfxPrimitives.h"
+	"DeprecatedGUI/CButton.h"
+	"DeprecatedGUI/CBrowser.h"
+	"DeprecatedGUI/CListview.h"
+	"DeprecatedGUI/CTextbox.h"
+	"DeprecatedGUI/CLabel.h"
+	"DeprecatedGUI/CCheckbox.h"
+	"IRC.h"
+	"StringUtils.h"
+	"AuxLib.h"
+	"NotifyUser.h"
+	"DeprecatedGUI/CImage.h"
+	"DeprecatedGUI/CBox.h"
+
+1242812162 source:/home/karel/openlierox/src/client/DeprecatedGUI/Menu_SpeedTest.cpp
+	"DeprecatedGUI/Menu.h"
+	"AuxLib.h"
+	"UploadSpeedTest.h"
+	"DeprecatedGUI/CGuiLayout.h"
+	"DeprecatedGUI/CButton.h"
+	"DeprecatedGUI/CProgressbar.h"
+	"DeprecatedGUI/CLabel.h"
+	"DeprecatedGUI/Graphics.h"
+	"Debug.h"
+
+1242812143 /home/karel/openlierox/include/UploadSpeedTest.h
+	"HTTP.h"
+
+1242812163 source:/home/karel/openlierox/src/client/CGameSkin.cpp
+	"CGameSkin.h"
+	"DeprecatedGUI/Graphics.h"
+	"StringUtils.h"
+	"MathLib.h"
+	"LieroX.h"
+	"Debug.h"
+
+1242812159 source:/home/karel/openlierox/src/common/Debug.cpp
+	"Debug.h"
+	"StringUtils.h"
+	"CrashHandler.h"
+	"Command.h"
+	<time.h>
+	<cassert>
+	<stdbool.h>
+	<sys/types.h>
+	<unistd.h>
+	<sys/sysctl.h>
+	<sys/types.h>
+	<sys/stat.h>
+	<fcntl.h>
+	<cstring>
+	<unistd.h>
+	<signal.h>
+	<google/coredumper.h>
+	<unistd.h>
+	<sys/types.h>
+	<sys/wait.h>
+	<cstring>
+	<cstdio>
+	<execinfo.h>
+	<stdio.h>
+	<stdlib.h>
+	"StackWalker.h"
+	<iostream>
+	<sstream>
+	"ThreadPool.h"
+	"Options.h"
+	"console.h"
+	"StringUtils.h"
+
+1242812166 /home/karel/openlierox/libs/coredumper/src/google/coredumper.h
+	<stddef.h>
+
+1242812159 source:/home/karel/openlierox/src/common/EventQueue.cpp
+	<list>
+	<cassert>
+	"ThreadPool.h"
+	<SDL_events.h>
+	<time.h>
+	"LieroX.h"
+	"EventQueue.h"
+	"ReadWriteLock.h"
+	"Debug.h"
+	"InputEvents.h"
+	<windows.h>
+	<signal.h>
+
+1242812159 source:/home/karel/openlierox/src/common/FeatureList.cpp
+	"FeatureList.h"
+	"Version.h"
+	"CServer.h"
+
+1242812159 source:/home/karel/openlierox/src/common/FlagInfo.cpp
+	<SDL.h>
+	<map>
+	"Debug.h"
+	"FlagInfo.h"
+	"CWorm.h"
+	"CServer.h"
+	"CClient.h"
+	"LieroX.h"
+	"CGameMode.h"
+	"CBytestream.h"
+	"CServerConnection.h"
+	"CServerNetEngine.h"
+	"CViewport.h"
+	"CGameSkin.h"
+	"DeprecatedGUI/Graphics.h"
+	"GfxPrimitives.h"
+	"CMap.h"
+
+1242812159 source:/home/karel/openlierox/src/common/MapLoader.cpp
+	"MapLoader.h"
+	"PreInitVar.h"
+	"Cache.h"
+	"CMap.h"
+	"EndianSwap.h"
+	<gd.h>
+	<zlib.h>
+	"FindFile.h"
+	"FileUtils.h"
+
+1242812159 source:/home/karel/openlierox/src/common/NewNetEngine.cpp
+	<string>
+	<limits.h>
+	<time.h>
+	"NewNetEngine.h"
+	"MathLib.h"
+	"Sounds.h"
+	"FindFile.h"
+	"CBytestream.h"
+	"CClient.h"
+	"CMap.h"
+	"CWorm.h"
+	"ProfileSystem.h"
+	"CWormHuman.h"
+	"Entity.h"
+	"CServer.h"
+
+1242812143 /home/karel/openlierox/include/StackWalker.h
+	<windows.h>
+
+1242812159 source:/home/karel/openlierox/src/common/Process.cpp
+	<cassert>
+	"Process.h"
+	"Debug.h"
+	"FindFile.h"
+	<windows.h>
+	<boost/process.hpp>
+	<boost/process.hpp>
+	<pstream.h>
+
+1242812159 source:/home/karel/openlierox/src/common/ProjAction.cpp
+	<cmath>
+	"ProjAction.h"
+	"CGameScript.h"
+	"CWorm.h"
+	"CProjectile.h"
+	"CClient.h"
+	"ProjectileDesc.h"
+	"Physics.h"
+	"ConfigHandler.h"
+	"EndianSwap.h"
+
+1242812159 source:/home/karel/openlierox/src/common/StackWalker.cpp
+	<windows.h>
+	<tchar.h>
+	<stdio.h>
+	"StackWalker.h"
+	<dbghelp.h>
+
+1242812159 source:/home/karel/openlierox/src/common/TaskManager.cpp
+	"ThreadPool.h"
+	"TaskManager.h"
+	"Debug.h"
+	"ReadWriteLock.h"
+
+1242812159 source:/home/karel/openlierox/src/common/ThreadPool.cpp
+	<SDL_thread.h>
+	"ThreadPool.h"
+	"Debug.h"
+	"AuxLib.h"
+
+1242812159 source:/home/karel/openlierox/src/common/UploadSpeedTest.cpp
+	<time.h>
+	<stdlib.h>
+	"Options.h"
+	"UploadSpeedTest.h"
+	"FindFile.h"
+	"Debug.h"
+
+1242812163 source:/home/karel/openlierox/src/client/ConversationLogger.cpp
+	"ConversationLogger.h"
+	"FindFile.h"
+	"Debug.h"
+	"Timer.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CDeathMatch.cpp
+	<iostream>
+	"CWorm.h"
+	"Options.h"
+	"Consts.h"
+	"CServer.h"
+	"CClient.h"
+	"CGameMode.h"
+	"Consts.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CDemolitionsMatch.cpp
+	"CGameMode.h"
+	"CServer.h"
+	"CWorm.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CGameMode.cpp
+	"CGameMode.h"
+	"CServer.h"
+	"Options.h"
+	"CWorm.h"
+	"Protocol.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CHideAndSeek.cpp
+	<iostream>
+	"CHideAndSeek.h"
+	"CWorm.h"
+	"Options.h"
+	"Consts.h"
+	"CServer.h"
+	"CClient.h"
+	"CServerConnection.h"
+	"CServerNetEngine.h"
+	"CMap.h"
+	"LieroX.h"
+	"CGameMode.h"
+	"Consts.h"
+	"types.h"
+	"Cache.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CRace.cpp
+	<algorithm>
+	"CGameMode.h"
+	"CServer.h"
+	"CWorm.h"
+	"FlagInfo.h"
+	"CServerConnection.h"
+	"CServerNetEngine.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CTag.cpp
+	<iostream>
+	"CWorm.h"
+	"Options.h"
+	"Consts.h"
+	"CServer.h"
+	"CClient.h"
+	"CGameMode.h"
+	"Consts.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CTeamDeathMatch.cpp
+	<iostream>
+	<string>
+	"CWorm.h"
+	"Options.h"
+	"Consts.h"
+	"CServer.h"
+	"CClient.h"
+	"CGameMode.h"
+	"Consts.h"
+
+1242812152 source:/home/karel/openlierox/src/server/CaptureTheFlag.cpp
+	"CGameMode.h"
+	"CServer.h"
+	"CWorm.h"
+	"FlagInfo.h"
 
