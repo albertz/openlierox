@@ -178,8 +178,8 @@ public:
 class CGameMode;
 
 // Options structure
-class GameOptions {
-public:
+struct GameOptions {
+	GameOptions();
 
 	static bool Init();
 	bool LoadFromDisc();

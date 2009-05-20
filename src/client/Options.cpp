@@ -605,3 +605,8 @@ GameOptions::GameInfo::GameInfo() {
 	iMaxPlayers = 8;
 	gameMode = NULL;
 }
+
+GameOptions::GameOptions() {
+	bLogTimestamps = false;
+}
+
