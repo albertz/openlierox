@@ -236,8 +236,7 @@ void Menu_MainFrame()
 
 	// Credits
 
-	static const std::string credits1 = GetGameVersion().asHumanString() + 
-		( GetGameVersion().revnum != 0 ? " dev revision " + itoa(GetGameVersion().revnum) : "" );
+	static const std::string credits1 = GetGameVersion().asHumanString(); // TODO: should we print revision here?
 
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"

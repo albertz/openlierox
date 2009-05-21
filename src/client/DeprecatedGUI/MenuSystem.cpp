@@ -2543,7 +2543,7 @@ void Menu_Current_Shutdown() {
 void	Menu_CheckForNewDevelopmentVersion()
 {
 	static bool checked = false;
-	if( checked || !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
+	if( checked || !tLXOptions->bCheckForUpdates )
 	{
 		checked = true;
 		return;
@@ -2566,12 +2566,13 @@ void	Menu_CheckForNewDevelopmentVersion()
 		return;
 	}
 	const char * RevSearchString = "revision=";
-	if( request->GetData().find(RevSearchString) == std::string::npos )
+	std::string::size_type revSearch = request->GetData().find(RevSearchString);
+	if( revSearch == std::string::npos )
 	{
 		hints << "Checking for updates - error in parsing webpage" << endl;
 		return;
 	}
-	int rev = atoi( request->GetData().c_str() + request->GetData().find(RevSearchString) + strlen(RevSearchString) );
+	int rev = atoi( request->GetData().substr(revSearch) );
 	if( rev == 0 )
 	{
 		hints << "Checking for updates - error in parsing webpage" << endl;
@@ -2600,7 +2601,7 @@ void	Menu_CheckForNewDevelopmentVersion()
 	
 	MessageBoxReturnType ret = 
 		Menu_MessageBox( "New development version available", 
-						"You are using dev revision " + itoa(GetGameVersion().revnum) +
+						"You are using revision " + itoa(GetGameVersion().revnum) +
 						", and newer revision " + itoa(rev) + " available\n" + 
 						"You SHOULD update it, especially if you are beta-tester\n" +
 						InstallationInstructions +
