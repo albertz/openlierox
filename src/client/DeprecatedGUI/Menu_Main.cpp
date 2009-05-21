@@ -236,7 +236,8 @@ void Menu_MainFrame()
 
 	// Credits
 
-	static const std::string credits1 = GetGameVersion().asHumanString();
+	static const std::string credits1 = GetGameVersion().asHumanString() + 
+		( GetGameVersion().revnum != 0 ? " dev revision " + itoa(GetGameVersion().revnum) : "" );
 
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"
@@ -244,7 +245,7 @@ void Menu_MainFrame()
 		"  K. Petránek, Albert Zeyer, Daniel Sjoholm,\n" // In order of joining
 		"  Martin Griffin, Sergiy Pylypenko\n"
 		"- Supported by the [RIP] clan\n"
-		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :)
+		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :) // TODO: Who the hell is FilE?
 		)
 		+ tMenu->tFrontendInfo.sFrontendCredits;
 

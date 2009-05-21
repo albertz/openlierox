@@ -41,6 +41,8 @@
 #include "IRC.h"
 #include "FileUtils.h"
 #include "Command.h"
+#include "HTTP.h"
+#include "Version.h"
 
 
 // TODO: move this out here
@@ -340,6 +342,7 @@ void Menu_Frame() {
 	if (!tMenu->bForbidConsole)  {
 		Con_Process(tLX->fDeltaTime);
 		Con_Draw(VideoPostProcessor::videoSurface());
+		Menu_CheckForNewDevelopmentVersion();
 	}
 	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
 
@@ -2536,4 +2539,80 @@ void Menu_Current_Shutdown() {
 	Menu_CGuiSkinShutdown();*/
 }
 	
+
+void	Menu_CheckForNewDevelopmentVersion()
+{
+	static bool checked = false;
+	if( checked || !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
+	{
+		checked = true;
+		return;
+	}
+
+	//hints << "Checking for updates..." << endl;
+	
+	CHttp * request = &tMenu->CheckForNewDevelopmentVersion_http;
+	// Always check Windows .EXE status, even for Linux, as it gets updated most often
+	// That way also Linux version will get somewhat synchronized to Linux one
+	if( request->GetUrl() == "" )
+		request->RequestData("http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD");
+	if( request->ProcessRequest() == HTTP_PROC_PROCESSING )
+		return;
+	hints << "Checking for updates" << endl;
+	checked = true;
+	if( request->ProcessRequest() == HTTP_PROC_ERROR )
+	{
+		hints << "Checking for updates - error in retrieving webpage" << endl;
+		return;
+	}
+	const char * RevSearchString = "revision=";
+	if( request->GetData().find(RevSearchString) == std::string::npos )
+	{
+		hints << "Checking for updates - error in parsing webpage" << endl;
+		return;
+	}
+	int rev = atoi( request->GetData().c_str() + request->GetData().find(RevSearchString) + strlen(RevSearchString) );
+	if( rev == 0 )
+	{
+		hints << "Checking for updates - error in parsing webpage" << endl;
+		return;
+	}
+	if( rev <= GetGameVersion().revnum+1 ) // We're compiling revision 100, and commit .EXE in revision 101
+	{
+		hints << "Checking for updates - we have latest revision" << endl;
+		return;
+	}
+	hints << "New development version rev. " << rev << " available - yours is " << GetGameVersion().revnum << endl;
+
+#ifdef WIN32
+	const char * InstallationInstructions = "Close the application before overwriting executable file\n";
+#else
+#ifdef linux
+	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
+#else
+#ifdef __APPLE__
+	const char * InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
+#else
+	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
+#endif
+#endif
+#endif
+	
+	MessageBoxReturnType ret = 
+		Menu_MessageBox( "New development version available", 
+						"You are using dev revision " + itoa(GetGameVersion().revnum) +
+						", and newer revision " + itoa(rev) + " available\n" + 
+						"You SHOULD update it, especially if you are beta-tester\n" +
+						InstallationInstructions +
+						"Click \"No\" to stop being notified about updates", LMB_YESNO );
+	if( ret == MBR_NO )
+		tLXOptions->bCheckForUpdates = false;
+
+#ifdef WIN32
+	if( ret == MBR_YES )
+		OpenLinkInExternBrowser("http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe");
+#endif
+
+};
+
 } // namespace DeprecatedGUI

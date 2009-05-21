@@ -258,6 +258,7 @@ struct GameOptions {
 	int		iMaxCachedEntries;		// Amount of entries to cache, including maps, mods, images and sounds.
 	bool	bMatchLogging;			// Save screenshot of every game final score
 	bool	bRecoverAfterCrash;		// If we should try to recover after segfault etc, or generate coredump and quit
+	bool	bCheckForUpdates;		// Check for new development version on sourceforge.net
 
 	// Misc.
 	bool    bLogConvos;

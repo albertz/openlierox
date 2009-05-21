@@ -31,6 +31,7 @@
 #include "CGameSkin.h"
 #include "CWorm.h"
 #include "Color.h"
+#include "HTTP.h"
 
 void GotoJoinLobby();
 
@@ -322,7 +323,9 @@ class menu_t { public:
 	int				iReturnTo;
 
 	// Socket for pinging
-	NetworkSocket		tSocket[3];
+	NetworkSocket	tSocket[3];
+	
+	CHttp			CheckForNewDevelopmentVersion_http; // I don't want to mess up with static data deallocation, so just putting this here
 
 };
 
@@ -455,6 +458,8 @@ void	Menu_FillLevelList(CCombobox *cmb, int random);
 void    Menu_redrawBufferRect(int x, int y, int w, int h);
 void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
+
+void	Menu_CheckForNewDevelopmentVersion(); // Blocks when showing message to user
 
 // Server list
 void		Menu_SvrList_Clear();
