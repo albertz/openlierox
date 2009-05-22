@@ -479,7 +479,9 @@ public:
 
 	}; // class area_item
 
-	typedef std::set< area_item*, area_item::area_v1__less > area_set;
+	// area_set keeps track about all available areas. because there can be areas with the same area_v1, this must be a multiset.
+	typedef std::multiset< area_item*, area_item::area_v1__less > area_set;
+	// area_stack_set is the dynamic stack in the pathfinding algo
 	typedef std::set< area_item*, area_item::expected_min_total_dist__less > area_stack_set;
 	typedef std::set< NEW_ai_node_t* > node_set;
 
