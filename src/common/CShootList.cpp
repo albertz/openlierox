@@ -444,8 +444,6 @@ void CShootList::readSingle( CBytestream *bs, const Version& senderVer, int max_
 	Clear();
 
 	byte	flags = 0;
-	short	vx, vy;
-	short x, y;
 	shoot_t *psShot = &m_psShoot[0];
 
 
@@ -454,9 +452,10 @@ void CShootList::readSingle( CBytestream *bs, const Version& senderVer, int max_
 	psShot->nWormID = bs->readByte(); // Used for indexing
 	psShot->fTime = MAX(bs->readFloat(), 0.0f);
 	psShot->nWeapon = CLAMP((int)bs->readByte(), 0, max_weapon_id); // Used for indexing
+	short x, y;
 	bs->read2Int12( x, y );
-	vx = bs->readInt16();
-	vy = bs->readInt16();
+	short vx = bs->readInt16();
+	short vy = bs->readInt16();
 	psShot->nRandom = bs->readByte();
 
 	psShot->nAngle = bs->readByte();
