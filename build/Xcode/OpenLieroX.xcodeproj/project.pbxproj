@@ -33,13 +33,13 @@
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
-		2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2350DC170F84FB4800DFAD78 /* ProjAction.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */; };
 		238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238800E30E8B150100B94DC0 /* NotifyUser.cpp */; };
+		238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
 		2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
 		2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 2389FB650D2D5A4700358F27 /* UnixImageIO.framework */; };
@@ -434,7 +434,6 @@
 		23099D630F60C640008E6C7F /* HideAndSeek */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = HideAndSeek; path = ../../share/gamedir/scripts/presets/HideAndSeek; sourceTree = SOURCE_ROOT; };
 		23099DBF0F60CA67008E6C7F /* 8Bit */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = 8Bit; path = ../../share/gamedir/scripts/presets/8Bit; sourceTree = SOURCE_ROOT; };
 		230D021E0F0D804C00AFFFFF /* IRC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRC.h; sourceTree = "<group>"; };
-		230D021F0F0D804C00AFFFFF /* libirc_rfcnumeric.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libirc_rfcnumeric.h; sourceTree = "<group>"; };
 		230D02200F0D804C00AFFFFF /* Music.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Music.h; sourceTree = "<group>"; };
 		230D02210F0D804C00AFFFFF /* PixelFunctors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PixelFunctors.h; sourceTree = "<group>"; };
 		230D02220F0D809B00AFFFFF /* Debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Debug.h; sourceTree = "<group>"; };
@@ -448,7 +447,6 @@
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
-		2350DC170F84FB4800DFAD78 /* ProjAction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ProjAction.cpp; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
 		23581F630F3102D700C64145 /* UploadSpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UploadSpeedTest.cpp; sourceTree = "<group>"; };
 		23581F730F310C6D00C64145 /* UploadSpeedTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UploadSpeedTest.h; sourceTree = "<group>"; };
@@ -466,6 +464,9 @@
 		23754FB60EDC32AB005EC287 /* CWormHuman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormHuman.h; sourceTree = "<group>"; };
 		238800E20E8B14F600B94DC0 /* NotifyUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotifyUser.h; sourceTree = "<group>"; };
 		238800E30E8B150100B94DC0 /* NotifyUser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotifyUser.cpp; sourceTree = "<group>"; };
+		2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsLX56_Projectiles.cpp; sourceTree = "<group>"; };
+		238944620FC735FB008F031D /* IRC_ReplyCodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IRC_ReplyCodes.h; sourceTree = "<group>"; };
+		238944630FC735FB008F031D /* SafeVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SafeVector.h; sourceTree = "<group>"; };
 		2389FB1F0D2D4D5E00358F27 /* ChatCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChatCommand.h; sourceTree = "<group>"; };
 		2389FB200D2D4D5E00358F27 /* SmartPointer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmartPointer.h; sourceTree = "<group>"; };
 		2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChatCommand.cpp; sourceTree = "<group>"; };
@@ -1183,6 +1184,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */,
 				238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */,
 				23099CC90F60715A008E6C7F /* Mutex.cpp */,
 				23099CCA0F60715A008E6C7F /* NewNetEngine.cpp */,
@@ -1228,7 +1230,6 @@
 				23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */,
 				23EABF6D0F40CA8200CA55CF /* TaskManager.cpp */,
 				23EAC0960F4204DF00CA55CF /* Process.cpp */,
-				2350DC170F84FB4800DFAD78 /* ProjAction.cpp */,
 				23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */,
 			);
 			name = common;
@@ -1261,6 +1262,8 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				238944620FC735FB008F031D /* IRC_ReplyCodes.h */,
+				238944630FC735FB008F031D /* SafeVector.h */,
 				23C5B33F0FB9D763005A36AE /* Autocompletion.h */,
 				23C5B3400FB9D763005A36AE /* Condition.h */,
 				23C5B3410FB9D763005A36AE /* FileUtils.h */,
@@ -1280,7 +1283,6 @@
 				23581F730F310C6D00C64145 /* UploadSpeedTest.h */,
 				230D02220F0D809B00AFFFFF /* Debug.h */,
 				230D021E0F0D804C00AFFFFF /* IRC.h */,
-				230D021F0F0D804C00AFFFFF /* libirc_rfcnumeric.h */,
 				230D02200F0D804C00AFFFFF /* Music.h */,
 				230D02210F0D804C00AFFFFF /* PixelFunctors.h */,
 				232D50C40E96939C00366F81 /* Consts.h */,
@@ -1838,9 +1840,9 @@
 				238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */,
 				238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */,
 				2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */,
-				2350DC180F84FB4800DFAD78 /* ProjAction.cpp in Sources */,
 				23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */,
 				23C5B0490FB67693005A36AE /* CRace.cpp in Sources */,
+				238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
