@@ -699,11 +699,9 @@ static void charactersParsed(void* context, const xmlChar* ch, int len)
 }
 
 /* GCS: custom error function to ignore errors */
-static void structuredError(void * userData, xmlErrorPtr error)
+static void xmlErrorHandlerDummy(void *, xmlErrorPtr)
 {
 	/* ignore all errors */
-	(void)userData;
-	(void)error;
 }
 
 std::string StripHtmlTags( const std::string & src )
@@ -718,7 +716,7 @@ std::string StripHtmlTags( const std::string & src )
 	handler.characters = & charactersParsed;
 
 	/* GCS: override structuredErrorFunc to mine so I can ignore errors */
-	xmlSetStructuredErrorFunc(xmlGenericErrorContext, &structuredError);
+	xmlSetStructuredErrorFunc(NULL, &xmlErrorHandlerDummy);
 
 	std::string tmp = HtmlEntityUnpairedBrackets(src);
 	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
