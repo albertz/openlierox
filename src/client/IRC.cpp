@@ -14,6 +14,7 @@
 
 
 #include "IRC.h"
+#include "IRC_ReplyCodes.h"
 #include "LieroX.h"
 #include "FindFile.h"
 #include "MathLib.h"
@@ -22,7 +23,6 @@
 #include "StringBuf.h"
 #include "StringUtils.h"
 #include "Event.h"
-#include "libirc_rfcnumeric.h"
 
 
 /////////////////////////
