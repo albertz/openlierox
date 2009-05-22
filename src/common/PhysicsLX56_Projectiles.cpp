@@ -18,7 +18,21 @@
 #include "Physics.h"
 #include "ConfigHandler.h"
 #include "EndianSwap.h"
+#include "Geometry.h"
 
+
+bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
+	Shape<int> s1; s1.pos = vPosition; s1.radius.x = rx; s1.radius.y = ry;
+	Shape<int> s2; s2.pos = prj->vPosition; s2.radius = prj->radius;
+	if(tProjInfo->Type == PRJ_CIRCLE) s1.type = Shape<int>::ST_CIRCLE;
+	if(prj->tProjInfo->Type == PRJ_CIRCLE) s2.type = Shape<int>::ST_CIRCLE;
+	
+	return s1.CollisionWith(s2);
+}
+
+bool CProjectile::CollisionWith(const CProjectile* prj) const {
+	return CollisionWith(prj, radius.x, radius.y);
+}
 
 
 static ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult) {
