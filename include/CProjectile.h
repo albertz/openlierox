@@ -31,6 +31,7 @@ class Sounds;
 class CViewport;
 struct proj_t;
 struct Proj_DoActionInfo;
+struct LX56ProjectileHandler;
 
 #define		MAX_PROJECTILES	3000
 
@@ -86,6 +87,7 @@ public:
 		iRandom = 0;
         fRotation = 0;
 		health = 0;
+		lx56handler = NULL;
 	}
 
 
@@ -151,8 +153,8 @@ private:
 
 private:
 	void	CalculateCheckSteps();
-
-
+	void	setBestLX56Handler();
+	
 public:
 	// Methods
 
@@ -217,6 +219,8 @@ public:
 	// simulation times (different times of spawning or remote projectiles)
 	AbsTime	fLastSimulationTime;
 
+	LX56ProjectileHandler* lx56handler;
+	
 	Event<> onInvalidation;
 };
 

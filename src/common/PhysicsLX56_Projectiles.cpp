@@ -19,7 +19,13 @@
 #include "ConfigHandler.h"
 #include "EndianSwap.h"
 #include "Geometry.h"
+#include "ThreadPool.h" // for struct Action
 
+struct LX56ProjectileHandler {
+	virtual ~LX56ProjectileHandler() {}
+	// returns true if we should continue
+	virtual bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const proj) = 0;
+};
 
 bool CProjectile::CollisionWith(const CProjectile* prj, int rx, int ry) const {
 	Shape<int> s1; s1.pos = vPosition; s1.radius.x = rx; s1.radius.y = ry;
@@ -1149,6 +1155,59 @@ static ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, f
 	return res;
 }
 
+struct LX56Proj_DefaultHandler : LX56ProjectileHandler {
+	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
+		Proj_DoActionInfo doActionInfo;
+		const proj_t *pi = prj->GetProjInfo();
+		TimeDiff serverTime = cClient->serverTime();
+		{
+			TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
+			if(timeDiff >= serverTime)
+				serverTime = TimeDiff(0); // strange case
+			else
+				serverTime -= timeDiff;
+		}
+
+		// Check if the timer is up
+		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
+
+		// Simulate the projectile
+		ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
+
+		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
+
+		/*
+		===================
+		Terrain Collision
+		===================
+		*/
+		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {
+			pi->Hit.applyTo(eventInfo, prj, &doActionInfo);
+		}
+
+		/*
+		===================
+		Worm Collision
+		===================
+		*/
+		if( result.withWorm && !doActionInfo.explode) {
+			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
+			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
+			if( !preventSelfShooting || NewNet::Active() ) {
+				pi->PlyHit.applyTo(eventInfo, prj, &doActionInfo);
+			}
+		}
+
+		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
+
+		for(size_t i = 0; i < pi->actions.size(); ++i) {
+			pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
+		}
+
+		doActionInfo.execute(prj, currentTime);
+		return !doActionInfo.deleteAfter;
+	}
+} lx56default;
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
 	const TimeDiff orig_dt = TimeDiff(0.01f);
@@ -1160,59 +1219,10 @@ static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* cons
 simulateProjectileStart:
 	if(prj->fLastSimulationTime + orig_dt > currentTime) goto finalMapPosIndexUpdate;
 	prj->fLastSimulationTime += orig_dt;
-	{
-		Proj_DoActionInfo doActionInfo;
-		const proj_t *pi = prj->GetProjInfo();
-		TimeDiff serverTime = cClient->serverTime();
-		{
-			TimeDiff timeDiff = currentTime - prj->fLastSimulationTime;
-			if(timeDiff >= serverTime)
-				serverTime = TimeDiff(0); // strange case
-			else
-				serverTime -= timeDiff;
-		}
-		
-			// Check if the timer is up
-		pi->Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
-		
-			// Simulate the projectile
-		ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
-		
-		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
-		
-			/*
-			===================
-			Terrain Collision
-			===================
-			*/
-		if( !result.withWorm && (result.colMask & PJC_TERRAIN) ) {
-			pi->Hit.applyTo(eventInfo, prj, &doActionInfo);
-		}
-		
-			/*
-			===================
-			Worm Collision
-			===================
-			*/
-		if( result.withWorm && !doActionInfo.explode) {
-			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
-			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
-			if( !preventSelfShooting || NewNet::Active() ) {
-				pi->PlyHit.applyTo(eventInfo, prj, &doActionInfo);
-			}
-		}
-		
-		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
-		
-		for(size_t i = 0; i < pi->actions.size(); ++i) {
-			pi->actions[i].checkAndApply(eventInfo, prj, &doActionInfo);
-		}
-		
-		doActionInfo.execute(prj, currentTime);
-		if(doActionInfo.deleteAfter) goto finalMapPosIndexUpdate;
-	}
-	goto simulateProjectileStart;
-	
+	// It is ensured that prj->lx56handler != NULL, because we cannot get here otherwise.
+	if(prj->lx56handler->frame(currentTime, dt, prj))
+		goto simulateProjectileStart;
+
 finalMapPosIndexUpdate:
 	prj->updateCollMapInfo(&oldPos, &oldRadius);
 }
@@ -1231,5 +1241,11 @@ simulateProjectilesStart:
 	
 	cClient->fLastSimulationTime += orig_dt;
 	goto simulateProjectilesStart;
+}
+
+
+
+void CProjectile::setBestLX56Handler() {
+	lx56handler = &lx56default;
 }
 
