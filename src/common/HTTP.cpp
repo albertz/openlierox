@@ -199,15 +199,16 @@ bool CChunkParser::ParseNext(char c)
 
 			// End?
 			if (iCurLength == 0)  {  // 0-length chunk = end of the chunk message
-				iState = CHPAR_SKIPBLANK; // Not needed, but if someone continued calling us, this is what we should do
+				iState = CHPAR_SKIPCRLF; // Not needed, but if someone continued calling us, this is what we should do
 				iNextState = CHPAR_FOOTERREAD;
 				return true;  // Finished!
 			}
 			(*iFinalLength) += iCurLength;
 
 			// Change the state
-			iState = CHPAR_SKIPBLANK;
+			iState = CHPAR_SKIPCRLF;
 			iNextState = CHPAR_DATAREAD;
+			iCurRead = 0;
 		} else
 			sChunkLenStr += c;
 	return false;  // Still processing
@@ -221,18 +222,17 @@ bool CChunkParser::ParseNext(char c)
 			// Reset
 			iCurRead = 0;
 			iCurLength = 0;
-
+			sChunkLenStr = "";
 			// Change the state
-			iState = CHPAR_SKIPBLANK;
+			iState = CHPAR_SKIPCRLF;
 			iNextState = CHPAR_LENREAD;
 		}
 	return false; // Still processing
 
 	// Skip blank characters
-	case CHPAR_SKIPBLANK:
-		if (!isspace((uchar)c))  {  // Not a blank character, we finished our job
+	case CHPAR_SKIPCRLF:
+		if (c == '\n')  {  // LF, end of CRLF seq, fe'll fail to parse HTTP not conforming to RFC, but whatever - I have never seen those
 			iState = iNextState; // Change the state
-			ParseNext(c);  // Parse the non-blank character
 		}
 	return false;  // Still processing
 
@@ -251,7 +251,7 @@ bool CChunkParser::ParseNext(char c)
 // Reset the state and all variables and prepare for a new reading
 void CChunkParser::Reset()
 {
-	iState = CHPAR_SKIPBLANK;
+	iState = CHPAR_LENREAD;
 	iNextState = CHPAR_LENREAD;
 	sChunkLenStr = "";
 	iCurRead = 0;
@@ -923,7 +923,6 @@ void CHttp::ProcessData()
 	else  {
 		if (bGotHttpHeader)  {  // We don't know if the data is chunked or not if we haven't parsed the header,
 								// don't do anything if we don't know what to do
-
 			sPureData += sData;
 			sData = ""; // HINT: save memory, don't keep the data twice
 		}
@@ -936,6 +935,7 @@ void CHttp::ProcessData()
 
 	// Find the end of the header
 	uchar header_end_len = 2;
+	// TODO: remove variants non-conforming to RFC like \n\n or \n\r\n\r
 	size_t header_end1 = sData.find("\n\n");  // Two LFs...
 	size_t header_end2 = sData.find("\r\n\r\n"); // ... or two CR/LFs
 	size_t header_end3 = sData.find("\n\r\n\r"); // ... or two LF/CRs
@@ -947,25 +947,21 @@ void CHttp::ProcessData()
 
 	// Found the end of the header?
 	if (header_end == sData.size())
-		return;
+		return; // No header is present
 
 	if (header_end == header_end2 || header_end == header_end3)
 		header_end_len = 4;
 	
 
-	if (header_end == std::string::npos)  {  // No header is present
+	header_end += header_end_len; // Two LFs or two CR/LFs
+	if (header_end >= sData.size())  // Should not happen...
 		return;
-	} else {
-		header_end += header_end_len; // Two LFs or two CR/LFs
-		if (header_end > sData.size())  // Should not happen...
-			return;
 
-		sHeader = sData.substr(0, header_end);
-		sData.erase(0, header_end);
+	sHeader = sData.substr(0, header_end);
+	sData.erase(0, header_end);
 
-		// The header is ok :)
-		bGotHttpHeader = true;
-	}
+	// The header is ok :)
+	bGotHttpHeader = true;
 
 	// Process the header
 	ParseHeader();

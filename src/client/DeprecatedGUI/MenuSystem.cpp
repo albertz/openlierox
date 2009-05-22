@@ -2549,13 +2549,33 @@ void	Menu_CheckForNewDevelopmentVersion()
 		return;
 	}
 
-	//hints << "Checking for updates..." << endl;
+#ifdef WIN32
+	const char * InstallationInstructions = "Close the application before overwriting executable file\n";
+	const char * RevSearchString = "revision=";
+	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD";
+	const char * OpenInBrowserURL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe";
+	int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
+#else
+#ifdef __APPLE__
+	const char * InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
+	const char * RevSearchString = "Revision ";
+	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
+	const char * OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	int RevNumDiff = 10; // ohloh shows 10 commits per page
+#else
+	// Linux and everything else
+	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
+	const char * RevSearchString = "Revision ";
+	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
+	const char * OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	int RevNumDiff = 10; // ohloh shows 10 commits per page
+#endif
+#endif
+
 	
 	CHttp * request = &tMenu->CheckForNewDevelopmentVersion_http;
-	// Always check Windows .EXE status, even for Linux, as it gets updated most often
-	// That way also Linux version will get somewhat synchronized to Linux one
 	if( request->GetUrl() == "" )
-		request->RequestData("http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD");
+		request->RequestData(URL);
 	if( request->ProcessRequest() == HTTP_PROC_PROCESSING )
 		return;
 	hints << "Checking for updates" << endl;
@@ -2565,39 +2585,25 @@ void	Menu_CheckForNewDevelopmentVersion()
 		hints << "Checking for updates - error in retrieving webpage" << endl;
 		return;
 	}
-	const char * RevSearchString = "revision=";
+
 	std::string::size_type revSearch = request->GetData().find(RevSearchString);
 	if( revSearch == std::string::npos )
 	{
-		hints << "Checking for updates - error in parsing webpage" << endl;
+		hints << "Checking for updates - error in parsing webpage - no rev" << endl;
 		return;
 	}
-	int rev = atoi( request->GetData().substr(revSearch) );
+	int rev = atoi( request->GetData().substr(revSearch + strlen(RevSearchString)) );
 	if( rev == 0 )
 	{
-		hints << "Checking for updates - error in parsing webpage" << endl;
+		hints << "Checking for updates - error in parsing webpage - wrong rev" << endl;
 		return;
 	}
-	if( rev <= GetGameVersion().revnum+1 ) // We're compiling revision 100, and commit .EXE in revision 101
+	if( rev <= GetGameVersion().revnum + RevNumDiff )
 	{
 		hints << "Checking for updates - we have latest revision" << endl;
 		return;
 	}
 	hints << "New development version rev. " << rev << " available - yours is " << GetGameVersion().revnum << endl;
-
-#ifdef WIN32
-	const char * InstallationInstructions = "Close the application before overwriting executable file\n";
-#else
-#ifdef linux
-	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
-#else
-#ifdef __APPLE__
-	const char * InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
-#else
-	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
-#endif
-#endif
-#endif
 	
 	MessageBoxReturnType ret = 
 		Menu_MessageBox( "New development version available", 
@@ -2609,11 +2615,8 @@ void	Menu_CheckForNewDevelopmentVersion()
 	if( ret == MBR_NO )
 		tLXOptions->bCheckForUpdates = false;
 
-#ifdef WIN32
 	if( ret == MBR_YES )
-		OpenLinkInExternBrowser("http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe");
-#endif
-
+		OpenLinkInExternBrowser( OpenInBrowserURL );
 };
 
 } // namespace DeprecatedGUI

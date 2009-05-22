@@ -42,7 +42,7 @@ void AutoSetupHTTPProxy();
 
 // HTTP Chunk parsing states
 enum  {
-	CHPAR_SKIPBLANK,
+	CHPAR_SKIPCRLF,
 	CHPAR_LENREAD,
 	CHPAR_DATAREAD,
 	CHPAR_FOOTERREAD
