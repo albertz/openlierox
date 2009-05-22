@@ -2540,7 +2540,7 @@ void Menu_Current_Shutdown() {
 }
 	
 
-void	Menu_CheckForNewDevelopmentVersion()
+void Menu_CheckForNewDevelopmentVersion()
 {
 	static bool checked = false;
 	if( checked || !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
@@ -2557,17 +2557,17 @@ void	Menu_CheckForNewDevelopmentVersion()
 	static const int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
 #else
 #ifdef __APPLE__
-	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
+	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you or compile yourself\n";
 	static const std::string RevSearchString = "Revision ";
 	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	static const std::string OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,12367.0.html";
 	static const int RevNumDiff = 1;
 #else
 	// Linux and everything else
 	static const std::string InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
 	static const std::string RevSearchString = "Revision ";
 	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	static const std::string OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,5158.0.html";
 	static const int RevNumDiff = 1;
 #endif
 #endif
@@ -2612,8 +2612,6 @@ void	Menu_CheckForNewDevelopmentVersion()
 						"You SHOULD update it, especially if you are beta-tester\n" +
 						InstallationInstructions +
 						"Click \"No\" to stop being notified about updates", LMB_YESNO );
-	if( ret == MBR_NO )
-		tLXOptions->bCheckForUpdates = false;
 
 	if( ret == MBR_YES )
 		OpenLinkInExternBrowser( OpenInBrowserURL );
