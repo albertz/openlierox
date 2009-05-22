@@ -443,12 +443,11 @@ void CShootList::readSingle( CBytestream *bs, const Version& senderVer, int max_
 	// Clear the list
 	Clear();
 
-	byte	flags = 0;
 	shoot_t *psShot = &m_psShoot[0];
 
 
 	// Read the packet
-	flags = bs->readByte();
+	byte flags = bs->readByte();
 	psShot->nWormID = bs->readByte(); // Used for indexing
 	psShot->fTime = MAX(bs->readFloat(), 0.0f);
 	psShot->nWeapon = CLAMP((int)bs->readByte(), 0, max_weapon_id); // Used for indexing
