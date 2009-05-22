@@ -2543,32 +2543,32 @@ void Menu_Current_Shutdown() {
 void	Menu_CheckForNewDevelopmentVersion()
 {
 	static bool checked = false;
-	if( checked || !tLXOptions->bCheckForUpdates )
+	if( checked || !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
 	{
 		checked = true;
 		return;
 	}
 
 #ifdef WIN32
-	const char * InstallationInstructions = "Close the application before overwriting executable file\n";
-	const char * RevSearchString = "revision=";
-	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD";
-	const char * OpenInBrowserURL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe";
-	int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
+	static const std::string InstallationInstructions = "Close the application before overwriting executable file\n";
+	static const std::string RevSearchString = "revision=";
+	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD";
+	static const std::string OpenInBrowserURL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe";
+	static const int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
 #else
 #ifdef __APPLE__
-	const char * InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
-	const char * RevSearchString = "Revision ";
-	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	const char * OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
-	int RevNumDiff = 10; // ohloh shows 10 commits per page
+	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you\n";
+	static const std::string RevSearchString = "Revision ";
+	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
+	static const std::string OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	static const int RevNumDiff = 1;
 #else
 	// Linux and everything else
-	const char * InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
-	const char * RevSearchString = "Revision ";
-	const char * URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	const char * OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
-	int RevNumDiff = 10; // ohloh shows 10 commits per page
+	static const std::string InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
+	static const std::string RevSearchString = "Revision ";
+	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
+	static const std::string OpenInBrowserURL = "https://www.ohloh.net/p/6596/commits"; // Variant: "http://cia.vc/stats/project/openlierox"
+	static const int RevNumDiff = 1;
 #endif
 #endif
 
@@ -2592,7 +2592,7 @@ void	Menu_CheckForNewDevelopmentVersion()
 		hints << "Checking for updates - error in parsing webpage - no rev" << endl;
 		return;
 	}
-	int rev = atoi( request->GetData().substr(revSearch + strlen(RevSearchString)) );
+	int rev = atoi( request->GetData().substr(revSearch + RevSearchString.size()) );
 	if( rev == 0 )
 	{
 		hints << "Checking for updates - error in parsing webpage - wrong rev" << endl;
@@ -2617,6 +2617,6 @@ void	Menu_CheckForNewDevelopmentVersion()
 
 	if( ret == MBR_YES )
 		OpenLinkInExternBrowser( OpenInBrowserURL );
-};
+}
 
 } // namespace DeprecatedGUI
