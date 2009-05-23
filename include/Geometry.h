@@ -111,6 +111,7 @@ struct Shape {
 		} else { // both are circles
 			return (pos - s.pos).GetLength2() < (radius + s.radius).GetLength2();
 		}
+		return false;
 	}
 };
 
