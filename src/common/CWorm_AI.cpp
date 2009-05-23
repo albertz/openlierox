@@ -2655,7 +2655,10 @@ int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)  {
 
 int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkflag)
 {
-    assert( cClient->getMap() );
+    if( cClient->getMap() == NULL ) {
+		errors << "CWorm::traceLine: map unset" << endl;
+		return 0;
+	}
 
     // Trace a line from the worm to length or until it hits something
 	CVec pos = start;
