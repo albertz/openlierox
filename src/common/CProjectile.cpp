@@ -167,6 +167,7 @@ void CProjectile::CalculateCheckSteps()
 ///////////////////
 // Check for a collision (static version; doesnt do anything else then checking)
 // Returns true if there was a collision, otherwise false is returned
+// This is not used anywhere within physics, it's just for AI (and also not very correct; it ignored radius)
 int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 {
 	// Check if it hit the terrain
@@ -456,122 +457,7 @@ void CProjectile::Bounce(float fCoeff)
 }
 
 
-///////////////////
-// Check for collisions with worms
-// HINT: this function is not used at the moment
-//		(ProjWormColl is used directly from within CheckCollision)
-int CProjectile::CheckWormCollision(CWorm *worms)
-{
-	static const float divisions = 5;
-	CVec dir = vPosition - vOldPos;
-	float length = NormalizeVector(&dir);
 
-	// Length must be at least 'divisions' in size so we do at least 1 check
-	// So stationary projectiles also get checked (mines)
-	length = MAX(length, divisions);
-
-	// Go through at fixed positions
-	CVec pos = vOldPos;
-	int wrm;
-	for(float p=0; p<length; p+=divisions, pos += dir*divisions) {
-		wrm = ProjWormColl(pos, worms);
-		if( wrm >= 0)
-			return wrm;
-	}
-
-	// AI hack (i know it's dirty, but it's fast)
-	// Checks, whether this projectile is heading to any AI worm
-	// If so, sets the worm's property Heading to ourself
-	CVec mutual_speed;
-	CWorm *w = worms;
-	for(short i=0;i<MAX_WORMS;i++,w++) {
-
-		// Only AI worms need this
-		if (!w->isUsed() || !w->getAlive() || w->getType() != PRF_COMPUTER)
-			continue;
-
-		mutual_speed = vVelocity - (*w->getVelocity());
-
-		// This projectile is heading to the worm
-		if (SIGN(mutual_speed.x) == SIGN(w->getPos().x - vPosition.x) &&
-			SIGN(mutual_speed.y) == SIGN(w->getPos().y - vPosition.y))  {
-
-			int len = (int)mutual_speed.GetLength();
-			float dist = 60.0f;
-
-			// Get the dangerous distance for various speeds
-			if (len < 30)
-				dist = 20.0f;
-			else if (len < 60)
-				dist = 30.0f;
-			else if (len < 90)
-				dist = 50.0f;
-
-		}
-	}
-
-
-	// No worms hit
-	return -1;
-}
-
-
-///////////////////
-// Lower level projectile-worm collision test
-// TODO: move to physics?
-int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
-{
-	Shape<int> s; s.pos = pos; s.radius = radius;
-	if(tProjInfo->Type == PRJ_CIRCLE)
-		s.type = Shape<int>::ST_CIRCLE;
-	else {
-		// that's LX56 behaviour...
-		if(s.radius.x <= 2) s.radius.x = 0;
-		if(s.radius.y <= 2) s.radius.y = 0;
-	}
-	
-	CWorm* ownerWorm = NULL;
-	if(this->iOwner >= 0 && this->iOwner < MAX_WORMS) {
-		ownerWorm = &worms[this->iOwner];
-		if(!ownerWorm->isUsed())
-			ownerWorm = NULL;
-	}
-	
-	CWorm *w = worms;
-	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed() || !w->getAlive())
-			continue;
-		
-		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
-		   continue;
-		
-		if(ownerWorm && !cClient->getGameLobby()->features[FT_SelfHit] && w == ownerWorm)
-			continue;
-		
-		const static int wsize = 4;
-		Shape<int> worm; worm.pos = w->getPos(); worm.radius = VectorD2<int>(wsize, wsize);
-		
-		if(s.CollisionWith(worm)) {
-
-			CollisionSide = 0;
-
-			// Calculate the side of the collision (obsolete??)
-			if(s.pos.x < worm.pos.x-2)
-				CollisionSide |= COL_LEFT;
-			else if(s.pos.x > worm.pos.x+2)
-				CollisionSide |= COL_RIGHT;
-			if(s.pos.y < worm.pos.y-2)
-				CollisionSide |= COL_TOP;
-			else if(s.pos.y > worm.pos.y+2)
-				CollisionSide |= COL_BOTTOM;
-
-			return i;
-		}
-	}
-
-	// No worm was hit
-	return -1;
-}
 
 
 template<bool TOP, bool LEFT>

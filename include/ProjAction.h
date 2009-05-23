@@ -28,6 +28,7 @@ struct proj_t;
 class CProjectile;
 struct shoot_t;
 struct SoundSample;
+struct LX56ProjAttribs;
 
 struct Proj_SpawnParent {
 	union {
@@ -236,7 +237,7 @@ struct Proj_Action {
 struct _Proj_Event {
 	virtual ~_Proj_Event() {}
 	virtual bool canMatch() const { return true; }
-	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const = 0;
+	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const = 0;
 	virtual bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) { return true; }
 	virtual bool read(CGameScript* gs, FILE* fp) { return true; }
 	virtual bool write(CGameScript* gs, FILE* fp) { return true; }
@@ -251,7 +252,7 @@ struct Proj_TimerEvent : _Proj_Event {
 	int		PermanentMode;
 	
 	bool canMatch() const { return Delay >= 0; }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
@@ -270,7 +271,7 @@ struct Proj_WormHitEvent : _Proj_Event {
 	
 	bool canMatch() const;
 	bool match(int worm, CProjectile* prj) const;
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
@@ -295,7 +296,7 @@ struct Proj_ProjHitEvent : _Proj_Event {
 		if(TargetTimeIsMore && TargetTimeIsLess) return false;
 		return ownerWorm.canMatch();
 	}
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 	
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
@@ -311,7 +312,7 @@ struct Proj_TerrainHitEvent : _Proj_Event {
 	bool Rock;
 	
 	bool canMatch() const { return (MapBound ? 1 : 0) + (Dirt ? 1 : 0) + (Rock ? 1 : 0) <= 1; }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
@@ -319,11 +320,11 @@ struct Proj_TerrainHitEvent : _Proj_Event {
 };
 
 struct Proj_DeathEvent : _Proj_Event {
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 };
 
 struct Proj_FallbackEvent : _Proj_Event {
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 };
 
 
@@ -380,7 +381,7 @@ struct Proj_Event {
 	}
 	
 	bool canMatch() const { return get()->canMatch(); }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const { return get()->checkEvent(eventInfo, prj, info); }
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const { return get()->checkEvent(eventInfo, prj, attribs, info); }
 	bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section);	
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
@@ -395,8 +396,8 @@ struct Proj_EventAndAction : Proj_Action {
 		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->canMatch()) return false;
 		return true;
 	}
-	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
-		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->checkEvent(eventInfo, prj, info)) return false;
+	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const {
+		for(Events::const_iterator i = events.begin(); i != events.end(); ++i) if(!i->checkEvent(eventInfo, prj, attribs, info)) return false;
 		applyTo(eventInfo, prj, info);
 		return true;
 	}	
@@ -416,10 +417,10 @@ struct Proj_LX56Timer : Proj_Action {
 	
 	bool canMatch() const { return Time > 0; }
 	bool hasAction() const { return Proj_Action::hasAction() && canMatch(); }
-	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const;
-	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
+	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
+	bool checkAndApply(Proj_EventOccurInfo eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const {
 		if(!hasAction()) return false;
-		if(!checkEvent(eventInfo, prj, info)) return false;
+		if(!checkEvent(eventInfo, prj, attribs, info)) return false;
 		applyTo(eventInfo, prj, info);
 		return true;
 	}

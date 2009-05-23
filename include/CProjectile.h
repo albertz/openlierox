@@ -32,6 +32,7 @@ class CViewport;
 struct proj_t;
 struct Proj_DoActionInfo;
 struct LX56ProjectileHandler;
+struct LX56ProjAttribs;
 
 #define		MAX_PROJECTILES	3000
 
@@ -74,7 +75,8 @@ typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves
 class CProjectile {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
-	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, float dt, CMap *map, CWorm* worms, float* enddt);
+	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, float dt, CMap *map, CWorm* worms, float* enddt);
+	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult);
 public:
 	// Constructor
 	CProjectile() {
@@ -93,13 +95,6 @@ public:
 
 
 private:
-	// Types
-	struct ColInfo  {
-		int left, right, top, bottom;
-		bool collided;
-		bool onlyDirt;
-	};
-
 	// Attributes
 
 	bool		bUsed;
@@ -154,6 +149,20 @@ private:
 private:
 	void	CalculateCheckSteps();
 	void	setBestLX56Handler();
+
+	// Types
+	struct ColInfo  {
+		int left, right, top, bottom;
+		bool collided;
+		bool onlyDirt;
+	};
+	
+	
+	// used in LX56 physics
+	int ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, CWorm *worms);
+	bool MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int py);
+	ColInfo TerrainCollision(const LX56ProjAttribs& attribs, int px, int py);
+	bool HandleCollision(const LX56ProjAttribs& attribs, const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt);
 	
 public:
 	// Methods
@@ -164,16 +173,8 @@ public:
     void	Draw(SDL_Surface * bmpDest, CViewport *view);
     void	DrawShadow(SDL_Surface * bmpDest, CViewport *view);
 
-	int		CheckWormCollision(CWorm *worms);
-	int		ProjWormColl(CVec pos, CWorm *worms);
-	ColInfo	TerrainCollision(int px, int py);
-	bool	MapBoundsCollision(int px, int py);
-	bool	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
-		
+	// Note: This is only used in AI and not in physics and it also should not be used in physics.
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
-
-	bool	CollisionWith(const CProjectile* prj) const;
-	bool	CollisionWith(const CProjectile* prj, int rx, int ry) const;
 	
 	void	Bounce(float fCoeff);
 
@@ -192,10 +193,9 @@ public:
 	AbsTime&	lastTrailProj()			{ return fLastTrailProj; }
 	AbsTime	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
-	CVec	GetPosition()		{ return vPosition; }
-	CVec	GetOldPos()			{ return vOldPos; }
-	CVec	GetVelocity()		{ return vVelocity; }
-	VectorD2<int> getRadius()	{ return radius; }
+	CVec	GetPosition() const	{ return vPosition; }
+	CVec	GetVelocity() const	{ return vVelocity; }
+	VectorD2<int> getRadius() const	{ return radius; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
 	int		GetOwner() const			{ return iOwner; }
 	bool	hasOwner() const	{ return iOwner >= 0 && iOwner < MAX_WORMS; }
@@ -205,7 +205,6 @@ public:
 	float	getRandomFloat();
 	int		getRandomIndex()	{ return iRandom; }
 
-	void	setTempNewPos( const CVec& p ) { vPosition = p; }
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
