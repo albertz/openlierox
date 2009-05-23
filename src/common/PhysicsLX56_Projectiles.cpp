@@ -229,30 +229,33 @@ bool CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt)
+ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, float dt, CMap *map, CWorm* worms, float* enddt)
 {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
-	if (bChangesSpeed)  {
-		int len = (int)vVelocity.GetLength2();
-		if (abs(len - iCheckSpeedLen) > 50000)
-			CalculateCheckSteps();
+	if (prj->bChangesSpeed)  {
+		int len = (int)prj->vVelocity.GetLength2();
+		if (abs(len - prj->iCheckSpeedLen) > 50000)
+			prj->CalculateCheckSteps();
 	}
 	
-	CVec vOldVel = vVelocity;
-	CVec newvel = vVelocity;
+	CVec vOldVel = prj->GetVelocity();
+	CVec newvel = prj->GetVelocity();
 	
 	// Gravity
+	float fGravity = 100.0f; // Default
+	if (prj->getProjInfo()->UseCustomGravity)
+		fGravity = (float)prj->getProjInfo()->Gravity;
 	newvel.y += fGravity * dt;
 	
 	// Dampening
 	// HINT: as this function is always called with fixed dt, we can do it this way
-	newvel *= tProjInfo->Dampening;
+	newvel *= prj->getProjInfo()->Dampening;
 	
 	float checkstep = newvel.GetLength2(); // |v|^2
-	if ((int)(checkstep * dt * dt) > MAX_CHECKSTEP2) { // |dp|^2=|v*dt|^2
+	if ((int)(checkstep * dt * dt) > prj->MAX_CHECKSTEP2) { // |dp|^2=|v*dt|^2
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
-		checkstep = (float)AVG_CHECKSTEP / sqrt(checkstep);
+		checkstep = (float)prj->AVG_CHECKSTEP / sqrt(checkstep);
 		checkstep = MAX(checkstep, 0.001f);
 		
 		// In some bad cases (float accurance problems mainly),
@@ -262,7 +265,7 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 		// Therefore if this is the case, we don't do multiple checksteps.
 		if(checkstep < dt) {
 			for(float time = 0; time < dt; time += checkstep) {
-				ProjCollisionType ret = SimulateFrame((time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
+				ProjCollisionType ret = LX56Projectile_checkCollAndMove(prj, (time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
 				if(ret) {
 					if(enddt) *enddt += time;
 					return ret;
@@ -274,50 +277,50 @@ ProjCollisionType CProjectile::SimulateFrame(float dt, CMap *map, CWorm* worms, 
 		}
 	}
 	
-	vVelocity = newvel;
+	prj->vVelocity = newvel;
 	if(enddt) *enddt = dt;
-	CVec vFrameOldPos = vPosition;
-	vPosition += vVelocity * dt;
+	CVec vFrameOldPos = prj->vPosition;
+	prj->vPosition += prj->vVelocity * dt;
 	
 	// if distance is to short to last check, just return here without a check
-	if ((int)(vOldPos - vPosition).GetLength2() < MIN_CHECKSTEP2) {
+	if ((int)(prj->vOldPos - prj->vPosition).GetLength2() < prj->MIN_CHECKSTEP2) {
 /*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 	}
 	
-	int px = (int)(vPosition.x);
-	int py = (int)(vPosition.y);
+	int px = (int)(prj->vPosition.x);
+	int py = (int)(prj->vPosition.y);
 	
 	// Hit edges
-	if (MapBoundsCollision(px, py))  {
-		vPosition = vOldPos;
-		vVelocity = vOldVel;
+	if (prj->MapBoundsCollision(px, py))  {
+		prj->vPosition = prj->vOldPos;
+		prj->vVelocity = vOldVel;
 		
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
 	
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
-	if (GetPhysicsTime() - fSpawnTime <= fWallshootTime)
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+	if (prj->fLastSimulationTime <= prj->fSpawnTime + TimeDiff(prj->fWallshootTime))
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 	
 	// Check collision with the terrain
-	ColInfo c = TerrainCollision(px, py);
+	CProjectile::ColInfo c = prj->TerrainCollision(px, py);
 	
 	// Check for a collision
-	if(c.collided && HandleCollision(c, vFrameOldPos, vOldVel, dt)) {
+	if(c.collided && prj->HandleCollision(c, vFrameOldPos, vOldVel, dt)) {
 		int colmask = PJC_TERRAIN;
 		if(c.onlyDirt) colmask |= PJC_DIRT;
-		return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(colmask));
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(colmask));
 	}
 	
 	// the move was safe, save the position
-	vOldPos = vPosition;
+	prj->vOldPos = prj->vPosition;
 	
-	return FinalWormCollisionCheck(this, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+	return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
 }
 
 
@@ -1054,7 +1057,7 @@ static ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, f
 		// Check for collisions
 		// ATENTION: dt will manipulated directly here!
 		// TODO: use a more general CheckCollision here
-	ProjCollisionType res = proj->SimulateFrame(dt, cClient->getMap(), worms, &dt);
+	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, dt, cClient->getMap(), worms, &dt);
 	
 	
 		// HINT: in original LX, we have this simulate code with lower dt

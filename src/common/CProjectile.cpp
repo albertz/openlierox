@@ -97,14 +97,12 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
 	}
 
-	fGravity = 100.0f; // Default
-	if (tProjInfo->UseCustomGravity)
-		fGravity = (float)tProjInfo->Gravity;
 
 	fWallshootTime = 0.01f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
 
-	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now? 
-	bChangesSpeed = ((int)fGravity == 0) && ((int)tProjInfo->Dampening == 1)
+	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now?
+	// TODO: fGravity != 0 => bChangesSpeed=false was here before. why?
+	bChangesSpeed = ((int)tProjInfo->Dampening == 1)
 		&& (tProjInfo->Hit.Type != PJ_BOUNCE || (int)tProjInfo->Hit.BounceCoeff == 1);  // Changes speed on bounce
 
 	updateCollMapInfo();

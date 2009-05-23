@@ -74,6 +74,7 @@ typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves
 class CProjectile {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
+	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, float dt, CMap *map, CWorm* worms, float* enddt);
 public:
 	// Constructor
 	CProjectile() {
@@ -136,7 +137,6 @@ private:
 	int			AVG_CHECKSTEP; // this is used for the intersection, if the step is to wide
 
 	
-	float		fGravity;  // gravity of the projectile (either custom or 100 by default)
 	float		fWallshootTime;  // period of time from the spawn when no collision checks are made
 	bool		bChangesSpeed;  // true if the projectile changes its speed during its life
 	int			iCheckSpeedLen;  // speed for which the check steps have been calculated last time
@@ -160,7 +160,6 @@ public:
 
 
 	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime);
-	int		Collision(uchar pf);
 
     void	Draw(SDL_Surface * bmpDest, CViewport *view);
     void	DrawShadow(SDL_Surface * bmpDest, CViewport *view);
@@ -171,7 +170,6 @@ public:
 	bool	MapBoundsCollision(int px, int py);
 	bool	HandleCollision(const ColInfo& col, const CVec& oldpos, const CVec& oldvel, float dt);
 		
-	ProjCollisionType SimulateFrame(float dt, CMap *map, CWorm* worms, float* enddt); // returns collision mask
 	static int	CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel); // returns collision mask
 
 	bool	CollisionWith(const CProjectile* prj) const;
@@ -195,6 +193,7 @@ public:
 	AbsTime	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
 	CVec	GetPosition()		{ return vPosition; }
+	CVec	GetOldPos()			{ return vOldPos; }
 	CVec	GetVelocity()		{ return vVelocity; }
 	VectorD2<int> getRadius()	{ return radius; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
@@ -206,6 +205,7 @@ public:
 	float	getRandomFloat();
 	int		getRandomIndex()	{ return iRandom; }
 
+	void	setTempNewPos( const CVec& p ) { vPosition = p; }
 	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
 	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
