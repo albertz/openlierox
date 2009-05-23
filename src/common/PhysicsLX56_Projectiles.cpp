@@ -32,7 +32,7 @@ struct LX56ProjAttribs {
 
 ///////////////////
 // Lower level projectile-worm collision test
-int CProjectile::ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, CWorm *worms)
+inline int CProjectile::ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, CWorm *worms)
 {
 	Shape<int> s; s.pos = pos; s.radius = attribs.radius;
 	if(attribs.projInfo->Type == PRJ_CIRCLE)
@@ -87,7 +87,7 @@ int CProjectile::ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, CWorm *w
 }
 
 
-bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, const LX56ProjAttribs& src_attribs, int src_rx, int src_ry) {
+static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, const LX56ProjAttribs& src_attribs, int src_rx, int src_ry) {
 	Shape<int> s1; s1.pos = src->GetPosition(); s1.radius.x = src_rx; s1.radius.y = src_ry;
 	Shape<int> s2; s2.pos = target->GetPosition(); s2.radius = target->getRadius();
 	if(src_attribs.projInfo->Type == PRJ_CIRCLE) s1.type = Shape<int>::ST_CIRCLE;
@@ -96,13 +96,13 @@ bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target
 	return s1.CollisionWith(s2);
 }
 
-bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, const LX56ProjAttribs& src_attribs) {
+static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, const LX56ProjAttribs& src_attribs) {
 	return CProjectile_CollisionWith(src, target, src_attribs, src_attribs.radius.x, src_attribs.radius.y);
 }
 
 
 
-ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult) {
+inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult) {
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
@@ -135,21 +135,21 @@ ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttri
 
 ///////////////////////
 // Checks for collision with the level border
-bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int py)
+inline bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int py)
 {
 	CMap* map = cClient->getMap();
 	CollisionSide = 0;
 	
-	if (px - radius.x < 0)
+	if (px - attribs.radius.x < 0)
 		CollisionSide |= COL_LEFT;
 	
-	if (px + radius.x >= (int)map->GetWidth())
+	if (px + attribs.radius.x >= (int)map->GetWidth())
 		CollisionSide |= COL_RIGHT;
 	
-	if (py - radius.y < 0)
+	if (py - attribs.radius.y < 0)
 		CollisionSide |= COL_TOP;
 	
-	if (py + radius.y >= (int)map->GetHeight())
+	if (py + attribs.radius.y >= (int)map->GetHeight())
 		CollisionSide |= COL_BOTTOM;
 	
 	return CollisionSide != 0;
@@ -158,7 +158,7 @@ bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int
 ////////////////////////////
 // Checks for collision with the terrain
 // WARNING: assumed to be called only from SimulateFrame
-CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs& attribs, int px, int py)
+inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs& attribs, int px, int py)
 {
 	CMap* map = cClient->getMap();
 	
@@ -293,7 +293,7 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, float dt, CMap *map, CWorm* worms, float* enddt)
+inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, float dt, CMap *map, CWorm* worms, float* enddt)
 {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
@@ -870,7 +870,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 }
 
 
-static bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, CProjectile* p) {
+static inline bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, CProjectile* p) {
 	if(p == prj) return true;
 	if(info.Target && p->getProjInfo() != info.Target) return true;
 	if(!info.ownerWorm.match(prj->GetOwner(), p)) return true;
@@ -895,7 +895,7 @@ static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) 
 	return CClient::MapPosIndex( p + VectorD2<int>(LEFT ? -r.x : r.x, TOP ? -r.y : r.y) );
 }
 
-bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
+inline bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
 	const VectorD2<int> vPosition = prj->GetPosition();
 	const VectorD2<int> radius = prj->getRadius();
 	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
@@ -1115,7 +1115,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 
 
 
-static ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, const LX56ProjAttribs& attribs, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, const LX56ProjAttribs& attribs, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 		// If this is a remote projectile, we have already set the correct fLastSimulationTime
 		//proj->setRemote( false );
 	
@@ -1224,7 +1224,7 @@ static ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, f
 struct LX56ProjectileHandler {
 	virtual ~LX56ProjectileHandler() {}
 
-	static bool doFrame(const AbsTime currentTime, TimeDiff dt, const proj_t& projInfo, CProjectile* const prj, const LX56ProjAttribs& attribs) {
+	static inline bool doFrame(const AbsTime currentTime, TimeDiff dt, const proj_t& projInfo, CProjectile* const prj, const LX56ProjAttribs& attribs) {
 		Proj_DoActionInfo doActionInfo;
 		TimeDiff serverTime = cClient->serverTime();
 		{
@@ -1276,13 +1276,31 @@ struct LX56ProjectileHandler {
 	}
 	
 	// returns true if we should continue
-	virtual bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
+	virtual bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) = 0;
+};
+
+struct LX56ProjHandler_Generic : LX56ProjectileHandler {
+	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
 		LX56ProjAttribs attribs = { prj->getRadius(), prj->getProjInfo() };
 		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
 	}
-};
+} lx56default;
 
-LX56ProjectileHandler lx56default;
+struct LX56ProjHandler_Radius1 : LX56ProjectileHandler {
+	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
+		LX56ProjAttribs attribs = { VectorD2<int>(1,1), prj->getProjInfo() };
+		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
+	}
+} lx56radius1;
+
+struct LX56ProjHandler_Radius2 : LX56ProjectileHandler {
+	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
+		LX56ProjAttribs attribs = { VectorD2<int>(2,2), prj->getProjInfo() };
+		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
+	}
+} lx56radius2;
+
+
 
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
@@ -1322,6 +1340,11 @@ simulateProjectilesStart:
 
 
 void CProjectile::setBestLX56Handler() {
-	lx56handler = &lx56default;
+	if(radius.x == 1 && radius.y == 1)
+		lx56handler = &lx56radius1;
+	else if(radius.x == 2 && radius.y == 2)
+		lx56handler = &lx56radius2;
+	else
+		lx56handler = &lx56default;
 }
 
