@@ -22,6 +22,18 @@
 #include "ThreadPool.h" // for struct Action
 
 
+/*
+	This small struct is intended to give some performance improvement for the simulation.
+	It is expected that this struct is in most cases very similar (or parts of it).
+	In LX56ProjectileHandler and most subfunctions, we use the information in this struct
+	rather than the direct dynamic information in the CProjectile.
+
+	The idea is to have some special LX56ProjectileHandler implementations where parts
+	of these attributes are constant, so the compiler can optimise out a lot (for these
+	special LX56ProjectileHandler implementations only). That only works of course if
+	everything is inlined (everything from LX56ProjectileHandler::doFrame down to the
+	specific function, which would benefit from these attributes being constant).
+*/
 
 struct LX56ProjAttribs {
 	VectorD2<int> radius;
