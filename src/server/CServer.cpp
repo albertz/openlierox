@@ -2320,6 +2320,15 @@ void GameServer::DumpGameState() {
 		hints << ", " << getGameMode()->Name() << endl;
 	} else
 		hints << ", GAMEMODE UNSET" << endl;
+	if(cMap && cMap->getCreated())
+		hints << " * level=" << cMap->getName();
+	else
+		hints << " * no level loaded";
+	if(cGameScript.get() && cGameScript->isLoaded())
+		hints << ", mod=" << cGameScript->modName();
+	else
+		hints << ", no mod loaded";
+	hints << endl;
 	hints << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
 	hints << ", lives=" << tLXOptions->tGameInfo.iLives;
 	hints << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
