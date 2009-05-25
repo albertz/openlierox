@@ -144,7 +144,7 @@ void TaskManager::finishQueuedTasks() {
 
 void TaskManager::dumpState(CmdLineIntf& cli) const {
 	ScopedLock lock(mutex);
-	for(std::set<Task*>::iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
+	for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
 		Task::State state;
 		{
 			Mutex::ScopedLock lock((*i)->mutex);
