@@ -569,15 +569,8 @@ void Con_AddText(int colour, const std::string& text, bool alsoToLogger)
 	if(alsoToLogger) {
 		for (std::vector<std::string>::const_iterator it = lines.begin(); it != lines.end(); it++)  {
 			notes << "Ingame console: ";
-			switch(colour) {
-			case CNC_NORMAL: break;
-			case CNC_NOTIFY: notes << "NOTIFY: "; break;
-			case CNC_ERROR: notes << "ERROR: "; break;
-			case CNC_WARNING: notes << "WARNING: "; break;
-			case CNC_DEV: notes << "DEV: "; break;
-			case CNC_CHAT: notes << "CHAT: "; break;
-			default: notes << "UNKNOWN: ";
-			}
+			std::string typeStr = CmdLineMsgTypeAsString((CmdLineMsgType)colour);
+			if(typeStr != "") notes << typeStr << ": ";
 			notes << *it << endl;
 		}
 	}

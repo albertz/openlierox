@@ -15,15 +15,19 @@
 #include <set>
 #include <list>
 #include "ThreadPool.h"
+#include "Mutex.h"
 
 class TaskManager;
+class CmdLineIntf;
 
 struct Task : Action {
-	Task() : manager(NULL) {}
+	Task() : manager(NULL), state(TS_INVALID) {}
 	virtual ~Task() {}
 	
 	TaskManager* manager;
 	std::string name;
+	enum State { TS_QUEUED, TS_WAITFORIMMSTART, TS_RUNNING, TS_RUNNINGQUEUED, TS_INVALID } state;
+	Mutex mutex;
 	virtual int handle() = 0;
 };
 
@@ -43,6 +47,7 @@ public:
 	
 	void start(Task* t, bool queued = false);
 	void finishQueuedTasks();
+	void dumpState(CmdLineIntf& cli) const;	
 };
 
 extern TaskManager* taskManager;

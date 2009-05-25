@@ -32,6 +32,7 @@ std::vector<std::string> ParseParams(const std::string& params);
 struct CmdLineIntf;
 class AutocompletionInfo;
 
+CmdLineIntf& stdoutCLI();
 
 
 
@@ -44,6 +45,18 @@ enum CmdLineMsgType {
 	CNC_DEV = 4, //MakeColour(100,100,255)
 	CNC_CHAT = 5, //MakeColour(100,255,100)
 };
+
+inline std::string CmdLineMsgTypeAsString(CmdLineMsgType type) {
+	switch (type) {
+		case CNC_NORMAL: return "";
+		case CNC_NOTIFY: return "NOTIFY";
+		case CNC_ERROR: return "ERROR";
+		case CNC_WARNING: return "WARNING";
+		case CNC_DEV: return "DEV";
+		case CNC_CHAT: return "CHAT";
+	}
+	return "INVALIDMSGTYPE";
+}
 
 
 /*

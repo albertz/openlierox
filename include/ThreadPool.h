@@ -18,6 +18,7 @@ struct SDL_cond;
 struct SDL_Thread;
 class ThreadPool;
 typedef int (*ThreadFunc) (void*);
+struct CmdLineIntf;
 
 struct Action {
 	virtual ~Action() {}
@@ -59,6 +60,7 @@ public:
 	ThreadPoolItem* start(Action* act, const std::string& name = "unknown worker", bool headless = false); // ThreadPool will own and free the Action
 	bool wait(ThreadPoolItem* thread, int* status = NULL);
 	bool waitAll();
+	void dumpState(CmdLineIntf& cli) const;
 };
 
 extern ThreadPool* threadPool;

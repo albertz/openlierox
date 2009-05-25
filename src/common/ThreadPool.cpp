@@ -11,6 +11,8 @@
 #include "ThreadPool.h"
 #include "Debug.h"
 #include "AuxLib.h"
+#include "ReadWriteLock.h" // for ScopedLock
+#include "Command.h"
 
 
 static const unsigned int THREADNUM = 40;
@@ -190,6 +192,21 @@ bool ThreadPool::waitAll() {
 	
 	return true;
 }
+
+void ThreadPool::dumpState(CmdLineIntf& cli) const {
+	ScopedLock lock(mutex);
+	for(std::set<ThreadPoolItem*>::const_iterator i = usedThreads.begin(); i != usedThreads.end(); ++i) {
+		if((*i)->working && (*i)->finished)
+			cli.writeMsg("thread '" + (*i)->name + "': ready but was not cleaned up");
+		else if((*i)->working && !(*i)->finished)
+			cli.writeMsg("thread '" + (*i)->name + "': working");
+		else if(!(*i)->working && !(*i)->headless && (*i)->finished)
+			cli.writeMsg("thread '" + (*i)->name + "': cleanup");
+		else
+			cli.writeMsg("thread '" + (*i)->name + "': invalid");
+	}
+}
+
 
 ThreadPool* threadPool = NULL;
 

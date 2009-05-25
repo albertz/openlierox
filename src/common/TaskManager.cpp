@@ -11,6 +11,7 @@
 #include "TaskManager.h"
 #include "Debug.h"
 #include "ReadWriteLock.h"
+#include "Command.h"
 
 TaskManager* taskManager = NULL;
 
@@ -79,15 +80,25 @@ TaskManager::~TaskManager() {
 
 
 void TaskManager::start(Task* t, bool queued) {
-	SDL_mutexP(mutex);
-	runningTasks.insert(t);
-	SDL_mutexV(mutex);
+	Mutex::ScopedLock tlock(t->mutex);
+
+	{
+		ScopedLock lock(mutex);
+		runningTasks.insert(t);		
+	}
 	
 	struct TaskHandler : Action {
 		Task* task;
 		int handle() {
-			assert(task->manager != NULL);
+			{
+				Mutex::ScopedLock lock(task->mutex);
+				task->state = Task::TS_QUEUED ? Task::TS_RUNNINGQUEUED : Task::TS_RUNNING;
+			}
 			int ret = task->handle();
+			if(task->manager == NULL) {
+				errors << "TaskManager::TaskHandler: invalid task with unset manager" << endl;
+				return ret;
+			}
 			SDL_mutexP(task->manager->mutex);
 			task->manager->runningTasks.erase(task);
 			SDL_CondSignal(task->manager->taskFinished);
@@ -98,34 +109,56 @@ void TaskManager::start(Task* t, bool queued) {
 	};
 	TaskHandler* handler = new TaskHandler();
 	handler->task = t;
-	assert(t->manager == NULL);
+	if(t->manager != NULL)
+		errors << "Task->manager must be NULL" << endl;
 	t->manager = this;
 	
-	if(!queued)
+	if(!queued) {
+		t->state = Task::TS_WAITFORIMMSTART;
 		threadPool->start(handler, t->name + " handler", true);
-	else {
-		SDL_mutexP(mutex);
+	} else {
+		ScopedLock lock(mutex);
 		if(quitSignal) {
-			SDL_mutexV(mutex);
 			warnings << "tried to start queued task " << t->name << " when queued task manager was already shutdown" << endl;
 			return;
 		}
+		t->state = Task::TS_QUEUED;
 		queuedTasks.push_back(handler);
 		SDL_CondSignal(queueThreadWakeup);
-		SDL_mutexV(mutex);
 	}
 }
 
 void TaskManager::finishQueuedTasks() {
-	SDL_mutexP(mutex);
-	if(quitSignal) { // means that we have already finished
-		SDL_mutexV(mutex);
-		return;
+	{
+		ScopedLock lock(mutex);
+		if(quitSignal) // means that we have already finished
+			return;
+		quitSignal = true;
+		SDL_CondSignal(queueThreadWakeup);
 	}
-	quitSignal = true;
-	SDL_CondSignal(queueThreadWakeup);
-	SDL_mutexV(mutex);
 	
 	threadPool->wait(queueThread);
 	queueThread = NULL;
 }
+
+
+void TaskManager::dumpState(CmdLineIntf& cli) const {
+	ScopedLock lock(mutex);
+	for(std::set<Task*>::iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
+		Task::State state;
+		{
+			Mutex::ScopedLock lock((*i)->mutex);
+			state = (*i)->state;
+		}
+		switch(state) {
+			case Task::TS_QUEUED: cli.writeMsg("task '" + (*i)->name + "': queued for execution"); break;
+			case Task::TS_WAITFORIMMSTART: cli.writeMsg("task '" + (*i)->name + "': wait for immediate start"); break;
+			case Task::TS_RUNNINGQUEUED: cli.writeMsg("task '" + (*i)->name + "': running from queue"); break;
+			case Task::TS_RUNNING: cli.writeMsg("task '" + (*i)->name + "': running independently"); break;
+			case Task::TS_INVALID: cli.writeMsg("task '" + (*i)->name + "': invalid state"); break;
+		}
+	}
+	if(runningTasks.size() == 0)
+		cli.writeMsg("no tasks queued/running");
+}
+

@@ -43,7 +43,35 @@
 #include "Unicode.h"
 #include "Autocompletion.h"
 #include "Command.h"
+#include "TaskManager.h"
 
+
+CmdLineIntf& stdoutCLI() {
+	struct StdoutCLI : CmdLineIntf {
+		virtual void pushReturnArg(const std::string& str) {
+			notes << "Ret: " << str << endl;
+		}
+		
+		virtual void finalizeReturn() {
+			notes << "Ret." << endl;
+		}
+		
+		virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+			Logger* l = &notes;
+			switch(type) {
+				case CNC_NORMAL: break;
+				case CNC_WARNING: l = &warnings; break;
+				case CNC_ERROR: l = &errors; break;
+				case CNC_NOTIFY: l = &hints; break;
+				default: (*l) << CmdLineMsgTypeAsString(type).substr(0,1) << ": ";
+			}
+			(*l) << msg << endl;
+		}
+				
+	};
+	static StdoutCLI cli;
+	return cli;
+}
 
 ParamSeps ParseParams_Seps(const std::string& params) {
 	bool quote = false;
@@ -1536,6 +1564,8 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	if(cServer) cServer->DumpGameState();
 	else caller->writeMsg("server not initialised");
 	// TODO: client game state
+	threadPool->dumpState(stdoutCLI());
+	taskManager->dumpState(stdoutCLI());
 	hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
 	hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
 	hints << "Current time: " << GetDateTimeText() << endl;
