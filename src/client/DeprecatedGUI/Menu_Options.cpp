@@ -76,6 +76,7 @@ enum {
 	os_TestBandwidth,
 	os_TestAnimation,
 	os_ShowCountryFlags,
+	os_CheckForUpdates,
 };
 
 enum {
@@ -323,14 +324,16 @@ bool Menu_OptionsInitialize()
 
 	cOpt_System.Add( new CLabel("Screenshot format",tLX->clNormalLabel),Static, 230,y, 0,0);
 	cOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,y, 0,0);
-	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, y - 2, 50,tLX->cFont.GetHeight()); y += 30;
+	cOpt_System.Add( new CTextbox(),                        os_MaxFPS, 550, y - 2, 50,tLX->cFont.GetHeight()); y += 30;
 	
 	cOpt_System.Add( new CLabel("Log Conversations",tLX->clNormalLabel),Static, 60, y, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bLogConvos), os_LogConvos, 200,y,17,17);
-	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 230, y, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 365,y,17,17); y+= 25;
-
-
+	cOpt_System.Add( new CLabel("Check for updates",tLX->clNormalLabel),Static, 230, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bCheckForUpdates),  os_CheckForUpdates, 365,y,17,17);
+	cOpt_System.Add( new CLabel("Show ping",tLX->clNormalLabel),		Static, 480, y, 0,0);
+	cOpt_System.Add( new CCheckbox(tLXOptions->bShowPing),  os_ShowPing, 550,y,17,17);
+	
+	
 	cOpt_System.SendMessage(os_NetworkPort,TXM_SETMAX,5,0);
 
 	cOpt_System.Add( new CButton(BUT_APPLY, tMenu->bmpButtons), os_Apply, 555,440, 60,15);
@@ -884,6 +887,13 @@ void Menu_OptionsFrame()
 						Menu_SpeedTest_Initialize();
 					}
 				} break;
+				
+				case os_CheckForUpdates:
+					if(ev->iEventMsg == CHK_CHANGED)  {
+						tLXOptions->bCheckForUpdates = cOpt_System.SendMessage(os_CheckForUpdates, CKM_GETCHECK, (DWORD)0, 0) != 0;
+					}
+					break;
+				
 			}
 		}
 

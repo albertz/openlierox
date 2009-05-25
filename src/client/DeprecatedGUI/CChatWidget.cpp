@@ -32,6 +32,7 @@
 #include "NotifyUser.h"
 #include "DeprecatedGUI/CImage.h"
 #include "DeprecatedGUI/CBox.h"
+#include "Mutex.h"
 
 
 namespace DeprecatedGUI {
@@ -82,8 +83,6 @@ CChatWidget::~CChatWidget()
 
 void CChatWidget::Create()
 {
-	chatWidgets.insert(this);
-	
 	CGuiSkinnedLayout::SetOffset( iX, iY );
 	
 	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
@@ -104,10 +103,13 @@ void CChatWidget::Create()
 				ChatWidget_ChatNewMessage(it->text, it->type);
 		}
 
+	chatWidgets.insert(this);
+
 	ChatWidget_ChatRegisterCallbacks();
 	ChatWidget_ChatRefillUserList();
 
 	CGuiSkinnedLayout::Create();
+
 }
 
 void CChatWidget::Destroy()
@@ -130,7 +132,6 @@ void CChatWidget::DisableChat()
 		((CListview *)(*cw)->getWidget(nc_UserList))->Clear();
 	}
 };
-
 
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {

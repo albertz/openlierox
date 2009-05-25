@@ -2542,29 +2542,35 @@ void Menu_Current_Shutdown() {
 
 void Menu_CheckForNewDevelopmentVersion()
 {
+	if( !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
+		return;
+
 	static bool checked = false;
-	if( checked || !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
+	if( checked )
 	{
 		checked = true;
 		return;
 	}
 
 #ifdef WIN32
-	static const std::string InstallationInstructions = "Close the application before overwriting executable file\n";
+	static const std::string InstallationInstructions = "Would you like to download new version?\n"
+														"(close the application before overwriting executable file)";
 	static const std::string RevSearchString = "revision=";
 	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD";
 	static const std::string OpenInBrowserURL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe";
 	static const int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
 #else
 #ifdef __APPLE__
-	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you or compile yourself\n";
+	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you, or compile it yourself\n"
+														"Would you like detailed instructions how to update and compile it yourself?";
 	static const std::string RevSearchString = "Revision ";
 	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
 	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,12367.0.html";
 	static const int RevNumDiff = 1;
 #else
 	// Linux and everything else
-	static const std::string InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n";
+	static const std::string InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n"
+														"Would you like detailed instructions how to update and compile it?";
 	static const std::string RevSearchString = "Revision ";
 	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
 	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,5158.0.html";
@@ -2610,8 +2616,7 @@ void Menu_CheckForNewDevelopmentVersion()
 						"You are using revision " + itoa(GetGameVersion().revnum) +
 						", and newer revision " + itoa(rev) + " available\n" + 
 						"You SHOULD update it, especially if you are beta-tester\n" +
-						InstallationInstructions +
-						"Click \"No\" to stop being notified about updates", LMB_YESNO );
+						InstallationInstructions, LMB_YESNO );
 
 	if( ret == MBR_YES )
 		OpenLinkInExternBrowser( OpenInBrowserURL );
