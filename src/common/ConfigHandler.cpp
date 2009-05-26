@@ -177,7 +177,7 @@ static bool GetString(const std::string& filename, const std::string& section, c
 	std::string	curKey;
 	size_t	chardest = 0;
 	int		Position;
-	int		found = false;
+	bool	found = false;
 
 	if(filename == "")
 		return false;

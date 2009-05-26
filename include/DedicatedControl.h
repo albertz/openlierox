@@ -14,7 +14,7 @@
 
 struct DedIntern;
 class CWorm;
-struct CmdLineIntf;
+class CmdLineIntf;
 
 class DedicatedControl {
 private:

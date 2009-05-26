@@ -1576,6 +1576,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\PhysicsLX56_Projectiles.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\client\ProfileSystem.cpp"
 				>
 				<FileConfiguration
@@ -1599,10 +1603,6 @@
 			</File>
 			<File
 				RelativePath="..\..\include\ProfileSystem.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\common\ProjAction.cpp"
 				>
 			</File>
 			<File

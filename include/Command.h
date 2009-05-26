@@ -29,7 +29,7 @@ typedef std::map<size_t,size_t> ParamSeps;
 ParamSeps ParseParams_Seps(const std::string& params);
 std::vector<std::string> ParseParams(const std::string& params);
 
-struct CmdLineIntf;
+class CmdLineIntf;
 class AutocompletionInfo;
 
 CmdLineIntf& stdoutCLI();
@@ -71,7 +71,8 @@ inline std::string CmdLineMsgTypeAsString(CmdLineMsgType type) {
 	in most CLI implementations. The chat CLI uses is to destroy itself
 	because it has an own instance for each executed command.
 */
-struct CmdLineIntf {
+class CmdLineIntf {
+public:
 	virtual void pushReturnArg(const std::string& str) = 0;
 	virtual void finalizeReturn() = 0;
 	virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) = 0;
