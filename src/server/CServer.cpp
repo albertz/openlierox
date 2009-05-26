@@ -1806,8 +1806,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 
 				// Now that a player has left, re-check the game status
 				RecheckGame();
+				cClient->UpdateScoreboard();
 			}
-			
+						
 			// End here
 			return;
 		}
@@ -1911,6 +1912,7 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 				
 				// Now that a player has left, re-check the game status
 				RecheckGame();
+				cClient->UpdateScoreboard();
 			}
 			
 			// End here
