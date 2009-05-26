@@ -495,7 +495,6 @@ public:
 		if(!rope->isReleased())
 			return;
 
-		float length2;
 		bool firsthit = !rope->isAttached();
 		CVec force;
 
@@ -521,7 +520,7 @@ public:
 			rope->hookVelocity() += force*dt;
 			rope->hookPos() += rope->hookVelocity() * dt;
 
-			length2 = (playerpos - rope->hookPos()) . GetLength2();
+			float length2 = (playerpos - rope->hookPos()) . GetLength2();
 
 			// Check if it's too long
 			if(length2 > rope->getMaxLength() * rope->getMaxLength()) {
@@ -533,7 +532,7 @@ public:
 		else if(!rope->isShooting() && !rope->isAttached()) {
 
 			// Going towards the player
-			length2 = (playerpos - rope->hookPos()) . GetLength2();
+			float length2 = (playerpos - rope->hookPos()) . GetLength2();
 			if(length2 > rope->getRestLength() * rope->getRestLength()) {
 
 				// Pull the hook back towards the player
