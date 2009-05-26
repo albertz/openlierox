@@ -218,12 +218,13 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 	std::string msg = message;
 	if( msg == "" )
 	{
-		if( afkType == AFK_TYPING_CHAT )
-			msg = "(typing)";
-		else if( afkType == AFK_AWAY )
-			msg = "(away)";
-		else if( afkType == AFK_SELECTING_WPNS )
-			msg = "(selecting weapons)";
+		switch(afkType) {
+			case AFK_BACK_ONLINE: break;
+			case AFK_TYPING_CHAT: msg = "(typing)"; break;
+			case AFK_AWAY: msg = "(away)"; break;
+			case AFK_SELECTING_WPNS: msg = "(selecting weapons)"; break;
+			case AFK_CONSOLE: msg = "(console)"; break;
+		}
 	}
 
 
