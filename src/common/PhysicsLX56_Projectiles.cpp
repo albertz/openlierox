@@ -1336,6 +1336,8 @@ finalMapPosIndexUpdate:
 
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
+	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
+	cClient->fLastSimulationTime += warpTime;
 	const TimeDiff orig_dt = TimeDiff(0.01f);
 	
 simulateProjectilesStart:
@@ -1343,9 +1345,11 @@ simulateProjectilesStart:
 	
 	for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 		CProjectile* p = i->get();
+		p->fLastSimulationTime += warpTime;
 		LX56_simulateProjectile( cClient->fLastSimulationTime, p );
 	}
 	
+	warpTime = TimeDiff(0);
 	cClient->fLastSimulationTime += orig_dt;
 	goto simulateProjectilesStart;
 }

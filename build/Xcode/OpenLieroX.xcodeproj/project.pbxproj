@@ -1184,7 +1184,6 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
-				2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */,
 				238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */,
 				23099CC90F60715A008E6C7F /* Mutex.cpp */,
 				23099CCA0F60715A008E6C7F /* NewNetEngine.cpp */,
@@ -1198,6 +1197,7 @@
 				230E9C500D8C407B00BFB500 /* Version.cpp */,
 				23026E560D5D1D4C0021934B /* Physics.cpp */,
 				23026E510D5D1BC50021934B /* PhysicsLX56.cpp */,
+				2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */,
 				23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */,
 				230668380D40B44D005B4451 /* IniReader.cpp */,
 				235D281A0CF7C13B0067BA4F /* FileDownload.cpp */,

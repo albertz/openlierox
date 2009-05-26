@@ -55,4 +55,9 @@ public:
 
 AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active
 
+
+inline void warpSimulationTimeForDeltaTimeCap(AbsTime& simulationTime, TimeDiff deltaTime, TimeDiff realDeltaTime) {
+	simulationTime += realDeltaTime - deltaTime;
+}
+
 #endif
