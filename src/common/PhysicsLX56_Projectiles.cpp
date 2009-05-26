@@ -1334,7 +1334,8 @@ finalMapPosIndexUpdate:
 }
 
 
-void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime) {
+void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
+	AbsTime currentTime = GetPhysicsTime();
 	const TimeDiff orig_dt = TimeDiff(0.01f);
 	
 simulateProjectilesStart:

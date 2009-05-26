@@ -36,7 +36,7 @@
 
 
 // defined in PhysicsLX56_Projectiles
-void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime);
+void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs);
 
 // TODO: clean up this code!
 
@@ -255,7 +255,8 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local, AbsTime simulationTime) {
+	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
+		AbsTime simulationTime = GetPhysicsTime();
 		const float orig_dt = 0.01f;
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -446,7 +447,12 @@ public:
 		goto simulateWormStart;
 	}
 
-	virtual void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
+	virtual void simulateWormWeapon(CWorm* worm) {
+		TimeDiff dt = tLX->fRealDeltaTime * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		simulateWormWeapon(dt, worm);
+	}
+
+	void simulateWormWeapon(TimeDiff dt, CWorm* worm) {
 		// Weird
 		if (worm->getCurrentWeapon() < 0 || worm->getCurrentWeapon() >= 5) {
 			warnings("WARNING: SimulateWeapon: iCurrentWeapon is bad\n");
@@ -476,8 +482,8 @@ public:
 		}
 	}
 
-	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs, AbsTime currentTime) {
-		LX56_simulateProjectiles(projs, currentTime);
+	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
+		LX56_simulateProjectiles(projs);
 	}
 
 	void simulateNinjarope(float dt, CWorm* owner, CWorm *worms) {

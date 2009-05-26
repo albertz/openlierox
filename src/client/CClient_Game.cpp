@@ -92,7 +92,7 @@ void CClient::Simulation()
 
 			// Simulate the worm
 			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal(), tLX->currentTime );
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
 
 			if(bGameOver)
 				// TODO: why continue and not break?
@@ -185,7 +185,7 @@ void CClient::Simulation()
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), tLX->currentTime);
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
@@ -228,7 +228,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		if(w->getAlive()) 
 		{
 			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false, GetPhysicsTime() ); 
+			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false ); 
 		}
 
 		if(w->getAlive()) 
@@ -257,7 +257,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		SimulateEntities(TimeDiff(NewNet::TICK_TIME));
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin(), GetPhysicsTime());
+	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
 }
 
 
