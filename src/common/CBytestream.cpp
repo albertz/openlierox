@@ -410,7 +410,7 @@ uchar CBytestream::readByte() {
 		return Data[pos++];
 	else {
 #ifndef FUZZY_ERROR_TESTING
-		warnings <<"reading from stream behind end" << endl;
+		errors <<"reading from stream behind end" << endl;
 #endif
 		return 0;
 	}
@@ -539,7 +539,7 @@ bool CBytestream::readBit()
 {
 	if( isPosAtEnd() )
 	{
-		warnings("WARNING: reading from stream behind end\n");
+		errors << "reading from stream behind end" << endl;
 		return false;
 	}
 	bool ret = (Data[pos] & ( 1 << bitPos )) != 0;
@@ -586,7 +586,7 @@ uchar CBytestream::peekByte() const
 {
 	if (!isPosAtEnd())
 		return Data[GetPos()];
-	warnings("CBytestream::peekByte(): reading from stream beyond end\n");
+	errors << "CBytestream::peekByte(): reading from stream beyond end" << endl;
 	return 0;
 }
 
