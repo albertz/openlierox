@@ -1843,6 +1843,7 @@ static void updateAddedWorms(CClient* cl) {
 				}
 				
 				cl->getWorm(i)->setUsed(true);
+				info.applyTo(cl->getWorm(i)); // sets skin
 				cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
 				cl->getWorm(i)->setName(w->getName());
 				cl->getWorm(i)->setID(w->getID());
@@ -1856,6 +1857,8 @@ static void updateAddedWorms(CClient* cl) {
 					warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
 				cl->getWorm(i)->setLocal(true);
 				cl->getWorm(i)->setClientVersion(cl->getClientVersion());
+				if(!cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType()))
+					warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
 				
 				if(cServer->getState() != SVS_LOBBY) {
 					w->Prepare(true); // prepare serverside
@@ -1925,6 +1928,7 @@ static void updateAddedWorms(CClient* cl) {
 						}
 					}
 					
+					cl->UpdateScoreboard();
 				}
 			}
 		}

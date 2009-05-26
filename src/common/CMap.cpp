@@ -949,10 +949,21 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 {
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
-
-	assert(bmpDest);
-	assert(bmpObj);
-	assert(view);
+	if(!bmpDest) {
+		errors << "CMap::DrawObjectShadow: bmpDest not set" << endl;
+		return;
+	}
+	
+	if(!bmpObj) {
+		errors << "CMap::DrawObjectShadow: bmpObj not set" << endl;
+		return;
+	}
+	
+	if(!view) {
+		errors << "CMap::DrawObjectShadow: view not set" << endl;
+		return;
+	}
+	
 	if(!bmpShadowMap.get()) {
 		errors << "CMap::DrawObjectShadow: shadow map not initialised" << endl;
 		return;
