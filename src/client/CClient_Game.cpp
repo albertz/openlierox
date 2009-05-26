@@ -61,17 +61,17 @@ void CClient::Simulation()
 
 	// If we're in a menu & a local game, don't do simulation
 	if (tLX->iGameType == GME_LOCAL)  {
-		if( bGameOver || bGameMenu || bViewportMgr ) {
+		if( bGameOver || bGameMenu || bViewportMgr || Con_IsVisible() ) {
 
 			// Clear the input of the local worms
 			clearLocalWormInputs();
+			
+			if(!bGameOver) return; // gameover case will be checked below
 		}
 	}
 
     // We stop a few seconds after the actual game over
     if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
-        return;
-    if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
         return;
 
 
