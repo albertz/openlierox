@@ -940,15 +940,14 @@ void Cmd_kickBots::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	}
 	
 	std::string reason = (params.size() > 0) ? params[0] : "Dedicated command";
-	int count = 0;
-	for( int f = 0; f < cClient->getNumWorms(); f++ ) {
-		if( cClient->getWorm(f)->getType() == PRF_COMPUTER ) {
-			cServer->kickWorm(cClient->getWorm(f)->getID(), reason);
-			count++;
-		}
-	}
-	if(count == 0)
+	std::list<int> worms;
+	for( int f = 0; f < cClient->getNumWorms(); f++ )
+		if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
+			worms.push_back(cClient->getWorm(f)->getID());
+	if(worms.size() == 0)
 		caller->writeMsg("there is no bot on the server");
+	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+		cServer->kickWorm(*i, reason);		
 }
 
 
