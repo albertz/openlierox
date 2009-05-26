@@ -892,6 +892,30 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	cClient->AddRandomBot();
 }
 
+COMMAND(addBots, "add bots to game", "number", 1, 1);
+// adds a worm to the game (By string - id is way to complicated)
+void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
+		caller->writeMsg("Too many worms!");
+		return;
+	}
+	
+	bool fail = false;
+	int num = from_string<int>(params[0], fail);
+	if(fail || num <= 0) {
+		printUsage(caller);
+		return;
+	}
+	
+	cClient->AddRandomBot(num);
+}
+
 COMMAND(kickBot, "kick bot from game", "[reason]", 0, 1);
 void Cmd_kickBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
