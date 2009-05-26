@@ -504,10 +504,11 @@ public:
 		else
 			force = CVec(0,150);
 
-		// TODO: does this need more improvement/optimisation ?
-		// TODO: is this still needed? we get in any case a fixed dt here
-		// though perhaps it is if the rope is very fast?
-		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 5) {
+		// dt is fixed, but for very high speed, this could be inaccurate.
+		// Limit was 5 earlier but that limit was hit almost always. To have
+		// it more exact (i.e. really like 100 FPS), I changed this limit to 10,
+		// which is not hit in normal cases.
+		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 10) {
 			simulateNinjarope( dt/2, owner, worms );
 			simulateNinjarope( dt/2, owner, worms );
 			return;
