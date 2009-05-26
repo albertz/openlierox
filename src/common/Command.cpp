@@ -908,6 +908,26 @@ void Cmd_kickBot::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	cServer->kickWorm(worm, reason);
 }
 
+COMMAND(kickBots, "kick all bots from game", "[reason]", 0, 1);
+void Cmd_kickBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	std::string reason = (params.size() > 0) ? params[0] : "Dedicated command";
+	int count = 0;
+	for( int f = 0; f < cClient->getNumWorms(); f++ ) {
+		if( cClient->getWorm(f)->getType() == PRF_COMPUTER ) {
+			cServer->kickWorm(cClient->getWorm(f)->getID(), reason);
+			count++;
+		}
+	}
+	if(count == 0)
+		caller->writeMsg("there is no bot on the server");
+}
+
+
 COMMAND(killBots, "kill all bots out of game", "", 0, 0);
 void Cmd_killBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
