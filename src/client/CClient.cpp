@@ -1279,6 +1279,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 		return false;
 	}
 	
+	// Initialize has cleaned up all worms, so this is not necessarily needed
 	cClient->setNumWorms(0);
 	// Add the player to the list
 	profile_t *ply = FindProfile(player);

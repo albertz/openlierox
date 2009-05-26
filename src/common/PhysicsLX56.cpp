@@ -505,10 +505,10 @@ public:
 			force = CVec(0,150);
 
 		// dt is fixed, but for very high speed, this could be inaccurate.
-		// Limit was 5 earlier but that limit was hit almost always. To have
-		// it more exact (i.e. really like 100 FPS), I changed this limit to 10,
-		// which is not hit in normal cases.
-		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 10) {
+		// We use the limit 5 here to have it very unpropable to shoot through a wall.
+		// In most cases, dt his halfed once, so this simulateNinjarope is
+		// like in LX56 with 200FPS.
+		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 5) {
 			simulateNinjarope( dt/2, owner, worms );
 			simulateNinjarope( dt/2, owner, worms );
 			return;
