@@ -2176,7 +2176,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		// (also don't proceed when waiting for respawn)
 		for(uint i = 0; i < iNumWorms; ++i) {
 			if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
-				if(cLocalWorms[i]->getLives() != WRM_OUT) return;
+				if(cLocalWorms[i]->getLives() != WRM_OUT || cLocalWorms[i]->getAlive()) return;
 			}
 		}
 	}
