@@ -202,6 +202,9 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 		return;
 	}
 
+	// TODO: why is the code double here? Same code in Simulation. PLEASE AVOID THAT!
+	// TODO: Fix this code, I changed it in Simulation and not sure if I can change here the same way.
+	
 	// If we're in a menu & a local game, don't do simulation
 	if (tLX->iGameType == GME_LOCAL)  {
 		if( bGameOver || bGameMenu || bViewportMgr ) {
