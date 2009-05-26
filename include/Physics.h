@@ -51,6 +51,11 @@ public:
 	virtual void simulateWormWeapon(CWorm* worm) = 0;
 	virtual void simulateProjectiles(Iterator<CProjectile*>::Ref projs) = 0;
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) = 0;
+	
+	// skips simulation for one frame (but increments simulationtime)
+	void skipWorm(CWorm* worm);
+	void skipProjectiles(Iterator<CProjectile*>::Ref projs);
+	void skipBonuses(CBonus* bonuses, size_t count);	
 };
 
 AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active

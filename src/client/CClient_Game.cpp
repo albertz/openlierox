@@ -66,7 +66,18 @@ void CClient::Simulation()
 			// Clear the input of the local worms
 			clearLocalWormInputs();
 			
-			if(!bGameOver) return; // gameover case will be checked below
+			// gameover case will be checked below
+			if(!bGameOver) {
+				// skip simulations for this frame
+				for(int i = 0; i < MAX_WORMS; i++) {
+					CWorm* w = &cRemoteWorms[i];
+					if(!w->isUsed()) continue;
+					if(!w->getAlive()) continue;
+					PhysicsEngine::Get()->skipWorm(w);
+				}
+				PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
+				PhysicsEngine::Get()->skipBonuses(cBonuses, MAX_BONUSES);				
+			}
 		}
 	}
 
