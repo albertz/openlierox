@@ -2210,16 +2210,20 @@ void CClient::ShutdownLog()
 ///////////////////
 // Shutdown the client
 void CClient::Shutdown() {
-	int i;
-
 	// Remote worms
 	if(cRemoteWorms) {
-		for(i=0;i<MAX_WORMS;i++)
+		for(int i=0;i<MAX_WORMS;i++)
 			cRemoteWorms[i].Shutdown();
 		delete[] cRemoteWorms;
 		cRemoteWorms = NULL;
 	}
 
+	for(int i = 0; i < MAX_WORMS; ++i)
+		cLocalWorms[i] = NULL;
+	for(int i = 0; i < MAX_WORMS; ++i)
+		tProfiles[i] = NULL;
+	
+	
 	// Projectiles
 	cProjectiles.clear();
 	projPosMap.clear();
