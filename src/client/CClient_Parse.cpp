@@ -643,7 +643,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// We've already got this packet
 	if (client->bGameReady && !client->bGameOver)  {
-		(tLX->iGameType == GME_JOIN ? warnings : notes)
+		((tLX->iGameType == GME_JOIN) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: we already got this" << endl;
 		
 		// HINT: we ignore it here for the safety because S2C_PREPAREGAME is 0 and it is
@@ -656,7 +656,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// If we're playing, the game has to be ready
 	if (client->iNetStatus == NET_PLAYING && !client->bGameOver)  {
-		(tLX->iGameType == GME_JOIN ? warnings : notes)
+		((tLX->iGameType == GME_JOIN) ? warnings : notes)
 			<< "CClientNetEngine::ParsePrepareGame: playing, already had to get this" << endl;
 		client->bGameReady = true;
 
@@ -978,7 +978,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// Start the game logging
 	if(!isReconnect)
 		client->StartLogging(num_worms);
-
+	
+	if(!isReconnect)
+		client->SetupViewports();		
+	
 	client->UpdateScoreboard();
 	client->bShouldRepaintInfo = true;
 
@@ -1074,7 +1077,7 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 
 
 ///////////////////
-// Parse a start game packet
+// Parse a start game packet (means BeginMatch actually)
 void CClientNetEngine::ParseStartGame(CBytestream *bs)
 {
 	// Check that the game is ready
@@ -1088,7 +1091,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		client->iNetStatus = NET_CONNECTED;
 	}
 	
-	notes << "Client: get start game signal";
+	notes << "Client: get BeginMatch signal";
 	
 	if(client->bGameRunning) {
 		notes << ", back to game" << endl;
@@ -1352,6 +1355,7 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseWormWeaponInfo", CWorm::skipWeapons);
 	if(!w) return;
 
+	notes << "Client:ParseWormWeaponInfo: ";
 	w->readWeapons(bs);
 
 	client->UpdateScoreboard();
@@ -1810,10 +1814,10 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 		
 		CWorm* w = &client->cRemoteWorms[id];
 
-		notes << "Client: worm " << int(id) << ":" << w->getName() << " got ready" << endl;
 		w->setGameReady(true);
 
 		// Read the weapon info
+		notes << "Client:ParseCLReady: ";
 		w->readWeapons(bs);
 
 	}

@@ -351,7 +351,7 @@ mapCreate:
 			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
 			return false;
 		}
-		notes << "Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
+		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	}
 	
 	// Load the game script
@@ -379,7 +379,7 @@ mapCreate:
 			return false;
 		}
 	}
-	notes << "Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
+	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 
 	// Load & update the weapon restrictions
 	cWeaponRestrictions.loadList(sWeaponRestFile);

@@ -310,7 +310,7 @@ void SimulateEntities(TimeDiff dt)
 {
 	CMap* map = cClient->getMap();
 	if (!map) { // Weird
-		printf("WARNING. SimulateEntities gots no map\n");
+		hints << "SimulateEntities gots no map" << endl;
 		return;
 	}
 

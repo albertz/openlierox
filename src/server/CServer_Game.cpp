@@ -595,7 +595,7 @@ void GameServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Go back to the lobby
-void GameServer::gotoLobby()
+void GameServer::gotoLobby(bool alsoWithMenu)
 {
 	notes << "GameServer: gotoLobby" << endl;
 
@@ -662,7 +662,8 @@ void GameServer::gotoLobby()
 		DedicatedControl::Get()->BackToServerLobby_Signal();
 
 	// Goto the host lobby
-	DeprecatedGUI::Menu_Net_GotoHostLobby();
+	if(alsoWithMenu)
+		DeprecatedGUI::Menu_Net_GotoHostLobby();
 
 	for( i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getUdpFileDownloader()->allowFileRequest(true);

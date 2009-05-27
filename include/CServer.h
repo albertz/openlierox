@@ -206,7 +206,7 @@ public:
 	void		WormShootEnd(CWorm* w, const weapon_t* weapon);
     void        RecheckGame();
 
-	void		gotoLobby();
+	void		gotoLobby(bool alsoWithMenu = true);
 
 
 	// Network

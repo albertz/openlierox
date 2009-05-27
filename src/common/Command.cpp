@@ -1363,6 +1363,20 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		return;
 	}
 
+	if(cServer->getState() != SVS_LOBBY) {
+		// we have already started the game -> goto lobby back first and then restart
+		cServer->gotoLobby(false);
+		for(int i = 0; i < cClient->getNumWorms(); ++i) {
+			if(cClient->getWorm(i) != NULL) {
+				/*
+				 If we have host-worm-does-wpn-selection activated, we would skip the new
+				 wpn selection if we don't force it by this way.
+				 */
+				cClient->getWorm(i)->setWeaponsReady(false);
+			}
+		}
+	}
+	
 	// Start the game
 	cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 	if(!cServer->StartGame()) {
