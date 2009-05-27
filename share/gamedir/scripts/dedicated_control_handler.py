@@ -284,7 +284,7 @@ def parseChatMessage(sig):
 
 	wormID = int(sig[1])
 	message = sig[2]
-	io.msg("Chat msg from worm %i: %s" % (wormID, message))
+	#io.msg("Chat msg from worm %i: %s" % (wormID, message))
 	if worms[wormID].isAdmin:
 		if not cmds.parseAdminCommand(wormID,message):
 			cmds.parseUserCommand(wormID,message)
