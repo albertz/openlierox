@@ -18,7 +18,7 @@ struct SDL_cond;
 struct SDL_Thread;
 class ThreadPool;
 typedef int (*ThreadFunc) (void*);
-class CmdLineIntf;
+struct CmdLineIntf;
 
 struct Action {
 	virtual ~Action() {}

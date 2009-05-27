@@ -18,7 +18,7 @@
 #include "Mutex.h"
 
 class TaskManager;
-class CmdLineIntf;
+struct CmdLineIntf;
 
 struct Task : Action {
 	Task() : manager(NULL), state(TS_INVALID) {}
