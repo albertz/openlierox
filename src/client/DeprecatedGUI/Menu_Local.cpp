@@ -638,7 +638,7 @@ void Menu_LocalStartGame()
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 
     //tLXOptions->sServerPassword = ""; // TODO: we have set this, why? it overwrites the password which is very annoying
-    tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise
+    tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise, new net engine doesn't support any kind of pause
 
 
     // Get the mod name

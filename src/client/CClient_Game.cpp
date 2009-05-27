@@ -54,7 +54,7 @@ void CClient::Simulation()
 
 	// Don't simulate if the physics engine is not ready
 	if (!PhysicsEngine::Get()->isInitialised())  {
-		printf("WARNING: trying to simulate with non-initialized physics engine!\n");
+		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
 		return;
 	}
 
@@ -209,28 +209,20 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 
 	// Don't simulate if the physics engine is not ready
 	if (!PhysicsEngine::Get()->isInitialised())  {
-		printf("WARNING: trying to simulate with non-initialized physics engine!\n");
+		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
 		return;
 	}
 
-	// TODO: why is the code double here? Same code in Simulation. PLEASE AVOID THAT!
-	// TODO: Fix this code, I changed it in Simulation and not sure if I can change here the same way.
-	
-	// If we're in a menu & a local game, don't do simulation
+	// Local game always uses old net engine, so NewNet_Simulation() should never be called on local game.
 	if (tLX->iGameType == GME_LOCAL)  {
-		if( bGameOver || bGameMenu || bViewportMgr ) {
-
-			// Clear the input of the local worms
-			clearLocalWormInputs();
-		}
+		errors << "WARNING: new net engine is used for local game!" << endl;
+		return;
 	}
 
     // We stop a few seconds after the actual game over
     if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
         return;
-    if((bGameMenu || bViewportMgr) && tLX->iGameType == GME_LOCAL)
-        return;
-    
+
 
     CWorm *w;
 	// Player simulation
@@ -1032,7 +1024,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 		return;
 
 	if(!Slot->Weapon) {
-		printf("WARNING: trying to shoot with an unitialized weapon!\n");
+		errors << "WARNING: trying to shoot with an unitialized weapon!" << endl;
 		return;
 	}
 
@@ -1118,7 +1110,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		
 		// If this worm is dead, ignore the shot (original LX56 behaviour)
 		if(!w->getAlive()) {
-			//printf("WARNING: dead worm was shooting\n"); // Occurs pretty often, don't spam console
+			//warnings << "WARNING: dead worm was shooting" << endl; // Occurs pretty often, don't spam console
 			return;
 		}
 	}
