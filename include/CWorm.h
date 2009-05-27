@@ -228,10 +228,7 @@ private:
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
-	AbsTime		fCollisionTime;
-	CVec		vCollisionVelocity;
 	AbsTime		fLastInputTime;
-	bool		bCollidedLastFrame;
 	// last time we moved left or right
 	AbsTime		lastMoveTime;
 
@@ -628,13 +625,6 @@ public:
 	void reinitInputHandler();
 	
 	std::map< int, DamageReport> & getDamageReport() { return cDamageReport; }
-
-	void setCollisionTime(const AbsTime& _t)			{ fCollisionTime = _t; }
-	AbsTime getCollisionTime() const			{ return fCollisionTime; }
-	void setCollisionVel(CVec _v)			{ vCollisionVelocity = _v; }
-	CVec getCollisionVel() const			{ return vCollisionVelocity; }
-	void setCollidedLastFrame(bool _c)		{ bCollidedLastFrame = _c; }
-	bool hasCollidedLastFrame() const		{ return bCollidedLastFrame; }
 	
 	void NewNet_SaveWormState(CWorm * w);
 	void NewNet_RestoreWormState(CWorm * w);

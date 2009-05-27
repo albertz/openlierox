@@ -236,22 +236,13 @@ public:
 		}
 
 		// If we collided with the ground and we were going pretty fast, make a bump sound
-		// Also save the collision time and velocity
 		if(coll) {
 			if( fabs(vel->x) > 30 && (clip & 0x01 || clip & 0x02) )
 				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
 			else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
 				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
-
-			// Set the collision information
-			if (!worm->hasCollidedLastFrame())  {
-				worm->setCollisionTime(currentTime);
-				worm->setCollisionVel(*worm->getVelocity());
-				worm->setCollidedLastFrame(true);
-			}
-		} else
-			worm->setCollidedLastFrame(false);
-
+		}
+		
 		return coll;
 	}
 
@@ -380,16 +371,8 @@ public:
 				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
 		{
 			if( onGround )
-			{
 				worm->getVelocity()->y = wd->JumpForce;
-				// HINT: if we are on ground for a short time, make the jump X-velocity
-				// the same as it was in the time of the collision (before the ground had dampened the worm)
-				// This behavior is more like old LX
-				if (simulationTime - worm->getCollisionTime() <= 0.15f)
-					worm->getVelocity()->x = worm->getCollisionVel().x * 0.6f; // Dampen only a bit
-			}
-			else
-			{
+			else {
 				// GFX effect, as in TeeWorlds (we'll change velocity after that)
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), 0, NULL );
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), 0, NULL );

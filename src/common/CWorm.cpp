@@ -76,9 +76,6 @@ void CWorm::Clear()
 	vFollowPos = CVec(0,0);
 	bFollowOverride = false;
 	fLastUpdateWritten = AbsTime();
-	fCollisionTime = 0;
-	vCollisionVelocity = CVec(0, 0);
-	bCollidedLastFrame = false;
 	tLastState = worm_state_t();
 	fLastAngle = -1;
 	iLastCharge = 255;
@@ -1310,10 +1307,7 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( vLastPos );
 	COPY( vDrawPos );
 	COPY( bOnGround );
-	COPY( fCollisionTime );
-	COPY( vCollisionVelocity );
 	COPY( fLastInputTime );
-	COPY( bCollidedLastFrame );
 	COPY( lastMoveTime );
 	COPY( fServertime );
 	COPY( vFollowPos );
@@ -1361,10 +1355,7 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( vLastPos );
 	COPY( vDrawPos );
 	COPY( bOnGround );
-	COPY( fCollisionTime );
-	COPY( vCollisionVelocity );
 	COPY( fLastInputTime );
-	COPY( bCollidedLastFrame );
 	COPY( lastMoveTime );
 	COPY( fServertime );
 	COPY( vFollowPos );
@@ -1407,9 +1398,7 @@ void CWorm::NewNet_InitWormState(int seed)
 	NewNet_random.seed(seed);
 	// These vars most probably getting reset in Spawn() but I want to be sure
 	fLastSimulationTime = AbsTime();
-	fCollisionTime = AbsTime();
 	fLastInputTime = AbsTime();
-	bCollidedLastFrame = false;
 	lastMoveTime = AbsTime();
 	fServertime = TimeDiff();
 	fLastCarve = AbsTime();
