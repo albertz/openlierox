@@ -159,7 +159,7 @@ void CHttpDownloader::ProcessDownload()
 		iState = FILEDL_RECEIVING;
 
 		// If we already received something, put it in the file
-		if (tHttp.GetData().length() > 0 && tFile)  {
+		if (tHttp.GetData().length() > 0 && tFile && !tHttp.IsRedirecting())  {
 			if (fwrite(tHttp.GetData().data(), tHttp.GetData().length(), 1, tFile) == 1)
 				tHttp.ClearReceivedData(); // Save memory
 		}
@@ -252,7 +252,7 @@ int CHttpDownloader::GetProgress()
 {
 	Lock();
 	int res = 0;
-	if (tHttp.GetDataLength() != 0)
+	if (tHttp.GetDataLength() != 0 && !tHttp.IsRedirecting())
 		res = (byte)MIN((size_t)100, tHttp.GetReceivedDataLen() * 100 / tHttp.GetDataLength());
 	Unlock();
 

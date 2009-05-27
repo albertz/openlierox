@@ -954,7 +954,7 @@ void CHttp::ProcessData()
 	
 
 	header_end += header_end_len; // Two LFs or two CR/LFs
-	if (header_end >= sData.size())  // Should not happen...
+	if (header_end > sData.size())  // Should not happen...
 		return;
 
 	sHeader = sData.substr(0, header_end);
@@ -1582,13 +1582,13 @@ bool CHttp::ProcessInternal()
 	// Check if the address completed resolving
 	if(IsNetAddrValid(tRemoteIP)) {
 
-		// Default http port (80)
-		SetNetAddrPort(tRemoteIP, 80);
-		if (sProxyHost.size())
-			SetNetAddrPort(tRemoteIP, iProxyPort);
-
 		// Connect to the destination
 		if(!bConnected) {
+			// Default http port (80)
+			SetNetAddrPort(tRemoteIP, 80);
+			if (sProxyHost.size())
+				SetNetAddrPort(tRemoteIP, iProxyPort);
+
 			// Address was resolved; save it
 			std::string host = sProxyHost.size() ? sProxyHost : sHost;
 			NetworkAddr temp;

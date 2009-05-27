@@ -299,6 +299,7 @@ public:
 
 	const std::string&	GetHostName() const		{ return sHost; }
 	const std::string&	GetUrl() const			{ return sUrl; }
+	bool				IsRedirecting() const	{ return bRedirecting; }
 };
 
 #endif  // __HTTP_H__
