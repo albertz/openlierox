@@ -26,10 +26,21 @@ except:
 
 if not OlxImported:
 
+	EmptySignalsCount = 0
+
 	def getRawResponse():
+		global EmptySignalsCount
 		while True:
 			ret = sys.stdin.readline().strip()
-			if ret != "": return ret
+			if ret != "": 
+				EmptySignalsCount = 0
+				return ret
+			else:
+				EmptySignalsCount += 1
+				if EmptySignalsCount >= 100:
+					sys.stderr.write("Dedicated_control: OLX terminated, exiting\n")
+					sys.exit(1)
+			return ""
 
 
 else:
@@ -59,7 +70,7 @@ def getResponse():
 	resp = getRawResponse()
 	while resp != ".":
 		if not resp.startswith(':'):
-			sys.stderr.write("bad OLX dedicated response: " + resp + "\n")
+			sys.stderr.write("Dedicated_control: bad OLX dedicated response: " + resp + "\n")
 		else:
 			ret.append( resp[1:] )
 		resp = getRawResponse()
