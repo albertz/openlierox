@@ -907,7 +907,7 @@ static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) 
 	return CClient::MapPosIndex( p + VectorD2<int>(LEFT ? -r.x : r.x, TOP ? -r.y : r.y) );
 }
 
-bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
+inline bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
 	const VectorD2<int> vPosition = prj->GetPosition();
 	const VectorD2<int> radius = prj->getRadius();
 	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
