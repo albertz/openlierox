@@ -75,8 +75,9 @@ typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves
 class CProjectile {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
-	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, float dt, CMap *map, CWorm* worms, float* enddt);
-	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult);
+	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
+	friend ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
+	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult);
 public:
 	// Constructor
 	CProjectile() {
@@ -162,7 +163,7 @@ private:
 	int ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, CWorm *worms);
 	bool MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int py);
 	ColInfo TerrainCollision(const LX56ProjAttribs& attribs, int px, int py);
-	bool HandleCollision(const LX56ProjAttribs& attribs, const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt);
+	bool HandleCollision(const LX56ProjAttribs& attribs, const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, TimeDiff dt);
 	
 public:
 	// Methods

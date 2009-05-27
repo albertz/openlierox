@@ -33,6 +33,7 @@
 #include "FlagInfo.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "PhysicsLX56.h"
 
 
 // defined in PhysicsLX56_Projectiles
@@ -258,7 +259,7 @@ public:
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		const float orig_dt = 0.01f;
+		static const float orig_dt = LX56PhysicsDT.seconds();
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 
@@ -653,7 +654,7 @@ public:
 	void simulateBonus(CBonus* bonus) {
 		AbsTime simulationTime = GetPhysicsTime();	
 		warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		const float orig_dt = 0.01f;
+		static const float orig_dt = LX56PhysicsDT.seconds();
 		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 
 	simulateBonusStart:

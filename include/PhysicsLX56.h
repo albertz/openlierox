@@ -14,4 +14,7 @@
 
 PhysicsEngine* CreatePhysicsEngineLX56();
 
+#define	LX56PhysicsFixedFPS	100
+#define	LX56PhysicsDT	TimeDiff(1000 / LX56PhysicsFixedFPS)
+
 #endif

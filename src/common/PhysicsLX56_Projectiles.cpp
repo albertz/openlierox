@@ -8,6 +8,17 @@
 */
 
 
+/*
+ 
+ This file includes the main code of LX56 projectile simulation - much cleaned up and extended.
+ 
+ For a reference, look here:
+ http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/common/CProjectile.cpp?revision=1&view=markup&pathrev=1
+ SimulateProjectiles in:
+ http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/client/CClient_Game.cpp?revision=1&view=markup&pathrev=1
+ 
+ */
+
 #include <cmath>
 #include "ProjAction.h"
 #include "CGameScript.h"
@@ -16,6 +27,7 @@
 #include "CClient.h"
 #include "ProjectileDesc.h"
 #include "Physics.h"
+#include "PhysicsLX56.h"
 #include "ConfigHandler.h"
 #include "EndianSwap.h"
 #include "Geometry.h"
@@ -114,7 +126,7 @@ static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProj
 
 
 
-inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, float dt, float* enddt, ProjCollisionType curResult) {
+inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
@@ -127,12 +139,6 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 			int ret = proj->ProjWormColl(attribs, curpos, worms);
 			if (ret >= 0)  {
 				if(proj->GetProjInfo()->PlyHit.Type != PJ_GOTHROUGH) {
-					if (enddt) {
-						if (len != 0)
-							*enddt = dt * p / len;
-						else
-							*enddt = dt;
-					}
 					proj->setNewPosition( curpos ); // save the new position at the first collision
 					proj->setNewVel( vFrameOldVel ); // don't get faster
 				}
@@ -223,7 +229,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 ////////////////////////
 // Handle the terrain collsion (helper function)
 // returns false if collision should be ignored
-bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, float dt)
+bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, TimeDiff dt)
 {
 	
 	if(tProjInfo->Hit.Type == PJ_EXPLODE && c.onlyDirt) {
@@ -243,12 +249,12 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 		bounce = true;
 		break;
 	case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
-		vPosition = oldpos + (vVelocity * dt) * 0.5f;
+		vPosition = oldpos + (vVelocity * dt.seconds()) * 0.5f;
 		vOldPos = vPosition; // TODO: this is a hack; we do it to not go back to real old position because of collision
 			// HINT: The above velocity reduction is not exact. SimulateFrame is also executed only for one checkstep because of the collision.
 		break;
 	case PJ_GOTHROUGH:
-		vPosition = oldpos + (vVelocity * dt) * tProjInfo->Hit.GoThroughSpeed;
+		vPosition = oldpos + (vVelocity * dt.seconds()) * tProjInfo->Hit.GoThroughSpeed;
 		return false; // ignore collision
 	default:
 		vPosition = vOldPos;
@@ -305,58 +311,18 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, float dt, CMap *map, CWorm* worms, float* enddt)
+inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms)
 {
-	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
-	if (prj->bChangesSpeed)  {
-		int len = (int)prj->vVelocity.GetLength2();
-		if (abs(len - prj->iCheckSpeedLen) > 50000)
-			prj->CalculateCheckSteps();
-	}
-	
-	CVec vOldVel = prj->GetVelocity();
-	CVec newvel = prj->GetVelocity();
-	
 	// Gravity
 	float fGravity = 100.0f; // Default
 	if (prj->getProjInfo()->UseCustomGravity)
 		fGravity = (float)prj->getProjInfo()->Gravity;
-	newvel.y += fGravity * dt;
-	
-	// Dampening
-	// HINT: as this function is always called with fixed dt, we can do it this way
-	newvel *= prj->getProjInfo()->Dampening;
-	
-	float checkstep = newvel.GetLength2(); // |v|^2
-	if ((int)(checkstep * dt * dt) > prj->MAX_CHECKSTEP2) { // |dp|^2=|v*dt|^2
-		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
-		// checkstep is new dt
-		checkstep = (float)prj->AVG_CHECKSTEP / sqrt(checkstep);
-		checkstep = MAX(checkstep, 0.001f);
-		
-		// In some bad cases (float accurance problems mainly),
-		// it's possible that checkstep >= dt .
-		// If we would not check this case, we get in an infinie
-		// recursive loop.
-		// Therefore if this is the case, we don't do multiple checksteps.
-		if(checkstep < dt) {
-			for(float time = 0; time < dt; time += checkstep) {
-				ProjCollisionType ret = LX56Projectile_checkCollAndMove(prj, attribs, (time + checkstep > dt) ? dt - time : checkstep, map,worms,enddt);
-				if(ret) {
-					if(enddt) *enddt += time;
-					return ret;
-				}
-			}
-			
-			if(enddt) *enddt = dt;
-			return ProjCollisionType::NoCol();
-		}
-	}
-	
-	prj->vVelocity = newvel;
-	if(enddt) *enddt = dt;
+	prj->vVelocity.y += fGravity * dt.seconds();
+
+	CVec vOldVel = prj->GetVelocity();
+
 	CVec vFrameOldPos = prj->vPosition;
-	prj->vPosition += prj->vVelocity * dt;
+	prj->vPosition += prj->vVelocity * dt.seconds();
 	
 	// if distance is to short to last check, just return here without a check
 	if ((int)(prj->vOldPos - prj->vPosition).GetLength2() < prj->MIN_CHECKSTEP2) {
@@ -364,7 +330,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 	}
 	
 	int px = (int)(prj->vPosition.x);
@@ -375,13 +341,13 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		prj->vPosition = prj->vOldPos;
 		prj->vVelocity = vOldVel;
 		
-		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
+		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
 	
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (prj->fLastSimulationTime <= prj->fSpawnTime + TimeDiff(prj->fWallshootTime))
-		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 	
 	// Check collision with the terrain
 	CProjectile::ColInfo c = prj->TerrainCollision(attribs, px, py);
@@ -390,13 +356,73 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 	if(c.collided && prj->HandleCollision(attribs, c, vFrameOldPos, vOldVel, dt)) {
 		int colmask = PJC_TERRAIN;
 		if(c.onlyDirt) colmask |= PJC_DIRT;
-		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::Terrain(colmask));
+		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::Terrain(colmask));
 	}
 	
 	// the move was safe, save the position
 	prj->vOldPos = prj->vPosition;
 	
-	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, enddt, ProjCollisionType::NoCol());
+	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
+}
+
+inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms) {
+	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
+	if (prj->bChangesSpeed)  {
+		int len = (int)prj->vVelocity.GetLength2();
+		if (abs(len - prj->iCheckSpeedLen) > 50000)
+			prj->CalculateCheckSteps();
+	}
+	
+	/*
+	 In LX56, we skipped the simulation into half if dt >= 0.015f.
+	 The dt we have here is usually lower (at least LX56PhysicsDT is), so it's like
+	 LX56 to do the damping just once here.
+	 */
+	
+	{
+		// Dampening
+		float dmp = prj->getProjInfo()->Dampening;
+		if(dmp != 1.0f) {
+			// dt is not fixed (because of possible gamespeed factor)
+			if(dt == LX56PhysicsDT)
+				prj->vVelocity *= dmp;
+			else if(dt > 0)
+				prj->vVelocity *= powf(dmp, dt.seconds() / LX56PhysicsDT.seconds());
+			else if(dt < 0)
+				// doesn't make sense to do negative dampening...
+				prj->vVelocity *= powf(dmp, -dt.seconds() / LX56PhysicsDT.seconds());
+		}
+	}
+
+	TimeDiff cstep;
+	{
+		float checkstep = prj->vVelocity.GetLength2(); // |v|^2
+		
+		if((int)(checkstep * dt.seconds() * dt.seconds()) <= prj->MAX_CHECKSTEP2) // |dp|^2=|v*dt|^2
+			return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);		
+		
+		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
+		// checkstep is new dt
+		checkstep = (float)prj->AVG_CHECKSTEP / sqrt(checkstep);
+		checkstep = MAX(checkstep, 0.001f);
+		cstep = TimeDiff(checkstep);
+	}
+	
+	// In some bad cases (float accurance problems mainly),
+	// it's possible that checkstep >= dt .
+	// If we would not check this case, we get in an infinie
+	// recursive loop.
+	// Therefore if this is the case, we don't do multiple checksteps.
+	if(cstep < dt) {
+		for(TimeDiff time; time < dt; time += cstep) {
+			ProjCollisionType ret = LX56Projectile_checkCollAndMove_Frame(prj, attribs, (time + cstep > dt) ? dt - time : cstep, map, worms);
+			if(ret) return ret;
+		}
+		
+		return ProjCollisionType::NoCol();
+	}
+	
+	return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);		
 }
 
 
@@ -1127,25 +1153,17 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 
 
 
-static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, float dt, CProjectile* proj, const LX56ProjAttribs& attribs, CWorm *worms, bool* projspawn, bool* deleteAfter) {
-		// If this is a remote projectile, we have already set the correct fLastSimulationTime
-		//proj->setRemote( false );
+static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, TimeDiff dt, CProjectile* proj, const LX56ProjAttribs& attribs, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+	// If this is a remote projectile, we have already set the correct fLastSimulationTime
+	//proj->setRemote( false );
+
+	// Check for collisions
+	// ATENTION: dt will manipulated directly here!
+	// TODO: use a more general CheckCollision here
+	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, attribs, dt, cClient->getMap(), worms);
 	
-		// Check for collisions
-		// ATENTION: dt will manipulated directly here!
-		// TODO: use a more general CheckCollision here
-	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, attribs, dt, cClient->getMap(), worms, &dt);
-	
-	
-		// HINT: in original LX, we have this simulate code with lower dt
-		//		(this is now the work of CheckCollision)
-		//		but we also do this everytime without checks for a collision
-		//		so this new code should behave like the original LX on high FPS
-		// PERHAPS: do this before correction of dt; this is perhaps more like
-		//		the original behavior (with lower FPS)
-		//		(or leave it this way, if it works)
-	proj->life() += dt;
-	proj->extra() += dt;
+	proj->life() += dt.seconds();
+	proj->extra() += dt.seconds();
 	
 	
 	
@@ -1156,16 +1174,16 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	const proj_t *pi = proj->GetProjInfo();
 	
 	if(pi->Rotating)  {
-		proj->rotation() += (float)pi->RotSpeed * dt;
+		proj->rotation() += (float)pi->RotSpeed * dt.seconds();
 		FMOD(proj->rotation(), 360.0f);
 	}
 	
 		// Animation
 	if(pi->Animating) {
 		if(proj->getFrameDelta())
-			proj->frame() += (float)pi->AnimRate * dt;
+			proj->frame() += (float)pi->AnimRate * dt.seconds();
 		else
-			proj->frame() -= (float)pi->AnimRate * dt;
+			proj->frame() -= (float)pi->AnimRate * dt.seconds();
 		
 		if(pi->bmpImage) {
 			int NumFrames = pi->bmpImage->w / pi->bmpImage->h;
@@ -1236,7 +1254,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 struct LX56ProjectileHandler {
 	virtual ~LX56ProjectileHandler() {}
 
-	static inline bool doFrame(const AbsTime currentTime, TimeDiff dt, const proj_t& projInfo, CProjectile* const prj, const LX56ProjAttribs& attribs) {
+	static inline bool doFrame1(const AbsTime currentTime, TimeDiff dt, const proj_t& projInfo, CProjectile* const prj, const LX56ProjAttribs& attribs) {
 		Proj_DoActionInfo doActionInfo;
 		TimeDiff serverTime = cClient->serverTime();
 		{
@@ -1251,7 +1269,7 @@ struct LX56ProjectileHandler {
 		projInfo.Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, attribs, &doActionInfo);
 		
 		// Simulate the projectile
-		ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt.seconds(), prj, attribs, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
+		ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, attribs, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 		
 		Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
 		
@@ -1286,6 +1304,14 @@ struct LX56ProjectileHandler {
 		doActionInfo.execute(prj, currentTime);
 		return !doActionInfo.deleteAfter;
 	}
+
+	static inline bool doFrame(const AbsTime currentTime, TimeDiff dt, const proj_t& projInfo, CProjectile* const prj, const LX56ProjAttribs& attribs) {
+		// This case (for dt) is the most often case, so provide an optimised version for it.
+		if(dt == LX56PhysicsDT)
+			return doFrame1(currentTime, LX56PhysicsDT, projInfo, prj, attribs);
+		else
+			return doFrame1(currentTime, dt, projInfo, prj, attribs);			
+	}
 	
 	// returns true if we should continue
 	virtual bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) = 0;
@@ -1316,7 +1342,7 @@ struct LX56ProjHandler_Radius2 : LX56ProjectileHandler {
 
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
-	const TimeDiff orig_dt = TimeDiff(0.01f);
+	static const TimeDiff orig_dt = LX56PhysicsDT;
 	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 	
 	VectorD2<int> oldPos(prj->GetPosition());
@@ -1338,7 +1364,7 @@ void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
 	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
 	cClient->fLastSimulationTime += warpTime;
-	const TimeDiff orig_dt = TimeDiff(0.01f);
+	static const TimeDiff orig_dt = LX56PhysicsDT;
 	
 simulateProjectilesStart:
 	if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
