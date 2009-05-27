@@ -16,15 +16,16 @@
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 // Legend:	Name in options,		Human-readable-name,			Long description,	
-//			Unset,	Default,		Min client Version,	Group,				[Min,]	[Max,]	[server-side only] (Min and Max are only for Int and Float)
+//			Unset,	Default,		Min client Version,	Group,				[Min,]	[Max,]	[server-side only] [Safe to ignore by client] (Min and Max are only for Int and Float)
+// Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or safe to ignore
 
 Feature featureArray[] = {
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, 		0.1f, 	10.0f ),
 	Feature("ForceScreenShaking", 	"Force screen shaking", 		"Screen shaking will be activated for everybody.", 
-			true, 	true, 			Version(), 			GIG_Other, 							true ),
+			true, 	true, 			Version(), 			GIG_Other, 							false,	true ),
 	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", 
-			false, 	false, 			Version(), 			GIG_Score, 							true ),
+			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
 	Feature("TeamInjure", 			"Damage team members", 			"If disabled, your bullets and projectiles don't damage other team members.", 
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
 	Feature("TeamHit", 				"Hit team members", 			"If disabled, your bullets and projectiles will fly through your team members.", 
@@ -36,7 +37,7 @@ Feature featureArray[] = {
 	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit.", 
 			false, 	false, 			Version(), 			GIG_Other, 							true),
 	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your damage score counter", 
-			false, 	false, 			Version(), 			GIG_Score, 							true),
+			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
 	Feature("HS_HideTime", 			"Hiding time", 					"AbsTime at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),
 	Feature("HS_AlertTime", 		"Alert time", 					"When player discovered but escapes the time for which it's still visible", 
@@ -50,15 +51,15 @@ Feature featureArray[] = {
 	Feature("HS_SeekerVisionThroughWalls", "Seeker vision thorough walls", "How far seeker can see through walls, in pixels (whole screen = 320 px)", 
 			0, 		0, 				Version(), 			GIG_HideAndSeek, 	0, 		320, 	true ),
 	Feature("HS_SeekerVisionAngle",	"Seeker vision angle",			"The angle of seeker vision (180 = half-circle, 360 = full circle)", 
-			360, 	360, 			Version(),			GIG_HideAndSeek, 	0, 		360,	true ),
+			360, 	360, 			Version(),			GIG_HideAndSeek, 	0, 		360,	false,	true ),
 	Feature("NewNetEngine", 		"New net engine (restricted)",	"New net engine without self-shooting and lag effects, CPU-eating, many features won't work with it; DONT USE IF YOU DONT KNOW IT", 
 			false, 	false, 			OLXBetaVersion(9),	GIG_Advanced ),
 	Feature("FillWithBotsTo",		"Fill with bots up to",	"If too less players, it will get filled with bots",
-			0,	0,					OLXBetaVersion(9),		GIG_Other,			0,		MAX_PLAYERS, true),
+			0,	0,					OLXBetaVersion(9),		GIG_Other,		0,		MAX_PLAYERS, true),
 	Feature("WormSpeedFactor",		"Worm speed factor",	"Initial factor to worm speed",
-			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f,	true),
 	Feature("WormDamageFactor",		"Worm damage factor",	"Initial factor to worm damage",
-			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f, true),
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,		-2.0f,	10.0f,	true),
 	Feature("InstantAirJump",		"Instant air jump",		"Worms can jump in air instantly, this allows floating in air",
 			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),	// Server-side
 	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air, jumps have delay between them",
@@ -68,7 +69,7 @@ Feature featureArray[] = {
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
-			false,	false,			Version(),				GIG_Advanced,	true),
+			false,	false,			Version(),				GIG_Advanced,	true), // TODO: Version() means it should work on LX56, test that
 	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated)",
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons,	true),
 	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
@@ -76,7 +77,7 @@ Feature featureArray[] = {
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
 			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
-			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_CaptureTheFlag,	 0.1f, 3.0f, true),
+			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_CaptureTheFlag, 0.1f, 3.0f, true),
 	Feature("Race_Rounds", "Rounds", "Amount of rounds",
 			5,5,					OLXBetaVersion(9),		GIG_Race,		-1, 100, true),
 	Feature("Race_AllowWeapons", "Allow weapons", "If disabled, you cannot shoot",
@@ -132,7 +133,7 @@ ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 }
 
 bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
-	if(f->serverSideOnly) return true;
+	if( f->serverSideOnly || f->optionalForClient ) return true;
 	return hostGet(f) == f->unsetValue;
 }
 

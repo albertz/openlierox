@@ -163,9 +163,7 @@ void CClient::Simulation()
 			if( getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) &&
 				w->getTeam() == HIDEANDSEEK_SEEKER  )
 			{
-				int Angle = 360;
-				if( getUnknownFeatures().find("HS_SeekerVisionAngle") )
-					Angle = getUnknownFeatures().find("HS_SeekerVisionAngle")->var.i;
+				int Angle = tGameInfo.features[FT_HS_SeekerVisionAngle];
 				if( Angle < 360 )
 				{
 					LaserSight(w, w->getAngle() + Angle/2, false );
