@@ -251,7 +251,7 @@ public:
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
 		static const float orig_dt = LX56PhysicsDT.seconds();
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
@@ -638,7 +638,7 @@ public:
 		AbsTime simulationTime = GetPhysicsTime();	
 		warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
 		static const float orig_dt = LX56PhysicsDT.seconds();
-		const float dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
 
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + orig_dt > simulationTime) return;

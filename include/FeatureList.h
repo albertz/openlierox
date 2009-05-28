@@ -94,6 +94,7 @@ Feature* featureByName(const std::string& name);
 // WARNING: Keep this always synchronised with featureArray!
 enum FeatureIndex {
 	FT_GameSpeed = 0,
+	FT_GameSpeedOnlyForProjs,
 	FT_ForceScreenShaking,
 	FT_SuicideDecreasesScore,
 	FT_TeamkillDecreasesScore,
