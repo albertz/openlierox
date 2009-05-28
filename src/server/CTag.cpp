@@ -91,12 +91,7 @@ int CTag::CompareWormsScore(CWorm *w1, CWorm *w2)
 
 void CTag::Drop(CWorm* worm)
 {
-	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS)
-		errors << "Dropped an invalid worm" << endl;
-
-	iKillsInRow[worm->getID()] = 0;
-	iDeathsInRow[worm->getID()] = 0;
-
+	CGameMode::Drop(worm);
 	// Tag another worm
 	if (worm->getTagIT())
 		TagRandomWorm();

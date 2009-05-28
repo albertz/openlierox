@@ -1257,9 +1257,9 @@ void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & s
 	}
 	else if( settings.iGeneralGameType == GMT_TEAMS && getTeam() == victim->getTeam() ) 
 	{
-		if( settings.features[FT_SuicideDecreasesScore] )
+		if( settings.features[FT_TeamkillDecreasesScore] )
 			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate
-		else if( settings.features[FT_CountTeamkills] )
+		if( settings.features[FT_CountTeamkills] )
 			setDamage( getDamage() + damage );	// Count team damage along with teamkills
 	}
 	else

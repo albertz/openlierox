@@ -19,31 +19,68 @@
 
 class CTeamDeathMatch : public CGameMode {
 public:
+	enum { MAXTEAMS = 4 } ;
 	
-	virtual void Drop(CWorm* worm);
+	virtual void PrepareGame();
+	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual int  GameType() { return GMT_TEAMS; }
-	virtual int  GameTeams() { return MAX_TEAMS; }
+	virtual int  GameTeams() { return MAXTEAMS; }
 	virtual int  Winner() {
 		// There's no single winner so this will do for now
 		return -1;	
 	}
 	virtual std::string Name() { return "Team Death Match"; }
+	virtual int TeamScores(int t)
+	{
+		if(t >= 0 && t < MAXTEAMS) return teamScore[t];
+		return -1;
+	};
+
+	void ChangeTeamScore(int t, int diff);
 	
 protected:
+	int teamScore[MAXTEAMS];
 };
 
-void CTeamDeathMatch::Drop(CWorm* worm)
+void CTeamDeathMatch::PrepareGame()
 {
-	// TODO: why is this needed? Where is this used? CGameMode::Drop() is empty - move this code there.
-	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS) {
-		errors << "Dropped an invalid worm" << endl;
+	CGameMode::PrepareGame();
+	for( int i = 0; i < MAXTEAMS; i++ )
+		teamScore[i] = 0;
+};
+
+void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
+{
+	CGameMode::Kill(victim, killer);
+
+	if( ! killer )
+		return;
+
+	if( killer == victim )
+	{
+		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
+			ChangeTeamScore( killer->getTeam(), -1 );
+	}
+	else if( killer->getTeam() == victim->getTeam() )
+	{
+		if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
+			ChangeTeamScore( killer->getTeam(), -1 );
+		if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
+			ChangeTeamScore( killer->getTeam(), 1 );
+	}
+	else
+		ChangeTeamScore( killer->getTeam(), 1 );
+};
+
+void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 
+{
+	if( t < 0 || t > MAXTEAMS )
+	{
+		errors << "CTeamDeathMatch::ChangeTeamScore: invalid team nr " << t << endl;
 		return;
 	}
-	
-	iKillsInRow[worm->getID()] = 0;
-	iDeathsInRow[worm->getID()] = 0;
+	teamScore[t] += diff;
 }
-
 
 static CTeamDeathMatch gameMode;
 CGameMode* gameMode_TeamDeathMatch = &gameMode;

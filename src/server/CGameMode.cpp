@@ -175,7 +175,7 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 		int worms[4] = { 0, 0, 0, 0 };
 		for(int i = 0; i < MAX_WORMS; i++)
 			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
-				if(isValidTeam(cServer->getWorms()[i].getTeam()))
+				if(cServer->getWorms()[i].getTeam() >= 0 && cServer->getWorms()[i].getTeam() < 4)
 					worms[cServer->getWorms()[i].getTeam()]++;
 	
 		// Victim's team is out of the game
@@ -183,6 +183,17 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 			cServer->SendGlobalText(replacemax(networkTexts->sTeamOut, "<team>",
 				TeamName(victim->getTeam()), 1), TXT_NORMAL);
 	}
+}
+
+void CGameMode::Drop(CWorm* worm)
+{
+	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS) {
+		errors << "Dropped an invalid worm" << endl;
+		return;
+	}
+	
+	iKillsInRow[worm->getID()] = 0;
+	iDeathsInRow[worm->getID()] = 0;
 }
 
 static int getWormHitKillLimit() {
@@ -365,12 +376,6 @@ int CGameMode::CompareTeamsScore(int t1, int t2) {
 	// Damage
 	return TeamDamage(t1) - TeamDamage(t2);
 }
-
-bool CGameMode::isValidTeam(int t)
-{
-	return t >= 0 && t < MAX_TEAMS;
-};
-
 
 
 extern CGameMode* gameMode_DeathMatch;

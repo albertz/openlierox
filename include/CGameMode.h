@@ -42,7 +42,7 @@ public:
 	virtual bool Shoot(CWorm* worm) { return true; }
 	virtual void hitFlag(CWorm* worm, Flag* flag) {}
 	virtual void hitFlagSpawnPoint(CWorm* worm, Flag* flag) {}
-	virtual void Drop(CWorm* worm) {}
+	virtual void Drop(CWorm* worm);
 	virtual void Carve(CWorm* worm, int d) {}
 	virtual void Simulate() {}
 	virtual bool CheckGameOver();
@@ -63,7 +63,6 @@ public:
 	long TeamDamage(int t);
 	int HighestScoredWorm();
 	int HighestScoredTeam();
-	bool isValidTeam(int t);
 	
 protected:
 	bool bFirstBlood;
