@@ -139,10 +139,6 @@ bool GameOptions::Init() {
 		errors << "not enough mem for GameOptions" << endl;
 		return false;
 	}
-	tLXOptions->iVerbosity = 0;
-
-	// TODO: don't hardcode the size here
-	tLXOptions->sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes
 
 	CScriptableVars::RegisterVars("GameOptions")
 		( tLXOptions->bFullscreen, "Video.Fullscreen",
@@ -617,6 +613,12 @@ GameOptions::GameInfo::GameInfo() {
 }
 
 GameOptions::GameOptions() {
+	// we need to set some initial values for these
 	bLogTimestamps = false;
+	iVerbosity = 0;
+	cfgFilename = DefaultCfgFilename;
+	
+	// TODO: don't hardcode the size here
+	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes	
 }
 

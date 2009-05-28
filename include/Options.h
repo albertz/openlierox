@@ -184,7 +184,7 @@ struct GameOptions {
 
 	static bool Init();
 	bool LoadFromDisc(const std::string& cfgfilename);
-	bool LoadFromDisc() { return LoadFromDisc(DefaultCfgFilename); }
+	bool LoadFromDisc() { return LoadFromDisc(cfgFilename); }
 	void SaveToDisc(const std::string& cfgfilename);
 	void SaveToDisc() { SaveToDisc(cfgFilename); }
 	
