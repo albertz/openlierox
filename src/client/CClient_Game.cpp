@@ -593,7 +593,8 @@ void CClient::PlayerShoot(CWorm *w)
 	}
 
 
-	// Shots are now handled by the server. Server directly checks the bShoot state.
+	// Shots are now handled by the server. Server directly checks the bShoot state
+	// and server handles it in GameServer::WormShoot.
 	// Server sends us later a shootlist. We are handling each shot in this shootlist in
 	// CClient::ProcessShot().
 	return;

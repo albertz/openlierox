@@ -298,13 +298,15 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
 		w->readPacket(bs, server->cWorms);
 
-		// If the worm is shooting, handle it
-		if (w->getWormState()->bShoot && w->getAlive() && server->iState == SVS_PLAYING)
-			server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
-		
-		// handle FinalProj for weapon
-		if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
-			server->WormShootEnd(w, oldWeapon);
+		if(server->iState == SVS_PLAYING) {
+			// If the worm is shooting, handle it
+			if (w->getWormState()->bShoot && w->getAlive())
+				server->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
+			
+			// handle FinalProj for weapon
+			if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+				server->WormShootEnd(w, oldWeapon);
+		}
 	}
 }
 
