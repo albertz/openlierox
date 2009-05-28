@@ -1085,7 +1085,7 @@ void CClient::Frame()
 	if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
 		return;
 	
-	if((bGameRunning || iNetStatus == NET_PLAYING) && !bWaitingForMap && !bWaitingForMod)
+	if((bGameRunning || iNetStatus == NET_PLAYING) && !bWaitingForMap && !bWaitingForMod && cMap && cGameScript.get())
 	{
 		if( NewNet::Active() )
 			NewNet_Frame();
