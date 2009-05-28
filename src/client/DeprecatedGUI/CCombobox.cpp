@@ -1002,12 +1002,12 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 			{
 				index = atoi( item.substr( item.find("#") + 1 ) );
 				item = item.substr( 0, item.find("#") );
-			};
+			}
 			TrimSpaces(item);
 			w->addItem( index, "", item );
-		};
+		}
 		w->setCurItem( *w->iVar );
-	};
+	}
 	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
 	if( w->sVar )
 	{
@@ -1020,16 +1020,16 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 				index = item.substr( item.find("#") + 1 );
 				TrimSpaces( index );
 				item = item.substr( 0, item.find("#") );
-			};
+			}
 			TrimSpaces(item);
 			w->addItem( i, index, item );
-		};
+		}
 		w->setCurSIndexItem( *w->sVar );
-	};
+	}
 	return w;
-};
+}
 
-void	CCombobox::ProcessGuiSkinEvent(int iEvent)
+void CCombobox::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent == CMB_CHANGED )
 	{
@@ -1038,8 +1038,8 @@ void	CCombobox::ProcessGuiSkinEvent(int iEvent)
 		if( sVar )
 			*sVar = getItem( iSelected )->sIndex;
 		cClick.Call();	// If this is "Select Skin" combobox the *this ptr may be destroyed here, so just return after this line
-	};
-};
+	}
+}
 
 const cb_item_t* CCombobox::getLastItem() {
 	if(tItems.empty())

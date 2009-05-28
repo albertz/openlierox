@@ -571,7 +571,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if (!bFocused)
 		return BRW_NONE;
 
-	if(bUseScroll && tMouse->X > iX+iWidth-20)
+	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()))
 	{
 		cScrollbar.MouseDown(tMouse, nDown);
 		bNeedsRender = true; // Always redraw, scrollbar may change its image
