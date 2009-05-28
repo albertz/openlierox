@@ -1966,7 +1966,8 @@ static void prepareWormAdd() {
 }
 
 void CClient::AddRandomBot(int amount) {
-	if(amount < 1 || amount > MAX_PLAYERS) {
+	// too many worms are handled in the loop below
+	if(amount < 1) {
 		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
 		return;
 	}
