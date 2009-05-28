@@ -67,6 +67,7 @@ inline bool	HandleDebugCommand(const std::string& cmd) { return false; }
 void doVideoFrameInMainThread();
 void doSetVideoModeInMainThread();
 void doActionInMainThread(Action* act);
+void doVppOperation(Action* act);
 
 void flipRealVideo();
 

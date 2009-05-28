@@ -75,11 +75,11 @@ void ChatWidget_ChatRefillUserList()
 
 CChatWidget::CChatWidget()
 {
-};
+}
 
 CChatWidget::~CChatWidget()
 {
-};
+}
 
 void CChatWidget::Create()
 {

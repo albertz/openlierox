@@ -552,6 +552,14 @@ void doSetVideoModeInMainThread() {
 	videoHandler.requestSetVideoMode();
 }
 
+void doVppOperation(Action* act) {
+	{
+		ScopedLock lock(videoHandler.mutex);
+		act->handle();
+	}
+	delete act;
+}
+
 void doActionInMainThread(Action* act) {
 	if(bDedicated) {
 		warnings << "doActionInMainThread cannot work correctly in dedicated mode" << endl;

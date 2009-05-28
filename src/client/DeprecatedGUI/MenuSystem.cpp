@@ -346,6 +346,13 @@ void Menu_Frame() {
 	}
 	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
 
+	// we need to clone the screen buffer because of the current way we are drawing the menu
+	struct CopyScreenBuffer : Action {
+		int handle() { VideoPostProcessor::cloneBuffer(); return 0; }
+	};
+	doVppOperation(new CopyScreenBuffer());
+	
+	// now do the actual flip&draw
 	doVideoFrameInMainThread();
 }
 
