@@ -555,6 +555,8 @@ void CClient::SendCarve(CVec pos)
 
 ///////////////////
 // Player shoot
+// This is the function which is called very first. It does not much as most shoots aren't handled yet
+// but later by the server. The server itself checks for w->tState.bShoot, so we don't care about that here.
 void CClient::PlayerShoot(CWorm *w)
 {
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -591,8 +593,9 @@ void CClient::PlayerShoot(CWorm *w)
 	}
 
 
-	// Shots are now handled by the server.
-	// See CClient::ProcessShot().
+	// Shots are now handled by the server. Server directly checks the bShoot state.
+	// Server sends us later a shootlist. We are handling each shot in this shootlist in
+	// CClient::ProcessShot().
 	return;
 
 }

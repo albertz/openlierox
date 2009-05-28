@@ -508,7 +508,8 @@ void GameServer::WormShoot(CWorm *w)
 	Slot->LastFire = Slot->Weapon->ROF;
 
 
-	// Must be a projectile
+	// Must be a projectile or beam.
+	// We send also beam via the shootlist. See CClient::ProcessShot which is calling CClient::ProcessShot_Beam in that case.
 	if(Slot->Weapon->Type != WPN_PROJECTILE && Slot->Weapon->Type != WPN_BEAM) {
 		// It's not a projectile, so the client is handling this, but we take track of charge to disable weapon if needed.
 		
