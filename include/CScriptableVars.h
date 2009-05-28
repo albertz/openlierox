@@ -343,6 +343,13 @@ public:
 		return NULL;
 	}
 	
+	static bool haveSomethingWith(const std::string& start) {
+		CScriptableVars::const_iterator it = CScriptableVars::lower_bound(start);
+		if(it == end()) return false;
+		return strCaseStartsWith(it->first, start);
+				
+	}
+	
 	static std::string DumpVars();	// For debug output
 	
 	static void SetVarByString(const ScriptVarPtr_t& var, const std::string& str);

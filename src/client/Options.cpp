@@ -473,7 +473,7 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions.");
 			it != CScriptableVars::end(); it++ )
 	{
-		if( it->first.find("GameOptions.") == 0 )
+		if( strStartsWith(it->first, "GameOptions.") )
 		{
 			size_t dot1 = it->first.find(".");
 			size_t dot2 = it->first.find( ".", dot1 + 1 );
@@ -542,7 +542,7 @@ void GameOptions::SaveSectionToDisc(const std::string& presection, const std::st
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound(presection + ".");
 		it != CScriptableVars::end(); it++ )
 	{
-		if( it->first.find(presection + ".") == 0 )
+		if( strCaseStartsWith(it->first, presection + ".") )
 		{
 			size_t dot1 = it->first.find(".");
 			size_t dot2 = it->first.find( ".", dot1 + 1 );

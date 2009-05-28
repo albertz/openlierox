@@ -1628,10 +1628,52 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	hints << "Current time: " << GetDateTimeText() << endl;
 }
 
-COMMAND(saveConfig, "save current config", "", 0, 0);
+COMMAND(saveConfig, "save current config", "[filename]", 0, 1);
 void Cmd_saveConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLXOptions) tLXOptions->SaveToDisc();
+	if(tLXOptions) {
+		if(params.size() == 0)
+			tLXOptions->SaveToDisc();
+		else
+			tLXOptions->SaveToDisc("cfg/" + params[0]);
+	}
+	else
+		caller->writeMsg("options structure not initialised", CNC_ERROR);
 }
+
+COMMAND(saveConfigSection, "save a specific config section", "section filename", 2, 2);
+void Cmd_saveConfigSection::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLXOptions) {
+		std::string section = params[0];
+		if(section == "") {
+			printUsage(caller);
+			return;
+		}
+		if(section[section.size()-1] == '.') {
+			caller->writeMsg("section must not end with a '.'");
+			return;
+		}
+		if(!CScriptableVars::haveSomethingWith(section + ".")) {
+			caller->writeMsg("section '" + section + "' is unknown");
+			return;
+		}
+		tLXOptions->SaveSectionToDisc(section, "cfg/" + params[1]);
+	}
+	else
+		caller->writeMsg("options structure not initialised", CNC_ERROR);
+}
+
+COMMAND(loadConfig, "load config file", "[filename]", 0, 1);
+void Cmd_loadConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLXOptions) {
+		if(params.size() == 0)
+			tLXOptions->LoadFromDisc();
+		else
+			tLXOptions->LoadFromDisc("cfg/" + params[0]);
+	}
+	else
+		caller->writeMsg("options structure not initialised", CNC_ERROR);	
+}
+
 
 static void HandleCommand(const CmdLineIntf::Command& command) {
 	std::string cmdstr = command.cmd; TrimSpaces(cmdstr);

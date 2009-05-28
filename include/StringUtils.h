@@ -137,6 +137,7 @@ bool			stringcaseequal(const std::string& s1, const std::string& s2);
 bool			subStrEqual(const std::string& s1, const std::string s2, size_t p);
 bool			subStrCaseEqual(const std::string& s1, const std::string s2, size_t p);
 inline bool		strStartsWith(const std::string& str, const std::string& start) { if(start.size() > str.size()) return false; return str.substr(0,start.size()) == start; }
+inline bool		strCaseStartsWith(const std::string& str, const std::string& start) { if(start.size() > str.size()) return false; return subStrCaseEqual(str,start,start.size()); }
 size_t			maxStartingEqualStr(const std::list<std::string>& strs);
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 std::string		GetFileExtension(const std::string& filename);
