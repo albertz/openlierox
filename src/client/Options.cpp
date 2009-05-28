@@ -75,13 +75,13 @@ static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Si
 
 bool GameOptions::Init() {
 	if(tLXOptions) {
-		printf("WARNING: it seems that the GameOptions are already inited\n");
+		warnings << "it seems that the GameOptions are already inited" << endl;
 		return true;
 	}
 
 	tLXOptions = new GameOptions;
 	if(tLXOptions == NULL) {
-		printf("ERROR: not enough mem for GameOptions\n");
+		errors << "not enough mem for GameOptions" << endl;
 		return false;
 	}
 	tLXOptions->iVerbosity = 0;
