@@ -187,6 +187,7 @@ struct GameOptions {
 	bool LoadFromDisc() { return LoadFromDisc(cfgFilename); }
 	void SaveToDisc(const std::string& cfgfilename);
 	void SaveToDisc() { SaveToDisc(cfgFilename); }
+	void SaveSectionToDisc(const std::string& section, const std::string& filename);
 	
 	// Video
 	bool	bFullscreen;
