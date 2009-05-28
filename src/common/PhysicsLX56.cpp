@@ -250,8 +250,9 @@ public:
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		static const float orig_dt = LX56PhysicsDT.seconds();
-		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
+		static const TimeDiff orig_dt = LX56PhysicsDT;
+		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
+		const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]; // wpnDT could be different from dt
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
@@ -418,8 +419,8 @@ public:
 				worm->getVelocity()->x = 0;
 		}
 
-		simulateWormWeapon(TimeDiff(dt), worm);
-
+		simulateWormWeapon(wpnDT, worm);
+		
 
 		// Fill in the info for sending
 		if(local) {
@@ -433,7 +434,8 @@ public:
 	}
 
 	virtual void simulateWormWeapon(CWorm* worm) {
-		TimeDiff dt = tLX->fRealDeltaTime * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		// we use deltatime here and not realdeltatime because we want to have it the same way as the call from simulateWorm
+		TimeDiff dt = tLX->fDeltaTime * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 		simulateWormWeapon(dt, worm);
 	}
 
@@ -448,13 +450,13 @@ public:
 
 		if(!Slot->Weapon) return;
 
+		// Slot should still do the reloading even without enabled wpn, thus uncommented this check.
 		//if(!Slot->Enabled) return;
 		
 		if(Slot->LastFire > 0)
 			Slot->LastFire -= dt.seconds();
-
+		
 		if(Slot->Reloading) {
-
 			if(worm->getLoadingTime() == 0)
 				Slot->Charge = 1;
 			else
