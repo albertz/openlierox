@@ -176,15 +176,18 @@ public:
 };
 
 class CGameMode;
+extern const std::string DefaultCfgFilename;
 
 // Options structure
 struct GameOptions {
 	GameOptions();
 
 	static bool Init();
-	bool LoadFromDisc();
-	void SaveToDisc();
-
+	bool LoadFromDisc(const std::string& cfgfilename);
+	bool LoadFromDisc() { return LoadFromDisc(DefaultCfgFilename); }
+	void SaveToDisc(const std::string& cfgfilename);
+	void SaveToDisc() { SaveToDisc(cfgFilename); }
+	
 	// Video
 	bool	bFullscreen;
 	bool	bShowFPS;
@@ -270,6 +273,7 @@ struct GameOptions {
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby
 	bool	bShowCountryFlags;
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
+	std::string cfgFilename;
 	
 	// Widget states
 	int		iInternetList[7];

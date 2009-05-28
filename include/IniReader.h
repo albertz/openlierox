@@ -29,7 +29,7 @@ public:
 	virtual bool OnNewSection (const std::string& section) { return true; }
 	virtual bool OnEntry (const std::string& section, const std::string& propname, const std::string& value) { return true; }
 
-private:
+protected:
 	std::string m_filename;
 };
 

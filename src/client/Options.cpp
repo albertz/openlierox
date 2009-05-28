@@ -35,7 +35,7 @@
 GameOptions	*tLXOptions = NULL;
 NetworkTexts	*networkTexts = NULL;
 
-static const std::string OptionsFileName = "cfg/options.cfg";
+const std::string DefaultCfgFilename = "cfg/options.cfg";
 
 const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
 const std::string    ply_def1[] =
@@ -71,6 +71,61 @@ const char * GameInfoGroupDescriptions[][2] =
 };
 
 static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Size, GIG_desc__sizecheck );
+
+
+
+
+
+static void InitSearchPaths() {
+	// have to set to find the config at some of the default places
+	InitBaseSearchPaths();
+	
+	std::string value;
+	int i = 1;
+	while(true) {
+		if(!ReadString(DefaultCfgFilename, "FileHandling", "SearchPath" + itoa(i,10), value, ""))
+			break;
+		
+		AddToFileList(&tSearchPaths, value);
+		i++;
+	}
+	
+	// add the basesearchpaths to the searchpathlist as they should be saved in the end
+	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
+		AddToFileList(&tSearchPaths, *p1);
+	}
+	
+	// print the searchpaths, this may be very usefull for the user
+	notes << "I have now the following searchpaths (in this order):\n";
+	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
+		std::string path = *p2;
+		ReplaceFileVariables(path);
+		notes << "  " << path << "\n";
+	}
+	notes << " And that's all." << endl;
+}
+
+static void InitWidgetStates(GameOptions& opts) {
+	// this has to be done explicitly at the moment as scriptablevars doesn't support arrays
+	// TODO: add this feature
+	
+	const int	 def_widths[] = {32,180,70,80,50,150,22};
+	
+	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)
+		opts.iInternetList[i] = def_widths[i];
+	
+	for (size_t i=0; i<sizeof(opts.iLANList)/sizeof(int); i++)  {
+		opts.iLANList[i] = def_widths[i];
+		opts.iFavouritesList[i] = def_widths[i];
+	}
+	
+	// Widget states
+	ReadIntArray(opts.cfgFilename, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
+	ReadIntArray(opts.cfgFilename, "Widgets","LANListCols",		&opts.iLANList[0],6);
+	ReadIntArray(opts.cfgFilename, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
+}
+
+
 
 
 bool GameOptions::Init() {
@@ -239,6 +294,30 @@ bool GameOptions::Init() {
 				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->minValue, f->get()->maxValue );
 	}
 	
+	
+	
+	// We still use the old ReadKeyword&co functions, they need this.
+	// It's save to add same keyword multiple times, so no need to care about restarts.
+	AddKeyword("true",true);
+	AddKeyword("false",false);
+	
+	// Load all variables that should be treated specially
+	
+	// File handling
+	// read this first, because perhaps we will have new searchpaths
+	InitSearchPaths();
+		
+	// first set the standards (else the vars would be undefined if not defined in options.cfg)
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin();
+		it != CScriptableVars::end(); it++ )
+	{
+		if( it->first.find("GameOptions.") == 0 )
+		{
+			it->second.var.setDefault();
+		}
+	}
+	
+	
 	bool ret = tLXOptions->LoadFromDisc();
 
 	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
@@ -246,90 +325,22 @@ bool GameOptions::Init() {
 	return ret;
 }
 
-static void InitSearchPaths() {
-	// have to set to find the config at some of the default places
-	InitBaseSearchPaths();
-
-	std::string value;
-	int i = 1;
-	while(true) {
-		if(!ReadString(OptionsFileName, "FileHandling", "SearchPath" + itoa(i,10), value, ""))
-			break;
-
-		AddToFileList(&tSearchPaths, value);
-		i++;
-	}
-
-	// add the basesearchpaths to the searchpathlist as they should be saved in the end
-	for(searchpathlist::const_iterator p1 = basesearchpaths.begin(); p1 != basesearchpaths.end(); i++,p1++)  {
-		AddToFileList(&tSearchPaths, *p1);
-	}
-
-	// print the searchpaths, this may be very usefull for the user
-	notes << "I have now the following searchpaths (in this order):\n";
-	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
-		std::string path = *p2;
-		ReplaceFileVariables(path);
-		notes << "  " << path << "\n";
-	}
-	notes << " And that's all." << endl;
-}
-
-static void InitWidgetStates(GameOptions& opts) {
-	// this has to be done explicitly at the moment as scriptablevars doesn't support arrays
-	// TODO: add this feature
-
-	const int	 def_widths[] = {32,180,70,80,50,150,22};
-
-	for (size_t i=0; i<sizeof(opts.iInternetList)/sizeof(int); i++)
-		opts.iInternetList[i] = def_widths[i];
-
-	for (size_t i=0; i<sizeof(opts.iLANList)/sizeof(int); i++)  {
-		opts.iLANList[i] = def_widths[i];
-		opts.iFavouritesList[i] = def_widths[i];
-	}
-
-	// Widget states
-	ReadIntArray(OptionsFileName, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
-	ReadIntArray(OptionsFileName, "Widgets","LANListCols",		&opts.iLANList[0],6);
-	ReadIntArray(OptionsFileName, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
-}
 
 
 ///////////////////
 // Load the options
-bool GameOptions::LoadFromDisc()
+bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 {
-	notes << "Loading options..." << endl;
-
 	additionalOptions.clear();
 
-	// TODO: is this still needed with the new parsing?
-	AddKeyword("true",true);
-	AddKeyword("false",false);
-
-	// Load all variables that should be treated specially
-
-	// File handling
-	// read this first, because perhaps we will have new searchpaths
-	InitSearchPaths();
-
+	notes << "Reading game options from " << GetFullFileName(cfgfilename) << endl;
+	notes << "Will write game options to " << GetWriteFullFileName(cfgfilename, true) << endl;
+	
+	this->cfgFilename = cfgfilename;
+	
 	// TODO: these use arrays which are not handled by scriptablevars
 	InitWidgetStates(*this);
 
-	// first set the standards (else the vars would be undefined if not defined in options.cfg)
-	for( CScriptableVars::const_iterator it = CScriptableVars::begin();
-			it != CScriptableVars::end(); it++ )
-	{
-		if( it->first.find("GameOptions.") == 0 )
-		{
-			it->second.var.setDefault();
-		}
-	}
-
-	notes << "Reading game options from " << GetFullFileName(OptionsFileName) << endl;
-	notes << "Will write game options to " << GetWriteFullFileName(OptionsFileName, true) << endl;
-	
 	// define parser handler
 	class MyIniReader : public IniReader {
 	public:
@@ -346,18 +357,18 @@ bool GameOptions::LoadFromDisc()
 					// ignore these atm
 				} else {
 					opts->additionalOptions[section + "." + propname] = value;
-					notes << "the option \"" << section << "." << propname << "\" defined in " << OptionsFileName << " is unknown" << endl;
+					notes << "the option \"" << section << "." << propname << "\" defined in " << m_filename << " is unknown" << endl;
 				}
 			}
 
 			return true;
 		}
 	}
-	iniReader(OptionsFileName, this);
+	iniReader(cfgfilename, this);
 
 	// parse the file now
 	if( ! iniReader.Parse() ) {
-		hints << OptionsFileName << " not found, will use standards" << endl;
+		hints << cfgfilename << " not found, will use standards" << endl;
 	}
 
 
@@ -402,11 +413,11 @@ void ShutdownOptions()
 
 ///////////////////
 // Save the options
-void GameOptions::SaveToDisc()
+void GameOptions::SaveToDisc(const std::string& cfgfilename)
 {
     int     i;
 
-    FILE *fp = OpenGameFile(OptionsFileName, "wt");
+    FILE *fp = OpenGameFile(cfgfilename, "wt");
     if(fp == NULL)
         return;
 
