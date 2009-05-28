@@ -43,7 +43,7 @@ bool IniReader::Parse() {
 			else if(c == '#') { state = S_IGNORERESTLINE; /* this is a comment */ break; }
 			else if(c == '[') { state = S_SECTION; section = ""; break; }
 			else if(c == '=') {
-				warnings << "WARNING: \"=\" is not allowed as the first character in a line of options.cfg" << endl;
+				warnings << "WARNING: \"=\" is not allowed as the first character in a line of " << m_filename << endl;
 				break; /* ignore */ }
 			else { state = S_PROPNAME; propname = c; break; }
 
@@ -52,16 +52,16 @@ bool IniReader::Parse() {
 				if( ! OnNewSection(section) )  { res = false; goto parseCleanup; }
 				state = S_DEFAULT; break; }
 			else if(c == '\n') {
-				warnings << "WARNING: section-name \"" << section << "\" of options.cfg is not closed correctly" << endl;
+				warnings << "WARNING: section-name \"" << section << "\" of " << m_filename << " is not closed correctly" << endl;
 				state = S_DEFAULT; break; }
 			else if(isspace(c)) {
-				warnings << "WARNING: section-name \"" << section << "\" of options.cfg contains a space" << endl;
+				warnings << "WARNING: section-name \"" << section << "\" of " << m_filename << " contains a space" << endl;
 				break; /* ignore */ }
 			else { section += c; break; }
 			
 		case S_PROPNAME:
 			if(c == '\n') {
-				warnings << "WARNING: property \"" << propname << "\" of options.cfg incomplete" << endl;
+				warnings << "WARNING: property \"" << propname << "\" of " << m_filename << " incomplete" << endl;
 				state = S_DEFAULT; break; }
 			else if(isspace(c)) break; // just ignore spaces
 			else if(c == '=') { state = S_PROPVALUE; value = ""; break; }

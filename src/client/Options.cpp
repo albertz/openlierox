@@ -327,9 +327,8 @@ bool GameOptions::LoadFromDisc()
 		}
 	}
 
-	std::string optionsFilename = "cfg/options.cfg";
-	notes << "Reading game options from " << GetFullFileName(optionsFilename) << endl;
-	notes << "Will write game options to " << GetWriteFullFileName(optionsFilename, true) << endl;
+	notes << "Reading game options from " << GetFullFileName(OptionsFileName) << endl;
+	notes << "Will write game options to " << GetWriteFullFileName(OptionsFileName, true) << endl;
 	
 	// define parser handler
 	class MyIniReader : public IniReader {
@@ -347,18 +346,18 @@ bool GameOptions::LoadFromDisc()
 					// ignore these atm
 				} else {
 					opts->additionalOptions[section + "." + propname] = value;
-					notes << "the option \"" << section << "." << propname << "\" defined in options.cfg is unknown" << endl;
+					notes << "the option \"" << section << "." << propname << "\" defined in " << OptionsFileName << " is unknown" << endl;
 				}
 			}
 
 			return true;
 		}
 	}
-	iniReader(optionsFilename, this);
+	iniReader(OptionsFileName, this);
 
 	// parse the file now
 	if( ! iniReader.Parse() ) {
-		hints << optionsFilename << " not found, will use standards" << endl;
+		hints << OptionsFileName << " not found, will use standards" << endl;
 	}
 
 
@@ -407,7 +406,7 @@ void GameOptions::SaveToDisc()
 {
     int     i;
 
-    FILE *fp = OpenGameFile("cfg/options.cfg", "wt");
+    FILE *fp = OpenGameFile(OptionsFileName, "wt");
     if(fp == NULL)
         return;
 
