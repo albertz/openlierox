@@ -52,18 +52,43 @@ bool CGameMode::Spawn(CWorm* worm, CVec pos) {
 void CGameMode::Kill(CWorm* victim, CWorm* killer)
 {
 	// Kill or suicide message
+	std::string buf;
+	if( killer )
 	{
-		std::string buf;
-		// TODO: message if no killer
-		if(killer && killer != victim && networkTexts->sKilled != "<none>") {
-			replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
-			replacemax(buf, "<victim>", victim->getName(), buf, 1);
+		if( killer == victim )
+		{
+			// Suicide
+			// TODO: Restore the suicide count message
+			if( networkTexts->sCommitedSuicide != "<none>" )
+				replacemax(networkTexts->sCommitedSuicide, "<player>", victim->getName(), buf, 1);
+			if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] && killer->getKills() > 0 )
+				killer->setKills(killer->getKills()-1);
 		}
-		// TODO: Restore the suicide count message
-		else if(killer == victim)
-			replacemax(networkTexts->sCommitedSuicide, "<player>", victim->getName(), buf, 1);
-		cServer->SendGlobalText(buf, TXT_NORMAL);
+		else if( GameTeams() > 1 && killer->getTeam() == victim->getTeam() )
+		{
+			if( networkTexts->sTeamkill != "<none>" )
+				replacemax(networkTexts->sTeamkill, "<player>", killer->getName(), buf, 1);
+			if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] && killer->getKills() > 0 )
+				killer->setKills(killer->getKills()-1);
+			if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
+				killer->AddKill();
+		}
+		else
+		{
+			if(networkTexts->sKilled != "<none>")
+			{
+				replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
+				replacemax(buf, "<victim>", victim->getName(), buf, 1);
+			}
+			killer->AddKill();
+		}
 	}
+	else
+	{
+		// TODO: message if no killer
+	}
+	if( buf != "" )
+		cServer->SendGlobalText(buf, TXT_NORMAL);
 	
 	// First blood
 	if(bFirstBlood && killer && killer != victim && networkTexts->sFirstBlood != "<none>")  {
@@ -74,7 +99,6 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 
 	// Kills & deaths in row
 	if(killer && killer != victim) {
-		killer->AddKill();
 		iKillsInRow[killer->getID()]++;
 		iDeathsInRow[killer->getID()] = 0;
 	}
@@ -145,6 +169,20 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
 		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 								victim->getName(), 1), TXT_NORMAL);
+
+	if( GameTeams() > 1 )
+	{
+		int worms[4] = { 0, 0, 0, 0 };
+		for(int i = 0; i < MAX_WORMS; i++)
+			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
+				if(isValidTeam(cServer->getWorms()[i].getTeam()))
+					worms[cServer->getWorms()[i].getTeam()]++;
+	
+		// Victim's team is out of the game
+		if(worms[victim->getTeam()] == 0 && networkTexts->sTeamOut != "<none>")
+			cServer->SendGlobalText(replacemax(networkTexts->sTeamOut, "<team>",
+				TeamName(victim->getTeam()), 1), TXT_NORMAL);
+	}
 }
 
 static int getWormHitKillLimit() {
@@ -327,6 +365,11 @@ int CGameMode::CompareTeamsScore(int t1, int t2) {
 	// Damage
 	return TeamDamage(t1) - TeamDamage(t2);
 }
+
+bool CGameMode::isValidTeam(int t)
+{
+	return t >= 0 && t < MAX_TEAMS;
+};
 
 
 

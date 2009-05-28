@@ -30,21 +30,20 @@ struct Feature {
 	Var defaultValue; // for config, if not set before, in most cases the same as unsetValue
 
 	Version minVersion; // min supported version (<=beta8 is not updated automatically by the system) 
-	// Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or safe to ignore
+	// Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or optinal
 
 	GameInfoGroup group;	// For grouping similar options in GUI
 
+	// TODO: move that to ScriptVarType_t
 	float minValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	float maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	
 	bool serverSideOnly; // if true, all the following is just ignored
 	bool optionalForClient; // Optional client-sided feature, like vision cone drawn for seekers, or SuicideDecreasesScore which required for precise damage calculation in scoreboard
 	
-	// TODO: this var is always false, remove it? Also I don't understand what will happen if I'll set it to true - put some comment plz.
-	bool unsetIfOlderClients; // if getValueFct is not set, it automatically uses the unsetValue for hostGet
+	bool unsetIfOlderClients; // This flag will reset feature to unset value if an older client is connected
 
 	typedef Var (GameServer::*GetValueFunction)( const Var& preset );
-	// TODO: this var is always NULL, remove it? 
 	GetValueFunction getValueFct; // if set, it uses the return value for hostGet
 	
 	bool SET; // Flag that marks end of global features list
@@ -97,12 +96,13 @@ enum FeatureIndex {
 	FT_GameSpeed = 0,
 	FT_ForceScreenShaking,
 	FT_SuicideDecreasesScore,
+	FT_TeamkillDecreasesScore,
+	FT_CountTeamkills,
 	FT_TeamInjure,
 	FT_TeamHit,
 	FT_SelfInjure,
 	FT_SelfHit,
 	FT_AllowEmptyGames,
-	FT_CountTeamkills,	// Client should know this to calculate damage correctly in teamgames
 	FT_HS_HideTime,		// Hide and Seek gamemode settings
 	FT_HS_AlertTime,
 	FT_HS_HiderVisionRange,

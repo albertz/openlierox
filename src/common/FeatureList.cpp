@@ -23,8 +23,12 @@ Feature featureArray[] = {
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, 		0.1f, 	10.0f ),
 	Feature("ForceScreenShaking", 	"Force screen shaking", 		"Screen shaking will be activated for everybody.", 
-			true, 	true, 			Version(), 			GIG_Other, 							false,	true ),
-	Feature("SuicideDecreasesScore", "Suicide/teamkill decreases score", "The kills count will be descreased by one after a suicide or teamkill.", 
+			true, 	true, 			Version(), 			GIG_Other, 							false,	true ), // TODO: use unsetIfOlderClients flag for this feature, instead of current manual-checking code?
+	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", 
+			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
+	Feature("TeamkillDecreasesScore", "Teamkill decreases score", "The kills count will be descreased by one after a teamkill.", 
+			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
+	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your score", 
 			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
 	Feature("TeamInjure", 			"Damage team members", 			"If disabled, your bullets and projectiles don't damage other team members.", 
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
@@ -36,8 +40,6 @@ Feature featureArray[] = {
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
 	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit.", 
 			false, 	false, 			Version(), 			GIG_Other, 							true),
-	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your damage score counter", 
-			false, 	false, 			Version(), 			GIG_Score, 							false,	true ),
 	Feature("HS_HideTime", 			"Hiding time", 					"AbsTime at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true ),
 	Feature("HS_AlertTime", 		"Alert time", 					"When player discovered but escapes the time for which it's still visible", 
@@ -73,15 +75,15 @@ Feature featureArray[] = {
 	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated)",
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons,	true),
 	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
-			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100, true),
+			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100,	true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
 			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
 			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_CaptureTheFlag, 0.1f, 3.0f, true),
 	Feature("Race_Rounds", "Rounds", "Amount of rounds",
-			5,5,					OLXBetaVersion(9),		GIG_Race,		-1, 100, true),
+			5,5,					Version(),		GIG_Race,				-1,		100,	true),
 	Feature("Race_AllowWeapons", "Allow weapons", "If disabled, you cannot shoot",
-			false,false,			OLXBetaVersion(9),		GIG_Race,		true),
+			false,	false,			OLXBetaVersion(9),		GIG_Race,		true),
 
 	Feature::Unset()
 };
@@ -133,7 +135,7 @@ ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 }
 
 bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
-	if( f->serverSideOnly || f->optionalForClient ) return true;
+	if( f->optionalForClient ) return true;
 	return hostGet(f) == f->unsetValue;
 }
 

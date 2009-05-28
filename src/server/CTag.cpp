@@ -21,20 +21,17 @@ protected:
 	virtual void TagWorm(CWorm *worm);
 	virtual void TagRandomWorm();
 public:
-	virtual ~CTag();
 	
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
 	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
-	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
 	virtual int  GeneralGameType();
 	virtual int CompareWormsScore(CWorm *w1, CWorm *w2);
 	virtual int  Winner();
-	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Tag"; }
 	
 protected:
@@ -43,10 +40,6 @@ protected:
 	int  iDeathsInRow[MAX_WORMS];
 };
 
-
-CTag::~CTag()
-{
-}
 
 void CTag::PrepareGame()
 {
@@ -71,102 +64,7 @@ bool CTag::Spawn(CWorm* worm, CVec pos)
 
 void CTag::Kill(CWorm* victim, CWorm* killer)
 {
-	// TODO: what is the difference here to CGameMode::Kill() (except the end)?
-	// TODO: share the code and call CGameMode::Kill()
-	
-	// Kill or suicide message
-	if(killer && networkTexts->sKilled != "<none>") {
-		std::string buf;
-		if(killer != victim) {
-			replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
-			replacemax(buf, "<victim>", victim->getName(), buf, 1);
-		}
-		// TODO: Restore the suicide count message
-		else
-			replacemax(networkTexts->sCommitedSuicide, "<player>", victim->getName(), buf, 1);
-		cServer->SendGlobalText(buf, TXT_NORMAL);
-	}
-	
-	// First blood
-	if(bFirstBlood && killer && killer != victim && networkTexts->sFirstBlood != "<none>")  {
-		bFirstBlood = false;
-		cServer->SendGlobalText(replacemax(networkTexts->sFirstBlood, "<player>",
-			killer->getName(), 1), TXT_NORMAL);
-	}
-
-	// Kills & deaths in row
-	if(killer && killer != victim) {
-		killer->AddKill();
-		iKillsInRow[killer->getID()]++;
-		iDeathsInRow[killer->getID()] = 0;
-	}
-	iKillsInRow[victim->getID()] = 0;
-	iDeathsInRow[victim->getID()]++;
-
-	// Killing spree message
-	if(killer && killer != victim) {
-		switch(iKillsInRow[killer->getID()]) {
-		case 3:
-			if(networkTexts->sSpree1 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sSpree1, "<player>",
-					killer->getName(), 1), TXT_NORMAL);
-			break;
-		case 5:
-			if(networkTexts->sSpree2 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sSpree2, "<player>",
-					killer->getName(), 1), TXT_NORMAL);
-			break;
-		case 7:
-			if(networkTexts->sSpree3 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sSpree3, "<player>",
-					killer->getName(), 1), TXT_NORMAL);
-			break;
-		case 9:
-			if(networkTexts->sSpree4 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sSpree4, "<player>",
-					killer->getName(), 1), TXT_NORMAL);
-			break;
-		case 10:
-			if(networkTexts->sSpree5 != "<none>")
-				cServer->SendGlobalText(replacemax(networkTexts->sSpree5, "<player>",
-					killer->getName(), 1), TXT_NORMAL);
-			break;
-		}
-	}
-
-	// Dying spree message
-	switch(iDeathsInRow[victim->getID()]) {
-	case 3:
-		if(networkTexts->sDSpree1 != "<none>")
-			cServer->SendGlobalText(replacemax(networkTexts->sDSpree1, "<player>",
-				victim->getName(), 1), TXT_NORMAL);
-		break;
-	case 5:
-		if(networkTexts->sDSpree2 != "<none>")
-			cServer->SendGlobalText(replacemax(networkTexts->sDSpree2, "<player>",
-				victim->getName(), 1), TXT_NORMAL);
-		break;
-	case 7:
-		if(networkTexts->sDSpree3 != "<none>")
-			cServer->SendGlobalText(replacemax(networkTexts->sDSpree3, "<player>",
-				victim->getName(), 1), TXT_NORMAL);
-		break;
-	case 9:
-		if(networkTexts->sDSpree4 != "<none>")
-			cServer->SendGlobalText(replacemax(networkTexts->sDSpree4, "<player>",
-				victim->getName(), 1), TXT_NORMAL);
-		break;
-	case 10:
-		if(networkTexts->sDSpree5 != "<none>")
-			cServer->SendGlobalText(replacemax(networkTexts->sDSpree5, "<player>",
-				victim->getName(), 1), TXT_NORMAL);
-		break;
-	}
-
-	// Victim is out of the game
-	if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
-		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
-			victim->getName(), 1), TXT_NORMAL);
+	CGameMode::Kill(victim, killer);
 
 	// Tag another worm
 	if (victim->getTagIT())  {
@@ -178,11 +76,6 @@ void CTag::Kill(CWorm* victim, CWorm* killer)
 		} else // Suicide or no killer
 			TagRandomWorm();
 	}
-}
-
-bool CTag::Shoot(CWorm* worm)
-{
-	return true;
 }
 
 ///////////////////
@@ -249,11 +142,6 @@ bool CTag::CheckGameOver()
 	}
 
 	return false;
-}
-
-bool CTag::NeedUpdate(CServerConnection* cl, CWorm* worm)
-{
-	return true;
 }
 
 int CTag::GeneralGameType()

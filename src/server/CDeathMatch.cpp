@@ -18,30 +18,14 @@
 
 class CDeathMatch : public CGameMode {
 public:
-	virtual void PrepareWorm(CWorm* worm);
-	virtual bool Shoot(CWorm* worm);
 	virtual void Drop(CWorm* worm);
-	virtual void Simulate();
-	virtual bool CheckGameOver();
-	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm);
 	virtual std::string Name() { return "Death Match"; }
 };
 
 
-
-void CDeathMatch::PrepareWorm(CWorm* worm)
-{
-}
-
-
-bool CDeathMatch::Shoot(CWorm* worm)
-{
-	return true;
-}
-
-
 void CDeathMatch::Drop(CWorm* worm)
 {
+	// TODO: why is this needed? Where is this used? CGameMode::Drop() is empty stub - move this code there.
 	if (!worm || worm->getID() < 0 || worm->getID() >= MAX_WORMS)
 		errors << "Dropped an invalid worm" << endl;
 
@@ -49,19 +33,7 @@ void CDeathMatch::Drop(CWorm* worm)
 	iDeathsInRow[worm->getID()] = 0;
 }
 
-void CDeathMatch::Simulate()
-{
-}
 
-bool CDeathMatch::CheckGameOver()
-{
-	return CGameMode::CheckGameOver();
-}
-
-bool CDeathMatch::NeedUpdate(CServerConnection* cl, CWorm* worm)
-{
-	return true;
-}
 
 static CDeathMatch gameMode;
 CGameMode* gameMode_DeathMatch = &gameMode;

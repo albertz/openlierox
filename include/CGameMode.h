@@ -63,12 +63,12 @@ public:
 	long TeamDamage(int t);
 	int HighestScoredWorm();
 	int HighestScoredTeam();
+	bool isValidTeam(int t);
 	
 protected:
 	bool bFirstBlood;
 	int	iKillsInRow[MAX_WORMS];
 	int	iDeathsInRow[MAX_WORMS];
-
 };
 
 void InitGameModes();

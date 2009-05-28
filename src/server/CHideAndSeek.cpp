@@ -34,7 +34,6 @@ public:
 	virtual bool Spawn(CWorm* worm, CVec pos);
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual bool Shoot(CWorm* worm);
-	virtual void Drop(CWorm* worm);
 	virtual void Simulate();
 	virtual bool CheckGameOver();
 	virtual int  GeneralGameType();
@@ -132,10 +131,6 @@ void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 bool CHideAndSeek::Shoot(CWorm* worm)
 {
 	return false;
-}
-
-void CHideAndSeek::Drop(CWorm* worm)
-{
 }
 
 void CHideAndSeek::Simulate()

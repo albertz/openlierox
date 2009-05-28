@@ -85,8 +85,8 @@ void CClient::Clear()
 	bMapGrabbed = false;
 	if( cNetChan )
 		delete cNetChan;
-	cNetChan = NULL;
-	iNetStatus = NET_DISCONNECTED;
+		cNetChan = NULL;
+		iNetStatus 	 = NET_DISCONNECTED;	
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
