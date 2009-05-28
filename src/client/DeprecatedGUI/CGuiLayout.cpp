@@ -793,7 +793,6 @@ gui_event_t *CGuiLayout::Process()
 		else  {
 			cFocused = NULL;
 		}
-
 	}
 
 	// Non-widget wheel up

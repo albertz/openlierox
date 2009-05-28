@@ -776,7 +776,7 @@ void Menu_GameSettings()
 	//GameTabPane = 0;
 	// Setup the buffer
 	Menu_DrawBox(tMenu->bmpBuffer.get(), 80,120, 560,460);
-	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 200);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 245);
 
 	Menu_RedrawMouse(true);
 
