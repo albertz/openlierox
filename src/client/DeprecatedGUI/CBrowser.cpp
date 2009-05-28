@@ -675,7 +675,7 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 // Mouse up event
 int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
-	if(bUseScroll && tMouse->X > iX+iWidth-20)
+	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()))
 	{
 		cScrollbar.MouseUp(tMouse, nDown);
 		bNeedsRender = true; // Always redraw, scrollbar may change it's image
