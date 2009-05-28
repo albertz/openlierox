@@ -1008,7 +1008,7 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
-	bs.writeInt(Worm->getKills(), 2); // Negative kills are allowed
+	bs.writeInt(Worm->getKills(), 4); // Negative kills are allowed
 	bs.writeInt(Worm->getDamage(), 4);
 
 	SendPacket(&bs);
