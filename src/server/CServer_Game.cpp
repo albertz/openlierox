@@ -338,11 +338,10 @@ void GameServer::SimulateGame()
 
 			// If it's been here too long, destroy it
 			if( tLX->currentTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameInfo.fBonusLife ) {
-				CBytestream bs;
-				bs.Clear();
 				cBonuses[i].setUsed(false);
 
 				// TODO: move this out here
+				CBytestream bs;
 				bs.writeByte(S2C_DESTROYBONUS);
 				bs.writeByte((byte)i);
 				SendGlobalPacket(&bs);
