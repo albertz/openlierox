@@ -146,6 +146,30 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	// The clipping on the viewport is done in the line function
 }
 
+////////////////////
+// Unattaches rope from a worm
+void CNinjaRope::UnAttachPlayer()
+{
+	if (!Worm)
+		return;
+
+	HookVelocity.x = HookVelocity.y = 0;
+	HookShooting = false;
+	HookAttached = false;
+	PlayerAttached = false;
+	Worm->setHooked(false, NULL);
+	Worm = NULL;
+}
+
+void CNinjaRope::AttachToPlayer(CWorm *worm, CWorm *owner)
+{
+	HookShooting = false;
+	HookAttached = true;
+	PlayerAttached = true;
+	Worm = worm;
+	worm->setHooked(true, owner);
+}
+
 
 ///////////////////
 // Return the pulling force

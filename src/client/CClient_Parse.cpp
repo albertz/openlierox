@@ -2144,6 +2144,12 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 	short i;
 
 	if(id < MAX_WORMS) {
+		// If the respawn time is 0, the worm can be spawned even before the simulation is done
+		// Therefore the check for isAlive in the simulation does not work in all cases
+		// Because of that, we unattach the rope here, just to be sure
+		if (client->cRemoteWorms[id].getHookedWorm())
+			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
+
 		client->cRemoteWorms[id].setAlive(false);
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();

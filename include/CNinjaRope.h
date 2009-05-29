@@ -84,6 +84,8 @@ public:
 
 	int			isReleased()		{ return Released; }
 	void		Release();
+	void		UnAttachPlayer();
+	void		AttachToPlayer(CWorm *worm, CWorm *owner);
 
 	void		updateCheckVariables();
 	bool		writeNeeded();
@@ -105,9 +107,6 @@ public:
 	CVec&		hookPos()				{ return HookPos; }
 	
 	bool		isPlayerAttached()		{ return PlayerAttached; }
-	void		setPlayerAttached(bool a)		{ PlayerAttached = a; }
-	// TODO: remove PlayerAttached and just use Worm (and if Worm==NULL => no player attached)
-	void		setAttachedPlayer(CWorm* w)	{ Worm = w; }
 	CWorm*		getAttachedPlayer()		{ return Worm; }
 
 	void		changeRestLength(float);

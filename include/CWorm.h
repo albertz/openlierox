@@ -496,6 +496,7 @@ public:
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
+	CWorm		*getHookedWorm()			{ return pcHookWorm; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
     CServerConnection     *getClient()            { return cOwner; }
 

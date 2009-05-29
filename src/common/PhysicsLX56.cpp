@@ -543,7 +543,6 @@ public:
 				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
 			rope->setShooting( false );
 			rope->setAttached( true );
-			rope->setPlayerAttached( false );
 
 			// Make the hook stay at an edge
 			rope->hookPos().x = ( MAX((float)0, rope->hookPos().x) );
@@ -565,7 +564,6 @@ public:
 			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
 				rope->setShooting( false );
 				rope->setAttached( true );
-				rope->setPlayerAttached( false );
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
@@ -579,7 +577,6 @@ public:
 
 		// Check if the hook has hit another worm
 		if(!rope->isAttached() && !rope->isPlayerAttached()) {
-			rope->setPlayerAttached( false );
 
 			for(short i=0; i<MAX_WORMS; i++) {
 				// Don't check against the worm if they aren't used, dead, a flag or the ninja rope was shot by the worm
@@ -593,11 +590,7 @@ public:
 					continue;
 
 				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
-					rope->setShooting( false );
-					rope->setAttached( true );
-					rope->setPlayerAttached( true );
-					rope->setAttachedPlayer( &worms[i] );
-					rope->getAttachedPlayer()->setHooked(true, owner);
+					rope->AttachToPlayer(&worms[i], owner);
 					break;
 				}
 			}
@@ -612,13 +605,7 @@ public:
 				!rope->getAttachedPlayer()->getAlive() ||
 				!rope->getAttachedPlayer()->isVisible(owner) ) 
 			{
-				if(!rope->getAttachedPlayer())
-					warnings("WARNING: the rope is attached to a non-existant player!\n");						
-				rope->hookVelocity() = CVec(0,0);
-				rope->setShooting( false );
-				rope->setAttached( false );
-				rope->setPlayerAttached( false );
-				rope->setAttachedPlayer( NULL );
+				rope->UnAttachPlayer();
 			} else {
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
 			}
