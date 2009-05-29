@@ -83,6 +83,8 @@ ConversationLogger *convoLogger = NULL;
 keyboard_t	*kb = NULL;
 IpToCountryDB *tIpToCountryDB = NULL;
 
+static std::list<std::string> startupCommands;
+
 
 //
 // Loading screen info and functions
@@ -104,11 +106,11 @@ public:
 	DeprecatedGUI::CBar *cBar;
 };
 
-LoadingScreen cLoading;
+static LoadingScreen cLoading;
 
-void InitializeLoading();
-void DrawLoading(byte percentage, const std::string &text);
-void ShutdownLoading();
+static void InitializeLoading();
+static void DrawLoading(byte percentage, const std::string &text);
+static void ShutdownLoading();
 
 
 
@@ -443,6 +445,13 @@ startpoint:
 		startFunctionData = NULL;
 	}
 
+	for(std::list<std::string>::iterator i = startupCommands.begin(); i != startupCommands.end(); ++i) {
+		// execute as if it would have been entered in ingame console
+		notes << "startup command: " << *i << endl;
+		Con_Execute(*i);
+	}
+	startupCommands.clear(); // don't execute them again
+	
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
 	startMainLockDetector();
@@ -505,7 +514,7 @@ quit:
 		delete tLX;
 		tLX = NULL;
 	}
-	
+		
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
@@ -708,21 +717,36 @@ void ParseArguments(int argc, char *argv[])
 		// -dedscript
 		// set dedicated script (next param)
 		if( stricmp(a, "-script") == 0 ) {
-			bDedicated = true;
-			bDisableSound = true;
-			// these settings will be temporarly because we don't save options at end in dedicated mode
-			tLXOptions->bSoundOn = false;
-			tLXOptions->sDedicatedScript = argv[++i];
+			if(argv[i + 1] != NULL) {
+				bDedicated = true;
+				bDisableSound = true;
+				// these settings will be temporarly because we don't save options at end in dedicated mode
+				tLXOptions->bSoundOn = false;
+				tLXOptions->sDedicatedScript = argv[++i];
+			}
+			else
+				warnings << "-script needs an additinal parameter" << endl;
 		} else
 				
 		// -connect
 		// connect to server (next param)
 		if( stricmp(a, "-connect") == 0 ) {
-			// TODO ...
-			// argv[++i];
-			++i;
+			if(argv[i + 1] != NULL) {
+				startupCommands.push_back("connect \"" + std::string(argv[++i]) + "\"");
+			}
+			else
+				warnings << "-connect needs an additinal parameter" << endl;
 		} else
 
+		// -exec
+		// pushes a startup command
+		if( stricmp(a, "-exec") == 0 ) {
+			if(argv[i + 1] != NULL)
+				startupCommands.push_back(argv[++i]);
+			else
+				warnings << "-exec needs an additinal parameter" << endl;
+		} else
+				
         // -window
         // Turns fullscreen off
         if( stricmp(a, "-window") == 0 ) {
@@ -766,6 +790,8 @@ void ParseArguments(int argc, char *argv[])
 		// Displays help and quits
         if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {
         	printf("available parameters:\n");
+			printf("   -connect srv  Connects to the server\n");
+			printf("   -exec cmd     Executes the command in console\n");
      		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");
      		printf("   -noopengl     Explicitly disable using OpenGL\n");
      		printf("   -dedicated    Dedicated mode\n");
@@ -1043,7 +1069,7 @@ void GotoNetMenu()
 
 ////////////////////
 // Initialize the loading screen
-void InitializeLoading()  {
+static void InitializeLoading()  {
 	if(bDedicated) return; // ignore this case
 
 	FillSurface(VideoPostProcessor::videoSurface(), MakeColour(0,0,0));
@@ -1088,7 +1114,7 @@ void InitializeLoading()  {
 
 /////////////////////
 // Draw the loading
-void DrawLoading(byte percentage, const std::string &text)  {
+static void DrawLoading(byte percentage, const std::string &text)  {
 	if(bDedicated) {
 		notes << "Loading: " << text << endl;
 		return;
@@ -1122,7 +1148,7 @@ void DrawLoading(byte percentage, const std::string &text)  {
 
 ////////////////////
 // Shutdown the loading screen
-void ShutdownLoading()  {
+static void ShutdownLoading()  {
 	if (cLoading.cBar)
 		delete cLoading.cBar;
 	cLoading.cBar = NULL;
