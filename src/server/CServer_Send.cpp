@@ -826,7 +826,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnect
 void GameServer::SendDisconnect()
 {
 	CServerConnection *cl = cClients;
-	if (!cl)
+	if (!cl) // means we already shut down
 		return;
 
 	CBytestream bs;

@@ -1713,10 +1713,12 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		return;
 	}
 
+	// This check is obsolete now. We can add human players ingame.
+	/*
 	if ( !bDedicated && cClient && cClient->getNumWorms() > 0 && cClient->getWorm(0) && cClient->getWorm(0)->getID() == wormID )  {
 		hints << "You can't kick yourself!" << endl;
 		return;  // Don't kick ourself
-	}
+	}*/
 
 	// Get the worm
 	CWorm *w = cWorms + wormID;
@@ -1779,7 +1781,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 					SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
 														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
 				
-				notes << "Worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+				notes << "Local worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
+				
+				bool isHumanWorm = w->getType() == PRF_HUMAN;
 				
 				// Delete the worm from client/server
 				cClient->RemoveWorm(wormID);			
@@ -1789,6 +1793,12 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 				// Now that a player has left, re-check the game status
 				RecheckGame();
 				cClient->UpdateScoreboard();
+			
+				if(isHumanWorm && !bDedicated) {
+					// resetup these
+					cClient->SetupGameInputs();
+					cClient->SetupViewports();
+				}
 			}
 						
 			// End here
@@ -2290,6 +2300,10 @@ float GameServer::getMaxUploadBandwidth() {
 }
 
 void GameServer::DumpGameState() {
+	if(!isServerRunning()) {
+		hints << "Server is not running" << endl;
+		return;
+	}
 	hints << "Server '" << this->getName() << "' game state:" << endl;
 	switch(iState) {
 		case SVS_LOBBY: hints << " * in lobby"; break;

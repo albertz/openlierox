@@ -1655,16 +1655,13 @@ void CClient::Disconnect()
 // Setup the viewports for the local players
 void CClient::SetupViewports()
 {
-	// Two players
-	if (iNumWorms >= 2)
-		if (cLocalWorms[1])
-			if (cLocalWorms[1]->getType() == PRF_HUMAN)  {
-				SetupViewports(cLocalWorms[0], cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
-				return;
-			}
+	std::vector<CWorm*> humanWorms; humanWorms.reserve(2);
+	for(uint i = 0; i < iNumWorms; ++i) {
+		if(cLocalWorms[i] && cLocalWorms[i]->getType() == PRF_HUMAN)
+			humanWorms.push_back(cLocalWorms[i]);
+	}
 
-	// Only one player
-	SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+	SetupViewports((humanWorms.size() > 0) ? humanWorms[0] : NULL, (humanWorms.size() > 1) ? humanWorms[1] : NULL, VW_FOLLOW, VW_FOLLOW);
 }
 
 
@@ -1834,7 +1831,7 @@ static void updateAddedWorms(CClient* cl) {
 					}
 				}
 				
-				// now add the worm on the client
+				// ----- now add the worm on the client ----
 				
 				// (code from CClientNetEngine::ParseConnected) 
 				cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
@@ -1900,6 +1897,7 @@ static void updateAddedWorms(CClient* cl) {
 					if(!cl->getWorm(i)->getWeaponsReady()) {
 						notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
 						cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
+						cl->setReadySent(false); // to force resent
 						// we will recheck that in clients frame
 					}
 					else { // weapons are already ready
@@ -1926,9 +1924,16 @@ static void updateAddedWorms(CClient* cl) {
 							cServer->SpawnWorm( w );
 							if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
 								cServer->SendEmptyWeaponsOnRespawn( w );							
-						}
+						}						
 					}
 					
+					if(!bDedicated && cl->getWorm(i)->getType() == PRF_HUMAN) {
+						// we must resetup the inputs
+						cl->SetupGameInputs();
+						// also resetup viewports
+						cl->SetupViewports();
+					}
+
 					cl->UpdateScoreboard();
 				}
 			}
@@ -2405,13 +2410,18 @@ void CClient::SetupGameInputs()
 	// Setup the controls
 	int humanWormNum = 0;
 	for(int i = 0; i < getNumWorms(); i++) {
+		if(!getWorm(i)) break; // rare cases, for example if we call it while adding local worms
 		CWormHumanInputHandler* handler = dynamic_cast<CWormHumanInputHandler*> (getWorm(i)->inputHandler());
 		if(handler) {
 			// TODO: Later, let the handler save a rev to his sPlayerControls. This would give
 			// more flexibility to the player and he can have multiple player control sets.
 			// Then, we would call a reloadInputs() here.
-			handler->setupInputs( tLXOptions->sPlayerControls[humanWormNum] );
-			humanWormNum++;
+			if(humanWormNum <= 1) {
+				handler->setupInputs( tLXOptions->sPlayerControls[humanWormNum] );
+				humanWormNum++;
+			}
+			else
+				warnings << "SetupGameInputs: we currently don't support more than 2 local human worms" << endl;
 		}
 	}
 

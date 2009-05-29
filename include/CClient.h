@@ -650,6 +650,9 @@ public:
 	bool		isGameOver()			{ return bGameOver; }
 	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
 
+	void		setReadySent(bool b)	{ bReadySent = b; }
+
+	
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }
 

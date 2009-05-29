@@ -505,7 +505,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					// Start the lobby
 					if (!Menu_Net_HostLobbyInitialize())  {
-						errors << "could not start hosting" << endl;
+						errors << "could not start hosting lobby menu" << endl;
 						Menu_Net_HostInitialize();
 					}
 				}
