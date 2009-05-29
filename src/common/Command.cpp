@@ -710,16 +710,31 @@ void Cmd_sex::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 
 COMMAND(disconnect, "disconnect from server or exit server", "", 0, 0);
 void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(!DeprecatedGUI::tMenu || !DeprecatedGUI::tMenu->bMenuRunning) {
-		if(tLX && tLX->iGameType == GME_JOIN) {
-			if(cClient && cClient->getStatus() != NET_DISCONNECTED)
-				cClient->Disconnect();		
-		}
+	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
+		cClient->Disconnect();
+	
+	if(cServer && cServer->isServerRunning()) {
+		// Tell any clients that we're leaving
+		cServer->SendDisconnect();
 		
-		SetQuitEngineFlag("Console Cmd_Quit");
+		// Shutdown server & clients
+		cClient->Shutdown();
+		cServer->Shutdown();			
+	}
+	else if(cClient && cClient->getStatus() != NET_DISCONNECTED)
+		cClient->Shutdown();
 		
-	} else
-		caller->writeMsg("disconnect has no effect in menu", CNC_WARNING);
+	SetQuitEngineFlag("Console Cmd_Quit");
+		
+	if(DeprecatedGUI::tMenu && DeprecatedGUI::tMenu->bMenuRunning) {
+		DeprecatedGUI::Menu_Current_Shutdown();
+
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_NetInitialize(true);
+		
+		// when we leave the server
+		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+	}
 }
 
 COMMAND(volume, "set sound volume", "0-100", 1, 1);
@@ -860,6 +875,44 @@ void Cmd_script::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	DedicatedControl::Get()->ChangeScript(script);
 }
 
+COMMAND(addHuman, "add human player to game", "[profile]", 0, 1);
+void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(bDedicated) {
+		caller->writeMsg("cannot add human player in dedicated mode", CNC_WARNING);
+		return;
+	}
+	
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
+		caller->writeMsg("Too many worms!");
+		return;
+	}
+	
+	// try to find the requested worm
+	std::string player = (params.size() > 0) ? params[0] : tLXOptions->sLastSelectedPlayer;
+	TrimSpaces(player);
+	StripQuotes(player);
+	if(player == "" && GetProfiles()) player = GetProfiles()->sName;
+			
+	profile_t *p = FindProfile(player);
+	if(p) {
+		if(p->iType != PRF_HUMAN->toInt()) {
+			caller->writeMsg("worm " + player + " is not a human player", CNC_WARNING);
+			return;
+		}
+		cClient->AddWorm(p);
+		return;
+	}
+	
+	caller->writeMsg("cannot find a profile for worm '" + player + "'"); 
+}
+
+
 COMMAND(addBot, "add bot to game", "[botprofile]", 0, 1);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
@@ -882,6 +935,10 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		
 		profile_t *p = FindProfile(localWorm);
 		if(p) {
+			if(p->iType != PRF_COMPUTER->toInt()) {
+				caller->writeMsg("worm " + localWorm + " is not a bot", CNC_WARNING);
+				return;
+			}
 			cClient->AddWorm(p);
 			return;
 		}
@@ -1349,6 +1406,19 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->LobbyStarted_Signal();
+
+	// load the menu
+	if(!bDedicated) {
+		DeprecatedGUI::Menu_Current_Shutdown();
+		
+		// goto the joining dialog
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_NetInitialize(false);
+		DeprecatedGUI::Menu_Net_HostGotoLobby();
+		
+		// when we leave the server
+		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;	
+	}
 }
 
 COMMAND(startGame, "start game", "", 0, 0);
