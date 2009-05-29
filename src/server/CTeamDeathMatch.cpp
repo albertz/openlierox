@@ -74,12 +74,10 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 
 void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 
 {
-	if( t < 0 || t > MAXTEAMS )
-	{
+	if( t >= 0 && t < MAXTEAMS )
+		teamScore[t] += diff;
+	else
 		errors << "CTeamDeathMatch::ChangeTeamScore: invalid team nr " << t << endl;
-		return;
-	}
-	teamScore[t] += diff;
 }
 
 static CTeamDeathMatch gameMode;
