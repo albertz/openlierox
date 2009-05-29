@@ -182,6 +182,10 @@ struct IngameConsole : CmdLineIntf {
 	
 	void startThread() {
 		stopThread();
+		quit = false;
+		input.text = "";
+		input.pos = 0;
+		keyQueue.clear();
 		thread = StartMemberFuncInThread(IngameConsole, IngameConsole::handler, "IngameConsole handler");
 	}
 };
