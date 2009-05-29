@@ -346,6 +346,13 @@ class ML_LieroX : public MapLoader {
 	// Load the high-resolution images
 	void LoadAdditionalLevelData(CMap* m)
 	{
+		// Check that we are not at the end of the file
+		// HINT: this needs to be done because until we actually read the EOF, feof returns false
+		int c = fgetc(fp);
+		if (c == EOF)
+			return;
+		ungetc(c, fp);
+
 		while( !feof(fp) && !ferror(fp) )
 		{
 			std::string chunkName;
