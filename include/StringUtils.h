@@ -74,10 +74,12 @@
 #	define fcloseall _fcloseall
 #	define strcasecmp	stricmp
 #else
-inline char* strlwr(char* string) {
-	char* ret = string;
-	if(string) while( 0 != ( *string++ = (char)tolower( *string ) ) ) ;
-	return ret;
+inline void strlwr(char* string) {
+	if(string)
+		while( *string ) {
+			*string = (char)tolower( *string );
+			string++;
+		}
 }
 #endif
 

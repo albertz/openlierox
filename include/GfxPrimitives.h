@@ -151,27 +151,46 @@ template<typename _RectBasic>
 class OLXRect : public _RectBasic {
 public:
 
-	OLXRect(const _RectBasic & r): _RectBasic(r) {};
+	OLXRect(const _RectBasic & r): _RectBasic(r) {}
 
-	class AssignX2 : private _RectBasic {
+	class GetX2 {
+	protected:
+		const _RectBasic* base;
 	public:
+		GetX2(const _RectBasic* b) : base(b) {}
+		operator typename _RectBasic::Type () const
+		{ return base->x() + base->width(); }
+	};
+	class AssignX2 : public GetX2 {
+	private:
+		_RectBasic* base;
+	public:
+		AssignX2(_RectBasic* b) : GetX2(b), base(b) {}
 		AssignX2& operator=(const typename _RectBasic::Type& v)
-		{ this->_RectBasic::width() = v - this->_RectBasic::x(); return *this; }
-		operator typename _RectBasic::Type () const
-		{ return this->_RectBasic::x() + this->_RectBasic::width(); }
+		{ base->width() = v - base->x(); return *this; }	
 	};
-	AssignX2& x2() { return (AssignX2&)*this; }
-	const AssignX2& x2() const { return (const AssignX2&)*this; }
 
-	class AssignY2 : private _RectBasic {
+	AssignX2 x2() { return AssignX2(this); }
+	GetX2 x2() const { return GetX2(this); }
+
+	class GetY2 {
+	protected:
+		const _RectBasic* base;
 	public:
-		AssignY2& operator=(const typename _RectBasic::Type& v)
-		{ this->_RectBasic::height() = v - this->_RectBasic::y(); return *this; }
+		GetY2(const _RectBasic* b) : base(b) {}
 		operator typename _RectBasic::Type () const
-		{ return this->_RectBasic::y() + this->_RectBasic::height(); }
+		{ return base->y() + base->height(); }
 	};
-	AssignY2& y2() { return (AssignY2&)*this; }
-	const AssignY2& y2() const { return (AssignY2&)*this; }
+	class AssignY2 : public GetY2 {
+	private:
+		_RectBasic* base;
+	public:
+		AssignY2(_RectBasic* b) : GetY2(b), base(b) {}
+		AssignY2& operator=(const typename _RectBasic::Type& v)
+		{ base->height() = v - base->y(); return *this; }
+	};
+	AssignY2 y2() { return AssignY2(this); }
+	GetY2 y2() const { return GetY2(this); }
 
 	template<typename _ClipRect>
 	bool clipWith(const _ClipRect& clip) {
@@ -206,7 +225,8 @@ bool ClipRefRectWith(_Type& x, _Type& y, _TypeS& w, _TypeS& h, const _ClipRect& 
 
 template<typename _ClipRect>
 bool ClipRefRectWith(SDL_Rect& rect, const _ClipRect& clip) {
-	return ((SDLRect&)rect).clipWith(clip);
+	RefRectBasic<Sint16,Uint16> refrect(rect.x, rect.y, rect.w, rect.h);
+	return OLXRect< RefRectBasic<Sint16,Uint16> >(refrect).clipWith(clip);
 }
 
 

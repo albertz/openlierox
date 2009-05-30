@@ -66,15 +66,18 @@ protected:
 		virtual Handler* copy() const { return new Handler_Joined(m_handler1->copy(), m_handler2->copy()); }
 	};
 	
-	class HandlerAccessor : protected Event<_Data> {
+	class HandlerAccessor {
+	private:
+		Event* base;
 	public:
+		HandlerAccessor(Event* b) : base(b) {}
 		// WARNING: Don't assign NULL, use always null!
 		// WARNING: The Event-class overtakes the pointer, so don't assign any static stuff. Use getEventHandler() for example.
-		HandlerAccessor& operator=(Handler* h) { assert(h != NULL); m_handler = h; return *this; }
-		HandlerAccessor& operator=(Null) { m_handler = new Handler_NoOp(); return *this; }
-		HandlerAccessor& operator+=(Handler* h) { assert(h != NULL); m_handler = new Handler_Joined(m_handler.overtake(), h); return *this; }
+		HandlerAccessor& operator=(Handler* h) { assert(h != NULL); base->m_handler = h; return *this; }
+		HandlerAccessor& operator=(Null) { base->m_handler = new Handler_NoOp(); return *this; }
+		HandlerAccessor& operator+=(Handler* h) { assert(h != NULL); base->m_handler = new Handler_Joined(base->m_handler.overtake(), h); return *this; }
 		HandlerAccessor& operator-=(Handler* h) {
-			Ref<Handler>* base = &m_handler;
+			Ref<Handler>* base = &this->base->m_handler;
 			Handler_Joined* joined;
 			while((joined = dynamic_cast<Handler_Joined*>(&base->get())) != NULL) {
 				if(joined->m_handler2.get() == *h) {
@@ -99,10 +102,11 @@ protected:
 			return *this;
 		}
 		
-		Handler& get() { return m_handler.get(); } 
+		Handler& get() { return base->m_handler.get(); } 
 	};
 	
 private:
+	friend class HandlerAccessor;
 	Ref<Handler> m_handler; // WARNING: don't assign NULL here!
 
 public:
@@ -110,7 +114,7 @@ public:
 	~Event() { if (mainQueue) mainQueue->removeCustomEvents(this); }
 	Event(const Event& e) { (*this) = e; }
 	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); return *this; }
-	HandlerAccessor& handler() { return (HandlerAccessor&)(*this); }
+	HandlerAccessor handler() { return HandlerAccessor(this); }
 
 	void pushToMainQueue(_Data data) { if(mainQueue) mainQueue->push(new EventThrower<_Data>(this, data)); }
 

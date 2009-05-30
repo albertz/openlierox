@@ -172,20 +172,20 @@ class PixelGet_16 : public PixelGet {
 };
 
 // 24-bit getpixel
-inline Uint32 GetPixel_24(const Uint8 *addr)  {
-		Uint8 color[4];
+inline Uint32 GetPixel_24(const Uint8 *addr) {
+		union { Uint8 u8[4]; Uint32 u32; } col;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		color[0] = 0;
-		color[1] = addr[0];
-		color[2] = addr[1];
-		color[3] = addr[2];
+		col.u8[0] = 0;
+		col.u8[1] = addr[2];
+		col.u8[2] = addr[1];
+		col.u8[3] = addr[0];
 #else
-		color[0] = addr[0];
-		color[1] = addr[1];
-		color[2] = addr[2];
-		color[3] = 0;
+		col.u8[0] = addr[0];
+		col.u8[1] = addr[1];
+		col.u8[2] = addr[2];
+		col.u8[3] = 0;
 #endif
-		return *((Uint32 *)(&color[0]));
+		return col.u32;
 }
 
 class PixelGet_24 : public PixelGet  {
