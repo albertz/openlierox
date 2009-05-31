@@ -33,6 +33,14 @@ enum Proj_GfxType {
 	__PRJ_UBOUND = INT_MAX
 };
 
+// MyGravity types
+enum Proj_GravityType  {
+	GRV_NONE = 0,
+	GRV_PLAYER,
+	GRV_PROJECTILE,
+	GRV_BOTH
+};
+
 static_assert(sizeof(Proj_GfxType) == sizeof(int), Proj_Type__SizeCheck);
 
 
@@ -69,6 +77,11 @@ struct proj_t {
 	bool	Animating;
 	float	AnimRate;
 	Proj_AnimType AnimType;
+	int		MyGravityForce;  // How much will players/projectiles be attracted to this projectile
+	Proj_GravityType MyGravityType;
+	int		MyGravityRadius;  // Radius where the gravity is applied
+	bool	MyGravityThroughWalls;  // Should the gravity "go through" walls?
+	bool	MyGravityFadeOut;  // Should the gravity force be the smaller the bigger the distance is?
 	
 	// physical behaviour
 	bool	UseCustomGravity;

@@ -233,6 +233,8 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite_endian_compat((proj->Dampening),	sizeof(int), 1, fp);
 
 	if(Header.Version > GS_LX56_VERSION) {
+		fwrite_endian<int>(fp, proj->MyGravityForce);
+		fwrite_endian<int>(fp, proj->MyGravityType);
 		fwrite_endian<int>(fp, proj->Width);
 		fwrite_endian<int>(fp, proj->Height);
 	}
@@ -494,7 +496,7 @@ int CGameScript::Load(const std::string& dir)
 
 	// Check version
 	if(Header.Version < GS_FIRST_SUPPORTED_VERSION || Header.Version > GS_VERSION) {
-		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has a wrong version";
 		warnings << " (" << (unsigned)Header.Version << ", required is in the range ";
 		warnings << "[" << GS_FIRST_SUPPORTED_VERSION << "," << GS_VERSION << "])" << endl;
 		fclose(fp);
@@ -688,10 +690,16 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Dampening);
 
 	if(Header.Version > GS_LX56_VERSION) {
+		fread_endian<int>(fp, proj->MyGravityForce);
+		fread_endian<int>(fp, proj->MyGravityType);
+
 		fread_endian<int>(fp, proj->Width);
 		fread_endian<int>(fp, proj->Height);
 	}
 	else {
+		proj->MyGravityForce = 0;
+		proj->MyGravityType = GRV_NONE;
+
 		if(proj->Type == PRJ_PIXEL)
 			proj->Width = proj->Height = 2;
 		else
@@ -1315,6 +1323,10 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("ANI_PINGPONG",ANI_PINGPONG);
 	AddKeyword("true",true);
 	AddKeyword("false",false);
+	AddKeyword("GRV_NONE",GRV_NONE);
+	AddKeyword("GRV_PLAYER",GRV_PLAYER);
+	AddKeyword("GRV_PROJECTILE",GRV_PROJECTILE);
+	AddKeyword("GRV_BOTH",GRV_BOTH);
 	
 	sDirectory = dir;
 	
@@ -1511,10 +1523,22 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
+	proj->MyGravityForce = 0;
+	proj->MyGravityRadius = 0;
+	proj->MyGravityThroughWalls = true;
+	proj->MyGravityType = GRV_NONE;
+	proj->MyGravityFadeOut = true;
+
 	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
 	ReadFloat(file,"General","Timer",&proj->Timer.Time,0);
 	ReadFloat(file, "General", "TimerVar", &proj->Timer.TimeVar, 0);
 	ReadKeyword(file,"General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
+
+	ReadInteger(file, "General","MyGravityForce", &proj->MyGravityForce, 0);
+	ReadInteger(file, "General","MyGravityRadius", &proj->MyGravityRadius, 0);
+	ReadKeyword(file,"General","MyGravityType",(int*)&proj->MyGravityType,GRV_NONE);
+	ReadKeyword(file,"General","MyGravityThroughWalls",&proj->MyGravityThroughWalls,true);
+	ReadKeyword(file,"General","MyGravityFadeOut",&proj->MyGravityFadeOut,true);
 	
 	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
 		proj->UseCustomGravity = true;
@@ -1953,6 +1977,8 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadFloat(file, section, "HeadingToNextOtherWormSpeed", &HeadingToNextOtherWormSpeed, HeadingToNextOtherWormSpeed);
 	ReadFloat(file, section, "HeadingToNextEnemyWormSpeed", &HeadingToNextEnemyWormSpeed, HeadingToNextEnemyWormSpeed);
 	ReadFloat(file, section, "HeadingToNextTeamMateSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
+
+	ReadKeyword(file,section,"DestroyAfter",&DestroyAfter,true);
 	
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
@@ -2022,6 +2048,7 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fread_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fread_endian<float>(fp, HeadingToNextTeamMateSpeed);
+	fread_endian<char>(fp, DestroyAfter);
 	
 	if(Projectiles) Proj.read(gs, fp);
 	
@@ -2063,6 +2090,7 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextTeamMateSpeed);
+	fwrite_endian<char>(fp, DestroyAfter);
 	
 	if(Projectiles) Proj.write(gs, fp);
 	

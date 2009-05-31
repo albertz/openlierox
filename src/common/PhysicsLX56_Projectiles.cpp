@@ -365,12 +365,105 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 }
 
+static const int maxGravityRadius = 5800;  // sqrt(4096^2 + 4096^2)
+
+static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff dt, CVec objpos, CVec *objvel)
+{
+	const proj_t *info = prj->getProjInfo();
+
+	// Handler for fastTraceLine
+	// TODO: nicer interface for fastTraceLine...
+	class TracelineAction  {
+		bool *result;
+	public:
+		TracelineAction(bool& res) : result(&res) { }
+		bool operator () (int , int )  { *result = false; return false; }
+	};
+
+	// Check that it is visible if the gravity does not go through walls
+	if (!info->MyGravityThroughWalls)  {
+		bool seeTarget = true;
+		fastTraceLine(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK, TracelineAction(seeTarget));
+		if (!seeTarget)
+			return;
+	}
+
+	// Drag the object to us
+	CVec force = prj->GetPosition() - objpos;
+	float drag = (float)info->MyGravityForce;
+	if (info->MyGravityFadeOut)  {  // Lower force if the object is far away
+		int r = info->MyGravityRadius <= 0 ? maxGravityRadius : info->MyGravityRadius;
+		drag *= (1 - force.GetLength() / r);
+	}
+
+	*objvel += force.Normalize() * drag * dt.seconds();
+
+	// Clamp to prevent weird bugs caused by high velocities
+	objvel->x = CLAMP(objvel->x, -500.0f, 500.0f);
+	objvel->y = CLAMP(objvel->y, -500.0f, 500.0f);
+}
+
+static void Projectile_HandleMyGravityForWorms(CProjectile* const prj, TimeDiff dt, CWorm *worms)
+{
+	// Check
+	const proj_t *info = prj->getProjInfo();
+	if (info->MyGravityType != GRV_PLAYER && info->MyGravityType != GRV_BOTH)
+		return;
+
+	// Go through the worms and check if there are some in the radius
+	for (int i = 0; i < MAX_WORMS; i++)  {
+		CWorm *w = &worms[i];
+
+		// Only playing worms
+		if (!w->isUsed() || !w->getAlive() || w->getLives() == WRM_OUT)
+			continue;
+
+		// In radius?
+		if (info->MyGravityRadius > 0 && 
+			(int)((w->getPos() - prj->GetPosition()).GetLength()) > info->MyGravityRadius)
+			continue;
+
+		Projectile_HandleGravityForObject(prj, dt, w->getPos(), &(w->velocity()));
+	}
+}
+
+static void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, TimeDiff dt)
+{
+	// Check
+	const proj_t *info = prj->getProjInfo();
+	if (info->MyGravityType != GRV_PROJECTILE && info->MyGravityType != GRV_BOTH)
+		return;
+
+	// Applies to all projectiles
+	if (info->MyGravityRadius <= 0)  {
+		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
+			if (i->get() != prj)
+				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), &(i->get()->vVelocity));
+		}
+
+	// Only projectiles in the given range
+	} else {
+		int r2 = info->MyGravityRadius * info->MyGravityRadius;
+
+		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
+			if (i->get() != prj && (int)(prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)
+				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), &(i->get()->vVelocity));
+		}
+	}
+}
+
 inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
 		int len = (int)prj->vVelocity.GetLength2();
 		if (abs(len - prj->iCheckSpeedLen) > 50000)
 			prj->CalculateCheckSteps();
+	}
+
+	// Check for worms that we should attract with gravity
+	if (prj->tProjInfo->MyGravityForce != 0 && prj->tProjInfo->MyGravityType != GRV_NONE)  {
+		Projectile_HandleMyGravityForProjectiles(prj, dt);
+		Projectile_HandleMyGravityForWorms(prj, dt, worms);
 	}
 	
 	/*
@@ -580,6 +673,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	SndFilename = a.SndFilename;
 	BounceCoeff = a.BounceCoeff;
 	BounceExplode = a.BounceExplode;
+	DestroyAfter = a.DestroyAfter;
 	Proj = a.Proj;
 	Sound = a.Sound;
 	GoThroughSpeed = a.GoThroughSpeed;
@@ -752,7 +846,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 	case PJ_INJURE:
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			info->deleteAfter = true;
+			info->deleteAfter = DestroyAfter;
 			cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
 			break;
 		}

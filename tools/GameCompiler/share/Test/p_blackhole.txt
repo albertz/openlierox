@@ -1,0 +1,23 @@
+
+[General]
+Type = PRJ_CIRCLE
+Colour1 = 0,0,0
+ActionNum = 0
+Gravity = 0
+Timer = 3
+Width = 10
+Height = 10
+
+[Hit]
+Type = Bounce
+
+[PlayerHit]
+Type = Nothing
+
+[Time]
+Type = Explode
+Projectiles = true
+
+[Projectile]
+Amount = 1
+Projectile = p_blackhole2.txt

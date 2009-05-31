@@ -1,0 +1,21 @@
+
+[General]
+Type = PRJ_CIRCLE
+Colour1 = 0,0,0,0
+ActionNum = 1
+Gravity = 0
+Timer = 0.1
+MyGravityForce = -100000000
+MyGravityType = GRV_PROJECTILE
+MyGravityRadius = 100
+MyGravityFadeOut = false
+MyGravityThroughWalls = true
+
+[Hit]
+Type = Nothing
+
+[PlayerHit]
+Type = Nothing
+
+[Time]
+Type = Disappear2

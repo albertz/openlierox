@@ -78,6 +78,7 @@ class CProjectile {
 	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
 	friend ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
 	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult);
+	friend void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, TimeDiff dt);
 public:
 	// Constructor
 	CProjectile() {

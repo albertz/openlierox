@@ -1,0 +1,14 @@
+
+[General]
+Name = Force Field
+Class = WCL_GRENADE
+Recoil = 0
+Recharge = 1
+Drain = 100
+ROF = 200
+
+[Projectile]
+Amount = 1
+Speed = 0
+Spread = 0
+Projectile = p_forcefield.txt

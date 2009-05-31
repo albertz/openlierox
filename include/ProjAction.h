@@ -193,6 +193,7 @@ struct Proj_Action {
 	// new since Beta9:
 	
 	SoundSample* Sound;
+	bool	DestroyAfter;
 	float	GoThroughSpeed;
 	VectorD2<int>	ChangeRadius;
 	

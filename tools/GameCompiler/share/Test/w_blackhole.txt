@@ -1,0 +1,14 @@
+
+[General]
+Name = Black Hole
+Class = WCL_GRENADE
+Recoil = 0
+Recharge = 1
+Drain = 10
+ROF = 200
+
+[Projectile]
+Amount = 1
+Speed = 100
+Spread = 0
+Projectile = p_blackhole.txt

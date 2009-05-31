@@ -1,0 +1,32 @@
+
+[General]
+Type = PRJ_CIRCLE
+Colour1 = 0,0,0
+ActionNum = 1
+Gravity = 0
+Timer = 30
+MyGravityForce = 700
+MyGravityType = GRV_BOTH
+MyGravityRadius = 200
+MyGravityFadeOut = true
+MyGravityThroughWalls = true
+Width = 10
+Height = 10
+
+[Hit]
+Type = Bounce
+
+[Action1]
+Event = HitWorm
+DestroyAfter = false
+Type = Injure
+Damage = 101
+Shake = 4
+
+[HitWorm]
+Type = WormHit
+
+[Time]
+Type = Explode
+Damage = 5
+Shake = 4
