@@ -365,26 +365,16 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 }
 
-static const int maxGravityRadius = 5800;  // sqrt(4096^2 + 4096^2)
-
-static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff dt, CVec objpos, CVec *objvel)
+template <typename VectorType>
+static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff dt, VectorType objpos, VectorType& objvel)
 {
 	const proj_t *info = prj->getProjInfo();
 
 	// Handler for fastTraceLine
-	// TODO: nicer interface for fastTraceLine...
-	class TracelineAction  {
-		bool *result;
-	public:
-		TracelineAction(bool& res) : result(&res) { }
-		bool operator () (int , int )  { *result = false; return false; }
-	};
 
 	// Check that it is visible if the gravity does not go through walls
 	if (!info->MyGravityThroughWalls)  {
-		bool seeTarget = true;
-		fastTraceLine(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK, TracelineAction(seeTarget));
-		if (!seeTarget)
+		if(!fastTraceLine_hasAnyCollision(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK))
 			return;
 	}
 
@@ -392,15 +382,16 @@ static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff d
 	CVec force = prj->GetPosition() - objpos;
 	float drag = (float)info->MyGravityForce;
 	if (info->MyGravityFadeOut)  {  // Lower force if the object is far away
-		int r = info->MyGravityRadius <= 0 ? maxGravityRadius : info->MyGravityRadius;
-		drag *= (1 - force.GetLength() / r);
+		static const int maxGravityRadius = 5800;  // sqrt(4096^2 + 4096^2)
+		float r = (info->MyGravityRadius <= 0) ? maxGravityRadius : info->MyGravityRadius;
+		drag *= 1.0f - force.GetLength() / r;
 	}
 
-	*objvel += force.Normalize() * drag * dt.seconds();
+	objvel += force.Normalize() * drag * dt.seconds();
 
 	// Clamp to prevent weird bugs caused by high velocities
-	objvel->x = CLAMP(objvel->x, -500.0f, 500.0f);
-	objvel->y = CLAMP(objvel->y, -500.0f, 500.0f);
+	objvel.x = CLAMP(objvel.x, -500.0f, 500.0f);
+	objvel.y = CLAMP(objvel.y, -500.0f, 500.0f);
 }
 
 static void Projectile_HandleMyGravityForWorms(CProjectile* const prj, TimeDiff dt, CWorm *worms)
@@ -423,11 +414,11 @@ static void Projectile_HandleMyGravityForWorms(CProjectile* const prj, TimeDiff 
 			(int)((w->getPos() - prj->GetPosition()).GetLength()) > info->MyGravityRadius)
 			continue;
 
-		Projectile_HandleGravityForObject(prj, dt, w->getPos(), &(w->velocity()));
+		Projectile_HandleGravityForObject(prj, dt, w->getPos(), w->velocity());
 	}
 }
 
-static void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, TimeDiff dt)
+void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, TimeDiff dt)
 {
 	// Check
 	const proj_t *info = prj->getProjInfo();
@@ -438,16 +429,16 @@ static void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, Tim
 	if (info->MyGravityRadius <= 0)  {
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
 			if (i->get() != prj)
-				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), &(i->get()->vVelocity));
+				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
 		}
 
 	// Only projectiles in the given range
 	} else {
-		int r2 = info->MyGravityRadius * info->MyGravityRadius;
+		float r2 = info->MyGravityRadius * info->MyGravityRadius;
 
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj && (int)(prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)
-				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), &(i->get()->vVelocity));
+			if (i->get() != prj && (prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)
+				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
 		}
 	}
 }

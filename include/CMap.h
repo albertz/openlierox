@@ -542,6 +542,18 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 	}
 }
 
+struct SimpleTracelineCheck {
+	bool result;
+	bool operator() (int, int) { result = false; return false; }
+};
+
+inline bool fastTraceLine_hasAnyCollision(CVec target, CVec start, uchar checkflag) {
+	SimpleTracelineCheck ret;
+	fastTraceLine(target, start, checkflag, ret);
+	return ret.result;
+}
+
+
 int		CheckCollision(CVec trg, CVec pos, uchar checkflags);
 int 	CarveHole(CVec pos);
 
