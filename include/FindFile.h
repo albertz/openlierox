@@ -24,8 +24,12 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <set>
 #include "Unicode.h"
 #include "Debug.h"
+#include "Mutex.h"
+#include "Iterator.h"
+#include "RefCounter.h"
 
 #ifndef WIN32
 #	include <dirent.h>
@@ -353,6 +357,98 @@ void FindFiles(
 		ForEachSearchpath(searchpathHandler);
 	}
 }
+
+template <typename _List, typename _CheckFct>
+struct GetFileList_FileListAdder {
+	_CheckFct& checkFct;
+	_List& filelist;
+	GetFileList_FileListAdder(_CheckFct& f, _List& l) : checkFct(f), filelist(l) {}
+	bool operator() (const std::string& path) {
+		if(checkFct(path)) filelist.insert(path);
+		return true;
+	}
+};
+
+template <typename _List, typename _CheckFct>
+void GetFileList(
+	_List& filelist,
+	_CheckFct& checkFct,
+	const std::string& dir,
+	bool absolutePath = false,
+	const filemodes_t modefilter = -1,
+	const std::string& namefilter = "")
+{
+	GetFileList_FileListAdder<_List,_CheckFct> adder(checkFct, filelist);
+	FindFiles(adder, dir, absolutePath, modefilter, namefilter);
+}
+
+
+class FileListCacheIntf {
+public:	
+	typedef std::string Filename;
+	typedef std::set<Filename> FileList;
+protected:
+	Mutex mutex;
+	FileList filelist;
+	bool isReady; // will be set true after an update and stays always true then
+public:
+	FileListCacheIntf() : isReady(false) {}
+	virtual ~FileListCacheIntf() {}
+	
+	// this iterator locks the filelist as long as it exists
+	class Iterator : ::Iterator<Filename>, RefCounter {
+	private:
+		FileList::iterator it;
+		FileListCacheIntf& filelist;
+	public:
+		Iterator(FileList::iterator _it, FileListCacheIntf& f) : it(_it), filelist(f) {
+			filelist.mutex.lock();
+		}
+		virtual void onLastRefRemoved() {
+			filelist.mutex.unlock();
+		}
+		Iterator(const Iterator& it) : RefCounter(it), it(it.it), filelist(it.filelist) {}
+		virtual Iterator* copy() const { return new Iterator(*this); }
+		virtual bool isValid() { return it != filelist.filelist.end(); }
+		virtual void next() { ++it; }
+		virtual bool operator==(const ::Iterator<Filename>& other) const {
+			const Iterator* o = dynamic_cast<const Iterator*> (&other);
+			return o && it == o->it;
+		}
+		virtual Filename get() { return *it; }
+		
+		typedef ::Ref< Iterator > Ref;
+	};
+	
+	Iterator::Ref begin() { return new Iterator(filelist.begin(), *this); }
+	bool ready() { Mutex::ScopedLock lock(mutex); return isReady; }
+	virtual void update() = 0; // will be run in an own thread and should lock as short as possible (in best case only for the swap of the old/new list)
+};
+
+template <typename _CheckFct> // asume that _CheckFct will be static anyway - makes it a bit simpler - just change if needed
+class FileListCache : FileListCacheIntf {
+protected:
+	const std::string dir;
+	const bool absolutePath;
+	const filemodes_t modefilter;
+	const std::string namefilter;
+public:
+	// Note: slightly different default values from FindFiles (modefilter is FM_REG here)
+	FileListCache(const std::string& _dir, bool _absPath = false, const filemodes_t _modefilter = FM_REG, const std::string& _namefilter = "")
+	: dir(_dir), absolutePath(_absPath), modefilter(_modefilter), namefilter(_namefilter) {}
+
+	virtual void update() {
+		static _CheckFct fct;
+		FileList newList;
+		GetFileList(fct, newList, dir, absolutePath, modefilter, namefilter);
+		{
+			Mutex::ScopedLock lock(mutex);
+			filelist.swap(newList);
+			isReady = true;
+		}
+	}
+};
+
 
 
 // File pointer to SDL RWops conversion
