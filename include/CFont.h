@@ -26,8 +26,8 @@
 #include "SmartPointer.h"
 #include "Color.h"
 
-class PixelPutAlpha;
-class PixelGet;
+struct PixelPutAlpha;
+struct PixelGet;
 
 
 #define FIRST_CHARACTER 32 // space
