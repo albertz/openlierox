@@ -382,7 +382,7 @@ static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff d
 	CVec force = prj->GetPosition() - objpos;
 	float drag = (float)info->MyGravityForce;
 	if (info->MyGravityFadeOut)  {  // Lower force if the object is far away
-		static const int maxGravityRadius = 5800;  // sqrt(4096^2 + 4096^2)
+		static const float maxGravityRadius = sqrtf(4096.0f*4096.0f * 2.0f);
 		float r = (info->MyGravityRadius <= 0) ? maxGravityRadius : info->MyGravityRadius;
 		drag *= 1.0f - force.GetLength() / r;
 	}
