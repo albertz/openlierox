@@ -79,8 +79,7 @@ inline Uint32 Pack(const Color& c, const SDL_PixelFormat *fmt)	{
 //
 
 // Basic prototype of the put pixel functor
-class PixelPut  {
-public:
+struct PixelPut  {
 	virtual void put(Uint8 *addr, Uint32 color) = 0;
 	virtual ~PixelPut() {}
 };
@@ -98,15 +97,13 @@ public:
 };
 
 // Basic prototype of the alpha-blended putpixel functor
-class PixelPutAlpha  { 
-public:
+struct PixelPutAlpha  {
 	virtual void put(Uint8 *addr, const SDL_PixelFormat *dstfmt, const Color& col) = 0;
 	virtual ~PixelPutAlpha() {}
 };
 
 // Basic prototype of the getpixel functor
-class PixelGet  {
-public:
+struct PixelGet  {
 	virtual Uint32	get(Uint8 *addr) = 0;
 	virtual ~PixelGet() {}
 };
