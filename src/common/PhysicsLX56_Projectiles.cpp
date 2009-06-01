@@ -1240,9 +1240,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	// If this is a remote projectile, we have already set the correct fLastSimulationTime
 	//proj->setRemote( false );
 
-	// Check for collisions
-	// ATENTION: dt will manipulated directly here!
-	// TODO: use a more general CheckCollision here
+	// Check for collisions and move
 	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, attribs, dt, cClient->getMap(), worms);
 	
 	proj->life() += dt.seconds();
