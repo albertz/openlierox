@@ -1012,7 +1012,9 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 }
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
-	client->tGameInfo.features = FeatureSettings(); // Clean it up
+	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		client->tGameInfo.features[f->get()] = f->get()->unsetValue;  // Clean it up
+	}
 	client->otherGameInfo.clear();
 	int ftC = bs->readInt(2);
 	for(int i = 0; i < ftC; ++i) {

@@ -198,3 +198,15 @@ void CScriptableVars::SetVarByString(const ScriptVarPtr_t& var, const std::strin
 {
 	var.fromString(str);
 }
+
+std::ostream& operator<< (std::ostream& o, const ScriptVar_t& svt)
+{
+	o << svt.toString();
+	return o;
+};
+
+std::ostream& operator<< (std::ostream& o, const ScriptVarPtr_t& svt)
+{
+	o << svt.toString();
+	return o;
+};

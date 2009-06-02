@@ -17,6 +17,7 @@
 #include <vector>
 #include <list>
 #include <cassert>
+#include <iostream>
 #include "Color.h"
 #include "StringUtils.h"
 
@@ -124,6 +125,7 @@ struct ScriptVar_t
 	
 	std::string toString() const;
 	bool fromString( const std::string & str);
+	friend std::ostream& operator<< (std::ostream& o, const ScriptVar_t& svt);
 };
 
 
@@ -213,6 +215,7 @@ struct ScriptVarPtr_t
 	// These funcs will assert() if you try to call them on Callback varptr
 	std::string toString() const;
 	bool fromString( const std::string & str) const;	// const 'cause we don't change pointer itself, only data it points to
+	friend std::ostream& operator<< (std::ostream& o, const ScriptVarPtr_t& svt);
 };
 
 template<typename T> T* getPointer(ScriptVarPtr_t& varPtr);
