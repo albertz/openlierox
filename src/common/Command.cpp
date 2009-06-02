@@ -1556,6 +1556,17 @@ void Cmd_mod::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 	cServer->UpdateGameLobby();
 }
 
+COMMAND(listMaps, "list all available maps", "", 0, 0);
+void Cmd_listMaps::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	for(FileListCacheIntf::Iterator::Ref i = mapList->begin(); i->isValid(); i->next())
+		caller->pushReturnArg(i->get().first);
+}
+
+COMMAND(listMods, "list all available mods", "", 0, 0);
+void Cmd_listMods::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	for(FileListCacheIntf::Iterator::Ref i = modList->begin(); i->isValid(); i->next())
+		caller->pushReturnArg(i->get().first);
+}
 
 COMMAND(gotoLobby, "go to lobby", "", 0, 0);
 void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {

@@ -25,7 +25,9 @@ private:
 		m_refCount = r.m_refCount;
 		(*m_refCount)++;
 	}
-	
+
+protected:
+	// call this manually if you aren't sure if your virtual function is already unset
 	void uninit() {
 		if(m_refCount) {
 			(*m_refCount)--;

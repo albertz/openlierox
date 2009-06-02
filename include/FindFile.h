@@ -405,7 +405,7 @@ public:
 	virtual ~FileListCacheIntf() {}
 	
 	// this iterator locks the filelist as long as it exists
-	class Iterator : ::Iterator<FileList::value_type>, RefCounter {
+	class Iterator : public ::Iterator<FileList::value_type>, public RefCounter {
 	private:
 		FileList::iterator it;
 		FileListCacheIntf& filelist;
@@ -413,11 +413,12 @@ public:
 		Iterator(FileList::iterator _it, FileListCacheIntf& f) : it(_it), filelist(f) {
 			filelist.mutex.lock();
 		}
+		~Iterator() { RefCounter::uninit(); }
 		virtual void onLastRefRemoved() {
 			filelist.mutex.unlock();
 		}
 		Iterator(const Iterator& it) : RefCounter(it), it(it.it), filelist(it.filelist) {}
-		virtual Iterator* copy() const { return new Iterator(*this); }
+		virtual ::Iterator<FileList::value_type>* copy() const { return new Iterator(*this); }
 		virtual bool isValid() { return it != filelist.filelist.end(); }
 		virtual void next() { ++it; }
 		virtual bool operator==(const ::Iterator<FileList::value_type>& other) const {
@@ -426,7 +427,7 @@ public:
 		}
 		virtual FileList::value_type get() { return *it; }
 		
-		typedef ::Ref< Iterator > Ref;
+		typedef ::Iterator<FileList::value_type>::Ref Ref;
 	};
 	
 	Iterator::Ref begin() { return new Iterator(filelist.begin(), *this); }
