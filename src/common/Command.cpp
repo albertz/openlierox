@@ -1502,6 +1502,11 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		return;
 	}
 	
+	if(cServer->getState() != SVS_LOBBY) {
+		caller->writeMsg("can only set map in lobby");
+		return;
+	}
+		
 	std::string filename = params[0];
 	if(filename == "") {
 		caller->writeMsg("specify map filename");
@@ -1517,6 +1522,8 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 	}
 		
 	tLXOptions->tGameInfo.sMapFile = filename;
+	if(!bDedicated)
+		DeprecatedGUI::Menu_Net_HostLobbySetLevel(filename);
 	cServer->UpdateGameLobby();
 }
 
@@ -1527,18 +1534,25 @@ void Cmd_mod::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		return;
 	}
 	
+	if(cServer->getState() != SVS_LOBBY) {
+		caller->writeMsg("can only set mod in lobby");
+		return;
+	}
+	
 	std::string filename = params[0];
 	if(filename == "") {
 		caller->writeMsg("specify mod filename");
 		return;
 	}
-		
+
 	if(!modList->includes(filename)) {
 		caller->writeMsg("mod '" + filename + "' not found", CNC_WARNING);
 		return;
 	}
 	
 	tLXOptions->tGameInfo.sModDir = filename;
+	if(!bDedicated)
+		DeprecatedGUI::Menu_Net_HostLobbySetMod(filename);
 	cServer->UpdateGameLobby();
 }
 
