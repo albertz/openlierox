@@ -158,16 +158,16 @@ inline bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int 
 	CMap* map = cClient->getMap();
 	CollisionSide = 0;
 	
-	if (px - attribs.radius.x < 0)
+	if (px < 0 || px - attribs.radius.x < 0)
 		CollisionSide |= COL_LEFT;
 	
-	if (px + attribs.radius.x >= (int)map->GetWidth())
+	if (px >= (int)map->GetWidth() || px + attribs.radius.x >= (int)map->GetWidth())
 		CollisionSide |= COL_RIGHT;
 	
-	if (py - attribs.radius.y < 0)
+	if (py < 0 || py - attribs.radius.y < 0)
 		CollisionSide |= COL_TOP;
 	
-	if (py + attribs.radius.y >= (int)map->GetHeight())
+	if (py >= (int)map->GetHeight() || py + attribs.radius.y >= (int)map->GetHeight())
 		CollisionSide |= COL_BOTTOM;
 	
 	return CollisionSide != 0;
