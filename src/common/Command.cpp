@@ -381,7 +381,7 @@ static bool autoCompleteForList(AutocompleteRequest& request, const std::string&
 		return true;
 	}
 	
-	size_t l = maxStartingEqualStr(possibilities);
+	size_t l = maxStartingCaseEqualStr(possibilities);
 	if(l > request.token.size()) {
 		// we can complete to some longer sequence
 		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front().substr(0,l), false));
@@ -437,7 +437,7 @@ static bool autoCompleteVar(Command*, AutocompleteRequest& request) {
 		return true;
 	}
 	
-	size_t l = maxStartingEqualStr(possibilities);
+	size_t l = maxStartingCaseEqualStr(possibilities);
 	if(l > request.token.size()) {
 		// we can complete to some longer sequence
 		request.autocomplete.setReplace(request.old, request.completeSuggestion(possibilities.front().substr(0, l), false));

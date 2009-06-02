@@ -479,7 +479,7 @@ bool subStrCaseEqual(const std::string& s1, const std::string s2, size_t p) {
 	return true;
 }
 
-size_t maxStartingEqualStr(const std::list<std::string>& strs) {
+static size_t maxStartingEqualStr(const std::list<std::string>& strs, bool caseSensitive) {
 	if(strs.size() == 0) return 0;
 	
 	size_t l = 0;
@@ -491,12 +491,23 @@ size_t maxStartingEqualStr(const std::list<std::string>& strs) {
 			if(i == 0)
 				c = (*it)[l];
 			else {
-				if((*it)[l] != c) return l;
+				bool equal = false;
+				if(caseSensitive) equal = (*it)[l] == c;
+				else equal = tolower((*it)[l]) == tolower(c);
+				if(!equal) return l;
 			}
 		}
 		
 		l++;
 	}
+}
+
+size_t maxStartingEqualStr(const std::list<std::string>& strs) {
+	return maxStartingEqualStr(strs, true);
+}
+
+size_t maxStartingCaseEqualStr(const std::list<std::string>& strs) {
+	return maxStartingEqualStr(strs, false);
 }
 
 
