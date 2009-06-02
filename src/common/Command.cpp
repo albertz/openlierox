@@ -195,20 +195,36 @@ struct AutocompleteRequest {
 	std::string token;
 	size_t tokenpos;
 	
+	static bool emptyStart(char c) {
+		return c == ' ' || c == '\"' || c == ',';
+	}
+	
 	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isFull) const {
 		AutocompletionInfo::InputState ret;
-		ret.text = pretxt + repl;
+		ret.text = pretxt;
 		ret.pos = pretxt.size() + repl.size();
-		if((posttxt.size() > 0 && posttxt[0] != ' ')) {
-			ret.text += " ";
-			if(isFull) ret.pos++;
+		bool wasInQuotes = false;
+		if(pretxt.size() > 0 && pretxt[pretxt.size()-1] == '\"') wasInQuotes = true;
+		bool needToAddQuotes = false;
+		if(!wasInQuotes && repl.find_first_of(" ,\t") != std::string::npos) {
+			// we need to put quotes
+			needToAddQuotes = true;
+			ret.text += '\"';
+			ret.pos++;
 		}
-		else if(posttxt.size() > 0 && posttxt[0] == ' ') {
-			if(isFull) ret.pos++;
+		ret.text += repl;
+		if(needToAddQuotes) ret.text += "\"";
+		if(posttxt.size() > 0 && !emptyStart(posttxt[0])) {
+			ret.text += " ";
+			if(isFull) { ret.pos++; if(needToAddQuotes) ret.pos++; }
+		}
+		else if(posttxt.size() > 0 && emptyStart(posttxt[0])) {
+			if(isFull) { ret.pos++; if(needToAddQuotes) ret.pos++; }
 		}
 		else if(posttxt.empty() && isFull) {
 			ret.text += " ";
 			ret.pos++;
+			if(needToAddQuotes) ret.pos++;
 		}
 		ret.text += posttxt;
 		return ret;
