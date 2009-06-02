@@ -24,9 +24,7 @@
 
 #ifndef ONLY_MACRODEF  // The above defines are used in resurce.rc
 
-const char* GetFullGameName() {
-	return GAMENAME "/" LX_VERSION;
-}
+const char* const fullGameName = GAMENAME "/" LX_VERSION;
 
 const char* GetGameName() {
 	return GAMENAME;
@@ -121,7 +119,7 @@ std::string Version::asString() const {
 		case RT_ALPHA: ret += "_alpha"; break;
 		case RT_BETA: ret += "_beta"; break;
 		case RT_RC: ret += "_rc"; break;
-		default: ret += "_"; break;
+		case RT_UNKNOWN: ret += "_"; break;
 		}
 		ret += itoa(subsubnum);
 	}
@@ -148,7 +146,7 @@ std::string Version::asHumanString() const
 		case RT_ALPHA: ret += " alpha "; break;
 		case RT_BETA: ret += " beta "; break;
 		case RT_RC: ret += " rc "; break;
-		default: ret += " "; break;
+		case RT_UNKNOWN: ret += " "; break;
 		}
 		ret += itoa(subsubnum);
 	}
@@ -163,10 +161,10 @@ std::string Version::releaseType() const
 	case RT_ALPHA: return "alpha";
 	case RT_BETA: return "beta";
 	case RT_RC: return "rc";
-	default: return "final";
+	case RT_UNKNOWN: return "unknown";
 	}
 
-	return "error"; // Cannot ever happen
+	return "error"; // should not happen
 }
 
 

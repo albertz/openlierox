@@ -14,7 +14,8 @@
 #include "StringUtils.h" // for itoa
 
 struct Version;
-const char* GetFullGameName();
+extern const char* const fullGameName;
+inline const char* GetFullGameName() { return fullGameName; }
 const char* GetGameName();
 const Version& GetGameVersion();
 
@@ -71,7 +72,7 @@ inline bool operator!=(const Version& ver1, const Version& ver2) { return ! (ver
 
 inline Version OLXBetaVersion(int betaversion) {
 	Version v;
-	v.gamename = GetGameName();
+	v.gamename = fullGameName;
 	v.num = 0;
 	v.subnum = 57;
 	v.subsubnum = betaversion;
