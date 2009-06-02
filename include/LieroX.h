@@ -212,6 +212,12 @@ typedef bool (*TStartFunction) (void* data);
 extern  TStartFunction	startFunction;
 extern	void*			startFunctionData;
 
+class FileListCacheIntf;
+extern FileListCacheIntf* mapList;
+extern FileListCacheIntf* modList;
+extern FileListCacheIntf* skinList;
+extern FileListCacheIntf* settingsPresetList;
+void updateFileListCaches();
 
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);

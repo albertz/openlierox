@@ -232,23 +232,26 @@ typedef void (*EventHandlerFct) (SDL_Event* ev);
 
 static void EvHndl_ActiveEvent(SDL_Event* ev) {
 	if(ev->active.state & ~SDL_APPMOUSEFOCUS)  {
-			bool hadFocusBefore = nFocus;
-			nFocus = sdl_event.active.gain != 0;
-			bActivated = nFocus != 0;
-			bDeactivated = nFocus == 0;
+		bool hadFocusBefore = nFocus;
+		nFocus = sdl_event.active.gain != 0;
+		bActivated = nFocus != 0;
+		bDeactivated = nFocus == 0;
 
-			// HINT: Reset the mouse state - this should avoid the mouse staying pressed
-			Mouse.Button = 0;
-			Mouse.Down = 0;
-			Mouse.FirstDown = 0;
-			Mouse.Up = 0;
+		// HINT: Reset the mouse state - this should avoid the mouse staying pressed
+		Mouse.Button = 0;
+		Mouse.Down = 0;
+		Mouse.FirstDown = 0;
+		Mouse.Up = 0;
 
-			if(!hadFocusBefore && nFocus) {
-				//notes << "OpenLieroX got the focus" << endl;
-				ClearUserNotify();
-			} else if(hadFocusBefore && !nFocus) {
-				//notes << "OpenLieroX lost the focus" << endl;
-			}
+		if(!hadFocusBefore && nFocus) {
+			//notes << "OpenLieroX got the focus" << endl;
+			ClearUserNotify();
+		} else if(hadFocusBefore && !nFocus) {
+			//notes << "OpenLieroX lost the focus" << endl;
+		}
+
+		if(bActivated)
+			updateFileListCaches();
 	}
 }
 

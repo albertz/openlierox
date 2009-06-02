@@ -2839,7 +2839,6 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
 
 ///////////////////
 // Get the level name from specified file
-// TODO: move this to CMap
 std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 {
 	MapLoader* loader = MapLoader::open(abs_filename ? filename : ("levels/" + filename), abs_filename);

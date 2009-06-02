@@ -8,9 +8,11 @@
 
 
 
-#include <assert.h>
+#include <cassert>
 #include <setjmp.h>
 #include <sstream> // for print_binary_string
+#include <set>
+#include <string>
 
 #include "LieroX.h"
 #include "IpToCountryDB.h"
@@ -942,6 +944,8 @@ int InitializeLieroX()
 			return false;
 		}
 
+	updateFileListCaches();
+	
 	notes << "Initializing ready" << endl;
 
 	return true;
@@ -1284,4 +1288,82 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 		return true;
 	}
 	return false;
+}
+
+
+struct CheckFileForMap {
+	typedef FileListCacheIntf::FileList List;
+	void operator()(List& filelist, const std::string& abs_filename) {
+		std::string mapName = CMap::GetLevelName(abs_filename, true);
+		if(mapName != "") filelist.insert( List::value_type(GetBaseFilename(abs_filename), mapName) );
+	}
+};
+static FileListCache<CheckFileForMap> mapListInstance("map", "levels");
+FileListCacheIntf* mapList = &mapListInstance;
+
+
+struct CheckDirForMod {
+	typedef FileListCacheIntf::FileList List;
+	void operator()(List& filelist, const std::string& abs_filename) {
+		size_t sep = findLastPathSep(abs_filename);
+		if(sep != std::string::npos) {
+			std::string name;
+			if(CGameScript::CheckFile(abs_filename, name, true))
+				filelist.insert( List::value_type(abs_filename.substr(sep+1), name) );
+		}
+	}
+};
+static FileListCache<CheckDirForMod> modListInstance("mod", "", false, FM_DIR);
+FileListCacheIntf* modList = &modListInstance;
+
+
+struct CheckFileForSkin {
+	typedef FileListCacheIntf::FileList List;
+	void operator()(List& filelist, const std::string& abs_filename) {
+		std::string ext = GetFileExtension(abs_filename);
+		if(stringcasecmp(ext, "png")==0
+		   || stringcasecmp(ext, "bmp")==0
+		   || stringcasecmp(ext, "tga")==0
+		   || stringcasecmp(ext, "pcx")==0) {
+			std::string file = abs_filename;
+			size_t slash = findLastPathSep(file);
+			if(slash != std::string::npos)
+				file.erase(0, slash+1);			
+			std::string name = file.substr(0, file.size()-4); // the size-calcing here is safe
+			filelist.insert( List::value_type(file, name) );
+		}
+	}
+};
+static FileListCache<CheckFileForSkin> skinListInstance("skin", "skins");
+FileListCacheIntf* skinList = &skinListInstance;
+
+
+struct CheckFileForSettingsPreset {
+	typedef FileListCacheIntf::FileList List;
+	void operator()(List& filelist, const std::string& abs_filename) {
+		if(stringcaseequal(GetFileExtension(abs_filename), "cfg")) {
+			std::string savedConfigSection;
+			ReadString(abs_filename, "ConfigFileInfo", "Section", savedConfigSection, "", true);
+			if(stringcaseequal(savedConfigSection, "GameOptions.GameInfo"))
+				filelist.insert( List::value_type(GetBaseFilename(abs_filename), GetBaseFilenameWithoutExt(abs_filename)) );
+		}
+	}
+};
+static FileListCache<CheckFileForSettingsPreset> settingsPresetListInstance("settings preset", "cfg/presets");
+FileListCacheIntf* settingsPresetList = &settingsPresetListInstance;
+
+
+void updateFileListCaches() {
+	// just create one single task for all because it wouldn't make it faster by doing that parallel
+	struct Updater : Task {
+		Updater() { name = "updateFileListCaches"; }
+		int handle() {
+			mapList->update();
+			modList->update();
+			skinList->update();
+			settingsPresetList->update();
+			return 0;
+		}
+	};
+	taskManager->start(new Updater(), false);
 }

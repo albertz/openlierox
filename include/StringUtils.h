@@ -144,6 +144,7 @@ size_t			maxStartingEqualStr(const std::list<std::string>& strs);
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
+std::string		GetBaseFilenameWithoutExt(const std::string& filename);
 size_t			stringcasefind(const std::string& text, const std::string& search_for);
 size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" and spaces at line beginning

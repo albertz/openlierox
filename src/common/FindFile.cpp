@@ -259,14 +259,19 @@ struct strcasecomparer {
 };
 
 typedef hash_set<std::string, simple_reversestring_hasher, strcasecomparer> exactfilenamecache_t;
-exactfilenamecache_t exactfilenamecache;
+struct ExactFilenameCache {
+	exactfilenamecache_t cache;
+	Mutex mutex;
+}
+exactfilenamecache;
 
 bool is_searchname_in_exactfilenamecache(
 										 const std::string& searchname,
 										 std::string& exactname
 ) {
-	exactfilenamecache_t::iterator it = exactfilenamecache.find(searchname);
-	if(it != exactfilenamecache.end()) {
+	Mutex::ScopedLock lock(exactfilenamecache.mutex);
+	exactfilenamecache_t::iterator it = exactfilenamecache.cache.find(searchname);
+	if(it != exactfilenamecache.cache.end()) {
 		exactname = *it;
 		return true;
 	} else
@@ -274,7 +279,8 @@ bool is_searchname_in_exactfilenamecache(
 }
 
 void add_searchname_to_exactfilenamecache(const std::string& exactname) {
-	exactfilenamecache.insert(exactname);
+	Mutex::ScopedLock lock(exactfilenamecache.mutex);
+	exactfilenamecache.cache.insert(exactname);
 }
 
 

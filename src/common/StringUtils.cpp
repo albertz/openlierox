@@ -588,6 +588,12 @@ std::string GetBaseFilename(const std::string& filename) {
 	return filename.substr(p+1);
 }
 
+std::string GetBaseFilenameWithoutExt(const std::string& filename) {
+	std::string f = GetBaseFilename(filename);
+	size_t p = f.rfind('.');
+	if(p == std::string::npos) return f;
+	return f.substr(0,p);	
+}
 
 
 void ucfirst(std::string& text)

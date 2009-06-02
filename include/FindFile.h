@@ -30,6 +30,8 @@
 #include "Mutex.h"
 #include "Iterator.h"
 #include "RefCounter.h"
+#include "Event.h"
+#include "StringUtils.h"
 
 #ifndef WIN32
 #	include <dirent.h>
@@ -364,7 +366,7 @@ struct GetFileList_FileListAdder {
 	_List& filelist;
 	GetFileList_FileListAdder(_CheckFct& f, _List& l) : checkFct(f), filelist(l) {}
 	bool operator() (const std::string& path) {
-		if(checkFct(path)) filelist.insert(path);
+		checkFct(filelist, path);
 		return true;
 	}
 };
@@ -383,20 +385,27 @@ void GetFileList(
 }
 
 
+class Command;
+struct AutocompleteRequest;
+
 class FileListCacheIntf {
 public:	
 	typedef std::string Filename;
-	typedef std::set<Filename> FileList;
+	typedef std::string ObjectName;
+	typedef std::map<Filename,ObjectName,stringcaseless> FileList;
 protected:
 	Mutex mutex;
 	FileList filelist;
 	bool isReady; // will be set true after an update and stays always true then
 public:
-	FileListCacheIntf() : isReady(false) {}
+	const std::string name;
+	Event<> OnUpdateFinished;
+	
+	FileListCacheIntf(const std::string& n) : isReady(false), name(n) {}
 	virtual ~FileListCacheIntf() {}
 	
 	// this iterator locks the filelist as long as it exists
-	class Iterator : ::Iterator<Filename>, RefCounter {
+	class Iterator : ::Iterator<FileList::value_type>, RefCounter {
 	private:
 		FileList::iterator it;
 		FileListCacheIntf& filelist;
@@ -411,22 +420,25 @@ public:
 		virtual Iterator* copy() const { return new Iterator(*this); }
 		virtual bool isValid() { return it != filelist.filelist.end(); }
 		virtual void next() { ++it; }
-		virtual bool operator==(const ::Iterator<Filename>& other) const {
+		virtual bool operator==(const ::Iterator<FileList::value_type>& other) const {
 			const Iterator* o = dynamic_cast<const Iterator*> (&other);
 			return o && it == o->it;
 		}
-		virtual Filename get() { return *it; }
+		virtual FileList::value_type get() { return *it; }
 		
 		typedef ::Ref< Iterator > Ref;
 	};
 	
 	Iterator::Ref begin() { return new Iterator(filelist.begin(), *this); }
+	void add(const FileList::value_type& o) { Mutex::ScopedLock lock(mutex); filelist.insert(o); }
+	bool includes(const Filename& fn) { Mutex::ScopedLock lock(mutex); return filelist.find(fn) != filelist.end(); }
+	bool autoComplete(AutocompleteRequest& request);
 	bool ready() { Mutex::ScopedLock lock(mutex); return isReady; }
 	virtual void update() = 0; // will be run in an own thread and should lock as short as possible (in best case only for the swap of the old/new list)
 };
 
 template <typename _CheckFct> // asume that _CheckFct will be static anyway - makes it a bit simpler - just change if needed
-class FileListCache : FileListCacheIntf {
+class FileListCache : public FileListCacheIntf {
 protected:
 	const std::string dir;
 	const bool absolutePath;
@@ -434,18 +446,23 @@ protected:
 	const std::string namefilter;
 public:
 	// Note: slightly different default values from FindFiles (modefilter is FM_REG here)
-	FileListCache(const std::string& _dir, bool _absPath = false, const filemodes_t _modefilter = FM_REG, const std::string& _namefilter = "")
-	: dir(_dir), absolutePath(_absPath), modefilter(_modefilter), namefilter(_namefilter) {}
+	FileListCache(const std::string& _name,
+				  const std::string& _dir,
+				  bool _absPath = false,
+				  const filemodes_t _modefilter = FM_REG,
+				  const std::string& _namefilter = "")
+	: FileListCacheIntf(_name), dir(_dir), absolutePath(_absPath), modefilter(_modefilter), namefilter(_namefilter) {}
 
 	virtual void update() {
 		static _CheckFct fct;
 		FileList newList;
-		GetFileList(fct, newList, dir, absolutePath, modefilter, namefilter);
+		GetFileList(newList, fct, dir, absolutePath, modefilter, namefilter);
 		{
 			Mutex::ScopedLock lock(mutex);
 			filelist.swap(newList);
 			isReady = true;
 		}
+		OnUpdateFinished.pushToMainQueue(EventData(this));
 	}
 };
 

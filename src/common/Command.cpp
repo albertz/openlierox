@@ -325,27 +325,28 @@ static CommandMap commands;
 
 
 
-
-static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
+template <typename _List>
+static bool autoCompleteForList(AutocompleteRequest& request, const std::string& unitname, const _List& unitlist) {
 	if(request.token == "") {
-		request.cli.writeMsg("please enter a command", CNC_DEV);
+		request.cli.writeMsg("please enter a " + unitname, CNC_DEV);
 		return false;
 	}
 	
-	CommandMap::iterator it = commands.lower_bound(request.token);
-	if(it == commands.end()) {
-		request.cli.writeMsg("no such command", CNC_WARNING);
+	typedef typename _List::const_iterator iterator;
+	iterator it = unitlist.lower_bound(request.token);
+	if(it == unitlist.end()) {
+		request.cli.writeMsg("no such " + unitname, CNC_WARNING);
 		return false;
 	}
 	
 	if(!subStrCaseEqual(it->first, request.token, request.token.size())) {
-		request.cli.writeMsg("no such command", CNC_WARNING);
+		request.cli.writeMsg("no such " + unitname, CNC_WARNING);
 		return false;
 	}
 	
 	std::list<std::string> possibilities;
 	
-	for(CommandMap::iterator j = it; j != commands.end(); ++j) {
+	for(iterator j = it; j != unitlist.end(); ++j) {
 		if(subStrCaseEqual(request.token, j->first, request.token.size()))
 			possibilities.push_back(j->first);
 		else
@@ -354,7 +355,7 @@ static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
 	
 	if(possibilities.size() == 0) {
 		// strange though..
-		request.cli.writeMsg("unknown command", CNC_WARNING);
+		request.cli.writeMsg("unknown " + unitname, CNC_WARNING);
 		return false;
 	}
 	
@@ -378,7 +379,11 @@ static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
 		possStr += *j;
 	}
 	request.cli.writeMsg(possStr);
-	return false;
+	return false;	
+}
+
+static bool autoCompleteCommand(Command*, AutocompleteRequest& request) {
+	return autoCompleteForList(request, "command", commands);
 }
 
 static bool autoCompleteVar(Command*, AutocompleteRequest& request) {
@@ -436,6 +441,20 @@ static bool autoCompleteVar(Command*, AutocompleteRequest& request) {
 	}
 	request.cli.writeMsg(possStr);
 	return false;
+}
+
+bool FileListCacheIntf::autoComplete(AutocompleteRequest& request) {
+	Mutex::ScopedLock lock(mutex);
+	if(!isReady) {
+		request.cli.writeMsg("file list cache not ready yet - please try again in a moment", CNC_ERROR);
+		return false;
+	}
+	return autoCompleteForList(request, name, filelist);
+}
+
+template <FileListCacheIntf*& filelist>
+bool autoCompleteForFileListCache(Command*, AutocompleteRequest& request) {
+	return filelist->autoComplete(request);
 }
 
 
@@ -1460,7 +1479,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	DeprecatedGUI::tMenu->bMenuRunning = false;
 }
 
-COMMAND(map, "set map", "filename", 1, 1);
+COMMAND_EXTRA(map, "set map", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<mapList>);
 void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
 		caller->writeMsg("cannot set map as client");
@@ -1476,13 +1495,37 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 	if(filename.find(".") == std::string::npos)
 		filename += ".lxl";
 	
-	// TODO: search through all levels and match name if we don't have a proper filename
-	// Don't do this explicitly though, we should cache the list (and also use it
-	// everywhere else where we need it).
-	
+	if(!mapList->includes(filename)) {
+		caller->writeMsg("map '" + filename + "' not found", CNC_WARNING);
+		return;
+	}
+		
 	tLXOptions->tGameInfo.sMapFile = filename;
 	cServer->UpdateGameLobby();
 }
+
+COMMAND_EXTRA(mod, "set mod", "filename", 1, 1, paramCompleters[0] = &autoCompleteForFileListCache<modList>);
+void Cmd_mod::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg("cannot set mod as client");
+		return;
+	}
+	
+	std::string filename = params[0];
+	if(filename == "") {
+		caller->writeMsg("specify mod filename");
+		return;
+	}
+		
+	if(!modList->includes(filename)) {
+		caller->writeMsg("mod '" + filename + "' not found", CNC_WARNING);
+		return;
+	}
+	
+	tLXOptions->tGameInfo.sModDir = filename;
+	cServer->UpdateGameLobby();
+}
+
 
 COMMAND(gotoLobby, "go to lobby", "", 0, 0);
 void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
