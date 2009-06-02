@@ -1392,11 +1392,21 @@ void Cmd_getWriteFullFileName::exec(CmdLineIntf* caller, const std::vector<std::
 COMMAND(startLobby, "start server lobby", "[serverport]", 0, 1);
 void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(!DeprecatedGUI::tMenu->bMenuRunning) {
-		caller->writeMsg("we cannot start the lobby in current state");
-		caller->writeMsg("stop lobby/game if you want to restart it");
+		caller->writeMsg("we cannot start the lobby in current state", CNC_NOTIFY);
+		caller->writeMsg("stop game if you want to restart it", CNC_NOTIFY);
 		return; // just ignore it and stay in current state
 	}
 	
+	if(cServer && cServer->isServerRunning()) {
+		caller->writeMsg("server is already running", CNC_NOTIFY);
+		return;
+	}
+	
+	if(tLX->iGameType == GME_JOIN && cClient && cClient->getStatus() != NET_DISCONNECTED)  {
+		caller->writeMsg("cannot start server lobby as client", CNC_WARNING);
+		return;
+	}
+			
 	if( params.size() > 0 ) {
 		int port = atoi(params[0]);
 		if( port ) tLXOptions->iNetworkPort = port;
@@ -1412,14 +1422,14 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	// Start the server
 	if(!cServer->StartServer()) {
 		// Crappy
-		caller->writeMsg("ERROR: Server wouldn't start");
+		caller->writeMsg("ERROR: Server wouldn't start", CNC_ERROR);
 		return;
 	}
 
 	// Lets connect me to the server
 	if(!cClient->Initialize()) {
 		// Crappy
-		caller->writeMsg("ERROR: Client wouldn't initialize");
+		caller->writeMsg("ERROR: Client wouldn't initialize", CNC_ERROR);
 		return;
 	}
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));

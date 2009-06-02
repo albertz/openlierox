@@ -27,7 +27,7 @@ public:
 	
 	std::string format() { return "Original Liero"; }
 	
-	bool parseHeader() {
+	bool parseHeader(bool printErrors) {
 		// Validate the liero level
 		fseek(fp,0,SEEK_END);
 		size_t length = ftell(fp);
@@ -38,6 +38,7 @@ public:
 				Powerlevel = true;
 			else {
 				// bad file
+				if(printErrors) errors << "OrigLiero loader: bad file: " << filename << endl;
 				return false;
 			}
 		}
@@ -178,10 +179,9 @@ class ML_LieroX : public MapLoader {
 	std::string Theme_Name;
 	PIVar(int,0) numobj;
 	PIVar(bool,false) ctf;
-	
 	std::string format() { return id; }
 	
-	bool parseHeader() {
+	bool parseHeader(bool printErrors) {
 		// Header
 		id = freadfixedcstr(fp, 32);
 		int	version = 0;
@@ -189,7 +189,7 @@ class ML_LieroX : public MapLoader {
 		
 		// Check to make sure it's a valid level file
 		if((id != "LieroX Level" && id != "LieroX CTF Level") || version != MAP_VERSION) {
-			errors << "CMap::Load: " << filename << " is not a valid level file (" << id << ") or wrong version (" << version << ")" << endl;
+			if(printErrors) errors << "CMap::Load: " << filename << " is not a valid level file (" << id << ") or wrong version (" << version << ")" << endl;
 			return false;
 		}
 		
@@ -682,17 +682,17 @@ class ML_LieroX : public MapLoader {
 };
 
 
-MapLoader* MapLoader::open(const std::string& filename, bool abs_filename) {
+MapLoader* MapLoader::open(const std::string& filename, bool abs_filename, bool printErrors) {
 	FILE* fp = abs_filename ? fopen(Utf8ToSystemNative(filename).c_str(), "rb") : OpenGameFile(filename, "rb");
 	if(fp == NULL) {
-		warnings << "level " << filename << " does not exist" << endl;
+		if(printErrors) errors << "level " << filename << " does not exist" << endl;
 		return NULL;
 	}
 	
 	if( stringcasecmp(GetFileExtension(filename), "lev") == 0 )
-		return (new ML_OrigLiero()) -> Set(filename, fp) -> parseHeaderAndCheck();
+		return (new ML_OrigLiero()) -> Set(filename, fp) -> parseHeaderAndCheck(printErrors);
 		
-	MapLoader* loader = (new ML_LieroX()) -> Set(filename, fp) -> parseHeaderAndCheck();
+	MapLoader* loader = (new ML_LieroX()) -> Set(filename, fp) -> parseHeaderAndCheck(printErrors);
 	if(loader) return loader;
 	
 	// HINT: Other level formats could be added here

@@ -518,7 +518,7 @@ public:
 	void		Disconnect();
 
 	bool		ReadPackets();
-	void		SendPackets();
+	void		SendPackets(bool sendPendingOnly = false);
 
 	void		InitializeDownloads();
 	void		DownloadMap(const std::string& mapname);

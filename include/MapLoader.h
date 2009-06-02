@@ -29,7 +29,7 @@ protected:
 	
 public:
 	// determines level format and creates the specific maploader
-	static MapLoader* open(const std::string& filename, bool abs_filename = false);
+	static MapLoader* open(const std::string& filename, bool abs_filename = false, bool printErrors = true);
 	
 	MapLoader() : fp(NULL) {}
 	MapLoader* Set(const std::string& fn, FILE* f) { filename = fn; fp = f; return this; }
@@ -37,11 +37,11 @@ public:
 	virtual std::string format() = 0;
 	const MapHeader& header() { return head; }
 	
-	virtual bool parseHeader() = 0;
+	virtual bool parseHeader(bool printErrors = true) = 0;
 	virtual bool parseData(CMap* m) = 0;
 	
-	MapLoader* parseHeaderAndCheck() {
-		if(parseHeader()) return this;
+	MapLoader* parseHeaderAndCheck(bool printErrors = true) {
+		if(parseHeader(printErrors)) return this;
 		delete this;
 		return NULL;
 	}

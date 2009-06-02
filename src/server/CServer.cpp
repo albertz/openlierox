@@ -936,24 +936,23 @@ bool GameServer::ReadPackets()
 
 ///////////////////
 // Send packets
-void GameServer::SendPackets()
+void GameServer::SendPackets(bool sendPendingOnly)
 {
-	int c;
-	CServerConnection *cl = cClients;
+	if(!sendPendingOnly) {
+		// If we are playing, send update to the clients
+		if (iState == SVS_PLAYING)
+			SendUpdate();
 
-	// If we are playing, send update to the clients
-	if (iState == SVS_PLAYING)
-		SendUpdate();
-
-	// Randomly send a random packet :)
 #if defined(FUZZY_ERROR_TESTING) && defined(FUZZY_ERROR_TESTING_S2C)
-	if (GetRandomInt(50) > 24)
-		SendRandomPacket();
+		// Randomly send a random packet :)
+		if (GetRandomInt(50) > 24)
+			SendRandomPacket();
 #endif
-
+	}
 
 	// Go through each client and send them a message
-	for(c=0;c<MAX_CLIENTS;c++,cl++) {
+	CServerConnection *cl = cClients;
+	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || !IsSocketReady(cl->getChannel()->getSocket()))
 			continue;
 
@@ -2391,8 +2390,8 @@ void SyncServerAndClient() {
 		}
 	}
 	
-	cClient->SendPackets();
-	cServer->SendPackets();
+	cClient->SendPackets(true);
+	cServer->SendPackets(true);
 	
 	//SDL_Delay(200);
 	cClient->ReadPackets();

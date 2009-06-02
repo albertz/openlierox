@@ -1190,82 +1190,78 @@ bool CClient::ReadPackets()
 
 ///////////////////
 // Send the packets
-void CClient::SendPackets()
+void CClient::SendPackets(bool sendPendingOnly)
 {
-	// So we don't flood packets out to server
-	/*fSendWait += tLX->fDeltaTime;
-	if(fSendWait < 0.5)  {
-		fSendWait = 0;
-		return;
-	}*/
-
-	// Playing packets
-	if(iNetStatus == NET_PLAYING || bGameReady)
-	{
-		cNetEngine->SendWormDetails();
-		cNetEngine->SendReportDamage();	// It sends only if someting is queued
-	}
+	if(!sendPendingOnly) {
+		// Playing packets
+		if(iNetStatus == NET_PLAYING || bGameReady)
+		{
+			cNetEngine->SendWormDetails();
+			cNetEngine->SendReportDamage();	// It sends only if someting is queued
+		}
 
 
-	// Send every second
-	// TODO: move this somewhere else
-	if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
-		CBytestream ping;
+		// Send every second
+		// TODO: move this somewhere else
+		if ((iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bGameReady))  && (tLX->currentTime - fMyPingRefreshed).seconds() > 1) {
+			CBytestream ping;
 
-		// TODO: move this out here
-		ping.Clear();
-		ping.writeInt(-1,4);
-		if(cServerVersion >= OLXBetaVersion(8))
-			ping.writeString("lx::time"); // request for servertime
-		else
-			ping.writeString("lx::ping");
+			// TODO: move this out here
+			ping.Clear();
+			ping.writeInt(-1,4);
+			if(cServerVersion >= OLXBetaVersion(8))
+				ping.writeString("lx::time"); // request for servertime
+			else
+				ping.writeString("lx::ping");
 
-		ping.Send(this->getChannel()->getSocket());
+			ping.Send(this->getChannel()->getSocket());
 
-		fMyPingSent = tLX->currentTime;
-		fMyPingRefreshed = tLX->currentTime;
-	}
-	
-	
-	// Randomly send a random packet
+			fMyPingSent = tLX->currentTime;
+			fMyPingRefreshed = tLX->currentTime;
+		}
+		
+		
+		// Randomly send a random packet
 #if defined(FUZZY_ERROR_TESTING) && defined(FUZZY_ERROR_TESTING_C2S)
-	if (GetRandomInt(50) > 24 && iNetStatus == NET_CONNECTED)
-		cNetEngine->SendRandomPacket();
+		if (GetRandomInt(50) > 24 && iNetStatus == NET_CONNECTED)
+			cNetEngine->SendRandomPacket();
 #endif
-
+	}
+	
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
 
 
-
-	if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
-	{
-		bool serverThinksWeAreNotReadyWhenWeAre = false;
-		for(unsigned int i=0;i<iNumWorms;i++)
+	if(!sendPendingOnly) {
+		if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
 		{
-			// getGameReady = what server thinks. getWeaponsReady = what we know.
-			serverThinksWeAreNotReadyWhenWeAre |= !cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady();
-		}
+			bool serverThinksWeAreNotReadyWhenWeAre = false;
+			for(unsigned int i=0;i<iNumWorms;i++)
+			{
+				// getGameReady = what server thinks. getWeaponsReady = what we know.
+				serverThinksWeAreNotReadyWhenWeAre |= !cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady();
+			}
 
 
-		// ready as in localclient == ready, server thinks we are not.
-		if (serverThinksWeAreNotReadyWhenWeAre)
-		{
-			fSendWait += tLX->fDeltaTime;
-			if (fSendWait.seconds() > 1.0) {
-				notes << "CClient::SendPackets: Server thinks that ";
-				for(unsigned int i=0;i<iNumWorms;i++) {
-					if(!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady())
-						notes << "; " << i << ":" << cLocalWorms[i]->getName();
+			// ready as in localclient == ready, server thinks we are not.
+			if (serverThinksWeAreNotReadyWhenWeAre)
+			{
+				fSendWait += tLX->fDeltaTime;
+				if (fSendWait.seconds() > 1.0) {
+					notes << "CClient::SendPackets: Server thinks that ";
+					for(unsigned int i=0;i<iNumWorms;i++) {
+						if(!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady())
+							notes << "; " << i << ":" << cLocalWorms[i]->getName();
+					}
+					notes << " is not ready" << endl;
+					
+					fSendWait = 0.0f;
+					cNetEngine->SendGameReady();
 				}
-				notes << " is not ready" << endl;
-				
-				fSendWait = 0.0f;
-				cNetEngine->SendGameReady();
 			}
 		}
 	}
-
+	
 	bsUnreliable.Clear();
 }
 
@@ -1761,7 +1757,7 @@ static bool addWorm(CClient* cl, profile_t* p) {
 	}
 
 	if(cl->getNumWorms() + 1 >= MIN((int)MAX_WORMS, cl->getGameLobby()->iMaxPlayers)) {
-		errors << "addWorm(): too many worms" << endl;
+		warnings << "addWorm(): too many worms" << endl;
 		return false;
 	}
 	

@@ -919,6 +919,7 @@ void GameServer::SendFiles()
 
 	for(int c = 0; c < MAX_CLIENTS; c++)
 	{
+		if(!cClients[c].getNetEngine()) continue;
 		int ping = cClients[c].getNetEngine()->SendFiles();
 		if( ping > 0 )
 		{

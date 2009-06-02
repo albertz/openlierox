@@ -211,7 +211,7 @@ public:
 
 	// Network
 	bool		ReadPackets();
-	void		SendPackets();
+	void		SendPackets(bool sendPendingOnly = false);
 
 	bool		ReadPacketsFromSocket(NetworkSocket& sock);
 
