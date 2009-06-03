@@ -267,7 +267,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", true, "Bonuses", "Bonuses enabled", GIG_Bonus )
 		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show bonus name above its image", GIG_Bonus )
 		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 14, "Max players", "Max amount of players allowed on server", GIG_General, true, 1, 32 )
-		( tLXOptions->tGameInfo.sMapFile, "LevelName" ) // WARNING: confusing, it is handled like the filename
+		( tLXOptions->tGameInfo.sMapFile, "LevelName", "Dirt Level.lxl" ) // WARNING: confusing, it is handled like the filename
 		( &gameModeWrapper, "GameType", (int)GM_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
 		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus )
