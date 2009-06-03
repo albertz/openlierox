@@ -97,7 +97,7 @@ bool Menu_Net_NETInitialize()
 			continue;*/
 
 		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
-		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->cSkin.getPreview(), i);
+		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->cSkin->getPreview(), i);
 		if( p->sName == tLXOptions->sLastSelectedPlayer )
 			validName=true;
 	}

@@ -174,7 +174,7 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 		bytestr.writeString(RemoveSpecialChars(client->tProfiles[i]->sName));
 		bytestr.writeInt(client->tProfiles[i]->iType,1);
 		bytestr.writeInt(client->tProfiles[i]->iTeam,1);
-		bytestr.writeString(client->tProfiles[i]->cSkin.getFileName());
+		bytestr.writeString(client->tProfiles[i]->cSkin->getFileName());
 		bytestr.writeInt(client->tProfiles[i]->R,1);
 		bytestr.writeInt(client->tProfiles[i]->G,1);
 		bytestr.writeInt(client->tProfiles[i]->B,1);

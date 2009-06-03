@@ -23,7 +23,7 @@
 
 /////////////////////
 // Constructors
-CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, int sh)
+CGameSkinIntern::CGameSkinIntern(const std::string &file, int fw, int fh, int fs, int sw, int sh)
 {
 	// TODO: share code with Change()
 	
@@ -32,7 +32,7 @@ CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, in
 	} else {
 		bmpSurface = LoadGameImage("skins/" + file, true);
 		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-			warnings << "CGameSkin::Change: couldn't find skin " << file << endl;
+			warnings << "CGameSkinIntern::Change: couldn't find skin " << file << endl;
 			bmpSurface = LoadGameImage("skins/default.png", true);
 		}
 		if (bmpSurface.get())
@@ -60,7 +60,7 @@ CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, in
 	GeneratePreview();
 }
 
-CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
+CGameSkinIntern::CGameSkinIntern(int fw, int fh, int fs, int sw, int sh)
 {
 	bmpSurface = NULL;
 	bmpMirrored = NULL;
@@ -79,27 +79,27 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
 	iSkinHeight = sh;
 }
 
-CGameSkin::CGameSkin(const CGameSkin& skin)
+CGameSkinIntern::CGameSkinIntern(const CGameSkinIntern& skin)
 {
 	operator=(skin);
 }
 
 //////////////////
 // Destructor
-CGameSkin::~CGameSkin()
+CGameSkinIntern::~CGameSkinIntern()
 {
 }
 
 ////////////////////
 // Change the skin
-void CGameSkin::Change(const std::string &file)
+void CGameSkinIntern::Change(const std::string &file)
 {
 	if (bDedicated)  {
 		bmpSurface = NULL;
 	} else {
 		bmpSurface = LoadGameImage("skins/" + file, true);
 		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-			warnings << "CGameSkin::Change: couldn't find skin " << file << endl;
+			warnings << "CGameSkinIntern::Change: couldn't find skin " << file << endl;
 			bmpSurface = LoadGameImage("skins/default.png", true);
 		}
 		if (bmpSurface.get())  {
@@ -125,7 +125,7 @@ void CGameSkin::Change(const std::string &file)
 
 /////////////////////
 // Prepares the non-mirrored surface
-bool CGameSkin::PrepareNormalSurface()
+bool CGameSkinIntern::PrepareNormalSurface()
 {
 	// Check
 	if (!bmpSurface.get() || bDedicated)
@@ -145,7 +145,7 @@ bool CGameSkin::PrepareNormalSurface()
 
 ///////////////////////
 // Generates the normal surface, no colorization is done
-void CGameSkin::GenerateNormalSurface()
+void CGameSkinIntern::GenerateNormalSurface()
 {
 	if (!PrepareNormalSurface())
 		return;
@@ -156,7 +156,7 @@ void CGameSkin::GenerateNormalSurface()
 
 //////////////////
 // Prepare the mirrored surface
-bool CGameSkin::PrepareMirrorSurface()
+bool CGameSkinIntern::PrepareMirrorSurface()
 {
 	// Check
 	if (!bmpSurface.get() || bDedicated)
@@ -176,7 +176,7 @@ bool CGameSkin::PrepareMirrorSurface()
 
 ////////////////////
 // Generate a mirrored image
-void CGameSkin::GenerateMirroredImage()
+void CGameSkinIntern::GenerateMirroredImage()
 {
 	if (!PrepareMirrorSurface())
 		return;
@@ -186,7 +186,7 @@ void CGameSkin::GenerateMirroredImage()
 
 //////////////////
 // Prepares the preview surface, returns false when there was some error
-bool CGameSkin::PreparePreviewSurface()
+bool CGameSkinIntern::PreparePreviewSurface()
 {
 	// No surfaces in dedicated mode
 	if (bDedicated)
@@ -207,7 +207,7 @@ bool CGameSkin::PreparePreviewSurface()
 
 /////////////////////
 // Generates a preview image
-void CGameSkin::GeneratePreview()
+void CGameSkinIntern::GeneratePreview()
 {
 	if (!PreparePreviewSurface())
 		return;
@@ -225,7 +225,7 @@ void CGameSkin::GeneratePreview()
 
 //////////////////
 // Prepares the shadow surface, returns false when there was some error
-bool CGameSkin::PrepareShadowSurface()
+bool CGameSkinIntern::PrepareShadowSurface()
 {
 	// Make sure we have something to create the shadow from
 	if (!bmpSurface.get() || bDedicated)
@@ -262,7 +262,7 @@ bool CGameSkin::PrepareShadowSurface()
 
 //////////////////
 // Generate a shadow surface for the skin
-void CGameSkin::GenerateShadow()
+void CGameSkinIntern::GenerateShadow()
 {
 	if (!PrepareShadowSurface())
 		return;
@@ -324,7 +324,7 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 
 ///////////////////
 // Assignment operator
-CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
+CGameSkinIntern& CGameSkinIntern::operator =(const CGameSkinIntern &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
 		if (!bDedicated)  {
@@ -357,7 +357,7 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 
 ////////////////////
 // Comparison operator
-bool CGameSkin::operator ==(const CGameSkin &oth)
+bool CGameSkinIntern::operator ==(const CGameSkinIntern &oth)
 {
 	if (sFileName.size())
 		return stringcaseequal(sFileName, oth.sFileName);
@@ -367,7 +367,7 @@ bool CGameSkin::operator ==(const CGameSkin &oth)
 
 ///////////////////////
 // Draw the worm skin at the specified coordinates
-void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored)
+void CGameSkinIntern::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -395,7 +395,7 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 
 /////////////////////
 // Draw the worm skin shadow
-void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored)
+void CGameSkinIntern::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -417,7 +417,7 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 
 ////////////////////////
 // Colorize the skin
-void CGameSkin::Colorize(Color col)
+void CGameSkinIntern::Colorize(Color col)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -500,7 +500,7 @@ void CGameSkin::Colorize(Color col)
 
 ////////////////////
 // Returns number of frames in the skin animation
-int CGameSkin::getFrameCount() const
+int CGameSkinIntern::getFrameCount() const
 {
 	if (bmpSurface.get())
 		return bmpSurface->w / (iFrameWidth + iFrameSpacing);

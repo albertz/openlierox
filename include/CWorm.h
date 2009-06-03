@@ -463,8 +463,8 @@ public:
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Color		getGameColour();
-	void		setColour(Color c)			{ cSkin.Colorize(c); }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) { cSkin.Colorize(Color(r,g,b)); }
+	void		setColour(Color c)			{ cSkin->Colorize(c); }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b) { cSkin->Colorize(Color(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal()				{ return bLocal; }
@@ -568,7 +568,7 @@ public:
 	int			getTeam() const				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg()			{ return bmpGibs; }
-	SmartPointer<SDL_Surface> getPicimg()			{ return cSkin.getPreview(); }
+	SmartPointer<SDL_Surface> getPicimg()			{ return cSkin->getPreview(); }
 
 	lobbyworm_t	*getLobby()				{ return &tLobbyState; }
 
@@ -590,7 +590,7 @@ public:
 
 	CWormSkin&	getSkin()				{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
-	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
+	void		setSkin(const std::string& skin)	{ cSkin->Change(skin); }
 
 	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
 	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }

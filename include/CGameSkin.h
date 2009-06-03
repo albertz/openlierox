@@ -24,13 +24,13 @@
 #define CPU_WIDTH 10
 #define SHADOW_OPACITY 96 // TODO: move this to some more general header
 
-class CGameSkin  {
+class CGameSkinIntern {
 public:
-	CGameSkin(int fw, int fh, int fs, int sw, int sh);
-	CGameSkin(const CGameSkin& skin);
-	CGameSkin(const std::string& file, int fw, int fh, int fs, int sw, int sh);
-	~CGameSkin();
-
+	CGameSkinIntern(int fw, int fh, int fs, int sw, int sh);
+	CGameSkinIntern(const CGameSkinIntern& skin);
+	CGameSkinIntern(const std::string& file, int fw, int fh, int fs, int sw, int sh);
+	~CGameSkinIntern();
+	
 private:
 	SmartPointer<SDL_Surface>	bmpSurface;
 	SmartPointer<SDL_Surface>	bmpNormal;
@@ -61,9 +61,9 @@ private:
 	void	GenerateMirroredImage();
 
 public:
-	CGameSkin& operator=(const CGameSkin& oth);
-	bool operator==(const CGameSkin& oth);
-	bool operator!=(const CGameSkin& oth)  { return !(*this == oth); }
+	CGameSkinIntern& operator=(const CGameSkinIntern& oth);
+	bool operator==(const CGameSkinIntern& oth);
+	bool operator!=(const CGameSkinIntern& oth)  { return !(*this == oth); }
 
 	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored);
 	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored);
@@ -84,6 +84,21 @@ public:
 
 	SmartPointer<SDL_Surface>& getLeftImage()	{ return bmpMirrored; }
 	SmartPointer<SDL_Surface>& getRightImage()	{ return bmpNormal; }
+};
+
+class CGameSkin {
+private:
+	SmartPointer<CGameSkinIntern> skin;
+public:
+	CGameSkin(int fw, int fh, int fs, int sw, int sh) { skin = new CGameSkinIntern(fw,fh,fs,sw,sh); }
+	CGameSkin(const CGameSkin& s) { skin = new CGameSkinIntern(*s.skin.get()); }
+	CGameSkin(const std::string& file, int fw, int fh, int fs, int sw, int sh) { skin = new CGameSkinIntern(file,fw,fh,fs,sw,sh); }
+	
+	CGameSkin& operator=(const CGameSkin& oth) { if(&oth != this) *skin.get() = *oth.skin.get(); return *this; }
+	bool operator==(const CGameSkin& oth) { return *skin.get() == *oth.skin.get(); }
+	bool operator!=(const CGameSkin& oth)  { return !(*this == oth); }
+	
+	CGameSkinIntern* operator->() { return skin.get(); }
 };
 
 #define WORM_SKIN_FRAME_WIDTH 32

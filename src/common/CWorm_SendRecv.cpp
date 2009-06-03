@@ -36,10 +36,10 @@ void CWorm::writeInfo(CBytestream *bs)
 	bs->writeString(RemoveSpecialChars(sName));
 	bs->writeInt(m_type->toInt(), 1);
 	bs->writeInt(iTeam, 1);
-	bs->writeString(cSkin.getFileName());
+	bs->writeString(cSkin->getFileName());
 
 	for(short i = 0; i < 3; i++)
-		bs->writeInt(cSkin.getDefaultColor()[i], 1);
+		bs->writeInt(cSkin->getDefaultColor()[i], 1);
 }
 
 
@@ -51,7 +51,7 @@ void WormJoinInfo::loadFromProfile(profile_t* p) {
 		m_type = PRF_HUMAN; // fallback
 	}
 	iTeam = CLAMP(p->iTeam, 0, 3);
-	skinFilename = p->cSkin.getFileName();
+	skinFilename = p->cSkin->getFileName();
 	skinColor = Color(p->R, p->G, p->B);
 }
 
@@ -76,9 +76,9 @@ void WormJoinInfo::applyTo(CWorm* worm) const {
 	worm->sName = sName;
 	worm->m_type = m_type;
 	worm->iTeam = iTeam;	
-	worm->cSkin.Change(skinFilename);
-	worm->cSkin.setDefaultColor(skinColor);
-	worm->cSkin.Colorize(skinColor);
+	worm->cSkin->Change(skinFilename);
+	worm->cSkin->setDefaultColor(skinColor);
+	worm->cSkin->Colorize(skinColor);
 }
 
 // Note: We don't put charge into the update packet because we only send the update packet to

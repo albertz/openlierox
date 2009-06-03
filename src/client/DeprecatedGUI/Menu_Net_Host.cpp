@@ -168,7 +168,7 @@ bool Menu_Net_HostInitialize()
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cHostPly.getWidget(hs_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
+		w->AddSubitem( LVS_IMAGE, "", p->cSkin->getPreview(), NULL );
 		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 
@@ -338,7 +338,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						if(ply) {
 							if (ply->iType == PRF_COMPUTER->toInt() || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
-								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
+								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin->getPreview(), NULL);
 								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 								if (ply->iType == PRF_HUMAN->toInt())
 									iHumanPlayers++;
@@ -372,7 +372,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					if(ply) {
 						lv2->AddItem("",index,tLX->clListView);
-						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
+						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin->getPreview(), NULL);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 						if (ply->iType == PRF_HUMAN->toInt())
 							iHumanPlayers--;

@@ -239,14 +239,14 @@ void LoadProfile(FILE *fp, int id)
 
 	// Name
 	p->sName = freadfixedcstr(fp, 32);
-	p->cSkin.Change(freadfixedcstr(fp, 128));
+	p->cSkin->Change(freadfixedcstr(fp, 128));
     fread_compat(p->iType,    sizeof(int),    1,  fp);
     EndianSwap(p->iType);
     fread_compat(p->nDifficulty,sizeof(int),  1,  fp);
 	EndianSwap(p->nDifficulty);
 
 	if (p->iType == PRF_COMPUTER->toInt())
-		p->cSkin.setBotIcon(p->nDifficulty);
+		p->cSkin->setBotIcon(p->nDifficulty);
 	
 	// Multiplayer
 	p->sUsername = freadfixedcstr(fp,16);
@@ -260,8 +260,8 @@ void LoadProfile(FILE *fp, int id)
 	fread_compat(p->B,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->B);
 
-	p->cSkin.setDefaultColor(Color(p->R, p->G, p->B));
-	p->cSkin.Colorize(p->cSkin.getDefaultColor());
+	p->cSkin->setDefaultColor(Color(p->R, p->G, p->B));
+	p->cSkin->Colorize(p->cSkin->getDefaultColor());
 	
 	// Weapons
 	for(int i=0; i<5; i++)
@@ -288,7 +288,7 @@ void SaveProfile(FILE *fp, profile_t *p)
 {
 	// Name & Type
 	fwrite(p->sName,	32,	fp);
-	fwrite(p->cSkin.getFileName(),    128,fp);
+	fwrite(p->cSkin->getFileName(),    128,fp);
     fwrite_endian_compat((p->iType),   sizeof(int),    1,  fp);
     fwrite_endian_compat((p->nDifficulty),sizeof(int), 1,  fp);
 
@@ -363,11 +363,11 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->tNext = NULL;
 
 	p->sName = name;
-	p->cSkin.Change(skin);
+	p->cSkin->Change(skin);
 	p->R = R;
 	p->G = G;
 	p->B = B;
-	p->cSkin.Colorize(Color(R, G, B));
+	p->cSkin->Colorize(Color(R, G, B));
 
 	p->sUsername = username;
 	p->sPassword = password;

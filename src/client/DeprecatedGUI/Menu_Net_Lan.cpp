@@ -76,7 +76,7 @@ bool Menu_Net_LANInitialize()
 			continue;*/
 
 		int index = PlayerSelection->addItem( p->sName, p->sName );
-		PlayerSelection->setImage( p->cSkin.getPreview(), index );
+		PlayerSelection->setImage( p->cSkin->getPreview(), index );
 		if( p->sName == tLXOptions->sLastSelectedPlayer )
 			validName=true;
 	}

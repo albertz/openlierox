@@ -460,10 +460,10 @@ void Menu_LocalRemovePlaying(int index)
 
 	// Add the player into the players list
 	if(ply) {
-		ply->cSkin.RemoveColorization();
+		ply->cSkin->RemoveColorization();
 		lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
 		lv->AddItem("", index, tLX->clListView);
-		lv->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
+		lv->AddSubitem(LVS_IMAGE, "", ply->cSkin->getPreview(), NULL);
 		lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
 	}
 }
@@ -480,7 +480,7 @@ void Menu_LocalAddProfiles()
 		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
 		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
+		w->AddSubitem( LVS_IMAGE, "", p->cSkin->getPreview(), NULL );
 		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
 	}
 

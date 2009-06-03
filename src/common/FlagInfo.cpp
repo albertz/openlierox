@@ -36,7 +36,7 @@ Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
 	skin = new CGameSkin("../data/gfx/flags.png", FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
 	
 	if(i >= 0 && i < 4) {
-		skin->Colorize(tLX->clTeamColors[i]);
+		(*skin)->Colorize(tLX->clTeamColors[i]);
 	}
 }
 
@@ -154,9 +154,9 @@ static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	y -= y % 2;
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
-	f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
+	f %= (*flag->skin)->getFrameCount(); // every skin has exactly 21 frames
 	
-	flag->skin->Draw(bmpDest, x - FLAG_WIDTH/2, y - FLAG_HEIGHT/2, f, false, true);
+	(*flag->skin)->Draw(bmpDest, x - FLAG_WIDTH/2, y - FLAG_HEIGHT/2, f, false, true);
 }
 
 void FlagInfo::draw(SDL_Surface* bmpDest, CViewport* v) {
@@ -191,10 +191,10 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	f += ang;
 	
 	if(worm->getDirection() == DIR_LEFT) {
-		flag->skin->Draw(bmpDest, x - flag->skin->getSkinWidth(), y - flag->skin->getSkinHeight(), f, false, true);
+		(*flag->skin)->Draw(bmpDest, x - (*flag->skin)->getSkinWidth(), y - (*flag->skin)->getSkinHeight(), f, false, true);
 	}
 	else {
-		flag->skin->Draw(bmpDest, x, y - flag->skin->getSkinHeight(), f, false, false);
+		(*flag->skin)->Draw(bmpDest, x, y - (*flag->skin)->getSkinHeight(), f, false, false);
 	}
 }
 
