@@ -133,7 +133,7 @@ void CBox::PreDraw()
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
 			
 			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
-			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
+			cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -145,7 +145,7 @@ void CBox::PreDraw()
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))-1+iRound, 0, iHeight-1);
 			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
-			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
+			cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -157,7 +157,7 @@ void CBox::PreDraw()
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))-1+iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
 			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
-			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
+			cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 
@@ -169,7 +169,7 @@ void CBox::PreDraw()
 			x = CLAMP( (int)((iRound-j)*sin(PI*i))+iWidth-iRound, 0, iWidth-1);
 			y = CLAMP( (int)((iRound-j)*cos(PI*i))+iHeight-iRound, 0, iHeight-1);
 			PutPixel(bmpBuffer.get(),x,y,cur_col.get(bmpBuffer->format));
-			cur_col = MakeColour(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
+			cur_col = Color(iDarkColour.r+rstep*(j+1),iDarkColour.g+gstep*(j+1),iDarkColour.b+bstep*(j+1));
 		}
 	}
 

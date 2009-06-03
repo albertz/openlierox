@@ -1946,7 +1946,7 @@ void DrawRope(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color color)
 	if (tLXOptions->bAntiAliasing)
 		AntiAliasedLine(bmp, x1, y1, x2, y2, color, RopePutPixelA);
 	else
-		perform_line(bmp, x1, y1, x2, y2, color.get(bmp->format), RopePutPixel);
+		perform_line(bmp, x1, y1, x2, y2, color, RopePutPixel);
 }
 
 

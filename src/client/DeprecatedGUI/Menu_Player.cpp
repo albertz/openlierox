@@ -427,10 +427,10 @@ void Menu_Player_NewPlayer(int mouse)
 
 
 	// Draw the colour
-	//DrawRectFill(VideoPostProcessor::videoSurface(), 260, 230, 280, 250, MakeColour(r,g,b));
+	//DrawRectFill(VideoPostProcessor::videoSurface(), 260, 230, 280, 250, Color(r,g,b));
 	DrawRectFill(VideoPostProcessor::videoSurface(),  255, 195, 285, 225, tLX->clBlack);
 	Menu_DrawBox(VideoPostProcessor::videoSurface(),  255, 195, 285, 225);
-	//DrawRect(VideoPostProcessor::videoSurface(),		255, 195, 285, 225, MakeColour(128,128,128));
+	//DrawRect(VideoPostProcessor::videoSurface(),		255, 195, 285, 225, Color(128,128,128));
 
 
 	// Draw the colour component values
@@ -762,7 +762,7 @@ void Menu_Player_ViewPlayers(int mouse)
 // Draw the worm image
 void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
-	tMenu->cSkin.Colorize(MakeColour(ColR, ColG, ColB));
+	tMenu->cSkin.Colorize(Color(ColR, ColG, ColB));
 	tMenu->cSkin.Draw(bmpDest, dx + 4, dy, Frame, false, false);
 }
 

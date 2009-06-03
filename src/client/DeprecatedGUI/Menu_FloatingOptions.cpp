@@ -718,11 +718,11 @@ void Menu_FloatingOptionsWaitInput(int ply, const std::string& name, CInputbox *
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 212,172, 212,172, 217,137);
     DrawRectFill(tMenu->bmpBuffer.get(), 212,172,429,309,tLX->clDialogBackground);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,180,MakeColour(128,200,255),"Input for:");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,205,MakeColour(255,255,255),name);
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,180,Color(128,200,255),"Input for:");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,205,Color(255,255,255),name);
 
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,270,MakeColour(255,255,255),"Press any key/mouse");
-	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,285,MakeColour(128,128,128),"(Escape to cancel)");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,270,Color(255,255,255),"Press any key/mouse");
+	tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(),320,285,Color(128,128,128),"(Escape to cancel)");
 
 	cFloatingOpt_TopButtons[iFloatingOptionsMode].MouseOver(Mouse);
 	for(ushort i=0;i<3;i++) {

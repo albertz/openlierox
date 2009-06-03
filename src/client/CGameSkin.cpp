@@ -45,7 +45,7 @@ CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, in
 	bmpNormal = NULL;
 
 	sFileName = file;
-	iDefaultColor = iColor = MakeColour(128, 128, 128);
+	iDefaultColor = iColor = Color(128, 128, 128);
 	bColorized = false;
 	iBotIcon = -1;
 	iFrameWidth = fw;
@@ -69,7 +69,7 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
 	bmpPreview = NULL;
 	bmpNormal = NULL;
 	sFileName = "";
-	iDefaultColor = iColor = MakeColour(128, 128, 128);
+	iDefaultColor = iColor = Color(128, 128, 128);
 	bColorized = false;
 	iBotIcon = -1;
 	iFrameWidth = fw;

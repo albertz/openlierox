@@ -312,8 +312,8 @@ public:
 				CVec v;
 				for(short i=0;i<amount;i++) {
 					v = CVec(GetRandomNum(), GetRandomNum()) * 30;
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,MakeColour(200,0,0),NULL);
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,MakeColour(180,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(200,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(180,0,0),NULL);
 				}
 			}
 		}
@@ -375,9 +375,9 @@ public:
 				worm->getVelocity()->y = wd->JumpForce;
 			else {
 				// GFX effect, as in TeeWorlds (we'll change velocity after that)
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), 0, NULL );
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), 0, NULL );
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), 0, NULL );
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
+				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
 				if( worm->canAirJump() && worm->getVelocity()->y > wd->JumpForce ) // Negative Y coord = moving up
 					worm->getVelocity()->y = wd->JumpForce; // Absolute velocity - instant air jump
@@ -567,7 +567,7 @@ public:
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Uint32 col = GetPixel(cClient->getMap()->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y);
+					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y));
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}

@@ -69,9 +69,9 @@ public:
 	// Render the text object
 	virtual void Render(SDL_Surface *dest, int x, int y)  
 	{
-		tLX->cFont.Draw(dest, x, y, tFormat.color.get(), sText);
+		tLX->cFont.Draw(dest, x, y, tFormat.color, sText);
 		if (tFormat.bold)
-			tLX->cFont.Draw(dest, x + 1, y, tFormat.color.get(), sText);
+			tLX->cFont.Draw(dest, x + 1, y, tFormat.color, sText);
 		if (tFormat.underline)
 			DrawHLine(dest, x, x + tRect.w, y + tRect.h - 2, tFormat.color);
 	}

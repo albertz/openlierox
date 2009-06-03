@@ -385,13 +385,13 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 		case SVT_INT: return writeInt(var.i, 4);
 		case SVT_FLOAT: return writeFloat(var.f);
 		case SVT_STRING: return writeString(var.s);
-		case SVT_COLOR:  {
-			Color cl(var.c);
-			writeByte(cl.r);
-			writeByte(cl.g);
-			writeByte(cl.b);
-			writeByte(cl.a);
-		} return true;
+		case SVT_COLOR: {
+			writeByte(var.c.r);
+			writeByte(var.c.g);
+			writeByte(var.c.b);
+			writeByte(var.c.a);
+			return true;
+		}
 		default: assert(false); return false;
 	}
 }
@@ -570,7 +570,7 @@ bool CBytestream::readVar(ScriptVar_t& var) {
 		case SVT_INT: var.i = readInt(4); break;
 		case SVT_FLOAT: var.f = readFloat(); break;
 		case SVT_STRING: var.s = readString(); break;
-		case SVT_COLOR: var.c = readInt(4); break;
+		case SVT_COLOR: var.c.r = readInt(1); var.c.g = readInt(1); var.c.b = readInt(1); var.c.a = readInt(1); break;
 		default:
 			warnings << "read var has invalid type" << endl;
 			var = ScriptVar_t();

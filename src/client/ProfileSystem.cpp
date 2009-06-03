@@ -260,7 +260,7 @@ void LoadProfile(FILE *fp, int id)
 	fread_compat(p->B,		sizeof(Uint8),	1,	fp);
 	EndianSwap(p->B);
 
-	p->cSkin.setDefaultColor(MakeColour(p->R, p->G, p->B));
+	p->cSkin.setDefaultColor(Color(p->R, p->G, p->B));
 	p->cSkin.Colorize(p->cSkin.getDefaultColor());
 	
 	// Weapons
@@ -367,7 +367,7 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->R = R;
 	p->G = G;
 	p->B = B;
-	p->cSkin.Colorize(MakeColour(R, G, B));
+	p->cSkin.Colorize(Color(R, G, B));
 
 	p->sUsername = username;
 	p->sPassword = password;

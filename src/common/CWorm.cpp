@@ -662,7 +662,7 @@ void CWorm::UpdateDrawPos() {
 
 			if(node_x-4 >= 0 && node_y-4 >= 0 && node_x+4 < bmpDestDebug->w && node_y+4 < bmpDestDebug->h) {
 				// Draw the new pos
-				DrawRectFill(bmpDestDebug,node_x-4,node_y-4,node_x+4,node_y+4, MakeColour(0,255,0));
+				DrawRectFill(bmpDestDebug,node_x-4,node_y-4,node_x+4,node_y+4, Color(0,255,0));
 			}
 		} */
 #endif
@@ -830,7 +830,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 				// Draw the "grid"
 				{
-					Uint32 BorderColor = MakeColour(0x49,0x50,0x65);
+					Color BorderColor = Color(0x49,0x50,0x65);
 					DrawRect(bmpDest, hx-10,hy-1,hx+15,hy+5,BorderColor);
 					DrawVLine(bmpDest, hy, hy+4, hx-5,BorderColor);
 					DrawVLine(bmpDest, hy, hy+4, hx,BorderColor);
@@ -845,9 +845,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				if (iShowHealth > 5)
 					iShowHealth = 5;
 
-				Uint32 CurColor;
 				for (short i=0; i<iShowHealth; i++) {
-					CurColor = MakeColour(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
+					Color CurColor = Color(HealthColors[i*3],HealthColors[i*3+1],HealthColors[i*3+2]);
 					DrawRectFill(bmpDest,hx-10+(i*5+1),hy,hx-10+(i*5+1)+4,hy+5,CurColor);
 				}
 

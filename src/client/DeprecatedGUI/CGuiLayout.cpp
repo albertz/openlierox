@@ -348,9 +348,9 @@ bool CGuiLayout::Build()
 			int height = xmlGetInt(tCurrentNode,"height");
 			int round  = xmlGetInt(tCurrentNode,"round");
 			int border = xmlGetInt(tCurrentNode,"border");
-			Uint32 light_colour = xmlGetColour(tCurrentNode,"lightcolor").get();
-			Uint32 dark_colour = xmlGetColour(tCurrentNode,"darkcolor").get();
-			Uint32 bgcolour = xmlGetColour(tCurrentNode,"bgcolor").get();
+			Color light_colour = xmlGetColour(tCurrentNode,"lightcolor");
+			Color dark_colour = xmlGetColour(tCurrentNode,"darkcolor");
+			Color bgcolour = xmlGetColour(tCurrentNode,"bgcolor");
 
 			Add(new CBox(round,border,light_colour,dark_colour,bgcolour),-1,left,top,width,height);
 		}
@@ -465,7 +465,7 @@ bool CGuiLayout::Build()
 			int height = xmlGetInt(tCurrentNode,"height");
 			xmlChar *name = xmlGetProp(tCurrentNode,(const xmlChar *)"name");
 			xmlChar *text = xmlGetProp(tCurrentNode,(const xmlChar *)"text");
-			Uint32 colour = xmlGetColour(tCurrentNode,"color").get();
+			Color colour = xmlGetColour(tCurrentNode,"color");
 			generic_events_t Events;
 			CGuiLayout_ReadEvents(this,tCurrentNode,&Events);
 

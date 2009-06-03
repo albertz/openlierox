@@ -443,7 +443,7 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 		}
 		
 #ifdef _AI_DEBUG
-		//PutPixel(bmpDest,pos_x*2,pos_y*2,MakeColour(255,255,0));
+		//PutPixel(bmpDest,pos_x*2,pos_y*2,Color(255,255,0));
 #endif
 			
 		// inside the grid
@@ -457,7 +457,7 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 			if(!(gridflags[gridflag_i] & checkflag)) {				
 				// yes, we did, no checkflag inside
 #ifdef _AI_DEBUG
-				//DrawRectFill(bmpDest,grid_x*grid_w*2,grid_y*grid_h*2,(grid_x+1)*grid_w*2+4,(grid_y+1)*grid_h*2,MakeColour(150,150,0));	
+				//DrawRectFill(bmpDest,grid_x*grid_w*2,grid_y*grid_h*2,(grid_x+1)*grid_w*2+4,(grid_y+1)*grid_h*2,Color(150,150,0));	
 #endif
 				// go behind this grid-cell
 				// the following checks works, because |quot| <= 1

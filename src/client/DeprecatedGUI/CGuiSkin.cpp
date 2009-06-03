@@ -294,7 +294,7 @@ Color xmlGetColor(xmlNodePtr Node, const std::string& Name)
 	xmlChar *sValue = xmlGetProp(Node,(const xmlChar *)Name.c_str());
 	if (!sValue)
 		return tLX->clPink;
-	Uint32 result = StrToCol((char*)sValue).get();
+	Color result = StrToCol((char*)sValue);
 	xmlFree(sValue);
 	return result;
 }

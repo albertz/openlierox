@@ -58,7 +58,7 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { return 0; }
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
-	void	ChangeColour(Uint32 col)			{ iColour = col; }
+	void	ChangeColour(Color col)			{ iColour = col; }
 
 	// Draw the line
 	void	Draw(SDL_Surface * bmpDest) {

@@ -503,11 +503,11 @@ setvideomode:
 #ifdef REAL_OPENGL
 		OGL_init();
 #else
-		FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));		
+		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));		
 #endif
 	}
 	else
-		FillSurface(SDL_GetVideoSurface(), MakeColour(0, 0, 0));
+		FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
 	
 	VideoPostProcessor::get()->resetVideo();
 

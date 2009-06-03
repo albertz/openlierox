@@ -216,10 +216,10 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			DrawLine(bmpDest, node_x, node_y, onode_x, onode_y, tLX->clWhite);
 
 			// Draw the old pos
-			DrawRectFill(bmpDest,onode_x-3,onode_y-3,onode_x+3,onode_y+3, MakeColour(122,122,255));
+			DrawRectFill(bmpDest,onode_x-3,onode_y-3,onode_x+3,onode_y+3, Color(122,122,255));
 
 			// Draw the new pos
-			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? MakeColour(0,0,0) : MakeColour(122,122,0));
+			DrawRectFill(bmpDest,node_x-4,node_y-4,node_x+4,node_y+4, (t == 0) ? Color(0,0,0) : Color(122,122,0));
 		}
 	} */
 #endif

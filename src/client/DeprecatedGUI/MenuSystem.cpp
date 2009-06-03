@@ -476,7 +476,7 @@ void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int bo
 
 	// Draw the box
 	for (i=0;i<border;i++)
-		DrawRect(bmpDest,x+i,y+i,x2-i,y2-i,MakeColour(r1+r_step*i,g1+g_step*i,b1+b_step*i));
+		DrawRect(bmpDest,x+i,y+i,x2-i,y2-i,Color(r1+r_step*i,g1+g_step*i,b1+b_step*i));
 }
 
 

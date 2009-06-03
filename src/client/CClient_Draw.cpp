@@ -231,8 +231,8 @@ bool CClient::InitializeDrawing()
 		cDownloadBar = new DeprecatedGUI::CBar(NULL, 270, getBottomBarTop() - 15, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 
 	cDownloadBar->SetLabelVisible(false);
-	cDownloadBar->SetBgColor(MakeColour(0, 0, 50));
-	cDownloadBar->SetForeColor(MakeColour(0, 0, 200));
+	cDownloadBar->SetBgColor(Color(0, 0, 50));
+	cDownloadBar->SetForeColor(Color(0, 0, 200));
 
 	// Reset the scoreboard here so it doesn't show kills & lives when waiting for players
 	InitializeIngameScore(true);
@@ -268,7 +268,7 @@ bool CClient::InitializeBar(int number)  {
 	std::string dir,key;
 	std::string fname = "data/frontend/";
 	DeprecatedGUI::CBar **bar;
-	Uint32 foreCl;
+	Color foreCl;
 
 	// Fill in the details according to the index given
 	switch (number)  {
@@ -276,7 +276,7 @@ bool CClient::InitializeBar(int number)  {
 		key = "FirstHealthBar";
 		fname += "healthbar1.png";
 		bar = &cHealthBar1;
-		foreCl = MakeColour(64, 255, 64);
+		foreCl = Color(64, 255, 64);
 
 		// Defaults
 		x = 70;
@@ -291,7 +291,7 @@ bool CClient::InitializeBar(int number)  {
 		key = "FirstWeaponBar";
 		fname += "weaponbar1.png";
 		bar = &cWeaponBar1;
-		foreCl = MakeColour(64, 64, 255);
+		foreCl = Color(64, 64, 255);
 
 		// Defaults
 		x = 70;
@@ -306,7 +306,7 @@ bool CClient::InitializeBar(int number)  {
 		key = "SecondHealthBar";
 		fname += "healthbar2.png";
 		bar = &cHealthBar2;
-		foreCl = MakeColour(64, 255, 64);
+		foreCl = Color(64, 255, 64);
 
 		// Defaults
 		x = 450;
@@ -322,7 +322,7 @@ bool CClient::InitializeBar(int number)  {
 		key = "SecondWeaponBar";
 		fname += "weaponbar2.png";
 		bar = &cWeaponBar2;
-		foreCl = MakeColour(64, 64, 255);
+		foreCl = Color(64, 64, 255);
 
 		// Defaults
 		x = 450;
@@ -367,7 +367,7 @@ bool CClient::InitializeBar(int number)  {
 		return false;
 
 	// Some default colors in case the image does not exist
-	(*bar)->SetBgColor(MakeColour(128,128,128));
+	(*bar)->SetBgColor(Color(128,128,128));
 	(*bar)->SetForeColor(foreCl);
 
 	return true;
@@ -1800,7 +1800,7 @@ void CClient::DrawBonuses(SDL_Surface * bmpDest, CViewport *v)
 
 ///////////////////
 // Draw text that is shadowed
-void CClient::DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf)
+void CClient::DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Color fgcol, const std::string& buf)
 {
 	if(centre) {
 		//tLX->cOutlineFont.DrawCentre(bmpDest, x+1, y+1, 0,"%s", buf);

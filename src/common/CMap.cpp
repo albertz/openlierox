@@ -286,7 +286,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 
 		// Calculate the default colour from a non-pink, non-black colour in the hole image
 		LOCK_OR_FAIL(Theme.bmpFronttile);
-		Theme.iDefaultColour = GetPixel(Theme.bmpFronttile.get(),0,0);
+		Theme.iDefaultColour = Color(Theme.bmpFronttile->format, GetPixel(Theme.bmpFronttile.get(),0,0));
 		UnlockSurface(Theme.bmpFronttile);
 		SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
 		LOCK_OR_FAIL(hole);
@@ -1040,7 +1040,7 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 
 	if( GetPixelFlag(wx, wy) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
 		LOCK_OR_QUIT(bmpShadowMap);
-		Uint32 color = GetPixel(bmpShadowMap.get(), wx, wy);
+		Color color = Color(bmpShadowMap->format, GetPixel(bmpShadowMap.get(), wx, wy));
 		UnlockSurface(bmpShadowMap);
 
 		DrawRectFill2x2(bmpDest, x, y, color);
@@ -2070,7 +2070,7 @@ void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVe
 	//x -= x % 2;
 	//y -= y % 2;
 	
-	Uint32 col = MakeColour(r,g,b);
+	Color col = Color(r,g,b);
 	
 	{
 		int x = MAX((int)miniX, i-1);
@@ -2415,11 +2415,11 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 			uchar pf = GridFlags[py * nGridCols + px];
 
             if(pf & PX_ROCK)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(128,128,128));
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(128,128,128));
             else if(pf & PX_DIRT)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(255,0,0));
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(255,0,0));
             else if(pf & PX_EMPTY)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, MakeColour(0,0,128));
+                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(0,0,128));
             //DrawRect(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, 0);
 			//DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
         }
@@ -2681,7 +2681,7 @@ int CarveHole(CVec pos)
 		if((uint)x >= cClient->getMap()->GetWidth())	break;
 
 		if(cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cClient->getMap()->GetImage().get(), x, y);
+			Colour = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), x, y));
 			for(short n=0; n<3; n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;

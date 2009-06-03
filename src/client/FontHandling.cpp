@@ -215,7 +215,7 @@ void DrawGameText(SDL_Surface *bmpDest, const std::string& text, const CFontStyl
 	}
 
 	// Draw it
-	fnt->Draw(bmpDest, x, y, style.iColor.get().get(), txt);
+	fnt->Draw(bmpDest, x, y, style.iColor, txt);
 }
 
 ///////////////////

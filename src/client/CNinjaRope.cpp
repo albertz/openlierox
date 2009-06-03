@@ -132,7 +132,7 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	py -= py % 2;
 	hx -= hx % 2;
 	hy -= hy % 2;
-	DrawRope(bmpDest, hx,hy,px,py,MakeColour(159,79,0));
+	DrawRope(bmpDest, hx,hy,px,py,Color(159,79,0));
 
 
 	// Check clipping against viewport

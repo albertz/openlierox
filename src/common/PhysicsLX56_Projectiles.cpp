@@ -1298,25 +1298,25 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	case TRL_SMOKE:
 		if(proj->extra() >= 0.075f) {
 			proj->extra() = 0.0f;
-			SpawnEntity(ENT_SMOKE,0,proj->GetPosition(),CVec(0,0),0,NULL);
+			SpawnEntity(ENT_SMOKE,0,proj->GetPosition(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_CHEMSMOKE:
 		if(proj->extra() >= 0.075f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_CHEMSMOKE,0,proj->GetPosition(),CVec(0,0),0,NULL);
+			SpawnEntity(ENT_CHEMSMOKE,0,proj->GetPosition(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_DOOMSDAY:
 		if(proj->extra() >= 0.05f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_DOOMSDAY,0,proj->GetPosition(),proj->GetVelocity(),0,NULL);
+			SpawnEntity(ENT_DOOMSDAY,0,proj->GetPosition(),proj->GetVelocity(),Color(),NULL);
 		}
 		break;
 	case TRL_EXPLOSIVE:
 		if(proj->extra() >= 0.05f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_EXPLOSION,10,proj->GetPosition(),CVec(0,0),0,NULL);
+			SpawnEntity(ENT_EXPLOSION,10,proj->GetPosition(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_PROJECTILE: // Projectile trail

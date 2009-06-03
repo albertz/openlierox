@@ -178,7 +178,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
 					w->Spawn( spot );
 					// Show a spawn entity
-					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),0,NULL);
+					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),Color(),NULL);
 				}
 
 			w->NewNet_SimulateWorm( keys[i], keysChanged[i] );

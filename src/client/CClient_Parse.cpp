@@ -1217,7 +1217,7 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
 
 	// Show a spawn entity
-	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
+	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
 
 	client->UpdateScoreboard();
 	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
@@ -1733,7 +1733,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	client->cBonuses[id].Spawn(p, type, wpn, client->cGameScript.get());
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
 
-	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),0,NULL);
+	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
 }
 
 
@@ -2164,15 +2164,15 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		w = &client->cRemoteWorms[id];
 
 		for(n=0;n<7;n++)
-			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
+			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
 
 		// Blood
 		amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
 		for(i=0;i<amount;i++) {
 			float sp = GetRandomNum()*100+50;
-			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
 		}
 	} else {
 		printf("CClientNetEngine::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
@@ -2611,7 +2611,7 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 
 	w->setAlive(true);	// We won't get SpawnWorm packet from H&S server
 	if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
-		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),0,NULL); // Spawn some sparkles, looks good
+		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
 
 	// Hide or show the worm
 	if (hide)

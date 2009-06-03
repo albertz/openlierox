@@ -286,7 +286,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 		if(x >= (int)cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage().get(),x,y);
+			Colour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
             gotDirt = true;
 			break;
 		}
@@ -338,7 +338,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 		expsize = damage;
 
 	// Explosion
-	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),0,NULL);
+	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),Color(),NULL);
 
 	int d = cMap->CarveHole(damage,pos);
 
@@ -484,15 +484,15 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 
 					// Spawn some giblets
 					for(int n=0;n<7;n++)
-						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),0,w->getGibimg());
+						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
 
 					// Blood
 					int amount = (int) (50.0f * ((float)tLXOptions->iBloodAmount / 100.0f));
 					for(int i=0;i<amount;i++) {
 						float sp = GetRandomNum()*100+50;
-						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
+						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
 					}
         	   	}
 			}
@@ -511,9 +511,9 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 		float sp;
 		for(i=0;i<amount;i++) {
 			sp = GetRandomNum()*50;
-			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),MakeColour(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),MakeColour(200,0,0),NULL);
+			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),Color(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
 		}
 	}
 }
@@ -537,7 +537,7 @@ void CClient::SendCarve(CVec pos)
 		if((uint)x>=cMap->GetWidth())	break;
 
 		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = GetPixel(cMap->GetImage().get(),x,y);
+			Colour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
 			for(n=0;n<3;n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;
@@ -623,7 +623,7 @@ void CClient::ShootSpecial(CWorm *w)
 		case SPC_JETPACK: {
 			w->velocity().y += -50.0f * ((float)Slot->Weapon->tSpecial.Thrust * (float)dt.seconds());
 
-			Uint32 blue = MakeColour(80,150,200);
+			Color blue = Color(80,150,200);
 			CVec s = CVec(15,0) * GetRandomNum();
 			SpawnEntity(ENT_JETPACKSPRAY, 0, w->getPos(), s + CVec(0,1) * (float)Slot->Weapon->tSpecial.Thrust, blue, NULL);
 			break;
@@ -726,7 +726,7 @@ void CClient::DrawBeam(CWorm *w)
 				if((px & PX_DIRT) || (px & PX_ROCK)) {
 					// Don't draw explosion when damage is -1
 					if (Slot->Weapon->Bm.Damage != -1) {
-						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), 0, NULL);
+						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), Color(), NULL);
 						int damage = Slot->Weapon->Bm.Damage;
 						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
 						int d = cMap->CarveHole(damage, p);
@@ -742,7 +742,7 @@ void CClient::DrawBeam(CWorm *w)
 					static const float wormsize = 5;
 					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
 						if (Slot->Weapon->Bm.Damage != -1)
-							SpawnEntity(ENT_EXPLOSION, 3, p+CVec(1,1), CVec(0,0), 0, NULL);
+							SpawnEntity(ENT_EXPLOSION, 3, p+CVec(1,1), CVec(0,0), Color(), NULL);
 
 						goodWidthParts[j] = false;
 						worms.erase(w2);
@@ -954,7 +954,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 	// If you want to make that better, you would have to give the CViewport to LaserSight.
 	if (w->isVisibleForEverybody())
-		SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, 0, NULL);
+		SpawnEntity(ENT_LASERSIGHT, i, w->getPos(), dir, Color(), NULL);
 }
 
 
@@ -1294,7 +1294,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 	// Spawn a beam entity and don't draw 255,0,255 (pink) beams
 	/*if(wpn->Bm.Colour[0] != 255 || wpn->Bm.Colour[1] != 0 || wpn->Bm.Colour[2] != 255) {
-		Uint32 col = MakeColour(wpn->Bm.Colour[0], wpn->Bm.Colour[1], wpn->Bm.Colour[2]);
+		Color col = Color(wpn->Bm.Colour[0], wpn->Bm.Colour[1], wpn->Bm.Colour[2]);
 		SpawnEntity(ENT_BEAM, i, w->getPos(), dir, col, NULL);
 	}*/
 }

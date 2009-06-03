@@ -15,7 +15,6 @@
 #include "LieroX.h" // for tLX
 
 #include "StringUtils.h"
-#include "GfxPrimitives.h" // for MakeColour
 #include "CFont.h"
 #include "ConfigHandler.h" // for getting color value from data/frontend/colours.cfg
 #include "FindFile.h"
@@ -389,7 +388,6 @@ static Color ColFromSeperatedNums(const std::string& txt, bool& fail) {
 
 //////////////////
 // Converts a string to a colour
-// HINT: it uses MakeColour
 Color StrToCol(const std::string& str, bool& fail) {
 	fail = false;
 

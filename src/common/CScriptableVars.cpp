@@ -34,7 +34,7 @@ bool ScriptVar_t::fromString( const std::string & str )
 		case SVT_INT: i = from_string<int>(str); break;
 		case SVT_FLOAT: f = from_string<float>(str); break;
 		case SVT_STRING: s = str; break;
-		case SVT_COLOR: c = StrToCol(str).get(); break;
+		case SVT_COLOR: c = StrToCol(str); break;
 		default: assert(false); return false;
 	}
 	return true;
@@ -74,7 +74,7 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 				*f = from_string<float>(str); 
 		break;
 		case SVT_STRING: *s = str; break;
-		case SVT_COLOR: *cl = StrToCol(str).get(); break;
+		case SVT_COLOR: *cl = StrToCol(str); break;
 		case SVT_DYNAMIC: {
 			ScriptVar_t var = dynVar->asScriptVar();
 			if(!var.fromString(str)) return false;

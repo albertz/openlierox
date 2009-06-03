@@ -39,11 +39,11 @@ CmdLineIntf& stdoutCLI();
 // Colours
 enum CmdLineMsgType {
 	CNC_NORMAL = 0,
-	CNC_NOTIFY = 1, //MakeColour(200,200,200)
-	CNC_ERROR = 2, //MakeColour(255,0,0)
-	CNC_WARNING = 3, //MakeColour(200,128,128)
-	CNC_DEV = 4, //MakeColour(100,100,255)
-	CNC_CHAT = 5, //MakeColour(100,255,100)
+	CNC_NOTIFY = 1, //Color(200,200,200)
+	CNC_ERROR = 2, //Color(255,0,0)
+	CNC_WARNING = 3, //Color(200,128,128)
+	CNC_DEV = 4, //Color(100,100,255)
+	CNC_CHAT = 5, //Color(100,255,100)
 };
 
 inline std::string CmdLineMsgTypeAsString(CmdLineMsgType type) {

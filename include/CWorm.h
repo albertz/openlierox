@@ -463,8 +463,8 @@ public:
 	std::string getName()			{ return sName; }
 	void		setName(const std::string& val) { sName = val; }
 	Color		getGameColour();
-	void		setColour(Uint32 c)			{ cSkin.Colorize(c); }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) {cSkin.Colorize(MakeColour(r,g,b)); }
+	void		setColour(Color c)			{ cSkin.Colorize(c); }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b) { cSkin.Colorize(Color(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal()				{ return bLocal; }

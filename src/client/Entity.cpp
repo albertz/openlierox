@@ -29,7 +29,7 @@
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;
-Uint32 doomsday[4];
+Color doomsday[4];
 
 struct DrawBeamInfo {
 	int frame;
@@ -78,10 +78,10 @@ int InitializeEntities()
 	tEntities.clear();
 
     // Pre-calculate the doomsday colour
-    doomsday[0] = MakeColour(244,244,112);
-    doomsday[1] = MakeColour(248,192,36);
-	doomsday[2] = MakeColour(248,108,20);
-    doomsday[3] = MakeColour(248,108,20);
+    doomsday[0] = Color(244,244,112);
+    doomsday[1] = Color(248,192,36);
+	doomsday[2] = Color(248,108,20);
+    doomsday[3] = Color(248,108,20);
 
 	return true;
 }
@@ -279,7 +279,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 				r = (Uint8)((float)MIN(0.314f * (255-ent->fFrame),255.0f));
 				g = (Uint8)((float)MIN(0.588f * (255-ent->fFrame),255.0f));
 				b = (Uint8)((float)MIN(0.784f * (255-ent->fFrame),255.0f));
-				DrawRectFill2x2(bmpDest, x - 1, y - 1, MakeColour(r, g, b));
+				DrawRectFill2x2(bmpDest, x - 1, y - 1, Color(r, g, b));
 				break;
 
 			// Beam
@@ -454,7 +454,7 @@ void SimulateEntities(TimeDiff dt)
 				if(ent->fExtra > 0.1f) {
 					int col = GetRandomInt(1);
 					static const int colour[] = {128,200};
-					SpawnEntity(ENT_BLOOD,0,ent->vPos,CVec(GetRandomNum(),GetRandomNum()),MakeColour(colour[col],0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,ent->vPos,CVec(GetRandomNum(),GetRandomNum()),Color(colour[col],0,0),NULL);
 					ent->fExtra = 0;
 				}
 				ent->fExtra += dt;
@@ -513,7 +513,7 @@ void EntityEffect::Process()
 				float angle = GetRandomPosNum() / 180.0f * (float)PI;
 				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
 				// _radius here is gravitation
-				SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread + CVec(0, _radius), 0, NULL);
+				SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread + CVec(0, _radius), Color(), NULL);
 			}
 			break;
 
@@ -524,7 +524,7 @@ void EntityEffect::Process()
 				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
 				angle = GetRandomPosNum() / 180.0f * (float)PI;
 				CVec randPos = CVec( sin(angle), cos(angle) ) * _radius;
-				SpawnEntity(ENT_SPARKLE, _fade, pos + randPos, vel + spread, 0, NULL);
+				SpawnEntity(ENT_SPARKLE, _fade, pos + randPos, vel + spread, Color(), NULL);
 			}
 			break;
 
@@ -538,7 +538,7 @@ void EntityEffect::Process()
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
 					CVec spread = CVec( sin(angle), cos(angle) ) * _radius;
-					SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread, 0, NULL);
+					SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread, Color(), NULL);
 				}
 			}
 			break;
@@ -553,7 +553,7 @@ void EntityEffect::Process()
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
 					CVec spread = CVec( sin(angle) * _radius , cos(angle) * _radius );
-					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel, 0, NULL);
+					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel, Color(), NULL);
 				}
 			}
 			break;
@@ -569,7 +569,7 @@ void EntityEffect::Process()
 				{
 					CVec spread = CVec( (float)sin(angle), (float)cos(angle) ) * _radius;
 					CVec addVel = CVec( (float)sin(angle - PI/1.5), (float)cos(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
-					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, 0, NULL);
+					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, Color(), NULL);
 				}
 			}
 			break;

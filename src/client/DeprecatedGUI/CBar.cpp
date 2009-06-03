@@ -40,8 +40,8 @@ CBar::CBar(SmartPointer<SDL_Surface> bmp, int x, int y, int label_x, int label_y
 	CurrentBgState = 0;
 
 	// Default colors
-	bgColor = MakeColour(128, 128, 128);
-	foreColor = MakeColour(0, 255, 0);
+	bgColor = Color(128, 128, 128);
+	foreColor = Color(0, 255, 0);
 }
 
 //////////////

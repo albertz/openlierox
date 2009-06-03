@@ -492,7 +492,7 @@ public:
 	void		InitializeIngameScore(bool WaitForPlayers);
 	void		DrawTime(SDL_Surface * bmpDest, int x, int y, float t);
 	void		DrawReadyOverlay(SDL_Surface * bmpDest);
-	void		DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Uint32 fgcol, const std::string& buf);
+	void		DrawText(SDL_Surface * bmpDest, bool centre, int x, int y, Color fgcol, const std::string& buf);
 	void		DrawLocalChat(SDL_Surface * bmpDest);
 	void		DrawRemoteChat(SDL_Surface * bmpDest);
     void        DrawScoreboard(SDL_Surface * bmpDest);

@@ -950,7 +950,7 @@ public:
 			return false;
 		if(x*2-4 >= 0 && x*2+4 < bmpDest.get()->w
 		&& y*2-4 >= 0 && y*2+4 < bmpDest.get()->h)
-			DrawRectFill(bmpDest.get(),x*2-4,y*2-4,x*2+4,y*2+4,MakeColour(255,255,0));
+			DrawRectFill(bmpDest.get(),x*2-4,y*2-4,x*2+4,y*2+4,Color(255,255,0));
 		else
 			return false;
 		return true;
@@ -1879,7 +1879,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		last_y = y;
 
 #ifdef DEBUG
-		//PutPixel(cClient->getMap()->GetDebugImage(), CLAMP((int)x, 0, (int)cClient->getMap()->GetWidth()-1)*2, CLAMP((int)y, 0, (int)cClient->getMap()->GetHeight()-1)*2, MakeColour(0, 255, 0));
+		//PutPixel(cClient->getMap()->GetDebugImage(), CLAMP((int)x, 0, (int)cClient->getMap()->GetWidth()-1)*2, CLAMP((int)y, 0, (int)cClient->getMap()->GetHeight()-1)*2, Color(0, 255, 0));
 #endif
 	}
 
@@ -2679,7 +2679,7 @@ int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkf
 	int i;
 	for(i=0; i<nTotalLength; i+=divisions) {
 		uchar px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
-		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, MakeColour(255,0,0));
+		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
 
         if(!(px & checkflag)) {
 			if (nType)
@@ -2985,7 +2985,7 @@ bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 		int dY = (cellY+dir)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
 		int dX2 = (cellX-1)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
 		int dY2 = (cellY+dir+Num)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,MakeColour(255,0,0));
+		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,Color(255,0,0));
 #endif*/
 
 		// Check the Num*Num square
@@ -3021,7 +3021,7 @@ bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 		int dY = (cellY+dir)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
 		int dX2 = (cellX+Num)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
 		int dY2 = (cellY+dir+Num)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,MakeColour(255,0,0));
+		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,Color(255,0,0));
 #endif*/
 
 		// Check the square Num*Num
@@ -3157,7 +3157,7 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 	uchar px = PX_EMPTY;
 	for(i=0; i<nTotalLength; i+=divisions) {
 		px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
-		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, MakeColour(255,0,0));
+		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
 
         if (px & PX_ROCK)
 			result++;
@@ -3232,7 +3232,7 @@ CVec CWormBotInputHandler::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vD
 	bool lastWasMissingCon = false;
 	while(true) {
 #ifdef _AI_DEBUG
-		//PutPixel(bmpDest,(int)pos.x*2,(int)pos.y*2,MakeColour(255,255,0));
+		//PutPixel(bmpDest,(int)pos.x*2,(int)pos.y*2,Color(255,255,0));
 #endif
 
 		if(!lastWasObstacle && !lastWasMissingCon) pos += vDirection;
@@ -3324,14 +3324,14 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,255,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,Color(255,255,0));
 #endif
 			emptyPixels++;
 		}
 		// Rock pixel? This spot isn't good
 		else {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,0,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,Color(255,0,0));
 #endif
 			if (emptyPixels >= 10)
 				break;
@@ -3378,14 +3378,14 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,255,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,Color(255,255,0));
 #endif
 			emptyPixels++;
 		}
 		// Rock pixel? This spot isn't good
 		else {
 #ifdef _AI_DEBUG
-			//PutPixel(bmpDest,pos.x*2,pos.y*2,MakeColour(255,0,0));
+			//PutPixel(bmpDest,pos.x*2,pos.y*2,Color(255,0,0));
 #endif
 			if (emptyPixels >= 10)
 				break;
@@ -4346,7 +4346,7 @@ find_one_visible_node:
 
 void drawpoint(SDL_Surface * debug_surf, CVec point)
 {
-	DrawRectFill(debug_surf, (int)point.x * 2, (int)point.y * 2, (int)point.x * 2 + 4, (int)point.y * 2 + 4, MakeColour(0, 255, 0));
+	DrawRectFill(debug_surf, (int)point.x * 2, (int)point.y * 2, (int)point.x * 2 + 4, (int)point.y * 2 + 4, Color(0, 255, 0));
 }
 
 ///////////////////////
@@ -4404,7 +4404,7 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	for (float j=lower_bound; j <= upper_bound; j += 0.3f)  {
 		possible_pos.x = (float) (40.0f * sin(j)) + psAITarget->getPos().x;
 		possible_pos.y = (float) (40.0f * cos(j)) + psAITarget->getPos().y;
-		//PutPixel(cClient->getMap()->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, MakeColour(255, 0, 0));
+		//PutPixel(cClient->getMap()->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, Color(255, 0, 0));
 
 		if (AI_IsInAir(possible_pos, 1) && m_worm->traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
 			//drawpoint(cClient->getMap()->GetDebugImage(), possible_pos);
