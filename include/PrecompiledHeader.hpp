@@ -111,6 +111,7 @@
 #include "Protocol.h"
 #include "RandomNumberList.h"
 #include "ReadWriteLock.h"
+#include "RefCounter.h"
 #include "Ref.h"
 #include "SafeVector.h"
 #include "sex.h"

@@ -41,7 +41,7 @@ class CSlider : public CWidget {
 public:
 	// Constructor
 	CSlider(int max, int min = 0, int val = 0, bool showText = false, int textPosX = 0, int textPosY = 0, 
-				Color textColor = 0, float valueScale = 1.0f, const std::string & appendText = "" ) {
+				Color textColor = Color(), float valueScale = 1.0f, const std::string & appendText = "" ) {
 		Create();
 		iType = wid_Slider;
 		iMax = max;
