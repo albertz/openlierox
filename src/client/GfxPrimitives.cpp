@@ -40,6 +40,8 @@
 #include "Geometry.h"
 #include "Timer.h"
 #include "ReadWriteLock.h"
+#include "Mutex.h"
+#include "Condition.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -1794,95 +1796,6 @@ void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color 
 
 
 
-void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg) {
-	static const int STEPS = 12;
-	int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
-	for(int i = 0; i < STEPS; ++i) {
-		const float a = (float)PI * 2.0f * i / STEPS;
-		VectorD2<float> p( cos(a) * rx, sin(a) * ry );
-		
-		DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
-	}
-}
-
-struct ScopedBackgroundLoadingAni::Data {
-	ThreadPoolItem* thread;
-	SDL_mutex* mutex;
-	bool quit;
-	SDL_cond* breakSig;
-	SmartPointer<SDL_Surface> screenBackup;
-
-	Data() : thread(NULL), mutex(NULL), quit(false), breakSig(NULL) {
-		breakSig = SDL_CreateCond();
-		mutex = SDL_CreateMutex();
-		screenBackup = gfxCreateSurface(640,480);
-		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
-	}
-	~Data() {
-		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
-		SDL_DestroyCond(breakSig); breakSig = NULL;
-		SDL_DestroyMutex(mutex); mutex = NULL;
-	}
-};
-
-ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg) {
-	data = NULL;
-	if(bDedicated) return;
-	
-	data = new Data();
-	struct Animator : Action {
-		int x, y, rx, ry;
-		Color fg, bg;
-		Data* data;
-		
-		int handle() {
-			ScopedLock lock(data->mutex);
-			while(!data->quit) {
-				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
-				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg);
-				doVideoFrameInMainThread();
-				
-				SDL_CondWaitTimeout(data->breakSig, data->mutex, 10);
-			}
-			return 0;
-		}
-	};
-	
-	Animator* anim = new Animator();
-	anim->x = x;
-	anim->y = y;
-	anim->rx = rx;
-	anim->ry = ry;
-	anim->fg = fg;
-	anim->bg = bg;
-	anim->data = data;
-	
-	data->thread = threadPool->start(anim, "Background Loading animation");
-}
-
-ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
-	if(data) {
-		{
-			ScopedLock lock(data->mutex);
-			data->quit = true;
-			SDL_CondSignal(data->breakSig);
-		}
-		threadPool->wait(data->thread);
-		delete data; data = NULL;
-	}
-}
-
-
-
-
-
-void TestCircleDrawing(SDL_Surface* s) {
-	for(int i = 0; i < 10; i += 3) {
-		DrawCircleFilled(s, i*50, i*25, i*25, i*25, Color(i*20,255,0,128));
-	}
-}
-
-
 /////////////////////
 // Draws a simple linear gradient
 void DrawLinearGradient(SDL_Surface *bmpDest, int x, int y, int w, int h, Color cl1, Color cl2, GradientDirection dir)
@@ -2703,3 +2616,118 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 SDL_mutex *SmartPointer_CollMutex = NULL;
 std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector = NULL;
 #endif
+
+
+
+
+
+void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
+	switch(type) {
+		case LAT_CIRCLES: {
+			static const int STEPS = 12;
+			int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
+			for(int i = 0; i < STEPS; ++i) {
+				const float a = (float)PI * 2.0f * i / STEPS;
+				VectorD2<float> p( cosf(a) * rx, sinf(a) * ry );
+				
+				DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
+			}
+			break;
+		}
+		case LAT_CAKE: {
+			static const int STEPS = 6;
+			int cur = int(((GetTime().milliseconds() % 500)) * STEPS * 0.002f);
+			for(int i = 0; i < STEPS; ++i) {
+				const float angle = (float)PI * 2.0f * i / STEPS;
+				const float a = angle + (float)PI * 2.0f * -0.5f / STEPS;
+				const float b = angle + (float)PI * 2.0f * 0.5f / STEPS;
+				Polygon2D poly;
+				poly.startPointAdding();
+				poly.addPoint(VectorD2<float>(cosf(a) * rx, sinf(a) * ry));
+				poly.addPoint(VectorD2<float>(cosf(b) * rx, sinf(b) * ry));
+				poly.addPoint(VectorD2<int>(0,0));
+				poly.endPointAdding();
+				float colf = float((STEPS + cur - i) % STEPS) / float(STEPS - 1);
+				Color col = bg * colf + fg * (1.0f - colf);
+				poly.drawFilled(bmpDest, x, y, col);
+			}
+			break;
+		}
+	}
+}
+
+struct ScopedBackgroundLoadingAni::Data {
+	ThreadPoolItem* thread;
+	Mutex mutex;
+	bool quit;
+	Condition breakSig;
+	SmartPointer<SDL_Surface> screenBackup;
+	
+	Data() : thread(NULL), quit(false) {
+		screenBackup = gfxCreateSurface(640,480);
+		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
+	}
+	~Data() {
+		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
+	}
+};
+
+ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
+	data = NULL;
+	if(bDedicated) return;
+	
+	data = new Data();
+	struct Animator : Action {
+		int x, y, rx, ry;
+		LoadingAniType type;
+		Color fg, bg;
+		Data* data;
+		
+		int handle() {
+			Mutex::ScopedLock lock(data->mutex);
+			while(!data->quit) {
+				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
+				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg, type);
+				doVideoFrameInMainThread();
+				
+				data->breakSig.wait(data->mutex, 10);
+			}
+			return 0;
+		}
+	};
+	
+	Animator* anim = new Animator();
+	anim->x = x;
+	anim->y = y;
+	anim->rx = rx;
+	anim->ry = ry;
+	anim->fg = fg;
+	anim->bg = bg;
+	anim->type = type;
+	anim->data = data;
+	
+	data->thread = threadPool->start(anim, "Background Loading animation");
+}
+
+ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
+	if(data) {
+		{
+			Mutex::ScopedLock lock(data->mutex);
+			data->quit = true;
+			data->breakSig.signal();
+		}
+		threadPool->wait(data->thread);
+		delete data; data = NULL;
+	}
+}
+
+
+
+
+
+void TestCircleDrawing(SDL_Surface* s) {
+	for(int i = 0; i < 10; i += 3) {
+		DrawCircleFilled(s, i*50, i*25, i*25, i*25, Color(i*20,255,0,128));
+	}
+}
+

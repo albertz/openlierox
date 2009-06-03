@@ -710,11 +710,12 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color);
 void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
 
 // draw a simple loading animation
-void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg);
+enum LoadingAniType { LAT_CIRCLES, LAT_CAKE };
+void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type);
 
 struct ScopedBackgroundLoadingAni {
 	struct Data; Data* data;
-	ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg);
+	ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type = LAT_CIRCLES);
 	~ScopedBackgroundLoadingAni();
 };
 

@@ -118,8 +118,8 @@ struct Color {
 	bool operator == ( const Color & c ) const { return r == c.r && g == c.g && b == c.b && a == c.a; };
 	bool operator != ( const Color & c ) const { return ! ( *this == c ); };
 	
-	Color operator * ( float f ) const { return Color( Uint8(r*f), Uint8(g*f), Uint8(b*f), a ); };
-	Color operator + ( const Color & c ) const { return Color( r+c.r, g+c.g, b+c.b, (a+c.a)/2 ); };
+	Color operator * ( float f ) const { return Color( Uint8(CLAMP(r*f,0.0f,255.0f)), Uint8(CLAMP(g*f,0.0f,255.0f)), Uint8(CLAMP(b*f,0.0f,255.0f)), a ); };
+	Color operator + ( const Color & c ) const { return Color( CLAMP(Uint16(r)+c.r,0,255), CLAMP(Uint16(g)+c.g,0,255), CLAMP(Uint16(b)+c.b,0,255), (Uint16(a)+c.a)/2 ); };
 	bool operator<(const Color& c) const {
 		if(r != c.r) return r < c.r;
 		if(g != c.g) return g < c.g;

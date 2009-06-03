@@ -706,7 +706,8 @@ void flipRealVideo() {
 	
 	//TestCircleDrawing(psScreen);
 	//TestPolygonDrawing(psScreen);
-	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128));
+	//DrawLoadingAni(psScreen, 320, 260, 50, 50, Color(128,128,128), Color(128,128,128,128), LAT_CIRCLES);
+	//DrawLoadingAni(psScreen, 320, 260, 10, 10, Color(255,0,0), Color(0,255,0), LAT_CAKE);
 	
 #ifdef REAL_OPENGL	
 	if((psScreen->flags & SDL_OPENGL))
