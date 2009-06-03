@@ -1045,8 +1045,6 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 {
 	if( tLXOptions->bShadows && v && isWormVisible(this, v) )  {
-		static const int drop = 4;
-
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
@@ -1059,12 +1057,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		cSkin.DrawShadow(bmpDest, (int)vPos.x + drop, (int)vPos.y + drop, f, iDirection == DIR_LEFT);
-		/*if (iDirection == DIR_RIGHT)
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
-		else
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
-		 */
+		cSkin.DrawShadowOnMap(cClient->getMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iDirection == DIR_LEFT);
 	}
 }
 

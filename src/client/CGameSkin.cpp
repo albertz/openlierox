@@ -21,7 +21,7 @@
 #include "Debug.h"
 #include "Mutex.h"
 #include "Condition.h"
-
+#include "CMap.h" // for CMap::DrawObjectShadow
 
 struct Skin_Action : Action {
 	bool breakSignal;
@@ -471,8 +471,8 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	}
 	
 	// Get the correct frame
-	int sx = frame * iFrameWidth + iFrameSpacing;
-	int sy = (iFrameHeight - iSkinHeight);
+	const int sx = frame * iFrameWidth + iFrameSpacing;
+	const int sy = (iFrameHeight - iSkinHeight);
 
 	// Draw the skin
 	if (mirrored)  {
@@ -517,8 +517,8 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 	if(!thread->ready) return;
 	
 	// Get the correct frame
-	int sx = frame * iFrameWidth + iFrameSpacing;
-	int sy = (iFrameHeight - iSkinHeight);
+	const int sx = frame * iFrameWidth + iFrameSpacing;
+	const int sy = (iFrameHeight - iSkinHeight);
 
 	// Draw the shadow
 	if (mirrored)  {
@@ -529,6 +529,30 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 			DrawImageAdv(surf, bmpShadow.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
 	}
 }
+
+void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored) {
+	// No skins in dedicated mode
+	if (bDedicated) return;
+	
+	Mutex::ScopedLock lock(thread->mutex);
+	if(!thread->ready) return;
+
+	// Get the correct frame
+	const int sx = frame * iFrameWidth + iFrameSpacing;
+	const int sy = (iFrameHeight - iSkinHeight);
+
+	static const int drop = 4;
+	
+	// draw the shadow
+	if (mirrored)  {
+		if (bmpMirroredShadow.get())
+			cMap->DrawObjectShadow(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+	} else {
+		if (bmpShadow.get())
+			cMap->DrawObjectShadow(surf, bmpShadow.get(), sx, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+	}
+}
+
 
 ////////////////////////
 // Colorize the skin

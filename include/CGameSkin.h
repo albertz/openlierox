@@ -27,6 +27,8 @@
 #define SHADOW_OPACITY 96 // TODO: move this to some more general header
 
 struct GameSkinPreviewDrawer;
+class CMap;
+class CViewport;
 
 class CGameSkin  {
 public:
@@ -78,6 +80,7 @@ public:
 
 	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored);
 	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored);
+	void	DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored);
 	void	Colorize(Color col);
 	void	RemoveColorization()	{ Colorize(iDefaultColor); }
 	void	Change(const std::string& file);
