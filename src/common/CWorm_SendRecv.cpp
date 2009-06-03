@@ -51,9 +51,8 @@ void WormJoinInfo::loadFromProfile(profile_t* p) {
 		m_type = PRF_HUMAN; // fallback
 	}
 	iTeam = CLAMP(p->iTeam, 0, 3);
-	cSkin.Change(p->cSkin.getFileName());
-	cSkin.setDefaultColor(MakeColour(p->R, p->G, p->B));
-	cSkin.Colorize(cSkin.getDefaultColor());	
+	skinFilename = p->cSkin.getFileName();
+	skinColor = Color(p->R, p->G, p->B);
 }
 
 ///////////////////
@@ -64,22 +63,22 @@ void WormJoinInfo::readInfo(CBytestream *bs)
 
 	m_type = bs->readInt(1) ? PRF_COMPUTER : PRF_HUMAN;
 	iTeam = CLAMP(bs->readInt(1), 0, 3);
-	cSkin.Change(bs->readString());
+	skinFilename = bs->readString();
 
 	Uint8 r = bs->readByte();
 	Uint8 g = bs->readByte();
 	Uint8 b = bs->readByte();
-
-	cSkin.setDefaultColor(MakeColour(r, g, b));
-	cSkin.Colorize(cSkin.getDefaultColor());
+	skinColor = Color(r, g, b);
 }
 
 
 void WormJoinInfo::applyTo(CWorm* worm) const {
 	worm->sName = sName;
 	worm->m_type = m_type;
-	worm->iTeam = iTeam;
-	worm->cSkin = cSkin;
+	worm->iTeam = iTeam;	
+	worm->cSkin.Change(skinFilename);
+	worm->cSkin.setDefaultColor(skinColor);
+	worm->cSkin.Colorize(skinColor);
 }
 
 // Note: We don't put charge into the update packet because we only send the update packet to

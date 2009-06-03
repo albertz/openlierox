@@ -77,7 +77,7 @@ public:
 	void setBotIcon(int _i) { iBotIcon = _i; }
 	Color getColor() const	{ return iColor; }
 	Color getDefaultColor() const	{ return iDefaultColor; }
-	void setDefaultColor(Uint32 _c)	{ iDefaultColor = _c; }
+	void setDefaultColor(Color _c)	{ iDefaultColor = _c; }
 	int getFrameCount() const;
 	int getSkinWidth() const { return iSkinWidth; }
 	int getSkinHeight() const { return iSkinHeight; }

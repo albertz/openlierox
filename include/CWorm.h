@@ -653,8 +653,8 @@ struct WormJoinInfo {
 	std::string sName;
 	int iTeam;
 	WormType* m_type;
-	CWormSkin cSkin;
-	
+	std::string skinFilename;
+	Color skinColor;
 };
 
 #endif  //  __CWORM_H__
