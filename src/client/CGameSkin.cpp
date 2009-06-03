@@ -415,8 +415,9 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
-		uninit();
-
+		Mutex::ScopedLock lock(thread->mutex);
+		thread->forceStopThread(); // also deletes all actions
+		
 		if (!bDedicated)  {
 			// NOTE: the assignment is safe because of smartpointer
 			// HINT: the bmpSurface never changes, so it's safe to assign it like this
