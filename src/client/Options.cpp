@@ -244,18 +244,23 @@ bool GameOptions::Init() {
 		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
 	}
 	
-	struct GameModeWrapper : DynamicVar<int> {
+	struct GameModeIndexWrapper : DynamicVar<int> {
 		int get() {
-			assert(tLXOptions != NULL);
-			return GetGameModeIndex(tLXOptions->tGameInfo.gameMode);
+			if(tLXOptions) return GetGameModeIndex(tLXOptions->tGameInfo.gameMode);
+			else errors << "GameModeIndexWrapper:get: options not inited" << endl; return 0; 
 		}
 		void set(const int& i) {
-			assert(tLXOptions != NULL);
-			tLXOptions->tGameInfo.gameMode = GameMode(GameModeIndex(i));
-			assert(tLXOptions->tGameInfo.gameMode != NULL);
+			if(tLXOptions) {
+				tLXOptions->tGameInfo.gameMode = GameMode(GameModeIndex(i));
+				if(tLXOptions->tGameInfo.gameMode == NULL) {
+					errors << "GameModeIndexWrapper:set: gamemodeindex " << i << " is invalid" << endl;
+					tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+				}
+			}
+			else errors << "GameModeIndexWrapper:set: options not inited" << endl;
 		}
 	};
-	static GameModeWrapper gameModeWrapper;
+	static GameModeIndexWrapper gameModeIndexWrapper;
 	
 	// Legend:	Name in options, Default value, Human-readable-name, Long description, Group in options, If value unsigned (ints and floats), Min value (ints and floats), Max value (ints and floats)
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
@@ -268,7 +273,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show bonus name above its image", GIG_Bonus )
 		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 14, "Max players", "Max amount of players allowed on server", GIG_General, true, 1, 32 )
 		( tLXOptions->tGameInfo.sMapFile, "LevelName", "Dirt Level.lxl" ) // WARNING: confusing, it is handled like the filename
-		( &gameModeWrapper, "GameType", (int)GM_DEATHMATCH )
+		( &gameModeIndexWrapper, "GameType", (int)GM_DEATHMATCH )
 		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
 		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus )
 		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus )
