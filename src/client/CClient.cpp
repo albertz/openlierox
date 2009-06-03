@@ -454,7 +454,7 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].bLeft = false;
 			tGameLog->tWorms[j].iID = cRemoteWorms[i].getID();
 			tGameLog->tWorms[j].sName = cRemoteWorms[i].getName();
-			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin()->getFileName();
+			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin().getFileName();
 			tGameLog->tWorms[j].iKills = 0;
 			tGameLog->tWorms[j].iLives = tGameInfo.iLives;
 			tGameLog->tWorms[j].iSuicides = 0;
@@ -1382,7 +1382,7 @@ void CClient::Reconnect() {
 		bytestr.writeString(RemoveSpecialChars(this->tProfiles[i]->sName));
 		bytestr.writeInt(this->tProfiles[i]->iType,1);
 		bytestr.writeInt(this->tProfiles[i]->iTeam,1);
-		bytestr.writeString(this->tProfiles[i]->cSkin->getFileName());
+		bytestr.writeString(this->tProfiles[i]->cSkin.getFileName());
 		bytestr.writeInt(this->tProfiles[i]->R,1);
 		bytestr.writeInt(this->tProfiles[i]->G,1);
 		bytestr.writeInt(this->tProfiles[i]->B,1);

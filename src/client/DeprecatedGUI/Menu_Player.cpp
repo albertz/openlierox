@@ -285,7 +285,7 @@ void Menu_Player_NewPlayerInit()
     Menu_Player_FillSkinCombo( (CCombobox *)cNewPlayer.getWidget(np_PlySkin) );
 
     // Load the default skin
-	tMenu->cSkin->Change("skins/default.png");
+	tMenu->cSkin.Change("skins/default.png");
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
@@ -302,8 +302,8 @@ void Menu_Player_ViewPlayerInit()
 	profile_t *p = GetProfiles();
 	for(; p; p=p->tNext) {
 		lv->AddItem("",p->iID,tLX->clListView);
-		if (p->cSkin->getPreview().get())
-			lv->AddSubitem(LVS_IMAGE, "", p->cSkin->getPreview(), NULL);
+		if (p->cSkin.getPreview().get())
+			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 		lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
@@ -324,7 +324,7 @@ void Menu_Player_ViewPlayerInit()
 	    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE, p->B, 0);
         cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
-		cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin->getFileName(), 0);
+		cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
         // Hide the AI stuff if it is a human type of player
         cViewPlayers.getWidget(vp_AIDiffLbl)->setEnabled(p->iType == PRF_COMPUTER->toInt());
@@ -419,7 +419,7 @@ void Menu_Player_NewPlayer(int mouse)
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
-					tMenu->cSkin->Change(buf);
+					tMenu->cSkin.Change(buf);
                 }
                 break;
 		}
@@ -557,8 +557,8 @@ void Menu_Player_ViewPlayers(int mouse)
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
 									lv->AddItem("",p->iID,tLX->clListView);
-									if (p->cSkin->getPreview().get())
-										lv->AddSubitem(LVS_IMAGE, "", p->cSkin->getPreview(), NULL);
+									if (p->cSkin.getPreview().get())
+										lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 									else
 										lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
 									lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
@@ -615,13 +615,13 @@ void Menu_Player_ViewPlayers(int mouse)
 						// Reload the graphics
 						std::string buf;
 						buf = ((CCombobox *)cViewPlayers.getWidget(vp_PlySkin))->getSelectedItem()->sIndex;
-						p->cSkin->Change(buf);
+						p->cSkin.Change(buf);
 
                         // Update the item
                         lv_item_t *it = (lv_item_t *)cViewPlayers.SendMessage(vp_Players, LVM_GETCURITEM, (DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
                         if(it) {
                             if(it->tSubitems) {
-								it->tSubitems->bmpImage = p->cSkin->getPreview();
+								it->tSubitems->bmpImage = p->cSkin.getPreview();
                                 if(it->tSubitems->tNext)
                                     it->tSubitems->tNext->sText = p->sName;
                             }
@@ -656,7 +656,7 @@ void Menu_Player_ViewPlayers(int mouse)
 	                    cViewPlayers.SendMessage( vp_Blue,	    SLM_SETVALUE,   p->B, 0);
                         cViewPlayers.SendMessage( vp_Type,		CBM_SETCURSEL,  p->iType, 0);
                         cViewPlayers.SendMessage( vp_AIDiff,	SLM_SETVALUE,   p->nDifficulty, 0);
-						cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin->getFileName(), 0);
+						cViewPlayers.SendMessage( vp_PlySkin,	CBS_SETCURSINDEX,p->cSkin.getFileName(), 0);
 
                         // Load the skin
 						tMenu->cSkin = p->cSkin;
@@ -687,7 +687,7 @@ void Menu_Player_ViewPlayers(int mouse)
                     cViewPlayers.SendMessage(vp_PlySkin, CBS_GETCURSINDEX, &buf, 0);
 
                     // Load the skin
-					tMenu->cSkin->Change(buf);
+					tMenu->cSkin.Change(buf);
                 }
                 break;
 		}
@@ -762,8 +762,8 @@ void Menu_Player_ViewPlayers(int mouse)
 // Draw the worm image
 void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
-	tMenu->cSkin->Colorize(Color(ColR, ColG, ColB));
-	tMenu->cSkin->Draw(bmpDest, dx + 4, dy, Frame, false, false);
+	tMenu->cSkin.Colorize(Color(ColR, ColG, ColB));
+	tMenu->cSkin.Draw(bmpDest, dx + 4, dy, Frame, false, false);
 }
 
 

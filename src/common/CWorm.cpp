@@ -439,7 +439,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	// Destroy any previous graphics
 	FreeGraphics();
 
-	Color colour = cSkin->getDefaultColor();
+	Color colour = cSkin.getDefaultColor();
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
 		team = true;
@@ -453,7 +453,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	bmpGibs = ChangeGraphics("data/gfx/giblets.png", team);
 
 	// Colourise the skin
-	cSkin->Colorize(colour);
+	cSkin.Colorize(colour);
 
 	return bmpGibs.get() != NULL;
 }
@@ -489,7 +489,7 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 	int x,y;
 	Uint32 pixel;
 
-	Color colour = cSkin->getColor();
+	Color colour = cSkin.getColor();
 	if (team)
 		colour = tLX->clTeamColors[iTeam];
 
@@ -904,7 +904,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	if (isWormVisible(this, v)) {
-		cSkin->Draw(bmpDest, x - cSkin->getSkinWidth()/2, y - cSkin->getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
 		cSparkles.Process();
 	}
 	
@@ -1017,9 +1017,9 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// objects?
 		//cSkin.DrawShadow(bmpDest, x, y, f, iDirection == DIR_LEFT);
 		if (iDirection == DIR_RIGHT)
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin->getRightImage().get(), f * 32 + 4, 0, cSkin->getSkinWidth(), cSkin->getSkinHeight(), v, (int)vPos.x - cSkin->getSkinWidth()/2 + drop, (int)vPos.y - cSkin->getSkinHeight()/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
 		else
-			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin->getLeftImage().get(), cSkin->getLeftImage()->w - (f * 32 + 24), 0, cSkin->getSkinWidth(), cSkin->getSkinHeight(), v, (int)vPos.x - cSkin->getSkinWidth()/2 + drop, (int)vPos.y - cSkin->getSkinHeight()/2 + drop);
+			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
 	}
 }
 
@@ -1240,7 +1240,7 @@ Color CWorm::getGameColour()
 		case GMT_TEAMS:
 			return tLX->clTeamColors[iTeam];
 		default:
-			return cSkin->getDefaultColor();
+			return cSkin.getDefaultColor();
 	}
 }
 
