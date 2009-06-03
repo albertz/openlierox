@@ -19,6 +19,7 @@
 #include "GfxPrimitives.h"
 #include "SmartPointer.h"
 #include "Color.h"
+#include "ThreadPool.h"
 
 // Some basic defines
 #define CPU_WIDTH 10
@@ -48,8 +49,12 @@ private:
 	int							iFrameSpacing;  // Gap between two frames
 	int							iSkinWidth;  // Width of the skin itself
 	int							iSkinHeight;  // Height of the skin itself
-
+	
+	struct Thread;
+	Thread* thread;
+	
 private:
+	void init(); void uninit();
 	bool	PrepareNormalSurface();
 	bool	PrepareShadowSurface();
 	bool	PrepareColorizedSurface();

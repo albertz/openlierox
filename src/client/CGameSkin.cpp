@@ -21,47 +21,19 @@
 #include "LieroX.h" // for bDedicated
 #include "Debug.h"
 
-/////////////////////
-// Constructors
-CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, int sh)
-{
-	// TODO: share code with Change()
+
+struct Skin_Action : Action {
+	enum Type { } type;
+};
+
+struct CGameSkin::Thread {
 	
-	if (bDedicated)  { // No skins in dedicated mode
-		bmpSurface = NULL;
-	} else {
-		bmpSurface = LoadGameImage("skins/" + file, true);
-		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-			warnings << "CGameSkin::Change: couldn't find skin " << file << endl;
-			bmpSurface = LoadGameImage("skins/default.png", true);
-		}
-		if (bmpSurface.get())
-			SetColorKey(bmpSurface.get());
-	}
-	bmpMirrored = NULL;
-	bmpShadow = NULL;
-	bmpMirroredShadow = NULL;
-	bmpPreview = NULL;
-	bmpNormal = NULL;
+};
 
-	sFileName = file;
-	iDefaultColor = iColor = Color(128, 128, 128);
-	bColorized = false;
-	iBotIcon = -1;
-	iFrameWidth = fw;
-	iFrameHeight = fh;
-	iFrameSpacing = fs;
-	iSkinWidth = sw;
-	iSkinHeight = sh;
 
-	GenerateShadow();
-	GenerateMirroredImage();
-	GenerateNormalSurface();
-	GeneratePreview();
-}
-
-CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
-{
+void CGameSkin::init() {
+	thread = new Thread();
+	
 	bmpSurface = NULL;
 	bmpMirrored = NULL;
 	bmpShadow = NULL;
@@ -72,6 +44,37 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
 	iDefaultColor = iColor = Color(128, 128, 128);
 	bColorized = false;
 	iBotIcon = -1;
+	
+	iFrameWidth = 0;
+	iFrameHeight = 0;
+	iFrameSpacing = 0;
+	iSkinWidth = 0;
+	iSkinHeight = 0;
+}
+
+void CGameSkin::uninit() {
+	if(thread) {
+		delete thread;
+		thread = NULL;
+	}
+	// all other stuff have its own destructors
+}
+
+CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, int sh) : thread(NULL)
+{
+	init();
+	iFrameWidth = fw;
+	iFrameHeight = fh;
+	iFrameSpacing = fs;
+	iSkinWidth = sw;
+	iSkinHeight = sh;
+
+	Change(file);
+}
+
+CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
+{
+	init();
 	iFrameWidth = fw;
 	iFrameHeight = fh;
 	iFrameSpacing = fs;
@@ -79,15 +82,14 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh)
 	iSkinHeight = sh;
 }
 
-CGameSkin::CGameSkin(const CGameSkin& skin)
+CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 {
 	operator=(skin);
 }
 
-//////////////////
-// Destructor
 CGameSkin::~CGameSkin()
 {
+	uninit();
 }
 
 ////////////////////
@@ -327,6 +329,8 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
+		uninit();
+
 		if (!bDedicated)  {
 			// NOTE: the assignment is safe because of smartpointer
 			// HINT: the bmpSurface never changes, so it's safe to assign it like this
