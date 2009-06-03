@@ -224,6 +224,7 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 			case AFK_AWAY: msg = "(away)"; break;
 			case AFK_SELECTING_WPNS: msg = "(selecting weapons)"; break;
 			case AFK_CONSOLE: msg = "(console)"; break;
+			case AFK_MENU: msg = "(menu)"; break;
 		}
 	}
 
