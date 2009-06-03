@@ -49,7 +49,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 			f += ang;
 			
 			// Draw the worm
-			worm->getSkin().Draw(bmpDest, x - worm->getSkin().getSkinWidth()/2, y - worm->getSkin().getSkinHeight()/2, f, false, worm->getDirection() == DIR_LEFT);
+			worm->getSkin().Draw(bmpDest, x, y, f, false, worm->getDirection() == DIR_LEFT);
 		}
 		else
 			DrawCross(bmpDest, x - WORM_SKIN_WIDTH/2, y - WORM_SKIN_HEIGHT/2, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT, Color(255,0,0));
