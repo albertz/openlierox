@@ -1389,16 +1389,16 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Add the server to the list
 		lv->AddItem(s->szAddress, 0, colour);
 		lv->AddSubitem(LVS_IMAGE, itoa(num,10), tMenu->bmpConnectionSpeeds[num], NULL);
-		lv->AddSubitem(LVS_TEXT, s->szName, NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, s->szName, (DynDrawIntf*)NULL, NULL);
         if(processing) {
 			if(IsNetAddrValid(s->sAddress))
-				lv->AddSubitem(LVS_TEXT, "Querying...", NULL, NULL);
+				lv->AddSubitem(LVS_TEXT, "Querying...", (DynDrawIntf*)NULL, NULL);
 			else
-				lv->AddSubitem(LVS_TEXT, "Lookup...", NULL, NULL);
+				lv->AddSubitem(LVS_TEXT, "Lookup...", (DynDrawIntf*)NULL, NULL);
         } else if( num == 3 )
-            lv->AddSubitem(LVS_TEXT, "Down", NULL, NULL);
+            lv->AddSubitem(LVS_TEXT, "Down", (DynDrawIntf*)NULL, NULL);
         else
-		    lv->AddSubitem(LVS_TEXT, states[state], NULL, NULL);
+		    lv->AddSubitem(LVS_TEXT, states[state], (DynDrawIntf*)NULL, NULL);
 
 		bool unknownData = ( s->bProcessing || num == 3 ) && 
 							Menu_SvrList_GetUdpMasterserverForServer( s->szAddress ) == "";
@@ -1406,12 +1406,12 @@ void Menu_SvrList_FillList(CListview *lv)
 		// Players
 		lv->AddSubitem(LVS_TEXT,
 					   unknownData ? "?" : (itoa(s->nNumPlayers,10)+"/"+itoa(s->nMaxPlayers,10)),
-					   NULL, NULL);
+					   (DynDrawIntf*)NULL, NULL);
 
 		if (s->nPing <= -2) // Server behind a NAT or not queried, it will add spaces if s->nPing == -3 so not queried servers will be below NAT ones
-			lv->AddSubitem(LVS_TEXT, "N/A" + std::string(' ', -2 - s->nPing), NULL, NULL);
+			lv->AddSubitem(LVS_TEXT, "N/A" + std::string(' ', -2 - s->nPing), (DynDrawIntf*)NULL, NULL);
 		else
-			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), NULL, NULL); // TODO: the infinity symbol isn't shown correctly
+			lv->AddSubitem(LVS_TEXT, unknownData ? "∞" : itoa(s->nPing,10), (DynDrawIntf*)NULL, NULL); // TODO: the infinity symbol isn't shown correctly
 
 		// Country
 		if (tLXOptions->bUseIpToCountry && iNetMode == net_internet) {
@@ -1422,16 +1422,16 @@ void Menu_SvrList_FillList(CListview *lv)
 				if (flag.get())
 					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.Country);
 				else
-					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, (DynDrawIntf*)NULL, NULL);
 			}
 			else
 			{
-				lv->AddSubitem(LVS_TEXT, inf.Country, NULL, NULL);
+				lv->AddSubitem(LVS_TEXT, inf.Country, (DynDrawIntf*)NULL, NULL);
 			}
 		}
 
 		// Address
-		lv->AddSubitem(LVS_TEXT, addr, NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, addr, (DynDrawIntf*)NULL, NULL);
 	}
 
     lv->setSelectedID(curID);
@@ -2287,69 +2287,69 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 			// Server name
 			lvInfo.AddItem("servername", index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Server name:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szName, NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Server name:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szName, (DynDrawIntf*)NULL, NULL);
 
 			// server version
 			lvInfo.AddItem("serverversion", index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Server version:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, sServerVersion, NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Server version:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, sServerVersion, (DynDrawIntf*)NULL, NULL);
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Country:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Country:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", (DynDrawIntf*)NULL, NULL);
 
 			// IP address
 			lvInfo.AddItem("ip", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "IP Address:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, sIP, NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "IP Address:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, sIP, (DynDrawIntf*)NULL, NULL);
 
 			// Map name
 			lvInfo.AddItem("mapname", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Level name:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szMapName, NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Level name:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szMapName, (DynDrawIntf*)NULL, NULL);
 
 			// Mod name
 			lvInfo.AddItem("modname", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Mod name:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, szModName, NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Mod name:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, szModName, (DynDrawIntf*)NULL, NULL);
 
 			// State
 			lvInfo.AddItem("state", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "State:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, states[nState], NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "State:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, states[nState], (DynDrawIntf*)NULL, NULL);
 
 			// Playing
 			lvInfo.AddItem("playing", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Playing:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, itoa(nNumPlayers) + " / " + itoa(nMaxWorms), NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Playing:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nNumPlayers) + " / " + itoa(nMaxWorms), (DynDrawIntf*)NULL, NULL);
 
 			// Game type
 			lvInfo.AddItem("game type", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Game Type:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, gamemodes[nGameMode], NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Game Type:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, gamemodes[nGameMode], (DynDrawIntf*)NULL, NULL);
 
 			// Lives
 			lvInfo.AddItem("lives", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Lives:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Lives:", (DynDrawIntf*)NULL, NULL);
 			if (nLives < 0)
 				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 			else
-				lvInfo.AddSubitem(LVS_TEXT, itoa(nLives), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nLives), (DynDrawIntf*)NULL, NULL);
 
 			// Max kills
 			lvInfo.AddItem("maxkills", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Max Kills:", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Max Kills:", (DynDrawIntf*)NULL, NULL);
 			if (nMaxKills < 0)
 				lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 			else
-				lvInfo.AddSubitem(LVS_TEXT, itoa(nMaxKills), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(nMaxKills), (DynDrawIntf*)NULL, NULL);
 
 			// Loading times
 			lvInfo.AddItem("loading", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Loading Times:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, itoa(nLoadingTime) + " %", (DynDrawIntf*)NULL, NULL);
 
 			// Separator
 			lvInfo.AddItem("", ++index, tLX->clNormalLabel);
@@ -2357,56 +2357,56 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			// Players / kills / lives
 			lvInfo.AddItem("players", ++index, tLX->clNormalLabel);
 			if (nState)  {
-				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills/Lives:", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Players/Kills/Lives:", (DynDrawIntf*)NULL, NULL);
 
 				// First player (located next to the Players/Kills/Lives label)
-				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
-				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), (DynDrawIntf*)NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getKills()), (DynDrawIntf*)NULL, NULL);
 				if (bHaveLives)  {
 					switch ((short)cWorms[0].getLives())  {
 					case -1:  // Out
-						lvInfo.AddSubitem(LVS_TEXT, "Out", NULL, NULL);
+						lvInfo.AddSubitem(LVS_TEXT, "Out", (DynDrawIntf*)NULL, NULL);
 						break;
 					case -2:  // Unlim
 						lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 						break;
 					default:
-						lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getLives()), NULL, NULL);
+						lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[0].getLives()), (DynDrawIntf*)NULL, NULL);
 					}
 				}
 
 				// Rest of the players
 				for (int i=1; i < nNumPlayers; i++)  {
 					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
-					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), (DynDrawIntf*)NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getKills()), (DynDrawIntf*)NULL, NULL);
 					if (bHaveLives)  {
 						switch ((short)cWorms[i].getLives())  {
 						case -1:  // Out
-							lvInfo.AddSubitem(LVS_TEXT, "Out", NULL, NULL);
+							lvInfo.AddSubitem(LVS_TEXT, "Out", (DynDrawIntf*)NULL, NULL);
 							break;
 						case -2:  // Unlim
 							lvInfo.AddSubitem(LVS_IMAGE, "", gfxGame.bmpInfinite, NULL);
 							break;
 						default:
-							lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getLives()), NULL, NULL);
+							lvInfo.AddSubitem(LVS_TEXT, itoa(cWorms[i].getLives()), (DynDrawIntf*)NULL, NULL);
 						}
 					}
 				}
 			}
 
 			else  { // Don't draw kills when the server is open
-				lvInfo.AddSubitem(LVS_TEXT, "Players:", NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Players:", (DynDrawIntf*)NULL, NULL);
 
 				// First player (located next to the Players/Kills label)
-				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, cWorms[0].getName(), (DynDrawIntf*)NULL, NULL);
 
 				// Rest of the players
 				for (int i = 1; i < nNumPlayers; i++)  {
 					lvInfo.AddItem("players"+itoa(i+1), ++index, tLX->clNormalLabel);
-					lvInfo.AddSubitem(LVS_TEXT, "", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, cWorms[i].getName(), (DynDrawIntf*)NULL, NULL);
 				}
 			}
 
@@ -2415,14 +2415,14 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			
 			// Bonuses
 			lvInfo.AddItem("bonuses", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Bonuses:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, nBonuses ? "On" : "Off", (DynDrawIntf*)NULL, NULL);
 
 			if(bHaveGameSpeed) {
 				// Loading times
 				lvInfo.AddItem("gamespeed", ++index, tLX->clNormalLabel);
-				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", NULL, NULL);
-				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, "Game speed:", (DynDrawIntf*)NULL, NULL);
+				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), (DynDrawIntf*)NULL, NULL);
 			}
 			
 			foreach( FeatureCompatibleSettingList::Feature&, it, features.list ){
@@ -2434,10 +2434,10 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				}
 				lvInfo.AddItem("feature:" + it->get().name, ++index, col);
 				if(tLX->cFont.GetWidth(it->get().humanName + ":") + 20 <= first_column_width) {
-					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":", NULL, NULL);
-					lvInfo.AddSubitem(LVS_TEXT, it->get().var.toString(), NULL, NULL);					
+					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":", (DynDrawIntf*)NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->get().var.toString(), (DynDrawIntf*)NULL, NULL);					
 				} else
-					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":      " + it->get().var.toString(), NULL, NULL);
+					lvInfo.AddSubitem(LVS_TEXT, it->get().humanName + ":      " + it->get().var.toString(), (DynDrawIntf*)NULL, NULL);
 			}
 
 		}

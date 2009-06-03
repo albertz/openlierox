@@ -193,6 +193,7 @@
 		23ECBE7A0E894DC0007B8D55 /* libLibZip.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23ECBE390E894D1A007B8D55 /* libLibZip.a */; };
 		23ECBE7F0E894E4F007B8D55 /* CServerConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECBE7E0E894E4F007B8D55 /* CServerConnection.cpp */; };
 		23ECC0860E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */; };
+		23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23F6A3420FD6DF0300793B24 /* DynDraw.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
 		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
 		EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
@@ -653,6 +654,8 @@
 		23ECBE810E894E6B007B8D55 /* CServerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerConnection.h; sourceTree = "<group>"; };
 		23ECC0850E8A6EE6007B8D55 /* Menu_FloatingOptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_FloatingOptions.cpp; sourceTree = "<group>"; };
 		23F69EAE0FD4777500793B24 /* RefCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCounter.h; sourceTree = "<group>"; };
+		23F6A3300FD6D86A00793B24 /* DynDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynDraw.h; sourceTree = "<group>"; };
+		23F6A3420FD6DF0300793B24 /* DynDraw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DynDraw.cpp; sourceTree = "<group>"; };
 		EA38B0320C467928008ABAAE /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Cursor.cpp; sourceTree = "<group>"; };
 		EA38B0360C467967008ABAAE /* EndianSwap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndianSwap.h; sourceTree = "<group>"; };
 		EA38B0370C467967008ABAAE /* TSVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TSVar.h; sourceTree = "<group>"; };
@@ -1177,6 +1180,7 @@
 				EA430C1D0BEFCEB400C6547E /* Options.cpp */,
 				EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */,
 				EA430C1F0BEFCEB400C6547E /* Sounds.cpp */,
+				23F6A3420FD6DF0300793B24 /* DynDraw.cpp */,
 			);
 			name = client;
 			path = ../../src/client;
@@ -1383,6 +1387,7 @@
 				23C5AC3A0FADB032005A36AE /* MapLoader.h */,
 				23C5AC3D0FADB842005A36AE /* PreInitVar.h */,
 				23F69EAE0FD4777500793B24 /* RefCounter.h */,
+				23F6A3300FD6D86A00793B24 /* DynDraw.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -1845,6 +1850,7 @@
 				23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */,
 				23C5B0490FB67693005A36AE /* CRace.cpp in Sources */,
 				238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */,
+				23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

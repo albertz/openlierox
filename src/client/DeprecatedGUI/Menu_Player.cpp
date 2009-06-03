@@ -305,8 +305,8 @@ void Menu_Player_ViewPlayerInit()
 		if (p->cSkin.getPreview().get())
 			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 		else
-			lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
-		lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
+			lv->AddSubitem(LVS_TEXT, " ", (DynDrawIntf*)NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL);
 	}
 
 
@@ -560,8 +560,8 @@ void Menu_Player_ViewPlayers(int mouse)
 									if (p->cSkin.getPreview().get())
 										lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
 									else
-										lv->AddSubitem(LVS_TEXT, " ", NULL, NULL);
-									lv->AddSubitem(LVS_TEXT, p->sName, NULL, NULL);
+										lv->AddSubitem(LVS_TEXT, " ", (DynDrawIntf*)NULL, NULL);
+									lv->AddSubitem(LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL);
 								}
 							}
 						}

@@ -32,6 +32,51 @@
 #include "FlagInfo.h"
 #include "Physics.h"
 #include "WeaponDesc.h"
+#include "Mutex.h"
+
+
+
+struct CWorm::SkinDynDrawer : DynDrawIntf {
+	Mutex mutex;
+	CWorm* worm;
+	SkinDynDrawer(CWorm* w) : DynDrawIntf(WORM_SKIN_WIDTH,WORM_SKIN_HEIGHT), worm(w) {}
+
+	virtual void draw(SDL_Surface* bmpDest, int x, int y) {
+		Mutex::ScopedLock lock(mutex);
+		if(worm) {
+			int f = ((int)worm->frame()*7);
+			int ang = (int)( (worm->getAngle()+90)/151 * 7 );
+			f += ang;
+			
+			// Draw the worm
+			worm->getSkin().Draw(bmpDest, x - worm->getSkin().getSkinWidth()/2, y - worm->getSkin().getSkinHeight()/2, f, false, worm->getDirection() == DIR_LEFT);
+		}
+		else
+			DrawCross(bmpDest, x - WORM_SKIN_WIDTH/2, y - WORM_SKIN_HEIGHT/2, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT, Color(255,0,0));
+	}
+};
+
+CWorm::CWorm() : cSparkles(this)
+{
+	// set all pointers to NULL
+	m_inputHandler = NULL;
+	cOwner = NULL;
+	tProfile = NULL;
+	pcHookWorm = NULL;
+	cGameScript = NULL;
+	cWeaponRest = NULL;
+	m_type = NULL;
+	Clear();
+	
+	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
+}
+
+CWorm::~CWorm() {
+	Shutdown();
+	
+	Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
+	skinPreviewDrawerP->worm = NULL;
+}
 
 
 ///////////////////
@@ -715,12 +760,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( !v )
 		return;
 
-	int x,y,f,ang;
 	int l = v->GetLeft();
 	int t = v->GetTop();
 
-	x = (int)vDrawPos.x - v->GetWorldX();
-	y = (int)vDrawPos.y - v->GetWorldY();
+	int x = (int)vDrawPos.x - v->GetWorldX();
+	int y = (int)vDrawPos.y - v->GetWorldY();
 	x*=2;
 	y*=2;
 
@@ -892,8 +936,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	y = (int) ( (vDrawPos.y - v->GetWorldY()) * 2 + t );
 
 	// Find the right pic
-	f = ((int)fFrame*7);
-	ang = (int)( (fAngle+90)/151 * 7 );
+	int f = ((int)fFrame*7);
+	int ang = (int)( (fAngle+90)/151 * 7 );
 	f += ang;
 
 
@@ -1015,11 +1059,12 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		//cSkin.DrawShadow(bmpDest, x, y, f, iDirection == DIR_LEFT);
-		if (iDirection == DIR_RIGHT)
+		cSkin.DrawShadow(bmpDest, (int)vPos.x + drop, (int)vPos.y + drop, f, iDirection == DIR_LEFT);
+		/*if (iDirection == DIR_RIGHT)
 			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getRightImage().get(), f * 32 + 4, 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
 		else
 			cClient->getMap()->DrawObjectShadow(bmpDest, cSkin.getLeftImage().get(), cSkin.getLeftImage()->w - (f * 32 + 24), 0, cSkin.getSkinWidth(), cSkin.getSkinHeight(), v, (int)vPos.x - cSkin.getSkinWidth()/2 + drop, (int)vPos.y - cSkin.getSkinHeight()/2 + drop);
+		 */
 	}
 }
 

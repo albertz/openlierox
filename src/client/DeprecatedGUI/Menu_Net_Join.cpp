@@ -324,7 +324,7 @@ void Menu_Net_JoinDrawLobby()
 static void updateDetailsList(CListview* l);
 	
 static void initDetailsList(CListview* l) {
-#define SUBS(title)	l->AddSubitem(LVS_TEXT, title, NULL, NULL); l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+#define SUBS(title)	l->AddSubitem(LVS_TEXT, title, (DynDrawIntf*)NULL, NULL); l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
 	int index = 0;
 	l->Clear();
 	l->AddItem("servername", index++, tLX->clNormalLabel); SUBS("Server name:");
@@ -332,14 +332,14 @@ static void initDetailsList(CListview* l) {
 	if (tMenu->bmpDownload.get())  {
 		CImage *img = new CImage(tMenu->bmpDownload);
 		img->Setup(jl_DownloadMap, 0, 0, img->getWidth(), img->getHeight());
-		l->AddSubitem(LVS_WIDGET, "", NULL, img);
+		l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, img);
 	}
 	l->AddItem("gamemode", index++, tLX->clNormalLabel); SUBS("Game Mode:");
 	l->AddItem("mod", index++, tLX->clNormalLabel); SUBS("Mod:");
 	if (tMenu->bmpDownload.get())  {
 		CImage *img = new CImage(tMenu->bmpDownload);
 		img->Setup(jl_DownloadMod, 0, 0, img->getWidth(), img->getHeight());
-		l->AddSubitem(LVS_WIDGET, "", NULL, img);
+		l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, img);
 	}
 	l->AddItem("lives", index++, tLX->clNormalLabel); SUBS("Lives:");
 	l->AddItem("maxkills", index++, tLX->clNormalLabel); SUBS("Max Kills:");
@@ -352,12 +352,12 @@ static void initDetailsList(CListview* l) {
 	} else {
 		// More button
 		lv_item_t *it = l->AddItem("more", index++, tLX->clNormalLabel);
-		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
 		CButton *more = new CButton(BUT_MORE, tMenu->bmpButtons);
 		more->setID(jl_More);
 		more->Create();
 		it->iHeight = more->getHeight() + 10;
-		l->AddSubitem(LVS_WIDGET, "", NULL, more);
+		l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, more);
 	}
 #undef SUBS
 	updateDetailsList(l);
@@ -446,8 +446,8 @@ static void updateDetailsList(CListview* l) {
 			if( cClient->getGameLobby()->features[f->get()] == f->get()->unsetValue )
 				continue;
 			i = l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel);
-			l->AddSubitem(LVS_TEXT, f->get()->humanReadableName + ":", NULL, NULL); 
-			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+			l->AddSubitem(LVS_TEXT, f->get()->humanReadableName + ":", (DynDrawIntf*)NULL, NULL); 
+			l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
 			si = i->tSubitems->tNext;
 			
 			si->iColour = defaultColor;
@@ -456,8 +456,8 @@ static void updateDetailsList(CListview* l) {
 
 		foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
 			i = l->AddItem("feature:" + f->get().name, index++, tLX->clNormalLabel);
-			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", NULL, NULL);
-			l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", (DynDrawIntf*)NULL, NULL);
+			l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
 			
 			si = i->tSubitems->tNext;
 			Color col;
@@ -472,12 +472,12 @@ static void updateDetailsList(CListview* l) {
 
 		// Less button
 		lv_item_t *it = l->AddItem("less", index++, tLX->clNormalLabel);
-		l->AddSubitem(LVS_TEXT, "", NULL, NULL);
+		l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);
 		CButton *less = new CButton(BUT_LESS, tMenu->bmpButtons);
 		less->setID(jl_Less);
 		less->Create();
 		it->iHeight = less->getHeight() + 10;
-		l->AddSubitem(LVS_WIDGET, "", NULL, less);
+		l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, less);
 	}
 
 	l->RestoreScrollbarPos();
@@ -755,7 +755,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			else
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
 			player_list->AddSubitem(LVS_IMAGE, "", w->getPicimg(), NULL);  // Skin
-			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL);  // Name
+			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), (DynDrawIntf*)NULL, NULL);  // Name
 
 			// Display the team mark if TDM
 			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
@@ -765,7 +765,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				team_img->setID(w->getID());
 				team_img->setRedrawMenu(false);
 
-				player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
+				player_list->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, team_img); // Team
 			}
 		}
 

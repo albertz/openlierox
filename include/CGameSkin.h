@@ -20,10 +20,13 @@
 #include "SmartPointer.h"
 #include "Color.h"
 #include "ThreadPool.h"
+#include "DynDraw.h"
 
 // Some basic defines
 #define CPU_WIDTH 10
 #define SHADOW_OPACITY 96 // TODO: move this to some more general header
+
+struct GameSkinPreviewDrawer;
 
 class CGameSkin  {
 public:
@@ -52,9 +55,12 @@ private:
 	
 	struct Thread;
 	Thread* thread;
+	friend struct Thread;
+	friend struct GameSkinPreviewDrawer;
 	
 private:
-	void init(); void uninit();
+	void init(int fw, int fh, int fs, int sw, int sh); void uninit();
+	void createSurfaces();
 	bool	PrepareNormalSurface();
 	bool	PrepareShadowSurface();
 	bool	PrepareColorizedSurface();
@@ -75,7 +81,7 @@ public:
 	void	Colorize(Color col);
 	void	RemoveColorization()	{ Colorize(iDefaultColor); }
 	void	Change(const std::string& file);
-	SmartPointer<SDL_Surface>& getPreview()	{ return bmpPreview; }
+	SmartPointer<DynDrawIntf> getPreview();
 
 	const std::string& getFileName() const  { return sFileName; }
 	int getBotIcon() const	{ return iBotIcon; }
@@ -86,9 +92,6 @@ public:
 	int getFrameCount() const;
 	int getSkinWidth() const { return iSkinWidth; }
 	int getSkinHeight() const { return iSkinHeight; }
-
-	SmartPointer<SDL_Surface>& getLeftImage()	{ return bmpMirrored; }
-	SmartPointer<SDL_Surface>& getRightImage()	{ return bmpNormal; }
 };
 
 #define WORM_SKIN_FRAME_WIDTH 32

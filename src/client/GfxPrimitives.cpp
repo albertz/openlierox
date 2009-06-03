@@ -1907,6 +1907,13 @@ void DrawLaserSight(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col
 
 
 
+void DrawCross(SDL_Surface* bmpDest, int x, int y, int w, int h, Color c) {
+	DrawLine(bmpDest, x, y, x + w, y + h, c);
+	DrawLine(bmpDest, x, y + h, x + w, y, c);	
+}
+
+
+
 bool Line::isRightFrom(int x, int y) const {
 	VectorD2<int> rel = end - start;
 	x -= start.x; y -= start.y;

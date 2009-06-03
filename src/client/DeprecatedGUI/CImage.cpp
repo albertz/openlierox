@@ -39,10 +39,7 @@ void CImage::Draw(SDL_Surface * bmpDest)
 		iY=0;
 
 	// Draw the image
-	if( cropX == 0 && cropY == 0 && cropW == 0 && cropH == 0 )
-		DrawImage(bmpDest,tImage,iX,iY); // Hopefully faster cropping
-	else
-		DrawImageAdv(bmpDest,tImage,cropX,cropY,iX,iY,iWidth,iHeight);
+	tImage->draw(bmpDest,iX,iY); // Hopefully faster cropping
 }
 
 ///////////////////
@@ -56,22 +53,21 @@ void CImage::Change(const std::string& Path)
 	sPath = Path;
 
 	// Load the new image
-	tImage = LoadGameImage(sPath);
-	cropX = cropY = cropW = cropH = 0;
+	tImage = DynDrawFromSurface(LoadGameImage(sPath));
+	if(!tImage.get()) return;
 	
 	// Update the width and height
 	iWidth = tImage.get()->w;
 	iHeight = tImage.get()->h;
 }
 
-void CImage::Change(SmartPointer<SDL_Surface> bmpImg)
+void CImage::Change(const SmartPointer<DynDrawIntf>& bmpImg)
 {
 	// Just re-setup the image-related variables
 	sPath = "";
 	tImage = bmpImg;
 	iWidth = bmpImg.get()->w;
 	iHeight = bmpImg.get()->h;
-	cropX = cropY = cropW = cropH = 0;
 }
 
 /////////////////////
@@ -83,8 +79,8 @@ DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
-	CImage * w = new CImage( p[0].s, p[1].i, p[2].i, p[3].i, p[4].i );
-	w->cClick.Init( p[5].s, w );
+	CImage * w = new CImage( p[0].s );
+	w->cClick.Init( p[1].s, w );
 	if( dx == 0 )
 		dx = w->iWidth;
 	if( dy == 0 )
@@ -96,10 +92,6 @@ CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayou
 static bool CImage_WidgetRegistered = 
 	CGuiSkin::RegisterWidget( "image", & CImage::WidgetCreator )
 							( "file", SVT_STRING )
-							( "crop_x", SVT_INT )
-							( "crop_y", SVT_INT )
-							( "crop_w", SVT_INT )
-							( "crop_h", SVT_INT )
 							( "click", SVT_STRING );
 
 }; // namespace DeprecatedGUI

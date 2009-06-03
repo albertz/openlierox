@@ -31,6 +31,7 @@
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
 #include "NewNetEngine.h"
+#include "DynDraw.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -178,23 +179,8 @@ class CWorm {
 	friend class CWormHumanInputHandler;
 	friend struct WormJoinInfo;
 public:
-	// Constructor
-	CWorm(): cSparkles(this)
-	{
-		// set all pointers to NULL
-		m_inputHandler = NULL;
-		cOwner = NULL;
-		tProfile = NULL;
-		pcHookWorm = NULL;
-		cGameScript = NULL;
-		cWeaponRest = NULL;
-		m_type = NULL;
-		Clear();
-	}
-
-	~CWorm() {
-		Shutdown();
-	}
+	CWorm();
+	~CWorm();
 
 private:
 	// disallow these!
@@ -321,6 +307,8 @@ private:
 
 	// Graphics
 	CWormSkin	cSkin;
+	struct SkinDynDrawer; SkinDynDrawer* skinPreviewDrawerP;
+	SmartPointer<DynDrawIntf> skinPreviewDrawer;
 	SmartPointer<SDL_Surface> bmpGibs;
 	DeprecatedGUI::CBar		cHealthBar;
 
@@ -568,7 +556,7 @@ public:
 	int			getTeam() const				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg()			{ return bmpGibs; }
-	SmartPointer<SDL_Surface> getPicimg()			{ return cSkin.getPreview(); }
+	SmartPointer<DynDrawIntf> getPicimg()			{ return skinPreviewDrawer; }
 
 	lobbyworm_t	*getLobby()				{ return &tLobbyState; }
 

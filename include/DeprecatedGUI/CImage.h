@@ -13,6 +13,7 @@
 
 #include "InputEvents.h"
 #include "GfxPrimitives.h"
+#include "DynDraw.h"
 
 namespace DeprecatedGUI {
 
@@ -28,58 +29,54 @@ enum {
 	IMG_CHANGE
 };
 
+	// Cropping is used in GUI skinning in one place, I thought it would be nice, yet it's safe to remove it.
+	// Note: I removed cropping for now as DynDrawIntf is used now - if you want to reimplement it, just implement a custom DynDrawIntf which does that
+
 
 class CImage : public CWidget {
 public:
 	// Constructor
-	// TODO: this "cropping" isn't used at all, remove it?
-	// Cropping is used in GUI skinning in one place, I thought it would be nice, yet it's safe to remove it.
-	CImage(const std::string& Path, int _cropX=0, int _cropY=0, int _cropW=0, int _cropH=0):
-			cropX(_cropX), cropY(_cropY), cropW(_cropW), cropH(_cropH) {
+	CImage(const std::string& Path) {
 		iType = wid_Image;
 		sPath = Path;
 		tImage = NULL;
 		iWidth = iHeight = 0;
 		if (Path != "")  {
-			tImage = LoadGameImage(Path);
+			tImage = DynDrawFromSurface(LoadGameImage(Path));
 			if( !tImage.get() )
 				return;
 
-			if( cropW == 0 && cropX > 0 )
-				cropW = tImage.get()->w - cropX;
-			if( cropH == 0 && cropY > 0 )
-				cropH = tImage.get()->h - cropY;
-			if( cropW > tImage.get()->w )
-				cropW = tImage.get()->w;
-			if( cropH > tImage.get()->h )
-				cropH = tImage.get()->h;
-
-			iWidth = cropW > 0 ? cropW : tImage.get()->w;
-			iHeight = cropH > 0 ? cropH : tImage.get()->h;
-
-			if( cropX > tImage.get()->w - iWidth )
-				cropX = tImage.get()->w - iWidth;
-			if( cropY > tImage.get()->h - iHeight )
-				cropY = tImage.get()->h - iHeight;
+			iWidth = tImage->w;
+			iHeight = tImage->h;
 		}
 	}
 
-	CImage(SmartPointer<SDL_Surface> img) {
+	CImage(const SmartPointer<DynDrawIntf>& img) {
 		iType = wid_Image;
 		sPath = "";
 		tImage = img;
-		cropX = cropY = cropW = cropH = 0;
+		iWidth = iHeight = 0;
 		if (tImage.get())  {
 			iWidth = tImage.get()->w;
 			iHeight = tImage.get()->h;
 		}
 	}
 
+	CImage(const SmartPointer<SDL_Surface>& img) {
+		iType = wid_Image;
+		sPath = "";
+		tImage = DynDrawFromSurface(img);
+		iWidth = iHeight = 0;
+		if (tImage.get())  {
+			iWidth = tImage.get()->w;
+			iHeight = tImage.get()->h;
+		}		
+	}
+	
 private:
     // Attributes
-	SmartPointer<SDL_Surface> tImage;
+	SmartPointer<DynDrawIntf> tImage;
 	std::string	sPath;
-	int cropX, cropY, cropW, cropH;
 	CGuiSkin::CallbackHandler cClick;
 
 public:
@@ -89,9 +86,12 @@ public:
 	void			Destroy()		{  }
 
 	inline std::string	getPath()		{ return sPath; }
-	SmartPointer<SDL_Surface> getSurface()	{ return tImage; }
+	SmartPointer<DynDrawIntf> getSurface()	{ return tImage; }
 	void			Change(const std::string& Path);
-	void			Change(SmartPointer<SDL_Surface> bmpImg);
+	void			Change(const SmartPointer<DynDrawIntf>& bmpImg);
+	void			Change(const SmartPointer<SDL_Surface>& bmpImg) {
+		Change(DynDrawFromSurface(bmpImg));
+	}
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)				{ return IMG_NONE; }
@@ -116,7 +116,7 @@ public:
 	{
 		if( iEvent == IMG_CLICK )
 			cClick.Call();
-	};
+	}
 };
 
 }; // namespace DeprecatedGUI

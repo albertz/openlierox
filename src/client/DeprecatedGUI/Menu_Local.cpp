@@ -297,7 +297,7 @@ void Menu_LocalFrame()
 							sub->iExtra %= 4;
 
 							// Change the image
-							((CImage *)ev->cWidget)->Change(gfxGame.bmpTeamColours[sub->iExtra]);
+							((CImage *)ev->cWidget)->Change(DynDrawFromSurface(gfxGame.bmpTeamColours[sub->iExtra]));
 						}
 
 						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
@@ -430,8 +430,8 @@ void Menu_LocalAddPlaying(int index)
 	lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 	lv->AddItem("",index,tLX->clListView);
 	lv->AddSubitem(LVS_IMAGE, "", tMenu->sLocalPlayers[index].getPicimg(), NULL);
-	lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
-	lv->AddSubitem(LVS_WIDGET, "", NULL, img);
+	lv->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
+	lv->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, img);
 
 	// If we're in deathmatch, make the team colour invisible
 	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
@@ -464,7 +464,7 @@ void Menu_LocalRemovePlaying(int index)
 		lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
 		lv->AddItem("", index, tLX->clListView);
 		lv->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
-		lv->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
 	}
 }
 
@@ -481,7 +481,7 @@ void Menu_LocalAddProfiles()
 		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
 		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
-		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
+		w->AddSubitem( LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL );
 	}
 
 	// Add players from previous game to playing list
@@ -832,7 +832,7 @@ static void initFeaturesList(CListview* l)
 		if( idx != 0 )
 			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
 		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
-		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", NULL, NULL); 
+		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", (DynDrawIntf*)NULL, NULL); 
 
 		CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
@@ -845,13 +845,13 @@ static void initFeaturesList(CListview* l)
 				continue;	// We have nice comboboxes for them, skip them in the list
 			
 			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
-			l->AddSubitem(LVS_TEXT, it->second.shortDesc, NULL, NULL); 
+			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
 			if( it->second.var.type == SVT_BOOL )
 			{
 				CCheckbox * cb = new CCheckbox( * it->second.var.b );
-				l->AddSubitem(LVS_WIDGET, "", NULL, cb);
+				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
 				cb->Create();
 				cb->Setup(idx, 0, 0, 20, 20);
 			}
@@ -875,14 +875,14 @@ static void initFeaturesList(CListview* l)
 						iVal = * it->second.var.i;
 					}
 					CSlider * sld = new CSlider( imax, imin, iVal, true, 190, 0, tLX->clNormalLabel, fScale );
-					l->AddSubitem(LVS_WIDGET, "", NULL, sld);
+					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, sld);
 					sld->Create();
 					sld->Setup(idx, 0, 0, 180, tLX->cFont.GetHeight());
 				}
 				else
 				{
 					CTextbox * txt = new CTextbox();
-					l->AddSubitem(LVS_WIDGET, "", NULL, txt);
+					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
 					txt->Create();
 					txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
 					if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
@@ -1315,7 +1315,7 @@ CGuiLayout cWpnPresets;
 				std::string name = fname.substr(0, fname.size() - 4); // remove the extension, the size calcing is safe here
 				if(!listview->getItem(fname)) {
 					listview->AddItem(fname,0,tLX->clListView);
-					listview->AddSubitem(LVS_TEXT, name, NULL, NULL);
+					listview->AddSubitem(LVS_TEXT, name, (DynDrawIntf*)NULL, NULL);
 				}
 			}
 			return true;

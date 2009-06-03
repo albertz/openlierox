@@ -169,7 +169,7 @@ bool Menu_Net_HostInitialize()
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cHostPly.getWidget(hs_PlayerList);
 		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
-		w->AddSubitem( LVS_TEXT, p->sName, NULL, NULL );
+		w->AddSubitem( LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL );
 	}
 
 	iHumanPlayers = 0;
@@ -339,7 +339,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 							if (ply->iType == PRF_COMPUTER->toInt() || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
 								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
-								lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+								lv2->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
 								if (ply->iType == PRF_HUMAN->toInt())
 									iHumanPlayers++;
 
@@ -373,7 +373,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 					if(ply) {
 						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
-						lv2->AddSubitem(LVS_TEXT, ply->sName, NULL, NULL);
+						lv2->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
 						if (ply->iType == PRF_HUMAN->toInt())
 							iHumanPlayers--;
 					}
@@ -1383,7 +1383,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 		// Add the item
 		player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
-		player_list->AddSubitem(LVS_WIDGET, "", NULL, cmd_button);  // Command button
+		player_list->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);  // Command button
 		if (lobby_worm->bReady)  // Ready control
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 		else
@@ -1393,7 +1393,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		bool compatible = true;
 		CServerConnection *client = cServer->getClient(w->getID());
 		if(client && !cServer->checkVersionCompatibility(client, false, false)) compatible = false;
-		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), NULL, NULL, VALIGN_MIDDLE,
+		player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), (DynDrawIntf*)NULL, NULL, VALIGN_MIDDLE,
 								compatible ? tLX->clPink : tLX->clError);  // Name
 
 		// Display the team mark if the game mode requires teams
@@ -1405,17 +1405,17 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 			team_img->setID(w->getID());
 			team_img->setRedrawMenu(false);
 
-			player_list->AddSubitem(LVS_WIDGET, "", NULL, team_img); // Team
+			player_list->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, team_img); // Team
 
 		} else {
-			player_list->AddSubitem(LVS_TEXT, "", NULL, NULL); // Ping has to be the fifth subitem
+			player_list->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL); // Ping has to be the fifth subitem
 		}
 
 		// Ping
 		CServerConnection *cl = cServer->getClient(w->getID());
 		int ping = 0;
 		if (cl)	ping = cl->getPing();
-		player_list->AddSubitem(LVS_TEXT, w->getID() != 0 ? itoa(ping) : "", NULL, NULL); // Don't draw for host
+		player_list->AddSubitem(LVS_TEXT, w->getID() != 0 ? itoa(ping) : "", (DynDrawIntf*)NULL, NULL); // Don't draw for host
 	}
 
 	player_list->RestoreScrollbarPos();  // Scroll back to where we were before
@@ -1724,8 +1724,8 @@ void Menu_BanList()
 		if (!item)
 			continue;
 		tListBox->AddItem(item->szAddress,i,tLX->clListView);
-		tListBox->AddSubitem(LVS_TEXT, item->szAddress, NULL, NULL);
-		tListBox->AddSubitem(LVS_TEXT, item->szNick, NULL, NULL);
+		tListBox->AddSubitem(LVS_TEXT, item->szAddress, (DynDrawIntf*)NULL, NULL);
+		tListBox->AddSubitem(LVS_TEXT, item->szNick, (DynDrawIntf*)NULL, NULL);
 	}
 }
 

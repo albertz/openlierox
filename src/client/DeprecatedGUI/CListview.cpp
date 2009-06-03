@@ -192,16 +192,16 @@ void CListview::Draw(SDL_Surface * bmpDest)
 								// Draw according to valign
 								switch (sub->iValign)  {
 								case VALIGN_TOP:
-									DrawImage(bmpDest,sub->bmpImage,x,y);
+									sub->bmpImage->draw(bmpDest,x,y);
 									break;
 
 								case VALIGN_BOTTOM:
-									DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight - sub->bmpImage.get()->h);
+									sub->bmpImage->draw(bmpDest, x, y + item->iHeight - sub->bmpImage.get()->h);
 									break;
 
 								// Middle
 								default:
-									DrawImage(bmpDest,sub->bmpImage, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
+									sub->bmpImage->draw(bmpDest, x, y + item->iHeight/2 - sub->bmpImage.get()->h/2);
 									break;
 								}
 								
@@ -400,13 +400,13 @@ lv_item_t* CListview::AddItem(const std::string& sIndex, int iIndex, Color iColo
 	return item;
 }
 
-void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, const std::string& tooltip) {
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<DynDrawIntf> & img, CWidget *wid, int iVAlign, const std::string& tooltip) {
 	AddSubitem(iType, sText, img, wid, iVAlign, tLX->clPink, tooltip);
 }
 
 ///////////////////
 // Add a sub item to the last item
-void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip)
+void CListview::AddSubitem(int iType, const std::string& sText, const SmartPointer<DynDrawIntf> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip)
 {
 	// No last item
 	if (!tLastItem)  {

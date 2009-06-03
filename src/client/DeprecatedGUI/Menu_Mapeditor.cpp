@@ -654,7 +654,7 @@ enum  {
 				
 				if(!lv->getItem(baseFile)) {
 					lv->AddItem(baseFile, 0, tLX->clListView);
-					lv->AddSubitem(LVS_TEXT, mapName, NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, mapName, (DynDrawIntf*)NULL, NULL);
 				}
 			}
 			

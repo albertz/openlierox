@@ -14,26 +14,118 @@
 // Karel Petranek
 
 #include "CGameSkin.h"
-
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
 #include "MathLib.h"
 #include "LieroX.h" // for bDedicated
 #include "Debug.h"
+#include "Mutex.h"
+#include "Condition.h"
 
 
 struct Skin_Action : Action {
-	enum Type { } type;
+	bool breakSignal;
+	CGameSkin* skin;
+	Skin_Action(CGameSkin* s) : breakSignal(false), skin(s) {}
+};
+
+struct GameSkinPreviewDrawer : DynDrawIntf {
+	Mutex mutex;
+	CGameSkin* skin;
+	GameSkinPreviewDrawer(CGameSkin* s) : DynDrawIntf(s->iSkinWidth,s->iSkinHeight), skin(s) {}
+	void draw(SDL_Surface* surf, int x, int y);
 };
 
 struct CGameSkin::Thread {
+	Mutex mutex;
+	Condition signal;
+	bool ready;
+	typedef std::list<Skin_Action*> ActionList;
+	ActionList actionQueue;
+	Skin_Action* curAction;
 	
+	GameSkinPreviewDrawer* skinPreviewDrawerP;
+	SmartPointer<DynDrawIntf> skinPreviewDrawer;
+	
+	Thread(CGameSkin* s) : ready(true), skinPreviewDrawerP(NULL) {
+		skinPreviewDrawer = skinPreviewDrawerP = new GameSkinPreviewDrawer(s);
+	}
+	~Thread() {
+		forceStopThread();
+		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
+		skinPreviewDrawerP->skin = NULL;
+	}
+	
+	void pushAction__unsafe(Skin_Action* a) {
+		actionQueue.push_back(a);
+	}
+	
+	void removeActions__unsafe(const std::type_info& actionType) {
+		for(ActionList::iterator i = actionQueue.begin(); i != actionQueue.end(); ) {
+			if(typeid(**i) == actionType)
+				i = actionQueue.erase(i);
+			else
+				++i;
+		}
+	}
+	
+	void removeActions__unsafe() {
+		actionQueue.clear();
+	}
+	
+	// run this after you added something to actionQueue to be sure that it will get handled
+	void startThread__unsafe(CGameSkin* skin) {
+		if(!ready) return;
+		struct SkinActionHandler : Action {
+			CGameSkin* skin;
+			SkinActionHandler(CGameSkin* s) : skin(s) {}
+			int handle() {
+				int lastRet = 0;
+				Mutex::ScopedLock lock(skin->thread->mutex);
+				while(skin->thread->actionQueue.size() > 0) {
+					skin->thread->curAction = skin->thread->actionQueue.front();
+					skin->thread->actionQueue.pop_front();
+					
+					skin->thread->mutex.unlock();
+					lastRet = skin->thread->curAction->handle();
+					skin->thread->mutex.lock();
+					delete skin->thread->curAction;
+					skin->thread->curAction = NULL;
+				}
+				skin->thread->ready = true;
+				skin->thread->signal.broadcast();
+				return lastRet;
+			}
+		};
+		threadPool->start(new SkinActionHandler(skin), "CGameSkin handler", true);
+		ready = false;
+	}
+	
+	void forceStopThread() {
+		Mutex::ScopedLock lock(mutex);
+		while(!ready) {
+			actionQueue.clear();
+			if(curAction) curAction->breakSignal = true;
+			signal.wait(mutex);
+		}
+	}
 };
 
+struct SkinAction_Change : Skin_Action {
+	int handle() {
+		
+		return 0;
+	}
+};
 
-void CGameSkin::init() {
-	thread = new Thread();
+struct SkinAction_Colorize : Skin_Action {
+	int handle() {
 	
+		return 0;
+	}
+};
+
+void CGameSkin::init(int fw, int fh, int fs, int sw, int sh) {	
 	bmpSurface = NULL;
 	bmpMirrored = NULL;
 	bmpShadow = NULL;
@@ -45,11 +137,13 @@ void CGameSkin::init() {
 	bColorized = false;
 	iBotIcon = -1;
 	
-	iFrameWidth = 0;
-	iFrameHeight = 0;
-	iFrameSpacing = 0;
-	iSkinWidth = 0;
-	iSkinHeight = 0;
+	iFrameWidth = fw;
+	iFrameHeight = fh;
+	iFrameSpacing = fs;
+	iSkinWidth = sw;
+	iSkinHeight = sh;
+	
+	thread = new Thread(this);	
 }
 
 void CGameSkin::uninit() {
@@ -62,24 +156,14 @@ void CGameSkin::uninit() {
 
 CGameSkin::CGameSkin(const std::string &file, int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 {
-	init();
-	iFrameWidth = fw;
-	iFrameHeight = fh;
-	iFrameSpacing = fs;
-	iSkinWidth = sw;
-	iSkinHeight = sh;
+	init(fw,fh,fs,sw,sh);
 
 	Change(file);
 }
 
 CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 {
-	init();
-	iFrameWidth = fw;
-	iFrameHeight = fh;
-	iFrameSpacing = fs;
-	iSkinWidth = sw;
-	iSkinHeight = sh;
+	init(fw,fh,fs,sw,sh);
 }
 
 CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
@@ -96,6 +180,9 @@ CGameSkin::~CGameSkin()
 // Change the skin
 void CGameSkin::Change(const std::string &file)
 {
+	sFileName = file;
+
+	
 	if (bDedicated)  {
 		bmpSurface = NULL;
 	} else {
@@ -110,7 +197,6 @@ void CGameSkin::Change(const std::string &file)
 				notes << "The skin " << file << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
 		}
 	}
-	sFileName = file;
 
 	GenerateNormalSurface();
 	GenerateShadow();
@@ -377,6 +463,12 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	if (bDedicated)
 		return;
 
+	Mutex::ScopedLock lock(thread->mutex);
+	if(!thread->ready) {
+		DrawLoadingAni(surf, x + iSkinWidth/2, y + iSkinWidth/2, iSkinWidth/2, iSkinHeight/2, Color(255,0,0), Color(0,255,0), LAT_CAKE);
+		return;
+	}
+	
 	// Get the correct frame
 	int sx = frame * iFrameWidth + iFrameSpacing;
 	int sy = (iFrameHeight - iSkinHeight);
@@ -397,14 +489,32 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	}
 }
 
+void GameSkinPreviewDrawer::draw(SDL_Surface* dest, int x, int y) {
+	Mutex::ScopedLock lock(mutex);
+	if(skin) {
+		Mutex::ScopedLock lock2(skin->thread->mutex);
+		if(skin->thread->ready && skin->bmpPreview.get())
+			DrawImage(dest, skin->bmpPreview, x, y);
+		else
+			DrawLoadingAni(dest, x + w/2, y + h/2, w/2, h/2, Color(255,0,0), Color(0,255,0), LAT_CAKE);
+	}
+	else DrawCross(dest, x, y, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT, Color(255,0,0));
+}
+
+SmartPointer<DynDrawIntf> CGameSkin::getPreview() {
+	return thread->skinPreviewDrawer;
+}
+
 /////////////////////
 // Draw the worm skin shadow
 void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored)
 {
 	// No skins in dedicated mode
-	if (bDedicated)
-		return;
+	if (bDedicated) return;
 
+	Mutex::ScopedLock lock(thread->mutex);
+	if(!thread->ready) return;
+	
 	// Get the correct frame
 	int sx = frame * iFrameWidth + iFrameSpacing;
 	int sy = (iFrameHeight - iSkinHeight);
@@ -424,8 +534,7 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 void CGameSkin::Colorize(Color col)
 {
 	// No skins in dedicated mode
-	if (bDedicated)
-		return;
+	if (bDedicated) return;
 
 	// Check if we need to change the color
 	if (bColorized && col == iColor)

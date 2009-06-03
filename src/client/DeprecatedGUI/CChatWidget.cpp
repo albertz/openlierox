@@ -68,7 +68,7 @@ void ChatWidget_ChatRefillUserList()
 		int i = 0;
 		for (std::list<std::string>::const_iterator it = irc->getUserList().begin(); it != irc->getUserList().end(); it++) {
 			l->AddItem(*it, i, tLX->clListView);
-			l->AddSubitem(LVS_TEXT, *it, NULL, NULL);
+			l->AddSubitem(LVS_TEXT, *it, (DynDrawIntf*)NULL, NULL);
 		}
 	}
 }
@@ -255,7 +255,7 @@ void ChatWidget_ChatUpdateUsers(const std::list<std::string>& users)
 			int i = 0;
 			for (std::list<std::string>::const_iterator it = users.begin(); it != users.end(); it++)  {
 				lsv->AddItem(*it, i, tLX->clListView);
-				lsv->AddSubitem(LVS_TEXT, *it, NULL, NULL);
+				lsv->AddSubitem(LVS_TEXT, *it, (DynDrawIntf*)NULL, NULL);
 			}
 		}
 	}
@@ -324,7 +324,7 @@ void CChatWidget::GlobalProcessAndDraw(SDL_Surface * bmpDest)
 		globalChat->Setup(-1, setupX, setupY, setupW, setupH);
 		//globalChat->Setup(-1, setupX-borderX, setupY-borderY, setupW+borderX*2, setupH+borderY*2);
 		globalChat->SetOffset( globalChat->getX(), globalChat->getY() );
-		globalChat->Add( new CImage( "data/frontend/background_common.png", 0, 0, globalChat->getWidth()+borderX*2, globalChat->getHeight()+borderY*2 ), 
+		globalChat->Add( new CImage( "data/frontend/background_common.png" /*, 0, 0, globalChat->getWidth()+borderX*2, globalChat->getHeight()+borderY*2 */ ), 
 								-1, -borderX, -borderY, globalChat->getWidth()+borderX*2, globalChat->getHeight()+borderY*2);
 		globalChat->Add( new CBox( 6, 4, tLX->clBoxLight, tLX->clBoxDark, tLX->clPink ), -1, -borderX, -borderY, globalChat->getWidth()+borderX*2, globalChat->getHeight()+borderY*2);
 		globalChat->Add( new CButton(BUT_CHAT, tMenu->bmpButtons), -1, globalChat->getWidth()/2-20, -borderY+5, 0, 0);

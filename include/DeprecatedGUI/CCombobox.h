@@ -22,6 +22,7 @@
 #include "StringUtils.h"
 #include "InputEvents.h"
 #include "DeprecatedGUI/CScrollbar.h"
+#include "DynDraw.h"
 
 namespace DeprecatedGUI {
 
@@ -58,10 +59,10 @@ enum  {
 
 
 // Item structure
-class cb_item_t { public:
+struct cb_item_t {
 	std::string	sIndex;
 	std::string	sName;
-	SmartPointer<SDL_Surface> tImage;
+	SmartPointer<DynDrawIntf> tImage;
 	int iTag;
 };
 
@@ -144,8 +145,8 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
     void    clear();
-	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
-	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img = NULL, int tag = 0);
+	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
+	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
 	const std::list<cb_item_t>& getItems()	{ return tItems; }
 	const cb_item_t* getItem(int index) const;
 	int getItemIndex(const cb_item_t* item);	
@@ -161,7 +162,7 @@ public:
     bool	selectNext();
     bool	selectPrev();
     int		findItem(UnicodeChar startLetter);
-	void	setImage(SmartPointer<SDL_Surface> img, int ItemIndex);
+	void	setImage(const SmartPointer<DynDrawIntf>& img, int ItemIndex);
 	int		getSelectedIndex();
 	const cb_item_t* getSelectedItem();
 	bool	getDropped() { return bDropped; }

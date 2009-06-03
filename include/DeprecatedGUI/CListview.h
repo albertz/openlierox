@@ -20,6 +20,7 @@
 #include <string>
 #include "DeprecatedGUI/CWidget.h"
 #include "DeprecatedGUI/CScrollbar.h"
+#include "DynDraw.h"
 
 namespace DeprecatedGUI {
 
@@ -90,7 +91,7 @@ struct lv_subitem_t {
 	int			iType;
 	std::string	sText;
 	std::string sTooltip;
-	SmartPointer<SDL_Surface> bmpImage;
+	SmartPointer<DynDrawIntf> bmpImage;
 	CWidget		*tWidget;
 	bool		bVisible;
 	int			iExtra;
@@ -245,8 +246,14 @@ public:
 	void	AddColumn(const std::string& sText, int iWidth);
 	void	AddColumn(const std::string& sText, int iWidth, Color iColour);
 	lv_item_t* AddItem(const std::string& sIndex, int iIndex, Color iColour);
-	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "");
-	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip = "");
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<DynDrawIntf> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "");
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<DynDrawIntf> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip = "");
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign = VALIGN_MIDDLE, const std::string& tooltip = "") {
+		AddSubitem(iType, sText, DynDrawFromSurface(img), wid, iVAlign, tooltip);
+	}
+	void	AddSubitem(int iType, const std::string& sText, const SmartPointer<SDL_Surface> & img, CWidget *wid, int iVAlign, Color iColour, const std::string& tooltip = "") {
+		AddSubitem(iType, sText, DynDrawFromSurface(img), wid, iVAlign, iColour, tooltip);		
+	}
 
 	void	RemoveItem(int iIndex);
 	int		getIndex(int count);

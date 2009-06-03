@@ -60,7 +60,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 		if(getItemRW(iSelected))  {
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage.get())  {
-				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
+				getItemRW(iSelected)->tImage->draw(bmpDest,iX+3,iY+1);
 				stripdot(buf, iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight - tLX->cFont.GetHeight()) / 2, tLX->clDisabled, buf);
 			}
@@ -124,7 +124,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 			if (item->tImage.get())  {
 				// Draw the image
-				DrawImage(bmpDest,item->tImage,iX+3,y);
+				item->tImage->draw(bmpDest,iX+3,y);
 				stripped = stripdot(buf,iWidth - (8 + item->tImage.get()->w + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+8+item->tImage.get()->w, y + (ItemHeight-tLX->cFont.GetHeight())/2, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
@@ -171,7 +171,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 		if (getItemRW(iSelected))  {
 			buf = getItemRW(iSelected)->sName;
 			if (getItemRW(iSelected)->tImage.get())  {
-				DrawImage(bmpDest,getItemRW(iSelected)->tImage,iX+3,iY+1);
+				getItemRW(iSelected)->tImage->draw(bmpDest,iX+3,iY+1);
 				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + bGotScrollbar ? 15 : 0));
 				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
@@ -673,7 +673,7 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 }
 
 
-int CCombobox::addItem(const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img, int tag)
+int CCombobox::addItem(const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img, int tag)
 {
 	return addItem(-1, sindex, name, img, tag);
 }
@@ -770,7 +770,7 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 
 ///////////////////
 // Add an item to the combo box
-int CCombobox::addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<SDL_Surface> img, int tag)
+int CCombobox::addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img, int tag)
 {
 	cb_item_t item;
 
@@ -910,7 +910,7 @@ int CCombobox::getIndexBySIndex(const std::string& szString) {
 
 ///////////////////
 // Set the image for the specified item
-void CCombobox::setImage(SmartPointer<SDL_Surface> img, int ItemIndex)
+void CCombobox::setImage(const SmartPointer<DynDrawIntf>& img, int ItemIndex)
 {
 	cb_item_t* item = getItemRW(ItemIndex);
 	if(item) item->tImage = img;

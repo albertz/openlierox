@@ -709,6 +709,9 @@ void DrawRectFill2x2_NoClip(SDL_Surface *bmpDest, int x, int y, Color color);
 // x,y is center
 void DrawCircleFilled(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color color);
 
+// draws a cross ("X")
+void DrawCross(SDL_Surface* bmpDest, int x, int y, int w, int h, Color c);
+
 // draw a simple loading animation
 enum LoadingAniType { LAT_CIRCLES, LAT_CAKE };
 void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type);

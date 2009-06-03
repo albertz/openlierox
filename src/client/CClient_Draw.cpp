@@ -1287,7 +1287,7 @@ void CClient::InitializeGameMenu()
 			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4) {
 				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinnerTeam];
 				if (pic.get())
-					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+					cGameMenuLayout.Add(new DeprecatedGUI::CImage(DynDrawFromSurface(pic)), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
 			}
 		} else {
 			std::string winnerName = "noone";
@@ -1302,9 +1302,9 @@ void CClient::InitializeGameMenu()
 			
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(winnerName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
-				SmartPointer<SDL_Surface> pic = cRemoteWorms[iMatchWinner].getPicimg();
+				SmartPointer<DynDrawIntf> pic = cRemoteWorms[iMatchWinner].getPicimg();
 				if (pic.get())
-					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
+					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT);
 			}
 		}
 	}
@@ -1538,13 +1538,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
 			// Add the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
 
 			// Name
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
 			// Lives
 			switch (p->getLives())  {
@@ -1552,24 +1552,24 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
 				break;
 			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
 				break;
 			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
 				break;
 			}
 
 			// Kills
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 
 			// Damage
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
 
 			// Ping
 			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), (DynDrawIntf*)NULL, NULL);
 			}
 		}
 	}
@@ -1597,13 +1597,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
 			// Add the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
 
 			// Name
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
 			// Lives
 			switch (p->getLives())  {
@@ -1611,15 +1611,15 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
 				break;
 			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
 				break;
 			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
 				break;
 			}
 
 			// Dirt count
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDirtCount()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDirtCount()), (DynDrawIntf*)NULL, NULL);
 		}
 	}
 	break;  // DIRT
@@ -1648,13 +1648,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddItem(p->getName(), i, tLX->clNormalLabel);
 
 			// Add the command button
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
 
 			// Skin
 			lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
 
 			// Name
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
 			// Lives
 			switch (p->getLives())  {
@@ -1662,27 +1662,27 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
 				break;
 			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
 				break;
 			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
 				break;
 			}
 
 			// Kills
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 
 			// Ping
 			if (tLX->iGameType == GME_HOST)  {
 				CServerConnection *remoteClient = cServer->getClient(p->getID());
 				if (remoteClient && p->getID())
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), (DynDrawIntf*)NULL, NULL);
 			}
 
 			// Total time of being IT
 			int h,m,s;
 			ConvertTime(p->getTagTime(),  &h, &m, &s);
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(m) + ":" + (s < 10 ? "0" : "") + itoa(s), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(m) + ":" + (s < 10 ? "0" : "") + itoa(s), (DynDrawIntf*)NULL, NULL);
 		}
 	}
 	break;  // TIME
@@ -1712,13 +1712,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 			lv->AddItem(teamnames[team], n + 1024, colour);
 
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", NULL, NULL);  // Empty (in place of the command button)
-			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", NULL, NULL);  // Name and score
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", NULL, NULL);  // Lives label
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", NULL, NULL);  // Kills label
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);  // Empty (in place of the command button)
+			lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, new DeprecatedGUI::CLine(0, 0, lv->getWidth() - 30, 0, colour), DeprecatedGUI::VALIGN_BOTTOM);  // Separating line
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, teamnames[team] + " (" + itoa(score) + ")", (DynDrawIntf*)NULL, NULL);  // Name and score
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "L", (DynDrawIntf*)NULL, NULL);  // Lives label
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "K", (DynDrawIntf*)NULL, NULL);  // Kills label
 			if (tLX->iGameType == GME_HOST)  // Ping label
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", (DynDrawIntf*)NULL, NULL);
 
 			// Draw the players
 			CWorm *p;
@@ -1741,13 +1741,13 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddItem(p->getName(), lv->getItemCount(), tLX->clNormalLabel);
 
 				// Add the command button
-				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", NULL, cmd_button);
+				lv->AddSubitem(DeprecatedGUI::LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);
 
 				// Skin
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL);
 
 				// Name
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL);
 
 				// Lives
 				switch (p->getLives())  {
@@ -1755,24 +1755,24 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 					lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
 					break;
 				case WRM_OUT:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
 					break;
 				default:
-					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+					lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
 					break;
 				}
 
 				// Kills
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 
 				// Damage
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
 
 				// Ping
 				if (tLX->iGameType == GME_HOST)  {
 					CServerConnection *remoteClient = cServer->getClient(p->getID());
 					if (remoteClient && p->getID())
-						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+						lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), (DynDrawIntf*)NULL, NULL);
 				}
 			}
 		}
@@ -2420,41 +2420,41 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		}
 
 		// ID
-		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getID()), NULL, NULL);
+		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getID()), (DynDrawIntf*)NULL, NULL);
 
         // Skin
 		lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", p->getPicimg(), NULL, DeprecatedGUI::VALIGN_TOP);
 
 		// Name
-		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, iColor);
+		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, iColor);
 
 		if (WaitForPlayers)
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
 		else  {
 			// Lives
 			switch (p->getLives())  {
 			case WRM_OUT:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "out", (DynDrawIntf*)NULL, NULL);
 				break;
 			case WRM_UNLIM:
 				lv->AddSubitem(DeprecatedGUI::LVS_IMAGE, "", DeprecatedGUI::gfxGame.bmpInfinite, NULL);
 				break;
 			default:
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getLives()), (DynDrawIntf*)NULL, NULL);
 				break;
 			}
 
 			// Kills
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 			// Damage
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
 		}
 
 		// Ping
 		if(tLX->iGameType == GME_HOST)  {
 			CServerConnection *remoteClient = cServer->getClient(p->getID());
 			if (remoteClient && p->getID())
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(remoteClient->getPing()), (DynDrawIntf*)NULL, NULL);
 		}
     }
 
@@ -2489,7 +2489,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 		cur_x += DeprecatedGUI::tMenu->bmpLobbyReady.get()->w;
 
 		// Skin
-		DrawImage(bmpDest, wrm->getPicimg(), cur_x, cur_y);
+		wrm->getPicimg()->draw(bmpDest, cur_x, cur_y);
 		cur_x += wrm->getPicimg().get()->w + 5; // 5 - leave some space
 
 		// Name
