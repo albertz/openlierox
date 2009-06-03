@@ -44,7 +44,7 @@ public:
 	void Clear();
 	void ClearExtraEntries(); // Clears cache partially - should be called from time to time
 
-	SmartPointer<SDL_Surface>	GetImage(const std::string& file);
+	SmartPointer<SDL_Surface>	GetImage__unsafe(const std::string& file);
 	SmartPointer<SoundSample>	GetSound(const std::string& file);
 	SmartPointer<CMap>			GetMap(const std::string& file);
 	SmartPointer<CGameScript>	GetMod(const std::string& dir);
@@ -53,13 +53,15 @@ public:
 	// no copying is done, so it is required to use SmartPointer returned,
 	// if you don't want cache system to delete your image right after you've loaded it.
 	// Oh, don't ever call gfxFreeSurface() or FreeSoundSample() - cache will do that for you.
-	void	SaveImage(const std::string& file, const SmartPointer<SDL_Surface> & img);
+	void	SaveImage__unsafe(const std::string& file, const SmartPointer<SDL_Surface> & img);
 	void	SaveSound(const std::string& file, const SmartPointer<SoundSample> & smp);
 	void	SaveMod(const std::string& dir, const SmartPointer<CGameScript> & mod);
 	// Map is copied to cache, 'cause it will be modified during game - you should free your data yourself.
 	void	SaveMap(const std::string& file, CMap *map);
 	size_t	GetCacheSize();
 	size_t	GetEntryCount();
+
+	SDL_mutex* mutex;
 
 private:
 	class CacheItem_t { public:
@@ -113,8 +115,6 @@ private:
 	MapCache_t MapCache;
 	typedef std::map<std::string, ModItem_t > ModCache_t;
 	ModCache_t ModCache;
-	
-	SDL_mutex* mutex;
 };
 
 extern CCache cCache;

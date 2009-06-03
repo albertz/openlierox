@@ -784,6 +784,27 @@ int GameServer::getTeamWormNum(int t) const {
 // Main server frame
 void GameServer::Frame()
 {
+	/*
+	 // test code to do profiling
+	if(iState == SVS_PLAYING) {
+		//int t = (tLX->currentTime - AbsTime(0)).milliseconds() % 10000;
+		static int s = 0;
+		if(s == 2) {
+			cClient->AddRandomBot(40);
+		}
+		else if(s == 3) {
+			std::list<int> worms;
+			for( int f = 0; f < cClient->getNumWorms(); f++ )
+				if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
+					worms.push_back(cClient->getWorm(f)->getID());
+			for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+				cServer->kickWorm(*i, "debugging");			
+		}
+		s++;
+		s %= 4;
+	}
+	*/
+	
 	// Playing frame
 	if(iState == SVS_PLAYING) {
 		fServertime += tLX->fRealDeltaTime;

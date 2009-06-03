@@ -2414,9 +2414,11 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 // Loads an image, and converts it to the same colour depth as the screen (speed)
 SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha)
 {
+	ScopedLock lock(cCache.mutex);
+	
 	{
 		// Try cache first
-		SmartPointer<SDL_Surface> ImageCache = cCache.GetImage(_filename);
+		SmartPointer<SDL_Surface> ImageCache = cCache.GetImage__unsafe(_filename);
 		if( ImageCache.get() )
 			return ImageCache;
 	}
@@ -2467,7 +2469,7 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	#ifdef DEBUG
 	//printf("LoadImage() %p %s\n", Image.get(), _filename.c_str() );
 	#endif
-	cCache.SaveImage(_filename, Image);
+	cCache.SaveImage__unsafe(_filename, Image);
 	return Image;
 }
 

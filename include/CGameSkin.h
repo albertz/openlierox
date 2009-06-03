@@ -29,6 +29,8 @@
 struct GameSkinPreviewDrawer;
 class CMap;
 class CViewport;
+struct SkinAction_Colorize;
+struct SkinAction_Load;
 
 class CGameSkin  {
 public:
@@ -59,6 +61,8 @@ private:
 	Thread* thread;
 	friend struct Thread;
 	friend struct GameSkinPreviewDrawer;
+	friend struct SkinAction_Colorize;
+	friend struct SkinAction_Load;
 	
 private:
 	void init(int fw, int fh, int fs, int sw, int sh); void uninit();
@@ -72,6 +76,8 @@ private:
 	void	GenerateShadow();
 	void	GeneratePreview();
 	void	GenerateMirroredImage();
+	void	Colorize_Execute(bool& breakSignal);
+	void	Load_Execute(bool& breakSignal);
 
 public:
 	CGameSkin& operator=(const CGameSkin& oth);

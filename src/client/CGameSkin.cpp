@@ -23,6 +23,9 @@
 #include "Condition.h"
 #include "CMap.h" // for CMap::DrawObjectShadow
 
+// global mutex to force only one execution at time
+static Mutex skinActionHandlerMutex;
+
 struct Skin_Action : Action {
 	bool breakSignal;
 	CGameSkin* skin;
@@ -87,7 +90,9 @@ struct CGameSkin::Thread {
 					skin->thread->actionQueue.pop_front();
 					
 					skin->thread->mutex.unlock();
+					skinActionHandlerMutex.lock();
 					lastRet = skin->thread->curAction->handle();
+					skinActionHandlerMutex.unlock();
 					skin->thread->mutex.lock();
 					delete skin->thread->curAction;
 					skin->thread->curAction = NULL;
@@ -101,6 +106,11 @@ struct CGameSkin::Thread {
 		ready = false;
 	}
 	
+	void startThread(CGameSkin* skin) {
+		Mutex::ScopedLock lock(mutex);
+		startThread__unsafe(skin);
+	}
+	
 	void forceStopThread() {
 		Mutex::ScopedLock lock(mutex);
 		while(!ready) {
@@ -108,20 +118,6 @@ struct CGameSkin::Thread {
 			if(curAction) curAction->breakSignal = true;
 			signal.wait(mutex);
 		}
-	}
-};
-
-struct SkinAction_Change : Skin_Action {
-	int handle() {
-		
-		return 0;
-	}
-};
-
-struct SkinAction_Colorize : Skin_Action {
-	int handle() {
-	
-		return 0;
 	}
 };
 
@@ -176,39 +172,58 @@ CGameSkin::~CGameSkin()
 	uninit();
 }
 
+
+struct SkinAction_Load : Skin_Action {
+	bool genPreview;
+	SkinAction_Load(CGameSkin* s, bool p) : Skin_Action(s), genPreview(p) {}
+	int handle() {
+		skin->Load_Execute(breakSignal);
+		if(breakSignal) return 0;
+		if(genPreview) skin->GeneratePreview();	
+		return 0;
+	}
+};
+
+
+void CGameSkin::Load_Execute(bool& breakSignal) {
+	bmpSurface = LoadGameImage("skins/" + sFileName, true);
+	if(breakSignal) return;
+
+	if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
+		warnings << "CGameSkin::Change: couldn't find skin " << sFileName << endl;
+		bmpSurface = LoadGameImage("skins/default.png", true);
+	}
+	if (bmpSurface.get())  {
+		SetColorKey(bmpSurface.get());
+		if (bmpSurface->w != 672 || bmpSurface->h != 36)
+			notes << "The skin " << sFileName << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
+	}
+	
+	if(breakSignal) return;
+	GenerateNormalSurface();
+	if(breakSignal) return;
+	GenerateShadow();
+	if(breakSignal) return;
+	GenerateMirroredImage();
+}
+
 ////////////////////
 // Change the skin
 void CGameSkin::Change(const std::string &file)
 {
+	thread->forceStopThread(); // also removes all actions
+
 	sFileName = file;
+	if(bDedicated) return;
 
+	thread->pushAction__unsafe(new SkinAction_Load(this, !bColorized));
 	
-	if (bDedicated)  {
-		bmpSurface = NULL;
-	} else {
-		bmpSurface = LoadGameImage("skins/" + file, true);
-		if (!bmpSurface.get()) { // Try to load the default skin if the given one failed
-			warnings << "CGameSkin::Change: couldn't find skin " << file << endl;
-			bmpSurface = LoadGameImage("skins/default.png", true);
-		}
-		if (bmpSurface.get())  {
-			SetColorKey(bmpSurface.get());
-			if (bmpSurface->w != 672 || bmpSurface->h != 36)
-				notes << "The skin " << file << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
-		}
-	}
-
-	GenerateNormalSurface();
-	GenerateShadow();
-	GenerateMirroredImage();
-
-	// Colorize
-	if (bColorized)  {
+	if (bColorized) {
 		bColorized = false; // To force the recolorization
 		Colorize(iColor);
 	}
-
-	GeneratePreview();
+	
+	thread->startThread(this);
 }
 
 /////////////////////
@@ -415,7 +430,6 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
-		Mutex::ScopedLock lock(thread->mutex);
 		thread->forceStopThread(); // also deletes all actions
 		
 		if (!bDedicated)  {
@@ -553,24 +567,40 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	}
 }
 
+struct SkinAction_Colorize : Skin_Action {
+	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
+	int handle() {
+		skin->Colorize_Execute(breakSignal);
+		return 0;
+	}
+};
 
-////////////////////////
-// Colorize the skin
-void CGameSkin::Colorize(Color col)
-{
+void CGameSkin::Colorize(Color col) {
 	// No skins in dedicated mode
 	if (bDedicated) return;
-
+	
+	Mutex::ScopedLock lock(thread->mutex);
+	
 	// Check if we need to change the color
 	if (bColorized && col == iColor)
 		return;
+
+	iColor = col;
+	bColorized = true;
+	
+	thread->removeActions__unsafe(typeid(SkinAction_Colorize));
+	thread->pushAction__unsafe(new SkinAction_Colorize(this));
+	thread->startThread__unsafe(this);
+}
+
+////////////////////////
+// Colorize the skin
+void CGameSkin::Colorize_Execute(bool& breakSignal)
+{
 	if (!bmpSurface.get() || !bmpNormal.get() || !bmpMirrored.get())
 		return;
 	if (bmpSurface->h < 2 * iFrameHeight)
 		return;
-
-	bColorized = true;
-	iColor = col;
 
 	// Lock
 	LOCK_OR_QUIT(bmpSurface);
@@ -579,7 +609,9 @@ void CGameSkin::Colorize(Color col)
 
 	// Get the color
 	// TODO: cleanup
-	const Uint8 colR = col.r, colG = col.g, colB = col.b;
+	thread->mutex.lock();
+	const Uint8 colR = iColor.r, colG = iColor.g, colB = iColor.b;
+	thread->mutex.unlock();
 
     // Set the colour of the worm
 	const Uint32 black = SDL_MapRGB(bmpSurface->format, 0, 0, 0);
@@ -626,12 +658,16 @@ void CGameSkin::Colorize(Color col)
 			PutPixel(bmpMirrored.get(), MAX(0, bmpMirrored->w - x - 1), y, 
 				SDL_MapRGBA(bmpMirrored->format, r2, g2, b2, a));
 		}
+		
+		if(breakSignal) break;
 	}
 
 	UnlockSurface(bmpNormal);
 	UnlockSurface(bmpMirrored);
 	UnlockSurface(bmpSurface);
 
+	if(breakSignal) return;
+	
 	// Regenerate the preview
 	GeneratePreview();
 }

@@ -80,9 +80,8 @@ static AbsTime getCurrentTime()
 
 //////////////
 // Save an image to the cache
-void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface> & img)
+void CCache::SaveImage__unsafe(const std::string& file1, const SmartPointer<SDL_Surface> & img)
 {
-	ScopedLock lock(mutex);
 	if (img.get() == NULL)
 		return;
 
@@ -92,7 +91,7 @@ void CCache::SaveImage(const std::string& file1, const SmartPointer<SDL_Surface>
 	{
 		errors << "Error: image already in cache - memleak: " << file << endl;
 		return;
-	};
+	}
 	//printf("CCache::SaveImage(): %p %s\n", img, file.c_str() );
 	ImageCache[file] = ImageItem_t(img, getCurrentTime(), 0);
 }
@@ -161,7 +160,7 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 	{
 		errors << "Error: mod already in cache - memleak: " << file << endl;
 		return;
-	};
+	}
 
 	struct stat st;
 	StatFile(file1, &st);
@@ -170,9 +169,8 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 
 //////////////
 // Get an image from the cache
-SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
+SmartPointer<SDL_Surface> CCache::GetImage__unsafe(const std::string& file1)
 {
-	ScopedLock lock(mutex);
 	std::string file = file1;
 	stringlwr(file);
 	ImageCache_t::iterator item = ImageCache.find(file);
@@ -180,7 +178,7 @@ SmartPointer<SDL_Surface> CCache::GetImage(const std::string& file1)
 	{
 		item->second.fSaveTime = getCurrentTime();
 		return item->second.bmpSurf;
-	};
+	}
 	return NULL;
 }
 
@@ -347,7 +345,7 @@ void CCache::ClearExtraEntries()
 			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
 			if( it->second.tMod.getRefCount() <= 1 )
 				count ++;
-		};
+		}
 		{
 			int clearCount = MIN( count, ModCache.size() - tLXOptions->iMaxCachedEntries / 50 );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
@@ -357,10 +355,10 @@ void CCache::ClearExtraEntries()
 				{
 					clearCount --;
 					ModCache.erase( it1->second );
-				};
-			};
-		};
-	};
+				}
+			}
+		}
+	}
 
 	if( (int)ImageCache.size() >= tLXOptions->iMaxCachedEntries )
 	{	// Sorted by last-access time, iterators are not invalidated in a map when element is erased
@@ -372,7 +370,7 @@ void CCache::ClearExtraEntries()
 			TimeSorted.insert( std::make_pair( it->second.fSaveTime, it ) );
 			if( it->second.bmpSurf.getRefCount() <= 1 )
 				count ++;
-		};
+		}
 		{
 			int clearCount = MIN( count, ImageCache.size() - tLXOptions->iMaxCachedEntries );
 			for( TimeSorted_t :: iterator it1 = TimeSorted.begin();
