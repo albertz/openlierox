@@ -1012,6 +1012,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 }
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
+	// FeatureSettings() constructor initializes with default values, and we want here an unset values
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;  // Clean it up
 	}
@@ -1026,8 +1027,9 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		}
 		std::string humanName = bs->readString();
 		ScriptVar_t value; bs->readVar(value);
-		bool olderClientsSupported = bs->readBool();
+		bool olderClientsSupported = bs->readBool(); // to be understand as: if feature is unknown to us, it's save to ignore
 		Feature* f = featureByName(name);
+		// f != NULL -> we know about the feature -> we support it
 		if(f && !f->serverSideOnly) {
 			// we support the feature
 			if(value.type == f->valueType) {
@@ -1041,10 +1043,8 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 				}
 			}
 		} else if(f && f->serverSideOnly) {
-			// just serversideonly, thus we support it
+			// we support it && serversideonly -> just store it for convenience
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
-			if( !olderClientsSupported )
-				errors << "server reports server-sided feature " << name << " as client-sided" << endl;
 		} else if(olderClientsSupported) {
 			// unknown for us but we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
