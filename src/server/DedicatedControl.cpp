@@ -501,8 +501,7 @@ struct DedIntern {
 	DedIntern() :
 		scriptInterface(NULL), stdinInterface(NULL),
 		quitSignal(false),
-		pendingSignalsMutex(NULL), waitingForNextSignal(false),
-		state(S_INACTIVE)
+		pendingSignalsMutex(NULL), waitingForNextSignal(false)
 	{
 		dedicatedControlInstance->internData = this;
 		pendingSignalsMutex = SDL_CreateMutex();
@@ -562,54 +561,33 @@ struct DedIntern {
 	}
 	
 
-	// -------------------------------
-	// ------- state -----------------
-
-
-	enum State {
-		S_INACTIVE, // server was not started
-		S_SVRLOBBY, // in lobby
-		S_SVRPREPARING, // in game: just started, will go to S_SVRWEAPONS
-		S_SVRWEAPONS, // in game: in weapon selection
-		S_SVRPLAYING, // in game: playing
-		S_CLICONNECTING, // client game: connecting right now
-		S_CLILOBBY,
-		S_CLIPLAYING
-		};
-	State state;
-
-
-	// --------------------------------
-	// ---- commands ------------------
-
-
 	// ----------------------------------
 	// ----------- signals --------------
 
-	void Sig_LobbyStarted() { pushSignal("lobbystarted"); state = S_SVRLOBBY; }
-	void Sig_GameLoopStart() { pushSignal("gameloopstart"); state = S_SVRPREPARING; }
+	void Sig_LobbyStarted() { pushSignal("lobbystarted"); }
+	void Sig_GameLoopStart() { pushSignal("gameloopstart"); }
 	void Sig_GameLoopEnd() {
 		pushSignal("gameloopend");
-		if(state != S_SVRLOBBY && state != S_CLILOBBY)
+		if(currentGameState() != S_SVRLOBBY && currentGameState() != S_CLILOBBY)
 			// This is because of the current game logic: It will end the game
 			// loop and then return to the lobby but only in the case if we got a
 			// BackToLobby-signal before; if we didn't get such a signal and
 			// the gameloop was ended, that means that the game was stopped
 			// completely.
-			state = S_INACTIVE;
+			notes << "gameloopend without backtolobby -> stop" << endl;
 	}
-	void Sig_WeaponSelections() { pushSignal("weaponselections"); state = S_SVRWEAPONS; }
-	void Sig_GameStarted() { pushSignal("gamestarted"); state = S_SVRPLAYING; }
-	void Sig_BackToLobby() { pushSignal("backtolobby"); state = S_SVRLOBBY; }
-	void Sig_Quit() { pushSignal("quit"); scriptInterface->closePipe(); state = S_INACTIVE; }
+	void Sig_WeaponSelections() { pushSignal("weaponselections"); }
+	void Sig_GameStarted() { pushSignal("gamestarted"); }
+	void Sig_BackToLobby() { pushSignal("backtolobby"); }
+	void Sig_Quit() { pushSignal("quit"); scriptInterface->closePipe(); }
 
-	void Sig_Connecting(const std::string& addr) { pushSignal("connecting", addr); state = S_CLICONNECTING; }
-	void Sig_ConnectError(const std::string& err) { pushSignal("connecterror", err); state = S_INACTIVE; }
-	void Sig_Connected() { pushSignal("connected"); state = S_CLILOBBY;  }
-	void Sig_ClientError() { pushSignal("clienterror"); state = S_INACTIVE; }
-	void Sig_ClientConnectionError(const std::string& err) { pushSignal("connectionerror", err); state = S_INACTIVE; }
-	void Sig_ClientGameStarted() { pushSignal("clientgamestarted"); state = S_CLIPLAYING; }
-	void Sig_ClientGotoLobby() { pushSignal("clientbacktolobby"); state = S_CLILOBBY; }
+	void Sig_Connecting(const std::string& addr) { pushSignal("connecting", addr); }
+	void Sig_ConnectError(const std::string& err) { pushSignal("connecterror", err); }
+	void Sig_Connected() { pushSignal("connected"); }
+	void Sig_ClientError() { pushSignal("clienterror"); }
+	void Sig_ClientConnectionError(const std::string& err) { pushSignal("connectionerror", err); }
+	void Sig_ClientGameStarted() { pushSignal("clientgamestarted"); }
+	void Sig_ClientGotoLobby() { pushSignal("clientbacktolobby"); }
 
 	void Sig_NewWorm(CWorm* w) { pushSignal("newworm", itoa(w->getID()), w->getName()); }
 	void Sig_WormLeft(CWorm* w) { pushSignal("wormleft", itoa(w->getID()), w->getName()); }
@@ -733,13 +711,15 @@ struct DedIntern {
 #endif
 
 
-		switch(state) {
+		switch(currentGameState()) {
+			case S_INACTIVE: break;
 			case S_SVRLOBBY: Frame_ServerLobby(); break;
+			case S_SVRWEAPONS: Frame_Playing(); break;
 			case S_SVRPLAYING: Frame_Playing(); break;
 			case S_CLICONNECTING: Frame_ClientConnecting(); break;
 			case S_CLILOBBY: Frame_ClientLobby(); break;
 			case S_CLIPLAYING: Frame_Playing(); break;
-			default: break;
+			case S_CLIWEAPONS: Frame_Playing(); break;
 		}
 	}
 };

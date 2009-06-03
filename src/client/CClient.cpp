@@ -1649,8 +1649,9 @@ void CClient::Disconnect()
 
 ///////////////////
 // Setup the viewports for the local players
-void CClient::SetupViewports()
-{
+void CClient::SetupViewports() {
+	if(bDedicated) return;
+	
 	std::vector<CWorm*> humanWorms; humanWorms.reserve(2);
 	for(uint i = 0; i < iNumWorms; ++i) {
 		if(cLocalWorms[i] && cLocalWorms[i]->getType() == PRF_HUMAN)
@@ -2403,6 +2404,8 @@ std::string CClient::debugName() {
 
 void CClient::SetupGameInputs()
 {
+	if(bDedicated) return;
+	
 	// Setup the controls
 	int humanWormNum = 0;
 	for(int i = 0; i < getNumWorms(); i++) {

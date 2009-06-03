@@ -239,4 +239,19 @@ bool    MouseInRect(int x, int y, int w, int h);
 
 void	printf(const std::string& txt);
 
+
+
+enum State {
+	S_INACTIVE, // server was not started
+	S_SVRLOBBY, // in lobby
+	S_SVRWEAPONS, // in game: in weapon selection
+	S_SVRPLAYING, // in game: playing
+	S_CLICONNECTING, // client game: connecting right now
+	S_CLILOBBY,
+	S_CLIWEAPONS,
+	S_CLIPLAYING
+};
+
+State currentGameState();
+
 #endif  //  __LIEROX_H__
