@@ -211,6 +211,9 @@ void CGameSkin::Load_Execute(bool& breakSignal) {
 // Change the skin
 void CGameSkin::Change(const std::string &file)
 {
+	if(stringcaseequal(sFileName, file))
+		return;
+	
 	thread->forceStopThread(); // also removes all actions
 
 	sFileName = file;
