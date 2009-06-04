@@ -32,7 +32,7 @@
 class CWorm;
 class CServerConnection;
 class CMap;
-class Version;
+struct Version;
 class CGameMode;
 struct WormJoinInfo;
 class FlagInfo;

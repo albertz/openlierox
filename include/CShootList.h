@@ -20,7 +20,7 @@
 
 class CBytestream;
 class CWorm;
-class Version;
+struct Version;
 
 
 // Shoot Main flags
