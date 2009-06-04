@@ -149,6 +149,7 @@ IF(WIN32)
 	ENDIF(DEBUG)
 	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/hawknl/include
 				${CMAKE_SOURCE_DIR}/libs/hawknl/src
+				${CMAKE_SOURCE_DIR}/libs/libzip
 				${CMAKE_SOURCE_DIR}/libs/boost_process)
 ELSE(WIN32)
 	ADD_DEFINITIONS(-Wall)
@@ -213,7 +214,8 @@ ENDIF(PCH)
 TARGET_LINK_LIBRARIES(openlierox SDL SDL_image ${PYTHONLIBS})
 
 IF(WIN32)
-	TARGET_LINK_LIBRARIES(openlierox wsock32 wininet SDL_mixer
+	TARGET_LINK_LIBRARIES(openlierox SDL_mixer wsock32 wininet dbghelp
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/SDLmain.lib"
 				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libxml2.lib"
 				"${CMAKE_SOURCE_DIR}/build/msvc/libs/NLstatic.lib"
 				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libzip.lib"
