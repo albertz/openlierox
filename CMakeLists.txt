@@ -22,6 +22,7 @@ OPTION(GCOREDUMPER "Google Coredumper support" No)
 OPTION(PCH "Precompiled header (CMake 2.6 only)" No)
 OPTION(ADVASSERT "Advanced assert" No)
 OPTION(PYTHON_DED_EMBEDDED "Python embedded in dedicated server"  No)
+OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -156,9 +157,11 @@ ELSE(WIN32)
 		ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 	ENDIF(DEBUG)
 
-	#Always optimize these files - they make debug build unusable otherwise
-	SET_SOURCE_FILES_PROPERTIES(	src/common/PhysicsLX56_Projectiles.cpp 
-								PROPERTIES COMPILE_FLAGS -O3)
+	IF(OPTIM_PROJECTILES)
+		#Always optimize these files - they make debug build unusable otherwise
+		SET_SOURCE_FILES_PROPERTIES(	src/common/PhysicsLX56_Projectiles.cpp 
+							PROPERTIES COMPILE_FLAGS -O3)
+	ENDIF(OPTIM_PROJECTILES)
 
 
 	EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
