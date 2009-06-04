@@ -13,6 +13,8 @@
 // Created 16/6/08
 // Karel Petranek
 
+#include <typeinfo>
+
 #include "CGameSkin.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"

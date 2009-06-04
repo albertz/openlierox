@@ -64,6 +64,7 @@
 #include "CWpnRest.h"
 #include "Debug.h"
 #include "DedicatedControl.h"
+#include "DynDraw.h"
 #include "EndianSwap.h"
 #include "Entity.h"
 #include "Error.h"
