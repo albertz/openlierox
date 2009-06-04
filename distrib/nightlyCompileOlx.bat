@@ -22,7 +22,7 @@ del ..\..\distrib\win32\OpenLieroX.exe
 rem You can compile without Cmake, then substitute openlierox.vcproj with Game.vcproj for vcbuild
 cmake -G "Visual Studio 8 2005" -D DEBUG=0 ../..
 
-vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv >> x:\nightlyCompileOlx.log 2>&1
+vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv /showenv >> x:\nightlyCompileOlx.log 2>&1
 
 if exist ..\..\distrib\win32\OpenLieroX.exe goto commit
 
