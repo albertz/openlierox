@@ -5,6 +5,7 @@
 cmake_minimum_required(VERSION 2.4)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(SET CMP0005 OLD)
+	cmake_policy(SET CMP0003 OLD)
 	include(PCHSupport_26.cmake)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 
@@ -43,12 +44,14 @@ IF(UNIX)
 	ENDIF(APPLE)
 
 	IF (CYGWIN)
-		SET(WITH_G15 No) # Linux library as of now
+		SET(WITH_G15 OFF) # Linux library as of now
 	ELSE (CYGWIN)
 	ENDIF (CYGWIN)
 ELSE(UNIX)
 	IF(WIN32)
-		SET(G15 No)
+		SET(G15 OFF)
+		SET(HAWKNL_BUILTIN OFF) # We already have prebuilt HawkNL library
+		SET(X11 OFF)
 	ELSE(WIN32)
 	ENDIF(WIN32)
 ENDIF(UNIX)
@@ -83,8 +86,10 @@ IF(ADVASSERT)
 ENDIF(ADVASSERT)
 
 # TODO: don't hardcode path here
-INCLUDE_DIRECTORIES(/usr/include/libxml2)
-INCLUDE_DIRECTORIES(/usr/local/include/libxml2)
+IF(NOT WIN32)
+	INCLUDE_DIRECTORIES(/usr/include/libxml2)
+	INCLUDE_DIRECTORIES(/usr/local/include/libxml2)
+ENDIF(NOT WIN32)
 
 AUX_SOURCE_DIRECTORY(src/client CLIENT_SRCS)
 AUX_SOURCE_DIRECTORY(src/client/DeprecatedGUI CLIENT_SRCS_GUI_OLD)
@@ -115,7 +120,11 @@ IF (HAWKNL_BUILTIN)
 	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/condition.c)
 	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/nltime.c)
 ELSE (HAWKNL_BUILTIN)
-	INCLUDE_DIRECTORIES(/usr/include/hawknl)
+	IF(WIN32)
+		INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/hawknl/include)
+	ELSE(WIN32)
+		INCLUDE_DIRECTORIES(/usr/include/hawknl)
+	ENDIF(WIN32)
 ENDIF (HAWKNL_BUILTIN)
 
 IF (LIBZIP_BUILTIN)
@@ -135,23 +144,42 @@ IF (STLPORT)
 	ADD_DEFINITIONS(-D_STLP_DEBUG_ALLOC=1)
 ENDIF (STLPORT)
 
+IF(WIN32)
+	EXEC_PROGRAM("${CMAKE_BINARY_DIR}/svn_revision.exe" ARGS "${CMAKE_SOURCE_DIR}/optional-includes/generated/Version_generated.h" "${CMAKE_SOURCE_DIR}")
+	ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -DHAVE_BOOST -DZLIB_WIN32_NODLL)
+	IF(DEBUG)
+		ADD_DEFINITIONS(-DUSE_DEFAULT_MSC_DELEAKER)
+	ENDIF(DEBUG)
+ELSE(WIN32)
+	ADD_DEFINITIONS(-Wall)
 
-ADD_DEFINITIONS(-Wall)
+	IF(DEBUG)
+		ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
+	ENDIF(DEBUG)
 
-IF(DEBUG)
-	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
-ENDIF(DEBUG)
-
-#Always optimize these files - they make debug build unusable otherwise
-SET_SOURCE_FILES_PROPERTIES(	src/common/PhysicsLX56_Projectiles.cpp 
+	#Always optimize these files - they make debug build unusable otherwise
+	SET_SOURCE_FILES_PROPERTIES(	src/common/PhysicsLX56_Projectiles.cpp 
 								PROPERTIES COMPILE_FLAGS -O3)
 
-EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
-string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
-MESSAGE( "OLX_VERSION = ${OLXVER}" )
-#ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"") # This will trigger whole project rebuild
-# Escaping backslashes overkill, yay.
-EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > optional-includes/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
+
+	EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
+	string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
+	MESSAGE( "OLX_VERSION = ${OLXVER}" )
+	#ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"") # This will trigger whole project rebuild
+	# Escaping backslashes overkill, yay.
+	EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > optional-includes/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
+
+
+	EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
+	string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
+	ADD_DEFINITIONS(${SDLCFLAGS})
+
+
+	ADD_DEFINITIONS("-pthread")
+
+ENDIF(WIN32)
+
+
 IF(X11)
 	ADD_DEFINITIONS("-DX11")
 ENDIF(X11)
@@ -159,11 +187,6 @@ IF(DEDICATED_ONLY)
 	ADD_DEFINITIONS("-DDEDICATED_ONLY")
 ENDIF(DEDICATED_ONLY)
 
-EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
-string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
-ADD_DEFINITIONS(${SDLCFLAGS})
-
-ADD_DEFINITIONS("-pthread")
 
 IF(G15)
 	ADD_DEFINITIONS("-DWITH_G15")
@@ -178,7 +201,6 @@ IF(PYTHON_DED_EMBEDDED)
 ENDIF(PYTHON_DED_EMBEDDED)
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
-SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
 IF(PCH)
 	EXEC_PROGRAM(./update_precompiled_header.sh OUTPUT_VARIABLE NULL)
@@ -186,25 +208,42 @@ IF(PCH)
 ENDIF(PCH)
 
 
-EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
-string(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
-TARGET_LINK_LIBRARIES(openlierox ${SDLLIBS} SDL SDL_image pthread z xml2 ${PYTHONLIBS})
+TARGET_LINK_LIBRARIES(openlierox SDL SDL_image ${PYTHONLIBS})
 
-IF (NOT DEDICATED_ONLY)
-	TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)
-ENDIF (NOT DEDICATED_ONLY)
-IF (NOT HAWKNL_BUILTIN)
-	TARGET_LINK_LIBRARIES(openlierox NL)
-ENDIF (NOT HAWKNL_BUILTIN)
-IF (NOT LIBZIP_BUILTIN)
-	TARGET_LINK_LIBRARIES(openlierox zip)
-ENDIF (NOT LIBZIP_BUILTIN)
-IF(X11)
-	TARGET_LINK_LIBRARIES(openlierox X11)
-ENDIF(X11)
-IF (STLPORT)
-	TARGET_LINK_LIBRARIES(openlierox stlportstlg)
-ENDIF (STLPORT)
-IF (G15)
-	TARGET_LINK_LIBRARIES(openlierox g15daemon_client g15render)
-ENDIF (G15)
+IF(WIN32)
+	TARGET_LINK_LIBRARIES(openlierox wsock32 wininet SDL_mixer
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libxml2.lib"
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/NLstatic.lib"
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libzip.lib"
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/zlib.lib"
+				"${CMAKE_SOURCE_DIR}/build/msvc/libs/bgd.lib")
+
+	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME "../../../distrib/win32/OpenLieroX")
+ELSE(WIN32)
+	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
+	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
+
+	TARGET_LINK_LIBRARIES(openlierox ${SDLLIBS} pthread xml2 z)
+
+	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
+
+	IF (NOT DEDICATED_ONLY)
+		TARGET_LINK_LIBRARIES(openlierox SDL_mixer gd)
+	ENDIF (NOT DEDICATED_ONLY)
+	IF (NOT HAWKNL_BUILTIN)
+		TARGET_LINK_LIBRARIES(openlierox NL)
+	ENDIF (NOT HAWKNL_BUILTIN)
+	IF (NOT LIBZIP_BUILTIN)
+		TARGET_LINK_LIBRARIES(openlierox zip)
+	ENDIF (NOT LIBZIP_BUILTIN)
+	IF(X11)
+		TARGET_LINK_LIBRARIES(openlierox X11)
+	ENDIF(X11)
+	IF (STLPORT)
+		TARGET_LINK_LIBRARIES(openlierox stlportstlg)
+	ENDIF (STLPORT)
+	IF (G15)
+		TARGET_LINK_LIBRARIES(openlierox g15daemon_client g15render)
+	ENDIF (G15)
+
+ENDIF(WIN32)
