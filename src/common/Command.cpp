@@ -759,9 +759,9 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	else if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Shutdown();
 		
-	SetQuitEngineFlag("Console Cmd_Quit");
+	SetQuitEngineFlag("Cmd_disconnect");
 		
-	if(DeprecatedGUI::tMenu && DeprecatedGUI::tMenu->bMenuRunning) {
+	if(!bDedicated && DeprecatedGUI::tMenu && DeprecatedGUI::tMenu->bMenuRunning) {
 		DeprecatedGUI::Menu_Current_Shutdown();
 
 		DeprecatedGUI::Menu_SetSkipStart(true);
@@ -852,17 +852,19 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 	
 	std::string server = params[0];
-	std::string player = tLXOptions->sLastSelectedPlayer;
+	std::string player = bDedicated ? FindFirstCPUProfileName() : tLXOptions->sLastSelectedPlayer;
 	if(player == "" && GetProfiles()) player = GetProfiles()->sName;
 	if(!JoinServer(server, server, player)) return;
 	
-	// goto the joining dialog
-	DeprecatedGUI::Menu_SetSkipStart(true);
-	DeprecatedGUI::Menu_NetInitialize(false);
-	DeprecatedGUI::Menu_Net_JoinInitialize(server);
-	
-	// when we leave the server
-	DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+	if(!bDedicated) {
+		// goto the joining dialog
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_NetInitialize(false);
+		DeprecatedGUI::Menu_Net_JoinInitialize(server);
+		
+		// when we leave the server
+		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+	}
 }
 
 
@@ -952,7 +954,8 @@ COMMAND(addBot, "add bot to game", "[botprofile]", 0, 1);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+	// Note: this check only for non-dedicated; in ded, we allow it, although it is a bit experimental
+	if(!bDedicated && (tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning())) {
 		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
 		return;
 	}

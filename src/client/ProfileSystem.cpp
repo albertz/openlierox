@@ -473,3 +473,15 @@ profile_t *FindProfile(const std::string& name) {
 
 	return NULL;
 }
+
+
+std::string FindFirstCPUProfileName() {
+	profile_t *p = tProfiles;
+	
+	for(;p;p=p->tNext) {
+		if(p->iType == PRF_COMPUTER->toInt())
+			return p->sName;
+	}
+	
+	return "";
+}

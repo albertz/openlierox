@@ -54,7 +54,7 @@ void CClientNetEngine::SendWormDetails()
 	// If all my worms are dead, don't send
 	bool Alive = false;
 	for(i=0;i<client->iNumWorms;i++) {
-		if(client->cLocalWorms[i]->getAlive()) {
+		if(client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive()) {
 			Alive = true;
 			break;
 		}
@@ -67,7 +67,7 @@ void CClientNetEngine::SendWormDetails()
 	// Check if we need to write the state update
 	bool update = false;
 	for(i = 0; i < client->iNumWorms; i++)
-		if (client->cLocalWorms[i]->checkPacketNeeded())  {
+		if (client->cLocalWorms[i] && client->cLocalWorms[i]->checkPacketNeeded())  {
 			update = true;
 			break;
 		}
@@ -88,7 +88,8 @@ void CClientNetEngine::SendWormDetails()
 	bs.writeByte(C2S_UPDATE);
 
 	for(i = 0; i < client->iNumWorms; i++)
-		client->cLocalWorms[i]->writePacket(&bs, false, NULL);
+		if(client->cLocalWorms[i])
+			client->cLocalWorms[i]->writePacket(&bs, false, NULL);
 
 	client->bsUnreliable.Append(&bs);
 }
@@ -102,11 +103,14 @@ void CClientNetEngine::SendGameReady()
 	if(client->serverChoosesWeapons()) {
 		bs.writeByte(0);
 	} else {
-		bs.writeByte(client->iNumWorms);
-
-		// Send my worm's weapon details
+		std::list<CWorm*> worms;
 		for(unsigned int i=0;i<client->iNumWorms;i++)
-			client->cLocalWorms[i]->writeWeapons( &bs );
+			if(client->cLocalWorms[i]) worms.push_back(client->cLocalWorms[i]);
+		
+		// Send my worm's weapon details
+		bs.writeByte(worms.size());
+		for(std::list<CWorm*>::iterator i = worms.begin(); i != worms.end(); ++i)
+			(*i)->writeWeapons( &bs );
 	}
 	
 	client->cNetChan->AddReliablePacketToSend(bs);

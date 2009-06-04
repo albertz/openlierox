@@ -1280,8 +1280,12 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	// Add the player to the list
 	profile_t *ply = FindProfile(player);
 	if(ply) {
-		cClient->getLocalWormProfiles()[0] = ply;
-		cClient->setNumWorms(1);
+		if(bDedicated && ply->iType == PRF_HUMAN->toInt())
+			warnings << "JoinServer: player " << player << " is a human - a human cannot be used in dedicated mode" << endl;
+		else {
+			cClient->getLocalWormProfiles()[0] = ply;
+			cClient->setNumWorms(1);
+		}
 	}
 	
 	cClient->setServerName(name);

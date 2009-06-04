@@ -91,7 +91,7 @@ profile_t *GetProfiles();
 profile_t *FindProfile(int id);
 profile_t *FindProfile(const std::string& name);
 
-
+std::string FindFirstCPUProfileName();
 
 
 #endif  //  __PROFILESYSTEM_H__
