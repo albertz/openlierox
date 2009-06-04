@@ -83,7 +83,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib"
 				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -512,6 +512,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Debug.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\DynDraw.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\DynDraw.h"
 				>
 			</File>
 			<File
