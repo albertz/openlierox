@@ -1867,13 +1867,7 @@ static void updateAddedWorms(CClient* cl) {
 				// gameready means that we had a preparegame package
 				// status==NET_PLAYING means that we are already playing
 				if( cl->getGameReady() ) {
-					
-					// (If this is a local game?), we need to reload the worm graphics
-					// We do this again because we've only just found out what type of game it is
-					// Team games require changing worm colours to match the team colour
-					// Inefficient, but i'm not going to redesign stuff for a simple gametype
-					cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType());
-					
+										
 					// Also set some game details
 					cl->getWorm(i)->setLives(w->getLives());
 					cl->getWorm(i)->setKills(w->getKills());
