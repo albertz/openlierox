@@ -1755,19 +1755,19 @@ int CClient::getTeamWormCount(int t) const {
 }
 
 
-static bool addWorm(CClient* cl, profile_t* p) {
+static bool setWormAdd(profile_t* p) {
 	if(p == NULL) {
 		errors << "addWorm(): you have to specify the profile" << endl;
 		return false;
 	}
 
-	if(cl->getNumWorms() + 1 >= MIN((int)MAX_WORMS, cl->getGameLobby()->iMaxPlayers)) {
+	if(cClient->getNumWorms() + 1 >= MIN((int)MAX_WORMS, cClient->getGameLobby()->iMaxPlayers)) {
 		warnings << "addWorm(): too many worms" << endl;
 		return false;
 	}
 	
-	cl->getLocalWormProfiles()[cl->getNumWorms()] = p;
-	cl->setNumWorms(cl->getNumWorms() + 1);
+	cClient->getLocalWormProfiles()[cClient->getNumWorms()] = p;
+	cClient->setNumWorms(cClient->getNumWorms() + 1);
 	return true;
 }
 
@@ -1999,13 +1999,13 @@ void CClient::AddRandomBot(int amount) {
 	
 	prepareWormAdd();
 	for(int i = 0; i < amount; ++i)
-		if(!addWorm(this, randomChoiceFrom(bots))) break;
+		if(!setWormAdd(randomChoiceFrom(bots))) break;
 	updateAddedWorms();
 }
 
 void CClient::AddWorm(profile_t* p) {
 	prepareWormAdd();
-	if(!addWorm(this, p)) return;
+	if(!setWormAdd(p)) return;
 	updateAddedWorms();
 }
 
