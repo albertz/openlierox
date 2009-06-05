@@ -1807,10 +1807,15 @@ static void updateAddedWorms(CClient* cl) {
 
 				hints << "Worm added: " << w->getName();
 				hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
-				
+
+				if(cServer->getState() != SVS_LOBBY) {
+					w->Prepare(true); // prepare serverside
+					cServer->PrepareWorm(w);
+				}
+
 				{
-					// TODO: move that out here
 					// inform everybody else about new worm
+					// TODO: move that (protocol info) out here
 					CBytestream bytestr;
 					bytestr.writeByte(S2C_WORMINFO);
 					bytestr.writeInt(w->getID(), 1);
@@ -1829,6 +1834,14 @@ static void updateAddedWorms(CClient* cl) {
 						if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
 						if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
 						cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
+					}
+
+					if(!CServerNetEngine::isWormPropertyDefault(w)) {					
+						for( int j = 0; j < MAX_CLIENTS; j++ ) {
+							if(cServer->getClients()[j].getStatus() != NET_CONNECTED) continue;
+							if(cServer->getClients()[j].getNetEngine() == NULL) continue;
+							cServer->getClients()[j].getNetEngine()->SendWormProperties(w); // if we have changed them in prepare or so
+						}
 					}
 				}
 				
@@ -1859,10 +1872,6 @@ static void updateAddedWorms(CClient* cl) {
 				if(!cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType()))
 					warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
 				
-				if(cServer->getState() != SVS_LOBBY) {
-					w->Prepare(true); // prepare serverside
-					cServer->PrepareWorm(w);
-				}
 				
 				// gameready means that we had a preparegame package
 				// status==NET_PLAYING means that we are already playing
