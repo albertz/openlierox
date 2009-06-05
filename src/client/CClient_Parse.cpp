@@ -1291,6 +1291,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	// A new worm?
 	if (!client->cRemoteWorms[id].isUsed())  {
 		client->cRemoteWorms[id].Clear();
+		client->cRemoteWorms[id].setLives(client->tGameInfo.iLives);
 		client->cRemoteWorms[id].setUsed(true);
 		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
 		client->cRemoteWorms[id].setLocal(false);
