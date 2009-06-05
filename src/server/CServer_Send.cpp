@@ -844,6 +844,17 @@ void GameServer::SendDisconnect()
 
 
 ///////////////////
+// Update the worm name, skin, colour etc
+void GameServer::UpdateWorm(CWorm* w)
+{
+	CBytestream bytestr;
+	bytestr.writeByte(S2C_WORMINFO);
+	bytestr.writeInt(w->getID(), 1);
+	w->writeInfo(&bytestr);
+	SendGlobalPacket(&bytestr);
+}
+
+///////////////////
 // Update the worm names, skins, colours etc
 void GameServer::UpdateWorms()
 {

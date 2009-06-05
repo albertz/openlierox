@@ -1190,7 +1190,7 @@ void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 	w->getLobby()->iTeam = team;
 	w->setTeam(team);
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(w);
 	cServer->SendWormLobbyUpdate();
 	cServer->RecheckGame();
 }

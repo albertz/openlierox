@@ -268,6 +268,7 @@ public:
     void        SendWormLobbyUpdate(CServerConnection* receiver = NULL, CServerConnection *target = NULL); // if NULL, to everybody, or only to cl. If target is NULL send info about all worms
 	void		UpdateGameLobby();
 	void		UpdateWorms();
+	void		UpdateWorm(CWorm* w);
 #ifdef FUZZY_ERROR_TESTING
 	void		SendRandomPacket();
 #endif

@@ -488,7 +488,7 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	sender->getWorm(0)->setName(name);
 
 	// Send the update
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(sender->getWorm(0));
 
 	// Send the notification
 	cServer->SendGlobalText(oldname + " is now known as " + name, TXT_NORMAL);
@@ -541,11 +541,11 @@ std::string ProcessSetName(const std::vector<std::string>& params, int sender_id
 	}
 
 	// Set the name
-	std::string oldname = (cServer->getWorms() + p_id)->getName();
+	std::string oldname = tw->getName();
 	tw->setName(name);
 
 	// Send the update
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(tw);
 
 	// Send the notification
 	cServer->SendGlobalText(oldname + " is now known as " + name, TXT_NORMAL);
@@ -575,7 +575,7 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 
 	// Set the skin
 	worm->setSkin(params[0]);
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(worm);
 
 	return "";
 }
@@ -604,7 +604,7 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 
 	// Set the skin
 	worm->setSkin(params[2]);
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(worm);
 
 	return "";
 }
@@ -638,7 +638,7 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 	// Set the colour
 	worm->getSkin().setDefaultColor(Color(r, g, b));
 	worm->setColour(r, g, b);
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(worm);
 
 	return "";
 }
@@ -672,7 +672,7 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 
 	// Set the colour
 	worm->setColour(r, g, b);
-	cServer->UpdateWorms();
+	cServer->UpdateWorm(worm);
 
 	return "";
 }

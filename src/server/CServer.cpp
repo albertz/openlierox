@@ -423,24 +423,8 @@ mapCreate:
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on
 	if( tLX->iGameType == GME_HOST ) {
-		if( getGameMode()->GameTeams() > 1 ) {
-			
-			CWorm *w = cWorms;
-			CBytestream b;
-			
-			for(int i=0; i<MAX_WORMS; i++, w++ ) {
-				if( !w->isUsed() )
-					continue;
-				
-				// TODO: move that out here
-				// Write out the info
-				b.writeByte(S2C_WORMINFO);
-				b.writeInt(w->getID(),1);
-				w->writeInfo(&b);
-			}
-			
-			SendGlobalPacket(&b);
-		}
+		if( getGameMode()->GameTeams() > 1 )
+			UpdateWorms();
 	}
 	
 	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
