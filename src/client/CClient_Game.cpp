@@ -838,7 +838,7 @@ void CClient::UpdateScoreboard()
 			// Add to the team score
 			if(getGeneralGameType() == GMT_TEAMS) {
 				int team = w->getTeam();
-				if (team < 0)  {  // prevents crashing sometimes
+				if (team < 0 || team >= 4)  {  // prevents crashing sometimes
 					w->setTeam(0);
 					team = 0;
 				}
