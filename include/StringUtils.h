@@ -239,17 +239,6 @@ T from_string(const std::string& s, bool& failed) {
 	return t;
 }
 
-template<typename T>
-T from_string(const std::string& s) {
-	std::istringstream iss(s); T t = T();
-	iss >> t;
-	return t;
-}
-
-inline int atoi(const std::string& str)  { return from_string<int>(str);  }
-inline float atof(const std::string& str) { return from_string<float>(str);  }
-
-
 
 // Conversion functions from numbers to string
 
@@ -266,16 +255,24 @@ inline std::string to_string<bool>(bool val) {
 }
 
 template<>
-inline bool from_string<bool>(const std::string& s) {
+inline bool from_string<bool>(const std::string& s, bool& fail) {
 	std::string s1(stringtolower(s));
 	TrimSpaces(s1);
-	if( s1 == "true" ) return true;
-	else if( s1 == "false" ) return false;
-	else return ( atoi(s1) != 0 );
+	if( s1 == "true" || s1 == "yes" || s1 == "on" ) return true;
+	else if( s1 == "false" || s1 == "no" || s1 == "off" ) return false;
+	return from_string<int>(s, fail) != 0;
 }
 
 template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail);
-template<> inline VectorD2<int> from_string< VectorD2<int> >(const std::string& s) { bool f; return from_string< VectorD2<int> >(s, f); }
+template<> inline std::string to_string< VectorD2<int> >(VectorD2<int> v) { return "(" + to_string(v.x) + "," + to_string(v.y) + ")"; }
+
+template<typename T>
+T from_string(const std::string& s) {
+	bool fail; return from_string<T>(s, fail);
+}
+
+inline int atoi(const std::string& str)  { return from_string<int>(str);  }
+inline float atof(const std::string& str) { return from_string<float>(str);  }
 
 
 inline std::string ftoa(float val, int precision = -1)
