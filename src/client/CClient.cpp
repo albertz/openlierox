@@ -1774,197 +1774,198 @@ static bool addWorm(CClient* cl, profile_t* p) {
 static void updateAddedWorms(CClient* cl) {
 	if(tLX->iGameType == GME_JOIN) {
 		cl->Reconnect(); // we have to reconnect to inform the server about the new worm
-	} else {
-		// we can do it direct (similar to kickWorm)
+		return;
+	}
+	
+	// we can do it direct as host (similar to kickWorm)
 
-		CServerConnection* localClient = NULL;
-		for( int i=0; i<MAX_CLIENTS; i++ )
-			if(cServer->getClients()[i].isLocalClient()) {
-				localClient = &cServer->getClients()[i];
+	CServerConnection* localClient = NULL;
+	for( int i=0; i<MAX_CLIENTS; i++ )
+		if(cServer->getClients()[i].isLocalClient()) {
+			localClient = &cServer->getClients()[i];
+			break;
+		}
+	if(localClient == NULL) {
+		errors << "updateAddedWorms: localClient not found" << endl;
+		return;
+	}
+	
+	for(int i = 0; i < cl->getNumWorms(); ++i) {
+		if(localClient->getWorm(i) == NULL) { // this is a new worm
+			// first add the worm on the server
+			
+			WormJoinInfo info;
+			info.loadFromProfile(cl->getLocalWormProfiles()[i]);
+			CWorm* w = cServer->AddWorm(info);
+			if(w == NULL) {
+				warnings << "updateAddedWorms: cannot add worm " << info.sName << endl;
+				cl->setNumWorms(i);
 				break;
 			}
-		if(localClient == NULL) {
-			errors << "updateAddedWorms: localClient not found" << endl;
-			return;
-		}
-		
-		for(int i = 0; i < cl->getNumWorms(); ++i) {
-			if(localClient->getWorm(i) == NULL) { // this is a new worm
-				// first add the worm on the server
-				
-				WormJoinInfo info;
-				info.loadFromProfile(cl->getLocalWormProfiles()[i]);
-				CWorm* w = cServer->AddWorm(info);
-				if(w == NULL) {
-					warnings << "updateAddedWorms: cannot add worm " << info.sName << endl;
-					cl->setNumWorms(i);
-					break;
+			
+			w->setClient(localClient);
+			localClient->setNumWorms(i + 1);
+			localClient->setWorm(i, w);
+
+			hints << "Worm added: " << w->getName();
+			hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
+
+			if(cServer->getState() != SVS_LOBBY) {
+				w->Prepare(true); // prepare serverside
+				cServer->PrepareWorm(w);
+			}
+
+			{
+				// inform everybody else about new worm
+				// TODO: move that (protocol info) out here
+				CBytestream bytestr;
+				bytestr.writeByte(S2C_WORMINFO);
+				bytestr.writeInt(w->getID(), 1);
+				w->writeInfo(&bytestr);				
+				for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+					if(cServer->getClients()[ii].isLocalClient()) continue;
+					if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+					if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+					cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
 				}
-				
-				w->setClient(localClient);
-				localClient->setNumWorms(i + 1);
-				localClient->setWorm(i, w);
-
-				hints << "Worm added: " << w->getName();
-				hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
-
-				if(cServer->getState() != SVS_LOBBY) {
-					w->Prepare(true); // prepare serverside
-					cServer->PrepareWorm(w);
+			}
+			
+			// handling for connect during game
+			if( cServer->getState() != SVS_LOBBY ) {
+				for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+					if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+					if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+					cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
 				}
 
-				{
-					// inform everybody else about new worm
-					// TODO: move that (protocol info) out here
-					CBytestream bytestr;
-					bytestr.writeByte(S2C_WORMINFO);
-					bytestr.writeInt(w->getID(), 1);
-					w->writeInfo(&bytestr);				
-					for(int ii = 0; ii < MAX_CLIENTS; ii++) {
-						if(cServer->getClients()[ii].isLocalClient()) continue;
-						if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
-						if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
-						cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
+				if(!CServerNetEngine::isWormPropertyDefault(w)) {					
+					for( int j = 0; j < MAX_CLIENTS; j++ ) {
+						if(cServer->getClients()[j].getStatus() != NET_CONNECTED) continue;
+						if(cServer->getClients()[j].getNetEngine() == NULL) continue;
+						cServer->getClients()[j].getNetEngine()->SendWormProperties(w); // if we have changed them in prepare or so
 					}
 				}
+			}
+			
+			// ----- now add the worm on the client ----
+			
+			// (code from CClientNetEngine::ParseConnected) 
+			cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
+			if(cl->getWorm(i)->isUsed()) {
+				warnings << "updateAddedWorms: local worm " << i << " was already used, it is ";
+				warnings << cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << endl;
+			}
+			
+			cl->getWorm(i)->setUsed(true);
+			info.applyTo(cl->getWorm(i)); // sets skin
+			cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
+			cl->getWorm(i)->setName(w->getName());
+			cl->getWorm(i)->setID(w->getID());
+			cl->getWorm(i)->setTeam(w->getTeam());
+			cl->getWorm(i)->setGameScript(cl->getGameScript().get()); // TODO: why was this commented out?
+			//cl->getWorm(i)->setLoadingTime(cl->fLoadingTime);  // TODO: why is this commented out?
+			cl->getWorm(i)->setProfile(cl->getLocalWormProfiles()[i]);
+			if(cl->getLocalWormProfiles()[i]) {
+				cl->getWorm(i)->setType(WormType::fromInt(cl->getLocalWormProfiles()[i]->iType));
+			} else
+				warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
+			cl->getWorm(i)->setLocal(true);
+			cl->getWorm(i)->setClientVersion(cl->getClientVersion());
+			if(!cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType()))
+				warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
+			
+			
+			// gameready means that we had a preparegame package
+			// status==NET_PLAYING means that we are already playing
+			if( cl->getGameReady() ) {
+									
+				// Also set some game details
+				cl->getWorm(i)->setLives(w->getLives());
+				cl->getWorm(i)->setKills(w->getKills());
+				cl->getWorm(i)->setDamage(w->getDamage());
+				cl->getWorm(i)->setHealth(w->getHealth());
+				cl->getWorm(i)->setGameScript(cl->getGameScript().get());
+				cl->getWorm(i)->setWpnRest(cl->getWeaponRestrictions());
+				cl->getWorm(i)->setLoadingTime(cl->getGameLobby()->iLoadingTime/100.0f);
+				cl->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
+				cl->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
 				
-				// handling for connect during game
-				if( cServer->getState() != SVS_LOBBY ) {
-					for(int ii = 0; ii < MAX_CLIENTS; ii++) {
-						if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
-						if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
-						cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
-					}
-
-					if(!CServerNetEngine::isWormPropertyDefault(w)) {					
-						for( int j = 0; j < MAX_CLIENTS; j++ ) {
-							if(cServer->getClients()[j].getStatus() != NET_CONNECTED) continue;
-							if(cServer->getClients()[j].getNetEngine() == NULL) continue;
-							cServer->getClients()[j].getNetEngine()->SendWormProperties(w); // if we have changed them in prepare or so
-						}
-					}
+				// Prepare for battle!
+				cl->getWorm(i)->Prepare(false);
+				cl->getWorm(i)->setCanUseNinja(w->canUseNinja());
+				cl->getWorm(i)->setSpeedFactor(w->speedFactor());
+				cl->getWorm(i)->setDamageFactor(w->damageFactor());
+				cl->getWorm(i)->setCanAirJump(w->canAirJump());
+				
+				if(!cl->getWorm(i)->getWeaponsReady())
+					cl->getWorm(i)->initWeaponSelection();
+				
+				if(!cl->getWorm(i)->getWeaponsReady()) {
+					// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
+					// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
+					// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
+					notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
+					cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
+					cl->setReadySent(false); // to force resent
+					// we will recheck that in clients frame
 				}
-				
-				// ----- now add the worm on the client ----
-				
-				// (code from CClientNetEngine::ParseConnected) 
-				cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
-				if(cl->getWorm(i)->isUsed()) {
-					warnings << "updateAddedWorms: local worm " << i << " was already used, it is ";
-					warnings << cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << endl;
-				}
-				
-				cl->getWorm(i)->setUsed(true);
-				info.applyTo(cl->getWorm(i)); // sets skin
-				cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
-				cl->getWorm(i)->setName(w->getName());
-				cl->getWorm(i)->setID(w->getID());
-				cl->getWorm(i)->setTeam(w->getTeam());
-				cl->getWorm(i)->setGameScript(cl->getGameScript().get()); // TODO: why was this commented out?
-				//cl->getWorm(i)->setLoadingTime(cl->fLoadingTime);  // TODO: why is this commented out?
-				cl->getWorm(i)->setProfile(cl->getLocalWormProfiles()[i]);
-				if(cl->getLocalWormProfiles()[i]) {
-					cl->getWorm(i)->setType(WormType::fromInt(cl->getLocalWormProfiles()[i]->iType));
-				} else
-					warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
-				cl->getWorm(i)->setLocal(true);
-				cl->getWorm(i)->setClientVersion(cl->getClientVersion());
-				if(!cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType()))
-					warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
-				
-				
-				// gameready means that we had a preparegame package
-				// status==NET_PLAYING means that we are already playing
-				if( cl->getGameReady() ) {
-										
-					// Also set some game details
-					cl->getWorm(i)->setLives(w->getLives());
-					cl->getWorm(i)->setKills(w->getKills());
-					cl->getWorm(i)->setDamage(w->getDamage());
-					cl->getWorm(i)->setHealth(w->getHealth());
-					cl->getWorm(i)->setGameScript(cl->getGameScript().get());
-					cl->getWorm(i)->setWpnRest(cl->getWeaponRestrictions());
-					cl->getWorm(i)->setLoadingTime(cl->getGameLobby()->iLoadingTime/100.0f);
-					cl->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
-					cl->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
+				else { // weapons are already ready
+					// copy weapons to server
+					w->CloneWeaponsFrom(cl->getWorm(i));
+					w->setWeaponsReady(true);
 					
-					// Prepare for battle!
-					cl->getWorm(i)->Prepare(false);
-					cl->getWorm(i)->setCanUseNinja(w->canUseNinja());
-					cl->getWorm(i)->setSpeedFactor(w->speedFactor());
-					cl->getWorm(i)->setDamageFactor(w->damageFactor());
-					cl->getWorm(i)->setCanAirJump(w->canAirJump());
-					
-					if(!cl->getWorm(i)->getWeaponsReady())
-						cl->getWorm(i)->initWeaponSelection();
-					
-					if(!cl->getWorm(i)->getWeaponsReady()) {
-						// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
-						// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
-						// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
-						notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
-						cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
-						cl->setReadySent(false); // to force resent
-						// we will recheck that in clients frame
-					}
-					else { // weapons are already ready
-						// copy weapons to server
-						w->CloneWeaponsFrom(cl->getWorm(i));
-						w->setWeaponsReady(true);
-						
-						if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
-							// send weapon list to other clients
-							for(int ii = 0; ii < MAX_CLIENTS; ii++) {
-								if(!cServer->getClients()[ii].isLocalClient()) {
-									// TODO: move that out here
-									CBytestream bs;
-									bs.writeByte(S2C_CLREADY);
-									bs.writeByte(1);
-									cl->getWorm(i)->writeWeapons(&bs);
-									cServer->getClients()[ii].getNetEngine()->SendPacket(&bs);
-								}
+					if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
+						// send weapon list to other clients
+						for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+							if(!cServer->getClients()[ii].isLocalClient()) {
+								// TODO: move that out here
+								CBytestream bs;
+								bs.writeByte(S2C_CLREADY);
+								bs.writeByte(1);
+								cl->getWorm(i)->writeWeapons(&bs);
+								cServer->getClients()[ii].getNetEngine()->SendPacket(&bs);
 							}
-						}						
+						}
+					}						
 
-						if(cServer->getState() == SVS_PLAYING) {
-							// spawn worm
-							cServer->SpawnWorm( w );
-							if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-								cServer->SendEmptyWeaponsOnRespawn( w );							
-						}						
-					}
-					
-					if(!bDedicated && cl->getWorm(i)->getType() == PRF_HUMAN) {
-						// we must resetup the inputs
-						cl->SetupGameInputs();
-						// also resetup viewports
-						cl->SetupViewports();
-					}
-
-					cl->UpdateScoreboard();
+					if(cServer->getState() == SVS_PLAYING) {
+						// spawn worm
+						cServer->SpawnWorm( w );
+						if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+							cServer->SendEmptyWeaponsOnRespawn( w );							
+					}						
 				}
-			}
-		}
+				
+				if(!bDedicated && cl->getWorm(i)->getType() == PRF_HUMAN) {
+					// we must resetup the inputs
+					cl->SetupGameInputs();
+					// also resetup viewports
+					cl->SetupViewports();
+				}
 
-		// grabbed some code from GameServer::ParseConnect
-		
-		if( cServer->getState() == SVS_LOBBY )
-			cServer->UpdateGameLobby(); // tell everybody about game lobby details
-		
-		if (tLX->iGameType != GME_LOCAL) {
-			if( cServer->getState() == SVS_LOBBY )
-				cServer->SendWormLobbyUpdate(); // to everbody
-			else {
-				for( int i=0; i<MAX_CLIENTS; i++ )
-					cServer->SendWormLobbyUpdate( &cServer->getClients()[i], localClient); // send only data about our client
+				cl->UpdateScoreboard();
 			}
 		}
-		
-		DeprecatedGUI::bHost_Update = true;
-		
-		// Game state has changed (in many possible ways), just recheck
-		cServer->RecheckGame();
 	}
+
+	// grabbed some code from GameServer::ParseConnect
+	
+	if( cServer->getState() == SVS_LOBBY )
+		cServer->UpdateGameLobby(); // tell everybody about game lobby details
+	
+	if (tLX->iGameType != GME_LOCAL) {
+		if( cServer->getState() == SVS_LOBBY )
+			cServer->SendWormLobbyUpdate(); // to everbody
+		else {
+			for( int i=0; i<MAX_CLIENTS; i++ )
+				cServer->SendWormLobbyUpdate( &cServer->getClients()[i], localClient); // send only data about our client
+		}
+	}
+	
+	DeprecatedGUI::bHost_Update = true;
+	
+	// Game state has changed (in many possible ways), just recheck
+	cServer->RecheckGame();
 }
 
 static void prepareWormAdd() {
