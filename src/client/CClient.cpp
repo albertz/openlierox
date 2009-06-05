@@ -1771,41 +1771,41 @@ static bool addWorm(CClient* cl, profile_t* p) {
 	return true;
 }
 
-static void updateAddedWorms(CClient* cl) {
+static void updateAddedWorms() {
 	if(tLX->iGameType == GME_JOIN) {
-		cl->Reconnect(); // we have to reconnect to inform the server about the new worm
+		cClient->Reconnect(); // we have to reconnect to inform the server about the new worm
 		return;
 	}
 	
 	// we can do it direct as host (similar to kickWorm)
 
-	CServerConnection* localClient = NULL;
+	CServerConnection* localConn = NULL;
 	for( int i=0; i<MAX_CLIENTS; i++ )
 		if(cServer->getClients()[i].isLocalClient()) {
-			localClient = &cServer->getClients()[i];
+			localConn = &cServer->getClients()[i];
 			break;
 		}
-	if(localClient == NULL) {
+	if(localConn == NULL) {
 		errors << "updateAddedWorms: localClient not found" << endl;
 		return;
 	}
 	
-	for(int i = 0; i < cl->getNumWorms(); ++i) {
-		if(localClient->getWorm(i) == NULL) { // this is a new worm
+	for(int i = 0; i < cClient->getNumWorms(); ++i) {
+		if(localConn->getWorm(i) == NULL) { // this is a new worm
 			// first add the worm on the server
 			
 			WormJoinInfo info;
-			info.loadFromProfile(cl->getLocalWormProfiles()[i]);
+			info.loadFromProfile(cClient->getLocalWormProfiles()[i]);
 			CWorm* w = cServer->AddWorm(info);
 			if(w == NULL) {
 				warnings << "updateAddedWorms: cannot add worm " << info.sName << endl;
-				cl->setNumWorms(i);
+				cClient->setNumWorms(i);
 				break;
 			}
 			
-			w->setClient(localClient);
-			localClient->setNumWorms(i + 1);
-			localClient->setWorm(i, w);
+			w->setClient(localConn);
+			localConn->setNumWorms(i + 1);
+			localConn->setWorm(i, w);
 
 			hints << "Worm added: " << w->getName();
 			hints << " (id " << w->getID() << ", team " << w->getTeam() << ")" << endl;
@@ -1850,71 +1850,71 @@ static void updateAddedWorms(CClient* cl) {
 			// ----- now add the worm on the client ----
 			
 			// (code from CClientNetEngine::ParseConnected) 
-			cl->setWorm(i, &cl->getRemoteWorms()[w->getID()]);
-			if(cl->getWorm(i)->isUsed()) {
+			cClient->setWorm(i, &cClient->getRemoteWorms()[w->getID()]);
+			if(cClient->getWorm(i)->isUsed()) {
 				warnings << "updateAddedWorms: local worm " << i << " was already used, it is ";
-				warnings << cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << endl;
+				warnings << cClient->getWorm(i)->getID() << ":" << cClient->getWorm(i)->getName() << endl;
 			}
 			
-			cl->getWorm(i)->setUsed(true);
-			info.applyTo(cl->getWorm(i)); // sets skin
-			cl->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
-			cl->getWorm(i)->setName(w->getName());
-			cl->getWorm(i)->setID(w->getID());
-			cl->getWorm(i)->setTeam(w->getTeam());
-			cl->getWorm(i)->setGameScript(cl->getGameScript().get()); // TODO: why was this commented out?
-			//cl->getWorm(i)->setLoadingTime(cl->fLoadingTime);  // TODO: why is this commented out?
-			cl->getWorm(i)->setProfile(cl->getLocalWormProfiles()[i]);
-			if(cl->getLocalWormProfiles()[i]) {
-				cl->getWorm(i)->setType(WormType::fromInt(cl->getLocalWormProfiles()[i]->iType));
+			cClient->getWorm(i)->setUsed(true);
+			info.applyTo(cClient->getWorm(i)); // sets skin
+			cClient->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
+			cClient->getWorm(i)->setName(w->getName());
+			cClient->getWorm(i)->setID(w->getID());
+			cClient->getWorm(i)->setTeam(w->getTeam());
+			cClient->getWorm(i)->setGameScript(cClient->getGameScript().get()); // TODO: why was this commented out?
+			//cClient->getWorm(i)->setLoadingTime(cClient->fLoadingTime);  // TODO: why is this commented out?
+			cClient->getWorm(i)->setProfile(cClient->getLocalWormProfiles()[i]);
+			if(cClient->getLocalWormProfiles()[i]) {
+				cClient->getWorm(i)->setType(WormType::fromInt(cClient->getLocalWormProfiles()[i]->iType));
 			} else
 				warnings << "updateAddedWorms: profile " << i << " for worm " << w->getID() << " is not set" << endl;
-			cl->getWorm(i)->setLocal(true);
-			cl->getWorm(i)->setClientVersion(cl->getClientVersion());
-			if(!cl->getWorm(i)->ChangeGraphics(cl->getGeneralGameType()))
+			cClient->getWorm(i)->setLocal(true);
+			cClient->getWorm(i)->setClientVersion(cClient->getClientVersion());
+			if(!cClient->getWorm(i)->ChangeGraphics(cClient->getGeneralGameType()))
 				warnings << "updateAddedWorms: changegraphics for worm " << w->getID() << " failed" << endl;
 			
 			
 			// gameready means that we had a preparegame package
 			// status==NET_PLAYING means that we are already playing
-			if( cl->getGameReady() ) {
+			if( cClient->getGameReady() ) {
 									
 				// Also set some game details
-				cl->getWorm(i)->setLives(w->getLives());
-				cl->getWorm(i)->setKills(w->getKills());
-				cl->getWorm(i)->setDamage(w->getDamage());
-				cl->getWorm(i)->setHealth(w->getHealth());
-				cl->getWorm(i)->setGameScript(cl->getGameScript().get());
-				cl->getWorm(i)->setWpnRest(cl->getWeaponRestrictions());
-				cl->getWorm(i)->setLoadingTime(cl->getGameLobby()->iLoadingTime/100.0f);
-				cl->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
-				cl->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
+				cClient->getWorm(i)->setLives(w->getLives());
+				cClient->getWorm(i)->setKills(w->getKills());
+				cClient->getWorm(i)->setDamage(w->getDamage());
+				cClient->getWorm(i)->setHealth(w->getHealth());
+				cClient->getWorm(i)->setGameScript(cClient->getGameScript().get());
+				cClient->getWorm(i)->setWpnRest(cClient->getWeaponRestrictions());
+				cClient->getWorm(i)->setLoadingTime(cClient->getGameLobby()->iLoadingTime/100.0f);
+				cClient->getWorm(i)->setWeaponsReady(w->getWeaponsReady());
+				cClient->getWorm(i)->CloneWeaponsFrom(w); // if we had serverside weapons, this will clone them
 				
 				// Prepare for battle!
-				cl->getWorm(i)->Prepare(false);
-				cl->getWorm(i)->setCanUseNinja(w->canUseNinja());
-				cl->getWorm(i)->setSpeedFactor(w->speedFactor());
-				cl->getWorm(i)->setDamageFactor(w->damageFactor());
-				cl->getWorm(i)->setCanAirJump(w->canAirJump());
+				cClient->getWorm(i)->Prepare(false);
+				cClient->getWorm(i)->setCanUseNinja(w->canUseNinja());
+				cClient->getWorm(i)->setSpeedFactor(w->speedFactor());
+				cClient->getWorm(i)->setDamageFactor(w->damageFactor());
+				cClient->getWorm(i)->setCanAirJump(w->canAirJump());
 				
-				if(!cl->getWorm(i)->getWeaponsReady())
-					cl->getWorm(i)->initWeaponSelection();
+				if(!cClient->getWorm(i)->getWeaponsReady())
+					cClient->getWorm(i)->initWeaponSelection();
 				
-				if(!cl->getWorm(i)->getWeaponsReady()) {
+				if(!cClient->getWorm(i)->getWeaponsReady()) {
 					// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
 					// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
 					// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
 					notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
-					cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
-					cl->setReadySent(false); // to force resent
+					cClient->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
+					cClient->setReadySent(false); // to force resent
 					// we will recheck that in clients frame
 				}
 				else { // weapons are already ready
 					// copy weapons to server
-					w->CloneWeaponsFrom(cl->getWorm(i));
+					w->CloneWeaponsFrom(cClient->getWorm(i));
 					w->setWeaponsReady(true);
 					
-					if(cl->getStatus() == NET_PLAYING) { // that means that we were already ready before
+					if(cClient->getStatus() == NET_PLAYING) { // that means that we were already ready before
 						// send weapon list to other clients
 						for(int ii = 0; ii < MAX_CLIENTS; ii++) {
 							if(!cServer->getClients()[ii].isLocalClient()) {
@@ -1922,7 +1922,7 @@ static void updateAddedWorms(CClient* cl) {
 								CBytestream bs;
 								bs.writeByte(S2C_CLREADY);
 								bs.writeByte(1);
-								cl->getWorm(i)->writeWeapons(&bs);
+								cClient->getWorm(i)->writeWeapons(&bs);
 								cServer->getClients()[ii].getNetEngine()->SendPacket(&bs);
 							}
 						}
@@ -1936,14 +1936,14 @@ static void updateAddedWorms(CClient* cl) {
 					}						
 				}
 				
-				if(!bDedicated && cl->getWorm(i)->getType() == PRF_HUMAN) {
+				if(!bDedicated && cClient->getWorm(i)->getType() == PRF_HUMAN) {
 					// we must resetup the inputs
-					cl->SetupGameInputs();
+					cClient->SetupGameInputs();
 					// also resetup viewports
-					cl->SetupViewports();
+					cClient->SetupViewports();
 				}
 
-				cl->UpdateScoreboard();
+				cClient->UpdateScoreboard();
 			}
 		}
 	}
@@ -1958,7 +1958,7 @@ static void updateAddedWorms(CClient* cl) {
 			cServer->SendWormLobbyUpdate(); // to everbody
 		else {
 			for( int i=0; i<MAX_CLIENTS; i++ )
-				cServer->SendWormLobbyUpdate( &cServer->getClients()[i], localClient); // send only data about our client
+				cServer->SendWormLobbyUpdate( &cServer->getClients()[i], localConn); // send only data about our client
 		}
 	}
 	
@@ -2000,13 +2000,13 @@ void CClient::AddRandomBot(int amount) {
 	prepareWormAdd();
 	for(int i = 0; i < amount; ++i)
 		if(!addWorm(this, randomChoiceFrom(bots))) break;
-	updateAddedWorms(this);
+	updateAddedWorms();
 }
 
 void CClient::AddWorm(profile_t* p) {
 	prepareWormAdd();
 	if(!addWorm(this, p)) return;
-	updateAddedWorms(this);
+	updateAddedWorms();
 }
 
 
