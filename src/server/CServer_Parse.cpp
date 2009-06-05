@@ -1676,14 +1676,18 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	{
 		if(cClients[c].getStatus() != NET_CONNECTED) 
 			continue;
-		clientsAmount ++;
+		if( !cClients[c].isLocalClient() )
+			clientsAmount ++;
 	}
 	for(int c = 0; c < MAX_CLIENTS; c++) 
 	{
 		if(cClients[c].getStatus() != NET_CONNECTED) 
 			continue;
 		// TODO: finetune this coefficients
-		cClients[c].getChannel()->LimitReliableStreamBandwidth( getMaxUploadBandwidth() / clientsAmount * 0.5f, 
+		if( cClients[c].isLocalClient() )
+			cClients[c].getChannel()->LimitReliableStreamBandwidth( -1.0f ); // No limit
+		else
+			cClients[c].getChannel()->LimitReliableStreamBandwidth( getMaxUploadBandwidth() / clientsAmount * 0.5f, 
 																4.0f + cClients[c].getNetSpeed() );
 	}
 }
