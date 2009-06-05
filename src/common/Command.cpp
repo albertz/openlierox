@@ -1222,6 +1222,32 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 }
 
 
+COMMAND(setWormLives, "set worm lives", "id (-2: unlimited, -1: outofgame, >=0: lives)", 2, 2);
+void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) { printUsage(caller); return; }
+	CWorm* w = CheckWorm(caller, id, "setWormLives");
+	if(!w) return;
+	
+	Sint16 lives = from_string<Sint16>(params[1], fail);
+	if(fail) { printUsage(caller); return; }
+	if(lives < -2) { printUsage(caller); return; }
+	
+	w->setLives(lives);
+	for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+		if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+		if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+		cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
+	}	
+}
+
+
 COMMAND(setWormTeam, "set worm team", "id team", 2, 2);
 void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
@@ -1254,7 +1280,10 @@ void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 	w->getLobby()->iTeam = team;
 	w->setTeam(team);
 	cServer->UpdateWorm(w);
-	cServer->SendWormLobbyUpdate();
+	// TODO: SendWormLobbyUpdate: is this still needed? which information does it contain which are not in UpdateWorm?
+	// Also, if we need it, we should at least set target=w->getClient(). Also, if it is only needed for old clients,
+	// we also should send it only to them to save some bandwidth.
+	//cServer->SendWormLobbyUpdate();
 	cServer->RecheckGame();
 }
 
@@ -1715,6 +1744,15 @@ COMMAND(getWormTeam, "get worm team", "id", 1, 1);
 void Cmd_getWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(itoa(w->getTeam()));
+}
+
+COMMAND(getWormScore, "get worm score", "id", 1, 1);
+void Cmd_getWormScore::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
+	caller->pushReturnArg(itoa(w->getLives()));
+	caller->pushReturnArg(itoa(w->getKills()));
+	caller->pushReturnArg(itoa(w->getDamage()));
+	caller->pushReturnArg(w->getAlive() ? itoa(w->getHealth()) : "-1");
 }
 
 COMMAND(getWormIp, "get worm IP", "id", 1, 1);
