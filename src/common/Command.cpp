@@ -112,7 +112,6 @@ ParamSeps ParseParams_Seps(const std::string& params) {
 			
 			// Read until another quote
 			for(; i.pos < params.size(); IncUtf8StringIterator(i, const_string_iterator(params, params.size()))) {
-				
 				if(*i == '"') {
 					quote = false;
 					break;
@@ -123,10 +122,26 @@ ParamSeps ParseParams_Seps(const std::string& params) {
 			start = i.pos + 1;
 			continue;
 		}
+		
+		// check brackets (handle it like quotes but include them)
+		if(*i == '(') {
+			quote = true;
+			i.pos++;
+			
+			// Read until all brackets closed
+			unsigned int bracketDepth = 1;
+			for(; i.pos < params.size(); IncUtf8StringIterator(i, const_string_iterator(params, params.size()))) {
+				if(*i == '(') bracketDepth++;
+				else if(*i == ')') { bracketDepth--; if(bracketDepth == 0) break; }
+			}
+			if(bracketDepth > 0) break; // if we are still in the bracket, break (else we would make an addition i++ => crash)
+			quote = false;
+			continue;			
+		}
 	}
 	
-	// Add the last token, only if it's not in unfinished quotes
-	if(start < params.size() && !quote) {
+	// Add the last token
+	if(start < params.size()) {
 		lastentry = res.insert(lastentry, ParamSeps::value_type(start, params.size() - start));
 	}
 	
@@ -199,32 +214,36 @@ struct AutocompleteRequest {
 		return c == ' ' || c == '\"' || c == ',';
 	}
 	
-	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isFull) const {
+	AutocompletionInfo::InputState completeSuggestion(const std::string& repl, bool isCompleteSuggestion) const {
 		AutocompletionInfo::InputState ret;
 		ret.text = pretxt;
 		ret.pos = pretxt.size() + repl.size();
-		bool wasInQuotes = false;
-		if(pretxt.size() > 0 && pretxt[pretxt.size()-1] == '\"') wasInQuotes = true;
-		bool needToAddQuotes = false;
-		if(!wasInQuotes && repl.find_first_of(" ,\t") != std::string::npos) {
-			// we need to put quotes
-			needToAddQuotes = true;
-			ret.text += '\"';
-			ret.pos++;
+		bool needToAddPreQuotes = false;
+		bool needToAddPostQuotes = false;
+		bool hadPreQuotes = pretxt.size() > 0 && pretxt[pretxt.size()-1] == '\"';
+		if(repl.find_first_of(" ,\t") != std::string::npos || hadPreQuotes) { // we must have quotes
+			if(!hadPreQuotes) { // no pre-quotes
+				// we need to put pre-quotes
+				needToAddPreQuotes = true;
+				ret.text += '\"';
+				ret.pos++;
+			}
+			if(posttxt.size() == 0 || posttxt[0] != '\"') // no post-quotes
+				needToAddPostQuotes = true;
 		}
 		ret.text += repl;
-		if(needToAddQuotes) ret.text += "\"";
+		if(needToAddPostQuotes) ret.text += "\"";
 		if(posttxt.size() > 0 && !emptyStart(posttxt[0])) {
 			ret.text += " ";
-			if(isFull) { ret.pos++; if(needToAddQuotes) ret.pos++; }
+			if(isCompleteSuggestion) { ret.pos++; if(needToAddPostQuotes) ret.pos++; }
 		}
 		else if(posttxt.size() > 0 && emptyStart(posttxt[0])) {
-			if(isFull) { ret.pos++; if(needToAddQuotes) ret.pos++; }
+			if(isCompleteSuggestion) { ret.pos++; if(needToAddPostQuotes) ret.pos++; }
 		}
-		else if(posttxt.empty() && isFull) {
+		else if(posttxt.empty() && isCompleteSuggestion) {
 			ret.text += " ";
 			ret.pos++;
-			if(needToAddQuotes) ret.pos++;
+			if(needToAddPostQuotes) ret.pos++;
 		}
 		ret.text += posttxt;
 		return ret;
@@ -950,7 +969,7 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 }
 
 
-COMMAND(addBot, "add bot to game", "[botprofile]", 0, 1);
+COMMAND(addBot, "add bot to game", "[inGame:*true/false] [botprofile]", 0, 2);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
@@ -964,10 +983,17 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		caller->writeMsg("Too many worms!");
 		return;
 	}
+
+	bool outOfGame = false;
+	if(params.size() > 0) {
+		bool fail = false;
+		outOfGame = !from_string<bool>(params[0], fail);
+		if(fail) { printUsage(caller); return; }
+	}
 	
 	// try to find the requested worm
-	if(params.size() > 0) {
-		std::string localWorm = params[0];
+	if(params.size() > 1) {
+		std::string localWorm = params[1];
 		TrimSpaces(localWorm);
 		StripQuotes(localWorm);
 		
@@ -977,14 +1003,16 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 				caller->writeMsg("worm " + localWorm + " is not a bot", CNC_WARNING);
 				return;
 			}
-			cClient->AddWorm(p);
+			cClient->AddWorm(p, outOfGame);
 			return;
 		}
 		
 		caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead"); 
 	}
 	
-	cClient->AddRandomBot();
+	std::list<int> worms = cClient->AddRandomBots(1, outOfGame);
+	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+		caller->pushReturnArg(itoa(*i));
 }
 
 COMMAND(addBots, "add bots to game", "number", 1, 1);
@@ -1008,7 +1036,9 @@ void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		return;
 	}
 	
-	cClient->AddRandomBot(num);
+	std::list<int> worms = cClient->AddRandomBots(num);
+	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+		caller->pushReturnArg(itoa(*i));
 }
 
 COMMAND(kickBot, "kick bot from game", "[reason]", 0, 1);
@@ -1156,6 +1186,39 @@ void Cmd_unmuteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		return;
 	
 	cServer->unmuteWorm(id);
+}
+
+
+COMMAND(spawnWorm, "spawn worm", "id [pos]", 1, 2);
+void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	if(cServer->getState() != SVS_PLAYING) {
+		caller->writeMsg("can only spawn worm when playing");
+		return;
+	}
+	
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) { printUsage(caller); return; }
+	CWorm* w = CheckWorm(caller, id, "spawnWorm");
+	if(!w) return;
+	
+	CVec pos;
+	bool havePos = false;
+	if(params.size() > 1) {
+		pos = from_string< VectorD2<int> >(params[1], fail);
+		if(fail) { printUsage(caller); return; }
+		havePos = true;
+	}
+	
+	cServer->SpawnWorm(w, havePos ? &pos : NULL);
+	if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+		cServer->SendEmptyWeaponsOnRespawn( w );
 }
 
 

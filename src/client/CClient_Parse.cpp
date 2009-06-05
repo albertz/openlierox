@@ -1521,14 +1521,10 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 	int lives = (int)bs->readInt16();
 	int gameLives = client->getGameLobby()->iLives;
 	if (gameLives == WRM_UNLIM) {
-		if(lives != WRM_UNLIM)
-			warnings << "WARNING: we have unlimited lives in this game but server gives worm " << w->getID() << " only " << lives << " lives" << endl;
 		w->setLives( MAX(lives,WRM_UNLIM) );
 	} else {
 		if(lives == WRM_UNLIM)
 			warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << w->getID() << " unlimited lives" << endl;
-		else if(lives > client->getGameLobby()->iLives)
-			warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << w->getID() << " even " << lives << " lives" << endl;			
 		w->setLives( MAX(lives,WRM_OUT) );
 	}
 
@@ -2523,14 +2519,10 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		int lives = (int)bs->readInt16();
 		int gameLives = client->getGameLobby()->iLives;
 		if (gameLives == WRM_UNLIM) {
-			if(lives != WRM_UNLIM)
-				warnings << "WARNING: we have unlimited lives in this game but server gives worm " << id << " only " << lives << " lives" << endl;
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_UNLIM) );
 		} else {
 			if(lives == WRM_UNLIM)
 				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
-			else if(lives > client->getGameLobby()->iLives)
-				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " even " << lives << " lives" << endl;			
 			client->cRemoteWorms[id].setLives( MAX(lives,WRM_OUT) );
 		}
 	

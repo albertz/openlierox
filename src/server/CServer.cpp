@@ -1343,7 +1343,7 @@ void GameServer::CheckForFillWithBots() {
 		int fillNr = fillUpTo - getNumPlayers();
 		SendGlobalText("Too less players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
-		cClient->AddRandomBot(fillNr);
+		cClient->AddRandomBots(fillNr);
 	}
 }
 

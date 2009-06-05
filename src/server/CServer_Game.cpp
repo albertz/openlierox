@@ -130,14 +130,27 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	if(!getGameMode()->Spawn(Worm, pos))
 		return;
 
-	if( client )	// Spawn all playing worms only for new client for connect-during-game
+	Worm->setAlive(true);
+	bool sendWormUpdate = true;
+	if(Worm->getLives() == WRM_OUT) {
+		if(tLXOptions->tGameInfo.iLives < 0)
+			Worm->setLives(WRM_UNLIM);
+		else
+			Worm->setLives(0);
+		sendWormUpdate = true;
+	}
+	
+	if( client ) { // Spawn all playing worms only for new client for connect-during-game
 		client->getNetEngine()->SendSpawnWorm(Worm, Worm->getPos());
-	else
-	{
+		if(sendWormUpdate) client->getNetEngine()->SendWormScore(Worm);		
+	}
+	else {
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormSpawned_Signal(Worm);
-		for( int i = 0; i < MAX_CLIENTS; i++ )
+		for( int i = 0; i < MAX_CLIENTS; i++ ) {
 			cClients[i].getNetEngine()->SendSpawnWorm(Worm, Worm->getPos());
+			if(sendWormUpdate) cClients[i].getNetEngine()->SendWormScore(Worm);
+		}
 	}
 }
 

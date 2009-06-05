@@ -1771,10 +1771,13 @@ static bool setWormAdd(profile_t* p) {
 	return true;
 }
 
-static void updateAddedWorms() {
+static std::list<int> updateAddedWorms(bool outOfGame) {
+	std::list<int> addedWorms;
+	
 	if(tLX->iGameType == GME_JOIN) {
+		if(outOfGame) warnings << "updateAddedWorms: we cannot avoid worm spawning" << endl;
 		cClient->Reconnect(); // we have to reconnect to inform the server about the new worm
-		return;
+		return addedWorms;
 	}
 	
 	// we can do it direct as host (similar to kickWorm)
@@ -1787,7 +1790,7 @@ static void updateAddedWorms() {
 		}
 	if(localConn == NULL) {
 		errors << "updateAddedWorms: localClient not found" << endl;
-		return;
+		return addedWorms;
 	}
 	
 	for(int i = 0; i < cClient->getNumWorms(); ++i) {
@@ -1802,6 +1805,7 @@ static void updateAddedWorms() {
 				cClient->setNumWorms(i);
 				break;
 			}
+			addedWorms.push_back(serverWorm->getID());
 			
 			serverWorm->setClient(localConn);
 			localConn->setNumWorms(i + 1);
@@ -1810,6 +1814,8 @@ static void updateAddedWorms() {
 			hints << "Worm added: " << serverWorm->getName();
 			hints << " (id " << serverWorm->getID() << ", team " << serverWorm->getTeam() << ")" << endl;
 
+			serverWorm->setAlive(false);
+			if(outOfGame) serverWorm->setLives(WRM_OUT);
 			if(cServer->getState() != SVS_LOBBY) {
 				serverWorm->Prepare(true); // prepare serverside
 				cServer->PrepareWorm(serverWorm);
@@ -1857,6 +1863,7 @@ static void updateAddedWorms() {
 			}
 			
 			cClient->getWorm(i)->setUsed(true);
+			cClient->getWorm(i)->setAlive(false);
 			info.applyTo(cClient->getWorm(i)); // sets skin
 			cClient->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
 			cClient->getWorm(i)->setName(serverWorm->getName());
@@ -1904,6 +1911,7 @@ static void updateAddedWorms() {
 					// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
 					// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
 					// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
+					// Also note that the outOfGame-parameter is ignored here.
 					notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
 					cClient->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
 					cClient->setReadySent(false); // to force resent
@@ -1928,7 +1936,7 @@ static void updateAddedWorms() {
 						}
 					}						
 
-					if(cServer->getState() == SVS_PLAYING) {
+					if(cServer->getState() == SVS_PLAYING && !outOfGame) {
 						// spawn worm
 						cServer->SpawnWorm( serverWorm );
 						if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
@@ -1966,6 +1974,8 @@ static void updateAddedWorms() {
 	
 	// Game state has changed (in many possible ways), just recheck
 	cServer->RecheckGame();
+	
+	return addedWorms;
 }
 
 static void prepareWormAdd() {
@@ -1978,11 +1988,11 @@ static void prepareWormAdd() {
 	}
 }
 
-void CClient::AddRandomBot(int amount) {
+std::list<int> CClient::AddRandomBots(int amount, bool outOfGame) {
 	// too many worms are handled in the loop below
 	if(amount < 1) {
 		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
-		return;
+		return std::list<int>();
 	}
 
 	std::vector<profile_t*> bots;
@@ -1994,19 +2004,26 @@ void CClient::AddRandomBot(int amount) {
 	if(bots.size() == 0) {
 		// TODO: add a bot to profiles in that case
 		errors << "Can't find ANY bot profile!" << endl;
-		return;
+		return std::list<int>();
 	}
 	
 	prepareWormAdd();
 	for(int i = 0; i < amount; ++i)
 		if(!setWormAdd(randomChoiceFrom(bots))) break;
-	updateAddedWorms();
+	return updateAddedWorms(outOfGame);
 }
 
-void CClient::AddWorm(profile_t* p) {
+int CClient::AddWorm(profile_t* p, bool outOfGame) {
 	prepareWormAdd();
-	if(!setWormAdd(p)) return;
-	updateAddedWorms();
+	if(!setWormAdd(p)) return -1;
+	std::list<int> worms = updateAddedWorms(outOfGame);
+	if(worms.size() == 1)
+		return worms.front();
+	else if(worms.size() == 0)
+		return -1;
+
+	errors << "CClient::AddWorm has added multiple worms..." << endl;
+	return worms.front();
 }
 
 

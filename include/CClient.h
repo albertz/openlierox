@@ -434,8 +434,8 @@ public:
 	log_worm_t	*GetLogWorm(int id);
 	void		GetLogData(std::string& data);
 
-	void		AddRandomBot(int amount = 1);
-	void		AddWorm(profile_t* p);
+	std::list<int> AddRandomBots(int amount = 1, bool outOfGame = false); // returns list of added worms
+	int			AddWorm(profile_t* p, bool outOfGame = false); // returns -1 if failed, worm id otherwise
 	void		RemoveWorm(int id);
 
 	// Game
