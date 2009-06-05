@@ -4527,61 +4527,59 @@ void CWormBotInputHandler::onRespawn() {
 void CWormBotInputHandler::initWeaponSelection() {
 	
 	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
-	if(true) {
 		
-		// TODO: move this to CWorm_AI
-		bool bRandomWeaps = true;
-		// Combo (rifle)
-		if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
-			(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
-			 cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
-			if (m_worm->cWeaponRest->isEnabled("Rifle"))  {
-				for (short i=0; i<5; i++)
-					m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_RIFLES);
-			}
+	// TODO: move this to CWorm_AI
+	bool bRandomWeaps = true;
+	// Combo (rifle)
+	if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
+		(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
+		 cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
+		if (m_worm->cWeaponRest->isEnabled("Rifle"))  {
+			for (short i=0; i<5; i++)
+				m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
+			bRandomWeaps = false;
+			AI_SetGameType(GAM_RIFLES);
 		}
-		// 100 lt
-		else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
-				  cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
-				 cClient->getGameLobby()->iLoadingTime == 100)  {
-			int MyWeaps = m_worm->cWeaponRest->isEnabled("Super Shotgun") + m_worm-> cWeaponRest->isEnabled("Napalm") +  m_worm->cWeaponRest->isEnabled("Cannon") + m_worm->cWeaponRest->isEnabled("Doomsday") + m_worm->cWeaponRest->isEnabled("Chaingun");
-			if (MyWeaps == 5)  {
-				// Set our weapons
-				m_worm->tWeapons[0].Weapon = m_worm->cGameScript->FindWeapon("Super Shotgun");
-				m_worm->tWeapons[1].Weapon = m_worm->cGameScript->FindWeapon("Napalm");
-				m_worm->tWeapons[2].Weapon = m_worm->cGameScript->FindWeapon("Cannon");
-				m_worm->tWeapons[3].Weapon = m_worm->cGameScript->FindWeapon("Doomsday");
-				m_worm->tWeapons[4].Weapon = m_worm->cGameScript->FindWeapon("Chaingun");
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_100LT);
-			}
-		}
-		// Mortar game
-		else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
-				  cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
-				 cClient->getGameLobby()->iLoadingTime < 50)  {
-			if (m_worm->cWeaponRest->isEnabled("Mortar Launcher"))  {
-				for (short i=0; i<5; i++)
-					m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
-				bRandomWeaps = false;
-				AI_SetGameType(GAM_MORTARS);
-			}
-		}
-		
-		// Random
-		if (bRandomWeaps) {
-			m_worm->GetRandomWeapons();
-			AI_SetGameType(GAM_OTHER);
-		}
-
-		// Note: Right now, it's as easy as this. But it could be more complicated later and we have to update this then.
-		for(int i = 0; i < 5; ++i)
-			m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
-		
-		m_worm->setWeaponsReady(true);
 	}
+	// 100 lt
+	else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
+			  cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
+			 cClient->getGameLobby()->iLoadingTime == 100)  {
+		int MyWeaps = m_worm->cWeaponRest->isEnabled("Super Shotgun") + m_worm-> cWeaponRest->isEnabled("Napalm") +  m_worm->cWeaponRest->isEnabled("Cannon") + m_worm->cWeaponRest->isEnabled("Doomsday") + m_worm->cWeaponRest->isEnabled("Chaingun");
+		if (MyWeaps == 5)  {
+			// Set our weapons
+			m_worm->tWeapons[0].Weapon = m_worm->cGameScript->FindWeapon("Super Shotgun");
+			m_worm->tWeapons[1].Weapon = m_worm->cGameScript->FindWeapon("Napalm");
+			m_worm->tWeapons[2].Weapon = m_worm->cGameScript->FindWeapon("Cannon");
+			m_worm->tWeapons[3].Weapon = m_worm->cGameScript->FindWeapon("Doomsday");
+			m_worm->tWeapons[4].Weapon = m_worm->cGameScript->FindWeapon("Chaingun");
+			bRandomWeaps = false;
+			AI_SetGameType(GAM_100LT);
+		}
+	}
+	// Mortar game
+	else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
+			  cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
+			 cClient->getGameLobby()->iLoadingTime < 50)  {
+		if (m_worm->cWeaponRest->isEnabled("Mortar Launcher"))  {
+			for (short i=0; i<5; i++)
+				m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
+			bRandomWeaps = false;
+			AI_SetGameType(GAM_MORTARS);
+		}
+	}
+	
+	// Random
+	if (bRandomWeaps) {
+		m_worm->GetRandomWeapons();
+		AI_SetGameType(GAM_OTHER);
+	}
+
+	// Note: Right now, it's as easy as this. But it could be more complicated later and we have to update this then.
+	for(int i = 0; i < 5; ++i)
+		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
+	
+	m_worm->setWeaponsReady(true);
 
 }
 
