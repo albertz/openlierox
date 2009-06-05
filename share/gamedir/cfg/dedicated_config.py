@@ -3,11 +3,6 @@
 # TODO: what is this script for? why not using cfg/options.cfg ?
 # TODO: This script should only contain special settings which are not covered by options.cfg
 
-# The reason this script resides in cfg/ folder is that the OLX file downloader will 
-# deny access to cfg/ folder, and we have admin password here
-# .. Why don't we deny access to everything except levels and mods (by checking if a directory
-# has got script.lgs in it). Current way sounds sucky to me.
-
 # TODO: register commands in ChatCommand system
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
 
@@ -15,7 +10,7 @@ ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !
 LOG_FILE = "dedicated_control.log"
 
 MIN_PLAYERS = 2
-MIN_PLAYERS_TEAMS = 4 # Players will be split in two teams automatically if there is enough players
+MIN_PLAYERS_TEAMS = 8 # Players will be split in two teams automatically if there is enough players
 MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
@@ -34,9 +29,9 @@ GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
 GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
 WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
 
-# TODO: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
+# Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)
-# A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is). 
+# A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is).
 MAX_PING = 30000 # Max ping to auto-kick player
 
 # TODO: We should use the OLX chatcommand system.
