@@ -1899,6 +1899,9 @@ static void updateAddedWorms(CClient* cl) {
 						cl->getWorm(i)->initWeaponSelection();
 					
 					if(!cl->getWorm(i)->getWeaponsReady()) {
+						// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
+						// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
+						// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
 						notes << "updateAddedWorms: we have to wait for the weapon selection of the new worm" << endl;
 						cl->setStatus(NET_CONNECTED); // this means that we are not ready with weapon selection
 						cl->setReadySent(false); // to force resent
