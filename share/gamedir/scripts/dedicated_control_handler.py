@@ -11,6 +11,7 @@ import os
 import sys
 import threading
 import traceback
+from random import *
 
 import dedicated_config as cfg # Per-host config like admin password
 
@@ -28,8 +29,6 @@ import dedicated_control_usercommands as cmds
 availablePresets = []
 nextPresets = []
 
-availableLevels = list()
-availableMods = list()
 
 worms = {} # List of all worms on the server
 # Bots don't need to be itterated with the other ones.
@@ -47,11 +46,6 @@ scriptPaused = False
 
 ## Local vars
 presetDir = os.path.join(os.path.dirname(sys.argv[0]),"presets")
-# Should include several searchpaths, but now they contain just OLX root dir
-levelDir = os.path.join(os.path.split(os.path.dirname(sys.argv[0]))[0],"levels")
-modDir = os.path.split(os.path.dirname(sys.argv[0]))[0]
-if modDir == "":
-	modDir = "."
 
 # Game states
 GAME_READY = -1
@@ -63,6 +57,8 @@ GAME_PLAYING = 3
 gameState = GAME_READY
 
 sentStartGame = False
+
+def DoNothing(): pass
 
 
 # TODO: Expand this class, use it.
@@ -95,8 +91,6 @@ class Preset():
 
 def init():
 	initPresets()
-	initLevelList()
-	initModList()
 
 	io.startLobby(0)
 
@@ -365,6 +359,7 @@ def fillNextPresets():
 				p = Preset()
 				p.Name = n
 				nextPresets.append(p)
+		shuffle(nextPresets)
 
 # initPresets must be called before this - or it will crash
 def selectNextPreset():
@@ -401,14 +396,65 @@ def selectNextPreset():
 		initPresets()
 	except:
 		io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+	return preset
+		
 
 
-	if preset.Mod:
-		io.setvar("GameOptions.GameInfo.ModName", preset.Mod)
-	if preset.Level:
-		io.setvar("GameOptions.GameInfo.LevelName", preset.Level)
-	if preset.LT:
-		io.setvar("GameOptions.GameInfo.LoadingTime", preset.LT)
+## Control functions
+
+def average(a):
+	r = 0
+	for i in a:
+		r += i
+	return r / len(a)
+
+def checkMaxPing():
+	global worms
+
+	for f in worms.keys():
+		if worms[f].iID == -1 or not worms[f].Alive:
+			continue
+		ping = int(io.getWormPing(worms[f].iID))
+		if ping > 0:
+			worms[f].Ping.insert( 0, ping )
+			if len(worms[f].Ping) > 25:
+				worms[f].Ping.pop()
+				if average(worms[f].Ping) > cfg.MAX_PING:
+					io.kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
+
+
+
+
+class PresetCicler:
+	enabled = False
+	lastSelect = time.time()
+	timeOut = cfg.PRESET_TIMEOUT
+	preset = Preset()
+	nextCicleTime = time.time()
+
+	def check():
+		if not self.enabled: return
+		if time.time() < nextCicleTime: return
+		cicle()		
+	
+	def cicle():
+		if not self.enabled: return
+		self.preset = selectNextPreset()
+		self.apply()
+
+	def apply():
+		if not self.enabled: return
+
+		if self.preset.Mod:
+			io.setvar("GameOptions.GameInfo.ModName", self.preset.Mod)
+		if self.preset.Level:
+			io.setvar("GameOptions.GameInfo.LevelName", self.preset.Level)
+		if self.preset.LT:
+			io.setvar("GameOptions.GameInfo.LoadingTime", self.preset.LT)
+
+		self.nextCicleTime = time.time() + self.timeOut
+		
+presetCicler = PresetCicler()
 
 
 def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 ):
@@ -443,51 +489,57 @@ def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 )
 			msg += " LT " + str(preset.LT)
 		io.chatMsg( msg + " will be selected for next game")
 	else:
-		selectNextPreset()
-
-def initLevelList():
-	global levelDir, availableLevels
-	for f in os.listdir(levelDir):
-		if os.path.isdir(f):
-			#io.messageLog("initLevelList: Ignoring \"%s\" - It's a directory" % f, io.LOG_INFO)
-			continue
-		#io.messageLog("Adding level " + f, io.LOG_INFO)
-		availableLevels.append(f)
-
-def initModList():
-	global modDir, availableMods
-	for f in os.listdir(modDir):
-		fullDir = os.path.join(modDir,f)
-		if not os.path.isdir(fullDir):
-			continue
-		for ff in os.listdir(fullDir):
-			if ff.lower() == "script.lgs":
-				availableMods.append(f)
-
-## Control functions
-
-def average(a):
-	r = 0
-	for i in a:
-		r += i
-	return r / len(a)
-
-def checkMaxPing():
-	global worms
-
-	for f in worms.keys():
-		if worms[f].iID == -1 or not worms[f].Alive:
-			continue
-		ping = int(io.getWormPing(worms[f].iID))
-		if ping > 0:
-			worms[f].Ping.insert( 0, ping )
-			if len(worms[f].Ping) > 25:
-				worms[f].Ping.pop()
-				if average(worms[f].Ping) > cfg.MAX_PING:
-					io.kickWorm( worms[f].iID, "Your ping is " + str(average(worms[f].Ping)) + " allowed is " + str(cfg.MAX_PING) )
+		presetCicler.preset = selectNextPreset()
+		presetCicler.apply()
 
 
-lobbyChangePresetTimeout = time.time() + cfg.PRESET_TIMEOUT
+
+
+
+class StandardCicler:
+	list = []
+	preSelectedList = []
+	curIndex = 0
+	curSelection = None
+	gameVar = ""
+	enabled = True
+	timeOut = 300
+	nextCicleTime = time.time()
+	
+	def check():
+		if not self.enabled: return
+		if time.time() < nextCicleTime: return
+		cicle()
+		
+	def cicle():
+		if not self.preSelectedList.empty:
+			self.curSelection = self.preSelectedList
+			self.preSelectedList.pop(0)
+			self.apply()
+			return
+
+		if self.list.empty: return
+		self.curIndex = self.curIndex + 1
+		if self.curIndex >= len(self.list): self.curIndex = 0
+		self.apply()
+
+	def apply():
+		if not self.curSelection: return
+		io.setVar(self.gameVar, self.curSelection)
+		nextCicleTime = time.time() + timeOut
+
+
+mapCicler = StandardCicler()
+mapCicler.list = io.listMaps()
+mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
+
+modCicler = StandardCicler()
+modCicler.list = io.listMods()
+modCicler.gameVar = "GameOptions.GameInfo.ModName"
+modCicler.enabled = False
+
+
+
 lobbyWaitBeforeGame = time.time() + cfg.WAIT_BEFORE_GAME
 lobbyWaitAfterGame = time.time()
 lobbyWaitGeneral = time.time() + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
@@ -508,9 +560,10 @@ def controlHandlerDefault():
 
 		# Do not check ping in lobby - it's wrong
 
-		if oldGameState != GAME_LOBBY or lobbyChangePresetTimeout <= curTime:
-			lobbyChangePresetTimeout = curTime + cfg.PRESET_TIMEOUT
-			selectNextPreset()
+		if oldGameState != GAME_LOBBY:
+			presetCicler.check
+			mapCicler.check
+			modCicler.check
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime

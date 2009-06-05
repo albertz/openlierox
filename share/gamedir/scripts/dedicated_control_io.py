@@ -222,6 +222,12 @@ def getFullFileName(fn):
 def getWriteFullFileName(fn):
 	return SendCommand( "getwritefullfilename \"%s\"" % fn )[0]
 
+def listMaps():
+	return SendCommand("listmaps")
+
+def listMods():
+	return SendCommand("listmods")
+	
 
 # Use this to write to stdout (standard output)
 def msg(string):
