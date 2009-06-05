@@ -1505,6 +1505,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		bytestr.Send(net_socket);
 	}
 
+	// TODO: why is this still done here and not via feature array or similar?
 	if (tLXOptions->tGameInfo.bAllowStrafing) {
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
