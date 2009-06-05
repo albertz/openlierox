@@ -80,7 +80,7 @@ struct CGameSkin::Thread {
 	
 	// run this after you added something to actionQueue to be sure that it will get handled
 	void startThread__unsafe(CGameSkin* skin) {
-		if(!ready) return;
+		if(!ready) return; // !ready -> thread already running
 		struct SkinActionHandler : Action {
 			CGameSkin* skin;
 			SkinActionHandler(CGameSkin* s) : skin(s) {}
@@ -166,7 +166,7 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 
 CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 {
-	init(0,0,0,0,0);
+	// we will init the thread also there
 	operator=(skin);
 }
 
@@ -436,7 +436,9 @@ static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surf
 CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 {
 	if (this != &oth)  { // Check for self-assignment
-		thread->forceStopThread(); // also deletes all actions
+		// we must do this because we could need surfaces of different width
+		uninit();
+		init(oth.iFrameWidth, oth.iFrameHeight, oth.iFrameSpacing, oth.iSkinWidth, oth.iSkinHeight);
 		
 		if (!bDedicated)  {
 			// NOTE: the assignment is safe because of smartpointer
