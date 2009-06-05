@@ -1246,9 +1246,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		newcl->setLocalClient(false);
 	}
 
-	if( reconnectFrom && !newcl->getChannel() )
-		warnings << "ParseConnect: reconnecting client doesn't has channel yet" << endl;
-	if( !reconnectFrom && newcl->getChannel() ) {
+	if( newcl->getChannel() ) {
+		// Note: do it also for reconnecting clients as reconnecting detection could be wrong
 		// TODO: It seems that this happens very often. Why?
 		//warnings << "ParseConnect: new client has old channel set" << endl;
 		newcl->resetChannel();
@@ -1276,9 +1275,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 	newcl->setStatus(NET_CONNECTED);
 
-	if(reconnectFrom && !newcl->getNetEngine())
-		warnings << "ParseConnect: net engine is not set for reconnecting client" << endl;
-	if(!reconnectFrom && newcl->getNetEngine()) {
+	if(newcl->getNetEngine()) {
+		// Note: do it also for reconnecting clients as reconnecting detection could be wrong
 		// TODO: It seems that this happens very often. Why?
 		//warnings << "ParseConnect: old net engine was still set" << endl;
 		newcl->resetNetEngine();
@@ -1462,9 +1460,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	}
 	
 	// remove bots if not wanted anymore
-	if(!reconnectFrom)
-		CheckForFillWithBots();
-	numworms = newcl->getNumWorms();
+	CheckForFillWithBots();
+	numworms = newcl->getNumWorms(); // it was earlier when also local client could reconnect - should have no effect anymore
 	SetRemoteNetAddr(net_socket, adrFrom); // it could have been changed
 
 	{
@@ -1513,25 +1510,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		bytestr.Send(net_socket);
 	}
 	
-	NotifyUserOnEvent(); // new player connected; if user is away, notify him
-
-	{
-		// Tell all the connected clients the info about these worm(s)
-		// Send all information about all worms to new client.
-		
-		CWorm* w = cWorms;
-		for (int i = 0;i < MAX_WORMS;i++, w++) {
-			
-			if (!w->isUsed())
-				continue;
-			
-			CBytestream bytestr;
-			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt(w->getID(), 1);
-			w->writeInfo(&bytestr);
-			newcl->getNetEngine()->SendPacket(&bytestr);
-		}		
-	}
+	NotifyUserOnEvent(); // new player connected; if user is away, notify him	
 	
 	{
 		// Send info about new worms to other clients.
@@ -1540,7 +1519,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			bytestr.writeByte(S2C_WORMINFO);
 			bytestr.writeInt((*w)->getID(), 1);
 			(*w)->writeInfo(&bytestr);
-
+			
 			for(int j = 0; j < MAX_CLIENTS; ++j) {
 				CServerConnection* cl = &cClients[j];
 				if(cl == newcl) continue;
@@ -1551,7 +1530,6 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 		}
 	}
 	
-	
 	// Just inform everybody in case the client is not compatible.
 	// If ingame, we kicked the player already earlier if not compatible.
 	checkVersionCompatibility(newcl, false);
@@ -1559,21 +1537,9 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	
 	if( iState == SVS_LOBBY )
 		// tell new client about game lobby details
+		// otherwise, we would send them in preparegame
 		newcl->getNetEngine()->SendUpdateLobbyGame();
-	
-	if (tLX->iGameType != GME_LOCAL) {
-		if( iState == SVS_LOBBY )
-			SendWormLobbyUpdate(); // to everbody
-		/*else
-		{
-			for( int i=0; i<MAX_CLIENTS; i++ )
-				if( & cClients[i] != newcl )
-					SendWormLobbyUpdate( & cClients[i], newcl); // send only data about new client
-				else
-					SendWormLobbyUpdate(newcl); // send only to new client
-		}*/
-	}
-	
+		
 	// Update players listbox
 	DeprecatedGUI::bHost_Update = true;
 
@@ -1621,18 +1587,42 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			
 			newcl->getNetEngine()->SendPacket(&b);
 		}*/
-
-		// TODO: This should only be needed if gamemode or other stuff changed it to some unexpected value.
-		// Should we perhaps change it? Or let gamemode (or other code) just take care about this anyway?
-		/*
-		// Set some info about the new worms
-		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			for(int ii = 0; ii < MAX_CLIENTS; ii++)
-				cClients[ii].getNetEngine()->SendWormScore( (*w) );
-		}*/
 		
 		newcl->getNetEngine()->SendPrepareGame();
+	}	
+
+	if (tLX->iGameType != GME_LOCAL) {
+		if( iState == SVS_LOBBY )
+			SendWormLobbyUpdate(); // to everbody
+		/*else
+		 {
+		 for( int i=0; i<MAX_CLIENTS; i++ )
+		 if( & cClients[i] != newcl )
+		 SendWormLobbyUpdate( & cClients[i], newcl); // send only data about new client
+		 else
+		 SendWormLobbyUpdate(newcl); // send only to new client
+		 }*/
+	}
+	
+	{
+		// Tell all the connected clients the info about these worm(s)
+		// Send all information about all worms to new client.
 		
+		CWorm* w = cWorms;
+		for (int i = 0;i < MAX_WORMS;i++, w++) {
+			
+			if (!w->isUsed())
+				continue;
+			
+			CBytestream bytestr;
+			bytestr.writeByte(S2C_WORMINFO);
+			bytestr.writeInt(w->getID(), 1);
+			w->writeInfo(&bytestr);
+			newcl->getNetEngine()->SendPacket(&bytestr);
+		}		
+	}
+		
+	if( iState != SVS_LOBBY ) {
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
 		// TODO: what is the information of this hint? and does it apply here anyway?
@@ -1648,6 +1638,15 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			if(!cl->getGameReady()) continue;
 			cl->getNetEngine()->SendClientReady(newcl);
 		}
+		
+		/*
+		 // TODO: This should only be needed if gamemode or other stuff changed it to some unexpected value.
+		 // Should we perhaps change it? Or let gamemode (or other code) just take care about this anyway?
+		 // Set some info about the new worms
+		 for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
+		 for(int ii = 0; ii < MAX_CLIENTS; ii++)
+		 cClients[ii].getNetEngine()->SendWormScore( (*w) );
+		 }*/
 		
 		m_flagInfo->sendCurrentState(newcl);
 				
@@ -1667,6 +1666,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 		newcl->getNetEngine()->SendWormProperties(true); // send new client other non-default worm properties
 	}
+	
+	
 	
 	// Share reliable channel bandwidth equally between all clients - 
 	// the amount of reliable data that should be transmitted is more-less the same for each client
