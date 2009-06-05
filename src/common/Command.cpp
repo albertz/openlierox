@@ -1217,8 +1217,6 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 	
 	cServer->SpawnWorm(w, havePos ? &pos : NULL);
-	if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-		cServer->SendEmptyWeaponsOnRespawn( w );
 }
 
 

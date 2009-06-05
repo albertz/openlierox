@@ -151,6 +151,9 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 			cClients[i].getNetEngine()->SendSpawnWorm(Worm, Worm->getPos());
 			if(sendWormUpdate) cClients[i].getNetEngine()->SendWormScore(Worm);
 		}
+
+		if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+			cServer->SendEmptyWeaponsOnRespawn( Worm );
 	}
 }
 
@@ -331,8 +334,6 @@ void GameServer::SimulateGame()
 			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff(tLXOptions->tGameInfo.fRespawnTime) )
 			{
 				SpawnWorm(w);
-				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-					SendEmptyWeaponsOnRespawn(w);
 			}
 		}
 

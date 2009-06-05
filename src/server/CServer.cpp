@@ -585,8 +585,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 					
 			if(cl->getWorm(i)->getAlive() && !cl->getWorm(i)->haveSpawnedOnce()) {
 				SpawnWorm( cl->getWorm(i) );
-				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-					SendEmptyWeaponsOnRespawn( cl->getWorm(i) );
 			}
 		}
 	}
@@ -604,8 +602,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		for(int i=0;i<MAX_WORMS;i++) {
 			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
 				SpawnWorm( & cWorms[i] );
-				if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-					SendEmptyWeaponsOnRespawn( & cWorms[i] );
 		}
 
 		DumpGameState();

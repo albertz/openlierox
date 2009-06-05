@@ -1939,8 +1939,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 					if(cServer->getState() == SVS_PLAYING && !outOfGame) {
 						// spawn worm
 						cServer->SpawnWorm( serverWorm );
-						if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
-							cServer->SendEmptyWeaponsOnRespawn( serverWorm );							
 					}						
 				}
 				
