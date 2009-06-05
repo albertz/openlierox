@@ -166,6 +166,7 @@ CGameSkin::CGameSkin(int fw, int fh, int fs, int sw, int sh) : thread(NULL)
 
 CGameSkin::CGameSkin(const CGameSkin& skin) : thread(NULL)
 {
+	init(0,0,0,0,0);
 	operator=(skin);
 }
 
