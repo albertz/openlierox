@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
 				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
