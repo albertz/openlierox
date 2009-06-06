@@ -662,7 +662,6 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	SndFilename = a.SndFilename;
 	BounceCoeff = a.BounceCoeff;
 	BounceExplode = a.BounceExplode;
-	DestroyAfter = a.DestroyAfter;
 	Proj = a.Proj;
 	Sound = a.Sound;
 	GoThroughSpeed = a.GoThroughSpeed;
@@ -835,7 +834,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 	case PJ_INJURE:
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			info->deleteAfter = DestroyAfter;
+			info->deleteAfter = true;
 			cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
 			break;
 		}

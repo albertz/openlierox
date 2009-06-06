@@ -1977,8 +1977,6 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadFloat(file, section, "HeadingToNextOtherWormSpeed", &HeadingToNextOtherWormSpeed, HeadingToNextOtherWormSpeed);
 	ReadFloat(file, section, "HeadingToNextEnemyWormSpeed", &HeadingToNextEnemyWormSpeed, HeadingToNextEnemyWormSpeed);
 	ReadFloat(file, section, "HeadingToNextTeamMateSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
-
-	ReadKeyword(file,section,"DestroyAfter",&DestroyAfter,true);
 	
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
@@ -2048,7 +2046,6 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fread_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fread_endian<float>(fp, HeadingToNextTeamMateSpeed);
-	fread_endian<char>(fp, DestroyAfter);
 	
 	if(Projectiles) Proj.read(gs, fp);
 	
@@ -2090,7 +2087,6 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<float>(fp, HeadingToNextOtherWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextEnemyWormSpeed);
 	fwrite_endian<float>(fp, HeadingToNextTeamMateSpeed);
-	fwrite_endian<char>(fp, DestroyAfter);
 	
 	if(Projectiles) Proj.write(gs, fp);
 	
