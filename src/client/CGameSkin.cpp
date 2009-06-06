@@ -66,16 +66,24 @@ struct CGameSkin::Thread {
 		actionQueue.push_back(a);
 	}
 	
+	void cleanAction__unsafe(Skin_Action*& a) {
+		delete a;
+		a = NULL;
+	}
+	
 	void removeActions__unsafe(const std::type_info& actionType) {
 		for(ActionList::iterator i = actionQueue.begin(); i != actionQueue.end(); ) {
-			if(typeid(**i) == actionType)
+			if(typeid(**i) == actionType) {
+				cleanAction__unsafe(*i);
 				i = actionQueue.erase(i);
-			else
+			} else
 				++i;
 		}
 	}
 	
 	void removeActions__unsafe() {
+		for(ActionList::iterator i = actionQueue.begin(); i != actionQueue.end(); ++i)
+			cleanAction__unsafe(*i);			
 		actionQueue.clear();
 	}
 	
@@ -97,8 +105,7 @@ struct CGameSkin::Thread {
 					lastRet = skin->thread->curAction->handle();
 					skinActionHandlerMutex.unlock();
 					skin->thread->mutex.lock();
-					delete skin->thread->curAction;
-					skin->thread->curAction = NULL;
+					skin->thread->cleanAction__unsafe(skin->thread->curAction);
 				}
 				skin->thread->ready = true;
 				skin->thread->signal.broadcast();
