@@ -205,6 +205,7 @@ void CClient::MinorClear()
 
 	int i;
 	for(i=0; i<MAX_WORMS; i++)  {
+		cRemoteWorms[i].resetAngleAndDir();
 		cRemoteWorms[i].Unprepare();
 	}
 

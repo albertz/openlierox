@@ -515,6 +515,7 @@ public:
 	
 	float		getAngle()				{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
+	void		resetAngleAndDir();
 	int			getDirection()			{ return iDirection; }
 	void		setDirection(int d)			{ iDirection = d; }
 	int			getMoveDirection()		{ return iMoveDirection; }

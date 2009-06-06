@@ -418,6 +418,13 @@ void CWorm::setupLobby()
 }
 
 
+void CWorm::resetAngleAndDir() {
+	fAngle = 0;
+	fAngleSpeed = 0;
+	iDirection = DIR_RIGHT;
+}
+
+
 ///////////////////
 // Spawn this worm
 void CWorm::Spawn(CVec position) {
@@ -429,11 +436,9 @@ void CWorm::Spawn(CVec position) {
 	bAlreadyKilled = false;
 	bSpawnedOnce = true;
 	fVisibilityChangeTime = 0;
-	fAngle = 0;
-	fAngleSpeed = 0;
+	resetAngleAndDir();
 	fMoveSpeedX = 0;
 	iHealth = 100;
-	iDirection = DIR_RIGHT;
 	iMoveDirection = DIR_RIGHT;
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
