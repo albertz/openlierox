@@ -24,6 +24,7 @@
 #include "Mutex.h"
 #include "Condition.h"
 #include "CMap.h" // for CMap::DrawObjectShadow
+#include "PixelFunctors.h"
 
 // global mutex to force only one execution at time
 static Mutex skinActionHandlerMutex;
@@ -116,7 +117,7 @@ struct CGameSkin::Thread {
 	void forceStopThread() {
 		Mutex::ScopedLock lock(mutex);
 		while(!ready) {
-			actionQueue.clear();
+			removeActions__unsafe();
 			if(curAction) curAction->breakSignal = true;
 			signal.wait(mutex);
 		}
@@ -625,17 +626,32 @@ void CGameSkin::Colorize_Execute(bool& breakSignal)
 	const Uint32 black = SDL_MapRGB(bmpSurface->format, 0, 0, 0);
 	int width = MIN(MIN(bmpSurface->w, bmpNormal->w), bmpMirrored->w);
 
+	// Initialize pixel functions
+	PixelGet& getter = getPixelGetFunc(bmpSurface.get());
+	PixelPut& putnormal = getPixelPutFunc(bmpNormal.get());
+	PixelPut& putmirr = getPixelPutFunc(bmpMirrored.get());
+	Uint8 *surfrow = GetPixelAddr(bmpSurface.get(), 0, 0);
+	Uint8 *normalrow = GetPixelAddr(bmpNormal.get(), 0, 0);
+	Uint8 *mirrrow = GetPixelAddr(bmpMirrored.get(), width - 1, 0);
+
 	for (int y = 0; y < iFrameHeight; ++y) {
-		for (int x = 0; x < width; ++x) {
+
+		Uint8 *surfpx = surfrow;
+		Uint8 *normalpx = normalrow;
+		Uint8 *mirrpx = mirrrow;
+		for (int x = 0; x < width; ++x, 
+			surfpx += bmpSurface->format->BytesPerPixel,
+			normalpx += bmpNormal->format->BytesPerPixel,
+			mirrpx -= bmpMirrored->format->BytesPerPixel) {
 
 			// Use the mask to check what colours to ignore
-			Uint32 pixel = GetPixel(bmpSurface.get(), x, y);
-			Uint32 mask = GetPixel(bmpSurface.get(), x, y + iFrameHeight);
+			Uint32 pixel = getter.get(surfpx);
+			Uint32 mask = getter.get(surfpx + iFrameHeight * bmpSurface->pitch);
             
             // Black means to just copy the colour but don't alter it
             if (EqualRGB(mask, black, bmpSurface.get()->format)) {
-				PutPixel(bmpNormal.get(), x, y, pixel);
-				PutPixel(bmpMirrored.get(), MAX(0, bmpMirrored->w - x - 1), y, pixel);
+				putnormal.put(normalpx, pixel);
+				putmirr.put(mirrpx, pixel);
                 continue;
             }
 
@@ -643,29 +659,27 @@ void CGameSkin::Colorize_Execute(bool& breakSignal)
             if (IsTransparent(bmpSurface.get(), mask))
                 continue;
 
+			Color colorized(bmpSurface->format, pixel);
+
             // Must be white (or some over unknown colour)
-			unsigned int r2 = colR * GetR(pixel, bmpSurface->format) / 96;
-			unsigned int g2 = colG * GetG(pixel, bmpSurface->format) / 156;
-			unsigned int b2 = colB * GetB(pixel, bmpSurface->format) / 252;
-
-			r2 = MIN(255, r2);
-			g2 = MIN(255, g2);
-			b2 = MIN(255, b2);
-
+			colorized.r = MIN(255, (colorized.r * colR) / 96);
+			colorized.g = MIN(255, (colorized.g * colG) / 156);
+			colorized.b = MIN(255, (colorized.b * colB) / 252);
 
 			// Bit of a hack to make sure it isn't completey pink (see through)
-			if((int)r2 == 255 && (int)g2 == 0 && (int)b2 == 255) {
-				r2 = 240;
-				b2 = 240;
+			if(colorized.r == 255 && colorized.g == 0 && colorized.b == 255) {
+				colorized.r = 240;
+				colorized.b = 240;
 			}
 
             // Put the colourised pixel
-			Uint8 a = GetA(pixel, bmpSurface->format);
-			PutPixel(bmpNormal.get(), x, y, 
-				SDL_MapRGBA(bmpNormal->format, r2, g2, b2, a));
-			PutPixel(bmpMirrored.get(), MAX(0, bmpMirrored->w - x - 1), y, 
-				SDL_MapRGBA(bmpMirrored->format, r2, g2, b2, a));
+			putnormal.put(normalpx, colorized.get(bmpNormal->format));
+			putmirr.put(mirrpx, colorized.get(bmpMirrored->format));
 		}
+
+		surfrow += bmpSurface->pitch;
+		normalrow += bmpSurface->pitch;
+		mirrrow += bmpMirrored->pitch;
 		
 		if(breakSignal) break;
 	}
