@@ -58,6 +58,13 @@ struct CGameSkin::Thread {
 	}
 	~Thread() {
 		forceStopThread();
+		if(actionQueue.size() > 0) {
+			// Note: We should normally not get here. If we would, it means that we add some actions
+			// at some point in the code but we don't assure that the thread is running after.
+			// The thread itself always assures that at the exit of the thread, no further action is in the queue.
+			warnings << "CGameSkin::Thread uninit: still actions in queue" << endl;
+			removeActions__unsafe();
+		}
 		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
 		skinPreviewDrawerP->skin = NULL;
 	}
@@ -488,7 +495,7 @@ bool CGameSkin::operator ==(const CGameSkin &oth)
 
 ///////////////////////
 // Draw the worm skin at the specified coordinates
-void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored)
+void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -496,8 +503,11 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) {
-		DrawLoadingAni(surf, x + iSkinWidth/2, y + iSkinWidth/2, iSkinWidth/2, iSkinHeight/2, Color(255,0,0), Color(0,255,0), LAT_CAKE);
-		return;
+		if(!blockUntilReady) {
+			DrawLoadingAni(surf, x + iSkinWidth/2, y + iSkinWidth/2, iSkinWidth/2, iSkinHeight/2, Color(255,0,0), Color(0,255,0), LAT_CAKE);
+			return;			
+		}
+		while(!thread->ready) thread->signal.wait(thread->mutex);
 	}
 	
 	// Get the correct frame

@@ -763,7 +763,7 @@ void Menu_Player_ViewPlayers(int mouse)
 void Menu_Player_DrawWormImage(SDL_Surface * bmpDest, int Frame, int dx, int dy, int ColR, int ColG, int ColB)
 {
 	tMenu->cSkin.Colorize(Color(ColR, ColG, ColB));
-	tMenu->cSkin.Draw(bmpDest, dx + 4, dy, Frame, false, false);
+	tMenu->cSkin.Draw(bmpDest, dx + 4, dy, Frame, false, false, true);
 }
 
 
