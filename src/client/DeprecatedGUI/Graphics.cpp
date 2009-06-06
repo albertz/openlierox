@@ -132,9 +132,10 @@ bool LoadGraphics()
 	SetColorKey(gfxGame.bmpAI.get());
 
 	// Check that the default skin is available (game can crash without this skin!!)
-	if (!IsFileAvailable("skins/default.png"))
+	if (!IsFileAvailable("skins/default.png")) {
+		errors << "Main skin not found: skins/default.png" << endl;
 		return false;
-
+	}
 
 	return true;
 }

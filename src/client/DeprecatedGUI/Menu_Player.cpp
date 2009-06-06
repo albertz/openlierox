@@ -285,7 +285,7 @@ void Menu_Player_NewPlayerInit()
     Menu_Player_FillSkinCombo( (CCombobox *)cNewPlayer.getWidget(np_PlySkin) );
 
     // Load the default skin
-	tMenu->cSkin.Change("skins/default.png");
+	tMenu->cSkin.Change("default.png");
     fPlayerSkinFrame = 0;
     bPlayerSkinAnimation = false;
 }
