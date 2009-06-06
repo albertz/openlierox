@@ -1536,8 +1536,8 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 
 	
 	if( iState == SVS_LOBBY )
-		// tell new client about game lobby details
-		// otherwise, we would send them in preparegame
+		// Tell new client about game lobby details like mod/map and all game settings.
+		// In game, we would send all these info in SendPrepareGame().
 		newcl->getNetEngine()->SendUpdateLobbyGame();
 		
 	// Update players listbox
