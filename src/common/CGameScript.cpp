@@ -1305,6 +1305,7 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("Disappear2", PJ_DISAPPEAR2);
 	AddKeyword("GoThrough", PJ_GOTHROUGH);
 	AddKeyword("PlaySound", PJ_PLAYSOUND);
+	AddKeyword("InjureWorm", PJ_INJUREWORM);
 	AddKeyword("Timer", Proj_Event::PET_TIMER); 
 	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
 	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
@@ -1656,6 +1657,8 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		proj->PlyHit.BounceExplode = 0;
 	}
 	
+	// If PJ_PLAYSOUND is set, we support it because PJ_PLAYSOUND didn't existed earlier.
+	// But you could also just use a custom action to play the sound.
 	if(proj->PlyHit.UseSound && proj->PlyHit.Type != PJ_PLAYSOUND) {
 		warnings << "projectile " << file << " has sound set, which was not supported earlier, thus it's ignored now" << endl;
 		proj->PlyHit.UseSound = false;

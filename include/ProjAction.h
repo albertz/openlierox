@@ -156,6 +156,7 @@ enum Proj_ActionType {
 	PJ_GOTHROUGH = 10,
 	PJ_INJUREPROJ = 11,
 	PJ_PLAYSOUND = 12,
+	PJ_INJUREWORM = 13,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int

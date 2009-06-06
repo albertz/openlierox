@@ -831,7 +831,13 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	case PJ_DISAPPEAR2:
 		info->deleteAfter = true;
 		break;
-		
+	
+	case PJ_INJUREWORM:
+		if(eventInfo.colType && eventInfo.colType->withWorm) {
+			cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+		}			
+		break;
+			
 	case PJ_INJURE:
 		if(eventInfo.colType && eventInfo.colType->withWorm) {
 			info->deleteAfter = true;
