@@ -639,7 +639,20 @@ gui_event_t *CGuiLayout::Process()
 		}
 	}
 
-
+	// Special mouse button event first (for focused widgets)
+	// !bCanFocus -> we are currently holding an object (pressed moused but didn't released it)
+	if(tMouse->Down && cFocused && !bCanFocus && !cFocused->InBox(tMouse->X,tMouse->Y)) {
+		widget = true;
+		
+		// Process the skin-defined code
+		cFocused->ProcessEvent(OnMouseDown);
+		
+		if( (ev = cFocused->MouseDown(tMouse, tMouse->Down)) >= 0) {
+			tEvent->iEventMsg = ev;
+			return tEvent;
+		}
+	}
+	
 	// Go through all the widgets
 	for( std::list<CWidget *>::iterator w = cWidgets.begin() ; w != cWidgets.end() ; w++)  {
 		tEvent->cWidget = *w;
@@ -648,20 +661,6 @@ gui_event_t *CGuiLayout::Process()
 		// Don't process disabled widgets
 		if(!(*w)->getEnabled())
 			continue;
-
-		// Special mouse button event first (for focused widgets)
-		if(tMouse->Down && cFocused == *w && !bCanFocus && !(*w)->InBox(tMouse->X,tMouse->Y)) {
-			widget = true;
-
-			// Process the skin-defined code
-			(*w)->ProcessEvent(OnMouseDown);
-
-			if( (ev = (*w)->MouseDown(tMouse, tMouse->Down)) >= 0) {
-				tEvent->iEventMsg = ev;
-				return tEvent;
-			}
-		}
-
 
 		if((*w)->InBox(tMouse->X,tMouse->Y)) {
 
