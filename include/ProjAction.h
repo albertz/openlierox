@@ -3,11 +3,19 @@
 //
 // Description: actions and events for projectiles
 //
-//
+/*
+ This file contains the structure which describe the LX56 projectiles,
+ like what they are doing, their actions for specific events, and so on.
+ 
+ The parsing of this data is done in CGameScript.cpp.
+ 
+ The actual simulation and the implementation of all actions/events is
+ done in PhysicsLX56_Projectiles.cpp.
+ */
+
 // Author: Albert Zeyer <ich@az2000.de>, (C) 2009
 //
 // code under LGPL
-//
 //
 
 
@@ -30,6 +38,11 @@ struct shoot_t;
 struct SoundSample;
 struct LX56ProjAttribs;
 
+/*
+ If you spawn a projectile, this is the spawner object itself.
+ Depending on this object, the speed/position of the spawned projectile
+ will be set. (See Proj_SpawnInfo::apply())
+ */
 struct Proj_SpawnParent {
 	union {
 		shoot_t* shot;
@@ -56,6 +69,10 @@ struct Proj_SpawnParent {
 
 class CGameScript;
 
+/*
+ This contains specific attributes about how to spawn specific projectile (Proj_SpawnInfo::Proj).
+ The Proj_SpawnInfo::apply() does the actual spawning.
+ */
 struct Proj_SpawnInfo {
 	Proj_SpawnInfo() :
 	Speed(0), SpeedVar(0), Spread(0), Amount(0), Proj(NULL),
@@ -94,7 +111,7 @@ struct Proj_SpawnInfo {
 
 
 
-// Projectile trails
+// Projectile trails (Type of Proj_Trail)
 enum Proj_TrailType {
 	TRL_NONE = 0,
 	TRL_SMOKE = 1,
@@ -116,12 +133,16 @@ struct Proj_Trail {
 	float	Delay; // used for spawning
 	Proj_SpawnInfo Proj;
 	
-	Proj_Trail() { Proj.UseSpecial11VecForSpeedVar = true; }
+	Proj_Trail() : Type(TRL_NONE), Delay(0.1f) { Proj.UseSpecial11VecForSpeedVar = true; }
 };
 
 
 
 // Projectile method types
+/*
+ Defines the general action type of a Proj_Action.
+ Note that some of these (PJ_NOTHING, PJ_GOTHROUGH), when set in proj_t::Hit, define also their physical behaviour on collision.
+ */
 enum Proj_ActionType {
 	PJ_BOUNCE = 0,
 	PJ_EXPLODE = 1,
@@ -146,6 +167,9 @@ static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck
 struct ProjCollisionType;
 struct Proj_DoActionInfo;
 
+/*
+ This occurs the information when an event occurs. It's like the EventData() in the OLX event system.
+ */
 struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
 	std::set<CProjectile*> projCols;
@@ -159,6 +183,13 @@ struct Proj_EventOccurInfo {
 	static Proj_EventOccurInfo Col(TimeDiff t, TimeDiff _dt, const ProjCollisionType* col) { Proj_EventOccurInfo e(t, _dt); e.colType = col; return e; }	
 };
 
+/*
+ This defines a specific action which does something (applies damage to an object, modifies some velocity, or whatever).
+ The action is done in applyTo(). Note that some of the actions are applied directly and some others
+ are saved in the Proj_DoActionInfo structure for later execution. Look at applyTo() for the specification.
+ In LX56, we have the default events like terrain hit, timer or playerhit and all these have an Proj_Action structure.
+ In addition to that (since Beta9), a proj_t has a vector of Proj_EventAndAction (basically a pair of _Proj_Event + Proj_Action).
+ */
 struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
@@ -234,15 +265,22 @@ struct Proj_Action {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
+/*
+ General base interface of an event. The checkEvent() function checks the event and returns true if it matches.
+ */
 struct _Proj_Event {
 	virtual ~_Proj_Event() {}
-	virtual bool canMatch() const { return true; }
+	virtual bool canMatch() const { return true; } // if it is possible at all with current event attributes to match
 	virtual bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const = 0;
 	virtual bool readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) { return true; }
 	virtual bool read(CGameScript* gs, FILE* fp) { return true; }
 	virtual bool write(CGameScript* gs, FILE* fp) { return true; }
 };
 
+/*
+ This is an own timer event. You can have as many different events as you want from these and all timers will run indepenently.
+ Don't confuse this with proj_t::Timer (Proj_LX56Timer), it's a different implementation.
+ */
 struct Proj_TimerEvent : _Proj_Event {
 	Proj_TimerEvent() : Delay(1), Repeat(true), UseGlobalTime(false), PermanentMode(0) {}
 	
@@ -259,6 +297,9 @@ struct Proj_TimerEvent : _Proj_Event {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
+/*
+ This is currently based on the collision info by LX56Projectile_checkCollAndMove.
+ */
 struct Proj_WormHitEvent : _Proj_Event {
 	Proj_WormHitEvent() : SameWormAsProjOwner(false), SameTeamAsProjOwner(false), DiffWormAsProjOwner(false), DiffTeamAsProjOwner(false), TeamMateOfProjOwner(false), EnemyOfProjOwner(false) {}
 	
@@ -319,10 +360,12 @@ struct Proj_TerrainHitEvent : _Proj_Event {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
+// If the projectile is out of health, this event will match.
 struct Proj_DeathEvent : _Proj_Event {
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 };
 
+// If info doesn't contain any action (hasAnyEffect() = false), this will match.
 struct Proj_FallbackEvent : _Proj_Event {
 	bool checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo* info) const;
 };
@@ -387,6 +430,11 @@ struct Proj_Event {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
+/*
+ A vector of these are saved in proj_t. In simulation, we will go through this vector and check each of this Proj_EventAndAction.
+ We have a list of events here (Proj_Event) and if all of them matches, we apply the underlying Proj_Action.
+ This is done by the checkAndApply() function.
+ */
 struct Proj_EventAndAction : Proj_Action {
 	typedef std::vector<Proj_Event> Events;
 	Events events;
@@ -410,7 +458,7 @@ struct Proj_EventAndAction : Proj_Action {
 
 
 struct Proj_LX56Timer : Proj_Action {
-	Proj_LX56Timer() : Time(0) {}
+	Proj_LX56Timer() : Time(0), TimeVar(0) {}
 	
 	float	Time;
 	float	TimeVar;
@@ -427,7 +475,11 @@ struct Proj_LX56Timer : Proj_Action {
 };
 
 
-
+/*
+ We collect some specific operations in this structure while doing the simulation. When calling Proj_Action::applyTo(),
+ the Proj_Action will not execute all actions immediatly but it will also fill in some operations in Proj_DoActionInfo.
+ The operations here in Proj_DoActionInfo are executed at the end of a simulation frame of a projectile.
+ */
 struct Proj_DoActionInfo {
 	Proj_DoActionInfo() :
 	explode(false), damage(-1), timer(false), shake(0),
