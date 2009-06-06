@@ -569,6 +569,8 @@ gui_event_t *CGuiLayout::Process()
 	SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
 	if (!tEvent)  {
+		// TODO: when can this happen? is this an error? if so, why no error msg?
+		// TODO: what is tEvent? why is it global and not local?
 		return NULL;
 	}
 
