@@ -656,7 +656,20 @@ void CWorm::GetRandomWeapons()
 
 // the first host worm (there can only be one such worm in a game)
 bool CWorm::isHostWorm() {
-	return tLX->iGameType != GME_JOIN && cServer->getClients()[0].getNumWorms() > 0 && cServer->getClients()[0].getWorm(0)->getID() == iID;
+	if(tLX->iGameType == GME_JOIN) return false;
+	if(!cServer || !cServer->isServerRunning()) return false;
+	
+	CServerConnection* localConn = NULL;
+	for( int i=0; i<MAX_CLIENTS; i++ )
+		if(cServer->getClients()[i].isLocalClient()) {
+			localConn = &cServer->getClients()[i];
+			break;
+		}
+	if(localConn == NULL) {
+		errors << "CWorm::isHostWorm: localClient not found" << endl;
+		return false;
+	}
+	return localConn->getNumWorms() > 0 && localConn->getWorm(0)->getID() == iID;
 }
 
 bool CWorm::shouldDoOwnWeaponSelection() {

@@ -1867,6 +1867,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			cClient->getWorm(i)->setAlive(false);
 			info.applyTo(cClient->getWorm(i)); // sets skin
 			cClient->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
+			cClient->getWorm(i)->setLocal(true);
 			cClient->getWorm(i)->setName(serverWorm->getName());
 			cClient->getWorm(i)->setID(serverWorm->getID());
 			cClient->getWorm(i)->setTeam(serverWorm->getTeam());
@@ -1877,7 +1878,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				cClient->getWorm(i)->setType(WormType::fromInt(cClient->getLocalWormProfiles()[i]->iType));
 			} else
 				warnings << "updateAddedWorms: profile " << i << " for worm " << serverWorm->getID() << " is not set" << endl;
-			cClient->getWorm(i)->setLocal(true);
 			cClient->getWorm(i)->setClientVersion(cClient->getClientVersion());
 			if(!cClient->getWorm(i)->ChangeGraphics(cClient->getGeneralGameType()))
 				warnings << "updateAddedWorms: changegraphics for worm " << serverWorm->getID() << " failed" << endl;
@@ -1909,7 +1909,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 					cClient->getWorm(i)->initWeaponSelection();
 				
 				if(!cClient->getWorm(i)->getWeaponsReady()) {
-					// Note for bots: In the normal case, they already should have selected their weapons in initWeaponSelection().
+					// Note for bots: In the normal case (for bots), they already should have selected their weapons in initWeaponSelection().
 					// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
 					// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.
 					// Also note that the outOfGame-parameter is ignored here.
