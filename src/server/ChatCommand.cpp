@@ -823,10 +823,10 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->StartGame)
-		return "You do not have sufficient privileges to start the game";
+		return "You do not have sufficient privileges to start the game (and thus also not to go to lobby)";
 
 	// Go to lobby
-	cServer->gotoLobby();
+	cServer->gotoLobby(true, "chat command");
 
 	return "";
 }

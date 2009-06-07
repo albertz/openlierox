@@ -315,7 +315,7 @@ void GameServer::SimulateGame()
 	&& (tLX->currentTime - fGameOverTime > LX_ENDWAIT || (bDedicated && iNumPlayers <= 1)) // dedicated server should go to lobby immediatly if alone
 	&& iState != SVS_LOBBY
 	&& tLX->iGameType == GME_HOST) {
-		gotoLobby();
+		gotoLobby(true, "timeout for gameover scoreboard");
 		return;
 	}
 
@@ -609,9 +609,9 @@ void GameServer::WormShoot(CWorm *w)
 
 ///////////////////
 // Go back to the lobby
-void GameServer::gotoLobby(bool alsoWithMenu)
+void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 {
-	notes << "GameServer: gotoLobby" << endl;
+	notes << "GameServer: gotoLobby (" << reason << ")" << endl;
 
 	if(getState() == SVS_LOBBY) {
 		notes << "already in lobby, doing nothing" << endl;

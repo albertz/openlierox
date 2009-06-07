@@ -1583,7 +1583,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 
 	if(cServer->getState() != SVS_LOBBY) {
 		// we have already started the game -> goto lobby back first and then restart
-		cServer->gotoLobby(false);
+		cServer->gotoLobby(false, "Cmd_startGame and we were not in lobby before");
 		for(int i = 0; i < cClient->getNumWorms(); ++i) {
 			if(cClient->getWorm(i) != NULL) {
 				/*
@@ -1695,7 +1695,7 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 		return;
 	}
 	
-	cServer->gotoLobby();
+	cServer->gotoLobby(true, "Cmd_gotoLobby");
 	// The client will get the gotolobby and handle the menu stuff.
 }
 

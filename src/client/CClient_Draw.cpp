@@ -1407,7 +1407,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 				// The host can only quit the game via the lobby
 				switch (tLX->iGameType)  {
 				case GME_HOST:
-					cServer->gotoLobby();
+					cServer->gotoLobby(true, "Client gamemenu -> quitgame");
 					break;
 
 				case GME_JOIN:
