@@ -2498,3 +2498,21 @@ long CClient::MapPosIndex::index(const CMap* m) const {
 	return y * w + x;
 }
 
+
+
+void CClient::DumpGameState() {
+	hints << "Client state: " << NetStateString((ClientNetState)getStatus()) << endl;
+	if(getStatus() == NET_DISCONNECTED) return;
+	hints << "Connected to '" << strServerAddr << "'" << endl;
+	if(cRemoteWorms) {
+		for(int i = 0; i < MAX_WORMS; ++i) {
+			CWorm* w = &cRemoteWorms[i];
+			if(!w->isUsed()) continue;
+			hints << " * worm " << i << ":" << w->getName();
+			if(w->getLocal()) hints << "(local)";
+			hints << endl;
+		}
+	}
+}
+
+

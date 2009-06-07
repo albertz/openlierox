@@ -1370,7 +1370,7 @@ void updateFileListCaches() {
 
 
 
-State currentGameState() {
+GameState currentGameState() {
 	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) return S_INACTIVE;
 	if(tLX->iGameType == GME_JOIN) {
 		if(cClient->getStatus() == NET_CONNECTING) return S_CLICONNECTING;

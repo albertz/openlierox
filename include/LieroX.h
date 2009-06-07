@@ -241,7 +241,7 @@ void	printf(const std::string& txt);
 
 
 
-enum State {
+enum GameState {
 	S_INACTIVE, // server was not started
 	S_SVRLOBBY, // in lobby
 	S_SVRWEAPONS, // in game: in weapon selection
@@ -252,6 +252,20 @@ enum State {
 	S_CLIPLAYING
 };
 
-State currentGameState();
+inline std::string GameStateAsString(GameState s) {
+	switch(s) {
+		case S_INACTIVE: return "S_INACTIVE";
+		case S_SVRLOBBY: return "S_SVRLOBBY";
+		case S_SVRWEAPONS: return "S_SVRWEAPONS";
+		case S_SVRPLAYING: return "S_SVRPLAYING";
+		case S_CLICONNECTING: return "S_CLICONNECTING";
+		case S_CLILOBBY: return "S_CLILOBBY";
+		case S_CLIWEAPONS: return "S_CLIWEAPONS";
+		case S_CLIPLAYING: return "S_CLIPLAYING";
+	}
+	return "INVALID GAMESTATE";
+}
+
+GameState currentGameState();
 
 #endif  //  __LIEROX_H__

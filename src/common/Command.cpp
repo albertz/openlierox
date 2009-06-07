@@ -1877,17 +1877,19 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 */
 COMMAND(dumpGameState, "dump game state", "", 0, 0);
 void Cmd_dumpGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(cServer) cServer->DumpGameState();
-	else caller->writeMsg("server not initialised");
+	GameState state = currentGameState();
+	caller->writeMsg("GameState: " + GameStateAsString(state), CNC_DEV);
+	if(state == S_INACTIVE) return;
+	if(cServer && cServer->isServerRunning()) cServer->DumpGameState();
+	else if(cClient) cClient->DumpGameState();
+	else caller->writeMsg("server nor client correctly initialised", CNC_ERROR);
 }
 
 COMMAND(dumpSysState, "dump system state", "", 0, 0);
 void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	hints << "System state:" << endl;
-	if(cServer) cServer->DumpGameState();
-	else caller->writeMsg("server not initialised");
-	// TODO: client game state
+	hints << "Threads:" << endl;
 	threadPool->dumpState(stdoutCLI());
+	hints << "Tasks:" << endl;
 	taskManager->dumpState(stdoutCLI());
 	hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
 	hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
