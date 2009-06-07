@@ -254,14 +254,15 @@ void Menu_Start()
 
 	if(!bDedicated) {
 		if(!iSkipStart) {
+			notes << "Loading main menu" << endl;
 			tMenu->iMenuType = MNU_MAIN;
 			Menu_MainInitialize();
 		} else
 			Menu_RedrawMouse(true);
 	}
 
-	Menu_Loop();
 	iSkipStart = false;
+	Menu_Loop();
 }
 
 
