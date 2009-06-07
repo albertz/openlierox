@@ -613,7 +613,9 @@ def controlHandlerDefault():
 
 		#checkMaxPing()
 
-		if len(worms) < cfg.MIN_PLAYERS: # Some players left when game not yet started
+		# if we allow empty games, ignore this check
+		if len(worms) < cfg.MIN_PLAYERS and not io.getVar("GameOptions.GameInfo.AllowEmptyGames"): # Some players left when game not yet started
+			io.chatMsg("Too less players -> back to lobby")
 			io.gotoLobby()
 			sentStartGame = False
 
