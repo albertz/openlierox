@@ -764,6 +764,11 @@ void Cmd_sex::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 
 COMMAND(disconnect, "disconnect from server or exit server", "", 0, 0);
 void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(currentGameState() == S_INACTIVE) {
+		caller->writeMsg("game is inactive, cannot disconnect anything", CNC_WARNING);
+		return;
+	}
+	
 	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
 		cClient->Disconnect();
 	
@@ -780,14 +785,19 @@ void Cmd_disconnect::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		
 	SetQuitEngineFlag("Cmd_disconnect");
 		
-	if(!bDedicated && DeprecatedGUI::tMenu && DeprecatedGUI::tMenu->bMenuRunning) {
+	if(!bDedicated && DeprecatedGUI::tMenu) {
 		DeprecatedGUI::Menu_Current_Shutdown();
 
 		DeprecatedGUI::Menu_SetSkipStart(true);
-		DeprecatedGUI::Menu_NetInitialize(true);
-		
-		// when we leave the server
-		DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+		if(tLX->iGameType == GME_LOCAL) {
+			DeprecatedGUI::Menu_LocalInitialize();			
+		}
+		else {
+			DeprecatedGUI::Menu_NetInitialize(true);
+			
+			// when we leave the server
+			DeprecatedGUI::tMenu->iReturnTo = DeprecatedGUI::iNetMode;
+		}
 	}
 }
 
@@ -1677,10 +1687,15 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 		caller->writeMsg("cannot goto lobby as client");
 		return;
 	}
+
+	if(tLX->iGameType == GME_LOCAL) {
+		// for local games, we just stop the server and go to local menu
+		GotoLocalMenu();
+		return;
+	}
 	
 	cServer->gotoLobby();
-	*DeprecatedGUI::bGame = false;
-	DeprecatedGUI::tMenu->bMenuRunning = true;
+	// The client will get the gotolobby and handle the menu stuff.
 }
 
 COMMAND(chatMsg, "give a global chat message", "text", 1, 1);

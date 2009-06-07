@@ -123,7 +123,6 @@ void Menu_Net_GotoHostLobby()
 	notes << "Menu_Net_GotoHostLobby" << endl;
 
 	tMenu->iMenuType = MNU_NETWORK;
-	tMenu->bMenuRunning = true;
 	iNetMode = net_host;
 
 	if(!bDedicated) {
@@ -345,8 +344,6 @@ void GotoJoinLobby()
     notes << "GotoJoinLobby()" << endl;
 	
 	using namespace DeprecatedGUI;
-	
-	tMenu->bMenuRunning = true;
 	
 	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_join;

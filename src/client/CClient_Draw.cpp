@@ -1420,6 +1420,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 				// Should not happen
 				default:
+					warnings << "Client gamemenu -> quitgame: invalid gamestate" << endl;
 					QuittoMenu();
 				}
 

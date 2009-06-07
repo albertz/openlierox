@@ -590,6 +590,7 @@ void doActionInMainThread(Action* act) {
 
 
 static std::string quitEngineFlagReason;
+static bool inMainGameLoop = false;
 
 static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
@@ -607,6 +608,12 @@ static int MainLoopThread(void*) {
 			break;
 		}
 		
+		if(tLX->bQuitEngine)
+			// If we already set the quitengine flag, we want to go back to the menu.
+			// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
+			// a single menu-frame, we quit the menu and set the quitengine flag
+			continue;
+		
 		// Pre-game initialization
 		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 		
@@ -618,6 +625,7 @@ static int MainLoopThread(void*) {
 		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
 		
 		notes << "GameLoopStart" << endl;
+		inMainGameLoop = true;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
 		
@@ -656,6 +664,7 @@ static int MainLoopThread(void*) {
 		PhysicsEngine::Get()->uninitGame();
 		
 		notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
+		inMainGameLoop = false;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopEnd_Signal();
 		
@@ -1054,10 +1063,19 @@ void GotoLocalMenu()
 		return;
 	}
 
+	if(tLX->iGameType == GME_JOIN) {
+		warnings << "called GotoLocalMenu as client, ignoring..." << endl;
+		return;
+	}
+	
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
-	DeprecatedGUI::Menu_SetSkipStart(true);
-	DeprecatedGUI::Menu_LocalInitialize();
+	cServer->Shutdown();
+	cClient->Shutdown();
+	if(!bDedicated) {
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_LocalInitialize();
+	}
 }
 
 //////////////////
@@ -1067,8 +1085,10 @@ void GotoNetMenu()
 	notes << "GotoNetMenu" << endl;
 	SetQuitEngineFlag("GotoNetMenu");
 	cClient->Disconnect();
-	DeprecatedGUI::Menu_SetSkipStart(true);
-	DeprecatedGUI::Menu_NetInitialize();
+	if(!bDedicated) {
+		DeprecatedGUI::Menu_SetSkipStart(true);
+		DeprecatedGUI::Menu_NetInitialize();
+	}
 }
 
 ////////////////////
@@ -1279,6 +1299,16 @@ void SetQuitEngineFlag(const std::string& reason) {
 	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
 	quitEngineFlagReason = reason;
 	tLX->bQuitEngine = true;
+	// If we call this from within the menu, the menu should shutdown.
+	// It will be restarted then in the next frame.
+	// If we are not in the menu (i.e. in maingameloop), this has no
+	// effect as we set it to true in Menu_Start().
+	if(DeprecatedGUI::tMenu)
+		DeprecatedGUI::tMenu->bMenuRunning = false;
+	// If we were in menu, because we forced the menu restart above,
+	// we must set this, otherwise OLX would quit (because of current maingamelogic).
+	if(DeprecatedGUI::bGame)
+		*DeprecatedGUI::bGame = true;
 }
 
 bool Warning_QuitEngineFlagSet(const std::string& preText) {

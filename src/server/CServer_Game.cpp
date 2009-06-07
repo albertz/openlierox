@@ -613,6 +613,11 @@ void GameServer::gotoLobby(bool alsoWithMenu)
 {
 	notes << "GameServer: gotoLobby" << endl;
 
+	if(getState() == SVS_LOBBY) {
+		notes << "already in lobby, doing nothing" << endl;
+		return;
+	}
+	
 	// in lobby we need the events again
 	
 	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
