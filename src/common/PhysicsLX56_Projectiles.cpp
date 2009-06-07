@@ -193,7 +193,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 		if ((pf[gf1] | pf[gf2] | pf[gf3] | pf[gf4]) == PX_EMPTY)
 			return res;
 	}
-	
+
 	// Check for the collision
 	for(int y = py - attribs.radius.y; y <= py + attribs.radius.y; ++y) {
 		// this is safe because in SimulateFrame, we do map bound checks
@@ -372,7 +372,7 @@ static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff d
 
 	// Check that it is visible if the gravity does not go through walls
 	if (!info->MyGravityThroughWalls)  {
-		if(!fastTraceLine_hasAnyCollision(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK))
+		if(fastTraceLine_hasAnyCollision(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK))
 			return;
 	}
 

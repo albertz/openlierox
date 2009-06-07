@@ -544,7 +544,8 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 
 struct SimpleTracelineCheck {
 	bool result;
-	bool operator() (int, int) { result = false; return false; }
+	SimpleTracelineCheck() : result(false) {}
+	bool operator() (int, int) { result = true; return false; }
 };
 
 inline bool fastTraceLine_hasAnyCollision(CVec target, CVec start, uchar checkflag) {
