@@ -153,6 +153,7 @@ public:
 		bMouseOverEventEnabled = false;
 		bTooltipVisible = false;
 		tMouseOver = NULL;
+		holdedWidget = NULL;
 	}
 
 	~CListview() {
@@ -201,6 +202,7 @@ private:
 	bool			bNeedsRepaint;
 	UnicodeChar		iLastChar;
 	gui_event_t		tLastWidgetEvent;
+	CWidget			*holdedWidget; // moused pressed and not released
 	CWidget			*tFocusedSubWidget;
 	CWidget			*tMouseOverSubWidget;
 

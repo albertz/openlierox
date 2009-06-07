@@ -1049,7 +1049,13 @@ int	CListview::MouseOver(mouse_t *tMouse)
 // Mouse down event
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
+	if(holdedWidget) {
+		holdedWidget->MouseDown(tMouse, nDown);
+		return LV_NONE;
+	}
+	
 	if(((tMouse->X > iX+iWidth-20) && bGotScrollbar) || cScrollbar.getGrabbed()) {
+		holdedWidget = NULL;
 		cScrollbar.MouseDown(tMouse, nDown);
 		return LV_NONE;
 	}
@@ -1195,6 +1201,7 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 							tFocusedSubWidget = sub->tWidget;
 							if (tLastWidgetEvent.iEventMsg != -1)
 								event = LV_WIDGETEVENT;
+							holdedWidget = tFocusedSubWidget;
 						}
 					}
 				}
@@ -1240,6 +1247,9 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 // Mouse up event
 int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
+	if(holdedWidget)
+		holdedWidget->MouseUp(tMouse, nDown);
+	holdedWidget = NULL;
 	iLastMouseX = 0;
 
 	if((tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && bGotScrollbar) {

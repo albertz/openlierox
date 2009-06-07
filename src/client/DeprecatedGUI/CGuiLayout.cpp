@@ -641,16 +641,36 @@ gui_event_t *CGuiLayout::Process()
 
 	// Special mouse button event first (for focused widgets)
 	// !bCanFocus -> we are currently holding an object (pressed moused but didn't released it)
-	if(tMouse->Down && cFocused && !bCanFocus && !cFocused->InBox(tMouse->X,tMouse->Y)) {
+	if(cFocused && !bCanFocus) {		
 		widget = true;
 		
-		// Process the skin-defined code
-		cFocused->ProcessEvent(OnMouseDown);
-		
-		if( (ev = cFocused->MouseDown(tMouse, tMouse->Down)) >= 0) {
-			tEvent->iEventMsg = ev;
-			return tEvent;
+		if(tMouse->Down) {
+			// Process the skin-defined code
+			cFocused->ProcessEvent(OnMouseDown);
+			
+			if( (ev = cFocused->MouseDown(tMouse, tMouse->Down)) >= 0) {
+				tEvent->iEventMsg = ev;
+				return tEvent;
+			}
 		}
+		else if(tMouse->Up) {
+			bCanFocus = true;
+			
+			// Process the skin defined code
+			// OnClick is only fired if mouseup was done over the widget
+			if(cFocused->InBox(tMouse->X,tMouse->Y))
+				cFocused->ProcessEvent(OnClick);
+			
+			if( (ev = cFocused->MouseUp(tMouse, tMouse->Up)) >= 0) {
+				tEvent->iEventMsg = ev;
+				return tEvent;
+			}
+			
+			return NULL;
+		}
+		else
+			// TODO: in what cases can this happen?
+			bCanFocus = true;
 	}
 	
 	// Go through all the widgets
@@ -722,6 +742,8 @@ gui_event_t *CGuiLayout::Process()
 				}
 			}
 
+			// TODO: i don't understand that. mouseup should always only be sent to the widget where we have sent the mousedown
+			/*
 			// Mouse up event
 			if(tMouse->Up) {
 				bCanFocus = true;
@@ -746,7 +768,7 @@ gui_event_t *CGuiLayout::Process()
 					return tEvent;
 				}
 			}
-
+			 */
 
 			// Mouse over
 			if (*w != cMouseOverWidget)  {
