@@ -1690,6 +1690,7 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 
 	if(tLX->iGameType == GME_LOCAL) {
 		// for local games, we just stop the server and go to local menu
+		hints << "Cmd_gotoLobby: we are quitting server and going to local menu" << endl;
 		GotoLocalMenu();
 		return;
 	}
