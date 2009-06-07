@@ -2304,6 +2304,8 @@ void GameServer::DumpGameState() {
 		hints << "Server is not running" << endl;
 		return;
 	}
+	if(tLX->iGameType == GME_JOIN) hints << "INVALID ";
+	else if(tLX->iGameType == GME_LOCAL) hints << "local ";
 	hints << "Server '" << this->getName() << "' game state:" << endl;
 	switch(iState) {
 		case SVS_LOBBY: hints << " * in lobby"; break;
@@ -2358,6 +2360,23 @@ void GameServer::DumpGameState() {
 		hints << " - worms not initialised" << endl;
 }
 
+void GameServer::DumpConnections() {
+	if(!cClients) {
+		hints << "Server: Connections-array not initialised" << endl;
+		return;
+	}
+	
+	CServerConnection* cl = cClients;
+	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
+		if(cl->getStatus() == NET_DISCONNECTED) continue;
+		hints << c << ":";
+		hints << NetStateString((ClientNetState)cl->getStatus()) << ": ";
+		if(cl->isLocalClient()) hints << "local,";
+		if(!cl->getChannel()) hints << "NO CHANNEL,";
+		if(!cl->getNetEngine()) hints << "NO NETENGINE,";
+		hints << ": " << cl->debugName(true) << endl;
+	}
+}
 
 void SyncServerAndClient() {
 	if(tLX->iGameType == GME_JOIN) {

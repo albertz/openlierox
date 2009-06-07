@@ -328,6 +328,7 @@ public:
 	bool	serverAllowsConnectDuringGame();
 	
 	void	DumpGameState();
+	void	DumpConnections();
 };
 
 extern	GameServer		*cServer;

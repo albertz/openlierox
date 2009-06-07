@@ -1894,6 +1894,12 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	hints << "Current time: " << GetDateTimeText() << endl;
 }
 
+COMMAND(dumpConnections, "dump connections of server", "", 0, 0);
+void Cmd_dumpConnections::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(cServer) cServer->DumpConnections();
+	else caller->writeMsg("server not initialised");
+}
+
 COMMAND(saveConfig, "save current config", "[filename]", 0, 1);
 void Cmd_saveConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLXOptions) {
