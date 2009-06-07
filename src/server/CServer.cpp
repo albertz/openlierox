@@ -1240,7 +1240,7 @@ void GameServer::CheckTimeouts()
 
 		// Check for a drop
 		if( cl->getLastReceived() + LX_SVTIMEOUT < tLX->currentTime && ( cl->getStatus() != NET_ZOMBIE ) ) {
-			DropClient(cl, CLL_TIMEOUT);
+			DropClient(cl, CLL_TIMEOUT, "timeout");
 		}
 
 		// Is the client out of zombie state?
@@ -1407,7 +1407,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	}
 	
 	// remove the client and drop worms
-	RemoveClient(cl);
+	RemoveClient(cl, "dropped client (" + sReason + ")");
 	
 	// Go into a zombie state for a while so the reliable channel can still get the
 	// reliable data to the client
@@ -1432,7 +1432,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 
 // WARNING: We are using SendWormsOut here, that means that we cannot use the specific client anymore
 // because it has a different local worm amount and it would screw up the network.
-void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms) {
+void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>& worms, const std::string& reason) {
 	// Unset client is allowed to repair broken state where a worm does not have a client.
 	if(!cl) warnings << "RemoveClientWorms: called with undefined client" << endl;
 	std::list<byte> wormsOutList;
@@ -1451,7 +1451,8 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		
 		if(cl) cl->RemoveWorm((*w)->getID());
 		
-		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << ")" << endl;
+		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << "): ";
+		hints << reason << endl;
 		
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->WormLeft_Signal( (*w) );
@@ -1488,7 +1489,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 	RecheckGame();
 }
 
-void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
+void GameServer::RemoveAllClientWorms(CServerConnection* cl, const std::string& reason) {
 	cl->setMuted(false);
 
 	int i;
@@ -1507,7 +1508,7 @@ void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
 
 		worms.insert(cl->getWorm(i));
 	}
-	RemoveClientWorms(cl, worms);
+	RemoveClientWorms(cl, worms, reason);
 	
 	if( cl->getNumWorms() != 0 ) {
 		errors << "RemoveAllClientWorms: very strange, client " << cl->debugName() << " has " << cl->getNumWorms() << " left worms (but should not have any)" << endl;
@@ -1515,14 +1516,14 @@ void GameServer::RemoveAllClientWorms(CServerConnection* cl) {
 	}
 }
 
-void GameServer::RemoveClient(CServerConnection* cl) {
+void GameServer::RemoveClient(CServerConnection* cl, const std::string& reason) {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
 		warnings << "An attempt to remove a local client was ignored" << endl;
 		return;
 	}
 	
-	RemoveAllClientWorms(cl);
+	RemoveAllClientWorms(cl, "removed client (" + reason + ")");
 	cl->setStatus(NET_DISCONNECTED);
 	
 	CheckForFillWithBots();
@@ -1756,7 +1757,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 		if(!cl) {
 			hints << "Force removal of worm " << wormID << endl;
 			std::set<CWorm*> worms; worms.insert(w);
-			RemoveClientWorms(NULL, worms);
+			RemoveClientWorms(NULL, worms, "kicked worm (" + sReason + "), didn't found associated client");
 			return;
 		}
 		
@@ -1781,14 +1782,12 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 					SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenKickedReason,
 														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
 				
-				notes << "Local worm was kicked (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
-				
 				bool isHumanWorm = w->getType() == PRF_HUMAN;
 				
 				// Delete the worm from client/server
 				cClient->RemoveWorm(wormID);			
 				std::set<CWorm*> wormList; wormList.insert(w);
-				RemoveClientWorms(cl, wormList);
+				RemoveClientWorms(cl, wormList, "kicked local worm (" + sReason + ")");
 
 				// Now that a player has left, re-check the game status
 				RecheckGame();
@@ -1894,13 +1893,11 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 				else
 					SendGlobalText((replacemax(replacemax(networkTexts->sHasBeenBannedReason,
 														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
-				
-				notes << "Worm was banned (e.g. kicked, it's local) (" << sReason << "): " << w->getName() << " (id " << w->getID() << ")" << endl;
-				
+								
 				// Delete the worm from client/server
 				cClient->RemoveWorm(wormID);			
 				std::set<CWorm*> wormList; wormList.insert(w);
-				RemoveClientWorms(cl, wormList);
+				RemoveClientWorms(cl, wormList, "banned local worm (" + sReason + ")");
 				
 				// Now that a player has left, re-check the game status
 				RecheckGame();

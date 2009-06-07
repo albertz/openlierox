@@ -665,7 +665,7 @@ void CServerNetEngine::ParseDisconnect() {
 		return;
 	}
 
-	server->DropClient(cl, CLL_QUIT);
+	server->DropClient(cl, CLL_QUIT, "client disconnected");
 }
 
 
@@ -1298,7 +1298,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			bytestr.writeString("lx::badconnect");
 			bytestr.writeString(OldLxCompatibleString("Your OpenLieroX version is too old, please update.\n" + msg));
 			bytestr.Send(net_socket);
-			RemoveClient(newcl);
+			RemoveClient(newcl, "version too old (while connecting)");
 			return;
 		}
 	}
@@ -1372,7 +1372,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 			bytestr.writeString(OldLxCompatibleString(networkTexts->sBotsNotAllowed));
 			bytestr.Send(net_socket);
 			
-			RemoveClient(newcl);
+			RemoveClient(newcl, "bot tried to connect");
 			return;
 		}		
 	}
@@ -1413,7 +1413,7 @@ void GameServer::ParseConnect(NetworkSocket net_socket, CBytestream *bs) {
 	}
 	
 	if(removeWormList.size() > 0) {
-		RemoveClientWorms(newcl, removeWormList);
+		RemoveClientWorms(newcl, removeWormList, "reconnected " + newcl->debugName(false) + " and worm does not exist anymore");
 	}
 
 	std::set<CWorm*> newJoinedWorms;
