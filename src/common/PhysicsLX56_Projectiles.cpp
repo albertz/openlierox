@@ -851,12 +851,12 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 	case PJ_GOTHROUGH:
 	case PJ_NOTHING:
-			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-		if(eventInfo.colType && !eventInfo.colType->withWorm && eventInfo.colType->colMask & PJC_MAPBORDER) {
-				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-			if((prj->GetPosition().x < 0 || prj->GetPosition().x > cClient->getMap()->GetWidth())
-			   && (prj->GetPosition().y < 0 || prj->GetPosition().y > cClient->getMap()->GetHeight()))
-				info->deleteAfter = true;
+		// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
+		if(eventInfo.colType && !eventInfo.colType->withWorm && (eventInfo.colType->colMask & PJC_MAPBORDER)) {
+			// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
+			// It means, if such a projectile which goes through everything hits the mapborder, it will
+			// get deleted - otherwise it would be stuck there at the border.
+			info->deleteAfter = true;
 		}
 		push_worm = false;
 		if(eventInfo.timerHit) spawnprojs = false;
