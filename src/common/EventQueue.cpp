@@ -38,22 +38,31 @@ struct EventQueueIntern {
 		cond = SDL_CreateCond();
 	}
 	void uninit() { // WARNING: don't call this if any other thread could be using this queue
-		if(queue.size() > 0) {
-			warnings << "there are " << queue.size() << " pending events in the event queue" << endl;
-		}
-		SDL_mutexP(mutex);
-		for(std::list<EventItem>::iterator i = queue.begin(); i != queue.end(); ++i) {
-			/* We execute all custom events because we want to ensure that
-			 * each thrown event is also execute.
-			 * We do some important cleanup and we stop other threads there which
-			 * would otherwise never stop, for example the Timer system. */
-			if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
-				((Action*)i->user.data1)->handle();
-				delete (Action*)i->user.data1;
+		while(true) {
+			// We swapped them because some of the code we are calling here at the cleanup could again access us
+			// and that would either cause deadlocks or crashes, thus we still need a vaild eventqueue at this point.
+			std::list<EventItem> tmpList;
+			{
+				ScopedLock lock(mutex);
+				tmpList.swap(queue);
+			}
+			if(tmpList.size() > 0)
+				warnings << "there are still " << tmpList.size() << " pending events in the event queue" << endl;
+			else
+				// finally new events anymore -> quit
+				break;
+			
+			for(std::list<EventItem>::iterator i = tmpList.begin(); i != tmpList.end(); ++i) {
+				/* We execute all custom events because we want to ensure that
+				 * each thrown event is also execute.
+				 * We do some important cleanup and we stop other threads there which
+				 * would otherwise never stop, for example the Timer system. */
+				if(i->type == SDL_USEREVENT && i->user.code == UE_CustomEventHandler) {
+					((Action*)i->user.data1)->handle();
+					delete (Action*)i->user.data1;
+				}
 			}
 		}
-		queue.clear();
-		SDL_mutexV(mutex);
 		
 		SDL_DestroyMutex(mutex);
 		mutex = NULL;
