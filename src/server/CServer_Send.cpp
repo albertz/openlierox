@@ -212,9 +212,9 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// TODO: it's hacky, don't have any ideas now how to make it nice
-	bool spectate = true;
+	bool spectate = cl->getNumWorms() > 0;
 	for(int i = 0; i < cl->getNumWorms(); ++i)
-		if(!cl->getWorm(i)->isSpectating()) {
+		if(cl->getWorm(i) && !cl->getWorm(i)->isSpectating()) {
 			spectate = false;
 			break;
 		}
