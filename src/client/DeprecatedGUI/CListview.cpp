@@ -1050,8 +1050,10 @@ int	CListview::MouseOver(mouse_t *tMouse)
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if(holdedWidget) {
-		int ret = holdedWidget->MouseDown(tMouse, nDown);
-		if(ret >= 0) return LV_WIDGETEVENT;
+		tLastWidgetEvent.cWidget = holdedWidget;
+		tLastWidgetEvent.iControlID = holdedWidget->getID();
+		tLastWidgetEvent.iEventMsg = holdedWidget->MouseDown(tMouse, nDown);
+		if(tLastWidgetEvent.iEventMsg >= 0) return LV_WIDGETEVENT;
 		else return LV_NONE;
 	}
 	
@@ -1249,9 +1251,11 @@ int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 {
 	if(holdedWidget) {
-		int ret = holdedWidget->MouseUp(tMouse, nDown);
+		tLastWidgetEvent.cWidget = holdedWidget;
+		tLastWidgetEvent.iControlID = holdedWidget->getID();
+		tLastWidgetEvent.iEventMsg = holdedWidget->MouseUp(tMouse, nDown);
 		holdedWidget = NULL;
-		if(ret >= 0) return LV_WIDGETEVENT;
+		if(tLastWidgetEvent.iEventMsg >= 0) return LV_WIDGETEVENT;
 		else return LV_NONE;
 	}
 	iLastMouseX = 0;
