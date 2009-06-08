@@ -211,13 +211,15 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 	bs->writeFloat( tLXOptions->tGameInfo.features[FT_GameSpeed] );
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
+	// Never do this for local client, local client must know correct state of serverChoosesWeapons!
 	// TODO: it's hacky, don't have any ideas now how to make it nice
-	bool spectate = cl->getNumWorms() > 0;
-	for(int i = 0; i < cl->getNumWorms(); ++i)
-		if(cl->getWorm(i) && !cl->getWorm(i)->isSpectating()) {
-			spectate = false;
-			break;
-		}
+	bool spectate = cl->getNumWorms() > 0 && !cl->isLocalClient();
+	if(!spectate)
+		for(int i = 0; i < cl->getNumWorms(); ++i)
+			if(cl->getWorm(i) && !cl->getWorm(i)->isSpectating()) {
+				spectate = false;
+				break;
+			}
 
 	bs->writeBool( server->serverChoosesWeapons() || spectate );
 	
