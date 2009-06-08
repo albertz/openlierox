@@ -907,6 +907,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			}
 			sizedViewport.SetWorldX( oldWorldXCenter - sizedViewport.GetWidth() / 2 );
 			sizedViewport.SetWorldY( oldWorldYCenter - sizedViewport.GetHeight() / 2 );
+			sizedViewport.Clamp(cMap->GetWidth(), cMap->GetHeight());
 			
 			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
 			static SmartPointer<SDL_Surface> tmpSurf = NULL;
