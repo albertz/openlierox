@@ -381,6 +381,16 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 		fGravity = (float)prj->getProjInfo()->Gravity;
 	prj->vVelocity.y += fGravity * dt.seconds();
 
+	{
+		float friction = cClient->getGameLobby()->features[FT_Friction];
+		if(friction > 0) {
+			const float projSize = (prj->radius.x + prj->radius.y) * 0.5f;
+			const float projMass = prj->radius.GetLength();
+			static const float projDragCoeff = 0.1f;
+			applyFriction(prj->vVelocity, dt.seconds(), projSize, projMass, projDragCoeff, friction);
+		}
+	}
+	
 	CVec vOldVel = prj->GetVelocity();
 
 	CVec vFrameOldPos = prj->vPosition;

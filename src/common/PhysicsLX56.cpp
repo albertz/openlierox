@@ -391,20 +391,29 @@ public:
 			worm->setOnGround( false );
 		}
 
+		{
+			// Air drag (Mainly to dampen the ninja rope)
+			float Drag = wd->AirFriction;
 
-		// Air drag (Mainly to dampen the ninja rope)
-		float Drag = wd->AirFriction;
-
-		if(!worm->isOnGround())	{
-			worm->getVelocity()->x -= SQR(worm->getVelocity()->x) * SIGN(worm->getVelocity()->x) * Drag * dt;
-			worm->getVelocity()->y += -SQR(worm->getVelocity()->y) * SIGN(worm->getVelocity()->y) * Drag * dt;
+			if(!worm->isOnGround())	{
+				worm->getVelocity()->x -= SQR(worm->getVelocity()->x) * SIGN(worm->getVelocity()->x) * Drag * dt;
+				worm->getVelocity()->y += -SQR(worm->getVelocity()->y) * SIGN(worm->getVelocity()->y) * Drag * dt;
+			}
 		}
-
-
+				
 		// Gravity
 		worm->getVelocity()->y += wd->Gravity*dt;
 
-
+		{
+			float friction = cClient->getGameLobby()->features[FT_Friction];
+			if(friction > 0) {
+				static const float wormSize = 5.0f;
+				static const float wormMass = (wormSize/2) * (wormSize/2) * PI;
+				static const float wormDragCoeff = 0.1f;
+				applyFriction(worm->velocity(), dt, wormSize, wormMass, wormDragCoeff, friction);
+			}
+		}
+		
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move

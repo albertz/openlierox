@@ -65,4 +65,10 @@ inline void warpSimulationTimeForDeltaTimeCap(AbsTime& simulationTime, TimeDiff 
 	simulationTime += realDeltaTime - deltaTime;
 }
 
+inline void applyFriction(CVec& vel, float dt, float area, float mass, float dragCoeff, float airCoeff, CVec airVel = CVec(0,0)) {
+	const CVec relAirVel = airVel - vel;
+	vel += relAirVel * relAirVel.GetLength() * area * dragCoeff * airCoeff * 0.5f * dt / mass;
+}
+
+
 #endif

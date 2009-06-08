@@ -78,6 +78,8 @@ Feature featureArray[] = {
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons,	true),
 	Feature("InfiniteMap",			"Infinite map",			"Map has no borders and is tiled together",
 			false,	false,			OLXBetaVersion(9),		GIG_Other,		false),
+	Feature("Friction",				"Friction",				"Friction coefficient which applies to worms and projectiles (0 = disabled)",
+			0.0f, 0.0f,				OLXBetaVersion(9),		GIG_Other,		0.0f, 2.0f,	false),
 	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
 			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100,	true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",

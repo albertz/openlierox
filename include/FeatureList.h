@@ -122,6 +122,7 @@ enum FeatureIndex {
 	FT_ImmediateStart,
 	FT_DisableWpnsWhenEmpty,
 	FT_InfiniteMap,
+	FT_Friction,
 	FT_CTF_ScoreLimit,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
