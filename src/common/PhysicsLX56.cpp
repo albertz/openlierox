@@ -404,11 +404,11 @@ public:
 		worm->getVelocity()->y += wd->Gravity*dt;
 
 		{
-			float friction = cClient->getGameLobby()->features[FT_Friction];
+			float friction = cClient->getGameLobby()->features[FT_WormFriction];
 			if(friction > 0) {
 				static const float wormSize = 5.0f;
 				static const float wormMass = (wormSize/2) * (wormSize/2) * PI;
-				static const float wormDragCoeff = 0.1f;
+				static const float wormDragCoeff = 0.1f; // Note: Never ever change this! (Or we have to make this configureable)
 				applyFriction(worm->velocity(), dt, wormSize, wormMass, wormDragCoeff, friction);
 			}
 		}

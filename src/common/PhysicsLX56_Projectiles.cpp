@@ -382,11 +382,12 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	prj->vVelocity.y += fGravity * dt.seconds();
 
 	{
-		float friction = cClient->getGameLobby()->features[FT_Friction];
+		float friction = cClient->getGameLobby()->features[FT_ProjFriction];
 		if(friction > 0) {
 			const float projSize = (prj->radius.x + prj->radius.y) * 0.5f;
 			const float projMass = prj->radius.GetLength();
-			static const float projDragCoeff = 0.1f;
+			// A bit lower drag coefficient as for worms because normally, projectiles have better shape for less dragging.
+			static const float projDragCoeff = 0.02f; // Note: Never ever change this! (Or we have to make this configureable)
 			applyFriction(prj->vVelocity, dt.seconds(), projSize, projMass, projDragCoeff, friction);
 		}
 	}
