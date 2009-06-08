@@ -988,10 +988,6 @@ bool Menu_GameSettings_Frame()
 
 			case gs_FeaturesList:
 				CListview* features = (CListview*)ev->cWidget;
-				if( ev->iEventMsg == LV_WIDGETEVENT )
-				{
-					updateFeaturesList(features);
-				}
 				if( ev->iEventMsg == LV_MOUSEOVER )
 				{
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
@@ -1016,6 +1012,9 @@ bool Menu_GameSettings_Frame()
 						featuresLabel->setText( desc );
 					}
 				}
+				else if(ev->iEventMsg >= 0)
+					updateFeaturesList(features);
+					
 				break;
 		}
 
