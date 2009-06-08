@@ -234,23 +234,14 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 // Draw the projectile
 void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
-	int wx = view->GetWorldX();
-	int wy = view->GetWorldY();
-	int l = view->GetLeft();
-	int t = view->GetTop();
-
-	int x=((int)vPosition.x-wx)*2+l;
-	int y=((int)vPosition.y-wy)*2+t;
-
-	// Clipping on the viewport
-	if((x<l || x>l+view->GetVirtW()))
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = view->physicToReal(vPosition, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	if(!view->posInside(p))
 		return;
-	if((y<t || y>t+view->GetVirtH()))
-		return;
-
+	
     switch (tProjInfo->Type) {
 		case PRJ_PIXEL:
-			DrawRectFill2x2(bmpDest, x - 1, y - 1,iColour);
+			DrawRectFill2x2(bmpDest, p.x - 1, p.y - 1,iColour);
 			return;
 	
 		case PRJ_IMAGE:  {
@@ -315,17 +306,17 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			iFrameX = (int)framestep*size;
 			MOD(iFrameX, tProjInfo->bmpImage->w);
 	
-			DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, x-half, y-half, size,size);
+			DrawImageAdv(bmpDest, tProjInfo->bmpImage, iFrameX, 0, p.x-half, p.y-half, size,size);
 		
 			return;
 		}
 		
 		case PRJ_CIRCLE:
-			DrawCircleFilled(bmpDest, x, y, radius.x*2, radius.y*2, iColour);
+			DrawCircleFilled(bmpDest, p.x, p.y, radius.x*2, radius.y*2, iColour);
 			return;
 			
 		case PRJ_RECT:
-			DrawRectFill(bmpDest, x - radius.x*2, y - radius.y*2, x + radius.x*2, y + radius.x*2, iColour);
+			DrawRectFill(bmpDest, p.x - radius.x*2, p.y - radius.y*2, p.x + radius.x*2, p.y + radius.x*2, iColour);
 			return;
 			
 		case PRJ_POLYGON:
@@ -345,21 +336,11 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 		return;
 
 	CMap* map = cClient->getMap();
-	
-	int wx = view->GetWorldX();
-	int wy = view->GetWorldY();
-	int l = view->GetLeft();
-	int t = view->GetTop();
 
-	int x=((int)vPosition.x-wx)*2+l;
-	int y=((int)vPosition.y-wy)*2+t;
-
-	// Clipping on the viewport
-	if((x<l || x>l+view->GetVirtW()))
+	// TODO: DrawObjectShadow is a bit complicated to fix for shadows&tiling, so I just leave all shadows away for now...
+	if(!view->physicsInside(vPosition /*, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
 		return;
-	if((y<t || y>t+view->GetVirtH()))
-		return;
-
+	   
 	switch (tProjInfo->Type)  {
 	
 		// Pixel

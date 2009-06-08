@@ -15,13 +15,14 @@
 
 
 #include "LieroX.h"
-
 #include "CBonus.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 #include "WeaponDesc.h"
 #include "CViewport.h"
 #include "CGameScript.h"
+#include "CClient.h"
+#include "CMap.h"
 
 
 ///////////////////
@@ -47,13 +48,8 @@ void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 // Draw the bonus
 void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 {
-	int wx = v->GetWorldX();
-	int wy = v->GetWorldY();
-	int l = v->GetLeft();
-	int t = v->GetTop();
-
-	int x=((int)vPos.x-wx)*2+l;
-	int y=((int)vPos.y-wy)*2+t;
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = v->physicToReal(vPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	// If we are in a flashing mode, don't show it on an 'off' flash mode
 	if(fLife > BONUS_LIFETIME-3) {
@@ -66,15 +62,15 @@ void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 
 		// Health
 		case BNS_HEALTH:
-			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpHealth,x-5,y-5);
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpHealth,p.x-5,p.y-5);
 			break;
 
 		// Weapon
 		case BNS_WEAPON:
-			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpBonus, x-5,y-5);
+			DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpBonus, p.x-5,p.y-5);
 			
 			if(showname)
-				tLX->cOutlineFont.DrawCentre(bmpDest, x, y-20, tLX->clPlayerName, sWeapon);
+				tLX->cOutlineFont.DrawCentre(bmpDest, p.x, p.y-20, tLX->clPlayerName, sWeapon);
 			break;
 	}
 }

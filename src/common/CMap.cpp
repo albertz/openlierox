@@ -1038,15 +1038,17 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 	// HINT: Clipping is done by DrawImageAdv/GetPixelFlag
 
 	// Get real coordinates
-    int x = (wx - view->GetWorldX()) * 2 + view->GetLeft();
-    int y = (wy - view->GetWorldY()) * 2 + view->GetTop();
-
-	if( GetPixelFlag(wx, wy) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
+	// TODO: DrawObjectShadow also doesn't do correct shadow for infinite maps, so let's ignore it here too atm
+	//VectorD2<int> p = view->physicToReal(VectorD2<int>(wx,wy), cClient->getGameLobby()->features[FT_InfiniteMap], GetWidth(), GetHeight());
+	VectorD2<int> p = view->physicToReal(VectorD2<int>(wx,wy));
+	
+	// NOTE: if we fix shadow for infinite maps here, we cannot use GetPixel this way!
+	if( GetPixelFlag(wx, wy /*, cClient->getGameLobby()->features[FT_InfiniteMap]*/) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
 		LOCK_OR_QUIT(bmpShadowMap);
 		Color color = Color(bmpShadowMap->format, GetPixel(bmpShadowMap.get(), wx, wy));
 		UnlockSurface(bmpShadowMap);
 
-		DrawRectFill2x2(bmpDest, x, y, color);
+		DrawRectFill2x2(bmpDest, p.x, p.y, color);
 	}
 }
 

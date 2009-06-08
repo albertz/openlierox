@@ -293,6 +293,22 @@ public:
 
 	size_t GetMemorySize();
 
+	int WrapAroundX(int x) {
+		x %= (int)Width;
+		if(x < 0) x += Width;
+		return x;
+	}
+
+	int WrapAroundY(int y) {
+		y %= (int)Height;
+		if(y < 0) y += Height;
+		return y;
+	}
+
+	VectorD2<int> WrapAround(VectorD2<int> p) {
+		return VectorD2<int>(WrapAroundX(p.x), WrapAroundY(p.y));
+	}
+	
 	uchar GetPixelFlag(long x, long y, bool wrapAround = false) {
 		if(!wrapAround) {
 			// Checking edges
@@ -300,9 +316,8 @@ public:
 				return PX_ROCK;
 		}
 		else {
-			x %= (int)Width; y %= (int)Height;
-			if(x < 0) x += Width;
-			if(y < 0) y += Height;
+			x = WrapAroundX(x);
+			y = WrapAroundY(y);
 		}
 		return PixelFlags[y * Width + x];
 	}

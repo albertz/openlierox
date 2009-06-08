@@ -781,10 +781,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	int l = v->GetLeft();
 	int t = v->GetTop();
 
-	int x = (int)vDrawPos.x - v->GetWorldX();
-	int y = (int)vDrawPos.y - v->GetWorldY();
-	x*=2;
-	y*=2;
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = v->physicToReal(vDrawPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+
+	int x = p.x - l;
+	int y = p.y - t;
 
 	// Draw the ninja rope
 	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
@@ -843,7 +844,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) )
 					damageStr = "? " + damageStr; // + "\xC2\xBF"; // Inverted question mark in UTF-8
-				tLX->cOutlineFont.DrawCentre(bmpDest, x + l, y + t - damageDrawPos, damageColor, damageStr);
+				if(damageSum != 0)
+					tLX->cOutlineFont.DrawCentre(bmpDest, x + l, y + t - damageDrawPos, damageColor, damageStr);
 				//printf("Print damage for worm %i = %s at %i %i\n", getID(), damageStr.c_str(), x, y-damageDrawPos);
 				damageDrawPos += tLX->cFont.GetHeight();
 
@@ -927,15 +929,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	GetVecsFromAngle(a, &forw, NULL);
 	forw *= 16.0f;
 
-	int cx = (int)forw.x + (int)vDrawPos.x;
-	int cy = (int)forw.y + (int)vDrawPos.y;
-
-	cx = (cx - v->GetWorldX()) * 2 + l;
-	cy = (cy - v->GetWorldY()) * 2 + t;
+	VectorD2<int> cp = v->physicToReal(forw + vDrawPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	// Snap the position to a slighter bigger pixel grid (2x2)
-	cx -= cx % 2;
-	cy -= cy % 2;
+	cp.x -= cp.x % 2;
+	cp.y -= cp.y % 2;
 
 	// Show a green crosshair if we have a target
 	x = 0;
@@ -945,13 +943,13 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	}
 
 	if(bLocal && isWormVisible(this, v))
-		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cx - 2, cy - 2, 6, 6);
+		DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpCrosshair, x, 0, cp.x - 2, cp.y - 2, 6, 6);
 
 	//
 	// Draw the worm
 	//
-	x = (int) ( (vDrawPos.x - v->GetWorldX()) * 2 + l );
-	y = (int) ( (vDrawPos.y - v->GetWorldY()) * 2 + t );
+	x = p.x;
+	y = p.y;
 
 	// Find the right pic
 	int f = ((int)fFrame*7);

@@ -116,14 +116,14 @@ public:
 	//
 	// Variables
 	//
-	int		GetLeft()		{ return Left; }
-	int		GetTop()		{ return Top; }
-	int		GetWidth()		{ return Width; }
-	int		GetHeight()		{ return Height; }
-	int		GetWorldX()		{ return WorldX; }
-	int		GetWorldY()		{ return WorldY; }
-	int		GetVirtW()		{ return VirtWidth; }
-	int		GetVirtH()		{ return VirtHeight; }
+	int		GetLeft() const	{ return Left; }
+	int		GetTop() const	{ return Top; }
+	int		GetWidth() const { return Width; }
+	int		GetHeight()	const { return Height; }
+	int		GetWorldX()	const { return WorldX; }
+	int		GetWorldY()	const { return WorldY; }
+	int		GetVirtW() const { return VirtWidth; }
+	int		GetVirtH() const { return VirtHeight; }
 
 	void	SetLeft(int _l)		{ Left = _l; }
 	void	SetTop(int _t)		{ Top = _t; }
@@ -145,6 +145,35 @@ public:
 
     void    setSmooth(bool _b);
 
+	
+	VectorD2<int>	physicToReal(VectorD2<int> p, bool wrapAround = false, long mapW = 0, long mapH = 0) const {
+		const int wx = GetWorldX();
+		const int wy = GetWorldY();
+		const int l = GetLeft();
+		const int t = GetTop();
+		int x = p.x - wx;
+		int y = p.y - wy;
+		if(wrapAround) {
+			x %= mapW; if(x < 0) x += mapW;
+			y %= mapH; if(y < 0) y += mapH;
+		}
+		return VectorD2<int>(x * 2 + l, y * 2 + t);
+	}
+	
+	bool	posInside(VectorD2<int> p) const {
+		const int l = GetLeft();
+		const int t = GetTop();
+		if((p.x<l || p.x>l+GetVirtW()))
+			return false;
+		if((p.y<t || p.y>t+GetVirtH()))
+			return false;
+		return true;
+	}
+	
+	bool	physicsInside(VectorD2<int> p, bool wrapAround = false, long mapW = 0, long mapH = 0) const {
+		return posInside(physicToReal(p, wrapAround, mapW, mapH));
+	}
+	
 };
 
 

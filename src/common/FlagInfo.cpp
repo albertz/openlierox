@@ -133,30 +133,22 @@ static void drawFlagSpawnPoint(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	else
 		bmp = DeprecatedGUI::gfxGame.bmpFlagSpawnpointDefault.get();
 	
-	int l = v->GetLeft();
-	int t = v->GetTop();
-	int x = (int) ( (flag->spawnPoint.pos.x - v->GetWorldX()) * 2 + l );
-	int y = (int) ( (flag->spawnPoint.pos.y - v->GetWorldY()) * 2 + t );
-	x -= x % 2;
-	y -= y % 2;
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = v->physicToReal(flag->spawnPoint.pos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
-	DrawImage(bmpDest, bmp, x - bmp->w/2, y - bmp->h/2);
+	DrawImage(bmpDest, bmp, p.x - bmp->w/2, p.y - bmp->h/2);
 }
 
 static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	if(flag->skin == NULL) return;
 	
-	int l = v->GetLeft();
-	int t = v->GetTop();
-	int x = (int) ( (flag->getPos().x - v->GetWorldX()) * 2 + l );
-	int y = (int) ( (flag->getPos().y - v->GetWorldY()) * 2 + t );
-	x -= x % 2;
-	y -= y % 2;
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
 	f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
 	
-	flag->skin->Draw(bmpDest, x - FLAG_WIDTH/2, y - FLAG_HEIGHT/2, f, false, true);
+	flag->skin->Draw(bmpDest, p.x - FLAG_WIDTH/2, p.y - FLAG_HEIGHT/2, f, false, true);
 }
 
 void FlagInfo::draw(SDL_Surface* bmpDest, CViewport* v) {
@@ -179,22 +171,18 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	
 	// see CWorm::Draw() for all these calculations
 	
-	int l = v->GetLeft();
-	int t = v->GetTop();
-	int x = (int) ( (worm->getPos().x - v->GetWorldX()) * 2 + l );
-	int y = (int) ( (worm->getPos().y - v->GetWorldY()) * 2 + t );
-	x -= x % 2;
-	y -= y % 2;
+	CMap* map = cClient->getMap();
+	VectorD2<int> p = v->physicToReal(worm->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	int f = ((int) worm->frame()*7);
 	int ang = (int)( (worm->getAngle()+90)/151 * 7 );
 	f += ang;
 	
 	if(worm->getDirection() == DIR_LEFT) {
-		flag->skin->Draw(bmpDest, x - flag->skin->getSkinWidth(), y - flag->skin->getSkinHeight(), f, false, true);
+		flag->skin->Draw(bmpDest, p.x - flag->skin->getSkinWidth(), p.y - flag->skin->getSkinHeight(), f, false, true);
 	}
 	else {
-		flag->skin->Draw(bmpDest, x, y - flag->skin->getSkinHeight(), f, false, false);
+		flag->skin->Draw(bmpDest, p.x, p.y - flag->skin->getSkinHeight(), f, false, false);
 	}
 }
 
