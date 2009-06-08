@@ -482,6 +482,7 @@ public:
 	void		DrawBox(SDL_Surface * dst, int x, int y, int w);
 	void		Draw(SDL_Surface * bmpDest);
 	void		DrawViewport(SDL_Surface * bmpDest, int viewport_index);
+	void		DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v);
 	void		DrawProjectiles(SDL_Surface * bmpDest, CViewport *v);
     void        DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v);
 	void		InitializeGameMenu();

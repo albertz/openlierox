@@ -795,6 +795,65 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 	}
 }
 
+void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
+	// Set the clipping
+	SDL_Rect rect = v->getRect();
+	ScopedSurfaceClip clip(bmpDest, rect);
+	
+	// Weather
+	//cWeather.Draw(bmpDest, v);
+	
+	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
+	// We draw it anyway now because we could use some nice alpha blending or so
+	if (cMap) {
+		cMap->Draw(bmpDest, v);
+		
+		// The following will be drawn only when playing
+		if (bGameReady || iNetStatus == NET_PLAYING)  {
+			// update the drawing position
+			CWorm *w = cRemoteWorms;
+			for(short i=0;i<MAX_WORMS;i++,w++) {
+				if(w->isUsed() && w->getAlive())
+					w->UpdateDrawPos();
+			}
+			
+			if( tLXOptions->bShadows ) {
+				// Draw the projectile shadows
+				DrawProjectileShadows(bmpDest, v);
+				
+				// Draw the worm shadows
+				w = cRemoteWorms;
+				for(short i=0;i<MAX_WORMS;i++,w++) {
+					if(w->isUsed() && w->getAlive())
+						w->DrawShadow(bmpDest, v);
+				}
+			}
+			
+			// Draw the entities
+			DrawEntities(bmpDest, v);
+			
+			// Draw the projectiles
+			DrawProjectiles(bmpDest, v);
+			
+			// Draw the bonuses
+			DrawBonuses(bmpDest, v);
+			
+			// draw unattached flags and flag spawnpoints
+			cClient->flagInfo()->draw(bmpDest, v);
+			
+			// Draw all the worms in the game
+			ushort i;
+			w = cRemoteWorms;
+			for(i=0;i<MAX_WORMS;i++,w++) {
+				if(w->isUsed())
+					w->Draw(bmpDest, v);
+			}
+		}
+	}
+	
+}
+
+
 ///////////////////
 // Draw a viewport
 void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
@@ -807,65 +866,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	if (!v->getUsed())
 		return;
 
-    //CWorm *worm = v->getTarget();
-
-	{
-		// Set the clipping
-		SDL_Rect rect = v->getRect();
-		ScopedSurfaceClip clip(bmpDest, rect);
-
-		// Weather
-		//cWeather.Draw(bmpDest, v);
-
-		// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
-		// We draw it anyway now because we could use some nice alpha blending or so
-		if (cMap) {
-			cMap->Draw(bmpDest, v);
-
-			// The following will be drawn only when playing
-			if (bGameReady || iNetStatus == NET_PLAYING)  {
-				// update the drawing position
-				CWorm *w = cRemoteWorms;
-				for(short i=0;i<MAX_WORMS;i++,w++) {
-					if(w->isUsed() && w->getAlive())
-						w->UpdateDrawPos();
-				}
-
-				if( tLXOptions->bShadows ) {
-					// Draw the projectile shadows
-					DrawProjectileShadows(bmpDest, v);
-
-					// Draw the worm shadows
-					w = cRemoteWorms;
-					for(short i=0;i<MAX_WORMS;i++,w++) {
-						if(w->isUsed() && w->getAlive())
-							w->DrawShadow(bmpDest, v);
-					}
-				}
-
-				// Draw the entities
-				DrawEntities(bmpDest, v);
-
-				// Draw the projectiles
-				DrawProjectiles(bmpDest, v);
-
-				// Draw the bonuses
-				DrawBonuses(bmpDest, v);
-
-				// draw unattached flags and flag spawnpoints
-				cClient->flagInfo()->draw(bmpDest, v);
-				
-				// Draw all the worms in the game
-				ushort i;
-				w = cRemoteWorms;
-				for(i=0;i<MAX_WORMS;i++,w++) {
-					if(w->isUsed())
-						w->Draw(bmpDest, v);
-				}
-			}
-		}
-
-	}
+	DrawViewport_Game(bmpDest, v);
 
 	//
 	// Draw the worm details

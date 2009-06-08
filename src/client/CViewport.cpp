@@ -383,6 +383,8 @@ void CViewport::reset()
 // Clamp the viewport if it exceeds any boundaries
 void CViewport::Clamp(int MWidth, int MHeight)
 {
+	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
+	// We are drawing the map (and everything) tiled together then.
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
 		WorldX = CLAMP(WorldX, 0, MWidth-Width);
 		WorldY = CLAMP(WorldY, 0, MHeight-Height);
