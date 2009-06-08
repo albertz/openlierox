@@ -81,7 +81,7 @@ template <typename T> void RESET_SMALL(T& v, const T& limit) {
 	if((v > 0 && v < limit) || (v < 0 && v > -limit)) v = 0; }
 
 template <typename T> void MOD(T& a, const T& b) { a %= b; if(a < 0) a += b; }
-template <typename T> void FMOD(T& a, const T& b) { a -= b * floor(a / b); }
+template <typename T> void FMOD(T& a, const T& b) { a -= b * floor(a / b); if(a < 0) a += b; }
 
 
 template<typename _T>

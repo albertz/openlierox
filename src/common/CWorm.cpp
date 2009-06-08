@@ -1086,13 +1086,14 @@ bool CWorm::CheckOnGround()
 {
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
+	bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 	for(short y = 6; y > 0; y--) {
 
 		// Optimize: pixelflag + Width
-		if(!(cClient->getMap()->GetPixelFlag(px - 2, py + y) & PX_EMPTY))
+		if(!(cClient->getMap()->GetPixelFlag(px - 2, py + y, wrapAround) & PX_EMPTY))
 			return true;
-		if(!(cClient->getMap()->GetPixelFlag(px + 2, py + y) & PX_EMPTY))
+		if(!(cClient->getMap()->GetPixelFlag(px + 2, py + y, wrapAround) & PX_EMPTY))
 			return true;
 	}
 

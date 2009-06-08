@@ -76,6 +76,8 @@ Feature featureArray[] = {
 			false,	false,			OLXBetaVersion(8),		GIG_Advanced,	true),
 	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated)",
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons,	true),
+	Feature("InfiniteMap",			"Infinite map",			"Map has no borders and is tiled together",
+			false,	false,			OLXBetaVersion(9),		GIG_Other,		false),
 	Feature("CTF_ScoreLimit",		"Score limit",			"Flag score limit",
 			5, 5,					OLXBetaVersion(9),		GIG_CaptureTheFlag, -1, 100,	true),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",

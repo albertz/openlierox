@@ -95,7 +95,13 @@ public:
 		lx56handler = NULL;
 	}
 
-
+	// Types
+	struct ColInfo  {
+		int left, right, top, bottom;
+		bool collided;
+		bool onlyDirt;
+	};
+	
 private:
 	// Attributes
 
@@ -151,13 +157,6 @@ private:
 private:
 	void	CalculateCheckSteps();
 	void	setBestLX56Handler();
-
-	// Types
-	struct ColInfo  {
-		int left, right, top, bottom;
-		bool collided;
-		bool onlyDirt;
-	};
 	
 	
 	// used in LX56 physics

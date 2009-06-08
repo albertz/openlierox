@@ -293,10 +293,17 @@ public:
 
 	size_t GetMemorySize();
 
-	uchar GetPixelFlag(long x, long y) {
-		// Checking edges
-		if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
-			return PX_ROCK;
+	uchar GetPixelFlag(long x, long y, bool wrapAround = false) {
+		if(!wrapAround) {
+			// Checking edges
+			if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
+				return PX_ROCK;
+		}
+		else {
+			x %= (int)Width; y %= (int)Height;
+			if(x < 0) x += Width;
+			if(y < 0) y += Height;
+		}
 		return PixelFlags[y * Width + x];
 	}
 	uchar GetPixelFlag(const CVec& pos) { return GetPixelFlag((long)pos.x, (long)pos.y); }

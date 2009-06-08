@@ -121,6 +121,7 @@ enum FeatureIndex {
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
 	FT_DisableWpnsWhenEmpty,
+	FT_InfiniteMap,
 	FT_CTF_ScoreLimit,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,

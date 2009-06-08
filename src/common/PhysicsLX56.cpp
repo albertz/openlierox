@@ -83,13 +83,17 @@ public:
 			return moveAndCheckWormCollision(currentTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
 		}
 
+		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 		pos += *vel * dt * worm->speedFactor();
+		if(wrapAround) {
+			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
+			FMOD(pos.y, (float)cClient->getMap()->GetHeight());
+		}
 		worm->pos() = pos;
 		
-			
-		int x,y;
-		x = (int)pos.x;
-		y = (int)pos.y;
+		
+		int x = (int)pos.x;
+		int y = (int)pos.y;
 		short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
 		bool coll = false;
 		bool check_needed = false;
@@ -111,9 +115,9 @@ public:
 		if(check_needed && y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
 			for(x=-3;x<4;x++) {
 				// Optimize: pixelflag++
-
+				
 				// Left side clipping
-				if(pos.x+x <= 2) {
+				if(!wrapAround && (pos.x+x <= 2)) {
 					clip |= 0x01;
 					worm->pos().x=( 5 );
 					coll = true;
@@ -125,7 +129,7 @@ public:
 				}
 
 				// Right side clipping
-				if(pos.x+x >= cClient->getMap()->GetWidth()) {
+				if(!wrapAround && (pos.x+x >= cClient->getMap()->GetWidth())) {
 					worm->pos().x=( (float)cClient->getMap()->GetWidth() - 5 );
 					coll = true;
 					clip |= 0x02;
@@ -136,17 +140,18 @@ public:
 					continue;
 				}
 
-
-				if(!(cClient->getMap()->GetPixelFlag((int)pos.x+x,y) & PX_EMPTY)) {
+				int posx = (int)pos.x + x; if(wrapAround) { posx %= (int)cClient->getMap()->GetWidth(); if(posx < 0) posx += cClient->getMap()->GetWidth(); }
+				if(!(cClient->getMap()->GetPixelFlag(posx,y) & PX_EMPTY)) {
 					coll = true;
 
 					if(x<0) {
 						clip |= 0x01;
-						worm->pos().x=( pos.x+x+4 );
+						notes << "leftcl,posx:" << posx << ",pos.x:" << pos.x << ",x:" << x << ",w:" << cClient->getMap()->GetWidth() << endl;
+						worm->pos().x=( posx+4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth();
 					}
 					else {
 						clip |= 0x02;
-						worm->pos().x=( pos.x+x-4 );
+						worm->pos().x=( posx-4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth();
 					}
 
 					// Bounce
@@ -168,7 +173,7 @@ public:
 				// Optimize: pixelflag + Width
 
 				// Top side clipping
-				if(pos.y+y <= 1) {
+				if(!wrapAround && (pos.y+y <= 1)) {
 					worm->pos().y=( 6 );
 					coll = true;
 					clip |= 0x04;
@@ -180,7 +185,7 @@ public:
 				}
 
 				// Bottom side clipping
-				if(pos.y+y >= cClient->getMap()->GetHeight()) {
+				if(!wrapAround && (pos.y+y >= cClient->getMap()->GetHeight())) {
 					worm->pos().y=( (float)cClient->getMap()->GetHeight() - 5 );
 					clip |= 0x08;
 					coll = true;
@@ -192,8 +197,8 @@ public:
 					continue;
 				}
 
-
-				if(!(cClient->getMap()->GetPixelFlag(x,(int)pos.y+y) & PX_EMPTY)) {
+				int posy = (int)pos.y + y; if(wrapAround) { posy %= (int)cClient->getMap()->GetHeight(); if(posy < 0) posy += cClient->getMap()->GetHeight(); }
+				if(!(cClient->getMap()->GetPixelFlag(x,posy) & PX_EMPTY)) {
 					coll = true;
 
 					if(!hit && !jump) {
@@ -208,11 +213,11 @@ public:
 
 					if(y<0) {
 						clip |= 0x04;
-						worm->pos().y=( pos.y+y+5 );
+						worm->pos().y= ( posy+5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight();
 					}
 					else {
 						clip |= 0x08;
-						worm->pos().y=( pos.y+y-5 );
+						worm->pos().y= ( posy-5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight();
 					}
 
 					//if(y>3 && !jump) {
@@ -223,7 +228,7 @@ public:
 				}
 			}
 		}
-
+			
 		// If we are stuck in left & right or top & bottom, just don't move in that direction
 		if ((clip & 0x01) && (clip & 0x02))
 			worm->pos().x = vOldPos.x;
@@ -298,9 +303,6 @@ public:
 		worm->fLastSimulationTime += TimeDiff(orig_dt);
 
 
-		float speed;
-		float	fFrameRate = 7.5f;
-
 		// If we're seriously injured (below 15% health) and visible, bleed
 		// HINT: We have to check the visibility for everybody as we don't have entities for specific teams/worms.
 		// If you want to make that better, you would have to give the CViewport to simulateWorm (but that would be really stupid).
@@ -332,6 +334,7 @@ public:
 			//cClient->SendCarve(vPos + dir*4);
 		}
 
+		static const float	fFrameRate = 7.5f;
 		if(ws->bMove)
 			worm->frame() += fFrameRate * dt;
 
@@ -340,7 +343,7 @@ public:
 		if(worm->frame() < 0)
 			worm->frame() = 2.99f;
 
-		speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
+		float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 
 		// Process the ninja rope
 		if(worm->getNinjaRope()->isReleased() && worms) {

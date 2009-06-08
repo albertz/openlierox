@@ -126,7 +126,10 @@ static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProj
 
 
 
+
 inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
+	CMap* map = cClient->getMap();
+	
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->GetPosition() - vFrameOldPos;
@@ -142,11 +145,26 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 					proj->setNewPosition( curpos ); // save the new position at the first collision
 					proj->setNewVel( vFrameOldVel ); // don't get faster
 				}
+
+				if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
+					FMOD(proj->vPosition.x, (float)map->GetWidth());
+					FMOD(proj->vPosition.y, (float)map->GetWidth());		
+					FMOD(proj->vOldPos.x, (float)map->GetWidth());
+					FMOD(proj->vOldPos.y, (float)map->GetWidth());		
+				}
+				
 				return ProjCollisionType::Worm(ret);
 			}
 		}
 	}
 	
+	if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
+		FMOD(proj->vPosition.x, (float)map->GetWidth());
+		FMOD(proj->vPosition.y, (float)map->GetWidth());		
+		FMOD(proj->vOldPos.x, (float)map->GetWidth());
+		FMOD(proj->vOldPos.y, (float)map->GetWidth());		
+	}
+
 	return curResult;
 }
 
@@ -155,8 +173,10 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 // Checks for collision with the level border
 inline bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int px, int py)
 {
-	CMap* map = cClient->getMap();
 	CollisionSide = 0;
+	if(cClient->getGameLobby()->features[FT_InfiniteMap]) return false;
+	
+	CMap* map = cClient->getMap();
 	
 	if (px < 0 || px - attribs.radius.x < 0)
 		CollisionSide |= COL_LEFT;
@@ -171,6 +191,25 @@ inline bool CProjectile::MapBoundsCollision(const LX56ProjAttribs& attribs, int 
 		CollisionSide |= COL_BOTTOM;
 	
 	return CollisionSide != 0;
+}
+
+
+inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar* pf, int x, int y, int cx, int cy) {
+	// Solid pixel
+	if(*pf & (PX_DIRT|PX_ROCK)) {
+		if (y < cy)
+			++res.top;
+		else if (y > cy)
+			++res.bottom;
+		if (x < cx)
+			++res.left;
+		else if (x > cx)
+			++res.right;
+		
+		if (*pf & PX_ROCK)
+			res.onlyDirt = false;
+		res.collided = true;
+	}	
 }
 
 ////////////////////////////
@@ -194,33 +233,56 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 			return res;
 	}
 
-	// Check for the collision
-	for(int y = py - attribs.radius.y; y <= py + attribs.radius.y; ++y) {
-		// this is safe because in SimulateFrame, we do map bound checks
-		uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - attribs.radius.x;
-		
-		for(int x = px - attribs.radius.x; x <= px + attribs.radius.x; ++x, ++pf) {
+	// check for most common case - we do this because compiler can probably optimise this case very good
+	bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+	if(!wrapAround && tProjInfo->Type != PRJ_CIRCLE) {	
+		// Check for the collision
+		for(int y = py - attribs.radius.y; y <= py + attribs.radius.y; ++y) {
+			// this is safe because in SimulateFrame, we do map bound checks
+			uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - attribs.radius.x;
 			
-			if(tProjInfo->Type == PRJ_CIRCLE && (VectorD2<int>(x,y) - VectorD2<int>(px,py)).GetLength2() > attribs.radius.GetLength2())
-				// outside the range, skip this
-				continue;
-			
-			// Solid pixel
-			if(*pf & (PX_DIRT|PX_ROCK)) {
-				if (y < py)
-					++res.top;
-				else if (y > py)
-					++res.bottom;
-				if (x < px)
-					++res.left;
-				else if (x > px)
-					++res.right;
-				
-				if (*pf & PX_ROCK)
-					res.onlyDirt = false;
-				res.collided = true;
+			for(int x = px - attribs.radius.x; x <= px + attribs.radius.x; ++x, ++pf) {				
+				handlePixelFlag(res, pf, x, y, px, py);
 			}
 		}
+	}
+	else if(wrapAround) {
+		px %= map->GetWidth();
+		py %= map->GetHeight();
+		if(px < 0) px += map->GetWidth();
+		if(py < 0) py += map->GetHeight();
+		
+		// Check for the collision
+		for(int _y = - attribs.radius.y; _y <= attribs.radius.y; ++_y) {
+			int y = (map->GetHeight() + _y + py) % (int)map->GetHeight();
+			uchar *_pf = map->GetPixelFlags() + y * map->GetWidth();
+			
+			for(int _x = - attribs.radius.x; _x <= attribs.radius.x; ++_x) {
+				if(tProjInfo->Type == PRJ_CIRCLE && VectorD2<int>(_x,_y).GetLength2() > attribs.radius.GetLength2())
+					// outside the range, skip this
+					continue;
+				
+				int x = (map->GetWidth() + _x + px) % (int)map->GetWidth();
+				uchar* pf = _pf + x;
+				
+				handlePixelFlag(res, pf, x, y, px, py);
+			}
+		}
+	}
+	else { // circle
+		// Check for the collision
+		for(int y = py - attribs.radius.y; y <= py + attribs.radius.y; ++y) {
+			// this is safe because in SimulateFrame, we do map bound checks
+			uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - attribs.radius.x;
+			
+			for(int x = px - attribs.radius.x; x <= px + attribs.radius.x; ++x, ++pf) {				
+				if(VectorD2<int>(x - px,y - py).GetLength2() > attribs.radius.GetLength2())
+					// outside the range, skip this
+					continue;
+
+				handlePixelFlag(res, pf, x, y, px, py);
+			}
+		}		
 	}
 	
 	return res;
@@ -481,7 +543,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		float checkstep = prj->vVelocity.GetLength2(); // |v|^2
 		
 		if((int)(checkstep * dt.seconds() * dt.seconds()) <= prj->MAX_CHECKSTEP2) // |dp|^2=|v*dt|^2
-			return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);		
+			return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);
 		
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
@@ -504,7 +566,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		return ProjCollisionType::NoCol();
 	}
 	
-	return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);		
+	return LX56Projectile_checkCollAndMove_Frame(prj, attribs, dt, map, worms);
 }
 
 
