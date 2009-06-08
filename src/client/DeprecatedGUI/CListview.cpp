@@ -1050,7 +1050,9 @@ int	CListview::MouseOver(mouse_t *tMouse)
 int	CListview::MouseDown(mouse_t *tMouse, int nDown)
 {
 	if(holdedWidget) {
-		return holdedWidget->MouseDown(tMouse, nDown);
+		int ret = holdedWidget->MouseDown(tMouse, nDown);
+		if(ret >= 0) return LV_WIDGETEVENT;
+		else return LV_NONE;
 	}
 	
 	if(((tMouse->X > iX+iWidth-20) && bGotScrollbar) || cScrollbar.getGrabbed()) {
@@ -1249,7 +1251,8 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 	if(holdedWidget) {
 		int ret = holdedWidget->MouseUp(tMouse, nDown);
 		holdedWidget = NULL;
-		return ret;
+		if(ret >= 0) return LV_WIDGETEVENT;
+		else return LV_NONE;
 	}
 	iLastMouseX = 0;
 
