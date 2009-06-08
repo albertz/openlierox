@@ -876,6 +876,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	if( !getAlive() )
 		return;
 
+	
 	if (tLXOptions->bShowHealth && isWormVisible(this, v))  {
 		if (!bLocal || m_type != PRF_HUMAN)  {
 			int hx = x + l;
