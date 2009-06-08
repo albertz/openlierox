@@ -98,7 +98,6 @@ public:
 
 	void	Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode);
 	void	Clamp(int MWidth, int MHeight);
-	void	ClampFiltered(int MWidth, int MHeight);
 
 	bool	inView(CVec pos);	
 	void	Shake(int amount);

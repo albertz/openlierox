@@ -390,17 +390,6 @@ void CViewport::Clamp(int MWidth, int MHeight)
 }
 
 
-///////////////////
-// Clamp the viewport if it exceeds any boundaries (for filtered drawing)
-void CViewport::ClampFiltered(int MWidth, int MHeight)
-{
-	// Note: Filtered drawing of the map blurs between pixels so we need to clamp the max size by 2
-	WorldX = MAX(0,WorldX);
-	WorldY = MAX(0,WorldY);
-
-	WorldX = MIN(WorldX,MWidth-Width-2);
-	WorldY = MIN(WorldY,MHeight-Height-2);
-}
 
 
 ///////////////////
