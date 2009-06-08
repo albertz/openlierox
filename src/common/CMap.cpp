@@ -871,18 +871,6 @@ CVec CMap::groundPos(const CVec& pos) {
 	return ret;
 }
 
-///////////////////
-// Draw the map
-void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
-{
-	if(!bmpDrawImage.get() || !bmpDest) return; // safty
-
-	DrawImageAdv(bmpDest, bmpDrawImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
-
-#ifdef _AI_DEBUG
-	DrawImageAdv(bmpDest, bmpDebugImage, view->GetWorldX()*2, view->GetWorldY()*2,view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2);
-#endif
-}
 
 ///////////////////
 // Draw the map
@@ -890,11 +878,26 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
-	DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
-
+	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
-	DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
+		DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #endif
+	}
+	else {
+		DrawImageTiled(bmpDest, bmpDrawImage, worldX*2, worldY*2, rect.w, rect.h, rect.x, rect.y, rect.w, rect.h);
+#ifdef _AI_DEBUG
+		DrawImageTiled(bmpDest, bmpDebugImage, worldX*2, worldY*2, rect.w, rect.h,rect.x,rect.y,rect.w,rect.h);
+#endif
+	}
+}
+
+///////////////////
+// Draw the map
+void CMap::Draw(SDL_Surface * bmpDest, CViewport *view)
+{
+	SDL_Rect destRect = {view->GetLeft(),view->GetTop(),view->GetWidth()*2,view->GetHeight()*2};
+	Draw(bmpDest, destRect, view->GetWorldX(), view->GetWorldY());
 }
 
 struct ShadowClipInfo  {

@@ -383,11 +383,10 @@ void CViewport::reset()
 // Clamp the viewport if it exceeds any boundaries
 void CViewport::Clamp(int MWidth, int MHeight)
 {
-	WorldX = MAX(0,WorldX);
-	WorldY = MAX(0,WorldY);
-
-	WorldX = MIN(WorldX,MWidth-Width);
-	WorldY = MIN(WorldY,MHeight-Height);
+	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+		WorldX = CLAMP(WorldX, 0, MWidth-Width);
+		WorldY = CLAMP(WorldY, 0, MHeight-Height);
+	}
 }
 
 

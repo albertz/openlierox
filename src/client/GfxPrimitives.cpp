@@ -503,14 +503,26 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 	}
 }
 
+
+
 /////////////////////////
 // Draw the image tiled on the dest surface
 void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, int sw, int sh, int dx, int dy, int dw, int dh)
 {
+	SDL_Rect newClip = {dx,dy,dw,dh};
+	ScopedSurfaceClip clip(bmpDest,newClip);	
+	MOD(sx, bmpSrc->w); MOD(sy, bmpSrc->h);
+	
 	// Place the tiles
-	for (int y = 0; y < dh; y += sh)
-		for (int x = 0; x < dw; x += sw)
-			DrawImageAdv(bmpDest, bmpSrc, sx, sy, dx + x, dy + y, sw, sh);
+	for (int y = dy; y < dy + dh; y += sh)
+		for (int x = dx; x < dx + dw; x += sw) {
+			int w1 = (sx + sw > bmpSrc->w) ? bmpSrc->w - sx : sw;
+			int h1 = (sy + sh > bmpSrc->h) ? bmpSrc->h - sy : sh;
+			DrawImageAdv(bmpDest, bmpSrc, sx, sy, x, y, w1, h1);
+			if(sw != w1) DrawImageAdv(bmpDest, bmpSrc, 0, sy, x+w1, y, sw-w1, h1);
+			if(sh != h1) DrawImageAdv(bmpDest, bmpSrc, sx, 0, x, y+h1, w1, sh-h1);
+			if(sh != h1 && sw != w1) DrawImageAdv(bmpDest, bmpSrc, 0, 0, x+w1, y+h1, sw-w1, sh-h1);
+		}									  
 }
 
 /////////////////////////
