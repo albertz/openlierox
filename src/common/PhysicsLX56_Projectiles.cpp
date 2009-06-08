@@ -148,7 +148,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 
 				if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
 					FMOD(proj->vPosition.x, (float)map->GetWidth());
-					FMOD(proj->vPosition.y, (float)map->GetWidth());		
+					FMOD(proj->vPosition.y, (float)map->GetHeight());		
 					FMOD(proj->vOldPos.x, (float)map->GetWidth());
 					FMOD(proj->vOldPos.y, (float)map->GetWidth());		
 				}
@@ -160,9 +160,9 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 	
 	if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
 		FMOD(proj->vPosition.x, (float)map->GetWidth());
-		FMOD(proj->vPosition.y, (float)map->GetWidth());		
+		FMOD(proj->vPosition.y, (float)map->GetHeight());		
 		FMOD(proj->vOldPos.x, (float)map->GetWidth());
-		FMOD(proj->vOldPos.y, (float)map->GetWidth());		
+		FMOD(proj->vOldPos.y, (float)map->GetHeight());		
 	}
 
 	return curResult;
@@ -254,7 +254,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 		
 		// Check for the collision
 		for(int _y = - attribs.radius.y; _y <= attribs.radius.y; ++_y) {
-			int y = (map->GetHeight() + _y + py) % (int)map->GetHeight();
+			int y = (map->GetHeight() + _y + py) % (long)map->GetHeight();
 			uchar *_pf = map->GetPixelFlags() + y * map->GetWidth();
 			
 			for(int _x = - attribs.radius.x; _x <= attribs.radius.x; ++_x) {
@@ -262,7 +262,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 					// outside the range, skip this
 					continue;
 				
-				int x = (map->GetWidth() + _x + px) % (int)map->GetWidth();
+				int x = (map->GetWidth() + _x + px) % (long)map->GetWidth();
 				uchar* pf = _pf + x;
 				
 				handlePixelFlag(res, pf, x, y, px, py);
