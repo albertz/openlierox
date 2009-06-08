@@ -866,8 +866,59 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	if (!v->getUsed())
 		return;
 
-	DrawViewport_Game(bmpDest, v);
-
+	{
+		float sizeFactor = cClient->getGameLobby()->features[FT_SizeFactor];
+		if(sizeFactor == 1.0f)
+			DrawViewport_Game(bmpDest, v);
+		else {
+			if(sizeFactor == 0.0f) return; // bad value, avoid crashes ...
+			
+			// I have to admit, a bit hacky, but it will work for sure and we can perhaps make it better later on.
+			// I would highly vote for not implementing this for each game object (worms, projectiles, and all others)
+			// seperated. This is too much work and it means much more testing.
+			// Also, once we are using OpenGL (probably with next SDL version), all this becomes obsolete anyway.
+			
+			CViewport sizedViewport(*v);
+			sizedViewport.SetVirtWidth( int(v->GetVirtW() / sizeFactor) );
+			sizedViewport.SetVirtHeight( int(v->GetVirtH() / sizeFactor) );
+			const int surfW = sizedViewport.GetVirtW() + 1; // +1 because of double stretched code which assumes that there is enough space
+			const int surfH = sizedViewport.GetVirtH() + 1;
+			sizedViewport.SetLeft( 0 );
+			sizedViewport.SetTop( 0 );
+			int oldWorldXCenter = v->GetWorldX() + v->GetWidth() / 2;
+			int oldWorldYCenter = v->GetWorldY() + v->GetHeight() / 2;
+			bool clearBeforeDrawing = false;
+			bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+			if(!wrapAround && (uint)sizedViewport.GetWidth() >= cMap->GetWidth()) {
+				oldWorldXCenter = cMap->GetWidth() / 2;
+				// to avoid some drawing problems
+				sizedViewport.SetLeft(sizedViewport.GetWidth() - cMap->GetWidth());
+				sizedViewport.SetVirtWidth(cMap->GetWidth() * 2);
+				clearBeforeDrawing = true;
+			}
+			if(!wrapAround && (uint)sizedViewport.GetHeight() >= cMap->GetHeight()) {
+				oldWorldYCenter = cMap->GetHeight() / 2;
+				// to avoid some drawing problems
+				sizedViewport.SetTop(sizedViewport.GetHeight() - cMap->GetHeight());
+				sizedViewport.SetVirtHeight(cMap->GetHeight() * 2);
+				clearBeforeDrawing = true;
+			}
+			sizedViewport.SetWorldX( oldWorldXCenter - sizedViewport.GetWidth() / 2 );
+			sizedViewport.SetWorldY( oldWorldYCenter - sizedViewport.GetHeight() / 2 );
+			
+			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
+			static SmartPointer<SDL_Surface> tmpSurf = NULL;
+			if(tmpSurf.get() == NULL || tmpSurf->w != surfW || tmpSurf->h != surfH) {
+				tmpSurf = gfxCreateSurface(surfW, surfH);
+			}
+			else if(clearBeforeDrawing)
+				DrawRectFill(tmpSurf.get(), 0, 0, tmpSurf->w, tmpSurf->h, Color());
+				
+			DrawViewport_Game(tmpSurf.get(), &sizedViewport);
+			DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
+		}
+	}
+	
 	//
 	// Draw the worm details
 	//

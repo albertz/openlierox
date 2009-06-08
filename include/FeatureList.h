@@ -124,6 +124,7 @@ enum FeatureIndex {
 	FT_InfiniteMap,
 	FT_Friction,
 	FT_TeamScoreLimit,
+	FT_SizeFactor,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
 	FT_Race_Rounds,

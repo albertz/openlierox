@@ -62,8 +62,8 @@ void CViewport::setupInputs(const PlyControls& Inputs)
 ///////////////////
 // Process a viewport
 void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
-{
-    int hx = Width/2;
+{    
+	int hx = Width/2;
 	int hy = Height/2;
 
     // Follow a player
@@ -386,8 +386,14 @@ void CViewport::Clamp(int MWidth, int MHeight)
 	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
 	// We are drawing the map (and everything) tiled together then.
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
-		WorldX = CLAMP(WorldX, 0, MWidth-Width);
-		WorldY = CLAMP(WorldY, 0, MHeight-Height);
+		if(MWidth >= Width)
+			WorldX = CLAMP(WorldX, 0, MWidth-Width);
+		else
+			WorldX = 0;
+		if(MHeight >= Height)
+			WorldY = CLAMP(WorldY, 0, MHeight-Height);
+		else
+			WorldY = 0;
 	}
 }
 
@@ -458,7 +464,7 @@ void CViewport::setSmoothPosition( float X, float Y, TimeDiff DeltaTime )
 		setSmoothPosition( X, Y, TimeDiff(0.015f) );
 		setSmoothPosition( X, Y, TimeDiff(DeltaTime) - TimeDiff(0.015f) );
 		return;
-	};
+	}
 
 	CVec Coords( X, Y );
 	CVec Diff = Coords - curPos;

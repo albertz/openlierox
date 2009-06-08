@@ -82,6 +82,8 @@ Feature featureArray[] = {
 			0.0f, 0.0f,				OLXBetaVersion(9),		GIG_Other,		0.0f, 2.0f,	false),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
 			5, 5,					OLXBetaVersion(9),		GIG_Score, -1, 100,	true),
+	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
+			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_Advanced,	0.5f, 4.0f, false),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
 			true, true,				OLXBetaVersion(9),		GIG_CaptureTheFlag, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor",
