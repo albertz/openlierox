@@ -511,7 +511,7 @@ void DrawImageTiled(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, i
 {
 	SDL_Rect newClip = {dx,dy,dw,dh};
 	ScopedSurfaceClip clip(bmpDest,newClip);	
-	MOD(sx, bmpSrc->w); MOD(sy, bmpSrc->h);
+	MOD(sx, (int)bmpSrc->w); MOD(sy, (int)bmpSrc->h);
 	
 	// Place the tiles
 	for (int y = dy; y < dy + dh; y += sh)

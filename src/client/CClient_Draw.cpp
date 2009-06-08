@@ -889,16 +889,18 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			int oldWorldYCenter = v->GetWorldY() + v->GetHeight() / 2;
 			bool clearBeforeDrawing = false;
 			bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
-			if(!wrapAround && (uint)sizedViewport.GetWidth() >= cMap->GetWidth()) {
-				oldWorldXCenter = cMap->GetWidth() / 2;
+			if((uint)sizedViewport.GetWidth() >= cMap->GetWidth()) {
+				// Note: We do this viewport clamping also for wrapAround because it
+				// doesn't work correct yet if the map is smaller than the viewport.
+				if(!wrapAround) oldWorldXCenter = cMap->GetWidth() / 2;
 				// to avoid some drawing problems
 				sizedViewport.SetLeft(sizedViewport.GetWidth() - cMap->GetWidth());
 				sizedViewport.SetVirtWidth(cMap->GetWidth() * 2);
 				clearBeforeDrawing = true;
 			}
-			if(!wrapAround && (uint)sizedViewport.GetHeight() >= cMap->GetHeight()) {
-				oldWorldYCenter = cMap->GetHeight() / 2;
-				// to avoid some drawing problems
+			// same for height/y
+			if((uint)sizedViewport.GetHeight() >= cMap->GetHeight()) {
+				if(!wrapAround) oldWorldYCenter = cMap->GetHeight() / 2;
 				sizedViewport.SetTop(sizedViewport.GetHeight() - cMap->GetHeight());
 				sizedViewport.SetVirtHeight(cMap->GetHeight() * 2);
 				clearBeforeDrawing = true;
