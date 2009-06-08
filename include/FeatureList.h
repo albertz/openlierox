@@ -123,7 +123,7 @@ enum FeatureIndex {
 	FT_DisableWpnsWhenEmpty,
 	FT_InfiniteMap,
 	FT_Friction,
-	FT_CTF_ScoreLimit,
+	FT_TeamScoreLimit,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
 	FT_Race_Rounds,

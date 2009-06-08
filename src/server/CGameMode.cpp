@@ -214,6 +214,15 @@ bool CGameMode::CheckGameOver() {
 	if (!cServer || cServer->getState() == SVS_LOBBY || cServer->getGameOver())
 		return true;
 
+	// check for teamscorelimit
+	if(GameTeams() > 1 && (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] > 0) {
+		for(int i = 0; i < GameTeams(); ++i) {
+			if(TeamScores(i) >= (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit]) {
+				return true;
+			}
+		}
+	}
+
 	// check for maxkills
 	if(tLXOptions->tGameInfo.iKillLimit > 0) {
 		int w = getWormHitKillLimit();

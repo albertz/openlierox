@@ -47,7 +47,7 @@ void CTeamDeathMatch::PrepareGame()
 	CGameMode::PrepareGame();
 	for( int i = 0; i < MAXTEAMS; i++ )
 		teamScore[i] = 0;
-};
+}
 
 void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 {
@@ -70,7 +70,7 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	}
 	else
 		ChangeTeamScore( killer->getTeam(), 1 );
-};
+}
 
 void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 
 {

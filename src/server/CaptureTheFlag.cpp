@@ -137,57 +137,7 @@ struct CaptureTheFlag : public CGameMode {
 				cServer->RecheckGame();
 			}
 		}
-	}
-
-	virtual bool CheckGameOver() {
-		// currently we use killlimit as teamscorelimit
-		if((int)tLXOptions->tGameInfo.features[FT_CTF_ScoreLimit] > 0) {
-			for(int i = 0; i < MAXTEAMS; ++i) {
-				if(teamScore[i] >= (int)tLXOptions->tGameInfo.features[FT_CTF_ScoreLimit]) {
-					return true;
-				}
-			}
-		}
-		
-		bool allOut = true;
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed()) {
-				if(cServer->getWorms()[i].getLives() != WRM_OUT || cServer->getWorms()[i].getAlive()) {
-					allOut = false;
-					break;
-				}
-			}
-		if(allOut) return true;
-
-		// Check if the timelimit has been reached
-		if(TimeLimit() > 0) {
-			if (cServer->getServerTime() > TimeLimit()) {
-				if(networkTexts->sTimeLimit != "<none>")
-					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-				notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
-				notes << " -> game over" << endl;
-				return true;
-			}
-		}
-
-		if(GameTeams() > 1) {
-			// Only one team left?
-			int teams = 0;
-			for(int i = 0; i < GameTeams(); i++)  {
-				if(WormsAliveInTeam(i)) {
-					teams++;
-				}
-			}
-			
-			// Only one team left
-			if(teams <= 1) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-	
+	}	
 	
 	
 };
