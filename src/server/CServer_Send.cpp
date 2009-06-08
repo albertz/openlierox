@@ -214,7 +214,7 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 	// Never do this for local client, local client must know correct state of serverChoosesWeapons!
 	// TODO: it's hacky, don't have any ideas now how to make it nice
 	bool spectate = cl->getNumWorms() > 0 && !cl->isLocalClient();
-	if(!spectate)
+	if(spectate)
 		for(int i = 0; i < cl->getNumWorms(); ++i)
 			if(cl->getWorm(i) && !cl->getWorm(i)->isSpectating()) {
 				spectate = false;
