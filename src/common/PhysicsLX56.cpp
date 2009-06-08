@@ -545,11 +545,13 @@ public:
 			rope->hookPos() += rope->hookVelocity() * dt;
 		}
 
+		
 		bool outsideMap = false;
+		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 		// Hack to see if the hook went out of the cClient->getMap()
-		if(!rope->isPlayerAttached())
-		if(
+		if(!rope->isPlayerAttached() && !wrapAround)
+			if(
 				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
 				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
 				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
@@ -571,15 +573,19 @@ public:
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
+			VectorD2<long> wrappedHookPos = rope->hookPos();
+			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
+			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
+			
 			LOCK_OR_QUIT(cClient->getMap()->GetImage());
-			uchar px = outsideMap ? PX_ROCK : cClient->getMap()->GetPixelFlag((int)rope->hookPos().x, (int)rope->hookPos().y);
+			uchar px = outsideMap ? PX_ROCK : cClient->getMap()->GetPixelFlag(wrappedHookPos.x, wrappedHookPos.y);
 			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
 				rope->setShooting( false );
 				rope->setAttached( true );
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), (int)rope->hookPos().x, (int)rope->hookPos().y));
+					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), wrappedHookPos.x, wrappedHookPos.y));
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}
