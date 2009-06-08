@@ -146,7 +146,6 @@ public:
 
 					if(x<0) {
 						clip |= 0x01;
-						notes << "leftcl,posx:" << posx << ",pos.x:" << pos.x << ",x:" << x << ",w:" << cClient->getMap()->GetWidth() << endl;
 						worm->pos().x=( posx+4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth();
 					}
 					else {
