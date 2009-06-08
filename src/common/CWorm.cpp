@@ -932,8 +932,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	VectorD2<int> cp = v->physicToReal(forw + vDrawPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	// Snap the position to a slighter bigger pixel grid (2x2)
-	cp.x -= cp.x % 2;
-	cp.y -= cp.y % 2;
+	/*cp.x -= cp.x % 2;
+	cp.y -= cp.y % 2;*/
 
 	// Show a green crosshair if we have a target
 	x = 0;
