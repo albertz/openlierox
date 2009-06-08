@@ -1045,7 +1045,7 @@ bool CChannel3::Process(CBytestream *bs)
 	{
 		iPacketsDropped++;	// Update statistics
 		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
-	};
+	}
 
 	// Acknowledged packets info processing
 
@@ -1056,12 +1056,12 @@ bool CChannel3::Process(CBytestream *bs)
 	{
 		seqAckList.push_back( seqAck & ~ SEQUENCE_HIGHEST_BIT );
 		seqAck = bs->readInt(2);
-	};
+	}
 	if( SequenceDiff( seqAck, LastReliableOut ) < 0 || SequenceDiff( seqAck, LastReliableOut ) > SEQUENCE_SAFE_DIST )
 	{
 		iPacketsDropped++;	// Update statistics
 		return GetPacketFromBuffer(bs);	// Packet from the past or from too distant future - ignore it.
-	};
+	}
 
 	LastReliableOut = seqAck;
 
@@ -1103,7 +1103,7 @@ bool CChannel3::Process(CBytestream *bs)
 		seqList.push_back( seq & ~ SEQUENCE_HIGHEST_BIT );
 		seqSizeList.push_back( bs->readInt(2) );
 		seq = bs->readInt(2);
-	};
+	}
 	seqList.push_back( seq );
 	seqSizeList.push_back( bs->readInt(2) );
 
@@ -1144,8 +1144,8 @@ bool CChannel3::Process(CBytestream *bs)
 			LastReliableIn = LastReliableInInc;
 		else
 			break;
-	};
-	
+	}
+
 	// The ReliableIn list updated - sort it
 	ReliableIn.sort();
 	
@@ -1158,7 +1158,7 @@ bool CChannel3::Process(CBytestream *bs)
 	// We've got valid empty packet, or packet from future, return empty packet - bs->GetRestLen() == 0 here.
 	// It is required to update server statistics, so clients that don't send packets won't timeout.
 	return true;
-};
+}
 
 void CChannel3::Transmit(CBytestream *unreliableData)
 {
@@ -1211,8 +1211,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 				ReliableOut.back().data.Append( & Messages.front() );
 				Messages.pop_front();
 			}
-		};
-	};
+		}
+	}
 
 	// Check if other side acknowledged packets with indexes bigger than NextReliablePacketToSend,
 	// and roll NextReliablePacketToSend back to LastReliableOut.
@@ -1222,10 +1222,10 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 		{
 			if( SequenceDiff( it->idx, it1->idx ) != 1 )
 				NextReliablePacketToSend = LastReliableOut;
-		};
+		}
 		if( ReliableOut.back().idx != LastAddedToOut )
 			NextReliablePacketToSend = LastReliableOut;
-	};
+	}
 
 	// Timeout occured - other side didn't acknowledge our packets in time - re-send all of them from the first one.
 	if( LastReliablePacketSent == LastAddedToOut &&
