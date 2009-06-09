@@ -224,14 +224,12 @@ struct Race : public CGameMode {
 	
 	int CompareWormsScore(CWorm* w1, CWorm* w2) {
 		// Kills very first (that is the amount of rounds)
-		if(cClient->getGameLobby()->iKillLimit > 0) {
-			if (w1->getKills() > w2->getKills()) return 1;
-			if (w1->getKills() < w2->getKills()) return -1;		
-		}
+		if (w1->getKills() > w2->getKills()) return 1;
+		if (w1->getKills() < w2->getKills()) return -1;		
 
 		{
 			// compare goals; we can only do that if we are server, because we don't have the waypoints otherwise
-			int d = (cServer && cServer->getWorms()) ? CompareGoals(this).comp(w1, w2) : 0;
+			int d = (cServer && cServer->isServerRunning()) ? CompareGoals(this).comp(w1, w2) : 0;
 			if(d != 0) return d;
 		}
 		

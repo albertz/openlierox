@@ -871,6 +871,18 @@ void CClient::UpdateScoreboard()
 	if(iScorePlayers < 2)
 		return;
 
+	/*
+	 // Just some test code for correct ordering. Should be removed later.
+	for(int i = 0; i < iScorePlayers; ++i)
+		for(int j = i; j < iScorePlayers; ++j) {
+			ScoreCompare comp(this);
+			if(comp(iScoreboard[i],iScoreboard[j]) && comp(iScoreboard[j],iScoreboard[i]))
+				assert(false);
+			if(comp(iScoreboard[i],iScoreboard[j]) && cRemoteWorms[iScoreboard[i]].getKills() < cRemoteWorms[iScoreboard[j]].getKills()) {
+				comp(iScoreboard[i],iScoreboard[j]);
+				assert(false);
+			}
+		}*/
 	std::sort(&iScoreboard[0], &iScoreboard[iScorePlayers], ScoreCompare(this));
 
 	bUpdateScore = true;
