@@ -427,7 +427,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	std::string buf = Utf8String(bs->readString());
 
-	if(cl->getNumWorms() == 0) {
+	if(cl->getNumWorms() == 0 && !cl->isLocalClient()) {
 		warnings << cl->debugName() << " with no worms sends message '" << buf << "'" << endl;
 		return;
 	}
@@ -441,12 +441,12 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
 
 	std::string command_buf = buf;
-	if (cl->getWorm(0)) {
-		std::string startStr = cl->getWorm(0)->getName() + ": ";
+	{
+		std::string startStr = (cl->getWorm(0) ? cl->getWorm(0)->getName() : "") + ": ";
 		if( strStartsWith(buf, startStr) )
 			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
 	}
-
+		
 	// Check for special commands
 	if (command_buf.size() > 2)
 		if (command_buf[0] == '/' && command_buf[1] != '/')  {  // When two slashes at the beginning, parse as a normal message
@@ -580,13 +580,11 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 		// autocomplete for dedicated
 		if(cmd->tProcFunc == &ProcessDedicated) {
 			std::string cmdToBeCompleted;
-			std::vector<std::string>::iterator i = cmdStart.begin(); ++i; // first is 'ded', second is ded-cmd
-			if(i != cmdStart.end()) cmdToBeCompleted = *i;
-			for(++i; i != cmdStart.end(); ++i)
-				if(i->find_first_of(" \t") != std::string::npos)
-					cmdToBeCompleted += " \"" + *i + "\"";
-				else
-					cmdToBeCompleted += " " + *i;
+			if(cmdStart.size() >= 2) cmdToBeCompleted = cmdStart[1]; // first is 'ded', second is ded-cmd
+			for(size_t i = 2; i < cmdStart.size(); ++i) {
+				cmdToBeCompleted += " \"" + cmdStart[i];
+				if(i != cmdStart.size() - 1) cmdToBeCompleted += "\"";
+			}
 			
 			struct AutoCompleter : Task, CmdLineIntf {
 				AutocompletionInfo info;
@@ -638,6 +636,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 				virtual void pushReturnArg(const std::string& str) {}
 				virtual void finalizeReturn() {}
 				virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+					// we need to do that from the gameloopthread
 					mainQueue->push(new MsgSender(connectionIndex, cl, msg));
 				}
 				
@@ -646,8 +645,15 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 					bool fail = false;
 					AutocompletionInfo::InputState replace;
 					info.popWait( AutocompletionInfo::InputState(cmdToBeCompleted), replace, fail );
+					std::string replaceStr = replace.text;
+					// another hack to have shorter completion
+					if(!strStartsWith(replaceStr, "map ") && !strStartsWith(replaceStr, "mod "))
+						replaceStr = "ded " + replaceStr;
+					if(replaceStr != "" && replaceStr[replaceStr.size()-1] == '\"')
+						replaceStr.erase(replaceStr.size()-1);
 					if(!fail)
-						mainQueue->push(new SuggestionSender(connectionIndex, cl, oldChatCmd, "ded " + replace.text));						
+						// we need to do that from the gameloopthread
+						mainQueue->push(new SuggestionSender(connectionIndex, cl, oldChatCmd, replaceStr));						
 					return 0;
 				}
 			};

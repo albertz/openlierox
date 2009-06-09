@@ -1029,7 +1029,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, "", 0);
 
 					// Send
-					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
+					cClient->getNetEngine()->SendText(text, cClient->getWorm(0) ? cClient->getWorm(0)->getName() : "");
 				}
 				else if(ev->iEventMsg == TXT_TAB) {
 					if(strSeemsLikeChatCommand(Menu_Net_HostLobbyGetText())) {
