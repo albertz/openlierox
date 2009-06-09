@@ -1988,6 +1988,14 @@ static void prepareWormAdd() {
 }
 
 std::list<int> CClient::AddRandomBots(int amount, bool outOfGame) {
+	{
+		std::string reason;
+		if(!canAddWorm(&reason)) {
+			hints << "CClient::AddRandomBots: " << reason << endl;
+			return std::list<int>();
+		}
+	}
+
 	// too many worms are handled in the loop below
 	if(amount < 1) {
 		errors << "AddRandomBot: " << amount << " is an invalid amount" << endl;
@@ -2013,6 +2021,14 @@ std::list<int> CClient::AddRandomBots(int amount, bool outOfGame) {
 }
 
 int CClient::AddWorm(profile_t* p, bool outOfGame) {
+	{
+		std::string reason;
+		if(!canAddWorm(&reason)) {
+			hints << "CClient::AddWorm: " << reason << endl;
+			return -1;
+		}
+	}
+	
 	prepareWormAdd();
 	if(!setWormAdd(p)) return -1;
 	std::list<int> worms = updateAddedWorms(outOfGame);
@@ -2219,6 +2235,17 @@ void CClient::BotSelectWeapons()
 		}
 	}
 }
+
+
+bool CClient::canAddWorm(std::string* noReason) {
+	if(!shouldDoProjectileSimulation()) {
+		if(noReason) *noReason = "we have projectile simulation disabled (Misc.DoProjectileSimulationInDedicated)";
+		return false;
+	}
+	
+	return true;
+}
+
 
 ///////////////////
 // Shutdown the log structure

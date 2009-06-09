@@ -286,6 +286,7 @@ struct GameOptions {
 	bool	bShowCountryFlags;
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
+	bool	doProjectileSimulationInDedicated;
 	
 	// Widget states
 	int		iInternetList[7];

@@ -546,7 +546,8 @@ public:
 	int			OwnsWorm(int id);
 	int			getNumWorms()			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }
-
+	bool		canAddWorm(std::string* noReason = NULL);
+	
 	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
 	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
@@ -652,7 +653,7 @@ public:
 	bool&		shouldRepaintInfo()		{ return bShouldRepaintInfo; }
 
 	void		setReadySent(bool b)	{ bReadySent = b; }
-
+	bool		shouldDoProjectileSimulation();
 	
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }

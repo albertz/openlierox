@@ -45,6 +45,12 @@
 CClient		*cClient = NULL;
 
 
+bool CClient::shouldDoProjectileSimulation() {
+	if(bDedicated && tLX->iGameType != GME_JOIN && !tLXOptions->doProjectileSimulationInDedicated) return false;
+	return true;
+}
+
+
 ///////////////////
 // Simulation
 void CClient::Simulation()
@@ -194,7 +200,8 @@ void CClient::Simulation()
 	//cWeather.Simulate(tLX->fDeltaTime, cMap);
 
 	// Projectiles
-	PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
+	if(shouldDoProjectileSimulation())
+		PhysicsEngine::Get()->simulateProjectiles(cProjectiles.begin());
 
 	// Bonuses
 	PhysicsEngine::Get()->simulateBonuses(cBonuses, MAX_BONUSES);
