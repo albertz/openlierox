@@ -191,8 +191,16 @@ static void startMainLockDetector() {
 					//OlxWriteCoreDump("mainlock");
 					//RaiseDebugger();
 					
+					if(!wait(5*1000)) return 0;
+					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+						hints << "Still locked after 5 seconds. Current threads:" << endl;
+						threadPool->dumpState(stdoutCLI());
+						hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
+						hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
+					}
+					
 					// pause for a while, don't be so hard
-					if(!wait(30*1000)) return 0;
+					if(!wait(25*1000)) return 0;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
 						if(tLXOptions && tLXOptions->bFullscreen) {
