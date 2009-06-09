@@ -30,7 +30,7 @@ public:
 	
 private:
 	Mutex mutex;
-	Condition cond;
+	Condition cond; // A signal is broadcasted here once it's ready. Check isSet variable to be sure.
 	PIVar(bool,false) isSet;
 	PIVar(bool,false) fail;
 	InputState old;
@@ -38,7 +38,7 @@ private:
 
 public:
 
-	// You are supposed to call setReplace and in the end, call finalize.
+	// AutoComplete is supposed to call setReplace and in the end, to call finalize.
 
 	void setReplace(const InputState& old, const InputState& replace) {
 		Mutex::ScopedLock lock(mutex);
@@ -52,7 +52,7 @@ public:
 		Mutex::ScopedLock lock(mutex);
 		if(!isSet) fail = true;
 		isSet = true;
-		cond.signal();
+		cond.broadcast();
 	}
 	
 private:
@@ -90,6 +90,10 @@ public:
 	}
 
 };
+
+// Autocompletes the given text. Note that this could be slow, so it would be best to call it
+// in another thread. Just wait for the autocomplete.cond and check autocomplete.isSet.
+bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete);
 
 
 #endif

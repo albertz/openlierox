@@ -88,12 +88,12 @@ struct CmdLineIntf {
 };
 
 
-// pushs a command into the command queue
+// Pushs a command into the command queue. This will not do any parsing nor executing.
+// All that is done when you call HandlePendingCommands().
 void Execute(const CmdLineIntf::Command& cmd);
 inline void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
 
-bool AutoComplete(const std::string& text, size_t pos, CmdLineIntf& cli, AutocompletionInfo& autocomplete);
-
+// Executes all commands in the queue. This is called from the gameloopthread.
 void HandlePendingCommands();
 
 

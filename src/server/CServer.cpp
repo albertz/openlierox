@@ -1608,7 +1608,7 @@ bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, cons
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
 		if(makeMsg)
-			SendGlobalText((playerName + " is too old: " + reason), TXT_NOTICE);
+			SendGlobalText((playerName + " need to update OLX version: " + reason), TXT_NOTICE);
 		return false;
 	}
 	return true;
