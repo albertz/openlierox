@@ -876,13 +876,15 @@ void CClient::UpdateScoreboard()
 	for(int i = 0; i < iScorePlayers; ++i)
 		for(int j = i; j < iScorePlayers; ++j) {
 			ScoreCompare comp(this);
-			if(comp(iScoreboard[i],iScoreboard[j]) && comp(iScoreboard[j],iScoreboard[i]))
-				assert(false);
-			if(comp(iScoreboard[i],iScoreboard[j]) && cRemoteWorms[iScoreboard[i]].getKills() < cRemoteWorms[iScoreboard[j]].getKills()) {
-				comp(iScoreboard[i],iScoreboard[j]);
-				assert(false);
+			if(comp(iScoreboard[i],iScoreboard[j]) && comp(iScoreboard[j],iScoreboard[i])) {
+				errors << "1: worm " << iScoreboard[i] << " and " << iScoreboard[j] << " dont have correct order" << endl;
+				return;
 			}
-		}*/
+			if(comp(iScoreboard[i],iScoreboard[j]) && cRemoteWorms[iScoreboard[i]].getKills() < cRemoteWorms[iScoreboard[j]].getKills()) {
+				errors << "2: worm " << iScoreboard[i] << " and " << iScoreboard[j] << " dont have correct order" << endl;
+				return;
+			}
+		} */
 	std::sort(&iScoreboard[0], &iScoreboard[iScorePlayers], ScoreCompare(this));
 
 	bUpdateScore = true;
