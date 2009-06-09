@@ -198,6 +198,7 @@ static void startMainLockDetector() {
 						hints << "Free system memory: " << (GetFreeSysMemory() / 1024) << " KB" << endl;
 						hints << "Cache size: " << (cCache.GetCacheSize() / 1024) << " KB" << endl;
 					}
+					else continue;
 					
 					// pause for a while, don't be so hard
 					if(!wait(25*1000)) return 0;
