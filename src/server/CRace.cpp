@@ -210,8 +210,9 @@ struct Race : public CGameMode {
 				// compare distance to next goals (they should be the same for both worms)
 				float dist1 = (race->wayPoints[race->getNextGoal(race->getWormFlag(w1))] - w1->getPos()).GetLength2();
 				float dist2 = (race->wayPoints[race->getNextGoal(race->getWormFlag(w2))] - w2->getPos()).GetLength2();
-				if(dist2 - dist1 >= 0.001f) return 1; // it's better to be more close
-				if(dist1 - dist2 >= 0.001f) return -1;
+				long distdiff = (long) (dist2 - dist1);
+				if(distdiff >= 1) return 1; // it's better to be more close
+				if(distdiff <= -1) return -1;
 			}
 			
 			return 0;			
