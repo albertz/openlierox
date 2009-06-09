@@ -80,6 +80,28 @@ bool ReadKeyword(const std::string& filename, const std::string& section, const 
 	return ret;
 }
 
+///////////////////
+// Read bit flags specified by keywords from a file
+bool ReadKeywordList(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv)
+{
+	std::string string;
+
+	*value = defaultv;
+
+	if(!GetString(filename,section,key,string))
+		return false;
+
+	std::vector<std::string> split = explode(string, ",");
+	for (std::vector<std::string>::iterator it = split.begin(); it != split.end(); it++)  {
+		TrimSpaces(*it);
+		KeywordMap::iterator key = Keywords.find(*it);
+		if (key != Keywords.end())
+			*value |= key->second;
+	}
+
+	return true;
+}
+
 
 ///////////////////
 // Read an interger from a file

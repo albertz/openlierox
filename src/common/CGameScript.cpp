@@ -233,8 +233,12 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite_endian_compat((proj->Dampening),	sizeof(int), 1, fp);
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fwrite_endian<int>(fp, proj->MyGravityForce);
-		fwrite_endian<int>(fp, proj->MyGravityType);
+		fwrite_endian<int>(fp, proj->AttractiveForce);
+		fwrite_endian<int>(fp, proj->AttractiveForceType);
+		fwrite_endian<int>(fp, proj->AttractiveForceObjects);
+		fwrite_endian<int>(fp, proj->AttractiveForceClasses);
+		fwrite_endian<int>(fp, proj->AttractiveForceRadius);
+		fwrite_endian<bool>(fp, proj->AttractiveForceThroughWalls);
 		fwrite_endian<int>(fp, proj->Width);
 		fwrite_endian<int>(fp, proj->Height);
 	}
@@ -690,15 +694,23 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	EndianSwap(proj->Dampening);
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fread_endian<int>(fp, proj->MyGravityForce);
-		fread_endian<int>(fp, proj->MyGravityType);
+		fread_endian<int>(fp, proj->AttractiveForce);
+		fread_endian<int>(fp, proj->AttractiveForceType);
+		fread_endian<int>(fp, proj->AttractiveForceObjects);
+		fread_endian<int>(fp, proj->AttractiveForceClasses);
+		fread_endian<int>(fp, proj->AttractiveForceRadius);
+		fread_endian<bool>(fp, proj->AttractiveForceThroughWalls);
 
 		fread_endian<int>(fp, proj->Width);
 		fread_endian<int>(fp, proj->Height);
 	}
 	else {
-		proj->MyGravityForce = 0;
-		proj->MyGravityType = GRV_NONE;
+		proj->AttractiveForce = 0;
+		proj->AttractiveForceType = ATT_GRAVITY;
+		proj->AttractiveForceObjects = ATO_NONE;
+		proj->AttractiveForceClasses = 0;
+		proj->AttractiveForceRadius = 0;
+		proj->AttractiveForceThroughWalls = true;
 
 		if(proj->Type == PRJ_PIXEL)
 			proj->Width = proj->Height = 2;
@@ -1324,10 +1336,21 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("ANI_PINGPONG",ANI_PINGPONG);
 	AddKeyword("true",true);
 	AddKeyword("false",false);
-	AddKeyword("GRV_NONE",GRV_NONE);
-	AddKeyword("GRV_PLAYER",GRV_PLAYER);
-	AddKeyword("GRV_PROJECTILE",GRV_PROJECTILE);
-	AddKeyword("GRV_BOTH",GRV_BOTH);
+	AddKeyword("ATO_NONE",ATO_NONE);
+	AddKeyword("ATO_PLAYERS",ATO_PLAYERS);
+	AddKeyword("ATO_PROJECTILES",ATO_PROJECTILES);
+	AddKeyword("ATO_ROPE",ATO_ROPE);
+	AddKeyword("ATO_BONUSES",ATO_BONUSES);
+	AddKeyword("ATO_ALL",ATO_ALL);
+	AddKeyword("ATC_NONE",ATC_NONE);
+	AddKeyword("ATC_OWNER",ATC_OWNER);
+	AddKeyword("ATC_ENEMY",ATC_ENEMY);
+	AddKeyword("ATC_TEAMMATE",ATC_TEAMMATE);
+	AddKeyword("ATC_ALL",ATC_ALL);
+	AddKeyword("ATT_GRAVITY",ATT_GRAVITY);
+	AddKeyword("ATT_CONSTANT",ATT_CONSTANT);
+	AddKeyword("ATT_LINEAR",ATT_LINEAR);
+	AddKeyword("ATT_QUADRATIC",ATT_QUADRATIC);
 	
 	sDirectory = dir;
 	
@@ -1524,22 +1547,24 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
-	proj->MyGravityForce = 0;
-	proj->MyGravityRadius = 0;
-	proj->MyGravityThroughWalls = true;
-	proj->MyGravityType = GRV_NONE;
-	proj->MyGravityFadeOut = true;
+	proj->AttractiveForce = 0;
+	proj->AttractiveForceType = ATT_GRAVITY;
+	proj->AttractiveForceObjects = ATO_NONE;
+	proj->AttractiveForceClasses = 0;
+	proj->AttractiveForceRadius = 0;
+	proj->AttractiveForceThroughWalls = true;
 
 	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
 	ReadFloat(file,"General","Timer",&proj->Timer.Time,0);
 	ReadFloat(file, "General", "TimerVar", &proj->Timer.TimeVar, 0);
 	ReadKeyword(file,"General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
 
-	ReadInteger(file, "General","MyGravityForce", &proj->MyGravityForce, 0);
-	ReadInteger(file, "General","MyGravityRadius", &proj->MyGravityRadius, 0);
-	ReadKeyword(file,"General","MyGravityType",(int*)&proj->MyGravityType,GRV_NONE);
-	ReadKeyword(file,"General","MyGravityThroughWalls",&proj->MyGravityThroughWalls,true);
-	ReadKeyword(file,"General","MyGravityFadeOut",&proj->MyGravityFadeOut,true);
+	ReadInteger(file, "General","AttractiveForce", &proj->AttractiveForce, 0);
+	ReadInteger(file, "General","AttractiveForceRadius", &proj->AttractiveForceRadius, 0);
+	ReadKeyword(file,"General","AttractiveForceType",(int*)&proj->AttractiveForceType,ATT_GRAVITY);
+	ReadKeywordList(file,"General","AttractiveForceObjects",&proj->AttractiveForceObjects,0);
+	ReadKeywordList(file,"General","AttractiveForceClasses",&proj->AttractiveForceClasses,0);
+	ReadKeyword(file,"General","AttractiveForceThroughWalls",&proj->AttractiveForceThroughWalls,true);
 	
 	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
 		proj->UseCustomGravity = true;

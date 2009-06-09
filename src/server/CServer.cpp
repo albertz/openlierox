@@ -764,13 +764,13 @@ int GameServer::getTeamWormNum(int t) const {
 // Main server frame
 void GameServer::Frame()
 {
-	/*
+	
 	// test code to do profiling
-	if(iState == SVS_PLAYING) {
+	/*if(iState == SVS_PLAYING) {
 		int t = (tLX->currentTime - AbsTime(0)).milliseconds() % 10000;
 		static int s = 0;
 		if(t < 100) {
-			cClient->AddRandomBot(40);
+			cClient->AddRandomBots(40);
 		}
 		else if(t > 4900 && t < 5000) {
 			std::list<int> worms;
@@ -782,8 +782,8 @@ void GameServer::Frame()
 		}
 		s++;
 		s %= 4;
-	}
-	*/
+	}*/
+	
 	
 	// Playing frame
 	if(iState == SVS_PLAYING) {

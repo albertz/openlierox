@@ -2,25 +2,29 @@
 [General]
 Type = PRJ_CIRCLE
 Colour1 = 0,0,0
-ActionNum = 1
+ActionNum = 0
 Gravity = 0
 Timer = 30
-MyGravityForce = 700
-MyGravityType = GRV_BOTH
-MyGravityRadius = 200
-MyGravityFadeOut = true
-MyGravityThroughWalls = true
+AttractiveForce = 700
+AttractiveForceRadius = 0
+AttractiveForceType = ATT_QUADRATIC
+AttractiveForceObjects = ATO_ROPE,ATO_PLAYERS
+AttractiveForceClasses = ATC_ALL
+AttractiveForceThroughWalls = true
 Width = 10
 Height = 10
 
 [Hit]
 Type = Bounce
 
+[PlayerHit]
+Type = Nothing
+
 [Action1]
 Event = HitWorm
 DestroyAfter = false
 Type = Injure
-Damage = 101
+Damage = 0
 Shake = 4
 
 [HitWorm]

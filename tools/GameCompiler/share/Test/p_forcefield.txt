@@ -5,11 +5,16 @@ Colour1 = 0,0,0,0
 ActionNum = 1
 Gravity = 0
 Timer = 0.1
-MyGravityForce = -100000000
-MyGravityType = GRV_PROJECTILE
-MyGravityRadius = 100
-MyGravityFadeOut = false
-MyGravityThroughWalls = true
+AttractiveForce = -100000000
+Recharge = 998
+
+# Affect only enemy projectiles
+AttractiveForceObjects = ATO_PROJECTILES,ATO_PLAYERS,ATO_ROPE
+AttractiveForceClasses = ATC_ENEMY
+
+AttractiveForceRadius = 100
+AttractiveForceType = ATT_CONSTANT
+AttractiveForceThroughWalls = true
 
 [Hit]
 Type = Nothing

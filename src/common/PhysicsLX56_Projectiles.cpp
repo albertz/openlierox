@@ -439,23 +439,42 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 }
 
 template <typename VectorType>
-static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff dt, VectorType objpos, VectorType& objvel)
+static void Projectile_HandleAttractiveForceForObject(CProjectile* const prj, TimeDiff dt, VectorType objpos, VectorType& objvel)
 {
 	const proj_t *info = prj->getProjInfo();
 
 	// Check that it is visible if the gravity does not go through walls
-	if (!info->MyGravityThroughWalls)  {
+	if (!info->AttractiveForceThroughWalls)  {
 		if(fastTraceLine_hasAnyCollision(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK))
 			return;
 	}
 
 	// Drag the object to us
 	CVec force = prj->GetPosition() - objpos;
-	float drag = (float)info->MyGravityForce;
-	if (info->MyGravityFadeOut)  {  // Lower force if the object is far away
-		static const float maxGravityRadius = sqrtf(4096.0f*4096.0f * 2.0f);
-		float r = (info->MyGravityRadius <= 0) ? maxGravityRadius : info->MyGravityRadius;
-		drag *= 1.0f - force.GetLength() / r;
+	float drag = (float)info->AttractiveForce;
+	static const float maxGravityRadius2 = (float)(4096*4096*2);
+	static const float weight = 4000.0f;
+	const float r2 = (info->AttractiveForceRadius <= 0) ? maxGravityRadius2 : SQR(info->AttractiveForceRadius);
+	
+	switch (info->AttractiveForceType)  {
+	case ATT_GRAVITY:  {
+		drag *= weight / MIN(force.GetLength2(), r2);
+	} break;
+	case ATT_CONSTANT:  // Do not change the drag at all
+	break;
+	case ATT_LINEAR:  // Lower force if the object is far away, using the formula 1 - x/max_x
+		drag *= 1.0f - force.GetLength() / sqrtf(r2);
+	break;
+	case ATT_QUADRATIC:  {  // Lower force if the object is far away, using the formula a/x^2
+		const float len2 = force.GetLength2();
+		if (len2 != 0)  {
+			const float r = sqrtf(r2);
+			float b = sqrtf(drag * (4*weight + drag * r2)) * r / (2*drag) - r2/2;
+			float c = drag/2 - sqrtf(drag * (4*weight + drag * r2)) / (2*r);
+			drag *= weight/(len2 + b);
+			drag += c;
+		}
+	} break;
 	}
 
 	objvel += force.Normalize() * drag * dt.seconds();
@@ -465,12 +484,29 @@ static void Projectile_HandleGravityForObject(CProjectile* const prj, TimeDiff d
 	objvel.y = CLAMP(objvel.y, -500.0f, 500.0f);
 }
 
-static void Projectile_HandleMyGravityForWorms(CProjectile* const prj, TimeDiff dt, CWorm *worms)
+static bool Projectile_CheckAttractiveForceApplies(CWorm *owner, CWorm *w, int flags)
+{
+	if ((flags & ATC_OWNER) == ATC_OWNER && w == owner)
+		return true;
+	if ((flags & ATC_TEAMMATE) == ATC_TEAMMATE && cClient->getGeneralGameType() == GMT_TEAMS && w->getTeam() == owner->getTeam() && w!= owner)
+		return true;
+	if ((flags & ATC_ENEMY) == ATC_ENEMY)  {
+		if (cClient->getGeneralGameType() == GMT_TEAMS)
+			return w->getTeam() != owner->getTeam();
+		else
+			return w != owner;
+	}
+	return false;
+}
+
+static void Projectile_HandleAttractiveForceForWormsAndRope(CProjectile* const prj, TimeDiff dt, CWorm *worms)
 {
 	// Check
 	const proj_t *info = prj->getProjInfo();
-	if (info->MyGravityType != GRV_PLAYER && info->MyGravityType != GRV_BOTH)
+	if ((info->AttractiveForceObjects & (ATO_PLAYERS | ATO_ROPE)) == 0)
 		return;
+
+	CWorm *owner = &worms[CLAMP(prj->GetOwner(), 0, MAX_WORMS - 1)];
 
 	// Go through the worms and check if there are some in the radius
 	for (int i = 0; i < MAX_WORMS; i++)  {
@@ -480,36 +516,61 @@ static void Projectile_HandleMyGravityForWorms(CProjectile* const prj, TimeDiff 
 		if (!w->isUsed() || !w->getAlive() || w->getLives() == WRM_OUT)
 			continue;
 
-		// In radius?
-		if (info->MyGravityRadius > 0 && 
-			(int)((w->getPos() - prj->GetPosition()).GetLength()) > info->MyGravityRadius)
+		if (!Projectile_CheckAttractiveForceApplies(owner, w, info->AttractiveForceClasses))
 			continue;
 
-		Projectile_HandleGravityForObject(prj, dt, w->getPos(), w->velocity());
+		// Worm
+		if (info->AttractiveForceObjects & ATO_PLAYERS)  {
+			// In radius?
+			if (info->AttractiveForceRadius > 0 && 
+				(int)((w->getPos() - prj->GetPosition()).GetLength()) > info->AttractiveForceRadius)
+				continue;
+
+			Projectile_HandleAttractiveForceForObject(prj, dt, w->getPos(), w->velocity());
+		}
+
+		// Rope
+		if (info->AttractiveForceObjects & ATO_ROPE)  {
+			// In radius?
+			if (w->getNinjaRope()->isReleased() && !w->getNinjaRope()->isAttached())
+				if (info->AttractiveForceRadius > 0 &&
+				(w->getNinjaRope()->getHookPos() - prj->GetPosition()).GetLength() > info->AttractiveForceRadius)
+				continue;
+
+			Projectile_HandleAttractiveForceForObject(prj, dt, w->getNinjaRope()->getHookPos(), w->getNinjaRope()->hookVelocity());
+		}
 	}
 }
 
-void Projectile_HandleMyGravityForProjectiles(CProjectile* const prj, TimeDiff dt)
+void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, TimeDiff dt, CWorm *worms)
 {
 	// Check
 	const proj_t *info = prj->getProjInfo();
-	if (info->MyGravityType != GRV_PROJECTILE && info->MyGravityType != GRV_BOTH)
+	if ((info->AttractiveForceObjects & ATO_PROJECTILES) != ATO_PROJECTILES)
 		return;
 
+	CWorm *owner = &worms[CLAMP(prj->GetOwner(), 0, MAX_WORMS - 1)];
+
 	// Applies to all projectiles
-	if (info->MyGravityRadius <= 0)  {
+	if (info->AttractiveForceRadius <= 0)  {
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj)
-				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+			if (i->get() != prj)  {
+				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
+				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
+					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+			}
 		}
 
 	// Only projectiles in the given range
 	} else {
-		float r2 = info->MyGravityRadius * info->MyGravityRadius;
+		float r2 = (float)SQR(info->AttractiveForceRadius);
 
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj && (prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)
-				Projectile_HandleGravityForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+			if (i->get() != prj && (prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)  {
+				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
+				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
+					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+			}
 		}
 	}
 }
@@ -523,9 +584,9 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 	}
 
 	// Check for worms that we should attract with gravity
-	if (prj->tProjInfo->MyGravityForce != 0 && prj->tProjInfo->MyGravityType != GRV_NONE)  {
-		Projectile_HandleMyGravityForProjectiles(prj, dt);
-		Projectile_HandleMyGravityForWorms(prj, dt, worms);
+	if (prj->tProjInfo->AttractiveForce != 0 && prj->tProjInfo->AttractiveForceObjects != ATO_NONE)  {
+		Projectile_HandleAttractiveForceForProjectiles(prj, dt, worms);
+		Projectile_HandleAttractiveForceForWormsAndRope(prj, dt, worms);
 	}
 	
 	/*

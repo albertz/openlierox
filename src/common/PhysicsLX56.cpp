@@ -146,11 +146,11 @@ public:
 
 					if(x<0) {
 						clip |= 0x01;
-						worm->pos().x=( posx+4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth();
+						worm->pos().x= (float)(( posx+4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth());
 					}
 					else {
 						clip |= 0x02;
-						worm->pos().x=( posx-4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth();
+						worm->pos().x=(float)(( posx-4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth());
 					}
 
 					// Bounce
@@ -212,11 +212,11 @@ public:
 
 					if(y<0) {
 						clip |= 0x04;
-						worm->pos().y= ( posy+5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight();
+						worm->pos().y= (float)(( posy+5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight());
 					}
 					else {
 						clip |= 0x08;
-						worm->pos().y= ( posy-5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight();
+						worm->pos().y= (float)(( posy-5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight());
 					}
 
 					//if(y>3 && !jump) {

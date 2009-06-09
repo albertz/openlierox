@@ -34,11 +34,30 @@ enum Proj_GfxType {
 };
 
 // MyGravity types
-enum Proj_GravityType  {
-	GRV_NONE = 0,
-	GRV_PLAYER,
-	GRV_PROJECTILE,
-	GRV_BOTH
+enum Proj_AttractiveObject  {
+	ATO_NONE = 0,
+	ATO_PLAYERS = 1,  // All worms
+	ATO_PROJECTILES = 2,
+	ATO_ROPE = 4,
+	ATO_BONUSES = 8,
+	ATO_ALL = ATO_PLAYERS | ATO_PROJECTILES | ATO_ROPE | ATO_BONUSES
+};
+
+// Classes of objects that are attracted to the projectile, used in conjunction with the above
+enum Proj_AttractiveClass  {
+	ATC_NONE = 0,
+	ATC_OWNER = 1,
+	ATC_ENEMY = 2,
+	ATC_TEAMMATE = 4,
+	ATC_ALL = ATC_OWNER | ATC_TEAMMATE | ATC_ENEMY
+};
+
+// Behavior of the attractive force
+enum Proj_AttractiveType  {
+	ATT_GRAVITY = 0,  // Newton gravity
+	ATT_CONSTANT,  // The force is the same in the whole radius
+	ATT_LINEAR,  // The force fades out linearly
+	ATT_QUADRATIC,  // The force fades out using the inverse quadratic function
 };
 
 static_assert(sizeof(Proj_GfxType) == sizeof(int), Proj_Type__SizeCheck);
@@ -77,11 +96,12 @@ struct proj_t {
 	bool	Animating;
 	float	AnimRate;
 	Proj_AnimType AnimType;
-	int		MyGravityForce;  // How much will players/projectiles be attracted to this projectile
-	Proj_GravityType MyGravityType;
-	int		MyGravityRadius;  // Radius where the gravity is applied
-	bool	MyGravityThroughWalls;  // Should the gravity "go through" walls?
-	bool	MyGravityFadeOut;  // Should the gravity force be the smaller the bigger the distance is?
+	int		AttractiveForce;  // How much will players/projectiles be attracted to this projectile
+	int AttractiveForceObjects;
+	int AttractiveForceClasses;
+	int		AttractiveForceRadius;  // Radius where the gravity is applied
+	bool	AttractiveForceThroughWalls;  // Should the gravity "go through" walls?
+	Proj_AttractiveType	AttractiveForceType;  // How the attractive force should behave
 	
 	// physical behaviour
 	bool	UseCustomGravity;

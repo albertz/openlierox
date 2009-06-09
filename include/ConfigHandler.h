@@ -88,7 +88,7 @@ bool ReadMatrixD2(const std::string& filename, const std::string& section, const
 bool	AddKeyword(const std::string& key, int value);
 bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 bool	ReadKeyword(const std::string& filename, const std::string& section, const std::string& key, bool *value, bool defaultv);
-
+bool	ReadKeywordList(const std::string& filename, const std::string& section, const std::string& key, int *value, int defaultv);
 
 
 
