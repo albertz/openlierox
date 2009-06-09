@@ -513,14 +513,17 @@ class StandardCicler:
 		
 	def cicle():
 		if not self.preSelectedList.empty:
-			self.curSelection = self.preSelectedList
+			self.curSelection = self.preSelectedList[0]
 			self.preSelectedList.pop(0)
 			self.apply()
 			return
 
 		if self.list.empty: return
 		self.curIndex = self.curIndex + 1
-		if self.curIndex >= len(self.list): self.curIndex = 0
+		if self.curIndex >= len(self.list):
+			self.curIndex = 0
+			shuffle(self.list)
+		self.curSelection = self.list[self.curIndex]
 		self.apply()
 
 	def apply():
