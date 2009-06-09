@@ -122,7 +122,10 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 
 	else if(cmd == "lx::connect_here")
 		ParseConnectHere(bs);
-
+	
+	// ignore this (we get it very often if we have hosted once - it's a server package)
+	else if(cmd == "lx::ping") {}
+	
 	// Unknown
 	else  {
 		warnings << "CClientNetEngine::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
