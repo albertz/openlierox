@@ -57,7 +57,10 @@ def parseAdminCommand(wormid,message):
 		cmd = message.split(" ")[0]
 		cmd = cmd.replace(cfg.ADMIN_PREFIX,"",1).lower() #Remove the prefix
 
-		io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),io.LOG_ADMIN)
+		if wormid >= 0:
+			io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.ADMIN_PREFIX,"",1)),io.LOG_ADMIN)
+		else:
+			io.messageLog("ded admin issued %s" % cmd, io.LOG_USRCMD)
 
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
@@ -146,7 +149,8 @@ def parseAdminCommand(wormid,message):
 			raise Exception, "Invalid admin command"
 
 	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
-		io.privateMsg(wormid, "Invalid admin command")
+		if wormid >= 0:
+			io.privateMsg(wormid, "Invalid admin command")
 		io.messageLog(formatExceptionInfo(),io.LOG_ERROR) #Helps to fix errors
 		return False
 	return True
@@ -254,8 +258,11 @@ def parseUserCommand(wormid,message):
 		cmd = message.split(" ")[0]
 		cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
 
-		io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
-
+		if wormid >= 0:
+			io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
+		else:
+			io.messageLog("ded admin issued %s" % cmd, io.LOG_USRCMD)
+			
 		# Unnecesary to split multiple times, this saves CPU.
 		params = message.split(" ")[1:]
 
@@ -344,7 +351,8 @@ def parseUserCommand(wormid,message):
 
 	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
 			# TODO, send what's passed in the exception to the user?
-		io.privateMsg(wormid, "Invalid user command")
+		if wormid >= 0:
+			io.privateMsg(wormid, "Invalid user command")
 		io.messageLog(formatExceptionInfo(),io.LOG_ERROR) #Helps to fix errors
 		return False
 	return True

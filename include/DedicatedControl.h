@@ -11,6 +11,7 @@
 #define __DEDICATEDCONTROL_H__
 
 #include <string>
+#include <list>
 
 struct DedIntern;
 class CWorm;
@@ -42,6 +43,16 @@ public:
 	void WormSpawned_Signal(CWorm* worm);
 	void WormGotAdmin_Signal(CWorm* worm);
 	void WormAuthorized_Signal(CWorm* worm);
+	void Custom_Signal(const std::list<std::string>& args);
+	void Custom_Signal(const std::string& arg1) { std::list<std::string> args; args.push_back(arg1); Custom_Signal(args); }
+	void Custom_Signal(const std::string& arg1, const std::string& arg2) {
+		std::list<std::string> args; args.push_back(arg1); args.push_back(arg2);
+		Custom_Signal(args);
+	}
+	void Custom_Signal(const std::string& arg1, const std::string& arg2, const std::string& arg3) {
+		std::list<std::string> args; args.push_back(arg1); args.push_back(arg2); args.push_back(arg3);
+		Custom_Signal(args);
+	}
 	
 	void Menu_Frame();
 	void GameLoop_Frame();

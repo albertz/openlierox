@@ -71,6 +71,7 @@ class Worm:
 		self.Ip = ""
 		self.iID = -1
 		self.isAdmin = False
+		self.isDedAdmin = False
 		self.Ping = [] # Contains 10 ping values, real ping = average of them
 		self.Lives = -1 # -1 means Out
 		self.Team = 0
@@ -109,7 +110,7 @@ def init():
 # Parses all signals that are not 2 way (like getip info -> olx returns info)
 # Returns False if there's nothing to read
 def signalHandler(sig):
-	global gameState, oldGameState, scriptPaused, sentStartGame
+	global gameState, oldGameState, scriptPaused, sentStartGame, worms
 
 	oldGameState = gameState
 
@@ -133,7 +134,11 @@ def signalHandler(sig):
 			parseWormSpawned(sig)
 		elif header == "wormauthorized":
 			parseWormAuthorized(sig)
-	
+		elif header == "wormgotadmin":
+			worms[int(sig[1])].isDedAdmin = True
+			# no other difference to wormauthorized yet - and we also get wormauthorized, so nothing to do anymore
+			pass
+			
 		## Check GameState ##
 		elif header == "quit":
 			gameState = GAME_QUIT
@@ -164,6 +169,10 @@ def signalHandler(sig):
 			pass
 		elif header == "timer": # Sent once per second
 			controlHandler()
+			
+		elif header == "custom":
+			parseCustom(sig)
+			
 		else:
 			io.messageLog(("I don't understand %s." % (sig)),io.LOG_ERROR)
 	
@@ -326,6 +335,13 @@ def parseWormSpawned(sig):
 
 	wormID = int(sig[1])
 	worms[wormID].Alive = True
+
+def parseCustom(sig):
+	if not cmds.parseAdminCommand(-1, "%s%s" % (cfg.ADMIN_PREFIX, str(sig[1:]))):
+		cmds.parseUserCommand(-1, "%s%s" % (cfg.USER_PREFIX, str(sig[1:])))
+
+
+
 
 ## Preset loading functions ##
 def initPresets():

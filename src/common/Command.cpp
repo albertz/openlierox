@@ -1964,6 +1964,17 @@ void Cmd_loadConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		caller->writeMsg("options structure not initialised", CNC_ERROR);	
 }
 
+// Note: It doesn't make sense to send custom signal without args, so force at least 1 arg.
+COMMAND(signal, "send custom signal to dedicated script", "<args>", 1, UINT_MAX);
+void Cmd_signal::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(!DedicatedControl::Get()) {
+		caller->writeMsg("dedicated control not available", CNC_ERROR);
+		return;
+	}
+	
+	DedicatedControl::Get()->Custom_Signal( std::list<std::string>(params.begin(), params.end()) );
+}
+
 
 static void HandleCommand(const CmdLineIntf::Command& command) {
 	std::string cmdstr = command.cmd; TrimSpaces(cmdstr);

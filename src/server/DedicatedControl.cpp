@@ -780,6 +780,7 @@ void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { internData-
 void DedicatedControl::WormSpawned_Signal(CWorm* worm){ internData->Sig_WormSpawned(worm); };
 void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ internData->Sig_WormGotAdmin(worm); };
 void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ internData->Sig_WormAuthorized(worm); };
+void DedicatedControl::Custom_Signal(const std::list<std::string>& args) { internData->pushSignal("custom", args); }
 
 void DedicatedControl::Menu_Frame() { internData->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { internData->Frame_Basic(); }
