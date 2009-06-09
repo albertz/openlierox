@@ -298,13 +298,13 @@ int CGameMode::HighestScoredWorm() {
 
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 	// Kills very first (in case there was a kill limit)
-	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+	if(cClient->getGameLobby()->iKillLimit > 0) {
 		if (w1->getKills() > w2->getKills()) return 1;
 		if (w1->getKills() < w2->getKills()) return -1;		
 	}
 	
 	// Lives first
-	if(tLXOptions->tGameInfo.iLives >= 0) {
+	if(cClient->getGameLobby()->iLives >= 0) {
 		if (w1->getLives() > w2->getLives()) return 1;
 		if (w1->getLives() < w2->getLives()) return -1;		
 	}
