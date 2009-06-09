@@ -67,12 +67,23 @@ enum {
 
 
 // Network speed types
-enum {
+enum NetworkSpeed {
 	NST_MODEM=0,
 	NST_ISDN,
 	NST_LAN,
 	NST_LOCAL			// Hidden speed, only for local games
 };
+
+inline std::string NetworkSpeedString(NetworkSpeed s) {
+	switch(s) {
+		case NST_MODEM: return "Modem";
+		case NST_ISDN: return "ISDN";
+		case NST_LAN: return "DSL/LAN";
+		case NST_LOCAL: return "local";
+	}
+	return "INVALID SPEED";
+}
+
 
 // Screenshot formats
 enum {

@@ -145,11 +145,6 @@ std::string InputNames[] = {
 	"Strafe"
 };
 
-std::string NetworkSpeeds[] = {
-	"Modem",
-	"ISDN",
-	"DSL / LAN"
-};
 
 bool bSpeedTest = false;
 
@@ -359,7 +354,7 @@ bool Menu_OptionsInitialize()
 
 	// Network speed
 	for(i=0; i<3; i++)
-		cOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeeds[i], i);
+		cOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeedString((NetworkSpeed)i), i);
 
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);

@@ -26,6 +26,7 @@
 #include "types.h"
 #include "Version.h"
 #include "FileDownload.h"
+#include "IpToCountryDB.h"
 
 class CChannel;
 class CWorm;
@@ -167,6 +168,8 @@ public:
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	
 	
+	IpInfo ipInfo();
+	std::string getAddrAsString();
 	std::string	debugName(bool withWorms = true);
 };
 

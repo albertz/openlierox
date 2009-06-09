@@ -280,9 +280,8 @@ bool Menu_FloatingOptionsInitialize()
 	t->setText(itoa(tLXOptions->nMaxFPS));
 
 
-	std::string NetworkSpeeds[] = {	"Modem", "ISDN", "DSL/LAN" };
 	for(i=0; i<3; i++)
-		cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeeds[i], i);
+		cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeedString((NetworkSpeed)i), i);
 
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);

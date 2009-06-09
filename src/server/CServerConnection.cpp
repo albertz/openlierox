@@ -238,18 +238,20 @@ CChannel * CServerConnection::createChannel(const Version& v)
 }
 
 
-
-std::string CServerConnection::debugName(bool withWorms) {	
+std::string CServerConnection::getAddrAsString() {
 	std::string addr = "?.?.?.?";
 	if(isLocalClient())
 		addr = "local";
 	else if(!getChannel())  {
-		warnings << "CServerConnection::debugName(): getChannel() == NULL" << endl;
+		warnings << "CServerConnection::getAddrAsString(): getChannel() == NULL" << endl;
 	} else if(!NetAddrToString(getChannel()->getAddress(), addr))  {
-		warnings << "CServerConnection::debugName(): NetAddrToString failed" << endl;
+		warnings << "CServerConnection::getAddrAsString(): NetAddrToString failed" << endl;
 	}
-	
-	std::string ret = addr;
+	return addr;
+}
+
+std::string CServerConnection::debugName(bool withWorms) {	
+	std::string ret = getAddrAsString();
 	ret += "(" + cClientVersion.asString() + ")";
 	
 	if(withWorms) {
@@ -273,6 +275,29 @@ std::string CServerConnection::debugName(bool withWorms) {
 	}
 
 	return ret;
+}
+
+IpInfo CServerConnection::ipInfo() {
+	IpInfo info;
+	std::string addr;
+	if(isLocalClient()) {
+		info.Country = "local";
+		info.Continent = "local";
+		return info;
+	}
+	else if(!getChannel()) {
+		info.Country = "NO CONNECTION";
+		info.Continent = "NO CONNECTION";
+		return info;
+	}
+	else if(!NetAddrToString(getChannel()->getAddress(), addr)) {
+		info.Country = "INVALID CONNECTION";
+		info.Continent = "INVALID CONNECTION";
+		return info;
+	}
+	
+	info = tIpToCountryDB->GetInfoAboutIP(addr);
+	return info;
 }
 
 int CServerConnection::getPing() { return cNetChan->getPing(); }

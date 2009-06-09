@@ -1788,12 +1788,10 @@ void Cmd_getWormLocationInfo::exec(CmdLineIntf* caller, const std::vector<std::s
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 
 	std::string str_addr;
-	IpInfo info;
-
 	NetAddrToString(w->getClient()->getChannel()->getAddress(), str_addr);
 	if (str_addr != "")
 	{
-		info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+		IpInfo info = tIpToCountryDB->GetInfoAboutIP(str_addr);
 		caller->pushReturnArg(info.Continent);
 		caller->pushReturnArg(info.Country);
 		caller->pushReturnArg(info.CountryShortcut);
@@ -1837,6 +1835,32 @@ void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::strin
 	caller->pushReturnArg(ftoa(w->velocity().x));
 	caller->pushReturnArg(ftoa(w->velocity().y));
 }
+
+COMMAND(whoIs, "get some info about a worm", "worm-id", 1, 1);
+void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
+	caller->pushReturnArg("ID/Name: " + itoa(w->getID()) + ":" + w->getName());
+	if(cClient && cClient->getGameLobby() && cClient->getGameLobby()->gameMode && cClient->getGameLobby()->gameMode->GameTeams() > 1)
+		caller->pushReturnArg("Team: " + itoa(w->getTeam()));
+	if(w->getClient()) {
+		caller->pushReturnArg("Address: " + w->getClient()->getAddrAsString() + " (" + w->getClient()->ipInfo().Country + ")");
+		caller->pushReturnArg("Version: " + w->getClient()->getClientVersion().asString());
+		caller->pushReturnArg("ConnectTime: " + ftoa((tLX->currentTime - w->getClient()->getConnectTime()).seconds()) + " secs");
+		caller->pushReturnArg("NetSpeed: " + NetworkSpeedString((NetworkSpeed)w->getClient()->getNetSpeed()));
+		caller->pushReturnArg("Ping: " + itoa(w->getClient()->getPing()));
+		caller->pushReturnArg("LastResponse: " + ftoa((tLX->currentTime - w->getClient()->getLastReceived()).seconds()) + " secs ago");
+		if(cServer->getState() != SVS_LOBBY) {
+			caller->pushReturnArg("IsReady: " + to_string(w->getClient()->getGameReady()));
+		}
+	} else
+		caller->pushReturnArg("Client is INVALID");
+
+	if(cServer->getState() != SVS_LOBBY) {
+		caller->pushReturnArg("IsAlive: " + to_string(w->getAlive()));
+	}
+}
+
+
 
 static CMap* getCurrentMap() {
 	CMap* m = cServer ? cServer->getMap() : NULL;
