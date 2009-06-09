@@ -103,6 +103,20 @@ void CServerConnection::MinorClear()
 	getUdpFileDownloader()->reset();
 }
 
+int CServerConnection::getConnectionArrayIndex() {
+	if(server == NULL) {
+		errors << "CServerConnection::getConnectionArrayIndex: server is not set" << endl;
+		return -1;
+	}
+	
+	if(this < &server->getClients()[0] || this >= &server->getClients()[MAX_CLIENTS]) {
+		errors << "CServerConnection::getConnectionArrayIndex: outside of the array" << endl;
+		return -1;
+	}
+	
+	return this - &server->getClients()[0];
+}
+
 
 ///////////////////
 // Initialize the client

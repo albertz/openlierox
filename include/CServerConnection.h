@@ -168,6 +168,8 @@ public:
 	bool		isLocalClient()			{ return bLocalClient; }
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	
 	
+	int			getConnectionArrayIndex();
+	
 	IpInfo ipInfo();
 	std::string getAddrAsString();
 	std::string	debugName(bool withWorms = true);

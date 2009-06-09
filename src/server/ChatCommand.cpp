@@ -848,7 +848,7 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 	// Check privileges
 	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
-	if (!cl || !cl->getRights()->StartGame)
+	if (!cl || !cl->getRights()->ChooseMod)
 		return "You do not have sufficient privileges to change the mod";
 
 	// Join the parameters into one string
@@ -891,7 +891,7 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 	// Check privileges
 	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
-	if (!cl || !cl->getRights()->StartGame)
+	if (!cl || !cl->getRights()->ChooseLevel)
 		return "You do not have sufficient privileges to change the level";
 
 	// Join the parameters into one string

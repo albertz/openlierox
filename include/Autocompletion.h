@@ -23,6 +23,7 @@ public:
 		std::string text;
 		size_t pos;
 		InputState() : pos(0) {}
+		InputState(const std::string& t) : text(t), pos(t.size()) {}
 		InputState(const std::string& t, size_t p) : text(t), pos(p) {}
 		bool operator==(const InputState& s) const { return text == s.text && pos == s.pos; }
 		bool operator!=(const InputState& s) const { return !(*this == s); }

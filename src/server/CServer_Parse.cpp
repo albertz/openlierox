@@ -40,6 +40,10 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
+#include "Autocompletion.h"
+#include "Command.h"
+#include "TaskManager.h"
+
 
 #ifdef _MSC_VER
 #undef min
@@ -51,6 +55,21 @@
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
 std::string Utf8String(const std::string &OldLxString);
+
+
+int CServerNetEngine::getConnectionArrayIndex() {
+	if(!cl) {
+		errors << "CServerNetEngine::getConnectionArrayIndex: connection not set" << endl;
+		return -1;
+	}
+	
+	if(cl->getNetEngine() != this) {
+		errors << "CServerNetEngine::getConnectionArrayIndex: net engine not consistent" << endl;
+		return -1;
+	}
+	
+	return cl->getConnectionArrayIndex();
+}
 
 
 /*
@@ -475,7 +494,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 	std::string startStr = bs->readString();
 	TrimSpaces(startStr);
 	std::vector<std::string> cmdStart = ParseCommandMessage("/" + startStr, false);
-		
+	
 	if(cmdStart.size() > 1) {
 		ChatCommand* cmd = GetCommand(cmdStart[0]);
 		if(!cmd) {
@@ -535,8 +554,111 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 			}
 			cl->getNetEngine()->SendChatCommandCompletionList(startStr, possNew);
 			return;
+		} // end autocomplete for setvar
+		
+		// some hacks to autocomplete also some more commands
+		if(cmd->tProcFunc == &ProcessLevel) {
+			if(!cl->getRights()->ChooseLevel) {
+				SendText("You don't have the right to change the map", TXT_NETWORK);
+				return;
+			}
+			cmd = GetCommand("ded");
+			cmdStart.insert(cmdStart.begin(), "ded");
+			cmdStart[1] = "map";
+		}
+
+		if(cmd->tProcFunc == &ProcessMod) {
+			if(!cl->getRights()->ChooseMod) {
+				SendText("You don't have the right to change the mod", TXT_NETWORK);
+				return;
+			}
+			cmd = GetCommand("ded");
+			cmdStart.insert(cmdStart.begin(), "ded");
+			cmdStart[1] = "mod";
 		}
 		
+		// autocomplete for dedicated
+		if(cmd->tProcFunc == &ProcessDedicated) {
+			std::string cmdToBeCompleted;
+			std::vector<std::string>::iterator i = cmdStart.begin(); ++i; // first is 'ded', second is ded-cmd
+			if(i != cmdStart.end()) cmdToBeCompleted = *i;
+			for(++i; i != cmdStart.end(); ++i)
+				if(i->find_first_of(" \t") != std::string::npos)
+					cmdToBeCompleted += " \"" + *i + "\"";
+				else
+					cmdToBeCompleted += " " + *i;
+			
+			struct AutoCompleter : Task, CmdLineIntf {
+				AutocompletionInfo info;
+				std::string oldChatCmd;
+				std::string cmdToBeCompleted;
+				int connectionIndex;
+				CServerNetEngine* cl;
+				AutoCompleter(const std::string& old, const std::string& cmd, int i, CServerNetEngine* c)
+				: oldChatCmd(old), cmdToBeCompleted(cmd), connectionIndex(i), cl(c) {
+					name = "Chat command autocompleter";
+				}
+				
+				struct AutocompleteSender : Action {
+					int connectionIndex;
+					CServerNetEngine* cl;
+					AutocompleteSender(int i, CServerNetEngine* c) : connectionIndex(i), cl(c) {}
+					bool checkValid() {
+						if(!cServer || !cServer->isServerRunning() || !cServer->getClients()) return false;
+						if(!cServer->getClients()[connectionIndex].getNetEngine()) return false;
+						if(cl != cServer->getClients()[connectionIndex].getNetEngine()) return false;
+						if(cServer->getClients()[connectionIndex].getStatus() == NET_DISCONNECTED) return false;
+						if(cServer->getClients()[connectionIndex].getStatus() == NET_ZOMBIE) return false;
+						return true;
+					}
+				};
+				
+				struct SuggestionSender : AutocompleteSender {
+					std::string request;
+					std::string solution;
+					SuggestionSender(int i, CServerNetEngine* c, const std::string& req, const std::string& sol)
+					: AutocompleteSender(i,c), request(req), solution(sol) {}
+					int handle() {
+						if(!checkValid()) return -1;
+						cl->SendChatCommandCompletionSolution(request, solution);
+						return 0;
+					}
+				};
+
+				struct MsgSender : AutocompleteSender {
+					std::string msg;
+					MsgSender(int i, CServerNetEngine* c, const std::string& m) : AutocompleteSender(i,c), msg(m) {}
+					int handle() {
+						if(!checkValid()) return -1;
+						cl->SendText(msg, TXT_NOTICE);
+						return 0;
+					}
+				};
+				
+				virtual void pushReturnArg(const std::string& str) {}
+				virtual void finalizeReturn() {}
+				virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+					mainQueue->push(new MsgSender(connectionIndex, cl, msg));
+				}
+				
+				int handle() {
+					AutoComplete(cmdToBeCompleted, cmdToBeCompleted.size(), *this, info);
+					bool fail = false;
+					AutocompletionInfo::InputState replace;
+					info.popWait( AutocompletionInfo::InputState(cmdToBeCompleted), replace, fail );
+					if(!fail)
+						mainQueue->push(new SuggestionSender(connectionIndex, cl, oldChatCmd, "ded " + replace.text));						
+					return 0;
+				}
+			};
+			
+			int connectionIndex = getConnectionArrayIndex();
+			if(connectionIndex < 0) return;
+			
+			taskManager->start(new AutoCompleter(startStr, cmdToBeCompleted, connectionIndex, this), true);
+			return;
+		} // end autocomplete for ded
+		   
 		return;
 	}
 	std::string match;

@@ -84,6 +84,8 @@ public:
 	static bool isWormPropertyDefault(CWorm* worm);
 	virtual void SendSelectWeapons(CWorm* worm);	
 	
+	int getConnectionArrayIndex();
+	
 protected:
 	// Attributes
 	GameServer 	*server;
