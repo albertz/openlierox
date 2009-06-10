@@ -1,29 +1,41 @@
 #!/bin/bash
 
-echo ----------- SVN update >> "$1"
+if [ -e svn.log ] ; then rm svn.log; fi
 
-svn log -r "BASE:HEAD" > svn.log
-svn up
+RECOMPILE=true
 
-cat svn.log >> "$1"
+while $RECOMPILE ; do
 
-echo ----------- Compiling >> "$1"
+	echo ----------- SVN update >> "$1"
 
-cd "build/msvc 2005"
+	svn log -r "BASE:HEAD" > svn1.log
+	cat svn1.log >> "$1"
+	cat svn1.log >> svn.log
 
-rm ../../distrib/win32/OpenLieroX.exe
+	RECOMPILE=false
+	if svn up | grep "Updated to revision "; then RECOMPILE=true; fi
+	
+	if $RECOMPILE; then
 
-# You can compile without Cmake, then substitute openlierox.vcproj with Game.vcproj for vcbuild
-cmake -G "Visual Studio 8 2005" -D DEBUG=0 ../..
+		echo ----------- Compiling >> "$1"
 
-vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv /showenv >> "$1" 2>&1
+		cd "build/msvc 2005"
 
-cd ../..
+		rm ../../distrib/win32/OpenLieroX.exe
 
-if [ \! -f distrib/win32/OpenLieroX.exe ] ; then 
-	echo ----------- Compiling failed >> "$1"
-	exit
-fi
+		# You can compile without Cmake, then substitute openlierox.vcproj with Game.vcproj for vcbuild
+		cmake -G "Visual Studio 8 2005" -D DEBUG=0 ../..
+
+		vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv /showenv >> "$1" 2>&1
+
+		cd ../..
+	
+		if [ \! -f distrib/win32/OpenLieroX.exe ] ; then 
+			echo ----------- Compiling failed >> "$1"
+			exit
+		fi
+	fi
+done
 
 if grep -i "\[Rebuild\]" svn.log; then
 	echo ----------- Committing to SVN >> "$1"
