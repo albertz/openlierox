@@ -462,12 +462,26 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 
 	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
 
-	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
-		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
-			Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
-			c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-			putter.put(dst, bmpDest->format, c);
-		}
+	if (bmpSrc->flags & SDL_SRCCOLORKEY)  {
+	// We have to check for the colorkey as well
+		Color key = Unpack_alpha(bmpSrc->format->colorkey, bmpSrc->format);
+		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+			for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
+				Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
+				if (c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
+					continue;
+				c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+				putter.put(dst, bmpDest->format, c);
+			}
+	} else {
+	// No colorkey, less inner-loop checks needed
+		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+			for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
+				Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
+				c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+				putter.put(dst, bmpDest->format, c);
+			}
+	}
 
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
