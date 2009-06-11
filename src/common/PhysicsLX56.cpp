@@ -488,6 +488,11 @@ public:
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();
 
+		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+
+		if( wrapAround )
+			wrapNinjaRopeInfiniteMap( rope, playerpos );
+
 		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
@@ -546,7 +551,6 @@ public:
 
 		
 		bool outsideMap = false;
-		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 		// Hack to see if the hook went out of the cClient->getMap()
 		if(!rope->isPlayerAttached() && !wrapAround)
@@ -628,9 +632,29 @@ public:
 			}
 		}
 
+		if( wrapAround )
+			wrapNinjaRopeInfiniteMap( rope, playerpos );
 	}
 
-
+	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CVec playerpos )
+	{
+		// We're checking rope length for current map tile and all tiles that close to it, and pick up the shortest one
+		float mapW = (float)cClient->getMap()->GetWidth();
+		float mapH = (float)cClient->getMap()->GetHeight();
+		if( fabs( rope->hookPos().x - playerpos.x ) >
+			fabs( rope->hookPos().x + mapW - playerpos.x ) + 1.0f )
+			rope->hookPos().x += mapW;
+		if( fabs( rope->hookPos().x - playerpos.x ) >
+			fabs( rope->hookPos().x - mapW - playerpos.x ) + 1.0f )
+			rope->hookPos().x -= mapW;
+		if( fabs( rope->hookPos().y - playerpos.y ) >
+			fabs( rope->hookPos().y + mapH - playerpos.y ) + 1.0f )
+			rope->hookPos().y += mapH;
+		if( fabs( rope->hookPos().y - playerpos.y ) >
+			fabs( rope->hookPos().y - mapH - playerpos.y ) + 1.0f )
+			rope->hookPos().y -= mapH;
+	}
+	
 
 // --------------------
 // ---- Bonus ---------
@@ -692,10 +716,14 @@ public:
 			if(y<0)
 				continue;
 			if(y>=mh) {
-				colideBonus(bonus, x,y);
+				if( cClient->getGameLobby()->features[FT_InfiniteMap] )
+					bonus->pos().y =- mh;
+				else
+					colideBonus(bonus, x,y);
 				return;
 			}
-
+			
+			// TODO: do we need to lock pixel flags here?
 			const uchar *pf = cClient->getMap()->GetPixelFlags() + y*mw + px-2;
 
 			for(x=px-2; x<=px+2; x++) {
@@ -706,7 +734,7 @@ public:
 					continue;
 				}
 				if(x>=mw) {
-					colideBonus(bonus, x,y);
+					colideBonus(bonus, x,y); // TODO: should not happen, remove that (bonus doesn't move horizontally). And why checking only right map border, not left one?
 					return;
 				}
 
