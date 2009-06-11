@@ -47,8 +47,9 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 	if (bRedrawMenu)
 		Menu_redrawBufferRect( iX,iY, iWidth+15,tLX->cFont.GetHeight()+4);
     if( !bDropped && bLastDropped ) {
-		if (bRedrawMenu)
-			Menu_redrawBufferRect( iX,iY+tLX->cFont.GetHeight(), iWidth+15,iHeight);
+		// HINT: the background is repainted when closing the combobox
+		// That is done because if we did it here, it would also erase widgets that were drawn before us
+		// (see CGuiLayout::Draw)
         bLastDropped = false;
     }
 
@@ -389,8 +390,10 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 				} else {
 					// If clicked the arrow or body again, close the combobox
 					int mainbitheight = MAX(tLX->cFont.GetHeight()+1, 16);
-					if (tMouse->Y < iY + mainbitheight)
+					if (tMouse->Y < iY + mainbitheight)  {
 						bDropped = false;
+						Menu_redrawBufferRect(iX, iY, iWidth, iHeight);
+					}
 				}
 			}
 
