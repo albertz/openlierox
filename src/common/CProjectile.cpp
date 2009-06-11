@@ -236,12 +236,11 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	CMap* map = cClient->getMap();
 	VectorD2<int> p = view->physicToReal(vPosition, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
-	if(!view->posInside(p))
-		return;
 	
     switch (tProjInfo->Type) {
 		case PRJ_PIXEL:
-			DrawRectFill2x2(bmpDest, p.x - 1, p.y - 1,iColour);
+			if(view->posInside(p))
+				DrawRectFill2x2(bmpDest, p.x - 1, p.y - 1,iColour);
 			return;
 	
 		case PRJ_IMAGE:  {
@@ -251,58 +250,59 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 	
 			float framestep = 0;
 			
+			if (view->posInside(p))  {  // HINT: this is how it was in old LX, the projectile is not animated/destroyed when out of the screen
+				if(tProjInfo->Animating)
+					framestep = fFrame;
+				
+				// Special angle
+				// Basically another way of organising the angles in images
+				// Straight up is in the middle, rotating left goes left, rotating right goes right in terms
+				// of image index's from the centre
+				else if(tProjInfo->UseSpecAngle) {
+					CVec dir = vVelocity;
+					float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
+					int direct = 0;
+		
+					if(angle > 0)
+						angle=180-angle;
+					if(angle < 0) {
+						angle=180+angle;
+						direct = 1;
+					}
+					if(angle == 0)
+						direct = 0;
+		
+		
+					int num = (tProjInfo->AngleImages - 1) / 2;
+					if(direct == 0)
+						// Left side
+						framestep = (float)(151-angle) / 151.0f * (float)num;
+					else {
+						// Right side
+						framestep = (float)angle / 151.0f * (float)num;
+						framestep += num+1;
+					}
+				}
+		
+				// Directed in the direction the projectile is travelling
+				else if(tProjInfo->UseAngle) {
+					CVec dir = vVelocity;
+					float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
+					float offset = 360.0f / (float)tProjInfo->AngleImages;
+		
+					FMOD(angle, 360.0f);
+		
+					framestep = angle / offset;
+				}
+				
+				// Spinning projectile only when moving
+				else if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
+					framestep = fRotation / (float)tProjInfo->RotIncrement;
+				
+			}
 
-			if(tProjInfo->Animating)
-				framestep = fFrame;
-			
-			// Special angle
-			// Basically another way of organising the angles in images
-			// Straight up is in the middle, rotating left goes left, rotating right goes right in terms
-			// of image index's from the centre
-			else if(tProjInfo->UseSpecAngle) {
-				CVec dir = vVelocity;
-				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
-				int direct = 0;
-	
-				if(angle > 0)
-					angle=180-angle;
-				if(angle < 0) {
-					angle=180+angle;
-					direct = 1;
-				}
-				if(angle == 0)
-					direct = 0;
-	
-	
-				int num = (tProjInfo->AngleImages - 1) / 2;
-				if(direct == 0)
-					// Left side
-					framestep = (float)(151-angle) / 151.0f * (float)num;
-				else {
-					// Right side
-					framestep = (float)angle / 151.0f * (float)num;
-					framestep += num+1;
-				}
-			}
-	
-			// Directed in the direction the projectile is travelling
-			else if(tProjInfo->UseAngle) {
-				CVec dir = vVelocity;
-				float angle = (float)( -atan2(dir.x,dir.y) * (180.0f/PI) );
-				float offset = 360.0f / (float)tProjInfo->AngleImages;
-	
-				FMOD(angle, 360.0f);
-	
-				framestep = angle / offset;
-			}
-			
-			// Spinning projectile only when moving
-			else if(tProjInfo->RotIncrement != 0 && tProjInfo->Rotating && (vVelocity.x != 0 || vVelocity.y != 0))
-				framestep = fRotation / (float)tProjInfo->RotIncrement;
-			
-			
-			int size = tProjInfo->bmpImage->h;
-			int half = size/2;
+			const int size = tProjInfo->bmpImage->h;
+			const int half = size/2;
 			iFrameX = (int)framestep*size;
 			MOD(iFrameX, tProjInfo->bmpImage->w);
 	
