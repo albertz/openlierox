@@ -928,13 +928,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	CVec forw;
 	GetVecsFromAngle(a, &forw, NULL);
-	forw *= 16.0f;
+	forw *= 32.0f;
 
-	VectorD2<int> cp = v->physicToReal(forw + vDrawPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
-
-	// Snap the position to a slighter bigger pixel grid (2x2)
-	/*cp.x -= cp.x % 2;
-	cp.y -= cp.y % 2;*/
+	VectorD2<int> cp = p;
+	cp.x += (int)forw.x;
+	cp.y += (int)forw.y;
 
 	// Show a green crosshair if we have a target
 	x = 0;
