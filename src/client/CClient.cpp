@@ -159,7 +159,6 @@ void CClient::Clear()
 	getUdpFileDownloader()->reset();
 	fSpectatorViewportMsgTimeout = tLX->currentTime;
 	sSpectatorViewportMsg = "";
-	bSpectate = false;
 	bWaitingForMap = false;
 	bWaitingForMod = false;
 	bHaveMap = false;

@@ -2223,17 +2223,14 @@ void CClient::ProcessSpectatorViewportKeys()
 {
 	if(!cLocalWorms) return;
 	
-	if( ! bSpectate)
-	{
-		if( iNetStatus != NET_PLAYING )
-			return;
-		
-		// don't proceed if any of the locla human worms is not out of the game
-		// (also don't proceed when waiting for respawn)
-		for(uint i = 0; i < iNumWorms; ++i) {
-			if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
-				if(cLocalWorms[i]->getLives() != WRM_OUT || cLocalWorms[i]->getAlive()) return;
-			}
+	if( iNetStatus != NET_PLAYING )
+		return;
+	
+	// don't proceed if any of the locla human worms is not out of the game
+	// (also don't proceed when waiting for respawn)
+	for(uint i = 0; i < iNumWorms; ++i) {
+		if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
+			if(cLocalWorms[i]->getLives() != WRM_OUT || cLocalWorms[i]->getAlive()) return;
 		}
 	}
 

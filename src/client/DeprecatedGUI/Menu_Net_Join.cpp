@@ -242,7 +242,6 @@ enum {
 	jl_Favourites,
 	jl_PlayerList,
 	jl_Details,
-	jl_Spectate,
 	jl_CancelDownload,
 	jl_DownloadProgress,
 	jl_DownloadMap,
@@ -542,8 +541,6 @@ void Menu_Net_JoinLobbyCreateGui()
     cJoinLobby.Add( new CBrowser(),                           jl_ChatList, 15,  268, 610, 150);
 	cJoinLobby.Add( new CListview(),						  jl_PlayerList, 15, 15, 325, 220);
 	cJoinLobby.Add( new CListview(),						  jl_Details, 350, 15, 290, 250);	
-	cJoinLobby.Add( new CCheckbox(cClient->getSpectate()),	  jl_Spectate, 15, 244, 17, 17 );
-	cJoinLobby.Add( new CLabel( "Spectate only", tLX->clNormalLabel ), -1, 40, 245, 0, 0 );
 
 	// Downloading stuff
 	CProgressBar *dl = new CProgressBar(LoadGameImage("data/frontend/downloadbar_lobby.png", true), 0, 0, false, 1);
@@ -888,12 +885,6 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						cClient->getNetEngine()->SendChatCommandCompletionRequest(Menu_Net_JoinLobbyGetText().substr(1));
 						return;
 					}
-				}
-				break;
-
-			case jl_Spectate:
-				if(ev->iEventMsg == CHK_CHANGED) {
-					cClient->setSpectate(((CCheckbox *)cJoinLobby.getWidget(jl_Spectate))->getValue());
 				}
 				break;
 

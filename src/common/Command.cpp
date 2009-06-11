@@ -1596,7 +1596,6 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 	
 	// Start the game
-	cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 	if(!cServer->StartGame()) {
 		caller->writeMsg("cannot start game, got some error");
 		cCache.ClearExtraEntries(); // just to be sure

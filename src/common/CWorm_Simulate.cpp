@@ -685,9 +685,6 @@ void CWormHumanInputHandler::initWeaponSelection() {
 		m_worm->tWeapons[n].SlotNum = n;
 		m_worm->tWeapons[n].LastFire = 0;
 	}
-	// Skip weapon selection dialog if we're spectating
-	if( cClient->getSpectate() )
-		m_worm->bWeaponsReady = true;
 	
 	// Skip the dialog if there's only one weapon available
 	int enabledWeaponsAmount = 0;

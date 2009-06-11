@@ -795,7 +795,6 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		DeprecatedGUI::Menu_Net_HostStartGame();
 	else  {
 		// Start the game
-		cClient->setSpectate(false); // don't spectate; if we have added some players like bots, use them
 		if(!cServer->StartGame()) {	// start in dedicated mode
 			return "cannot start the game, there was some error";
 		}

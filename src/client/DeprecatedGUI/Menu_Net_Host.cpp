@@ -1251,7 +1251,10 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	if( bStartPressed ||
 		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
-		cClient->setSpectate(!bStartPressed); // Local client will spectate if this is an auto-start (auto-select weapons)
+		// Local client will spectate if this is an auto-start (auto-select weapons)
+		if (cClient->getWorm(0))  {
+			cServer->getWorms()[cClient->getWorm(0)->getID()].setSpectating(!bStartPressed);
+		}
 
 		Menu_Net_HostStartGame();
 	}

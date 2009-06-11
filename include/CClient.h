@@ -395,7 +395,6 @@ private:
 	} cSpectatorViewportKeys;
 	std::string	sSpectatorViewportMsg;
 	AbsTime		fSpectatorViewportMsgTimeout;
-	bool		bSpectate;	// Spectate only, suicide local worm when it spawns
 	int			iNatTraverseState;
 	bool		bConnectingBehindNat;
 	AbsTime		fLastChallengeSent;
@@ -643,9 +642,6 @@ public:
 	void		setLastFileRequest( const AbsTime& _f ) 			{ fLastFileRequest = _f; };
 	AbsTime		getLastFileRequestPacketReceived()		{ return fLastFileRequestPacketReceived; };
 	void		setLastFileRequestPacketReceived( const AbsTime& _f ) { fLastFileRequestPacketReceived = _f; };
-
-	bool		getSpectate()							{ return bSpectate; };
-	void		setSpectate( bool _b )					{ bSpectate = _b; };
 
 	bool		isGameMenu()			{ return bGameMenu; }
 	bool		isChatTyping()			{ return bChat_Typing; }

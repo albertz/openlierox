@@ -1226,35 +1226,23 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
 	client->bShouldRepaintInfo = true;
 
-	if( client->bSpectate
-		&& client->iNumWorms > 0
-		&& client->cLocalWorms[0] == &client->cRemoteWorms[id]
-		&& client->cLocalWorms[0]->getType() == PRF_HUMAN
-		&& client->cRemoteWorms[id].getLives() != WRM_UNLIM)
-	{
-		// Suicide myself as long as I spawned
-		// we do this to get my own worm out of the game because we want only spectate the game
-		SendDeath( id, id );
-	}
-	else
-	{
-		bool both = client->cViewports[1].getUsed();
 
-		// Lock viewport back on local worm, if it was screwed when spectating after death
-		if( client->iNumWorms > 0 && !both )
-			if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
-				client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
-		if( both )  {
-			if (client->cLocalWorms[1] && client->cLocalWorms[1]->getType() == PRF_HUMAN)
-				client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
-			else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
-				client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 
-				client->cViewports[1].getType());
-				
-		}
+	bool both = client->cViewports[1].getUsed();
 
-		client->sSpectatorViewportMsg = "";
+	// Lock viewport back on local worm, if it was screwed when spectating after death
+	if( client->iNumWorms > 0 && !both )
+		if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
+			client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+	if( both )  {
+		if (client->cLocalWorms[1] && client->cLocalWorms[1]->getType() == PRF_HUMAN)
+			client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
+		else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
+			client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 
+			client->cViewports[1].getType());
+			
 	}
+
+	client->sSpectatorViewportMsg = "";
 }
 
 void CClientNetEngineBeta9NewNet::ParseSpawnWorm(CBytestream *bs)
