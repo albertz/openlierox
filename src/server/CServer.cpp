@@ -2276,8 +2276,9 @@ void GameServer::Shutdown()
 
 	cWeaponRestrictions.Shutdown();
 
-
 	cBanList.Shutdown();
+	
+	tUdpMasterServers.clear();
 
 	// HINT: the gamescript is shut down by the cache
 }
