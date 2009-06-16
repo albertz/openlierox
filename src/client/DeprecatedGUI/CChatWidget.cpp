@@ -96,14 +96,14 @@ void CChatWidget::Create()
 	CBrowser *b = (CBrowser *)this->getWidget(nc_ChatText);
 	b->InitializeChatBox();
 
+	chatWidgets.insert(this);
+
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)
 		for (std::list<IRCClient::IRCChatLine>::const_iterator it = irc->getMessageList().begin();
 			it != irc->getMessageList().end(); it++)  {
 				ChatWidget_ChatNewMessage(it->text, it->type);
 		}
-
-	chatWidgets.insert(this);
 
 	ChatWidget_ChatRegisterCallbacks();
 	ChatWidget_ChatRefillUserList();
