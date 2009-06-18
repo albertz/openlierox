@@ -22,7 +22,6 @@
 
 #include <cmath>
 
-
 template<typename _T>
 struct VectorD2 {
 	// Constructor
@@ -51,6 +50,8 @@ struct VectorD2 {
 	_T Scalar(const VectorD2 vec) const { return x*vec.x + y*vec.y; }
 
 	VectorD2 orthogonal() const { return VectorD2(y, -x); }
+
+	_T Cross(VectorD2& oth) const { return x * oth.y - y * oth.x; }
 	
 	// Overloads
 	VectorD2 operator*(const float scalar) const {		
@@ -61,6 +62,7 @@ struct VectorD2 {
 	}
 	VectorD2 operator*(const VectorD2 vec) const {
 		// WARNING: this doesn't make any sense (in most 'mathematical' cases)
+		// TODO: why is it here? I would expect dot product or cross product...
 		return VectorD2(x*vec.x,y*vec.y);
 	}
 	VectorD2 operator/(const float scalar) const {		

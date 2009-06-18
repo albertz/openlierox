@@ -16,6 +16,7 @@
 #include <cmath>
 #include <cstdlib>
 #include "CVec.h"
+#include "Color.h"
 
 
 struct Line {
@@ -32,6 +33,7 @@ struct Line {
 	bool containsY(int y, int& x, bool aimsDown) const;
 	bool isHorizontal() const;
 	bool intersects(const Line& l) const;
+	float distFromPoint2(VectorD2<int>& vec) const;
 	float distFromPoint(VectorD2<int>& vec) const;
 };
 
@@ -48,10 +50,18 @@ private:
 	Lines horizLines;  // Horizontal lines are treated as special cases in the scanline algo
 	SDL_Rect overlay;
 	bool addingPoints;
+	bool convex;
+
+	// Helper variables
+	int lastsign;
+
+private:
+	void checkConvex(const VectorD2<int>& pt1, const VectorD2<int>& pt2, const VectorD2<int>& pt3);
+	bool intersectsConvex(const Polygon2D& poly) const;
 
 public:
 	
-	Polygon2D() : addingPoints(false) {}
+	Polygon2D() : addingPoints(false), convex(true), lastsign(0) {}
 	Polygon2D(const Points& pts);
 	void clear() { points.clear(); lines.clear(); horizLines.clear(); }
 	bool isInside(int x, int y) const;
@@ -65,6 +75,7 @@ public:
 	bool intersectsRect(const SDL_Rect& r) const;  // TODO: create a Rect2D class
 	bool intersectsCircle(VectorD2<int>& midpoint, int radius) const;  // TODO: create a Circle2D class
 	bool intersectsBitmap(VectorD2<int>& pos, SDL_Surface *bitmap) const;
+	bool isConvex() const { return convex; }
 
 	// This file should contain only methods for working with the analytical shapes, rasterization should be in GfxPrimitives
 	void drawFilled(SDL_Surface* s, int x, int y, Color col);
