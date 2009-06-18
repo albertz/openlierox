@@ -983,7 +983,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->StartLogging(num_worms);
 	
 	if(!isReconnect)
-		client->SetupViewports();		
+	{
+		client->SetupViewports();
+		// Init viewports once if we're playing with bot
+		if(client->cLocalWorms[0] && client->cLocalWorms[0]->getType() == PRF_COMPUTER)
+			client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+	}
 	
 	client->UpdateScoreboard();
 	client->bShouldRepaintInfo = true;
@@ -1230,19 +1235,24 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	bool both = client->cViewports[1].getUsed();
 
 	// Lock viewport back on local worm, if it was screwed when spectating after death
-	if( client->iNumWorms > 0 && !both )
+	if( client->iNumWorms > 0 && !both ) {
 		if( client->cLocalWorms[0] == &client->cRemoteWorms[id] && client->cLocalWorms[0]->getType() == PRF_HUMAN )
+		{
 			client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+			client->sSpectatorViewportMsg = "";
+		}
+	}
 	if( both )  {
-		if (client->cLocalWorms[1] && client->cLocalWorms[1]->getType() == PRF_HUMAN)
+		if (client->cLocalWorms[1] && client->cLocalWorms[1]->getType() == PRF_HUMAN) {
 			client->SetupViewports(client->cLocalWorms[0], client->cLocalWorms[1], VW_FOLLOW, VW_FOLLOW);
-		else if (client->cLocalWorms[0]->getType() == PRF_HUMAN)
+			client->sSpectatorViewportMsg = "";
+		}
+		else if (client->cLocalWorms[0]->getType() == PRF_HUMAN) {
 			client->SetupViewports(client->cLocalWorms[0], client->cViewports[1].getTarget(), VW_FOLLOW, 
 			client->cViewports[1].getType());
-			
+			client->sSpectatorViewportMsg = "";
+		}
 	}
-
-	client->sSpectatorViewportMsg = "";
 }
 
 void CClientNetEngineBeta9NewNet::ParseSpawnWorm(CBytestream *bs)
