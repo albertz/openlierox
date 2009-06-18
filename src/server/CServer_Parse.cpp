@@ -586,14 +586,30 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 				if(i != cmdStart.size() - 1) cmdToBeCompleted += "\"";
 			}
 			
-			struct AutoCompleter : Task, CmdLineIntf {
+			struct AutoCompleter : Task {
 				AutocompletionInfo info;
 				std::string oldChatCmd;
 				std::string cmdToBeCompleted;
-				int connectionIndex;
-				CServerNetEngine* cl;
+				struct Conn {
+					int connectionIndex; CServerNetEngine* cl;
+					Conn(int i, CServerNetEngine* c) : connectionIndex(i), cl(c) {}
+				} conn;
+				
+				struct CLI : CmdLineIntf {
+					Conn conn;
+					CLI(const Conn& c) : conn(c) {}
+					
+					virtual void pushReturnArg(const std::string& str) {}
+					virtual void finalizeReturn() {}
+					virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
+						// we need to do that from the gameloopthread
+						mainQueue->push(new MsgSender(conn.connectionIndex, conn.cl, msg));
+					}
+
+				} cli;
+				
 				AutoCompleter(const std::string& old, const std::string& cmd, int i, CServerNetEngine* c)
-				: oldChatCmd(old), cmdToBeCompleted(cmd), connectionIndex(i), cl(c) {
+				: oldChatCmd(old), cmdToBeCompleted(cmd), conn(Conn(i,c)), cli(Conn(i,c)) {
 					name = "Chat command autocompleter";
 				}
 				
@@ -632,16 +648,9 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 						return 0;
 					}
 				};
-				
-				virtual void pushReturnArg(const std::string& str) {}
-				virtual void finalizeReturn() {}
-				virtual void writeMsg(const std::string& msg, CmdLineMsgType type) {
-					// we need to do that from the gameloopthread
-					mainQueue->push(new MsgSender(connectionIndex, cl, msg));
-				}
-				
+								
 				int handle() {
-					AutoComplete(cmdToBeCompleted, cmdToBeCompleted.size(), *this, info);
+					AutoComplete(cmdToBeCompleted, cmdToBeCompleted.size(), cli, info);
 					bool fail = false;
 					AutocompletionInfo::InputState replace;
 					info.popWait( AutocompletionInfo::InputState(cmdToBeCompleted), replace, fail );
@@ -653,7 +662,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 						replaceStr.erase(replaceStr.size()-1);
 					if(!fail)
 						// we need to do that from the gameloopthread
-						mainQueue->push(new SuggestionSender(connectionIndex, cl, oldChatCmd, replaceStr));						
+						mainQueue->push(new SuggestionSender(conn.connectionIndex, conn.cl, oldChatCmd, replaceStr));						
 					return 0;
 				}
 			};
