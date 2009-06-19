@@ -885,6 +885,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			const int surfH = sizedViewport.GetVirtH() + 1;
 			sizedViewport.SetLeft( 0 );
 			sizedViewport.SetTop( 0 );
+			/*
 			int oldWorldXCenter = v->GetWorldX() + v->GetWidth() / 2;
 			int oldWorldYCenter = v->GetWorldY() + v->GetHeight() / 2;
 			bool clearBeforeDrawing = false;
@@ -907,18 +908,22 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			}
 			sizedViewport.SetWorldX( oldWorldXCenter - sizedViewport.GetWidth() / 2 );
 			sizedViewport.SetWorldY( oldWorldYCenter - sizedViewport.GetHeight() / 2 );
-			sizedViewport.Clamp(cMap->GetWidth(), cMap->GetHeight());
+			*/
+			sizedViewport.Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), getGeneralGameType());
 			
 			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
 			static SmartPointer<SDL_Surface> tmpSurf = NULL;
 			if(tmpSurf.get() == NULL || tmpSurf->w != surfW || tmpSurf->h != surfH) {
 				tmpSurf = gfxCreateSurface(surfW, surfH);
 			}
-			else if(clearBeforeDrawing)
-				DrawRectFill(tmpSurf.get(), 0, 0, tmpSurf->w, tmpSurf->h, Color());
-				
-			DrawViewport_Game(tmpSurf.get(), &sizedViewport);
-			DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
+			//else if(clearBeforeDrawing)
+			//	DrawRectFill(tmpSurf.get(), 0, 0, tmpSurf->w, tmpSurf->h, Color());
+			
+			// if surface was too big or some other problem while allocating, don't crash
+			if(tmpSurf.get()) {
+				DrawViewport_Game(tmpSurf.get(), &sizedViewport);
+				DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
+			}
 		}
 	}
 	
