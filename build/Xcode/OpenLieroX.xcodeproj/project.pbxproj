@@ -37,6 +37,7 @@
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
+		23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23606B2C0FEBEA22000A6439 /* Geometry.cpp */; };
 		2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */; };
 		238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238800E30E8B150100B94DC0 /* NotifyUser.cpp */; };
 		238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
@@ -456,6 +457,7 @@
 		235D280F0CF7C10C0067BA4F /* HTTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTP.h; sourceTree = "<group>"; };
 		235D281A0CF7C13B0067BA4F /* FileDownload.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileDownload.cpp; sourceTree = "<group>"; };
 		235D281B0CF7C13B0067BA4F /* HTTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTP.cpp; sourceTree = "<group>"; };
+		23606B2C0FEBEA22000A6439 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Geometry.cpp; sourceTree = "<group>"; };
 		2365F1460F8E7322008885A9 /* Geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Geometry.h; sourceTree = "<group>"; };
 		236718780F7F8AAB00416803 /* ProjectileDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjectileDesc.h; sourceTree = "<group>"; };
 		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
@@ -1189,6 +1191,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				23606B2C0FEBEA22000A6439 /* Geometry.cpp */,
 				238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */,
 				23099CC90F60715A008E6C7F /* Mutex.cpp */,
 				23099CCA0F60715A008E6C7F /* NewNetEngine.cpp */,
@@ -1851,6 +1854,7 @@
 				23C5B0490FB67693005A36AE /* CRace.cpp in Sources */,
 				238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */,
 				23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */,
+				23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
