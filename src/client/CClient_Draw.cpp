@@ -922,7 +922,11 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			// if surface was too big or some other problem while allocating, don't crash
 			if(tmpSurf.get()) {
 				DrawViewport_Game(tmpSurf.get(), &sizedViewport);
-				DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
+				// For some special factors, we have optimised (mainly for quality) versions. Otherwise fallback to basic resampler.
+				if(sizeFactor == 2.0f)
+					DrawImageScale2x(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1);
+				else
+					DrawImageResampledAdv(bmpDest, tmpSurf.get(), 0, 0, v->GetLeft(), v->GetTop(), surfW-1, surfH-1, sizeFactor, sizeFactor);
 			}
 		}
 	}
