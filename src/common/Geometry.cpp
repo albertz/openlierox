@@ -129,10 +129,10 @@ bool Line::intersects(const Line& l) const
 
 ///////////////////
 // Squared distance of the line from the given point
-float Line::distFromPoint2(VectorD2<int> &pt) const
+float Line::distFromPoint2(const VectorD2<int> &pt) const
 {
-	VectorD2<int>& d = pt - start;
-	VectorD2<int>& e = end - start;
+	VectorD2<int> d = pt - start;
+	VectorD2<int> e = end - start;
 	int e2 = e.GetLength2();
 	int ed = e.x * d.x + e.y * d.y;
 	float t = CLAMP((float)ed/e2, 0.0f, 1.0f);  // For points that are before/after end of the line we return distance to the ending points
@@ -143,7 +143,7 @@ float Line::distFromPoint2(VectorD2<int> &pt) const
 
 ///////////////////
 // Distance of the line from the given point
-float Line::distFromPoint(VectorD2<int> &pt) const
+float Line::distFromPoint(const VectorD2<int> &pt) const
 {
 	return sqrtf(distFromPoint2(pt));
 }

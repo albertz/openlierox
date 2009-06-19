@@ -33,8 +33,8 @@ struct Line {
 	bool containsY(int y, int& x, bool aimsDown) const;
 	bool isHorizontal() const;
 	bool intersects(const Line& l) const;
-	float distFromPoint2(VectorD2<int>& vec) const;
-	float distFromPoint(VectorD2<int>& vec) const;
+	float distFromPoint2(const VectorD2<int>& vec) const;
+	float distFromPoint(const VectorD2<int>& vec) const;
 };
 
 class CViewport;

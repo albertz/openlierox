@@ -47,11 +47,11 @@ struct VectorD2 {
 
 	VectorD2 Normalize() { return *this/GetLength(); }
 
-	_T Scalar(const VectorD2 vec) const { return x*vec.x + y*vec.y; }
+	_T Scalar(const VectorD2& vec) const { return x*vec.x + y*vec.y; }
 
 	VectorD2 orthogonal() const { return VectorD2(y, -x); }
 
-	_T Cross(VectorD2& oth) const { return x * oth.y - y * oth.x; }
+	_T Cross(const VectorD2& oth) const { return x * oth.y - y * oth.x; }
 	
 	// Overloads
 	VectorD2 operator*(const float scalar) const {		
@@ -60,31 +60,33 @@ struct VectorD2 {
 	VectorD2 operator*(const int scalar) const {		
 		return VectorD2(x*scalar,y*scalar);
 	}
-	VectorD2 operator*(const VectorD2 vec) const {
+	/*
+	VectorD2 operator*(const VectorD2& vec) const {
 		// WARNING: this doesn't make any sense (in most 'mathematical' cases)
 		// TODO: why is it here? I would expect dot product or cross product...
 		return VectorD2(x*vec.x,y*vec.y);
 	}
+	*/
 	VectorD2 operator/(const float scalar) const {		
 		return VectorD2(x/scalar,y/scalar);
 	}
 	VectorD2 operator/(const int scalar) const {		
 		return VectorD2(x/scalar,y/scalar);
 	}
-	VectorD2 operator+(const VectorD2 vec) const {
+	VectorD2 operator+(const VectorD2& vec) const {
 		return VectorD2(x+vec.x,y+vec.y);
 	}
-	VectorD2 operator-(const VectorD2 vec) const {
+	VectorD2 operator-(const VectorD2& vec) const {
 		return VectorD2(x-vec.x,y-vec.y);
 	}
 	VectorD2 operator-() const {
 		return VectorD2(-x,-y);
 	}
-	VectorD2& operator+=(const VectorD2 vec) {
+	VectorD2& operator+=(const VectorD2& vec) {
 		x+=vec.x; y+=vec.y;
 		return *this;
 	}
-	VectorD2& operator-=(const VectorD2 vec) {
+	VectorD2& operator-=(const VectorD2& vec) {
 		x-=vec.x; y-=vec.y;
 		return *this;
 	}
@@ -98,23 +100,23 @@ struct VectorD2 {
 	}
 
 	template<typename _T2>
-	bool operator<(const VectorD2<_T2> op) const {
+	bool operator<(const VectorD2<_T2> & op) const {
 		return ((y == op.y && (x < op.x))
 				|| y < op.y);
 	}
 	
 	template<typename _T2>
-	bool operator==(const VectorD2<_T2> op) const {
+	bool operator==(const VectorD2<_T2> & op) const {
 		return (x==op.x && y==op.y);
 	}
 
 	template<typename _T2>
-	bool operator!=(const VectorD2<_T2> op) const {
+	bool operator!=(const VectorD2<_T2> & op) const {
 		return (x!=op.x || y!=op.y);
 	}
 	
 	template<typename _T2>
-	bool operator<=(const VectorD2<_T2> op) const {
+	bool operator<=(const VectorD2<_T2> & op) const {
 		return ((*this < op) || (*this == op));
 	}
 				
