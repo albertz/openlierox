@@ -1348,6 +1348,25 @@ void CClient::processChatter()
 
     keyboard_t *kb = GetKeyboard();
 
+	// Process taunt keys
+	for(short i=0; i<kb->queueLength; i++) {
+    	const KeyboardEvent& input = kb->keyQueue[i];
+
+		if( input.down && input.state.bCtrl && taunts->getTauntForKey( input.sym ) != "" ) {
+			sChat_Text += taunts->getTauntForKey( input.sym );
+			if( bChat_Typing && bTeamChat )
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
+			else
+				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
+			sChat_Text = "";
+			bChat_Typing = false;
+			clearHumanWormInputs();
+			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
+				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+			return; // TODO: we may lose some chat keys if user typing very fast ;)
+		}
+	}
+
 	// If we're currently typing a message, add any keys to it
 	if(bChat_Typing) {
 
@@ -1583,12 +1602,10 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
     }
 
 	// Paste
-	if (input.ch == 22) { // TODO: add Shift-Insert, following commented-out code doesn't work :(
-		/*
-		(input.sym == SDLK_v && ( GetKeyboard()->KeyDown[SDLK_RCTRL] || GetKeyboard()->KeyDown[SDLK_LCTRL] ||
-									GetKeyboard()->KeyDown[SDLK_RMETA] || GetKeyboard()->KeyDown[SDLK_LMETA]) ) || 
-		(input.sym == SDLK_INSERT && ( GetKeyboard()->KeyDown[SDLK_RSHIFT] || GetKeyboard()->KeyDown[SDLK_LSHIFT] ))) {
-		*/
+	if (input.ch == 22 ||
+		( input.sym == SDLK_v && ( input.state.bCtrl || input.state.bMeta ) ) || 
+		( input.sym == SDLK_INSERT && input.state.bShift )) {
+		
 		size_t text_len = Utf8StringSize(sChat_Text);
 
 		// Safety

@@ -186,6 +186,20 @@ public:
 	std::string sKnownAs;
 };
 
+// Taunts - short texts that user can post to chat by pressing Ctrl+key
+class Taunts {
+public:
+	static bool Init();
+	bool LoadFromDisc();
+	enum { MAX_COUNT = 10 };
+	std::string texts[MAX_COUNT];
+	controls_t<MAX_COUNT> keyNames;
+	int keySyms[MAX_COUNT];
+	
+	const std::string & getTauntForKey(int keySym) const;
+};
+
+
 class CGameMode;
 extern const std::string DefaultCfgFilename;
 
@@ -345,6 +359,7 @@ void	ShutdownOptions();
 
 extern	GameOptions		*tLXOptions;
 extern  NetworkTexts  *networkTexts;
+extern  Taunts			*taunts;
 
 
 #endif  //  __OPTIONS_H__

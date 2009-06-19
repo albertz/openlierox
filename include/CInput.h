@@ -120,6 +120,8 @@ class keys_t { public:
 	char text[16];
 #endif
 	int		value;
+	
+	static int keySymFromName(const std::string & name);
 };
 
 

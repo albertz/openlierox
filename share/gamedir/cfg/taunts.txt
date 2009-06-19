@@ -1,0 +1,35 @@
+[Taunts]
+
+# These are in-game taunts, invoked by pressing keys Ctrl-1 to Ctrl-9 and Ctrl-0
+# Edit them as you like
+
+Taunt1 = Gotta go
+TauntKey1 = 1
+
+Taunt2 = Good game
+TauntKey2 = 2
+
+Taunt3 = Nice
+TauntKey3 = 3
+
+Taunt4 = Fantastic
+TauntKey4 = 4
+
+Taunt5 = :D
+TauntKey5 = 5
+
+Taunt6 = LAME
+TauntKey6 = 6
+
+Taunt7 = ZOMG LAG
+TauntKey7 = 7
+
+Taunt8 = STFU NUB
+TauntKey8 = 8
+
+Taunt9 = MORTROS CASLE SRIKE
+TauntKey9 = 9
+
+Taunt0 = GOGOGO
+TauntKey0 = 0
+

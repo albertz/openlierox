@@ -358,6 +358,11 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 		sAltKey = "";
 	}
 
+	if(modstate.bCtrl && taunts->getTauntForKey( keysym ) != "" ) {
+		sText += taunts->getTauntForKey( keysym );
+		return TXT_ENTER;
+	}
+
 	// No visible character
 	if (c == 0)
 		return TXT_NONE;
@@ -751,12 +756,12 @@ void CTextbox::PasteText()
 
     text = copy_from_clipboard();
 	replace(text, "\r", " ");
-	replace(text, "\n", " ");
+	replace(text, "\n", "<br>");
 	replace(text, "\t", " ");
 
-	// too much data will crash OLX, so avoid that
-	if(text.size() > 500)
-		text.erase(500);
+	// When copying from clipboard huge string will lock the game for several seconds
+	if(text.size() > 1000)
+		text.erase(1000);
 	
 	// Insert the text
 	for(std::string::const_iterator i = text.begin(); i != text.end(); )

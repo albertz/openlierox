@@ -141,6 +141,15 @@ keys_t Keys[] = {
 	{ "F12", SDLK_F12 }
 	};
 
+int keys_t::keySymFromName(const std::string & name)
+{
+	for(uint n = 0; n<sizeof(Keys) / sizeof(keys_t); n++)
+		if( Keys[n].text == name )
+			return Keys[n].value;
+			
+	return 0;
+};
+
 	
 	
 #ifdef DEDICATED_ONLY
