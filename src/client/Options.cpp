@@ -414,6 +414,11 @@ void ShutdownOptions()
 		delete networkTexts;
 		networkTexts = NULL;
 	}
+
+	if(taunts) {
+		delete taunts;
+		taunts = NULL;
+	}
 }
 
 
