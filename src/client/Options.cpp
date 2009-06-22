@@ -174,7 +174,7 @@ bool GameOptions::Init() {
 		( tLXOptions->sHttpProxy, "Network.HttpProxy", "" )
 		( tLXOptions->bAutoSetupHttpProxy, "Network.AutoSetupHttpProxy", true )
 
-		( tLXOptions->bEnableChat, "Network.EnableChat", false ) // That's a shame that such marvellous feature is disabled by default :P
+		( tLXOptions->bEnableChat, "Network.EnableChat", true )
 		( tLXOptions->sServerName, "Network.ServerName", "OpenLieroX Server" )
 		( tLXOptions->sWelcomeMessage, "Network.WelcomeMessage", "Welcome to <server>, <player>" )
 		( tLXOptions->sServerPassword, "Network.Password" )
