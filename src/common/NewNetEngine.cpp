@@ -199,8 +199,8 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 			if( cClient->getProjectiles()[i].isUsed() )
 			{
 				checksum += ( i % 8 + 1 ) * (
-					(int)cClient->getProjectiles()[i].GetPosition().x + 
-					(int)cClient->getProjectiles()[i].GetPosition().y * 0x100 );
+					(int)cClient->getProjectiles()[i].getPos().x + 
+					(int)cClient->getProjectiles()[i].getPos().y * 0x100 );
 			}
 		}
 	}

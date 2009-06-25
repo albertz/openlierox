@@ -112,8 +112,8 @@ inline int CProjectile::ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, C
 
 
 static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, const LX56ProjAttribs& src_attribs, int src_rx, int src_ry) {
-	Shape<int> s1; s1.pos = src->GetPosition(); s1.radius.x = src_rx; s1.radius.y = src_ry;
-	Shape<int> s2; s2.pos = target->GetPosition(); s2.radius = target->getRadius();
+	Shape<int> s1; s1.pos = src->getPos(); s1.radius.x = src_rx; s1.radius.y = src_ry;
+	Shape<int> s2; s2.pos = target->getPos(); s2.radius = target->getRadius();
 	if(src_attribs.projInfo->Type == PRJ_CIRCLE) s1.type = Shape<int>::ST_CIRCLE;
 	if(target->getProjInfo()->Type == PRJ_CIRCLE) s2.type = Shape<int>::ST_CIRCLE;
 	
@@ -132,7 +132,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 	
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
-		CVec dif = proj->GetPosition() - vFrameOldPos;
+		CVec dif = proj->getPos() - vFrameOldPos;
 		float len = NormalizeVector( &dif );
 		
 		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
@@ -142,13 +142,14 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 			int ret = proj->ProjWormColl(attribs, curpos, worms);
 			if (ret >= 0)  {
 				if(proj->GetProjInfo()->PlyHit.Type != PJ_GOTHROUGH) {
-					proj->setNewPosition( curpos ); // save the new position at the first collision
-					proj->setNewVel( vFrameOldVel ); // don't get faster
+					proj->setPos( curpos ); // save the new position at the first collision
+					proj->vOldPos = curpos;
+					proj->setVelocity( vFrameOldVel ); // don't get faster
 				}
 
 				if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
-					FMOD(proj->vPosition.x, (float)map->GetWidth());
-					FMOD(proj->vPosition.y, (float)map->GetHeight());		
+					FMOD(proj->vPos.x, (float)map->GetWidth());
+					FMOD(proj->vPos.y, (float)map->GetHeight());		
 					FMOD(proj->vOldPos.x, (float)map->GetWidth());
 					FMOD(proj->vOldPos.y, (float)map->GetWidth());		
 				}
@@ -159,8 +160,8 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 	}
 	
 	if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
-		FMOD(proj->vPosition.x, (float)map->GetWidth());
-		FMOD(proj->vPosition.y, (float)map->GetHeight());		
+		FMOD(proj->vPos.x, (float)map->GetWidth());
+		FMOD(proj->vPos.y, (float)map->GetHeight());		
 		FMOD(proj->vOldPos.x, (float)map->GetWidth());
 		FMOD(proj->vOldPos.y, (float)map->GetHeight());		
 	}
@@ -295,7 +296,7 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 {
 	
 	if(tProjInfo->Hit.Type == PJ_EXPLODE && c.onlyDirt) {
-		// HINT: don't reset vPosition here, because we want
+		// HINT: don't reset vPos here, because we want
 		//		the explosion near (inside) the object
 		//		this behavior is the same as in original LX
 		return true;
@@ -306,20 +307,20 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 	// Bit of a hack
 	switch (tProjInfo->Hit.Type)  {
 	case PJ_BOUNCE:
-			// HINT: don't reset vPosition here; it will be reset,
+			// HINT: don't reset vPos here; it will be reset,
 			//		depending on the collisionside
 		bounce = true;
 		break;
 	case PJ_NOTHING:  // PJ_NOTHING projectiles go through walls (but a bit slower)
-		vPosition = oldpos + (vVelocity * dt.seconds()) * 0.5f;
-		vOldPos = vPosition; // TODO: this is a hack; we do it to not go back to real old position because of collision
+		vPos = oldpos + (vVelocity * dt.seconds()) * 0.5f;
+		vOldPos = vPos; // TODO: this is a hack; we do it to not go back to real old position because of collision
 			// HINT: The above velocity reduction is not exact. SimulateFrame is also executed only for one checkstep because of the collision.
 		break;
 	case PJ_GOTHROUGH:
-		vPosition = oldpos + (vVelocity * dt.seconds()) * tProjInfo->Hit.GoThroughSpeed;
+		vPos = oldpos + (vVelocity * dt.seconds()) * tProjInfo->Hit.GoThroughSpeed;
 		return false; // ignore collision
 	default:
-		vPosition = vOldPos;
+		vPos = vOldPos;
 		vVelocity = oldvel;
 		return true;
 	}
@@ -330,28 +331,28 @@ bool CProjectile::HandleCollision(const LX56ProjAttribs& attribs, const CProject
 	// Find the collision side
 	if ((c.left > c.right || c.left > 2) && c.left > 1 && vx <= 0) {
 		if(bounce)
-			vPosition.x = oldpos.x;
+			vPos.x = oldpos.x;
 		if (vx)
 			CollisionSide |= COL_LEFT;
 	}
 	
 	if ((c.right > c.left || c.right > 2) && c.right > 1 && vx >= 0) {
 		if(bounce)
-			vPosition.x = oldpos.x;
+			vPos.x = oldpos.x;
 		if (vx)
 			CollisionSide |= COL_RIGHT;
 	}
 	
 	if (c.top > 1 && vy <= 0) {
 		if(bounce)
-			vPosition.y = oldpos.y;
+			vPos.y = oldpos.y;
 		if (vy)
 			CollisionSide |= COL_TOP;
 	}
 	
 	if (c.bottom > 1 && vy >= 0) {
 		if(bounce)
-			vPosition.y = oldpos.y;
+			vPos.y = oldpos.y;
 		if (vy)
 			CollisionSide |= COL_BOTTOM;
 	}
@@ -392,26 +393,26 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 		}
 	}
 	
-	CVec vOldVel = prj->GetVelocity();
+	CVec vOldVel = prj->getVelocity();
 
-	CVec vFrameOldPos = prj->vPosition;
-	prj->vPosition += prj->vVelocity * dt.seconds();
+	CVec vFrameOldPos = prj->vPos;
+	prj->vPos += prj->vVelocity * dt.seconds();
 	
 	// if distance is to short to last check, just return here without a check
-	if ((int)(prj->vOldPos - prj->vPosition).GetLength2() < prj->MIN_CHECKSTEP2) {
-/*		printf("pos dif = %f , ", (vOldPos - vPosition).GetLength());
+	if ((int)(prj->vOldPos - prj->vPos).GetLength2() < prj->MIN_CHECKSTEP2) {
+/*		printf("pos dif = %f , ", (vOldPos - vPos).GetLength());
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
 		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 	}
 	
-	int px = (int)(prj->vPosition.x);
-	int py = (int)(prj->vPosition.y);
+	int px = (int)(prj->vPos.x);
+	int py = (int)(prj->vPos.y);
 	
 	// Hit edges
 	if (prj->MapBoundsCollision(attribs, px, py))  {
-		prj->vPosition = prj->vOldPos;
+		prj->vPos = prj->vOldPos;
 		prj->vVelocity = vOldVel;
 		
 		return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
@@ -433,7 +434,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	}
 	
 	// the move was safe, save the position
-	prj->vOldPos = prj->vPosition;
+	prj->vOldPos = prj->vPos;
 	
 	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 }
@@ -445,12 +446,12 @@ static void Projectile_HandleAttractiveForceForObject(CProjectile* const prj, Ti
 
 	// Check that it is visible if the gravity does not go through walls
 	if (!info->AttractiveForceThroughWalls)  {
-		if(fastTraceLine_hasAnyCollision(objpos, prj->GetPosition(), PX_DIRT | PX_ROCK))
+		if(fastTraceLine_hasAnyCollision(objpos, prj->getPos(), PX_DIRT | PX_ROCK))
 			return;
 	}
 
 	// Drag the object to us
-	CVec force = prj->GetPosition() - objpos;
+	CVec force = prj->getPos() - objpos;
 	float drag = (float)info->AttractiveForce;
 	static const float maxGravityRadius2 = (float)(4096*4096*2);
 	static const float weight = 4000.0f;
@@ -523,7 +524,7 @@ static void Projectile_HandleAttractiveForceForWormsAndRope(CProjectile* const p
 		if (info->AttractiveForceObjects & ATO_PLAYERS)  {
 			// In radius?
 			if (info->AttractiveForceRadius > 0 && 
-				(int)((w->getPos() - prj->GetPosition()).GetLength()) > info->AttractiveForceRadius)
+				(int)((w->getPos() - prj->getPos()).GetLength()) > info->AttractiveForceRadius)
 				continue;
 
 			Projectile_HandleAttractiveForceForObject(prj, dt, w->getPos(), w->velocity());
@@ -534,7 +535,7 @@ static void Projectile_HandleAttractiveForceForWormsAndRope(CProjectile* const p
 			// In radius?
 			if (w->getNinjaRope()->isReleased() && !w->getNinjaRope()->isAttached())
 				if (info->AttractiveForceRadius > 0 &&
-				(w->getNinjaRope()->getHookPos() - prj->GetPosition()).GetLength() > info->AttractiveForceRadius)
+				(w->getNinjaRope()->getHookPos() - prj->getPos()).GetLength() > info->AttractiveForceRadius)
 				continue;
 
 			Projectile_HandleAttractiveForceForObject(prj, dt, w->getNinjaRope()->getHookPos(), w->getNinjaRope()->hookVelocity());
@@ -557,7 +558,7 @@ void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, Time
 			if (i->get() != prj)  {
 				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
 				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
-					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->getPos(), i->get()->vVelocity);
 			}
 		}
 
@@ -566,10 +567,10 @@ void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, Time
 		float r2 = (float)SQR(info->AttractiveForceRadius);
 
 		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj && (prj->GetPosition() - i->get()->GetPosition()).GetLength2() <= r2)  {
+			if (i->get() != prj && (prj->getPos() - i->get()->getPos()).GetLength2() <= r2)  {
 				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
 				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
-					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->GetPosition(), i->get()->vVelocity);
+					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->getPos(), i->get()->vVelocity);
 			}
 		}
 	}
@@ -679,7 +680,7 @@ CVec Proj_SpawnParent::position() const {
 		CVec pos = shot->cPos + dir*8;
 		return pos;
 	}
-	case PSPT_PROJ: return proj->GetPosition();
+	case PSPT_PROJ: return proj->getPos();
 	}
 	return CVec(0,0);
 }
@@ -688,7 +689,7 @@ CVec Proj_SpawnParent::velocity() const {
 	switch(type) {
 	case PSPT_NOTHING: return CVec(0,0);
 	case PSPT_SHOT: return shot->cWormVel;
-	case PSPT_PROJ: return proj->GetVelocity();
+	case PSPT_PROJ: return proj->getVelocity();
 	}
 	return CVec(0,0);
 }
@@ -820,8 +821,8 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 
 
 static VectorD2<float> wormAngleDiff(CWorm* w, CProjectile* prj) {
-	CVec diff = w->getPos() - prj->GetPosition(); NormalizeVector(&diff);
-	return MatrixD2<float>::Rotation(diff.x, -diff.y) * prj->GetVelocity();
+	CVec diff = w->getPos() - prj->getPos(); NormalizeVector(&diff);
+	return MatrixD2<float>::Rotation(diff.x, -diff.y) * prj->getVelocity();
 }
 
 static CWorm* nearestWorm(CVec pos) {
@@ -933,13 +934,13 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 			// Do we do a bounce-explosion (bouncy larpa uses this)
 		if(BounceExplode > 0)
-			cClient->Explosion(prj->GetPosition(), BounceExplode, false, prj->GetOwner());
+			cClient->Explosion(prj->getPos(), BounceExplode, false, prj->GetOwner());
 		break;
 		
 			// Carve
 	case PJ_CARVE:
 		if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
-			int d = cClient->getMap()->CarveHole(Damage, prj->GetPosition());
+			int d = cClient->getMap()->CarveHole(Damage, prj->getPos());
 			info->deleteAfter = true;
 			
 				// Increment the dirt count
@@ -1011,7 +1012,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	
 	// Push the worm back
 	if(push_worm && eventInfo.colType && eventInfo.colType->withWorm) {
-		CVec d = prj->GetVelocity();
+		CVec d = prj->getVelocity();
 		NormalizeVector(&d);
 		cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() += (d * 100) * eventInfo.dt.seconds();
 	}
@@ -1028,7 +1029,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	info->DiffOwnSpeed += DiffOwnSpeed;
 	
 	if(HeadingToNextWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestWorm(prj->GetPosition()), prj, HeadingToNextWormSpeed) * info->ChangeOwnSpeed;
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestWorm(prj->getPos()), prj, HeadingToNextWormSpeed) * info->ChangeOwnSpeed;
 	}
 	
 	if(HeadingToOwnerSpeed && prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
@@ -1036,15 +1037,15 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	}
 	
 	if(HeadingToNextOtherWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestOtherWorm(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextOtherWormSpeed) * info->ChangeOwnSpeed;
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, HeadingToNextOtherWormSpeed) * info->ChangeOwnSpeed;
 	}
 	
 	if(HeadingToNextEnemyWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestEnemyWorm(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextEnemyWormSpeed) * info->ChangeOwnSpeed;
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, HeadingToNextEnemyWormSpeed) * info->ChangeOwnSpeed;
 	}
 	
 	if(HeadingToNextTeamMateSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestTeamMate(prj->GetPosition(), prj->GetOwner()), prj, HeadingToNextTeamMateSpeed) * info->ChangeOwnSpeed;
+		info->ChangeOwnSpeed = getVelChangeForProj(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, HeadingToNextTeamMateSpeed) * info->ChangeOwnSpeed;
 	}
 	
 	if(UseOverwriteTargetSpeed) {
@@ -1053,7 +1054,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		}
 		
 		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
-			(*p)->setNewVel(OverwriteTargetSpeed);
+			(*p)->setVelocity(OverwriteTargetSpeed);
 		}
 	}
 	
@@ -1064,7 +1065,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		}
 		
 		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
-			(*p)->setNewVel( ChangeTargetSpeed * (*p)->GetVelocity() + DiffTargetSpeed );
+			(*p)->setVelocity( ChangeTargetSpeed * (*p)->getVelocity() + DiffTargetSpeed );
 		}
 	}
 	
@@ -1156,10 +1157,10 @@ static CClient::MapPosIndex MPI(const VectorD2<int>& p, const VectorD2<int>& r) 
 }
 
 bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
-	const VectorD2<int> vPosition = prj->GetPosition();
+	const VectorD2<int> vPos = prj->getPos();
 	const VectorD2<int> radius = prj->getRadius();
-	for(int x = MPI<true,true>(vPosition,radius).x; x <= MPI<true,false>(vPosition,radius).x; ++x)
-		for(int y = MPI<true,true>(vPosition,radius).y; y <= MPI<false,true>(vPosition,radius).y; ++y) {
+	for(int x = MPI<true,true>(vPos,radius).x; x <= MPI<true,false>(vPos,radius).x; ++x)
+		for(int y = MPI<true,true>(vPos,radius).y; y <= MPI<false,true>(vPos,radius).y; ++y) {
 			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
 			if(projs == NULL) continue;
 			for(CClient::ProjectileSet::const_iterator p = projs->begin(); p != projs->end(); ++p)
@@ -1242,7 +1243,7 @@ bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile*
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->getPos(), damage, shake, prj->GetOwner());
 }
 
 static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -1253,7 +1254,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		damage = pi->PlyHit.Damage;
 	
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->GetPosition(), damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->getPos(), damage, shake, prj->GetOwner());
 }
 
 static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
@@ -1264,9 +1265,9 @@ static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo*
 static void projectile_doMakeDirt(CProjectile* const prj) {
 	const int damage = 5;
 	int d = 0;
-	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()-CVec(6,6));
-	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(6,-6));
-	d += cClient->getMap()->PlaceDirt(damage,prj->GetPosition()+CVec(0,6));
+	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()-CVec(6,6));
+	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()+CVec(6,-6));
+	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()+CVec(0,6));
 	
 	// Remove the dirt count on the worm
 	if(prj->hasOwner())
@@ -1274,7 +1275,7 @@ static void projectile_doMakeDirt(CProjectile* const prj) {
 }
 
 static void projectile_doMakeGreenDirt(CProjectile* const prj) {
-	int d = cClient->getMap()->PlaceGreenDirt(prj->GetPosition());
+	int d = cClient->getMap()->PlaceGreenDirt(prj->getPos());
 	
 	// Remove the dirt count on the worm
 	if(prj->hasOwner())
@@ -1319,11 +1320,11 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	}
 	
 	if(OverwriteOwnSpeed)
-		prj->setNewVel(*OverwriteOwnSpeed);
+		prj->setVelocity(*OverwriteOwnSpeed);
 	
-	prj->setNewVel( ChangeOwnSpeed * prj->GetVelocity() );
+	prj->setVelocity( ChangeOwnSpeed * prj->getVelocity() );
 	
-	prj->setNewVel( prj->GetVelocity() + DiffOwnSpeed );
+	prj->setVelocity( prj->getVelocity() + DiffOwnSpeed );
 	
 	if(ChangeRadius.x || ChangeRadius.y) {
 		prj->radius += ChangeRadius;
@@ -1388,7 +1389,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	
 	
 	/*
-		vOldPos = vPosition;
+		vOldPos = vPos;
 	*/
 	
 	const proj_t *pi = proj->GetProjInfo();
@@ -1437,25 +1438,25 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	case TRL_SMOKE:
 		if(proj->extra() >= 0.075f) {
 			proj->extra() = 0.0f;
-			SpawnEntity(ENT_SMOKE,0,proj->GetPosition(),CVec(0,0),Color(),NULL);
+			SpawnEntity(ENT_SMOKE,0,proj->getPos(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_CHEMSMOKE:
 		if(proj->extra() >= 0.075f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_CHEMSMOKE,0,proj->GetPosition(),CVec(0,0),Color(),NULL);
+			SpawnEntity(ENT_CHEMSMOKE,0,proj->getPos(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_DOOMSDAY:
 		if(proj->extra() >= 0.05f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_DOOMSDAY,0,proj->GetPosition(),proj->GetVelocity(),Color(),NULL);
+			SpawnEntity(ENT_DOOMSDAY,0,proj->getPos(),proj->getVelocity(),Color(),NULL);
 		}
 		break;
 	case TRL_EXPLOSIVE:
 		if(proj->extra() >= 0.05f) {
 			proj->extra() = 0.0;
-			SpawnEntity(ENT_EXPLOSION,10,proj->GetPosition(),CVec(0,0),Color(),NULL);
+			SpawnEntity(ENT_EXPLOSION,10,proj->getPos(),CVec(0,0),Color(),NULL);
 		}
 		break;
 	case TRL_PROJECTILE: // Projectile trail
@@ -1565,7 +1566,7 @@ static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* cons
 	static const TimeDiff orig_dt = LX56PhysicsDT;
 	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
 	
-	VectorD2<int> oldPos(prj->GetPosition());
+	VectorD2<int> oldPos(prj->getPos());
 	VectorD2<int> oldRadius(prj->getRadius());
 	
 simulateProjectileStart:

@@ -470,7 +470,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	
 	float speed = 0.0f;
 	
-	CVec vel = *w->getVelocity();
+	CVec vel = w->getVelocity();
 	speed = NormalizeVector( &vel );
 	
 	TimeDiff time = getServerTime();
@@ -562,7 +562,7 @@ void GameServer::WormShoot(CWorm *w)
 	// only projectile wpns have speed; Beam weapons have no speed
 	if(Slot->Weapon->Type == WPN_PROJECTILE) {
 		// Add the shot to the shooting list
-		CVec vel = *w->getVelocity();
+		CVec vel = w->getVelocity();
 		speed = NormalizeVector( &vel );
 	}
 	

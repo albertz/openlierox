@@ -52,7 +52,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	fLife = 0;
 	fExtra = 0;
 	vOldPos = _pos;
-	vPosition = _pos;
+	vPos = _pos;
 	vVelocity = _vel;
 	fRotation = (float)_rot;
 	radius.x = tProjInfo->Width / 2;
@@ -235,7 +235,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = view->physicToReal(vPosition, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = view->physicToReal(vPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
     switch (tProjInfo->Type) {
 		case PRJ_PIXEL:
@@ -320,7 +320,7 @@ void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 			return;
 			
 		case PRJ_POLYGON:
-			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPosition.x, (int)vPosition.y, view, iColour);
+			getProjInfo()->polygon.drawFilled(bmpDest, (int)vPos.x, (int)vPos.y, view, iColour);
 			return;
 		
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::Draw: hit __PRJ_BOUND" << endl;
@@ -338,14 +338,14 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 	CMap* map = cClient->getMap();
 
 	// TODO: DrawObjectShadow is a bit complicated to fix for shadows&tiling, so I just leave all shadows away for now...
-	if(!view->physicsInside(vPosition /*, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
+	if(!view->physicsInside(vPos /*, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
 		return;
 	   
 	switch (tProjInfo->Type)  {
 	
 		// Pixel
 		case PRJ_PIXEL:
-			map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+			map->DrawPixelShadow(bmpDest, view, (int)vPos.x, (int)vPos.y);
 			break;
 	
 		// Image
@@ -354,13 +354,13 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 			if(tProjInfo->bmpImage == NULL)
 				return;
 			/*if (tProjInfo->bmpImage.get()->w <= 2 && tProjInfo->bmpImage.get()->h <= 2)  {
-				map->DrawPixelShadow(bmpDest, view, (int)vPosition.x, (int)vPosition.y);
+				map->DrawPixelShadow(bmpDest, view, (int)vPos.x, (int)vPos.y);
 				return;
 			}*/
 
 			int size = tProjInfo->bmpImage->h;
 			int half = size / 2;
-			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPosition.x-(half>>1), (int)vPosition.y-(half>>1));
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPos.x-(half>>1), (int)vPos.y-(half>>1));
 		
 			break;	
 		}
@@ -470,10 +470,10 @@ void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<
 	
 	if(oldPos && oldRadius) {
 		if(
-		   (MPI<true,true>(*oldPos,*oldRadius) == MPI<true,true>(vPosition,radius)) &&
-		   (MPI<true,false>(*oldPos,*oldRadius) == MPI<true,false>(vPosition,radius)) &&
-		   (MPI<false,true>(*oldPos,*oldRadius) == MPI<false,true>(vPosition,radius)) &&
-		   (MPI<false,false>(*oldPos,*oldRadius) == MPI<false,false>(vPosition,radius))) {
+		   (MPI<true,true>(*oldPos,*oldRadius) == MPI<true,true>(vPos,radius)) &&
+		   (MPI<true,false>(*oldPos,*oldRadius) == MPI<true,false>(vPos,radius)) &&
+		   (MPI<false,true>(*oldPos,*oldRadius) == MPI<false,true>(vPos,radius)) &&
+		   (MPI<false,false>(*oldPos,*oldRadius) == MPI<false,false>(vPos,radius))) {
 			return; // nothing has changed
 		}
 		
@@ -482,5 +482,5 @@ void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<
 	}
 	
 	// add to all
-	updateMap<true>(this, vPosition, radius);
+	updateMap<true>(this, vPos, radius);
 }

@@ -2119,7 +2119,7 @@ bool CWormBotInputHandler::AI_Shoot()
 			default:
 				CVec direction = (w->getPos() - m_worm->vPos).Normalize();
 				// speed of target in the direction (moving away from us)
-				float targ_speed = direction.Scalar(*w->getVelocity());
+				float targ_speed = direction.Scalar(w->getVelocity());
 				float my_speed = direction.Scalar(m_worm->vVelocity);
 
 				// Projectile speed (see CClient::ProcessShot for reference) - targ_speed
@@ -2149,12 +2149,12 @@ bool CWormBotInputHandler::AI_Shoot()
 				if(apriori_time < 0) {
 					// target is faster than the projectile
 					// shoot somewhere in the other direction
-					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity()->GetLength() << ", proj speed: " << (float)weap->Proj.Speed*weap->Proj.Proj->Dampening << "+" << (weap->Proj.SpeedVar*100.0f) << endl;
+					notes << "bot: target is too fast! my speed: " << my_speed << ", trg speed: " << targ_speed << ", my abs speed: " << m_worm->vVelocity.GetLength() << ", trg abs speed: " << w->getVelocity().GetLength() << ", proj speed: " << (float)weap->Proj.Speed*weap->Proj.Proj->Dampening << "+" << (weap->Proj.SpeedVar*100.0f) << endl;
 
 				} else { // apriori_time >= 0
 					// where the target would be
-					x += apriori_time*w->getVelocity()->x;
-					y -= apriori_time*w->getVelocity()->y; // HINT: real-world-koords
+					x += apriori_time*w->getVelocity().x;
+					y -= apriori_time*w->getVelocity().y; // HINT: real-world-koords
 				}
 
 				// Gravity
@@ -3735,7 +3735,7 @@ static float estimateXDiffAfterMove(CWorm* w, float dt) {
 	float speed = w->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 	if(ws->iDirection == DIR_LEFT) speed = -speed;
 	
-	return CLAMP(w->getVelocity()->x + speed * 90.0f, -30.0f, 30.0f) * dt;
+	return CLAMP(w->getVelocity().x + speed * 90.0f, -30.0f, 30.0f) * dt;
 }
 
 static bool isMoveGivingDisadvantage(CVec target, CWorm* w) {
@@ -3901,7 +3901,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 		// Go away from the projectile
 		if (tLX->currentTime-fLastFace >= 0.5f)  {
-			if (psHeadingProjectile->GetVelocity().x > 0)
+			if (psHeadingProjectile->getVelocity().x > 0)
 				m_worm->iDirection = DIR_LEFT;  // Move in the opposite direction
 			else
 				m_worm->iDirection = DIR_RIGHT;
@@ -3921,7 +3921,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		fireNinja = true;
 
 		// We want to move away
-		CVec desired_dir = -psHeadingProjectile->GetVelocity();
+		CVec desired_dir = -psHeadingProjectile->getVelocity();
 
 		// Choose some point and find the best rope spot to it
 		desired_dir = desired_dir.Normalize() * 40.0f;
@@ -3933,7 +3933,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		fireNinja = AI_SetAim(cAimPos);
 
 		if (fireNinja)
-			fireNinja = psHeadingProjectile->GetVelocity().GetLength() > 50.0f;
+			fireNinja = psHeadingProjectile->getVelocity().GetLength() > 50.0f;
 
 		if (fireNinja)  {
 

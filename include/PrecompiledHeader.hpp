@@ -30,6 +30,7 @@
 #include "CClientNetEngine.h"
 #include "CFont.h"
 #include "CGameMode.h"
+#include "CGameObject.h"
 #include "CGameScript.h"
 #include "CGameSkin.h"
 #include "ChatCommand.h"

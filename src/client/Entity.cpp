@@ -501,7 +501,7 @@ void EntityEffect::Process()
 	else
 		Set();
 
-	CVec pos( _parent->getPos() ), vel( *_parent->getVelocity() );
+	CVec pos( _parent->getPos() ), vel( _parent->getVelocity() );
 	switch( _type )
 	{
 		case ENTE_NONE:

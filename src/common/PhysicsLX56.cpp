@@ -355,12 +355,12 @@ public:
 		if(ws->bMove) {
 			if(worm->getMoveDirection() == DIR_RIGHT) {
 				// Right
-				if(worm->getVelocity()->x < 30)
-					worm->getVelocity()->x += speed * dt * 90.0f;
+				if(worm->velocity().x < 30)
+					worm->velocity().x += speed * dt * 90.0f;
 			} else {
 				// Left
-				if(worm->getVelocity()->x > -30)
-					worm->getVelocity()->x -= speed * dt * 90.0f;
+				if(worm->velocity().x > -30)
+					worm->velocity().x -= speed * dt * 90.0f;
 			}
 		}
 
@@ -374,17 +374,17 @@ public:
 				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
 		{
 			if( onGround )
-				worm->getVelocity()->y = wd->JumpForce;
+				worm->velocity().y = wd->JumpForce;
 			else {
 				// GFX effect, as in TeeWorlds (we'll change velocity after that)
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
 				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
-				if( worm->canAirJump() && worm->getVelocity()->y > wd->JumpForce ) // Negative Y coord = moving up
-					worm->getVelocity()->y = wd->JumpForce; // Absolute velocity - instant air jump
+				if( worm->canAirJump() && worm->velocity().y > wd->JumpForce ) // Negative Y coord = moving up
+					worm->velocity().y = wd->JumpForce; // Absolute velocity - instant air jump
 				else
-					worm->getVelocity()->y += wd->JumpForce; // Relative velocity - relative air jump
+					worm->velocity().y += wd->JumpForce; // Relative velocity - relative air jump
 			}
 			worm->setLastAirJumpTime(GetPhysicsTime());
 			worm->setOnGround( false );
@@ -395,13 +395,13 @@ public:
 			float Drag = wd->AirFriction;
 
 			if(!worm->isOnGround())	{
-				worm->getVelocity()->x -= SQR(worm->getVelocity()->x) * SIGN(worm->getVelocity()->x) * Drag * dt;
-				worm->getVelocity()->y += -SQR(worm->getVelocity()->y) * SIGN(worm->getVelocity()->y) * Drag * dt;
+				worm->velocity().x -= SQR(worm->velocity().x) * SIGN(worm->velocity().x) * Drag * dt;
+				worm->velocity().y += -SQR(worm->velocity().y) * SIGN(worm->velocity().y) * Drag * dt;
 			}
 		}
 				
 		// Gravity
-		worm->getVelocity()->y += wd->Gravity*dt;
+		worm->velocity().y += wd->Gravity*dt;
 
 		{
 			float friction = cClient->getGameLobby()->features[FT_WormFriction];
@@ -416,7 +416,7 @@ public:
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
-		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), worm->getVelocity(), worm->getPos(), ws->bJump );
+		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity(), worm->getPos(), ws->bJump );
 
 
 		// Ultimate in friction
@@ -426,8 +426,8 @@ public:
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
 			// Too slow, just stop
-			if(fabs(worm->getVelocity()->x) < 5 && !ws->bMove)
-				worm->getVelocity()->x = 0;
+			if(fabs(worm->velocity().x) < 5 && !ws->bMove)
+				worm->velocity().x = 0;
 		}
 
 		simulateWormWeapon(wpnDT, worm);

@@ -1020,7 +1020,7 @@ void CClient::DoLocalShot( float fTime, float fSpeed, int nAngle, CWorm *pcWorm 
 	shoot_t shot;
 
 	shot.cPos = pcWorm->getPos();
-	shot.cWormVel = *pcWorm->getVelocity();
+	shot.cWormVel = pcWorm->getVelocity();
 	shot.fTime = fTime;
 	shot.nAngle = nAngle;
 	shot.nRandom = GetRandomInt(255);
@@ -1071,7 +1071,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	shoot_t shot;
 
 	shot.cPos = w->getPos();
-	shot.cWormVel = *w->getVelocity();
+	shot.cWormVel = w->getVelocity();
 	shot.fTime = GetPhysicsTime().seconds();
 	shot.nRandom = w->NewNet_random.getInt(255);
 	shot.nWeapon = w->getCurWeapon()->Weapon->ID;
@@ -1095,7 +1095,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 	// only projectile wpns have speed; Beam weapons have no speed
 	if(Slot->Weapon->Type == WPN_PROJECTILE) {
 		// Add the shot to the shooting list
-		CVec vel = *w->getVelocity();
+		CVec vel = w->getVelocity();
 		speed = NormalizeVector( &vel );
 	}
 	
@@ -1184,8 +1184,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		// Add the recoil
 		CVec dir;
 		GetVecsFromAngle(shot->nAngle,&dir,NULL);
-		CVec *vel = w->getVelocity();
-		*vel -= dir*(float)wpn->Recoil;
+		w->velocity() -= dir*(float)wpn->Recoil;
 
 		// Draw the muzzle flash
 		w->setDrawMuzzle(true);

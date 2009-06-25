@@ -32,6 +32,7 @@
 #include "Version.h"
 #include "NewNetEngine.h"
 #include "DynDraw.h"
+#include "CGameObject.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -173,7 +174,7 @@ public:
 struct WormJoinInfo;
 
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
-class CWorm {
+class CWorm: public CGameObject {
 	friend class CWormInputHandler;
 	friend class CWormBotInputHandler;
 	friend class CWormHumanInputHandler;
@@ -209,8 +210,7 @@ private:
 
 	// Simulation
 	worm_state_t tState;
-	CVec		vPos;
-	CVec		vVelocity;
+
 	CVec		vLastPos;
 	CVec		vDrawPos;
 	bool		bOnGround;
@@ -492,15 +492,8 @@ public:
 	void		resetFollow()			{ bFollowOverride = false; }
 	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 
-	CVec		getPos()				{ return vPos; }
-	void		setPos(CVec v)				{ vPos = v; }
-
-	CVec&		pos()						{ return vPos; }
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }
-
-	CVec		*getVelocity()			{ return &vVelocity; }
-	CVec&		velocity()					{ return vVelocity; }
 
 	worm_state_t *getWormState()		{ return &tState; }
 

@@ -94,7 +94,7 @@ bool CShootList::addShoot( int weaponID, TimeDiff fTime, float fSpeed, int nAngl
 
 	// Fill in the info
 	psShot->cPos = pcWorm->getPos();
-	psShot->cWormVel = *pcWorm->getVelocity();
+	psShot->cWormVel = pcWorm->getVelocity();
 	psShot->fTime = fTime;
 	psShot->nAngle = nAngle;
 	psShot->nRandom = GetRandomInt(255);

@@ -24,6 +24,7 @@
 #include "types.h"
 #include "Color.h"
 #include "Consts.h"
+#include "CGameObject.h"
 
 struct SDL_Surface;
 class CWorm;
@@ -72,7 +73,7 @@ struct ProjTimerState {
 
 typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves CProj->fLife of last event hit
 
-class CProjectile {
+class CProjectile: public CGameObject {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
 	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
@@ -124,8 +125,6 @@ private:
 	proj_t		*tProjInfo;
 
 	CVec		vOldPos;
-	CVec		vPosition;
-	CVec		vVelocity;
 	float		fRotation;
 	VectorD2<int> radius;
 
@@ -194,8 +193,6 @@ public:
 	AbsTime&	lastTrailProj()			{ return fLastTrailProj; }
 	AbsTime	getIgnoreWormCollBeforeTime()	{ return fIgnoreWormCollBeforeTime; }
 
-	CVec	GetPosition() const	{ return vPosition; }
-	CVec	GetVelocity() const	{ return vVelocity; }
 	VectorD2<int> getRadius() const	{ return radius; }
 	proj_t	*GetProjInfo()		{ return tProjInfo; }
 	int		GetOwner() const			{ return iOwner; }
@@ -205,9 +202,6 @@ public:
 
 	float	getRandomFloat();
 	int		getRandomIndex()	{ return iRandom; }
-
-	void	setNewPosition( const CVec& newpos ) { vOldPos = vPosition = newpos; }
-	void	setNewVel( const CVec& newvel ) { vVelocity = newvel; }
 
 	void	injure(int damage) { health -= damage; }
 	int		getHealth() const { return health; }
