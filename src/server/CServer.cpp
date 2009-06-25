@@ -992,7 +992,7 @@ void GameServer::RegisterServer()
 	bServerRegistered = false;
 
 	// Start with the first server
-	notes << "Registering server at " << *tCurrentMasterServer << endl;
+	//notes << "Registering server at " << *tCurrentMasterServer << endl;
 	tCurrentMasterServer = tMasterServers.begin();
 	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 }
@@ -1027,7 +1027,7 @@ void GameServer::ProcessRegister()
 	// Server failed or finished, anyway, go on
 	tCurrentMasterServer++;
 	if (tCurrentMasterServer != tMasterServers.end())  {
-		notes << "Registering server at " << *tCurrentMasterServer << endl;
+		//notes << "Registering server at " << *tCurrentMasterServer << endl;
 		tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 	} else {
 		// All servers are processed
@@ -1062,7 +1062,7 @@ void GameServer::RegisterServerUdp()
 			continue;
 		}
 
-		notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
+		//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		SetNetAddrPort( addr, port );
 		SetRemoteNetAddr( tSockets[f], addr );
 

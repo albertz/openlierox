@@ -2128,7 +2128,6 @@ void GameServer::ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std
 // Server sent us "lx::registered", that means it's alive - record that
 void GameServer::ParseServerRegistered(NetworkSocket tSocket)
 {
-	// TODO: add code here
-	notes << "GameServer::ParseServerRegistered()" << endl;
+	//notes << "GameServer::ParseServerRegistered()" << endl;
 }
 
