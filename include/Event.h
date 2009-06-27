@@ -10,6 +10,7 @@
 #ifndef __EVENT_H__
 #define __EVENT_H__
 
+#include <list>
 #include <SDL.h>
 #include "types.h"
 #include "Ref.h"
@@ -44,81 +45,49 @@ public:
 		virtual Handler* copy() const = 0;
 	};
 
+	typedef std::list< Ref<Handler> > HandlerList;
+	
 protected:
-	class Handler_NoOp : public Handler {
-	public:
-		virtual void operator()(_Data) {}
-		virtual bool operator==(const Handler& hndl) { return isSameType(hndl, *this); }
-		virtual Handler* copy() const { return new Handler_NoOp(); }
-	};
-	
-	class Handler_Joined : public Handler {
-	public:
-		Ref<Handler> m_handler1, m_handler2;
-
-		Handler_Joined(Handler* h1 = NULL, Handler* h2 = NULL) : m_handler1(h1), m_handler2(h2) {}
-		virtual void operator()(_Data data) { m_handler1.get()(data); m_handler2.get()(data); }
-		virtual bool operator==(const Handler& hndl) {
-			const Handler_Joined* hPtr = dynamic_cast<const Handler_Joined*>(&hndl);
-			if(hPtr == NULL) return false;
-			return m_handler1.get() == hPtr->m_handler1.get() && m_handler2.get() == hPtr->m_handler2.get();
-		}
-		virtual Handler* copy() const { return new Handler_Joined(m_handler1->copy(), m_handler2->copy()); }
-	};
-	
 	class HandlerAccessor {
 	private:
 		Event* base;
 	public:
 		HandlerAccessor(Event* b) : base(b) {}
-		// WARNING: Don't assign NULL, use always null!
-		// WARNING: The Event-class overtakes the pointer, so don't assign any static stuff. Use getEventHandler() for example.
-		HandlerAccessor& operator=(Handler* h) { assert(h != NULL); base->m_handler = h; return *this; }
-		HandlerAccessor& operator=(Null) { base->m_handler = new Handler_NoOp(); return *this; }
-		HandlerAccessor& operator+=(Handler* h) { assert(h != NULL); base->m_handler = new Handler_Joined(base->m_handler.overtake(), h); return *this; }
-		HandlerAccessor& operator-=(Handler* h) {
-			Ref<Handler>* base = &this->base->m_handler;
-			Handler_Joined* joined;
-			while((joined = dynamic_cast<Handler_Joined*>(&base->get())) != NULL) {
-				if(joined->m_handler2.get() == *h) {
-					*base = joined->m_handler1.overtake();
-					delete h;
-					return *this;
+		HandlerAccessor& operator=(const Ref<Handler>& h) { base->m_handlers.clear(); if(h.isSet()) base->m_handlers.push_back(h); return *this; }
+		HandlerAccessor& operator=(Null) { base->m_handlers.clear(); return *this; }
+		HandlerAccessor& operator+=(const Ref<Handler>& h) { if(h.isSet()) base->m_handlers.push_back(h); return *this; }
+		HandlerAccessor& operator-=(const Ref<Handler>& h) {
+			for(typename Event::HandlerList::iterator i = base->m_handlers.begin(); i != base->m_handlers.end(); ++i)
+				if(i->get() == h.get()) {
+					base->m_handlers.erase(i);
+					break;
 				}
-				// go one step up
-				base = &joined->m_handler1;
-			}
-			
-			// base is not a Handler_Joined anymore
-			if(base->get() == *h) {
-				*base = new Handler_NoOp();
-				delete h;
-				return *this;
-			}
-			
-			// handler not found
-			// do nothing, just ignore this
-			delete h;
 			return *this;
 		}
-		
-		Handler& get() { return base->m_handler.get(); } 
+
+		const class Event::HandlerList& get() { return base->m_handlers; }
 	};
 	
 private:
 	friend class HandlerAccessor;
-	Ref<Handler> m_handler; // WARNING: don't assign NULL here!
-
+	HandlerList m_handlers;
+	
 public:
 	Event() { handler() = null; }
 	~Event() { if (mainQueue) mainQueue->removeCustomEvents(this); }
 	Event(const Event& e) { (*this) = e; }
-	Event& operator=(const Event& e) { m_handler = e.m_handler->copy(); return *this; }
+	Event& operator=(const Event& e) { m_handlers = e.m_handlers; return *this; }
 	HandlerAccessor handler() { return HandlerAccessor(this); }
 
 	void pushToMainQueue(_Data data) { if(mainQueue) mainQueue->push(new EventThrower<_Data>(this, data)); }
 
-	void occurred(_Data data) { m_handler.get()(data); }
+	void occurred(_Data data) {
+		callHandlers(m_handlers, data);
+	}
+	static void callHandlers(HandlerList& handlers, _Data data) {
+		for(typename HandlerList::iterator i = handlers.begin(); i != handlers.end(); ++i)
+			i->get()(data);
+	}
 };
 
 
@@ -164,12 +133,12 @@ public:
 
 
 template< typename _Base, typename _Data >
-MemberFunction<_Base,_Data>* getEventHandler( _Base* obj, void (_Base::*fct) (_Data data) ) {
+Ref<class Event<_Data>::Handler> getEventHandler( _Base* obj, void (_Base::*fct) (_Data data) ) {
 	return new MemberFunction<_Base,_Data>( obj, fct );
 }
 
 template< typename _Data >
-StaticFunction<_Data>* getEventHandler( void (*fct) (_Data data) ) {
+Ref<class Event<_Data>::Handler> getEventHandler( void (*fct) (_Data data) ) {
 	return new StaticFunction<_Data>( fct );
 }
 

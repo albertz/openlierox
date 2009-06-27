@@ -138,7 +138,7 @@ static void RemoveTimerFromGlobalList(TimerData *data);
 struct TimerData {
 	Timer*				timer;
 	std::string			name;
-	Ref<Event<Timer::EventData>::Handler> onTimerHandler;
+	Event<Timer::EventData>::HandlerList onTimerHandler;
 	void*				userData;
 	Uint32				interval;
 	bool				once;
@@ -277,7 +277,7 @@ Timer::Timer(const std::string& nam, void (*fct)(EventData dat), void* dat, Uint
 	InitTimerSystem();
 }
 
-Timer::Timer(const std::string& nam, Event<EventData>::Handler* hndl, void* dat, Uint32 t, bool o) :
+Timer::Timer(const std::string& nam, Ref<Event<EventData>::Handler> hndl, void* dat, Uint32 t, bool o) :
 	name(nam), userData(dat), interval(t),
 	once(o), m_running(false), m_lastData(NULL) {
 	onTimer.handler() = hndl;
@@ -320,7 +320,6 @@ bool Timer::start()
 	
 	data->timer = this;
 	data->name = name;
-	data->onTimerHandler = NULL;
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
@@ -345,7 +344,7 @@ bool Timer::startHeadless()
 	TimerData* data = new TimerData;
 	data->timer = NULL;
 	data->name = name;
-	data->onTimerHandler = onTimer.handler().get().copy();
+	data->onTimerHandler = onTimer.handler().get();
 	data->userData = userData;
 	data->interval = interval;
 	data->once = once;
@@ -396,12 +395,12 @@ static void Timer_handleEvent(InternTimerEventData data)
 	// Also quit if we got last event signal
 	SDL_mutexP(timer_data->mutex);
 	if( !timer_data->quitSignal ) {
-		Event<Timer::EventData>::Handler& handler = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler.get();
+		Event<Timer::EventData>::HandlerList handlers = timer_data->timer ? timer_data->timer->onTimer.handler().get() : timer_data->onTimerHandler;
 		bool shouldContinue = true;
 		Timer::EventData eventData = Timer::EventData(timer_data->timer, timer_data->userData, shouldContinue);
 		SDL_mutexV(timer_data->mutex);
-		
-		handler( eventData );
+
+		Event<Timer::EventData>::callHandlers(handlers, eventData);
 		
 		SDL_mutexP(timer_data->mutex);
 		if( !timer_data->quitSignal && !shouldContinue ) {
