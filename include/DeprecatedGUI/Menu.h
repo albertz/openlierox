@@ -323,7 +323,7 @@ class menu_t { public:
 	int				iReturnTo;
 
 	// Socket for pinging
-	NetworkSocket	tSocket[3];
+	SmartPointer<NetworkSocket>	tSocket[3];
 	
 	CHttp			CheckForNewDevelopmentVersion_http; // I don't want to mess up with static data deallocation, so just putting this here
 
@@ -471,7 +471,7 @@ server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::str
 server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process();
-bool		Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock);
+bool		Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock);
 server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
 void		Menu_SvrList_PingServer(server_t *svr);
 bool		Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer);

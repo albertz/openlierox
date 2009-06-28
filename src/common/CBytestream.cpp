@@ -615,13 +615,13 @@ bool CBytestream::Skip(size_t num) {
 ////////////////
 // Read from network
 // WARNING: overrides any previous data
-size_t CBytestream::Read(NetworkSocket sock) {
+size_t CBytestream::Read(NetworkSocket* sock) {
 	Clear();
 	char buf[4096];
 	size_t len = 0;
 	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
 	while(true) {
-		res = ReadSocket(sock, buf, sizeof(buf));
+		res = sock->Read(buf, sizeof(buf));
 		if(res <= 0) break;
 		Data.append(buf, res);
 		len += res;
@@ -642,7 +642,7 @@ size_t CBytestream::Read(NetworkSocket sock) {
 	return len;
 }
 
-bool CBytestream::Send(NetworkSocket sock) {
-	return (size_t)WriteSocket(sock, Data.data(), (int)Data.size()) == Data.size();
+bool CBytestream::Send(NetworkSocket* sock) {
+	return (size_t)sock->Write(Data) == Data.size();
 }
 

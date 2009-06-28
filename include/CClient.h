@@ -333,7 +333,7 @@ private:
 	AbsTime		fConnectTime;
 	int			iChallenge;
 	AbsTime		fLastReceived;
-	NetworkSocket	tSocket;
+	SmartPointer<NetworkSocket>	tSocket;
 	CChannel	* cNetChan;
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;

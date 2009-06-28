@@ -369,7 +369,6 @@ CHttp::CHttp()
 	// Buffer for reading from socket
 	tBuffer = new char[BUFFER_LEN];
 	tChunkParser = new CChunkParser(&sPureData, &iDataLength, &iDataReceived);
-	InvalidateSocketState(tSocket);
 	Clear();
 }
 
@@ -430,7 +429,6 @@ CHttp& CHttp::operator =(const CHttp& http)
 	fResolveTime = http.fResolveTime;
 	fConnectTime = http.fConnectTime;
 	fSocketActionTime = http.fSocketActionTime;
-	tSocket = http.tSocket;
 	tRemoteIP = http.tRemoteIP;
 	sProxyUser = http.sProxyUser;
 	sProxyPasswd = http.sProxyPasswd;
@@ -502,11 +500,7 @@ void CHttp::Clear()
 	iProcessingResult = HTTP_PROC_PROCESSING;
 
 	ResetNetAddr(tRemoteIP);
-	if( IsSocketStateValid(tSocket) ) {
-		CloseSocket(tSocket);
-		InvalidateSocketState(tSocket);
-	}
-	InvalidateSocketState(tSocket);
+	tSocket.Clear();
 	if (tChunkParser)
 		tChunkParser->Reset();
 	ResetSocketError();  // To prevent quitting when previous request failed
@@ -583,8 +577,7 @@ bool CHttp::InitTransfer(const std::string& address, const std::string & proxy)
 	//notes << "Sending HTTP request " << address << "\n";
 
 	// Open the socket
-	tSocket = OpenReliableSocket(0);
-	if(!IsSocketStateValid(tSocket))  {
+	if(!tSocket.OpenReliable(0))  {
 		SetHttpError(HTTP_NO_SOCKET_ERROR);
 		Unlock();
 		return false;
@@ -850,7 +843,7 @@ bool CHttp::SendRequest()
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: "; request += GetFullGameName(); request += "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
-	return WriteSocket(tSocket, request) > 0;  // Anything written?
+	return tSocket.Write(request) > 0;  // Anything written?
 }
 
 //////////////////
@@ -1181,7 +1174,7 @@ void CHttp::ParseHeader()
 		} else {
 			SetHttpError(HTTP_BAD_RESPONSE);
 			tError.sErrorMsg += code;
-			CloseSocket(tSocket);
+			tSocket.Close();
 			return;
 		}
 	break;
@@ -1257,7 +1250,7 @@ int CHttp::ReadAndProcessData()
 	int count = 0;
 	if (tBuffer != NULL)  {
 		while (true)  {
-			count = ReadSocket(tSocket, tBuffer, BUFFER_LEN);
+			count = tSocket.Read(tBuffer, BUFFER_LEN);
 			if (count <= 0)
 				break;
 
@@ -1289,7 +1282,7 @@ int CHttp::ReadAndProcessData()
 			// HINT: fDownloadEnd has already been updated above
 			bTransferFinished = true;
 			bActive = false;
-			CloseSocket(tSocket);
+			tSocket.Close();
 
 		} else {
 			// Error
@@ -1328,7 +1321,7 @@ int CHttp::ProcessGET()
 	// HINT: ReadAndProcessData() is called in a separate thread so we can do this blocking call
 	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketRead(tSocket, 100);
+	tSocket.WaitForSocketRead(100);
 	Lock();
 
 	// Check for response
@@ -1380,14 +1373,15 @@ int CHttp::ProcessPOST()
 		}
 
 		// Send
-		int res = WriteSocket(tSocket, buf);
-		if ((size_t)res == buf.size())  {
+		int res = tSocket.Write(buf);
+		if (res < 0)  {
+			SetHttpError(HTTP_ERROR_SENDING_REQ);
+			return HTTP_PROC_ERROR;
+		}
+		else if ((size_t)res == buf.size())  {
 			iDataSent += len;
 			fUploadStart = GetTime();  // We're starting the upload
 			fUploadEnd = fUploadStart; // To make the time counting correct even when still uploading
-		} else if (res < 0)  {
-			SetHttpError(HTTP_ERROR_SENDING_REQ);
-			return HTTP_PROC_ERROR;
 		} else {
 			assert((size_t)res < buf.size()); // Cannot send more data than we gave to it...
 			if ((size_t)res >= header.size())  {  // The header was sent whole
@@ -1408,7 +1402,7 @@ int CHttp::ProcessPOST()
 	// HINT: this function is called in a separate thread so we can do this blocking call
 	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketReadOrWrite(tSocket, 100);
+	tSocket.WaitForSocketReadOrWrite(100);
 	Lock();
 
 	// Check if we have a response
@@ -1434,11 +1428,11 @@ int CHttp::ProcessPOST()
 	// HINT: ProcessPOST is called in a separate thread so we can do this blocking call
 	// TODO: this is blocking, fix that!! (it will block also the main thread if you call ShutdownThread())
 	Unlock();
-	WaitForSocketWrite(tSocket, 100);
+	tSocket.WaitForSocketWrite(100);
 	Lock();
 
 	// Send another chunk
-	res = WriteSocket(tSocket, sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
+	res = tSocket.Write(sDataToSend.substr(iDataSent, MIN(HTTP_MAX_DATA_LEN, sDataToSend.size() - iDataSent)));
 	fSocketActionTime = GetTime();
 
 	// Error check
@@ -1570,7 +1564,7 @@ bool CHttp::ProcessInternal()
 
 	// Make sure the socket is ready for writing
 	if(!bSocketReady && bConnected) {
-		if(IsSocketReady(tSocket))
+		if(tSocket.isReady())
 			bSocketReady = true;
 		else  {
 			iProcessingResult = HTTP_PROC_PROCESSING;
@@ -1595,7 +1589,7 @@ bool CHttp::ProcessInternal()
 			if (!StringToNetAddr(host, temp))  // Add only if it is not an IP
 				AddToDnsCache(host, tRemoteIP);
 
-			if(!ConnectSocket(tSocket, tRemoteIP)) {
+			if(!tSocket.Connect(tRemoteIP)) {
 				if (sProxyHost.size() != 0)  { // If using proxy, try direct connection
 					warnings << "Http: proxy " << sProxyHost << " failed, trying a direct connection" << endl;
 					// The re-requesting must be done in the main thread, send a notification and quit

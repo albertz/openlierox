@@ -35,7 +35,7 @@ enum {
 
 void CChannel::Clear()
 {
-	InvalidateSocketState(Socket);
+	Socket = NULL;
 	iPacketsDropped = 0;
 	iPacketsGood = 0;
 	cIncomingRate.clear();
@@ -52,14 +52,14 @@ void CChannel::Clear()
 	ReliableStreamLastSentTime = tLX->currentTime;
 	ReliableStreamBandwidthCounterLastUpdate = tLX->currentTime;
 	LimitReliableStreamBandwidth( -1.0f, 5.0f, 1024.0f );
-};
+}
 
 ///////////////////
 // Setup the channel
-void CChannel::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel::Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock)
 {
 	Clear();
-	RemoteAddr = *_adr;
+	RemoteAddr = _adr;
 	fLastPckRecvd = tLX->currentTime;
 	Socket = _sock;
 	fLastSent = AbsTime();
@@ -117,7 +117,7 @@ void CChannel::LimitReliableStreamBandwidth( float BandwidthLimit, float MaxPack
 	ReliableStreamMaxPacketRate = MaxPacketRate;
 	ReliableStreamBandwidthCounterMaxValue = BandwidthCounterMaxValue;
 	// That's all, we won't reset ReliableStreamBandwidthCounter here
-};
+}
 
 void CChannel::UpdateReliableStreamBandwidthCounter()
 {
@@ -129,7 +129,7 @@ void CChannel::UpdateReliableStreamBandwidthCounter()
 	
 	if( ReliableStreamBandwidthCounter > ReliableStreamBandwidthCounterMaxValue )
 		ReliableStreamBandwidthCounter = ReliableStreamBandwidthCounterMaxValue;
-};
+}
 
 bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend )
 {
@@ -146,7 +146,7 @@ bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend )
 	}
 
 	return false;
-};
+}
 
 bool CChannel::ReliableStreamBandwidthLimitHit()
 {
@@ -155,7 +155,7 @@ bool CChannel::ReliableStreamBandwidthLimitHit()
 		ReliableStreamLastSentTime + 1.0f / ReliableStreamMaxPacketRate <= tLX->currentTime )
 		return false;
 	return true;
-};
+}
 
 ///////////////////
 // CChannel for LX 0.56b implementation - LOSES PACKETS, and that cannot be fixed.
@@ -177,7 +177,7 @@ void CChannel_056b::Clear()
 	Reliable.Clear();
 }
 
-void CChannel_056b::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel_056b::Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
@@ -258,8 +258,8 @@ void CChannel_056b::Transmit( CBytestream *bs )
 
 
 	// Send the packet
-	SetRemoteNetAddr(Socket, RemoteAddr);
-	outpack.Send(Socket);
+	Socket->setRemoteAddress(RemoteAddr);
+	outpack.Send(Socket.get());
 
 	UpdateTransmitStatistics( outpack.GetLength() );
 }
@@ -464,11 +464,11 @@ void CChannel2::Clear()
 	#endif
 };
 
-void CChannel2::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel2::Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
-};
+}
 
 // Get reliable packet from local buffer
 bool CChannel2::GetPacketFromBuffer(CBytestream *bs)
@@ -755,8 +755,8 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	}
 
 	// Send the packet
-	SetRemoteNetAddr(Socket, RemoteAddr);
-	bs.Send(Socket);
+	Socket->setRemoteAddress(RemoteAddr);
+	bs.Send(Socket.get());
 
 	LastReliableIn_SentWithLastPacket = LastReliableIn;
 	LastReliablePacketSent = NextReliablePacketToSend;
@@ -794,19 +794,19 @@ void TestCChannelRobustness()
 	int packetExtraData = 8192; // Extra data in bytes to add to packet to check buffer overflows
 
 	CChannel3 c1, c2;	//CChannel_056b c1, c2;
-	NetworkSocket s1 = OpenUnreliableSocket(0);
-	NetworkSocket s2 = OpenUnreliableSocket(0);
-	NetworkSocket s1lag = OpenUnreliableSocket(0);
-	NetworkSocket s2lag = OpenUnreliableSocket(0);
+	SmartPointer<NetworkSocket> s1 = new NetworkSocket(); s1->OpenUnreliable(0);
+	SmartPointer<NetworkSocket> s2 = new NetworkSocket(); s2->OpenUnreliable(0);
+	SmartPointer<NetworkSocket> s1lag = new NetworkSocket(); s1lag->OpenUnreliable(0);
+	SmartPointer<NetworkSocket> s2lag = new NetworkSocket(); s2lag->OpenUnreliable(0);
 	NetworkAddr a1, a2, a1lag, a2lag;
-	GetLocalNetAddr( s1, a1 );
-	GetLocalNetAddr( s2, a2 );
-	GetLocalNetAddr( s1lag, a1lag );
-	GetLocalNetAddr( s2lag, a2lag );
-	c1.Create( &a1lag, s1 );
-	c2.Create( &a2lag, s2 );
-	SetRemoteNetAddr( s1lag, a2 );
-	SetRemoteNetAddr( s2lag, a1 );
+	a1 = s1->localAddress();
+	a2 = s2->localAddress();
+	a1lag = s1lag->localAddress();
+	a2lag = s2lag->localAddress();
+	c1.Create( a1lag, s1 );
+	c2.Create( a2lag, s2 );
+	s1lag->setRemoteAddress( a2 );
+	s2lag->setRemoteAddress( a1 );
 
 	std::multimap< int, CBytestream > s1buf, s2buf;
 
@@ -853,8 +853,8 @@ void TestCChannelRobustness()
 		b1.Clear();
 		b2.Clear();
 
-		b1.Read(s1lag);
-		b2.Read(s2lag);
+		b1.Read(s1lag.get());
+		b2.Read(s2lag.get());
 		b1.ResetPosToBegin();
 		b2.ResetPosToBegin();
 
@@ -878,8 +878,8 @@ void TestCChannelRobustness()
 		{
 			it->second.ResetPosToBegin();
 			it->second.ResetPosToBegin();
-			it->second.Send(s1lag);
-		};
+			it->second.Send(s1lag.get());
+		}
 
 		if( b2.GetLength() != 0 )
 		{
@@ -900,15 +900,15 @@ void TestCChannelRobustness()
 		{
 			it->second.ResetPosToBegin();
 			it->second.ResetPosToBegin();
-			it->second.Send(s2lag);
-		};
+			it->second.Send(s2lag.get());
+		}
 
 		// Receive and check number sequence and unreliable info
 		b1.Clear();
 		b2.Clear();
 
-		b1.Read(s1);
-		b2.Read(s2);
+		b1.Read(s1.get());
+		b2.Read(s2.get());
 		b1.ResetPosToBegin();
 		b2.ResetPosToBegin();
 
@@ -995,13 +995,13 @@ void CChannel3::Clear()
 	#ifdef DEBUG
 	DebugSimulateLaggyConnectionSendDelay = tLX->currentTime;
 	#endif
-};
+}
 
-void CChannel3::Create(NetworkAddr *_adr, NetworkSocket _sock)
+void CChannel3::Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock)
 {
 	Clear();
 	CChannel::Create( _adr, _sock );
-};
+}
 
 // Get reliable packet from local buffer (merge fragmented packet)
 bool CChannel3::GetPacketFromBuffer(CBytestream *bs)
@@ -1320,8 +1320,8 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	bs1.Append(&bs);
 	
 	// Send the packet
-	SetRemoteNetAddr(Socket, RemoteAddr);
-	bs1.Send(Socket);
+	Socket->setRemoteAddress(RemoteAddr);
+	bs1.Send(Socket.get());
 
 	LastReliableIn_SentWithLastPacket = LastReliableIn;
 	LastReliablePacketSent = NextReliablePacketToSend;

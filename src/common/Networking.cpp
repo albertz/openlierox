@@ -74,12 +74,6 @@ public:
 typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
 DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrSmartPtr );
 
-DECLARE_INTERNDATA_CLASS__WITH_INIT( NetworkSocket, NLsocket, NL_INVALID );
-
-
-static NLsocket& getNLsocket(NetworkSocket& socket) {
-	return NetworkSocketData(socket);
-}
 
 static NLaddress* getNLaddr(NetworkAddr& addr) {
 	return NetworkAddrData(addr).get();
@@ -129,12 +123,12 @@ struct NetActivityData {
 };
 Event<NetActivityData> onNetActivity;
 
-static bool isSocketInGroup(NLint group, NetworkSocket sock) {
+static bool isSocketInGroup(NLint group, NLsocket sock) {
 	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
 	NLint len = NL_MAX_GROUP_SOCKETS;
 	nlGroupGetSockets( group, sockets, &len );
 	for( int f = 0; f < len; f++ )
-		if( sockets[f] == getNLsocket(sock) )
+		if( sockets[f] == sock )
 			return true;
 
 	return false;
@@ -198,7 +192,7 @@ static int SdlNetEventThreadMain( void * param )
 	delete (uint*)param;
 	delete[] sock_out;
 	return 0;
-};
+}
 
 static bool SdlNetEvent_Init()
 {
@@ -217,7 +211,7 @@ static bool SdlNetEvent_Init()
 	SdlNetEventThreads[2] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS), "NL_ERROR_STATUS watcher" );
 
 	return true;
-};
+}
 
 static void SdlNetEvent_UnInit() {
 	if( ! SdlNetEvent_Inited )
@@ -231,27 +225,47 @@ static void SdlNetEvent_UnInit() {
 	nlGroupDestroy(SdlNetEventGroup);
 
 	SdlNetEvent_Inited = false;
+}
+
+struct NetworkSocket::InternSocket {
+	NLsocket sock;
+	InternSocket() : sock(NL_INVALID) {}
 };
 
+NetworkSocket::NetworkSocket() : m_type(NST_INVALID), m_state(NSS_NONE), m_withEvents(true), m_socket(NULL) {
+	m_socket = new InternSocket();
+}
 
+NetworkSocket::~NetworkSocket() {
+	Clear();
+	delete m_socket;
+	m_socket = NULL;
+}
 
-void AddSocketToNotifierGroup( NetworkSocket sock )
-{
-	SdlNetEvent_Init();
-
-	if( IsSocketStateValid(sock) && !isSocketInGroup(SdlNetEventGroup, sock) )  {
-		nlGroupAddSocket( SdlNetEventGroup, getNLsocket(sock) );
+static void AddSocketToNotifierGroup(NLsocket sock) {
+	if(!isSocketInGroup(SdlNetEventGroup, sock) )  {
+		nlGroupAddSocket( SdlNetEventGroup, sock );
 		SdlNetEventSocketCount++;
 	}
 }
 
-void RemoveSocketFromNotifierGroup( NetworkSocket sock )
-{
-	SdlNetEvent_Init();
-
-	if (nlGroupDeleteSocket( SdlNetEventGroup, getNLsocket(sock) ) && SdlNetEventSocketCount > 0)
-		SdlNetEventSocketCount--;
+static void RemoveSocketFromNotifierGroup(NLsocket sock) {
+	if (nlGroupDeleteSocket( SdlNetEventGroup, sock ) && SdlNetEventSocketCount > 0)
+		SdlNetEventSocketCount--;		
 }
+
+void NetworkSocket::setWithEvents( bool v )
+{
+	m_withEvents = v;
+	if(!isOpen()) return;
+	SdlNetEvent_Init();
+	
+	if(v)
+		AddSocketToNotifierGroup(m_socket->sock);
+	else
+		RemoveSocketFromNotifierGroup(m_socket->sock);
+}
+
 
 // ------------------------------------------------------------------------
 
@@ -757,72 +771,126 @@ static void nlPrepareClose(NLsocket socket) {
 
 
 
-
-
-NetworkSocket OpenReliableSocket(unsigned short port) {
-	NetworkSocket ret;
-	getNLsocket(ret) = nlOpen(port, NL_RELIABLE);
-	if (IsSocketStateValid(ret))
-		AddSocketToNotifierGroup(ret);
-#ifdef DEBUG
-	else
-		errors << "OpenReliableSocket: " << GetSocketErrorStr(nlGetError()) << endl;
-#endif
+std::string NetworkSocket::debugString() const {
+	if(!isOpen()) return "Closed";
+	std::string ret = TypeStr(m_type) + "/" + StateStr(m_state);
+	{
+		std::string localStr = "INVALIDLOCAL";
+		NetAddrToString(localAddress(), localStr);
+		ret += " " + localStr;
+	}
+	if(m_state == NSS_CONNECTED) {
+		ret += " connected to ";
+		std::string remoteStr = "INVALIDREMOTE";
+		NetAddrToString(remoteAddress(), remoteStr);
+		ret += remoteStr;
+	}
 	return ret;
 }
 
-NetworkSocket OpenUnreliableSocket(unsigned short port, bool events) {
-	NetworkSocket ret;
-	getNLsocket(ret) = nlOpen(port, NL_UNRELIABLE);
-	if (!IsSocketStateValid(ret))  {
+bool NetworkSocket::OpenReliable(Port port) {
+	if(isOpen()) {
+		warnings << "NetworkSocket " << debugString() << ": OpenReliable: socket is already opened, reopening now" << endl;
+		Close();
+	}
+	
+	NLsocket ret = nlOpen(port, NL_RELIABLE);
+	if (ret == NL_INVALID)  {
+#ifdef DEBUG
+		errors << "OpenReliableSocket: " << GetLastErrorStr() << endl;
+#endif
+		return false;
+	}
+	m_socket->sock = ret;
+	m_type = NST_TCP;
+	m_state = NSS_NONE;
+	setWithEvents(m_withEvents);
+	return true;
+}
+
+bool NetworkSocket::OpenUnreliable(Port port) {
+	if(isOpen()) {
+		warnings << "NetworkSocket " << debugString() << ": OpenReliable: socket is already opened, reopening now" << endl;
+		Close();
+	}
+
+	NLsocket ret = nlOpen(port, NL_UNRELIABLE);
+	if (ret == NL_INVALID)  {
 #ifdef DEBUG
 		errors << "OpenUnreliableSocket: " << GetLastErrorStr() << endl;
 #endif
-		return ret;
+		return false;
 	}
-	if(events) AddSocketToNotifierGroup(ret);
-	return ret;
+	m_socket->sock = ret;
+	m_type = NST_UDP;
+	m_state = NSS_NONE;
+	setWithEvents(m_withEvents);
+	return true;
 }
 
-NetworkSocket OpenBroadcastSocket(unsigned short port, bool events) {
-	NetworkSocket ret;
-	getNLsocket(ret) = nlOpen(port, NL_BROADCAST);
-	if (!IsSocketStateValid(ret))  {
+bool NetworkSocket::OpenBroadcast(Port port) {
+	if(isOpen()) {
+		warnings << "NetworkSocket " << debugString() << ": OpenBroadcast: socket is already opened, reopening now" << endl;
+		Close();
+	}
+
+	NLsocket ret = nlOpen(port, NL_BROADCAST);
+	if (ret == NL_INVALID)  {
 #ifdef DEBUG
 		errors << "OpenBroadcastSocket: " << GetLastErrorStr() << endl;
 #endif
-		return ret;
+		return false;
 	}
-	if(events) AddSocketToNotifierGroup(ret);
-	return ret;
+	m_socket->sock = ret;
+	m_type = NST_UDPBROADCAST;
+	m_state = NSS_NONE;
+	setWithEvents(m_withEvents);
+	return true;	
 }
 
-bool ConnectSocket(NetworkSocket sock, const NetworkAddr& addr) {
-	AddSocketToNotifierGroup(sock);
-	return (nlConnect(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
+bool NetworkSocket::Connect(const NetworkAddr& addr) {
+	if(!isOpen()) {
+		errors << "NetworkSocket::Connect: socket is closed" << endl;
+		return false;
+	}
+	
+	if(m_type != NST_TCP) {
+		errors << "NetworkSocket::Connect " << debugString() << ": connect only works with TCP" << endl;
+		return false;
+	}
+	
+	return (nlConnect(m_socket->sock, getNLaddr(addr)) != NL_FALSE);
 }
 
-bool ListenSocket(NetworkSocket sock) {
-	AddSocketToNotifierGroup(sock);
-	return (nlListen(getNLsocket(sock)) != NL_FALSE);
+bool NetworkSocket::Listen() {
+	if(!isOpen()) {
+		errors << "NetworkSocket::Listen: socket is closed" << endl;
+		return false;
+	}
+	
+	return (nlListen(m_socket->sock) != NL_FALSE);
 }
 
-bool CloseSocket(NetworkSocket& sock) {
-	RemoveSocketFromNotifierGroup(sock);
+void NetworkSocket::Close() {
+	if(!isOpen()) {
+		warnings << "NetworkSocket::Close: cannot close already closed socket" << endl;
+		return;
+	}
+	
+	if(m_withEvents)
+		// we already dont want any new events at this time
+		RemoveSocketFromNotifierGroup(m_socket->sock);
 
-	bool started = false;
 	struct CloseSocketWorker : Task {
-		NetworkSocket sock;
-		bool* started;
+		NLsocket sock;
 		int handle() {
 			nlSystemUseChangeLock.startReadAccess();
-			*started = true;
 			int ret = -1;
 			if(bNetworkInited) { // only do that if we have the network system still up
 				// this should already close the socket but not lock other parts in HawkNL
-				nlPrepareClose(getNLsocket(sock));
+				nlPrepareClose(sock);
 				// hopefully this does not block anymore
-				ret = (nlClose(getNLsocket(sock)) != NL_FALSE) ? 0 : -1;
+				ret = (nlClose(sock) != NL_FALSE) ? 0 : -1;
 			}
 			nlSystemUseChangeLock.endReadAccess();
 			return ret;
@@ -830,23 +898,26 @@ bool CloseSocket(NetworkSocket& sock) {
 	};
 	CloseSocketWorker* worker = new CloseSocketWorker();
 	worker->name = "close socket";
-	worker->sock.swap(sock);
-	worker->started = &started;
+	worker->sock = m_socket->sock;
 	taskManager->start(worker);
-	while(!started) SDL_Delay(1);
 	
-	// sock is a new socket, we swapped them
-	InvalidateSocketState(sock);
-	return true;
+	m_socket->sock = NL_INVALID;
+	m_type = NST_INVALID;
+	m_state = NSS_NONE;
 }
 
-int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
-	NLint ret = nlWrite(getNLsocket(sock), buffer, nbytes);
+int NetworkSocket::Write(const void* buffer, int nbytes) {
+	if(!isOpen()) {
+		errors << "NetworkSocket::Write: cannot write on closed socket" << endl;
+		return NL_INVALID;
+	}
+	
+	NLint ret = nlWrite(m_socket->sock, buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		errors << "WriteSocket: " << GetLastErrorStr() << endl;
+		errors << "WriteSocket " << debugString() << ": " << GetLastErrorStr() << endl;
 		return NL_INVALID;
 	}
 
@@ -858,18 +929,20 @@ int WriteSocket(NetworkSocket sock, const void* buffer, int nbytes) {
 	return ret;
 }
 
-int	WriteSocket(NetworkSocket sock, const std::string& buffer) {
-	return WriteSocket(sock, buffer.data(), (int)buffer.size());
-}
 
-int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
-	NLint ret = nlRead(getNLsocket(sock), buffer, nbytes);
+int NetworkSocket::Read(void* buffer, int nbytes) {
+	if(!isOpen()) {
+		errors << "NetworkSocket::Read: cannot read on closed socket" << endl;
+		return NL_INVALID;
+	}
+
+	NLint ret = nlRead(m_socket->sock, buffer, nbytes);
 
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
 		if (!IsMessageEndSocketErrorNr(GetSocketErrorNr()))
-			errors << "ReadSocket: " << GetLastErrorStr() << endl;
+			errors << "ReadSocket " << debugString() << ": " << GetLastErrorStr() << endl;
 		return NL_INVALID;
 	}
 #endif // DEBUG
@@ -877,21 +950,12 @@ int ReadSocket(NetworkSocket sock, void* buffer, int nbytes) {
 	return ret;
 }
 
-bool IsSocketStateValid(NetworkSocket sock) {
-	return (getNLsocket(sock) != NL_INVALID);
-}
 
 
 
 
-
-
-bool IsSocketReady(NetworkSocket sock)  {
-	return IsSocketStateValid(sock) && nlUpdateState(getNLsocket(sock));
-}
-
-void InvalidateSocketState(NetworkSocket& sock) {
-	NetworkSocketData(sock) = NL_INVALID;
+bool NetworkSocket::isReady() const {
+	return isOpen() && nlUpdateState(m_socket->sock);
 }
 
 
@@ -899,10 +963,16 @@ void InvalidateSocketState(NetworkSocket& sock) {
 
 /////////////////////
 // Wait until the socket is writable
-void WaitForSocketWrite(NetworkSocket sock, int timeout)
+// TODO: remove this function, don't use it!
+void NetworkSocket::WaitForSocketWrite(int timeout)
 {
+	if(!isOpen()) {
+		errors << "WaitForSocketWrite: socket closed" << endl;
+		return;
+	}
+	
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, NetworkSocketData(sock));
+	nlGroupAddSocket(group, m_socket->sock);
 	NLsocket s;
 	nlPollGroup(group, NL_WRITE_STATUS, &s, 1, (NLint)timeout);
 	nlGroupDestroy(group);
@@ -910,10 +980,16 @@ void WaitForSocketWrite(NetworkSocket sock, int timeout)
 
 //////////////////////
 // Wait until the socket contains some data to read
-void WaitForSocketRead(NetworkSocket sock, int timeout)
+// TODO: remove this function, don't use it!
+void NetworkSocket::WaitForSocketRead(int timeout)
 {
+	if(!isOpen()) {
+		errors << "WaitForSocketRead: socket closed" << endl;
+		return;
+	}
+
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, NetworkSocketData(sock));
+	nlGroupAddSocket(group, m_socket->sock);
 	NLsocket s;
 	nlPollGroup(group, NL_READ_STATUS, &s, 1, (NLint)timeout);
 	nlGroupDestroy(group);
@@ -921,10 +997,16 @@ void WaitForSocketRead(NetworkSocket sock, int timeout)
 
 /////////////////////
 // Wait until the socket contains some data or is writeable
-void WaitForSocketReadOrWrite(NetworkSocket sock, int timeout)
+// TODO: remove this function, don't use it!
+void NetworkSocket::WaitForSocketReadOrWrite(int timeout)
 {
+	if(!isOpen()) {
+		errors << "WaitForSocketReadOrWrite: socket closed" << endl;
+		return;
+	}
+
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket(group, NetworkSocketData(sock));
+	nlGroupAddSocket(group, m_socket->sock);
 	NLsocket s;
 
 	if (timeout < 0)  {
@@ -977,26 +1059,55 @@ void ResetSocketError()  {
 	nlSetError(NL_NO_ERROR);
 }
 
-bool GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr) {
-	if(getNLaddr(addr) == NULL)
-		return false;
-	else
-		return (nlGetLocalAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
+NetworkAddr NetworkSocket::localAddress() const {
+	NetworkAddr addr;
+	
+	if(!isOpen()) {
+		errors << "NetworkSocket::localAddress: socket is closed" << endl;
+		return addr;
+	}
+	
+	if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
+		errors << "NetworkSocket::localAddress: cannot get local address (" << debugString() << ")" << endl;
+	
+	return addr;
 }
 
-bool GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr) {
-	if(getNLaddr(addr) == NULL)
-		return false;
-	else
-		return (nlGetRemoteAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
+NetworkAddr NetworkSocket::remoteAddress() const {
+	NetworkAddr addr;
+	
+	if(!isOpen()) {
+		errors << "NetworkSocket::remoteAddress: socket is closed" << endl;
+		return addr;
+	}
+	
+	if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
+		errors << "NetworkSocket::remoteAddress: cannot get remote address (" << debugString() << ")" << endl;
+
+	return addr;
 }
 
-bool SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr) {
-	if(getNLaddr(addr) == NULL)
+bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
+	if(!isOpen()) {
+		errors << "NetworkSocket::setRemoteAddress: socket is closed" << endl;
 		return false;
-	else
-		return (nlSetRemoteAddr(getNLsocket(sock), getNLaddr(addr)) != NL_FALSE);
+	}
+	
+	if(getNLaddr(addr) == NULL) {
+		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": given address is invalid" << endl;
+		return false;
+	}
+	
+	if(nlSetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
+		std::string addrStr = "INVALIDADDR";
+		NetAddrToString(addr, addrStr);
+		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": failed to set destination " << addrStr << endl;
+		return false;
+	}
+	
+	return true;
 }
+
 
 bool IsNetAddrValid(const NetworkAddr& addr) {
 	if(getNLaddr(addr))
@@ -1214,9 +1325,9 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 }
 
 
-bool isDataAvailable(NetworkSocket sock) {
+bool NetworkSocket::isDataAvailable() {
 	NLint group = nlGroupCreate();
-	nlGroupAddSocket( group, getNLsocket(sock) );
+	nlGroupAddSocket( group, m_socket->sock );
 	NLsocket sock_out[2];
 	int ret = nlPollGroup( group, NL_READ_STATUS, sock_out, 1, 0 );
 	nlGroupDestroy(group);
@@ -1229,5 +1340,14 @@ bool isDataAvailable(NetworkSocket sock) {
 bool IsNetAddrAvailable(const NetworkAddr& addr) {
 	// TODO: implement...
 	return true;
+}
+
+
+void NetworkSocket::reapplyRemoteAddress() {
+	if(m_type == NST_UDP || m_type == NST_UDPBROADCAST)
+		// TODO: comment this, why we need that in some cases
+		setRemoteAddress(remoteAddress());
+	else
+		errors << "NetworkSocket::reapplyRemoteAddress cannot be done as " << TypeStr(m_type) << endl;
 }
 

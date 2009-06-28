@@ -24,6 +24,7 @@
 #include <string>
 #include "types.h"
 #include "Networking.h"
+#include "SmartPointer.h"
 
 struct ScriptVar_t;
 
@@ -116,9 +117,10 @@ public:
 	bool	SkipRestBits() { if(isPosAtEnd()) return true; ResetBitPos(); pos++; return isPosAtEnd(); }
 	
 	// Networking stuff
-	bool	Send(NetworkSocket sock);
-	size_t	Read(NetworkSocket sock);
-
+	bool	Send(NetworkSocket* sock);
+	size_t	Read(NetworkSocket* sock);
+	bool Send(const SmartPointer<NetworkSocket>& sock) { return Send(sock.get()); }
+	size_t Read(const SmartPointer<NetworkSocket>& sock) { return Read(sock.get()); }
 };
 
 // Inline class to operate with bits for dirt updates, hopefully optimized by compiler

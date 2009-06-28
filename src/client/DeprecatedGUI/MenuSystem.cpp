@@ -80,13 +80,6 @@ bool Menu_Initialize(bool *game)
 
 	if(bDedicated) return true;
 	
-	// Invalidate the sockets
-	// This is here because of possible failure - when this function fails, Menu_Shutdown is called
-	// which when freeing the sockets checks for the invalid state flag
-	InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
-	InvalidateSocketState(tMenu->tSocket[SCK_NET]);
-	InvalidateSocketState(tMenu->tSocket[SCK_FOO]);
-
 	// Load the frontend info
 	Menu_LoadFrontendInfo();
 
@@ -158,27 +151,30 @@ bool Menu_Initialize(bool *game)
 	CopySurface(tMenu->bmpLobbyNotReady.get(), lobby_state, 0, 12, 0, 0, lobby_state.get()->w, 12);
 
 
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
+		tMenu->tSocket[i] = new NetworkSocket();
 
 	// HACK: open an unreliable foo socket
 	// Some routers simply ignore first open socket and don't let any data through, this is a workaround
-	tMenu->tSocket[SCK_FOO] = OpenUnreliableSocket(0, false);
+	tMenu->tSocket[SCK_FOO]->setWithEvents(false);
+	tMenu->tSocket[SCK_FOO]->OpenUnreliable(0);
 	// Open a socket for broadcasting over a LAN (UDP)
-	tMenu->tSocket[SCK_LAN] = OpenBroadcastSocket(0);
+	tMenu->tSocket[SCK_LAN]->OpenBroadcast(0);
 	// Open a socket for communicating over the net (UDP)
-	tMenu->tSocket[SCK_NET] = OpenUnreliableSocket(0);
+	tMenu->tSocket[SCK_NET]->OpenUnreliable(0);
 
-	if(!IsSocketStateValid(tMenu->tSocket[SCK_LAN]) || !IsSocketStateValid(tMenu->tSocket[SCK_NET])) {
+	if(!tMenu->tSocket[SCK_LAN]->isOpen() || !tMenu->tSocket[SCK_NET]->isOpen()) {
 		SystemError("Error: Failed to open a socket for networking");
 		return false;
 	}
 
 	// Send some random data to some random IP
-	if (IsSocketStateValid(tMenu->tSocket[SCK_FOO]))  {
+	if (tMenu->tSocket[SCK_FOO]->isOpen())  {
 		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
 		// For example, if no network is connected, you likely only have 127.* in your routing table.
 		if(IsNetAddrAvailable(a)) {
-			SetRemoteNetAddr(tMenu->tSocket[SCK_FOO], a);
-			WriteSocket(tMenu->tSocket[SCK_FOO], "foo");
+			tMenu->tSocket[SCK_FOO]->setRemoteAddress(a);
+			tMenu->tSocket[SCK_FOO]->Write("foo");
 		}
 	}
 
@@ -216,23 +212,6 @@ void Menu_Shutdown()
 	Menu_Current_Shutdown();
 	
 	if(tMenu) {
-		if(IsSocketStateValid(tMenu->tSocket[SCK_LAN]))
-		{
-			CloseSocket(tMenu->tSocket[SCK_LAN]);
-		}
-		if(IsSocketStateValid(tMenu->tSocket[SCK_NET]))
-		{
-			CloseSocket(tMenu->tSocket[SCK_NET]);
-		}
-		if(IsSocketStateValid(tMenu->tSocket[SCK_FOO]))
-		{
-			CloseSocket(tMenu->tSocket[SCK_FOO]);
-		}
-		
-		InvalidateSocketState(tMenu->tSocket[SCK_LAN]);
-		InvalidateSocketState(tMenu->tSocket[SCK_NET]);
-		InvalidateSocketState(tMenu->tSocket[SCK_FOO]);
-		
 		// The rest get free'd in the cache
 		delete tMenu;
 		tMenu = NULL;
@@ -1053,14 +1032,14 @@ void Menu_redrawBufferRect(int x, int y, int w, int h)
 
 void Menu_DisableNetEvents()
 {
-	RemoveSocketFromNotifierGroup(tMenu->tSocket[SCK_NET]);
-	RemoveSocketFromNotifierGroup(tMenu->tSocket[SCK_LAN]);
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
+		tMenu->tSocket[i]->setWithEvents(false);
 }
 
 void Menu_EnableNetEvents()
 {
-	AddSocketToNotifierGroup(tMenu->tSocket[SCK_NET]);
-	AddSocketToNotifierGroup(tMenu->tSocket[SCK_LAN]);
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
+		tMenu->tSocket[i]->setWithEvents(true);
 }
 
 
@@ -1124,7 +1103,7 @@ static void SendBroadcastPing(int port) {
 	NetworkAddr a;
 	StringToNetAddr("255.255.255.255", a);
 	SetNetAddrPort(a,  port);
-	SetRemoteNetAddr(tMenu->tSocket[SCK_LAN], a);
+	tMenu->tSocket[SCK_LAN]->setRemoteAddress(a);
 	
 	// Send the ping
 	bs.Send(tMenu->tSocket[SCK_LAN]);
@@ -1147,7 +1126,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 	// If not available, probably the network is not connected right now.
 	if(!IsNetAddrAvailable(svr->sAddress)) return;
 	
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
 	
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1163,7 +1142,7 @@ void Menu_SvrList_PingServer(server_t *svr)
 // Send Wants To Join message
 void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 {
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1177,7 +1156,7 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 // Query a server
 void Menu_SvrList_QueryServer(server_t *svr)
 {
-	SetRemoteNetAddr(tMenu->tSocket[SCK_NET], svr->sAddress);
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
@@ -1625,7 +1604,7 @@ bool Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer)
 ///////////////////
 // Parse a packet
 // Returns true if we should update the list
-bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
+bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock)
 {
 	NetworkAddr		adrFrom;
 	bool			update = false;
@@ -1635,7 +1614,7 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, NetworkSocket sock)
 	if(bs->readInt(4) == -1) {
 		cmd = bs->readString();
 
-		GetRemoteNetAddr(sock, adrFrom);
+		adrFrom = sock->remoteAddress();
 
 		// Check for a pong
 		if(cmd == "lx::pong") {
@@ -1801,8 +1780,9 @@ int Menu_SvrList_UpdaterThread(void *id)
 	serverlistEvent.handler() = getEventHandler(&Menu_UpdateUDPListEventHandler);
 
 	// Open socket for networking
-	NetworkSocket sock = OpenUnreliableSocket(0, false);
-	if (!IsSocketStateValid(sock))  {
+	NetworkSocket sock;
+	sock.setWithEvents(false);
+	if (!sock.OpenUnreliable(0))  {
 		updateEndEvent.pushToMainQueue((size_t)id);
 		return -1;
 	}
@@ -1839,13 +1819,13 @@ int Menu_SvrList_UpdaterThread(void *id)
 		
 		// Setup the socket
 		SetNetAddrPort(addr, port);
-		SetRemoteNetAddr(sock, addr);
+		sock.setRemoteAddress(addr);
 
 		// Send the getserverlist packet
 		CBytestream *bs = new CBytestream();
 		bs->writeInt(-1, 4);
 		bs->writeString("lx::getserverlist2");
-		if(!bs->Send(sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
+		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
 		bs->Clear();
 
 		notes << "Sent getserverlist to " << server << endl;
@@ -1859,7 +1839,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 				SDL_Delay(40); // TODO: do it event based
 
 				// Got a reply?
-				if (bs->Read(sock))  {
+				if (bs->Read(&sock))  {
 					notes << "Got a reply from " << server << endl;
 					break;
 				}
@@ -1883,7 +1863,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 	}
 
 	// Cleanup
-	CloseSocket(sock);
+	sock.Close();
 
 	updateEndEvent.pushToMainQueue((size_t)id);
 	return 0;
@@ -2123,7 +2103,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 	        if(inbs.readInt(4) == -1) {
                 std::string cmd = inbs.readString();
 
-		        GetRemoteNetAddr(tMenu->tSocket[SCK_NET], addr);
+		        addr = tMenu->tSocket[SCK_NET]->remoteAddress();
 
 		        // Check for server info
 		        if(cmd == "lx::serverinfo") {
@@ -2241,7 +2221,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bOldLxBug = false;
 
             // Send a getinfo request
-            SetRemoteNetAddr(tMenu->tSocket[SCK_NET], origAddr);
+            tMenu->tSocket[SCK_NET]->setRemoteAddress(origAddr);
 
 			// TODO: move that out here
 	        CBytestream bs;

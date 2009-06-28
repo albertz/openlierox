@@ -104,7 +104,7 @@ void CClient::Clear()
 	iLastVictim = -1;
 	iLastKiller = -1;
 
-	InvalidateSocketState(tSocket);
+	tSocket = new NetworkSocket();
 	SetNetAddrValid( cServerAddr, false );
 
 	cChatbox.Clear();
@@ -288,8 +288,8 @@ CClient::CClient() {
 	bClientError = false;
 	iNetSpeed = 3;
 	fLastUpdateSent = AbsTime();
+	tSocket = new NetworkSocket();
 	SetNetAddrValid( cServerAddr, false );
-	InvalidateSocketState(tSocket);
 	bLocalClient = false;
 	
 	iMyPing = 0;
@@ -377,12 +377,12 @@ int CClient::Initialize()
 
 	// Open a new socket
 	if( tLX->iGameType == GME_JOIN ) {
-		tSocket = OpenUnreliableSocket( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
+		tSocket->OpenUnreliable( tLXOptions->iNetworkPort );	// Open socket on port from options in hopes that user forwarded that port on router
 	}
-	if(!IsSocketStateValid(tSocket)) {	// If socket won't open that's not error - open another one on random port
-		tSocket = OpenUnreliableSocket(0);
+	if(!tSocket->isOpen()) {	// If socket won't open that's not error - open another one on random port
+		tSocket->OpenUnreliable(0);
 	}
-	if(!IsSocketStateValid(tSocket)) {
+	if(!tSocket->isOpen()) {
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
@@ -1392,10 +1392,8 @@ void CClient::Reconnect() {
 		bytestr.writeInt(this->tProfiles[i]->B,1);
 	}
 	
-	NetworkAddr addr;
-	GetRemoteNetAddr(tSocket, addr);
-	SetRemoteNetAddr(tSocket, addr);
-	bytestr.Send(this->tSocket);
+	tSocket->reapplyRemoteAddress();
+	bytestr.Send(tSocket);
 	
 	iNetStatus = NET_CONNECTING;
 	reconnectingAmount++;
@@ -1443,7 +1441,7 @@ void CClient::ConnectingBehindNAT()
 		// The address is valid, send the traverse
 		} else {
 			CBytestream bs;
-			SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of UDP master server
+			tSocket->setRemoteAddress(cServerAddr); // HINT: this is the address of UDP master server
 
 			bs.writeInt(-1,4);
 			bs.writeString("lx::dummypacket");
@@ -1494,7 +1492,7 @@ void CClient::ConnectingBehindNAT()
 		int port = GetNetAddrPort(cServerAddr);
 
 		SetNetAddrPort(cServerAddr, (ushort)(port + p[iNatTryPort]));
-		SetRemoteNetAddr(tSocket, cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
+		tSocket->setRemoteAddress(cServerAddr); // HINT: this is the address of the server behind NAT, not the UDP masterserver  (it got changed in ParseTraverse)
 
 		// As we use this tSocket both for sending and receiving,
 		// it's safer to reset the address here.
@@ -1612,7 +1610,7 @@ void CClient::Connecting(bool force)
 
 	// Request a challenge id
 	CBytestream bs;
-	SetRemoteNetAddr(tSocket, cServerAddr);
+	tSocket->setRemoteAddress(cServerAddr);
 
 	// Send the challengle packet
 	bs.writeInt(-1,4);
@@ -2349,11 +2347,7 @@ void CClient::Shutdown() {
 	cWeaponRestrictions.Shutdown();
 
 	// Close the socket
-	if(IsSocketStateValid(tSocket))
-	{
-		CloseSocket(tSocket);
-	}
-	InvalidateSocketState(tSocket);
+	tSocket->Clear();
 
 	// Shutdown map downloads
 	ShutdownDownloads();
@@ -2384,21 +2378,16 @@ void CClient::setServerVersion(const std::string & _s)
 
 bool CClient::RebindSocket()
 {
-	if(!IsSocketStateValid(tSocket))
+	if(!tSocket->isOpen())
 		return false;
-	NetworkAddr addr;
-	GetLocalNetAddr( tSocket, addr );
-	RemoveSocketFromNotifierGroup(tSocket);
-	CloseSocket(tSocket);
-	InvalidateSocketState(tSocket);
-	tSocket = OpenUnreliableSocket(0);
-	if(!IsSocketStateValid(tSocket)) {
+	NetworkAddr addr = tSocket->localAddress();
+	tSocket->Close();
+	if(!tSocket->OpenUnreliable(0)) {
 		SetError("Error: Could not open UDP socket!");
 		return false;
 	}
-	GetLocalNetAddr( tSocket, addr );
 	return true;
-};
+}
 
 CChannel * CClient::createChannel(const Version& v)
 {

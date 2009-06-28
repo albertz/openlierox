@@ -20,6 +20,7 @@
 #include <list>
 #include "CBytestream.h"
 #include "types.h"
+#include "Networking.h"
 
 template< int AMOUNT, int TIMERANGEMS, typename _Amount = size_t >
 class Rate {
@@ -96,7 +97,7 @@ protected:
 	
 	// Attributes
 	NetworkAddr		RemoteAddr;
-	NetworkSocket	Socket;
+	SmartPointer<NetworkSocket>	Socket;
 
 	// For timeouts & sending
 	AbsTime			fLastPckRecvd;
@@ -149,7 +150,7 @@ public:
 	virtual ~CChannel() { Clear(); };
 
 	// Should be called by child class
-	virtual void	Create(NetworkAddr *_adr, NetworkSocket _sock);
+	virtual void	Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock);
 	virtual void	Clear();
 
 	// Should be overridden by child class
@@ -181,7 +182,7 @@ public:
 	float 			getOutgoingRate()		{ return cOutgoingRate.getRate(); }
 	float 			getOutgoingRate(float timeRange)		{ return cOutgoingRate.getRate((int)(timeRange * 1000.0f)); }
 
-	NetworkSocket	getSocket()			{ return Socket; }
+	SmartPointer<NetworkSocket>	getSocket()			{ return Socket; }
 	
 	virtual void	recheckSeqs() {} // Implemented only in CChannel_056b, not required for others
 
@@ -219,7 +220,7 @@ public:
 	CChannel_056b() { Clear(); }
 	
 	// Methods
-	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
+	void		Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock);
 	void		Transmit( CBytestream *bs );
 	// This function just skips header in bs, non-reliable data is at the end of the stream, bs not modified.
 	bool		Process( CBytestream *bs );
@@ -284,7 +285,7 @@ public:
 	CChannel2() { Clear(); }
 	
 	// Methods
-	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
+	void		Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock);
 	void		Transmit( CBytestream *bs );
 	// This function will first return non-reliable data,
 	// and then one or many reliable packets - it will modify bs for that,
@@ -354,7 +355,7 @@ public:
 	CChannel3() { Clear(); }
 	
 	// Methods
-	void		Create(NetworkAddr *_adr, NetworkSocket _sock);
+	void		Create(const NetworkAddr& _adr, const SmartPointer<NetworkSocket>& _sock);
 	void		Transmit( CBytestream *bs );
 	// This function will first return non-reliable data,
 	// and then one or many reliable packets - it will modify bs for that,

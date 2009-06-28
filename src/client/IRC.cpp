@@ -34,8 +34,7 @@ bool IRCClient::initNet()
 		return true;
 	
 	// Open the socket
-	m_chatSocket = OpenReliableSocket(0);
-	if (!IsSocketStateValid(m_chatSocket))  {
+	if (!m_chatSocket.OpenReliable(0))  {
 		errors("Could not open a socket for IRC networking: " + GetSocketErrorStr(GetSocketErrorNr()) + "\n");
 		return false;
 	}
@@ -90,7 +89,7 @@ bool IRCClient::processConnecting()
 
 	// Connect
 	if (!m_socketConnected)  {
-		if (!ConnectSocket(m_chatSocket, m_chatServerAddr))  {
+		if (!m_chatSocket.Connect(m_chatServerAddr))  {
 			errors("IRC error: could not connect to the server " + addrStr);
 			disconnect();
 			return true;
@@ -104,7 +103,7 @@ bool IRCClient::processConnecting()
 	}
 
 	// Check for socket readiness
-	if (!IsSocketReady(m_chatSocket))
+	if (!m_chatSocket.isReady())
 		return false;
 	else
 		m_socketIsReady = true;
@@ -215,7 +214,7 @@ void IRCClient::readData()
 
 	int read = 1;
 	while (read > 0)  {
-		int read = ReadSocket(m_chatSocket, buf, sizeof(buf)); // HINT: non-blocking
+		int read = m_chatSocket.Read(buf, sizeof(buf)); // HINT: non-blocking
 
 		// Nothing yet
 		if (read == 0)
@@ -293,10 +292,10 @@ void IRCClient::disconnect()
 		(*it)();
 
 	// Close socket
-	if (IsSocketReady(m_chatSocket))
-		WriteSocket(m_chatSocket, "QUIT\r\n");
+	if (m_chatSocket.isReady())
+		m_chatSocket.Write("QUIT\r\n");
 	if (m_socketConnected)
-		CloseSocket(m_chatSocket);
+		m_chatSocket.Close();
 
 	// Clear the variables
 	m_socketConnected = false;
@@ -304,7 +303,7 @@ void IRCClient::disconnect()
 	m_socketOpened = false;
 	m_connecting = false;
 	m_connectionClosedTime = tLX->currentTime;
-	InvalidateSocketState(m_chatSocket);
+	m_chatSocket.Clear();
 	SetNetAddrValid(m_chatServerAddr, false);
 	m_netBuffer.clear();
 	m_authorizedState = AUTH_NONE;
@@ -429,10 +428,10 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 // Join a channel
 void IRCClient::sendJoin()
 {
-	WriteSocket(m_chatSocket, "JOIN " + m_chatServerChannel + "\r\n");
+	m_chatSocket.Write("JOIN " + m_chatServerChannel + "\r\n");
 	m_authorizedState = AUTH_JOINED_CHANNEL;
 	if( m_AwayMessage != "" )
-		WriteSocket(m_chatSocket, "AWAY :" + m_AwayMessage + "\r\n");
+		m_chatSocket.Write("AWAY :" + m_AwayMessage + "\r\n");
 }
 
 
@@ -441,23 +440,23 @@ void IRCClient::sendJoin()
 void IRCClient::sendNick()
 {
 	if (m_nickUniqueNumber < 0)
-		WriteSocket(m_chatSocket, "NICK " + m_myNick + "\r\n");
+		m_chatSocket.Write("NICK " + m_myNick + "\r\n");
 	else
-		WriteSocket(m_chatSocket, "NICK " + m_myNick + itoa(m_nickUniqueNumber) + "\r\n");
+		m_chatSocket.Write("NICK " + m_myNick + itoa(m_nickUniqueNumber) + "\r\n");
 }
 
 ///////////////////////
 // Send a ping reply
 void IRCClient::sendPong(const std::string &param)
 {
-	WriteSocket(m_chatSocket, "PONG :" + param + "\r\n");
+	m_chatSocket.Write("PONG :" + param + "\r\n");
 }
 
 ///////////////////////
 // Request nick list from the server
 void IRCClient::sendRequestNames()
 {
-	WriteSocket(m_chatSocket, "NAMES " + m_chatServerChannel + "\r\n");
+	m_chatSocket.Write("NAMES " + m_chatServerChannel + "\r\n");
 }
 
 ///////////////////////
@@ -467,7 +466,7 @@ void IRCClient::sendUserAuth()
 	std::string nick = m_myNick;
 	if (m_nickUniqueNumber >= 0)
 		nick += itoa(m_nickUniqueNumber);
-	WriteSocket(m_chatSocket, "USER " + nick + " ? ? :" + GetFullGameName() + "\r\n");
+	m_chatSocket.Write("USER " + nick + " ? ? :" + GetFullGameName() + "\r\n");
 	m_authorizedState = AUTH_USER_SENT;
 }
 
@@ -480,7 +479,7 @@ bool IRCClient::sendChat(const std::string &text)
 		return false;
 
 	// Send the text
-	WriteSocket(m_chatSocket, "PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
+	m_chatSocket.Write("PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
 	//notes("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
 
 	// Route the same message back to our parser func, there's no echo in IRC
@@ -502,8 +501,8 @@ void IRCClient::setAwayMessage(const std::string & msg)
 		return;
 
 	if( m_AwayMessage != "" )
-		WriteSocket(m_chatSocket, "AWAY" "\r\n");	// Clean AWAY msg or server won't reset it
-	WriteSocket(m_chatSocket, "AWAY :" + m_AwayMessage + "\r\n");
+		m_chatSocket.Write("AWAY" "\r\n");	// Clean AWAY msg or server won't reset it
+	m_chatSocket.Write("AWAY :" + m_AwayMessage + "\r\n");
 }
 
 

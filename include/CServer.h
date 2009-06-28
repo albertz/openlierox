@@ -76,30 +76,14 @@ public:
 
 public:
 	// Handles information about a client connecting using NAT traversal
-	class NatConnection  {
-	public:
-		NatConnection() : bClientConnected(false) {}
-		NatConnection(const NatConnection& nat)  { operator=(nat); }
-		NatConnection& operator= (const NatConnection& nat)  {
-			if (&nat == this)
-				return *this;
-
-			tTraverseSocket = nat.tTraverseSocket;
-			tConnectHereSocket = nat.tConnectHereSocket;
-			fLastUsed = nat.fLastUsed;
-			bClientConnected = nat.bClientConnected;
-			tAddress = nat.tAddress;
-
-			return *this;
-		}
-
-		void Close();
-
-		NetworkSocket	tTraverseSocket;
-		NetworkSocket	tConnectHereSocket;
+	struct NatConnection  {
+		SmartPointer<NetworkSocket>	tTraverseSocket;
+		SmartPointer<NetworkSocket>	tConnectHereSocket;
 		NetworkAddr		tAddress;
 		AbsTime			fLastUsed;
 		bool			bClientConnected;
+		
+		NatConnection() : bClientConnected(false) { tTraverseSocket = new NetworkSocket(); tConnectHereSocket = new NetworkSocket(); }
 	};
 
 private:
@@ -145,9 +129,10 @@ private:
 	int			iLastVictim;	// TODO: what is this good for
 
 	// Network
-	NetworkSocket	tSockets[MAX_SERVER_SOCKETS];
+	SmartPointer<NetworkSocket>	tSockets[MAX_SERVER_SOCKETS];
 	int				nPort;
-	std::list<NatConnection>	tNatClients;
+	typedef std::list< SmartPointer<NatConnection> > NatConnList;
+	NatConnList	tNatClients;
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
@@ -179,6 +164,8 @@ public:
 
 
 	void		Clear();
+	void		ResetSockets();
+	void		SetSocketWithEvents(bool v);
 	int			StartServer();
 	void		Shutdown();
 
@@ -213,7 +200,7 @@ public:
 	bool		ReadPackets();
 	void		SendPackets(bool sendPendingOnly = false);
 
-	bool		ReadPacketsFromSocket(NetworkSocket& sock);
+	bool		ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock);
 
 	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);
@@ -284,16 +271,16 @@ public:
 	void		SetWormCanAirJump(int wormID, bool b);
 
 	// Connectionless packets only here
-	void		ParseConnectionlessPacket(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
-	void		ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs);
-	void		ParseConnect(NetworkSocket tSocket, CBytestream *bs);
-	void		ParsePing(NetworkSocket tSocket);
-	void		ParseTime(NetworkSocket tSocket);
-	void		ParseQuery(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
-    void        ParseGetInfo(NetworkSocket tSocket);
-	void		ParseWantsJoin(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
-	void		ParseTraverse(NetworkSocket tSocket, CBytestream *bs, const std::string& ip);
-	void		ParseServerRegistered(NetworkSocket tSocket);
+	void		ParseConnectionlessPacket(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs);
+	void		ParseConnect(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs);
+	void		ParsePing(const SmartPointer<NetworkSocket>& tSocket);
+	void		ParseTime(const SmartPointer<NetworkSocket>& tSocket);
+	void		ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
+    void        ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket);
+	void		ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
+	void		ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocket);
 
 
 	// Variables

@@ -85,12 +85,6 @@ void GameServer::Clear()
 	bGameOver = false;
 	//iGameType = GMT_DEATHMATCH;
 	fLastBonusTime = 0;
-	for( int i=0; i < MAX_SERVER_SOCKETS; i++ )
-		InvalidateSocketState(tSockets[i]);
-	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)
-		it->Close();
-	tNatClients.clear();
-
 	bServerRegistered = false;
 	fLastRegister = AbsTime();
 	fRegisterUdpTime = AbsTime();
@@ -113,6 +107,14 @@ void GameServer::Clear()
 
 	tMasterServers.clear();
 	tCurrentMasterServer = tMasterServers.begin();
+	
+	ResetSockets();
+}
+
+void GameServer::ResetSockets() {
+	for( int i=0; i < MAX_SERVER_SOCKETS; i++ )
+		tSockets[i] = new NetworkSocket();
+	tNatClients.clear();	
 }
 
 
@@ -142,48 +144,46 @@ int GameServer::StartServer()
 
 	// Open the socket
 	nPort = tLXOptions->iNetworkPort;
-	tSockets[0] = OpenUnreliableSocket(tLXOptions->iNetworkPort);
-	if(!IsSocketStateValid(tSockets[0])) {
+	tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
+	if(!tSockets[0]->isOpen()) {
 		hints << "Server: could not open socket on port " << tLXOptions->iNetworkPort << ", trying rebinding client socket" << endl;
 		if( cClient->RebindSocket() ) {	// If client has taken that port, free it
-			tSockets[0] = OpenUnreliableSocket(tLXOptions->iNetworkPort);
+			tSockets[0]->OpenUnreliable(tLXOptions->iNetworkPort);
 		}
 
-		if(!IsSocketStateValid(tSockets[0])) {
+		if(!tSockets[0]->isOpen()) {
 			hints << "Server: client rebinding didn't work, trying random port" << endl;
-			tSockets[0] = OpenUnreliableSocket(0);
+			tSockets[0]->OpenUnreliable(0);
 		}
 		
-		if(!IsSocketStateValid(tSockets[0])) {
-			hints << "Server: we cannot even open a random port!" << endl;
+		if(!tSockets[0]->isOpen()) {
+			errors << "Server: we cannot even open a random port!" << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
 		
-		NetworkAddr a; GetLocalNetAddr(tSockets[0], a);
-		nPort = GetNetAddrPort(a);
+		nPort = GetNetAddrPort(tSockets[0]->localAddress());
 	}
-	if(!ListenSocket(tSockets[0])) {
+	if(!tSockets[0]->Listen()) {
 		SetError( "Server Error: cannot start listening" );
 		return false;
 	}
 	
 	for( int i = 1; i < MAX_SERVER_SOCKETS; i++ )
 	{
-		tSockets[i] = OpenUnreliableSocket(0);
-		if(!IsSocketStateValid(tSockets[i])) {
+		tSockets[i]->OpenUnreliable(0);
+		if(!tSockets[i]->isOpen()) {
 			hints << "Server: we cannot open a random port!" << endl;
 			SetError("Server Error: Could not open UDP socket");
 			return false;
 		}
-		if(!ListenSocket(tSockets[i])) {
+		if(!tSockets[i]->Listen()) {
 			SetError( "Server Error: cannot start listening" );
 			return false;
 		}
 	}
 
-	NetworkAddr addr;
-	GetLocalNetAddr(tSockets[0], addr);
+	NetworkAddr addr = tSockets[0]->localAddress();
 	// TODO: Why is that stored in debug_string ???
 	NetAddrToString(addr, tLX->debug_string);
 	hints << "server started on " <<  tLX->debug_string << endl;
@@ -286,6 +286,17 @@ bool GameServer::serverChoosesWeapons() {
 	return
 		tLXOptions->tGameInfo.bForceRandomWeapons ||
 		(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // only makes sense if we have at least one worm	
+}
+
+
+
+void GameServer::SetSocketWithEvents(bool v) {
+	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
+		tSockets[i]->setWithEvents(v);
+	for(NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		(*it)->tTraverseSocket->setWithEvents(v);
+		(*it)->tConnectHereSocket->setWithEvents(v);
+	}	
 }
 
 ///////////////////
@@ -460,15 +471,8 @@ mapCreate:
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
 
-	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
-	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
-		RemoveSocketFromNotifierGroup( tSockets[i] );
-	for(std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
-		if (IsSocketStateValid(it->tTraverseSocket))
-			RemoveSocketFromNotifierGroup(it->tTraverseSocket);
-		if (IsSocketStateValid(it->tConnectHereSocket))
-			RemoveSocketFromNotifierGroup(it->tConnectHereSocket);
-	}
+	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame and we never idle	
+	SetSocketWithEvents(false);
 	
 	// Re-register the server to reflect the state change
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
@@ -826,26 +830,25 @@ void GameServer::Frame()
 
 ////////////////////
 // Reads packets from the given sockets
-bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
+bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 {
-	if (!IsSocketReady(sock))
+	if (!sock->isReady())
 		return false;
 
-	NetworkAddr adrFrom;
 	CBytestream bs;
 
 	bool anythingNew = false;
-	while(bs.Read(sock)) {
+	while(bs.Read(sock.get())) {
 		anythingNew = true;
 		
 		// Set out address to addr from where last packet was sent, used for NAT traverse
-		GetRemoteNetAddr(sock, adrFrom);
-		SetRemoteNetAddr(sock, adrFrom);
-
+		sock->reapplyRemoteAddress();
+		NetworkAddr addrFrom = sock->remoteAddress();
+		
 		// Check for connectionless packets (four leading 0xff's)
 		if(bs.readInt(4) == -1) {
 			std::string address;
-			NetAddrToString(adrFrom, address);
+			NetAddrToString(addrFrom, address);
 			bs.ResetPosToBegin();
 			// parse all connectionless packets
 			// For example lx::openbeta* was sent in a way that 2 packages were sent at once.
@@ -871,11 +874,11 @@ bool GameServer::ReadPacketsFromSocket(NetworkSocket &sock)
 				continue;
 
 			// Check if the packet is from this player
-			if(!AreNetAddrEqual(adrFrom, cl->getChannel()->getAddress()))
+			if(!AreNetAddrEqual(addrFrom, cl->getChannel()->getAddress()))
 				continue;
 
 			// Check the port
-			if (GetNetAddrPort(adrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
+			if (GetNetAddrPort(addrFrom) != GetNetAddrPort(cl->getChannel()->getAddress()))
 				continue;
 
 			// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
@@ -903,31 +906,29 @@ bool GameServer::ReadPackets()
 			anythingNew = true;
 
 	// Traverse sockets
-	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
-		if (ReadPacketsFromSocket(it->tTraverseSocket))  {
+	for (NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+		if (ReadPacketsFromSocket((*it)->tTraverseSocket))  {
 			anythingNew = true;
-			if (!it->bClientConnected)  {
+			if (!(*it)->bClientConnected)  {
 				std::string addr;
-				NetworkAddr a;
-				GetRemoteNetAddr(it->tTraverseSocket, a);
+				NetworkAddr a = (*it)->tTraverseSocket->remoteAddress();
 				NetAddrToString(a, addr);
 				notes << "A client " << addr << " successfully connected using NAT traversal" << endl;
-				it->bClientConnected = true;
+				(*it)->bClientConnected = true;
 			}
-			it->fLastUsed = tLX->currentTime;
+			(*it)->fLastUsed = tLX->currentTime;
 		}
 
-		if (ReadPacketsFromSocket(it->tConnectHereSocket))  {
+		if (ReadPacketsFromSocket((*it)->tConnectHereSocket))  {
 			anythingNew = true;
-			if (!it->bClientConnected)  {
+			if (!(*it)->bClientConnected)  {
 				std::string addr;
-				NetworkAddr a;
-				GetRemoteNetAddr(it->tConnectHereSocket, a);
+				NetworkAddr a = (*it)->tConnectHereSocket->remoteAddress();
 				NetAddrToString(a, addr);
 				notes << "A client " << addr << " successfully connected using connect_here traversal" << endl;
-				it->bClientConnected = true;
+				(*it)->bClientConnected = true;
 			}
-			it->fLastUsed = tLX->currentTime;
+			(*it)->fLastUsed = tLX->currentTime;
 		}
 	}
 	
@@ -954,7 +955,7 @@ void GameServer::SendPackets(bool sendPendingOnly)
 	// Go through each client and send them a message
 	CServerConnection *cl = cClients;
 	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED || !IsSocketReady(cl->getChannel()->getSocket()))
+		if(cl->getStatus() == NET_DISCONNECTED || !cl->getChannel()->getSocket()->isReady())
 			continue;
 
 		// Send out the packets if we haven't gone over the clients bandwidth
@@ -978,8 +979,7 @@ void GameServer::RegisterServer()
 
 	// We don't know the external IP, just use the local one
 	// Doesn't matter what IP we use because the masterserver finds it out by itself anyways
-	NetworkAddr addr;
-	GetLocalNetAddr(tSockets[0], addr);
+	NetworkAddr addr = tSockets[0]->localAddress();
 	NetAddrToString(addr, addr_name);
 
 	// Remove port from IP
@@ -1064,15 +1064,15 @@ void GameServer::RegisterServerUdp()
 
 		//notes << "Registering on UDP masterserver " << tUdpMasterServers[f] << endl;
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSockets[f], addr );
+		tSockets[f]->setRemoteAddress( addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f]);
-		bs.Send(tSockets[f]);
-		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f].get());
+		bs.Send(tSockets[f].get());
+		bs.Send(tSockets[f].get());
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
@@ -1086,7 +1086,7 @@ void GameServer::RegisterServerUdp()
 		bs.writeByte(serverAllowsConnectDuringGame());
 		
 
-		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f].get());
 	}
 }
 
@@ -1110,21 +1110,21 @@ void GameServer::DeRegisterServerUdp()
 			continue;
 		}
 		SetNetAddrPort( addr, port );
-		SetRemoteNetAddr( tSockets[f], addr );
+		tSockets[f]->setRemoteAddress( addr );
 
 		CBytestream bs;
 
 		bs.writeInt(-1,4);
 		bs.writeString("lx::dummypacket");	// So NAT/firewall will understand we really want to connect there
-		bs.Send(tSockets[f]);
-		bs.Send(tSockets[f]);
-		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f].get());
+		bs.Send(tSockets[f].get());
+		bs.Send(tSockets[f].get());
 
 		bs.Clear();
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::deregister");
 
-		bs.Send(tSockets[f]);
+		bs.Send(tSockets[f].get());
 	}
 }
 
@@ -1163,9 +1163,7 @@ bool GameServer::DeRegisterServer()
 
 	// Create the url
 	std::string addr_name;
-	NetworkAddr addr;
-
-	GetLocalNetAddr(tSockets[0], addr);
+	NetworkAddr addr = tSockets[0]->localAddress();
 	NetAddrToString(addr, addr_name);
 
 	sCurrentUrl = std::string(LX_SVRDEREG) + "?port=" + itoa(nPort) + "&addr=" + addr_name;
@@ -1217,10 +1215,10 @@ void GameServer::CheckTimeouts()
 		return;
 
 	// Check for NAT traversal sockets that are too old
-	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end();)  {
-		if ((tLX->currentTime - it->fLastUsed) >= 10.0f)  {
+	for (NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end();)  {
+		if ((tLX->currentTime - (*it)->fLastUsed) >= 10.0f)  {
 			std::string addr;
-			NetAddrToString(it->tAddress, addr);
+			NetAddrToString((*it)->tAddress, addr);
 			notes << "A NAT traverse connection timed out: " << addr << endl;
 			it = tNatClients.erase(it);
 		} else
@@ -2237,24 +2235,13 @@ void GameServer::Shutdown()
 	{
 		SendDisconnect();
 	}
-
-	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
-	{
-		if(IsSocketStateValid(tSockets[i]))
-		{
-			CloseSocket(tSockets[i]);
-		}
-		InvalidateSocketState(tSockets[i]);
-	}
-
-	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)
-		it->Close();
-	tNatClients.clear();
-
+	
 	if(cClients) {
 		delete[] cClients;
 		cClients = NULL;
 	}
+
+	ResetSockets();
 
 	if(cWorms) {
 		delete[] cWorms;

@@ -1842,8 +1842,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						else
 							layout.Add(info, id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
 
-						NetworkAddr addr;
-						GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+						NetworkAddr addr = w->getClient()->getChannel()->getSocket()->remoteAddress();
 						std::string addrStr;
 						NetAddrToString(addr, addrStr);
 						info->addItem(0, "IP: " + addrStr);
@@ -1942,8 +1941,7 @@ void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu,
 				if (!w->isUsed())
 					return;
 
-				NetworkAddr addr;
-				GetRemoteNetAddr(w->getClient()->getChannel()->getSocket(), addr);
+				NetworkAddr addr = w->getClient()->getChannel()->getSocket()->remoteAddress();
 				std::string addrStr;
 				NetAddrToString(addr, addrStr);
 

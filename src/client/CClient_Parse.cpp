@@ -183,10 +183,8 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 		bytestr.writeInt(client->tProfiles[i]->B,1);
 	}
 
-	NetworkAddr addr;
-	GetRemoteNetAddr(client->tSocket, addr);
-	SetRemoteNetAddr(client->tSocket, addr);
-	bytestr.Send(client->tSocket);
+	client->tSocket->reapplyRemoteAddress();
+	bytestr.Send(client->tSocket.get());
 
 	client->setNetEngineFromServerVersion(); // *this may be deleted here! so it's the last command
 }
@@ -313,7 +311,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	}
 
 	// Create my channel
-	GetRemoteNetAddr(client->tSocket, addr);
+	addr = client->tSocket->remoteAddress();
 
 	if( isReconnect && !client->cNetChan )
 		warnings << "we are reconnecting but we don't have a working communication channel yet" << endl;
@@ -330,7 +328,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			client->strServerErrorMsg = "Your client is incompatible to this server";
 			return;
 		}
-		client->cNetChan->Create(&addr,client->tSocket);
+		client->cNetChan->Create(addr, client->tSocket);
 	}
 	
 	DeprecatedGUI::bJoin_Update = true;
@@ -409,20 +407,19 @@ void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 	client->iNatTraverseState = NAT_SEND_CHALLENGE;
 	client->iNatTryPort = 0;
 
-	NetworkAddr addr;
-	GetRemoteNetAddr(client->tSocket, addr);
+	NetworkAddr addr = client->tSocket->remoteAddress();
 	std::string a1, a2;
 	NetAddrToString( client->cServerAddr, a1 );
 	NetAddrToString( addr, a2 );
 	printf("CClientNetEngine::ParseConnectHere(): addr %s to %s %s\n", a1.c_str(), a2.c_str(), a1 != a2 ? "- server behind symmetric NAT" : "" );
 
-	GetRemoteNetAddr(client->tSocket, client->cServerAddr);
+	client->cServerAddr = client->tSocket->remoteAddress();
 	CBytestream bs1;
 	bs1.writeInt(-1,4);
 	bs1.writeString("lx::ping");	// So NAT/firewall will understand we really want to connect there
-	bs1.Send(client->tSocket);
-	bs1.Send(client->tSocket);
-	bs1.Send(client->tSocket);
+	bs1.Send(client->tSocket.get());
+	bs1.Send(client->tSocket.get());
+	bs1.Send(client->tSocket.get());
 }
 
 
@@ -680,7 +677,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame
 	if(!isReconnect)
-		RemoveSocketFromNotifierGroup( client->tSocket );
+		client->tSocket->setWithEvents(false);
 
 	client->bGameReady = true;
 	client->flagInfo()->reset();
@@ -2332,7 +2329,7 @@ void CClientNetEngine::ParseGotoLobby(CBytestream *)
 	 */
 	
 	// in lobby we need the events again
-	AddSocketToNotifierGroup( client->tSocket );
+	client->tSocket->setWithEvents(true);
 
 	// Do a minor clean up
 	client->MinorClear();

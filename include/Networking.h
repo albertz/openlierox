@@ -18,6 +18,7 @@
 #define __NETWORKING_H__
 
 #include <string>
+#include <cassert>
 #include <SDL.h>
 #include "types.h"
 #include "InternDataClass.h"
@@ -54,39 +55,6 @@
 // socket address; this type will be given around as pointer
 DEFINE_INTERNDATA_CLASS(NetworkAddr);
 
-// socket itself; the structure/type itself will be given around
-DEFINE_INTERNDATA_CLASS(NetworkSocket);
-
-// general networking
-bool	InitNetworkSystem();
-bool	QuitNetworkSystem();
-NetworkSocket	OpenReliableSocket(unsigned short port);
-NetworkSocket	OpenUnreliableSocket(unsigned short port, bool events = true);
-NetworkSocket	OpenBroadcastSocket(unsigned short port, bool events = true);
-bool	ConnectSocket(NetworkSocket sock, const NetworkAddr& addr);
-bool	ListenSocket(NetworkSocket sock);
-bool	CloseSocket(NetworkSocket& sock);
-int		WriteSocket(NetworkSocket sock, const void* buffer, int nbytes);
-int		WriteSocket(NetworkSocket sock, const std::string& buffer);
-int		ReadSocket(NetworkSocket sock, void* buffer, int nbytes);
-bool	IsSocketStateValid(NetworkSocket sock);
-bool	IsSocketReady(NetworkSocket sock);
-void	InvalidateSocketState(NetworkSocket& sock);
-void AddSocketToNotifierGroup( NetworkSocket sock );
-void RemoveSocketFromNotifierGroup( NetworkSocket sock );
-void	WaitForSocketWrite(NetworkSocket sock, int timeout);
-void	WaitForSocketRead(NetworkSocket sock, int timeout);
-void	WaitForSocketReadOrWrite(NetworkSocket sock, int timeout);
-
-int		GetSocketErrorNr();
-std::string	GetSocketErrorStr(int errnr);
-std::string	GetLastErrorStr();
-bool	IsMessageEndSocketErrorNr(int errnr);
-void	ResetSocketError();
-
-bool	GetLocalNetAddr(NetworkSocket sock, NetworkAddr& addr);
-bool	GetRemoteNetAddr(NetworkSocket sock, NetworkAddr& addr);
-bool	SetRemoteNetAddr(NetworkSocket sock, const NetworkAddr& addr);
 bool	IsNetAddrValid(const NetworkAddr& addr);
 bool	IsNetAddrAvailable(const NetworkAddr& addr);
 bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
@@ -99,6 +67,98 @@ bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
 bool	GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr);
 void	AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff expireTime = TimeDiff(600.0f));
 bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
-bool	isDataAvailable(NetworkSocket sock); // Slow!
+
+
+
+// general networking
+bool	InitNetworkSystem();
+bool	QuitNetworkSystem();
+
+
+class NetworkSocket {
+public:
+	enum Type { NST_INVALID, NST_TCP, NST_UDP, NST_UDPBROADCAST };
+	enum State { NSS_NONE, NSS_CONNECTED, NSS_LISTENING };
+	typedef unsigned short Port;
+	
+	static std::string TypeStr(Type t) {
+		switch(t) {
+			case NST_INVALID: return "Invalid";
+			case NST_TCP: return "TCP";
+			case NST_UDP: return "UDP";
+			case NST_UDPBROADCAST: return "UDP Broadcast";
+		}
+		return "BADTYPE";
+	}
+	
+	static std::string StateStr(State s) {
+		switch(s) {
+			case NSS_NONE: return "None";
+			case NSS_CONNECTED: return "Connected";
+			case NSS_LISTENING: return "Listening";
+		}
+		return "BADSTATE";
+	}
+	
+private:
+	Type m_type;
+	State m_state;
+	bool m_withEvents;
+	struct InternSocket; InternSocket* m_socket;
+	friend struct InternSocket;
+	
+	// Don't copy instances of this class! Use SmartPointer if you want to have multiple references to a socket.
+	// You can swap two NetworkSockets though.
+	NetworkSocket(const NetworkSocket&) { assert(false); }
+	NetworkSocket& operator=(const NetworkSocket&) { assert(false); }
+public:
+	NetworkSocket(); ~NetworkSocket();
+	void swap(NetworkSocket& sock);
+	
+	Type type() const { return m_type; }
+	State state() const { return m_state; }
+	bool isOpen() const { return m_type != NST_INVALID; }
+	bool withEvents() const { return m_withEvents; }
+	void setWithEvents(bool v);
+	
+	Port localPort() const;
+	Port remotePort() const;
+	NetworkAddr localAddress() const;
+	NetworkAddr remoteAddress() const;
+	bool setRemoteAddress(const NetworkAddr& addr);
+	void reapplyRemoteAddress();
+	
+	bool OpenReliable(Port port);
+	bool OpenUnreliable(Port port);
+	bool OpenBroadcast(Port port);
+	void Close();
+	void Clear() { if(isOpen()) Close(); }
+	
+	bool Connect(const NetworkAddr& addr);
+	bool Listen();
+	
+	bool isReady() const;
+	int Write(const void* buffer, int nbytes);
+	int Write(const std::string& buffer) { return Write(buffer.data(), buffer.size()); }
+	int Read(void* buffer, int nbytes);
+	
+	bool isDataAvailable(); // Slow!
+
+	// WARNING: Don't use!
+	void	WaitForSocketWrite(int timeout);
+	void	WaitForSocketRead(int timeout);
+	void	WaitForSocketReadOrWrite(int timeout);
+	
+	std::string debugString() const;
+};
+
+
+
+int		GetSocketErrorNr();
+std::string	GetSocketErrorStr(int errnr);
+std::string	GetLastErrorStr();
+bool	IsMessageEndSocketErrorNr(int errnr);
+void	ResetSocketError();
+
 
 #endif  //  __NETWORKING_H__

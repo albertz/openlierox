@@ -61,8 +61,7 @@ bool Menu_NetInitialize(bool withSubMenu)
 	iNetMode = net_main;
 
 	// Add all the network sockets to the notifier groups (for events)
-	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(NetworkSocket); ++i)
-		AddSocketToNotifierGroup(tMenu->tSocket[i]);
+	Menu_EnableNetEvents();
 
 	// Create the buffer
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
@@ -330,8 +329,7 @@ void Menu_NetShutdown()
 	}
 
 	// Remove all the network sockets from the notifier groups (we don't want any events anymore)
-	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(NetworkSocket); ++i)
-		RemoveSocketFromNotifierGroup(tMenu->tSocket[i]);
+	Menu_DisableNetEvents();
 }
 
 }; // namespace DeprecatedGUI

@@ -619,15 +619,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	}
 	
 	// in lobby we need the events again
-	
-	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
-		AddSocketToNotifierGroup( tSockets[i] );
-	for (std::list<NatConnection>::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
-		if(IsSocketStateValid(it->tTraverseSocket))
-			AddSocketToNotifierGroup(it->tTraverseSocket);
-		else if (IsSocketStateValid(it->tConnectHereSocket))
-			AddSocketToNotifierGroup(it->tConnectHereSocket);
-	}
+	SetSocketWithEvents(true);
 
 	short i;
 
