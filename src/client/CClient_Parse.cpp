@@ -125,6 +125,8 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	
 	// ignore this (we get it very often if we have hosted once - it's a server package)
 	else if(cmd == "lx::ping") {}
+	// ignore this also, it's sent by old servers
+	else if(cmd == "lx:mouseAllowed") {}
 	
 	// Unknown
 	else  {
