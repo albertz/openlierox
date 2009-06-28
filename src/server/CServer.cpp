@@ -1311,6 +1311,7 @@ void GameServer::CheckWeaponSelectionTime()
 
 void GameServer::CheckForFillWithBots() {
 	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] <= 0) return; // feature not activated
+	if(!cClient->canAddWorm()) return; // probably means we have disabled projectile simulation or so
 	
 	// check if already too much players
 	if(getNumPlayers() > (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] && getNumBots() > 0) {
