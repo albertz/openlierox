@@ -157,6 +157,18 @@ enum Proj_ActionType {
 	PJ_INJUREPROJ = 11,
 	PJ_PLAYSOUND = 12,
 	PJ_INJUREWORM = 13,
+	PJ_ChangeRadius = 14,
+	PJ_OverwriteOwnSpeed = 15,
+	PJ_MultiplyOwnSpeed = 16,
+	PJ_DiffOwnSpeed = 17,
+	PJ_OverwriteTargetSpeed = 18,
+	PJ_MultiplyTargetSpeed = 19,
+	PJ_DiffTargetSpeed = 20,
+	PJ_HeadingToNextWorm = 21,
+	PJ_HeadingToOwner = 22,
+	PJ_HeadingToNextOtherWorm = 23,
+	PJ_HeadingToNextEnemyWorm = 24,
+	PJ_HeadingToNextTeamMate = 25,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
@@ -195,10 +207,7 @@ struct Proj_Action {
 	Proj_Action() :
 	Type(PJ_EXPLODE), Damage(0), Projectiles(false), Shake(0),
 	UseSound(false), BounceCoeff(0.5), BounceExplode(0),
-	Sound(NULL), GoThroughSpeed(1.0f),
-	UseOverwriteOwnSpeed(false), ChangeOwnSpeed(1.0f),
-	UseOverwriteTargetSpeed(false), ChangeTargetSpeed(1.0f),
-	HeadingToNextWormSpeed(0), HeadingToOwnerSpeed(0), HeadingToNextOtherWormSpeed(0), HeadingToNextEnemyWormSpeed(0), HeadingToNextTeamMateSpeed(0),
+	Sound(NULL), GoThroughSpeed(1.0f), SpeedMult(1.0f),
 	additionalAction(NULL) { Proj.Amount = 1; }
 	~Proj_Action() { if(additionalAction) delete additionalAction; additionalAction = NULL; }
 	Proj_Action(const Proj_Action& a) : Type(PJ_NOTHING), additionalAction(NULL) { operator=(a); }
@@ -228,34 +237,14 @@ struct Proj_Action {
 	float	GoThroughSpeed;
 	VectorD2<int>	ChangeRadius;
 	
-	bool	UseOverwriteOwnSpeed;
-	VectorD2<float> OverwriteOwnSpeed;
-	MatrixD2<float> ChangeOwnSpeed;
-	VectorD2<float> DiffOwnSpeed;
-	bool	UseOverwriteTargetSpeed;
-	VectorD2<float> OverwriteTargetSpeed;
-	MatrixD2<float> ChangeTargetSpeed;
-	VectorD2<float> DiffTargetSpeed;
-	
-	float	HeadingToNextWormSpeed;
-	float	HeadingToOwnerSpeed;
-	float	HeadingToNextOtherWormSpeed;
-	float	HeadingToNextEnemyWormSpeed;
-	float	HeadingToNextTeamMateSpeed;
+	VectorD2<float> Speed;
+	MatrixD2<float> SpeedMult;
 	
 	Proj_Action* additionalAction;
 	
 	bool hasAction() const {
 		if(Type != PJ_NOTHING) return true;
 		if(Projectiles) return true;
-		if(ChangeRadius != VectorD2<int>()) return true;
-		if(UseOverwriteOwnSpeed) return true;
-		if(UseOverwriteTargetSpeed) return true;
-		if(ChangeOwnSpeed != MatrixD2<float>(1.0f)) return true;
-		if(ChangeTargetSpeed != MatrixD2<float>(1.0f)) return true;
-		if(DiffOwnSpeed != VectorD2<float>()) return true;
-		if(DiffTargetSpeed != VectorD2<float>()) return true;
-		if(HeadingToNextWormSpeed || HeadingToNextOtherWormSpeed || HeadingToNextEnemyWormSpeed || HeadingToNextTeamMateSpeed) return true;
 		return (additionalAction && additionalAction->hasAction());
 	}
 	bool needGeneralSpawnInfo() const { return Projectiles && !Proj.isSet(); }
@@ -486,7 +475,6 @@ struct Proj_DoActionInfo {
 	explode(false), damage(-1), timer(false), shake(0),
 	dirt(false), grndirt(false), deleteAfter(false),
 	trailprojspawn(false), spawnprojectiles(false),
-	OverwriteOwnSpeed(NULL), ChangeOwnSpeed(1.0f),
 	sound(NULL) {}
 	
 	bool	explode;
@@ -500,13 +488,7 @@ struct Proj_DoActionInfo {
 	
 	bool	spawnprojectiles;
 	std::list<const Proj_SpawnInfo*> otherSpawns;
-	
-	const VectorD2<float>* OverwriteOwnSpeed;
-	MatrixD2<float> ChangeOwnSpeed;
-	VectorD2<float> DiffOwnSpeed;
-
-	VectorD2<int>	ChangeRadius;
-	
+		
 	SoundSample*	sound;
 	
 	bool hasAnyEffect() const; // NOTE: sound doesn't count

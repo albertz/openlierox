@@ -76,6 +76,7 @@ typedef std::map<const Proj_TimerEvent*, ProjTimerState> ProjTimerInfo; // saves
 class CProjectile: public CGameObject {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
+	friend struct Proj_Action;
 	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
 	friend ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms);
 	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56ProjAttribs& attribs, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult);

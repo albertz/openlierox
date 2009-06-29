@@ -1991,20 +1991,29 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
 	ReadVectorD2(file, section, "ChangeRadius", ChangeRadius, ChangeRadius);
 	
-	if(ReadVectorD2(file, section, "OverwriteOwnSpeed", OverwriteOwnSpeed, OverwriteOwnSpeed))
-		UseOverwriteOwnSpeed = true;
-	ReadMatrixD2(file, section, "ChangeOwnSpeed", ChangeOwnSpeed, ChangeOwnSpeed);
-	if(ReadVectorD2(file, section, "OverwriteTargetSpeed", OverwriteTargetSpeed, OverwriteTargetSpeed))
-		UseOverwriteTargetSpeed = true;
-	ReadMatrixD2(file, section, "ChangeTargetSpeed", ChangeTargetSpeed, ChangeTargetSpeed);
-	ReadVectorD2(file, section, "DiffOwnSpeed", DiffOwnSpeed, DiffOwnSpeed);
-	ReadVectorD2(file, section, "DiffTargetSpeed", DiffTargetSpeed, DiffTargetSpeed);
-	
-	ReadFloat(file, section, "HeadingToNextWormSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
-	ReadFloat(file, section, "HeadingToOwnerSpeed", &HeadingToOwnerSpeed, HeadingToOwnerSpeed);
-	ReadFloat(file, section, "HeadingToNextOtherWormSpeed", &HeadingToNextOtherWormSpeed, HeadingToNextOtherWormSpeed);
-	ReadFloat(file, section, "HeadingToNextEnemyWormSpeed", &HeadingToNextEnemyWormSpeed, HeadingToNextEnemyWormSpeed);
-	ReadFloat(file, section, "HeadingToNextTeamMateSpeed", &HeadingToNextTeamMateSpeed, HeadingToNextTeamMateSpeed);
+	switch(Type) {
+		case PJ_OverwriteOwnSpeed:
+		case PJ_DiffOwnSpeed:
+		case PJ_OverwriteTargetSpeed:
+		case PJ_DiffTargetSpeed:
+			if(!ReadVectorD2(file, section, "Speed", Speed, Speed)) {
+				warnings << "Speed attribute missing in " << dir << "/" << file << ":" << section << endl;
+			}
+		default: break;
+	}			
+	switch(Type) {
+		case PJ_MultiplyOwnSpeed:
+		case PJ_MultiplyTargetSpeed:
+		case PJ_HeadingToNextWorm:
+		case PJ_HeadingToOwner:
+		case PJ_HeadingToNextOtherWorm:
+		case PJ_HeadingToNextEnemyWorm:
+		case PJ_HeadingToNextTeamMate:
+			if(!ReadMatrixD2(file, section, "SpeedMult", SpeedMult, SpeedMult)) {
+				warnings << "SpeedMult attribute missing in " << dir << "/" << file << ":" << section << endl;		
+			}
+		default: break;
+	}
 	
 	if(Projectiles)
 		Proj.readFromIni(gs, dir, file, section + ".Projectile");
@@ -2061,20 +2070,8 @@ bool Proj_Action::read(CGameScript* gs, FILE* fp) {
 	fread_endian<int>(fp, BounceExplode);
 	fread_endian<float>(fp, GoThroughSpeed);
 	fread_endian_V<int>(fp, ChangeRadius);
-	fread_endian<char>(fp, UseOverwriteOwnSpeed);
-	fread_endian<char>(fp, UseOverwriteTargetSpeed);
-	fread_endian_V<float>(fp, OverwriteOwnSpeed);
-	fread_endian_M<float>(fp, ChangeOwnSpeed);
-	fread_endian_V<float>(fp, OverwriteTargetSpeed);
-	fread_endian_M<float>(fp, ChangeTargetSpeed);
-	fread_endian_V<float>(fp, DiffOwnSpeed);
-	fread_endian_V<float>(fp, DiffTargetSpeed);
-	fread_endian<float>(fp, HeadingToNextWormSpeed);
-	fread_endian<float>(fp, HeadingToOwnerSpeed);	
-	fread_endian<float>(fp, HeadingToNextOtherWormSpeed);
-	fread_endian<float>(fp, HeadingToNextEnemyWormSpeed);
-	fread_endian<float>(fp, HeadingToNextTeamMateSpeed);
-	
+	fread_endian_V<float>(fp, Speed);
+	fread_endian_M<float>(fp, SpeedMult);	
 	if(Projectiles) Proj.read(gs, fp);
 	
 	bool haveAddAction = false;
@@ -2102,19 +2099,8 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<int>(fp, BounceExplode);
 	fwrite_endian<float>(fp, GoThroughSpeed);
 	fwrite_endian_V<int>(fp, ChangeRadius);
-	fwrite_endian<char>(fp, UseOverwriteOwnSpeed);
-	fwrite_endian<char>(fp, UseOverwriteTargetSpeed);
-	fwrite_endian_V<float>(fp, OverwriteOwnSpeed);
-	fwrite_endian_M<float>(fp, ChangeOwnSpeed);
-	fwrite_endian_V<float>(fp, OverwriteTargetSpeed);
-	fwrite_endian_M<float>(fp, ChangeTargetSpeed);
-	fwrite_endian_V<float>(fp, DiffOwnSpeed);
-	fwrite_endian_V<float>(fp, DiffTargetSpeed);
-	fwrite_endian<float>(fp, HeadingToNextWormSpeed);
-	fwrite_endian<float>(fp, HeadingToOwnerSpeed);	
-	fwrite_endian<float>(fp, HeadingToNextOtherWormSpeed);
-	fwrite_endian<float>(fp, HeadingToNextEnemyWormSpeed);
-	fwrite_endian<float>(fp, HeadingToNextTeamMateSpeed);
+	fwrite_endian_V<float>(fp, Speed);
+	fwrite_endian_M<float>(fp, SpeedMult);
 	
 	if(Projectiles) Proj.write(gs, fp);
 	

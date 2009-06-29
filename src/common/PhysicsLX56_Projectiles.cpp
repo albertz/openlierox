@@ -458,24 +458,26 @@ static void Projectile_HandleAttractiveForceForObject(CProjectile* const prj, Ti
 	const float r2 = (info->AttractiveForceRadius <= 0) ? maxGravityRadius2 : SQR(info->AttractiveForceRadius);
 	
 	switch (info->AttractiveForceType)  {
-	case ATT_GRAVITY:  {
-		drag *= weight / MIN(force.GetLength2(), r2);
-	} break;
-	case ATT_CONSTANT:  // Do not change the drag at all
-	break;
-	case ATT_LINEAR:  // Lower force if the object is far away, using the formula 1 - x/max_x
-		drag *= 1.0f - force.GetLength() / sqrtf(r2);
-	break;
-	case ATT_QUADRATIC:  {  // Lower force if the object is far away, using the formula a/x^2
-		const float len2 = force.GetLength2();
-		if (len2 != 0)  {
-			const float r = sqrtf(r2);
-			float b = sqrtf(drag * (4*weight + drag * r2)) * r / (2*drag) - r2/2;
-			float c = drag/2 - sqrtf(drag * (4*weight + drag * r2)) / (2*r);
-			drag *= weight/(len2 + b);
-			drag += c;
+		case ATT_GRAVITY:  {
+			drag *= weight / MIN(force.GetLength2(), r2);
+			break;
 		}
-	} break;
+		case ATT_CONSTANT:  // Do not change the drag at all
+			break;
+		case ATT_LINEAR:  // Lower force if the object is far away, using the formula 1 - x/max_x
+			drag *= 1.0f - force.GetLength() / sqrtf(r2);
+			break;
+		case ATT_QUADRATIC:  {  // Lower force if the object is far away, using the formula a/x^2
+			const float len2 = force.GetLength2();
+			if (len2 != 0)  {
+				const float r = sqrtf(r2);
+				float b = sqrtf(drag * (4*weight + drag * r2)) * r / (2*drag) - r2/2;
+				float c = drag/2 - sqrtf(drag * (4*weight + drag * r2)) / (2*r);
+				drag *= weight/(len2 + b);
+				drag += c;
+			}
+			break;
+		}
 	}
 
 	objvel += force.Normalize() * drag * dt.seconds();
@@ -646,66 +648,66 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 
 int Proj_SpawnParent::ownerWorm() const {
 	switch(type) {
-	case PSPT_NOTHING: return -1;
-	case PSPT_SHOT: return shot->nWormID;
-	case PSPT_PROJ: return proj->GetOwner();
+		case PSPT_NOTHING: return -1;
+		case PSPT_SHOT: return shot->nWormID;
+		case PSPT_PROJ: return proj->GetOwner();
 	}
 	return -1;
 }
 
 int Proj_SpawnParent::fixedRandomIndex() const {
 	switch(type) {
-	case PSPT_NOTHING: return -1;
-	case PSPT_SHOT: return shot->nRandom;
-	case PSPT_PROJ: return proj->getRandomIndex() + 1;
+		case PSPT_NOTHING: return -1;
+		case PSPT_SHOT: return shot->nRandom;
+		case PSPT_PROJ: return proj->getRandomIndex() + 1;
 	}
 	return -1;
 }
 
 float Proj_SpawnParent::fixedRandomFloat() const {
 	switch(type) {
-	case PSPT_NOTHING: return -1;
-	case PSPT_SHOT: return GetFixedRandomNum(shot->nRandom);
-	case PSPT_PROJ: return proj->getRandomFloat();
+		case PSPT_NOTHING: return -1;
+		case PSPT_SHOT: return GetFixedRandomNum(shot->nRandom);
+		case PSPT_PROJ: return proj->getRandomFloat();
 	}
 	return -1;
 }
 
 CVec Proj_SpawnParent::position() const {
 	switch(type) {
-	case PSPT_NOTHING: return CVec(0,0);
-	case PSPT_SHOT: {
-		CVec dir;
-		GetVecsFromAngle(shot->nAngle, &dir, NULL);
-		CVec pos = shot->cPos + dir*8;
-		return pos;
-	}
-	case PSPT_PROJ: return proj->getPos();
+		case PSPT_NOTHING: return CVec(0,0);
+		case PSPT_SHOT: {
+			CVec dir;
+			GetVecsFromAngle(shot->nAngle, &dir, NULL);
+			CVec pos = shot->cPos + dir*8;
+			return pos;
+		}
+		case PSPT_PROJ: return proj->getPos();
 	}
 	return CVec(0,0);
 }
 
 CVec Proj_SpawnParent::velocity() const {
 	switch(type) {
-	case PSPT_NOTHING: return CVec(0,0);
-	case PSPT_SHOT: return shot->cWormVel;
-	case PSPT_PROJ: return proj->getVelocity();
+		case PSPT_NOTHING: return CVec(0,0);
+		case PSPT_SHOT: return shot->cWormVel;
+		case PSPT_PROJ: return proj->getVelocity();
 	}
 	return CVec(0,0);
 }
 
 float Proj_SpawnParent::angle() const {
 	switch(type) {
-	case PSPT_NOTHING: return 0;
-	case PSPT_SHOT: return (float)shot->nAngle;
-	case PSPT_PROJ: {
-		CVec v = velocity();
-		NormalizeVector(&v);
-		float heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
-		heading+=90;
-		FMOD(heading, 360.0f);
-		return heading;
-	}
+		case PSPT_NOTHING: return 0;
+		case PSPT_SHOT: return (float)shot->nAngle;
+		case PSPT_PROJ: {
+			CVec v = velocity();
+			NormalizeVector(&v);
+			float heading = (float)( -atan2(v.x,v.y) * (180.0f/PI) );
+			heading+=90;
+			FMOD(heading, 360.0f);
+			return heading;
+		}
 	}
 	return 0;
 }
@@ -801,19 +803,8 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	Sound = a.Sound;
 	GoThroughSpeed = a.GoThroughSpeed;
 	ChangeRadius = a.ChangeRadius;
-	UseOverwriteOwnSpeed = a.UseOverwriteOwnSpeed;
-	OverwriteOwnSpeed = a.OverwriteOwnSpeed;
-	ChangeOwnSpeed = a.ChangeOwnSpeed;
-	UseOverwriteTargetSpeed = a.UseOverwriteTargetSpeed;
-	OverwriteTargetSpeed = a.OverwriteTargetSpeed;
-	ChangeTargetSpeed = a.ChangeTargetSpeed;
-	DiffOwnSpeed = a.DiffOwnSpeed;
-	DiffTargetSpeed = a.DiffTargetSpeed;
-	HeadingToNextWormSpeed = a.HeadingToNextWormSpeed;
-	HeadingToOwnerSpeed = a.HeadingToOwnerSpeed;
-	HeadingToNextOtherWormSpeed = a.HeadingToNextOtherWormSpeed;
-	HeadingToNextEnemyWormSpeed = a.HeadingToNextEnemyWormSpeed;
-	HeadingToNextTeamMateSpeed = a.HeadingToNextTeamMateSpeed;
+	Speed = a.Speed;
+	SpeedMult = a.SpeedMult;
 	if(a.additionalAction) additionalAction = new Proj_Action(*a.additionalAction);
 	
 	return *this;
@@ -910,104 +901,179 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	bool spawnprojs = Projectiles;
 	
 	switch (Type)  {
-			// Explosion
-	case PJ_EXPLODE:
-		info->explode = true;
-		info->damage = Damage;
-		
-		if(eventInfo.timerHit)
-			info->timer = true;
-		
-		if(Shake > info->shake)
-			info->shake = Shake;
-		
-			// Play the hit sound
-		if(UseSound && Sound)
-			info->sound = Sound;
-		break;
-		
-			// Bounce
-	case PJ_BOUNCE:
-		if(eventInfo.timerHit) { spawnprojs = false; break; }
-		push_worm = false;
-		prj->Bounce(BounceCoeff);
-		
-			// Do we do a bounce-explosion (bouncy larpa uses this)
-		if(BounceExplode > 0)
-			cClient->Explosion(prj->getPos(), BounceExplode, false, prj->GetOwner());
-		break;
-		
-			// Carve
-	case PJ_CARVE:
-		if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
-			int d = cClient->getMap()->CarveHole(Damage, prj->getPos());
-			info->deleteAfter = true;
+		// Explosion
+		case PJ_EXPLODE:
+			info->explode = true;
+			info->damage = Damage;
 			
-				// Increment the dirt count
-			if(prj->hasOwner())
-				cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
-		}
-		break;
-		
-			// Dirt
-	case PJ_DIRT:
-		info->dirt = true;
-		if(eventInfo.timerHit && Shake > info->shake)
-			info->shake = Shake;
-		break;
-		
-			// Green Dirt
-	case PJ_GREENDIRT:
-		info->grndirt = true;
-		if(eventInfo.timerHit && Shake > info->shake)
-			info->shake = Shake;
-		break;
-		
-	case PJ_DISAPPEAR2:
-		info->deleteAfter = true;
-		break;
-	
-	case PJ_INJUREWORM:
-		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
-		}			
-		break;
+			if(eventInfo.timerHit)
+				info->timer = true;
 			
-	case PJ_INJURE:
-		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			info->deleteAfter = true;
-			cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+			if(Shake > info->shake)
+				info->shake = Shake;
+			
+				// Play the hit sound
+			if(UseSound && Sound)
+				info->sound = Sound;
 			break;
-		}
-		
-	case PJ_DISAPPEAR:
-			// TODO: do something special?
-		if(eventInfo.colType && eventInfo.colType->withWorm) break;
-		
-	case PJ_GOTHROUGH:
-	case PJ_NOTHING:
-		// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
-		if(eventInfo.colType && !eventInfo.colType->withWorm && (eventInfo.colType->colMask & PJC_MAPBORDER)) {
-			// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
-			// It means, if such a projectile which goes through everything hits the mapborder, it will
-			// get deleted - otherwise it would be stuck there at the border.
+			
+		// Bounce
+		case PJ_BOUNCE:
+			if(eventInfo.timerHit) { spawnprojs = false; break; }
+			push_worm = false;
+			prj->Bounce(BounceCoeff);
+			
+				// Do we do a bounce-explosion (bouncy larpa uses this)
+			if(BounceExplode > 0)
+				cClient->Explosion(prj->getPos(), BounceExplode, false, prj->GetOwner());
+			break;
+			
+		// Carve
+		case PJ_CARVE:
+			if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
+				int d = cClient->getMap()->CarveHole(Damage, prj->getPos());
+				info->deleteAfter = true;
+				
+					// Increment the dirt count
+				if(prj->hasOwner())
+					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+			}
+			break;
+			
+		// Dirt
+		case PJ_DIRT:
+			info->dirt = true;
+			if(eventInfo.timerHit && Shake > info->shake)
+				info->shake = Shake;
+			break;
+			
+		// Green Dirt
+		case PJ_GREENDIRT:
+			info->grndirt = true;
+			if(eventInfo.timerHit && Shake > info->shake)
+				info->shake = Shake;
+			break;
+			
+		case PJ_DISAPPEAR2:
 			info->deleteAfter = true;
-		}
-		push_worm = false;
-		if(eventInfo.timerHit) spawnprojs = false;
-		break;
+			break;
 		
-	case PJ_INJUREPROJ:
-		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p)
-			(*p)->injure(Damage);
-		break;
+		case PJ_INJUREWORM:
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
+				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+			}			
+			break;
+				
+		case PJ_INJURE:
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
+				info->deleteAfter = true;
+				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+				break;
+			}
+			
+		case PJ_DISAPPEAR:
+			// TODO: do something special?
+			if(eventInfo.colType && eventInfo.colType->withWorm) break;
+			
+		case PJ_GOTHROUGH:
+		case PJ_NOTHING:
+			// if Hit_Type == PJ_NOTHING, it means that this projectile goes through all walls
+			if(eventInfo.colType && !eventInfo.colType->withWorm && (eventInfo.colType->colMask & PJC_MAPBORDER)) {
+				// HINT: This is new since Beta9. I hope it doesn't change any serious behaviour.
+				// It means, if such a projectile which goes through everything hits the mapborder, it will
+				// get deleted - otherwise it would be stuck there at the border.
+				info->deleteAfter = true;
+			}
+			push_worm = false;
+			if(eventInfo.timerHit) spawnprojs = false;
+			break;
+			
+		case PJ_INJUREPROJ:
+			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p)
+				(*p)->injure(Damage);
+			break;
+			
+		case PJ_PLAYSOUND:
+			if(UseSound && Sound)
+				info->sound = Sound;
+			break;
 		
-	case PJ_PLAYSOUND:
-		if(UseSound && Sound)
-			info->sound = Sound;
-		break;
-		
-	case __PJ_LBOUND: case __PJ_UBOUND: errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
+		case PJ_ChangeRadius:
+			prj->radius += ChangeRadius;
+			if(prj->radius.x < 0) prj->radius.x = 0;
+			if(prj->radius.y < 0) prj->radius.y = 0;
+			prj->setBestLX56Handler(); // because LX56Handler could depend on radius
+			break;
+			
+		case PJ_OverwriteOwnSpeed:
+			prj->setVelocity(Speed);
+			break;
+			
+		case PJ_MultiplyOwnSpeed:
+			prj->setVelocity( SpeedMult * prj->getVelocity() );
+			break;
+			
+		case PJ_DiffOwnSpeed:
+			prj->setVelocity( prj->getVelocity() + Speed );
+			break;
+			
+		case PJ_OverwriteTargetSpeed:
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
+				cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() = Speed;
+			}
+			
+			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+				(*p)->setVelocity(Speed);
+			}
+			break;
+			
+		case PJ_MultiplyTargetSpeed:
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
+				CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
+				v = SpeedMult * v;
+			}
+			
+			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+				(*p)->setVelocity( SpeedMult * (*p)->getVelocity() );
+			}
+			break;
+			
+		case PJ_DiffTargetSpeed:
+			if(eventInfo.colType && eventInfo.colType->withWorm) {
+				CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
+				v += Speed;
+			}
+			
+			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+				(*p)->setVelocity( (*p)->getVelocity() + Speed );
+			}
+			break;
+			
+		case PJ_HeadingToNextWorm:
+			prj->velocity() = SpeedMult * getVelChangeForProj(nearestWorm(prj->getPos()), prj, 1.0f) * prj->velocity();
+			break;
+			
+		case PJ_HeadingToOwner:
+			if(prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
+				prj->velocity() = SpeedMult * getVelChangeForProj(&cClient->getRemoteWorms()[prj->GetOwner()], prj, 1.0f) * prj->velocity();
+			}
+			break;
+			
+		case PJ_HeadingToNextOtherWorm:
+			prj->velocity() = SpeedMult * getVelChangeForProj(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			break;
+			
+		case PJ_HeadingToNextEnemyWorm:
+			prj->velocity()  = SpeedMult * getVelChangeForProj(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			break;
+			
+		case PJ_HeadingToNextTeamMate:
+			prj->velocity() = SpeedMult * getVelChangeForProj(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			break;
+			
+		case __PJ_LBOUND: case __PJ_UBOUND:
+			errors << "Proj_Action::applyTo: hit __PJ_BOUND" << endl;
+			break;
 	}
 	
 	// Push the worm back
@@ -1023,53 +1089,6 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		else
 			info->spawnprojectiles = true;
 	}
-	
-	if(UseOverwriteOwnSpeed) info->OverwriteOwnSpeed = &OverwriteOwnSpeed;
-	info->ChangeOwnSpeed = ChangeOwnSpeed * info->ChangeOwnSpeed;
-	info->DiffOwnSpeed += DiffOwnSpeed;
-	
-	if(HeadingToNextWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestWorm(prj->getPos()), prj, HeadingToNextWormSpeed) * info->ChangeOwnSpeed;
-	}
-	
-	if(HeadingToOwnerSpeed && prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
-		info->ChangeOwnSpeed = getVelChangeForProj(&cClient->getRemoteWorms()[prj->GetOwner()], prj, HeadingToOwnerSpeed) * info->ChangeOwnSpeed;
-	}
-	
-	if(HeadingToNextOtherWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, HeadingToNextOtherWormSpeed) * info->ChangeOwnSpeed;
-	}
-	
-	if(HeadingToNextEnemyWormSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, HeadingToNextEnemyWormSpeed) * info->ChangeOwnSpeed;
-	}
-	
-	if(HeadingToNextTeamMateSpeed) {
-		info->ChangeOwnSpeed = getVelChangeForProj(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, HeadingToNextTeamMateSpeed) * info->ChangeOwnSpeed;
-	}
-	
-	if(UseOverwriteTargetSpeed) {
-		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() = OverwriteTargetSpeed;
-		}
-		
-		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
-			(*p)->setVelocity(OverwriteTargetSpeed);
-		}
-	}
-	
-	if(ChangeTargetSpeed != MatrixD2<float>(1.0f) || DiffTargetSpeed != VectorD2<float>()) {
-		if(eventInfo.colType && eventInfo.colType->withWorm) {
-			CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
-			v = ChangeTargetSpeed * v + DiffTargetSpeed;
-		}
-		
-		for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
-			(*p)->setVelocity( ChangeTargetSpeed * (*p)->getVelocity() + DiffTargetSpeed );
-		}
-	}
-	
-	info->ChangeRadius += ChangeRadius;
 	
 	if(additionalAction) {
 		Proj_EventOccurInfo ev(eventInfo);
@@ -1287,10 +1306,6 @@ bool Proj_DoActionInfo::hasAnyEffect() const {
 	if(explode) return true;
 	if(dirt || grndirt) return true;
 	if(trailprojspawn || spawnprojectiles || otherSpawns.size() > 0) return true;
-	if(OverwriteOwnSpeed) return true;
-	if(ChangeOwnSpeed != MatrixD2<float>(1.0f)) return true;
-	if(DiffOwnSpeed != VectorD2<float>()) return true;
-	if(ChangeRadius != VectorD2<int>()) return true;
 	if(deleteAfter) return true;
 	return false;
 }
@@ -1318,21 +1333,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		projectile_doMakeGreenDirt(prj);
 		deleteAfter = true;
 	}
-	
-	if(OverwriteOwnSpeed)
-		prj->setVelocity(*OverwriteOwnSpeed);
-	
-	prj->setVelocity( ChangeOwnSpeed * prj->getVelocity() );
-	
-	prj->setVelocity( prj->getVelocity() + DiffOwnSpeed );
-	
-	if(ChangeRadius.x || ChangeRadius.y) {
-		prj->radius += ChangeRadius;
-		if(prj->radius.x < 0) prj->radius.x = 0;
-		if(prj->radius.y < 0) prj->radius.y = 0;
-		prj->setBestLX56Handler(); // because LX56Handler could depend on radius
-	}
-	
+		
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
 		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );
