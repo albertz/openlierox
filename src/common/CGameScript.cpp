@@ -1296,15 +1296,19 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("WPN_PROJECTILE",WPN_PROJECTILE);
 	AddKeyword("WPN_SPECIAL",WPN_SPECIAL);
 	AddKeyword("WPN_BEAM",WPN_BEAM);
+	
 	AddKeyword("WCL_AUTOMATIC",WCL_AUTOMATIC);
 	AddKeyword("WCL_POWERGUN",WCL_POWERGUN);
 	AddKeyword("WCL_GRENADE",WCL_GRENADE);
 	AddKeyword("WCL_CLOSERANGE",WCL_CLOSERANGE);
+	
 	AddKeyword("PRJ_PIXEL",PRJ_PIXEL);
 	AddKeyword("PRJ_IMAGE",PRJ_IMAGE);
 	AddKeyword("PRJ_CIRCLE",PRJ_CIRCLE);
 	AddKeyword("PRJ_POLYGON",PRJ_POLYGON);
 	AddKeyword("PRJ_RECT", PRJ_RECT);
+	
+	// action types
 	AddKeyword("Bounce",PJ_BOUNCE);
 	AddKeyword("Explode",PJ_EXPLODE);
 	AddKeyword("Injure",PJ_INJURE);
@@ -1318,40 +1322,61 @@ bool CGameScript::Compile(const std::string& dir)
 	AddKeyword("GoThrough", PJ_GOTHROUGH);
 	AddKeyword("PlaySound", PJ_PLAYSOUND);
 	AddKeyword("InjureWorm", PJ_INJUREWORM);
+	AddKeyword("OverwriteOwnSpeed", PJ_OverwriteOwnSpeed);
+	AddKeyword("MultiplyOwnSpeed", PJ_MultiplyOwnSpeed);
+	AddKeyword("DiffOwnSpeed", PJ_DiffOwnSpeed);
+	AddKeyword("OverwriteTargetSpeed", PJ_OverwriteTargetSpeed);
+	AddKeyword("MultiplyTargetSpeed", PJ_MultiplyTargetSpeed);
+	AddKeyword("DiffTargetSpeed", PJ_DiffTargetSpeed);
+	AddKeyword("HeadingToNextWorm", PJ_HeadingToNextWorm);
+	AddKeyword("HeadingToOwner", PJ_HeadingToOwner);
+	AddKeyword("HeadingToNextOtherWorm", PJ_HeadingToNextOtherWorm);
+	AddKeyword("HeadingToNextEnemyWorm", PJ_HeadingToNextEnemyWorm);
+	AddKeyword("HeadingToNextTeamMate", PJ_HeadingToNextTeamMate);
+	
+	// event types
 	AddKeyword("Timer", Proj_Event::PET_TIMER); 
 	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
 	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
 	AddKeyword("TerrainHit", Proj_Event::PET_TERRAINHIT); 
 	AddKeyword("Death", Proj_Event::PET_DEATH); 
 	AddKeyword("Fallback", Proj_Event::PET_FALLBACK); 
+	
+	// trail types
 	AddKeyword("TRL_NONE",TRL_NONE);
 	AddKeyword("TRL_SMOKE",TRL_SMOKE);
 	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
 	AddKeyword("TRL_PROJECTILE",TRL_PROJECTILE);
 	AddKeyword("TRL_DOOMSDAY",TRL_DOOMSDAY);
 	AddKeyword("TRL_EXPLOSIVE",TRL_EXPLOSIVE);
+	
 	AddKeyword("SPC_JETPACK",SPC_JETPACK);
+	
 	AddKeyword("ANI_ONCE",ANI_ONCE);
 	AddKeyword("ANI_LOOP",ANI_LOOP);
 	AddKeyword("ANI_PINGPONG",ANI_PINGPONG);
-	AddKeyword("true",true);
-	AddKeyword("false",false);
+		
 	AddKeyword("ATO_NONE",ATO_NONE);
 	AddKeyword("ATO_PLAYERS",ATO_PLAYERS);
 	AddKeyword("ATO_PROJECTILES",ATO_PROJECTILES);
 	AddKeyword("ATO_ROPE",ATO_ROPE);
 	AddKeyword("ATO_BONUSES",ATO_BONUSES);
 	AddKeyword("ATO_ALL",ATO_ALL);
+	
 	AddKeyword("ATC_NONE",ATC_NONE);
 	AddKeyword("ATC_OWNER",ATC_OWNER);
 	AddKeyword("ATC_ENEMY",ATC_ENEMY);
 	AddKeyword("ATC_TEAMMATE",ATC_TEAMMATE);
 	AddKeyword("ATC_ALL",ATC_ALL);
+	
 	AddKeyword("ATT_GRAVITY",ATT_GRAVITY);
 	AddKeyword("ATT_CONSTANT",ATT_CONSTANT);
 	AddKeyword("ATT_LINEAR",ATT_LINEAR);
 	AddKeyword("ATT_QUADRATIC",ATT_QUADRATIC);
 	
+	AddKeyword("true",true);
+	AddKeyword("false",false);
+
 	sDirectory = dir;
 	
 	int num,n;
