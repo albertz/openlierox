@@ -65,7 +65,7 @@ protected:
 			return *this;
 		}
 
-		const class Event::HandlerList& get() { return base->m_handlers; }
+		const typename Event::HandlerList& get() { return base->m_handlers; }
 	};
 	
 private:
