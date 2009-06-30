@@ -22,7 +22,7 @@
 Feature featureArray[] = {
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, 		0.1f, 	10.0f ),
-	Feature("GameSpeedOnlyForProjs",	"Speed multiplier only for projs",	"Game-speed multiplicator applies only for projectiles and weapons, everything else will be normal speed",
+	Feature("GameSpeedOnlyForProjs", "Speed multiplier only for projs",	"Game-speed multiplicator applies only for projectiles and weapons, everything else will be normal speed",
 			false, false,			OLXBetaVersion(9),	GIG_Advanced,						false),
 	Feature("ForceScreenShaking", 	"Force screen shaking", 		"Screen shaking when something explodes will be activated for everybody.", 
 			true, 	false, 			OLXBetaVersion(9),	GIG_Other, 							false,	true,	true ),
@@ -68,7 +68,7 @@ Feature featureArray[] = {
 			false,	false,			OLXBetaVersion(9),		GIG_Other,		true),	// Server-side
 	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air, balanced version of Instant Air Jump",
 			false,	false,			OLXBetaVersion(9),		GIG_Other),				// Client-side
-	Feature("RelativeAirJumpDelay",	"Delay between relative air jumps",	"How fast can you do air-jumps",
+	Feature("RelativeAirJumpDelay",	"Delay for relative air jumps",	"How fast can you do air-jumps",
 			0.7f,	0.7f,			Version(),				GIG_Other,		0.0f, 	5.0f),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons,	true),
@@ -83,7 +83,7 @@ Feature featureArray[] = {
 	Feature("ProjFriction",			"Projectile Friction",	"Friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(9),		GIG_Other,		0.0f, 2.0f,	false),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
-			5, 5,					OLXBetaVersion(9),		GIG_Score, -1, 100,	true, true),
+			5, 5,					OLXBetaVersion(9),		GIG_General,	-1, 100,	true, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
 			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_Advanced,	0.5f, 4.0f, false),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",

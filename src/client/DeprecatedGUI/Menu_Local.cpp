@@ -806,14 +806,19 @@ void Menu_GameSettings()
 	features->subItemsAreAligned() = true;
 	features->setMouseOverEventEnabled(true);
 	
-	features->AddColumn("", tLX->cFont.GetWidth("Suicide/teamkill decreases score:") + 10); // Width of the widest item in this column + some space
-	//features->AddColumn("", features->getWidth() - first_column_width - (last_column_width*2) - gfxGUI.bmpScrollbar.get()->w); // The rest
+	int maxWidth = 0; // Width of the widest item in this column + some space
+	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
+	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
+	{
+		if( tLX->cFont.GetWidth(it->second.shortDesc) > maxWidth )
+			maxWidth = tLX->cFont.GetWidth(it->second.shortDesc);
+	}
+	
+	features->AddColumn("", maxWidth + 10); 
 	
 	initFeaturesList(features);
 
-	// TODO: it's overkill to use CBrowser for that, but it looks nice
 	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95, 390, 450, 40);
-
 }
 
 // Features listview

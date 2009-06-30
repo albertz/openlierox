@@ -266,6 +266,8 @@ bool GameOptions::Init() {
 	static GameModeIndexWrapper gameModeIndexWrapper;
 	
 	// Legend:	Name in options, Default value, Human-readable-name, Long description, Group in options, If value unsigned (ints and floats), Min value (ints and floats), Max value (ints and floats)
+	// If you want to add another in-gmae option, do not add it here, add it to FeatureList.cpp
+	// TODO: move all options to FeatureList, except for LevelName, ModName and GameType which are comboboxes
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives (put empty value for infinite lives)", GIG_General, true )
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, true )
@@ -282,7 +284,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus )
 		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", GIG_Advanced, true, 0.0, 20.0 )
 		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", false, "Group teams", "Respawn player closer to its team, and farther from enemy", GIG_Advanced )
-		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons when respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons )
+		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons )
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus", GIG_Bonus, true, 0.0f, 1.0f )
 		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons", GIG_Weapons )
 		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select the same weapons as host worm", GIG_Weapons )
