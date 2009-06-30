@@ -121,6 +121,7 @@ struct ScriptVar_t
 	}
 	
 	bool isNumeric() const { return type == SVT_INT || type == SVT_FLOAT; }
+	// TODO: float has the same size as int, so we should convert to double here to avoid data loss with big ints
 	float getNumber() const { if(type == SVT_INT) return (float)i; if(type == SVT_FLOAT) return f; return 0.0f; }
 	
 	std::string toString() const;

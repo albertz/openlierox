@@ -815,6 +815,7 @@ void Menu_GameSettings()
 	}
 	
 	features->AddColumn("", maxWidth + 10); 
+	features->AddColumn("", 190); 
 	
 	initFeaturesList(features);
 
@@ -862,6 +863,7 @@ static void initFeaturesList(CListview* l)
 			}
 			else
 			{
+				int textboxSize = 80;
 				if( it->second.haveMinMax() )
 				{
 					int imin=0, imax=0;
@@ -879,23 +881,21 @@ static void initFeaturesList(CListview* l)
 						imax = it->second.max;
 						iVal = * it->second.var.i;
 					}
-					CSlider * sld = new CSlider( imax, imin, iVal, true, 190, 0, tLX->clNormalLabel, fScale );
+					CSlider * sld = new CSlider( imax, imin, iVal, false, 190, 0, tLX->clNormalLabel, fScale );
 					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, sld);
 					sld->Create();
 					sld->Setup(idx, 0, 0, 180, tLX->cFont.GetHeight());
+					textboxSize = 40;
 				}
+				CTextbox * txt = new CTextbox();
+				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
+				txt->Create();
+				txt->Setup(idx, 0, 0, textboxSize, tLX->cFont.GetHeight());
+				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
+					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.f < 0))
+					txt->setText("");  // Leave blank for infinite values
 				else
-				{
-					CTextbox * txt = new CTextbox();
-					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
-					txt->Create();
-					txt->Setup(idx, 0, 0, 80, tLX->cFont.GetHeight());
-					if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
-						(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.f < 0))
-						txt->setText("");  // Leave blank for infinite values
-					else
-						txt->setText( it->second.var.toString() );
-				}
+					txt->setText( it->second.var.toString() );
 			}
 		}
 	}
@@ -933,13 +933,44 @@ static void updateFeaturesList(CListview* l)
 			{
 				it->second.var.fromString( ((CTextbox *)w)->getText() );
 			}
-			if( w->getType() == wid_Slider )
+			if( w->getType() == wid_Slider && 
+				si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox &&
+				l->getWidgetEvent() && l->getWidgetEvent()->cWidget )
 			{
-				int iVal = ((CSlider *)w)->getValue();
-				if( it->second.var.type == SVT_INT )
-					* it->second.var.i = iVal;
-				if( it->second.var.type == SVT_FLOAT )
-					* it->second.var.f = iVal / 10.0f;
+				CSlider *slider = (CSlider *)w;
+				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
+					
+				if( l->getWidgetEvent()->cWidget->getType() == wid_Slider ) // User moved slider - update textbox
+				{
+					int iVal = slider->getValue();
+					if( it->second.var.type == SVT_INT )
+					{
+						* it->second.var.i = iVal;
+						textBox->setText(itoa(iVal));
+					}
+					if( it->second.var.type == SVT_FLOAT )
+					{
+						* it->second.var.f = iVal / 10.0f;
+						textBox->setText(ftoa(iVal / 10.0f, 1));
+					}
+				}
+				if( l->getWidgetEvent()->cWidget->getType() == wid_Textbox ) // User moved textbox - update slider
+				{
+					if( it->second.var.type == SVT_INT )
+					{
+						int iVal = atoi(textBox->getText());
+						CLAMP_DIRECT(iVal, it->second.min.i, it->second.max.i );
+						* it->second.var.i = iVal;
+						slider->setValue(iVal);
+					}
+					if( it->second.var.type == SVT_FLOAT )
+					{
+						float fVal = atof(textBox->getText());
+						CLAMP_DIRECT(fVal, it->second.min.f, it->second.max.f );
+						* it->second.var.f = fVal;
+						slider->setValue(fVal * 10.0f);
+					}
+				}
 			}
 		}
 	}
