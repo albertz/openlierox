@@ -28,7 +28,7 @@ namespace DeprecatedGUI {
 enum {
 	LV_NONE=-1,
 	LV_CHANGED=0,
-    LV_RIGHTCLK,
+	LV_RIGHTCLK,
 	LV_DOUBLECLK,
 	LV_DELETE,
 	LV_ENTER,

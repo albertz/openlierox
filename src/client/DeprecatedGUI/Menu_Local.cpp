@@ -826,6 +826,7 @@ void Menu_GameSettings()
 
 static void initFeaturesList(CListview* l)
 {
+	l->Clear();
 	int idx = 0;
 	for( GameInfoGroup group = (GameInfoGroup)0; group < GIG_Size; group = (GameInfoGroup)(group + 1) )
 	{
@@ -838,7 +839,10 @@ static void initFeaturesList(CListview* l)
 		if( idx != 0 )
 			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
 		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
-		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---", (DynDrawIntf*)NULL, NULL); 
+		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---" + 
+								(tLXOptions->iGameInfoGroupsShown[group] ? " [-]" : " [+]"), (DynDrawIntf*)NULL, NULL);
+		if( ! tLXOptions->iGameInfoGroupsShown[group] )
+			continue;
 
 		CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
@@ -1051,6 +1055,17 @@ bool Menu_GameSettings_Frame()
 						}
 						featuresLabel->setText( desc );
 					}
+				}
+				if( ev->iEventMsg == LV_CHANGED )
+				{
+					for( int group = 0; group < GIG_Size; group++ )
+						if( features->getMouseOverSIndex() == GameInfoGroupDescriptions[group][0] ) {
+							tLXOptions->iGameInfoGroupsShown[group] = ! tLXOptions->iGameInfoGroupsShown[group];
+							features->SaveScrollbarPos();
+							initFeaturesList(features);
+							features->RestoreScrollbarPos();
+							break;
+						}
 				}
 				break;
 		}

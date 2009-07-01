@@ -122,10 +122,16 @@ static void InitWidgetStates(GameOptions& opts) {
 		opts.iFavouritesList[i] = def_widths[i];
 	}
 	
+	for (size_t i=0; i<GIG_Size; i++)
+		opts.iGameInfoGroupsShown[i] = 0;
+	opts.iGameInfoGroupsShown[GIG_General] = 1;
+	
 	// Widget states
 	ReadIntArray(opts.cfgFilename, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
 	ReadIntArray(opts.cfgFilename, "Widgets","LANListCols",		&opts.iLANList[0],6);
 	ReadIntArray(opts.cfgFilename, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
+	ReadIntArray(opts.cfgFilename, "Widgets","GameInfoGroupsShown",	&opts.iGameInfoGroupsShown[0],GIG_Size);
+	
 }
 
 
@@ -475,6 +481,10 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 	for (int i=0;i<5;i++)
 		fprintf(fp, "%i,",iFavouritesList[i]);
 	fprintf(fp, "%i\n",iFavouritesList[5]);
+	fprintf(fp, "GameInfoGroupsShown = ");
+	for (int i=0;i<GIG_Size-1;i++)
+		fprintf(fp, "%i,",iGameInfoGroupsShown[i]);
+	fprintf(fp, "%i\n",iGameInfoGroupsShown[GIG_Size-1]);
 
 	// The following part has the disadvantage that section
 	// could occur multiple times in the config file

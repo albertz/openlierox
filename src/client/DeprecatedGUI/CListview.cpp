@@ -830,6 +830,8 @@ void CListview::Clear()
 	tSelected = NULL;
 	tFocusedSubWidget = NULL;
 	tMouseOverSubWidget = NULL;
+	holdedWidget = NULL;
+	tMouseOver = NULL;
 
 	cScrollbar.setMin(0);
 	cScrollbar.setMax(1);
