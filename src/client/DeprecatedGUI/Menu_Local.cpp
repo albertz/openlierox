@@ -885,7 +885,9 @@ static void initFeaturesList(CListview* l)
 						imax = it->second.max;
 						iVal = * it->second.var.i;
 					}
-					CSlider * sld = new CSlider( imax, imin, iVal, false, 190, 0, tLX->clNormalLabel, fScale );
+					CSlider * sld = new CSlider( imax, imin, imin, false, 190, 0, tLX->clNormalLabel, fScale );
+					CLAMP_DIRECT(iVal, sld->getMin(), sld->getMax() );
+					sld->setValue(iVal);
 					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, sld);
 					sld->Create();
 					sld->Setup(idx, 0, 0, 180, tLX->cFont.GetHeight());
@@ -951,29 +953,35 @@ static void updateFeaturesList(CListview* l)
 					{
 						* it->second.var.i = iVal;
 						textBox->setText(itoa(iVal));
+						if( it->second.var.isUnsigned && iVal < 0 )
+							textBox->setText("");
 					}
 					if( it->second.var.type == SVT_FLOAT )
 					{
 						* it->second.var.f = iVal / 10.0f;
-						textBox->setText(ftoa(iVal / 10.0f, 1));
+						textBox->setText(to_string<float>(iVal / 10.0f));
+						if( it->second.var.isUnsigned && iVal < 0 )
+							textBox->setText("");
 					}
 				}
-				if( l->getWidgetEvent()->cWidget->getType() == wid_Textbox ) // User moved textbox - update slider
+				if( l->getWidgetEvent()->cWidget->getType() == wid_Textbox ) // User typed in textbox - update slider
 				{
+					it->second.var.fromString(textBox->getText());
+					int iVal = 0;
 					if( it->second.var.type == SVT_INT )
 					{
-						int iVal = atoi(textBox->getText());
-						CLAMP_DIRECT(iVal, it->second.min.i, it->second.max.i );
-						* it->second.var.i = iVal;
-						slider->setValue(iVal);
+						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+						//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
+						iVal = * it->second.var.i;
 					}
 					if( it->second.var.type == SVT_FLOAT )
 					{
-						float fVal = atof(textBox->getText());
-						CLAMP_DIRECT(fVal, it->second.min.f, it->second.max.f );
-						* it->second.var.f = fVal;
-						slider->setValue(int(fVal * 10.0f));
+						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+						//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
+						iVal = int(* it->second.var.f * 10.0f);
 					}
+					CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
+					slider->setValue(iVal);
 				}
 			}
 		}

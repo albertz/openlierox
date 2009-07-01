@@ -16,7 +16,7 @@
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 // Legend:	Name in options,		Human-readable-name,			Long description,	
-//			Unset,	Default,		Min client Version,	Group,				[Min,]	[Max,]	[server-side only] [optional for client] [switch to unset value on older clients] (Min and Max are only for Int and Float)
+//			Unset,	Default,		Min client Version,	Group,				[Min,]	[Max,]	[server-side only] [optional for client] [switch to unset value on older clients] [is value unsigned] (Min and Max are only for Int and Float)
 // Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or safe to ignore
 
 Feature featureArray[] = {
@@ -83,7 +83,7 @@ Feature featureArray[] = {
 	Feature("ProjFriction",			"Projectile Friction",	"Friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(9),		GIG_Other,		0.0f, 2.0f,	false),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
-			5, 5,					OLXBetaVersion(9),		GIG_General,	-1, 100,	true, true),
+			5, 5,					OLXBetaVersion(9),		GIG_General,	-1, 100,	true, true, false, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
 			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_Advanced,	0.5f, 4.0f, false),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",

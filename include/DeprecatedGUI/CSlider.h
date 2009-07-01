@@ -100,6 +100,8 @@ public:
 
 	void	setMax(int _m)						{ iMax = _m; }
 	void	setMin(int _m)						{ iMin = _m; }
+	int		getMax() const						{ return iMax; }
+	int		getMin() const						{ return iMin; }
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{

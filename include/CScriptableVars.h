@@ -287,9 +287,10 @@ struct RegisteredVar {
 	
 	RegisteredVar( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
 									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
-									ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t() )
+									ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t(), bool unsignedValue = false )
 	{ 
 		var = ScriptVarPtr_t( &v, &def );
+		var.isUnsigned = unsignedValue;
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
 		if( v.type == SVT_INT && minval.type == SVT_INT && maxval.type == SVT_INT ) {
@@ -429,9 +430,9 @@ public:
 		
 		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
 											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
-											ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t() )
+											ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t(), bool unsignedValue = false )
 			{ 
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, minval, maxval);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, minval, maxval, unsignedValue );
 				return *this; 
 			}
 		
