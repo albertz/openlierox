@@ -12,6 +12,7 @@
 #include "CrashHandler.h"
 #include "Command.h"
 
+
 #include <time.h>
 
 #ifdef WIN32
@@ -120,7 +121,233 @@ void RaiseDebugger() {
 
 
 #ifdef WIN32
-void OlxWriteCoreDump(const char* file_postfix) {}
+
+#include "AuxLib.h" // for Windows.h
+
+#include <DbgHelp.h>
+#include <ShlObj.h>
+
+#include "LieroX.h"
+#include "CClient.h"
+#include "CServer.h"
+#include "DedicatedControl.h"
+#include "StringUtils.h"
+#include "ConversationLogger.h"
+#include "CGameMode.h"
+
+#define itoa _itoa
+
+void *ReadGameStateForReport(char *buffer, size_t bufsize)
+{
+	memset(buffer, 0, bufsize);
+	__try {
+		if (cClient)  {
+			strncat(buffer, "Game state:\n", bufsize);
+			if (cClient->getStatus() == NET_CONNECTED)  {
+				if (cClient->getGameReady())
+					strncat(buffer, "In game, selecting weapons.", bufsize);
+				else
+					strncat(buffer, "In lobby.", bufsize);
+			} else if (cClient->getStatus() == NET_PLAYING)  {
+				strncat(buffer, "In game, playing.", bufsize);
+			} else if (cClient->getStatus() == NET_CONNECTING)  {
+				strncat(buffer, "Connecting to a server.", bufsize);
+			} else if (cClient->getStatus() == NET_DISCONNECTED)  {
+				strncat(buffer, "Disconnected.\n", bufsize);
+			} else {
+				strncat(buffer, "Unknown state.\n", bufsize);
+			}
+		}
+		buffer[bufsize - 1] = '\0';
+	} __except (EXCEPTION_EXECUTE_HANDLER)
+	{ return buffer; }
+
+	return buffer;
+}
+
+void *ReadGameInfoForReport(char *buffer, size_t bufsize)
+{
+	memset(buffer, 0, bufsize);
+	if (!tLXOptions || !tLX)
+		return buffer;
+	char tmp[32];
+	__try  {
+
+		// Game type
+		strncat(buffer, "iGameType = ", bufsize);
+		switch (tLX->iGameType)  {
+		case GME_LOCAL:
+			strncat(buffer, "GME_LOCAL", bufsize);
+			break;
+		case GME_HOST:
+			strncat(buffer, "GME_HOST", bufsize);
+			break;
+		case GME_JOIN:
+			strncat(buffer, "GME_JOIN", bufsize);
+			break;
+		default:
+			itoa(tLX->iGameType, tmp, 10);
+			fix_markend(tmp);
+			strncat(buffer, "UNKNOWN ", bufsize); strncat(buffer, tmp, bufsize);
+		}
+		strncat(buffer, "\n", bufsize);
+
+		// Game mode
+		strncat(buffer, "GameMode = ", bufsize);
+		char tmp[16];
+		itoa(tLXOptions->tGameInfo.gameMode->GeneralGameType(), tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Mod name
+		strncat(buffer, "sModName = ", bufsize);
+		if (tLXOptions->tGameInfo.sModName.size())
+			strncat(buffer, tLXOptions->tGameInfo.sModName.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Map file
+		strncat(buffer, "sMapFile = ", bufsize);
+		if (tLXOptions->tGameInfo.sMapFile.size())
+			strncat(buffer, tLXOptions->tGameInfo.sMapFile.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Map name
+		strncat(buffer, "sMapName = ", bufsize);
+		if (tLXOptions->tGameInfo.sMapName.size())
+			strncat(buffer, tLXOptions->tGameInfo.sMapName.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Mod dir
+		strncat(buffer, "sModDir = ", bufsize);
+		if (tLXOptions->tGameInfo.sModDir.size())
+			strncat(buffer, tLXOptions->tGameInfo.sModDir.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Loading time
+		itoa(tLXOptions->tGameInfo.iLoadingTime, tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, "iLoadingTimes = ", bufsize);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Server name
+		strncat(buffer, "sServerName = ", bufsize);
+		if (tLXOptions->sServerName.size())
+			strncat(buffer, tLXOptions->sServerName.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Welcome message
+		strncat(buffer, "sWelcomeMessage = ", bufsize);
+		if (tLXOptions->sWelcomeMessage.size())
+			strncat(buffer, tLXOptions->sWelcomeMessage.c_str(), bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Lives
+		itoa(tLXOptions->tGameInfo.iLives, tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, "iLives = ", bufsize);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Max kills
+		itoa(tLXOptions->tGameInfo.iKillLimit, tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, "iKillLimit = ", bufsize);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Time limit
+		itoa((int)(tLXOptions->tGameInfo.fTimeLimit * 10), tmp, 10);
+		fix_markend(tmp);
+		strncat(buffer, "fTimeLimit = ", bufsize);
+		strncat(buffer, tmp, bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Bonuses on
+		strncat(buffer, "bBonusesOn = ", bufsize);
+		strncat(buffer, tLXOptions->tGameInfo.bBonusesOn ? "true" : "false", bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Bonus names
+		strncat(buffer, "bShowBonusName = ", bufsize);
+		strncat(buffer, tLXOptions->tGameInfo.bShowBonusName ? "true" : "false", bufsize);
+		strncat(buffer, "\n", bufsize);
+
+		// Number of players
+		if (cServer)  {
+			itoa(cServer->getNumPlayers(), tmp, 10);
+			fix_markend(tmp);
+			strncat(buffer, "iNumPlayers = ", bufsize);
+			strncat(buffer, tmp, bufsize);
+			strncat(buffer, "\n", bufsize);
+		}
+
+		buffer[bufsize - 1] = '\0';
+	} __except (EXCEPTION_EXECUTE_HANDLER) {
+		return buffer;
+	}
+	return buffer;
+}
+
+// This function also used in CrashHandler.cpp
+void OlxWriteCoreDump_Win32(const char* fileName, PEXCEPTION_POINTERS pExInfo )
+{
+	// MSVC-compatible core dump, GDB cannot read it :(
+	// Set the exception info for the minidump
+	MINIDUMP_EXCEPTION_INFORMATION eInfo;
+	eInfo.ThreadId = GetCurrentThreadId();
+	eInfo.ExceptionPointers = pExInfo;
+	eInfo.ClientPointers = FALSE;
+
+	// Set the minidump info
+	MINIDUMP_CALLBACK_INFORMATION cbMiniDump;
+	cbMiniDump.CallbackRoutine = NULL;
+	cbMiniDump.CallbackParam = 0;
+
+	// Additional data
+	MINIDUMP_USER_STREAM pExtraInfo[3];
+
+	// Version info
+	char version[64];
+	strcpy(version, GetFullGameName());
+	pExtraInfo[0].Type = LastReservedStream + 1;
+	pExtraInfo[0].BufferSize = sizeof(version);
+	pExtraInfo[0].Buffer = (void *)&version[0];
+
+	// Current game info
+	char game_info[1024];
+	pExtraInfo[1].Type = LastReservedStream + 2;
+	pExtraInfo[1].BufferSize = sizeof(game_info);
+	pExtraInfo[1].Buffer = ReadGameInfoForReport(game_info, sizeof(game_info));
+
+	// Current game state
+	char game_state[1024];
+	pExtraInfo[2].Type = LastReservedStream + 3;
+	pExtraInfo[2].BufferSize = sizeof(game_state);
+	pExtraInfo[2].Buffer = ReadGameStateForReport(game_state, sizeof(game_state));
+
+	MINIDUMP_USER_STREAM_INFORMATION iStreams;
+	iStreams.UserStreamCount = sizeof(pExtraInfo)/sizeof(MINIDUMP_USER_STREAM);
+	iStreams.UserStreamArray = pExtraInfo;
+
+	// Open the file
+	HANDLE hFile = CreateFile((LPCSTR)fileName,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,FILE_ATTRIBUTE_NORMAL,NULL);
+
+	// Write the minidump
+	if (hFile)  {
+		MINIDUMP_TYPE type = (MINIDUMP_TYPE)(MiniDumpScanMemory | MiniDumpWithIndirectlyReferencedMemory);
+		MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, type, &eInfo,&iStreams,&cbMiniDump);
+	}
+
+	// Close the file
+	CloseHandle(hFile);
+}
+
+void OlxWriteCoreDump(const char* fileName) 
+{
+	OlxWriteCoreDump_Win32(fileName, NULL);
+}
 
 #else
 

@@ -230,13 +230,13 @@ IF(WIN32)
 	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME "../../../distrib/win32/OpenLieroX")
 	
 	# Add debug info to release build in linker flags
-	SET_TARGET_PROPERTIES(openlierox LINK_FLAGS ${LINK_FLAGS} 
+	SET_TARGET_PROPERTIES(openlierox PROPERTIES LINK_FLAGS "${LINK_FLAGS} 
 		/LTCG
 		/DEBUG
-		/MAP:"${CMAKE_SOURCE_DIR}/distrib/win32/OpenLieroX.map"
+		/MAP:\"${CMAKE_SOURCE_DIR}/distrib/win32/OpenLieroX.map\"
 		/MAPINFO:EXPORTS
-		/NODEFAULTLIB:"LIBC"
-		/INCREMENTAL:NO)
+		/NODEFAULTLIB:\"LIBC\"
+		/INCREMENTAL:NO")
 ELSE(WIN32)
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")

@@ -567,7 +567,7 @@ void Cmd_coreDump::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	doVideoFrameInMainThread();
 	struct Dumper : Action {
 		int handle() {
-			OlxWriteCoreDump("cmd");
+			OlxWriteCoreDump("OlxCoreDump.dmp");
 			hints << "Dumping core finished" << endl; // don't use caller here because it's not sure that it still exists
 			return 0;
 		}
