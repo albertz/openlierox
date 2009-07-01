@@ -35,8 +35,8 @@ struct Feature {
 	GameInfoGroup group;	// For grouping similar options in GUI
 
 	// TODO: move that to ScriptVarType_t
-	float minValue; // Min and max values are used in GUI to make sliders (only for float/int)
-	float maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
+	Var minValue; // Min and max values are used in GUI to make sliders (only for float/int)
+	Var maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	
 	bool serverSideOnly; // if true, all the following is just ignored
 	bool optionalForClient; // Optional client-sided feature, like vision cone drawn for seekers, or SuicideDecreasesScore which required for precise damage calculation in scoreboard
@@ -59,7 +59,7 @@ struct Feature {
 		unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, 
-				Version ver, GameInfoGroup g = GIG_Invalid, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
+				Version ver, GameInfoGroup g = GIG_Invalid, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
 				bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), minValue(minval), maxValue(maxval), serverSideOnly(ssdo), optionalForClient(opt), 

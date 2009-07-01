@@ -292,10 +292,10 @@ struct RegisteredVar {
 		var = ScriptVarPtr_t( &v, &def );
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
-		if( v.type == SVT_INT && minval.isNumeric() && maxval.isNumeric() ) {
-			min = int(minval.getNumber()); max = int(maxval.getNumber());
-		} else if( v.type == SVT_FLOAT && minval.isNumeric() && maxval.isNumeric() ) {
-			min = float(minval.getNumber()); max = float(maxval.getNumber());
+		if( v.type == SVT_INT && minval.type == SVT_INT && maxval.type == SVT_INT ) {
+			min = minval.i; max = maxval.i;
+		} else if( v.type == SVT_FLOAT && minval.type == SVT_FLOAT && maxval.type == SVT_FLOAT ) {
+			min = minval.f; max = maxval.f;
 		}
 	}
 	

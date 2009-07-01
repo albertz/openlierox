@@ -968,7 +968,7 @@ static void updateFeaturesList(CListview* l)
 						float fVal = atof(textBox->getText());
 						CLAMP_DIRECT(fVal, it->second.min.f, it->second.max.f );
 						* it->second.var.f = fVal;
-						slider->setValue(fVal * 10.0f);
+						slider->setValue(int(fVal * 10.0f));
 					}
 				}
 			}
