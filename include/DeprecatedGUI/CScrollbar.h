@@ -50,6 +50,7 @@ public:
 		iValue = 0;
 		iItemsperbox = 1;
 		iVar = NULL;
+		iWidth = 16;
 	}
 
 

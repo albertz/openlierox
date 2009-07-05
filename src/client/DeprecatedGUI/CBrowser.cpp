@@ -80,7 +80,7 @@ public:
 
 	// Split the text object in two objects, the first object won't be wider than the specified width
 	// WARNING: if the length of this object is less than maxwidth, the second object will be set to NULL
-	// WARNING 2: the first object always points to this object, so don't free this object!
+	// WARNING 2: the first object always points to this object, so don't free it!
 	std::pair<CTextObject *, CTextObject *> Split(int maxwidth)
 	{
 		std::pair<CTextObject *, CTextObject *> result(NULL, NULL);
@@ -104,8 +104,7 @@ public:
 				if (word_w > maxwidth)  {
 					// Hard break
 					size_t res = GetPosByTextWidth(sText, maxwidth, &tLX->cFont);
-					result.second = new CTextObject(tParent, std::string(it + res, std::string::const_iterator(sText.end())), 
-														tFormat, tRect.x + w - word_w, tRect.y);
+					result.second = new CTextObject(tParent, sText.substr(res), tFormat, tRect.x + w - word_w, tRect.y);
 					sText.erase(res);
 					tRect.w = tLX->cFont.GetWidth(sText);
 				} else {
@@ -1176,8 +1175,10 @@ void CBrowser::AddTextObject(const std::string& text)
 			EndLine();
 			txt->tRect.x = curX;
 			txt->tRect.y = curY;
-		} else
+		} else  {
+			txt = NULL;
 			break;
+		}
 	}
 
 	if (txt) // Add the last line
