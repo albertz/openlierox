@@ -776,13 +776,17 @@ std::string NetworkSocket::debugString() const {
 	std::string ret = TypeStr(m_type) + "/" + StateStr(m_state);
 	{
 		std::string localStr = "INVALIDLOCAL";
-		NetAddrToString(localAddress(), localStr);
+		NetworkAddr addr;
+		if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) != NL_FALSE)
+			NetAddrToString(addr, localStr);
 		ret += " " + localStr;
 	}
 	if(m_state == NSS_CONNECTED) {
 		ret += " connected to ";
 		std::string remoteStr = "INVALIDREMOTE";
-		NetAddrToString(remoteAddress(), remoteStr);
+		NetworkAddr addr;
+		if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) != NL_FALSE)
+			NetAddrToString(remoteAddress(), remoteStr);
 		ret += remoteStr;
 	}
 	return ret;
@@ -1068,7 +1072,7 @@ NetworkAddr NetworkSocket::localAddress() const {
 	}
 	
 	if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::localAddress: cannot get local address" << endl;
+		errors << "NetworkSocket::localAddress: cannot get local address (" << debugString() << ")" << endl;
 	
 	return addr;
 }
@@ -1082,7 +1086,7 @@ NetworkAddr NetworkSocket::remoteAddress() const {
 	}
 	
 	if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::remoteAddress: cannot get remote address" << endl;
+		errors << "NetworkSocket::remoteAddress: cannot get remote address" << "(" << debugString() << ")" << endl;
 
 	return addr;
 }
