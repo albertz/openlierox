@@ -149,8 +149,10 @@ void CGuiLayout::removeWidget(int id)
 
 			// If this is the focused widget, set focused to null
 			if(cFocused) {
-				if(id == cFocused->getID())
+				if(id == cFocused->getID())  {
 					cFocused = NULL;
+					bCanFocus = true;
+				}
 			}
 
 			// Free it
