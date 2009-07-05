@@ -1068,7 +1068,7 @@ NetworkAddr NetworkSocket::localAddress() const {
 	}
 	
 	if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::localAddress: cannot get local address (" << debugString() << ")" << endl;
+		errors << "NetworkSocket::localAddress: cannot get local address" << endl;
 	
 	return addr;
 }
@@ -1082,7 +1082,7 @@ NetworkAddr NetworkSocket::remoteAddress() const {
 	}
 	
 	if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::remoteAddress: cannot get remote address (" << debugString() << ")" << endl;
+		errors << "NetworkSocket::remoteAddress: cannot get remote address" << endl;
 
 	return addr;
 }
