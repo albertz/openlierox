@@ -425,11 +425,13 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	if (client)
 		clientver = client->getClientVersion();
 
+	int realdamage = MIN(w->getHealth(), damage);
+
 	// Send REPORTDAMAGE to server (also calculate & send it for pre-Beta9 clients, when we're hosting)
-	if( getServerVersion() >= OLXBetaVersion(9) && 
+	if( realdamage > 0 && getServerVersion() >= OLXBetaVersion(9) && 
 		( someOwnWorm || 
 		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ) )
-		getNetEngine()->QueueReportDamage( w->getID(), damage, owner );
+		getNetEngine()->QueueReportDamage( w->getID(), realdamage, owner );
 
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
 	// Set it also for remote worms on pre-Beta9 server
@@ -439,7 +441,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	{
 		// TODO: fix this
 		if(ownerWorm) {
-			w->getDamageReport()[owner].damage += damage;
+			w->getDamageReport()[owner].damage += realdamage;
 			w->getDamageReport()[owner].lastTime = GetPhysicsTime();
 		}
 	}
@@ -448,12 +450,12 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(9) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
 		// TODO: fix this
 		if(ownerWorm)
-			getRemoteWorms()[owner].addDamage( damage, w, tGameInfo ); // Update client scoreboard
+			getRemoteWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update client scoreboard
 	
 	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
 		// TODO: fix this
 		if(ownerWorm)
-			cServer->getWorms()[owner].addDamage( damage, w, tGameInfo ); // Update server scoreboard
+			cServer->getWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(9) || 
