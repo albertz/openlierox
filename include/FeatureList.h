@@ -19,6 +19,16 @@
 
 class GameServer;
 
+enum AdvancedLevel {
+	ALT_Basic = 0,
+	ALT_Advanced,
+	ALT_VeryAdvanced,
+	ALT_Dev,
+	ALT_DevKnownUnstable,
+	__AdvancedLevelType_Count
+};
+std::string AdvancedLevelDescription(AdvancedLevel l);
+
 struct Feature {
 	std::string name; // for config, network and other identification
 	std::string humanReadableName;
@@ -33,6 +43,8 @@ struct Feature {
 	// Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or optinal
 
 	GameInfoGroup group;	// For grouping similar options in GUI
+
+	AdvancedLevel advancedLevel;
 
 	// TODO: make special type VarRange (which holds these hasmin/hasmax/min/max/signed)
 	// TODO: move that to ScriptVarType_t
@@ -54,31 +66,31 @@ struct Feature {
 	static Feature Unset() { return Feature(); }
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, 
-				Version ver, GameInfoGroup g = GIG_Invalid, bool ssdo = false, bool opt = false, 
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
 				bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), 
-		minVersion(ver), group(g), serverSideOnly(ssdo), optionalForClient(opt), 
+		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, 
-				Version ver, GameInfoGroup g = GIG_Invalid, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
 				bool u = false, bool unsig = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), 
-		minVersion(ver), group(g), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
+		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, 
-				Version ver, GameInfoGroup g = GIG_Invalid, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
 				bool u = false, bool unsig = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), 
-		minVersion(ver), group(g), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
+		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, 
-				Version ver, GameInfoGroup g = GIG_Invalid, bool ssdo = false, bool opt = false, 
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
 				bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), 
-		minVersion(ver), group(g), serverSideOnly(ssdo), optionalForClient(opt), 
+		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
 };
