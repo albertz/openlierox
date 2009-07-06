@@ -69,7 +69,7 @@ Feature featureArray[] = {
 	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air, balanced version of Instant Air Jump",
 			false,	false,			OLXBetaVersion(9),		GIG_Other, ALT_Advanced),				// Client-side
 	Feature("RelativeAirJumpDelay",	"Delay for relative air jumps",	"How fast can you do air-jumps",
-			0.7f,	0.7f,			Version(),				GIG_Other,	ALT_Advanced,	0.0f, 	5.0f),
+			0.7f,	0.7f,			Version(),				GIG_Other,	ALT_VeryAdvanced,	0.0f, 	5.0f),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons, ALT_Advanced,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
