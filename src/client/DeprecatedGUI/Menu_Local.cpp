@@ -831,6 +831,13 @@ static void addFeautureListGroupHeading(CListview* l, GameInfoGroup group) {
 	l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---" + 
 				  (tLXOptions->iGameInfoGroupsShown[group] ? " [-]" : " [+]"), (DynDrawIntf*)NULL, NULL);	
 }
+
+static int getListItemGroupInfoNr(const std::string& sindex) {
+	for( int group = 0; group < GIG_Size; group++ )
+		if( sindex == GameInfoGroupDescriptions[group][0] )
+			return group;
+	return -1;
+}
 	
 static void initFeaturesList(CListview* l)
 {
@@ -868,7 +875,7 @@ static void initFeaturesList(CListview* l)
 				addFeautureListGroupHeading(l, group);
 			countGroupOpts++;
 			
-			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
+			lv_item_t * item = l->AddItem(it->first, 0, tLX->clNormalLabel); 
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
@@ -1072,22 +1079,32 @@ bool Menu_GameSettings_Frame()
 				{
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
 					featuresLabel->ChangeColour( tLX->clNormalLabel );
+					featuresLabel->setText( "" );
+					for(lv_item_t* item = features->getItems(); item != NULL; item = item->tNext) {
+						lv_subitem_t* sub = item->tSubitems; if(!sub) continue;
+						int group = getListItemGroupInfoNr(item->sIndex);
+						if(group >= 0) sub->iColour = tLX->clHeading;
+						else sub->iColour = tLX->clNormalLabel;
+					}
 					if(	features->getMouseOverSIndex() != "" )
 					{
+						{
+							lv_item_t* item = features->getItem(features->getMouseOverSIndex());
+							if(item && item->tSubitems)
+								item->tSubitems->iColour = tLX->clMouseOver;
+						}
 						std::string desc;
-						for( int group = 0; group < GIG_Size; group++ )
-							if( features->getMouseOverSIndex() == GameInfoGroupDescriptions[group][0] ) {
+						{
+							int group = getListItemGroupInfoNr(features->getMouseOverSIndex());
+							if(group >= 0)
 								desc = GameInfoGroupDescriptions[group][1];
-								break;
-							}
+						}
 						if(desc == "") {
 							RegisteredVar* var = CScriptableVars::GetVar( features->getMouseOverSIndex() );
 							if(var) desc = var->longDesc;
 						}
 						featuresLabel->setText( splitStringWithNewLine(desc, (size_t)-1, 450, tLX->cFont) );
 					}
-					else
-						featuresLabel->setText( "" );
 				}
 				if( ev->iEventMsg == LV_CHANGED )
 				{
