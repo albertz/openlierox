@@ -40,7 +40,7 @@ Feature featureArray[] = {
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
 	Feature("SelfHit", 				"Hit yourself", 				"If disabled, your bullets and projectiles will fly through yourself.", 
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons ),
-	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit.", 
+	Feature("AllowEmptyGames", 		"Allow empty games", 			"If enabled, games with one or zero worms will not quit. This is only possible if you have infinite lives set and also only for network games.", 
 			false, 	false, 			Version(), 			GIG_Other, 							true,	true ),
 	Feature("HS_HideTime", 			"Hiding time", 					"AbsTime at the start of the game for hiders to hide", 
 			20.0f, 	20.0f, 			Version(), 			GIG_HideAndSeek,	0.0f,	100.0f,	true,	true ),
