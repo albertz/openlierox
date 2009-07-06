@@ -33,6 +33,7 @@ public:
 	virtual int CompareWormsScore(CWorm *w1, CWorm *w2);
 	virtual int  Winner();
 	virtual std::string Name() { return "Tag"; }
+	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_Tag; }
 	
 protected:
 	bool bFirstBlood;
