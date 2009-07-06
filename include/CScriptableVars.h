@@ -35,6 +35,7 @@ enum GameInfoGroup
 	
 	GIG_GameModeSpecific_Start, // All following options are game-mode specific
 	
+	GIG_Tag,
 	GIG_HideAndSeek,
 	GIG_CaptureTheFlag,
 	GIG_Race,
@@ -45,6 +46,18 @@ enum GameInfoGroup
 // And their descriptions - don't forget to edit them in Options.cpp if you change GameInfoGroup_t
 extern const char * GameInfoGroupDescriptions[][2];
 
+
+enum AdvancedLevel {
+	ALT_Basic = 0,
+	ALT_Advanced,
+	ALT_VeryAdvanced,
+	ALT_Dev,
+	ALT_DevKnownUnstable,
+	__AdvancedLevelType_Count,
+	
+	ALT_OnlyViaConfig = 1000,
+};
+std::string AdvancedLevelDescription(AdvancedLevel l);
 
 
 namespace DeprecatedGUI {
@@ -232,15 +245,18 @@ struct RegisteredVar {
 	RegisteredVar() : group(GIG_Invalid) {}
 
 	RegisteredVar( bool & v, const std::string & c, bool def = false, 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic )
 	{
 		var = ScriptVarPtr_t( &v, def );
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( int & v, const std::string & c, int def = 0, 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic,
 									bool unsig = false, int minval = 0, int maxval = 0 )
 	{ 
 		var = ScriptVarPtr_t( &v, def );
@@ -248,10 +264,12 @@ struct RegisteredVar {
 		shortDesc = descr; longDesc = descrLong;
 		min = ScriptVar_t(minval); max = ScriptVar_t(maxval);
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( float & v, const std::string & c, float def = 0.0f, 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic,
 									bool unsig = false, float minval = 0.0f, float maxval = 0.0f )
 	{ 
 		var = ScriptVarPtr_t( &v, def );
@@ -259,40 +277,49 @@ struct RegisteredVar {
 		shortDesc = descr; longDesc = descrLong;
 		min = ScriptVar_t(minval); max = ScriptVar_t(maxval);
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( std::string & v, const std::string & c, const char * def = "", 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic )
 	{ 
 		var = ScriptVarPtr_t( &v, def ); 
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( Color & v, const std::string & c, Color def = Color(255,0,255), 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic )
 	{
 		var = ScriptVarPtr_t( &v, def ); 
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( ScriptCallback_t v, const std::string & c, 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic )
 	{ 
 		var = ScriptVarPtr_t( v ); 
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 	}
 	
 	RegisteredVar( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid,
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic,
 									ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t(), bool unsignedValue = false )
 	{ 
 		var = ScriptVarPtr_t( &v, &def );
 		var.isUnsigned = unsignedValue;
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 		if( v.type == SVT_INT && minval.type == SVT_INT && maxval.type == SVT_INT ) {
 			min = minval.i; max = maxval.i;
 		} else if( v.type == SVT_FLOAT && minval.type == SVT_FLOAT && maxval.type == SVT_FLOAT ) {
@@ -302,11 +329,13 @@ struct RegisteredVar {
 	
 	template<typename T>
 	RegisteredVar( DynamicVar<T>* v, const std::string & c, const T& def,
-									const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup g = GIG_Invalid )
+									const std::string & descr = "", const std::string & descrLong = "",
+									GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic )
 	{ 
 		var = ScriptVarPtr_t( v, def );
 		shortDesc = descr; longDesc = descrLong;
 		group = g;
+		advancedLevel = l;
 	}
 	
 	
@@ -316,6 +345,7 @@ struct RegisteredVar {
 	ScriptVar_t min;
 	ScriptVar_t max;
 	GameInfoGroup group;
+	AdvancedLevel advancedLevel;
 	
 	bool haveMinMax() const { return min.isNumeric() && max.isNumeric() && min < max; }
 };
@@ -385,62 +415,62 @@ public:
 		operator bool () { return true; }	// To be able to write static expressions
 
 		VarRegisterHelper & operator() ( bool & v, const std::string & c, bool def = false, 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( int & v, const std::string & c, int def = 0, 
-										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
+										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic,
 										bool unsig = false, int minval = 0, int maxval = 0 )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, unsig, minval, maxval);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level, unsig, minval, maxval);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( float & v, const std::string & c, float def = 0.0f, 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic,
 											bool unsig = false, float minval = 0.0f, float maxval = 0.0f )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, unsig, minval, maxval);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level, unsig, minval, maxval);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( std::string & v, const std::string & c, const char * def = "", 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( Color & v, const std::string & c, Color def = Color(255,0,255), 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level);
 				return *this; 
 			}
 
 		VarRegisterHelper & operator() ( ScriptCallback_t v, const std::string & c, 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, descr, descrLong, group);
+				m_vars[Name(c)] = RegisteredVar(v, c, descr, descrLong, group, level);
 				return *this; 
 			}
 		
 		VarRegisterHelper & operator() ( ScriptVar_t& v, const std::string & c, const ScriptVar_t& def, 
-											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid,
+											const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic,
 											ScriptVar_t minval = ScriptVar_t(), ScriptVar_t maxval = ScriptVar_t(), bool unsignedValue = false )
 			{ 
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, minval, maxval, unsignedValue );
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level, minval, maxval, unsignedValue );
 				return *this; 
 			}
 		
 		template<typename T>
 		VarRegisterHelper & operator() ( DynamicVar<T>* v, const std::string & c, const T& def,
-										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid )
+										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic )
 			{
-				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group);
+				m_vars[Name(c)] = RegisteredVar(v, c, def, descr, descrLong, group, level);
 				return *this; 
 			}
 		

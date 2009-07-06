@@ -19,16 +19,6 @@
 
 class GameServer;
 
-enum AdvancedLevel {
-	ALT_Basic = 0,
-	ALT_Advanced,
-	ALT_VeryAdvanced,
-	ALT_Dev,
-	ALT_DevKnownUnstable,
-	__AdvancedLevelType_Count
-};
-std::string AdvancedLevelDescription(AdvancedLevel l);
-
 struct Feature {
 	std::string name; // for config, network and other identification
 	std::string humanReadableName;

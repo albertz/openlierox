@@ -11,9 +11,44 @@
 #include "CScriptableVars.h"
 #include "Debug.h"
 #include "StringUtils.h"
-
+#include "StaticAssert.h"
 
 #include <sstream>
+
+
+
+const char * GameInfoGroupDescriptions[][2] =
+{
+{"General", "General game options"},
+{"Advanced", "Advanced game options"},
+{"Scores", "Scoreboard related game options"},
+{"Weapons", "Weapons and game physics related game options"},
+{"Bonuses", "Bonuses related game options"},
+{"Other", "Other game options"},
+{"", ""}, // GIG_GameModeSpecific_Start - dummy value
+{"Tag", "Tag gamemode settings"},
+{"Hide and Seek", "Hide and Seek gamemode settings"},
+{"Capture The Flag", "Capture The Flag gamemode settings"},
+{"Race", "Race gamemode settings"},
+};
+
+static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Size, GIG_desc__sizecheck );
+
+
+std::string AdvancedLevelDescription(AdvancedLevel l) {
+	switch(l) {
+		case ALT_Basic: return "Basics.";
+		case ALT_Advanced: return "Advanced settings. For more professional players.";
+		case ALT_VeryAdvanced: return "Very advanced settings. For people who like to try out special unusual settings.";
+		case ALT_Dev: return "Development features. Some of them can be unstable or are incomplete yet. Please report errors if you see any.";
+		case ALT_DevKnownUnstable: return "Unstable development features. These features are known to be unstable. You have been warned.";
+		case ALT_OnlyViaConfig: return "ONLY VIA CONFIG.";
+		case __AdvancedLevelType_Count: return "INVALID BOTTOM ADVANCED LEVEL MARKER";
+	}
+	
+	return "INVALID ADVANCED LEVEL VAR";
+}
+
 
 
 std::string ScriptVar_t::toString() const {
@@ -203,10 +238,10 @@ std::ostream& operator<< (std::ostream& o, const ScriptVar_t& svt)
 {
 	o << svt.toString();
 	return o;
-};
+}
 
 std::ostream& operator<< (std::ostream& o, const ScriptVarPtr_t& svt)
 {
 	o << svt.toString();
 	return o;
-};
+}

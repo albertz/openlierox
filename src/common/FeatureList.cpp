@@ -74,7 +74,7 @@ Feature featureArray[] = {
 			true,	true,			OLXBetaVersion(9),		GIG_Weapons, ALT_Advanced,	true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
 			false,	false,			OLXBetaVersion(8),		GIG_Advanced, ALT_Advanced,	true),
-	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated)",
+	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated). This is usefull in games like Race.",
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons, ALT_VeryAdvanced,	true),
 	Feature("InfiniteMap",			"Infinite map",			"Map has no borders and is tiled together",
 			false,	false,			OLXBetaVersion(9),		GIG_Other,	ALT_Advanced,	false),
@@ -100,19 +100,6 @@ Feature featureArray[] = {
 
 static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature) - 1, featureArray__sizecheck);
 
-
-std::string AdvancedLevelDescription(AdvancedLevel l) {
-	switch(l) {
-		case ALT_Basic: return "Basics.";
-		case ALT_Advanced: return "Advanced settings. For more professional players.";
-		case ALT_VeryAdvanced: return "Very advanced settings. For people who like to try out special unusual settings.";
-		case ALT_Dev: return "Development features. Some of them can be unstable or are incomplete yet. Please report errors if you see any.";
-		case ALT_DevKnownUnstable: return "Unstable development features. These features are known to be unstable. You have been warned.";
-		case __AdvancedLevelType_Count: return "INVALID BOTTOM ADVANCED LEVEL MARKER";
-	}
-	
-	return "INVALID ADVANCED LEVEL VAR";
-}
 
 
 Feature* featureByName(const std::string& name) {
