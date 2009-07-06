@@ -104,8 +104,7 @@ static void InitWidgetStates(GameOptions& opts) {
 	}
 	
 	for (size_t i=0; i<GIG_Size; i++)
-		opts.iGameInfoGroupsShown[i] = false;
-	opts.iGameInfoGroupsShown[GIG_General] = true;
+		opts.iGameInfoGroupsShown[i] = true;
 	
 	// Widget states
 	ReadIntArray(opts.cfgFilename, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
