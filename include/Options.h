@@ -310,7 +310,8 @@ struct GameOptions {
 	int		iInternetSortColumn;
 	int		iLANSortColumn;
 	int		iFavouritesSortColumn;
-
+	int		iAdvancedLevelLimit;
+	
 	// Last used game details - used as game lobby structure in client
 	// Put everything that impacts gameplay here, both server and client-sided
 	class GameInfo {

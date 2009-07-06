@@ -848,6 +848,7 @@ static void initFeaturesList(CListview* l)
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 		{
 			if( it->second.group != group ) continue;
+			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
 			if( it->first == "GameOptions.GameInfo.ModName" || 
 				it->first == "GameOptions.GameInfo.LevelName" ||

@@ -222,6 +222,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
 		( tLXOptions->iFavouritesSortColumn, "Widgets.FavouritesSortColumn", 4 )
+		( tLXOptions->iAdvancedLevelLimit, "Widgets.AdvancedLevelLimit", 0 )
 		;
 
 	for( uint i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
@@ -256,8 +257,8 @@ bool GameOptions::Init() {
 	// If you want to add another in-gmae option, do not add it here, add it to FeatureList.cpp
 	// TODO: move all options to FeatureList, except for LevelName, ModName and GameType which are comboboxes
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
-		( tLXOptions->tGameInfo.iLives, "Lives", 10, "Lives", "Lives", GIG_General, ALT_Basic, true, -1, 150 )
-		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", -1, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, ALT_Basic, true, -1, 150 )
+		( tLXOptions->tGameInfo.iLives, "Lives", -1, "Lives", "Lives", GIG_General, ALT_Basic, true, -1, 150 )
+		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", 15, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, ALT_Basic, true, -1, 150 )
 		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1.0f, "Time limit", "Time limit, in minutes", GIG_General, ALT_Basic, true, -0.15f, 20.0f )
 		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode", GIG_Tag, ALT_Basic, true, 1, 150 )
 		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", GIG_General, ALT_Basic, true, 0, 500 )
