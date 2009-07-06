@@ -3,6 +3,7 @@
 if [ -e svn.log ] ; then rm svn.log; fi
 
 RECOMPILE=true
+UPLOAD=false
 
 while $RECOMPILE ; do
 
@@ -13,11 +14,13 @@ while $RECOMPILE ; do
 	cat svn1.log >> svn.log
 
 	RECOMPILE=false
-	if svn up | grep "Updated to revision "; then RECOMPILE=true; fi
+	svn up --accept theirs-full > svn2.log 2>&1
+	if cat svn2.log | grep "Updated to revision "; then RECOMPILE=true; fi
 	
 	if $RECOMPILE; then
 
 		echo ----------- Compiling >> "$1"
+		UPLOAD=true
 
 		cd "build/msvc 2005"
 
@@ -25,7 +28,6 @@ while $RECOMPILE ; do
 
 		# You can compile without Cmake, then substitute openlierox.vcproj with Game.vcproj for vcbuild
 		cmake -G "Visual Studio 8 2005" -D DEBUG=0 ../..
-
 		vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv >> "$1" 2>&1
 
 		cd ../..
@@ -42,6 +44,11 @@ while $RECOMPILE ; do
 		fi
 	fi
 done
+
+if ! $UPLOAD; then
+	echo ----------- Nothing to upload >> "$1"
+	exit
+fi
 
 if grep -i "\[Rebuild\]" svn.log; then
 	echo ----------- Committing to SVN >> "$1"
