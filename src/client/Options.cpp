@@ -104,14 +104,14 @@ static void InitWidgetStates(GameOptions& opts) {
 	}
 	
 	for (size_t i=0; i<GIG_Size; i++)
-		opts.iGameInfoGroupsShown[i] = 0;
-	opts.iGameInfoGroupsShown[GIG_General] = 1;
+		opts.iGameInfoGroupsShown[i] = false;
+	opts.iGameInfoGroupsShown[GIG_General] = true;
 	
 	// Widget states
 	ReadIntArray(opts.cfgFilename, "Widgets","InternetListCols",	&opts.iInternetList[0],7);
 	ReadIntArray(opts.cfgFilename, "Widgets","LANListCols",		&opts.iLANList[0],6);
 	ReadIntArray(opts.cfgFilename, "Widgets","FavouritesListCols",	&opts.iFavouritesList[0],6);
-	ReadIntArray(opts.cfgFilename, "Widgets","GameInfoGroupsShown",	&opts.iGameInfoGroupsShown[0],GIG_Size);
+	ReadArray<bool>(opts.cfgFilename, "Widgets","GameInfoGroupsShown",	&opts.iGameInfoGroupsShown[0], GIG_Size);
 	
 }
 

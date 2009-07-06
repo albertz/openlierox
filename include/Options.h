@@ -306,7 +306,7 @@ struct GameOptions {
 	int		iInternetList[7];
 	int		iLANList[6];
 	int		iFavouritesList[6];
-	int		iGameInfoGroupsShown[GIG_Size];
+	bool	iGameInfoGroupsShown[GIG_Size];
 	int		iInternetSortColumn;
 	int		iLANSortColumn;
 	int		iFavouritesSortColumn;
