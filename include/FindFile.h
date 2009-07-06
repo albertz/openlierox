@@ -312,6 +312,8 @@ public:
 			if(_findnext(handle,&fileinfo))
 				break;
 		}
+
+		_findclose(handle);
 #else /* not WIN32 */
 
 		std::string filename;
