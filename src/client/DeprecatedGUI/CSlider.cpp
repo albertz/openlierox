@@ -55,7 +55,7 @@ void CSlider::Draw(SDL_Surface * bmpDest)
 // Mouse down on the slider
 int CSlider::MouseDown(mouse_t *tMouse, int nDown)
 {
-	int x = iX+5;
+	int x = iX - 5; // a bit more left to have more natural swapping
 	int w = iWidth - 10;
 
 	int val = (int)( (float)(iMax - iMin) / ( (float)w / (float)(tMouse->X-x)) );
