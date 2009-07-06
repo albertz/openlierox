@@ -406,3 +406,12 @@ std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size
 	return result;
 }
 
+std::string splitStringWithNewLine(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font) {
+	std::vector<std::string> lines = splitstring(str, maxlen, maxwidth, font);
+	std::string ret = "";
+	for(std::vector<std::string>::iterator i = lines.begin(); i != lines.end(); ++i) {
+		if(i != lines.begin()) ret += "\n";
+		ret += *i;
+	}
+	return ret;
+}

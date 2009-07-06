@@ -761,7 +761,8 @@ CGuiLayout		cGameSettings;
 enum {
 	gs_Ok,
 	gs_Default,
-
+	gs_AdvancedLevel,
+	
 	gs_FeaturesList,
 	gs_FeaturesListLabel,
 	
@@ -795,6 +796,7 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 470, 135, 80,15);
 
 	CListview* features = new CListview();
 	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
@@ -1046,6 +1048,20 @@ bool Menu_GameSettings_Frame()
                 }
                 break;
 
+			case gs_AdvancedLevel:
+				if( ev->iEventMsg == SLD_CHANGE )
+				{
+					tLXOptions->iAdvancedLevelLimit = ((CSlider*)cGameSettings.getWidget(gs_AdvancedLevel))->getValue();
+					initFeaturesList((CListview*)cGameSettings.getWidget(gs_FeaturesList));
+				}
+				{
+					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
+					float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
+					featuresLabel->ChangeColour( tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff );
+					featuresLabel->setText( splitStringWithNewLine(AdvancedLevelDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), (size_t)-1, 450, tLX->cFont) );		
+				}
+				break;
+				
 			case gs_FeaturesList:
 				CListview* features = (CListview*)ev->cWidget;
 				if( ev->iEventMsg == LV_WIDGETEVENT )
@@ -1055,6 +1071,7 @@ bool Menu_GameSettings_Frame()
 				if( ev->iEventMsg == LV_MOUSEOVER )
 				{
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
+					featuresLabel->ChangeColour( tLX->clNormalLabel );
 					if(	features->getMouseOverSIndex() != "" )
 					{
 						std::string desc;
@@ -1067,14 +1084,10 @@ bool Menu_GameSettings_Frame()
 							RegisteredVar* var = CScriptableVars::GetVar( features->getMouseOverSIndex() );
 							if(var) desc = var->longDesc;
 						}
-						std::vector<std::string> lines = splitstring(desc, (size_t)-1, 450, tLX->cFont);
-						desc = "";
-						for(std::vector<std::string>::iterator i = lines.begin(); i != lines.end(); ++i) {
-							if(i != lines.begin()) desc += "\n";
-							desc += *i;
-						}
-						featuresLabel->setText( desc );
+						featuresLabel->setText( splitStringWithNewLine(desc, (size_t)-1, 450, tLX->cFont) );
 					}
+					else
+						featuresLabel->setText( "" );
 				}
 				if( ev->iEventMsg == LV_CHANGED )
 				{

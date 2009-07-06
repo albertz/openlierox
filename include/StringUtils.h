@@ -143,6 +143,7 @@ inline bool		strCaseStartsWith(const std::string& str, const std::string& start)
 size_t			maxStartingEqualStr(const std::list<std::string>& strs);
 size_t			maxStartingCaseEqualStr(const std::list<std::string>& strs);
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
+std::string		splitStringWithNewLine(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
 std::string		GetBaseFilenameWithoutExt(const std::string& filename);
