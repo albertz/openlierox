@@ -824,10 +824,16 @@ void Menu_GameSettings()
 
 // Features listview
 
+static void addFeautureListGroupHeading(CListview* l, GameInfoGroup group) {
+	l->AddItem(GameInfoGroupDescriptions[group][0], 0, tLX->clHeading);
+	l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---" + 
+				  (tLXOptions->iGameInfoGroupsShown[group] ? " [-]" : " [+]"), (DynDrawIntf*)NULL, NULL);	
+}
+	
 static void initFeaturesList(CListview* l)
 {
 	l->Clear();
-	int idx = 0;
+	int idx = 0; // TODO: what is this for?
 	for( GameInfoGroup group = (GameInfoGroup)0; group < GIG_Size; group = (GameInfoGroup)(group + 1) )
 	{
 		if( group == GIG_GameModeSpecific_Start )
@@ -838,12 +844,13 @@ static void initFeaturesList(CListview* l)
 
 		if( idx != 0 )
 			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
-		l->AddItem(GameInfoGroupDescriptions[group][0], idx, tLX->clHeading);
-		l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---" + 
-								(tLXOptions->iGameInfoGroupsShown[group] ? " [-]" : " [+]"), (DynDrawIntf*)NULL, NULL);
-		if( ! tLXOptions->iGameInfoGroupsShown[group] )
-			continue;
 
+		if( ! tLXOptions->iGameInfoGroupsShown[group] ) {
+			addFeautureListGroupHeading(l, group);
+			continue;
+		}
+		
+		size_t countGroupOpts = 0;
 		CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 		{
@@ -854,6 +861,10 @@ static void initFeaturesList(CListview* l)
 				it->first == "GameOptions.GameInfo.LevelName" ||
 				it->first == "GameOptions.GameInfo.GameType" )
 				continue;	// We have nice comboboxes for them, skip them in the list
+			
+			if(countGroupOpts == 0)
+				addFeautureListGroupHeading(l, group);
+			countGroupOpts++;
 			
 			lv_item_t * item = l->AddItem(it->first, idx, tLX->clNormalLabel); 
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
