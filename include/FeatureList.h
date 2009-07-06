@@ -34,6 +34,7 @@ struct Feature {
 
 	GameInfoGroup group;	// For grouping similar options in GUI
 
+	// TODO: make special type VarRange (which holds these hasmin/hasmax/min/max/signed)
 	// TODO: move that to ScriptVarType_t
 	Var minValue; // Min and max values are used in GUI to make sliders (only for float/int)
 	Var maxValue; // Min and max values are used in GUI to make sliders (only for float/int)
