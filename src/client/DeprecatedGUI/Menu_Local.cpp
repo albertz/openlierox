@@ -839,6 +839,25 @@ static int getListItemGroupInfoNr(const std::string& sindex) {
 	return -1;
 }
 	
+	
+static void updateFeatureListItemColor(lv_item_t* item) {
+	lv_subitem_t* sub = item->tSubitems; if(!sub) return;
+	if(((CListview*)cGameSettings.getWidget(gs_FeaturesList))->getMouseOverSIndex() == item->sIndex) {
+		sub->iColour = tLX->clMouseOver;
+		return;
+	}
+	
+	int group = getListItemGroupInfoNr(item->sIndex);
+	if(group >= 0) sub->iColour = tLX->clHeading;
+	else {
+		// Note: commented out because I am not sure if it is that nice
+		//RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
+		float warningCoeff = 0.0f; //CLAMP((float)var->advancedLevel / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
+		sub->iColour = tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff;
+	}
+}
+
+
 static void initFeaturesList(CListview* l)
 {
 	l->Clear();
@@ -875,7 +894,8 @@ static void initFeaturesList(CListview* l)
 				addFeautureListGroupHeading(l, group);
 			countGroupOpts++;
 			
-			lv_item_t * item = l->AddItem(it->first, 0, tLX->clNormalLabel); 
+			lv_item_t * item = l->AddItem(it->first, 0, tLX->clNormalLabel);
+			updateFeatureListItemColor(item);
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
@@ -1020,7 +1040,6 @@ void Menu_GameSettingsShutdown()
 
 
 
-
 ///////////////////
 // Game settings frame
 // Returns whether of not we have finised with the game settings
@@ -1080,12 +1099,8 @@ bool Menu_GameSettings_Frame()
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
 					featuresLabel->ChangeColour( tLX->clNormalLabel );
 					featuresLabel->setText( "" );
-					for(lv_item_t* item = features->getItems(); item != NULL; item = item->tNext) {
-						lv_subitem_t* sub = item->tSubitems; if(!sub) continue;
-						int group = getListItemGroupInfoNr(item->sIndex);
-						if(group >= 0) sub->iColour = tLX->clHeading;
-						else sub->iColour = tLX->clNormalLabel;
-					}
+					for(lv_item_t* item = features->getItems(); item != NULL; item = item->tNext)
+						updateFeatureListItemColor(item);
 					if(	features->getMouseOverSIndex() != "" )
 					{
 						{
