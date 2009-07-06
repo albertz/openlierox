@@ -66,7 +66,7 @@ Feature featureArray[] = {
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,	ALT_Advanced,	-2.0f,	10.0f,	true),
 	Feature("InstantAirJump",		"Instant air jump",		"Worms can jump in air instantly, this allows floating in air",
 			false,	false,			OLXBetaVersion(9),		GIG_Other, ALT_Advanced,	true),	// Server-side
-	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air, balanced version of Instant Air Jump",
+	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air in a given time interval",
 			false,	false,			OLXBetaVersion(9),		GIG_Other, ALT_Advanced),				// Client-side
 	Feature("RelativeAirJumpDelay",	"Delay for relative air jumps",	"How fast can you do air-jumps",
 			0.7f,	0.7f,			Version(),				GIG_Other,	ALT_VeryAdvanced,	0.0f, 	5.0f),
