@@ -208,8 +208,9 @@ void CWormHumanInputHandler::getInput() {
 
 		const float carveDelay = 0.2f;
 
-		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_LEFT)
-			|| ((( cLeft.isJoystick() && cLeft.isDown()) || (cLeft.isKeyboard() && leftOnce)) && !cSelWeapon.isDown())) {
+		if(		(mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_LEFT)
+			||	( ( (cLeft.isJoystick() && cLeft.isDown()) /*|| (cLeft.isKeyboard() && leftOnce)*/ ) && !cSelWeapon.isDown())
+			) {
 
 			if(tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
@@ -218,8 +219,9 @@ void CWormHumanInputHandler::getInput() {
 			}
 		}
 
-		if((mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_RIGHT)
-			|| ((( cRight.isJoystick() && cRight.isDown()) || (cRight.isKeyboard() && rightOnce)) && !cSelWeapon.isDown())) {
+		if(		(mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_RIGHT)
+			||	( ( (cRight.isJoystick() && cRight.isDown()) /*|| (cRight.isKeyboard() && rightOnce)*/ ) && !cSelWeapon.isDown())
+			) {
 
 			if(tLX->currentTime - m_worm->fLastCarve >= carveDelay) {
 				ws->bCarve = true;
