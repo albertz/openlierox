@@ -218,6 +218,9 @@ bool CGameMode::CheckGameOver() {
 	if(GameTeams() > 1 && (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] > 0) {
 		for(int i = 0; i < GameTeams(); ++i) {
 			if(TeamScores(i) >= (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit]) {
+				// TODO: make configureable
+				cServer->SendGlobalText("Team score limit " + itoa((int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit]) + " hit by " + TeamName(i), TXT_NORMAL);
+				notes << "team score limit hit by team " << i << endl;
 				return true;
 			}
 		}
@@ -227,6 +230,8 @@ bool CGameMode::CheckGameOver() {
 	if(tLXOptions->tGameInfo.iKillLimit > 0) {
 		int w = getWormHitKillLimit();
 		if(w >= 0) {
+			// TODO: make configureable
+			cServer->SendGlobalText("Kill limit " + itoa(tLXOptions->tGameInfo.iKillLimit) + " hit by worm " + cServer->getWorms()[w].getName(), TXT_NORMAL);
 			notes << "worm " << w << " hit the kill limit" << endl;
 			return true;
 		}
@@ -257,6 +262,8 @@ bool CGameMode::CheckGameOver() {
 		int minWormsNeeded = 2;
 		if(tLX->iGameType == GME_LOCAL && cServer->getNumPlayers() == 1) minWormsNeeded = 1;
 		if(worms < minWormsNeeded) {
+			// TODO: make configureable
+			cServer->SendGlobalText("Too less players in game", TXT_NORMAL);
 			notes << "only " << worms << " players left in game -> game over" << endl;
 			return true;
 		}
@@ -273,6 +280,8 @@ bool CGameMode::CheckGameOver() {
 		
 		// Only one team left
 		if(teams <= 1) {
+			// TODO: make configureable
+			cServer->SendGlobalText("Too less teams in game", TXT_NORMAL);
 			return true;
 		}
 	}

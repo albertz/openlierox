@@ -131,6 +131,8 @@ bool CTag::CheckGameOver()
 
 		// Check if any of the worms reached the maximum tag time
 		if(wormid >= 0 && cServer->getWorms()[wormid].getTagTime() >= tLXOptions->tGameInfo.iTagLimit * 60.0f) {
+			// TODO: make configureable
+			cServer->SendGlobalText(cServer->getWorms()[wormid].getName() + " has reached the maximum tag time", TXT_NORMAL);
 			notes << cServer->getWorms()[wormid].getName() << " has reached the maximum tag time" << endl;
 			return true;
 		}

@@ -41,6 +41,8 @@ public:
 		}
 		
 		if( nDirtCount > (float)cServer->getMap()->GetDirtCount()*0.8f ) {
+			// TODO: make configureable
+			cServer->SendGlobalText("Demolition limit hit", TXT_NORMAL);
 			// Make the server trigger a game over
 			return true;
 		}
