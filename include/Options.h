@@ -196,7 +196,7 @@ public:
 	controls_t<MAX_COUNT> keyNames;
 	int keySyms[MAX_COUNT];
 	
-	const std::string & getTauntForKey(int keySym) const;
+	std::string getTauntForKey(int keySym) const;
 };
 
 

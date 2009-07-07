@@ -731,12 +731,10 @@ bool Taunts::LoadFromDisc()
 	return true;
 }
 
-const std::string & Taunts::getTauntForKey(int keySym) const
-{
+std::string Taunts::getTauntForKey(int keySym) const {
 	for( int f=0; f < Taunts::MAX_COUNT; f++ )
 		if( keySyms[f] == keySym )
 			return texts[f];
 	
-	static const std::string dummy;
-	return dummy;
+	return "";
 }
