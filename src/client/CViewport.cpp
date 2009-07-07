@@ -74,7 +74,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
         // If we have no target at all, find one
         if( !pcTargetWorm ) {
-			notes << "find new worm for viewport because we have currently none" << endl;
+			//notes << "find new worm for viewport because we have currently none" << endl;
             
             // Try and find a living worm first
             CWorm *t = findTarget(pcWormList, pcViewList, true);
@@ -95,40 +95,6 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
             }
         }
 
-
-        // Check if the target is out of the game
-        if( pcTargetWorm ) {
-            if( pcTargetWorm->getLives() == WRM_OUT ) {
-                // Setup the timer to wait 2.5 seconds before changing targets
-                if( fTimer == AbsTime() )
-                    fTimer = tLX->currentTime + 2.5f;
-
-                // AbsTime up? Change targets
-                if( tLX->currentTime > fTimer ) {
-					notes << "find new worm for viewport because current is out of the game" << endl;
-					
-                    // Try and find a living worm first
-                    CWorm *t = findTarget(pcWormList, pcViewList, true);
-
-                    // If no living worms, try a dead worm (but still in the game)
-                    if(!t)
-                        t = findTarget(pcWormList, pcViewList, false);
-
-                    if(t) {
-                        pcTargetWorm = t;
-                        fTimer = AbsTime();
-                    } else {
-
-                        // If we didn't find a new worm, go into freelook mode                    
-                        pcTargetWorm = NULL;
-                        nType = VW_FREELOOK;
-                        fTimer = AbsTime();
-                        return;
-                    }
-                }
-            }
-        }
-	    
         // Follow the worm
 
         if( pcTargetWorm ) {

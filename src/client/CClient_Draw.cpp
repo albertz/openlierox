@@ -2230,7 +2230,6 @@ void CClient::InitializeSpectatorViewportKeys()
 
 void CClient::ProcessSpectatorViewportKeys()
 {
-	
 	if(!cLocalWorms) return;
 	
 	if( iNetStatus != NET_PLAYING )
@@ -2250,6 +2249,7 @@ void CClient::ProcessSpectatorViewportKeys()
 	// Don't process when typing a message
 	if (bChat_Typing)
 		return;
+	
 
 	bool v2_on = cViewports[1].getUsed();
 	int v1_type = cViewports[0].getType();
@@ -2260,7 +2260,9 @@ void CClient::ProcessSpectatorViewportKeys()
 
     for(int i=0; i<MAX_WORMS; i++ )
 	{
-		if( cRemoteWorms[i].isUsed() )
+		if( cRemoteWorms[i].isUsed() && fallbackWorm == -1 )
+			fallbackWorm = i;
+		if( cRemoteWorms[i].isUsed() && cRemoteWorms[i].getAlive() )
 			fallbackWorm = i;
         if( ! cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT )
 			continue;
@@ -2316,6 +2318,12 @@ void CClient::ProcessSpectatorViewportKeys()
 		if( cSpectatorViewportKeys.Down.isDownOnce() )
 		{
 			v2_target = v2_next;
+			Changed = true;
+		}
+		// Spectate timeout just passed - move to another worm without user keypresses
+		if( v1_targetPtr == cLocalWorms[0] )
+		{
+			v1_target = fallbackWorm;
 			Changed = true;
 		}
 	}
