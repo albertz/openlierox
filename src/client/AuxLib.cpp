@@ -1313,10 +1313,14 @@ std::string GetDateTimeText()
 {
 	time_t t = time(NULL);
 
-	if (t == -1)
-		return "";
+	if (t == (time_t)-1)
+		return "TIME-ERROR1";
 	
-	std::string timeStr = ctime(&t);
+	char* timeCstr = ctime(&t);
+	if(timeCstr == NULL)
+		return "TIME-ERROR2";
+	
+	std::string timeStr(timeCstr);
 	TrimSpaces(timeStr);
 	return timeStr;
 }
