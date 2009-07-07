@@ -258,7 +258,7 @@ bool GameOptions::Init() {
 	CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.iLives, "Lives", -1, "Lives", "Lives", GIG_General, ALT_Basic, true, -1, 150 )
 		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", 15, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, ALT_Basic, true, -1, 150 )
-		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", -1.0f, "Time limit", "Time limit, in minutes", GIG_General, ALT_Basic, true, -0.15f, 20.0f )
+		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", 6.0f, "Time limit", "Time limit, in minutes", GIG_General, ALT_Basic, true, -0.15f, 20.0f )
 		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode", GIG_Tag, ALT_Basic, true, 1, 150 )
 		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time, in percent", GIG_General, ALT_Basic, true, 0, 500 )
 		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", false, "Bonuses", "Bonuses enabled", GIG_Bonus, ALT_Basic )

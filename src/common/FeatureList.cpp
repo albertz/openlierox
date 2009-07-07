@@ -83,7 +83,7 @@ Feature featureArray[] = {
 	Feature("ProjFriction",			"Projectile Friction",	"Friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(9),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
-			5, 5,					OLXBetaVersion(9),		GIG_General, ALT_Basic,	-1, 100,	true, true, false, true),
+			-1, -1,					OLXBetaVersion(9),		GIG_General, ALT_Basic,	-1, 100,	true, true, false, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
 			1.0f, 1.0f,				OLXBetaVersion(9),		GIG_Advanced, ALT_Advanced,	0.5f, 4.0f, false),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
