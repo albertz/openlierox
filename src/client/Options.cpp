@@ -729,7 +729,7 @@ bool Taunts::LoadFromDisc()
 
 	notes << "DONE" << endl;
 	return true;
-};
+}
 
 const std::string & Taunts::getTauntForKey(int keySym) const
 {
@@ -739,4 +739,4 @@ const std::string & Taunts::getTauntForKey(int keySym) const
 	
 	static const std::string dummy;
 	return dummy;
-};
+}
