@@ -225,6 +225,20 @@ struct ScriptVarPtr_t
 	}
 
 	void setDefault() const;
+
+	bool operator==(const ScriptVar_t* var) const {
+		if(var == NULL) return b == NULL;
+		if(var->type != type) return false;
+		switch(type) {
+			case SVT_BOOL: return b == &var->b;
+			case SVT_INT: return i == &var->i;
+			case SVT_FLOAT: return f == &var->f;
+			case SVT_STRING: return s == &var->s;
+			case SVT_COLOR: return cl == &var->c;
+			default: assert(false);
+		}
+		return false;
+	}
 	
 	// These funcs will assert() if you try to call them on Callback varptr
 	std::string toString() const;

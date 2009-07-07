@@ -885,10 +885,24 @@ static void initFeaturesList(CListview* l)
 			if( it->second.group != group ) continue;
 			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
-			if( it->first == "GameOptions.GameInfo.ModName" || 
-				it->first == "GameOptions.GameInfo.LevelName" ||
-				it->first == "GameOptions.GameInfo.GameType" )
+			if( it->second.var.s == &tLXOptions->tGameInfo.sModDir || 
+				it->second.var.s == &tLXOptions->tGameInfo.sMapFile ||
+				it->first == "GameOptions.GameInfo.GameType" ||
+				it->second.var.i == &tLXOptions->tGameInfo.iMaxPlayers )
 				continue;	// We have nice comboboxes for them, skip them in the list
+			
+			if( tLX->iGameType == GME_LOCAL )
+				if( it->second.var.b == &tLXOptions->tGameInfo.bAllowConnectDuringGame )
+					continue;
+			
+			if( !tLXOptions->tGameInfo.gameMode || !tLXOptions->tGameInfo.gameMode->isTeamGame() ) {
+				if( it->second.var.i == &tLXOptions->iRandomTeamForNewWorm ) continue;
+				if( it->second.var.b == &tLXOptions->tGameInfo.bRespawnGroupTeams ) continue;
+				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamScoreLimit] ) continue;
+				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] ) continue;
+				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamInjure] ) continue;				
+				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamHit] ) continue;				
+			}
 			
 			if(countGroupOpts == 0)
 				addFeautureListGroupHeading(l, group);
