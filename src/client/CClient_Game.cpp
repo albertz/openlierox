@@ -1462,7 +1462,7 @@ void CClient::processChatter()
 				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
 
 					// Can we type?
-					if (cLocalWorms[j]->getLives() == WRM_OUT)  { // We're spectating
+					if (cLocalWorms[j]->getLives() == WRM_OUT && !cLocalWorms[j]->getAlive())  { // We're spectating
 						if (cSpectatorViewportKeys.Down.isDown() ||
 							cSpectatorViewportKeys.Left.isDown() ||
 							cSpectatorViewportKeys.Right.isDown() ||

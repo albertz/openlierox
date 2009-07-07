@@ -228,7 +228,7 @@ void ChatWidget_ChatDisconnect()
 {
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
-		CListview *lsv = (CListview *)(*cw)->getWidget(nc_UserList);
+		CListview *lsv = (CListview *)((*cw)->getWidget(nc_UserList));
 		if (lsv)
 			lsv->Clear();
 	}

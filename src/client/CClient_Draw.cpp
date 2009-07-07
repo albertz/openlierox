@@ -2230,16 +2230,20 @@ void CClient::InitializeSpectatorViewportKeys()
 
 void CClient::ProcessSpectatorViewportKeys()
 {
+	
 	if(!cLocalWorms) return;
 	
 	if( iNetStatus != NET_PLAYING )
 		return;
-	
-	// don't proceed if any of the locla human worms is not out of the game
+
+	// don't proceed if any of the local human worms is not out of the game
 	// (also don't proceed when waiting for respawn)
 	for(uint i = 0; i < iNumWorms; ++i) {
 		if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
-			if(cLocalWorms[i]->getLives() != WRM_OUT || cLocalWorms[i]->getAlive()) return;
+			if(cLocalWorms[i]->getAlive())
+				return;
+			if(tLX->currentTime <= cLocalWorms[i]->getTimeofDeath() + 3.0f)
+				return;
 		}
 	}
 
@@ -2370,18 +2374,13 @@ void CClient::ProcessSpectatorViewportKeys()
 	// Print message that we are in spectator mode for 3 seconds
 	if( cLocalWorms[0] && cLocalWorms[0]->getType() == PRF_HUMAN )
 	{
-		if( cLocalWorms[0]->getAlive() )
-		{
-			sSpectatorViewportMsg = "";
-			v1_target = cLocalWorms[0]->getID();	// Force first viewport to local player if it's alive
-			Changed = true;
-		}
-		else if( tLX->currentTime - cLocalWorms[0]->getTimeofDeath() <= 6.0f )
+		if( tLX->currentTime <= cLocalWorms[0]->getTimeofDeath() + 6.0f )
 		{
 			if( cLocalWorms[0]->getLives() != WRM_OUT )
 				sSpectatorViewportMsg = "Spectator mode - waiting for respawn";
 			else
 				sSpectatorViewportMsg = "Spectator mode";
+			fSpectatorViewportMsgTimeout = tLX->currentTime;
 		}
 	}
 
