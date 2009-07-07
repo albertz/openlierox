@@ -525,7 +525,7 @@ class StandardCicler:
 	def check():
 		if not self.enabled: return
 		if time.time() < nextCicleTime: return
-		cicle()
+		self.cicle()
 		
 	def cicle():
 		if not self.preSelectedList.empty:
