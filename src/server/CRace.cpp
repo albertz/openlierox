@@ -150,6 +150,9 @@ struct Race : public CGameMode {
 		}
 	}
 	
+	virtual float FlagPointRadius() { return tLXOptions->tGameInfo.features[FT_Race_CheckPointRadius]; }
+	virtual float FlagRadius() { return tLXOptions->tGameInfo.features[FT_Race_CheckPointRadius]; }
+	
 	virtual bool Shoot(CWorm* worm) {
 		// get that information from client because both client&server can check this
 		return cClient->getGameLobby()->features[FT_Race_AllowWeapons];

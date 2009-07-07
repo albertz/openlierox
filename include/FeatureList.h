@@ -134,6 +134,7 @@ enum FeatureIndex {
 	FT_CTF_SpeedFactorForCarrier,
 	FT_Race_Rounds,
 	FT_Race_AllowWeapons,
+	FT_Race_CheckPointRadius,
  
  	__FTI_BOTTOM
 };

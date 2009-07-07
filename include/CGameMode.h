@@ -47,7 +47,6 @@ public:
 	virtual void Simulate() {}
 	virtual bool CheckGameOver();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
-	virtual float TimeLimit();
 	
 	virtual int CompareWormsScore(CWorm* w1, CWorm* w2);
 	virtual int CompareTeamsScore(int t1, int t2);
@@ -57,6 +56,10 @@ public:
 
 	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_GameModeSpecific_Start; };
 
+	virtual float TimeLimit();
+	virtual float FlagPointRadius() { return 6.0f; }
+	virtual float FlagRadius() { return 6.0f; }
+	
 	// helper functions
 	int WormsAliveInTeam(int t);
 	int TeamKills(int t);

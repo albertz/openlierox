@@ -218,8 +218,16 @@ void FlagInfo::checkWorm(CWorm* worm) {
 	
 	if(!worm->getAlive()) return;
 	
+	if(!cServer || !cServer->isServerRunning() || !cServer->getGameMode()) {
+		errors << "FlagInfo::checkWorm: server is corrupt" << endl;
+		return;
+	}
+	
+	float flagPointRadius = cServer->getGameMode()->FlagPointRadius(); flagPointRadius *= flagPointRadius;
+	float flagRadius = cServer->getGameMode()->FlagRadius(); flagRadius *= flagRadius;
+	
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
-		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < 30.0f ) {
+		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < flagPointRadius ) {
 			cServer->getGameMode()->hitFlagSpawnPoint(worm, &i->second);
 			
 			if(i->second.atSpawnPoint)
@@ -227,7 +235,7 @@ void FlagInfo::checkWorm(CWorm* worm) {
 		}
 		
 		if(!i->second.atSpawnPoint && i->second.holderWorm < 0) {
-			if( (worm->getPos() - i->second.pos).GetLength2() < 30.0f ) {
+			if( (worm->getPos() - i->second.pos).GetLength2() < flagRadius ) {
 				cServer->getGameMode()->hitFlag(worm, &i->second);			
 			}
 		}
