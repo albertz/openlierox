@@ -1116,7 +1116,11 @@ bool Menu_GameSettings_Frame()
 						}
 						if(desc == "") {
 							RegisteredVar* var = CScriptableVars::GetVar( features->getMouseOverSIndex() );
-							if(var) desc = var->longDesc;
+							if(var) {
+								desc = var->longDesc;
+								float warningCoeff = CLAMP((float)var->advancedLevel / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
+								featuresLabel->ChangeColour( tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff );
+							}
 						}
 						featuresLabel->setText( splitStringWithNewLine(desc, (size_t)-1, 450, tLX->cFont) );
 					}
