@@ -34,6 +34,7 @@ public:
 	virtual std::string TeamName(int t);
 	
 	virtual void PrepareGame();
+	virtual void BeginMatch() {}
 	virtual void PrepareWorm(CWorm* worm) {}
 	// If Spawn returns false then no spawn packet will be sent
 	virtual bool Spawn(CWorm* worm, CVec pos);

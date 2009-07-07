@@ -25,10 +25,7 @@
 
 class CHideAndSeek : public CGameMode {
 public:
-	virtual float TimeLimit() {
-		GenerateTimes();
-		return fGameLength;
-	}
+	virtual float TimeLimit() { return fGameLength; }
 	virtual void PrepareGame();
 	virtual void PrepareWorm(CWorm* worm);
 	virtual bool Spawn(CWorm* worm, CVec pos);

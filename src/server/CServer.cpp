@@ -448,6 +448,9 @@ mapCreate:
 	iServerFrame = 0;
 	bGameOver = false;
 
+	notes << "preparing game mode " << getGameMode()->Name() << endl;
+	getGameMode()->PrepareGame();
+	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
 		if( cClients[i].getStatus() != NET_CONNECTED )
@@ -477,7 +480,6 @@ mapCreate:
 	// Re-register the server to reflect the state change
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
 		RegisterServerUdp();
-
 	
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cWorms[i].isUsed())
@@ -600,8 +602,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		}
 		
 		// Prepare the gamemode
-		notes << "preparing game mode " << getGameMode()->Name() << endl;
-		getGameMode()->PrepareGame();
+		getGameMode()->BeginMatch();
 		
 		for(int i=0;i<MAX_WORMS;i++) {
 			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
