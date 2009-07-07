@@ -1447,8 +1447,25 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 
 	if( varptr->var.type == SVT_CALLBACK ) {
 		caller->writeMsg("SetVar: callbacks are not allowed");
-		// If we want supoort for that, I would suggest a seperated command like "call ...".
+		// If we want support for that, I would suggest a seperated command like "call ...".
 		return;
+	}
+
+	if(cServer && cServer->isServerRunning() && cServer->getState() != SVS_LOBBY) {
+		if( varptr->var.s == &tLXOptions->tGameInfo.sMapFile ) {
+			caller->writeMsg("SetVar: You cannot change the map in game");
+			return;
+		}
+		
+		if( varptr->var.s == &tLXOptions->tGameInfo.sMapName ) {
+			caller->writeMsg("SetVar: You cannot change the map-name in game");
+			return;
+		}
+		
+		if( varptr->var.s == &tLXOptions->tGameInfo.sModDir ) {
+			caller->writeMsg("SetVar: You cannot change the mod in game");
+			return;
+		}
 	}
 	
 	CScriptableVars::SetVarByString(varptr->var, value);

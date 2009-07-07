@@ -1082,6 +1082,17 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 		if(!cl->getRights()->Dedicated)
 			return "You can only set the password with Dedicated priviliges";
 	}
+
+	if(cServer->getState() != SVS_LOBBY && params.size() == 2) {
+		if( varptr->var.s == &tLXOptions->tGameInfo.sMapFile )
+			return "You cannot change the map in game";
+
+		if( varptr->var.s == &tLXOptions->tGameInfo.sMapName )
+			return "You cannot change the map-name in game";
+
+		if( varptr->var.s == &tLXOptions->tGameInfo.sModDir )
+			return "You cannot change the mod in game";
+	}
 	
 	if(!w->isUsed()) return "Invalid worm";
 	if(!w->getClient()) return "Invalid worm with no client";
