@@ -1068,17 +1068,18 @@ bool Menu_GameSettings_Frame()
 
             // Set the default values
             case gs_Default:
-                if( ev->iEventMsg == BTN_MOUSEUP )
-				{
+                if( ev->iEventMsg == BTN_MOUSEUP ) {
                     Menu_GameSettings_Default();
                 }
                 break;
 
 			case gs_AdvancedLevel:
-				if( ev->iEventMsg == SLD_CHANGE )
-				{
+				if( ev->iEventMsg == SLD_CHANGE ) {
 					tLXOptions->iAdvancedLevelLimit = ((CSlider*)cGameSettings.getWidget(gs_AdvancedLevel))->getValue();
-					initFeaturesList((CListview*)cGameSettings.getWidget(gs_FeaturesList));
+					CListview* features = (CListview*)cGameSettings.getWidget(gs_FeaturesList);
+					features->SaveScrollbarPos();
+					initFeaturesList(features);
+					features->RestoreScrollbarPos();
 				}
 				{
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
