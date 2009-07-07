@@ -32,7 +32,7 @@ Feature featureArray[] = {
 			false, 	false, 			Version(), 			GIG_Score, 	ALT_Advanced,				false,	true ),
 	Feature("CountTeamkills", 		"Count teamkills", 				"When killing player from your team increase your score", 
 			false, 	false, 			Version(), 			GIG_Score, 	ALT_VeryAdvanced,					false,	true ),
-	Feature("TeamInjure", 			"Damage team members", 			"If disabled, your bullets and projectiles don't damage other team members.", 
+	Feature("TeamInjure", 			"Damage team members", 			"If disabled, your bullets and projectiles don't damage other team members. It's like friendlyfire in other games.", 
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons, ALT_Advanced ),
 	Feature("TeamHit", 				"Hit team members", 			"If disabled, your bullets and projectiles will fly through your team members.", 
 			true, 	true, 			OLXBetaVersion(9), 	GIG_Weapons, ALT_Advanced ),
