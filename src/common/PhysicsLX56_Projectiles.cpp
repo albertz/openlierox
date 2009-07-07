@@ -74,11 +74,18 @@ inline int CProjectile::ProjWormColl(const LX56ProjAttribs& attribs, CVec pos, C
 			ownerWorm = NULL;
 	}
 	
+	bool preventSelfShooting =
+		!NewNet::Active() &&
+		(this->getIgnoreWormCollBeforeTime() > this->fLastSimulationTime); // if the simulation is too early, ignore this worm col
+
 	CWorm *w = worms;
 	for(short i=0;i<MAX_WORMS;i++,w++) {
 		if(!w->isUsed() || !w->getAlive())
 			continue;
 		
+		if(preventSelfShooting && w == ownerWorm)
+			continue;
+
 		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
 			continue;
 		
@@ -1510,11 +1517,7 @@ struct LX56ProjectileHandler {
 		===================
 		*/
 		if( result.withWorm && !doActionInfo.explode) {
-			bool preventSelfShooting = ((int)result.wormId == prj->GetOwner());
-			preventSelfShooting &= (prj->getIgnoreWormCollBeforeTime() > prj->fLastSimulationTime); // if the simulation is too early, ignore this worm col
-			if( !preventSelfShooting || NewNet::Active() ) {
-				projInfo.PlyHit.applyTo(eventInfo, prj, &doActionInfo);
-			}
+			projInfo.PlyHit.applyTo(eventInfo, prj, &doActionInfo);
 		}
 		
 		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
