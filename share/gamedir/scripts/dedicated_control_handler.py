@@ -550,10 +550,19 @@ class StandardCicler:
 
 mapCicler = StandardCicler()
 mapCicler.list = io.listMaps()
+if len(mapCicler.list) == 0:
+	io.msg("Waiting for level list ...")
+	while len(mapCicler.list) == 0:
+		mapCicler.list = io.listMaps()
 mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
+
 
 modCicler = StandardCicler()
 modCicler.list = io.listMods()
+if len(modCicler.list) == 0:
+	io.msg("Waiting for mod list ...")
+	while len(modCicler.list) == 0:
+		modCicler.list = io.listMods()
 modCicler.gameVar = "GameOptions.GameInfo.ModName"
 modCicler.enabled = False
 
