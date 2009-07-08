@@ -73,7 +73,7 @@ struct CGameSkin::Thread {
 		actionQueue.push_back(a);
 	}
 	
-	void cleanAction__unsafe(Skin_Action*& a) {
+	static void cleanAction__unsafe(Skin_Action*& a) {
 		delete a;
 		a = NULL;
 	}
@@ -108,11 +108,11 @@ struct CGameSkin::Thread {
 					skin->thread->actionQueue.pop_front();
 					
 					skin->thread->mutex.unlock();
-					skinActionHandlerMutex.lock();
+					skinActionHandlerMutex.lock(); // just to force only one action at a time globally
 					lastRet = skin->thread->curAction->handle();
 					skinActionHandlerMutex.unlock();
 					skin->thread->mutex.lock();
-					skin->thread->cleanAction__unsafe(skin->thread->curAction);
+					CGameSkin::Thread::cleanAction__unsafe(skin->thread->curAction);
 				}
 				skin->thread->ready = true;
 				skin->thread->signal.broadcast();
@@ -233,11 +233,12 @@ void CGameSkin::Change(const std::string &file)
 		return;
 	
 	thread->forceStopThread(); // also removes all actions
-
+	// We are assuming here that no other thread is accessing the skin right now in this moment.
+	
 	sFileName = file;
 	if(bDedicated) return;
 
-	thread->pushAction__unsafe(new SkinAction_Load(this, !bColorized));
+	thread->pushAction__unsafe(new SkinAction_Load(this, /* generatePreview = */ !bColorized));
 	
 	if (bColorized) {
 		bColorized = false; // To force the recolorization
@@ -423,28 +424,6 @@ void CGameSkin::GenerateShadow()
 	UnlockSurface(bmpMirroredShadow);
 }
 
-//////////////////
-// Helper function for the assignment operator
-static void copy_surf(SmartPointer<SDL_Surface>& to, const SmartPointer<SDL_Surface>& from)
-{
-	// NULL check
-	if (!from.get())  {
-		to = NULL;
-		return;
-	}
-
-	// Create if doesn't exist
-	if (!to.get())
-		to = gfxCreateSurfaceAlpha(from->w, from->h);
-
-	// Alloc error
-	if (!to.get())
-		return;
-
-	// Copy
-	CopySurface(to.get(), from.get(), 0, 0, 0, 0, to->w, to->h);
-	SetColorKey(to.get());
-}
 
 ///////////////////
 // Assignment operator
@@ -454,31 +433,14 @@ CGameSkin& CGameSkin::operator =(const CGameSkin &oth)
 		// we must do this because we could need surfaces of different width
 		uninit();
 		init(oth.iFrameWidth, oth.iFrameHeight, oth.iFrameSpacing, oth.iSkinWidth, oth.iSkinHeight);
+		iBotIcon = oth.iBotIcon;
 		
-		if (!bDedicated)  {
-			// NOTE: the assignment is safe because of smartpointer
-			// HINT: the bmpSurface never changes, so it's safe to assign it like this
-			bmpSurface = oth.bmpSurface;
-
-			// Other surfaces
-			copy_surf(bmpShadow, oth.bmpShadow);
-			copy_surf(bmpMirrored, oth.bmpMirrored);
-			copy_surf(bmpMirroredShadow, oth.bmpMirroredShadow);
-			copy_surf(bmpPreview, oth.bmpPreview);
-			copy_surf(bmpNormal, oth.bmpNormal);
-		}
-		
-		// Other details
-		sFileName = oth.sFileName;
-		iColor = oth.iColor;
+		// we must reload it because it's not guaranteed that the other skin itself is ready
 		iDefaultColor = oth.iDefaultColor;
 		bColorized = oth.bColorized;
-		iBotIcon = oth.iBotIcon;
-		iFrameWidth = oth.iFrameWidth;
-		iFrameHeight = oth.iFrameHeight;
-		iFrameSpacing = oth.iFrameSpacing;
-		iSkinWidth = oth.iSkinWidth;
-		iSkinHeight = oth.iSkinHeight;
+		iColor = oth.iColor;
+		sFileName = "";
+		Change(oth.sFileName);
 	}
 	return *this;
 }

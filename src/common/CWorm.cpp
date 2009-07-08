@@ -496,7 +496,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
 		team = true;
-		colour = tLX->clTeamColors[iTeam];
+		colour = tLX->clTeamColors[CLAMP(iTeam,0,3)];
 	}
 
 	// Use the colours set on the network

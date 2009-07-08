@@ -35,9 +35,11 @@ struct SkinAction_Load;
 class CGameSkin  {
 public:
 	CGameSkin(int fw, int fh, int fs, int sw, int sh);
-	CGameSkin(const CGameSkin& skin);
 	CGameSkin(const std::string& file, int fw, int fh, int fs, int sw, int sh);
 	~CGameSkin();
+	
+	CGameSkin(const CGameSkin& skin);
+	CGameSkin& operator=(const CGameSkin& oth);
 
 private:
 	SmartPointer<SDL_Surface>	bmpSurface;
@@ -80,7 +82,6 @@ private:
 	void	Load_Execute(bool& breakSignal);
 
 public:
-	CGameSkin& operator=(const CGameSkin& oth);
 	bool operator==(const CGameSkin& oth);
 	bool operator!=(const CGameSkin& oth)  { return !(*this == oth); }
 
@@ -116,13 +117,14 @@ public:
 		WORM_SKIN_FRAME_SPACING,
 		WORM_SKIN_WIDTH,
 		WORM_SKIN_HEIGHT)  {}
-	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) {}
 	CWormSkin(const std::string& file) : CGameSkin(file, 
 		WORM_SKIN_FRAME_WIDTH, 
 		WORM_SKIN_FRAME_HEIGHT,
 		WORM_SKIN_FRAME_SPACING,
 		WORM_SKIN_WIDTH,
 		WORM_SKIN_HEIGHT) {}
+
+	CWormSkin(const CWormSkin& oth) : CGameSkin(oth) {}
 	CWormSkin& operator=(const CWormSkin& oth) { this->CGameSkin::operator=(oth); return *this; }
 };
 
