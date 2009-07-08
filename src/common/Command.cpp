@@ -1491,6 +1491,11 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 			caller->writeMsg("SetVar: You cannot change the mod in game");
 			return;
 		}
+		
+		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") ) {
+			caller->writeMsg("SetVar: You cannot change the gametype in game.");
+			return;
+		}
 	}
 	
 	CScriptableVars::SetVarByString(varptr->var, value);

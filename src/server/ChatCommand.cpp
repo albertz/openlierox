@@ -1092,6 +1092,9 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 
 		if( varptr->var.s == &tLXOptions->tGameInfo.sModDir )
 			return "You cannot change the mod in game";
+
+		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") )
+			return "You cannot change the gametype in game";
 	}
 	
 	if(!w->isUsed()) return "Invalid worm";
