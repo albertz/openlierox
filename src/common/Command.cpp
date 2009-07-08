@@ -1877,6 +1877,16 @@ void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::strin
 	caller->pushReturnArg(ftoa(w->velocity().y));
 }
 
+COMMAND(getWormProps, "get worm properties", "id", 1, 1);
+void Cmd_getWormProps::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
+	caller->pushReturnArg("SpeedFactor: " + ftoa(w->speedFactor()));
+	caller->pushReturnArg("DamageFactor: " + ftoa(w->damageFactor()));
+	caller->pushReturnArg("ShieldFactor: " + ftoa(w->shieldFactor()));	
+	caller->pushReturnArg("CanAirJump: " + to_string<bool>(w->canAirJump()));
+	caller->pushReturnArg("CanUseNinja: " + to_string<bool>(w->canUseNinja()));
+}
+
 COMMAND(whoIs, "get some info about a worm", "worm-id", 1, 1);
 void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
