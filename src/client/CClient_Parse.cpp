@@ -2641,9 +2641,11 @@ void CClientNetEngineBeta9::ParseWormProps(CBytestream* bs) {
 	bs->SkipRestBits(); // WARNING: remove this when we read 8 bits
 	float speedFactor = bs->readFloat();
 	float damageFactor = bs->readFloat();
+	float shieldFactor = bs->readFloat();
 		
 	w->setSpeedFactor(speedFactor);
 	w->setDamageFactor(damageFactor);
+	w->setShieldFactor(shieldFactor);
 	w->setCanUseNinja(canUseNinja);
 	w->setCanAirJump(canAirJump);
 }

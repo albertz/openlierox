@@ -1900,6 +1900,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				cClient->getWorm(i)->setCanUseNinja(serverWorm->canUseNinja());
 				cClient->getWorm(i)->setSpeedFactor(serverWorm->speedFactor());
 				cClient->getWorm(i)->setDamageFactor(serverWorm->damageFactor());
+				cClient->getWorm(i)->setShieldFactor(serverWorm->shieldFactor());
 				cClient->getWorm(i)->setCanAirJump(serverWorm->canAirJump());
 				
 				if(!cClient->getWorm(i)->getWeaponsReady())

@@ -257,6 +257,7 @@ private:
 	float		fSpeedFactor;
 	bool		bCanUseNinja;
 	float		fDamageFactor;
+	float		fShieldFactor;
 	bool		bCanAirJump; // For instant air jump
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
@@ -521,6 +522,8 @@ public:
 	float		speedFactor() const { return fSpeedFactor; }
 	void		setDamageFactor(float f) { fDamageFactor = f; }
 	float		damageFactor() const { return fDamageFactor; }
+	void		setShieldFactor(float f) { fShieldFactor = f; }
+	float		shieldFactor() const { return fShieldFactor; } 
 	void		setCanAirJump(bool b) { bCanAirJump = b; }
 	bool		canAirJump() const { return bCanAirJump; }
 	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }

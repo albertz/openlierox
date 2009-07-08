@@ -1118,11 +1118,17 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	bs.writeBit(worm->canAirJump());
 	bs.writeFloat(worm->speedFactor());
 	bs.writeFloat(worm->damageFactor());
+	bs.writeFloat(worm->shieldFactor());
 	SendPacket(&bs);
 }
 
 bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
-	return worm->speedFactor() == 1.0f && worm->damageFactor() == 1.0f && worm->canUseNinja() && !worm->canAirJump();
+	return
+		worm->speedFactor() == 1.0f &&
+		worm->damageFactor() == 1.0f &&
+		worm->shieldFactor() == 1.0f &&
+		worm->canUseNinja() &&
+		!worm->canAirJump();
 }
 
 void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
@@ -1182,6 +1188,22 @@ void GameServer::SetWormDamageFactor(int wormID, float f) {
 	if(cWorms[wormID].damageFactor() == f) return; // nothing need to be changed
 	
 	cWorms[wormID].setDamageFactor(f);
+	
+	for(int c = 0; c < MAX_CLIENTS; c++) {
+		if(cClients[c].getStatus() == NET_CONNECTED)
+			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+	}
+}
+
+void GameServer::SetWormShieldFactor(int wormID, float f) {
+	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+		warnings << "SetWormDamageFactor: worm " << wormID << " is invalid" << endl;
+		return;
+	}
+	
+	if(cWorms[wormID].shieldFactor() == f) return; // nothing need to be changed
+	
+	cWorms[wormID].setShieldFactor(f);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)

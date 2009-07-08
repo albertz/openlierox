@@ -119,6 +119,7 @@ enum FeatureIndex {
 	FT_FillWithBotsTo,
 	FT_WormSpeedFactor,
 	FT_WormDamageFactor,
+	FT_WormShieldFactor,
 	FT_InstantAirJump,
 	FT_RelativeAirJump,
 	FT_RelativeAirJumpDelay,

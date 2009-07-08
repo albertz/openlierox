@@ -265,7 +265,12 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 
 			// Sparkle
 			case ENT_SPARKLE:
-				DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSparkle, int(ent->fFrame)*10,0, x-5,y-5,10,10);
+				if(ent->iColour != Color()) {
+					// Well, I admit, not very creative but it's ok for now
+					DrawRectFill2x2(bmpDest, x, y - 1, ent->iColour);
+					DrawRectFill2x2(bmpDest, x - 1, y, ent->iColour);
+				} else
+					DrawImageAdv(bmpDest, DeprecatedGUI::gfxGame.bmpSparkle, int(ent->fFrame)*10,0, x-5,y-5,10,10);
 				break;
 
 			// Doomsday
@@ -477,14 +482,13 @@ void EntityBounce(entity_t *ent)
 
 Entities NewNet_SavedEntities;
 
-void	NewNet_SaveEntities()
-{
+void NewNet_SaveEntities() {
 	NewNet_SavedEntities = tEntities;
-};
-void	NewNet_LoadEntities()
-{
+}
+
+void NewNet_LoadEntities() {
 	tEntities = NewNet_SavedEntities;
-};
+}
 
 void EntityEffect::Process()
 {
@@ -496,8 +500,11 @@ void EntityEffect::Process()
 	if( _parent->getTagIT() )
 		Set( ENTE_SPARKLE_RANDOM, 1, 0.15f, 5, 10 );
 	else if( _parent->damageFactor() > 1 )
-		Set( ENTE_SPARKLE_CIRCLE_ROTATING, (int)_parent->damageFactor(), 0.05f, 
+		Set( ENTE_SPARKLE_CIRCLE_ROTATING, CLAMP((int)_parent->damageFactor(), 0, 10), 0.05f, 
 										5.0f + (_parent->damageFactor() - int(_parent->damageFactor()))*5.0f, 9, 10 );
+	else if( _parent->shieldFactor() > 1 )
+		Set( ENTE_SPARKLE_CIRCLE_ROTATING, CLAMP((int)_parent->shieldFactor(), 0, 10), 0.05f, 
+			5.0f + (_parent->shieldFactor() - int(_parent->shieldFactor()))*5.0f, 9, 10 );
 	else
 		Set();
 
@@ -565,11 +572,18 @@ void EntityEffect::Process()
 					_lastAngle -= 360.0f;
 				float angle = _lastAngle / 180.0f * (float)PI;
 				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
+				Color c;
+				{
+					float shield = _parent->shieldFactor() - 1.0f;
+					float damage = _parent->damageFactor() - 1.0f;
+					float sum = shield + damage; if(fabs(sum) < 0.01) sum = 1;
+					c = Color(120,120,255) * (damage / sum) + Color(255,30,30) * (shield / sum);
+				}
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
 					CVec spread = CVec( (float)sin(angle), (float)cos(angle) ) * _radius;
 					CVec addVel = CVec( (float)sin(angle - PI/1.5), (float)cos(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
-					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, Color(), NULL);
+					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, c, NULL);
 				}
 			}
 			break;

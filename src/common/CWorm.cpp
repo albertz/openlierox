@@ -133,6 +133,7 @@ void CWorm::Clear()
 	setSpeedFactor(1);
 	setCanUseNinja(true);
 	setDamageFactor(1);
+	setShieldFactor(1);
 	setCanAirJump(false);
 	fLastAirJumpTime = 0;
 	
@@ -249,6 +250,7 @@ void CWorm::Prepare(bool serverSide)
 	setSpeedFactor(1);
 	setCanUseNinja(true);
 	setDamageFactor(1);
+	setShieldFactor(1);
 	setCanAirJump(false);
 	
 	// Setup the rope
@@ -270,6 +272,7 @@ void CWorm::Prepare(bool serverSide)
 	if(serverSide) {
 		setSpeedFactor(tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);
 		setDamageFactor(tLXOptions->tGameInfo.features[FT_WormDamageFactor]);
+		setShieldFactor(tLXOptions->tGameInfo.features[FT_WormShieldFactor]);
 		setCanAirJump(tLXOptions->tGameInfo.features[FT_InstantAirJump]);
 	}
 	

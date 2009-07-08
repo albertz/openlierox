@@ -1345,6 +1345,31 @@ void Cmd_setWormDamageFactor::exec(CmdLineIntf* caller, const std::vector<std::s
 	cServer->SetWormDamageFactor(id, factor);
 }
 
+COMMAND(setWormShieldFactor, "set worm shieldfactor", "id factor", 2, 2);
+void Cmd_setWormShieldFactor::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) {
+		printUsage(caller);
+		return;
+	}
+	
+	if(!CheckWorm(caller, id, "setWormShieldFactor")) return;
+	
+	float factor = from_string<float>(params[1], fail);
+	if(fail) {
+		printUsage(caller);
+		return;
+	}
+	
+	cServer->SetWormShieldFactor(id, factor);
+}
+
 COMMAND(setWormCanUseNinja, "(dis)allow worm to use ninja", "id true/false", 2, 2);
 void Cmd_setWormCanUseNinja::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {

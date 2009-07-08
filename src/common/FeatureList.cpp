@@ -63,7 +63,9 @@ Feature featureArray[] = {
 	Feature("WormSpeedFactor",		"Worm speed factor",	"Initial factor to worm speed",
 			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other, ALT_Advanced,	-2.0f,	10.0f,	true),
 	Feature("WormDamageFactor",		"Worm damage factor",	"Initial factor to worm damage",
-			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,	ALT_Advanced,	-2.0f,	10.0f,	true),
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,	ALT_VeryAdvanced,	-2.0f,	10.0f,	true),
+	Feature("WormShieldFactor",		"Worm shield factor",	"Initial factor to worm shield",
+			1.0f,	1.0f,			OLXBetaVersion(9),		GIG_Other,	ALT_VeryAdvanced,	-2.0f,	10.0f,	true),
 	Feature("InstantAirJump",		"Instant air jump",		"Worms can jump in air instantly, this allows floating in air",
 			false,	false,			OLXBetaVersion(9),		GIG_Other, ALT_Advanced,	true),	// Server-side
 	Feature("RelativeAirJump",		"Relative air jump",	"Worms can jump in air in a given time interval",

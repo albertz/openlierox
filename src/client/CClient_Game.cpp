@@ -398,6 +398,15 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
 	if(ownerWorm)
 		damage *= ownerWorm->damageFactor();
+
+	if(w->shieldFactor() == 0) {
+		if(damage > 0)
+			damage = w->getHealth() + 1;
+		else if(damage < 0)
+			damage = MIN(w->getHealth() - 100, 0.0f);
+	}
+	else
+		damage /= w->shieldFactor();
 	
 	ushort i;
 	

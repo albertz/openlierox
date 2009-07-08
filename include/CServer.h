@@ -268,6 +268,7 @@ public:
 	void		SetWormSpeedFactor(int wormID, float f);
 	void		SetWormCanUseNinja(int wormID, bool b);
 	void		SetWormDamageFactor(int wormID, float f);
+	void		SetWormShieldFactor(int wormID, float f);
 	void		SetWormCanAirJump(int wormID, bool b);
 
 	// Connectionless packets only here
