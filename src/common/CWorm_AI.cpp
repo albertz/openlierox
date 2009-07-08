@@ -1461,7 +1461,7 @@ void CWormBotInputHandler::AI_Think()
 
 
     // If our health is less than 15% (critical), our main priority is health
-    if(m_worm->iHealth < 15)
+    if(m_worm->fHealth < 15)
         if(AI_FindHealth())
             return;
 
@@ -1493,7 +1493,7 @@ void CWormBotInputHandler::AI_Think()
 		fLastShoot = AbsTime(); // force new shoot
 
     // If we're down on health (less than 80%) we should look for a health bonus
-    if(m_worm->iHealth < 80) {
+    if(m_worm->fHealth < 80) {
         //printf("we should look for health\n");
         if(AI_FindHealth())
             return;
@@ -1513,7 +1513,7 @@ void CWormBotInputHandler::AI_Think()
     if(cPosTarget.y < cClient->getMap()->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
 
 		// Nothing todo, so go find some health if we even slightly need it
-		if(m_worm->iHealth < 100) {
+		if(m_worm->fHealth < 100) {
 			if(AI_FindHealth())
 				return;
 		}
@@ -2592,7 +2592,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     // If we're above the target, try any special weapon, for Liero mod try napalm
     // BUT only if our health is looking good
     // AND if there is no rock/dirt nearby
-    if(fDistance > 190 && m_worm->iHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
+    if(fDistance > 190 && m_worm->fHealth > 25 && fTraceDist > 0.5f && (cTrgPos.y-20) > m_worm->vPos.y ) {
         if (!AI_CheckFreeCells(5)) {
 			//notes << "bot: we should not shoot because of the hints everywhere" << endl;
 			return -1;

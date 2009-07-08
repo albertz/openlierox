@@ -924,9 +924,7 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 {
 	int id = bs->readByte();
-	int damage = bs->readByte();
-	if( damage > SCHAR_MAX )		// Healing = negative damage
-		damage -= UCHAR_MAX + 1;	// Wrap it around
+	float damage = bs->readFloat();
 	int offenderId = bs->readByte();
 
 	if( server->iState != SVS_PLAYING )

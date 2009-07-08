@@ -46,11 +46,11 @@ public:
 	virtual void		SendUpdateLobby(bool ready = true);
 	virtual void		SendDisconnect();
 	virtual void		SendFileData();
-	virtual void		SendChatCommandCompletionRequest(const std::string& startStr) { return; };
-	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "") { return; };
-	virtual void		SendReportDamage(bool flush = false) { return; };
-	virtual void		QueueReportDamage(int victim, int damage, int offender) { return; };
-	virtual void		SendNewNetChecksum() { return; };
+	virtual void		SendChatCommandCompletionRequest(const std::string& startStr) { return; }
+	virtual void		SendAFK(int wormid, AFK_TYPE afkType, const std::string & message = "") { return; }
+	virtual void		SendReportDamage(bool flush = false) { return; }
+	virtual void		QueueReportDamage(int victim, float damage, int offender) { return; }
+	virtual void		SendNewNetChecksum() { return; }
 #ifdef FUZZY_ERROR_TESTING
 	void				SendRandomPacket();
 #endif
@@ -73,13 +73,13 @@ protected:
 	virtual void ParseScoreUpdate(CBytestream *bs);
 	virtual void ParseUpdateLobby(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
-	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; };
-	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; };
-	virtual void ParseAFK(CBytestream* bs) { return; };
-    virtual void ParseReportDamage(CBytestream *bs) { return; };
-	virtual void ParseHideWorm(CBytestream *bs) { return; };
+	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; }
+	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; }
+	virtual void ParseAFK(CBytestream* bs) { return; }
+    virtual void ParseReportDamage(CBytestream *bs) { return; }
+	virtual void ParseHideWorm(CBytestream *bs) { return; }
 	virtual void ParseGotoLobby(CBytestream *bs);
-	virtual void ParseNewNetKeys(CBytestream *bs) { return; };
+	virtual void ParseNewNetKeys(CBytestream *bs) { return; }
 	virtual void ParseStartGame(CBytestream *bs);
 	virtual void ParseSpawnWorm(CBytestream *bs);
 	virtual void ParseWormDown(CBytestream *bs);
@@ -139,7 +139,7 @@ public:
 	virtual void ParseHideWorm(CBytestream *bs);
 	virtual void SendDeath(int victim, int killer);
 	virtual void SendReportDamage(bool flush = false);
-	virtual void QueueReportDamage(int victim, int damage, int offender);
+	virtual void QueueReportDamage(int victim, float damage, int offender);
     void ParseFeatureSettings(CBytestream* bs);
 
 	virtual void ParseStartGame(CBytestream *bs);
@@ -150,7 +150,7 @@ public:
 	
 private:
     AbsTime fLastDamageReportSent;
-    std::map< std::pair< int, int >, int > cDamageReport;
+    std::map< std::pair< int, int >, float > cDamageReport;
 };
 
 class CClientNetEngineBeta9NewNet: public CClientNetEngineBeta9 {
@@ -164,7 +164,7 @@ public:
 	virtual void ParseUpdateWorms(CBytestream *bs);
 
 	virtual void SendReportDamage(bool flush = false) { return; };
-	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
+	virtual void QueueReportDamage(int victim, float damage, int offender) { return; }
 	virtual void SendDeath(int victim, int killer) { return; };
 	virtual void SendNewNetChecksum();
 	// TODO: add virtual worm stat update function with warning that server sends us wrong info

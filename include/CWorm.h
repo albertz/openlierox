@@ -232,7 +232,7 @@ private:
 	int			iKills;
 	int			iDeaths;
 	int			iSuicides;
-	int			iDamage;
+	float		fDamage;
 
 	int			iTotalWins;
 	int			iTotalLosses;
@@ -244,7 +244,7 @@ private:
 	// Game
 	float		fLoadingTime;
 	bool		bDrawMuzzle;
-	int			iHealth;
+	float		fHealth;
 	int			iLives;
 	bool		bAlive;
 	AbsTime		fTimeofDeath;
@@ -333,11 +333,10 @@ private:
 
 public:
 	// Used to print damage numbers over the worm head
-	struct DamageReport {
-		DamageReport(): damage(0), lastTime(AbsTime()) {};
-		
-		int damage;
+	struct DamageReport {		
+		float damage;
 		AbsTime lastTime;
+		DamageReport(): damage(0.0f), lastTime(AbsTime()) {}
 	};
 
 private:
@@ -409,7 +408,7 @@ public:
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
-	bool		Injure(int damage);
+	bool		Injure(float damage);
 	bool		Kill();
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
@@ -460,14 +459,14 @@ public:
 	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
 	
-	int			getHealth()				{ return iHealth; }
-	void		setHealth(int _h)			{ iHealth = CLAMP(_h, 0, 100); }
+	float		getHealth()				{ return fHealth; }
+	void		setHealth(float _h)			{ fHealth = _h; }
 	int			getLives()				{ return iLives; }
 	int			getKills()				{ return iKills; }
 	void		setLives(int l)				{ iLives = l; }
-	int			getDamage()				{ return iDamage; }
-	void		setDamage(int l)			{ iDamage = l; }
-	void		addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & settings);
+	float		getDamage()				{ return fDamage; }
+	void		setDamage(float l)			{ fDamage = l; }
+	void		addDamage(float damage, CWorm* victim, const GameOptions::GameInfo & settings);
 
 	void		AddKill()				{ iKills++; }
     void        setKills(int k)             { iKills = k; }

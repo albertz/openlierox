@@ -2487,9 +2487,7 @@ void CClientNetEngine::ParseSendFile(CBytestream *bs)
 void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 {
 	int id = bs->readByte();
-	int damage = bs->readByte();
-	if( damage > SCHAR_MAX )		// Healing = negative damage
-		damage -= UCHAR_MAX + 1;	// Wrap it around
+	float damage = bs->readFloat();
 	int offenderId = bs->readByte();
 
 	if( !client->bGameReady )
@@ -2529,7 +2527,7 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 	
 		int kills = bs->readInt(4);
 		client->cRemoteWorms[id].setKills( kills );
-		int damage = bs->readInt(4);
+		float damage = bs->readFloat();
 		if( client->cRemoteWorms[id].getDamage() != damage )
 		{
 			// Occurs pretty often, don't spam console, still it should be the same on client and server

@@ -101,9 +101,9 @@ void CWorm::Clear()
 	iKills = 0;
 	iDeaths = 0;
 	iSuicides = 0;
-	iDamage = 0;
+	fDamage = 0.0f;
 
-	iHealth = 100;
+	fHealth = 100.0f;
 	iLives = 10;
 	bAlive = false;
 	iDirection = DIR_RIGHT;
@@ -438,7 +438,7 @@ void CWorm::Spawn(CVec position) {
 	fVisibilityChangeTime = 0;
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
-	iHealth = 100;
+	fHealth = 100.0f;
 	iMoveDirection = DIR_RIGHT;
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
@@ -822,7 +822,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			if( GetPhysicsTime() > DamageReportDrawOrder.begin()->first )
 				damageDrawPos += (int)(( GetPhysicsTime() - DamageReportDrawOrder.begin()->first ).seconds() * 30);
 
-			int damageSum = 0;
+			float damageSum = 0;
 			std::map< AbsTime, int > :: const_iterator it;
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 				damageSum += cDamageReport[it->second].damage;
@@ -839,7 +839,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 					if( id >= 0 && id < MAX_WORMS )
 						damageColor = cClient->getRemoteWorms()[id].getGameColour();
 				}
-				std::string damageStr = itoa( damageSum );
+				std::string damageStr = ftoa( damageSum );
 				if( damageSum < 0 )
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) )
@@ -887,7 +887,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				cHealthBar.SetX(hx - cHealthBar.GetWidth() / 2);
 				cHealthBar.SetY(hy - cHealthBar.GetHeight() - 1);
 				cHealthBar.Draw( bmpDest );
-				cHealthBar.SetPosition(getHealth());
+				cHealthBar.SetPosition((int)getHealth());
 				WormNameY += cHealthBar.GetHeight()+2; // Leave some space
 
 			} else {  // Old style healthbar
@@ -1110,12 +1110,12 @@ void CWorm::incrementDirtCount(int d) {
 ///////////////////
 // Injure me
 // Returns true if i was killed by this injury
-bool CWorm::Injure(int damage)
+bool CWorm::Injure(float damage)
 {
-	iHealth -= damage;
+	fHealth -= damage;
 
-	if(iHealth < 0) {
-		iHealth = 0;
+	if(fHealth < 0.0f) {
+		fHealth = 0.0f;
 		return true;
 	}
 
@@ -1180,11 +1180,11 @@ bool CWorm::GiveBonus(CBonus *b)
 	if(b->getType() == BNS_HEALTH) {
 
 		// If our health is at 100 or higher, don't pick it up
-		if(iHealth >= 100) // Some mods have healing weapons, so the check is >= instead of == (breaks old behavior)
+		if(fHealth >= 100.0f) // Some mods have healing weapons, so the check is >= instead of == (breaks old behavior)
 			return false;
 
 		// Health between 10% - 50%
-		int health = GetRandomInt(40)+10;
+		float health = (int)(GetRandomInt(40)+10);
 
 		// Route call to CClient::InjureWorm() so it will send ReportDamage packet, to track valid worm healthbar on server
 		// Clamp it
@@ -1298,7 +1298,7 @@ Color CWorm::getGameColour()
 	}
 }
 
-void CWorm::addDamage(int damage, CWorm* victim, const GameOptions::GameInfo & settings)
+void CWorm::addDamage(float damage, CWorm* victim, const GameOptions::GameInfo & settings)
 {
 	if( damage < 0 )	// Do not count when we heal ourselves or someone else, only damage counts
 		return;
@@ -1367,7 +1367,8 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( bFollowOverride );
     COPY( fLastCarve );
 	COPY( fLoadingTime );
-	COPY( iHealth );
+	COPY( fHealth );
+	// TODO: why not fDamage?
 	COPY( bAlive );
 	COPY( fTimeofDeath );
 	COPY( iDirection );
@@ -1415,7 +1416,7 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( bFollowOverride );
     COPY( fLastCarve );
 	COPY( fLoadingTime );
-	COPY( iHealth );
+	COPY( fHealth );
 	COPY( bAlive );
 	COPY( fTimeofDeath );
 	COPY( iDirection );

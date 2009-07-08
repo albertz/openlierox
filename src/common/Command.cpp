@@ -1781,8 +1781,8 @@ void Cmd_getWormScore::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(itoa(w->getLives()));
 	caller->pushReturnArg(itoa(w->getKills()));
-	caller->pushReturnArg(itoa(w->getDamage()));
-	caller->pushReturnArg(w->getAlive() ? itoa(w->getHealth()) : "-1");
+	caller->pushReturnArg(ftoa(w->getDamage()));
+	caller->pushReturnArg(w->getAlive() ? ftoa(w->getHealth()) : "-1");
 }
 
 COMMAND(getWormIp, "get worm IP", "id", 1, 1);

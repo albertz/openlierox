@@ -1023,12 +1023,12 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
 	bs.writeInt(Worm->getKills(), 4); // Negative kills are allowed
-	bs.writeInt(Worm->getDamage(), 4);
+	bs.writeFloat(Worm->getDamage());
 
 	SendPacket(&bs);
 }
 
-void CServerNetEngineBeta9::QueueReportDamage(int victim, int damage, int offender)
+void CServerNetEngineBeta9::QueueReportDamage(int victim, float damage, int offender)
 {
 	// Buffer up all damage and send it once per 0.1 second for LAN nettype, or once per 0.3 seconds for modem
 	std::pair< int, int > dmgPair = std::make_pair( victim, offender );
@@ -1046,25 +1046,16 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 
 	CBytestream bs;
 
-	for( std::map< std::pair< int, int >, int > :: iterator it = cDamageReport.begin(); 
+	for( std::map< std::pair< int, int >, float > :: iterator it = cDamageReport.begin(); 
 			it != cDamageReport.end(); it++ )
 	{
 		int victim = it->first.first;
 		int offender = it->first.second;
-		int damage = it->second;
-		while( damage != 0 )
-		{
-			bs.writeByte(S2C_REPORTDAMAGE);
-			bs.writeByte(victim);
-			int damageSend = damage;
-			if( damageSend > SCHAR_MAX )
-				damageSend = SCHAR_MAX;
-			if( damageSend < SCHAR_MIN )
-				damageSend = SCHAR_MIN;
-			bs.writeByte( damageSend );
-			bs.writeByte(offender);
-			damage -= damageSend;
-		}
+		float damage = it->second;
+		bs.writeByte(S2C_REPORTDAMAGE);
+		bs.writeByte(victim);
+		bs.writeFloat(damage);
+		bs.writeByte(offender);
 	}
 
 	SendPacket(&bs);

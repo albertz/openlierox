@@ -64,7 +64,7 @@ public:
 	// helper functions
 	int WormsAliveInTeam(int t);
 	int TeamKills(int t);
-	long TeamDamage(int t);
+	float TeamDamage(int t);
 	int HighestScoredWorm();
 	int HighestScoredTeam();
 	

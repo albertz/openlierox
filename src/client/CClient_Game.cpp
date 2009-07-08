@@ -274,7 +274,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 
 ///////////////////
 // Explosion
-void CClient::Explosion(CVec pos, int damage, int shake, int owner)
+void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 {
 	int		x,y,px;
 	ushort i;
@@ -342,12 +342,12 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 	int expsize = 8;
 	if(damage > 5)
-		expsize = damage;
+		expsize = (int)damage;
 
 	// Explosion
 	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),Color(),NULL);
 
-	int d = cMap->CarveHole(damage,pos);
+	int d = cMap->CarveHole((int)damage,pos);
 
     // Increment the dirt count
 	if(owner >= 0 && owner < MAX_WORMS)
@@ -383,7 +383,7 @@ void CClient::Explosion(CVec pos, int damage, int shake, int owner)
 
 ///////////////////
 // Injure a worm
-void CClient::InjureWorm(CWorm *w, int damage, int owner)
+void CClient::InjureWorm(CWorm *w, float damage, int owner)
 {
 	if (!w->getAlive())  // Injuring a dead worm makes no sense
 		return;
@@ -425,7 +425,7 @@ void CClient::InjureWorm(CWorm *w, int damage, int owner)
 	if (client)
 		clientver = client->getClientVersion();
 
-	int realdamage = MIN(w->getHealth(), damage);
+	float realdamage = MIN(w->getHealth(), damage);
 
 	// Send REPORTDAMAGE to server (also calculate & send it for pre-Beta9 clients, when we're hosting)
 	if( realdamage > 0 && getServerVersion() >= OLXBetaVersion(9) && 

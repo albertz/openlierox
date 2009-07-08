@@ -323,7 +323,7 @@ int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 	if (w1->getKills() < w2->getKills()) return -1;
 	
 	// Damage
-	return w1->getDamage() - w2->getDamage();
+	return Round(w1->getDamage() - w2->getDamage());
 }
 
 int CGameMode::WinnerTeam() {
@@ -363,8 +363,8 @@ int CGameMode::TeamKills(int t) {
 	return c;
 }
 
-long CGameMode::TeamDamage(int t) {
-	long c = 0;
+float CGameMode::TeamDamage(int t) {
+	float c = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
 		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == t)
 			c += cServer->getWorms()[i].getDamage();
@@ -392,7 +392,7 @@ int CGameMode::CompareTeamsScore(int t1, int t2) {
 	}
 	
 	// Damage
-	return TeamDamage(t1) - TeamDamage(t2);
+	return Round(TeamDamage(t1) - TeamDamage(t2));
 }
 
 

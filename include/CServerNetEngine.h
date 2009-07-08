@@ -65,8 +65,8 @@ public:
 	virtual void SendChatCommandCompletionSolution(const std::string& startStr, const std::string& solution) { return; };
 	virtual void SendChatCommandCompletionList(const std::string& startStr, const std::list<std::string>& solutions) { return; };
 	virtual int  SendFiles() { return 0; }; // Returns client ping, or 0 if no packet was sent
-	virtual void SendReportDamage(bool flush = false) { return; };
-	virtual void QueueReportDamage(int victim, int damage, int offender) { return; };
+	virtual void SendReportDamage(bool flush = false) { return; }
+	virtual void QueueReportDamage(int victim, float damage, int offender) { return; }
 	
 	virtual void SendWormScore(CWorm *Worm);
 	void		 SendUpdateLobbyGame();
@@ -163,7 +163,7 @@ public:
 
 	virtual void ParseReportDamage(CBytestream *bs);
 	virtual void SendReportDamage(bool flush = false);
-	virtual void QueueReportDamage(int victim, int damage, int offender);
+	virtual void QueueReportDamage(int victim, float damage, int offender);
 	virtual void SendWormScore(CWorm *Worm);
 	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
@@ -182,7 +182,7 @@ protected:
 	
 private:
     AbsTime fLastDamageReportSent;
-    std::map< std::pair< int, int >, int > cDamageReport;
+    std::map< std::pair< int, int >, float > cDamageReport;
 };
 
 #endif  //  __CSERVER_NET_ENGINE_H__

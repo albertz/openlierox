@@ -1004,7 +1004,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		// Health
 		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
-			HealthBar->SetPosition(worm->getHealth());
+			HealthBar->SetPosition((int)worm->getHealth());
 			HealthBar->Draw(bmpDest);
 		}
 
@@ -1628,7 +1628,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 
 			// Damage
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa((int)p->getDamage()), (DynDrawIntf*)NULL, NULL);
 
 			// Ping
 			if (tLX->iGameType == GME_HOST)  {
@@ -1831,7 +1831,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 
 				// Damage
-				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
+				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa((int)p->getDamage()), (DynDrawIntf*)NULL, NULL);
 
 				// Ping
 				if (tLX->iGameType == GME_HOST)  {
@@ -2517,7 +2517,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 			// Kills
 			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getKills()), (DynDrawIntf*)NULL, NULL);
 			// Damage
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa(p->getDamage()), (DynDrawIntf*)NULL, NULL);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, itoa((int)p->getDamage()), (DynDrawIntf*)NULL, NULL);
 		}
 
 		// Ping
