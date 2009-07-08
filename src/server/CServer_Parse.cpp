@@ -1058,7 +1058,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		bs.writeString("lx::badconnect");
 		bs.writeString(OldLxCompatibleString(networkTexts->sGameInProgress));
 		bs.Send(tSocket.get());
-		printf("GameServer::ParseGetChallenge: Cannot join, the game is in progress.\n");
+		notes << "GameServer::ParseGetChallenge: Client from " << tSocket->debugString() << " cannot join, the game is in progress." << endl;
 		return;
 	}
 

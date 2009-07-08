@@ -248,10 +248,14 @@ bool CGameMode::CheckGameOver() {
 		}
 	}
 	
-	bool allowEmptyGames = tLXOptions->tGameInfo.features[FT_AllowEmptyGames] && tLX->iGameType != GME_LOCAL && tLXOptions->tGameInfo.iLives < 0;
+	bool allowEmptyGames =
+		tLXOptions->tGameInfo.features[FT_AllowEmptyGames] &&
+		tLXOptions->tGameInfo.bAllowConnectDuringGame &&
+		tLX->iGameType != GME_LOCAL &&
+		tLXOptions->tGameInfo.iLives < 0;
 	
 	if(!allowEmptyGames) {
-		// TODO: move that to GameServer
+		// TODO: move that worms-num calculation to GameServer
 		int worms = 0;
 		for(int i = 0; i < MAX_WORMS; i++)
 			if(cServer->getWorms()[i].isUsed()) {
