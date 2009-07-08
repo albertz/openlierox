@@ -21,6 +21,7 @@
 #include "DeprecatedGUI/CWidget.h"
 #include "DeprecatedGUI/CScrollbar.h"
 #include "DynDraw.h"
+#include "Utils.h"
 
 namespace DeprecatedGUI {
 
@@ -71,7 +72,7 @@ enum  {
 
 
 // Column structure
-struct lv_column_t {
+struct lv_column_t : DontCopyTag {
 	std::string	sText;
 	int			iWidth;
 	bool		bDown;
@@ -84,7 +85,7 @@ struct lv_column_t {
 
 
 // Sub item structure
-struct lv_subitem_t {
+struct lv_subitem_t : DontCopyTag {
 	lv_subitem_t() : tWidget(NULL), fMouseOverTime(0) {} // safety
 	~lv_subitem_t()  { if (tWidget) delete tWidget; }
 
@@ -106,7 +107,7 @@ struct lv_subitem_t {
 
 
 // Item structure
-class lv_item_t { public:
+struct lv_item_t : DontCopyTag {
 	std::string	sIndex;
 	int			iIndex;
     int         _iID;
@@ -122,7 +123,7 @@ class lv_item_t { public:
 };
 
 // Listview control class
-class CListview: public CWidget {
+class CListview: public CWidget, DontCopyTag {
 public:
 	// Constructors
 	CListview() {

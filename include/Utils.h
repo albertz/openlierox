@@ -46,5 +46,13 @@ int highestBit(T d) {
 	return 0;
 }
 
+class DontCopyTag {
+public:
+	DontCopyTag() {}
+private:
+	DontCopyTag(const DontCopyTag&) { assert(false); }
+	DontCopyTag& operator=(const DontCopyTag&) { assert(false); }
+};
+
 #endif
 
