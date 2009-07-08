@@ -314,6 +314,14 @@ public:
 	
 	void exec(CmdLineIntf* caller, const std::string& params) {
 		std::vector<std::string> ps = ParseParams(params);
+		
+		// if we want max 1 param but we give more, this is a small hack to dont be too strict
+		if(maxParams == 1 && ps.size() > 1) {
+			for(size_t i = 1; i < ps.size(); ++i)
+				ps[0] += " " + ps[i];
+			ps.resize(1);
+		}
+		
 		if(ps.size() < minParams || ps.size() > maxParams) {
 			caller->writeMsg(minMaxStr() + " param" + ((maxParams == 1) ? "" : "s") + " needed, usage: " + usageStr(), CNC_DEV);
 			//caller->writeMsg("bad cmd: " + name + " " + params);
