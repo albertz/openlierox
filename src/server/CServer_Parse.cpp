@@ -889,7 +889,7 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 	// Invalid
 	if (parsed.size() == 0)
 		return false;
-
+	
 	// Get the command
 	ChatCommand *cmd = GetCommand(parsed[0]);
 	if (!cmd)  {

@@ -1020,8 +1020,8 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 	
 	std::string cmd = "";
 	for(std::vector<std::string>::const_iterator i = params.begin(); i != params.end(); ++i) {
-		if(i != params.begin()) cmd += " ";
-		cmd += *i;
+		if(i != params.begin()) cmd += " \"" + *i + "\"";
+		else cmd += *i;
 	}
 	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), cmd) );
 	
