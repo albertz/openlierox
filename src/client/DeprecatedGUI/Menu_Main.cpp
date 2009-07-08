@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/CCombobox.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CBrowser.h"
+#include "DeprecatedGUI/CTextButton.h"
 #include "Sounds.h"
 
 
@@ -45,8 +46,7 @@ enum {
 	mm_LevelEditor,
 	mm_Options,
 	mm_Quit,
-	mm_NewsBox,
-	mm_ShowNews
+	mm_LXALink
 };
 
 #ifdef DEBUG
@@ -97,6 +97,13 @@ void Menu_MainInitialize()
 		Menu_MainShutdown();
 		Menu_CGuiSkinInitialize();
 	}
+	const char * LXALinkText = "Visit our forums at http://lxalliance.net";
+	int orig_spacing = tLX->cFont.GetVSpacing();
+	tLX->cFont.SetVSpacing(tMenu->tFrontendInfo.iCreditsSpacing);
+	cMainMenu.Add( new CTextButton(LXALinkText, tLX->clCredits2, tLX->clCredits1 ), 
+						mm_LXALink, tMenu->tFrontendInfo.iCreditsLeft - tLX->cFont.GetWidth(LXALinkText) - 30, 
+						tMenu->tFrontendInfo.iCreditsTop + tLX->cFont.GetHeight() * 6, 250, 15 );
+	tLX->cFont.SetVSpacing(orig_spacing);
 }
 
 
@@ -197,6 +204,12 @@ void Menu_MainFrame()
 				    return;
                 }
                 break;
+            
+			case mm_LXALink:
+				if( ev->iEventMsg == TXB_MOUSEUP ) {
+					OpenLinkInExternBrowser("http://lxalliance.net");
+				}
+				break;
 
 			default:
                 if( ev->iEventMsg == CMB_CHANGED )
@@ -236,7 +249,7 @@ void Menu_MainFrame()
 
 	// Credits
 
-	static const std::string credits1 = GetGameVersion().asHumanString(); // TODO: should we print revision here?
+	static const std::string credits1 = "  " + GetGameVersion().asHumanString(); // TODO: should we print revision here?
 
 	static const std::string credits2 = std::string(
 		"- Original code by Jason Boettcher\n"
