@@ -448,17 +448,17 @@ class PresetCicler:
 	preset = Preset()
 	nextCicleTime = time.time()
 
-	def check():
+	def check(self):
 		if not self.enabled: return
-		if time.time() < nextCicleTime: return
-		cicle()		
+		if time.time() < self.nextCicleTime: return
+		self.cicle()
 	
-	def cicle():
+	def cicle(self):
 		if not self.enabled: return
 		self.preset = selectNextPreset()
 		self.apply()
 
-	def apply():
+	def apply(self):
 		if not self.enabled: return
 
 		if self.preset.Mod:
@@ -522,19 +522,19 @@ class StandardCicler:
 	timeOut = 300
 	nextCicleTime = time.time()
 	
-	def check():
+	def check(self):
 		if not self.enabled: return
-		if time.time() < nextCicleTime: return
+		if time.time() < self.nextCicleTime: return
 		self.cicle()
 		
-	def cicle():
-		if not self.preSelectedList.empty:
+	def cicle(self):
+		if len(self.preSelectedList) > 0:
 			self.curSelection = self.preSelectedList[0]
 			self.preSelectedList.pop(0)
 			self.apply()
 			return
 
-		if self.list.empty: return
+		if len(self.list) == 0: return
 		self.curIndex = self.curIndex + 1
 		if self.curIndex >= len(self.list):
 			self.curIndex = 0
@@ -542,16 +542,16 @@ class StandardCicler:
 		self.curSelection = self.list[self.curIndex]
 		self.apply()
 
-	def apply():
+	def apply(self):
 		if not self.curSelection: return
-		io.setVar(self.gameVar, self.curSelection)
-		nextCicleTime = time.time() + timeOut
+		io.setvar(self.gameVar, self.curSelection)
+		self.nextCicleTime = time.time() + self.timeOut
 
 
 mapCicler = StandardCicler()
 mapCicler.list = io.listMaps()
 if len(mapCicler.list) == 0:
-	io.msg("Waiting for level list ...")
+	io.messageLog("Waiting for level list ...")
 	while len(mapCicler.list) == 0:
 		mapCicler.list = io.listMaps()
 mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
@@ -560,7 +560,7 @@ mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
 modCicler = StandardCicler()
 modCicler.list = io.listMods()
 if len(modCicler.list) == 0:
-	io.msg("Waiting for mod list ...")
+	io.messageLog("Waiting for mod list ...")
 	while len(modCicler.list) == 0:
 		modCicler.list = io.listMods()
 modCicler.gameVar = "GameOptions.GameInfo.ModName"
@@ -589,9 +589,9 @@ def controlHandlerDefault():
 		# Do not check ping in lobby - it's wrong
 
 		if oldGameState != GAME_LOBBY:
-			presetCicler.check
-			mapCicler.check
-			modCicler.check
+			presetCicler.check()
+			mapCicler.check()
+			modCicler.check()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime

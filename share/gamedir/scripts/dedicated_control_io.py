@@ -252,7 +252,7 @@ LOG_INFO = 3
 LOG_ADMIN = 4
 LOG_USRCMD = 5
 
-def messageLog(message,severity):
+def messageLog(message,severity = LOG_INFO):
 	# TODO: Allow setting what loglevels you want logged
 	outline = time.strftime("%Y-%m-%d %H:%M:%S")
 	# Don't clutter the strftime call
