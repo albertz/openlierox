@@ -839,7 +839,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 					if( id >= 0 && id < MAX_WORMS )
 						damageColor = cClient->getRemoteWorms()[id].getGameColour();
 				}
-				std::string damageStr = ftoa( damageSum );
+				std::string damageStr = itoa( Round(damageSum) );
 				if( damageSum < 0 )
 					damageStr[0] = '+';	// Negative damage = healing
 				if( getClientVersion() < OLXBetaVersion(9) )
