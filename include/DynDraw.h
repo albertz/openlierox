@@ -22,5 +22,6 @@ struct DynDrawIntf {
 };
 
 SmartPointer<DynDrawIntf> DynDrawFromSurface(const SmartPointer<SDL_Surface>& surf);
+SmartPointer<DynDrawIntf> DynDrawFromSurfaceCrop(const SmartPointer<SDL_Surface>& surf, int x, int y, int w, int h);
 
 #endif

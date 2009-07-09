@@ -19,7 +19,25 @@ struct SDLSurfDraw : DynDrawIntf {
 	}
 };
 
+struct SDLSurfDrawCrop : DynDrawIntf {
+	SmartPointer<SDL_Surface> surf;
+	int srcX, srcY;
+	SDLSurfDrawCrop(const SmartPointer<SDL_Surface>& s, int x, int y, int W, int H) : 
+		DynDrawIntf(MIN(W, s->w), MIN(H, s->h)), surf(s), srcX(x), srcY(y) {}
+	
+	virtual void draw(SDL_Surface* bmpDest, int x, int y) 
+	{
+		DrawImageAdv(bmpDest, surf.get(), srcX, srcY, x, y, w, h);
+	}
+};
+
 SmartPointer<DynDrawIntf> DynDrawFromSurface(const SmartPointer<SDL_Surface>& surf) {
 	if(surf.get()) return new SDLSurfDraw(surf);
 	else return NULL;
 }
+
+SmartPointer<DynDrawIntf> DynDrawFromSurfaceCrop(const SmartPointer<SDL_Surface>& surf, int x, int y, int w, int h)
+{
+	if(surf.get()) return new SDLSurfDrawCrop(surf, x, y, w, h);
+	return NULL;
+};
