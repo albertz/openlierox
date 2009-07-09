@@ -1,29 +1,36 @@
 #!/usr/bin/python -u
 
+import sys
+
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
+#w = sys.stdout
 w.write("<HEAD><TITLE>Pwn0meter</TITLE></HEAD><BODY><H2>Pwn0meter</H2><BR>\n")
 
 killers = {}
 deaders = {}
 
-l = f.readline()
-while l != "":
+for l in f.readlines():
 	l = l.strip()
 	if l == "":
-		l = f.readline()
 		continue
-	( time, deader, killer ) = l.split("\t")
+	try:
+		( time, deader, killer ) = l.split("\t")
+	except:
+		continue
+	if killer.find("[CPU]") >= 0:
+		continue
+	if killer.find("The Third") >= 0:
+		continue
 	if not killer in killers.keys():
 		killers[killer] = []
 	if not deader in deaders.keys():
 		deaders[deader] = []
 	killers[killer].append(deader)
 	deaders[deader].append(killer)
-	l = f.readline()
 f.close()
 
-print killers
+#print killers
 
 sorted = killers.keys()
 def sortFunc(s1, s2):
@@ -31,8 +38,14 @@ def sortFunc(s1, s2):
 	kills2 = len(killers[s2]) - killers[s2].count(s2)
 	if kills1 < kills2: return 1
 	if kills1 > kills2: return -1
-	deaths1 = len(deaders[s1])
-	deaths2 = len(deaders[s2])
+	try:
+		deaths1 = len(deaders[s1])
+	except:
+		deaths1 = 0
+	try:
+		deaths2 = len(deaders[s2])
+	except:
+		deaths2 = 0
 	if deaths1 < deaths2: return -1
 	if deaths1 > deaths2: return 1
 	return 0
@@ -41,7 +54,10 @@ sorted.sort(cmp=sortFunc)
 
 for k in sorted:
 	kills = len(killers[k])
-	deaths = len(deaders[k])
+	try:
+		deaths = len(deaders[k])
+	except:
+		deatsh = 0
 	suicides = killers[k].count(k)
 	kills -= suicides
 	deaths -= suicides
