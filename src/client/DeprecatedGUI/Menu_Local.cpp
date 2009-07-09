@@ -891,7 +891,7 @@ static void initFeaturesList(CListview* l)
 				it->second.var.i == &tLXOptions->tGameInfo.iMaxPlayers )
 				continue;	// We have nice comboboxes for them, skip them in the list
 			
-			if( tLX->iGameType == GME_LOCAL )
+			if( tMenu && tMenu->iMenuType == MNU_LOCAL )
 				if( it->second.var.b == &tLXOptions->tGameInfo.bAllowConnectDuringGame )
 					continue;
 			
