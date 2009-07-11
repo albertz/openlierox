@@ -98,14 +98,16 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
         // Follow the worm
 
         if( pcTargetWorm ) {
-            if( pcTargetWorm->getAlive() ) {
+			// Note: Use always the pos of the worm, even if it is dead. This doesn't give disadvantage
+			// and it is needed when having a sizefactor!=1 and a custom viewport.
+            if( true /* pcTargetWorm->getAlive() */ ) {
 				if( bSmooth )
 					setSmoothPosition( pcTargetWorm->getPos().x-hx, pcTargetWorm->getPos().y-hy, tLX->fDeltaTime );
 				else
 				{
 					WorldX = (int)(pcTargetWorm->getPos().x-hx);
 					WorldY = (int)(pcTargetWorm->getPos().y-hy);									
-				};
+				}
 
                 // Clear the timer
                 fTimer = AbsTime();
