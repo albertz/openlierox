@@ -7,7 +7,7 @@ for rel in *; do
 	if [ -e OpenLieroX.app ]; then
 
 		echo ">>> copying gamedir"
-		rsync -avP --exclude=gmon.out --exclude=.svn ../../../../share/gamedir OpenLieroX.app/Contents/Resources/
+		rsync -avP --delete --exclude=gmon.out --exclude=.svn ../../../../share/gamedir OpenLieroX.app/Contents/Resources/
 
 		for framework in \
 			GD.framework/Versions/2.0/GD \
