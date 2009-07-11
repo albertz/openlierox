@@ -604,6 +604,19 @@ std::string GetBaseFilenameWithoutExt(const std::string& filename) {
 	return f.substr(0,p);	
 }
 
+std::list<std::string> SplitFilename(const std::string& filename, size_t numPartsFromRight) {
+	std::list<std::string> ret;
+	std::string restFn = filename;
+	while(ret.size() < numPartsFromRight) {
+		std::string next = GetBaseFilename(restFn);
+		ret.push_front(next);
+		if(next.size() == restFn.size()) break;
+		restFn.erase(restFn.size() - next.size() - 1);
+	}
+	return ret;
+}
+
+
 
 void ucfirst(std::string& text)
 {

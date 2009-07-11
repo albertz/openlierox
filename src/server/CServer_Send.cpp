@@ -1123,6 +1123,7 @@ void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 }
 
 bool CServerNetEngine::isWormPropertyDefault(CWorm* worm) {
+	// defaults are set in CWorm::Prepare
 	return
 		worm->speedFactor() == 1.0f &&
 		worm->damageFactor() == 1.0f &&

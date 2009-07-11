@@ -1441,13 +1441,17 @@ enum  {
 
 CGuiLayout cWpnPresets;
 
-	class WeaponPresetsAdder { public:
+	struct WeaponPresetsAdder {
 		CListview* listview;
 		WeaponPresetsAdder(CListview* lv_) : listview(lv_) {}
-		inline bool operator() (const std::string& f) {
+		bool operator() (const std::string& f) {
 			if(stringcaseequal(GetFileExtension(f),"wps")) {
-				std::string fname = GetBaseFilename(f);
-				std::string name = fname.substr(0, fname.size() - 4); // remove the extension, the size calcing is safe here
+				std::vector<std::string> fnparts = ListAsVector(SplitFilename(f, 3));
+				if(fnparts.size() < 3) return true; // strange
+				std::string fname = fnparts[1] + "/" + fnparts[2];
+				if(stringcaseequal(fnparts[0], "cfg") && stringcaseequal(fnparts[1], "presets"))
+					fname = fnparts[2];
+				std::string name = GetBaseFilenameWithoutExt(fname);
 				if(!listview->getItem(fname)) {
 					listview->AddItem(fname,0,tLX->clListView);
 					listview->AddSubitem(LVS_TEXT, name, (DynDrawIntf*)NULL, NULL);
@@ -1491,7 +1495,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	lv->AddColumn("Weapon presets",60);
 
 	WeaponPresetsAdder adder(lv);
-	FindFiles(adder,"cfg/presets/",false,FM_REG);
+	FindFiles(adder, "cfg/presets/" + tLXOptions->tGameInfo.sModDir, false, FM_REG);
+	FindFiles(adder, "cfg/presets", false, FM_REG);
 	
 	lv->SortBy( 0, true );
 
@@ -1526,7 +1531,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 				// Presets list
 				case wp_PresetList:
 					if(ev->iEventMsg != LV_NONE) {
-						t->setText( lv->getCurSIndex() );
+						if(save) t->setText( GetBaseFilenameWithoutExt(lv->getCurSIndex()) );
+						else t->setText( lv->getCurSIndex() );
 					}
 				break;
 			}
@@ -1543,24 +1549,23 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 					if(t->getText().length() > 0) {
 
 						quitloop = true;
-						std::string buf;
 						if(save) {
 
 							// Save
-							buf = std::string("cfg/presets/") + t->getText(); // + ".wps";
-							if(buf.find(".wps") == std::string::npos )
-								buf += ".wps";
+							std::string fn = "cfg/presets/" + tLXOptions->tGameInfo.sModDir + "/" + t->getText(); // + ".wps";
+							if(fn.find(".wps") == std::string::npos )
+								fn += ".wps";
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
-							if(Menu_WeaponPresetsOkSave(buf))
-								wpnrest->saveList(buf);
+							if(Menu_WeaponPresetsOkSave(fn))
+								wpnrest->saveList(fn);
 							else
 								quitloop = false;
 						} else {
 
 							// Load
-							buf = std::string("cfg/presets/") + t->getText();
-							wpnrest->loadList(buf);
+							std::string fn = "cfg/presets/" + t->getText();
+							wpnrest->loadList(fn);
 							wpnrest->updateList(cWpnGameScript);
 							UpdateWeaponList();
 						}

@@ -13,6 +13,7 @@
 
 #include <stddef.h> // for size_t
 #include <vector>
+#include <list>
 #include <cassert>
 #include "MathLib.h"
 
@@ -46,6 +47,7 @@ int highestBit(T d) {
 	return 0;
 }
 
+
 class DontCopyTag {
 public:
 	DontCopyTag() {}
@@ -53,6 +55,12 @@ private:
 	DontCopyTag(const DontCopyTag&) { assert(false); }
 	DontCopyTag& operator=(const DontCopyTag&) { assert(false); }
 };
+
+
+template<typename T>
+std::vector<T> ListAsVector(const std::list<T>& l) {
+	return std::vector<T>(l.begin(), l.end());
+}
 
 #endif
 
