@@ -40,4 +40,4 @@ SmartPointer<DynDrawIntf> DynDrawFromSurfaceCrop(const SmartPointer<SDL_Surface>
 {
 	if(surf.get()) return new SDLSurfDrawCrop(surf, x, y, w, h);
 	return NULL;
-};
+}
