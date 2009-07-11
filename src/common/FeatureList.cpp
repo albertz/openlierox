@@ -24,7 +24,7 @@ Feature featureArray[] = {
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, ALT_Advanced,		0.1f, 	10.0f ),
 	Feature("GameSpeedOnlyForProjs", "Speed multiplier only for projs",	"Game-speed multiplicator applies only for projectiles and weapons, everything else will be normal speed",
 			false, false,			OLXBetaVersion(9),	GIG_Advanced,	ALT_Advanced,				false),
-	Feature("ForceScreenShaking", 	"Force screen shaking", 		"Screen shaking when something explodes will be activated for everybody.", 
+	Feature("ScreenShaking",		"Screen shaking", 		"Screen shaking when something explodes", 
 			true, 	false, 			OLXBetaVersion(9),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	true ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The kills count will be descreased by one after a suicide.", 
 			false, 	false, 			Version(), 			GIG_Score, 	ALT_Advanced,			false,	true ),

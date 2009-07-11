@@ -99,7 +99,7 @@ Feature* featureByName(const std::string& name);
 enum FeatureIndex {
 	FT_GameSpeed = 0,
 	FT_GameSpeedOnlyForProjs,
-	FT_ForceScreenShaking,
+	FT_ScreenShaking,
 	FT_SuicideDecreasesScore,
 	FT_TeamkillDecreasesScore,
 	FT_CountTeamkills,

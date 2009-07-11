@@ -194,7 +194,6 @@ bool GameOptions::Init() {
 		( tLXOptions->sLastSelectedPlayer, "Game.LastSelectedPlayer", "" )
 		( tLXOptions->sLastSelectedPlayer2, "Game.LastSelectedPlayer2", "" )
 		( tLXOptions->bTopBarVisible, "Game.TopBarVisible", true )
-		( tLXOptions->bScreenShaking, "Game.ScreenShaking", true )
 		( tLXOptions->bDamagePopups, "Game.DamagePopups", true )
 		( tLXOptions->bColorizeDamageByWorm, "Game.ColorizeDamageByWorm", false )
 		( tLXOptions->iRandomTeamForNewWorm, "Game.RandomTeamForNewWorm", 1, "Random team for new worm", "Joining worms will be randomly in a team of [0,value]", GIG_Advanced, ALT_Advanced, true, 0, 3 )

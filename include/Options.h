@@ -276,7 +276,6 @@ struct GameOptions {
 	std::string	sLastSelectedPlayer2;
 	std::string sTheme;
 	bool	bTopBarVisible;
-	bool	bScreenShaking;
 	bool	bDamagePopups;
 	bool	bColorizeDamageByWorm;
 	

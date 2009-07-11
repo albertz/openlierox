@@ -323,8 +323,8 @@ bool Menu_FloatingOptionsInitialize()
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 280, 360, 17,17);
 
 
-	cFloatingOpt_Game.Add( new CLabel("Shake screen on explosions",tLX->clNormalLabel), Static, 330, 180, 0,0);
-	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bScreenShaking),     og_ScreenShaking, 550, 180, 17,17);
+/*	cFloatingOpt_Game.Add( new CLabel("Shake screen on explosions",tLX->clNormalLabel), Static, 330, 180, 0,0);
+	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bScreenShaking),     og_ScreenShaking, 550, 180, 17,17); */
 
 	/*cFloatingOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAllowMouseAiming),og_AllowMouseAiming, 550, 360, 17,17);
@@ -560,10 +560,10 @@ void Menu_FloatingOptionsFrame()
 						tLXOptions->bAntilagMovementPrediction = cFloatingOpt_Game.SendMessage(og_AntilagMovementPrediction, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 					
-				case og_ScreenShaking:
+/*				case og_ScreenShaking:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bScreenShaking = cFloatingOpt_Game.SendMessage(og_ScreenShaking, CKM_GETCHECK, (DWORD)0, 0) != 0;
-					break;
+					break; */
 			}
 		}
 
