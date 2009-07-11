@@ -1495,7 +1495,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	lv->AddColumn("Weapon presets",60);
 
 	WeaponPresetsAdder adder(lv);
-	FindFiles(adder, "cfg/presets/" + tLXOptions->tGameInfo.sModDir, false, FM_REG);
+	FindFiles(adder, "cfg/presets/" + cWpnGameScript->directory(), false, FM_REG);
 	FindFiles(adder, "cfg/presets", false, FM_REG);
 	
 	lv->SortBy( 0, true );
@@ -1552,7 +1552,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 						if(save) {
 
 							// Save
-							std::string fn = "cfg/presets/" + tLXOptions->tGameInfo.sModDir + "/" + t->getText(); // + ".wps";
+							std::string fn = "cfg/presets/" + cWpnGameScript->directory() + "/" + t->getText(); // + ".wps";
 							if(fn.find(".wps") == std::string::npos )
 								fn += ".wps";
 
