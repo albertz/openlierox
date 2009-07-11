@@ -299,9 +299,6 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive)
 {
     // Find a worm that isn't already a target by another viewport
-	short viewcount;
-	short v;
-	CWorm *t = NULL;
     for( short w=0; w<MAX_WORMS; w++ ) {
         if( !pcWormList[w].isUsed() )
             continue;
@@ -312,8 +309,8 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
         if( !pcWormList[w].getAlive() && bAlive )
             continue;
 
-        viewcount = 0;
-        for( v=0; v<NUM_VIEWPORTS; v++ ) {
+        short viewcount = 0;
+        for( short v=0; v<NUM_VIEWPORTS; v++ ) {
 
             // Make sure this isn't our viewport
 			if( pcViewList[v].nID == nID )
@@ -322,7 +319,7 @@ CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAli
 			if (!pcViewList[v].getUsed())
 				continue;
 
-            t = pcViewList[v].getTarget();
+            CWorm *t = pcViewList[v].getTarget();
             if(t) {
                 if( pcWormList[w].getID() == t->getID() )
                     viewcount++;
