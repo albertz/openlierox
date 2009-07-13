@@ -1304,7 +1304,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 					if((p - (*w2)->getPos()).GetLength2() < wormsize*wormsize) {
 						int damage = wpn->Bm.PlyDamage;
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.PlyDamage); }
-						InjureWorm(*w2, damage, shot->nWormID);
+						InjureWorm(*w2, (float)damage, shot->nWormID);
 
 						goodWidthParts[j] = false;
 						worms.erase(w2);

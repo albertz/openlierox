@@ -932,7 +932,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 				// Do we do a bounce-explosion (bouncy larpa uses this)
 			if(BounceExplode > 0)
-				cClient->Explosion(prj->getPos(), BounceExplode, false, prj->GetOwner());
+				cClient->Explosion(prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
 			break;
 			
 		// Carve
@@ -967,14 +967,14 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 		case PJ_INJUREWORM:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
-				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], (float)Damage, prj->GetOwner());
 			}			
 			break;
 				
 		case PJ_INJURE:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				info->deleteAfter = true;
-				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], Damage, prj->GetOwner());
+				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], (float)Damage, prj->GetOwner());
 				break;
 			}
 			
@@ -1269,7 +1269,7 @@ bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile*
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -1280,7 +1280,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		damage = pi->PlyHit.Damage;
 	
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {

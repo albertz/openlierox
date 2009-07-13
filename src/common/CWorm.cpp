@@ -1187,7 +1187,7 @@ bool CWorm::GiveBonus(CBonus *b)
 			return false;
 
 		// Health between 10% - 50%
-		float health = (int)(GetRandomInt(40)+10);
+		float health = (float)(GetRandomInt(40)+10);
 
 		// Route call to CClient::InjureWorm() so it will send ReportDamage packet, to track valid worm healthbar on server
 		// Clamp it

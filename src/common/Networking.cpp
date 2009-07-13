@@ -562,7 +562,7 @@ extern "C"  {
 #if defined(WIN32) && (! defined(_MSC_VER))
 // TODO: why is that needed?
 #define NL_EXP
-#elif (_MSC_VER == 1400) //MSVC 2005 hax
+#elif (_MSC_VER >= 1400) //MSVC 2005 hax
 // TODO: why is that needed?
 #undef NL_EXP
 #undef NL_APIENTRY
