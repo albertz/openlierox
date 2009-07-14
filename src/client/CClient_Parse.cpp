@@ -2371,7 +2371,7 @@ void CClientNetEngine::ParseDropped(CBytestream *bs)
 
 	// Ignore if we are hosting/local, it's a nonsense
 	if (tLX->iGameType != GME_JOIN)  {
-		printf("WARNING: got dropped from local server, ignoring\n");
+		warnings << "Got dropped from local server (" << bs->readString() << "), ignoring" << endl;
 		return;
 	}
 
