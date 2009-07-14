@@ -907,7 +907,9 @@ bool GameServer::ReadPackets()
 			anythingNew = true;
 
 	// Traverse sockets
-	for (NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end(); ++it)  {
+	// HINT: copy the list, because tNatClients can change during the loop (client leaves)
+	NatConnList nat_copy = tNatClients;
+	for (NatConnList::iterator it = nat_copy.begin(); it != nat_copy.end(); ++it)  {
 		if (ReadPacketsFromSocket((*it)->tTraverseSocket))  {
 			anythingNew = true;
 			if (!(*it)->bClientConnected)  {
@@ -1411,15 +1413,19 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	
 	// Go into a zombie state for a while so the reliable channel can still get the
 	// reliable data to the client
-	cl->setStatus(NET_ZOMBIE);
-	cl->setZombieTime(tLX->currentTime + 3);
+	// HINT: we don't send anything if the client left because the socket on the other side
+	// is already closed and we would get errors (ICMP port unreachable -> Connection close)
+	if (reason != CLL_QUIT)  {
+		cl->setStatus(NET_ZOMBIE);
+		cl->setZombieTime(tLX->currentTime + 3);
 
-	// Send the client directly a dropped packet
-	// TODO: move this out here
-	CBytestream bs;
-	bs.writeByte(S2C_DROPPED);
-	bs.writeString(OldLxCompatibleString(cl_msg));
-	cl->getChannel()->AddReliablePacketToSend(bs);
+		// Send the client directly a dropped packet
+		// TODO: move this out here
+		CBytestream bs;
+		bs.writeByte(S2C_DROPPED);
+		bs.writeString(OldLxCompatibleString(cl_msg));
+		cl->getChannel()->AddReliablePacketToSend(bs);
+	}
 	
 	/*
 	if( NewNet::Active() )
@@ -1522,6 +1528,13 @@ void GameServer::RemoveClient(CServerConnection* cl, const std::string& reason) 
 		warnings << "An attempt to remove a local client was ignored" << endl;
 		return;
 	}
+
+	// Remove the socket if the client connected via NAT traversal
+	for (NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end(); it++)
+		if (cl->getChannel()->getSocket().get() == it->get()->tTraverseSocket.get() || cl->getChannel()->getSocket().get() == it->get()->tConnectHereSocket.get())  {
+			tNatClients.erase(it);
+			break;
+		}
 	
 	RemoveAllClientWorms(cl, "removed client (" + reason + ")");
 	cl->setStatus(NET_DISCONNECTED);
