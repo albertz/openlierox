@@ -1,0 +1,62 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+#define ONLY_MACRODEF
+#include "../../src/common/Version.cpp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+1 VERSIONINFO
+ FILEVERSION 0,57,0,0
+ PRODUCTVERSION 0,57,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x21L
+#else
+ FILEFLAGS 0x20L
+#endif
+ FILEOS 0x40004L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040504b0"
+        BEGIN
+            VALUE "Comments", "\0"
+			VALUE "CompanyName", "OpenLieroX Team\0"
+            VALUE "FileDescription", "Extremely addictive realtime worms shoot-em-up game backed by an active gamers community\0"
+            VALUE "FileVersion", LX_VERSION
+            VALUE "InternalName", GAMENAME
+            VALUE "LegalCopyright", "Copyright © 2006-2008, the OpenLieroX Team\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "OpenLieroX.exe\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", GAMENAME
+            VALUE "ProductVersion", LX_VERSION
+            VALUE "SpecialBuild", LX_VERSION
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x405, 1200
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_LARGE               ICON    DISCARDABLE     "..\\..\\share\\OpenLieroX.ico"
+/////////////////////////////////////////////////////////////////////////////
+
