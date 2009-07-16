@@ -689,10 +689,10 @@ gui_event_t *CGuiLayout::Process()
 			// Mouse wheel up
 			if(tMouse->WheelScrollUp)  {
 				widget = true;
-				if(cFocused)
+				/*if(cFocused)
 					cFocused->setFocused(false);
 				(*w)->setFocused(true);
-				cFocused = *w;
+				cFocused = *w;*/
 
 				if( (ev = (*w)->MouseWheelUp(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
@@ -703,10 +703,10 @@ gui_event_t *CGuiLayout::Process()
 			// Mouse wheel down
 			if(tMouse->WheelScrollDown)  {
 				widget = true;
-				if(cFocused)
+				/*if(cFocused)
 					cFocused->setFocused(false);
 				(*w)->setFocused(true);
-				cFocused = *w;
+				cFocused = *w;*/
 
 				if( (ev = (*w)->MouseWheelDown(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
