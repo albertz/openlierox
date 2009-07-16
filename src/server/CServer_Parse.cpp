@@ -375,7 +375,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
 					cClient->getNetEngine()->SendDeath(victim, killer);
 			} else {
-				warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << ") worms." << endl;
+				warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << ") worms, killer was " << killer << endl;
 			}
 
 			// The client on this machine will send the death again, then we'll parse it
@@ -384,7 +384,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	} else {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		if (!cl->OwnsWorm(victim))  {
-			warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << ")" << endl;
+			warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << "), killer was " << killer << endl;
 			return;
 		}
 	}

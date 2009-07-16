@@ -269,7 +269,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	// Cheat prevention, game behaves weird if this happens
 	if (vict->getLives() < 0 && tLXOptions->tGameInfo.iLives >= 0)  {
 		vict->setLives(WRM_OUT);  // Safety
-		printf("GameServer::ParseDeathPacket: victim is already out of the game.\n");
+		warnings("GameServer::killWorm: victim is already out of the game.\n");
 		return;
 	}
 

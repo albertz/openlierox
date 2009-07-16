@@ -839,7 +839,7 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 	CBytestream bs;
 
 	bool anythingNew = false;
-	while(bs.Read(sock.get())) {
+	while(bs.Read(sock)) {
 		anythingNew = true;
 		
 		// Set out address to addr from where last packet was sent, used for NAT traverse
