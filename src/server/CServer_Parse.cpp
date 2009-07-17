@@ -376,6 +376,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 					cClient->getNetEngine()->SendDeath(victim, killer);
 			} else {
 				warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << ") worms, killer was " << killer << endl;
+				server->netError = "ParseDeathPacket with invalid victim + SSH";
 			}
 
 			// The client on this machine will send the death again, then we'll parse it
@@ -385,6 +386,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		// Cheat prevention check: make sure the victim is one of the client's worms
 		if (!cl->OwnsWorm(victim))  {
 			warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << "), killer was " << killer << endl;
+			server->netError = "ParseDeathPacket with invalid victim";
 			return;
 		}
 	}

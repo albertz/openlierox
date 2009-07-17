@@ -154,6 +154,8 @@ private:
 	
 	bool		m_clientsNeedLobbyUpdate;
 	AbsTime		m_clientsNeedLobbyUpdateTime;
+	
+	std::string	netError;
 
 	friend class CServerNetEngine;
 	friend class CServerNetEngineBeta7;

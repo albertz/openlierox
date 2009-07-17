@@ -836,10 +836,17 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 	if (!sock->isReady())
 		return false;
 
+	netError = "";
 	CBytestream bs;
 
 	bool anythingNew = false;
 	while(bs.Read(sock)) {
+#if defined(DEBUG) || !defined(FUZZY_ERROR_TESTING_C2S)
+#define NETDEBUG
+#endif
+#ifdef NETDEBUG
+		CBytestream bsCopy = bs;
+#endif
 		anythingNew = true;
 		
 		// Set out address to addr from where last packet was sent, used for NAT traverse
@@ -859,6 +866,14 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 			// Same thing in CClient.cpp in ReadPackets
 			while(!bs.isPosAtEnd() && bs.readInt(4) == -1)
 				ParseConnectionlessPacket(sock, &bs, address);
+#ifdef NETDEBUG
+			if(netError != "") {
+				warnings << "GS: read conless error " << netError << endl;
+				bsCopy.Skip(bs.GetPos());
+				bsCopy.Dump();
+				netError = "";				
+			}
+#endif
 			continue;
 		}
 		bs.ResetPosToBegin();
@@ -883,11 +898,22 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 				continue;
 
 			// Parse the packet - process continuously in case we've received multiple logical packets on new CChannel
+			uint n = 0;
 			while (cl->getChannel()->Process(&bs))  {
 				// Only process the actual packet for playing clients
 				if( cl->getStatus() != NET_ZOMBIE )
 					cl->getNetEngine()->ParsePacket(&bs);
 				bs.Clear();
+#ifdef NETDEBUG
+				if(netError != "") {
+					warnings << "GS: " << cl->debugName(true) << " read error (" << n << ") " << netError << endl;
+					bs.Dump();
+					notes << "Original data:" << endl;
+					bsCopy.Dump();
+					netError = "";
+				}
+#endif
+				n++;
 			}
 		}
 	}
