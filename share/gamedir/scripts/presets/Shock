@@ -4,4 +4,4 @@ setvar( "GameOptions.GameInfo.ModName", "Shock v1.40 Air" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Standard Shock 1.40 Air 100lt.wps" )
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Shock v1.40 Air/Standard 100lt.wps" )

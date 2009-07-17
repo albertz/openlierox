@@ -4,4 +4,4 @@ setvar( "GameOptions.GameInfo.ModName", "Trick or Treat v0.4" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Standard ToT 0.4 100lt.wps" )
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Trick or Treat v0.4/Standard 100lt.wps" )

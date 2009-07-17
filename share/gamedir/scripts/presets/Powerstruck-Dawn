@@ -4,4 +4,4 @@ setvar( "GameOptions.GameInfo.ModName", "Powerstruck - Dawn" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Standard Powerstruck - Dawn 100lt.wps" )
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Powerstruck - Dawn/Standard 100lt.wps" )
