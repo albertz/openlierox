@@ -10,7 +10,7 @@ ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !
 LOG_FILE = "dedicated_control.log"
 
 MIN_PLAYERS = 2
-MIN_PLAYERS_TEAMS = 8 # Players will be split in two teams automatically if there is enough players
+MIN_PLAYERS_TEAMS = 10 # Players will be split in two teams automatically if there is enough players
 MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
@@ -18,7 +18,7 @@ WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before anoth
 # Seconds before rotating preset
 PRESET_TIMEOUT = 300
 
-WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
+WAIT_AFTER_GAME = 5 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
