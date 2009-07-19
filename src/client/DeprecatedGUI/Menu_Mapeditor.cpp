@@ -735,9 +735,7 @@ void Menu_MapEd_LoadSave(int save)
 							if(save) {
 
 								// Save
-								buf = t->getText();
-								stringlwr(buf);
-								if(buf.find(".lxl") == std::string::npos)
+								if(stringtolower(GetFileExtension(t->getText())) != "lxl")
 									buf = "levels/" + t->getText() + ".lxl";
 								else
 									buf = "levels/" + t->getText();
@@ -750,10 +748,7 @@ void Menu_MapEd_LoadSave(int save)
 							} else {
 
 								// Load
-								buf = "levels/"; buf += t->getText();
-								stringlwr(buf);
-								if(buf.find(".lxl") == std::string::npos)
-									buf += ".lxl";
+								buf = "levels/" + t->getText();
 								cMap->Load(buf);
 							}
 						}
