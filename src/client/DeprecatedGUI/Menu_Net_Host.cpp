@@ -1445,7 +1445,10 @@ void Menu_HostShowMinimap()
 	if(map.Load("levels/"+buf)) {
 
 		// Draw the minimap
-		DrawImage(tMenu->bmpBuffer.get(), map.GetMiniMap(), 463,32);
+		if(map.GetMiniMap().get())
+			DrawImage(tMenu->bmpBuffer.get(), map.GetMiniMap(), 463,32);
+		else
+			DrawRectFill(tMenu->bmpMiniMapBuffer.get(), 0, 0, tMenu->bmpMiniMapBuffer->w, tMenu->bmpMiniMapBuffer->h, Color());
 	} else {
 		errors << "Cannot load minimap for level " << buf << endl;
 	}

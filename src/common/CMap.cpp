@@ -2107,7 +2107,7 @@ void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVe
 // Draw & Simulate the minimap
 void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms)
 {
-	if(worms == NULL)
+	if(worms == NULL || bmpMiniMap.get() == NULL)
 		return;
 
 
@@ -2192,8 +2192,12 @@ bool CMap::Load(const std::string& filename)
 			warnings << "level " << filename << " is corrupted" << endl;
 			return false;
 		}
+		
+		if(!PixelFlags) {
+			errors << "level loader for " << filename << " is behaving wrong" << endl;
+			return false;
+		}
 	}
-	
 	
 	bMiniMapDirty = true;
 	Created = true;

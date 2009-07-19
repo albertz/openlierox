@@ -89,9 +89,11 @@ void CMinimap::DoRepaint()
 	// Draw the minimap
 	if (tWorms)
 		cMap->DrawMiniMap(bmpBuffer.get(), cBorder.getLeftW(), cBorder.getTopW(), tLX->fDeltaTime, tWorms);
-	else
-		DrawImage(bmpBuffer.get(), cMap->GetMiniMap(), cBorder.getLeftW(), cBorder.getTopW());
-
+	else {
+		if(cMap->GetMiniMap().get())
+			DrawImage(bmpBuffer.get(), cMap->GetMiniMap(), cBorder.getLeftW(), cBorder.getTopW());
+	}
+	
 	// Border
 	cBorder.Draw(bmpBuffer, 0, 0, getWidth(), getHeight());
 }

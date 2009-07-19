@@ -553,8 +553,10 @@ void Menu_LocalShowMinimap(bool bReload)
 		// Load the file
 		if(map.Load("levels/" + buf)) {
 			// Draw the minimap
-			DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
-
+			if(map.GetMiniMap().get())
+				DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
+			else
+				DrawRectFill(tMenu->bmpMiniMapBuffer.get(), 0, 0, tMenu->bmpMiniMapBuffer->w, tMenu->bmpMiniMapBuffer->h, Color());
         }
     }
 

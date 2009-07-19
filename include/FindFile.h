@@ -52,6 +52,7 @@
 #ifndef S_ISREG
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
+inline bool S_ISLNK(unsigned short d)  { return (d & S_IFLNK) != 0; }
 #endif
 #endif
 
@@ -178,6 +179,8 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs =
 // related to tSearchPaths
 FILE*	OpenGameFile(const std::string& path, const char *mode);
 
+FILE*	OpenAbsFile(const std::string& path, const char *mode);
+
 std::ifstream* OpenGameFileR(const std::string& path);
 
 std::string GetFileContents(const std::string& path, bool absolute = false);
@@ -221,7 +224,8 @@ std::string	GetTempDir();
 typedef char filemodes_t;
 enum {
 	FM_DIR = 1,
-	FM_REG = 2
+	FM_REG = 2,
+	FM_LNK = 4,
 };
 
 bool PathListIncludes(const std::list<std::string>& list, const std::string& path);
@@ -327,7 +331,8 @@ public:
 				filename = abs_path + "/" + entry->d_name;
 				if(stat(filename.c_str(), &s) == 0)
 					if((S_ISREG(s.st_mode) && modefilter&FM_REG)
-					|| (S_ISDIR(s.st_mode) && modefilter&FM_DIR))
+					|| (S_ISDIR(s.st_mode) && modefilter&FM_DIR)
+					|| (S_ISLNK(s.st_mode) && modefilter&FM_LNK))
 						if(!filehandler(filename)) {
 							ret = false;
 							break;

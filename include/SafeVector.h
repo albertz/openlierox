@@ -24,6 +24,7 @@ private:
 	
 public:
 	SafeVector() : m_data(NULL), m_size(0) {}
+	SafeVector(size_t s) : m_data(NULL), m_size(0) { resize(s); }
 	SafeVector(const SafeVector& v) : m_data(NULL), m_size(0) { operator=(v); }
 	~SafeVector() { clear(); }
 	
@@ -46,8 +47,8 @@ public:
 	void resize(size_t s) {
 		clear();
 		if(s) {
-			m_size = s;
-			m_data = new T[m_size];
+			m_data = new T[s];
+			if(m_data) m_size = s;
 		}
 	}
 	

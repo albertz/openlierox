@@ -148,6 +148,7 @@ std::string		GetFileExtension(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
 std::string		GetBaseFilenameWithoutExt(const std::string& filename);
 std::list<std::string> SplitFilename(const std::string& filename, size_t numPartsFromRight = (size_t)-1); // splits fn by PathSep
+std::string		GetDirName(const std::string& filename);
 size_t			stringcasefind(const std::string& text, const std::string& search_for);
 size_t			stringcaserfind(const std::string& text, const std::string& search_for);
 std::string		StripHtmlTags( const std::string & src );	// Also removes all "\r" and spaces at line beginning
@@ -254,6 +255,11 @@ std::string to_string(T val) {
 template<>
 inline std::string to_string<bool>(bool val) {
 	if(val) return "true"; else return "false";
+}
+
+template<>
+inline std::string to_string<const char*>(const char* val) {
+	if(val) return val; else return "";
 }
 
 template<>

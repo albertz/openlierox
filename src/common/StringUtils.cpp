@@ -597,6 +597,12 @@ std::string GetBaseFilename(const std::string& filename) {
 	return filename.substr(p+1);
 }
 
+std::string GetDirName(const std::string& filename) {
+	size_t p = findLastPathSep(filename);
+	if(p == std::string::npos) return "";
+	return filename.substr(0, p);
+}
+
 std::string GetBaseFilenameWithoutExt(const std::string& filename) {
 	std::string f = GetBaseFilename(filename);
 	size_t p = f.rfind('.');

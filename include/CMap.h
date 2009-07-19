@@ -83,11 +83,13 @@ class CPlayer;
 class MapLoader;
 class ML_OrigLiero;
 class ML_LieroX;
+class ML_CommanderKeen123;
 
 class CMap {
 	friend class MapLoader;
 	friend class ML_OrigLiero;
 	friend class ML_LieroX;
+	friend class ML_CommanderKeen123;
 private:
 	// just don't do that
 	CMap(const CMap&) { assert(false); }
@@ -218,7 +220,7 @@ private:
 
 public:
 	// Methods
-	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h);
+	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
 	bool		Save(const std::string& name, const std::string& filename);

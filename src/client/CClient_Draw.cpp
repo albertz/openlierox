@@ -543,8 +543,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
 				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
-			else
-				DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+			else {
+				if(cMap->GetMiniMap().get())
+					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+			}
 		}
 
 	}

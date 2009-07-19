@@ -578,6 +578,13 @@ std::string GetWriteFullFileName(const std::string& path, bool create_nes_dirs) 
 	return tmp;
 }
 
+FILE* OpenAbsFile(const std::string& path, const char *mode) {
+	std::string exactfn;
+	if(!GetExactFileName(path, exactfn))
+		return NULL;
+	return fopen(exactfn.c_str(), mode);
+}
+
 FILE *OpenGameFile(const std::string& path, const char *mode) {
 	if(path.size() == 0)
 		return NULL;
