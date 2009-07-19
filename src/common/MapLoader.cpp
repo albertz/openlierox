@@ -1682,7 +1682,7 @@ public:
 			lprintf("> level NOT created by CloneKeen.\n");
 		} */
 		
-		//map_coat_border();
+		map_coat_border(episode);
 		//map_calc_max_scroll();
 		
 		notes << "loadmap(): success!" << endl;
@@ -1690,7 +1690,61 @@ public:
 		return constructMap(m);
 	}
 
-private:	
+private:
+	
+	void map_coat_border(int episode)
+	{		
+		enum {
+			TILE_FELLOFFMAP		=	582,
+			TILE_FELLOFFMAP_EP3	=	0,
+			TILE_FUEL			=	245,
+			BG_GREY				=	143,
+		};
+		
+		Uint16 border= (episode==3) ? TILE_FUEL : 144;
+		for(Uint32 x=0;x<map.xsize;x++)
+		{
+			map.mapdata[x][0] = border;
+			map.mapdata[x][1] = border;
+			map.mapdata[x][map.ysize-1] = border;
+			map.mapdata[x][map.ysize-2] = border;
+		}
+		for(Uint32 y=0;y<map.ysize;y++)
+		{
+			map.mapdata[0][y] = border;
+			map.mapdata[1][y] = border;
+			map.mapdata[map.xsize-1][y] = border;
+			map.mapdata[map.xsize-2][y] = border;
+		}
+		
+		if (episode == 3)
+		{
+			// coat the top of the map ("oh no!" border) with a non-solid tile
+			// so keen can jump partially off the top of the screen
+			for(int x=2;x<map.xsize-2;x++)
+			{
+				map.mapdata[x][1] = BG_GREY;
+			}
+			
+			// make it lethal to fall off the bottom of the map.
+			for(int x=2;x<map.xsize-2;x++)
+			{
+				map.mapdata[x][map.ysize] = TILE_FELLOFFMAP_EP3;
+			}
+		}
+		else
+		{
+			// coat the bottom of the map below the border.
+			// since the border has solidceil=1 this provides
+			// a platform to catch enemies that fall off the map
+			for(int x=2;x<map.xsize-2;x++)
+			{
+				map.mapdata[x][map.ysize] = TILE_FELLOFFMAP;
+			}
+		}		
+	}
+	
+	
 	bool constructMap(CMap* m) {
 		m->Name = head.name;
 		m->Width = (int)head.width;
@@ -1714,10 +1768,18 @@ private:
 		m->lockFlags();
 		for(Uint32 x = 0; x < map.xsize; x++)
 			for(Uint32 y = 0; y < map.ysize; y++) {
-				Uint16 t = map.mapdata[x][y];
-				sb_drawtile(m->bmpImage.get(), x * TILE_W, y * TILE_H, t);
-				sb_drawtile(m->bmpBackImage.get(), x * TILE_W, y * TILE_H, t);
-				fillpixelflags(m->PixelFlags, m->Width, x * TILE_W, y * TILE_H, t);
+				Uint16 tile = map.mapdata[x][y];
+				Uint16 backtile = tile;
+				char pixelflag = getPixelFlag(tile);
+				if(pixelflag == PX_DIRT) {
+					if(tiles[tile].chgtile > 0)
+						backtile = tiles[tile].chgtile;
+					else
+						backtile = searchNextFreeCell(x, y);
+				}
+				fillpixelflags(m->PixelFlags, m->Width, x * TILE_W, y * TILE_H, pixelflag);
+				sb_drawtile(m->bmpImage.get(), x * TILE_W, y * TILE_H, tile);
+				sb_drawtile(m->bmpBackImage.get(), x * TILE_W, y * TILE_H, backtile);
 			}
 		m->unlockFlags();
 		UnlockSurface(m->bmpImage);
@@ -1726,6 +1788,27 @@ private:
 		return true;
 	}
 
+	Uint16 searchNextFreeCell(int x, int y) {
+#define CHECKNRET(_x,_y) { if(getPixelFlag(map.mapdata[_x][_y]) == PX_EMPTY) return map.mapdata[_x][_y]; }		
+		int d = 1;
+		while(y+1 < map.ysize) {
+			y++;
+			CHECKNRET(x,y);
+			for(int dx = 1; dx < d; dx++) {
+				if(x+dx < map.xsize) CHECKNRET(x+dx,y);
+				if(x>=dx) CHECKNRET(x-dx,y);
+			}
+			for(int dy = 0; dy <= d; dy++) {
+				if(x+d < map.xsize) CHECKNRET(x+d,y-dy);
+				if(x>d) CHECKNRET(x-d,y-dy);
+			}
+			d++;
+		}
+		
+		return map.mapdata[x][y];
+#undef CHECKNRET		
+	}
+	
 	SafeVector<Color> palette;
 	
 	bool loadPalette(int episode) {
@@ -1747,7 +1830,7 @@ private:
 		return true;
 	}
 	
-	Color get8BitColor(int c)
+	Color getPaletteColor(int c)
 	{
 		Color* col = palette[c];
 		if(col) return *col;
@@ -1758,14 +1841,18 @@ private:
 	{
 		for(Uint8 dy = 0; dy < TILE_H; dy++)
 			for(Uint8 dx = 0; dx < TILE_W; dx++) {
-				PutPixel(dest, x + dx, y + dy, get8BitColor(tiledata[t][dy][dx]).get(dest->format));
+				PutPixel(dest, x + dx, y + dy, getPaletteColor(tiledata[t][dy][dx]).get(dest->format));
 			}
 	}
 	
-	void fillpixelflags(uchar* PixelFlags, Uint32 mapwidth, Uint32 x, Uint32 y, Uint32 t) {
+	char getPixelFlag(Uint32 t) {
 		char flag = tiles[t].solidceil ? PX_ROCK : (tiles[t].solidfall ? PX_DIRT : PX_EMPTY);
 		if(flag == PX_ROCK && (map.isworldmap || map.ismenumap))
 			flag = PX_DIRT; // otherwise we would have a lot of not-accessible areas
+		return flag;
+	}
+	
+	void fillpixelflags(uchar* PixelFlags, Uint32 mapwidth, Uint32 x, Uint32 y, char flag) {
 		for(Uint8 h = 0; h < TILE_H; h++) {
 			memset((char*)&PixelFlags[(y + h) * mapwidth + x], flag, TILE_W);
 		}
