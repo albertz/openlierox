@@ -1729,7 +1729,7 @@ private:
 			// make it lethal to fall off the bottom of the map.
 			for(int x=2;x<map.xsize-2;x++)
 			{
-				map.mapdata[x][map.ysize] = TILE_FELLOFFMAP_EP3;
+				map.mapdata[x][map.ysize-1] = TILE_FELLOFFMAP_EP3;
 			}
 		}
 		else
@@ -1739,7 +1739,7 @@ private:
 			// a platform to catch enemies that fall off the map
 			for(int x=2;x<map.xsize-2;x++)
 			{
-				map.mapdata[x][map.ysize] = TILE_FELLOFFMAP;
+				map.mapdata[x][map.ysize-1] = TILE_FELLOFFMAP;
 			}
 		}		
 	}
