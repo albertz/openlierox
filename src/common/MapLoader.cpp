@@ -1517,6 +1517,8 @@ private:
 	}
 	
 public:
+	static const bool withKeenBorders = false;
+	
 	bool parseHeader(bool printErrors) {
 		head.name = GetBaseFilename(filename);
 				
@@ -1535,16 +1537,26 @@ public:
 			return false;
 		}
 		
-		if (*data[0] >= MAP_MAXWIDTH || *data[1] >= MAP_MAXHEIGHT) {
+		Sint32 w = *data[0], h = *data[1];
+		if (w >= MAP_MAXWIDTH || h >= MAP_MAXHEIGHT) {
 			if(printErrors) errors << "CK loader: map too big" << endl;
 			return false;
 		}
 		
-		head.width = *data[0] * TILE_W;
-		head.height = *data[1] * TILE_H;
+		if(!withKeenBorders) {
+			w -= 4; h -= 4;
+			if(w < 0 || h < 0) {
+				if(printErrors) errors << "CK loader: map too small" << endl;
+				return false;
+			}
+		}
+		
+		head.width = w * TILE_W;
+		head.height = h * TILE_H;
 		
 		return true;
 	}
+	
 	
 	bool parseData(CMap* m) {
 		int episode = 0;
@@ -1768,6 +1780,10 @@ private:
 		m->lockFlags();
 		for(Uint32 x = 0; x < map.xsize; x++)
 			for(Uint32 y = 0; y < map.ysize; y++) {
+				if(!withKeenBorders) {
+					if(x <= 1 || x+2 >= map.xsize) continue;
+					if(y <= 1 || y+2 >= map.ysize) continue;
+				}
 				Uint16 tile = map.mapdata[x][y];
 				Uint16 backtile = tile;
 				char pixelflag = getPixelFlag(tile);
@@ -1777,9 +1793,11 @@ private:
 					else
 						backtile = searchNextFreeCell(x, y);
 				}
-				fillpixelflags(m->PixelFlags, m->Width, x * TILE_W, y * TILE_H, pixelflag);
-				sb_drawtile(m->bmpImage.get(), x * TILE_W, y * TILE_H, tile);
-				sb_drawtile(m->bmpBackImage.get(), x * TILE_W, y * TILE_H, backtile);
+				Uint32 realx = x * TILE_W, realy = y * TILE_H;
+				if(!withKeenBorders) { realx -= 2*TILE_W; realy -= 2*TILE_H; }				
+				fillpixelflags(m->PixelFlags, m->Width, realx, realy, pixelflag);
+				sb_drawtile(m->bmpImage.get(), realx, realy, tile);
+				sb_drawtile(m->bmpBackImage.get(), realx, realy, backtile);
 			}
 		m->unlockFlags();
 		UnlockSurface(m->bmpImage);
