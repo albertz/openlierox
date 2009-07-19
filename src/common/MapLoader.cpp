@@ -1120,10 +1120,10 @@ private:
 			notes << "latch_loadlatch(): Decoding 16x16 tiles..." << endl;
 			
 			// set up the getbit() function
-			setplanepositions(plane1 + LatchHeader.Off16Tiles, \
-							  plane2 + LatchHeader.Off16Tiles, \
-							  plane3 + LatchHeader.Off16Tiles, \
-							  plane4 + LatchHeader.Off16Tiles, \
+			setplanepositions(plane1 + LatchHeader.Off16Tiles,
+							  plane2 + LatchHeader.Off16Tiles,
+							  plane3 + LatchHeader.Off16Tiles,
+							  plane4 + LatchHeader.Off16Tiles,
 							  0);
 			
 			for(p=0;p<4;p++)
