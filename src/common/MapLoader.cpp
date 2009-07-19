@@ -704,7 +704,8 @@ public:
 	struct stMap
 	{
 		Uint16 xsize, ysize;            // size of the map
-		bool isworldmap;             // if 1, this is the world map
+		bool isworldmap;             // this is the world map
+		bool ismenumap;				// score+menu map
 		unsigned int mapdata[MAP_MAXWIDTH][MAP_MAXHEIGHT];       // the map data
 		// in-game, contains monsters and special object tags like for switches 
 		// on world map contains level numbers and flags for things like teleporters
@@ -1125,7 +1126,6 @@ private:
 							  plane4 + LatchHeader.Off16Tiles, \
 							  0);
 			
-			uchar highestPaletteCol = 8;
 			for(p=0;p<4;p++)
 			{
 				for(t=0;t<LatchHeader.Num16Tiles;t++)
@@ -1144,7 +1144,6 @@ private:
 							}
 							c |= (getbit(RawData, p) << p);
 							parent->tiledata[t][y][x] = c;
-							highestPaletteCol = MAX(highestPaletteCol, (uchar)c);
 						}
 					}
 				}
@@ -1159,7 +1158,6 @@ private:
 						parent->tiledata[t][y][x] = ((x&1) ^ (y&1)) ? 8:0;
 					}
 			}
-			notes << "latch_loadlatch: highest palette color = " << (int)highestPaletteCol << endl;
 			
 			// ** read the bitmaps **
 			/*lprintf("latch_loadlatch(): Allocating %d bytes for bitmap data...\n", BitmapBufferRAMSize);
@@ -1560,10 +1558,8 @@ public:
 		
 		fseek(fp,0,SEEK_SET);
 		
-		if (strStartsWith( stringtolower(filename), "level80.ck") )
-			map.isworldmap = true;
-		else
-			map.isworldmap = false;
+		map.isworldmap = strStartsWith( stringtolower(GetBaseFilename(filename)), "level80.ck" );
+		map.ismenumap = strStartsWith( stringtolower(GetBaseFilename(filename)), "level90.ck" );
 		
 		Uint32 maplen = 0;
 		fread_endian<Uint32>(fp, maplen);
@@ -1768,6 +1764,8 @@ private:
 	
 	void fillpixelflags(uchar* PixelFlags, Uint32 mapwidth, Uint32 x, Uint32 y, Uint32 t) {
 		char flag = tiles[t].solidceil ? PX_ROCK : (tiles[t].solidfall ? PX_DIRT : PX_EMPTY);
+		if(flag == PX_ROCK && (map.isworldmap || map.ismenumap))
+			flag = PX_DIRT; // otherwise we would have a lot of not-accessible areas
 		for(Uint8 h = 0; h < TILE_H; h++) {
 			memset((char*)&PixelFlags[(y + h) * mapwidth + x], flag, TILE_W);
 		}
