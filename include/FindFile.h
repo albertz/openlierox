@@ -50,6 +50,7 @@
 	inline int mkdir(const char *path, int mode) { return _mkdir(Utf8ToSystemNative(path).c_str()); }
 #	define stat _stat
 #ifndef S_ISREG
+#	define S_IFLNK 0120000
 inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
 inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
 inline bool S_ISLNK(unsigned short d)  { return (d & S_IFLNK) != 0; }
