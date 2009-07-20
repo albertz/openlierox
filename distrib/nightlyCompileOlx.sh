@@ -30,8 +30,6 @@ while $RECOMPILE ; do
 		cmake -G "Visual Studio 8 2005" -D DEBUG=0 ../..
 		vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv >> "$1" 2>&1
 
-		cd ../..
-	
 		if [ \! -f distrib/win32/OpenLieroX.exe ] ; then 
 			echo ----------- Compiling failed - cleanup and try again >> "$1"
 			rm -r obj openlierox.dir CMakeFiles CMakeCache.txt
@@ -42,6 +40,8 @@ while $RECOMPILE ; do
 				exit
 			fi
 		fi
+
+		cd ../..
 	fi
 done
 
