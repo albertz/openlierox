@@ -1050,7 +1050,7 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 }
 
-COMMAND(addBots, "add bots to game", "number", 1, 1);
+COMMAND(addBots, "add bots to game", "number [ai-diff]", 1, 2);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
@@ -1070,10 +1070,22 @@ void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		printUsage(caller);
 		return;
 	}
+
+	int wormAiDiff = -1;
+	if(params.size() > 1) {
+		wormAiDiff = from_string<int>(params[1], fail);
+		if(fail) { printUsage(caller); return; }
+		if(wormAiDiff < -1 || wormAiDiff >= 4) {
+			caller->writeMsg("only values from 0-3 are allowed for ai-difficulty, -1 is to use profile-default", CNC_WARNING);
+			return;
+		}
+	}
 	
 	std::list<int> worms = cClient->AddRandomBots(num);
-	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i) {
+		if(wormAiDiff >= 0) cClient->getRemoteWorms()[*i].setAiDiff(wormAiDiff);
 		caller->pushReturnArg(itoa(*i));
+	}
 }
 
 COMMAND(kickBot, "kick bot from game", "[reason]", 0, 1);
