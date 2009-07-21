@@ -294,7 +294,7 @@ void IRCClient::disconnect()
 	// Close socket
 	if (m_chatSocket.isReady())
 		m_chatSocket.Write("QUIT\r\n");
-	if (m_socketConnected)
+	if (m_chatSocket.isOpen())
 		m_chatSocket.Close();
 
 	// Clear the variables

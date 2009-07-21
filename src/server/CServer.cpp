@@ -969,6 +969,11 @@ bool GameServer::ReadPackets()
 // Send packets
 void GameServer::SendPackets(bool sendPendingOnly)
 {
+	if(!cClients) {
+		errors << "GameServer::SendPackets: clients not initialised" << endl;
+		return;
+	}
+	
 	if(!sendPendingOnly) {
 		// If we are playing, send update to the clients
 		if (iState == SVS_PLAYING)
@@ -984,7 +989,16 @@ void GameServer::SendPackets(bool sendPendingOnly)
 	// Go through each client and send them a message
 	CServerConnection *cl = cClients;
 	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
-		if(cl->getStatus() == NET_DISCONNECTED || !cl->getChannel()->getSocket()->isReady())
+		if(cl->getStatus() == NET_DISCONNECTED)
+			continue;
+		
+		if(cl->getChannel() == NULL) {
+			errors << "GameServer::SendPackets: channel of client " << cl->debugName(true) << " is invalid" << endl;
+			DumpConnections();
+			continue;
+		}
+		
+		if(!cl->getChannel()->getSocket()->isReady())
 			continue;
 
 		// Send out the packets if we haven't gone over the clients bandwidth
