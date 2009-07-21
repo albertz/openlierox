@@ -1432,8 +1432,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	// Update the top message (winner/dirt count)
 	if (tGameInfo.gameMode == GameMode(GM_DEMOLITIONS))  {
 		// Get the dirt count
-		int dirtcount, i;
-		dirtcount = i = 0;
+		int dirtcount = 0, i = 0;
 		for (CWorm *w = cRemoteWorms; i < MAX_WORMS; i++, w++)  { if (w->isUsed()) dirtcount += w->getDirtCount(); }
 
 		cGameMenuLayout.SendMessage(gm_TopMessage, DeprecatedGUI::LBS_SETTEXT, "Total: " + itoa(dirtcount), 0);
