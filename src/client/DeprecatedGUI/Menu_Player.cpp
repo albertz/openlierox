@@ -220,6 +220,7 @@ void Menu_PlayerShutdown()
 	if (tAnimTimer)  {
 		tAnimTimer->stop();
 		delete tAnimTimer;
+		tAnimTimer = NULL;
 	}
 }
 

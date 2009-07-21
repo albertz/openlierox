@@ -131,6 +131,11 @@ void CGuiLayout::Initialize(int LayoutID)
 // Add a widget to the gui layout
 void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 {
+	if(!widget) {
+		errors << "CGuiLayout::Add: widget is unset" << endl;
+		return;
+	}
+	
 	widget->Setup(id, x, y, w, h);
 	widget->Create();
 	widget->setParent(this);
