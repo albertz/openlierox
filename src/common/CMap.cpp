@@ -773,6 +773,11 @@ void CMap::TileMap()
 {
 	if(bDedicated) return;
 
+	if(!bmpImage.get()) {
+		errors << "CMap::TileMap: map-image not loaded" << endl;
+		return;
+	}
+	
 	uint x,y;
 
 	// Place the tiles
