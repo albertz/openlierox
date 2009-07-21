@@ -123,7 +123,8 @@ void CChatWidget::Destroy()
 void CChatWidget::EnableChat()
 {
 	ChatWidget_ChatRegisterCallbacks();
-};
+}
+	
 void CChatWidget::DisableChat()
 {
 	ChatWidget_ChatDeregisterCallbacks();
@@ -131,7 +132,7 @@ void CChatWidget::DisableChat()
 	{
 		((CListview *)(*cw)->getWidget(nc_UserList))->Clear();
 	}
-};
+}
 
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {
@@ -226,11 +227,19 @@ void ChatWidget_ChatNewMessage(const std::string& msg, int type)
 // Chat disconnect (callback)
 void ChatWidget_ChatDisconnect()
 {
-	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
+	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); )
 	{
+		if(*cw == NULL) {
+			errors << "ChatWidget_ChatDisconnect: we have an invalid entry in chatWidgets set" << endl;
+			std::set<CChatWidget *> :: iterator cur = cw;
+			cw++;
+			chatWidgets.erase(cur);
+			continue;
+		}
 		CListview *lsv = (CListview *)((*cw)->getWidget(nc_UserList));
 		if (lsv)
 			lsv->Clear();
+		cw++;
 	}
 }
 
