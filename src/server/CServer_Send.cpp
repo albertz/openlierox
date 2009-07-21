@@ -950,6 +950,11 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
 	CBytestream bs;
 	CServerConnection * cl = Worm->getClient();
+	if(cl == NULL) {
+		errors << "GS::SendEmptyWeaponsOnRespawn: client of worm " << Worm->getID() << ":" << Worm->getName() << " is unset" << endl;
+		DumpConnections();
+		return;
+	}
 	int i, j, curWeapon = Worm->getCurrentWeapon();
 	for( i = 0; i < 5; i++ )
 	{
