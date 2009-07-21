@@ -422,6 +422,8 @@ public:
 	void		initWeaponSelection();
 	void		doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v);
 
+	void		setAiDiff(int aiDif);
+	
 	void		NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ); // Synthetic input from new net engine - Ignores inputHandler
 
 	//

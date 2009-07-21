@@ -1023,11 +1023,6 @@ void CWormBotInputHandler::getInput() {
 	iRandomSpread = 0;
 	fLastRandomChange = AbsTime();
 
-	if(m_worm->tProfile)
-		iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 3);
-	else
-		iAiDiffLevel = AI_MEDIUM;
-
     // Every 3 seconds we run the think function
 	float thinkInterval = 3.0f;
 	if(cClient->getGameLobby()->gameMode == GameMode(GM_CTF))
@@ -4501,7 +4496,6 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	pathSearcher = NULL;	
 	fLastFace = 0;
 	fBadAimTime = 0;
-	iAiDiffLevel = 0;
 	psAITarget = NULL;
 	fLastShoot = 0; // for AI
 	fLastJump = AbsTime();
@@ -4509,6 +4503,10 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	fLastCompleting = AbsTime();
 	fLastGoBack = AbsTime();
 
+	if(w->tProfile)
+		iAiDiffLevel = CLAMP(w->tProfile->nDifficulty, 0, 3);
+	else
+		iAiDiffLevel = AI_MEDIUM;
 	
 	AI_Initialize();
 }
@@ -4592,4 +4590,28 @@ void CWormBotInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewpo
 	
 	//bWeaponsReady = true;
 	//iCurrentWeapon = 0;
+}
+
+void CWorm::setAiDiff(int aiDiff) {
+	if(!m_inputHandler) {
+		errors << "CWorm::setAiDiff: can only set ai-diff for local bots" << endl;
+		return;
+	}
+	
+	CWormBotInputHandler* ai = dynamic_cast<CWormBotInputHandler*> (m_inputHandler);
+	if(!ai) {
+		errors << "CWorm::setAiDiff: worm " << getID() << ":" << getName() << " is not a bot" << endl;
+		return;
+	}
+	
+	ai->setAiDiff(aiDiff);
+}
+
+void CWormBotInputHandler::setAiDiff(int aiDiff) {
+	if(aiDiff < 0 || aiDiff >= 4) {
+		errors << "CWormBotInputHandler::setAiDiff: " << aiDiff << " is invalid" << endl;
+		return;
+	}
+	
+	iAiDiffLevel = aiDiff;
 }

@@ -116,6 +116,8 @@ public:
 	void		AI_SetGameType(int type)  { iAiGameType = type; }
 	int			AI_GetGameType()  { return iAiGameType; }
 	
+	void		setAiDiff(int aiDiff);
+	
 	bool		findNewTarget(); // uses findTarget() or searches for a position; true iff we have target or we can stay
 	bool		findRandomSpot(bool highSpot = false);
     CWorm       *findTarget(); // for games where we have to kill other people

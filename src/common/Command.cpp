@@ -987,7 +987,7 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 }
 
 
-COMMAND(addBot, "add bot to game", "[inGame:*true/false] [botprofile]", 0, 2);
+COMMAND(addBot, "add bot to game", "[inGame:*true/false] [botprofile] [ai-diff]", 0, 3);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
@@ -1008,9 +1008,20 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		outOfGame = !from_string<bool>(params[0], fail);
 		if(fail) { printUsage(caller); return; }
 	}
+
+	int wormAiDiff = -1;
+	if(params.size() > 2) {
+		bool fail = false;
+		wormAiDiff = !from_string<int>(params[2], fail);
+		if(fail) { printUsage(caller); return; }
+		if(wormAiDiff < 0 || wormAiDiff >= 4) {
+			caller->writeMsg("only values from 0-3 are allowed for ai-difficulty", CNC_WARNING);
+			return;
+		}
+	}
 	
 	// try to find the requested worm
-	if(params.size() > 1) {
+	if(params.size() > 1 && params[1] != "") {
 		std::string localWorm = params[1];
 		TrimSpaces(localWorm);
 		StripQuotes(localWorm);
@@ -1021,7 +1032,11 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 				caller->writeMsg("worm " + localWorm + " is not a bot", CNC_WARNING);
 				return;
 			}
-			cClient->AddWorm(p, outOfGame);
+			int w = cClient->AddWorm(p, outOfGame);
+			if(w >= 0) {
+				if(wormAiDiff >= 0) cClient->getRemoteWorms()[w].setAiDiff(wormAiDiff);
+				caller->pushReturnArg(itoa(w));
+			}
 			return;
 		}
 		
@@ -1029,8 +1044,10 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 	
 	std::list<int> worms = cClient->AddRandomBots(1, outOfGame);
-	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
+	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i) {
+		if(wormAiDiff >= 0) cClient->getRemoteWorms()[*i].setAiDiff(wormAiDiff);
 		caller->pushReturnArg(itoa(*i));
+	}
 }
 
 COMMAND(addBots, "add bots to game", "number", 1, 1);
