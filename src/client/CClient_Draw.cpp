@@ -2551,14 +2551,19 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 	int cur_y = y + 5;
 	for (int i=0; i < num && (it != last); i++, it++)  {
 		CWorm *wrm = *it;
-
+		SmartPointer<DynDrawIntf> wrmPicImg = wrm->getPicimg();
+		if(wrmPicImg.get() == NULL) {
+			errors << "CClient::DrawPlayerWaitingColumn: Worm " << wrm->getID() << " picimg not set" << endl;
+			continue;
+		}
+		
 		int cur_x = x + 5;
 
 		// Ready
 		if (wrm->getGameReady())
-			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyReady, cur_x, cur_y + (wrm->getPicimg().get()->h - DeprecatedGUI::tMenu->bmpLobbyReady.get()->h) / 2);
+			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyReady.get()->h) / 2);
 		else
-			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrm->getPicimg().get()->h - DeprecatedGUI::tMenu->bmpLobbyNotReady.get()->h) / 2);
+			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyNotReady.get()->h) / 2);
 		cur_x += DeprecatedGUI::tMenu->bmpLobbyReady.get()->w;
 
 		// Skin
