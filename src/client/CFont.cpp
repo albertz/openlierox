@@ -381,6 +381,11 @@ void CFont::DrawGlyphOutline_Internal(SDL_Surface *dst, const SDL_Rect& r, int s
 // Draws a character
 void CFont::DrawGlyphNormal_Internal(SDL_Surface *dst, const SDL_Rect& r, int sx, int sy, Color col, int glyph_index, PixelPutAlpha& putter, PixelGet& getter)
 {
+	if(glyph_index < 0 || (size_t)glyph_index >= CharacterOffset.size()) {
+		errors << "CFont::DrawGlyphNormal_Internal: glyph_index " << glyph_index << " is invalid" << endl;
+		return;
+	}
+	
 	const short bpp = bmpFont->format->BytesPerPixel;
 	Uint8 *src = (Uint8 *) bmpFont.get()->pixels + bmpFont.get()->pitch * sy +
 					(CharacterOffset[glyph_index] + sx) * bpp;
