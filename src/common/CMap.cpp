@@ -2676,6 +2676,11 @@ void CMap::ClearDebugImage() {
 // TODO: why do we have this function? why not CMap::CarveHole?
 int CarveHole(CVec pos)
 {
+	if(!cClient->getMap()) {
+		errors << "CarveHole: client map not loaded" << endl;
+		return 0;
+	}
+	
 	int x,y;
 	Color Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
