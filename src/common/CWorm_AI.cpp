@@ -1023,7 +1023,10 @@ void CWormBotInputHandler::getInput() {
 	iRandomSpread = 0;
 	fLastRandomChange = AbsTime();
 
-	iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 4);
+	if(m_worm->tProfile)
+		iAiDiffLevel = CLAMP(m_worm->tProfile->nDifficulty, 0, 3);
+	else
+		iAiDiffLevel = AI_MEDIUM;
 
     // Every 3 seconds we run the think function
 	float thinkInterval = 3.0f;
