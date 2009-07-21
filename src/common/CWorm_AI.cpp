@@ -1094,7 +1094,7 @@ void CWormBotInputHandler::getInput() {
     }
 
     // we have no strafing for bots at the moment
-    m_worm->iMoveDirection = m_worm->iDirection;	
+    m_worm->iMoveDirection = m_worm->iDirection;
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -1662,7 +1662,7 @@ CVec CWormBotInputHandler::AI_GetTargetPos()
 // Returns true if we're aiming at it
 bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 {
-    TimeDiff   dt = tLX->fDeltaTime;
+	TimeDiff   dt = tLX->fDeltaTime;
     CVec	tgPos = cPos;
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
@@ -1690,12 +1690,20 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	// Clamp the angle
 	ang = MAX((float)-90, ang);
 
-	// If the angle is within +/- 3 degrees, just snap it
-    if( fabs(m_worm->fAngle - ang) < 3) {
-		m_worm->fAngle = ang;
-        goodAim = true;
-    }
-
+	if(iAiDiffLevel < AI_XTREME) {
+		static float angleDiff[AI_HARD + 1] = {0,0,0};
+		static AbsTime lastAngleDiffUpdateTime;
+		if(tLX->currentTime - lastAngleDiffUpdateTime > TimeDiff(0.5f)) {
+			for(int aiLevel = AI_EASY; aiLevel < AI_XTREME; aiLevel++) {
+				float maxdiff = float(AI_XTREME - aiLevel) / float(AI_XTREME);
+				angleDiff[aiLevel] = GetRandomNum() * maxdiff * 50.0f;
+			}
+			lastAngleDiffUpdateTime = tLX->currentTime;
+		}
+		ang += angleDiff[iAiDiffLevel];
+		ang = MAX(ang, -90.0f);		
+	}
+	
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > m_worm->fAngle)
 		m_worm->fAngle += wd->AngleSpeed * dt.seconds();
@@ -1703,14 +1711,14 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 		m_worm->fAngle -= wd->AngleSpeed * dt.seconds();
 
 	// If the angle is within +/- 3 degrees, just snap it
-    if( fabs(m_worm->fAngle - ang) < 3) {
+    if( fabs(m_worm->fAngle - ang) < 3 )
 		m_worm->fAngle = ang;
-        goodAim = true;
-    }
 
+	if(fabs(m_worm->fAngle - ang) < 3 + 20 * float(AI_XTREME - iAiDiffLevel) / float(AI_XTREME))
+		goodAim = true;
+	
 	// Clamp the angle
-	m_worm->fAngle = MIN((float)60,m_worm->fAngle);
-	m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
+	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, 60.0f);
 
     return goodAim;
 }
@@ -1841,6 +1849,22 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 	if(!wpnproj) // no valid weapon
 		return false;
 
+	if(iAiDiffLevel < AI_XTREME) {
+		static float randomNums[4] = {0,0,0,0};
+		static AbsTime lastRandomNumRefresh;
+		if(tLX->currentTime - lastRandomNumRefresh > TimeDiff(0.5f)) {
+			for(uint i = 0; i < sizeof(randomNums)/sizeof(randomNums[0]); ++i)
+				randomNums[i] = GetRandomNum();
+			lastRandomNumRefresh = tLX->currentTime;
+		}
+		
+		float f = float(AI_XTREME - iAiDiffLevel) / float(AI_XTREME);
+		gravity += int(randomNums[0] * f * 5);
+		speed += randomNums[1] * f * 20.0f;
+		cTrgPos.x += randomNums[2] * f * 50.0f;
+		cTrgPos.y += randomNums[3] * f * 50.0f;		
+	}
+	
 	// Exchange endpoints and velocity if needed
 	float x_vel = 1;
 	CVec from = m_worm->vPos;
@@ -2213,24 +2237,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 				float trg_dist2 = (cTrgPos - m_worm->vPos).GetLength2();
 				if (trg_dist2 >= 2500)  {
-					if (fabs(m_worm->fAngle-alpha) > (5 + abs(iRandomSpread)))  {
-						// Move the angle at the same speed humans are allowed to move the angle
-						if(alpha > m_worm->fAngle)
-							m_worm->fAngle += wd->AngleSpeed * tLX->fDeltaTime.seconds();
-						else if(alpha < m_worm->fAngle)
-							m_worm->fAngle -= wd->AngleSpeed * tLX->fDeltaTime.seconds();
-						// still aiming ...
-						bAim = fabs(m_worm->fAngle-alpha) <= (5 + abs(iRandomSpread));
-					}
-					else  {
-						bAim = true;
-						m_worm->fAngle = alpha;
-					}
-
-					if (x < 0)
-						m_worm->iDirection = DIR_LEFT;
-					else
-						m_worm->iDirection = DIR_RIGHT;
+					bAim = AI_SetAim(cTrgPos);
 				} else if (trg_dist2 >= 100) {
 					bAim = AI_SetAim(cTrgPos);
 					if (iAiGameType != GAM_MORTARS) // Not in mortars - close shoot = suicide
@@ -2246,9 +2253,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				if (bAim && g >= 10 && v <= 200)  {
 					bShoot = bAim = weaponCanHit(g,v,CVec(m_worm->vPos.x+x,m_worm->vPos.y-y));
 				}
-
-
-
+				
 				break;
 			}
 
@@ -4608,7 +4613,7 @@ void CWorm::setAiDiff(int aiDiff) {
 }
 
 void CWormBotInputHandler::setAiDiff(int aiDiff) {
-	if(aiDiff < 0 || aiDiff >= 4) {
+	if(aiDiff < AI_EASY || aiDiff > AI_XTREME) {
 		errors << "CWormBotInputHandler::setAiDiff: " << aiDiff << " is invalid" << endl;
 		return;
 	}
