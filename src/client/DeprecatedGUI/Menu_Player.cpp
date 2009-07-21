@@ -491,7 +491,7 @@ void Menu_Player_ViewPlayers(int mouse)
 {
 	mouse_t *Mouse = GetMouse();
 	gui_event_t *ev = NULL;
-	static std::string buf;
+	std::string buf;
 
 	// Process & draw the gui
 	ev = cViewPlayers.Process();
@@ -522,7 +522,11 @@ void Menu_Player_ViewPlayers(int mouse)
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 
 					CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);
-
+					if(!lv) {
+						errors << "Menu_Player_ViewPlayers: playerlist not found" << endl;
+						return;
+					}
+					
 					int sel = lv->getCurIndex();
 					profile_t *p = FindProfile(sel);
 					if(p) {
@@ -696,7 +700,11 @@ void Menu_Player_ViewPlayers(int mouse)
 
 	// Show info about the selected player
 	CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);
-
+	if(!lv) {
+		errors << "Menu_Player_ViewPlayers: playerlist not found" << endl;
+		return;
+	}
+	
 	int sel = lv->getCurIndex();
 	profile_t *p = FindProfile(sel);
 	if(p) {
