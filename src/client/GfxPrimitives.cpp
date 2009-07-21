@@ -492,6 +492,16 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 // Draws the image
 void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
+	if(!bmpSrc) {
+		errors << "DrawImageAdv: source-image not set" << endl;
+		return;
+	}
+	
+	if(!bmpDest) {
+		errors << "DrawImageAdv: destination-image not set" << endl;
+		return;
+	}
+	
 	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
 	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
 
