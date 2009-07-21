@@ -1402,6 +1402,11 @@ void CClient::InitializeGameMenu()
 // Draw the game menu/game over screen (the scoreboard)
 void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 {
+	if(!bmpDest) {
+		errors << "CClient::DrawGameMenu: bmpDest unset" << endl;
+		return;
+	}
+	
 	// Background
 	if (bGameOver)  {
 		DrawImage(bmpDest, DeprecatedGUI::gfxGame.bmpGameover, 0, 0);
