@@ -252,6 +252,16 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 // Internal function for text sending, does not do any checks or parsing
 void CClientNetEngine::SendTextInternal(const std::string& sText, const std::string& sWormName)
 {
+	if(!client) {
+		errors << "CClientNetEngine::SendTextInternal(" << sWormName << ": " << sText << "): my client is unset" << endl;
+		return;
+	}
+	
+	if(!client->cNetChan) {
+		errors << "CClientNetEngine::SendTextInternal(" << sWormName << ": " << sText << "): cNetChan of my client (" << client->debugName() << ") is unset" << endl;
+		return;
+	}
+	
 	CBytestream bs;
 	bs.writeByte(C2S_CHATTEXT);
 	if (sWormName.size() == 0)
