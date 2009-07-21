@@ -1240,9 +1240,11 @@ void GameServer::CheckTimeouts()
 	int c;
 
 	// Check
-	if (!cClients)
+	if (!cClients) {
+		errors << "GS:CheckTimeouts: clients not initialised" << endl;
 		return;
-
+	}
+	
 	// Check for NAT traversal sockets that are too old
 	for (NatConnList::iterator it = tNatClients.begin(); it != tNatClients.end();)  {
 		if ((tLX->currentTime - (*it)->fLastUsed) >= 10.0f)  {
