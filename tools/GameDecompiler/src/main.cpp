@@ -25,6 +25,52 @@
 #include "WeaponDesc.h"
 #include "ProjectileDesc.h"
 
+#include <cassert>
+#include <setjmp.h>
+#include <sstream> // for print_binary_string
+#include <set>
+#include <string>
+
+#include "LieroX.h"
+#include "IpToCountryDB.h"
+#include "AuxLib.h"
+#include "CClient.h"
+#include "CServer.h"
+#include "ConfigHandler.h"
+#include "console.h"
+#include "GfxPrimitives.h"
+#include "FindFile.h"
+#include "InputEvents.h"
+#include "StringUtils.h"
+#include "Entity.h"
+#include "Error.h"
+#include "DedicatedControl.h"
+#include "Physics.h"
+#include "Version.h"
+#include "OLXG15.h"
+#include "CrashHandler.h"
+#include "Cursor.h"
+#include "CssParser.h"
+#include "FontHandling.h"
+#include "Timer.h"
+#include "CChannel.h"
+#include "Cache.h"
+#include "ProfileSystem.h"
+#include "IRC.h"
+#include "Music.h"
+#include "Debug.h"
+#include "TaskManager.h"
+#include "CGameMode.h"
+#include "ConversationLogger.h"
+#include "StaticAssert.h"
+#include "Command.h"
+
+#include "DeprecatedGUI/CBar.h"
+#include "DeprecatedGUI/Graphics.h"
+#include "DeprecatedGUI/Menu.h"
+#include "DeprecatedGUI/CChatWidget.h"
+
+#include "SkinnedGUI/CGuiSkin.h"
 
 CGameScript	*Game;
 
@@ -96,6 +142,8 @@ int main(int argc, char *argv[])
 	const char * dir = ".";
 	if( argc > 1 )
 		dir = argv[1];
+
+	InitBaseSearchPaths();
 	
 	if( Game->Load(dir) != GSE_OK )
 	{
@@ -247,10 +295,10 @@ void DecompileBeam(FILE * fp, const weapon_t *Weap)
 	if( Weap->UseSound )
 		fprintf( fp, "Sound = %s\n",Weap->SndFilename.c_str());
 
-	fprintf( fp, "\n[Beam]\n\nDamage = %i\n", Weap->Bm_Damage);
-	fprintf( fp, "Length = %i\n", Weap->Bm_Length);
-	fprintf( fp, "PlayerDamage = %i\n", Weap->Bm_PlyDamage);
-	fprintf( fp, "Colour = %u,%u,%u\n", Weap->Bm_Colour.r, Weap->Bm_Colour.g, Weap->Bm_Colour.b);
+	fprintf( fp, "\n[Beam]\n\nDamage = %i\n", Weap->Bm.Damage);
+	fprintf( fp, "Length = %i\n", Weap->Bm.Length);
+	fprintf( fp, "PlayerDamage = %i\n", Weap->Bm.PlyDamage);
+	fprintf( fp, "Colour = %u,%u,%u\n", Weap->Bm.Colour.r, Weap->Bm.Colour.g, Weap->Bm.Colour.b);
 
 }
 
@@ -540,6 +588,43 @@ int DecompileJetpack(FILE * fp, const weapon_t *Weap)
 
 
 // some dummies/stubs are following to be able to compile with OLX sources
+ConversationLogger *convoLogger = NULL;
+GameState currentGameState() { return S_INACTIVE; }
+lierox_t	*tLX = NULL;
+IpToCountryDB *tIpToCountryDB = NULL;
+bool        bDisableSound = true;
+bool		bDedicated = true;
+bool		bJoystickSupport = false;
+bool		bRestartGameAfterQuit = false;
+keyboard_t	*kb = NULL;
+void GotoLocalMenu(){};
+void GotoNetMenu(){};
+void QuittoMenu(){};
+void doActionInMainThread(Action* act) {};
+void doVideoFrameInMainThread() {};
+void doSetVideoModeInMainThread() {};
+void doVppOperation(Action* act) {};
+FileListCacheIntf* modList = NULL;
+FileListCacheIntf* skinList = NULL;
+FileListCacheIntf* mapList = NULL;
+TStartFunction startFunction = NULL;
+void* startFunctionData = NULL;
+
+
+
+void ResetQuitEngineFlag() {};
+void SetQuitEngineFlag(const std::string& reason) { };
+bool Warning_QuitEngineFlagSet(const std::string& preText) { };
+#ifndef WIN32
+sigjmp_buf longJumpBuffer;
+#endif
+void ShutdownLieroX() {} ;
+void updateFileListCaches() {};
+void SetCrashHandlerReturnPoint(const char* name) { };
+
+
+
+#if 0
 
 FILE* OpenGameFile(const std::string& file, const char* mod) {
 	// stub
@@ -589,8 +674,6 @@ bool bDedicated = true;
 
 void SetError(const std::string& text) { errors << "SetError: " << text << endl; }
 
-struct GameOptions;
-GameOptions *tLXOptions = NULL;
 
 bool Con_IsInited() { return false; };
 
@@ -611,3 +694,5 @@ SDL_PixelFormat defaultFallbackFormat =
 };
 
 SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
+
+#endif
