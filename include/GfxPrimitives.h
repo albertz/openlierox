@@ -407,6 +407,14 @@ inline void DrawImageEx(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> &
 ///////////////
 // Simply draw the image
 inline void DrawImage(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest) {
+	if(!bmpDest) {
+		errors << "DrawImage: bmpDest not set" << endl;
+		return;
+	}
+	if(!bmpSrc) {
+		errors << "DrawImage: bmpSrc not set" << endl;
+		return;
+	}
 	SDL_BlitSurface(bmpSrc, NULL, bmpDest, &rDest);
 }
 inline void DrawImage(SDL_Surface * bmpDest, const SmartPointer<SDL_Surface> & bmpSrc, SDL_Rect& rDest) {
