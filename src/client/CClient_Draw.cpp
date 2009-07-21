@@ -460,6 +460,11 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	if(bDedicated)
 		return;
+	
+	if(bmpDest == NULL) {
+		errors << "CClient::Draw: bmpDest is unset" << endl;
+		return;
+	}
 
 	// Local and network use different background images
 	SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
