@@ -987,7 +987,7 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 }
 
 
-COMMAND(addBot, "add bot to game", "[inGame:*true/false] [botprofile] [ai-diff]", 0, 3);
+COMMAND(addBot, "add bot to game", "[botprofile] [ai-diff] [inGame:*true/false]", 0, 3);
 // adds a worm to the game (By string - id is way to complicated)
 void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
@@ -1003,26 +1003,26 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 
 	bool outOfGame = false;
-	if(params.size() > 0) {
+	if(params.size() > 2) {
 		bool fail = false;
-		outOfGame = !from_string<bool>(params[0], fail);
+		outOfGame = !from_string<bool>(params[2], fail);
 		if(fail) { printUsage(caller); return; }
 	}
 
 	int wormAiDiff = -1;
-	if(params.size() > 2) {
+	if(params.size() > 1) {
 		bool fail = false;
-		wormAiDiff = !from_string<int>(params[2], fail);
+		wormAiDiff = from_string<int>(params[1], fail);
 		if(fail) { printUsage(caller); return; }
-		if(wormAiDiff < 0 || wormAiDiff >= 4) {
-			caller->writeMsg("only values from 0-3 are allowed for ai-difficulty", CNC_WARNING);
+		if(wormAiDiff < -1 || wormAiDiff >= 4) {
+			caller->writeMsg("only values from 0-3 are allowed for ai-difficulty, -1 is to use profile-default", CNC_WARNING);
 			return;
 		}
 	}
 	
 	// try to find the requested worm
-	if(params.size() > 1 && params[1] != "") {
-		std::string localWorm = params[1];
+	if(params.size() > 0 && params[0] != "") {
+		std::string localWorm = params[0];
 		TrimSpaces(localWorm);
 		StripQuotes(localWorm);
 		
@@ -1040,7 +1040,7 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 			return;
 		}
 		
-		caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead"); 
+		caller->writeMsg("cannot find worm profile " + localWorm + ", using random instead");
 	}
 	
 	std::list<int> worms = cClient->AddRandomBots(1, outOfGame);
