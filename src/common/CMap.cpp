@@ -2681,6 +2681,11 @@ int CarveHole(CVec pos)
 		return 0;
 	}
 	
+	if(!cClient->getMap()->GetImage().get()) {
+		errors << "CarveHole: client map invalid" << endl;
+		return 0;
+	}
+	
 	int x,y;
 	Color Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
