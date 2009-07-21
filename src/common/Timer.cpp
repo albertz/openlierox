@@ -389,7 +389,10 @@ void Timer::stop()
 static void Timer_handleEvent(InternTimerEventData data)
 {
 	TimerData* timer_data = data.data;
-	assert(timer_data != NULL);
+	if(timer_data == NULL) {
+		errors << "Timer_handleEvent: timer_data unset" << endl;
+		return;
+	}
 	
 	// Run the client function (if no quitSignal) and quit the timer if it returns false
 	// Also quit if we got last event signal
