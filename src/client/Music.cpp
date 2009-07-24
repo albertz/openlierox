@@ -20,81 +20,82 @@
 
 #include <set>
 #include "ThreadPool.h"
-#include <SDL_mutex.h>
 #include "FindFile.h"
 #include "Sounds.h"
 #include "StringUtils.h"
 #include "LieroX.h" // for bDedicated
+#include "Condition.h"
+#include "Mutex.h"
 
-bool breakThread = false;
-ThreadPoolItem *musicThread = NULL;
-SDL_cond *waitCond = NULL;
-SDL_mutex *waitMutex = NULL;
+static bool breakThread = false;
+static ThreadPoolItem *musicThread = NULL;
+static Condition waitCond;
+static Mutex waitMutex;
 
-// Load the playlist
-class PlaylistFiller { public:
-	std::set<std::string> *list;
-	PlaylistFiller(std::set<std::string>* c) : list(c) {}
-	bool operator() (const std::string& filename) {
-		std::string ext = filename.substr(filename.rfind('.'));
-		if (stringcaseequal(ext, ".mp3"))
-			list->insert(filename);
-
-		return true;
-	}
-};
 
 ///////////////////
 // Called when a song finishes
 void OnSongFinished()
 {
-	SDL_CondSignal(waitCond);
+	waitCond.broadcast();
 }
+
+// Load the playlist
+struct PlaylistFiller {
+	std::set<std::string> list;
+
+	bool operator() (const std::string& filename) {
+		std::string ext = GetFileExtension(filename);
+		if (stringcaseequal(ext, ".mp3"))
+			list.insert(filename);
+
+		return true;
+	}
+};
 
 /////////////////////
 // The player thread
 int MusicMain(void *)
 {
-	std::set<std::string> playlist;	
-	PlaylistFiller filler(&playlist);
-
-	FindFiles(filler, "music", false, FM_REG);
+	PlaylistFiller playlist;
+	FindFiles(playlist, "music", false, FM_REG);
 
 	// Nothing to play, just quit
-	if (!playlist.size())
+	if (!playlist.list.size())
 		return 0;
 
-	std::set<std::string>::iterator song = playlist.begin();
+	std::set<std::string>::iterator song = playlist.list.begin();
 	SoundMusic *songHandle = NULL;
 
-	SDL_mutexP(waitMutex);
-	while (!breakThread)  {
+	{
+		Mutex::ScopedLock lock(waitMutex);
+		while (!breakThread)  {
 
-		// If not playing, start some song
-		if (!PlayingMusic())  {
-			// Free any previous song
-			if (songHandle)
-				FreeMusic(songHandle);
+			// If not playing, start some song
+			if (!PlayingMusic())  {
+				// Free any previous song
+				if (songHandle)
+					FreeMusic(songHandle);
 
-			// Load and skip to next one
-			songHandle = LoadMusic(*song);
-			song++;
-			if (song == playlist.end())
-				song = playlist.begin();
+				// Load and skip to next one
+				songHandle = LoadMusic(*song);
+				song++;
+				if (song == playlist.list.end())
+					song = playlist.list.begin();
 
-			// Could not open, move on to next one
-			if (!songHandle)
-				continue;
+				// Could not open, move on to next one
+				if (!songHandle)
+					continue;
 
-			// Play
-			PlayMusic(songHandle);
+				// Play
+				PlayMusic(songHandle);
+			}
+			
+			// Wait until the song finishes
+			waitCond.wait(waitMutex);
 		}
-		
-		// Wait until the song finishes
-		SDL_CondWait(waitCond, waitMutex);
 	}
-	SDL_mutexV(waitMutex);
-
+	
 	// Stop/free the playing song
 	if (songHandle)
 		FreeMusic(songHandle);
@@ -114,8 +115,6 @@ void InitializeBackgroundMusic()
 	InitializeMusic();
 
 	musicThread = threadPool->start(&MusicMain, NULL, "music player");
-	waitMutex = SDL_CreateMutex();
-	waitCond = SDL_CreateCond();
 	SetMusicFinishedHandler(&OnSongFinished);
 }
 
@@ -129,17 +128,14 @@ void ShutdownBackgroundMusic()
 	SetMusicFinishedHandler(NULL);
 	breakThread = true;
 	if (musicThread)  {
-		SDL_mutexP(waitMutex); // ensure that we are in waiting state in music thread
-		SDL_CondSignal(waitCond);
-		SDL_mutexV(waitMutex);
+		{
+			Mutex::ScopedLock lock(waitMutex); // ensure that we are in waiting state in music thread
+			waitCond.broadcast();
+		}
 		threadPool->wait(musicThread, NULL);
-		SDL_DestroyCond(waitCond);
-		SDL_DestroyMutex(waitMutex);
 	}
 	breakThread = false;
 	musicThread = NULL;
-	waitCond = NULL;
-	waitMutex = NULL;
 
 	ShutdownMusic();
 }

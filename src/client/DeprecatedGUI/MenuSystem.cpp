@@ -988,7 +988,7 @@ void Menu_AddDefaultWidgets()
 
 
 	// Load the level list
-	class LevelComboFiller { public:
+	struct LevelComboFiller {
 		CCombobox* cmb;
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
