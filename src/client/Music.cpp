@@ -46,7 +46,7 @@ struct PlaylistFiller {
 
 	bool operator() (const std::string& filename) {
 		std::string ext = GetFileExtension(filename);
-		if (stringcaseequal(ext, ".mp3"))
+		if (stringcaseequal(ext, "mp3"))
 			list.insert(filename);
 
 		return true;
