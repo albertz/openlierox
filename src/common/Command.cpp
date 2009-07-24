@@ -1568,12 +1568,12 @@ void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 
 COMMAND(getFullFileName, "get full filename", "relativefilename", 1, 1);
 void Cmd_getFullFileName::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	caller->pushReturnArg(GetAbsolutePath(GetFullFileName(params[0], NULL)));
+	caller->pushReturnArg(Utf8ToSystemNative(GetAbsolutePath(GetFullFileName(params[0], NULL))));
 }
 
 COMMAND(getWriteFullFileName, "get writeable full filename", "relativefilename", 1, 1);
 void Cmd_getWriteFullFileName::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	caller->pushReturnArg(GetAbsolutePath(GetWriteFullFileName(params[0])));
+	caller->pushReturnArg(Utf8ToSystemNative(GetAbsolutePath(GetWriteFullFileName(params[0]))));
 }
 
 COMMAND(startLobby, "start server lobby", "[serverport]", 0, 1);
