@@ -1021,7 +1021,7 @@ private:
 		char latch_loadlatch(const std::string& dir, bool abs_filename, int episode) {
 
 			unsigned long plane1, plane2, plane3, plane4;
-			int x,y,t,c,p;
+			int x,y,t,c=0,p;
 			// int b;
 			//char *bmdataptr;
 			
@@ -1080,10 +1080,10 @@ private:
 			notes << "latch_loadlatch(): Decoding 8x8 tiles..." << endl;
 			
 			// set up the getbit() function
-			setplanepositions(plane1 + LatchHeader.Off8Tiles, \
-							  plane2 + LatchHeader.Off8Tiles, \
-							  plane3 + LatchHeader.Off8Tiles, \
-							  plane4 + LatchHeader.Off8Tiles, \
+			setplanepositions(plane1 + LatchHeader.Off8Tiles,
+							  plane2 + LatchHeader.Off8Tiles,
+							  plane3 + LatchHeader.Off8Tiles,
+							  plane4 + LatchHeader.Off8Tiles,
 							  0);
 			
 			for(p=0;p<4;p++)
