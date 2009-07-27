@@ -747,7 +747,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 				// Prevent div by zero
 				if(Proj->RotIncrement == 0)
 					Proj->RotIncrement = 1;
-				rot = GetRandomInt( 360 / Proj->RotIncrement ) * Proj->RotIncrement;
+				rot = GetRandomInt( abs( 360 / Proj->RotIncrement ) ) * Proj->RotIncrement;
 			}
 		}
 		
