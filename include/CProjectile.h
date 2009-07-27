@@ -117,7 +117,6 @@ private:
 	Color		iColour;
 	AbsTime		fIgnoreWormCollBeforeTime;
 	ProjTimerInfo timerInfo;
-	int			health;
 	
 	// Projectile trail
 	AbsTime		fLastTrailProj;
@@ -203,9 +202,6 @@ public:
 
 	float	getRandomFloat();
 	int		getRandomIndex()	{ return iRandom; }
-
-	void	injure(int damage) { health -= damage; }
-	int		getHealth() const { return health; }
 	
 	void	updateCollMapInfo(const VectorD2<int>* oldPos = NULL, const VectorD2<int>* oldRadius = NULL);
 	

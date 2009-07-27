@@ -22,12 +22,13 @@
 // TODO: add angle here?
 class CGameObject {
 public:
-	CGameObject() {};
-	~CGameObject() {};
+	CGameObject() : health(100.0f) {}
+	~CGameObject() {}
 
 protected:
 	CVec		vPos;
 	CVec		vVelocity;
+	float		health;
 
 public:
 
@@ -38,6 +39,11 @@ public:
 	CVec		getVelocity() const			{ return vVelocity; }
 	void		setVelocity(CVec v)			{ vVelocity = v; }
 	CVec&		velocity()					{ return vVelocity; }
+	
+	void		setHealth(float _h)			{ health = _h; }
+	float		getHealth() const			{ return health; }
+	bool		injure(float damage); // returns true if object has died
+	
 };
 
 #endif  //  __CGAMEOBJECT_H__

@@ -2502,7 +2502,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	w->getDamageReport()[offender->getID()].damage += damage;
 	w->getDamageReport()[offender->getID()].lastTime = tLX->currentTime;
-	w->Injure(damage);	// Calculate correct healthbar
+	w->injure(damage);	// Calculate correct healthbar
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
 	//printf("CClientNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
 	offender->addDamage( damage, w, client->tGameInfo );

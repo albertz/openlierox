@@ -472,7 +472,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) || // We're hosting, calculate health for pre-Beta9 clients
 		NewNet::Active() ) 
 	{
-		if(w->Injure(damage)) {
+		if(w->injure(damage)) {
 			// His dead Jim
 
 			w->setAlreadyKilled(true);

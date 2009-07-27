@@ -169,6 +169,7 @@ enum Proj_ActionType {
 	PJ_HeadingToNextOtherWorm = 23,
 	PJ_HeadingToNextEnemyWorm = 24,
 	PJ_HeadingToNextTeamMate = 25,
+	PJ_HeadTargetToUs = 26,
 	
 	__PJ_LBOUND = INT_MIN,
 	__PJ_UBOUND = INT_MAX // force enum to be of size int
@@ -179,13 +180,15 @@ static_assert(sizeof(Proj_ActionType) == sizeof(int), Proj_ActionType__SizeCheck
 
 struct ProjCollisionType;
 struct Proj_DoActionInfo;
+class CGameObject;
 
 /*
  This occurs the information when an event occurs. It's like the EventData() in the OLX event system.
  */
 struct Proj_EventOccurInfo {
 	const ProjCollisionType* colType;
-	std::set<CProjectile*> projCols;
+	typedef std::set<CGameObject*> Targets;
+	Targets targets;
 	bool timerHit;
 	TimeDiff serverTime; 
 	TimeDiff dt;

@@ -446,144 +446,6 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	return FinalWormCollisionCheck(prj, attribs, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
 }
 
-template <typename VectorType>
-static void Projectile_HandleAttractiveForceForObject(CProjectile* const prj, TimeDiff dt, VectorType objpos, VectorType& objvel)
-{
-	const proj_t *info = prj->getProjInfo();
-
-	// Check that it is visible if the gravity does not go through walls
-	if (!info->AttractiveForceThroughWalls)  {
-		if(fastTraceLine_hasAnyCollision(objpos, prj->getPos(), PX_DIRT | PX_ROCK))
-			return;
-	}
-
-	// Drag the object to us
-	CVec force = prj->getPos() - objpos;
-	float drag = (float)info->AttractiveForce;
-	static const float maxGravityRadius2 = (float)(4096*4096*2);
-	static const float weight = 4000.0f;
-	const float r2 = (info->AttractiveForceRadius <= 0) ? maxGravityRadius2 : SQR(info->AttractiveForceRadius);
-	
-	switch (info->AttractiveForceType)  {
-		case ATT_GRAVITY:  {
-			drag *= weight / MIN(force.GetLength2(), r2);
-			break;
-		}
-		case ATT_CONSTANT:  // Do not change the drag at all
-			break;
-		case ATT_LINEAR:  // Lower force if the object is far away, using the formula 1 - x/max_x
-			drag *= 1.0f - force.GetLength() / sqrtf(r2);
-			break;
-		case ATT_QUADRATIC:  {  // Lower force if the object is far away, using the formula a/x^2
-			const float len2 = force.GetLength2();
-			if (len2 != 0)  {
-				const float r = sqrtf(r2);
-				float b = sqrtf(drag * (4*weight + drag * r2)) * r / (2*drag) - r2/2;
-				float c = drag/2 - sqrtf(drag * (4*weight + drag * r2)) / (2*r);
-				drag *= weight/(len2 + b);
-				drag += c;
-			}
-			break;
-		}
-	}
-
-	objvel += force.Normalize() * drag * dt.seconds();
-
-	// Clamp to prevent weird bugs caused by high velocities
-	objvel.x = CLAMP(objvel.x, -500.0f, 500.0f);
-	objvel.y = CLAMP(objvel.y, -500.0f, 500.0f);
-}
-
-static bool Projectile_CheckAttractiveForceApplies(CWorm *owner, CWorm *w, int flags)
-{
-	if ((flags & ATC_OWNER) == ATC_OWNER && w == owner)
-		return true;
-	if ((flags & ATC_TEAMMATE) == ATC_TEAMMATE && cClient->getGeneralGameType() == GMT_TEAMS && w->getTeam() == owner->getTeam() && w!= owner)
-		return true;
-	if ((flags & ATC_ENEMY) == ATC_ENEMY)  {
-		if (cClient->getGeneralGameType() == GMT_TEAMS)
-			return w->getTeam() != owner->getTeam();
-		else
-			return w != owner;
-	}
-	return false;
-}
-
-static void Projectile_HandleAttractiveForceForWormsAndRope(CProjectile* const prj, TimeDiff dt, CWorm *worms)
-{
-	// Check
-	const proj_t *info = prj->getProjInfo();
-	if ((info->AttractiveForceObjects & (ATO_PLAYERS | ATO_ROPE)) == 0)
-		return;
-
-	CWorm *owner = &worms[CLAMP(prj->GetOwner(), 0, MAX_WORMS - 1)];
-
-	// Go through the worms and check if there are some in the radius
-	for (int i = 0; i < MAX_WORMS; i++)  {
-		CWorm *w = &worms[i];
-
-		// Only playing worms
-		if (!w->isUsed() || !w->getAlive() || w->getLives() == WRM_OUT)
-			continue;
-
-		if (!Projectile_CheckAttractiveForceApplies(owner, w, info->AttractiveForceClasses))
-			continue;
-
-		// Worm
-		if (info->AttractiveForceObjects & ATO_PLAYERS)  {
-			// In radius?
-			if (info->AttractiveForceRadius > 0 && 
-				(int)((w->getPos() - prj->getPos()).GetLength()) > info->AttractiveForceRadius)
-				continue;
-
-			Projectile_HandleAttractiveForceForObject(prj, dt, w->getPos(), w->velocity());
-		}
-
-		// Rope
-		if (info->AttractiveForceObjects & ATO_ROPE)  {
-			// In radius?
-			if (w->getNinjaRope()->isReleased() && !w->getNinjaRope()->isAttached())
-				if (info->AttractiveForceRadius > 0 &&
-				(w->getNinjaRope()->getHookPos() - prj->getPos()).GetLength() > info->AttractiveForceRadius)
-				continue;
-
-			Projectile_HandleAttractiveForceForObject(prj, dt, w->getNinjaRope()->getHookPos(), w->getNinjaRope()->hookVelocity());
-		}
-	}
-}
-
-void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, TimeDiff dt, CWorm *worms)
-{
-	// Check
-	const proj_t *info = prj->getProjInfo();
-	if ((info->AttractiveForceObjects & ATO_PROJECTILES) != ATO_PROJECTILES)
-		return;
-
-	CWorm *owner = &worms[CLAMP(prj->GetOwner(), 0, MAX_WORMS - 1)];
-
-	// Applies to all projectiles
-	if (info->AttractiveForceRadius <= 0)  {
-		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj)  {
-				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
-				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
-					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->getPos(), i->get()->vVelocity);
-			}
-		}
-
-	// Only projectiles in the given range
-	} else {
-		float r2 = (float)SQR(info->AttractiveForceRadius);
-
-		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
-			if (i->get() != prj && (prj->getPos() - i->get()->getPos()).GetLength2() <= r2)  {
-				CWorm *i_own = &worms[CLAMP(i->get()->GetOwner(), 0, MAX_WORMS - 1)];
-				if (Projectile_CheckAttractiveForceApplies(owner, i_own, info->AttractiveForceClasses))
-					Projectile_HandleAttractiveForceForObject(prj, dt, i->get()->getPos(), i->get()->vVelocity);
-			}
-		}
-	}
-}
 
 inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
@@ -591,12 +453,6 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		int len = (int)prj->vVelocity.GetLength2();
 		if (abs(len - prj->iCheckSpeedLen) > 50000)
 			prj->CalculateCheckSteps();
-	}
-
-	// Check for worms that we should attract with gravity
-	if (prj->tProjInfo->AttractiveForce != 0 && prj->tProjInfo->AttractiveForceObjects != ATO_NONE)  {
-		Projectile_HandleAttractiveForceForProjectiles(prj, dt, worms);
-		Projectile_HandleAttractiveForceForWormsAndRope(prj, dt, worms);
 	}
 	
 	/*
@@ -818,7 +674,7 @@ Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 }
 
 
-static VectorD2<float> wormAngleDiff(CWorm* w, CProjectile* prj) {
+static VectorD2<float> objectAngleDiff(CGameObject* w, CGameObject* prj) {
 	CVec diff = w->getPos() - prj->getPos(); NormalizeVector(&diff);
 	return MatrixD2<float>::Rotation(diff.x, -diff.y) * prj->getVelocity();
 }
@@ -884,11 +740,11 @@ static CWorm* nearestTeamMate(CVec pos, int worm) {
 	return best;
 }
 
-static MatrixD2<float> getVelChangeForProj(CWorm* w, CProjectile* prj, float maxAngle) {
-	if(w == NULL) return MatrixD2<float>(1.0f);
+static MatrixD2<float> getVelChangeForObject(CGameObject* target, CGameObject* obj, float maxAngle) {
+	if(target == NULL) return MatrixD2<float>(1.0f);
 	maxAngle *= (float)PI / 180.0f;
 	
-	VectorD2<float> angleDiffV = wormAngleDiff(w, prj);
+	VectorD2<float> angleDiffV = objectAngleDiff(target, obj);
 	float angleDiff = atan2f(angleDiffV.y, angleDiffV.x);
 	if(fabs(angleDiff) > fabs(maxAngle)) angleDiff = maxAngle * SIGN(angleDiff);
 	
@@ -996,8 +852,10 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			break;
 			
 		case PJ_INJUREPROJ:
-			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p)
-				(*p)->injure(Damage);
+			for(Proj_EventOccurInfo::Targets::const_iterator p = eventInfo.targets.begin(); p != eventInfo.targets.end(); ++p) {
+				if(typeid(**p) == typeid(CProjectile))
+					(*p)->injure(Damage);
+			}
 			break;
 			
 		case PJ_PLAYSOUND:
@@ -1025,57 +883,49 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			break;
 			
 		case PJ_OverwriteTargetSpeed:
-			if(eventInfo.colType && eventInfo.colType->withWorm) {
-				cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() = Speed;
-			}
-			
-			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+			for(Proj_EventOccurInfo::Targets::const_iterator p = eventInfo.targets.begin(); p != eventInfo.targets.end(); ++p) {
 				(*p)->setVelocity(Speed);
 			}
 			break;
 			
 		case PJ_MultiplyTargetSpeed:
-			if(eventInfo.colType && eventInfo.colType->withWorm) {
-				CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
-				v = SpeedMult * v;
-			}
-			
-			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+			for(Proj_EventOccurInfo::Targets::const_iterator p = eventInfo.targets.begin(); p != eventInfo.targets.end(); ++p) {
 				(*p)->setVelocity( SpeedMult * (*p)->getVelocity() );
 			}
 			break;
 			
 		case PJ_DiffTargetSpeed:
-			if(eventInfo.colType && eventInfo.colType->withWorm) {
-				CVec& v = cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity();
-				v += Speed;
-			}
-			
-			for(std::set<CProjectile*>::const_iterator p = eventInfo.projCols.begin(); p != eventInfo.projCols.end(); ++p) {
+			for(Proj_EventOccurInfo::Targets::const_iterator p = eventInfo.targets.begin(); p != eventInfo.targets.end(); ++p) {
 				(*p)->setVelocity( (*p)->getVelocity() + Speed );
 			}
 			break;
 			
 		case PJ_HeadingToNextWorm:
-			prj->velocity() = SpeedMult * getVelChangeForProj(nearestWorm(prj->getPos()), prj, 1.0f) * prj->velocity();
+			prj->velocity() = SpeedMult * getVelChangeForObject(nearestWorm(prj->getPos()), prj, 1.0f) * prj->velocity();
 			break;
 			
 		case PJ_HeadingToOwner:
 			if(prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
-				prj->velocity() = SpeedMult * getVelChangeForProj(&cClient->getRemoteWorms()[prj->GetOwner()], prj, 1.0f) * prj->velocity();
+				prj->velocity() = SpeedMult * getVelChangeForObject(&cClient->getRemoteWorms()[prj->GetOwner()], prj, 1.0f) * prj->velocity();
 			}
 			break;
 			
 		case PJ_HeadingToNextOtherWorm:
-			prj->velocity() = SpeedMult * getVelChangeForProj(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity() = SpeedMult * getVelChangeForObject(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
 			break;
 			
 		case PJ_HeadingToNextEnemyWorm:
-			prj->velocity()  = SpeedMult * getVelChangeForProj(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity()  = SpeedMult * getVelChangeForObject(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
 			break;
 			
 		case PJ_HeadingToNextTeamMate:
-			prj->velocity() = SpeedMult * getVelChangeForProj(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity() = SpeedMult * getVelChangeForObject(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			break;
+			
+		case PJ_HeadTargetToUs:
+			for(Proj_EventOccurInfo::Targets::const_iterator obj = eventInfo.targets.begin(); obj != eventInfo.targets.end(); ++obj) {
+				(*obj)->setVelocity(SpeedMult * getVelChangeForObject(prj, *obj, 1.0f) * (*obj)->getVelocity() );
+			}
 			break;
 			
 		case __PJ_LBOUND: case __PJ_UBOUND:
@@ -1157,7 +1007,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 }
 
 
-static inline bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurInfo& ev, CProjectile* prj, const LX56ProjAttribs& attribs, CProjectile* p) {
+static inline bool checkProjHit(const Proj_ProjHitEvent& info, std::set<CGameObject*>& projs, CProjectile* prj, const LX56ProjAttribs& attribs, CProjectile* p) {
 	if(p == prj) return true;
 	if(info.Target && p->getProjInfo() != info.Target) return true;
 	if(!info.ownerWorm.match(prj->GetOwner(), p)) return true;
@@ -1169,10 +1019,10 @@ static inline bool checkProjHit(const Proj_ProjHitEvent& info, Proj_EventOccurIn
 	if(info.Width >= 0 && info.Height >= 0) { if(!CProjectile_CollisionWith(prj, p, attribs, info.Width/2, info.Height/2)) return true; }
 	else { if(!CProjectile_CollisionWith(prj, p, attribs)) return true; }
 	
-	ev.projCols.insert(p);
+	projs.insert(p);
 	
-	if(info.MaxHitCount < 0 && ev.projCols.size() >= (size_t)info.MinHitCount) return false; // no need to check further
-	if(ev.projCols.size() > (size_t)info.MaxHitCount) return false; // no need to check further
+	if(info.MaxHitCount < 0 && projs.size() >= (size_t)info.MinHitCount) return false; // no need to check further
+	if(projs.size() > (size_t)info.MaxHitCount) return false; // no need to check further
 	
 	return true;
 }
@@ -1190,11 +1040,11 @@ bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, co
 			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
 			if(projs == NULL) continue;
 			for(CClient::ProjectileSet::const_iterator p = projs->begin(); p != projs->end(); ++p)
-				if(!checkProjHit(*this, ev, prj, attribs, *p)) goto finalChecks;
+				if(!checkProjHit(*this, ev.targets, prj, attribs, *p)) goto finalChecks;
 		}
 	
 finalChecks:
-	if(ev.projCols.size() >= (size_t)MinHitCount && (MaxHitCount < 0 || ev.projCols.size() <= (size_t)MaxHitCount))
+	if(ev.targets.size() >= (size_t)MinHitCount && (MaxHitCount < 0 || ev.targets.size() <= (size_t)MaxHitCount))
 		return true;
 	return false;
 }
@@ -1222,7 +1072,7 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
 	
-	const int team = (worm >= 0 && worm < MAX_WORMS) ?cClient->getRemoteWorms()[worm].getTeam() : -1;
+	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
 	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj->GetOwner()].getTeam() : -1;
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
@@ -1237,7 +1087,11 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 
 bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, const LX56ProjAttribs& attribs, Proj_DoActionInfo*) const {
 	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
-	return match(eventInfo.colType->wormId, prj);
+	if(match(eventInfo.colType->wormId, prj)) {
+		eventInfo.targets.insert(&cClient->getRemoteWorms()[eventInfo.colType->wormId]);
+		return true;
+	}
+	return false;
 }
 
 

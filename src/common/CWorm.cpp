@@ -103,7 +103,7 @@ void CWorm::Clear()
 	iSuicides = 0;
 	fDamage = 0.0f;
 
-	fHealth = 100.0f;
+	health = 100.0f;
 	iLives = 10;
 	bAlive = false;
 	iDirection = DIR_RIGHT;
@@ -441,7 +441,7 @@ void CWorm::Spawn(CVec position) {
 	fVisibilityChangeTime = 0;
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
-	fHealth = 100.0f;
+	health = 100.0f;
 	iMoveDirection = DIR_RIGHT;
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
@@ -1113,17 +1113,6 @@ void CWorm::incrementDirtCount(int d) {
 ///////////////////
 // Injure me
 // Returns true if i was killed by this injury
-bool CWorm::Injure(float damage)
-{
-	fHealth -= damage;
-
-	if(fHealth < 0.0f) {
-		fHealth = 0.0f;
-		return true;
-	}
-
-	return false;
-}
 
 
 ///////////////////
@@ -1183,7 +1172,7 @@ bool CWorm::GiveBonus(CBonus *b)
 	if(b->getType() == BNS_HEALTH) {
 
 		// If our health is at 100 or higher, don't pick it up
-		if(fHealth >= 100.0f) // Some mods have healing weapons, so the check is >= instead of == (breaks old behavior)
+		if(health >= 100.0f) // Some mods have healing weapons, so the check is >= instead of == (breaks old behavior)
 			return false;
 
 		// Health between 10% - 50%
@@ -1370,7 +1359,7 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( bFollowOverride );
     COPY( fLastCarve );
 	COPY( fLoadingTime );
-	COPY( fHealth );
+	COPY( health );
 	// TODO: why not fDamage?
 	COPY( bAlive );
 	COPY( fTimeofDeath );
@@ -1419,7 +1408,7 @@ void CWorm::NewNet_RestoreWormState(CWorm * w)
 	COPY( bFollowOverride );
     COPY( fLastCarve );
 	COPY( fLoadingTime );
-	COPY( fHealth );
+	COPY( health );
 	COPY( bAlive );
 	COPY( fTimeofDeath );
 	COPY( iDirection );

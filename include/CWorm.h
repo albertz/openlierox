@@ -244,7 +244,6 @@ private:
 	// Game
 	float		fLoadingTime;
 	bool		bDrawMuzzle;
-	float		fHealth;
 	int			iLives;
 	bool		bAlive;
 	AbsTime		fTimeofDeath;
@@ -409,7 +408,6 @@ public:
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
-	bool		Injure(float damage);
 	bool		Kill();
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
@@ -462,8 +460,6 @@ public:
 	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
 	
-	float		getHealth()				{ return fHealth; }
-	void		setHealth(float _h)			{ fHealth = _h; }
 	int			getLives()				{ return iLives; }
 	int			getKills()				{ return iKills; }
 	void		setLives(int l)				{ iLives = l; }
