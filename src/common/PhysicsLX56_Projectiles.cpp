@@ -720,7 +720,6 @@ static CWorm* nearestEnemyWorm(CVec pos, int worm) {
 			best = w;
 	}
 	return best;
-	
 }
 
 static CWorm* nearestTeamMate(CVec pos, int worm) {
@@ -947,11 +946,8 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			info->spawnprojectiles = true;
 	}
 	
-	if(additionalAction) {
-		Proj_EventOccurInfo ev(eventInfo);
-		ev.timerHit = false; // remove LX56 timer flag
-		additionalAction->applyTo(ev, prj, info);
-	}
+	if(additionalAction)
+		additionalAction->applyTo(eventInfo, prj, info);
 }
 
 
@@ -1373,9 +1369,7 @@ struct LX56ProjectileHandler {
 		if( result.withWorm && !doActionInfo.explode) {
 			projInfo.PlyHit.applyTo(eventInfo, prj, &doActionInfo);
 		}
-		
-		if(!result) eventInfo = Proj_EventOccurInfo::Unspec(serverTime, dt);
-		
+				
 		for(size_t i = 0; i < projInfo.actions.size(); ++i) {
 			projInfo.actions[i].checkAndApply(eventInfo, prj, attribs, &doActionInfo);
 		}
