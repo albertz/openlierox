@@ -1114,6 +1114,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\common\CGameObject.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\CGameScript.cpp"
 				>
 				<FileConfiguration
