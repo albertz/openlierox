@@ -753,6 +753,10 @@ std::string StripHtmlTags( const std::string & src )
 	xmlSetStructuredErrorFunc(NULL, &xmlErrorHandlerDummy);
 
 	std::string tmp = HtmlEntityUnpairedBrackets(src);
+
+	while( tmp.find("<br>") != std::string::npos )
+		tmp.replace( tmp.find("<br>"), 4, "\n" );
+
 	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
 
 	xmlFree(doc);

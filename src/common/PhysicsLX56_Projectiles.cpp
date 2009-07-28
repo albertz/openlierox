@@ -20,6 +20,8 @@
  */
 
 #include <cmath>
+#include <typeinfo>
+
 #include "ProjAction.h"
 #include "CGameScript.h"
 #include "CWorm.h"
