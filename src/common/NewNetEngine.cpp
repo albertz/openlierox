@@ -35,7 +35,7 @@ void SaveState()
 	NewNet_SaveEntities();
 
 	for( int i = 0; i < MAX_WORMS; i++ )
-		cClient->getRemoteWorms()[i].NewNet_SaveWormState( &SavedWormState[i] );
+		SavedWormState[i].NewNet_CopyWormState( cClient->getRemoteWorms()[i] );
 };
 
 void RestoreState()
@@ -48,7 +48,7 @@ void RestoreState()
 	NewNet_LoadEntities();
 
 	for( int i = 0; i < MAX_WORMS; i++ )
-		cClient->getRemoteWorms()[i].NewNet_RestoreWormState( &SavedWormState[i] );
+		cClient->getRemoteWorms()[i].NewNet_CopyWormState( SavedWormState[i] );
 };
 
 // TODO: make respawning server-sided and remove this function

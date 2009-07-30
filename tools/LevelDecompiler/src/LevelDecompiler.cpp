@@ -114,19 +114,19 @@ bool LevelDecompilerApp::OnInit()
 	if (!wxApp::OnInit())
 		return false;
 	
-	if( commandLineFile != "" )
+	if( commandLineFile != _("") )
 	{
 		wxString outFile;
 #ifdef WIN32
-		outFile += ".\\";
+		outFile += _(".\\");
 #else
-		outFile += "./";
+		outFile += _("./");
 #endif
-		outFile += commandLineFile.Mid( 0, commandLineFile.Len() - 4 ) + ".bmp";
+		outFile += commandLineFile.Mid( 0, commandLineFile.Len() - 4 ) + _(".bmp");
 		try {
 			DecompileLevel( commandLineFile, outFile );
 		} catch ( const Exception & e )	{
-			printf("Error: %s\n", e.message.c_str());
+			printf("Error: %s\n", (const char *)e.message.mb_str());
 		}
 		return false;
 	}

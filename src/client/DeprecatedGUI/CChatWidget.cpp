@@ -47,6 +47,7 @@ namespace DeprecatedGUI {
 bool GlobalChatWidget_enabled = false;
 
 static std::set<CChatWidget *> chatWidgets; // Instances of CChatWidget
+static Mutex chatWidgetsMutex;
 
 void ChatWidget_ChatRegisterCallbacks();
 void ChatWidget_ChatDeregisterCallbacks();
@@ -56,6 +57,8 @@ void ChatWidget_ChatNewMessage(const std::string& msg, int type);
 // Re-fills the user list
 void ChatWidget_ChatRefillUserList()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
 	const IRCClient *irc = GetGlobalIRC();
 	if ( !irc || !irc->isConnected() )
 			return;
@@ -83,6 +86,8 @@ CChatWidget::~CChatWidget()
 
 void CChatWidget::Create()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
 	CGuiSkinnedLayout::SetOffset( iX, iY );
 	
 	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
@@ -114,6 +119,8 @@ void CChatWidget::Create()
 
 void CChatWidget::Destroy()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+
 	chatWidgets.erase(this);
 	if( chatWidgets.empty() )
 		ChatWidget_ChatDeregisterCallbacks();
@@ -122,11 +129,13 @@ void CChatWidget::Destroy()
 
 void CChatWidget::EnableChat()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatRegisterCallbacks();
 }
 	
 void CChatWidget::DisableChat()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatDeregisterCallbacks();
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
@@ -136,6 +145,8 @@ void CChatWidget::DisableChat()
 
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
 	if( ! child )
 		return;
 
@@ -195,6 +206,8 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 
 void ChatWidget_ChatNewMessage(const std::string& msg, int type)
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
 		CBrowser *brw = (CBrowser *)(*cw)->getWidget(nc_ChatText);
@@ -227,6 +240,8 @@ void ChatWidget_ChatNewMessage(const std::string& msg, int type)
 // Chat disconnect (callback)
 void ChatWidget_ChatDisconnect()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); )
 	{
 		if(*cw == NULL) {
@@ -254,6 +269,8 @@ void ChatWidget_ChatConnect()
 // Update users (callback)
 void ChatWidget_ChatUpdateUsers(const std::list<std::string>& users)
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
 		CListview *lsv = (CListview *)(*cw)->getWidget(nc_UserList);
@@ -274,6 +291,8 @@ void ChatWidget_ChatUpdateUsers(const std::list<std::string>& users)
 // Register the IRC event listeners
 void ChatWidget_ChatRegisterCallbacks()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+
 	IRCClient *irc = GetGlobalIRC();
 
 	// Setup the callbacks
@@ -289,6 +308,8 @@ void ChatWidget_ChatRegisterCallbacks()
 // Clear the callbacks
 void ChatWidget_ChatDeregisterCallbacks()
 {
+	Mutex::ScopedLock lock(chatWidgetsMutex);
+
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)  {
 		irc->clearNewMessageCallback(&ChatWidget_ChatNewMessage);
@@ -300,7 +321,6 @@ void ChatWidget_ChatDeregisterCallbacks()
 
 bool CChatWidget::GlobalEnabled()
 {
-	//hints << "CChatWidget::GlobalEnabled() " << GlobalChatWidget_enabled << " cIrcChat->isDownOnce() " << cIrcChat->isDownOnce() << " " << cIrcChat->isDown() << endl;
 	if( tLX->cIrcChat.isDownOnce() )
 	{
 		GlobalChatWidget_enabled = ! GlobalChatWidget_enabled;

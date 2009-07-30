@@ -1340,11 +1340,11 @@ void CWorm::reinitInputHandler() {
 	}	
 }
 
-void CWorm::NewNet_SaveWormState(CWorm * w)
+void CWorm::NewNet_CopyWormState(const CWorm & w)
 {
 	// Macro to do less copypaste
 	// Only the gamestate variables are copied, score is updated by server in separate packet
-	#define COPY(X) w->X = X;
+	#define COPY(X) X = w.X;
 	COPY( fLastSimulationTime );
 	COPY( tState );
 	COPY( vPos );
@@ -1361,54 +1361,6 @@ void CWorm::NewNet_SaveWormState(CWorm * w)
 	COPY( fLoadingTime );
 	COPY( health );
 	// TODO: why not fDamage?
-	COPY( bAlive );
-	COPY( fTimeofDeath );
-	COPY( iDirection );
-	COPY( iMoveDirection );
-	COPY( bGotTarget );
-	COPY( fAngle );
-    COPY( fAngleSpeed );
-    COPY( fMoveSpeedX );
-	COPY( fFrame );
-	COPY( cNinjaRope );
-	COPY( fRopeTime );
-	COPY( bVisibleForWorm );
-	COPY( fVisibilityChangeTime );
-	COPY( bHooked );
-	COPY( pcHookWorm );
-	COPY( bRopeDown );
-	COPY( bRopeDownOnce );
-	COPY( fSpawnTime );
-	COPY( iCurrentWeapon );
-	COPY( bAlreadyKilled );
-	COPY( fLastAirJumpTime );
-	COPY( cDamageReport );
-	
-	COPY( NewNet_random );
-	
-	for( int i=0; i<MAX_WEAPONSLOTS; i++ )
-		COPY( tWeapons[i] );
-	#undef COPY
-};
-
-void CWorm::NewNet_RestoreWormState(CWorm * w)
-{
-	#define COPY(X) X = w->X;
-	COPY( fLastSimulationTime );
-	COPY( tState );
-	COPY( vPos );
-	COPY( vVelocity );
-	COPY( vLastPos );
-	COPY( vDrawPos );
-	COPY( bOnGround );
-	COPY( fLastInputTime );
-	COPY( lastMoveTime );
-	COPY( fServertime );
-	COPY( vFollowPos );
-	COPY( bFollowOverride );
-    COPY( fLastCarve );
-	COPY( fLoadingTime );
-	COPY( health );
 	COPY( bAlive );
 	COPY( fTimeofDeath );
 	COPY( iDirection );

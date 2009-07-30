@@ -609,8 +609,7 @@ public:
 	
 	std::map< int, DamageReport> & getDamageReport() { return cDamageReport; }
 	
-	void NewNet_SaveWormState(CWorm * w);
-	void NewNet_RestoreWormState(CWorm * w);
+	void NewNet_CopyWormState(const CWorm & w);
 	void NewNet_InitWormState( int seed );
 	
 	// HINT: saves the current time of the simulation
