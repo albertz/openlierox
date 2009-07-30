@@ -71,7 +71,6 @@ protected:
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
-	virtual void ParseUpdateLobby(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
 	virtual void ParseChatCommandCompletionSolution(CBytestream* bs) { return; }
 	virtual void ParseChatCommandCompletionList(CBytestream* bs) { return; }
@@ -84,8 +83,9 @@ protected:
 	virtual void ParseSpawnWorm(CBytestream *bs);
 	virtual void ParseWormDown(CBytestream *bs);
 	virtual void ParseUpdateWorms(CBytestream *bs);
+	virtual int  ParseWormInfo(CBytestream *bs);
 
-	void		 ParseWormInfo(CBytestream *bs);
+	void		 ParseUpdateLobby(CBytestream *bs);
 	void		 ParseWormWeaponInfo(CBytestream *bs);
 	void		 ParseText(CBytestream *bs);
 	void		 ParseGameOver(CBytestream *bs);
@@ -133,20 +133,21 @@ public:
 
 	virtual bool ParsePrepareGame(CBytestream *bs);
 	virtual void ParseUpdateLobbyGame(CBytestream *bs);
-	virtual void ParseUpdateLobby(CBytestream *bs);
-    virtual void ParseReportDamage(CBytestream *bs);
+	virtual void ParseReportDamage(CBytestream *bs);
 	virtual void ParseScoreUpdate(CBytestream *bs);
 	virtual void ParseHideWorm(CBytestream *bs);
-	virtual void SendDeath(int victim, int killer);
-	virtual void SendReportDamage(bool flush = false);
-	virtual void QueueReportDamage(int victim, float damage, int offender);
-    void ParseFeatureSettings(CBytestream* bs);
-
+	virtual int  ParseWormInfo(CBytestream *bs);
 	virtual void ParseStartGame(CBytestream *bs);
 	virtual void ParseFlagInfo(CBytestream* bs);
 	virtual void ParseTeamScoreUpdate(CBytestream* bs);
 	virtual void ParseWormProps(CBytestream* bs);
 	virtual void ParseSelectWeapons(CBytestream* bs);
+
+    void		 ParseFeatureSettings(CBytestream* bs);
+
+	virtual void SendDeath(int victim, int killer);
+	virtual void SendReportDamage(bool flush = false);
+	virtual void QueueReportDamage(int victim, float damage, int offender);
 	
 private:
     AbsTime fLastDamageReportSent;

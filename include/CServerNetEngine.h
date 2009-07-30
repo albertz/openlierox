@@ -18,7 +18,7 @@
 class GameServer;
 class CServerConnection;
 
-// This class is not finished yet (and I think it newer will be),
+// This class is not finished yet (and I think it never will be),
 // so look at it as to incorporation of all differences between OLX versions.
 // Big part of net protocol that have not changed since 0.56b is scattered around GameServer and CWorm classes
 
@@ -70,7 +70,7 @@ public:
 	
 	virtual void SendWormScore(CWorm *Worm);
 	void		 SendUpdateLobbyGame();
-	virtual void SendUpdateLobby(CServerConnection *target = NULL);
+	void		 SendUpdateLobby(CServerConnection *target = NULL);
 
 	void SendClientReady(CServerConnection* receiver); // If Receiver != NULL we're sending to worm connected during game
 	void SendWormsOut(const std::list<byte>& ids);
@@ -82,7 +82,8 @@ public:
 	virtual void SendWormProperties(CWorm* worm);
 	void SendWormProperties(bool onlyIfNotDef); // for all worms
 	static bool isWormPropertyDefault(CWorm* worm);
-	virtual void SendSelectWeapons(CWorm* worm);	
+	virtual void SendSelectWeapons(CWorm* worm);
+	virtual void SendUpdateWorm(CWorm* w, CServerNetEngine * target = NULL);
 	
 	int getConnectionArrayIndex();
 	
@@ -165,11 +166,11 @@ public:
 	virtual void SendReportDamage(bool flush = false);
 	virtual void QueueReportDamage(int victim, float damage, int offender);
 	virtual void SendWormScore(CWorm *Worm);
-	virtual void SendUpdateLobby(CServerConnection *target = NULL);
 	virtual void SendHideWorm(CWorm *worm, int forworm, bool show = false, bool immediate = false);
 	virtual void SendTeamScoreUpdate();
 	virtual void SendWormProperties(CWorm* worm);
 	virtual void SendSelectWeapons(CWorm* worm);
+	virtual void SendUpdateWorm(CWorm* w, CServerNetEngine * target = NULL);
 	
 	static void WriteFeatureSettings(CBytestream* bs);
 

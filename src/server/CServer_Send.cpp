@@ -742,48 +742,6 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 	SendPacket(&bytestr);
 }
 
-void CServerNetEngineBeta9::SendUpdateLobby(CServerConnection *target)
-{
-    CBytestream bytestr;
-    int c,i;
-
-    CServerConnection *cl = server->cClients;
-	for(c=0; c<MAX_CLIENTS; c++,cl++) 
-	{
-	    if( target )
-	    {
-    		cl = target;
-			if( c != 0 )
-				break;
-    	}
-			
-        if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
-            continue;
-
-        // Set the client worms lobby ready state
-        bool ready = false;
-	    for(i=0; i < cl->getNumWorms(); i++) 
-	    {
-		    lobbyworm_t *l = cl->getWorm(i)->getLobby();
-		    if(l)
-			    ready = l->bReady;
-	    }
-
-	    // Let all the worms know about the new lobby state
-		bytestr.writeByte(S2C_UPDATELOBBY);
-		bytestr.writeByte(cl->getNumWorms());
-		bytestr.writeByte(ready);
-		for(i=0; i<cl->getNumWorms(); i++) 
-		{
-			bytestr.writeByte(cl->getWorm(i)->getID());
-			bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
-		}
-		bytestr.writeString(cl->getClientVersion().asString());
-    }
-	SendPacket(&bytestr);
-}
-
-
 ////////////////////////
 // Hide a worm at receiver's screen
 void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
@@ -847,29 +805,47 @@ void GameServer::SendDisconnect()
 
 ///////////////////
 // Update the worm name, skin, colour etc
-void GameServer::UpdateWorm(CWorm* w)
+void CServerNetEngine::SendUpdateWorm( CWorm* w, CServerNetEngine * target )
 {
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
 	w->writeInfo(&bytestr);
-	SendGlobalPacket(&bytestr);
+	if( target != NULL )
+		target->SendPacket(&bytestr);
+	else
+		server->SendGlobalPacket(&bytestr);
+}
+
+// Version required to show question mark on damage popup number for older clients
+void CServerNetEngineBeta9::SendUpdateWorm( CWorm* w, CServerNetEngine * target )
+{
+	CBytestream bytestr;
+	bytestr.writeByte(S2C_WORMINFO);
+	bytestr.writeInt(w->getID(), 1);
+	w->writeInfo(&bytestr);
+	bytestr.writeString(w->getClient()->getClientVersion().asString());
+	if( target != NULL )
+		target->SendPacket(&bytestr);
+	else
+		server->SendGlobalPacket(&bytestr);
+}
+
+void GameServer::UpdateWorm(CWorm* w)
+{
+	w->getClient()->getNetEngine()->SendUpdateWorm(w);
 }
 
 ///////////////////
 // Update the worm names, skins, colours etc
 void GameServer::UpdateWorms()
 {
-	CBytestream bytestr;
 	CWorm* w = cWorms;
 	for(int i = 0; i < MAX_WORMS; i++, w++) {
 		if(!w->isUsed())
 			continue;
-		bytestr.writeByte(S2C_WORMINFO);
-		bytestr.writeInt(w->getID(), 1);
-		w->writeInfo(&bytestr);
+		UpdateWorm(w);
 	}
-	SendGlobalPacket(&bytestr);
 }
 
 #ifdef FUZZY_ERROR_TESTING

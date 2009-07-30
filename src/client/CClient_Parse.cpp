@@ -1272,11 +1272,11 @@ void CClientNetEngineBeta9NewNet::ParseWormDown(CBytestream *bs)
 
 ///////////////////
 // Parse a worm info packet
-void CClientNetEngine::ParseWormInfo(CBytestream *bs)
+int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 {
 	if(bs->GetRestLen() == 0) {
 		warnings << "CClientNetEngine::ParseWormInfo: data screwed up" << endl;
-		return;
+		return -1;
 	}
 	
 	int id = bs->readInt(1);
@@ -1285,7 +1285,7 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	if (id < 0 || id >= MAX_WORMS)  {
 		warnings << "CClientNetEngine::ParseWormInfo: invalid ID (" << id << ")" << endl;
 		bs->SkipAll(); // data is screwed up
-		return;
+		return -1;
 	}
 
 	// A new worm?
@@ -1320,6 +1320,18 @@ void CClientNetEngine::ParseWormInfo(CBytestream *bs)
 
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
+	return id;
+}
+
+int CClientNetEngineBeta9::ParseWormInfo(CBytestream *bs)
+{
+	int id = CClientNetEngine::ParseWormInfo(bs);
+	if( id >= 0 && id < MAX_WORMS )
+	{
+		Version ver(bs->readString());
+		client->cRemoteWorms[id].setClientVersion(ver);
+	}
+	return id;
 }
 
 static CWorm* getWorm(CClient* cl, CBytestream* bs, const std::string& fct, bool (*skipFct)(CBytestream*bs) = NULL) {
@@ -1827,14 +1839,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 
 ///////////////////
 // Parse an update-lobby packet, when worms got ready/notready
-// TODO: rename this function to make this more clear
 void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
-{
-	ParseUpdateLobby_Internal(bs);
-}
-
-// TODO: I don't want to copypaste code to CClientNetEngineBeta9::ParseUpdateLobby() so I added updatedWorms param which may be ugly, do something about that
-void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<byte> * updatedWorms)
 {
 	int numworms = bs->readByte();
 	bool ready = bs->readBool();
@@ -1847,10 +1852,6 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 		bs->Skip(numworms);
 		return;
 	}
-	/*if(numworms == 0)
-		printf("CClientNetEngine::ParseUpdateLobby: warning: numworms == 0\n");*/
-
-	std::string HostName;
 
 	for(short i=0;i<numworms;i++) {
 		byte id = bs->readByte();
@@ -1861,37 +1862,18 @@ void CClientNetEngine::ParseUpdateLobby_Internal(CBytestream *bs, std::vector<by
 			continue;
 		}
 
-
 		CWorm* w = &client->cRemoteWorms[id];
         if(w) {
 			w->getLobby()->bReady = ready;
             w->getLobby()->iTeam = team;
 			w->setTeam(team);
-			if(i==0)
-				HostName = w->getName();
         }
-        if( updatedWorms )
-        	updatedWorms->push_back(id);
 	}
 
 	// Update lobby
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
-
 }
-
-void CClientNetEngineBeta9::ParseUpdateLobby(CBytestream *bs)
-{
-	std::vector<byte> updatedWorms;
-	CClientNetEngine::ParseUpdateLobby_Internal(bs, &updatedWorms);
-	Version ver(bs->readString());
-	while( !updatedWorms.empty() )
-	{
-		client->cRemoteWorms[updatedWorms.back()].setClientVersion(ver);
-		updatedWorms.pop_back();
-	}
-}
-
 
 ///////////////////
 // Parse a worms-out (named 'client-left' before) packet

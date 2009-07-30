@@ -1642,17 +1642,12 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	{
 		// Send info about new worms to other clients.
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			CBytestream bytestr;
-			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt((*w)->getID(), 1);
-			(*w)->writeInfo(&bytestr);
-			
 			for(int j = 0; j < MAX_CLIENTS; ++j) {
 				CServerConnection* cl = &cClients[j];
 				if(cl == newcl) continue;
 				if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
 				if(cl->getNetEngine() == NULL) continue;
-				cl->getNetEngine()->SendPacket(&bytestr);
+				cl->getNetEngine()->SendUpdateWorm( *w, cl->getNetEngine() );
 			}			
 		}
 	}
@@ -1691,64 +1686,19 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			(*w)->Prepare(true);
 		}
 		
-		/*
-		// TODO: why is that needed? some lines above, we already have sent exactly that (as a global package)
-		// We have send out all worm info, that's the S2C_WORMINFO packet.
-		// If this is the host, and we have a team game: Send all the worm info back so the worms know what
-		// teams they are on
-		if( getGameMode()->GameTeams() > 1 ) {
-			
-			CWorm *w = cWorms;
-			CBytestream b;
-			
-			for(int i=0; i<MAX_WORMS; i++, w++ ) {
-				if( !w->isUsed() )
-					continue;
-				
-				// TODO: move that out here
-				// Write out the info
-				b.writeByte(S2C_WORMINFO);
-				b.writeInt(w->getID(),1);
-				w->writeInfo(&b);
-			}
-			
-			newcl->getNetEngine()->SendPacket(&b);
-		}*/
-		
 		newcl->getNetEngine()->SendPrepareGame();
 	}	
 
 	if (tLX->iGameType != GME_LOCAL) {
 		if( iState == SVS_LOBBY )
 			SendWormLobbyUpdate(); // to everbody
-		/*else
-		 {
-		 for( int i=0; i<MAX_CLIENTS; i++ )
-		 if( & cClients[i] != newcl )
-		 SendWormLobbyUpdate( & cClients[i], newcl); // send only data about new client
-		 else
-		 SendWormLobbyUpdate(newcl); // send only to new client
-		 }*/
 	}
 	
-	{
-		// Tell all the connected clients the info about these worm(s)
-		// Send all information about all worms to new client.
-		
-		CWorm* w = cWorms;
-		for (int i = 0;i < MAX_WORMS;i++, w++) {
-			
-			if (!w->isUsed())
-				continue;
-			
-			CBytestream bytestr;
-			bytestr.writeByte(S2C_WORMINFO);
-			bytestr.writeInt(w->getID(), 1);
-			w->writeInfo(&bytestr);
-			newcl->getNetEngine()->SendPacket(&bytestr);
-		}		
-	}
-		
+	// Tell all the connected clients the info about these worm(s)
+	// Send all information about all worms to new client.
+	UpdateWorms();
+	
+
 	if( iState != SVS_LOBBY ) {
 		newcl->getNetEngine()->SendTeamScoreUpdate();
 		
