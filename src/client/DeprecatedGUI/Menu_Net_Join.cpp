@@ -816,12 +816,17 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			case jl_Ready:
 				if(ev->iEventMsg == BTN_MOUSEUP) {
 					// Let the server know that my worms are now ready
-					cClient->getNetEngine()->SendUpdateLobby();
+					bool ready = true;
+					if( cClient->getNumWorms() > 0 )
+						ready = ! cClient->getWorm(0)->getLobbyReady();
+					cClient->getNetEngine()->SendUpdateLobby(ready);
 
 					// Hide the ready button
+					/*
 					CButton *btn = (CButton *)cJoinLobby.getWidget(jl_Ready);
 					btn->setEnabled(false);
                     btn->redrawBuffer();
+                    */
 				}
 				break;
 

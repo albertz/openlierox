@@ -321,7 +321,7 @@ void CClientNetEngine::SendUpdateLobby(bool ready)
 {
 	CBytestream bs;
 	bs.writeByte(C2S_UPDATELOBBY);
-	bs.writeByte(1);
+	bs.writeByte(ready);
 	client->getChannel()->AddReliablePacketToSend(bs);
 }
 
