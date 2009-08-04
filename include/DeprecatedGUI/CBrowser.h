@@ -137,29 +137,32 @@ public:
 		virtual void	DoMouseMove(int x, int y)	{  }
 		virtual void	DoMouseDown(int x, int y)	{  }
 		virtual void	DoClick(int x, int y)		{  }
+		void CopyPropertiesTo(CBrowserObject *obj) const  {
+			obj->tRect = tRect;
+			obj->tClickFunc = tClickFunc;
+			obj->tMouseMoveFunc = tMouseMoveFunc;
+			obj->tParent = tParent;
+			obj->iType = iType;
+			obj->bSelectable = bSelectable;
+		}
 
 	public:
-		CBrowser *getParent()				{ return tParent; }
-		Type getType()						{ return iType; }
+		CBrowser *getParent() const			{ return tParent; }
+		Type getType() const				{ return iType; }
 		void setClickHandler(EventHandler h) { tClickFunc = h; }
 		void setMouseMoveHandler(EventHandler h) { tMouseMoveFunc = h; }
 
 		virtual void Clear()  { tRect = MakeRect(0, 0, 0, 0); 
 				tClickFunc = NULL; tMouseMoveFunc = NULL; tClickFunc = NULL; tParent = NULL; }
 
-		virtual CBrowserObject& operator=(const CBrowserObject& oth)  {
-			assert(iType == oth.iType);
-			if (&oth != this)  {
-				tRect = oth.tRect;
-				tClickFunc = oth.tClickFunc;
-				tMouseMoveFunc = oth.tMouseMoveFunc;
-				tParent = oth.tParent;
-				bSelectable = oth.bSelectable;
-			}
+		CBrowserObject& operator=(const CBrowserObject& oth)  {
+			assert(false);
 			return *this;
 		}
 
 		virtual void Render(SDL_Surface *dest, int x, int y) = 0;
+
+		virtual CBrowserObject *Clone() const = 0;
 
 	};
 
@@ -168,18 +171,24 @@ public:
 	class CObjectGroup  {
 	private:
 		std::list<CBrowserObject *> tObjects;
+
+	protected:
+		void CopyPropertiesTo(CObjectGroup *oth) const {
+			oth->tObjects = tObjects;
+		}
 	public:
 		CObjectGroup()  {}
 		CObjectGroup(const CObjectGroup& oth)  { operator=(oth); }
-		virtual CObjectGroup& operator=(const CObjectGroup& oth)  {
-			if (&oth != this)
-				tObjects = oth.tObjects;
+		CObjectGroup& operator=(const CObjectGroup& oth)  {
+			assert(false);
 			return *this;
 		}
 		virtual ~CObjectGroup() {}
 
 		virtual void DoMouseMove(int x, int y)	{}
 		virtual void DoClick(int x, int y)		{}
+
+		virtual CObjectGroup *Clone() const = 0;
 
 		const std::list<CBrowserObject *>& getObjects()	{ return tObjects; }
 		void addObject(CBrowserObject *obj)				{ tObjects.push_back(obj); }

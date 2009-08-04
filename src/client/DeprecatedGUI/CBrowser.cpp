@@ -45,15 +45,13 @@ public:
 	CTextObject(CBrowser *parent, const std::string& text, const FontFormat& f, int x, int y) : 
 	CBrowser::CBrowserObject(parent, MakeRect(x, y, tLX->cFont.GetWidth(text), tLX->cFont.GetHeight()))
 		{ sText = text; iType = objText; tFormat = f; bSelectable = true; }
-	CTextObject(const CTextObject& oth)  { operator=(oth); }
 
-	virtual CTextObject& operator=(const CTextObject& oth)  {
-		CBrowser::CBrowserObject::operator=(oth);
-		if (&oth != this)  {
-			sText = oth.sText;
-			tFormat = oth.tFormat;
-		}
-		return *this;
+	CBrowser::CBrowserObject *Clone() const { 
+		CTextObject *res = new CTextObject();
+		CopyPropertiesTo(res);
+		res->sText = sText;
+		res->tFormat = tFormat;
+		return res;
 	}
 
 	virtual ~CTextObject() {}
@@ -146,7 +144,12 @@ public:
 	CListItemObject() { iType = objList; }
 	CListItemObject(CBrowser *parent, int x, int y) : 
 	CBrowser::CBrowserObject(parent, MakeRect(x, y, LIST_SPACING + ARROW_W * 2, tLX->cFont.GetHeight())) { iType = objList; }
-	CListItemObject(const CListItemObject& oth)  { operator=(oth); }
+
+	CBrowser::CBrowserObject *Clone() const { 
+		CListItemObject *res = new CListItemObject();
+		CopyPropertiesTo(res);
+		return res;
+	}
 
 public:
 
@@ -166,13 +169,12 @@ public:
 	CHorizontalRuleObject() { iType = objHr; tColor = Color(0, 0, 0); }
 	CHorizontalRuleObject(CBrowser *parent, Color color, const SDL_Rect& rect) : 
 	CBrowser::CBrowserObject(parent, rect) { iType = objHr; tColor = color; }
-	CHorizontalRuleObject(const CHorizontalRuleObject& oth)  { operator=(oth); }
-	CHorizontalRuleObject& operator=(const CHorizontalRuleObject& oth)  {
-		CBrowser::CBrowserObject::operator=(oth);
-		if (&oth != this)  {
-			tColor = oth.tColor;
-		}
-		return *this;
+
+	CBrowser::CBrowserObject *Clone() const { 
+		CHorizontalRuleObject *res = new CHorizontalRuleObject();
+		CopyPropertiesTo(res);
+		res->tColor = tColor;
+		return res;
 	}
 
 private:
@@ -193,14 +195,13 @@ public:
 class CLinkGroup : public CBrowser::CObjectGroup  {
 public:
 	CLinkGroup(const std::string& url) : sURL(url) {}
-	CLinkGroup(const CLinkGroup& oth) { operator=(oth); }
-
-	CLinkGroup& operator=(const CLinkGroup& oth)  {
-		CBrowser::CObjectGroup::operator=(oth);
-		if (&oth != this)
-			sURL = oth.sURL;
-		return *this;
+	
+	CBrowser::CObjectGroup *Clone() const  {
+		CLinkGroup *res = new CLinkGroup(sURL);
+		CopyPropertiesTo(res);
+		return res;
 	}
+
 private:
 	std::string sURL;
 public:
@@ -510,27 +511,17 @@ void CBrowser::AppendNode(xmlNodePtr node)
 			break;
 		if (doc_node->next)
 			doc_node = doc_node->next;
-		doc_node = doc_node->children;
+		else
+			doc_node = doc_node->children;
 	}
 
 	if (!doc_node)
 		doc_node = xmlDocGetRootElement(tHtmlDocument); // No body tag - jsut take the root element
 	
 	// Recursively append the node
-	xmlNodePtr walk_node = node;
-	while (walk_node)  {
-		xmlNodePtr sub_node = node;
-		while (sub_node) {
-			xmlNodePtr copy = xmlCopyNode(sub_node, true);
-			if (copy)
-				xmlAddChild(doc_node, copy);
-			if(sub_node != node)
-				sub_node = sub_node->next;
-			else
-				break;
-		}
-		walk_node = walk_node->next;
-	}
+	xmlNodePtr copy = xmlCopyNode(node, true);
+	if (copy)
+		xmlAddChild(doc_node, copy);
 
 	// Append the lines
 	InitNodeWalk();
