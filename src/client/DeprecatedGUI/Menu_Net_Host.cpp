@@ -1178,8 +1178,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 						// Set the team
 						CWorm *w = cServer->getWorms() + id;
-						w->getLobby()->iTeam = (w->getLobby()->iTeam + 1) % cServer->getGameMode()->GameTeams();
-						w->setTeam(w->getLobby()->iTeam);
+						w->setTeam((w->getTeam() + 1) % cServer->getGameMode()->GameTeams());
 
 						cServer->SendWormLobbyUpdate();  // Update
 						bHost_Update = true;
@@ -1361,7 +1360,6 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	player_list->SaveScrollbarPos();
 	player_list->Clear();  // Clear any old info
 
-	lobbyworm_t *lobby_worm = NULL;
 	w = cClient->getRemoteWorms();
 	CButton *cmd_button = NULL;
 	CImage *team_img = NULL;
@@ -1370,10 +1368,6 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		if (!w->isUsed())  // Don't bother with unused worms
 			continue;
 
-		lobby_worm = w->getLobby();
-
-		// Reload the worm graphics
-		w->setTeam(lobby_worm->iTeam);
 		w->ChangeGraphics(cServer->getGameMode()->GeneralGameType());
 
 		// Create and setup the command button
@@ -1387,7 +1381,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		// Add the item
 		player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
 		player_list->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);  // Command button
-		if (lobby_worm->bReady)  // Ready control
+		if (w->getLobbyReady())  // Ready control
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 		else
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
@@ -1401,8 +1395,8 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 
 		// Display the team mark if the game mode requires teams
 		if(cServer->getGameMode()->GameTeams() > 1) {
-			lobby_worm->iTeam = CLAMP(lobby_worm->iTeam, 0, 4);
-			team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
+			w->setTeam( CLAMP(w->getTeam(), 0, 4) );
+			team_img = new CImage(gfxGame.bmpTeamColours[w->getTeam()]);
 			if (!team_img)
 				continue;
 			team_img->setID(w->getID());

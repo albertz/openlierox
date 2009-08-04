@@ -174,17 +174,10 @@ void CWorm::Clear()
 
 	bmpGibs = NULL;
 
-	// Lobby
-	tLobbyState.bHost = false;
-	tLobbyState.bReady = false;
-	tLobbyState.iType = LBY_OPEN;
-	tLobbyState.iTeam = 0;
+	bLobbyReady = false;
 
 	bForceWeapon_Name = false;
 
-	
-
-	
 	// Graphics
 	cHealthBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
@@ -414,10 +407,7 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 // Setup the lobby details
 void CWorm::setupLobby()
 {
-	tLobbyState.bHost = false;
-	tLobbyState.iType = LBY_USED;
-	tLobbyState.bReady = false;
-	tLobbyState.iTeam = 0;
+	bLobbyReady = false;
 }
 
 

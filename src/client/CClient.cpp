@@ -2087,9 +2087,6 @@ void CClient::RemoveWorm(int id)
 		cRemoteWorms[id].setLocal(false);
 		cRemoteWorms[id].setTagIT(false);
 		cRemoteWorms[id].setTagTime(TimeDiff(0));
-		
-		if(cRemoteWorms[id].getLobby())
-			cRemoteWorms[id].getLobby()->iType = LBY_OPEN;
 	}
 	else
 		errors << "CClient::RemoveWorm: cRemoteWorms not set" << endl;

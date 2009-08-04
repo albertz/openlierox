@@ -1322,7 +1322,6 @@ void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 		return;
 	}
 
-	w->getLobby()->iTeam = team;
 	w->setTeam(team);
 	cServer->UpdateWorm(w);
 	// TODO: SendWormLobbyUpdate: is this still needed? which information does it contain which are not in UpdateWorm?

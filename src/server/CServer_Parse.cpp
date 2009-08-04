@@ -755,9 +755,7 @@ void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 
 	// Set the client worms lobby ready state
 	for (i = 0; i < cl->getNumWorms(); i++) {
-		lobbyworm_t *l = cl->getWorm(i)->getLobby();
-		if (l)
-			l->bReady = ready;
+		cl->getWorm(i)->setLobbyReady( ready );
 	}
 	
 	// Let all the worms know about the new lobby state

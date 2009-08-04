@@ -732,22 +732,17 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		player_list->Clear();  // Clear first
 
 		CWorm *w = cClient->getRemoteWorms();
-		lobbyworm_t *lobby_worm = NULL;
 		CImage *team_img = NULL;
 
 		for (i=0; i < MAX_PLAYERS; i++, w++)  {
 			if (!w->isUsed())  // Don't bother with unused worms
 				continue;
 
-			lobby_worm = w->getLobby();
-
-			// Reload the worm graphics
-			w->setTeam(lobby_worm->iTeam);
 			w->ChangeGraphics(cClient->getGameLobby()->iGeneralGameType);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
-			if (lobby_worm->bReady)  // Ready control
+			if (w->getLobbyReady())  // Ready control
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 			else
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyNotReady, NULL);
@@ -756,7 +751,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Display the team mark if TDM
 			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
-				team_img = new CImage(gfxGame.bmpTeamColours[lobby_worm->iTeam]);
+				team_img = new CImage(gfxGame.bmpTeamColours[w->getTeam()]);
 				if (!team_img)
 					continue;
 				team_img->setID(w->getID());

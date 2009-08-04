@@ -713,9 +713,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
         // Set the client worms lobby ready state
         bool ready = false;
 	    for(short i=0; i < cl->getNumWorms(); i++) {
-		    lobbyworm_t *l = cl->getWorm(i)->getLobby();
-		    if(l)
-			    ready = l->bReady;
+		    ready = cl->getWorm(i)->getLobbyReady();
 	    }
 
 	    // Let all the worms know about the new lobby state
@@ -725,7 +723,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 			bytestr.writeByte(ready);
 			for(short i=0; i<cl->getNumWorms(); i++) {
 				bytestr.writeByte(cl->getWorm(i)->getID());
-				bytestr.writeByte(cl->getWorm(i)->getLobby()->iTeam);
+				bytestr.writeByte(cl->getWorm(i)->getTeam());
 			}
 		} else {
 			int written = 0;
@@ -734,7 +732,7 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 				bytestr.writeByte(1);
 				bytestr.writeByte(ready);
 				bytestr.writeByte(cl->getWorm(written)->getID());
-				bytestr.writeByte(cl->getWorm(written)->getLobby()->iTeam);
+				bytestr.writeByte(cl->getWorm(written)->getTeam());
 				written++;
 			}
 		}

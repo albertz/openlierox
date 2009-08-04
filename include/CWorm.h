@@ -42,31 +42,43 @@
 #pragma warning(disable:4355)
 #endif
 
-#define		MAX_WEAPONSLOTS		10
+enum { MAX_WEAPONSLOTS = 10 };
 
 // Direction
-#define		DIR_LEFT			0
-#define		DIR_RIGHT			1
+enum DIR_TYPE
+{
+	DIR_LEFT = 0, 
+	DIR_RIGHT = 1 
+};
 
-#define		WRM_OUT				-1
-#define		WRM_UNLIM			-2
+enum WRM_LIVES
+{
+	WRM_OUT = -1,
+	WRM_UNLIM = -2 
+};
 
 // AI Game Type
-#define		GAM_RIFLES			0
-#define		GAM_100LT			1
-#define		GAM_MORTARS			2
-#define		GAM_OTHER			3
+enum GAM_AI_TYPE
+{
+	GAM_RIFLES	= 0,
+	GAM_100LT	= 1,
+	GAM_MORTARS	= 2,
+	GAM_OTHER	= 3
+};
 
 // Cells
-#define		CELL_CURRENT		0
-#define		CELL_LEFT			1
-#define		CELL_DOWN			2
-#define		CELL_RIGHT			3
-#define		CELL_UP				4
-#define		CELL_LEFTDOWN		5
-#define		CELL_RIGHTDOWN		6
-#define		CELL_LEFTUP			7
-#define		CELL_RIGHTUP		8
+enum CELL_TYPE
+{
+	CELL_CURRENT		= 0,
+	CELL_LEFT			= 1,
+	CELL_DOWN			= 2,
+	CELL_RIGHT			= 3,
+	CELL_UP				= 4,
+	CELL_LEFTDOWN		= 5,
+	CELL_RIGHTDOWN		= 6,
+	CELL_LEFTUP			= 7,
+	CELL_RIGHTUP		= 8
+};
 
 struct WormType;
 class CWpnRest;
@@ -94,28 +106,8 @@ struct randweapons_t {
 class CServerConnection;
 class CBonus;
 
-// TODO: why do we need that lobbyworm_t struct? Merge it with CWorm
 
-// Lobby worm details
-#define		LBY_OPEN	0
-#define		LBY_CLOSED	1
-#define		LBY_USED	2
-
-struct lobbyworm_t {
-	int			iType;
-    int         iTeam;
-	bool		bHost;
-	bool		bReady;
-};
-
-
-
-/*
-
-    Artificial Intelligence
-
-
-*/
+//    Artificial Intelligence
 
 // AI states
 enum {
@@ -224,7 +216,7 @@ private:
 	CVec		vFollowPos;
 	bool		bFollowOverride;
 
-    AbsTime       fLastCarve;
+    AbsTime		fLastCarve;
 	
 
 	
@@ -286,8 +278,8 @@ private:
 
 	// Network
 	AbsTime		fFrameTimes[NUM_FRAMES];
-	lobbyworm_t tLobbyState;
-		// server
+
+	// server
 	worm_state_t tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
 	AbsTime		fLastUpdateWritten;
@@ -301,9 +293,9 @@ private:
 	CVec		vPreLastEstimatedVel;
 	int			iLastCharge;
 	int			iLastCurWeapon;
-
 	
 	AbsTime		fSpawnTime;
+	bool		bLobbyReady; // Lobby Ready state
 
 	// Graphics
 	CWormSkin	cSkin;
@@ -543,16 +535,17 @@ public:
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 	bool		getGameReady()			{ return bGameReady; }
 
+	void		setLobbyReady(bool _g)		{ bLobbyReady = _g; }
+	bool		getLobbyReady() const		{ return bLobbyReady; }
+
 	void		setProfile(profile_t *p)	{ tProfile = p; }
 	profile_t	*getProfile()				{ return tProfile; }
 
-	void		setTeam(int _t)				{ iTeam = _t; if(getLobby()) getLobby()->iTeam = _t; }
+	void		setTeam(int _t)				{ iTeam = _t; }
 	int			getTeam() const				{ return iTeam; }
 
 	SmartPointer<SDL_Surface> getGibimg()			{ return bmpGibs; }
 	SmartPointer<DynDrawIntf> getPicimg()			{ return skinPreviewDrawer; }
-
-	lobbyworm_t	*getLobby()				{ return &tLobbyState; }
 
 	bool		getTagIT()				{ return bTagIT; }
 	void		setTagIT(bool _t);

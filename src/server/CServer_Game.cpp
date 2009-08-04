@@ -276,7 +276,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	// Adjust the score if there were multiple suicides
 	if (suicidesCount > 1)  {
 		if (tLXOptions->tGameInfo.iLives != WRM_UNLIM) // Substracting from infinite makes no sense
-			vict->setLives(MAX(WRM_OUT, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
+			vict->setLives(MAX<int>(WRM_OUT, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
 	}
 
 	getGameMode()->Kill(vict, kill);
@@ -634,7 +634,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	for(i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
 			cWorms[i].Unprepare();
-			cWorms[i].getLobby()->bReady = false;
+			cWorms[i].setLobbyReady( false );
 			cWorms[i].setGameReady(false);
 			cWorms[i].setTagIT(false);
 			cWorms[i].setTagTime(TimeDiff(0));
