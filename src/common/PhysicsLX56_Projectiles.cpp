@@ -855,7 +855,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		case PJ_INJUREPROJ:
 			for(Proj_EventOccurInfo::Targets::const_iterator p = eventInfo.targets.begin(); p != eventInfo.targets.end(); ++p) {
 				if(typeid(**p) == typeid(CProjectile))
-					(*p)->injure(Damage);
+					(*p)->injure((float)Damage);
 			}
 			break;
 			
