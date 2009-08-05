@@ -4,9 +4,9 @@ cd ..
 
 for dump in coredumps/*.dmp; do
 
-	rev=`Win32MinidumpAnalyzer.exe "$dump" 0 | grep -o '_r[0-9]*' | sed 's/_//'`
+	rev=`Win32MinidumpAnalyzer.exe "$dump" 0 | grep -E -o '_r[0-9]+' | sed 's/_//'`
 	if [ -z "$rev" ]; then
-		rev=`Win32MinidumpAnalyzer.exe "$dump" 0 | grep -o '_beta[0-9]*' | sed 's/_//'`
+		rev=`Win32MinidumpAnalyzer.exe "$dump" 0 | grep -E -o '_beta[0-9]+' | sed 's/_//'`
 	fi
 	if [ -z "$rev" ]; then
 		echo Coredump $dump rev `Win32MinidumpAnalyzer.exe "$dump" 0` - cannot determine revnumber > "$dump.txt"
@@ -17,7 +17,21 @@ for dump in coredumps/*.dmp; do
 	Win32MinidumpAnalyzer.exe "$dump" 2 >> "$dump.txt"
 	if [ \! -e "debuginfo/$rev" ] ; then
 		echo No debuginfo for rev $rev >> "$dump.txt"
-		continue
+		revnumActual=`echo $rev | grep -E -o '[0-9]+'`
+		revnumMinDiff=100000000
+		for f in `ls debuginfo` ; do
+			revnumCheck=`echo $f | grep -E -o '[0-9]+'`
+			revnumDiff=`expr $revnumCheck - $revnumActual | sed 's/-//'`
+			if [ $revnumDiff -lt $revnumMinDiff ] ; then
+				revnumMinDiff=$revnumDiff
+				rev=$f
+			fi
+		done
+		if [ \! -e "debuginfo/$rev" ] ; then
+			echo Cannot find any debuginfo for rev $rev >> "$dump.txt"
+			continue
+		fi
+		echo Found closest matching debuginfo - rev $rev >> "$dump.txt"
 	fi
 	
 	cdb -y "debuginfo/$rev" -i "debuginfo/$rev" -z "$dump" \

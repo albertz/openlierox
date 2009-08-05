@@ -17,7 +17,7 @@ echo on
 
 cd c:\openlierox
 
-bash -c "c:/openlierox/distrib/nightlyCompileOlx.sh x:/nightlyCompileOlx.log c:/lxalliance.net.cookie"
+bash -c "c:/openlierox/distrib/nightlyCompileOlx.sh x:/nightlyCompileOlx.log c:/lxalliance.net.cookie x:/releases"
 
 echo ----------- Nightly build finished at %DATE% >> x:\nightlyCompileOlx.log
 

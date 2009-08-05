@@ -5,10 +5,12 @@ if [ -e svn.log ] ; then rm svn.log; fi
 RECOMPILE=true
 UPLOAD=false
 
+svn cleanup
+
 while $RECOMPILE ; do
 
 	echo ----------- SVN update >> "$1"
-
+	
 	svn log -r "BASE:HEAD" > svn1.log
 	cat svn1.log >> "$1"
 	cat svn1.log >> svn.log
@@ -58,15 +60,15 @@ fi
 REVNUM=`grep -o 'r[0-9]*' optional-includes/generated/Version_generated.h`
 
 cmd /c save_debug_info.bat $REVNUM
-zip -r debuginfo_$REVNUM.zip debuginfo/$REVNUM
-# echo Debug symbols attached | email --attach debuginfo_$REVNUM.zip --subject 'Debug symbols automated mail' --smtp-server 172.17.57.25 karel.petranek@tiscali.cz"
+zip -r "$3/debuginfo_$REVNUM.zip" debuginfo/$REVNUM
+# echo Debug symbols attached | email --attach "$3/debuginfo_$REVNUM.zip" --subject 'Debug symbols automated mail' --smtp-server 172.17.57.25 karel.petranek@tiscali.cz"
 
 # Upload file to lxalliance.net gallery - non-trivial!
 # Requires file lxalliance.net.cookie with your auth data 
 # (copy it from Firefox cookies, it's named LXA_forum)
 
-cp distrib/win32/OpenLieroX.exe OpenLieroX_$REVNUM.exe
-zip OpenLieroX_$REVNUM.zip OpenLieroX_$REVNUM.exe
+cp distrib/win32/OpenLieroX.exe "$3/OpenLieroX_$REVNUM.exe"
+zip "$3/OpenLieroX_$REVNUM.zip" "$3/OpenLieroX_$REVNUM.exe"
 
 echo ----------- Uploading to LXA >> "$1"
 
@@ -78,7 +80,7 @@ curl	--cookie "$2" \
 SC=`grep '"sc"' temp.html | sed 's/.*value="\([^"]*\).*/\1/'`
 
 curl	--referer "http://lxalliance.net/forum/index.php?action=mgallery;sa=post;album=15" \
-	-F "file=@OpenLieroX_${REVNUM}.zip;type=application/zip" \
+	-F "file=@$3/OpenLieroX_${REVNUM}.zip;type=application/zip" \
 	-F "title=OpenLieroX_${REVNUM}_EXE" \
 	-F "desc=OpenLieroX $REVNUM EXE nightly build" \
 	-F "desc_mode=0" \
