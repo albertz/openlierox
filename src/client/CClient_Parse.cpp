@@ -937,16 +937,16 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		if(w->isUsed()) {
 			num_worms++;
 
-			if(isReconnect && w->isPrepared())
-				continue;
-			
-			notes << "Client: preparing worm " << i << ":" << w->getName() << " for battle" << endl;
-			
 			// (If this is a local game?), we need to reload the worm graphics
 			// We do this again because we've only just found out what type of game it is
 			// Team games require changing worm colours to match the team colour
 			// Inefficient, but i'm not going to redesign stuff for a simple gametype
 			w->ChangeGraphics(client->getGeneralGameType());
+
+			if(isReconnect && w->isPrepared())
+				continue;
+			
+			notes << "Client: preparing worm " << i << ":" << w->getName() << " for battle" << endl;
 
 			// Also set some game details
 			w->setLives(client->tGameInfo.iLives);
