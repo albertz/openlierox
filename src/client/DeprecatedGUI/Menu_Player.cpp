@@ -272,6 +272,8 @@ void Menu_PlayerFrame()
 // Initialize the newplayer settings
 void Menu_Player_NewPlayerInit()
 {
+	iPlayerMode = 0;
+
     cNewPlayer.SendMessage( np_Name,    TXS_SETTEXT, "", 0);
     cNewPlayer.SendMessage( np_Type,    CBM_SETCURSEL, PRF_HUMAN->toInt(), 0 );
     cNewPlayer.SendMessage( np_Red,		SLM_SETVALUE, 128, 0);
@@ -296,6 +298,8 @@ void Menu_Player_NewPlayerInit()
 // Initialize the viewplayer settings
 void Menu_Player_ViewPlayerInit()
 {
+	iPlayerMode = 1;
+
     // Add the players to the list
 	CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);
     lv->Clear();
@@ -393,10 +397,11 @@ void Menu_Player_NewPlayer(int mouse)
 					AddProfile(name, skin, "", "",r, g, b, type->toInt(), level);
 
 					// Shutdown
-					Menu_PlayerShutdown();
+					//Menu_PlayerShutdown();
 					//SaveProfiles();
 
-					Menu_MainInitialize();
+					//Menu_MainInitialize();
+					Menu_Player_ViewPlayerInit();
 					return;
 				}
 				break;
