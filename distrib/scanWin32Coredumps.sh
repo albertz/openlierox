@@ -15,7 +15,8 @@ for dump in coredumps/*.dmp; do
 		echo $separator >> "$dump.txt"
 		continue
 	fi
-	echo Coredump $dump rev $rev > "$dump.txt"
+	echo $dump > "$dump.txt"
+	echo $rev >> "$dump.txt"
 	echo $separator >> "$dump.txt"
 	Win32MinidumpAnalyzer.exe "$dump" 1 >> "$dump.txt"
 	echo $separator >> "$dump.txt"
@@ -54,10 +55,10 @@ for dump in coredumps/*.dmp; do
 		echo $separator >> "$dump.txt"
 		cdb -y "$debuginfodir/$rev" -i "$debuginfodir/$rev" -z "$dump" \
 			-srcpath "$debuginfodir/$rev/sources" -lines \
-			-c ".kframes 100; .ecxr; kp; ~*kp; q" >> "$dump.txt",
+			-c ".kframes 100; .echo -----ECXR-----; .ecxr; .echo -----CRASHED_THREAD_STACK-----; kp; .echo -----THREADS_STACK-----; ~*kp; q" >> "$dump.txt"
 		echo $separator >> "$dump.txt"
 	else
-		file=`echo $fileline | grep -o '[^@]*' | sed 's/ //'`
+		file=`echo $fileline | grep -o '.*@' | sed 's/@//' | sed 's/ //'`
 		line=`echo $fileline | grep -o '@ [0-9]*' | sed 's/@ //'`
 		echo Exception at $file: $line >> "$dump.txt"
 		echo $separator >> "$dump.txt"
@@ -68,7 +69,7 @@ for dump in coredumps/*.dmp; do
 		fi
 		cdb -y "$debuginfodir/$rev" -i "$debuginfodir/$rev" -z "$dump" \
 			-srcpath "$debuginfodir/$rev/sources" -lines \
-			-c ".kframes 100; lsp -a 14; lsf $file; ls $line; .ecxr; kp; ~*kp; q" >> "$dump.txt"
+			-c ".kframes 100; lsp -a 14; .echo -----SOURCE-----; lsf $file; ls $line; .echo -----ECXR-----; .ecxr; .echo -----CRASHED_THREAD_STACK-----; kp; .echo -----THREADS_STACK-----; ~*kp; q" >> "$dump.txt"
 		echo $separator >> "$dump.txt"
 	fi
 done
