@@ -1490,10 +1490,14 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 				if (bGotScrollbar)
 					if (tSelected->_iID >= (cScrollbar.getItemsperbox()-1 + cScrollbar.getValue()))
 						cScrollbar.setValue( cScrollbar.getValue()+1 );
-				return LV_NONE;
+				return LV_CHANGED;
 			}
 		} else {
 			tSelected = tItems;
+			tSelected->bSelected = true;
+			if (bGotScrollbar)
+				cScrollbar.setValue(0);
+			return LV_CHANGED;
 		}
 	}
 
@@ -1512,7 +1516,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 					if (bGotScrollbar)
 						if (cScrollbar.getValue() > tSelected->_iID)
 							cScrollbar.setValue( cScrollbar.getValue()-1 );
-					return LV_NONE;
+					return LV_CHANGED;
 				}
 			}
 		}
@@ -1527,6 +1531,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			tSelected->bSelected = true;
 			if (bGotScrollbar)
 				cScrollbar.setValue(0);
+			return LV_CHANGED;
 		}
 	}
 
@@ -1539,6 +1544,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			tSelected->bSelected = true;
 			if (bGotScrollbar)
 				cScrollbar.setValue(tSelected->_iID);
+			return LV_CHANGED;
 		}
 	}
 
