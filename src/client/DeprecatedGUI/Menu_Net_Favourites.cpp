@@ -590,7 +590,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && renameServerMsg && tMenu->bMenuRunning) {
-		Menu_RedrawMouse(false);
+		Menu_RedrawMouse(true);
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
