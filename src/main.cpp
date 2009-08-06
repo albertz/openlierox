@@ -327,8 +327,15 @@ int main(int argc, char *argv[])
 	//setvbuf(stdout, NULL, _IOLBF, 1024);
 #endif
 
+	// Initialize the LieroX structure
+	tLX = new lierox_t;
+
 	DoSystemChecks();
+	if(!InitNetworkSystem())
+		errors << "Failed to initialize the network library";
 	InitThreadPool();
+	if(!SdlNetEvent_Init())
+		errors << "Failed to initialize the network library SDL event";
 	
 	apppath = argv[0];
 	binary_dir = argv[0];
@@ -516,6 +523,7 @@ quit:
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
+	SdlNetEvent_UnInit();
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 
@@ -524,13 +532,6 @@ quit:
 	
 	UnInitTaskManager();
 
-	// LieroX structure
-	// HINT: must be after end of all threads because we could access it
-	if(tLX) {
-		delete tLX;
-		tLX = NULL;
-	}
-		
 	if(bRestartGameAfterQuit) {
 		bRestartGameAfterQuit = false;
 		hints << "-- Restarting game --" << endl;
@@ -538,6 +539,16 @@ quit:
 	}
 
 	UnInitThreadPool();
+
+	// Network
+	QuitNetworkSystem();
+
+	// LieroX structure
+	// HINT: must be after end of all threads because we could access it
+	if(tLX) {
+		delete tLX;
+		tLX = NULL;
+	}
 	
 	notes << "Good Bye and enjoy your day..." << endl;
 
@@ -870,12 +881,6 @@ int InitializeLieroX()
 	// Setup the HTTP proxy
 	AutoSetupHTTPProxy();
 
-	// Initialize the LieroX structure
-	tLX = new lierox_t;
-    if(!tLX) {
-        SystemError("Error: InitializeLieroX() Out of memory on creating lierox_t");
-		return false;
-    }
 	tLX->bVideoModeChanged = false;
 	tLX->bQuitGame = false;
 	tLX->bQuitCtrlC = false;
@@ -899,13 +904,7 @@ int InitializeLieroX()
 	// Initialize the loading screen
 	InitializeLoading();
 
-	DrawLoading(0, "Initializing network");
-
-	// Initialize the network
-	if(!InitNetworkSystem()) {
-		SystemError("Error: Failed to initialize the network library");
-		return false;
-	}
+	//DrawLoading(0, "Initializing network");
 
 	DrawLoading(5, "Initializing client and server");
 
@@ -1297,9 +1296,6 @@ void ShutdownLieroX()
 	ShutdownTimers();
 
 	xmlCleanupParser();
-
-	// Network
-	QuitNetworkSystem();
 
 	notes << "Everything was shut down" << endl;
 }

@@ -73,6 +73,9 @@ bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
 // general networking
 bool	InitNetworkSystem();
 bool	QuitNetworkSystem();
+// Init SDL even when network data arrives (requires ThreadPool to be started)
+bool	SdlNetEvent_Init();
+void	SdlNetEvent_UnInit();
 
 
 class NetworkSocket {

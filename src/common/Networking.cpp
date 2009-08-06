@@ -194,7 +194,7 @@ static int SdlNetEventThreadMain( void * param )
 	return 0;
 }
 
-static bool SdlNetEvent_Init()
+bool SdlNetEvent_Init()
 {
 	if( SdlNetEvent_Inited || !tLX )
 		return false;
@@ -213,7 +213,7 @@ static bool SdlNetEvent_Init()
 	return true;
 }
 
-static void SdlNetEvent_UnInit() {
+void SdlNetEvent_UnInit() {
 	if( ! SdlNetEvent_Inited )
 		return;
 
@@ -338,12 +338,6 @@ bool InitNetworkSystem() {
 
 	bNetworkInited = true;
 	
-	if(!SdlNetEvent_Init()) {
-		SystemError("SdlNetEvent_Init failed");
-		nlSystemUseChangeLock.endWriteAccess();
-		return false;
-	}
-
 	dnsCache = new ThreadVar<dnsCacheT>();
 
 #ifndef WIN32
@@ -358,7 +352,6 @@ bool InitNetworkSystem() {
 //////////////////
 // Shutdowns the network system
 bool QuitNetworkSystem() {
-	SdlNetEvent_UnInit();
 	nlSystemUseChangeLock.startWriteAccess();
 	nlShutdown();	
 	bNetworkInited = false;
