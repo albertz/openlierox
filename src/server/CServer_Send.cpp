@@ -803,35 +803,30 @@ void GameServer::SendDisconnect()
 
 ///////////////////
 // Update the worm name, skin, colour etc
-void CServerNetEngine::SendUpdateWorm( CWorm* w, CServerNetEngine * target )
+void CServerNetEngine::SendUpdateWorm( CWorm* w )
 {
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
 	w->writeInfo(&bytestr);
-	if( target != NULL )
-		target->SendPacket(&bytestr);
-	else
-		server->SendGlobalPacket(&bytestr);
+	SendPacket(&bytestr);
 }
 
 // Version required to show question mark on damage popup number for older clients
-void CServerNetEngineBeta9::SendUpdateWorm( CWorm* w, CServerNetEngine * target )
+void CServerNetEngineBeta9::SendUpdateWorm( CWorm* w )
 {
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
 	w->writeInfo(&bytestr);
 	bytestr.writeString(w->getClient()->getClientVersion().asString());
-	if( target != NULL )
-		target->SendPacket(&bytestr);
-	else
-		server->SendGlobalPacket(&bytestr);
+	SendPacket(&bytestr);
 }
 
 void GameServer::UpdateWorm(CWorm* w)
 {
-	w->getClient()->getNetEngine()->SendUpdateWorm(w);
+	for(int i = 0; i < MAX_CLIENTS; i++)
+		cClients[i].getNetEngine()->SendUpdateWorm(w);
 }
 
 ///////////////////

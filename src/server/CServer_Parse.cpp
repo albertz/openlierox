@@ -1645,7 +1645,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 				if(cl == newcl) continue;
 				if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
 				if(cl->getNetEngine() == NULL) continue;
-				cl->getNetEngine()->SendUpdateWorm( *w, cl->getNetEngine() );
+				cl->getNetEngine()->SendUpdateWorm( *w );
 			}			
 		}
 	}

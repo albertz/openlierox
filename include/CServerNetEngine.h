@@ -83,7 +83,7 @@ public:
 	void SendWormProperties(bool onlyIfNotDef); // for all worms
 	static bool isWormPropertyDefault(CWorm* worm);
 	virtual void SendSelectWeapons(CWorm* worm);
-	virtual void SendUpdateWorm(CWorm* w, CServerNetEngine * target = NULL);
+	virtual void SendUpdateWorm(CWorm* w);
 	
 	int getConnectionArrayIndex();
 	
@@ -170,7 +170,7 @@ public:
 	virtual void SendTeamScoreUpdate();
 	virtual void SendWormProperties(CWorm* worm);
 	virtual void SendSelectWeapons(CWorm* worm);
-	virtual void SendUpdateWorm(CWorm* w, CServerNetEngine * target = NULL);
+	virtual void SendUpdateWorm(CWorm* w);
 	
 	static void WriteFeatureSettings(CBytestream* bs);
 
