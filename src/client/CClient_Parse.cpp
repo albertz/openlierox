@@ -2112,16 +2112,12 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 {
 	// Don't allow anyone to kill us in lobby
 	if (!client->bGameReady)  {
-		printf("CClientNetEngine::ParseWormDown: not playing - ignoring\n");
+		notes << "CClientNetEngine::ParseWormDown: not playing - ignoring" << endl;
 		bs->Skip(1);  // ID
 		return;
 	}
 
 	byte id = bs->readByte();
-	byte n;
-	CWorm *w;
-	float amount;
-	short i;
 
 	if(id < MAX_WORMS) {
 		// If the respawn time is 0, the worm can be spawned even before the simulation is done
@@ -2139,14 +2135,14 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		StartSound( sfxGame.smpDeath[s], client->cRemoteWorms[id].getPos(), client->cRemoteWorms[id].getLocal(), -1, client->cLocalWorms[0]);
 
 		// Spawn some giblets
-		w = &client->cRemoteWorms[id];
+		CWorm* w = &client->cRemoteWorms[id];
 
-		for(n=0;n<7;n++)
+		for(short n=0;n<7;n++)
 			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
 
 		// Blood
-		amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
-		for(i=0;i<amount;i++) {
+		float amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+		for(int i=0;i<amount;i++) {
 			float sp = GetRandomNum()*100+50;
 			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
