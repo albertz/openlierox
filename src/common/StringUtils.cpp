@@ -754,10 +754,17 @@ std::string StripHtmlTags( const std::string & src )
 
 	std::string tmp = HtmlEntityUnpairedBrackets(src);
 
-	while( tmp.find("<br>") != std::string::npos )
-		tmp.replace( tmp.find("<br>"), 4, "\n" );
+	std::string tmp1;
+	std::string::size_type idx1 = 0, idx2 = 0;
 
-	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
+	while( ( idx2 = tmp.find("<br>", idx1) ) != std::string::npos )
+	{
+		tmp1.append( tmp, idx1, idx2 - idx1 );
+		idx1 = idx2 + 4;
+	}
+	tmp1.append( tmp, idx1, tmp.size() - idx1 );
+
+	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp1.c_str(), "utf-8", &handler, &str );
 
 	xmlFree(doc);
 	xmlResetLastError();
