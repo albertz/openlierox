@@ -2018,7 +2018,7 @@ void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
 void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	if (client->iNetStatus != NET_CONNECTED)  {
-		printf("CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring\n");
+		notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring" << endl;
 
 		// Skip to get the right position
 		bs->Skip(1);
