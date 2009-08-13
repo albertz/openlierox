@@ -332,10 +332,8 @@ int main(int argc, char *argv[])
 
 	DoSystemChecks();
 	if(!InitNetworkSystem())
-		errors << "Failed to initialize the network library";
+		errors << "Failed to initialize the network library" << endl;
 	InitThreadPool();
-	if(!SdlNetEvent_Init())
-		errors << "Failed to initialize the network library SDL event";
 	
 	apppath = argv[0];
 	binary_dir = argv[0];
@@ -398,6 +396,10 @@ startpoint:
 		SystemError("Could not initialize LieroX.");
 		return -1;
 	}
+
+	// we need nMaxFPS from LX, so do it here
+	if(!SdlNetEvent_Init())
+		errors << "Failed to initialize the network library SDL event";
 	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
