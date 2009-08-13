@@ -117,6 +117,7 @@ inline char* itoa(int val, char* buf, int base) {
 void			TrimSpaces(std::string& szLine);
 bool			replace(const std::string& text, const std::string& what, const std::string& with, std::string& result);
 bool			replace(std::string& text, const std::string& what, const std::string& with);
+std::string		Replace(const std::string & text, const std::string& what, const std::string& with);
 std::string		replacemax(const std::string& text, const std::string& what, const std::string& with, std::string& result, int max);
 std::string		replacemax(const std::string& text, const std::string& what, const std::string& with, int max);
 std::string		strip(const std::string& text, int width);
@@ -158,6 +159,7 @@ bool 			Decompress( const std::string & in, std::string * out );	// Decompress, 
 size_t			StringChecksum( const std::string & data );
 bool			FileChecksum( const std::string & path, size_t * _checksum, size_t * _filesize );
 std::string		Base64Encode(const std::string &data);
+std::string		Base64Decode(const std::string &data);
 std::string		UrlEncode(const std::string &data); // Substitute space with + and all non-alphanum symbols with %XX
 std::string		AutoDetectLinks(const std::string& text);
 std::string		HtmlEntityUnpairedBrackets(const std::string &txt);

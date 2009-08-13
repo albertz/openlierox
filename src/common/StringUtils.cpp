@@ -96,6 +96,24 @@ bool replace(std::string& text, const std::string& what, const std::string& with
 	return one_repl;
 }
 
+// Previous function has uncomfortable API
+std::string Replace(const std::string & text, const std::string& what, const std::string& with)
+{
+	std::string tmp;
+	std::string::size_type idx1 = 0, idx2 = 0;
+
+	while( ( idx2 = text.find(what, idx1) ) != std::string::npos )
+	{
+		tmp.append( text, idx1, idx2 - idx1 );
+		tmp.append(with);
+		idx1 = idx2 + what.size();
+	}
+	if( tmp == "" )
+		return text;
+	tmp.append( text, idx1, text.size() - idx1 );
+	return tmp;
+}
+
 // chrcasecmp - like strcasecomp, but for a single char
 int chrcasecmp(const char c1, const char c2)
 {
@@ -752,19 +770,9 @@ std::string StripHtmlTags( const std::string & src )
 	/* GCS: override structuredErrorFunc to mine so I can ignore errors */
 	xmlSetStructuredErrorFunc(NULL, &xmlErrorHandlerDummy);
 
-	std::string tmp = HtmlEntityUnpairedBrackets(src);
+	std::string tmp = Replace(HtmlEntityUnpairedBrackets(src), "<br>", "\n" );
 
-	std::string tmp1;
-	std::string::size_type idx1 = 0, idx2 = 0;
-
-	while( ( idx2 = tmp.find("<br>", idx1) ) != std::string::npos )
-	{
-		tmp1.append( tmp, idx1, idx2 - idx1 );
-		idx1 = idx2 + 4;
-	}
-	tmp1.append( tmp, idx1, tmp.size() - idx1 );
-
-	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp1.c_str(), "utf-8", &handler, &str );
+	htmlDocPtr doc = htmlSAXParseDoc( (xmlChar *) tmp.c_str(), "utf-8", &handler, &str );
 
 	xmlFree(doc);
 	xmlResetLastError();
@@ -1125,51 +1133,124 @@ bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _files
 	return true;
 }
 
-// Base 64 encoding
-// Copied from wget sources
-std::string Base64Encode(const std::string &data)
+// Oops, wget is under GPL, so replaced Base64Encode() with version from CURL which is under LGPL
+/* ---- Base64 Encoding/Decoding Table --- */
+static const char table64[]=
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+static std::string decodeQuantum(const std::string &src, std::string::size_type pos)
 {
-	std::string dest;
-  /* Conversion table.  */
-  static const char tbl[64] = {
-    'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P',
-    'Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f',
-    'g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v',
-    'w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'
-  };
-  /* Access bytes in DATA as unsigned char, otherwise the shifts below
-     don't work for data with MSB set. */
-  const unsigned char *s = (const unsigned char *)data.c_str();
-  /* Theoretical ANSI violation when length < 3. */
-  const unsigned char *end = s + data.length() - 2;
+  unsigned int x = 0;
+  int i;
+  char *found;
+  std::string dest(3, '\0');
 
-  /* Transform the 3x8 bits to 4x6 bits, as required by base64.  */
-  for (; s < end; s += 3)
-    {
-      dest += tbl[s[0] >> 2];
-      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
-      dest += tbl[((s[1] & 0xf) << 2) + (s[2] >> 6)];
-      dest += tbl[s[2] & 0x3f];
-    }
+  for(i = 0; i < 4 && src.size() > i + pos ; i++) {
+    if((found = strchr(table64, src[i+pos])) != NULL)
+      x = (x << 6) + (unsigned int)(found - table64);
+    else if(src[i+pos] == '=')
+      x = (x << 6);
+  }
 
-  /* Pad the result if necessary...  */
-  switch (data.length() % 3)
-    {
-    case 1:
-      dest += tbl[s[0] >> 2];
-      dest += tbl[(s[0] & 3) << 4];
-      dest += '=';
-      dest += '=';
-      break;
-    case 2:
-      dest += tbl[s[0] >> 2];
-      dest += tbl[((s[0] & 3) << 4) + (s[1] >> 4)];
-      dest += tbl[((s[1] & 0xf) << 2)];
-      dest += '=';
-      break;
-    }
-
+  dest[2] = (char)((unsigned char)(x & 255));
+  x >>= 8;
+  dest[1] = (char)((unsigned char)(x & 255));
+  x >>= 8;
+  dest[0] = (char)((unsigned char)(x & 255));
   return dest;
+}
+
+std::string Base64Decode(const std::string &src)
+{
+  size_t length = 0;
+  int equalsTerm = 0;
+  int i;
+  int numQuantums;
+  size_t rawlen=0;
+  std::string::size_type srcPos = 0;
+
+  while( src.size() > length && src[length] != '=' )
+    length++;
+  /* A maximum of two = padding characters is allowed */
+  if(src[length] == '=') {
+    equalsTerm++;
+    if(src[length+equalsTerm] == '=')
+      equalsTerm++;
+  }
+  numQuantums = (length + equalsTerm) / 4;
+
+  /* Don't allocate a buffer if the decoded length is 0 */
+  if(numQuantums <= 0)
+    return "";
+
+  rawlen = (numQuantums * 3) - equalsTerm;
+
+  std::string newstr;
+
+  /* Decode all but the last quantum (which may not decode to a
+  multiple of 3 bytes) */
+  for(i = 0; i < numQuantums - 1; i++) {
+    newstr += decodeQuantum(src.c_str(), srcPos);
+    srcPos += 4;
+  }
+
+  std::string lastQuantum = decodeQuantum(src, srcPos);
+  for(i = 0; i < 3 - equalsTerm; i++)
+    newstr += lastQuantum[i];
+
+  return newstr;
+}
+
+std::string Base64Encode(const std::string &indata)
+{
+  unsigned char ibuf[3];
+  unsigned char obuf[4];
+  int i;
+  int inputparts;
+  std::string::size_type inPos = 0;
+
+  std::string output;
+
+  while(indata.length() > inPos) {
+    for (i = inputparts = 0; i < 3; i++) {
+      if(indata.length() > inPos) {
+        inputparts++;
+        ibuf[i] = (unsigned char)indata[inPos];
+        inPos++;
+      }
+      else
+        ibuf[i] = 0;
+    }
+
+    // TODO: ugly, substitute with constants
+    obuf[0] = (unsigned char)  ((ibuf[0] & 0xFC) >> 2);
+    obuf[1] = (unsigned char) (((ibuf[0] & 0x03) << 4) | \
+                               ((ibuf[1] & 0xF0) >> 4));
+    obuf[2] = (unsigned char) (((ibuf[1] & 0x0F) << 2) | \
+                               ((ibuf[2] & 0xC0) >> 6));
+    obuf[3] = (unsigned char)   (ibuf[2] & 0x3F);
+
+    switch(inputparts) {
+    case 1: /* only one byte read */
+      output += table64[obuf[0]];
+      output += table64[obuf[1]]; 
+      output += "==";
+      break;
+    case 2: /* two bytes read */
+      output += table64[obuf[0]];
+      output += table64[obuf[1]];
+      output += table64[obuf[2]];
+      output += "=";
+      break;
+    default:
+      output += table64[obuf[0]];
+      output += table64[obuf[1]];
+      output += table64[obuf[2]];
+      output += table64[obuf[3]];
+      break;
+    }
+  }
+  return output;
 }
 
 // Substitute space with + and all non-alphanum symbols with %XX
@@ -1190,10 +1271,7 @@ std::string UrlEncode(const std::string &data)
 		};
 	};
 	return ret;
-}; 
-
-
-
+};
 
 bool strSeemsLikeChatCommand(const std::string& str) {
 	if(str.size() == 0) return false;
