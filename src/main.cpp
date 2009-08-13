@@ -399,7 +399,7 @@ startpoint:
 
 	// we need nMaxFPS from LX, so do it here
 	if(!SdlNetEvent_Init())
-		errors << "Failed to initialize the network library SDL event";
+		errors << "Failed to initialize the network library SDL event" << endl;
 	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
