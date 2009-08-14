@@ -116,7 +116,6 @@ bool EventQueue::wait(EventItem& event) {
 	}
 	
 	event = data->queue.front();
-	
 	data->queue.pop_front();
 	
 	return true;

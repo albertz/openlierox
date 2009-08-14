@@ -914,7 +914,8 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 #ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
-		errors << "WriteSocket " << debugString() << ": " << GetLastErrorStr() << endl;
+		std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
+		errors << "WriteSocket " << debugString() << ": " << errStr << endl;
 		return NL_INVALID;
 	}
 
@@ -934,15 +935,21 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 	}
 
 	NLint ret = nlRead(m_socket->sock, buffer, nbytes);
-
-#ifdef DEBUG
+	
 	// Error checking
 	if (ret == NL_INVALID)  {
-		if (!IsMessageEndSocketErrorNr(GetSocketErrorNr()))
-			errors << "ReadSocket " << debugString() << ": " << GetLastErrorStr() << endl;
+		// messageend-error is just that there is no data; we can ignore that
+		if (!IsMessageEndSocketErrorNr(GetSocketErrorNr())) {
+			std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
+#ifdef DEBUG
+			errors << "ReadSocket " << debugString() << ": " << errStr << endl;
+#endif // DEBUG
+			
+			// Is this perhaps the solution for the Bad file descriptor error?
+			//Close();
+		}
 		return NL_INVALID;
 	}
-#endif // DEBUG
 
 	return ret;
 }
