@@ -772,6 +772,10 @@ std::string NetworkSocket::debugString() const {
 		NetworkAddr addr;
 		if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) != NL_FALSE)
 			NetAddrToString(addr, localStr);
+		else {
+			localStr = "ERRORLOCALADDR(" + GetLastErrorStr() + ")";
+			ResetSocketError();
+		}
 		ret += " " + localStr;
 	}
 	if(m_state == NSS_CONNECTED) {
@@ -780,6 +784,10 @@ std::string NetworkSocket::debugString() const {
 		NetworkAddr addr;
 		if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) != NL_FALSE)
 			NetAddrToString(remoteAddress(), remoteStr);
+		else {
+			remoteStr = "ERRORREMOTEADDR(" + GetLastErrorStr() + ")";
+			ResetSocketError();
+		}
 		ret += remoteStr;
 	}
 	return ret;
@@ -796,6 +804,7 @@ bool NetworkSocket::OpenReliable(Port port) {
 #ifdef DEBUG
 		errors << "OpenReliableSocket: " << GetLastErrorStr() << endl;
 #endif
+		ResetSocketError();
 		return false;
 	}
 	m_socket->sock = ret;
@@ -816,6 +825,7 @@ bool NetworkSocket::OpenUnreliable(Port port) {
 #ifdef DEBUG
 		errors << "OpenUnreliableSocket: " << GetLastErrorStr() << endl;
 #endif
+		ResetSocketError();
 		return false;
 	}
 	m_socket->sock = ret;
@@ -836,6 +846,7 @@ bool NetworkSocket::OpenBroadcast(Port port) {
 #ifdef DEBUG
 		errors << "OpenBroadcastSocket: " << GetLastErrorStr() << endl;
 #endif
+		ResetSocketError();
 		return false;
 	}
 	m_socket->sock = ret;
@@ -856,7 +867,15 @@ bool NetworkSocket::Connect(const NetworkAddr& addr) {
 		return false;
 	}
 	
-	return (nlConnect(m_socket->sock, getNLaddr(addr)) != NL_FALSE);
+	if(nlConnect(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
+#ifdef DEBUG
+		errors << "Connect: " << GetLastErrorStr() << endl;
+#endif
+		ResetSocketError();
+		return false;
+	}
+	
+	return true;
 }
 
 bool NetworkSocket::Listen() {
@@ -865,7 +884,15 @@ bool NetworkSocket::Listen() {
 		return false;
 	}
 	
-	return (nlListen(m_socket->sock) != NL_FALSE);
+	if(nlListen(m_socket->sock) == NL_FALSE) {
+#ifdef DEBUG
+		errors << "Listen: " << GetLastErrorStr() << endl;
+#endif
+		ResetSocketError();
+		return false;
+	}
+	
+	return true;
 }
 
 void NetworkSocket::Close() {
@@ -911,18 +938,19 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 	
 	NLint ret = nlWrite(m_socket->sock, buffer, nbytes);
 
-#ifdef DEBUG
 	// Error checking
 	if (ret == NL_INVALID)  {
+#ifdef DEBUG
 		std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 		errors << "WriteSocket " << debugString() << ": " << errStr << endl;
+#endif // DEBUG
+		ResetSocketError();
 		return NL_INVALID;
 	}
 
 	/*if (ret == 0) {  // HINT: this is not an error, it is one of the ways to find out if a socket is writeable
 		errors << "WriteSocket: Could not send the packet, network buffers are full." << endl;
 	}*/
-#endif // DEBUG
 
 	return ret;
 }
@@ -940,14 +968,15 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 	if (ret == NL_INVALID)  {
 		// messageend-error is just that there is no data; we can ignore that
 		if (!IsMessageEndSocketErrorNr(GetSocketErrorNr())) {
-			std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 #ifdef DEBUG
+			std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 			errors << "ReadSocket " << debugString() << ": " << errStr << endl;
 #endif // DEBUG
 			
 			// Is this perhaps the solution for the Bad file descriptor error?
 			//Close();
 		}
+		ResetSocketError();
 		return NL_INVALID;
 	}
 
@@ -1071,8 +1100,11 @@ NetworkAddr NetworkSocket::localAddress() const {
 		return addr;
 	}
 	
-	if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::localAddress: cannot get local address (" << debugString() << ")" << endl;
+	if(nlGetLocalAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
+		errors << "NetworkSocket::localAddress: cannot get local address (" << debugString() << "): " << GetLastErrorStr() << endl;
+		ResetSocketError();
+		return addr;
+	}
 	
 	return addr;
 }
@@ -1085,9 +1117,12 @@ NetworkAddr NetworkSocket::remoteAddress() const {
 		return addr;
 	}
 	
-	if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE)
-		errors << "NetworkSocket::remoteAddress: cannot get remote address" << "(" << debugString() << ")" << endl;
-
+	if(nlGetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
+		errors << "NetworkSocket::remoteAddress: cannot get remote address" << "(" << debugString() << "): " << GetLastErrorStr() << endl;
+		ResetSocketError();
+		return addr;
+	}
+	
 	return addr;
 }
 
@@ -1105,7 +1140,8 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 	if(nlSetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
 		std::string addrStr = "INVALIDADDR";
 		NetAddrToString(addr, addrStr);
-		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": failed to set destination " << addrStr << endl;
+		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": failed to set destination " << addrStr << ": " << GetLastErrorStr() << endl;
+		ResetSocketError();
 		return false;
 	}
 	
@@ -1187,7 +1223,13 @@ bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
 		return false;
 	}
 	
-	return (nlStringToAddr(string.c_str(), getNLaddr(addr)) != NL_FALSE);
+	if(nlStringToAddr(string.c_str(), getNLaddr(addr)) == NL_FALSE) {
+		errors << "StringToNetAddr: cannot use " << string << " as address: " << GetLastErrorStr() << endl;
+		ResetSocketError();
+		return false;
+	}
+	
+	return true;
 }
 
 bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
@@ -1212,16 +1254,21 @@ unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 bool SetNetAddrPort(NetworkAddr& addr, unsigned short port) {
 	if(getNLaddr(addr) == NULL)
 		return false;
-	else
-		return (nlSetAddrPort(getNLaddr(addr), port) != NL_FALSE);
+	else {
+		if(nlSetAddrPort(getNLaddr(addr), port) == NL_FALSE) {
+			errors << "SetNetAddrPort: cannot set port " << port << ": " << GetLastErrorStr() << endl;
+			ResetSocketError();
+			return false;
+		}
+		return true;
+	}
 }
 
 bool AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2) {
 	if(getNLaddr(addr1) == getNLaddr(addr2))
 		return true;
-	else {
-		return (nlAddrCompare(getNLaddr(addr1), getNLaddr(addr2)) != NL_FALSE);
-	}
+	else
+		return nlAddrCompare(getNLaddr(addr1), getNLaddr(addr2)) != NL_FALSE;
 }
 
 
