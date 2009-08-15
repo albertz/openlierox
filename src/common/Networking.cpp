@@ -1215,7 +1215,7 @@ static bool isStringValidIP(const std::string& str) {
 }
 
 // accepts "%i.%i.%i.%i[:%l]" as input
-bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
+bool StringToNetAddr(const std::string& string, NetworkAddr& addr, std::string* errorStr) {
 	if(getNLaddr(addr) == NULL) return false;
 	
 	if(!isStringValidIP(string)) {
@@ -1225,6 +1225,7 @@ bool StringToNetAddr(const std::string& string, NetworkAddr& addr) {
 	
 	if(nlStringToAddr(string.c_str(), getNLaddr(addr)) == NL_FALSE) {
 		errors << "StringToNetAddr: cannot use " << string << " as address: " << GetLastErrorStr() << endl;
+		if(errorStr) *errorStr = GetLastErrorStr();
 		ResetSocketError();
 		return false;
 	}
@@ -1251,12 +1252,13 @@ unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 		return nlGetPortFromAddr(getNLaddr(addr));
 }
 
-bool SetNetAddrPort(NetworkAddr& addr, unsigned short port) {
+bool SetNetAddrPort(NetworkAddr& addr, unsigned short port, std::string* errorStr) {
 	if(getNLaddr(addr) == NULL)
 		return false;
 	else {
 		if(nlSetAddrPort(getNLaddr(addr), port) == NL_FALSE) {
 			errors << "SetNetAddrPort: cannot set port " << port << ": " << GetLastErrorStr() << endl;
+			if(errorStr) *errorStr = GetLastErrorStr();
 			ResetSocketError();
 			return false;
 		}

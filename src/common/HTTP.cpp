@@ -1625,7 +1625,7 @@ bool CHttp::ProcessInternal()
 		iProcessingResult = ProcessPOST();
 		return iProcessingResult != HTTP_PROC_PROCESSING;
 	case htaHead:
-		errors("HTTP HEAD not yet implemented\n");
+		errors << "HTTP HEAD not yet implemented" << endl;
 	}
 
 	iProcessingResult = HTTP_PROC_ERROR; // Should not happen
