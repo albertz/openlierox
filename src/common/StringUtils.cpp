@@ -1142,7 +1142,7 @@ static std::string decodeQuantum(const std::string &src, std::string::size_type 
 {
   unsigned int x = 0;
   int i;
-  char *found;
+  const char *found;
   std::string dest(3, '\0');
 
   for(i = 0; i < 4 && src.size() > i + pos ; i++) {
