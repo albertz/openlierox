@@ -82,6 +82,8 @@ CGuiSkin::CGuiSkin()
 	cActiveLayout = NULL;
 	cPreviousLayout = NULL;
 
+	iBufferCount = 1;
+
 	// Listen to the events
 	sdlEvents[SDL_KEYDOWN].handler() += getEventHandler(this, &CGuiSkin::SDL_OnKeyDown);
 	sdlEvents[SDL_KEYUP].handler() += getEventHandler(this, &CGuiSkin::SDL_OnKeyUp);
@@ -228,15 +230,15 @@ void CGuiSkin::Frame()
 		if (cPreviousLayout->needsRepaint())
 			cPreviousLayout->DoRepaint();
 		cPreviousLayout->Process();
-		cPreviousLayout->Draw(SDL_GetVideoSurface(), 0, 0);
+		cPreviousLayout->Draw(VideoPostProcessor::videoSurface(), 0, 0);
 	}
 
 	cActiveLayout->Process();
 	if (cActiveLayout->needsRepaint())
 		cActiveLayout->DoRepaint();
 
-	cActiveLayout->Draw(SDL_GetVideoSurface(), 0, 0);
-	DrawCursor(SDL_GetVideoSurface());
+	cActiveLayout->Draw(VideoPostProcessor::videoSurface(), 0, 0);
+	DrawCursor(VideoPostProcessor::videoSurface());
 	doVideoFrameInMainThread();
 }
 

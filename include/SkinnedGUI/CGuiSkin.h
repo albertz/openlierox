@@ -35,6 +35,7 @@ private:
 	std::string	sName;
 	std::string	sPath;
 	std::string	sAuthor;
+	int iBufferCount;  // For double-buffering, triple-buffering etc.
 
 	CGuiSkinnedLayout *cPreviousLayout; // For GUI effects
 	CGuiSkinnedLayout *cActiveLayout;
@@ -47,6 +48,8 @@ public:
 	const std::string& getPath()	{ return sPath; }
 	const std::string& getAuthor()	{ return sAuthor; }
 	std::string getSkinFilePath(const std::string& file);
+	void setBufferCount(int c)		{ iBufferCount = c; }
+	int getBufferCount() const		{ return iBufferCount; }
 
 	// public events
 	struct WidgetData {

@@ -413,23 +413,6 @@ startpoint:
 
 	tLX->currentTime = GetTime();
 
-	if( tLXOptions->bNewSkinnedGUI )
-	{
-		// Just for test - it's not real handler yet
-		SkinnedGUI::cMainSkin->Load("default");
-		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
-		while (!tLX->bQuitGame)  {
-			tLX->fDeltaTime = GetTime() - tLX->currentTime;
-			tLX->currentTime = GetTime();
-
-			WaitForNextEvent();
-			SkinnedGUI::cMainSkin->Frame();
-		}
-
-		ShutdownLieroX();
-		return 0;
-	}
-
 	DrawLoading(60, "Initializing menu system");
 
 	// Initialize menu
@@ -622,6 +605,25 @@ static bool inMainGameLoop = false;
 static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
+
+	if( tLXOptions->bNewSkinnedGUI )
+	{
+		// Just for test - it's not real handler yet
+		SkinnedGUI::cMainSkin->Load("default");
+		SkinnedGUI::cMainSkin->OpenLayout("test.skn");
+		while (!tLX->bQuitGame)  {
+			tLX->fDeltaTime = GetTime() - tLX->currentTime;
+			tLX->currentTime = GetTime();
+
+			WaitForNextEvent();
+			SkinnedGUI::cMainSkin->Frame();
+		}
+
+		ShutdownLieroX();
+		return 0;
+	}
+
+
 	while(!tLX->bQuitGame) {
 		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
 		
