@@ -93,24 +93,25 @@ public:
 	CItemStyle cActiveStyle;
 	CItemStyle cClickedStyle;
 
-public:
+protected:
 	// Operators
-	virtual CItem& operator=(const CItem& i2)  {
+	void CopyInfoTo(CItem& i2) const  {
 		if (&i2 != this)  {
-			sIndex = i2.sIndex;
-			sName = i2.sName;
-			tImage = i2.tImage;
-			bActive = i2.bActive;
-			bDown = i2.bDown;
-			sCSSClass = i2.sCSSClass;
-			sCSSID = i2.sCSSID;
-			bInlineStyle = i2.bInlineStyle;
-			cNormalStyle = i2.cNormalStyle;
-			cActiveStyle = i2.cActiveStyle;
-			cClickedStyle = i2.cClickedStyle;
+			i2.sIndex = sIndex;
+			i2.sName = sName;
+			i2.tImage = tImage;
+			i2.bActive = bActive;
+			i2.bDown = bDown;
+			i2.sCSSClass = sCSSClass;
+			i2.sCSSID = sCSSID;
+			i2.bInlineStyle = bInlineStyle;
+			i2.cNormalStyle = cNormalStyle;
+			i2.cActiveStyle = cActiveStyle;
+			i2.cClickedStyle = cClickedStyle;
 		}
-		return *this;
 	}
+
+public:
 
 	// Attributes
 	virtual int getHeight();
@@ -137,6 +138,8 @@ public:
 	bool hasInlineStyle()						{ return bInlineStyle; }
 
 	virtual void ApplyTag(xmlNodePtr node);
+
+	virtual CItem *Clone() const = 0;
 
 	// Methods
 	virtual void Draw(SDL_Surface *bmpDest, const SDL_Rect& r) = 0;

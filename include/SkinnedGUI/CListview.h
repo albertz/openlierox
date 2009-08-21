@@ -58,15 +58,14 @@ protected:
 	bool bVisible;
 
 	// Operators
-	virtual CListviewSubitem& operator=(const CListviewSubitem& i2)  {
-		CItem::operator =(i2);
+	void CopySubInfoTo(CListviewSubitem& i2) const  {
+		CopyInfoTo(i2);
 		if (&i2 != this)  {
-			iType = i2.iType;
-			cItem = i2.cItem;
-			bUseCustomStyle = i2.bUseCustomStyle;
-			bVisible = i2.bVisible;
+			i2.iType = iType;
+			i2.cItem = cItem;
+			i2.bUseCustomStyle = bUseCustomStyle;
+			i2.bVisible = bVisible;
 		}
-		return *this;
 	}
 
 	void RepaintParent();
@@ -91,16 +90,13 @@ public:
 // Image subitem
 class CImageSubitem : public CListviewSubitem  {
 public:
-	CImageSubitem(const CImageSubitem *oth) : CListviewSubitem(sub_Image) { *this = *oth; }
+	CImageSubitem(const CImageSubitem *oth) : CListviewSubitem(sub_Image) { oth->CopySubInfoTo(*this); }
 	CImageSubitem(CListviewItem *item, SDL_Surface *image) : CListviewSubitem(sub_Image)  
 		{ cItem = item; setImage(image); }
 	CImageSubitem(const CImageSubitem& sub) : CListviewSubitem(sub_Image)	{ operator=(sub); }
 
 	// Operators
-	CImageSubitem& operator= (const CImageSubitem& s2)  {
-		CListviewSubitem::operator =(s2);
-		return *this;
-	}
+	CItem *Clone() const { return new CImageSubitem(this); }
 
 	void Draw(SDL_Surface *bmpDest, const SDL_Rect& r);
 };
@@ -108,16 +104,13 @@ public:
 // Text subitem
 class CTextSubitem : public CListviewSubitem  {
 public:
-	CTextSubitem(CTextSubitem *oth) : CListviewSubitem(sub_Text) { *this = *oth; }
+	CTextSubitem(const CTextSubitem *oth) : CListviewSubitem(sub_Text) { oth->CopySubInfoTo(*this); }
 	CTextSubitem(CListviewItem *item, const std::string& text) : CListviewSubitem(sub_Text)
 		{ cItem = item; setName(text); }
-	CTextSubitem(const CTextSubitem& sub) : CListviewSubitem(sub_Text)	{ operator=(sub); }
+	CTextSubitem(const CTextSubitem& sub) : CListviewSubitem(sub_Text)	{ sub.CopySubInfoTo(*this); }
 
 	// Operators
-	CTextSubitem& operator= (const CTextSubitem& s2)  {
-		CListviewSubitem::operator =(s2);
-		return *this;
-	}
+	CItem *Clone() const { return new CTextSubitem(this); }
 
 	void Draw(SDL_Surface *bmpDest, const SDL_Rect& r);
 };
@@ -125,22 +118,16 @@ public:
 // Widget subitem
 class CWidgetSubitem : public CListviewSubitem  {
 public:
-	CWidgetSubitem(CWidgetSubitem *oth) : CListviewSubitem(sub_Widget) { *this = *oth; }
+	CWidgetSubitem(const CWidgetSubitem *oth) : CListviewSubitem(sub_Widget) { oth->CopySubInfoTo(*this); cWidget = oth->cWidget; }
 	CWidgetSubitem(CListviewItem *item, CWidget *widget);
-	CWidgetSubitem(const CWidgetSubitem& sub) : CListviewSubitem(sub_Widget)	{ operator=(sub); }
+	CWidgetSubitem(const CWidgetSubitem& sub) : CListviewSubitem(sub_Widget)	{ sub.CopySubInfoTo(*this); cWidget = sub.cWidget; }
 	~CWidgetSubitem();
 
 private:
 	CWidget *cWidget;
 
 public:
-	CWidgetSubitem& operator=(const CWidgetSubitem& i2)  {
-		CListviewSubitem::operator =(i2);
-		if (&i2 != this)  {
-			cWidget = i2.cWidget;
-		}
-		return *this;
-	}
+	CItem *Clone() const { return new CWidgetSubitem(this); }
 
 
 	void Draw(SDL_Surface *bmpDest, const SDL_Rect& r);
@@ -157,7 +144,7 @@ class CListviewItem : public CItem {
 public:
 	CListviewItem(CListview *parent) : CItem("") 
 		{ cParent = parent; bVisible = true; bSelected = false; bSelectedInactive = false; }
-	CListviewItem(const CListviewItem& it) : CItem("")  { operator=(it); }
+	CListviewItem(const CListviewItem& it) : CItem("")  { it.CopyItemInfoTo(*this); }
 
 	~CListviewItem();
 
@@ -176,21 +163,22 @@ public:
 	CItemStyle	cSelectedStyle;
 	CItemStyle	cSelectedInactiveStyle; // For selected item when the listview is not focused
 
-public:
+private:
 	// Operators
-	CListviewItem& operator=(const CListviewItem& i2)  {
-		CItem::operator =(i2);
+	void CopyItemInfoTo(CListviewItem& i2) const  {
+		CopyInfoTo(i2);
 		if (&i2 != this)  {
-			tSubitems = i2.tSubitems;
-			cParent = i2.cParent;
-			bVisible = i2.bVisible;
-			bSelected = i2.bSelected;
-			bSelectedInactive = i2.bSelectedInactive;
-			cSelectedStyle = i2.cSelectedStyle;
-			cSelectedInactiveStyle = i2.cSelectedInactiveStyle;
+			i2.tSubitems = tSubitems;
+			i2.cParent = cParent;
+			i2.bVisible = bVisible;
+			i2.bSelected = bSelected;
+			i2.bSelectedInactive = bSelectedInactive;
+			i2.cSelectedStyle = cSelectedStyle;
+			i2.cSelectedInactiveStyle = cSelectedInactiveStyle;
 		}
-		return *this;
 	}
+
+public:
 
 	// Attributes
 	std::list<CListviewSubitem *>& getSubitems()	{ return tSubitems; }
@@ -212,6 +200,8 @@ public:
 	void InsertSubitem(const CListviewSubitem& s, int index);
 	void Draw(SDL_Surface *bmpDest, const SDL_Rect& r);
 	void RepaintParent();
+
+	CItem* Clone() const { return new CListviewItem(*this); }
 };
 
 

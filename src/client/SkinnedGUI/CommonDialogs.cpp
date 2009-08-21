@@ -50,7 +50,7 @@ CDialog("_MessageBox", parent, title, true)
 
 ///////////////////////
 // Close (internal)
-void CMessageBox::Close(int result)
+void CMessageBox::CloseBox(int result)
 {
 	CDialog::Close();
 
@@ -63,12 +63,12 @@ int	CMessageBox::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& mods
 {
 	switch (keysym)  {
 		case SDLK_ESCAPE:
-			Close(iType == LMB_OK ? MBR_OK : MBR_NO);
+			CloseBox(iType == LMB_OK ? MBR_OK : MBR_NO);
 			break;
 
 		case SDLK_RETURN:
 		case SDLK_KP_ENTER:
-			Close(iType == LMB_OK ? MBR_OK : MBR_YES);
+			CloseBox(iType == LMB_OK ? MBR_OK : MBR_YES);
 			break;
 	}
 
@@ -89,7 +89,7 @@ void CMessageBox::OnButtonClick(CWidget *sender, int x, int y, int dx, int dy, i
 		result = MBR_NO;
 	else return;
 
-	Close(result);
+	CloseBox(result);
 }
 
 ////////////////////////

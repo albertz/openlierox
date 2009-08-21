@@ -53,7 +53,7 @@ private:
 	void OnButtonClick(CWidget *sender, int x, int y, int dx, int dy, int button);
 	int	DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
 	void DoRepaint();
-	void Close(int res);
+	void CloseBox(int res);
 
 public:
 	EVENT_SETGET(OnReturn, MessageBoxReturnHandler);

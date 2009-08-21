@@ -49,16 +49,16 @@ public:
 	CItemStyle cDisabledStyle;
 
 public:
-	CMenuItem& operator=(const CMenuItem& it2)  {
-		CItem::operator =(it2);
-		if (this != &it2)  {
-			cParent = it2.cParent;
-			bCheckable = it2.bCheckable;
-			bChecked = it2.bChecked;
-			bEnabled = it2.bEnabled;
-		}
+	CItem *Clone() const  {
+		CMenuItem *res = new CMenuItem(cParent, sName, bCheckable);
+		CopyInfoTo(*res);
+		res->cParent = cParent;
+		res->bCheckable = bCheckable;
+		res->bChecked = bChecked;
+		res->bEnabled = bEnabled;
+		res->cDisabledStyle = cDisabledStyle;
 
-		return *this;
+		return res;
 	}
 
 	void Draw(SDL_Surface *bmpDest, const SDL_Rect& r);

@@ -47,6 +47,8 @@ public:
 
 	void setParent(CCombobox *p)	{ cParent = p; }
 	CCombobox *getParent()			{ return cParent; }
+
+	CItem *Clone() const			{ CItem *res = new CComboItem(cParent, sName); CopyInfoTo(*res); return res; }
 };
 
 // Combobox events
