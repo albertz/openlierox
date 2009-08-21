@@ -936,6 +936,7 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 		return NL_INVALID;
 	}
 	
+	ResetSocketError();
 	NLint ret = nlWrite(m_socket->sock, buffer, nbytes);
 
 	// Error checking
@@ -944,7 +945,6 @@ int NetworkSocket::Write(const void* buffer, int nbytes) {
 		std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 		errors << "WriteSocket " << debugString() << ": " << errStr << endl;
 #endif // DEBUG
-		ResetSocketError();
 		return NL_INVALID;
 	}
 
@@ -962,6 +962,7 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 		return NL_INVALID;
 	}
 
+	ResetSocketError();
 	NLint ret = nlRead(m_socket->sock, buffer, nbytes);
 	
 	// Error checking
@@ -976,7 +977,6 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 			// Is this perhaps the solution for the Bad file descriptor error?
 			//Close();
 		}
-		ResetSocketError();
 		return NL_INVALID;
 	}
 
