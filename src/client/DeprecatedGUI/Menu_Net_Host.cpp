@@ -1360,7 +1360,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	player_list->SaveScrollbarPos();
 	player_list->Clear();  // Clear any old info
 
-	w = cClient->getRemoteWorms();
+	w = cServer->getWorms();
 	CButton *cmd_button = NULL;
 	CImage *team_img = NULL;
 
@@ -1839,7 +1839,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						else
 							layout.Add(info, id_PopupPlayerInfo, info->getMenuX(), info->getMenuY(), 200, 200 );
 
-						NetworkAddr addr = w->getClient()->getChannel()->getSocket()->remoteAddress();
+						NetworkAddr addr = w->getClient()->getChannel()->getAddress();
 						std::string addrStr;
 						NetAddrToString(addr, addrStr);
 						info->addItem(0, "IP: " + addrStr);
@@ -1872,14 +1872,18 @@ void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int i
 
                     // Kick the player
                     case MNU_USER+0:
-                        if( wormid > 0 )
-                            cServer->kickWorm( wormid, "kicked via GUI menu" );
+						if( wormid > 0 )  {
+							notes << "Kicking worm " << wormid << " via GUI menu" << endl;
+                            cServer->kickWorm( wormid, "" );
+						}
                         break;
 
 					// Ban the player
 					case MNU_USER+1:
-						if ( wormid > 0 )
-							cServer->banWorm( wormid, "banned via GUI menu" );
+						if ( wormid > 0 )  {
+							notes << "Banning worm " << wormid << " via GUI menu" << endl;
+							cServer->banWorm( wormid, "" );
+						}
 						break;
 
 					// Mute/unmute
