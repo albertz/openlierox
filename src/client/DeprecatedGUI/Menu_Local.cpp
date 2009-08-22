@@ -798,7 +798,8 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
-	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 470, 135, 80,15);
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 470, 155, 80,15);
+	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 385, 155, 70, 15);
 
 	CListview* features = new CListview();
 	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
@@ -1335,7 +1336,7 @@ bool Menu_WeaponsRestrictions_Frame()
 		if( (*it)->psLink->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
 			StateColour = tLX->clSubHeading;
 		if( (*it)->psLink->nState == wpr_banned )
-			StateColour = tLX->clHeading;
+			StateColour = tLX->clDisabled;
 
         // If a mouse is over the line, highlight it
         if( Mouse->X > 150 && Mouse->X < 450 ) {
