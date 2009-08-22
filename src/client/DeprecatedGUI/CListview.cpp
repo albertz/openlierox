@@ -623,6 +623,8 @@ void CListview::RemoveItem(int iIndex)
 	else
 		bGotScrollbar = false;*/
 
+	UpdateItemIDs();
+
 	// Readjust the scrollbar
 	ReadjustScrollbar();
 
@@ -772,6 +774,8 @@ void CListview::SortBy(int column, bool ascending)
 			break;
 		}
 
+	UpdateItemIDs();
+
 	bNeedsRepaint = true; // Repaint required
 
 }
@@ -900,6 +904,22 @@ void CListview::Destroy()
 	tItems = NULL;
 }
 
+
+////////////////////
+// Updates _iID field of the items
+void CListview::UpdateItemIDs()
+{
+	lv_item_t *it = tItems;
+	if (!it)
+		return;
+
+	int i = 0;
+	while (it)  {
+		it->_iID = i;
+		it = it->tNext;
+		++i;
+	}
+}
 
 ///////////////////
 // Get an index based on item count
