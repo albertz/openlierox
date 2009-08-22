@@ -1506,7 +1506,8 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (keysym == SDLK_UP)  {
 		lv_item_t *i = tItems;
 		if (tItems)  {
-			for ( ; i && i->tNext; i=i->tNext )  {
+			int idx = 0;
+			for ( ; i && i->tNext; i=i->tNext, idx++ )  {
 				if (i->tNext == tSelected) {
 					if (tSelected)
 						tSelected->bSelected = false;
@@ -1514,7 +1515,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 					tSelected->bSelected = true;
 					iLastChar = SDLK_UP;
 					if (bGotScrollbar)
-						if (cScrollbar.getValue() > tSelected->_iID)
+						if (cScrollbar.getValue() > idx)
 							cScrollbar.setValue( cScrollbar.getValue()-1 );
 					return LV_CHANGED;
 				}
