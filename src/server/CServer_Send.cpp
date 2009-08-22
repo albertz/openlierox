@@ -381,6 +381,11 @@ bool GameServer::SendUpdate()
 			if (!w->isUsed())
 				continue;
 
+			// HINT: this can happen when a new client joins during game and has not selected weapons yet
+			if (w->getClient())
+				if (!w->getClient()->getGameReady())
+					continue;
+
 			++j;
 
 			// w is an own server-side copy of the worm-structure,
@@ -399,6 +404,10 @@ bool GameServer::SendUpdate()
 			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
+				continue;
+
+			// HINT: happens when clients join during game and haven't selected their weapons yet
+			if (!cl->getGameReady())
 				continue;
 
 			// Check if we have gone over the bandwidth rating for the client

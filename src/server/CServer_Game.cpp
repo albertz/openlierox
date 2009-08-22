@@ -329,7 +329,14 @@ void GameServer::SimulateGame()
 		if(!w->isUsed())
 			continue;
 
+		// HINT: this can happen when a new client connects during game and has not selected weapons yet
+		// We just skip him
+		if (w->getClient())
+			if (!w->getClient()->getGameReady())
+				continue;
+
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
+
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
 			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff(tLXOptions->tGameInfo.fRespawnTime) )
 			{
