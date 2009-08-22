@@ -843,6 +843,7 @@ bool CHttp::SendRequest()
 	request += "Host: " + sHost + "\r\n";
 	request += "User-Agent: "; request += GetFullGameName(); request += "\r\n";
 	request += "Connection: close\r\n\r\n";  // We currently don't support persistent connections
+	tSocket.setRemoteAddress(tRemoteIP);
 	return tSocket.Write(request) > 0;  // Anything written?
 }
 
