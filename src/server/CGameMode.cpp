@@ -267,7 +267,8 @@ bool CGameMode::CheckGameOver() {
 		if(tLX->iGameType == GME_LOCAL && cServer->getNumPlayers() == 1) minWormsNeeded = 1;
 		if(worms < minWormsNeeded) {
 			// TODO: make configureable
-			cServer->SendGlobalText("Too less players in game", TXT_NORMAL);
+			// HINT: thins is kinda spammy, because in this kind of games everybody knows why it ended
+			//cServer->SendGlobalText("Too few players in game", TXT_NORMAL);
 			notes << "only " << worms << " players left in game -> game over" << endl;
 			return true;
 		}
@@ -285,7 +286,9 @@ bool CGameMode::CheckGameOver() {
 		// Only one team left
 		if(teams <= 1) {
 			// TODO: make configureable
-			cServer->SendGlobalText("Too less teams in game", TXT_NORMAL);
+			// HINT: this is kinda spammy because everyone with IQ > 50 knows why the game ended
+			//cServer->SendGlobalText("Too few teams in game", TXT_NORMAL);
+			notes << "Game has finished, all non-winning teams are out!" << endl;
 			return true;
 		}
 	}

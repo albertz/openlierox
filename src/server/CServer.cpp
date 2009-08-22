@@ -1363,7 +1363,7 @@ void GameServer::CheckForFillWithBots() {
 		int kickAmount = MIN(getNumPlayers() - (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo], getNumBots());
 		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
 		if(kickAmount > 0)
-			kickWorm(getLastBot(), "too much players, bot not needed anymore");
+			kickWorm(getLastBot(), "there are too many players, bot not needed anymore");
 		// HINT: we will do the next check in kickWorm, thus stop here with further kicks
 		return;
 	}
@@ -1381,7 +1381,7 @@ void GameServer::CheckForFillWithBots() {
 	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] > getNumPlayers()) {
 		int fillUpTo = MIN(tLXOptions->tGameInfo.iMaxPlayers, (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo]);
 		int fillNr = fillUpTo - getNumPlayers();
-		SendGlobalText("Too less players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
+		SendGlobalText("Too few players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
 		cClient->AddRandomBots(fillNr);
 	}
@@ -1663,7 +1663,7 @@ bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, cons
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
 		if(makeMsg)
-			SendGlobalText((playerName + " need to update OLX version: " + reason), TXT_NOTICE);
+			SendGlobalText((playerName + " needs to update OLX version: " + reason), TXT_NOTICE);
 		return false;
 	}
 	return true;
@@ -1754,6 +1754,9 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	return NULL;
 }
 
+namespace DeprecatedGUI {
+extern bool bHost_Update;
+};
 
 ///////////////////
 // Kick a worm out of the server
@@ -1854,6 +1857,8 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 					cClient->SetupViewports();
 				}
 			}
+
+			DeprecatedGUI::bHost_Update = true;
 						
 			// End here
 			return;
@@ -1958,6 +1963,8 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 				RecheckGame();
 				cClient->UpdateScoreboard();
 			}
+
+			DeprecatedGUI::bHost_Update = true;
 			
 			// End here
 			return;
