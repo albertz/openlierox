@@ -19,6 +19,7 @@
 #include <crtdbg.h>
 
 #include <stdio.h>
+#include <string>
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -182,3 +183,7 @@ void ShowUserStreams( PVOID pMiniDump, int streamNum )
 }
 
 
+void stringlwr(std::string& txt) {
+	for(std::string::iterator i = txt.begin(); i != txt.end(); i++)
+		*i = tolower((unsigned char)*i);
+}
