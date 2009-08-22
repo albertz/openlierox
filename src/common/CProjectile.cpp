@@ -98,7 +98,7 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 	}
 
 
-	fWallshootTime = 0.01f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
+	fWallshootTime = 0.011f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
 
 	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now?
 	// TODO: fGravity != 0 => bChangesSpeed=false was here before. why?

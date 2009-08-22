@@ -154,7 +154,7 @@ public:
 					}
 
 					// Bounce
-					if(fabs(vel->x) > 30)
+					if(fabs(vel->x) > 40)
 						vel->x *= -0.4f;
 					else
 						vel->x=(0);
