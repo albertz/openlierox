@@ -119,7 +119,7 @@ struct Color {
 	bool operator != ( const Color & c ) const { return ! ( *this == c ); };
 	
 	Color operator * ( float f ) const { return Color( Uint8(CLAMP(r*f,0.0f,255.0f)), Uint8(CLAMP(g*f,0.0f,255.0f)), Uint8(CLAMP(b*f,0.0f,255.0f)), a ); };
-	Color operator + ( const Color & c ) const { return Color( (Uint8)CLAMP(Uint16(r)+c.r,0,255), (Uint8)CLAMP(Uint16(g)+c.g,0,255), (Uint8)CLAMP(Uint16(b)+c.b,0,255), (Uint8)(Uint16(a)+c.a)/2 ); };
+	Color operator + ( const Color & c ) const { return Color( (Uint8)CLAMP(Uint16(r)+c.r,0,255), (Uint8)CLAMP(Uint16(g)+c.g,0,255), (Uint8)CLAMP(Uint16(b)+c.b,0,255), (Uint8)CLAMP(Uint16(a)+c.a,0,255)); };
 	bool operator<(const Color& c) const {
 		if(r != c.r) return r < c.r;
 		if(g != c.g) return g < c.g;
