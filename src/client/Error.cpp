@@ -57,7 +57,7 @@ void SetError(const std::string& text)
 	}
 
 	fprintf(ErrorFile,"%s\n", text.c_str());
-	//printf("Error: %s\n", ErrorMsg);
+	//errors << ErrorMsg << endl;
 
 }
 
@@ -71,11 +71,11 @@ void ShowError()
 	// TODO: uniform message system
 
 	if(GotError) {
-		printf("SDL: Error: %s\n", ErrorMsg);
+		errors << "SDL: Error: " << ErrorMsg << endl;
 		//MessageBox(NULL,ErrorMsg,GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 	else {
-		printf("SDL: Sad: unknown error\n");
+		errors << "SDL: Sad: unknown error" << endl;
 		//MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 

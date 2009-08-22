@@ -1058,7 +1058,7 @@ bool Compress( const std::string & in, std::string * out, bool noCompression )
 		ret = deflate(&strm, Z_FINISH);
 		if( ret != Z_OK && ret != Z_STREAM_END )
 		{
-			//printf("Compress() error\n");
+			//errors << "Compress() error" << endl;
 			deflateEnd(&strm);
 			return false;
 		};
@@ -1093,7 +1093,7 @@ bool Decompress( const std::string & in, std::string * out )
 		ret = inflate(&strm, Z_NO_FLUSH);
 		if( ret != Z_OK && ret != Z_STREAM_END )
 		{
-			//printf("Decompress() error\n");
+			//errors << "Decompress() error" << endl;
 			inflateEnd(&strm);
 			return false;
 		};

@@ -725,7 +725,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 	if (bJoin_Update)  {
 		CListview *player_list = (CListview *)cJoinLobby.getWidget(jl_PlayerList);
 		if (!player_list) { // Weird, shouldn't happen
-			printf("WARNING: Menu_Net_JoinLobbyFrame: player_list unset\n");
+			warnings << "Menu_Net_JoinLobbyFrame: player_list unset" << endl;
 			return;
 		}
 		player_list->SaveScrollbarPos();

@@ -1215,7 +1215,7 @@ bool GameServer::DeRegisterServer()
 	bServerRegistered = false;
 
 	// Start with the first server
-	printf("De-registering server at " + *tCurrentMasterServer + "\n");
+	notes << "De-registering server at " << *tCurrentMasterServer << endl;
 	tCurrentMasterServer = tMasterServers.begin();
 	tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 
@@ -1234,7 +1234,7 @@ bool GameServer::ProcessDeRegister()
 		// Process the next server (if any)
 		tCurrentMasterServer++;
 		if (tCurrentMasterServer != tMasterServers.end())  {
-			printf("De-registering server at " + *tCurrentMasterServer + "\n");
+			notes << "De-registering server at " << *tCurrentMasterServer << endl;
 			tHttp.RequestData(*tCurrentMasterServer + sCurrentUrl, tLXOptions->sHttpProxy);
 			return false;
 		} else {

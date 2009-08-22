@@ -905,7 +905,7 @@ int CListview::getItemTag(int index)
 {
 	CListviewItem *it = getItem(index);
 	if (!it)  {
-		printf("WARNING: tried to get an item tag for an invalid index, zero was returned\n");
+		warnings << "Tried to get an item tag for an invalid index, zero was returned" << endl;
 		return 0;
 	}
 
@@ -1683,7 +1683,7 @@ int CListview::DoKeyDown(UnicodeChar c, int keysym, const ModifiersState& modsta
 	if (c >= 31)  {
 		// TODO: handle normal characters
 		// share some code with dropdownbox here
-		//printf("normal keys are currently ignored for listview\n");
+		//notes << "Normal keys are currently ignored for listview" << endl;
 		//return LV_NONE; // don't return here, else we would ignore SDLK_DOWN etc.
 	}
 

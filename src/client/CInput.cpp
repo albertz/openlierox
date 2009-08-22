@@ -251,7 +251,7 @@ static int getJoystickControlValue(int flag, int extra, SDL_Joystick* joy)
 			return SDL_JoystickGetAxis(joy, axis_Throttle);
 
 		default:
-			printf("WARNING: getJoystickValue: unknown flag\n");
+			warnings << "getJoystickValue: unknown flag" << endl;
 	}
 
 	return 0;
@@ -313,7 +313,7 @@ static bool checkJoystickState(int flag, int extra, int j_index) {
 			break;
 
 		default:
-			printf("WARNING: checkJoystickState: unknown flag\n");
+			warnings << "checkJoystickState: unknown flag" << endl;
 	}
 
 
@@ -327,16 +327,16 @@ static void initJoystick(int i, bool isTemp) {
 	if(!bJoystickSupport) return;
 
 	if(joys[i] == NULL && SDL_NumJoysticks() > i && !SDL_JoystickOpened(i)) {
-		printf("opening joystick %i", i);
-		printf(" (\"%s\")\n", SDL_JoystickName(i));
+		notes << "opening joystick " << i << endl;
+		notes << " (\"" << SDL_JoystickName(i) << "\")" << endl;
 		joys[i] = SDL_JoystickOpen(i);
 		if(joys[i]) {
-			printf("  Number of Axes: %d\n", SDL_JoystickNumAxes(joys[i]));
-			printf("  Number of Buttons: %d\n", SDL_JoystickNumButtons(joys[i]));
-			printf("  Number of Balls: %d\n", SDL_JoystickNumBalls(joys[i]));
+			notes << "  Number of Axes: " << SDL_JoystickNumAxes(joys[i]) << endl;
+			notes << "  Number of Buttons: " << SDL_JoystickNumButtons(joys[i]) << endl;
+			notes << "  Number of Balls: " << SDL_JoystickNumBalls(joys[i]) << endl;
 			if(isTemp) joysticks_inited_temp[i] = true;
 		} else
-			printf("WARNING: could not open joystick\n");
+			warnings << "Could not open joystick" << endl;
 	}
 
 	// Save the initial axis values
@@ -349,15 +349,15 @@ static void initJoystick(int i, bool isTemp) {
 
 void CInput::InitJoysticksTemp() {
 	if(!bJoystickSupport) return;
-	printf("initing joysticks temporary...\n");
-	printf("amout of available joysticks: %i\n", SDL_NumJoysticks());
+	notes << "Initing joysticks temporary..." << endl;
+	notes << "Amout of available joysticks: " << SDL_NumJoysticks() << endl;
 	initJoystick(0, true);
 	initJoystick(1, true);
 }
 
 static void uninitTempJoystick(int i) {
 	if(joysticks_inited_temp[i] && SDL_JoystickOpened(i)) {
-		printf("uninit temporary loaded joystick %i\n", i);
+		notes << "Uninit temporary loaded joystick " << i << endl;
 		SDL_JoystickClose(joys[i]);
 		joys[i] = NULL;
 		joysticks_inited_temp[i] = false;

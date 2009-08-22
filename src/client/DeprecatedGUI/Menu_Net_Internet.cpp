@@ -584,7 +584,7 @@ void Menu_Net_NETUpdateList()
     bool SentRequest = false;
     FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
 	if( !fp )  {
-		printf("Cannot update list because there is no masterservers.txt file available\n");
+		errors << "Cannot update list because there is no masterservers.txt file available\n" << endl;
         return;
 	}
 
@@ -645,7 +645,7 @@ void Menu_Net_NETUpdateList()
                 if( szLine.length() > 0 && szLine[0] != '#' ) {
 
                     // Send the request
-					printf("Getting serverlist from " + szLine + "...\n");
+					notes << "Getting serverlist from " + szLine + "..." << endl;
 					http.RequestData(szLine + LX_SVRLIST, tLXOptions->sHttpProxy);
 					SentRequest = true;
 
@@ -664,7 +664,7 @@ void Menu_Net_NETUpdateList()
 				CurServer++;
 			} else if (http_result == HTTP_PROC_ERROR)  {
 				if (http.GetError().iError != HTTP_NO_ERROR)
-            		printf("HTTP ERROR: " + http.GetError().sErrorMsg + "\n");
+            		errors << "HTTP ERROR: " << http.GetError().sErrorMsg << endl;
 				// Jump to next server
 				SentRequest = false;
 				CurServer++;

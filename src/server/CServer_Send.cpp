@@ -414,7 +414,7 @@ bool GameServer::SendUpdate()
 			// If we have, just don't send a packet this frame
 			if( !checkBandwidth(cl) ) {
 				// We have gone over the bandwidth for the client, don't send a message this frame
-				//printf("over bandwidth for client %i\n", i);
+				//hints << "Over bandwidth for client " << i << endl;
 				continue;
 			}
 

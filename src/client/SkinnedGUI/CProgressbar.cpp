@@ -131,7 +131,7 @@ void CProgressBar::DoRepaint()
 			UnlockSurface(bmpBar);
 			break;
 		default:
-			printf("Bad bar type in CProgressBar::DoRepaint");
+			errors << "Bad bar type in CProgressBar::DoRepaint" << endl;
 			return;
 		}
 
@@ -163,7 +163,7 @@ void CProgressBar::ApplySelector(const CSSParser::Selector& sel, const std::stri
 			else if (stringcaseequal(it->getFirstValue().getString(), "bottomtotop"))
 				iDirection.set(BAR_BOTTOMTOTOP, it->getPriority());
 			else
-				printf("Unknown bar direction in the CSS\n");
+				warnings << "Unknown bar direction in the CSS" << endl;
 		} else if (it->getName() == prefix + "image")  {
 			bmpBar.set(LoadGameImage(JoinPaths(sel.getBaseURL(), it->getFirstValue().getURL()), true), it->getPriority());
 		} else if (it->getName() == prefix + "background-color")  {

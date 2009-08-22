@@ -134,7 +134,7 @@ void CFont::Parse() {
 			}
 
 			if(cur_w == 0)
-				printf("WARNING: cur_w == 0\n");
+				warnings << "CFont cur_w == 0" << endl;
 		}
 
 		// Add the character

@@ -426,7 +426,7 @@ void Menu_LocalAddPlaying(int index)
 		img->setID(index);
 		img->setRedrawMenu(false);
 	} else
-		printf("WARNING: cannot load teamcolor image\n");
+		warnings << "Cannot load teamcolor image" << endl;
 	lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 	lv->AddItem("",index,tLX->clListView);
 	lv->AddSubitem(LVS_IMAGE, "", tMenu->sLocalPlayers[index].getPicimg(), NULL);
@@ -440,7 +440,7 @@ void Menu_LocalAddPlaying(int index)
 			sub->bVisible = false;
 		sub->iExtra = 0;
 	} else
-		printf("WARNING: strange: did not found teamcolor subitem\n");
+		warnings << "Strange: did not found teamcolor subitem" << endl;
 }
 
 //////////////////
@@ -596,12 +596,12 @@ void Menu_LocalStartGame()
 
 	if(! cClient->Initialize() )
 	{
-		printf("Error: Could not initialize client\n");
+		errors << "Could not initialize client" << endl;
 		return;
 	}
 
 	if(!cServer->StartServer()) {
-		printf("Error: Could not start server\n");
+		errors << "Could not start server" << endl;
 		return;
 	}
 	

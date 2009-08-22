@@ -399,7 +399,7 @@ void CClientNetEngine::ParseTraverse(CBytestream *bs)
 
 	// HINT: the connecting process now continues by sending a challenge in CClientNetEngine::ConnectingBehindNAT()
 
-	printf("CClientNetEngine::ParseTraverse() %s port %i\n", addr.c_str(), port);
+	notes << "Client got traverse from " << addr << " port " << port << endl;
 }
 
 /////////////////////
@@ -413,7 +413,7 @@ void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 	std::string a1, a2;
 	NetAddrToString( client->cServerAddr, a1 );
 	NetAddrToString( addr, a2 );
-	printf("CClientNetEngine::ParseConnectHere(): addr %s to %s %s\n", a1.c_str(), a2.c_str(), a1 != a2 ? "- server behind symmetric NAT" : "" );
+	notes << "Client got connect_here from " << a1 << " to " << a2 << (a1 != a2 ? "- server behind symmetric NAT" : "") << endl;
 
 	client->cServerAddr = client->tSocket->remoteAddress();
 	CBytestream bs1;
@@ -1484,7 +1484,7 @@ void CClientNetEngineBeta7::ParseChatCommandCompletionList(CBytestream* bs) {
 	std::list<std::string> possibilities;
 	uint n = bs->readInt(4);
 	if (n > 32)
-		printf("WARNING: ParseChatCompletionList got a too big number of suggestions (%i)\n", n);
+		warnings << "ParseChatCompletionList got a too big number of suggestions (" << n << ")" << endl;
 
 	for(uint i = 0; i < n && !bs->isPosAtEnd(); i++)
 		possibilities.push_back(bs->readString());
@@ -1713,27 +1713,27 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 
 	// Check
 	if (!client->bGameReady)  {
-		printf("CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)\n");
+		warnings << "CClientNetEngine::ParseSpawnBonus: Cannot spawn bonus when not playing (packet ignored)" << endl;
 		return;
 	}
 
 	if (id < 0 || id >= MAX_BONUSES)  {
-		printf("CClientNetEngine::ParseSpawnBonus: invalid bonus ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnBonus: invalid bonus ID (" << id << ")" << endl;
 		return;
 	}
 
 	if (!client->cMap) { // Weird
-		printf("WARNING: CClientNetEngine::ParseSpawnBonus: cMap not set\n");
+		warnings << "CClientNetEngine::ParseSpawnBonus: cMap not set" << endl;
 		return;
 	}
 
 	if (x > (int)client->cMap->GetWidth() || x < 0)  {
-		printf("CClientNetEngine::ParseSpawnBonus: X-coordinate not in map ("+itoa(x)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnBonus: X-coordinate not in map (" << x << ")" << endl;
 		return;
 	}
 
 	if (y > (int)client->cMap->GetHeight() || y < 0)  {
-		printf("CClientNetEngine::ParseSpawnBonus: Y-coordinate not in map ("+itoa(y)+")\n");
+		warnings << "CClientNetEngine::ParseSpawnBonus: Y-coordinate not in map (" << y << ")" << endl;
 		return;
 	}
 
@@ -1752,7 +1752,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 {
 	if (!client->bGameReady || client->bGameOver)  {
-		printf("CClientNetEngine::ParseTagUpdate: not playing - ignoring\n");
+		warnings << "CClientNetEngine::ParseTagUpdate: not playing - ignoring" << endl;
 		return;
 	}
 
@@ -1845,7 +1845,7 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 	bool ready = bs->readBool();
 
 	if (numworms < 0 || numworms > MAX_WORMS)  {
-		printf("CClientNetEngine::ParseUpdateLobby: invalid strange numworms value ("+itoa(numworms)+")\n");
+		warnings << "CClientNetEngine::ParseUpdateLobby: invalid strange numworms value (" << numworms << ")" << endl;
 
 		// Skip to get the right position in stream
 		bs->Skip(numworms);
@@ -1858,7 +1858,7 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
 		if( id >= MAX_WORMS) {
-			printf("CClientNetEngine::ParseUpdateLobby: invalid worm ID ("+itoa(id)+")\n");
+			warnings << "CClientNetEngine::ParseUpdateLobby: invalid worm ID (" << id << ")" << endl;
 			continue;
 		}
 
@@ -2149,7 +2149,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
 		}
 	} else {
-		printf("CClientNetEngine::ParseWormDown: invalid worm ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseWormDown: invalid worm ID (" << id << ")" << endl;
 	}
 
 	// Someone has been killed, log it
@@ -2190,7 +2190,7 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 	// Set the server error details
 
 	if (tLX->iGameType != GME_JOIN)  {
-		printf("WARNING: got local server leaving packet, ignoring...\n");
+		warnings << "Got local server leaving packet, ignoring..." << endl;
 		return;
 	}
 	// Not so much an error, but rather a disconnection of communication between us & server
@@ -2251,7 +2251,7 @@ void CClientNetEngine::ParseUpdateStats(CBytestream *bs)
 {
 	byte num = bs->readByte();
 	if (num > MAX_PLAYERS)
-		printf("CClientNetEngine::ParseUpdateStats: invalid worm count ("+itoa(num)+") - clamping\n");
+		warnings << "CClientNetEngine::ParseUpdateStats: invalid worm count (" << num << ") - clamping" << endl;
 
 	short oldnum = num;
 	num = (byte)MIN(num,MAX_PLAYERS);
@@ -2279,14 +2279,14 @@ void CClientNetEngine::ParseDestroyBonus(CBytestream *bs)
 	byte id = bs->readByte();
 
 	if (!client->bGameReady)  {
-		printf("CClientNetEngine::ParseDestroyBonus: Ignoring, the game is not running.\n");
+		warnings << "CClientNetEngine::ParseDestroyBonus: Ignoring, the game is not running." << endl;
 		return;
 	}
 
 	if( id < MAX_BONUSES )
 		client->cBonuses[id].setUsed(false);
 	else
-		printf("CClientNetEngine::ParseDestroyBonus: invalid bonus ID ("+itoa(id)+")\n");
+		warnings << "CClientNetEngine::ParseDestroyBonus: invalid bonus ID (" << id << ")" << endl;
 }
 
 
@@ -2481,7 +2481,7 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	w->getDamageReport()[offender->getID()].lastTime = tLX->currentTime;
 	w->injure(damage);	// Calculate correct healthbar
 	// Update worm damage count (it gets updated in UPDATESCORE packet, we do local calculations here, but they are wrong if we connected during game)
-	//printf("CClientNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
+	//notes << "CClientNetEngineBeta9::ParseReportDamage() offender " << offender->getID() << " dmg " << damage << " victim " << id << endl;
 	offender->addDamage( damage, w, client->tGameInfo );
 }
 
@@ -2508,8 +2508,7 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 		if( client->cRemoteWorms[id].getDamage() != damage )
 		{
 			// Occurs pretty often, don't spam console, still it should be the same on client and server
-			//printf("Warning: CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm %s is %i server sent us %i\n", 
-			//		client->cRemoteWorms[id].getName().c_str(), client->cRemoteWorms[id].getDamage(), damage );
+			//warnings << "CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm " << client->cRemoteWorms[id].getName() << " is " << client->cRemoteWorms[id].getDamage() << " server sent us " << damage << endl;
 		}
 		client->cRemoteWorms[id].setDamage( damage );
 

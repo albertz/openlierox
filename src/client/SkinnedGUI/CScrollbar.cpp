@@ -325,7 +325,7 @@ void CScrollbar::DoRepaint()
 		}
 		break;
 	default:
-		printf("Warning: CScrollbar::Draw, unknown scrollbar type\n");
+		warnings << "CScrollbar::Draw, unknown scrollbar type" << endl;
 	}
 
 }

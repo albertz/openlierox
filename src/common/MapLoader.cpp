@@ -1432,7 +1432,7 @@ private:
 		
 		std::string fname = "data/commanderkeen123/ep" + itoa(episode) + "attr.dat";
 		
-		//  printf("loading tile attributes from '%s'...\n", fname);
+		//  notes << "Loading tile attributes from '" << fname << "'..." << endl;
 		
 		FILE* fp = OpenGameFile(fname, "rb");
 		if (!fp)

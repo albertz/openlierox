@@ -163,7 +163,7 @@ void CMapEditor::ChangeCursor()
 		image = t->bmpMisc[CLAMP(iPenSize, 0, t->NumMisc)];
 	break;
 	default:
-		printf("Warning: unknown edit mode in CMapEditor::ChangeCursor\n");
+		warnings << "Warning: unknown edit mode in CMapEditor::ChangeCursor" << endl;
 	}
 
 	cCursor = new CCursor(image, CUR_AIM);

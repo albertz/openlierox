@@ -245,7 +245,7 @@ void CClient::ReinitLocalWorms() {
 */
 CClient::CClient() {
 	// TODO: merge this with Clear()
-	//printf("cl:Constructor\n");
+	//notes << "cl:Constructor" << endl;
 	cRemoteWorms = NULL;
 	cMap = NULL;
 	m_flagInfo = NULL;
@@ -653,18 +653,18 @@ void CClient::FinishMapDownloads()
 		// If playing, load the map
 		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
 			if (cMap && cMap->getCreated())  {
-				printf("HINT: Finished map downloading but another map is already loaded.\n");
+				hints << "Finished map downloading but another map is already loaded." << endl;
 				return;
 			}
 
 			if (!cMap)  {
-				printf("WARNING: in game and cMap is not allocated.\n");
+				warnings << "In game and cMap is not allocated." << endl;
 				cMap = new CMap;
 			}
 
 			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
 				// Weird
-				printf("Could not load the downloaded map!\n");
+				errors << "Could not load the downloaded map!" << endl;
 				Disconnect();
 				GotoNetMenu();
 			}
@@ -1006,7 +1006,7 @@ void CClient::ProcessModDownloads()
 
 	// Aborted?
 	if (cUdpFileDownloader.wasAborted())  {
-		printf("Mod downloading aborted.\n");
+		hints << "Mod downloading aborted." << endl;
 		bDownloadingMod = false;
 		sModDownloadName = "";
 
@@ -1033,7 +1033,7 @@ void CClient::ProcessModDownloads()
 			fLastFileRequestPacketReceived = tLX->currentTime;
 			if(!cUdpFileDownloader.requestFilesPending())  { // More files to receive
 				bDownloadingMod = false;
-				printf("Mod download error: connection timeout\n");
+				errors << "Mod download error: connection timeout" << endl;
 
 				if (tModDlCallback)
 					tModDlCallback();

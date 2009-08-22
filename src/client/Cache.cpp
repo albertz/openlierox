@@ -92,7 +92,7 @@ void CCache::SaveImage__unsafe(const std::string& file1, const SmartPointer<SDL_
 		errors << "Error: image already in cache - memleak: " << file << endl;
 		return;
 	}
-	//printf("CCache::SaveImage(): %p %s\n", img, file.c_str() );
+	//notes << "CCache::SaveImage(): " << img << " " << file << endl;
 	ImageCache[file] = ImageItem_t(img, getCurrentTime(), 0);
 }
 

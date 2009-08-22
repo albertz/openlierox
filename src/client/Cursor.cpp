@@ -274,7 +274,7 @@ void CCursor::Draw(SDL_Surface * dst)
 		Y -= bmpCursor.get()->h / 2;
 		break;
 	default:
-		printf("Warning: CCursor::Draw - unknown type");
+		warnings << "CCursor::Draw - unknown type" << endl;
 		break;
 	};
 

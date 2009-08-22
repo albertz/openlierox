@@ -198,7 +198,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 		iIncoming_ReliableAcknowledged != iReliableSequence &&
 		CheckReliableStreamBandwidthLimit( (float)Reliable.GetLength() ) )
 	{
-		//printf("Remote side dropped a reliable packet, resending...\n");
+		//hints << "Remote side dropped a reliable packet, resending..." << endl;
 		SendReliable = 1;
 	}
 
@@ -253,7 +253,7 @@ void CChannel_056b::Transmit( CBytestream *bs )
 		if(outpack.GetLength() + bs->GetLength() < 4096) // Backward compatibility, the old bytestream has a fixed buffer of 4096 bytes
 			outpack.Append(bs);
 		else
-			printf("not adding unrealiable data to avoid too big packets\n");
+			hints << "Not adding unrealiable data to avoid too big packets" << endl;
 	}
 
 
@@ -296,7 +296,7 @@ bool CChannel_056b::Process(CBytestream *bs)
 	// Small hack: there's a bug in old clients causing the first packet being ignored and resent later
 	// It caused a delay when joining (especially on high-ping servers), this hack improves it
 	if((Sequence <= iIncomingSequence) && (Sequence != 0 && iIncomingSequence != 0)) {
-//		printf("Warning: Packet dropped\n");
+//		warnings << "Packet dropped" << endl;
 //		bs->Dump();
 		/*
 		If we didn't ignore it here, we would become it
@@ -349,14 +349,14 @@ void CChannel_056b::recheckSeqs() {
 	// Ensure the incoming sequence matchs the outgoing sequence
 	if (this->getInSeq() >= this->getOutSeq())  {
 		//if (chan->getInSeq() != chan->getOutSeq())
-		//	printf(cl->getWorm(0)->getName() + ": sequences not same (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+		//	warnings << cl->getWorm(0)->getName() << ": sequences not same (IN: " << chan->getInSeq() << ", OUT: " << chan->getOutSeq() << ")" << endl;
 		//else
-		//	printf(cl->getWorm(0)->getName() + ": sequences match!! (" + itoa(chan->getInSeq()) + ")\n");*/
+		//	hints << cl->getWorm(0)->getName() << ": sequences match!! (" << chan->getInSeq() << ")" << endl;*/
 		this->setOutSeq(this->getInSeq());
 	} else {
 		// Sequences have slipped
 		// Karel said: it's bullshit from JasonB, so we can ignore this warning :)
-		//printf(cl->getWorm(0)->getName() + ": sequences have slipped (IN: " + itoa(chan->getInSeq()) + ", OUT: " + itoa(chan->getOutSeq()) + ")\n");
+		//warnings << cl->getWorm(0)->getName() << ": sequences have slipped (IN: " << chan->getInSeq() << ", OUT: " << chan->getOutSeq() << ")" << endl;
 		// TODO: Set the player's send_data property to false
 	}
 }

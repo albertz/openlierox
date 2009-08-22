@@ -944,7 +944,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	
 	offender->addDamage( damage, w, tLXOptions->tGameInfo );
 
-	//printf("CServerNetEngineBeta9::ParseReportDamage() offender %i dmg %i victim %i\n", offender->getID(), damage, id);
+	//notes << "CServerNetEngineBeta9::ParseReportDamage() offender " << offender->getID() << " dmg " << damage << " victim " << id << endl;
 	// Re-send the packet to all clients, except the sender
 	for( int i=0; i < MAX_CLIENTS; i++ )
 		if( server->cClients[i].getStatus() == NET_CONNECTED && (&server->cClients[i]) != cl )
@@ -1046,7 +1046,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 	int			ChallengeToSet = -1;
 	CBytestream	bs;
 
-	//printf("Got GetChallenge packet\n");
+	//hints << "Got GetChallenge packet" << endl;
 
 	adrFrom = tSocket->remoteAddress();
 
@@ -1116,7 +1116,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	int				numplayers;
 	CServerConnection	*newcl = NULL;
 
-	//printf("Got Connect packet\n");
+	//hints << "Got Connect packet" << endl;
 
 	// Connection details
 	int		ProtocolVersion;
@@ -1172,7 +1172,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		bytestr.writeString("lx::badconnect");
 		bytestr.writeString(OldLxCompatibleString(buf));
 		bytestr.Send(net_socket.get());
-		printf("GameServer::ParseConnect: Wrong protocol version");
+		hints << "GameServer::ParseConnect: Wrong protocol version" << endl;
 		return;
 	}
 
@@ -1181,7 +1181,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// Is this IP banned?
 	if (getBanList()->isBanned(szAddress))  {
-		printf("Banned client %s was trying to connect\n", szAddress.c_str());
+		hints << "Banned client " << szAddress << " was trying to connect" << endl;
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx::badconnect");
@@ -1282,7 +1282,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		/*
 		 // Must not have got the connection good packet
 		 if(cl->getStatus() == NET_CONNECTED) {
-		 printf("Duplicate connection\n");
+		 hints << "Duplicate connection" << endl;
 		 
 		 // Resend the 'good connection' packet
 		 bytestr.Clear();
@@ -1328,8 +1328,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// Ran out of slots
 	if (!newcl) {
-		printf("I have no more open slots for the new client\n");
-		printf("%s - Server Error report",GetDateTime().c_str());
+		warnings << "I have no more open slots for the new client" << endl;
+		notes << GetDateTime() << " - Server Error report" << endl;
 		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << numplayers << endl;
 		std::string msg;
 
@@ -1951,7 +1951,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket)
 				if (pos != std::string::npos)
 					addr.erase(pos, std::string::npos);
 			} else {
-				printf("ERROR: Cannot convert address for worm " + w->getName() + "\n");
+				errors << "Cannot convert address for worm " << w->getName() << endl;
 			}
 
 			if (addr.size() == 0)

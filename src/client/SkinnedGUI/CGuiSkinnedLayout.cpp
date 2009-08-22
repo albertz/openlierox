@@ -77,7 +77,7 @@ void CGuiSkinnedLayout::Add(CWidget *widget)
 			if ((*it)->getType() == widget->getType()) // Same name and type - this happens for default widgets
 				return;
 			else  { // Weird - the skinner probably defines an incorrect widget for the specified ID
-				printf("CGuiSkinnedLayout::Add: warning, trying to add a widget with an ID that already exists\n");
+				warnings << "CGuiSkinnedLayout::Add: warning, trying to add a widget with an ID that already exists" << endl;
 				return;
 			}
 		}
@@ -399,7 +399,7 @@ int CGuiSkinnedLayout::DoChildDestroyed(CWidget *child)
 
 	// Check
 	if (child == NULL)  {
-		printf("Warning: destroying a NULL child\n");
+		errors << "Destroying a NULL child" << endl;
 		return WID_NOT_PROCESSED;
 	}
 
@@ -418,7 +418,7 @@ void CGuiSkinnedLayout::DoChildDestroyEvent(CWidget *child)
 	for (std::list<CWidget *>::iterator w = cWidgets.begin(); w != cWidgets.end(); w++)
 		if (*w == child)  {
 			if (!child->isDestroyed())  {
-				printf("Warning: an attempt to remove a widget that has not been marked as destroyed\n");
+				warnings << "An attempt to remove a widget that has not been marked as destroyed" << endl;
 				return;
 			}
 

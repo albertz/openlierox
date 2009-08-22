@@ -895,7 +895,7 @@ void CGuiLayout::SetGlobalProperty(int property, int value)
 		FOREACH (*w)->setID(value);
 		break;
 	default:
-		printf("CGuiLayout::SetGlobalProperty: unknown property\n");
+		errors  << "CGuiLayout::SetGlobalProperty: unknown property" << endl;
 	}
 
 #undef FOREACH

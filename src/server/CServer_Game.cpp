@@ -247,7 +247,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 {
 	// If the game is already over, ignore this
 	if (bGameOver)  {
-		printf("GameServer::killWorm: Game is over, ignoring.\n");
+		warnings << "GameServer::killWorm: Game is over, ignoring." << endl;
 		return;
 	}
 	// Safety check

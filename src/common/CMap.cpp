@@ -2601,7 +2601,7 @@ void CMap::Shutdown()
 
 	if(Created) {
 
-		//printf("some created map is shutting down...\n");
+		//notes << "Some created map is shutting down..." << endl;
 
 		bmpImage = NULL;
 		bmpDrawImage = NULL;

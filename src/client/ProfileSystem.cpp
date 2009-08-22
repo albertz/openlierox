@@ -66,7 +66,7 @@ int LoadProfiles()
 	EndianSwap(ver);
 	if(ver != PROFILE_VERSION) {
 		std::string tmp = "Could not load profiles: \""+itoa(ver)+"\" is not equal to \""+itoa(PROFILE_VERSION)+"\"";
-		printf("ERROR: " + tmp + "\n");
+		errors << tmp << endl;
 		
         // Add the default players
         AddDefaultPlayers();
@@ -138,7 +138,7 @@ void SaveProfiles()
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
 	if(fp == NULL)  {
-		printf("ERROR: could not open cfg/players.dat for writing\n");
+		errors << "Could not open cfg/players.dat for writing" << endl;
 		return;
 	}
 
@@ -184,7 +184,7 @@ void ShutdownProfiles()
 	//
 	FILE *fp = OpenGameFile("cfg/players.dat","wb");
 	if(fp == NULL)  {
-		printf("ERROR: could not open cfg/players.dat for writing\n");
+		errors << "Could not open cfg/players.dat for writing" << endl;
 		return;
 	}
 

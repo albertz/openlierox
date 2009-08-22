@@ -1354,8 +1354,7 @@ int	CListview::MouseUp(mouse_t *tMouse, int nDown)
 
 			if(tSelected && (tMouse->Up & SDL_BUTTON(1))) {
 				if(tSelected->_iID == item->_iID) {
-					//printf("tLX->currentTime %f fLastMouseUp %f tLX->currentTime - fLastMouseUp %f\n",
-					//	tLX->currentTime.seconds(), fLastMouseUp.seconds(), (tLX->currentTime - fLastMouseUp).seconds() );
+					//notes << "tLX->currentTime " << tLX->currentTime.seconds() << " fLastMouseUp " << fLastMouseUp.seconds() << " tLX->currentTime - fLastMouseUp " << (tLX->currentTime - fLastMouseUp).seconds() << endl;
 					if(tLX->currentTime - fLastMouseUp < 0.5f) {
 						event = LV_DOUBLECLK;
 						fLastMouseUp = AbsTime();
@@ -1493,7 +1492,7 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 	if (c >= 31)  {
 		// TODO: handle normal characters
 		// share some code with dropdownbox here
-		//printf("normal keys are currently ignored for listview\n");
+		//warnings << "Normal keys are currently ignored for listview" << endl;
 		//return LV_NONE; // don't return here, else we would ignore SDLK_DOWN etc.
 	}
 
@@ -1718,7 +1717,7 @@ DWORD CListview::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			break;
 
 		default:
-			printf("Bad listview message\n");
+			errors << "Bad listview message " << iMsg << endl;
 	}
 
 	return 0;
@@ -1739,7 +1738,7 @@ DWORD CListview::SendMessage(int iMsg, const std::string& sStr, DWORD Param)
 		break;
 
 	default:
-		printf("Bad listview message\n");
+		errors << "Bad listview message" << iMsg << endl;
 	}
 
 	return 0;

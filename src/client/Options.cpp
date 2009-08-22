@@ -313,8 +313,8 @@ bool GameOptions::Init() {
 	
 	bool ret = tLXOptions->LoadFromDisc();
 
-	/*printf( "Skinnable vars:\n%s", CGuiSkin::DumpVars().c_str() );
-	printf( "Skinnable widgets:\n%s", CGuiSkin::DumpWidgets().c_str() );*/
+	/*notes << "Skinnable vars:\n" << CGuiSkin::DumpVars() << endl;
+	notes << "Skinnable widgets:\n" << CGuiSkin::DumpWidgets() << endl;*/
 	return ret;
 }
 

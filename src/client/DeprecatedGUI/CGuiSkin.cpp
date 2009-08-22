@@ -122,7 +122,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	FILE * file = OpenGameFile( filepath, "r" );
 	if( ! file )
 	{
-		printf("Cannot read GUI skin file %s\n", filepath.c_str() );
+		errors << "Cannot read GUI skin file " << filepath << endl;
 		return NULL;
 	}
 
@@ -143,7 +143,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 
 	if (Doc == NULL)
 	{
-		printf("Cannot parse GUI skin file %s\n", filepath.c_str() );
+		errors << "Cannot parse GUI skin file " << filepath << endl;
 		return NULL;
 	};
 
@@ -155,13 +155,13 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 	Node = xmlDocGetRootElement(Doc);
 	if (Node == NULL)
 	{
-		printf("GUI skin file %s is empty\n", filepath.c_str() );
+		errors << "GUI skin file is empty: " << filepath << endl;
 		return NULL;
 	};
 
 	if ( stringcasecmp( (const char *)Node->name, "dialog" ) )
 	{
-		printf("GUI skin file %s is invalid: root item should be \"dialog\"\n", filepath.c_str() );
+		errors << "GUI skin file " << filepath << " is invalid: root item should be \"dialog\"" << endl;
 		return NULL;
 	};
 
@@ -193,7 +193,7 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		if( (!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"text")) ||
 			(!xmlStrcmp((const xmlChar *)Node->name,(const xmlChar *)"comment")) )
 		{	// Some extra newline or comment - skip it
-			//printf("XML text inside \"%s\": \"%s\"\n", Node->parent->name, Node->content );
+			//notes << "XML text inside \"" << Node->parent->name << "\": \"" << Node->content << "\"" << endl;
 		}
 		else
 		for( it = m_instance->m_widgets.begin(); it != m_instance->m_widgets.end(); it++ )
@@ -235,13 +235,13 @@ CGuiSkinnedLayout * CGuiSkin::GetLayout( const std::string & filename )
 		};
 		if( it == m_instance->m_widgets.end() )
 		{
-			printf("GUI skin file %s is invalid: invalid item \"%s\"\n", filepath.c_str(), Node->name );
+			errors << "GUI skin file " << filepath << " is invalid: invalid item \"" << Node->name << "\"" << endl;
 		};
 	};
 
 	m_instance->m_guis[ filepath ] = gui;
 	gui->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
-	printf("GUI skin file %s loaded\n", filepath.c_str() );
+	notes << "GUI skin file " << filepath << " loaded" << endl;
 	return gui;
 };
 
@@ -323,7 +323,7 @@ std::string xmlGetText(xmlDocPtr Doc, xmlNodePtr Node)
 void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 {
 	// TODO: put LUA handler here, this handmade string parser works but the code is ugly
-	//printf( "CGuiSkin::CallbackHandler::Init(\"%s\"): ", s1.c_str() );
+	//notes << "CGuiSkin::CallbackHandler::Init(\"" << s1 << "\"): ";
 	m_source = source;
 	m_callbacks.clear();
 	std::string s(s1);
@@ -361,16 +361,16 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 			if( !stringcasecmp( it->first, func ) && it->second.var.type == SVT_CALLBACK )
 			{
 				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.var.cb, param ) );
-				//printf("%s(\"%s\") ", it->first.c_str(), param.c_str());
+				//notes << it->first << "(\"" << param << "\") ";
 				break;
 			}
 		}
 		if( it == CScriptableVars::end() )
 		{
-			printf("Cannot find GUI skin callback \"%s(%s)\"\n", func.c_str(), param.c_str());
+			errors << "Cannot find GUI skin callback \"" << func << "(" << param << "\"" << endl;
 		}
 	}
-	//printf("\n");
+	//notes << endl;
 }
 
 void CGuiSkin::CallbackHandler::Call()

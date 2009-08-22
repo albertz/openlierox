@@ -160,7 +160,7 @@ void CWidget::Draw(SDL_Surface *bmpDest, int drawX, int drawY)
 	if (draw.get())
 		DrawImageAdv(bmpDest, draw, sx, sy, drawX, drawY, draw->w, draw->h);
 	else
-		printf("CWidget::Draw: Warning: nothing to draw!\n");
+		warnings << "CWidget::Draw: nothing to draw!" << endl;
 
 	SetPerSurfaceAlpha(bmpBuffer.get(), 255); // Reset the alpha to full opacity
 }

@@ -301,7 +301,7 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 			for(int i=0; i<Keyboard.queueLength-1; i++)
 				Keyboard.keyQueue[i] = Keyboard.keyQueue[i+1];
 			Keyboard.queueLength--;
-			printf("warning: keyboard queue full\n");
+			warnings << "Keyboard queue full" << endl;
 		}
 
 		KeyboardEvent& kbev = Keyboard.keyQueue[Keyboard.queueLength];
@@ -355,7 +355,7 @@ static void EvHndl_KeyDownUp(SDL_Event* ev) {
 		*/
 		
 	} else
-		printf("strange Event.key.state = %i\n", ev->key.state);
+		warnings << "Strange Event.key.state = " << ev->key.state << endl;
 
 }
 
