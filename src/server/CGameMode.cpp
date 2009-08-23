@@ -297,23 +297,13 @@ bool CGameMode::CheckGameOver() {
 }
 
 int CGameMode::Winner() {
-	// TODO: move to GameServer
-	int numworms = 0;
-	CWorm *alive = NULL;
-	if (cServer->getWorms())  {
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)  {
-				alive = &cServer->getWorms()[i];
-				numworms++;
-			}
-	}
-
-	// In case of lives
-	if (numworms < 2 && alive)  {
+	// In case of last man standing, that one must win
+	CWorm *alive = cServer->getFirstAliveWorm();
+	if (cServer->getAliveWormCount() < 2 && alive)  {
 		return alive->getID();
 	}
 
-	return HighestScoredWorm(); // In case of Max Kills
+	return HighestScoredWorm(); // For other cases (max kills etc.)
 }
 
 int CGameMode::HighestScoredWorm() {
@@ -345,9 +335,17 @@ int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 }
 
 int CGameMode::WinnerTeam() {
-	if(GameTeams() > 1)
+	if(GameTeams() > 1)  {
+		// Only one team left, that one must be the winner
+		if (cServer->getAliveTeamCount() < 2 && tLXOptions->tGameInfo.iLives >= 0)  {
+			CWorm *w = cServer->getWorms();
+			for (int i = 0; i < MAX_WORMS; i++, w++)
+				if (w->isUsed() && w->getLives() != WRM_OUT && w->getTeam() >= 0 && w->getTeam() < 4)
+					return w->getTeam();
+		}
+
 		return HighestScoredTeam();
-	else
+	} else
 		return -1;
 }
 

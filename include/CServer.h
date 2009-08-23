@@ -313,6 +313,9 @@ public:
 	bool	isTeamEmpty(int t) const;
 	int		getTeamWormNum(int t) const;
 	bool	allWormsHaveFullLives() const;
+	int		getAliveWormCount() const;
+	int		getAliveTeamCount() const;
+	CWorm	*getFirstAliveWorm() const;
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();

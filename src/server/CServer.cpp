@@ -765,6 +765,56 @@ int GameServer::getTeamWormNum(int t) const {
 	return c;
 }
 
+//////////////////
+// Returns number of teams that are not out of the game
+int GameServer::getAliveTeamCount() const
+{
+	if (!cWorms)
+		return 0;
+
+	int teams[] = {0, 0, 0, 0};
+	for (int i = 0; i < MAX_WORMS; ++i)
+		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() >= 0 && cWorms[i].getTeam() < 4)
+			teams[cWorms[i].getTeam()]++;
+
+	int res = 0;
+	for (int i = 0; i < 4; i++)
+		if (teams[i] > 0)
+			res++;
+
+	return res;
+}
+
+////////////////////////
+// Returns number of worms that are not out of the game
+int GameServer::getAliveWormCount() const
+{
+	if (!cWorms)
+		return 0;
+
+	int res = 0;
+	for (int i = 0; i < MAX_WORMS; ++i)
+		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
+			++res;
+
+	return res;
+}
+
+////////////////////////
+// Returns first worm in the list that is not out
+CWorm *GameServer::getFirstAliveWorm() const
+{
+	if (!cWorms)
+		return NULL;
+
+	int res = 0;
+	for (int i = 0; i < MAX_WORMS; ++i)
+		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
+			return &cWorms[i];
+
+	return NULL;
+}
+
 ///////////////////
 // Main server frame
 void GameServer::Frame()
