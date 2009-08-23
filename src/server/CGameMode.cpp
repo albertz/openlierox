@@ -297,7 +297,23 @@ bool CGameMode::CheckGameOver() {
 }
 
 int CGameMode::Winner() {
-	return HighestScoredWorm();
+	// TODO: move to GameServer
+	int numworms = 0;
+	CWorm *alive = NULL;
+	if (cServer->getWorms())  {
+		for(int i = 0; i < MAX_WORMS; i++)
+			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)  {
+				alive = &cServer->getWorms()[i];
+				numworms++;
+			}
+	}
+
+	// In case of lives
+	if (numworms < 2 && alive)  {
+		return alive->getID();
+	}
+
+	return HighestScoredWorm(); // In case of Max Kills
 }
 
 int CGameMode::HighestScoredWorm() {
@@ -313,12 +329,7 @@ int CGameMode::HighestScoredWorm() {
 }
 
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
-	// Kills very first (in case there was a kill limit)
-	if(cClient->getGameLobby()->iKillLimit > 0) {
-		if (w1->getKills() > w2->getKills()) return 1;
-		if (w1->getKills() < w2->getKills()) return -1;		
-	}
-	
+
 	// Lives first
 	if(cClient->getGameLobby()->iLives >= 0) {
 		if (w1->getLives() > w2->getLives()) return 1;
