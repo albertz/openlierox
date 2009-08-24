@@ -172,6 +172,7 @@ private:
     int         nGridCols, nGridRows;
 	uchar		*GridFlags;
 	uchar		*AbsoluteGridFlags;
+	uchar		*CollisionGrid;
 
 	// Minimap
 	TimeDiff	fBlinkTime;
@@ -241,6 +242,11 @@ public:
 	bool		CreatePixelFlags();
     bool        createGrid();
     void        calculateGrid();
+	bool		createCollisionGrid();
+	void		calculateCollisionGridArea(int x, int y, int w, int h);
+
+	inline int	getCollGridCellW() const;
+	inline int	getCollGridCellH() const;
 private:
 	// not thread-safe    
     void        calculateGridCell(int x, int y, bool bSkipEmpty);
@@ -295,13 +301,13 @@ public:
 
 	size_t GetMemorySize();
 
-	int WrapAroundX(int x) {
+	int WrapAroundX(int x) const {
 		x %= (int)Width;
 		if(x < 0) x += Width;
 		return x;
 	}
 
-	int WrapAroundY(int y) {
+	int WrapAroundY(int y) const {
 		y %= (int)Height;
 		if(y < 0) y += Height;
 		return y;
@@ -311,7 +317,7 @@ public:
 		return VectorD2<int>(WrapAroundX(p.x), WrapAroundY(p.y));
 	}
 	
-	uchar GetPixelFlag(long x, long y, bool wrapAround = false) {
+	uchar GetPixelFlag(long x, long y, bool wrapAround = false) const {
 		if(!wrapAround) {
 			// Checking edges
 			if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
@@ -323,7 +329,21 @@ public:
 		}
 		return PixelFlags[y * Width + x];
 	}
-	uchar GetPixelFlag(const CVec& pos) { return GetPixelFlag((long)pos.x, (long)pos.y); }
+	uchar GetPixelFlag(const CVec& pos) const { return GetPixelFlag((long)pos.x, (long)pos.y); }
+
+	uchar GetCollisionFlag(long x, long y, bool wrapAround = false) const {
+		if(!wrapAround) {
+			// Checking edges
+			if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
+				return 1;
+		}
+		else {
+			x = WrapAroundX(x);
+			y = WrapAroundY(y);
+		}
+		return CollisionGrid[y * Width + x];
+	}
+	uchar GetCollisionFlag(const CVec& pos, bool wrapAround = false) const { return GetCollisionFlag((long)pos.x, (long)pos.y, wrapAround); }
 	
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
@@ -345,6 +365,23 @@ public:
 	void		PlaceMisc(int id, CVec pos);
     int         PlaceGreenDirt(CVec pos);
 	void		ApplyShadow(int sx, int sy, int w, int h);
+
+	struct CollisionInfo  {
+		CollisionInfo() : occured(false), left(false), top(false), right(false), bottom(false), hitBounds(false), hitRockDirt(false), x(0), y(0) {}
+		bool occured;
+		bool left, top, right, bottom;
+		bool hitBounds;
+		bool hitRockDirt;
+		int x, y;  // HINT: if inifinite map is set, these coordinates are real world coordinates, i.e. modulo is applied on them
+		int moveToX, moveToY;
+	};
+	CollisionInfo StaticCollisionCheck(const CVec& objpos, int objw, int objh, bool infiniteMap) const;
+
+private:
+	void StaticCollisionCheckInfinite(const CVec& objpos, int objw, int objh, CollisionInfo& result) const;
+	void StaticCollisionCheckFinite(const CVec& objpos, int objw, int objh, CollisionInfo& result) const;
+
+public:
 
 	CVec		groundPos(const CVec& pos);
 	

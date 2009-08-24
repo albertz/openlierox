@@ -96,21 +96,7 @@ public:
 		int y = (int)pos.y;
 		short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
 		bool coll = false;
-		bool check_needed = false;
-
-		const uchar* gridflags = cClient->getMap()->getAbsoluteGridFlags();
-		uint grid_w = cClient->getMap()->getGridWidth();
-		uint grid_h = cClient->getMap()->getGridHeight();
-		uint grid_cols = cClient->getMap()->getGridCols();
-		if(y-4 < 0 || (uint)y+5 >= cClient->getMap()->GetHeight()
-		|| x-3 < 0 || (uint)x+3 >= cClient->getMap()->GetWidth())
-			check_needed = true; // we will check later, what to do here
-		else if(grid_w < 7 || grid_h < 10 // this ensures, that this check is safe
-		|| (gridflags[((y-4)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
-		|| (gridflags[((y+5)/grid_h)*grid_cols + (x-3)/grid_w] & (PX_ROCK|PX_DIRT))
-		|| (gridflags[((y-4)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT))
-		|| (gridflags[((y+5)/grid_h)*grid_cols + (x+3)/grid_w] & (PX_ROCK|PX_DIRT)))
-			check_needed = true;
+		bool check_needed = cClient->getMap()->GetCollisionFlag(x, y, wrapAround) != 0;
 
 		if(check_needed && y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
 			for(x=-3;x<4;x++) {
@@ -249,6 +235,88 @@ public:
 		
 		return coll;
 	}
+
+// TODO: this function does not behave exactly as the above one (still some bugs probably), fix this in beta 10 as it is faster than the above
+/*bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
+
+		// Can happen when starting a game
+		if (!cClient->getMap())
+			return false;
+
+		// check if the vel is really too high (or infinity), in this case just ignore
+		if( (*vel*dt*worm->speedFactor()).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
+			return true;
+
+		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
+		// TODO: is this still needed? we call this function with a fixed dt
+		// though perhaps it is as with higher speed the way we have to check is longer
+		if( (*vel * dt * worm->speedFactor()).GetLength2() > maxspeed2 && dt > 0.001f ) {
+			dt /= 2;
+			if(moveAndCheckWormCollision(currentTime, dt,worm,pos,vel,vOldPos,jump)) return true;
+			return moveAndCheckWormCollision(currentTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
+		}
+
+		// Handle infinite map
+		const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		pos += *vel * dt * worm->speedFactor();
+		if(wrapAround) {
+			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
+			FMOD(pos.y, (float)cClient->getMap()->GetHeight());
+		}
+		CMap *map = cClient->getMap();
+		worm->pos() = pos;
+		
+		worm->setOnGround(false);
+
+		// Check for collision
+		CMap::CollisionInfo coll = map->StaticCollisionCheck(pos, 7, 7, wrapAround);
+
+		// Left or right
+		if (coll.left || coll.right)  {
+			if (fabs(vel->x) > 40)
+				vel->x *= -0.4f;
+			else
+				vel->x = 0;
+
+			// If we collided with the ground and we were going pretty fast, make a bump sound
+			if (fabs(vel->x) > 30)
+				StartSound(sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm);
+
+			// Adjust the position
+			worm->pos().x = (float)coll.moveToX;
+		}
+
+		// Top or bottom
+		if (coll.top || coll.bottom)  {
+			worm->setOnGround(true);
+
+			if (fabs(vel->y) > 40)
+				vel->y *= -0.4f;
+			else
+				vel->y = 0;
+
+			// If we collided with the ground and we were going pretty fast, make a bump sound
+			if (fabs(vel->y) > 30)
+				StartSound(sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm);
+
+			// Adjust the position
+			worm->pos().y = (float)coll.moveToY;
+		}
+			
+		// If we are stuck in left & right or top & bottom, just don't move in that direction
+		if (coll.left && coll.right)
+			worm->pos().x = vOldPos.x;
+
+		// HINT: when stucked horizontal we move slower - it's more like original LX
+		if (coll.top && coll.bottom)  {
+			worm->pos().y = vOldPos.y;
+			if (!worm->getWormState()->bJump)  // HINT: this is almost exact as old LX
+				worm->pos().x = vOldPos.x;
+		}
+		
+		return coll.occured;
+	}*/
 
 
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {

@@ -230,6 +230,13 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 	CMap* map = cClient->getMap();
 	
 	ColInfo res = { 0, 0, 0, 0, false, true };
+
+	const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+
+	// A fast check for tiny projectiles
+	if (radius.x <= map->getCollGridCellW() / 2 && radius.y <= map->getCollGridCellH() / 2)
+		if (map->GetCollisionFlag(px, py, wrapAround) == 0)
+			return res;
 	
 	// if we are small, we can make a fast check
 	if(radius.x*2 < map->getGridWidth() && radius.y*2 < map->getGridHeight()) {
@@ -244,7 +251,6 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 	}
 
 	// check for most common case - we do this because compiler can probably optimise this case very good
-	bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 	if(!wrapAround && tProjInfo->Type != PRJ_CIRCLE) {	
 		// Check for the collision
 		for(int y = py - attribs.radius.y; y <= py + attribs.radius.y; ++y) {
