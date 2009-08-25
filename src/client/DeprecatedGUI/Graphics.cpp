@@ -80,8 +80,12 @@ bool LoadGraphics()
 	LOAD_IMAGE_WITHALPHA__OR(gfxGUI.bmpCommandBtn, "data/frontend/commandbtn.png", getAlternativeCommandButtonGfx());
 	LOAD_IMAGE_WITHALPHA__OR(gfxGUI.bmpSpeedTestProgress, "data/frontend/speedtest.png", getAlternativeProgressGfx());
 
-	LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
-	LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
+	Load_Image_WithAlpha(gfxGame.bmpCrosshair, "data/gfx/crosshair.png");
+	if (gfxGame.bmpCrosshair.get() == NULL)
+		LOAD_IMAGE(gfxGame.bmpCrosshair,"data/gfx/crosshair.bmp");
+	Load_Image_WithAlpha(gfxGame.bmpMuzzle, "data/gfx/muzzle.png");
+	if (gfxGame.bmpMuzzle.get() == NULL)
+		LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
 	LOAD_IMAGE(gfxGame.bmpExplosion,"data/gfx/explosion.png");
 	LOAD_IMAGE(gfxGame.bmpSmoke,"data/gfx/smoke.png");
 	LOAD_IMAGE(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
