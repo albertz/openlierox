@@ -1416,9 +1416,9 @@ void Menu_SvrList_FillList(CListview *lv)
 		lv->AddSubitem(LVS_TEXT, addr, (DynDrawIntf*)NULL, NULL);
 	}
 
+	lv->ReSort();
     lv->setSelectedID(curID);
 	lv->RestoreScrollbarPos();
-	lv->ReSort();
 }
 
 static bool bUpdateFromUdpThread = false;
