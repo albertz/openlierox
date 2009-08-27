@@ -27,6 +27,7 @@
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "CInput.h"
+#include "Debug.h"
 
 
 
