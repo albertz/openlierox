@@ -93,9 +93,9 @@ void CChatWidget::Create()
 	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
 		warnings << "CChatWidget::CChatWidget(): too small dimensions given" << endl;
 
-	this->Add( new CBrowser(), nc_ChatText, 0, 0, iWidth - 145, iHeight - tLX->cFont.GetHeight() - 8 );
-	this->Add( new CListview(), nc_UserList, iWidth - 140, 0, 140, iHeight);
-	this->Add( new CTextbox(), nc_ChatInput, 0,  iHeight - tLX->cFont.GetHeight() - 2, iWidth - 145, tLX->cFont.GetHeight());
+	this->Add( new CBrowser(), nc_ChatText, 5, 5, iWidth - 155, iHeight - tLX->cFont.GetHeight() - 15 );
+	this->Add( new CListview(), nc_UserList, iWidth - 145, 5, 145, iHeight - 10);
+	this->Add( new CTextbox(), nc_ChatInput, 5,  iHeight - tLX->cFont.GetHeight() - 7, iWidth - 157, tLX->cFont.GetHeight());
 
 	// Messages
 	CBrowser *b = (CBrowser *)this->getWidget(nc_ChatText);
@@ -115,6 +115,24 @@ void CChatWidget::Create()
 
 	CGuiSkinnedLayout::Create();
 
+}
+
+void CChatWidget::Draw(SDL_Surface *bmpDest)
+{
+	if (!tMenu)
+		return;
+
+	CListview *lsv = (CListview *)this->getWidget(nc_ChatText);
+	if (!lsv)
+		return;
+
+	if (tMenu->bmpChatBackgroundMain.get())
+		DrawImage(bmpDest, tMenu->bmpChatBackgroundMain.get(), iX, iY);
+
+	if (tMenu->bmpChatBackground.get())
+		DrawImageAdv(bmpDest, tMenu->bmpChatBackground.get(), 0, 0, lsv->getX() + 1, lsv->getY() + 1, lsv->getWidth() - 2, lsv->getHeight() - 2);
+
+	CGuiSkinnedLayout::Draw(bmpDest);
 }
 
 void CChatWidget::Destroy()

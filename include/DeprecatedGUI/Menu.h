@@ -286,6 +286,8 @@ class menu_t { public:
 	SmartPointer<SDL_Surface> bmpButtons;
 	SmartPointer<SDL_Surface> bmpCheckbox;
 	SmartPointer<SDL_Surface> bmpInputbox;
+	SmartPointer<SDL_Surface> bmpChatBackgroundMain;
+	SmartPointer<SDL_Surface> bmpChatBackground;
 
 	SmartPointer<SDL_Surface> bmpMainLocal;
 	SmartPointer<SDL_Surface> bmpMainNet;

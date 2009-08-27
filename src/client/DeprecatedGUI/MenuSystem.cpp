@@ -134,6 +134,8 @@ bool Menu_Initialize(bool *game)
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleUp, "data/frontend/triangle_up.png");
 	LOAD_IMAGE_WITHALPHA(tMenu->bmpTriangleDown, "data/frontend/triangle_down.png");
 	tMenu->bmpDownload = LoadGameImage("data/frontend/download.png", true); // Doesn't have to exist
+	tMenu->bmpChatBackground = LoadGameImage("data/frontend/background_chat.png", true);
+	tMenu->bmpChatBackgroundMain = LoadGameImage("data/frontend/background_chat_main.png", true);
 
 	// Split up the lobby ready image
 	tMenu->bmpLobbyReady = gfxCreateSurfaceAlpha(lobby_state.get()->w, 12);

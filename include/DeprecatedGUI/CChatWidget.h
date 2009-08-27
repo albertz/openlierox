@@ -33,6 +33,7 @@ public:
 	void	Destroy();
 
 	void	ProcessChildEvent(int iEvent, CWidget * child);
+	void	Draw(SDL_Surface *bmpDest);
 
 	static void EnableChat();
 	static void DisableChat();

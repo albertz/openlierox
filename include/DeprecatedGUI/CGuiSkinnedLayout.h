@@ -72,7 +72,7 @@ public:
 	CWidget		*getFocused() const { return cFocused; }
 
 	bool		Process();	// Called only for main layout -dispatches messages to children, returns false on exit layout
-	void		Draw(SDL_Surface * bmpDest);
+	virtual void Draw(SDL_Surface * bmpDest);
 
 	void		Shutdown();
 
