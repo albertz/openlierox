@@ -1194,6 +1194,42 @@ void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
 }
 
 
+//////////////////////
+// Generates a shadow for the given object
+SmartPointer<SDL_Surface> GenerateShadowSurface(SDL_Surface *object, unsigned char opacity)
+{
+	if (object == NULL)
+		return NULL;
+
+	SmartPointer<SDL_Surface> res = gfxCreateSurfaceAlpha(object->w, object->h);
+	if (!LockSurface(res) || !LockSurface(object))
+		return NULL;
+
+	Uint8 *objrow = (Uint8 *)object->pixels;
+	Uint8 *shrow = (Uint8 *)res->pixels;
+	const Uint32 shadow = Color(0, 0, 0, opacity).get(res->format);
+	const Uint32 transparent = Color(0, 0, 0, 0).get(res->format);
+	for (int y = object->h; y; --y)  {
+		Uint8 *objpx = objrow;
+		Uint8 *shpx = shrow;
+		for (int x = object->w; x; --x, objpx += object->format->BytesPerPixel, shpx += res->format->BytesPerPixel)  {
+			if (IsTransparent(object, GetPixelFromAddr(objpx, object->format->BytesPerPixel)))
+				PutPixelToAddr(shpx, transparent, res->format->BytesPerPixel);
+			else
+				PutPixelToAddr(shpx, shadow, res->format->BytesPerPixel);
+		}
+
+		objrow += object->pitch;
+		shrow += res->pitch;
+	}
+
+	UnlockSurface(res);
+	UnlockSurface(object);
+
+	return res;
+}
+
+
 
 
 /////////////////

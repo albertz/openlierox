@@ -137,6 +137,7 @@ struct proj_t {
 	
 	
 	SDL_Surface * bmpImage;	// Read-only var, managed by game script, no need in smartpointer
+	SmartPointer<SDL_Surface> bmpShadow;  // Pre-generated projectile shadow
 	
 };
 

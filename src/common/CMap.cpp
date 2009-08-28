@@ -1072,10 +1072,28 @@ ShadowClipInfo ClipShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surfa
 	return res;
 }
 
+///////////////////
+// Checks if the given area is free (no rock/dirt inside)
+bool CMap::CheckAreaFree(int x, int y, int w, int h)
+{
+	// If there is some kind of clipping, the area is not free
+	if (x < 0 || x + w >= (int)Width || y < 0 || y + h >= (int)Height)
+		return false;
+
+	// Go through the area collision grid cells and check if they are free
+	int xr = x + getCollGridCellW() / 2;
+	int yr = y + getCollGridCellH() / 2;
+	for (int j = yr; j < y + h; j += getCollGridCellH())
+		for (int i = xr; i < x + w; i += getCollGridCellW())
+			if (CollisionGrid[j * Width + i])
+				return false;
+
+	return true;
+}
 
 ///////////////////
 // Draw an object's shadow
-void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
+void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface * bmpObjShadow, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
@@ -1102,6 +1120,18 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, int sx,
 	const ShadowClipInfo i = ClipShadow(bmpDest, bmpObj, bmpShadowMap.get(), sx, sy, w, h, view, wx, wy);
 	if (!i.h || !i.w)
 		return;
+
+	// If we are small and the area around is empty, just use the shadow image instead
+	if (w <= getCollGridCellW() && h <= getCollGridCellH() && GetCollisionFlag(wx, wy) == 0 && bmpObjShadow)  {
+		DrawImageAdv(bmpDest, bmpObjShadow, i.obj_x, i.obj_y, i.dest_x, i.dest_y, i.w, i.h);
+		return;
+	}
+
+	// If we are bigger, we have to check the whole area of the shadow
+	if (CheckAreaFree(i.map_x, i.map_y, i.w, i.h) && bmpObjShadow)  {
+		DrawImageAdv(bmpDest, bmpObjShadow, i.obj_x, i.obj_y, i.dest_x, i.dest_y, i.w, i.h);
+		return;
+	}
 
 	// Lock the surfaces
 	LOCK_OR_QUIT(bmpDest);

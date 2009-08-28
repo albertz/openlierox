@@ -360,7 +360,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 
 			int size = tProjInfo->bmpImage->h;
 			int half = size / 2;
-			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, iFrameX, 0, size,size, view, (int)vPos.x-(half>>1), (int)vPos.y-(half>>1));
+			map->DrawObjectShadow(bmpDest, tProjInfo->bmpImage, tProjInfo->bmpShadow.get(), iFrameX, 0, size,size, view, (int)vPos.x-(half>>1), (int)vPos.y-(half>>1));
 		
 			break;	
 		}

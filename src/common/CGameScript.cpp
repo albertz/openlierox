@@ -774,6 +774,8 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 				proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
 				if(!proj->bmpImage)
 					modLog("Could not open image '" + proj->ImgFilename + "'");
+				else
+					proj->bmpShadow = GenerateShadowSurface(proj->bmpImage);
 			}
 			
 			fread_endian<int>(fp, proj->Rotating);
@@ -1660,6 +1662,8 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 				proj->bmpImage = LoadGSImage(dir, proj->ImgFilename);
 				if(!proj->bmpImage)
 					modLog("Could not open image '" + proj->ImgFilename + "'");
+				else
+					proj->bmpShadow = GenerateShadowSurface(proj->bmpImage);
 			}
 			break;
 			

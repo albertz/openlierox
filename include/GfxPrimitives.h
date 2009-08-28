@@ -563,6 +563,8 @@ inline void DrawImageTiledY(SDL_Surface *bmpDest, const SmartPointer<SDL_Surface
 	DrawImageTiledX(bmpDest, bmpSrc.get(), sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
+SmartPointer<SDL_Surface> GenerateShadowSurface(SDL_Surface *object, unsigned char opacity = 96);
+
 //
 // Pixel and color routines
 //

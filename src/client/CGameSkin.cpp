@@ -548,10 +548,10 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	// draw the shadow
 	if (mirrored)  {
 		if (bmpMirroredShadow.get())
-			cMap->DrawObjectShadow(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+			cMap->DrawObjectShadow(surf, bmpMirroredShadow.get(), bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
 	} else {
 		if (bmpShadow.get())
-			cMap->DrawObjectShadow(surf, bmpShadow.get(), sx, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+			cMap->DrawObjectShadow(surf, bmpShadow.get(), bmpShadow.get(), sx, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
 	}
 }
 
