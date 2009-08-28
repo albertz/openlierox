@@ -141,6 +141,19 @@ void InitializeTimers();
 void ShutdownTimers();
 
 
+// A class for profiling - measures the time between being constructed and destructed
+// Just put it in a scope/function you want to profile, it will print the result to console
+class StopWatch  {
+private:
+	AbsTime start;
+	std::string name;
+
+public:
+	StopWatch(const std::string& name);
+	~StopWatch();
+};
+
+
 
 
 #endif  //  __TIMER_H__

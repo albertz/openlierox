@@ -425,3 +425,17 @@ static void Timer_handleEvent(InternTimerEventData data)
 	}
 }
 
+//
+// StopWatch class
+//
+
+StopWatch::StopWatch(const std::string& name)
+{
+	this->name = name;
+	start = GetTime();
+}
+
+StopWatch::~StopWatch()
+{
+	hints << name << " took " << (GetTime() - start).milliseconds() << " ms" << endl;
+}
