@@ -86,11 +86,13 @@ bool LoadGraphics()
 	Load_Image_WithAlpha(gfxGame.bmpMuzzle, "data/gfx/muzzle.png");
 	if (gfxGame.bmpMuzzle.get() == NULL)
 		LOAD_IMAGE(gfxGame.bmpMuzzle,"data/gfx/muzzle.bmp");
-	LOAD_IMAGE(gfxGame.bmpExplosion,"data/gfx/explosion.png");
-	LOAD_IMAGE(gfxGame.bmpSmoke,"data/gfx/smoke.png");
-	LOAD_IMAGE(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
-	LOAD_IMAGE(gfxGame.bmpSpawn,"data/gfx/spawn.png");
-	LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpExplosion,"data/gfx/explosion.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpSmoke,"data/gfx/smoke.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpChemSmoke,"data/gfx/chemsmoke.png");
+	LOAD_IMAGE_WITHALPHA(gfxGame.bmpSpawn,"data/gfx/spawn.png");
+	Load_Image_WithAlpha(gfxGame.bmpHook, "data/gfx/hook.png");
+	if (gfxGame.bmpHook.get() == NULL)
+		LOAD_IMAGE(gfxGame.bmpHook,"data/gfx/hook.bmp");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpGameover,"data/gfx/gameover.png");
 	LOAD_IMAGE_WITHALPHA(gfxGame.bmpScoreboard,"data/gfx/scoreboard.png");
 	LOAD_IMAGE(gfxGame.bmpViewportMgr,"data/gfx/viewportmgr.png");
