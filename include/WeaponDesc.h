@@ -80,7 +80,7 @@ struct Wpn_Beam {
 	float WidthIncrease; // new since beta9
 	bool DistributeDamageOverWidth; // new since beta9
 	
-	bool readFromIni(const std::string& file, const std::string& section);
+	bool readFromIni(const IniReader& ini, const std::string& section);
 	bool read(CGameScript* gs, FILE* fp);
 	bool write(CGameScript* gs, FILE* fp);
 };

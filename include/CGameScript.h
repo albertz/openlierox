@@ -27,6 +27,8 @@
 #include "StaticAssert.h"
 #include "StringUtils.h"
 
+class IniReader;
+
 static const Version GS_MinLxVersion[] = {
 	Version(), // for GS_VERSION == 7
 	OLXBetaVersion(9), // for GS_VERSION == 8
@@ -149,6 +151,7 @@ private:
 
 	void		Shutdown();
 	void		ShutdownProjectile(proj_t *prj);
+	void		InitDefaultCompilerKeywords();
 
 public:
 	// Methods
@@ -216,10 +219,10 @@ public:
 	
 private:
 	bool	CompileWeapon(const std::string& dir, const std::string& weapon, int id);
-	void	CompileBeam(const std::string& file, weapon_t *Weap);
+	void	CompileBeam(const IniReader& ini, weapon_t *Weap);
 	proj_t  *CompileProjectile(const std::string& dir, const std::string& pfile);
-	bool	CompileExtra(const std::string& dir);
-	bool	CompileJetpack(const std::string& file, weapon_t *Weap);
+	bool	CompileExtra(const IniReader& ini);
+	bool	CompileJetpack(const IniReader& ini, weapon_t *Weap);
 };
 
 

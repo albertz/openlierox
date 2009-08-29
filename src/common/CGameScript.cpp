@@ -30,6 +30,7 @@
 #include "ConfigHandler.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "IniReader.h"
 
 
 
@@ -1285,6 +1286,100 @@ template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj )
 
 
 
+static IniReader::KeywordList compilerKeywords;
+
+void CGameScript::InitDefaultCompilerKeywords()
+{
+	if (compilerKeywords.empty())  {
+		// Add some keywords
+		// IMPORTANT: Every keyword (key) need to be different.
+		compilerKeywords["WPN_PROJECTILE"] = WPN_PROJECTILE;
+		compilerKeywords["WPN_SPECIAL"] = WPN_SPECIAL;
+		compilerKeywords["WPN_BEAM"] = WPN_BEAM;
+		
+		compilerKeywords["WCL_AUTOMATIC"] = WCL_AUTOMATIC;
+		compilerKeywords["WCL_POWERGUN"] = WCL_POWERGUN;
+		compilerKeywords["WCL_GRENADE"] = WCL_GRENADE;
+		compilerKeywords["WCL_MISSILE"] = WCL_MISSILE;
+		compilerKeywords["WCL_CLOSERANGE"] = WCL_CLOSERANGE;
+		
+		compilerKeywords["PRJ_PIXEL"] = PRJ_PIXEL;
+		compilerKeywords["PRJ_IMAGE"] = PRJ_IMAGE;
+		compilerKeywords["PRJ_CIRCLE"] = PRJ_CIRCLE;
+		compilerKeywords["PRJ_POLYGON"] = PRJ_POLYGON;
+		compilerKeywords["PRJ_RECT"] =  PRJ_RECT;
+		
+		// action types
+		compilerKeywords["Bounce"] = PJ_BOUNCE;
+		compilerKeywords["Explode"] = PJ_EXPLODE;
+		compilerKeywords["Injure"] = PJ_INJURE;
+		compilerKeywords["InjureProj"] = PJ_INJUREPROJ;
+		compilerKeywords["Carve"] = PJ_CARVE;
+		compilerKeywords["Dirt"] = PJ_DIRT;
+		compilerKeywords["GreenDirt"] = PJ_GREENDIRT;
+		compilerKeywords["Disappear"] = PJ_DISAPPEAR;
+		compilerKeywords["Nothing"] = PJ_NOTHING;
+		compilerKeywords["Disappear2"] =  PJ_DISAPPEAR2;
+		compilerKeywords["GoThrough"] =  PJ_GOTHROUGH;
+		compilerKeywords["PlaySound"] =  PJ_PLAYSOUND;
+		compilerKeywords["InjureWorm"] =  PJ_INJUREWORM;
+		compilerKeywords["OverwriteOwnSpeed"] =  PJ_OverwriteOwnSpeed;
+		compilerKeywords["MultiplyOwnSpeed"] =  PJ_MultiplyOwnSpeed;
+		compilerKeywords["DiffOwnSpeed"] =  PJ_DiffOwnSpeed;
+		compilerKeywords["OverwriteTargetSpeed"] =  PJ_OverwriteTargetSpeed;
+		compilerKeywords["MultiplyTargetSpeed"] =  PJ_MultiplyTargetSpeed;
+		compilerKeywords["DiffTargetSpeed"] =  PJ_DiffTargetSpeed;
+		compilerKeywords["HeadingToNextWorm"] =  PJ_HeadingToNextWorm;
+		compilerKeywords["HeadingToOwner"] =  PJ_HeadingToOwner;
+		compilerKeywords["HeadingToNextOtherWorm"] =  PJ_HeadingToNextOtherWorm;
+		compilerKeywords["HeadingToNextEnemyWorm"] =  PJ_HeadingToNextEnemyWorm;
+		compilerKeywords["HeadingToNextTeamMate"] =  PJ_HeadingToNextTeamMate;
+		
+		// event types
+		compilerKeywords["Timer"] =  Proj_Event::PET_TIMER; 
+		compilerKeywords["ProjHit"] =  Proj_Event::PET_PROJHIT; 
+		compilerKeywords["WormHit"] =  Proj_Event::PET_WORMHIT; 
+		compilerKeywords["TerrainHit"] =  Proj_Event::PET_TERRAINHIT; 
+		compilerKeywords["Death"] =  Proj_Event::PET_DEATH; 
+		compilerKeywords["Fallback"] =  Proj_Event::PET_FALLBACK; 
+		
+		// trail types
+		compilerKeywords["TRL_NONE"] = TRL_NONE;
+		compilerKeywords["TRL_SMOKE"] = TRL_SMOKE;
+		compilerKeywords["TRL_CHEMSMOKE"] = TRL_CHEMSMOKE;
+		compilerKeywords["TRL_PROJECTILE"] = TRL_PROJECTILE;
+		compilerKeywords["TRL_DOOMSDAY"] = TRL_DOOMSDAY;
+		compilerKeywords["TRL_EXPLOSIVE"] = TRL_EXPLOSIVE;
+		
+		compilerKeywords["SPC_JETPACK"] = SPC_JETPACK;
+		
+		compilerKeywords["ANI_ONCE"] = ANI_ONCE;
+		compilerKeywords["ANI_LOOP"] = ANI_LOOP;
+		compilerKeywords["ANI_PINGPONG"] = ANI_PINGPONG;
+			
+		compilerKeywords["ATO_NONE"] = ATO_NONE;
+		compilerKeywords["ATO_PLAYERS"] = ATO_PLAYERS;
+		compilerKeywords["ATO_PROJECTILES"] = ATO_PROJECTILES;
+		compilerKeywords["ATO_ROPE"] = ATO_ROPE;
+		compilerKeywords["ATO_BONUSES"] = ATO_BONUSES;
+		compilerKeywords["ATO_ALL"] = ATO_ALL;
+		
+		compilerKeywords["ATC_NONE"] = ATC_NONE;
+		compilerKeywords["ATC_OWNER"] = ATC_OWNER;
+		compilerKeywords["ATC_ENEMY"] = ATC_ENEMY;
+		compilerKeywords["ATC_TEAMMATE"] = ATC_TEAMMATE;
+		compilerKeywords["ATC_ALL"] = ATC_ALL;
+		
+		compilerKeywords["ATT_GRAVITY"] = ATT_GRAVITY;
+		compilerKeywords["ATT_CONSTANT"] = ATT_CONSTANT;
+		compilerKeywords["ATT_LINEAR"] = ATT_LINEAR;
+		compilerKeywords["ATT_QUADRATIC"] = ATT_QUADRATIC;
+		
+		compilerKeywords["true"] = true;
+		compilerKeywords["false"] = false;
+	}
+}
+
 ///////////////////
 // Compile
 bool CGameScript::Compile(const std::string& dir)
@@ -1292,114 +1387,28 @@ bool CGameScript::Compile(const std::string& dir)
 	Shutdown();
 	
 	CGameScript* Game = this;
+
+	InitDefaultCompilerKeywords();
+	IniReader ini(dir + "/Main.txt", compilerKeywords);
+
+	if (!ini.Parse())  {
+		errors << "Error while parsing the gamescript " << dir << endl;
+		return false;
+	}
 	
-	// Add some keywords
-	// IMPORTANT: Every keyword (key) need to be different.
-	AddKeyword("WPN_PROJECTILE",WPN_PROJECTILE);
-	AddKeyword("WPN_SPECIAL",WPN_SPECIAL);
-	AddKeyword("WPN_BEAM",WPN_BEAM);
-	
-	AddKeyword("WCL_AUTOMATIC",WCL_AUTOMATIC);
-	AddKeyword("WCL_POWERGUN",WCL_POWERGUN);
-	AddKeyword("WCL_GRENADE",WCL_GRENADE);
-	AddKeyword("WCL_CLOSERANGE",WCL_CLOSERANGE);
-	
-	AddKeyword("PRJ_PIXEL",PRJ_PIXEL);
-	AddKeyword("PRJ_IMAGE",PRJ_IMAGE);
-	AddKeyword("PRJ_CIRCLE",PRJ_CIRCLE);
-	AddKeyword("PRJ_POLYGON",PRJ_POLYGON);
-	AddKeyword("PRJ_RECT", PRJ_RECT);
-	
-	// action types
-	AddKeyword("Bounce",PJ_BOUNCE);
-	AddKeyword("Explode",PJ_EXPLODE);
-	AddKeyword("Injure",PJ_INJURE);
-	AddKeyword("InjureProj",PJ_INJUREPROJ);
-	AddKeyword("Carve",PJ_CARVE);
-	AddKeyword("Dirt",PJ_DIRT);
-	AddKeyword("GreenDirt",PJ_GREENDIRT);
-	AddKeyword("Disappear",PJ_DISAPPEAR);
-	AddKeyword("Nothing",PJ_NOTHING);
-	AddKeyword("Disappear2", PJ_DISAPPEAR2);
-	AddKeyword("GoThrough", PJ_GOTHROUGH);
-	AddKeyword("PlaySound", PJ_PLAYSOUND);
-	AddKeyword("InjureWorm", PJ_INJUREWORM);
-	AddKeyword("OverwriteOwnSpeed", PJ_OverwriteOwnSpeed);
-	AddKeyword("MultiplyOwnSpeed", PJ_MultiplyOwnSpeed);
-	AddKeyword("DiffOwnSpeed", PJ_DiffOwnSpeed);
-	AddKeyword("OverwriteTargetSpeed", PJ_OverwriteTargetSpeed);
-	AddKeyword("MultiplyTargetSpeed", PJ_MultiplyTargetSpeed);
-	AddKeyword("DiffTargetSpeed", PJ_DiffTargetSpeed);
-	AddKeyword("HeadingToNextWorm", PJ_HeadingToNextWorm);
-	AddKeyword("HeadingToOwner", PJ_HeadingToOwner);
-	AddKeyword("HeadingToNextOtherWorm", PJ_HeadingToNextOtherWorm);
-	AddKeyword("HeadingToNextEnemyWorm", PJ_HeadingToNextEnemyWorm);
-	AddKeyword("HeadingToNextTeamMate", PJ_HeadingToNextTeamMate);
-	
-	// event types
-	AddKeyword("Timer", Proj_Event::PET_TIMER); 
-	AddKeyword("ProjHit", Proj_Event::PET_PROJHIT); 
-	AddKeyword("WormHit", Proj_Event::PET_WORMHIT); 
-	AddKeyword("TerrainHit", Proj_Event::PET_TERRAINHIT); 
-	AddKeyword("Death", Proj_Event::PET_DEATH); 
-	AddKeyword("Fallback", Proj_Event::PET_FALLBACK); 
-	
-	// trail types
-	AddKeyword("TRL_NONE",TRL_NONE);
-	AddKeyword("TRL_SMOKE",TRL_SMOKE);
-	AddKeyword("TRL_CHEMSMOKE",TRL_CHEMSMOKE);
-	AddKeyword("TRL_PROJECTILE",TRL_PROJECTILE);
-	AddKeyword("TRL_DOOMSDAY",TRL_DOOMSDAY);
-	AddKeyword("TRL_EXPLOSIVE",TRL_EXPLOSIVE);
-	
-	AddKeyword("SPC_JETPACK",SPC_JETPACK);
-	
-	AddKeyword("ANI_ONCE",ANI_ONCE);
-	AddKeyword("ANI_LOOP",ANI_LOOP);
-	AddKeyword("ANI_PINGPONG",ANI_PINGPONG);
-		
-	AddKeyword("ATO_NONE",ATO_NONE);
-	AddKeyword("ATO_PLAYERS",ATO_PLAYERS);
-	AddKeyword("ATO_PROJECTILES",ATO_PROJECTILES);
-	AddKeyword("ATO_ROPE",ATO_ROPE);
-	AddKeyword("ATO_BONUSES",ATO_BONUSES);
-	AddKeyword("ATO_ALL",ATO_ALL);
-	
-	AddKeyword("ATC_NONE",ATC_NONE);
-	AddKeyword("ATC_OWNER",ATC_OWNER);
-	AddKeyword("ATC_ENEMY",ATC_ENEMY);
-	AddKeyword("ATC_TEAMMATE",ATC_TEAMMATE);
-	AddKeyword("ATC_ALL",ATC_ALL);
-	
-	AddKeyword("ATT_GRAVITY",ATT_GRAVITY);
-	AddKeyword("ATT_CONSTANT",ATT_CONSTANT);
-	AddKeyword("ATT_LINEAR",ATT_LINEAR);
-	AddKeyword("ATT_QUADRATIC",ATT_QUADRATIC);
-	
-	AddKeyword("true",true);
-	AddKeyword("false",false);
+
 
 	sDirectory = dir;
 	
 	int num,n;
-	std::string filename = dir + "/Main.txt";
-
-	// Check the file
-	FILE *fp = OpenGameFile(filename, "rt");
-	if(!fp) {
-		warnings << "CGameScript::Compile: Could not open the file '" << filename << "' for reading" << endl;
-		return false;
-	} else
-		fclose(fp);
-
 
 	std::string modname;
-	ReadString(filename,"General","ModName", modname,"untitled");
+	ini.ReadString("General","ModName", modname,"untitled");
 	fix_strncpy(Header.ModName, modname.c_str());
 
 	notes << "Compiling '" << modName() << "'" << endl;
 
-	ReadInteger(filename,"Weapons","NumWeapons",&num,0);
+	ini.ReadInteger("Weapons","NumWeapons",&num,0);
 
 
 	// Weapons
@@ -1411,14 +1420,14 @@ bool CGameScript::Compile(const std::string& dir)
 		std::string wpn = "Weapon" + itoa(n+1);
 
 		std::string weap;
-		ReadString(filename,"Weapons",wpn,weap,"");
+		ini.ReadString("Weapons", wpn, weap, "");
 
-		if(!CompileWeapon(dir,weap,n))
+		if(!CompileWeapon(dir, weap, n))
 			return false;
 	}
 
 	// Compile the extra stuff
-	CompileExtra(dir);
+	CompileExtra(ini);
 
 	loaded = true;
 	
@@ -1433,7 +1442,11 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	CGameScript* Game = this;
 	
 	weapon_t *Weap = Game->Weapons+id;
-	std::string file = dir + "/" + weapon;
+	IniReader ini(dir + "/" + weapon, compilerKeywords);
+	if (!ini.Parse())  {
+		errors << "Error while parsing weapon file " << weapon << endl;
+		return false;
+	}
 
 	Weap->ID = id;
 	Weap->Proj.Proj = NULL;
@@ -1443,24 +1456,24 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	Weap->Proj.Proj = NULL;
 	Weap->LaserSight = false;
 
-	ReadString(file,"General","Name",Weap->Name,"");
+	ini.ReadString("General", "Name", Weap->Name, "");
 	notes << "  Compiling Weapon '" << Weap->Name << "'" << endl;
 
-	ReadKeyword(file,"General","Type",(int*)&Weap->Type,WPN_PROJECTILE);
+	ini.ReadKeyword("General", "Type", (int *)&Weap->Type, WPN_PROJECTILE);
 
 	
 	
 	// Special Weapons
 	if(Weap->Type == WPN_SPECIAL) {
 		
-		ReadKeyword(file,"General","Special",(int*)&Weap->Special,SPC_NONE);
+		ini.ReadKeyword("General", "Special", (int*)&Weap->Special, SPC_NONE);
 
 		// If it is a special weapon, read the values depending on the special weapon
 		// We don't bother with the 'normal' values
 		switch(Weap->Special) {
 			// Jetpack
 			case SPC_JETPACK:
-				CompileJetpack(file, Weap);
+				CompileJetpack(ini, Weap);
 				break;
 
 			default:
@@ -1473,19 +1486,19 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 	// Beam Weapons
 	if(Weap->Type == WPN_BEAM) {
 
-		CompileBeam(file,Weap);
+		CompileBeam(ini, Weap);
 		return true;
 	}
 
 
 	// Projectile Weapons
-	ReadKeyword(file,"General","Class",(int*)&Weap->Class,WCL_AUTOMATIC);
-	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
-	ReadFloat(file,"General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
-	ReadFloat(file,"General","Drain",&Weap->Drain,0);
-	ReadFloat(file,"General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
-	ReadKeyword(file, "General", "LaserSight", &Weap->LaserSight, false);
-	if(ReadString(file,"General","Sound",Weap->SndFilename,"")) {
+	ini.ReadKeyword("General","Class",(int*)&Weap->Class,WCL_AUTOMATIC);
+	ini.ReadInteger("General","Recoil",&Weap->Recoil,0);
+	ini.ReadFloat("General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
+	ini.ReadFloat("General","Drain",&Weap->Drain,0);
+	ini.ReadFloat("General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
+	ini.ReadKeyword("General", "LaserSight", &Weap->LaserSight, false);
+	if(ini.ReadString("General","Sound",Weap->SndFilename,"")) {
 		Weap->UseSound = true;
 	
 		if(!bDedicated) {
@@ -1494,7 +1507,7 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		}
 	}
 	
-	Weap->Proj.readFromIni(this, dir, file, "Projectile");
+	Weap->Proj.readFromIni(this, dir, ini, "Projectile");
 	
 	if(Weap->Proj.UseParentVelocityForSpread) {
 		warnings << "UseProjVelocity is set in Projectile-section (" << weapon << "); this was not supported in LX56 thus we ignore it" << endl;
@@ -1516,7 +1529,7 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 		return false;
 	}
 	
-	Weap->FinalProj.readFromIni(this, dir, file, "FinalProj");
+	Weap->FinalProj.readFromIni(this, dir, ini, "FinalProj");
 	
 	return true;
 }
@@ -1524,16 +1537,16 @@ bool CGameScript::CompileWeapon(const std::string& dir, const std::string& weapo
 
 ///////////////////
 // Compile a beam weapon
-void CGameScript::CompileBeam(const std::string& file, weapon_t *Weap)
+void CGameScript::CompileBeam(const IniReader& ini, weapon_t *Weap)
 {
-	ReadInteger(file,"General","Recoil",&Weap->Recoil,0);
-	ReadFloat(file,"General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
-	ReadFloat(file,"General","Drain",&Weap->Drain,0);
-	ReadFloat(file,"General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
-	if(ReadString(file,"General","Sound",Weap->SndFilename,""))
+	ini.ReadInteger("General","Recoil",&Weap->Recoil,0);
+	ini.ReadFloat("General","Recharge",&Weap->Recharge,0); Weap->Recharge /= 10.0f;
+	ini.ReadFloat("General","Drain",&Weap->Drain,0);
+	ini.ReadFloat("General","ROF",&Weap->ROF,0); Weap->ROF /= 1000.0f;
+	if(ini.ReadString("General","Sound",Weap->SndFilename,""))
 		Weap->UseSound = true;
 
-	Weap->Bm.readFromIni(file, "Beam");
+	Weap->Bm.readFromIni(ini, "Beam");
 }
 
 
@@ -1556,11 +1569,8 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	projFileIndexes[pfile] = projIndex;
 	
 	// Load the projectile
-	std::string file = dir + "/" + pfile;
+	IniReader ini(dir + "/" + pfile, compilerKeywords);
 	notes << "    Compiling Projectile '" << pfile << "'" << endl;
-	
-	if(!IsFileAvailable(dir + "/" + pfile, false))
-		warnings << "projectile file " << pfile << " not found, using defaults..." << endl;
 	
 	proj->filename = pfile;
 	
@@ -1581,30 +1591,35 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->AttractiveForceRadius = 0;
 	proj->AttractiveForceThroughWalls = true;
 
-	ReadKeyword(file,"General","Type",(int*)&proj->Type,PRJ_PIXEL);
-	ReadFloat(file,"General","Timer",&proj->Timer.Time,0);
-	ReadFloat(file, "General", "TimerVar", &proj->Timer.TimeVar, 0);
-	ReadKeyword(file,"General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
+	if (!ini.Parse())  {
+		warnings << "projectile file " << pfile << " could not be parsed, using defaults..." << endl;
+		return proj;
+	}
 
-	ReadInteger(file, "General","AttractiveForce", &proj->AttractiveForce, 0);
-	ReadInteger(file, "General","AttractiveForceRadius", &proj->AttractiveForceRadius, 0);
-	ReadKeyword(file,"General","AttractiveForceType",(int*)&proj->AttractiveForceType,ATT_GRAVITY);
-	ReadKeywordList(file,"General","AttractiveForceObjects",&proj->AttractiveForceObjects,0);
-	ReadKeywordList(file,"General","AttractiveForceClasses",&proj->AttractiveForceClasses,0);
-	ReadKeyword(file,"General","AttractiveForceThroughWalls",&proj->AttractiveForceThroughWalls,true);
+	ini.ReadKeyword("General","Type",(int*)&proj->Type,PRJ_PIXEL);
+	ini.ReadFloat("General","Timer",&proj->Timer.Time,0);
+	ini.ReadFloat("General", "TimerVar", &proj->Timer.TimeVar, 0);
+	ini.ReadKeyword("General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
+
+	ini.ReadInteger("General","AttractiveForce", &proj->AttractiveForce, 0);
+	ini.ReadInteger("General","AttractiveForceRadius", &proj->AttractiveForceRadius, 0);
+	ini.ReadKeyword("General","AttractiveForceType",(int*)&proj->AttractiveForceType,ATT_GRAVITY);
+	ini.ReadKeywordList("General","AttractiveForceObjects",&proj->AttractiveForceObjects,0);
+	ini.ReadKeywordList("General","AttractiveForceClasses",&proj->AttractiveForceClasses,0);
+	ini.ReadKeyword("General","AttractiveForceThroughWalls",&proj->AttractiveForceThroughWalls,true);
 	
-	if( ReadInteger(file,"General","Gravity",&proj->Gravity, 0) )
+	if (ini.ReadInteger("General","Gravity",&proj->Gravity, 0))
 		proj->UseCustomGravity = true;
 
-	ReadFloat(file,"General","Dampening",&proj->Dampening,1.0f);
+	ini.ReadFloat("General","Dampening",&proj->Dampening,1.0f);
 
 	if(proj->Type == PRJ_PIXEL)
 		proj->Width = proj->Height = 2;
 	else
 		proj->Width = proj->Height = 4;
 	
-	ReadInteger(file, "General", "Width", &proj->Width, proj->Width);
-	ReadInteger(file, "General", "Height", &proj->Height, proj->Height);
+	ini.ReadInteger("General", "Width", &proj->Width, proj->Width);
+	ini.ReadInteger("General", "Height", &proj->Height, proj->Height);
 	
 	proj->Colour.clear();
 	proj->polygon.clear();
@@ -1613,7 +1628,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			proj->polygon.startPointAdding();
 			for(size_t i = 0; ; ++i) {				
 				VectorD2<int> p;
-				if( ReadVectorD2(file,"General", "P" + itoa((unsigned)i+1), p) ) {		
+				if(ini.ReadVectorD2("General", "P" + itoa((unsigned)i+1), p) ) {		
 					proj->polygon.addPoint(p);
 				} else
 					break;
@@ -1631,7 +1646,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		case PRJ_PIXEL:
 			for(size_t i = 0; ; ++i) {
 				Color col;
-				if( ReadColour(file,"General","Colour" + itoa((unsigned)i+1), col, Color()) ) {
+				if(ini.ReadColour("General","Colour" + itoa((unsigned)i+1), col, Color()) ) {
 					proj->Colour.push_back(col);
 				} else
 					break;
@@ -1643,19 +1658,19 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 			break;
 			
 		case PRJ_IMAGE:
-			ReadString(file,"General","Image",proj->ImgFilename,"");
-			ReadKeyword(file,"General","Rotating",&proj->Rotating,false);
-			ReadInteger(file,"General","RotIncrement",&proj->RotIncrement,0);
-			ReadInteger(file,"General","RotSpeed",&proj->RotSpeed,0);
-			ReadKeyword(file,"General","UseAngle",&proj->UseAngle,0);
-			ReadKeyword(file,"General","UseSpecAngle",&proj->UseSpecAngle,0);
+			ini.ReadString("General","Image",proj->ImgFilename,"");
+			ini.ReadKeyword("General","Rotating",&proj->Rotating,false);
+			ini.ReadInteger("General","RotIncrement",&proj->RotIncrement,0);
+			ini.ReadInteger("General","RotSpeed",&proj->RotSpeed,0);
+			ini.ReadKeyword("General","UseAngle",&proj->UseAngle,0);
+			ini.ReadKeyword("General","UseSpecAngle",&proj->UseSpecAngle,0);
 			if(proj->UseAngle || proj->UseSpecAngle)
-				ReadInteger(file,"General","AngleImages",&proj->AngleImages,0);
+				ini.ReadInteger("General","AngleImages",&proj->AngleImages,0);
 
-			ReadKeyword(file,"General","Animating",&proj->Animating,0);
+			ini.ReadKeyword("General","Animating",&proj->Animating,0);
 			if(proj->Animating) {
-				ReadFloat(file,"General","AnimRate",&proj->AnimRate,0);
-				ReadKeyword(file,"General","AnimType",(int*)&proj->AnimType,ANI_ONCE);
+				ini.ReadFloat("General","AnimRate",&proj->AnimRate,0);
+				ini.ReadKeyword("General","AnimType",(int*)&proj->AnimType,ANI_ONCE);
 			}
 	
 			if(!bDedicated) {
@@ -1672,7 +1687,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// general Projectile spawn info
 	{
-		proj->GeneralSpawnInfo.readFromIni(this, dir, file, "Projectile");
+		proj->GeneralSpawnInfo.readFromIni(this, dir, ini, "Projectile");
 		
 		if(proj->GeneralSpawnInfo.UseParentVelocityForSpread) {
 			warnings << "UseProjVelocity is set in Projectile-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
@@ -1680,7 +1695,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 		}
 	}
 	
-	proj->Hit.readFromIni(this, dir, file, "Hit");
+	proj->Hit.readFromIni(this, dir, ini, "Hit");
 	
 	if(proj->Hit.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 		warnings << dir << "/" << pfile << ": Hit section wants to spawn projectiles but there is no spawning information" << endl;
@@ -1689,7 +1704,7 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	// Timer	
 	if(proj->Timer.Time > 0) {
-		proj->Timer.readFromIni(this, dir, file, "Time");
+		proj->Timer.readFromIni(this, dir, ini, "Time");
 
 		if(proj->Timer.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 			warnings << dir << "/" << pfile << ": Timer section wants to spawn projectiles but there is no spawning information" << endl;
@@ -1699,22 +1714,22 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 	// Player hit
 	proj->PlyHit.Type = PJ_INJURE;
-	proj->PlyHit.readFromIni(this, dir, file, "PlayerHit");
+	proj->PlyHit.readFromIni(this, dir, ini, "PlayerHit");
 	
 	if(proj->PlyHit.Shake != 0) {
-		warnings << "projectile " << file << " has PlayerHit.Shake != 0 which was not supported earlier. this is ignored" << endl;
+		warnings << "projectile " << ini.getFileName() << " has PlayerHit.Shake != 0 which was not supported earlier. this is ignored" << endl;
 		proj->PlyHit.Shake = 0;
 	}
 	
 	if(proj->PlyHit.BounceExplode != 0) {
-		warnings << "projectile " << file << " has PlayerHit.BounceExplode != 0 which was not supported earlier. this is ignored" << endl;
+		warnings << "projectile " << ini.getFileName() << " has PlayerHit.BounceExplode != 0 which was not supported earlier. this is ignored" << endl;
 		proj->PlyHit.BounceExplode = 0;
 	}
 	
 	// If PJ_PLAYSOUND is set, we support it because PJ_PLAYSOUND didn't existed earlier.
 	// But you could also just use a custom action to play the sound.
 	if(proj->PlyHit.UseSound && proj->PlyHit.Type != PJ_PLAYSOUND) {
-		warnings << "projectile " << file << " has sound set, which was not supported earlier, thus it's ignored now" << endl;
+		warnings << "projectile " << ini.getFileName() << " has sound set, which was not supported earlier, thus it's ignored now" << endl;
 		proj->PlyHit.UseSound = false;
 	}
 
@@ -1746,10 +1761,10 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	{
 		int projHitC = 0;
-		ReadInteger(file, "General", "ActionNum", &projHitC, 0);
+		ini.ReadInteger("General", "ActionNum", &projHitC, 0);
 		for(int i = 0; i < projHitC; ++i) {
 			Proj_EventAndAction act;
-			if(!act.readFromIni(this, dir, file, "Action" + itoa(i+1))) continue;
+			if(!act.readFromIni(this, dir, ini, "Action" + itoa(i+1))) continue;
 			
 			if(act.needGeneralSpawnInfo() && !proj->GeneralSpawnInfo.isSet()) {
 				warnings << dir << "/" << pfile << ": Action" << (i+1) << " section wants to spawn projectiles but there is no spawning information" << endl;
@@ -1767,13 +1782,13 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	
 	// Projectile trail
 	if(proj->Trail.Type == TRL_PROJECTILE) {
-		ReadFloat(file, "ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
+		ini.ReadFloat("ProjectileTrail", "Delay",  &proj->Trail.Delay, 100); proj->Trail.Delay /= 1000.0f;
 
 		// we have some other default values here
 		proj->Trail.Proj.Amount = 1;
 		proj->Trail.Proj.Speed = 100;
 		
-		proj->Trail.Proj.readFromIni(this, dir, file, "ProjectileTrail");
+		proj->Trail.Proj.readFromIni(this, dir, ini, "ProjectileTrail");
 		
 		if(proj->Trail.Proj.Useangle) {
 			warnings << "Useangle is set in ProjectileTrail-section (" << pfile << "); this was not supported in LX56 thus we ignore it" << endl;
@@ -1797,13 +1812,11 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 
 ///////////////////
 // Compile the extra stuff
-bool CGameScript::CompileExtra(const std::string& dir)
+bool CGameScript::CompileExtra(const IniReader& ini)
 {
 	CGameScript* Game = this;
 	
 	notes << "   Compiling Extras" << endl;
-
-	std::string file = dir + "/main.txt";
 
 	// Ninja Rope
 	notes << "  Compiling Ninja Rope" << endl;
@@ -1811,9 +1824,9 @@ bool CGameScript::CompileExtra(const std::string& dir)
 	int ropel, restl;
 	float strength;
 
-	ReadInteger(file,"NinjaRope","RopeLength",&ropel,0);
-	ReadInteger(file,"NinjaRope","RestLength",&restl,0);
-	ReadFloat(file,"NinjaRope","Strength",&strength,0);
+	ini.ReadInteger("NinjaRope","RopeLength",&ropel,0);
+	ini.ReadInteger("NinjaRope","RestLength",&restl,0);
+	ini.ReadFloat("NinjaRope","Strength",&strength,0);
 
 	Game->SetRopeLength(ropel);
 	Game->SetRestLength(restl);
@@ -1824,13 +1837,13 @@ bool CGameScript::CompileExtra(const std::string& dir)
 	notes << "  Compiling Worm" << endl;
 	gs_worm_t *wrm = &Game->Worm;
 
-	ReadFloat( file, "Worm", "AngleSpeed",		&wrm->AngleSpeed, 150);
-	ReadFloat( file, "Worm", "GroundSpeed",		&wrm->GroundSpeed, 8);
-	ReadFloat( file, "Worm", "AirSpeed",		&wrm->AirSpeed, 1);
-	ReadFloat( file, "Worm", "Gravity",			&wrm->Gravity, 175);
-	ReadFloat( file, "Worm", "JumpForce",		&wrm->JumpForce, -140);
-	ReadFloat( file, "Worm", "AirFriction",		&wrm->AirFriction, 0);
-	ReadFloat( file, "Worm", "GroundFriction",	&wrm->GroundFriction, 0.6f);
+	ini.ReadFloat( "Worm", "AngleSpeed",		&wrm->AngleSpeed, 150);
+	ini.ReadFloat( "Worm", "GroundSpeed",		&wrm->GroundSpeed, 8);
+	ini.ReadFloat( "Worm", "AirSpeed",		&wrm->AirSpeed, 1);
+	ini.ReadFloat( "Worm", "Gravity",			&wrm->Gravity, 175);
+	ini.ReadFloat( "Worm", "JumpForce",		&wrm->JumpForce, -140);
+	ini.ReadFloat( "Worm", "AirFriction",		&wrm->AirFriction, 0);
+	ini.ReadFloat( "Worm", "GroundFriction",	&wrm->GroundFriction, 0.6f);
 
 
 
@@ -1851,13 +1864,13 @@ bool CGameScript::CompileExtra(const std::string& dir)
 
 ///////////////////
 // Compile the jetpack
-bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
+bool CGameScript::CompileJetpack(const IniReader& ini, weapon_t *Weap)
 {
 	Weap->Proj.Proj = NULL;
 
-	ReadInteger(file, "JetPack", "Thrust", (int*)&Weap->tSpecial.Thrust, 0);
-	ReadFloat(file, "JetPack", "Drain", &Weap->Drain, 0);
-	ReadFloat(file, "JetPack", "Recharge", &Weap->Recharge, 0);	Weap->Recharge /= 10.0f;
+	ini.ReadInteger("JetPack", "Thrust", (int*)&Weap->tSpecial.Thrust, 0);
+	ini.ReadFloat("JetPack", "Drain", &Weap->Drain, 0);
+	ini.ReadFloat("JetPack", "Recharge", &Weap->Recharge, 0);	Weap->Recharge /= 10.0f;
 
 	Weap->ROF = 1.0f / 1000.0f;
 
@@ -1865,26 +1878,28 @@ bool CGameScript::CompileJetpack(const std::string& file, weapon_t *Weap)
 }
 
 
-bool Proj_SpawnInfo::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	ReadKeyword(file, section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
-	ReadMatrixD2(file, section, "ParentVelFactor", ParentVelFactor, ParentVelFactor); // new in OLX beta9
-	ReadVectorD2(file, section, "PosDiff", PosDiff, PosDiff); // new in OLX beta9
-	ReadVectorD2(file, section, "SnapToGrid", SnapToGrid, SnapToGrid); // new in OLX beta9
+bool Proj_SpawnInfo::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
+	ini.ReadKeyword(section, "AddParentVel", &AddParentVel, AddParentVel); // new in OLX beta9
+	ini.ReadMatrixD2(section, "ParentVelFactor", ParentVelFactor, ParentVelFactor); // new in OLX beta9
+	ini.ReadVectorD2(section, "PosDiff", PosDiff, PosDiff); // new in OLX beta9
+	ini.ReadVectorD2(section, "SnapToGrid", SnapToGrid, SnapToGrid); // new in OLX beta9
 	
-	ReadKeyword(file, section, "Useangle", &Useangle, Useangle);
-	ReadInteger(file, section, "Angle", &Angle, Angle);
+	ini.ReadKeyword(section, "Useangle", &Useangle, Useangle);
+	ini.ReadInteger(section, "Angle", &Angle, Angle);
 	
-	ReadKeyword(file, section, "UseProjVelocity", &UseParentVelocityForSpread, UseParentVelocityForSpread);
+	ini.ReadKeyword(section, "UseProjVelocity", &UseParentVelocityForSpread, UseParentVelocityForSpread);
 	
-	ReadInteger(file, section, "Amount", &Amount, Amount);
-	ReadInteger(file, section, "Speed",  &Speed, Speed);
-	ReadFloat(file, section, "SpeedVar",  &SpeedVar, SpeedVar);
-	ReadFloat(file, section, "Spread", &Spread, Spread);
+	ini.ReadInteger(section, "Amount", &Amount, Amount);
+	ini.ReadInteger(section, "Speed",  &Speed, Speed);
+	ini.ReadFloat(section, "SpeedVar",  &SpeedVar, SpeedVar);
+	ini.ReadFloat(section, "Spread", &Spread, Spread);
 	
 	std::string prjfile;
-	ReadString(file, section, "Projectile", prjfile, "");
-	if(prjfile != "") Proj = gs->CompileProjectile(dir, prjfile);
-	else Proj = NULL;
+	ini.ReadString(section, "Projectile", prjfile, "");
+	if (prjfile.size()) 
+		Proj = gs->CompileProjectile(dir, prjfile);
+	else 
+		Proj = NULL;
 	
 	return true;
 }
@@ -1929,14 +1944,14 @@ bool Proj_SpawnInfo::write(CGameScript* gs, FILE* fp) {
 }
 
 
-bool Wpn_Beam::readFromIni(const std::string& file, const std::string& section) {
-	ReadInteger(file, section, "Damage", &Damage, Damage);
-	ReadInteger(file, section, "Length", &Length, Length);
-	ReadInteger(file, section, "PlayerDamage", &PlyDamage, PlyDamage);
-	ReadColour(file, section, "Colour", Colour, Colour);
-	ReadInteger(file, section, "InitWidth", &InitWidth, InitWidth);
-	ReadFloat(file, section, "WidthIncrease", &WidthIncrease, WidthIncrease);
-	ReadKeyword(file, section, "DistributeDamageOverWidth", &DistributeDamageOverWidth, DistributeDamageOverWidth);
+bool Wpn_Beam::readFromIni(const IniReader& ini, const std::string& section) {
+	ini.ReadInteger(section, "Damage", &Damage, Damage);
+	ini.ReadInteger(section, "Length", &Length, Length);
+	ini.ReadInteger(section, "PlayerDamage", &PlyDamage, PlyDamage);
+	ini.ReadColour(section, "Colour", Colour, Colour);
+	ini.ReadInteger(section, "InitWidth", &InitWidth, InitWidth);
+	ini.ReadFloat(section, "WidthIncrease", &WidthIncrease, WidthIncrease);
+	ini.ReadKeyword(section, "DistributeDamageOverWidth", &DistributeDamageOverWidth, DistributeDamageOverWidth);
 	return true;
 }
 
@@ -1995,14 +2010,14 @@ bool Wpn_Beam::write(CGameScript* gs, FILE* fp) {
 }
 
 
-bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section, int deepCounter) {
-	ReadKeyword(file, section, "Type", (int*)&Type, Type);
-	ReadKeyword(file,section,"Projectiles",&Projectiles,false);
-	ReadInteger(file,section,"Damage",&Damage,Damage);
-	ReadInteger(file,section,"Shake",&Shake,Shake);
+bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section, int deepCounter) {
+	ini.ReadKeyword(section, "Type", (int*)&Type, Type);
+	ini.ReadKeyword(section,"Projectiles",&Projectiles,false);
+	ini.ReadInteger(section,"Damage",&Damage,Damage);
+	ini.ReadInteger(section,"Shake",&Shake,Shake);
 		
 	UseSound = false;
-	if(ReadString(file,section,"Sound",SndFilename,"")) {
+	if(ini.ReadString(section,"Sound",SndFilename,"")) {
 		UseSound = true;
 
 		if(!bDedicated) {
@@ -2010,23 +2025,23 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 			Sound = gs->LoadGSSample(dir, SndFilename);
 			
 			if(Sound == NULL)
-				gs->modLog(file + ":" + section + ": Could not open sound '" + SndFilename + "'");
+				gs->modLog(ini.getFileName() + ":" + section + ": Could not open sound '" + SndFilename + "'");
 		}
 	}
 	
-	ReadFloat(file,section,"BounceCoeff",&BounceCoeff,BounceCoeff);
-	ReadInteger(file,section,"BounceExplode",&BounceExplode,BounceExplode);
+	ini.ReadFloat(section,"BounceCoeff",&BounceCoeff,BounceCoeff);
+	ini.ReadInteger(section,"BounceExplode",&BounceExplode,BounceExplode);
 
-	ReadFloat(file,section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
-	ReadVectorD2(file, section, "ChangeRadius", ChangeRadius, ChangeRadius);
+	ini.ReadFloat(section,"GoThroughSpeed",&GoThroughSpeed,GoThroughSpeed);	
+	ini.ReadVectorD2(section, "ChangeRadius", ChangeRadius, ChangeRadius);
 	
 	switch(Type) {
 		case PJ_OverwriteOwnSpeed:
 		case PJ_DiffOwnSpeed:
 		case PJ_OverwriteTargetSpeed:
 		case PJ_DiffTargetSpeed:
-			if(!ReadVectorD2(file, section, "Speed", Speed, Speed)) {
-				warnings << "Speed attribute missing in " << dir << "/" << file << ":" << section << endl;
+			if(!ini.ReadVectorD2(section, "Speed", Speed, Speed)) {
+				warnings << "Speed attribute missing in " << dir << "/" << ini.getFileName() << ":" << section << endl;
 			}
 		default: break;
 	}			
@@ -2038,32 +2053,32 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const std
 		case PJ_HeadingToNextOtherWorm:
 		case PJ_HeadingToNextEnemyWorm:
 		case PJ_HeadingToNextTeamMate:
-			if(!ReadMatrixD2(file, section, "SpeedMult", SpeedMult, SpeedMult)) {
-				warnings << "SpeedMult attribute missing in " << dir << "/" << file << ":" << section << endl;		
+			if(!ini.ReadMatrixD2(section, "SpeedMult", SpeedMult, SpeedMult)) {
+				warnings << "SpeedMult attribute missing in " << dir << "/" << ini.getFileName() << ":" << section << endl;		
 			}
 		default: break;
 	}
 	
 	if(Projectiles)
-		Proj.readFromIni(gs, dir, file, section + ".Projectile");
+		Proj.readFromIni(gs, dir, ini, section + ".Projectile");
 	
 	std::string addActionSection;
-	ReadString(file, section, "Additional", addActionSection, "");
+	ini.ReadString(section, "Additional", addActionSection, "");
 	TrimSpaces(addActionSection);
 	if(addActionSection != "") {
 		if(deepCounter > 1000) {
-			warnings << "There is probably an additional action definition loop in " << file << ":" << section << endl;
+			warnings << "There is probably an additional action definition loop in " << ini.getFileName() << ":" << section << endl;
 			return false;
 		}
 		
 		additionalAction = new Proj_Action();
 		additionalAction->Type = PJ_NOTHING;
-		if(!additionalAction->readFromIni(gs, dir, file, addActionSection, deepCounter + 1)) {
+		if(!additionalAction->readFromIni(gs, dir, ini, addActionSection, deepCounter + 1)) {
 			delete additionalAction; additionalAction = NULL;
 			return false;
 		}
 		else if(!additionalAction->hasAction()) {
-			warnings << "additional action " << addActionSection << "(in " << file << ":" << section << ") does not have any effect" << endl;
+			warnings << "additional action " << addActionSection << "(in " << ini.getFileName() << ":" << section << ") does not have any effect" << endl;
 			delete additionalAction; additionalAction = NULL;
 		}
 	}
@@ -2142,20 +2157,20 @@ bool Proj_Action::write(CGameScript* gs, FILE* fp) {
 	return true;
 }
 
-bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	if(!ReadKeyword(file, section, "Type", (int*)&type, type)) {
-		warnings << file << ":" << section << ": Type attribute isn't set for event" << endl;
+bool Proj_Event::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
+	if(!ini.ReadKeyword(section, "Type", (int*)&type, type)) {
+		warnings << ini.getFileName() << ":" << section << ": Type attribute isn't set for event" << endl;
 		return false;
 	}
 	if(get() == NULL) {
-		warnings << file << ":" << section << ": Type attribute is invalid for event" << endl;
+		warnings << ini.getFileName() << ":" << section << ": Type attribute is invalid for event" << endl;
 		return false;
 	}
-	if(!get()->readFromIni(gs, dir, file, section))
+	if(!get()->readFromIni(gs, dir, ini, section))
 		return false;
 	
 	if(!get()->canMatch()) {
-		warnings << file << ":" << section << ": Event can never occur with these settings" << endl;
+		warnings << ini.getFileName() << ":" << section << ": Event can never occur with these settings" << endl;
 		return false;
 	}
 	return true;
@@ -2173,27 +2188,27 @@ bool Proj_Event::write(CGameScript* gs, FILE* fp) {
 	return get()->write(gs, fp);
 }
 
-bool Proj_EventAndAction::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+bool Proj_EventAndAction::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
 	std::string eventSection;
-	ReadString(file, section, "Event", eventSection, eventSection);
+	ini.ReadString(section, "Event", eventSection, eventSection);
 	if(eventSection == "") {
-		warnings << file << ":" << section << ": Event not set" << endl;
+		warnings << ini.getFileName() << ":" << section << ": Event not set" << endl;
 		return false;
 	}
 
 	while(eventSection != "") {
 		if(events.size() > 1000) {
-			warnings << file << ":" << section << ": Probably there is a loop definition for Event" << endl;
+			warnings << ini.getFileName() << ":" << section << ": Probably there is a loop definition for Event" << endl;
 			events.clear();
 			return false;
 		}
 		Proj_Event ev;
-		if(!ev.readFromIni(gs, dir, file, eventSection)) return events.size() > 0;
+		if(!ev.readFromIni(gs, dir, ini, eventSection)) return events.size() > 0;
 		events.push_back(ev);
-		if(!ReadString(file, std::string(eventSection), "AndEvent", eventSection, eventSection)) break;
+		if(!ini.ReadString(std::string(eventSection), "AndEvent", eventSection, eventSection)) break;
 	}
 	
-	return Proj_Action::readFromIni(gs, dir, file, section);
+	return Proj_Action::readFromIni(gs, dir, ini, section);
 }
 
 bool Proj_EventAndAction::read(CGameScript* gs, FILE* fp) {
@@ -2221,11 +2236,11 @@ bool Proj_EventAndAction::write(CGameScript* gs, FILE* fp) {
 }
 
 
-bool Proj_TimerEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	ReadFloat(file, section, "Delay", &Delay, Delay);
-	ReadKeyword(file, section, "Repeat", &Repeat, Repeat);
-	ReadKeyword(file, section, "UseGlobalTime", &UseGlobalTime, UseGlobalTime);	
-	ReadInteger(file, section, "PermanentMode", &PermanentMode, PermanentMode);
+bool Proj_TimerEvent::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
+	ini.ReadFloat(section, "Delay", &Delay, Delay);
+	ini.ReadKeyword(section, "Repeat", &Repeat, Repeat);
+	ini.ReadKeyword(section, "UseGlobalTime", &UseGlobalTime, UseGlobalTime);	
+	ini.ReadInteger(section, "PermanentMode", &PermanentMode, PermanentMode);
 	return true;
 }
 
@@ -2245,29 +2260,29 @@ bool Proj_TimerEvent::write(CGameScript* gs, FILE* fp) {
 	return true;
 }
 
-bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
+bool Proj_ProjHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
 	gs->needCollisionInfo = true;
 	
-	ownerWorm.readFromIni(gs, dir, file, section);
+	ownerWorm.readFromIni(gs, dir, ini, section);
 	
-	ReadInteger(file, section, "MinHitCount", &MinHitCount, MinHitCount);
-	ReadInteger(file, section, "MaxHitCount", &MaxHitCount, MaxHitCount);
+	ini.ReadInteger(section, "MinHitCount", &MinHitCount, MinHitCount);
+	ini.ReadInteger(section, "MaxHitCount", &MaxHitCount, MaxHitCount);
 	
 	if(MaxHitCount >= 0 && MaxHitCount < MinHitCount) {
-		warnings << file << ":" << section << ": ignoring MaxHitCount because MaxHitCount < MinHitCount" << endl;
+		warnings << ini.getFileName() << ":" << section << ": ignoring MaxHitCount because MaxHitCount < MinHitCount" << endl;
 		MaxHitCount = -1;
 	}
 		
-	ReadInteger(file, section, "Width", &Width, Width);
-	ReadInteger(file, section, "Height", &Height, Height);	
+	ini.ReadInteger(section, "Width", &Width, Width);
+	ini.ReadInteger(section, "Height", &Height, Height);	
 	
-	ReadKeyword(file, section, "TargetHealthIsMore", &TargetHealthIsMore, TargetHealthIsMore);
-	ReadKeyword(file, section, "TargetHealthIsLess", &TargetHealthIsLess, TargetHealthIsLess);
-	ReadKeyword(file, section, "TargetTimeIsMore", &TargetTimeIsMore, TargetTimeIsMore);
-	ReadKeyword(file, section, "TargetTimeIsLess", &TargetTimeIsLess, TargetTimeIsLess);
+	ini.ReadKeyword(section, "TargetHealthIsMore", &TargetHealthIsMore, TargetHealthIsMore);
+	ini.ReadKeyword(section, "TargetHealthIsLess", &TargetHealthIsLess, TargetHealthIsLess);
+	ini.ReadKeyword(section, "TargetTimeIsMore", &TargetTimeIsMore, TargetTimeIsMore);
+	ini.ReadKeyword(section, "TargetTimeIsLess", &TargetTimeIsLess, TargetTimeIsLess);
 	
 	std::string prjfile;
-	ReadString(file, section, "Target", prjfile, "");
+	ini.ReadString(section, "Target", prjfile, "");
 	if(prjfile != "")
 		Target = gs->CompileProjectile(dir, prjfile);
 	else
@@ -2326,13 +2341,13 @@ bool Proj_ProjHitEvent::write(CGameScript* gs, FILE* fp) {
 
 
 
-bool Proj_WormHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	ReadKeyword(file, section, "SameWormAsProjOwner", &SameWormAsProjOwner, SameWormAsProjOwner);
-	ReadKeyword(file, section, "SameTeamAsProjOwner", &SameTeamAsProjOwner, SameTeamAsProjOwner);
-	ReadKeyword(file, section, "DiffWormAsProjOwner", &DiffWormAsProjOwner, DiffWormAsProjOwner);
-	ReadKeyword(file, section, "DiffTeamAsProjOwner", &DiffTeamAsProjOwner, DiffTeamAsProjOwner);
-	ReadKeyword(file, section, "TeamMateOfProjOwner", &TeamMateOfProjOwner, TeamMateOfProjOwner);	
-	ReadKeyword(file, section, "EnemyOfProjOwner", &EnemyOfProjOwner, EnemyOfProjOwner);	
+bool Proj_WormHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
+	ini.ReadKeyword(section, "SameWormAsProjOwner", &SameWormAsProjOwner, SameWormAsProjOwner);
+	ini.ReadKeyword(section, "SameTeamAsProjOwner", &SameTeamAsProjOwner, SameTeamAsProjOwner);
+	ini.ReadKeyword(section, "DiffWormAsProjOwner", &DiffWormAsProjOwner, DiffWormAsProjOwner);
+	ini.ReadKeyword(section, "DiffTeamAsProjOwner", &DiffTeamAsProjOwner, DiffTeamAsProjOwner);
+	ini.ReadKeyword(section, "TeamMateOfProjOwner", &TeamMateOfProjOwner, TeamMateOfProjOwner);	
+	ini.ReadKeyword(section, "EnemyOfProjOwner", &EnemyOfProjOwner, EnemyOfProjOwner);	
 	return true;
 }
 
@@ -2358,10 +2373,10 @@ bool Proj_WormHitEvent::write(CGameScript* gs, FILE* fp) {
 
 
 
-bool Proj_TerrainHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const std::string& file, const std::string& section) {
-	ReadKeyword(file, section, "MapBound", &MapBound, MapBound);
-	ReadKeyword(file, section, "Dirt", &Dirt, Dirt);
-	ReadKeyword(file, section, "Rock", &Rock, Rock);
+bool Proj_TerrainHitEvent::readFromIni(CGameScript* gs, const std::string& dir, const IniReader& ini, const std::string& section) {
+	ini.ReadKeyword(section, "MapBound", &MapBound, MapBound);
+	ini.ReadKeyword(section, "Dirt", &Dirt, Dirt);
+	ini.ReadKeyword(section, "Rock", &Rock, Rock);
 	return true;
 }
 
