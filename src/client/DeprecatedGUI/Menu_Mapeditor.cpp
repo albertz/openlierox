@@ -533,8 +533,8 @@ void Menu_MapEd_New()
 	cg.Add( new CTextbox(),                             mn_Height, 280,230, 100,tLX->cFont.GetHeight());
 	cg.Add( new CCombobox(),							mn_Scheme, 280,260, 120,17);
 
-	cg.SendMessage(2,TXM_SETMAX,64,0);
-	cg.SendMessage(3,TXM_SETMAX,64,0);
+	cg.SendMessage(mn_Width,TXM_SETMAX,64,0);
+	cg.SendMessage(mn_Height,TXM_SETMAX,64,0);
 
 	int dirtindex = -1;
 
@@ -548,18 +548,21 @@ void Menu_MapEd_New()
 
 
 	// Set initial values
-	t1 = (CTextbox *)cg.getWidget(2);
-	t2 = (CTextbox *)cg.getWidget(3);
+	t1 = (CTextbox *)cg.getWidget(mn_Width);
+	t2 = (CTextbox *)cg.getWidget(mn_Height);
 
 	t1->setText(itoa(cMap->GetWidth(),10));
-	t1->setText(itoa(cMap->GetHeight(),10));
+	t2->setText(itoa(cMap->GetHeight(),10));
 
+	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	doVideoFrameInMainThread();
+	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 210,170, 210,170, 220, 260);
+		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 210,170, 210,170, 222, 262);
 
 		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 175, tLX->clNormalLabel, "Level details");
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 220, 202, tLX->clNormalLabel, "Width");
@@ -697,12 +700,15 @@ void Menu_MapEd_LoadSave(int save)
 	FindFiles(filler, "levels", false, FM_REG);
 	lv->SortBy( 0, true );
 
+	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
+	doVideoFrameInMainThread();
+	DrawImage(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 0,0);
 
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(false);
 
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 300, 180);
+		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 170,150, 170,150, 302, 182);
 
 		tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), 320, 155, tLX->clNormalLabel, save ? "Save" : "Load");
 		tLX->cFont.Draw(VideoPostProcessor::videoSurface(), 180,288,tLX->clNormalLabel, "Level name");
