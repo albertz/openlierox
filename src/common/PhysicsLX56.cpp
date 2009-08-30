@@ -86,8 +86,20 @@ public:
 		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
-			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
-			FMOD(pos.y, (float)cClient->getMap()->GetHeight());
+			float mapw = (float)cClient->getMap()->GetWidth();
+			float maph = (float)cClient->getMap()->GetHeight();
+
+			if (pos.x < 0)
+				worm->crossedHorizontal()--;
+			else if (pos.x >= mapw)
+				worm->crossedHorizontal()++;
+			if (pos.y < 0)
+				worm->crossedVertical()--;
+			else if (pos.y >= maph)
+				worm->crossedVertical()++;
+
+			pos.x = fmod(pos.x + mapw, mapw);
+			pos.y = fmod(pos.y + maph, maph);
 		}
 		worm->pos() = pos;
 		
@@ -499,6 +511,10 @@ public:
 		}
 
 		simulateWormWeapon(wpnDT, worm);
+
+		// HINT: we have to do it again here in case the worm moved over the border in moveAndCheckWormCollision
+		if (cClient->getGameLobby()->features[FT_InfiniteMap])
+			wrapNinjaRopeInfiniteMap(worm->getNinjaRope(), worm, worm->getPos());
 		
 
 		// Fill in the info for sending
@@ -557,9 +573,6 @@ public:
 		CVec playerpos = owner->getPos();
 
 		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
-
-		if( wrapAround )
-			wrapNinjaRopeInfiniteMap( rope, playerpos );
 
 		rope->updateOldHookPos();
 
@@ -621,7 +634,7 @@ public:
 		bool outsideMap = false;
 
 		// Hack to see if the hook went out of the cClient->getMap()
-		if(!rope->isPlayerAttached() && !wrapAround)
+		if(!rope->isPlayerAttached() && !wrapAround)  {
 			if(
 				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
 				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
@@ -637,6 +650,18 @@ public:
 			rope->hookPos().y = ( MIN(cClient->getMap()->GetHeight()-(float)1, rope->hookPos().y) );
 
 			outsideMap = true;
+			}
+		} else if (wrapAround)  {
+			int hdiff = rope->crossedHorizontal() - owner->crossedHorizontal();
+			int vdiff = rope->crossedVertical() - owner->crossedVertical();
+			if (rope->hookPos().x < hdiff * (int)cClient->getMap()->GetWidth())
+				rope->crossedHorizontal()--;
+			else if (rope->hookPos().x >= (hdiff + 1) * (int)cClient->getMap()->GetWidth())
+				rope->crossedHorizontal()++;
+			if (rope->hookPos().y < vdiff * (int)cClient->getMap()->GetHeight())
+				rope->crossedVertical()--;
+			else if (rope->hookPos().y >= (vdiff + 1) * (int)cClient->getMap()->GetHeight())
+				rope->crossedVertical()++;
 		}
 
 
@@ -700,27 +725,27 @@ public:
 			}
 		}
 
-		if( wrapAround )
-			wrapNinjaRopeInfiniteMap( rope, playerpos );
+		// HINT: done after worm simulation
+		/*if( wrapAround )
+			wrapNinjaRopeInfiniteMap( rope, owner, playerpos );*/
 	}
 
-	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CVec playerpos )
+	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CWorm *owner, CVec playerpos )
 	{
 		// We're checking rope length for current map tile and all tiles that close to it, and pick up the shortest one
 		float mapW = (float)cClient->getMap()->GetWidth();
 		float mapH = (float)cClient->getMap()->GetHeight();
-		if( fabs( rope->hookPos().x - playerpos.x ) >
-			fabs( rope->hookPos().x + mapW - playerpos.x ) + 1.0f )
-			rope->hookPos().x += mapW;
-		if( fabs( rope->hookPos().x - playerpos.x ) >
-			fabs( rope->hookPos().x - mapW - playerpos.x ) + 1.0f )
-			rope->hookPos().x -= mapW;
-		if( fabs( rope->hookPos().y - playerpos.y ) >
-			fabs( rope->hookPos().y + mapH - playerpos.y ) + 1.0f )
-			rope->hookPos().y += mapH;
-		if( fabs( rope->hookPos().y - playerpos.y ) >
-			fabs( rope->hookPos().y - mapH - playerpos.y ) + 1.0f )
-			rope->hookPos().y -= mapH;
+
+		int hdiff = rope->crossedHorizontal() - owner->crossedHorizontal();
+		int vdiff = rope->crossedVertical() - owner->crossedVertical();
+
+		rope->hookPos().x -= rope->crossedHorizontal() * mapW;
+		FMOD<float>(rope->hookPos().x, mapW);
+		rope->hookPos().x += hdiff * mapW;
+
+		rope->hookPos().y -= rope->crossedVertical() * mapH;
+		FMOD<float>(rope->hookPos().y, mapH);
+		rope->hookPos().y += vdiff * mapH;
 	}
 	
 

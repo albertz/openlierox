@@ -150,6 +150,8 @@ void CWorm::Clear()
 	fTagTime = 0;
 	iDirtCount = 0;
 
+	CrossedHorizontal = CrossedVertical = 0;
+
 	fLastBlood = AbsTime();
 
 	fPreLastPosUpdate = fLastPosUpdate = AbsTime();
@@ -437,6 +439,7 @@ void CWorm::Spawn(CVec position) {
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
+	CrossedHorizontal = CrossedVertical = 0;
 	
 
 	fFrame = 0;

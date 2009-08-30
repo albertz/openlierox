@@ -260,6 +260,7 @@ private:
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
+	int			CrossedHorizontal, CrossedVertical;  // for infinite map
 
 	bool		bRopeDown;
 	bool		bRopeDownOnce;
@@ -596,6 +597,9 @@ public:
 
 
 	float&		frame()						{ return fFrame; }
+
+	int&		crossedHorizontal()			{ return CrossedHorizontal; }
+	int&		crossedVertical()			{ return CrossedVertical; }
 	
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
 	void reinitInputHandler();

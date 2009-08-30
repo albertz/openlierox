@@ -47,6 +47,7 @@ private:
 	CWorm		*Worm;
 	float		RopeLength;
 	float		RestLength;
+	int			CrossedHorizontal, CrossedVertical;  // for infinite map
 
 	float		MinLength;
 
@@ -99,6 +100,9 @@ public:
 	void	setAttached(bool a)			{ HookAttached = a; }
     float getRestLength() const    { return RestLength; }
 	float getMaxLength()	const	{ return RopeLength; }
+
+	int&		crossedHorizontal()			{ return CrossedHorizontal; }
+	int&		crossedVertical()			{ return CrossedVertical; }
 
 	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 

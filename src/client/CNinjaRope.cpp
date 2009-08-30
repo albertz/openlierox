@@ -36,6 +36,7 @@ void CNinjaRope::Clear()
 	//RopeLength = false;
 	PlayerAttached = false;
 	Worm = NULL;
+	CrossedHorizontal = CrossedVertical = 0;
 
 	LastReleased = Released;
 	LastHookShooting = HookShooting;
@@ -71,6 +72,8 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 	HookAttached = false;
 	PlayerAttached = false;
 	Worm = NULL;
+	CrossedHorizontal = owner->crossedHorizontal();
+	CrossedVertical = owner->crossedVertical();
 	//RopeLength = 300;
 	//RestLength = 20;
 
