@@ -513,8 +513,7 @@ public:
 		simulateWormWeapon(wpnDT, worm);
 
 		// HINT: we have to do it again here in case the worm moved over the border in moveAndCheckWormCollision
-		if (cClient->getGameLobby()->features[FT_InfiniteMap])
-			wrapNinjaRopeInfiniteMap(worm->getNinjaRope(), worm, worm->getPos());
+		worm->getNinjaRope()->wrapAround(worm, worm->getPos());
 		
 
 		// Fill in the info for sending
@@ -707,6 +706,16 @@ public:
 					rope->AttachToPlayer(&worms[i], owner);
 					break;
 				}
+
+				if (wrapAround)  {
+					CVec hp = rope->hookPos();
+					hp.x += (int)cClient->getMap()->GetWidth() * rope->crossedHorizontal();
+					hp.y += (int)cClient->getMap()->GetHeight() * rope->crossedHorizontal();
+					if ((worms[i].getPos() - hp).GetLength2() < 25)  {
+						rope->AttachToPlayer(&worms[i], owner);
+						break;
+					}
+				}
 			}
 		}
 
@@ -722,30 +731,19 @@ public:
 				rope->UnAttachPlayer();
 			} else {
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
+
+				if (wrapAround)  {
+					rope->crossedHorizontal() = rope->getAttachedPlayer()->crossedHorizontal() - owner->crossedHorizontal();
+					rope->crossedVertical() = rope->getAttachedPlayer()->crossedVertical() - owner->crossedVertical();
+					rope->hookPos().x += rope->crossedHorizontal() * cClient->getMap()->GetWidth();
+					rope->hookPos().y += rope->crossedVertical() * cClient->getMap()->GetHeight();
+				}
 			}
 		}
 
 		// HINT: done after worm simulation
 		/*if( wrapAround )
 			wrapNinjaRopeInfiniteMap( rope, owner, playerpos );*/
-	}
-
-	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CWorm *owner, CVec playerpos )
-	{
-		// We're checking rope length for current map tile and all tiles that close to it, and pick up the shortest one
-		float mapW = (float)cClient->getMap()->GetWidth();
-		float mapH = (float)cClient->getMap()->GetHeight();
-
-		int hdiff = rope->crossedHorizontal() - owner->crossedHorizontal();
-		int vdiff = rope->crossedVertical() - owner->crossedVertical();
-
-		rope->hookPos().x -= rope->crossedHorizontal() * mapW;
-		FMOD<float>(rope->hookPos().x, mapW);
-		rope->hookPos().x += hdiff * mapW;
-
-		rope->hookPos().y -= rope->crossedVertical() * mapH;
-		FMOD<float>(rope->hookPos().y, mapH);
-		rope->hookPos().y += vdiff * mapH;
 	}
 	
 

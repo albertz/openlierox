@@ -370,6 +370,7 @@ public:
 	void		readStatUpdate(CBytestream *bs);
 	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing();
+	void		checkWrapAround(int x, int y);  // For infinite map, updates cross* variables
 
 	
 	void		setupLobby();

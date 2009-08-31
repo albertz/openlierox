@@ -67,6 +67,8 @@ private:
 	CWorm		*LastWorm;
 	AbsTime		LastWrite;
 	AbsTime		LastPosUpdate; // Used for velocity counting (client don't send velocity)
+
+	VectorD2<int> OldReceivedPos;
 	
 
 public:
@@ -74,7 +76,7 @@ public:
 
 	void		Clear();
 
-	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);
+	void		Draw(SDL_Surface * bmpDest, CViewport *view, CWorm *owner);
 	void		Shoot(CWorm* owner, CVec pos, CVec dir);
 
 	CVec		GetForce(CVec playerpos);
@@ -92,6 +94,8 @@ public:
 	bool		writeNeeded();
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
+	void		checkWrapAround(int x, int y, CWorm *owner);
+	void		wrapAround(CWorm *owner, CVec playerpos);
 
     CVec getHookPos() const       { return HookPos; }
     bool   isAttached() const       { return HookAttached; }
