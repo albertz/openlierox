@@ -807,7 +807,6 @@ CWorm *GameServer::getFirstAliveWorm() const
 	if (!cWorms)
 		return NULL;
 
-	int res = 0;
 	for (int i = 0; i < MAX_WORMS; ++i)
 		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
 			return &cWorms[i];
