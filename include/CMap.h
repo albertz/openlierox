@@ -245,8 +245,8 @@ public:
 	bool		createCollisionGrid();
 	void		calculateCollisionGridArea(int x, int y, int w, int h);
 
-	inline int	getCollGridCellW() const;
-	inline int	getCollGridCellH() const;
+	int	getCollGridCellW() const;
+	int	getCollGridCellH() const;
 private:
 	// not thread-safe    
     void        calculateGridCell(int x, int y, bool bSkipEmpty);
