@@ -1684,7 +1684,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			(*w)->Prepare(true);
 		}
 		
-		newcl->getNetEngine()->SendUpdateLobbyGame(); // HINT: this is necessary because of beta8 which doesn't update all its state variables from preparegame
+		if(newcl->getClientVersion() <= OLXBetaVersion(8))
+			// HINT: this is necessary because of beta8 which doesn't update all its state variables from preparegame
+			newcl->getNetEngine()->SendUpdateLobbyGame();
 		newcl->getNetEngine()->SendPrepareGame();
 	}	
 
