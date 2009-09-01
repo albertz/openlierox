@@ -801,7 +801,7 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 
 #define GRID_CELL(X, Y)  (CollisionGrid + (Y) * Width + (X))
 #define PIXEL_FLAG(X, Y)  (PixelFlags + (Y) * Width + (X))
-#define CHECK(X, Y)  if ((X) >= (int)Width || (X) < 0 || (Y) >= (int)Height || (Y) < 0)  { __asm { int 3 }; }
+#define CHECK(X, Y)  if ((X) >= (int)Width || (X) < 0 || (Y) >= (int)Height || (Y) < 0)  { errors << "CMap::calculateCollisionGridArea(): Calculating over map borders" << endl; RaiseDebugger(); }
 
 	// Top part
 	for (int j = y; j < ch; j++)
