@@ -1349,13 +1349,13 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	// Update the pings first
 	CWorm *w = cClient->getRemoteWorms();
 	for (int i=0; i < MAX_PLAYERS; i++, w++)  {
-		if(w->isLocalHostWorm()) continue; // don't show ping for host worm
 		CServerConnection *client = cServer->getClient(w->getID());
-		if (client)  {
-			lv_subitem_t *subit = player_list->getSubItem(i, 5);
-			if (subit)
-				subit->sText = itoa(client->getPing());
-		}
+		if(!client) continue;
+		if(client->isLocalClient()) continue; // don't show ping for host worm
+
+		lv_subitem_t *subit = player_list->getSubItem(i, 5);
+		if (subit)
+			subit->sText = itoa(client->getPing());
 	}
 
 
