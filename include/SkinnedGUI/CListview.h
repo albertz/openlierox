@@ -75,7 +75,6 @@ private:
 	void setParentItem(CListviewItem *parent)	{ cItem = parent; }
 
 public:
-	static CListviewSubitem *Clone(const CListviewSubitem *orig);
 
 	CListviewItem *getParentItem() const	{ return cItem; }
 	SubitemType	getType() const				{ return iType; }

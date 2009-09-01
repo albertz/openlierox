@@ -34,31 +34,6 @@ namespace SkinnedGUI {
 // Listview subitem
 //
 
-////////////////////
-// Clones the subitem
-// The caller is responsible for freeing the returned clone
-CListviewSubitem *CListviewSubitem::Clone(const CListviewSubitem *orig)
-{
-	switch (orig->getType())  {
-		case sub_Text:
-			return new CTextSubitem((CTextSubitem *)orig);
-		break;
-
-		case sub_Image:
-			return new CImageSubitem((CImageSubitem *)orig);
-		break;
-
-		case sub_Widget:
-			return new CWidgetSubitem((CWidgetSubitem *)orig);
-		break;
-
-		default:
-			assert(false); // Should not happen
-	}
-
-	return NULL; // Should not happen
-}
-
 /////////////////////
 // Repaint the parent listview
 void CListviewSubitem::RepaintParent()
@@ -241,7 +216,7 @@ CListviewSubitem *CListviewItem::getSubitem(int index) const
 // Append a subitem
 void CListviewItem::AppendSubitem(const CListviewSubitem &s)
 {
-	CListviewSubitem *newsub = CListviewSubitem::Clone(&s);
+	CListviewSubitem *newsub = (CListviewSubitem *)s.Clone();
 	newsub->setParentItem(this);
 	tSubitems.push_back(newsub);
 	if (cParent)
