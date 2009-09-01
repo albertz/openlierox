@@ -291,7 +291,7 @@ struct HttpThread {
 	ThreadPoolItem* thread;
 	volatile bool breakThreadSignal;
 	
-	HttpThread(CHttp* h) : http(h), thread(NULL) { breakThreadSignal = false; }
+	HttpThread(CHttp* h) : http(h), thread(NULL), breakThreadSignal(false) {}
 	
 	void startThread() {
 		breakThread(); // if a thread is already running, break it
@@ -377,15 +377,10 @@ CHttp::CHttp()
 CHttp::~CHttp()
 {
 	CancelProcessing();
-	if (tBuffer)
-		delete[] tBuffer;
-	if (tChunkParser)
-		delete tChunkParser;
-	if (m_thread)
-		delete m_thread;
-	SDL_DestroyMutex(tMutex);
-	tBuffer = NULL;
-	tChunkParser = NULL;
+	if (tBuffer) delete[] tBuffer; tBuffer = NULL;
+	if (tChunkParser) delete tChunkParser; tChunkParser = NULL;
+	if (m_thread) delete m_thread; m_thread = NULL;
+	SDL_DestroyMutex(tMutex); tMutex = NULL;
 }
 
 ///////////////
@@ -445,10 +440,10 @@ CHttp& CHttp::operator =(const CHttp& http)
 	if (m_thread)  {
 		m_thread->breakThread();
 		delete m_thread;
+		m_thread = NULL;
 	}
 	if (tMutex)
 		SDL_DestroyMutex(tMutex);
-	m_thread = NULL;
 	tMutex = http.tMutex;
 	bThreadRunning = http.bThreadRunning;
 
