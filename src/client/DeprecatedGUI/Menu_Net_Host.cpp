@@ -1337,7 +1337,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 {
 	CListview *player_list = (CListview *)cHostLobby.getWidget(hl_PlayerList);
 	if (!player_list) { // Weird, shouldn't happen
-		warnings << "Menu_HostDrawLobby: player_list not set" << endl;
+		errors << "Menu_HostDrawLobby: player_list not set" << endl;
 		return;
 	}
 
