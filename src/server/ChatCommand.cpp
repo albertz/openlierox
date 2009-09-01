@@ -1159,7 +1159,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "Client is too old to support this";
 	}
 		
-	if(!w->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
+	if(!w->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
 		return "same weapons as host worm are forced";
 	}
 	
@@ -1174,7 +1174,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "";
 	}
 	
-	if(!w->isHostWorm() && cServer->serverChoosesWeapons()) {
+	if(!w->isFirstLocalHostWorm() && cServer->serverChoosesWeapons()) {
 		warnings << "ProcessWeapons: unhandled case for server chooses weapons" << endl;
 		return "server chooses weapons";
 	}

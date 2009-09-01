@@ -423,7 +423,8 @@ public:
 	//
 	bool		CanType();
 
-	bool		isHostWorm();
+	bool		isLocalHostWorm();
+	bool		isFirstLocalHostWorm();
 	bool		shouldDoOwnWeaponSelection();
 	
 	

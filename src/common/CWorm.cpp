@@ -354,13 +354,13 @@ void CWorm::initWeaponSelection() {
 	if(this->shouldDoOwnWeaponSelection())
 		m_inputHandler->initWeaponSelection();
 
-	if(this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
+	if(this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
 		this->GetRandomWeapons();
 		this->bWeaponsReady = true;
 	}
 
 	// bWeaponsReady could be true already for multiple reasons, e.g. in initWeaponSelection()
-	if(this->isHostWorm() && this->bWeaponsReady && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
+	if(this->isFirstLocalHostWorm() && this->bWeaponsReady && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
 		cServer->cloneWeaponsToAllWorms(this);
 }
 
@@ -397,7 +397,7 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	
 	m_inputHandler->doWeaponSelectionFrame(bmpDest, v);	
 		   
-	if(this->bWeaponsReady && this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
+	if(this->bWeaponsReady && this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
 		cServer->cloneWeaponsToAllWorms(this);
 	}
 
@@ -651,25 +651,40 @@ void CWorm::GetRandomWeapons()
 }
 
 // the first host worm (there can only be one such worm in a game)
-bool CWorm::isHostWorm() {
+bool CWorm::isFirstLocalHostWorm() {
 	if(tLX->iGameType == GME_JOIN) return false;
 	if(!cServer || !cServer->isServerRunning()) return false;
 	
-	CServerConnection* localConn = NULL;
-	for( int i=0; i<MAX_CLIENTS; i++ )
-		if(cServer->getClients()[i].isLocalClient()) {
-			localConn = &cServer->getClients()[i];
-			break;
-		}
+	CServerConnection* localConn = cServer->localClientConnection();
 	if(localConn == NULL) {
-		errors << "CWorm::isHostWorm: localClient not found" << endl;
+		errors << "CWorm::isFirstLocalHostWorm: localClient not found" << endl;
 		return false;
 	}
 	return localConn->getNumWorms() > 0 && localConn->getWorm(0)->getID() == iID;
 }
 
+bool CWorm::isLocalHostWorm() {
+	if(tLX->iGameType == GME_JOIN) return false;
+	if(!cServer || !cServer->isServerRunning()) return false;
+	
+	CServerConnection* localConn = cServer->localClientConnection();
+	if(localConn == NULL) {
+		errors << "CWorm::isLocalHostWorm: localClient not found" << endl;
+		return false;
+	}
+	
+	for(int i = 0; i < localConn->getNumWorms(); ++i) {
+		CWorm* w = localConn->getWorm(i);
+		if(w)
+			if(w->getID() == iID) return true;
+	}
+	
+	return false;
+}
+
+
 bool CWorm::shouldDoOwnWeaponSelection() {
-	return !cClient->serverChoosesWeapons() || (this->isHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
+	return !cClient->serverChoosesWeapons() || (this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {

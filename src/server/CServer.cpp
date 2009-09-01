@@ -1436,6 +1436,15 @@ void GameServer::CheckForFillWithBots() {
 	}
 }
 
+CServerConnection* GameServer::localClientConnection() {
+	for( int i=0; i<MAX_CLIENTS; i++ )
+		if(getClients()[i].isLocalClient())
+			return &getClients()[i];
+	return NULL;
+}
+
+
+
 ///////////////////
 // Drop a client
 void GameServer::DropClient(CServerConnection *cl, int reason, const std::string& sReason)

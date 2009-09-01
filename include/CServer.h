@@ -302,7 +302,8 @@ public:
 	bool			getGameOver()		{ return bGameOver; }
 	AbsTime			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }
-	CServerConnection *getClients() { return cClients; }
+	CServerConnection* getClients() { return cClients; }
+	CServerConnection* localClientConnection();
 	TimeDiff	getServerTime() { return fServertime; }
 	bool		isServerRunning() const { return cWorms && cClients; }
 	

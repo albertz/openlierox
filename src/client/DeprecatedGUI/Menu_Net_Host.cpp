@@ -1341,10 +1341,15 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		return;
 	}
 
+	if(cClient->getRemoteWorms() == NULL) {
+		errors << "Menu_HostDrawLobby: remote worms are not initialised" << endl;
+		return;
+	}
+	
 	// Update the pings first
-	CWorm *w = cClient->getRemoteWorms() + 1;
-	int i;
-	for (i=1; i < MAX_PLAYERS; i++, w++)  {  // Start from 1 (exclude host)
+	CWorm *w = cClient->getRemoteWorms();
+	for (int i=0; i < MAX_PLAYERS; i++, w++)  {
+		if(w->isLocalHostWorm()) continue; // don't show ping for host worm
 		CServerConnection *client = cServer->getClient(w->getID());
 		if (client)  {
 			lv_subitem_t *subit = player_list->getSubItem(i, 5);
@@ -1364,7 +1369,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	CButton *cmd_button = NULL;
 	CImage *team_img = NULL;
 
-	for (i=0; i < MAX_PLAYERS; i++, w++)  {
+	for (int i=0; i < MAX_PLAYERS; i++, w++)  {
 		if (!w->isUsed())  // Don't bother with unused worms
 			continue;
 
