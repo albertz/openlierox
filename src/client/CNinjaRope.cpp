@@ -339,8 +339,6 @@ void CNinjaRope::checkWrapAround(int x, int y, CWorm *owner)
 	int old_y = OldReceivedPos.y;
 	int mapw = cClient->getMap()->GetWidth();
 	int maph = cClient->getMap()->GetHeight();
-	int hdiff = CrossedHorizontal - owner->crossedHorizontal();
-	int vdiff = CrossedVertical - owner->crossedVertical();
 	static const int tolerance = 8;
 
 	if (abs(old_x - x) >= mapw - tolerance)
