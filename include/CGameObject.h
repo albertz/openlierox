@@ -33,11 +33,11 @@ protected:
 public:
 
 	CVec		getPos() const				{ return vPos; }
-	void		setPos(CVec v)				{ vPos = v; }
+	void		setPos(const CVec& v)		{ vPos = v; }
 	CVec&		pos()						{ return vPos; }
 
 	CVec		getVelocity() const			{ return vVelocity; }
-	void		setVelocity(CVec v)			{ vVelocity = v; }
+	void		setVelocity(const CVec& v)	{ vVelocity = v; }
 	CVec&		velocity()					{ return vVelocity; }
 	
 	void		setHealth(float _h)			{ health = _h; }
