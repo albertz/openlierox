@@ -617,7 +617,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		const CVec v =
 			sprd * (float)Speed +
 			speedVarVec * (float)SpeedVar * parent.fixedRandomFloat() +
-			(AddParentVel ? ParentVelFactor * parent.velocity() : CVec(0,0));
+			(AddParentVel ? (pureLX56Optimisation ? 1.0f : ParentVelFactor) * parent.velocity() : CVec(0,0));
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom *= 5;
@@ -635,10 +635,10 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		
 		const int random = parent.fixedRandomIndex();
 		
-		VectorD2<int> pos = parent.position() + PosDiff;
-		if(SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
-			pos.x -= pos.x % SnapToGrid.x; pos.x += SnapToGrid.x / 2;
-			pos.y -= pos.y % SnapToGrid.y; pos.y += SnapToGrid.y / 2;
+		CVec pos = parent.position() + (pureLX56Optimisation ? VectorD2<int>(0,0) : PosDiff);
+		if(!pureLX56Optimisation && SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
+			pos.x -= (int)pos.x % SnapToGrid.x; pos.x += SnapToGrid.x / 2;
+			pos.y -= (int)pos.y % SnapToGrid.y; pos.y += SnapToGrid.y / 2;
 		}
 		
 		cClient->SpawnProjectile(pos, v, rot, parent.ownerWorm(), Proj, random, spawnTime, ignoreWormCollBeforeTime);
