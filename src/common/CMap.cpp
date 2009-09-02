@@ -2764,7 +2764,7 @@ void CMap::NewNet_SaveToMemory()
 	{
 		errors("Error: calling CMap::SaveToMemory() twice\n");
 		return;
-	};
+	}
 	bMapSavingToMemory = true;
 	if( bmpSavedImage.get() == NULL )
 	{
@@ -2779,10 +2779,10 @@ void CMap::NewNet_SaveToMemory()
 			return;
 		}
 		savedPixelFlags = new uchar[Width * Height];
-	};
+	}
 	
 	savedMapCoords.clear();
-};
+}
 
 void CMap::NewNet_RestoreFromMemory()
 {
@@ -2790,12 +2790,12 @@ void CMap::NewNet_RestoreFromMemory()
 	{
 		errors("Error: calling CMap::RestoreFromMemory() twice\n");
 		return;
-	};
+	}
 	if( bmpSavedImage.get() == NULL || savedPixelFlags == NULL )
 	{
 		errors("Error: CMap::RestoreFromMemory(): bmpSavedImage is NULL\n");
 		return;
-	};
+	}
 	
 	for( std::set< SavedMapCoord_t > :: iterator it = savedMapCoords.begin();
 			it != savedMapCoords.end(); it++ )
@@ -2840,7 +2840,7 @@ void CMap::NewNet_RestoreFromMemory()
 
 	bMapSavingToMemory = false;
 	savedMapCoords.clear();
-};
+}
 
 void CMap::NewNet_Deinit()
 {
@@ -2850,7 +2850,7 @@ void CMap::NewNet_Deinit()
 			delete[] savedPixelFlags;
 		savedPixelFlags = NULL;
 		savedMapCoords.clear();
-};
+}
 
 void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 {
@@ -2860,7 +2860,7 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 	{
 		errors("Error: CMap::SaveToMemoryInternal(): bmpSavedImage is NULL\n");
 		return;
-	};
+	}
 
 	int gridX = x / MAP_SAVE_CHUNK;
 	int gridMaxX = 1 + (x+w) / MAP_SAVE_CHUNK;
@@ -2900,8 +2900,8 @@ void CMap::SaveToMemoryInternal(int x, int y, int w, int h)
 
 				unlockFlags();
 				UnlockSurface(bmpSavedImage);
-			};
-};
+			}
+}
 
 
 ///////////////////
