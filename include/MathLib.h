@@ -50,7 +50,8 @@ float	sqrt(float _v)  {return sqrtf(_v); }
 float	CalculateDistance(CVec p1, CVec p2);
 float	NormalizeVector(CVec *vec);
 CVec	GetRandomVec();
-void	GetVecsFromAngle(int yaw,CVec *forward, CVec *right);
+void	GetVecsFromAngle(float yaw,CVec *forward, CVec *right);
+CVec	GetVecFromAngle(float yaw);
 float	VectorAngle(CVec vec1, CVec vec2);
 float	VectorLength(CVec vec);
 float   fastSQRT(float x);

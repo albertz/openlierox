@@ -547,12 +547,7 @@ float Proj_SpawnParent::fixedRandomFloat() const {
 CVec Proj_SpawnParent::position() const {
 	switch(type) {
 		case PSPT_NOTHING: return CVec(0,0);
-		case PSPT_SHOT: {
-			CVec dir;
-			GetVecsFromAngle(shot->nAngle, &dir, NULL);
-			CVec pos = shot->cPos + dir*8;
-			return pos;
-		}
+		case PSPT_SHOT: return shot->cPos + GetVecFromAngle(shot->nAngle) * 8;
 		case PSPT_PROJ: return proj->getPos();
 	}
 	return CVec(0,0);
@@ -597,10 +592,9 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 		CVec sprd;
 		if(UseParentVelocityForSpread)
 			sprd = parent.velocity() * ParentVelSpreadFactor;
-		else {
-			int a = (int)( (float)Angle + heading + parent.fixedRandomFloat() * (float)Spread );
-			GetVecsFromAngle(a, &sprd, NULL);
-		}
+		else
+			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
+			sprd = GetVecFromAngle( (float)Angle + heading + parent.fixedRandomFloat() * (float)Spread );
 		
 		int rot = 0;
 		if(UseRandomRot) {

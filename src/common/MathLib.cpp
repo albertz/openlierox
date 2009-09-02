@@ -126,7 +126,7 @@ CVec GetRandomVec()
 
 ///////////////////
 // Get forward, and right vectors from a yaw angle
-void GetVecsFromAngle(int yaw,CVec *forward, CVec *right)
+void GetVecsFromAngle(float yaw,CVec *forward, CVec *right)
 {
 	float		angle;
 	float		sr, sp, sy, cr, cp, cy;
@@ -144,6 +144,13 @@ void GetVecsFromAngle(int yaw,CVec *forward, CVec *right)
 	if(right)
 		*right = CVec((-1*sr*sp*cy+-1*cr*-sy),(-1*sr*sp*sy+-1*cr*cy));
 }
+
+CVec GetVecFromAngle(float yaw) {
+	CVec ret;
+	GetVecsFromAngle(yaw, &ret, NULL);
+	return ret;
+}
+
 
 //////////////////
 // Get the angle (in radians) of two vectors
