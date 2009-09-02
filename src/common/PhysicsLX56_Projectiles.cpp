@@ -622,7 +622,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		const CVec v =
 			sprd * (float)Speed +
 			speedVarVec * (float)SpeedVar * parent.fixedRandomFloat() +
-			( (/*(pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false :*/ AddParentVel)
+			( ((pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false : AddParentVel)
 			  ? (pureLX56 ? 1.0f : ParentVelFactor) * parent.velocity() : CVec(0,0));
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
