@@ -33,7 +33,6 @@ void CNinjaRope::Clear()
 	Released = false;
 	HookShooting = false;
 	HookAttached = false;
-	//RopeLength = false;
 	PlayerAttached = false;
 	Worm = NULL;
 
@@ -71,8 +70,6 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 	HookAttached = false;
 	PlayerAttached = false;
 	Worm = NULL;
-	//RopeLength = 300;
-	//RestLength = 20;
 
 	HookPos = pos;
 	HookDir = dir;
@@ -186,22 +183,16 @@ CVec CNinjaRope::GetForce(CVec playerpos)
 // Calculate the pulling force
 CVec CNinjaRope::CalculateForce(CVec playerpos)
 {
-	float length2 = (playerpos-HookPos).GetLength2();
-
 	CVec dir = playerpos-HookPos;
 	dir = dir.Normalize();
 
-	//float l = MIN((float)0,RestLength-length);
-	float l;
-
-	if(length2 < RestLength*RestLength)
+	if((playerpos-HookPos).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 
 	// Make sure the pull isn't huge
-	//l = MAX(-40,l);
-	l = -Strength;
+	float l = -Strength;
 
-	dir *= l*100;//*Strength;
+	dir *= l*100;
 
 	return dir;
 }
@@ -222,10 +213,6 @@ void CNinjaRope::updateCheckVariables()
 // Returns true if the write function needs to be called
 bool CNinjaRope::writeNeeded()
 {
-	// TODO: why that?
-	/*if (!Released)
-		return false;*/
-
 	if		((LastReleased != Released) ||
 			(LastHookShooting != HookShooting) ||
 			(LastHookAttached != HookAttached) ||
