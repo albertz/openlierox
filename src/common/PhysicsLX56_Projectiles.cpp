@@ -587,11 +587,11 @@ void Proj_SpawnInfo::dump() const {
 
 void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56, bool optimIsTrail, bool optimIsNoTrail, bool optimIsShot, bool optimIsNoShot) const {
 	// Calculate the angle of the direction the projectile is heading
-	const float heading = ((pureLX56 && optimIsNoTrail) ? false : Useangle) ? parent.angle() : 0;
+	const float heading = ((pureLX56 && (optimIsTrail || optimIsShot)) ? false : Useangle) ? parent.angle() : 0;
 	
 	for(int i = 0; i < Amount; i++) {
 		const CVec sprd =
-		((pureLX56 && (optimIsTrail || optimIsShot)) ? false : UseParentVelocityForSpread) ?
+		((pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false : UseParentVelocityForSpread) ?
 			(parent.velocity() * ParentVelSpreadFactor)
 		:
 			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
