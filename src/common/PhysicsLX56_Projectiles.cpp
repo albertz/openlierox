@@ -617,7 +617,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		}
 		
 		const CVec& speedVarVec =
-			( /*(pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false :*/ UseSpecial11VecForSpeedVar)
+			( (pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false : UseSpecial11VecForSpeedVar)
 			? CVec(1,1) : sprd;
 		const CVec v =
 			sprd * (float)Speed +
