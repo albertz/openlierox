@@ -601,7 +601,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 							parent.fixedRandomFloat() * (float)Spread );
 		
 		int rot = 0;
-		if(/*(pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false :*/ UseRandomRot) {
+		if((pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false : UseRandomRot) {
 			// Calculate a random starting angle for the projectile rotation (if used)
 			if(Proj->Rotating) {
 				// Prevent div by zero
