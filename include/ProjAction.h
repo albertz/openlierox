@@ -108,7 +108,7 @@ struct Proj_SpawnInfo {
 	// optimised variants
 	void apply_Shot(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
 	void apply_Trail(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
-	void apply_Event(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
+	void apply_Event(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const; // covers also all new event types / actions from >=Beta9
 	
 	bool isSet() const { return Proj != NULL; }
 	void dump() const;
