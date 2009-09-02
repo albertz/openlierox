@@ -101,8 +101,10 @@ struct Proj_SpawnInfo {
 	VectorD2<int> PosDiff; // new since Beta9
 	VectorD2<int> SnapToGrid; // new since Beta9
 	
-	void apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation = false) const;
-	void apply(Proj_SpawnParent parent, AbsTime spawnTime, const LX56ProjAttribs& attribs) const;
+	void apply(Proj_SpawnParent parent, AbsTime spawnTime,
+			   // apply() covers every possible case if you leave all the following to false.
+			   // Though, if you provide some of these extra information, some checks are left out which could be slightly faster in some cases.
+			   bool pureLX56Optimisation, bool optimIsTrail, bool optimIsNoTrail, bool optimIsShot, bool optimIsNoShot) const;
 	bool isSet() const { return Proj != NULL; }
 	void dump() const;
 	

@@ -585,7 +585,7 @@ void Proj_SpawnInfo::dump() const {
 		notes << "spawn: " << Amount << " of " << Proj->filename << endl;
 }
 
-void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const {
+void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56, bool optimIsTrail, bool optimIsNoTrail, bool optimIsShot, bool optimIsNoShot) const {
 	// Calculate the angle of the direction the projectile is heading
 	const float heading = Useangle ? parent.angle() : 0;
 	
@@ -617,7 +617,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		const CVec v =
 			sprd * (float)Speed +
 			speedVarVec * (float)SpeedVar * parent.fixedRandomFloat() +
-			(AddParentVel ? (pureLX56Optimisation ? 1.0f : ParentVelFactor) * parent.velocity() : CVec(0,0));
+			(AddParentVel ? (pureLX56 ? 1.0f : ParentVelFactor) * parent.velocity() : CVec(0,0));
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom *= 5;
@@ -635,8 +635,8 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		
 		const int random = parent.fixedRandomIndex();
 		
-		CVec pos = parent.position() + (pureLX56Optimisation ? VectorD2<int>(0,0) : PosDiff);
-		if(!pureLX56Optimisation && SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
+		CVec pos = parent.position() + (pureLX56 ? VectorD2<int>(0,0) : PosDiff);
+		if(!pureLX56 && SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
 			pos.x -= (int)pos.x % SnapToGrid.x; pos.x += SnapToGrid.x / 2;
 			pos.y -= (int)pos.y % SnapToGrid.y; pos.y += SnapToGrid.y / 2;
 		}
@@ -649,10 +649,6 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		}
 	}
 	
-}
-
-void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, const LX56ProjAttribs& attribs) const {
-	apply(parent, spawnTime, attribs.pureLX56);
 }
 
 
@@ -1137,11 +1133,6 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
-static inline void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime, const LX56ProjAttribs& attribs) {
-	//spawnInfo->dump();
-	spawnInfo->apply(prj, fSpawnTime, attribs);
-}
-
 static void projectile_doMakeDirt(CProjectile* const prj) {
 	const int damage = 5;
 	int d = 0;
@@ -1197,20 +1188,20 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime, attribs );
+		pi->Trail.Proj.apply(prj, prj->fLastSimulationTime, attribs.pureLX56, true, false, false, true);
 	}
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime, attribs);
+		pi->GeneralSpawnInfo.apply(prj, currentTime, attribs.pureLX56, false, true, false, true);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, *i, currentTime, attribs);
+		(*i)->apply(prj, currentTime, false, false, true, false, true);
 	}
 	
 	if(sound) {
