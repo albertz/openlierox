@@ -628,16 +628,16 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 			parent.shot->nRandom %= 255;
 		}
 		
-		AbsTime ignoreWormCollBeforeTime = spawnTime;
-		if(parent.type == Proj_SpawnParent::PSPT_PROJ)
-			ignoreWormCollBeforeTime = parent.proj->getIgnoreWormCollBeforeTime();
-		else
-			// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
-			// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
-			// is probably outdated at this time
-			ignoreWormCollBeforeTime = GetPhysicsTime() + 0.1f; // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
+		const AbsTime ignoreWormCollBeforeTime =
+			(parent.type == Proj_SpawnParent::PSPT_PROJ) ?
+				parent.proj->getIgnoreWormCollBeforeTime()
+			:
+				// we set the ignoreWormCollBeforeTime to the current time to let the physics engine
+				// first emulate the projectiles to the curtime and ignore earlier colls as the worm-pos
+				// is probably outdated at this time
+				(GetPhysicsTime() + 0.1f); // HINT: we add 100ms (it was dt before) because the projectile is spawned -> worms are simulated (pos change) -> projectiles are simulated
 		
-		int random = parent.fixedRandomIndex();
+		const int random = parent.fixedRandomIndex();
 		
 		VectorD2<int> pos = parent.position() + PosDiff;
 		if(SnapToGrid.x >= 1 && SnapToGrid.y >= 1) {
