@@ -591,17 +591,17 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 	
 	for(int i = 0; i < Amount; i++) {
 		const CVec sprd =
-		((pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false : UseParentVelocityForSpread) ?
+		(/*(pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false :*/ UseParentVelocityForSpread) ?
 			(parent.velocity() * ParentVelSpreadFactor)
 		:
 			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
 			GetVecFromAngle(
-							( (pureLX56 && (optimIsTrail || optimIsShot)) ? 0.0f : (float)Angle ) +
+							( /*(pureLX56 && (optimIsTrail || optimIsShot)) ? 0.0f :*/ (float)Angle ) +
 							heading +
 							parent.fixedRandomFloat() * (float)Spread );
 		
 		int rot = 0;
-		if((pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false : UseRandomRot) {
+		if(/*(pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false :*/ UseRandomRot) {
 			// Calculate a random starting angle for the projectile rotation (if used)
 			if(Proj->Rotating) {
 				// Prevent div by zero
@@ -617,13 +617,12 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		}
 		
 		const CVec& speedVarVec =
-			((pureLX56 && optimIsTrail) ? true :
-			(pureLX56 && optimIsNoTrail) ? false : UseSpecial11VecForSpeedVar)
+			( /*(pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false :*/ UseSpecial11VecForSpeedVar)
 			? CVec(1,1) : sprd;
 		const CVec v =
 			sprd * (float)Speed +
 			speedVarVec * (float)SpeedVar * parent.fixedRandomFloat() +
-			( ((pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false : AddParentVel)
+			( (/*(pureLX56 && optimIsShot) ? true : (pureLX56 && optimIsNoShot) ? false :*/ AddParentVel)
 			  ? (pureLX56 ? 1.0f : ParentVelFactor) * parent.velocity() : CVec(0,0));
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
