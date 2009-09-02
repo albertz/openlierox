@@ -596,7 +596,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 		:
 			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
 			GetVecFromAngle(
-							( /*(pureLX56 && (optimIsTrail || optimIsShot)) ? 0.0f :*/ (float)Angle ) +
+							( (pureLX56 && (optimIsTrail || optimIsShot)) ? 0.0f : (float)Angle ) +
 							heading +
 							parent.fixedRandomFloat() * (float)Spread );
 		
