@@ -101,7 +101,7 @@ struct CaptureTheFlag : public CGameMode {
 		}
 		
 		if(killer != victim) {
-			killer->AddKill();
+			killer->addKill();
 		}
 		
 		// Victim is out of the game

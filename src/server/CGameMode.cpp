@@ -61,17 +61,13 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 			// TODO: Restore the suicide count message
 			if( networkTexts->sCommitedSuicide != "<none>" )
 				replacemax(networkTexts->sCommitedSuicide, "<player>", victim->getName(), buf, 1);
-			if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] && killer->getKills() > 0 )
-				killer->setKills(killer->getKills()-1);
+			killer->addSuicide();
 		}
 		else if( GameTeams() > 1 && killer->getTeam() == victim->getTeam() )
 		{
 			if( networkTexts->sTeamkill != "<none>" )
 				replacemax(networkTexts->sTeamkill, "<player>", killer->getName(), buf, 1);
-			if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] && killer->getKills() > 0 )
-				killer->setKills(killer->getKills()-1);
-			if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
-				killer->AddKill();
+			killer->addTeamkill();
 		}
 		else
 		{
@@ -80,7 +76,7 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 				replacemax(networkTexts->sKilled, "<killer>", killer->getName(), buf, 1);
 				replacemax(buf, "<victim>", victim->getName(), buf, 1);
 			}
-			killer->AddKill();
+			killer->addKill();
 		}
 	}
 	else

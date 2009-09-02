@@ -1887,6 +1887,8 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				// Also set some game details
 				cClient->getWorm(i)->setLives(serverWorm->getLives());
 				cClient->getWorm(i)->setKills(serverWorm->getKills());
+				cClient->getWorm(i)->setDeaths(serverWorm->getDeaths());
+				cClient->getWorm(i)->setTeamkills(serverWorm->getTeamkills());
 				cClient->getWorm(i)->setDamage(serverWorm->getDamage());
 				cClient->getWorm(i)->setHealth(serverWorm->getHealth());
 				cClient->getWorm(i)->setGameScript(cClient->getGameScript().get());
@@ -2081,6 +2083,8 @@ void CClient::RemoveWorm(int id)
 		cRemoteWorms[id].setUsed(false);
 		cRemoteWorms[id].setAlive(false);
 		cRemoteWorms[id].setKills(0);
+		cRemoteWorms[id].setDeaths(0);
+		cRemoteWorms[id].setTeamkills(0);
 		cRemoteWorms[id].setLives(WRM_OUT);
 		cRemoteWorms[id].setProfile(NULL);
 		cRemoteWorms[id].setType(PRF_HUMAN);

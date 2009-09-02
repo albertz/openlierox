@@ -988,10 +988,10 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 	bs.writeInt16(Worm->getLives());
 
 	// Overflow hack
-	if (Worm->getKills() > 255)
+	if (Worm->getScore() > 255)
 		bs.writeInt(255, 1);
 	else
-		bs.writeInt(Worm->getKills() > 0 ? Worm->getKills() : 0, 1);
+		bs.writeInt(Worm->getScore() > 0 ? Worm->getScore() : 0, 1);
 
 	SendPacket(&bs);
 }
@@ -1005,7 +1005,7 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
 	bs.writeInt16(Worm->getLives());	// Still int16 to allow WRM_OUT parsing (maybe I'm wrong though)
-	bs.writeInt(Worm->getKills(), 4); // Negative kills are allowed
+	bs.writeInt(Worm->getScore(), 4); // Negative kills are allowed
 	bs.writeFloat(Worm->getDamage());
 
 	SendPacket(&bs);

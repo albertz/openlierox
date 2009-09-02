@@ -101,6 +101,7 @@ void CWorm::Clear()
 	iKills = 0;
 	iDeaths = 0;
 	iSuicides = 0;
+	iTeamkills = 0;
 	fDamage = 0.0f;
 
 	health = 100.0f;
@@ -1132,6 +1133,7 @@ bool CWorm::Kill()
 
 	bAlive = false;
 	fTimeofDeath = GetPhysicsTime();
+	addDeath();
 
 	// -2 means there is no lives starting value
 	if(iLives == WRM_UNLIM)
@@ -1140,6 +1142,42 @@ bool CWorm::Kill()
 	iLives--;
 	return iLives == WRM_OUT;
 }
+
+int CWorm::getScore() const
+{
+	int score = getKills();
+	if( (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] > 0.0f )
+		score -= truncf( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] );
+	if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
+		score -= getSuicides();
+	if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
+		score -= getTeamkills();
+	if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
+		score += getTeamkills();
+
+	return score; // May be negative
+}
+
+void CWorm::addDeath()
+{
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+		return;
+	iDeaths++;
+};
+
+void CWorm::addSuicide()
+{
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+		return;
+	iSuicides++;
+};
+
+void CWorm::addTeamkill()
+{
+	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+		return;
+	iTeamkills++;
+};
 
 
 ///////////////////

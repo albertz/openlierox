@@ -119,7 +119,7 @@ void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 			replace(msg, "<hider>", victim->getName(), msg);
 			cServer->SendGlobalText(msg, TXT_NORMAL);
 		}
-		killer->AddKill();
+		killer->addKill();
 	}
 	victim->Kill();
 	bVisible[victim->getID()] = false;

@@ -401,6 +401,8 @@ mapCreate:
 		if(cWorms[i].isUsed()) {
 			cWorms[i].setLives(tLXOptions->tGameInfo.iLives);
 			cWorms[i].setKills(0);
+			cWorms[i].setDeaths(0);
+			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
 			cWorms[i].setGameScript(cGameScript.get());
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
@@ -620,6 +622,8 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
+			cWorms[i].setDeaths(0);
+			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
 			if(receiver)
 				receiver->getNetEngine()->SendWormScore( & cWorms[i] );
@@ -1777,6 +1781,8 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 			w->setLives(WRM_OUT);
 		}
 		w->setKills(0);
+		w->setDeaths(0);
+		w->setTeamkills(0);
 		w->setGameScript(cGameScript.get());
 		w->setWpnRest(&cWeaponRestrictions);
 		w->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );

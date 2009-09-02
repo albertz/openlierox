@@ -224,6 +224,7 @@ private:
 	int			iKills;
 	int			iDeaths;
 	int			iSuicides;
+	int			iTeamkills;
 	float		fDamage;
 
 	int			iTotalWins;
@@ -456,14 +457,29 @@ public:
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
 	
 	int			getLives()				{ return iLives; }
-	int			getKills()				{ return iKills; }
 	void		setLives(int l)				{ iLives = l; }
+
 	float		getDamage()				{ return fDamage; }
-	void		setDamage(float l)			{ fDamage = l; }
+	void		setDamage(float l)		{ fDamage = l; }
 	void		addDamage(float damage, CWorm* victim, const GameOptions::GameInfo & settings);
 
-	void		AddKill()				{ iKills++; }
-    void        setKills(int k)             { iKills = k; }
+	int			getKills() const		{ return iKills; }
+    void        setKills(int k)			{ iKills = k; }
+    void        addKill()				{ iKills++; }
+
+	int			getScore() const;		// Not same as getKills, takes into account suicides and deaths
+
+	int			getDeaths() const		{ return iDeaths; }
+	void		setDeaths(int d)		{ iDeaths = d; }
+	void		addDeath();
+
+	int			getSuicides() const		{ return iSuicides; }
+	void		setSuicides(int d)		{ iSuicides = d; }
+	void		addSuicide();
+
+	int			getTeamkills() const	{ return iTeamkills; }
+	void		setTeamkills(int d)		{ iTeamkills = d; }
+	void		addTeamkill();
 
 	void		setID(int i)				{ iID = i; }
 	int			getID()	const			{ return iID; }

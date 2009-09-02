@@ -240,6 +240,8 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cRemoteWorms[i].setUsed(false);
 		client->cRemoteWorms[i].setAlive(false);
 		client->cRemoteWorms[i].setKills(0);
+		client->cRemoteWorms[i].setDeaths(0);
+		client->cRemoteWorms[i].setTeamkills(0);
 		client->cRemoteWorms[i].setLives(WRM_OUT);
 		client->cRemoteWorms[i].setProfile(NULL);
 		client->cRemoteWorms[i].setType(PRF_HUMAN);
@@ -952,6 +954,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setLives(client->tGameInfo.iLives);
 			w->setAlive(false);
 			w->setKills(0);
+			w->setDeaths(0);
+			w->setTeamkills(0);
 			w->setDamage(0);
 			w->setHealth(100);
 			w->setGameScript(client->cGameScript.get());
@@ -2127,6 +2131,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
 		client->cRemoteWorms[id].setAlive(false);
+		client->cRemoteWorms[id].setDeaths(client->cRemoteWorms[id].getDeaths()+1);
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 

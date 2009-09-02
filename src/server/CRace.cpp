@@ -119,7 +119,7 @@ struct Race : public CGameMode {
 	}
 	
 	virtual void addScore(CWorm* w) {
-		w->AddKill();
+		w->addKill();
 		sendWormScoreUpdate(w);
 		cServer->SendGlobalText(TeamNameForWorm(w) + " is in round " + itoa(Round(w)), TXT_NORMAL);
 	}
