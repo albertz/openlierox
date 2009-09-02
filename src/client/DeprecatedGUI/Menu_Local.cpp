@@ -764,6 +764,7 @@ enum {
 	gs_Ok,
 	gs_Default,
 	gs_AdvancedLevel,
+	gs_AdvancedLevelLabel,
 	
 	gs_FeaturesList,
 	gs_FeaturesListLabel,
@@ -798,8 +799,10 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
-	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 470, 155, 80,15);
-	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 385, 155, 70, 15);
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365, 155, 80,15);
+	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285, 155, 70, 15);
+	float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
+	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450, 155, 70, 15);
 
 	CListview* features = new CListview();
 	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
@@ -830,7 +833,9 @@ void Menu_GameSettings()
 // Features listview
 
 static void addFeautureListGroupHeading(CListview* l, GameInfoGroup group) {
-	l->AddItem(GameInfoGroupDescriptions[group][0], 0, tLX->clHeading);
+	if( l->getItemCount() > 0 )
+		l->AddItem("", l->getNumItems(), tLX->clNormalLabel); // Empty line
+	l->AddItem(GameInfoGroupDescriptions[group][0], l->getNumItems(), tLX->clHeading);
 	l->AddSubitem(LVS_TEXT, std::string("--- ") + GameInfoGroupDescriptions[group][0] + " ---" + 
 				  (tLXOptions->iGameInfoGroupsShown[group] ? " [-]" : " [+]"), (DynDrawIntf*)NULL, NULL);	
 }
@@ -864,7 +869,6 @@ static void updateFeatureListItemColor(lv_item_t* item) {
 static void initFeaturesList(CListview* l)
 {
 	l->Clear();
-	int idx = 0; // TODO: what is this for?
 	for( GameInfoGroup group = (GameInfoGroup)0; group < GIG_Size; group = (GameInfoGroup)(group + 1) )
 	{
 		if( group == GIG_GameModeSpecific_Start )
@@ -873,14 +877,6 @@ static void initFeaturesList(CListview* l)
 			tLXOptions->tGameInfo.gameMode->getGameInfoGroupInOptions() != group )
 			continue;
 
-		if( idx != 0 )
-			l->AddItem("", idx, tLX->clNormalLabel); // Empty line
-
-		if( ! tLXOptions->iGameInfoGroupsShown[group] ) {
-			addFeautureListGroupHeading(l, group);
-			continue;
-		}
-		
 		size_t countGroupOpts = 0;
 		CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
@@ -910,8 +906,11 @@ static void initFeaturesList(CListview* l)
 			if(countGroupOpts == 0)
 				addFeautureListGroupHeading(l, group);
 			countGroupOpts++;
+
+			if( ! tLXOptions->iGameInfoGroupsShown[group] )
+				continue;
 			
-			lv_item_t * item = l->AddItem(it->first, 0, tLX->clNormalLabel);
+			lv_item_t * item = l->AddItem(it->first, l->getNumItems(), tLX->clNormalLabel);
 			updateFeatureListItemColor(item);
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
@@ -921,7 +920,7 @@ static void initFeaturesList(CListview* l)
 				CCheckbox * cb = new CCheckbox( * it->second.var.b );
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
 				cb->Create();
-				cb->Setup(idx, 0, 0, 20, 20);
+				cb->Setup(-1, 0, 0, 20, 20);
 			}
 			else
 			{
@@ -948,13 +947,13 @@ static void initFeaturesList(CListview* l)
 					sld->setValue(iVal);
 					l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, sld);
 					sld->Create();
-					sld->Setup(idx, 0, 0, 180, tLX->cFont.GetHeight());
+					sld->Setup(-1, 0, 0, 180, tLX->cFont.GetHeight());
 					textboxSize = 40;
 				}
 				CTextbox * txt = new CTextbox();
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
 				txt->Create();
-				txt->Setup(idx, 0, 0, textboxSize, tLX->cFont.GetHeight());
+				txt->Setup(-1, 0, 0, textboxSize, tLX->cFont.GetHeight());
 				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
 					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.f < 0))
 					txt->setText("");  // Leave blank for infinite values
@@ -1097,12 +1096,15 @@ bool Menu_GameSettings_Frame()
 					features->SaveScrollbarPos();
 					initFeaturesList(features);
 					features->RestoreScrollbarPos();
-				}
-				{
+
 					CLabel* featuresLabel = (CLabel*)cGameSettings.getWidget(gs_FeaturesListLabel);
 					float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
 					featuresLabel->ChangeColour( tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff );
 					featuresLabel->setText( splitStringWithNewLine(AdvancedLevelDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), (size_t)-1, 450, tLX->cFont) );		
+					
+					CLabel* advancenessLabel = (CLabel*)cGameSettings.getWidget(gs_AdvancedLevelLabel);
+					advancenessLabel->setText( AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit) );
+					advancenessLabel->ChangeColour( tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff );
 				}
 				break;
 				

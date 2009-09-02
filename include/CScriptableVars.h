@@ -58,7 +58,7 @@ enum AdvancedLevel {
 	ALT_OnlyViaConfig = 1000,
 };
 std::string AdvancedLevelDescription(AdvancedLevel l);
-
+std::string AdvancedLevelShortDescription(AdvancedLevel l);
 
 namespace DeprecatedGUI {
 class CWidget;

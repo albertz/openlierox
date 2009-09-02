@@ -37,7 +37,7 @@ static_assert( sizeof(GameInfoGroupDescriptions) / (sizeof(char*) * 2) == GIG_Si
 
 std::string AdvancedLevelDescription(AdvancedLevel l) {
 	switch(l) {
-		case ALT_Basic: return "Basics.";
+		case ALT_Basic: return "Basic settings.";
 		case ALT_Advanced: return "Advanced settings. For more professional players.";
 		case ALT_VeryAdvanced: return "Very advanced settings. For people who like to try out special unusual settings.";
 		case ALT_Dev: return "Development features. Some of them can be unstable or are incomplete yet. Please report errors if you see any.";
@@ -47,6 +47,20 @@ std::string AdvancedLevelDescription(AdvancedLevel l) {
 	}
 	
 	return "INVALID ADVANCED LEVEL VAR";
+}
+
+std::string AdvancedLevelShortDescription(AdvancedLevel l) {
+	switch(l) {
+		case ALT_Basic: return "Basic";
+		case ALT_Advanced: return "Advanced";
+		case ALT_VeryAdvanced: return "Very advanced";
+		case ALT_Dev: return "Development";
+		case ALT_DevKnownUnstable: return "Unstable";
+		case ALT_OnlyViaConfig: return "CONFIG.";
+		case __AdvancedLevelType_Count: return "INVALID";
+	}
+	
+	return "INVALID";
 }
 
 
