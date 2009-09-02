@@ -91,7 +91,7 @@ struct Proj_SpawnInfo {
 	bool	UseParentVelocityForSpread; // LX56: only for trail, this could be true
 	float	ParentVelSpreadFactor;
 	
-	bool	Useangle; // LX56: only for event (i.e. trail -> false)
+	bool	Useangle;
 	int		Angle; // LX56: only for event
 
 	bool	UseSpecial11VecForSpeedVar; // LX56: true iff trail

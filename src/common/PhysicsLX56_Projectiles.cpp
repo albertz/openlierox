@@ -587,7 +587,7 @@ void Proj_SpawnInfo::dump() const {
 
 void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56, bool optimIsTrail, bool optimIsNoTrail, bool optimIsShot, bool optimIsNoShot) const {
 	// Calculate the angle of the direction the projectile is heading
-	const float heading = ((pureLX56 && (optimIsTrail || optimIsShot)) ? false : Useangle) ? parent.angle() : 0;
+	const float heading = Useangle ? parent.angle() : 0;
 	
 	for(int i = 0; i < Amount; i++) {
 		const CVec sprd =
