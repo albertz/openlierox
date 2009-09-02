@@ -1293,7 +1293,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 			proj->frame() -= (float)pi->AnimRate * dt.seconds();
 		
 		if(pi->bmpImage) {
-			int NumFrames = pi->bmpImage->w / pi->bmpImage->h;
+			const int NumFrames = pi->bmpImage->w / pi->bmpImage->h;
 			if(proj->frame() >= NumFrames) {
 				switch(pi->AnimType) {
 				case ANI_ONCE:
