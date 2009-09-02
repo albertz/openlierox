@@ -52,6 +52,7 @@
 struct LX56ProjAttribs {
 	VectorD2<int> radius;
 	const proj_t* projInfo;
+	bool pureLX56;
 };
 
 
@@ -584,17 +585,17 @@ void Proj_SpawnInfo::dump() const {
 		notes << "spawn: " << Amount << " of " << Proj->filename << endl;
 }
 
-void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
+void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const {
 	// Calculate the angle of the direction the projectile is heading
 	const float heading = Useangle ? parent.angle() : 0;
 	
-	for(int i=0; i < Amount; i++) {
-		CVec sprd;
-		if(UseParentVelocityForSpread)
-			sprd = parent.velocity() * ParentVelSpreadFactor;
-		else
+	for(int i = 0; i < Amount; i++) {
+		const CVec sprd =
+		UseParentVelocityForSpread ?
+			(parent.velocity() * ParentVelSpreadFactor)
+		:
 			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
-			sprd = GetVecFromAngle( (float)Angle + heading + parent.fixedRandomFloat() * (float)Spread );
+			GetVecFromAngle( (float)Angle + heading + parent.fixedRandomFloat() * (float)Spread );
 		
 		int rot = 0;
 		if(UseRandomRot) {
@@ -613,9 +614,10 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 		}
 		
 		const CVec& speedVarVec = UseSpecial11VecForSpeedVar ? CVec(1,1) : sprd;
-		CVec v = sprd * (float)Speed + speedVarVec * (float)SpeedVar * parent.fixedRandomFloat();
-		if(AddParentVel)
-			v += ParentVelFactor * parent.velocity();
+		const CVec v =
+			sprd * (float)Speed +
+			speedVarVec * (float)SpeedVar * parent.fixedRandomFloat() +
+			(AddParentVel ? ParentVelFactor * parent.velocity() : CVec(0,0));
 		
 		if(parent.type == Proj_SpawnParent::PSPT_SHOT) {
 			parent.shot->nRandom *= 5;
@@ -647,6 +649,10 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 		}
 	}
 	
+}
+
+void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, const LX56ProjAttribs& attribs) const {
+	apply(parent, spawnTime, attribs.pureLX56);
 }
 
 
@@ -1131,9 +1137,9 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
-static void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime) {
+static inline void projectile_doProjSpawn(CProjectile* const prj, const Proj_SpawnInfo* spawnInfo, AbsTime fSpawnTime, const LX56ProjAttribs& attribs) {
 	//spawnInfo->dump();
-	spawnInfo->apply(prj, fSpawnTime);
+	spawnInfo->apply(prj, fSpawnTime, attribs);
 }
 
 static void projectile_doMakeDirt(CProjectile* const prj) {
@@ -1165,7 +1171,7 @@ bool Proj_DoActionInfo::hasAnyEffect() const {
 	return false;
 }
 
-void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTime) {
+void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTime, const LX56ProjAttribs& attribs) {
 	const proj_t *pi = prj->GetProjInfo();
 	
 	// Explode?
@@ -1191,20 +1197,20 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime );
+		projectile_doProjSpawn( prj, &pi->Trail.Proj, prj->fLastSimulationTime, attribs );
 	}
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime);
+		projectile_doProjSpawn(prj, &pi->GeneralSpawnInfo, currentTime, attribs);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		projectile_doProjSpawn(prj, *i, currentTime);
+		projectile_doProjSpawn(prj, *i, currentTime, attribs);
 	}
 	
 	if(sound) {
@@ -1372,7 +1378,7 @@ struct LX56ProjectileHandler {
 			projInfo.actions[i].checkAndApply(eventInfo, prj, attribs, &doActionInfo);
 		}
 		
-		doActionInfo.execute(prj, currentTime);
+		doActionInfo.execute(prj, currentTime, attribs);
 		return !doActionInfo.deleteAfter;
 	}
 
@@ -1390,21 +1396,21 @@ struct LX56ProjectileHandler {
 
 struct LX56ProjHandler_Generic : LX56ProjectileHandler {
 	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
-		LX56ProjAttribs attribs = { prj->getRadius(), prj->getProjInfo() };
+		const LX56ProjAttribs attribs = { prj->getRadius(), prj->getProjInfo(), false };
 		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
 	}
 } lx56default;
 
-struct LX56ProjHandler_Radius1 : LX56ProjectileHandler {
+struct LX56ProjHandler_Radius1pureLX56 : LX56ProjectileHandler {
 	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
-		LX56ProjAttribs attribs = { VectorD2<int>(1,1), prj->getProjInfo() };
+		const LX56ProjAttribs attribs = { VectorD2<int>(1,1), prj->getProjInfo(), true };
 		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
 	}
 } lx56radius1;
 
-struct LX56ProjHandler_Radius2 : LX56ProjectileHandler {
+struct LX56ProjHandler_Radius2pureLX56 : LX56ProjectileHandler {
 	bool frame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
-		LX56ProjAttribs attribs = { VectorD2<int>(2,2), prj->getProjInfo() };
+		const LX56ProjAttribs attribs = { VectorD2<int>(2,2), prj->getProjInfo(), true };
 		return doFrame(currentTime, dt, *prj->GetProjInfo(), prj, attribs);
 	}
 } lx56radius2;
@@ -1454,9 +1460,10 @@ simulateProjectilesStart:
 
 
 void CProjectile::setBestLX56Handler() {
-	if(radius.x == 1 && radius.y == 1)
+	const bool pureLX56 = cClient->getGameScript()->GetHeader()->Version == GS_LX56_VERSION;
+	if(radius.x == 1 && radius.y == 1 && pureLX56)
 		lx56handler = &lx56radius1;
-	else if(radius.x == 2 && radius.y == 2)
+	else if(radius.x == 2 && radius.y == 2 && pureLX56)
 		lx56handler = &lx56radius2;
 	else
 		lx56handler = &lx56default;

@@ -1163,7 +1163,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
 	if(shot->release) { // the shot key was released
-		wpn->FinalProj.apply(shot, fSpawnTime);
+		wpn->FinalProj.apply(shot, fSpawnTime, cGameScript->GetHeader()->Version == GS_LX56_VERSION);
 		return;
 	}
 	
@@ -1202,7 +1202,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	}
 
 	
-	wpn->Proj.apply(shot, fSpawnTime);
+	wpn->Proj.apply(shot, fSpawnTime, cGameScript->GetHeader()->Version == GS_LX56_VERSION);
 }
 
 

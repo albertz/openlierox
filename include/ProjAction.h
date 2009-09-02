@@ -101,7 +101,8 @@ struct Proj_SpawnInfo {
 	VectorD2<int> PosDiff; // new since Beta9
 	VectorD2<int> SnapToGrid; // new since Beta9
 	
-	void apply(Proj_SpawnParent parent, AbsTime spawnTime) const;
+	void apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation = false) const;
+	void apply(Proj_SpawnParent parent, AbsTime spawnTime, const LX56ProjAttribs& attribs) const;
 	bool isSet() const { return Proj != NULL; }
 	void dump() const;
 	
@@ -496,7 +497,7 @@ struct Proj_DoActionInfo {
 	SoundSample*	sound;
 	
 	bool hasAnyEffect() const; // NOTE: sound doesn't count
-	void execute(CProjectile* const prj, const AbsTime currentTime);
+	void execute(CProjectile* const prj, const AbsTime currentTime, const LX56ProjAttribs& attribs);
 };
 
 
