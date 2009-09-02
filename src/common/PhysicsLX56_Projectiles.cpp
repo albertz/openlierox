@@ -234,12 +234,12 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(const LX56ProjAttribs&
 	const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 	// A fast check for tiny projectiles
-	if (radius.x <= map->getCollGridCellW() / 2 && radius.y <= map->getCollGridCellH() / 2)
+	if (attribs.radius.x <= map->getCollGridCellW() / 2 && attribs.radius.y <= map->getCollGridCellH() / 2)
 		if (map->GetCollisionFlag(px, py, wrapAround) == 0)
 			return res;
 	
 	// if we are small, we can make a fast check
-	if(radius.x*2 < map->getGridWidth() && radius.y*2 < map->getGridHeight()) {
+	if(attribs.radius.x*2 < map->getGridWidth() && attribs.radius.y*2 < map->getGridHeight()) {
 		// If the current cells are empty, don't check for the collision
 		const int gf1 = (py - attribs.radius.y) / map->getGridHeight() * map->getGridCols() + (px - attribs.radius.x) / map->getGridWidth();
 		const int gf2 = (py - attribs.radius.y) / map->getGridHeight() * map->getGridCols() + (px + attribs.radius.x) / map->getGridWidth();
@@ -398,10 +398,10 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	prj->vVelocity.y += fGravity * dt.seconds();
 
 	{
-		float friction = cClient->getGameLobby()->features[FT_ProjFriction];
+		const float friction = cClient->getGameLobby()->features[FT_ProjFriction];
 		if(friction > 0) {
-			const float projSize = (prj->radius.x + prj->radius.y) * 0.5f;
-			const float projMass = prj->radius.GetLength();
+			const float projSize = (attribs.radius.x + attribs.radius.y) * 0.5f;
+			const float projMass = attribs.radius.GetLength();
 			// A bit lower drag coefficient as for worms because normally, projectiles have better shape for less dragging.
 			static const float projDragCoeff = 0.02f; // Note: Never ever change this! (Or we have to make this configureable)
 			applyFriction(prj->vVelocity, dt.seconds(), projSize, projMass, projDragCoeff, friction);
@@ -458,7 +458,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, const LX56ProjAttribs& attribs, TimeDiff dt, CMap *map, CWorm* worms) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
-		int len = (int)prj->vVelocity.GetLength2();
+		const int len = (int)prj->vVelocity.GetLength2();
 		if (abs(len - prj->iCheckSpeedLen) > 50000)
 			prj->CalculateCheckSteps();
 	}
@@ -471,7 +471,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 	
 	{
 		// Dampening
-		float dmp = prj->getProjInfo()->Dampening;
+		const float dmp = prj->getProjInfo()->Dampening;
 		if(dmp != 1.0f) {
 			// dt is not fixed (because of possible gamespeed factor)
 			if(dt == LX56PhysicsDT)
@@ -591,9 +591,7 @@ void Proj_SpawnInfo::dump() const {
 
 void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 	// Calculate the angle of the direction the projectile is heading
-	float heading = 0;
-	if(Useangle)
-		heading = parent.angle();
+	const float heading = Useangle ? parent.angle() : 0;
 	
 	for(int i=0; i < Amount; i++) {
 		CVec sprd;
@@ -620,10 +618,8 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime) const {
 			parent.shot->nRandom %= 255;
 		}
 		
-		CVec v = sprd * (float)Speed;
-		CVec speedVarVec = sprd;
-		if(UseSpecial11VecForSpeedVar) speedVarVec = CVec(1,1);
-		v += speedVarVec * (float)SpeedVar * parent.fixedRandomFloat();
+		const CVec& speedVarVec = UseSpecial11VecForSpeedVar ? CVec(1,1) : sprd;
+		CVec v = sprd * (float)Speed + speedVarVec * (float)SpeedVar * parent.fixedRandomFloat();
 		if(AddParentVel)
 			v += ParentVelFactor * parent.velocity();
 		
