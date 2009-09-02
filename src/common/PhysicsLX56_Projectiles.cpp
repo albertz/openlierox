@@ -591,7 +591,7 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 	
 	for(int i = 0; i < Amount; i++) {
 		const CVec sprd =
-		(/*(pureLX56 && optimIsTrail) ? true : (pureLX56 && optimIsNoTrail) ? false :*/ UseParentVelocityForSpread) ?
+		((pureLX56 && optimIsNoTrail) ? false : UseParentVelocityForSpread) ?
 			(parent.velocity() * ParentVelSpreadFactor)
 		:
 			// NOTE: It was a float -> int -> float conversion before (in LX56). this changed now, we just keep float!
