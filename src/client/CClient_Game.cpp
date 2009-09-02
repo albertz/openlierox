@@ -1163,7 +1163,8 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
 
 	if(shot->release) { // the shot key was released
-		wpn->FinalProj.apply(shot, fSpawnTime, false, false, true, true, false);
+		// apply_Event covers all LX56 events and also new type of events like this
+		wpn->FinalProj.apply_Event(shot, fSpawnTime, false);
 		return;
 	}
 	
@@ -1202,7 +1203,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	}
 
 	
-	wpn->Proj.apply(shot, fSpawnTime, cGameScript->GetHeader()->Version == GS_LX56_VERSION, false, true, true, false);
+	wpn->Proj.apply_Shot(shot, fSpawnTime, cGameScript->GetHeader()->Version == GS_LX56_VERSION);
 }
 
 

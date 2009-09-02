@@ -658,6 +658,33 @@ void Proj_SpawnInfo::apply(Proj_SpawnParent parent, AbsTime spawnTime, bool pure
 	
 }
 
+void Proj_SpawnInfo::apply_Shot(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const {
+#define SPAWNOPTIMMASK false, true, true, false
+	if(pureLX56Optimisation)
+		apply(parent, spawnTime, true, SPAWNOPTIMMASK);
+	else
+		apply(parent, spawnTime, false, SPAWNOPTIMMASK);		
+#undef SPAWNOPTIMMASK
+}
+
+void Proj_SpawnInfo::apply_Trail(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const {
+#define SPAWNOPTIMMASK true, false, false, true
+	if(pureLX56Optimisation)
+		apply(parent, spawnTime, true, SPAWNOPTIMMASK);
+	else
+		apply(parent, spawnTime, false, SPAWNOPTIMMASK);
+#undef SPAWNOPTIMMASK
+}
+
+void Proj_SpawnInfo::apply_Event(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const {
+#define SPAWNOPTIMMASK false, true, false, true
+	if(pureLX56Optimisation)
+		apply(parent, spawnTime, true, SPAWNOPTIMMASK);
+	else
+		apply(parent, spawnTime, false, SPAWNOPTIMMASK);
+#undef SPAWNOPTIMMASK
+}
+
 
 Proj_Action& Proj_Action::operator=(const Proj_Action& a) {
 	if(additionalAction) delete additionalAction; additionalAction = NULL;
@@ -1195,20 +1222,20 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 		
 	if(trailprojspawn) {
 		// we use prj->fLastSimulationTime here to simulate the spawing at the current simulation time of this projectile
-		pi->Trail.Proj.apply(prj, prj->fLastSimulationTime, attribs.pureLX56, true, false, false, true);
+		pi->Trail.Proj.apply_Trail(prj, prj->fLastSimulationTime, attribs.pureLX56);
 	}
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		pi->GeneralSpawnInfo.apply(prj, currentTime, attribs.pureLX56, false, true, false, true);
+		pi->GeneralSpawnInfo.apply_Event(prj, currentTime, attribs.pureLX56);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
 		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
 		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		(*i)->apply(prj, currentTime, false, false, true, false, true);
+		(*i)->apply_Event(prj, currentTime, false);
 	}
 	
 	if(sound) {

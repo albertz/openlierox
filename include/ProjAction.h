@@ -105,6 +105,11 @@ struct Proj_SpawnInfo {
 			   // apply() covers every possible case if you leave all the following to false.
 			   // Though, if you provide some of these extra information, some checks are left out which could be slightly faster in some cases.
 			   bool pureLX56Optimisation, bool optimIsTrail, bool optimIsNoTrail, bool optimIsShot, bool optimIsNoShot) const;
+	// optimised variants
+	void apply_Shot(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
+	void apply_Trail(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
+	void apply_Event(Proj_SpawnParent parent, AbsTime spawnTime, bool pureLX56Optimisation) const;
+	
 	bool isSet() const { return Proj != NULL; }
 	void dump() const;
 	
