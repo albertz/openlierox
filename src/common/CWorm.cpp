@@ -1160,21 +1160,21 @@ void CWorm::addDeath()
 	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iDeaths++;
-};
+}
 
 void CWorm::addSuicide()
 {
 	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iSuicides++;
-};
+}
 
 void CWorm::addTeamkill()
 {
 	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iTeamkills++;
-};
+}
 
 
 ///////////////////
