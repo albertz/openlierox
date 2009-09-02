@@ -151,8 +151,6 @@ void CWorm::Clear()
 	fTagTime = 0;
 	iDirtCount = 0;
 
-	CrossedHorizontal = CrossedVertical = 0;
-
 	fLastBlood = AbsTime();
 
 	fPreLastPosUpdate = fLastPosUpdate = AbsTime();
@@ -440,7 +438,6 @@ void CWorm::Spawn(CVec position) {
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
 	cNinjaRope.Clear();
-	CrossedHorizontal = CrossedVertical = 0;
 	
 
 	fFrame = 0;
@@ -802,7 +799,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the ninja rope
 	// HINT: draw it before the clipping check because the rope might be visible even if the worm is not
 	if (isWormVisible(this, v) && bAlive)
-		cNinjaRope.Draw(bmpDest,v,this);
+		cNinjaRope.Draw(bmpDest,v,vDrawPos);
 
 	// Are we inside the viewport?
 	if(x+l+10 < l || x-10 > v->GetVirtW()

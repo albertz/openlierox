@@ -196,29 +196,6 @@ bool CWorm::checkPacketNeeded()
 	return cNinjaRope.writeNeeded();
 }
 
-////////////////////
-// Updates the cross* variables
-// HINT: used only for remote worms
-void CWorm::checkWrapAround(int x, int y)
-{
-	if (!cClient || !cClient->getMap() || !cClient->getGameLobby())
-		return;
-	if (!cClient->getGameLobby()->features[FT_InfiniteMap])
-		return;
-
-	int old_x = (int)vPos.x;
-	int old_y = (int)vPos.y;
-	int mapw = cClient->getMap()->GetWidth();
-	int maph = cClient->getMap()->GetHeight();
-	static const int tolerance = 8;
-
-	if (abs(old_x - x) >= mapw - tolerance)
-		CrossedHorizontal += SIGN(old_x - x);
-
-	if (abs(old_y - y) >= maph - tolerance)
-		CrossedVertical += SIGN(old_y - y);
-}
-
 // this is used to update the position on the client-side in CWorm::readPacketState
 // it also updates frequently the velocity by estimation
 void CWorm::net_updatePos(const CVec& newpos) {
@@ -518,7 +495,6 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	checkWrapAround(x, y);
 
 	// Angle
 	tState.iAngle = (bs->readInt(1) - 90);
@@ -607,10 +583,6 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 		incrementDirtCount( CarveHole(getPos() + dir*4) );
 	}
-
-	// Handle ninja rope wrapping in infinite map
-	if (rope)
-		cNinjaRope.wrapAround(this, vPos);
 
 	this->fLastSimulationTime = tLX->currentTime; // - ((float)cClient->getMyPing()/1000.0f) / 2.0f; // estime the up-to-date time
 }

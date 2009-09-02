@@ -261,7 +261,6 @@ private:
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
-	int			CrossedHorizontal, CrossedVertical;  // for infinite map
 
 	bool		bRopeDown;
 	bool		bRopeDownOnce;
@@ -371,7 +370,6 @@ public:
 	void		readStatUpdate(CBytestream *bs);
 	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
 	int			GetMyPing();
-	void		checkWrapAround(int x, int y);  // For infinite map, updates cross* variables
 
 	
 	void		setupLobby();
@@ -615,9 +613,6 @@ public:
 
 
 	float&		frame()						{ return fFrame; }
-
-	int&		crossedHorizontal()			{ return CrossedHorizontal; }
-	int&		crossedVertical()			{ return CrossedVertical; }
 	
 	CWormInputHandler* inputHandler() { return m_inputHandler; }
 	void reinitInputHandler();

@@ -36,8 +36,6 @@ void CNinjaRope::Clear()
 	//RopeLength = false;
 	PlayerAttached = false;
 	Worm = NULL;
-	CrossedHorizontal = CrossedVertical = 0;
-	OldReceivedPos = VectorD2<int>(0, 0);
 
 	LastReleased = Released;
 	LastHookShooting = HookShooting;
@@ -73,8 +71,6 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 	HookAttached = false;
 	PlayerAttached = false;
 	Worm = NULL;
-	CrossedHorizontal = owner->crossedHorizontal();
-	CrossedVertical = owner->crossedVertical();
 	//RopeLength = 300;
 	//RestLength = 20;
 
@@ -99,52 +95,36 @@ void CNinjaRope::Setup(CGameScript *gs)
 
 ///////////////////
 // Draw the thing
-void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CWorm *owner)
+void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 {
 	if(!Released)
 		return;
-
-	const int mapw = cClient->getMap()->GetWidth();
-	const int maph = cClient->getMap()->GetHeight();
-	VectorD2<int> ppos((int)owner->getPos().x, (int)owner->getPos().y);
-	const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 	int l = view->GetLeft();
 	int t = view->GetTop();
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 
-	int hx = (int)HookPos.x - wx;
-	int hy = (int)HookPos.y - wy;
-
-	int dx = Round(HookPos.x - owner->getPos().x);
-	int dy = Round(HookPos.y - owner->getPos().y);
+	int hx = (int)HookPos.x;
+	int hy = (int)HookPos.y;
 
 	// HINT: the hooked worm position could change since the Simulate procedure was called,
 	// because the worms are being processed in a "random" order -> we simulate and then the hook worm
 	// is simulated -> we have a wrong position, that's why we are correcting it here:
 	if(HookAttached && PlayerAttached && Worm) {
-		hx = (int)Worm->getPos().x - wx;
-		hy = (int)Worm->getPos().y - wy;
+		hx = (int)Worm->getPos().x;
+		hy = (int)Worm->getPos().y;
 		// HINT: don't change HookPos directly here, this should only be done by the simulation-function
 	}
 
-	int px = ppos.x - wx;
-	int py = ppos.y - wy;
+	int px = (int)ppos.x;
+	int py = (int)ppos.y;
 
-	if (wrapAround)  {
-		px += mapw; px %= mapw;
-		py += maph; py %= maph;
+	px = ((int)ppos.x-wx)*2+l;
+	py = ((int)ppos.y-wy)*2+t;
 
-		hx = px + dx;
-		hy = py + dy;
-	}
-
-	px = px*2+l;
-	py = py*2+t;
-
-	hx = hx*2+l;
-	hy = hy*2+t;
+	hx = (hx-wx)*2+l;
+	hy = (hy-wy)*2+t;
 
 
 	// Rope
@@ -226,28 +206,6 @@ CVec CNinjaRope::CalculateForce(CVec playerpos)
 	return dir;
 }
 
-//////////////////
-// Adjusts the hook position in infinite map
-void CNinjaRope::wrapAround(CWorm *owner, CVec playerpos)
-{
-	if (!cClient->getGameLobby()->features[FT_InfiniteMap] || !Released)
-		return;
-
-	float mapW = (float)cClient->getMap()->GetWidth();
-	float mapH = (float)cClient->getMap()->GetHeight();
-
-	int hdiff = CrossedHorizontal - owner->crossedHorizontal();
-	int vdiff = CrossedVertical - owner->crossedVertical();
-
-	HookPos.x -= CrossedHorizontal * mapW;
-	FMOD<float>(HookPos.x, mapW);
-	HookPos.x += hdiff * mapW;
-
-	HookPos.y -= CrossedVertical * mapH;
-	FMOD<float>(HookPos.y, mapH);
-	HookPos.y += vdiff * mapH;
-}
-
 //////////////
 // Synchronizes the variables used for check below
 void CNinjaRope::updateCheckVariables()
@@ -264,6 +222,10 @@ void CNinjaRope::updateCheckVariables()
 // Returns true if the write function needs to be called
 bool CNinjaRope::writeNeeded()
 {
+	// TODO: why that?
+	/*if (!Released)
+		return false;*/
+
 	if		((LastReleased != Released) ||
 			(LastHookShooting != HookShooting) ||
 			(LastHookAttached != HookAttached) ||
@@ -294,8 +256,8 @@ void CNinjaRope::write(CBytestream *bs)
 	bs->writeByte( type );
 
 	// Position
-	short x = cClient->getMap()->WrapAroundX((short)HookPos.x);
-	short y = cClient->getMap()->WrapAroundY((short)HookPos.y);
+	short x = (short)HookPos.x;
+	short y = (short)HookPos.y;
 
 	// Write out position of the hook
 	bs->write2Int12( x, y );
@@ -327,52 +289,12 @@ void CNinjaRope::write(CBytestream *bs)
 	updateCheckVariables();
 }
 
-///////////////////
-// Check if the ninja rope has crossed the map border and update crossed* variables accordingly
-// HINT: only for remote worms
-void CNinjaRope::checkWrapAround(int x, int y, CWorm *owner)
-{
-	if (!cClient->getGameLobby()->features[FT_InfiniteMap])
-		return;
 
-	int old_x = OldReceivedPos.x;
-	int old_y = OldReceivedPos.y;
-	int mapw = cClient->getMap()->GetWidth();
-	int maph = cClient->getMap()->GetHeight();
-	static const int tolerance = 8;
-
-	if (abs(old_x - x) >= mapw - tolerance)
-		CrossedHorizontal += SIGN(old_x - x);
-
-	if (abs(old_y - y) >= maph - tolerance)
-		CrossedVertical += SIGN(old_y - y);
-
-	OldReceivedPos.x = x;
-	OldReceivedPos.y = y;
-}
 
 ///////////////////
 // Read rope details from a bytestream
 void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 {
-	if (owner < 0 || owner >= MAX_WORMS)  {
-		warnings << "CNinjaRope::read: invalid owner " << owner << endl;
-		return;
-	}
-
-	if (!worms[owner].isUsed() || worms[owner].getLives() == WRM_OUT)  {
-		warnings << "CNinjaRope::read: owner worm " << owner << " is not playing" << endl;
-		return;
-	}
-
-	// If we are shooting the rope, clear the cross* variables because ::Shoot is not called for remote worms
-	bool justShot = false;
-	if (!Released)  {
-		justShot = true;
-		CrossedHorizontal = worms[owner].crossedHorizontal();
-		CrossedVertical = worms[owner].crossedVertical();
-	}
-
 	OldHookPos = HookPos;
 	int type = bs->readByte();
 	Released = true;
@@ -404,12 +326,6 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	if (justShot)
-		OldReceivedPos = VectorD2<int>(x, y);
-
-	// Check if it has wrapped around
-	checkWrapAround(x, y, &worms[owner]);
-
 	HookPos.x=( (float)x );
 	HookPos.y=( (float)y );
 

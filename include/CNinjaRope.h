@@ -47,7 +47,6 @@ private:
 	CWorm		*Worm;
 	float		RopeLength;
 	float		RestLength;
-	int			CrossedHorizontal, CrossedVertical;  // for infinite map
 
 	float		MinLength;
 
@@ -67,8 +66,6 @@ private:
 	CWorm		*LastWorm;
 	AbsTime		LastWrite;
 	AbsTime		LastPosUpdate; // Used for velocity counting (client don't send velocity)
-
-	VectorD2<int> OldReceivedPos;
 	
 
 public:
@@ -76,7 +73,7 @@ public:
 
 	void		Clear();
 
-	void		Draw(SDL_Surface * bmpDest, CViewport *view, CWorm *owner);
+	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);
 	void		Shoot(CWorm* owner, CVec pos, CVec dir);
 
 	CVec		GetForce(CVec playerpos);
@@ -94,8 +91,6 @@ public:
 	bool		writeNeeded();
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
-	void		checkWrapAround(int x, int y, CWorm *owner);
-	void		wrapAround(CWorm *owner, CVec playerpos);
 
     CVec getHookPos() const       { return HookPos; }
     bool   isAttached() const       { return HookAttached; }
@@ -104,9 +99,6 @@ public:
 	void	setAttached(bool a)			{ HookAttached = a; }
     float getRestLength() const    { return RestLength; }
 	float getMaxLength()	const	{ return RopeLength; }
-
-	int&		crossedHorizontal()			{ return CrossedHorizontal; }
-	int&		crossedVertical()			{ return CrossedVertical; }
 
 	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 
