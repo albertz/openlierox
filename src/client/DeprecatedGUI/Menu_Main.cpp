@@ -313,7 +313,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 
 		std::vector< ScriptVar_t > GuiThemeInit;
 		GuiThemeInit.push_back( ScriptVar_t ( "None#" ) );	// List of items
-		GuiThemeInit.push_back( ScriptVar_t ( "GameOptions.Game.Theme" ) );	// Attached var
+		GuiThemeInit.push_back( ScriptVar_t ( "" ) );	// Attached var (set it later because we must fill it first)
 		GuiThemeInit.push_back( ScriptVar_t ( "GUI.MakeSound() GUI.ThemeCombobox_OnChange()" ) );	// OnClick handler
 
 		cMainMenu.Add( new CLabel("Theme", tLX->clNormalLabel), -1, 465,10,0,0);
@@ -327,9 +327,10 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 
 		combobox->addItem("", "- Default -");
 		FindFiles(*this, "themes", false, FM_DIR);
+		combobox->setAttachedVar( &tLXOptions->sTheme );
 		combobox->setCurSIndexItem(tLXOptions->sTheme);
 
-
+		
 		combobox->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	}
 

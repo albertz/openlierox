@@ -174,6 +174,9 @@ public:
 	
 	const cb_item_t* getLastItem();
 
+	void	setAttachedVar(std::string* var)	{ sVar = var; }
+	void	setAttachedVar(int* var)			{ iVar = var; }
+	
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);
 };

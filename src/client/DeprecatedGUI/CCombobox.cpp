@@ -883,8 +883,8 @@ void CCombobox::setCurItemByName(const std::string& szString)
 }
 
 int CCombobox::getIndexByName(const std::string& szString) {
-	int index = 0;
 	if (iSortDirection == SORT_NONE)  {
+		int index = 0;
 		for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
 			if( stringcasecmp(i->sName, szString) == 0 ) {
 				return index;
@@ -892,8 +892,8 @@ int CCombobox::getIndexByName(const std::string& szString) {
 		}
 	} else {
 		cb_item_t tmp; tmp.sName = szString; tmp.tImage = NULL;
-		int index;
-		bool found;
+		int index = -1;
+		bool found = false;
 		std::list<cb_item_t>::const_iterator i = lowerBound(tmp, &index, &found);
 		return found ? index : -1;
 	}
@@ -1011,7 +1011,7 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 		}
 		w->setCurItem( *w->iVar );
 	}
-	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
+	if(p[1].s != "") w->sVar = CScriptableVars::GetVarP<std::string>( p[1].s );
 	if( w->sVar )
 	{
 		for( unsigned i = 0; i < items.size(); i++ )
