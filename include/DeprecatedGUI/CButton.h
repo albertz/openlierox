@@ -45,6 +45,7 @@ public:
 	CButton() {
 		bMouseOver = false;
 		bMouseDown = false;
+		bUseFallback = false;
 		iType = wid_Button;
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
@@ -56,6 +57,7 @@ public:
 		bmpImage = image;
 		bMouseOver = false;
 		bMouseDown = false;
+		bUseFallback = false;
 		iType = wid_Button;
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
@@ -67,6 +69,7 @@ public:
 		bmpImage = LoadGameImage(path);
 		bMouseOver = false;
 		bMouseDown = false;
+		bUseFallback = false;
 		iType = wid_Button;
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_TWOSTATES;
@@ -83,6 +86,7 @@ private:
 	int			iImageID;
     int         iGoodWidth;
 	int			iButtonType;
+	bool		bUseFallback;
 	CGuiSkin::CallbackHandler cClick;
 	
 	void initWidthHeight() {

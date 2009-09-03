@@ -41,7 +41,7 @@ void CButton::Draw(SDL_Surface * bmpDest)
 			y2+=20;
 
 		DrawImageAdv(bmpDest,bmpImage, 5,y2, iX,iY, iGoodWidth, 18);
-		if (y2 >= bmpImage->h)  {
+		if (y2 >= bmpImage->h || bUseFallback)  {
 			DrawSimpleButton(bmpDest, iX, iY, iWidth, iHeight, tLX->clWinBtnBody, tLX->clWinBtnLight, tLX->clWinBtnDark, bMouseDown && bMouseOver && bFocused);
 			int trans = (bMouseDown && bMouseOver && bFocused) ? 2 : 0;
 			tLX->cFont.DrawCentre(bmpDest, iX + iWidth / 2 + trans, iY + trans + (iHeight - tLX->cFont.GetHeight())/2, tLX->clNormalLabel, sButtonNames[iImageID]);
@@ -102,8 +102,10 @@ void CButton::Create()
 	UnlockSurface(bmpImage);
 
 	if (y2 >= bmpImage->h || iGoodWidth < 2)  {
+		bUseFallback = true;
 		iGoodWidth = tLX->cFont.GetWidth(sButtonNames[iImageID]) + 20;
-	}
+	} else
+		bUseFallback = false;
 
     iGoodWidth = MIN(iGoodWidth+1,bmpImage.get()->w);
     
