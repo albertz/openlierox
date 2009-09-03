@@ -377,10 +377,9 @@ public:
 			if(simulationTime > worm->getLastBlood() + 2.0f) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
-				float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
-				CVec v;
+				const float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
 				for(short i=0;i<amount;i++) {
-					v = CVec(GetRandomNum(), GetRandomNum()) * 30;
+					const CVec v = CVec(GetRandomNum(), GetRandomNum()) * 30;
 					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(200,0,0),NULL);
 					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(180,0,0),NULL);
 				}
@@ -390,13 +389,7 @@ public:
 
 		// Process the carving
 		if(ws->bCarve) {
-			// Calculate dir
-			CVec dir;
-			dir.x=( (float)cos(worm->getAngle() * (PI/180)) );
-			dir.y=( (float)sin(worm->getAngle() * (PI/180)) );
-			if(worm->getMoveDirection()==DIR_LEFT)
-				dir.x=(-dir.x);
-
+			const CVec dir = worm->getMoveDirection();
 			worm->incrementDirtCount( CarveHole(worm->getPos() + dir*4) );
 			//cClient->SendCarve(vPos + dir*4);
 		}
@@ -410,8 +403,6 @@ public:
 		if(worm->frame() < 0)
 			worm->frame() = 2.99f;
 
-		float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
-
 		// Process the ninja rope
 		if(worm->getNinjaRope()->isReleased() && worms) {
 			simulateNinjarope( dt, worm, worms );
@@ -421,7 +412,8 @@ public:
 
 		// Process the moving
 		if(ws->bMove) {
-			if(worm->getMoveDirection() == DIR_RIGHT) {
+			const float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
+			if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 				// Right
 				if(worm->velocity().x < 30)
 					worm->velocity().x += speed * dt * 90.0f;
@@ -434,33 +426,35 @@ public:
 
 
 		// Process the jump
-		bool onGround = worm->CheckOnGround();
-		if( onGround )
-			worm->setLastAirJumpTime(AbsTime());
-		if(ws->bJump && ( onGround || worm->canAirJump() ||
-			( bool(cClient->getGameLobby()->features[FT_RelativeAirJump]) && GetPhysicsTime() > 
-				worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
 		{
+			const bool onGround = worm->CheckOnGround();
 			if( onGround )
-				worm->velocity().y = wd->JumpForce;
-			else {
-				// GFX effect, as in TeeWorlds (we'll change velocity after that)
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
-				SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
+				worm->setLastAirJumpTime(AbsTime());
+			if(ws->bJump && ( onGround || worm->canAirJump() ||
+				( bool(cClient->getGameLobby()->features[FT_RelativeAirJump]) && GetPhysicsTime() > 
+					worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
+			{
+				if( onGround )
+					worm->velocity().y = wd->JumpForce;
+				else {
+					// GFX effect, as in TeeWorlds (we'll change velocity after that)
+					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
+					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
+					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
-				if( worm->canAirJump() && worm->velocity().y > wd->JumpForce ) // Negative Y coord = moving up
-					worm->velocity().y = wd->JumpForce; // Absolute velocity - instant air jump
-				else
-					worm->velocity().y += wd->JumpForce; // Relative velocity - relative air jump
+					if( worm->canAirJump() && worm->velocity().y > wd->JumpForce ) // Negative Y coord = moving up
+						worm->velocity().y = wd->JumpForce; // Absolute velocity - instant air jump
+					else
+						worm->velocity().y += wd->JumpForce; // Relative velocity - relative air jump
+				}
+				worm->setLastAirJumpTime(GetPhysicsTime());
+				worm->setOnGround( false );
 			}
-			worm->setLastAirJumpTime(GetPhysicsTime());
-			worm->setOnGround( false );
 		}
 
 		{
 			// Air drag (Mainly to dampen the ninja rope)
-			float Drag = wd->AirFriction;
+			const float Drag = wd->AirFriction;
 
 			if(!worm->isOnGround())	{
 				worm->velocity().x -= SQR(worm->velocity().x) * SIGN(worm->velocity().x) * Drag * dt;
@@ -504,7 +498,7 @@ public:
 		// Fill in the info for sending
 		if(local) {
 			ws->iAngle = (int)worm->getAngle();
-			ws->iDirection = worm->getDirection();
+			ws->iFaceDirectionSide = worm->getFaceDirectionSide();
 			ws->iX = (int)worm->getPos().x;
 			ws->iY = (int)worm->getPos().y;
 		}

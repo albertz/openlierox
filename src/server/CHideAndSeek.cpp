@@ -303,7 +303,7 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 				return false;
 				
 			float angle = worm1->getAngle();
-			if(worm1->getDirection() == DIR_LEFT)
+			if(worm1->getFaceDirectionSide() == DIR_LEFT)
 				angle = 180.0f - angle;
 				
 			while( angle > 180.0f )	// Normalize it between 180 and -180

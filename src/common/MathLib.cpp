@@ -128,16 +128,13 @@ CVec GetRandomVec()
 // Get forward, and right vectors from a yaw angle
 void GetVecsFromAngle(float yaw,CVec *forward, CVec *right)
 {
-	float		angle;
-	float		sr, sp, sy, cr, cp, cy;
-	
-	angle = yaw * (float)(PI / 180);
-	sy = (float)sin(angle);
-	cy = (float)cos(angle);	
-	sp = 0; //(float)sin(0);
-	cp = 1; //(float)cos(0);	
-	sr = sp;
-	cr = cp;
+	const float angle = yaw * (float)(PI / 180);
+	const float sy = sinf(angle);
+	const float cy = cosf(angle);	
+	const float sp = 0; //sinf(0);
+	const float cp = 1; //cosf(0);	
+	const float sr = sp;
+	const float cr = cp;
 
 	if(forward)
 		*forward = CVec(cp*cy,cp*sy);

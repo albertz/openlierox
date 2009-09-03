@@ -49,7 +49,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 			f += ang;
 			
 			// Draw the worm
-			worm->getSkin().Draw(bmpDest, x, y, f, false, worm->getDirection() == DIR_LEFT);
+			worm->getSkin().Draw(bmpDest, x, y, f, false, worm->getFaceDirectionSide() == DIR_LEFT);
 		}
 		else
 			DrawCross(bmpDest, x - WORM_SKIN_WIDTH/2, y - WORM_SKIN_HEIGHT/2, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT, Color(255,0,0));
@@ -107,7 +107,7 @@ void CWorm::Clear()
 	health = 100.0f;
 	iLives = 10;
 	bAlive = false;
-	iDirection = DIR_RIGHT;
+	iFaceDirectionSide = DIR_RIGHT;
 	fAngle = 0;
 	fAngleSpeed = 0;
 	fMoveSpeedX = 0;
@@ -415,7 +415,7 @@ void CWorm::setupLobby()
 void CWorm::resetAngleAndDir() {
 	fAngle = 0;
 	fAngleSpeed = 0;
-	iDirection = DIR_RIGHT;
+	iFaceDirectionSide = DIR_RIGHT;
 }
 
 
@@ -433,7 +433,7 @@ void CWorm::Spawn(CVec position) {
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
 	health = 100.0f;
-	iMoveDirection = DIR_RIGHT;
+	iMoveDirectionSide = DIR_RIGHT;
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
@@ -809,7 +809,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 
 	int a = (int)fAngle;
-	if(iDirection == DIR_LEFT)
+	if(iFaceDirectionSide == DIR_LEFT)
 		a=180-a;
 
 
@@ -972,12 +972,12 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Draw the worm
 	if (isWormVisible(this, v)) {
-		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iDirection == DIR_LEFT);
+		cSkin.Draw(bmpDest, x - cSkin.getSkinWidth()/2, y - cSkin.getSkinHeight()/2, f, false, iFaceDirectionSide == DIR_LEFT);
 		cSparkles.Process();
 	}
 	
 	/*FillSurfaceTransparent(bmpShadowPic.get());
-	if(iDirection == DIR_RIGHT)
+	if(iFaceDirectionSide == DIR_RIGHT)
 		CopySurface(bmpShadowPic.get(), bmpWormRight, f,0, 6,0, 32,18);
 	else
 		CopySurface(bmpShadowPic.get(), bmpWormLeft, bmpWormLeft.get()->w-f-32,0, 0,0, 32,18);
@@ -1004,7 +1004,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the muzzle flash
 	//
 	if (bDrawMuzzle && isWormVisible(this, v))  {
-		switch(iDirection) {
+		switch(iFaceDirectionSide) {
 
 		case DIR_RIGHT:
 			ang = (int)( (fAngle+90)/151 * 7 );
@@ -1081,7 +1081,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		cSkin.DrawShadowOnMap(cClient->getMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iDirection == DIR_LEFT);
+		cSkin.DrawShadowOnMap(cClient->getMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iFaceDirectionSide == DIR_LEFT);
 	}
 }
 
@@ -1406,8 +1406,8 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	// TODO: why not fDamage?
 	COPY( bAlive );
 	COPY( fTimeofDeath );
-	COPY( iDirection );
-	COPY( iMoveDirection );
+	COPY( iFaceDirectionSide );
+	COPY( iMoveDirectionSide );
 	COPY( bGotTarget );
 	COPY( fAngle );
     COPY( fAngleSpeed );
@@ -1444,7 +1444,7 @@ void CWorm::NewNet_InitWormState(int seed)
 	fServertime = TimeDiff();
 	fLastCarve = AbsTime();
 	fTimeofDeath = AbsTime();
-	iDirection = 0;
+	iFaceDirectionSide = 0;
 	fSpawnTime = AbsTime();
 	fLastAirJumpTime = AbsTime();
 }

@@ -466,7 +466,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 
 	// Get the direction angle
 	float Angle = w->getAngle();
-	if(w->getDirection() == DIR_LEFT)
+	if(w->getFaceDirectionSide() == DIR_LEFT)
 		Angle=180-Angle;
 	
 	if(Angle < 0)
@@ -555,7 +555,7 @@ void GameServer::WormShoot(CWorm *w)
 	
 	// Get the direction angle
 	float Angle = w->getAngle();
-	if(w->getDirection() == DIR_LEFT)
+	if(w->getFaceDirectionSide() == DIR_LEFT)
 		Angle=180-Angle;
 
 	if(Angle < 0)

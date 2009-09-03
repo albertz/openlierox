@@ -106,7 +106,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 	uchar bits = 0;
 	if(tState.bCarve)
 		bits |= 0x01;
-	if(iDirection == DIR_RIGHT)
+	if(iFaceDirectionSide == DIR_RIGHT)
 		bits |= 0x02;
 	if(tState.bMove)
 		bits |= 0x04;
@@ -146,7 +146,7 @@ void CWorm::writePacket(CBytestream *bs, bool fromServer, CServerConnection* rec
 // Synchronizes the variables used for check below
 void CWorm::updateCheckVariables()
 {
-	tLastState = tState; tLastState.iDirection = iDirection;
+	tLastState = tState; tLastState.iFaceDirectionSide = iFaceDirectionSide;
 	fLastAngle = fAngle;
 	fLastUpdateWritten = tLX->currentTime;
 	iLastCurWeapon = iCurrentWeapon;
@@ -170,7 +170,7 @@ bool CWorm::checkPacketNeeded()
 
 	if (
 		(tLastState.bCarve != tState.bCarve) ||
-		(tLastState.iDirection != iDirection)  ||
+		(tLastState.iFaceDirectionSide != iFaceDirectionSide)  ||
 		(tLastState.bMove != tState.bMove) ||
 		(tLastState.bJump != tState.bJump) ||
 		(tLastState.bShoot != tState.bShoot))
@@ -347,11 +347,11 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
-	iMoveDirection = iDirection = DIR_LEFT;
+	iMoveDirectionSide = iFaceDirectionSide = DIR_LEFT;
 
 	tState.bCarve = (bits & 0x01) != 0;
 	if(bits & 0x02)
-		iMoveDirection = iDirection = DIR_RIGHT;
+		iMoveDirectionSide = iFaceDirectionSide = DIR_RIGHT;
 	tState.bMove = (bits & 0x04) != 0;
 	tState.bJump = (bits & 0x08) != 0;
 	tState.bShoot = (bits & 0x20) != 0;
@@ -504,11 +504,11 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
-	iMoveDirection = iDirection = tState.iDirection = DIR_LEFT;
+	iMoveDirectionSide = iFaceDirectionSide = tState.iFaceDirectionSide = DIR_LEFT;
 
 	tState.bCarve = (bits & 0x01);
 	if(bits & 0x02)
-		iMoveDirection = iDirection = tState.iDirection = DIR_RIGHT;
+		iMoveDirectionSide = iFaceDirectionSide = tState.iFaceDirectionSide = DIR_RIGHT;
 	tState.bMove = (bits & 0x04) != 0;
 	tState.bJump = (bits & 0x08) != 0;
 	tState.bShoot = (bits & 0x20) != 0;
@@ -576,9 +576,9 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 		// Calculate dir
 		CVec dir;
-		dir.x=( (float)cos((float)tState.iAngle * (PI/180)) );
-		dir.y=( (float)sin((float)tState.iAngle * (PI/180)) );
-		if(tState.iDirection==DIR_LEFT)
+		dir.x=( cosf((float)tState.iAngle * (PI/180)) );
+		dir.y=( sinf((float)tState.iAngle * (PI/180)) );
+		if(tState.iFaceDirectionSide==DIR_LEFT)
 			dir.x=(-dir.x);
 
 		incrementDirtCount( CarveHole(getPos() + dir*4) );

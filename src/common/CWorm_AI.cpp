@@ -1094,7 +1094,7 @@ void CWormBotInputHandler::getInput() {
     }
 
     // we have no strafing for bots at the moment
-    m_worm->iMoveDirection = m_worm->iDirection;
+    m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -1673,7 +1673,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	int wantedDir = (tgDir.x < 0) ? DIR_LEFT : DIR_RIGHT;
 	if (tLX->currentTime - fLastFace > 0.3f)  {  // prevent turning
 		// Make me face the target
-		m_worm->iDirection = wantedDir;
+		m_worm->iFaceDirectionSide = wantedDir;
 
 		fLastFace = tLX->currentTime;
 	}
@@ -1753,19 +1753,14 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 
         // Change direction
 		if (bHaveTarget && (tLX->currentTime-fLastFace) > 1.0)  {
-			m_worm->iDirection = !m_worm->iDirection;
+			m_worm->iFaceDirectionSide = !m_worm->iFaceDirectionSide;
 			fLastFace = tLX->currentTime;
 		}
 
         // Look up for a ninja throw
-        aim = AI_SetAim(m_worm->vPos+CVec(GetRandomNum()*10,GetRandomNum()*10+10));
+        aim = AI_SetAim(m_worm->vPos + CVec(GetRandomNum()*10, GetRandomNum()*10 + 10));
         if(aim) {
-            CVec dir;
-            dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
-	        dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
-	        if(m_worm->iDirection==DIR_LEFT)
-		        dir.x=(-dir.x);
-
+            const CVec dir = m_worm->getFaceDirection();
             m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos,dir);
         }
 
@@ -2283,7 +2278,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		// Get the angle
 		float ang = (float)atan2(m_worm->vVelocity.x, m_worm->vVelocity.y);
 		ang = RAD2DEG(ang);
-		if(m_worm->iDirection == DIR_LEFT)
+		if(m_worm->iFaceDirectionSide == DIR_LEFT)
 			ang+=90;
 		else
 			ang = -ang + 90;
@@ -2974,7 +2969,7 @@ bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 
 
 	// Direction to left
-	if (m_worm->iDirection == DIR_LEFT)  {
+	if (m_worm->iFaceDirectionSide == DIR_LEFT)  {
 		int dir = 0;
 		if (m_worm->fAngle > 210)
 			dir = 1;
@@ -3187,8 +3182,8 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 	float x,y;
 	for (;b > 10.0f; b-=b/2)
 		for (i=0;i<2*PI; i+=step)  {
-			x = a*(float)sin(2*PI*i)+middle.x;
-			y = b*(float)cos(2*PI*i)+middle.y;
+			x = a*sinf(2*PI*i)+middle.x;
+			y = b*cosf(2*PI*i)+middle.y;
 			CVec point = CVec(x,y);
 			if (cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y ) & PX_ROCK)
 				continue;
@@ -3489,9 +3484,9 @@ public:
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
         target.y -= 30.0f; // a bit higher is always better
 
-        aimDir.x=( (float)cos(worm->getAngle() * (PI/180)) );
-	    aimDir.y=( (float)sin(worm->getAngle() * (PI/180)) );
-	    if(worm->getDirection() == DIR_LEFT)
+        aimDir.x=( cosf(worm->getAngle() * (PI/180)) );
+	    aimDir.y=( sinf(worm->getAngle() * (PI/180)) );
+	    if(worm->getFaceDirectionSide() == DIR_LEFT)
 		    aimDir.x=(-aimDir.x);
 	}
 
@@ -3736,7 +3731,7 @@ static float estimateXDiffAfterMove(CWorm* w, float dt) {
 	const gs_worm_t *wd = w->getGameScript()->getWorm();
 	worm_state_t *ws = w->getWormState();
 	float speed = w->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
-	if(ws->iDirection == DIR_LEFT) speed = -speed;
+	if(ws->iFaceDirectionSide == DIR_LEFT) speed = -speed;
 	
 	return CLAMP(w->getVelocity().x + speed * 90.0f, -30.0f, 30.0f) * dt;
 }
@@ -3841,7 +3836,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce(m_worm->vPos).x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
 				m_worm->cNinjaRope.Release();
 
-			m_worm->iDirection = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
+			m_worm->iFaceDirectionSide = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
 		}
 	}
@@ -3878,7 +3873,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		AI_Jump();
 
 		if (tLX->currentTime-fLastFace >= 0.5f)  {
-			m_worm->iDirection = !m_worm->iDirection;
+			m_worm->iFaceDirectionSide = !m_worm->iFaceDirectionSide;
 			fLastFace = tLX->currentTime;
 		}
 		
@@ -3905,9 +3900,9 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		// Go away from the projectile
 		if (tLX->currentTime-fLastFace >= 0.5f)  {
 			if (psHeadingProjectile->getVelocity().x > 0)
-				m_worm->iDirection = DIR_LEFT;  // Move in the opposite direction
+				m_worm->iFaceDirectionSide = DIR_LEFT;  // Move in the opposite direction
 			else
-				m_worm->iDirection = DIR_RIGHT;
+				m_worm->iFaceDirectionSide = DIR_RIGHT;
 			fLastFace = tLX->currentTime;
 		}
 		ws->bMove = true;
@@ -3942,9 +3937,9 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 			// Get the direction
 			CVec dir;
-			dir.x=( (float)cos(fAngle * (PI/180)) );
-			dir.y=( (float)sin(fAngle * (PI/180)) );
-			if(iDirection == DIR_LEFT)
+			dir.x=( cosf(fAngle * (PI/180)) );
+			dir.y=( sinf(fAngle * (PI/180)) );
+			if(iFaceDirectionSide == DIR_LEFT)
 				dir.x=(-dir.x);
 
 			// Shoot it
@@ -4220,9 +4215,9 @@ find_one_visible_node:
 
     if(fireNinja) {
         CVec dir;
-		dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
-	    dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
-	    if(m_worm->iDirection == DIR_LEFT)
+		dir.x=( cosf(m_worm->fAngle * (PI/180)) );
+	    dir.y=( sinf(m_worm->fAngle * (PI/180)) );
+	    if(m_worm->iFaceDirectionSide == DIR_LEFT)
 		    dir.x=(-dir.x);
 
     	// the final shoot of the rope...

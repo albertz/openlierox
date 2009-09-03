@@ -178,7 +178,7 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	int ang = (int)( (worm->getAngle()+90)/151 * 7 );
 	f += ang;
 	
-	if(worm->getDirection() == DIR_LEFT) {
+	if(worm->getFaceDirectionSide() == DIR_LEFT) {
 		flag->skin->Draw(bmpDest, p.x - flag->skin->getSkinWidth(), p.y - flag->skin->getSkinHeight(), f, false, true);
 	}
 	else {

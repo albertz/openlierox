@@ -680,7 +680,7 @@ void CClient::DrawBeam(CWorm *w)
 
 	// Get the direction angle
 	float Angle = w->getAngle();
-	if(w->getDirection() == DIR_LEFT)
+	if(w->getFaceDirectionSide() == DIR_LEFT)
 		Angle=180-Angle;
 
 
@@ -930,7 +930,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 {
 
 	// Get the direction angle
-	if(w->getDirection() == DIR_LEFT)
+	if(w->getFaceDirectionSide() == DIR_LEFT)
 		Angle=180-Angle;
 
 	while( Angle > 180.0f ) // Normalize it
@@ -1091,7 +1091,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 	// Get the direction angle
 	float Angle = w->getAngle();
-	if(w->getDirection() == DIR_LEFT)
+	if(w->getFaceDirectionSide() == DIR_LEFT)
 		Angle=180-Angle;
 
 	if(Angle < 0)

@@ -240,8 +240,8 @@ private:
 	int			iLives;
 	bool		bAlive;
 	AbsTime		fTimeofDeath;
-	int			iDirection;
-	int			iMoveDirection;
+	int			iFaceDirectionSide;
+	int			iMoveDirectionSide;
 	bool		bGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
@@ -513,13 +513,19 @@ public:
 	bool		isVisible(const CViewport* v) const;
 	bool		isVisible(CWorm* viewerWorm) const;
 	
-	float		getAngle()				{ return fAngle; }
+	float		getAngle()	const			{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
 	void		resetAngleAndDir();
-	int			getDirection()			{ return iDirection; }
-	void		setDirection(int d)			{ iDirection = d; }
-	int			getMoveDirection()		{ return iMoveDirection; }
-
+	int			getFaceDirectionSide() const	{ return iFaceDirectionSide; }
+	void		setFaceDirectionSide(int d)			{ iFaceDirectionSide = d; }
+	CVec		getFaceDirection() const {
+		return CVec(cosf(getAngle() * (PI/180)) * (iFaceDirectionSide == DIR_LEFT) ? -1 : 1,
+					sinf(getAngle() * (PI/180)) ); }
+	int			getMoveDirectionSide()		{ return iMoveDirectionSide; }
+	CVec		getMoveDirection() const {
+		return CVec(cosf(getAngle() * (PI/180)) * (iMoveDirectionSide == DIR_LEFT) ? -1 : 1,
+					sinf(getAngle() * (PI/180)) ); }
+	
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 	float		getLoadingTime()			{ return fLoadingTime; }
 

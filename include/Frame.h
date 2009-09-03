@@ -40,12 +40,11 @@
 
 
 // Worm frame state
-class worm_state_t {
-public:
+struct worm_state_t {
 	worm_state_t() {
 		iFlags = iX = iY = iAngle = iHookType = iHookX = iHookY = 0;
 		bShoot = bCarve = bMove = bJump = false;
-		iDirection = iWeapon = 0;	
+		iFaceDirectionSide = iWeapon = 0;	
 	}
 	
 	int		iFlags;
@@ -59,7 +58,7 @@ public:
 	// Command byte
 	bool	bShoot;
 	bool	bCarve;
-	int		iDirection;
+	int		iFaceDirectionSide;
 	bool	bMove;
 	bool	bJump;
 	int		iWeapon;
@@ -68,15 +67,13 @@ public:
 
 
 
-class frame_t { public:
-
+struct frame_t {
 	Uint32	iFrameNum;
 	float	fTime;
 	float	fPingTime;
 	float	fSentTime;
 
 	worm_state_t	tWormStates[8];
-
 };
 
 

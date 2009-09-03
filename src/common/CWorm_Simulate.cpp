@@ -131,10 +131,8 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->fAngleSpeed = 0;
 
 		// Calculate dir
-		dir.x=( (float)cos(m_worm->fAngle * (PI/180)) );
-		dir.y=( (float)sin(m_worm->fAngle * (PI/180)) );
-		if( m_worm->iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-			dir.x=(-dir.x);
+		// Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+		dir = m_worm->getMoveDirection();
 
 	} // end angle section
 
@@ -150,15 +148,15 @@ void CWormHumanInputHandler::getInput() {
 
 		if(fabs(m_worm->fMoveSpeedX) > 50) {
 			if(m_worm->fMoveSpeedX > 0) {
-				m_worm->iMoveDirection = DIR_RIGHT;
+				m_worm->iMoveDirectionSide = DIR_RIGHT;
 				if(mouse_dx < 0) m_worm->lastMoveTime = tLX->currentTime;
 			} else {
-				m_worm->iMoveDirection = DIR_LEFT;
+				m_worm->iMoveDirectionSide = DIR_LEFT;
 				if(mouse_dx > 0) m_worm->lastMoveTime = tLX->currentTime;
 			}
 			ws->bMove = true;
 			if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown())
-				m_worm->iDirection = m_worm->iMoveDirection;
+				m_worm->iFaceDirectionSide = m_worm->iMoveDirectionSide;
 
 		} else {
 			ws->bMove = false;
@@ -208,7 +206,7 @@ void CWormHumanInputHandler::getInput() {
 
 		const float carveDelay = 0.2f;
 
-		if(		(mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_LEFT)
+		if(		(mouseControl && ws->bMove && m_worm->iMoveDirectionSide == DIR_LEFT)
 			||	( ( (cLeft.isJoystick() && cLeft.isDown()) /*|| (cLeft.isKeyboard() && leftOnce)*/ ) && !cSelWeapon.isDown())
 			) {
 
@@ -219,7 +217,7 @@ void CWormHumanInputHandler::getInput() {
 			}
 		}
 
-		if(		(mouseControl && ws->bMove && m_worm->iMoveDirection == DIR_RIGHT)
+		if(		(mouseControl && ws->bMove && m_worm->iMoveDirectionSide == DIR_RIGHT)
 			||	( ( (cRight.isJoystick() && cRight.isDown()) /*|| (cRight.isKeyboard() && rightOnce)*/ ) && !cSelWeapon.isDown())
 			) {
 
@@ -276,8 +274,8 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->lastMoveTime = tLX->currentTime;
 
 			if(!cRight.isDown()) {
-				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_LEFT;
-				m_worm->iMoveDirection = DIR_LEFT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iFaceDirectionSide = DIR_LEFT;
+				m_worm->iMoveDirectionSide = DIR_LEFT;
 			}
 
 			if(rightOnce) {
@@ -291,8 +289,8 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->lastMoveTime = tLX->currentTime;
 
 			if(!cLeft.isDown()) {
-				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iDirection = DIR_RIGHT;
-				m_worm->iMoveDirection = DIR_RIGHT;
+				if(!cClient->isHostAllowingStrafing() || !cStrafe.isDown()) m_worm->iFaceDirectionSide = DIR_RIGHT;
+				m_worm->iMoveDirectionSide = DIR_RIGHT;
 			}
 
 			if(leftOnce) {
@@ -423,9 +421,9 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 			fAngleSpeed = 0;
 
 		// Calculate dir
-		dir.x=( (float)cos(fAngle * (PI/180)) );
-		dir.y=( (float)sin(fAngle * (PI/180)) );
-		if( iMoveDirection == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+		dir.x=( cosf(fAngle * (PI/180)) );
+		dir.y=( sinf(fAngle * (PI/180)) );
+		if( iMoveDirectionSide == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
 			dir.x=(-dir.x);
 
 	} // end angle section
@@ -475,8 +473,8 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 
 			if(!keys.keys[NewNet::K_RIGHT]) {
 				if(!cClient->isHostAllowingStrafing() || !keys.keys[NewNet::K_STRAFE]) 
-					iDirection = DIR_LEFT;
-				iMoveDirection = DIR_LEFT;
+					iFaceDirectionSide = DIR_LEFT;
+				iMoveDirectionSide = DIR_LEFT;
 			}
 
 			if(rightOnce) {
@@ -491,8 +489,8 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 
 			if(!keys.keys[NewNet::K_LEFT]) {
 				if(!cClient->isHostAllowingStrafing() || !keys.keys[NewNet::K_STRAFE]) 
-					iDirection = DIR_RIGHT;
-				iMoveDirection = DIR_RIGHT;
+					iFaceDirectionSide = DIR_RIGHT;
+				iMoveDirectionSide = DIR_RIGHT;
 			}
 
 			if(leftOnce) {

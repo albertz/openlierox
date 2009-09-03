@@ -581,8 +581,8 @@ void EntityEffect::Process()
 				}
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
-					CVec spread = CVec( (float)sin(angle), (float)cos(angle) ) * _radius;
-					CVec addVel = CVec( (float)sin(angle - PI/1.5), (float)cos(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
+					CVec spread = CVec( sinf(angle), cosf(angle) ) * _radius;
+					CVec addVel = CVec( sinf(angle - PI/1.5), cosf(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
 					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, c, NULL);
 				}
 			}
