@@ -107,12 +107,12 @@ static bool AmIBeingDebugged() {
 void RaiseDebugger() {
 	if(AmIBeingDebugged()) {
 		printf("I am being debugged, raising debugger ...\n");
-		CrashHandler::get()->disable();
+		if(CrashHandler::get()) CrashHandler::get()->disable();
 		// TODO: We need a way to set another ucontext here. (And that should be specified via a parameter
 		// to RaiseDebugger().) E.g. when we use this function in the debugger thread, we want to set the
 		// ucontext of the main loop thread.
 		raise(SIGABRT);
-		CrashHandler::get()->enable();
+		if(CrashHandler::get()) CrashHandler::get()->enable();
 	} else
 		printf("I am not being debugged, ignoring debugger raise.\n");
 }

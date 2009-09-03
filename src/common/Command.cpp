@@ -2034,6 +2034,14 @@ void Cmd_dumpConnections::exec(CmdLineIntf* caller, const std::vector<std::strin
 	else caller->writeMsg("server not initialised");
 }
 
+#ifdef MEMSTATS
+COMMAND(printMemStats, "print memory stats", "", 0, 0);
+void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	printMemStats();
+}
+#endif
+
+
 COMMAND(saveConfig, "save current config", "[filename]", 0, 1);
 void Cmd_saveConfig::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLXOptions) {
