@@ -62,12 +62,14 @@
 std::string Utf8String(const std::string &OldLxString);
 
 static Logger DebugNetLogger(0,2,1000, "DbgNet: ");
+static bool Debug_Net_ClPrintFullStream = false;
 static bool Debug_Net_ClConnLess = false;
 static bool Debug_Net_ClConn = false;
 
 static bool bRegisteredNetDebugVars = CScriptableVars::RegisterVars("Debug.Net")
 ( DebugNetLogger.minCoutVerb, "LoggerCoutVerb" )
 ( DebugNetLogger.minIngameConVerb, "LoggerIngameVerb" )
+( Debug_Net_ClPrintFullStream, "ClPrintFullStream" )
 ( Debug_Net_ClConnLess, "ClConnLess" )
 ( Debug_Net_ClConn, "ClConn" );
 
@@ -151,7 +153,10 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	}
 	
 	if(Debug_Net_ClConnLess) {
-		bs->Dump(PrintOnLogger(DebugNetLogger), Set(s1, s2, bs->GetPos()));
+		if(Debug_Net_ClPrintFullStream)
+			bs->Dump(PrintOnLogger(DebugNetLogger), Set(s1, s2, bs->GetPos()));
+		else
+			bs->Dump(PrintOnLogger(DebugNetLogger), Set(s2 - s1), s1, bs->GetPos() - s1);
 		DebugNetLogger << "}" << endl;
 	}
 }
@@ -459,22 +464,23 @@ void CClientNetEngine::ParseConnectHere(CBytestream *bs)
 // Parse a packet
 bool CClientNetEngine::ParsePacket(CBytestream *bs)
 {
-	uchar cmd;
-
 	if(bs->isPosAtEnd())
 		return false;
 
-	cmd = bs->readInt(1);
-
+	size_t s = bs->GetPos();
+	uchar cmd = bs->readInt(1);
+	
+	if(Debug_Net_ClConn)
+		DebugNetLogger << "Packet: { '" << (int)cmd << "', restlen: " << bs->GetRestLen() << endl;
+	
+	bool ret = true;
+	
 		switch(cmd) {
-
 
 			// Prepare the game
 			case S2C_PREPAREGAME:
-				if(!ParsePrepareGame(bs)) {
-					// HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
-                    return false;
-				}
+				ret &= ParsePrepareGame(bs);
+				// HINT: Don't disconnect, we often get here after a corrupted packet because S2C_PREPAREGAME=0 which is a very common value
 				break;
 
 			// Start the game
@@ -511,7 +517,6 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_CHATCMDCOMPLLST:
 				ParseChatCommandCompletionList(bs);
 				break;
-
 
 			// AFK message
 			case S2C_AFK:
@@ -639,17 +644,28 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
 #ifdef DEBUG
-				notes << "Bytestream dump:" << endl;
-				bs->Dump();
-				notes << "Done dumping bytestream" << endl;
+				// only if debugging sys is disabled because we would print it anyway then
+				if(!Debug_Net_ClConn) {
+					notes << "Bytestream dump:" << endl;
+					// Note: independent from net debugging system because I want to see this in users log even if he didn't enabled the debugging system
+					bs->Dump();
+					notes << "Done dumping bytestream" << endl;
+				}
 #endif //DEBUG
 
 #endif //FUZZY_ERROR_TESTING
-
-				return false;
+				ret = false;
 		}
 
-	return true;
+	if(Debug_Net_ClConn) {
+		if(Debug_Net_ClPrintFullStream)
+			bs->Dump(PrintOnLogger(DebugNetLogger), Set(s, bs->GetPos()));
+		else
+			bs->Dump(PrintOnLogger(DebugNetLogger), std::set<size_t>(), s, bs->GetPos() - s);
+		DebugNetLogger << "}" << endl;
+	}
+	
+	return ret;
 }
 
 

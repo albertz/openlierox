@@ -67,7 +67,7 @@ inline Logger& flush(Logger& __os) { return __os.flush(); }
 struct PrintOnLogger : PrintOutFct {
 	Logger& l;
 	PrintOnLogger(Logger& _l) : l(_l) {}
-	void print(const std::string& str) const { l << str; }
+	void print(const std::string& str) const { l << str; l.flush(); }
 };
 
 extern Logger notes;
