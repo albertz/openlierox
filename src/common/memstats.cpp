@@ -92,12 +92,15 @@ struct MemStats {
 	}
 };
 static MemStats* stats = NULL;
+static bool finalCleanup = false;
 
-static void initMemStats() {
+static bool initMemStats() {
+	if(finalCleanup) return false;
 	if(stats == NULL) {
 		stats = (MemStats*) malloc(sizeof(MemStats));
 		new(stats) MemStats;
 	}
+	return true;
 }
 
 struct MemStats_FinalCleanup {
@@ -106,17 +109,17 @@ struct MemStats_FinalCleanup {
 			stats -> ~MemStats();
 			free(stats);
 			stats = NULL;
+			finalCleanup = true;
 		}
 	}
-} finalCleanup;
+} memStats_finalCleanup;
 
 
 void * operator new (size_t size, dmalloc_t, const char* file, int line) {
 	void* p = malloc(size);
 	
 	ObjType obj( GetBaseFilename(String(file)), line );
-	{
-		initMemStats();
+	if(initMemStats()) {
 		Mutex::ScopedLock lock(stats->mutex);
 		stats->allocSums[obj] += size;
 		stats->allocInfos[p] = AllocInfo(obj, size);
@@ -146,7 +149,11 @@ void* operator new[](std::size_t size, const std::nothrow_t&) throw() {
 }
 
 void operator delete (void * p) throw() {
-	initMemStats();
+	if(!initMemStats()) {
+		free(p);
+		return;
+	}
+	
 	Mutex::ScopedLock lock(stats->mutex);
 
 	AllocInfoMap::iterator i = stats->allocInfos.find(p);
