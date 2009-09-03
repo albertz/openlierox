@@ -50,6 +50,7 @@
 #include "ConversationLogger.h"
 #include "FlagInfo.h"
 #include "CMap.h"
+#include "Utils.h"
 
 
 #ifdef _MSC_VER
@@ -60,7 +61,7 @@
 // declare them only locally here as nobody really should use them explicitly
 std::string Utf8String(const std::string &OldLxString);
 
-static Logger DebugNetLogger(0,2,1000, "DbgNet");
+static Logger DebugNetLogger(0,2,1000, "DbgNet: ");
 static bool Debug_Net_ClConnLess = false;
 static bool Debug_Net_ClConn = false;
 
@@ -75,12 +76,12 @@ static bool bRegisteredNetDebugVars = CScriptableVars::RegisterVars("Debug.Net")
 // Parse a connectionless packet
 void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 {
+	size_t s1 = bs->GetPos();
 	std::string cmd = bs->readString(128);
-
-	if(Debug_Net_ClConnLess) {
-		DebugNetLogger << "ConnectionLessPacket: " << cmd << endl;
-		bs->Dump(PrintOnLogger(DebugNetLogger));
-	}
+	size_t s2 = bs->GetPos();
+	
+	if(Debug_Net_ClConnLess)
+		DebugNetLogger << "ConnectionLessPacket: { '" << cmd << "', restlen: " << bs->GetRestLen() << endl;
 	
 	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
@@ -147,6 +148,11 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 	else  {
 		warnings << "CClientNetEngine::ParseConnectionlessPacket: unknown command \"" << cmd << "\"" << endl;
 		bs->SkipAll(); // Safety: ignore any data behind this unknown packet
+	}
+	
+	if(Debug_Net_ClConnLess) {
+		bs->Dump(PrintOnLogger(DebugNetLogger), Set(s1, s2, bs->GetPos()));
+		DebugNetLogger << "}" << endl;
 	}
 }
 
