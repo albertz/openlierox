@@ -407,8 +407,10 @@ bool GameServer::SendUpdate()
 				continue;
 
 			// HINT: happens when clients join during game and haven't selected their weapons yet
-			if (!cl->getGameReady())
-				continue;
+			// HINT 2: this should be valid for beta 9+ though so the user can see others playing while selecting weapons
+			if (cl->getClientVersion() < OLXBetaVersion(9))
+				if (!cl->getGameReady())
+					continue;
 
 			// Check if we have gone over the bandwidth rating for the client
 			// If we have, just don't send a packet this frame
