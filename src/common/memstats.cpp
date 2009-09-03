@@ -48,6 +48,14 @@ String IntToStr(T num, int base = 10) {
 	return buf;	
 }
 
+String SizeAsStr(size_t sum) {
+	if(sum < 2*1024)
+		return IntToStr(sum) + " B";
+	else if(sum < 2*1024*1024)
+		return IntToStr(sum / 1024) + " KB";
+	else
+		return IntToStr(sum / (1024*1024)) + " MB";
+}
 
 size_t findLastPathSep(const String& path) {
 	size_t slash = path.rfind('\\');
@@ -209,11 +217,31 @@ void operator delete[](void* p , const std::nothrow_t&) throw() {
 
 void printMemStats() {
 	if(stats) {
-		Mutex::ScopedLock lock(stats->mutex);
 		dbgMsg("-- MemStats --");
-		dbgMsg("allocs: " + IntToStr(stats->allocInfos.size()));
-		dbgMsg("num of different alloc types: " + IntToStr(stats->allocSums.size()));
-		// TODO ...
+
+		typedef std::multimap<size_t, ObjType, std::less<size_t>, __gnu_cxx::malloc_allocator< std::pair<const size_t,ObjType> > > Allocs;
+		Allocs allocs;
+		size_t sum = 0;
+		{
+			Mutex::ScopedLock lock(stats->mutex);
+			dbgMsg("allocs: " + IntToStr(stats->allocInfos.size()));
+			dbgMsg("num of different alloc types: " + IntToStr(stats->allocSums.size()));
+			
+			// sort all alloc types by alloc sum
+			for(Allocations::iterator i = stats->allocSums.begin(); i != stats->allocSums.end(); ++i) {
+				allocs.insert( Allocs::value_type(i->second, i->first) );
+				sum += i->second;
+			}
+		}
+		
+		dbgMsg("allocated mem: " + SizeAsStr(sum));
+		int count = 30;
+		for(Allocs::reverse_iterator i = allocs.rbegin(); i != allocs.rend(); ++i) {
+			dbgMsg(". " + ObjTypeAsStr(i->second) + " - " + SizeAsStr(i->first));
+			count--;
+			if(count <= 0) break;
+		}
+		dbgMsg(".");
 	}
 	else
 		dbgMsg("MemStats not initialised");
