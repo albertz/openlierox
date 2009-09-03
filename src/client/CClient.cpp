@@ -1819,19 +1819,13 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				cServer->PrepareWorm(serverWorm);
 			}
 
-			{
-				// inform everybody else about new worm
-				// TODO: move that (protocol info) out here
-				CBytestream bytestr;
-				bytestr.writeByte(S2C_WORMINFO);
-				bytestr.writeInt(serverWorm->getID(), 1);
-				serverWorm->writeInfo(&bytestr);				
-				for(int ii = 0; ii < MAX_CLIENTS; ii++) {
-					if(cServer->getClients()[ii].isLocalClient()) continue;
-					if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
-					if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
-					cServer->getClients()[ii].getNetEngine()->SendPacket( &bytestr );
-				}
+			// inform everybody else about new worm
+			for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+				if(cServer->getClients()[ii].isLocalClient()) continue;
+				if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+				if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+				cServer->getClients()[ii].getNetEngine()->SendUpdateWorm(serverWorm);
+				
 			}
 			
 			// handling for connect during game
