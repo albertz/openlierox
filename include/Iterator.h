@@ -20,17 +20,21 @@
 
 template < typename _Obj >
 class Iterator {
-public:
+public:	
 	virtual ~Iterator() {}
 	virtual Iterator* copy() const = 0;
 	virtual bool isValid() = 0;
 	virtual void next() = 0;
+	virtual void nextn(size_t num) { while(num > 0) { next(); if(!isValid()) return; --num; } }
+	
 	virtual bool operator==(const Iterator& other) const = 0;
 	bool operator!=(const Iterator& other) const { return ! ((*this) == other); }
+	
 	virtual _Obj get() = 0; // this has to return a valid obj if valid == true
 	//_Obj* operator->() { return &get(); }
 
 	typedef ::Ref< Iterator > Ref;
+	typedef _Obj value_type;	
 };
 
 template<typename _STLT, typename _T>
@@ -72,6 +76,7 @@ struct CArray {
 	_T* array;
 	unsigned long len;
 	CArray(_T* a, unsigned long l) : array(a), len(l) {}
+	typedef _T value_type;
 };
 
 template<typename _T>
@@ -83,14 +88,49 @@ private:
 	unsigned long i, len;
 	_T* array;	
 public:
+	CArrayIterator(_T* _arr, size_t _len) : i(0), len(_len), array(_arr) {}		
 	CArrayIterator(const CArray<_T>& a) : i(0), len(a.len), array(a.array) {}	
 	CArrayIterator(const CArrayIterator& it) : i(it.i), array(it.array) {}	
 	virtual Iterator<_T*>* copy() const { return new CArrayIterator(*this); }
 	virtual bool isValid() { return i < len; }
 	virtual void next() { ++i; }
+	virtual void nextn(size_t n) { i += n; }
 	virtual bool operator==(const Iterator<_T*>& other) const { const CArrayIterator* ot = dynamic_cast< const CArrayIterator* > (&other); return ot && ot->array == array && ot->i == i; }
 	virtual _T* get() { return &array[i]; }
 };
+
+class StringIterator : public Iterator<char&> {
+private:
+	std::string& str;
+	size_t i;
+public:
+	typedef StringIterator This;
+	typedef char& _T;
+	StringIterator(std::string& s) : str(s), i(0) {}
+	virtual Iterator<_T>* copy() const { return new This(*this); }
+	virtual bool isValid() { return i < str.size(); }
+	virtual void next() { ++i; }
+	virtual void nextn(size_t n) { i += n; }
+	virtual bool operator==(const Iterator<_T>& other) const { const This* ot = dynamic_cast< const This* > (&other); return ot && &ot->str == &str && ot->i == i; }
+	virtual _T get() { return str[i]; }
+};
+
+class ConstStringIterator : public Iterator<char> {
+private:
+	const std::string& str;
+	size_t i;
+public:
+	typedef ConstStringIterator This;
+	typedef char _T;
+	ConstStringIterator(const std::string& s) : str(s), i(0) {}
+	virtual Iterator<_T>* copy() const { return new This(*this); }
+	virtual bool isValid() { return i < str.size(); }
+	virtual void next() { ++i; }
+	virtual void nextn(size_t n) { i += n; }
+	virtual bool operator==(const Iterator<_T>& other) const { const This* ot = dynamic_cast< const This* > (&other); return ot && &ot->str == &str && ot->i == i; }
+	virtual _T get() { return str[i]; }
+};
+
 
 template< typename __T, typename __C >
 typename Iterator<__T>::Ref GetIterator(__C& s) { return s.iterator(); }
@@ -108,10 +148,10 @@ template< typename _T, typename _KT >
 typename Iterator<_T&>::Ref GetIterator(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
 
 inline
-Iterator<char&>::Ref GetIterator(std::string& s) { return new STLIterator<std::string,char&>(s); }
+Iterator<char&>::Ref GetIterator(std::string& s) { return new StringIterator(s); }
 
 inline
-Iterator<char>::Ref GetConstIterator(std::string& s) { return new STLIterator<std::string,char>(s); }
+Iterator<char>::Ref GetConstIterator(std::string& s) { return new ConstStringIterator(s); }
 
 template< typename _T >
 typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }

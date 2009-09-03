@@ -161,26 +161,26 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	return res;
 }
 
-bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct printOutFct, bool firstLineWithPrefix) {
+bool PrettyPrint(const std::string& prefix, const std::string& buf, const PrintOutFct& printOutFct, bool firstLineWithPrefix) {
 	std::string::const_iterator it = buf.begin();
 	bool firstLine = true;
 	while(true) {
 		std::string tmp = ReadUntil(buf, it, '\n', std::string(it, buf.end()));
 		if(it == buf.end()) {
 			if(tmp != "") {
-				(*printOutFct) ( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
+				printOutFct.print( (!firstLineWithPrefix && firstLine) ? tmp : (prefix + tmp) );
 				return false;
 			}
 			return !firstLine || firstLineWithPrefix;
 		}
 		++it;
-		(*printOutFct) ( (!firstLineWithPrefix && firstLine) ? (tmp + "\n") : (prefix + tmp + "\n") );
+		printOutFct.print( (!firstLineWithPrefix && firstLine) ? (tmp + "\n") : (prefix + tmp + "\n") );
 		firstLine = false;
 	}
 }
 
 
-Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t mark, size_t count) {
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, const PrintOutFct& printOutFct, const std::set<size_t>& marks, size_t count) {
 	std::string tmpLeft;
 	std::string tmpRight;
 	unsigned int tmpChars = 0;
@@ -191,7 +191,7 @@ Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, 
 		unsigned char ch = start->get();
 		
 		tmpLeft += FixedWidthStr_LeftFill(hex(ch), 2, '0');
-		tmpLeft += (c == mark) ? "]" : (c + 1 == mark) ? "[" : " ";
+		tmpLeft += marks.count(c) ? "]" : marks.count(c + 1) ? "[" : " ";
 		if(ch >= 32 && ch <= 126)
 			tmpRight += ch;
 		else
@@ -203,7 +203,7 @@ Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, 
 			tmpRight += " ";
 		}
 		if(tmpChars == charsInLine) {
-			(*printOutFct) ( tmpLeft + "| " + tmpRight + "\n" );
+			printOutFct.print( tmpLeft + "| " + tmpRight + "\n" );
 			tmpChars = 0;
 			tmpLeft = tmpRight = "";
 		}
@@ -215,7 +215,7 @@ Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, 
 	tmpLeft += std::string((charsInLine - tmpChars) * 3, ' ');
 	tmpRight += std::string((charsInLine - tmpChars), ' ');	
 	if(tmpChars < charsInLine / 2) { tmpLeft += "  "; tmpRight += " "; }
-	(*printOutFct) ( tmpLeft + "| " + tmpRight + "\n" );
+	printOutFct.print( tmpLeft + "| " + tmpRight + "\n" );
 	
 	return start;
 }

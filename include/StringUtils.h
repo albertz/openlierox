@@ -19,6 +19,7 @@
 #include <cassert>
 #include <list>
 #include <limits.h>
+#include <set>
 #include "types.h"
 #include "Color.h" // for StrToCol
 #include "Iterator.h"
@@ -176,14 +177,17 @@ inline size_t subStrCount(const std::string& str, const std::string& substr) {
 }
 
 
-typedef void (*PrintOutFct) (const std::string&);
-inline void NullOut(const std::string&) {}
+struct PrintOutFct {
+	virtual ~PrintOutFct() {}
+	virtual void print(const std::string&) const = 0;
+};
+
+struct NullOut : PrintOutFct { void print(const std::string&) const {} };
 
 // returns true if last char was a newline
-bool PrettyPrint(const std::string& prefix, const std::string& buf, PrintOutFct printOutFct, bool firstLineWithPrefix = true);
+bool PrettyPrint(const std::string& prefix, const std::string& buf, const PrintOutFct& printOutFct, bool firstLineWithPrefix = true);
 
-
-Iterator<char>::Ref HexDump(Iterator<char>::Ref start, PrintOutFct printOutFct, size_t mark = (size_t)-1, size_t count = (size_t)-1);
+Iterator<char>::Ref HexDump(Iterator<char>::Ref start, const PrintOutFct& printOutFct, const std::set<size_t>& marks = std::set<size_t>(), size_t count = (size_t)-1);
 
 
 

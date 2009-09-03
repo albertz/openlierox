@@ -434,14 +434,14 @@ void DumpCallstackPrintf(void* callpnt) {
 	free(strs);
 }
 
-void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
+void DumpCallstack(const PrintOutFct& printer) {
 	void *callstack[128];
 	int framesC = backtrace(callstack, sizeof(callstack));
-	(*PrintOutFct) ("DumpCallstack: " + itoa(framesC) + " addresses:");
+	printer.print("DumpCallstack: " + itoa(framesC) + " addresses:");
 	char** strs = backtrace_symbols(callstack, framesC);
 	for(int i = 0; i < framesC; ++i) {
 		if(strs[i])
-			(*PrintOutFct) (std::string(" ") + strs[i] + "\n");
+			printer.print(std::string(" ") + strs[i] + "\n");
 		else
 			break;
 	}
@@ -553,17 +553,22 @@ void Logger::unlock() {
 	SDL_mutexV(mutex);
 }
 
-static void CoutPrint(const std::string& str) {
-	// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
-	printf("%s", str.c_str());
-}
+struct CoutPrint : PrintOutFct {
+	void print(const std::string& str) const {
+		// TODO: We have used std::cout here before but it doesn't seem to work after a while for some reason.
+		printf("%s", str.c_str());
+	}
+};
 
-template<int col> void ConPrint(const std::string& str) {
-	// TODO: Con_AddText adds a line but we only want to add str
-	std::string buf = str;
-	if(buf.size() > 0 && buf[buf.size()-1] == '\n') buf.erase(buf.size()-1);
-	Con_AddText(col, buf, false);
-}
+template<int col>
+struct ConPrint : PrintOutFct {
+	void print(const std::string& str) const {
+		// TODO: Con_AddText adds a line but we only want to add str
+		std::string buf = str;
+		if(buf.size() > 0 && buf[buf.size()-1] == '\n') buf.erase(buf.size()-1);
+		Con_AddText(col, buf, false);
+	}
+};
 
 // true if last was newline
 static bool logger_output(Logger& log, const std::string& buf) {
@@ -575,7 +580,7 @@ static bool logger_output(Logger& log, const std::string& buf) {
 
 	if(!tLXOptions || tLXOptions->iVerbosity >= log.minCoutVerb) {
 		SDL_mutexP(globalCoutMutex);
-		ret = PrettyPrint(prefix, buf, CoutPrint, log.lastWasNewline);
+		ret = PrettyPrint(prefix, buf, CoutPrint(), log.lastWasNewline);
 		//std::cout.flush();
 		SDL_mutexV(globalCoutMutex);
 	}
@@ -587,18 +592,18 @@ static bool logger_output(Logger& log, const std::string& buf) {
 		if(!strStartsWith(buf, "Ingame console: ")) {
 			// we are not safing explicitly a color in the Logger, thus we try to assume a good color from the verbosity level
 			if(log.minIngameConVerb < 0)
-				ret = PrettyPrint(prefix, buf, ConPrint<CNC_ERROR>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_ERROR>(), log.lastWasNewline);
 			else if(log.minIngameConVerb == 0)
-				ret = PrettyPrint(prefix, buf, ConPrint<CNC_WARNING>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_WARNING>(), log.lastWasNewline);
 			else if(log.minIngameConVerb == 1)
-				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NOTIFY>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NOTIFY>(), log.lastWasNewline);
 			else if(log.minIngameConVerb < 5)
-				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NORMAL>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_NORMAL>(), log.lastWasNewline);
 			else // >=5
-				ret = PrettyPrint(prefix, buf, ConPrint<CNC_DEV>, log.lastWasNewline);
+				ret = PrettyPrint(prefix, buf, ConPrint<CNC_DEV>(), log.lastWasNewline);
 		}
 		if(tLXOptions->iVerbosity >= log.minCallstackVerb) {
-			DumpCallstack(ConPrint<CNC_DEV>);
+			DumpCallstack(ConPrint<CNC_DEV>());
 		}
 	}
 	return ret;

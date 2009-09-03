@@ -22,11 +22,13 @@
 
 #include <SDL.h> // for SInt16
 #include <string>
+#include <set>
 #include "types.h"
 #include "Networking.h"
 #include "SmartPointer.h"
 
 struct ScriptVar_t;
+struct Logger;
 
 class CBytestream {
 public:
@@ -70,8 +72,10 @@ public:
 	
 	void		Clear();
 	void		Append(CBytestream *bs);
-    void        Dump();
 	
+	// Note: marks positions are relative to start; start=0 means from the very beginning of the stream (not from pos)
+    void        Dump(const PrintOutFct& printer, const std::set<size_t>& marks = std::set<size_t>(), size_t start = 0, size_t count = (size_t)-1);
+	void		Dump();
 
 	// Writes
 	bool		writeByte(uchar byte);

@@ -28,6 +28,7 @@
 #include "CScriptableVars.h"
 #include "Debug.h"
 #include "Iterator.h"
+#include "Utils.h"
 
 
 void CBytestream::Test()
@@ -250,11 +251,15 @@ void CBytestream::Append(CBytestream *bs) {
 
 ///////////////////
 // Dump the data out
-void CBytestream::Dump() {
-	HexDump(GetConstIterator(Data), printOnLogger<notes>, pos);
-	notes.flush();
+void CBytestream::Dump(const PrintOutFct& printer, const std::set<size_t>& marks, size_t start, size_t count) {
+	Iterator<char>::Ref it = GetConstIterator(Data);
+	if(start > 0) it->nextn(start);
+	HexDump(it, printer, marks, count);
 }
 
+void CBytestream::Dump() {
+	Dump(PrintOnLogger(notes), Set(pos));
+}
 
 
 // Writes

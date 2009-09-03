@@ -15,6 +15,7 @@
 #include <vector>
 #include <list>
 #include <cassert>
+#include <set>
 #include "MathLib.h"
 
 template <typename _dst, typename _src>
@@ -61,6 +62,10 @@ template<typename T>
 std::vector<T> ListAsVector(const std::list<T>& l) {
 	return std::vector<T>(l.begin(), l.end());
 }
+
+template<typename T> std::set<T> Set(T v1) { std::set<T> ret; ret.insert(v1); return ret; }
+template<typename T> std::set<T> Set(T v1, T v2) { std::set<T> ret; ret.insert(v1); ret.insert(v2); return ret; }
+template<typename T> std::set<T> Set(T v1, T v2, T v3) { std::set<T> ret; ret.insert(v1); ret.insert(v2); ret.insert(v3); return ret; }
 
 #endif
 

@@ -229,7 +229,7 @@ public:
 	CrashHandlerImpl() {
 		if(tLXOptions->bRecoverAfterCrash) {
 			setSignalHandlers();
-			DumpCallstack(NullOut); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+			DumpCallstack(NullOut()); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
 
 			notes << "registered simple resuming signal handler" << endl;
 		}

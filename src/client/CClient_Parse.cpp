@@ -60,6 +60,16 @@
 // declare them only locally here as nobody really should use them explicitly
 std::string Utf8String(const std::string &OldLxString);
 
+static Logger DebugNetLogger(0,2,1000, "DbgNet");
+static bool Debug_Net_ClConnLess = false;
+static bool Debug_Net_ClConn = false;
+
+static bool bRegisteredNetDebugVars = CScriptableVars::RegisterVars("Debug.Net")
+( DebugNetLogger.minCoutVerb, "LoggerCoutVerb" )
+( DebugNetLogger.minIngameConVerb, "LoggerIngameVerb" )
+( Debug_Net_ClConnLess, "ClConnLess" )
+( Debug_Net_ClConn, "ClConn" );
+
 
 ///////////////////
 // Parse a connectionless packet
@@ -67,6 +77,11 @@ void CClientNetEngine::ParseConnectionlessPacket(CBytestream *bs)
 {
 	std::string cmd = bs->readString(128);
 
+	if(Debug_Net_ClConnLess) {
+		DebugNetLogger << "ConnectionLessPacket: " << cmd << endl;
+		bs->Dump(PrintOnLogger(DebugNetLogger));
+	}
+	
 	if(cmd == "lx::challenge")
 		ParseChallenge(bs);
 

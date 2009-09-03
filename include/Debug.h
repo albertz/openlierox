@@ -21,7 +21,7 @@ void DumpCallstackPrintf(void* callpnt = NULL);
 // }
 
 
-void DumpCallstack(void (*PrintOutFct) (const std::string&));
+void DumpCallstack(const PrintOutFct& printer);
 
 struct SDL_mutex;
 
@@ -64,9 +64,11 @@ struct Logger {
 inline Logger& endl(Logger& __os) { return (__os << "\n").flush(); }
 inline Logger& flush(Logger& __os) { return __os.flush(); }
 
-template< Logger& l >
-void printOnLogger(const std::string& str) { l << str; }
-
+struct PrintOnLogger : PrintOutFct {
+	Logger& l;
+	PrintOnLogger(Logger& _l) : l(_l) {}
+	void print(const std::string& str) const { l << str; }
+};
 
 extern Logger notes;
 extern Logger hints;
