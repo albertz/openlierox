@@ -452,15 +452,17 @@ void DumpCallstack(const PrintOutFct& printer) {
 
 #include "StackWalker.h"  // Call Luke Stackwalker for help
 
-typedef void (*PrintOutFct) (const std::string&);
+typedef void (*DbgPrintOutFct) (const std::string&);
 
 // Override the default stackwalker with our own print functions
 class PrintStackWalker : public StackWalker  {
 private:
-	PrintOutFct m_print;
+	DbgPrintOutFct m_print;
+	PrintOutFct *m_print2;
 
 public:
-	PrintStackWalker(PrintOutFct fct = NULL) : StackWalker(RetrieveVerbose) { m_print = fct; }
+	PrintStackWalker(DbgPrintOutFct fct = NULL) : StackWalker(RetrieveVerbose) { m_print = fct; m_print2 = NULL; }
+	PrintStackWalker(PrintOutFct *fct) : StackWalker(RetrieveVerbose) { m_print2 = fct; m_print = NULL; }
 	void OnLoadModule(LPCSTR img, LPCSTR mod, DWORD64 baseAddr, DWORD size, DWORD result, LPCSTR symType, LPCSTR pdbName, ULONGLONG fileVersion)
 	{
 
@@ -468,10 +470,13 @@ public:
 
 	void OnOutput(LPCSTR szText)  
 	{
-		if (m_print == NULL)
-			printf(szText);
-		else
+		if (m_print)
 			m_print(std::string(szText));
+		else if (m_print2)
+			m_print2->print(std::string(szText));
+		else
+			printf(szText);
+			
 		StackWalker::OnOutput(szText);
 	}
 };
@@ -485,6 +490,11 @@ void DumpCallstackPrintf(void* callpnt)
 void DumpCallstack(void (*LineOutFct) (const std::string&)) 
 {  
 	PrintStackWalker sw(LineOutFct);
+	sw.ShowCallstack();
+}
+
+void DumpCallstack(const PrintOutFct& printer) {
+	PrintStackWalker sw(const_cast<PrintOutFct *>(&printer));
 	sw.ShowCallstack();
 }
 

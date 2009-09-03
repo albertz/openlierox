@@ -519,12 +519,12 @@ public:
 	int			getFaceDirectionSide() const	{ return iFaceDirectionSide; }
 	void		setFaceDirectionSide(int d)			{ iFaceDirectionSide = d; }
 	CVec		getFaceDirection() const {
-		return CVec(cosf(getAngle() * (PI/180)) * (iFaceDirectionSide == DIR_LEFT) ? -1 : 1,
-					sinf(getAngle() * (PI/180)) ); }
+		return CVec(cosf(getAngle() * ((float)PI/180)) * (iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f,
+					sinf(getAngle() * ((float)PI/180)) ); }
 	int			getMoveDirectionSide()		{ return iMoveDirectionSide; }
 	CVec		getMoveDirection() const {
-		return CVec(cosf(getAngle() * (PI/180)) * (iMoveDirectionSide == DIR_LEFT) ? -1 : 1,
-					sinf(getAngle() * (PI/180)) ); }
+		return CVec(cosf(getAngle() * ((float)PI/180)) * (iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f,
+					sinf(getAngle() * ((float)PI/180)) ); }
 	
 	void		setLoadingTime(float l)		{ fLoadingTime = l; }
 	float		getLoadingTime()			{ return fLoadingTime; }

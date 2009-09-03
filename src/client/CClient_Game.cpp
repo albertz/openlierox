@@ -687,7 +687,7 @@ void CClient::DrawBeam(CWorm *w)
 	// Trace a line from the worm to length or until it hits something
 	CVec pos = w->getPos();
 	CVec dir;
-	GetVecsFromAngle((int)Angle,&dir,NULL);
+	GetVecsFromAngle(Angle,&dir,NULL);
 
 	CVec orth_dir = dir.orthogonal();
 	
@@ -941,7 +941,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	// Trace a line from the worm to length or until it hits something
 	CVec pos = w->getPos();
 	CVec dir;
-	GetVecsFromAngle((int)Angle,&dir,NULL);
+	GetVecsFromAngle(Angle,&dir,NULL);
 
 	int divisions = 3;			// How many pixels we go through each check (less = slower)
 
@@ -1195,7 +1195,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 		// Add the recoil
 		CVec dir;
-		GetVecsFromAngle(shot->nAngle,&dir,NULL);
+		GetVecsFromAngle((float)shot->nAngle,&dir,NULL);
 		w->velocity() -= dir*(float)wpn->Recoil;
 
 		// Draw the muzzle flash
@@ -1219,7 +1219,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 	// Trace a line from the worm to length or until it hits something
 	CVec dir;
-	GetVecsFromAngle(shot->nAngle,&dir,NULL);
+	GetVecsFromAngle((float)shot->nAngle,&dir,NULL);
 	CVec pos = shot->cPos;
 
 	CVec orth_dir = dir.orthogonal();

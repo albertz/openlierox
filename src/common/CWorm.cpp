@@ -936,7 +936,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the crosshair
 	//
 	CVec forw;
-	GetVecsFromAngle(a, &forw, NULL);
+	GetVecsFromAngle((float)a, &forw, NULL);
 	forw *= 32.0f;
 
 	VectorD2<int> cp = p;
@@ -1144,7 +1144,7 @@ int CWorm::getScore() const
 {
 	int score = getKills();
 	if( (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] > 0.0f )
-		score -= (int)truncf( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] );
+		score -= (int)( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] );
 	if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 		score -= getSuicides();
 	if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
