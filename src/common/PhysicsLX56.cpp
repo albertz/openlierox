@@ -493,6 +493,9 @@ public:
 		}
 
 		simulateWormWeapon(wpnDT, worm);
+
+		if (cClient->getGameLobby()->features[FT_InfiniteMap])
+			wrapNinjaRopeInfiniteMap( worm->getNinjaRope(), worm->getPos() );
 		
 
 		// Fill in the info for sending
@@ -551,9 +554,7 @@ public:
 		CVec playerpos = owner->getPos();
 
 		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
-
-		if( wrapAround )
-			wrapNinjaRopeInfiniteMap( rope, playerpos );
+			
 
 		rope->updateOldHookPos();
 
@@ -693,9 +694,6 @@ public:
 				rope->hookPos() = rope->getAttachedPlayer()->getPos();
 			}
 		}
-
-		if( wrapAround )
-			wrapNinjaRopeInfiniteMap( rope, playerpos );
 	}
 
 	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CVec playerpos )
