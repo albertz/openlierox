@@ -107,7 +107,7 @@ void CWeather::SimulateSnow(float dt)
     m_fWind += dt*5;
     if( m_fWind > 360 )
         m_fWind -= 360;
-    float wind = (float) (sin( m_fWind * PI/180 ) * 1);
+    float wind = sinf( m_fWind * PI/180 );
 
 
     // Simulate the particles

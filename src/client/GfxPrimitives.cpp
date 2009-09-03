@@ -2131,8 +2131,8 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 
 	// rotating long triangle
 	Polygon2D t;
-	float ta = (GetTime() - AbsTime()).seconds();
-	MatrixD2<float> rot = MatrixD2<float>::Rotation(cos(ta), sin(ta));
+	const float ta = (GetTime() - AbsTime()).seconds();
+	MatrixD2<float> rot = MatrixD2<float>::Rotation(cosf(ta), sinf(ta));
 	VectorD2<int> t1(0, -20); t1 = rot * t1;
 	VectorD2<int> t2(200, 0); t2 = rot * t2;
 	VectorD2<int> t3(0, 20); t3 = rot * t3;

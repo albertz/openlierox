@@ -201,8 +201,8 @@ Parabola::Parabola(CVec p1, float angleP1, CVec p2)
 	const float r = p1.y;
 	const float s = p2.x;
 	const float t = p2.y;
-	const float cos_f = cos(angleP1);
-	const float sin_f = sin(angleP1);
+	const float cos_f = cosf(angleP1);
+	const float sin_f = sinf(angleP1);
 
 	const float denom = (p-s) * (p-s) * cos_f;
 	if (denom == 0)  {

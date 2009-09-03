@@ -374,7 +374,6 @@ void CWormHumanInputHandler::getInput() {
 
 void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
 {
-	CVec	dir;
 	TimeDiff dt ( (int)NewNet::TICK_TIME );
 
 	if( GetPhysicsTime() > fLastInputTime )
@@ -415,12 +414,6 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 		fAngle += fAngleSpeed * dt.seconds();
 		if(CLAMP_DIRECT(fAngle, -90.0f, 60.0f) != 0)
 			fAngleSpeed = 0;
-
-		// Calculate dir
-		dir.x=( cosf(fAngle * (PI/180)) );
-		dir.y=( sinf(fAngle * (PI/180)) );
-		if( iMoveDirectionSide == DIR_LEFT ) // Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-			dir.x=(-dir.x);
 
 	} // end angle section
 
@@ -510,7 +503,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	// Newer style rope throwing
 	// Seperate dedicated button for throwing the rope
 	if( keys.keys[NewNet::K_ROPE] && keysChanged.keys[NewNet::K_ROPE] ) {
-		cNinjaRope.Shoot(this, vPos,dir);
+		cNinjaRope.Shoot(this, vPos, getFaceDirection());
 		// Throw sound
 		if( NewNet::CanPlaySound(getID()) )
 			PlaySoundSample(sfxGame.smpNinja);

@@ -575,12 +575,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	if(tState.bCarve && cClient->getMap() != NULL) {
 
 		// Calculate dir
-		CVec dir;
-		dir.x=( cosf((float)tState.iAngle * (PI/180)) );
-		dir.y=( sinf((float)tState.iAngle * (PI/180)) );
-		if(tState.iFaceDirectionSide==DIR_LEFT)
-			dir.x=(-dir.x);
-
+		const CVec dir = getFaceDirection();
 		incrementDirtCount( CarveHole(getPos() + dir*4) );
 	}
 

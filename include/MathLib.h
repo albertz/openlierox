@@ -99,8 +99,8 @@ public:
 
 	static SquareMatrix RotateMatrix(float angle) {
 		SquareMatrix m;
-		m.v1.x = cos(angle);
-		m.v1.y = sin(angle);
+		m.v1.x = cosf(angle);
+		m.v1.y = sinf(angle);
 		m.v2.x = -m.v1.y;
 		m.v2.y = m.v1.x;
 		return m;

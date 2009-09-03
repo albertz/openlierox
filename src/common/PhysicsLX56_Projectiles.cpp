@@ -780,7 +780,7 @@ static MatrixD2<float> getVelChangeForObject(CGameObject* target, CGameObject* o
 	float angleDiff = atan2f(angleDiffV.y, angleDiffV.x);
 	if(fabs(angleDiff) > fabs(maxAngle)) angleDiff = maxAngle * SIGN(angleDiff);
 	
-	return MatrixD2<float>::Rotation(cos(-angleDiff), sin(-angleDiff));
+	return MatrixD2<float>::Rotation(cosf(-angleDiff), sinf(-angleDiff));
 }
 
 void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {

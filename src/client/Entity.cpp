@@ -518,7 +518,7 @@ void EntityEffect::Process()
 			for( int i = 0; i < _amount; i++ )
 			{
 				float angle = GetRandomPosNum() / 180.0f * (float)PI;
-				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
+				CVec spread = CVec( sinf(angle), cosf(angle) ) * _speed;
 				// _radius here is gravitation
 				SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread + CVec(0, _radius), Color(), NULL);
 			}
@@ -527,10 +527,10 @@ void EntityEffect::Process()
 		case ENTE_SPARKLE_RANDOM:
 			for( int i = 0; i < _amount; i++ )
 			{
-				float angle = GetRandomPosNum() / 180.0f * (float)PI;
-				CVec spread = CVec( sin(angle), cos(angle) ) * _speed;
-				angle = GetRandomPosNum() / 180.0f * (float)PI;
-				CVec randPos = CVec( sin(angle), cos(angle) ) * _radius;
+				const float angle1 = GetRandomPosNum() / 180.0f * (float)PI;
+				const CVec spread = CVec( sinf(angle1), cosf(angle1) ) * _speed;
+				const float angle2 = GetRandomPosNum() / 180.0f * (float)PI;
+				const CVec randPos = CVec( sinf(angle2), cosf(angle2) ) * _radius;
 				SpawnEntity(ENT_SPARKLE, _fade, pos + randPos, vel + spread, Color(), NULL);
 			}
 			break;
@@ -541,10 +541,10 @@ void EntityEffect::Process()
 				while( _lastAngle > 360.0f )
 					_lastAngle -= 360.0f;
 				float angle = _lastAngle / 180.0f * (float)PI;
-				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
+				const float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
-					CVec spread = CVec( sin(angle), cos(angle) ) * _radius;
+					const CVec spread = CVec( sinf(angle), cosf(angle) ) * _radius;
 					SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread, Color(), NULL);
 				}
 			}
@@ -556,10 +556,10 @@ void EntityEffect::Process()
 				while( _lastAngle > 360.0f )
 					_lastAngle -= 360.0f;
 				float angle = _lastAngle / 180.0f * (float)PI;
-				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
+				const float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
-					CVec spread = CVec( sin(angle) * _radius , cos(angle) * _radius );
+					const CVec spread = CVec( sinf(angle) * _radius , cosf(angle) * _radius );
 					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel, Color(), NULL);
 				}
 			}
@@ -571,18 +571,18 @@ void EntityEffect::Process()
 				while( _lastAngle > 360.0f )
 					_lastAngle -= 360.0f;
 				float angle = _lastAngle / 180.0f * (float)PI;
-				float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
+				const float angleDiv = ( 360.0f / (float)_amount ) / 180.0f * (float)PI;
 				Color c;
 				{
-					float shield = _parent->shieldFactor() - 1.0f;
-					float damage = _parent->damageFactor() - 1.0f;
+					const float shield = _parent->shieldFactor() - 1.0f;
+					const float damage = _parent->damageFactor() - 1.0f;
 					float sum = shield + damage; if(fabs(sum) < 0.01) sum = 1;
 					c = Color(120,120,255) * (damage / sum) + Color(255,30,30) * (shield / sum);
 				}
 				for( int i = 0; i < _amount; i++, angle += angleDiv )
 				{
-					CVec spread = CVec( sinf(angle), cosf(angle) ) * _radius;
-					CVec addVel = CVec( sinf(angle - PI/1.5), cosf(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
+					const CVec spread = CVec( sinf(angle), cosf(angle) ) * _radius;
+					const CVec addVel = CVec( sinf(angle - PI/1.5), cosf(angle - PI/1.5) ) * _radius * _speed * _delay * 2.0f;
 					SpawnEntity(ENT_SPARKLE, _fade, pos + spread, vel + addVel, c, NULL);
 				}
 			}

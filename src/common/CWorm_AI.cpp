@@ -3483,11 +3483,7 @@ public:
 
 	bestropespot_collision_action(CWorm* w, CVec t) : worm(w), target(t), best_value(-1) {
         target.y -= 30.0f; // a bit higher is always better
-
-        aimDir.x=( cosf(worm->getAngle() * (PI/180)) );
-	    aimDir.y=( sinf(worm->getAngle() * (PI/180)) );
-	    if(worm->getFaceDirectionSide() == DIR_LEFT)
-		    aimDir.x=(-aimDir.x);
+		aimDir = worm->getFaceDirection();
 	}
 
 	bool operator()(int x, int y) {
@@ -4214,11 +4210,7 @@ find_one_visible_node:
     }
 
     if(fireNinja) {
-        CVec dir;
-		dir.x=( cosf(m_worm->fAngle * (PI/180)) );
-	    dir.y=( sinf(m_worm->fAngle * (PI/180)) );
-	    if(m_worm->iFaceDirectionSide == DIR_LEFT)
-		    dir.x=(-dir.x);
+		const CVec dir = m_worm->getFaceDirection();
 
     	// the final shoot of the rope...
     	m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, dir);
@@ -4400,8 +4392,8 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	// Check a best-distance upper half circle around the target
 	CVec possible_pos;
 	for (float j=lower_bound; j <= upper_bound; j += 0.3f)  {
-		possible_pos.x = (float) (40.0f * sin(j)) + psAITarget->getPos().x;
-		possible_pos.y = (float) (40.0f * cos(j)) + psAITarget->getPos().y;
+		possible_pos.x = 40.0f * sinf(j) + psAITarget->getPos().x;
+		possible_pos.y = 40.0f * cosf(j) + psAITarget->getPos().y;
 		//PutPixel(cClient->getMap()->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, Color(255, 0, 0));
 
 		if (AI_IsInAir(possible_pos, 1) && m_worm->traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
