@@ -44,7 +44,6 @@ void CWormHumanInputHandler::getInput() {
 	TimeDiff dt = tLX->currentTime - m_worm->fLastInputTime;
 	m_worm->fLastInputTime = tLX->currentTime;
 
-	CVec	dir;
 	int		weap = false;
 
 	mouse_t *ms = GetMouse();
@@ -130,12 +129,10 @@ void CWormHumanInputHandler::getInput() {
 		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
-		// Calculate dir
-		// Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-		dir = m_worm->getMoveDirection();
-
 	} // end angle section
 
+	// Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
+	const CVec ninjaShootDir = m_worm->getMoveDirection();
 
 	// basic mouse control (moving)
 	if(mouseControl) {
@@ -175,7 +172,7 @@ void CWormHumanInputHandler::getInput() {
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, dir);
+			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
 			PlaySoundSample(sfxGame.smpNinja);
 		}
 
@@ -339,7 +336,7 @@ void CWormHumanInputHandler::getInput() {
 		if(m_worm->bRopeDownOnce) {
 			m_worm->bRopeDownOnce = false;
 
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos,dir);
+			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
 
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
@@ -351,7 +348,7 @@ void CWormHumanInputHandler::getInput() {
 		// Seperate dedicated button for throwing the rope
 		if(cInpRope.isDownOnce()) {
 
-			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos,dir);
+			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
 			// Throw sound
 			PlaySoundSample(sfxGame.smpNinja);
 		}
