@@ -131,8 +131,7 @@ void CWormHumanInputHandler::getInput() {
 
 	} // end angle section
 
-	// Fix: Ninja rope shoots backwards when you strafing or mouse-aiming
-	const CVec ninjaShootDir = m_worm->getMoveDirection();
+	const CVec ninjaShootDir = m_worm->getFaceDirection();
 
 	// basic mouse control (moving)
 	if(mouseControl) {
