@@ -22,13 +22,15 @@ private:
 	size_t bufLen;
 	size_t bufPos;
 public:
-	CsvStream(std::istream& is)  {
+	CsvStream(std::istream& is) : buffer(NULL), bufLen(0), bufPos(0) {
 		open(is);
 	}
 
-	~CsvStream()  { if (buffer) delete[] buffer; }
+	~CsvStream()  { close(); }
 
 	void open(std::istream& is)  {
+		close();
+		
 		// Get length of file
 		size_t oldpos = is.tellg();
 		is.seekg(0, std::ios::end);
@@ -43,6 +45,12 @@ public:
 		bufPos = 0;		
 	}
 
+	void close() {
+		if(buffer) delete[] buffer;
+		buffer = NULL;
+		bufLen = bufPos = 0;
+	}
+	
 	bool is_open()  { return buffer != NULL; }
 	bool eof()	{ return bufPos >= bufLen; }
 	bool get(char& c)	{
