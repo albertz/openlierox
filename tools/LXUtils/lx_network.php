@@ -144,7 +144,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   
   // Send the packet
   $res = SendPacketAndWaitResponses($ip, $packet, $timeout, 1, $socket);
-  if (!$res)
+  if ($res === false)
     return false;
      
   list($response, $ping, $remoteaddr) = $res[0];
@@ -516,6 +516,7 @@ function LXGetServerList($masterservers)
   // Get info from all servers in the list
   $returnValue = Array();
   for ($i = 0; $i < count($masterservers); $i++)  {
+
     // Get the server list
     $buffer = HttpClient::quickGet($masterservers[$i]);
     
@@ -524,18 +525,17 @@ function LXGetServerList($masterservers)
     
     // Join the IP and port to one
     $ips_with_port = Array();
-    for ($i = 0; $i < count($result[1]); $i++)
-      $ips_with_port[$i] = $result[1][$i] . ":" . $result[2][$i];
+    for ($j = 0; $j < count($result[1]); $j++)
+      $ips_with_port[$j] = $result[1][$j] . ":" . $result[2][$j];
     
     // Add the servers from this master server to the result
-    // HINT: array_merge also excludes doubled values
     if ($i > 0)
       $returnValue = array_merge($returnValue, $ips_with_port);
     else
       $returnValue = $ips_with_port;
   }
   
-  return $returnValue;
+  return array_unique($returnValue);
 }
 
 
@@ -723,15 +723,17 @@ function OpenUdpSocket($port = 0)
 // array with Array(responce, ping, remote address), false on failure.
 function SendPacketAndWaitResponses($ip, $packet, $timeout, $maxreplies = -1, $socket = false)
 {
+
   // Adjust the address
   if (!strpos($ip, ":"))
     $ip .= ":23400"; // Append default LX port
-       
+         
   // Open the socket
   if($socket)
   	$fp = $socket;
   else
     $fp = OpenUdpSocket();
+
   if (!$fp)
     return false;
     
@@ -739,33 +741,54 @@ function SendPacketAndWaitResponses($ip, $packet, $timeout, $maxreplies = -1, $s
   $sent_time = CurrentTime(); 
   
   // Send the packet 
-//echo "Sent packet to " . strval($ip) .": " . strval($packet) . "<br>\n"; flush();
-  stream_socket_sendto($fp, $packet, 0, $ip);
+	$usingFsock = false;
 
-  // Set the timeout
+  if (@stream_socket_sendto($fp, $packet, 0, $ip) == -1)  {
+		fclose($fp);
+		list($addr, $port) = explode(":", $ip);
+		$errno = 0;
+		$errstr = "";
+
+		// Alternative: try fsockopen
+		$fp = fsockopen("udp://{$addr}", (int)$port, $errno, $errstr, $timeout / 1000);
+		if (!$fp)
+			return false;
+			
+		stream_set_timeout($fp, $timeout / 1000);
+		$usingFsock = true;
+		if (!fwrite($fp, $packet))
+			return false;
+	}
   
   // Read the response
   $response = Array();
   while( CurrentTime() - $sent_time < $timeout && ( $maxreplies < 0 || count($response) < $maxreplies ) )  {
-  	// stream_set_timeout() does not work with stream_socket_recvfrom() - using select()
-    //stream_set_timeout($fp, 0, ( $timeout + $sent_time - CurrentTime() ) * 1000);
     
-    // Wait for data
-  	$r = Array($fp);
-  	$w = NULL;
-  	$e = NULL;
-  	if (stream_select($r, $w, $e, 0, 500000) == 0)
-  		continue;
-  	
-  	// Receive
-  	$remoteaddr = "";
-    $resp = stream_socket_recvfrom($fp, 4096, 0, $remoteaddr);
-  //echo "Got response from " . $remoteaddr . ": " . $resp . "<br>\n"; flush();
+    $resp = "";
+    if (!$usingFsock)  {
+	    // Wait for data
+	  	$r = Array($fp);
+	  	$w = NULL;
+	  	$e = NULL;
+	  	if (stream_select($r, $w, $e, 0, 500000) == 0)
+	  		continue;
+	  	
+	  	// Receive
+	  	$remoteaddr = "";
+	    $resp = stream_socket_recvfrom($fp, 4096, 0, $remoteaddr);
+	  } else {
+			$resp = fread($fp, 8192);
+			$remoteaddr = $ip;
+		}
+		
     $ping = Round(CurrentTime() - $sent_time);
     
     // Got response
   	if ($resp != false)
   		$response[] = Array($resp, $ping, $remoteaddr);
+  		
+  	if ($usingFsock)
+  		break;
   }
   
   // Close the connection
