@@ -40,6 +40,9 @@
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23606B2C0FEBEA22000A6439 /* Geometry.cpp */; };
 		2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */; };
+		237885471050249900195629 /* memstats_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885221050237B00195629 /* memstats_test.cpp */; };
+		237885751050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
+		237885761050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
 		238800E40E8B150100B94DC0 /* NotifyUser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238800E30E8B150100B94DC0 /* NotifyUser.cpp */; };
 		238944600FC73598008F031D /* PhysicsLX56_Projectiles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */; settings = {COMPILER_FLAGS = "-O3"; }; };
 		2389FB230D2D4D7D00358F27 /* ChatCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2389FB220D2D4D7D00358F27 /* ChatCommand.cpp */; };
@@ -468,6 +471,10 @@
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
 		23754FB50EDC32AB005EC287 /* CWormBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormBot.h; sourceTree = "<group>"; };
 		23754FB60EDC32AB005EC287 /* CWormHuman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormHuman.h; sourceTree = "<group>"; };
+		2378851C1050117B00195629 /* memstats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memstats.h; path = "../../optional-includes/memdebug/memstats.h"; sourceTree = SOURCE_ROOT; };
+		237885221050237B00195629 /* memstats_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memstats_test.cpp; path = "../../optional-includes/memdebug/memstats_test.cpp"; sourceTree = SOURCE_ROOT; };
+		237885401050248500195629 /* memstats_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = memstats_test; sourceTree = BUILT_PRODUCTS_DIR; };
+		237885741050369300195629 /* memstats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memstats.cpp; sourceTree = "<group>"; };
 		238800E20E8B14F600B94DC0 /* NotifyUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotifyUser.h; sourceTree = "<group>"; };
 		238800E30E8B150100B94DC0 /* NotifyUser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotifyUser.cpp; sourceTree = "<group>"; };
 		2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsLX56_Projectiles.cpp; sourceTree = "<group>"; };
@@ -800,6 +807,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2378853E1050248500195629 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23ECBE370E894D1A007B8D55 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -855,6 +869,7 @@
 		08FB7795FE84155DC02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				2378853A1050244700195629 /* optional */,
 				EA430C440BEFCEDE00C6547E /* include */,
 				EA430BEC0BEFCEB400C6547E /* src */,
 			);
@@ -867,6 +882,7 @@
 				23ECBE390E894D1A007B8D55 /* libLibZip.a */,
 				EA430DD20BEFEA8900C6547E /* libHawkNL.a */,
 				EAD99F610C063CA6003BE563 /* OpenLieroX.app */,
+				237885401050248500195629 /* memstats_test */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -978,6 +994,15 @@
 				23099D570F60C592008E6C7F /* TrickOrThreat */,
 			);
 			name = presets;
+			sourceTree = "<group>";
+		};
+		2378853A1050244700195629 /* optional */ = {
+			isa = PBXGroup;
+			children = (
+				237885221050237B00195629 /* memstats_test.cpp */,
+				2378851C1050117B00195629 /* memstats.h */,
+			);
+			name = optional;
 			sourceTree = "<group>";
 		};
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
@@ -1243,6 +1268,7 @@
 				23EAC0960F4204DF00CA55CF /* Process.cpp */,
 				23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */,
 				23210160101DFAF900510514 /* CGameObject.cpp */,
+				237885741050369300195629 /* memstats.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1511,6 +1537,22 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		2378853F1050248500195629 /* memstats_test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23788549105024B700195629 /* Build configuration list for PBXNativeTarget "memstats_test" */;
+			buildPhases = (
+				2378853D1050248500195629 /* Sources */,
+				2378853E1050248500195629 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = memstats_test;
+			productName = memstats_test;
+			productReference = 237885401050248500195629 /* memstats_test */;
+			productType = "com.apple.product-type.tool";
+		};
 		23ECBE380E894D1A007B8D55 /* LibZip */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 23ECBE770E894D90007B8D55 /* Build configuration list for PBXNativeTarget "LibZip" */;
@@ -1582,6 +1624,7 @@
 				23ECBE380E894D1A007B8D55 /* LibZip */,
 				EA430DD10BEFEA8900C6547E /* HawkNL */,
 				EAD99F600C063CA6003BE563 /* OpenLieroX */,
+				2378853F1050248500195629 /* memstats_test */,
 			);
 		};
 /* End PBXProject section */
@@ -1610,6 +1653,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2378853D1050248500195629 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				237885471050249900195629 /* memstats_test.cpp in Sources */,
+				237885761050369300195629 /* memstats.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23ECBE360E894D1A007B8D55 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1861,6 +1913,7 @@
 				23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */,
 				23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */,
 				23210161101DFAF900510514 /* CGameObject.cpp in Sources */,
+				237885751050369300195629 /* memstats.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2321,6 +2374,63 @@
 			};
 			name = "Debug with Fuzzy C2S";
 		};
+		237885421050248700195629 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
+				PRODUCT_NAME = memstats_test;
+			};
+			name = Debug;
+		};
+		237885431050248700195629 /* Debug for ppc */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
+				PRODUCT_NAME = memstats_test;
+			};
+			name = "Debug for ppc";
+		};
+		237885441050248700195629 /* Debug with Fuzzy S2C */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
+				PRODUCT_NAME = memstats_test;
+			};
+			name = "Debug with Fuzzy S2C";
+		};
+		237885451050248700195629 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
+				PRODUCT_NAME = memstats_test;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
+		237885461050248700195629 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PREFIX_HEADER = "$(SRCROOT)/../../optional-includes/memdebug/memstats.h";
+				PRODUCT_NAME = memstats_test;
+			};
+			name = Release;
+		};
 		23ECBE3A0E894D1C007B8D55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2489,6 +2599,18 @@
 				232D59E80E9BCC0200366F81 /* Debug with Fuzzy S2C */,
 				232D5A8A0E9BD94A00366F81 /* Debug with Fuzzy C2S */,
 				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23788549105024B700195629 /* Build configuration list for PBXNativeTarget "memstats_test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				237885421050248700195629 /* Debug */,
+				237885431050248700195629 /* Debug for ppc */,
+				237885441050248700195629 /* Debug with Fuzzy S2C */,
+				237885451050248700195629 /* Debug with Fuzzy C2S */,
+				237885461050248700195629 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
