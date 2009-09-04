@@ -23,6 +23,7 @@ OPTION(PCH "Precompiled header (CMake 2.6 only)" No)
 OPTION(ADVASSERT "Advanced assert" No)
 OPTION(PYTHON_DED_EMBEDDED "Python embedded in dedicated server"  No)
 OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
+OPTION(MEMSTATS "Enable memory statistics and debugging" No)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -145,6 +146,10 @@ ENDIF (STLPORT)
 IF(DEBUG)
 	ADD_DEFINITIONS(-DDEBUG=1 -D_AI_DEBUG)
 ENDIF(DEBUG)
+
+IF(MEMSTATS)
+	ADD_DEFINITIONS(-include optional-includes/memdebug/memstats.h)
+ENDIF(MEMSTATS)
 
 
 
