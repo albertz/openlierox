@@ -699,12 +699,8 @@ void CWorm::CloneWeaponsFrom(CWorm* w) {
 
 
 // Muzzle flash positions for different angles
-int	RightMuzzle[14] = {2,3, 5,3, 4,0, 5,-8, 3,-9, 2,-13, -2,-12};
-int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
-
-// TODO: what is this??
-void DrawWormName(SDL_Surface * dest, const std::string& name, Uint32 x, Uint32 y) {
-}
+const int	RightMuzzle[14] = {2,3, 5,3, 4,0, 5,-8, 3,-9, 2,-13, -2,-12};
+const int	LeftMuzzle[14] =  {4,-12, -1,-12, -1,-9, -3,-8, -2,0, -2,4, 1,3};
 
 
 void CWorm::UpdateDrawPos() {
