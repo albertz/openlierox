@@ -259,35 +259,28 @@ bool CMap::LoadTheme(const std::string& _theme)
 	if (Theme.name == _theme /* && sRandomLayout.szTheme == _theme */) {
 		notes << "LoadTheme: Theme " << _theme << " already loaded" << endl;
 	} else {
-
-		std::string thm,buf;
-		int n,x,y;
-
-		thm = "data/themes/" + _theme;
-
+		const std::string thmdir = "data/themes/" + _theme;
+		const std::string thmfile = thmdir + "/theme.txt";
+		
 		Theme.name = _theme;
 		//sRandomLayout.szTheme = _theme;
 
-		buf = thm + "/Backtile.png";
-		LOAD_IMAGE(Theme.bmpBacktile,buf);
-		buf = thm + "/Fronttile.png";
-		LOAD_IMAGE(Theme.bmpFronttile,buf);
+		LOAD_IMAGE(Theme.bmpBacktile, thmdir + "/Backtile.png");
+		LOAD_IMAGE(Theme.bmpFronttile, thmdir + "/Fronttile.png");
 
 
 		// Stones
-		ReadInteger(thm + "/theme.txt", "General", "NumStones", &Theme.NumStones, 0);
+		ReadInteger(thmfile, "General", "NumStones", &Theme.NumStones, 0);
 
-		for(n=0;n<Theme.NumStones;n++) {
-			buf = thm + "/Stone" + itoa(n+1) + ".png";
-			LOAD_IMAGE(Theme.bmpStones[n],buf);
+		for(int n=0;n<Theme.NumStones;n++) {
+			LOAD_IMAGE(Theme.bmpStones[n], thmdir + "/Stone" + itoa(n+1) + ".png");
 			SetColorKey(Theme.bmpStones[n].get());
 		}
 
 
 		// Holes
-		for(n=0;n<5;n++) {
-			buf = thm + "/Hole" + itoa(n+1) + ".png";
-			LOAD_IMAGE(Theme.bmpHoles[n],buf);
+		for(int n=0;n<5;n++) {
+			LOAD_IMAGE(Theme.bmpHoles[n], thmdir + "/Hole" + itoa(n+1) + ".png");
 			SetColorKey(Theme.bmpHoles[n].get(), 0, 0, 0); // use black as colorkey
 		}
 
@@ -298,8 +291,8 @@ bool CMap::LoadTheme(const std::string& _theme)
 		SmartPointer<SDL_Surface> hole = Theme.bmpHoles[0];
 		LOCK_OR_FAIL(hole);
 		if(hole.get()) {
-			for(y=0; y<hole.get()->h; y++) {
-				for(x=0; x<hole.get()->w; x++) {
+			for(int y=0; y<hole.get()->h; y++) {
+				for(int x=0; x<hole.get()->w; x++) {
 					Color pixel = Color(hole.get()->format, GetPixel(hole.get(),x,y));
 					if(pixel != tLX->clBlack && pixel != tLX->clPink)  {
 						Theme.iDefaultColour = pixel;
@@ -312,10 +305,9 @@ bool CMap::LoadTheme(const std::string& _theme)
 
 
 		// Misc
-		ReadInteger(thm + "/theme.txt", "General", "NumMisc", &Theme.NumMisc, 0);
-		for(n=0;n<Theme.NumMisc;n++) {
-			buf = thm + "/misc" + itoa(n+1) + ".png";
-			LOAD_IMAGE(Theme.bmpMisc[n],buf);
+		ReadInteger(thmfile, "General", "NumMisc", &Theme.NumMisc, 0);
+		for(int n = 0; n < Theme.NumMisc; n++) {
+			LOAD_IMAGE(Theme.bmpMisc[n], thmdir + "/misc" + itoa(n+1) + ".png");
 			SetColorKey(Theme.bmpMisc[n].get());
 		}
 	}
