@@ -1444,7 +1444,7 @@ void CWorm::NewNet_InitWormState(int seed)
 	fServertime = TimeDiff();
 	fLastCarve = AbsTime();
 	fTimeofDeath = AbsTime();
-	iFaceDirectionSide = 0;
+	iFaceDirectionSide = DIR_LEFT;
 	fSpawnTime = AbsTime();
 	fLastAirJumpTime = AbsTime();
 }

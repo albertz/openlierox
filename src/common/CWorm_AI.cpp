@@ -1670,7 +1670,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 
 	NormalizeVector(&tgDir);
 
-	int wantedDir = (tgDir.x < 0) ? DIR_LEFT : DIR_RIGHT;
+	DIR_TYPE wantedDir = (tgDir.x < 0) ? DIR_LEFT : DIR_RIGHT;
 	if (tLX->currentTime - fLastFace > 0.3f)  {  // prevent turning
 		// Make me face the target
 		m_worm->iFaceDirectionSide = wantedDir;

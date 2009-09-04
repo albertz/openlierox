@@ -504,11 +504,14 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	uchar bits = bs->readByte();
 	iCurrentWeapon = (uchar)CLAMP(bs->readByte(), (uchar)0, (uchar)4);
 
-	iMoveDirectionSide = iFaceDirectionSide = tState.iFaceDirectionSide = DIR_LEFT;
+	iMoveDirectionSide = iFaceDirectionSide = DIR_LEFT;
+	tState.iFaceDirectionSide = DIR_LEFT;
 
 	tState.bCarve = (bits & 0x01);
-	if(bits & 0x02)
-		iMoveDirectionSide = iFaceDirectionSide = tState.iFaceDirectionSide = DIR_RIGHT;
+	if(bits & 0x02) {
+		iMoveDirectionSide = iFaceDirectionSide = DIR_RIGHT;
+		tState.iFaceDirectionSide = DIR_RIGHT;
+	}
 	tState.bMove = (bits & 0x04) != 0;
 	tState.bJump = (bits & 0x08) != 0;
 	tState.bShoot = (bits & 0x20) != 0;

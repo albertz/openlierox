@@ -248,8 +248,8 @@ private:
 	int			iLives;
 	bool		bAlive;
 	AbsTime		fTimeofDeath;
-	int			iFaceDirectionSide;
-	int			iMoveDirectionSide;
+	DIR_TYPE	iFaceDirectionSide;
+	DIR_TYPE	iMoveDirectionSide;
 	bool		bGotTarget;
 	float		fAngle;
     float       fAngleSpeed;
@@ -524,12 +524,12 @@ public:
 	float		getAngle()	const			{ return fAngle; }
 	void		setAngle(float a)			{ fAngle = a; }
 	void		resetAngleAndDir();
-	int			getFaceDirectionSide() const	{ return iFaceDirectionSide; }
-	void		setFaceDirectionSide(int d)			{ iFaceDirectionSide = d; }
+	DIR_TYPE	getFaceDirectionSide() const		{ return iFaceDirectionSide; }
+	void		setFaceDirectionSide(DIR_TYPE d)	{ iFaceDirectionSide = d; }
 	CVec		getFaceDirection() const {
 		return CVec(cosf(getAngle() * ((float)PI/180)) * (iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f,
 					sinf(getAngle() * ((float)PI/180)) ); }
-	int			getMoveDirectionSide()		{ return iMoveDirectionSide; }
+	DIR_TYPE	getMoveDirectionSide()				{ return iMoveDirectionSide; }
 	CVec		getMoveDirection() const {
 		return CVec(cosf(getAngle() * ((float)PI/180)) * (iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f,
 					sinf(getAngle() * ((float)PI/180)) ); }
