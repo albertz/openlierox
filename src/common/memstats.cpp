@@ -21,7 +21,9 @@
 #undef new
 #undef delete
 
-typedef std::basic_string<char, std::char_traits<char>, __gnu_cxx::malloc_allocator<char> > String;
+#define safe_allocator __gnu_cxx::malloc_allocator
+
+typedef std::basic_string<char, std::char_traits<char>, safe_allocator<char> > String;
 
 static void dbgError(const String& err) {
 	printf("memstats error: %s\n", err.c_str());
@@ -87,8 +89,8 @@ String AllocInfoAsStr(const AllocInfo& al) {
 	return ObjTypeAsStr(al.first) + "#" + IntToStr(al.second);
 }
 
-typedef std::map<ObjType, size_t, std::less<ObjType>, __gnu_cxx::malloc_allocator< std::pair<const ObjType, size_t> > > Allocations;
-typedef std::map<void*, AllocInfo, std::less<void*>, __gnu_cxx::malloc_allocator< std::pair<void* const, AllocInfo> > > AllocInfoMap;
+typedef std::map<ObjType, size_t, std::less<ObjType>, safe_allocator< std::pair<const ObjType, size_t> > > Allocations;
+typedef std::map<void*, AllocInfo, std::less<void*>, safe_allocator< std::pair<void* const, AllocInfo> > > AllocInfoMap;
 
 struct MemStats {
 	Mutex mutex;
@@ -219,7 +221,7 @@ void printMemStats() {
 	if(stats) {
 		dbgMsg("-- MemStats --");
 
-		typedef std::multimap<size_t, ObjType, std::less<size_t>, __gnu_cxx::malloc_allocator< std::pair<const size_t,ObjType> > > Allocs;
+		typedef std::multimap<size_t, ObjType, std::less<size_t>, safe_allocator< std::pair<const size_t,ObjType> > > Allocs;
 		Allocs allocs;
 		size_t sum = 0;
 		{
