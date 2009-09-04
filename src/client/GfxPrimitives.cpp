@@ -188,6 +188,60 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	return result;
 }
 
+
+struct VideoFormat {
+	Uint32 bpp;
+	Uint32 amask;
+	Uint32 rmask;
+	Uint32 gmask;
+	Uint32 bmask;
+};
+
+static VideoFormat bestSoftwareAlphaFormat() {
+	VideoFormat f;
+	
+	// This code is taken from SDL_DisplayFormatAlpha() in SDL_video.c (1.2.8)
+	
+	/* default to ARGB8888 */
+	f.bpp = 32;
+	f.amask = 0xff000000;
+	f.rmask = 0x00ff0000;
+	f.gmask = 0x0000ff00;
+	f.bmask = 0x000000ff;
+	
+	SDL_PixelFormat* vf = getMainPixelFormat();
+	
+	switch(vf->BytesPerPixel) {
+		case 2:
+			/* For XGY5[56]5, use, AXGY8888, where {X, Y} = {R, B}.
+			 For anything else (like ARGB4444) it doesn't matter
+			 since we have no special code for it anyway */
+			if ( (vf->Rmask == 0x1f) &&
+				(vf->Bmask == 0xf800 || vf->Bmask == 0x7c00)) {
+				f.rmask = 0xff;
+				f.bmask = 0xff0000;
+			}
+			break;
+			
+		case 3:
+		case 4:
+			/* Keep the video format, as long as the high 8 bits are
+			 unused or alpha */
+			if ( (vf->Rmask == 0xff) && (vf->Bmask == 0xff0000) ) {
+				f.rmask = 0xff;
+				f.bmask = 0xff0000;
+			}
+			break;
+			
+		default:
+			/* We have no other optimised formats right now. When/if a new
+			 optimised alpha format is written, add the converter here */
+			break;
+	}
+	
+	return f;
+}
+
 /////////////////////////
 // Create a surface with an alpha channel
 SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware)
@@ -204,12 +258,14 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 				width, height,
 				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
-	else // no native alpha blending, so create a software alpha blended surface
+	else { // no native alpha blending, so create a software alpha blended surface
+		const VideoFormat f = bestSoftwareAlphaFormat();
 		result = SDL_CreateRGBSurface(
 				SDL_SWSURFACE | SDL_SRCALPHA,
-				width, height, 32,
-				ALPHASURFACE_RMASK, ALPHASURFACE_GMASK, ALPHASURFACE_BMASK, ALPHASURFACE_AMASK);
-
+				width, height,
+				f.bpp, f.rmask, f.gmask, f.bmask, f.amask);
+	}
+	
 	if (result.get() != NULL)
 		// OpenGL strictly requires the surface to be cleared
 		SDL_FillRect( result.get(), NULL, SDL_MapRGB(result.get()->format, 0, 0, 0));
