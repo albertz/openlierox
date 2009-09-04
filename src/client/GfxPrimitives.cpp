@@ -198,16 +198,13 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 	SmartPointer<SDL_Surface> result;
 	SDL_PixelFormat* fmt = getMainPixelFormat();
 
-	// HINT: in 32bit mode with software surfaces, we have to use the predefined masks because they are hardcoded in SDL
-	// (else the blitting is wrong)
-	// it seems that for other BPP this is not the case
-	if(!forceSoftware && (iSurfaceFormat == SDL_HWSURFACE || fmt->BitsPerPixel != 32) && fmt->Amask != 0) // the main pixel format supports alpha blending
+	if(fmt->Amask != 0) // the main pixel format supports alpha blending
 		result = SDL_CreateRGBSurface(
-				iSurfaceFormat | SDL_SRCALPHA,
+				(forceSoftware ? SDL_SWSURFACE : iSurfaceFormat) | SDL_SRCALPHA,
 				width, height,
 				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
 
-	else // no native alpha blending or forced software, so create a software alpha blended surface
+	else // no native alpha blending, so create a software alpha blended surface
 		result = SDL_CreateRGBSurface(
 				SDL_SWSURFACE | SDL_SRCALPHA,
 				width, height, 32,
