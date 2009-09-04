@@ -212,26 +212,6 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 }
 
 
-static void DumpPixelFormat(const SDL_PixelFormat* format) {
-	std::ostringstream str;
-	str << "PixelFormat:" << std::endl
-		<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
-		<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
-		<< "  R/G/B/A mask: " << std::hex
-			<< (uint)format->Rmask << "/"
-			<< (uint)format->Gmask << "/"
-			<< (uint)format->Bmask << "/"
-		<< (uint)format->Amask << std::endl
-		<< "  R/G/B/A loss: "
-			<< (uint)format->Rloss << "/"
-			<< (uint)format->Gloss << "/"
-			<< (uint)format->Bloss << "/"
-		<< (uint)format->Aloss << std::endl << std::dec
-		<< "  Colorkey: " << (uint)format->colorkey << ","
-		<< "  Alpha: " << (int)format->alpha;
-	notes << str.str() << endl;
-}
-
 #ifdef REAL_OPENGL
 static void OGL_init();
 #endif

@@ -50,6 +50,10 @@ enum GradientDirection  {
 	grdVertical
 };
 
+
+
+void DumpPixelFormat(const SDL_PixelFormat* format);
+
 /////////////////////
 // Locking and unlocking routines, must be called before doing anything with pixels
 inline bool LockSurface(SDL_Surface * bmp)  {

@@ -1194,8 +1194,7 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 
 		// Add the recoil
-		CVec dir;
-		GetVecsFromAngle((float)shot->nAngle,&dir,NULL);
+		const CVec dir = GetVecFromAngle(float(shot->nAngle));
 		w->velocity() -= dir*(float)wpn->Recoil;
 
 		// Draw the muzzle flash

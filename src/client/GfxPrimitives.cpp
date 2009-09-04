@@ -2167,6 +2167,27 @@ void TestPolygonDrawing(SDL_Surface* surf) {
 
 
 
+void DumpPixelFormat(const SDL_PixelFormat* format) {
+	std::ostringstream str;
+	str << "PixelFormat:" << std::endl
+	<< "  BitsPerPixel: " << (int)format->BitsPerPixel << ","
+	<< "  BytesPerPixel: " << (int)format->BytesPerPixel << std::endl
+	<< "  R/G/B/A mask: " << std::hex
+	<< (uint)format->Rmask << "/"
+	<< (uint)format->Gmask << "/"
+	<< (uint)format->Bmask << "/"
+	<< (uint)format->Amask << std::endl
+	<< "  R/G/B/A loss: "
+	<< (uint)format->Rloss << "/"
+	<< (uint)format->Gloss << "/"
+	<< (uint)format->Bloss << "/"
+	<< (uint)format->Aloss << std::endl
+	<< "  Colorkey: " << std::hex << (uint)format->colorkey << ","
+	<< "  Alpha: " << std::dec << (int)format->alpha;
+	notes << str.str() << endl;
+}
+
+
 
 ////////////////////////
 //
