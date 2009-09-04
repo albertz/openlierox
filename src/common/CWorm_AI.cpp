@@ -1753,7 +1753,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 
         // Change direction
 		if (bHaveTarget && (tLX->currentTime-fLastFace) > 1.0)  {
-			m_worm->iFaceDirectionSide = !m_worm->iFaceDirectionSide;
+			m_worm->iFaceDirectionSide = OppositeDir(m_worm->iFaceDirectionSide);
 			fLastFace = tLX->currentTime;
 		}
 
@@ -3869,7 +3869,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		AI_Jump();
 
 		if (tLX->currentTime-fLastFace >= 0.5f)  {
-			m_worm->iFaceDirectionSide = !m_worm->iFaceDirectionSide;
+			m_worm->iFaceDirectionSide = OppositeDir(m_worm->iFaceDirectionSide);
 			fLastFace = tLX->currentTime;
 		}
 		

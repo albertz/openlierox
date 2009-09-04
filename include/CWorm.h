@@ -51,6 +51,14 @@ enum DIR_TYPE
 	DIR_RIGHT = 1 
 };
 
+inline DIR_TYPE OppositeDir(DIR_TYPE d) {
+	switch(d) {
+		case DIR_LEFT: return DIR_RIGHT;
+		case DIR_RIGHT: return DIR_LEFT;
+	}
+	return DIR_LEFT;
+}
+
 enum WRM_LIVES
 {
 	WRM_OUT = -1,
