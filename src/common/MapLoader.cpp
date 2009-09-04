@@ -575,6 +575,9 @@ class ML_LieroX : public MapLoader {
 		createMap:
 			if(!m->Create(Width, Height, Theme_Name, m->MinimapWidth, m->MinimapHeight)) {
 				errors << "CMap::Load (" << filename << "): cannot allocate map" << endl;
+#ifdef MEMSTATS
+				printMemStats();
+#endif
 				if(cCache.GetEntryCount() > 0) {
 					hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
 					cCache.Clear();
@@ -613,7 +616,7 @@ class ML_LieroX : public MapLoader {
 		uint size = Width*Height/8;
 		uchar *bitmask = new uchar[size];
 		if (!bitmask)  {
-			errors("CMap::Load: Could not create bit mask\n");
+			errors << "CMap::Load: Could not create bit mask" << endl;
 			return false;
 		}
 		if(fread(bitmask,sizeof(uchar),size,fp) < size) {
