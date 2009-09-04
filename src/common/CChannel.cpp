@@ -762,7 +762,7 @@ void CChannel2::Transmit(CBytestream *unreliableData)
 	LastReliablePacketSent = NextReliablePacketToSend;
 
 	UpdateTransmitStatistics( bs.GetLength() );
-};
+}
 
 
 ///////////////////
@@ -778,7 +778,7 @@ std::string printBinary(const std::string & s)
 		r += buf;
 	}
 	return r;
-};
+}
 
 void TestCChannelRobustness()
 {
@@ -844,7 +844,7 @@ void TestCChannelRobustness()
 			for( int f=0; f<packetExtraData; f++ )
 				b2.writeByte(0xff);
 			c2.AddReliablePacketToSend(b2);
-		};
+		}
 
 
 		c1.Transmit( &b1u );
@@ -870,8 +870,8 @@ void TestCChannelRobustness()
 				s1buf.insert( std::make_pair( lag, b1 ) );
 				notes<< testtime << ": c1 sent packet - lag " << lag << " size " << b1.GetLength() << " (" << c1.Messages.size() << 
 						" in buf): " << printBinary(b1.readData()) << endl;
-			};
-		};
+			}
+		}
 
 		for( std::multimap< int, CBytestream > :: iterator it = s1buf.lower_bound(testtime);
 				it != s1buf.upper_bound(testtime); it++ )
@@ -892,8 +892,8 @@ void TestCChannelRobustness()
 				s2buf.insert( std::make_pair( lag, b2 ) );
 				notes << testtime << ": c2 sent packet - lag " << lag << " size " << b2.GetLength() << " (" << c2.Messages.size() <<
 						" in buf): " << printBinary(b2.readData()) << endl;
-			};
-		};
+			}
+		}
 
 		for( std::multimap< int, CBytestream > :: iterator it = s2buf.lower_bound(testtime);
 				it != s2buf.upper_bound(testtime); it++ )
@@ -926,10 +926,10 @@ void TestCChannelRobustness()
 					i1r = i1rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b1.readByte();
-				};
+				}
 				b1.Clear();
 			}
-		};
+		}
 
 		if( b2.GetLength() != 0 )
 		{
@@ -945,13 +945,13 @@ void TestCChannelRobustness()
 					i2r = i2rr;
 					for( int f=0; f<packetExtraData; f++ )
 						b2.readByte();
-				};
+				}
 				b2.Clear();
 			}
-		};
+		}
 
-	};
-};
+	}
+}
 
 /*
 The format for packet is the same as with CChannel2, but with CRC16 added at the beginning,
