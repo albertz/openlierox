@@ -516,6 +516,13 @@ void * operator new (size_t size, dmalloc_t, const char* file, int line) {
 	
 	if(initMemStats()) {
 		ObjType obj( GetBaseFilename(String(file)), line );
+
+		if(p == NULL) {
+			dbgError("out-of-memory @" + ObjTypeAsStr(obj));
+			printMemStats();
+			throw std::bad_alloc();
+		}
+		
 		Mutex::ScopedLock lock(stats->mutex);
 		stats->allocSums[obj] += size;
 		stats->allocInfos[p] = AllocInfo(obj, size);
@@ -537,11 +544,21 @@ void * operator new [] (size_t size) throw (std::bad_alloc) {
 }
 
 void* operator new(std::size_t size, const std::nothrow_t&) throw() {
-	return :: operator new (size, dmalloc_t(), "??", 0); 	
+	try {
+		return :: operator new (size, dmalloc_t(), "??", 0);
+	}
+	catch(std::bad_alloc) {
+		return NULL;
+	}
 }
 
 void* operator new[](std::size_t size, const std::nothrow_t&) throw() {
-	return :: operator new (size, dmalloc_t(), "??", 0); 	
+	try {
+		return :: operator new (size, dmalloc_t(), "??", 0);
+	}
+	catch(std::bad_alloc) {
+		return NULL;
+	}
 }
 
 void operator delete (void * p) throw() {
