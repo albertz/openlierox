@@ -550,21 +550,15 @@ public:
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();
 
-		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
-			
+		const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 		rope->updateOldHookPos();
 
 		if(!rope->isReleased())
 			return;
 
-		bool firsthit = !rope->isAttached();
-		CVec force;
-
-		if(rope->isShooting())
-			force = CVec(0,100);
-		else
-			force = CVec(0,150);
+		const bool firsthit = !rope->isAttached();
+		CVec force = rope->isShooting() ? CVec(0,100) : CVec(0,150);
 
 		// dt is fixed, but for very high speed, this could be inaccurate.
 		// We use the limit 5 here to have it very unpropable to shoot through a wall.
@@ -583,7 +577,7 @@ public:
 			rope->hookVelocity() += force*dt;
 			rope->hookPos() += rope->hookVelocity() * dt;
 
-			float length2 = (playerpos - rope->hookPos()) . GetLength2();
+			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
 
 			// Check if it's too long
 			if(length2 > rope->getMaxLength() * rope->getMaxLength()) {
@@ -595,7 +589,7 @@ public:
 		else if(!rope->isShooting() && !rope->isAttached()) {
 
 			// Going towards the player
-			float length2 = (playerpos - rope->hookPos()) . GetLength2();
+			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
 			if(length2 > rope->getRestLength() * rope->getRestLength()) {
 
 				// Pull the hook back towards the player
