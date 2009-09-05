@@ -1138,26 +1138,25 @@ bool FileChecksum( const std::string & path, size_t * _checksum, size_t * _files
 static const char table64[]=
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-static std::string decodeQuantum(const std::string &src, std::string::size_type pos)
+static std::string decodeQuantum ( const std::string &src, std::string::size_type pos )
 {
-  unsigned int x = 0;
-  int i;
-  const char *found;
-  std::string dest(3, '\0');
+	unsigned int x = 0;
+	std::string dest ( 3, '\0' );
 
-  for(i = 0; i < 4 && src.size() > i + pos ; i++) {
-    if((found = strchr(table64, src[i+pos])) != NULL)
-      x = (x << 6) + (unsigned int)(found - table64);
-    else if(src[i+pos] == '=')
-      x = (x << 6);
-  }
+	for ( int i = 0; i < 4 && src.size() > i + pos ; i++ ) {
+		const char* found = strchr ( table64, src[i+pos] );
+		if ( found != NULL )
+			x = ( x << 6 ) + ( unsigned int ) ( found - table64 );
+		else if ( src[i+pos] == '=' )
+			x = ( x << 6 );
+	}
 
-  dest[2] = (char)((unsigned char)(x & 255));
-  x >>= 8;
-  dest[1] = (char)((unsigned char)(x & 255));
-  x >>= 8;
-  dest[0] = (char)((unsigned char)(x & 255));
-  return dest;
+	dest[2] = ( char ) ( ( unsigned char ) ( x & 255 ) );
+	x >>= 8;
+	dest[1] = ( char ) ( ( unsigned char ) ( x & 255 ) );
+	x >>= 8;
+	dest[0] = ( char ) ( ( unsigned char ) ( x & 255 ) );
+	return dest;
 }
 
 std::string Base64Decode(const std::string &src)
