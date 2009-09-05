@@ -494,9 +494,6 @@ public:
 
 		simulateWormWeapon(wpnDT, worm);
 
-		if (cClient->getGameLobby()->features[FT_InfiniteMap])
-			wrapNinjaRopeInfiniteMap( worm->getNinjaRope(), worm->getPos() );
-		
 
 		// Fill in the info for sending
 		if(local) {
@@ -696,25 +693,6 @@ public:
 		}
 	}
 
-	void wrapNinjaRopeInfiniteMap( CNinjaRope* rope, CVec playerpos )
-	{
-		// We're checking rope length for current map tile and all tiles that close to it, and pick up the shortest one
-		float mapW = (float)cClient->getMap()->GetWidth();
-		float mapH = (float)cClient->getMap()->GetHeight();
-		if( fabs( rope->hookPos().x - playerpos.x ) >
-			fabs( rope->hookPos().x + mapW - playerpos.x ) + 1.0f )
-			rope->hookPos().x += mapW;
-		if( fabs( rope->hookPos().x - playerpos.x ) >
-			fabs( rope->hookPos().x - mapW - playerpos.x ) + 1.0f )
-			rope->hookPos().x -= mapW;
-		if( fabs( rope->hookPos().y - playerpos.y ) >
-			fabs( rope->hookPos().y + mapH - playerpos.y ) + 1.0f )
-			rope->hookPos().y += mapH;
-		if( fabs( rope->hookPos().y - playerpos.y ) >
-			fabs( rope->hookPos().y - mapH - playerpos.y ) + 1.0f )
-			rope->hookPos().y -= mapH;
-	}
-	
 
 // --------------------
 // ---- Bonus ---------
