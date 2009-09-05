@@ -231,9 +231,11 @@ void* safeAlloc_alloc(size_t n) {
 	if(pair.first == NULL) {
 		// everything free or before first entry
 		
-		if(n + SafeAlloc::extraSpacePerAlloc > SAFEALLOC_POOLSIZE)
+		if(n + SafeAlloc::extraSpacePerAlloc > SAFEALLOC_POOLSIZE) {
 			// no chance
+			printf("SafeAlloc alloc: cannot allocate %i bytes, it's more than our whole pool supports\n", n);
 			return NULL;
+		}
 		
 		// init list
 		safeAllocs[0].reset();
@@ -263,6 +265,7 @@ void* safeAlloc_alloc(size_t n) {
 	}
 
 	// nothing free
+	printf("SafeAlloc alloc: cannot allocate %i bytes, nothing free anymore\n", n);
 	return NULL;
 }
 
@@ -387,7 +390,7 @@ void safeAlloc_free(void* p) {
 
       size_type
       max_size() const throw()
-      { return SAFEALLOC_POOLSIZE; }
+	  { return SAFEALLOC_POOLSIZE - SafeAlloc::extraSpacePerAlloc; }
 
       // _GLIBCXX_RESOLVE_LIB_DEFECTS
       // 402. wrong new expression in [some_] allocator::construct
