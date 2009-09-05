@@ -921,7 +921,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			
 			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
 			static SmartPointer<SDL_Surface> tmpSurf = NULL;
-			if(tmpSurf.get() == NULL || tmpSurf->w != surfW || tmpSurf->h != surfH) {
+			if(tmpSurf.get() == NULL || tmpSurf->w != surfW || tmpSurf->h != surfH || !IsCorrectSurfaceFormat(tmpSurf->format)) {
 				tmpSurf = gfxCreateSurface(surfW, surfH);
 			}
 			//else if(clearBeforeDrawing)

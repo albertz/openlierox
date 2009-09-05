@@ -2241,6 +2241,21 @@ void DumpPixelFormat(const SDL_PixelFormat* format) {
 }
 
 
+bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2) {
+	return
+	fm1->BitsPerPixel == fm2->BitsPerPixel &&
+	fm1->Rmask == fm2->Rmask &&
+	fm1->Gmask == fm2->Gmask &&
+	fm1->Bmask == fm2->Bmask &&
+	fm1->Amask == fm2->Amask;
+}
+
+bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format) {
+	// gfxCreateSurface() uses exactly the same format as getMainPixelFormat()
+	return PixelFormatEqual(getMainPixelFormat(), format);
+}
+
+
 
 ////////////////////////
 //

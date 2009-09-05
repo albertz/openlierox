@@ -53,6 +53,9 @@ enum GradientDirection  {
 
 
 void DumpPixelFormat(const SDL_PixelFormat* format);
+bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2);
+bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format);
+
 
 /////////////////////
 // Locking and unlocking routines, must be called before doing anything with pixels
