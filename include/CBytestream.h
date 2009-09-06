@@ -29,6 +29,7 @@
 
 struct ScriptVar_t;
 struct Logger;
+struct PrintOutFct;
 
 class CBytestream {
 public:
