@@ -198,7 +198,7 @@ static int getWormHitKillLimit() {
 	for(int i = 0; i < MAX_WORMS; ++i) {
 		CWorm* w = &cServer->getWorms()[i];
 		if(!w->isUsed()) continue;
-		if(w->getKills() >= tLXOptions->tGameInfo.iKillLimit)
+		if(w->getScore() >= tLXOptions->tGameInfo.iKillLimit)
 			return i;
 	}
 	
@@ -323,8 +323,8 @@ int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 	}
 	
 	// Kills
-	if (w1->getKills() > w2->getKills()) return 1;
-	if (w1->getKills() < w2->getKills()) return -1;
+	if (w1->getScore() > w2->getScore()) return 1;
+	if (w1->getScore() < w2->getScore()) return -1;
 	
 	// Damage
 	return Round(w1->getDamage() - w2->getDamage());
@@ -371,7 +371,7 @@ int CGameMode::TeamKills(int t) {
 	int c = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
 		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == t)
-			c += cServer->getWorms()[i].getKills();
+			c += cServer->getWorms()[i].getScore();
 	return c;
 }
 

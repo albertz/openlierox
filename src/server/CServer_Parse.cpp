@@ -1932,7 +1932,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket)
 	for (p = 0;p < MAX_WORMS;p++, w++) {
 		if (w->isUsed()) {
 			bs.writeString(RemoveSpecialChars(w->getName()));
-			bs.writeInt(w->getKills(), 2);
+			bs.writeInt(w->getScore(), 2);
 		}
 	}
 

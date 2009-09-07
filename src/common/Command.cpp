@@ -1846,7 +1846,7 @@ COMMAND(getWormScore, "get worm score", "id", 1, 1);
 void Cmd_getWormScore::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	caller->pushReturnArg(itoa(w->getLives()));
-	caller->pushReturnArg(itoa(w->getKills()));
+	caller->pushReturnArg(itoa(w->getScore()));
 	caller->pushReturnArg(ftoa(w->getDamage()));
 	caller->pushReturnArg(w->getAlive() ? ftoa(w->getHealth()) : "-1");
 }
