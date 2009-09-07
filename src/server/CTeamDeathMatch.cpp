@@ -70,6 +70,9 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 	}
 	else
 		ChangeTeamScore( killer->getTeam(), 1 );
+	// Team score does not count FT_DeathDecreasesScore feature because it's float,
+	// I thought of re-calculating teamscore by summing up worm scores
+	// but if someone leaves he takes away part of teamscore then
 }
 
 void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 
