@@ -51,28 +51,16 @@ void CTeamDeathMatch::PrepareGame()
 
 void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 {
+	int oldVictimScore = victim->getScore();
+	int oldKillerScore = 0;
+	if(killer)
+		oldKillerScore = killer->getScore();
+		
 	CGameMode::Kill(victim, killer);
 
-	if( ! killer )
-		return;
-
-	if( killer == victim )
-	{
-		if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
-			ChangeTeamScore( killer->getTeam(), -1 );
-	}
-	else if( killer->getTeam() == victim->getTeam() )
-	{
-		if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
-			ChangeTeamScore( killer->getTeam(), -1 );
-		if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
-			ChangeTeamScore( killer->getTeam(), 1 );
-	}
-	else
-		ChangeTeamScore( killer->getTeam(), 1 );
-	// Team score does not count FT_DeathDecreasesScore feature because it's float,
-	// I thought of re-calculating teamscore by summing up worm scores
-	// but if someone leaves he takes away part of teamscore then
+	ChangeTeamScore( victim->getTeam(), victim->getScore() - oldVictimScore );
+	if( killer )
+		ChangeTeamScore( killer->getTeam(), killer->getScore() - oldKillerScore );
 }
 
 void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 

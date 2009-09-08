@@ -1140,7 +1140,7 @@ int CWorm::getScore() const
 {
 	int score = getKills();
 	if( (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] > 0.0f )
-		score -= (int)( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] );
+		score -= (int)( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] + 0.01f ); // + 0.01f to counter possible inprecise truncation
 	if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
 		score -= getSuicides();
 	if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
