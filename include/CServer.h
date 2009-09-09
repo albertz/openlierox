@@ -280,7 +280,7 @@ public:
 	void		ParsePing(const SmartPointer<NetworkSocket>& tSocket);
 	void		ParseTime(const SmartPointer<NetworkSocket>& tSocket);
 	void		ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
-    void        ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket);
+    void        ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bsHeader = NULL);
 	void		ParseWantsJoin(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocket);

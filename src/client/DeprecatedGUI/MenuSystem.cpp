@@ -1148,11 +1148,61 @@ void Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr)
 
 	CBytestream bs;
 	bs.writeInt(-1,4);
+
+	if( svr->bBehindNat )
+	{
+		NetworkAddr masterserverAddr;
+		SetNetAddrValid(masterserverAddr, false);
+		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
+			return;
+
+		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+			SDL_Delay(20);
+
+		if( !IsNetAddrValid(masterserverAddr) )
+			return;
+
+		tMenu->tSocket[SCK_NET]->setRemoteAddress(masterserverAddr);
+		bs.writeString("lx::traverse");
+		bs.writeString(svr->szAddress);
+	}
+
 	bs.writeString("lx::wantsjoin");
 	bs.writeString(RemoveSpecialChars(Nick));
 	bs.Send(tMenu->tSocket[SCK_NET]);
 }
 
+///////////////////
+// Get server info
+void Menu_SvrList_GetServerInfo(server_t *svr)
+{
+	// Send a getinfo request
+	tMenu->tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
+
+	CBytestream bs;
+	bs.writeInt(-1,4);
+
+	if( svr->bBehindNat )
+	{
+		NetworkAddr masterserverAddr;
+		SetNetAddrValid(masterserverAddr, false);
+		if( ! GetNetAddrFromNameAsync( Menu_SvrList_GetUdpMasterserverForServer(svr->szAddress), masterserverAddr ) )
+			return;
+
+		for( int count = 0; !IsNetAddrValid(masterserverAddr) && count < 5; count++ )
+			SDL_Delay(20);
+
+		if( !IsNetAddrValid(masterserverAddr) )
+			return;
+
+		tMenu->tSocket[SCK_NET]->setRemoteAddress(masterserverAddr);
+		bs.writeString("lx::traverse");
+		bs.writeString(svr->szAddress);
+	}
+	
+	bs.writeString("lx::getinfo");
+	bs.Send(tMenu->tSocket[SCK_NET]);
+}
 
 ///////////////////
 // Query a server
@@ -2106,7 +2156,15 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
                 std::string cmd = inbs.readString();
 
 		        addr = tMenu->tSocket[SCK_NET]->remoteAddress();
-
+				
+				if(cmd == "lx::traverse") // Response from UDP masterserver
+				{
+					sIP = inbs.readString();
+					StringToNetAddr(sIP, addr);
+					if( !inbs.isPosAtEnd() )
+						cmd = inbs.readString();
+				}
+					
 		        // Check for server info
 		        if(cmd == "lx::serverinfo") {
                     bGotDetails = true;
@@ -2222,14 +2280,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bGotDetails = false;
 			bOldLxBug = false;
 
-            // Send a getinfo request
-            tMenu->tSocket[SCK_NET]->setRemoteAddress(origAddr);
-
-			// TODO: move that out here
-	        CBytestream bs;
-	        bs.writeInt(-1,4);
-	        bs.writeString("lx::getinfo");
-	        bs.Send(tMenu->tSocket[SCK_NET]);
+			Menu_SvrList_GetServerInfo(svr);
         }
 
 		// Got details, fill in the listview

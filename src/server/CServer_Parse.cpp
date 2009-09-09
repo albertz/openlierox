@@ -1890,7 +1890,7 @@ void GameServer::ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestr
 
 ///////////////////
 // Parse a get_info packet
-void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket) 
+void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bsHeader) 
 {
 	// Ignore queries in local
 	// HINT: this can happen when you quit your server and go play local immediatelly - some
@@ -1900,8 +1900,10 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket)
 
 	CBytestream     bs;
 
-	bs.Clear();
-	bs.writeInt(-1, 4);
+	if(bsHeader)
+		bs.Append(bsHeader);
+	else
+		bs.writeInt(-1, 4);
 	bs.writeString("lx::serverinfo");
 
 	bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
@@ -1991,6 +1993,24 @@ void GameServer::ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CByte
 		errors << "GameServer: the address specified in ParseTraverse is invalid: " << adrClientStr << endl;
 		return;
 	}
+
+	// Send lx::traverse to udp server 
+	CBytestream bs1;
+
+	bs1.Clear();
+	bs1.writeInt(-1, 4);
+	bs1.writeString("lx::traverse");
+	bs1.writeString(adrClientStr);
+
+	if( !bs->isPosAtEnd() )
+	{
+		// Some request sent over UDP masterserver
+		std::string cmd = bs->readString();
+		if (cmd == "lx::getinfo")
+			ParseGetInfo(tSocket, &bs1); // TODO: it's pretty huge to be sent through our masterserver
+		else if (cmd == "lx::wantsjoin")
+			ParseWantsJoin(tSocket, bs, ip);
+	}
 	notes << "GameServer: Got a traverse from client " << adrClientStr << endl;
 
 	// Open a new connection for the client
@@ -2014,15 +2034,7 @@ void GameServer::ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CByte
 	// Update the last used time
 	newcl->fLastUsed = tLX->currentTime;
 
-	// Send lx::traverse to udp server and lx::pong to client
-	CBytestream bs1;
-
-	bs1.Clear();
-	bs1.writeInt(-1, 4);
-	bs1.writeString("lx::traverse");
-	bs1.writeString(adrClientStr);
-
-	// Send traverse to server
+	// Send traverse to server, to traverse socket
 	newcl->tTraverseSocket->setRemoteAddress(adrFrom);
 	bs1.Send(newcl->tTraverseSocket);
 
