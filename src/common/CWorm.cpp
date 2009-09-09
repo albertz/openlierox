@@ -1399,15 +1399,15 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
     COPY( fLastCarve );
 	COPY( fLoadingTime );
 	COPY( health );
-	// TODO: why not fDamage?
+	// Do not copy fDamage / suicides / teamkills etc - they are managed by scoreboard routines on server
 	COPY( bAlive );
 	COPY( fTimeofDeath );
 	COPY( iFaceDirectionSide );
 	COPY( iMoveDirectionSide );
 	COPY( bGotTarget );
 	COPY( fAngle );
-    COPY( fAngleSpeed );
-    COPY( fMoveSpeedX );
+	COPY( fAngleSpeed );
+	COPY( fMoveSpeedX );
 	COPY( fFrame );
 	COPY( cNinjaRope );
 	COPY( fRopeTime );

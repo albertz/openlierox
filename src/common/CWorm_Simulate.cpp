@@ -41,8 +41,8 @@
 // Get the input from a human worm
 void CWormHumanInputHandler::getInput() {		
 	// HINT: we are calling this from simulateWorm
-	TimeDiff dt = tLX->currentTime - m_worm->fLastInputTime;
-	m_worm->fLastInputTime = tLX->currentTime;
+	TimeDiff dt = GetPhysicsTime() - m_worm->fLastInputTime;
+	m_worm->fLastInputTime = GetPhysicsTime();
 
 	int		weap = false;
 
@@ -371,8 +371,62 @@ void CWormHumanInputHandler::getInput() {
 		cWeapons[i].reset();
 }
 
+// This function will get the keypresses for new net engine from different input like mouse/joystic or bot AI
+// by comparing worm state variables before and after getInput() call
+NewNet::KeyState_t CWorm::NewNet_GetKeys()
+{
+	CWorm oldState;
+	oldState.NewNet_CopyWormState(*this);
+	getInput();
+	NewNet::KeyState_t ret;
 
-void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) // Synthetic input from new net engine - Ignores inputHandler
+	if( tState.bJump )
+		ret.keys[NewNet::K_JUMP] = true;
+
+	if( tState.bShoot )
+		ret.keys[NewNet::K_SHOOT] = true;
+
+	if( tState.bCarve )
+	{
+		ret.keys[NewNet::K_LEFT] = true;
+		ret.keys[NewNet::K_RIGHT] = true;
+	}
+	
+	if( tState.bMove )
+	{
+		if( iMoveDirectionSide == DIR_LEFT )
+			ret.keys[NewNet::K_LEFT] = true;
+		else
+			ret.keys[NewNet::K_RIGHT] = true;
+		if( iMoveDirectionSide != iFaceDirectionSide )
+			ret.keys[NewNet::K_STRAFE] = true;
+	}
+	
+	if( oldState.fAngle > fAngle )
+		ret.keys[NewNet::K_UP] = true;
+	if( oldState.fAngle < fAngle )
+		ret.keys[NewNet::K_DOWN] = true;
+
+	if( oldState.iCurrentWeapon != iCurrentWeapon )
+	{
+		// TODO: ignores fast weapon selection keys, they will just not work
+		// I'll probably remove K_SELWEAP and add K_SELWEAP_1 - K_SELWEAP_5 "buttons"
+		ret.keys[NewNet::K_SELWEAP] = true;
+		int WeaponLeft = iCurrentWeapon + 1;
+		MOD(WeaponLeft, iNumWeaponSlots);
+		if( WeaponLeft == oldState.iCurrentWeapon )
+			ret.keys[NewNet::K_LEFT] = true;
+		int WeaponRight = iCurrentWeapon - 1;
+		MOD(WeaponRight, iNumWeaponSlots);
+		if( WeaponRight == oldState.iCurrentWeapon )
+			ret.keys[NewNet::K_RIGHT] = true;
+	};
+	
+	return ret;
+};
+
+// Synthetic input from new net engine - should modify worm state in the same as CWormHumanInputHandler::getInput()
+void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ) 
 {
 	TimeDiff dt ( (int)NewNet::TICK_TIME );
 

@@ -423,7 +423,8 @@ public:
 
 	void		setAiDiff(int aiDif);
 	
-	void		NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged ); // Synthetic input from new net engine - Ignores inputHandler
+	NewNet::KeyState_t NewNet_GetKeys();
+	void		NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t keysChanged );
 
 	//
 	// Misc.
