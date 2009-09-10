@@ -2010,6 +2010,7 @@ void GameServer::ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CByte
 			ParseGetInfo(tSocket, &bs1); // TODO: it's pretty huge to be sent through our masterserver
 		else if (cmd == "lx::wantsjoin")
 			ParseWantsJoin(tSocket, bs, ip);
+		return;
 	}
 	notes << "GameServer: Got a traverse from client " << adrClientStr << endl;
 
