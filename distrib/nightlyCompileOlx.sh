@@ -39,6 +39,17 @@ while $RECOMPILE ; do
 			vcbuild openlierox.vcproj "RelWithDebInfo|Win32" /useenv >> "$1" 2>&1
 			if [ \! -f ../../distrib/win32/OpenLieroX.exe ] ; then
 				echo ----------- Compiling failed >> "$1"
+				echo "[Rebuild] needed" > ../../rebuild_needed.log
+				cat "$1" | email \
+					--subject "OLX $REVNUM build failed" \
+					--from-name "OLX build bot" \
+					--tls \
+					--smtp-server smtp.gmail.com \
+					--smtp-port 587 \
+					--smtp-auth LOGIN \
+					--smtp-user "X.pelya.X@gmail.com" \
+					--smtp-pass "`cat c:/gmail_password.txt`" \
+					openlierox-devel@lists.sourceforge.net
 				exit
 			fi
 		fi
@@ -52,16 +63,29 @@ if ! $UPLOAD; then
 	exit
 fi
 
-if grep -i "\[Rebuild\]" svn.log; then
+if grep -i "\[Rebuild\]" svn.log || [ -e rebuild_needed.log ] ; then
 	echo ----------- Committing to SVN >> "$1"
 	svn commit -m "Updated EXE (auto nightly build)"
 fi
 
+if [ -e rebuild_needed.log ] ; then rm rebuild_needed.log ; fi
+
 REVNUM=`grep -o 'r[0-9]*' optional-includes/generated/Version_generated.h`
 
 cmd /c save_debug_info.bat $REVNUM
-zip -r "$3/debuginfo_$REVNUM.zip" debuginfo/$REVNUM
-# echo Debug symbols attached | email --attach "$3/debuginfo_$REVNUM.zip" --subject 'Debug symbols automated mail' --smtp-server 172.17.57.25 karel.petranek@tiscali.cz"
+7z a -mx=6 "$3/debuginfo_$REVNUM.7z" debuginfo/$REVNUM # -mx=6 is compression level, my 256 megs of ram in virtualbox cannot handle -mx=9
+rm -r debuginfo/$REVNUM
+echo OLX $REVNUM debug symbols attached | email \
+	--subject "OLX $REVNUM debug symbols" \
+	--attach "$3/debuginfo_$REVNUM.7z" \
+	--from-name "OLX build bot" \
+	--tls \
+	--smtp-server smtp.gmail.com \
+	--smtp-port 587 \
+	--smtp-auth LOGIN \
+	--smtp-user "X.pelya.X@gmail.com" \
+	--smtp-pass "`cat c:/gmail_password.txt`" \
+	karel.petranek@tiscali.cz"
 
 # Upload file to lxalliance.net gallery - non-trivial!
 # Requires file lxalliance.net.cookie with your auth data 
