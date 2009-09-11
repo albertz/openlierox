@@ -175,7 +175,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				if( gameTime > w->getTimeofDeath() + 2.5f )
 				{
 					CVec spot = NewNet_FindSpot(w);
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()->features[FT_InfiniteMap]);
 					w->Spawn( spot );
 					// Show a spawn entity
 					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),Color(),NULL);
@@ -284,7 +284,7 @@ void StartRound( unsigned randomSeed )
 					NumPlayers ++;
 					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
 					CVec spot = NewNet_FindSpot( &cClient->getRemoteWorms()[i] );
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()->features[FT_InfiniteMap]);
 					cClient->getRemoteWorms()[i].Spawn( spot );
 				};
 			}

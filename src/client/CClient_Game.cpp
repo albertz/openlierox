@@ -347,7 +347,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	// Explosion
 	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),Color(),NULL);
 
-	int d = cMap->CarveHole((int)damage,pos);
+	int d = cMap->CarveHole((int)damage,pos, getGameLobby()->features[FT_InfiniteMap]);
 
     // Increment the dirt count
 	if(owner >= 0 && owner < MAX_WORMS)
@@ -567,7 +567,7 @@ void CClient::SendCarve(CVec pos)
 		SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour);*/
 
 	// Just carve a hole for the moment
-	cMap->CarveHole(4,pos);
+	cMap->CarveHole(4,pos, (bool)getGameLobby()->features[FT_InfiniteMap]);
 }
 
 
@@ -747,7 +747,7 @@ void CClient::DrawBeam(CWorm *w)
 						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), Color(), NULL);
 						int damage = Slot->Weapon->Bm.Damage;
 						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p);
+						int d = cMap->CarveHole(damage, p, getGameLobby()->features[FT_InfiniteMap]);
 						w->incrementDirtCount(d);
 					}
 					
@@ -1288,7 +1288,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 						//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 						int damage = wpn->Bm.Damage;
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p);
+						int d = cMap->CarveHole(damage, p, getGameLobby()->features[FT_InfiniteMap]);
 						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
 							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
 					}

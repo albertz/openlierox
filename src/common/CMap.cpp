@@ -1211,7 +1211,7 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 //
 // Returns the number of dirt pixels carved
 // IMPORTANT: hole and map must have same gfx format
-int CMap::CarveHole(int size, CVec pos)
+int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 {
 	// Just clamp it and continue
 	size = MAX(size, 0);
@@ -1227,6 +1227,20 @@ int CMap::CarveHole(int size, CVec pos)
 	int h = hole.get()->h;
 	int map_x = (int)pos.x - w / 2;
 	int map_y = (int)pos.y - h / 2;
+	if (wrapAround)  {
+		int map_x2 = map_x;
+		int map_y2 = map_y;
+		if (map_x <= hole->w / 2) 
+			map_x2 = map_x + (int)Width;
+		if (map_x >= (int)Width - hole->w / 2)
+			map_x2 = map_x - (int)Width;
+		if (map_y <= hole->h / 2) 
+			map_y2 = map_y + (int)Height;
+		if (map_y >= (int)Height - hole->h / 2)
+			map_y2 = map_y - (int)Height;
+		if (map_x2 != map_x || map_y2 != map_y)
+			this->CarveHole(size, CVec((float)map_x2 + w / 2, (float)map_y2 + h / 2), false);
+	}
 
 	// Clipping
 	if (!ClipRefRectWith(map_x, map_y, w, h, (SDLRect&)bmpImage.get()->clip_rect))
@@ -3021,7 +3035,7 @@ int CarveHole(CVec pos)
 	UnlockSurface(cClient->getMap()->GetImage());
 
 	// Just carve a hole for the moment
-	return cClient->getMap()->CarveHole(3,pos);
+	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()->features[FT_InfiniteMap]);
 }
 
 

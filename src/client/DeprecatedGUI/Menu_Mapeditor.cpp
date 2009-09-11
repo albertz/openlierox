@@ -302,7 +302,7 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 				case 0:
 					MouseImg = t->bmpHoles[tMenu->iCurHole];
 					if(Mouse->Down & SDL_BUTTON(1))
-						cMap->CarveHole(tMenu->iCurHole,pos);
+						cMap->CarveHole(tMenu->iCurHole,pos,false);
 					break;
 
 				// Stone

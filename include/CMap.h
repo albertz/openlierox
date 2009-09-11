@@ -360,7 +360,7 @@ public:
 	void		ClearDebugImage();
 #endif
 
-	int 		CarveHole(int size, CVec pos);
+	int 		CarveHole(int size, CVec pos, bool wrapAround);
 	int 		PlaceDirt(int size, CVec pos);
 	void		PlaceStone(int size, CVec pos);
 	void		PlaceMisc(int id, CVec pos);

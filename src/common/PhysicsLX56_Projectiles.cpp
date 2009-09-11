@@ -826,7 +826,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		// Carve
 		case PJ_CARVE:
 			if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
-				int d = cClient->getMap()->CarveHole(Damage, prj->getPos());
+				int d = cClient->getMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap]);
 				info->deleteAfter = true;
 				
 					// Increment the dirt count

@@ -1262,7 +1262,7 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	client->cRemoteWorms[id].setAlive(true);
 	client->cRemoteWorms[id].Spawn(p);
 
-	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
+	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()->features[FT_InfiniteMap]);
 
 	// Show a spawn entity
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
@@ -1781,7 +1781,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	CVec p = CVec( (float)x, (float)y );
 
 	client->cBonuses[id].Spawn(p, type, wpn, client->cGameScript.get());
-	client->cMap->CarveHole(SPAWN_HOLESIZE,p);
+	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()->features[FT_InfiniteMap]);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
 }

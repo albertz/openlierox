@@ -284,7 +284,7 @@ int CMapEditor::DoMouseMove(int x, int y, int dx, int dy, bool down, MouseButton
 			switch (iEditMode) {
 			case edHoles:
 				for (int i=0; i < len; i++, cur_pos += dir)
-					cMap->CarveHole(iPenSize, cur_pos);
+					cMap->CarveHole(iPenSize, cur_pos, false);
 			break;
 			case edDirt:
 				for (int i=0; i < len; i++, cur_pos += dir)
@@ -350,7 +350,7 @@ int CMapEditor::DoMouseDown(int x, int y, int dx, int dy, MouseButton button, co
 
 		switch (iEditMode) {
 		case edHoles:
-			cMap->CarveHole(iPenSize, map_pos);
+			cMap->CarveHole(iPenSize, map_pos, false);
 		break;
 		case edDirt:
 			cMap->PlaceDirt(iPenSize, map_pos);
