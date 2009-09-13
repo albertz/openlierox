@@ -34,6 +34,7 @@
 #include "EndianSwap.h"
 #include "Geometry.h"
 #include "ThreadPool.h" // for struct Action
+#include "Timer.h"
 
 
 /*
@@ -1466,9 +1467,19 @@ void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
 	cClient->fLastSimulationTime += warpTime;
 	static const TimeDiff orig_dt = LX56PhysicsDT;
+	AbsTime realSimulationTime = GetTime();
 	
 simulateProjectilesStart:
 	if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
+
+	// HINT: if the computer is too slow and doesn't manage to simulate everything, just skip few frames
+	// Better an incorrect simulation than a game that is not controllable
+	if (GetTime() - realSimulationTime > orig_dt)  {
+		warnings << "Skipping simulation frames due to slow simulation" << endl;
+		cClient->fLastSimulationTime = currentTime;
+		return;
+	}
+	realSimulationTime = GetTime();
 	
 	for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 		CProjectile* p = i->get();
