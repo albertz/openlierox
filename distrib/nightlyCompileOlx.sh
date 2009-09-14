@@ -85,7 +85,7 @@ echo OLX $REVNUM debug symbols attached | email \
 	--smtp-auth LOGIN \
 	--smtp-user "X.pelya.X@gmail.com" \
 	--smtp-pass "`cat c:/gmail_password.txt`" \
-	karel.petranek@tiscali.cz
+	karel.petranek@seznam.cz
 
 # Upload file to lxalliance.net gallery - non-trivial!
 # Requires file lxalliance.net.cookie with your auth data 
