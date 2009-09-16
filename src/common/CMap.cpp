@@ -1117,7 +1117,7 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Sur
 	// HINT: this is not really exact, it can happen that two shadows overlap
 	// This case is however *very* rare and it would be too difficult/slow to check for it here
 	if (w <= getCollGridCellW() && h <= getCollGridCellH() && 
-		CollisionGrid[(i.map_y + i.h / 2) * Width + (i.map_x + i.w / 2)] == 0 && bmpObjShadow)  {
+		GetCollisionFlag(i.map_x, i.map_y, false) == 0 && bmpObjShadow)  {
 
 		DrawImageAdv(bmpDest, bmpObjShadow, i.obj_x, i.obj_y, i.dest_x, i.dest_y, i.w, i.h);
 		return;
