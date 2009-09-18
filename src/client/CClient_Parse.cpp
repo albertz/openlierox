@@ -1598,8 +1598,8 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 			stats_changed = true;
 		}
 
-		if (l->iKills != w->getKills())  {
-			l->iKills = w->getKills();
+		if (l->iKills != w->getScore())  {
+			l->iKills = w->getScore();
 			client->iLastKiller = w->getID();
 			stats_changed = true;
 		}
@@ -2568,8 +2568,8 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 				stats_changed = true;
 			}
 
-			if (l->iKills != client->cRemoteWorms[id].getKills())  {
-				l->iKills = client->cRemoteWorms[id].getKills();
+			if (l->iKills != client->cRemoteWorms[id].getScore())  {
+				l->iKills = client->cRemoteWorms[id].getScore();
 				client->iLastKiller = id;
 				stats_changed = true;
 			}
