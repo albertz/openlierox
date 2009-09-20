@@ -20,6 +20,9 @@
 
 // Table used for removing diacritics and other backward incompatible characters
 ConversionItem tConversionTable[] = {
+	{ 0x84, {0xE2, 0x80, 0x80, 0x00}, '"'},
+	{ 0x93, {0xE2, 0x80, 0x80, 0x80}, '"'},
+	{ 0x96, {0xC2, 0x96, 0x00, 0x00}, '-'},
 	{ 0xA0, {0xC2, 0xA0, 0x00, 0x00}, ' '},
 	{ 0xA1, {0xC2, 0xA1, 0x00, 0x00}, '!'},
 	{ 0xA2, {0xC2, 0xA2, 0x00, 0x00}, 'c'},
@@ -650,6 +653,28 @@ char UnicodeCharToAsciiChar(UnicodeChar c)
 	else
 		return tConversionTable[index].Ascii;
 
+}
+
+////////////////////////
+// Converts a UTF-8 string to Ascii while replacing unicode characters by the closest ones from ASCII
+std::string UnicodeToAscii(const std::string& utf8str)
+{
+	std::string res;
+	res.reserve(utf8str.size());
+
+	for (std::string::const_iterator it = utf8str.begin(); it != utf8str.end(); )  {
+		if ((unsigned char)*it < 0x80)  {  // Normal Ascii
+			res += *it;
+			++it;
+		} else  {  // Unicode
+			const UnicodeChar c = GetNextUnicodeFromUtf8(it, utf8str.end());
+			const int idx = FindTableIndex(c);
+			if (idx != -1)
+				res += tConversionTable[idx].Ascii;
+		}
+	}
+
+	return res;
 }
 
 ////////////////////////

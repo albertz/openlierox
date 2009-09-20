@@ -352,8 +352,10 @@ int CTextbox::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 
 	// Alt + numbers
 	if(modstate.bAlt)  {
-		if (c >= 0x30 && c <= 0x39)
+		if (c >= 0x30 && c <= 0x39)  {
 			sAltKey += (char)c;
+			return TXT_NONE;
+		}
 	} else {  // Alt not pressed
 		sAltKey = "";
 	}
@@ -647,7 +649,7 @@ void CTextbox::Insert(UnicodeChar c)
 
 	// If no unicode, try to convert to ascii
 	if (iFlags & TXF_NOUNICODE)  {
-		c = UnicodeCharToAsciiChar(c);
+		c = (unsigned char)UnicodeCharToAsciiChar(c);
 		if (c == 0xFF)  // Cannot convert
 			return;
 	}
@@ -760,12 +762,50 @@ void CTextbox::PasteText()
 	replace(text, "\t", " ");
 
 	// When copying from clipboard huge string will lock the game for several seconds
-	if(text.size() > 1000)
+	/*if(text.size() > 1000)
 		text.erase(1000);
 	
 	// Insert the text
 	for(std::string::const_iterator i = text.begin(); i != text.end(); )
-		Insert( GetNextUnicodeFromUtf8(i, text.end()) );
+		Insert( GetNextUnicodeFromUtf8(i, text.end()) );*/
+
+	// Delete any selection
+	if (iSelLength)
+		Delete();
+
+	// If no unicode, try to convert to ascii
+	if (iFlags & TXF_NOUNICODE)  {
+		text = UnicodeToAscii(text);
+	}
+
+	size_t txtlen = Utf8StringSize(sText);
+	size_t newtxtlen = Utf8StringSize(text);
+
+	// Check for the max
+	if(txtlen + newtxtlen >= iMax)  {
+		if (txtlen >= iMax)
+			return;
+
+		newtxtlen = iMax - txtlen;
+		Utf8Erase(text, newtxtlen);
+	}
+
+	// Check that the current font can display this character, if not, quit
+	/*if (!tLX->cFont.CanDisplayCharacter(c))
+		return;*/
+
+	// Safety
+	if(iCurpos > txtlen)
+		iCurpos = txtlen;
+
+	Utf8Insert(sText, iCurpos + 1, text);
+	iCurpos += newtxtlen;
+	txtlen = txtlen + newtxtlen;
+
+    // If the text size is greater than the textbox size, scroll the text
+	while(tLX->cFont.GetWidth(Utf8SubStr(sText, iScrollPos, MAX<int>(0, iCurpos - iScrollPos))) > iWidth-5) {
+		iScrollPos++;
+	}
 }
 
 ///////////////////
