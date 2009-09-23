@@ -53,7 +53,7 @@ struct CGameSkin::Thread {
 	GameSkinPreviewDrawer* skinPreviewDrawerP;
 	SmartPointer<DynDrawIntf> skinPreviewDrawer;
 	
-	Thread(CGameSkin* s) : ready(true), skinPreviewDrawerP(NULL), curAction(NULL) {
+	Thread(CGameSkin* s) : ready(true), curAction(NULL), skinPreviewDrawerP(NULL) {
 		skinPreviewDrawer = skinPreviewDrawerP = new GameSkinPreviewDrawer(s);
 	}
 	~Thread() {
