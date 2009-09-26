@@ -1179,6 +1179,8 @@ void CClient::DrawProjectileShadows(SDL_Surface * bmpDest, CViewport *v)
 }
 
 
+DeprecatedGUI::CGuiLayout ViewportMgr;
+
 ///////////////////
 // Simulate the hud
 void CClient::SimulateHud()
@@ -1208,8 +1210,10 @@ void CClient::SimulateHud()
 			if (!bGameMenu)
 				InitializeGameMenu();
 		}
-        else
+		else  {
+			ViewportMgr.Shutdown();
             bViewportMgr = false;
+		}
     }
 
 	// Top bar toggle
@@ -2013,7 +2017,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 
 
 
-DeprecatedGUI::CGuiLayout ViewportMgr;
+
 enum {
     v1_On,
     v1_Type,
