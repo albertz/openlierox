@@ -1451,7 +1451,7 @@ CServerConnection* GameServer::localClientConnection() {
 
 ///////////////////
 // Drop a client
-void GameServer::DropClient(CServerConnection *cl, int reason, const std::string& sReason)
+void GameServer::DropClient(CServerConnection *cl, int reason, const std::string& sReason, bool showReason)
 {
 	// Never ever drop a local client
 	if (cl->isLocalClient())  {
@@ -1480,7 +1480,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 
 			// Kicked
 			case CLL_KICK:
-				if (sReason.size() == 0)  { // No reason
+				if (sReason.size() == 0 || !showReason)  { // No reason
 					replacemax(networkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
 					cl_msg = networkTexts->sKickedYou;
 				} else {
@@ -1494,7 +1494,7 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 
 			// Banned
 			case CLL_BAN:
-				if (sReason.size() == 0)  { // No reason
+				if (sReason.size() == 0 || !showReason)  { // No reason
 					replacemax(networkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
 					cl_msg = networkTexts->sBannedYou;
 				} else {
@@ -1824,9 +1824,7 @@ extern bool bHost_Update;
 
 ///////////////////
 // Kick a worm out of the server
-void GameServer::kickWorm(int wormID, const std::string& sReason)
-{	
-	if (!cWorms) {
+void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReason){		if (!cWorms) {
 		errors << "kickWorm: worms not initialised" << endl;
 		return;
 	}
@@ -1900,7 +1898,7 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 			// check if we didn't already removed the worm from inside that SyncServerAndClient
 			if(cClient->OwnsWorm(wormID)) {
 				// Send the message
-				if (sReason.size() == 0)
+				if (sReason.size() == 0 || !showReason)
 					SendGlobalText((replacemax(networkTexts->sHasBeenKicked,
 											   "<player>", w->getName(), 1)),	TXT_NETWORK);
 				else
@@ -1939,13 +1937,13 @@ void GameServer::kickWorm(int wormID, const std::string& sReason)
 	// Drop the whole client
 	// It's not possible to kick a single worm because the network would be screwed up.
 	// The client needs to reconnect if it wants to change the worm amount.
-	DropClient(cl, CLL_KICK, sReason);
+	DropClient(cl, CLL_KICK, sReason, showReason);
 }
 
 
 ///////////////////
 // Kick a worm out of the server (by name)
-void GameServer::kickWorm(const std::string& szWormName, const std::string& sReason)
+void GameServer::kickWorm(const std::string& szWormName, const std::string& sReason, bool showReason)
 {
 	if (!cWorms)
 		return;
@@ -1957,7 +1955,7 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 			continue;
 
 		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			kickWorm(i, sReason);
+			kickWorm(i, sReason, showReason);
 			return;
 		}
 	}
@@ -1969,7 +1967,7 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 
 ///////////////////
 // Ban and kick the worm out of the server
-void GameServer::banWorm(int wormID, const std::string& sReason)
+void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason)
 {
 	if (!cWorms) {
 		errors << "banWorm: worms not initialised" << endl;
@@ -2049,11 +2047,11 @@ void GameServer::banWorm(int wormID, const std::string& sReason)
 	getBanList()->addBanned(szAddress,w->getName());
 
 	// Drop the client
-	DropClient(cl, CLL_BAN, sReason);
+	DropClient(cl, CLL_BAN, sReason, showReason);
 }
 
 
-void GameServer::banWorm(const std::string& szWormName, const std::string& sReason)
+void GameServer::banWorm(const std::string& szWormName, const std::string& sReason, bool showReason)
 {
 	// Find the worm name
 	CWorm *w = cWorms;
@@ -2065,7 +2063,7 @@ void GameServer::banWorm(const std::string& szWormName, const std::string& sReas
 			continue;
 
 		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			banWorm(i, sReason);
+			banWorm(i, sReason, showReason);
 			return;
 		}
 	}
