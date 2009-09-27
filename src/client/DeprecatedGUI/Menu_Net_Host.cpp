@@ -1878,13 +1878,13 @@ void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int i
                     // Kick the player
                     case MNU_USER+0:
 						if( wormid > 0 )
-                            cServer->kickWorm( wormid, "" );
+                            cServer->kickWorm( wormid, "kicked via GUI menu" );
                         break;
 
 					// Ban the player
 					case MNU_USER+1:
 						if ( wormid > 0 )
-							cServer->banWorm( wormid, "" );
+							cServer->banWorm( wormid, "banned via GUI menu" );
 						break;
 
 					// Mute/unmute

@@ -1825,11 +1825,14 @@ extern bool bHost_Update;
 ///////////////////
 // Kick a worm out of the server
 void GameServer::kickWorm(int wormID, const std::string& sReason)
-{
+{	
 	if (!cWorms) {
 		errors << "kickWorm: worms not initialised" << endl;
 		return;
 	}
+
+	if(sReason == "")
+		warnings << "kickWorm: no reason given to kick worm " << wormID << endl;
 	
 	if( wormID < 0 || wormID >= MAX_WORMS )  {
 		hints << "kickWorm: worm ID " << itoa(wormID) << " is invalid" << endl;
@@ -1968,9 +1971,14 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 // Ban and kick the worm out of the server
 void GameServer::banWorm(int wormID, const std::string& sReason)
 {
-	if (!cWorms)
+	if (!cWorms) {
+		errors << "banWorm: worms not initialised" << endl;
 		return;
-
+	}
+	
+	if(sReason == "")
+		warnings << "banWorm: no reason given to ban worm " << wormID << endl;
+	
 	if( wormID < 0 || wormID >= MAX_PLAYERS )  {
 		if (Con_IsVisible())
 			Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
