@@ -1050,9 +1050,12 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 
 	adrFrom = tSocket->remoteAddress();
 
+	std::string client_version;
+	if( ! bs_in->isPosAtEnd() )
+		client_version = bs_in->readString(128);
+
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
-		bs.Clear();
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
@@ -1061,7 +1064,17 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		notes << "GameServer::ParseGetChallenge: Client from " << tSocket->debugString() << " cannot join, the game is in progress." << endl;
 		return;
 	}
-
+	
+	if( client_version == OLXBetaVersion(9) )
+	{
+		// TODO: move this out here
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::badconnect");
+		bs.writeString("Your Beta9 support was dropped, please download 0.57 rc1 at http://openlierox.sourceforge.net/");
+		bs.Send(tSocket);
+		printf("GameServer::ParseGetChallenge: client has Beta9 which is not supported.\n");
+		return;
+	}
 
 	// see if we already have a challenge for this ip
 	for (i = 0;i < MAX_CHALLENGES;i++) {
@@ -1078,10 +1091,6 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 			break;
 		}
 	}
-
-	std::string client_version;
-	if( ! bs_in->isPosAtEnd() )
-		client_version = bs_in->readString(128);
 
 	if (ChallengeToSet >= 0) {
 
