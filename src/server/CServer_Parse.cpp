@@ -667,9 +667,22 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 
 	GetRemoteNetAddr(tSocket, adrFrom);
 
-	std::string client_version;
-	if( ! bs_in->isPosAtEnd() )
-		client_version = bs_in->readString(128);
+	{
+		std::string client_version;
+		if( ! bs_in->isPosAtEnd() ) {
+			client_version = bs_in->readString(128);
+
+			if( Version(client_version) == OLXBetaVersion(9) ) {
+				// TODO: move this out here
+				bs.writeInt(-1, 4);
+				bs.writeString("lx::badconnect");
+				bs.writeString("Your Beta9 support was dropped, please download a new version at http://openlierox.sourceforge.net/");
+				bs.Send(tSocket);
+				notes << "GameServer::ParseGetChallenge: client has Beta9 which is not supported." << endl;
+				return;
+			}
+		}
+	}
 
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
@@ -682,17 +695,6 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 		return;
 	}
 	
-	if( client_version == OLXBetaVersion(9) )
-	{
-		// TODO: move this out here
-		bs.writeInt(-1, 4);
-		bs.writeString("lx::badconnect");
-		bs.writeString("Your Beta9 support was dropped, please download a new version at http://openlierox.sourceforge.net/");
-		bs.Send(tSocket);
-		notes << "GameServer::ParseGetChallenge: client has Beta9 which is not supported." << endl;
-		return;
-	}
-
 	// see if we already have a challenge for this ip
 	for (i = 0;i < MAX_CHALLENGES;i++) {
 
