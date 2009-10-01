@@ -506,7 +506,7 @@ void DumpCallstackPrintf(void* callpnt) {
 	printf("DumpCallstackPrintf not implemented\n");
 }
 
-void DumpCallstack(void (*PrintOutFct) (const std::string&)) {
+void DumpCallstack(const PrintOutFct& printer) {
 	printf("DumpCallstack not implemented\n");
 }
 
