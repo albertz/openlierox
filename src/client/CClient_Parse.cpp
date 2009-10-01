@@ -263,22 +263,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		// There is no Beta9 release, everything that reports itself as Beta9 
 		// is pre-release and have incompatible net protocol
 		
-		printf("Beta9 server detected - it is not supported anymore\n");
-		// Put some spam in server chatbox
-		if( client->getNumWorms() > 0 )
-		{
-			for( int count1 = 0; count1 < 2; count1++ )
-			{
-				for( int count2 = 0; count2 < 3; count2++ )
-				{
-					client->SendPackets();
-					SDL_Delay(100);
-					client->ReadPackets();
-				}
-				client->getNetEngine()->SendText("Your Beta9 support was dropped, please download 0.57 rc1 at http://openlierox.sourceforge.net/", client->getWorm(0)->getName() );
-			}
-			client->getNetEngine()->SendDisconnect();
-		}
+		notes << "Beta9 server detected - it is not supported anymore" << endl;
 		
 		client->bServerError = true;
 		client->strServerErrorMsg = "This server uses Beta9 which is not supported anymore";
