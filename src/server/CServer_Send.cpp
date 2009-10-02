@@ -588,7 +588,7 @@ void GameServer::SendWormTagged(CWorm *w)
 bool GameServer::checkBandwidth(CServerConnection *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
-	if( tLX->iGameType != GME_LOCAL )
+	if( tLX->iGameType == GME_LOCAL )
 		return true;
 	if(cl->getNetSpeed() == 3) // local
 		return true;
