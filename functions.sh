@@ -82,6 +82,13 @@ get_olx_version() {
 			VERSION="${VERSION}_r$(svn info | grep "Revision:" | cut -d " " -f 2)"
 		fi
 	fi
+	if [ -d .git ]; then
+		if type git >/dev/null 2>&1; then
+			VERSION="${VERSION}_r$(git describe | sed 's/.*-\(.*\)-.*/\1/')"
+			# Warning: version = number of commits since last tagged object
+			# and it may be different from SF.net git if you merged some commits
+		fi
+	fi
 	echo "$VERSION"
 }
 
