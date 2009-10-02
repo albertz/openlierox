@@ -398,7 +398,7 @@ void GameServer::SendWeapons(CServerConnection* cl) {
 bool GameServer::checkBandwidth(CServerConnection *cl)
 {
 	// Don't bother checking if the client is on the same comp as the server
-	if( tGameInfo.iGameType != GME_LOCAL )
+	if( tGameInfo.iGameType == GME_LOCAL )
 		return true;
 	if(cl->getNetSpeed() == 3) // local
 		return true;
