@@ -14,7 +14,7 @@
 #include "StringUtils.h" // for itoa
 
 #ifndef		LX_VERSION
-#	define		LX_VERSION		"0.57_beta8"
+#	define		LX_VERSION		"0.57_rc1"
 #endif
 
 #define		GAMENAME			"OpenLieroX"

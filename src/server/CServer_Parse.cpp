@@ -677,7 +677,7 @@ void GameServer::ParseGetChallenge(NetworkSocket tSocket, CBytestream *bs_in) {
 		bs.writeString("lx::badconnect");
 		bs.writeString("Your Beta9 support was dropped, please download a new version at http://openlierox.sourceforge.net/");
 		bs.Send(tSocket);
-		notes << "GameServer::ParseGetChallenge: client has Beta9 which is not supported." << endl;
+		printf( "GameServer::ParseGetChallenge: client has Beta9 which is not supported.\n" );
 		return;
 	}
 

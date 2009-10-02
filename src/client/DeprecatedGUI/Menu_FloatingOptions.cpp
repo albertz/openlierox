@@ -66,6 +66,8 @@ enum {
 	os_SoundOn,
 	os_SoundVolume,
 	os_NetworkSpeed,
+	os_NetworkUploadBandwidth,
+	os_NetworkUploadBandwidthLabel,
 	os_ShowFPS,
 	os_ShowPing,
 	os_LogConvos,
@@ -254,6 +256,12 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_System.Add( new CLabel("Max FPS",tLX->clNormalLabel),Static, 480,285, 0,0);
 	cFloatingOpt_System.Add( new CTextbox(),                        os_MaxFPS, 540, 283, 50,tLX->cFont.GetHeight());
 
+	cFloatingOpt_System.Add( new CCombobox(), os_NetworkSpeed, 170, 342, 130,17);
+	cFloatingOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,345, 0,0);
+
+	cFloatingOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 345, 0,0);
+	cFloatingOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 342, 60,tLX->cFont.GetHeight());
+
 	// Put the combo box after the other widgets to get around the problem with widget layering
 	cFloatingOpt_System.Add( new CCombobox(), os_ScreenshotFormat, 365, 283, 70,17);
 
@@ -264,8 +272,16 @@ bool Menu_FloatingOptionsInitialize(void)
 	CTextbox *t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
 
+	std::string NetworkSpeeds[] = {	"Modem", "ISDN", "LAN" };
+	for(i=0; i<3; i++)
+		cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBS_ADDITEM, NetworkSpeeds[i], i);
+
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);
+
+	((CTextbox *)cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth ))->setText( itoa(tLXOptions->iMaxUploadBandwidth) );
+	cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+	cFloatingOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
 
 	// Screenshot format
 	cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Bmp", FMT_BMP);
@@ -291,19 +307,19 @@ bool Menu_FloatingOptionsInitialize(void)
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAutoTyping),og_AutoTyping, 280, 300, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Use antialiasing (slow)",tLX->clNormalLabel), Static, 40, 330, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntiAliasing),og_Antialiasing, 280, 330, 17,17);
-	cFloatingOpt_Game.Add( new CLabel("Enable mouse control (Player 1)",tLX->clNormalLabel), Static, 40, 360, 0,0);
-	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 360, 17,17);
+	cFloatingOpt_Game.Add( new CLabel("Enable mouse control (Player 1)",tLX->clNormalLabel), Static, 40, 420, 0,0);
+	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bMouseAiming),og_MouseAiming, 280, 420, 17,17);
 	cFloatingOpt_Game.Add( new CLabel("Log my game results",tLX->clNormalLabel), Static, 40, 390, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->tGameinfo.bMatchLogging),og_MatchLogging, 280, 390, 17,17);
 
-	cFloatingOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 330, 330, 0,0);
-	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 550, 330, 17,17);
+	cFloatingOpt_Game.Add( new CLabel("Network antilag prediction",tLX->clNormalLabel), Static, 40, 360, 0,0);
+	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAntilagMovementPrediction),og_AntilagMovementPrediction, 280, 360, 17,17);
 
-	cFloatingOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
+	/*cFloatingOpt_Game.Add( new CLabel("Allow mouse control (Server)",tLX->clNormalLabel), Static, 330, 360, 0,0);
 	cFloatingOpt_Game.Add( new CCheckbox(tLXOptions->bAllowMouseAiming),og_AllowMouseAiming, 550, 360, 17,17);
 
 	cFloatingOpt_Game.Add( new CLabel("Allow strafing (Server)",tLX->clNormalLabel), Static, 330, 390, 0,0);
-	cFloatingOpt_Game.Add( new CCheckbox(&tLXOptions->bAllowStrafing), Static, 550, 390, 17,17);
+	cFloatingOpt_Game.Add( new CCheckbox(&tLXOptions->bAllowStrafing), Static, 550, 390, 17,17);*/
 
 	// TODO: Fix cSlider so it's value thing doesn't take up a square of 100x100 pixels.
 
@@ -509,16 +525,18 @@ void Menu_FloatingOptionsFrame()
 						tLXOptions->bAntiAliasing = cFloatingOpt_Game.SendMessage(og_Antialiasing, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
 
+
 				// Mouse aiming
 				case og_MouseAiming:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bMouseAiming = cFloatingOpt_Game.SendMessage(og_MouseAiming, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
-
+/*
 				case og_AllowMouseAiming:
 					if(ev->iEventMsg == CHK_CHANGED)
 						tLXOptions->bAllowMouseAiming = cFloatingOpt_Game.SendMessage(og_AllowMouseAiming, CKM_GETCHECK, (DWORD)0, 0) != 0;
 					break;
+*/
 
 				// Match logging
 				case og_MatchLogging:
@@ -611,6 +629,14 @@ void Menu_FloatingOptionsFrame()
 
 		// Get the values
 		tLXOptions->iNetworkSpeed = cFloatingOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
+
+		cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+		cFloatingOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+		if( cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth )->getEnabled() )
+			tLXOptions->iMaxUploadBandwidth = atoi( ((CTextbox *)cFloatingOpt_System.getWidget( os_NetworkUploadBandwidth ))->getText().c_str() );
+		if( tLXOptions->iMaxUploadBandwidth <= 0 )
+			tLXOptions->iMaxUploadBandwidth = 20000;
+
 		tLXOptions->iScreenshotFormat = cFloatingOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
 		// Anti-aliasing and fullscreen

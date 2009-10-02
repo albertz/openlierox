@@ -54,6 +54,8 @@ enum {
 	os_SoundVolume,
 	os_NetworkPort,
 	os_NetworkSpeed,
+	os_NetworkUploadBandwidth,
+	os_NetworkUploadBandwidthLabel,
 	os_UseIpToCountry,
 	os_LoadDbAtStartup,
 	os_NatTraverse,
@@ -252,11 +254,18 @@ bool Menu_OptionsInitialize(void)
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 222, 110, 20);
 
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, 260, 0,0);
+
 	cOpt_System.Add( new CLabel("Network port",tLX->clNormalLabel),     Static, 60, 280, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_NetworkPort, 170, 277, 100,tLX->cFont.GetHeight());
+
 	cOpt_System.Add( new CLabel("Network speed",tLX->clNormalLabel),    Static, 60,310, 0,0);
+
+	cOpt_System.Add( new CLabel("Server max upload bandwidth",tLX->clNormalLabel),    os_NetworkUploadBandwidthLabel, 330, 310, 0,0);
+	cOpt_System.Add( new CTextbox(),                        os_NetworkUploadBandwidth, 530, 307, 70,tLX->cFont.GetHeight());
+
 	cOpt_System.Add( new CLabel("HTTP proxy",tLX->clNormalLabel),    Static, 60,340, 0,0);
 	cOpt_System.Add( new CTextbox(),                        os_HttpProxy, 170, 337, 130,tLX->cFont.GetHeight());
+
 	cOpt_System.Add( new CLabel("Use IP To Country Database",tLX->clNormalLabel),	Static, 330, 280, 0,0);
 	cOpt_System.Add( new CCheckbox(tLXOptions->bUseIpToCountry),  os_UseIpToCountry, 530,280,17,17);
 	cOpt_System.Add( new CLabel("Load Database at Startup",tLX->clNormalLabel),	Static, 330, 310, 0,0);
@@ -302,7 +311,10 @@ bool Menu_OptionsInitialize(void)
 
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURSEL, tLXOptions->iNetworkSpeed, 0);
 	cOpt_System.SendMessage(os_NetworkSpeed, CBM_SETCURINDEX, tLXOptions->iNetworkSpeed, 0);
-
+	((CTextbox *)cOpt_System.getWidget( os_NetworkUploadBandwidth ))->setText( itoa(tLXOptions->iMaxUploadBandwidth) );
+	cOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+	cOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+	
 	// Screenshot format
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Bmp", FMT_BMP);
 	cOpt_System.SendMessage(os_ScreenshotFormat, CBS_ADDITEM, "Png", FMT_PNG);
@@ -754,6 +766,14 @@ void Menu_OptionsFrame(void)
 		tLXOptions->sHttpProxy = t->getText();
 
 		tLXOptions->iNetworkSpeed = cOpt_System.SendMessage(os_NetworkSpeed, CBM_GETCURINDEX,(DWORD)0,0);
+
+		cOpt_System.getWidget( os_NetworkUploadBandwidth )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+		cOpt_System.getWidget( os_NetworkUploadBandwidthLabel )->setEnabled( tLXOptions->iNetworkSpeed >= NST_LAN );
+		if( cOpt_System.getWidget( os_NetworkUploadBandwidth )->getEnabled() )
+			tLXOptions->iMaxUploadBandwidth = atoi( ((CTextbox *)cOpt_System.getWidget( os_NetworkUploadBandwidth ))->getText().c_str() );
+		if( tLXOptions->iMaxUploadBandwidth <= 0 )
+			tLXOptions->iMaxUploadBandwidth = 20000;
+
 		tLXOptions->iScreenshotFormat = cOpt_System.SendMessage(os_ScreenshotFormat, CBM_GETCURINDEX,(DWORD)0,0);
 
 		// FPS and fullscreen
