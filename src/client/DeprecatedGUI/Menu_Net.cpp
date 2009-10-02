@@ -56,6 +56,8 @@ SDL_Rect tLoadingRect;
 // Initialize the net menu
 bool Menu_NetInitialize(void)
 {
+	if(bDedicated) return true; // just ignore
+	
 	tMenu->iMenuType = MNU_NETWORK;
 	iNetMode = net_main;
 

@@ -105,6 +105,11 @@ public:
 	inline bool operator==(const VectorD2<_T2> op) const {
 		return (x==op.x && y==op.y);
 	}
+
+	template<typename _T2>
+	inline bool operator!=(const VectorD2<_T2> op) const {
+		return (x!=op.x || y!=op.y);
+	}
 	
 	template<typename _T2>
 	inline bool operator<=(const VectorD2<_T2> op) const {

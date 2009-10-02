@@ -198,8 +198,9 @@ void CNinjaRope::updateCheckVariables()
 // Returns true if the write function needs to be called
 bool CNinjaRope::writeNeeded()
 {
-	if (!Released)
-		return false;
+	// TODO: why that?
+	/*if (!Released)
+		return false;*/
 
 	if		((LastReleased != Released) ||
 			(LastHookShooting != HookShooting) ||
@@ -207,12 +208,8 @@ bool CNinjaRope::writeNeeded()
 			(LastPlayerAttached != PlayerAttached) ||
 			(LastWorm != Worm))
 				return true;
-	CVec vel = (HookPos - OldHookPos) / (tLX->fCurTime - LastPosUpdate);
-	LastPosUpdate = tLX->fCurTime;
-	if (vel.GetLength2())
-		return (tLX->fCurTime - LastWrite >= 3.0f/vel.GetLength()) && Released;
 
-	return false;
+	return HookPos != OldHookPos;
 }
 
 ///////////////////

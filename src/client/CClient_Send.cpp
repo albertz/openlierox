@@ -62,10 +62,9 @@ void CClientNetEngine::SendWormDetails(void)
 
 
 	// Check if we need to write the state update
-/*	bool update = false;
-	w = cLocalWorms[0];
-	for(i = 0; i < iNumWorms; i++, w++)
-		if (w->checkPacketNeeded())  {
+	bool update = false;
+	for(i = 0; i < client->iNumWorms; i++)
+		if (client->cLocalWorms[i]->checkPacketNeeded())  {
 			update = true;
 			break;
 		}
@@ -73,7 +72,9 @@ void CClientNetEngine::SendWormDetails(void)
 	// No update, just quit
 	if (!update)
 		return;
-*/
+
+	// TODO: Have we always used the limitcheck from GameServer here?
+	// We should perhaps move it out from GameServer. Looks a bit strange here to use something from GameServer.
 	if(	tGameInfo.iGameType == GME_JOIN // we are a client in a netgame
 	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
@@ -268,7 +269,7 @@ void CClientNetEngine::SendGrabBonus(int id, int wormid)
 	bs.writeByte(client->cRemoteWorms[wormid].getCurrentWeapon());
 
 	client->cNetChan->AddReliablePacketToSend(bs);
-};
+}
 
 void CClientNetEngine::SendUpdateLobby(bool ready)
 {
@@ -276,7 +277,7 @@ void CClientNetEngine::SendUpdateLobby(bool ready)
 	bs.writeByte(C2S_UPDATELOBBY);
 	bs.writeByte(1);
 	client->getChannel()->AddReliablePacketToSend(bs);
-};
+}
 
 void CClientNetEngine::SendDisconnect()
 {
@@ -288,7 +289,7 @@ void CClientNetEngine::SendDisconnect()
 	if( client->cNetChan != NULL)
 		for(int i=0;i<3;i++)
 			client->cNetChan->Transmit(&bs);
-};
+}
 
 void CClientNetEngine::SendFileData()
 {
@@ -296,5 +297,5 @@ void CClientNetEngine::SendFileData()
 	bs.writeByte(C2S_SENDFILE);
 	client->getUdpFileDownloader()->send(&bs);
 	client->getChannel()->AddReliablePacketToSend(bs);
-};
+}
 

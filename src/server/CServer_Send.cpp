@@ -230,7 +230,7 @@ void GameServer::SendWormsOut(const std::list<byte>& ids) {
 bool GameServer::SendUpdate()
 {
 	// Delays for different net speeds
-	static const float	shootDelay[] = {0.025f, 0.010f, 0.005f, -1.0f};
+	static const float	shootDelay[] = {0.010f, 0.005f, 0.0f, 0.0f};
 
 	//
 	// Get the update packets for each worm that needs it and save them
@@ -247,16 +247,18 @@ bool GameServer::SendUpdate()
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
-			//if (w->checkPacketNeeded())
+			if (w->checkPacketNeeded())  {
 				worms_to_update.push_back(w);
+			}
 		}
 	}
 
 	size_t uploadAmount = 0;
 
 	{
+		int last = lastClientSendData;
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
-			CServerConnection* cl = &cClients[ (i + iServerFrame) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
@@ -274,7 +276,7 @@ bool GameServer::SendUpdate()
 				static Rate<100,5000> blockRate; // only for debug output
 				static Rate<100,5000> blockRateAbs; // only for debug output
 				blockRateAbs.addData(tLX->fCurTime, 1);
-				if(!checkUploadBandwidth(GetUpload(0.1f) /* + uploadAmount */)) {
+				if(!checkUploadBandwidth(GetUpload() /* + uploadAmount */)) {
 					// we have gone over our own bandwidth for non-local clients				
 					blockRate.addData(tLX->fCurTime, 1);
 					static float lastMessageTime = tLX->fCurTime;
@@ -330,6 +332,7 @@ bool GameServer::SendUpdate()
 				{
 					for (short j=0; j < cl->getNumWorms(); j++)
 						if (cl->getWorm(j)->checkStatePacketNeeded())  {
+							cl->getWorm(j)->updateStatCheckVariables();
 							need_send = true;
 							break;
 						}
@@ -365,7 +368,12 @@ bool GameServer::SendUpdate()
 					cl->getChannel()->AddReliablePacketToSend(shootBs);
 				}
 			}
+
+			if(!cl->isLocalClient())
+				last = i;
 		}
+		
+		lastClientSendData = last;
 	}
 
 	// All good
@@ -424,23 +432,15 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	if( tGameInfo.iGameType == GME_LOCAL )
 		return true;
 
-	// Modem, ISDN, LAN, local
-	// (Bytes per second)
-	const float	Rates[4] = {2500, 7500, 10000, 50000};
-
-	float fMaxRate = Rates[tLXOptions->iNetworkSpeed];
-	if(tLXOptions->iNetworkSpeed >= 2) { // >= LAN
-		// only use Network.MaxServerUploadBandwidth option if we set Network.Speed to LAN (or higher)
-		fMaxRate = MAX(fMaxRate, (float)tLXOptions->iMaxUploadBandwidth);
-	}
-
+	float fMaxRate = getMaxUploadBandwidth();
+	
 	{
 		static bool didShowMessageAlready = false;
 		if(!didShowMessageAlready)
 			printf("using max upload rate %f kb/sec\n", fMaxRate / 1024.0f);
 		didShowMessageAlready = true;
 	}
-
+	
 	return fCurUploadRate < fMaxRate;
 }
 
