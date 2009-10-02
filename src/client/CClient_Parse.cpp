@@ -263,7 +263,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		// There is no Beta9 release, everything that reports itself as Beta9 
 		// is pre-release and have incompatible net protocol
 		
-		notes << "Beta9 server detected - it is not supported anymore" << endl;
+		printf( "Beta9 server detected - it is not supported anymore\n" ); // No Debug.h in Beta8, use printf() !
 		
 		client->bServerError = true;
 		client->strServerErrorMsg = "This server uses Beta9 which is not supported anymore";
