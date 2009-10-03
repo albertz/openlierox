@@ -35,7 +35,7 @@ struct ProcessIntern	// Stub
 
 // Install Boost headers for your compiler and #define HAVE_BOOST to compile dedicated server for Win32
 // You don't need to link to any lib to compile it, just headers.
-#ifdef DEBUG  // Boost is incompatible with leak detection in MSVC, just disable it for the boost headers
+#ifdef new  // Boost is incompatible with leak detection in MSVC, just disable it for the boost headers
 #undef new
 #include <boost/process.hpp> // This one header pulls turdy shitload of Boost headers
 #define new DEBUG_NEW // Re-enable
