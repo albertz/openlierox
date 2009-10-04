@@ -1,9 +1,0 @@
-col_layer = -1
-invisible = 1
-
-on detect_range(1)
- damage ( 100 )
- shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
- 
-on ground_collision ()
- remove ()
