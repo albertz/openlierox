@@ -1,5 +1,0 @@
-sprite = explosion2.png
-blender = NONE
-alpha = 255
-dest_alpha = -1
-timeout = 35

@@ -1,9 +1,0 @@
-sprite = explosion1.png
-blender = NONE
-alpha = 255
-dest_alpha = -1
-timeout = 30
-
-on creation()
- play_sound_static( [exp3.ogg, exp4.ogg], 14, 1, 0.05 )
- apply_map_effect( exp1hole.mfx )
