@@ -16,7 +16,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="../../bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -84,7 +84,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
+				OutputFile=".\../../bin/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
@@ -123,7 +123,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="../../bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -192,7 +192,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
+				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC"
