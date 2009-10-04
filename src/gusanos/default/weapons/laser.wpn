@@ -1,7 +1,0 @@
-name = LASER
-ammo = 200
-reload_time = 150
-
-on primary_shoot()
- use_ammo(1)
- shoot_particles ( laser.obj , 1 , 1, 0, 0, 0, 0, 0, 5)

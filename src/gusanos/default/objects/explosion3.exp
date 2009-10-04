@@ -1,8 +1,0 @@
-sprite = explosion3.png
-blender = NONE
-alpha = 255
-dest_alpha = -1
-timeout = 40
-
-on creation()
- play_sound( exp5.ogg, 40, 1, 0.05 )
