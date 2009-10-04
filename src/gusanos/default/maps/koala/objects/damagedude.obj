@@ -1,5 +1,0 @@
-col_layer = -1
-invisible = 1
-
-on timer (0.1, 0)
- shoot_particles (killer.obj, 1, 1, 0, 0, 0, 0, 90, 0)
