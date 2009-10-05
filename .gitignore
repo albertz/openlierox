@@ -1,4 +1,9 @@
-build
+build/msvc*/obj
+build/msvc*/Debug
+build/msvc*/Release
+*.ncb
+*.suo
+*.vcproj.*.user
 *.mode1v3
 *.mode2v3
 
