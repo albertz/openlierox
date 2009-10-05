@@ -60,6 +60,8 @@ MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
 
 PROJECT(openlierox)
 
+EXEC_PROGRAM(mkdir ARGS -p bin OUTPUT_VARIABLE DUMMY)
+
 # main includes
 INCLUDE_DIRECTORIES(include libs/pstreams)
 
@@ -138,6 +140,7 @@ ENDIF(G15)
 
 
 ADD_EXECUTABLE(openlierox ${ALL_SRCS})
+
 SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 
 EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
