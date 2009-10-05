@@ -156,7 +156,6 @@ ENDIF(MEMSTATS)
 
 
 IF(WIN32)
-	EXEC_PROGRAM("${CMAKE_BINARY_DIR}/svn_revision.exe" ARGS "${CMAKE_SOURCE_DIR}/optional-includes/generated/Version_generated.h" "${CMAKE_SOURCE_DIR}")
 	ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE -DHAVE_BOOST -DZLIB_WIN32_NODLL)
 	SET(OPTIMIZE_COMPILER_FLAG /Ox /Ob2 /Oi /Ot /GL)
 	IF(DEBUG)
@@ -174,10 +173,6 @@ ELSE(WIN32)
 	EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 	string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 	MESSAGE( "OLX_VERSION = ${OLXVER}" )
-	#ADD_DEFINITIONS("-DLX_VERSION=\\\"${OLXVER}\\\"") # This will trigger whole project rebuild
-	# Escaping backslashes overkill, yay.
-	EXEC_PROGRAM(sh ARGS -c echo\\ \\\\\#define\\ LX_VERSION\\ \\\\\\"${OLXVER}\\\\\\" > optional-includes/generated/Version_generated.h OUTPUT_VARIABLE DUMMY)
-
 
 	EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
 	string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
