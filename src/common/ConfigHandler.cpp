@@ -206,13 +206,13 @@ int GetString(const std::string& filename, const std::string& section, const std
 	curKey="";
 
 	// Check for UTF-8 encoded file and skip the UTF-8 mark if it is
-	static uchar utf8mark[3];
+	uchar utf8mark[3];
 	fread(utf8mark, sizeof(utf8mark)/sizeof(uchar), 1, config);
 	if (utf8mark[0] != 0xEF || utf8mark[1] != 0xBB || utf8mark[2] != 0xBF)
 		fseek(config, 0, SEEK_SET); // Not a UTF-8 file, jump back to the beginning
 
 
-	while(!feof(config))
+	while(!feof(config) && !ferror(config))
 	{
 		// Parse the lines
 		Line = ReadUntil(config, '\n');
