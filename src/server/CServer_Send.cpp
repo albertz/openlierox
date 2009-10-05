@@ -641,9 +641,9 @@ void GameServer::SendFiles()
 		// That's a bit floody algorithm, it can be optimized I think
 		if( cl->getUdpFileDownloader()->isSending() &&
 			( cl->getChannel()->getBufferEmpty() ||
-				! cl->getChannel()->getBufferFull() &&
+				(! cl->getChannel()->getBufferFull() &&
 				cl->getChannel()->getPing() != 0 &&
-				tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff ) )
+				tLX->fCurTime - cl->getLastFileRequestPacketReceived() <= cl->getChannel()->getPing()/1000.0f / pingCoeff )) )
 		{
 			startTimer = true;
 			cl->setLastFileRequestPacketReceived( tLX->fCurTime );
