@@ -31,7 +31,7 @@ class IniReader;
 
 static const Version GS_MinLxVersion[] = {
 	Version(), // for GS_VERSION == 7
-	OLXBetaVersion(9), // for GS_VERSION == 8
+	OLXBetaVersion(0,58,1), // for GS_VERSION == 8
 };
 
 #define		GS_LX56_VERSION	7

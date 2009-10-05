@@ -357,7 +357,7 @@ Flag* FlagInfo::applyInitFlag(int id, const CVec& spawnPos) {
 	bs.writeByte(id);
 	bs.writeByte(FUT_NEWFLAG);
 	bs.write2Int12((int)spawnPos.x, (int)spawnPos.y);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));
 	return flag;
 }
 
@@ -373,7 +373,7 @@ void FlagInfo::applyRemoveFlag(int id) {
 	bs.writeByte(S2C_FLAGINFO);
 	bs.writeByte(id);
 	bs.writeByte(FUT_REMOVEFLAG);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));	
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));	
 }
 
 void FlagInfo::applyCustomPos(Flag* flag, const CVec& pos) {
@@ -389,7 +389,7 @@ void FlagInfo::applyCustomPos(Flag* flag, const CVec& pos) {
 	bs.writeByte(flag->id);
 	bs.writeByte(FUT_POS);
 	bs.write2Int12((int)pos.x, (int)pos.y);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));		
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));		
 }
 
 void FlagInfo::applySpawnPos(Flag* flag, const CVec& spawnPos) {
@@ -405,7 +405,7 @@ void FlagInfo::applySpawnPos(Flag* flag, const CVec& spawnPos) {
 	bs.writeByte(flag->id);
 	bs.writeByte(FUT_SPAWNPOS);
 	bs.write2Int12((int)spawnPos.x, (int)spawnPos.y);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));		
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));		
 }
 
 void FlagInfo::applyHolderWorm(Flag* flag, int w) {
@@ -421,7 +421,7 @@ void FlagInfo::applyHolderWorm(Flag* flag, int w) {
 	bs.writeByte(flag->id);
 	bs.writeByte(FUT_HOLDERWORM);
 	bs.writeByte(w);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));			
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));			
 }
 
 void FlagInfo::applySetBack(Flag* flag) {
@@ -436,11 +436,11 @@ void FlagInfo::applySetBack(Flag* flag) {
 	bs.writeByte(S2C_FLAGINFO);
 	bs.writeByte(flag->id);
 	bs.writeByte(FUT_RESET);
-	cServer->SendGlobalPacket(&bs, OLXBetaVersion(9));	
+	cServer->SendGlobalPacket(&bs, OLXBetaVersion(0,58,1));	
 }
 
 void FlagInfo::sendCurrentState(CServerConnection* cl) {
-	if(cl->getClientVersion() < OLXBetaVersion(9)) return;
+	if(cl->getClientVersion() < OLXBetaVersion(0,58,1)) return;
 	
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
 		Flag& flag = i->second;

@@ -361,7 +361,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cNetChan->Create(addr, client->tSocket);
 	}
 	
-	if( client->getServerVersion() == OLXBetaVersion(9) )
+	if( client->getServerVersion() == OLXBetaVersion(0,58,1) )
 	{
 		// There is no Beta9 release, everything that reports itself as Beta9 
 		// is pre-release and have incompatible net protocol
@@ -1354,7 +1354,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 			client->cRemoteWorms[id].Prepare(false);
 		}
 		client->cRemoteWorms[id].setID(id);
-		if( client->getServerVersion() < OLXBetaVersion(9) &&
+		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
 	}
@@ -1666,7 +1666,7 @@ void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 // Parse a game over packet
 void CClientNetEngine::ParseGameOver(CBytestream *bs)
 {
-	if(client->getServerVersion() < OLXBetaVersion(9)) {
+	if(client->getServerVersion() < OLXBetaVersion(0,58,1)) {
 		client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
 			
 		client->iMatchWinnerTeam = -1;

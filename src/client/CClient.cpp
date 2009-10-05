@@ -2389,7 +2389,7 @@ CChannel * CClient::createChannel(const Version& v)
 {
 	if( cNetChan )
 		delete cNetChan;
-	if( v >= OLXBetaVersion(9) )
+	if( v >= OLXBetaVersion(0,58,1) )
 		cNetChan = new CChannel3();
 	else if( v >= OLXBetaVersion(6) )
 		cNetChan = new CChannel2();
@@ -2401,7 +2401,7 @@ CChannel * CClient::createChannel(const Version& v)
 void CClient::setNetEngineFromServerVersion()
 {
 	if(cNetEngine) delete cNetEngine; cNetEngine = NULL;
-	if( getServerVersion() >= OLXBetaVersion(9) )
+	if( getServerVersion() >= OLXBetaVersion(0,58,1) )
 		cNetEngine = new CClientNetEngineBeta9(this);
 	else if( getServerVersion() >= OLXBetaVersion(7) )
 		cNetEngine = new CClientNetEngineBeta7(this);

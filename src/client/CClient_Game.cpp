@@ -437,15 +437,15 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	float realdamage = MIN(w->getHealth(), damage);
 
 	// Send REPORTDAMAGE to server (also calculate & send it for pre-Beta9 clients, when we're hosting)
-	if( realdamage > 0 && getServerVersion() >= OLXBetaVersion(9) && 
+	if( realdamage > 0 && getServerVersion() >= OLXBetaVersion(0,58,1) && 
 		( someOwnWorm || 
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) ) )
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) ) )
 		getNetEngine()->QueueReportDamage( w->getID(), realdamage, owner );
 
 	// Set damage report for local worm for Beta9 server - server won't send it back to us
 	// Set it also for remote worms on pre-Beta9 server
-	if( getServerVersion() < OLXBetaVersion(9) || 
-		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
+	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
+		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
 		( NewNet::Active() && NewNet::CanUpdateGameState() ) )
 	{
 		// TODO: fix this
@@ -456,7 +456,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	}
 
 	// Update our scoreboard for local worms
-	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(9) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
+	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(0,58,1) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
 		// TODO: fix this
 		if(ownerWorm)
 			getRemoteWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update client scoreboard
@@ -467,9 +467,9 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			cServer->getWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
-	if( getServerVersion() < OLXBetaVersion(9) || 
-		( getServerVersion() >= OLXBetaVersion(9) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(9) ) || // We're hosting, calculate health for pre-Beta9 clients
+	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
+		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
+		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) || // We're hosting, calculate health for pre-Beta9 clients
 		NewNet::Active() ) 
 	{
 		if(w->injure(damage)) {
@@ -839,7 +839,7 @@ void CClient::UpdateScoreboard()
 	// Clear the team scores
 	for(i=0;i<4;i++) {
 		iTeamList[i]=i;
-		if(getServerVersion() < OLXBetaVersion(9))
+		if(getServerVersion() < OLXBetaVersion(0,58,1))
 			iTeamScores[i]=0;
 	}
 
@@ -852,7 +852,7 @@ void CClient::UpdateScoreboard()
 		iScoreboard[iScorePlayers++] = p;
 		
 		// in other cases, we got the scores from the server
-		if(getServerVersion() < OLXBetaVersion(9)) {
+		if(getServerVersion() < OLXBetaVersion(0,58,1)) {
 			// Add to the team score
 			if(getGeneralGameType() == GMT_TEAMS) {
 				int team = w->getTeam();

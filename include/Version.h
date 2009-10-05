@@ -23,7 +23,7 @@ const Version& GetGameVersion();
 struct Version {
 	Version() { reset(); }
 	Version(const std::string& versionStr) { setByString(versionStr); }
-
+	
 	void reset() { gamename = "LieroX"; num = 0; subnum = 56; subsubnum = 0; revnum = 0; releasetype = RT_NORMAL; }
 	void setByString(const std::string& versionStr);
 	std::string asString() const;
@@ -75,6 +75,16 @@ inline Version OLXBetaVersion(int betaversion) {
 	v.gamename = fullGameName;
 	v.num = 0;
 	v.subnum = 57;
+	v.subsubnum = betaversion;
+	v.releasetype = Version::RT_BETA;
+	return v;
+}
+
+inline Version OLXBetaVersion(int num, int subnum, int betaversion) {
+	Version v;
+	v.gamename = fullGameName;
+	v.num = num;
+	v.subnum = subnum;
 	v.subsubnum = betaversion;
 	v.releasetype = Version::RT_BETA;
 	return v;

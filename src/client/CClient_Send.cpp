@@ -266,7 +266,7 @@ void CClientNetEngine::SendTextInternal(const std::string& sText, const std::str
 	bs.writeByte(C2S_CHATTEXT);
 	if (sWormName.size() == 0)
 		bs.writeString(sText);
-	else if( sText.find("/me ") == 0 && client->getServerVersion() < OLXBetaVersion(9) )	// "/me " chat command
+	else if( sText.find("/me ") == 0 && client->getServerVersion() < OLXBetaVersion(0,58,1) )	// "/me " chat command
 		bs.writeString( "* " + sWormName + " " + sText.substr(4)); // Add star so clients with empty name won't fake others
 	else	// "/me " command is server-sided on Beta9
 		bs.writeString(sWormName + ": " + sText);

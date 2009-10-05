@@ -408,7 +408,7 @@ bool GameServer::SendUpdate()
 
 			// HINT: happens when clients join during game and haven't selected their weapons yet
 			// HINT 2: this should be valid for beta 9+ though so the user can see others playing while selecting weapons
-			if (cl->getClientVersion() < OLXBetaVersion(9))
+			if (cl->getClientVersion() < OLXBetaVersion(0,58,1))
 				if (!cl->getGameReady())
 					continue;
 

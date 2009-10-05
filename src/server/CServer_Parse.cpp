@@ -851,7 +851,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				bs.writeByte(id);
 				server->SendGlobalPacket(&bs);
 				
-				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(9) )
+				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(0,58,1) )
 					for( int i=0; i < MAX_CLIENTS; i++ )
 						if( server->cClients[i].getStatus() == NET_CONNECTED )
 							server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), -30, w->getID() ); // It's random between 10-50 actually, we're doing approximation here
@@ -1054,7 +1054,7 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 	if( ! bs_in->isPosAtEnd() )
 		client_version = bs_in->readString(128);
 
-	if( Version(client_version) == OLXBetaVersion(9) ) {
+	if( Version(client_version) == OLXBetaVersion(0,58,1) ) {
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");

@@ -683,7 +683,7 @@ void GameServer::GameOver()
 		
 		CBytestream bs;
 		bs.writeByte(S2C_GAMEOVER);
-		if(cl->getClientVersion() < OLXBetaVersion(9)) {
+		if(cl->getClientVersion() < OLXBetaVersion(0,58,1)) {
 			int winLX = winner;
 			if(getGameMode()->isTeamGame()) {
 				// we have to send always the worm-id (that's the LX56 protocol...)
@@ -1699,7 +1699,7 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	}
 	
 	if(getGameMode() == GameMode(GM_CTF)) {
-		if(!forceMinVersion(cl, OLXBetaVersion(9), "CaptureTheFlag gamemode", dropOut, makeMsg, msg))
+		if(!forceMinVersion(cl, OLXBetaVersion(0,58,1), "CaptureTheFlag gamemode", dropOut, makeMsg, msg))
 			return false;
 	}
 	

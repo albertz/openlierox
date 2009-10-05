@@ -189,7 +189,7 @@ void CShootList::writeSingle( CBytestream *bs, const Version& receiverVer, int i
 	else
 		bs->writeByte( psShot->nSpeed );
 	
-	if(receiverVer >= OLXBetaVersion(9)) {
+	if(receiverVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		bs->writeBit(psShot->release);
 		bs->SkipRestBits();
@@ -295,7 +295,7 @@ void CShootList::writeMulti( CBytestream *bs, const Version& receiverVer, int in
 
 	bs->writeByte( speed );
 	
-	if(receiverVer >= OLXBetaVersion(9)) {
+	if(receiverVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		bs->writeBit(psShot->release);
 		bs->SkipRestBits();
@@ -427,7 +427,7 @@ void CShootList::writeSmallShot( shoot_t *psFirst, CBytestream *bs, const Versio
 	if( extraflags & SHF_NG_YWRMVEL )
 		bs->writeByte( (int)psFirst->cWormVel.y - (int)psShot->cWormVel.y );
 
-	if(receiverVer >= OLXBetaVersion(9)) {
+	if(receiverVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		bs->writeBit(psShot->release);
 		bs->SkipRestBits();
@@ -480,7 +480,7 @@ void CShootList::readSingle( CBytestream *bs, const Version& senderVer, int max_
 	// Convert the velocity
 	psShot->cWormVel = CVec( (float)vx, (float)vy );
 
-	if(senderVer >= OLXBetaVersion(9)) {
+	if(senderVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		psShot->release = bs->readBit();
 		bs->SkipRestBits();
@@ -538,7 +538,7 @@ void CShootList::readMulti( CBytestream *bs, const Version& senderVer, int max_w
 	// Convert the velocity
 	psShot->cWormVel = CVec( (float)vx, (float)vy );
 
-	if(senderVer >= OLXBetaVersion(9)) {
+	if(senderVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		psShot->release = bs->readBit();
 		bs->SkipRestBits();
@@ -643,7 +643,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, const Version
 		psShot->cWormVel.y=( psShot->cWormVel.y - (float)vely );
 	}
 
-	if(senderVer >= OLXBetaVersion(9)) {
+	if(senderVer >= OLXBetaVersion(0,58,1)) {
 		bs->ResetBitPos();
 		psShot->release = bs->readBit();
 		bs->SkipRestBits();
@@ -656,7 +656,7 @@ void CShootList::readSmallShot( shoot_t *psFirst, CBytestream *bs, const Version
 
 
 bool CShootList::skipSingle(CBytestream *bs, const Version& senderVer)  {
-	if(senderVer >= OLXBetaVersion(9))
+	if(senderVer >= OLXBetaVersion(0,58,1))
 		return bs->Skip(18);
 	else
 		return bs->Skip(17);
@@ -665,7 +665,7 @@ bool CShootList::skipMulti(CBytestream *bs, const Version& senderVer)  {
 	bs->Skip(7);
 	byte num = bs->readByte();
 	bs->Skip(10);
-	if(senderVer >= OLXBetaVersion(9)) bs->Skip(1);
+	if(senderVer >= OLXBetaVersion(0,58,1)) bs->Skip(1);
 	for (byte i = 0; i < num - 1;i++) skipSmallShot(bs, senderVer);
 	return bs->isPosAtEnd();
 }
@@ -719,7 +719,7 @@ bool CShootList::skipSmallShot(CBytestream *bs, const Version& senderVer)
 	if( extraflags & SHF_NG_YWRMVEL )
 		bs->Skip(1);
 
-	if(senderVer >= OLXBetaVersion(9)) bs->Skip(1);
+	if(senderVer >= OLXBetaVersion(0,58,1)) bs->Skip(1);
 	
 	return bs->isPosAtEnd();
 }

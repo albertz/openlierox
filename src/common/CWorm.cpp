@@ -847,7 +847,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				std::string damageStr = itoa( Round(damageSum) );
 				if( damageSum < 0 )
 					damageStr[0] = '+';	// Negative damage = healing
-				if( getClientVersion() < OLXBetaVersion(9) )
+				if( getClientVersion() < OLXBetaVersion(0,58,1) )
 					damageStr = "? " + damageStr; // + "\xC2\xBF"; // Inverted question mark in UTF-8
 				if(damageSum != 0)
 					tLX->cOutlineFont.DrawCentre(bmpDest, x + l, y + t - damageDrawPos, damageColor, damageStr);
