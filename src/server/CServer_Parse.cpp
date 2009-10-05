@@ -1628,7 +1628,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	
 	// In older clients, it was possible to disallow that (which doesn't really make sense).
 	// In >=Beta9, we just always can use it. So we have to tell old clients that it's OK.
-	if(newcl->getClientVersion() <= OLXBetaVersion(8)) {
+	if(newcl->getClientVersion() <= OLXVersion(0,57)) {
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:mouseAllowed");
@@ -1692,7 +1692,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			(*w)->Prepare(true);
 		}
 		
-		if(newcl->getClientVersion() <= OLXBetaVersion(8))
+		if(newcl->getClientVersion() <= OLXVersion(0,57))
 			// HINT: this is necessary because of beta8 which doesn't update all its state variables from preparegame
 			newcl->getNetEngine()->SendUpdateLobbyGame();
 		newcl->getNetEngine()->SendPrepareGame();
