@@ -1,5 +1,5 @@
-0.58_beta1 (2009-10-05)
-==========
+0.58 (beta1,beta2: 2009-10-05)
+====
 - uploadlimit check fixed + automatic measuring of speed
 - more stable network (CChannel3)
 - improved HTML viewer
