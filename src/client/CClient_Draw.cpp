@@ -1032,10 +1032,10 @@ void CClient::SimulateHud(void)
 
 	// Game Menu
 	if(WasKeyboardEventHappening(SDLK_ESCAPE, false) && !bChat_Typing && !con && !DeprecatedGUI::tMenu->bMenuRunning) {
-        if( !bViewportMgr )
+        if( !bViewportMgr ) {
 			if (!bGameMenu)
 				InitializeGameMenu();
-        else
+		} else
             bViewportMgr = false;
     }
 
