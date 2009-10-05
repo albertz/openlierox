@@ -21,8 +21,6 @@
 #					( activated by default )
 #	G15				- if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( disabled by default )
-#	GCOREDUMPER		- if set to 1, Google Coredumper is used
-#					( disabled by default )
 #	VERSION			- version number; like 0.57_beta2
 #					  if not set, the function functions.sh:get_olx_version
 #					  generates the string automatically
@@ -38,7 +36,6 @@ cd "$(dirname "$0")"
 [ "$ACTIVATE_GDB" = "" ] && [ "$DEBUG" = "1" ] && ACTIVATE_GDB=1
 [ "$X11" = "" ] && X11=1
 [ "$G15" = "" ] && G15=0
-[ "$GCOREDUMPER" = "" ] && GCOREDUMPER=0
 [ "$VERSION" = "" ] && VERSION=$(get_olx_version)
 
 # add standards to include path list
@@ -148,9 +145,6 @@ echo "* $COMPILER will be used for compilation"
 [ "$LIBZIP_BUILTIN" = "1" ] && \
 	echo "* libzip support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against libzip"
-[ "$GCOREDUMPER" = "1" ] && \
-	echo "* Googles coredumper will be used" || \
-	echo "* debuggers coredumper will be used"
 
 
 
@@ -160,7 +154,6 @@ if $COMPILER \
 	src/*.cpp src/client/*.cpp \
 	src/client/DeprecatedGUI/*.cpp src/client/SkinnedGUI/*.cpp \
 	src/common/*.cpp src/server/*.cpp \
-	libs/coredumper/src/*.c \
 	$LIBZIP_GCC_PARAM \
 	$HAWKNL_GCC_PARAM \
 	-I include -I libs/pstreams \
@@ -178,7 +171,6 @@ if $COMPILER \
 	$( [ "$ACTIVATE_GDB" = "1" ] && echo "-g" ) \
 	$( [ "$X11" = "1" ] && echo "-DX11 -lX11" ) \
 	$( [ "$G15" = "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
-	$( [ "$GCOREDUMPER" = "1" ] && echo "-DGCOREDUMPER -Ilibs/coredumper/src" ) \
 	$CXXFLAGS \
 	$LDFLAGS \
 	-o bin/openlierox
