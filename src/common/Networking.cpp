@@ -162,7 +162,7 @@ static int SdlNetEventThreadMain( void * param )
 	float lastTime = GetMilliSeconds();
 	while( ! SdlNetEventThreadExit )
 	{
-		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
+		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) { // only when we have at least one socket
 		if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, (int)(max_frame_time * 1000.0f) ) > 0 ) // Wait max_frame_time
 		{
 			if(sock_out >= 0) {
@@ -178,7 +178,8 @@ static int SdlNetEventThreadMain( void * param )
 				continue; // Retry
 			}
 		}
-
+		}
+		
 		float curTime = GetMilliSeconds();
 		if(curTime - lastTime < max_frame_time) {
 			SDL_Delay( (int)( ( max_frame_time - curTime + lastTime ) * 1000.0f ) );
