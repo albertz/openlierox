@@ -164,7 +164,7 @@
 				PrecompiledHeaderFile=".\obj/Release/Game.pch"
 				AssemblerListingLocation=".\obj/Release/"
 				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName="..\..\bin"
+				ProgramDataBaseFileName="..\..\bin\vc80"
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
