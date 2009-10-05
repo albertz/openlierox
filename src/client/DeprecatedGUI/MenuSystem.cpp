@@ -719,7 +719,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 		}
 
 		// Handle the Enter key
-		if (WasKeyboardEventHappening(SDLK_RETURN) || WasKeyboardEventHappening(SDLK_KP_ENTER))
+		if (WasKeyboardEventHappening(SDLK_RETURN) || WasKeyboardEventHappening(SDLK_KP_ENTER)) {
 			if (type == LMB_YESNO)  {
 				ret = MBR_YES;
 				break;
@@ -728,7 +728,7 @@ int Menu_MessageBox(const std::string& sTitle, const std::string& sText, int typ
 				ret = MBR_OK;
 				break;
 			}
-
+		}
 
 		if(!WasKeyboardEventHappening(SDLK_ESCAPE) && !tLX->bQuitGame && ret == -1) {
 			DrawCursor(VideoPostProcessor::videoSurface());
