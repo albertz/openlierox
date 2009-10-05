@@ -78,6 +78,8 @@ MESSAGE( "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}" )
 
 PROJECT(openlierox)
 
+EXEC_PROGRAM(mkdir ARGS -p bin OUTPUT_VARIABLE DUMMY)
+
 # main includes
 INCLUDE_DIRECTORIES(optional-includes/generated)
 INCLUDE_DIRECTORIES(include)
@@ -232,13 +234,13 @@ IF(WIN32)
 				"${CMAKE_SOURCE_DIR}/build/msvc/libs/zlib.lib"
 				"${CMAKE_SOURCE_DIR}/build/msvc/libs/bgd.lib")
 
-	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME "../../../distrib/win32/OpenLieroX")
+	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME "../../../bin/OpenLieroX")
 	
 	# Add debug info to release build in linker flags
 	SET_TARGET_PROPERTIES(openlierox PROPERTIES LINK_FLAGS "${LINK_FLAGS} 
 		/LTCG
 		/DEBUG
-		/MAP:\"${CMAKE_SOURCE_DIR}/distrib/win32/OpenLieroX.map\"
+		/MAP:\"${CMAKE_SOURCE_DIR}/bin/OpenLieroX.map\"
 		/MAPINFO:EXPORTS
 		/NODEFAULTLIB:\"LIBC\"
 		/INCREMENTAL:NO")
