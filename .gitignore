@@ -7,8 +7,15 @@ build/msvc*/Release
 *.mode1v3
 *.mode2v3
 
+*.kdev*
+Doxyfile
 CMakeCache.txt
 CMakeFiles
 Makefile
 cmake_install.cmake
 bin
+*~
+
+*.idb
+*.pdb
+
