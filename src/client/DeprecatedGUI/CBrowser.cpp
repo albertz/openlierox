@@ -517,8 +517,8 @@ int CBrowser::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)
 	}
 
     // Ctrl-c or Super-c or Ctrl-Insert (copy)
-    if ((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c ||
-		((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT )) {
+    if (((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_c) ||
+		(((modstate.bCtrl || modstate.bSuper) && keysym == SDLK_INSERT ))) {
 		if (!IsSelectionEmpty())
 			copy_to_clipboard(GetSelectedText());
         return BRW_KEY_PROCESSED;
