@@ -1054,13 +1054,13 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 	if( ! bs_in->isPosAtEnd() )
 		client_version = bs_in->readString(128);
 
-	if( Version(client_version) == OLXBetaVersion(0,58,1) ) {
+	if( Version(client_version).isBanned() ) {
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
-		bs.writeString("Your Beta9 support was dropped, please download a new version at http://openlierox.sourceforge.net/");
+		bs.writeString("Your " + client_version + " support was dropped, please download a new version at http://openlierox.sourceforge.net/");
 		bs.Send(tSocket);
-		notes << "GameServer::ParseGetChallenge: client has Beta9 which is not supported." << endl;
+		notes << "GameServer::ParseGetChallenge: client has version " + client_version + " which is not supported." << endl;
 		return;
 	}
 

@@ -29,7 +29,9 @@ struct Version {
 	std::string asString() const;
 	std::string asHumanString() const;
 	std::string releaseType() const;
-
+	
+	bool isBanned() const;
+	
 	int num; // 0
 	int subnum; // 57
 	int subsubnum; // 3 (Beta-version)

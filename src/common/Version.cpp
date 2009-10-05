@@ -175,5 +175,9 @@ const Version& GetGameVersion() {
 }
 
 
+bool Version::isBanned() const {
+	return *this == OLXBetaVersion(9) || *this == OLXBetaVersion(0,58,1);
+}
+
 
 #endif  // ONLY_MACRODEF

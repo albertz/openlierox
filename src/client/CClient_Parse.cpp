@@ -361,15 +361,15 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cNetChan->Create(addr, client->tSocket);
 	}
 	
-	if( client->getServerVersion() == OLXBetaVersion(0,58,1) )
+	if( client->getServerVersion().isBanned() )
 	{
 		// There is no Beta9 release, everything that reports itself as Beta9 
 		// is pre-release and have incompatible net protocol
 		
-		notes << "Beta9 server detected - it is not supported anymore" << endl;
+		notes << "Banned server version " << client->getServerVersion().asString() << " detected - it is not supported anymore" << endl;
 		
 		client->bServerError = true;
-		client->strServerErrorMsg = "This server uses Beta9 which is not supported anymore";
+		client->strServerErrorMsg = "This server uses " + client->getServerVersion().asString() + " which is not supported anymore";
 		
 		return;
 	}
