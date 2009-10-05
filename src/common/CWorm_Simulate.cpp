@@ -422,6 +422,8 @@ NewNet::KeyState_t CWorm::NewNet_GetKeys()
 			ret.keys[NewNet::K_RIGHT] = true;
 	};
 	
+	this->NewNet_CopyWormState(oldState); // Make it as it was before
+
 	return ret;
 };
 
