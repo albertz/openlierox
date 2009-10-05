@@ -42,17 +42,23 @@
 #else // WIN32
 
 // include hash_set support
-#	ifndef STLPORT
-#		include <ext/hash_set>
-#		ifdef _GLIBCXX_DEBUG
-			using namespace __gnu_debug_def;
+#	if !defined(STLPORT)
+#		if defined(__GNUC__) &&  __GNUC_PREREQ(4,3)
+#			include <tr1/unordered_set>
+#			define hash_set std::tr1::unordered_set
 #		else
-			using namespace __gnu_cxx;
+#			include <ext/hash_set>
+#			ifdef _GLIBCXX_DEBUG
+				using namespace __gnu_debug_def;
+#			else
+				using namespace __gnu_cxx;
+#			endif
 #		endif
-#	else // !STLPORT
+#	else // STLPORT
 #		include <hash_set>
 		using std::hash_set;
-#	endif // !STLPORT
+#	endif
+
 
 // for getpwduid
 #	include <pwd.h>
