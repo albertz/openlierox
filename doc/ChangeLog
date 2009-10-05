@@ -1,3 +1,34 @@
+0.58_beta1 (2009-10-05)
+==========
+- uploadlimit check fixed + automatic measuring of speed
+- more stable network (CChannel3)
+- improved HTML viewer
+- IRC support
+- dedicated server becomes useable
+- improved connect-during-game
+- background music by Corentin Larsen
+- damage reporting (shows how much you injured a worm)
+- new game options dialog
+- ingame console can be used everywhere, also in menu
+- ingame console much more advanced, many new commands, better autocompletion
+- new debug logging system
+- Hide & Seek gamemode
+- Capture The Flag gamemode
+- Race / Team Race gamemodes
+- air jumping as an optional feature
+- extended physics engine / gamescript (still in development)
+- high-resolution level support
+- possibility to make maps infinite
+- possibility to disable minimap
+- support for Commander Keen 1-3 levels
+- game size factor (you can make everything bigger or smaller)
+- hit/damage yourself/teammembers can be enabled/disabled (aka friendly fire on/off)
+- immediate start
+- worm speed/damage/shield/friction factor
+- projectile friction factor
+- and, as usual, many further fixes which I don't want to list here
+
+
 0.57_beta8 (rev2717, 2008-10-09)
 ==========
 - Chatbox has HTML and copy&paste support
