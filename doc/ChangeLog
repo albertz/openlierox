@@ -1,3 +1,8 @@
+0.57_rc1 (2009-10-05)
+========
+- uploadlimit check fixed
+- check if upload limit settings are ok
+
 0.57_beta8 (rev2717, 2008-10-09)
 ==========
 - Chatbox has HTML and copy&paste support
