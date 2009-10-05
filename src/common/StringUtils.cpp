@@ -127,8 +127,8 @@ std::string ReadUntil(const std::string& text, char until_character) {
 }
 
 std::string	ReadUntil(FILE* fp, char until_character) {
-	static char buf[256];
-	static std::string res;
+	char buf[256];
+	std::string res;
 	res = "";
 	size_t buf_pos = 0;
 	while(true) {
