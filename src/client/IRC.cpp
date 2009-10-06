@@ -330,9 +330,9 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 		"#C0C0C0" };
 
 	std::string result;
-	for (std::string::const_iterator it = irctext.begin(); it != irctext.end(); it++)  {
+	for (std::string::const_iterator it = irctext.begin(); it != irctext.end(); )  {
 		// Check for special characters
-		if (*it < 32)  {
+		if ((unsigned char)*it < 32)  {
 			switch (*it)  {
 			case 2:  {  // Bold
 				// If the B tag is already open, consider this as an end of the bold text
@@ -352,6 +352,8 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 					result += "<b>";
 					open_tags.push_back("b");
 				}
+
+				it++;
 				continue; // Skip the character
 			} break;
 			case 3:  { // Color
@@ -393,6 +395,8 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 					result += "<u>";
 					open_tags.push_back("u");
 				}
+
+				it++;
 				continue; // Skip the character
 			} break;
 
@@ -400,12 +404,13 @@ std::string IRCClient::ircFormattingToHtml(const std::string &irctext)
 				break;
 
 			default:
+				it++;
 				continue; // Ignore the non-printable character
 			}
 		}
 
 		// Normal character
-		result += *it;
+		result += GetUtf8FromUnicode(GetNextUnicodeFromUtf8(it, irctext.end()));
 	}
 
 	// Close any open tags
