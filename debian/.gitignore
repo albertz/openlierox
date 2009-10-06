@@ -1,0 +1,6 @@
+openlierox/
+files
+openlierox.debhelper.log
+openlierox.postinst.debhelper
+openlierox.postrm.debhelper
+openlierox.substvars
