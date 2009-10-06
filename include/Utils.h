@@ -54,7 +54,7 @@ public:
 	DontCopyTag() {}
 private:
 	DontCopyTag(const DontCopyTag&) { assert(false); }
-	DontCopyTag& operator=(const DontCopyTag&) { assert(false); }
+	DontCopyTag& operator=(const DontCopyTag&) { assert(false); return *this; }
 };
 
 

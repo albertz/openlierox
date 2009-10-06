@@ -113,7 +113,7 @@ private:
 	// Don't copy instances of this class! Use SmartPointer if you want to have multiple references to a socket.
 	// You can swap two NetworkSockets though.
 	NetworkSocket(const NetworkSocket&) { assert(false); }
-	NetworkSocket& operator=(const NetworkSocket&) { assert(false); }
+	NetworkSocket& operator=(const NetworkSocket&) { assert(false); return *this; }
 public:
 	NetworkSocket(); ~NetworkSocket();
 	void swap(NetworkSocket& sock);
