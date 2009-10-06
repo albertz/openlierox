@@ -275,7 +275,7 @@ void Menu_Frame() {
 	if (OLXG15)
 		OLXG15->menuFrame();
 #endif //WITH_G15
-
+	
 	switch(tMenu->iMenuType) {
 
 		// Main

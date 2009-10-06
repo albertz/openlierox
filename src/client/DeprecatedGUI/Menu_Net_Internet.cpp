@@ -74,7 +74,7 @@ bool Menu_Net_NETInitialize()
 	cInternet.Add( new CButton(BUT_JOIN, tMenu->bmpButtons),    mi_Join,		570,440, 43,  15);
 	cInternet.Add( new CLabel("Select player:",tLX->clNormalLabel),-1,		125, 152, 180,15);
 	cInternet.Add( new CCombobox(),								mi_PlayerSelection,		225,150, 170,  19);
-	if (tLXOptions->bEnableChat)
+	if( tLXOptions->bEnableChat && tLXOptions->bEnableMiniChat )
 		cInternet.Add( new CChatWidget(),						-1,	25, 15, 585, 85 );
 
 

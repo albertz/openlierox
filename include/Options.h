@@ -241,6 +241,7 @@ struct GameOptions {
 
 	// IRC chat
 	bool	bEnableChat;
+	bool	bEnableMiniChat; // Mini chat window in Net servers list
 
 	// Audio
 	bool	bSoundOn;
