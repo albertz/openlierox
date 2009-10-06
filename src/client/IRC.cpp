@@ -475,14 +475,34 @@ void IRCClient::sendUserAuth()
 
 /////////////////////////
 // Send a message to the IRC channel, returns true if the chat has been sent
-bool IRCClient::sendChat(const std::string &text)
+bool IRCClient::sendChat(const std::string &text1)
 {
 	// Make sure we are connected
-	if (!m_socketConnected || !m_socketIsReady || m_authorizedState != AUTH_JOINED_CHANNEL || text.empty())
+	if (!m_socketConnected || !m_socketIsReady || m_authorizedState != AUTH_JOINED_CHANNEL || text1.empty())
 		return false;
 
-	// Send the text
-	m_chatSocket.Write("PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
+	std::string text(text1);
+	// Some useful chat commands
+	if( text.find("/pm ") == 0 && text.find(" ", 4) != std::string::npos )
+	{
+		// PM specified user
+		std::string user = text.substr( 4, 4 - text.find(" ", 4));
+		text = text.substr(text.find(" ", 4));
+		m_chatSocket.Write("PRIVMSG " + user + " :" + text + "\r\n");
+	}
+	else if( text.find("/nick ") == 0 )
+	{
+		m_myNick = text.substr(6);
+		m_nickUniqueNumber = -1;
+		makeNickIRCFriendly();
+		m_chatSocket.Write("NICK " + m_myNick + "\r\n");
+		text = "You changed your name to " + m_myNick;
+	}
+	else
+	{
+		// Send the text
+		m_chatSocket.Write("PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
+	}
 
 	// Route the same message back to our parser func, there's no echo in IRC
 	IRCCommand cmd;
