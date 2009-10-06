@@ -41,7 +41,7 @@ public:
 	// Parent dialog should do "if(CChatWidget::GlobalEnabled()) CChatWidget::GlobalShow();" each frame
 	// instead of calling Process() on your own GUI layout, you should only call Draw() before that
 	static bool GlobalEnabled();
-	static void GlobalSetEnabled();
+	static void GlobalSetEnabled(bool enabled = true);
 	// Show standalone chat window - it will draw some background, so it won't be transparent
 	static void GlobalProcessAndDraw(SDL_Surface * bmpDest);
 	static void GlobalDestroy();

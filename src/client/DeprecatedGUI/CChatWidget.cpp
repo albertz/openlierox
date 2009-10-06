@@ -349,9 +349,9 @@ bool CChatWidget::GlobalEnabled()
 	return GlobalChatWidget_enabled;
 }
 
-void CChatWidget::GlobalSetEnabled()
+void CChatWidget::GlobalSetEnabled(bool enabled)
 {
-	GlobalChatWidget_enabled = true;
+	GlobalChatWidget_enabled = enabled;
 }
 
 static CChatWidget * globalChat = NULL;
