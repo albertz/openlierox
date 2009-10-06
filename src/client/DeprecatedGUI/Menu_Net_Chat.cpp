@@ -40,6 +40,7 @@ static bool cChatGuiInitialized;
 enum {
 	nc_Back = 0,
 	nc_EnableChat,
+	nc_EnableMiniChat,
 	nc_Chat
 };
 
@@ -59,6 +60,9 @@ bool Menu_Net_ChatInitialize()
 	cChat.Add( new CChatWidget(), nc_Chat, 25, 140, 585, 280);
 	cChat.Add( new CCheckbox(tLXOptions->bEnableChat), nc_EnableChat, 100, 440, 20, 20);
 	cChat.Add( new CLabel("Enable", tLX->clNormalLabel), -1, 130, 440, 0, 0);
+
+	cChat.Add( new CCheckbox(tLXOptions->bEnableMiniChat), nc_EnableMiniChat, 350, 440, 20, 20);
+	cChat.Add( new CLabel("Mini chat in server list", tLX->clNormalLabel), -1, 380, 440, 0, 0);
 
 	cChatGuiInitialized = true;
 	return true;
@@ -116,11 +120,18 @@ void Menu_Net_ChatFrame(int mouse)
 						((CChatWidget *)cChat.getWidget(nc_Chat))->DisableChat();
 						ShutdownIRC();
 					}
-					else  
+					else
 					{
 						InitializeIRC();
 						((CChatWidget *)cChat.getWidget(nc_Chat))->EnableChat();
 					}
+				}
+				break;
+
+			case nc_EnableMiniChat:
+				if(ev->iEventMsg == CHK_CHANGED) {
+					PlaySoundSample(sfxGeneral.smpClick);
+					tLXOptions->bEnableMiniChat = cChat.SendMessage(nc_EnableMiniChat, CKM_GETCHECK, 1, 1) != 0;
 				}
 				break;
 		}

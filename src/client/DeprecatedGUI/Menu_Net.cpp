@@ -24,6 +24,7 @@
 #include "DeprecatedGUI/CAnimation.h"
 #include "DeprecatedGUI/CProgressbar.h"
 #include "DeprecatedGUI/CLabel.h"
+#include "DeprecatedGUI/CChatWidget.h"
 #include "AuxLib.h"
 #include "IRC.h"
 #include "DedicatedControl.h"
@@ -165,7 +166,7 @@ void Menu_NetFrame()
 	   (iNetMode != net_join)) {
 
 		cNetButtons[iNetMode-1].MouseOver(Mouse);
-		for(int i=mn_Internet; i<=mn_Chat; i++) {
+		for(int i=mn_Internet; i<=mn_Chat && mouse == 0; i++) {
 
 			cNetButtons[i].Draw(VideoPostProcessor::videoSurface());
 
@@ -174,67 +175,71 @@ void Menu_NetFrame()
 
 			if( cNetButtons[i].InBox(Mouse->X, Mouse->Y) ) {
 				cNetButtons[i].MouseOver(Mouse);
+			}
+			
+			if( (cNetButtons[i].InBox(Mouse->X, Mouse->Y) && Mouse->Up) || 
+				( i == mn_Chat && CChatWidget::GlobalEnabled() && iNetMode != net_chat ) ) {
+
+				CChatWidget::GlobalSetEnabled(false);
 				mouse = 1;
-				if(Mouse->Up) {
-					PlaySoundSample(sfxGeneral.smpClick);
 
-					// Call a shutdown on all the highest net menu's
-					Menu_Net_MainShutdown();
-					Menu_Net_LANShutdown();
-					Menu_Net_NETShutdown();
-					Menu_Net_HostShutdown();
-					Menu_Net_FavouritesShutdown();
-					Menu_Net_NewsShutdown();
-					Menu_Net_ChatShutdown();
+				PlaySoundSample(sfxGeneral.smpClick);
 
-                    iNetMode = i+1;
+				// Call a shutdown on all the highest net menu's
+				Menu_Net_MainShutdown();
+				Menu_Net_LANShutdown();
+				Menu_Net_NETShutdown();
+				Menu_Net_HostShutdown();
+				Menu_Net_FavouritesShutdown();
+				Menu_Net_NewsShutdown();
+				Menu_Net_ChatShutdown();
 
-                    // Redraw the window section
-                    DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
+                iNetMode = i+1;
 
-					// Initialize the appropriate menu
-					switch(iNetMode) {
+                // Redraw the window section
+                DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 20,140,  20,140,  620,340);
 
-						// Main
-						case net_main:
-							Menu_Net_MainInitialize();
-							break;
+				// Initialize the appropriate menu
+				switch(iNetMode) {
 
-						// LAN
-						case net_lan:
-							Menu_Net_LANInitialize();
-							break;
+					// Main
+					case net_main:
+						Menu_Net_MainInitialize();
+						break;
 
-						// Internet
-						case net_internet:
-							Menu_Net_NETInitialize();
-							break;
+					// LAN
+					case net_lan:
+						Menu_Net_LANInitialize();
+						break;
 
-						// Host
-						case net_host:
-							Menu_Net_HostInitialize();
-							break;
+					// Internet
+					case net_internet:
+						Menu_Net_NETInitialize();
+						break;
 
-						// Favourites
-						case net_favourites:
-							Menu_Net_FavouritesInitialize();
-							break;
+					// Host
+					case net_host:
+						Menu_Net_HostInitialize();
+						break;
 
-						// News
-						case net_news:
-							Menu_Net_NewsInitialize();
-							break;
+					// Favourites
+					case net_favourites:
+						Menu_Net_FavouritesInitialize();
+						break;
 
-						// Chat
-						case net_chat:
-							Menu_Net_ChatInitialize();
-							break;
-					}
+					// News
+					case net_news:
+						Menu_Net_NewsInitialize();
+						break;
+
+					// Chat
+					case net_chat:
+						Menu_Net_ChatInitialize();
+						break;
 				}
 			}
 		}
 	}
-
 
 	// Run the frame of the current menu screen
 	switch(iNetMode) {
