@@ -19,3 +19,5 @@ bin
 *.idb
 *.pdb
 
+configure-stamp
+build-stamp
