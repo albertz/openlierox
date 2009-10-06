@@ -134,15 +134,15 @@ void IRCClient::makeNickIRCFriendly()
 
 	// Nick starting with a number
 	if(m_myNick.find_first_of(S_NUMBER) == 0 )
-		*m_myNick.begin() = 'z';
+		m_myNick[0] = 'z';
 
 	// Replace the dangerous characters
 	while (m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL) != std::string::npos)
-		m_myNick[m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL)] = '_';
+		m_myNick[m_myNick.find_first_not_of(S_LETTER S_NUMBER S_SYMBOL)] = '-';
 
 	if (m_myNick.size() > 0)
-		if (m_myNick[0] == '_')
-			m_myNick[0] = 'O';
+		if (m_myNick[0] == '_' || m_myNick[0] == '-' )
+			m_myNick[0] = 'z';
 
 	m_nickUniqueNumber = -1;
 	m_updatingUserList = false;
@@ -466,6 +466,9 @@ void IRCClient::sendUserAuth()
 	std::string nick = m_myNick;
 	if (m_nickUniqueNumber >= 0)
 		nick += itoa(m_nickUniqueNumber);
+	// quakenet server doesn't like "--" or "__" or "-_" or anything like that in username
+	replace(nick, "_", "-");
+	replace(nick, "--", "-");
 	m_chatSocket.Write("USER " + nick + " ? ? :" + GetFullGameName() + "\r\n");
 	m_authorizedState = AUTH_USER_SENT;
 }
@@ -480,7 +483,6 @@ bool IRCClient::sendChat(const std::string &text)
 
 	// Send the text
 	m_chatSocket.Write("PRIVMSG " + m_chatServerChannel + " :" + text + "\r\n");
-	//notes("Menu_Net_Chat_Send(): sent %s\n", text.c_str());
 
 	// Route the same message back to our parser func, there's no echo in IRC
 	IRCCommand cmd;
