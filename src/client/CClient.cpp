@@ -1104,10 +1104,18 @@ void CClient::Frame()
 
 void CClient::NewNet_Frame()
 {
-	CBytestream packet;
+	CBytestream out, packet;
 	if( getNumWorms() <= 0 )
 		return;
-	while( NewNet::Frame(&packet) ) { };
+	out.writeByte( C2S_NEWNET_KEYS );
+	out.writeByte( getWorm(0)->getID() );
+	while( NewNet::Frame(&out) )
+	{
+		packet.Append(&out);
+		out.Clear();
+		out.writeByte( C2S_NEWNET_KEYS );
+		out.writeByte( getWorm(0)->getID() );
+	}
 	
 	if( NewNet::ChecksumRecalculated() )
 		getNetEngine()->SendNewNetChecksum();

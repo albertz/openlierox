@@ -94,6 +94,7 @@ void DisableAdvancedFeatures()
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
 	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
+	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
 	 tLXOptions->tGameInfo.features[FT_ImmediateStart] = false;
 	 tLXOptions->tGameInfo.features[FT_AllowWeaponsChange] = false;
 	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // We just ignore it now
@@ -103,7 +104,7 @@ void DisableAdvancedFeatures()
 };
 
 void CalculateCurrentState( AbsTime localTime );
-bool SendNetPacket( AbsTime localTime, int LocalPlayer, KeyState_t keys, CBytestream * bs );
+bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
 
 // --------- Net sending-receiving functions and internal stuff independent of OLX ---------
 
@@ -119,6 +120,7 @@ TimeDiff ReCalculationMinimumTimeMs = TimeDiff(150);	// Re-calculate not faster 
 TimeDiff CalculateChecksumTime = TimeDiff(10000); // Calculate checksum once per 10 seconds - should be equal for all clients
 
 int NumPlayers = -1;
+int LocalPlayer = -1;
 
 // TODO: why is it named diff but used absolute?
 AbsTime OlxTimeDiffMs; // In milliseconds
@@ -133,11 +135,6 @@ struct KeysEvent_t
 };
 
 // Sorted by player and time - time in milliseconds
-// TODO: recode this to be general Event_t structure,
-// with event types = client keypress, worm died, worm spawned, bonus spawned etc
-// so it will be compatible to newer game types requiring worm hide or change position
-// or change some worm parameters like damage multiplier
-// Also if should be serializable to send over net to support connect-during-game.
 typedef std::map< AbsTime, KeysEvent_t > EventList_t;
 EventList_t Events [MAX_WORMS];
 KeyState_t OldKeys[MAX_WORMS];
@@ -291,6 +288,9 @@ void StartRound( unsigned randomSeed )
 					cClient->getRemoteWorms()[i].Spawn( spot );
 				};
 			}
+			LocalPlayer = -1;
+			if( cClient->getNumWorms() > 0 )
+				LocalPlayer = cClient->getWorm(0)->getID();
 
 			SaveState();
 };
@@ -311,16 +311,29 @@ bool Frame( CBytestream * bs )
 	localTime.time -= localTime.time % TICK_TIME;
 
 	KeyState_t keys;
-	bool ret = false;
-	for( int i = 0; i < cClient->getNumWorms(); i++ )
+	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
 	{
-		keys = cClient->getWorm(i)->NewNet_GetKeys();
-		if( SendNetPacket( localTime, cClient->getWorm(i)->getID(), keys, bs ) )
-			ret = true;
-		cClient->getWorm(i)->inputHandler()->clearInput();
+		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) cClient->getWorm(0)->inputHandler();
+		keys.keys[K_UP] = hnd->getInputUp().isDown();
+		keys.keys[K_DOWN] = hnd->getInputDown().isDown();
+		keys.keys[K_LEFT] = hnd->getInputLeft().isDown();
+		keys.keys[K_RIGHT] = hnd->getInputRight().isDown();
+		keys.keys[K_SHOOT] = hnd->getInputShoot().isDown();
+		keys.keys[K_JUMP] = hnd->getInputJump().isDown();
+		keys.keys[K_SELWEAP] = hnd->getInputWeapon().isDown();
+		keys.keys[K_ROPE] = hnd->getInputRope().isDown();
+		if( tLXOptions->bOldSkoolRope )
+			keys.keys[K_ROPE] = ( hnd->getInputJump().isDown() && hnd->getInputWeapon().isDown() );
+		keys.keys[K_STRAFE] = hnd->getInputStrafe().isDown();
+	};
+	
+	bool ret = SendNetPacket( localTime, keys, bs );
+	if( !ret )
+	{
+		if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+			cClient->getWorm(0)->inputHandler()->clearInput();
+		CalculateCurrentState( localTime );
 	}
-	CalculateCurrentState( localTime );
-
 	return ret;
 };
 
@@ -333,7 +346,7 @@ void ReCalculateSavedState()
 	ReCalculationNeeded = false;
 
 	// Re-calculate physics if the packet received is from the most laggy client
-	AbsTime timeMin = LastPacketTime[0];
+	AbsTime timeMin = LastPacketTime[LocalPlayer];
 	for( int f=0; f<MAX_WORMS; f++ )
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
@@ -408,7 +421,7 @@ void CalculateCurrentState( AbsTime localTime )
 int NetPacketSize()
 {
 	// Change here if you'll modify Receive()/Send()
-	return 4+1; // time - 4 bytes, keypress idx - one byte
+	return 4+1;	// First 4 bytes is time, second byte - keypress idx
 }
 
 // Returns true if data was re-calculated.
@@ -437,7 +450,7 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 
 // Should be called for every gameloop frame with current key state, returns true if there's something to send
 // Draw() should be called after this func
-bool SendNetPacket( AbsTime localTime, int LocalPlayer, KeyState_t keys, CBytestream * bs )
+bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
 	if( keys == OldKeys[ LocalPlayer ] &&
 		localTime < LastPacketTime[ LocalPlayer ] + PingTimeMs ) // Do not flood the net with non-changed keys
@@ -445,8 +458,6 @@ bool SendNetPacket( AbsTime localTime, int LocalPlayer, KeyState_t keys, CBytest
 
 	KeyState_t changedKeys = OldKeys[ LocalPlayer ] ^ keys;
 
-	bs->writeByte( C2S_NEWNET_KEYS );
-	bs->writeByte( LocalPlayer );
 	bs->writeInt( (int)localTime.time, 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 	int changedKeyIdx = changedKeys.getFirstPressedKey();
 	if( changedKeyIdx == -1 )
