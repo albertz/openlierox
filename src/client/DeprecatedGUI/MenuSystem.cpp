@@ -324,7 +324,6 @@ void Menu_Frame() {
 	if (!tMenu->bForbidConsole)  {
 		Con_Process(tLX->fDeltaTime);
 		Con_Draw(VideoPostProcessor::videoSurface());
-		Menu_CheckForNewDevelopmentVersion();
 	}
 	tMenu->bForbidConsole = false; // Reset it here, it might get recovered next frame
 
@@ -2580,87 +2579,4 @@ void Menu_Current_Shutdown() {
 	Menu_CGuiSkinShutdown();*/
 }
 	
-
-void Menu_CheckForNewDevelopmentVersion()
-{
-	if( !tLXOptions->bCheckForUpdates || GetGameVersion().revnum == 0 )
-		return;
-
-	static bool checked = false;
-	if( checked )
-	{
-		checked = true;
-		return;
-	}
-
-#ifdef WIN32
-	static const std::string InstallationInstructions = "Would you like to download new version?\n"
-														"(close the application before overwriting executable file)";
-	static const std::string RevSearchString = "revision=";
-	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe?view=markup&revision=HEAD";
-	static const std::string OpenInBrowserURL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox/distrib/win32/OpenLieroX.exe";
-	static const int RevNumDiff = 1; // We're compiling revision 100, and commit .EXE in revision 101
-#else
-#ifdef __APPLE__
-	static const std::string InstallationInstructions = "Mail Albert Zeyer to ich@az2000.de to compile MacOsX package for you, or compile it yourself\n"
-														"Would you like detailed instructions how to update and compile it yourself?";
-	static const std::string RevSearchString = "Revision ";
-	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,12367.0.html";
-	static const int RevNumDiff = 1;
-#else
-	// Linux and everything else
-	static const std::string InstallationInstructions = "Execute \"svn update ; cmake . ; make\" in terminal in openlierox directory\n"
-														"Would you like detailed instructions how to update and compile it?";
-	static const std::string RevSearchString = "Revision ";
-	static const std::string URL = "http://openlierox.svn.sourceforge.net/viewvc/openlierox?view=rev&revision=HEAD";
-	static const std::string OpenInBrowserURL = "http://lxalliance.net/forum/index.php/topic,5158.0.html";
-	static const int RevNumDiff = 1;
-#endif
-#endif
-
-	
-	CHttp * request = &tMenu->CheckForNewDevelopmentVersion_http;
-	if( request->GetUrl() == "" )
-		request->RequestData(URL);
-	if( request->ProcessRequest() == HTTP_PROC_PROCESSING )
-		return;
-	hints << "Checking for updates" << endl;
-	checked = true;
-	if( request->ProcessRequest() == HTTP_PROC_ERROR )
-	{
-		hints << "Checking for updates - error in retrieving webpage" << endl;
-		return;
-	}
-
-	std::string::size_type revSearch = request->GetData().find(RevSearchString);
-	if( revSearch == std::string::npos )
-	{
-		hints << "Checking for updates - error in parsing webpage - no rev" << endl;
-		return;
-	}
-	int rev = atoi( request->GetData().substr(revSearch + RevSearchString.size()) );
-	if( rev == 0 )
-	{
-		hints << "Checking for updates - error in parsing webpage - wrong rev" << endl;
-		return;
-	}
-	if( rev <= GetGameVersion().revnum + RevNumDiff )
-	{
-		hints << "Checking for updates - we have latest revision" << endl;
-		return;
-	}
-	hints << "New development version rev. " << rev << " available - yours is " << GetGameVersion().revnum << endl;
-	
-	MessageBoxReturnType ret = 
-		Menu_MessageBox( "New development version available", 
-						"You are using revision " + itoa(GetGameVersion().revnum) +
-						", and newer revision " + itoa(rev) + " available\n" + 
-						"You SHOULD update it, especially if you are beta-tester\n" +
-						InstallationInstructions, LMB_YESNO );
-
-	if( ret == MBR_YES )
-		OpenLinkInExternBrowser( OpenInBrowserURL );
-}
-
 } // namespace DeprecatedGUI

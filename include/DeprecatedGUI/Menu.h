@@ -461,8 +461,6 @@ void    Menu_redrawBufferRect(int x, int y, int w, int h);
 void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
 
-void	Menu_CheckForNewDevelopmentVersion(); // Blocks when showing message to user
-
 // Server list
 void		Menu_SvrList_Clear();
 void        Menu_SvrList_ClearAuto();
