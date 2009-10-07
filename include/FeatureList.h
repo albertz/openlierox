@@ -139,7 +139,6 @@ enum FeatureIndex {
 	FT_Race_Rounds,
 	FT_Race_AllowWeapons,
 	FT_Race_CheckPointRadius,
-	FT_TextText,
  
  	__FTI_BOTTOM
 };
