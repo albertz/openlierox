@@ -104,6 +104,8 @@ Feature featureArray[] = {
 			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	true),
 	Feature("Race_CheckPointRadius", "Checkpoint radius", "The radius of the checkpoints (bigger value makes race easier)",
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
+	Feature("TextText", "Text text", "Text text test feature",
+			"lalala", "lalala",		Version(),				GIG_Other,	ALT_DevKnownUnstable, true, true),
 
 	Feature::Unset()
 };

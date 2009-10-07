@@ -76,7 +76,7 @@ struct Feature {
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, 
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char * unset, const char * def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
 				bool u = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), 
@@ -139,6 +139,7 @@ enum FeatureIndex {
 	FT_Race_Rounds,
 	FT_Race_AllowWeapons,
 	FT_Race_CheckPointRadius,
+	FT_TextText,
  
  	__FTI_BOTTOM
 };

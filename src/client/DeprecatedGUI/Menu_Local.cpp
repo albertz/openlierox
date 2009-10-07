@@ -924,7 +924,7 @@ static void initFeaturesList(CListview* l)
 			}
 			else
 			{
-				int textboxSize = 80;
+				int textboxSize = 228;
 				if( it->second.haveMinMax() )
 				{
 					int imin=0, imax=0;
