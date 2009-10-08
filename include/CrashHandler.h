@@ -16,6 +16,7 @@ public:
 	static void init();
 	static void uninit();
 	static CrashHandler* get();
+	static bool recoverAfterCrash;
 	
 	// you can temporarly disable it (and then enable it again)
 	virtual void disable() {}
