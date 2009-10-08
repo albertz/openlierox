@@ -167,7 +167,7 @@ IF(WIN32)
 	ELSE(DEBUG)
 		ADD_DEFINITIONS(${OPTIMIZE_COMPILER_FLAG})
 	ENDIF(DEBUG)
-	INCLUDE_DIRECTORIES(${OLXROOTDIR}//libs/hawknl/include
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/hawknl/include
 				${OLXROOTDIR}/libs/hawknl/src
 				${OLXROOTDIR}/libs/libzip
 				${OLXROOTDIR}/libs/boost_process)
@@ -177,10 +177,6 @@ ELSE(WIN32)
 	EXEC_PROGRAM(sh ARGS ${OLXROOTDIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 	string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 	MESSAGE( "OLX_VERSION = ${OLXVER}" )
-
-	EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
-	string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
-	ADD_DEFINITIONS(${SDLCFLAGS})
 
 	ADD_DEFINITIONS("-pthread")
 
@@ -192,6 +188,17 @@ IF(OPTIM_PROJECTILES)
 	SET_SOURCE_FILES_PROPERTIES(	${OLXROOTDIR}/src/common/PhysicsLX56_Projectiles.cpp 
 						PROPERTIES COMPILE_FLAGS ${OPTIMIZE_COMPILER_FLAG})
 ENDIF(OPTIM_PROJECTILES)
+
+if(WIN32)
+elseif(APPLE)
+	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL.framework/Headers)
+	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_image.framework/Headers)
+	INCLUDE_DIRECTORIES(/Library/Frameworks/SDL_mixer.framework/Headers)
+else()
+	EXEC_PROGRAM(sdl-config ARGS --cflags OUTPUT_VARIABLE SDLCFLAGS)
+	string(REGEX REPLACE "[\r\n]" " " SDLCFLAGS "${SDLCFLAGS}")
+	ADD_DEFINITIONS(${SDLCFLAGS})
+endif()
 
 
 IF(X11)
@@ -215,10 +222,9 @@ IF(PYTHON_DED_EMBEDDED)
 ENDIF(PYTHON_DED_EMBEDDED)
 
 
-
 SET(LIBS SDL SDL_image ${PYTHONLIBS})
 
-IF(WIN32)
+if(WIN32)
 	SET(LIBS ${LIBS} SDL_mixer wsock32 wininet dbghelp
 				"${OLXROOTDIR}/build/msvc/libs/SDLmain.lib"
 				"${OLXROOTDIR}/build/msvc/libs/libxml2.lib"
@@ -226,15 +232,17 @@ IF(WIN32)
 				"${OLXROOTDIR}/build/msvc/libs/libzip.lib"
 				"${OLXROOTDIR}/build/msvc/libs/zlib.lib"
 				"${OLXROOTDIR}/build/msvc/libs/bgd.lib")
-ELSE(WIN32)
+elseif(APPLE)
+	link_directories(/Library/Frameworks/SDL.framework)
+	link_directories(/Library/Frameworks/SDL_mixer.framework)
+	link_directories(/Library/Frameworks/SDL_image.framework)
+	link_directories(/Library/Frameworks/UnixImageIO.framework)
+else()
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
+endif()
 
-	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
-
-	IF (NOT DEDICATED_ONLY)
-		SET(LIBS ${LIBS} SDL_mixer gd)
-	ENDIF (NOT DEDICATED_ONLY)
+if(unix)
 	IF (NOT HAWKNL_BUILTIN)
 		SET(LIBS ${LIBS} NL)
 	ENDIF (NOT HAWKNL_BUILTIN)
@@ -251,7 +259,13 @@ ELSE(WIN32)
 		SET(LIBS ${LIBS} g15daemon_client g15render)
 	ENDIF (G15)
 
-ENDIF(WIN32)
+	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
+endif(unix)
 
-
-
+if(apple)
+	SET(LIBS ${LIBS} SDL_mixer UnixImageIO)
+elif(unix)
+	IF (NOT DEDICATED_ONLY)
+		SET(LIBS ${LIBS} SDL_mixer gd)
+	ENDIF (NOT DEDICATED_ONLY)
+endif()
