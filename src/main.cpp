@@ -657,6 +657,8 @@ static int MainLoopThread(void*) {
 		inMainGameLoop = true;
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->GameLoopStart_Signal();
+
+		CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
 		
 		//
         // Main game loop
@@ -690,13 +692,15 @@ static int MainLoopThread(void*) {
 			CapFPS();
 		}
 		
+		CrashHandler::recoverAfterCrash = false;
+		
 		PhysicsEngine::Get()->uninitGame();
 		
 		notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
 		inMainGameLoop = false;
 		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->GameLoopEnd_Signal();
-		
+			DedicatedControl::Get()->GameLoopEnd_Signal();		
+
 		cCache.ClearExtraEntries(); // Game ended - clear cache
 		
 	}
