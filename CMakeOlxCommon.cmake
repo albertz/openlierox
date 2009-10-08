@@ -6,12 +6,12 @@ IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(SET CMP0005 OLD)
 	cmake_policy(SET CMP0003 OLD)
 	cmake_policy(SET CMP0011 OLD)
-	include(PCHSupport_26.cmake)
+	include(${OLXROOTDIR}/PCHSupport_26.cmake)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 
 IF(PCH)
-	EXEC_PROGRAM(./update_precompiled_header.sh OUTPUT_VARIABLE NULL)
-	ADD_PRECOMPILED_HEADER(openlierox include/PrecompiledHeader.hpp 1)
+	EXEC_PROGRAM(./${OLXROOTDIR}/update_precompiled_header.sh OUTPUT_VARIABLE NULL)
+	ADD_PRECOMPILED_HEADER(openlierox ${OLXROOTDIR}/include/PrecompiledHeader.hpp 1)
 ENDIF(PCH)
 
 
@@ -85,12 +85,12 @@ PROJECT(openlierox)
 EXEC_PROGRAM(mkdir ARGS -p bin OUTPUT_VARIABLE DUMMY)
 
 # main includes
-INCLUDE_DIRECTORIES(optional-includes/generated)
-INCLUDE_DIRECTORIES(include)
-INCLUDE_DIRECTORIES(libs/pstreams)
+INCLUDE_DIRECTORIES(${OLXROOTDIR}/optional-includes/generated)
+INCLUDE_DIRECTORIES(${OLXROOTDIR}/include)
+INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/pstreams)
 
 IF(ADVASSERT)
-	INCLUDE_DIRECTORIES(optional-includes/advanced-assert)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/optional-includes/advanced-assert)
 ENDIF(ADVASSERT)
 
 # TODO: don't hardcode path here
@@ -108,32 +108,32 @@ AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/src/server SERVER_SRCS)
 SET(ALL_SRCS ${CLIENT_SRCS} ${CLIENT_SRCS_GUI_OLD} ${CLIENT_SRCS_GUI_NEW} ${COMMON_SRCS} ${SERVER_SRCS})
 
 IF (GCOREDUMPER)
-	INCLUDE_DIRECTORIES(libs/coredumper/src)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/coredumper/src)
 	ADD_DEFINITIONS(-DGCOREDUMPER)
-	AUX_SOURCE_DIRECTORY(libs/coredumper/src COREDUMPER_SRCS)
+	AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/libs/coredumper/src COREDUMPER_SRCS)
 	SET(ALL_SRCS ${ALL_SRCS} ${COREDUMPER_SRCS})
 ENDIF (GCOREDUMPER)
 
 IF (HAWKNL_BUILTIN)
-	INCLUDE_DIRECTORIES(libs/hawknl/include)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/crc.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/errorstr.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/nl.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/sock.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/group.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/loopback.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/err.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/thread.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/mutex.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/condition.c)
-	SET(ALL_SRCS ${ALL_SRCS} libs/hawknl/src/nltime.c)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/hawknl/include)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/crc.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/errorstr.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/nl.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/sock.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/group.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/loopback.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/err.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/thread.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/mutex.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/condition.c)
+	SET(ALL_SRCS ${ALL_SRCS} ${OLXROOTDIR}/libs/hawknl/src/nltime.c)
 ELSE (HAWKNL_BUILTIN)
 	INCLUDE_DIRECTORIES(/usr/include/hawknl)
 ENDIF (HAWKNL_BUILTIN)
 
 IF (LIBZIP_BUILTIN)
-	INCLUDE_DIRECTORIES(libs/libzip)
-	AUX_SOURCE_DIRECTORY(libs/libzip LIBZIP_SRCS)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/libzip)
+	AUX_SOURCE_DIRECTORY(${OLXROOTDIR}/libs/libzip LIBZIP_SRCS)
 	SET(ALL_SRCS ${ALL_SRCS} ${LIBZIP_SRCS})
 ENDIF (LIBZIP_BUILTIN)
 
@@ -154,7 +154,7 @@ IF(DEBUG)
 ENDIF(DEBUG)
 
 IF(MEMSTATS)
-	ADD_DEFINITIONS(-include optional-includes/memdebug/memstats.h)
+	ADD_DEFINITIONS(-include ${OLXROOTDIR}/optional-includes/memdebug/memstats.h)
 ENDIF(MEMSTATS)
 
 
@@ -167,14 +167,14 @@ IF(WIN32)
 	ELSE(DEBUG)
 		ADD_DEFINITIONS(${OPTIMIZE_COMPILER_FLAG})
 	ENDIF(DEBUG)
-	INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/libs/hawknl/include
-				${CMAKE_SOURCE_DIR}/libs/hawknl/src
-				${CMAKE_SOURCE_DIR}/libs/libzip
-				${CMAKE_SOURCE_DIR}/libs/boost_process)
+	INCLUDE_DIRECTORIES(${OLXROOTDIR}//libs/hawknl/include
+				${OLXROOTDIR}/libs/hawknl/src
+				${OLXROOTDIR}/libs/libzip
+				${OLXROOTDIR}/libs/boost_process)
 ELSE(WIN32)
 	ADD_DEFINITIONS(-Wall)
 
-	EXEC_PROGRAM(sh ARGS ${CMAKE_CURRENT_SOURCE_DIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
+	EXEC_PROGRAM(sh ARGS ${OLXROOTDIR}/get_version.sh OUTPUT_VARIABLE OLXVER)
 	string(REGEX REPLACE "[\r\n]" " " OLXVER "${OLXVER}")
 	MESSAGE( "OLX_VERSION = ${OLXVER}" )
 
@@ -189,7 +189,7 @@ ENDIF(WIN32)
 
 IF(OPTIM_PROJECTILES)
 	#Always optimize these files - they make debug build unusable otherwise
-	SET_SOURCE_FILES_PROPERTIES(	src/common/PhysicsLX56_Projectiles.cpp 
+	SET_SOURCE_FILES_PROPERTIES(	${OLXROOTDIR}/src/common/PhysicsLX56_Projectiles.cpp 
 						PROPERTIES COMPILE_FLAGS ${OPTIMIZE_COMPILER_FLAG})
 ENDIF(OPTIM_PROJECTILES)
 
@@ -220,12 +220,12 @@ SET(LIBS SDL SDL_image ${PYTHONLIBS})
 
 IF(WIN32)
 	SET(LIBS ${LIBS} SDL_mixer wsock32 wininet dbghelp
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/SDLmain.lib"
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libxml2.lib"
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/NLstatic.lib"
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/libzip.lib"
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/zlib.lib"
-				"${CMAKE_SOURCE_DIR}/build/msvc/libs/bgd.lib")
+				"${OLXROOTDIR}/build/msvc/libs/SDLmain.lib"
+				"${OLXROOTDIR}/build/msvc/libs/libxml2.lib"
+				"${OLXROOTDIR}/build/msvc/libs/NLstatic.lib"
+				"${OLXROOTDIR}/build/msvc/libs/libzip.lib"
+				"${OLXROOTDIR}/build/msvc/libs/zlib.lib"
+				"${OLXROOTDIR}/build/msvc/libs/bgd.lib")
 ELSE(WIN32)
 	EXEC_PROGRAM(sdl-config ARGS --libs OUTPUT_VARIABLE SDLLIBS)
 	STRING(REGEX REPLACE "[\r\n]" " " SDLLIBS "${SDLLIBS}")
