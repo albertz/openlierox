@@ -441,17 +441,24 @@ void CFont::DrawGlyph(SDL_Surface *dst, int x, int y, Color col, UnicodeChar c)
 ///////////////////
 // Calculate the width of a string of text
 int CFont::GetWidth(const std::string& buf) {
-	int length = 0;
+	int length = 0, maxlength = 0;
 	short l;
 
 	// Calculate the length of the text
 	for (std::string::const_iterator p = buf.begin(); p != buf.end();) {
+		if( *p == '\n' ) {
+			length = 0;
+			p++;
+			continue;
+		}
 		l = TranslateCharacter(p, buf.end());
 		if (l != -1)
 			length += FontWidth[l] + Spacing;
+		if( length > maxlength )
+			maxlength = length;
 	}
 
-	return length;
+	return maxlength;
 }
 
 /////////////////
