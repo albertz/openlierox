@@ -388,13 +388,14 @@ mapCreate:
 			return false;
 		}
 		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
-		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
 			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
 			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
 			return false;
 		}
+
+		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 	}
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 
