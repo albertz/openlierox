@@ -1679,8 +1679,9 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 	
 	// Start the game
-	if(!cServer->StartGame()) {
-		caller->writeMsg("cannot start game, got some error");
+	std::string errMsg;
+	if(!cServer->StartGame(&errMsg)) {
+		caller->writeMsg("cannot start game, got error: " + errMsg);
 		cCache.ClearExtraEntries(); // just to be sure
 		return;
 	}
@@ -2000,20 +2001,13 @@ void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 
 
 
-
-/*
-COMMAND(connect, "connect to server", "serveraddress", 1, 1);
-void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	JoinServer(params[0], params[1], "");
-}
-*/
 COMMAND(dumpGameState, "dump game state", "", 0, 0);
 void Cmd_dumpGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	GameState state = currentGameState();
 	caller->writeMsg("GameState: " + GameStateAsString(state), CNC_DEV);
 	if(state == S_INACTIVE) return;
-	if(cServer && cServer->isServerRunning()) cServer->DumpGameState();
-	else if(cClient) cClient->DumpGameState();
+	if(cServer && cServer->isServerRunning()) cServer->DumpGameState(caller);
+	else if(cClient) cClient->DumpGameState(caller);
 	else caller->writeMsg("server nor client correctly initialised", CNC_ERROR);
 }
 

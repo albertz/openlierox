@@ -44,6 +44,8 @@ bool IniReader::Parse() {
 		unsigned char c = 0;
 		if(fread(&c, 1, 1, f) == 0) break;
 
+		if(c == '\r') continue; // ignore this
+		
 		switch(state) {
 		case S_DEFAULT:
 			if(c >= 128) break; // just ignore unicode-stuff when we are in this state (UTF8 bytes at beginning are also handled by this)
