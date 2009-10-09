@@ -168,7 +168,7 @@ void AutoSetupHTTPProxy()
 
 //////////////
 // Contructor
-CChunkParser::CChunkParser(std::string *pure_data, size_t *final_length, size_t *received)
+CHttp::CChunkParser::CChunkParser(std::string *pure_data, size_t *final_length, size_t *received)
 {
 	Reset();
 	sPureData = pure_data;
@@ -179,7 +179,7 @@ CChunkParser::CChunkParser(std::string *pure_data, size_t *final_length, size_t 
 //////////////////
 // Parse a next character from the received data
 // NOTE: the caller is responsible for a valid iterator
-bool CChunkParser::ParseNext(char c)
+bool CHttp::CChunkParser::ParseNext(char c)
 {
 	switch (iState)  {
 	// Reading the chunk length
@@ -249,7 +249,7 @@ bool CChunkParser::ParseNext(char c)
 
 ////////////
 // Reset the state and all variables and prepare for a new reading
-void CChunkParser::Reset()
+void CHttp::CChunkParser::Reset()
 {
 	iState = CHPAR_LENREAD;
 	iNextState = CHPAR_LENREAD;
@@ -1294,7 +1294,7 @@ int CHttp::ReadAndProcessData()
 /////////////////
 // Process the GET request
 // NOTE: the tMutex must be always locked before calling this!
-int CHttp::ProcessGET()
+HttpProc_t CHttp::ProcessGET()
 {
 	assert(iAction == htaGet);
 
@@ -1348,7 +1348,7 @@ int CHttp::ProcessGET()
 /////////////////
 // Process posting data on the server
 // NOTE: the tMutex must be always locked before calling this!
-int CHttp::ProcessPOST()
+HttpProc_t CHttp::ProcessPOST()
 {
 	assert(iAction == htaPost);
 
@@ -1447,10 +1447,10 @@ int CHttp::ProcessPOST()
 //////////////////
 // Returns result of the last call of the processing function
 // TODO: get rid of this, use events instead
-int CHttp::ProcessRequest()
+HttpProc_t CHttp::ProcessRequest()
 {
 	Lock();
-	int res = iProcessingResult;
+	HttpProc_t res = iProcessingResult;
 	Unlock();
 	if (res != HTTP_PROC_PROCESSING)  {
 		if (bThreadRunning)

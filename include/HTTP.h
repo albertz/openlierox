@@ -40,46 +40,6 @@ void AutoSetupHTTPProxy();
 // Classes
 //
 
-// HTTP Chunk parsing states
-enum  {
-	CHPAR_SKIPCRLF,
-	CHPAR_LENREAD,
-	CHPAR_DATAREAD,
-	CHPAR_FOOTERREAD
-};
-
-// HTTP Chunk parsing class
-class CChunkParser  {
-public:
-	CChunkParser(std::string *pure_data, size_t *final_length, size_t *received); 
-
-	CChunkParser& operator=(const CChunkParser& chunk)  {
-		iState = chunk.iState;
-		iNextState = chunk.iNextState;
-		sChunkLenStr = chunk.sChunkLenStr;
-		iCurRead = chunk.iCurRead;
-		iCurLength = chunk.iCurLength;
-
-		return *this;
-	}
-
-private:
-	std::string *sPureData;
-	size_t		*iFinalLength;
-	size_t		*iReceived;
-
-	// Internal
-	int			iState;
-	int			iNextState;  // What state should come after the current one (used when iState = CHPAR_SKIPBLANK)
-	std::string sChunkLenStr;  // Current chunk length as a string (temporary variable)
-	size_t		iCurRead;  // How many bytes read from the current chunk
-	size_t		iCurLength;  // How many bytes does the current chunk have
-
-public:
-	bool	ParseNext(char c);
-	void	Reset();
-};
-
 // HTTP Post Field structure
 class HTTPPostField  {
 private:
@@ -150,18 +110,73 @@ enum  {
 };
 
 // HTTP processing results
-enum  {
+enum HttpProc_t {
 	HTTP_PROC_ERROR = -1,
 	HTTP_PROC_PROCESSING = 0,
 	HTTP_PROC_FINISHED = 1
+};
+
+class CHttpBase
+{
+	public:
+	CHttpBase() { };
+	~CHttpBase() { };
+
+	enum Action  {
+		htaGet = 0,
+		htaHead,
+		htaPost
+	};
+
+	struct HttpEventData  {
+		HttpEventData(CHttpBase *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
+		CHttpBase *cHttp;
+		bool bSucceeded;
+	};
+	
+	Event<HttpEventData>	onFinished;
+	
+	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
+	// TODO: Maybe do the proxy string global?
+	virtual void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "") = 0;
+	virtual void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "") = 0;
+	virtual void				RequestData(const std::string& url, const std::string& proxy = "") = 0;
+	virtual HttpProc_t			ProcessRequest() = 0;
+	virtual void				CancelProcessing() = 0;
+	virtual void				ClearReceivedData() = 0;
+	virtual HttpError			GetError() const = 0;
+	virtual const std::string&	GetData() const = 0;
+	virtual const std::string&	GetMimeType() const = 0;
+	virtual const std::string&	GetDataToSend() const = 0;
+	virtual size_t				GetDataToSendLength() const = 0;
+	virtual size_t				GetDataLength() const = 0;
+	virtual size_t				GetReceivedDataLen() const = 0;
+	virtual size_t				GetSentDataLen() const = 0;
+	virtual bool				RequestedData()	const = 0;
+
+	virtual TimeDiff			GetDownloadTime() const = 0;
+	virtual TimeDiff			GetUploadTime()	const = 0;
+
+	virtual float				GetDownloadSpeed() const = 0;
+	virtual float				GetUploadSpeed() const = 0;
+
+	virtual const std::string&	GetHostName() const = 0;
+	virtual const std::string&	GetUrl() const = 0;
+	virtual bool				IsRedirecting() const = 0;
+
+private:
+	// they are not allowed atm
+	CHttpBase(const CHttpBase& oth)  { operator= (oth); }
+	CHttpBase& operator=(const CHttpBase& http);
 };
 
 struct HttpThread;
 struct HttpRedirectEventData;
 struct HttpRetryEventData;
 
-// HTTP class
-class CHttp  { friend struct HttpThread;
+// HTTP built-in class - rather buggy
+class CHttp: public CHttpBase { 
+	friend struct HttpThread;
 public:
 	CHttp();
 	~CHttp();
@@ -171,11 +186,46 @@ private:
 	CHttp(const CHttp& oth)  { operator= (oth); }
 	CHttp& operator=(const CHttp& http);
 
-	enum Action  {
-		htaGet = 0,
-		htaHead,
-		htaPost
+	// HTTP Chunk parsing states
+	enum  {
+		CHPAR_SKIPCRLF,
+		CHPAR_LENREAD,
+		CHPAR_DATAREAD,
+		CHPAR_FOOTERREAD
 	};
+
+	// HTTP Chunk parsing class
+	class CChunkParser  {
+	public:
+		CChunkParser(std::string *pure_data, size_t *final_length, size_t *received); 
+
+		CChunkParser& operator=(const CChunkParser& chunk)  {
+			iState = chunk.iState;
+			iNextState = chunk.iNextState;
+			sChunkLenStr = chunk.sChunkLenStr;
+			iCurRead = chunk.iCurRead;
+			iCurLength = chunk.iCurLength;
+
+			return *this;
+		}
+
+	private:
+		std::string *sPureData;
+		size_t		*iFinalLength;
+		size_t		*iReceived;
+
+		// Internal
+		int			iState;
+		int			iNextState;  // What state should come after the current one (used when iState = CHPAR_SKIPBLANK)
+		std::string sChunkLenStr;  // Current chunk length as a string (temporary variable)
+		size_t		iCurRead;  // How many bytes read from the current chunk
+		size_t		iCurLength;  // How many bytes does the current chunk have
+
+	public:
+		bool	ParseNext(char c);
+		void	Reset();
+	};
+
 	
 	std::string		sHost;
 	std::string		sUrl;
@@ -199,7 +249,7 @@ private:
 	mutable SDL_mutex	*tMutex;
 	bool			bThreadRunning;
 
-	int				iProcessingResult;  // Result of the last call of the ProcessInternal function
+	HttpProc_t		iProcessingResult;  // Result of the last call of the ProcessInternal function
 
 	size_t			iDataLength;
 	size_t			iDataReceived;
@@ -260,25 +310,16 @@ private:
 	void				HttpThread_onRetry(SmartPointer<HttpRetryEventData>);
 	void				HttpThread_onRedirect(SmartPointer<HttpRedirectEventData>);
 	
-	int					ProcessGET();
-	int					ProcessPOST();
-	int					ProcessHEAD();
+	HttpProc_t			ProcessGET();
+	HttpProc_t			ProcessPOST();
+	HttpProc_t			ProcessHEAD();
 
 public:
-	struct HttpEventData  {
-		HttpEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
-		CHttp *cHttp;
-		bool bSucceeded;
-	};
 	
-	Event<HttpEventData>	onFinished;
-	
-	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
-	// TODO: Maybe do the proxy string global?
 	void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
 	void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "");
 	void				RequestData(const std::string& url, const std::string& proxy = "");
-	int					ProcessRequest();
+	HttpProc_t			ProcessRequest();
 	void				CancelProcessing();
 	void				ClearReceivedData()			{ Lock(); sPureData = ""; Unlock(); }
 	HttpError			GetError() const;
