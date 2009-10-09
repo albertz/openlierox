@@ -17,6 +17,7 @@
 - Race / Team Race gamemodes
 - air jumping as an optional feature
 - extended physics engine / gamescript (still in development)
+- physics should be exactly like LX56
 - high-resolution level support
 - possibility to make maps infinite
 - possibility to disable minimap
@@ -26,6 +27,7 @@
 - immediate start
 - worm speed/damage/shield/friction factor
 - projectile friction factor
+- select weapons ingame (chat command /weapons)
 - and, as usual, many further fixes which I don't want to list here
 
 
