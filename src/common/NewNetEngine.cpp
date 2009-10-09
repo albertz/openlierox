@@ -90,10 +90,16 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 
 void DisableAdvancedFeatures()
 {
+	return;
+	
+	// TODO: fix this
+	// Overwriting the user settings is absolutly wrong and *no option*!
+	// The specific code parts should be fixed (or at least workarounds should be made in
+	// the related code).
+	
 	 // Disables bonuses and connect-during-game for now, 
 	 // I can add bonuses but connect-during-game is complicated
 	 tLXOptions->tGameInfo.bBonusesOn = false;
-	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
 	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
 	 tLXOptions->tGameInfo.features[FT_ImmediateStart] = false;
 	 tLXOptions->tGameInfo.features[FT_AllowWeaponsChange] = false;
@@ -101,7 +107,7 @@ void DisableAdvancedFeatures()
 	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
 	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
 	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
-};
+}
 
 void CalculateCurrentState( AbsTime localTime );
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
