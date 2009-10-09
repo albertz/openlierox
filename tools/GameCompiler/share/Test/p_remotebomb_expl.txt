@@ -1,3 +1,4 @@
+# this is the remotebomb explosion itself
 
 [General]
 Type = PRJ_CIRCLE
@@ -18,7 +19,7 @@ Damage = 50
 
 [Action1]
 Event = GrowTimer
-Type = Nothing
+Type = ChangeRadius
 ChangeRadius = 3,3
 
 [GrowTimer]

@@ -1,8 +1,9 @@
+# TODO/Note: incomplete ?
 
 [General]
 Type = PRJ_CIRCLE
 Colour1 = 0,0,0,0
-ActionNum = 1
+#ActionNum = 1
 Gravity = 0
 Timer = 0.1
 AttractiveForce = -100000000
