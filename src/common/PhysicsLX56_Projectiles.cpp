@@ -145,6 +145,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const LX56Pr
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->getPos() - vFrameOldPos;
 		float len = NormalizeVector( &dif );
+		len = std::min(len, float(cClient->getMap()->GetWidth()) * cClient->getMap()->GetHeight());
 		
 		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
 		for (float p = 0.0f; p <= len; p += 2.0f) {
