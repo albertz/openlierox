@@ -121,8 +121,8 @@ enum HttpProc_t {
 class CHttpBase
 {
 public:
-	CHttpBase() { };
-	~CHttpBase() { };
+	CHttpBase() {}
+	virtual ~CHttpBase() {}
 
 	enum Action  {
 		htaGet = 0,
