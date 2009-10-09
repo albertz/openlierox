@@ -334,7 +334,7 @@ float CHttp::GetDownloadSpeed() const
 	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
 	double d = 0;
 	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &d);
-	return d;
+	return float(d);
 }
 
 float CHttp::GetUploadSpeed() const
@@ -342,7 +342,7 @@ float CHttp::GetUploadSpeed() const
 	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
 	double d = 0;
 	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &d);
-	return d;
+	return float(d);
 }
 
 std::string CHttp::GetHostName() const
