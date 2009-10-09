@@ -1323,6 +1323,7 @@ void CGameScript::InitDefaultCompilerKeywords()
 		compilerKeywords["GoThrough"] =  PJ_GOTHROUGH;
 		compilerKeywords["PlaySound"] =  PJ_PLAYSOUND;
 		compilerKeywords["InjureWorm"] =  PJ_INJUREWORM;
+		compilerKeywords["ChangeRadius"] = PJ_ChangeRadius;
 		compilerKeywords["OverwriteOwnSpeed"] =  PJ_OverwriteOwnSpeed;
 		compilerKeywords["MultiplyOwnSpeed"] =  PJ_MultiplyOwnSpeed;
 		compilerKeywords["DiffOwnSpeed"] =  PJ_DiffOwnSpeed;
@@ -1334,6 +1335,7 @@ void CGameScript::InitDefaultCompilerKeywords()
 		compilerKeywords["HeadingToNextOtherWorm"] =  PJ_HeadingToNextOtherWorm;
 		compilerKeywords["HeadingToNextEnemyWorm"] =  PJ_HeadingToNextEnemyWorm;
 		compilerKeywords["HeadingToNextTeamMate"] =  PJ_HeadingToNextTeamMate;
+		compilerKeywords["HeadTargetToUs"] =  PJ_HeadTargetToUs;
 		
 		// event types
 		compilerKeywords["Timer"] =  Proj_Event::PET_TIMER; 
@@ -2054,7 +2056,7 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const Ini
 		case PJ_HeadingToNextEnemyWorm:
 		case PJ_HeadingToNextTeamMate:
 			if(!ini.ReadMatrixD2(section, "SpeedMult", SpeedMult, SpeedMult)) {
-				warnings << "SpeedMult attribute missing in " << dir << "/" << ini.getFileName() << ":" << section << endl;		
+				warnings << "SpeedMult attribute missing in " << dir << "/" << ini.getFileName() << ":" << section << endl;
 			}
 		default: break;
 	}
