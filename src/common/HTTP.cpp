@@ -1703,9 +1703,11 @@ void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)HTTP_TIMEOUT);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)HTTP_TIMEOUT);
+	//curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)HTTP_TIMEOUT); // Do not set this if you don't want abort in the middle of large transfer
+
 	// I can set CURLOPT_PROGRESSFUNCTION but it's eating some resources
+	// Also it's required to abort download quickly, otherwise CHTTP may hang I think
 };
 
 void CHttp::RequestData(const std::string& url, const std::string& proxy)
