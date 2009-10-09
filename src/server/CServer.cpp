@@ -301,8 +301,10 @@ void GameServer::SetSocketWithEvents(bool v) {
 
 ///////////////////
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
-int GameServer::StartGame()
+int GameServer::StartGame(std::string* errMsg)
 {	
+	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
+
 	// Check that gamespeed != 0
 	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GameSpeed] && (float)tLXOptions->tGameInfo.features[FT_GameSpeed] <= 0.05f) {
 		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
@@ -350,6 +352,7 @@ mapCreate:
 			cCache.Clear();
 			goto mapCreate;
 		}
+		if(errMsg) *errMsg = "Out of memory while loading map";
 		return false;
 	}
 	
@@ -360,6 +363,7 @@ mapCreate:
 		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
+			if(errMsg) *errMsg = "Could not load level " + tLXOptions->tGameInfo.sMapFile;
 			return false;
 		}
 		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
@@ -379,7 +383,8 @@ mapCreate:
 				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
 				cCache.Clear();
 				goto gameScriptCreate;
-			}			
+			}
+			if(errMsg) *errMsg = "Out of memory while loading mod";
 			return false;
 		}
 		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
@@ -387,6 +392,7 @@ mapCreate:
 
 		if(result != GSE_OK) {
 			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
+			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
 			return false;
 		}
 	}

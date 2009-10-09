@@ -1679,8 +1679,9 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 	
 	// Start the game
-	if(!cServer->StartGame()) {
-		caller->writeMsg("cannot start game, got some error");
+	std::string errMsg;
+	if(!cServer->StartGame(&errMsg)) {
+		caller->writeMsg("cannot start game, got error: " + errMsg);
 		cCache.ClearExtraEntries(); // just to be sure
 		return;
 	}

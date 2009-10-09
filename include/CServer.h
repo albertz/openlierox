@@ -175,7 +175,7 @@ public:
 
 	// Game
 	void		Frame();
-	int			StartGame();
+	int			StartGame(std::string* errMsg = NULL);
 	void		BeginMatch(CServerConnection* cl = NULL); // if NULL, begin match for everybody; or only for cl
 	void		GameOver();
 
