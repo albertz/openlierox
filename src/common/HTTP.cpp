@@ -24,6 +24,11 @@
 #else
 #include <stdlib.h>
 #endif
+#ifdef LIBCURL
+#include <curl/curl.h>
+#include <curl/types.h>
+#include <curl/easy.h>
+#endif
 
 #include "LieroX.h"
 #include "Debug.h"
@@ -36,6 +41,10 @@
 #include "MathLib.h"
 #include "InputEvents.h"
 #include "ReadWriteLock.h"
+
+// Some basic defines
+#define		HTTP_TIMEOUT	10	// Filebase became laggy lately, so increased that from 5 seconds
+#define		BUFFER_LEN		8192
 
 
 // List of errors, MUST match error IDs in HTTP.h
@@ -161,6 +170,8 @@ void AutoSetupHTTPProxy()
 	}	
 #endif
 }
+
+#ifndef LIBCURL
 
 //
 // Chunk parser class
@@ -614,7 +625,7 @@ void CHttp::RequestData(const std::string& address, const std::string & proxy)
 	iAction = htaGet;
 	InitThread();
 }
-
+/*
 //////////////////
 // Send data to a server (simple version)
 void CHttp::SendSimpleData(const std::string& data, const std::string url, const std::string& proxy)
@@ -628,7 +639,7 @@ void CHttp::SendSimpleData(const std::string& data, const std::string url, const
 
 	InitThread();
 }
-
+*/
 
 ///////////////////
 // Send data to a server (advanced)
@@ -1627,3 +1638,201 @@ bool CHttp::ProcessInternal()
 	iProcessingResult = HTTP_PROC_ERROR; // Should not happen
 	return true;
 }
+
+
+#else // LIBCURL
+
+CHttp::CHttp()
+{
+	curl = curl_easy_init();
+	ThreadRunning = false;
+	ThreadAborting = false;
+	ProcessingResult = HTTP_PROC_FINISHED;
+	DownloadStart = DownloadEnd = 0;
+	curlForm = NULL;
+};
+
+CHttp::~CHttp()
+{
+	waitThreadFinish();
+	curl_easy_cleanup(curl);
+};
+
+void CHttp::waitThreadFinish()
+{
+	while(true)
+	{
+		Mutex::ScopedLock l(Lock);
+		if(!ThreadRunning)
+		{
+			return;
+		}
+		SDL_Delay(100);
+	};
+};
+
+size_t CHttp::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data)
+{
+	CHttp * parent = (CHttp *)data;
+	size_t realsize = size * nmemb;
+	
+	Mutex::ScopedLock l(parent->Lock);
+	
+	parent->Data.append((const char *)ptr, realsize);
+	
+	if( parent->ThreadAborting )
+		return 0;
+	return realsize;
+}
+
+void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
+{
+	waitThreadFinish();
+	ThreadRunning = true;
+	ThreadAborting = false;
+	ProcessingResult = HTTP_PROC_PROCESSING;
+	Url = url;
+	Proxy = proxy;
+	Useragent = GetFullGameName();
+	Data = "";
+	DownloadStart = DownloadEnd = tLX->currentTime;
+	
+	curl_easy_setopt(curl, CURLOPT_URL, Url.c_str());
+	curl_easy_setopt(curl, CURLOPT_PROXY, Proxy.c_str());
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlReceiveCallback);
+	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
+	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
+	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
+	curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)HTTP_TIMEOUT);
+	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)HTTP_TIMEOUT);
+	// I can set CURLOPT_PROGRESSFUNCTION but it's eating some resources
+};
+
+void CHttp::RequestData(const std::string& url, const std::string& proxy)
+{
+	InitializeTransfer(url, proxy);
+	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
+};
+
+void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy)
+{
+	InitializeTransfer(url, proxy);
+	
+	if( curlForm != NULL )
+		curl_formfree(curlForm);
+	curlForm = NULL;
+	struct curl_httppost *lastptr=NULL;
+	
+	for( std::list<HTTPPostField> :: const_iterator it = data.begin(); it != data.end(); it++ )
+	{
+		if( it->getFileName() == "" )
+			curl_formadd(	&curlForm,
+							&lastptr,
+							CURLFORM_COPYNAME, it->getName().c_str(),
+							CURLFORM_CONTENTSLENGTH, it->getData().size(),
+							CURLFORM_COPYCONTENTS, it->getData().c_str(),
+							CURLFORM_END);
+		else
+			curl_formadd(	&curlForm,
+							&lastptr,
+							CURLFORM_COPYNAME, it->getName().c_str(),
+							CURLFORM_FILENAME, it->getFileName().c_str(),
+							CURLFORM_CONTENTTYPE, it->getMimeType().c_str(),
+							CURLFORM_CONTENTSLENGTH, it->getData().size(),
+							CURLFORM_COPYCONTENTS, it->getData().c_str(),
+							CURLFORM_END);
+	}
+	
+	curl_easy_setopt(curl, CURLOPT_HTTPPOST, curlForm);
+	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
+};
+
+int CurlThread::handle()
+{
+	CURLcode res = curl_easy_perform(Parent->curl); // Blocks until processing finished
+
+	Mutex::ScopedLock l(Parent->Lock);
+
+	Parent->ProcessingResult = HTTP_PROC_FINISHED;
+	Parent->Error.iError = HTTP_NO_ERROR;
+	if( res != CURLE_OK )
+	{
+		Parent->ProcessingResult = HTTP_PROC_ERROR;
+		Parent->Error.iError = res; // This is not HTTP error, it's libcurl error, but whatever
+		Parent->Error.sErrorMsg = curl_easy_strerror(res);
+	}
+	Parent->ThreadRunning = false;
+	Parent->DownloadEnd = tLX->currentTime;
+	
+	if( Parent->curlForm != NULL )
+		curl_formfree(Parent->curlForm);
+	Parent->curlForm = NULL;
+	
+	Parent->onFinished.occurred(CHttpBase::HttpEventData(Parent, Parent->ProcessingResult == HTTP_PROC_FINISHED));
+	return 0;
+}
+
+void CHttp::CancelProcessing()
+{
+	{
+		Mutex::ScopedLock l(Lock);
+		ThreadAborting = true;
+	}
+	waitThreadFinish();
+};
+
+size_t CHttp::GetDataLength() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	long len = 0;
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
+	if( len < 0 )
+		len = 0;
+	return len;
+};
+
+std::string CHttp::GetMimeType() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	const char * c = NULL;
+	curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, c);
+	std::string ret;
+	if( c != NULL )
+		ret = c;
+	return ret;
+};
+
+float CHttp::GetDownloadSpeed() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	double d = 0;
+	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &d);
+	return d;
+};
+
+float CHttp::GetUploadSpeed() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	double d = 0;
+	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &d);
+	return d;
+};
+
+std::string CHttp::GetHostName() const
+{
+	std::string sHost;
+	size_t s = 0;
+	if( Url.find("http://") != std::string::npos )
+		s = Url.find("http://") + 7;
+
+	size_t p = Url.find("/", s );
+	if(p == std::string::npos) 
+		sHost = Url.substr(s);
+	else
+		sHost = Url.substr(s, p-s);
+
+	return sHost;
+};
+
+#endif
+

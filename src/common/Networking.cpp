@@ -14,6 +14,10 @@
 // Jason Boettcher
 
 //#include <SDL_syswm.h>
+#ifdef LIBCURL
+#include <curl/curl.h>
+#endif
+
 #include "ThreadPool.h"
 #ifndef WIN32
 #include <signal.h>
@@ -321,6 +325,9 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 /////////////////////
 // Initializes network
 bool InitNetworkSystem() {
+	#ifdef LIBCURL
+	curl_global_init(CURL_GLOBAL_ALL);
+	#endif
 	nlSystemUseChangeLock.startWriteAccess();
 	bNetworkInited = false;
 
@@ -357,6 +364,9 @@ bool QuitNetworkSystem() {
 	bNetworkInited = false;
 	delete dnsCache; dnsCache = NULL;
 	nlSystemUseChangeLock.endWriteAccess();
+	#ifdef LIBCURL
+	curl_global_cleanup();
+	#endif
 	return true;
 }
 
