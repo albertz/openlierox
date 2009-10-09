@@ -774,15 +774,18 @@ static CWorm* nearestTeamMate(CVec pos, int worm) {
 	return best;
 }
 
-static MatrixD2<float> getVelChangeForObject(CGameObject* target, CGameObject* obj, float maxAngle) {
-	if(target == NULL) return MatrixD2<float>(1.0f);
-	maxAngle *= (float)PI / 180.0f;
+static VectorD2<float> getHeadingVelTo(CGameObject* target, CGameObject* src) {
+	if(target == NULL) return VectorD2<float>();
+
+	VectorD2<float> ret = src->getVelocity().orthogonal();
+	NormalizeVector(&ret);
 	
-	VectorD2<float> angleDiffV = objectAngleDiff(target, obj);
+	VectorD2<float> angleDiffV = objectAngleDiff(target, src);
 	float angleDiff = atan2f(angleDiffV.y, angleDiffV.x);
-	if(fabs(angleDiff) > fabs(maxAngle)) angleDiff = maxAngle * SIGN(angleDiff);
+	if(angleDiff >= float(PI)) angleDiff -= float(PI) * 2;
+	ret *= angleDiff / float(PI);
 	
-	return MatrixD2<float>::Rotation(cosf(-angleDiff), sinf(-angleDiff));
+	return ret;
 }
 
 void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo* info) const {
@@ -935,30 +938,30 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			break;
 			
 		case PJ_HeadingToNextWorm:
-			prj->velocity() = SpeedMult * getVelChangeForObject(nearestWorm(prj->getPos()), prj, 1.0f) * prj->velocity();
+			prj->velocity() += SpeedMult * getHeadingVelTo(nearestWorm(prj->getPos()), prj);
 			break;
 			
 		case PJ_HeadingToOwner:
 			if(prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
-				prj->velocity() = SpeedMult * getVelChangeForObject(&cClient->getRemoteWorms()[prj->GetOwner()], prj, 1.0f) * prj->velocity();
+				prj->velocity() += SpeedMult * getHeadingVelTo(&cClient->getRemoteWorms()[prj->GetOwner()], prj);
 			}
 			break;
 			
 		case PJ_HeadingToNextOtherWorm:
-			prj->velocity() = SpeedMult * getVelChangeForObject(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity() += SpeedMult * getHeadingVelTo(nearestOtherWorm(prj->getPos(), prj->GetOwner()), prj);
 			break;
 			
 		case PJ_HeadingToNextEnemyWorm:
-			prj->velocity()  = SpeedMult * getVelChangeForObject(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity() += SpeedMult * getHeadingVelTo(nearestEnemyWorm(prj->getPos(), prj->GetOwner()), prj);
 			break;
 			
 		case PJ_HeadingToNextTeamMate:
-			prj->velocity() = SpeedMult * getVelChangeForObject(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj, 1.0f) * prj->velocity();
+			prj->velocity() += SpeedMult * getHeadingVelTo(nearestTeamMate(prj->getPos(), prj->GetOwner()), prj);
 			break;
 			
 		case PJ_HeadTargetToUs:
 			for(Proj_EventOccurInfo::Targets::const_iterator obj = eventInfo.targets.begin(); obj != eventInfo.targets.end(); ++obj) {
-				(*obj)->setVelocity(SpeedMult * getVelChangeForObject(prj, *obj, 1.0f) * (*obj)->getVelocity() );
+				(*obj)->velocity() += SpeedMult * getHeadingVelTo(prj, *obj);
 			}
 			break;
 			
