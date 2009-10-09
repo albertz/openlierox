@@ -22,6 +22,9 @@ ELSE(WIN32)
 	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME bin/openlierox)
 ENDIF(WIN32)
 
-
 TARGET_LINK_LIBRARIES(openlierox ${LIBS})
 
+IF(PCH)
+	EXEC_PROGRAM(./${OLXROOTDIR}/update_precompiled_header.sh OUTPUT_VARIABLE NULL)
+	ADD_PRECOMPILED_HEADER(openlierox ${OLXROOTDIR}/include/PrecompiledHeader.hpp 1)
+ENDIF(PCH)
