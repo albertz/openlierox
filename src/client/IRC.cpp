@@ -495,9 +495,10 @@ bool IRCClient::sendChat(const std::string &text1)
 		text = text.substr(text.find(" ", 4));
 		m_chatSocket.Write("PRIVMSG " + user + " :" + text + "\r\n");
 	}
-	else if( text.find("/nick ") == 0 )
+	else if( text.find("/nick ") == 0 || text.find("/name ") == 0 )
 	{
-		m_myNick = text.substr(6);
+		m_myNick = text.substr(text.find(" ")+1);
+		TrimSpaces(m_myNick);
 		m_nickUniqueNumber = -1;
 		makeNickIRCFriendly();
 		m_chatSocket.Write("NICK " + m_myNick + "\r\n");
@@ -752,7 +753,7 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 		type = IRC_TEXT_PRIVATE;
 	} else
 		text = nick + ": " + cmd.params[1];
-	addChatMessage(ircFormattingToHtml( EscapeHtmlTags(text) ), type);
+	addChatMessage(ircFormattingToHtml( text ), type);
 }
 
 ///////////////////////
