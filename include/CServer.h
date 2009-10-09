@@ -321,7 +321,7 @@ public:
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();
 	
-	void	DumpGameState();
+	void	DumpGameState(CmdLineIntf* caller);
 	void	DumpConnections();
 };
 

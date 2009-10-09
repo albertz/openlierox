@@ -2006,8 +2006,8 @@ void Cmd_dumpGameState::exec(CmdLineIntf* caller, const std::vector<std::string>
 	GameState state = currentGameState();
 	caller->writeMsg("GameState: " + GameStateAsString(state), CNC_DEV);
 	if(state == S_INACTIVE) return;
-	if(cServer && cServer->isServerRunning()) cServer->DumpGameState();
-	else if(cClient) cClient->DumpGameState();
+	if(cServer && cServer->isServerRunning()) cServer->DumpGameState(caller);
+	else if(cClient) cClient->DumpGameState(caller);
 	else caller->writeMsg("server nor client correctly initialised", CNC_ERROR);
 }
 
