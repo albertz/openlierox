@@ -178,26 +178,23 @@ CHttp::CHttp()
 	ProcessingResult = HTTP_PROC_FINISHED;
 	DownloadStart = DownloadEnd = 0;
 	curlForm = NULL;
-};
+}
 
 CHttp::~CHttp()
 {
 	waitThreadFinish();
 	curl_easy_cleanup(curl);
-};
+}
 
 void CHttp::waitThreadFinish()
 {
-	while(true)
-	{
+	while(true) {
 		Mutex::ScopedLock l(Lock);
 		if(!ThreadRunning)
-		{
 			return;
-		}
 		SDL_Delay(100);
-	};
-};
+	}
+}
 
 size_t CHttp::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
@@ -236,13 +233,13 @@ void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 
 	// I can set CURLOPT_PROGRESSFUNCTION but it's eating some resources
 	// Also it's required to abort download quickly, otherwise CHTTP may hang I think
-};
+}
 
 void CHttp::RequestData(const std::string& url, const std::string& proxy)
 {
 	InitializeTransfer(url, proxy);
 	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
-};
+}
 
 void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy)
 {
@@ -275,7 +272,7 @@ void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url
 	
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, curlForm);
 	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
-};
+}
 
 int CurlThread::handle()
 {
@@ -309,7 +306,7 @@ void CHttp::CancelProcessing()
 		ThreadAborting = true;
 	}
 	waitThreadFinish();
-};
+}
 
 size_t CHttp::GetDataLength() const
 {
@@ -319,7 +316,7 @@ size_t CHttp::GetDataLength() const
 	if( len < 0 )
 		len = 0;
 	return len;
-};
+}
 
 std::string CHttp::GetMimeType() const
 {
@@ -330,7 +327,7 @@ std::string CHttp::GetMimeType() const
 	if( c != NULL )
 		ret = c;
 	return ret;
-};
+}
 
 float CHttp::GetDownloadSpeed() const
 {
@@ -338,7 +335,7 @@ float CHttp::GetDownloadSpeed() const
 	double d = 0;
 	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &d);
 	return d;
-};
+}
 
 float CHttp::GetUploadSpeed() const
 {
@@ -346,7 +343,7 @@ float CHttp::GetUploadSpeed() const
 	double d = 0;
 	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &d);
 	return d;
-};
+}
 
 std::string CHttp::GetHostName() const
 {
@@ -362,5 +359,5 @@ std::string CHttp::GetHostName() const
 		sHost = Url.substr(s, p-s);
 
 	return sHost;
-};
+}
 
