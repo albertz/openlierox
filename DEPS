@@ -44,6 +44,9 @@ Gentoo: dev-libs/libxml2
 Debian: libxml2-dev
 tested versions: 2.6.26
 
+-- libcurl
+Gentoo: net-misc/curl
+tested versions: 7.19.6
 
 ----
 
