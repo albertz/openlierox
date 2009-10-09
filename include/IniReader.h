@@ -60,22 +60,31 @@ public:
 	}
 
 	template<typename T>
-	bool ReadVectorD2(const std::string& section, const std::string& key, VectorD2<T>& v, VectorD2<T> defv = VectorD2<T>()) const {
+	bool ReadVectorD2(const std::string& section, const std::string& key, VectorD2<T>& v, VectorD2<T> defv = VectorD2<T>(), bool acceptSimple = true) const {
 		v = defv;
 		
 		T _v[2] = {0,0};
-		if(!ReadArray(section, key, _v, 2)) return false;
+		if(!ReadArray(section, key, _v, 2)) {
+			if(!acceptSimple || !ReadArray(section, key, _v, 1)) return false;
+			v.x = v.y = _v[0];
+			return true;
+		}
 		
 		v.x = _v[0]; v.y = _v[1];
 		return true;
 	}
 
 	template<typename T>
-	bool ReadMatrixD2(const std::string& section, const std::string& key, MatrixD2<T>& v, MatrixD2<T> defv = MatrixD2<T>()) const {
+	bool ReadMatrixD2(const std::string& section, const std::string& key, MatrixD2<T>& v, MatrixD2<T> defv = MatrixD2<T>(), bool acceptSimple = true) const {
 		v = defv;
 		
 		T _v[4] = {0,0,0,0};
-		if(!ReadArray(section, key, _v, 4)) return false;
+		if(!ReadArray(section, key, _v, 4)) {
+			if(!acceptSimple || !ReadArray(section, key, _v, 1)) return false;
+			v.v1.x = v.v2.y = _v[0];
+			v.v1.y = v.v2.x = 0;
+			return true;
+		}
 		
 		v.v1.x = _v[0]; v.v1.y = _v[1]; v.v2.x = _v[2]; v.v2.y = _v[3];
 		return true;
