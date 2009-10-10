@@ -32,11 +32,13 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	# compile the package.
-	#$(MAKE) -j2
-	VERSION=$(shell cat VERSION) \
-	HAWKNL_BUILTIN=1 LIBZIP_BUILTIN=1 \
-	DEBUG=0 SYSTEM_DATA_DIR=/usr/share/games CXXFLAGS="$(CFLAGS)" \
-	./compile.sh
+	cmake \
+	-D VERSION=$(shell cat VERSION) \
+	-D HAWKNL_BUILTIN=1 \
+	-D LIBZIP_BUILTIN=1 \
+	-D DEBUG=0 \
+	-D SYSTEM_DATA_DIR=/usr/share/games .
+	$(MAKE) -j2
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
 
 	touch $@
