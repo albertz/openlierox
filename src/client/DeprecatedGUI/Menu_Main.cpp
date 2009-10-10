@@ -207,7 +207,7 @@ void Menu_MainFrame()
             
 			case mm_LXALink:
 				if( ev->iEventMsg == TXB_MOUSEUP ) {
-					OpenLinkInExternBrowser("http://lxalliance.net");
+					OpenLinkInExternBrowser("http://www.openlierox.net/forum");
 				}
 				break;
 
@@ -256,8 +256,7 @@ void Menu_MainFrame()
 		"- Ported and enhanced by\n"
 		"  K. Petránek, Albert Zeyer, Daniel Sjoholm,\n" // In order of joining
 		"  Martin Griffin, Sergiy Pylypenko\n"
-		"- Supported by the [RIP] clan\n"
-		//"- Enhanced by FilE\n" + // TODO: include this, if he join the team :) // TODO: Who the hell is FilE?
+		"- Music by Corentin Larsen\n"
 		)
 		+ tMenu->tFrontendInfo.sFrontendCredits;
 
