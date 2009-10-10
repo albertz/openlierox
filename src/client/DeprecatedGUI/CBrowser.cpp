@@ -106,7 +106,7 @@ public:
 					sText.erase(res);
 					tRect.w = tLX->cFont.GetWidth(sText);
 				} else {
-					if (it == sText.end())  {
+					if (it == sText.end() || it == sText.begin())  {
 						result.second = NULL;
 					} else {
 						result.second = new CTextObject(tParent, std::string(it, std::string::const_iterator(sText.end())), 
