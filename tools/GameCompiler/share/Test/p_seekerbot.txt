@@ -13,12 +13,14 @@ Type = GoThrough
 
 [Action1]
 Event = Timer
-HeadingToNextEnemyWormSpeed = 20
+Type = HeadingToNextEnemyWorm
+SpeedMult = 200
 
 [Timer]
 Type = Timer
 Repeat = true
 Delay = 0.1
+
 
 
 [Action2]

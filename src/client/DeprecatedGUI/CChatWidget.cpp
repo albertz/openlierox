@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CListview.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CLabel.h"
+#include "DeprecatedGUI/CBox.h"
 #include "DeprecatedGUI/CCheckbox.h"
 #include "IRC.h"
 #include "StringUtils.h"
@@ -41,6 +42,8 @@ namespace DeprecatedGUI {
 		nc_ChatText,
 		nc_UserList,
 		nc_ChatInput,
+		nc_UserInfoPopup,
+		nc_UserInfoPopupBox,
 		nc_Back, // Back button is not added by default, it's only for global chat widget
 	};
 
@@ -96,8 +99,18 @@ void CChatWidget::Create()
 	this->Add( new CBrowser(), nc_ChatText, 5, 5, iWidth - 155, iHeight - tLX->cFont.GetHeight() - 15 );
 	this->Add( new CListview(), nc_UserList, iWidth - 145, 5, 145, iHeight - 10);
 	this->Add( new CTextbox(), nc_ChatInput, 5,  iHeight - tLX->cFont.GetHeight() - 7, iWidth - 157, tLX->cFont.GetHeight());
+	this->Add( new CBox( 0, 2, tLX->clBoxLight, tLX->clBoxDark, tLX->clDialogBackground ), nc_UserInfoPopupBox, 0, 0, 0, 0 );
+	this->Add( new CLabel( "", tLX->clNormalLabel ), nc_UserInfoPopup, 0, 0, 0, 0 );
 
 	// Messages
+	CLabel *popup = (CLabel *)this->getWidget(nc_UserInfoPopup);
+	popup->setEnabled(false);
+	CBox *popupBox = (CBox *)this->getWidget(nc_UserInfoPopupBox);
+	popupBox->setEnabled(false);
+
+	CListview *l = (CListview *)this->getWidget(nc_UserList);
+	l->setMouseOverEventEnabled(true);
+	
 	CBrowser *b = (CBrowser *)this->getWidget(nc_ChatText);
 	b->InitializeChatBox();
 
@@ -164,6 +177,11 @@ void CChatWidget::DisableChat()
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+
+	CLabel *popup = (CLabel *)this->getWidget(nc_UserInfoPopup);
+	CBox *popupBox = (CBox *)this->getWidget(nc_UserInfoPopupBox);
+	popup->setEnabled(false);
+	popupBox->setEnabled(false);
 	
 	if( ! child )
 		return;
@@ -206,6 +224,28 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 						txt->setCurPos(txt->getText().size());
 
 						this->FocusWidget(nc_ChatInput);
+					}
+				}
+				if (iEvent == LV_MOUSEOVER)  {
+					CListview *lsv = (CListview *)this->getWidget(nc_UserList);
+					IRCClient *irc = GetGlobalIRC();
+	
+					if(lsv->getMouseOverSIndex() != "" && irc && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
+					{
+						popup->setEnabled(true);
+						popup->setText( irc->getWhois(lsv->getMouseOverSIndex()) );
+						int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
+						int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
+						popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
+						popup->Create();
+						popupBox->setEnabled(true);
+						popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
+						popupBox->Create();
+					}
+					else
+					{
+						popup->setEnabled(false);
+						popupBox->setEnabled(false);
 					}
 				}
 			break;

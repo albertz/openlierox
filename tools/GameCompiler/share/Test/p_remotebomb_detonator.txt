@@ -1,3 +1,4 @@
+# this is a helper projectile to detonate the remotebomb
 
 [General]
 Type = PRJ_CIRCLE
@@ -16,7 +17,7 @@ Type = GoThrough
 
 [Action1]
 Event = GrowTimer
-Type = Nothing
+Type = ChangeRadius
 ChangeRadius = 40,40
 
 [Action2]

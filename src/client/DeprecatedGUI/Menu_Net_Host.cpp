@@ -1279,8 +1279,10 @@ bool Menu_Net_HostStartGame()
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cHostLobby.SendMessage(hl_Gamemode, CBM_GETCURINDEX, (DWORD)0, 0));
 
 	// Start the game
-	if(!cServer->StartGame()) {	// Dedicated if no start button pressed
-		errors << "Could not start the game for some reason" << endl;
+	std::string errMsg;
+	if(!cServer->StartGame(&errMsg)) {	// Dedicated if no start button pressed
+		errors << "Could not start the game for reason: " << errMsg << endl;
+		cClient->getChatbox()->AddText("Error while starting game: " + errMsg, tLX->clNotice, TXT_IMPORTANT, tLX->currentTime);
 		return false;
 	}
 	

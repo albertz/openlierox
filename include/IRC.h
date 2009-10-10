@@ -126,6 +126,10 @@ private:
 	std::set<IRCDisconnectCB>	m_disconnectCallback;
 	std::set<IRCConnectCB>		m_connectCallback;
 	std::set<IRCUpdateUserListCB>	m_updateUsersCallback;
+	
+	std::string m_whoisUserName;
+	std::string m_whoisUserInfo;
+	std::string m_whoisUserAwayMsg;
 
 private:
 	// Methods
@@ -145,6 +149,7 @@ private:
 	void	sendPong(const std::string& param);
 	void	sendRequestNames();
 	void	sendUserAuth();
+	void	sendWhois(const std::string & userName);
 
 	// Parsing
 	void	parsePing(const IRCCommand& cmd);
@@ -159,6 +164,9 @@ private:
 	void	parseNick(const IRCCommand& cmd);
 	void	parseNotice(const IRCCommand& cmd);
 	void	parseError(const IRCCommand& cmd);
+	void	parseAway(const IRCCommand& cmd);
+	void	parseWhois(const IRCCommand& cmd);
+	void	parseEndOfWhois(const IRCCommand& cmd);
 
 
 public:
@@ -173,6 +181,7 @@ public:
 	const std::list<IRCChatLine>& getMessageList() const{ return m_chatText; }
 	const std::string getNick()							{ return m_myNick; }
 	void	setAwayMessage(const std::string & msg);	// We'll write here on which server we are playing currently
+	std::string	getWhois(const std::string & user); // Should be called continuously (does not block), returns username = OLX version, newline and away message = on which server the user is on
 
 	void	setNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback.insert(cb); }
 	void	clearNewMessageCallback(IRCNewMessageCB cb)	{ m_newMsgCallback.erase(cb); }

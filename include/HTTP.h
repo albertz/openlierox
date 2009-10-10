@@ -20,16 +20,16 @@
 #define __HTTP_H__
 
 #include <string>
+#include <curl/curl.h>
+#include <curl/types.h>
+#include <curl/easy.h>
+
 #include "Networking.h"
 #include "Event.h"
 #include "SmartPointer.h"
+#include "Mutex.h"
 
 #include "ThreadPool.h"
-#include <SDL_mutex.h>
-
-// Some basic defines
-#define		HTTP_TIMEOUT	10	// Filebase became laggy lately, so increased that from 5 seconds
-#define		BUFFER_LEN		8192
 
 //
 // Functions
@@ -39,46 +39,6 @@ void AutoSetupHTTPProxy();
 //
 // Classes
 //
-
-// HTTP Chunk parsing states
-enum  {
-	CHPAR_SKIPCRLF,
-	CHPAR_LENREAD,
-	CHPAR_DATAREAD,
-	CHPAR_FOOTERREAD
-};
-
-// HTTP Chunk parsing class
-class CChunkParser  {
-public:
-	CChunkParser(std::string *pure_data, size_t *final_length, size_t *received); 
-
-	CChunkParser& operator=(const CChunkParser& chunk)  {
-		iState = chunk.iState;
-		iNextState = chunk.iNextState;
-		sChunkLenStr = chunk.sChunkLenStr;
-		iCurRead = chunk.iCurRead;
-		iCurLength = chunk.iCurLength;
-
-		return *this;
-	}
-
-private:
-	std::string *sPureData;
-	size_t		*iFinalLength;
-	size_t		*iReceived;
-
-	// Internal
-	int			iState;
-	int			iNextState;  // What state should come after the current one (used when iState = CHPAR_SKIPBLANK)
-	std::string sChunkLenStr;  // Current chunk length as a string (temporary variable)
-	size_t		iCurRead;  // How many bytes read from the current chunk
-	size_t		iCurLength;  // How many bytes does the current chunk have
-
-public:
-	bool	ParseNext(char c);
-	void	Reset();
-};
 
 // HTTP Post Field structure
 class HTTPPostField  {
@@ -150,124 +110,27 @@ enum  {
 };
 
 // HTTP processing results
-enum  {
+enum HttpProc_t {
 	HTTP_PROC_ERROR = -1,
 	HTTP_PROC_PROCESSING = 0,
 	HTTP_PROC_FINISHED = 1
 };
 
-struct HttpThread;
-struct HttpRedirectEventData;
-struct HttpRetryEventData;
-
-// HTTP class
-class CHttp  { friend struct HttpThread;
+class CHttpBase
+{
 public:
-	CHttp();
-	~CHttp();
-	
-private:
-	// they are not allowed atm
-	CHttp(const CHttp& oth)  { operator= (oth); }
-	CHttp& operator=(const CHttp& http);
+	CHttpBase() {}
+	virtual ~CHttpBase() {}
 
 	enum Action  {
 		htaGet = 0,
 		htaHead,
 		htaPost
 	};
-	
-	std::string		sHost;
-	std::string		sUrl;
-	std::string		sProxyHost;
-	int				iProxyPort;
-	std::string		sProxyUser;
-	std::string		sProxyPasswd;
-	std::string		sRemoteAddress;
-	std::string		sDataToSend; // Data to be sent to the network, usually POST encoded
-	std::string		sData;  // Data received from the network, can be chunked and whatever
-	std::string		sPureData;  // Pure data, without chunks or any other stuff
-	std::string		sHeader;
-	std::string		sMimeType;
-	HttpError		tError;
-	char			*tBuffer; // Internal buffer
-	CChunkParser	*tChunkParser;
-	Action			iAction;
 
-	// Processing thread
-	HttpThread*		m_thread;
-	mutable SDL_mutex	*tMutex;
-	bool			bThreadRunning;
-
-	int				iProcessingResult;  // Result of the last call of the ProcessInternal function
-
-	size_t			iDataLength;
-	size_t			iDataReceived;
-	size_t			iDataSent;
-	bool			bActive;
-	bool			bTransferFinished;
-	bool			bSentHeader;  // Only for POST
-	bool			bConnected;
-	bool			bRequested;
-	bool			bSocketReady;
-	bool			bGotHttpHeader;
-	bool			bChunkedTransfer;
-	bool			bGotDataFromServer;  // True if we received some data from the server
-	AbsTime			fResolveTime;
-	AbsTime			fConnectTime;
-	AbsTime			fSocketActionTime;
-	bool			bRedirecting;
-	int				iRedirectCode;
-	NetworkSocket	tSocket;
-	NetworkAddr		tRemoteIP;
-
-	// Bandwidth measurement
-	AbsTime			fDownloadStart;
-	AbsTime			fDownloadEnd;
-	AbsTime			fUploadStart;
-	AbsTime			fUploadEnd;
-
-	std::string		sEmpty; // Returned when Data is being processed
-
-private:
-	void				Lock() const;
-	void				Unlock() const;
-
-	bool				InitTransfer(const std::string& address, const std::string & proxy);
-	void				SendDataInternal(const std::string& encoded_data, const std::string url, const std::string& proxy);
-	void				SetHttpError(int id);
-	void				Clear();
-	bool				AdjustUrl(std::string& dest, const std::string& url); // URL-encode given string, substitute all non-ASCII symbols with %XX
-	bool				SendRequest();
-	void				POSTEncodeData(const std::list<HTTPPostField>& data);
-	std::string			BuildPOSTHeader();
-	void				ProcessData();
-	std::string			GetPropertyFromHeader(const std::string& prop);
-	void				ParseHeader();
-	void				ParseChunks();
-	void				ParseAddress(const std::string& addr);
-	void				ParseProxyAddress(const std::string& proxy);
-	std::string			GetBasicAuthentication(const std::string &user, const std::string &passwd);
-	void				FinishTransfer();
-	void				HandleRedirect(int code);
-	void				RetryWithNoProxy(const std::string& url, const std::string& data_to_send);
-	int					ReadAndProcessData();
-	bool				ProcessInternal();
-
-	void				InitThread();
-	void				ShutdownThread();
-	void				HttpThread_onFinished(EventData);
-	void				HttpThread_onRetry(SmartPointer<HttpRetryEventData>);
-	void				HttpThread_onRedirect(SmartPointer<HttpRedirectEventData>);
-	
-	int					ProcessGET();
-	int					ProcessPOST();
-	int					ProcessHEAD();
-
-public:
 	struct HttpEventData  {
-		HttpEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
-		CHttp *cHttp;
+		HttpEventData(CHttpBase *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
+		CHttpBase *cHttp;
 		bool bSucceeded;
 	};
 	
@@ -275,31 +138,115 @@ public:
 	
 	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
 	// TODO: Maybe do the proxy string global?
-	void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
+	//virtual void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "") = 0;
+	virtual void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "") = 0;
+	virtual void				RequestData(const std::string& url, const std::string& proxy = "") = 0;
+	virtual HttpProc_t			ProcessRequest() = 0;
+	virtual void				CancelProcessing() = 0;
+	virtual void				ClearReceivedData() = 0;
+	virtual HttpError			GetError() const = 0;
+	virtual const std::string&	GetData() const = 0;
+	virtual std::string			GetMimeType() const = 0;
+	//virtual const std::string&	GetDataToSend() const = 0;
+	virtual size_t				GetDataToSendLength() const = 0;
+	virtual size_t				GetDataLength() const = 0;
+	virtual size_t				GetReceivedDataLen() const = 0;
+	virtual size_t				GetSentDataLen() const = 0;
+	virtual bool				RequestedData()	const = 0;
+
+	virtual TimeDiff			GetDownloadTime() const = 0;
+	virtual TimeDiff			GetUploadTime()	const = 0;
+
+	virtual float				GetDownloadSpeed() const = 0;
+	virtual float				GetUploadSpeed() const = 0;
+
+	virtual std::string			GetHostName() const = 0;
+	virtual const std::string&	GetUrl() const = 0;
+	virtual bool				IsRedirecting() const = 0;
+
+private:
+	// they are not allowed atm
+	CHttpBase(const CHttpBase& oth)  { operator= (oth); }
+	CHttpBase& operator=(const CHttpBase& http);
+};
+
+
+class CHttp;
+
+class CurlThread: public Action
+{	
+	CHttp * Parent;
+
+	public:
+	CurlThread( CHttp * parent ): Parent(parent) { };
+	int handle();
+};
+
+class CHttp: public CHttpBase
+{
+public:
+	CHttp();
+	~CHttp();
+
+	//void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
 	void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "");
 	void				RequestData(const std::string& url, const std::string& proxy = "");
-	int					ProcessRequest();
+	HttpProc_t			ProcessRequest()			{ Mutex::ScopedLock l(Lock); return ProcessingResult; };
 	void				CancelProcessing();
-	void				ClearReceivedData()			{ Lock(); sPureData = ""; Unlock(); }
-	HttpError			GetError() const;
-	const std::string&	GetData() const				{ return bThreadRunning ? sEmpty : sPureData; }
-	const std::string&	GetMimeType() const			{ return bThreadRunning ? sEmpty : sMimeType; }
-	const std::string&	GetDataToSend() const		{ return sDataToSend; }
-	size_t				GetDataToSendLength() const	{ Lock(); size_t r = sDataToSend.size(); Unlock(); return r; }
-	size_t				GetDataLength() const		{ Lock(); size_t r = iDataLength; Unlock(); return r; }
-	size_t				GetReceivedDataLen() const	{ Lock(); size_t r = iDataReceived; Unlock(); return r; }
-	size_t				GetSentDataLen() const		{ Lock(); size_t r = iDataSent; Unlock(); return r; }
-	bool				RequestedData()	const		{ return bRequested; }
+	void				ClearReceivedData()			{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); Data = ""; }
+	HttpError			GetError() const			{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return Error; }
+	const std::string&	GetData() const				{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return ThreadRunning ? Empty : Data; }
+	std::string			GetMimeType() const;
+	//const std::string&	GetDataToSend() const		{ Mutex::ScopedLock l(Lock); return DataToSend; }
+	size_t				GetDataToSendLength() const	{ return 100; }
+	size_t				GetDataLength() const;
+	size_t				GetReceivedDataLen() const	{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return Data.size(); }
+	size_t				GetSentDataLen() const		{ return 100; }
+	bool				RequestedData()	const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return ThreadRunning; }
 
-	TimeDiff			GetDownloadTime() const		{ Lock(); TimeDiff r = fDownloadEnd - fDownloadStart; Unlock(); return r; }
-	TimeDiff			GetUploadTime()	const		{ Lock(); TimeDiff r = fUploadEnd - fUploadStart; Unlock(); return r; }
+	TimeDiff			GetDownloadTime() const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return DownloadEnd - DownloadStart; }
+	TimeDiff			GetUploadTime()	const		{ return GetUploadTime(); }
 
 	float				GetDownloadSpeed() const;
 	float				GetUploadSpeed() const;
 
-	const std::string&	GetHostName() const		{ return sHost; }
-	const std::string&	GetUrl() const			{ return sUrl; }
-	bool				IsRedirecting() const	{ return bRedirecting; }
+	std::string			GetHostName() const;
+	const std::string&	GetUrl() const			{ return Url; }
+	bool				IsRedirecting() const	{ return false; }
+
+
+private:
+	// they are not allowed atm
+	CHttp(const CHttp& oth)  { operator= (oth); }
+	CHttp& operator=(const CHttp& http);
+
+	friend class CurlThread;
+
+	void				waitThreadFinish();
+	void				InitializeTransfer(const std::string& url, const std::string& proxy);
+	static size_t		CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data);
+
+	CURL *			curl;
+	// All string data passed to libcurl should be not freed until curl_easy_cleanup, that's fixed in libcurl 7.17.0 (Sep 2007)
+	std::string		Url;
+	std::string		Proxy;
+	std::string		Useragent;
+	curl_httppost *	curlForm;
+	
+	std::string		Data;  // Data received from the network
+	HttpError		Error;
+
+	std::string		Empty; // Returned when Data is being processed
+
+	Mutex			Lock;
+	bool			ThreadRunning;
+	bool			ThreadAborting;
+	HttpProc_t		ProcessingResult;
+
+	// Bandwidth measurement
+	AbsTime			DownloadStart;
+	AbsTime			DownloadEnd;
+	
 };
 
 #endif  // __HTTP_H__

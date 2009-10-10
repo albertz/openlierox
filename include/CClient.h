@@ -674,7 +674,7 @@ public:
 	void		NewNet_LoadProjectiles();
 	Projectiles & getProjectiles()		{ return cProjectiles; }
 	
-	void		DumpGameState();
+	void		DumpGameState(CmdLineIntf* caller);
 };
 
 extern	CClient			*cClient;

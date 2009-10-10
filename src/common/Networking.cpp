@@ -13,7 +13,8 @@
 // Created 18/12/02
 // Jason Boettcher
 
-//#include <SDL_syswm.h>
+#include <curl/curl.h>
+
 #include "ThreadPool.h"
 #ifndef WIN32
 #include <signal.h>
@@ -321,6 +322,7 @@ bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {
 /////////////////////
 // Initializes network
 bool InitNetworkSystem() {
+	curl_global_init(CURL_GLOBAL_ALL);
 	nlSystemUseChangeLock.startWriteAccess();
 	bNetworkInited = false;
 
@@ -357,6 +359,7 @@ bool QuitNetworkSystem() {
 	bNetworkInited = false;
 	delete dnsCache; dnsCache = NULL;
 	nlSystemUseChangeLock.endWriteAccess();
+	curl_global_cleanup();
 	return true;
 }
 

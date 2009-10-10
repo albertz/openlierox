@@ -366,7 +366,7 @@ public:
 		//OlxWriteCoreDump(d ? d->name : NULL);
 #endif
 		
-        if((tLXOptions && ! tLXOptions->bRecoverAfterCrash) || (!tLX || tLX->bQuitGame))
+        if(!recoverAfterCrash)
         {
 			fflush(stdout);
 			abort();
@@ -527,3 +527,5 @@ void CrashHandler::uninit() {
 CrashHandler* CrashHandler::get() {
 	return crashHandlerInstance;
 }
+
+bool CrashHandler::recoverAfterCrash = false;

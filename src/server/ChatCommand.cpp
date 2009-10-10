@@ -798,8 +798,9 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		DeprecatedGUI::Menu_Net_HostStartGame();
 	else  {
 		// Start the game
-		if(!cServer->StartGame()) {	// start in dedicated mode
-			return "cannot start the game, there was some error";
+		std::string errMsg;
+		if(!cServer->StartGame(&errMsg)) {	// start in dedicated mode
+			return "cannot start the game: " + errMsg;
 		}
 		
 		// Leave the frontend

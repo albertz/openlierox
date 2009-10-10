@@ -301,8 +301,10 @@ void GameServer::SetSocketWithEvents(bool v) {
 
 ///////////////////
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
-int GameServer::StartGame()
+int GameServer::StartGame(std::string* errMsg)
 {	
+	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
+
 	// Check that gamespeed != 0
 	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GameSpeed] && (float)tLXOptions->tGameInfo.features[FT_GameSpeed] <= 0.05f) {
 		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
@@ -350,6 +352,7 @@ mapCreate:
 			cCache.Clear();
 			goto mapCreate;
 		}
+		if(errMsg) *errMsg = "Out of memory while loading map";
 		return false;
 	}
 	
@@ -360,6 +363,7 @@ mapCreate:
 		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
 		if(!cMap->Load(sMapFilename)) {
 			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
+			if(errMsg) *errMsg = "Could not load level " + tLXOptions->tGameInfo.sMapFile;
 			return false;
 		}
 		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
@@ -379,16 +383,19 @@ mapCreate:
 				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
 				cCache.Clear();
 				goto gameScriptCreate;
-			}			
+			}
+			if(errMsg) *errMsg = "Out of memory while loading mod";
 			return false;
 		}
 		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
-		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 
 		if(result != GSE_OK) {
 			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
+			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
 			return false;
 		}
+
+		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 	}
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 
@@ -611,7 +618,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				SpawnWorm( & cWorms[i] );
 		}
 
-		DumpGameState();
+		DumpGameState(&stdoutCLI());
 	}
 
 	if(firstStart)
@@ -738,7 +745,7 @@ void GameServer::GameOver()
 		}
 	}
 	
-	DumpGameState();
+	DumpGameState(&stdoutCLI());
 }
 
 
@@ -2418,65 +2425,79 @@ float GameServer::getMaxUploadBandwidth() {
 	return fMaxRate;
 }
 
-void GameServer::DumpGameState() {
+void GameServer::DumpGameState(CmdLineIntf* caller) {
 	if(!isServerRunning()) {
-		hints << "Server is not running" << endl;
+		caller->writeMsg("Server is not running");
 		return;
 	}
-	if(tLX->iGameType == GME_JOIN) hints << "INVALID ";
-	else if(tLX->iGameType == GME_LOCAL) hints << "local ";
-	hints << "Server '" << this->getName() << "' game state:" << endl;
+
+	std::ostringstream msg;
+	if(tLX->iGameType == GME_JOIN) msg << "INVALID ";
+	else if(tLX->iGameType == GME_LOCAL) msg << "local ";
+	msg << "Server '" << this->getName() << "' game state:";
+	caller->writeMsg(msg.str());
+	msg.str("");	
+	
 	switch(iState) {
-		case SVS_LOBBY: hints << " * in lobby"; break;
-		case SVS_GAME: hints << " * weapon selection"; break;
-		case SVS_PLAYING: hints << " * playing"; break;
-		default: hints << " * INVALID STATE " << iState; break;
+		case SVS_LOBBY: msg << " * in lobby"; break;
+		case SVS_GAME: msg << " * weapon selection"; break;
+		case SVS_PLAYING: msg << " * playing"; break;
+		default: msg << " * INVALID STATE " << iState; break;
 	}
-	if(iState != SVS_LOBBY && bGameOver) hints << ", game is over";
+	if(iState != SVS_LOBBY && bGameOver) msg << ", game is over";
 	bool teamGame = true;
 	if(getGameMode()) {
 		teamGame = getGameMode()->GameTeams() > 1;
-		hints << ", " << getGameMode()->Name() << endl;
+		msg << ", " << getGameMode()->Name();
 	} else
-		hints << ", GAMEMODE UNSET" << endl;
+		msg << ", GAMEMODE UNSET";
+	caller->writeMsg(msg.str());
+	msg.str("");	
+	
 	if(cMap && cMap->getCreated())
-		hints << " * level=" << cMap->getName();
+		msg << " * level=" << cMap->getName();
 	else
-		hints << " * no level loaded";
+		msg << " * no level loaded";
 	if(cGameScript.get() && cGameScript->isLoaded())
-		hints << ", mod=" << cGameScript->modName();
+		msg << ", mod=" << cGameScript->modName();
 	else
-		hints << ", no mod loaded";
-	hints << endl;
-	hints << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
-	hints << ", lives=" << tLXOptions->tGameInfo.iLives;
-	hints << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
-	hints << " (curtime=" << fServertime.seconds() << ")" << endl;
+		msg << ", no mod loaded";
+	caller->writeMsg(msg.str());
+	msg.str("");	
+	
+	msg << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
+	msg << ", lives=" << tLXOptions->tGameInfo.iLives;
+	msg << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
+	msg << " (curtime=" << fServertime.seconds() << ")";
+	caller->writeMsg(msg.str());
+	msg.str("");	
+	
 	if(cWorms) {
 		for(int i = 0; i < MAX_WORMS; ++i) {
 			CWorm* w = &cWorms[i];
 			if(w->isUsed()) {
-				hints << " + " << i;
-				if(i != w->getID()) notes << "(WRONG ID:" << w->getID() << ")";
-				hints << ":'" << w->getName() << "'";
-				if(w->getType() == PRF_COMPUTER) hints << "(bot)";
-				if(teamGame) hints << ", team " << w->getTeam();
+				msg << " + " << i;
+				if(i != w->getID()) msg << "(WRONG ID:" << w->getID() << ")";
+				msg << ":'" << w->getName() << "'";
+				if(w->getType() == PRF_COMPUTER) msg << "(bot)";
+				if(teamGame) msg << ", team " << w->getTeam();
 				if(w->getAlive())
-					hints << ", alive";
+					msg << ", alive";
 				else
-					hints << ", dead";
-				if(!w->getWeaponsReady()) hints << ", still weapons selecting";
-				hints << ", lives=" << w->getLives();
-				hints << ", kills=" << w->getKills();
+					msg << ", dead";
+				if(!w->getWeaponsReady()) msg << ", still weapons selecting";
+				msg << ", lives=" << w->getLives();
+				msg << ", kills=" << w->getKills();
 				if(w->getClient())
-					hints << " on " << w->getClient()->debugName(false);
+					msg << " on " << w->getClient()->debugName(false);
 				else
-					hints << " WITH UNSET CLIENT";
-				hints << endl;
+					msg << " WITH UNSET CLIENT";
+				caller->writeMsg(msg.str());
+				msg.str("");	
 			}
 		}
 	} else
-		hints << " - worms not initialised" << endl;
+		caller->writeMsg(" - worms not initialised");
 }
 
 void GameServer::DumpConnections() {

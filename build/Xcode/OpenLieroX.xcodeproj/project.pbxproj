@@ -2118,6 +2118,7 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
+					"-lcurl",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;
@@ -2241,6 +2242,7 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
+					"-lcurl",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;
@@ -2364,6 +2366,7 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
+					"-lcurl",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;
@@ -2533,6 +2536,7 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
+					"-lcurl",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;
@@ -2578,6 +2582,7 @@
 				OTHER_LDFLAGS = (
 					"-lz",
 					"-lxml2",
+					"-lcurl",
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;

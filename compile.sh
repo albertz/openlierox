@@ -68,6 +68,8 @@ type $COMPILER 1>/dev/null 2>/dev/null || \
 	{ echo "ERROR: g++ not found" >&2; ALL_FINE=0; }
 test_include_file libxml/parser.h || \
 	{ echo "ERROR: libxml2 headers not found" >&2; ALL_FINE=0; }
+test_include_file curl/curl.h || \
+	{ echo "ERROR: libcurl headers not found" >&2; ALL_FINE=0; }
 test_include_file SDL.h || \
 	{ echo "ERROR: SDL headers not found" >&2; ALL_FINE=0; }
 test_include_file SDL_image.h || \
@@ -78,6 +80,7 @@ test_include_file zlib.h || \
 	{ echo "ERROR: zlib header not found" >&2; ALL_FINE=0; }
 test_include_file gd.h || \
 	{ echo "ERROR: gd header not found" >&2; ALL_FINE=0; }
+
 
 if [ "$G15" = "1" ]; then
     test_include_file g15daemon_client.h || \
@@ -171,7 +174,7 @@ if $COMPILER \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd -pthread -lz \
+	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lcurl \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" = "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \

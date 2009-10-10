@@ -495,9 +495,10 @@ bool IRCClient::sendChat(const std::string &text1)
 		text = text.substr(text.find(" ", 4));
 		m_chatSocket.Write("PRIVMSG " + user + " :" + text + "\r\n");
 	}
-	else if( text.find("/nick ") == 0 )
+	else if( text.find("/nick ") == 0 || text.find("/name ") == 0 )
 	{
-		m_myNick = text.substr(6);
+		m_myNick = text.substr(text.find(" ")+1);
+		TrimSpaces(m_myNick);
 		m_nickUniqueNumber = -1;
 		makeNickIRCFriendly();
 		m_chatSocket.Write("NICK " + m_myNick + "\r\n");
@@ -520,6 +521,8 @@ bool IRCClient::sendChat(const std::string &text1)
 	return true;	
 }
 
+/////////////////////////
+// Set Away message (we put OLX version here)
 void IRCClient::setAwayMessage(const std::string & msg)
 {
 	m_AwayMessage = msg;
@@ -532,6 +535,32 @@ void IRCClient::setAwayMessage(const std::string & msg)
 	m_chatSocket.Write("AWAY :" + m_AwayMessage + "\r\n");
 }
 
+/////////////////////////
+// Send Whois command on user
+void IRCClient::sendWhois(const std::string & userName)
+{
+	m_chatSocket.Write("WHOIS " + userName + "\r\n");
+};
+
+/////////////////////////
+// Send Whois command on user, and get back info
+std::string IRCClient::getWhois(const std::string & user)
+{
+	if( m_whoisUserName != user )
+	{
+		m_whoisUserName = user;
+		m_whoisUserInfo = "";
+		m_whoisUserAwayMsg = "";
+		sendWhois( user );
+	}
+
+	std::string ret;
+	if( m_whoisUserInfo != "" )
+		ret = m_whoisUserInfo;
+	if( m_whoisUserAwayMsg != "" )
+		ret += "\n" + m_whoisUserAwayMsg;
+	return ret;
+}
 
 
 /*
@@ -724,7 +753,7 @@ void IRCClient::parsePrivmsg(const IRCClient::IRCCommand &cmd)
 		type = IRC_TEXT_PRIVATE;
 	} else
 		text = nick + ": " + cmd.params[1];
-	addChatMessage(ircFormattingToHtml( EscapeHtmlTags(text) ), type);
+	addChatMessage(ircFormattingToHtml( text ), type);
 }
 
 ///////////////////////
@@ -764,6 +793,37 @@ void IRCClient::parseError(const IRCClient::IRCCommand &cmd)
 		disconnect();
 	}
 }
+
+
+///////////////////////////
+// Away message (contains the server on which user is playing)
+void IRCClient::parseAway(const IRCCommand& cmd)
+{
+	if (cmd.params.size() < 3 )
+		return;
+	if( cmd.params[1] != m_whoisUserName )
+		return;
+	m_whoisUserAwayMsg = cmd.params[2];
+	TrimSpaces(m_whoisUserAwayMsg);
+};
+
+///////////////////////////
+// Whois message (contains the OLX version of user)
+void IRCClient::parseWhois(const IRCCommand& cmd)
+{
+	if (cmd.params.size() < 6 )
+		return;
+	if( cmd.params[1] != m_whoisUserName )
+		return;
+	m_whoisUserInfo = cmd.params[5];
+	TrimSpaces(m_whoisUserInfo);
+};
+
+///////////////////////////
+// End of Whois message (pretty useless for us)
+void IRCClient::parseEndOfWhois(const IRCCommand& cmd)
+{
+};
 
 //////////////////////////////
 // Parse an IRC command (private)
@@ -830,6 +890,19 @@ void IRCClient::parseCommand(const IRCClient::IRCCommand &cmd)
 		// End of name list
 		case LIBIRC_RFC_RPL_ENDOFNAMES:
 			parseEndOfNames(cmd);
+			break;
+			
+			
+		case LIBIRC_RFC_RPL_AWAY:
+			parseAway(cmd);
+			break;
+
+		case LIBIRC_RFC_RPL_WHOISUSER:
+			parseWhois(cmd);
+			break;
+
+		case LIBIRC_RFC_RPL_ENDOFWHOIS:
+			parseEndOfWhois(cmd);
 			break;
 
 		// Message of the day

@@ -150,12 +150,20 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 // Save a mod to the cache
 void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> & mod)
 {
-	ScopedLock lock(mutex);
-	if (mod.get() == NULL)
+	if(mod.get() == NULL) {
+		errors << "SaveMod: tried to safe NULL gamescript" << endl;
 		return;
-
+	}
+	
+	if(!mod->isLoaded()) {
+		errors << "SaveMod: tried to safe non-loaded gamescript" << endl;
+		return;
+	}
+	
 	std::string file = file1;
 	stringlwr(file);
+
+	ScopedLock lock(mutex);
 	if( ModCache.find(file) != ModCache.end() )	// Error - already in cache
 	{
 		errors << "Error: mod already in cache - memleak: " << file << endl;

@@ -48,6 +48,7 @@
 #include "FlagInfo.h"
 #include "CMap.h"
 #include "DedicatedControl.h"
+#include "Command.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -2511,19 +2512,22 @@ long CClient::MapPosIndex::index(const CMap* m) const {
 
 
 
-void CClient::DumpGameState() {
-	hints << "Client state: " << NetStateString((ClientNetState)getStatus()) << endl;
+void CClient::DumpGameState(CmdLineIntf* caller) {
+	caller->writeMsg(std::string("Client state: ") + NetStateString((ClientNetState)getStatus()));
 	if(getStatus() == NET_DISCONNECTED) return;
-	hints << "Connected to '" << strServerAddr << "'" << endl;
+	caller->writeMsg("Server info: version " + getServerVersion().asString() + ", addr '" + getServerAddr_HumanReadable() + "'");
 	if(cRemoteWorms) {
 		for(int i = 0; i < MAX_WORMS; ++i) {
 			CWorm* w = &cRemoteWorms[i];
 			if(!w->isUsed()) continue;
-			hints << " * worm " << i << ":" << w->getName();
-			if(w->getLocal()) hints << "(local)";
-			hints << endl;
+			std::ostringstream msg;
+			msg << " * worm " << i << ":" << w->getName();
+			if(w->getLocal()) msg << "(local)";
+			caller->writeMsg(msg.str());
 		}
 	}
+	else
+		caller->writeMsg("Worms not initialised");
 }
 
 
