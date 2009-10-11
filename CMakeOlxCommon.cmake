@@ -3,11 +3,13 @@
 
 cmake_minimum_required(VERSION 2.4)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
-	cmake_policy(VERSION 2.4)
 	if(COMMAND CMAKE_POLICY)
+		cmake_policy(VERSION 2.4)
 		cmake_policy(SET CMP0005 OLD)
 		cmake_policy(SET CMP0003 OLD)
-		if(POLICY CMP0011)
+		# Policy CMP0011 was introduced in 2.6.3.
+		# We cannot do if(POLCY CMP0011) as a check because 2.4 would fail then.
+		if(${CMAKE_MAJOR_VERSION} GREATER 2 OR ${CMAKE_MINOR_VERSION} GREATER 6 OR ${CMAKE_PATCH_VERSION} GREATER 2)
 			# We explicitly want to export variables here.
 			cmake_policy(SET CMP0011 OLD)
 		endif(POLICY CMP0011)
