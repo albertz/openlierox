@@ -155,7 +155,6 @@ public:
 	bool				RequestedData()	const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return ThreadRunning; }
 
 	TimeDiff			GetDownloadTime() const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return DownloadEnd - DownloadStart; }
-	TimeDiff			GetUploadTime()	const		{ return GetUploadTime(); }
 
 	float				GetDownloadSpeed() const;
 	float				GetUploadSpeed() const;
