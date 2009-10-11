@@ -169,7 +169,7 @@ private:
 	CHttp(const CHttp& oth)  { operator= (oth); }
 	CHttp& operator=(const CHttp& http);
 
-	friend class CurlThread;
+	friend struct CurlThread;
 
 	void				InitializeTransfer(const std::string& url, const std::string& proxy);
 	static size_t		CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data);
