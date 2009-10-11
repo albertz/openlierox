@@ -189,9 +189,11 @@ CHttp::~CHttp()
 void CHttp::waitThreadFinish()
 {
 	while(true) {
-		Mutex::ScopedLock l(Lock);
-		if(!ThreadRunning)
-			return;
+		{
+			Mutex::ScopedLock l(Lock);
+			if(!ThreadRunning)
+				return;
+		}
 		SDL_Delay(100);
 	}
 }
