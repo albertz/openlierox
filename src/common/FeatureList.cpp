@@ -27,7 +27,7 @@ Feature featureArray[] = {
 	Feature("ScreenShaking",		"Screen shaking", 		"Screen shaking when something explodes", 
 			true, 	false, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	true ),
 	Feature("MiniMap",				"Mini map", 		"Show mini map", 
-			true, 	true, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_Advanced,					false,	true,	true ),
+			true, 	true, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_Advanced,					false,	false ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The score descreases after a suicide.", 
 			false, 	false, 			Version(), 			GIG_Score, 	ALT_Advanced,					false,	true ),
 	Feature("TeamkillDecreasesScore", "Teamkill decreases score", "The score descreases after a teamkill.", 
