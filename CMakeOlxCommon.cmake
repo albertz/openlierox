@@ -6,7 +6,8 @@ IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(VERSION 2.4)
 	#cmake_policy(SET CMP0005 OLD)
 	#cmake_policy(SET CMP0003 OLD)
-	# Note: This throws a warning for 2.4: IF had incorrect arguments: POLICY CMP0011
+	# Note: This throws an error for 2.4: IF had incorrect arguments: POLICY CMP0011
+	# And we must support 2.4 because the Debian pbuilder environemt requires it.
 	#if(POLICY CMP0011)
 	#	cmake_policy(SET CMP0011 OLD)
 	#endif(POLICY CMP0011)
@@ -14,6 +15,7 @@ IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 
 
+SET(SYSTEM_DATA_DIR "/usr/share/games" CACHE STRING "system data dir")
 OPTION(DEBUG "enable debug build" Yes)
 OPTION(DEDICATED_ONLY "dedicated_only - without gfx and sound" No)
 OPTION(G15 "G15 support" No)
@@ -61,6 +63,7 @@ ELSE(UNIX)
 ENDIF(UNIX)
 
 
+MESSAGE( "SYSTEM_DATA_DIR = ${SYSTEM_DATA_DIR}" )
 MESSAGE( "DEBUG = ${DEBUG}" )
 MESSAGE( "DEDICATED_ONLY = ${DEDICATED_ONLY}" )
 MESSAGE( "G15 = ${G15}" )
@@ -286,3 +289,4 @@ IF (NOT DEDICATED_ONLY)
 ENDIF (NOT DEDICATED_ONLY)
 
 
+ADD_DEFINITIONS('-D SYSTEM_DATA_DIR=\"${SYSTEM_DATA_DIR}\"')

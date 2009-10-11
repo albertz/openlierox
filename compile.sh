@@ -32,7 +32,7 @@ cd "$(dirname "$0")"
 . ./functions.sh
 
 # check variables and set default values if unset
-[ "$SYSTEM_DATA_DIR" = "" ] && SYSTEM_DATA_DIR=/usr/share
+[ "$SYSTEM_DATA_DIR" = "" ] && SYSTEM_DATA_DIR=/usr/share/games
 [ "$DEBUG" = "" ] && DEBUG=0
 [ "$COMPILER" = "" ] && COMPILER=g++
 [ "$ACTIVATE_GDB" = "" ] && [ "$DEBUG" = "1" ] && ACTIVATE_GDB=1
