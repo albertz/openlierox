@@ -4,13 +4,14 @@
 cmake_minimum_required(VERSION 2.4)
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 	cmake_policy(VERSION 2.4)
-	#cmake_policy(SET CMP0005 OLD)
-	#cmake_policy(SET CMP0003 OLD)
-	# Note: This throws an error for 2.4: IF had incorrect arguments: POLICY CMP0011
-	# And we must support 2.4 because the Debian pbuilder environemt requires it.
-	#if(POLICY CMP0011)
-	#	cmake_policy(SET CMP0011 OLD)
-	#endif(POLICY CMP0011)
+	if(COMMAND CMAKE_POLICY)
+		cmake_policy(SET CMP0005 OLD)
+		cmake_policy(SET CMP0003 OLD)
+		if(POLICY CMP0011)
+			# We explicitly want to export variables here.
+			cmake_policy(SET CMP0011 OLD)
+		endif(POLICY CMP0011)
+	endif(COMMAND CMAKE_POLICY)
 	include(${OLXROOTDIR}/PCHSupport_26.cmake)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} GREATER 2.4)
 
