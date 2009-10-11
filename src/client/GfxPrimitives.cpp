@@ -1308,7 +1308,6 @@ void RopePutPixelA(SDL_Surface * bmpDest, int x, int y, Uint32 colour, Uint8 alp
 	if (ropealt == 2)
 		ropecolour = !ropecolour;
 	colour = tLX->clRopeColors[ropecolour].get(bmpDest->format);
-	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 
 	// No alpha weight, use direct pixel access (faster)
 	if (alpha == 255)  {
@@ -1335,7 +1334,6 @@ void RopePutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour) {
 	if (ropealt)
 		ropecolour = !ropecolour;
 	colour = tLX->clRopeColors[ropecolour].get(bmpDest->format);
-	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 	
 
 	// Put the pixel
@@ -1388,13 +1386,13 @@ void LaserSightPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour)
 		return;
 
 	colour = tLX->clLaserSightColors[ GetRandomInt(1) ].get(bmpDest->format);
-	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 
 	// Snap to nearest 2nd pixel
 	x -= x % 2;
 	y -= y % 2;
 
 	// Put the pixel (laser sight is never antialiased)
+	colour = SDLColourToNativeColour(colour, bmpDest->format->BytesPerPixel);
 	Uint8 *px = (Uint8 *)bmpDest->pixels+bmpDest->pitch*y+x*bmpDest->format->BytesPerPixel;
 	Uint8 *px2 = px+bmpDest->pitch;
 	memcpy(px,&colour,bmpDest->format->BytesPerPixel);
