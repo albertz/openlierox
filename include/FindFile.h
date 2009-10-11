@@ -59,7 +59,7 @@ inline bool S_ISLNK(unsigned short d)  { return (d & S_IFLNK) != 0; }
 
 
 #ifndef SYSTEM_DATA_DIR
-#	define	SYSTEM_DATA_DIR	"/usr/share"
+#	define	SYSTEM_DATA_DIR	"/usr/share/games"
 #endif
 
 extern	std::string		binary_dir;
