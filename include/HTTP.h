@@ -116,78 +116,28 @@ enum HttpProc_t {
 	HTTP_PROC_FINISHED = 1
 };
 
-class CHttpBase
-{
-public:
-	CHttpBase() {}
-	virtual ~CHttpBase() {}
 
+
+class CHttp {
+public:
 	enum Action  {
 		htaGet = 0,
 		htaHead,
 		htaPost
 	};
-
+	
 	struct HttpEventData  {
-		HttpEventData(CHttpBase *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
-		CHttpBase *cHttp;
+		HttpEventData(CHttp *h, bool succeeded) : cHttp(h), bSucceeded(succeeded) {}
+		CHttp *cHttp;
 		bool bSucceeded;
 	};
+		
 	
-	Event<HttpEventData>	onFinished;
-	
-	// Proxy is string "user:passwd@host:port", only host is required, "user:passwd" were not tested
-	// TODO: Maybe do the proxy string global?
-	//virtual void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "") = 0;
-	virtual void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "") = 0;
-	virtual void				RequestData(const std::string& url, const std::string& proxy = "") = 0;
-	virtual HttpProc_t			ProcessRequest() = 0;
-	virtual void				CancelProcessing() = 0;
-	virtual void				ClearReceivedData() = 0;
-	virtual HttpError			GetError() const = 0;
-	virtual const std::string&	GetData() const = 0;
-	virtual std::string			GetMimeType() const = 0;
-	//virtual const std::string&	GetDataToSend() const = 0;
-	virtual size_t				GetDataToSendLength() const = 0;
-	virtual size_t				GetDataLength() const = 0;
-	virtual size_t				GetReceivedDataLen() const = 0;
-	virtual size_t				GetSentDataLen() const = 0;
-	virtual bool				RequestedData()	const = 0;
-
-	virtual TimeDiff			GetDownloadTime() const = 0;
-	virtual TimeDiff			GetUploadTime()	const = 0;
-
-	virtual float				GetDownloadSpeed() const = 0;
-	virtual float				GetUploadSpeed() const = 0;
-
-	virtual std::string			GetHostName() const = 0;
-	virtual const std::string&	GetUrl() const = 0;
-	virtual bool				IsRedirecting() const = 0;
-
-private:
-	// they are not allowed atm
-	CHttpBase(const CHttpBase& oth)  { operator= (oth); }
-	CHttpBase& operator=(const CHttpBase& http);
-};
-
-
-class CHttp;
-
-class CurlThread: public Action
-{	
-	CHttp * Parent;
-
-	public:
-	CurlThread( CHttp * parent ): Parent(parent) { };
-	int handle();
-};
-
-class CHttp: public CHttpBase
-{
-public:
 	CHttp();
 	~CHttp();
 
+	Event<HttpEventData>	onFinished;
+	
 	//void				SendSimpleData(const std::string& data, const std::string url, const std::string& proxy = "");
 	void				SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy = "");
 	void				RequestData(const std::string& url, const std::string& proxy = "");
@@ -222,10 +172,10 @@ private:
 
 	friend class CurlThread;
 
-	void				waitThreadFinish();
 	void				InitializeTransfer(const std::string& url, const std::string& proxy);
 	static size_t		CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data);
-
+	static int			CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+	
 	CURL *			curl;
 	// All string data passed to libcurl should be not freed until curl_easy_cleanup, that's fixed in libcurl 7.17.0 (Sep 2007)
 	std::string		Url;

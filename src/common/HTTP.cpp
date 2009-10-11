@@ -170,6 +170,14 @@ void AutoSetupHTTPProxy()
 }
 
 
+
+struct CurlThread : Action {	
+	CHttp * Parent;
+	
+	CurlThread( CHttp * parent ) : Parent(parent) {}
+	int handle();
+};
+
 CHttp::CHttp()
 {
 	curl = curl_easy_init();
@@ -182,23 +190,13 @@ CHttp::CHttp()
 
 CHttp::~CHttp()
 {
-	waitThreadFinish();
+	CancelProcessing();
 	curl_easy_cleanup(curl);
-}
-
-void CHttp::waitThreadFinish()
-{
-	while(true) {
-		Mutex::ScopedLock l(Lock);
-		if(!ThreadRunning)
-			return;
-		SDL_Delay(100);
-	}
 }
 
 size_t CHttp::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
-	CHttp * parent = (CHttp *)data;
+	CHttp* parent = (CHttp *)data;
 	size_t realsize = size * nmemb;
 	
 	Mutex::ScopedLock l(parent->Lock);
@@ -207,13 +205,23 @@ size_t CHttp::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *da
 	
 	if( parent->ThreadAborting )
 		return 0;
+	
 	return realsize;
+}
+
+int	CHttp::CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
+	CHttp* parent = (CHttp *)clientp;
+	
+	Mutex::ScopedLock l(parent->Lock);
+	if( parent->ThreadAborting )
+		return 0;
+	
+	return 1;
 }
 
 void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 {
-	waitThreadFinish();
-	ThreadRunning = true;
+	CancelProcessing();
 	ThreadAborting = false;
 	ProcessingResult = HTTP_PROC_PROCESSING;
 	Url = url;
@@ -226,6 +234,8 @@ void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 	curl_easy_setopt(curl, CURLOPT_PROXY, Proxy.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlReceiveCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressCallback);
+	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, (void *)this);	
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
 	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)HTTP_TIMEOUT);
@@ -238,6 +248,7 @@ void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 void CHttp::RequestData(const std::string& url, const std::string& proxy)
 {
 	InitializeTransfer(url, proxy);
+	ThreadRunning = true;
 	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
 }
 
@@ -248,7 +259,7 @@ void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url
 	if( curlForm != NULL )
 		curl_formfree(curlForm);
 	curlForm = NULL;
-	struct curl_httppost *lastptr=NULL;
+	struct curl_httppost *lastptr = NULL;
 	
 	for( std::list<HTTPPostField> :: const_iterator it = data.begin(); it != data.end(); it++ )
 	{
@@ -271,6 +282,7 @@ void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url
 	}
 	
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, curlForm);
+	ThreadRunning = true;
 	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
 }
 
@@ -295,27 +307,27 @@ int CurlThread::handle()
 		curl_formfree(Parent->curlForm);
 	Parent->curlForm = NULL;
 	
-	Parent->onFinished.occurred(CHttpBase::HttpEventData(Parent, Parent->ProcessingResult == HTTP_PROC_FINISHED));
+	Parent->onFinished.occurred(CHttp::HttpEventData(Parent, Parent->ProcessingResult == HTTP_PROC_FINISHED));
 	return 0;
 }
 
 void CHttp::CancelProcessing()
 {
-	{
-		Mutex::ScopedLock l(Lock);
-		ThreadAborting = true;
+	while(true) {
+		{
+			Mutex::ScopedLock l(Lock);
+			ThreadAborting = true;
+			if(!ThreadRunning)
+				return;
+		}
+		SDL_Delay(10);
 	}
-	waitThreadFinish();
 }
 
 size_t CHttp::GetDataLength() const
 {
-	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
-	long len = 0;
-	curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len);
-	if( len < 0 )
-		len = 0;
-	return len;
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));	
+	return Data.size();
 }
 
 std::string CHttp::GetMimeType() const
