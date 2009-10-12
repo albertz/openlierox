@@ -22,8 +22,6 @@ struct CaptureTheFlag : public CGameMode {
 
 	static const int MAXTEAMS = 4;
 	int teamScore[MAXTEAMS];
-	bool flagsSpawned[MAXTEAMS];
-	bool gameStarted;
 	
 	virtual int GameTeams() {
 		return MAXTEAMS;
@@ -49,68 +47,17 @@ struct CaptureTheFlag : public CGameMode {
 	
 	void reset() {
 		for(int i = 0; i < MAXTEAMS; ++i)
-		{
-			teamScore[i] = 0;
-			flagsSpawned[i] = false;
-		}
-		gameStarted = false;
+			teamScore[i] = 0;		
 	}
 	
 	bool isTeamUsed(int t) {
 		return !cServer->isTeamEmpty(t);
 	}
 	
-	void initFlag(CWorm * worm) {
-		Flag * ff = cServer->flagInfo()->applyInitFlag(worm->getTeam(), worm->getPos());
-		cServer->flagInfo()->applyHolderWorm(ff, worm->getID());
-		cServer->SendGlobalText(worm->getName() + " - set base position for " + flagName(ff->id), TXT_NORMAL);
-	}
-	
-	bool Shoot(CWorm* worm) 
-	{
-		if( worm->getClient() == NULL ) // This function is called from CClient from weapon selection screen (which is hax IMO)
-			return true;
-			
-		if( !gameStarted )
-		{
-			if( cServer->flagInfo()->getFlagOfWorm(worm->getID()) != NULL )
-			{
-				cServer->flagInfo()->applyInitFlag(worm->getTeam(), worm->getPos());
-				cServer->SendGlobalText(flagName(worm->getTeam()) + " position is set", TXT_NORMAL);
-				flagsSpawned[worm->getTeam()] = true;
-			}
-			bool allFlagsSet = true;
-			for(int i = 0; i < MAXTEAMS; ++i)
-				if( ! flagsSpawned[i] && isTeamUsed(i) )
-					allFlagsSet = false;
-			if( allFlagsSet )
-			{
-				gameStarted = true;
-				cServer->SendGlobalText("All flags are set, game is started", TXT_NORMAL);
-			}
-			return false;
-		}
-		return true;
-	}
-
-	void Drop(CWorm* worm) 
-	{
-		if( !gameStarted )
-		{
-			if( cServer->flagInfo()->getFlagOfWorm(worm->getID()) != NULL )
-			{
-				// Pass flag to another worm from the same team
-				for(int i = 0; i < MAX_WORMS; i++)
-				{
-					CWorm * w = & (cServer->getWorms()[i]);
-					if( w->isUsed() && w->getTeam() == worm->getTeam() && w->getID() != worm->getID() )
-					{
-						initFlag(w);
-						return;
-					}
-				}
-			}
-		}
+	void initFlag(int t, const CVec& pos) {
+		// currently, just use this easy method to find a spot for the flag
+		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
+		cServer->flagInfo()->applyInitFlag(t, spawnPoint);
 	}
 	
 	std::string flagName(int t) {
@@ -139,21 +86,18 @@ struct CaptureTheFlag : public CGameMode {
 		
 		if(!cServer->flagInfo()->getFlag(worm->getTeam())) {
 			// we have to create the new flag, there isn't any yet
-			initFlag(worm);
+			initFlag(worm->getTeam(), pos);
 		}
 		return true;
 	}
 	
 	virtual void Kill(CWorm* victim, CWorm* killer) {
-		if( gameStarted )
-		{
-			Flag* victimsFlag = cServer->flagInfo()->getFlagOfWorm(victim->getID());
-			if(victimsFlag) {
-				wormLooseFlag(victim, victimsFlag);
-				CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
-				cServer->flagInfo()->applyCustomPos(victimsFlag, pos);
-				cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);			
-			}
+		Flag* victimsFlag = cServer->flagInfo()->getFlagOfWorm(victim->getID());
+		if(victimsFlag) {
+			wormLooseFlag(victim, victimsFlag);
+			CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
+			cServer->flagInfo()->applyCustomPos(victimsFlag, pos);
+			cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);			
 		}
 		
 		if(killer && killer != victim) {
@@ -167,9 +111,6 @@ struct CaptureTheFlag : public CGameMode {
 	}
 	
 	virtual void hitFlag(CWorm* worm, Flag* flag) {
-		if( !gameStarted )
-			return;
-
 		if(flag->id == worm->getTeam()) { // own flag
 			if(!flag->atSpawnPoint && flag->holderWorm < 0) {
 				cServer->flagInfo()->applySetBack(flag);
@@ -184,9 +125,6 @@ struct CaptureTheFlag : public CGameMode {
 	}
 	
 	virtual void hitFlagSpawnPoint(CWorm* worm, Flag* flag) {
-		if( !gameStarted )
-			return;
-
 		if(worm->getTeam() == flag->id) { // own base
 			Flag* wormsFlag = cServer->flagInfo()->getFlagOfWorm(worm->getID());
 			if(wormsFlag && flag->atSpawnPoint) {
