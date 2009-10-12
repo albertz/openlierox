@@ -81,6 +81,7 @@ void ChatWidget_ChatRefillUserList()
 
 CChatWidget::CChatWidget()
 {
+	m_lastWhoisTime = tLX->currentTime;
 }
 
 CChatWidget::~CChatWidget()
@@ -229,8 +230,15 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 				if (iEvent == LV_MOUSEOVER)  {
 					CListview *lsv = (CListview *)this->getWidget(nc_UserList);
 					IRCClient *irc = GetGlobalIRC();
-	
-					if(lsv->getMouseOverSIndex() != "" && irc && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
+					
+					if( m_lastWhoisName != lsv->getMouseOverSIndex() && 
+						m_lastWhoisTime + 0.7f < tLX->currentTime )
+					{
+						m_lastWhoisTime = tLX->currentTime;
+						m_lastWhoisName = lsv->getMouseOverSIndex();
+					}
+					if( lsv->getMouseOverSIndex() != "" && lsv->getMouseOverSIndex() == m_lastWhoisName &&
+						irc != NULL && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
 					{
 						popup->setEnabled(true);
 						popup->setText( irc->getWhois(lsv->getMouseOverSIndex()) );
@@ -241,11 +249,6 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 						popupBox->setEnabled(true);
 						popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
 						popupBox->Create();
-					}
-					else
-					{
-						popup->setEnabled(false);
-						popupBox->setEnabled(false);
 					}
 				}
 			break;
