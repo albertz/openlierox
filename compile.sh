@@ -54,11 +54,17 @@ xmlconfig=""
 test_exec pkg-config && pkg-config libxml-2.0 && xmlconfig="pkg-config libxml-2.0"
 [ "$xmlconfig" = "" ] && test_exec xml2-config && xmlconfig="xml2-config"
 [ "$xmlconfig" = "" ] && xmlconfig="own_xml2_config"
+curlconfig=""
+test_exec pkg-config && pkg-config libcurl && curlconfig="pkg-config libcurl"
+[ "$curlconfig" = "" ] && test_exec curl-config && xmlconfig="curl-config"
+[ "$curlconfig" = "" ] && xmlconfig="own_xml2_config"
 
 INCLUDE_PATH="$INCLUDE_PATH $($sdlconfig --cflags | grep_param -I)"
 LIB_PATH="$LIB_PATH $($sdlconfig --libs | grep_param -L)"
 INCLUDE_PATH="$INCLUDE_PATH $($xmlconfig --cflags | grep_param -I)"
 LIB_PATH="$LIB_PATH $($xmlconfig --libs | grep_param -L)"
+INCLUDE_PATH="$INCLUDE_PATH $($curlconfig --cflags | grep_param -I)"
+LIB_PATH="$LIB_PATH $($curlconfig --libs | grep_param -L)"
 
 echo "--- OpenLieroX compile.sh ---"
 
@@ -174,7 +180,9 @@ if $COMPILER \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
-	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lcurl \
+	$($curlconfig --cflags) \
+	$($curlconfig --libs) \
+	-lSDL_image -lSDL_mixer -lgd -pthread -lz \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" = "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
