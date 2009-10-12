@@ -782,9 +782,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnect
 		receiver->getNetEngine()->SendUpdateLobby(target);
 	else
 		for( int i = 0; i < MAX_CLIENTS; i++ ) {
-			if(cClients[i].getStatus() == NET_DISCONNECTED) continue;
-			if(cClients[i].getStatus() == NET_ZOMBIE) continue;			
-			if(cClients[i].getNetEngine() == NULL) continue;
+			if(!cClients[i].isUsed()) continue;
 			cClients[i].getNetEngine()->SendUpdateLobby(target);
 		}
 }

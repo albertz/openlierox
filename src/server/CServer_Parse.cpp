@@ -853,7 +853,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				
 				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(0,58,1) )
 					for( int i=0; i < MAX_CLIENTS; i++ )
-						if( server->cClients[i].getStatus() == NET_CONNECTED )
+						if( server->cClients[i].isConnected() )
 							server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), -30, w->getID() ); // It's random between 10-50 actually, we're doing approximation here
 			} else {
 				notes << "GameServer::ParseGrabBonus: Bonus already destroyed." << endl;

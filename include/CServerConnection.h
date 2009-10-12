@@ -122,6 +122,22 @@ public:
 	
 	int			getStatus()					{ return iNetStatus; }
 	void		setStatus(int _s)			{ iNetStatus = _s; }
+
+	bool		isUnset() const	{ return iNetStatus == NET_DISCONNECTED; }
+	bool		isUsed() const		{
+		if(iNetStatus == NET_DISCONNECTED) return false;
+		if(iNetStatus == NET_ZOMBIE) return false;
+		if(cNetEngine == NULL) { logError("isUsed: netengine is unset"); return false; }
+		if(cNetChan == NULL) { logError("isUsed: netchannel is unset"); return false; }
+		return true;
+	}
+	bool		isConnected() const		{
+		if(iNetStatus != NET_CONNECTED) return false;
+		if(cNetEngine == NULL) { logError("isConnected: netengine is unset"); return false; }
+		if(cNetChan == NULL) { logError("isConnected: netchannel is unset"); return false; }
+		return true;
+	}
+	
 	CBytestream	*getUnreliable()			{ return &bsUnreliable; }
 
 	int			OwnsWorm(int id);
@@ -173,6 +189,9 @@ public:
 	IpInfo ipInfo();
 	std::string getAddrAsString();
 	std::string	debugName(bool withWorms = true);
+
+private:
+	void logError(const std::string& err) const;
 };
 
 #endif  //  __CSERVER_CONNECTION_H__

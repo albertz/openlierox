@@ -316,3 +316,9 @@ IpInfo CServerConnection::ipInfo() {
 
 int CServerConnection::getPing() { return cNetChan->getPing(); }
 void CServerConnection::setPing(int _p) { cNetChan->setPing(_p); }
+
+
+void CServerConnection::logError(const std::string& err) const {
+	errors << "CServerConnection::" << err << endl;
+}
+

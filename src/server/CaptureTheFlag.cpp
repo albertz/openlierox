@@ -156,7 +156,7 @@ struct CaptureTheFlag : public CGameMode {
 			}
 		}
 		
-		if(killer != victim) {
+		if(killer && killer != victim) {
 			killer->addKill();
 		}
 		

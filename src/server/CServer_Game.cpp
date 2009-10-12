@@ -281,14 +281,17 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	getGameMode()->Kill(vict, kill);
 	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(!cClients[i].isConnected()) continue;		
 		cClients[i].getNetEngine()->SendWormScore(vict);
 		if (kill && killer != victim)
 			cClients[i].getNetEngine()->SendWormScore(kill);
 	}
 	// Let everyone know that the worm is now dead
-	for(int i = 0; i < MAX_CLIENTS; i++)
+	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(!cClients[i].isConnected()) continue;		
 		cClients[i].getNetEngine()->SendWormDied(vict);
-
+	}
+	
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->WormDied_Signal(vict,kill);
 	

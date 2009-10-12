@@ -462,7 +462,7 @@ mapCreate:
 	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
-		if( cClients[i].getStatus() != NET_CONNECTED )
+		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendPrepareGame();
 
@@ -497,7 +497,7 @@ mapCreate:
 	}
 
 	for( int i = 0; i < MAX_CLIENTS; i++ ) {
-		if( cClients[i].getStatus() != NET_CONNECTED )
+		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
 	}

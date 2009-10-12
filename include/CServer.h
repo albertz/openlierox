@@ -290,7 +290,6 @@ public:
 	const SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
-	int				getState()			{ return iState; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
 	void			resetMap()			{ cMap = NULL; }
@@ -306,7 +305,7 @@ public:
 	CServerConnection* localClientConnection();
 	TimeDiff	getServerTime() { return fServertime; }
 	bool		isServerRunning() const { return cWorms && cClients; }
-	
+	int		getState() const { return iState; }
 	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getNumBots() const;
 	int		getLastBot() const;
