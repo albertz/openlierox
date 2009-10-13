@@ -49,6 +49,14 @@ struct CaptureTheFlag : public CGameMode {
 		for(int i = 0; i < MAXTEAMS; ++i)
 			teamScore[i] = 0;		
 	}
+
+	void Drop(CWorm* worm)
+	{
+		if(cServer->flagInfo()->getFlagOfWorm(worm->getID()) != NULL)
+		{
+			Kill(worm, worm); // Make worm loose the flag
+		}
+	};
 	
 	bool isTeamUsed(int t) {
 		return !cServer->isTeamEmpty(t);
