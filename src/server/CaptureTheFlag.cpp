@@ -49,14 +49,6 @@ struct CaptureTheFlag : public CGameMode {
 		for(int i = 0; i < MAXTEAMS; ++i)
 			teamScore[i] = 0;		
 	}
-
-	void Drop(CWorm* worm)
-	{
-		if(cServer->flagInfo()->getFlagOfWorm(worm->getID()) != NULL)
-		{
-			Kill(worm, worm); // Make worm loose the flag
-		}
-	};
 	
 	bool isTeamUsed(int t) {
 		return !cServer->isTeamEmpty(t);
@@ -77,16 +69,26 @@ struct CaptureTheFlag : public CGameMode {
 		reset();
 	}
 	
-	void wormCatchFlag(CWorm* worm, Flag* flag) {
+	void wormCatchFlag_Handler(CWorm* worm, Flag* flag) {
 		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
 			cServer->SetWormCanUseNinja(worm->getID(), false);
 		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_CTF_SpeedFactorForCarrier]);
 	}
 	
-	void wormLooseFlag(CWorm* worm, Flag* flag) {
+	void wormLooseFlag_Handler(CWorm* worm, Flag* flag) {
 		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
 			cServer->SetWormCanUseNinja(worm->getID(), true);
 		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);		
+	}
+	
+	void wormDropFlag(CWorm* worm) {
+		Flag* flag = cServer->flagInfo()->getFlagOfWorm(worm->getID());
+		if(flag) {
+			wormLooseFlag_Handler(worm, flag);
+			CVec pos = cServer->getMap()->groundPos(worm->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
+			cServer->flagInfo()->applyCustomPos(flag, pos);
+			cServer->SendGlobalText(worm->getName() + " lost " + flagName(flag->id), TXT_NORMAL);			
+		}		
 	}
 	
 	virtual bool Spawn(CWorm* worm, CVec pos) {
@@ -100,23 +102,20 @@ struct CaptureTheFlag : public CGameMode {
 	}
 	
 	virtual void Kill(CWorm* victim, CWorm* killer) {
-		Flag* victimsFlag = cServer->flagInfo()->getFlagOfWorm(victim->getID());
-		if(victimsFlag) {
-			wormLooseFlag(victim, victimsFlag);
-			CVec pos = cServer->getMap()->groundPos(victim->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
-			cServer->flagInfo()->applyCustomPos(victimsFlag, pos);
-			cServer->SendGlobalText(victim->getName() + " lost " + flagName(victimsFlag->id), TXT_NORMAL);			
-		}
+		wormDropFlag(victim);
 		
-		if(killer && killer != victim) {
+		if(killer && killer != victim)
 			killer->addKill();
-		}
 		
 		// Victim is out of the game
 		if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
 			cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 											   victim->getName(), 1), TXT_NORMAL);
 	}
+	
+	virtual void Drop(CWorm* worm) {
+		wormDropFlag(worm);
+	}	
 	
 	virtual void hitFlag(CWorm* worm, Flag* flag) {
 		if(flag->id == worm->getTeam()) { // own flag
@@ -128,7 +127,7 @@ struct CaptureTheFlag : public CGameMode {
 		else { // enemy flag
 			cServer->flagInfo()->applyHolderWorm(flag, worm->getID());
 			cServer->SendGlobalText(worm->getName() + " caught " + flagName(flag->id), TXT_NORMAL);
-			wormCatchFlag(worm, flag);
+			wormCatchFlag_Handler(worm, flag);
 		}
 	}
 	
@@ -138,7 +137,7 @@ struct CaptureTheFlag : public CGameMode {
 			if(wormsFlag && flag->atSpawnPoint) {
 				// yay, we scored!
 				teamScore[worm->getTeam()]++;
-				wormLooseFlag(worm, wormsFlag);
+				wormLooseFlag_Handler(worm, wormsFlag);
 				cServer->flagInfo()->applySetBack(wormsFlag);
 				cServer->SendGlobalText(worm->getName() + " scored for " + TeamName(worm->getTeam()), TXT_NORMAL);
 				cServer->SendTeamScoreUpdate();
