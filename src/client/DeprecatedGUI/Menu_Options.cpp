@@ -864,7 +864,7 @@ void Menu_OptionsFrame()
 					if(ev->iEventMsg == CHK_CHANGED)  {
 						tLXOptions->bUseIpToCountry = cOpt_System.SendMessage(os_UseIpToCountry, CKM_GETCHECK, (DWORD)0, 0) != 0;
 						if (tLXOptions->bUseIpToCountry && !tIpToCountryDB->Loaded())  {
-							tIpToCountryDB->LoadDBFile("ip_to_country.csv");
+							tIpToCountryDB->LoadDBFile("GeoLiteCity.dat");
 						}
 					}
 					break;
