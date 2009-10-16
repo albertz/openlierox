@@ -52,9 +52,6 @@
 //   ExceptionHandler *f = new ExceptionHandler(...);
 //   delete e;
 // This will put the exception filter stack into an inconsistent state.
-//
-// To use this library in your project, you will need to link against
-// ole32.lib.
 
 #ifndef CLIENT_WINDOWS_HANDLER_EXCEPTION_HANDLER_H__
 #define CLIENT_WINDOWS_HANDLER_EXCEPTION_HANDLER_H__
@@ -62,15 +59,19 @@
 #include <stdlib.h>
 #include <Windows.h>
 #include <DbgHelp.h>
+#include <rpc.h>
 
 #pragma warning( push )
 // Disable exception handler warnings.
-#pragma warning( disable : 4530 ) 
+#pragma warning( disable : 4530 )
 
 #include <string>
 #include <vector>
 
+#include "client/windows/common/ipc_protocol.h"
+#include "client/windows/crash_generation/crash_generation_client.h"
 #include "google_breakpad/common/minidump_format.h"
+#include "processor/scoped_ptr.h"
 
 namespace google_breakpad {
 
@@ -90,8 +91,8 @@ class ExceptionHandler {
   // attempting to write a minidump.  If a FilterCallback returns false, Breakpad
   // will immediately report the exception as unhandled without writing a
   // minidump, allowing another handler the opportunity to handle it.
-  typedef bool (*FilterCallback)(void *context, EXCEPTION_POINTERS *exinfo,
-                                 MDRawAssertionInfo *assertion);
+  typedef bool (*FilterCallback)(void* context, EXCEPTION_POINTERS* exinfo,
+                                 MDRawAssertionInfo* assertion);
 
   // A callback function to run after the minidump has been written.
   // minidump_id is a unique id for the dump, so the minidump
@@ -112,11 +113,16 @@ class ExceptionHandler {
   // should normally return the value of |succeeded|, or when they wish to
   // not report an exception of handled, false.  Callbacks will rarely want to
   // return true directly (unless |succeeded| is true).
-  typedef bool (*MinidumpCallback)(const wchar_t *dump_path,
-                                   const wchar_t *minidump_id,
-                                   void *context,
-                                   EXCEPTION_POINTERS *exinfo,
-                                   MDRawAssertionInfo *assertion,
+  //
+  // For out-of-process dump generation, dump path and minidump ID will always
+  // be NULL. In case of out-of-process dump generation, the dump path and
+  // minidump id are controlled by the server process and are not communicated
+  // back to the crashing process.
+  typedef bool (*MinidumpCallback)(const wchar_t* dump_path,
+                                   const wchar_t* minidump_id,
+                                   void* context,
+                                   EXCEPTION_POINTERS* exinfo,
+                                   MDRawAssertionInfo* assertion,
                                    bool succeeded);
 
   // HandlerType specifies which types of handlers should be installed, if
@@ -141,11 +147,26 @@ class ExceptionHandler {
   // minidump.  Minidump files will be written to dump_path, and the optional
   // callback is called after writing the dump file, as described above.
   // handler_types specifies the types of handlers that should be installed.
-  ExceptionHandler(const wstring &dump_path,
+  ExceptionHandler(const wstring& dump_path,
                    FilterCallback filter,
                    MinidumpCallback callback,
-                   void *callback_context,
+                   void* callback_context,
                    int handler_types);
+
+  // Creates a new ExcetpionHandler instance that can attempt to perform
+  // out-of-process dump generation if pipe_name is not NULL. If pipe_name is
+  // NULL, or if out-of-process dump generation registration step fails,
+  // in-process dump generation will be used. This also allows specifying
+  // the dump type to generate.
+  ExceptionHandler(const wstring& dump_path,
+                   FilterCallback filter,
+                   MinidumpCallback callback,
+                   void* callback_context,
+                   int handler_types,
+                   MINIDUMP_TYPE dump_type,
+                   const wchar_t* pipe_name,
+                   const CustomClientInfo* custom_info);
+
   ~ExceptionHandler();
 
   // Get and set the minidump path.
@@ -162,12 +183,12 @@ class ExceptionHandler {
 
   // Writes a minidump immediately, with the user-supplied exception
   // information.
-  bool WriteMinidumpForException(EXCEPTION_POINTERS *exinfo);
+  bool WriteMinidumpForException(EXCEPTION_POINTERS* exinfo);
 
   // Convenience form of WriteMinidump which does not require an
   // ExceptionHandler instance.
   static bool WriteMinidump(const wstring &dump_path,
-                            MinidumpCallback callback, void *callback_context);
+                            MinidumpCallback callback, void* callback_context);
 
   // Get the thread ID of the thread requesting the dump (either the exception
   // thread or any other thread that called WriteMinidump directly).  This
@@ -181,8 +202,21 @@ class ExceptionHandler {
     handle_debug_exceptions_ = handle_debug_exceptions;
   }
 
+  // Returns whether out-of-process dump generation is used or not.
+  bool IsOutOfProcess() const { return crash_generation_client_.get() != NULL; }
+
  private:
   friend class AutoExceptionHandler;
+
+  // Initializes the instance with given values.
+  void Initialize(const wstring& dump_path,
+                  FilterCallback filter,
+                  MinidumpCallback callback,
+                  void* callback_context,
+                  int handler_types,
+                  MINIDUMP_TYPE dump_type,
+                  const wchar_t* pipe_name,
+                  const CustomClientInfo* custom_info);
 
   // Function pointer type for MiniDumpWriteDump, which is looked up
   // dynamically.
@@ -195,12 +229,15 @@ class ExceptionHandler {
       CONST PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
       CONST PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
+  // Function pointer type for UuidCreate, which is looked up dynamically.
+  typedef RPC_STATUS (RPC_ENTRY *UuidCreate_type)(UUID* Uuid);
+
   // Runs the main loop for the exception handler thread.
-  static DWORD WINAPI ExceptionHandlerThreadMain(void *lpParameter);
+  static DWORD WINAPI ExceptionHandlerThreadMain(void* lpParameter);
 
   // Called on the exception thread when an unhandled exception occurs.
   // Signals the exception handler thread to handle the exception.
-  static LONG WINAPI HandleException(EXCEPTION_POINTERS *exinfo);
+  static LONG WINAPI HandleException(EXCEPTION_POINTERS* exinfo);
 
 #if _MSC_VER >= 1400  // MSVC 2005/8
   // This function will be called by some CRT functions when they detect
@@ -208,9 +245,9 @@ class ExceptionHandler {
   // the CRT may display an assertion dialog before calling this function,
   // and the function will not be called unless the assertion dialog is
   // dismissed by clicking "Ignore."
-  static void HandleInvalidParameter(const wchar_t *expression,
-                                     const wchar_t *function,
-                                     const wchar_t *file,
+  static void HandleInvalidParameter(const wchar_t* expression,
+                                     const wchar_t* function,
+                                     const wchar_t* file,
                                      unsigned int line,
                                      uintptr_t reserved);
 #endif  // _MSC_VER >= 1400
@@ -228,8 +265,8 @@ class ExceptionHandler {
   // is NULL.  If the dump is requested as a result of an assertion
   // (such as an invalid parameter being passed to a CRT function),
   // assertion contains data about the assertion, otherwise, it is NULL.
-  bool WriteMinidumpOnHandlerThread(EXCEPTION_POINTERS *exinfo,
-                                    MDRawAssertionInfo *assertion);
+  bool WriteMinidumpOnHandlerThread(EXCEPTION_POINTERS* exinfo,
+                                    MDRawAssertionInfo* assertion);
 
   // This function does the actual writing of a minidump.  It is called
   // on the handler thread.  requesting_thread_id is the ID of the thread
@@ -237,8 +274,8 @@ class ExceptionHandler {
   // an exception, exinfo contains exception information, otherwise,
   // it is NULL.
   bool WriteMinidumpWithException(DWORD requesting_thread_id,
-                                  EXCEPTION_POINTERS *exinfo,
-                                  MDRawAssertionInfo *assertion);
+                                  EXCEPTION_POINTERS* exinfo,
+                                  MDRawAssertionInfo* assertion);
 
   // Generates a new ID and stores it in next_minidump_id_, and stores the
   // path of the next minidump to be written in next_minidump_path_.
@@ -246,7 +283,9 @@ class ExceptionHandler {
 
   FilterCallback filter_;
   MinidumpCallback callback_;
-  void *callback_context_;
+  void* callback_context_;
+
+  scoped_ptr<CrashGenerationClient> crash_generation_client_;
 
   // The directory in which a minidump will be written, set by the dump_path
   // argument to the constructor, or set_dump_path.
@@ -265,12 +304,16 @@ class ExceptionHandler {
   // pointers are not owned by the ExceptionHandler object, but their lifetimes
   // should be equivalent to the lifetimes of the associated wstring, provided
   // that the wstrings are not altered.
-  const wchar_t *dump_path_c_;
-  const wchar_t *next_minidump_id_c_;
-  const wchar_t *next_minidump_path_c_;
+  const wchar_t* dump_path_c_;
+  const wchar_t* next_minidump_id_c_;
+  const wchar_t* next_minidump_path_c_;
 
   HMODULE dbghelp_module_;
   MiniDumpWriteDump_type minidump_write_dump_;
+  MINIDUMP_TYPE dump_type_;
+
+  HMODULE rpcrt4_module_;
+  UuidCreate_type uuid_create_;
 
   // Tracks the handler types that were installed according to the
   // handler_types constructor argument.
@@ -297,6 +340,12 @@ class ExceptionHandler {
   // The exception handler thread.
   HANDLE handler_thread_;
 
+  // True if the exception handler is being destroyed.
+  // Starting with MSVC 2005, Visual C has stronger guarantees on volatile vars.
+  // It has release semantics on write and acquire semantics on reads.
+  // See the msdn documentation.
+  volatile bool is_shutdown_;
+
   // The critical section enforcing the requirement that only one exception be
   // handled by a handler at a time.
   CRITICAL_SECTION handler_critical_section_;
@@ -318,11 +367,11 @@ class ExceptionHandler {
 
   // The exception info passed to the exception handler on the exception
   // thread, if an exception occurred.  NULL for user-requested dumps.
-  EXCEPTION_POINTERS *exception_info_;
+  EXCEPTION_POINTERS* exception_info_;
 
   // If the handler is invoked due to an assertion, this will contain a
   // pointer to the assertion information.  It is NULL at other times.
-  MDRawAssertionInfo *assertion_;
+  MDRawAssertionInfo* assertion_;
 
   // The return value of the handler, passed from the handler thread back to
   // the requesting thread.
@@ -338,7 +387,7 @@ class ExceptionHandler {
   // which ExceptionHandler object to route an exception to.  When an
   // ExceptionHandler is created with install_handler true, it will append
   // itself to this list.
-  static vector<ExceptionHandler *> *handler_stack_;
+  static vector<ExceptionHandler*>* handler_stack_;
 
   // The index of the ExceptionHandler in handler_stack_ that will handle the
   // next exception.  Note that 0 means the last entry in handler_stack_, 1
@@ -347,11 +396,12 @@ class ExceptionHandler {
   static LONG handler_stack_index_;
 
   // handler_stack_critical_section_ guards operations on handler_stack_ and
-  // handler_stack_index_.
+  // handler_stack_index_. The critical section is initialized by the
+  // first instance of the class and destroyed by the last instance of it.
   static CRITICAL_SECTION handler_stack_critical_section_;
 
-  // True when handler_stack_critical_section_ has been initialized.
-  static bool handler_stack_critical_section_initialized_;
+  // The number of instances of this class.
+  volatile static LONG instance_count_;
 
   // disallow copy ctor and operator=
   explicit ExceptionHandler(const ExceptionHandler &);

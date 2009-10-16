@@ -101,13 +101,15 @@ bool Stackwalker::Walk(CallStack *stack) {
         if (resolver_ &&
             !resolver_->HasModule(frame->module->code_file()) &&
             supplier_) {
-          string symbol_file;
+          string symbol_data, symbol_file;
           SymbolSupplier::SymbolResult symbol_result =
-              supplier_->GetSymbolFile(module, system_info_, &symbol_file);
+              supplier_->GetSymbolFile(module, system_info_,
+                                       &symbol_file, &symbol_data);
 
           switch (symbol_result) {
             case SymbolSupplier::FOUND:
-              resolver_->LoadModule(frame->module->code_file(), symbol_file);
+              resolver_->LoadModuleUsingMapBuffer(frame->module->code_file(),
+                                                  symbol_data);
               break;
             case SymbolSupplier::NOT_FOUND:
               break;  // nothing to do
@@ -187,5 +189,39 @@ Stackwalker* Stackwalker::StackwalkerForCPU(
   return cpu_stackwalker;
 }
 
+bool Stackwalker::InstructionAddressSeemsValid(u_int64_t address) {
+  const CodeModule *module = modules_->GetModuleForAddress(address);
+  if (!module) {
+    // not inside any loaded module
+    return false;
+  }
+
+  if (!resolver_ || !supplier_) {
+    // we don't have a resolver and or symbol supplier,
+    // but we're inside a known module
+    return true;
+  }
+
+  if (!resolver_->HasModule(module->code_file())) {
+    string symbol_data, symbol_file;
+    SymbolSupplier::SymbolResult symbol_result =
+      supplier_->GetSymbolFile(module, system_info_,
+                               &symbol_file, &symbol_data);
+
+    if (symbol_result != SymbolSupplier::FOUND ||
+        !resolver_->LoadModuleUsingMapBuffer(module->code_file(),
+                                             symbol_data)) {
+      // we don't have symbols, but we're inside a loaded module
+      return true;
+    }
+  }
+
+  StackFrame frame;
+  frame.module = module;
+  frame.instruction = address;
+  resolver_->FillSourceLineInfo(&frame);
+  // we have symbols, so return true if inside a function
+  return !frame.function_name.empty();
+}
 
 }  // namespace google_breakpad

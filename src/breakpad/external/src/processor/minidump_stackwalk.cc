@@ -34,6 +34,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <string>
 #include <vector>
 
@@ -121,18 +122,19 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
         printf("!%s", frame->function_name.c_str());
         if (!frame->source_file_name.empty()) {
           string source_file = PathnameStripper::File(frame->source_file_name);
-          printf(" [%s : %d + 0x%llx]", source_file.c_str(),
-                                        frame->source_line,
-                                        frame->instruction -
-                                          frame->source_line_base);
+          printf(" [%s : %d + 0x%" PRIx64 "]",
+                 source_file.c_str(),
+                 frame->source_line,
+                 frame->instruction - frame->source_line_base);
         } else {
-          printf(" + 0x%llx", frame->instruction - frame->function_base);
+          printf(" + 0x%" PRIx64, frame->instruction - frame->function_base);
         }
       } else {
-        printf(" + 0x%llx", frame->instruction - frame->module->base_address());
+        printf(" + 0x%" PRIx64,
+               frame->instruction - frame->module->base_address());
       }
     } else {
-      printf("0x%llx", frame->instruction);
+      printf("0x%" PRIx64, frame->instruction);
     }
 
     int sequence = 0;
@@ -158,6 +160,28 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
         sequence = PrintRegister("edx", frame_x86->context.edx, sequence);
         sequence = PrintRegister("efl", frame_x86->context.eflags, sequence);
       }
+      const char *trust_name;
+      switch (frame_x86->trust) {
+        case StackFrameX86::FRAME_TRUST_NONE:
+          trust_name = "unknown";
+          break;
+        case StackFrameX86::FRAME_TRUST_CONTEXT:
+          trust_name = "given as instruction pointer in context";
+          break;
+        case StackFrameX86::FRAME_TRUST_CFI:
+          trust_name = "call frame info";
+          break;
+        case StackFrameX86::FRAME_TRUST_CFI_SCAN:
+          trust_name = "call frame info with scanning";
+          break;
+        case StackFrameX86::FRAME_TRUST_FP:
+          trust_name = "previous frame's frame pointer";
+          break;
+        case StackFrameX86::FRAME_TRUST_SCAN:
+          trust_name = "stack scanning";
+          break;
+      }
+      printf("\n    Found by: %s", trust_name);
     } else if (cpu == "ppc") {
       const StackFramePPC *frame_ppc =
           reinterpret_cast<const StackFramePPC*>(frame);
@@ -213,35 +237,36 @@ static void PrintStackMachineReadable(int thread_num, const CallStack *stack) {
         printf("%c%s", kOutputSeparator,
                StripSeparator(frame->function_name).c_str());
         if (!frame->source_file_name.empty()) {
-          printf("%c%s%c%d%c0x%llx", kOutputSeparator,
-                                     StripSeparator(frame->source_file_name)
-                                       .c_str(),
-                                     kOutputSeparator,
-                                     frame->source_line,
-                                     kOutputSeparator,
-                                     frame->instruction -
-                                       frame->source_line_base);
+          printf("%c%s%c%d%c0x%" PRIx64,
+                 kOutputSeparator,
+                 StripSeparator(frame->source_file_name).c_str(),
+                 kOutputSeparator,
+                 frame->source_line,
+                 kOutputSeparator,
+                 frame->instruction - frame->source_line_base);
         } else {
-          printf("%c%c%c0x%llx", kOutputSeparator,  // empty source file
-                                 kOutputSeparator,  // empty source line
-                                 kOutputSeparator,
-                                 frame->instruction - frame->function_base);
+          printf("%c%c%c0x%" PRIx64,
+                 kOutputSeparator,  // empty source file
+                 kOutputSeparator,  // empty source line
+                 kOutputSeparator,
+                 frame->instruction - frame->function_base);
         }
       } else {
-        printf("%c%c%c%c0x%llx", kOutputSeparator,  // empty function name
-                                 kOutputSeparator,  // empty source file
-                                 kOutputSeparator,  // empty source line
-                                 kOutputSeparator,
-                                 frame->instruction -
-                                   frame->module->base_address());
+        printf("%c%c%c%c0x%" PRIx64,
+               kOutputSeparator,  // empty function name
+               kOutputSeparator,  // empty source file
+               kOutputSeparator,  // empty source line
+               kOutputSeparator,
+               frame->instruction - frame->module->base_address());
       }
     } else {
       // the printf before this prints a trailing separator for module name
-      printf("%c%c%c%c0x%llx", kOutputSeparator,  // empty function name
-                               kOutputSeparator,  // empty source file
-                               kOutputSeparator,  // empty source line
-                               kOutputSeparator,
-                               frame->instruction);
+      printf("%c%c%c%c0x%" PRIx64,
+             kOutputSeparator,  // empty function name
+             kOutputSeparator,  // empty source file
+             kOutputSeparator,  // empty source line
+             kOutputSeparator,
+             frame->instruction);
     }
     printf("\n");
   }
@@ -266,7 +291,7 @@ static void PrintModules(const CodeModules *modules) {
        ++module_sequence) {
     const CodeModule *module = modules->GetModuleAtSequence(module_sequence);
     u_int64_t base_address = module->base_address();
-    printf("0x%08llx - 0x%08llx  %s  %s%s\n",
+    printf("0x%08" PRIx64 " - 0x%08" PRIx64 "  %s  %s%s\n",
            base_address, base_address + module->size() - 1,
            PathnameStripper::File(module->code_file()).c_str(),
            module->version().empty() ? "???" : module->version().c_str(),
@@ -296,7 +321,7 @@ static void PrintModulesMachineReadable(const CodeModules *modules) {
        ++module_sequence) {
     const CodeModule *module = modules->GetModuleAtSequence(module_sequence);
     u_int64_t base_address = module->base_address();
-    printf("Module%c%s%c%s%c%s%c%s%c0x%08llx%c0x%08llx%c%d\n",
+    printf("Module%c%s%c%s%c%s%c%s%c0x%08" PRIx64 "%c0x%08" PRIx64 "%c%d\n",
            kOutputSeparator,
            StripSeparator(PathnameStripper::File(module->code_file())).c_str(),
            kOutputSeparator, StripSeparator(module->version()).c_str(),
@@ -331,7 +356,7 @@ static void PrintProcessState(const ProcessState& process_state) {
   // Print crash information.
   if (process_state.crashed()) {
     printf("Crash reason:  %s\n", process_state.crash_reason().c_str());
-    printf("Crash address: 0x%llx\n", process_state.crash_address());
+    printf("Crash address: 0x%" PRIx64 "\n", process_state.crash_address());
   } else {
     printf("No crash\n");
   }
@@ -384,7 +409,7 @@ static void PrintProcessStateMachineReadable(const ProcessState& process_state)
   // Crash|{Crash Reason}|{Crash Address}|{Crashed Thread}
   printf("Crash%c", kOutputSeparator);
   if (process_state.crashed()) {
-    printf("%s%c0x%llx%c",
+    printf("%s%c0x%" PRIx64 "%c",
            StripSeparator(process_state.crash_reason()).c_str(),
            kOutputSeparator, process_state.crash_address(), kOutputSeparator);
   } else {
@@ -444,7 +469,7 @@ static bool PrintMinidumpProcess(const string &minidump_file,
   // Process the minidump.
   ProcessState process_state;
   if (minidump_processor.Process(minidump_file, &process_state) !=
-      MinidumpProcessor::PROCESS_OK) {
+      google_breakpad::PROCESS_OK) {
     BPLOG(ERROR) << "MinidumpProcessor::Process failed";
     return false;
   }
