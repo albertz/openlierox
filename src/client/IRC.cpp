@@ -540,7 +540,7 @@ void IRCClient::setAwayMessage(const std::string & msg)
 void IRCClient::sendWhois(const std::string & userName)
 {
 	m_chatSocket.Write("WHOIS " + userName + "\r\n");
-};
+}
 
 /////////////////////////
 // Send Whois command on user, and get back info

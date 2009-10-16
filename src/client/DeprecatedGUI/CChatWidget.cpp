@@ -236,12 +236,15 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 					{
 						m_lastWhoisTime = tLX->currentTime;
 						m_lastWhoisName = lsv->getMouseOverSIndex();
-						popup->setText( "Loading..." );
+						popup->setText("");
+					}
+					if(lsv->getMouseOverSIndex() != "" && popup->getText() == "") {
+						popup->setText(lsv->getMouseOverSIndex() + "\n... loading ...");
 					}
 					if( lsv->getMouseOverSIndex() != "" && lsv->getMouseOverSIndex() == m_lastWhoisName &&
 						irc != NULL && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
 					{
-						popup->setText( irc->getWhois(lsv->getMouseOverSIndex()) );
+						popup->setText( lsv->getMouseOverSIndex() + "\n" + irc->getWhois(lsv->getMouseOverSIndex()) );
 					}
 					
 					int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );

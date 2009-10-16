@@ -96,7 +96,8 @@ public:
 
 	void	ChangeColour(Color col)			{ iColour = col; }
 	void	setText(const std::string& sStr)	{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);};
-
+	std::string getText() const { return sText; }
+	
 	// Draw the label
 	inline void	Draw(SDL_Surface * bmpDest) {
 		if (bRedrawMenu)
@@ -117,7 +118,7 @@ public:
 			int width = tLX->cFont.GetWidth(sText);
 			iX += ( iWidth - width ) / 2;
 			iWidth = width;
-		};
+		}
 		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
 	}
 
