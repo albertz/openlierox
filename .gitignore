@@ -2,6 +2,8 @@ build/msvc*/obj
 build/msvc*/Debug
 build/msvc*/Release
 build/Xcode/build
+src/breakpad/external/src/*/*/*/build
+src/breakpad/external/src/*/*/build
 *.ncb
 *.suo
 *.vcproj.*.user
