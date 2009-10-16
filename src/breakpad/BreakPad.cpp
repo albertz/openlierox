@@ -50,12 +50,14 @@ LaunchUploader( const char* dump_dir,
 
     if (!succeeded)
         return false;
-
+	
     pid_t pid = fork();
 
     if (pid == -1) // fork failed
         return false;
     if (pid == 0) { // we are the fork
+		printf("minidump_id: %s\n", minidump_id);
+		
         execl( CrashReporterBin,
                CrashReporterBin,
                dump_dir,
@@ -65,8 +67,11 @@ LaunchUploader( const char* dump_dir,
 
         // execl replaces this process, so no more code will be executed
         // unless it failed. If it failed, then we should return false.
-        return false;
-    }
+
+		// Return anyway true because otherwise, the process will not die.
+		printf("ERROR: Cannot start %s\n", CrashReporterBin);
+		return true;
+	}
 
     // we called fork()
     return true;
@@ -138,7 +143,7 @@ BreakPad::BreakPad( const std::string& path )
 									true )
 {
 #ifdef __APPLE__
-	std::string crashreporterbin = GetBinaryDir() + "../Resources/CrashReporter";
+	std::string crashreporterbin = GetBinaryDir() + "/../Resources/CrashReporter";
 #endif
 	setCrashReporterBin(crashreporterbin);
 }
