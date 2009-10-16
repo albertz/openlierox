@@ -305,10 +305,66 @@ struct VideoHandler {
 
 static VideoHandler videoHandler;
 
+#ifndef WIN32
+
+#include <unistd.h>
+
+static void teeOlxOutputHandler(FILE* in, FILE* out) {
+	unsigned long c = 0;
+	int readch = 0;
+	bool newline = true;
+	
+	while( (readch = fgetc( in )) >= 0 ) {
+		char ch = char((unsigned char)(readch));
+		if(newline) {
+			fprintf(out, "%06lu: ", c);
+			c++;
+			newline = false;
+		}
+		fputc( ch, out );
+		if(ch == '\n')
+			newline = true;
+		fflush( out );
+	}
+}
+
+static void teeStdout() {
+	int pipe_to_handler[2];
+	
+	if(pipe(pipe_to_handler) != 0) return; // error creating pipe
+	
+	FILE* realstdout = stdout;
+
+	pid_t p = fork();
+	if(p < 0) return; // error forking
+	else if(p == 0) { // fork		
+		FILE* newstdin = fdopen(pipe_to_handler[0], "r");
+		if(!newstdin) return;
+		if(!realstdout) return;
+		setvbuf(realstdout, NULL, _IONBF, 0);
+		teeOlxOutputHandler(newstdin, realstdout);
+		_exit(0);
+	}
+	else { // parent
+		FILE* newstdout = fdopen(pipe_to_handler[1], "w");
+		if(!newstdout) return;
+		*stdout = *newstdout;
+		setvbuf(stdout, NULL, _IONBF, 0);
+	}
+}
+
+#else
+
+static void teeStdout(char* argv0) {}
+
+#endif
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
 {
+	teeStdout();
+	
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
 	
