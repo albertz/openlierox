@@ -19,11 +19,22 @@
  ***************************************************************************/
 
 #include "BreakPad.h"
-#include <QString>
-#include "CrashReporter/BinaryFilename.h"
-
 
 #ifndef NBREAKPAD
+
+#include "Debug.h"
+#include "Unicode.h"
+#include "FindFile.h"
+
+static char CrashReporterBin[2048] = { 0, 0, 0 };
+
+static void setCrashReporterBin(const std::string& bin) {
+	if(bin.size() >= sizeof(CrashReporterBin)) {
+		errors << "cannot set CrashReporterBin, path too long!" << endl;
+		return;
+	}
+	strcpy(CrashReporterBin, bin.c_str());
+}
 
 #ifndef WIN32
 #include <unistd.h>
@@ -45,8 +56,8 @@ LaunchUploader( const char* dump_dir,
     if (pid == -1) // fork failed
         return false;
     if (pid == 0) { // we are the fork
-        execl( CRASH_REPORTER_BINARY,
-               CRASH_REPORTER_BINARY,
+        execl( CrashReporterBin,
+               CrashReporterBin,
                dump_dir,
                minidump_id,
                static_cast<BreakPad*>(that)->productName(),
@@ -60,14 +71,6 @@ LaunchUploader( const char* dump_dir,
     // we called fork()
     return true;
 }
-
-BreakPad::BreakPad( const QString& path )
-        : google_breakpad::ExceptionHandler( path.toStdString(), 
-                                             0, 
-                                             LaunchUploader, 
-                                             this, 
-                                             true )
-{}
 
 #else
 static bool
@@ -124,16 +127,21 @@ LaunchUploader( const wchar_t* dump_dir,
     return false;
 }
 
-BreakPad::BreakPad( const QString& path )
-: google_breakpad::ExceptionHandler( path.toStdWString(), 
-                                    0, 
-                                    LaunchUploader, 
-                                    this, 
-                                    true )
-{}
-
 #endif // WIN32
 
+
+BreakPad::BreakPad( const std::string& path )
+: google_breakpad::ExceptionHandler( Utf8ToSystemNative(path), 
+									0, 
+									LaunchUploader, 
+									this, 
+									true )
+{
+#ifdef __APPLE__
+	std::string crashreporterbin = GetBinaryDir() + "../Resources/CrashReporter";
+#endif
+	setCrashReporterBin(crashreporterbin);
+}
 
 BreakPad::~BreakPad()
 {}

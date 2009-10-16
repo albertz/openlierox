@@ -19,9 +19,10 @@
  ***************************************************************************/
 
 #include "BreakpadDllExportMacro.h"
-#include <QString>
 
 #ifndef NBREAKPAD
+
+#include <string>
 
 #ifdef __APPLE__
 #   include "external/src/client/mac/handler/exception_handler.h"
@@ -38,7 +39,7 @@ class BREAKPAD_DLLEXPORT BreakPad : public google_breakpad::ExceptionHandler
     const char* m_product_name; // yes! It MUST be const char[]
 
 public:
-    BreakPad( const QString &dump_write_dirpath );
+    BreakPad( const std::string &dump_write_dirpath );
     ~BreakPad();
 
     void setProductName( const char* s ) { m_product_name = s; };

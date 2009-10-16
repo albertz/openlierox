@@ -19,10 +19,12 @@
 #include "StringUtils.h"
 #include "Debug.h"
 #include "ConversationLogger.h"
+#include "FindFile.h"
+
+#include "../breakpad/BreakPad.h"
 
 
-
-
+#ifdef NBREAKPAD
 
 //
 // WIN 32
@@ -227,14 +229,14 @@ typedef const char * cchar;
 class CrashHandlerImpl : public CrashHandler {
 public:
 	CrashHandlerImpl() {
-		if(tLXOptions->bRecoverAfterCrash) {
-			setSignalHandlers();
-			DumpCallstack(NullOut()); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
+		// Install exception handler only if we don't have Google breakpad
+		// All this old code can be removed completly later on.
+#ifdef NBREAKPAD
+		setSignalHandlers();
+		DumpCallstack(NullOut()); // dummy call to force loading dynamic lib at this point (with sane heap) for backtrace and friends
 
-			notes << "registered simple resuming signal handler" << endl;
-		}
-		else
-			notes << "no signal handler with these settings" << endl;
+		notes << "registered simple signal handler" << endl;
+#endif
 	}
 	
 
@@ -506,6 +508,28 @@ public:
 
 #endif
 
+#else // NBREAKPAD
+
+// We have BreakPad support, so use it
+
+struct CrashHandlerImpl : CrashHandler {
+	BreakPad breakpad;
+	
+	CrashHandlerImpl() : breakpad(GetReportsDestPath()) {
+		breakpad.setProductName( "OpenLieroX" );
+		notes << "installed Breakpad handler" << endl;	
+	}
+
+	static std::string GetReportsDestPath() {
+		std::string crashreportsdestpath = GetWriteFullFileName("crashreports", true);
+		CreateRecDir(crashreportsdestpath, true);
+		return crashreportsdestpath;
+	}
+};
+
+#endif
+
+
 CrashHandlerImpl* crashHandlerInstance = NULL;
 
 void CrashHandler::init() {
@@ -513,7 +537,8 @@ void CrashHandler::init() {
 		warnings << "CrashHandler tried to init twice" << endl;
 		return;
 	}
-	notes << "Installing CrashHandler .. ";
+
+	notes << "Installing CrashHandler .. ";	
 	crashHandlerInstance = new CrashHandlerImpl();
 }
 
