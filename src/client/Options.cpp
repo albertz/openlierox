@@ -143,12 +143,7 @@ bool GameOptions::Init() {
 #else
 			false )
 #endif
-		( tLXOptions->iColourDepth, "Video.ColourDepth",
-#ifndef WIN32
-			32 )
-#else
-			16 )
-#endif
+		( tLXOptions->iColourDepth, "Video.ColourDepth", 32 )
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 
