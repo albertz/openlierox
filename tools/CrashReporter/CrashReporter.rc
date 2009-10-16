@@ -1,0 +1,38 @@
+IDI_ICON1 ICON DISCARDABLE "..\\as.ico"
+
+// The first entry ('1') on the below line is normally written as the define
+// VS_VERSION_INFO, but we can't always be sure that value has been included
+// in a Qt build so we just hardcode 1 in.
+1 VERSIONINFO
+ FILEVERSION 0,0,0,0
+ PRODUCTVERSION 0,0,0,0
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "http://www.last.fm"
+            VALUE "CompanyName", "Last.fm"
+            VALUE "FileDescription", "Last.fm crash reporter"
+            VALUE "FileVersion", "0.0.0.0\0"
+            VALUE "InternalName", "CrashReporter"
+            VALUE "LegalCopyright", "Copyright (C) 2007"
+            VALUE "OriginalFilename", "CrashReporter.exe"
+            VALUE "ProductName", "Last.fm CrashReporter"
+            VALUE "ProductVersion", "0.0.0.0\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="CrashReporter"
+	ProjectGUID="{91191191-31D4-4BD0-A3F0-DBC835B5B9DF}"
+	RootNamespace="container"
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="qmake CrashReporter.pro
+nmake debug"
+				ReBuildCommandLine="qmake CrashReporter.pro
+nmake clean
+nmake debug"
+				CleanCommandLine="nmake clean"
+				Output="..\..\bin\CrashReporterd.exe"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="0">
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="qmake CrashReporter.pro
+nmake release"
+				ReBuildCommandLine="qmake CrashReporter.pro
+nmake clean
+nmake release"
+				CleanCommandLine="nmake clean"
+				Output="..\..\bin\CrashReporter.exe"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Make files"
+			Filter="">
+			<File
+				RelativePath=".\CrashReporter.pro">
+			</File>
+			<File
+				RelativePath=".\CrashReporter.rc">
+			</File>
+		</Filter>
+		<Filter
+			Name="Sources"
+			Filter="">
+			<File
+				RelativePath=".\CrashReporter.cpp">
+			</File>
+			<File
+				RelativePath=".\CrashReporter.h">
+			</File>
+			<File
+				RelativePath=".\main.cpp">
+			</File>
+			<File
+				RelativePath=".\precompiled.h">
+			</File>
+			<File
+				RelativePath=".\zip.h">
+			</File>
+			<File
+				RelativePath=".\zlib.h">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

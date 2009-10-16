@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="CrashReporter"
+	ProjectGUID="{37F09D6A-4F02-49BA-82C8-C04C3BDA80C8}"
+	RootNamespace="container"
+	Keyword="MakeFileProj"
+	>
+	<Platforms>
+		<Platform
+			Name="Win32"
+		/>
+	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="Debug"
+			IntermediateDirectory="Debug"
+			ConfigurationType="0"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="qmake CrashReporter.pro&#x0D;&#x0A;nmake debug"
+				ReBuildCommandLine="qmake CrashReporter.pro&#x0D;&#x0A;nmake clean&#x0D;&#x0A;nmake debug"
+				CleanCommandLine="nmake clean"
+				Output="..\..\bin\CrashReporter.exe"
+				PreprocessorDefinitions=""
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="Release"
+			IntermediateDirectory="Release"
+			ConfigurationType="0"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			>
+			<Tool
+				Name="VCNMakeTool"
+				BuildCommandLine="qmake CrashReporter.pro&#x0D;&#x0A;nmake release"
+				ReBuildCommandLine="qmake CrashReporter.pro&#x0D;&#x0A;nmake clean&#x0D;&#x0A;nmake release"
+				CleanCommandLine="nmake clean"
+				Output="..\..\bin\CrashReporter.exe"
+				PreprocessorDefinitions=""
+				IncludeSearchPath=""
+				ForcedIncludes=""
+				AssemblySearchPath=""
+				ForcedUsingAssemblies=""
+				CompileAsManaged=""
+			/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Make files"
+			>
+			<File
+				RelativePath=".\CrashReporter.pro"
+				>
+			</File>
+			<File
+				RelativePath=".\CrashReporter.rc"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Sources"
+			>
+			<File
+				RelativePath=".\CrashReporter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CrashReporter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\zip.h"
+				>
+			</File>
+			<File
+				RelativePath=".\zlib.h"
+				>
+			</File>
+		</Filter>
+		<File
+			RelativePath=".\CrashReporter.ui"
+			>
+		</File>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
