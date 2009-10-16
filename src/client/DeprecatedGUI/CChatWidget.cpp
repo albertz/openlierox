@@ -232,24 +232,27 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 					IRCClient *irc = GetGlobalIRC();
 					
 					if( m_lastWhoisName != lsv->getMouseOverSIndex() && 
-						m_lastWhoisTime + 0.7f < tLX->currentTime )
+						m_lastWhoisTime + 0.5f < tLX->currentTime )
 					{
 						m_lastWhoisTime = tLX->currentTime;
 						m_lastWhoisName = lsv->getMouseOverSIndex();
+						popup->setText( "Loading..." );
 					}
 					if( lsv->getMouseOverSIndex() != "" && lsv->getMouseOverSIndex() == m_lastWhoisName &&
 						irc != NULL && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
 					{
-						popup->setEnabled(true);
 						popup->setText( irc->getWhois(lsv->getMouseOverSIndex()) );
-						int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
-						int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
-						popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
-						popup->Create();
-						popupBox->setEnabled(true);
-						popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
-						popupBox->Create();
 					}
+					
+					int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
+					int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
+					popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
+					popup->Create();
+					popup->setEnabled(true);
+					
+					popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
+					popupBox->Create();
+					popupBox->setEnabled(true);
 				}
 			break;
 			
