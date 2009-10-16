@@ -561,12 +561,12 @@ void Cmd_crash::exec(CmdLineIntf* caller, const std::vector<std::string>& params
 	//		(I myself just tested this command without knowing and BANG,
 	//		I got an access violation. Perhaps the hoster of an important
 	//		clan war does it...)
-#ifdef DEBUG
-	caller->writeMsg("This debug version will crash too, though.", CNC_WARNING);
-	// HINT: the current simple CrashHandler does not have any problems with this, thus it can stay here for testing
-	(*(int*)0x13) = 42;
-	assert(false);
-#endif
+	if(GetGameVersion().releasetype == Version::RT_BETA) {
+		caller->writeMsg("This version will crash too, though.", CNC_WARNING);
+		// HINT: the current simple CrashHandler does not have any problems with this, thus it can stay here for testing
+		(*(int*)0x13) = 42;
+		assert(false);
+	}
 }
 
 COMMAND_EXTRA(coreDump, "generate a core dump", "", 0, 0, hidden = true);
