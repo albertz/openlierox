@@ -1922,7 +1922,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
 	bs.writeString(tLXOptions->tGameInfo.sModName);
 	bs.writeByte(getGameMode()->GeneralGameType());
-	bs.writeInt16(tLXOptions->tGameInfo.iLives);
+	bs.writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);

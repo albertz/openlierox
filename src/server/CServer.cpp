@@ -406,7 +406,7 @@ mapCreate:
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives(tLXOptions->tGameInfo.iLives);
+			cWorms[i].setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 			cWorms[i].setKills(0);
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
@@ -1783,7 +1783,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		
 		// If the game has limited lives all new worms are spectators
 		if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-			w->setLives(tLXOptions->tGameInfo.iLives);
+			w->setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 		else {
 			w->setLives(WRM_OUT);
 		}

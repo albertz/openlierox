@@ -1078,7 +1078,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					if(buf != "")
 						tLXOptions->tGameInfo.iLives = from_string<int>(buf, fail);
 					if(buf == "" || fail)
-						tLXOptions->tGameInfo.iLives = -2;
+						tLXOptions->tGameInfo.iLives = WRM_UNLIM;
 
 					cServer->UpdateGameLobby();
 				}

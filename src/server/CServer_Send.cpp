@@ -138,7 +138,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	
 	// Game info
 	bs->writeInt(server->getGameMode()->GeneralGameType(),1);
-	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16((int)(server->getGameMode()->TimeLimit() / 60.0f));
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
@@ -664,7 +664,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 	bs->writeString(tLXOptions->tGameInfo.sModName);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	bs->writeByte(server->getGameMode()->GeneralGameType());
-	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeByte(tLXOptions->tGameInfo.bBonusesOn);
