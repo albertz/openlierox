@@ -1476,9 +1476,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			if (str_addr != "")  {
 				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage, 1);
-				replacemax(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage, 1);
-				replacemax(strWelcomeMessage, "<city>", info.City, strWelcomeMessage, 1);
+				replace(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage);
+				replace(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage);
+				replace(strWelcomeMessage, "<city>", info.City, strWelcomeMessage);
 			}
 		}
 		
@@ -1578,12 +1578,12 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>" && networkTexts->sHasConnected != "")  {
-			SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", w->getName(), 1), TXT_NETWORK);
+			SendGlobalText(Replace(networkTexts->sHasConnected, "<player>", w->getName()), TXT_NETWORK);
 		}
 		
 		// Send the welcome message
 		if(strWelcomeMessage != "")
-			SendGlobalText(replacemax(strWelcomeMessage, "<player>", w->getName(), 1), TXT_NETWORK);		
+			SendGlobalText(Replace(strWelcomeMessage, "<player>", w->getName()), TXT_NETWORK);		
 	}
 
 	

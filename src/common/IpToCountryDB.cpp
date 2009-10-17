@@ -11,6 +11,7 @@
 #include "IpToCountryDB.h"
 #include <GeoIPCity.h>
 #include "GfxPrimitives.h"
+#include "Unicode.h"
 
 IpToCountryDB::IpToCountryDB(const std::string& dbfile) : m_geoIP(NULL) { LoadDBFile(dbfile); }
 
@@ -24,6 +25,7 @@ void IpToCountryDB::LoadDBFile(const std::string& dbfile)
 	// Open
 	m_file = dbfile;
 	m_geoIP = GeoIP_open(m_file.c_str(), GEOIP_STANDARD);
+	GeoIP_set_charset(m_geoIP, GEOIP_CHARSET_UTF8);
 	if (!m_geoIP)  {
 		errors << "Could not open Geo IP to Country database" << endl;
 		return;
@@ -35,6 +37,13 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 	IpInfo res = {"Unknown", "Unknown", "UNK", "Unknown"};
 	if (!m_geoIP)
 		return res;
+
+	if (address.find("127.0.0.1") == 0)  {
+		res.Country = "Home";
+		res.City = "Home City";
+		res.Region = "Home Region";
+		return res;
+	}
 
 	std::string pure_addr = address;
 	size_t pos = pure_addr.find(':');

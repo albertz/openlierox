@@ -2341,8 +2341,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Country:", (DynDrawIntf*)NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Location:", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.City + ", " + tIpInfo.Country + " (" + tIpInfo.Continent + ")", (DynDrawIntf*)NULL, NULL);
 
 			// IP address
 			lvInfo.AddItem("ip", ++index, tLX->clNormalLabel);
