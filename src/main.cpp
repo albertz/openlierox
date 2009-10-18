@@ -360,6 +360,8 @@ static TeeStdoutReturn teeStdout() {
 	return ret;
 }
 
+#include <sys/wait.h>
+
 static void teeStdoutQuit(TeeStdoutReturn t) {
 	if(t.proc) {
 		close(t.pipeend);
