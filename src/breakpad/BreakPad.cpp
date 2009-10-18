@@ -142,8 +142,13 @@ BreakPad::BreakPad( const std::string& path )
 									this, 
 									true )
 {
-#ifdef __APPLE__
+#if defined(__APPLE__)
 	std::string crashreporterbin = GetBinaryDir() + "/../Resources/CrashReporter";
+#elif defined(WIN32)
+	std::string crashreporterbin = GetBinaryDir() + "/CrashReporter.exe";
+#else
+	// search searchpaths for CrashReporter
+	std::string crashreporterbin = GetFullFileName("CrashReporter");
 #endif
 	setCrashReporterBin(crashreporterbin);
 }
