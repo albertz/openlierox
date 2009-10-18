@@ -106,7 +106,7 @@ LaunchUploader( const wchar_t* dump_dir,
     while (*in);
 
     wchar_t command[MAX_PATH * 3 + 6];
-    wcscpy( command, CRASH_REPORTER_BINARY L" \"" );
+    wcscpy( command, CrashReporterBin L" \"" );
     wcscat( command, dump_dir );
     wcscat( command, L"\" \"" );
     wcscat( command, minidump_id );
