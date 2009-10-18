@@ -35,9 +35,9 @@
 #include <queue>
 #include <vector>
 
-#include "common/mac/dwarf/functioninfo.h"
+#include "common/dwarf/functioninfo.h"
 
-#include "common/mac/dwarf/bytereader.h"
+#include "common/dwarf/bytereader.h"
 
 
 namespace dwarf2reader {
@@ -119,6 +119,17 @@ void CULineInfoHandler::AddLine(uint64 address, uint32 file_num,
     }
   } else {
     fprintf(stderr,"error in AddLine");
+  }
+}
+
+void CULineInfoHandler::EndSequence(uint64 address) { 
+  // To preserve this code's behavior prior to the addition of the
+  // EndSequence member function, we duplicate the previous line,
+  // changing its address to ADDRESS.
+  LineMap::iterator it = linemap_->lower_bound(address);
+  if (it != linemap_->begin()) {
+    it--;
+    linemap_->insert(make_pair(address, it->second));
   }
 }
 

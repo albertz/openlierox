@@ -26,11 +26,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef COMMON_MAC_DWARF_BYTEREADER_H__
-#define COMMON_MAC_DWARF_BYTEREADER_H__
+#ifndef COMMON_DWARF_BYTEREADER_H__
+#define COMMON_DWARF_BYTEREADER_H__
 
 #include <string>
-#include "common/mac/dwarf/types.h"
+#include "common/dwarf/types.h"
 
 namespace dwarf2reader {
 
@@ -129,4 +129,4 @@ class ByteReader {
 
 }  // namespace dwarf2reader
 
-#endif  // COMMON_MAC_DWARF_BYTEREADER_H__
+#endif  // COMMON_DWARF_BYTEREADER_H__

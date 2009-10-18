@@ -28,8 +28,8 @@
 
 #include <assert.h>
 
-#include "common/mac/dwarf/bytereader-inl.h"
-#include "common/mac/dwarf/bytereader.h"
+#include "common/dwarf/bytereader-inl.h"
+#include "common/dwarf/bytereader.h"
 
 namespace dwarf2reader {
 

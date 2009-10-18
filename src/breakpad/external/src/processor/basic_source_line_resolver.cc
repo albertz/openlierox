@@ -616,6 +616,10 @@ bool BasicSourceLineResolver::Module::ParsePublicSymbol(char *public_line) {
 }
 
 bool BasicSourceLineResolver::Module::ParseStackInfo(char *stack_info_line) {
+  // We parse two forms of stack information:
+  //
+  // * STACK WIN
+  //
   // STACK WIN <type> <rva> <code_size> <prolog_size> <epliog_size>
   // <parameter_size> <saved_register_size> <local_size> <max_stack_size>
   // <has_program_string> <program_string_OR_allocates_base_pointer>
@@ -626,6 +630,151 @@ bool BasicSourceLineResolver::Module::ParseStackInfo(char *stack_info_line) {
   //
   // Expect has_program_string to be 1 when type is STACK_INFO_FRAME_DATA and
   // 0 when type is STACK_INFO_FPO, but don't enforce this.
+  //
+  // * STACK CFI
+  //
+  // CFI ("Call Frame Information") describes, at each machine
+  // instruction, how to compute the stack frame's base address, how
+  // to find the return address, and where to find the saved values of
+  // the caller's registers (if the callee has stashed them somewhere
+  // to free up the registers for its own use).
+  //
+  // CFI records represent a table with a row for each machine
+  // instruction address and a column for each register.  The table
+  // entry for a given address and register contains a rule describing
+  // how, when the PC is at that address, to restore the value that
+  // register had in that PC's function's caller.
+  //
+  // There are some special columns:
+  //
+  // - A column named "CFA", for "Call Frame Address", tells how
+  //   to compute the base address of the frame; other entries can refer
+  //   to the CFA in their rules.
+  //
+  // - A column named "RA" represents the return address.
+  //
+  // Using this data, we can walk the stack as follows: given a set of
+  // register values, we look up the CFI table row for the given PC,
+  // and use its contents to compute the values registers had in the
+  // caller.  In particular, this yields the caller's PC, which we use
+  // to report the caller's function and source line.  We then apply
+  // the same process starting with the caller's register values to
+  // find the caller's caller, and so on.
+  //
+  // For example, suppose we have a machine with 32-bit registers, a
+  // stack that grows downwards, and an assembly language that
+  // resembles C.  If we have a function whose machine code looks like
+  // this:
+  //
+  // func:                                ; entry point; return address at sp
+  // func+0:      sp -= 16                ; allocate space for stack frame
+  // func+1:      sp[12] = r0             ; save 4-byte r0 at sp+12
+  //              ...                     ; stuff that doesn't affect stack
+  // func+10:     sp -= 4; *sp = x        ; push some 4-byte x on the stack
+  //              ...                     ; stuff that doesn't affect stack
+  // func+20:     r0 = sp[16]             ; restore saved r0
+  // func+21:     sp += 20                ; pop whole stack frame
+  // func+22:     pc = *sp; sp += 4       ; pop return address and jump to it
+  //
+  // For example, the following table would describe the function
+  // above:
+  // 
+  //     insn       cfa     r0      r1 ...  ra
+  //     =========================================
+  //     func+0:    sp                      cfa[0]
+  //     func+1:    sp+16                   cfa[0] 
+  //     func+2:    sp+16   cfa[-4]         cfa[0]
+  //     func+11:   sp+20   cfa[-4]         cfa[0]
+  //     func+21:   sp+20                   cfa[0]
+  //     func+22:   sp                      cfa[0]
+  //
+  // Some things to note here:
+  //
+  // - Each row describes the state of affairs *before* executing the
+  //   instruction at the given address.  Thus, the row for func+0
+  //   describes the state before we execute the first instruction,
+  //   which allocates the stack frame.  In the next row, the formula
+  //   for computing the CFA has changed, reflecting the allocation.
+  //
+  // - The other entries are written in terms of the CFA; this allows
+  //   them to remain unchanged as the stack pointer gets bumped
+  //   around.  For example, to find the caller's value for r0 at
+  //   func+2, we would first compute the CFA by adding 16 to the sp,
+  //   and then subtract four from that to find the address at which
+  //   r0 was saved.
+  //
+  // - Although the example doesn't show this, most calling
+  //   conventions designate "callee-saves" and "caller-saves"
+  //   registers.  The callee must restore the values of
+  //   "callee-saves" registers before returning (if it uses them at
+  //   all), whereas the callee is free to use "caller-saves"
+  //   registers without restoring their values.  A function that uses
+  //   caller-saves registers typically does not save their original
+  //   values at all; in this case, the CFI marks such registers'
+  //   values as "unrecoverable".
+  // 
+  // - Exactly where the CFA points in the frame --- at the return
+  //   address?  below it?  At some fixed point within the frame? ---
+  //   is a question of definition that depends on the architecture
+  //   and ABI in use.  But by definition, the CFA remains constant
+  //   throughout the lifetime of the frame.  It's up to architecture-
+  //   specific code to know what significance to assign the CFA, if
+  //   any.
+  //
+  // To save space, in the actual CFI data, we only mention the table
+  // entries at which changes take place.  So for the above, the DWARF
+  // CFI data would only actually mention the non-blank entries here:
+  // 
+  //     insn      cfa    r0      r1 ...  ra
+  //     =======================================
+  //     func+0:   sp                     cfa[0]
+  //     func+1:   sp+16
+  //     func+2:          cfa[-4]
+  //     func+11:  sp+20
+  //     func+21:         r0
+  //     func+22:  sp            
+  //
+  // Breakpad CFI uses an extension of the postfix expression language
+  // used for STACK WIN records.  Each column is given an identifier;
+  // register columns are register names starting with a "$"
+  // character, and CFA and RA are called ".cfa" and ".ra".  For each
+  // table row, CFI provides a postfix expression to assign values to
+  // its columns.  To save space, some rows can be described as
+  // changes to the state established by the previous row.
+  //
+  // However, in CFI expressions, the values on the stack or in a
+  // dictionary are not numbers; instead, they are expressions, saved
+  // to be evaluated later.  Thus, "$sp 16 + ^ $ra =" stores the
+  // expression "$sp 16 + ^" as the value of "$ra", rather than
+  // fetching the value of the "$sp" identifier, adding 16 to it
+  // immediately, dereferencing that address, and storing the
+  // resulting number in $ra.
+  //
+  // There is also a special literal value that can be used in CFI
+  // expressions: setting a register's value to ".und" indicates that its 
+  // value cannot be recovered.
+  //
+  // There are two kinds of CFI lines:
+  // 
+  // STACK CFI INIT <addr> <CFI expression>
+  //   Starting with a dictionary in which all registers are unset,
+  //   evaluating <CFI expression> sets values for all known registers
+  //   at <addr>
+  //
+  // STACK CFI <addr> <CFI expression>
+  //   Starting with the state established by the previous STACK CFI
+  //   record, evaluating <CFI expression> establishes values for all
+  //   known registers at <addr>.
+  //
+  // So the CFI for the example function would be as follows,
+  // pretending that func was 0x1000:
+  //
+  //     STACK CFI INIT 1000 $sp .cfa = .cfa ^ .ra =
+  //     STACK CFI 1001 $sp 16 + .cfa =
+  //     STACK CFI 1002 .cfa 4 - ^ $r0 =
+  //     STACK CFI 100b $sp 20 + .cfa =
+  //     STACK CFI 1015 $r0 $r0 =
+  //     STACK CFI 1016 $sp .cfa =
 
   // Skip "STACK " prefix.
   stack_info_line += 6;

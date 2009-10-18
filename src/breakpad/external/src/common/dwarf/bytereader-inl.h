@@ -29,7 +29,9 @@
 #ifndef UTIL_DEBUGINFO_BYTEREADER_INL_H__
 #define UTIL_DEBUGINFO_BYTEREADER_INL_H__
 
-#include "common/mac/dwarf/bytereader.h"
+#include <cassert>
+
+#include "common/dwarf/bytereader.h"
 
 namespace dwarf2reader {
 

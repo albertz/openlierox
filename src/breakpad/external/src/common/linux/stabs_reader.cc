@@ -94,8 +94,13 @@ bool StabsReader::ProcessCompilationUnit() {
     if (symbol_ >= symbols_end_ || symbol_->n_type != N_SO)
       return true;
     const char *name = SymbolString();
-    if (name[0] == '\0')
+    if (name[0] == '\0') {
+      // This seems to be a stray end-of-compilation-unit marker;
+      // consume it, but don't report the end, since we didn't see a
+      // beginning.
+      symbol_++;
       return true;
+    }
     current_source_file_ = name;
   }
 
@@ -107,9 +112,9 @@ bool StabsReader::ProcessCompilationUnit() {
   symbol_++;
 
   // The STABS documentation says that some compilers may emit
-  // additional N_SO units with names immediately following the first,
-  // and that they should be ignored.  However, the original Breakpad
-  // STABS reader doesn't ignore them, so we won't either.
+  // additional N_SO entries with names immediately following the
+  // first, and that they should be ignored.  However, the original
+  // Breakpad STABS reader doesn't ignore them, so we won't either.
 
   // Process the body of the compilation unit, up to the next N_SO.
   while (symbol_ < symbols_end_ && symbol_->n_type != N_SO) {

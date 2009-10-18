@@ -47,9 +47,9 @@
 #import "dump_syms.h"
 #import "common/mac/file_id.h"
 #import "common/mac/macho_utilities.h"
-#import "common/mac/dwarf/dwarf2reader.h"
-#import "common/mac/dwarf/functioninfo.h"
-#import "common/mac/dwarf/bytereader.h"
+#import "common/dwarf/dwarf2reader.h"
+#import "common/dwarf/functioninfo.h"
+#import "common/dwarf/bytereader.h"
 
 using google_breakpad::FileID;
 

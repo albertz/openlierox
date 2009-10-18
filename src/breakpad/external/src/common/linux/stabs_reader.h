@@ -54,8 +54,8 @@ class StabsReader {
   // Create a reader for the STABS debug information whose .stab
   // section is the STAB_SIZE bytes at STAB, and whose .stabstr
   // section is the STABSTR_SIZE bytes at STABSTR.  The reader will
-  // call the methods of HANDLER to report the information it finds,
-  // when the reader's 'process' method is called.
+  // call the member functions of HANDLER to report the information it
+  // finds, when the reader's 'Process' member function is called.
   // 
   // Note that, in ELF, the .stabstr section should be found using the
   // 'sh_link' field of the .stab section header, not by name.
@@ -63,9 +63,9 @@ class StabsReader {
               const uint8_t *stabstr, size_t stabstr_size,
               StabsHandler *handler);
 
-  // Process the STAB data, calling the handler's methods to report
-  // what we find.  While the handler functions return true, continue
-  // to process until we reach the end of the section.  If we
+  // Process the STABS data, calling the handler's member functions to
+  // report what we find.  While the handler functions return true,
+  // continue to process until we reach the end of the section.  If we
   // processed the entire section and all handlers returned true,
   // return true.  If any handler returned false, return false.
   bool Process();
@@ -101,12 +101,13 @@ class StabsReader {
   const char *current_source_file_;
 };
 
-// Consumer-provided callback structure for the STABS reader.
-// Clients of the STABS reader provide an instance of this structure.
-// The reader then invokes the methods of that instance to report the
-// information it finds.
+// Consumer-provided callback structure for the STABS reader.  Clients
+// of the STABS reader provide an instance of this structure.  The
+// reader then invokes the member functions of that instance to report
+// the information it finds.
 //
-// The default definitions of the methods do nothing.
+// The default definitions of the member functions do nothing, and return
+// true so processing will continue.
 class StabsHandler {
  public:
   StabsHandler() { }
@@ -134,9 +135,10 @@ class StabsHandler {
   // file names.
   //
   // Thus, it's safe to use (say) std::map<char *, ...>, which does
-  // address comparisons.  Since all the pointers are into the array
-  // holding the .stabstr section's contents, comparing them produces
-  // predictable results.
+  // string address comparisons, not string content comparisons.
+  // Since all the strings are in same array of characters --- the
+  // .stabstr section --- comparing their addresses produces
+  // predictable, if not lexicographically meaningful, results.
 
   // Begin processing a compilation unit whose main source file is
   // named FILENAME, and whose base address is ADDRESS.  If
@@ -147,10 +149,10 @@ class StabsHandler {
     return true;
   }
 
-  // Finish processing the compilation unit.  If END_ADDRESS is
-  // non-zero, it is the ending address of the compilation unit.  This
-  // information may not be available, in which case the consumer must
-  // infer it by other means.
+  // Finish processing the compilation unit.  If ADDRESS is non-zero,
+  // it is the ending address of the compilation unit.  If ADDRESS is
+  // zero, then the compilation unit's ending address is not
+  // available, and the consumer must infer it by other means.
   virtual bool EndCompilationUnit(uint64_t address) { return true; }
 
   // Begin processing a function named NAME, whose starting address is
@@ -161,14 +163,16 @@ class StabsHandler {
   // .stabstr section; this is because the name as it appears in the
   // STABS data is followed by type information.  The value passed to
   // StartFunction is the function name alone.
+  //
+  // In languages that use name mangling, like C++, NAME is mangled.
   virtual bool StartFunction(const std::string &name, uint64_t address) {
     return true;
   }
 
-  // Finishing processing the function.  If END_ADDRESS is non-zero,
-  // it is the ending address for the function.  This information may
-  // not be available, in which case the consumer must infer it by
-  // other means.
+  // Finish processing the function.  If ADDRESS is non-zero, it is
+  // the ending address for the function.  If ADDRESS is zero, then
+  // the function's ending address is not available, and the consumer
+  // must infer it by other means.
   virtual bool EndFunction(uint64_t address) { return true; }
   
   // Report that the code at ADDRESS is attributable to line NUMBER of
@@ -179,8 +183,9 @@ class StabsHandler {
   }
 
   // Report a warning.  FORMAT is a printf-like format string,
-  // specifying how to format the subsequent arguments.
-  virtual void Warning(const char *format, ...) { }
+  // specifying how to format the subsequent arguments.  By default,
+  // print the message to the standard error output.
+  virtual void Warning(const char *format, ...) = 0;
 };
 
 } // namespace google_breakpad

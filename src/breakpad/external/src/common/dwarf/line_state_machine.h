@@ -1,4 +1,4 @@
-// Copyright 2008 Google, Inc.  All Rights reserved
+// Copyright 2008 Google Inc. All Rights Reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,20 +27,35 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-// This file contains some typedefs for basic types
+#ifndef COMMON_DWARF_LINE_STATE_MACHINE_H__
+#define COMMON_DWARF_LINE_STATE_MACHINE_H__
+
+namespace dwarf2reader {
+
+// This is the format of a DWARF2/3 line state machine that we process
+// opcodes using.  There is no need for anything outside the lineinfo
+// processor to know how this works.
+struct LineStateMachine {
+  void Reset(bool default_is_stmt) {
+    file_num = 1;
+    address = 0;
+    line_num = 1;
+    column_num = 0;
+    is_stmt = default_is_stmt;
+    basic_block = false;
+    end_sequence = false;
+  }
+
+  uint32 file_num;
+  uint64 address;
+  uint64 line_num;
+  uint32 column_num;
+  bool is_stmt;  // stmt means statement.
+  bool basic_block;
+  bool end_sequence;
+};
+
+}  // namespace dwarf2reader
 
 
-#ifndef _COMMON_MAC_DWARF_TYPES_H__
-#define _COMMON_MAC_DWARF_TYPES_H__
-
-typedef signed char         int8;
-typedef short               int16;
-typedef int                 int32;
-typedef long long           int64;
-
-typedef unsigned char      uint8;
-typedef unsigned short     uint16;
-typedef unsigned int       uint32;
-typedef unsigned long long uint64;
-
-#endif // _COMMON_MAC_DWARF_TYPES_H__
+#endif  // COMMON_DWARF_LINE_STATE_MACHINE_H__

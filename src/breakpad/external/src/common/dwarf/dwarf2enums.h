@@ -26,8 +26,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef COMMON_MAC_DWARF_DWARF2ENUMS_H__
-#define COMMON_MAC_DWARF_DWARF2ENUMS_H__
+#ifndef COMMON_DWARF_DWARF2ENUMS_H__
+#define COMMON_DWARF_DWARF2ENUMS_H__
 
 namespace dwarf2reader {
 
@@ -486,5 +486,40 @@ enum DwarfOpcode {
   DW_OP_GNU_push_tls_address         =0xe0
 };
 
+// Source languages.  These are values for DW_AT_language.
+enum DwarfLanguage
+  {
+    DW_LANG_none                     =0x0000,
+    DW_LANG_C89                      =0x0001,
+    DW_LANG_C                        =0x0002,
+    DW_LANG_Ada83                    =0x0003,
+    DW_LANG_C_plus_plus              =0x0004,
+    DW_LANG_Cobol74                  =0x0005,
+    DW_LANG_Cobol85                  =0x0006,
+    DW_LANG_Fortran77                =0x0007,
+    DW_LANG_Fortran90                =0x0008,
+    DW_LANG_Pascal83                 =0x0009,
+    DW_LANG_Modula2                  =0x000a,
+    DW_LANG_Java                     =0x000b,
+    DW_LANG_C99                      =0x000c,
+    DW_LANG_Ada95                    =0x000d,
+    DW_LANG_Fortran95                =0x000e,
+    DW_LANG_PLI                      =0x000f,
+    DW_LANG_ObjC                     =0x0010,
+    DW_LANG_ObjC_plus_plus           =0x0011,
+    DW_LANG_UPC                      =0x0012,
+    DW_LANG_D                        =0x0013,
+    // Implementation-defined language code range.
+    DW_LANG_lo_user = 0x8000,
+    DW_LANG_hi_user = 0xffff,
+
+    // Extensions.
+
+    // MIPS assembly language.  The GNU toolchain uses this for all
+    // assembly languages, since there's no generic DW_LANG_ value for that.
+    DW_LANG_Mips_Assembler           =0x8001,
+    DW_LANG_Upc                      =0x8765 // Unified Parallel C
+  };
+
 }  // namespace dwarf2reader
-#endif  // COMMON_MAC_DWARF_DWARF2ENUMS_H__
+#endif  // COMMON_DWARF_DWARF2ENUMS_H__

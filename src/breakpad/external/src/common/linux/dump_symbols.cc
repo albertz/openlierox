@@ -50,6 +50,7 @@
 #include <string>
 #include <vector>
 
+#include "common/linux/dump_dwarf.h"
 #include "common/linux/dump_symbols.h"
 #include "common/linux/file_id.h"
 #include "common/linux/guid_creator.h"
@@ -62,9 +63,6 @@ namespace {
 
 using google_breakpad::Module;
 using std::vector;
-
-// Stab section name.
-static const char *kStabName = ".stab";
 
 // Demangle using abi call.
 // Older GCC may not support it.
@@ -146,6 +144,7 @@ class DumpStabsHandler: public google_breakpad::StabsHandler {
   bool StartFunction(const std::string &name, uint64_t address);
   bool EndFunction(uint64_t address);
   bool Line(uint64_t address, const char *name, int number);
+  void Warning(const char *format, ...);
 
   // Do any final processing necessary to make module_ contain all the
   // data provided by the STABS reader.
@@ -267,6 +266,13 @@ bool DumpStabsHandler::Line(uint64_t address, const char *name, int number) {
   return true;
 }
 
+void DumpStabsHandler::Warning(const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+}
+
 void DumpStabsHandler::Finalize() {
   // Sort our boundary list, so we can search it quickly.
   sort(boundaries_.begin(), boundaries_.end());
@@ -308,12 +314,9 @@ void DumpStabsHandler::Finalize() {
   functions_.clear();
 }
 
-static bool LoadSymbols(const ElfW(Shdr) *stab_section,
-                        const ElfW(Shdr) *stabstr_section,
-                        Module *module) {
-  if (stab_section == NULL || stabstr_section == NULL)
-    return false;
-
+static bool LoadStabs(const ElfW(Shdr) *stab_section,
+                      const ElfW(Shdr) *stabstr_section,
+                      Module *module) {
   // A callback object to handle data from the STABS reader.
   DumpStabsHandler handler(module);
   // Find the addresses of the STABS data, and create a STABS reader object.
@@ -329,7 +332,8 @@ static bool LoadSymbols(const ElfW(Shdr) *stab_section,
   return true;
 }
 
-static bool LoadSymbols(ElfW(Ehdr) *elf_header, Module *module) {
+static bool LoadSymbols(const std::string &obj_file, ElfW(Ehdr) *elf_header,
+                        Module *module) {
   // Translate all offsets in section headers into address.
   FixAddress(elf_header);
   ElfW(Addr) loading_addr = GetLoadingAddress(
@@ -338,18 +342,33 @@ static bool LoadSymbols(ElfW(Ehdr) *elf_header, Module *module) {
   module->SetLoadAddress(loading_addr);
 
   const ElfW(Shdr) *sections =
-    reinterpret_cast<ElfW(Shdr) *>(elf_header->e_shoff);
+      reinterpret_cast<ElfW(Shdr) *>(elf_header->e_shoff);
   const ElfW(Shdr) *strtab = sections + elf_header->e_shstrndx;
-  const ElfW(Shdr) *stab_section =
-    FindSectionByName(kStabName, sections, strtab, elf_header->e_shnum);
-  if (stab_section == NULL) {
-    fprintf(stderr, "Stab section not found.\n");
+  bool found_some_debug_info = false;
+  const ElfW(Shdr) *stab_section
+      = FindSectionByName(".stab", sections, strtab, elf_header->e_shnum);
+  if (stab_section) {
+    const ElfW(Shdr) *stabstr_section = stab_section->sh_link + sections;
+    if (stabstr_section) {
+      found_some_debug_info = true;
+      if (! LoadStabs(stab_section, stabstr_section, module))
+        fprintf(stderr, "\".stab\" section found, but failed to load STABS"
+                " debugging information\n");
+    }
+  }
+  const ElfW(Shdr) *dwarf_section
+      = FindSectionByName(".debug_info", sections, strtab, elf_header->e_shnum);
+  if (dwarf_section) {
+    found_some_debug_info = true;
+    if (! LoadDwarf(obj_file, elf_header, module))
+      fprintf(stderr, "\".debug_info\" section found, but failed to load "
+              "DWARF debugging information\n");
+  }
+  if (! found_some_debug_info) {
+    fprintf(stderr, "file contains no debugging information (no \".stab\" or \".debug_info\" sections)\n");
     return false;
   }
-  const ElfW(Shdr) *stabstr_section = stab_section->sh_link + sections;
-
-  // Load symbols.
-  return LoadSymbols(stab_section, stabstr_section, module);
+  return true;
 }
 
 //
@@ -482,7 +501,7 @@ bool DumpSymbols::WriteSymbolFile(const std::string &obj_file,
   std::string id = FormatIdentifier(identifier);
 
   Module module(name, os, architecture, id);
-  if (!LoadSymbols(elf_header, &module))
+  if (!LoadSymbols(obj_file, elf_header, &module))
     return false;
   if (!module.Write(sym_file))
     return false;

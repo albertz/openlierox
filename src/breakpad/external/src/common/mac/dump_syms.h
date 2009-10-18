@@ -33,7 +33,7 @@
 
 #import <Foundation/Foundation.h>
 #include <mach-o/loader.h>
-#include "common/mac/dwarf/dwarf2reader.h"
+#include "common/dwarf/dwarf2reader.h"
 
 // This will map from an architecture string to a SectionMap, which
 // will contain the offsets for all the sections in the dictionary
