@@ -309,53 +309,69 @@ static VideoHandler videoHandler;
 
 #include <unistd.h>
 
-static void teeOlxOutputHandler(FILE* in, FILE* out) {
+static void teeOlxOutputHandler(int in, int out) {
 	unsigned long c = 0;
-	int readch = 0;
 	bool newline = true;
 	
-	while( (readch = fgetc( in )) >= 0 ) {
-		char ch = char((unsigned char)(readch));
+	while( true ) {
+		char ch = 0;
+		if(read(in, &ch, 1) <= 0) break;
 		if(newline) {
-			fprintf(out, "%06lu: ", c);
+			char tmp[10];
+			sprintf(tmp, "%06lu: ", c);
+			write(out, &tmp, 8);
 			c++;
 			newline = false;
 		}
-		fputc( ch, out );
+		write( out, &ch, 1 );
 		if(ch == '\n')
 			newline = true;
-		fflush( out );
 	}
 }
 
-static void teeStdout() {
+struct TeeStdoutReturn {
+	pid_t proc;
+	int pipeend;
+};
+
+static TeeStdoutReturn teeStdout() {
+	TeeStdoutReturn ret = {0,0};
 	int pipe_to_handler[2];
 	
-	if(pipe(pipe_to_handler) != 0) return; // error creating pipe
+	if(pipe(pipe_to_handler) != 0) return ret; // error creating pipe
 	
-	FILE* realstdout = stdout;
-
 	pid_t p = fork();
-	if(p < 0) return; // error forking
+	if(p < 0) return ret; // error forking
 	else if(p == 0) { // fork		
-		FILE* newstdin = fdopen(pipe_to_handler[0], "r");
-		if(!newstdin) return;
-		if(!realstdout) return;
-		setvbuf(realstdout, NULL, _IONBF, 0);
-		teeOlxOutputHandler(newstdin, realstdout);
+		close(pipe_to_handler[1]);
+		teeOlxOutputHandler(pipe_to_handler[0], STDOUT_FILENO);
 		_exit(0);
 	}
 	else { // parent
+		close(pipe_to_handler[0]);
+		ret.proc = p;
+		ret.pipeend = pipe_to_handler[1];
 		FILE* newstdout = fdopen(pipe_to_handler[1], "w");
-		if(!newstdout) return;
+		if(!newstdout) return ret;
 		*stdout = *newstdout;
 		setvbuf(stdout, NULL, _IONBF, 0);
+	}
+	
+	return ret;
+}
+
+static void teeStdoutQuit(TeeStdoutReturn t) {
+	if(t.proc) {
+		close(t.pipeend);
+		waitpid(t.proc, NULL, 0);
 	}
 }
 
 #else
 
-static void teeStdout(char* argv0) {}
+typedef int TeeStdoutReturn;
+static TeeStdoutReturn teeStdout() { return 0; }
+static void teeStdoutQuit(TeeStdoutReturn) {}
 
 #endif
 
@@ -363,7 +379,7 @@ static void teeStdout(char* argv0) {}
 // Main entry point
 int main(int argc, char *argv[])
 {
-	teeStdout();
+	TeeStdoutReturn tee = teeStdout();
 	
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
@@ -596,6 +612,7 @@ quit:
 	// Uninit the crash handler after all other code
 	CrashHandler::uninit();
 
+	teeStdoutQuit(tee);
 	return 0;
 }
 
