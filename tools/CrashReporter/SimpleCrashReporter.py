@@ -4,16 +4,16 @@ import sys, smtplib
 import os
 
 if len(sys.argv) < 4:
-	print "Usage: " + sys.argv[0] + " <dumpdir> <minidumpid> <productname>"
+	print "Usage: " + sys.argv[0] + " <olxbin> <dumpdir> <minidumpid> <productname>"
 	exit(1)
 
 appdir = os.path.dirname(sys.argv[0])
-dumpfile = sys.argv[1] + "/" + sys.argv[2] + ".dmp"
-reporter = appdir + "/crash_report"
-productname = sys.argv[3]
+dumpfile = sys.argv[2] + "/" + sys.argv[3] + ".dmp"
+olxbin = sys.argv[1]
+productname = sys.argv[4]
 
-if not os.path.exists(reporter):
-	print "Reporter binary crash_report does not exist"
+if not os.path.exists(olxbin):
+	print "OpenLieroX bin", olxbin, "does not exist"
 	exit(1)
 
 if not os.path.exists(dumpfile):
@@ -33,7 +33,7 @@ msg = msg + "os.environ = " + os.environ.__repr__() + "\n"
 
 msg = msg + "\n\n\nCrash information:\n\n"
 
-stream = os.popen("\"" + reporter + "\" \"" + dumpfile + "\" 2>/dev/null")
+stream = os.popen("\"" + olxbin + "\" -minidump \"" + dumpfile + "\" 2>/dev/null")
 
 while True:
     line = stream.readline()

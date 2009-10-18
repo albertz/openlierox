@@ -60,6 +60,7 @@ LaunchUploader( const char* dump_dir,
 		
         execl( CrashReporterBin,
                CrashReporterBin,
+			   GetBinaryFilename(),
                dump_dir,
                minidump_id,
                static_cast<BreakPad*>(that)->productName(),

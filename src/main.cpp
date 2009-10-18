@@ -55,6 +55,7 @@
 
 #include "SkinnedGUI/CGuiSkin.h"
 
+#include "breakpad/ExtractInfo.h"
 
 #ifndef WIN32
 #include <dirent.h>
@@ -139,9 +140,9 @@ static void DoSystemChecks() {
 }
 
 
-char* apppath = NULL;
+char* binaryfilename = NULL;
 
-char* GetAppPath() { return apppath; }
+const char* GetBinaryFilename() { return binaryfilename; }
 
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
@@ -389,6 +390,9 @@ static void teeStdoutQuit(TeeStdoutReturn) {}
 // Main entry point
 int main(int argc, char *argv[])
 {
+	binaryfilename = argv[0];
+	if(DoMinidumpExtractInfo(argc, argv)) return 0;
+
 	TeeStdoutReturn tee = teeStdout();
 	
 	setCurThreadName("Main Thread");
@@ -417,8 +421,7 @@ int main(int argc, char *argv[])
 		errors << "Failed to initialize the network library" << endl;
 	InitThreadPool();
 	
-	apppath = argv[0];
-	binary_dir = argv[0];
+	binary_dir = binaryfilename;
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);

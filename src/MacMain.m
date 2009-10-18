@@ -16,6 +16,8 @@ SDLMain.m - main entry point for our Cocoa-ized SDL app
 
 #import <Cocoa/Cocoa.h>
 
+#import "breakpad/ExtractInfo.h"
+
 @interface SDLMain : NSObject
 @end
 
@@ -366,6 +368,8 @@ static void CustomApplicationMain (int argc, char **argv)
 /* Main entry point to executable - should *not* be SDL_main! */
 int main (int argc, char **argv)
 {
+	if(DoMinidumpExtractInfo(argc, argv)) return 0;
+	
     /* Copy the arguments into a global variable */
     /* This is passed if we are launched by double-clicking */
     if ( argc >= 2 && strncmp (argv[1], "-psn", 4) == 0 ) {
