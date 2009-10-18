@@ -365,7 +365,7 @@ static bool LoadSymbols(const std::string &obj_file, ElfW(Ehdr) *elf_header,
               "DWARF debugging information\n");
   }
   if (! found_some_debug_info) {
-    fprintf(stderr, "file contains no debugging information (no \".stab\" or \".debug_info\" sections)\n");
+    fprintf(stderr, "file %s contains no debugging information (no \".stab\" or \".debug_info\" sections)\n", obj_file.c_str());
     return false;
   }
   return true;
