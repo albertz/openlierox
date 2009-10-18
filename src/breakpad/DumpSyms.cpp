@@ -54,7 +54,7 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	if(!out) return false;
 	
 	DumpSymbols dumper;
-	bool res = dumper.WriteSymbolFile(binary, out));
+	bool res = dumper.WriteSymbolFile(bin, out);
 	
 	fclose(out);
 	return res;
