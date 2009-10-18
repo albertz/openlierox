@@ -308,11 +308,14 @@ static VideoHandler videoHandler;
 #ifndef WIN32
 
 #include <unistd.h>
+#include <signal.h>
 
 static void teeOlxOutputHandler(int in, int out) {
 	unsigned long c = 0;
 	bool newline = true;
 	
+	signal(SIGINT, SIG_IGN);
+	signal(SIGTERM, SIG_IGN);
 	while( true ) {
 		char ch = 0;
 		if(read(in, &ch, 1) <= 0) break;
@@ -332,6 +335,7 @@ static void teeOlxOutputHandler(int in, int out) {
 struct TeeStdoutReturn {
 	pid_t proc;
 	int pipeend;
+	int oldstdout;
 };
 
 static TeeStdoutReturn teeStdout() {
@@ -351,9 +355,8 @@ static TeeStdoutReturn teeStdout() {
 		close(pipe_to_handler[0]);
 		ret.proc = p;
 		ret.pipeend = pipe_to_handler[1];
-		FILE* newstdout = fdopen(pipe_to_handler[1], "w");
-		if(!newstdout) return ret;
-		*stdout = *newstdout;
+		ret.oldstdout = dup(STDOUT_FILENO);
+		dup2(pipe_to_handler[1], STDOUT_FILENO);
 		setvbuf(stdout, NULL, _IONBF, 0);
 	}
 	
@@ -364,8 +367,13 @@ static TeeStdoutReturn teeStdout() {
 
 static void teeStdoutQuit(TeeStdoutReturn t) {
 	if(t.proc) {
+		close(STDOUT_FILENO);
 		close(t.pipeend);
 		waitpid(t.proc, NULL, 0);
+
+		dup2(t.oldstdout, STDOUT_FILENO);
+		close(t.oldstdout);
+		printf("Standard Out recovered\n");
 	}
 }
 
