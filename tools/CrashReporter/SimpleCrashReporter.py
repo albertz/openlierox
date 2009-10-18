@@ -25,11 +25,11 @@ msg = "To: openlierox@az2000.de\r\n"
 msg = msg + "Subject: " + productname + " crash report\r\n"
 msg = msg + "\r\n"
 
-msg = msg + "System information:\n\n"
+msg = msg + "\nSystem information:\n\n"
 
+msg = msg + "os.uname = " + os.uname().__repr__() + "\n"
 msg = msg + "os.name = " + os.name + "\n"
 msg = msg + "os.environ = " + os.environ.__repr__() + "\n"
-msg = msg + "os.uname = " + os.uname().__repr__() + "\n"
 
 msg = msg + "\n\n\nCrash information:\n\n"
 
