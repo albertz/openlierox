@@ -308,19 +308,63 @@ static VideoHandler videoHandler;
 
 #ifndef WIN32
 
+#include <sys/types.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+
+static char* teeOlxOutputFile = NULL;
+static const size_t MAXFILENAMESIZE = 2048;
+
+const char* GetLogFilename() { if(teeOlxOutputFile) return teeOlxOutputFile; return ""; }
+
 #include <unistd.h>
 #include <signal.h>
 
+static void teeOlxOutputToFileHandler(int c) {
+	static std::string buffer;
+	static std::string currentOlxOutputFilename = "";
+	static FILE* out = NULL;
+
+	if(c == EOF) {
+		if(out) fclose(out); out = NULL;
+		return;
+	}
+	
+	char ch = c;
+	if(out)
+		fwrite(&ch, 1, 1, out);
+	else
+		buffer += c;
+	
+	if(ch == '\n' && currentOlxOutputFilename != teeOlxOutputFile) {
+		if(out) fclose(out); out = NULL;
+		currentOlxOutputFilename = teeOlxOutputFile;
+		if(currentOlxOutputFilename != "") {
+			out = fopen(currentOlxOutputFilename.c_str(), "a");
+			if(out)
+				// We want to have everything written immediatly, to have the last output when it crashes
+				setvbuf(out, NULL, _IONBF, 0);				
+			if(out && !buffer.empty()) {
+				fwrite(buffer.c_str(), buffer.size(), 1, out);
+				buffer = "";
+			}
+		}
+	}
+}
+
 static void teeOlxOutputHandler(int in, int out) {
 	unsigned long c = 0;
+	const static bool printlinenum = false; // just for debugging
 	bool newline = true;
 	
+	// The main process will quit this fork by closing the pipe.
+	// There will be problems if this fork terminates earlier.
 	signal(SIGINT, SIG_IGN);
 	signal(SIGTERM, SIG_IGN);
 	while( true ) {
 		char ch = 0;
 		if(read(in, &ch, 1) <= 0) break;
-		if(newline) {
+		if(printlinenum && newline) {
 			char tmp[10];
 			sprintf(tmp, "%06lu: ", c);
 			write(out, &tmp, 8);
@@ -330,7 +374,10 @@ static void teeOlxOutputHandler(int in, int out) {
 		write( out, &ch, 1 );
 		if(ch == '\n')
 			newline = true;
+		teeOlxOutputToFileHandler((unsigned char)ch);
 	}
+	
+	teeOlxOutputToFileHandler(EOF);
 }
 
 struct TeeStdoutReturn {
@@ -339,14 +386,42 @@ struct TeeStdoutReturn {
 	int oldstdout;
 };
 
+#include <sys/errno.h>
+#include <cstdio>
+#include <cstring>
+
 static TeeStdoutReturn teeStdout() {
-	TeeStdoutReturn ret = {0,0};
+	TeeStdoutReturn ret = {0,0,0};
 	int pipe_to_handler[2];
+
+#ifdef __APPLE__
+	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, 0, 0);
+#else	
+	int fd = open("/dev/zero", O_RDWR);
+	if(fd < 0) {
+		errors << "teeStdout: cannot open dummy file" << endl;
+		return ret;
+	}
 	
-	if(pipe(pipe_to_handler) != 0) return ret; // error creating pipe
+	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
+#endif
+	
+	if(!teeOlxOutputFile || teeOlxOutputFile == (char*)-1) {
+		teeOlxOutputFile = NULL;
+		errors << "teeStdout: cannot mmap: " << strerror(errno) << endl;
+		return ret;
+	}
+	
+	if(pipe(pipe_to_handler) != 0) { // error creating pipe
+		errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;		
+		return ret;
+	}
 	
 	pid_t p = fork();
-	if(p < 0) return ret; // error forking
+	if(p < 0) { // error forking
+		errors << "teeStdout: cannot fork: " << strerror(errno) << endl;		
+		return ret;
+	}
 	else if(p == 0) { // fork		
 		close(pipe_to_handler[1]);
 		teeOlxOutputHandler(pipe_to_handler[0], STDOUT_FILENO);
@@ -364,6 +439,18 @@ static TeeStdoutReturn teeStdout() {
 	return ret;
 }
 
+static void teeStdoutFile(const std::string& file) {
+	if(!teeOlxOutputFile) return;
+		
+	if(file.size() >= MAXFILENAMESIZE - 1) {
+		errors << "teeStdoutFile: filename " << file << " too big" << endl;
+		strcpy(teeOlxOutputFile, "");
+		return;
+	}
+	
+	strcpy(teeOlxOutputFile, file.c_str());
+}
+
 #include <sys/wait.h>
 
 static void teeStdoutQuit(TeeStdoutReturn t) {
@@ -376,13 +463,20 @@ static void teeStdoutQuit(TeeStdoutReturn t) {
 		close(t.oldstdout);
 		printf("Standard Out recovered\n");
 	}
+	
+	if(teeOlxOutputFile) {
+		munmap(teeOlxOutputFile, MAXFILENAMESIZE);
+		teeOlxOutputFile = NULL;
+	}
 }
 
 #else
 
 typedef int TeeStdoutReturn;
 static TeeStdoutReturn teeStdout() { return 0; }
+static void teeStdoutFile(const std::string&) {}
 static void teeStdoutQuit(TeeStdoutReturn) {}
+const char* GetLogFilename() { return "stdout.txt"; }
 
 #endif
 
@@ -442,6 +536,7 @@ startpoint:
 		return -1;
 	}
 
+	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + Replace(GetDateTimeText(), ":", "-") + ".txt", true));
 	CrashHandler::init();
 
 	if(!NetworkTexts::Init()) {

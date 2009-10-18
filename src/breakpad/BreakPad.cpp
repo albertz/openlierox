@@ -60,10 +60,11 @@ LaunchUploader( const char* dump_dir,
 		
         execl( CrashReporterBin,
                CrashReporterBin,
+			   static_cast<BreakPad*>(that)->productName(),
 			   GetBinaryFilename(),
                dump_dir,
                minidump_id,
-               static_cast<BreakPad*>(that)->productName(),
+			   GetLogFilename(),
                (char*) 0 );
 
         // execl replaces this process, so no more code will be executed
