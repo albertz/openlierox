@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <sys/stat.h>
 #include <map>
 #include <string>
 #include <iostream>
@@ -40,6 +39,7 @@
 
 #include "on_demand_symbol_supplier.h"
 #include "DumpSyms.h"
+#include "FindFile.h"
 
 using std::map;
 using std::string;
@@ -182,7 +182,7 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
 	bool result = true;
 	string name = GetNameForModule(module);
 	string module_path = GetLocalModulePath(module);
-	string symbol_path = "/tmp/" + name + "." + system_info->cpu + ".sym";
+	string symbol_path = GetTempDir() + "/" + name + "." + system_info->cpu + ".sym";
 	
 	if (module_path.empty())
 		return false;
