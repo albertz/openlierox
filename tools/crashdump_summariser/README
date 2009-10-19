@@ -1,0 +1,34 @@
+Crashdump Summariser
+
+Simple tool to mass-analyse our crash reports. Generates crash report summary 
+lines for an entire directory of reports, then displays a ranking of crash 
+reasons.
+
+martind@last.fm
+
+
+REQUIREMENTS
+
+- Uses the stackwalker tool from Google's breakpad project.
+  http://code.google.com/p/google-breakpad/
+
+
+INSTALL
+
+- Get and build the breakpad code
+- in get_summary.sh, point MINIDUMP_STACKWALK to the location of breakpad's 
+  minidump_stackwalk binary
+- optional: change LOGDIR location in summarise.sh
+- done.
+
+
+RUN
+
+  summarise.sh <name of folder with crash report zip files>
+
+
+TODO
+- resolve symbol names using breakpad's custom symbol table format
+- add "Operating system" chart
+- add "Loaded modules" chart (might want to filter out known+OS modules)
+- add stack trace rankings by category (e.g. platform/version/...)
