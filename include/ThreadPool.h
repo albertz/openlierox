@@ -52,7 +52,7 @@ private:
 	static int threadWrapper(void* param);
 	SDL_mutex* startMutex;
 public:
-	ThreadPool();
+	ThreadPool(unsigned int size = 5);
 	~ThreadPool();
 	
 	ThreadPoolItem* start(ThreadFunc fct, void* param = NULL, const std::string& name = "unknown worker");
@@ -65,7 +65,7 @@ public:
 
 extern ThreadPool* threadPool;
 
-void InitThreadPool();
+void InitThreadPool(unsigned int size = 40);
 void UnInitThreadPool();
 
 

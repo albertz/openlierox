@@ -368,7 +368,7 @@ static void CustomApplicationMain (int argc, char **argv)
 /* Main entry point to executable - should *not* be SDL_main! */
 int main (int argc, char **argv)
 {
-	if(DoMinidumpExtractInfo(argc, argv)) return 0;
+	if(DoCrashReport(argc, argv)) return 0;
 	
     /* Copy the arguments into a global variable */
     /* This is passed if we are launched by double-clicking */

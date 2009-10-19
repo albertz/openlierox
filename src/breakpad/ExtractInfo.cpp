@@ -7,15 +7,133 @@
  *
  */
 
-#include "ExtractInfo.h"
+#include <sstream>
+#include <iomanip>
+#include <fstream>
 
-int DoMinidumpExtractInfo(int argc, char** argv) {
-	if(argc >= 3 && std::string(argv[1]) == "-minidump") {
-		MinidumpExtractInfo(argv[2]);
+#include "ExtractInfo.h"
+#include "Debug.h"
+#include "Networking.h"
+#include "Options.h"
+#include "Version.h"
+#include "SMTP.h"
+#include "FindFile.h"
+#include "CGameMode.h"
+#include "TaskManager.h"
+
+// defined in main.cpp
+void setBinaryDirAndName(char* argv0);
+
+static bool MiniInit() {
+	hints << "Minimal initialisation of " << GetFullGameName() << " ..." << endl;
+	
+	InitThreadPool(2);
+	
+	if(!InitNetworkSystem()) {
+		errors << "Failed to initialize the network library" << endl;
+		return false;
+	}
+
+	// just to avoid some errors in GameOptions::Init, not really needed otherwise
+	InitGameModes();
+
+	InitTaskManager();	
+
+	if(!GameOptions::Init()) {
+		errors << "Could not load options" << endl;
+		return false;
+	}
+		
+	return true;
+}
+
+extern char **environ;
+
+int DoCrashReport(int argc, char** argv) {
+	if(argc < 2) return 0;
+	if(std::string(argv[1]) != "-crashreport") return 0;
+	
+	if(argc < 5) {
+		errors << "usage: " << argv[0] << " -crashreport <dumpdir> <dumpid> <logfile>" << endl;
 		return 1;
 	}
+
+	setBinaryDirAndName(argv[0]);
+	if(!MiniInit()) return 1;
 	
-	return 0;
+	std::string minidumpfile = std::string(argv[2]) + "/" + argv[3] + ".dmp";
+	std::string logfilename = argv[4];
+	
+	// collect crashinfo before connecting to SMTP to avoid timeout on SMTP server
+	std::stringstream crashinfo, crashinfoerror;
+	MinidumpExtractInfo(minidumpfile, crashinfo, crashinfoerror);
+
+	SmtpClient smtp;
+	smtp.host = "mail.az2000.de:25";
+	smtp.mailfrom = "openlierox@openliero.net";
+	smtp.mailrcpts.push_back( "olxcrash@az2000.de" );
+	smtp.subject = GetGameVersion().asHumanString() + " crash report";
+
+	if(!smtp.connect()) {
+		errors << "could not connect to SMTP server" << endl;
+		return 1;
+	}
+	notes << "Connected to SMTP server" << endl;
+	
+	smtp.addText("\nSystem environment:\n\n");
+	for(char** env = environ; *env != NULL; ++env)
+		smtp.addText(*env);
+	notes << "System environment sent" << endl;
+
+	
+	smtp.addText("\n\n\n\nCrash information:\n\n");
+	crashinfo << std::flush;
+	smtp.addText(crashinfo.str());
+	notes << "Crash information sent" << endl;
+
+	
+	smtp.addText("\n\n\n\n\nRecent console output:\n");
+	smtp.addText("File: " + logfilename + "\n\n");
+	std::ifstream logfile(logfilename.c_str(), std::ios_base::in);
+	if(logfile) {
+		std::string line;
+		while(getline(logfile, line, '\n'))
+			smtp.addText(line);
+		logfile.close();
+	}
+	else {
+		smtp.addText("Logfile could not be read!\n");
+		warnings << "Logfile could not be read" << endl;
+	}
+	notes << "Logfile sent" << endl;
+	
+
+	smtp.addText("\n\n\n\nCurrent config:\n");
+	std::string cfgfilename = GetFullFileName("cfg/options.cfg");
+	smtp.addText("File: " + cfgfilename + "\n\n");
+	std::ifstream cfgfile(cfgfilename.c_str(), std::ios_base::in);
+	if(cfgfile) {
+		std::string line;
+		while(getline(cfgfile, line, '\n')) {
+			if(stringcasefind(line, "password") != std::string::npos)
+				smtp.addText("# <password was here>");
+			else
+				smtp.addText(line);
+		}
+		cfgfile.close();
+	}
+	else {
+		smtp.addText("Config file could not be read!");
+		warnings << "Configfile could not be read" << endl;
+	}
+	notes << "Configfile sent" << endl;
+	
+	
+	if(!smtp.close())
+		errors << "Error while closing SMTP" << endl;
+	
+	hints << "Everything ready, quitting" << endl;
+	return 1;
 }
 
 #include <iostream>
@@ -58,34 +176,40 @@ using google_breakpad::SystemInfo;
 
 
 //=============================================================================
-static int PrintRegister(const char *name, u_int32_t value, int sequence) {
+static int PrintRegister(const char *name, u_int32_t value, int sequence, std::ostream& out, std::ostream& err) {
 	if (sequence % 4 == 0) {
-		printf("\n");
+		out << std::endl;
 	}
-	printf("%6s = 0x%08x ", name, value);
+	char tmp[30];
+	sprintf(tmp, "%6s = 0x%08x ", name, value);
+	out << tmp;
 	return ++sequence;
 }
 
 //=============================================================================
-static void PrintStack(const CallStack *stack, const string &cpu) {
+static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& out, std::ostream& err) {
 	int frame_count = stack->frames()->size();
 	char buffer[1024];
 	for (int frame_index = 0; frame_index < frame_count; ++frame_index) {
 		const StackFrame *frame = stack->frames()->at(frame_index);
 		const CodeModule *module = frame->module;
-		printf("%2d ", frame_index);
+		char tmp[10];
+		sprintf(tmp, "%2d", frame_index);
+		out << tmp << " ";
 		
 		if (module) {
 			// Module name (20 chars max)
 			strcpy(buffer, PathnameStripper::File(module->code_file()).c_str());
 			int maxStr = 20;
 			buffer[maxStr] = 0;
-			printf("%-*s", maxStr, buffer);
+			char tmp[2048];
+			sprintf(tmp, "%-*s", maxStr, buffer);
+			out << tmp;
 			
 			strcpy(buffer, module->version().c_str());
 			buffer[maxStr] = 0;
-			
-			printf("%-*s",maxStr, buffer);
+			sprintf(tmp, "%-*s",maxStr, buffer);
+			out << tmp;
 			
 			u_int64_t instruction = frame->instruction;
 			
@@ -95,27 +219,31 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
 			if (cpu == "ppc" && frame_index)
 				instruction += 4;
 			
-			printf(" 0x%08llx ", instruction);
+			sprintf(tmp, " 0x%08llx ", instruction);
+			out << tmp;
 			
 			// Function name
 			if (!frame->function_name.empty()) {
-				printf("%s", frame->function_name.c_str());
+				sprintf(tmp, "%s", frame->function_name.c_str());
+				out << tmp;
 				if (!frame->source_file_name.empty()) {
 					string source_file = PathnameStripper::File(frame->source_file_name);
-					printf(" + 0x%llx (%s:%d)",
+					sprintf(tmp, " + 0x%llx (%s:%d)",
 						   instruction - frame->source_line_base,
 						   source_file.c_str(), frame->source_line);
+					out << tmp;
 				} else {
-					printf(" + 0x%llx", instruction - frame->function_base);
+					sprintf(tmp, " + 0x%llx", instruction - frame->function_base);
+					out << tmp;
 				}
 			}
 		}
-		printf("\n");
+		out << std::endl;
 	}
 }
 
 //=============================================================================
-static void PrintRegisters(const CallStack *stack, const string &cpu) {
+static void PrintRegisters(const CallStack *stack, const string &cpu, std::ostream& out, std::ostream& err) {
 	int sequence = 0;
 	const StackFrame *frame = stack->frames()->at(0);
 	if (cpu == "x86") {
@@ -123,22 +251,22 @@ static void PrintRegisters(const CallStack *stack, const string &cpu) {
 		reinterpret_cast<const StackFrameX86*>(frame);
 		
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_EIP)
-			sequence = PrintRegister("eip", frame_x86->context.eip, sequence);
+			sequence = PrintRegister("eip", frame_x86->context.eip, sequence, out, err);
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_ESP)
-			sequence = PrintRegister("esp", frame_x86->context.esp, sequence);
+			sequence = PrintRegister("esp", frame_x86->context.esp, sequence, out, err);
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_EBP)
-			sequence = PrintRegister("ebp", frame_x86->context.ebp, sequence);
+			sequence = PrintRegister("ebp", frame_x86->context.ebp, sequence, out, err);
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_EBX)
-			sequence = PrintRegister("ebx", frame_x86->context.ebx, sequence);
+			sequence = PrintRegister("ebx", frame_x86->context.ebx, sequence, out, err);
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_ESI)
-			sequence = PrintRegister("esi", frame_x86->context.esi, sequence);
+			sequence = PrintRegister("esi", frame_x86->context.esi, sequence, out, err);
 		if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_EDI)
-			sequence = PrintRegister("edi", frame_x86->context.edi, sequence);
+			sequence = PrintRegister("edi", frame_x86->context.edi, sequence, out, err);
 		if (frame_x86->context_validity == StackFrameX86::CONTEXT_VALID_ALL) {
-			sequence = PrintRegister("eax", frame_x86->context.eax, sequence);
-			sequence = PrintRegister("ecx", frame_x86->context.ecx, sequence);
-			sequence = PrintRegister("edx", frame_x86->context.edx, sequence);
-			sequence = PrintRegister("efl", frame_x86->context.eflags, sequence);
+			sequence = PrintRegister("eax", frame_x86->context.eax, sequence, out, err);
+			sequence = PrintRegister("ecx", frame_x86->context.ecx, sequence, out, err);
+			sequence = PrintRegister("edx", frame_x86->context.edx, sequence, out, err);
+			sequence = PrintRegister("efl", frame_x86->context.eflags, sequence, out, err);
 		}
 	} else if (cpu == "ppc") {
 		const StackFramePPC *frame_ppc =
@@ -146,38 +274,38 @@ static void PrintRegisters(const CallStack *stack, const string &cpu) {
 		
 		if ((frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_ALL) ==
 			StackFramePPC::CONTEXT_VALID_ALL) {
-			sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence);
-			sequence = PrintRegister("srr1", frame_ppc->context.srr1, sequence);
-			sequence = PrintRegister("cr", frame_ppc->context.cr, sequence);
-			sequence = PrintRegister("xer", frame_ppc->context.xer, sequence);
-			sequence = PrintRegister("lr", frame_ppc->context.lr, sequence);
-			sequence = PrintRegister("ctr", frame_ppc->context.ctr, sequence);
-			sequence = PrintRegister("mq", frame_ppc->context.mq, sequence);
-			sequence = PrintRegister("vrsave", frame_ppc->context.vrsave, sequence);
+			sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence, out, err);
+			sequence = PrintRegister("srr1", frame_ppc->context.srr1, sequence, out, err);
+			sequence = PrintRegister("cr", frame_ppc->context.cr, sequence, out, err);
+			sequence = PrintRegister("xer", frame_ppc->context.xer, sequence, out, err);
+			sequence = PrintRegister("lr", frame_ppc->context.lr, sequence, out, err);
+			sequence = PrintRegister("ctr", frame_ppc->context.ctr, sequence, out, err);
+			sequence = PrintRegister("mq", frame_ppc->context.mq, sequence, out, err);
+			sequence = PrintRegister("vrsave", frame_ppc->context.vrsave, sequence, out, err);
 			
 			sequence = 0;
 			char buffer[5];
 			for (int i = 0; i < MD_CONTEXT_PPC_GPR_COUNT; ++i) {
 				sprintf(buffer, "r%d", i);
-				sequence = PrintRegister(buffer, frame_ppc->context.gpr[i], sequence);
+				sequence = PrintRegister(buffer, frame_ppc->context.gpr[i], sequence, out, err);
 			}
 		} else {
 			if (frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_SRR0)
-				sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence);
+				sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence, out, err);
 			if (frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_GPR1)
-				sequence = PrintRegister("r1", frame_ppc->context.gpr[1], sequence);
+				sequence = PrintRegister("r1", frame_ppc->context.gpr[1], sequence, out, err);
 		}
 	}
 	
-	printf("\n");
+	out << std::endl;
 }
 
-static void PrintModules(const CodeModules *modules) {
+static void PrintModules(const CodeModules *modules, std::ostream& out, std::ostream& err) {
 	if (!modules)
 		return;
 	
-	printf("\n");
-	printf("Loaded modules:\n");
+	out << std::endl;
+	out << "Loaded modules:" << std::endl;
 	
 	u_int64_t main_address = 0;
 	const CodeModule *main_module = modules->GetMainModule();
@@ -192,17 +320,19 @@ static void PrintModules(const CodeModules *modules) {
 		const CodeModule *module = modules->GetModuleAtSequence(module_sequence);
 		assert(module);
 		u_int64_t base_address = module->base_address();
-		printf("0x%08llx - 0x%08llx  %s  %s%s  %s\n",
+		char tmp[500];
+		sprintf(tmp, "0x%08llx - 0x%08llx  %s  %s%s  %s\n",
 			   base_address, base_address + module->size() - 1,
 			   PathnameStripper::File(module->code_file()).c_str(),
 			   module->version().empty() ? "???" : module->version().c_str(),
 			   main_module != NULL && base_address == main_address ?
 			   "  (main)" : "",
 			   module->code_file().c_str());
+		out << tmp << std::flush;
 	}
 }
 
-static void ProcessSingleReport(const std::string& minidump_file) {
+static void ProcessSingleReport(const std::string& minidump_file, std::ostream& out, std::ostream& err) {
 	BasicSourceLineResolver resolver;
 	string search_dir = "";
 	string symbol_search_dir = "";
@@ -214,12 +344,12 @@ static void ProcessSingleReport(const std::string& minidump_file) {
 	scoped_ptr<Minidump> dump(new google_breakpad::Minidump(minidump_file));
 	
 	if (!dump->Read()) {
-		fprintf(stderr, "Minidump %s could not be read\n", dump->path().c_str());
+		err << "Minidump " << dump->path() << " could not be read" << std::endl;
 		return;
 	}
 	if (minidump_processor->Process(dump.get(), &process_state) !=
 		google_breakpad::PROCESS_OK) {
-		fprintf(stderr, "MinidumpProcessor::Process failed\n");
+		err << "MinidumpProcessor::Process failed" << std::endl;
 		return;
 	}
 	
@@ -232,27 +362,25 @@ static void ProcessSingleReport(const std::string& minidump_file) {
 	gmtime_r(reinterpret_cast<time_t*>(&time_date_stamp), &timestruct);
 	char timestr[20];
 	strftime(timestr, 20, "%Y-%m-%d %H:%M:%S", &timestruct);
-	printf("Date: %s GMT\n", timestr);
+	out << "Date: " << timestr << " GMT" << std::endl;
 	
-	printf("Operating system: %s (%s)\n", system_info->os.c_str(),
-		   system_info->os_version.c_str());
-	printf("Architecture: %s\n", cpu.c_str());
+	out << "Operating system: " << system_info->os << " (" << system_info->os_version << ")" << std::endl;
+	out << "Architecture: " << cpu << std::endl;
 	
 	if (process_state.crashed()) {
-		printf("Crash reason:  %s\n", process_state.crash_reason().c_str());
-		printf("Crash address: 0x%llx\n", process_state.crash_address());
+		out << "Crash reason:  " << process_state.crash_reason() << std::endl;
+		out << "Crash address: 0x" << std::hex << process_state.crash_address() << std::dec << std::endl;
 	} else {
-		printf("No crash\n");
+		out << "No crash" << std::endl;
 	}
 	
 	int requesting_thread = process_state.requesting_thread();
 	if (requesting_thread != -1) {
-		printf("\n");
-		printf("Thread %d (%s)\n",
-			   requesting_thread,
-			   process_state.crashed() ? "crashed" :
-			   "requested dump, did not crash");
-		PrintStack(process_state.threads()->at(requesting_thread), cpu);
+		out << std::endl;
+		out << "Thread " << requesting_thread << " (" <<
+			(process_state.crashed() ? "crashed" : "requested dump, did not crash") <<
+			")" << std::endl;
+		PrintStack(process_state.threads()->at(requesting_thread), cpu, out, err);
 	}
 	
 	// Print all of the threads in the dump.
@@ -263,9 +391,9 @@ static void ProcessSingleReport(const std::string& minidump_file) {
 	for (int thread_index = 0; thread_index < thread_count; ++thread_index) {
 		if (thread_index != requesting_thread) {
 			// Don't print the crash thread again, it was already printed.
-			printf("\n");
-			printf("Thread %d\n", thread_index);
-			PrintStack(process_state.threads()->at(thread_index), cpu);
+			out << std::endl;
+			out << "Thread " << thread_index << std::endl;
+			PrintStack(process_state.threads()->at(thread_index), cpu, out, err);
 			
 			// Optional
 			//google_breakpad::MinidumpMemoryRegion *thread_stack_bytes =
@@ -276,22 +404,22 @@ static void ProcessSingleReport(const std::string& minidump_file) {
 	
 	// Print the crashed registers
 	if (requesting_thread != -1) {
-		printf("\nThread %d:", requesting_thread);
-		PrintRegisters(process_state.threads()->at(requesting_thread), cpu);
+		out << std::endl << "Thread " << requesting_thread << ":" << std::endl;
+		PrintRegisters(process_state.threads()->at(requesting_thread), cpu, out, err);
 	}
 	
 	// Print information about modules
-	PrintModules(process_state.modules());
+	PrintModules(process_state.modules(), out, err);
 }
 
-void MinidumpExtractInfo(const std::string& minidumpfile) {	
-	ProcessSingleReport(minidumpfile);	
+void MinidumpExtractInfo(const std::string& minidumpfile, std::ostream& out, std::ostream& err) {	
+	ProcessSingleReport(minidumpfile, out, err);	
 }
 
 #else // NBREAKPAD
 
-void MinidumpExtractInfo(const std::string& minidumpfile) {
-	std::cout << "MinidumpExtractInfo: Google Breakpad support not included in this build" << std::endl;
+void MinidumpExtractInfo(const std::string& minidumpfile, std::ostream& out, std::ostream& err) {
+	err << "MinidumpExtractInfo: Google Breakpad support not included in this build" << std::endl;
 }
 
 #endif

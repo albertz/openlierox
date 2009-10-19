@@ -127,6 +127,7 @@
 		239ACAE50E6AD46900C4216A /* StringBuf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACAE30E6AD46900C4216A /* StringBuf.cpp */; };
 		239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACAE40E6AD46900C4216A /* XMLutils.cpp */; };
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
+		23A44552108C958E0015918B /* SMTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A44551108C958E0015918B /* SMTP.cpp */; };
 		23AAE4881088CC5A00E9F05F /* BreakPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE4861088CC5A00E9F05F /* BreakPad.cpp */; };
 		23AAE5221088D6A500E9F05F /* minidump_file_writer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5201088D6A500E9F05F /* minidump_file_writer.cc */; };
 		23AAE5421088D6D300E9F05F /* breakpad_exc_server.c in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5241088D6D300E9F05F /* breakpad_exc_server.c */; };
@@ -613,6 +614,8 @@
 		23A0CDB40D5B0A31002A33A4 /* CScriptableVars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CScriptableVars.h; sourceTree = "<group>"; };
 		23A0CDB50D5B0A3F002A33A4 /* ThreadVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadVar.h; sourceTree = "<group>"; };
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
+		23A44550108C94B70015918B /* SMTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMTP.h; sourceTree = "<group>"; };
+		23A44551108C958E0015918B /* SMTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SMTP.cpp; sourceTree = "<group>"; };
 		23AAE4861088CC5A00E9F05F /* BreakPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BreakPad.cpp; path = breakpad/BreakPad.cpp; sourceTree = "<group>"; };
 		23AAE4871088CC5A00E9F05F /* BreakPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BreakPad.h; path = breakpad/BreakPad.h; sourceTree = "<group>"; };
 		23AAE51F1088D6A500E9F05F /* minidump_file_writer-inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "minidump_file_writer-inl.h"; path = "breakpad/external/src/client/minidump_file_writer-inl.h"; sourceTree = "<group>"; };
@@ -1530,6 +1533,7 @@
 				23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */,
 				23210160101DFAF900510514 /* CGameObject.cpp */,
 				237885741050369300195629 /* memstats.cpp */,
+				23A44551108C958E0015918B /* SMTP.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1683,6 +1687,7 @@
 				23C5AC3D0FADB842005A36AE /* PreInitVar.h */,
 				23F69EAE0FD4777500793B24 /* RefCounter.h */,
 				23F6A3300FD6D86A00793B24 /* DynDraw.h */,
+				23A44550108C94B70015918B /* SMTP.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -2217,6 +2222,7 @@
 				23C17246108BA8960083A2BF /* dwarf2diehandler.cc in Sources */,
 				23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */,
 				23C1724B108BA8970083A2BF /* functioninfo.cc in Sources */,
+				23A44552108C958E0015918B /* SMTP.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

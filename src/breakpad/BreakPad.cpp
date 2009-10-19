@@ -26,16 +26,6 @@
 #include "Unicode.h"
 #include "FindFile.h"
 
-static char CrashReporterBin[2048] = { 0, 0, 0 };
-
-static void setCrashReporterBin(const std::string& bin) {
-	if(bin.size() >= sizeof(CrashReporterBin)) {
-		errors << "cannot set CrashReporterBin, path too long!" << endl;
-		return;
-	}
-	strcpy(CrashReporterBin, bin.c_str());
-}
-
 #ifndef WIN32
 #include <unistd.h>
 
@@ -58,10 +48,9 @@ LaunchUploader( const char* dump_dir,
     if (pid == 0) { // we are the fork
 		printf("minidump_id: %s\n", minidump_id);
 		
-        execl( CrashReporterBin,
-               CrashReporterBin,
-			   static_cast<BreakPad*>(that)->productName(),
-			   GetBinaryFilename(),
+        execl( GetBinaryFilename(),
+               GetBinaryFilename(),
+			   "-crashreport",
                dump_dir,
                minidump_id,
 			   GetLogFilename(),
@@ -71,7 +60,7 @@ LaunchUploader( const char* dump_dir,
         // unless it failed. If it failed, then we should return false.
 
 		// Return anyway true because otherwise, the process will not die.
-		printf("ERROR: Cannot start %s\n", CrashReporterBin);
+		printf("ERROR: Cannot start %s\n", GetBinaryFilename());
 		return true;
 	}
 
@@ -107,12 +96,13 @@ LaunchUploader( const wchar_t* dump_dir,
     while (*in);
 
     wchar_t command[MAX_PATH * 3 + 6];
-    wcscpy( command, CrashReporterBin L" \"" );
+    wcscpy( command, GetBinaryFilename() );
+	wcscat( command, L" -crashreport \"" );
     wcscat( command, dump_dir );
     wcscat( command, L"\" \"" );
     wcscat( command, minidump_id );
     wcscat( command, L"\" \"" );
-    wcscat( command, product_name );
+    wcscat( command, GetLogFilename() );
     wcscat( command, L"\"" );
 
     STARTUPINFO si;
@@ -143,17 +133,7 @@ BreakPad::BreakPad( const std::string& path )
 									LaunchUploader, 
 									this, 
 									true )
-{
-#if defined(__APPLE__)
-	std::string crashreporterbin = GetBinaryDir() + "/../Resources/CrashReporter";
-#elif defined(WIN32)
-	std::string crashreporterbin = GetBinaryDir() + "/CrashReporter.exe";
-#else
-	// search searchpaths for CrashReporter
-	std::string crashreporterbin = GetFullFileName("CrashReporter");
-#endif
-	setCrashReporterBin(crashreporterbin);
-}
+{}
 
 BreakPad::~BreakPad()
 {}

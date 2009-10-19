@@ -480,12 +480,22 @@ const char* GetLogFilename() { return "stdout.txt"; }
 
 #endif
 
+void setBinaryDirAndName(char* argv0) {
+	binaryfilename = argv0;
+	binary_dir = binaryfilename;
+	size_t slashpos = findLastPathSep(binary_dir);
+	if(slashpos != std::string::npos)  {
+		binary_dir.erase(slashpos);
+		binary_dir = SystemNativeToUtf8(binary_dir);
+	} else
+		binary_dir = "."; // TODO get exact path of binary	
+}
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
 {
-	binaryfilename = argv[0];
-	if(DoMinidumpExtractInfo(argc, argv)) return 0;
+	if(DoCrashReport(argc, argv)) return 0;
 
 	TeeStdoutReturn tee = teeStdout();
 	
@@ -515,13 +525,7 @@ int main(int argc, char *argv[])
 		errors << "Failed to initialize the network library" << endl;
 	InitThreadPool();
 	
-	binary_dir = binaryfilename;
-	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)  {
-		binary_dir.erase(slashpos);
-		binary_dir = SystemNativeToUtf8(binary_dir);
-	} else
-		binary_dir = "."; // TODO get exact path of binary
+	setBinaryDirAndName(argv[0]);
 
 	// this has to be done before GameOptions::Init
 	InitGameModes();
