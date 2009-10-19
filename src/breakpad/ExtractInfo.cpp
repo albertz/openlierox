@@ -70,7 +70,7 @@ int DoCrashReport(int argc, char** argv) {
 
 	SmtpClient smtp;
 	smtp.host = "mail.az2000.de:25";
-	smtp.mailfrom = "openlierox@openliero.net";
+	smtp.mailfrom = "olxcrash@az2000.de";
 	smtp.mailrcpts.push_back( "olxcrash@az2000.de" );
 	smtp.subject = GetGameVersion().asHumanString() + " crash report";
 
@@ -332,6 +332,13 @@ static void PrintModules(const CodeModules *modules, std::ostream& out, std::ost
 	}
 }
 
+static void PrintThread(const CallStack *stack, const string &cpu, std::ostream& out, std::ostream& err) {
+	PrintStack(stack, cpu, out, err);
+	PrintRegisters(stack, cpu, out, err);
+}
+
+	
+
 static void ProcessSingleReport(const std::string& minidump_file, std::ostream& out, std::ostream& err) {
 	BasicSourceLineResolver resolver;
 	string search_dir = "";
@@ -380,7 +387,7 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 		out << "Thread " << requesting_thread << " (" <<
 			(process_state.crashed() ? "crashed" : "requested dump, did not crash") <<
 			")" << std::endl;
-		PrintStack(process_state.threads()->at(requesting_thread), cpu, out, err);
+		PrintThread(process_state.threads()->at(requesting_thread), cpu, out, err);
 	}
 	
 	// Print all of the threads in the dump.
@@ -393,21 +400,16 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 			// Don't print the crash thread again, it was already printed.
 			out << std::endl;
 			out << "Thread " << thread_index << std::endl;
-			PrintStack(process_state.threads()->at(thread_index), cpu, out, err);
+			PrintThread(process_state.threads()->at(thread_index), cpu, out, err);
 			
 			// Optional
-			//google_breakpad::MinidumpMemoryRegion *thread_stack_bytes =
-			//thread_memory_regions->at(thread_index);
+			//google_breakpad::MinidumpMemoryRegion
+			//*thread_stack_bytes = thread_memory_regions->at(thread_index);
+			
 			//thread_stack_bytes->Print();
 		}
 	}
-	
-	// Print the crashed registers
-	if (requesting_thread != -1) {
-		out << std::endl << "Thread " << requesting_thread << ":" << std::endl;
-		PrintRegisters(process_state.threads()->at(requesting_thread), cpu, out, err);
-	}
-	
+		
 	// Print information about modules
 	PrintModules(process_state.modules(), out, err);
 }
