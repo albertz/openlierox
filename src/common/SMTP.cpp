@@ -23,10 +23,6 @@ static bool SmtpClient_wait(NetworkSocket& sock, const std::string& expectedstar
 	AbsTime startTime = GetTime();
 	while((r = sock.Read(&c, 1)) >= 0) {
 		if(r == 0) {
-			if(GetTime() - startTime >= TimeDiff(float(10.0))) {
-				errors << "SMTP: timeout while waiting for " << expectedstart << endl;
-				return false;
-			}
 			SDL_Delay(10);
 			continue;
 		}
@@ -47,8 +43,17 @@ static bool SmtpClient_wait(NetworkSocket& sock, const std::string& expectedstar
 	return true;
 }
 
+static bool writeOnSocket(NetworkSocket& sock, std::string buf) {
+	while(buf.size() > 0) {
+		int ret = sock.Write(buf);
+		if(ret < 0) return false;
+		buf.erase(0, ret);
+	}
+	return true;
+}
+
 static bool SmtpClient_write(NetworkSocket& sock, const std::string& line) {
-	if(sock.Write(line + "\n") < int(line.size() + 1)) {
+	if(!writeOnSocket(sock, line + "\n")) {
 		errors << "SMTP: error while writing " << line << endl;
 		return false;
 	}
