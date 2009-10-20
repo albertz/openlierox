@@ -472,11 +472,36 @@ static void teeStdoutQuit(TeeStdoutReturn t) {
 
 #else
 
+static char teeLogfile[2048] = "stdout.txt";
+
 typedef int TeeStdoutReturn;
 static TeeStdoutReturn teeStdout() { return 0; }
-static void teeStdoutFile(const std::string&) {}
+static void teeStdoutFile(const std::string& f) {
+	if(f.size() < sizeof(teeLogfile) - 1)
+		strcpy(teeLogfile, f.c_str());
+	else
+		errors << "teeStdoutFile: filename " << f << " is too long" << endl;
+	
+	freopen(f.c_str(), "a", stdout);
+	// no caching for stdout/logfile, it should be written immediatly to
+	// have the important information in case of a crash
+	setvbuf(stdout, NULL, _IONBF, 0);
+	
+	// print some messages again because they are missing in the logfile
+	hints << GetFullGameName() << " is starting ..." << endl;
+#ifdef DEBUG
+	hints << "This is a DEBUG build." << endl;
+#endif
+#ifdef DEDICATED_ONLY
+	hints << "This is a DEDICATED_ONLY build." << endl;
+#endif
+	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
+	notes << "Current time: " << GetDateTimeText() << endl;
+
+	// we still miss some more output but let's hope that this is enough
+}
 static void teeStdoutQuit(TeeStdoutReturn) {}
-const char* GetLogFilename() { return "stdout.txt"; }
+const char* GetLogFilename() { return teeLogfile; }
 
 #endif
 
@@ -512,11 +537,6 @@ int main(int argc, char *argv[])
 	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
 	notes << "Current time: " << GetDateTimeText() << endl;
 	
-#ifdef DEBUG
-	// TODO: any reason for this?
-	//setvbuf(stdout, NULL, _IOLBF, 1024);
-#endif
-
 	// Initialize the LieroX structure
 	tLX = new lierox_t;
 
