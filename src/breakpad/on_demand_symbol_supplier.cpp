@@ -124,6 +124,12 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
 	
 	result = DumpSyms(module_path, symbol_path);
 	
+	if(!result) {
+		// Some systems split the debug data. This is common for Gentoo.
+		module_path = "/usr/lib/debug" + module_path + ".debug";
+		result = DumpSyms(module_path, symbol_path);
+	}
+
 	// Add the mapping
 	if (result)
 		module_file_map_[name] = symbol_path;
