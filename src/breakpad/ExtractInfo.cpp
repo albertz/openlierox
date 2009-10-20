@@ -47,6 +47,20 @@ static bool MiniInit() {
 	return true;
 }
 
+static void MiniUninit() {
+	taskManager->finishQueuedTasks();
+	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
+
+	UnInitTaskManager();
+
+	UnInitThreadPool();
+
+	// Network
+	QuitNetworkSystem();
+
+	notes << "Good Bye and enjoy your day..." << endl;
+}
+
 extern char **environ;
 
 int DoCrashReport(int argc, char** argv) {
@@ -59,8 +73,12 @@ int DoCrashReport(int argc, char** argv) {
 	}
 
 	setBinaryDirAndName(argv[0]);
-	if(!MiniInit()) return 1;
-	
+	struct OlxSystem {
+		bool init() { return MiniInit(); }
+		~OlxSystem() { MiniUninit(); }
+	} olx;
+	if(!olx.init()) return 1;
+
 	std::string minidumpfile = std::string(argv[2]) + "/" + argv[3] + ".dmp";
 	std::string logfilename = argv[4];
 	
