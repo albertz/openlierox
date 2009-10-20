@@ -380,18 +380,20 @@ static void teeOlxOutputHandler(int in, int out) {
 	teeOlxOutputToFileHandler(EOF);
 }
 
-struct TeeStdoutReturn {
+struct TeeStdoutInfo {
 	pid_t proc;
 	int pipeend;
 	int oldstdout;
+	int oldstderr;
 };
+
+static TeeStdoutInfo teeStdoutInfo = {0,0,0,0};
 
 #include <sys/errno.h>
 #include <cstdio>
 #include <cstring>
 
-static TeeStdoutReturn teeStdout() {
-	TeeStdoutReturn ret = {0,0,0};
+void teeStdoutInit() {
 	int pipe_to_handler[2];
 
 #ifdef __APPLE__
@@ -400,7 +402,7 @@ static TeeStdoutReturn teeStdout() {
 	int fd = open("/dev/zero", O_RDWR);
 	if(fd < 0) {
 		errors << "teeStdout: cannot open dummy file" << endl;
-		return ret;
+		return;
 	}
 	
 	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
@@ -409,18 +411,18 @@ static TeeStdoutReturn teeStdout() {
 	if(!teeOlxOutputFile || teeOlxOutputFile == (char*)-1) {
 		teeOlxOutputFile = NULL;
 		errors << "teeStdout: cannot mmap: " << strerror(errno) << endl;
-		return ret;
+		return;
 	}
 	
 	if(pipe(pipe_to_handler) != 0) { // error creating pipe
 		errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;		
-		return ret;
+		return;
 	}
 	
 	pid_t p = fork();
 	if(p < 0) { // error forking
 		errors << "teeStdout: cannot fork: " << strerror(errno) << endl;		
-		return ret;
+		return;
 	}
 	else if(p == 0) { // fork		
 		close(pipe_to_handler[1]);
@@ -429,17 +431,18 @@ static TeeStdoutReturn teeStdout() {
 	}
 	else { // parent
 		close(pipe_to_handler[0]);
-		ret.proc = p;
-		ret.pipeend = pipe_to_handler[1];
-		ret.oldstdout = dup(STDOUT_FILENO);
+		teeStdoutInfo.proc = p;
+		teeStdoutInfo.pipeend = pipe_to_handler[1];
+		teeStdoutInfo.oldstdout = dup(STDOUT_FILENO);
+		teeStdoutInfo.oldstderr = dup(STDERR_FILENO);
 		dup2(pipe_to_handler[1], STDOUT_FILENO);
+		dup2(pipe_to_handler[1], STDERR_FILENO);
 		setvbuf(stdout, NULL, _IONBF, 0);
+		setvbuf(stderr, NULL, _IONBF, 0);
 	}
-	
-	return ret;
 }
 
-static void teeStdoutFile(const std::string& file) {
+void teeStdoutFile(const std::string& file) {
 	if(!teeOlxOutputFile) return;
 		
 	if(file.size() >= MAXFILENAMESIZE - 1) {
@@ -453,15 +456,19 @@ static void teeStdoutFile(const std::string& file) {
 
 #include <sys/wait.h>
 
-static void teeStdoutQuit(TeeStdoutReturn t) {
-	if(t.proc) {
+// NOTE: We are calling this also when we crashed, so be sure that we only do save operations here!
+void teeStdoutQuit() {
+	if(teeStdoutInfo.proc) {
 		close(STDOUT_FILENO);
-		close(t.pipeend);
-		waitpid(t.proc, NULL, 0);
+		close(STDERR_FILENO);
+		close(teeStdoutInfo.pipeend);
+		waitpid(teeStdoutInfo.proc, NULL, 0);
 
-		dup2(t.oldstdout, STDOUT_FILENO);
-		close(t.oldstdout);
-		printf("Standard Out recovered\n");
+		dup2(teeStdoutInfo.oldstdout, STDOUT_FILENO);
+		dup2(teeStdoutInfo.oldstderr, STDERR_FILENO);
+		close(teeStdoutInfo.oldstdout);
+		close(teeStdoutInfo.oldstderr);
+		printf("Standard Out/Err recovered\n");
 	}
 	
 	if(teeOlxOutputFile) {
@@ -474,9 +481,8 @@ static void teeStdoutQuit(TeeStdoutReturn t) {
 
 static char teeLogfile[2048] = "stdout.txt";
 
-typedef int TeeStdoutReturn;
-static TeeStdoutReturn teeStdout() { return 0; }
-static void teeStdoutFile(const std::string& f) {
+void teeStdoutInit() {}
+void teeStdoutFile(const std::string& f) {
 	if(f.size() < sizeof(teeLogfile) - 1)
 		strcpy(teeLogfile, f.c_str());
 	else
@@ -500,7 +506,7 @@ static void teeStdoutFile(const std::string& f) {
 
 	// we still miss some more output but let's hope that this is enough
 }
-static void teeStdoutQuit(TeeStdoutReturn) {}
+void teeStdoutQuit() {}
 const char* GetLogFilename() { return teeLogfile; }
 
 #endif
@@ -522,7 +528,7 @@ int main(int argc, char *argv[])
 {
 	if(DoCrashReport(argc, argv)) return 0;
 
-	TeeStdoutReturn tee = teeStdout();
+	teeStdoutInit();
 	
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
@@ -744,7 +750,7 @@ quit:
 	// Uninit the crash handler after all other code
 	CrashHandler::uninit();
 
-	teeStdoutQuit(tee);
+	teeStdoutQuit();
 	return 0;
 }
 

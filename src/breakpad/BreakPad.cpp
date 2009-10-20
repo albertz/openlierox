@@ -29,6 +29,9 @@
 #ifndef WIN32
 #include <unistd.h>
 
+// defined in main.cpp
+extern void teeStdoutQuit();
+
 static bool
 LaunchUploader( const char* dump_dir,
                const char* minidump_id,
@@ -38,22 +41,39 @@ LaunchUploader( const char* dump_dir,
     // DON'T USE THE HEAP!!!
     // So that indeed means, no QStrings, no qDebug(), no QAnything, seriously!
 
+	printf("CrashHandler called, minidump_id: %s\n", minidump_id);
+	
     if (!succeeded)
         return false;
+
+	// NOTE: If we would want to add any further information to be added to the crash report,
+	// like local variables or so, we could just write them with printf() at this point. This
+	// is save. The process which writes to stdout is not affected by the crash!
+	// Anyway, accessing any ingame variables could be insafe, so we should avoid any access
+	// here which could lead to a crash.
+	// A better/safer way would be to analyse the minidump and read some variables
+	// directly from there.
+
+	// Save it because we will quit the teeStdout and this will reset the logfilename.
+	char logfile[2048]; logfile[0] = 0;
+	strncpy(logfile, GetLogFilename(), sizeof(logfile));
+	
+	// Close the logfile, we don't want the crashreport debug info in there (too much spam right now from breakpad).
+	// This should be save.
+	teeStdoutQuit();
 	
     pid_t pid = fork();
 
     if (pid == -1) // fork failed
         return false;
     if (pid == 0) { // we are the fork
-		printf("minidump_id: %s\n", minidump_id);
 		
         execl( GetBinaryFilename(),
                GetBinaryFilename(),
 			   "-crashreport",
                dump_dir,
                minidump_id,
-			   GetLogFilename(),
+			   logfile,
                (char*) 0 );
 
         // execl replaces this process, so no more code will be executed
