@@ -241,20 +241,22 @@ static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& 
 			out << tmp;
 			
 			// Function name
-			if (!frame->function_name.empty()) {
-				sprintf(tmp, "%s", frame->function_name.c_str());
+			if (!frame->function_name.empty())
+				out << frame->function_name;
+			else
+				out << "??";
+
+			if (!frame->source_file_name.empty()) {
+				string source_file = PathnameStripper::File(frame->source_file_name);
+				sprintf(tmp, " + 0x%llx (%s:%d)",
+						instruction - frame->source_line_base,
+						source_file.c_str(), frame->source_line);
 				out << tmp;
-				if (!frame->source_file_name.empty()) {
-					string source_file = PathnameStripper::File(frame->source_file_name);
-					sprintf(tmp, " + 0x%llx (%s:%d)",
-						   instruction - frame->source_line_base,
-						   source_file.c_str(), frame->source_line);
-					out << tmp;
-				} else {
-					sprintf(tmp, " + 0x%llx", instruction - frame->function_base);
-					out << tmp;
-				}
+			} else if(frame->function_base > 0) {
+				sprintf(tmp, " + 0x%llx", instruction - frame->function_base);
+				out << tmp;
 			}
+			
 		}
 		out << std::endl;
 	}
