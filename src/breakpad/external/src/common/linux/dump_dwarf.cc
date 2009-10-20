@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cxxabi.h>
 
 #include "common/linux/dump_dwarf.h"
 
@@ -179,8 +180,8 @@ typedef map<uint64, std::string> FunctionMap;
 // A handler class for DW_TAG_subprogram DIEs.
 class DumpDwarfFuncHandler: public dwarf2reader::DIEHandler {
  public:
-  DumpDwarfFuncHandler(uint64 cu_offset, uint64 offset, vector<Module::Function *> *functions, FunctionMap *offset_to_funcinfo) :
-      compilation_unit_offset_(cu_offset), offset_(offset), low_pc_(0), high_pc_(0), functions_(functions), offset_to_funcinfo_(offset_to_funcinfo) { }
+  DumpDwarfFuncHandler(uint64 cu_offset, uint64 offset, const string& prefixname, vector<Module::Function *> *functions, FunctionMap *offset_to_funcinfo) :
+	  compilation_unit_offset_(cu_offset), offset_(offset), prefixname_(prefixname), low_pc_(0), high_pc_(0), functions_(functions), offset_to_funcinfo_(offset_to_funcinfo) { }
   void ProcessAttributeUnsigned(enum DwarfAttribute attr,
                                 enum DwarfForm form,
                                 uint64 data);
@@ -192,6 +193,7 @@ class DumpDwarfFuncHandler: public dwarf2reader::DIEHandler {
  private:
   uint64 compilation_unit_offset_;
   uint64 offset_;
+  string prefixname_;
   string name_;
   uint64 low_pc_, high_pc_;
   vector<Module::Function *> *functions_;
@@ -246,11 +248,25 @@ void DumpDwarfFuncHandler::ProcessAttributeUnsigned(enum DwarfAttribute attr,
   }
 }
 
+// Demangle using abi call.
+// Older GCC may not support it.
+static std::string Demangle(const std::string &mangled) {
+	int status = 0;
+	char *demangled = abi::__cxa_demangle(mangled.c_str(), NULL, NULL, &status);
+	if (status == 0 && demangled != NULL) {
+		std::string str(demangled);
+		free(demangled);
+		return str;
+	}
+	return std::string(mangled);
+}
+
 void DumpDwarfFuncHandler::ProcessAttributeString(enum DwarfAttribute attr,
                                                   enum DwarfForm form,
                                                   const string& data) {
   switch (attr) {
-    case dwarf2reader::DW_AT_name: name_ = data;
+	case dwarf2reader::DW_AT_name: if(name_ == "") name_ = prefixname_ + data; break;
+	case dwarf2reader::DW_AT_MIPS_linkage_name: name_ = Demangle(data); break;
     default: break;
   }
 }
@@ -276,6 +292,7 @@ void DumpDwarfFuncHandler::Finish() {
 
 // A handler class for the root die of a DWARF compilation unit.
 class DumpDwarfCURootHandler: public dwarf2reader::RootDIEHandler {
+	friend struct DumpDwarfChildIterator;
  public:
   // Create a CU root DIE handler that deposits all the CU's data in
   // MODULE.  BYTE_READER and SECTION_MAP should be the same byte
@@ -406,12 +423,28 @@ void DumpDwarfCURootHandler::ProcessAttributeString(enum DwarfAttribute attr,
 }
 
 struct DumpDwarfChildIterator : dwarf2reader::DIEHandler {
-	DumpDwarfChildIterator(DumpDwarfCURootHandler* root) : root_(root) {}
+	DumpDwarfChildIterator(DumpDwarfCURootHandler* root, const string& prefixname = "")
+	: root_(root), prefixname_(prefixname), fullname_(prefixname) {}
+
 	dwarf2reader::DIEHandler* FindChildHandler(uint64 offset, enum DwarfTag tag, const AttributeList &attrs) {
-		return root_->FindChildHandler(offset, tag, attrs);
+		std::string childprefix = fullname_.empty() ? "" : (fullname_ + "::");
+		switch (tag) {
+			case dwarf2reader::DW_TAG_subprogram:
+			case dwarf2reader::DW_TAG_inlined_subroutine:
+				return new DumpDwarfFuncHandler(root_->cu_offset_, offset, childprefix, &root_->functions_, &root_->offset_to_funcinfo_);
+			default:
+				return new DumpDwarfChildIterator(root_, childprefix);
+		}
 	}
 
+	void ProcessAttributeString(enum DwarfAttribute attr, enum DwarfForm form, const string &data) {
+	   if (attr == dwarf2reader::DW_AT_name)
+		   fullname_ = prefixname_ + data;
+   }
+
 	DumpDwarfCURootHandler* root_;
+	std::string prefixname_;
+	std::string fullname_;
 };
 
 dwarf2reader::DIEHandler *DumpDwarfCURootHandler::FindChildHandler(
@@ -421,7 +454,7 @@ dwarf2reader::DIEHandler *DumpDwarfCURootHandler::FindChildHandler(
   switch (tag) {
     case dwarf2reader::DW_TAG_subprogram:
     case dwarf2reader::DW_TAG_inlined_subroutine:
-      return new DumpDwarfFuncHandler(cu_offset_, offset, &functions_, &offset_to_funcinfo_);
+      return new DumpDwarfFuncHandler(cu_offset_, offset, "", &functions_, &offset_to_funcinfo_);
     default:
       return new DumpDwarfChildIterator(this);
   }
