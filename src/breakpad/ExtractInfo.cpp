@@ -223,7 +223,8 @@ static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& 
 			char tmp[2048];
 			sprintf(tmp, "%-*s", maxStr, buffer);
 			out << tmp;
-			
+
+			maxStr = 10;
 			strcpy(buffer, module->version().c_str());
 			buffer[maxStr] = 0;
 			sprintf(tmp, "%-*s",maxStr, buffer);
@@ -237,7 +238,7 @@ static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& 
 			if (cpu == "ppc" && frame_index)
 				instruction += 4;
 			
-			sprintf(tmp, " 0x%08llx ", instruction);
+			sprintf(tmp, " 0x%08llx (0x%08llx) ", instruction, instruction - module->base_address());
 			out << tmp;
 			
 			// Function name
