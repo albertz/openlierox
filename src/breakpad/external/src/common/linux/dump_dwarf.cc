@@ -174,11 +174,13 @@ void DumpDwarfLineHandler::EndSequence(uint64 last_address) {
   }
 }
 
+typedef map<uint64, std::string> FunctionMap;
+
 // A handler class for DW_TAG_subprogram DIEs.
 class DumpDwarfFuncHandler: public dwarf2reader::DIEHandler {
  public:
-  DumpDwarfFuncHandler(uint64 offset, vector<Module::Function *> *functions) :
-      offset_(offset), low_pc_(0), high_pc_(0), functions_(functions) { }
+  DumpDwarfFuncHandler(uint64 cu_offset, uint64 offset, vector<Module::Function *> *functions, FunctionMap *offset_to_funcinfo) :
+      compilation_unit_offset_(cu_offset), offset_(offset), low_pc_(0), high_pc_(0), functions_(functions), offset_to_funcinfo_(offset_to_funcinfo) { }
   void ProcessAttributeUnsigned(enum DwarfAttribute attr,
                                 enum DwarfForm form,
                                 uint64 data);
@@ -188,11 +190,34 @@ class DumpDwarfFuncHandler: public dwarf2reader::DIEHandler {
   void Finish();
 
  private:
-  uint64 offset_; // for debugging
+  uint64 compilation_unit_offset_;
+  uint64 offset_;
   string name_;
   uint64 low_pc_, high_pc_;
   vector<Module::Function *> *functions_;
+  FunctionMap* offset_to_funcinfo_;
 };
+
+
+// Given an offset value, its form, and the base offset of the
+// compilation unit containing this value, return an absolute offset
+// within the .debug_info section.
+static uint64 GetAbsoluteOffset(uint64 offset,
+                         enum DwarfForm form,
+                         uint64 compilation_unit_base) {
+  using namespace dwarf2reader;
+  switch (form) {
+    case DW_FORM_ref1:
+    case DW_FORM_ref2:
+    case DW_FORM_ref4:
+    case DW_FORM_ref8:
+    case DW_FORM_ref_udata:
+      return offset + compilation_unit_base;
+    case DW_FORM_ref_addr:
+    default:
+      return offset;
+  }
+}
 
 void DumpDwarfFuncHandler::ProcessAttributeUnsigned(enum DwarfAttribute attr,
                                                     enum DwarfForm form,
@@ -200,6 +225,23 @@ void DumpDwarfFuncHandler::ProcessAttributeUnsigned(enum DwarfAttribute attr,
   switch (attr) {
     case dwarf2reader::DW_AT_low_pc:  low_pc_  = data; break;
     case dwarf2reader::DW_AT_high_pc: high_pc_ = data; break;
+    case dwarf2reader::DW_AT_specification: {
+        // Some functions have a "specification" attribute
+        // which means they were defined elsewhere. The name
+        // attribute is not repeated, and must be taken from
+        // the specification DIE. Here we'll assume that
+        // any DIE referenced in this manner will already have
+        // been seen, but that's not really required by the spec.
+        uint64 abs_offset = GetAbsoluteOffset(data, form, compilation_unit_offset_);
+
+        FunctionMap::iterator iter = offset_to_funcinfo_->find(abs_offset);
+        if (iter != offset_to_funcinfo_->end()) {
+          name_ = iter->second;
+        } else {
+          // If you hit this, this code probably needs to be rewritten.
+          fprintf(stderr, "Error: DW_AT_specification, form %04x, Looking for DIE at offset %08llx, in DIE at offset %08llx, CU %08llx, data %08llx\n", form, abs_offset, offset_, compilation_unit_offset_, data);
+        }
+    }
     default: break;
   }
 }
@@ -228,6 +270,8 @@ void DumpDwarfFuncHandler::Finish() {
     func->parameter_size_ = 0;
     functions_->push_back(func);
   }
+
+  offset_to_funcinfo_->insert( make_pair(offset_, name_) );
 }
 
 // A handler class for the root die of a DWARF compilation unit.
@@ -303,6 +347,8 @@ class DumpDwarfCURootHandler: public dwarf2reader::RootDIEHandler {
   // Destroying this destroys all the functions this vector points to.
   vector<Module::Function *> functions_;
 
+  FunctionMap offset_to_funcinfo_;
+
   // The line numbers we have seen thus far.  We accumulate these here
   // during parsing.  Then, in Finish, we call AssignLinesToFunctions
   // to dole them out to the appropriate functions.
@@ -359,15 +405,25 @@ void DumpDwarfCURootHandler::ProcessAttributeString(enum DwarfAttribute attr,
     cu_name_ = data;
 }
 
+struct DumpDwarfChildIterator : dwarf2reader::DIEHandler {
+	DumpDwarfChildIterator(DumpDwarfCURootHandler* root) : root_(root) {}
+	dwarf2reader::DIEHandler* FindChildHandler(uint64 offset, enum DwarfTag tag, const AttributeList &attrs) {
+		return root_->FindChildHandler(offset, tag, attrs);
+	}
+
+	DumpDwarfCURootHandler* root_;
+};
+
 dwarf2reader::DIEHandler *DumpDwarfCURootHandler::FindChildHandler(
     uint64 offset,
     enum DwarfTag tag,
     const AttributeList &attrs) {
   switch (tag) {
     case dwarf2reader::DW_TAG_subprogram:
-      return new DumpDwarfFuncHandler(offset, &functions_);
+    case dwarf2reader::DW_TAG_inlined_subroutine:
+      return new DumpDwarfFuncHandler(cu_offset_, offset, &functions_, &offset_to_funcinfo_);
     default:
-      return NULL;
+      return new DumpDwarfChildIterator(this);
   }
 }
 
@@ -650,6 +706,7 @@ bool LoadDwarf(const string &dwarf_filename, const ElfW(Ehdr) *elf_header,
   // .debug_info section.
   assert(debug_info_section.first);
   uint64 debug_info_length = debug_info_section.second;
+
   // Parse all the compilation units in the .debug_info section.
   for (uint64 offset = 0; offset < debug_info_length;) {
     // Make a handler for the root DIE that populates MODULE with the
