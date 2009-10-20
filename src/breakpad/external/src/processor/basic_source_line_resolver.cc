@@ -555,7 +555,11 @@ BasicSourceLineResolver::Module::ParseFunction(char *function_line) {
 
   vector<char*> tokens;
   if (!Tokenize(function_line, 4, &tokens)) {
-    return NULL;
+    // In some cases, some functions don't have a name, so we have only 3 tokens.
+    if(tokens.size() == 3)	
+      tokens.push_back((char*)"<anonymous function>");
+    else
+      return NULL;
   }
 
   u_int64_t address    = strtoull(tokens[0], NULL, 16);
