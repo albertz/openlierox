@@ -26,7 +26,7 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	if(!out) return false;
 	
 	PDBSourceLineWriter writer;
-	if (!writer.Open(PATHFORGPB(bin), PDBSourceLineWriter::ANY_FILE)) {
+	if (!writer.Open(Utf8ToUtf16(bin), PDBSourceLineWriter::ANY_FILE)) {
 		fclose(out);
 		return false;
 	}
