@@ -385,7 +385,8 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 	
 	const SystemInfo *system_info = process_state.system_info();
 	string cpu = system_info->cpu;
-	
+
+#ifndef _MSC_VER
 	// Convert the time to a string
 	u_int32_t time_date_stamp = process_state.time_date_stamp();
 	struct tm timestruct;
@@ -393,7 +394,10 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 	char timestr[20];
 	strftime(timestr, 20, "%Y-%m-%d %H:%M:%S", &timestruct);
 	out << "Date: " << timestr << " GMT" << std::endl;
-	
+#else
+	// TODO ...
+#endif
+
 	out << "Operating system: " << system_info->os << " (" << system_info->os_version << ")" << std::endl;
 	out << "Architecture: " << cpu << std::endl;
 	
