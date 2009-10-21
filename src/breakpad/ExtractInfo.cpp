@@ -61,7 +61,9 @@ static void MiniUninit() {
 	notes << "Good Bye and enjoy your day..." << endl;
 }
 
+#ifndef _MSC_VER
 extern char **environ;
+#endif
 
 int DoCrashReport(int argc, char** argv) {
 	if(argc < 2) return 0;
@@ -223,7 +225,8 @@ static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& 
 			char tmp[2048];
 			sprintf(tmp, "%-*s", maxStr, buffer);
 			out << tmp;
-			
+
+			maxStr = 10;
 			strcpy(buffer, module->version().c_str());
 			buffer[maxStr] = 0;
 			sprintf(tmp, "%-*s",maxStr, buffer);
@@ -237,24 +240,26 @@ static void PrintStack(const CallStack *stack, const string &cpu, std::ostream& 
 			if (cpu == "ppc" && frame_index)
 				instruction += 4;
 			
-			sprintf(tmp, " 0x%08llx ", instruction);
+			sprintf(tmp, " 0x%08llx (0x%08llx) ", instruction, instruction - module->base_address());
 			out << tmp;
 			
 			// Function name
-			if (!frame->function_name.empty()) {
-				sprintf(tmp, "%s", frame->function_name.c_str());
+			if (!frame->function_name.empty())
+				out << frame->function_name;
+			else
+				out << "??";
+
+			if (!frame->source_file_name.empty()) {
+				string source_file = PathnameStripper::File(frame->source_file_name);
+				sprintf(tmp, " + 0x%llx (%s:%d)",
+						instruction - frame->source_line_base,
+						source_file.c_str(), frame->source_line);
 				out << tmp;
-				if (!frame->source_file_name.empty()) {
-					string source_file = PathnameStripper::File(frame->source_file_name);
-					sprintf(tmp, " + 0x%llx (%s:%d)",
-						   instruction - frame->source_line_base,
-						   source_file.c_str(), frame->source_line);
-					out << tmp;
-				} else {
-					sprintf(tmp, " + 0x%llx", instruction - frame->function_base);
-					out << tmp;
-				}
+			} else if(frame->function_base > 0) {
+				sprintf(tmp, " + 0x%llx", instruction - frame->function_base);
+				out << tmp;
 			}
+			
 		}
 		out << std::endl;
 	}
@@ -380,7 +385,8 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 	
 	const SystemInfo *system_info = process_state.system_info();
 	string cpu = system_info->cpu;
-	
+
+#ifndef _MSC_VER
 	// Convert the time to a string
 	u_int32_t time_date_stamp = process_state.time_date_stamp();
 	struct tm timestruct;
@@ -388,7 +394,10 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
 	char timestr[20];
 	strftime(timestr, 20, "%Y-%m-%d %H:%M:%S", &timestruct);
 	out << "Date: " << timestr << " GMT" << std::endl;
-	
+#else
+	// TODO ...
+#endif
+
 	out << "Operating system: " << system_info->os << " (" << system_info->os_version << ")" << std::endl;
 	out << "Architecture: " << cpu << std::endl;
 	
