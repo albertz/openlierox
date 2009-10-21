@@ -135,12 +135,6 @@ LaunchUploader( const wchar_t* dump_dir,
 
 #endif // WIN32
 
-#ifdef WIN32									
-#define PATHFORGPB(p)	Utf8ToUtf16(p)
-#else
-#define PATHFORGPB(p)	(p)
-#endif
-
 BreakPad::BreakPad( const std::string& path )
 : google_breakpad::ExceptionHandler(
 									PATHFORGPB(path), 

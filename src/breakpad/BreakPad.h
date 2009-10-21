@@ -34,6 +34,12 @@
 #   define NBREAKPAD
 #endif
 
+#ifdef WIN32									
+#define PATHFORGPB(p)	Utf8ToUtf16(p)
+#else
+#define PATHFORGPB(p)	(p)
+#endif
+
 struct BreakPad : public google_breakpad::ExceptionHandler
 {
     BreakPad( const std::string &dump_write_dirpath );

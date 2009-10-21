@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <string>
 
+#include "BreakPad.h"
 #include "FindFile.h"
 #include "common/windows/pdb_source_line_writer.h"
 
@@ -25,7 +26,7 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	if(!out) return false;
 	
 	PDBSourceLineWriter writer;
-	if (!writer.Open(Utf8ToSystemNative(bin), PDBSourceLineWriter::ANY_FILE)) {
+	if (!writer.Open(PATHFORGPB(bin), PDBSourceLineWriter::ANY_FILE)) {
 		fclose(out);
 		return false;
 	}
