@@ -143,6 +143,21 @@ static void DoSystemChecks() {
 char* binaryfilename = NULL;
 
 const char* GetBinaryFilename() { return binaryfilename; }
+const wchar_t* GetBinaryFileNameW(wchar_t *outbuf) { 
+	outbuf[0] = 0;
+	if (!binaryfilename)
+		return outbuf;
+
+	char *out = (char *)outbuf;
+	char *in = binaryfilename;
+    do {
+        *out++ = *++in;
+        *out++ = '\0';
+    }
+    while (*in);
+
+	return outbuf;
+}
 
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
@@ -502,6 +517,22 @@ static void teeStdoutFile(const std::string& f) {
 }
 static void teeStdoutQuit(TeeStdoutReturn) {}
 const char* GetLogFilename() { return teeLogfile; }
+
+const wchar_t* GetLogFilenameW(wchar_t *outbuf) { 
+	outbuf[0] = 0;
+	if (!teeLogfile)
+		return outbuf;
+
+	char *out = (char *)outbuf;
+	char *in = teeLogfile;
+    do {
+        *out++ = *++in;
+        *out++ = '\0';
+    }
+    while (*in);
+
+	return outbuf;
+}
 
 #endif
 

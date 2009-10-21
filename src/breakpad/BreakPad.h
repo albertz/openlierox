@@ -34,7 +34,7 @@
 #   define NBREAKPAD
 #endif
 
-class BREAKPAD_DLLEXPORT BreakPad : public google_breakpad::ExceptionHandler
+class BreakPad : public google_breakpad::ExceptionHandler
 {
     const char* m_product_name; // yes! It MUST be const char[]
 

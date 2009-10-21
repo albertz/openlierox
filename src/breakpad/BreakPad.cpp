@@ -96,16 +96,17 @@ LaunchUploader( const wchar_t* dump_dir,
     while (*in);
 
     wchar_t command[MAX_PATH * 3 + 6];
-    wcscpy( command, GetBinaryFilename() );
+	wchar_t buf[MAX_PATH * 3 + 6];
+    wcscpy( command, GetBinaryFilenameW(buf) );
 	wcscat( command, L" -crashreport \"" );
     wcscat( command, dump_dir );
     wcscat( command, L"\" \"" );
     wcscat( command, minidump_id );
     wcscat( command, L"\" \"" );
-    wcscat( command, GetLogFilename() );
+    wcscat( command, GetLogFilenameW(buf) );
     wcscat( command, L"\"" );
 
-    STARTUPINFO si;
+    STARTUPINFOW si;
     PROCESS_INFORMATION pi;
 
     ZeroMemory( &si, sizeof(si) );
@@ -114,7 +115,7 @@ LaunchUploader( const wchar_t* dump_dir,
     si.wShowWindow = SW_SHOWNORMAL;
     ZeroMemory( &pi, sizeof(pi) );
 
-    if (CreateProcess( NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
+    if (CreateProcessW( NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi))
     {
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );
@@ -128,7 +129,7 @@ LaunchUploader( const wchar_t* dump_dir,
 
 
 BreakPad::BreakPad( const std::string& path )
-: google_breakpad::ExceptionHandler( Utf8ToSystemNative(path), 
+: google_breakpad::ExceptionHandler( Utf8ToUtf16(path), 
 									0, 
 									LaunchUploader, 
 									this, 
