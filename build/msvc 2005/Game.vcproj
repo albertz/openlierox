@@ -21,6 +21,7 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -51,7 +52,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src"
 				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -128,6 +129,7 @@
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
+			UseOfATL="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="2"
 			WholeProgramOptimization="1"
@@ -161,7 +163,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -3122,6 +3124,110 @@
 				RelativePath="..\..\include\GuiPrimitives.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Breakpad"
+			>
+			<File
+				RelativePath="..\..\src\breakpad\BreakPad.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\BreakPad.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\DumpSyms.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\DumpSyms.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\ExtractInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\ExtractInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\on_demand_symbol_supplier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\on_demand_symbol_supplier.h"
+				>
+			</File>
+			<Filter
+				Name="external"
+				>
+				<Filter
+					Name="client"
+					>
+				</Filter>
+				<Filter
+					Name="common"
+					>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\convert_UTF.c"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\convert_UTF.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\guid_string.cc"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\guid_string.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\http_upload.cc"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\http_upload.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\md5.c"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\md5.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\string_conversion.cc"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\string_conversion.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\string_utils-inl.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\breakpad\external\src\common\windows\string_utils.cc"
+						>
+					</File>
+				</Filter>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
