@@ -90,8 +90,8 @@ LaunchUploader( const char* dump_dir,
 
 #else
 static bool
-LaunchUploader( const wchar_t* dump_dir,
-               const wchar_t* minidump_id,
+LaunchUploader( const char* dump_dir,
+               const char* minidump_id,
                void* that,
                EXCEPTION_POINTERS *exinfo,
                MDRawAssertionInfo *assertion,
@@ -103,27 +103,15 @@ LaunchUploader( const wchar_t* dump_dir,
     // DON'T USE THE HEAP!!!
     // So that indeed means, no QStrings, no qDebug(), no QAnything, seriously!
 
-    const char* m_product_name = static_cast<BreakPad*>(that)->productName();
-
-    // convert m_product_name to widechars, which sadly means the product name must be Latin1    
-    wchar_t product_name[ 256 ];
-    char* out = (char*)product_name;
-    const char* in = m_product_name - 1;
-    do {
-        *out++ = *++in; //latin1 chars fit in first byte of each wchar
-        *out++ = '\0';  //every second byte is NULL
-    }
-    while (*in);
-
-    wchar_t command[MAX_PATH * 3 + 6];
-    wcscpy( command, GetBinaryFilename() );
-	wcscat( command, L" -crashreport \"" );
-    wcscat( command, dump_dir );
-    wcscat( command, L"\" \"" );
-    wcscat( command, minidump_id );
-    wcscat( command, L"\" \"" );
-    wcscat( command, GetLogFilename() );
-    wcscat( command, L"\"" );
+    char command[MAX_PATH * 3 + 6];
+    strcpy( command, GetBinaryFilename() );
+	strcat( command, " -crashreport \"" );
+    strcat( command, dump_dir );
+    strcat( command, "\" \"" );
+    strcat( command, minidump_id );
+    strcat( command, "\" \"" );
+    strcat( command, GetLogFilename() );
+    strcat( command, "\"" );
 
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
