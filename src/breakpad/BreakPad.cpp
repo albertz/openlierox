@@ -100,23 +100,8 @@ LaunchUploader( const wchar_t* dump_dir,
     if (!succeeded)
         return false;
 
-	BreakPad *_this = (BreakPad *)(that);
-	if (!_this)
-		return false;
-
     // DON'T USE THE HEAP!!!
     // So that indeed means, no QStrings, no qDebug(), no QAnything, seriously!
-
-
-    // convert m_product_name to widechars, which sadly means the product name must be Latin1    
-    wchar_t product_name[ 256 ];
-    char* out = (char*)product_name;
-    const char* in = _this->m_product_name - 1;
-    do {
-        *out++ = *++in; //latin1 chars fit in first byte of each wchar
-        *out++ = '\0';  //every second byte is NULL
-    }
-    while (*in);
 
     wchar_t command[MAX_PATH * 3 + 6];
 	wchar_t buf[MAX_PATH * 3 + 6];
@@ -150,9 +135,15 @@ LaunchUploader( const wchar_t* dump_dir,
 
 #endif // WIN32
 
+#ifdef WIN32									
+#define PATHFORGPB(p)	Utf8ToUtf16(p)
+#else
+#define PATHFORGPB(p)	(p)
+#endif
 
 BreakPad::BreakPad( const std::string& path )
-: google_breakpad::ExceptionHandler( Utf8ToUtf16(path), 
+: google_breakpad::ExceptionHandler(
+									PATHFORGPB(path), 
 									0, 
 									LaunchUploader, 
 									this, 

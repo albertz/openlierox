@@ -516,7 +516,6 @@ struct CrashHandlerImpl : CrashHandler {
 	BreakPad breakpad;
 	
 	CrashHandlerImpl() : breakpad(GetReportsDestPath()) {
-		breakpad.setProductName( GetFullGameName() ); // GetFullGameName() returns a static const char*, so is safe
 		notes << "installed Breakpad handler" << endl;	
 	}
 

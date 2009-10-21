@@ -34,26 +34,12 @@
 #   define NBREAKPAD
 #endif
 
-class BreakPad : public google_breakpad::ExceptionHandler
+struct BreakPad : public google_breakpad::ExceptionHandler
 {
-#ifdef WIN32
-	friend static bool
-LaunchUploader( const wchar_t* dump_dir,
-               const wchar_t* minidump_id,
-               void* that,
-               EXCEPTION_POINTERS *exinfo,
-               MDRawAssertionInfo *assertion,
-               bool succeeded );
-#endif
-    const char* m_product_name; // yes! It MUST be const char[]
-
-public:
     BreakPad( const std::string &dump_write_dirpath );
     ~BreakPad();
-
-    void setProductName( const char* s ) { m_product_name = s; };
-    const char* productName() const { return m_product_name; }
 };
+
 #endif
 
 
