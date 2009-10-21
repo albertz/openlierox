@@ -68,6 +68,11 @@
 
 namespace google_breakpad {
 
+#ifdef SEVERITY_ERROR
+// MSVC bullshit
+#undef SEVERITY_ERROR
+#endif
+
 class LogStream {
  public:
   enum Severity {
