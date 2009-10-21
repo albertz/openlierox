@@ -540,6 +540,22 @@ const wchar_t* GetLogFilenameW(wchar_t *outbuf) {
 	return outbuf;
 }
 
+const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) { 
+	outbuf[0] = 0;
+	if (!binaryfilename)
+		return outbuf;
+
+	char *out = (char *)outbuf;
+	char *in = binaryfilename;
+    do {
+        *out++ = *++in;
+        *out++ = '\0';
+    }
+    while (*in);
+
+	return outbuf;
+}
+
 #endif
 
 void setBinaryDirAndName(char* argv0) {
