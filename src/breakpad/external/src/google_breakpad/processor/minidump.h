@@ -79,6 +79,11 @@
 #ifndef GOOGLE_BREAKPAD_PROCESSOR_MINIDUMP_H__
 #define GOOGLE_BREAKPAD_PROCESSOR_MINIDUMP_H__
 
+#ifdef _MSC_VER
+// for lseek
+#include <io.h>
+#endif
+
 #include <map>
 #include <string>
 #include <vector>
