@@ -48,6 +48,7 @@ using google_breakpad::OnDemandSymbolSupplier;
 using google_breakpad::PathnameStripper;
 using google_breakpad::SymbolSupplier;
 using google_breakpad::SystemInfo;
+using google_breakpad::CodeModule;
 
 OnDemandSymbolSupplier::OnDemandSymbolSupplier(const string &search_dir, 
                                                const string &symbol_search_dir)
