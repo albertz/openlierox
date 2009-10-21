@@ -61,7 +61,9 @@ static void MiniUninit() {
 	notes << "Good Bye and enjoy your day..." << endl;
 }
 
+#ifndef _MSC_VER
 extern char **environ;
+#endif
 
 int DoCrashReport(int argc, char** argv) {
 	if(argc < 2) return 0;
