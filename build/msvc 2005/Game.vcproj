@@ -52,7 +52,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -163,7 +163,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -178,6 +178,7 @@
 				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
 				CallingConvention="0"
+				ForcedIncludeFiles="$(VCInstallDir)\include\process.h"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -3184,14 +3185,6 @@
 					</File>
 					<File
 						RelativePath="..\..\src\breakpad\external\src\common\windows\guid_string.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\breakpad\external\src\common\windows\http_upload.cc"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\breakpad\external\src\common\windows\http_upload.h"
 						>
 					</File>
 					<File
