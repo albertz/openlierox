@@ -55,7 +55,7 @@ class SourceLineResolverInterface;
 struct StackFrame;
 struct StackFrameInfo;
 class SymbolSupplier;
-class SystemInfo;
+struct SystemInfo;
 
 using std::vector;
 
