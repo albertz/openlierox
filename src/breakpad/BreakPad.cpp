@@ -100,13 +100,16 @@ LaunchUploader( const wchar_t* dump_dir,
     if (!succeeded)
         return false;
 
-    // DON'T USE THE HEAP!!!
+	wprintf(L"CrashHandler, minidump_id %s\n", minidump_id);
+
+	// DON'T USE THE HEAP!!!
     // So that indeed means, no QStrings, no qDebug(), no QAnything, seriously!
 
-    wchar_t command[MAX_PATH * 3 + 6];
+	wchar_t command[ 2 * MAX_PATH * 3 + 12 ];
 	wchar_t buf[MAX_PATH * 3 + 6];
-    wcscpy( command, GetBinaryFilenameW(buf) );
-	wcscat( command, L" -crashreport \"" );
+    wcscpy( command, L"\"" );
+    wcscat( command, GetBinaryFilenameW(buf) );
+	wcscat( command, L"\" -crashreport \"" );
     wcscat( command, dump_dir );
     wcscat( command, L"\" \"" );
     wcscat( command, minidump_id );
@@ -129,6 +132,9 @@ LaunchUploader( const wchar_t* dump_dir,
         CloseHandle( pi.hThread );
         TerminateProcess( GetCurrentProcess(), 1 );
     }
+	else {
+		wprintf(L"Error: could not start crash reporter, command: %s\n", command);
+	}
 
     return false;
 }

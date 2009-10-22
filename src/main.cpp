@@ -503,6 +503,10 @@ void teeStdoutFile(const std::string& f) {
 	else
 		errors << "teeStdoutFile: filename " << f << " is too long" << endl;
 	
+	// If you would just see the old output, it would look kind of strange
+	// that it suddenly stops, so print where we continue.
+	notes << "Logfile: " << f << endl;
+
 	freopen(f.c_str(), "a", stdout);
 	// no caching for stdout/logfile, it should be written immediatly to
 	// have the important information in case of a crash
@@ -519,6 +523,15 @@ void teeStdoutFile(const std::string& f) {
 	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
 	notes << "Current time: " << GetDateTimeText() << endl;
 
+	// print the searchpaths, this may be very usefull for the user
+	notes << "Searchpaths (in this order):\n";
+	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
+		std::string path = *p2;
+		ReplaceFileVariables(path);
+		notes << "  " << path << "\n";
+	}
+	notes << "Searchpaths finished." << endl;
+
 	// we still miss some more output but let's hope that this is enough
 }
 void teeStdoutQuit() {}
@@ -531,11 +544,12 @@ const wchar_t* GetLogFilenameW(wchar_t *outbuf) {
 
 	char *out = (char *)outbuf;
 	char *in = teeLogfile;
-    do {
-        *out++ = *++in;
+    while(*in) {
+        *out++ = *(in++);
         *out++ = '\0';
     }
-    while (*in);
+	*out++ = '\0';
+	*out++ = '\0';
 
 	return outbuf;
 }
@@ -547,11 +561,12 @@ const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) {
 
 	char *out = (char *)outbuf;
 	char *in = binaryfilename;
-    do {
-        *out++ = *++in;
+    while(*in) {
+        *out++ = *(in++);
         *out++ = '\0';
     }
-    while (*in);
+	*out++ = '\0';
+	*out++ = '\0';
 
 	return outbuf;
 }
