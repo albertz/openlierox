@@ -85,6 +85,7 @@ int DoCrashReport(int argc, char** argv) {
 	std::string logfilename = argv[4];
 	
 	// collect crashinfo before connecting to SMTP to avoid timeout on SMTP server
+	hints << "generating crash report ..." << endl;
 	std::stringstream crashinfo, crashinfoerror;
 	MinidumpExtractInfo(minidumpfile, crashinfo, crashinfoerror);
 
@@ -98,18 +99,18 @@ int DoCrashReport(int argc, char** argv) {
 		errors << "could not connect to SMTP server" << endl;
 		return 1;
 	}
-	notes << "Connected to SMTP server" << endl;
+	hints << "Connected to SMTP server" << endl;
 	
 	smtp.addText("\nSystem environment:\n\n");
 	for(char** env = environ; *env != NULL; ++env)
 		smtp.addText(*env);
-	notes << "System environment sent" << endl;
+	hints << "System environment sent" << endl;
 
 	
 	smtp.addText("\n\n\n\nCrash information:\n\n");
 	crashinfo << std::flush;
 	smtp.addText(crashinfo.str());
-	notes << "Crash information sent" << endl;
+	hints << "Crash information sent" << endl;
 
 	
 	smtp.addText("\n\n\n\n\nRecent console output:\n");
@@ -125,7 +126,7 @@ int DoCrashReport(int argc, char** argv) {
 		smtp.addText("Logfile could not be read!\n");
 		warnings << "Logfile could not be read" << endl;
 	}
-	notes << "Logfile sent" << endl;
+	hints << "Logfile sent" << endl;
 	
 
 	smtp.addText("\n\n\n\nCurrent config:\n");
@@ -146,7 +147,7 @@ int DoCrashReport(int argc, char** argv) {
 		smtp.addText("Config file could not be read!");
 		warnings << "Configfile could not be read" << endl;
 	}
-	notes << "Configfile sent" << endl;
+	hints << "Configfile sent" << endl;
 	
 	
 	if(!smtp.close())
