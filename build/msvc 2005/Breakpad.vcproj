@@ -346,10 +346,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\breakpad\external\src\processor\minidump_stackwalk.cc"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\breakpad\external\src\processor\pathname_stripper.cc"
 				>
 			</File>
