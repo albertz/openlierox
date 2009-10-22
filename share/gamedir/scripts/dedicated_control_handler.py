@@ -549,12 +549,13 @@ class StandardCicler:
 
 
 mapCicler = StandardCicler()
-mapCicler.list = io.listMaps()
+mapCicler.list = cfg.LEVELS  #io.listMaps()
 if len(mapCicler.list) == 0:
 	io.messageLog("Waiting for level list ...")
 	while len(mapCicler.list) == 0:
 		mapCicler.list = io.listMaps()
 mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
+mapCicler.cicle()
 
 
 modCicler = StandardCicler()
