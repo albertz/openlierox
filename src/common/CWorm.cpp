@@ -241,6 +241,10 @@ void CWorm::Prepare(bool serverSide)
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 
+	setTeamkills(0);
+	setSuicides(0);
+	setDeaths(0);
+	
 	setSpeedFactor(1);
 	setCanUseNinja(true);
 	setDamageFactor(1);
