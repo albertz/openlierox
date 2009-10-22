@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)..\msvc\libs\curllib.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot;"
 				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -234,6 +234,10 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
+			RelativePathToProject=".\Breakpad.vcproj"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -794,6 +798,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\SmartPointer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\SMTP.cpp"
 				>
 			</File>
 			<File
