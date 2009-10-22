@@ -34,6 +34,7 @@ build-stamp: configure-stamp
 	# compile the package.
 	cmake \
 	-D VERSION=$(shell cat VERSION) \
+	-D CMAKE_C_FLAGS="-g" -D CMAKE_CXX_FLAGS="-g" \
 	-D HAWKNL_BUILTIN=1 \
 	-D LIBZIP_BUILTIN=1 \
 	-D DEBUG=0 \
@@ -96,7 +97,7 @@ binary-arch: build install
 #	dh_installinfo
 #	dh_installman
 	dh_link
-	dh_strip
+#	dh_strip
 	dh_compress
 	dh_fixperms
 #	dh_perl
