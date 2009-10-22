@@ -38,6 +38,11 @@ build-stamp: configure-stamp
 	-D LIBZIP_BUILTIN=1 \
 	-D DEBUG=0 \
 	-D SYSTEM_DATA_DIR=/usr/share/games .
+
+	# Note: Breakpad is disabled for x86_64 because this platform is currently 
+	# unsupported there.
+	if [ "$(shell uname -m)" = "x86_64" ] ; then cmake -D BREAKPAD=Off . ; fi
+
 	$(MAKE) -j2
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
 
