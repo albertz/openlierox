@@ -68,9 +68,12 @@
 
 namespace google_breakpad {
 
-#ifdef SEVERITY_ERROR
 // MSVC bullshit
+#ifdef SEVERITY_ERROR
 #undef SEVERITY_ERROR
+#endif
+#ifdef ERROR
+#undef ERROR
 #endif
 
 class LogStream {

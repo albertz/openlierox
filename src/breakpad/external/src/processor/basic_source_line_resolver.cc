@@ -31,7 +31,12 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifndef WIN32
 #include <unistd.h>
+#else
+#define strtoull _strtoui64
+#define strtok_r(p1, p2, res) (*res = strtok(p1, p2))
+#endif
 
 #include <map>
 #include <utility>

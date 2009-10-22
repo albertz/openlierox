@@ -42,6 +42,11 @@
 #include "processor/logging.h"
 #include "processor/pathname_stripper.h"
 
+#ifdef _MSC_VER
+#define snprintf _snprintf
+#define localtime_r(d, res) { struct tm* _t = localtime(d); memcpy(res, _t, sizeof(tm)); }
+#endif
+
 namespace google_breakpad {
 
 LogStream::LogStream(std::ostream &stream, Severity severity,
