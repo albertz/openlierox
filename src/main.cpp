@@ -140,24 +140,9 @@ static void DoSystemChecks() {
 }
 
 
-char* binaryfilename = NULL;
+char binaryfilename[2048] = {0};
 
 const char* GetBinaryFilename() { return binaryfilename; }
-const wchar_t* GetBinaryFileNameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-	if (!binaryfilename)
-		return outbuf;
-
-	char *out = (char *)outbuf;
-	char *in = binaryfilename;
-    do {
-        *out++ = *++in;
-        *out++ = '\0';
-    }
-    while (*in);
-
-	return outbuf;
-}
 
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
@@ -556,8 +541,6 @@ const wchar_t* GetLogFilenameW(wchar_t *outbuf) {
 
 const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) { 
 	outbuf[0] = 0;
-	if (!binaryfilename)
-		return outbuf;
 
 	char *out = (char *)outbuf;
 	char *in = binaryfilename;
@@ -573,15 +556,35 @@ const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) {
 
 #endif
 
+static void saveSetBinFilename(const std::string& f) {
+	if(f.size() < sizeof(binaryfilename) - 1)
+		strcpy(binaryfilename, f.c_str());
+}
+
 void setBinaryDirAndName(char* argv0) {
-	binaryfilename = argv0;
+	saveSetBinFilename(argv0);
 	binary_dir = binaryfilename;
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
 		binary_dir = SystemNativeToUtf8(binary_dir);
-	} else
-		binary_dir = "."; // TODO get exact path of binary	
+
+	} else {
+		binary_dir = ".";
+		
+		// We where called somewhere and located in some PATH.
+		// Search which one.
+		std::vector<std::string> paths = explode(getenv("PATH"), ":");
+		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
+			if(IsFileAvailable(*p + "/" + binaryfilename, true)) {
+				binary_dir = *p;
+				saveSetBinFilename(*p + "/" + binaryfilename);
+				return;
+			}
+		}
+		
+		// Hm, nothing found. Nothing we can do about it...
+	}
 }
 
 ///////////////////
