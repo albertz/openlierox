@@ -27,6 +27,8 @@ gamedecompiler.xcodeproj
 
 *.idb
 *.pdb
+*.pyc
+*.log
 
 configure-stamp
 build-stamp
