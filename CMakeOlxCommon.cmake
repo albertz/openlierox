@@ -117,11 +117,11 @@ IF(APPLE)
 	SET(ALL_SRCS ${OLXROOTDIR}/src/MacMain.m ${ALL_SRCS})
 ENDIF(APPLE)
 
+SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/ExtractInfo.cpp ${ALL_SRCS})
 IF (BREAKPAD)
 	INCLUDE_DIRECTORIES(${OLXROOTDIR}/src/breakpad/external/src)
-	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/BreakPad.cpp ${ALL_SRCS})
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/DumpSyms.cpp ${ALL_SRCS})
-	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/ExtractInfo.cpp ${ALL_SRCS})
+	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/BreakPad.cpp ${ALL_SRCS})
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/on_demand_symbol_supplier.cpp ${ALL_SRCS})
 
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/external/src/client/minidump_file_writer.cc ${ALL_SRCS})
@@ -157,7 +157,8 @@ IF (BREAKPAD)
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/external/src/processor/stackwalker_sparc.cc ${ALL_SRCS})
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/external/src/processor/stackwalker_x86.cc ${ALL_SRCS})
 	SET(ALL_SRCS ${OLXROOTDIR}/src/breakpad/external/src/processor/stackwalker.cc ${ALL_SRCS})
-
+ELSE (BREAKPAD)
+	ADD_DEFINITIONS(-DNBREAKPAD)
 ENDIF (BREAKPAD)
 
 IF (GCOREDUMPER)
