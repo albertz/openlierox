@@ -139,8 +139,6 @@
 		23AAE59B1088D73B00E9F05F /* convert_UTF.c in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5701088D73B00E9F05F /* convert_UTF.c */; };
 		23AAE59C1088D73B00E9F05F /* dump_syms.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5741088D73B00E9F05F /* dump_syms.mm */; };
 		23AAE5A01088D73B00E9F05F /* file_id.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5801088D73B00E9F05F /* file_id.cc */; };
-		23AAE5A11088D73B00E9F05F /* GTMLogger.m in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5851088D73B00E9F05F /* GTMLogger.m */; };
-		23AAE5A21088D73B00E9F05F /* HTTPMultipartUpload.m in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5871088D73B00E9F05F /* HTTPMultipartUpload.m */; };
 		23AAE5A31088D73B00E9F05F /* MachIPC.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5891088D73B00E9F05F /* MachIPC.mm */; };
 		23AAE5A41088D73B00E9F05F /* macho_id.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE58A1088D73B00E9F05F /* macho_id.cc */; };
 		23AAE5A51088D73B00E9F05F /* macho_utilities.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE58C1088D73B00E9F05F /* macho_utilities.cc */; };
@@ -639,12 +637,6 @@
 		23AAE5741088D73B00E9F05F /* dump_syms.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = dump_syms.mm; sourceTree = "<group>"; };
 		23AAE5801088D73B00E9F05F /* file_id.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = file_id.cc; sourceTree = "<group>"; };
 		23AAE5811088D73B00E9F05F /* file_id.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = file_id.h; sourceTree = "<group>"; };
-		23AAE5821088D73B00E9F05F /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
-		23AAE5831088D73B00E9F05F /* GTMGarbageCollection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMGarbageCollection.h; sourceTree = "<group>"; };
-		23AAE5841088D73B00E9F05F /* GTMLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMLogger.h; sourceTree = "<group>"; };
-		23AAE5851088D73B00E9F05F /* GTMLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GTMLogger.m; sourceTree = "<group>"; };
-		23AAE5861088D73B00E9F05F /* HTTPMultipartUpload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPMultipartUpload.h; sourceTree = "<group>"; };
-		23AAE5871088D73B00E9F05F /* HTTPMultipartUpload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HTTPMultipartUpload.m; sourceTree = "<group>"; };
 		23AAE5881088D73B00E9F05F /* MachIPC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MachIPC.h; sourceTree = "<group>"; };
 		23AAE5891088D73B00E9F05F /* MachIPC.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MachIPC.mm; sourceTree = "<group>"; };
 		23AAE58A1088D73B00E9F05F /* macho_id.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = macho_id.cc; sourceTree = "<group>"; };
@@ -1251,12 +1243,6 @@
 				23AAE5741088D73B00E9F05F /* dump_syms.mm */,
 				23AAE5801088D73B00E9F05F /* file_id.cc */,
 				23AAE5811088D73B00E9F05F /* file_id.h */,
-				23AAE5821088D73B00E9F05F /* GTMDefines.h */,
-				23AAE5831088D73B00E9F05F /* GTMGarbageCollection.h */,
-				23AAE5841088D73B00E9F05F /* GTMLogger.h */,
-				23AAE5851088D73B00E9F05F /* GTMLogger.m */,
-				23AAE5861088D73B00E9F05F /* HTTPMultipartUpload.h */,
-				23AAE5871088D73B00E9F05F /* HTTPMultipartUpload.m */,
 				23AAE5881088D73B00E9F05F /* MachIPC.h */,
 				23AAE5891088D73B00E9F05F /* MachIPC.mm */,
 				23AAE58A1088D73B00E9F05F /* macho_id.cc */,
@@ -2191,8 +2177,6 @@
 				23AAE59B1088D73B00E9F05F /* convert_UTF.c in Sources */,
 				23AAE59C1088D73B00E9F05F /* dump_syms.mm in Sources */,
 				23AAE5A01088D73B00E9F05F /* file_id.cc in Sources */,
-				23AAE5A11088D73B00E9F05F /* GTMLogger.m in Sources */,
-				23AAE5A21088D73B00E9F05F /* HTTPMultipartUpload.m in Sources */,
 				23AAE5A31088D73B00E9F05F /* MachIPC.mm in Sources */,
 				23AAE5A41088D73B00E9F05F /* macho_id.cc in Sources */,
 				23AAE5A51088D73B00E9F05F /* macho_utilities.cc in Sources */,
