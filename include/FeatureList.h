@@ -132,6 +132,7 @@ enum FeatureIndex {
 	FT_InfiniteMap,
 	FT_WormFriction,
 	FT_ProjFriction,
+	FT_ProjRelativeVel,
 	FT_TeamScoreLimit,
 	FT_SizeFactor,
 	FT_CTF_AllowRopeForCarrier,
