@@ -522,38 +522,6 @@ void teeStdoutFile(const std::string& f) {
 void teeStdoutQuit() {}
 const char* GetLogFilename() { return teeLogfile; }
 
-const wchar_t* GetLogFilenameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-	if (!teeLogfile)
-		return outbuf;
-
-	char *out = (char *)outbuf;
-	char *in = teeLogfile;
-    while(*in) {
-        *out++ = *(in++);
-        *out++ = '\0';
-    }
-	*out++ = '\0';
-	*out++ = '\0';
-
-	return outbuf;
-}
-
-const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-
-	char *out = (char *)outbuf;
-	char *in = binaryfilename;
-    while(*in) {
-        *out++ = *(in++);
-        *out++ = '\0';
-    }
-	*out++ = '\0';
-	*out++ = '\0';
-
-	return outbuf;
-}
-
 #endif
 
 static void saveSetBinFilename(const std::string& f) {
