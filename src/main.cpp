@@ -492,7 +492,11 @@ void teeStdoutFile(const std::string& f) {
 	// that it suddenly stops, so print where we continue.
 	notes << "Logfile: " << f << endl;
 
-	freopen(f.c_str(), "a", stdout);
+	if(freopen(Utf8ToSystemNative(f).c_str(), "a", stdout) == NULL) {
+		freopen("stdout.txt", "a", stdout); // reopen fallback
+		errors << "Could not open logfile" << endl;
+		return;
+	}
 	// no caching for stdout/logfile, it should be written immediatly to
 	// have the important information in case of a crash
 	setvbuf(stdout, NULL, _IONBF, 0);
