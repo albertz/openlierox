@@ -140,24 +140,9 @@ static void DoSystemChecks() {
 }
 
 
-char* binaryfilename = NULL;
+char binaryfilename[2048] = {0};
 
 const char* GetBinaryFilename() { return binaryfilename; }
-const wchar_t* GetBinaryFileNameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-	if (!binaryfilename)
-		return outbuf;
-
-	char *out = (char *)outbuf;
-	char *in = binaryfilename;
-    do {
-        *out++ = *++in;
-        *out++ = '\0';
-    }
-    while (*in);
-
-	return outbuf;
-}
 
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
@@ -225,6 +210,17 @@ static void startMainLockDetector() {
 							tLXOptions->bFullscreen = false;
 							doSetVideoModeInMainThread();
 							notes << "setting window mode sucessfull" << endl;
+						}
+					}
+					else continue;
+				
+					// pause for a while, don't be so hard
+					if(!wait(25*1000)) return 0;
+					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+						errors << "we still are locked after 60 seconds" << endl;
+						if(!AmIBeingDebugged()) {
+							errors << "aborting now" << endl;
+							abort();
 						}
 					}
 				}
@@ -507,7 +503,11 @@ void teeStdoutFile(const std::string& f) {
 	// that it suddenly stops, so print where we continue.
 	notes << "Logfile: " << f << endl;
 
-	freopen(f.c_str(), "a", stdout);
+	if(freopen(Utf8ToSystemNative(f).c_str(), "a", stdout) == NULL) {
+		freopen("stdout.txt", "a", stdout); // reopen fallback
+		errors << "Could not open logfile" << endl;
+		return;
+	}
 	// no caching for stdout/logfile, it should be written immediatly to
 	// have the important information in case of a crash
 	setvbuf(stdout, NULL, _IONBF, 0);
@@ -537,51 +537,37 @@ void teeStdoutFile(const std::string& f) {
 void teeStdoutQuit() {}
 const char* GetLogFilename() { return teeLogfile; }
 
-const wchar_t* GetLogFilenameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-	if (!teeLogfile)
-		return outbuf;
-
-	char *out = (char *)outbuf;
-	char *in = teeLogfile;
-    while(*in) {
-        *out++ = *(in++);
-        *out++ = '\0';
-    }
-	*out++ = '\0';
-	*out++ = '\0';
-
-	return outbuf;
-}
-
-const wchar_t* GetBinaryFilenameW(wchar_t *outbuf) { 
-	outbuf[0] = 0;
-	if (!binaryfilename)
-		return outbuf;
-
-	char *out = (char *)outbuf;
-	char *in = binaryfilename;
-    while(*in) {
-        *out++ = *(in++);
-        *out++ = '\0';
-    }
-	*out++ = '\0';
-	*out++ = '\0';
-
-	return outbuf;
-}
-
 #endif
 
+static void saveSetBinFilename(const std::string& f) {
+	if(f.size() < sizeof(binaryfilename) - 1)
+		strcpy(binaryfilename, f.c_str());
+}
+
 void setBinaryDirAndName(char* argv0) {
-	binaryfilename = argv0;
+	saveSetBinFilename(argv0);
 	binary_dir = binaryfilename;
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
 		binary_dir = SystemNativeToUtf8(binary_dir);
-	} else
-		binary_dir = "."; // TODO get exact path of binary	
+
+	} else {
+		binary_dir = ".";
+		
+		// We where called somewhere and located in some PATH.
+		// Search which one.
+		std::vector<std::string> paths = explode(getenv("PATH"), ":");
+		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
+			if(IsFileAvailable(*p + "/" + binaryfilename, true)) {
+				binary_dir = *p;
+				saveSetBinFilename(*p + "/" + binaryfilename);
+				return;
+			}
+		}
+		
+		// Hm, nothing found. Nothing we can do about it...
+	}
 }
 
 ///////////////////

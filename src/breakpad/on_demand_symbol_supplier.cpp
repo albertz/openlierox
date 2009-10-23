@@ -85,7 +85,9 @@ OnDemandSymbolSupplier::GetSymbolFile(const CodeModule *module,
 	
 	
 	if (s == FOUND) {
-		std::ifstream in(symbol_file->c_str());
+		std::ifstream in((*symbol_file).c_str());
+		if(!in)
+			fprintf(stderr, "GetSymbolFile: could not open %s\n", (*symbol_file).c_str());
 		getline(in, *symbol_data, std::string::traits_type::to_char_type(
 																		 std::string::traits_type::eof()));
 		in.close();
@@ -123,13 +125,9 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
 	if (module_path.empty())
 		return false;
 	
-	result = DumpSyms(module_path, symbol_path);
-	
-	if(!result) {
-		// Some systems split the debug data. This is common for Gentoo.
-		module_path = "/usr/lib/debug" + module_path + ".debug";
-		result = DumpSyms(module_path, symbol_path);
-	}
+	// NOTE: We are using systempaths everywhere here.
+	// DumpSyms expects UTF8, so we have to convert that.
+	result = DumpSyms(SystemNativeToUtf8(module_path), symbol_path);
 
 	// Add the mapping
 	if (result)

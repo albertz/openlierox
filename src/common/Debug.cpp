@@ -17,6 +17,9 @@
 
 #ifdef WIN32
 
+// TODO implement
+bool AmIBeingDebugged() { return false; }
+
 void RaiseDebugger() {
 #ifdef DEBUG
 	// HINT: ignored when not in debugger
@@ -38,7 +41,7 @@ void RaiseDebugger() {
 
 // Based on Apple's recommended method as described in
 // http://developer.apple.com/qa/qa2004/qa1361.html
-static bool AmIBeingDebugged()
+bool AmIBeingDebugged()
     // Returns true if the current process is being debugged (either
     // running under the debugger or has a debugger attached post facto).
 {
@@ -74,7 +77,7 @@ static bool AmIBeingDebugged()
 #include <unistd.h>
 
 
-static bool AmIBeingDebugged() {
+bool AmIBeingDebugged() {
 	// We can look in /proc/self/status for TracerPid.  We are likely used in crash
 	// handling, so we are careful not to use the heap or have side effects.
 	int status_fd = open("/proc/self/status", O_RDONLY);

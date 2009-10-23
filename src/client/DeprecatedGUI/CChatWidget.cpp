@@ -90,10 +90,8 @@ CChatWidget::~CChatWidget()
 
 void CChatWidget::Create()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
-	
 	CGuiSkinnedLayout::SetOffset( iX, iY );
-	
+
 	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
 		warnings << "CChatWidget::CChatWidget(): too small dimensions given" << endl;
 
@@ -111,12 +109,15 @@ void CChatWidget::Create()
 
 	CListview *l = (CListview *)this->getWidget(nc_UserList);
 	l->setMouseOverEventEnabled(true);
-	
+
 	CBrowser *b = (CBrowser *)this->getWidget(nc_ChatText);
 	b->InitializeChatBox();
 
-	chatWidgets.insert(this);
-
+	{
+		Mutex::ScopedLock lock(chatWidgetsMutex);
+		chatWidgets.insert(this);
+	}
+	
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)
 		for (std::list<IRCClient::IRCChatLine>::const_iterator it = irc->getMessageList().begin();
@@ -161,14 +162,14 @@ void CChatWidget::Destroy()
 
 void CChatWidget::EnableChat()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatRegisterCallbacks();
 }
 	
 void CChatWidget::DisableChat()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatDeregisterCallbacks();
+
+	Mutex::ScopedLock lock(chatWidgetsMutex);
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
 		((CListview *)(*cw)->getWidget(nc_UserList))->Clear();

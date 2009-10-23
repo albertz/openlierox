@@ -241,6 +241,10 @@ void CWorm::Prepare(bool serverSide)
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 
+	setTeamkills(0);
+	setSuicides(0);
+	setDeaths(0);
+	
 	setSpeedFactor(1);
 	setCanUseNinja(true);
 	setDamageFactor(1);
@@ -860,13 +864,15 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			// Clean up expired damage report values
 			if( tLXOptions->bColorizeDamageByWorm )
 			{
-				for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); it++ )
+				for( std::map<int, DamageReport> ::iterator it = cDamageReport.begin(); it != cDamageReport.end(); )
 				{
 					if( GetPhysicsTime() > it->second.lastTime + 1.5f )
 					{
 						cDamageReport.erase(it);
 						it = cDamageReport.begin();
 					}
+					else
+						it++;
 				}
 			}
 			else

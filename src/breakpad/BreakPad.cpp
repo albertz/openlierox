@@ -89,6 +89,23 @@ LaunchUploader( const char* dump_dir,
 }
 
 #else
+
+#include "common/convert_UTF.h"
+
+wchar_t* utf16fromutf8(const char* in, wchar_t* buf) {
+	wchar_t* out = buf;
+
+	buf[0] = 0;
+	ConvertUTF8toUTF16(
+		(const UTF8**)&in, (UTF8*)in + strlen(in),
+		(UTF16**)&out, (UTF16*)out + MAX_PATH,
+        lenientConversion);
+
+	out[0] = 0;
+
+	return buf;
+}
+
 static bool
 LaunchUploader( const wchar_t* dump_dir,
                const wchar_t* minidump_id,
@@ -108,13 +125,13 @@ LaunchUploader( const wchar_t* dump_dir,
 	wchar_t command[ 2 * MAX_PATH * 3 + 12 ];
 	wchar_t buf[MAX_PATH * 3 + 6];
     wcscpy( command, L"\"" );
-    wcscat( command, GetBinaryFilenameW(buf) );
+    wcscat( command, utf16fromutf8(GetBinaryFilename(), buf) );
 	wcscat( command, L"\" -crashreport \"" );
     wcscat( command, dump_dir );
     wcscat( command, L"\" \"" );
     wcscat( command, minidump_id );
     wcscat( command, L"\" \"" );
-    wcscat( command, GetLogFilenameW(buf) );
+    wcscat( command, utf16fromutf8(GetLogFilename(), buf) );
     wcscat( command, L"\"" );
 
     STARTUPINFOW si;

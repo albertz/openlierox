@@ -87,6 +87,8 @@ int DoCrashReport(int argc, char** argv) {
 	// collect crashinfo before connecting to SMTP to avoid timeout on SMTP server
 	hints << "generating crash report ..." << endl;
 	std::stringstream crashinfo, crashinfoerror;
+	// NOTE: Breakpad expects a systemnative path. 
+	// minidumpfile is from cmd parameter, so it is already systemnative.
 	MinidumpExtractInfo(minidumpfile, crashinfo, crashinfoerror);
 
 	SmtpClient smtp;
@@ -115,6 +117,7 @@ int DoCrashReport(int argc, char** argv) {
 	
 	smtp.addText("\n\n\n\n\nRecent console output:\n");
 	smtp.addText("File: " + logfilename + "\n\n");
+	// We got the filename from cmd param, so it is already in native, so no Utf8ToSystemNative needed
 	std::ifstream logfile(logfilename.c_str(), std::ios_base::in);
 	if(logfile) {
 		std::string line;
@@ -132,7 +135,7 @@ int DoCrashReport(int argc, char** argv) {
 	smtp.addText("\n\n\n\nCurrent config:\n");
 	std::string cfgfilename = GetFullFileName("cfg/options.cfg");
 	smtp.addText("File: " + cfgfilename + "\n\n");
-	std::ifstream cfgfile(cfgfilename.c_str(), std::ios_base::in);
+	std::ifstream cfgfile(Utf8ToSystemNative(cfgfilename).c_str(), std::ios_base::in);
 	if(cfgfile) {
 		std::string line;
 		while(getline(cfgfile, line, '\n')) {
