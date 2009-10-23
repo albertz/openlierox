@@ -218,8 +218,10 @@ static void startMainLockDetector() {
 					if(!wait(25*1000)) return 0;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						errors << "we still are locked after 60 seconds" << endl;
-						errors << "aborting now" << endl;
-						abort();
+						if(!AmIBeingDebugged()) {
+							errors << "aborting now" << endl;
+							abort();
+						}
 					}
 				}
 			}

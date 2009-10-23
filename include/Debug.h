@@ -15,6 +15,7 @@
 #include "StringUtils.h"
 
 // { these function should be safe to be called from everywhere, also from signalhandlers
+bool AmIBeingDebugged();
 void RaiseDebugger(); // if run in a debugger, it should raise it; if not, it should do nothing
 void OlxWriteCoreDump(const char* file_postfix = NULL);
 void DumpCallstackPrintf(void* callpnt = NULL);
