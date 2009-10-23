@@ -212,6 +212,15 @@ static void startMainLockDetector() {
 							notes << "setting window mode sucessfull" << endl;
 						}
 					}
+					else continue;
+				
+					// pause for a while, don't be so hard
+					if(!wait(25*1000)) return 0;
+					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
+						errors << "we still are locked after 60 seconds" << endl;
+						errors << "aborting now" << endl;
+						abort();
+					}
 				}
 			}
 			return 0;
