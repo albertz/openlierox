@@ -85,9 +85,8 @@ inthread = False
 for line in mail.readlines():
 	line = string.strip(line, "\n")
 	if not inthread:
+		print line
 		inthread = re.match("^Thread [0-9]+.*$", line)
-		if inthread:
-			print line
 	else:
 		m = re.match("\s*(?P<tid>[0-9]+)\s+(?P<mod>\S+)\s+([0-9.]+\s*)?0x[0-9a-f]+\s*\(0x(?P<reladdr>[0-9a-f]+)\)\s*(?P<funcname>\S+)", line)
 		if not m:
