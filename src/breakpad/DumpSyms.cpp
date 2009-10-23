@@ -56,7 +56,13 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	
 	DumpSymbols dumper;
 	bool res = dumper.WriteSymbolFile(bin, out);
-	
+
+	if(!res) {
+		fseek(out, 0, SEEK_SET);
+		// Some systems split the debug data. This is common for Gentoo.
+		res = dumper.WriteSymbolFile("/usr/lib/debug/" + bin + ".debug", out);
+	}
+
 	fclose(out);
 	return res;
 }
