@@ -93,10 +93,16 @@ LaunchUploader( const char* dump_dir,
 #include "common/convert_UTF.h"
 
 wchar_t* utf16fromutf8(const char* in, wchar_t* buf) {
+	wchar_t* out = buf;
+
+	buf[0] = 0;
 	ConvertUTF8toUTF16(
 		(const UTF8**)&in, (UTF8*)in + strlen(in),
-		(UTF16**)&buf, (UTF16*)buf + MAX_PATH,
+		(UTF16**)&out, (UTF16*)out + MAX_PATH,
         lenientConversion);
+
+	out[0] = 0;
+
 	return buf;
 }
 
