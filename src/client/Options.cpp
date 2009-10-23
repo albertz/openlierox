@@ -178,7 +178,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bParticles, "Game.Particles", true )
 		( tLXOptions->bOldSkoolRope, "Game.OldSkoolRope", false )
 		( tLXOptions->bShowHealth, "Game.ShowWormHealth", false )
-		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", false )
+		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", true )
 		( tLXOptions->bAutoTyping, "Game.AutoTyping", false )
 		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
 		( tLXOptions->bNewSkinnedGUI, "Game.NewSkinnedGUI", false )
