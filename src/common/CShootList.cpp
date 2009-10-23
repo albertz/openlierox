@@ -98,7 +98,7 @@ bool CShootList::addShoot( int weaponID, TimeDiff fTime, float fSpeed, int nAngl
 	psShot->fTime = fTime;
 	psShot->nAngle = nAngle;
 	psShot->nRandom = GetRandomInt(255);
-	psShot->nSpeed = (int)( fSpeed*100 );
+	psShot->nSpeed = tLXOptions->tGameInfo.features[FT_ProjRelativeVel] ? (int)( fSpeed*100 ) : 0;
 	psShot->nWeapon = weaponID;
 	psShot->nWormID = pcWorm->getID();
 	psShot->release = release;
