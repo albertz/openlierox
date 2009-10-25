@@ -565,7 +565,7 @@ if len(modCicler.list) == 0:
 	while len(modCicler.list) == 0:
 		modCicler.list = io.listMods()
 modCicler.gameVar = "GameOptions.GameInfo.ModName"
-modCicler.enabled = False
+#modCicler.enabled = True
 
 
 
