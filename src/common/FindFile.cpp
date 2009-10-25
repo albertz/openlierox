@@ -617,15 +617,13 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 
 
 std::ifstream* OpenGameFileR(const std::string& path) {
-	// TODO: unicode support! (?)
-
 	if(path.size() == 0)
 		return NULL;
 
 	std::string fullfn = GetFullFileName(path);
 	if(fullfn.size() != 0) {
 		try {
-			std::ifstream* f = new std::ifstream(fullfn.c_str(), std::ios::in | std::ios::binary);
+			std::ifstream* f = new std::ifstream(Utf8ToSystemNative(fullfn).c_str(), std::ios::in | std::ios::binary);
 			if (f->is_open())
 				return f;
 			else {
