@@ -102,14 +102,14 @@ for line in mail.readlines():
 			print line
 			inthread = re.match("\s*(?P<tid>[0-9]+)", line)
 		else:
-			fallbackstr = str.format("{0:>2} {1:20}   {2:>8} {3}", m.group("tid"), m.group("mod"), "(0x" + m.group("reladdr") + ") ", "??")
+			fallbackstr =  "%s %s   %s %s" % ( m.group("tid").rjust(2), m.group("mod").ljust(20), ("(0x" + m.group("reladdr") + ")").rjust(8), "??")
 
 			if m.group("funcname") == "??":
 				symfile = findSymfile(m.group("mod"))
 				if not symfile: print fallbackstr; continue
 				func = findFunction(int(m.group("reladdr"),16), symfile)
 				if not func: print fallbackstr; continue
-				print str.format("{0:>2} {1:20}   {2:>8} {3}", m.group("tid"), m.group("mod"), "(0x" + m.group("reladdr") + ") ", func)
+				print "%s %s   %s %s" % ( m.group("tid").rjust(2), m.group("mod").ljust(20), ("(0x" + m.group("reladdr") + ")").rjust(8), func)
 			else:
 				print fallbackstr
 
