@@ -141,6 +141,9 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 		unsetenv("SDL_VIDEODRIVER");
 		if(SDL_Init(SDLflags) != -1)
 			hints << "... but we have success with the any driver" << endl;
+		// retry with windib
+		else if(putenv((char*)"SDL_VIDEODRIVER=windib") == 0 && SDL_Init(SDLflags) != -1)
+			hints << "... but we have success with the windib driver" << endl;
 		else
 #endif
 		return false;
