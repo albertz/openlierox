@@ -467,12 +467,7 @@ std::string GetFirstSearchPath() {
 
 size_t FileSize(const std::string& path)
 {
-	FILE *fp = fopen(Utf8ToSystemNative(path).c_str(), "rb");
-	if (!fp)  {
-		fp = OpenGameFile(path, "rb");
-		if (!fp)
-			return 0;
-	}
+	FILE *fp = OpenGameFile(path, "rb");
 	fseek(fp, 0, SEEK_END);
 	size_t size = ftell(fp);
 	fclose(fp);
