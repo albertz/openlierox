@@ -539,15 +539,14 @@ const char* GetLogFilename() { return teeLogfile; }
 
 #endif
 
-// NOTE: filename is system native
 static void saveSetBinFilename(const std::string& f) {
 	if(f.size() < sizeof(binaryfilename) - 1)
 		strcpy(binaryfilename, f.c_str());
 }
 
 void setBinaryDirAndName(char* argv0) {
-	saveSetBinFilename(argv0); // set system native binary filename
-	binary_dir = SystemNativeToUtf8(binaryfilename);
+	saveSetBinFilename(SystemNativeToUtf8(argv0)); // set system native binary filename
+	binary_dir = SystemNativeToUtf8(argv0);
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
@@ -564,9 +563,9 @@ void setBinaryDirAndName(char* argv0) {
 #endif
 		std::vector<std::string> paths = explode(getenv("PATH"), PATHENTRYSEPERATOR);
 		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
-			if(IsFileAvailable(SystemNativeToUtf8(*p + "/" + binaryfilename), true)) {
+			if(IsFileAvailable(SystemNativeToUtf8(*p) + "/" + binaryfilename, true)) {
 				binary_dir = SystemNativeToUtf8(*p);
-				saveSetBinFilename(*p + "/" + binaryfilename);
+				saveSetBinFilename(binary_dir + "/" + binaryfilename);
 				return;
 			}
 		}
