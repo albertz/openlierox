@@ -539,28 +539,33 @@ const char* GetLogFilename() { return teeLogfile; }
 
 #endif
 
+// NOTE: filename is system native
 static void saveSetBinFilename(const std::string& f) {
 	if(f.size() < sizeof(binaryfilename) - 1)
 		strcpy(binaryfilename, f.c_str());
 }
 
 void setBinaryDirAndName(char* argv0) {
-	saveSetBinFilename(argv0);
-	binary_dir = binaryfilename;
+	saveSetBinFilename(argv0); // set system native binary filename
+	binary_dir = SystemNativeToUtf8(binaryfilename);
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
-		binary_dir = SystemNativeToUtf8(binary_dir);
 
 	} else {
 		binary_dir = ".";
 		
 		// We where called somewhere and located in some PATH.
 		// Search which one.
-		std::vector<std::string> paths = explode(getenv("PATH"), ":");
+#ifdef WIN32
+		static const char* PATHENTRYSEPERATOR = ";";
+#else
+		static const char* PATHENTRYSEPERATOR = ":";
+#endif
+		std::vector<std::string> paths = explode(getenv("PATH"), PATHENTRYSEPERATOR);
 		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
-			if(IsFileAvailable(*p + "/" + binaryfilename, true)) {
-				binary_dir = *p;
+			if(IsFileAvailable(SystemNativeToUtf8(*p + "/" + binaryfilename), true)) {
+				binary_dir = SystemNativeToUtf8(*p);
 				saveSetBinFilename(*p + "/" + binaryfilename);
 				return;
 			}

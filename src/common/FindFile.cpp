@@ -467,12 +467,7 @@ std::string GetFirstSearchPath() {
 
 size_t FileSize(const std::string& path)
 {
-	FILE *fp = fopen(path.c_str(), "rb");
-	if (!fp)  {
-		fp = OpenGameFile(path, "rb");
-		if (!fp)
-			return 0;
-	}
+	FILE *fp = OpenGameFile(path, "rb");
 	fseek(fp, 0, SEEK_END);
 	size_t size = ftell(fp);
 	fclose(fp);
@@ -582,7 +577,7 @@ FILE* OpenAbsFile(const std::string& path, const char *mode) {
 	std::string exactfn;
 	if(!GetExactFileName(path, exactfn))
 		return NULL;
-	return fopen(exactfn.c_str(), mode);
+	return fopen(Utf8ToSystemNative(exactfn).c_str(), mode);
 }
 
 FILE *OpenGameFile(const std::string& path, const char *mode) {
@@ -858,7 +853,7 @@ std::string GetFileContents(const std::string& path, bool absolute)
 {
 	FILE *fp = NULL;
 	if (absolute)
-		fp = fopen(/*Utf8ToSystemNative(path)*/path.c_str(), "rb");
+		fp = fopen(Utf8ToSystemNative(path).c_str(), "rb");
 	else
 		fp = OpenGameFile(path, "rb");
 
