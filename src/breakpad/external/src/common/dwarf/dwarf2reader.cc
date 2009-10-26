@@ -32,7 +32,7 @@
 #include <utility>
 #include <memory>
 #include <cstring>
-#include <stdio.h>
+#include <cstdio>
 
 #include "common/dwarf/bytereader-inl.h"
 #include "common/dwarf/dwarf2reader.h"
