@@ -468,13 +468,15 @@ void teeStdoutFile(const std::string& file) {
 #include <sys/wait.h>
 
 // NOTE: We are calling this also when we crashed, so be sure that we only do save operations here!
-void teeStdoutQuit() {
+void teeStdoutQuit(bool wait = true) {
 	if(teeStdoutInfo.proc) {
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);
 		close(teeStdoutInfo.pipeend);
-		waitpid(teeStdoutInfo.proc, NULL, 0);
+		// The forked process should quit itself now.
+		if(wait) waitpid(teeStdoutInfo.proc, NULL, 0);
 
+		// Recover stdout/err
 		dup2(teeStdoutInfo.oldstdout, STDOUT_FILENO);
 		dup2(teeStdoutInfo.oldstderr, STDERR_FILENO);
 		close(teeStdoutInfo.oldstdout);
@@ -534,7 +536,7 @@ void teeStdoutFile(const std::string& f) {
 
 	// we still miss some more output but let's hope that this is enough
 }
-void teeStdoutQuit() {}
+void teeStdoutQuit(bool wait = true) {}
 const char* GetLogFilename() { return teeLogfile; }
 
 #endif
@@ -545,23 +547,27 @@ static void saveSetBinFilename(const std::string& f) {
 }
 
 void setBinaryDirAndName(char* argv0) {
-	saveSetBinFilename(argv0);
-	binary_dir = binaryfilename;
+	saveSetBinFilename(SystemNativeToUtf8(argv0)); // set system native binary filename
+	binary_dir = SystemNativeToUtf8(argv0);
 	size_t slashpos = findLastPathSep(binary_dir);
 	if(slashpos != std::string::npos)  {
 		binary_dir.erase(slashpos);
-		binary_dir = SystemNativeToUtf8(binary_dir);
 
 	} else {
 		binary_dir = ".";
 		
 		// We where called somewhere and located in some PATH.
 		// Search which one.
-		std::vector<std::string> paths = explode(getenv("PATH"), ":");
+#ifdef WIN32
+		static const char* PATHENTRYSEPERATOR = ";";
+#else
+		static const char* PATHENTRYSEPERATOR = ":";
+#endif
+		std::vector<std::string> paths = explode(getenv("PATH"), PATHENTRYSEPERATOR);
 		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
-			if(IsFileAvailable(*p + "/" + binaryfilename, true)) {
-				binary_dir = *p;
-				saveSetBinFilename(*p + "/" + binaryfilename);
+			if(IsFileAvailable(SystemNativeToUtf8(*p) + "/" + binaryfilename, true)) {
+				binary_dir = SystemNativeToUtf8(*p);
+				saveSetBinFilename(binary_dir + "/" + binaryfilename);
 				return;
 			}
 		}

@@ -205,7 +205,7 @@ static bool GetString(const std::string& filename, const std::string& section, c
 		return false;
 
 	if(abs_fn) {
-		config = fopen(filename.c_str(), "rt");
+		config = fopen(Utf8ToSystemNative(filename).c_str(), "rt");
 	} else
 		config = OpenGameFile(filename,"rt");
 	if(!config)

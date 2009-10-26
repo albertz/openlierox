@@ -1158,7 +1158,7 @@ bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_
 		std::string filename;
 		// we still need to add "/script.lgs" and then do an exact filename search
 		if(GetExactFileName(dir + "/script.lgs", filename))
-	 		fp = fopen(filename.c_str(), "rb");
+	 		fp = fopen(Utf8ToSystemNative(filename).c_str(), "rb");
 	} else
 		fp = OpenGameFile(dir + "/script.lgs", "rb");
 	
