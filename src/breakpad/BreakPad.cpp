@@ -30,7 +30,7 @@
 #include <unistd.h>
 
 // defined in main.cpp
-extern void teeStdoutQuit();
+extern void teeStdoutQuit(bool wait);
 
 static bool
 LaunchUploader( const char* dump_dir,
@@ -60,7 +60,7 @@ LaunchUploader( const char* dump_dir,
 	
 	// Close the logfile, we don't want the crashreport debug info in there (too much spam right now from breakpad).
 	// This should be save.
-	teeStdoutQuit();
+	teeStdoutQuit(false);
 	
     pid_t pid = fork();
 

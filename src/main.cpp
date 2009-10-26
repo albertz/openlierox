@@ -468,13 +468,15 @@ void teeStdoutFile(const std::string& file) {
 #include <sys/wait.h>
 
 // NOTE: We are calling this also when we crashed, so be sure that we only do save operations here!
-void teeStdoutQuit() {
+void teeStdoutQuit(bool wait = true) {
 	if(teeStdoutInfo.proc) {
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);
 		close(teeStdoutInfo.pipeend);
-		waitpid(teeStdoutInfo.proc, NULL, 0);
+		// The forked process should quit itself now.
+		if(wait) waitpid(teeStdoutInfo.proc, NULL, 0);
 
+		// Recover stdout/err
 		dup2(teeStdoutInfo.oldstdout, STDOUT_FILENO);
 		dup2(teeStdoutInfo.oldstderr, STDERR_FILENO);
 		close(teeStdoutInfo.oldstdout);
@@ -534,7 +536,7 @@ void teeStdoutFile(const std::string& f) {
 
 	// we still miss some more output but let's hope that this is enough
 }
-void teeStdoutQuit() {}
+void teeStdoutQuit(bool wait = true) {}
 const char* GetLogFilename() { return teeLogfile; }
 
 #endif
