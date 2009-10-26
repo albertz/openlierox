@@ -234,6 +234,7 @@ void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 	curl_easy_setopt(curl, CURLOPT_PROXY, Proxy.c_str());
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlReceiveCallback);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
+	curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
 	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressCallback);
 	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, (void *)this);	
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
