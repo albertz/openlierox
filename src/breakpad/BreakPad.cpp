@@ -101,9 +101,18 @@ LaunchUploader( const char* dump_dir,
 
 	if(CrashHandler::restartAfterCrash) {
 		printf("restarting game\n");
+#ifdef __APPLE__
+		// On MacOSX, it is important that we return the handling in the
+		// main process to Breakpad.
+		// Though, we don't have problems with signal handler stack there,
+		// so we can just do this.
+		if(fork() == 0)
+			dorestart();
+#else
 		// We must go out of the signal handler stack because we want to reset
 		// it in the child process.
 		siglongjmp(restartLongjumpPoint, true);
+#endif
 	}
 	
     // we called fork()
