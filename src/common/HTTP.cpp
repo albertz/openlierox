@@ -229,12 +229,14 @@ CURL * CHttp::InitializeTransfer(const std::string& url, const std::string& prox
 	DownloadStart = DownloadEnd = tLX->currentTime;
 
 	CURL * curl = curl_easy_init();
-	curl_easy_setopt(curl, CURLOPT_URL, Url.c_str());
-	curl_easy_setopt(curl, CURLOPT_PROXY, Proxy.c_str());
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
-	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)HTTP_TIMEOUT);
-	//curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)HTTP_TIMEOUT); // Do not set this if you don't want abort in the middle of large transfer
+	curl_easy_setopt( curl, CURLOPT_URL, Url.c_str() );
+	curl_easy_setopt( curl, CURLOPT_PROXY, Proxy.c_str() );
+	curl_easy_setopt( curl, CURLOPT_USERAGENT, Useragent.c_str() );
+	curl_easy_setopt( curl, CURLOPT_NOSIGNAL, (long) 1 );
+	curl_easy_setopt( curl, CURLOPT_CONNECTTIMEOUT, (long) HTTP_TIMEOUT );
+	curl_easy_setopt( curl, CURLOPT_FOLLOWLOCATION, (long) 1 ); // Allow server to use 3XX Redirect codes
+	curl_easy_setopt( curl, CURLOPT_MAXREDIRS, (long) 25 ); // Some reasonable limit
+	//curl_easy_setopt( curl, CURLOPT_TIMEOUT, (long) HTTP_TIMEOUT ); // Do not set this if you don't want abort in the middle of large transfer
 	return curl;
 }
 
