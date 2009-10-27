@@ -196,7 +196,7 @@ LaunchUploader( const wchar_t* dump_dir,
 			si2.wShowWindow = SW_SHOWNORMAL;
 			ZeroMemory( &pi2, sizeof(pi2) );
 			
-			if (CreateProcessW( NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+			if (CreateProcessW( NULL, command2, NULL, NULL, FALSE, 0, NULL, NULL, &si2, &pi2)) {
 				CloseHandle( pi2.hProcess );
 				CloseHandle( pi2.hThread );				
 			}
