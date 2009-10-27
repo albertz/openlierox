@@ -29,9 +29,23 @@
 
 #ifndef WIN32
 #include <unistd.h>
+#include <cstdlib>
+#include <setjmp.h>
 
 // defined in main.cpp
 extern void teeStdoutQuit(bool wait);
+
+static sigjmp_buf restartLongjumpPoint;
+
+static void dorestart() {
+	execl( GetBinaryFilename(),
+		  GetBinaryFilename(),
+		  "-aftercrash",
+		  (char*) 0 );
+			
+	// execl replaces this process, so no more code will be executed
+	// unless it failed. If it failed, then we should return false.
+}
 
 static bool
 LaunchUploader( const char* dump_dir,
@@ -68,7 +82,7 @@ LaunchUploader( const char* dump_dir,
     if (pid == -1) // fork failed
         return false;
     if (pid == 0) { // we are the fork
-		
+
         execl( GetBinaryFilename(),
                GetBinaryFilename(),
 			   "-crashreport",
@@ -87,23 +101,9 @@ LaunchUploader( const char* dump_dir,
 
 	if(CrashHandler::restartAfterCrash) {
 		printf("restarting game\n");
-		pid_t pid2 = fork();
-		
-		if (pid2 == -1) // fork failed
-			return true;
-		if (pid2 == 0) { // we are the fork
-			execl( GetBinaryFilename(),
-				  GetBinaryFilename(),
-				  "-aftercrash",
-				  (char*) 0 );
-			
-			// execl replaces this process, so no more code will be executed
-			// unless it failed. If it failed, then we should return false.
-			
-			// Return anyway true because otherwise, the process will not die.
-			printf("ERROR: Cannot start %s\n", GetBinaryFilename());
-			return true;			
-		}
+		// We must go out of the signal handler stack because we want to reset
+		// it in the child process.
+		siglongjmp(restartLongjumpPoint, true);
 	}
 	
     // we called fork()
@@ -214,7 +214,16 @@ BreakPad::BreakPad( const std::string& path )
 									LaunchUploader, 
 									this, 
 									true )
-{}
+{
+#ifndef WIN32
+	if(sigsetjmp(restartLongjumpPoint, true)) {
+		// This should call execl() so we replace the current process.
+		dorestart();
+		// in case we get here
+		abort();
+	}
+#endif
+}
 
 BreakPad::~BreakPad()
 {}
