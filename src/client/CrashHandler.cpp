@@ -553,3 +553,4 @@ CrashHandler* CrashHandler::get() {
 }
 
 bool CrashHandler::recoverAfterCrash = false;
+bool CrashHandler::restartAfterCrash = false;

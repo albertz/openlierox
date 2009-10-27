@@ -25,6 +25,7 @@
 #include "Debug.h"
 #include "Unicode.h"
 #include "FindFile.h"
+#include "CrashHandler.h"
 
 #ifndef WIN32
 #include <unistd.h>
@@ -84,6 +85,27 @@ LaunchUploader( const char* dump_dir,
 		return true;
 	}
 
+	if(CrashHandler::restartAfterCrash) {
+		printf("restarting game\n");
+		pid_t pid2 = fork();
+		
+		if (pid2 == -1) // fork failed
+			return true;
+		if (pid2 == 0) { // we are the fork
+			execl( GetBinaryFilename(),
+				  GetBinaryFilename(),
+				  "-aftercrash",
+				  (char*) 0 );
+			
+			// execl replaces this process, so no more code will be executed
+			// unless it failed. If it failed, then we should return false.
+			
+			// Return anyway true because otherwise, the process will not die.
+			printf("ERROR: Cannot start %s\n", GetBinaryFilename());
+			return true;			
+		}
+	}
+	
     // we called fork()
     return true;
 }
@@ -147,12 +169,39 @@ LaunchUploader( const wchar_t* dump_dir,
     {
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );
-        TerminateProcess( GetCurrentProcess(), 1 );
+
+		if(CrashHandler::restartAfterCrash) {
+			printf("restarting game\n");
+
+			wchar_t command2[ 2 * MAX_PATH * 3 + 12 ];
+			wcscpy( command2, L"\"" );
+			wcscat( command2, utf16fromutf8(GetBinaryFilename(), buf) );
+			wcscat( command2, L"\" -aftercrash" );
+
+			STARTUPINFOW si2;
+			PROCESS_INFORMATION pi2;
+			
+			ZeroMemory( &si2, sizeof(si2) );
+			si2.cb = sizeof(si2);
+			si2.dwFlags = STARTF_USESHOWWINDOW;
+			si2.wShowWindow = SW_SHOWNORMAL;
+			ZeroMemory( &pi2, sizeof(pi2) );
+			
+			if (CreateProcessW( NULL, command, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
+				CloseHandle( pi2.hProcess );
+				CloseHandle( pi2.hThread );				
+			}
+			else {
+				wprintf(L"Error: could not start crash reporter, command: %s\n", command);
+			}
+		}
+		
+		TerminateProcess( GetCurrentProcess(), 1 );
     }
 	else {
 		wprintf(L"Error: could not start crash reporter, command: %s\n", command);
 	}
-
+	
     return false;
 }
 

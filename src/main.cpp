@@ -576,6 +576,10 @@ void setBinaryDirAndName(char* argv0) {
 	}
 }
 
+// ParseArguments will set this eventually to true
+static bool afterCrash = false;
+static bool afterCrashInformedUser = false;
+
 ///////////////////
 // Main entry point
 int main(int argc, char *argv[])
@@ -723,7 +727,7 @@ startpoint:
 		Con_Execute(*i);
 	}
 	startupCommands.clear(); // don't execute them again
-	
+		
 	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 	
 	startMainLockDetector();
@@ -766,6 +770,9 @@ startpoint:
 quit:
 	threadPool->wait(mainLoopThread, NULL);
 	mainLoopThread = NULL;
+	
+	if(!bRestartGameAfterQuit)
+		CrashHandler::restartAfterCrash = false;
 	
 	PhysicsEngine::UnInit();
 
@@ -871,6 +878,18 @@ static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
 
+	if(afterCrash && !afterCrashInformedUser) {
+		afterCrashInformedUser = true;
+		DeprecatedGUI::Menu_MessageBox("Sorry",
+									   "The game has crashed. This should not have happend. "
+									   "But it did.\nWe hope we can fix this problem in a future version. "
+									   "Or perhaps there is already a new version; check out our "
+									   "homepage for more information:\nhttp://openlierox.net\n\n"
+									   "If you have an idea why this have happend, please write "
+									   "us a mail or post in our forum. This may help us a lot "
+									   "for fixing the problem.\n\nThanks!", DeprecatedGUI::LMB_OK);
+	}
+	
 	if( tLXOptions->bNewSkinnedGUI )
 	{
 		// Just for test - it's not real handler yet
@@ -1079,6 +1098,10 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-noskin") == 0 ) {
             tLXOptions->bNewSkinnedGUI = false;
         } else
+		
+		if( stricmp(a, "-aftercrash") == 0) {
+			afterCrash = true;
+		}
 
 #ifdef WIN32
 		// -console
