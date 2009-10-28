@@ -25,12 +25,27 @@
 #include "Debug.h"
 #include "Unicode.h"
 #include "FindFile.h"
+#include "CrashHandler.h"
 
 #ifndef WIN32
 #include <unistd.h>
+#include <cstdlib>
+#include <setjmp.h>
 
 // defined in main.cpp
-extern void teeStdoutQuit();
+extern void teeStdoutQuit(bool wait);
+
+static sigjmp_buf restartLongjumpPoint;
+
+static void dorestart() {
+	execl( GetBinaryFilename(),
+		  GetBinaryFilename(),
+		  "-aftercrash",
+		  (char*) 0 );
+			
+	// execl replaces this process, so no more code will be executed
+	// unless it failed. If it failed, then we should return false.
+}
 
 static bool
 LaunchUploader( const char* dump_dir,
@@ -60,14 +75,14 @@ LaunchUploader( const char* dump_dir,
 	
 	// Close the logfile, we don't want the crashreport debug info in there (too much spam right now from breakpad).
 	// This should be save.
-	teeStdoutQuit();
+	teeStdoutQuit(false);
 	
     pid_t pid = fork();
 
     if (pid == -1) // fork failed
         return false;
     if (pid == 0) { // we are the fork
-		
+
         execl( GetBinaryFilename(),
                GetBinaryFilename(),
 			   "-crashreport",
@@ -84,6 +99,22 @@ LaunchUploader( const char* dump_dir,
 		return true;
 	}
 
+	if(CrashHandler::restartAfterCrash) {
+		printf("restarting game\n");
+#ifdef __APPLE__
+		// On MacOSX, it is important that we return the handling in the
+		// main process to Breakpad.
+		// Though, we don't have problems with signal handler stack there,
+		// so we can just do this.
+		if(fork() == 0)
+			dorestart();
+#else
+		// We must go out of the signal handler stack because we want to reset
+		// it in the child process.
+		siglongjmp(restartLongjumpPoint, true);
+#endif
+	}
+	
     // we called fork()
     return true;
 }
@@ -147,12 +178,39 @@ LaunchUploader( const wchar_t* dump_dir,
     {
         CloseHandle( pi.hProcess );
         CloseHandle( pi.hThread );
-        TerminateProcess( GetCurrentProcess(), 1 );
+
+		if(CrashHandler::restartAfterCrash) {
+			printf("restarting game\n");
+
+			wchar_t command2[ 2 * MAX_PATH * 3 + 12 ];
+			wcscpy( command2, L"\"" );
+			wcscat( command2, utf16fromutf8(GetBinaryFilename(), buf) );
+			wcscat( command2, L"\" -aftercrash" );
+
+			STARTUPINFOW si2;
+			PROCESS_INFORMATION pi2;
+			
+			ZeroMemory( &si2, sizeof(si2) );
+			si2.cb = sizeof(si2);
+			si2.dwFlags = STARTF_USESHOWWINDOW;
+			si2.wShowWindow = SW_SHOWNORMAL;
+			ZeroMemory( &pi2, sizeof(pi2) );
+			
+			if (CreateProcessW( NULL, command2, NULL, NULL, FALSE, 0, NULL, NULL, &si2, &pi2)) {
+				CloseHandle( pi2.hProcess );
+				CloseHandle( pi2.hThread );				
+			}
+			else {
+				wprintf(L"Error: could not start crash reporter, command: %s\n", command);
+			}
+		}
+		
+		TerminateProcess( GetCurrentProcess(), 1 );
     }
 	else {
 		wprintf(L"Error: could not start crash reporter, command: %s\n", command);
 	}
-
+	
     return false;
 }
 
@@ -165,7 +223,16 @@ BreakPad::BreakPad( const std::string& path )
 									LaunchUploader, 
 									this, 
 									true )
-{}
+{
+#ifndef WIN32
+	if(sigsetjmp(restartLongjumpPoint, true)) {
+		// This should call execl() so we replace the current process.
+		dorestart();
+		// in case we get here
+		abort();
+	}
+#endif
+}
 
 BreakPad::~BreakPad()
 {}

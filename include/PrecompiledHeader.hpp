@@ -118,6 +118,7 @@
 #include "SafeVector.h"
 #include "sex.h"
 #include "SmartPointer.h"
+#include "SMTP.h"
 #include "Sounds.h"
 #include "StackWalker.h"
 #include "StaticAssert.h"

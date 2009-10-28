@@ -43,6 +43,7 @@
 #include "Command.h"
 #include "HTTP.h"
 #include "Version.h"
+#include "CrashHandler.h"
 
 
 // TODO: move this out here
@@ -342,7 +343,7 @@ void Menu_Frame() {
 // Main menu loop
 void Menu_Loop()
 {
-	tLX->currentTime = GetTime();
+	AbsTime menuStartTime = tLX->currentTime = GetTime();
 	bool last_frame_was_because_of_an_event = false;
 	last_frame_was_because_of_an_event = ProcessEvents();
 
@@ -370,7 +371,17 @@ void Menu_Loop()
 		tLX->currentTime = GetTime();
 		tLX->fDeltaTime = tLX->currentTime - oldtime;
 		tLX->fRealDeltaTime = tLX->fDeltaTime;
+		
+		// If we have run fine for >=5 seconds, it is probably safe & make sense
+		// to restart the game in case of a crash.
+		if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
+			CrashHandler::restartAfterCrash = true;			
 	}
+	
+	// If we go out of the menu, it means the user has selected something.
+	// This indicates that everything is fine, so we should restart in case of a crash.
+	// Note that we will set this again to false later on in case the user quitted.
+	CrashHandler::restartAfterCrash = true;
 }
 
 

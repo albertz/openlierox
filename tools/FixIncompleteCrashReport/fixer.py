@@ -3,8 +3,8 @@
 
 import sys
 
-if len(sys.argv) != 3:
-	print "usage:", sys.argv[0], " <mail> <dirwithsyms>"
+if len(sys.argv) != 2:
+	print "usage:", sys.argv[0], " <mail>"
 	exit(1)
 
 mail = open(sys.argv[1])
@@ -14,9 +14,8 @@ if not mail:
 
 import os
 
-symsdir = sys.argv[2]
-if not os.path.exists(symsdir):
-	print "cannot find", symsdir
+
+symsdir = ""
 
 import re
 import string
@@ -86,6 +85,16 @@ for line in mail.readlines():
 	line = string.strip(line, "\n")
 	if not inthread:
 		print line
+		subj = re.match("^Subject: (\[.*\])? OpenLieroX (?P<ver>.*) crash report", line)
+		if subj:
+			symsdir = subj.group("ver").replace(" ", "-")
+			continue
+		opsys = re.match("Operating system: (?P<os>\S+)", line)
+		if opsys:
+			symsdir = symsdir + "-" + opsys.group("os") + "-syms"
+			if not os.path.exists(symsdir):
+				print "cannot find symsdir", symsdir
+				quit(1)
 		inthread = re.match("^Thread [0-9]+.*$", line)
 	else:
 		m = re.match("\s*(?P<tid>[0-9]+)\s+(?P<mod>\S+)\s+([0-9.]+\s*)?0x[0-9a-f]+\s*\(0x(?P<reladdr>[0-9a-f]+)\)\s*(?P<funcname>\S+)", line)
@@ -93,14 +102,14 @@ for line in mail.readlines():
 			print line
 			inthread = re.match("\s*(?P<tid>[0-9]+)", line)
 		else:
-			fallbackstr = str.format("{0:>2} {1:20}   {2:>8} {3}", m.group("tid"), m.group("mod"), "(0x" + m.group("reladdr") + ") ", "??")
+			fallbackstr =  "%s %s   %s %s" % ( m.group("tid").rjust(2), m.group("mod").ljust(20), ("(0x" + m.group("reladdr") + ")").rjust(8), "??")
 
 			if m.group("funcname") == "??":
 				symfile = findSymfile(m.group("mod"))
 				if not symfile: print fallbackstr; continue
 				func = findFunction(int(m.group("reladdr"),16), symfile)
 				if not func: print fallbackstr; continue
-				print str.format("{0:>2} {1:20}   {2:>8} {3}", m.group("tid"), m.group("mod"), "(0x" + m.group("reladdr") + ") ", func)
+				print "%s %s   %s %s" % ( m.group("tid").rjust(2), m.group("mod").ljust(20), ("(0x" + m.group("reladdr") + ")").rjust(8), func)
 			else:
 				print fallbackstr
 
