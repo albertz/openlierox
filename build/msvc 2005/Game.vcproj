@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8.00"
+	Version="8,00"
 	Name="OpenLieroX"
 	ProjectGUID="{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 	RootNamespace="OpenLieroX"
@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -59,9 +59,9 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\obj/Debug_ded/Game.pch"
-				AssemblerListingLocation=".\obj/Debug_ded/"
-				ObjectFile=".\obj/Debug_ded/"
-				ProgramDataBaseFileName=".\obj/Debug_ded/"
+				AssemblerListingLocation=".\obj/Debug/"
+				ObjectFile=".\obj/Debug/"
+				ProgramDataBaseFileName="..\..\bin\"
 				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -83,13 +83,13 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)..\msvc\libs\curllib.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot;"
 				OutputFile=".\../../bin/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="obj/debug_ded/OpenLieroX.pdb"
+				ProgramDatabaseFile=".\../../bin/OpenLieroX_debug.pdb"
 				SubSystem="1"
 				EnableCOMDATFolding="0"
 				TargetMachine="1"
@@ -134,7 +134,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -191,7 +191,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot;"
 				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

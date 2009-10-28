@@ -243,7 +243,7 @@ public:
 
 	void		checkVersionCompatibilities(bool dropOut);
 	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
-	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
+	bool		isVersionCompatible(const Version& ver, std::string* incompReason = NULL);
 	bool		clientsConnected_less(const Version& ver); // true if clients < ver are connected
 	
 	ScriptVar_t isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset);

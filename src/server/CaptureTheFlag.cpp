@@ -20,6 +20,8 @@ struct CaptureTheFlag : public CGameMode {
 
 	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_CaptureTheFlag; }
 
+	virtual Version MinNeededVersion() { return OLXBetaVersion(0,58,1); }
+	
 	static const int MAXTEAMS = 4;
 	int teamScore[MAXTEAMS];
 	

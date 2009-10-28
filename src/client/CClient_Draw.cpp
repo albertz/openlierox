@@ -398,6 +398,19 @@ void CClient::DrawBox(SDL_Surface * dst, int x, int y, int w)
 // Main drawing routines
 void CClient::Draw(SDL_Surface * bmpDest)
 {
+#ifdef DEBUG
+	struct DrawDebugStrPostHandler {
+		CClient& cl;
+		SDL_Surface* dst;
+		DrawDebugStrPostHandler(CClient& _c, SDL_Surface* _d) : cl(_c), dst(_d) {}
+		~DrawDebugStrPostHandler() {
+			if(cl.strDebug != "")
+				cl.DrawText(dst, false, 10, 30, Color(255,0,0), cl.strDebug);
+		}
+	};
+	DrawDebugStrPostHandler drawDebugStrPostHandler(*this, bmpDest);
+#endif
+	
 	// TODO: clean this function up
 	// currently both control structure and the drawing itself is in here
 

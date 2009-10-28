@@ -1694,20 +1694,33 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 	}
 }
 
-bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg, std::string* msg) {
-	if(serverChoosesWeapons()) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut, makeMsg, msg))
-			return false;	
+bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReason) {
+	{
+		Version forcedMinVersion(tLXOptions->sForceMinVersion);
+		if(forcedMinVersion > GetGameVersion()) {
+			// This doesn't really make sense. Reset it to current version.
+			// If we want to make a warning, don't make it here but in Options.cpp.
+			forcedMinVersion = GetGameVersion();
+		}
+		if(ver < forcedMinVersion) {
+			if(incompReason) *incompReason = "server forces minimal version " + forcedMinVersion.asHumanString();
+			return false;
+		}
 	}
 	
-	if(serverAllowsConnectDuringGame()) {
-		if(!forceMinVersion(cl, OLXBetaVersion(8), "connecting during game is allowed", dropOut, makeMsg, msg))
-			return false;
+	if(serverChoosesWeapons() && ver < OLXBetaVersion(7)) {
+		if(incompReason) *incompReason = "server chooses the weapons";
+		return false;
 	}
 	
-	if(getGameMode() == GameMode(GM_CTF)) {
-		if(!forceMinVersion(cl, OLXBetaVersion(0,58,1), "CaptureTheFlag gamemode", dropOut, makeMsg, msg))
-			return false;
+	if(serverAllowsConnectDuringGame() && ver < OLXBetaVersion(8)) {
+		if(incompReason) *incompReason = "connecting during game is allowed";
+		return false;
+	}
+	
+	if(getGameMode() && ver < getGameMode()->MinNeededVersion()) {
+		if(incompReason) *incompReason = getGameMode()->Name() + " gamemode";
+		return false;
 	}
 	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
@@ -1716,25 +1729,30 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
-			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString(), dropOut, makeMsg, msg))
+			if(ver < f->get()->minVersion) {
+				if(incompReason)
+					*incompReason = f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString();
 				return false;
+			}
 		}
 	}
 	
 	return true;
 }
 
-bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg, std::string* msg) {
-	if(cl->getClientVersion() < ver) {
-		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + reason;
-		if(msg) *msg = kickReason;
+bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg, std::string* msg) {
+	std::string incompReason;
+	if(!isVersionCompatible(cl->getClientVersion(), &incompReason)) {
+		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + incompReason;
+		if(msg) *msg = incompReason;
 		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
 		if(makeMsg)
-			SendGlobalText((playerName + " needs to update OLX version: " + reason), TXT_NOTICE);
-		return false;
+			SendGlobalText((playerName + " needs to update OLX version: " + incompReason), TXT_NOTICE);
+		return false;		
 	}
+	
 	return true;
 }
 

@@ -222,14 +222,23 @@ public:
   {
     if (m_parent == NULL)
       return FALSE;
+      
+    m_hDbhHelp = LoadLibrary("dbghelp.dll"); // It loads dbghelp.dll from OLX dir by default
+        
     // Dynamically load the Entry-Points for dbghelp.dll:
     // First try to load the newsest one from
     TCHAR szTemp[4096];
-    // But before wqe do this, we first check if the ".local" file exists
-    if (GetModuleFileName(NULL, szTemp, 4096) > 0)
+    // But before we do this, we first check if the ".local" file exists
+    if (m_hDbhHelp == NULL && GetModuleFileName(NULL, szTemp, 4096) > 0)
     {
-      _tcscat_s(szTemp, _T(".local"));
-      if (GetFileAttributes(szTemp) == INVALID_FILE_ATTRIBUTES)
+	  // First try DbgHelp.dll from current .EXE dir
+	  int i;
+      for( i=strlen(szTemp); i > 0 && szTemp[i] != '\\'; i-- );
+      i++;
+      szTemp[i] = 0;
+      strcat(szTemp, "\\dbghelp.dll");
+      //m_hDbhHelp = LoadLibrary(szTemp);
+      if (m_hDbhHelp == NULL)
       {
         // ".local" file does not exist, so we can try to load the dbghelp.dll from the "Debugging Tools for Windows"
         if (GetEnvironmentVariable(_T("ProgramFiles"), szTemp, 4096) > 0)
@@ -252,6 +261,7 @@ public:
         }
       }
     }
+    
     if (m_hDbhHelp == NULL)  // if not already loaded, try to load a default-one
       m_hDbhHelp = LoadLibrary( _T("dbghelp.dll") );
     if (m_hDbhHelp == NULL)

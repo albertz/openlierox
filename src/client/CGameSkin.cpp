@@ -492,7 +492,8 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
-	frame %= getFrameCount();
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
 	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
@@ -540,7 +541,8 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 	
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
-	frame %= getFrameCount();
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
 	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
@@ -563,7 +565,8 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
-	frame %= getFrameCount();
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
 	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;

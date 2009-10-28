@@ -10,11 +10,12 @@
 #ifndef __CGAMEMODE_H__
 #define __CGAMEMODE_H__
 
+#include <string>
 #include "CVec.h"
 #include "Iterator.h"
 #include "Consts.h"
 #include "Options.h"
-#include <string>
+#include "Version.h"
 
 class CWorm;
 class GameServer;
@@ -29,6 +30,8 @@ public:
 	// This is the game mode name as shown in the lobby for clients
 	virtual std::string Name() = 0;
 	virtual int  GeneralGameType(); // this is the game type which is sent over network
+	virtual Version MinNeededVersion() { return Version(); }
+	
 	virtual int  GameTeams(); // amount of teams in gamemode
 	bool isTeamGame() { return GameTeams() > 1; }
 	virtual std::string TeamName(int t);

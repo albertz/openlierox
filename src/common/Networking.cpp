@@ -102,7 +102,7 @@ void test_NetworkSmartPointer() {
 	char* tmp = new char[2048];
 
 	printf("freeing data-array\n");
-	delete tmp;
+	delete[] tmp;
 
 //	exit(-1);
 }

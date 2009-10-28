@@ -825,6 +825,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 		if(tLX->iGameType == GME_JOIN) {
 
+			// check if we have level
+			if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
+				client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
+				// we have bDownloadingMap = true when this was successfull
+			}
+			
 			// If we are downloading a map, wait until it finishes
 			if (!client->bDownloadingMap)  {
 				client->bWaitingForMap = false;
@@ -2097,20 +2103,15 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
     // Check if we have the level & mod
-    client->bHaveMap = true;
     client->bHaveMod = true;
 
     // Does the level file exist
-    fp = OpenGameFile("levels/" + client->tGameInfo.sMapFile,"rb");
-    if(!fp)
-        client->bHaveMap = false;
-    else
-        fclose(fp);
-
+	std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
+    client->bHaveMap = MapName != "";
+	
 	// Convert the map filename to map name
 	if (client->bHaveMap)  {
-		std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
-		client->tGameInfo.sMapName = (MapName != "") ? MapName : client->tGameInfo.sMapFile;
+		client->tGameInfo.sMapName = MapName;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?

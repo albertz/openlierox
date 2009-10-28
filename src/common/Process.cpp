@@ -63,8 +63,8 @@ struct ProcessIntern
 		ctx.m_stdout_behavior = boost::process::capture_stream();
 		ctx.m_stderr_behavior = boost::process::close_stream(); // we don't grap the stderr, it is not outputted anywhere, sadly
 		ctx.m_work_directory = Utf8ToSystemNative(working_dir);
-		if( ctx.m_work_directory == "" )
-			ctx.m_work_directory = ".";
+		if(ctx.m_work_directory == "")
+			ctx.m_work_directory = Utf8ToSystemNative(".");
 		try
 		{	
 			p = new boost::process::child(boost::process::launch(Utf8ToSystemNative(cmd), params, ctx)); // Throws exception on error
