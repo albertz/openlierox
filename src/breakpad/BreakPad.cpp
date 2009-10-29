@@ -26,6 +26,7 @@
 #include "Unicode.h"
 #include "FindFile.h"
 #include "CrashHandler.h"
+#include "Process.h"
 
 #ifndef WIN32
 #include <unistd.h>
@@ -231,6 +232,37 @@ BreakPad::BreakPad( const std::string& path )
 		// in case we get here
 		abort();
 	}
+#endif
+#ifdef WIN32
+	// Register DIA DLL required by Breakpad
+	char tmp[1024];
+	GetModuleFileName(NULL, tmp, sizeof(tmp));
+	std::string curDir(tmp);
+	if( curDir.rfind("\\") != std::string::npos )
+		curDir = curDir.substr(0, curDir.rfind("\\"));
+	std::string diaLibPath = curDir + "\\msdia80.dll";
+	
+	HMODULE diaLib = LoadLibrary(diaLibPath.c_str());
+	if( diaLib == NULL )
+	{
+		errors << "Cannot load DLL " << diaLibPath << endl;
+		return;
+	}
+	
+	typedef HRESULT ( __stdcall * regServer_t )(void);
+
+	regServer_t regServer = (regServer_t)GetProcAddress(diaLib, "DllRegisterServer");
+	if( regServer == NULL )
+	{
+		errors << "Cannot get method DllRegisterServer from " << diaLibPath << endl;
+		FreeLibrary(diaLib);
+		return;
+	}
+	if( regServer() != S_OK )
+	{
+		errors << "Cannot call DllRegisterServer from " << diaLibPath << endl;
+	};
+	FreeLibrary(diaLib);
 #endif
 }
 

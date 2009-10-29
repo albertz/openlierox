@@ -27,7 +27,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -59,9 +59,9 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\obj/Debug_ded/Game.pch"
-				AssemblerListingLocation=".\obj/Debug_ded/"
-				ObjectFile=".\obj/Debug_ded/"
-				ProgramDataBaseFileName=".\obj/Debug_ded/"
+				AssemblerListingLocation=".\obj/Debug/"
+				ObjectFile=".\obj/Debug/"
+				ProgramDataBaseFileName="..\..\bin\"
 				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -89,7 +89,7 @@
 				SuppressStartupBanner="true"
 				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="obj/debug_ded/OpenLieroX.pdb"
+				ProgramDatabaseFile=".\../../bin/OpenLieroX_debug.pdb"
 				SubSystem="1"
 				EnableCOMDATFolding="0"
 				TargetMachine="1"
@@ -134,7 +134,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
