@@ -1058,12 +1058,26 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
-		bs.writeString("Your " + client_version + " support was dropped, please download a new version at http://openlierox.sourceforge.net/");
+		bs.writeString("Your " + client_version + " support was dropped, please download a new version at http://openlierox.net/");
 		bs.Send(tSocket);
 		notes << "GameServer::ParseGetChallenge: client has version " + client_version + " which is not supported." << endl;
 		return;
 	}
 
+	if( tLXOptions->bForceCompatibleConnect ) {
+		std::string incompReason;
+		if(!isVersionCompatible(Version(client_version), &incompReason)) {
+			// TODO: move this out here
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::badconnect");
+			bs.writeString("Your " + client_version + " is incompatible with the server, please download a new version at http://openlierox.net/.\n"
+						   "Incompatibility reason: " + incompReason);
+			bs.Send(tSocket);
+			notes << "GameServer::ParseGetChallenge: client has incompatible version " << client_version << ": " << incompReason << endl;
+			return;			
+		}
+	}
+	
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
 		// TODO: move this out here

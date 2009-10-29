@@ -238,7 +238,8 @@ struct GameOptions {
 	bool	bAllowWantsJoinMsg;
 	bool	bWantsJoinBanned;
 	bool	bAllowRemoteBots;
-
+	bool	bForceCompatibleConnect;
+	
 	// IRC chat
 	bool	bEnableChat;
 	bool	bEnableMiniChat; // Mini chat window in Net servers list
