@@ -2097,20 +2097,15 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
     // Check if we have the level & mod
-    client->bHaveMap = true;
     client->bHaveMod = true;
 
     // Does the level file exist
-    fp = OpenGameFile("levels/" + client->tGameInfo.sMapFile,"rb");
-    if(!fp)
-        client->bHaveMap = false;
-    else
-        fclose(fp);
-
+	std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
+    client->bHaveMap = MapName != "";
+	
 	// Convert the map filename to map name
 	if (client->bHaveMap)  {
-		std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
-		client->tGameInfo.sMapName = (MapName != "") ? MapName : client->tGameInfo.sMapFile;
+		client->tGameInfo.sMapName = MapName;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?

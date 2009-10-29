@@ -635,11 +635,12 @@ void CClient::AbortDownloads()
 // Finish downloading of the map
 void CClient::FinishMapDownloads()
 {
-	// Check that the file exists
-	if (IsFileAvailable("levels/" + sMapDownloadName, false) && FileSize("levels/" + sMapDownloadName) > 0)  {
+	// Check that the file exists and is ok
+	std::string levelname = CMap::GetLevelName(sMapDownloadName);
+	if (levelname != "")  {
 		if (tGameInfo.sMapFile == sMapDownloadName)  {
 			bHaveMap = true;
-			tGameInfo.sMapName = CMap::GetLevelName(sMapDownloadName);
+			tGameInfo.sMapName = levelname;
 			if (tMapDlCallback)
 				tMapDlCallback();
 		}
