@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="8.00"
@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\breakpad\external;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
+				AdditionalIncludeDirectories="..\..\src\breakpad\external\src;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,8 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="crash_generation.lib"
-				AdditionalLibraryDirectories="..\$(ConfigurationName)"
+				AdditionalLibraryDirectories=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -167,7 +166,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\src\breakpad\external;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
+				AdditionalIncludeDirectories="..\..\src\breakpad\external\src;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -188,8 +187,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="crash_generation.lib"
-				AdditionalLibraryDirectories="..\$(ConfigurationName)"
+				AdditionalLibraryDirectories=""
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -232,7 +230,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\src\breakpad\external;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
+				AdditionalIncludeDirectories="..\..\src\breakpad\external\src;&quot;$(VSInstallDir)\DIA SDK\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;WIN32_LEAN_AND_MEAN"
 				RuntimeLibrary="0"
 				UsePrecompiledHeader="0"
@@ -251,8 +249,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="crash_generation.lib"
-				AdditionalLibraryDirectories="..\$(ConfigurationName)"
+				AdditionalLibraryDirectories=""
 			/>
 			<Tool
 				Name="VCALinkTool"
