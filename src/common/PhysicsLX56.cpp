@@ -63,7 +63,7 @@ public:
 
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
-	bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, int jump ) {
+	bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, bool jump ) {
 		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
 
 		// Can happen when starting a game
@@ -72,8 +72,8 @@ public:
 
 		// check if the vel is really too high (or infinity), in this case just ignore
 		if( (*vel*dt*worm->speedFactor()).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
-			return true;
-
+			return true;		
+		
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
 		// TODO: is this still needed? we call this function with a fixed dt
 		// though perhaps it is as with higher speed the way we have to check is longer
@@ -111,7 +111,7 @@ public:
 						vel->x *=  -0.4f;
 					else
 						vel->x=(0);
-					continue;
+					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
 				// Right side clipping
@@ -123,20 +123,22 @@ public:
 						vel->x *= -0.4f;
 					else
 						vel->x=(0);
-					continue;
+					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
 				int posx = (int)pos.x + x; if(wrapAround) { posx %= (int)cClient->getMap()->GetWidth(); if(posx < 0) posx += cClient->getMap()->GetWidth(); }
 				if(!(cClient->getMap()->GetPixelFlag(posx,y) & PX_EMPTY)) {
 					coll = true;
 
+					// NOTE: Be carefull that you don't do any float->int->float conversions here.
+					// This has some *huge* effect. People reported it as high ceil friction.
 					if(x<0) {
 						clip |= 0x01;
-						worm->pos().x= (float)(( posx+4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth());
+						worm->pos().x = pos.x + x + 4;
 					}
 					else {
 						clip |= 0x02;
-						worm->pos().x=(float)(( posx-4 + cClient->getMap()->GetWidth() ) % cClient->getMap()->GetWidth());
+						worm->pos().x = pos.x + x - 4;
 					}
 
 					// Bounce
@@ -148,6 +150,11 @@ public:
 			}
 		}
 
+		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
+		if(check_needed && wrapAround) {
+			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
+		}
+		
 		worm->setOnGround( false );
 
 		bool hit = false;
@@ -166,7 +173,7 @@ public:
 						vel->y *= -0.4f;
 					else
 						vel->y = (0);
-					continue;
+					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
 				// Bottom side clipping
@@ -179,7 +186,7 @@ public:
 						vel->y *= -0.4f;
 					else
 						vel->y=(0);
-					continue;
+					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
 				int posy = (int)pos.y + y; if(wrapAround) { posy %= (int)cClient->getMap()->GetHeight(); if(posy < 0) posy += cClient->getMap()->GetHeight(); }
@@ -196,13 +203,15 @@ public:
 					hit = true;
 					worm->setOnGround( true );
 
+					// NOTE: Be carefull that you don't do any float->int->float conversions here.
+					// This has some *huge* effect. People reported it as high ceil friction.
 					if(y<0) {
 						clip |= 0x04;
-						worm->pos().y= (float)(( posy+5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight());
+						worm->pos().y = pos.y + y + 5;
 					}
 					else {
 						clip |= 0x08;
-						worm->pos().y= (float)(( posy-5 + cClient->getMap()->GetHeight() ) % cClient->getMap()->GetHeight());
+						worm->pos().y = pos.y + y - 5;
 					}
 
 					//if(y>3 && !jump) {
@@ -213,7 +222,12 @@ public:
 				}
 			}
 		}
-			
+		
+		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
+		if(check_needed && wrapAround) {
+			FMOD(pos.y, (float)cClient->getMap()->GetHeight());			
+		}
+		
 		// If we are stuck in left & right or top & bottom, just don't move in that direction
 		if ((clip & 0x01) && (clip & 0x02))
 			worm->pos().x = vOldPos.x;
@@ -426,6 +440,7 @@ public:
 
 
 		// Process the jump
+		bool jumped = false;
 		{
 			const bool onGround = worm->CheckOnGround();
 			if( onGround )
@@ -449,6 +464,7 @@ public:
 				}
 				worm->setLastAirJumpTime(GetPhysicsTime());
 				worm->setOnGround( false );
+				jumped = true;
 			}
 		}
 
@@ -478,7 +494,7 @@ public:
 		//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 		// Check collisions and move
-		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity(), worm->getPos(), ws->bJump );
+		moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity(), worm->getPos(), jumped );
 
 
 		// Ultimate in friction
