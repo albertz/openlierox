@@ -1350,7 +1350,9 @@ void GameLoopFrame()
 		break;
 
 	} // SWITCH
-
+	
+	cClient->resetDebugStr();
+	
 	// We put it here, so the mouse never displays
     SDL_ShowCursor(SDL_DISABLE);
 }
