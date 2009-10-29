@@ -239,6 +239,7 @@ struct GameOptions {
 	bool	bWantsJoinBanned;
 	bool	bAllowRemoteBots;
 	bool	bForceCompatibleConnect;
+	std::string	sForceMinVersion;
 	
 	// IRC chat
 	bool	bEnableChat;

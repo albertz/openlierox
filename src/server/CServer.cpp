@@ -1695,6 +1695,19 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 }
 
 bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReason) {
+	{
+		Version forcedMinVersion(tLXOptions->sForceMinVersion);
+		if(forcedMinVersion > GetGameVersion()) {
+			// This doesn't really make sense. Reset it to current version.
+			// If we want to make a warning, don't make it here but in Options.cpp.
+			forcedMinVersion = GetGameVersion();
+		}
+		if(ver < forcedMinVersion) {
+			if(incompReason) *incompReason = "server forces minimal version " + forcedMinVersion.asHumanString();
+			return false;
+		}
+	}
+	
 	if(serverChoosesWeapons() && ver < OLXBetaVersion(7)) {
 		if(incompReason) *incompReason = "server chooses the weapons";
 		return false;
