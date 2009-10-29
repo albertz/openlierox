@@ -146,7 +146,8 @@ static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
-	f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
+	if (flag->skin->getFrameCount() != 0)
+		f %= flag->skin->getFrameCount(); // every skin has exactly 21 frames
 	
 	flag->skin->Draw(bmpDest, p.x - FLAG_WIDTH/2, p.y - FLAG_HEIGHT/2, f, false, true);
 }
