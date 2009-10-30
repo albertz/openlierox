@@ -664,6 +664,7 @@ void CClient::FinishMapDownloads()
 				cMap = new CMap;
 			}
 
+			notes << "Loading just downloaded map " << sMapDownloadName << endl;
 			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
 				// Weird
 				errors << "Could not load the downloaded map!" << endl;
