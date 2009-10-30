@@ -825,6 +825,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 		if(tLX->iGameType == GME_JOIN) {
 
+			// check if we have level
+			if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
+				client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
+				// we have bDownloadingMap = true when this was successfull
+			}
+			
 			// If we are downloading a map, wait until it finishes
 			if (!client->bDownloadingMap)  {
 				client->bWaitingForMap = false;
