@@ -499,7 +499,7 @@ public:
 
 		// Ultimate in friction
 		if(worm->isOnGround()) {
-			worm->velocity().x *= 0.9f;
+			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()->features[FT_WormGroundFriction]) / 20.0f;  //  0.9f is original value
 
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 

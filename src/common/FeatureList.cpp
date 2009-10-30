@@ -88,6 +88,8 @@ Feature featureArray[] = {
 			false,	false,			OLXBetaVersion(0,58,1),		GIG_Other,	ALT_Advanced,	false),
 	Feature("WormFriction",			"Worm Friction",		"Friction coefficient for worms (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
+	Feature("WormGroundFriction",	"Worm Ground Friction",		"Friction coefficient when worms are on ground (0 = no friction)",
+			1.0f, 1.0f,				OLXBetaVersion(0,58,9),		GIG_Other,	ALT_VeryAdvanced,	-1.001f, 10.0f,	false),
 	Feature("ProjFriction",			"Projectile Friction",	"Friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",

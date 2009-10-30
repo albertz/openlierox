@@ -34,6 +34,10 @@
 #define _PDB_SOURCE_LINE_WRITER_H__
 
 #include <atlcomcli.h>
+#ifdef MSVC_EXPRESS_FIX  // HINT: this is defined by a fake atlcomcli.h which is used if the system one is not found
+#include <atlbase.h>
+using ATL::CComPtr;
+#endif
 
 #include <string>
 
