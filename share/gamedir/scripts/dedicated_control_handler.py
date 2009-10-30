@@ -556,6 +556,7 @@ if len(mapCicler.list) == 0:
 	io.messageLog("Waiting for level list ...")
 	while len(mapCicler.list) == 0:
 		mapCicler.list = io.listMaps()
+shuffle(mapCicler.list)
 mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
 mapCicler.cicle()
 
