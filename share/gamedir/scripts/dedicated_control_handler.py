@@ -549,7 +549,9 @@ class StandardCicler:
 
 
 mapCicler = StandardCicler()
-mapCicler.list = cfg.LEVELS  #io.listMaps()
+mapCicler.timeOut = 0 # this will always change map after each round, no matter how short
+#mapCicler.list = cfg.LEVELS 
+mapCicler.list = io.listMaps()
 if len(mapCicler.list) == 0:
 	io.messageLog("Waiting for level list ...")
 	while len(mapCicler.list) == 0:

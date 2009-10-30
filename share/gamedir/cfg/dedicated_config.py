@@ -18,8 +18,8 @@ WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before anoth
 # Seconds before rotating preset
 PRESET_TIMEOUT = 300
 
-WAIT_AFTER_GAME = 5 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
