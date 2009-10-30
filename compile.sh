@@ -21,7 +21,7 @@
 #	G15				- if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( disabled by default )
 #	BREAKPAD		- if set to 1, Google Breakpad is used
-#					( enabled by default )
+#					( enabled by default in case of x86, disabled otherwise by default )
 #	GCOREDUMPER		- if set to 1, Google Coredumper is used
 #					( disabled by default )
 #	VERSION			- version number; like 0.57_beta2
@@ -39,7 +39,12 @@ cd "$(dirname "$0")"
 [ "$DEBUGINFO" = "" ] && DEBUGINFO=1
 [ "$X11" = "" ] && X11=1
 [ "$G15" = "" ] && G15=0
-[ "$BREAKPAD" = "" ] && BREAKPAD=1
+[ "$BREAKPAD" = "" ] && {
+	BREAKPAD=0
+	[ "$(uname -m)" = "i486" ] && BREAKPAD=1
+	[ "$(uname -m)" = "i586" ] && BREAKPAD=1
+	[ "$(uname -m)" = "i686" ] && BREAKPAD=1
+}
 [ "$GCOREDUMPER" = "" ] && GCOREDUMPER=0
 [ "$VERSION" = "" ] && VERSION=$(get_olx_version)
 
