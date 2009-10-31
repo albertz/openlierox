@@ -28,7 +28,7 @@ public:
 	IpInfo GetInfoAboutIP(const std::string& Address);
 	SmartPointer<SDL_Surface> GetCountryFlag(const std::string& shortcut);
 	int	GetProgress() { return 100; }
-	bool Loaded()  { return true; }
+	bool Loaded()  { return m_database != NULL && m_database->loaded(); }
 INTERNDATA_CLASS_END
 
 extern char *IP_TO_COUNTRY_FILE;
