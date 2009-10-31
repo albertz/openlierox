@@ -543,7 +543,7 @@ GeoRecord GeoIPDatabase::lookup(const std::string& ip) const
 	unsigned long l_ip = convertIp(ip);
 	if (!l_ip)  {
 		res.continentCode = "UN";
-		res.countryCode = "HC";
+		res.countryCode = "HCK";
 		res.countryCode3 = "HCK";
 		res.countryName = "Hackerland";
 		res.region = "Pirate area";
