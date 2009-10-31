@@ -19,6 +19,7 @@ public:
 	std::string countryCode;
 	std::string countryCode3;
 	std::string countryName;
+	bool hasCityLevel;
 	std::string region;
 	std::string city;
 	std::string postalCode;
@@ -33,8 +34,8 @@ public:
 
 	GeoRecord& operator= (const GeoRecord& oth);
 	GeoRecord() : latitude(0), longitude(0), metroCode(0), areaCode(1), 
-		continentCode("UN"), continent("Atlantis"), countryCode("UN"), countryCode3("UNK"),
-		countryName("Forgottenland"), region(""), city("Nowhere") {}
+		continentCode("UN"), continent("Unknown Continent"), countryCode("UN"), countryCode3("UNK"),
+		countryName("Unknown Country"), hasCityLevel(false), region(""), city("Unknown City") {}
 	GeoRecord(const GeoRecord& oth) { operator=(oth); }
 };
 
@@ -51,6 +52,7 @@ class GeoIPDatabase  {
 	GeoRecord extractRecordCity(unsigned int seekRecord) const;
 	GeoRecord extractRecordCtry(unsigned int seekRecord) const;
 	unsigned long convertIp(const std::string& strIp) const;
+	void fillContinent(GeoRecord& res) const;
 
 public:
 	GeoIPDatabase() : m_file(NULL), m_dbSegments(NULL), m_dbType(0), m_recordLength(0) {}

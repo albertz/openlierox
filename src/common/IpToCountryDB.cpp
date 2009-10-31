@@ -9,7 +9,6 @@
 
 
 #include "IpToCountryDB.h"
-#include <GeoIPCity.h>
 #include "GfxPrimitives.h"
 #include "Unicode.h"
 #include "GeoIPDatabase.h"
@@ -33,23 +32,24 @@ void IpToCountryDB::LoadDBFile(const std::string& dbfile)
 
 IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 {
-	IpInfo res = {"Unknown", "Unknown", "UNK", "Unknown"};
+	IpInfo res;
 	if (!m_database || !m_database->loaded())
 		return res;
 
 	// Home
 	if (address.find("127.0.0.1") == 0)  {
-		res.Country = "Home";
-		res.City = "Home City";
-		res.Region = "Home Region";
+		res.countryName = "Home";
+		res.city = "Home City";
+		res.region = "Home Region";
+		res.continent = "Earth";
 		return res;
 	}
 
 	// LAN
 	if (address.find("10.0.") == 0 || address.find("192.168.") == 0)  {
-		res.Country = "Local Area Network";
-		res.City = "Local City";
-		res.Region = "Local Area Network";
+		res.countryName = "Local Area Network";
+		res.city = "Local City";
+		res.region = "Local Area Network";
 		return res;
 	}
 
@@ -57,11 +57,7 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 	if (rec.countryCode == "--" || rec.countryCode == "UN")  // Unknown
 		return res;
 
-	res.Country = rec.countryName;
-	res.Continent = rec.continentCode;
-	res.CountryShortcut = rec.countryCode;
-	res.City = rec.city;
-	res.Region = rec.region;
+	res = rec;
 
 	return res;
 }

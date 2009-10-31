@@ -1476,9 +1476,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			if (str_addr != "")  {
 				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replace(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage);
-				replace(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage);
-				replace(strWelcomeMessage, "<city>", info.City, strWelcomeMessage);
+				replace(strWelcomeMessage, "<country>", info.countryName, strWelcomeMessage);
+				replace(strWelcomeMessage, "<continent>", info.continent, strWelcomeMessage);
+				replace(strWelcomeMessage, "<city>", info.city, strWelcomeMessage);
 			}
 		}
 		

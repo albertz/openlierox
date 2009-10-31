@@ -11,23 +11,13 @@
 #define	__IPTOCOUNTRY_H__
 
 #include <string>
-#define _WSPIAPI_H_
-#define _WS2TCPIP_H_
-#define _WINSOCK2API_
-#include <GeoIP.h>
 #include "SmartPointer.h"
 #include "InternDataClass.h"
+#include "GeoIPDatabase.h"
 
 struct SDL_Surface;
-class GeoIPDatabase;
 
-struct IpInfo {
-	std::string		Country;
-	std::string		Continent;
-	std::string		CountryShortcut;
-	std::string		City;
-	std::string		Region;
-};
+typedef GeoRecord IpInfo;
 
 INTERNDATA_CLASS_BEGIN(IpToCountryDB)
 private:

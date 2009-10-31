@@ -174,6 +174,7 @@ GeoRecord& GeoRecord::operator= (const GeoRecord& oth)
 		countryCode = oth.countryCode;
 		countryCode3 = oth.countryCode3;
 		countryName = oth.countryName;
+		hasCityLevel = oth.hasCityLevel;
 		region = oth.region;
 		city = oth.city;
 		postalCode = oth.postalCode;
@@ -418,7 +419,31 @@ GeoRecord GeoIPDatabase::extractRecordCity(unsigned int seekRecord) const
 
 	delete[] begin_record_buf;
 
+	record.hasCityLevel = true;
+	fillContinent(record);
+
 	return record;
+}
+
+void GeoIPDatabase::fillContinent(GeoRecord& res) const
+{
+	// Fill in continent based on continent shortcut
+	if (res.continentCode == "EU")
+		res.continent = "Europe";
+	else if (res.continentCode == "NA")
+		res.continent = "North America";
+	else if (res.continentCode == "SA")
+		res.continent = "South America";
+	else if (res.continentCode == "AS")
+		res.continent = "Asia";
+	else if (res.continentCode == "OC")
+		res.continent = "Australia and Oceania";
+	else if (res.continentCode == "AN")
+		res.continent = "Antarctica";
+	else if (res.continentCode == "AF")
+		res.continent = "Africa";
+	else
+		res.continent = "Unknown";
 }
 
 GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
@@ -437,6 +462,9 @@ GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
 	res.countryCode = GeoIP_country_code[ctry];
 	res.countryCode3 = GeoIP_country_code3[ctry];
 	res.countryName = GeoIP_country_name[ctry];
+	res.hasCityLevel = false;
+
+	fillContinent(res);
 
 	return res;
 }

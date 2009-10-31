@@ -1875,9 +1875,9 @@ void Cmd_getWormLocationInfo::exec(CmdLineIntf* caller, const std::vector<std::s
 	if (str_addr != "")
 	{
 		IpInfo info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-		caller->pushReturnArg(info.Continent);
-		caller->pushReturnArg(info.Country);
-		caller->pushReturnArg(info.CountryShortcut);
+		caller->pushReturnArg(info.continent);
+		caller->pushReturnArg(info.countryName);
+		caller->pushReturnArg(info.countryCode);
 	}
 	else
 	{
@@ -1936,7 +1936,7 @@ void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params
 	if(cClient && cClient->getGameLobby() && cClient->getGameLobby()->gameMode && cClient->getGameLobby()->gameMode->GameTeams() > 1)
 		caller->pushReturnArg("Team: " + itoa(w->getTeam()));
 	if(w->getClient()) {
-		caller->pushReturnArg("Address: " + w->getClient()->getAddrAsString() + " (" + w->getClient()->ipInfo().Country + ")");
+		caller->pushReturnArg("Address: " + w->getClient()->getAddrAsString() + " (" + w->getClient()->ipInfo().countryName + ")");
 		caller->pushReturnArg("Version: " + w->getClient()->getClientVersion().asString());
 		caller->pushReturnArg("ConnectTime: " + ftoa((tLX->currentTime - w->getClient()->getConnectTime()).seconds()) + " secs");
 		caller->pushReturnArg("NetSpeed: " + NetworkSpeedString((NetworkSpeed)w->getClient()->getNetSpeed()));
