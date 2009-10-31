@@ -591,6 +591,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\GeoIPDatabase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\GeoIPDatabase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Geometry.cpp"
 				>
 			</File>

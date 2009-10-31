@@ -12,32 +12,30 @@
 #include <GeoIPCity.h>
 #include "GfxPrimitives.h"
 #include "Unicode.h"
+#include "GeoIPDatabase.h"
 
-IpToCountryDB::IpToCountryDB(const std::string& dbfile) : m_geoIP(NULL) { LoadDBFile(dbfile); }
+IpToCountryDB::IpToCountryDB(const std::string& dbfile) : m_database(NULL) { LoadDBFile(dbfile); }
 
 void IpToCountryDB::LoadDBFile(const std::string& dbfile)
 {
-	if (m_geoIP)  {
-		GeoIP_delete(m_geoIP);
-		m_geoIP = NULL;
+	if (m_database)  {
+		delete m_database;
+		m_database = NULL;
 	}
 
-	// Open
-	m_file = dbfile;
-	m_geoIP = GeoIP_open(m_file.c_str(), GEOIP_STANDARD);
-	GeoIP_set_charset(m_geoIP, GEOIP_CHARSET_UTF8);
-	if (!m_geoIP)  {
-		errors << "Could not open Geo IP to Country database" << endl;
-		return;
-	}
+	// Test: database
+	m_database = new GeoIPDatabase();
+	if (!m_database->load(dbfile))
+		errors << "Error when loading GeoIP database" << endl;
 }
 
 IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 {
 	IpInfo res = {"Unknown", "Unknown", "UNK", "Unknown"};
-	if (!m_geoIP)
+	if (!m_database || !m_database->loaded())
 		return res;
 
+	// Home
 	if (address.find("127.0.0.1") == 0)  {
 		res.Country = "Home";
 		res.City = "Home City";
@@ -45,24 +43,23 @@ IpInfo IpToCountryDB::GetInfoAboutIP(const std::string& address)
 		return res;
 	}
 
-	std::string pure_addr = address;
-	size_t pos = pure_addr.find(':');
-	if (pos != std::string::npos)
-		pure_addr.erase(pos);
+	// LAN
+	if (address.find("10.0.") == 0 || address.find("192.168.") == 0)  {
+		res.Country = "Local Area Network";
+		res.City = "Local City";
+		res.Region = "Local Area Network";
+		return res;
+	}
 
-	GeoIPRecord *rec = GeoIP_record_by_addr(m_geoIP, pure_addr.c_str());
-	if (rec == NULL || !rec->country_name || !rec->country_name[0])
+	GeoRecord rec = m_database->lookup(address);
+	if (rec.countryCode == "--" || rec.countryCode == "UN")  // Unknown
 		return res;
 
-	res.Country = rec->country_name;
-	res.Continent = rec->continent_code;
-	res.CountryShortcut = rec->country_code;
-	if (rec->city)
-		res.City = rec->city;
-	if (rec->region)
-		res.Region = rec->region;
-
-	GeoIPRecord_delete(rec);
+	res.Country = rec.countryName;
+	res.Continent = rec.continentCode;
+	res.CountryShortcut = rec.countryCode;
+	res.City = rec.city;
+	res.Region = rec.region;
 
 	return res;
 }
@@ -74,8 +71,8 @@ SmartPointer<SDL_Surface> IpToCountryDB::GetCountryFlag(const std::string& short
 
 IpToCountryDB::~IpToCountryDB()
 {
-	if (m_geoIP)  {
-		GeoIP_delete(m_geoIP);
-		m_geoIP = NULL;
+	if (m_database)  {
+		delete m_database;
+		m_database = NULL;
 	}
 }

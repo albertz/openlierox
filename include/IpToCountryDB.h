@@ -19,6 +19,7 @@
 #include "InternDataClass.h"
 
 struct SDL_Surface;
+class GeoIPDatabase;
 
 struct IpInfo {
 	std::string		Country;
@@ -30,8 +31,7 @@ struct IpInfo {
 
 INTERNDATA_CLASS_BEGIN(IpToCountryDB)
 private:
-	std::string m_file;
-	GeoIP *m_geoIP;
+	GeoIPDatabase *m_database;
 public:
 	IpToCountryDB(const std::string& dbfile);
 	void LoadDBFile(const std::string& dbfile);

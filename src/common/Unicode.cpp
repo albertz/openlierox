@@ -1119,6 +1119,25 @@ std::string SystemNativeToUtf8(const std::string& natstr)
 
 #endif
 
+std::string ISO88591ToUtf8(const std::string& isostr)
+{
+	std::string result;
+	result.reserve(isostr.size() * 2);
+	
+	for (std::string::const_iterator it = isostr.begin(); it != isostr.end(); it++) {
+		signed char ch = (signed char)*it;
+		if (ch < 0 ) {
+			char ch2 = (char)0xc2;
+			if (ch >= -64)
+				++ch2;
+			result += ch2;
+			ch &= ~0x40;
+		}
+		result += ch;
+	}
+
+	return result;
+}
 
 
 size_t TransformRawToUtf8Pos(const std::string& text, size_t pos) {
