@@ -7,12 +7,16 @@
 	by Albert Zeyer and Dark Charlie
 */
 
+// Class for reading MaxMind's GeoIP databases
+// Used by IpToCountry class
+
 // Some parts of the code were taken from MaxMind's GeoIPLite software (licensed under LGPL)
 
 #ifndef __GEOIPDATABASE_H__
 #define __GEOIPDATABASE_H__
 
-class GeoRecord  {
+// A record structure, contains various info about an IP
+struct GeoRecord  {
 public:
 	std::string continentCode;
 	std::string continent;
@@ -39,14 +43,17 @@ public:
 	GeoRecord(const GeoRecord& oth) { operator=(oth); }
 };
 
+// The MaxMind's database reader
 class GeoIPDatabase  {
 	FILE *m_file;
 	std::string m_fileName;
 
+	// Internal datbase data info
 	unsigned int *m_dbSegments;
 	int m_dbType;
 	int m_recordLength;
 
+	// Helper functions
 	bool setupSegments();
 	unsigned int seekRecord(unsigned long ipnum) const;
 	GeoRecord extractRecordCity(unsigned int seekRecord) const;

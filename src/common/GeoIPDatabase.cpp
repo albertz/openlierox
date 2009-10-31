@@ -165,6 +165,9 @@ const char GeoIP_country_continent[253][3] = {"--","AS","EU","EU","AS","AS","SA"
 	"AF","EU","AF","--","--","--","EU","EU","EU","EU",
   "SA","SA"};
 
+//
+// GeoRecord operations
+//
 
 GeoRecord& GeoRecord::operator= (const GeoRecord& oth)
 {
@@ -187,6 +190,13 @@ GeoRecord& GeoRecord::operator= (const GeoRecord& oth)
 	return *this;
 }
 
+//
+// GeoIP Database class methods
+//
+
+
+/////////////////
+// Destructor
 GeoIPDatabase::~GeoIPDatabase()
 {
 	if (m_file)  {
@@ -199,6 +209,8 @@ GeoIPDatabase::~GeoIPDatabase()
 	m_file = NULL;
 }
 
+////////////////
+// Loads the database, returns false on failure
 bool GeoIPDatabase::load(const std::string& filename)
 {
 	m_file = OpenGameFile(filename, "rb");
@@ -214,6 +226,10 @@ bool GeoIPDatabase::load(const std::string& filename)
 	return true;
 }
 
+/////////////////
+// Reads database segments (private)
+// Requires the database file to be open
+// Returns true on success, false otherwise
 bool GeoIPDatabase::setupSegments()
 {
 	size_t silence;
@@ -280,6 +296,8 @@ bool GeoIPDatabase::setupSegments()
 	return true;
 }
 
+////////////////
+// Seek a record in the database, returns record index or 0 on failure
 unsigned int GeoIPDatabase::seekRecord(unsigned long ipnum) const
 {
 	if (!m_file)
@@ -347,6 +365,8 @@ unsigned int GeoIPDatabase::seekRecord(unsigned long ipnum) const
 	return 0;
 }
 
+//////////////////
+// Extracts a record information from a city-level database
 GeoRecord GeoIPDatabase::extractRecordCity(unsigned int seekRecord) const
 {
 	GeoRecord record;
@@ -425,6 +445,8 @@ GeoRecord GeoIPDatabase::extractRecordCity(unsigned int seekRecord) const
 	return record;
 }
 
+///////////////////
+// Converts continent codes to full continent name
 void GeoIPDatabase::fillContinent(GeoRecord& res) const
 {
 	// Fill in continent based on continent shortcut
@@ -446,6 +468,8 @@ void GeoIPDatabase::fillContinent(GeoRecord& res) const
 		res.continent = "Unknown";
 }
 
+///////////////
+// Reads a records from a country-only database
 GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
 {
 	GeoRecord res;
@@ -469,6 +493,8 @@ GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
 	return res;
 }
 
+//////////////////
+// Converts a string IP to MaxMind's representation
 unsigned long GeoIPDatabase::convertIp(const std::string& strAddr) const
 {
 	unsigned int    octet;
@@ -504,6 +530,8 @@ unsigned long GeoIPDatabase::convertIp(const std::string& strAddr) const
 	return ipnum + octet;
 }
 
+/////////////////
+// Performs a search for the given IP, returns a record with information about the IP
 GeoRecord GeoIPDatabase::lookup(const std::string& ip) const
 {
 	GeoRecord res;
@@ -523,7 +551,10 @@ GeoRecord GeoIPDatabase::lookup(const std::string& ip) const
 		return res;
 	}
 
+	// Find the record
 	int record = seekRecord(l_ip);
+
+	// Get information
 	if (m_dbType == GEOIP_CITY_EDITION_REV0 || m_dbType == GEOIP_CITY_EDITION_REV1)
 		return extractRecordCity(record);
 	else if (m_dbType == GEOIP_COUNTRY_EDITION)
