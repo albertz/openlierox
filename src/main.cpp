@@ -657,7 +657,7 @@ startpoint:
 	// Start loading the IP to country database
 	// HINT: we do it as soon as possible because the loading has more time then which means better results
 	// HINT: the database won't load if it is disabled in options
-	tIpToCountryDB = new IpToCountryDB("GeoLiteCity.dat");
+	tIpToCountryDB = new IpToCountryDB(IP_TO_COUNTRY_FILE);
 
 	// Initialize LX
 	if(!InitializeLieroX())  {

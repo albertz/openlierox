@@ -425,16 +425,18 @@ GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
 {
 	GeoRecord res;
 
+	int ctry = seekRecord - COUNTRY_BEGIN;
+
 	// seekRecord contains coutry ID in this case
 	// But to be sure we check for the range
-	if (seekRecord >= GeoIP_country_count)
+	if (ctry >= GeoIP_country_count || ctry < 0)
 		return res;
 
 	// Fill in the info
-	res.continentCode = GeoIP_country_continent[seekRecord];
-	res.countryCode = GeoIP_country_code[seekRecord];
-	res.countryCode3 = GeoIP_country_code3[seekRecord];
-	res.countryName = GeoIP_country_name[seekRecord];
+	res.continentCode = GeoIP_country_continent[ctry];
+	res.countryCode = GeoIP_country_code[ctry];
+	res.countryCode3 = GeoIP_country_code3[ctry];
+	res.countryName = GeoIP_country_name[ctry];
 
 	return res;
 }

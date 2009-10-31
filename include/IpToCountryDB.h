@@ -41,6 +41,7 @@ public:
 	bool Loaded()  { return true; }
 INTERNDATA_CLASS_END
 
+extern char *IP_TO_COUNTRY_FILE;
 extern  IpToCountryDB	*tIpToCountryDB;
 
 #endif
