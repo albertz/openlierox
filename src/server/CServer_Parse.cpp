@@ -1467,27 +1467,29 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		replacemax(strWelcomeMessage, "<version>", clientVersion.asHumanString(), strWelcomeMessage, 1);
 		
 		// Country
-		if (strWelcomeMessage.find("<country>") != std::string::npos)  {
-			IpInfo info;
+		bool hasDist = strWelcomeMessage.find("<distance>") != std::string::npos;
+		if (strWelcomeMessage.find("<country>") != std::string::npos || 
+				strWelcomeMessage.find("<city>") != std::string::npos ||
+				strWelcomeMessage.find("<continent>") != std::string::npos ||
+				hasDist)  {
+
+			IpInfo info, localInfo;
+			float dist = 0;
 			std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			if (str_addr != "")  {
 				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage, 1);
+				if (hasDist && sExternalIP.size())  {
+					localInfo = tIpToCountryDB->GetInfoAboutIP(sExternalIP);
+					dist = tIpToCountryDB->GetDistance(localInfo, info);
+					replace(strWelcomeMessage, "<distance>", ftoa(dist, 0), strWelcomeMessage);
+				}
+					
+				replace(strWelcomeMessage, "<country>", info.countryName, strWelcomeMessage);
+				replace(strWelcomeMessage, "<continent>", info.continent, strWelcomeMessage);
+				replace(strWelcomeMessage, "<city>", info.city, strWelcomeMessage);
 			}
 		}
-		
-		// Continent
-		if (strWelcomeMessage.find("<continent>") != std::string::npos)  {
-			IpInfo info;
-			std::string str_addr;
-			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-			if (str_addr != "")  {
-				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage, 1);
-			}
-		}
-		
 		
 		// Address
 		std::string str_addr;
@@ -1585,12 +1587,12 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>" && networkTexts->sHasConnected != "")  {
-			SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", w->getName(), 1), TXT_NETWORK);
+			SendGlobalText(Replace(networkTexts->sHasConnected, "<player>", w->getName()), TXT_NETWORK);
 		}
 		
 		// Send the welcome message
 		if(strWelcomeMessage != "")
-			SendGlobalText(replacemax(strWelcomeMessage, "<player>", w->getName(), 1), TXT_NETWORK);		
+			SendGlobalText(Replace(strWelcomeMessage, "<player>", w->getName()), TXT_NETWORK);		
 	}
 
 	

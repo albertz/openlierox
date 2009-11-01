@@ -136,6 +136,7 @@ private:
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
+	CHttp			tHttp2;
 	bool			bLocalClientConnected;
 	int				iSuicidesInPacket;
 
@@ -151,6 +152,7 @@ private:
 	std::vector<std::string>			tUdpMasterServers;
 	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
+	std::string	sExternalIP;
 	
 	bool		m_clientsNeedLobbyUpdate;
 	AbsTime		m_clientsNeedLobbyUpdateTime;
@@ -207,7 +209,9 @@ public:
 	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
-	static float getMaxUploadBandwidth();	
+	static float getMaxUploadBandwidth();
+	void		ObtainExternalIP();
+	void		ProcessGetExternalIP();
 	void		RegisterServer();
 	void		RegisterServerUdp();
 	void		ProcessRegister();

@@ -247,6 +247,9 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		errors << "GS:SendGlobalText: clients not initialised" << endl;
 		return;
 	}
+
+	notes << "Send Global Text: " << text << endl;
+
 	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)

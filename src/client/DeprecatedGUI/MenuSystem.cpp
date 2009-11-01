@@ -1460,15 +1460,15 @@ void Menu_SvrList_FillList(CListview *lv)
 			IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
 			if( tLXOptions->bShowCountryFlags )
 			{
-				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
+				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.countryCode);
 				if (flag.get())
-					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.Country);
+					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.countryName);
 				else
-					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, (DynDrawIntf*)NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, inf.countryCode, (DynDrawIntf*)NULL, NULL);
 			}
 			else
 			{
-				lv->AddSubitem(LVS_TEXT, inf.Country, (DynDrawIntf*)NULL, NULL);
+				lv->AddSubitem(LVS_TEXT, inf.countryName, (DynDrawIntf*)NULL, NULL);
 			}
 		}
 
@@ -2185,8 +2185,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					if (NetAddrToString(addr, sIP))
 						tIpInfo = tIpToCountryDB->GetInfoAboutIP(sIP);
 					else  {
-						tIpInfo.Country = "Hackerland";
-						tIpInfo.Continent = "Hackerland";
+						tIpInfo.countryName = "Hackerland";
+						tIpInfo.continent = "Hackerland";
 						sIP = "x.x.x.x";
 					}
 
@@ -2341,8 +2341,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Country:", (DynDrawIntf*)NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Location:", (DynDrawIntf*)NULL, NULL);
+			if (tIpInfo.hasCityLevel)
+				lvInfo.AddSubitem(LVS_TEXT, tIpInfo.city + ", " + tIpInfo.countryName + " (" + tIpInfo.continent + ")", (DynDrawIntf*)NULL, NULL);
+			else
+				lvInfo.AddSubitem(LVS_TEXT, tIpInfo.countryName + " (" + tIpInfo.continent + ")", (DynDrawIntf*)NULL, NULL);
 
 			// IP address
 			lvInfo.AddItem("ip", ++index, tLX->clNormalLabel);

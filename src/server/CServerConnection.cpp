@@ -295,18 +295,18 @@ IpInfo CServerConnection::ipInfo() {
 	IpInfo info;
 	std::string addr;
 	if(isLocalClient()) {
-		info.Country = "local";
-		info.Continent = "local";
+		info.countryName = "local";
+		info.continent = "local";
 		return info;
 	}
 	else if(!getChannel()) {
-		info.Country = "NO CONNECTION";
-		info.Continent = "NO CONNECTION";
+		info.countryName = "NO CONNECTION";
+		info.continent = "NO CONNECTION";
 		return info;
 	}
 	else if(!NetAddrToString(getChannel()->getAddress(), addr)) {
-		info.Country = "INVALID CONNECTION";
-		info.Continent = "INVALID CONNECTION";
+		info.countryName = "INVALID CONNECTION";
+		info.continent = "INVALID CONNECTION";
 		return info;
 	}
 	
