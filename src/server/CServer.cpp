@@ -257,6 +257,7 @@ int GameServer::StartServer()
 		bServerRegistered = false;
 		fLastRegister = tLX->currentTime;
 		RegisterServer();
+		ObtainExternalIP();
 		
 		fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count		
 	}
@@ -276,6 +277,45 @@ int GameServer::StartServer()
 	return true;
 }
 
+void GameServer::ObtainExternalIP()
+{
+	if (sExternalIP.size())
+		return;
+
+	// TODO: use a config
+	tHttp2.RequestData("http://www.openlierox.net/external_ip.php", tLXOptions->sHttpProxy);
+}
+
+void GameServer::ProcessGetExternalIP()
+{
+	if (sExternalIP.size()) // already got it
+		return;
+
+	int result = tHttp2.ProcessRequest();
+
+	switch(result)  {
+	// Normal, keep going
+	case HTTP_PROC_PROCESSING:
+		return; // Processing, no more work for us
+	break;
+
+	// Failed
+	case HTTP_PROC_ERROR:
+		errors << "Could not obtain external IP address: " + tHttp2.GetError().sErrorMsg << endl;
+	break;
+
+	// Completed ok
+	case HTTP_PROC_FINISHED:
+		sExternalIP = tHttp2.GetData();
+		NetworkAddr tmp;
+		if (!StringToNetAddr(sExternalIP, tmp))  {
+			errors << "The obtained IP address is invalid: " << sExternalIP << endl;
+			sExternalIP = "0.0.0.0";
+		} else
+			notes << "Our external IP address is " << sExternalIP << endl;
+	break;
+	}	
+}
 
 bool GameServer::serverChoosesWeapons() {
 	// HINT:
@@ -859,6 +899,7 @@ void GameServer::Frame()
 	// Process any http requests (register, deregister)
 	if( tLXOptions->bRegServer && !bServerRegistered )
 		ProcessRegister();
+	ProcessGetExternalIP();
 
 	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
 		m_clientsNeedLobbyUpdate = false;

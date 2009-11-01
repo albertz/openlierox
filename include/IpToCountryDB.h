@@ -29,6 +29,7 @@ public:
 	SmartPointer<SDL_Surface> GetCountryFlag(const std::string& shortcut);
 	int	GetProgress() { return 100; }
 	bool Loaded()  { return m_database != NULL && m_database->loaded(); }
+	float GetDistance(const IpInfo& place1, const IpInfo& place2);
 INTERNDATA_CLASS_END
 
 extern char *IP_TO_COUNTRY_FILE;

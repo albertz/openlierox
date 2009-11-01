@@ -67,6 +67,19 @@ SmartPointer<SDL_Surface> IpToCountryDB::GetCountryFlag(const std::string& short
 	return LoadGameImage("data/flags/" + shortcut + ".png", true);
 }
 
+////////////////////
+// Calculate distance (in kilometers) between the two places
+float IpToCountryDB::GetDistance(const IpInfo &place1, const IpInfo &place2)
+{
+	// Use Haversine formula
+	static const double earth_radius = 6371.0;
+	double dlat = DEG2RAD(place2.latitude - place1.latitude);
+	double dlong = DEG2RAD(place2.longitude - place1.longitude);
+	double a = SQR(sin(dlat/2)) + cos(DEG2RAD(place1.latitude)) * cos(DEG2RAD(place2.latitude)) * SQR(sin(dlong/2));
+	double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+	return (float)(earth_radius * c);
+}
+
 IpToCountryDB::~IpToCountryDB()
 {
 	if (m_database)  {

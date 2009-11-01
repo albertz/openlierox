@@ -1467,15 +1467,24 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		replacemax(strWelcomeMessage, "<version>", clientVersion.asHumanString(), strWelcomeMessage, 1);
 		
 		// Country
+		bool hasDist = strWelcomeMessage.find("<distance>") != std::string::npos;
 		if (strWelcomeMessage.find("<country>") != std::string::npos || 
 				strWelcomeMessage.find("<city>") != std::string::npos ||
-				strWelcomeMessage.find("<continent>") != std::string::npos)  {
+				strWelcomeMessage.find("<continent>") != std::string::npos ||
+				hasDist)  {
 
-			IpInfo info;
+			IpInfo info, localInfo;
+			float dist = 0;
 			std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			if (str_addr != "")  {
 				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
+				if (hasDist && sExternalIP.size())  {
+					localInfo = tIpToCountryDB->GetInfoAboutIP(sExternalIP);
+					dist = tIpToCountryDB->GetDistance(localInfo, info);
+					replace(strWelcomeMessage, "<distance>", ftoa(dist, 0), strWelcomeMessage);
+				}
+					
 				replace(strWelcomeMessage, "<country>", info.countryName, strWelcomeMessage);
 				replace(strWelcomeMessage, "<continent>", info.continent, strWelcomeMessage);
 				replace(strWelcomeMessage, "<city>", info.city, strWelcomeMessage);
