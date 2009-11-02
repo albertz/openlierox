@@ -118,6 +118,8 @@ enum HttpProc_t {
 
 
 
+struct CurlThread;
+
 class CHttp {
 public:
 	enum Action  {
@@ -145,14 +147,14 @@ public:
 	void				CancelProcessing();
 	void				ClearReceivedData()			{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); Data = ""; }
 	HttpError			GetError() const			{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return Error; }
-	const std::string&	GetData() const				{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return ThreadRunning ? Empty : Data; }
+	const std::string&	GetData() const				{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return curlThread != NULL ? Empty : Data; }
 	std::string			GetMimeType() const;
 	//const std::string&	GetDataToSend() const		{ Mutex::ScopedLock l(Lock); return DataToSend; }
 	size_t				GetDataToSendLength() const	{ return 100; }
 	size_t				GetDataLength() const;
 	size_t				GetReceivedDataLen() const	{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return Data.size(); }
 	size_t				GetSentDataLen() const		{ return 100; }
-	bool				RequestedData()	const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return ThreadRunning; }
+	bool				RequestedData()	const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return curlThread != NULL; }
 
 	TimeDiff			GetDownloadTime() const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return DownloadEnd - DownloadStart; }
 
@@ -169,28 +171,24 @@ private:
 	CHttp(const CHttp& oth)  { operator= (oth); }
 	CHttp& operator=(const CHttp& http);
 
-	friend struct CurlThread;
 
-	void				InitializeTransfer(const std::string& url, const std::string& proxy);
-	static size_t		CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data);
-	static int			CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+	CURL *			InitializeTransfer(const std::string& url, const std::string& proxy);
 	
-	CURL *			curl;
 	// All string data passed to libcurl should be not freed until curl_easy_cleanup, that's fixed in libcurl 7.17.0 (Sep 2007)
 	std::string		Url;
 	std::string		Proxy;
 	std::string		Useragent;
-	curl_httppost *	curlForm;
 	
 	std::string		Data;  // Data received from the network
+
+	HttpProc_t		ProcessingResult;
 	HttpError		Error;
 
 	std::string		Empty; // Returned when Data is being processed
 
+	friend struct CurlThread;
+	CurlThread *	curlThread;
 	Mutex			Lock;
-	bool			ThreadRunning;
-	bool			ThreadAborting;
-	HttpProc_t		ProcessingResult;
 
 	// Bandwidth measurement
 	AbsTime			DownloadStart;

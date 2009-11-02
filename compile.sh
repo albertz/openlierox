@@ -10,9 +10,8 @@
 #	LIB_PATH		- adds one or more lib paths
 #	DEBUG			- if set to 1, the game will compiled with debug-info
 #					( deactivated by default )
-#	ACTIVATE_GDB	- sets the -ggdb flag
-#					( it will automatically be activated, if you haven't
-#					  set it manually and DEBUG==1 )
+#	DEBUGINFO	- adds debug info
+#					( enabled by default )
 #	HAWKNL_BUILTIN	- if set to 1, HawkNL will be builtin
 #					( disabled by default )
 #	LIBZIP_BUILTIN	- if set to 1, libzip will be builtin
@@ -21,6 +20,8 @@
 #					( activated by default )
 #	G15				- if set to 1, G15 support will be builtin (and linked against required libraries)
 #					( disabled by default )
+#	BREAKPAD		- if set to 1, Google Breakpad is used
+#					( enabled by default in case of x86, disabled otherwise by default )
 #	GCOREDUMPER		- if set to 1, Google Coredumper is used
 #					( disabled by default )
 #	VERSION			- version number; like 0.57_beta2
@@ -35,9 +36,15 @@ cd "$(dirname "$0")"
 [ "$SYSTEM_DATA_DIR" = "" ] && SYSTEM_DATA_DIR=/usr/share/games
 [ "$DEBUG" = "" ] && DEBUG=0
 [ "$COMPILER" = "" ] && COMPILER=g++
-[ "$ACTIVATE_GDB" = "" ] && [ "$DEBUG" = "1" ] && ACTIVATE_GDB=1
+[ "$DEBUGINFO" = "" ] && DEBUGINFO=1
 [ "$X11" = "" ] && X11=1
 [ "$G15" = "" ] && G15=0
+[ "$BREAKPAD" = "" ] && {
+	BREAKPAD=0
+	[ "$(uname -m)" = "i486" ] && BREAKPAD=1
+	[ "$(uname -m)" = "i586" ] && BREAKPAD=1
+	[ "$(uname -m)" = "i686" ] && BREAKPAD=1
+}
 [ "$GCOREDUMPER" = "" ] && GCOREDUMPER=0
 [ "$VERSION" = "" ] && VERSION=$(get_olx_version)
 
@@ -133,7 +140,7 @@ echo "* the global search-path of the game will be $SYSTEM_DATA_DIR/OpenLieroX"
 	echo "* debug-thingies in the game will be activated" || \
 	echo "* you will not see any debug-crap"
 echo "* $COMPILER will be used for compilation"
-[ "$ACTIVATE_GDB" = "1" ] && \
+[ "$DEBUGINFO" = "1" ] && \
 	echo "* debugging-data will be included in the bin" || \
 	echo "* debugging-data will not been added explicitly to the bin"
 [ "$CXXFLAGS" = "" ] && \
@@ -147,10 +154,13 @@ echo "* $COMPILER will be used for compilation"
         echo "* G15 support is not activated"
 [ "$HAWKNL_BUILTIN" = "1" ] && \
 	echo "* HawkNL support will be built into the binary" || \
-	echo "* the binary will be linked dynamically against the HawkNL-lib"
+	echo "* the binary will be linked dynamically against HawkNL-lib"
 [ "$LIBZIP_BUILTIN" = "1" ] && \
 	echo "* libzip support will be built into the binary" || \
 	echo "* the binary will be linked dynamically against libzip"
+[ "$BREAKPAD" = "1" ] && \
+	echo "* Google Breakpad will be used" || \
+	echo "* fallback crashhandler will be used"
 [ "$GCOREDUMPER" = "1" ] && \
 	echo "* Googles coredumper will be used" || \
 	echo "* debuggers coredumper will be used"
@@ -174,11 +184,54 @@ if $COMPILER \
 	$($sdlconfig --libs) \
 	$($xmlconfig --cflags) \
 	$($xmlconfig --libs) \
+	src/breakpad/ExtractInfo.cpp \
+	$( [ "$BREAKPAD" = "1" ] && \
+		echo "-I src/breakpad/external/src " && \
+
+		echo "src/breakpad/DumpSyms.cpp" && \
+		echo "src/breakpad/BreakPad.cpp" && \
+		echo "src/breakpad/on_demand_symbol_supplier.cpp" && \
+
+		echo "src/breakpad/external/src/client/minidump_file_writer.cc" && \
+		echo "src/breakpad/external/src/client/linux/handler/exception_handler.cc" && \
+		echo "src/breakpad/external/src/client/linux/handler/linux_thread.cc" && \
+		echo "src/breakpad/external/src/client/linux/minidump_writer/linux_dumper.cc" && \
+		echo "src/breakpad/external/src/client/linux/minidump_writer/minidump_writer.cc" && \
+
+		echo "src/breakpad/external/src/common/convert_UTF.c" && \
+		echo "src/breakpad/external/src/common/md5.c" && \
+		echo "src/breakpad/external/src/common/string_conversion.cc" && \
+		echo "src/breakpad/external/src/common/linux/file_id.cc" && \
+		echo "src/breakpad/external/src/common/linux/guid_creator.cc" && \
+		echo "src/breakpad/external/src/common/linux/dump_symbols.cc" && \
+		echo "src/breakpad/external/src/common/linux/module.cc" && \
+		echo "src/breakpad/external/src/common/linux/stabs_reader.cc" && \
+		echo "src/breakpad/external/src/common/dwarf/bytereader.cc" && \
+		echo "src/breakpad/external/src/common/dwarf/dwarf2diehandler.cc" && \
+		echo "src/breakpad/external/src/common/dwarf/dwarf2reader.cc" && \
+		echo "src/breakpad/external/src/common/linux/dump_dwarf.cc" && \
+
+		echo "src/breakpad/external/src/processor/basic_code_modules.cc" && \
+		echo "src/breakpad/external/src/processor/basic_source_line_resolver.cc" && \
+		echo "src/breakpad/external/src/processor/call_stack.cc" && \
+		echo "src/breakpad/external/src/processor/logging.cc" && \
+		echo "src/breakpad/external/src/processor/minidump.cc" && \
+		echo "src/breakpad/external/src/processor/minidump_processor.cc" && \
+		echo "src/breakpad/external/src/processor/pathname_stripper.cc" && \
+		echo "src/breakpad/external/src/processor/process_state.cc" && \
+		echo "src/breakpad/external/src/processor/simple_symbol_supplier.cc" && \
+		echo "src/breakpad/external/src/processor/stackwalker_amd64.cc" && \
+		echo "src/breakpad/external/src/processor/stackwalker_ppc.cc" && \
+		echo "src/breakpad/external/src/processor/stackwalker_sparc.cc" && \
+		echo "src/breakpad/external/src/processor/stackwalker_x86.cc" && \
+		echo "src/breakpad/external/src/processor/stackwalker.cc"
+	) \
+	$( [ "$BREAKPAD" != "1" ] && echo "-DNBREAKPAD" ) \
 	-lSDL_image -lSDL_mixer -lgd -pthread -lz -lcurl \
 	-DSYSTEM_DATA_DIR="\"$SYSTEM_DATA_DIR\"" \
 	$( [ "$DEBUG" = "1" ] && echo "-DDEBUG" ) \
 	$( [ "$VERSION" != "" ] && echo -DLX_VERSION="\"$VERSION\"" ) \
-	$( [ "$ACTIVATE_GDB" = "1" ] && echo "-g" ) \
+	$( [ "$DEBUGINFO" = "1" ] && echo "-g" ) \
 	$( [ "$X11" = "1" ] && echo "-DX11 -lX11" ) \
 	$( [ "$G15" = "1" ] && echo "-DWITH_G15 -lg15daemon_client -lg15render" ) \
 	$( [ "$GCOREDUMPER" = "1" ] && echo "-DGCOREDUMPER -Ilibs/coredumper/src" ) \

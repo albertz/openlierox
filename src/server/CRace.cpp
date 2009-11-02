@@ -23,6 +23,8 @@ struct Race : public CGameMode {
 	
 	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_Race; }
 	
+	virtual Version MinNeededVersion() { return OLXBetaVersion(0,58,1); }
+	
 	virtual void reset() {
 		wayPoints.clear();
 		wormSpawnPoints.clear();

@@ -143,12 +143,7 @@ bool GameOptions::Init() {
 #else
 			false )
 #endif
-		( tLXOptions->iColourDepth, "Video.ColourDepth",
-#ifndef WIN32
-			32 )
-#else
-			16 )
-#endif
+		( tLXOptions->iColourDepth, "Video.ColourDepth", 32 )
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 
@@ -169,6 +164,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
+		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", false, "Force Compatible", "Don't allow incompatible clients to connect" )
+		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", "LieroX/0.56", "Force Min Version", "Minimal version needed to play on this server" )
 
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
@@ -183,7 +180,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bParticles, "Game.Particles", true )
 		( tLXOptions->bOldSkoolRope, "Game.OldSkoolRope", false )
 		( tLXOptions->bShowHealth, "Game.ShowWormHealth", false )
-		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", false )
+		( tLXOptions->bColorizeNicks, "Game.ColorizeNicks", true )
 		( tLXOptions->bAutoTyping, "Game.AutoTyping", false )
 		( tLXOptions->sSkinPath, "Game.SkinPath", "" )
 		( tLXOptions->bNewSkinnedGUI, "Game.NewSkinnedGUI", false )

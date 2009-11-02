@@ -15,6 +15,7 @@
 #include "DeprecatedGUI/CBrowser.h"
 #include "DeprecatedGUI/CTextbox.h"
 #include "DeprecatedGUI/CListview.h"
+#include "types.h"
 
 namespace DeprecatedGUI {
 
@@ -45,6 +46,10 @@ public:
 	// Show standalone chat window - it will draw some background, so it won't be transparent
 	static void GlobalProcessAndDraw(SDL_Surface * bmpDest);
 	static void GlobalDestroy();
+	
+private:
+	std::string m_lastWhoisName;
+	AbsTime m_lastWhoisTime;
 };
 
 } // namespace DeprecatedGUI

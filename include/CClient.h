@@ -390,6 +390,8 @@ private:
 
     bool		bClientError;
 
+	std::string	strDebug;	// This is only a debug string which is reset after each frame and which is printed on the screen.
+	
 	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
 	} cSpectatorViewportKeys;
@@ -675,6 +677,9 @@ public:
 	Projectiles & getProjectiles()		{ return cProjectiles; }
 	
 	void		DumpGameState(CmdLineIntf* caller);
+	
+	void		addDebugStr(const std::string& str) { if(strDebug != "") strDebug += "\n" + str; else strDebug = str; }
+	void		resetDebugStr() { strDebug = ""; }
 };
 
 extern	CClient			*cClient;

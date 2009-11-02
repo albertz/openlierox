@@ -853,7 +853,7 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 				
 				if( b->getType() == BNS_HEALTH && server->getClient(w->getID())->getClientVersion() < OLXBetaVersion(0,58,1) )
 					for( int i=0; i < MAX_CLIENTS; i++ )
-						if( server->cClients[i].getStatus() == NET_CONNECTED )
+						if( server->cClients[i].isConnected() )
 							server->cClients[i].getNetEngine()->QueueReportDamage( w->getID(), -30, w->getID() ); // It's random between 10-50 actually, we're doing approximation here
 			} else {
 				notes << "GameServer::ParseGrabBonus: Bonus already destroyed." << endl;
@@ -1058,12 +1058,26 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 		// TODO: move this out here
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::badconnect");
-		bs.writeString("Your " + client_version + " support was dropped, please download a new version at http://openlierox.sourceforge.net/");
+		bs.writeString("Your " + client_version + " support was dropped, please download a new version at http://openlierox.net/");
 		bs.Send(tSocket);
 		notes << "GameServer::ParseGetChallenge: client has version " + client_version + " which is not supported." << endl;
 		return;
 	}
 
+	if( tLXOptions->bForceCompatibleConnect ) {
+		std::string incompReason;
+		if(!isVersionCompatible(Version(client_version), &incompReason)) {
+			// TODO: move this out here
+			bs.writeInt(-1, 4);
+			bs.writeString("lx::badconnect");
+			bs.writeString("Your " + client_version + " is incompatible with the server, please download a new version at http://openlierox.net/.\n"
+						   "Incompatibility reason: " + incompReason);
+			bs.Send(tSocket);
+			notes << "GameServer::ParseGetChallenge: client has incompatible version " << client_version << ": " << incompReason << endl;
+			return;			
+		}
+	}
+	
 	// If were in the game, deny challenges
 	if ( iState != SVS_LOBBY && !serverAllowsConnectDuringGame() ) {
 		// TODO: move this out here
@@ -1453,27 +1467,29 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		replacemax(strWelcomeMessage, "<version>", clientVersion.asHumanString(), strWelcomeMessage, 1);
 		
 		// Country
-		if (strWelcomeMessage.find("<country>") != std::string::npos)  {
-			IpInfo info;
+		bool hasDist = strWelcomeMessage.find("<distance>") != std::string::npos;
+		if (strWelcomeMessage.find("<country>") != std::string::npos || 
+				strWelcomeMessage.find("<city>") != std::string::npos ||
+				strWelcomeMessage.find("<continent>") != std::string::npos ||
+				hasDist)  {
+
+			IpInfo info, localInfo;
+			float dist = 0;
 			std::string str_addr;
 			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
 			if (str_addr != "")  {
 				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(strWelcomeMessage, "<country>", info.Country, strWelcomeMessage, 1);
+				if (hasDist && sExternalIP.size())  {
+					localInfo = tIpToCountryDB->GetInfoAboutIP(sExternalIP);
+					dist = tIpToCountryDB->GetDistance(localInfo, info);
+					replace(strWelcomeMessage, "<distance>", ftoa(dist, 0), strWelcomeMessage);
+				}
+					
+				replace(strWelcomeMessage, "<country>", info.countryName, strWelcomeMessage);
+				replace(strWelcomeMessage, "<continent>", info.continent, strWelcomeMessage);
+				replace(strWelcomeMessage, "<city>", info.city, strWelcomeMessage);
 			}
 		}
-		
-		// Continent
-		if (strWelcomeMessage.find("<continent>") != std::string::npos)  {
-			IpInfo info;
-			std::string str_addr;
-			NetAddrToString(newcl->getChannel()->getAddress(), str_addr);
-			if (str_addr != "")  {
-				info = tIpToCountryDB->GetInfoAboutIP(str_addr);
-				replacemax(strWelcomeMessage, "<continent>", info.Continent, strWelcomeMessage, 1);
-			}
-		}
-		
 		
 		// Address
 		std::string str_addr;
@@ -1571,12 +1587,12 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		
 		// "Has connected" message
 		if (networkTexts->sHasConnected != "<none>" && networkTexts->sHasConnected != "")  {
-			SendGlobalText(replacemax(networkTexts->sHasConnected, "<player>", w->getName(), 1), TXT_NETWORK);
+			SendGlobalText(Replace(networkTexts->sHasConnected, "<player>", w->getName()), TXT_NETWORK);
 		}
 		
 		// Send the welcome message
 		if(strWelcomeMessage != "")
-			SendGlobalText(replacemax(strWelcomeMessage, "<player>", w->getName(), 1), TXT_NETWORK);		
+			SendGlobalText(Replace(strWelcomeMessage, "<player>", w->getName()), TXT_NETWORK);		
 	}
 
 	
@@ -1922,7 +1938,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
 	bs.writeString(tLXOptions->tGameInfo.sModName);
 	bs.writeByte(getGameMode()->GeneralGameType());
-	bs.writeInt16(tLXOptions->tGameInfo.iLives);
+	bs.writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);

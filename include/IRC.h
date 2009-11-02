@@ -167,6 +167,7 @@ private:
 	void	parseAway(const IRCCommand& cmd);
 	void	parseWhois(const IRCCommand& cmd);
 	void	parseEndOfWhois(const IRCCommand& cmd);
+	void	parseTopic(const IRCCommand& cmd);
 
 
 public:

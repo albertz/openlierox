@@ -257,6 +257,7 @@ int GameServer::StartServer()
 		bServerRegistered = false;
 		fLastRegister = tLX->currentTime;
 		RegisterServer();
+		ObtainExternalIP();
 		
 		fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count		
 	}
@@ -276,6 +277,45 @@ int GameServer::StartServer()
 	return true;
 }
 
+void GameServer::ObtainExternalIP()
+{
+	if (sExternalIP.size())
+		return;
+
+	// TODO: use a config
+	tHttp2.RequestData("http://www.openlierox.net/external_ip.php", tLXOptions->sHttpProxy);
+}
+
+void GameServer::ProcessGetExternalIP()
+{
+	if (sExternalIP.size()) // already got it
+		return;
+
+	int result = tHttp2.ProcessRequest();
+
+	switch(result)  {
+	// Normal, keep going
+	case HTTP_PROC_PROCESSING:
+		return; // Processing, no more work for us
+	break;
+
+	// Failed
+	case HTTP_PROC_ERROR:
+		errors << "Could not obtain external IP address: " + tHttp2.GetError().sErrorMsg << endl;
+	break;
+
+	// Completed ok
+	case HTTP_PROC_FINISHED:
+		sExternalIP = tHttp2.GetData();
+		NetworkAddr tmp;
+		if (!StringToNetAddr(sExternalIP, tmp))  {
+			errors << "The obtained IP address is invalid: " << sExternalIP << endl;
+			sExternalIP = "0.0.0.0";
+		} else
+			notes << "Our external IP address is " << sExternalIP << endl;
+	break;
+	}	
+}
 
 bool GameServer::serverChoosesWeapons() {
 	// HINT:
@@ -406,7 +446,7 @@ mapCreate:
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives(tLXOptions->tGameInfo.iLives);
+			cWorms[i].setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 			cWorms[i].setKills(0);
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
@@ -462,7 +502,7 @@ mapCreate:
 	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
-		if( cClients[i].getStatus() != NET_CONNECTED )
+		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendPrepareGame();
 
@@ -497,7 +537,7 @@ mapCreate:
 	}
 
 	for( int i = 0; i < MAX_CLIENTS; i++ ) {
-		if( cClients[i].getStatus() != NET_CONNECTED )
+		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
 	}
@@ -859,6 +899,7 @@ void GameServer::Frame()
 	// Process any http requests (register, deregister)
 	if( tLXOptions->bRegServer && !bServerRegistered )
 		ProcessRegister();
+	ProcessGetExternalIP();
 
 	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
 		m_clientsNeedLobbyUpdate = false;
@@ -1694,20 +1735,33 @@ void GameServer::checkVersionCompatibilities(bool dropOut) {
 	}
 }
 
-bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg, std::string* msg) {
-	if(serverChoosesWeapons()) {
-		if(!forceMinVersion(cl, OLXBetaVersion(7), "server chooses the weapons", dropOut, makeMsg, msg))
-			return false;	
+bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReason) {
+	{
+		Version forcedMinVersion(tLXOptions->sForceMinVersion);
+		if(forcedMinVersion > GetGameVersion()) {
+			// This doesn't really make sense. Reset it to current version.
+			// If we want to make a warning, don't make it here but in Options.cpp.
+			forcedMinVersion = GetGameVersion();
+		}
+		if(ver < forcedMinVersion) {
+			if(incompReason) *incompReason = "server forces minimal version " + forcedMinVersion.asHumanString();
+			return false;
+		}
 	}
 	
-	if(serverAllowsConnectDuringGame()) {
-		if(!forceMinVersion(cl, OLXBetaVersion(8), "connecting during game is allowed", dropOut, makeMsg, msg))
-			return false;
+	if(serverChoosesWeapons() && ver < OLXBetaVersion(7)) {
+		if(incompReason) *incompReason = "server chooses the weapons";
+		return false;
 	}
 	
-	if(getGameMode() == GameMode(GM_CTF)) {
-		if(!forceMinVersion(cl, OLXBetaVersion(0,58,1), "CaptureTheFlag gamemode", dropOut, makeMsg, msg))
-			return false;
+	if(serverAllowsConnectDuringGame() && ver < OLXBetaVersion(8)) {
+		if(incompReason) *incompReason = "connecting during game is allowed";
+		return false;
+	}
+	
+	if(getGameMode() && ver < getGameMode()->MinNeededVersion()) {
+		if(incompReason) *incompReason = getGameMode()->Name() + " gamemode";
+		return false;
 	}
 	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
@@ -1716,25 +1770,30 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	
 	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
-			if(!forceMinVersion(cl, f->get()->minVersion, f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString(), dropOut, makeMsg, msg))
+			if(ver < f->get()->minVersion) {
+				if(incompReason)
+					*incompReason = f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString();
 				return false;
+			}
 		}
 	}
 	
 	return true;
 }
 
-bool GameServer::forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg, std::string* msg) {
-	if(cl->getClientVersion() < ver) {
-		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + reason;
-		if(msg) *msg = kickReason;
+bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg, std::string* msg) {
+	std::string incompReason;
+	if(!isVersionCompatible(cl->getClientVersion(), &incompReason)) {
+		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + incompReason;
+		if(msg) *msg = incompReason;
 		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
 		if(makeMsg)
-			SendGlobalText((playerName + " needs to update OLX version: " + reason), TXT_NOTICE);
-		return false;
+			SendGlobalText((playerName + " needs to update OLX version: " + incompReason), TXT_NOTICE);
+		return false;		
 	}
+	
 	return true;
 }
 
@@ -1783,7 +1842,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		
 		// If the game has limited lives all new worms are spectators
 		if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-			w->setLives(tLXOptions->tGameInfo.iLives);
+			w->setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 		else {
 			w->setLives(WRM_OUT);
 		}

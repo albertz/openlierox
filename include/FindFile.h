@@ -218,6 +218,8 @@ std::string	GetHomeDir();
 std::string	GetSystemDataDir();
 // returns the dir of the executable-binary
 std::string	GetBinaryDir();
+const char* GetBinaryFilename();
+const char* GetLogFilename();
 // returns the temp-dir of the system
 std::string	GetTempDir();
 

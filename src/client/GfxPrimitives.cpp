@@ -2546,6 +2546,11 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 		int handle() {
 			Mutex::ScopedLock lock(data->mutex);
 			while(!data->quit) {
+				// Kind of a hack: we update the time so that mainlockdetector does not break this
+				// loading, no matter how slow it is.
+				// As we are only loading the mod/map, we can savly access tLX->currentTime.
+				tLX->currentTime = GetTime();
+				
 				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
 				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg, type);
 				doVideoFrameInMainThread();

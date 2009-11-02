@@ -9,17 +9,17 @@ ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
 
-MIN_PLAYERS = 2
-MIN_PLAYERS_TEAMS = 10 # Players will be split in two teams automatically if there is enough players
-MAX_TEAMS = 2 # Only blue and red teams
+MIN_PLAYERS = 0
+MIN_PLAYERS_TEAMS = 40 # Players will be split in two teams automatically if there is enough players
+MAX_TEAMS = 4 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
 # Seconds before rotating preset
 PRESET_TIMEOUT = 300
 
-WAIT_AFTER_GAME = 5 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 15 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
@@ -57,7 +57,8 @@ VOTING_KICK_TIME = 5 # Time in minutes when user kicked by voting cannot re-join
 
 
 # List of levels - preset chooses a random level from those
-LEVELS = [	"FossilFacility.lxl",
+LEVELS = [		"CastleStrike.lxl",
+			"FossilFacility.lxl",
 			"LieroFactory(Revisited).lxl",
 			"LieroFactory_Maintenance.lxl",
 			"JailBreak.lxl",
@@ -72,10 +73,10 @@ LEVELS = [	"FossilFacility.lxl",
 			"Sunrise_Mansion.lxl",
 			"wormmountain.lxl",
 			"Alien Hood.lxl",
-			"FightBox.lxl",
-			"Duel.lxl",
+#			"FightBox.lxl",
+#			"Duel.lxl",
 			"Tetrisv2.lxl",
-			"Dirt Level.lxl",
+#			"Dirt Level.lxl",
 			"HW-house.lxl",
 			"GammaComplex.lxl",
 			"Kirby_ice_cream_island.lxl",
@@ -85,7 +86,8 @@ LEVELS = [	"FossilFacility.lxl",
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
-PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare", "HideAndSeek", "8Bit" ]
+#PRESETS = [ "Mortars", "MSF_II", "Classic", "Shock", "ModernWarfare", "HideAndSeek", "8Bit" ]
+PRESETS = [ "Mortars" ]
 
 # General options that should be set
 GLOBAL_SETTINGS = {	

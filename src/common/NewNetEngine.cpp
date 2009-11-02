@@ -528,7 +528,6 @@ bool Active()
 // -------- Misc funcs, boring implementation of randomizer and keys bit funcs -------------
 
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
-#define MASK 0xffffffffUL
 
 void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state)
 {
@@ -564,7 +563,6 @@ void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state)
 };
 
 #undef LCG
-#undef MASK
 
 	KeyState_t::KeyState_t()
 	{

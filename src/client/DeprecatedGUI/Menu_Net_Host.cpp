@@ -1078,7 +1078,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					if(buf != "")
 						tLXOptions->tGameInfo.iLives = from_string<int>(buf, fail);
 					if(buf == "" || fail)
-						tLXOptions->tGameInfo.iLives = -2;
+						tLXOptions->tGameInfo.iLives = WRM_UNLIM;
 
 					cServer->UpdateGameLobby();
 				}
@@ -1852,7 +1852,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 						info->addItem(0, "IP: " + addrStr);
 						
 						if( tIpToCountryDB && tIpToCountryDB->Loaded() )
-							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).Country );
+							info->addItem(1, "Country: " + tIpToCountryDB->GetInfoAboutIP(addrStr).countryName);
 
 						info->addItem(2, "Version: " + w->getClient()->getClientVersion().asString() );
 						
@@ -1957,7 +1957,7 @@ void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu,
 
                     case MNU_USER+1:
 						if( tIpToCountryDB->Loaded() )
-							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).Country);
+							copy_to_clipboard(tIpToCountryDB->GetInfoAboutIP(addrStr).countryName);
                         break;
 						
                     case MNU_USER+2:

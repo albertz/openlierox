@@ -16,8 +16,14 @@
 
 typedef Uint32 UnicodeChar;
 typedef std::basic_string<UnicodeChar> UnicodeString;
+#ifdef WIN32
+typedef wchar_t Utf16Char;
+typedef std::wstring Utf16String;
+#else
 typedef Uint16 Utf16Char;
 typedef std::basic_string<Utf16Char> Utf16String;
+#endif
+
 
 struct ConversionItem {
 	UnicodeChar Unicode;
@@ -155,6 +161,7 @@ Utf16String Utf8ToUtf16(const std::string& str);
 std::string UnicodeToUtf8(const UnicodeString& str);
 UnicodeString Utf8ToUnicode(const std::string& str);
 std::string UnicodeToAscii(const std::string& utf8str);
+std::string ISO88591ToUtf8(const std::string& isostr);
 #ifdef WIN32
 std::string Utf8ToSystemNative(const std::string& utf8str);
 std::string SystemNativeToUtf8(const std::string& natstr);

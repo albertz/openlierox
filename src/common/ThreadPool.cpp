@@ -15,10 +15,8 @@
 #include "Command.h"
 
 
-static const unsigned int THREADNUM = 40;
 
-
-ThreadPool::ThreadPool() {
+ThreadPool::ThreadPool(unsigned int size) {
 	nextAction = NULL; nextIsHeadless = false; nextData = NULL;
 	quitting = false;	
 	mutex = SDL_CreateMutex();
@@ -27,8 +25,8 @@ ThreadPool::ThreadPool() {
 	threadStatusChanged = SDL_CreateCond();
 	startMutex = SDL_CreateMutex();
 	
-	notes << "ThreadPool: creating " << THREADNUM << " threads ..." << endl;
-	while(availableThreads.size() < THREADNUM)
+	notes << "ThreadPool: creating " << size << " threads ..." << endl;
+	while(availableThreads.size() < size)
 		prepareNewThread();
 }
 
@@ -210,9 +208,9 @@ void ThreadPool::dumpState(CmdLineIntf& cli) const {
 
 ThreadPool* threadPool = NULL;
 
-void InitThreadPool() {
+void InitThreadPool(unsigned int size) {
 	if(!threadPool)
-		threadPool = new ThreadPool();
+		threadPool = new ThreadPool(size);
 	else
 		errors << "ThreadPool inited twice" << endl;
 }

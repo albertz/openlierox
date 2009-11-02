@@ -136,6 +136,7 @@ private:
 	challenge_t		tChallenges[MAX_CHALLENGES]; // TODO: use std::list or vector
 	CShootList		cShootList;
 	CHttp			tHttp;
+	CHttp			tHttp2;
 	bool			bLocalClientConnected;
 	int				iSuicidesInPacket;
 
@@ -151,6 +152,7 @@ private:
 	std::vector<std::string>			tUdpMasterServers;
 	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
+	std::string	sExternalIP;
 	
 	bool		m_clientsNeedLobbyUpdate;
 	AbsTime		m_clientsNeedLobbyUpdateTime;
@@ -207,7 +209,9 @@ public:
 	int			getPort() { return nPort; }
 	bool		checkBandwidth(CServerConnection *cl);
 	static bool	checkUploadBandwidth(float fCurUploadRate); // used by client/server to check upload
-	static float getMaxUploadBandwidth();	
+	static float getMaxUploadBandwidth();
+	void		ObtainExternalIP();
+	void		ProcessGetExternalIP();
 	void		RegisterServer();
 	void		RegisterServerUdp();
 	void		ProcessRegister();
@@ -243,7 +247,7 @@ public:
 
 	void		checkVersionCompatibilities(bool dropOut);
 	bool		checkVersionCompatibility(CServerConnection* cl, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
-	bool		forceMinVersion(CServerConnection* cl, const Version& ver, const std::string& reason, bool dropOut, bool makeMsg = true, std::string* msg = NULL);
+	bool		isVersionCompatible(const Version& ver, std::string* incompReason = NULL);
 	bool		clientsConnected_less(const Version& ver); // true if clients < ver are connected
 	
 	ScriptVar_t isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset);
@@ -290,7 +294,6 @@ public:
 	const SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
-	int				getState()			{ return iState; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
 	void			resetMap()			{ cMap = NULL; }
@@ -306,7 +309,7 @@ public:
 	CServerConnection* localClientConnection();
 	TimeDiff	getServerTime() { return fServertime; }
 	bool		isServerRunning() const { return cWorms && cClients; }
-	
+	int		getState() const { return iState; }
 	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getNumBots() const;
 	int		getLastBot() const;

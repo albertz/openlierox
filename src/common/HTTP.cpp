@@ -42,26 +42,8 @@
 
 // Some basic defines
 #define		HTTP_TIMEOUT	10	// Filebase became laggy lately, so increased that from 5 seconds
-#define		BUFFER_LEN		8192
+//#define		BUFFER_LEN		8192
 
-
-// List of errors, MUST match error IDs in HTTP.h
-static const std::string sHttpErrors[] = {
-	"No error",
-	"Could not open HTTP socket",
-	"Could not resolve DNS",
-	"Invalid URL",
-	"DNS timeout",
-	"Error sending HTTP request",
-	"Could not connect to the server",
-	"Connection timed out",
-	"Network error: ",
-	"Server sent an unsupported code: "
-};
-
-// Internal defines
-#define HTTP_POST_BOUNDARY "0P3N1I3R0X" // Can be anything, this define is here only to sync BuildPostHeader and POSTEncodeData
-#define HTTP_MAX_DATA_LEN 8192
 
 //
 // Functions
@@ -172,93 +154,104 @@ void AutoSetupHTTPProxy()
 
 
 struct CurlThread : Action {	
-	CHttp * Parent;
 	
-	CurlThread( CHttp * parent ) : Parent(parent) {}
+	CurlThread( CHttp * parent, CURL * _curl ) :
+		parent( parent ),
+		curl( _curl ),
+		curlForm( NULL )
+	{
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlReceiveCallback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
+		//curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0);
+		//curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressCallback);
+		//curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, (void *)this);	
+	}
+	
 	int handle();
+
+	CHttp *			parent;
+	CURL *			curl;
+	curl_httppost *	curlForm;
+	Mutex			Lock;
+	
+	static size_t CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data);
+	//static int CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
 };
 
 CHttp::CHttp()
 {
-	curl = curl_easy_init();
-	ThreadRunning = false;
-	ThreadAborting = false;
 	ProcessingResult = HTTP_PROC_FINISHED;
 	DownloadStart = DownloadEnd = 0;
-	curlForm = NULL;
+	curlThread = NULL;
 }
 
 CHttp::~CHttp()
 {
 	CancelProcessing();
-	curl_easy_cleanup(curl);
 }
 
-size_t CHttp::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data)
+size_t CurlThread::CurlReceiveCallback(void *ptr, size_t size, size_t nmemb, void *data)
 {
-	CHttp* parent = (CHttp *)data;
+	CurlThread* self = (CurlThread *)data;
 	size_t realsize = size * nmemb;
 	
-	Mutex::ScopedLock l(parent->Lock);
-	
-	parent->Data.append((const char *)ptr, realsize);
-	
-	if( parent->ThreadAborting )
+	Mutex::ScopedLock l(self->Lock);
+
+	if( !self->parent ) // Aborting
 		return 0;
+	
+	Mutex::ScopedLock l1(self->parent->Lock);
+	self->parent->Data.append((const char *)ptr, realsize);
 	
 	return realsize;
 }
 
-int	CHttp::CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
-	CHttp* parent = (CHttp *)clientp;
+/*
+int	CurlThread::CurlProgressCallback(void *clientp, double dltotal, double dlnow, double ultotal, double ulnow) {
+	CurlThread* self = (CurlThread *)clientp;
 	
-	Mutex::ScopedLock l(parent->Lock);
-	if( parent->ThreadAborting )
+	Mutex::ScopedLock l(self->Lock);
+	if( !self->parent ) // Aborting
 		return 0;
 	
 	return 1;
 }
+*/
 
-void CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
+CURL * CHttp::InitializeTransfer(const std::string& url, const std::string& proxy)
 {
 	CancelProcessing();
-	ThreadAborting = false;
 	ProcessingResult = HTTP_PROC_PROCESSING;
 	Url = url;
 	Proxy = proxy;
 	Useragent = GetFullGameName();
 	Data = "";
 	DownloadStart = DownloadEnd = tLX->currentTime;
-	
-	curl_easy_setopt(curl, CURLOPT_URL, Url.c_str());
-	curl_easy_setopt(curl, CURLOPT_PROXY, Proxy.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, CurlReceiveCallback);
-	curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)this);
-	curl_easy_setopt(curl, CURLOPT_PROGRESSFUNCTION, CurlProgressCallback);
-	curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, (void *)this);	
-	curl_easy_setopt(curl, CURLOPT_USERAGENT, Useragent.c_str());
-	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, (long)1);
-	curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, (long)HTTP_TIMEOUT);
-	//curl_easy_setopt(curl, CURLOPT_TIMEOUT, (long)HTTP_TIMEOUT); // Do not set this if you don't want abort in the middle of large transfer
 
-	// I can set CURLOPT_PROGRESSFUNCTION but it's eating some resources
-	// Also it's required to abort download quickly, otherwise CHTTP may hang I think
+	CURL * curl = curl_easy_init();
+	curl_easy_setopt( curl, CURLOPT_URL, Url.c_str() );
+	curl_easy_setopt( curl, CURLOPT_PROXY, Proxy.c_str() );
+	curl_easy_setopt( curl, CURLOPT_USERAGENT, Useragent.c_str() );
+	curl_easy_setopt( curl, CURLOPT_NOSIGNAL, (long) 1 );
+	curl_easy_setopt( curl, CURLOPT_CONNECTTIMEOUT, (long) HTTP_TIMEOUT );
+	curl_easy_setopt( curl, CURLOPT_FOLLOWLOCATION, (long) 1 ); // Allow server to use 3XX Redirect codes
+	curl_easy_setopt( curl, CURLOPT_MAXREDIRS, (long) 25 ); // Some reasonable limit
+	//curl_easy_setopt( curl, CURLOPT_TIMEOUT, (long) HTTP_TIMEOUT ); // Do not set this if you don't want abort in the middle of large transfer
+	return curl;
 }
 
 void CHttp::RequestData(const std::string& url, const std::string& proxy)
 {
-	InitializeTransfer(url, proxy);
-	ThreadRunning = true;
-	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
+	CURL * curl = InitializeTransfer(url, proxy);
+	curlThread = new CurlThread(this, curl);
+	threadPool->start(curlThread, "CHttp: " + Url, true);
 }
 
 void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url, const std::string& proxy)
 {
-	InitializeTransfer(url, proxy);
+	CURL * curl = InitializeTransfer(url, proxy);
 	
-	if( curlForm != NULL )
-		curl_formfree(curlForm);
-	curlForm = NULL;
+	curl_httppost * curlForm = NULL;
 	struct curl_httppost *lastptr = NULL;
 	
 	for( std::list<HTTPPostField> :: const_iterator it = data.begin(); it != data.end(); it++ )
@@ -282,45 +275,54 @@ void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url
 	}
 	
 	curl_easy_setopt(curl, CURLOPT_HTTPPOST, curlForm);
-	ThreadRunning = true;
-	threadPool->start(new CurlThread(this), "CHttp: " + Url, true);
+	curlThread = new CurlThread(this, curl);
+	curlThread->curlForm = curlForm;
+	threadPool->start(curlThread, "CHttp: " + Url, true);
 }
 
 int CurlThread::handle()
 {
-	CURLcode res = curl_easy_perform(Parent->curl); // Blocks until processing finished
+	CURLcode res = curl_easy_perform(curl); // Blocks until processing finished
 
-	Mutex::ScopedLock l(Parent->Lock);
-
-	Parent->ProcessingResult = HTTP_PROC_FINISHED;
-	Parent->Error.iError = HTTP_NO_ERROR;
-	if( res != CURLE_OK )
+	Mutex::ScopedLock l(Lock);
+	if( parent != NULL )
 	{
-		Parent->ProcessingResult = HTTP_PROC_ERROR;
-		Parent->Error.iError = res; // This is not HTTP error, it's libcurl error, but whatever
-		Parent->Error.sErrorMsg = curl_easy_strerror(res);
+		Mutex::ScopedLock l1(parent->Lock);
+
+		parent->curlThread = NULL;
+		
+		parent->ProcessingResult = HTTP_PROC_FINISHED;
+		parent->Error.iError = HTTP_NO_ERROR;
+		if( res != CURLE_OK )
+		{
+			parent->ProcessingResult = HTTP_PROC_ERROR;
+			parent->Error.iError = res; // This is not HTTP error, it's libcurl error, but whatever
+			parent->Error.sErrorMsg = curl_easy_strerror(res);
+		}
+		parent->DownloadEnd = tLX->currentTime;
+		
+		if( curlForm != NULL )
+			curl_formfree(curlForm);
+		curlForm = NULL;
+		
+		parent->onFinished.occurred(CHttp::HttpEventData(parent, parent->ProcessingResult == HTTP_PROC_FINISHED));
+		parent = NULL;
 	}
-	Parent->ThreadRunning = false;
-	Parent->DownloadEnd = tLX->currentTime;
 	
-	if( Parent->curlForm != NULL )
-		curl_formfree(Parent->curlForm);
-	Parent->curlForm = NULL;
-	
-	Parent->onFinished.occurred(CHttp::HttpEventData(Parent, Parent->ProcessingResult == HTTP_PROC_FINISHED));
+	curl_easy_cleanup(curl);
+
 	return 0;
 }
 
-void CHttp::CancelProcessing()
+void CHttp::CancelProcessing() // Non-blocking
 {
-	while(true) {
-		{
-			Mutex::ScopedLock l(Lock);
-			ThreadAborting = true;
-			if(!ThreadRunning)
-				return;
-		}
-		SDL_Delay(10);
+	Mutex::ScopedLock l(Lock);
+	
+	if(curlThread != NULL)
+	{
+		Mutex::ScopedLock l(curlThread->Lock);
+		curlThread->parent = NULL;
+		curlThread = NULL;
 	}
 }
 
@@ -333,8 +335,11 @@ size_t CHttp::GetDataLength() const
 std::string CHttp::GetMimeType() const
 {
 	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	if( !curlThread )
+		return "";
+	Mutex::ScopedLock l1(curlThread->Lock);
 	const char * c = NULL;
-	curl_easy_getinfo(curl, CURLINFO_CONTENT_TYPE, c);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_CONTENT_TYPE, c);
 	std::string ret;
 	if( c != NULL )
 		ret = c;
@@ -344,8 +349,11 @@ std::string CHttp::GetMimeType() const
 float CHttp::GetDownloadSpeed() const
 {
 	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	if( !curlThread )
+		return 0;
+	Mutex::ScopedLock l1(curlThread->Lock);
 	double d = 0;
-	curl_easy_getinfo(curl, CURLINFO_SPEED_DOWNLOAD, &d);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_SPEED_DOWNLOAD, &d);
 	return float(d);
 }
 
@@ -353,7 +361,10 @@ float CHttp::GetUploadSpeed() const
 {
 	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
 	double d = 0;
-	curl_easy_getinfo(curl, CURLINFO_SPEED_UPLOAD, &d);
+	if( !curlThread )
+		return 0;
+	Mutex::ScopedLock l1(curlThread->Lock);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_SPEED_UPLOAD, &d);
 	return float(d);
 }
 

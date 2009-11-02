@@ -1050,6 +1050,11 @@ void CBrowser::CursorPosToMousePos(size_t cur_x, size_t cur_y, int& ms_x, int& m
 // Creates a new line and pushes the current one to the pure text stack
 void CBrowser::EndLine()
 {
+	if(tCurrentLine == NULL) {
+		errors << "CBrowser::EndLine: currentline == NULL" << endl;
+		return;
+	}
+	
 	// Add the line to the pure text and start a new line
 	tLines.push_back(tCurrentLine);
 

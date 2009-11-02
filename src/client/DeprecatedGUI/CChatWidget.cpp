@@ -81,6 +81,7 @@ void ChatWidget_ChatRefillUserList()
 
 CChatWidget::CChatWidget()
 {
+	m_lastWhoisTime = tLX->currentTime;
 }
 
 CChatWidget::~CChatWidget()
@@ -89,10 +90,8 @@ CChatWidget::~CChatWidget()
 
 void CChatWidget::Create()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
-	
 	CGuiSkinnedLayout::SetOffset( iX, iY );
-	
+
 	if( iWidth < 170 || iHeight < tLX->cFont.GetHeight() + 40 )
 		warnings << "CChatWidget::CChatWidget(): too small dimensions given" << endl;
 
@@ -110,12 +109,15 @@ void CChatWidget::Create()
 
 	CListview *l = (CListview *)this->getWidget(nc_UserList);
 	l->setMouseOverEventEnabled(true);
-	
+
 	CBrowser *b = (CBrowser *)this->getWidget(nc_ChatText);
 	b->InitializeChatBox();
 
-	chatWidgets.insert(this);
-
+	{
+		Mutex::ScopedLock lock(chatWidgetsMutex);
+		chatWidgets.insert(this);
+	}
+	
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)
 		for (std::list<IRCClient::IRCChatLine>::const_iterator it = irc->getMessageList().begin();
@@ -160,14 +162,14 @@ void CChatWidget::Destroy()
 
 void CChatWidget::EnableChat()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatRegisterCallbacks();
 }
 	
 void CChatWidget::DisableChat()
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
 	ChatWidget_ChatDeregisterCallbacks();
+
+	Mutex::ScopedLock lock(chatWidgetsMutex);
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
 		((CListview *)(*cw)->getWidget(nc_UserList))->Clear();
@@ -229,24 +231,32 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 				if (iEvent == LV_MOUSEOVER)  {
 					CListview *lsv = (CListview *)this->getWidget(nc_UserList);
 					IRCClient *irc = GetGlobalIRC();
-	
-					if(lsv->getMouseOverSIndex() != "" && irc && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
+					
+					if( m_lastWhoisName != lsv->getMouseOverSIndex() && 
+						m_lastWhoisTime + 0.5f < tLX->currentTime )
 					{
-						popup->setEnabled(true);
-						popup->setText( irc->getWhois(lsv->getMouseOverSIndex()) );
-						int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
-						int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
-						popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
-						popup->Create();
-						popupBox->setEnabled(true);
-						popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
-						popupBox->Create();
+						m_lastWhoisTime = tLX->currentTime;
+						m_lastWhoisName = lsv->getMouseOverSIndex();
+						popup->setText("");
 					}
-					else
+					if(lsv->getMouseOverSIndex() != "" && popup->getText() == "") {
+						popup->setText(lsv->getMouseOverSIndex() + "\n... loading ...");
+					}
+					if( lsv->getMouseOverSIndex() != "" && lsv->getMouseOverSIndex() == m_lastWhoisName &&
+						irc != NULL && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
 					{
-						popup->setEnabled(false);
-						popupBox->setEnabled(false);
+						popup->setText( lsv->getMouseOverSIndex() + "\n" + irc->getWhois(lsv->getMouseOverSIndex()) );
 					}
+					
+					int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
+					int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
+					popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
+					popup->Create();
+					popup->setEnabled(true);
+					
+					popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
+					popupBox->Create();
+					popupBox->setEnabled(true);
 				}
 			break;
 			

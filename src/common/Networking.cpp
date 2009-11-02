@@ -102,7 +102,7 @@ void test_NetworkSmartPointer() {
 	char* tmp = new char[2048];
 
 	printf("freeing data-array\n");
-	delete tmp;
+	delete[] tmp;
 
 //	exit(-1);
 }
@@ -297,7 +297,7 @@ void AddToDnsCache(const std::string& name, const NetworkAddr& addr, TimeDiff ex
 	ScopedReadLock lock(nlSystemUseChangeLock);
 	if(dnsCache == NULL) return;
 	ThreadVar<dnsCacheT>::Writer dns( *dnsCache );
-	dns.get()[name] = std::make_pair( *getNLaddr(addr), tLX->currentTime + expireTime );
+	dns.get()[name] = std::make_pair( *getNLaddr(addr), GetTime() + expireTime );
 }
 
 bool GetFromDnsCache(const std::string& name, NetworkAddr& addr) {

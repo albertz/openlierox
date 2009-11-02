@@ -138,7 +138,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	
 	// Game info
 	bs->writeInt(server->getGameMode()->GeneralGameType(),1);
-	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16((int)(server->getGameMode()->TimeLimit() / 60.0f));
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
@@ -247,6 +247,9 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		errors << "GS:SendGlobalText: clients not initialised" << endl;
 		return;
 	}
+
+	notes << "Send Global Text: " << text << endl;
+
 	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
@@ -664,7 +667,7 @@ void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 	bs->writeString(tLXOptions->tGameInfo.sModName);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	bs->writeByte(server->getGameMode()->GeneralGameType());
-	bs->writeInt16(tLXOptions->tGameInfo.iLives);
+	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
 	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
 	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
 	bs->writeByte(tLXOptions->tGameInfo.bBonusesOn);
@@ -782,9 +785,7 @@ void GameServer::SendWormLobbyUpdate(CServerConnection* receiver, CServerConnect
 		receiver->getNetEngine()->SendUpdateLobby(target);
 	else
 		for( int i = 0; i < MAX_CLIENTS; i++ ) {
-			if(cClients[i].getStatus() == NET_DISCONNECTED) continue;
-			if(cClients[i].getStatus() == NET_ZOMBIE) continue;			
-			if(cClients[i].getNetEngine() == NULL) continue;
+			if(!cClients[i].isUsed()) continue;
 			cClients[i].getNetEngine()->SendUpdateLobby(target);
 		}
 }

@@ -43,6 +43,7 @@
 #include "Command.h"
 #include "HTTP.h"
 #include "Version.h"
+#include "CrashHandler.h"
 
 
 // TODO: move this out here
@@ -342,7 +343,7 @@ void Menu_Frame() {
 // Main menu loop
 void Menu_Loop()
 {
-	tLX->currentTime = GetTime();
+	AbsTime menuStartTime = tLX->currentTime = GetTime();
 	bool last_frame_was_because_of_an_event = false;
 	last_frame_was_because_of_an_event = ProcessEvents();
 
@@ -370,7 +371,17 @@ void Menu_Loop()
 		tLX->currentTime = GetTime();
 		tLX->fDeltaTime = tLX->currentTime - oldtime;
 		tLX->fRealDeltaTime = tLX->fDeltaTime;
+		
+		// If we have run fine for >=5 seconds, it is probably safe & make sense
+		// to restart the game in case of a crash.
+		if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
+			CrashHandler::restartAfterCrash = true;			
 	}
+	
+	// If we go out of the menu, it means the user has selected something.
+	// This indicates that everything is fine, so we should restart in case of a crash.
+	// Note that we will set this again to false later on in case the user quitted.
+	CrashHandler::restartAfterCrash = true;
 }
 
 
@@ -1449,15 +1460,15 @@ void Menu_SvrList_FillList(CListview *lv)
 			IpInfo inf = tIpToCountryDB->GetInfoAboutIP(addr);
 			if( tLXOptions->bShowCountryFlags )
 			{
-				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.CountryShortcut);
+				SmartPointer<SDL_Surface> flag = tIpToCountryDB->GetCountryFlag(inf.countryCode);
 				if (flag.get())
-					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.Country);
+					lv->AddSubitem(LVS_IMAGE, "", flag, NULL, VALIGN_MIDDLE, inf.countryName);
 				else
-					lv->AddSubitem(LVS_TEXT, inf.CountryShortcut, (DynDrawIntf*)NULL, NULL);
+					lv->AddSubitem(LVS_TEXT, inf.countryCode, (DynDrawIntf*)NULL, NULL);
 			}
 			else
 			{
-				lv->AddSubitem(LVS_TEXT, inf.Country, (DynDrawIntf*)NULL, NULL);
+				lv->AddSubitem(LVS_TEXT, inf.countryName, (DynDrawIntf*)NULL, NULL);
 			}
 		}
 
@@ -2174,8 +2185,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 					if (NetAddrToString(addr, sIP))
 						tIpInfo = tIpToCountryDB->GetInfoAboutIP(sIP);
 					else  {
-						tIpInfo.Country = "Hackerland";
-						tIpInfo.Continent = "Hackerland";
+						tIpInfo.countryName = "Hackerland";
+						tIpInfo.continent = "Hackerland";
 						sIP = "x.x.x.x";
 					}
 
@@ -2330,8 +2341,11 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 
 			// Country and continent
 			lvInfo.AddItem("country", ++index, tLX->clNormalLabel);
-			lvInfo.AddSubitem(LVS_TEXT, "Country:", (DynDrawIntf*)NULL, NULL);
-			lvInfo.AddSubitem(LVS_TEXT, tIpInfo.Country + " (" + tIpInfo.Continent + ")", (DynDrawIntf*)NULL, NULL);
+			lvInfo.AddSubitem(LVS_TEXT, "Location:", (DynDrawIntf*)NULL, NULL);
+			if (tIpInfo.hasCityLevel)
+				lvInfo.AddSubitem(LVS_TEXT, tIpInfo.city + ", " + tIpInfo.countryName + " (" + tIpInfo.continent + ")", (DynDrawIntf*)NULL, NULL);
+			else
+				lvInfo.AddSubitem(LVS_TEXT, tIpInfo.countryName + " (" + tIpInfo.continent + ")", (DynDrawIntf*)NULL, NULL);
 
 			// IP address
 			lvInfo.AddItem("ip", ++index, tLX->clNormalLabel);

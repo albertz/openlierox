@@ -211,10 +211,28 @@ void CGameSkin::Load_Execute(bool& breakSignal) {
 		warnings << "CGameSkin::Change: couldn't find skin " << sFileName << endl;
 		bmpSurface = LoadGameImage("skins/default.png", true);
 	}
+	
 	if (bmpSurface.get())  {
 		SetColorKey(bmpSurface.get());
-		if (bmpSurface->w != 672 || bmpSurface->h != 36)
+		if (bmpSurface->w % iFrameWidth != 0 || bmpSurface->h != 2 * iFrameHeight) {
 			notes << "The skin " << sFileName << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
+			SmartPointer<SDL_Surface> old = bmpSurface;
+			bmpSurface = gfxCreateSurface( old->w - (old->w % iFrameWidth), 2 * iFrameHeight );
+			if(bmpSurface.get()) {
+				CopySurface(bmpSurface.get(), old.get(), 0, 0, 0, 0, bmpSurface->w, MIN(old->h, 2 * iFrameHeight));
+				SetColorKey(bmpSurface.get());
+			}
+			else
+				warnings << "CGameSkin: Cannot create fixed surface" << endl;
+		}
+	}
+	
+	if (bmpSurface.get())  {
+		if(getFrameCount() < 5) {
+			// GeneratePreview would crash in this case
+			warnings << "CGameSkin: skin " << sFileName << " too small: only " << getFrameCount() << " frames" << endl;
+			bmpSurface = NULL;
+		}
 	}
 	
 	if(breakSignal) return;
@@ -472,17 +490,20 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 		while(!thread->ready) thread->signal.wait(thread->mutex);
 	}
 	
+	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
+	
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
+	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
 	const int sy = (iFrameHeight - iSkinHeight);
 
 	// Draw the skin
 	if (mirrored)  {
-		if (bmpMirrored.get())
-			DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
+		DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
 	} else {
-		if (bmpNormal.get())
-			DrawImageAdv(surf, bmpNormal.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
+		DrawImageAdv(surf, bmpNormal.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
 	}
 
 	// Bot icon?
@@ -518,17 +539,20 @@ void CGameSkin::DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirr
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return;
 	
+	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
+	
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
+	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
 	const int sy = (iFrameHeight - iSkinHeight);
 
 	// Draw the shadow
 	if (mirrored)  {
-		if (bmpMirroredShadow.get())
-			DrawImageAdv(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
+		DrawImageAdv(surf, bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
 	} else {
-		if (bmpShadow.get())
-			DrawImageAdv(surf, bmpShadow.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
+		DrawImageAdv(surf, bmpShadow.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
 	}
 }
 
@@ -539,6 +563,11 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	Mutex::ScopedLock lock(thread->mutex);
 	if(!thread->ready) return;
 
+	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
+	
+	if (getFrameCount() != 0)
+		frame %= getFrameCount();
+	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
 	const int sy = (iFrameHeight - iSkinHeight);
@@ -547,11 +576,9 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 	
 	// draw the shadow
 	if (mirrored)  {
-		if (bmpMirroredShadow.get())
-			cMap->DrawObjectShadow(surf, bmpMirroredShadow.get(), bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+		cMap->DrawObjectShadow(surf, bmpMirroredShadow.get(), bmpMirroredShadow.get(), bmpMirroredShadow->w - sx - iSkinWidth - 1, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
 	} else {
-		if (bmpShadow.get())
-			cMap->DrawObjectShadow(surf, bmpShadow.get(), bmpShadow.get(), sx, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
+		cMap->DrawObjectShadow(surf, bmpShadow.get(), bmpShadow.get(), sx, sy, iSkinWidth, iSkinHeight, v, x - iSkinWidth/2 + drop, y - iSkinHeight/2 + drop);
 	}
 }
 
@@ -678,7 +705,7 @@ void CGameSkin::Colorize_Execute(bool& breakSignal)
 int CGameSkin::getFrameCount() const
 {
 	if (bmpSurface.get())
-		return bmpSurface->w / (iFrameWidth + iFrameSpacing);
+		return bmpSurface->w / iFrameWidth;
 	else
 		return 0;
 }

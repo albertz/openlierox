@@ -825,6 +825,12 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 		if(tLX->iGameType == GME_JOIN) {
 
+			// check if we have level
+			if(CMap::GetLevelName(GetBaseFilename(sMapFilename)) == "") {
+				client->DownloadMap(GetBaseFilename(sMapFilename));  // Download the map
+				// we have bDownloadingMap = true when this was successfull
+			}
+			
 			// If we are downloading a map, wait until it finishes
 			if (!client->bDownloadingMap)  {
 				client->bWaitingForMap = false;
@@ -1345,7 +1351,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	// A new worm?
 	if (!client->cRemoteWorms[id].isUsed())  {
 		client->cRemoteWorms[id].Clear();
-		client->cRemoteWorms[id].setLives(client->tGameInfo.iLives);
+		client->cRemoteWorms[id].setLives((client->tGameInfo.iLives < 0) ? WRM_UNLIM : client->tGameInfo.iLives);
 		client->cRemoteWorms[id].setUsed(true);
 		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
 		client->cRemoteWorms[id].setLocal(false);
@@ -1585,16 +1591,7 @@ void CClientNetEngine::ParseScoreUpdate(CBytestream *bs)
 
 	log_worm_t *l = client->GetLogWorm(w->getID());
 
-	int lives = (int)bs->readInt16();
-	int gameLives = client->getGameLobby()->iLives;
-	if (gameLives == WRM_UNLIM) {
-		w->setLives( MAX<int>(lives,WRM_UNLIM) );
-	} else {
-		if(lives == WRM_UNLIM)
-			warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << w->getID() << " unlimited lives" << endl;
-		w->setLives( MAX<int>(lives,WRM_OUT) );
-	}
-
+	w->setLives( MAX<int>((int)bs->readInt16(), WRM_UNLIM) );
 	w->setKills( MAX(bs->readInt(1), 0) );
 
 	
@@ -2106,20 +2103,15 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
     // Check if we have the level & mod
-    client->bHaveMap = true;
     client->bHaveMod = true;
 
     // Does the level file exist
-    fp = OpenGameFile("levels/" + client->tGameInfo.sMapFile,"rb");
-    if(!fp)
-        client->bHaveMap = false;
-    else
-        fclose(fp);
-
+	std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
+    client->bHaveMap = MapName != "";
+	
 	// Convert the map filename to map name
 	if (client->bHaveMap)  {
-		std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
-		client->tGameInfo.sMapName = (MapName != "") ? MapName : client->tGameInfo.sMapFile;
+		client->tGameInfo.sMapName = MapName;
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
@@ -2547,18 +2539,9 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 	if(id >= 0 && id < MAX_WORMS)  {
 		log_worm_t *l = client->GetLogWorm(id);
 
-		int lives = (int)bs->readInt16();
-		int gameLives = client->getGameLobby()->iLives;
-		if (gameLives == WRM_UNLIM) {
-			client->cRemoteWorms[id].setLives( MAX<int>(lives,WRM_UNLIM) );
-		} else {
-			if(lives == WRM_UNLIM)
-				warnings << "WARNING: we have a " << gameLives << "-lives game but server gives worm " << id << " unlimited lives" << endl;
-			client->cRemoteWorms[id].setLives( MAX<int>(lives,WRM_OUT) );
-		}
+		client->cRemoteWorms[id].setLives( MAX<int>((int)bs->readInt16(), WRM_UNLIM) );
 	
-		int kills = bs->readInt(4);
-		client->cRemoteWorms[id].setKills( kills );
+		client->cRemoteWorms[id].setKills( bs->readInt(4) );
 		float damage = bs->readFloat();
 		if( client->cRemoteWorms[id].getDamage() != damage )
 		{

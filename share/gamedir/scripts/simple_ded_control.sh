@@ -46,7 +46,7 @@ function chatmsg() {
 }
 
 function setvar() {
-	echo "setvar $1 $2"
+	echo "setvar \"$1\" \"$2\""
 	waitreturn
 }
 
@@ -106,16 +106,16 @@ function signal_handler() {
 
 startlobby
 
-setvar GameOptions.Network.ServerName "* OLX Beta9 dedicated server *"
+#setvar GameOptions.Network.ServerName "* OLX Beta9 dedicated server *"
 
 setvar GameOptions.GameInfo.LevelName             "CastleStrike.lxl"
 
 setvar GameOptions.GameInfo.ModName             "MW 1.0"
 
-setvar GameOptions.GameInfo.LoadingTime        0
+#setvar GameOptions.GameInfo.LoadingTime        0
 #setvar GameOptions.GameInfo.GameSpeed			1.3
-setvar GameOptions.GameInfo.Lives			-2
-setvar GameOptions.GameInfo.TimeLimit			5
+#setvar GameOptions.GameInfo.Lives			-2
+#setvar GameOptions.GameInfo.TimeLimit			5
 #setvar GameOptions.GameInfo.AllowConnectDuringGame	true
 #setvar GameOptions.GameInfo.ForceRandomWeapons		true
 #setvar GameOptions.GameInfo.SameWeaponsAsHostWorm	true
