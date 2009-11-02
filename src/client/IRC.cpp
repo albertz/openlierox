@@ -488,16 +488,18 @@ bool IRCClient::sendChat(const std::string &text1)
 
 	std::string text(text1);
 	// Some useful chat commands
-	if( text.find("/pm ") == 0 && text.find(" ", 4) != std::string::npos )
+	if( (text.find("/pm ") == 0 && text.find(" ", 4) != std::string::npos) ||
+		(text.find("/msg ") == 0 && text.find(" ", 5) != std::string::npos) )
 	{
 		// PM specified user
-		std::string user = text.substr( 4, 4 - text.find(" ", 4));
-		text = text.substr(text.find(" ", 4));
+		std::string::size_type space1 = text.find(" ") + 1;
+		std::string user = text.substr( space1, space1 - text.find(" ", space1));
+		text = text.substr(text.find(" ", space1));
 		m_chatSocket.Write("PRIVMSG " + user + " :" + text + "\r\n");
 	}
-	else if( text.find("/nick ") == 0 || text.find("/name ") == 0 )
+	else if( text.find("/nick ") == 0 || text.find("/name ") == 0 || text.find("/setmyname ") == 0 )
 	{
-		m_myNick = text.substr(text.find(" ")+1);
+		m_myNick = text.substr( text.find(" ") + 1 );
 		TrimSpaces(m_myNick);
 		m_nickUniqueNumber = -1;
 		makeNickIRCFriendly();
