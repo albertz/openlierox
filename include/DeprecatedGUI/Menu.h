@@ -351,39 +351,7 @@ class server_t { public:
 		SetNetAddrValid(sAddress, false);
 		bAllowConnectDuringGame = false;
 		bBehindNat = false;
-		UdpMasterserverIndex = 0;
-	}
-
-	server_t(const server_t& s)  { operator=(s); }
-
-	server_t& operator= (const server_t& oth)  {
-		if (this != &oth)  {
-			bIgnore = oth.bIgnore;
-			bProcessing = oth.bProcessing;
-			bManual = oth.bManual;
-			nPings = oth.nPings;
-			nQueries = oth.nQueries;
-			bgotPong = oth.bgotPong;
-			bgotQuery = oth.bgotQuery;
-			fInitTime = oth.fInitTime;
-			bAddrReady = oth.bAddrReady;
-			fLastPing = oth.fLastPing;
-			fLastQuery = oth.fLastQuery;
-			for (int i = 0; i < int(sizeof(fQueryTimes)/sizeof(AbsTime)); i++)
-				fQueryTimes[i] = oth.fQueryTimes[i];
-			szAddress = oth.szAddress;
-			sAddress = oth.sAddress;
-			szName = oth.szName;
-			nState = oth.nState;
-			nNumPlayers = oth.nNumPlayers;
-			nMaxPlayers = oth.nMaxPlayers;
-			nPing = oth.nPing;
-			bAllowConnectDuringGame = oth.bAllowConnectDuringGame;
-			tVersion = oth.tVersion;
-			bBehindNat = oth.bBehindNat;
-			UdpMasterserverIndex = oth.UdpMasterserverIndex;
-		}
-		return *this;
+		lastPingedPort = 0;
 	}
 
 	bool	bIgnore;
@@ -397,11 +365,11 @@ class server_t { public:
 	bool	bAddrReady;
 	AbsTime	fLastPing;
 	AbsTime	fLastQuery;
-    AbsTime   fQueryTimes[MAX_QUERIES+1];
+    AbsTime	fQueryTimes[MAX_QUERIES+1];
 
 	// Server address
 	std::string	szAddress;
-	NetworkAddr	sAddress;
+	NetworkAddr	sAddress; // Does not include port
 
 	// Server details
 	std::string	szName;
@@ -412,8 +380,11 @@ class server_t { public:
 	bool	bAllowConnectDuringGame;
 	Version tVersion;
 
+	// First int is port, second is UDP masterserver idx
+	// If server responds to ping the port which responded moved to the top of the list
+	std::vector< std::pair<int, int> > ports;
+	int		lastPingedPort;
 	bool	bBehindNat;	// Accessible only from UDP masterserver
-	int		UdpMasterserverIndex; // Udp masterserver index
 };
 
 
@@ -466,13 +437,12 @@ void		Menu_SvrList_Clear();
 void        Menu_SvrList_ClearAuto();
 void		Menu_SvrList_Shutdown();
 void		Menu_SvrList_PingLAN();
-server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual);
-server_t	*Menu_SvrList_AddNamedServer(const std::string& address, const std::string& name);
-server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress);
+server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
+server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress, const std::string & name = "");
 void        Menu_SvrList_RemoveServer(const std::string& szAddress);
 bool		Menu_SvrList_Process();
 bool		Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock);
-server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr);
+server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & name = "");
 void		Menu_SvrList_PingServer(server_t *svr);
 bool		Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer);
 bool		Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer);

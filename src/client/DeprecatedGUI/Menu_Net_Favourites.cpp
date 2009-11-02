@@ -717,7 +717,7 @@ void Menu_Net_FavouritesAddServer()
 						cAddSvr.SendMessage(2, TXS_GETTEXT, &addr, 0);
 						cAddSvr.SendMessage(3, TXS_GETTEXT, &name, 0);
 
-						Menu_SvrList_AddNamedServer(addr, name);
+						Menu_SvrList_AddServer(addr, true, name);
 						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ) );
 
 						// Click!

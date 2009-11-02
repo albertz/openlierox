@@ -21,6 +21,10 @@ void OlxWriteCoreDump(const char* file_postfix = NULL);
 void DumpCallstackPrintf(void* callpnt = NULL);
 // }
 
+// Returns current sourcefile pos as string
+#define FILELINE1 (std::string(__FILE__) + ":" + itoa(__LINE__))
+#define FILELINE FILELINE1
+
 
 void DumpCallstack(const PrintOutFct& printer);
 

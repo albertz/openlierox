@@ -1139,6 +1139,10 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": given address is invalid" << endl;
 		return false;
 	}
+	if( GetNetAddrPort(addr) == 0 )
+	{
+		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": port is set to 0" << endl;
+	}
 	
 	if(nlSetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
 		std::string addrStr = "INVALIDADDR";
