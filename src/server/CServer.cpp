@@ -91,6 +91,7 @@ void GameServer::Clear()
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 	m_clientsNeedLobbyUpdate = false;
+	iFirstUdpMasterServerNotRespondingCount = 0;
 	
 	fLastUpdateSent = AbsTime();
 
@@ -251,7 +252,7 @@ int GameServer::StartServer()
 		fclose(fp);
 	} else
 		warnings << "cfg/udpmasterservers.txt not found" << endl;
-
+	iFirstUdpMasterServerNotRespondingCount = 0;
 
 	if(tLXOptions->bRegServer) {
 		bServerRegistered = false;
@@ -1186,6 +1187,19 @@ void GameServer::RegisterServerUdp()
 	// Don't register a local play
 	if (tLX->iGameType == GME_LOCAL)
 		return;
+	if( tUdpMasterServers.size() == 0 )
+		return;
+	
+	if( iFirstUdpMasterServerNotRespondingCount >= 3 )
+	{
+		// The first socket is more important because people often have port 23400 forwarded,
+		// and it registers on the first UDP masterserver.
+		// Put the bottom UDP masterserver at the top of the list, if first UDP masterserver not responds.
+		iFirstUdpMasterServerNotRespondingCount = 0;
+		tUdpMasterServers.insert( tUdpMasterServers.begin(), tUdpMasterServers.back() );
+		tUdpMasterServers.pop_back();
+	}
+	iFirstUdpMasterServerNotRespondingCount ++;
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{

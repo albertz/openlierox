@@ -2088,6 +2088,16 @@ void GameServer::ParseTraverse(const SmartPointer<NetworkSocket>& tSocket, CByte
 // Server sent us "lx::registered", that means it's alive - record that
 void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocket)
 {
-	//notes << "GameServer::ParseServerRegistered()" << endl;
+	if( tUdpMasterServers.size() == 0 )
+		return;
+	NetworkAddr addr;
+	std::string domain = tUdpMasterServers[0].substr( 0, tUdpMasterServers[0].find(":") );
+	int port = atoi(tUdpMasterServers[0].substr( tUdpMasterServers[0].find(":") + 1 ));
+	if( !GetFromDnsCache(domain, addr) )
+		return;
+	SetNetAddrPort( addr, port );
+		
+	if( tSocket->remoteAddress() == addr )
+		iFirstUdpMasterServerNotRespondingCount = 0;
 }
 
