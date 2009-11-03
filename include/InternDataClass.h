@@ -25,6 +25,8 @@
 		_classname& operator=(const _classname& b); \
 		void swap(_classname& b) { Intern* tmp = intern_data; intern_data = b.intern_data; b.intern_data = tmp; } \
 		~_classname(); \
+		bool operator==(const _classname& b); \
+		bool operator!=(const _classname& b) { return ! ( *this == b ); } ; \
 		Intern* intern_data; \
 	private: \
 
@@ -74,7 +76,11 @@
 	} \
 	const _datatype& _classname##Data(const _classname& obj) { \
 		return obj.intern_data->data; \
+	} \
+	bool _classname::operator==(const _classname& b) { \
+		return ::Are ## _classname ## Equal( *this, b ); \
 	}
+
 
 #define	DECLARE_INTERNDATA_CLASS(_classname, _datatype) \
 	DECLARE_INTERNDATA_CLASS__WITH_INIT(_classname, _datatype, _datatype())

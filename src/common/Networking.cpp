@@ -72,6 +72,11 @@ public:
 	}
 };
 
+bool AreNetworkAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2)
+{
+	return AreNetAddrEqual(addr1, addr2);
+};
+
 typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
 DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrSmartPtr );
 
@@ -1251,6 +1256,19 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 	} else
 		return false;
 }
+
+NetworkAddr StringToNetAddr(const std::string& string) { 
+	NetworkAddr ret; 
+	ResetNetAddr(ret); 
+	StringToNetAddr(string, ret); 
+	return ret; 
+};
+
+std::string NetAddrToString(const NetworkAddr& addr) { 
+	std::string ret; 
+	NetAddrToString(addr, ret); 
+	return ret; 
+};
 
 unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
