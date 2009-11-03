@@ -624,7 +624,7 @@ startpoint:
 		return -1;
 	}
 
-	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + Replace(GetDateTimeText(), ":", "-") + ".txt", true));
+	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + GetDateTimeFilename() + ".txt", true));
 	CrashHandler::init();
 
 	if(!NetworkTexts::Init()) {
