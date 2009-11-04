@@ -923,12 +923,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 	}
 	
 	
-	// Add date and server name to screenshot filename
-	time_t curtime1 = time(NULL);
-	struct tm *curtime = localtime(&curtime1);
-	char filePrefixTime[200];
-	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
-	std::string filePrefix = filePrefixTime;
+	std::string filePrefix = GetDateTimeFilename();
 	filePrefix += "-";
 	if( tLX )
 	{
@@ -1306,5 +1301,19 @@ std::string GetDateTimeText()
 	std::string timeStr(timeCstr);
 	TrimSpaces(timeStr);
 	return timeStr;
+}
+
+std::string GetDateTimeFilename()
+{
+	// Add date and server name to screenshot filename
+	time_t curtime1 = time(NULL);
+	if (curtime1 == (time_t)-1)
+		return "TIME-ERROR1";
+	struct tm *curtime = localtime(&curtime1);
+	if (curtime == NULL)
+		return "TIME-ERROR2";
+	char filePrefixTime[200];
+	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
+	return filePrefixTime;
 }
 

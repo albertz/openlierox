@@ -150,6 +150,8 @@ private:
 	std::list<std::string>				tMasterServers;
 	AbsTime		fRegisterUdpTime;
 	std::vector<std::string>			tUdpMasterServers;
+	int			iFirstUdpMasterServerNotRespondingCount;
+	
 	AbsTime		fWeaponSelectionTime;
 	int			iWeaponSelectionTime_Warning;
 	std::string	sExternalIP;

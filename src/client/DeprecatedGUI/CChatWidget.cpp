@@ -52,6 +52,30 @@ bool GlobalChatWidget_enabled = false;
 static std::set<CChatWidget *> chatWidgets; // Instances of CChatWidget
 static Mutex chatWidgetsMutex;
 
+//#define DEBUG_CHATWIDGET
+
+#ifdef DEBUG_CHATWIDGET
+#define DEBUG_CW_PRINT(X) X
+void PrintGlobalChatWidgets()
+{
+	hints << "chatWidgets: ";
+	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
+	{
+		hints << *cw << " ";
+	}
+	hints << endl;
+	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
+	{
+		CListview *lsv = (CListview *)(*cw)->getWidget(nc_UserList);; // Trying to access NULL ptr
+		bool oldStyle = lsv->getOldStyle();
+		lsv->setOldStyle(oldStyle);
+	}
+};
+#else
+#define DEBUG_CW_PRINT(X)
+void PrintGlobalChatWidgets() {};
+#endif
+
 void ChatWidget_ChatRegisterCallbacks();
 void ChatWidget_ChatDeregisterCallbacks();
 void ChatWidget_ChatNewMessage(const std::string& msg, int type);
@@ -61,6 +85,9 @@ void ChatWidget_ChatNewMessage(const std::string& msg, int type);
 void ChatWidget_ChatRefillUserList()
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+	
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatRefillUserList() " << endl; )
+	PrintGlobalChatWidgets();
 	
 	const IRCClient *irc = GetGlobalIRC();
 	if ( !irc || !irc->isConnected() )
@@ -81,11 +108,14 @@ void ChatWidget_ChatRefillUserList()
 
 CChatWidget::CChatWidget()
 {
+	DEBUG_CW_PRINT( hints << "CChatWidget::CChatWidget() " << this << endl; )
 	m_lastWhoisTime = tLX->currentTime;
 }
 
 CChatWidget::~CChatWidget()
 {
+	DEBUG_CW_PRINT( hints << "CChatWidget::~CChatWidget() " << this << endl; )
+	Destroy();
 }
 
 void CChatWidget::Create()
@@ -116,6 +146,8 @@ void CChatWidget::Create()
 	{
 		Mutex::ScopedLock lock(chatWidgetsMutex);
 		chatWidgets.insert(this);
+		DEBUG_CW_PRINT( hints << "CChatWidget::Create() " << this << endl; )
+		PrintGlobalChatWidgets();
 	}
 	
 	IRCClient *irc = GetGlobalIRC();
@@ -155,8 +187,14 @@ void CChatWidget::Destroy()
 	Mutex::ScopedLock lock(chatWidgetsMutex);
 
 	chatWidgets.erase(this);
+
+	DEBUG_CW_PRINT( hints << "CChatWidget::Destroy() " << this << endl; )
+	PrintGlobalChatWidgets();
+
+	/*
 	if( chatWidgets.empty() )
 		ChatWidget_ChatDeregisterCallbacks();
+	*/
 	CGuiSkinnedLayout::Destroy();
 }
 
@@ -170,6 +208,8 @@ void CChatWidget::DisableChat()
 	ChatWidget_ChatDeregisterCallbacks();
 
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+	DEBUG_CW_PRINT( hints << "CChatWidget::DisableChat() " << endl; )
+	PrintGlobalChatWidgets();
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
 		((CListview *)(*cw)->getWidget(nc_UserList))->Clear();
@@ -178,8 +218,6 @@ void CChatWidget::DisableChat()
 
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {
-	Mutex::ScopedLock lock(chatWidgetsMutex);
-
 	CLabel *popup = (CLabel *)this->getWidget(nc_UserInfoPopup);
 	CBox *popupBox = (CBox *)this->getWidget(nc_UserInfoPopupBox);
 	popup->setEnabled(false);
@@ -275,6 +313,9 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 void ChatWidget_ChatNewMessage(const std::string& msg, int type)
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatNewMessage() " << endl; )
+	PrintGlobalChatWidgets();
 	
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
@@ -310,19 +351,14 @@ void ChatWidget_ChatDisconnect()
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
 
-	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); )
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatDisconnect() " << endl; )
+	PrintGlobalChatWidgets();
+
+	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
-		if(*cw == NULL) {
-			errors << "ChatWidget_ChatDisconnect: we have an invalid entry in chatWidgets set" << endl;
-			std::set<CChatWidget *> :: iterator cur = cw;
-			cw++;
-			chatWidgets.erase(cur);
-			continue;
-		}
 		CListview *lsv = (CListview *)((*cw)->getWidget(nc_UserList));
 		if (lsv)
 			lsv->Clear();
-		cw++;
 	}
 }
 
@@ -338,6 +374,8 @@ void ChatWidget_ChatConnect()
 void ChatWidget_ChatUpdateUsers(const std::list<std::string>& users)
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatUpdateUsers() " << endl; )
+	PrintGlobalChatWidgets();
 	
 	for( std::set<CChatWidget *> :: iterator cw = chatWidgets.begin(); cw != chatWidgets.end(); cw++ )
 	{
@@ -360,6 +398,8 @@ void ChatWidget_ChatUpdateUsers(const std::list<std::string>& users)
 void ChatWidget_ChatRegisterCallbacks()
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatRegisterCallbacks() " << endl; )
+	PrintGlobalChatWidgets();
 
 	IRCClient *irc = GetGlobalIRC();
 
@@ -377,6 +417,8 @@ void ChatWidget_ChatRegisterCallbacks()
 void ChatWidget_ChatDeregisterCallbacks()
 {
 	Mutex::ScopedLock lock(chatWidgetsMutex);
+	DEBUG_CW_PRINT( hints << "ChatWidget_ChatDeregisterCallbacks() " << endl; )
+	PrintGlobalChatWidgets();
 
 	IRCClient *irc = GetGlobalIRC();
 	if (irc)  {

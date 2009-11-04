@@ -33,6 +33,7 @@
 #include "InputEvents.h"
 #include "TaskManager.h"
 #include "ReadWriteLock.h"
+#include "Mutex.h"
 
 
 #ifdef _MSC_VER
@@ -70,6 +71,11 @@ public:
 		memset(addrPtr, 0, sizeof(NLaddress));
 		*addr = addrPtr;
 	}
+};
+
+bool AreNetworkAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2)
+{
+	return AreNetAddrEqual(addr1, addr2);
 };
 
 typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
@@ -1252,6 +1258,19 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 		return false;
 }
 
+NetworkAddr StringToNetAddr(const std::string& string) { 
+	NetworkAddr ret; 
+	ResetNetAddr(ret); 
+	StringToNetAddr(string, ret); 
+	return ret; 
+};
+
+std::string NetAddrToString(const NetworkAddr& addr) { 
+	std::string ret; 
+	NetAddrToString(addr, ret); 
+	return ret; 
+};
+
 unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return 0;
@@ -1327,6 +1346,9 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     return true;
 }
 
+static std::set<std::string> PendingDnsQueries;
+static Mutex PendingDnsQueriesMutex;
+
 bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
@@ -1353,6 +1375,13 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
     getNLaddr(addr)->valid = NL_FALSE;
 
+	{
+		Mutex::ScopedLock l(PendingDnsQueriesMutex);
+		if(PendingDnsQueries.find(name) != PendingDnsQueries.end())
+			return true;
+		PendingDnsQueries.insert(name);
+	}
+
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
 		NetAddrSmartPtr address;
@@ -1370,6 +1399,9 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 				// push a net event
 				onDnsReady.pushToMainQueue(EventData());
 			}
+
+			Mutex::ScopedLock l(PendingDnsQueriesMutex);
+			PendingDnsQueries.erase(addr_name);
 			
 			return 0;
 		}

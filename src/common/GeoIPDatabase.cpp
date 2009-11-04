@@ -374,7 +374,6 @@ GeoRecord GeoIPDatabase::extractRecordCity(unsigned int seekRecord) const
 	int record_pointer;
 	unsigned char *record_buf = NULL;
 	unsigned char *begin_record_buf = NULL;
-	int str_length = 0;
 	double latitude = 0, longitude = 0;
 	int metroarea_combo = 0;
 	int bytes_read = 0;
@@ -478,7 +477,7 @@ GeoRecord GeoIPDatabase::extractRecordCtry(unsigned int seekRecord) const
 
 	// seekRecord contains coutry ID in this case
 	// But to be sure we check for the range
-	if (ctry >= GeoIP_country_count || ctry < 0)
+	if (ctry >= (int)GeoIP_country_count || ctry < 0)
 		return res;
 
 	// Fill in the info

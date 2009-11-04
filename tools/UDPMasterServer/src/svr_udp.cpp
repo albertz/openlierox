@@ -7,9 +7,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEFAULT_PORT 23450
-bool quit = false;	// Signal here on Ctrl-C
-
+void signal_handler_impl(int signum);
 
 #ifdef WIN32
 
@@ -22,8 +20,7 @@ typedef int socklen_t;
 
 BOOL signal_handler( DWORD signum )
 { 
-	printf("Caught signal %i, quitting\n", signum);
-	quit=true;
+	signal_handler_impl(signum);
 	return TRUE;
 };
 
@@ -39,11 +36,27 @@ BOOL signal_handler( DWORD signum )
 
 void signal_handler(int signum)
 {
-	printf("Caught signal %i, quitting\n", signum);
-	quit=true;
+	signal_handler_impl(signum);
 };
 		 
 #endif
+
+bool quit = false;	// Signal here on Ctrl-C
+
+#define DEFAULT_PORT 23450
+int port = DEFAULT_PORT;
+int sock = -1;
+
+void signal_handler_impl(int signum)
+{
+	printf("Caught signal %i, quitting\n", signum);
+	quit=true;
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+	sendto( sock, "lx::ping", 9, 0, (struct sockaddr *)&addr, sizeof(addr) );
+};
 
 
 struct HostInfo
@@ -67,7 +80,20 @@ struct HostInfo
 	bool allowsJoinDuringGame;
 };
 
+struct RawPacketRequest
+{
+	RawPacketRequest( sockaddr_in _src, sockaddr_in _dst, time_t _lastping ):
+		src( _src ), dst( _dst ), lastping( _lastping ) {};
 
+	struct sockaddr_in src;
+	struct sockaddr_in dst;
+	time_t lastping;
+};
+
+bool AreNetAddrEqual( sockaddr_in a1, sockaddr_in a2 )
+{
+	return a1.sin_addr.s_addr == a2.sin_addr.s_addr && a1.sin_port == a2.sin_port;
+}
 
 void printStr(const std::string & s)
 {
@@ -86,11 +112,10 @@ int main(int argc, char ** argv)
 	signal( SIGINT, &signal_handler );
 	#endif
 
-	int port = DEFAULT_PORT;
 	if( argc > 1 )
 		port = atoi( argv[1] );
 
-	int sock = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP );
+	sock = socket( PF_INET, SOCK_DGRAM, IPPROTO_UDP );
 	if( sock == -1 )
 	{
 		printf("Error opening UDP socket\n");
@@ -111,6 +136,7 @@ int main(int argc, char ** argv)
 	printf("UDP masterserver started at port %i\n", port);
 	
 	std::list< HostInfo > hosts;
+	std::list< RawPacketRequest > askedRawPackets;
 	
 	struct sockaddr_in source;
 	unsigned sourcePort;
@@ -127,16 +153,6 @@ int main(int argc, char ** argv)
 
 		time_t lastping = time(NULL);
 		
-		for( std::list<HostInfo> :: iterator it = hosts.begin(); it != hosts.end(); it++ )
-		{
-			if( lastping - it->lastping > 2*60 )
-			{
-				printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
-				hosts.erase(it);
-				it = hosts.begin();
-			};
-		};
-
 		data.assign( buf, size );
 		
 		sourcePort = ntohs(source.sin_port);
@@ -147,111 +163,7 @@ int main(int argc, char ** argv)
 		srcAddr += ":";
 		srcAddr += sourceAddrBuf;
 		
-		printf("Got msg from %s: %s\n", srcAddr.c_str(), data.c_str() );
-		
-		if( data.find( "\xff\xff\xff\xfflx::traverse" ) == 0 )
-		{
-			struct sockaddr_in dest;
-			dest.sin_family = AF_INET;
-			unsigned destPort;
-			int f = data.find( '\0' );
-			if( f == std::string::npos )
-				continue;
-			f++;
-			if( f >= data.size() || data.find(":", f) == std::string::npos )
-				continue;
-			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
-			f = data.find(":", f);
-			f++;
-			destPort = atoi( data.c_str()+f );
-			dest.sin_port = htons(destPort);
-			std::string send = "\xff\xff\xff\xfflx::traverse";
-			send += '\0';
-			send += srcAddr;
-			send += '\0';
-
-			f = data.find( '\0', f );
-			if( f != std::string::npos )	// Additional data, for future OLX versions - just copy it into dest packet
-			{
-				f++;
-				send += data.substr( f );
-			};
-
-			printf("Sending lx::traverse %s to %s:%i\n", send.c_str() + send.find('\0')+1, inet_ntoa( dest.sin_addr ), destPort );
-			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
-			continue;
-		};
-		
-		if( data.find( "\xff\xff\xff\xfflx::register" ) == 0 )
-		{
-			int f = data.find( '\0' );
-			if( f == std::string::npos )
-				continue;
-			f++;
-			if( data.find( '\0', f ) == std::string::npos )
-				continue;
-			std::string name = data.substr( f, data.find( '\0', f ) - f );
-			f = data.find( '\0', f );
-			if( f == std::string::npos )
-				continue;
-			f++;
-			if( f + 3 > data.size() )
-				continue;
-			unsigned numplayers = (unsigned char)(data[f]);
-			unsigned maxworms = (unsigned char)(data[f+1]);
-			unsigned state = (unsigned char)(data[f+2]);
-	
-			std::list<HostInfo> :: iterator it;
-			for( it = hosts.begin(); it != hosts.end(); it++ )
-			{
-				if( it->addr == srcAddr )
-				{
-					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
-					printf("Host db updated: updated: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
-					break;
-				};
-			};
-			if( it == hosts.end() )
-			{
-				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
-				it == hosts.end();
-				it --; // End of list
-				printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
-			};
-			// Send back confirmation so host will know we're alive
-			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
-			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
-			
-			// Beta8+
-			f += 3;
-			if( f >= data.size() || data.find( '\0', f ) == std::string::npos )
-				continue;
-			std::string version = data.substr( f, data.find( '\0', f ) - f );
-			f = data.find( '\0', f );
-			f++;
-			if( f >= data.size() )
-				continue;
-			bool allowsJoinDuringGame = (unsigned char)(data[f]);
-			*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame );
-
-			continue;
-		};
-
-		if( data.find( "\xff\xff\xff\xfflx::deregister" ) == 0 )
-		{
-			std::list<HostInfo> :: iterator it;
-			for( it = hosts.begin(); it != hosts.end(); it++ )
-			{
-				if( it->addr == srcAddr )
-				{
-					printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
-					hosts.erase(it);
-					break;
-				};
-			};
-			// No need in confirmation here
-			continue;
-		};
+		//printf("Got msg from %s: %s\n", srcAddr.c_str(), data.c_str() );
 
 		if( data.find( "\xff\xff\xff\xfflx::getserverlist" ) == 0 )
 		{
@@ -279,11 +191,180 @@ int main(int argc, char ** argv)
 			};
 			// Send serverlist even with 0 entries so client will know we're alive
 			send = response + char((unsigned char)amount) + send;
-			printf( "Sending lx::serverlist\n" );
+			//printf( "Sending lx::serverlist\n" );
 			//printStr( send );
 			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
-			continue;
+		}
+		
+		else if( data.find( "\xff\xff\xff\xfflx::traverse" ) == 0 )
+		{
+			struct sockaddr_in dest;
+			dest.sin_family = AF_INET;
+			unsigned destPort;
+			int f = data.find( '\0' );
+			if( f == std::string::npos )
+				continue;
+			f++;
+			if( f >= data.size() || data.find(":", f) == std::string::npos )
+				continue;
+			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
+			f = data.find(":", f);
+			f++;
+			destPort = atoi( data.c_str()+f );
+			dest.sin_port = htons(destPort);
+			std::string send = "\xff\xff\xff\xfflx::traverse";
+			send += '\0';
+			send += srcAddr;
+			send += '\0';
+
+			f = data.find( '\0', f );
+			if( f != std::string::npos )	// Additional data, for future OLX versions - just copy it into dest packet
+			{
+				f++;
+				send += data.substr( f );
+			};
+
+			//printf("Sending lx::traverse %s to %s:%i\n", send.c_str() + send.find('\0')+1, inet_ntoa( dest.sin_addr ), destPort );
+			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
+		}
+
+		else if( data.find( "\xff\xff\xff\xfflx::register" ) == 0 )
+		{
+			int f = data.find( '\0' );
+			if( f == std::string::npos )
+				continue;
+			f++;
+			if( data.find( '\0', f ) == std::string::npos )
+				continue;
+			std::string name = data.substr( f, data.find( '\0', f ) - f );
+			f = data.find( '\0', f );
+			if( f == std::string::npos )
+				continue;
+			f++;
+			if( f + 3 > data.size() )
+				continue;
+			unsigned numplayers = (unsigned char)(data[f]);
+			unsigned maxworms = (unsigned char)(data[f+1]);
+			unsigned state = (unsigned char)(data[f+2]);
+	
+			std::list<HostInfo> :: iterator it;
+			for( it = hosts.begin(); it != hosts.end(); it++ )
+			{
+				if( it->addr == srcAddr )
+				{
+					*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state );
+					//printf("Host db updated: updated: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
+					break;
+				};
+			};
+			if( it == hosts.end() )
+			{
+				hosts.push_back( HostInfo( srcAddr, lastping, name, maxworms, numplayers, state ) );
+				it == hosts.end();
+				it --; // End of list
+				//printf("Host db updated: added: %s %s %u/%u %u\n", srcAddr.c_str(), name.c_str(), numplayers, maxworms, state );
+			};
+			// Send back confirmation so host will know we're alive
+			std::string send = std::string("\xff\xff\xff\xfflx::registered") + '\0';
+			sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&source, sizeof(source) );
+			
+			// Beta8+
+			f += 3;
+			if( f >= data.size() || data.find( '\0', f ) == std::string::npos )
+				continue;
+			std::string version = data.substr( f, data.find( '\0', f ) - f );
+			f = data.find( '\0', f );
+			f++;
+			if( f >= data.size() )
+				continue;
+			bool allowsJoinDuringGame = (unsigned char)(data[f]);
+			*it = HostInfo( srcAddr, lastping, name, maxworms, numplayers, state, version, allowsJoinDuringGame );
+		}
+
+		else if( data.find( "\xff\xff\xff\xfflx::deregister" ) == 0 )
+		{
+			std::list<HostInfo> :: iterator it;
+			for( it = hosts.begin(); it != hosts.end(); it++ )
+			{
+				if( it->addr == srcAddr )
+				{
+					//printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
+					hosts.erase(it);
+					break;
+				};
+			};
+			// No need in confirmation here
+		}
+
+		else if( data.find( "\xff\xff\xff\xfflx::ask" ) == 0 )
+		{
+			// Directly send given packet to server, and return back an answer
+			struct sockaddr_in dest;
+			dest.sin_family = AF_INET;
+			unsigned destPort;
+			int f = data.find( '\0' );
+			if( f == std::string::npos )
+				continue;
+			f++;
+			if( f >= data.size() || data.find(":", f) == std::string::npos )
+				continue;
+			dest.sin_addr.s_addr = inet_addr( data.substr( f, data.find(":", f) - f ).c_str() );
+			f = data.find(":", f);
+			f++;
+			destPort = atoi( data.c_str()+f );
+			dest.sin_port = htons(destPort);
+
+			f = data.find( '\0', f );
+			if( f != std::string::npos )	// Raw packet data to send to remote host
+			{
+				f++;
+				std::string send = data.substr( f );
+				//printf("Sending raw packet to %s:%i\n", inet_ntoa( dest.sin_addr ), destPort );
+				sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&dest, sizeof(dest) );
+				askedRawPackets.push_back( RawPacketRequest( source, dest, lastping ) );
+			};
+		}
+		
+		else if( data.find( "\xff\xff\xff\xfflx::" ) == 0 )
+		{
+			// We got response for lx::ask packet
+			for( std::list< RawPacketRequest > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
+			{
+				if( AreNetAddrEqual( it->dst, source ) )
+				{
+					std::string send = "\xff\xff\xff\xfflx::answer";
+					send += '\0';
+					send += srcAddr;
+					send += '\0';
+					send += data;
+				
+					//printf("Sending raw packet answer %s:%i\n", inet_ntoa( it->src.sin_addr ), ntohs(it->src.sin_port) );
+					sendto( sock, send.c_str(), send.size(), 0, (struct sockaddr *)&it->src, sizeof(it->src) );
+
+					break;
+				}
+			}
+		}
+
+		// Clean up outdated entries
+		for( std::list<HostInfo> :: iterator it = hosts.begin(); it != hosts.end(); it++ )
+		{
+			if( lastping - it->lastping > 2*60 )
+			{
+				//printf("Host db updated: deleted: %s %s\n", it->addr.c_str(), it->name.c_str() );
+				hosts.erase(it);
+				it = hosts.begin();
+			};
 		};
+
+		for( std::list< RawPacketRequest > :: iterator it = askedRawPackets.begin(); it != askedRawPackets.end(); it++ )
+		{
+			if( lastping - it->lastping > 10 )
+			{
+				askedRawPackets.erase(it);
+				it = askedRawPackets.begin();
+			}
+		}
 
 	};
 

@@ -37,9 +37,10 @@ public:
 	int areaCode;
 
 	GeoRecord& operator= (const GeoRecord& oth);
-	GeoRecord() : latitude(0), longitude(0), metroCode(0), areaCode(1), 
+	GeoRecord() : 
 		continentCode("UN"), continent("Unknown Continent"), countryCode("UN"), countryCode3("UNK"),
-		countryName("Unknown Country"), hasCityLevel(false), region(""), city("Unknown City") {}
+		countryName("Unknown Country"), hasCityLevel(false), region(""), city("Unknown City"),
+		latitude(0), longitude(0), metroCode(0), areaCode(1) {}
 	GeoRecord(const GeoRecord& oth) { operator=(oth); }
 };
 
