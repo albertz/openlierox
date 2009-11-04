@@ -28,12 +28,19 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "Mutex.h"
 #include "DeprecatedGUI/CTextbox.h"
 
 
 
 
 namespace DeprecatedGUI {
+
+static Timer * CursorBlinkerTimer = NULL;
+static CTextbox * CursorBlinkerTimerTarget = NULL;
+static std::set< CTextbox * > TextboxesCount; // Create() and Destroy() may be called twice at random
+static Mutex CursorBlinkerTimerMutex;
+
 
 ///////////////////
 // Create the text box
@@ -50,15 +57,15 @@ void CTextbox::Create()
 	fLastRepeat = AbsTime();
 	iLastchar = 0;
 	iLastKeysym = 0;
-	if (tTimer == NULL)  {
-		tTimer = new Timer;
-		if (tTimer)  {
-			tTimer->name = "CTextbox cursor blinker";
-			tTimer->interval = 500;
-			tTimer->once = false;
-			tTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
-			tTimer->start();
-		}
+	Mutex::ScopedLock l(CursorBlinkerTimerMutex);
+	TextboxesCount.insert(this);
+	if (CursorBlinkerTimer == NULL)  {
+		CursorBlinkerTimer = new Timer;
+		CursorBlinkerTimer->name = "CTextbox cursor blinker";
+		CursorBlinkerTimer->interval = 500;
+		CursorBlinkerTimer->once = false;
+		CursorBlinkerTimer->onTimer.handler() = getEventHandler(this, &CTextbox::OnTimerEvent);
+		CursorBlinkerTimer->start();
 	}
 }
 
@@ -66,16 +73,26 @@ void CTextbox::Create()
 // Destroy the textbox
 void CTextbox::Destroy()
 {
-	if (tTimer)
-		delete tTimer;
-	tTimer = NULL;
+	Mutex::ScopedLock l(CursorBlinkerTimerMutex);
+	if( CursorBlinkerTimerTarget == this )
+		CursorBlinkerTimerTarget = NULL;
+	TextboxesCount.erase(this);
+	if( TextboxesCount.empty() && CursorBlinkerTimer != NULL )
+	{
+		CursorBlinkerTimer->stop();
+		delete CursorBlinkerTimer;
+		CursorBlinkerTimer = NULL;
+		CursorBlinkerTimerTarget = NULL;
+	}
 }
 
 //////////////////
 // Handles an event coming from the timer
 void CTextbox::OnTimerEvent(Timer::EventData ev)
 {
-	bDrawCursor = !bDrawCursor;
+	Mutex::ScopedLock l(CursorBlinkerTimerMutex);
+	if( CursorBlinkerTimerTarget )
+		CursorBlinkerTimerTarget->bDrawCursor = !CursorBlinkerTimerTarget->bDrawCursor;
 }
 
 
@@ -177,6 +194,9 @@ void CTextbox::Draw(SDL_Surface * bmpDest)
 				iY + 3, iY + iHeight - 3, MIN(iX + x + 3, iX + iWidth),
 				tLX->clTextboxCursor);
 		}
+
+		Mutex::ScopedLock l(CursorBlinkerTimerMutex);
+		CursorBlinkerTimerTarget = this;
 	}
 }
 
