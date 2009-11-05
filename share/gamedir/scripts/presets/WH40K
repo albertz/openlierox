@@ -1,0 +1,7 @@
+#!/usr/bin/python -u
+
+setvar( "GameOptions.GameInfo.ModName", "WH40K 0.13" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/WH40K 0.13/Standard 100lt.wps" )
