@@ -384,3 +384,31 @@ std::string CHttp::GetHostName() const
 	return sHost;
 }
 
+size_t CHttp::GetDataToSendLength() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	double d = 0;
+	if( !curlThread )
+		return 0;
+	Mutex::ScopedLock l1(curlThread->Lock);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &d);
+	if( d <= 0 )
+		d = 1;
+	return d;
+};
+
+size_t CHttp::GetSentDataLen() const
+{
+	Mutex::ScopedLock l(const_cast<Mutex &>(Lock));
+	double d = 0, total = 0;
+	if( !curlThread )
+		return 0;
+	Mutex::ScopedLock l1(curlThread->Lock);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &total);
+	curl_easy_getinfo(curlThread->curl, CURLINFO_SIZE_UPLOAD, &d);
+	if( d > total )
+		d = total;
+	if( d <= 0 )
+		d = 1;
+	return d;
+};

@@ -14,9 +14,10 @@
 #include "UploadSpeedTest.h"
 #include "FindFile.h"
 #include "Debug.h"
+#include "LieroX.h"
 
 
-#define TEST_DATA_SIZE 300  // In kB
+#define TEST_DATA_SIZE (300 * 1024) // In bytes
 
 /////////////////////
 // Constructor
@@ -55,6 +56,8 @@ void UploadSpeedTest::generateRandomData(size_t size, std::string& result)
 {
 	// Just fill the string with an uninitialized memory
 	char *buf = new char[size];
+	for( size_t i=0; i<size/2; i++ )
+		((Uint16 *)buf)[i] = GetRandomInt(65536);
 	result.append(buf, size);
 	delete[] buf;
 }
@@ -65,7 +68,7 @@ void UploadSpeedTest::startTest()
 {
 	// Get some random data
 	std::string random_data;
-	generateRandomData(TEST_DATA_SIZE * 1024, random_data);
+	generateRandomData(TEST_DATA_SIZE, random_data);
 	m_finished = false;
 
 	notes << "Starting an upload speed test to host " << m_url << endl;
@@ -74,6 +77,7 @@ void UploadSpeedTest::startTest()
 	std::list<HTTPPostField> data;
 	data.push_back(HTTPPostField(random_data, "binary/random", "data", ""));
 	m_http.SendData(data, m_url, tLXOptions->sHttpProxy);
+	m_startTime = tLX->currentTime;
 }
 
 /////////////////////
@@ -89,9 +93,13 @@ void UploadSpeedTest::cancelTest()
 void UploadSpeedTest::Http_onFinished(CHttp::HttpEventData d)
 {
 	m_finished = true;
-
+	TimeDiff testTime = tLX->currentTime - m_startTime;
+	if( testTime.seconds() <= 0.01f )
+		testTime = 0.01f;
+	m_rate = (float)TEST_DATA_SIZE / testTime.seconds();
+	hints << "UploadSpeedTest: testTime " << testTime.seconds() << " data size " << TEST_DATA_SIZE << " rate " << m_rate << endl;
 	// Delegate the event
-	onFinished.occurred(TestData(this, d.bSucceeded, d.cHttp->GetUploadSpeed()));
+	onFinished.occurred(TestData(this, d.bSucceeded, m_rate));
 }
 
 ////////////////////
@@ -104,6 +112,6 @@ int UploadSpeedTest::getProgress() const
 	if (m_http.GetDataToSendLength() == 0)
 		return 100;
 
-   return (int)(m_http.GetSentDataLen() * 100 / m_http.GetDataToSendLength());
+   return (int)(m_http.GetSentDataLen() * 100 / TEST_DATA_SIZE);
 }
 
