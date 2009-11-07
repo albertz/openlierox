@@ -102,7 +102,8 @@ def init():
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 
-	selectNextPreset()
+	if len(cfg.PRESETS) > 0:
+		selectNextPreset()
 
 
 ## High-level processing ##
