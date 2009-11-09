@@ -100,22 +100,22 @@ def parseAdminCommand(wormid,message):
 				hnd.selectPreset( Name = hnd.availablePresets[preset], Repeat = presetCount )
 		elif cmd == "mod":
 			mod = ""
-			for m in hnd.availableMods:
+			for m in io.listMods():
 				if m.lower().find(" ".join(params[0:]).lower()) != -1:
 					mod = m
 					break
 			if mod == "":
-				io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availableMods))
+				io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(io.listMods()))
 			else:
 				hnd.selectPreset( Mod = mod )
 		elif cmd == "map":
 			level = ""
-			for l in hnd.availableLevels:
+			for l in io.listMaps():
 				if l.lower().find(" ".join(params[0:]).lower()) != -1:
 					level = l
 					break
 			if level == "":
-				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(hnd.availableLevels))
+				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(io.listMaps()))
 			else:
 				hnd.selectPreset( Level = level )
 		elif cmd == "lt":
@@ -173,7 +173,6 @@ def userCommandHelp(wormid):
 	if cfg.VOTING:
 		io.privateMsg(wormid, "%skick wormID - add vote to kick player etc" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%smute wormID - add vote" % cfg.ADMIN_PREFIX)
-		io.privateMsg(wormid, "%spreset presetName - add vote" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.ADMIN_PREFIX)
@@ -303,37 +302,41 @@ def parseUserCommand(wormid,message):
 			addVote( "io.muteWorm(" + str(kicked) +")", wormid, "Mute %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
 
 		elif cmd == "mod":
-			mod = ""
-			for m in hnd.availableMods:
-				if m.lower().find(" ".join(params[0:]).lower()) != -1:
-					mod = m
-					break
-			if mod == "":
-				io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availableMods))
-			else:
-				addVote( 'hnd.selectPreset( Mod = "%s" )' % mod, wormid, "Mod %s" % mod )
-		elif cmd == "map":
-			level = ""
-			for l in hnd.availableLevels:
-				if l.lower().find(" ".join(params[0:]).lower()) != -1:
-					level = l
-					break
-			if level == "":
-				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(hnd.availableLevels))
-			else:
-				addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
-		elif cmd == "lt":
-			addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
-		elif cmd == "preset":
+			
+			# Users are proven to be stupid and can't tell the difference between mod and preset
+			# so here we're first looking for a preset, and then looking for a mod with the same name if preset not found
+			# (well, let's call that UI simplification)
 			preset = -1
 			for p in range(len(hnd.availablePresets)):
 				if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
 					preset = p
 					break
-			if preset == -1:
-				io.privateMsg(wormid,"Invalid preset, available presets: " + ", ".join(hnd.availablePresets))
-			else:
+			if preset != -1:
 				addVote( 'hnd.selectPreset( Name = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
+			else:
+				mod = ""
+				for m in io.listMods():
+					if m.lower().find(" ".join(params[0:]).lower()) != -1:
+						mod = m
+						break
+				if mod == "":
+					io.privateMsg(wormid,"Invalid mod, available mods: " + ", ".join(hnd.availablePresets) + ", ".join(io.listMods()))
+				else:
+					addVote( 'hnd.selectPreset( Mod = "%s" )' % mod, wormid, "Mod %s" % mod )
+
+		elif cmd == "map":
+			level = ""
+			for l in io.listMaps():
+				if l.lower().find(" ".join(params[0:]).lower()) != -1:
+					level = l
+					break
+			if level == "":
+				io.privateMsg(wormid,"Invalid map, available maps: " + ", ".join(io.listMaps()))
+			else:
+				addVote( 'hnd.selectPreset( Level = "%s" )' % level, wormid, "Map %s" % level )
+
+		elif cmd == "lt":
+			addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
 
 		elif ( cmd == "y" or cmd == "yes" ) and cfg.VOTING:
 			if hnd.worms[wormid].Voted != 1:
@@ -350,7 +353,6 @@ def parseUserCommand(wormid,message):
 			raise Exception, "Invalid user command"
 
 	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
-			# TODO, send what's passed in the exception to the user?
 		if wormid >= 0:
 			io.privateMsg(wormid, "Invalid user command")
 		io.messageLog(formatExceptionInfo(),io.LOG_ERROR) #Helps to fix errors
