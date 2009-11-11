@@ -582,7 +582,8 @@ def controlHandlerDefault():
 		return
 
 	curTime = time.time()
-
+	cmds.recheckVote(False)
+	
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong

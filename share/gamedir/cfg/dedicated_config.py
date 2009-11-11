@@ -47,11 +47,11 @@ RANKING = 1 # Should we allow !rank user command
 RANKING_AUTHENTICATION = 0 # Should we authenticate worm by it's skin color (pretty weak, but !password cmd is kinda ugly)
 
 VOTING = 1 # Should we allow voting for preset/map/mod/lt/kick/mute
-VOTING_PERCENT = 30 # How much users in percent should vote yes for vote to pass
-VOTING_TIME = 60 # For how much time we should wait votes from users
+VOTING_PERCENT = 51 # How much users in percent should vote yes for vote to pass
+VOTING_TIME = 40 # For how much time we should wait votes from users
 VOTING_COUNT_NEGATIVE = 1 # If we should count negative votes, so users can fail unpopular vote before timeout
 VOTING_KICK_TIME = 5 # Time in minutes when user kicked by voting cannot re-join server (it auto-kicks user again with message)
-
+VOTING_AUTO_ACCEPT = 1 # If we should accept the vote after timeout, if too little users voted no
 
 # List of levels - preset chooses a random level from those
 LEVELS = [	

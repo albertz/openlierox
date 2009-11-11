@@ -200,7 +200,7 @@ def addVote( command, poster, description ):
 	voteDescription = description
 	recheckVote()
 
-def recheckVote():
+def recheckVote(verbose = True):
 	global voteCommand, voteTime, votePoster, voteDescription
 	global kickedUsers
 	if not voteCommand:
@@ -224,7 +224,7 @@ def recheckVote():
 	humanWormCount = len(hnd.worms) - len(io.getComputerWormList())
 	needVoices = int( math.ceil( humanWormCount * cfg.VOTING_PERCENT / 100.0 ) )
 
-	if voteCount >= needVoices:
+	if voteCount >= needVoices or (time.time() - voteTime >= cfg.VOTING_TIME and cfg.VOTING_AUTO_ACCEPT):
 		try:
 			exec(voteCommand)
 		except:
@@ -241,7 +241,8 @@ def recheckVote():
 			hnd.worms[votePoster].FailedVoteTime = time.time()
 		return
 
-	io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " +
+	if verbose:
+		io.chatMsg("Vote: " + voteDescription + ", " + str( needVoices - voteCount ) + " voices to go, " +
 				str(int( cfg.VOTING_TIME + voteTime - time.time() )) + ( " seconds, say %sy or %sn" % ( cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX ) ) )
 
 
