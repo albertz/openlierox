@@ -15,8 +15,8 @@ MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
-WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 100 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 100 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler

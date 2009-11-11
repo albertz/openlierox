@@ -173,6 +173,8 @@ def userCommandHelp(wormid):
 		io.privateMsg(wormid, "%smod modName (or part of name) - add vote" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%smap mapName - add vote" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%slt loadingTime - add vote" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%sstart - start game now" % cfg.ADMIN_PREFIX)
+		io.privateMsg(wormid, "%sstop - go to lobby" % cfg.ADMIN_PREFIX)
 		io.privateMsg(wormid, "%sy / %sn - vote yes / no" % (cfg.ADMIN_PREFIX, cfg.ADMIN_PREFIX) )
 	if userCommandHelp_Preset:
 		userCommandHelp_Preset(wormid)
@@ -341,6 +343,12 @@ def parseUserCommand(wormid,message):
 
 		elif cmd == "lt":
 			addVote( 'hnd.selectPreset( LT = %i )' % int(params[0]), wormid, "Loading time %i" % int(params[0]) )
+
+		elif cmd == "start":
+			addVote( 'hnd.lobbyWaitAfterGame = time.time(); hnd.lobbyWaitBeforeGame = time.time()', wormid, "Start game now" )
+
+		elif cmd == "stop":
+			addVote( 'io.gotoLobby()', wormid, "Go to lobby" )
 
 		elif ( cmd == "y" or cmd == "yes" ) and cfg.VOTING:
 			if hnd.worms[wormid].Voted != 1:
