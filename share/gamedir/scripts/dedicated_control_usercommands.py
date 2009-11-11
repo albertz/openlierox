@@ -292,12 +292,18 @@ def parseUserCommand(wormid,message):
 
 		elif cmd == "kick" and cfg.VOTING:
 			kicked = int( params[0] )
+			if not kicked in hnd.worms.keys():
+				raise Exception, "Invalid worm ID"
 			addVote( "io.kickWorm(" + str(kicked) + 
 						", 'You are kicked for " + str(cfg.VOTING_KICK_TIME) + " minutes')", 
 						wormid, "Kick %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
+			hnd.worms[kicked].Voted = -1
 		elif cmd == "mute" and cfg.VOTING:
+			if not kicked in hnd.worms.keys():
+				raise Exception, "Invalid worm ID"
 			kicked = int( params[0] )
 			addVote( "io.muteWorm(" + str(kicked) +")", wormid, "Mute %i: %s" % ( kicked, hnd.worms[kicked].Name ) )
+			hnd.worms[kicked].Voted = -1
 
 		elif cmd == "mod":
 			
