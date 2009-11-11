@@ -251,11 +251,15 @@ def recheckVote(verbose = True):
 def parseUserCommand(wormid,message):
 	global kickedUsers
 	try: # Do not check on msg size or anything, exception handling is further down
-		if (not message.startswith(cfg.USER_PREFIX)):
-			return False # normal chat
+		if message in [ "y", "n", "start", "stop", "rank", "toprank", "ranktotal" ]:
+			# Single-word usercommands for faster typing
+			cmd = message
+		else:
+			if (not message.startswith(cfg.USER_PREFIX)):
+				return False # normal chat
 
-		cmd = message.split(" ")[0]
-		cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
+			cmd = message.split(" ")[0]
+			cmd = cmd.replace(cfg.USER_PREFIX,"",1).lower() #Remove the prefix
 
 		if wormid >= 0:
 			io.messageLog("%i:%s issued %s" % (wormid,hnd.worms[wormid].Name,cmd.replace(cfg.USER_PREFIX,"",1)),io.LOG_USRCMD)
