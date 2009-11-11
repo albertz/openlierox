@@ -1,8 +1,0 @@
-#!/usr/bin/python -u
-
-setvar( "GameOptions.GameInfo.ModName", "Liero v1.11" )
-
-setvar( "GameOptions.GameInfo.LoadingTime", "100" )
-
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Liero v1.11/Standard 100lt.wps" )
-

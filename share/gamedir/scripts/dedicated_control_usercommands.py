@@ -33,7 +33,7 @@ def adminCommandHelp(wormid):
 	io.privateMsg(wormid, "%skick wormID [time] [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%sban wormID [reason]" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smute wormID" % cfg.ADMIN_PREFIX)
-	io.privateMsg(wormid, "%spreset presetName [repeatCount]" % cfg.ADMIN_PREFIX)
+	io.privateMsg(wormid, "%spreset presetName" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smod modName (or part of name)" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%smap mapName" % cfg.ADMIN_PREFIX)
 	io.privateMsg(wormid, "%slt loadingTime" % cfg.ADMIN_PREFIX)
@@ -87,9 +87,6 @@ def parseAdminCommand(wormid,message):
 			io.muteWorm( int( params[0] ) )
 		elif cmd == "preset":
 			preset = -1
-			presetCount = 1
-			if len(params) > 1:
-				presetCount = int(params[1])
 			for p in range(len(hnd.availablePresets)):
 				if hnd.availablePresets[p].lower().find(params[0].lower()) != -1:
 					preset = p
@@ -97,7 +94,7 @@ def parseAdminCommand(wormid,message):
 			if preset == -1:
 				io.privateMsg(wormid,"Invalid preset, available presets: " + ", ".join(hnd.availablePresets))
 			else:
-				hnd.selectPreset( Name = hnd.availablePresets[preset], Repeat = presetCount )
+				hnd.selectPreset( Preset = hnd.availablePresets[preset] )
 		elif cmd == "mod":
 			mod = ""
 			for m in io.listMods():
@@ -312,7 +309,7 @@ def parseUserCommand(wormid,message):
 					preset = p
 					break
 			if preset != -1:
-				addVote( 'hnd.selectPreset( Name = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
+				addVote( 'hnd.selectPreset( Preset = "%s" )' % hnd.availablePresets[preset], wormid, "Preset %s" % hnd.availablePresets[preset] )
 			else:
 				mod = ""
 				for m in io.listMods():
