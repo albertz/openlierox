@@ -1712,13 +1712,21 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & n
 		if( AreNetAddrEqual( addr, s->sAddress ) )
 			return &(*s);
 
-	// Check if IP without port and name match
     NetworkAddr addr1 = addr;
     SetNetAddrPort(addr1, LX_PORT);
 
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
+		// Check if any port number match from the server entry
 		NetworkAddr addr2 = s->sAddress;
+		for( size_t i = 0; i < s->ports.size(); i++ )
+		{
+			SetNetAddrPort(addr2, s->ports[i].first);
+			if( AreNetAddrEqual( addr, addr2 ) )
+				return &(*s);
+		}
+			
+		// Check if IP without port and name match
 		SetNetAddrPort(addr2, LX_PORT);
 		if( AreNetAddrEqual( addr1, addr2 ) && name == s->szName && name != "Untitled" )
 			return &(*s);
@@ -2102,6 +2110,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			return;
 		}
 	} else {
+		warnings << "Querying server not from svr list: " << szAddress << endl;
 		std::string tmp_addr = szAddress;
 		TrimSpaces(tmp_addr);
 		if(!StringToNetAddr(tmp_addr, origAddr)) {
@@ -2272,7 +2281,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bGotDetails = false;
 			bOldLxBug = false;
 
-			Menu_SvrList_GetServerInfo(svr);
+			if(svr)
+				Menu_SvrList_GetServerInfo(svr);
         }
 
 		// Got details, fill in the listview
