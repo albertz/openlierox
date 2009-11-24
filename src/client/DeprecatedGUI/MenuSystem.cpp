@@ -1728,14 +1728,22 @@ server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & n
 			
 		// Check if IP without port and name match
 		SetNetAddrPort(addr2, LX_PORT);
-		if( AreNetAddrEqual( addr1, addr2 ) && name == s->szName && name != "Untitled" )
+		if( AreNetAddrEqual( addr1, addr2 ) && name == s->szName )
+			return &(*s);
+	}
+
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
+		// Check if just an IP without port match
+		NetworkAddr addr2 = s->sAddress;
+		SetNetAddrPort(addr2, LX_PORT);
+		if( AreNetAddrEqual( addr1, addr2 ) )
 			return &(*s);
 	}
 
 	// None found
 	return NULL;
 }
-
 
 
 ///////////////////
