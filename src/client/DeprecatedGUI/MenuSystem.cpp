@@ -1338,6 +1338,10 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	server_t * found = Menu_SvrList_FindServerStr(tmp_address, name);
     if( found && port != -1 && port != 0 )
     {
+    	if( found->szName == "Untitled" )
+    		found->szName = name;
+    	//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+
 		for( size_t i = 0; i < found->ports.size(); i++ )
 			if( found->ports[i].first == port )
 				return found;
@@ -1768,6 +1772,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
 	TrimSpaces(svr->szName);
+	//hints << "Menu_SvrList_ParseQuery(): " << svr->szName << " " << svr->szAddress << endl;
 	svr->nNumPlayers = bs->readByte();
 	svr->nMaxPlayers = bs->readByte();
 	svr->nState = bs->readByte();
@@ -1786,11 +1791,12 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
     if(svr->nPing > 999)
         svr->nPing = 999;
 		
-	if( bs->isPosAtEnd() )
-		return;
-	// Beta8+
-	svr->tVersion.setByString( bs->readString(64) );
-	svr->bAllowConnectDuringGame = bs->readBool();
+	if( !bs->isPosAtEnd() )
+	{
+		// Beta8+
+		svr->tVersion.setByString( bs->readString(64) );
+		svr->bAllowConnectDuringGame = bs->readBool();
+	}
 	
 	// We got server name in a query. let's remove servers with the same name and IP, which we got from UDP masterserver
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
@@ -1802,6 +1808,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		if( it->szName == svr->szName && AreNetAddrEqual(addr1, addr2) && svr != &(*it) )
 		{
 			//Duplicate server - delete it
+			//hints << "Menu_SvrList_ParseQuery(): removing duplicate " << it->szName << " " << it->szAddress << endl;
 			psServerList.erase(it);
 			it = psServerList.begin();
 		}
@@ -1895,7 +1902,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
 		bs->Clear();
 
-		notes << "Sent getserverlist to " << server << endl;
+		//notes << "Sent getserverlist to " << server << endl;
 
 		// Wait for the reply
 		AbsTime timeoutTime = GetTime() + 5.0f;
@@ -1907,7 +1914,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 				// Got a reply?
 				if (bs->Read(&sock))  {
-					notes << "Got a reply from " << server << endl;
+					//notes << "Got a reply from " << server << endl;
 					break;
 				}
 				
@@ -1973,6 +1980,9 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 	{
 		std::string addr = bs->readString();
 		std::string name = bs->readString();
+		TrimSpaces(name);
+		TrimSpaces(addr);
+		//hints << "Menu_SvrList_ParseUdpServerlist(): " << name << " " << addr << endl;
 		int players = bs->readByte();
 		int maxplayers = bs->readByte();
 		int state = bs->readByte();
@@ -1982,10 +1992,11 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		server_t *svr = Menu_SvrList_FindServerStr(addr, name);
 		if( svr != NULL )
 		{
+			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
 			if( svr->bgotPong )
 				continue;
 			// It will merge existing server with new info
-			Menu_SvrList_AddServer(svr->szAddress, false, svr->szName, UdpMasterserverIndex);
+			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex);
 			continue;
 		}
 

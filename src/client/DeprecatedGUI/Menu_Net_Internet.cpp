@@ -645,7 +645,7 @@ void Menu_Net_NETUpdateList()
                 if( szLine.length() > 0 && szLine[0] != '#' ) {
 
                     // Send the request
-					notes << "Getting serverlist from " + szLine + "..." << endl;
+					//notes << "Getting serverlist from " + szLine + "..." << endl;
 					http.RequestData(szLine + LX_SVRLIST, tLXOptions->sHttpProxy);
 					SentRequest = true;
 
