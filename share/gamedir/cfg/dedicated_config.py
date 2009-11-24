@@ -15,8 +15,8 @@ MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
-WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 30 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
@@ -29,7 +29,7 @@ WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTi
 # Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)
 # A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is).
-MAX_PING = 30000 # Max ping to auto-kick player
+MAX_PING = 2000 # Max ping to auto-kick player
 
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.

@@ -1143,6 +1143,8 @@ void Menu_SvrList_PingServer(server_t *svr)
 		errors << "svr->ports.size() == 0 at " << FILELINE << endl;
 		return;
 	}
+	if( svr->sAddress != StringToNetAddr(svr->szAddress) )
+		errors << "Menu_SvrList_PingServer(" << svr->szName << "): 1 svr->sAddress " << NetAddrToString(svr->sAddress) << " != StringToNetAddr(svr->szAddress) " << svr->szAddress << endl;
 		
 	NetworkAddr addr = svr->sAddress;
 	//hints << "Pinging server " << tmp << " real addr " << svr->szAddress << " name " << svr->szName << endl;
@@ -1161,6 +1163,9 @@ void Menu_SvrList_PingServer(server_t *svr)
 	svr->bProcessing = true;
 	svr->nPings++;
 	svr->fLastPing = tLX->currentTime;
+
+	if( svr->sAddress != StringToNetAddr(svr->szAddress) )
+		errors << "Menu_SvrList_PingServer(" << svr->szName << "): 2 svr->sAddress " << NetAddrToString(svr->sAddress) << " != StringToNetAddr(svr->szAddress) " << svr->szAddress << endl;
 }
 
 ///////////////////
@@ -1709,8 +1714,12 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & name)
 {
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
+		if( s->sAddress != StringToNetAddr(s->szAddress) )
+				errors << "Menu_SvrList_FindServer(): s->sAddress " << NetAddrToString(s->sAddress) << " != s->szAddress " << s->szAddress << " for " << s->szName << endl;
 		if( AreNetAddrEqual( addr, s->sAddress ) )
 			return &(*s);
+	}
 
     NetworkAddr addr1 = addr;
     SetNetAddrPort(addr1, LX_PORT);
@@ -2107,13 +2116,14 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
     tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
-
-	NetworkAddr origAddr;
 	server_t* svr = Menu_SvrList_FindServerStr(szAddress);
+	NetworkAddr origAddr;
 	if(svr) {
-		if(IsNetAddrValid(svr->sAddress))
+		if(IsNetAddrValid(svr->sAddress)) {
 			origAddr = svr->sAddress;
-		else {
+			if( svr->sAddress != StringToNetAddr(szAddress) )
+				errors << "Menu_SvrList_DrawInfo( " << szAddress << "): svr " << svr->szName << " addr " << NetAddrToString(svr->sAddress) << endl;
+		} else {
 			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
 			return;
 		}
