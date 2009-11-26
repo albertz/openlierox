@@ -393,6 +393,11 @@ void Menu_LocalAddPlaying(int index)
 	if (index < 0)
 		index = lv->getCurIndex();
 
+	if(index < 0 || index >= MAX_PLAYERS) {
+		errors << "Menu_LocalAddPlaying: invalid index = " << index << endl;
+		return;
+	}
+	
 	// Check if we have enough room for another player
 	if(!Menu_LocalCheckPlaying(index))
 		return;
