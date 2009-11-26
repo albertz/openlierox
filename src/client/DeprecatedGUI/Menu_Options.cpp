@@ -279,12 +279,6 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, y - 2, 110, 20); y += 25;
 
-	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, y, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, y, 17,17);
-
-	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 2, 110, 20);
-	
 	y += 20;
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0);
 	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 110, y + 8, 620 - 110, 0);	

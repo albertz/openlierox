@@ -1510,9 +1510,6 @@ void ShutdownLieroX()
 		DedicatedControl::Uninit();
 
 	if( ! bDedicated )
-		ShutdownMusic();
-
-	if( ! bDedicated )
 		ShutdownBackgroundMusic();
 
     Con_Shutdown();
