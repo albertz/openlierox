@@ -173,7 +173,9 @@ public:
 						vel->y *= -0.4f;
 					else
 						vel->y = (0);
-					continue; // Note: This was break in LX56, but continue is really better here
+					
+					// it was also break in LX56. this makes a huge difference when bouncing against the bottom.
+					break;
 				}
 
 				// Bottom side clipping
