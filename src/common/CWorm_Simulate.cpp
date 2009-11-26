@@ -34,7 +34,7 @@
 #include "CGameMode.h"
 #include "Physics.h"
 #include "WeaponDesc.h"
-
+#include "AuxLib.h" // for doActionInMainThread
 
 
 ///////////////////
