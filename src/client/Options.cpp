@@ -308,7 +308,9 @@ bool GameOptions::Init() {
 		}
 	}
 	
-	
+	notes << "Reading game options from " << GetFullFileName(tLXOptions->cfgFilename) << endl;
+	notes << "Will write game options to " << GetWriteFullFileName(tLXOptions->cfgFilename, true) << endl;
+		
 	bool ret = tLXOptions->LoadFromDisc();
 
 	/*notes << "Skinnable vars:\n" << CGuiSkin::DumpVars() << endl;
@@ -324,9 +326,6 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 {
 	additionalOptions.clear();
 
-	notes << "Reading game options from " << GetFullFileName(cfgfilename) << endl;
-	notes << "Will write game options to " << GetWriteFullFileName(cfgfilename, true) << endl;
-		
 	// TODO: these use arrays which are not handled by scriptablevars
 	InitWidgetStates(*this);
 
