@@ -809,6 +809,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(random) 
 	{
 		// TODO: why don't we support that anymore? and since when?
+		// Since I've moved all dynamically allocated datas to smartpointers, don't remember why I've removed that
 		hints << "CClientNetEngine::ParsePrepareGame: random map requested, and we do not support these anymore" << endl;
 		client->bGameReady = false;
 		return false;
