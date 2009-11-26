@@ -58,9 +58,7 @@ enum {
 enum {
 	os_Fullscreen,
 	os_SoundOn,
-	os_MusicOn,
 	os_SoundVolume,
-	os_MusicVolume,
 	os_NetworkSpeed,
 	os_NetworkUploadBandwidth,
 	os_NetworkUploadBandwidthLabel,
@@ -268,9 +266,6 @@ bool Menu_FloatingOptionsInitialize()
 	// Set the values
 	CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
-
-	s = (CSlider *)cFloatingOpt_System.getWidget(os_MusicVolume);
-	s->setValue( tLXOptions->iMusicVolume );	
 
 	CTextbox *t = (CTextbox *)(cFloatingOpt_System.getWidget(os_MaxFPS));
 	t->setText(itoa(tLXOptions->nMaxFPS));
@@ -595,24 +590,6 @@ void Menu_FloatingOptionsFrame()
 					}
 					break;
 
-				// Music on/off
-				case os_MusicOn:
-					if(ev->iEventMsg == CHK_CHANGED) {
-
-						bool old = tLXOptions->bMusicOn;
-
-						c = (CCheckbox *)cFloatingOpt_System.getWidget(os_MusicOn);
-						tLXOptions->bMusicOn = c->getValue();
-
-						if(old != tLXOptions->bMusicOn) {
-							if(tLXOptions->bMusicOn)
-								InitializeBackgroundMusic();
-							else
-								ShutdownBackgroundMusic();
-						}
-					}
-					break;
-
 				// Sound volume
 				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
@@ -620,20 +597,6 @@ void Menu_FloatingOptionsFrame()
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
-					}
-					break;
-
-				// Music volume
-				case os_MusicVolume:
-					if(ev->iEventMsg == SLD_CHANGE) {
-						CSlider *s = (CSlider *)cFloatingOpt_System.getWidget(os_MusicVolume);
-						tLXOptions->iMusicVolume = s->getValue();
-
-						SetMusicVolume( tLXOptions->iMusicVolume );
-						if( tLXOptions->iMusicVolume == 0 )
-							ShutdownBackgroundMusic();
-						else
-							InitializeBackgroundMusic();
 					}
 					break;
 

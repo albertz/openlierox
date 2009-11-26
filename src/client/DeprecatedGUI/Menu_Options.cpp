@@ -56,9 +56,7 @@ enum {
 	os_Fullscreen,
 	os_ColourDepth,
 	os_SoundOn,
-	os_MusicOn,
 	os_SoundVolume,
-	os_MusicVolume,
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_NetworkUploadBandwidth,
@@ -335,9 +333,6 @@ bool Menu_OptionsInitialize()
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
-
-	s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
-	s->setValue( tLXOptions->iMusicVolume );	
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 	t->setText( itoa(tLXOptions->iNetworkPort) );
@@ -786,24 +781,6 @@ void Menu_OptionsFrame()
 					}
 					break;
 
-				// Music on/off
-				case os_MusicOn:
-					if(ev->iEventMsg == CHK_CHANGED) {
-
-						bool old = tLXOptions->bMusicOn;
-
-						c = (CCheckbox *)cOpt_System.getWidget(os_MusicOn);
-						tLXOptions->bMusicOn = c->getValue();
-
-						if(old != tLXOptions->bMusicOn) {
-							if(tLXOptions->bMusicOn)
-								InitializeBackgroundMusic();
-							else
-								ShutdownBackgroundMusic();
-						}
-					}
-					break;
-
 				// Sound volume
 				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
@@ -811,20 +788,6 @@ void Menu_OptionsFrame()
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
-					}
-					break;
-
-				// Music volume
-				case os_MusicVolume:
-					if(ev->iEventMsg == SLD_CHANGE) {
-						CSlider *s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
-						tLXOptions->iMusicVolume = s->getValue();
-
-						SetMusicVolume( tLXOptions->iMusicVolume );
-						if( tLXOptions->iMusicVolume == 0 )
-							ShutdownBackgroundMusic();
-						else
-							InitializeBackgroundMusic();
 					}
 					break;
 
