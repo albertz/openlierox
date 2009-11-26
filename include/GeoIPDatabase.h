@@ -15,9 +15,11 @@
 #ifndef __GEOIPDATABASE_H__
 #define __GEOIPDATABASE_H__
 
+#include <string>
+#include <cstdio>
+
 // A record structure, contains various info about an IP
 struct GeoRecord  {
-public:
 	std::string continentCode;
 	std::string continent;
 	std::string countryCode;
