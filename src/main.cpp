@@ -1497,6 +1497,11 @@ void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
 
+	// Options
+	// Save already here in case some other method crashes
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
+	
 	DeprecatedGUI::CChatWidget::GlobalDestroy();
 	
 	ShutdownIRC(); // Disconnect from IRC
@@ -1552,10 +1557,6 @@ void ShutdownLieroX()
 		delete convoLogger;
 		convoLogger = NULL;
 	}
-
-	// Options
-	if(!bDedicated) // only save if not in dedicated mode
-		tLXOptions->SaveToDisc();
 
 #ifdef WITH_G15
 	if (OLXG15)
