@@ -1577,6 +1577,11 @@ void ShutdownLieroX()
 #endif
 
 	// Save and clear options
+
+	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
+
 	ShutdownOptions();
 
 	// Only do the deregistration for variables if we are not restarting.
