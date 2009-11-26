@@ -242,12 +242,8 @@ bool Menu_FloatingOptionsInitialize()
 	cFloatingOpt_System.Add( new CLabel("Audio",tLX->clHeading),              Static, 40, 200, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Sound on",tLX->clNormalLabel),         Static, 60, 220, 0,0);
 	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bSoundOn),   os_SoundOn, 170, 220, 17,17);
-	cFloatingOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, 240, 0,0);
-	cFloatingOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, 240, 17,17);
 	cFloatingOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, 220, 0,0);
 	cFloatingOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, 217, 110, 20);
-	cFloatingOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, 240, 0,0);
-	cFloatingOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, 237, 110, 20);
 
 	cFloatingOpt_System.Add( new CLabel("Miscellanous",tLX->clHeading),       Static, 40, 265, 0,0);
 	cFloatingOpt_System.Add( new CLabel("Show FPS",tLX->clNormalLabel),         Static, 60, 285, 0,0);
@@ -432,7 +428,7 @@ void Menu_FloatingOptionsFrame()
 
 		// Ok
 		case op_Ok:
-			if(ev->iEventMsg == BTN_MOUSEUP) {
+			if(ev->iEventMsg == BTN_CLICKED) {
 				Menu_FloatingOptionsOkClose();
 				return;
 			}

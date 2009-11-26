@@ -174,7 +174,7 @@ void Menu_Net_LANFrame(int mouse)
 
 			// Back
 			case nl_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
 					const cb_item_t* item = combo->getSelectedItem();
@@ -194,7 +194,7 @@ void Menu_Net_LANFrame(int mouse)
 
 			// Refresh
 			case nl_Refresh:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -207,7 +207,7 @@ void Menu_Net_LANFrame(int mouse)
 
 			// Join
 			case nl_Join:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
 					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
@@ -458,15 +458,15 @@ void Menu_Net_LanShowServer(const std::string& szAddress)
         if(ev) {
 
 			// Ok
-            if(ev->iControlID == ld_Ok && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == ld_Ok && ev->iEventMsg == BTN_CLICKED) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == ld_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == ld_Refresh && ev->iEventMsg == BTN_CLICKED)  {
 				fStart = AbsTime();
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
-			} else if (ev->iControlID == ld_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+			} else if (ev->iControlID == ld_Join && ev->iEventMsg == BTN_CLICKED)  {
 
 				lv_subitem_t *sub = ((CListview *)cLan.getWidget(nl_ServerList))->getCurSubitem(1);
 

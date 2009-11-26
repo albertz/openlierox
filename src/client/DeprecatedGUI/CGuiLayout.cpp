@@ -657,6 +657,8 @@ gui_event_t *CGuiLayout::Process()
 			
 			if( (ev = cFocused->MouseDown(tMouse, tMouse->Down)) >= 0) {
 				tEvent->iEventMsg = ev;
+				tEvent->iControlID = cFocused->getID();
+				tEvent->cWidget = cFocused;
 				return tEvent;
 			}
 		}
@@ -668,8 +670,18 @@ gui_event_t *CGuiLayout::Process()
 			if(cFocused->InBox(tMouse->X,tMouse->Y))
 				cFocused->ProcessEvent(OnClick);
 			
+			if(cFocused->InBox(tMouse->X,tMouse->Y))
+				if( (ev = cFocused->MouseClicked(tMouse, tMouse->Up)) >= 0) {
+					tEvent->iEventMsg = ev;
+					tEvent->iControlID = cFocused->getID();
+					tEvent->cWidget = cFocused;
+					return tEvent;
+				}
+
 			if( (ev = cFocused->MouseUp(tMouse, tMouse->Up)) >= 0) {
 				tEvent->iEventMsg = ev;
+				tEvent->iControlID = cFocused->getID();
+				tEvent->cWidget = cFocused;
 				return tEvent;
 			}
 			

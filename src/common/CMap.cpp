@@ -638,6 +638,13 @@ void CMap::UpdateDrawImage(int x, int y, int w, int h)
 void CMap::SetMinimapDimensions(uint _w, uint _h)
 {
 	if(bDedicated) return;
+
+	// check if values make sense
+	if(_w >= 320 || _h >= 240) {
+		errors << "CMap::SetMinimapDimensions: dimension " << _w << "x" << _h << " too big" << endl;
+		// default values from Menu_HostShowMinimap
+		_w = 128; _h = 96;
+	}
 	
 	// If already created, reallocate
 	if (bmpMiniMap.get())  {
@@ -2297,6 +2304,16 @@ void CMap::UpdateMiniMap(bool force)
 	if(bDedicated) return;
 	if(!bMiniMapDirty && !force) return;
 
+	if(!bmpMiniMap.get()) {
+		errors << "CMap::UpdateMiniMap: minimap surface not initialised" << endl;
+		return;
+	}
+	
+	if(!bmpDrawImage.get()) {
+		errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
+		return;
+	}
+	
 	if( bmpBackImageHiRes.get() )
 	{
 		if (tLXOptions->bAntiAliasing)

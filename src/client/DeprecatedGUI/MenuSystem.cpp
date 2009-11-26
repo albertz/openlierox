@@ -660,7 +660,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 			if(ev->cWidget->getType() == wid_Textbox)
 				SetGameCursor(CURSOR_TEXT);
 
-			if(ev->iEventMsg == BTN_MOUSEUP) {
+			if(ev->iEventMsg == BTN_CLICKED) {
 				switch(ev->iControlID) {
 
 					// OK

@@ -299,7 +299,7 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 			break;
 			
 			case nc_Back:
-				if(iEvent == BTN_MOUSEUP) {
+				if(iEvent == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);

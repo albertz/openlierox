@@ -304,7 +304,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 			// Back
 			case hs_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -384,7 +384,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 			// Ok
 			case hs_Ok:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					lv = (CListview *)cHostPly.getWidget(hs_Playing);
 					
@@ -980,7 +980,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Back
 			case hl_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
@@ -1103,7 +1103,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Game Settings
 			case hl_GameSettings:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Draw the lobby screen to the buffer
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
@@ -1116,7 +1116,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
             // Weapon restrictions
             case hl_WeaponOptions:
-                if(ev->iEventMsg == BTN_MOUSEUP) {
+                if(ev->iEventMsg == BTN_CLICKED) {
 
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
@@ -1132,7 +1132,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Ban list
 			case hl_Banned:
-				if(ev->iEventMsg == BTN_MOUSEUP)   {
+				if(ev->iEventMsg == BTN_CLICKED)   {
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
 					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
@@ -1144,7 +1144,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Server settings
 			case hl_ServerSettings:
-				if(ev->iEventMsg == BTN_MOUSEUP)   {
+				if(ev->iEventMsg == BTN_CLICKED)   {
                     // Draw the lobby screen to the buffer
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
 					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
@@ -1157,7 +1157,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 			// Start the game
 			case hl_Start:
-				if(ev->iEventMsg == BTN_MOUSEUP)
+				if(ev->iEventMsg == BTN_CLICKED)
 					bStartPressed = true;
 				break;
 
@@ -1167,7 +1167,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					ev = ((CListview *)ev->cWidget)->getWidgetEvent();
 
 					// Click on the command button
-					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_MOUSEUP)  {
+					if (ev->cWidget->getType() == wid_Button && ev->iEventMsg == BTN_CLICKED)  {
 						g_nLobbyWorm = ev->cWidget->getID();
 						Menu_HostActionsPopupMenuInitialize(cHostLobby, hl_PopupMenu, hl_PopupPlayerInfo,  g_nLobbyWorm);
 					// Click on the team mark
@@ -1616,7 +1616,7 @@ bool Menu_ServerSettings_Frame()
 
 			// OK, done
 			case ss_Ok:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Save the info
 					cServerSettings.SendMessage(ss_ServerName, TXS_GETTEXT, &tLXOptions->sServerName, 0);
@@ -1651,7 +1651,7 @@ bool Menu_ServerSettings_Frame()
 
 			// Cancel, don't save changes
 			case ss_Cancel:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					Menu_ServerSettingsShutdown();
 
 					return true;
@@ -1758,7 +1758,7 @@ bool Menu_BanList_Frame()
 
 			// Close
 			case bl_Close:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					Menu_BanListShutdown();
 
@@ -1767,7 +1767,7 @@ bool Menu_BanList_Frame()
 				break;
 			// Unban
 			case bl_Unban:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					if (tListBox->getItemCount() > 0)  {
 
@@ -1779,7 +1779,7 @@ bool Menu_BanList_Frame()
 				break;
 			// Clear
 			case bl_Clear:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					(*cBanList).Clear();
 
 					tListBox->Clear();

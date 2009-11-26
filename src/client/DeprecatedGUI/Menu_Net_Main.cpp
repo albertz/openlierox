@@ -106,7 +106,7 @@ void Menu_Net_MainFrame(int mouse)
 
 			// Back
 			case nm_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);

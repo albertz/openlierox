@@ -132,7 +132,7 @@ void Menu_MainFrame()
 			case mm_LocalPlay:
                 mouseover = true;
                 img=0;
-                if( ev->iEventMsg == TBT_MOUSEUP ) {
+                if( ev->iEventMsg == TBT_CLICKED ) {
 					PlaySoundSample(sfxGeneral.smpClick);
 				    Menu_MainShutdown();
 				    Menu_LocalInitialize();
@@ -144,7 +144,7 @@ void Menu_MainFrame()
 			case mm_NetPlay:
                 mouseover = true;
                 img=1;
-                if( ev->iEventMsg == TBT_MOUSEUP ) {
+                if( ev->iEventMsg == TBT_CLICKED ) {
 					PlaySoundSample(sfxGeneral.smpClick);
 				    Menu_MainShutdown();
 				    Menu_NetInitialize();
@@ -154,7 +154,7 @@ void Menu_MainFrame()
 
 			// Player
 			case mm_PlayerProfiles:
-                if( ev->iEventMsg == TBT_MOUSEUP ) {
+                if( ev->iEventMsg == TBT_CLICKED ) {
 					PlaySoundSample(sfxGeneral.smpClick);
 				    Menu_MainShutdown();
 				    Menu_PlayerInitialize();
@@ -164,7 +164,7 @@ void Menu_MainFrame()
 
 			// Level editor
 			case mm_LevelEditor:
-                if( ev->iEventMsg == TBT_MOUSEUP ) {
+                if( ev->iEventMsg == TBT_CLICKED ) {
                     PlaySoundSample(sfxGeneral.smpClick);
 				    Menu_MainShutdown();
 				    Menu_MapEdInitialize();
@@ -174,7 +174,7 @@ void Menu_MainFrame()
 
 			// Options
 			case mm_Options:
-                if( ev->iEventMsg == TBT_MOUSEUP ) {
+                if( ev->iEventMsg == TBT_CLICKED ) {
 					PlaySoundSample(sfxGeneral.smpClick);
 				    Menu_MainShutdown();
 				    Menu_OptionsInitialize();
@@ -184,7 +184,7 @@ void Menu_MainFrame()
 
             // Quit
 			case mm_Quit:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
+                if( ev->iEventMsg == BTN_CLICKED ) {
 			        PlaySoundSample(sfxGeneral.smpClick);
 
                     cMainMenu.Draw(tMenu->bmpBuffer.get());
