@@ -56,9 +56,7 @@ enum {
 	os_Fullscreen,
 	os_ColourDepth,
 	os_SoundOn,
-	os_MusicOn,
 	os_SoundVolume,
-	os_MusicVolume,
 	os_NetworkPort,
 	os_NetworkSpeed,
 	os_NetworkUploadBandwidth,
@@ -279,12 +277,6 @@ bool Menu_OptionsInitialize()
 	cOpt_System.Add( new CLabel("Sound volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
 	cOpt_System.Add( new CSlider(100),                      os_SoundVolume, 435, y - 2, 110, 20); y += 25;
 
-	cOpt_System.Add( new CLabel("Music on",tLX->clNormalLabel),         Static, 60, y, 0,0);
-	cOpt_System.Add( new CCheckbox(tLXOptions->bMusicOn),   os_MusicOn, 170, y, 17,17);
-
-	cOpt_System.Add( new CLabel("Music volume",tLX->clNormalLabel),     Static, 330, y, 0,0);
-	cOpt_System.Add( new CSlider(100),                      os_MusicVolume, 435, y - 2, 110, 20);
-	
 	y += 20;
 	cOpt_System.Add( new CLabel("Network",tLX->clHeading),            Static, 40, y, 0,0);
 	cOpt_System.Add( new CLine(0,0,0,0, lineCol), Static, 110, y + 8, 620 - 110, 0);	
@@ -341,9 +333,6 @@ bool Menu_OptionsInitialize()
 	// Set the values
 	CSlider *s = (CSlider *)cOpt_System.getWidget(os_SoundVolume);
 	s->setValue( tLXOptions->iSoundVolume );
-
-	s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
-	s->setValue( tLXOptions->iMusicVolume );	
 
 	CTextbox *t = (CTextbox *)cOpt_System.getWidget(os_NetworkPort);
 	t->setText( itoa(tLXOptions->iNetworkPort) );
@@ -533,7 +522,7 @@ void Menu_OptionsFrame()
 
 			// Back button
 			case op_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown & save
 					Menu_OptionsShutdown();
@@ -739,7 +728,7 @@ void Menu_OptionsFrame()
 
 				// Apply
 				case os_Apply:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 
 						bool restart = (tLXOptions->bOpenGL != opengl) || (tLXOptions->iColourDepth != cdepth);
 
@@ -792,24 +781,6 @@ void Menu_OptionsFrame()
 					}
 					break;
 
-				// Music on/off
-				case os_MusicOn:
-					if(ev->iEventMsg == CHK_CHANGED) {
-
-						bool old = tLXOptions->bMusicOn;
-
-						c = (CCheckbox *)cOpt_System.getWidget(os_MusicOn);
-						tLXOptions->bMusicOn = c->getValue();
-
-						if(old != tLXOptions->bMusicOn) {
-							if(tLXOptions->bMusicOn)
-								InitializeBackgroundMusic();
-							else
-								ShutdownBackgroundMusic();
-						}
-					}
-					break;
-
 				// Sound volume
 				case os_SoundVolume:
 					if(ev->iEventMsg == SLD_CHANGE) {
@@ -817,20 +788,6 @@ void Menu_OptionsFrame()
 						tLXOptions->iSoundVolume = s->getValue();
 
 						SetSoundVolume( tLXOptions->iSoundVolume );
-					}
-					break;
-
-				// Music volume
-				case os_MusicVolume:
-					if(ev->iEventMsg == SLD_CHANGE) {
-						CSlider *s = (CSlider *)cOpt_System.getWidget(os_MusicVolume);
-						tLXOptions->iMusicVolume = s->getValue();
-
-						SetMusicVolume( tLXOptions->iMusicVolume );
-						if( tLXOptions->iMusicVolume == 0 )
-							ShutdownBackgroundMusic();
-						else
-							InitializeBackgroundMusic();
 					}
 					break;
 
@@ -877,7 +834,7 @@ void Menu_OptionsFrame()
 
 				// Test bandwidth
 				case os_TestBandwidth:  {
-					if (ev->iEventMsg == BTN_MOUSEUP)  {
+					if (ev->iEventMsg == BTN_CLICKED)  {
 						bSpeedTest = true;
 						Menu_SpeedTest_Initialize();
 					}

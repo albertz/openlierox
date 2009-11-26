@@ -29,7 +29,8 @@ namespace DeprecatedGUI {
 enum {
 	TBT_NONE=-1,
 	TBT_MOUSEUP=0,
-	TBT_MOUSEOVER
+	TBT_MOUSEOVER,
+	TBT_CLICKED
 };
 
 
@@ -61,6 +62,7 @@ public:
 	int		MouseOver(mouse_t *tMouse)			{ bMouseOver=true; SetGameCursor(CURSOR_HAND); return TBT_MOUSEOVER; }
 	int		MouseUp(mouse_t *tMouse, int nDown)		{ return TBT_MOUSEUP; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver=true; return TBT_NONE; }
+	int		MouseClicked(mouse_t *tMouse, int nDown)	{ return TBT_CLICKED; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return TBT_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return TBT_NONE; }
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return TBT_NONE; }
@@ -85,7 +87,7 @@ public:
 
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
-		if( iEvent == TBT_MOUSEUP )
+		if( iEvent == TBT_CLICKED )
 			cClick.Call();
 	};
 };

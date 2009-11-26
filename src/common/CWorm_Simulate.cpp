@@ -34,7 +34,7 @@
 #include "CGameMode.h"
 #include "Physics.h"
 #include "WeaponDesc.h"
-
+#include "AuxLib.h" // for doActionInMainThread
 
 
 ///////////////////
@@ -68,7 +68,19 @@ void CWormHumanInputHandler::getInput() {
 	// TODO: here are width/height of the window hardcoded
 	int mouse_dx = ms->X - 640/2;
 	int mouse_dy = ms->Y - 480/2;
-	if(mouseControl) SDL_WarpMouse(640/2, 480/2);
+	
+	if(mouseControl)
+	{
+		struct CenterMouse: public Action
+		{
+			int handle()
+			{
+				SDL_WarpMouse(640/2, 480/2);
+				return 0;
+			} 
+		};
+		doActionInMainThread( new CenterMouse() );
+	}
 
 	{
 /*		// only some debug output for checking the values

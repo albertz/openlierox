@@ -19,5 +19,6 @@
 
 void InitializeBackgroundMusic();
 void ShutdownBackgroundMusic();
+void SetMusicVolume(int v);
 
 #endif  //  __MUSIC_H__

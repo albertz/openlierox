@@ -1088,7 +1088,13 @@ void CClient::Frame()
 	if(!tLX || tLX->bQuitEngine || tLX->bQuitGame)
 		return;
 	
-	if((bGameRunning || iNetStatus == NET_PLAYING) && !bWaitingForMap && !bWaitingForMod && cMap && cGameScript.get())
+	if(
+		(bGameRunning || iNetStatus == NET_PLAYING) &&
+		!bWaitingForMap &&
+		!bWaitingForMod &&
+		cMap &&
+		cMap->isLoaded() &&
+		cGameScript.get())
 	{
 		if( NewNet::Active() )
 			NewNet_Frame();
@@ -2530,6 +2536,10 @@ void CClient::DumpGameState(CmdLineIntf* caller) {
 	}
 	else
 		caller->writeMsg("Worms not initialised");
+}
+
+bool CClient::isMapReady() const {
+	return cMap && cMap->isLoaded();
 }
 
 

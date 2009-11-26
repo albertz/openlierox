@@ -32,7 +32,7 @@ public:
 	float GetDistance(const IpInfo& place1, const IpInfo& place2);
 INTERNDATA_CLASS_END
 
-extern char *IP_TO_COUNTRY_FILE;
-extern  IpToCountryDB	*tIpToCountryDB;
+extern const char* IP_TO_COUNTRY_FILE;
+extern IpToCountryDB* tIpToCountryDB;
 
 #endif

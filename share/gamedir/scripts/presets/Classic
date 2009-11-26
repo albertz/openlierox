@@ -1,9 +1,0 @@
-#!/usr/bin/python -u
-
-setvar( "GameOptions.GameInfo.ModName", "Classic" )
-
-setvar( "GameOptions.GameInfo.LoadingTime", "100" )
-
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Classic/Standard 100lt.wps" )
-
-

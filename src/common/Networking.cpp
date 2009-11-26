@@ -78,39 +78,51 @@ bool AreNetworkAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2)
 	return AreNetAddrEqual(addr1, addr2);
 };
 
-typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
-DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrSmartPtr );
+class NetAddrInternal
+{
+	public:
+	NetAddrInternal() {};
+	NetAddrInternal(const NetAddrInternal & other)
+	{
+		*this = other;
+	};
+	
+	const NetAddrInternal & operator= (const NetAddrInternal & other)
+	{
+		*NetAddrSmartPtr.get() = *other.NetAddrSmartPtr.get();
+		return *this;
+	}
 
+	const NetAddrInternal & operator= (const NLaddress & addr)
+	{
+		*NetAddrSmartPtr.get() = addr;
+		return *this;
+	}
+	
+	NetAddrInternal(const NLaddress & addr)
+	{
+		*this = addr;
+	};
+
+	typedef SmartPointer<NLaddress, NetAddrIniter> Ptr_t;
+	
+	const Ptr_t & getPtr() const
+	{
+		return NetAddrSmartPtr;
+	}
+	
+	private:
+	Ptr_t NetAddrSmartPtr;
+};
+
+DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrInternal );
 
 static NLaddress* getNLaddr(NetworkAddr& addr) {
-	return NetworkAddrData(addr).get();
+	return NetworkAddrData(addr).getPtr().get();
 }
 
 static const NLaddress* getNLaddr(const NetworkAddr& addr) {
-	return NetworkAddrData(addr).get();
-}
-
-
-// TODO: perhaps move these test-functions somewhere else?
-// but it's good to keep them somewhere to easily test some code part
-void test_NetworkSmartPointer() {
-	for(int i = 0; i < 100; i++)
-	{
-		printf("creating SP\n");
-		NetAddrSmartPtr sp;
-		printf("destroying SP\n");
-	}
-
-
-	SDL_Delay(1000);
-
-	printf("creating data-array\n");
-	char* tmp = new char[2048];
-
-	printf("freeing data-array\n");
-	delete[] tmp;
-
-//	exit(-1);
+	return NetworkAddrData(addr).getPtr().get();
 }
 
 
@@ -1384,12 +1396,12 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
-		NetAddrSmartPtr address;
+		NetAddrInternal::Ptr_t address;
 		
 		int handle() {
 			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-				AddToDnsCache(addr_name, NetworkAddr(address));
+				AddToDnsCache(addr_name, NetworkAddr(NetAddrInternal(*address.get())));
 			}
 			
 			// TODO: handle failures here? there should be, but we only have the valid field
@@ -1410,7 +1422,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	if(data == NULL) return false;
 	data->name = "GetNetAddrFromNameAsync for " + name;
     data->addr_name = name;
-    data->address = NetworkAddrData(addr);
+    data->address = NetworkAddrData(addr).getPtr();
 
 	taskManager->start(data, false);
     return true;

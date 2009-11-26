@@ -12,16 +12,6 @@ cmds.parseAdminCommand_Preset = None
 cmds.userCommandHelp_Preset = None
 cmds.parseUserCommand_Preset = None
 
-import random
-
-setvar( "GameOptions.GameInfo.LevelName", cfg.LEVELS[ random.randrange(len(cfg.LEVELS)) ] )
-
-setvar( "GameOptions.GameInfo.ModName", "Classic" )
-
-#  TODO use options.cfg as default
-setvar( "GameOptions.GameInfo.LoadingTime", 0 )
-
-setvar( "GameServer.WeaponRestrictionsFile", "" )
 
 setvar("GameOptions.GameInfo.GameType", 0) # 0 - Deathmatch, 1 - TDM, 2 - Tag, 3 - Demolitions, 4 - Hide&Seek
 

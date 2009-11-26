@@ -102,7 +102,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 			// Back
 			case nw_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -117,7 +117,7 @@ void Menu_Net_NewsFrame(int mouse)
 
 			// Update
 			case nw_Refresh:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);

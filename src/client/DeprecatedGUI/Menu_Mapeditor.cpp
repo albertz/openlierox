@@ -344,7 +344,7 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 	if(ev) {
 
 		if(ev->cWidget->getType() == wid_Button) {
-			if(ev->iEventMsg == BTN_MOUSEUP)
+			if(ev->iEventMsg == BTN_CLICKED)
 				PlaySoundSample(sfxGeneral.smpClick);
 		}
 
@@ -352,34 +352,34 @@ void Menu_MapEdFrame(SDL_Surface * bmpDest, int process)
 
 			// New
 			case map_new:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					Menu_MapEd_New();
 				}
 				break;
 
 			// Random
 			case map_random:
-				if(ev->iEventMsg == BTN_MOUSEUP)
+				if(ev->iEventMsg == BTN_CLICKED)
 					//cMap->ApplyRandom();
 				break;
 
 			// Load
 			case map_load:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					Menu_MapEd_LoadSave(false);
 				}
 				break;
 
 			// Save
 			case map_save:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					Menu_MapEd_LoadSave(true);
 				}
 				break;
 
 			// Quit
 			case map_quit:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown the classes
 					Menu_MapEdShutdown();
@@ -579,7 +579,7 @@ void Menu_MapEd_New()
 
 				// Cancel
 				case mn_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
@@ -587,7 +587,7 @@ void Menu_MapEd_New()
 
 				// OK
 				case mn_Ok:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						PlaySoundSample(sfxGeneral.smpClick);
 						int w = from_string<int>(t1->getText());
 						int h = from_string<int>(t2->getText());
@@ -723,7 +723,7 @@ void Menu_MapEd_LoadSave(int save)
 
 				// Cancel
 				case sl_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
@@ -731,7 +731,7 @@ void Menu_MapEd_LoadSave(int save)
 
 				// OK
 				case sl_Ok:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						PlaySoundSample(sfxGeneral.smpClick);
 
 						if(t->getText().length() > 0) {

@@ -248,8 +248,6 @@ void GameServer::SendGlobalText(const std::string& text, int type) {
 		return;
 	}
 
-	notes << "Send Global Text: " << text << endl;
-
 	CServerConnection *cl = cClients;
 	for(short c = 0; c < MAX_CLIENTS; c++, cl++) {
 		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)

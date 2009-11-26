@@ -1,7 +1,0 @@
-#!/usr/bin/python -u
-
-setvar( "GameOptions.GameInfo.ModName", "Trick or Treat v0.4" )
-
-setvar( "GameOptions.GameInfo.LoadingTime", "100" )
-
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Trick or Treat v0.4/Standard 100lt.wps" )

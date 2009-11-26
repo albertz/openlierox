@@ -308,7 +308,9 @@ bool GameOptions::Init() {
 		}
 	}
 	
-	
+	notes << "Reading game options from " << GetFullFileName(tLXOptions->cfgFilename) << endl;
+	notes << "Will write game options to " << GetWriteFullFileName(tLXOptions->cfgFilename, true) << endl;
+		
 	bool ret = tLXOptions->LoadFromDisc();
 
 	/*notes << "Skinnable vars:\n" << CGuiSkin::DumpVars() << endl;
@@ -324,32 +326,36 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 {
 	additionalOptions.clear();
 
-	notes << "Reading game options from " << GetFullFileName(cfgfilename) << endl;
-	notes << "Will write game options to " << GetWriteFullFileName(cfgfilename, true) << endl;
-		
 	// TODO: these use arrays which are not handled by scriptablevars
 	InitWidgetStates(*this);
 
 	// define parser handler
-	class MyIniReader : public IniReader {
-	public:
+	struct MyIniReader : public IniReader {
 		GameOptions* opts;
-		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o) {}
+		typedef std::list< std::pair<std::string,std::string> > LX56FallbackList;
+		LX56FallbackList lx56_LastGameFallback;
+		bool haveGameInfo;
+		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o), haveGameInfo(false) {}
 
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
 			// ConfigFileInfo is additional data about the config file itself - we ignore it atm at this place
 			if(stringcaseequal(section, "ConfigFileInfo")) return true;
+			if(stringcaseequal(section, "GameInfo")) haveGameInfo = true;
 			
 			RegisteredVar* var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var !=  NULL ) { // found entry
 				CScriptableVars::SetVarByString(var->var, value);
 			} else {
-				if( (section == "FileHandling" && propname.find("SearchPath") == 0)
-				 || (section == "Widgets") ) {
+				if( (stringcaseequal(section, "FileHandling") && stringcasefind(propname, "SearchPath") == 0)
+				|| stringcaseequal(section, "Widgets") ) {
 					// ignore these atm
 				} else {
 					opts->additionalOptions[section + "." + propname] = value;
-					notes << "the option \"" << section << "." << propname << "\" defined in " << m_filename << " is unknown" << endl;
+
+					if(stringcaseequal(section, "LastGame"))
+						lx56_LastGameFallback.push_back(make_pair(propname, value));
+					else
+						notes << "the option \"" << section << "." << propname << "\" defined in " << m_filename << " is unknown" << endl;
 				}
 			}
 
@@ -362,7 +368,21 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	if( ! iniReader.Parse() ) {
 		hints << cfgfilename << " not found, will use standards" << endl;
 	}
-
+	else {
+		// Fallback: this is old LX56 config file
+		if(!iniReader.haveGameInfo && iniReader.lx56_LastGameFallback.size() > 0) {
+			notes << "Old LX56 config file" << endl;
+			for(MyIniReader::LX56FallbackList::iterator i = iniReader.lx56_LastGameFallback.begin(); i != iniReader.lx56_LastGameFallback.end(); ++i) {
+				const std::string& propname = i->first;
+				const std::string& value = i->second;
+				RegisteredVar* var = CScriptableVars::GetVar("GameOptions.GameInfo." + propname);
+				if( var !=  NULL ) // found entry
+					CScriptableVars::SetVarByString(var->var, value);
+				else
+					notes << "the LX56 gameoption " << propname << " is unknown" << endl;
+			}
+		}
+	}
 
 	initSpecialSearchPathForTheme();
 	if(getSpecialSearchPathForTheme()) {

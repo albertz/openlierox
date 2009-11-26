@@ -27,8 +27,6 @@ import dedicated_control_usercommands as cmds
 ## Global vars
 # Preset stuffies
 availablePresets = []
-nextPresets = []
-
 
 worms = {} # List of all worms on the server
 # Bots don't need to be itterated with the other ones.
@@ -82,14 +80,6 @@ class Worm:
 	def clear(self):
 		self.__init__()
 
-class Preset():
-	def __init__(self):
-		self.Name = None
-		self.Level = None
-		self.Mod = None
-		self.LT = None
-
-
 def init():
 	initPresets()
 
@@ -101,8 +91,11 @@ def init():
 
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
-
-	selectNextPreset()
+	
+	if io.getVar("GameOptions.GameInfo.AllowEmptyGames") == "false" and cfg.MIN_PLAYERS < 2:
+		io.messageLog("GameOptions.GameInfo.AllowEmptyGames is false - setting cfg.MIN_PLAYERS to 2", io.LOG_WARN)
+		cfg.MIN_PLAYERS = 2
+		
 
 
 ## High-level processing ##
@@ -362,59 +355,6 @@ def initPresets():
 		io.messageLog("There are no presets available - nothing to do. Exiting.",io.LOG_CRITICAL)
 		exit()
 
-# Ensures the nextPresets is not empty
-def fillNextPresets():
-	global availablePresets, nextPresets
-	if len( nextPresets ) == 0:
-		for n in cfg.PRESETS:
-			p = Preset()
-			p.Name = n
-			nextPresets.append(p)
-		if len( nextPresets ) == 0:
-			for n in availablePresets:
-				p = Preset()
-				p.Name = n
-				nextPresets.append(p)
-		shuffle(nextPresets)
-
-# initPresets must be called before this - or it will crash
-def selectNextPreset():
-	global availablePresets, nextPresets, controlHandler, gameState
-
-	fillNextPresets()
-
-	preset = nextPresets[0]
-	nextPresets.pop(0)
-
-	fillNextPresets()
-
-	io.msg("Preset " + preset.Name)
-	io.chatMsg("Preset " + preset.Name)
-
-	sFile = os.path.join(presetDir,preset.Name)
-	sDefaults = os.path.join(presetDir,"Defaults")
-	try:
-		execfile(sDefaults)
-		fPreset = file(sFile,"r")
-		line = fPreset.readline()
-		if line.find("python") != -1:
-			fPreset.close()
-			execfile(sFile)
-		else:
-			print line.strip().replace('"','')
-			for line in fPreset.readlines():
-				print line.strip().replace('"','')
-			fPreset.close()
-	except IOError:
-		# File does not exist, perhaps it was removed.
-		preset.Mod = preset.Name
-		#io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
-		initPresets()
-	except:
-		io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
-	return preset
-		
-
 
 ## Control functions
 
@@ -440,87 +380,15 @@ def checkMaxPing():
 
 
 
-
-class PresetCicler:
-	enabled = False
-	lastSelect = time.time()
-	timeOut = cfg.PRESET_TIMEOUT
-	preset = Preset()
-	nextCicleTime = time.time()
-
-	def check(self):
-		if not self.enabled: return
-		if time.time() < self.nextCicleTime: return
-		self.cicle()
-	
-	def cicle(self):
-		if not self.enabled: return
-		self.preset = selectNextPreset()
-		self.apply()
-
-	def apply(self):
-		if not self.enabled: return
-
-		if self.preset.Mod:
-			io.setvar("GameOptions.GameInfo.ModName", self.preset.Mod)
-		if self.preset.Level:
-			io.setvar("GameOptions.GameInfo.LevelName", self.preset.Level)
-		if self.preset.LT:
-			io.setvar("GameOptions.GameInfo.LoadingTime", self.preset.LT)
-
-		self.nextCicleTime = time.time() + self.timeOut
-		
-presetCicler = PresetCicler()
-
-
-def selectPreset( Name = None, Level = None, Mod = None, LT = None, Repeat = 0 ):
-	global availablePresets, nextPresets, controlHandler, gameState
-
-	fillNextPresets()
-	preset = nextPresets[0]
-
-	if Name:
-		preset.Name = Name
-	if Level:
-		preset.Level = Level
-	if Mod:
-		preset.Mod = Mod
-	if LT:
-		preset.LT = LT
-
-	if Repeat > 0:
-		nextPresets = []
-		for f in range(Repeat):
-			nextPresets.append(preset)
-	else:
-		nextPresets[0] = preset
-
-	if gameState != GAME_LOBBY:
-		msg = "Preset " + str(preset.Name)
-		if preset.Level:
-			msg += " map " + preset.Level
-		if preset.Mod:
-			msg += " mod " + preset.Mod
-		if preset.LT:
-			msg += " LT " + str(preset.LT)
-		io.chatMsg( msg + " will be selected for next game")
-	else:
-		presetCicler.preset = selectNextPreset()
-		presetCicler.apply()
-
-
-
-
-
-class StandardCicler:
-	list = []
-	preSelectedList = []
-	curIndex = 0
-	curSelection = None
-	gameVar = ""
-	enabled = True
-	timeOut = 300
-	nextCicleTime = time.time()
+class StandardCiclerBase: #TODO: it's cycler not cicler lol
+	def __init__(self):
+		self.list = []
+		self.preSelectedList = []
+		self.curIndex = 0
+		self.curSelection = None
+		self.enabled = True
+		self.timeOut = 0 # this will always change after each round, no matter how short
+		self.nextCicleTime = time.time()
 	
 	def check(self):
 		if not self.enabled: return
@@ -528,6 +396,7 @@ class StandardCicler:
 		self.cicle()
 		
 	def cicle(self):
+		#io.messageLog(("%s.cicle(): preSelectedList %s" % (str(self.__class__), str(self.preSelectedList))),io.LOG_WARN)
 		if len(self.preSelectedList) > 0:
 			self.curSelection = self.preSelectedList[0]
 			self.preSelectedList.pop(0)
@@ -544,32 +413,157 @@ class StandardCicler:
 
 	def apply(self):
 		if not self.curSelection: return
-		io.setvar(self.gameVar, self.curSelection)
+		#io.messageLog(("%s.apply(): curSelection %s" % (str(self.__class__), str(self.curSelection))),io.LOG_WARN)
 		self.nextCicleTime = time.time() + self.timeOut
+	
+	def pushSelection(self, selection):
+		self.preSelectedList.insert(len(self.preSelectedList), selection)
+		self.nextCicleTime = time.time()
+		global gameState
+		if gameState == GAME_LOBBY: # Game not started yet - force selection immediately
+			self.check()
+		#io.messageLog(("%s.pushSelection(%s): preSelectedList %s" % (str(self.__class__), str(selection), str(self.preSelectedList))),io.LOG_WARN)
 
 
-mapCicler = StandardCicler()
-mapCicler.timeOut = 0 # this will always change map after each round, no matter how short
-#mapCicler.list = cfg.LEVELS 
-mapCicler.list = io.listMaps()
-if len(mapCicler.list) == 0:
-	io.messageLog("Waiting for level list ...")
-	while len(mapCicler.list) == 0:
-		mapCicler.list = io.listMaps()
-shuffle(mapCicler.list)
-mapCicler.gameVar = "GameOptions.GameInfo.LevelName"
+class StandardCiclerGameVar(StandardCiclerBase):
+	def __init__(self):
+		StandardCiclerBase.__init__(self)
+		self.gameVar = ""
+	
+	def apply(self):
+		if not self.curSelection: return
+		StandardCiclerBase.apply(self)
+		io.setvar(self.gameVar, self.curSelection)
+
+class MapCicler(StandardCiclerGameVar):
+	def __init__(self):
+		StandardCiclerGameVar.__init__(self)
+		self.gameVar = "GameOptions.GameInfo.LevelName"
+	
+	def cicle(self):
+		global worms
+		oldlist = self.list
+
+		#self.list = io.listMaps()
+
+		if len(worms) <= cfg.MAX_PLAYERS_SMALL_LEVELS:
+			self.list = cfg.SMALL_LEVELS
+		else:
+			self.list = cfg.LEVELS
+		
+
+		if self.list != oldlist:
+			self.curIndex = 0
+			shuffle(self.list)
+		
+		StandardCiclerGameVar.cicle(self)
+
+mapCicler = MapCicler()
+#mapCicler.timeOut = 0 # this will always change map after each round, no matter how short
+#if len(mapCicler.list) == 0:
+#	io.messageLog("Waiting for level list ...")
+#	while len(mapCicler.list) == 0:
+#		mapCicler.list = io.listMaps()
+#shuffle(mapCicler.list)
 mapCicler.cicle()
 
 
-modCicler = StandardCicler()
+class ModCicler(StandardCiclerGameVar):
+	def __init__(self):
+		StandardCiclerGameVar.__init__(self)
+		self.gameVar = "GameOptions.GameInfo.ModName"
+	
+	def apply(self):
+		if not self.curSelection: return
+		StandardCiclerGameVar.apply(self)
+		setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + self.curSelection + "/Standard 100lt.wps" )
+
+
+modCicler = ModCicler()
 modCicler.list = io.listMods()
 if len(modCicler.list) == 0:
 	io.messageLog("Waiting for mod list ...")
 	while len(modCicler.list) == 0:
 		modCicler.list = io.listMods()
-modCicler.gameVar = "GameOptions.GameInfo.ModName"
-modCicler.enabled = False
 
+class PresetCicler(StandardCiclerBase):
+	def __init__(self):
+		StandardCiclerBase.__init__(self)
+
+	def apply(self):
+		if not self.curSelection: return
+		StandardCiclerBase.apply(self)
+
+		global availablePresets, presetDir
+
+		sDefaults = os.path.join(presetDir,"Defaults")
+		try:
+			execfile(sDefaults)
+		except:
+			io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+
+		sFile = os.path.join(presetDir,self.curSelection)
+		try:
+			fPreset = file(sFile,"r")
+			line = fPreset.readline()
+			if line.find("python") != -1:
+				fPreset.close()
+				execfile(sFile)
+			else:
+				print line.strip().replace('"','')
+				for line in fPreset.readlines():
+					print line.strip().replace('"','')
+				fPreset.close()
+		except IOError:
+			# File does not exist, perhaps it was removed.
+			io.messageLog(("Unable to load %s, forcing rehash of all presets" % sFile),io.LOG_WARN)
+			initPresets()
+		except:
+			io.messageLog("Error in preset: " + str(formatExceptionInfo()),io.LOG_ERROR)
+
+
+presetCicler = PresetCicler()
+presetCicler.list = cfg.PRESETS
+if( len(presetCicler.list) == 0 ):
+	presetCicler.list = availablePresets
+shuffle(presetCicler.list)
+
+LT_Cicler = StandardCiclerGameVar()
+LT_Cicler.list = [ "100" ]
+LT_Cicler.gameVar = "GameOptions.GameInfo.LoadingTime"
+
+def selectPreset( Preset = None, Level = None, Mod = None, LT = None ):
+	global presetCicler, modCicler, mapCicler, LT_Cicler
+
+	#io.messageLog(("selectPreset(): Preset %s Level %s Mod %s LT %s" % (str(Preset), str(Level), str(Mod), str(LT))),io.LOG_WARN)
+
+	msg = ""
+	if Preset:
+		presetCicler.pushSelection(Preset)
+		msg += " Preset " + Preset
+	if Level:
+		mapCicler.pushSelection(Level)
+		msg += " Map " + Level
+		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
+		if len(presetCicler.preSelectedList) <= 0:
+			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+	if Mod:
+		modCicler.pushSelection(Mod)
+		msg += " Mod " + Mod
+		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
+		if len(presetCicler.preSelectedList) <= 0:
+			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+	if LT:
+		LT_Cicler.pushSelection(str(LT))
+		msg += " LT " + str(LT)
+		#io.messageLog(("selectPreset(): presetCicler.preSelectedList %s" % (str(presetCicler.preSelectedList))),io.LOG_WARN)
+		if len(presetCicler.preSelectedList) <= 0:
+			presetCicler.pushSelection( "Random" ) # Prevent loading preset that overrides this setting
+
+	if gameState != GAME_LOBBY:
+		io.chatMsg( msg.strip() + " will be selected for next game")
+	else:
+		io.chatMsg( msg.strip() )
 
 
 lobbyWaitBeforeGame = time.time() + cfg.WAIT_BEFORE_GAME
@@ -582,20 +576,23 @@ def controlHandlerDefault():
 
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
+	global presetCicler, modCicler, mapCicler, LT_Cicler
 	
 	if scriptPaused:
 		return
 
 	curTime = time.time()
-
+	cmds.recheckVote(False)
+	
 	if gameState == GAME_LOBBY:
 
 		# Do not check ping in lobby - it's wrong
 
 		if oldGameState != GAME_LOBBY:
-			presetCicler.check()
 			mapCicler.check()
 			modCicler.check()
+			LT_Cicler.check()
+			presetCicler.check()
 			lobbyEnoughPlayers = False # reset the state
 			lobbyWaitGeneral = curTime + cfg.WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE
 			lobbyWaitAfterGame = curTime

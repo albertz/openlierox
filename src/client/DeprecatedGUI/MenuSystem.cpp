@@ -660,7 +660,7 @@ MessageBoxReturnType Menu_MessageBox(const std::string& sTitle, const std::strin
 			if(ev->cWidget->getType() == wid_Textbox)
 				SetGameCursor(CURSOR_TEXT);
 
-			if(ev->iEventMsg == BTN_MOUSEUP) {
+			if(ev->iEventMsg == BTN_CLICKED) {
 				switch(ev->iControlID) {
 
 					// OK
@@ -1333,6 +1333,10 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	server_t * found = Menu_SvrList_FindServerStr(tmp_address, name);
     if( found && port != -1 && port != 0 )
     {
+    	if( found->szName == "Untitled" )
+    		found->szName = name;
+    	//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+
 		for( size_t i = 0; i < found->ports.size(); i++ )
 			if( found->ports[i].first == port )
 				return found;
@@ -1709,25 +1713,45 @@ bool Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>
 server_t *Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & name)
 {
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
 		if( AreNetAddrEqual( addr, s->sAddress ) )
 			return &(*s);
+	}
 
-	// Check if IP without port and name match
     NetworkAddr addr1 = addr;
     SetNetAddrPort(addr1, LX_PORT);
 
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
 	{
+		// Check if any port number match from the server entry
 		NetworkAddr addr2 = s->sAddress;
+		for( size_t i = 0; i < s->ports.size(); i++ )
+		{
+			SetNetAddrPort(addr2, s->ports[i].first);
+			if( AreNetAddrEqual( addr, addr2 ) )
+				return &(*s);
+		}
+			
+		// Check if IP without port and name match
 		SetNetAddrPort(addr2, LX_PORT);
 		if( AreNetAddrEqual( addr1, addr2 ) && name == s->szName && name != "Untitled" )
 			return &(*s);
 	}
 
+	/*
+	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
+	{
+		// Check if just an IP without port match
+		NetworkAddr addr2 = s->sAddress;
+		SetNetAddrPort(addr2, LX_PORT);
+		if( AreNetAddrEqual( addr1, addr2 ) )
+			return &(*s);
+	}
+	*/
+
 	// None found
 	return NULL;
 }
-
 
 
 ///////////////////
@@ -1741,6 +1765,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 	if(iNetMode != net_favourites)
 		svr->szName = buf;
 	TrimSpaces(svr->szName);
+	//hints << "Menu_SvrList_ParseQuery(): " << svr->szName << " " << svr->szAddress << endl;
 	svr->nNumPlayers = bs->readByte();
 	svr->nMaxPlayers = bs->readByte();
 	svr->nState = bs->readByte();
@@ -1759,11 +1784,12 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
     if(svr->nPing > 999)
         svr->nPing = 999;
 		
-	if( bs->isPosAtEnd() )
-		return;
-	// Beta8+
-	svr->tVersion.setByString( bs->readString(64) );
-	svr->bAllowConnectDuringGame = bs->readBool();
+	if( !bs->isPosAtEnd() )
+	{
+		// Beta8+
+		svr->tVersion.setByString( bs->readString(64) );
+		svr->bAllowConnectDuringGame = bs->readBool();
+	}
 	
 	// We got server name in a query. let's remove servers with the same name and IP, which we got from UDP masterserver
 	for(std::list<server_t>::iterator it = psServerList.begin(); it != psServerList.end(); it++)
@@ -1775,6 +1801,7 @@ void Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs)
 		if( it->szName == svr->szName && AreNetAddrEqual(addr1, addr2) && svr != &(*it) )
 		{
 			//Duplicate server - delete it
+			//hints << "Menu_SvrList_ParseQuery(): removing duplicate " << it->szName << " " << it->szAddress << endl;
 			psServerList.erase(it);
 			it = psServerList.begin();
 		}
@@ -1868,7 +1895,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
 		bs->Clear();
 
-		notes << "Sent getserverlist to " << server << endl;
+		//notes << "Sent getserverlist to " << server << endl;
 
 		// Wait for the reply
 		AbsTime timeoutTime = GetTime() + 5.0f;
@@ -1880,7 +1907,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 				// Got a reply?
 				if (bs->Read(&sock))  {
-					notes << "Got a reply from " << server << endl;
+					//notes << "Got a reply from " << server << endl;
 					break;
 				}
 				
@@ -1946,6 +1973,9 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 	{
 		std::string addr = bs->readString();
 		std::string name = bs->readString();
+		TrimSpaces(name);
+		TrimSpaces(addr);
+		//hints << "Menu_SvrList_ParseUdpServerlist(): " << name << " " << addr << endl;
 		int players = bs->readByte();
 		int maxplayers = bs->readByte();
 		int state = bs->readByte();
@@ -1955,10 +1985,11 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		server_t *svr = Menu_SvrList_FindServerStr(addr, name);
 		if( svr != NULL )
 		{
+			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
 			if( svr->bgotPong )
 				continue;
 			// It will merge existing server with new info
-			Menu_SvrList_AddServer(svr->szAddress, false, svr->szName, UdpMasterserverIndex);
+			Menu_SvrList_AddServer(addr, false, name, UdpMasterserverIndex);
 			continue;
 		}
 
@@ -2091,17 +2122,17 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
     tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
-
-	NetworkAddr origAddr;
 	server_t* svr = Menu_SvrList_FindServerStr(szAddress);
+	NetworkAddr origAddr;
 	if(svr) {
-		if(IsNetAddrValid(svr->sAddress))
+		if(IsNetAddrValid(svr->sAddress)) {
 			origAddr = svr->sAddress;
-		else {
+		} else {
 			tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+h/2-8, tLX->clNormalLabel,  "Resolving domain ...");
 			return;
 		}
 	} else {
+		warnings << "Querying server not from svr list: " << szAddress << endl;
 		std::string tmp_addr = szAddress;
 		TrimSpaces(tmp_addr);
 		if(!StringToNetAddr(tmp_addr, origAddr)) {
@@ -2272,7 +2303,8 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bGotDetails = false;
 			bOldLxBug = false;
 
-			Menu_SvrList_GetServerInfo(svr);
+			if(svr)
+				Menu_SvrList_GetServerInfo(svr);
         }
 
 		// Got details, fill in the listview

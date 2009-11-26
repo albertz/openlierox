@@ -182,7 +182,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Back
 			case mf_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
 					const cb_item_t* item = combo->getSelectedItem();
@@ -205,7 +205,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Add
 			case mf_Add:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -216,7 +216,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Refresh
 			case mf_Refresh:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -229,7 +229,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Join
 			case mf_Join:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
 					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
@@ -322,7 +322,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 			// Clear
 			case mf_Clear:
-				if (ev->iEventMsg == BTN_MOUSEUP)  {
+				if (ev->iEventMsg == BTN_CLICKED)  {
 					if (Menu_MessageBox("Confirmation", "Do you really want to delete ALL your favourite servers?", LMB_YESNO) == MBR_YES)  {
 						Menu_SvrList_Clear();
 						Menu_SvrList_SaveList("cfg/favourites.dat");
@@ -519,16 +519,16 @@ void Menu_Net_FavouritesShowServer(const std::string& szAddress)
 		ev = cDetails.Process();
         if(ev) {
 			// Ok
-            if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == fd_Ok && ev->iEventMsg == BTN_CLICKED) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == fd_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == fd_Refresh && ev->iEventMsg == BTN_CLICKED)  {
 				fStart = AbsTime();
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
 			// Join
-			} else if (ev->iControlID == fd_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+			} else if (ev->iControlID == fd_Join && ev->iEventMsg == BTN_CLICKED)  {
 
 				lv_subitem_t *sub = ((CListview *)cFavourites.getWidget(mf_ServerList))->getCurSubitem(1);
 
@@ -610,7 +610,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 				// Ok
 				case rs_Ok:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 
 						cRename.SendMessage(2, TXS_GETTEXT, &szName, 0);
 
@@ -625,7 +625,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 				// Cancel
 				case rs_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -710,7 +710,7 @@ void Menu_Net_FavouritesAddServer()
 
 				// Add
 				case fa_Add:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 
 						std::string addr;
 						std::string name;
@@ -729,7 +729,7 @@ void Menu_Net_FavouritesAddServer()
 
 				// Cancel
 				case fa_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 

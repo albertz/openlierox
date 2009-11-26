@@ -1479,7 +1479,6 @@ simulateProjectilesStart:
 	// HINT: if the computer is too slow and doesn't manage to simulate everything, just skip few frames
 	// Better an incorrect simulation than a game that is not controllable
 	if (GetTime() - realSimulationTime > orig_dt)  {
-		warnings << "Skipping simulation frames due to slow simulation" << endl;
 		cClient->fLastSimulationTime = currentTime;
 		return;
 	}

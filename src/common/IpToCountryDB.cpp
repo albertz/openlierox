@@ -13,7 +13,7 @@
 #include "Unicode.h"
 #include "GeoIPDatabase.h"
 
-char *IP_TO_COUNTRY_FILE = "GeoIP.dat";
+const char *IP_TO_COUNTRY_FILE = "GeoIP.dat";
 
 IpToCountryDB::IpToCountryDB(const std::string& dbfile) : m_database(NULL) { LoadDBFile(dbfile); }
 
