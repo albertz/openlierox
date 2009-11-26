@@ -2015,18 +2015,6 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 
-	if(client->getMap() == NULL) {
-		hints << "CClientNetEngine::ParseUpdateWorms: received update without initialised map" << endl;
-		
-		// Skip to the right position
-		for (byte i=0;i<count;i++)  {
-			bs->Skip(1);
-			CWorm::skipPacketState(bs);
-		}
-		
-		return;
-	}
-	
 	for(byte i=0;i<count;i++) {
 		byte id = bs->readByte();
 
@@ -2259,7 +2247,7 @@ void CClientNetEngine::ParseServerLeaving(CBytestream *bs)
 // Parse a 'single shot' packet
 void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 {
-	if(!client->bGameReady || client->bGameOver)  {
+	if(!client->canSimulate()) {
 		if(client->bGameReady)
 			notes << "CClientNetEngine::ParseSingleShot: game over - ignoring" << endl;
 		CShootList::skipSingle(bs, client->getServerVersion()); // Skip to get to the correct position
@@ -2278,7 +2266,7 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 // Parse a 'multi shot' packet
 void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 {
-	if(!client->bGameReady || client->bGameOver)  {
+	if(!client->canSimulate())  {
 		if(client->bGameReady)
 			notes << "CClientNetEngine::ParseMultiShot: game over - ignoring" << endl;
 		CShootList::skipMulti(bs, client->getServerVersion()); // Skip to get to the correct position

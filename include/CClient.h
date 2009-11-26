@@ -542,8 +542,11 @@ public:
 	bool		RebindSocket();	// If client has taken the port on which server should start - free it
 
 	CMap*		getMap() const				{ return cMap; }
+	bool		isMapReady() const;
 	void		resetMap()					{ cMap = NULL; }
 
+	bool		canSimulate() const			{ return bGameReady && !bGameOver && isMapReady(); }
+	
 	int			OwnsWorm(int id);
 	int			getNumWorms()			{ return iNumWorms; }
 	void		setNumWorms(int _w)			{ iNumWorms = _w; }

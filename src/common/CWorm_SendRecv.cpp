@@ -551,7 +551,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// do carving also here as the simulation is only done in next frame and with an updated position
 	
-	if(cClient->getMap() != NULL) {
+	if(cClient->isMapReady()) {
 		/* Earlier, we had calculated from the whole way from vOldPos to vPos (just the direct linear way).
 		 * That had several issues:
 		 *   - vOldPos could be wrong or very inaccurate for several reasons (big lag or hideandseek or something)
@@ -562,7 +562,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		incrementDirtCount( CarveHole(vPos) );
 	}
 	
-	if(tState.bCarve && cClient->getMap() != NULL) {
+	if(tState.bCarve && cClient->isMapReady()) {
 		/* If we get the updates too infrequently, it could be that we don't have carved everything.
 		 * Thus, if the len is not too big, we still carve the whole way.
 		 */
@@ -576,7 +576,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 	
 	// carve a bit further were we are heading to (same as in simulation)
-	if(tState.bCarve && cClient->getMap() != NULL) {
+	if(tState.bCarve && cClient->isMapReady()) {
 
 		// Calculate dir
 		const CVec dir = getFaceDirection();

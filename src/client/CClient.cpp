@@ -2538,4 +2538,8 @@ void CClient::DumpGameState(CmdLineIntf* caller) {
 		caller->writeMsg("Worms not initialised");
 }
 
+bool CClient::isMapReady() const {
+	return cMap && cMap->isLoaded();
+}
+
 
