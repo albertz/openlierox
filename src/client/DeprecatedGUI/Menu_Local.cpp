@@ -246,7 +246,7 @@ void Menu_LocalFrame()
 		switch(ev->iControlID) {
 			// Back
 			case ml_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown
 					Menu_LocalShutdown();
@@ -260,7 +260,7 @@ void Menu_LocalFrame()
 
 			// Start
 			case ml_Start:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Start the game
@@ -351,7 +351,7 @@ void Menu_LocalFrame()
 
 			// Game settings button
 			case ml_GameSettings:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					cLocalMenu.Draw( tMenu->bmpBuffer.get() );
 
@@ -363,7 +363,7 @@ void Menu_LocalFrame()
 
             // Weapons Restrictions button
             case ml_WeaponOptions:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
+                if( ev->iEventMsg == BTN_CLICKED ) {
 
 					cLocalMenu.Draw( tMenu->bmpBuffer.get() );
 
@@ -1078,7 +1078,7 @@ bool Menu_GameSettings_Frame()
 
 			// OK, done
 			case gs_Ok:
-				if(ev->iEventMsg == BTN_MOUSEUP)
+				if(ev->iEventMsg == BTN_CLICKED)
 				{
 					Menu_GameSettings_GrabInfo();
 					Menu_GameSettingsShutdown();
@@ -1089,7 +1089,7 @@ bool Menu_GameSettings_Frame()
 
             // Set the default values
             case gs_Default:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
+                if( ev->iEventMsg == BTN_CLICKED ) {
                     Menu_GameSettings_Default();
                 }
                 break;
@@ -1394,7 +1394,7 @@ bool Menu_WeaponsRestrictions_Frame()
 
 			// OK, done
 			case wr_Ok:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					Menu_WeaponsRestrictionsShutdown();
 
@@ -1404,28 +1404,28 @@ bool Menu_WeaponsRestrictions_Frame()
 
             // Reset the list
             case wr_Reset:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
+                if( ev->iEventMsg == BTN_CLICKED ) {
                     cWpnRestList.cycleVisible(cWpnGameScript);
                 }
                 break;
 
             // Randomize the list
             case wr_Random:
-                if(ev->iEventMsg == BTN_MOUSEUP) {
+                if(ev->iEventMsg == BTN_CLICKED) {
                     cWpnRestList.randomizeVisible(cWpnGameScript);
                 }
                 break;
 
             // Open the load dialog
             case wr_Load:
-                if(ev->iEventMsg == BTN_MOUSEUP) {
+                if(ev->iEventMsg == BTN_CLICKED) {
                     Menu_WeaponPresets(false,&cWpnRestList);
                 }
                 break;
 
             // Open the save dialog
             case wr_Save:
-                if(ev->iEventMsg == BTN_MOUSEUP) {
+                if(ev->iEventMsg == BTN_CLICKED) {
                     Menu_WeaponPresets(true,&cWpnRestList);
                 }
                 break;
@@ -1532,7 +1532,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 			switch(ev->iControlID) {
 				// Cancel
 				case wp_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						PlaySoundSample(sfxGeneral.smpClick);
 						quitloop = true;
 					}
@@ -1549,7 +1549,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 
 			// OK and double click on listview
 			if (ev->iControlID == wp_Ok || ev->iControlID == wp_PresetList)  {
-				if((ev->iEventMsg == BTN_MOUSEUP && ev->iControlID == 1) || ev->iEventMsg == LV_DOUBLECLK) {
+				if((ev->iEventMsg == BTN_CLICKED && ev->iControlID == 1) || ev->iEventMsg == LV_DOUBLECLK) {
 
 					// Play the sound only for OK button
 					if (ev->iControlID == wp_Ok)

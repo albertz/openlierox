@@ -533,7 +533,7 @@ void Menu_OptionsFrame()
 
 			// Back button
 			case op_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown & save
 					Menu_OptionsShutdown();
@@ -739,7 +739,7 @@ void Menu_OptionsFrame()
 
 				// Apply
 				case os_Apply:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 
 						bool restart = (tLXOptions->bOpenGL != opengl) || (tLXOptions->iColourDepth != cdepth);
 
@@ -877,7 +877,7 @@ void Menu_OptionsFrame()
 
 				// Test bandwidth
 				case os_TestBandwidth:  {
-					if (ev->iEventMsg == BTN_MOUSEUP)  {
+					if (ev->iEventMsg == BTN_CLICKED)  {
 						bSpeedTest = true;
 						Menu_SpeedTest_Initialize();
 					}

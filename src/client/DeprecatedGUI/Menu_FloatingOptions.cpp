@@ -432,7 +432,7 @@ void Menu_FloatingOptionsFrame()
 
 		// Ok
 		case op_Ok:
-			if(ev->iEventMsg == BTN_MOUSEUP) {
+			if(ev->iEventMsg == BTN_CLICKED) {
 				Menu_FloatingOptionsOkClose();
 				return;
 			}

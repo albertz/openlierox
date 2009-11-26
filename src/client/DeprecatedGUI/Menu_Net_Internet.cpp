@@ -202,7 +202,7 @@ void Menu_Net_NETFrame(int mouse)
 
 			// Add Server
 			case mi_AddServer:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
@@ -212,7 +212,7 @@ void Menu_Net_NETFrame(int mouse)
 
 			// Back
 			case mi_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown
 					Menu_Net_NETShutdown();
@@ -227,7 +227,7 @@ void Menu_Net_NETFrame(int mouse)
 
 			// Refresh
 			case mi_Refresh:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -240,7 +240,7 @@ void Menu_Net_NETFrame(int mouse)
 
 			// Join
 			case mi_Join:
-                if(ev->iEventMsg == BTN_MOUSEUP) {
+                if(ev->iEventMsg == BTN_CLICKED) {
 
 					addr = "";
 					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
@@ -405,7 +405,7 @@ void Menu_Net_NETFrame(int mouse)
 
 			// Update server list
 			case mi_UpdateList:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
@@ -514,7 +514,7 @@ void Menu_Net_NETAddServer()
 
 				// Add
 				case na_Add:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 
 						std::string addr;
 						cAddSvr.SendMessage(na_Address, TXS_GETTEXT, &addr, 0);
@@ -531,7 +531,7 @@ void Menu_Net_NETAddServer()
 
 				// Cancel
 				case na_Cancel:
-					if(ev->iEventMsg == BTN_MOUSEUP) {
+					if(ev->iEventMsg == BTN_CLICKED) {
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
 
@@ -677,7 +677,7 @@ void Menu_Net_NETUpdateList()
 
 		// Process any events
 		if(ev) {
-			if (ev->iControlID == 0 && ev->iEventMsg == BTN_MOUSEUP)  {  // Cancel
+			if (ev->iControlID == 0 && ev->iEventMsg == BTN_CLICKED)  {  // Cancel
 				// Click!
 				PlaySoundSample(sfxGeneral.smpClick);
 
@@ -804,15 +804,15 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
         if(ev) {
 
 			// Ok
-            if(ev->iControlID == nd_Ok && ev->iEventMsg == BTN_MOUSEUP) {
+            if(ev->iControlID == nd_Ok && ev->iEventMsg == BTN_CLICKED) {
                 break;
 			// Refresh
-            } else if (ev->iControlID == nd_Refresh && ev->iEventMsg == BTN_MOUSEUP)  {
+            } else if (ev->iControlID == nd_Refresh && ev->iEventMsg == BTN_CLICKED)  {
 				fStart = AbsTime();
 				bGotDetails = false;
 				bOldLxBug = false;
 				nTries = 0;
-			} else if (ev->iControlID == nd_Join && ev->iEventMsg == BTN_MOUSEUP)  {
+			} else if (ev->iControlID == nd_Join && ev->iEventMsg == BTN_CLICKED)  {
                 // Save the list
                 Menu_SvrList_SaveList("cfg/svrlist.dat");
 
