@@ -1130,6 +1130,10 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		params.size() > GetCommand(&ProcessWeapons)->iMaxParamCount)
 		return "Invalid parameter count";
 	
+	// Check that we're in game
+	if (cServer->getState() == SVS_LOBBY)
+		return "Cannot reselect weapons in lobby";
+	
 	int target = sender_id;
 	if(params.size() == 1) {
 		target = atoi(params[0]);
