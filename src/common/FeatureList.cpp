@@ -103,7 +103,7 @@ Feature featureArray[] = {
 	Feature("Race_Rounds", "Rounds", "Amount of rounds",
 			5,5,					Version(),				GIG_Race,	ALT_Basic,	-1,		100,	true,	true),
 	Feature("Race_AllowWeapons", "Allow weapons", "If disabled, you cannot shoot",
-			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	true),
+			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	false),
 	Feature("Race_CheckPointRadius", "Checkpoint radius", "The radius of the checkpoints (bigger value makes race easier)",
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
 
