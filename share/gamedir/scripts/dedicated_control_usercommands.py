@@ -370,7 +370,7 @@ def parseUserCommand(wormid,message):
 
 	except: # All python classes derive from main "Exception", but confused me, this has the same effect.
 		if wormid >= 0:
-			io.privateMsg(wormid, "Invalid user command")
+			io.privateMsg(wormid, "Invalid user command - type !help for list of commands")
 		io.messageLog(formatExceptionInfo(),io.LOG_ERROR) #Helps to fix errors
 		return False
 	return True
