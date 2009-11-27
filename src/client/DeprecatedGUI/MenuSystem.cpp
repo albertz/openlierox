@@ -2029,7 +2029,17 @@ void Menu_SvrList_SaveList(const std::string& szFilename)
         return;
 
 	for(std::list<server_t>::iterator s = psServerList.begin(); s != psServerList.end(); s++)
-        fprintf(fp,"%s, %s, %s\n",s->bManual ? "1" : "0", s->szName.c_str(), s->szAddress.c_str());
+	{
+		int UdpMasterServer = -1;
+		for( size_t port = 0; s->bBehindNat && port < s->ports.size() && UdpMasterServer == -1; port++ )
+			if( s->ports[port].second >= 0 )
+				UdpMasterServer = s->ports[port].second;
+
+        fprintf(fp, "%s, %s, %s",s->bManual ? "1" : "0", s->szName.c_str(), s->szAddress.c_str() );
+        if( UdpMasterServer != -1 && !s->bManual )
+        	fprintf(fp, ", %i", UdpMasterServer );
+       	fprintf(fp, "\n" );
+	}
 
     fclose(fp);
 }
@@ -2069,12 +2079,16 @@ void Menu_SvrList_LoadList(const std::string& szFilename)
 		// explode and copy it
 		std::vector<std::string> parsed = explode(szLine,",");
 
-        if( parsed.size() == 3 ) {
+        if( parsed.size() >= 3 ) {
 			TrimSpaces(parsed[0]);
 			TrimSpaces(parsed[1]);
 			TrimSpaces(parsed[2]); // Address
 
-            Menu_SvrList_AddServer(parsed[2], parsed[0] == "1", parsed[1]);
+			int UdpMasterServer = -1;
+			if( parsed.size() >= 4 )
+				UdpMasterServer = atoi(parsed[3]);
+
+            Menu_SvrList_AddServer(parsed[2], parsed[0] == "1", parsed[1], UdpMasterServer);
         }
     }
 
