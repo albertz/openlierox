@@ -2149,14 +2149,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\common\FSNotify.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\include\FSNotify.h"
-				>
-			</File>
-			<File
 				RelativePath="..\..\src\common\HTTP.cpp"
 				>
 			</File>
