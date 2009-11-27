@@ -135,12 +135,15 @@ bool CGuiSkinnedLayout::Process()
 	if( tMouse->Down )
 		MouseDown(tMouse, tMouse->Down);
 	if( tMouse->Up )
+		MouseClicked(tMouse, tMouse->Down);
+	if( tMouse->Up )
 		MouseUp(tMouse, tMouse->Up);
 	if( tMouse->WheelScrollDown )
 		MouseWheelDown(tMouse);
 	if( tMouse->WheelScrollUp )
 		MouseWheelUp(tMouse);
 	MouseOver(tMouse);
+	
 	CGuiSkin::ProcessUpdateCallbacks();	// Update the news box (and IRC chat if I will ever make it)
 	
 	return ! bExitCurrentDialog;
@@ -301,6 +304,50 @@ int CGuiSkinnedLayout::MouseDown(mouse_t *tMouse, int nDown)
 	return -1;
 }
 
+	
+int CGuiSkinnedLayout::MouseClicked(mouse_t *tMouse, int nDown)
+{
+	if( cChildLayout )
+	{
+		cChildLayout->MouseClicked(tMouse, nDown);
+		return -1;
+	}
+	
+	if( cFocused && bFocusSticked && cFocused->InBox(tMouse->X, tMouse->Y) )
+	{
+		int ev = cFocused->MouseClicked(tMouse, nDown);
+		if( ev >= 0 )
+		{
+			cFocused->ProcessGuiSkinEvent( ev );
+			ProcessChildEvent( ev, cFocused );
+			return -1;
+		}
+	}
+	
+	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)
+	{
+		if(!(*w)->getEnabled())
+			continue;
+		if((*w)->InBox(tMouse->X, tMouse->Y))
+		{
+			FocusOnMouseClick( *w );
+			int ev = (*w)->MouseClicked(tMouse, nDown);
+			if( ev >= 0 )
+			{
+				(*w)->ProcessGuiSkinEvent( ev );
+				ProcessChildEvent( ev, (*w) );
+			}
+			if( cFocused )
+				bFocusSticked = true;
+			return -1;
+		}
+	}
+	
+	// Click on empty space
+	FocusOnMouseClick( NULL );
+	return -1;
+}
+	
 int CGuiSkinnedLayout::MouseWheelDown(mouse_t *tMouse)
 {
 	if( cChildLayout )

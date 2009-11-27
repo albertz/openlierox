@@ -224,6 +224,7 @@ public:
 	int		MouseOver(mouse_t *tMouse);
 	int		MouseUp(mouse_t *tMouse, int nDown);
 	int		MouseDown(mouse_t *tMouse, int nDown);
+	int		MouseClicked(mouse_t *tMouse, int nDown);
 	int		MouseWheelDown(mouse_t *tMouse);
 	int		MouseWheelUp(mouse_t *tMouse);
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate);
