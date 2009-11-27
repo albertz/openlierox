@@ -66,8 +66,10 @@ void CWormHumanInputHandler::getInput() {
 	const float mouseSensity = (float)tLXOptions->iMouseSensity; // how sensitive is the mouse in X/Y-dir
 
 	// TODO: here are width/height of the window hardcoded
-	int mouse_dx = ms->X - 640/2;
-	int mouse_dy = ms->Y - 480/2;
+	//int mouse_dx = ms->X - 640/2;
+	//int mouse_dy = ms->Y - 480/2;
+	int mouse_dx = 0, mouse_dy = 0;
+	SDL_GetRelativeMouseState(&mouse_dx, &mouse_dy); // Won't lose mouse movement and skip frames, also it doesn't call libX11 funcs, so it's safe to call not from video thread
 	
 	if(mouseControl)
 	{
@@ -75,7 +77,7 @@ void CWormHumanInputHandler::getInput() {
 		{
 			int handle()
 			{
-				SDL_WarpMouse(640/2, 480/2);
+				SDL_WarpMouse(640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
 				return 0;
 			} 
 		};

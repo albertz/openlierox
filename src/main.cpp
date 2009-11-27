@@ -1353,8 +1353,15 @@ void GameLoopFrame()
 	
 	cClient->resetDebugStr();
 	
-	// We put it here, so the mouse never displays
-    SDL_ShowCursor(SDL_DISABLE);
+	struct DisableMouseCursor: public Action
+	{
+		int handle()
+		{
+			SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new DisableMouseCursor() );
 }
 
 

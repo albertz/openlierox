@@ -600,7 +600,17 @@ gui_event_t *CGuiLayout::Process()
 	}
 
 	// Put it here, so the mouse will never display
-	SDL_ShowCursor(SDL_DISABLE);
+	
+	struct DisableMouseCursor: public Action
+	{
+		int handle()
+		{
+			SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new DisableMouseCursor() );
+
 
 	// If the application has lost the focus, remove set all CanLoseFocus to false
 	// as they make no sense anymore and can make trouble

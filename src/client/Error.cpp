@@ -66,7 +66,15 @@ void SetError(const std::string& text)
 // Show the error
 void ShowError()
 {
-	SDL_ShowCursor(SDL_ENABLE);
+	struct EnableMouseCursor: public Action
+	{
+		int handle()
+		{
+			SDL_ShowCursor(SDL_ENABLE); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new EnableMouseCursor() );
 
 	// TODO: uniform message system
 
@@ -79,7 +87,15 @@ void ShowError()
 		//MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 
-	SDL_ShowCursor(SDL_DISABLE);
+	struct DisableMouseCursor: public Action
+	{
+		int handle()
+		{
+			SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new DisableMouseCursor() );
 }
 
 
@@ -97,8 +113,6 @@ void EndError()
 // Show a system error
 void SystemError(const std::string& text)
 {
-
-	// SDL_ShowCursor(SDL_ENABLE);	// Commented out because of a bug in SDL that causes a crash when SDL_SetVideoMode fails
 	if (text.size() != 0) {
 		errors << "SystemError: " << text << endl;
 	}

@@ -455,13 +455,33 @@ void Con_Toggle()
 	if(Console->iState == CON_HIDDEN || Console->iState == CON_HIDING) {
 		Console->iState = CON_DROPPING;
         if(!tLXOptions->bFullscreen)
-		    SDL_ShowCursor(SDL_ENABLE);
+        {
+			struct EnableMouseCursor: public Action
+			{
+				int handle()
+				{
+					SDL_ShowCursor(SDL_ENABLE); // Should be called from main thread, or you'll get race condition with libX11
+					return 0;
+				} 
+			};
+			doActionInMainThread( new EnableMouseCursor() );
+		}
 	}
 
 	else if(Console->iState == CON_DROPPING || Console->iState == CON_DOWN) {
 		Console->iState = CON_HIDING;
         if(!tLXOptions->bFullscreen)
-		    SDL_ShowCursor(SDL_DISABLE);
+        {
+			struct DisableMouseCursor: public Action
+			{
+				int handle()
+				{
+					SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
+					return 0;
+				} 
+			};
+			doActionInMainThread( new DisableMouseCursor() );
+		}
 	}
 }
 

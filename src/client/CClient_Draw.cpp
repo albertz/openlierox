@@ -435,7 +435,15 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			// Show message box, shutdown and quit back to menu
 			DrawImage(DeprecatedGUI::tMenu->bmpBuffer.get(), DeprecatedGUI::tMenu->bmpMainBack_common, 0, 0);
 			DeprecatedGUI::Menu_RedrawMouse(true);
-			SDL_ShowCursor(SDL_DISABLE);
+			struct DisableMouseCursor: public Action
+			{
+				int handle()
+				{
+					SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
+					return 0;
+				} 
+			};
+			doActionInMainThread( new DisableMouseCursor() );
 
 			DeprecatedGUI::Menu_MessageBox("Connection error", strServerErrorMsg, DeprecatedGUI::LMB_OK);
 		}

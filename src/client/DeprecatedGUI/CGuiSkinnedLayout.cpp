@@ -122,10 +122,6 @@ bool CGuiSkinnedLayout::Process()
 
 	//SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
-
-	// Put it here, so the mouse will never display
-	//SDL_ShowCursor(SDL_DISABLE);
-
 	// Parse keyboard events
 	for(int i = 0; i < Keyboard->queueLength; i++) {
 		const KeyboardEvent& kbev = Keyboard->keyQueue[i];
