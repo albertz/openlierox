@@ -72,6 +72,9 @@ void doVppOperation(Action* act);
 
 void flipRealVideo();
 
+// Asynchronously enable/disable mouse cursor in window manager, may be called from any thread
+// Use this function instead of SDL_ShowCursor()
+void EnableSystemMouseCursor(bool enable = true);
 
 class VideoPostProcessor {
 protected:

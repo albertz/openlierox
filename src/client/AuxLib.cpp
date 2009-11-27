@@ -1317,3 +1317,18 @@ std::string GetDateTimeFilename()
 	return filePrefixTime;
 }
 
+void EnableSystemMouseCursor(bool enable)
+{
+	struct EnableMouseCursor: public Action
+	{
+		bool Enable;
+		
+		EnableMouseCursor(bool b): Enable(b) {};
+		int handle()
+		{
+			SDL_ShowCursor(Enable ? SDL_ENABLE : SDL_DISABLE ); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new EnableMouseCursor(enable) );
+};

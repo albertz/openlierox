@@ -1367,6 +1367,10 @@ server_t *Menu_SvrList_AddServer(const std::string& address, bool bManual, const
 	svr->nNumPlayers = 0;
 	svr->nState = 0;
 	svr->nPing = -3; // Put it at the end of server list, after NAT servers
+	if( udpMasterserverIndex >= 0 )
+		svr->bBehindNat = true; // Just in case
+	else
+		svr->bBehindNat = false;
 	
 	return svr;
 }

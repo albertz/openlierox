@@ -66,15 +66,7 @@ void SetError(const std::string& text)
 // Show the error
 void ShowError()
 {
-	struct EnableMouseCursor: public Action
-	{
-		int handle()
-		{
-			SDL_ShowCursor(SDL_ENABLE); // Should be called from main thread, or you'll get race condition with libX11
-			return 0;
-		} 
-	};
-	doActionInMainThread( new EnableMouseCursor() );
+	EnableSystemMouseCursor(true);
 
 	// TODO: uniform message system
 
@@ -87,15 +79,7 @@ void ShowError()
 		//MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 
-	struct DisableMouseCursor: public Action
-	{
-		int handle()
-		{
-			SDL_ShowCursor(SDL_DISABLE); // Should be called from main thread, or you'll get race condition with libX11
-			return 0;
-		} 
-	};
-	doActionInMainThread( new DisableMouseCursor() );
+	EnableSystemMouseCursor(false);
 }
 
 
