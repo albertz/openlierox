@@ -725,19 +725,15 @@ NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
 			while(!sharedData->quitSignal) {
 				NLsocket s;
 				NLint ret = nlPollGroup(sharedData->nlGroup, pollType, &s, /* amount of sockets */ 1, /* timeout */ max_frame_time.milliseconds());
-				// if no error, ret is amount of sockets where we can read from
+				// if no error, ret is amount of sockets which triggered the event
 				
-				switch(pollType) {
-					case NL_READ_STATUS:
-						if(ret > 0)
-							if(!pushNewDataEvent()) return -1;
-						break;
-					case NL_ERROR_STATUS:
-						if(ret >= 0)
-							if(!pushErrorEvent()) return -1;
-						break;
+				if(ret > 0) {
+					switch(pollType) {
+						case NL_READ_STATUS: if(!pushNewDataEvent()) return -1; break;
+						case NL_ERROR_STATUS: if(!pushErrorEvent()) return -1; break;
+					}
 				}
-
+				
 				AbsTime curTime = GetTime();
 				if(curTime - lastTime < max_frame_time) {
 					SDL_Delay( (Uint32)( ( max_frame_time - (curTime - lastTime) ).milliseconds() ) );
@@ -833,7 +829,7 @@ bool NetworkSocket::OpenReliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_TCP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -854,7 +850,7 @@ bool NetworkSocket::OpenUnreliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -875,7 +871,7 @@ bool NetworkSocket::OpenBroadcast(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDPBROADCAST;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;	
 }
 
@@ -898,6 +894,7 @@ bool NetworkSocket::Connect(const NetworkAddr& addr) {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
@@ -915,6 +912,7 @@ bool NetworkSocket::Listen() {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
