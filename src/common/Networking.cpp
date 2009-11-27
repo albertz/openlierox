@@ -829,7 +829,7 @@ bool NetworkSocket::OpenReliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_TCP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -850,7 +850,7 @@ bool NetworkSocket::OpenUnreliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -871,7 +871,7 @@ bool NetworkSocket::OpenBroadcast(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDPBROADCAST;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;	
 }
 
@@ -894,6 +894,7 @@ bool NetworkSocket::Connect(const NetworkAddr& addr) {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
@@ -911,6 +912,7 @@ bool NetworkSocket::Listen() {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
