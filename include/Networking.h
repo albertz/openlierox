@@ -22,6 +22,7 @@
 #include <SDL.h>
 #include "types.h"
 #include "InternDataClass.h"
+#include "Event.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable: 4786)
@@ -60,7 +61,9 @@ bool	IsNetAddrAvailable(const NetworkAddr& addr);
 bool	SetNetAddrValid(NetworkAddr& addr, bool valid);
 void	ResetNetAddr(NetworkAddr& addr);
 bool	StringToNetAddr(const std::string& string, NetworkAddr& addr, std::string* errorStr = NULL);
+NetworkAddr StringToNetAddr(const std::string& string);
 bool	NetAddrToString(const NetworkAddr& addr, std::string& string);
+std::string NetAddrToString(const NetworkAddr& addr);
 unsigned short GetNetAddrPort(const NetworkAddr& addr);
 bool	SetNetAddrPort(NetworkAddr& addr, unsigned short port, std::string* errorStr = NULL);
 bool	AreNetAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2);
@@ -73,9 +76,6 @@ bool	GetFromDnsCache(const std::string& name, NetworkAddr& addr);
 // general networking
 bool	InitNetworkSystem();
 bool	QuitNetworkSystem();
-// Init SDL even when network data arrives (requires ThreadPool to be started)
-bool	SdlNetEvent_Init();
-void	SdlNetEvent_UnInit();
 
 
 class NetworkSocket {
@@ -109,11 +109,13 @@ private:
 	bool m_withEvents;
 	struct InternSocket; InternSocket* m_socket;
 	friend struct InternSocket;
+	struct EventHandler; friend struct EventHandler;
+	void checkEventHandling();
 	
 	// Don't copy instances of this class! Use SmartPointer if you want to have multiple references to a socket.
 	// You can swap two NetworkSockets though.
 	NetworkSocket(const NetworkSocket&) { assert(false); }
-	NetworkSocket& operator=(const NetworkSocket&) { assert(false); return *this; }
+	NetworkSocket& operator=(const NetworkSocket&) { assert(false); return *this; }	
 public:
 	NetworkSocket(); ~NetworkSocket();
 	void swap(NetworkSocket& sock);
@@ -121,8 +123,11 @@ public:
 	Type type() const { return m_type; }
 	State state() const { return m_state; }
 	bool isOpen() const { return m_type != NST_INVALID; }
+
 	bool withEvents() const { return m_withEvents; }
 	void setWithEvents(bool v);
+	Event<> OnNewData;
+	Event<> OnError;
 	
 	Port localPort() const;
 	Port remotePort() const;

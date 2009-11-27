@@ -923,12 +923,7 @@ static std::string GetScreenshotFileName(const std::string& scr_path, const std:
 	}
 	
 	
-	// Add date and server name to screenshot filename
-	time_t curtime1 = time(NULL);
-	struct tm *curtime = localtime(&curtime1);
-	char filePrefixTime[200];
-	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
-	std::string filePrefix = filePrefixTime;
+	std::string filePrefix = GetDateTimeFilename();
 	filePrefix += "-";
 	if( tLX )
 	{
@@ -1308,3 +1303,32 @@ std::string GetDateTimeText()
 	return timeStr;
 }
 
+std::string GetDateTimeFilename()
+{
+	// Add date and server name to screenshot filename
+	time_t curtime1 = time(NULL);
+	if (curtime1 == (time_t)-1)
+		return "TIME-ERROR1";
+	struct tm *curtime = localtime(&curtime1);
+	if (curtime == NULL)
+		return "TIME-ERROR2";
+	char filePrefixTime[200] = {0};
+	strftime(filePrefixTime, sizeof(filePrefixTime), "%Y%m%d-%H%M", curtime);
+	return filePrefixTime;
+}
+
+void EnableSystemMouseCursor(bool enable)
+{
+	struct EnableMouseCursor: public Action
+	{
+		bool Enable;
+		
+		EnableMouseCursor(bool b): Enable(b) {};
+		int handle()
+		{
+			SDL_ShowCursor(Enable ? SDL_ENABLE : SDL_DISABLE ); // Should be called from main thread, or you'll get race condition with libX11
+			return 0;
+		} 
+	};
+	doActionInMainThread( new EnableMouseCursor(enable) );
+};

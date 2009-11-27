@@ -152,6 +152,7 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	virtual	int		MouseOver(mouse_t *tMouse) = 0;
+	virtual	int		MouseClicked(mouse_t *tMouse, int nDown ) { return -1; }
 	virtual	int		MouseUp(mouse_t *tMouse, int nDown ) = 0;
 	virtual	int		MouseDown(mouse_t *tMouse, int nDown) = 0;
 	virtual	int		MouseWheelUp(mouse_t *tMouse ) = 0;

@@ -131,6 +131,7 @@ enum FeatureIndex {
 	FT_DisableWpnsWhenEmpty,
 	FT_InfiniteMap,
 	FT_WormFriction,
+	FT_WormGroundFriction,
 	FT_ProjFriction,
 	FT_TeamScoreLimit,
 	FT_SizeFactor,

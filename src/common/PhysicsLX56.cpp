@@ -173,7 +173,9 @@ public:
 						vel->y *= -0.4f;
 					else
 						vel->y = (0);
-					continue; // Note: This was break in LX56, but continue is really better here
+					
+					// it was also break in LX56. this makes a huge difference when bouncing against the bottom.
+					break;
 				}
 
 				// Bottom side clipping
@@ -499,7 +501,7 @@ public:
 
 		// Ultimate in friction
 		if(worm->isOnGround()) {
-			worm->velocity().x *= 0.9f;
+			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()->features[FT_WormGroundFriction]);
 
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 

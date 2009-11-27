@@ -96,7 +96,7 @@ void Menu_Net_ChatFrame(int mouse)
 
 			// Back
 			case nc_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);

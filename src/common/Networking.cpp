@@ -33,6 +33,7 @@
 #include "InputEvents.h"
 #include "TaskManager.h"
 #include "ReadWriteLock.h"
+#include "Mutex.h"
 
 
 #ifdef _MSC_VER
@@ -72,199 +73,56 @@ public:
 	}
 };
 
-typedef SmartPointer<NLaddress, NetAddrIniter> NetAddrSmartPtr;
-DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrSmartPtr );
+bool AreNetworkAddrEqual(const NetworkAddr& addr1, const NetworkAddr& addr2)
+{
+	return AreNetAddrEqual(addr1, addr2);
+};
 
+class NetAddrInternal
+{
+	public:
+	NetAddrInternal() {};
+	NetAddrInternal(const NetAddrInternal & other)
+	{
+		*this = other;
+	};
+	
+	const NetAddrInternal & operator= (const NetAddrInternal & other)
+	{
+		*NetAddrSmartPtr.get() = *other.NetAddrSmartPtr.get();
+		return *this;
+	}
+
+	const NetAddrInternal & operator= (const NLaddress & addr)
+	{
+		*NetAddrSmartPtr.get() = addr;
+		return *this;
+	}
+	
+	NetAddrInternal(const NLaddress & addr)
+	{
+		*this = addr;
+	};
+
+	typedef SmartPointer<NLaddress, NetAddrIniter> Ptr_t;
+	
+	const Ptr_t & getPtr() const
+	{
+		return NetAddrSmartPtr;
+	}
+	
+	private:
+	Ptr_t NetAddrSmartPtr;
+};
+
+DECLARE_INTERNDATA_CLASS( NetworkAddr, NetAddrInternal );
 
 static NLaddress* getNLaddr(NetworkAddr& addr) {
-	return NetworkAddrData(addr).get();
+	return NetworkAddrData(addr).getPtr().get();
 }
 
 static const NLaddress* getNLaddr(const NetworkAddr& addr) {
-	return NetworkAddrData(addr).get();
-}
-
-
-// TODO: perhaps move these test-functions somewhere else?
-// but it's good to keep them somewhere to easily test some code part
-void test_NetworkSmartPointer() {
-	for(int i = 0; i < 100; i++)
-	{
-		printf("creating SP\n");
-		NetAddrSmartPtr sp;
-		printf("destroying SP\n");
-	}
-
-
-	SDL_Delay(1000);
-
-	printf("creating data-array\n");
-	char* tmp = new char[2048];
-
-	printf("freeing data-array\n");
-	delete[] tmp;
-
-//	exit(-1);
-}
-
-
-// --------------------------------------------------------------------------
-// ------------- Net events
-
-bool SdlNetEvent_Inited = false;
-bool SdlNetEventThreadExit = false;
-ThreadPoolItem* SdlNetEventThreads[3] = {NULL, NULL, NULL};
-NLint SdlNetEventGroup = 0;
-int SdlNetEventSocketCount = 0;
-
-struct NetActivityData {
-	uint type;
-	NLsocket* socket;
-	NetActivityData(uint t, NLsocket* s) : type(t), socket(s) {}
-};
-Event<NetActivityData> onNetActivity;
-
-static bool isSocketInGroup(NLint group, NLsocket sock) {
-	NLsocket sockets[NL_MAX_GROUP_SOCKETS];
-	NLint len = NL_MAX_GROUP_SOCKETS;
-	nlGroupGetSockets( group, sockets, &len );
-	for( int f = 0; f < len; f++ )
-		if( sockets[f] == sock )
-			return true;
-
-	return false;
-}
-
-static bool isSocketGroupEmpty(NLint group) {
-	NLsocket oneSocket;
-	NLint len = 1;
-	// because we set len=1 we will either get one or none sockets here
-	nlGroupGetSockets( group, &oneSocket, &len );
-	return len == 0;
-}
-
-
-static int SdlNetEventThreadMain( void * param )
-{
-	int buffer_size = MAX(2, SdlNetEventSocketCount);
-	NLsocket *sock_out = new NLsocket[buffer_size];
-	// save event-type (NL_READ_STATUS, NL_WRITE_STATUS or NL_ERROR_STATUS)
-
-	// When restarting, this can happen, we wait for options to initialize
-	while (tLXOptions == NULL && !SdlNetEventThreadExit)
-		SDL_Delay(20);
-
-	if (SdlNetEventThreadExit)  {
-		delete (uint *)param;
-		delete[] sock_out;
-		return 0;
-	}
-
-	TimeDiff max_frame_time = TimeDiff(MAX(0.01f, (tLXOptions->nMaxFPS > 0) ? 1.0f/(float)tLXOptions->nMaxFPS : 0.0f));
-	AbsTime lastTime = GetTime();
-	while( ! SdlNetEventThreadExit )
-	{
-		if( ! isSocketGroupEmpty( SdlNetEventGroup ) && SdlNetEventSocketCount ) // only when we have at least one socket
-		{
-			if( nlPollGroup( SdlNetEventGroup, *(uint*)param, sock_out, buffer_size, 0 ) > 0 ) // Wait max_frame_time
-			{
-				if(sock_out >= 0) {
-					onNetActivity.pushToMainQueue( NetActivityData( (long) *(uint*)param, sock_out ) );
-				}
-				else
-					warnings("net-event-system: invalid socket\n");
-			} else {
-				if (nlGetError() == NL_BUFFER_SIZE)  { // We should increase the buffer size
-					delete[] sock_out;
-					buffer_size = MAX(2, SdlNetEventSocketCount);
-					sock_out = new NLsocket[buffer_size];
-					continue; // Retry
-				}
-			}
-		}
-
-		AbsTime curTime = GetTime();
-		if(curTime - lastTime < max_frame_time) {
-			SDL_Delay( (Uint32)( ( max_frame_time - (curTime - lastTime) ).milliseconds() ) );
-		}
-		lastTime = curTime;
-	}
-
-	delete (uint*)param;
-	delete[] sock_out;
-	return 0;
-}
-
-bool SdlNetEvent_Init()
-{
-	if( SdlNetEvent_Inited || !tLX )
-		return false;
-	SdlNetEvent_Inited = true;
-
-	SdlNetEventGroup = nlGroupCreate();
-	SdlNetEventThreads[0] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_READ_STATUS), "NL_READ_STATUS watcher" );
-	// TODO: this does not behave as expected
-	// select() which is internally used by nlPollGroup will return true if the socket is *writeable*
-	// which for UDP sockets means always (this has nothing to do with the actual writing to the socket)
-	// See http://msdn2.microsoft.com/en-us/library/ms740141(VS.85).aspx or
-	// http://support.sas.com/documentation/onlinedoc/sasc/doc750/html/lr2/select.htm for more details
-	//SdlNetEventThreads[1] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_WRITE_STATUS), "NL_WRITE_STATUS watcher" );
-	SdlNetEventThreads[2] = threadPool->start( &SdlNetEventThreadMain, new uint(NL_ERROR_STATUS), "NL_ERROR_STATUS watcher" );
-
-	return true;
-}
-
-void SdlNetEvent_UnInit() {
-	if( ! SdlNetEvent_Inited )
-		return;
-
-	SdlNetEventThreadExit = true;
-	int status = 0;
-	threadPool->wait( SdlNetEventThreads[0], &status );
-	threadPool->wait( SdlNetEventThreads[1], &status );
-	threadPool->wait( SdlNetEventThreads[2], &status );
-	nlGroupDestroy(SdlNetEventGroup);
-
-	SdlNetEvent_Inited = false;
-}
-
-struct NetworkSocket::InternSocket {
-	NLsocket sock;
-	InternSocket() : sock(NL_INVALID) {}
-};
-
-NetworkSocket::NetworkSocket() : m_type(NST_INVALID), m_state(NSS_NONE), m_withEvents(true), m_socket(NULL) {
-	m_socket = new InternSocket();
-}
-
-NetworkSocket::~NetworkSocket() {
-	Clear();
-	delete m_socket;
-	m_socket = NULL;
-}
-
-static void AddSocketToNotifierGroup(NLsocket sock) {
-	if(!isSocketInGroup(SdlNetEventGroup, sock) )  {
-		nlGroupAddSocket( SdlNetEventGroup, sock );
-		SdlNetEventSocketCount++;
-	}
-}
-
-static void RemoveSocketFromNotifierGroup(NLsocket sock) {
-	if (nlGroupDeleteSocket( SdlNetEventGroup, sock ) && SdlNetEventSocketCount > 0)
-		SdlNetEventSocketCount--;		
-}
-
-void NetworkSocket::setWithEvents( bool v )
-{
-	m_withEvents = v;
-	if(!isOpen()) return;
-	SdlNetEvent_Init();
-	
-	if(v)
-		AddSocketToNotifierGroup(m_socket->sock);
-	else
-		RemoveSocketFromNotifierGroup(m_socket->sock);
+	return NetworkAddrData(addr).getPtr().get();
 }
 
 
@@ -355,7 +213,7 @@ bool InitNetworkSystem() {
 // Shutdowns the network system
 bool QuitNetworkSystem() {
 	nlSystemUseChangeLock.startWriteAccess();
-	nlShutdown();	
+	nlShutdown();
 	bNetworkInited = false;
 	delete dnsCache; dnsCache = NULL;
 	nlSystemUseChangeLock.endWriteAccess();
@@ -767,6 +625,164 @@ static void nlPrepareClose(NLsocket socket) {
 
 
 
+
+
+struct NetworkSocket::EventHandler {
+	struct SharedData {
+		Mutex mutex;
+		bool quitSignal;
+		NetworkSocket* sock;
+		NLint nlGroup;
+		
+		SharedData(NetworkSocket* _s) : quitSignal(false), sock(_s) {
+			nlGroup = nlGroupCreate();
+			addSocketToGroup();
+		}
+		
+		void addSocketToGroup();
+		
+		~SharedData() { nlGroupDestroy(nlGroup); nlGroup = NL_INVALID; }
+	};
+	SmartPointer<SharedData> sharedData;
+	
+	EventHandler(NetworkSocket* sock);
+	
+	void quit() {
+		if(sharedData.get()) {
+			Mutex::ScopedLock lock(sharedData->mutex);
+			sharedData->quitSignal = true;
+			sharedData->sock = NULL;
+		}
+	}
+	
+	~EventHandler() {
+		// just to be sure
+		quit();
+		sharedData = NULL;
+	}
+};
+
+struct NetworkSocket::InternSocket {
+	NLsocket sock;
+	SmartPointer<EventHandler> eventHandler;
+	
+	InternSocket() : sock(NL_INVALID) {}
+	~InternSocket() {
+		// just a double check - there really shouldn't be a case where this could be true
+		if(eventHandler.get()) {
+			errors << "NetworkSocket::~InternSocket: event handler was not unset" << endl;
+			eventHandler->quit();
+			eventHandler = NULL;
+		}
+	}
+};
+
+void NetworkSocket::EventHandler::SharedData::addSocketToGroup() {
+	nlGroupAddSocket(nlGroup, sock->m_socket->sock);
+}
+
+NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
+	if(!sock) {
+		errors << "NetworkSocket::EventHandler: socket == NULL" << endl;
+		return;
+	}
+	
+	if(!sock->isOpen()) {
+		errors << "NetworkSocket::EventHandler: socket is closed" << endl;
+		return;
+	}
+	
+	struct EventHandlerThread : Action {
+		SmartPointer<SharedData> sharedData;
+		uint pollType; // NL_READ_STATUS or NL_ERROR_STATUS
+		
+		EventHandlerThread(const SmartPointer<SharedData>& _data, uint _pollType) :
+		sharedData(_data), pollType(_pollType) {}
+		
+		bool pushNewDataEvent() {
+			Mutex::ScopedLock lock(sharedData->mutex);
+			if(sharedData->sock) {
+				sharedData->sock->OnNewData.pushToMainQueue(EventData(sharedData->sock));
+				return true;
+			}
+			return false;
+		}
+		
+		bool pushErrorEvent() {
+			Mutex::ScopedLock lock(sharedData->mutex);
+			if(sharedData->sock) {
+				sharedData->sock->OnError.pushToMainQueue(EventData(sharedData->sock));
+				return true;
+			}
+			return false;			
+		}
+		
+		int handle() {
+			const int maxFPS = tLXOptions ? tLXOptions->nMaxFPS : 100;
+			TimeDiff max_frame_time = TimeDiff(MAX(0.01f, (maxFPS > 0) ? 1.0f/(float)maxFPS : 0.0f));
+			AbsTime lastTime = GetTime();
+			
+			while(!sharedData->quitSignal) {
+				NLsocket s;
+				NLint ret = nlPollGroup(sharedData->nlGroup, pollType, &s, /* amount of sockets */ 1, /* timeout */ max_frame_time.milliseconds());
+				// if no error, ret is amount of sockets which triggered the event
+				
+				if(ret > 0) {
+					switch(pollType) {
+						case NL_READ_STATUS: if(!pushNewDataEvent()) return -1; break;
+						case NL_ERROR_STATUS: if(!pushErrorEvent()) return -1; break;
+					}
+				}
+				
+				AbsTime curTime = GetTime();
+				if(curTime - lastTime < max_frame_time) {
+					SDL_Delay( (Uint32)( ( max_frame_time - (curTime - lastTime) ).milliseconds() ) );
+				}
+				lastTime = curTime;
+			}
+			
+			return 0;
+		}
+	};
+	
+	sharedData = new SharedData(sock);
+	threadPool->start(new EventHandlerThread(sharedData, NL_READ_STATUS), "socket " + itoa(sock->m_socket->sock) + " read event checker", true);
+	threadPool->start(new EventHandlerThread(sharedData, NL_ERROR_STATUS), "socket " + itoa(sock->m_socket->sock) + " error event checker", true);
+}
+
+NetworkSocket::NetworkSocket() : m_type(NST_INVALID), m_state(NSS_NONE), m_withEvents(false), m_socket(NULL) {
+	m_socket = new InternSocket();
+}
+
+NetworkSocket::~NetworkSocket() {
+	Clear();
+	delete m_socket;
+	m_socket = NULL;
+}
+
+void NetworkSocket::setWithEvents( bool v )
+{
+	if( v == m_withEvents ) return;
+	m_withEvents = v;	
+	checkEventHandling();
+}
+
+void NetworkSocket::checkEventHandling() {
+	if(isOpen() && m_withEvents) {
+		// we must have an event handler
+		if(m_socket->eventHandler.get() == NULL) {
+			m_socket->eventHandler = new EventHandler(this);
+		}
+	}
+	else {
+		// we must not have an event handler
+		if(m_socket->eventHandler.get()) {
+			m_socket->eventHandler->quit();
+			m_socket->eventHandler = NULL;			
+		}
+	}
+}
+
 std::string NetworkSocket::debugString() const {
 	if(!isOpen()) return "Closed";
 	std::string ret = TypeStr(m_type) + "/" + StateStr(m_state);
@@ -813,7 +829,7 @@ bool NetworkSocket::OpenReliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_TCP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -834,7 +850,7 @@ bool NetworkSocket::OpenUnreliable(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDP;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;
 }
 
@@ -855,7 +871,7 @@ bool NetworkSocket::OpenBroadcast(Port port) {
 	m_socket->sock = ret;
 	m_type = NST_UDPBROADCAST;
 	m_state = NSS_NONE;
-	setWithEvents(m_withEvents);
+	checkEventHandling();
 	return true;	
 }
 
@@ -878,6 +894,7 @@ bool NetworkSocket::Connect(const NetworkAddr& addr) {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
@@ -895,6 +912,7 @@ bool NetworkSocket::Listen() {
 		return false;
 	}
 	
+	checkEventHandling();
 	return true;
 }
 
@@ -904,10 +922,6 @@ void NetworkSocket::Close() {
 		return;
 	}
 	
-	if(m_withEvents)
-		// we already dont want any new events at this time
-		RemoveSocketFromNotifierGroup(m_socket->sock);
-
 	struct CloseSocketWorker : Task {
 		NLsocket sock;
 		int handle() {
@@ -931,6 +945,8 @@ void NetworkSocket::Close() {
 	m_socket->sock = NL_INVALID;
 	m_type = NST_INVALID;
 	m_state = NSS_NONE;
+	
+	checkEventHandling();
 }
 
 int NetworkSocket::Write(const void* buffer, int nbytes) {
@@ -1069,32 +1085,6 @@ void NetworkSocket::WaitForSocketReadOrWrite(int timeout)
 	nlGroupDestroy(group);
 }
 
-int GetSocketErrorNr() {
-	return nlGetError();
-}
-
-std::string GetSocketErrorStr(int errnr) {
-	return GetLastErrorStr();
-}
-
-std::string GetLastErrorStr()  {
-	if (nlGetError() != NL_SYSTEM_ERROR)
-		return std::string(nlGetErrorStr(nlGetError()));
-	else
-		return std::string(nlGetSystemErrorStr(nlGetSystemError()));
-}
-
-bool IsMessageEndSocketErrorNr(int errnr) {
-	return (errnr == NL_MESSAGE_END);
-}
-
-void ResetSocketError()  {
-	if (!bNetworkInited)
-		return;
-
-	nlSetError(NL_NO_ERROR);
-}
-
 NetworkAddr NetworkSocket::localAddress() const {
 	NetworkAddr addr;
 	
@@ -1139,6 +1129,10 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": given address is invalid" << endl;
 		return false;
 	}
+	if( GetNetAddrPort(addr) == 0 )
+	{
+		errors << "NetworkSocket::setRemoteAddress " << debugString() << ": port is set to 0" << endl;
+	}
 	
 	if(nlSetRemoteAddr(m_socket->sock, getNLaddr(addr)) == NL_FALSE) {
 		std::string addrStr = "INVALIDADDR";
@@ -1150,6 +1144,43 @@ bool NetworkSocket::setRemoteAddress(const NetworkAddr& addr) {
 	
 	return true;
 }
+
+
+
+
+
+
+
+
+
+
+int GetSocketErrorNr() {
+	return nlGetError();
+}
+
+std::string GetSocketErrorStr(int errnr) {
+	return GetLastErrorStr();
+}
+
+std::string GetLastErrorStr()  {
+	if (nlGetError() != NL_SYSTEM_ERROR)
+		return std::string(nlGetErrorStr(nlGetError()));
+	else
+		return std::string(nlGetSystemErrorStr(nlGetSystemError()));
+}
+
+bool IsMessageEndSocketErrorNr(int errnr) {
+	return (errnr == NL_MESSAGE_END);
+}
+
+void ResetSocketError()  {
+	if (!bNetworkInited)
+		return;
+	
+	nlSetError(NL_NO_ERROR);
+}
+
+
 
 
 bool IsNetAddrValid(const NetworkAddr& addr) {
@@ -1248,6 +1279,19 @@ bool NetAddrToString(const NetworkAddr& addr, std::string& string) {
 		return false;
 }
 
+NetworkAddr StringToNetAddr(const std::string& string) { 
+	NetworkAddr ret; 
+	ResetNetAddr(ret); 
+	StringToNetAddr(string, ret); 
+	return ret; 
+};
+
+std::string NetAddrToString(const NetworkAddr& addr) { 
+	std::string ret; 
+	NetAddrToString(addr, ret); 
+	return ret; 
+};
+
 unsigned short GetNetAddrPort(const NetworkAddr& addr) {
 	if(getNLaddr(addr) == NULL)
 		return 0;
@@ -1323,6 +1367,9 @@ static bool GetAddrFromNameAsync_Internal(const NLchar* name, NLaddress* address
     return true;
 }
 
+static std::set<std::string> PendingDnsQueries;
+static Mutex PendingDnsQueriesMutex;
+
 bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 {
 	// We don't use nlGetAddrFromNameAsync here because we have to use SmartPointers
@@ -1349,23 +1396,31 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 
     getNLaddr(addr)->valid = NL_FALSE;
 
+	{
+		Mutex::ScopedLock l(PendingDnsQueriesMutex);
+		if(PendingDnsQueries.find(name) != PendingDnsQueries.end())
+			return true;
+		PendingDnsQueries.insert(name);
+	}
+
 	struct GetAddrFromNameAsync_Executer : Task {
 		std::string addr_name;
-		NetAddrSmartPtr address;
+		NetAddrInternal::Ptr_t address;
 		
 		int handle() {
 			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
-				AddToDnsCache(addr_name, NetworkAddr(address));
+				AddToDnsCache(addr_name, NetworkAddr(NetAddrInternal(*address.get())));
 			}
 			
 			// TODO: handle failures here? there should be, but we only have the valid field
 			// For now, we leave it at false, so the timeout handling will just occur.
 			
-			if(SdlNetEvent_Inited) {
-				// push a net event
-				onDnsReady.pushToMainQueue(EventData());
-			}
+			// push a net event
+			onDnsReady.pushToMainQueue(EventData());
+
+			Mutex::ScopedLock l(PendingDnsQueriesMutex);
+			PendingDnsQueries.erase(addr_name);
 			
 			return 0;
 		}
@@ -1374,7 +1429,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 	if(data == NULL) return false;
 	data->name = "GetNetAddrFromNameAsync for " + name;
     data->addr_name = name;
-    data->address = NetworkAddrData(addr);
+    data->address = NetworkAddrData(addr).getPtr();
 
 	taskManager->start(data, false);
     return true;

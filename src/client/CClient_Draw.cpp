@@ -435,7 +435,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			// Show message box, shutdown and quit back to menu
 			DrawImage(DeprecatedGUI::tMenu->bmpBuffer.get(), DeprecatedGUI::tMenu->bmpMainBack_common, 0, 0);
 			DeprecatedGUI::Menu_RedrawMouse(true);
-			SDL_ShowCursor(SDL_DISABLE);
+			EnableSystemMouseCursor(false);
 
 			DeprecatedGUI::Menu_MessageBox("Connection error", strServerErrorMsg, DeprecatedGUI::LMB_OK);
 		}
@@ -1486,7 +1486,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 		// Ok
 		case gm_Ok:
-			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 				GotoLocalMenu();
 			}
 			break;
@@ -1494,7 +1494,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 		// Leave
 		case gm_Leave:
 		case gm_QuitGame:
-			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 
 				// If this is a host, we go back to the lobby
 				// The host can only quit the game via the lobby
@@ -1522,7 +1522,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 		// Resume
 		case gm_Resume:
-			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 				bGameMenu = false;
 				bRepaintChatbox = true;
 				bShouldRepaintInfo = true;
@@ -1532,14 +1532,14 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 
 
 		case gm_Options:
-			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 				DeprecatedGUI::Menu_FloatingOptionsInitialize();
 				DeprecatedGUI::bShowFloatingOptions = true;
 			}
 		break;
 
 		case gm_Chat:
-			if (ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+			if (ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 				DeprecatedGUI::CChatWidget::GlobalSetEnabled();
 			}
 		break;
@@ -1554,7 +1554,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 					break;
 
 				// Click on the command button
-				if (ev->cWidget->getType() == DeprecatedGUI::wid_Button && ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP)  {
+				if (ev->cWidget->getType() == DeprecatedGUI::wid_Button && ev->iEventMsg == DeprecatedGUI::BTN_CLICKED)  {
 					iSelectedPlayer = ev->cWidget->getID();
 					DeprecatedGUI::Menu_HostActionsPopupMenuInitialize(cGameMenuLayout, gm_PopupMenu, gm_PopupPlayerInfo, iSelectedPlayer );
 				}
@@ -2193,7 +2193,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 
         // OK
         case v_ok:
-            if(ev->iEventMsg == DeprecatedGUI::BTN_MOUSEUP) {
+            if(ev->iEventMsg == DeprecatedGUI::BTN_CLICKED) {
 
                 // If there is only one worm, disable the 2nd viewport
                 if( Wormcount <= 1 )

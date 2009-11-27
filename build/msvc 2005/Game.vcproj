@@ -52,7 +52,7 @@
 				Optimization="0"
 				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
@@ -588,6 +588,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\FindFile.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\GeoIPDatabase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\GeoIPDatabase.h"
 				>
 			</File>
 			<File

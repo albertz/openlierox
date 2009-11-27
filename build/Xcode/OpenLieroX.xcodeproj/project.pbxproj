@@ -169,6 +169,7 @@
 		23C17246108BA8960083A2BF /* dwarf2diehandler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C17235108BA8960083A2BF /* dwarf2diehandler.cc */; };
 		23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C1723A108BA8960083A2BF /* dwarf2reader.cc */; };
 		23C1724B108BA8970083A2BF /* functioninfo.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C1723D108BA8960083A2BF /* functioninfo.cc */; };
+		23C174ED10BEF632003DBB09 /* GeoIPDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -689,6 +690,7 @@
 		23C1723D108BA8960083A2BF /* functioninfo.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = functioninfo.cc; sourceTree = "<group>"; };
 		23C1723F108BA8960083A2BF /* functioninfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functioninfo.h; sourceTree = "<group>"; };
 		23C17240108BA8960083A2BF /* line_state_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = line_state_machine.h; sourceTree = "<group>"; };
+		23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoIPDatabase.cpp; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1469,6 +1471,7 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */,
 				23606B2C0FEBEA22000A6439 /* Geometry.cpp */,
 				238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */,
 				23099CC90F60715A008E6C7F /* Mutex.cpp */,
@@ -2207,6 +2210,7 @@
 				23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */,
 				23C1724B108BA8970083A2BF /* functioninfo.cc in Sources */,
 				23A44552108C958E0015918B /* SMTP.cpp in Sources */,
+				23C174ED10BEF632003DBB09 /* GeoIPDatabase.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

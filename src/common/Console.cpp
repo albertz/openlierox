@@ -455,13 +455,13 @@ void Con_Toggle()
 	if(Console->iState == CON_HIDDEN || Console->iState == CON_HIDING) {
 		Console->iState = CON_DROPPING;
         if(!tLXOptions->bFullscreen)
-		    SDL_ShowCursor(SDL_ENABLE);
+        	EnableSystemMouseCursor(true);
 	}
 
 	else if(Console->iState == CON_DROPPING || Console->iState == CON_DOWN) {
 		Console->iState = CON_HIDING;
         if(!tLXOptions->bFullscreen)
-		    SDL_ShowCursor(SDL_DISABLE);
+        	EnableSystemMouseCursor(false);
 	}
 }
 

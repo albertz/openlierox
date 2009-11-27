@@ -150,10 +150,10 @@ public:
 	const std::string&	GetData() const				{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return curlThread != NULL ? Empty : Data; }
 	std::string			GetMimeType() const;
 	//const std::string&	GetDataToSend() const		{ Mutex::ScopedLock l(Lock); return DataToSend; }
-	size_t				GetDataToSendLength() const	{ return 100; }
+	size_t				GetDataToSendLength() const;
 	size_t				GetDataLength() const;
 	size_t				GetReceivedDataLen() const	{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return Data.size(); }
-	size_t				GetSentDataLen() const		{ return 100; }
+	size_t				GetSentDataLen() const;
 	bool				RequestedData()	const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return curlThread != NULL; }
 
 	TimeDiff			GetDownloadTime() const		{ Mutex::ScopedLock l(const_cast<Mutex &>(Lock)); return DownloadEnd - DownloadStart; }

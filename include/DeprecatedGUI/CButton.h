@@ -28,7 +28,9 @@ namespace DeprecatedGUI {
 enum {
 	BTN_NONE=-1,
 	BTN_MOUSEUP=0,
-	BTN_MOUSEOVER
+	BTN_MOUSEOVER,
+ 	BTN_MOUSEOUT,
+ 	BTN_CLICKED
 };
 
 // Button types
@@ -105,7 +107,8 @@ public:
 
 	//These events return an event id, otherwise they return -1
 	int		MouseOver(mouse_t *tMouse)			{ bMouseOver = true; SetGameCursor(CURSOR_HAND); return BTN_MOUSEOVER; }
-	int		MouseUp(mouse_t *tMouse, int nDown)		{ bMouseOver = true; bMouseDown = false; SetGameCursor(CURSOR_HAND); return BTN_MOUSEUP; }
+	int		MouseUp(mouse_t *tMouse, int nDown)		{ bMouseDown = false; SetGameCursor(CURSOR_HAND); return BTN_MOUSEUP; }
+	int		MouseClicked(mouse_t *tMouse, int nDown)	{ bMouseOver = true; bMouseDown = false; SetGameCursor(CURSOR_HAND); return BTN_CLICKED; }
 	int		MouseDown(mouse_t *tMouse, int nDown)	{ bMouseOver = true; bMouseDown = true; SetGameCursor(CURSOR_HAND); return BTN_NONE; }
 	int		MouseWheelDown(mouse_t *tMouse)		{ return BTN_NONE; }
 	int		MouseWheelUp(mouse_t *tMouse)		{ return BTN_NONE; }
@@ -143,7 +146,7 @@ public:
 	
 	void	ProcessGuiSkinEvent(int iEvent) 
 	{
-		if( iEvent == BTN_MOUSEUP )
+		if( iEvent == BTN_CLICKED )
 			cClick.Call();
 	};
 

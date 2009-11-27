@@ -76,8 +76,6 @@ public:
 		iVar = NULL;
 		fVar = NULL;
 		sVar = NULL;
-		tTimer = NULL;
-		Create();
 	}
 
 	~CTextbox()  {
@@ -116,8 +114,6 @@ private:
 	AbsTime	fLastClick;
 
 	bool	bDrawCursor;
-
-	Timer	*tTimer;
 
 	bool		*bVar;
 	int			*iVar;

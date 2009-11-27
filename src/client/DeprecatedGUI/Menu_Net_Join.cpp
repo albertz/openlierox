@@ -200,7 +200,7 @@ void Menu_Net_JoinConnectionFrame(int mouse)
 
 			// Cancel
 			case cm_Cancel:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -801,7 +801,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Back
 			case jl_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					// Click
 					PlaySoundSample(sfxGeneral.smpClick);
 
@@ -814,7 +814,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Ready
 			case jl_Ready:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					// Let the server know that my worms are now ready
 					bool ready = true;
 					if( cClient->getNumWorms() > 0 )
@@ -832,14 +832,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 
 			// Add to favourites
 			case jl_Favourites:
-				if (ev->iEventMsg == BTN_MOUSEUP) {
+				if (ev->iEventMsg == BTN_CLICKED) {
 					Menu_SvrList_AddFavourite(cClient->getServerName(),cClient->getServerAddress());
 				}
 				break;
 
 			// Cancel file transfers
 			case jl_CancelDownload:
-				if (ev->iEventMsg == BTN_MOUSEUP)  {
+				if (ev->iEventMsg == BTN_CLICKED)  {
 					cClient->AbortDownloads();
 				}
 				break;
@@ -909,13 +909,13 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 							}
 						break;
 						case jl_Less:
-							if (ev2->iEventMsg == BTN_MOUSEUP)  {
+							if (ev2->iEventMsg == BTN_CLICKED)  {
 								tLXOptions->bAdvancedLobby = false;
 								initDetailsList(details);
 							}
 						break;
 						case jl_More:
-							if (ev2->iEventMsg == BTN_MOUSEUP)  {
+							if (ev2->iEventMsg == BTN_CLICKED)  {
 								tLXOptions->bAdvancedLobby = true;
 								initDetailsList(details);
 							}

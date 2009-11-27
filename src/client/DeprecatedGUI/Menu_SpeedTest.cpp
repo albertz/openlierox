@@ -117,7 +117,7 @@ bool Menu_SpeedTest_Frame()
 	if (ev)  {
 		switch (ev->iControlID)  {
 		case ms_Cancel:
-			if (ev->iEventMsg == BTN_MOUSEUP)  {
+			if (ev->iEventMsg == BTN_CLICKED)  {
 				tSpeedTest->cancelTest();
 				bCancelled = true;
 				return true;
@@ -125,13 +125,13 @@ bool Menu_SpeedTest_Frame()
 		break;
 
 		case ms_Ok:
-			if (ev->iEventMsg == BTN_MOUSEUP)  {
+			if (ev->iEventMsg == BTN_CLICKED)  {
 				return true;
 			}
 		break;
 
 		case ms_Reset:
-			if (ev->iEventMsg == BTN_MOUSEUP)  {
+			if (ev->iEventMsg == BTN_CLICKED)  {
 				tSpeedTest->startTest();
 
 				// Hide the OK and Reset buttons and show the Cancel button

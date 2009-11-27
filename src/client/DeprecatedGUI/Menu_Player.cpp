@@ -366,7 +366,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 			// Back button
 			case np_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown
 					Menu_PlayerShutdown();
@@ -381,7 +381,7 @@ void Menu_Player_NewPlayer(int mouse)
 
 			// Create
 			case np_Create:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Get the details
@@ -510,7 +510,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 			// Back button
 			case vp_Back:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					// Shutdown
 					Menu_PlayerShutdown();
@@ -525,7 +525,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 			// Delete
 			case vp_Delete:
-				if(ev->iEventMsg == BTN_MOUSEUP) {
+				if(ev->iEventMsg == BTN_CLICKED) {
 
 					CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);
 					if(!lv) {
@@ -611,7 +611,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
             // Apply button
             case vp_Apply:
-                if( ev->iEventMsg == BTN_MOUSEUP ) {
+                if( ev->iEventMsg == BTN_CLICKED ) {
                     int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, (DWORD)0,0);
 	                profile_t *p = FindProfile(sel);
 	                if(p) {

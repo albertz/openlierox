@@ -91,6 +91,7 @@ void GameServer::Clear()
 	nPort = LX_PORT;
 	bLocalClientConnected = false;
 	m_clientsNeedLobbyUpdate = false;
+	iFirstUdpMasterServerNotRespondingCount = 0;
 	
 	fLastUpdateSent = AbsTime();
 
@@ -251,12 +252,13 @@ int GameServer::StartServer()
 		fclose(fp);
 	} else
 		warnings << "cfg/udpmasterservers.txt not found" << endl;
-
+	iFirstUdpMasterServerNotRespondingCount = 0;
 
 	if(tLXOptions->bRegServer) {
 		bServerRegistered = false;
 		fLastRegister = tLX->currentTime;
 		RegisterServer();
+		ObtainExternalIP();
 		
 		fRegisterUdpTime = tLX->currentTime + 5.0f; // 5 seconds from now - to give the local client enough time to join before registering the player count		
 	}
@@ -273,9 +275,50 @@ int GameServer::StartServer()
 		}
 	}
 
+	SetSocketWithEvents(true);
+	
 	return true;
 }
 
+void GameServer::ObtainExternalIP()
+{
+	if (sExternalIP.size())
+		return;
+
+	// TODO: use a config
+	tHttp2.RequestData("http://www.openlierox.net/external_ip.php", tLXOptions->sHttpProxy);
+}
+
+void GameServer::ProcessGetExternalIP()
+{
+	if (sExternalIP.size()) // already got it
+		return;
+
+	int result = tHttp2.ProcessRequest();
+
+	switch(result)  {
+	// Normal, keep going
+	case HTTP_PROC_PROCESSING:
+		return; // Processing, no more work for us
+	break;
+
+	// Failed
+	case HTTP_PROC_ERROR:
+		errors << "Could not obtain external IP address: " + tHttp2.GetError().sErrorMsg << endl;
+	break;
+
+	// Completed ok
+	case HTTP_PROC_FINISHED:
+		sExternalIP = tHttp2.GetData();
+		NetworkAddr tmp;
+		if (!StringToNetAddr(sExternalIP, tmp))  {
+			errors << "The obtained IP address is invalid: " << sExternalIP << endl;
+			sExternalIP = "0.0.0.0";
+		} else
+			notes << "Our external IP address is " << sExternalIP << endl;
+	break;
+	}	
+}
 
 bool GameServer::serverChoosesWeapons() {
 	// HINT:
@@ -859,6 +902,7 @@ void GameServer::Frame()
 	// Process any http requests (register, deregister)
 	if( tLXOptions->bRegServer && !bServerRegistered )
 		ProcessRegister();
+	ProcessGetExternalIP();
 
 	if(m_clientsNeedLobbyUpdate && tLX->currentTime - m_clientsNeedLobbyUpdateTime >= 0.2f) {
 		m_clientsNeedLobbyUpdate = false;
@@ -1145,6 +1189,19 @@ void GameServer::RegisterServerUdp()
 	// Don't register a local play
 	if (tLX->iGameType == GME_LOCAL)
 		return;
+	if( tUdpMasterServers.size() == 0 )
+		return;
+	
+	if( iFirstUdpMasterServerNotRespondingCount >= 3 )
+	{
+		// The first socket is more important because people often have port 23400 forwarded,
+		// and it registers on the first UDP masterserver.
+		// Put the bottom UDP masterserver at the top of the list, if first UDP masterserver not responds.
+		iFirstUdpMasterServerNotRespondingCount = 0;
+		tUdpMasterServers.insert( tUdpMasterServers.begin(), tUdpMasterServers.back() );
+		tUdpMasterServers.pop_back();
+	}
+	iFirstUdpMasterServerNotRespondingCount ++;
 
 	for( uint f=0; f<tUdpMasterServers.size(); f++ )
 	{

@@ -101,6 +101,7 @@ class ServerInfo  {
 // Fast server info (this one is shown in serverlist in LX)
 // The items have the same meaning as in the above structure
 class FastServerInfo  {
+	var $MasterServer;  // Used for UDP NAT traversal identification
   var $Addr;
   var $Name;
   var $Ping;
@@ -144,7 +145,7 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   
   // Send the packet
   $res = SendPacketAndWaitResponses($ip, $packet, $timeout, 1, $socket);
-  if ($res === false)
+  if (!$res)
     return false;
      
   list($response, $ping, $remoteaddr) = $res[0];
@@ -154,13 +155,27 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
     return false;
     
   // Parse the response
-  
+  return LXParseServerInfo($response, $ping, $ip);
+}
+ 
+/////////////////////////
+// Parses a lx::serverinfo packet (private)
+// Parameters:
+// $response - the response packet from the server
+// $ping - ping to the server
+// $ip - address of the server
+// Return value:
+// false on error
+// ServerInfo structure on success
+function LXParseServerInfo(&$response, $ping, $ip) 
+{
   // Check for connectionless header
   if (ord($response[0]) != 0xFF && 
       ord($response[1]) != 0xFF &&
       ord($response[2]) != 0xFF &&
-      ord($response[3]) != 0xFF)
+      ord($response[3]) != 0xFF)  {
       return false;
+  }
   $response = substr($response, 4);
   
   // Set default version
@@ -168,8 +183,9 @@ function LXServerInfo($ip, $timeout = 2000, $socket = false)
   
   // Check the command
   $command = BinToStr($response);
-  if ($command != "lx::serverinfo")
+  if ($command != "lx::serverinfo")  {
     return false;
+  }
   $response = substr($response, strlen($command) + 1);  // +1 - null termination
   
   // Server name
@@ -516,7 +532,6 @@ function LXGetServerList($masterservers)
   // Get info from all servers in the list
   $returnValue = Array();
   for ($i = 0; $i < count($masterservers); $i++)  {
-
     // Get the server list
     $buffer = HttpClient::quickGet($masterservers[$i]);
     
@@ -525,17 +540,18 @@ function LXGetServerList($masterservers)
     
     // Join the IP and port to one
     $ips_with_port = Array();
-    for ($j = 0; $j < count($result[1]); $j++)
-      $ips_with_port[$j] = $result[1][$j] . ":" . $result[2][$j];
+    for ($i = 0; $i < count($result[1]); $i++)
+      $ips_with_port[$i] = $result[1][$i] . ":" . $result[2][$i];
     
     // Add the servers from this master server to the result
+    // HINT: array_merge also excludes doubled values
     if ($i > 0)
       $returnValue = array_merge($returnValue, $ips_with_port);
     else
       $returnValue = $ips_with_port;
   }
   
-  return array_unique($returnValue);
+  return $returnValue;
 }
 
 
@@ -557,40 +573,46 @@ function LXGetUdpServerList($masterservers, $timeout = 3000)
 		  return false;
 		$ret = Array();
 		  
+		$waitForNext = false;
 		foreach ($res as $response2)  {
 			$response = $response2[0];
 			
-			// Check for connectionless header
-			if (ord($response[0]) != 0xFF && 
-			    ord($response[1]) != 0xFF &&
-			    ord($response[2]) != 0xFF &&
-			    ord($response[3]) != 0xFF)
-			    continue;
-			$response = substr($response, 4);
-			
-			// Check for a correct response
-			if (strpos($response, "lx::serverlist".chr(0x00)) !== 0)
-				continue;
-			$response = substr( $response, strlen("lx::serverlist".chr(0x00))+1 );
+
+			if (!$waitForNext || BinToInt32LE($response) == -1)  {
+				// Check for connectionless header
+				if (ord($response[0]) != 0xFF && 
+				    ord($response[1]) != 0xFF &&
+				    ord($response[2]) != 0xFF &&
+				    ord($response[3]) != 0xFF)
+				    continue;
+				$response = substr($response, 4);
+				
+				// Check for a correct response
+				$cmd = BinToStr($response);
+				if ($cmd != "lx::serverlist")
+					continue;
+				$response = substr($response, strlen("lx::serverlist") + 2);  // HINT: +2 because one byte is the number of servers
+				
+				$waitForNext = true;  // The header is sent only once
+			}
 			
 			// Read the response
 			while (strlen($response ) > 0)  {
 				$info = new FastServerInfo;
 				$info->Ping = 999;  // Ping cannot be determined for NAT servers
-				$pos1 = strpos($response, chr(0x00));
-				$info->Addr = substr($response, 0, $pos1);
-				$pos1 += 1;
-				$pos2 = strpos($response, chr(0x00), $pos1);
-				$info->Name = LXConvertOldCompString(substr($response, $pos1, $pos2 - $pos1));
-				$pos2 += 1;
-				$info->NumPlayers = ord($response[$pos2]);
-				$pos2 += 1;
-				$info->MaxPlayers = ord($response[$pos2]);
-				$pos2 += 1;
-				$info->State = ord($response[$pos2]);
-				$pos2 += 1;
-				$response = substr($response, $pos2);
+				$info->Addr = BinToStr($response);
+				$response = substr($response, strlen($info->Addr) + 1);
+				$info->Name = BinToStr($response);
+				$response = substr($response, strlen($info->Name) + 1);
+				$info->Name = LXConvertOldCompString($info->Name);
+				$info->NumPlayers = ord($response[0]);
+				$response = substr($response, 1);
+				$info->MaxPlayers = ord($response[0]);
+				$response = substr($response, 1);
+				$info->State = ord($response[0]);
+				$response = substr($response, 1);
 				$ret[] = $info;
+				$info->MasterServer = $ip;
 			}
 		}
 	}
@@ -610,10 +632,90 @@ function LXGetUdpServerList($masterservers, $timeout = 3000)
 // ServerInfo structure on success
 function LXUdpServerInfo($ip, $master, $timeout = 6000)
 {
+	$res = LXUdpServerInfo_Traverse($ip, $master, $timeout);
+	if (!$res)  {
+		$res = LXUdpServerInfo_Connect($ip, $master, $timeout);
+	}
+		
+	return $res;
+}
+
+/////////////////////////
+// Helper function for LXUdpServerInfo, uses the masterserver to obtain the info
+function LXUdpServerInfo_Traverse($ip, $master, $timeout = 6000)
+{
+	// Build the packet
+	$packet = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF); // Header
+	$packet .= "lx::traverse" . chr(0x00);
+	$packet .= $ip;
+	$packet .= chr(0x00);
+	$packet .= "lx::getinfo";
+	$packet .= chr(0x00);
+	
+  // Open the socket
+	$socket = OpenUdpSocket();
+	if (!$socket) {
+		return false;
+	}
+		
+	// Send
+	$res = SendPacketAndWaitResponses($master, $packet, $timeout, -1, $socket);
+	if ($res == false)  {
+		fclose($socket);
+		return false;
+	}
+		
+	// Receive
+	list($response, $ping, $remoteaddr) = $res[0];
+	if (!$response)  {
+		fclose($socket);
+		return false;
+	}
+	
+	// Check for connectionless header
+	if (ord($response[0]) != 0xFF && 
+	    ord($response[1]) != 0xFF &&
+	    ord($response[2]) != 0xFF &&
+	    ord($response[3]) != 0xFF)  {
+	    return false;	
+	}
+	$response = substr($response, 4);
+	    
+	// Check for a correct response
+	$cmd = BinToStr($response);
+	if ($cmd != "lx::traverse")  {
+		return false;
+	}
+	$response = substr($response, strlen("lx::traverse") + 1);
+	
+	// Skip remote address as it's not needed
+	$response = substr($response, strlen(BinToStr($response)) + 1);
+	if (!$response)  {
+		return false;
+	}
+	
+	// Parse
+	$response = chr(0xFF) . chr(0xFF) . chr(0xFF) . chr(0xFF) . $response; // Add the header again for the parsing function
+	$result = LXParseServerInfo($response, $ping, $ip);
+	if ($result === false)  {
+		fclose($socket);
+		return false;
+	}
+	
+	// No response or all responses invalid
+	fclose($socket);
+	return $result;
+}
+
+/////////////////////////
+// Helper function for LXUdpServerInfo, tries to connect to the server and obtain the info directly
+function LXUdpServerInfo_Connect($ip, $master, $timeout = 6000)
+{
   $time_start = CurrentTime();
 	if (LXPingServer($ip, $timeout / 2) !== false)
 		return LXServerInfo($ip, $timeout);	// Server is NOT behind NAT
 		
+
 	// Update the timeout
 	$timeout -= CurrentTime() - $time_start;
 	if ($timeout <= 0)
@@ -639,12 +741,20 @@ function LXUdpServerInfo($ip, $master, $timeout = 6000)
 	$traverseAddr = "";
 	$connechHereAddr = "";
 	foreach( $responses as $resp )  {
-		if (strpos($resp[0], chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::connect_here".chr(0x00) ) === 0)
-			$connechHereAddr = $resp[2];
+		$data = $resp[0];
+		
+		// Connectionless header
+		if (ord($data[0]) != 0xFF && ord($data[1]) != 0xFF && ord($data[2]) != 0xFF && ord($data[3]) != 0xFF)
+			continue;
 
-		if (strpos($resp[0], chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::traverse".chr(0x00) ) === 0)  {
-			$traverseAddr = substr($resp[0], strlen(chr(0xFF).chr(0xFF).chr(0xFF).chr(0xFF)."lx::traverse".chr(0x00)));
-			$traverseAddr = substr($traverseAddr, 0, strpos($traverseAddr, chr(0x00)) );
+		$data = substr($data, 4);
+		
+		$cmd = BinToStr($data);
+		$data = substr($data, strlen($cmd) + 1);
+		if ($cmd == "lx::connect_here")  {
+			$connechHereAddr = $resp[2];
+		} else if ($cmd == "lx::traverse")  {
+			$traverseAddr = BinToStr($data);
 		}
 	}
 	
@@ -723,17 +833,15 @@ function OpenUdpSocket($port = 0)
 // array with Array(responce, ping, remote address), false on failure.
 function SendPacketAndWaitResponses($ip, $packet, $timeout, $maxreplies = -1, $socket = false)
 {
-
   // Adjust the address
   if (!strpos($ip, ":"))
     $ip .= ":23400"; // Append default LX port
-         
+       
   // Open the socket
   if($socket)
   	$fp = $socket;
   else
     $fp = OpenUdpSocket();
-
   if (!$fp)
     return false;
     
@@ -741,54 +849,31 @@ function SendPacketAndWaitResponses($ip, $packet, $timeout, $maxreplies = -1, $s
   $sent_time = CurrentTime(); 
   
   // Send the packet 
-	$usingFsock = false;
+  stream_socket_sendto($fp, $packet, 0, $ip);
 
-  if (@stream_socket_sendto($fp, $packet, 0, $ip) == -1)  {
-		fclose($fp);
-		list($addr, $port) = explode(":", $ip);
-		$errno = 0;
-		$errstr = "";
-
-		// Alternative: try fsockopen
-		$fp = fsockopen("udp://{$addr}", (int)$port, $errno, $errstr, $timeout / 1000);
-		if (!$fp)
-			return false;
-			
-		stream_set_timeout($fp, $timeout / 1000);
-		$usingFsock = true;
-		if (!fwrite($fp, $packet))
-			return false;
-	}
+  // Set the timeout
   
   // Read the response
   $response = Array();
   while( CurrentTime() - $sent_time < $timeout && ( $maxreplies < 0 || count($response) < $maxreplies ) )  {
+  	// stream_set_timeout() does not work with stream_socket_recvfrom() - using select()
+    //stream_set_timeout($fp, 0, ( $timeout + $sent_time - CurrentTime() ) * 1000);
     
-    $resp = "";
-    if (!$usingFsock)  {
-	    // Wait for data
-	  	$r = Array($fp);
-	  	$w = NULL;
-	  	$e = NULL;
-	  	if (stream_select($r, $w, $e, 0, 500000) == 0)
-	  		continue;
-	  	
-	  	// Receive
-	  	$remoteaddr = "";
-	    $resp = stream_socket_recvfrom($fp, 4096, 0, $remoteaddr);
-	  } else {
-			$resp = fread($fp, 8192);
-			$remoteaddr = $ip;
-		}
-		
+    // Wait for data
+  	$r = Array($fp);
+  	$w = NULL;
+  	$e = NULL;
+  	if (stream_select($r, $w, $e, 0, 500000) == 0)
+  		continue;
+  	
+  	// Receive
+  	$remoteaddr = "";
+    $resp = stream_socket_recvfrom($fp, 4096, 0, $remoteaddr);
     $ping = Round(CurrentTime() - $sent_time);
     
     // Got response
   	if ($resp != false)
   		$response[] = Array($resp, $ping, $remoteaddr);
-  		
-  	if ($usingFsock)
-  		break;
   }
   
   // Close the connection

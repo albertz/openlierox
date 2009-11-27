@@ -55,7 +55,8 @@ void		setCurThreadName(const std::string& name);
 void		setCurThreadPriority(float p); // p in [-1,1], whereby 0 is standard
 
 size_t		GetFreeSysMemory(); // returnes available physical memory in bytes
-std::string	GetDateTimeText();
+std::string	GetDateTimeText();	// Returns human-readable time
+std::string	GetDateTimeFilename(); // Returns time for use in filename, so newer files will get alpha-sorted last
 
 #ifdef DEBUG
 bool		HandleDebugCommand(const std::string& cmd);
@@ -71,6 +72,9 @@ void doVppOperation(Action* act);
 
 void flipRealVideo();
 
+// Asynchronously enable/disable mouse cursor in window manager, may be called from any thread
+// Use this function instead of SDL_ShowCursor()
+void EnableSystemMouseCursor(bool enable = true);
 
 class VideoPostProcessor {
 protected:

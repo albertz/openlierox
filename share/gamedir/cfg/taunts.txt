@@ -3,31 +3,31 @@
 # These are in-game taunts, invoked by pressing keys Ctrl-1 to Ctrl-9 and Ctrl-0
 # Edit them as you like
 
-Taunt1 = Gotta go
+Taunt1 = Taunt 1 - edit it in file cfg/taunts.txt
 TauntKey1 = 1
 
-Taunt2 = Good game
+Taunt2 = Taunt 2 - edit it in file cfg/taunts.txt
 TauntKey2 = 2
 
-Taunt3 = Nice
+Taunt3 = Taunt 3 - edit it in file cfg/taunts.txt
 TauntKey3 = 3
 
-Taunt4 = Fantastic
+Taunt4 = Taunt 4 - edit it in file cfg/taunts.txt
 TauntKey4 = 4
 
-Taunt5 = :D
+Taunt5 = Taunt 5 - edit it in file cfg/taunts.txt
 TauntKey5 = 5
 
-Taunt6 = LAME
+Taunt6 = Taunt 6 - edit it in file cfg/taunts.txt
 TauntKey6 = 6
 
-Taunt7 = ZOMG LAG
+Taunt7 = Taunt 7 - edit it in file cfg/taunts.txt
 TauntKey7 = 7
 
-Taunt8 = STFU NUB
+Taunt8 = Taunt 8 - edit it in file cfg/taunts.txt
 TauntKey8 = 8
 
-Taunt9 = MORTROS CASLE SRIKE
+Taunt9 = Taunt 9 - edit it in file cfg/taunts.txt
 TauntKey9 = 9
 
 # Ascii-art overkill!

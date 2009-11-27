@@ -34,3 +34,5 @@ configure-stamp
 build-stamp
 PrecompiledHeader.*
 *openlierox_pch_dephelp.*
+
+distrib

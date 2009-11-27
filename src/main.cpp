@@ -624,7 +624,7 @@ startpoint:
 		return -1;
 	}
 
-	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + Replace(GetDateTimeText(), ":", "-") + ".txt", true));
+	teeStdoutFile(GetWriteFullFileName("logs/OpenLieroX - " + GetDateTimeFilename() + ".txt", true));
 	CrashHandler::init();
 
 	if(!NetworkTexts::Init()) {
@@ -657,17 +657,13 @@ startpoint:
 	// Start loading the IP to country database
 	// HINT: we do it as soon as possible because the loading has more time then which means better results
 	// HINT: the database won't load if it is disabled in options
-	tIpToCountryDB = new IpToCountryDB("ip_to_country.csv");
+	tIpToCountryDB = new IpToCountryDB(IP_TO_COUNTRY_FILE);
 
 	// Initialize LX
 	if(!InitializeLieroX())  {
 		SystemError("Could not initialize LieroX.");
 		return -1;
 	}
-
-	// we need nMaxFPS from LX, so do it here
-	if(!SdlNetEvent_Init())
-		errors << "Failed to initialize the network library SDL event" << endl;
 	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
@@ -779,7 +775,6 @@ quit:
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
-	SdlNetEvent_UnInit();
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 
@@ -1353,8 +1348,7 @@ void GameLoopFrame()
 	
 	cClient->resetDebugStr();
 	
-	// We put it here, so the mouse never displays
-    SDL_ShowCursor(SDL_DISABLE);
+	EnableSystemMouseCursor(false);
 }
 
 
@@ -1497,15 +1491,17 @@ void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
 
+	// Options
+	// Save already here in case some other method crashes
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
+	
 	DeprecatedGUI::CChatWidget::GlobalDestroy();
 	
 	ShutdownIRC(); // Disconnect from IRC
 
 	if(bDedicated)
 		DedicatedControl::Uninit();
-
-	if( ! bDedicated )
-		ShutdownMusic();
 
 	if( ! bDedicated )
 		ShutdownBackgroundMusic();
@@ -1553,10 +1549,6 @@ void ShutdownLieroX()
 		convoLogger = NULL;
 	}
 
-	// Options
-	if(!bDedicated) // only save if not in dedicated mode
-		tLXOptions->SaveToDisc();
-
 #ifdef WITH_G15
 	if (OLXG15)
 	{
@@ -1579,6 +1571,12 @@ void ShutdownLieroX()
 #endif
 
 	// Save and clear options
+
+	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
+	// TODO: like what changes? why are there options saved both in CServer/CClient structure and in options?
+	if(!bDedicated) // only save if not in dedicated mode
+		tLXOptions->SaveToDisc();
+
 	ShutdownOptions();
 
 	// Only do the deregistration for variables if we are not restarting.

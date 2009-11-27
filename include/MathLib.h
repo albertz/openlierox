@@ -30,7 +30,11 @@
 #define PI		3.14159265358979323846
 
 
+const float	D2R(1.745329e-2f); // degrees to radians
+const float	R2D(5.729578e+1f); // radians to degrees
 
+#define DEG2RAD(a)  ((a) * D2R)
+#define RAD2DEG(a)  ((a) * R2D)
 
 // Routines
 float	GetRandomNum(); // get a random float from [-1,1] 

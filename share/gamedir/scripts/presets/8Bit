@@ -1,7 +1,0 @@
-#!/usr/bin/python -u
-
-setvar( "GameOptions.GameInfo.ModName", "8-Bit Warfare v1.2" )
-setvar( "GameOptions.GameInfo.LoadingTime", "20" )
-setvar( "GameServer.WeaponRestrictionsFile", "" )
-
-

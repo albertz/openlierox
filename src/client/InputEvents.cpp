@@ -452,7 +452,7 @@ static void HandleMouseState() {
 		// Mouse
 		int oldX = Mouse.X;
 		int oldY = Mouse.Y;
-		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y);
+		Mouse.Button = SDL_GetMouseState(&Mouse.X,&Mouse.Y); // Doesn't call libX11 funcs, so it's safe to call not from video thread
 
 		VideoPostProcessor::transformCoordinates_ScreenToVideo(Mouse.X, Mouse.Y);
 

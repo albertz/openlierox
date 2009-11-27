@@ -1451,6 +1451,21 @@ int	CListview::MouseWheelDown(mouse_t *tMouse)
 	return LV_NONE;
 }
 
+int	CListview::MouseClicked(mouse_t *tMouse, int nDown)
+{
+	// Any sub-widget is active?
+	if (tMouseOverSubWidget)  {
+		tLastWidgetEvent.cWidget = tMouseOverSubWidget;
+		tLastWidgetEvent.iControlID = tMouseOverSubWidget->getID();
+		tLastWidgetEvent.iEventMsg = tMouseOverSubWidget->MouseClicked(tMouse, nDown);
+		if (tLastWidgetEvent.iEventMsg != -1)
+			return LV_WIDGETEVENT;
+	}
+		
+	return LV_NONE;
+}
+	
+	
 ///////////////////
 // Mouse wheel up event
 int	CListview::MouseWheelUp(mouse_t *tMouse)

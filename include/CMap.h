@@ -228,7 +228,8 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-
+	bool		isLoaded()	{ return bmpImage.get() && GridFlags && AbsoluteGridFlags && PixelFlags; }
+	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
 	static std::string GetLevelName(const std::string& filename, bool abs_filename = false);

@@ -66,7 +66,7 @@ void SetError(const std::string& text)
 // Show the error
 void ShowError()
 {
-	SDL_ShowCursor(SDL_ENABLE);
+	EnableSystemMouseCursor(true);
 
 	// TODO: uniform message system
 
@@ -79,7 +79,7 @@ void ShowError()
 		//MessageBox(NULL,"Unkown Error",GetGameName(),MB_OK | MB_ICONEXCLAMATION);
 	}
 
-	SDL_ShowCursor(SDL_DISABLE);
+	EnableSystemMouseCursor(false);
 }
 
 
@@ -97,8 +97,6 @@ void EndError()
 // Show a system error
 void SystemError(const std::string& text)
 {
-
-	// SDL_ShowCursor(SDL_ENABLE);	// Commented out because of a bug in SDL that causes a crash when SDL_SetVideoMode fails
 	if (text.size() != 0) {
 		errors << "SystemError: " << text << endl;
 	}
