@@ -1573,6 +1573,7 @@ void ShutdownLieroX()
 	// Save and clear options
 
 	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
+	// TODO: like what changes? why are there options saved both in CServer/CClient structure and in options?
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
 
