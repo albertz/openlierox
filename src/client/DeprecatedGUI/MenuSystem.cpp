@@ -159,13 +159,12 @@ bool Menu_Initialize(bool *game)
 
 	// HACK: open an unreliable foo socket
 	// Some routers simply ignore first open socket and don't let any data through, this is a workaround
-	tMenu->tSocket[SCK_FOO]->setWithEvents(false);
 	tMenu->tSocket[SCK_FOO]->OpenUnreliable(0);
 	// Open a socket for broadcasting over a LAN (UDP)
 	tMenu->tSocket[SCK_LAN]->OpenBroadcast(0);
 	// Open a socket for communicating over the net (UDP)
-	tMenu->tSocket[SCK_NET]->OpenUnreliable(0);
-
+	tMenu->tSocket[SCK_NET]->OpenUnreliable(0);	
+	
 	if(!tMenu->tSocket[SCK_LAN]->isOpen() || !tMenu->tSocket[SCK_NET]->isOpen()) {
 		SystemError("Error: Failed to open a socket for networking");
 		return false;
@@ -342,11 +341,12 @@ void Menu_Frame() {
 ///////////////////
 // Main menu loop
 void Menu_Loop()
-{
+{	
 	AbsTime menuStartTime = tLX->currentTime = GetTime();
+		
 	bool last_frame_was_because_of_an_event = false;
 	last_frame_was_because_of_an_event = ProcessEvents();
-
+	
 	while(tMenu->bMenuRunning) {
 		AbsTime oldtime = tLX->currentTime;
 
@@ -1045,13 +1045,15 @@ void Menu_redrawBufferRect(int x, int y, int w, int h)
 void Menu_DisableNetEvents()
 {
 	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
-		tMenu->tSocket[i]->setWithEvents(false);
+		if(i != SCK_FOO)
+			tMenu->tSocket[i]->setWithEvents(false);
 }
 
 void Menu_EnableNetEvents()
 {
 	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
-		tMenu->tSocket[i]->setWithEvents(true);
+		if(i != SCK_FOO)
+			tMenu->tSocket[i]->setWithEvents(true);
 }
 
 
@@ -1848,7 +1850,6 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 	// Open socket for networking
 	NetworkSocket sock;
-	sock.setWithEvents(false);
 	if (!sock.OpenUnreliable(0))  {
 		updateEndEvent.pushToMainQueue((size_t)id);
 		return -1;

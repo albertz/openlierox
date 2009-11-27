@@ -275,6 +275,8 @@ int GameServer::StartServer()
 		}
 	}
 
+	SetSocketWithEvents(true);
+	
 	return true;
 }
 

@@ -664,10 +664,6 @@ startpoint:
 		SystemError("Could not initialize LieroX.");
 		return -1;
 	}
-
-	// we need nMaxFPS from LX, so do it here
-	if(!SdlNetEvent_Init())
-		errors << "Failed to initialize the network library SDL event" << endl;
 	
 	kb = GetKeyboard();
 	if (!bDedicated && !VideoPostProcessor::videoSurface()) {
@@ -779,7 +775,6 @@ quit:
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
-	SdlNetEvent_UnInit();
 	taskManager->finishQueuedTasks();
 	threadPool->waitAll(); // do that before uniniting task manager because some threads could access it
 
