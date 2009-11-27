@@ -1312,8 +1312,8 @@ std::string GetDateTimeFilename()
 	struct tm *curtime = localtime(&curtime1);
 	if (curtime == NULL)
 		return "TIME-ERROR2";
-	char filePrefixTime[200];
-	strftime(filePrefixTime, sizeof(filePrefixTime), "%y%m%d-%H%M", curtime);
+	char filePrefixTime[200] = {0};
+	strftime(filePrefixTime, sizeof(filePrefixTime), "%Y%m%d-%H%M", curtime);
 	return filePrefixTime;
 }
 
