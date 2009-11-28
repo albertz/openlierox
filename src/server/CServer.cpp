@@ -525,9 +525,6 @@ mapCreate:
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
-
-	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame and we never idle	
-	SetSocketWithEvents(false);
 	
 	// Re-register the server to reflect the state change
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )

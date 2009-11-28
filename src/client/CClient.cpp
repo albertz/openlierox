@@ -2542,4 +2542,7 @@ bool CClient::isMapReady() const {
 	return cMap && cMap->isLoaded();
 }
 
+void CClient::SetSocketWithEvents(bool v) {
+	tSocket->setWithEvents(v);
+}
 
