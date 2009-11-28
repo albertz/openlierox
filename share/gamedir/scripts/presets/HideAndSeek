@@ -5,7 +5,7 @@ global worms, io
 
 # just set some default stuff, it doesn't matter for Hide&Seek
 setvar( "GameOptions.GameInfo.ModName", "MW 1.0" )
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/MW 1.0/Mortar Only.wps" ) # only one weapon to have autoselect for beta8
+SetWeaponBans("Mortar Only")
 setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 
 # some good settings for this gametype

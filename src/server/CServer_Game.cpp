@@ -629,9 +629,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 		return;
 	}
 	
-	// in lobby we need the events again
-	SetSocketWithEvents(true);
-
 	short i;
 
 	// Tell all the clients

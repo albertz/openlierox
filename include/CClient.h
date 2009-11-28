@@ -517,6 +517,7 @@ public:
 	void		Reconnect();
 	void		Connecting(bool force = false);
 	void		ConnectingBehindNAT();
+	void		SetSocketWithEvents(bool v);
 	void		Disconnect();
 
 	bool		ReadPackets();

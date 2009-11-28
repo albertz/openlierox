@@ -11,9 +11,9 @@ import os
 import sys
 import threading
 import traceback
-from random import *
-
-import dedicated_config as cfg # Per-host config like admin password
+import random
+import portalocker
+import subprocess, signal, os.path
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -37,6 +37,33 @@ controlHandler = None
 
 scriptPaused = False
 
+
+# General options that should be set before server starts
+GLOBAL_SETTINGS = {	
+
+	# Various options that should be set, you don't need to touch them in most cases
+
+	"GameOptions.GameInfo.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
+	"GameOptions.GameInfo.AllowNickChange":         1,
+	"GameOptions.GameInfo.AllowStrafing":           1,
+	"GameOptions.Network.AllowRemoteBots":          1,
+	"GameOptions.Network.AllowWantsJoinMsg":        1,
+	"GameOptions.Network.WantsToJoinFromBanned":    0,
+	"GameOptions.Network.UseIpToCountry":           1,
+	"GameOptions.Network.RegisterServer":           1,
+	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
+	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
+	"GameOptions.Game.AntilagMovementPrediction":   1, # If ServerSideHealth = 1 this influences gameplay
+	"GameOptions.Misc.LogConversations":            0,
+	"GameOptions.Advanced.MatchLogging":            0, # Do not save game results screenshot
+	"GameOptions.Misc.ScreenshotFormat":            1, # 0 = JPG, 1 = PNG
+	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
+	"GameOptions.Network.AutoSetupHttpProxy":       0,
+	"GameOptions.Network.HttpProxy":                "",
+	"GameOptions.Advanced.MaxCachedEntries":        0, # Disable cache for ded server
+}
+
+
 # Uncomment following 3 lines to get lots of debug spam into dedicated_control_errors.log file
 #def HeavyDebugTrace(frame,event,arg):
 #	sys.stderr.write( 'Trace: ' + str(event) + ': ' + str(arg) + ' at ' + str(frame.f_code) + "\n" )
@@ -56,6 +83,9 @@ gameState = GAME_READY
 
 sentStartGame = False
 
+videoRecorder = None
+videoRecorderSignalTime = 0
+
 def DoNothing(): pass
 
 
@@ -70,7 +100,7 @@ class Worm:
 		self.iID = -1
 		self.isAdmin = False
 		self.isDedAdmin = False
-		self.Ping = [] # Contains 10 ping values, real ping = average of them
+		self.Ping = [] # Contains 25 ping values, real ping = average
 		self.Lives = -1 # -1 means Out
 		self.Team = 0
 		self.Alive = False
@@ -83,12 +113,15 @@ class Worm:
 def init():
 	initPresets()
 
-	io.startLobby(0)
+	io.startLobby(cfg.SERVER_PORT)
 
 	# if we load this script with already some worms on board, we have to update our worm list now
 	for w in io.getWormList():
 		parseNewWorm( w, io.getWormName(w) )
 
+	global GLOBAL_SETTINGS;
+	for f in GLOBAL_SETTINGS.keys():
+		io.setvar( f, GLOBAL_SETTINGS[f] )
 	for f in cfg.GLOBAL_SETTINGS.keys():
 		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 	
@@ -186,9 +219,9 @@ def parseNewWorm(wormID, name):
 		worm = Worm()
 	worm.Name = name
 	worm.iID = wormID
+	worm.Ping = []
 
-	if not exists:
-		worms[wormID] = worm
+	worms[wormID] = worm
 
 	if io.getGameType() == 4: # Hide and Seek
 		minSeekers = 1
@@ -216,6 +249,10 @@ def parseNewWorm(wormID, name):
 			ranking.auth[name] = getWormSkin(wormID)
 			try:
 				f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
+				try:
+					portalocker.lock(f, portalocker.LOCK_EX)
+				except:
+					pass
 				f.write( name + "\t" + str(ranking.auth[name][0]) + " " + ranking.auth[name][1] + "\n" )
 				f.close()
 			except IOError:
@@ -301,6 +338,10 @@ def parseWormDied(sig):
 	try:
 		f = open(io.getWriteFullFileName("pwn0meter.txt"),"a")
 		if not killerID in io.getComputerWormList():
+			try:
+				portalocker.lock(f, portalocker.LOCK_EX)
+			except:
+				pass
 			f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
@@ -365,8 +406,8 @@ def average(a):
 	return r / len(a)
 
 def checkMaxPing():
+	
 	global worms
-
 	for f in worms.keys():
 		if worms[f].iID == -1 or not worms[f].Alive:
 			continue
@@ -407,7 +448,7 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 		self.curIndex = self.curIndex + 1
 		if self.curIndex >= len(self.list):
 			self.curIndex = 0
-			shuffle(self.list)
+			random.shuffle(self.list)
 		self.curSelection = self.list[self.curIndex]
 		self.apply()
 
@@ -454,7 +495,7 @@ class MapCicler(StandardCiclerGameVar):
 
 		if self.list != oldlist:
 			self.curIndex = 0
-			shuffle(self.list)
+			random.shuffle(self.list)
 		
 		StandardCiclerGameVar.cicle(self)
 
@@ -464,9 +505,12 @@ mapCicler = MapCicler()
 #	io.messageLog("Waiting for level list ...")
 #	while len(mapCicler.list) == 0:
 #		mapCicler.list = io.listMaps()
-#shuffle(mapCicler.list)
+#random.shuffle(mapCicler.list)
 mapCicler.cicle()
 
+def SetWeaponBans(name = "Standard 100lt"):
+	modName = io.getVar("GameOptions.GameInfo.ModName")
+	io.setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + modName + "/" + name + ".wps" )
 
 class ModCicler(StandardCiclerGameVar):
 	def __init__(self):
@@ -476,11 +520,13 @@ class ModCicler(StandardCiclerGameVar):
 	def apply(self):
 		if not self.curSelection: return
 		StandardCiclerGameVar.apply(self)
-		setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + self.curSelection + "/Standard 100lt.wps" )
+		SetWeaponBans()
 
 
 modCicler = ModCicler()
-modCicler.list = io.listMods()
+modCicler.list = cfg.MODS
+if len(modCicler.list) == 0:
+	modCicler.list = io.listMods()
 if len(modCicler.list) == 0:
 	io.messageLog("Waiting for mod list ...")
 	while len(modCicler.list) == 0:
@@ -526,7 +572,7 @@ presetCicler = PresetCicler()
 presetCicler.list = cfg.PRESETS
 if( len(presetCicler.list) == 0 ):
 	presetCicler.list = availablePresets
-shuffle(presetCicler.list)
+random.shuffle(presetCicler.list)
 
 LT_Cicler = StandardCiclerGameVar()
 LT_Cicler.list = [ "100" ]
@@ -577,6 +623,7 @@ def controlHandlerDefault():
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
 	global presetCicler, modCicler, mapCicler, LT_Cicler
+	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
 		return
@@ -598,6 +645,21 @@ def controlHandlerDefault():
 			lobbyWaitAfterGame = curTime
 			if oldGameState == GAME_PLAYING:
 				lobbyWaitAfterGame = curTime + cfg.WAIT_AFTER_GAME
+			if videoRecorder:
+				os.kill(videoRecorder.pid, signal.SIGINT)  # videoRecorder.send_signal(signal.SIGINT) # This is available only on Python 2.6
+				videoRecorderSignalTime = time.time()
+				io.chatMsg("Waiting for video recorder to finish")
+
+		canStart = True
+		if videoRecorder and videoRecorder.returncode == None:
+			canStart = False
+			videoRecorder.poll()
+			if time.time() - videoRecorderSignalTime > 30:
+				os.kill(videoRecorder.pid, signal.SIGKILL)
+				videoRecorder.poll()
+			if videoRecorder.returncode != None:
+				canStart = True
+				videoRecorder = None
 
 		if lobbyWaitAfterGame <= curTime:
 
@@ -616,7 +678,7 @@ def controlHandlerDefault():
 
 			if lobbyEnoughPlayers and not sentStartGame:
 
-				if lobbyWaitBeforeGame <= curTime: # Start the game
+				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
 
 					if io.getGameType() <= 1:
 						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
@@ -632,8 +694,16 @@ def controlHandlerDefault():
 
 					if io.startGame():
 						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
-							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)	
+							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 						sentStartGame = True
+						if cfg.RECORD_VIDEO:
+							try:
+								#io.messageLog("Running dedicated-video-record.sh, curdir " + os.path.abspath(os.path.curdir) ,io.LOG_INFO)
+								videoRecorder = subprocess.Popen( ["dedicated-video-record.sh", "dedicated-video-record.sh"],
+												stdin=open("/dev/null","r"), stdout=open("../../../dedicatedVideo.log","w"),
+												stderr=subprocess.STDOUT, cwd=".." )
+							except:
+								io.messageLog(formatExceptionInfo(),io.LOG_ERROR)
 					else:
 						io.chatMsg("Game could not be started")
 						oldGameState == GAME_PLAYING # hack that it resets at next control handler call

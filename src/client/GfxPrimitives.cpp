@@ -626,8 +626,12 @@ void DrawImageTiledY(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int sx, int sy, 
 // Draw the image mirrored with a huge amount of options
 void DrawImageAdv_Mirror(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int w, int h)
 {
+	// TODO: fix this
 	// Warning: Both surfaces have to have same bpp!
-	assert(bmpDest->format->BytesPerPixel == bmpSrc->format->BytesPerPixel);
+	if(bmpDest->format->BytesPerPixel != bmpSrc->format->BytesPerPixel) {
+		errors << "DrawImageAdv_Mirror: dst bpp " << bmpDest->format->BytesPerPixel << " != " << " src bpp " << bmpSrc->format->BytesPerPixel << endl;
+		return;
+	}
 
 	// Clipping on source surface
 	if (!ClipRefRectWith(sx, sy, w, h, (SDLRect&)bmpSrc->clip_rect))

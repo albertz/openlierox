@@ -130,12 +130,7 @@ bool GameOptions::Init() {
 	}
 
 	CScriptableVars::RegisterVars("GameOptions")
-		( tLXOptions->bFullscreen, "Video.Fullscreen",
-#ifdef WIN32
-			true )
-#else
-			false )
-#endif
+		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 		( tLXOptions->bOpenGL, "Video.OpenGL",
 #ifdef MACOSX
@@ -164,7 +159,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
-		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", false, "Force Compatible", "Don't allow incompatible clients to connect" )
+		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
 		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", "LieroX/0.56", "Force Min Version", "Minimal version needed to play on this server" )
 
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
@@ -209,6 +204,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowProjectileUsage, "Misc.ShowProjectileUsage", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "dedicated_control" )
+		( tLXOptions->sDedicatedScriptArgs, "Misc.DedicatedScriptArgs", "cfg/dedicated_config" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
 		( tLXOptions->bLogTimestamps, "Misc.LogTimestamps", false )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
@@ -272,7 +268,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus", GIG_Bonus, ALT_Advanced, true, 0.0f, 1.0f )
 		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons", GIG_Weapons, ALT_Basic )
 		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select the same weapons as host worm", GIG_Weapons, ALT_Advanced )
-		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", false, "Connect during game", "Allow new players to connect during game", GIG_Advanced, ALT_Basic )
+		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", true, "Connect during game", "Allow new players to connect during game", GIG_Advanced, ALT_Basic )
 		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other, ALT_VeryAdvanced )
 		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other, ALT_VeryAdvanced )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other, ALT_OnlyViaConfig )

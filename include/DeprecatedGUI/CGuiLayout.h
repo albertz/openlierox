@@ -17,8 +17,13 @@
 #ifndef __CGUILAYOUT_H__DEPRECATED_GUI__
 #define __CGUILAYOUT_H__DEPRECATED_GUI__
 
-
+#include <SDL.h> // for SDL_Rect
 #include "DeprecatedGUI/CWidget.h"
+#include "CVec.h"
+#include "SmartPointer.h"
+
+struct TooltipIntern;
+template <> void SmartPointer_ObjectDeinit<TooltipIntern> ( TooltipIntern * obj );
 
 namespace DeprecatedGUI {
 
@@ -50,6 +55,7 @@ enum {
 
 
 
+	
 class CGuiLayout: public CGuiLayoutBase {
 public:
 	// Constructor
@@ -87,8 +93,9 @@ private:
 	// Can we set focus to another widget?
 	bool			bCanFocus;
 
+	SmartPointer<TooltipIntern> tooltip;
 
-
+	
 public:
 	// Methods
 
@@ -121,6 +128,8 @@ public:
 	int			getID()		{ return iID; }
 	void		setID(int _id)	{ iID = _id; }
 
+	void		setTooltip(const SDL_Rect& keepArea, VectorD2<int> pos, const std::string& msg);
+	
 };
 
 } // namespace DeprecatedGUI

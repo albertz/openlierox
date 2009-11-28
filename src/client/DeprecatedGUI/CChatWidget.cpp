@@ -42,8 +42,6 @@ namespace DeprecatedGUI {
 		nc_ChatText,
 		nc_UserList,
 		nc_ChatInput,
-		nc_UserInfoPopup,
-		nc_UserInfoPopupBox,
 		nc_Back, // Back button is not added by default, it's only for global chat widget
 	};
 
@@ -128,15 +126,7 @@ void CChatWidget::Create()
 	this->Add( new CBrowser(), nc_ChatText, 5, 5, iWidth - 155, iHeight - tLX->cFont.GetHeight() - 15 );
 	this->Add( new CListview(), nc_UserList, iWidth - 145, 5, 145, iHeight - 10);
 	this->Add( new CTextbox(), nc_ChatInput, 5,  iHeight - tLX->cFont.GetHeight() - 7, iWidth - 157, tLX->cFont.GetHeight());
-	this->Add( new CBox( 0, 2, tLX->clBoxLight, tLX->clBoxDark, tLX->clDialogBackground ), nc_UserInfoPopupBox, 0, 0, 0, 0 );
-	this->Add( new CLabel( "", tLX->clNormalLabel ), nc_UserInfoPopup, 0, 0, 0, 0 );
-
-	// Messages
-	CLabel *popup = (CLabel *)this->getWidget(nc_UserInfoPopup);
-	popup->setEnabled(false);
-	CBox *popupBox = (CBox *)this->getWidget(nc_UserInfoPopupBox);
-	popupBox->setEnabled(false);
-
+	
 	CListview *l = (CListview *)this->getWidget(nc_UserList);
 	l->setMouseOverEventEnabled(true);
 
@@ -218,11 +208,6 @@ void CChatWidget::DisableChat()
 
 void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 {
-	CLabel *popup = (CLabel *)this->getWidget(nc_UserInfoPopup);
-	CBox *popupBox = (CBox *)this->getWidget(nc_UserInfoPopupBox);
-	popup->setEnabled(false);
-	popupBox->setEnabled(false);
-	
 	if( ! child )
 		return;
 
@@ -269,35 +254,33 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 				if (iEvent == LV_MOUSEOVER)  {
 					CListview *lsv = (CListview *)this->getWidget(nc_UserList);
 					IRCClient *irc = GetGlobalIRC();
+					CGuiLayout* layout = dynamic_cast<CGuiLayout*> (getParent());
+					if(layout == NULL)
+						// we can only set the tooltip on the CGuiLayout
+						break;
 					
+					std::string tooltipTxt;
 					if( m_lastWhoisName != lsv->getMouseOverSIndex() && 
 						m_lastWhoisTime + 0.5f < tLX->currentTime )
 					{
 						m_lastWhoisTime = tLX->currentTime;
 						m_lastWhoisName = lsv->getMouseOverSIndex();
-						popup->setText("");
+						//popup->setText("");
 					}
-					if(lsv->getMouseOverSIndex() != "" && popup->getText() == "") {
-						popup->setText(lsv->getMouseOverSIndex() + "\n... loading ...");
+					if(lsv->getMouseOverSIndex() != "") {
+						tooltipTxt = lsv->getMouseOverSIndex() + "\n... loading ...";
 					}
 					if( lsv->getMouseOverSIndex() != "" && lsv->getMouseOverSIndex() == m_lastWhoisName &&
 						irc != NULL && irc->getWhois(lsv->getMouseOverSIndex()) != "" )
 					{
-						popup->setText( lsv->getMouseOverSIndex() + "\n" + irc->getWhois(lsv->getMouseOverSIndex()) );
+						tooltipTxt = lsv->getMouseOverSIndex() + "\n" + irc->getWhois(lsv->getMouseOverSIndex());
 					}
 					
-					int x = MAX( 5, GetMouse()->X - popup->getWidth() - 10 );
-					int y = MAX( 5, GetMouse()->Y - popup->getHeight()/2 );
-					popup->Setup(popup->getID(), x, y, popup->getWidth(), popup->getHeight() );
-					popup->Create();
-					popup->setEnabled(true);
-					
-					popupBox->Setup(popupBox->getID(), x-5, y-5, popup->getWidth() + 10, popup->getHeight() + 10 );
-					popupBox->Create();
-					popupBox->setEnabled(true);
+					int x = GetMouse()->X;
+					int y = GetMouse()->Y;
+					layout->setTooltip(MakeRect(x-1,y-1,2,2), VectorD2<int>(x,y), tooltipTxt);
 				}
 			break;
-			
 			case nc_Back:
 				if(iEvent == BTN_CLICKED) {
 

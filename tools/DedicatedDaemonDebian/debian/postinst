@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+chown -R -f root:games /var/games/openlierox-dedicated || true
+chmod -R -f ug+w,o+r /var/games/openlierox-dedicated || true
+
+for F in /usr/share/games/OpenLieroX/cfg/*.py ; do 
+	ln -f -s "$F" "/etc/openlierox-dedicated/`basename $F`" || true # TODO: overwrites old config files, we're changing config file format often
+done
+
+update-rc.d openlierox-dedicated defaults 90 10 || true
+
+/etc/init.d/openlierox-dedicated restart || true
+
+exit 0

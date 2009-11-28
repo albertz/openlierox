@@ -273,7 +273,7 @@ int	CBox::CheckEvent()
 			return BOX_NOEVENT;
 		}
 		UnlockSurface(bmpBuffer);
-		return BOX_NONE;
+		return BOX_MOUSEOVER;
 	} else 
 		return BOX_NONE;
 

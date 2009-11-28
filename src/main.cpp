@@ -75,7 +75,11 @@ bool		bDedicated = true;
 bool		bJoystickSupport = false;
 #else //DEDICATED_ONLY
 bool		bDedicated = false;
+#ifdef DISABLE_JOYSTICK
+bool		bJoystickSupport = false;
+#else
 bool		bJoystickSupport = true;
+#endif
 #endif //DEDICATED_ONLY
 bool		bRestartGameAfterQuit = false;
 TStartFunction startFunction = NULL;
@@ -906,9 +910,13 @@ static int MainLoopThread(void*) {
 	while(!tLX->bQuitGame) {
 		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
 		
+		cClient->SetSocketWithEvents(true);
+		cServer->SetSocketWithEvents(true);
 		menu_startgame = false; // the menu has a reference to this variable
 		ResetQuitEngineFlag();
 		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
+		cClient->SetSocketWithEvents(false);
+		cServer->SetSocketWithEvents(false);
 		
 		if(!menu_startgame) {
 			// Quit

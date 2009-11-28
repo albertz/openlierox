@@ -149,12 +149,14 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 		return false;
 	}
 
+#ifndef DISABLE_JOYSTICK
 	if(bJoystickSupport) {
 		if(SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0) {
 			warnings << "WARNING: couldn't init joystick subystem: " << SDL_GetError() << endl;
 			bJoystickSupport = false;
 		}
 	}
+#endif
 
 	if(!bDedicated && !SetVideoMode())
 		return false;
@@ -1319,6 +1321,8 @@ std::string GetDateTimeFilename()
 
 void EnableSystemMouseCursor(bool enable)
 {
+	if( bDedicated )
+		return;
 	struct EnableMouseCursor: public Action
 	{
 		bool Enable;

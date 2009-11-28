@@ -1677,7 +1677,7 @@ void CClient::SetupViewports() {
 // Setup the viewports
 void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 {
-	if (w1 == NULL)  {
+	if (w1 == NULL && (type1 == VW_FOLLOW || type1 == VW_CYCLE))  {
 		warnings << "CClient::SetupViewports: Worm1 is NULL, quitting!" << endl;
 		return;
 	}
@@ -1717,7 +1717,8 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
         //cViewports[0].Setup(0,0,640,382,VW_FREELOOK);
 
 		cViewports[0].Setup(0, top, 640, h, type1);
-		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
+		if(w1)
+			cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
 	}
@@ -1725,12 +1726,14 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	// Two wormsize
 	else  {
 		cViewports[0].Setup(0, top, 318, h, type1);
-		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
+		if(w1)
+			cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
 		cViewports[0].setUsed(true);
 
 		cViewports[1].Setup(322, top, 318, h, type2);
-		cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
+		if(w2)
+			cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 		cViewports[1].setTarget(w2);
 		cViewports[1].setUsed(true);
 	}
@@ -2542,4 +2545,7 @@ bool CClient::isMapReady() const {
 	return cMap && cMap->isLoaded();
 }
 
+void CClient::SetSocketWithEvents(bool v) {
+	tSocket->setWithEvents(v);
+}
 

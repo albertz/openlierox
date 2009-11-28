@@ -281,7 +281,7 @@ int GameServer::StartServer()
 }
 
 void GameServer::ObtainExternalIP()
-{
+{	
 	if (sExternalIP.size())
 		return;
 
@@ -290,7 +290,7 @@ void GameServer::ObtainExternalIP()
 }
 
 void GameServer::ProcessGetExternalIP()
-{
+{	
 	if (sExternalIP.size()) // already got it
 		return;
 
@@ -305,6 +305,7 @@ void GameServer::ProcessGetExternalIP()
 	// Failed
 	case HTTP_PROC_ERROR:
 		errors << "Could not obtain external IP address: " + tHttp2.GetError().sErrorMsg << endl;
+		sExternalIP = "0.0.0.0";
 	break;
 
 	// Completed ok
@@ -525,9 +526,6 @@ mapCreate:
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
-
-	// remove from notifier; we don't want events anymore, we have a fixed FPS rate ingame and we never idle	
-	SetSocketWithEvents(false);
 	
 	// Re-register the server to reflect the state change
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
