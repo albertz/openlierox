@@ -1,0 +1,18 @@
+
+gravity = 0.0009
+repeat = 4
+col_layer = -1
+
+on ground_collision()
+ create_explosion ( explosion1.exp )
+ remove()
+
+on timer(0)
+ create_explosion ( bullet_trail.exp )
+ #shoot_particles ( bullet_trail.obj , 1 )
+
+on detect_range(1, 0)
+ damage ( 15.7 )
+ push ( 0.4 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ remove()

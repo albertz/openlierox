@@ -1,0 +1,22 @@
+repeat = 1
+sprite = missile.png
+acceleration = 0.03
+max_speed = 5
+
+on ground_collision()
+ create_explosion( bazooka_damage.exp )
+ shoot_particles ( bazooka_exp.obj , 100 ,  1, 0, 0, 0)
+ shoot_particles ( bazooka_cluster.obj , 20 ,  1, 2, 0, 0)
+ create_explosion( explosion5.exp )
+ remove()
+
+on timer(1)
+ shoot_particles ( bazooka_trail.obj , 5 ,  0.15, 0.3, 0, 0)
+
+on detect_range(2, 0)
+ damage( 26 )
+ create_explosion( bazooka_damage.exp )
+ create_explosion( explosion5.exp )
+ shoot_particles ( bazooka_exp.obj , 100 ,  1, 0, 0, 0)
+ shoot_particles ( bazooka_cluster.obj , 30 ,  1, 2, 0, 0)
+ remove()

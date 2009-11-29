@@ -1,0 +1,38 @@
+- Get some more people on board!
+
+- About 10 warnings to finish removing
+ - Left shift ones are most unusual
+
+- Remove zoidcom dependency
+ - This is the hard one
+ - Probably replace with OpenTNL
+
+- A lot of refactoring
+ - Rename each file after the class it contains
+ - One class per file
+ - Arrange namespaces into folders
+ - Rename folders after libraries/namespaces
+
+- Change source to use linux brace style
+ - A lot of this can be automated
+ - Just my personal style, sorry
+ 
+- Doc comments
+ - To enable comments to be pulled off with doxygen
+ - As well, @todo would be nice, to correspond with this file
+
+- Proper licensing
+ - Boilerplate at the top of each file
+
+- Remove dedicated server preprocessor directives
+ - They're damned ugly
+ - Instead, every game is a server
+ - A local game, or a server is a client and server combination
+ - Joining a remote game is just a client
+ - And a dedicated server is just a server
+ - But this is possibly just dreaming
+ 
+- Update the default mod
+ - More weapons!
+ - More 1.33ish is the direction this should go
+ - Reduce angle to somewhat like 1.33: cannot aim straight down!
