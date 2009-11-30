@@ -71,9 +71,6 @@
 		23C17BF310C3FD04003DBB09 /* lierox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA210C3FD03003DBB09 /* lierox.cpp */; };
 		23C17BF410C3FD04003DBB09 /* losp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA410C3FD03003DBB09 /* losp.cpp */; };
 		23C17BF510C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA610C3FD03003DBB09 /* vermes.cpp */; };
-		23C17BF610C3FD04003DBB09 /* loadpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA910C3FD03003DBB09 /* loadpng.c */; };
-		23C17BF710C3FD04003DBB09 /* regpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AAB10C3FD03003DBB09 /* regpng.c */; };
-		23C17BF810C3FD04003DBB09 /* savepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AAC10C3FD03003DBB09 /* savepng.c */; };
 		23C17BF910C3FD04003DBB09 /* bindings-game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AAE10C3FD03003DBB09 /* bindings-game.cpp */; };
 		23C17BFA10C3FD04003DBB09 /* bindings-gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AB010C3FD03003DBB09 /* bindings-gfx.cpp */; };
 		23C17BFB10C3FD04003DBB09 /* bindings-math.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AB210C3FD03003DBB09 /* bindings-math.cpp */; };
@@ -200,6 +197,9 @@
 		23C17C7510C3FD04003DBB09 /* weapon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BAE10C3FD04003DBB09 /* weapon.cpp */; };
 		23C17C7610C3FD04003DBB09 /* weapon_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB010C3FD04003DBB09 /* weapon_type.cpp */; };
 		23C17C7710C3FD04003DBB09 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB210C3FD04003DBB09 /* worm.cpp */; };
+		23C17D7110C447D2003DBB09 /* loadpng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17D7010C447D2003DBB09 /* loadpng.cpp */; };
+		23C17D7710C448A8003DBB09 /* savepng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17D7610C448A8003DBB09 /* savepng.cpp */; };
+		23C17D7910C448BB003DBB09 /* regpng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17D7810C448BB003DBB09 /* regpng.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -343,10 +343,7 @@
 		23C17AA510C3FD03003DBB09 /* losp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = losp.h; sourceTree = "<group>"; };
 		23C17AA610C3FD03003DBB09 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
 		23C17AA710C3FD03003DBB09 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
-		23C17AA910C3FD03003DBB09 /* loadpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadpng.c; sourceTree = "<group>"; };
 		23C17AAA10C3FD03003DBB09 /* loadpng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loadpng.h; sourceTree = "<group>"; };
-		23C17AAB10C3FD03003DBB09 /* regpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regpng.c; sourceTree = "<group>"; };
-		23C17AAC10C3FD03003DBB09 /* savepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = savepng.c; sourceTree = "<group>"; };
 		23C17AAE10C3FD03003DBB09 /* bindings-game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "bindings-game.cpp"; sourceTree = "<group>"; };
 		23C17AAF10C3FD03003DBB09 /* bindings-game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "bindings-game.h"; sourceTree = "<group>"; };
 		23C17AB010C3FD03003DBB09 /* bindings-gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = "bindings-gfx.cpp"; sourceTree = "<group>"; };
@@ -603,6 +600,9 @@
 		23C17BB310C3FD04003DBB09 /* worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worm.h; sourceTree = "<group>"; };
 		23C17C7E10C3FDBD003DBB09 /* allegro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allegro.h; sourceTree = "<group>"; };
 		23C17CB410C417E6003DBB09 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
+		23C17D7010C447D2003DBB09 /* loadpng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = loadpng.cpp; sourceTree = "<group>"; };
+		23C17D7610C448A8003DBB09 /* savepng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = savepng.cpp; sourceTree = "<group>"; };
+		23C17D7810C448BB003DBB09 /* regpng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = regpng.cpp; sourceTree = "<group>"; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -978,10 +978,10 @@
 		23C17AA810C3FD03003DBB09 /* loadpng */ = {
 			isa = PBXGroup;
 			children = (
-				23C17AA910C3FD03003DBB09 /* loadpng.c */,
+				23C17D7810C448BB003DBB09 /* regpng.cpp */,
+				23C17D7610C448A8003DBB09 /* savepng.cpp */,
+				23C17D7010C447D2003DBB09 /* loadpng.cpp */,
 				23C17AAA10C3FD03003DBB09 /* loadpng.h */,
-				23C17AAB10C3FD03003DBB09 /* regpng.c */,
-				23C17AAC10C3FD03003DBB09 /* savepng.c */,
 			);
 			path = loadpng;
 			sourceTree = "<group>";
@@ -1349,9 +1349,6 @@
 				23C17BF310C3FD04003DBB09 /* lierox.cpp in Sources */,
 				23C17BF410C3FD04003DBB09 /* losp.cpp in Sources */,
 				23C17BF510C3FD04003DBB09 /* vermes.cpp in Sources */,
-				23C17BF610C3FD04003DBB09 /* loadpng.c in Sources */,
-				23C17BF710C3FD04003DBB09 /* regpng.c in Sources */,
-				23C17BF810C3FD04003DBB09 /* savepng.c in Sources */,
 				23C17BF910C3FD04003DBB09 /* bindings-game.cpp in Sources */,
 				23C17BFA10C3FD04003DBB09 /* bindings-gfx.cpp in Sources */,
 				23C17BFB10C3FD04003DBB09 /* bindings-math.cpp in Sources */,
@@ -1478,6 +1475,9 @@
 				23C17C7510C3FD04003DBB09 /* weapon.cpp in Sources */,
 				23C17C7610C3FD04003DBB09 /* weapon_type.cpp in Sources */,
 				23C17C7710C3FD04003DBB09 /* worm.cpp in Sources */,
+				23C17D7110C447D2003DBB09 /* loadpng.cpp in Sources */,
+				23C17D7710C448A8003DBB09 /* savepng.cpp in Sources */,
+				23C17D7910C448BB003DBB09 /* regpng.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

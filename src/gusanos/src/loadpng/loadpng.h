@@ -27,6 +27,8 @@ extern double _png_screen_gamma;
  */
 extern int _png_compression_level;
 
+#define AL_CONST const
+	
 
 /* Load a PNG from disk. */
 BITMAP *load_png(AL_CONST char *filename, RGB *pal);

@@ -489,7 +489,7 @@ void Console::listItems(const string &text)
 		if( item != items.end() && text == item->first.substr(0, text.length()) ) // If found
 		{
 			// Temp item to check if there is only 1 item matching the given text
-			map<string, ConsoleItem*>::iterator tempItem = item; 
+			ItemMap::iterator tempItem = item; 
 			tempItem++;
 			
 			// If the temp item is equal to the first item found it means that there are more than 1 items that match
