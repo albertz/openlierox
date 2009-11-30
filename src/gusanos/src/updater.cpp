@@ -135,13 +135,13 @@ void Updater::assignNetworkRole( bool authority )
 	isAuthority = authority;
 	if( authority) {
 		node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !node->registerNodeUnique(classID, eNet_RoleAuthority, network.getZControl() ) )
+		if( !node->registerNodeUnique(classID, eNet_RoleAuthority, network.getNetControl() ) )
 			ELOG("Unable to register updater authority node.");
 
 		node->removeFromZoidLevel(1);
-		node->applyForZoidLevel(2); // Updater operates at zoidlevel 2
+		node->applyForNetLevel(2); // Updater operates at zoidlevel 2
 	} else {
-		if( !node->registerNodeUnique( classID, eNet_RoleProxy, network.getZControl() ) )
+		if( !node->registerNodeUnique( classID, eNet_RoleProxy, network.getNetControl() ) )
 			ELOG("Unable to register updater requested node.");
 	}
 }
@@ -231,7 +231,7 @@ void Updater::think()
 							(lua.call(*i), info.path, info.bps, info.transferred, info.size)();
 						}
 
-						//Net_ConnStats const& state = network.getZControl()->Net_getConnectionStats(conn_id);
+						//Net_ConnStats const& state = network.getNetControl()->Net_getConnectionStats(conn_id);
 
 					}
 					break;

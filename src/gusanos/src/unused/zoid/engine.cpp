@@ -30,33 +30,33 @@ void engine::init_node(Net_Control *_cont, bool is_server)
   }
 
   node->beginReplicationSetup();
-  node->addReplicationInt((zS32*)GRAVITY,        32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)ROPE_GRAVITY,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)AIR_CAPACITY,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)FALL_DAMAGE,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)DAMAGE_SPEED,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)WORM_JUMP_FORCE,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)FLASHLIGHT,     32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)WORM_BOUNCINESS,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)AIR_FRICTION,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)FRICTION,       32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)ACELERATION,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)MAX_SPEED,      32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)AIM_RECOIL_FRICTION,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)RESPAWN_RELOAD, 32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)ROPE_STRENTH,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)ROPE_LENGHT,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-  node->addReplicationInt((zS32*)FRIENDLYFIRE,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)GRAVITY,        32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)ROPE_GRAVITY,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)AIR_CAPACITY,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)FALL_DAMAGE,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)DAMAGE_SPEED,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)WORM_JUMP_FORCE,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)FLASHLIGHT,     32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)WORM_BOUNCINESS,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)AIR_FRICTION,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)FRICTION,       32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)ACELERATION,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)MAX_SPEED,      32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)AIM_RECOIL_FRICTION,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)RESPAWN_RELOAD, 32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)ROPE_STRENTH,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)ROPE_LENGHT,    32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)FRIENDLYFIRE,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
   node->addReplicationBool(&teamplay,                    Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,false,-1,-1 );
-  node->addReplicationInt((zS32*)START_HEALTH,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-	node->addReplicationInt((zS32*)MAX_HEALTH,     32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-	node->addReplicationInt((zS32*)RELOAD_MULTIPLIER,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+  node->addReplicationInt((Net_S32*)START_HEALTH,   32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+	node->addReplicationInt((Net_S32*)MAX_HEALTH,     32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+	node->addReplicationInt((Net_S32*)RELOAD_MULTIPLIER,32,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
   node->endReplicationSetup();
 
   if(!node->registerNodeUnique(game_classid, (is_server) ? eNet_RoleAuthority : eNet_RoleProxy, _cont))
   allegro_message("unable to register game node");
 
-  node->applyForZoidLevel(2);
+  node->applyForNetLevel(2);
 };
 
 void echo()

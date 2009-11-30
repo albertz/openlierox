@@ -154,10 +154,10 @@ bool Server::Net_cbZoidRequest( Net_ConnID _id, Net_U8 _requested_level, Net_Bit
 }
 
 // client entered a zoidlevel or failed
-void Server::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 _new_level, Net_BitStream &_reason)
+void Server::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
 {
 	// failed
-	if (_result != eNet_ZoidEnabled)
+	if (_result != eNet_NetEnabled)
 	{
 		//sys_print("Server: %d failed to enter zoidmode", _id);
 		return;
@@ -213,7 +213,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 	{
     game->init_node(cli,false);
 		Net_requestDownstreamLimit(_id, 20, 200);
-		Net_requestZoidMode(_id, 2);
+		Net_requestNetMode(_id, 2);
     srv_id=_id;
     request_players();
     //delete_players();
@@ -236,10 +236,10 @@ void Client::Net_cbConnectionClosed( Net_ConnID _id, Net_BitStream &_reason )
 	m_exitnow = true;
 }
 
-void Client::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 _new_level, Net_BitStream &_reason)
+void Client::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
 {
 	// disconnect on failure
-	if (_result != eNet_ZoidEnabled)
+	if (_result != eNet_NetEnabled)
 	{
 		//sys_print("Client: Zoidmode failed, disconnecting");
 		Net_Disconnect(_id, NULL);

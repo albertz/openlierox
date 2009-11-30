@@ -205,18 +205,18 @@ void Particle::assignNetworkRole( bool authority )
 
 		//DLOG("Announce data set");
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !m_node->registerNodeDynamic(classID, network.getZControl() ) )
+		if( !m_node->registerNodeDynamic(classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register particle authority node.");
 	} else {
 		m_node->setEventNotification(false, true); // Same but for the remove event.
 		//DLOG("Event notification set");
-		if( !m_node->registerRequestedNode( classID, network.getZControl() ) )
+		if( !m_node->registerRequestedNode( classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register particle requested node.");
 	}
 
 	//DLOG("Node registered");
 
-	m_node->applyForZoidLevel(1);
+	m_node->applyForNetLevel(1);
 
 	//DLOG("Applied for zoidlevel");
 }

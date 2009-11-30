@@ -210,7 +210,7 @@ std::string Console::invoke(string const& name, list<string> const& args, bool p
 		if(parseRelease)
 			nameCopy[0] = '-';
 
-		map<string, ConsoleItem*>::iterator tempItem = items.find(nameCopy);
+		ItemMap::iterator tempItem = items.find(nameCopy);
 		if (tempItem != items.end())
 		{
 			return tempItem->second->invoke(args);
@@ -485,7 +485,7 @@ void Console::listItems(const string &text)
 	if ( !text.empty() )
 	{
 		// Find the first item that matches that text
-		map<string, ConsoleItem*>::iterator item = items.lower_bound( text ); 
+		ItemMap::iterator item = items.lower_bound( text ); 
 		if( item != items.end() && text == item->first.substr(0, text.length()) ) // If found
 		{
 			// Temp item to check if there is only 1 item matching the given text

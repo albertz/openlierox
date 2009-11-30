@@ -178,7 +178,7 @@ bool Server::Net_cbZoidRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitS
 	}
 }
 
-void Server::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 _new_level, Net_BitStream &_reason)
+void Server::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
 {
 	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }

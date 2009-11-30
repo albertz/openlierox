@@ -49,19 +49,19 @@ NetWorm::NetWorm(bool isAuthority) : BaseWorm()
 		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference(), game.level.vectorEncoding ), true);
 		
 		m_node->addReplicationFloat ((zFloat*)&m_ninjaRope->getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
-		//m_node->addReplicationInt ((zS32*)&m_ninjaRope->getLengthReference(), 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
+		//m_node->addReplicationInt ((Net_S32*)&m_ninjaRope->getLengthReference(), 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		
 		static Net_ReplicatorSetup angleSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 				
 		m_node->addReplicationFloat ((zFloat*)&health, 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
-		//m_node->addReplicationInt ((zS32*)&health, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
+		//m_node->addReplicationInt ((Net_S32*)&health, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
 		
 		m_node->addReplicator(new AngleReplicator( &angleSetup, &aimAngle), true );
 		
 		// Intercepted stuff
 		m_node->setInterceptID( PlayerID );
 		
-		m_node->addReplicationInt( (zS32*)&m_playerID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
+		m_node->addReplicationInt( (Net_S32*)&m_playerID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
 		
 	m_node->endReplicationSetup();
 
@@ -72,15 +72,15 @@ NetWorm::NetWorm(bool isAuthority) : BaseWorm()
 	if( isAuthority)
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !m_node->registerNodeDynamic(classID, network.getZControl() ) )
+		if( !m_node->registerNodeDynamic(classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register worm authority node.");
 	}else
 	{
-		if( !m_node->registerRequestedNode( classID, network.getZControl() ) )
+		if( !m_node->registerRequestedNode( classID, network.getNetControl() ) )
 		allegro_message("ERROR: Unable to register worm requested node.");
 	}
 	
-	m_node->applyForZoidLevel(1);
+	m_node->applyForNetLevel(1);
 }
 
 NetWorm::~NetWorm()

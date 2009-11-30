@@ -35,7 +35,7 @@ protected:
 	void Net_cbDataReceived( Net_ConnID id, Net_BitStream &data);
 	
 	// zoidlevel transition finished
-	void Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 _new_level, Net_BitStream &_reason);
+	void Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason);
 	
 	// server wants to tell us about new node
 	void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id );

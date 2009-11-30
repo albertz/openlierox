@@ -508,9 +508,9 @@ void BasePlayer::assignNetworkRole( bool authority )
 	}
 
 	m_node->beginReplicationSetup(1);
-	//m_node->addReplicationInt( (zS32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
+	//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
 	m_node->setInterceptID( static_cast<Net_InterceptID>(WormID) );
-	m_node->addReplicationInt( (zS32*)&m_wormID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
+	m_node->addReplicationInt( (Net_S32*)&m_wormID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
 	m_node->endReplicationSetup();
 
 	m_interceptor = new BasePlayerInterceptor( this );
@@ -519,15 +519,15 @@ void BasePlayer::assignNetworkRole( bool authority )
 	m_isAuthority = authority;
 	if( m_isAuthority) {
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !m_node->registerNodeDynamic(classID, network.getZControl() ) )
+		if( !m_node->registerNodeDynamic(classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register player authority node.");
 	} else {
 		m_node->setEventNotification(false, true); // Same but for the remove event.
-		if( !m_node->registerRequestedNode( classID, network.getZControl() ) )
+		if( !m_node->registerRequestedNode( classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register player requested node.");
 	}
 
-	m_node->applyForZoidLevel(1);
+	m_node->applyForNetLevel(1);
 }
 
 void BasePlayer::setOwnerId( Net_ConnID id )

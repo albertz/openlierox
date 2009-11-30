@@ -389,24 +389,24 @@ void worm::init_node(bool is_authority)
   node->beginReplicationSetup();
     
     //Authority replication items
-    node->addInterpolationInt((zS32*)&x,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
-    node->addInterpolationInt((zS32*)&y,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
-    node->addReplicationInt((zS32*)&ropestate,3,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&ropex,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
-    node->addReplicationInt((zS32*)&ropey,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
-    node->addReplicationInt((zS32*)&ropexspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
-    node->addReplicationInt((zS32*)&ropeyspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
-    node->addReplicationInt((zS32*)&dir,2,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_PROXY,99,-1,-1);
-    node->addReplicationInt((zS32*)&health,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
+    node->addInterpolationInt((Net_S32*)&x,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
+    node->addInterpolationInt((Net_S32*)&y,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
+    node->addReplicationInt((Net_S32*)&ropestate,3,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((Net_S32*)&ropex,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
+    node->addReplicationInt((Net_S32*)&ropey,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
+    node->addReplicationInt((Net_S32*)&ropexspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
+    node->addReplicationInt((Net_S32*)&ropeyspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,300,-1);
+    node->addReplicationInt((Net_S32*)&dir,2,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_PROXY,99,-1,-1);
+    node->addReplicationInt((Net_S32*)&health,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
     node->addReplicationBool(&active,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_AUTH_2_ALL,false,-1,-1 );
-    node->addReplicationInt((zS32*)&team,8,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
+    node->addReplicationInt((Net_S32*)&team,8,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
 		//ping (maybe Net_REPRULE_AUTH_2_PROXY instead)
-		node->addReplicationInt((zS32*)&ping,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,1000,-1);
-    //node->addReplicationInt((zS32*)&weap[0].ammo,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
+		node->addReplicationInt((Net_S32*)&ping,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,1000,-1);
+    //node->addReplicationInt((Net_S32*)&weap[0].ammo,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
   
     //Owner replication items
-    node->addReplicationInt((zS32*)&aim,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,99,-1,-1);
-    node->addReplicationInt((zS32*)&color,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
+    node->addReplicationInt((Net_S32*)&aim,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,99,-1,-1);
+    node->addReplicationInt((Net_S32*)&color,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
     node->addReplicationString(name,32,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY," ",-1,-1 );
     node->addReplicationBool(&talking,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,false,-1,-1 );
     
@@ -420,9 +420,9 @@ void worm::init_node(bool is_authority)
     node->addReplicationBool(&keys->change,0,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
     
     //Weapons replication
-    node->addReplicationInt((zS32*)&curr_weap,8,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1);
+    node->addReplicationInt((Net_S32*)&curr_weap,8,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1);
     for(int i=0;i<5;i++)
-      node->addReplicationInt((zS32*)&weap[i].weap,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
+      node->addReplicationInt((Net_S32*)&weap[i].weap,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
     
   node->endReplicationSetup();
 
@@ -436,7 +436,7 @@ void worm::init_node(bool is_authority)
     allegro_message("was unable to create the player node");
   };
     
-  node->applyForZoidLevel(2);
+  node->applyForNetLevel(2);
 };
 
 void worm::walk(int direction,int acceleration, int maxspeed)

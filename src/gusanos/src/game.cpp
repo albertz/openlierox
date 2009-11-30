@@ -1046,9 +1046,9 @@ void Game::assignNetworkRole( bool authority )
 	m_node = new Net_Node;
 	
 	m_node->beginReplicationSetup(2);
-		//m_node->addReplicationInt( (zS32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
-	m_node->addReplicationInt( (zS32*)&options.worm_gravity, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
-	m_node->addReplicationInt( (zS32*)&options.teamPlay, 1, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
+		//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
+	m_node->addReplicationInt( (Net_S32*)&options.worm_gravity, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
+	m_node->addReplicationInt( (Net_S32*)&options.teamPlay, 1, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
 	
 	m_node->endReplicationSetup();
 
@@ -1056,15 +1056,15 @@ void Game::assignNetworkRole( bool authority )
 	if( authority)
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !m_node->registerNodeUnique(classID, eNet_RoleAuthority, network.getZControl() ) )
+		if( !m_node->registerNodeUnique(classID, eNet_RoleAuthority, network.getNetControl() ) )
 			ELOG("Unable to register game authority node.");
 	}else
 	{
-		if( !m_node->registerNodeUnique( classID, eNet_RoleProxy, network.getZControl() ) )
+		if( !m_node->registerNodeUnique( classID, eNet_RoleProxy, network.getNetControl() ) )
 			ELOG("Unable to register game requested node.");
 	}
 
-	m_node->applyForZoidLevel(1);
+	m_node->applyForNetLevel(1);
 }
 
 void Game::sendRConMsg( string const& message )
@@ -1073,7 +1073,7 @@ void Game::sendRConMsg( string const& message )
 	req->addInt(Network::RConMsg, 8);
 	req->addString( options.rConPassword.c_str() );
 	req->addString( message.c_str() );
-	network.getZControl()->Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
+	network.getNetControl()->Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
 void Game::removeNode()

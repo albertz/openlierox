@@ -615,7 +615,7 @@ bool Network::isClient()
 	return m_client;
 }
 
-Net_Control* Network::getZControl()
+Net_Control* Network::getNetControl()
 {
 	return m_control;
 }

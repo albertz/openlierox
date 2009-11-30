@@ -107,7 +107,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		{
 			if(network.autoDownloads)
 			{
-				Net_requestZoidMode(_id, 2); // We need to update
+				Net_requestNetMode(_id, 2); // We need to update
 				if(!hasLevel)
 					updater.requestLevel(map);
 			}
@@ -121,7 +121,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 			{
 				game.runInitScripts();
 				sendConsistencyInfo();
-				Net_requestZoidMode(_id, 1);
+				Net_requestNetMode(_id, 1);
 			}
 			else
 			{
@@ -140,7 +140,7 @@ void Client::loadNextGame()
 	{
 		game.runInitScripts();
 		sendConsistencyInfo();
-		Net_requestZoidMode(network.getServerID(), 1);
+		Net_requestNetMode(network.getServerID(), 1);
 	}
 	else
 		network.disconnect();
@@ -237,9 +237,9 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 	}
 }
 
-void Client::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 new_level, Net_BitStream &_reason)
+void Client::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 new_level, Net_BitStream &_reason)
 {
-	if (_result != eNet_ZoidEnabled)
+	if (_result != eNet_NetEnabled)
 	{
 		console.addLogMsg("* ERROR: COULDNT ENTER ZOIDMODE");
 	}else
