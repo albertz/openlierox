@@ -146,45 +146,6 @@
 		23C17C4210C3FD04003DBB09 /* sprite_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4010C3FD04003DBB09 /* sprite_set.cpp */; };
 		23C17C4310C3FD04003DBB09 /* stl_str_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4210C3FD04003DBB09 /* stl_str_replicator.cpp */; };
 		23C17C4410C3FD04003DBB09 /* timer_event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4410C3FD04003DBB09 /* timer_event.cpp */; };
-		23C17C4510C3FD04003DBB09 /* console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4810C3FD04003DBB09 /* console.cpp */; };
-		23C17C4610C3FD04003DBB09 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4A10C3FD04003DBB09 /* engine.cpp */; };
-		23C17C4710C3FD04003DBB09 /* explosions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4C10C3FD04003DBB09 /* explosions.cpp */; };
-		23C17C4810C3FD04003DBB09 /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B4E10C3FD04003DBB09 /* input.cpp */; };
-		23C17C4910C3FD04003DBB09 /* keys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5010C3FD04003DBB09 /* keys.cpp */; };
-		23C17C4A10C3FD04003DBB09 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5210C3FD04003DBB09 /* level.cpp */; };
-		23C17C4B10C3FD04003DBB09 /* lights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5410C3FD04003DBB09 /* lights.cpp */; };
-		23C17C4C10C3FD04003DBB09 /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5610C3FD04003DBB09 /* network.cpp */; };
-		23C17C4D10C3FD04003DBB09 /* particles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5810C3FD04003DBB09 /* particles.cpp */; };
-		23C17C4E10C3FD04003DBB09 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5A10C3FD04003DBB09 /* player.cpp */; };
-		23C17C4F10C3FD04003DBB09 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5C10C3FD04003DBB09 /* render.cpp */; };
-		23C17C5010C3FD04003DBB09 /* sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B5E10C3FD04003DBB09 /* sounds.cpp */; };
-		23C17C5110C3FD04003DBB09 /* sprites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6010C3FD04003DBB09 /* sprites.cpp */; };
-		23C17C5210C3FD04003DBB09 /* text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6210C3FD04003DBB09 /* text.cpp */; };
-		23C17C5310C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6410C3FD04003DBB09 /* vermes.cpp */; };
-		23C17C5410C3FD04003DBB09 /* water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6510C3FD04003DBB09 /* water.cpp */; };
-		23C17C5510C3FD04003DBB09 /* weapons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6710C3FD04003DBB09 /* weapons.cpp */; };
-		23C17C5610C3FD04003DBB09 /* ai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6A10C3FD04003DBB09 /* ai.cpp */; };
-		23C17C5710C3FD04003DBB09 /* console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6C10C3FD04003DBB09 /* console.cpp */; };
-		23C17C5810C3FD04003DBB09 /* engine.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B6E10C3FD04003DBB09 /* engine.cpp */; };
-		23C17C5910C3FD04003DBB09 /* explosions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7010C3FD04003DBB09 /* explosions.cpp */; };
-		23C17C5A10C3FD04003DBB09 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7210C3FD04003DBB09 /* gfx.cpp */; };
-		23C17C5B10C3FD04003DBB09 /* input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7410C3FD04003DBB09 /* input.cpp */; };
-		23C17C5C10C3FD04003DBB09 /* keys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7610C3FD04003DBB09 /* keys.cpp */; };
-		23C17C5D10C3FD04003DBB09 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7810C3FD04003DBB09 /* level.cpp */; };
-		23C17C5E10C3FD04003DBB09 /* lights.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7A10C3FD04003DBB09 /* lights.cpp */; };
-		23C17C5F10C3FD04003DBB09 /* loadpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7C10C3FD04003DBB09 /* loadpng.c */; };
-		23C17C6010C3FD04003DBB09 /* network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B7E10C3FD04003DBB09 /* network.cpp */; };
-		23C17C6110C3FD04003DBB09 /* particles.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8010C3FD04003DBB09 /* particles.cpp */; };
-		23C17C6210C3FD04003DBB09 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8210C3FD04003DBB09 /* player.cpp */; };
-		23C17C6310C3FD04003DBB09 /* regpng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8410C3FD04003DBB09 /* regpng.c */; };
-		23C17C6410C3FD04003DBB09 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8510C3FD04003DBB09 /* render.cpp */; };
-		23C17C6510C3FD04003DBB09 /* savepng.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8710C3FD04003DBB09 /* savepng.c */; };
-		23C17C6610C3FD04003DBB09 /* sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8810C3FD04003DBB09 /* sounds.cpp */; };
-		23C17C6710C3FD04003DBB09 /* sprites.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8A10C3FD04003DBB09 /* sprites.cpp */; };
-		23C17C6810C3FD04003DBB09 /* text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8C10C3FD04003DBB09 /* text.cpp */; };
-		23C17C6910C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8E10C3FD04003DBB09 /* vermes.cpp */; };
-		23C17C6A10C3FD04003DBB09 /* water.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B8F10C3FD04003DBB09 /* water.cpp */; };
-		23C17C6B10C3FD04003DBB09 /* weapons.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B9110C3FD04003DBB09 /* weapons.cpp */; };
 		23C17C6C10C3FD04003DBB09 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B9310C3FD04003DBB09 /* updater.cpp */; };
 		23C17C6D10C3FD04003DBB09 /* angle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B9610C3FD04003DBB09 /* angle.cpp */; };
 		23C17C6E10C3FD04003DBB09 /* log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B9C10C3FD04003DBB09 /* log.cpp */; };
@@ -488,80 +449,6 @@
 		23C17B4310C3FD04003DBB09 /* stl_str_replicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stl_str_replicator.h; sourceTree = "<group>"; };
 		23C17B4410C3FD04003DBB09 /* timer_event.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer_event.cpp; sourceTree = "<group>"; };
 		23C17B4510C3FD04003DBB09 /* timer_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer_event.h; sourceTree = "<group>"; };
-		23C17B4810C3FD04003DBB09 /* console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console.cpp; sourceTree = "<group>"; };
-		23C17B4910C3FD04003DBB09 /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
-		23C17B4A10C3FD04003DBB09 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
-		23C17B4B10C3FD04003DBB09 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
-		23C17B4C10C3FD04003DBB09 /* explosions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = explosions.cpp; sourceTree = "<group>"; };
-		23C17B4D10C3FD04003DBB09 /* explosions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = explosions.h; sourceTree = "<group>"; };
-		23C17B4E10C3FD04003DBB09 /* input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = input.cpp; sourceTree = "<group>"; };
-		23C17B4F10C3FD04003DBB09 /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = input.h; sourceTree = "<group>"; };
-		23C17B5010C3FD04003DBB09 /* keys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = keys.cpp; sourceTree = "<group>"; };
-		23C17B5110C3FD04003DBB09 /* keys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keys.h; sourceTree = "<group>"; };
-		23C17B5210C3FD04003DBB09 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level.cpp; sourceTree = "<group>"; };
-		23C17B5310C3FD04003DBB09 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
-		23C17B5410C3FD04003DBB09 /* lights.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lights.cpp; sourceTree = "<group>"; };
-		23C17B5510C3FD04003DBB09 /* lights.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lights.h; sourceTree = "<group>"; };
-		23C17B5610C3FD04003DBB09 /* network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = network.cpp; sourceTree = "<group>"; };
-		23C17B5710C3FD04003DBB09 /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network.h; sourceTree = "<group>"; };
-		23C17B5810C3FD04003DBB09 /* particles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = particles.cpp; sourceTree = "<group>"; };
-		23C17B5910C3FD04003DBB09 /* particles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particles.h; sourceTree = "<group>"; };
-		23C17B5A10C3FD04003DBB09 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
-		23C17B5B10C3FD04003DBB09 /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
-		23C17B5C10C3FD04003DBB09 /* render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
-		23C17B5D10C3FD04003DBB09 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
-		23C17B5E10C3FD04003DBB09 /* sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sounds.cpp; sourceTree = "<group>"; };
-		23C17B5F10C3FD04003DBB09 /* sounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sounds.h; sourceTree = "<group>"; };
-		23C17B6010C3FD04003DBB09 /* sprites.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sprites.cpp; sourceTree = "<group>"; };
-		23C17B6110C3FD04003DBB09 /* sprites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sprites.h; sourceTree = "<group>"; };
-		23C17B6210C3FD04003DBB09 /* text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text.cpp; sourceTree = "<group>"; };
-		23C17B6310C3FD04003DBB09 /* text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text.h; sourceTree = "<group>"; };
-		23C17B6410C3FD04003DBB09 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
-		23C17B6510C3FD04003DBB09 /* water.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = water.cpp; sourceTree = "<group>"; };
-		23C17B6610C3FD04003DBB09 /* water.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = water.h; sourceTree = "<group>"; };
-		23C17B6710C3FD04003DBB09 /* weapons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weapons.cpp; sourceTree = "<group>"; };
-		23C17B6810C3FD04003DBB09 /* weapons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weapons.h; sourceTree = "<group>"; };
-		23C17B6A10C3FD04003DBB09 /* ai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ai.cpp; sourceTree = "<group>"; };
-		23C17B6B10C3FD04003DBB09 /* ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ai.h; sourceTree = "<group>"; };
-		23C17B6C10C3FD04003DBB09 /* console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console.cpp; sourceTree = "<group>"; };
-		23C17B6D10C3FD04003DBB09 /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = console.h; sourceTree = "<group>"; };
-		23C17B6E10C3FD04003DBB09 /* engine.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = engine.cpp; sourceTree = "<group>"; };
-		23C17B6F10C3FD04003DBB09 /* engine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = engine.h; sourceTree = "<group>"; };
-		23C17B7010C3FD04003DBB09 /* explosions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = explosions.cpp; sourceTree = "<group>"; };
-		23C17B7110C3FD04003DBB09 /* explosions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = explosions.h; sourceTree = "<group>"; };
-		23C17B7210C3FD04003DBB09 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
-		23C17B7310C3FD04003DBB09 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
-		23C17B7410C3FD04003DBB09 /* input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = input.cpp; sourceTree = "<group>"; };
-		23C17B7510C3FD04003DBB09 /* input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = input.h; sourceTree = "<group>"; };
-		23C17B7610C3FD04003DBB09 /* keys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = keys.cpp; sourceTree = "<group>"; };
-		23C17B7710C3FD04003DBB09 /* keys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keys.h; sourceTree = "<group>"; };
-		23C17B7810C3FD04003DBB09 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level.cpp; sourceTree = "<group>"; };
-		23C17B7910C3FD04003DBB09 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
-		23C17B7A10C3FD04003DBB09 /* lights.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lights.cpp; sourceTree = "<group>"; };
-		23C17B7B10C3FD04003DBB09 /* lights.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lights.h; sourceTree = "<group>"; };
-		23C17B7C10C3FD04003DBB09 /* loadpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadpng.c; sourceTree = "<group>"; };
-		23C17B7D10C3FD04003DBB09 /* loadpng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = loadpng.h; sourceTree = "<group>"; };
-		23C17B7E10C3FD04003DBB09 /* network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = network.cpp; sourceTree = "<group>"; };
-		23C17B7F10C3FD04003DBB09 /* network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = network.h; sourceTree = "<group>"; };
-		23C17B8010C3FD04003DBB09 /* particles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = particles.cpp; sourceTree = "<group>"; };
-		23C17B8110C3FD04003DBB09 /* particles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particles.h; sourceTree = "<group>"; };
-		23C17B8210C3FD04003DBB09 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
-		23C17B8310C3FD04003DBB09 /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
-		23C17B8410C3FD04003DBB09 /* regpng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regpng.c; sourceTree = "<group>"; };
-		23C17B8510C3FD04003DBB09 /* render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
-		23C17B8610C3FD04003DBB09 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
-		23C17B8710C3FD04003DBB09 /* savepng.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = savepng.c; sourceTree = "<group>"; };
-		23C17B8810C3FD04003DBB09 /* sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sounds.cpp; sourceTree = "<group>"; };
-		23C17B8910C3FD04003DBB09 /* sounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sounds.h; sourceTree = "<group>"; };
-		23C17B8A10C3FD04003DBB09 /* sprites.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sprites.cpp; sourceTree = "<group>"; };
-		23C17B8B10C3FD04003DBB09 /* sprites.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sprites.h; sourceTree = "<group>"; };
-		23C17B8C10C3FD04003DBB09 /* text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = text.cpp; sourceTree = "<group>"; };
-		23C17B8D10C3FD04003DBB09 /* text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = text.h; sourceTree = "<group>"; };
-		23C17B8E10C3FD04003DBB09 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
-		23C17B8F10C3FD04003DBB09 /* water.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = water.cpp; sourceTree = "<group>"; };
-		23C17B9010C3FD04003DBB09 /* water.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = water.h; sourceTree = "<group>"; };
-		23C17B9110C3FD04003DBB09 /* weapons.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weapons.cpp; sourceTree = "<group>"; };
-		23C17B9210C3FD04003DBB09 /* weapons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weapons.h; sourceTree = "<group>"; };
 		23C17B9310C3FD04003DBB09 /* updater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = updater.cpp; sourceTree = "<group>"; };
 		23C17B9410C3FD04003DBB09 /* updater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = updater.h; sourceTree = "<group>"; };
 		23C17B9610C3FD04003DBB09 /* angle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = angle.cpp; sourceTree = "<group>"; };
@@ -789,7 +676,6 @@
 				23C17B4310C3FD04003DBB09 /* stl_str_replicator.h */,
 				23C17B4410C3FD04003DBB09 /* timer_event.cpp */,
 				23C17B4510C3FD04003DBB09 /* timer_event.h */,
-				23C17B4610C3FD04003DBB09 /* unused */,
 				23C17B9310C3FD04003DBB09 /* updater.cpp */,
 				23C17B9410C3FD04003DBB09 /* updater.h */,
 				23C17B9510C3FD04003DBB09 /* util */,
@@ -1081,103 +967,6 @@
 			path = parsergen;
 			sourceTree = "<group>";
 		};
-		23C17B4610C3FD04003DBB09 /* unused */ = {
-			isa = PBXGroup;
-			children = (
-				23C17B4710C3FD04003DBB09 /* src */,
-				23C17B6910C3FD04003DBB09 /* zoid */,
-			);
-			path = unused;
-			sourceTree = "<group>";
-		};
-		23C17B4710C3FD04003DBB09 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				23C17B4810C3FD04003DBB09 /* console.cpp */,
-				23C17B4910C3FD04003DBB09 /* console.h */,
-				23C17B4A10C3FD04003DBB09 /* engine.cpp */,
-				23C17B4B10C3FD04003DBB09 /* engine.h */,
-				23C17B4C10C3FD04003DBB09 /* explosions.cpp */,
-				23C17B4D10C3FD04003DBB09 /* explosions.h */,
-				23C17B4E10C3FD04003DBB09 /* input.cpp */,
-				23C17B4F10C3FD04003DBB09 /* input.h */,
-				23C17B5010C3FD04003DBB09 /* keys.cpp */,
-				23C17B5110C3FD04003DBB09 /* keys.h */,
-				23C17B5210C3FD04003DBB09 /* level.cpp */,
-				23C17B5310C3FD04003DBB09 /* level.h */,
-				23C17B5410C3FD04003DBB09 /* lights.cpp */,
-				23C17B5510C3FD04003DBB09 /* lights.h */,
-				23C17B5610C3FD04003DBB09 /* network.cpp */,
-				23C17B5710C3FD04003DBB09 /* network.h */,
-				23C17B5810C3FD04003DBB09 /* particles.cpp */,
-				23C17B5910C3FD04003DBB09 /* particles.h */,
-				23C17B5A10C3FD04003DBB09 /* player.cpp */,
-				23C17B5B10C3FD04003DBB09 /* player.h */,
-				23C17B5C10C3FD04003DBB09 /* render.cpp */,
-				23C17B5D10C3FD04003DBB09 /* render.h */,
-				23C17B5E10C3FD04003DBB09 /* sounds.cpp */,
-				23C17B5F10C3FD04003DBB09 /* sounds.h */,
-				23C17B6010C3FD04003DBB09 /* sprites.cpp */,
-				23C17B6110C3FD04003DBB09 /* sprites.h */,
-				23C17B6210C3FD04003DBB09 /* text.cpp */,
-				23C17B6310C3FD04003DBB09 /* text.h */,
-				23C17B6410C3FD04003DBB09 /* vermes.cpp */,
-				23C17B6510C3FD04003DBB09 /* water.cpp */,
-				23C17B6610C3FD04003DBB09 /* water.h */,
-				23C17B6710C3FD04003DBB09 /* weapons.cpp */,
-				23C17B6810C3FD04003DBB09 /* weapons.h */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
-		23C17B6910C3FD04003DBB09 /* zoid */ = {
-			isa = PBXGroup;
-			children = (
-				23C17B6A10C3FD04003DBB09 /* ai.cpp */,
-				23C17B6B10C3FD04003DBB09 /* ai.h */,
-				23C17B6C10C3FD04003DBB09 /* console.cpp */,
-				23C17B6D10C3FD04003DBB09 /* console.h */,
-				23C17B6E10C3FD04003DBB09 /* engine.cpp */,
-				23C17B6F10C3FD04003DBB09 /* engine.h */,
-				23C17B7010C3FD04003DBB09 /* explosions.cpp */,
-				23C17B7110C3FD04003DBB09 /* explosions.h */,
-				23C17B7210C3FD04003DBB09 /* gfx.cpp */,
-				23C17B7310C3FD04003DBB09 /* gfx.h */,
-				23C17B7410C3FD04003DBB09 /* input.cpp */,
-				23C17B7510C3FD04003DBB09 /* input.h */,
-				23C17B7610C3FD04003DBB09 /* keys.cpp */,
-				23C17B7710C3FD04003DBB09 /* keys.h */,
-				23C17B7810C3FD04003DBB09 /* level.cpp */,
-				23C17B7910C3FD04003DBB09 /* level.h */,
-				23C17B7A10C3FD04003DBB09 /* lights.cpp */,
-				23C17B7B10C3FD04003DBB09 /* lights.h */,
-				23C17B7C10C3FD04003DBB09 /* loadpng.c */,
-				23C17B7D10C3FD04003DBB09 /* loadpng.h */,
-				23C17B7E10C3FD04003DBB09 /* network.cpp */,
-				23C17B7F10C3FD04003DBB09 /* network.h */,
-				23C17B8010C3FD04003DBB09 /* particles.cpp */,
-				23C17B8110C3FD04003DBB09 /* particles.h */,
-				23C17B8210C3FD04003DBB09 /* player.cpp */,
-				23C17B8310C3FD04003DBB09 /* player.h */,
-				23C17B8410C3FD04003DBB09 /* regpng.c */,
-				23C17B8510C3FD04003DBB09 /* render.cpp */,
-				23C17B8610C3FD04003DBB09 /* render.h */,
-				23C17B8710C3FD04003DBB09 /* savepng.c */,
-				23C17B8810C3FD04003DBB09 /* sounds.cpp */,
-				23C17B8910C3FD04003DBB09 /* sounds.h */,
-				23C17B8A10C3FD04003DBB09 /* sprites.cpp */,
-				23C17B8B10C3FD04003DBB09 /* sprites.h */,
-				23C17B8C10C3FD04003DBB09 /* text.cpp */,
-				23C17B8D10C3FD04003DBB09 /* text.h */,
-				23C17B8E10C3FD04003DBB09 /* vermes.cpp */,
-				23C17B8F10C3FD04003DBB09 /* water.cpp */,
-				23C17B9010C3FD04003DBB09 /* water.h */,
-				23C17B9110C3FD04003DBB09 /* weapons.cpp */,
-				23C17B9210C3FD04003DBB09 /* weapons.h */,
-			);
-			path = zoid;
-			sourceTree = "<group>";
-		};
 		23C17B9510C3FD04003DBB09 /* util */ = {
 			isa = PBXGroup;
 			children = (
@@ -1405,45 +1194,6 @@
 				23C17C4210C3FD04003DBB09 /* sprite_set.cpp in Sources */,
 				23C17C4310C3FD04003DBB09 /* stl_str_replicator.cpp in Sources */,
 				23C17C4410C3FD04003DBB09 /* timer_event.cpp in Sources */,
-				23C17C4510C3FD04003DBB09 /* console.cpp in Sources */,
-				23C17C4610C3FD04003DBB09 /* engine.cpp in Sources */,
-				23C17C4710C3FD04003DBB09 /* explosions.cpp in Sources */,
-				23C17C4810C3FD04003DBB09 /* input.cpp in Sources */,
-				23C17C4910C3FD04003DBB09 /* keys.cpp in Sources */,
-				23C17C4A10C3FD04003DBB09 /* level.cpp in Sources */,
-				23C17C4B10C3FD04003DBB09 /* lights.cpp in Sources */,
-				23C17C4C10C3FD04003DBB09 /* network.cpp in Sources */,
-				23C17C4D10C3FD04003DBB09 /* particles.cpp in Sources */,
-				23C17C4E10C3FD04003DBB09 /* player.cpp in Sources */,
-				23C17C4F10C3FD04003DBB09 /* render.cpp in Sources */,
-				23C17C5010C3FD04003DBB09 /* sounds.cpp in Sources */,
-				23C17C5110C3FD04003DBB09 /* sprites.cpp in Sources */,
-				23C17C5210C3FD04003DBB09 /* text.cpp in Sources */,
-				23C17C5310C3FD04003DBB09 /* vermes.cpp in Sources */,
-				23C17C5410C3FD04003DBB09 /* water.cpp in Sources */,
-				23C17C5510C3FD04003DBB09 /* weapons.cpp in Sources */,
-				23C17C5610C3FD04003DBB09 /* ai.cpp in Sources */,
-				23C17C5710C3FD04003DBB09 /* console.cpp in Sources */,
-				23C17C5810C3FD04003DBB09 /* engine.cpp in Sources */,
-				23C17C5910C3FD04003DBB09 /* explosions.cpp in Sources */,
-				23C17C5A10C3FD04003DBB09 /* gfx.cpp in Sources */,
-				23C17C5B10C3FD04003DBB09 /* input.cpp in Sources */,
-				23C17C5C10C3FD04003DBB09 /* keys.cpp in Sources */,
-				23C17C5D10C3FD04003DBB09 /* level.cpp in Sources */,
-				23C17C5E10C3FD04003DBB09 /* lights.cpp in Sources */,
-				23C17C5F10C3FD04003DBB09 /* loadpng.c in Sources */,
-				23C17C6010C3FD04003DBB09 /* network.cpp in Sources */,
-				23C17C6110C3FD04003DBB09 /* particles.cpp in Sources */,
-				23C17C6210C3FD04003DBB09 /* player.cpp in Sources */,
-				23C17C6310C3FD04003DBB09 /* regpng.c in Sources */,
-				23C17C6410C3FD04003DBB09 /* render.cpp in Sources */,
-				23C17C6510C3FD04003DBB09 /* savepng.c in Sources */,
-				23C17C6610C3FD04003DBB09 /* sounds.cpp in Sources */,
-				23C17C6710C3FD04003DBB09 /* sprites.cpp in Sources */,
-				23C17C6810C3FD04003DBB09 /* text.cpp in Sources */,
-				23C17C6910C3FD04003DBB09 /* vermes.cpp in Sources */,
-				23C17C6A10C3FD04003DBB09 /* water.cpp in Sources */,
-				23C17C6B10C3FD04003DBB09 /* weapons.cpp in Sources */,
 				23C17C6C10C3FD04003DBB09 /* updater.cpp in Sources */,
 				23C17C6D10C3FD04003DBB09 /* angle.cpp in Sources */,
 				23C17C6E10C3FD04003DBB09 /* log.cpp in Sources */,
