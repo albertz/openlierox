@@ -4,8 +4,13 @@
 #include "resource_list.h"
 #include "base_object.h"
 
+#ifdef __APPLE__
+#define __MACOSX__
+#endif
+
 #include <vorbis/vorbisfile.h>
-#include <OpenAL/al.h>
+#include <AL/al.h>
+#include <AL/alut.h>
 #include <stdio.h>
 #include <vector>
 #include <string>

@@ -11,7 +11,7 @@ using namespace boost::assign;
 
 #include <vector>
 #include <list>
-#include <OpenAL/al.h>
+#include <AL/al.h>
 #include <boost/utility.hpp>
 
 using namespace std;

@@ -5,7 +5,7 @@
 #include "util/vec.h"
 #include "glua.h"
 #include "sound_sample.h"
-#include <OpenAL/al.h>
+#include <AL/al.h>
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
 
