@@ -4,7 +4,7 @@
 
 #ifndef DISABLE_ZOIDCOM
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <string>
 #include <boost/function.hpp>
 #include "lua51/luaapi/types.h"

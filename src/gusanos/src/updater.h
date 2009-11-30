@@ -1,7 +1,7 @@
 #ifndef VERMES_UPDATE_H
 #define VERMES_UPDATE_H
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <string>
 
 // Manages file transfers to clients

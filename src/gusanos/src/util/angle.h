@@ -3,7 +3,7 @@
 
 #include <climits>
 #include <iostream>
-#include <zoidcom.h>
+#include "netstream.h"
 #include <stdexcept>
 
 template<class T>

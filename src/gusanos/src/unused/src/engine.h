@@ -22,7 +22,7 @@
 #include "player.h"
 #include "network.h"
 #include "render.h"
-#include <zoidcom.h>
+#include "netstream.h"
 #ifdef AA2XSAI
 extern "C" {
 #include "2xsai.h"

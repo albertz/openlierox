@@ -6,7 +6,7 @@
 #include "base_worm.h"
 //#include "sprite.h"
 
-#include <zoidcom.h>
+#include "netstream.h"
 
 class NetWormInterceptor;
 

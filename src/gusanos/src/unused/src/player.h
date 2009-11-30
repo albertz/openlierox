@@ -11,7 +11,7 @@
 #include <string.h>
 #include <time.h>
 #include "engine.h"
-#include <zoidcom.h>
+#include "netstream.h"
 
 extern ZCom_ClassID  player_classid;
 

@@ -1,7 +1,7 @@
 #ifndef POSSPD_REPLICATOR_H
 #define POSSPD_REPLICATOR_H
 
-#include <zoidcom.h>
+#include "netstream.h"
 
 #include "util/vec.h"
 #include "encoding.h"

@@ -19,7 +19,7 @@
 
 #include <math.h>
 #include <vector>
-#include <zoidcom.h>
+#include "netstream.h"
 
 using namespace std;
 

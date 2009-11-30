@@ -1,7 +1,7 @@
 #ifndef STL_STR_REPLICATOR_H
 #define STL_STR_REPLICATOR_H
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <string>
 #include <stdexcept>
 

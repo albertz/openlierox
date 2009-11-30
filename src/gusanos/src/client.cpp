@@ -15,7 +15,7 @@
 
 #ifndef DISABLE_ZOIDCOM
 
-#include <zoidcom.h>
+#include "netstream.h"
 
 Client::Client( int _udpport )
 {

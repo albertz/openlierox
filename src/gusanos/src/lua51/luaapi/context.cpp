@@ -9,7 +9,7 @@ extern "C"
 using std::cerr;
 using std::endl;
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <cmath>
 #include <map>
 #include <set>

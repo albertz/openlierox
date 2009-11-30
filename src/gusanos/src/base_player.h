@@ -9,7 +9,7 @@
 #include <vector>
 using boost::shared_ptr;
 
-#include <zoidcom.h>
+#include "netstream.h"
 
 struct PlayerOptions;
 class BaseWorm;

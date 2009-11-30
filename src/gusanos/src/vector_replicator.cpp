@@ -1,6 +1,6 @@
 #include "vector_replicator.h"
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <iostream>
 #include "util/vec.h"
 using std::cerr;

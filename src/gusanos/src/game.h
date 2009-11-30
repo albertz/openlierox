@@ -20,7 +20,7 @@
 #include <boost/filesystem/path.hpp>
 using boost::shared_ptr;
 namespace fs = boost::filesystem;
-#include <zoidcom.h>
+#include "netstream.h"
 
 class BasePlayer;
 class BaseWorm;

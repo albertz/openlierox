@@ -24,7 +24,7 @@
 #include "util/log.h"
 #include "util/math_func.h"
 #include "network.h"
-#include <zoidcom.h>
+#include "netstream.h"
 #include "posspd_replicator.h"
 
 #include <vector>

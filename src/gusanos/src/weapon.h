@@ -1,7 +1,7 @@
 #ifndef WEAPON_H
 #define WEAPON_H
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include "timer_event.h"
 //#include "lua51/luaapi/types.h"
 #include "glua.h"

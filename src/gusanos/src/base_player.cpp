@@ -13,7 +13,7 @@
 #include "lua/bindings-game.h"
 #include "game.h"
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include "network.h"
 //#include <allegro.h>
 #include <list>

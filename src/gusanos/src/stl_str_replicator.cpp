@@ -1,6 +1,6 @@
 #include "stl_str_replicator.h"
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <string>
 
 using namespace std;

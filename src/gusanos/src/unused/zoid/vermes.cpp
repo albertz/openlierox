@@ -7,7 +7,7 @@
 #include "winalleg.h"
 #endif
 #include "engine.h"
-#include <zoidcom.h>
+#include "netstream.h"
 #include <stdio.h>
 #include <string.h>
 

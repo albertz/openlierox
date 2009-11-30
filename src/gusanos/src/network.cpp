@@ -24,7 +24,7 @@
 #include <list>
 #include <set>
 #include <utility>
-#include <zoidcom.h>
+#include "netstream.h"
 #include <boost/assign/list_inserter.hpp>
 using namespace boost::assign;
 

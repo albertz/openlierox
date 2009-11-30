@@ -4,7 +4,7 @@
 #include <utility>
 #include <cassert>
 #include "gui/omfggui.h" // For Rect
-#include "zoidcom.h"
+#include "netstream.h"
 #include <iostream>
 #include <stdexcept>
 

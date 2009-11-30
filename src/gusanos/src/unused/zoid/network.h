@@ -1,7 +1,7 @@
 #ifndef NETWORK_H
 #define NETWORK_H
 
-#include <zoidcom.h>
+#include "netstream.h"
 #include <allegro.h>
 
 
