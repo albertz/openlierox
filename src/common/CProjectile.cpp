@@ -460,7 +460,9 @@ static void updateMap(CProjectile* prj, const VectorD2<int>& p, const VectorD2<i
 }
 
 void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<int>* oldRadius) {
-	if(!cClient->getGameScript()->getNeedCollisionInfo()) return;
+	if( !cClient->getGameScript()->getNeedCollisionInfo() && 
+		!bool(cClient->getGameLobby()->features[FT_CollideProjectiles]) ) 
+		return;
 	
 	if(!isUsed()) { // not used anymore
 		if(oldPos && oldRadius)

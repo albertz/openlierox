@@ -96,6 +96,8 @@ Feature featureArray[] = {
 			-1, -1,					OLXBetaVersion(0,58,1),		GIG_General, ALT_Basic,	-1, 100,	true, true, false, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
 			1.0f, 1.0f,				OLXBetaVersion(0,58,1),		GIG_Advanced, ALT_Advanced,	0.5f, 4.0f, false),
+	Feature("CollideProjectiles",	"Collide projectiles",		"You'll be able to shoot down enemy rockets and grenades",
+			false,	false,			OLXBetaVersion(0,58,9),		GIG_Weapons,	ALT_VeryAdvanced,	false),
 	Feature("CTF_AllowRopeForCarrier", "Allow rope for carrier", "The worm who is holding the flag can use ninja rope",
 			true, true,				OLXBetaVersion(0,58,1),		GIG_CaptureTheFlag, ALT_Basic, true),
 	Feature("CTF_SpeedFactorForCarrier", "Speed factor for carrier", "Changes the carrier speed by this factor. Perhaps you want to make the carrier slower so you can more easily get the flag again.",

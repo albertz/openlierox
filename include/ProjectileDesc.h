@@ -79,7 +79,30 @@ static_assert(sizeof(Proj_AnimType) == sizeof(int), Proj_AnimType__SizeCheck);
 
 // Projectile structure
 struct proj_t {
-	proj_t() : bmpImage(NULL) {}
+	proj_t() : bmpImage(NULL) 
+	{
+		Type = PRJ_PIXEL;
+		Rotating = false;
+		RotIncrement = 0;
+		RotSpeed = 0;
+		UseAngle = false;
+		UseSpecAngle = false;
+		AngleImages = 0;
+		Animating = false;
+		AnimRate = 0.0f;
+		AnimType = ANI_ONCE;
+		AttractiveForce = 0;
+		AttractiveForceObjects = ATO_NONE;
+		AttractiveForceClasses = ATC_NONE;
+		AttractiveForceRadius = 0;
+		AttractiveForceThroughWalls = 0;
+		AttractiveForceType = ATT_GRAVITY;
+		UseCustomGravity = false;
+		Gravity = 0;
+		Dampening = 0.0f;
+		Width = 1;
+		Height = 1;
+	}
 	
 	std::string	filename;		// Compiler use (was 64b before)
 	

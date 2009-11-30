@@ -135,6 +135,7 @@ enum FeatureIndex {
 	FT_ProjFriction,
 	FT_TeamScoreLimit,
 	FT_SizeFactor,
+	FT_CollideProjectiles,
 	FT_CTF_AllowRopeForCarrier,
 	FT_CTF_SpeedFactorForCarrier,
 	FT_Race_Rounds,
