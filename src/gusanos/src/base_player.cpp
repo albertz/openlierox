@@ -20,7 +20,7 @@
 
 using namespace std;
 
-ZCom_ClassID BasePlayer::classID = ZCom_Invalid_ID;
+Net_ClassID BasePlayer::classID = Net_Invalid_ID;
 
 BasePlayer::Stats::~Stats()
 {
@@ -122,7 +122,7 @@ void BasePlayer::removeWorm()
 	}
 }
 
-void BasePlayer::addEvent(ZCom_BitStream* data, BasePlayer::NetEvents event)
+void BasePlayer::addEvent(Net_BitStream* data, BasePlayer::NetEvents event)
 {
 #ifdef COMPACT_EVENTS
 	//	data->addInt(event, Encoding::bitsOf(BasePlayer::EVENT_COUNT - 1));
@@ -138,13 +138,13 @@ void BasePlayer::think()
 	subThink();
 	if ( m_node ) {
 		while ( m_node->checkEventWaiting() ) {
-			eZCom_Event type;
-			eZCom_NodeRole    remote_role;
-			ZCom_ConnID       conn_id;
+			eNet_Event type;
+			eNet_NodeRole    remote_role;
+			Net_ConnID       conn_id;
 
-			ZCom_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+			Net_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 			switch ( type ) {
-					case eZCom_EventUser:
+					case eNet_EventUser:
 					if ( data ) {
 #ifdef COMPACT_EVENTS
 						NetEvents event = (NetEvents)data->getInt(Encoding::bitsOf(EVENT_COUNT - 1));
@@ -245,7 +245,7 @@ void BasePlayer::think()
 						}
 					}
 					break;
-					case eZCom_EventInit: {
+					case eNet_EventInit: {
 						sendSyncMessage( conn_id );
 
 						EACH_CALLBACK(i, playerNetworkInit) {
@@ -253,7 +253,7 @@ void BasePlayer::think()
 						}
 					}
 					break;
-					case eZCom_EventRemoved: {
+					case eNet_EventRemoved: {
 						deleteMe = true;
 					}
 					break;
@@ -301,11 +301,11 @@ void BasePlayer::think()
 	}
 }
 
-void BasePlayer::sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* userdata, ZCom_ConnID connID)
+void BasePlayer::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node)
 		return;
-	ZCom_BitStream* data = new ZCom_BitStream;
+	Net_BitStream* data = new Net_BitStream;
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata) {
@@ -317,7 +317,7 @@ void BasePlayer::sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules
 		m_node->sendEventDirect(mode, data, connID);
 }
 
-void BasePlayer::addActionStart(ZCom_BitStream* data, BasePlayer::BaseActions action)
+void BasePlayer::addActionStart(Net_BitStream* data, BasePlayer::BaseActions action)
 {
 	addEvent(data, BasePlayer::ACTION_START);
 #ifdef COMPACT_ACTIONS
@@ -329,7 +329,7 @@ void BasePlayer::addActionStart(ZCom_BitStream* data, BasePlayer::BaseActions ac
 #endif
 }
 
-void BasePlayer::addActionStop(ZCom_BitStream* data, BasePlayer::BaseActions action)
+void BasePlayer::addActionStop(Net_BitStream* data, BasePlayer::BaseActions action)
 {
 	addEvent(data, BasePlayer::ACTION_STOP);
 #ifdef COMPACT_ACTIONS
@@ -383,10 +383,10 @@ void BasePlayer::changeName_( const std::string& name )
 	if(m_isAuthority) {
 		localChangeName(name);
 		if ( m_node ) {
-			ZCom_BitStream *data = new ZCom_BitStream;
+			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, NAME_CHANGE);
 			data->addString( m_name.c_str() );
-			m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
 	} else {
 		localChangeName(name, true);
@@ -396,10 +396,10 @@ void BasePlayer::changeName_( const std::string& name )
 void BasePlayer::nameChangePetition()
 {
 	if ( m_node ) {
-		ZCom_BitStream *data = new ZCom_BitStream;
+		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, NAME_CHANGE);
 		data->addString( m_options->name.c_str() );
-		m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH, data);
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
 	}
 }
 
@@ -408,10 +408,10 @@ void BasePlayer::changeColor_( int colour_ )
 	if(m_isAuthority) {
 		colour = colour_;
 		if ( m_node ) {
-			ZCom_BitStream *data = new ZCom_BitStream;
+			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, COLOR_CHANGE);
 			data->addInt( colour, 24 );
-			m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
 	} else {
 		colour = colour_;
@@ -421,10 +421,10 @@ void BasePlayer::changeColor_( int colour_ )
 void BasePlayer::colorChangePetition_( int colour_ )
 {
 	if ( m_node ) {
-		ZCom_BitStream *data = new ZCom_BitStream;
+		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, COLOR_CHANGE);
 		data->addInt( colour_, 24 );
-		m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH, data);
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
 	}
 }
 
@@ -433,10 +433,10 @@ void BasePlayer::changeTeam_( int team_ )
 	if(m_isAuthority) {
 		team = team_;
 		if ( m_node ) {
-			ZCom_BitStream *data = new ZCom_BitStream;
+			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, TEAM_CHANGE);
 			data->addSignedInt( team, 8 );
-			m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
 	} else {
 		team = team_;
@@ -446,10 +446,10 @@ void BasePlayer::changeTeam_( int team_ )
 void BasePlayer::teamChangePetition_( int team_ )
 {
 	if ( m_node ) {
-		ZCom_BitStream *data = new ZCom_BitStream;
+		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, TEAM_CHANGE);
 		data->addSignedInt( team_, 8 );
-		m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH, data);
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
 	}
 }
 
@@ -457,10 +457,10 @@ void BasePlayer::sendChatMsg( std::string const& message )
 {
 	game.displayChatMsg( m_name, message );
 	if ( m_node ) {
-		ZCom_BitStream *data = new ZCom_BitStream;
+		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, CHAT_MSG);
 		data->addString( message.c_str() );
-		m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY, data);
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY, data);
 	}
 }
 
@@ -475,14 +475,14 @@ void BasePlayer::selectWeapons( vector< WeaponType* > const& weaps )
 			return;
 		}
 
-		ZCom_BitStream *data = new ZCom_BitStream;
+		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, SELECT_WEAPONS );
 
 		Encoding::encode(*data, weaps.size(), game.options.maxWeapons+1 );
 		for( vector<WeaponType*>::const_iterator iter = weaps.begin(); iter != weaps.end(); ++iter ) {
 			Encoding::encode(*data, (*iter)->getIndex(), game.weaponList.size());
 		}
-		m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH, data);
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
 	}
 }
 
@@ -502,15 +502,15 @@ shared_ptr<PlayerOptions> BasePlayer::getOptions()
 
 void BasePlayer::assignNetworkRole( bool authority )
 {
-	m_node = new ZCom_Node();
+	m_node = new Net_Node();
 	if (!m_node) {
 		allegro_message("ERROR: Unable to create player node.");
 	}
 
 	m_node->beginReplicationSetup(1);
-	//m_node->addReplicationInt( (zS32*)&deaths, 32, false, ZCOM_REPFLAG_MOSTRECENT, ZCOM_REPRULE_AUTH_2_ALL , 0);
-	m_node->setInterceptID( static_cast<ZCom_InterceptID>(WormID) );
-	m_node->addReplicationInt( (zS32*)&m_wormID, 32, false, ZCOM_REPFLAG_MOSTRECENT | ZCOM_REPFLAG_INTERCEPT, ZCOM_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
+	//m_node->addReplicationInt( (zS32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
+	m_node->setInterceptID( static_cast<Net_InterceptID>(WormID) );
+	m_node->addReplicationInt( (zS32*)&m_wormID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
 	m_node->endReplicationSetup();
 
 	m_interceptor = new BasePlayerInterceptor( this );
@@ -530,7 +530,7 @@ void BasePlayer::assignNetworkRole( bool authority )
 	m_node->applyForZoidLevel(1);
 }
 
-void BasePlayer::setOwnerId( ZCom_ConnID id )
+void BasePlayer::setOwnerId( Net_ConnID id )
 {
 	m_node->setOwner( id, true );
 	m_id = id;
@@ -538,9 +538,9 @@ void BasePlayer::setOwnerId( ZCom_ConnID id )
 
 
 
-void BasePlayer::sendSyncMessage( ZCom_ConnID id )
+void BasePlayer::sendSyncMessage( Net_ConnID id )
 {
-	ZCom_BitStream *data = new ZCom_BitStream;
+	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, SYNC);
 	data->addInt(stats->kills, 32);
 	data->addInt(stats->deaths, 32);
@@ -548,10 +548,10 @@ void BasePlayer::sendSyncMessage( ZCom_ConnID id )
 	data->addInt(colour, 24);
 	data->addSignedInt(static_cast<int>(team), 8);
 	data->addInt(static_cast<int>(m_options->uniqueID), 32);
-	m_node->sendEventDirect(eZCom_ReliableOrdered, data, id);
+	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }
 
-ZCom_NodeID BasePlayer::getNodeID()
+Net_NodeID BasePlayer::getNodeID()
 {
 	if (m_node)
 		return m_node->getNetworkID();
@@ -559,7 +559,7 @@ ZCom_NodeID BasePlayer::getNodeID()
 		return INVALID_NODE_ID;
 }
 
-ZCom_NodeID BasePlayer::getConnectionID()
+Net_NodeID BasePlayer::getConnectionID()
 {
 	return m_id;
 }
@@ -569,11 +569,11 @@ BasePlayerInterceptor::BasePlayerInterceptor( BasePlayer* parent )
 	m_parent = parent;
 }
 
-bool BasePlayerInterceptor::inPreUpdateItem (ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role, ZCom_Replicator *_replicator, zU32 _estimated_time_sent)
+bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent)
 {
 	switch ( (BasePlayer::ReplicationItems) _replicator->getSetup()->getInterceptID() ) {
 			case BasePlayer::WormID: {
-				ZCom_NodeID recievedID = *static_cast<zU32*>(_replicator->peekData());
+				Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 #ifdef USE_GRID
 
 				for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
@@ -613,9 +613,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm -> actionStart(Worm::MOVELEFT);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, LEFT);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -625,9 +625,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm -> actionStart(Worm::MOVERIGHT);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, RIGHT);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -636,10 +636,10 @@ void BasePlayer::baseActionStart ( BaseActions action )
 				if ( m_worm ) {
 					m_worm -> actionStart(Worm::FIRE);
 					if ( m_node ) {
-						ZCom_BitStream *data = new ZCom_BitStream;
+						Net_BitStream *data = new Net_BitStream;
 						addActionStart(data, FIRE);
 						data->addInt(int(m_worm->getAngle()), Angle::prec);
-						m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+						m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 					}
 				}
 			}
@@ -650,9 +650,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm -> actionStart(Worm::JUMP);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, JUMP);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -662,9 +662,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm->actionStart(Worm::NINJAROPE);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, NINJAROPE);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -674,9 +674,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm->dig();
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, DIG);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -686,9 +686,9 @@ void BasePlayer::baseActionStart ( BaseActions action )
 					m_worm->respawn();
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, RESPAWN);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 					// I am sending the event to both the auth and the proxies, but I
 					//cant really think of any use for the proxies knowing this, maybe
 					//I should change it to only send to auth? :o
@@ -711,9 +711,9 @@ void BasePlayer::baseActionStop ( BaseActions action )
 					m_worm -> actionStop(Worm::MOVELEFT);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStop(data, LEFT);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -723,9 +723,9 @@ void BasePlayer::baseActionStop ( BaseActions action )
 					m_worm -> actionStop(Worm::MOVERIGHT);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStop(data, RIGHT);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -735,9 +735,9 @@ void BasePlayer::baseActionStop ( BaseActions action )
 					m_worm -> actionStop(Worm::FIRE);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStop(data, FIRE);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -747,9 +747,9 @@ void BasePlayer::baseActionStop ( BaseActions action )
 					m_worm -> actionStop(Worm::JUMP);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStop(data, JUMP);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 			break;
@@ -759,9 +759,9 @@ void BasePlayer::baseActionStop ( BaseActions action )
 					m_worm->actionStop(Worm::NINJAROPE);
 				}
 				if ( m_node ) {
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addActionStop(data, NINJAROPE);
-					m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_PROXY | ZCOM_REPRULE_OWNER_2_AUTH, data);
+					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}
 

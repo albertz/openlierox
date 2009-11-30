@@ -77,7 +77,7 @@ namespace
 		NetEventsCount,
 	};
 	
-	void addEvent(ZCom_BitStream* data, NetEvents event)
+	void addEvent(Net_BitStream* data, NetEvents event)
 	{
 		Encoding::encode( *data, static_cast<int>(event), NetEventsCount );
 	}
@@ -89,14 +89,14 @@ namespace
 	std::string m_modName;
 	fs::path    m_defaultPath;
 	bool loaded;
-	ZCom_Node *m_node;
+	Net_Node *m_node;
 	bool m_isAuthority;
 	HashTable<std::string, unsigned long> stringToIndexMap;
 	std::vector<std::string> indexToStringMap;
 	
-	boost::uint32_t getWeaponCRC()
+	uint32_t getWeaponCRC()
 	{
-		boost::uint32_t v = 0;
+		uint32_t v = 0;
 		foreach(i, game.weaponList)
 		{
 			v ^= (*i)->crc;
@@ -107,7 +107,7 @@ namespace
 	}
 }
 
-ZCom_ClassID Game::classID = ZCom_Invalid_ID;
+Net_ClassID Game::classID = Net_Invalid_ID;
 
 Game game;
 
@@ -478,11 +478,11 @@ void Game::init(int argc, char** argv)
 #endif
 }
 
-void Game::sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* userdata, ZCom_ConnID connID)
+void Game::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) return;
 	
-	ZCom_BitStream* data = new ZCom_BitStream;
+	Net_BitStream* data = new Net_BitStream;
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata)
@@ -571,14 +571,14 @@ void Game::think()
 	
 	while ( m_node->checkEventWaiting() )
 	{
-		eZCom_Event type;
-		eZCom_NodeRole    remote_role;
-		ZCom_ConnID       conn_id;
+		eNet_Event type;
+		eNet_NodeRole    remote_role;
+		Net_ConnID       conn_id;
 		
-		ZCom_BitStream* data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+		Net_BitStream* data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 		switch(type)
 		{
-			case eZCom_EventUser:
+			case eNet_EventUser:
 			if ( data )
 			{
 				NetEvents event = (NetEvents)Encoding::decode(*data, NetEventsCount);
@@ -625,7 +625,7 @@ void Game::think()
 			}
 			break;
 			
-			case eZCom_EventInit:
+			case eNet_EventInit:
 			{
 				// Call this first since level effects will hog the message queue
 				EACH_CALLBACK(i, gameNetworkInit)
@@ -636,12 +636,12 @@ void Game::think()
 				list<LevelEffectEvent>::iterator iter = appliedLevelEffects.begin();
 				for( ; iter != appliedLevelEffects.end() ; ++iter )
 				{
-					ZCom_BitStream *data = new ZCom_BitStream;
+					Net_BitStream *data = new Net_BitStream;
 					addEvent(data, eHole);
 					Encoding::encode(*data, iter->index, levelEffectList.size());
 					level.intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
 					
-					m_node->sendEventDirect(eZCom_ReliableOrdered, data, conn_id );
+					m_node->sendEventDirect(eNet_ReliableOrdered, data, conn_id );
 				}
 				
 				
@@ -660,13 +660,13 @@ void Game::applyLevelEffect( LevelEffect* effect, int x, int y )
 	{
 		if ( level.applyEffect( effect, x, y ) && m_node && network.isHost() )
 		{
-			ZCom_BitStream *data = new ZCom_BitStream;
+			Net_BitStream *data = new Net_BitStream;
 
 			addEvent(data, eHole);
 			Encoding::encode(*data, effect->getIndex(), levelEffectList.size());
 			level.intVectorEncoding.encode(*data, BaseVec<int>(x, y));
 
-			m_node->sendEvent(eZCom_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 			
 			appliedLevelEffects.push_back( LevelEffectEvent(effect->getIndex(), x, y ) );
 		}
@@ -1043,12 +1043,12 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 
 void Game::assignNetworkRole( bool authority )
 {
-	m_node = new ZCom_Node;
+	m_node = new Net_Node;
 	
 	m_node->beginReplicationSetup(2);
-		//m_node->addReplicationInt( (zS32*)&deaths, 32, false, ZCOM_REPFLAG_MOSTRECENT, ZCOM_REPRULE_AUTH_2_ALL , 0);
-	m_node->addReplicationInt( (zS32*)&options.worm_gravity, 32, false, ZCOM_REPFLAG_MOSTRECENT | ZCOM_REPFLAG_RARELYCHANGED, ZCOM_REPRULE_AUTH_2_ALL );
-	m_node->addReplicationInt( (zS32*)&options.teamPlay, 1, false, ZCOM_REPFLAG_MOSTRECENT | ZCOM_REPFLAG_RARELYCHANGED, ZCOM_REPRULE_AUTH_2_ALL );
+		//m_node->addReplicationInt( (zS32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
+	m_node->addReplicationInt( (zS32*)&options.worm_gravity, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
+	m_node->addReplicationInt( (zS32*)&options.teamPlay, 1, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
 	
 	m_node->endReplicationSetup();
 
@@ -1056,11 +1056,11 @@ void Game::assignNetworkRole( bool authority )
 	if( authority)
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !m_node->registerNodeUnique(classID, eZCom_RoleAuthority, network.getZControl() ) )
+		if( !m_node->registerNodeUnique(classID, eNet_RoleAuthority, network.getZControl() ) )
 			ELOG("Unable to register game authority node.");
 	}else
 	{
-		if( !m_node->registerNodeUnique( classID, eZCom_RoleProxy, network.getZControl() ) )
+		if( !m_node->registerNodeUnique( classID, eNet_RoleProxy, network.getZControl() ) )
 			ELOG("Unable to register game requested node.");
 	}
 
@@ -1069,11 +1069,11 @@ void Game::assignNetworkRole( bool authority )
 
 void Game::sendRConMsg( string const& message )
 {
-	ZCom_BitStream *req = new ZCom_BitStream;
+	Net_BitStream *req = new Net_BitStream;
 	req->addInt(Network::RConMsg, 8);
 	req->addString( options.rConPassword.c_str() );
 	req->addString( message.c_str() );
-	network.getZControl()->ZCom_sendData( network.getServerID(), req, eZCom_ReliableOrdered );
+	network.getZControl()->Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
 void Game::removeNode()
@@ -1150,7 +1150,7 @@ fs::path const& Game::getDefaultPath()
 	return m_defaultPath;
 }
 
-BasePlayer* Game::findPlayerWithID( ZCom_NodeID ID )
+BasePlayer* Game::findPlayerWithID( Net_NodeID ID )
 {
 	list<BasePlayer*>::iterator playerIter;
 	for ( playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
@@ -1288,7 +1288,7 @@ std::string const& Game::getModName()
 	return m_modName;
 }
 
-void Game::addCRCs(ZCom_BitStream* req)
+void Game::addCRCs(Net_BitStream* req)
 {
 	req->addInt(partTypeList.crc(), 32);
 	req->addInt(expTypeList.crc(), 32);
@@ -1296,12 +1296,12 @@ void Game::addCRCs(ZCom_BitStream* req)
 	req->addInt(levelEffectList.crc(), 32);
 }
 
-bool Game::checkCRCs(ZCom_BitStream& data)
+bool Game::checkCRCs(Net_BitStream& data)
 {
-	boost::uint32_t particleCRC = data.getInt(32);
-	boost::uint32_t expCRC = data.getInt(32);
-	boost::uint32_t weaponCRC = data.getInt(32);
-	boost::uint32_t levelEffectCRC = data.getInt(32);
+	uint32_t particleCRC = data.getInt(32);
+	uint32_t expCRC = data.getInt(32);
+	uint32_t weaponCRC = data.getInt(32);
+	uint32_t levelEffectCRC = data.getInt(32);
 	
 	if(particleCRC != partTypeList.crc()
 	|| expCRC != expTypeList.crc()
@@ -1314,7 +1314,7 @@ bool Game::checkCRCs(ZCom_BitStream& data)
 	return true;
 }
 /*
-ZCom_Node* Game::getNode()
+Net_Node* Game::getNode()
 {
 	return m_node;
 }*/

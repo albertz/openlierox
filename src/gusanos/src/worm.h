@@ -14,7 +14,7 @@ class NinjaRope;
 class Worm : public BaseWorm
 {
 	public:
-		static ZCom_ClassID classID;
+		static Net_ClassID classID;
 
 		Worm();
 		~Worm();

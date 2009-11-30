@@ -10,11 +10,11 @@
 #include <stdexcept>
 //#include <console.h> //For IStrCompare
 #include "util/text.h"
-#include <boost/filesystem/path.hpp>
+/*#include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
 #include <boost/utility.hpp>
-namespace fs = boost::filesystem;
+namespace fs = boost::filesystem;*/
 
 template<class T, bool Cache = true, bool ReturnResource = true>
 struct ResourceLocator

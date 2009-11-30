@@ -50,7 +50,7 @@ public:
 	
 	void actionStart( Actions action );
 	void actionStop( Actions action );
-	void recieveMessage( ZCom_BitStream* data );
+	void recieveMessage( Net_BitStream* data );
 	
 	void delay( int time );
 	void useAmmo( int amount );

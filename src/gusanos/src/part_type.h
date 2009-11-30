@@ -67,7 +67,7 @@ public:
 	AngleDiff angularFriction;
 	int colLayer;
 	float health;
-	boost::uint32_t crc;
+	uint32_t crc;
 	/*
 	std::string networkInitName;
 	LuaReference networkInit;

@@ -144,7 +144,7 @@ namespace
 			events.clear();
 		}
 
-		void encode(ZCom_BitStream* data)
+		void encode(Net_BitStream* data)
 		{
 			data->addInt(events.size(), 8);
 			foreach(i, events) {
@@ -164,7 +164,7 @@ namespace
 	bool m_host = false;
 	bool m_client = false; //? This wasn't initialized before
 	int logZoidcom = 0; //TODO: Zoidcom
-	std::set<zU32> bannedIPs;
+	std::set<Net_U32> bannedIPs;
 
 	int m_serverPort; // Neither was this
 
@@ -173,8 +173,8 @@ namespace
 	int connCount = 0;
 
 	ZoidCom* m_zcom = 0;
-	ZCom_Control* m_control = 0;
-	ZCom_ConnID m_serverID = ZCom_Invalid_ID;
+	Net_Control* m_control = 0;
+	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
 
 	void processHttpRequests()
@@ -254,11 +254,11 @@ namespace
 
 	void registerClasses() // Factorization of class registering in client and server
 	{
-		NetWorm::classID = m_control->ZCom_registerClass("worm",0);
-		BasePlayer::classID = m_control->ZCom_registerClass("player",0);
-		Game::classID = m_control->ZCom_registerClass("game",0);
-		Updater::classID = m_control->ZCom_registerClass("updater",0);
-		Particle::classID = m_control->ZCom_registerClass("particle",ZCOM_CLASSFLAG_ANNOUNCEDATA);
+		NetWorm::classID = m_control->Net_registerClass("worm",0);
+		BasePlayer::classID = m_control->Net_registerClass("player",0);
+		Game::classID = m_control->Net_registerClass("game",0);
+		Updater::classID = m_control->Net_registerClass("updater",0);
+		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
 
 	std::string setProxy(std::list<std::string> const& args)
@@ -284,16 +284,16 @@ namespace
 
 Network network;
 
-void LuaEventDef::call(ZCom_BitStream* s)
+void LuaEventDef::call(Net_BitStream* s)
 {
-	ZCom_BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, lua.fullReference(*n, LuaBindings::ZCom_BitStreamMetaTable))();
+	Net_BitStream* n = s->Duplicate();
+	(lua.call(callb), luaReference, lua.fullReference(*n, LuaBindings::Net_BitStreamMetaTable))();
 }
 
-void LuaEventDef::call(LuaReference obj, ZCom_BitStream* s)
+void LuaEventDef::call(LuaReference obj, Net_BitStream* s)
 {
-	ZCom_BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, obj, lua.fullReference(*n, LuaBindings::ZCom_BitStreamMetaTable))();
+	Net_BitStream* n = s->Duplicate();
+	(lua.call(callb), luaReference, obj, lua.fullReference(*n, LuaBindings::Net_BitStreamMetaTable))();
 }
 
 LuaEventDef::~LuaEventDef()
@@ -320,7 +320,7 @@ Network::~Network()
 	/* What's with this?
 		m_host = false;
 		m_client = false;
-		m_serverID = ZCom_Invalid_ID;*/
+		m_serverID = Net_Invalid_ID;*/
 }
 
 void Network::log(char const* msg)
@@ -375,7 +375,7 @@ void Network::registerInConsole()
 	;
 }
 
-ZCom_ConnID Network::getServerID()
+Net_ConnID Network::getServerID()
 {
 	return m_serverID;
 }
@@ -383,8 +383,8 @@ ZCom_ConnID Network::getServerID()
 void Network::update()
 {
 	if ( m_control ) {
-		m_control->ZCom_processOutput();
-		m_control->ZCom_processInput(eZCom_NoBlock);
+		m_control->Net_processOutput();
+		m_control->Net_processInput(eNet_NoBlock);
 	}
 
 	processHttpRequests();
@@ -407,9 +407,9 @@ void Network::update()
 
 				m_control = new Client( 0 );
 				registerClasses();
-				ZCom_Address address;
-				address.setAddress( eZCom_AddressUDP, 0, ( data.addr + ":" + cast<string>(m_serverPort) ).c_str() );
-				m_control->ZCom_Connect( address, NULL );
+				Net_Address address;
+				address.setAddress( eNet_AddressUDP, 0, ( data.addr + ":" + cast<string>(m_serverPort) ).c_str() );
+				m_control->Net_Connect( address, NULL );
 				//m_client = true; // We wait with setting this until we've connected
 				m_lastServerAddr = data.addr;
 				setLuaState(StateConnecting);
@@ -473,7 +473,7 @@ void Network::update()
 					connCount = 0;
 					m_client = false;
 					m_host = false;
-					m_serverID = ZCom_Invalid_ID;
+					m_serverID = Net_Invalid_ID;
 
 					game.removeNode();
 					updater.removeNode();
@@ -532,12 +532,12 @@ void Network::disconnect( DConnEvents event )
 		SET_STATE(Disconnecting);
 		stateTimeOut = 1000;
 
-		ZCom_BitStream *eventData = new ZCom_BitStream;
+		Net_BitStream *eventData = new Net_BitStream;
 		eventData->addInt( static_cast<int>( event ), 8 );
 
 		LOG("Disconnecting...");
 		network.clientRetry = true;
-		m_control->ZCom_disconnectAll(eventData);
+		m_control->Net_disconnectAll(eventData);
 	}
 
 	if(serverAdded) {
@@ -550,14 +550,14 @@ void Network::disconnect( DConnEvents event )
 	}
 }
 
-void Network::disconnect( ZCom_ConnID id, DConnEvents event )
+void Network::disconnect( Net_ConnID id, DConnEvents event )
 {
 	if(!m_control)
 		return;
 
-	std::auto_ptr<ZCom_BitStream> eventData(new ZCom_BitStream);
+	std::auto_ptr<Net_BitStream> eventData(new Net_BitStream);
 	eventData->addInt( static_cast<int>( event ), 8 );
-	m_control->ZCom_Disconnect( id, eventData.release());
+	m_control->Net_Disconnect( id, eventData.release());
 }
 
 void Network::clear()
@@ -573,34 +573,34 @@ void Network::reconnect(int delay)
 	reconnectTimer = delay;
 }
 
-void Network::kick( ZCom_ConnID connID )
+void Network::kick( Net_ConnID connID )
 {
 	if( m_control ) {
-		ZCom_BitStream *eventData = new ZCom_BitStream;
+		Net_BitStream *eventData = new Net_BitStream;
 		eventData->addInt( static_cast<int>( Kick ), 8 );
-		m_control->ZCom_Disconnect( connID, eventData );
+		m_control->Net_Disconnect( connID, eventData );
 	}
 }
 
-void Network::ban( ZCom_ConnID connID )
+void Network::ban( Net_ConnID connID )
 {
 	if( m_control ) {
-		ZCom_Address const* addr = m_control->ZCom_getPeer(connID);
+		Net_Address const* addr = m_control->Net_getPeer(connID);
 		bannedIPs.insert(addr->getIP());
 	}
 }
 
-bool Network::isBanned(ZCom_ConnID connID)
+bool Network::isBanned(Net_ConnID connID)
 {
 	if( m_control ) {
-		ZCom_Address const* addr = m_control->ZCom_getPeer(connID);
+		Net_Address const* addr = m_control->Net_getPeer(connID);
 		if(bannedIPs.find(addr->getIP()) != bannedIPs.end())
 			return true;
 	}
 	return false;
 }
 
-void Network::setServerID(ZCom_ConnID serverID)
+void Network::setServerID(Net_ConnID serverID)
 {
 	m_serverID = serverID;
 }
@@ -615,7 +615,7 @@ bool Network::isClient()
 	return m_client;
 }
 
-ZCom_Control* Network::getZControl()
+Net_Control* Network::getZControl()
 {
 	return m_control;
 }
@@ -624,7 +624,7 @@ int Network::getServerPing()
 {
 	if( m_client ) {
 		if ( m_serverID )
-			return m_control->ZCom_getConnectionStats(m_serverID).avg_ping;
+			return m_control->Net_getConnectionStats(m_serverID).avg_ping;
 	}
 	return -1;
 }
@@ -650,7 +650,7 @@ void Network::indexLuaEvent(LuaEventGroup::type type, char const* name)
 		luaEvents[type].index(name);
 }
 
-void Network::encodeLuaEvents(ZCom_BitStream* data)
+void Network::encodeLuaEvents(Net_BitStream* data)
 {
 	for(int t = LuaEventGroup::Game; t < LuaEventGroup::Max; ++t) {
 		luaEvents[t].encode(data);

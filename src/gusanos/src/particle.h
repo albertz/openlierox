@@ -33,7 +33,7 @@ public:
 		RepPos    = (1<<1)
 	};
 	
-	static ZCom_ClassID  classID;
+	static Net_ClassID  classID;
 		
 	Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, BasePlayer* owner = NULL, Angle angle = Angle(0));
 	~Particle();
@@ -50,7 +50,7 @@ public:
 	void setAlphaFade(int frames, int dest);
 #endif
 	void customEvent( size_t index );
-	void sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* userdata, ZCom_ConnID connID);
+	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
 	//virtual LuaReference getLuaReference();
 	//virtual void pushLuaReference();
 	void damage(float amount, BasePlayer* damager );
@@ -96,7 +96,7 @@ private:
 	Vec m_origin;
 	
 	//LuaReference luaReference;
-	ZCom_Node *m_node;
+	Net_Node *m_node;
 	ParticleInterceptor* interceptor;
 	
 	char flags;

@@ -28,9 +28,9 @@ struct LuaEventDef
 	
 	~LuaEventDef();
 	
-	void call(ZCom_BitStream*);
+	void call(Net_BitStream*);
 	
-	void call(LuaReference, ZCom_BitStream*);
+	void call(LuaReference, Net_BitStream*);
 	
 	void* operator new(size_t count);
 	
@@ -128,15 +128,15 @@ public:
 	static void host();
 	static void connect( const std::string &address);
 	static void disconnect( DConnEvents event = Quit );
-	static void disconnect( ZCom_ConnID id, DConnEvents event );
+	static void disconnect( Net_ConnID id, DConnEvents event );
 	static void reconnect(int delay = 1);
 	static void clear();
 	
-	static void kick( ZCom_ConnID connID );
-	static void ban( ZCom_ConnID connID );
+	static void kick( Net_ConnID connID );
+	static void ban( Net_ConnID connID );
 	
-	static void setServerID( ZCom_ConnID serverID );
-	static ZCom_ConnID getServerID();
+	static void setServerID( Net_ConnID serverID );
+	static Net_ConnID getServerID();
 	
 	static bool isHost();
 	static bool isClient();
@@ -147,9 +147,9 @@ public:
 	static LuaEventDef* addLuaEvent(LuaEventGroup::type, char const* name, LuaEventDef* event);
 	static void indexLuaEvent(LuaEventGroup::type, char const* name);
 	static LuaEventDef* indexToLuaEvent(LuaEventGroup::type type, int idx);
-	static void encodeLuaEvents(ZCom_BitStream* data);
+	static void encodeLuaEvents(Net_BitStream* data);
 	
-	static ZCom_Control* getZControl();
+	static Net_Control* getZControl();
 	static int getServerPing();
 
 	static void incConnCount();
@@ -158,7 +158,7 @@ public:
 	static bool isDisconnected();
 	static bool isDisconnecting();
 	
-	static bool isBanned(ZCom_ConnID connID);
+	static bool isBanned(Net_ConnID connID);
 	
 	int simLag;
 	float simLoss;

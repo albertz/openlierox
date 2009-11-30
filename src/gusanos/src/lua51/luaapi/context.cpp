@@ -456,7 +456,7 @@ enum type
 };
 }
 
-void LuaContext::serialize(ZCom_BitStream& s, int i)
+void LuaContext::serialize(Net_BitStream& s, int i)
 {
 	switch(lua_type(m_State, i))
 	{
@@ -535,7 +535,7 @@ void LuaContext::serialize(ZCom_BitStream& s, int i)
 	}
 }
 
-bool LuaContext::deserialize(ZCom_BitStream& s)
+bool LuaContext::deserialize(Net_BitStream& s)
 {
 	int t = s.getInt(4);
 	switch(t)

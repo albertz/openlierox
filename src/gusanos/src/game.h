@@ -30,7 +30,7 @@ class WeaponType;
 class Particle;
 class PartType;
 class Explosion;
-class ZCom_BitStream;
+class Net_BitStream;
 struct LuaEventDef;
 #ifndef DEDSERV
 class Sound;
@@ -134,7 +134,7 @@ public:
 	
 	
 		
-	static ZCom_ClassID  classID;
+	static Net_ClassID  classID;
 
 	enum PLAYER_TYPE
 	{
@@ -188,11 +188,11 @@ public:
 	bool hasMod(std::string const& mod);
 	void runInitScripts();
 	void addBot( int team = -1 );
-	BasePlayer* findPlayerWithID( ZCom_NodeID ID );
+	BasePlayer* findPlayerWithID( Net_NodeID ID );
 	BasePlayer* addPlayer( PLAYER_TYPE type, int team = -1, BaseWorm* worm = 0 );
 	BaseWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
-	//static ZCom_Node* getNode();
-	static void sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* data, ZCom_ConnID connID);
+	//static Net_Node* getNode();
+	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* data, Net_ConnID connID);
 	
 	void assignNetworkRole( bool authority );
 	void removeNode();
@@ -243,8 +243,8 @@ public:
 	
 	std::string const& getModName();
 	
-	static void addCRCs(ZCom_BitStream* req);
-	static bool checkCRCs(ZCom_BitStream& data);
+	static void addCRCs(Net_BitStream* req);
+	static bool checkCRCs(Net_BitStream& data);
 	
 	MessageQueue msg;
 	

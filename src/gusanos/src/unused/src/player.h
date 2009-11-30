@@ -13,7 +13,7 @@
 #include "engine.h"
 #include "netstream.h"
 
-extern ZCom_ClassID  player_classid;
+extern Net_ClassID  player_classid;
 
 class worm
 {
@@ -50,9 +50,9 @@ class worm
 	struct KEYS *keys;
   int color;
   int local_slot;
-  ZCom_Node *node;
-  ZCom_ConnID id;
-  void registerClass(ZCom_Control *_cont);
+  Net_Node *node;
+  Net_ConnID id;
+  void registerClass(Net_Control *_cont);
   void checkevents();
   void sendmsg(char* msg);
   void shooteventsend();

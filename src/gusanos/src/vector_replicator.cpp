@@ -6,11 +6,11 @@
 using std::cerr;
 using std::endl;
 
-VectorReplicator::VectorReplicator(ZCom_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_) :
-		ZCom_ReplicatorBasic(_setup),
+VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_) :
+		Net_ReplicatorBasic(_setup),
 		m_ptr(_data), encoding(encoding_)
 {
-	m_flags |= ZCOM_REPLICATOR_INITIALIZED;
+	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
 bool VectorReplicator::checkState()
@@ -28,7 +28,7 @@ bool VectorReplicator::checkState()
 #endif
 }
 
-void VectorReplicator::packData(ZCom_BitStream *_stream)
+void VectorReplicator::packData(Net_BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 	/*
@@ -44,7 +44,7 @@ void VectorReplicator::packData(ZCom_BitStream *_stream)
 #endif
 }
 
-void VectorReplicator::unpackData(ZCom_BitStream *_stream, bool _store, zU32 _estimated_time_sent)
+void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
 {
 	if (_store) {
 #ifdef COMPACT_FLOATS

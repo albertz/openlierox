@@ -58,7 +58,7 @@ bool LevelEffect::load(fs::path const& filename)
 
 	if(mask)
 	{
-		boost::uint32_t bits = 0;
+		uint32_t bits = 0;
 		int c = 8;
 		BITMAP* b = mask->getSprite()->m_bitmap;
 		for( int y = 0; y < b->h; ++y )

@@ -13,10 +13,10 @@ void echo()
 void connect()
 {
   cli = new Client( 0, 8989 );
-  adr_srv.setAddress( eZCom_AddressUDP, 0, con->arg );
-  ZCom_BitStream *req = ZCom_Control::ZCom_createBitStream();
+  adr_srv.setAddress( eNet_AddressUDP, 0, con->arg );
+  Net_BitStream *req = Net_Control::Net_createBitStream();
   req->addString( "letmein" ); 
-  cli->ZCom_Connect( adr_srv, req );
+  cli->Net_Connect( adr_srv, req );
 };
  
 void quit()
@@ -87,12 +87,12 @@ void engine::calcphysics()
 {
 	int c,i,o,g,x,y;
   
-  if(srv)srv->ZCom_processInput(eZCom_NoBlock);
-  if(cli)cli->ZCom_processInput(eZCom_NoBlock);
-  if (srv) srv->ZCom_processOutput();
-  if (cli) cli->ZCom_processOutput();
+  if(srv)srv->Net_processInput(eNet_NoBlock);
+  if(cli)cli->Net_processInput(eNet_NoBlock);
+  if (srv) srv->Net_processOutput();
+  if (cli) cli->Net_processOutput();
 
-  //if (player_count>2 && player[player_count-1]->node->getRole()==eZCom_RoleOwner)allegro_message("yep its the owner");
+  //if (player_count>2 && player[player_count-1]->node->getRole()==eNet_RoleOwner)allegro_message("yep its the owner");
   
   if(player_count!=0)
   {

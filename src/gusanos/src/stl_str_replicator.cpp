@@ -5,11 +5,11 @@
 
 using namespace std;
 
-STLStringReplicator::STLStringReplicator(ZCom_ReplicatorSetup *_setup, string *_data) :
-		ZCom_ReplicatorBasic(_setup),
+STLStringReplicator::STLStringReplicator(Net_ReplicatorSetup *_setup, string *_data) :
+		Net_ReplicatorBasic(_setup),
 		m_ptr(_data)
 {
-	m_flags |= ZCOM_REPLICATOR_INITIALIZED;
+	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
 bool STLStringReplicator::checkState()
@@ -19,12 +19,12 @@ bool STLStringReplicator::checkState()
 	return s;
 }
 
-void STLStringReplicator::packData(ZCom_BitStream *_stream)
+void STLStringReplicator::packData(Net_BitStream *_stream)
 {
 	_stream->addString( m_ptr->c_str() );
 }
 
-void STLStringReplicator::unpackData(ZCom_BitStream *_stream, bool _store, zU32 _estimated_time_sent)
+void STLStringReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
 {
 	if (_store) {
 		*m_ptr = _stream->getStringStatic();

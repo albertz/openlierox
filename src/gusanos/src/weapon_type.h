@@ -41,7 +41,7 @@ public:
 	float laserSightIntensity;
 	int laserSightAlpha;
 	Blenders laserSightBlender; // Change to BlitterContext::Type
-	boost::uint32_t crc;
+	uint32_t crc;
 	
 #ifndef DEDSERV
 	SpriteSet *firecone;

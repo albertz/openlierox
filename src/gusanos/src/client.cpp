@@ -20,16 +20,16 @@
 Client::Client( int _udpport )
 {
 	if(network.simLag > 0)
-		ZCom_simulateLag(0, network.simLag);
+		Net_simulateLag(0, network.simLag);
 	if(network.simLoss > 0.f)
-		ZCom_simulateLoss(0, network.simLoss);
-	if ( !ZCom_initSockets( true,_udpport, 1, 0 ) )
+		Net_simulateLoss(0, network.simLoss);
+	if ( !Net_initSockets( true,_udpport, 1, 0 ) )
 	{
 		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
 	}
-	ZCom_setControlID(0);
-	ZCom_setDebugName("ZCOM_CLI");
-	ZCom_setUpstreamLimit(network.upLimit, network.upLimit); 
+	Net_setControlID(0);
+	Net_setDebugName("Net_CLI");
+	Net_setUpstreamLimit(network.upLimit, network.upLimit); 
 }
 
 Client::~Client()
@@ -38,13 +38,13 @@ Client::~Client()
 
 void Client::requestPlayer(PlayerOptions const& playerOptions)
 {
-	ZCom_BitStream *req = new ZCom_BitStream;
+	Net_BitStream *req = new Net_BitStream;
 	req->addInt(Network::PLAYER_REQUEST,8);
 	req->addString( playerOptions.name.c_str() );
 	req->addInt(playerOptions.colour, 24);
 	req->addSignedInt(playerOptions.team, 8);
 	req->addInt(playerOptions.uniqueID, 32);
-	ZCom_sendData( network.getServerID(), req, eZCom_ReliableOrdered );
+	Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
 void Client::requestPlayers()
@@ -56,16 +56,16 @@ void Client::requestPlayers()
 
 void Client::sendConsistencyInfo()
 {
-	std::auto_ptr<ZCom_BitStream> req(new ZCom_BitStream);
+	std::auto_ptr<Net_BitStream> req(new Net_BitStream);
 	req->addInt(Network::ConsistencyInfo, 8);
 	req->addInt(Network::protocolVersion, 32);
 	game.addCRCs(req.get());
-	ZCom_sendData( network.getServerID(), req.release(), eZCom_ReliableOrdered );
+	Net_sendData( network.getServerID(), req.release(), eNet_ReliableOrdered );
 }
 
-void Client::ZCom_cbConnectResult( ZCom_ConnID _id, eZCom_ConnectResult _result, ZCom_BitStream &_reply )
+void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply )
 {
-	if ( _result != eZCom_ConnAccepted )
+	if ( _result != eNet_ConnAccepted )
 	{
 		Network::ConnectionReply::type r = static_cast<Network::ConnectionReply::type>(_reply.getInt(8));
 		if(r == Network::ConnectionReply::Retry)
@@ -85,7 +85,7 @@ void Client::ZCom_cbConnectResult( ZCom_ConnID _id, eZCom_ConnectResult _result,
 	else
 	{
 		network.setClient(true);
-		ZCom_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
+		Net_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
 		console.addLogMsg("* CONNECTION ACCEPTED");
 		network.setServerID(_id);
 		network.incConnCount();
@@ -107,7 +107,7 @@ void Client::ZCom_cbConnectResult( ZCom_ConnID _id, eZCom_ConnectResult _result,
 		{
 			if(network.autoDownloads)
 			{
-				ZCom_requestZoidMode(_id, 2); // We need to update
+				Net_requestZoidMode(_id, 2); // We need to update
 				if(!hasLevel)
 					updater.requestLevel(map);
 			}
@@ -121,7 +121,7 @@ void Client::ZCom_cbConnectResult( ZCom_ConnID _id, eZCom_ConnectResult _result,
 			{
 				game.runInitScripts();
 				sendConsistencyInfo();
-				ZCom_requestZoidMode(_id, 1);
+				Net_requestZoidMode(_id, 1);
 			}
 			else
 			{
@@ -140,18 +140,18 @@ void Client::loadNextGame()
 	{
 		game.runInitScripts();
 		sendConsistencyInfo();
-		ZCom_requestZoidMode(network.getServerID(), 1);
+		Net_requestZoidMode(network.getServerID(), 1);
 	}
 	else
 		network.disconnect();
 }*/
 
-void Client::ZCom_cbConnectionClosed(ZCom_ConnID _id, eZCom_CloseReason _reason, ZCom_BitStream &_reasondata)
+void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	network.decConnCount();
 	switch( _reason )
 	{
-		case eZCom_ClosedDisconnect:
+		case eNet_ClosedDisconnect:
 		{
 			Network::DConnEvents dcEvent = static_cast<Network::DConnEvents>( _reasondata.getInt(8) );
 			switch( dcEvent )
@@ -199,12 +199,12 @@ void Client::ZCom_cbConnectionClosed(ZCom_ConnID _id, eZCom_CloseReason _reason,
 		}
 		break;
 		
-		case eZCom_ClosedTimeout:
+		case eNet_ClosedTimeout:
 			console.addLogMsg("* CONNECTION TIMEDOUT");
 			game.reset(Game::ServerQuit);
 		break;
 		
-		case eZCom_ClosedReconnect:
+		case eNet_ClosedReconnect:
 			console.addLogMsg("* CONNECTION RECONNECTED");
 		break;
 		
@@ -215,7 +215,7 @@ void Client::ZCom_cbConnectionClosed(ZCom_ConnID _id, eZCom_CloseReason _reason,
 	DLOG("A connection was closed");
 }
 
-void Client::ZCom_cbDataReceived( ZCom_ConnID id, ZCom_BitStream& data) 
+void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data) 
 {
 	int event = Encoding::decode(data, Network::ClientEvents::Max);
 	switch(event)
@@ -237,9 +237,9 @@ void Client::ZCom_cbDataReceived( ZCom_ConnID id, ZCom_BitStream& data)
 	}
 }
 
-void Client::ZCom_cbZoidResult(ZCom_ConnID _id, eZCom_ZoidResult _result, zU8 new_level, ZCom_BitStream &_reason)
+void Client::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 new_level, Net_BitStream &_reason)
 {
-	if (_result != eZCom_ZoidEnabled)
+	if (_result != eNet_ZoidEnabled)
 	{
 		console.addLogMsg("* ERROR: COULDNT ENTER ZOIDMODE");
 	}else
@@ -263,7 +263,7 @@ void Client::ZCom_cbZoidResult(ZCom_ConnID _id, eZCom_ZoidResult _result, zU8 ne
 	}
 }
 
-void Client::ZCom_cbNodeRequest_Dynamic( ZCom_ConnID _id, ZCom_ClassID _requested_class, ZCom_BitStream *_announcedata, eZCom_NodeRole _role, ZCom_NodeID _net_id )
+void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id )
 {
 	// check the requested class
 	if ( _requested_class == NetWorm::classID )
@@ -272,7 +272,7 @@ void Client::ZCom_cbNodeRequest_Dynamic( ZCom_ConnID _id, ZCom_ClassID _requeste
 	}else if ( _requested_class == BasePlayer::classID )
 	{
 		// Creates a player class depending on the role
-		if( _role == eZCom_RoleOwner )
+		if( _role == eNet_RoleOwner )
 		{
 			BasePlayer* player = game.addPlayer ( Game::OWNER );
 			player->assignNetworkRole(false);

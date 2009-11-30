@@ -19,7 +19,7 @@
 namespace fs = boost::filesystem;
 
 Updater updater;
-ZCom_ClassID Updater::classID;
+Net_ClassID Updater::classID;
 
 namespace
 {
@@ -49,16 +49,16 @@ namespace
 		std::list<std::pair<unsigned long, std::string> > fileQueue;
 
 		bool sendingFile;
-		ZCom_ConnID connID;
+		Net_ConnID connID;
 
 		void sendOne();
 		void queuePath(fs::path const& p);
 		void queueLevel(std::string const& level, unsigned long reqID);
 	};
 
-	std::map<ZCom_ConnID, ConnData> connections;
+	std::map<Net_ConnID, ConnData> connections;
 
-	ConnData& getConnection(ZCom_ConnID connID)
+	ConnData& getConnection(Net_ConnID connID)
 	{
 		let_(i, connections.find(connID));
 		if(i != connections.end()) {
@@ -72,7 +72,7 @@ namespace
 
 	MessageQueue msg;
 
-	ZCom_Node* node = 0;
+	Net_Node* node = 0;
 	bool isAuthority = false;
 	bool ready = false;
 	bool noTransfers = false;
@@ -84,15 +84,15 @@ namespace
 			if(!sendingFile) {
 				if(t.first == 0) {
 					std::string const& file = t.second;
-					ZCom_FileTransID fid = node->sendFile(file.c_str(), 0, connID, 0, 1.0f);
+					Net_FileTransID fid = node->sendFile(file.c_str(), 0, connID, 0, 1.0f);
 					ILOG("Sending file with ID " << fid);
 					sendingFile = true;
 					fileQueue.pop_front();
 				} else {
-					ZCom_BitStream* str = new ZCom_BitStream;
+					Net_BitStream* str = new Net_BitStream;
 					str->addInt(MsgRequestDone, 8);
 					str->addInt(t.first, 32);
-					node->sendEventDirect(eZCom_ReliableOrdered, str, connID );
+					node->sendEventDirect(eNet_ReliableOrdered, str, connID );
 					fileQueue.pop_front();
 				}
 			}
@@ -130,18 +130,18 @@ Updater::Updater()
 void Updater::assignNetworkRole( bool authority )
 {
 	assert(!node);
-	node = new ZCom_Node;
+	node = new Net_Node;
 
 	isAuthority = authority;
 	if( authority) {
 		node->setEventNotification(true, false); // Enables the eEvent_Init.
-		if( !node->registerNodeUnique(classID, eZCom_RoleAuthority, network.getZControl() ) )
+		if( !node->registerNodeUnique(classID, eNet_RoleAuthority, network.getZControl() ) )
 			ELOG("Unable to register updater authority node.");
 
 		node->removeFromZoidLevel(1);
 		node->applyForZoidLevel(2); // Updater operates at zoidlevel 2
 	} else {
-		if( !node->registerNodeUnique( classID, eZCom_RoleProxy, network.getZControl() ) )
+		if( !node->registerNodeUnique( classID, eNet_RoleProxy, network.getZControl() ) )
 			ELOG("Unable to register updater requested node.");
 	}
 }
@@ -157,11 +157,11 @@ void Updater::think()
 					mq_delay();*/
 
 			DLOG("Requesting level " << data.name);
-			ZCom_BitStream* str = new ZCom_BitStream;
+			Net_BitStream* str = new Net_BitStream;
 			str->addInt(MsgRequestLevel, 8);
 			str->addInt(1, 32);
 			str->addString( data.name.c_str() );
-			node->sendEventDirect(eZCom_ReliableOrdered, str, network.getServerID() );
+			node->sendEventDirect(eNet_ReliableOrdered, str, network.getServerID() );
 			//data.sent = true;
 			mq_end_case()
 			mq_end_process_messages();
@@ -172,22 +172,22 @@ void Updater::think()
 		}
 
 		while ( node->checkEventWaiting() ) {
-			eZCom_Event    type;
-			eZCom_NodeRole remote_role;
-			ZCom_ConnID    conn_id;
+			eNet_Event    type;
+			eNet_NodeRole remote_role;
+			Net_ConnID    conn_id;
 
-			ZCom_BitStream* data = node->getNextEvent(&type, &remote_role, &conn_id);
+			Net_BitStream* data = node->getNextEvent(&type, &remote_role, &conn_id);
 			switch(type) {
-					case eZCom_EventFile_Incoming: {
+					case eNet_EventFile_Incoming: {
 
-						ZCom_FileTransID fid = static_cast<ZCom_FileTransID>(data->getInt(ZCOM_FTRANS_ID_BITS));
+						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
 
 						if(!network.autoDownloads) {
 							node->acceptFile(conn_id, fid, 0, false);
 							break;
 						}
 
-						ZCom_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
+						Net_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
 
 						bool accept = true;
 
@@ -213,8 +213,8 @@ void Updater::think()
 					}
 					break;
 
-					case eZCom_EventFile_Complete: {
-						ZCom_FileTransID fid = static_cast<ZCom_FileTransID>(data->getInt(ZCOM_FTRANS_ID_BITS));
+					case eNet_EventFile_Complete: {
+						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
 						ILOG("Transfer of file with ID " << fid << " complete");
 
 						ConnData& c = getConnection(conn_id);
@@ -222,34 +222,34 @@ void Updater::think()
 					}
 					break;
 
-					case eZCom_EventFile_Data: {
-						ZCom_FileTransID fid = static_cast<ZCom_FileTransID>(data->getInt(ZCOM_FTRANS_ID_BITS));
-						ZCom_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
+					case eNet_EventFile_Data: {
+						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
+						Net_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
 
 						//DLOG("Transfer: " << double(info.bps) / 1000.0 << " kB/s, " << ((100 * info.transferred) / info.size) << "% done.");
 						EACH_CALLBACK(i, transferUpdate) {
 							(lua.call(*i), info.path, info.bps, info.transferred, info.size)();
 						}
 
-						//ZCom_ConnStats const& state = network.getZControl()->ZCom_getConnectionStats(conn_id);
+						//Net_ConnStats const& state = network.getZControl()->Net_getConnectionStats(conn_id);
 
 					}
 					break;
 
-					case eZCom_EventInit: {
+					case eNet_EventInit: {
 						if(network.autoDownloads) {
-							ZCom_BitStream* str = new ZCom_BitStream;
+							Net_BitStream* str = new Net_BitStream;
 							str->addInt(MsgHello, 8);
-							node->sendEventDirect(eZCom_ReliableOrdered, str, conn_id );
+							node->sendEventDirect(eNet_ReliableOrdered, str, conn_id );
 						} else {
-							ZCom_BitStream* str = new ZCom_BitStream;
+							Net_BitStream* str = new Net_BitStream;
 							str->addInt(MsgSorry, 8);
-							node->sendEventDirect(eZCom_ReliableOrdered, str, conn_id );
+							node->sendEventDirect(eNet_ReliableOrdered, str, conn_id );
 						}
 					}
 					break;
 
-					case eZCom_EventUser: {
+					case eNet_EventUser: {
 						Message i = static_cast<Message>(data->getInt(8));
 						ILOG("Got user event: " << i);
 

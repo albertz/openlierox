@@ -8,17 +8,17 @@
 using std::cerr;
 using std::endl;
 
-PosSpdReplicator::PosSpdReplicator(ZCom_ReplicatorSetup *_setup,
+PosSpdReplicator::PosSpdReplicator(Net_ReplicatorSetup *_setup,
 	Vec *pos, Vec *spd, Encoding::VectorEncoding& encoding_,
 	Encoding::DiffVectorEncoding& diffEncoding_)
-: ZCom_ReplicatorBasic(_setup)
+: Net_ReplicatorBasic(_setup)
 , m_posPtr(pos)
 , m_spdPtr(spd)
 , m_repCount(0)
 , encoding(encoding_)
 , diffEncoding(diffEncoding_)
 {
-	m_flags |= ZCOM_REPLICATOR_INITIALIZED;
+	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
 bool PosSpdReplicator::checkState()
@@ -34,7 +34,7 @@ bool PosSpdReplicator::checkState()
 	return s;
 }
 
-void PosSpdReplicator::packData(ZCom_BitStream *_stream)
+void PosSpdReplicator::packData(Net_BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 /*
@@ -63,7 +63,7 @@ void PosSpdReplicator::packData(ZCom_BitStream *_stream)
 
 }
 
-void PosSpdReplicator::unpackData(ZCom_BitStream *_stream, bool _store, zU32 _estimated_time_sent)
+void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
 {
 	if (_store)
 	{

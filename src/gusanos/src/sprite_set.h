@@ -11,8 +11,8 @@
 #include <vector>
 #include <utility>
 #include <map>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
+/*#include <boost/filesystem/path.hpp>
+namespace fs = boost::filesystem;*/
 
 class Sprite;
 

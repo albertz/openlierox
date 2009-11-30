@@ -10,7 +10,7 @@
 
 #define COMPACT_FLOATS
 
-class VectorReplicator : public ZCom_ReplicatorBasic
+class VectorReplicator : public Net_ReplicatorBasic
 {
 private:
 	
@@ -23,10 +23,10 @@ private:
 	
 public:
 
-	VectorReplicator(ZCom_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_);
+	VectorReplicator(Net_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_);
 	
 	// TODO: Implement this for safeness sake
-	ZCom_Replicator* Duplicate(ZCom_Replicator *_dest)
+	Net_Replicator* Duplicate(Net_Replicator *_dest)
 	{
 		if(_dest)
 			*_dest = *this;
@@ -39,11 +39,11 @@ public:
 	
 	bool checkInitialState() { return true; }
 	
-	void packData(ZCom_BitStream *_stream);
+	void packData(Net_BitStream *_stream);
 	
-	void unpackData(ZCom_BitStream *_stream, bool _store, zU32 _estimated_time_sent);
+	void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent);
 	
-	void Process(eZCom_NodeRole _localrole, zU32 _simulation_time_passed) {}
+	void Process(eNet_NodeRole _localrole, Net_U32 _simulation_time_passed) {}
 	
 	void* peekData();
 	

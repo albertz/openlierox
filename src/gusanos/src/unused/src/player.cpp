@@ -5,7 +5,7 @@ struct s_player_options pl_options[2];
 int local_player[2];
 int player_count=0;
 int local_players=0;
-ZCom_ClassID  player_classid = ZCom_Invalid_ID;
+Net_ClassID  player_classid = Net_Invalid_ID;
 
 void init_players()
 {
@@ -37,7 +37,7 @@ void send_msg()
   if(player[local_player[0]] && player[local_player[0]]->node)
   {
     player[local_player[0]]->sendmsg(con->arg);
-    if(player[local_player[0]]->node->getRole()==eZCom_RoleAuthority)
+    if(player[local_player[0]]->node->getRole()==eNet_RoleAuthority)
     {
       char msg2[1024];
       sprintf(msg2,"[%s] %s",player[local_player[0]]->name,con->arg);
@@ -52,10 +52,10 @@ void worm::sendmsg(char *msg)
 {
   if(node)
   {
-    ZCom_BitStream *data=ZCom_Control::ZCom_createBitStream();;
+    Net_BitStream *data=Net_Control::Net_createBitStream();;
     data->addInt(3,8);
     data->addString( msg );
-    node->sendEvent(ZCom_Node::eEventMode_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH | ZCOM_REPRULE_AUTH_2_ALL, data);
+    node->sendEvent(Net_Node::eEventMode_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_ALL, data);
   };
 };
 
@@ -64,17 +64,17 @@ void change_nick(int pl)
   strcpy(player[local_player[pl]]->name,pl_options[pl].name);
   /*if(player[local_player[pl]] && player[local_player[pl]]->node)
   {
-    ZCom_BitStream *data=ZCom_Control::ZCom_createBitStream();;
+    Net_BitStream *data=Net_Control::Net_createBitStream();;
     data->addInt(4,8);
     data->addString( pl_options[pl].name);
-    player[local_player[pl]]->node->sendEvent(ZCom_Node::eEventMode_ReliableOrdered, ZCOM_REPRULE_OWNER_2_AUTH, data);
+    player[local_player[pl]]->node->sendEvent(Net_Node::eEventMode_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
   };*/
 };
 
 void worm::shooteventsend()
 {
   int t=rand();
-  ZCom_BitStream *data=ZCom_Control::ZCom_createBitStream();;
+  Net_BitStream *data=Net_Control::Net_createBitStream();;
   data->addInt(1,8);
   data->addInt(x,32);
   data->addInt(y,32);
@@ -85,14 +85,14 @@ void worm::shooteventsend()
   data->addInt(weap[curr_weap].weap,16);
   data->addInt(t,32);
 
-  node->sendEvent(ZCom_Node::eEventMode_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+  node->sendEvent(Net_Node::eEventMode_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
   srand(t);
 };
 
 void worm::deatheventsend()
 {
   int t=rand();
-  ZCom_BitStream *data=ZCom_Control::ZCom_createBitStream();;
+  Net_BitStream *data=Net_Control::Net_createBitStream();;
   data->addInt(2,8); 
   data->addInt(x,32);
   data->addInt(y,32);
@@ -100,7 +100,7 @@ void worm::deatheventsend()
   data->addInt(yspd,32);
   data->addInt(t,32);
 
-  node->sendEvent(ZCom_Node::eEventMode_ReliableOrdered, ZCOM_REPRULE_AUTH_2_ALL, data);
+  node->sendEvent(Net_Node::eEventMode_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
   srand(t);
 };
 
@@ -108,18 +108,18 @@ void worm::checkevents()
 {
   while (node->checkEventWaiting()) 
   {
-    ZCom_Node::eEvent type;            // event type
-    eZCom_NodeRole    remote_role;     // role of remote sender
-    ZCom_ConnID       conn_id;         // connection id of sender
+    Net_Node::eEvent type;            // event type
+    eNet_NodeRole    remote_role;     // role of remote sender
+    Net_ConnID       conn_id;         // connection id of sender
     int event;
   
-    ZCom_BitStream *data = node->getNextEvent(&type, &remote_role, &conn_id);
-    if (type == ZCom_Node::eEvent_AuthorityRemoved)
+    Net_BitStream *data = node->getNextEvent(&type, &remote_role, &conn_id);
+    if (type == Net_Node::eEvent_AuthorityRemoved)
 		{
 			con->log.create_msg("PLAYER REMOVED");
 			deleteme = true;
 		} else
-    if (type == ZCom_Node::eEvent_User)
+    if (type == Net_Node::eEvent_User)
     {
       event=data->getInt(8);
       if(event==4)
@@ -133,7 +133,7 @@ void worm::checkevents()
         //strcat(msg2,msg);
         con->log.create_msg(msg2);
         con->echolist.add_echo(msg2);
-        if (node->getRole()==eZCom_RoleAuthority)
+        if (node->getRole()==eNet_RoleAuthority)
         {
           sendmsg(msg);
         };
@@ -261,43 +261,43 @@ worm::worm()
     keys->fire=false;
     keys->change=false;
     
-    id = ZCom_Invalid_ID;
+    id = Net_Invalid_ID;
     
     int i=1;
     
-    node = new ZCom_Node();
+    node = new Net_Node();
     if (!node)
     {
       con->log.create_msg("unable to create node");
     }
     
     node->beginReplicationSetup();
-    node->addInterpolationInt((zS32*)&x,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
-    node->addInterpolationInt((zS32*)&y,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
-    //node->addInterpolationInt(&yspd,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,1000,NULL,-1,-1,0);
-    //node->addInterpolationInt(&xspd,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,1000,NULL,-1,-1,0);
-    node->addReplicationInt((zS32*)&ropestate,8,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&ropex,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&ropey,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&ropexspd,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&ropeyspd,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationInt((zS32*)&aim,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY,99,-1,-1);
-    node->addReplicationInt((zS32*)&dir,8,true,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,99,-1,-1);
-    node->addReplicationBool(&keys->fire,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->left,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->right,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->up,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->down,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->jump,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&keys->change,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_OWNER_2_AUTH,false,-1,-1 );
-    node->addReplicationBool(&active,ZCOM_REPFLAG_RARELYCHANGED,ZCOM_REPRULE_AUTH_2_ALL,false,-1,-1 );
-    node->addReplicationInt((zS32*)&curr_weap,8,true,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY,0,-1,-1);
-    //node->addReplicationInt((zS32*)&weap[0].ammo,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,0,-1,-1 );
-    node->addReplicationInt((zS32*)&health,32,false,ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_AUTH_2_ALL,0,-1,-1 );
-    node->addReplicationInt((zS32*)&color,32,false,ZCOM_REPFLAG_RARELYCHANGED|ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY,0,-1,-1 );
+    node->addInterpolationInt((zS32*)&x,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
+    node->addInterpolationInt((zS32*)&y,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,20000,NULL,-1,-1,0.2f);
+    //node->addInterpolationInt(&yspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,1000,NULL,-1,-1,0);
+    //node->addInterpolationInt(&xspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,1000,NULL,-1,-1,0);
+    node->addReplicationInt((zS32*)&ropestate,8,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((zS32*)&ropex,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((zS32*)&ropey,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((zS32*)&ropexspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((zS32*)&ropeyspd,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationInt((zS32*)&aim,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,99,-1,-1);
+    node->addReplicationInt((zS32*)&dir,8,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,99,-1,-1);
+    node->addReplicationBool(&keys->fire,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->left,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->right,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->up,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->down,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->jump,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&keys->change,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_OWNER_2_AUTH,false,-1,-1 );
+    node->addReplicationBool(&active,Net_REPFLAG_RARELYCHANGED,Net_REPRULE_AUTH_2_ALL,false,-1,-1 );
+    node->addReplicationInt((zS32*)&curr_weap,8,true,Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1);
+    //node->addReplicationInt((zS32*)&weap[0].ammo,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
+    node->addReplicationInt((zS32*)&health,32,false,Net_REPFLAG_MOSTRECENT,Net_REPRULE_AUTH_2_ALL,0,-1,-1 );
+    node->addReplicationInt((zS32*)&color,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
     for(o=0;o<5;o++)
-      node->addReplicationInt((zS32*)&weap[o].weap,32,false,ZCOM_REPFLAG_RARELYCHANGED|ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY,0,-1,-1 );
-    node->addReplicationString(name,32,ZCOM_REPFLAG_RARELYCHANGED|ZCOM_REPFLAG_MOSTRECENT,ZCOM_REPRULE_OWNER_2_AUTH|ZCOM_REPRULE_AUTH_2_PROXY," ",-1,-1 );
+      node->addReplicationInt((zS32*)&weap[o].weap,32,false,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY,0,-1,-1 );
+    node->addReplicationString(name,32,Net_REPFLAG_RARELYCHANGED|Net_REPFLAG_MOSTRECENT,Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY," ",-1,-1 );
     
     node->endReplicationSetup();
 

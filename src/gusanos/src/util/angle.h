@@ -190,7 +190,7 @@ typedef BasicAngle<int> Angle;
 typedef BasicAngle<int> AngleDiff;
 
 template<class T>
-class BasicAngleReplicator : public ZCom_ReplicatorBasic
+class BasicAngleReplicator : public Net_ReplicatorBasic
 {
 	private:
 		typedef BasicAngle<T> Type;
@@ -199,15 +199,15 @@ class BasicAngleReplicator : public ZCom_ReplicatorBasic
 
 	public:
 
-		BasicAngleReplicator(ZCom_ReplicatorSetup* setup, Type* data)
-				: ZCom_ReplicatorBasic(setup),
+		BasicAngleReplicator(Net_ReplicatorSetup* setup, Type* data)
+				: Net_ReplicatorBasic(setup),
 				m_ptr(data)
 		{
-			m_flags |= ZCOM_REPLICATOR_INITIALIZED;
+			m_flags |= Net_REPLICATOR_INITIALIZED;
 		}
 
 		// TODO: Implement this for safeness sake
-		ZCom_Replicator* Duplicate(ZCom_Replicator *_dest)
+		Net_Replicator* Duplicate(Net_Replicator *_dest)
 		{
 			if(_dest)
 				*_dest = *this;
@@ -228,24 +228,24 @@ class BasicAngleReplicator : public ZCom_ReplicatorBasic
 			return true;
 		}
 
-		void packData(ZCom_BitStream *stream)
+		void packData(Net_BitStream *stream)
 		{
 			stream->addInt(*m_ptr, Type::prec);
 		}
 
-		void unpackData(ZCom_BitStream* stream, bool store, zU32 estimated_time_sent)
+		void unpackData(Net_BitStream* stream, bool store, Net_U32 estimated_time_sent)
 		{
 			Type angle(T(stream->getInt(Type::prec)));
 			if(store)
 				*m_ptr = angle;
 		}
 
-		void Process(eZCom_NodeRole localrole, zU32 simulation_time_passed)
+		void Process(eNet_NodeRole localrole, Net_U32 simulation_time_passed)
 	{}
 
 		void* peekData()
 		{
-			ZCom_BitStream* stream = getPeekStream();
+			Net_BitStream* stream = getPeekStream();
 			assert(stream);
 
 			Type* ret = new Type(T(stream->getInt(Type::prec)));

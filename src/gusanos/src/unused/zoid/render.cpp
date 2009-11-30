@@ -564,7 +564,7 @@ void engine::scoreboard()
 			{
 				// change this condition to a real check of "is server" if possible
 				if (player[i]->ping == 0)
-					sprintf(info, " %-16s%-12c%-12c%-12i%-4i", player[i]->name, '-', '-', player[i]->deaths, cli->ZCom_getConnectionStats(player[i]->id).avg_ping);
+					sprintf(info, " %-16s%-12c%-12c%-12i%-4i", player[i]->name, '-', '-', player[i]->deaths, cli->Net_getConnectionStats(player[i]->id).avg_ping);
 				else
 					sprintf(info, " %-16s%-12c%-12c%-12i%-4i", player[i]->name, '-', '-', player[i]->deaths, player[i]->ping);
 			}

@@ -7,9 +7,18 @@
 #include <list>
 #include <iostream>
 #include "util/macros.h"
-#include <boost/cstdint.hpp>
+/*#include <boost/cstdint.hpp>
 #include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
+namespace fs = boost::filesystem;*/
+
+namespace fs {
+	struct path {
+		std::string p;
+		path(const std::string& _p) : p(_p) {}
+		path operator/(const path& op) { return p + "/" + op.p; }
+		std::string native_file_string() const { return p; }
+	};
+}
 
 using std::cerr;
 using std::endl;
@@ -111,11 +120,11 @@ public:
 		}
 	}
 	
-	boost::uint32_t crc(bool posIndependent = true)
+	uint32_t crc(bool posIndependent = true)
 	{
 		if(posIndependent) // crc does not depend on the filename ordering
 		{
-			boost::uint32_t v = 0;
+			uint32_t v = 0;
 			const_foreach(i, m_resItems)
 			{
 				v ^= i->second->crc;
@@ -124,7 +133,7 @@ public:
 		}
 		else // crc depends on the filename ordering
 		{
-			boost::uint32_t v = 0;
+			uint32_t v = 0;
 			
 			const_foreach(i, m_resItems)
 			{

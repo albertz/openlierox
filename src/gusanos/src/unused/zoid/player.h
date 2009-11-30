@@ -8,7 +8,7 @@
 class sprite;
 class exp_type;
 
-extern ZCom_ClassID  player_classid;
+extern Net_ClassID  player_classid;
 
 class worm
 {
@@ -49,8 +49,8 @@ class worm
   int local_slot;
 	//ping
 	int ping;
-  ZCom_Node *node;
-  ZCom_ConnID id;
+  Net_Node *node;
+  Net_ConnID id;
   
   //methods
   

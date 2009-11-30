@@ -22,7 +22,7 @@ struct LuaPlayerEvent; // virtual
 struct LuaWormEvent; // virtual
 struct LuaParticleEvent; // virtual
 struct Socket; // virtual
-class ZCom_BitStream;
+class Net_BitStream;
 class BasePlayer;
 class Weapon;
 class PartType;
@@ -51,7 +51,7 @@ CLASSID(LuaPlayerEvent, 7);
 CLASSID(LuaWormEvent, 8);
 CLASSID(LuaParticleEvent, 9);
 CLASSID(Socket, 10);
-CLASSID(ZCom_BitStream, 11);
+CLASSID(Net_BitStream, 11);
 CLASSID(BasePlayer, 12);
 CLASSID(Weapon, 13);
 CLASSID(PartType, 14);

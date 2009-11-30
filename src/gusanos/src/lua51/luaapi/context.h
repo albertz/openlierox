@@ -19,7 +19,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-class ZCom_BitStream;
+class Net_BitStream;
 
 class LuaContext
 {
@@ -448,8 +448,8 @@ public:
 	void deserialize(std::istream& s);
 	void serializeT(std::ostream& s, int i, int indent = 0);
 	
-	void serialize(ZCom_BitStream& s, int i);
-	bool deserialize(ZCom_BitStream& s);
+	void serialize(Net_BitStream& s, int i);
+	bool deserialize(Net_BitStream& s);
 	
 	void regObject(char const* name)
 	{

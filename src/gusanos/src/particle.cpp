@@ -40,7 +40,7 @@ namespace
 	boost::pool<> particlePool(sizeof(Particle));
 }
 
-class ParticleInterceptor : public ZCom_NodeReplicationInterceptor
+class ParticleInterceptor : public Net_NodeReplicationInterceptor
 {
 	public:
 		enum type
@@ -52,15 +52,15 @@ class ParticleInterceptor : public ZCom_NodeReplicationInterceptor
 				: parent(parent_)
 		{}
 
-		bool inPreUpdateItem(ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role, ZCom_Replicator *_replicator, zU32 _estimated_time_sent)
+		bool inPreUpdateItem(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent)
 		{
 			return true;
 		}
 
 		// Not used virtual stuff
-		void outPreReplicateNode(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role)
+		void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
 		{
-			ZCom_BitStream *type = new ZCom_BitStream;
+			Net_BitStream *type = new Net_BitStream;
 			Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
 			if(parent->m_owner)
 				type->addInt(parent->m_owner->getNodeID(), 32);
@@ -69,15 +69,15 @@ class ParticleInterceptor : public ZCom_NodeReplicationInterceptor
 			parent->m_node->setAnnounceData( type );
 		}
 
-		void outPreDereplicateNode(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role)
+		void outPreDereplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
 	{}
 
-		bool outPreUpdate(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role)
+		bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
 		{
 			return true;
 		}
 
-		bool outPreUpdateItem(ZCom_Node* node, ZCom_ConnID from, eZCom_NodeRole remote_role, ZCom_Replicator* replicator)
+		bool outPreUpdateItem(Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator)
 		{
 			switch ( replicator->getSetup()->getInterceptID() ) {
 					case Position:
@@ -90,15 +90,15 @@ class ParticleInterceptor : public ZCom_NodeReplicationInterceptor
 			return true;
 		}
 
-		void outPostUpdate(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role, zU32 _rep_bits, zU32 _event_bits, zU32 _meta_bits)
+		void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits)
 		{}
 
-		bool inPreUpdate(ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role)
+		bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role)
 		{
 			return true;
 		}
 
-		void inPostUpdate(ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role, zU32 _rep_bits, zU32 _event_bits, zU32 _meta_bits)
+		void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits)
 		{}
 
 	private:
@@ -107,7 +107,7 @@ class ParticleInterceptor : public ZCom_NodeReplicationInterceptor
 
 LuaReference Particle::metaTable;
 
-ZCom_ClassID Particle::classID = ZCom_Invalid_ID;
+Net_ClassID Particle::classID = Net_Invalid_ID;
 
 void* Particle::operator new(size_t count)
 {
@@ -182,7 +182,7 @@ Particle::~Particle()
 
 void Particle::assignNetworkRole( bool authority )
 {
-	m_node = new ZCom_Node();
+	m_node = new Net_Node();
 	/* operator new never returns 0
 	if (!m_node)
 {
@@ -191,7 +191,7 @@ void Particle::assignNetworkRole( bool authority )
 
 	m_node->beginReplicationSetup(0);
 
-	static ZCom_ReplicatorSetup posSetup( ZCOM_REPFLAG_MOSTRECENT | ZCOM_REPFLAG_INTERCEPT, ZCOM_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
+	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 
 	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos, &spd, game.level.vectorEncoding, game.level.diffVectorEncoding ), true);
 
@@ -267,13 +267,13 @@ void Particle::think()
 
 	if ( m_node ) {
 		while ( m_node->checkEventWaiting() ) {
-			eZCom_Event type;
-			eZCom_NodeRole    remote_role;
-			ZCom_ConnID       conn_id;
+			eNet_Event type;
+			eNet_NodeRole    remote_role;
+			Net_ConnID       conn_id;
 
-			ZCom_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+			Net_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 			switch ( type ) {
-					case eZCom_EventUser:
+					case eNet_EventUser:
 					if ( data ) {
 						//TODO: NetEvents event = (NetEvents)Encoding::decode(*data, EVENT_COUNT);
 
@@ -285,12 +285,12 @@ void Particle::think()
 					}
 					break;
 
-					case eZCom_EventRemoved: {
+					case eNet_EventRemoved: {
 						deleteMe = true;
 					}
 					break;
 
-					case eZCom_EventInit: {
+					case eNet_EventInit: {
 						LuaReference r = m_type->networkInit.get();
 						if(r)
 							(lua.call(r), getLuaReference(), conn_id)();
@@ -457,7 +457,7 @@ void Particle::damage( float amount, BasePlayer* damager )
 
 void Particle::remove()
 {
-	if ( !m_node || m_node->getRole() == eZCom_RoleAuthority ) {
+	if ( !m_node || m_node->getRole() == eNet_RoleAuthority ) {
 		deleteMe = true;
 	}
 }
@@ -522,11 +522,11 @@ void Particle::draw(Viewport* viewport)
 }
 #endif
 
-void Particle::sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* userdata, ZCom_ConnID connID)
+void Particle::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node)
 		return;
-	ZCom_BitStream* data = new ZCom_BitStream;
+	Net_BitStream* data = new Net_BitStream;
 	//addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata) {

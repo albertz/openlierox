@@ -24,16 +24,16 @@ inline unsigned int bitsOf(unsigned long n)
 }
 
 /*
-inline void encode(ZCom_BitStream& stream, int i, int count)
+inline void encode(Net_BitStream& stream, int i, int count)
 */
-inline void encode(ZCom_BitStream& stream, int i, int count)
+inline void encode(Net_BitStream& stream, int i, int count)
 {
 	assert(count > 0);
 	assert(i >= 0 && i < count);
 	stream.addInt(i, bitsOf(count - 1));
 }
 
-inline int decode(ZCom_BitStream& stream, int count)
+inline int decode(Net_BitStream& stream, int count)
 {
 	assert(count > 0);
 	return stream.getInt(bitsOf(count - 1));
@@ -55,17 +55,17 @@ inline int unsignedToSigned(unsigned int n)
 		return (n >> 1);
 }
 
-inline void encodeBit(ZCom_BitStream& stream, int bit)
+inline void encodeBit(Net_BitStream& stream, int bit)
 {
 	stream.addInt(bit, 1);
 }
 
-inline int decodeBit(ZCom_BitStream& stream)
+inline int decodeBit(Net_BitStream& stream)
 {
 	return stream.getInt(1);
 }
 
-inline void encodeEliasGamma(ZCom_BitStream& stream, unsigned int n)
+inline void encodeEliasGamma(Net_BitStream& stream, unsigned int n)
 {
 	if(n < 1)
 		throw std::runtime_error("encodeEliasGamma can't encode 0");
@@ -79,7 +79,7 @@ inline void encodeEliasGamma(ZCom_BitStream& stream, unsigned int n)
 	stream.addInt(n, prefix - 1);
 }
 
-inline unsigned int decodeEliasGamma(ZCom_BitStream& stream)
+inline unsigned int decodeEliasGamma(Net_BitStream& stream)
 {
 	int prefix = 0;
 	for(; decodeBit(stream) == 0; )
@@ -90,7 +90,7 @@ inline unsigned int decodeEliasGamma(ZCom_BitStream& stream)
 	return stream.getInt(prefix) | (1 << prefix);
 }
 
-inline void encodeEliasDelta(ZCom_BitStream& stream, unsigned int n)
+inline void encodeEliasDelta(Net_BitStream& stream, unsigned int n)
 {
 	assert(n >= 1);
 	int prefix = bitsOf(n);
@@ -98,7 +98,7 @@ inline void encodeEliasDelta(ZCom_BitStream& stream, unsigned int n)
 	stream.addInt(n, prefix - 1);
 }
 
-inline unsigned int decodeEliasDelta(ZCom_BitStream& stream)
+inline unsigned int decodeEliasDelta(Net_BitStream& stream)
 {
 	int prefix = decodeEliasGamma(stream) - 1;
 	
@@ -130,7 +130,7 @@ struct VectorEncoding
 	}
 	
 	template<class T>
-	void encode(ZCom_BitStream& stream, T const& v)
+	void encode(Net_BitStream& stream, T const& v)
 	{
 		long y = static_cast<long>((v.y - area.y1) * subPixelAcc + 0.5);
 		if(y < 0)
@@ -149,7 +149,7 @@ struct VectorEncoding
 	}
 	
 	template<class T>
-	T decode(ZCom_BitStream& stream)
+	T decode(Net_BitStream& stream)
 	{
 		typedef typename T::manip_t manip_t;
 		
@@ -189,7 +189,7 @@ struct DiffVectorEncoding
 	}
 	
 	template<class T>
-	void encode(ZCom_BitStream& stream, T const& v)
+	void encode(Net_BitStream& stream, T const& v)
 	{
 		long y = static_cast<long>(v.y * subPixelAcc + 0.5);	
 		long x = static_cast<long>(v.x * subPixelAcc + 0.5);
@@ -199,7 +199,7 @@ struct DiffVectorEncoding
 	}
 	
 	template<class T>
-	T decode(ZCom_BitStream& stream)
+	T decode(Net_BitStream& stream)
 	{
 		typedef typename T::manip_t manip_t;
 		

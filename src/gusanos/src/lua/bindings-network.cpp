@@ -29,7 +29,7 @@ namespace LuaBindings
 {
 	
 LuaReference SocketMetaTable;
-LuaReference ZCom_BitStreamMetaTable;
+LuaReference Net_BitStreamMetaTable;
 LuaReference LuaGameEventMetaTable, LuaPlayerEventMetaTable, LuaWormEventMetaTable, LuaParticleEventMetaTable;
 
 
@@ -198,7 +198,7 @@ LMETHOD(LuaSocket, tcp_destroy,
 	WARNING: This function is not very space efficient and can only encode tables
 	, strings, numbers, booleans and nil (or tables with keys and values of those types)
 */
-METHODC(ZCom_BitStream, bitStream_dump,
+METHODC(Net_BitStream, bitStream_dump,
 	context.serialize(*p, 2);
 	context.pushvalue(1);
 	return 1;
@@ -208,7 +208,7 @@ METHODC(ZCom_BitStream, bitStream_dump,
 	
 	Extracts a lua object added to the bitstream using the //dump// method.
 */
-METHODC(ZCom_BitStream, bitStream_undump,
+METHODC(Net_BitStream, bitStream_undump,
 	context.deserialize(*p);
 	return 1;
 )
@@ -217,7 +217,7 @@ METHODC(ZCom_BitStream, bitStream_undump,
 	
 	Adds an integer above or equal to 1 encoded using the elias gamma universal encoding.
 */
-METHODC(ZCom_BitStream, bitStream_encodeEliasGamma,
+METHODC(Net_BitStream, bitStream_encodeEliasGamma,
 	int v = lua_tointeger(context, 2);
 	if(v < 1)
 	{
@@ -233,7 +233,7 @@ METHODC(ZCom_BitStream, bitStream_encodeEliasGamma,
 	
 	Extracts an integer above or equal to 1 encoded using the elias gamma universal encoding.
 */
-METHODC(ZCom_BitStream, bitStream_decodeEliasGamma,
+METHODC(Net_BitStream, bitStream_decodeEliasGamma,
 	context.push(Encoding::decodeEliasGamma(*p));
 	return 1;
 )
@@ -242,7 +242,7 @@ METHODC(ZCom_BitStream, bitStream_decodeEliasGamma,
 	
 	Extracts a boolean value from this bitstream (Returns either true or false).
 */
-METHODC(ZCom_BitStream, bitStream_addBool,
+METHODC(Net_BitStream, bitStream_addBool,
 	p->addBool(lua_toboolean(context, 2));
 	context.pushvalue(1);
 	return 1;
@@ -252,7 +252,7 @@ METHODC(ZCom_BitStream, bitStream_addBool,
 	
 	Extracts a boolean value from this bitstream (Returns either true or false).
 */
-METHODC(ZCom_BitStream, bitStream_getBool,
+METHODC(Net_BitStream, bitStream_getBool,
 	context.push(p->getBool());
 	return 1;
 )
@@ -263,7 +263,7 @@ METHODC(ZCom_BitStream, bitStream_getBool,
 	
 	If bits is left out, 32 bits is assumed.
 */
-METHODC(ZCom_BitStream, bitStream_addInt,
+METHODC(Net_BitStream, bitStream_addInt,
 	int bits = 32;
 	if(lua_gettop(context) >= 3)
 		bits = lua_tointeger(context, 3);
@@ -278,7 +278,7 @@ METHODC(ZCom_BitStream, bitStream_addInt,
 	
 	If bits is left out, 32 bits is assumed.
 */
-METHODC(ZCom_BitStream, bitStream_getInt,
+METHODC(Net_BitStream, bitStream_getInt,
 	int bits = 32;
 	if(lua_gettop(context) >= 2)
 		bits = lua_tointeger(context, 2);
@@ -290,7 +290,7 @@ METHODC(ZCom_BitStream, bitStream_getInt,
 	
 	Adds the string //str// to this bitstream.
 */
-METHODC(ZCom_BitStream, bitStream_addString,
+METHODC(Net_BitStream, bitStream_addString,
 	p->addString(lua_tostring(context, 2));
 	context.pushvalue(1);
 	return 1;
@@ -300,12 +300,12 @@ METHODC(ZCom_BitStream, bitStream_addString,
 	
 	Extracts a string from this bitstream.
 */
-METHODC(ZCom_BitStream, bitStream_getString,
+METHODC(Net_BitStream, bitStream_getString,
 	context.push(p->getStringStatic());
 	return 1;
 )
 
-METHODC(ZCom_BitStream, bitStream_destroy,
+METHODC(Net_BitStream, bitStream_destroy,
 	delete p;
 	return 0;
 )
@@ -317,26 +317,26 @@ METHODC(ZCom_BitStream, bitStream_destroy,
 int l_new_bitstream(lua_State* L)
 {
 	LuaContext context(L);
-	ZCom_BitStream* p = new ZCom_BitStream;
-	context.pushFullReference(*p, ZCom_BitStreamMetaTable);
+	Net_BitStream* p = new Net_BitStream;
+	context.pushFullReference(*p, Net_BitStreamMetaTable);
 	return 1;
 }
 
 #define LUA_EVENT_SEND_METHOD(type_, params_, decl_, cases_, body_) \
 LMETHOD(LuaEventDef, luaEvent_##type_##_send, \
 	if(p->idx > 0)	{ \
-		ZCom_BitStream* userdata = 0; \
-		eZCom_SendMode mode = eZCom_ReliableOrdered; \
-		ZCom_ConnID connID = 0; \
-		zU8 rules = ZCOM_REPRULE_AUTH_2_ALL | ZCOM_REPRULE_OWNER_2_AUTH; \
+		Net_BitStream* userdata = 0; \
+		eNet_SendMode mode = eNet_ReliableOrdered; \
+		Net_ConnID connID = 0; \
+		Net_U8 rules = Net_REPRULE_AUTH_2_ALL | Net_REPRULE_OWNER_2_AUTH; \
 		decl_ \
 		switch(lua_gettop(context)) \
 		{ \
 			default: if(lua_gettop(context) < params_+3) break; \
 			case params_+5: rules = lua_tointeger(context, params_+5); \
-			case params_+4: mode = (eZCom_SendMode)lua_tointeger(context, params_+4); \
-			case params_+3: connID = (ZCom_ConnID)lua_tointeger(context, params_+3); \
-			case params_+2: userdata = ASSERT_OBJECT(ZCom_BitStream, params_+2); \
+			case params_+4: mode = (eNet_SendMode)lua_tointeger(context, params_+4); \
+			case params_+3: connID = (Net_ConnID)lua_tointeger(context, params_+3); \
+			case params_+2: userdata = ASSERT_OBJECT(Net_BitStream, params_+2); \
 			cases_ \
 		} \
 		body_ \
@@ -568,7 +568,7 @@ void initNetwork(LuaContext& context)
 		("send", l_luaEvent_particle_send)
 	)
 	
-	CLASSM(ZCom_BitStream,
+	CLASSM(Net_BitStream,
 		("__gc", l_bitStream_destroy)
 	,
 		("add_int", l_bitStream_addInt)
@@ -584,17 +584,17 @@ void initNetwork(LuaContext& context)
 	)
 	
 	ENUM(SendMode,
-		("ReliableUnordered", eZCom_ReliableUnordered)
-		("ReliableOrdered", eZCom_ReliableOrdered)
-		("Unreliable", eZCom_Unreliable)
+		("ReliableUnordered", eNet_ReliableUnordered)
+		("ReliableOrdered", eNet_ReliableOrdered)
+		("Unreliable", eNet_Unreliable)
 	)
 	
 	ENUM(RepRule,
-		("Auth2All", ZCOM_REPRULE_AUTH_2_ALL)
-		("Auth2Owner", ZCOM_REPRULE_AUTH_2_OWNER)
-		("Auth2Proxy", ZCOM_REPRULE_AUTH_2_PROXY)
-		("None", ZCOM_REPRULE_NONE)
-		("Owner2Auth", ZCOM_REPRULE_OWNER_2_AUTH)
+		("Auth2All", Net_REPRULE_AUTH_2_ALL)
+		("Auth2Owner", Net_REPRULE_AUTH_2_OWNER)
+		("Auth2Proxy", Net_REPRULE_AUTH_2_PROXY)
+		("None", Net_REPRULE_NONE)
+		("Owner2Auth", Net_REPRULE_OWNER_2_AUTH)
 	)
 	
 	

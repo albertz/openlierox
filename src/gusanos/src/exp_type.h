@@ -45,7 +45,7 @@ public:
 	int colour;
 	int alpha;
 	int destAlpha;
-	boost::uint32_t crc;
+	uint32_t crc;
 
 	bool wupixels;
 	bool invisible;

@@ -37,7 +37,7 @@ public:
 		AIM
 	};
 		
-	static ZCom_ClassID  classID;
+	static Net_ClassID  classID;
 	static const float MAX_ERROR_RADIUS = 10;
 		
 	NetWorm(bool isAuthority);
@@ -47,22 +47,22 @@ public:
 	void correctOwnerPosition();
 
 	void assignOwner( BasePlayer* owner);
-	void setOwnerId( ZCom_ConnID _id );
-	void sendSyncMessage( ZCom_ConnID id );
-	void sendWeaponMessage( int index, ZCom_BitStream* data, zU8 repRules = ZCOM_REPRULE_AUTH_2_ALL );
+	void setOwnerId( Net_ConnID _id );
+	void sendSyncMessage( Net_ConnID id );
+	void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
-	eZCom_NodeRole getRole()
+	eNet_NodeRole getRole()
 	{
 		if ( m_node )
 		{
 			return m_node->getRole();
 		}else
-			return eZCom_RoleUndefined;
+			return eNet_RoleUndefined;
 	}
 	
-	virtual void sendLuaEvent(LuaEventDef* event, eZCom_SendMode mode, zU8 rules, ZCom_BitStream* userdata, ZCom_ConnID connID);
+	virtual void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
 	
-	ZCom_NodeID getNodeID();
+	Net_NodeID getNodeID();
 	
 	void respawn();
 	void dig();
@@ -80,29 +80,29 @@ public:
 	
 private:
 	
-	void addEvent(ZCom_BitStream* data, NetEvents event);
+	void addEvent(Net_BitStream* data, NetEvents event);
 		
 	bool m_isAuthority;
-	ZCom_Node *m_node;
+	Net_Node *m_node;
 	NetWormInterceptor* m_interceptor;
-	ZCom_NodeID m_playerID; // The id of the owner player node to replicate to all proxys
+	Net_NodeID m_playerID; // The id of the owner player node to replicate to all proxys
 };
 
-class NetWormInterceptor : public ZCom_NodeReplicationInterceptor
+class NetWormInterceptor : public Net_NodeReplicationInterceptor
 {
 public:
 	NetWormInterceptor( NetWorm* parent );
 
-	bool inPreUpdateItem (ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role, ZCom_Replicator *_replicator, zU32 _estimated_time_sent);
+	bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent);
 
 	// Not used virtual stuff
-	void outPreReplicateNode(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role) {}
-	void outPreDereplicateNode(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role) {}
-	bool outPreUpdate(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role) { return true; }
-	bool outPreUpdateItem (ZCom_Node* node, ZCom_ConnID from, eZCom_NodeRole remote_role, ZCom_Replicator* replicator);
-	void outPostUpdate(ZCom_Node *_node, ZCom_ConnID _to, eZCom_NodeRole _remote_role, zU32 _rep_bits, zU32 _event_bits, zU32 _meta_bits) {}
-	bool inPreUpdate(ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role) { return true; }
-	void inPostUpdate(ZCom_Node *_node, ZCom_ConnID _from, eZCom_NodeRole _remote_role, zU32 _rep_bits, zU32 _event_bits, zU32 _meta_bits) {};
+	void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) {}
+	void outPreDereplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) {}
+	bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) { return true; }
+	bool outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator);
+	void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) {}
+	bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role) { return true; }
+	void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) {};
 
 	virtual ~NetWormInterceptor()
 	{}

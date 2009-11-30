@@ -5,7 +5,7 @@
 #include <string>
 #include <stdexcept>
 
-class STLStringReplicator : public ZCom_ReplicatorBasic
+class STLStringReplicator : public Net_ReplicatorBasic
 {
 	private:
 	
@@ -14,10 +14,10 @@ class STLStringReplicator : public ZCom_ReplicatorBasic
 	
 	public:
 
-		STLStringReplicator(ZCom_ReplicatorSetup *_setup, std::string *_data);
+		STLStringReplicator(Net_ReplicatorSetup *_setup, std::string *_data);
 	
 	// TODO: Implement this for safeness sake
-		ZCom_Replicator* Duplicate(ZCom_Replicator *_dest)
+		Net_Replicator* Duplicate(Net_Replicator *_dest)
 		{
 			if(_dest)
 				*_dest = *this;
@@ -30,11 +30,11 @@ class STLStringReplicator : public ZCom_ReplicatorBasic
 	
 		bool checkInitialState() { return true; }
 	
-		void packData(ZCom_BitStream *_stream);
+		void packData(Net_BitStream *_stream);
 	
-		void unpackData(ZCom_BitStream *_stream, bool _store, zU32 _estimated_time_sent);
+		void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent);
 	
-		void Process(eZCom_NodeRole _localrole, zU32 _simulation_time_passed) {};
+		void Process(eNet_NodeRole _localrole, Net_U32 _simulation_time_passed) {};
 	
 		void* peekData();
 	

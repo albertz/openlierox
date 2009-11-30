@@ -25,23 +25,23 @@ Server::Server( int _udpport )
 		socketsInited(false)
 {
 	if(network.simLag > 0)
-		ZCom_simulateLag(0, network.simLag);
+		Net_simulateLag(0, network.simLag);
 	if(network.simLoss > 0.f)
-		ZCom_simulateLoss(0, network.simLoss);
+		Net_simulateLoss(0, network.simLoss);
 
 	// TODO: Asynchronize this loop
 	int tries = 10;
 	bool result = false;
 	while ( !result && tries-- > 0 ) {
 		rest(100);
-		result = ZCom_initSockets( true, _udpport, 1, 0 );
+		result = Net_initSockets( true, _udpport, 1, 0 );
 	}
 	if(!result)
 		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
 
-	ZCom_setControlID(0);
-	ZCom_setDebugName("ZCOM_CLI");
-	ZCom_setUpstreamLimit(network.upLimit, network.upLimit);
+	Net_setControlID(0);
+	Net_setDebugName("Net_CLI");
+	Net_setUpstreamLimit(network.upLimit, network.upLimit);
 	console.addLogMsg("SERVER UP");
 }
 
@@ -53,11 +53,11 @@ bool Server::initSockets()
 {
 	if(socketsInited)
 		return true;
-	socketsInited = ZCom_initSockets( true, port, 1, 0 );
+	socketsInited = Net_initSockets( true, port, 1, 0 );
 	return socketsInited; 
 }*/
 
-void Server::ZCom_cbDataReceived( ZCom_ConnID  _id, ZCom_BitStream &_data)
+void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 {
 	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
 	switch( event ) {
@@ -118,7 +118,7 @@ void Server::ZCom_cbDataReceived( ZCom_ConnID  _id, ZCom_BitStream &_data)
 	}
 }
 
-bool Server::ZCom_cbConnectionRequest( ZCom_ConnID id, ZCom_BitStream &_request, ZCom_BitStream &reply )
+bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Net_BitStream &reply )
 {
 	if(network.isBanned(id)) {
 		reply.addInt(Network::ConnectionReply::Banned, 8);
@@ -139,19 +139,19 @@ bool Server::ZCom_cbConnectionRequest( ZCom_ConnID id, ZCom_BitStream &_request,
 	}
 }
 
-void Server::ZCom_cbConnectionSpawned( ZCom_ConnID _id )
+void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
 	console.addLogMsg("* CONNECTION SPAWNED");
-	ZCom_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
+	Net_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
 	network.incConnCount();
 
-	std::auto_ptr<ZCom_BitStream> data(new ZCom_BitStream);
+	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
 	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);
 	network.encodeLuaEvents(data.get());
-	ZCom_sendData ( _id, data.release(), eZCom_ReliableOrdered);
+	Net_sendData ( _id, data.release(), eNet_ReliableOrdered);
 }
 
-void Server::ZCom_cbConnectionClosed(ZCom_ConnID _id, eZCom_CloseReason _reason, ZCom_BitStream &_reasondata)
+void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
 	for ( std::list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
@@ -163,7 +163,7 @@ void Server::ZCom_cbConnectionClosed(ZCom_ConnID _id, eZCom_CloseReason _reason,
 	DLOG("A connection was closed");
 }
 
-bool Server::ZCom_cbZoidRequest( ZCom_ConnID _id, zU8 requested_level, ZCom_BitStream &_reason)
+bool Server::Net_cbZoidRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitStream &_reason)
 {
 	switch(requested_level) {
 			case 1:
@@ -178,7 +178,7 @@ bool Server::ZCom_cbZoidRequest( ZCom_ConnID _id, zU8 requested_level, ZCom_BitS
 	}
 }
 
-void Server::ZCom_cbZoidResult(ZCom_ConnID _id, eZCom_ZoidResult _result, zU8 _new_level, ZCom_BitStream &_reason)
+void Server::Net_cbZoidResult(Net_ConnID _id, eNet_ZoidResult _result, Net_U8 _new_level, Net_BitStream &_reason)
 {
 	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }

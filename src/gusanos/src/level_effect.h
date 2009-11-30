@@ -23,7 +23,7 @@ public:
 	bool load(fs::path const& filename);
 	
 	SpriteSet* mask;
-	boost::uint32_t crc;
+	uint32_t crc;
 };
 
 extern ResourceList<LevelEffect> levelEffectList;

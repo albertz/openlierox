@@ -8,7 +8,7 @@
 class Updater
 {
 public:
-	static ZCom_ClassID classID;
+	static Net_ClassID classID;
 	
 	Updater();
 	void assignNetworkRole( bool authority );
