@@ -61,12 +61,6 @@
 		23C17BE810C3FD04003DBB09 /* keys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A8910C3FD03003DBB09 /* keys.cpp */; };
 		23C17BE910C3FD04003DBB09 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A8B10C3FD03003DBB09 /* level.cpp */; };
 		23C17BEA10C3FD04003DBB09 /* level_effect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A8D10C3FD03003DBB09 /* level_effect.cpp */; };
-		23C17BEB10C3FD04003DBB09 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9110C3FD03003DBB09 /* main.cpp */; };
-		23C17BEC10C3FD04003DBB09 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9410C3FD03003DBB09 /* gfx.cpp */; };
-		23C17BED10C3FD04003DBB09 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9610C3FD03003DBB09 /* level.cpp */; };
-		23C17BEF10C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9A10C3FD03003DBB09 /* vermes.cpp */; };
-		23C17BF010C3FD04003DBB09 /* material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9C10C3FD03003DBB09 /* material.cpp */; };
-		23C17BF110C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9E10C3FD03003DBB09 /* vermes.cpp */; };
 		23C17BF210C3FD04003DBB09 /* liero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA010C3FD03003DBB09 /* liero.cpp */; };
 		23C17BF310C3FD04003DBB09 /* lierox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA210C3FD03003DBB09 /* lierox.cpp */; };
 		23C17BF410C3FD04003DBB09 /* losp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17AA410C3FD03003DBB09 /* losp.cpp */; };
@@ -121,7 +115,6 @@
 		23C17C2810C3FD04003DBB09 /* objects_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B0A10C3FD03003DBB09 /* objects_list.cpp */; };
 		23C17C2910C3FD04003DBB09 /* omfg_script.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B0D10C3FD03003DBB09 /* omfg_script.cpp */; };
 		23C17C2B10C3FD04003DBB09 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1110C3FD03003DBB09 /* parser.cpp */; };
-		23C17C2C10C3FD04003DBB09 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1510C3FD03003DBB09 /* main.cpp */; };
 		23C17C2D10C3FD04003DBB09 /* part_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1610C3FD03003DBB09 /* part_type.cpp */; };
 		23C17C2E10C3FD04003DBB09 /* particle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1810C3FD03003DBB09 /* particle.cpp */; };
 		23C17C2F10C3FD04003DBB09 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1A10C3FD03003DBB09 /* player.cpp */; };
@@ -283,19 +276,6 @@
 		23C17A8C10C3FD03003DBB09 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
 		23C17A8D10C3FD03003DBB09 /* level_effect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level_effect.cpp; sourceTree = "<group>"; };
 		23C17A8E10C3FD03003DBB09 /* level_effect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level_effect.h; sourceTree = "<group>"; };
-		23C17A9010C3FD03003DBB09 /* def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = def.h; sourceTree = "<group>"; };
-		23C17A9110C3FD03003DBB09 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
-		23C17A9310C3FD03003DBB09 /* culling.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = culling.h; sourceTree = "<group>"; };
-		23C17A9410C3FD03003DBB09 /* gfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gfx.cpp; sourceTree = "<group>"; };
-		23C17A9510C3FD03003DBB09 /* gfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gfx.h; sourceTree = "<group>"; };
-		23C17A9610C3FD03003DBB09 /* level.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = level.cpp; sourceTree = "<group>"; };
-		23C17A9710C3FD03003DBB09 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
-		23C17A9910C3FD03003DBB09 /* SConscript */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SConscript; sourceTree = "<group>"; };
-		23C17A9A10C3FD03003DBB09 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
-		23C17A9B10C3FD03003DBB09 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
-		23C17A9C10C3FD03003DBB09 /* material.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = material.cpp; sourceTree = "<group>"; };
-		23C17A9D10C3FD03003DBB09 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = material.h; sourceTree = "<group>"; };
-		23C17A9E10C3FD03003DBB09 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
 		23C17AA010C3FD03003DBB09 /* liero.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = liero.cpp; sourceTree = "<group>"; };
 		23C17AA110C3FD03003DBB09 /* liero.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liero.h; sourceTree = "<group>"; };
 		23C17AA210C3FD03003DBB09 /* lierox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lierox.cpp; sourceTree = "<group>"; };
@@ -402,8 +382,6 @@
 		23C17B1010C3FD03003DBB09 /* omfg_script_parser.pg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = omfg_script_parser.pg; sourceTree = "<group>"; };
 		23C17B1110C3FD03003DBB09 /* parser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parser.cpp; sourceTree = "<group>"; };
 		23C17B1210C3FD03003DBB09 /* parser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = parser.h; sourceTree = "<group>"; };
-		23C17B1410C3FD03003DBB09 /* grammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = grammar.h; sourceTree = "<group>"; };
-		23C17B1510C3FD03003DBB09 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		23C17B1610C3FD03003DBB09 /* part_type.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = part_type.cpp; sourceTree = "<group>"; };
 		23C17B1710C3FD03003DBB09 /* part_type.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = part_type.h; sourceTree = "<group>"; };
 		23C17B1810C3FD03003DBB09 /* particle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = particle.cpp; sourceTree = "<group>"; };
@@ -613,8 +591,6 @@
 				23C17A8C10C3FD03003DBB09 /* level.h */,
 				23C17A8D10C3FD03003DBB09 /* level_effect.cpp */,
 				23C17A8E10C3FD03003DBB09 /* level_effect.h */,
-				23C17A8F10C3FD03003DBB09 /* liero2gus */,
-				23C17A9210C3FD03003DBB09 /* lighter */,
 				23C17A9F10C3FD03003DBB09 /* loaders */,
 				23C17AAD10C3FD03003DBB09 /* lua */,
 				23C17ABC10C3FD03003DBB09 /* lua51 */,
@@ -641,7 +617,6 @@
 				23C17B0C10C3FD03003DBB09 /* omfgscript */,
 				23C17B1110C3FD03003DBB09 /* parser.cpp */,
 				23C17B1210C3FD03003DBB09 /* parser.h */,
-				23C17B1310C3FD03003DBB09 /* parsergen */,
 				23C17B1610C3FD03003DBB09 /* part_type.cpp */,
 				23C17B1710C3FD03003DBB09 /* part_type.h */,
 				23C17B1810C3FD03003DBB09 /* particle.cpp */,
@@ -817,41 +792,6 @@
 			path = http;
 			sourceTree = "<group>";
 		};
-		23C17A8F10C3FD03003DBB09 /* liero2gus */ = {
-			isa = PBXGroup;
-			children = (
-				23C17A9010C3FD03003DBB09 /* def.h */,
-				23C17A9110C3FD03003DBB09 /* main.cpp */,
-			);
-			path = liero2gus;
-			sourceTree = "<group>";
-		};
-		23C17A9210C3FD03003DBB09 /* lighter */ = {
-			isa = PBXGroup;
-			children = (
-				23C17A9310C3FD03003DBB09 /* culling.h */,
-				23C17A9410C3FD03003DBB09 /* gfx.cpp */,
-				23C17A9510C3FD03003DBB09 /* gfx.h */,
-				23C17A9610C3FD03003DBB09 /* level.cpp */,
-				23C17A9710C3FD03003DBB09 /* level.h */,
-				23C17A9810C3FD03003DBB09 /* loaders */,
-				23C17A9C10C3FD03003DBB09 /* material.cpp */,
-				23C17A9D10C3FD03003DBB09 /* material.h */,
-				23C17A9E10C3FD03003DBB09 /* vermes.cpp */,
-			);
-			path = lighter;
-			sourceTree = "<group>";
-		};
-		23C17A9810C3FD03003DBB09 /* loaders */ = {
-			isa = PBXGroup;
-			children = (
-				23C17A9910C3FD03003DBB09 /* SConscript */,
-				23C17A9A10C3FD03003DBB09 /* vermes.cpp */,
-				23C17A9B10C3FD03003DBB09 /* vermes.h */,
-			);
-			path = loaders;
-			sourceTree = "<group>";
-		};
 		23C17A9F10C3FD03003DBB09 /* loaders */ = {
 			isa = PBXGroup;
 			children = (
@@ -970,15 +910,6 @@
 				23C17B1010C3FD03003DBB09 /* omfg_script_parser.pg */,
 			);
 			path = omfgscript;
-			sourceTree = "<group>";
-		};
-		23C17B1310C3FD03003DBB09 /* parsergen */ = {
-			isa = PBXGroup;
-			children = (
-				23C17B1410C3FD03003DBB09 /* grammar.h */,
-				23C17B1510C3FD03003DBB09 /* main.cpp */,
-			);
-			path = parsergen;
 			sourceTree = "<group>";
 		};
 		23C17B9510C3FD04003DBB09 /* util */ = {
@@ -1123,12 +1054,6 @@
 				23C17BE810C3FD04003DBB09 /* keys.cpp in Sources */,
 				23C17BE910C3FD04003DBB09 /* level.cpp in Sources */,
 				23C17BEA10C3FD04003DBB09 /* level_effect.cpp in Sources */,
-				23C17BEB10C3FD04003DBB09 /* main.cpp in Sources */,
-				23C17BEC10C3FD04003DBB09 /* gfx.cpp in Sources */,
-				23C17BED10C3FD04003DBB09 /* level.cpp in Sources */,
-				23C17BEF10C3FD04003DBB09 /* vermes.cpp in Sources */,
-				23C17BF010C3FD04003DBB09 /* material.cpp in Sources */,
-				23C17BF110C3FD04003DBB09 /* vermes.cpp in Sources */,
 				23C17BF210C3FD04003DBB09 /* liero.cpp in Sources */,
 				23C17BF310C3FD04003DBB09 /* lierox.cpp in Sources */,
 				23C17BF410C3FD04003DBB09 /* losp.cpp in Sources */,
@@ -1183,7 +1108,6 @@
 				23C17C2810C3FD04003DBB09 /* objects_list.cpp in Sources */,
 				23C17C2910C3FD04003DBB09 /* omfg_script.cpp in Sources */,
 				23C17C2B10C3FD04003DBB09 /* parser.cpp in Sources */,
-				23C17C2C10C3FD04003DBB09 /* main.cpp in Sources */,
 				23C17C2D10C3FD04003DBB09 /* part_type.cpp in Sources */,
 				23C17C2E10C3FD04003DBB09 /* particle.cpp in Sources */,
 				23C17C2F10C3FD04003DBB09 /* player.cpp in Sources */,
