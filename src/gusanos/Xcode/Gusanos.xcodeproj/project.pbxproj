@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1DDD57E40DA1CFC700B32029 /* main.xib in Resources */ = {isa = PBXBuildFile; fileRef = 1DDD57E20DA1CFC700B32029 /* main.xib */; };
 		23C17BB410C3FD04003DBB09 /* 2xsai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A1710C3FD03003DBB09 /* 2xsai.cpp */; };
 		23C17BB510C3FD04003DBB09 /* animators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A1910C3FD03003DBB09 /* animators.cpp */; };
 		23C17BB610C3FD04003DBB09 /* base_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A1B10C3FD03003DBB09 /* base_action.cpp */; };
@@ -47,7 +46,6 @@
 		23C17BD810C3FD04003DBB09 /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6410C3FD03003DBB09 /* context.cpp */; };
 		23C17BD910C3FD04003DBB09 /* edit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6610C3FD03003DBB09 /* edit.cpp */; };
 		23C17BDA10C3FD04003DBB09 /* group.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6810C3FD03003DBB09 /* group.cpp */; };
-		23C17BDB10C3FD04003DBB09 /* gss-grammar.pg in Resources */ = {isa = PBXBuildFile; fileRef = 23C17A6B10C3FD03003DBB09 /* gss-grammar.pg */; };
 		23C17BDC10C3FD04003DBB09 /* gss.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6C10C3FD03003DBB09 /* gss.cpp */; };
 		23C17BDD10C3FD04003DBB09 /* label.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6D10C3FD03003DBB09 /* label.cpp */; };
 		23C17BDE10C3FD04003DBB09 /* list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A6F10C3FD03003DBB09 /* list.cpp */; };
@@ -66,7 +64,6 @@
 		23C17BEB10C3FD04003DBB09 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9110C3FD03003DBB09 /* main.cpp */; };
 		23C17BEC10C3FD04003DBB09 /* gfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9410C3FD03003DBB09 /* gfx.cpp */; };
 		23C17BED10C3FD04003DBB09 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9610C3FD03003DBB09 /* level.cpp */; };
-		23C17BEE10C3FD04003DBB09 /* SConscript in Resources */ = {isa = PBXBuildFile; fileRef = 23C17A9910C3FD03003DBB09 /* SConscript */; };
 		23C17BEF10C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9A10C3FD03003DBB09 /* vermes.cpp */; };
 		23C17BF010C3FD04003DBB09 /* material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9C10C3FD03003DBB09 /* material.cpp */; };
 		23C17BF110C3FD04003DBB09 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17A9E10C3FD03003DBB09 /* vermes.cpp */; };
@@ -126,7 +123,6 @@
 		23C17C2710C3FD04003DBB09 /* object_grid.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B0810C3FD03003DBB09 /* object_grid.cpp */; };
 		23C17C2810C3FD04003DBB09 /* objects_list.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B0A10C3FD03003DBB09 /* objects_list.cpp */; };
 		23C17C2910C3FD04003DBB09 /* omfg_script.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B0D10C3FD03003DBB09 /* omfg_script.cpp */; };
-		23C17C2A10C3FD04003DBB09 /* omfg_script_parser.pg in Resources */ = {isa = PBXBuildFile; fileRef = 23C17B1010C3FD03003DBB09 /* omfg_script_parser.pg */; };
 		23C17C2B10C3FD04003DBB09 /* parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1110C3FD03003DBB09 /* parser.cpp */; };
 		23C17C2C10C3FD04003DBB09 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1510C3FD03003DBB09 /* main.cpp */; };
 		23C17C2D10C3FD04003DBB09 /* part_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17B1610C3FD03003DBB09 /* part_type.cpp */; };
@@ -1279,10 +1275,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
-				1DDD57E40DA1CFC700B32029 /* main.xib in Resources */,
-				23C17BDB10C3FD04003DBB09 /* gss-grammar.pg in Resources */,
-				23C17BEE10C3FD04003DBB09 /* SConscript in Resources */,
-				23C17C2A10C3FD04003DBB09 /* omfg_script_parser.pg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
