@@ -7,6 +7,11 @@
 
 #if HAVE_CONFIG_H
 #include "config.h"
+#else
+#define HAVE_STDINT_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_STAT 1
+#define HAVE_USLEEP 1
 #endif
 
 #include <stdlib.h>

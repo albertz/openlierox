@@ -154,9 +154,37 @@
 		23C17F1A10C455B1003DBB09 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17EB610C45435003DBB09 /* OpenAL.framework */; };
 		23C17F1C10C455BD003DBB09 /* Ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1B10C455BD003DBB09 /* Ogg.framework */; };
 		23C17F1E10C455C9003DBB09 /* Vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1D10C455C9003DBB09 /* Vorbis.framework */; };
+		23C17FC110C48326003DBB09 /* allegro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FC010C48326003DBB09 /* allegro.cpp */; };
+		23C17FC310C48352003DBB09 /* netstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FC210C48352003DBB09 /* netstream.cpp */; };
+		23C17FD010C48567003DBB09 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17FCE10C48567003DBB09 /* libboost_filesystem.a */; };
+		23C17FD110C48567003DBB09 /* libboost_signals.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17FCF10C48567003DBB09 /* libboost_signals.a */; };
+		23C17FD410C4859C003DBB09 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17FD310C4859C003DBB09 /* libboost_system.a */; };
+		23C17FDE10C485CC003DBB09 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17EB610C45435003DBB09 /* OpenAL.framework */; };
+		23C17FE110C485DC003DBB09 /* libfreealut.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17FDB10C485BC003DBB09 /* libfreealut.a */; };
+		23C17FF210C4860A003DBB09 /* alutBufferData.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE310C4860A003DBB09 /* alutBufferData.c */; };
+		23C17FF310C4860A003DBB09 /* alutCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE410C4860A003DBB09 /* alutCodec.c */; };
+		23C17FF410C4860A003DBB09 /* alutError.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE510C4860A003DBB09 /* alutError.c */; };
+		23C17FF510C4860A003DBB09 /* alutInit.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE610C4860A003DBB09 /* alutInit.c */; };
+		23C17FF610C4860A003DBB09 /* alutInputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE710C4860A003DBB09 /* alutInputStream.c */; };
+		23C17FF710C4860A003DBB09 /* alutInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23C17FE810C4860A003DBB09 /* alutInternal.h */; };
+		23C17FF810C4860A003DBB09 /* alutLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FE910C4860A003DBB09 /* alutLoader.c */; };
+		23C17FF910C4860A003DBB09 /* alutOutputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FEA10C4860A003DBB09 /* alutOutputStream.c */; };
+		23C17FFA10C4860A003DBB09 /* alutUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FEB10C4860A003DBB09 /* alutUtil.c */; };
+		23C17FFB10C4860A003DBB09 /* alutVersion.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FEC10C4860A003DBB09 /* alutVersion.c */; };
+		23C17FFC10C4860A003DBB09 /* alutWaveform.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C17FED10C4860A003DBB09 /* alutWaveform.c */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		23C17FDF10C485D4003DBB09 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 20286C28FDCF999611CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 23C17FDA10C485BC003DBB09 /* freealut */;
+			remoteInfo = freealut;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -468,6 +496,23 @@
 		23C17EB610C45435003DBB09 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		23C17F1B10C455BD003DBB09 /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogg.framework; sourceTree = "<group>"; };
 		23C17F1D10C455C9003DBB09 /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Vorbis.framework; sourceTree = "<group>"; };
+		23C17FC010C48326003DBB09 /* allegro.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = allegro.cpp; sourceTree = "<group>"; };
+		23C17FC210C48352003DBB09 /* netstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = netstream.cpp; sourceTree = "<group>"; };
+		23C17FCE10C48567003DBB09 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		23C17FCF10C48567003DBB09 /* libboost_signals.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_signals.a; path = /usr/local/lib/libboost_signals.a; sourceTree = "<absolute>"; };
+		23C17FD310C4859C003DBB09 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
+		23C17FDB10C485BC003DBB09 /* libfreealut.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libfreealut.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		23C17FE310C4860A003DBB09 /* alutBufferData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutBufferData.c; sourceTree = "<group>"; };
+		23C17FE410C4860A003DBB09 /* alutCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutCodec.c; sourceTree = "<group>"; };
+		23C17FE510C4860A003DBB09 /* alutError.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutError.c; sourceTree = "<group>"; };
+		23C17FE610C4860A003DBB09 /* alutInit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutInit.c; sourceTree = "<group>"; };
+		23C17FE710C4860A003DBB09 /* alutInputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutInputStream.c; sourceTree = "<group>"; };
+		23C17FE810C4860A003DBB09 /* alutInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alutInternal.h; sourceTree = "<group>"; };
+		23C17FE910C4860A003DBB09 /* alutLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutLoader.c; sourceTree = "<group>"; };
+		23C17FEA10C4860A003DBB09 /* alutOutputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutOutputStream.c; sourceTree = "<group>"; };
+		23C17FEB10C4860A003DBB09 /* alutUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutUtil.c; sourceTree = "<group>"; };
+		23C17FEC10C4860A003DBB09 /* alutVersion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutVersion.c; sourceTree = "<group>"; };
+		23C17FED10C4860A003DBB09 /* alutWaveform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutWaveform.c; sourceTree = "<group>"; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -475,6 +520,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		23C17FD910C485BC003DBB09 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C17FDE10C485CC003DBB09 /* OpenAL.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D0C4E910486CD37000505A6 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -483,6 +536,10 @@
 				23C17F1A10C455B1003DBB09 /* OpenAL.framework in Frameworks */,
 				23C17F1C10C455BD003DBB09 /* Ogg.framework in Frameworks */,
 				23C17F1E10C455C9003DBB09 /* Vorbis.framework in Frameworks */,
+				23C17FD010C48567003DBB09 /* libboost_filesystem.a in Frameworks */,
+				23C17FD110C48567003DBB09 /* libboost_signals.a in Frameworks */,
+				23C17FD410C4859C003DBB09 /* libboost_system.a in Frameworks */,
+				23C17FE110C485DC003DBB09 /* libfreealut.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -493,6 +550,7 @@
 			isa = PBXGroup;
 			children = (
 				508344B209E5C41E0093A071 /* Gusanos.app */,
+				23C17FDB10C485BC003DBB09 /* libfreealut.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -500,15 +558,19 @@
 		20286C29FDCF999611CA2CEA /* Gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				23C17FE210C4860A003DBB09 /* freealut src */,
+				23C17FD310C4859C003DBB09 /* libboost_system.a */,
+				23C17FCE10C48567003DBB09 /* libboost_filesystem.a */,
+				23C17FCF10C48567003DBB09 /* libboost_signals.a */,
+				23C17EB410C4542F003DBB09 /* OpenGL.framework */,
+				23C17EB610C45435003DBB09 /* OpenAL.framework */,
 				23C17F1D10C455C9003DBB09 /* Vorbis.framework */,
 				23C17F1B10C455BD003DBB09 /* Ogg.framework */,
-				23C17A1610C3FD03003DBB09 /* src */,
+				23C17A1610C3FD03003DBB09 /* Source */,
 				5048396909E3304600765E4B /* Configuration Files */,
 				20286C2CFDCF999611CA2CEA /* Resources */,
 				20286C32FDCF999611CA2CEA /* External Frameworks and Libraries */,
 				195DF8CFFE9D517E11CA2CBB /* Products */,
-				23C17EB410C4542F003DBB09 /* OpenGL.framework */,
-				23C17EB610C45435003DBB09 /* OpenAL.framework */,
 			);
 			name = Gusanos;
 			sourceTree = "<group>";
@@ -531,7 +593,7 @@
 			name = "External Frameworks and Libraries";
 			sourceTree = "<group>";
 		};
-		23C17A1610C3FD03003DBB09 /* src */ = {
+		23C17A1610C3FD03003DBB09 /* Source */ = {
 			isa = PBXGroup;
 			children = (
 				23C17CB410C417E6003DBB09 /* netstream.h */,
@@ -681,8 +743,10 @@
 				23C17BB210C3FD04003DBB09 /* worm.cpp */,
 				23C17BB310C3FD04003DBB09 /* worm.h */,
 				23C17C7E10C3FDBD003DBB09 /* allegro.h */,
+				23C17FC010C48326003DBB09 /* allegro.cpp */,
+				23C17FC210C48352003DBB09 /* netstream.cpp */,
 			);
-			name = src;
+			name = Source;
 			path = ../src;
 			sourceTree = SOURCE_ROOT;
 		};
@@ -937,6 +1001,25 @@
 			path = util;
 			sourceTree = "<group>";
 		};
+		23C17FE210C4860A003DBB09 /* freealut src */ = {
+			isa = PBXGroup;
+			children = (
+				23C17FE310C4860A003DBB09 /* alutBufferData.c */,
+				23C17FE410C4860A003DBB09 /* alutCodec.c */,
+				23C17FE510C4860A003DBB09 /* alutError.c */,
+				23C17FE610C4860A003DBB09 /* alutInit.c */,
+				23C17FE710C4860A003DBB09 /* alutInputStream.c */,
+				23C17FE810C4860A003DBB09 /* alutInternal.h */,
+				23C17FE910C4860A003DBB09 /* alutLoader.c */,
+				23C17FEA10C4860A003DBB09 /* alutOutputStream.c */,
+				23C17FEB10C4860A003DBB09 /* alutUtil.c */,
+				23C17FEC10C4860A003DBB09 /* alutVersion.c */,
+				23C17FED10C4860A003DBB09 /* alutWaveform.c */,
+			);
+			name = "freealut src";
+			path = freealut/src;
+			sourceTree = "<group>";
+		};
 		5048396909E3304600765E4B /* Configuration Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -948,7 +1031,35 @@
 		};
 /* End PBXGroup section */
 
+/* Begin PBXHeadersBuildPhase section */
+		23C17FD710C485BC003DBB09 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C17FF710C4860A003DBB09 /* alutInternal.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
 /* Begin PBXNativeTarget section */
+		23C17FDA10C485BC003DBB09 /* freealut */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23C17FFD10C4860A003DBB09 /* Build configuration list for PBXNativeTarget "freealut" */;
+			buildPhases = (
+				23C17FD710C485BC003DBB09 /* Headers */,
+				23C17FD810C485BC003DBB09 /* Sources */,
+				23C17FD910C485BC003DBB09 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = freealut;
+			productName = freealut;
+			productReference = 23C17FDB10C485BC003DBB09 /* libfreealut.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		8D0C4E890486CD37000505A6 /* Gusanos */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = C0E91AC508A95435008D54AB /* Build configuration list for PBXNativeTarget "Gusanos" */;
@@ -960,6 +1071,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				23C17FE010C485D4003DBB09 /* PBXTargetDependency */,
 			);
 			name = Gusanos;
 			productInstallPath = "$(HOME)/Applications";
@@ -980,6 +1092,7 @@
 			projectRoot = "";
 			targets = (
 				8D0C4E890486CD37000505A6 /* Gusanos */,
+				23C17FDA10C485BC003DBB09 /* freealut */,
 			);
 		};
 /* End PBXProject section */
@@ -996,6 +1109,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		23C17FD810C485BC003DBB09 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C17FF210C4860A003DBB09 /* alutBufferData.c in Sources */,
+				23C17FF310C4860A003DBB09 /* alutCodec.c in Sources */,
+				23C17FF410C4860A003DBB09 /* alutError.c in Sources */,
+				23C17FF510C4860A003DBB09 /* alutInit.c in Sources */,
+				23C17FF610C4860A003DBB09 /* alutInputStream.c in Sources */,
+				23C17FF810C4860A003DBB09 /* alutLoader.c in Sources */,
+				23C17FF910C4860A003DBB09 /* alutOutputStream.c in Sources */,
+				23C17FFA10C4860A003DBB09 /* alutUtil.c in Sources */,
+				23C17FFB10C4860A003DBB09 /* alutVersion.c in Sources */,
+				23C17FFC10C4860A003DBB09 /* alutWaveform.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		8D0C4E8F0486CD37000505A6 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1144,10 +1274,20 @@
 				23C17C7510C3FD04003DBB09 /* weapon.cpp in Sources */,
 				23C17C7610C3FD04003DBB09 /* weapon_type.cpp in Sources */,
 				23C17C7710C3FD04003DBB09 /* worm.cpp in Sources */,
+				23C17FC110C48326003DBB09 /* allegro.cpp in Sources */,
+				23C17FC310C48352003DBB09 /* netstream.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		23C17FE010C485D4003DBB09 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 23C17FDA10C485BC003DBB09 /* freealut */;
+			targetProxy = 23C17FDF10C485D4003DBB09 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */ = {
@@ -1169,6 +1309,39 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		23C17FDC10C485BD003DBB09 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/freealut/include",
+					"$(SRCROOT)/include",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+			};
+			name = Debug;
+		};
+		23C17FDD10C485BD003DBB09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/freealut/include",
+					"$(SRCROOT)/include",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		C0E91AC608A95435008D54AB /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5048396E09E3307300765E4B /* GusanosTarget.xcconfig */;
@@ -1191,7 +1364,12 @@
 					/usr/local/include,
 					"$(SRCROOT)/freealut/include",
 					"$(SRCROOT)/include",
+					"$(SRCROOT)/../../../include",
 					"$(SRCROOT)/../src",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/build/Debug\"",
 				);
 			};
 			name = Debug;
@@ -1214,9 +1392,14 @@
 					/usr/local/include,
 					"$(SRCROOT)/freealut/include",
 					"$(SRCROOT)/include",
+					"$(SRCROOT)/../../../include",
 					"$(SRCROOT)/../src",
 				);
 				INSTALL_PATH = "$(HOME)/Applications";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/build/Debug\"",
+				);
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
 			};
 			name = Release;
@@ -1248,6 +1431,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		23C17FFD10C4860A003DBB09 /* Build configuration list for PBXNativeTarget "freealut" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23C17FDC10C485BD003DBB09 /* Debug */,
+				23C17FDD10C485BD003DBB09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		C0E91AC508A95435008D54AB /* Build configuration list for PBXNativeTarget "Gusanos" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
