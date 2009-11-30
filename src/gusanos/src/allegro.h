@@ -89,18 +89,10 @@ int set_display_switch_mode(int mode);
 bool exists(const char* filename);
 
 
-#define PACKFILE FILE
-#define pack_fread(buf, size, f) fread(buf, size, 1, f)
-
-void register_datafile_object(int id, void *(*load)(PACKFILE *f, long size), void (*destroy)(void *data));
-
-#define DAT_ID(a,b,c,d)    ((a<<24) | (b<<16) | (c<<8) | d)
-
 
 
 
 int makecol(int r, int g, int b);
-//int makecol8(int r, int g, int b);
 int makecol_depth(int color_depth, int r, int g, int b);
 
 #define TRACE printf
@@ -149,49 +141,19 @@ struct RGB
 	unsigned char filler;
 };
 
-struct BITMAP;
 
-struct GFX_VTABLE        /* functions for drawing onto bitmaps */
+struct BITMAP            /* a bitmap structure */
 	{
+		// rest of old vtable
 		int bitmap_type;
 		int color_depth;
 		int mask_color;
 		
-		int  (*getpixel)(struct BITMAP *bmp, int x, int y);
-		void (*putpixel)(struct BITMAP *bmp, int x, int y, int color);
-		void (*vline)(struct BITMAP *bmp, int x, int y1, int y2, int color);
-		void (*hline)(struct BITMAP *bmp, int x1, int y, int x2, int color);
-		void (*line)(struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-		void (*rectfill)(struct BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-		void (*draw_sprite)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_256_sprite)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_sprite_v_flip)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_sprite_h_flip)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_sprite_vh_flip)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_trans_sprite)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
-		void (*draw_lit_sprite)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int color);
-		void (*draw_rle_sprite)(struct BITMAP *bmp, struct RLE_SPRITE *sprite, int x, int y);
-		void (*draw_trans_rle_sprite)(struct BITMAP *bmp, struct RLE_SPRITE *sprite, int x, int y);
-		void (*draw_lit_rle_sprite)(struct BITMAP *bmp, struct RLE_SPRITE *sprite, int x, int y, int color);
-		void (*draw_character)(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y, int color);
-		void (*textout_fixed)(struct BITMAP *bmp, void *f, int h, unsigned char *str, int x, int y, int color);
-		void (*blit_from_memory)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*blit_to_memory)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*blit_to_self)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*blit_to_self_forward)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*blit_to_self_backward)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*masked_blit)(struct BITMAP *source, struct BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-		void (*clear_to_color)(struct BITMAP *bitmap, int color);
-		void (*draw_sprite_end)(void);
-		void (*blit_end)(void);
-	};
-
-struct BITMAP            /* a bitmap structure */
-	{
+		// BITMAP itself
 		int w, h;                     /* width and height in pixels */
 		int clip;                     /* flag if clipping is turned on */
 		int cl, cr, ct, cb;           /* clip left, right, top and bottom values */
-		GFX_VTABLE *vtable;				/* drawing functions */
+
 		void (*write_bank)();         /* write bank selector, see bank.s */
 		void (*read_bank)();          /* read bank selector, see bank.s */
 		void *dat;                    /* the memory we allocated for the bitmap */
@@ -209,14 +171,12 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height);
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height);
 void destroy_bitmap(BITMAP *bitmap);
 
-void register_bitmap_file_type(char *ext, BITMAP *(*load)(const char *filename, RGB *pal), int (*save)(const char *filename, BITMAP *bmp, const RGB *pal));
-
 
 #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 
 __INLINE__ int bitmap_color_depth(BITMAP *bmp)
 {
-	return bmp->vtable->color_depth;
+	return bmp->color_depth;
 }
 
 
@@ -225,7 +185,7 @@ __INLINE__ int bitmap_color_depth(BITMAP *bmp)
 
 __INLINE__ int is_planar_bitmap(BITMAP *bmp)
 {
-	return (bmp->vtable->bitmap_type == BMP_TYPE_PLANAR);
+	return (bmp->bitmap_type == BMP_TYPE_PLANAR);
 }
 
 __INLINE__ int is_video_bitmap(BITMAP *bmp)
@@ -234,8 +194,16 @@ __INLINE__ int is_video_bitmap(BITMAP *bmp)
 }
 
 
+
+int getpixel(BITMAP *bmp, int x, int y);
+void putpixel(BITMAP *bmp, int x, int y, int color);
+void vline(BITMAP *bmp, int x, int y1, int y2, int color);
+void hline(BITMAP *bmp, int x1, int y, int x2, int color);
+void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
 void circle(BITMAP *bmp, int x, int y, int radius, int color);
 void clear_to_color(struct BITMAP *bitmap, int color);
+void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
 void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
 
 void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
@@ -244,10 +212,6 @@ void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int d
 
 void clear_bitmap(BITMAP*);
 
-
-#ifndef AL_INLINE
-   #define AL_INLINE(type, name, args, code)       type name args;
-#endif
 
 
 #if !defined(SDL_BYTEORDER)
@@ -303,6 +267,12 @@ void clear_bitmap(BITMAP*);
 #define bmp_read16(addr)            (*((unsigned short *)(addr)))
 #define bmp_read32(addr)            (*((unsigned long  *)(addr)))
 
+#ifndef AL_INLINE
+//#define AL_INLINE(type, name, args, code)       type name args;
+#define AL_INLINE(type, name, args, code)       static inline type name args code
+#endif
+
+
 AL_INLINE(int, bmp_read24, (unsigned long addr),
 {
 	unsigned char *p = (unsigned char *)addr;
@@ -354,53 +324,12 @@ void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2);
 void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2);
 
 
-__INLINE__ void vline(BITMAP *bmp, int x, int y1, int y2, int color)
-{
-	bmp->vtable->vline(bmp, x, y1, y2, color);
-}
-
-__INLINE__ void hline(BITMAP *bmp, int x1, int y, int x2, int color)
-{
-	bmp->vtable->hline(bmp, x1, y, x2, color);
-}
-
-__INLINE__ void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
-{
-	bmp->vtable->line(bmp, x1, y1, x2, y2, color);
-}
-
-__INLINE__ void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
-{
-	bmp->vtable->rectfill(bmp, x1, y1, x2, y2, color);
-}
-
-__INLINE__ void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
-{
-	if (sprite->vtable->color_depth == 8)
-		bmp->vtable->draw_256_sprite(bmp, sprite, x, y);
-	else
-		bmp->vtable->draw_sprite(bmp, sprite, x, y);
-}
-
-__INLINE__ int getpixel(BITMAP *bmp, int x, int y)
-{
-	return bmp->vtable->getpixel(bmp, x, y);
-}
-
-__INLINE__ void putpixel(BITMAP *bmp, int x, int y, int color)
-{
-	bmp->vtable->putpixel(bmp, x, y, color);
-}
 
 
 
 
 
 
-
-
-
-void clear_keybuf();
 
 enum {
 	__allegro_KEY_A            = 1,
@@ -690,6 +619,7 @@ void remove_keyboard();
 bool keypressed();
 int readkey();
 extern int key[KEY_MAX];
+void clear_keybuf();
 
 
 
