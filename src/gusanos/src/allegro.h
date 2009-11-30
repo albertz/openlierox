@@ -23,11 +23,35 @@ void allegro_init();
 void allegro_exit();
 #define END_OF_MAIN extern void ___foo_allegro
 
-void install_timer();
-
+#define END_OF_FUNCTION(x)
+#define LOCK_VARIABLE(x)
+#define LOCK_FUNCTION(x)
 
 void rest(int t);
 void vsync();
+
+void install_timer();
+
+
+void install_mouse();
+void remove_mouse();
+
+#define MOUSE_FLAG_MOVE             1
+#define MOUSE_FLAG_LEFT_DOWN        2
+#define MOUSE_FLAG_LEFT_UP          4
+#define MOUSE_FLAG_RIGHT_DOWN       8
+#define MOUSE_FLAG_RIGHT_UP         16
+#define MOUSE_FLAG_MIDDLE_DOWN      32
+#define MOUSE_FLAG_MIDDLE_UP        64
+#define MOUSE_FLAG_MOVE_Z           128
+
+extern volatile int mouse_x;
+extern volatile int mouse_y;
+extern volatile int mouse_z;
+extern volatile int mouse_b;
+extern void (*mouse_callback)(int flags);
+
+int poll_mouse();
 
 struct BITMAP;
 extern BITMAP* screen;
@@ -50,6 +74,7 @@ enum {
 };
 
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h);
+extern int SCREEN_W, SCREEN_H;
 
 enum {
 	SWITCH_BACKAMNESIA,
@@ -205,6 +230,11 @@ __INLINE__ int is_video_bitmap(BITMAP *bmp)
 	return false; // TODO ?
 }
 
+
+void circle(BITMAP *bmp, int x, int y, int radius, int color);
+void clear_to_color(struct BITMAP *bitmap, int color);
+void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
+
 void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h);
 void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
@@ -317,6 +347,14 @@ int get_color_depth();
 void set_color_depth(int depth);
 
 
+void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2);
+void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2);
+
+
+__INLINE__ void vline(BITMAP *bmp, int x, int y1, int y2, int color)
+{
+	bmp->vtable->vline(bmp, x, y1, y2, color);
+}
 
 __INLINE__ void hline(BITMAP *bmp, int x1, int y, int x2, int color)
 {

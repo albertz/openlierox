@@ -6,8 +6,6 @@ using namespace boost::assign;
 
 #include <allegro.h>
 
-#include "../loadpng/loadpng.h"
-
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -28,10 +26,6 @@ Gfx::~Gfx()
 
 void Gfx::init()
 {
-	register_png_file_type();
-
-	loadpng_init();
-
 	set_color_depth(32);
 }
 
@@ -58,7 +52,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 		tmp += ".png";
 		if ( exists( tmp.c_str() ) )
 		{
-			returnValue = load_png( tmp.c_str() , palette );
+			returnValue = load_bitmap( tmp.c_str() , palette );
 		}
 		else
 		{

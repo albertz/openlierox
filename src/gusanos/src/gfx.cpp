@@ -16,8 +16,6 @@ using namespace boost::assign;
 
 #include <allegro.h>
 
-#include "loadpng/loadpng.h"
-
 #include <string>
 #include <algorithm>
 #include <iostream>
@@ -152,15 +150,11 @@ Gfx::~Gfx()
 
 
 void Gfx::init()
-{
-	register_png_file_type();
-	
+{	
 #ifndef DEDSERV
 	set_color_depth(m_bitdepth); //Ugh
 
 	doubleResChange(); // This calls fullscreenChange() that sets the gfx mode
-
-	loadpng_init();
 	
 	Init_2xSaI(m_bitdepth); // needed for SUPER2XSAI and SUPEREAGLE filters
 	
@@ -746,7 +740,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 		tmp += ".png";
 		if ( exists( tmp.c_str() ) )
 		{
-			returnValue = load_png( tmp.c_str() , palette );
+			returnValue = load_bitmap( tmp.c_str() , palette );
 		}
 		else
 		{
