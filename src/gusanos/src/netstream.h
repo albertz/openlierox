@@ -24,7 +24,8 @@ typedef uint32_t Net_ClassID;
 typedef uint32_t Net_ConnID;
 typedef uint32_t Net_NodeID;
 typedef uint32_t Net_InterceptID;
-
+typedef uint32_t Net_FileTransID;
+	
 enum eNet_NodeRole {
 	eNet_RoleUndefined,
 	eNet_RoleOwner,
@@ -38,8 +39,6 @@ enum eNet_SendMode {
 	eNet_ReliableUnordered,
 	eNet_Unreliable
 };
-
-typedef uint32_t eNet_Event;
 
 enum {
 	Net_REPLICATOR_INITIALIZED
@@ -61,11 +60,25 @@ enum Net_RepFlag {
 	Net_REPFLAG_RARELYCHANGED = 4
 };
 
+typedef Net_U8 Net_ClassFlags;
 enum {
+	Net_CLASSFLAG_ANNOUNCEDATA = 1
+};
+
+enum {
+	Net_FTRANS_ID_BITS = sizeof(Net_FileTransID) * 8
+};
+
+enum eNet_Event {
 	eNet_EventUser,
 	eNet_EventInit,
-	eNet_EventRemoved
+	eNet_EventRemoved,
+	
+	eNet_EventFile_Incoming,
+	eNet_EventFile_Complete,
+	eNet_EventFile_Data
 };
+
 
 static const Net_ClassID Net_Invalid_ID = Net_ClassID(-1);
 
@@ -98,6 +111,14 @@ struct Net_BitStream {
 	float getFloat(int bits);
 	const char* getStringStatic();
 	
+	Net_BitStream* Duplicate();
+};
+
+struct Net_FileTransInfo {
+	std::string path;
+	int bps;
+	size_t transferred;
+	size_t size;
 };
 
 struct Net_NodeReplicationInterceptor;
@@ -114,7 +135,7 @@ struct Net_Node {
 	void sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*);
 	void sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID);
 
-	void addReplicator(Net_ReplicatorBasic*);
+	void addReplicator(Net_ReplicatorBasic*, bool);
 	
 	void beginReplicationSetup(int something = 0);
 	void setInterceptID(Net_InterceptID);
@@ -131,40 +152,89 @@ struct Net_Node {
 	bool registerRequestedNode(Net_ClassID, Net_Control*);
 	
 	void applyForNetLevel(int something);
+	void removeFromNetLevel(int something);
 	
 	void setOwner(Net_ConnID, bool something);
 	
+	void setAnnounceData(Net_BitStream*);
+	
 	Net_NodeID getNetworkID();
+	
+	void acceptFile(Net_ConnID, Net_FileTransID, int, bool accept);
+	Net_FileTransID sendFile(const char* filename, int, Net_ConnID, int, float);
+	Net_FileTransInfo& getFileInfo(Net_ConnID, Net_FileTransID);
 };
 
+struct Net_ConnectionStats {
+	int avg_ping;
+};
+
+enum Net_ProcessType { eNet_NoBlock };
+struct Net_Address;
+
 struct Net_Control {
+	void Net_Connect(const Net_Address&, void*);
+	void Shutdown();
+	
+	Net_Address* Net_getPeer(Net_ConnID);
+	
+	void Net_disconnectAll(Net_BitStream*);
+	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
+	
 	Net_BitStream* Net_createBitStream();
 
+	void Net_processOutput();
+	void Net_processInput(Net_ProcessType);
+	
 	void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode);
-
+	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);
+	
+	Net_ConnectionStats Net_getConnectionStats(Net_ConnID);
 };
 
 struct Net_ReplicatorBasic {
+	Net_ReplicatorBasic(Net_ReplicatorSetup*);
+	
 	uint8_t m_flags;
 	Net_BitStream* getPeekStream();
 	
 	void* peekDataRetrieve();
-};
 
-struct Net_Replicator : Net_ReplicatorBasic {
+
+	// replicator
+	
 	void* peekData();
-
+	
 	Net_ReplicatorSetup* getSetup();
+	
+	void peekDataStore(void*);
 };
+
+#define Net_Replicator Net_ReplicatorBasic
+
 
 struct Net_ReplicatorSetup {
+	Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	Net_InterceptID getInterceptID();
 };
 
 struct Net_NodeReplicationInterceptor {};
 
-struct Net_Address {};
+enum eNet_AddressType {
+	eNet_AddressUDP
+};
 
+struct Net_Address {
+	void setAddress(eNet_AddressType, int, const char*);
+	Net_U32 getIP() const;
+};
+
+struct NetStream {
+	NetStream();
+	NetStream( void (&)( const char* ) );
+	void setLogLevel(int);
+	bool Init();
+};
 
 
 void Net_simulateLag(int,int);

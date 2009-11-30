@@ -138,7 +138,7 @@ void Updater::assignNetworkRole( bool authority )
 		if( !node->registerNodeUnique(classID, eNet_RoleAuthority, network.getNetControl() ) )
 			ELOG("Unable to register updater authority node.");
 
-		node->removeFromZoidLevel(1);
+		node->removeFromNetLevel(1);
 		node->applyForNetLevel(2); // Updater operates at zoidlevel 2
 	} else {
 		if( !node->registerNodeUnique( classID, eNet_RoleProxy, network.getNetControl() ) )

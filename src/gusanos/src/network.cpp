@@ -172,7 +172,7 @@ namespace
 	int reconnectTimer = 0;
 	int connCount = 0;
 
-	ZoidCom* m_zcom = 0;
+	NetStream* m_zcom = 0;
 	Net_Control* m_control = 0;
 	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
@@ -331,10 +331,10 @@ void Network::log(char const* msg)
 void Network::init()
 {
 	if(logZoidcom) { //TODO: Zoidcom
-		m_zcom = new ZoidCom(log);
+		m_zcom = new NetStream(log);
 		m_zcom->setLogLevel(2);
 	} else
-		m_zcom = new ZoidCom();
+		m_zcom = new NetStream();
 
 	if ( !m_zcom->Init() ) {
 		console.addLogMsg("* ERROR: UNABLE TO INITIALIZE ZOIDCOM NETWORK LIB");

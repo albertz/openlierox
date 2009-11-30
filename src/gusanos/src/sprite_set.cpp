@@ -72,7 +72,7 @@ bool SpriteSet::load(fs::path const& filename)
 	if (!tempBitmap)
 		return false;
 
-	LocalSetColorConversion cc(COLORCONV_NONE);
+	LocalSetColorConversion cc(0/*COLORCONV_NONE*/);
 	LocalSetColorDepth cd(bitmap_color_depth(tempBitmap));
 
 	if ( (tempBitmap->w > 1) && (tempBitmap->h > 1) ) {
