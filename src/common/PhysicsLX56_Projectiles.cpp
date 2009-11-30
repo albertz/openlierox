@@ -1511,7 +1511,7 @@ struct LX56ProjHandler_CollideProjectiles : LX56ProjectileHandler {
 				
 				const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj->GetOwner()].getTeam() : -1;
 				const int projTeam1 = (prj1->GetOwner() >= 0 && prj1->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj1->GetOwner()].getTeam() : -1;
-				if( ( prj->GetOwner() != prj1->GetOwner() ) && !cClient->isTeamGame() || projTeam != projTeam1 )
+				if( ( prj->GetOwner() != prj1->GetOwner() ) && ( !cClient->isTeamGame() || projTeam != projTeam1 ) )
 				{
 					enemyHit = true;
 					// Spawn temp projectile, so other projectile will explode too
