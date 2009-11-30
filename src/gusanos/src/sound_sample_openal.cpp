@@ -5,7 +5,7 @@
 #include "base_object.h"
 
 #include <vorbis/vorbisfile.h>
-#include <AL/alut.h>
+#include <OpenAL/al.h>
 #include <stdio.h>
 #include <vector>
 #include <string>

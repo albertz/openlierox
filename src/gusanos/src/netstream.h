@@ -15,6 +15,7 @@
 #include <string>
 #include <stdint.h>
 
+typedef float Net_Float;
 typedef uint8_t Net_U8;
 typedef uint32_t Net_U32;
 typedef int32_t Net_S32;
@@ -33,7 +34,9 @@ enum eNet_NodeRole {
 };
 enum eNet_SendMode {
 	eNet_ReliableOrdered,
-	eNet_Reliable
+	eNet_Reliable,
+	eNet_ReliableUnordered,
+	eNet_Unreliable
 };
 
 typedef uint32_t eNet_Event;
@@ -43,14 +46,16 @@ enum {
 };
 
 typedef Net_U8 Net_RepRules;
-enum {
+enum Net_RepRule {
+	Net_REPRULE_NONE = 0,
 	Net_REPRULE_AUTH_2_ALL = 1,
 	Net_REPRULE_OWNER_2_AUTH = 2,
-	Net_REPRULE_AUTH_2_PROXY = 4
+	Net_REPRULE_AUTH_2_PROXY = 4,
+	Net_REPRULE_AUTH_2_OWNER = 8,
 };
 
 typedef Net_U8 Net_RepFlags;
-enum {
+enum Net_RepFlag {
 	Net_REPFLAG_MOSTRECENT = 1,
 	Net_REPFLAG_INTERCEPT = 2,
 	Net_REPFLAG_RARELYCHANGED = 4
@@ -83,12 +88,14 @@ struct Net_BitStream {
 	void addBool(bool);
 	void addInt(int n, int bits);
 	void addSignedInt(int n, int bits);
+	void addFloat(float f, int bits);
 	void addBitStream(Net_BitStream* str);
 	void addString(const std::string&);
 	
 	bool getBool();
 	int getInt(int bits);
 	int getSignedInt(int bits);
+	float getFloat(int bits);
 	const char* getStringStatic();
 	
 };
@@ -96,6 +103,7 @@ struct Net_BitStream {
 struct Net_NodeReplicationInterceptor;
 struct Net_Control;
 struct Net_ReplicatorSetup;
+struct Net_ReplicatorBasic;
 
 struct Net_Node {
 	eNet_NodeRole getRole();
@@ -106,10 +114,13 @@ struct Net_Node {
 	void sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*);
 	void sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID);
 
+	void addReplicator(Net_ReplicatorBasic*);
+	
 	void beginReplicationSetup(int something = 0);
 	void setInterceptID(Net_InterceptID);
 	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
-	void addReplicationBool(Net_S32*, Net_RepFlags, Net_RepRules, bool, int p1 = 0, int p2 = 0, int p3 = 0);
+	//void addReplicationBool(Net_S32*, Net_RepFlags, Net_RepRules, bool, int p1 = 0, int p2 = 0, int p3 = 0);
+	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
 	

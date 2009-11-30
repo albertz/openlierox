@@ -158,6 +158,7 @@
 		23C17C7510C3FD04003DBB09 /* weapon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BAE10C3FD04003DBB09 /* weapon.cpp */; };
 		23C17C7610C3FD04003DBB09 /* weapon_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB010C3FD04003DBB09 /* weapon_type.cpp */; };
 		23C17C7710C3FD04003DBB09 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB210C3FD04003DBB09 /* worm.cpp */; };
+		23C17EB710C45435003DBB09 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17EB610C45435003DBB09 /* OpenAL.framework */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -483,6 +484,8 @@
 		23C17BB310C3FD04003DBB09 /* worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worm.h; sourceTree = "<group>"; };
 		23C17C7E10C3FDBD003DBB09 /* allegro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allegro.h; sourceTree = "<group>"; };
 		23C17CB410C417E6003DBB09 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
+		23C17EB410C4542F003DBB09 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		23C17EB610C45435003DBB09 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -495,6 +498,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */,
+				23C17EB710C45435003DBB09 /* OpenAL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -517,6 +521,8 @@
 				20286C2CFDCF999611CA2CEA /* Resources */,
 				20286C32FDCF999611CA2CEA /* External Frameworks and Libraries */,
 				195DF8CFFE9D517E11CA2CBB /* Products */,
+				23C17EB410C4542F003DBB09 /* OpenGL.framework */,
+				23C17EB610C45435003DBB09 /* OpenAL.framework */,
 			);
 			name = Gusanos;
 			sourceTree = "<group>";
