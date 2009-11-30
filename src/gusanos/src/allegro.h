@@ -23,7 +23,13 @@ int makecol_depth(int color_depth, int r, int g, int b);
 
 #define TRACE printf
 
- struct BITMAP;
+struct RGB
+{
+	unsigned char r, g, b;
+	unsigned char filler;
+};
+
+struct BITMAP;
 
 struct GFX_VTABLE        /* functions for drawing onto bitmaps */
 	{
@@ -104,6 +110,7 @@ static inline int is_video_bitmap(BITMAP *bmp)
 }
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h);
+void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
 
 #ifndef AL_INLINE
@@ -185,5 +192,54 @@ AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
 
 unsigned long bmp_write_line(BITMAP *bmp, int line);
 void bmp_unwrite_line(BITMAP* bmp);
+
+
+
+#define DRAW_MODE_SOLID             0        /* flags for drawing_mode() */
+#define DRAW_MODE_XOR               1
+#define DRAW_MODE_COPY_PATTERN      2
+#define DRAW_MODE_SOLID_PATTERN     3
+#define DRAW_MODE_MASKED_PATTERN    4
+#define DRAW_MODE_TRANS             5
+
+void drawing_mode(int mode, BITMAP *pattern, int x_anchor, int y_anchor);
+void set_trans_blender(int r, int g, int b, int a);
+void set_add_blender (int r, int g, int b, int a);
+void solid_mode();
+
+int getr(int c);
+int getg(int c);
+int getb(int c);
+
+int get_color_conversion();
+void set_color_conversion(int mode);
+
+int get_color_depth();
+void set_color_depth(int depth);
+
+
+
+static inline void hline(BITMAP *bmp, int x1, int y, int x2, int color)
+{
+	bmp->vtable->hline(bmp, x1, y, x2, color);
+}
+
+static inline void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+{
+	bmp->vtable->line(bmp, x1, y1, x2, y2, color);
+}
+
+static inline void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color)
+{
+	bmp->vtable->rectfill(bmp, x1, y1, x2, y2, color);
+}
+
+static inline void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y)
+{
+	if (sprite->vtable->color_depth == 8)
+		bmp->vtable->draw_256_sprite(bmp, sprite, x, y);
+	else
+		bmp->vtable->draw_sprite(bmp, sprite, x, y);
+}
 
 #endif

@@ -7,10 +7,11 @@
 #include <list>
 #include <iostream>
 #include "util/macros.h"
-/*#include <boost/cstdint.hpp>
+#include <boost/cstdint.hpp>
 #include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;*/
+namespace fs = boost::filesystem;
 
+/*
 namespace fs {
 	struct path {
 		std::string p;
@@ -19,6 +20,7 @@ namespace fs {
 		std::string native_file_string() const { return p; }
 	};
 }
+*/
 
 using std::cerr;
 using std::endl;
