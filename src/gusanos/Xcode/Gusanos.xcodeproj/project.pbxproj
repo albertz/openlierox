@@ -158,7 +158,9 @@
 		23C17C7510C3FD04003DBB09 /* weapon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BAE10C3FD04003DBB09 /* weapon.cpp */; };
 		23C17C7610C3FD04003DBB09 /* weapon_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB010C3FD04003DBB09 /* weapon_type.cpp */; };
 		23C17C7710C3FD04003DBB09 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17BB210C3FD04003DBB09 /* worm.cpp */; };
-		23C17EB710C45435003DBB09 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17EB610C45435003DBB09 /* OpenAL.framework */; };
+		23C17F1A10C455B1003DBB09 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17EB610C45435003DBB09 /* OpenAL.framework */; };
+		23C17F1C10C455BD003DBB09 /* Ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1B10C455BD003DBB09 /* Ogg.framework */; };
+		23C17F1E10C455C9003DBB09 /* Vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1D10C455C9003DBB09 /* Vorbis.framework */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -486,6 +488,8 @@
 		23C17CB410C417E6003DBB09 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
 		23C17EB410C4542F003DBB09 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		23C17EB610C45435003DBB09 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		23C17F1B10C455BD003DBB09 /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogg.framework; sourceTree = "<group>"; };
+		23C17F1D10C455C9003DBB09 /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Vorbis.framework; sourceTree = "<group>"; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -498,7 +502,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */,
-				23C17EB710C45435003DBB09 /* OpenAL.framework in Frameworks */,
+				23C17F1A10C455B1003DBB09 /* OpenAL.framework in Frameworks */,
+				23C17F1C10C455BD003DBB09 /* Ogg.framework in Frameworks */,
+				23C17F1E10C455C9003DBB09 /* Vorbis.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -516,6 +522,8 @@
 		20286C29FDCF999611CA2CEA /* Gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				23C17F1D10C455C9003DBB09 /* Vorbis.framework */,
+				23C17F1B10C455BD003DBB09 /* Ogg.framework */,
 				23C17A1610C3FD03003DBB09 /* src */,
 				5048396909E3304600765E4B /* Configuration Files */,
 				20286C2CFDCF999611CA2CEA /* Resources */,
@@ -1243,6 +1251,10 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
@@ -1253,6 +1265,8 @@
 				HEADER_SEARCH_PATHS = (
 					/Library/Frameworks/SDL.framework/Headers,
 					/usr/local/include,
+					"$(SRCROOT)/freealut/include",
+					"$(SRCROOT)/include",
 					"$(SRCROOT)/../src",
 				);
 			};
@@ -1265,11 +1279,17 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
 				HEADER_SEARCH_PATHS = (
 					/Library/Frameworks/SDL.framework/Headers,
 					/usr/local/include,
+					"$(SRCROOT)/freealut/include",
+					"$(SRCROOT)/include",
 					"$(SRCROOT)/../src",
 				);
 				INSTALL_PATH = "$(HOME)/Applications";
