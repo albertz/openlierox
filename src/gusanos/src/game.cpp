@@ -934,7 +934,7 @@ void Game::refreshMods()
 	{
 		if( is_directory(*i) )
 		{
-			if ( fs::exists(*i / "weapons"))
+			if ( fs::exists(fs::path(*i) / "weapons"))
 			{
 				modList.insert(i->string());
 			}

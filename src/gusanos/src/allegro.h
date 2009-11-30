@@ -60,7 +60,7 @@ extern BITMAP* screen;
 void acquire_screen();
 void release_screen();
 
-enum {
+enum GfxType {
 	GFX_AUTODETECT,
 	GFX_AUTODETECT_WINDOWED,
 	GFX_AUTODETECT_FULLSCREEN,

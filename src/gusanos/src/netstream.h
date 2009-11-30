@@ -44,16 +44,16 @@ enum {
 
 typedef Net_U8 Net_RepRules;
 enum {
-	Net_REPRULE_AUTH_2_ALL,
-	Net_REPRULE_OWNER_2_AUTH,
-	Net_REPRULE_AUTH_2_PROXY
+	Net_REPRULE_AUTH_2_ALL = 1,
+	Net_REPRULE_OWNER_2_AUTH = 2,
+	Net_REPRULE_AUTH_2_PROXY = 4
 };
 
 typedef Net_U8 Net_RepFlags;
 enum {
-	Net_REPFLAG_MOSTRECENT,
-	Net_REPFLAG_INTERCEPT,
-	Net_REPFLAG_RARELYCHANGED
+	Net_REPFLAG_MOSTRECENT = 1,
+	Net_REPFLAG_INTERCEPT = 2,
+	Net_REPFLAG_RARELYCHANGED = 4
 };
 
 enum {
@@ -86,6 +86,7 @@ struct Net_BitStream {
 	void addBitStream(Net_BitStream* str);
 	void addString(const std::string&);
 	
+	bool getBool();
 	int getInt(int bits);
 	int getSignedInt(int bits);
 	const char* getStringStatic();
@@ -107,7 +108,8 @@ struct Net_Node {
 
 	void beginReplicationSetup(int something = 0);
 	void setInterceptID(Net_InterceptID);
-	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, Net_NodeID);
+	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
+	void addReplicationBool(Net_S32*, Net_RepFlags, Net_RepRules, bool, int p1 = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
 	
