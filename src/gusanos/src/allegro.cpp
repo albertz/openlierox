@@ -38,24 +38,32 @@ static BITMAP *create_bitmap_from_sdl(SDL_Surface* surf) {
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
-	return create_bitmap_from_sdl(img);
+
+	SDL_Surface* converted = SDL_DisplayFormat(img);
+	SDL_FreeSurface(img);
+
+	if(!converted) return NULL;
+	
+	return create_bitmap_from_sdl(converted);
 }
 
 BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
+	color_depth = 32;
+	
 	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, color_depth, 0,0,0,0);
 	if(!surf) return NULL;
 	return create_bitmap_from_sdl(surf);
 }
 
 BITMAP *create_bitmap(int width, int height) {
-	return create_bitmap_ex(16, width, height);
+	return create_bitmap_ex(32, width, height);
 }
 
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) { return NULL; }
 
 void destroy_bitmap(BITMAP *bmp) {
 	if(bmp == NULL) return;
-	SDL_FreeSurface(bmp->surf);
+	if(bmp->surf) SDL_FreeSurface(bmp->surf);
 	delete[] bmp->line;
 	delete bmp;
 }
@@ -255,41 +263,23 @@ void allegro_init() {
 		return;
 	}
 
-	screen = create_bitmap(SCREEN_W, SCREEN_H);
+	screen = create_bitmap_from_sdl(SDL_GetVideoSurface());
 }
 
 void allegro_exit() {
+	screen->surf = NULL; // to not free the video surface (SDL does that)
 	destroy_bitmap(screen);
 	screen = NULL;
+
+	SDL_Quit();
 }
 
 void rest(int t) { SDL_Delay(t); }
-void vsync() {}
-
-
-void install_timer() {}
-int install_int_ex(void (*proc)(), long speed) { return 0; }
-
-
-
-void install_mouse() {}
-void remove_mouse() {}
-
-volatile int mouse_x;
-volatile int mouse_y;
-volatile int mouse_z;
-volatile int mouse_b;
-void (*mouse_callback)(int flags);
-
-
-int poll_mouse() { return 0; }
-
-
-
+void vsync() {  }
 
 
 void acquire_screen() {}
-void release_screen() {}
+void release_screen() { SDL_Flip(SDL_GetVideoSurface()); }
 
 
 
@@ -304,7 +294,7 @@ bool exists(const char* filename) { return IsFileAvailable(filename, true); }
 
 
 int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) { return 0; }
+int makecol_depth(int color_depth, int r, int g, int b) { return makecol(r,g,b); }
 
 
 int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
@@ -314,43 +304,89 @@ int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
 
 int _rgb_scale_5[32], _rgb_scale_6[64];
 
-void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {}
+void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
+	// TODO...
+}
 
 
 
 
 
 int getpixel(BITMAP *bmp, int x, int y) {
-	switch(bmp->surf->format->BitsPerPixel) {
-		case 8: return /*bmp->surf->format->palette->colors[*/ bmp->line[y][x] /*]*/;
-		case 32: return * ((Uint32*) bmp->line[y] + x);
+	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
+	switch(bmp->surf->format->BytesPerPixel) {
+		case 1: return bmp_read8(addr);
+		case 2: return bmp_read16(addr);
+		case 3: return bmp_read24(addr);
+		case 4: return bmp_read32(addr);
 	}
 	return 0;
 }
+
 void putpixel(BITMAP *bmp, int x, int y, int color) {
-	switch(bmp->surf->format->BitsPerPixel) {
-		case 8: bmp->line[y][x] = color;
-		case 32: * ((Uint32*) bmp->line[y] + x) = color;
+	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
+	switch(bmp->surf->format->BytesPerPixel) {
+		case 1: bmp_write8(addr, color); break;
+		case 2: bmp_write16(addr, color); break;
+		case 3: bmp_write24(addr, color); break;
+		case 4: bmp_write32(addr, color); break;
 	}
 }
 
-void vline(BITMAP *bmp, int x, int y1, int y2, int color) {}
-void hline(BITMAP *bmp, int x1, int y, int x2, int color) {}
-void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {}
-void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {}
-void circle(BITMAP *bmp, int x, int y, int radius, int color) {}
-void clear_to_color(struct BITMAP *bitmap, int color) {}
-void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y) {}
-void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y) {}
 
-void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
-	
+
+void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
+	for(int y = y1; y < y2; ++y)
+		putpixel(bmp, x, y, color);
 }
 
-void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {}
-void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {}
+void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
+	for(int x = x1; x < x2; ++x)
+		putpixel(bmp, x, y, color);
+}
 
-void clear_bitmap(BITMAP*) {}
+void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {}
+
+void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
+	SDL_FillRect(bmp->surf, &rect, color);
+}
+
+void circle(BITMAP *bmp, int x, int y, int radius, int color) {}
+
+
+void clear_to_color(BITMAP *bmp, int color) {
+	rectfill(bmp, 0,0, bmp->w, bmp->h, color);
+}
+
+
+void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	SDL_Rect srcrect = { source_x, source_y, width, height };
+	SDL_Rect dstrect = { dest_x, dest_y, width, height };
+	SDL_BlitSurface(source->surf, &srcrect, dest->surf, &dstrect);
+}
+
+void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
+	// TODO...
+	blit(s,d,s_x,s_y,d_x,d_y,s_w,s_h);
+}
+
+void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	// TODO...
+	blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
+}
+
+void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y) {
+	blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
+}
+
+void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y) {
+	// TODO...
+	draw_sprite(bmp, sprite, x, y);
+}
+
+
+void clear_bitmap(BITMAP* bmp) { clear_to_color(bmp, 0); }
 
 
 
@@ -396,5 +432,29 @@ int readkey() { return 0; }
 int key[KEY_MAX];
 
 void clear_keybuf() {}
+
+
+
+
+
+
+void install_timer() {}
+int install_int_ex(void (*proc)(), long speed) { return 0; }
+
+
+
+void install_mouse() {}
+void remove_mouse() {}
+
+volatile int mouse_x;
+volatile int mouse_y;
+volatile int mouse_z;
+volatile int mouse_b;
+void (*mouse_callback)(int flags);
+
+
+int poll_mouse() { return 0; }
+
+
 
 
