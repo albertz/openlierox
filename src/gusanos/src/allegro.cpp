@@ -73,6 +73,13 @@ int _rgb_scale_5[32], _rgb_scale_6[64];
 void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {}
 
 
+BITMAP *load_bitmap(const char *filename, RGB *pal) { return NULL; }
+BITMAP *create_bitmap(int width, int height) { return NULL; }
+BITMAP *create_bitmap_ex(int color_depth, int width, int height) { return NULL; }
+BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) { return NULL; }
+void destroy_bitmap(BITMAP *bitmap) {}
+
+
 
 
 int getpixel(BITMAP *bmp, int x, int y) { return 0; }

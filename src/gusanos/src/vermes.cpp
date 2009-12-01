@@ -392,7 +392,8 @@ catch(...)
 END_OF_MAIN();
 
 
-
 // OLX wrappers
 
-void setBinaryDirAndName(char* argv0) {}
+void InitGameModes() {}
+CGameMode* GameMode(GameModeIndex i) { return NULL; }
+void setCurThreadName(const std::string& name) {}
