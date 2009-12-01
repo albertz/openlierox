@@ -222,7 +222,7 @@ struct Net_Address {
 
 struct NetStream {
 	NetStream();
-	NetStream( void (&)( const char* ) );
+	NetStream( void (*)( const char* ) );
 	void setLogLevel(int);
 	bool Init();
 };

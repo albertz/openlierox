@@ -1,6 +1,7 @@
 #ifndef VERMES_ANGLE_H
 #define VERMES_ANGLE_H
 
+#include <cassert>
 #include <climits>
 #include <iostream>
 #include "netstream.h"

@@ -100,7 +100,7 @@ Net_U32 Net_Address::getIP() const {}
 
 
 NetStream::NetStream() {}
-NetStream::NetStream( void (&)( const char* ) ) {}
+NetStream::NetStream( void (*)( const char* ) ) {}
 void NetStream::setLogLevel(int) {}
 bool NetStream::Init() {}
 

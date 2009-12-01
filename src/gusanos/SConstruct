@@ -19,6 +19,10 @@ if env['PLATFORM'] == 'win32':
 	env = Environment(tools = ['mingw'])
 	print "Forcing MinGW - MSVC++ not supported"
 
+
+env.Append(CPPPATH = ['src', '../../include', '/usr/include/libxml2'])
+env.ParseConfig("sdl-config --cflags --libs")
+
 ###
 # The default program to build is vermes
 ###
@@ -27,24 +31,14 @@ env.Default('vermes' + env['PROGSUFFIX'])
 ###
 # Libraries to be built from source
 ###
-libs += ['omfgconsole', 'omfghttp', 'omfgutil', 'omfgui', 'omfgscript', 
-			'loadpng', 'glua']
-					
+libs += ['omfgconsole', 'omfghttp', 'omfgutil', 'omfgui', 'omfgscript',
+			'loadpng', 'glua', 'openlierox']
+
 ###
 # Libraries to be picked up from the system
 ###
-libs += ['zoidcom', 'boost_filesystem', 'boost_signals', 'png', 'z', 'alut', 
-			'openal', 'vorbisfile']
-
-###
-# Platform specific tools and libraries
-###
-if env['PLATFORM'] == 'win32':
-	env.Append(CPPDEFINES = ' -DWINDOWS')
-	libs += ['wsock32', 'alleg']
-else:
-	allegro = Split(os.popen('allegro-config --libs').read())
-	libs += [x for x in allegro if x[:2] != '-L']
+libs += ['SDL', 'SDL_image', 'boost_filesystem', 'boost_signals', 'png', 'z', 'alut',
+			'openal', 'vorbisfile', 'xml2', 'crypto']
 
 ###
 # Debug command-line option
@@ -65,10 +59,54 @@ env.StaticLibrary('omfghttp', glob('src/http/*.cpp'))
 env.StaticLibrary('omfgutil', glob('src/util/*.cpp'))
 env.StaticLibrary('omfgscript', glob('src/omfgscript/*.cpp'))
 env.StaticLibrary('loadpng', glob('src/loadpng/*.c'))
-env.StaticLibrary('omfgui', glob('src/gui/detail/*.cpp') 
-								+ glob('src/gui/lua/*.cpp'))									
+env.StaticLibrary('omfgui', glob('src/gui/detail/*.cpp')
+								+ glob('src/gui/lua/*.cpp'))
 env.StaticLibrary('glua', glob('src/lua51/*.c') 
 							+ glob('src/lua51/luaapi/*.cpp'))
+
+
+#breakpad
+#hawknl
+#sdlimage
+
+olxfiles = [
+	"SystemFunctions.cpp",
+	"ConfigHandler.cpp",
+	"IniReader.cpp",
+	"CScriptableVars.cpp",
+	"Timer.cpp",
+	"EventQueue.cpp",
+	"MainGlobals.cpp",
+	"TeeStdoutHandler.cpp",
+	"Mutex.cpp",
+	"Networking.cpp",
+	"TaskManager.cpp",
+	"ThreadPool.cpp",
+	"Unicode.cpp",
+	"Version.cpp",
+	"SMTP.cpp",
+	"CrashHandler.cpp",
+	"StringBuf.cpp",
+	"Debug.cpp",
+	"StringUtils.cpp",
+	"FindFile.cpp" ]
+
+def findFullOlxFn(fn):
+	olxsrcdir = ".."
+	for root, _, files in os.walk(olxsrcdir):
+		if fn in files:
+			return root + "/" + fn
+	print "ERROR:", fn, "not found in OLX!"
+	return None
+
+
+env.StaticLibrary('openlierox',
+	[findFullOlxFn(x) for x in olxfiles] +
+	[ "../breakpad/ExtractInfo.cpp" ]
+	)
+
+env.Append(CCFLAGS = "-DNBREAKPAD")
+
 
 ###
 # Build the main program
@@ -78,3 +116,4 @@ env.Program('vermes', glob('src/*.cpp') + glob('src/loaders/*.cpp')
 						+ ['src/util/text.o']
 					, LIBS = libs
 					, LIBPATH = ['.', '/usr/local/lib', '/usr/lib'])
+

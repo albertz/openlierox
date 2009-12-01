@@ -404,3 +404,8 @@ GameOptions* tLXOptions = NULL;
 bool GameOptions::Init() { return false; }
 bool Con_IsInited() { return false; }
 void Con_AddText(int color, const std::string&, bool) {}
+
+#ifndef WIN32
+#include <setjmp.h>
+sigjmp_buf longJumpBuffer;
+#endif
