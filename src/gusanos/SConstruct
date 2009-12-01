@@ -81,7 +81,9 @@ olxfiles = [
 	"StringBuf.cpp",
 	"Debug.cpp",
 	"StringUtils.cpp",
-	"FindFile.cpp" ]
+	"FindFile.cpp",
+	"InputEvents.cpp",
+	"CInput.cpp" ]
 
 def findFullOlxFn(fn):
 	olxsrcdir = ".."

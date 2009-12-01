@@ -253,6 +253,8 @@ void Console::addLogMsg(const string &msg)
 {
 	if (!msg.empty())
 	{
+		cout << "Console:" << msg << endl;
+
 		if(log.size() >= m_logMaxSize)
 			log.pop_front();
 		

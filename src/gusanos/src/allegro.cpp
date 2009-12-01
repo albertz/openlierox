@@ -14,6 +14,9 @@
 #include "Debug.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
+#include "InputEvents.h"
+#include "EventQueue.h"
+#include "LieroX.h"
 
 
 
@@ -258,6 +261,11 @@ static bool sdl_video_init() {
 }
 
 void allegro_init() {
+	bJoystickSupport = false;
+	
+	InitEventQueue();
+	InitEventSystem();
+		
 	if(!sdl_video_init()) {
 		errors << "Allegro init: video init failed" << endl;
 		return;
@@ -272,14 +280,22 @@ void allegro_exit() {
 	screen = NULL;
 
 	SDL_Quit();
+
+	ShutdownEventSystem();
+	ShutdownEventQueue();
 }
 
 void rest(int t) { SDL_Delay(t); }
 void vsync() {  }
 
 
+static void handle_sdlevents();
+
 void acquire_screen() {}
-void release_screen() { SDL_Flip(SDL_GetVideoSurface()); }
+void release_screen() {
+	SDL_Flip(SDL_GetVideoSurface());
+	handle_sdlevents();
+}
 
 
 
@@ -446,15 +462,87 @@ int install_int_ex(void (*proc)(), long speed) { return 0; }
 void install_mouse() {}
 void remove_mouse() {}
 
-volatile int mouse_x;
-volatile int mouse_y;
-volatile int mouse_z;
-volatile int mouse_b;
-void (*mouse_callback)(int flags);
+volatile int mouse_x = 0;
+volatile int mouse_y = 0;
+volatile int mouse_z = 0;
+volatile int mouse_b = 0;
+void (*mouse_callback)(int flags) = NULL;
 
 
 int poll_mouse() { return 0; }
 
 
+static void handle_sdlevents_mouse() {
+	mouse_t* m = GetMouse();
+	mouse_x = m->X;
+	mouse_y = m->Y;
+	mouse_b = m->Button;
+}
 
+static void handle_sdlevents_pushall() {
+	SDL_Event ev;
+	while( SDL_PollEvent(&ev) ) {
+		if( ev.type == SDL_SYSWMEVENT ) {
+			EvHndl_SysWmEvent_MainThread( &ev );
+			continue;
+		}
+
+		if( ev.type == SDL_QUIT ) {
+			notes << "SDL quit event" << endl;
+			// not the best way but does the trick for now
+			exit(0);
+		}
+		
+		mainQueue->push(ev);
+	}
+}
+
+static void handle_sdlevents() {
+	handle_sdlevents_pushall();
+	ProcessEvents(); // calls event handler from OLX
+
+	//GetKeyboard();
+
+	handle_sdlevents_mouse();
+	
+}
+
+
+
+
+// OLX wrappers
+
+#include "CGameMode.h"
+#include "Options.h"
+				 
+void InitGameModes() {}
+CGameMode* GameMode(GameModeIndex i) { return NULL; }
+GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
+void SystemError(const std::string& txt) {}
+GameOptions* tLXOptions = NULL;
+bool GameOptions::Init() { return false; }
+bool Con_IsInited() { return false; }
+void Con_AddText(int color, const std::string&, bool) {}
+
+#ifndef WIN32
+#include <setjmp.h>
+sigjmp_buf longJumpBuffer;
+#endif
+
+#include "DeprecatedGUI/Menu.h"
+
+namespace DeprecatedGUI { menu_t	*tMenu = NULL; }
+
+void ClearUserNotify() {}
+void updateFileListCaches() {}
+void SetQuitEngineFlag(const std::string&) {}
+
+#include "AuxLib.h"
+void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {}
+std::string GetConfigFile() { return ""; }
+
+#include "Debug.h"
+void SetError(const std::string& t) { errors << "OLX SetError: " << t << endl; }
+
+void handle_system_event(const SDL_Event& ) {}
 

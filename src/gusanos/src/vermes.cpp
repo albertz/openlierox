@@ -391,21 +391,3 @@ catch(...)
 //Control reaches end of non-void function
 END_OF_MAIN();
 
-
-// OLX wrappers
-
-#include "CGameMode.h"
-#include "Options.h"
-void InitGameModes() {}
-CGameMode* GameMode(GameModeIndex i) { return NULL; }
-GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
-void SystemError(const std::string& txt) {}
-GameOptions* tLXOptions = NULL;
-bool GameOptions::Init() { return false; }
-bool Con_IsInited() { return false; }
-void Con_AddText(int color, const std::string&, bool) {}
-
-#ifndef WIN32
-#include <setjmp.h>
-sigjmp_buf longJumpBuffer;
-#endif
