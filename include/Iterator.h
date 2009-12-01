@@ -162,7 +162,8 @@ typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return 
 template< typename _T >
 typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArrayIterator<_T>(s); }
 
-
+#ifndef foreach
 #define foreach( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
+#endif
 
 #endif

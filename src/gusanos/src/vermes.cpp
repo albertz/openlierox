@@ -394,6 +394,7 @@ END_OF_MAIN();
 
 // OLX wrappers
 
+#include "CGameMode.h"
 void InitGameModes() {}
 CGameMode* GameMode(GameModeIndex i) { return NULL; }
 void setCurThreadName(const std::string& name) {}
