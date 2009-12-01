@@ -20,7 +20,7 @@
 #include "CWorm.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
 #include "CMap.h"

@@ -43,7 +43,7 @@
 #include "ProfileSystem.h"
 #include "FlagInfo.h"
 #include "Utils.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "AuxLib.h"
 
 

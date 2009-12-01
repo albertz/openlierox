@@ -33,7 +33,7 @@
 #include "Condition.h"
 #include "PreInitVar.h"
 #include "Autocompletion.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 
 

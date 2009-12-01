@@ -40,7 +40,7 @@
 #include "Timer.h"
 #include "IRC.h"
 #include "FileUtils.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "HTTP.h"
 #include "Version.h"
 #include "CrashHandler.h"

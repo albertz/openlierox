@@ -170,6 +170,8 @@
 		23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C1723A108BA8960083A2BF /* dwarf2reader.cc */; };
 		23C1724B108BA8970083A2BF /* functioninfo.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C1723D108BA8960083A2BF /* functioninfo.cc */; };
 		23C174ED10BEF632003DBB09 /* GeoIPDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */; };
+		23C1819A10C49728003DBB09 /* TeeStdoutHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */; };
+		23C181BA10C49914003DBB09 /* MainGlobals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C181B910C49914003DBB09 /* MainGlobals.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -691,6 +693,9 @@
 		23C17240108BA8960083A2BF /* line_state_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = line_state_machine.h; sourceTree = "<group>"; };
 		23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoIPDatabase.cpp; sourceTree = "<group>"; };
 		23C1816A10C49602003DBB09 /* OLXCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXCommand.h; sourceTree = "<group>"; };
+		23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TeeStdoutHandler.cpp; sourceTree = "<group>"; };
+		23C1819B10C4977D003DBB09 /* TeeStdoutHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TeeStdoutHandler.h; sourceTree = "<group>"; };
+		23C181B910C49914003DBB09 /* MainGlobals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainGlobals.cpp; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1521,6 +1526,8 @@
 				23210160101DFAF900510514 /* CGameObject.cpp */,
 				237885741050369300195629 /* memstats.cpp */,
 				23A44551108C958E0015918B /* SMTP.cpp */,
+				23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */,
+				23C181B910C49914003DBB09 /* MainGlobals.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -1675,6 +1682,7 @@
 				23F69EAE0FD4777500793B24 /* RefCounter.h */,
 				23F6A3300FD6D86A00793B24 /* DynDraw.h */,
 				23A44550108C94B70015918B /* SMTP.h */,
+				23C1819B10C4977D003DBB09 /* TeeStdoutHandler.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -2209,6 +2217,8 @@
 				23C1724B108BA8970083A2BF /* functioninfo.cc in Sources */,
 				23A44552108C958E0015918B /* SMTP.cpp in Sources */,
 				23C174ED10BEF632003DBB09 /* GeoIPDatabase.cpp in Sources */,
+				23C1819A10C49728003DBB09 /* TeeStdoutHandler.cpp in Sources */,
+				23C181BA10C49914003DBB09 /* MainGlobals.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

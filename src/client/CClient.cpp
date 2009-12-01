@@ -48,7 +48,7 @@
 #include "FlagInfo.h"
 #include "CMap.h"
 #include "DedicatedControl.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 #include <zip.h> // For unzipping downloaded mod
 

@@ -42,7 +42,7 @@
 #include "IpToCountryDB.h"
 #include "Unicode.h"
 #include "Autocompletion.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "TaskManager.h"
 
 

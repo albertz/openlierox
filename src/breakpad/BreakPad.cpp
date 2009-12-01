@@ -27,6 +27,7 @@
 #include "FindFile.h"
 #include "CrashHandler.h"
 #include "Process.h"
+#include "TeeStdoutHandler.h"
 
 #ifndef WIN32
 #include <unistd.h>

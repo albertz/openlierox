@@ -45,7 +45,7 @@
 #include "CChannel.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "Process.h"
 #include "Event.h"
 #include "CGameMode.h"

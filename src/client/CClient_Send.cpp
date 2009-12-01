@@ -22,7 +22,7 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "ChatCommand.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "EndianSwap.h"
 #include "CServer.h"
 #include "AuxLib.h"
