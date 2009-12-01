@@ -42,7 +42,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "CGameMode.h"
 #include "DeprecatedGUI/CChatWidget.h"
 

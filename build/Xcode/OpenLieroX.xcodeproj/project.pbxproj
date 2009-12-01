@@ -698,6 +698,7 @@
 		23C1819B10C4977D003DBB09 /* TeeStdoutHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TeeStdoutHandler.h; sourceTree = "<group>"; };
 		23C181B910C49914003DBB09 /* MainGlobals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainGlobals.cpp; sourceTree = "<group>"; };
 		23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SystemFunctions.cpp; sourceTree = "<group>"; };
+		23C182B210C4A8B3003DBB09 /* OLXConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXConsole.h; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -856,7 +857,6 @@
 		EA430C5B0BEFCEDE00C6547E /* CMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMap.h; path = ../../include/CMap.h; sourceTree = SOURCE_ROOT; };
 		EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CNinjaRope.h; path = ../../include/CNinjaRope.h; sourceTree = SOURCE_ROOT; };
 		EA430C610BEFCEDE00C6547E /* ConfigHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigHandler.h; path = ../../include/ConfigHandler.h; sourceTree = SOURCE_ROOT; };
-		EA430C620BEFCEDE00C6547E /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console.h; path = ../../include/console.h; sourceTree = SOURCE_ROOT; };
 		EA430C630BEFCEDE00C6547E /* CProjectile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CProjectile.h; path = ../../include/CProjectile.h; sourceTree = SOURCE_ROOT; };
 		EA430C650BEFCEDE00C6547E /* CServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CServer.h; path = ../../include/CServer.h; sourceTree = SOURCE_ROOT; };
 		EA430C660BEFCEDE00C6547E /* CShootList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CShootList.h; path = ../../include/CShootList.h; sourceTree = SOURCE_ROOT; };
@@ -1562,6 +1562,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23C182B210C4A8B3003DBB09 /* OLXConsole.h */,
 				23C1816A10C49602003DBB09 /* OLXCommand.h */,
 				2321012C101DF88A00510514 /* CGameObject.h */,
 				238944620FC735FB008F031D /* IRC_ReplyCodes.h */,
@@ -1639,7 +1640,6 @@
 				EA430C5B0BEFCEDE00C6547E /* CMap.h */,
 				EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */,
 				EA430C610BEFCEDE00C6547E /* ConfigHandler.h */,
-				EA430C620BEFCEDE00C6547E /* console.h */,
 				EA430C630BEFCEDE00C6547E /* CProjectile.h */,
 				236718780F7F8AAB00416803 /* ProjectileDesc.h */,
 				EA430C650BEFCEDE00C6547E /* CServer.h */,

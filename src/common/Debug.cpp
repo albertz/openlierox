@@ -538,7 +538,7 @@ Logger errors(-1,-1,1, "E: ");
 #include <sstream>
 #include "ThreadPool.h"
 #include "Options.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "StringUtils.h"
 
 static SDL_mutex* globalCoutMutex = NULL;

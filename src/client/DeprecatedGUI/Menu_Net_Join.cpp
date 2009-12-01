@@ -36,7 +36,7 @@
 #include "AuxLib.h"
 #include "CClientNetEngine.h"
 #include "Debug.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "DeprecatedGUI/CChatWidget.h"
 
 

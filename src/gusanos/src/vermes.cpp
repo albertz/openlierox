@@ -402,3 +402,5 @@ GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
 void SystemError(const std::string& txt) {}
 GameOptions* tLXOptions = NULL;
 bool GameOptions::Init() { return false; }
+bool Con_IsInited() { return false; }
+void Con_AddText(int color, const std::string&, bool) {}

@@ -23,7 +23,7 @@
 #include "CServer.h"
 #include "CServerConnection.h"
 #include "CBonus.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"

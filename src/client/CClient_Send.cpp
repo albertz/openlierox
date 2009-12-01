@@ -29,7 +29,7 @@
 #include "CChannel.h"
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
-#include "console.h"
+#include "OLXConsole.h"
 
 
 

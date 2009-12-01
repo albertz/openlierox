@@ -23,7 +23,7 @@
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CMenu.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "DeprecatedGUI/CBar.h"

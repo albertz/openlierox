@@ -20,7 +20,7 @@
 
 #include "Debug.h"
 #include "LieroX.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "EndianSwap.h"
 #include "AuxLib.h"
 #include "Error.h"

@@ -19,7 +19,7 @@
 #include "CClient.h"
 #include "CBonus.h"
 #include "DeprecatedGUI/Menu.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "FindFile.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/CBar.h"

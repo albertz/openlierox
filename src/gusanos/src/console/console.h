@@ -163,10 +163,4 @@ struct ConsoleAddLines
 };
 
 
-// OLX wrappers
-
-#include "OLXCommand.h"
-static inline bool Con_IsInited() { return false; }
-static inline void Con_AddText(int color, const std::string&, bool) {}
-
 #endif  // _CONSOLE_H_

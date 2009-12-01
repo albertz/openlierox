@@ -21,7 +21,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "ConfigHandler.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "InputEvents.h"

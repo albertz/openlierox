@@ -27,7 +27,7 @@
 #include "Entity.h"
 #include "CBonus.h"
 #include "CClient.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "Debug.h"
 #include "CServer.h"
 #include "FlagInfo.h"

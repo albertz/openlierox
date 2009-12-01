@@ -22,7 +22,7 @@
 #include "Debug.h"
 #include "CServer.h"
 #include "CClient.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "StringUtils.h"
 #include "sex.h"
 #include "CWorm.h"
