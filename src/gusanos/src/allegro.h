@@ -144,24 +144,21 @@ struct RGB
 
 struct BITMAP            /* a bitmap structure */
 	{
-		// rest of old vtable
-		int bitmap_type;
-		int color_depth;
-		int mask_color;
+		SDL_Surface* surf;
 		
 		// BITMAP itself
 		int w, h;                     /* width and height in pixels */
-		int clip;                     /* flag if clipping is turned on */
+		//int clip;                     /* flag if clipping is turned on */
 		int cl, cr, ct, cb;           /* clip left, right, top and bottom values */
 
-		void (*write_bank)();         /* write bank selector, see bank.s */
-		void (*read_bank)();          /* read bank selector, see bank.s */
-		void *dat;                    /* the memory we allocated for the bitmap */
-		int bitmap_id;                /* for identifying sub-bitmaps */
-		void *extra;                  /* points to a structure with more info */
-		int line_ofs;                 /* line offset (for screen sub-bitmaps) */
-		int seg;                      /* bitmap segment */
-		unsigned char *line[0];       /* pointers to the start of each line */
+		//void (*write_bank)();         /* write bank selector, see bank.s */
+		//void (*read_bank)();          /* read bank selector, see bank.s */
+		//void *dat;                    /* the memory we allocated for the bitmap */
+		//int bitmap_id;                /* for identifying sub-bitmaps */
+		//void *extra;                  /* points to a structure with more info */
+		//int line_ofs;                 /* line offset (for screen sub-bitmaps) */
+		//int seg;                      /* bitmap segment */
+		unsigned char **line;       /* pointers to the start of each line */
 	};
 
 
@@ -176,7 +173,7 @@ void destroy_bitmap(BITMAP *bitmap);
 
 __INLINE__ int bitmap_color_depth(BITMAP *bmp)
 {
-	return bmp->color_depth;
+	return bmp->surf->format->BitsPerPixel;
 }
 
 
@@ -185,7 +182,7 @@ __INLINE__ int bitmap_color_depth(BITMAP *bmp)
 
 __INLINE__ int is_planar_bitmap(BITMAP *bmp)
 {
-	return (bmp->bitmap_type == BMP_TYPE_PLANAR);
+	return true; // TODO ?
 }
 
 __INLINE__ int is_video_bitmap(BITMAP *bmp)
