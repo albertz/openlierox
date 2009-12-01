@@ -128,24 +128,9 @@ struct Net_ReplicatorBasic;
 
 struct Net_Node {
 	eNet_NodeRole getRole();
-	
-	bool checkEventWaiting();
-	Net_BitStream* getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*);
-	
-	void sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*);
-	void sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID);
-
-	void addReplicator(Net_ReplicatorBasic*, bool);
-	
-	void beginReplicationSetup(int something = 0);
-	void setInterceptID(Net_InterceptID);
-	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
-	//void addReplicationBool(Net_S32*, Net_RepFlags, Net_RepRules, bool, int p1 = 0, int p2 = 0, int p3 = 0);
-	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
-	void endReplicationSetup();
-	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
-	
-	void setEventNotification(bool,bool); // TODO: true,false -> enables eEvent_Init
+	void setOwner(Net_ConnID, bool something);
+	void setAnnounceData(Net_BitStream*);	
+	Net_NodeID getNetworkID();
 	
 	bool registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*);
 	bool registerNodeDynamic(Net_ClassID, Net_Control*);
@@ -154,11 +139,22 @@ struct Net_Node {
 	void applyForNetLevel(int something);
 	void removeFromNetLevel(int something);
 	
-	void setOwner(Net_ConnID, bool something);
 	
-	void setAnnounceData(Net_BitStream*);
+	void setEventNotification(bool,bool); // TODO: true,false -> enables eEvent_Init
+	void sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*);
+	void sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID);
+	bool checkEventWaiting();
+	Net_BitStream* getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*);
 	
-	Net_NodeID getNetworkID();
+
+	void addReplicator(Net_ReplicatorBasic*, bool);	
+	void beginReplicationSetup(int something = 0);
+	void setInterceptID(Net_InterceptID);
+	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
+	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
+	void endReplicationSetup();
+	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
+	
 	
 	void acceptFile(Net_ConnID, Net_FileTransID, int, bool accept);
 	Net_FileTransID sendFile(const char* filename, int, Net_ConnID, int, float);
@@ -175,12 +171,11 @@ struct Net_Address;
 struct Net_Control {
 	void Net_Connect(const Net_Address&, void*);
 	void Shutdown();
-	
-	Net_Address* Net_getPeer(Net_ConnID);
-	
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
 	
+	Net_Address* Net_getPeer(Net_ConnID);
+		
 	Net_BitStream* Net_createBitStream();
 
 	void Net_processOutput();
@@ -193,20 +188,16 @@ struct Net_Control {
 };
 
 struct Net_ReplicatorBasic {
+	uint8_t m_flags;
+
 	Net_ReplicatorBasic(Net_ReplicatorSetup*);
 	
-	uint8_t m_flags;
 	Net_BitStream* getPeekStream();
-	
 	void* peekDataRetrieve();
 
-
 	// replicator
-	
+	Net_ReplicatorSetup* getSetup();	
 	void* peekData();
-	
-	Net_ReplicatorSetup* getSetup();
-	
 	void peekDataStore(void*);
 };
 

@@ -249,6 +249,8 @@
 		23C1822310C49D8F003DBB09 /* IniReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1822210C49D8F003DBB09 /* IniReader.cpp */; };
 		23C1822510C49DA9003DBB09 /* ConfigHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1822410C49DA9003DBB09 /* ConfigHandler.cpp */; };
 		23C1827510C4A090003DBB09 /* SystemFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1827410C4A090003DBB09 /* SystemFunctions.cpp */; };
+		23C1829D10C4A422003DBB09 /* Vorbis.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1D10C455C9003DBB09 /* Vorbis.framework */; };
+		23C1829E10C4A422003DBB09 /* Ogg.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1B10C455BD003DBB09 /* Ogg.framework */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -269,6 +271,21 @@
 			remoteInfo = HawkNL;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		23C182A510C4A442003DBB09 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				23C1829D10C4A422003DBB09 /* Vorbis.framework in Copy Frameworks */,
+				23C1829E10C4A422003DBB09 /* Ogg.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -1485,6 +1502,7 @@
 				8D0C4E8C0486CD37000505A6 /* Resources */,
 				8D0C4E8F0486CD37000505A6 /* Sources */,
 				8D0C4E910486CD37000505A6 /* Frameworks */,
+				23C182A510C4A442003DBB09 /* Copy Frameworks */,
 			);
 			buildRules = (
 			);
