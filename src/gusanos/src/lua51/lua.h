@@ -302,7 +302,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** Event codes
+** GameEvent codes
 */
 #define LUA_HOOKCALL	0
 #define LUA_HOOKRET	1
@@ -312,7 +312,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** Event masks
+** GameEvent masks
 */
 #define LUA_MASKCALL	(1 << LUA_HOOKCALL)
 #define LUA_MASKRET	(1 << LUA_HOOKRET)

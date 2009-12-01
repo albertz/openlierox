@@ -53,11 +53,8 @@
 #			define hash_set std::tr1::unordered_set
 #		else
 #			include <ext/hash_set>
-#			ifdef _GLIBCXX_DEBUG
-				using namespace __gnu_debug_def;
-#			else
-				using namespace __gnu_cxx;
-#			endif
+			using namespace __gnu_cxx;
+			using namespace __gnu_debug_def;
 #		endif
 #	else // STLPORT
 #		include <hash_set>

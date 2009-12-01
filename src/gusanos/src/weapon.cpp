@@ -95,7 +95,7 @@ void Weapon::think( bool isFocused, size_t index )
 					m_type->primaryShoot->run(m_owner, NULL, NULL, this );
 					if ( m_owner->getRole() == eNet_RoleAuthority && m_type->syncHax ) {
 						Net_BitStream* data = new Net_BitStream;
-						Encoding::encode(*data, SHOOT, EventsCount);
+						Encoding::encode(*data, SHOOT, GameEventsCount);
 						m_owner->sendWeaponMessage( index, data, Net_REPRULE_AUTH_2_PROXY );
 						delete data;
 					}
@@ -113,14 +113,14 @@ void Weapon::think( bool isFocused, size_t index )
 				if ( network.isHost() && m_type->syncReload ) {
 					Net_BitStream* data = new Net_BitStream;
 					//data->addInt( OUTOFAMMO , 8);
-					Encoding::encode(*data, OUTOFAMMO, EventsCount);
+					Encoding::encode(*data, OUTOFAMMO, GameEventsCount);
 					m_owner->sendWeaponMessage( index, data );
 					delete data;
 					sentOutOfAmmo = true;
 				}
 			} else {
 				Net_BitStream* data = new Net_BitStream;
-				Encoding::encode(*data, OutOfAmmoCheck, EventsCount);
+				Encoding::encode(*data, OutOfAmmoCheck, GameEventsCount);
 				m_owner->sendWeaponMessage( index, data, Net_REPRULE_OWNER_2_AUTH );
 				delete data;
 				//std::cout << "sent check plz message" << endl;
@@ -135,7 +135,7 @@ void Weapon::think( bool isFocused, size_t index )
 				if ( network.isHost() && m_type->syncReload ) {
 					Net_BitStream* data = new Net_BitStream;
 					//data->addInt( RELOADED , 8);
-					Encoding::encode(*data, RELOADED, EventsCount);
+					Encoding::encode(*data, RELOADED, GameEventsCount);
 					m_owner->sendWeaponMessage( index, data );
 					delete data;
 				}
@@ -149,7 +149,7 @@ void Weapon::think( bool isFocused, size_t index )
 		if ( ammo > 0 ) {
 			//std::cout << "Sending correction" << endl;
 			Net_BitStream* data = new Net_BitStream;
-			Encoding::encode(*data, AmmoCorrection, EventsCount);
+			Encoding::encode(*data, AmmoCorrection, GameEventsCount);
 			Encoding::encode(*data, ammo, m_type->ammo+1);
 			m_owner->sendWeaponMessage(index, data, Net_REPRULE_AUTH_2_OWNER );
 		} else {
@@ -200,7 +200,7 @@ void Weapon::drawTop(BITMAP* where,int x, int y)
 
 void Weapon::recieveMessage( Net_BitStream* data )
 {
-	Events event = static_cast<Events>(Encoding::decode(*data, EventsCount));
+	GameEvents event = static_cast<GameEvents>(Encoding::decode(*data, GameEventsCount));
 	switch ( event ) {
 			case OUTOFAMMO: {
 				outOfAmmo();
@@ -228,7 +228,7 @@ void Weapon::recieveMessage( Net_BitStream* data )
 				m_outOfAmmo = false;
 			}
 
-			case EventsCount:
+			case GameEventsCount:
 			break;
 	}
 }

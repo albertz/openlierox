@@ -390,3 +390,9 @@ catch(...)
 }
 //Control reaches end of non-void function
 END_OF_MAIN();
+
+
+
+// OLX wrappers
+
+void setBinaryDirAndName(char* argv0) {}

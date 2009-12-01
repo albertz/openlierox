@@ -68,7 +68,7 @@ ExpType::~ExpType()
 	}
 }
 
-namespace EventID
+namespace GameEventID
 {
 enum type
 {
@@ -88,9 +88,9 @@ bool ExpType::load(fs::path const& filename)
 	
 	namespace af = OmfgScript::ActionParamFlags;
 		
-	parser.addEvent("creation", EventID::Creation, af::Object);
+	parser.addEvent("creation", GameEventID::Creation, af::Object);
 	
-	parser.addEvent("detect_range", EventID::DetectRange, af::Object | af::Object2)
+	parser.addEvent("detect_range", GameEventID::DetectRange, af::Object | af::Object2)
 		("range")
 		("detect_owner")
 		("layers")
@@ -149,17 +149,17 @@ bool ExpType::load(fs::path const& filename)
 
 	colour = parser.getProperty("color", "colour")->toColor(255, 255, 255);
 	
-	OmfgScript::Parser::EventIter i(parser);
+	OmfgScript::Parser::GameEventIter i(parser);
 	for(; i; ++i)
 	{
 		std::vector<OmfgScript::TokenBase*> const& p = i.params();
 		switch(i.type())
 		{
-			case EventID::Creation:
-				creation = new Event(i.actions());
+			case GameEventID::Creation:
+				creation = new GameEvent(i.actions());
 			break;
 			
-			case EventID::DetectRange:
+			case GameEventID::DetectRange:
 				
 				int detectFilter = 0;
 				if(p[2]->isList())

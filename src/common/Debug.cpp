@@ -10,7 +10,7 @@
 #include "Debug.h"
 #include "StringUtils.h"
 #include "CrashHandler.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 
 #include <time.h>

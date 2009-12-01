@@ -184,14 +184,14 @@ struct ActionDef
 	int requireMask;
 };
 
-struct EventDef
+struct GameEventDef
 {
-	EventDef(std::string const& name_, ParamDef* paramDef_, int type_, int provideMask_)
+	GameEventDef(std::string const& name_, ParamDef* paramDef_, int type_, int provideMask_)
 	: name(name_), paramDef(paramDef_), type(type_), provideMask(provideMask_)
 	{
 	}
 	
-	~EventDef()
+	~GameEventDef()
 	{
 		delete paramDef;
 	}
@@ -518,21 +518,21 @@ ActionDef* ActionFactory::operator[](std::string const& name)
 
 struct ParserImpl : public TGrammar<ParserImpl>
 {
-	struct Event
+	struct GameEvent
 	{
-		Event(EventDef* def_, Parameters* params_, std::vector<BaseAction*>& actions_)
+		GameEvent(GameEventDef* def_, Parameters* params_, std::vector<BaseAction*>& actions_)
 		: def(def_), params(params_)
 		{
 			actions.swap(actions_);
 		}
 		
-		~Event()
+		~GameEvent()
 		{
 			delete params;
 		}
 		
 		//std::string name;
-		EventDef* def;
+		GameEventDef* def;
 		Parameters* params;
 		std::vector<BaseAction*> actions;
 	};
@@ -613,7 +613,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 		return 0;
 	}
 	
-	EventDef* getEventDef(std::string const& name)
+	GameEventDef* getEventDef(std::string const& name)
 	{
 		crc.process_bytes(name.data(), name.size());
 		let_(i, eventDef.find(name));
@@ -677,27 +677,27 @@ struct ParserImpl : public TGrammar<ParserImpl>
 		return action->create(params->params);
 	}
 	
-	void addEvent(EventDef* event, std::auto_ptr<Parameters> params, std::vector<BaseAction*>& actions)
+	void addEvent(GameEventDef* event, std::auto_ptr<Parameters> params, std::vector<BaseAction*>& actions)
 	{
 		params->calcCRC(crc);
-		events.push_back(new Event(event, params.release(), actions));
+		events.push_back(new GameEvent(event, params.release(), actions));
 	}
 	
 	std::istream& str;
 	std::string fileName;
 	std::map<std::string, Property*> properties;
-	std::list<Event*> events;
+	std::list<GameEvent*> events;
 	boost::crc_32_type crc;
 	
 	//
-	std::map<std::string, EventDef*> eventDef;
+	std::map<std::string, GameEventDef*> eventDef;
 	ActionFactory& actionFactory;
 };
 
-struct EventData
+struct GameEventData
 {
-	typedef std::list<ParserImpl::Event*>::const_iterator Iter;
-	EventData(Iter i_, Iter end_)
+	typedef std::list<ParserImpl::GameEvent*>::const_iterator Iter;
+	GameEventData(Iter i_, Iter end_)
 	: i(i_), end(end_)
 	{
 	}
@@ -708,40 +708,40 @@ struct EventData
 
 TokenBase Parser::globalDefault(Location("<nowhere>", 0));
 
-#define self (static_cast<EventData *>(data))
-Parser::EventIter::~EventIter()
+#define self (static_cast<GameEventData *>(data))
+Parser::GameEventIter::~GameEventIter()
 {
 	delete self;
 }
 	
-Parser::EventIter& Parser::EventIter::operator++()
+Parser::GameEventIter& Parser::GameEventIter::operator++()
 {
 	++self->i;
 	return *this;
 }
 
-Parser::EventIter::operator bool()
+Parser::GameEventIter::operator bool()
 {
 	return self->i != self->end;
 }
 
-int Parser::EventIter::type()
+int Parser::GameEventIter::type()
 {
 	return (*self->i)->def->type;
 }
 	
-std::vector<TokenBase*> const& Parser::EventIter::params()
+std::vector<TokenBase*> const& Parser::GameEventIter::params()
 {
 	return (*self->i)->params->params;
 }
 
-std::vector<BaseAction*>& Parser::EventIter::actions()
+std::vector<BaseAction*>& Parser::GameEventIter::actions()
 {
 	return (*self->i)->actions;
 }
 
-Parser::EventIter::EventIter(Parser& parser)
-: data(new EventData(parser.pimpl->events.begin(), parser.pimpl->events.end()))
+Parser::GameEventIter::GameEventIter(Parser& parser)
+: data(new GameEventData(parser.pimpl->events.begin(), parser.pimpl->events.end()))
 {
 	
 }
@@ -761,7 +761,7 @@ Parser::~Parser()
 ParamProxy Parser::addEvent(std::string const& name, int type, int provideMask)
 {
 	ParamDef* paramDef = new ParamDef;
-	pimpl->eventDef[name] = new EventDef(name, paramDef, type, provideMask);
+	pimpl->eventDef[name] = new GameEventDef(name, paramDef, type, provideMask);
 	return ParamProxy(paramDef);
 }
 

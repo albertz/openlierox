@@ -239,13 +239,13 @@ struct Parser : public Pimpl<ParserImpl>
 	
 	
 	
-	struct EventIter
+	struct GameEventIter
 	{
 		friend struct Parser;
 		
-		~EventIter();
+		~GameEventIter();
 		
-		EventIter& operator++();
+		GameEventIter& operator++();
 		
 		operator bool();
 		
@@ -253,7 +253,7 @@ struct Parser : public Pimpl<ParserImpl>
 		std::vector<TokenBase*> const& params();
 		std::vector<BaseAction*>& actions();
 		
-		EventIter(Parser&);
+		GameEventIter(Parser&);
 		
 	private:	
 		void* data;

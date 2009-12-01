@@ -14,7 +14,7 @@ namespace fs = boost::filesystem;
 #ifndef DEDSERV
 class SpriteSet;
 #endif
-class Event;
+class GameEvent;
 class TimerEvent;
 
 class WeaponType : public ResourceBase
@@ -54,11 +54,11 @@ public:
 	std::vector< TimerEvent* > activeTimer;
 	std::vector< TimerEvent* > shootTimer;
 
-	Event *primaryShoot;
-	Event *primaryPressed;
-	Event *primaryReleased;
-	Event *outOfAmmo;
-	Event *reloadEnd;
+	GameEvent *primaryShoot;
+	GameEvent *primaryPressed;
+	GameEvent *primaryReleased;
+	GameEvent *outOfAmmo;
+	GameEvent *reloadEnd;
 };
 
 struct WeaponOrder

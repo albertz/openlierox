@@ -4,7 +4,7 @@
 #include "events.h"
 #include "util/math_func.h"
 
-struct TimerEvent : public Event
+struct TimerEvent : public GameEvent
 {
 	int delay;
 	int delayVariation;

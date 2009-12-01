@@ -1,4 +1,4 @@
-#include "lierox.h"
+#include "LieroXLevelLoader.h"
 #include "../gfx.h"
 #include "zlib.h"
 #include <string>

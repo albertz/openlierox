@@ -112,10 +112,10 @@ public:
 	
 	std::vector< TimerEvent* > timer;
 	std::vector< DetectEvent* > detectRanges;
-	std::vector< Event* > customEvents;
-	Event *groundCollision;
-	Event *creation;
-	Event *death;
+	std::vector< GameEvent* > customEvents;
+	GameEvent *groundCollision;
+	GameEvent *creation;
+	GameEvent *death;
 	
 	enum
 	{

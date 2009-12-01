@@ -39,7 +39,7 @@
 #include "hash_table.h"
 
 #include "loaders/vermes.h"
-#include "loaders/lierox.h"
+#include "loaders/LieroXLevelLoader.h"
 #include "loaders/liero.h"
 #include "loaders/losp.h"
 #include "glua.h"

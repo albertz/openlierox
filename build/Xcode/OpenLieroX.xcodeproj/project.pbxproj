@@ -243,7 +243,6 @@
 		23F6A3430FD6DF0300793B24 /* DynDraw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23F6A3420FD6DF0300793B24 /* DynDraw.cpp */; };
 		EA38B0350C467928008ABAAE /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA38B0320C467928008ABAAE /* Cursor.cpp */; };
 		EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
-		EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
 		EABBC24C0C5A0BB9003884A9 /* SDL_image.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2400C5A021F003884A9 /* SDL_image.framework */; };
 		EABBC24D0C5A0BBC003884A9 /* SDL_mixer.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = EABBC2460C5A0BA8003884A9 /* SDL_mixer.framework */; };
 		EABBC2590C5A5718003884A9 /* MacMain.m in Sources */ = {isa = PBXBuildFile; fileRef = EABBC2580C5A5718003884A9 /* MacMain.m */; };
@@ -691,6 +690,7 @@
 		23C1723F108BA8960083A2BF /* functioninfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = functioninfo.h; sourceTree = "<group>"; };
 		23C17240108BA8960083A2BF /* line_state_machine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = line_state_machine.h; sourceTree = "<group>"; };
 		23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GeoIPDatabase.cpp; sourceTree = "<group>"; };
+		23C1816A10C49602003DBB09 /* OLXCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXCommand.h; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -848,7 +848,6 @@
 		EA430C560BEFCEDE00C6547E /* CInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CInput.h; path = ../../include/CInput.h; sourceTree = SOURCE_ROOT; };
 		EA430C5B0BEFCEDE00C6547E /* CMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMap.h; path = ../../include/CMap.h; sourceTree = SOURCE_ROOT; };
 		EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CNinjaRope.h; path = ../../include/CNinjaRope.h; sourceTree = SOURCE_ROOT; };
-		EA430C5F0BEFCEDE00C6547E /* Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Command.h; path = ../../include/Command.h; sourceTree = SOURCE_ROOT; };
 		EA430C610BEFCEDE00C6547E /* ConfigHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ConfigHandler.h; path = ../../include/ConfigHandler.h; sourceTree = SOURCE_ROOT; };
 		EA430C620BEFCEDE00C6547E /* console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console.h; path = ../../include/console.h; sourceTree = SOURCE_ROOT; };
 		EA430C630BEFCEDE00C6547E /* CProjectile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CProjectile.h; path = ../../include/CProjectile.h; sourceTree = SOURCE_ROOT; };
@@ -956,7 +955,6 @@
 				EABBC2B50C5A9DEE003884A9 /* GD.framework in Frameworks */,
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
-				EABBC24B0C5A0BA8003884A9 /* SDL_mixer.framework in Frameworks */,
 				2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1554,6 +1552,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				23C1816A10C49602003DBB09 /* OLXCommand.h */,
 				2321012C101DF88A00510514 /* CGameObject.h */,
 				238944620FC735FB008F031D /* IRC_ReplyCodes.h */,
 				238944630FC735FB008F031D /* SafeVector.h */,
@@ -1629,7 +1628,6 @@
 				EA430C560BEFCEDE00C6547E /* CInput.h */,
 				EA430C5B0BEFCEDE00C6547E /* CMap.h */,
 				EA430C5E0BEFCEDE00C6547E /* CNinjaRope.h */,
-				EA430C5F0BEFCEDE00C6547E /* Command.h */,
 				EA430C610BEFCEDE00C6547E /* ConfigHandler.h */,
 				EA430C620BEFCEDE00C6547E /* console.h */,
 				EA430C630BEFCEDE00C6547E /* CProjectile.h */,
@@ -2396,7 +2394,6 @@
 					/usr/include/libxml2,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
@@ -2519,7 +2516,6 @@
 					/usr/include/libxml2,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
@@ -2645,7 +2641,6 @@
 					/usr/include/libxml2,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
@@ -2819,7 +2814,6 @@
 					/usr/include/libxml2,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
@@ -2873,7 +2867,6 @@
 					/usr/include/libxml2,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
-					/Library/Frameworks/SDL_mixer.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";

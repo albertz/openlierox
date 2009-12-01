@@ -209,7 +209,7 @@ void Particle::assignNetworkRole( bool authority )
 			allegro_message("ERROR: Unable to register particle authority node.");
 	} else {
 		m_node->setEventNotification(false, true); // Same but for the remove event.
-		//DLOG("Event notification set");
+		//DLOG("GameEvent notification set");
 		if( !m_node->registerRequestedNode( classID, network.getNetControl() ) )
 			allegro_message("ERROR: Unable to register particle requested node.");
 	}

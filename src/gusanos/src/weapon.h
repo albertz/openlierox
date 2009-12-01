@@ -26,14 +26,14 @@ public:
 		SECONDARY_TRIGGER
 	};
 	
-	enum Events
+	enum GameEvents
 	{
 		RELOADED = 0,
 		OUTOFAMMO,
 		SHOOT,
 		OutOfAmmoCheck,
 		AmmoCorrection,
-		EventsCount
+		GameEventsCount
 	};
 		
 	Weapon(WeaponType* type, BaseWorm* owner);

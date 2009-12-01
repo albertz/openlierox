@@ -994,7 +994,7 @@ return false;
  }}
 return true; }
 bool full() { return cur == 0 && !error; }
-void rule_action(EventDef* event, std::vector<BaseAction*>& actions) {
+void rule_action(GameEventDef* event, std::vector<BaseAction*>& actions) {
 if(!matchToken(16)) return;
 std::auto_ptr<STRING> name(static_cast<STRING*>(curData.release()));
 next();
@@ -1009,7 +1009,7 @@ next();
 		}
 		else if((action->requireMask & event->provideMask) != action->requireMask)
 		{
-			semanticError("Event does not provide the necessary requirements for this action");
+			semanticError("GameEvent does not provide the necessary requirements for this action");
 	
 while(cur != 6 && cur != 0) next();
 next();
@@ -1042,7 +1042,7 @@ if(!matchToken(16)) return;
 std::auto_ptr<STRING> name(static_cast<STRING*>(curData.release()));
 next();
 
-		EventDef* event(self->getEventDef(name->str));
+		GameEventDef* event(self->getEventDef(name->str));
 		if(!event)
 		{
 	

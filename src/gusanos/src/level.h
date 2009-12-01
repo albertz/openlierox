@@ -69,8 +69,8 @@ struct LevelConfig
 	}
 	
 	std::vector<SpawnPoint> spawnPoints;
-	Event* gameStart;
-	Event* gameEnd;
+	GameEvent* gameStart;
+	GameEvent* gameEnd;
 	bool darkMode;
 };
 
@@ -205,6 +205,10 @@ private:
 	std::list<WaterParticle> m_water;
 	static const float WaterSkipFactor = 0.05f;
 };
+
+#ifdef SIGN
+#undef SIGN
+#endif
 
 #define SIGN(x_) ((x_) < 0 ? -1 : (x_) > 0 ? 1 : 0)
 

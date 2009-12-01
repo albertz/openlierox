@@ -359,11 +359,11 @@ LMETHOD(LuaEventDef, luaEvent_##type_##_send, \
 	
 	//rules// decides what computers to send the event to if //connection// is 0 or left out.
 	It can be any (or sometimes a sum) of:
-	* RepRule.Auth2All : Event is sent from the server to clients.
-	* RepRule.Auth2Owner : Event is sent from the server to clients owning the node.
-	* RepRule.Auth2Proxy : Event is sent from the server to clients not owning the node.
-	* RepRule.None : Event is not sent.
-	* RepRule.Owner2Auth : Event is sent from clients owning the node to the server.
+	* RepRule.Auth2All : GameEvent is sent from the server to clients.
+	* RepRule.Auth2Owner : GameEvent is sent from the server to clients owning the node.
+	* RepRule.Auth2Proxy : GameEvent is sent from the server to clients not owning the node.
+	* RepRule.None : GameEvent is not sent.
+	* RepRule.Owner2Auth : GameEvent is sent from clients owning the node to the server.
 	
 	A valid combination is (RepRule.Owner2Auth + RepRule.Auth2All) which sends the event
 	from owners to the server or from the server to all clients (depending on if we're the server or not).

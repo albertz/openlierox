@@ -22,18 +22,6 @@
 #include "types.h"
 
 
-#ifndef DEDICATED_ONLY
-// we are using SDL_mixer at the moment
-#include <SDL_mixer.h>
-
-#	if !defined(SDL_MIXER_MAJOR_VERSION) || (SDL_MIXER_MAJOR_VERSION < 1) || !defined(SDL_MIXER_MINOR_VERSION) || (SDL_MIXER_MINOR_VERSION < 2) || !defined(SDL_MIXER_PATCHLEVEL) || (SDL_MIXER_PATCHLEVEL < 8)
-// <=SDL_mixer-1.2.7 does not restart correctly 
-#		define SDLMIXER_WORKAROUND_RESTART	1
-#	else
-#		define SDLMIXER_WORKAROUND_RESTART	0
-#	endif
-#endif //DEDICATED_ONLY
-
 #define MUSIC_REPEAT_INFINITE -1
 
 #define SND_CMD MUS_CMD
@@ -49,7 +37,7 @@
 // for using this, handle with pointers of it
 struct SoundSample {
 #ifndef DEDICATED_ONLY	
-	Mix_Chunk* sample;
+// TODO ...
 #endif	//DEDICATED_ONLY
 	int maxsimulplays;
 // TODO: and other stuff
@@ -59,7 +47,7 @@ struct SoundSample {
 // Music
 struct SoundMusic {
 #ifndef DEDICATED_ONLY	
-	Mix_Music *sndMusic;
+	// TODO ...
 #endif //DEDICATED_ONLY
 };
 

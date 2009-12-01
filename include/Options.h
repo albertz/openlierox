@@ -14,8 +14,8 @@
 // Jason Boettcher
 
 
-#ifndef __OPTIONS_H__
-#define __OPTIONS_H__
+#ifndef __OLX_OPTIONS_H__
+#define __OLX_OPTIONS_H__
 
 #include <map>
 #include <vector>

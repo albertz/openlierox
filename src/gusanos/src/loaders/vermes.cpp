@@ -102,18 +102,18 @@ namespace{
 		
 		returnConf->darkMode = parser.getBool("dark_mode");
 		
-		OmfgScript::Parser::EventIter i(parser);
+		OmfgScript::Parser::GameEventIter i(parser);
 		for(; i; ++i)
 		{
 			//std::vector<OmfgScript::TokenBase*> const& p = i.params(); //unused
 			switch(i.type())
 			{
 				case GameStart:
-					returnConf->gameStart = new Event(i.actions());
+					returnConf->gameStart = new GameEvent(i.actions());
 				break;
 				
 				case GameEnd:
-					returnConf->gameEnd = new Event(i.actions());
+					returnConf->gameEnd = new GameEvent(i.actions());
 				break;
 			}
 		}

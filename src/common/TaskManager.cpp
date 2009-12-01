@@ -11,7 +11,7 @@
 #include "TaskManager.h"
 #include "Debug.h"
 #include "ReadWriteLock.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 TaskManager* taskManager = NULL;
 

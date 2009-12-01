@@ -11,12 +11,12 @@ class BaseWorm;
 class BaseObject;
 class BaseAction;
 
-struct Event
+struct GameEvent
 {
 public:
-	Event();
-	Event(std::vector<BaseAction*>&);
-	virtual ~Event();
+	GameEvent();
+	GameEvent(std::vector<BaseAction*>&);
+	virtual ~GameEvent();
 
 	bool addAction( const std::string& name, const std::vector<std::string>& params );
 	//void swapActionList(std::vector<BaseAction*>& b); //TODO

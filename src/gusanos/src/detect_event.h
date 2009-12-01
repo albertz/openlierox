@@ -3,10 +3,10 @@
 
 #include "events.h"
 
-class Event;
+class GameEvent;
 class BaseObject;
 
-struct DetectEvent : public Event
+struct DetectEvent : public GameEvent
 {
 	DetectEvent( float range, bool detectOwner, int detectFilter );
 	DetectEvent(std::vector<BaseAction*>&, float range, bool detectOwner, int detectFilter);
@@ -14,7 +14,7 @@ struct DetectEvent : public Event
 	
 	void check( BaseObject* ownerObject );
 			
-	//Event* m_event;
+	//GameEvent* m_event;
 	float m_range;
 	bool m_detectOwner;
 	unsigned int m_detectFilter; // detect filters ored together, 1 is worms filter, 2^n for the custom filters with n > 0

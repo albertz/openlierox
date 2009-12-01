@@ -17,7 +17,7 @@ namespace fs = boost::filesystem;
 
 class SpriteSet;
 class Distortion;
-class Event;
+class GameEvent;
 class DetectEvent;
 class Sprite;
 
@@ -51,7 +51,7 @@ public:
 	bool invisible;
 
 	std::vector< DetectEvent* > detectRanges;
-	Event *creation;
+	GameEvent *creation;
 };
 
 extern ResourceList<ExpType> expTypeList;

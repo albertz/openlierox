@@ -297,7 +297,7 @@ bool PartType::isSimpleParticleType()
 	return true;
 }
 
-namespace EventID
+namespace GameEventID
 {
 enum type
 {
@@ -321,23 +321,23 @@ bool PartType::load(fs::path const& filename)
 	
 	namespace af = OmfgScript::ActionParamFlags;
 		
-	parser.addEvent("creation", EventID::Creation, af::Object);
+	parser.addEvent("creation", GameEventID::Creation, af::Object);
 	
-	parser.addEvent("death", EventID::Death, af::Object);
+	parser.addEvent("death", GameEventID::Death, af::Object);
 	
-	parser.addEvent("ground_collision", EventID::GroundCollision, af::Object);
+	parser.addEvent("ground_collision", GameEventID::GroundCollision, af::Object);
 	
-	parser.addEvent("timer", EventID::Timer, af::Object)
+	parser.addEvent("timer", GameEventID::Timer, af::Object)
 		("delay")
 		("delay_var")
 		("max_trigger")
 	;
 	
-	parser.addEvent("custom_event", EventID::CustomEvent, af::Object | af::Object2)
+	parser.addEvent("custom_event", GameEventID::CustomEvent, af::Object | af::Object2)
 		("index", false)
 	;
 	
-	parser.addEvent("detect_range", EventID::DetectRange, af::Object | af::Object2)
+	parser.addEvent("detect_range", GameEventID::DetectRange, af::Object | af::Object2)
 		("range")
 		("detect_owner")
 		("layers")
@@ -466,29 +466,29 @@ bool PartType::load(fs::path const& filename)
 	
 	colour = parser.getProperty("color", "colour")->toColor(255, 255, 255);
 		
-	OmfgScript::Parser::EventIter i(parser);
+	OmfgScript::Parser::GameEventIter i(parser);
 	for(; i; ++i)
 	{
 		std::vector<OmfgScript::TokenBase*> const& p = i.params();
 		switch(i.type())
 		{
-			case EventID::Creation:
-				creation = new Event(i.actions());
+			case GameEventID::Creation:
+				creation = new GameEvent(i.actions());
 			break;
 			
-			case EventID::GroundCollision:
-				groundCollision = new Event(i.actions());
+			case GameEventID::GroundCollision:
+				groundCollision = new GameEvent(i.actions());
 			break;
 			
-			case EventID::Death:
-				death = new Event(i.actions());
+			case GameEventID::Death:
+				death = new GameEvent(i.actions());
 			break;
 			
-			case EventID::Timer:
+			case GameEventID::Timer:
 				timer.push_back(new TimerEvent(i.actions(), p[0]->toInt(100), p[1]->toInt(0), p[2]->toInt(0)));
 			break;
 			
-			case EventID::DetectRange:
+			case GameEventID::DetectRange:
 			{
 				int detectFilter = 0;
 				if(p[2]->isList())
@@ -512,12 +512,12 @@ bool PartType::load(fs::path const& filename)
 			}
 			break;
 			
-			case EventID::CustomEvent:
+			case GameEventID::CustomEvent:
 			{
 				size_t eventIndex = p[0]->toInt();
 				if ( eventIndex < customEvents.size() )
 				{
-					customEvents[eventIndex] = new Event(i.actions());
+					customEvents[eventIndex] = new GameEvent(i.actions());
 				}
 			}
 			break;
