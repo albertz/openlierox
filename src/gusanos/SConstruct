@@ -40,16 +40,8 @@ libs += ['omfgconsole', 'omfghttp', 'omfgutil', 'omfgui', 'omfgscript',
 libs += ['SDL', 'SDL_image', 'boost_filesystem', 'boost_signals', 'png', 'z', 'alut',
 			'openal', 'vorbisfile', 'xml2', 'crypto']
 
-###
-# Debug command-line option
-###
-if ARGUMENTS.get('debug', 0):
-	print "Debug environment"
-	env.Append(CCFLAGS = ' -g -Wall')
-	env.Append(CPPDEFINES = ' -DDEBUG')
-else:
-	print "Release environment"
-	env.Append(CCFLAGS = ' -O3')
+env.Append(CCFLAGS = '-ggdb -Wall')
+env.Append(CCFLAGS = '-DDEBUG')
 
 ###
 # Build the source libraries
