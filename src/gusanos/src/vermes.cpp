@@ -395,6 +395,10 @@ END_OF_MAIN();
 // OLX wrappers
 
 #include "CGameMode.h"
+#include "Options.h"
 void InitGameModes() {}
 CGameMode* GameMode(GameModeIndex i) { return NULL; }
-void setCurThreadName(const std::string& name) {}
+GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
+void SystemError(const std::string& txt) {}
+GameOptions* tLXOptions = NULL;
+bool GameOptions::Init() { return false; }

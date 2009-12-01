@@ -243,12 +243,12 @@
 		23C1816210C49565003DBB09 /* LieroXLevelLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1816010C49565003DBB09 /* LieroXLevelLoader.cpp */; };
 		23C181DC10C49AA9003DBB09 /* TeeStdoutHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C181DB10C49AA9003DBB09 /* TeeStdoutHandler.cpp */; };
 		23C181DE10C49AB4003DBB09 /* MainGlobals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C181DD10C49AB4003DBB09 /* MainGlobals.cpp */; };
-		23C1820410C49B94003DBB09 /* Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1820310C49B94003DBB09 /* Options.cpp */; };
 		23C1820610C49BA5003DBB09 /* EventQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1820510C49BA5003DBB09 /* EventQueue.cpp */; };
 		23C1820D10C49BF5003DBB09 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1820C10C49BF5003DBB09 /* Timer.cpp */; };
 		23C1821010C49C2C003DBB09 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1820F10C49C2C003DBB09 /* CScriptableVars.cpp */; };
 		23C1822310C49D8F003DBB09 /* IniReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1822210C49D8F003DBB09 /* IniReader.cpp */; };
 		23C1822510C49DA9003DBB09 /* ConfigHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1822410C49DA9003DBB09 /* ConfigHandler.cpp */; };
+		23C1827510C4A090003DBB09 /* SystemFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1827410C4A090003DBB09 /* SystemFunctions.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -698,12 +698,12 @@
 		23C1816110C49565003DBB09 /* LieroXLevelLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LieroXLevelLoader.h; sourceTree = "<group>"; };
 		23C181DB10C49AA9003DBB09 /* TeeStdoutHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TeeStdoutHandler.cpp; path = common/TeeStdoutHandler.cpp; sourceTree = "<group>"; };
 		23C181DD10C49AB4003DBB09 /* MainGlobals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MainGlobals.cpp; path = common/MainGlobals.cpp; sourceTree = "<group>"; };
-		23C1820310C49B94003DBB09 /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = client/Options.cpp; sourceTree = "<group>"; };
 		23C1820510C49BA5003DBB09 /* EventQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EventQueue.cpp; path = common/EventQueue.cpp; sourceTree = "<group>"; };
 		23C1820C10C49BF5003DBB09 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timer.cpp; path = common/Timer.cpp; sourceTree = "<group>"; };
 		23C1820F10C49C2C003DBB09 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CScriptableVars.cpp; path = common/CScriptableVars.cpp; sourceTree = "<group>"; };
 		23C1822210C49D8F003DBB09 /* IniReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IniReader.cpp; path = common/IniReader.cpp; sourceTree = "<group>"; };
 		23C1822410C49DA9003DBB09 /* ConfigHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigHandler.cpp; path = common/ConfigHandler.cpp; sourceTree = "<group>"; };
+		23C1827410C4A090003DBB09 /* SystemFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SystemFunctions.cpp; path = common/SystemFunctions.cpp; sourceTree = "<group>"; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1232,12 +1232,12 @@
 		23C1802010C48B07003DBB09 /* OLX src */ = {
 			isa = PBXGroup;
 			children = (
+				23C1827410C4A090003DBB09 /* SystemFunctions.cpp */,
 				23C1822410C49DA9003DBB09 /* ConfigHandler.cpp */,
 				23C1822210C49D8F003DBB09 /* IniReader.cpp */,
 				23C1820F10C49C2C003DBB09 /* CScriptableVars.cpp */,
 				23C1820C10C49BF5003DBB09 /* Timer.cpp */,
 				23C1820510C49BA5003DBB09 /* EventQueue.cpp */,
-				23C1820310C49B94003DBB09 /* Options.cpp */,
 				23C181DD10C49AB4003DBB09 /* MainGlobals.cpp */,
 				23C181DB10C49AA9003DBB09 /* TeeStdoutHandler.cpp */,
 				23C180EC10C4919F003DBB09 /* Mutex.cpp */,
@@ -1769,12 +1769,12 @@
 				23C1816210C49565003DBB09 /* LieroXLevelLoader.cpp in Sources */,
 				23C181DC10C49AA9003DBB09 /* TeeStdoutHandler.cpp in Sources */,
 				23C181DE10C49AB4003DBB09 /* MainGlobals.cpp in Sources */,
-				23C1820410C49B94003DBB09 /* Options.cpp in Sources */,
 				23C1820610C49BA5003DBB09 /* EventQueue.cpp in Sources */,
 				23C1820D10C49BF5003DBB09 /* Timer.cpp in Sources */,
 				23C1821010C49C2C003DBB09 /* CScriptableVars.cpp in Sources */,
 				23C1822310C49D8F003DBB09 /* IniReader.cpp in Sources */,
 				23C1822510C49DA9003DBB09 /* ConfigHandler.cpp in Sources */,
+				23C1827510C4A090003DBB09 /* SystemFunctions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

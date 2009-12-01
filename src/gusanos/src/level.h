@@ -203,7 +203,6 @@ private:
 	bool m_firstFrame;
 	
 	std::list<WaterParticle> m_water;
-	static const float WaterSkipFactor = 0.05f;
 };
 
 #ifdef SIGN

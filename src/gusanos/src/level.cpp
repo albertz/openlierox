@@ -194,6 +194,7 @@ void Level::checkWBorders( int x, int y )
 
 }
 
+static const float WaterSkipFactor = 0.05f;
 
 void Level::think()
 {
