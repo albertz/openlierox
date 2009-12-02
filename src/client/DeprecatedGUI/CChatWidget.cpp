@@ -297,6 +297,13 @@ void CChatWidget::ProcessChildEvent(int iEvent, CWidget * child)
 					popupBox->setEnabled(true);
 				}
 			break;
+
+			case nc_UserInfoPopupBox:
+				if (iEvent == BOX_MOUSEOVER)  {
+					popup->setEnabled(false);
+					popupBox->setEnabled(false);
+				}
+			break;
 			
 			case nc_Back:
 				if(iEvent == BTN_CLICKED) {
