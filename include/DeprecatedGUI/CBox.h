@@ -18,7 +18,8 @@ namespace DeprecatedGUI {
 // Event types
 enum {
 	BOX_NOEVENT=-2,
-	BOX_NONE=-1
+	BOX_NONE=-1,
+	BOX_MOUSEOVER=0
 };
 
 
