@@ -251,6 +251,8 @@
 		23C1827510C4A090003DBB09 /* SystemFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1827410C4A090003DBB09 /* SystemFunctions.cpp */; };
 		23C1829D10C4A422003DBB09 /* Vorbis.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1D10C455C9003DBB09 /* Vorbis.framework */; };
 		23C1829E10C4A422003DBB09 /* Ogg.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 23C17F1B10C455BD003DBB09 /* Ogg.framework */; };
+		23C340E510C707A200DABBD6 /* InputEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C340E410C707A200DABBD6 /* InputEvents.cpp */; };
+		23C340E710C707B100DABBD6 /* CInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C340E610C707B100DABBD6 /* CInput.cpp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -260,14 +262,14 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 20286C28FDCF999611CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 23C17FDA10C485BC003DBB09 /* freealut */;
+			remoteGlobalIDString = 23C17FDA10C485BC003DBB09;
 			remoteInfo = freealut;
 		};
 		23C1812110C492A3003DBB09 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 20286C28FDCF999611CA2CEA /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 23C1810310C49283003DBB09 /* HawkNL */;
+			remoteGlobalIDString = 23C1810310C49283003DBB09;
 			remoteInfo = HawkNL;
 		};
 /* End PBXContainerItemProxy section */
@@ -721,6 +723,8 @@
 		23C1822210C49D8F003DBB09 /* IniReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IniReader.cpp; path = common/IniReader.cpp; sourceTree = "<group>"; };
 		23C1822410C49DA9003DBB09 /* ConfigHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigHandler.cpp; path = common/ConfigHandler.cpp; sourceTree = "<group>"; };
 		23C1827410C4A090003DBB09 /* SystemFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SystemFunctions.cpp; path = common/SystemFunctions.cpp; sourceTree = "<group>"; };
+		23C340E410C707A200DABBD6 /* InputEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputEvents.cpp; path = client/InputEvents.cpp; sourceTree = "<group>"; };
+		23C340E610C707B100DABBD6 /* CInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CInput.cpp; path = client/CInput.cpp; sourceTree = "<group>"; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1270,6 +1274,8 @@
 				23C1804C10C48DFD003DBB09 /* Debug.cpp */,
 				23C1802610C48C01003DBB09 /* StringUtils.cpp */,
 				23C1802110C48B57003DBB09 /* FindFile.cpp */,
+				23C340E410C707A200DABBD6 /* InputEvents.cpp */,
+				23C340E610C707B100DABBD6 /* CInput.cpp */,
 			);
 			name = "OLX src";
 			path = ../..;
@@ -1793,6 +1799,8 @@
 				23C1822310C49D8F003DBB09 /* IniReader.cpp in Sources */,
 				23C1822510C49DA9003DBB09 /* ConfigHandler.cpp in Sources */,
 				23C1827510C4A090003DBB09 /* SystemFunctions.cpp in Sources */,
+				23C340E510C707A200DABBD6 /* InputEvents.cpp in Sources */,
+				23C340E710C707B100DABBD6 /* CInput.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1902,10 +1910,6 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = NO;
 				GCC_PREFIX_HEADER = "";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
 				HEADER_SEARCH_PATHS = (
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
