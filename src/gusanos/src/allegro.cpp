@@ -191,13 +191,13 @@ static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
 }
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
+	notes << "load " << filename << endl;
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
 	return create_bitmap_from_sdl(img);
 
 	
 	int bpp = 32; //color_depth;
-	notes << "load " << filename << " with " << bpp << " bits" << endl;
 	int flags = SDL_SWSURFACE;
 	if(bpp == 32) flags |= SDL_SRCALPHA;
 	SDL_Surface* converted = NULL; //SDL_ConvertSurface(img, &pixelformat[bpp / 8], flags);
@@ -729,47 +729,35 @@ void install_keyboard() {
 
 void remove_keyboard() {}
 
-static size_t keyQueueIndex = 0;
 
-static bool isAllegroKeyEvent() {
-	KeyboardEvent& ev = GetKeyboard()->keyQueue[keyQueueIndex];
-	return ev.down;
-}
+static std::list<UnicodeChar> keyqueue;
 
 bool keypressed() {
-	return false;
-	while(keyQueueIndex < GetKeyboard()->queueLength) {
-		if(isAllegroKeyEvent()) return true;
-		++keyQueueIndex;
-	}
-	return false;
+	return keyqueue.size() > 0;
 }
 
 int readkey() {
-	while(keyQueueIndex < GetKeyboard()->queueLength) {
-		KeyboardEvent& ev = GetKeyboard()->keyQueue[keyQueueIndex];
-		if(isAllegroKeyEvent()) {
-			++keyQueueIndex;
-			return allegrokeymap[ev.sym];
-		}
-		++keyQueueIndex;
-	}
-	return 0;
+	int key = keyqueue.front();
+	keyqueue.pop_front();
+	return key;
 }
 
 int key[KEY_MAX];
 
 void clear_keybuf() {
-	keyQueueIndex = GetKeyboard()->queueLength;
+	keyqueue.clear();
 	for(int i = 0; i < KEY_MAX; ++i)
 		key[i] = 0;
 }
 
 static void handle_sdlevents_keyb() {
-	keyQueueIndex = 0;
-	
 	for(int i = 0; i < KEY_MAX; ++i)
 		key[i] = GetKeyboard()->KeyDown[sdlkeymap[i]] ? 1 : 0;
+	
+	for(int i = 0; i < GetKeyboard()->queueLength; ++i) {
+		KeyboardEvent& ev = GetKeyboard()->keyQueue[i];
+		if(ev.down) keyqueue.push_back( ev.ch );
+	}
 }
 
 

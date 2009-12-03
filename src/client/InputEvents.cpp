@@ -258,7 +258,6 @@ static void EvHndl_ActiveEvent(SDL_Event* ev) {
 static void EvHndl_KeyDownUp(SDL_Event* ev) {
 	// Check the characters
 	if(ev->key.state == SDL_PRESSED || ev->key.state == SDL_RELEASED) {
-
 		UnicodeChar input = ev->key.keysym.unicode;
 		if (input == 0)
 			switch (ev->key.keysym.sym) {
@@ -441,9 +440,6 @@ void ShutdownEventSystem()
 // TODO: though the whole architecture has to be changed later
 // but then also GetEvent() has to be changed or removed
 void HandleNextEvent() {
-	if (tLX == NULL)
-		return;
-
 	sdlEvents[sdl_event.type].occurred(&sdl_event);
 }
 
