@@ -1,6 +1,7 @@
 #ifndef DEDSERV
 #include "mouse.h"
 #include "gfx.h"
+#include "Debug.h"
 
 MouseHandler mouseHandler;
 

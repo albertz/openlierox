@@ -30,10 +30,6 @@ void allegro_exit();
 void rest(int t);
 void vsync();
 
-void install_timer();
-#define TIMERS_PER_SECOND     1193181L
-#define BPS_TO_TIMER(x)       (TIMERS_PER_SECOND / (long)(x))
-int install_int_ex(void (*proc)(), long speed);
 
 
 void install_mouse();

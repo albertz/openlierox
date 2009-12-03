@@ -237,7 +237,7 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 	}
 }
 
-void Client::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 new_level, Net_BitStream &_reason)
+void Client::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 new_level, Net_BitStream &_reason)
 {
 	if (_result != eNet_NetEnabled)
 	{

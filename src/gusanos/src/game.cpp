@@ -409,7 +409,6 @@ void Game::parseCommandLine(int argc, char** argv)
 void Game::init(int argc, char** argv)
 {
 	allegro_init();
-	install_timer();
 
 	levelLocator.registerLoader(&VermesLevelLoader::instance);
 	levelLocator.registerLoader(&LieroXLevelLoader::instance);

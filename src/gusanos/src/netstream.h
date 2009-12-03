@@ -185,6 +185,33 @@ struct Net_Control {
 	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);
 	
 	Net_ConnectionStats Net_getConnectionStats(Net_ConnID);
+	
+	// ------- virtual callbacks -----------
+
+	// called when initiated connection process yields a result
+	virtual void Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply ) = 0;
+		
+	virtual void Net_cbDataReceived( Net_ConnID id, Net_BitStream &data) = 0;
+	
+	
+	// server wants to tell us about new node
+	virtual void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id ) = 0;
+	virtual void Net_cbNodeRequest_Tag( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_U32 _tag ) = 0;
+	
+	// called on incoming connections
+	virtual bool Net_cbConnectionRequest( Net_ConnID _id, Net_BitStream &_request, Net_BitStream &_reply ) = 0;
+	// called when incoming connection has been established
+	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) = 0;
+	// called when a connection closed
+	virtual void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata ) = 0;
+
+	virtual bool Net_cbNetRequest( Net_ConnID _id, Net_U8 _requested_level, Net_BitStream &_reason ) = 0;
+	// zoidlevel transition finished
+	virtual void Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason) = 0;
+
+	virtual bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) = 0;
+	virtual void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply ) = 0;
+	
 };
 
 struct Net_ReplicatorBasic {

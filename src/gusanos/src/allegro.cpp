@@ -42,7 +42,7 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
 
-	SDL_Surface* converted = SDL_DisplayFormat(img);
+	SDL_Surface* converted = SDL_DisplayFormatAlpha(img);
 	SDL_FreeSurface(img);
 
 	if(!converted) return NULL;
@@ -51,8 +51,9 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 }
 
 BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
-	color_depth = 32;
-	
+	//color_depth = 32;
+	int flags = SDL_SWSURFACE;
+	if(color_depth == 32) flags |= SDL_SRCALPHA;
 	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, color_depth, 0,0,0,0);
 	if(!surf) return NULL;
 	return create_bitmap_from_sdl(surf);
@@ -452,10 +453,6 @@ void clear_keybuf() {}
 
 
 
-
-
-void install_timer() {}
-int install_int_ex(void (*proc)(), long speed) { return 0; }
 
 
 

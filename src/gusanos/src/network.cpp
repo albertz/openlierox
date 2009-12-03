@@ -163,7 +163,7 @@ namespace
 	bool serverAdded = false;
 	bool m_host = false;
 	bool m_client = false; //? This wasn't initialized before
-	int logZoidcom = 0; //TODO: Zoidcom
+	int logNetstream = 0; //TODO: Netstream
 	std::set<Net_U32> bannedIPs;
 
 	int m_serverPort; // Neither was this
@@ -172,7 +172,7 @@ namespace
 	int reconnectTimer = 0;
 	int connCount = 0;
 
-	NetStream* m_zcom = 0;
+	NetStream* m_netstream = 0;
 	Net_Control* m_control = 0;
 	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
@@ -309,7 +309,7 @@ Network::Network()
 {
 	/*
 		m_host = false;
-		m_zcom = NULL;
+		m_netstream = NULL;
 		m_control = NULL;
 		connCount = 0;
 		m_reconnect = false;*/
@@ -330,17 +330,16 @@ void Network::log(char const* msg)
 
 void Network::init()
 {
-	if(logZoidcom) { //TODO: Zoidcom
-		m_zcom = new NetStream(log);
-		m_zcom->setLogLevel(2);
+	if(logNetstream) { //TODO: Netstream
+		m_netstream = new NetStream(log);
+		m_netstream->setLogLevel(2);
 	} else
-		m_zcom = new NetStream();
+		m_netstream = new NetStream();
 
-	if ( !m_zcom->Init() ) {
-		console.addLogMsg("* ERROR: UNABLE TO INITIALIZE ZOIDCOM NETWORK LIB");
+	if ( !m_netstream->Init() ) {
+		console.addLogMsg("* ERROR: UNABLE TO INITIALIZE NETSTREAM NETWORK LIB");
 	} else {
-		console.addLogMsg("* ZOIDCOM NETWORK LIB INITIALIZED");
-		console.addLogMsg("* FOR MORE INFO VISIT WWW.ZOIDCOM.COM");
+		console.addLogMsg("* NETSTREAM NETWORK LIB INITIALIZED");
 	}
 }
 
@@ -348,8 +347,8 @@ void Network::shutDown()
 {
 	delete m_control;
 	m_control = 0;
-	delete m_zcom;
-	m_zcom = 0;
+	delete m_netstream;
+	m_netstream = 0;
 }
 
 void Network::registerInConsole()
@@ -365,7 +364,7 @@ void Network::registerInConsole()
 	("NET_DOWN_BPP", &network.downBPP, 200)
 	("NET_DOWN_PPS", &network.downPPS, 20)
 	("NET_CHECK_CRC", &network.checkCRC, 1)
-	("NET_LOG", &logZoidcom, 0) //TODO: Zoidcom
+	("NET_LOG", &logNetstream, 0) //TODO: Zoidcom
 	("NET_AUTODOWNLOADS", &network.autoDownloads, 1)
 	;
 

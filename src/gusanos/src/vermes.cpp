@@ -52,9 +52,6 @@ bool quit = false;
 int showFps;
 int showDebug;
 
-//millisecond timer
-volatile unsigned int timer = 0;
-void timerUpdate(void) { timer++; } END_OF_FUNCTION(timerUpdate);
 
 void exit()
 {
@@ -91,11 +88,6 @@ try
 	game.reloadModWithoutMap();
 	//game.runInitScripts();
 	
-	//install millisecond timer
-	LOCK_VARIABLE(timer);
-	LOCK_FUNCTION(timerUpdate);
-	install_int_ex(timerUpdate, BPS_TO_TIMER(100));
-
 	unsigned int fpsLast = 0;
 	int fpsCount = 0;
 	int fps = 0;
@@ -110,7 +102,8 @@ try
 	//main game loop
 	while (!quit || !network.isDisconnected())
 	{
-
+		Uint32 timer = SDL_GetTicks() / 10;
+		
 		while ( logicLast + 1 <= timer )
 		{
 			

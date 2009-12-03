@@ -163,7 +163,7 @@ void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 	DLOG("A connection was closed");
 }
 
-bool Server::Net_cbZoidRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitStream &_reason)
+bool Server::Net_cbNetRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitStream &_reason)
 {
 	switch(requested_level) {
 			case 1:
@@ -178,7 +178,7 @@ bool Server::Net_cbZoidRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitS
 	}
 }
 
-void Server::Net_cbZoidResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
+void Server::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
 {
 	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }
