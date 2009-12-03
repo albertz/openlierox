@@ -1,0 +1,50 @@
+name=Shotgun
+skin=skin.shotgun.png
+ammo=2
+reload_time=250
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(60)
+ play_sound( shotgun_use.ogg, 75, 1, 0.05 )
+run_script(doom.crosshair_reset)
+run_script(doom.shotgun_set)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set_flamethrower)
+run_script(doom.shotgun_loop)
+
+on primary_press()
+ 
+ delay_fire(115)
+ run_script(doom.shotgun_fire)
+ add_speed(-0.6)
+ play_sound( shotgun.ogg, 100, 1, 0.05 )
+ use_ammo(1)
+ shoot_particles ( shotgun1_bullet.obj , 11 , 0.8, 0.3, 0, 0, 19, 0, 6)
+ #shoot_particles ( shotgun_shell.obj , 1 , 1, 0.1, 0.2, 0, 10, -105)
+shoot_particles ( flash_shotgun.obj , 1 , 0, 0, 0, 0, 0, 0, 6)
+ shoot_particles ( smoke_black.obj , 1 , 0.2, 0.1, 0, 0, 90, 0, 6)
+
+on out_of_ammo()
+ play_sound(shotgun_reload.ogg,100,1,0.05)
+
+# flashlight
+
+on active_timer (0)
+ shoot_particles ( flashlight_light1.obj , 1 , 5, 0, 0, 0, 0, -12, 9)
+
+on active_timer (0)
+ shoot_particles ( flashlight_light1.obj , 1 , 5, 0, 0, 0, 0, -6, 9)
+
+on active_timer (0)
+ shoot_particles ( flashlight_light1.obj , 1 , 5, 0, 0, 0, 0, 0, 9)
+
+on active_timer (0)
+ shoot_particles ( flashlight_light1.obj , 1 , 5, 0, 0, 0, 0, 6, 9)
+
+on active_timer (0)
+ shoot_particles ( flashlight_light1.obj , 1 , 5, 0, 0, 0, 0, 12, 9)
+
+

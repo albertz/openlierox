@@ -1,0 +1,12 @@
+repeat = 1
+sprite = flashlight.png
+blender = add
+occluded = 1
+light_radius=25
+occluded = 1
+alpha = 60
+render_layer = 8
+
+on timer(1)
+remove()
+

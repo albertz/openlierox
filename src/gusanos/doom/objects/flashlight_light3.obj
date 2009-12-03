@@ -1,0 +1,15 @@
+invisible = 1
+col_layer = -1 
+repeat = 5000
+
+on timer(3)
+shoot_particles ( flashlight_light5.obj, 1 , 10, 0, 0, 0, 0, 0, 0)
+remove()
+
+on timer(0)
+ shoot_particles ( flashlight_light4.obj,1 )
+
+on ground_collision()
+shoot_particles ( flashlight_light4.obj,1 )
+ remove()
+

@@ -1,0 +1,39 @@
+name = Chaingun
+skin=skin.chaingun.png
+ammo = 100
+reload_time = 550
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(50)
+ play_sound( chaingun_use.ogg, 90, 1, 0.05 )
+ run_script(doom.chaingun_smoke_reset)
+ run_script(doom.crosshair_reset)
+
+on active_timer(0)
+run_script(doom.chaingun_smoke_loop)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set_chaingun)
+
+on primary_press()
+ delay_fire(95)
+ play_sound( chaingun_up.ogg, 100, 1, 0.05 )
+ run_script(doom.chaingun_smoke_in)
+
+on primary_shoot()
+ shoot_particles ( flash_assaultrifle.obj , 1 , 0, 0, 0, 0, 0, 0, 6)
+ delay_fire(7)
+ use_ammo(1)
+ add_speed(-0.07)
+ play_sound( chaingun.ogg, 100, 1, 0.05 )
+ shoot_particles ( chaingun1_bullet.obj , 1 , 0.9, 0, 0, 0, 15, 0, 7)
+ shoot_particles ( shell.obj , 1 , 1, 0.1, 0.2, 0, 20, -105)
+
+on primary_release()
+ play_sound(chaingun_down.ogg,100,1,0.05)
+ run_script(doom.chaingun_smoke_out)
+
+
+on out_of_ammo()
+ play_sound(chaingun_reload.ogg,100,1,0.05)
+ 

@@ -1,0 +1,14 @@
+blender = add
+alpha = 244
+colour = [100,0,0]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+
+on ground_collision()
+remove()
+
+on detect_range(8, 8,[7])
+damage (75)
+remove()

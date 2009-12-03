@@ -1,0 +1,14 @@
+invisible = 1
+col_layer=-1
+repeat = 1
+
+on detect_range( 2 , 2)
+damage( 1000)
+shoot_particles ( blood.obj , 10 , 0.6, 0.4,0,0, 360, 360, 0 )
+ remove()
+
+on ground_collision()
+remove()
+
+on timer(40)
+remove ()

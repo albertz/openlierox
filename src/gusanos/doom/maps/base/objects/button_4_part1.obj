@@ -1,0 +1,13 @@
+invisible = 1
+col_layer=-1
+sprite = button1.bmp
+render_layer = 1
+
+on detect_range(5, 0)
+play_sound( click.ogg,pitch_var = 0.3 )
+put_particle( vent.obj,442,148)
+put_particle( vent.obj,270,148)
+put_particle( vent.obj,813,193)
+shoot_particles ( button_4_part2.obj , 1,motion_inheritance=1)
+play_sound(comp_toxins_present.ogg)
+remove()

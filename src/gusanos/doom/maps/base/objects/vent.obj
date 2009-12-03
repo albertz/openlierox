@@ -1,0 +1,28 @@
+invisible = 1
+col_layer=-1
+
+on timer(120)
+ play_sound( vent.ogg,pitch_var = 0.3 )
+
+on timer(28)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, 90, 0)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, -90, 0)
+
+on timer(30)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, 90, 12)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, -90, 12)
+
+on timer(32)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, 90, 24)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, -90, 24)
+
+on timer(34)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, 90, 36)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, -90, 36)
+
+on timer(36)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, 90, 45)
+shoot_particles ( smoke_toxic.obj , 1 , 5, 8, 7, 0, 40, -90, 45)
+
+on timer(1080)
+remove()

@@ -1,0 +1,7 @@
+invisible = 1
+col_layer=-1
+
+on detect_range (3,3, [7])
+custom_event(4)
+remove()
+

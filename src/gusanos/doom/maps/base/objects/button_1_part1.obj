@@ -1,0 +1,11 @@
+invisible = 1
+col_layer=-1
+sprite = button1.bmp
+render_layer = 1
+
+on detect_range(5, 0)
+play_sound( click.ogg,pitch_var = 0.3 )
+shoot_particles ( button_1_part2.obj , 1,motion_inheritance=1)
+put_particle( door_forced_force.obj, 337,276 )
+play_sound(comp_access_granted.ogg)
+remove()

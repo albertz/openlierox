@@ -1,0 +1,7 @@
+invisible = 1
+col_layer=-1
+
+on timer(1000)
+ shoot_particles ( box.obj , 1)
+remove()
+

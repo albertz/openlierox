@@ -1,0 +1,32 @@
+name = Lightflare
+skin=skin.lightflare.png
+ammo=1
+reload_time=400
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(40)
+ play_sound( lightflare_use.ogg, 75, 1, 0.05 )
+ run_script(doom.lightflare_reset)
+ run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on primary_press()
+play_sound(lightflare_on.ogg, 100, 1, 0.05 )
+
+on primary_shoot()
+run_script(doom.lightflare_loop)
+delay_fire(3)
+
+on primary_release()
+delay_fire(150)
+use_ammo(1)
+run_script(doom.lightflare_release)
+
+on out_of_ammo()
+run_script(doom.lightflare_out_of_ammo)
+
+on reload_end()
+run_script(doom.lightflare_reload)

@@ -1,0 +1,13 @@
+sprite = light_bfg_explosion.png
+blender = add
+occluded = 1
+alpha = 255
+light_radius=230
+render_layer = 7
+col_layer=-1
+
+on creation()
+ set_alpha_fade(130,0)
+
+on timer( 130 )
+remove()

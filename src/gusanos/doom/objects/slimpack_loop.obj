@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=-1
+
+on timer(1)
+ play_sound( slimpack_loop.ogg, 100, 1, 0.05 )
+ remove()

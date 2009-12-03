@@ -1,0 +1,13 @@
+sprite = light_shield.png
+blender = add
+occluded = 1
+light_radius=25
+alpha = 255
+col_layer = -1
+render_layer = 8
+
+on creation()
+ set_alpha_fade(5,0)
+
+on timer( 5 )
+remove()

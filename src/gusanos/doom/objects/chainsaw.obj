@@ -1,0 +1,34 @@
+invisible = 1
+col_layer=-1
+
+on ground_collision()
+ play_sound( [chainsawhitmetal1.ogg,chainsawhitmetal2.ogg], 100, 1, 0.05 )
+ shoot_particles ( chainsaw_hit.obj,4, 0, 0.7)
+  shoot_particles( tinysmoke.obj, 1, -0.2 )
+ apply_map_effect( laserhole.mfx )
+ remove()
+
+on timer(3)
+ remove()
+
+on detect_range(4, 0)
+ play_sound( [chainsawhit1.ogg,chainsawhit2.ogg,chainsawhit3.ogg], 100, 1, 0.05 )
+ damage( 25 )
+ push ( 0.2 )
+ shoot_particles ( blood.obj, 30 , 0.7, 0.5, 0, 120, 120, 0 )
+
+on detect_range(6, 6,[2,3,7])
+damage( 40 )
+play_sound( [chainsawhitmetal1.ogg,chainsawhitmetal2.ogg], 100, 1, 0.05 )
+shoot_particles ( chainsaw_hit.obj,4, 0, 0.7) 
+shoot_particles ( recoil3.obj,1)	
+shoot_particles( tinysmoke.obj, 1, -0.2 )
+remove ()
+
+on detect_range(5, 5,[4])
+damage( 50 )
+play_sound( [chainsawhitmetal1.ogg,chainsawhitmetal2.ogg], 100, 1, 0.05 )
+shoot_particles ( chainsaw_hit.obj,4, 0, 0.7) 
+shoot_particles( tinysmoke.obj, 1, -0.2 )
+remove ()
+

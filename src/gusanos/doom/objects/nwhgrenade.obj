@@ -1,0 +1,30 @@
+sprite = NWHgrenade.png
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.04
+health = 100
+bounce_factor = 0.175
+ground_friction = 0.875
+col_layer=3
+health=100
+
+on timer(0,0,1)
+play_sound( nwhgrenade.ogg, 100, 1, 0.05 )
+
+on timer(5,24)
+shoot_particles( tinysmoke.obj, 1,motion_inheritance=1)
+
+ on timer (320) 
+ play_sound( nwh.ogg, 100, 1, 0.05 )
+ shoot_particles ( Grenade_light.obj , 1 )
+ shoot_particles ( nwh.obj ,35 , 5, 5, 1, 0, 360, 0, 0)
+ remove()
+
+on ground_collision() 
+run_script(doom.bouncing_heavy)
+
+ on death()
+ play_sound( nwh.ogg, 100, 1, 0.05 )
+ shoot_particles ( Grenade_light.obj , 1 )
+ shoot_particles ( nwh.obj ,35 , 5, 5, 1, 0, 360, 0, 0)
+ remove()

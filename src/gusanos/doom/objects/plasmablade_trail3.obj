@@ -1,0 +1,14 @@
+sprite = plasmarifle2.png
+alpha = 200
+blender = add
+anim_duration = 45
+anim_type = right_once
+render_layer = 6
+col_layer = -1
+light_radius=2
+
+on creation()
+ set_alpha_fade(45)
+
+on timer(45, 0)
+ remove()

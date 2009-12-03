@@ -1,0 +1,13 @@
+sprite = flash_BFG_small.png
+col_layer=-1
+blender = add
+render_layer = 7
+alpha = 255
+light_radius=24
+
+on creation()
+ set_alpha_fade(40,0)
+ play_sound(bfg_firestop.ogg, 100, 1, 0.05 )
+
+on timer(40)
+ remove()

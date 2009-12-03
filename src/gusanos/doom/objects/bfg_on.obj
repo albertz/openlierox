@@ -1,0 +1,9 @@
+colour = [0, 140,0 ]
+render_layer = 6
+col_layer = -1
+wu_pixels = 1
+light_radius=2
+alpha = 50
+
+on timer(1,1)
+ remove()

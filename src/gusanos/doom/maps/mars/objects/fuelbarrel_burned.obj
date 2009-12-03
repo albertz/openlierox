@@ -1,0 +1,37 @@
+sprite = fuelbarrel.bmp
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.04
+bounce_factor = 0.2
+ground_friction = 0.7
+col_layer=2
+health=100
+
+on timer(3) 
+ shoot_particles ( flames_1.obj , 2 , 0.3 , 0.4, 0.5, 0, 60, 0,0)
+ shoot_particles ( tinysmoke.obj , 1 , 0.3 , 0.4, 0.5, 0, 50, 0,0)
+ shoot_particles ( flash_light.obj,1 )
+ shoot_particles ( flame_light.obj,1 )
+
+on timer(0) 
+ shoot_particles ( flash_light.obj,1 )
+
+on ground_collision()
+ run_script(map_mars.explode)
+
+on detect_range(5, 0)
+run_script(map_mars.explode)
+push (0.6)
+
+on detect_range(5, 0,[2,3,4,5])
+run_script(map_mars.explode)
+push (0.6)
+
+on timer(1,400) 
+shoot_particles ( explosion.obj,1)
+remove()
+
+on death()
+shoot_particles ( explosion.obj,1)
+remove()
+

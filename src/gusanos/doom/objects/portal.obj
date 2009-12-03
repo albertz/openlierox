@@ -1,0 +1,22 @@
+invisible = 1
+gravity = 0.006
+health = 100
+bounce_factor = 0.4
+repeat = 3
+ground_friction = 0.9
+col_layer=3
+health=100
+
+on creation()
+play_sound( portal.ogg, 100, 1, 0.05 )
+
+on timer (0) 
+run_script(doom.transportal_release)
+run_script(doom.transportal_use)
+shoot_particles (portal_trail.obj,1)
+
+on custom_event(11)
+remove()
+
+on death()
+remove()

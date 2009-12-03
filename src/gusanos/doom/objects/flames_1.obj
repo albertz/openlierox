@@ -1,0 +1,14 @@
+gravity = -0.04
+col_layer = -1 
+damping = 0.97
+sprite = explosion_tiny.png
+alpha = 255
+blender = add
+anim_duration = 25
+anim_type = right_once
+render_layer = 6
+health=5
+col_layer=6
+
+on timer(25, 0)
+ remove()

@@ -1,0 +1,21 @@
+repeat = 10 
+col_layer = -1 
+invisible = 1
+
+on ground_collision()
+apply_map_effect( exp1hole.mfx )
+ remove()
+
+on detect_range( 6 , 6,0)
+ damage ( 5 )
+push ( 0.7 )
+
+on detect_range( 6 , 6,[0,1,2,3,4])
+ damage ( 8 )
+push ( 0.7 )
+
+on detect_range( 6 , 6,[7])
+ damage ( 8 )
+
+on timer( 520 )
+remove()

@@ -1,0 +1,9 @@
+invisible = 1
+col_layer=-1
+
+on ground_collision()
+remove()
+
+on timer(2)
+shoot_particles ( chainsaw_hit.obj,4, 0, 0.7)
+remove()

@@ -1,0 +1,7 @@
+invisible = 1
+col_layer=-1
+
+on detect_range(0, 1)
+damage ( 1 )
+remove()
+

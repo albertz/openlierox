@@ -1,0 +1,11 @@
+col_layer = -1
+render_layer = 2
+sprite = slimpack_speed.png
+blender = alpha
+alpha = 80
+
+on creation()
+ set_alpha_fade( 50 , 0 )
+
+on timer(50)
+ remove()

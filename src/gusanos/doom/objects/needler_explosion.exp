@@ -1,0 +1,15 @@
+sprite = needler_explosion.png
+blender = add
+alpha = 200
+dest_alpha = -1
+render_layer = 7
+timeout = 80
+
+on creation()
+ apply_map_effect( exp1hole.mfx)
+ 
+on detect_range( 6,0 )
+damage(11)
+
+on detect_range( 6,6,[2,3,4,7] )
+damage(4)

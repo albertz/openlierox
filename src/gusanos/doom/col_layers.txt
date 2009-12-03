@@ -1,0 +1,12 @@
+no layer = worm
+layer 0  = shells
+layer 1  = bullets, realy fast moving objects
+layer 2  = big hard pieces -- not on flame
+layer 3  = small hard pieces -- not on flame
+layer 4  = big soft pieces
+layer 5  = smoke
+layer 6  = energy, fire
+layer 7  = destroyable, but not pushable
+layer -1 = blood,smoke,trails, not used for affecting an object
+
+custom_event(1) = burning

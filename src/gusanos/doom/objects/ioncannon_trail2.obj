@@ -1,0 +1,11 @@
+blender=add
+alpha=255
+sprite=ioncannon.png
+occluded = 1
+col_layer = -1
+
+on creation()
+ set_alpha_fade(50,0)
+
+on timer(50)
+remove ()

@@ -1,0 +1,32 @@
+gravity = 0.04
+sprite = door_piece.png
+col_layer=3
+health=150
+anim_duration = 60
+anim_type = loop_right
+anim_on_ground = 0
+bounce_factor = 0.2
+ground_friction = 0.7
+blender = alpha
+alpha = 255
+
+on ground_collision()
+run_script (map_base.smallcling)
+
+on detect_range(2, 0)
+run_script (map_base.parts_worm)
+
+on detect_range(2, 0)
+push (0.2)
+
+on detect_range(2, 0,[2,3,4,5])
+push (0.3)
+
+on timer(2000, 0)
+ remove()
+
+on timer(1900,0,1)
+set_alpha_fade(100,0)
+
+on death()
+remove()

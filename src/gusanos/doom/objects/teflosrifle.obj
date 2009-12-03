@@ -1,0 +1,35 @@
+repeat = 20
+#colour = [50, 20, 255]
+alpha = 0
+invisible = 1
+blender = add
+wu_pixels = 1
+col_layer=6
+health=1
+light_radius=3
+line_to_origin = 1
+
+on creation()
+ add_angle_speed(10)
+
+on ground_collision()
+ remove()
+
+on timer(1,30)
+add_angle_speed(-10)
+
+on timer(1,30)
+add_angle_speed(-5)
+
+on timer(1,30)
+add_angle_speed(10)
+
+on timer(1,30)
+add_angle_speed(5)
+
+on timer(0)
+shoot_particles ( teflos_trail.obj,1, 0, 0, 0, 0, 0, 0, 1)
+shoot_particles ( teflos_trail.obj,1, 0, 0, 0, 0, 0, 180, 1)
+
+on death()
+remove()

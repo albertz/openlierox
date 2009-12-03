@@ -1,0 +1,33 @@
+name=EnergyShield
+skin=skin.nothing.png
+sync_shot = true
+
+on active_timer( 0 , max_trigger = 1 )
+play_sound( [shield1.ogg,shield2.ogg], 100, 1, 0.05 )
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set)
+
+on active_timer (3)
+play_sound( shield.ogg,100, 1, 0.05 )
+
+on active_timer (0)
+create_explosion (shield1.exp)
+shoot_particles (shield_light.obj,1)
+shoot_particles (shield_light2.obj,1)
+
+on active_timer (43)
+create_explosion (shield2.exp)
+
+on active_timer (76)
+create_explosion (shield3.exp)
+
+on active_timer (69)
+create_explosion (shield4.exp)
+
+on active_timer (55)
+create_explosion (shield5.exp)
+
+

@@ -1,0 +1,27 @@
+name=RemoteBomb
+sync_shot = true
+skin=skin.remotebomb.png
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(40)
+ play_sound( remotebomb_use.ogg, 75, 1, 0.05 )
+ run_script(doom.remotebomb_reset)
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on active_timer( 0)
+ run_script(doom.remotebomb_loping)
+
+on primary_press()
+delay_fire(5)
+run_script(doom.remotebomb_set)
+
+on primary_shoot()
+delay_fire(0)
+ run_script(doom.remotebomb_loop)
+
+on primary_release()
+ run_script(doom.remotebomb_select)
+

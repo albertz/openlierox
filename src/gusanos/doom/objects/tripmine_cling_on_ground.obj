@@ -1,0 +1,10 @@
+invisible = 1
+col_layer=-1
+
+on ground_collision() 
+shoot_particles ( tripmine.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+play_sound( tripmine.ogg, 75, 1, 0.05 )
+remove()
+
+on timer (3) 
+remove()

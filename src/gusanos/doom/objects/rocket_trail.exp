@@ -1,0 +1,9 @@
+sprite = explosion_tiny.bmp
+blender = add
+alpha = 255
+dest_alpha = -1
+timeout = 11
+render_layer = 7
+
+on creation()
+ apply_map_effect( exp1hole.mfx )

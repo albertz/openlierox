@@ -1,0 +1,25 @@
+sprite = small_lamp_broken.bmp
+col_layer=-1
+render_layer = 2
+
+on timer(2,7,3) 
+play_sound( [spark_01.ogg,spark_02.ogg,spark_03.ogg,spark_04.ogg],100, 1, 0.05 )
+shoot_particles ( spark1.obj , 1 , 0.25, 0.2, 0.5 )
+shoot_particles ( small_light_flash.obj , 1)
+
+on timer(4,9,5) 
+play_sound( [spark_01.ogg,spark_02.ogg,spark_03.ogg,spark_04.ogg],100, 1, 0.05 )
+shoot_particles ( spark1.obj , 1 , 0.25, 0.2, 0.5 )
+shoot_particles ( spark3.obj , 1)
+
+on timer(100,800,99) 
+play_sound( [spark_01.ogg,spark_02.ogg,spark_03.ogg,spark_04.ogg],100, 1, 0.05 )
+shoot_particles ( spark1.obj , 1 , 0.25, 0.2, 0.5 )
+shoot_particles ( spark3.obj , 1)
+
+on timer(2900,100,8) 
+shoot_particles ( small_light_flash.obj , 1)
+
+on timer(3000) 
+shoot_particles (small_light.obj,1)
+remove()

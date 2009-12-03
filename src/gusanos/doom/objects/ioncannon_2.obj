@@ -1,0 +1,70 @@
+blender = add
+alpha = 255
+colour = [255,255,255]
+repeat = 1000
+col_layer = 6
+line_to_origin = 1
+wu_pixels = 1
+health = 1
+
+on timer(0,0,1)
+play_sound( ioncannon_big.ogg, 100, 1, 0.05 )
+
+on timer(0)
+shoot_particles( ioncannon_trail_light.obj,1)
+shoot_particles( ioncannon_trail2.obj,1)
+
+on ground_collision()
+ apply_map_effect( laserhole.mfx )
+shoot_particles( ion_cannon_smoke.obj,1)
+shoot_particles( ioncannon_trail.obj,1)
+shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ remove()
+
+on detect_range(2, 0)
+ damage ( 160 )
+ shoot_particles( ioncannon_trail.obj,1)
+ shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ shoot_particles( ion_effect.obj,1)
+ remove()
+
+on death()
+shoot_particles( ion_cannon_smoke.obj,1)
+shoot_particles( ioncannon_trail.obj,1)
+shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ remove()
+
+# -- bullet collides with materials --
+ on detect_range(5, 5,[2])
+ damage ( 100 )
+shoot_particles( ioncannon_trail.obj,1)
+shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ remove()
+
+on detect_range(2, 2,[3])
+ damage ( 100 )
+ shoot_particles( ioncannon_trail.obj,1)
+ shoot_particles ( ioncannon_hit.obj,14, 0, 0.7) 
+  shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ shoot_particles( ion_effect.obj,1)
+ remove()
+
+on detect_range(2, 2,[7])
+ damage ( 200 )
+ shoot_particles( ioncannon_trail.obj,1)
+ shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ remove()
+
+ on detect_range(2,2,[4])
+ damage ( 200 )
+ shoot_particles( ioncannon_trail.obj,1)
+ shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+ shoot_particles( flash_ioncannon.obj, 3 , 0, 0, 0, 0, 0, 0, -2)
+ remove()
+
+# -- bullet collides with materials --

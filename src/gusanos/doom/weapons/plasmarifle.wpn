@@ -1,0 +1,36 @@
+name=Plasmarifle
+skin=skin.Plasmarifle.png
+ammo=30
+reload_time=350
+sync_shot = true
+
+on active_timer( 13)
+play_sound( plasmarifle_idle.ogg, 75, 1, 0.05 )
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set_plasmarifle)
+
+on active_timer( 2)
+shoot_particles ( plasmarifle_on.obj , 1 , 0, 0, 0, 0, 6, 0, 3)
+
+on active_timer( 0 , max_trigger = 1 )
+delay_fire(50)
+play_sound( plasmarifle_use.ogg, 100, 1, 0.05 )
+run_script(doom.crosshair_reset)
+
+on primary_shoot()
+ delay_fire(13)
+ use_ammo(1)
+ play_sound( plasmarifle.ogg, 100, 1, 0.05 )
+ shoot_particles ( plasma_light.obj , 1 , 0, 0, 0, 0, 0, 0, 6)
+ shoot_particles ( plasma_flash.obj , 1 , 0, 0, 0, 0, 0, 0, 6)
+ shoot_particles ( tinysmoke.obj , 1 , 0.2, 0.1, 0, 0, 9, 0, 6)
+ shoot_particles ( plasmarifle1.obj , 1 , 1, 0, 0, 0, 1, 0, 6)
+
+on primary_release()
+play_sound(plasmarifle_release.ogg,50,1,0.05)
+
+on out_of_ammo()
+ play_sound(plasmarifle_reload.ogg,100,1,0.05)
+

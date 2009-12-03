@@ -1,0 +1,17 @@
+blender = add
+alpha = 255
+colour = [250, 0, 0]
+wu_pixels = true
+col_layer = 6
+repeat = 1000
+render_layer = 6
+#line_to_origin = 1
+
+on ground_collision()
+shoot_particles (lasersight_light_light.obj,1)
+remove()
+
+on detect_range(2,0)
+shoot_particles (lasersight_light_light.obj,1)
+remove()
+

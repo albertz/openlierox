@@ -1,0 +1,8 @@
+invisible = 1
+bounce_factor = 1
+repeat = 4
+col_layer = -1
+
+on timer(1)
+shoot_particles ( slimpack_1.obj , 1,motion_inheritance=4)
+ remove()

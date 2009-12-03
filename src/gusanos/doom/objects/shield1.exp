@@ -1,0 +1,15 @@
+sprite = shield1.png
+blender = add
+alpha = 100
+dest_alpha = -1
+timeout = 2
+
+on detect_range(22,0,[1,6])
+ damage(10)
+
+on detect_range(18,0)
+ repel( 0.6 , 24, 0.8 )
+
+on detect_range(18,1,[2,3,4])
+ repel( 0.6 , 24, 0.8 )
+custom_event(8)

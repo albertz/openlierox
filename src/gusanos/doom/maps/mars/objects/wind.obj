@@ -1,0 +1,17 @@
+invisible = 1
+col_layer=-1
+
+
+on timer(200,800) 
+ shoot_particles (dust1.obj,1,0.6,0.5,0,0,0,90,0)
+
+on timer(300,700) 
+ shoot_particles (dust2.obj,1,0.6,0.5,0,0,0,90,0)
+
+on timer(100,900) 
+ shoot_particles (dust3.obj,1,0.6,0.5,0,0,0,90,0)
+
+on timer(400,600) 
+ shoot_particles (dust4.obj,1,0.6,0.5,0,0,0,90,0)
+ 
+

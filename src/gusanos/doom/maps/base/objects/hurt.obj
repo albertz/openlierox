@@ -1,0 +1,10 @@
+invisible = 1
+col_layer=-1
+
+on detect_range( 3 , 3)
+damage( 10)
+shoot_particles ( blood.obj , 6 , 0.6, 0.4,0,0, 120, 120, 0 )
+ remove()
+
+on timer(5)
+remove ()

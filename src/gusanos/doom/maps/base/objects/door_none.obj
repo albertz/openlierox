@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=-1
+ 
+on timer(125)
+shoot_particles ( door_close.obj,1,0,0,0,0,0,0,0)
+remove()

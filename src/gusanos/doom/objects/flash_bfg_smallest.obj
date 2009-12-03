@@ -1,0 +1,12 @@
+sprite = flash_BFG_smallest.png
+col_layer=-1
+blender = add
+render_layer = 7
+alpha = 255
+
+on creation()
+ set_alpha_fade(50,0)
+ play_sound( BFG.ogg, 80, 1, 0.05 )
+
+on timer(50)
+ remove()

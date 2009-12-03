@@ -1,0 +1,37 @@
+repeat = 8
+col_layer=6
+health=1
+light_radius=3
+alpha = 255
+blender = add
+
+on creation()
+ add_angle_speed(10)
+
+on ground_collision()
+ shoot_particles( tinysmoke.obj, 8, -0.2 )
+ create_explosion ( explosion_tiny.exp )
+ shoot_particles( railgun_light.obj, 1)
+ remove()
+
+on detect_range(5, 0)
+ damage ( 8 )
+
+on detect_range(5, 5,[2,3,4,7])
+ damage ( 10 )
+
+on timer(0)
+ shoot_particles ( railgun1_trail.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( railgun2_trail.obj ,1 , 0, 0, 0, 0, 0, 0, 0)
+
+on timer(1)
+shoot_particles ( railgun4_trail.obj , 1)
+
+on timer(0,1)
+shoot_particles ( railgun3_trail.obj , 2 , 0.04, 0, 0, 0, 20, 0, 1)
+
+on death()
+shoot_particles( tinysmoke.obj, 8 , -0.03, 0, 0, 0, 360, 0, 0)
+create_explosion ( explosion_tiny.exp )
+shoot_particles( railgun_light.obj, 1)
+remove()

@@ -1,0 +1,34 @@
+name=SlimPack
+skin=skin.nothing.png
+ammo=1
+reload_time=700
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(100)
+ play_sound( slimpack_use.ogg, 75, 1, 0.05 )
+ #run_script(doom.slimpack_speed_active)
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set)
+
+on active_timer(16,24)
+shoot_particles ( slimpack_trail.obj , 1 , 0, 0, 0, 0, 360, 0, 6)
+
+on active_timer(16,24)
+shoot_particles ( slimpack_trail.obj , 1 , 0, 0, 0, 0, 360, 0, 4)
+
+on active_timer(16,24)
+shoot_particles ( slimpack_trail.obj , 1 , 0, 0, 0, 0, 360, 0, 2)
+
+on primary_press()
+ play_sound( slimpack.ogg, 100, 1, 0.05 )
+ shoot_particles ( slimpack_flash.obj , 3 , 0, 0, 0, 0, 0, 0, 0)
+ use_ammo(1)
+ run_script(doom.slimpack_speed_active)
+
+
+
+

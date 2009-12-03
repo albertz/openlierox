@@ -1,0 +1,5 @@
+sprite = shield5.png
+blender = add
+alpha = 100
+dest_alpha = -1
+timeout = 2

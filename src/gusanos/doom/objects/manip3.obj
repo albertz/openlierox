@@ -1,0 +1,12 @@
+repeat = 11
+col_layer = -1
+invisible = 1
+
+on timer(9)
+ remove()
+
+on detect_range(24, 1, [2,3,4])
+push( -0.02)
+
+on ground_collision()
+ remove()

@@ -1,0 +1,10 @@
+invisible = 1
+col_layer=-1
+
+on timer(0)
+ shoot_particles ( fuelbarrel_parts.obj , 4 , 2.5, 0.5, 0, 0, 360, 0, 0)
+ play_sound( explosion.wav, 100, 1, 0.05 )
+ shoot_particles ( Grenade_light.obj , 1 )
+ create_explosion ( grenade_explosion.exp )
+ shoot_particles ( grenade_explosion_ending.obj , 1 )
+ remove()

@@ -1,0 +1,28 @@
+health=1
+gravity = 0.06
+sprite = shell.png
+col_layer=0
+anim_duration = 20
+anim_type = loop_right
+bounce_factor = 0.4
+ground_friction = 0.8
+blender = alpha
+alpha = 255
+
+on ground_collision()
+ run_script(doom.bouncing_shell)
+
+on death()
+shoot_particles( tinysmoke.obj, 2, -0.2 )
+remove()
+
+on timer(800)
+set_alpha_fade(100,0)
+
+on custom_event(3)
+shoot_particles( tinysmoke.obj, 1)
+shoot_particles ( ash.obj , 2 , 0.1, 0.1 )
+remove()
+
+on timer (900) 
+ remove()

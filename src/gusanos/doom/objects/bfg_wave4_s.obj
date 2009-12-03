@@ -1,0 +1,24 @@
+repeat = 10 
+col_layer = -1 
+bounce_factor = -1 
+ground_friction = 0
+invisible = 1
+
+on detect_range( 6, 6 )
+ damage ( 100 )
+ push ( 0.5 )
+
+on detect_range( 6 , 6,[0,1,2,3,4])
+ damage ( 100 )
+push ( 0.5 )
+
+on detect_range( 6 , 6,[7])
+ damage ( 100 )
+ custom_event(10)
+
+on ground_collision()
+apply_map_effect( exp1hole.mfx )
+
+on timer( 4 )
+shoot_particles( BFG_wave5_s.obj , 1 , 0.28, 0, 0, 0, 1, 0, 5)
+remove()

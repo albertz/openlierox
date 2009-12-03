@@ -1,0 +1,13 @@
+alpha = 255
+blender = add
+sprite = portal.png
+col_layer=-2
+render_layer = 7
+occluded = 1
+light_radius=25
+
+on creation()
+ set_alpha_fade(75,0)
+
+on timer(75)
+remove ()

@@ -1,0 +1,12 @@
+colour = [100,100,255]
+blender = alpha
+col_layer = -1
+
+on ground_collision()
+remove()
+
+on creation()
+ set_alpha_fade( 30 , 5 )
+
+on timer( 30, 5 )
+remove()

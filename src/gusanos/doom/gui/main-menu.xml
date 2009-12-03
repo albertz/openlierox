@@ -1,0 +1,9 @@
+<group id="main-menu">
+	<button id="main-titlehax" label="Doom Menu" />
+	<button id="main-continue" label="X" />
+	<window id="main-win">
+		<button id="main-host" label="Host game" />
+		<button id="main-connect" label="Join game" />
+		<button id="main-quit" label="Quit" />
+	</window>
+</group>

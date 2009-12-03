@@ -1,0 +1,6 @@
+sprite = needler.png
+blender = add
+alpha = 255
+dest_alpha = 1
+render_layer = 6
+timeout = 4

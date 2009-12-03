@@ -1,0 +1,24 @@
+name=FirstAidPack
+skin=skin.firstaid.png
+ammo=1
+reload_time=400
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(50)
+ play_sound( firstaid_use.ogg, 75, 1, 0.05 )
+ run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set)
+
+on primary_press()
+ play_sound( [firstaid_01.ogg,firstaid_02.ogg,firstaid_03.ogg], 100, 1, 0.05 )
+ use_ammo(1)
+ shoot_particles ( slimpack.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+
+
+
+
+

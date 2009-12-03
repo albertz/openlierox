@@ -1,0 +1,13 @@
+sprite = flash_assaultrifle.png
+col_layer=-1
+blender = add
+light_radius=20
+render_layer = 8
+
+on creation()
+ set_alpha_fade(6,0)
+shoot_particles ( flash_light.obj,1 )
+shoot_particles ( flash_assaultrifle_light.obj,1 )
+
+on timer(6)
+ remove()

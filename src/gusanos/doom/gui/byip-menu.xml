@@ -1,0 +1,8 @@
+
+<group id="byip-menu">
+	<window id="byip-win">
+		<button id="connect" label="Connect" />
+		<button id="back" label="Back" />
+		<edit id="ipfield" />
+	</window>
+</group>

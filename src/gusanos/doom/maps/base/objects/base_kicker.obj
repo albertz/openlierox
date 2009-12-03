@@ -1,0 +1,8 @@
+invisible = true
+col_layer = -1
+
+on timer(2)
+shoot_particles (base_kicker2.obj,1,3,0,0,0,0,0,0)
+
+
+

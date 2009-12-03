@@ -1,0 +1,15 @@
+repeat = 4
+colour = [200,200,255]
+wu_pixels = true
+bounce_factor=0.9
+alpha=255
+blender=alphach
+gravity = 0.003
+col_layer=-1
+light_radius=3
+
+on timer(10)
+  set_alpha_fade(40,10)
+
+on timer(50,10)
+  remove()

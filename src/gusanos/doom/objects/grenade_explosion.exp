@@ -1,0 +1,33 @@
+sprite = explosion_medium.png
+blender = add
+alpha = 255
+dest_alpha = -1
+timeout = 30
+render_layer = 8
+
+on creation()
+ apply_map_effect(exp2hole.mfx)
+ 
+on detect_range( 50 , 50)
+damage( 130, 95, 50 )
+repel( 1, 26, 1 )
+custom_event(5)
+
+on detect_range( 50 , 50,[0,2,3,4])
+damage( 125, 20, 50 )
+push( 1.6 )
+
+on detect_range( 40 , 40,[0,2,3,4])
+custom_event(3)
+
+on detect_range( 20 , 20,[7])
+custom_event(10)
+
+on detect_range( 50 , 50,[7])
+damage( 125, 20, 50 )
+
+on detect_range( 50 , 50,[6])
+custom_event(3)
+
+on detect_range(50,0,[4])
+custom_event(1)

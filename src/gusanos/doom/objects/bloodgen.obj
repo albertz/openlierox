@@ -1,0 +1,23 @@
+gravity = 0.013
+colour = [140, 0, 0]
+wu_pixels = 1
+col_layer = 6
+render_layer = 6
+
+on timer(20, 20)
+ remove()
+
+on death()
+ shoot_particles ( blood.obj , 10 , 0.3, 0.3 )
+ remove()
+
+on ground_collision()
+ remove()
+
+on custom_event(3)
+shoot_particles ( ash.obj , 1,motion_inheritance=0.5)
+remove()
+
+on timer(8)
+ shoot_particles ( blood.obj , 1 , 0 , 0.2, 0.5, 0, 0, 0,0)
+

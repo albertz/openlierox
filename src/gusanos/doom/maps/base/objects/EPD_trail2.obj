@@ -1,0 +1,13 @@
+blender = add
+alpha = 244
+sprite = EPD.bmp
+anim_duration = 20
+anim_type = right_once
+col_layer = -1
+light_radius=15
+
+on timer(20)
+remove()
+
+on ground_collision()
+ remove()

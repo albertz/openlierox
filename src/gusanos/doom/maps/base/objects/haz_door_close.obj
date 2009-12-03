@@ -1,0 +1,13 @@
+sprite = haz_door_close.bmp
+anim_duration = 50
+anim_type = loop_right
+col_layer=-1
+render_layer = 1
+
+on timer(0,0,1)
+ play_sound( haz_door_close.ogg, pitch_var = 0.3 )
+ shoot_particles (haz_door_hurt.obj,1,1.5,0,0,0,0,90,0)
+
+on timer(50)
+shoot_particles ( haz_door.obj , 1,0,0,0,0,0,0,0)
+remove()

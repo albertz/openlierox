@@ -1,0 +1,11 @@
+sprite = BFG_wave.png
+blender = add
+occluded = 1
+col_layer = -1
+anim_duration = 72
+
+on timer( 45 )
+set_alpha_fade(15,0)
+
+on timer( 60 )
+remove()

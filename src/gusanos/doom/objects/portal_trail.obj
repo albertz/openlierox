@@ -1,0 +1,16 @@
+colour = [100, 100, 150]
+render_layer = 6
+wu_pixels = 1
+col_layer=-1
+blender = alpha
+alpha = 255
+light_radius=2
+
+on creation()
+ set_alpha_fade(50)
+
+on ground_collision()
+ remove()
+
+on timer(50)
+ remove()

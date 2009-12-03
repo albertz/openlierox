@@ -1,0 +1,12 @@
+col_layer = -1
+invisible = 1
+
+distort_magnitude = 0.1
+distort_gen = <<< distortions.lens >>>
+distort_size = [30,30]
+
+blender = add
+alpha = 0
+
+on timer(5)
+ remove()

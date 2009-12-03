@@ -1,0 +1,6 @@
+gravity = 0.0005
+sprite = hook.png
+anim_duration = 20
+anim_type = loop_right
+colour = [180, 140, 0]
+

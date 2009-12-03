@@ -1,0 +1,15 @@
+sprite = plasma_explosion.png
+blender = add
+alpha = 255
+dest_alpha = 0
+render_layer = 6
+timeout = 45 
+
+on creation()
+apply_map_effect( exp1hole.mfx)
+
+on detect_range( 6,6 )
+damage(20)
+
+on detect_range( 6,6,[2,3,4,7] )
+damage(5)

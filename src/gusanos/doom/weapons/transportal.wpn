@@ -1,0 +1,20 @@
+name = Transportal
+skin=skin.transportal.png
+ammo = 1
+sync_shot = true
+reload_time=50
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(40)
+ play_sound( grenade_use.ogg, 75, 1, 0.05 )
+ run_script(doom.crosshair_reset)
+  
+on timer ( 0, max_trigger = 1 )
+run_script(doom.transportal_using)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.transportal_loop)
+ 
+on primary_press()
+run_script(doom.transportal_press)
