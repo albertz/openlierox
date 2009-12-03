@@ -67,7 +67,7 @@ bool SpriteSet::load(fs::path const& filename)
 {
 	//cerr << "Loading sprite set: " << filename.native_file_string() << endl;
 
-	BITMAP *tempBitmap = gfx.loadBitmap(filename.native_file_string().c_str(), 0, true);
+	BITMAP *tempBitmap = gfx.loadBitmap(filename.native_file_string().c_str(), true);
 
 	if (!tempBitmap)
 		return false;

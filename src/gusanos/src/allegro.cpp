@@ -21,6 +21,151 @@
 #include "LieroX.h"
 
 
+
+
+SDL_PixelFormat pixelformat32alpha =
+{
+NULL, //SDL_Palette *palette;
+32, //Uint8  BitsPerPixel;
+4, //Uint8  BytesPerPixel;
+0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
+24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
+0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
+0, //Uint32 colorkey;
+255 //Uint8  alpha;
+};
+
+SDL_PixelFormat* mainPixelFormat = &pixelformat32alpha;
+
+
+
+
+SDL_PixelFormat pixelformat[5];
+
+
+/*
+ * Calculate an 8-bit (3 red, 3 green, 2 blue) dithered palette of colors
+ */
+static void DitherColors(SDL_Color *colors, int bpp)
+{
+	int i;
+	if(bpp != 8)
+		return;         /* only 8bpp supported right now */
+	
+	for(i = 0; i < 256; i++) {
+		int r, g, b;
+		/* map each bit field to the full [0, 255] interval,
+		 so 0 is mapped to (0, 0, 0) and 255 to (255, 255, 255) */
+		r = i & 0xe0;
+		r |= r >> 3 | r >> 6;
+		colors[i].r = r;
+		g = (i << 3) & 0xe0;
+		g |= g >> 3 | g >> 6;
+		colors[i].g = g;
+		b = i & 0x3;
+		b |= b << 2;
+		b |= b << 4;
+		colors[i].b = b;
+	}
+}
+
+static void SetPixelFormat(SDL_PixelFormat& fmt, int bpp) {
+	SDL_PixelFormat *format = &fmt;
+	
+	SDL_memset(format, 0, sizeof(*format));
+	format->alpha = SDL_ALPHA_OPAQUE;
+	
+	/* Set up the format */
+	format->BitsPerPixel = bpp;
+	format->BytesPerPixel = (bpp+7)/8;
+	if ( bpp > 8 ) {         /* Packed pixels with standard mask */
+		/* R-G-B */
+		if ( bpp > 24 )
+			bpp = 24;
+		format->Rloss = 8-(bpp/3);
+		format->Gloss = 8-(bpp/3)-(bpp%3);
+		format->Bloss = 8-(bpp/3);
+		format->Rshift = ((bpp/3)+(bpp%3))+(bpp/3);
+		format->Gshift = (bpp/3);
+		format->Bshift = 0;
+		format->Rmask = ((0xFF>>format->Rloss)<<format->Rshift);
+		format->Gmask = ((0xFF>>format->Gloss)<<format->Gshift);
+		format->Bmask = ((0xFF>>format->Bloss)<<format->Bshift);
+	} else {
+		/* Palettized formats have no mask info */
+		format->Rloss = 8;
+		format->Gloss = 8;
+		format->Bloss = 8;
+		format->Aloss = 8;
+		format->Rshift = 0;
+		format->Gshift = 0;
+		format->Bshift = 0;
+		format->Ashift = 0;
+		format->Rmask = 0;
+		format->Gmask = 0;
+		format->Bmask = 0;
+		format->Amask = 0;
+	}
+	if ( bpp <= 8 ) {                       /* Palettized mode */
+		int ncolors = 1<<bpp;
+#ifdef DEBUG_PALETTE
+		fprintf(stderr,"bpp=%d ncolors=%d\n",bpp,ncolors);
+#endif
+		format->palette = (SDL_Palette *)SDL_malloc(sizeof(SDL_Palette));
+		if ( format->palette == NULL ) {
+			SDL_OutOfMemory();
+			return;
+		}
+		(format->palette)->ncolors = ncolors;
+		(format->palette)->colors = (SDL_Color *)SDL_malloc(
+															(format->palette)->ncolors*sizeof(SDL_Color));
+		if ( (format->palette)->colors == NULL ) {
+			SDL_OutOfMemory();
+			return;
+		}
+		if ( ncolors == 2 ) {
+			/* Create a black and white bitmap palette */
+			format->palette->colors[0].r = 0xFF;
+			format->palette->colors[0].g = 0xFF;
+			format->palette->colors[0].b = 0xFF;
+			format->palette->colors[1].r = 0x00;
+			format->palette->colors[1].g = 0x00;
+			format->palette->colors[1].b = 0x00;
+		} else if(ncolors == 256) {
+			DitherColors(format->palette->colors, 8);
+		} else {
+			/* Create an empty palette */
+			SDL_memset((format->palette)->colors, 0,
+					   (format->palette)->ncolors*sizeof(SDL_Color));
+		}
+	}
+}
+
+static void init_pixelformats() {
+	for(int bpp = 1; bpp <= 3; ++bpp) {
+		SetPixelFormat(pixelformat[bpp], bpp * 8);
+	}
+	pixelformat[4] = pixelformat32alpha;
+	
+	mainPixelFormat = &pixelformat[4];
+}
+
+static int color_conversion = 0;
+int get_color_conversion() { return color_conversion; }
+void set_color_conversion(int mode) { color_conversion = mode; }
+
+static int color_depth = 32;
+int get_color_depth() { return color_depth; }
+void set_color_depth(int depth) { color_depth = depth; }
+
+
+static void sub_to_abs_coords_x(BITMAP* bmp, int& x) { x += bmp->sub_x; }
+static void sub_to_abs_coords_y(BITMAP* bmp, int& y) { y += bmp->sub_y; }
+static void sub_to_abs_coords(BITMAP* bmp, int& x, int& y) {
+	sub_to_abs_coords_x(bmp, x);
+	sub_to_abs_coords_y(bmp, y);
+}
+
 static BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh) {
 	BITMAP* bmp = new BITMAP();
 	
@@ -48,11 +193,24 @@ static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
+	return create_bitmap_from_sdl(img);
 
-	SDL_Surface* converted = SDL_DisplayFormatAlpha(img);
+	
+	int bpp = 32; //color_depth;
+	notes << "load " << filename << " with " << bpp << " bits" << endl;
+	int flags = SDL_SWSURFACE;
+	if(bpp == 32) flags |= SDL_SRCALPHA;
+	SDL_Surface* converted = NULL; //SDL_ConvertSurface(img, &pixelformat[bpp / 8], flags);
+/*	if(bpp != 32)
+		converted = SDL_DisplayFormat(img);
+	else*/
+		converted = SDL_DisplayFormatAlpha(img);
 	SDL_FreeSurface(img);
 
-	if(!converted) return NULL;
+	if(!converted) {
+		errors << "Failed: Converting of bitmap " << filename << " to " << bpp << " bit" << endl;
+		return NULL;
+	}
 	
 	return create_bitmap_from_sdl(converted);
 }
@@ -61,7 +219,8 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	//color_depth = 32;
 	int flags = SDL_SWSURFACE;
 	if(color_depth == 32) flags |= SDL_SRCALPHA;
-	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, color_depth, 0,0,0,0);
+	//SDL_PixelFormat& fmt = pixelformat[color_depth/8];
+	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
 	if(!surf) return NULL;
 	return create_bitmap_from_sdl(surf);
 }
@@ -71,6 +230,7 @@ BITMAP *create_bitmap(int width, int height) {
 }
 
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) {
+	sub_to_abs_coords(parent, x, y);
 	return create_bitmap_from_sdl(parent->surf, x, y, width, height);
 }
 
@@ -92,21 +252,6 @@ int allegro_error = 0;
 
 
 
-
-
-SDL_PixelFormat defaultFallbackFormat =
-	{
-         NULL, //SDL_Palette *palette;
-         32, //Uint8  BitsPerPixel;
-         4, //Uint8  BytesPerPixel;
-         0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-         24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-         0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-         0, //Uint32 colorkey;
-         255 //Uint8  alpha;
-	};
-
-SDL_PixelFormat* mainPixelFormat = &defaultFallbackFormat;
 
 
 ///////////////////
@@ -214,7 +359,7 @@ setvideomode:
 #endif
 
 	mainPixelFormat = SDL_GetVideoSurface()->format;
-	//DumpPixelFormat(mainPixelFormat);
+	DumpPixelFormat(mainPixelFormat);
 	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
 		notes << "using doublebuffering" << endl;
 
@@ -271,6 +416,7 @@ static bool sdl_video_init() {
 }
 
 void allegro_init() {
+	init_pixelformats();
 	bJoystickSupport = false;
 	
 	InitEventQueue();
@@ -320,10 +466,7 @@ bool exists(const char* filename) { return IsFileAvailable(filename, true); }
 
 
 int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) {
-	// TODO...
-	return makecol(r,g,b);
-}
+int makecol_depth(int color_depth, int r, int g, int b) { return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b); }
 
 
 int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
@@ -333,23 +476,28 @@ int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
 
 int _rgb_scale_5[32], _rgb_scale_6[64];
 
-void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
-	// TODO...
+void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {	
+    float maxc = MAX(MAX(r, g), b);
+    float minc = MIN(MIN(r, g), b);
+    *v = maxc;
+    if(minc == maxc) {
+		*h = 0;
+		*s = 0;
+		return;
+	}
+
+	*s = (maxc-minc) / maxc;
+	float rc = (maxc-r) / (maxc-minc);
+	float gc = (maxc-g) / (maxc-minc);
+	float bc = (maxc-b) / (maxc-minc);
+	if(r == maxc) *h = bc-gc;
+	else if(g == maxc) *h = 2.0+rc-bc;
+	else *h = 4.0+gc-rc;
+
+	*h = *h/6.0;
+	FMOD(*h, 1.0f);
 }
 
-
-static void sub_to_abs_coords_x(BITMAP* bmp, int& x) {
-	x += bmp->sub_x;
-}
-
-static void sub_to_abs_coords_y(BITMAP* bmp, int& y) {
-	y += bmp->sub_y;
-}
-
-static void sub_to_abs_coords(BITMAP* bmp, int& x, int& y) {
-	sub_to_abs_coords_x(bmp, x);
-	sub_to_abs_coords_y(bmp, y);
-}
 
 static bool abscoord_in_bmp(BITMAP* bmp, int x, int y) {
 	return x >= 0 && x < bmp->sub_x + bmp->w && y >= 0 && y < bmp->sub_y + bmp->h;
@@ -481,12 +629,6 @@ void solid_mode() {}
 int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return r; }
 int getg(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return g; }
 int getb(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return b; }
-
-int get_color_conversion() { return 0; }
-void set_color_conversion(int mode) {}
-
-int get_color_depth() { return 0; }
-void set_color_depth(int depth) {}
 
 
 void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2) {}

@@ -130,7 +130,7 @@ bool VermesLevelLoader::load(Level* level, fs::path const& path)
 	
 	{
 		LocalSetColorDepth cd(8);
-		level->material = gfx.loadBitmap(materialPath.c_str(), 0);
+		level->material = gfx.loadBitmap(materialPath.c_str());
 	}
 	
 	if (level->material)
@@ -139,22 +139,22 @@ bool VermesLevelLoader::load(Level* level, fs::path const& path)
 #ifndef DEDSERV
 		std::string imagePath = (path / "level").native_file_string();
 		
-		level->image = gfx.loadBitmap(imagePath.c_str(), 0);
+		level->image = gfx.loadBitmap(imagePath.c_str());
 		if (level->image)
 		{			
 			std::string backgroundPath = (path / "background").native_file_string();
 			
-			level->background = gfx.loadBitmap(backgroundPath.c_str(),0);
+			level->background = gfx.loadBitmap(backgroundPath.c_str());
 			
 			std::string paralaxPath = (path / "paralax").native_file_string();
-			level->paralax = gfx.loadBitmap(paralaxPath.c_str(),0);
+			level->paralax = gfx.loadBitmap(paralaxPath.c_str());
 			
 			if(!level->paralax)
 				std::cerr << "Paralax not loaded" << std::endl;
 			
 			std::string lightmapPath = (path / "lightmap").native_file_string();
 		
-			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str(),0);
+			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
 			if ( tempLightmap )
 			{
 				{

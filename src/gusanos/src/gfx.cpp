@@ -74,7 +74,7 @@ namespace
 		
 		BITMAP * tmpbitmap = create_bitmap_ex(24,screen->w,screen->h);
 		blit(screen,tmpbitmap,0,0,0,0,screen->w,screen->h);
-		bool success = gfx.saveBitmap( filename.c_str(),tmpbitmap,0);
+		bool success = gfx.saveBitmap( filename.c_str(),tmpbitmap);
 		destroy_bitmap(tmpbitmap);
 		
 		if ( success )
@@ -715,7 +715,7 @@ int Gfx::getScalingFactor()
 
 #endif
 
-BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
+BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 {
 	BITMAP* returnValue = NULL;
 	/*
@@ -732,7 +732,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 	
 	if ( exists( filename.c_str() ) )
 	{
-		returnValue = load_bitmap(filename.c_str(), palette);
+		returnValue = load_bitmap(filename.c_str(), 0);
 	}
 	else
 	{
@@ -740,7 +740,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 		tmp += ".png";
 		if ( exists( tmp.c_str() ) )
 		{
-			returnValue = load_bitmap( tmp.c_str() , palette );
+			returnValue = load_bitmap( tmp.c_str() , 0 );
 		}
 		else
 		{
@@ -748,7 +748,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 			tmp += ".bmp";
 			if ( exists( tmp.c_str() ))
 			{
-				returnValue = load_bitmap( tmp.c_str() , palette );
+				returnValue = load_bitmap( tmp.c_str() , 0 );
 			}
 		}
 	}
@@ -760,7 +760,8 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 		APPLY_ON_BITMAP(returnValue,
 			RECT_Y_LOOP(
 				RECT_X_LOOP(
-					*p &= 0xFFFFFF;
+					//*p &= 0xFFFFFF;
+					*p |= makecol(0,0,0);
 				)
 			)
 		);
@@ -769,7 +770,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, RGB* palette, bool keepAlpha )
 	return returnValue;
 }
 
-bool Gfx::saveBitmap( const string &filename,BITMAP* image, RGB* palette )
+bool Gfx::saveBitmap( const string &filename,BITMAP* image)
 {
 	bool returnValue = false;
 	

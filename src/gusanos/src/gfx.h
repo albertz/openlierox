@@ -68,8 +68,8 @@ public:
 		return ( getr(c1) == getr(c2) && getg(c1) == getg(c2) && getb(c1) == getb(c2) );
 	}
 	
-	BITMAP* loadBitmap(const std::string &filename, RGB* palette = NULL, bool keepAlpha = false);
-	bool saveBitmap(const std::string &filename, BITMAP* image, RGB* palette = NULL);
+	BITMAP* loadBitmap(const std::string &filename, bool keepAlpha = false);
+	bool saveBitmap(const std::string &filename, BITMAP* image);
 	
 	operator bool(); // Returns true if it's safe to use this object
 
