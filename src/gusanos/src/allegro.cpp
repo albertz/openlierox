@@ -393,29 +393,38 @@ void putpixel(BITMAP *bmp, int x, int y, int color) {
 void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
 	sub_to_abs_coords(bmp, x, y1);
 	sub_to_abs_coords_y(bmp, y2);
-	for(int y = y1; y < y2; ++y)
+	DrawVLine(bmp->surf.get(), y1, y2, x, Color(color));
+/*	for(int y = y1; y < y2; ++y)
 		if(abscoord_in_bmp(bmp, x, y))
-			putpixel(bmp, x, y, color);
+			putpixel(bmp, x, y, color);*/
 }
 
 void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
 	sub_to_abs_coords(bmp, x1, y);
 	sub_to_abs_coords_x(bmp, x2);
-	for(int x = x1; x < x2; ++x)
+	DrawHLine(bmp->surf.get(), x1, x2, y, Color(color));
+/*	for(int x = x1; x < x2; ++x)
 		if(abscoord_in_bmp(bmp, x, y))
-			putpixel(bmp, x, y, color);
+			putpixel(bmp, x, y, color);*/
 }
 
 void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
-	// TODO...
+	sub_to_abs_coords(bmp, x1, y1);
+	sub_to_abs_coords(bmp, x2, y2);
+	DrawLine(bmp->surf.get(), x1, y1, x2, y2, Color(color));
 }
 
 void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+	sub_to_abs_coords(bmp, x1, y1);
+	sub_to_abs_coords(bmp, x2, y2);
 	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
 	SDL_FillRect(bmp->surf.get(), &rect, color);
 }
 
-void circle(BITMAP *bmp, int x, int y, int radius, int color) {}
+void circle(BITMAP *bmp, int x, int y, int radius, int color) {
+	sub_to_abs_coords(bmp, x, y);
+	DrawCircleFilled(bmp->surf.get(), x, y, radius, radius, Color(color));
+}
 
 
 void clear_to_color(BITMAP *bmp, int color) {
@@ -424,17 +433,21 @@ void clear_to_color(BITMAP *bmp, int color) {
 
 
 void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	sub_to_abs_coords(source, source_x, source_y);
+	sub_to_abs_coords(dest, dest_x, dest_y);
 	SDL_Rect srcrect = { source_x, source_y, width, height };
 	SDL_Rect dstrect = { dest_x, dest_y, width, height };
 	SDL_BlitSurface(source->surf.get(), &srcrect, dest->surf.get(), &dstrect);
 }
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
-	
+	sub_to_abs_coords(s, s_x, s_y);
+	sub_to_abs_coords(d, d_x, d_y);
+	DrawImageResizedAdv(d->surf.get(), s->surf.get(), s_x, s_y, d_x, d_y, s_w, s_h, d_w, d_h);
 }
 
 void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
-	// TODO...
+	SetColorKey(source->surf.get());
 	blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
 }
 
@@ -443,8 +456,7 @@ void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y) {
 }
 
 void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y) {
-	// TODO...
-	draw_sprite(bmp, sprite, x, y);
+	DrawImageAdv_Mirror(bmp->surf.get(), sprite->surf.get(), 0, 0, x, y, sprite->w, sprite->h);
 }
 
 
