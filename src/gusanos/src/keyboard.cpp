@@ -10,6 +10,8 @@
 #include <iostream>
 #include <cctype>
 
+#include "Debug.h"
+
 using namespace std;
 
 ////////////////////////////PUBLIC//////////////////////////////

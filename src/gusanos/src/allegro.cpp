@@ -9,6 +9,8 @@
 
 #include <SDL.h>
 #include <SDL_image.h>
+#include <boost/static_assert.hpp>
+
 #include "allegro.h"
 #include "FindFile.h"
 #include "Debug.h"
@@ -447,15 +449,135 @@ void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2) {}
 
 
 
+// index is allegro key, value is sdl keysym
+static const int sdlkeymap[KEY_MAX+1] =
+{
+SDLK_UNKNOWN,
+'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+'0','1','2','3','4','5','6','7','8','9',
+'0','1','2','3','4','5','6','7','8','9', // numpads (no difference in SDL)
+SDLK_F1,SDLK_F2,SDLK_F3,SDLK_F4,SDLK_F5,SDLK_F6,SDLK_F7,SDLK_F8,SDLK_F9,SDLK_F10,SDLK_F11,SDLK_F12,
+SDLK_ESCAPE,
+'~',
+'-',
+'=',
+SDLK_BACKSPACE,
+SDLK_TAB,
+'{','}',
+SDLK_RETURN,
+SDLK_COLON,
+SDLK_QUOTE,
+SDLK_BACKSLASH,
+SDLK_BACKSLASH, // second backslash?
+',',
+SDLK_UNKNOWN, // STOP ?
+SDLK_SLASH,
+SDLK_SPACE,
+SDLK_INSERT,SDLK_DELETE,
+SDLK_HOME,SDLK_END,
+SDLK_PAGEUP,SDLK_PAGEDOWN,
+SDLK_LEFT,SDLK_RIGHT,SDLK_UP,SDLK_DOWN,
+SDLK_SLASH, // numpad
+SDLK_ASTERISK,
+SDLK_MINUS,SDLK_PLUS,SDLK_DELETE,SDLK_RETURN, // numpad
+SDLK_PRINT,
+SDLK_PAUSE,
+SDLK_UNKNOWN, // ABNT_C1
+SDLK_UNKNOWN, // YEN
+SDLK_UNKNOWN, // __allegro_KEY_KANA         = 96,
+SDLK_UNKNOWN, // __allegro_KEY_CONVERT      = 97,
+SDLK_UNKNOWN, // __allegro_KEY_NOCONVERT    = 98,
+SDLK_AT,
+SDLK_UNKNOWN, // __allegro_KEY_CIRCUMFLEX   = 100,
+SDLK_UNKNOWN, // __allegro_KEY_COLON2       = 101,
+SDLK_UNKNOWN, // __allegro_KEY_KANJI        = 102,
+SDLK_EQUALS, // numpad
+SDLK_BACKQUOTE,
+SDLK_SEMICOLON,
+SDLK_LSUPER, // command (MacOSX)
+0,0,0,0,0,0,0,0, // allegro unknown1-8
+// modifiers are starting here
+SDLK_LSHIFT,SDLK_RSHIFT,
+SDLK_LCTRL,SDLK_RCTRL,
+SDLK_LALT, // alt
+SDLK_RALT, // alt gr
+SDLK_LSUPER, // lwin
+SDLK_RSUPER, // rwin
+SDLK_LMETA, // menu
+SDLK_SCROLLOCK,
+SDLK_NUMLOCK,
+SDLK_CAPSLOCK,
+SDLK_UNKNOWN // key max
+};
 
 
-void install_keyboard() {}
+// index is sdl keysym, value is allegro key
+static int allegrokeymap[SDLK_LAST];
+
+static int findAllegroKey(Uint32 sdlkeysym) {
+	for(int i = 0; i < KEY_MAX; ++i) {
+		if(sdlkeymap[i] == sdlkeysym) return i;
+	}
+	return KEY_UNKNOWN1;
+}
+
+void install_keyboard() {
+	for(Uint32 i = 0; i < SDLK_LAST; ++i)
+		allegrokeymap[i] = findAllegroKey(i);
+	
+	// just some checks to be sure i didn't made a mistake
+	assert(sdlkeymap[KEY_ESC] == SDLK_ESCAPE);
+	assert(sdlkeymap[__allegro_KEY_DEL] == SDLK_DELETE);
+	assert(sdlkeymap[__allegro_KEY_DOWN] == SDLK_DOWN);
+	assert(sdlkeymap[__allegro_KEY_AT] == SDLK_AT);
+	assert(sdlkeymap[KEY_SEMICOLON] == SDLK_SEMICOLON);
+	assert(sdlkeymap[KEY_LSHIFT] == SDLK_LSHIFT);
+	assert(sdlkeymap[KEY_SCRLOCK] == SDLK_SCROLLOCK);
+	assert(sdlkeymap[KEY_MAX] == SDLK_UNKNOWN);
+	assert(allegrokeymap[SDLK_ESCAPE] == KEY_ESC);
+}
+
 void remove_keyboard() {}
-bool keypressed() { return false; }
-int readkey() { return 0; }
+
+static size_t keyQueueIndex = 0;
+
+static bool isAllegroKeyEvent() {
+	KeyboardEvent& ev = GetKeyboard()->keyQueue[keyQueueIndex];
+	return ev.down;
+}
+
+bool keypressed() {
+	return false;
+	while(keyQueueIndex < GetKeyboard()->queueLength) {
+		if(isAllegroKeyEvent()) return true;
+		++keyQueueIndex;
+	}
+	return false;
+}
+
+int readkey() {
+	while(keyQueueIndex < GetKeyboard()->queueLength) {
+		KeyboardEvent& ev = GetKeyboard()->keyQueue[keyQueueIndex];
+		if(isAllegroKeyEvent()) return allegrokeymap[ev.sym];
+		++keyQueueIndex;
+	}
+	return 0;
+}
+
 int key[KEY_MAX];
 
-void clear_keybuf() {}
+void clear_keybuf() {
+	keyQueueIndex = GetKeyboard()->queueLength;
+	for(int i = 0; i < KEY_MAX; ++i)
+		key[i] = 0;
+}
+
+static void handle_sdlevents_keyb() {
+	keyQueueIndex = 0;
+	
+	for(int i = 0; i < KEY_MAX; ++i)
+		key[i] = GetKeyboard()->KeyDown[sdlkeymap[i]] ? 1 : 0;
+}
 
 
 
@@ -505,10 +627,8 @@ static void handle_sdlevents() {
 	handle_sdlevents_pushall();
 	ProcessEvents(); // calls event handler from OLX
 
-	//GetKeyboard();
-
-	handle_sdlevents_mouse();
-	
+	handle_sdlevents_keyb();
+	handle_sdlevents_mouse();	
 }
 
 
