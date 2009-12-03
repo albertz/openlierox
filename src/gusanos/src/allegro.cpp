@@ -320,7 +320,10 @@ bool exists(const char* filename) { return IsFileAvailable(filename, true); }
 
 
 int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) { return makecol(r,g,b); }
+int makecol_depth(int color_depth, int r, int g, int b) {
+	// TODO...
+	return makecol(r,g,b);
+}
 
 
 int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
@@ -335,10 +338,24 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 }
 
 
+static void sub_to_abs_coords_x(BITMAP* bmp, int& x) {
+	x += bmp->sub_x;
+}
 
+static void sub_to_abs_coords_y(BITMAP* bmp, int& y) {
+	y += bmp->sub_y;
+}
 
+static void sub_to_abs_coords(BITMAP* bmp, int& x, int& y) {
+	sub_to_abs_coords_x(bmp, x);
+	sub_to_abs_coords_y(bmp, y);
+}
 
-int getpixel(BITMAP *bmp, int x, int y) {
+static bool abscoord_in_bmp(BITMAP* bmp, int x, int y) {
+	return x >= 0 && x < bmp->sub_x + bmp->w && y >= 0 && y < bmp->sub_y + bmp->h;
+}
+
+static int getpixel__nocheck(BITMAP *bmp, int x, int y) {
 	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: return bmp_read8(addr);
@@ -349,7 +366,7 @@ int getpixel(BITMAP *bmp, int x, int y) {
 	return 0;
 }
 
-void putpixel(BITMAP *bmp, int x, int y, int color) {
+static void putpixel__nocheck(BITMAP *bmp, int x, int y, int color) {
 	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: bmp_write8(addr, color); break;
@@ -359,19 +376,39 @@ void putpixel(BITMAP *bmp, int x, int y, int color) {
 	}
 }
 
+int getpixel(BITMAP *bmp, int x, int y) {
+	sub_to_abs_coords(bmp, x, y);
+	if(!abscoord_in_bmp(bmp, x, y)) return 0;
+	return getpixel__nocheck(bmp, x, y);
+}
+
+void putpixel(BITMAP *bmp, int x, int y, int color) {
+	sub_to_abs_coords(bmp, x, y);
+	if(!abscoord_in_bmp(bmp, x, y)) return;
+	putpixel__nocheck(bmp, x, y, color);
+}
+
 
 
 void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
+	sub_to_abs_coords(bmp, x, y1);
+	sub_to_abs_coords_y(bmp, y2);
 	for(int y = y1; y < y2; ++y)
-		putpixel(bmp, x, y, color);
+		if(abscoord_in_bmp(bmp, x, y))
+			putpixel(bmp, x, y, color);
 }
 
 void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
+	sub_to_abs_coords(bmp, x1, y);
+	sub_to_abs_coords_x(bmp, x2);
 	for(int x = x1; x < x2; ++x)
-		putpixel(bmp, x, y, color);
+		if(abscoord_in_bmp(bmp, x, y))
+			putpixel(bmp, x, y, color);
 }
 
-void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {}
+void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+	// TODO...
+}
 
 void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
@@ -393,8 +430,7 @@ void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, 
 }
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
-	// TODO...
-	blit(s,d,s_x,s_y,d_x,d_y,s_w,s_h);
+	
 }
 
 void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
@@ -558,7 +594,10 @@ bool keypressed() {
 int readkey() {
 	while(keyQueueIndex < GetKeyboard()->queueLength) {
 		KeyboardEvent& ev = GetKeyboard()->keyQueue[keyQueueIndex];
-		if(isAllegroKeyEvent()) return allegrokeymap[ev.sym];
+		if(isAllegroKeyEvent()) {
+			++keyQueueIndex;
+			return allegrokeymap[ev.sym];
+		}
 		++keyQueueIndex;
 	}
 	return 0;
