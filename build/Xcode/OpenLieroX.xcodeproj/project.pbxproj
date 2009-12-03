@@ -173,6 +173,8 @@
 		23C1819A10C49728003DBB09 /* TeeStdoutHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */; };
 		23C181BA10C49914003DBB09 /* MainGlobals.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C181B910C49914003DBB09 /* MainGlobals.cpp */; };
 		23C1826E10C49FD6003DBB09 /* SystemFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */; };
+		23C3436010C825A300DABBD6 /* GfxSaveSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */; };
+		23C3439E10C8278700DABBD6 /* GfxUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3439D10C8278700DABBD6 /* GfxUtils.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -699,6 +701,8 @@
 		23C181B910C49914003DBB09 /* MainGlobals.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MainGlobals.cpp; sourceTree = "<group>"; };
 		23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SystemFunctions.cpp; sourceTree = "<group>"; };
 		23C182B210C4A8B3003DBB09 /* OLXConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXConsole.h; sourceTree = "<group>"; };
+		23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GfxSaveSurface.cpp; sourceTree = "<group>"; };
+		23C3439D10C8278700DABBD6 /* GfxUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GfxUtils.cpp; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1468,6 +1472,8 @@
 				EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */,
 				EA430C1F0BEFCEB400C6547E /* Sounds.cpp */,
 				23F6A3420FD6DF0300793B24 /* DynDraw.cpp */,
+				23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */,
+				23C3439D10C8278700DABBD6 /* GfxUtils.cpp */,
 			);
 			name = client;
 			path = ../../src/client;
@@ -2223,6 +2229,8 @@
 				23C1819A10C49728003DBB09 /* TeeStdoutHandler.cpp in Sources */,
 				23C181BA10C49914003DBB09 /* MainGlobals.cpp in Sources */,
 				23C1826E10C49FD6003DBB09 /* SystemFunctions.cpp in Sources */,
+				23C3436010C825A300DABBD6 /* GfxSaveSurface.cpp in Sources */,
+				23C3439E10C8278700DABBD6 /* GfxUtils.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

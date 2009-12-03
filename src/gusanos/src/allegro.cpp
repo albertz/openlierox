@@ -701,6 +701,7 @@ void updateFileListCaches() {}
 void SetQuitEngineFlag(const std::string&) {}
 
 #include "AuxLib.h"
+SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
 void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {}
 std::string GetConfigFile() { return ""; }
 
@@ -709,8 +710,13 @@ void SetError(const std::string& t) { errors << "OLX SetError: " << t << endl; }
 
 void handle_system_event(const SDL_Event& ) {}
 
-template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
-{
-	SDL_FreeSurface(obj);
-}
+#include "Cache.h"
+CCache cCache;
+SmartPointer<SDL_Surface> CCache::GetImage__unsafe(const std::string& file) { return NULL; }
+void CCache::SaveImage__unsafe(const std::string& file, const SmartPointer<SDL_Surface> & img) {}
 
+struct SoundSample;
+class CMap; class CGameScript;
+template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj ) {}
+template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ) {}
+template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ) {}

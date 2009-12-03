@@ -3,7 +3,7 @@
 
 #include "resource_list.h"
 #include "util/angle.h"
-#include "util/cache.h"
+#include "util/GusCache.h"
 #include "util/rect.h"
 #include "glua.h"
 #include <allegro.h>

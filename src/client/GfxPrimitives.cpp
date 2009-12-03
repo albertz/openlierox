@@ -19,9 +19,6 @@
 
 
 #include <cassert>
-#ifndef DEDICATED_ONLY
-#include <gd.h>
-#endif
 #include <SDL.h>
 #include <algorithm>
 
@@ -43,6 +40,7 @@
 #include "Mutex.h"
 #include "Condition.h"
 #include "CVec.h"
+#include "Cache.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -2497,136 +2495,6 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	return Image;
 }
 
-#ifndef DEDICATED_ONLY
-///////////////////////
-// Converts the SDL_surface to gdImagePtr
-static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
-	gdImagePtr gd_image = gdImageCreateTrueColor(src->w,src->h);
-	if(!gd_image)
-		return NULL;
-
-	Uint32 rmask, gmask, bmask;
-	// format of gdImage
-	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
-
-	SmartPointer<SDL_Surface> formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
-	if(!formated.get())
-		return NULL;
-	#ifdef DEBUG
-	//printf("SDLSurface2GDImage() %p\n", formated.get() );
-	#endif
-	// convert it to the new format (32 bpp)
-	CopySurface(formated.get(), src, 0, 0, 0, 0, src->w, src->h);
-
-	if (!LockSurface(formated))
-		return NULL;
-
-	for(int y = 0; y < src->h; y++) {
-		memcpy(gd_image->tpixels[y], (uchar*)formated.get()->pixels + y*formated.get()->pitch, formated.get()->pitch);
-	}
-
-	UnlockSurface(formated);
-
-	return gd_image;
-}
-#endif //DEDICATED_ONLY
-
-///////////////////////
-// Saves the surface into the specified file with the specified format
-bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, const std::string& Data)
-{
-	//
-	// BMP
-	//
-
-	// We use standard SDL function for saving BMPs
-	if (Format == FMT_BMP)  {
-
-		// Save the image
-		std::string abs_fn = GetWriteFullFileName (FileName, true);  // SDL requires full paths
-		SDL_SaveBMP(image, abs_fn.c_str());
-
-		// Append any additional data
-		if (!Data.empty())  {
-
-			FILE *f = OpenGameFile (FileName, "ab");
-			if (!f)
-				return false;
-
-			fwrite(Data.data(), 1, Data.size(), f);
-			fclose (f);
-		}
-
-		return true;
-	}
-
-#ifdef DEDICATED_ONLY
-	warnings << "SaveSurface: cannot use something else than BMP in dedicated-only-mode" << endl;
-	return false;
-
-#else
-	
-	//
-	// JPG, PNG, GIF
-	//
-
-	// We use GD for saving these formats
-	gdImagePtr gd_image = NULL;
-
-	// Convert the surface
-	gd_image = SDLSurface2GDImage ( image );
-	if ( !gd_image )
-		return false;
-
-	// Save the image
-	int s;
-	char *data = NULL;
-	FILE *out = OpenGameFile (FileName, "wb");
-	if ( !out )
-		return false;
-
-	// Get the data depending on the format
-	switch (Format)
-	{
-		case FMT_PNG:
-			data = ( char * ) gdImagePngPtr ( gd_image, &s );
-			break;
-		case FMT_JPG:
-			data = ( char * ) gdImageJpegPtr ( gd_image, &s,tLXOptions->iJpegQuality );
-			break;
-		case FMT_GIF:
-			data = ( char * ) gdImageGifPtr ( gd_image, &s );
-			break;
-		default:
-			data = ( char * ) gdImagePngPtr ( gd_image, &s );
-			break;
-	}
-
-	// Check
-	if (!data)
-		return false;
-
-	// Size of the data
-	size_t size = s > 0 ? s : -s;
-
-	// Write the image data
-	if (fwrite(data, 1, size, out) != size)
-		return false;
-
-	// Write any additional data
-	if (!Data.empty())
-		fwrite(Data.data(), 1, Data.size(), out);
-
-	// Free everything
-	gdFree ( data );
-	gdImageDestroy ( gd_image );
-
-	// Close the file and quit
-	return fclose(out) == 0;
-#endif // !DEDICATED_ONLY
-}
-
-
 void test_Clipper() {
 	SDL_Rect r1 = {52, 120, 7, 14};
 	SDL_Rect r2 = {52, 162, 558, 258};
@@ -2652,112 +2520,6 @@ std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector = NULL;
 
 
 
-
-
-void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
-	switch(type) {
-		case LAT_CIRCLES: {
-			static const int STEPS = 12;
-			int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
-			for(int i = 0; i < STEPS; ++i) {
-				const float a = (float)PI * 2.0f * i / STEPS;
-				VectorD2<float> p( cosf(a) * rx, sinf(a) * ry );
-				
-				DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
-			}
-			break;
-		}
-		case LAT_CAKE: {
-			static const int STEPS = 6;
-			int cur = int(((GetTime().milliseconds() % 500)) * STEPS * 0.002f);
-			for(int i = 0; i < STEPS; ++i) {
-				const float angle = (float)PI * 2.0f * i / STEPS;
-				const float a = angle + (float)PI * 2.0f * -0.5f / STEPS;
-				const float b = angle + (float)PI * 2.0f * 0.5f / STEPS;
-				Polygon2D poly;
-				poly.startPointAdding();
-				poly.addPoint(VectorD2<float>(cosf(a) * rx, sinf(a) * ry));
-				poly.addPoint(VectorD2<float>(cosf(b) * rx, sinf(b) * ry));
-				poly.addPoint(VectorD2<int>(0,0));
-				poly.endPointAdding();
-				float colf = float((STEPS + cur - i) % STEPS) / float(STEPS - 1);
-				Color col = bg * colf + fg * (1.0f - colf);
-				poly.drawFilled(bmpDest, x, y, col);
-			}
-			break;
-		}
-	}
-}
-
-struct ScopedBackgroundLoadingAni::Data {
-	ThreadPoolItem* thread;
-	Mutex mutex;
-	bool quit;
-	Condition breakSig;
-	SmartPointer<SDL_Surface> screenBackup;
-	
-	Data() : thread(NULL), quit(false) {
-		screenBackup = gfxCreateSurface(640,480);
-		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
-	}
-	~Data() {
-		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
-	}
-};
-
-ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
-	data = NULL;
-	if(bDedicated) return;
-	
-	data = new Data();
-	struct Animator : Action {
-		int x, y, rx, ry;
-		LoadingAniType type;
-		Color fg, bg;
-		Data* data;
-		
-		int handle() {
-			Mutex::ScopedLock lock(data->mutex);
-			while(!data->quit) {
-				// Kind of a hack: we update the time so that mainlockdetector does not break this
-				// loading, no matter how slow it is.
-				// As we are only loading the mod/map, we can savly access tLX->currentTime.
-				tLX->currentTime = GetTime();
-				
-				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
-				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg, type);
-				doVideoFrameInMainThread();
-				
-				data->breakSig.wait(data->mutex, 10);
-			}
-			return 0;
-		}
-	};
-	
-	Animator* anim = new Animator();
-	anim->x = x;
-	anim->y = y;
-	anim->rx = rx;
-	anim->ry = ry;
-	anim->fg = fg;
-	anim->bg = bg;
-	anim->type = type;
-	anim->data = data;
-	
-	data->thread = threadPool->start(anim, "Background Loading animation");
-}
-
-ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
-	if(data) {
-		{
-			Mutex::ScopedLock lock(data->mutex);
-			data->quit = true;
-			data->breakSig.signal();
-		}
-		threadPool->wait(data->thread);
-		delete data; data = NULL;
-	}
-}
 
 
 
