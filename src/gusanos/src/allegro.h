@@ -16,6 +16,7 @@
 
 #include <SDL.h>
 #include <cstdio>
+#include "SmartPointer.h"
 
 extern int allegro_error;
 
@@ -140,12 +141,14 @@ struct RGB
 
 struct BITMAP            /* a bitmap structure */
 	{
-		SDL_Surface* surf;
+		SmartPointer<SDL_Surface> surf;
 		
 		// BITMAP itself
+		int sub_x, sub_y;		// subpart (if you use create_sub_bitmap)
 		int w, h;                     /* width and height in pixels */
 		//int clip;                     /* flag if clipping is turned on */
 		int cl, cr, ct, cb;           /* clip left, right, top and bottom values */
+		
 
 		//void (*write_bank)();         /* write bank selector, see bank.s */
 		//void (*read_bank)();          /* read bank selector, see bank.s */

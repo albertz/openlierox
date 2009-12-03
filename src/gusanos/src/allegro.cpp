@@ -19,23 +19,28 @@
 #include "LieroX.h"
 
 
-
-static BITMAP *create_bitmap_from_sdl(SDL_Surface* surf) {	
+static BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh) {
 	BITMAP* bmp = new BITMAP();
-
+	
 	bmp->surf = surf;
-	bmp->w = surf->w;
-	bmp->h = surf->h;
+	bmp->sub_x = subx;
+	bmp->sub_y = suby;
+	bmp->w = subw;
+	bmp->h = subh;
 	bmp->cl = 0;
-	bmp->cr = surf->w;
+	bmp->cr = subw;
 	bmp->ct = 0;
-	bmp->cb = surf->h;
-
-	bmp->line = new unsigned char* [surf->h];
-	for(int y = 0; y < surf->h; ++y)
-		bmp->line[y] = (Uint8 *)surf->pixels + (y * surf->pitch);
+	bmp->cb = subh;
+	
+	bmp->line = new unsigned char* [subh];
+	for(int y = 0; y < subh; ++y)
+		bmp->line[y] = (Uint8 *)surf->pixels + ((suby + y) * surf->pitch) + (subx * surf->format->BytesPerPixel);
 
 	return bmp;
+}
+
+static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {	
+	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
 }
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
@@ -63,11 +68,13 @@ BITMAP *create_bitmap(int width, int height) {
 	return create_bitmap_ex(32, width, height);
 }
 
-BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) { return NULL; }
+BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) {
+	return create_bitmap_from_sdl(parent->surf, x, y, width, height);
+}
 
 void destroy_bitmap(BITMAP *bmp) {
 	if(bmp == NULL) return;
-	if(bmp->surf) SDL_FreeSurface(bmp->surf);
+	bmp->surf = NULL;
 	delete[] bmp->line;
 	delete bmp;
 }
@@ -366,7 +373,7 @@ void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {}
 
 void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
-	SDL_FillRect(bmp->surf, &rect, color);
+	SDL_FillRect(bmp->surf.get(), &rect, color);
 }
 
 void circle(BITMAP *bmp, int x, int y, int radius, int color) {}
@@ -380,7 +387,7 @@ void clear_to_color(BITMAP *bmp, int color) {
 void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	SDL_Rect srcrect = { source_x, source_y, width, height };
 	SDL_Rect dstrect = { dest_x, dest_y, width, height };
-	SDL_BlitSurface(source->surf, &srcrect, dest->surf, &dstrect);
+	SDL_BlitSurface(source->surf.get(), &srcrect, dest->surf.get(), &dstrect);
 }
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
@@ -542,4 +549,9 @@ std::string GetConfigFile() { return ""; }
 void SetError(const std::string& t) { errors << "OLX SetError: " << t << endl; }
 
 void handle_system_event(const SDL_Event& ) {}
+
+template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
+{
+	SDL_FreeSurface(obj);
+}
 
