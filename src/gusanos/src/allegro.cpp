@@ -195,7 +195,7 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
 	
-	if(color_depth == 8) return create_bitmap_from_sdl(img);
+	if(/*color_depth == 8*/ img->format->BitsPerPixel == 8 ) return create_bitmap_from_sdl(img);
 
 	
 	int bpp = color_depth; //32; //color_depth;

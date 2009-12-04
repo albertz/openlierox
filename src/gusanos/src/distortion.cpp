@@ -117,7 +117,7 @@ DistortionMap* rippleMap(int radius, int frequency)
 		{
 			if (delta.length() != 0)
 			{
-				rippleFactor = -cos(delta.length() * 2 * frequency * PI / radius) + 1;
+				rippleFactor = -cos(delta.length() * 2 * frequency * Pi / radius) + 1;
 				
 				ripple->map.push_back( delta.normal() * rippleFactor * radius / frequency);
 			}else
