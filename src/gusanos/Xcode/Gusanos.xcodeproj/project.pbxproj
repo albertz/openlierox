@@ -256,6 +256,7 @@
 		23C3435C10C8253E00DABBD6 /* GfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3435B10C8253E00DABBD6 /* GfxPrimitives.cpp */; };
 		23C3438A10C8271F00DABBD6 /* MathLib.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3438910C8271F00DABBD6 /* MathLib.cpp */; };
 		23C343B610C8287000DABBD6 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C343B510C8287000DABBD6 /* Geometry.cpp */; };
+		23C3466910C8A7CD00DABBD6 /* gusanos.icns in Resources */ = {isa = PBXBuildFile; fileRef = 23C3466810C8A7CD00DABBD6 /* gusanos.icns */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 /* End PBXBuildFile section */
@@ -731,6 +732,7 @@
 		23C3437D10C826C600DABBD6 /* GusCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GusCache.h; sourceTree = "<group>"; };
 		23C3438910C8271F00DABBD6 /* MathLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathLib.cpp; path = common/MathLib.cpp; sourceTree = "<group>"; };
 		23C343B510C8287000DABBD6 /* Geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Geometry.cpp; path = common/Geometry.cpp; sourceTree = "<group>"; };
+		23C3466810C8A7CD00DABBD6 /* gusanos.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = gusanos.icns; path = ../gusanos.icns; sourceTree = SOURCE_ROOT; };
 		5048396D09E3307300765E4B /* GusanosProj.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosProj.xcconfig; sourceTree = "<group>"; };
 		5048396E09E3307300765E4B /* GusanosTarget.xcconfig */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text.xcconfig; path = GusanosTarget.xcconfig; sourceTree = "<group>"; };
 		508344B209E5C41E0093A071 /* Gusanos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gusanos.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -788,6 +790,7 @@
 		20286C29FDCF999611CA2CEA /* Gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				23C3466810C8A7CD00DABBD6 /* gusanos.icns */,
 				23C1810710C4929A003DBB09 /* HawkNL source */,
 				23C1806A10C49006003DBB09 /* breakpad */,
 				23C1802010C48B07003DBB09 /* OLX src */,
@@ -1556,6 +1559,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */,
+				23C3466910C8A7CD00DABBD6 /* gusanos.icns in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
