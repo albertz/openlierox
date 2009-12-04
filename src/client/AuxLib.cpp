@@ -1319,6 +1319,8 @@ std::string GetDateTimeFilename()
 
 void EnableSystemMouseCursor(bool enable)
 {
+	if( bDedicated )
+		return;
 	struct EnableMouseCursor: public Action
 	{
 		bool Enable;
