@@ -17,6 +17,7 @@
 
 #include "omfgscript/omfg_script.h"
 #include "game_actions.h"
+#include "FindFile.h"
 
 
 #include <allegro.h>
@@ -79,7 +80,8 @@ enum type
 
 bool ExpType::load(fs::path const& filename)
 {
-	fs::ifstream fileStream(filename, std::ios::binary | std::ios::in);
+	std::ifstream fileStream;
+	OpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
 
 	if (!fileStream )
 		return false;

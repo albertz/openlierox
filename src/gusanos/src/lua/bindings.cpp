@@ -1,4 +1,5 @@
 #include "bindings.h"
+#include "FindFile.h"
 
 #ifndef DEDSERV
 #include "../gui/lua/bindings-gui.h"
@@ -422,7 +423,8 @@ int l_undump(lua_State* L)
 	{
 		fs::path dumpPath(fs::path("persistance") / (std::string(s) + ".lpr"));
 	
-		fs::ifstream f(dumpPath, std::ios::binary);
+		std::ifstream f;
+		OpenGameFileR(f, dumpPath.native_file_string(), std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;

@@ -3,6 +3,7 @@
 #include "sound_sample_openal.h"
 #include "resource_list.h"
 #include "base_object.h"
+#include "FindFile.h"
 
 #ifdef __APPLE__
 #define __MACOSX__
@@ -40,7 +41,7 @@ void LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, ALsizei
     FILE *f;
 
     // Open for binary reading
-    f = fopen(fileName, "rb");
+    f = OpenGameFile(fileName, "rb");
 
     if (f == NULL)
         {

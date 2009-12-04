@@ -10,6 +10,7 @@
 #include "util/macros.h"
 #include "timer_event.h"
 #include "lua51/luaapi/context.h"
+#include "FindFile.h"
 
 #include <string>
 #include <vector>
@@ -88,7 +89,8 @@ namespace GameEventID
 
 bool WeaponType::load(fs::path const& filename)
 {
-	fs::ifstream fileStream(filename, std::ios::binary | std::ios::in);
+	std::ifstream fileStream;
+	OpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
 
 	if (!fileStream )
 		return false;

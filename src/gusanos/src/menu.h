@@ -148,7 +148,7 @@ public:
 		return f;
 	}
 	
-	fs::ifstream f;
+	std::ifstream f;
 };
 
 extern ResourceLocator<XMLFile, false, false> xmlLocator;
@@ -163,12 +163,9 @@ public:
 	
 	operator bool()
 	{
-		//return f;
 		return loaded;
 	}
-	
-	//fs::ifstream f;
-	
+		
 	bool loaded;
 };
 

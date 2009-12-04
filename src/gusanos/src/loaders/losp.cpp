@@ -1,4 +1,5 @@
 #include "losp.h"
+#include "FindFile.h"
 
 #ifndef DEDSERV
 
@@ -40,7 +41,8 @@ bool LOSPFontLoader::load(Font* font, fs::path const& path)
 {
 	font->free();
 
-	fs::ifstream f(path, std::ios::binary);
+	std::ifstream f;
+	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	if(!f)
 		return false;
 		

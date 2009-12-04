@@ -192,7 +192,8 @@ static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	notes << "load " << filename << endl;
-	SDL_Surface* img = IMG_Load(filename);
+	std::string fullfilename = GetFullFileName(filename);	
+	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
 	
 	if(/*color_depth == 8*/ img->format->BitsPerPixel == 8 ) return create_bitmap_from_sdl(img);
@@ -417,6 +418,8 @@ static bool sdl_video_init() {
 }
 
 void allegro_init() {
+	InitBaseSearchPaths();
+	
 	init_pixelformats();
 	bJoystickSupport = false;
 	
@@ -462,7 +465,7 @@ int set_display_switch_mode(int mode) { return 0; }
 
 
 
-bool exists(const char* filename) { return IsFileAvailable(filename, true); }
+bool exists(const char* filename) { return IsFileAvailable(filename); }
 
 
 
