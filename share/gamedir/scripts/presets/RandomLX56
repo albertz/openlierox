@@ -1,0 +1,27 @@
+#!/usr/bin/python -u
+
+import random
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+mods = [ 
+	"8-Bit Warfare v1.2", 
+	"Classic", 
+	"FoodFight v0.6", 
+	"MSF II", 
+	"MW 1.0", 
+	"NarutoNT-1.26", 
+	"Shock v1.40 Air",
+	"Trick or Treat v0.4",
+	"WH40K 0.13",
+	"Zelda v0.8",
+]
+
+setvar( "GameOptions.GameInfo.LevelName", "CastleStrike.lxl" )
+
+mod = random.choice(mods)
+
+setvar( "GameOptions.GameInfo.ModName", mod )
+
+setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + mod + "/Standard 100lt.wps" )
+
