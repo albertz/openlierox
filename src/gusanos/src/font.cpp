@@ -93,7 +93,7 @@ void Font::draw( BITMAP* where, string::const_iterator b, string::const_iterator
 		}
 		CharInfo *c = lookupChar(*b);
 		
-		//masked_blit(m_bitmap, where, c->rect.x1, c->rect.y1, x, y, c->width, c->height);
+		masked_blit(m_bitmap, where, c->rect.x1, c->rect.y1, x, y, c->width, c->height);
 		if(c->subBitmap)
 		{
 			if(flags & Shadow)
