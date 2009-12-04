@@ -253,15 +253,15 @@ void clear_bitmap(BITMAP*);
 #endif
 
 #ifndef bmp_write8
-#define bmp_write8(addr, c)         (*((unsigned char  *)(addr)) = (c))
-#define bmp_write15(addr, c)        (*((unsigned short *)(addr)) = (c))
-#define bmp_write16(addr, c)        (*((unsigned short *)(addr)) = (c))
-#define bmp_write32(addr, c)        (*((unsigned long  *)(addr)) = (c))
+#define bmp_write8(addr, c)         (*((Uint8  *)(addr)) = (c))
+#define bmp_write15(addr, c)        (*((Uint16 *)(addr)) = (c))
+#define bmp_write16(addr, c)        (*((Uint16 *)(addr)) = (c))
+#define bmp_write32(addr, c)        (*((Uint32 *)(addr)) = (c))
 
-#define bmp_read8(addr)             (*((unsigned char  *)(addr)))
-#define bmp_read15(addr)            (*((unsigned short *)(addr)))
-#define bmp_read16(addr)            (*((unsigned short *)(addr)))
-#define bmp_read32(addr)            (*((unsigned long  *)(addr)))
+#define bmp_read8(addr)             (*((Uint8  *)(addr)))
+#define bmp_read15(addr)            (*((Uint16 *)(addr)))
+#define bmp_read16(addr)            (*((Uint16 *)(addr)))
+#define bmp_read32(addr)            (*((Uint32 *)(addr)))
 
 #ifndef AL_INLINE
 //#define AL_INLINE(type, name, args, code)       type name args;
