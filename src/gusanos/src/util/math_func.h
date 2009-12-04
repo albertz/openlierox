@@ -12,16 +12,16 @@ extern boost::mt19937 rndgen;
 extern boost::uniform_01<boost::mt19937> rnd;
 extern boost::variate_generator<boost::mt19937, boost::uniform_real<> > midrnd;
 
-double const PI = 3.14159265358979323846;
+double const Pi = 3.14159265358979323846;
 
 inline float deg2rad( float Degrees )
 {
-	return (Degrees * PI) / 180;
+	return (Degrees * Pi) / 180;
 }
 
 inline float rad2deg( float Radians )
 {
-	return (Radians * 180) / PI;
+	return (Radians * 180) / Pi;
 }
 
 inline unsigned long rndInt(unsigned long max)

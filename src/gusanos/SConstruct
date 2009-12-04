@@ -83,7 +83,10 @@ olxfiles = [
 	"StringUtils.cpp",
 	"FindFile.cpp",
 	"InputEvents.cpp",
-	"CInput.cpp" ]
+	"CInput.cpp",
+	"GfxPrimitives.cpp",
+	"Geometry.cpp",
+	"MathLib.cpp" ]
 
 def findFullOlxFn(fn):
 	olxsrcdir = ".."
