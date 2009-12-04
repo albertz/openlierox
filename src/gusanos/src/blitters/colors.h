@@ -28,10 +28,10 @@ const Pixel maskcolor_16 = 0xF81F;
 
 inline Pixel scaleColor_32(Pixel color, int fact)
 {
-	Pixel temp1 = color & 0xFF00FF;
+	Pixel temp1 = color & maskcolor_32;
 	Pixel temp2 = color & 0x00FF00;
 	
-	temp1 = ((temp1 * fact) >> 8) & 0xFF00FF;
+	temp1 = ((temp1 * fact) >> 8) & maskcolor_32;
 	temp2 = ((temp2 * fact) >> 8) & 0x00FF00;
 	
 	return temp1 | temp2;
@@ -199,12 +199,12 @@ inline Pixel32 blendColorsHalfCrude_32_prepared(Pixel color1, Pixel color2halved
 
 inline Pixel blendColorsFact_32(Pixel color1, Pixel color2, int fact)
 {
-	Pixel res = (((color2 & 0xFF00FF) - (color1 & 0xFF00FF)) * fact >> 8) + color1;
+	Pixel res = (((color2 & maskcolor_32) - (color1 & maskcolor_32)) * fact >> 8) + color1;
 	color1 &= 0xFF00;
 	color2 &= 0xFF00;
 	Pixel g = ((color2 - color1) * fact >> 8) + color1;
 
-	res &= 0xFF00FF;
+	res &= maskcolor_32;
 	g &= 0xFF00;
 
 	return res | g;
@@ -214,25 +214,25 @@ inline Pixel blendColorsFact_32(Pixel color1, Pixel color2, int fact)
 // the four parameter version of blendColorsFact_32.
 inline void prepareBlendColorsFact_32(Pixel color2, Pixel& color2rb, Pixel& color2g)
 {
-	color2rb = color2 & 0xFF00FF;
+	color2rb = color2 & maskcolor_32;
 	color2g  = color2 & 0x00FF00;
 }
 
 /*
 inline Pixel32 blendColorsFact_32(Pixel32 color1, Pixel32 color2rb, Pixel32 color2g, int fact)
 {
-	Pixel32 temp2 = color1 & 0xFF00FF;
+	Pixel32 temp2 = color1 & maskcolor_32;
 	Pixel32 temp1;
-	temp1 = ((((color2rb - temp2) * fact) >> 8) + temp2) & 0xFF00FF;
+	temp1 = ((((color2rb - temp2) * fact) >> 8) + temp2) & maskcolor_32;
 	color1 &= 0xFF00;
 	temp2 = ((((color2g - color1) * fact) >> 8) + color1) & 0xFF00;
 	return temp1 | temp2;
 	
-	Pixel res = (((color1 & 0xFF00FF) - color2rb) * fact >> 8) + color2;
+	Pixel res = (((color1 & maskcolor_32) - color2rb) * fact >> 8) + color2;
 	color1 &= 0xFF00;
 	Pixel g = ((color1 - color2g) * fact >> 8) + color2;
 
-	res &= 0xFF00FF;
+	res &= maskcolor_32;
 	g &= 0xFF00;
 
 	return res | g;

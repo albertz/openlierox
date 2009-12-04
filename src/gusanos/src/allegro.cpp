@@ -194,21 +194,22 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	notes << "load " << filename << endl;
 	SDL_Surface* img = IMG_Load(filename);
 	if(!img) return NULL;
-	return create_bitmap_from_sdl(img);
+	
+	if(color_depth == 8) return create_bitmap_from_sdl(img);
 
 	
-	int bpp = 32; //color_depth;
+	int bpp = color_depth; //32; //color_depth;
 	int flags = SDL_SWSURFACE;
-	if(bpp == 32) flags |= SDL_SRCALPHA;
+//	if(bpp == 32) flags |= SDL_SRCALPHA;
 	SDL_Surface* converted = NULL; //SDL_ConvertSurface(img, &pixelformat[bpp / 8], flags);
-/*	if(bpp != 32)
+	//if(bpp != 32)
 		converted = SDL_DisplayFormat(img);
-	else*/
-		converted = SDL_DisplayFormatAlpha(img);
+	//else
+	//	converted = SDL_DisplayFormatAlpha(img);
 	SDL_FreeSurface(img);
 
 	if(!converted) {
-		errors << "Failed: Converting of bitmap " << filename << " to " << bpp << " bit" << endl;
+		errors << "Failed: Converting of bitmap " << filename << /*" to " << bpp <<*/ " bit" << endl;
 		return NULL;
 	}
 	
@@ -218,15 +219,15 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	//color_depth = 32;
 	int flags = SDL_SWSURFACE;
-	if(color_depth == 32) flags |= SDL_SRCALPHA;
+	//if(color_depth == 32) flags |= SDL_SRCALPHA;
 	//SDL_PixelFormat& fmt = pixelformat[color_depth/8];
-	SDL_Surface* surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
+	SDL_Surface* surf = SDL_CreateRGBSurface(flags, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
 	if(!surf) return NULL;
 	return create_bitmap_from_sdl(surf);
 }
 
 BITMAP *create_bitmap(int width, int height) {
-	return create_bitmap_ex(32, width, height);
+	return create_bitmap_ex(color_depth, width, height);
 }
 
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) {
@@ -600,7 +601,7 @@ void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int d
 }
 
 void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y) {
-	blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
+	masked_blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
 }
 
 void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y) {

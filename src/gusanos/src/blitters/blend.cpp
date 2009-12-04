@@ -286,7 +286,7 @@ void drawSprite_blend_32(BITMAP* where, BITMAP* from, int x, int y, int cutl, in
 		SPRITE_Y_LOOP(
 			SPRITE_X_LOOP(
 				Pixel s = *src;
-				if(s != 0xFF00FF)
+				if(s != maskcolor_32)
 					*dest = blendColorsHalfCrude_32(*dest, s);
 			)
 		)
@@ -296,7 +296,7 @@ void drawSprite_blend_32(BITMAP* where, BITMAP* from, int x, int y, int cutl, in
 		SPRITE_Y_LOOP(
 			SPRITE_X_LOOP(
 				Pixel s = *src;
-				if(s != 0xFF00FF)
+				if(s != maskcolor_32)
 					*dest = blendColorsFact_32(*dest, s, fact);
 			)
 		)
