@@ -19,6 +19,12 @@
 #include "SmartPointer.h"
 
 extern int allegro_error;
+extern int cpu_capabilities;
+enum {
+	CPU_MMX = 1,
+	CPU_SSE = 2,
+	CPU_MMXPLUS = 4,
+};
 
 void allegro_init();
 void allegro_exit();

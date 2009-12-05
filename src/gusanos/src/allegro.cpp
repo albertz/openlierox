@@ -442,6 +442,8 @@ static bool sdl_video_init() {
 	return true;
 }
 
+int cpu_capabilities = 0;
+
 void allegro_init() {
 	InitBaseSearchPaths();
 	
@@ -456,6 +458,10 @@ void allegro_init() {
 		return;
 	}
 
+	if(SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
+	if(SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
+	if(SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
+	
 	screen = create_bitmap_from_sdl(SDL_GetVideoSurface());
 }
 
