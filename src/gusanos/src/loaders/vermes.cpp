@@ -13,6 +13,7 @@
 #include <string>
 
 #include "../omfgscript/omfg_script.h"
+#include "FindFile.h"
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -45,7 +46,8 @@ namespace{
 
 	LevelConfig* loadConfig( fs::path const& filename )
 	{
-		fs::ifstream fileStream(filename, std::ios::binary | std::ios::in);
+		std::ifstream fileStream;
+		OpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
 
 		if (!fileStream )
 			return false;
@@ -281,7 +283,7 @@ bool XMLLoader::canLoad(fs::path const& path, std::string& name)
 	
 bool XMLLoader::load(XMLFile* xml, fs::path const& path)
 {
-	xml->f.open(path, std::ios::binary);
+	OpenGameFileR(xml->f, path.native_file_string(), std::ios::binary);
 	
 	if(!xml->f)
 		return false;
@@ -309,8 +311,8 @@ bool GSSLoader::canLoad(fs::path const& path, std::string& name)
 	
 bool GSSLoader::load(GSSFile* gss, fs::path const& path)
 {
-	//gss->f.open(path, std::ios::binary);
-	fs::ifstream f(path, std::ios::binary);
+	std::ifstream f;
+	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	
 	if(!f)
 		return false;
@@ -340,7 +342,8 @@ bool LuaLoader::canLoad(fs::path const& path, std::string& name)
 	
 bool LuaLoader::load(Script* script, fs::path const& path)
 {
-	fs::ifstream f(path, std::ios::binary | std::ios::in);
+	std::ifstream f;
+	OpenGameFileR(f, path.native_file_string(), std::ios::binary | std::ios::in);
 	if(!f)
 		return false;
 		

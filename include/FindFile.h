@@ -182,6 +182,9 @@ FILE*	OpenGameFile(const std::string& path, const char *mode);
 
 FILE*	OpenAbsFile(const std::string& path, const char *mode);
 
+bool OpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::in);
+bool OpenGameFileW(std::ofstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::out);
+
 std::ifstream* OpenGameFileR(const std::string& path);
 
 std::string GetFileContents(const std::string& path, bool absolute = false);

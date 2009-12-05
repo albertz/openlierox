@@ -615,6 +615,40 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 
 
 
+
+bool OpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode) {
+	if(path.size() == 0)
+		return false;
+
+	std::string fullfn = GetFullFileName(path);
+	if(fullfn.size() != 0) {
+		try {
+			f.open(Utf8ToSystemNative(fullfn).c_str(), mode);
+			return f.is_open();
+		} catch(...) {}
+		return false;
+	}
+
+	return false;
+}
+
+bool OpenGameFileW(std::ofstream& f, const std::string& path, std::ios_base::openmode mode) {
+	if(path.size() == 0)
+		return false;
+	
+	std::string fullfn = GetWriteFullFileName(path, true);
+	if(fullfn.size() != 0) {
+		try {
+			f.open(Utf8ToSystemNative(fullfn).c_str(), mode);
+			return f.is_open();
+		} catch(...) {}
+		return false;
+	}
+	
+	return false;	
+}
+
+
 std::ifstream* OpenGameFileR(const std::string& path) {
 	if(path.size() == 0)
 		return NULL;

@@ -1,5 +1,6 @@
 #include "liero.h"
 #include "../gfx.h"
+#include "FindFile.h"
 #include <string>
 #include <vector>
 #include <cstring>
@@ -185,7 +186,8 @@ void initMaterialMappings()
 
 bool LieroLevelLoader::load(Level* level, fs::path const& path)
 {
-	fs::ifstream f(path, std::ios::binary);
+	std::ifstream f;
+	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -276,7 +278,8 @@ bool LieroFontLoader::load(Font* font, fs::path const& path)
 {
 	font->free();
 	
-	fs::ifstream f(path, std::ios::binary);
+	std::ifstream f;
+	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	if(!f)
 		return false;
 		
