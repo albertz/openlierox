@@ -190,14 +190,32 @@ static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
 	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
 }
 
+static void
+graphics_dump_palette(SDL_Surface* p_bitmap)
+{
+    for(int l_i = 0; l_i < p_bitmap->format->palette->ncolors; l_i++) {
+        printf("%d: %x %x %x\n", l_i,
+			   p_bitmap->format->palette->colors[l_i].r,
+			   p_bitmap->format->palette->colors[l_i].g,
+			   p_bitmap->format->palette->colors[l_i].b);
+    }
+}
+
+static void dumpUsedColors(SDL_Surface* surf);
+
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	notes << "load " << filename << endl;
 	std::string fullfilename = GetFullFileName(filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
 	
-	if(/*color_depth == 8*/ img->format->BitsPerPixel == 8 ) return create_bitmap_from_sdl(img);
-
+	if(/*color_depth == 8*/ img->format->BitsPerPixel == 8 ) {
+	//	notes << "Used colors of " << filename << endl;
+	//	dumpUsedColors(img);
+//		DitherColors(img->format->palette->colors, 8);
+		return create_bitmap_from_sdl(img);
+	}
+	
 	
 	int bpp = color_depth; //32; //color_depth;
 	int flags = SDL_SWSURFACE;
@@ -224,6 +242,13 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	//SDL_PixelFormat& fmt = pixelformat[color_depth/8];
 	SDL_Surface* surf = SDL_CreateRGBSurface(flags, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
 	if(!surf) return NULL;
+	
+	if(surf->format->BitsPerPixel != color_depth)
+		warnings << "couldn't create surface with " << color_depth << " bpp" << endl;
+	
+//	if(surf->format->BitsPerPixel == 8)
+//		DitherColors(surf->format->palette->colors, 8);
+	
 	return create_bitmap_from_sdl(surf);
 }
 
@@ -584,12 +609,52 @@ void clear_to_color(BITMAP *bmp, int color) {
 }
 
 
+static void blit_8to8__abscoord(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	int& sy = source_y;
+	int& dy = dest_y;
+	for(int Cy = height; Cy >= 0; --Cy, ++sy, ++dy) {
+		int sx = source_x;
+		int dx = dest_x;
+		for(int Cx = width; Cx >= 0; --Cx, ++sx, ++dx) {
+			if(abscoord_in_bmp(dest, dx, dy) && abscoord_in_bmp(source, sx, sy))
+				putpixel__nocheck(dest, dx, dy, getpixel__nocheck(source, sx, sy));
+		}
+	}
+}
+
+static int getpixel__nocheck(SDL_Surface *surf, int x, int y) {
+	unsigned long addr = (unsigned long) surf->pixels + y * surf->pitch + x * surf->format->BytesPerPixel;
+	switch(surf->format->BytesPerPixel) {
+		case 1: return bmp_read8(addr);
+		case 2: return bmp_read16(addr);
+		case 3: return bmp_read24(addr);
+		case 4: return bmp_read32(addr);
+	}
+	return 0;
+}
+
+static void dumpUsedColors(SDL_Surface* surf) {
+	std::set<Uint32> cols;
+	for(int y = surf->h - 1; y >= 0; --y) {
+		for(int x = surf->w - 1; x >= 0; --x) {
+			cols.insert(getpixel__nocheck(surf, x, y));
+		}
+	}
+	for(std::set<Uint32>::iterator i = cols.begin(); i != cols.end(); ++i)
+		notes << "  : " << *i << endl;
+}
+
 void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	sub_to_abs_coords(source, source_x, source_y);
 	sub_to_abs_coords(dest, dest_x, dest_y);
-	SDL_Rect srcrect = { source_x, source_y, width, height };
-	SDL_Rect dstrect = { dest_x, dest_y, width, height };
-	SDL_BlitSurface(source->surf.get(), &srcrect, dest->surf.get(), &dstrect);
+/*	if(source->surf->format->BitsPerPixel == 8 && dest->surf->format->BitsPerPixel == 8) {
+		blit_8to8__abscoord(source, dest, source_x, source_y, dest_x, dest_y, width, height);
+	}
+	else {*/
+		SDL_Rect srcrect = { source_x, source_y, width, height };
+		SDL_Rect dstrect = { dest_x, dest_y, width, height };
+		SDL_BlitSurface(source->surf.get(), &srcrect, dest->surf.get(), &dstrect);
+//	}
 }
 
 void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {

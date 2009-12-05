@@ -156,7 +156,9 @@ bool VermesLevelLoader::load(Level* level, fs::path const& path)
 			
 			std::string lightmapPath = (path / "lightmap").native_file_string();
 		
+		//	level->lightmap = gfx.loadBitmap(lightmapPath.c_str());
 			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
+			
 			if ( tempLightmap )
 			{
 				{
@@ -166,7 +168,7 @@ bool VermesLevelLoader::load(Level* level, fs::path const& path)
 				for ( int x = 0; x < level->lightmap->w ; ++x )
 				for ( int y = 0; y < level->lightmap->h ; ++y )
 				{
-					putpixel( level->lightmap, x, y, getg(getpixel(tempLightmap, x, y)) );
+					putpixel( level->lightmap, x, y, /*getg(*/getpixel(tempLightmap, x, y)/*)*/ );
 				}
 				destroy_bitmap( tempLightmap );
 			}
