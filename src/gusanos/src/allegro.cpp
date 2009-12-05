@@ -209,22 +209,10 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
 	
-	if(/*color_depth == 8*/ img->format->BitsPerPixel == 8 ) {
-	//	notes << "Used colors of " << filename << endl;
-	//	dumpUsedColors(img);
-//		DitherColors(img->format->palette->colors, 8);
+	if( img->format->BitsPerPixel == 8 )
 		return create_bitmap_from_sdl(img);
-	}
 	
-	
-	int bpp = color_depth; //32; //color_depth;
-	int flags = SDL_SWSURFACE;
-//	if(bpp == 32) flags |= SDL_SRCALPHA;
-	SDL_Surface* converted = NULL; //SDL_ConvertSurface(img, &pixelformat[bpp / 8], flags);
-	//if(bpp != 32)
-		converted = SDL_DisplayFormat(img);
-	//else
-	//	converted = SDL_DisplayFormatAlpha(img);
+	SDL_Surface* converted = SDL_DisplayFormat(img);
 	SDL_FreeSurface(img);
 
 	if(!converted) {
@@ -236,18 +224,12 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 }
 
 BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
-	//color_depth = 32;
 	int flags = SDL_SWSURFACE;
-	//if(color_depth == 32) flags |= SDL_SRCALPHA;
-	//SDL_PixelFormat& fmt = pixelformat[color_depth/8];
 	SDL_Surface* surf = SDL_CreateRGBSurface(flags, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
 	if(!surf) return NULL;
 	
 	if(surf->format->BitsPerPixel != color_depth)
 		warnings << "couldn't create surface with " << color_depth << " bpp" << endl;
-	
-//	if(surf->format->BitsPerPixel == 8)
-//		DitherColors(surf->format->palette->colors, 8);
 	
 	return create_bitmap_from_sdl(surf);
 }
