@@ -411,7 +411,7 @@ static bool sdl_video_init() {
 
 	// Enable unicode and key repeat
 	SDL_EnableUNICODE(1);
-	SDL_EnableKeyRepeat(200,20);
+	//SDL_EnableKeyRepeat(200,20);
 
 	return true;
 }
@@ -747,8 +747,8 @@ int key[KEY_MAX];
 
 void clear_keybuf() {
 	keyqueue.clear();
-	for(int i = 0; i < KEY_MAX; ++i)
-		key[i] = 0;
+	// don't clear key[], this is only about readkey()
+	// for(int i = 0; i < KEY_MAX; ++i) key[i] = 0;
 }
 
 static void handle_sdlevents_keyb() {
@@ -757,7 +757,7 @@ static void handle_sdlevents_keyb() {
 	
 	for(int i = 0; i < GetKeyboard()->queueLength; ++i) {
 		KeyboardEvent& ev = GetKeyboard()->keyQueue[i];
-		if(ev.down) keyqueue.push_back( ev.ch );
+		if(ev.down) keyqueue.push_back( ev.sym );
 	}
 }
 

@@ -12,6 +12,7 @@
 #include "util/math_func.h"
 
 #include "network.h" //TEMP
+#include "Debug.h"
 
 #include <allegro.h>
 #include <boost/bind.hpp>
