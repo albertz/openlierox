@@ -26,7 +26,7 @@ enum {
 	CPU_MMXPLUS = 4,
 };
 
-void allegro_init();
+bool allegro_init();
 void allegro_exit();
 #define END_OF_MAIN extern void ___foo_allegro
 

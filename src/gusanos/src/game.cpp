@@ -44,6 +44,8 @@
 #include "loaders/losp.h"
 #include "glua.h"
 #include "lua/bindings.h"
+#include "Debug.h"
+#include "FindFile.h"
 
 #include <allegro.h>
 #include <string>
@@ -406,9 +408,9 @@ void Game::parseCommandLine(int argc, char** argv)
 	}
 }
 
-void Game::init(int argc, char** argv)
+bool Game::init(int argc, char** argv)
 {
-	allegro_init();
+	if(!allegro_init()) return false;
 
 	levelLocator.registerLoader(&VermesLevelLoader::instance);
 	levelLocator.registerLoader(&LieroXLevelLoader::instance);
@@ -430,7 +432,10 @@ void Game::init(int argc, char** argv)
 	m_defaultPath = "default";
 	m_modPath = "default";
 	m_modName = "default";
-	setMod("default");
+	if(!setMod("default")) {
+		errors << "default Gusanos mod not found" << endl;
+		return false;
+	}
 	refreshResources("default");
 
 	console.init();
@@ -475,6 +480,8 @@ void Game::init(int argc, char** argv)
 #ifndef DEDSERV
 	registerPlayerInput();
 #endif
+	
+	return true;
 }
 
 void Game::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
@@ -677,7 +684,7 @@ void Game::loadWeapons()
 	fs::path path( m_modPath );
 	path /= "weapons";
 	
-	if ( fs::exists( path ) )
+	if ( IsFileAvailable( path.native_file_string() ) )
 	{
 		fs::directory_iterator end_itr;
 		
@@ -933,7 +940,7 @@ void Game::refreshMods()
 	{
 		if( is_directory(*i) )
 		{
-			if ( fs::exists(fs::path(*i) / "weapons"))
+			if ( IsFileAvailable(fs::path(*i).native_file_string() + "/weapons"))
 			{
 				modList.insert(i->string());
 			}
@@ -1083,7 +1090,7 @@ void Game::removeNode()
 
 bool Game::setMod( const string& modname )
 {
-	if( fs::exists(modname) )
+	if( IsFileAvailable(modname) )
 	{
 		nextMod = modname;
 	}

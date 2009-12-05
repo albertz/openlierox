@@ -13,6 +13,7 @@
 
 #include "network.h" //TEMP
 #include "Debug.h"
+#include "FindFile.h"
 
 #include <allegro.h>
 #include <boost/bind.hpp>
@@ -650,7 +651,7 @@ void GConsole::think()
 int GConsole::executeConfig(const std::string& filename)
 {
 	fs::path p(game.getModPath() / filename);
-	if ( fs::exists(p) )
+	if ( IsFileAvailable(p.native_file_string()) )
 		return Console::executeConfig(p.native_file_string());
 	else
 		return Console::executeConfig((game.getDefaultPath() / filename).native_file_string());

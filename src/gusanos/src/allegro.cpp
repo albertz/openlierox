@@ -19,7 +19,7 @@
 #include "InputEvents.h"
 #include "EventQueue.h"
 #include "LieroX.h"
-
+#include "Options.h"
 
 
 
@@ -426,8 +426,9 @@ static bool sdl_video_init() {
 
 int cpu_capabilities = 0;
 
-void allegro_init() {
+bool allegro_init() {
 	InitBaseSearchPaths();
+	GameOptions::Init();
 	
 	init_pixelformats();
 	bJoystickSupport = false;
@@ -437,7 +438,7 @@ void allegro_init() {
 		
 	if(!sdl_video_init()) {
 		errors << "Allegro init: video init failed" << endl;
-		return;
+		return false;
 	}
 
 	if(SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
@@ -445,6 +446,7 @@ void allegro_init() {
 	if(SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
 	
 	screen = create_bitmap_from_sdl(SDL_GetVideoSurface());
+	return true;
 }
 
 void allegro_exit() {
@@ -881,8 +883,6 @@ void InitGameModes() {}
 CGameMode* GameMode(GameModeIndex i) { return NULL; }
 GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
 void SystemError(const std::string& txt) {}
-GameOptions* tLXOptions = NULL;
-bool GameOptions::Init() { return false; }
 bool Con_IsInited() { return false; }
 void Con_AddText(int color, const std::string&, bool) {}
 
@@ -919,3 +919,7 @@ class CMap; class CGameScript;
 template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj ) {}
 template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ) {}
 template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ) {}
+
+#include "CServer.h"
+GameServer	*cServer = NULL;
+bool GameServer::clientsConnected_less(const Version& ver) { return false; }

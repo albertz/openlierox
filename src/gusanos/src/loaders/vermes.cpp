@@ -28,7 +28,7 @@ VermesLevelLoader VermesLevelLoader::instance;
 
 bool VermesLevelLoader::canLoad(fs::path const& path, std::string& name)
 {
-	if(fs::exists(path / "config.cfg"))
+	if(IsFileAvailable((path / "config.cfg").native_file_string()))
 	{
 		name = path.leaf();
 		return true;

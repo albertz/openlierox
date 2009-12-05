@@ -165,7 +165,7 @@ public:
 	Game();
 	~Game();
 	
-	void init(int argc, char** argv);
+	bool init(int argc, char** argv);
 	void parseCommandLine(int argc, char** argv);
 	
 	void think();

@@ -65,15 +65,20 @@ string exitCmd(list<string> const& args)
 	return "";
 }
 
+void setBinaryDirAndName(char* argv0);
+
 int main(int argc, char **argv)
 try
 {
+	setBinaryDirAndName(argv[0]);
+	
 	console.registerVariables()
 		("CL_SHOWFPS", &showFps, 1) 
 		("CL_SHOWDEBUG", &showDebug, 0)
 	;
 	
-	game.init(argc, argv);
+	if(!game.init(argc, argv))
+		return 1;
 
 	console.registerCommands()
 		("QUIT", exitCmd)

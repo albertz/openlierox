@@ -42,7 +42,7 @@ const std::string DefaultCfgFilename = "cfg/options.cfg";
 
 const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
 const std::string    ply_def1[] =
-#ifdef MACOSX
+#ifdef __APPLE__
 	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c", "1", "2", "3", "4", "5" };
 #else
 	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "1", "2", "3", "4", "5" };
@@ -138,7 +138,7 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 		( tLXOptions->bOpenGL, "Video.OpenGL",
-#ifdef MACOSX
+#ifdef __APPLE__
 			true )
 #else
 			false )
