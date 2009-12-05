@@ -26,7 +26,7 @@ bool LieroXLevelLoader::canLoad(fs::path const& path, std::string& name)
 bool LieroXLevelLoader::load(Level* level, fs::path const& path)
 {
 	std::ifstream f;
-	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	if(!f)
 		return false;
 		

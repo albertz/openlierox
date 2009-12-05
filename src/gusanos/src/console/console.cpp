@@ -8,7 +8,7 @@
 #include "consoleitem.h"
 
 #include "console-grammar.h"
-#include "FindFile.h"
+#include "allegro.h"
 
 #include <algorithm>
 #include <fstream>
@@ -289,7 +289,7 @@ std::string Console::getActionForBinding(char key)
 int Console::executeConfig(const string &filename)
 {
 	ifstream file;
-	OpenGameFileR(file, filename.c_str());
+	gusOpenGameFileR(file, filename.c_str());
 
 	if (file.is_open() && file.good())
 	{

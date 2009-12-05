@@ -684,7 +684,7 @@ void Game::loadWeapons()
 	fs::path path( m_modPath );
 	path /= "weapons";
 	
-	if ( IsFileAvailable( path.native_file_string() ) )
+	if ( gusExists( path.native_file_string() ) )
 	{
 		fs::directory_iterator end_itr;
 		
@@ -940,7 +940,7 @@ void Game::refreshMods()
 	{
 		if( is_directory(*i) )
 		{
-			if ( IsFileAvailable(fs::path(*i).native_file_string() + "/weapons"))
+			if ( gusExists(fs::path(*i).native_file_string() + "/weapons"))
 			{
 				modList.insert(i->string());
 			}
@@ -1090,7 +1090,7 @@ void Game::removeNode()
 
 bool Game::setMod( const string& modname )
 {
-	if( IsFileAvailable(modname) )
+	if( gusExists(modname) )
 	{
 		nextMod = modname;
 	}

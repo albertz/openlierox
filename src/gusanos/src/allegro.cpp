@@ -205,7 +205,7 @@ static void dumpUsedColors(SDL_Surface* surf);
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	notes << "load " << filename << endl;
-	std::string fullfilename = GetFullFileName(filename);	
+	std::string fullfilename = GetFullFileName(std::string("gusanos/") + filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
 	
@@ -480,7 +480,17 @@ int set_display_switch_mode(int mode) { return 0; }
 
 
 
-bool exists(const char* filename) { return IsFileAvailable(filename); }
+bool gusExists(const std::string& filename) {
+	return IsFileAvailable("gusanos/" + filename, false, false);
+}
+
+bool gusOpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode) {
+	return OpenGameFileR(f, "gusanos/" + path, mode);
+}
+
+FILE* gusOpenGameFile(const std::string& path, const char *mode) {
+	return OpenGameFile("gusanos/" + path, mode);
+}
 
 
 

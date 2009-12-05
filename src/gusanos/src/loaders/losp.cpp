@@ -42,7 +42,7 @@ bool LOSPFontLoader::load(Font* font, fs::path const& path)
 	font->free();
 
 	std::ifstream f;
-	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	if(!f)
 		return false;
 		

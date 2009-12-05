@@ -651,7 +651,7 @@ void GConsole::think()
 int GConsole::executeConfig(const std::string& filename)
 {
 	fs::path p(game.getModPath() / filename);
-	if ( IsFileAvailable(p.native_file_string()) )
+	if ( gusExists(p.native_file_string()) )
 		return Console::executeConfig(p.native_file_string());
 	else
 		return Console::executeConfig((game.getDefaultPath() / filename).native_file_string());

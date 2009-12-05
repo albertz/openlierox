@@ -16,6 +16,7 @@
 
 #include <SDL.h>
 #include <cstdio>
+#include <fstream>
 #include "SmartPointer.h"
 
 extern int allegro_error;
@@ -89,8 +90,10 @@ enum {
 
 int set_display_switch_mode(int mode);
 
-bool exists(const char* filename);
+bool gusExists(const std::string& filename);
 
+bool gusOpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::in);
+FILE* gusOpenGameFile(const std::string& path, const char *mode);
 
 
 

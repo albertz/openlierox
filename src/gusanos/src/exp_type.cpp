@@ -81,7 +81,7 @@ enum type
 bool ExpType::load(fs::path const& filename)
 {
 	std::ifstream fileStream;
-	OpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
+	gusOpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
 
 	if (!fileStream )
 		return false;

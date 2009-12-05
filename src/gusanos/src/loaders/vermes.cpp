@@ -28,7 +28,7 @@ VermesLevelLoader VermesLevelLoader::instance;
 
 bool VermesLevelLoader::canLoad(fs::path const& path, std::string& name)
 {
-	if(IsFileAvailable((path / "config.cfg").native_file_string()))
+	if(gusExists((path / "config.cfg").native_file_string()))
 	{
 		name = path.leaf();
 		return true;
@@ -47,7 +47,7 @@ namespace{
 	LevelConfig* loadConfig( fs::path const& filename )
 	{
 		std::ifstream fileStream;
-		OpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
+		gusOpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
 
 		if (!fileStream )
 			return false;
@@ -285,7 +285,7 @@ bool XMLLoader::canLoad(fs::path const& path, std::string& name)
 	
 bool XMLLoader::load(XMLFile* xml, fs::path const& path)
 {
-	OpenGameFileR(xml->f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(xml->f, path.native_file_string(), std::ios::binary);
 	
 	if(!xml->f)
 		return false;
@@ -314,7 +314,7 @@ bool GSSLoader::canLoad(fs::path const& path, std::string& name)
 bool GSSLoader::load(GSSFile* gss, fs::path const& path)
 {
 	std::ifstream f;
-	OpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
 	
 	if(!f)
 		return false;
@@ -345,7 +345,7 @@ bool LuaLoader::canLoad(fs::path const& path, std::string& name)
 bool LuaLoader::load(Script* script, fs::path const& path)
 {
 	std::ifstream f;
-	OpenGameFileR(f, path.native_file_string(), std::ios::binary | std::ios::in);
+	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary | std::ios::in);
 	if(!f)
 		return false;
 		

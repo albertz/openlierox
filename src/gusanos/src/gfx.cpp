@@ -70,7 +70,7 @@ namespace
 			}
 			filename = "screenshots/ss" + ssIndex + ".png";
 			++nameIndex;
-		} while( exists( filename.c_str() ) );
+		} while( gusExists( filename.c_str() ) );
 		
 		BITMAP * tmpbitmap = create_bitmap_ex(24,screen->w,screen->h);
 		blit(screen,tmpbitmap,0,0,0,0,screen->w,screen->h);
@@ -730,7 +730,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 	
 	LocalSetColorConversion cc(flags);
 	
-	if ( exists( filename.c_str() ) )
+	if ( gusExists( filename.c_str() ) )
 	{
 		returnValue = load_bitmap(filename.c_str(), 0);
 	}
@@ -738,7 +738,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 	{
 		string tmp = filename;
 		tmp += ".png";
-		if ( exists( tmp.c_str() ) )
+		if ( gusExists( tmp.c_str() ) )
 		{
 			returnValue = load_bitmap( tmp.c_str() , 0 );
 		}
@@ -746,7 +746,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 		{
 			tmp = filename;
 			tmp += ".bmp";
-			if ( exists( tmp.c_str() ))
+			if ( gusExists( tmp.c_str() ))
 			{
 				returnValue = load_bitmap( tmp.c_str() , 0 );
 			}

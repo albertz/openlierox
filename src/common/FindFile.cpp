@@ -75,7 +75,7 @@ searchpathlist tSearchPaths;
 
 
 
-bool IsFileAvailable(const std::string& f, bool absolute) {
+bool IsFileAvailable(const std::string& f, bool absolute, bool onlyregfiles) {
 	std::string abs_f;
 	if(absolute) {
 		abs_f = f;
@@ -95,7 +95,7 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 
 	// HINT: this should also work on WIN32, as we have _stat here
 	struct stat s;
-	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
+	if(stat(abs_f.c_str(), &s) != 0 || (onlyregfiles && !S_ISREG(s.st_mode))) {
 		// it's not stat-able or not a reg file
 		return false;
 	}

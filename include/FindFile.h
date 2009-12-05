@@ -194,7 +194,7 @@ std::string JoinPaths(const std::string& path1, const std::string& path2);
 std::string GetScriptInterpreterCommandForFile(const std::string& filename);
 
 
-bool IsFileAvailable(const std::string& f, bool absolute = false);
+bool IsFileAvailable(const std::string& f, bool absolute = false, bool onlyregfiles = true);
 
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!

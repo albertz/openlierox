@@ -424,7 +424,7 @@ int l_undump(lua_State* L)
 		fs::path dumpPath(fs::path("persistance") / (std::string(s) + ".lpr"));
 	
 		std::ifstream f;
-		OpenGameFileR(f, dumpPath.native_file_string(), std::ios::binary);
+		gusOpenGameFileR(f, dumpPath.native_file_string(), std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;
