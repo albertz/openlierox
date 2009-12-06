@@ -209,7 +209,7 @@ bool PlaySoundSample(SoundSample* sample) {
 	if(sample == NULL)
 		return false;
 	
-	sample->play(0, 1.0f);
+	sample->play(1.0f, 1.0f);
 	return true;
 }
 
