@@ -5,6 +5,7 @@
 */
 
 
+#include "allegro.h"
 #include <stddef.h>
 
 #define lmem_c
@@ -18,7 +19,6 @@
 #include "lobject.h"
 #include "lstate.h"
 
-#include "allegro.h"
 
 
 
