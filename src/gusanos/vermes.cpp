@@ -1,4 +1,4 @@
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 #include "gconsole.h"
 #include "resource_list.h"

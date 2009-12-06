@@ -110,7 +110,7 @@ class BasicAngle
 		T adjust()
 		{
 			if (bits > prec)
-				return data << bits - prec;
+				return data << (bits - prec);
 			else
 				return data >> (prec - bits);
 		}

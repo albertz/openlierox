@@ -2,7 +2,7 @@
 #define OMFGUTIL_DETAIL_RECT_H
 
 #include "vec.h"
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 template<class T>
 class BasicRect

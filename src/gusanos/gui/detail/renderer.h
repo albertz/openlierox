@@ -1,8 +1,8 @@
 #ifndef OMFG_GUI_RENDERER_H
 #define OMFG_GUI_RENDERER_H
 
-#include "../../util/rect.h"
-#include "../../util/common.h"
+#include "util/rect.h"
+#include "util/common.h"
 #include <string>
 #include <algorithm>
 #include <utility>

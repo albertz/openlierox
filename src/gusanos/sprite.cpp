@@ -6,7 +6,7 @@
 #endif
 
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <iostream>
 #include <algorithm>
 

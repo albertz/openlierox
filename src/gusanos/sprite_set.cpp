@@ -5,7 +5,7 @@
 #include "sprite.h"
 #include "util/macros.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <vector>
 #include <iostream> //TEMP

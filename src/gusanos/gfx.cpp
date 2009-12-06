@@ -14,7 +14,7 @@
 #include <boost/assign/list_inserter.hpp>
 using namespace boost::assign;
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 #include <string>
 #include <algorithm>

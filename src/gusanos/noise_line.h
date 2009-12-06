@@ -2,7 +2,7 @@
 #define NOISE_LINE_H
 
 #include <vector>
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 class NoiseLine
 {

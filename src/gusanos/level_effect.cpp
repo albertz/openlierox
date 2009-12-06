@@ -11,7 +11,7 @@
 #include "game_actions.h"
 #include "FindFile.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 //#include <vector>
 #include <fstream>

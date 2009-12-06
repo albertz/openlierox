@@ -1,14 +1,14 @@
 #include "omfg_script.h"
-#include "../util/macros.h"
+#include "util/macros.h"
 #include <map>
 #include <vector>
 #include <string>
 #include <memory>
 #include <stdexcept>
 #include <iostream>
-#include "../util/stringbuild.h"
-#include "../util/text.h"
-#include <allegro.h>
+#include "util/stringbuild.h"
+#include "util/text.h"
+#include "gusanos/allegro.h"
 #include <boost/crc.hpp>
 using std::auto_ptr;
 using std::cout;
@@ -52,8 +52,8 @@ struct Parameters
 	};
 	
 	Parameters(ParamDef* def, Location loc_)
-	: paramDef(def), params(def->params.size(), 0)
-	, cur(0), loc(loc_), flags(0)
+	: cur(0)
+	, flags(0), paramDef(def), params(def->params.size(), 0), loc(loc_)
 	{
 	}
 	
@@ -540,7 +540,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 	struct Property
 	{
 		Property(Location loc_, TokenBase* value_)
-		: loc(loc_), value(value_), touched(false)
+		: loc(loc_), touched(false), value(value_)
 		{
 		}
 		
@@ -555,7 +555,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 	};
 	
 	ParserImpl(std::istream& str_, ActionFactory& actionFactory_, std::string const& fileName_)
-	: str(str_), actionFactory(actionFactory_), fileName(fileName_)
+	: str(str_), fileName(fileName_), actionFactory(actionFactory_)
 	{
 		this->next();
 	}

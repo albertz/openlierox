@@ -14,13 +14,13 @@ class BaseObject;
 class SfxDriver;
 class SoundSample;
 
-class GusSound : public LuaObject
+class Sound : public LuaObject
 {
 	
 	public:
 		
-	GusSound();
-	~GusSound();
+	Sound();
+	~Sound();
 	
 	bool load(std::string const& filename);
 	void play( float volume = 1,float pitch = 1,float volumeVariation = 1,float pitchVariation = 1);
@@ -38,7 +38,7 @@ class GusSound : public LuaObject
 	
 };
 
-extern ResourceList<GusSound> soundList;
-extern ResourceList<GusSound> sound1DList;
+extern ResourceList<Sound> soundList;
+extern ResourceList<Sound> sound1DList;
 
 #endif // _SOUND_H_

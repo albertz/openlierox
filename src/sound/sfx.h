@@ -19,7 +19,7 @@ struct Listener
 
 
 class SfxDriver;
-class GusSound;
+class Sound;
 
 class Sfx
 {
@@ -32,7 +32,7 @@ public:
 	void shutDown();
 	void registerInConsole();
 	void think();
-	void setChanObject(int chan, GusSound* sound);
+	void setChanObject(int chan, Sound* sound);
 	void clear();
 	Listener* newListener();
 	void freeListener(Listener* listener);

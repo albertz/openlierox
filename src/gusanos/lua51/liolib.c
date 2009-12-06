@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "allegro.h"
+#include "gusanos/allegro.h"
 
 #define liolib_c
 #define LUA_LIB

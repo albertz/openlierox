@@ -13,11 +13,11 @@
 #include "../weapon_type.h"
 #include "../game.h"
 #include "../glua.h"
-#include "../util/log.h"
+#include "util/log.h"
 
 #include <cmath>
 #include <iostream>
-#include <allegro.h>
+#include "gusanos/allegro.h"
 using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>

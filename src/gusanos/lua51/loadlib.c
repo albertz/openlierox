@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "allegro.h"
+#include "gusanos/allegro.h"
 
 
 #define loadlib_c

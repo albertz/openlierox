@@ -5,7 +5,7 @@
 #include "game.h"
 #include "sfx.h"
 #include "gfx.h"
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include "base_worm.h"
 #include "base_player.h"
 #include "player.h"

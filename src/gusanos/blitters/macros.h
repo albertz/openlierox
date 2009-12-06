@@ -196,8 +196,6 @@
 				b##f += grad; \
 		} } }
 		
-#define SIGN(x_) ((x_) < 0 ? -1 : (x_) > 0 ? 1 : 0)
-
 #define LINEWORK(a, b, BLEND, DEPTH) do { \
 long i = a##diff >> 1; \
 long c = a##diff; \

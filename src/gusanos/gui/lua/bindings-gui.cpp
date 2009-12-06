@@ -15,7 +15,7 @@
 #include <list>
 #include <iostream>
 #include <vector>
-#include <allegro.h>
+#include "gusanos/allegro.h"
 using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>

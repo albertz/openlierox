@@ -6,7 +6,7 @@
 #endif
 #include "ninjarope.h"
 
-//#include <allegro.h>
+//#include "gusanos/allegro.h"
 
 using namespace std;
 

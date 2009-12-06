@@ -5,7 +5,7 @@
 #include "base_animator.h"
 #include "sprite_set.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 AnimPingPong::AnimPingPong( SpriteSet* sprite, int duration )
 : BaseAnimator(0), m_totalFrames(sprite->getFramesWidth())

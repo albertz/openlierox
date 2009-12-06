@@ -1,5 +1,5 @@
 #include "alias.h"
-#include "../util/text.h"
+#include "util/text.h"
 
 using namespace std;
 

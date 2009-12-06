@@ -10,7 +10,7 @@
 
 class PartType;
 class ExpType;
-class GusSound;
+class Sound;
 class SpriteSet;
 class BaseObject;
 class LevelEffect;
@@ -104,21 +104,21 @@ GAME_ACTION(Remove,
 )
 
 GAME_ACTION(PlaySound,
-	std::vector<GusSound*> sounds;
+	std::vector<Sound*> sounds;
 	float pitch;
 	float pitchVariation;
 	float loudness;
 )
 
 GAME_ACTION(PlaySoundStatic,
-	std::vector<GusSound*> sounds;
+	std::vector<Sound*> sounds;
 	float pitch;
 	float pitchVariation;
 	float loudness;
 )
 
 GAME_ACTION(PlayGlobalSound,
-	std::vector<GusSound*> sounds;
+	std::vector<Sound*> sounds;
 	float volume;
 	float volumeVariation;
 	float pitch;

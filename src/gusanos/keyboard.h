@@ -5,7 +5,7 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <boost/signal.hpp>
 
 /*

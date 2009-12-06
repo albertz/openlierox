@@ -10,7 +10,6 @@
 #include "net_worm.h"
 #include "base_player.h"
 #include "particle.h"
-#include "http/http.h"
 #include "util/macros.h"
 #include "util/log.h"
 #include "util/text.h"
@@ -79,16 +78,6 @@ namespace
 
 	MessageQueue msg;
 
-	struct HttpRequest
-	{
-		HttpRequest(HTTP::Request* req_, HttpRequestCallback handler_)
-				: req(req_), handler(handler_)
-		{}
-
-		HTTP::Request* req;
-		HttpRequestCallback handler;
-	};
-
 	struct LuaEventList
 	{
 		typedef std::map<std::string, LuaEventDef*> MapT;
@@ -154,13 +143,8 @@ namespace
 		}
 	};
 
-	std::list<HttpRequest> requests;
 	std::string serverName;
 	std::string serverDesc;
-	int registerGlobally = 1;
-	HTTP::Host masterServer("comser.liero.org.pl");
-	int updateTimer = 0;
-	bool serverAdded = false;
 	bool m_host = false;
 	bool m_client = false; //? This wasn't initialized before
 	int logNetstream = 0; //TODO: Netstream
@@ -177,81 +161,6 @@ namespace
 	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
 
-	void processHttpRequests()
-	{
-		foreach_delete(i, requests) {
-			if(!i->req || i->req->think()) {
-				if(i->handler)
-					i->handler(i->req);
-				else
-					delete i->req;
-				requests.erase(i);
-			}
-		}
-	}
-
-	void onServerRemoved(HTTP::Request* req)
-	{
-		if(req->success) {
-			cout << "Unregistered from master server" << endl;
-		} else {
-			if(req->getError() == TCP::Socket::ErrorTimeout)
-				cerr << "Unregistration from master server timed out" << endl;
-			else
-				cerr << "Failed to unregister from master server" << endl;
-		}
-		serverAdded = false;
-		delete req;
-	}
-
-	void onServerAdded(HTTP::Request* req)
-	{
-		if(req->success) {
-			serverAdded = true;
-			cout << "Registered to master server" << endl;
-		} else {
-			serverAdded = false;
-			if(req->getError() == TCP::Socket::ErrorTimeout)
-				cerr << "Registration to master server timed out" << endl;
-			else
-				cerr << "Failed to register to master server" << endl;
-		}
-		delete req;
-	}
-
-	void onServerUpdate(HTTP::Request* req)
-	{
-		if(req->success) {
-			cout << "Sent update to master server" << endl;
-		} else {
-			if(req->getError() == TCP::Socket::ErrorTimeout)
-				cerr << "Master server update timed out" << endl;
-			else
-				cerr << "Failed to send update to master server" << endl;
-			serverAdded = false; // Maybe the server was droped, try to reregister it
-		}
-		delete req;
-	}
-
-	void registerToMasterServer()
-	{
-		if(!registerGlobally)
-			return;
-
-		std::list<std::pair<std::string, std::string> > data;
-
-		push_back(data)
-		("action", "add")
-		("title", serverName)
-		("desc", serverDesc)
-		("port", convert<std::string>::value(m_serverPort))
-		("protocol", convert<std::string>::value(Network::protocolVersion))
-		("mod", game.getModName())
-		("map", game.level.getName())
-		;
-		network.addHttpRequest(masterServer.post("gusserv.php", data), onServerAdded);
-	}
-
 	void registerClasses() // Factorization of class registering in client and server
 	{
 		NetWorm::classID = m_control->Net_registerClass("worm",0);
@@ -259,20 +168,6 @@ namespace
 		Game::classID = m_control->Net_registerClass("game",0);
 		Updater::classID = m_control->Net_registerClass("updater",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
-	}
-
-	std::string setProxy(std::list<std::string> const& args)
-	{
-		if(args.size() >= 2) {
-			let_(i, args.begin());
-			std::string const& addr = *i++;
-			int port = cast<int>(*i++);
-
-			masterServer.options.setProxy(addr, port);
-
-			return "";
-		}
-		return "NET_SET_PROXY"; //TODO: help
 	}
 
 	std::string disconnectCmd(std::list<std::string> const& args)
@@ -354,24 +249,9 @@ void Network::shutDown()
 void Network::registerInConsole()
 {
 	console.registerVariables()
-	("NET_SERVER_PORT", &m_serverPort, 9898)
-	("NET_SERVER_NAME", &serverName, "Unnamed server")
-	("NET_SERVER_DESC", &serverDesc, "")
-	("NET_REGISTER", &registerGlobally, 1)
-	("NET_SIM_LAG", &network.simLag, 0)
-	("NET_SIM_LOSS", &network.simLoss, -1.f)
-	("NET_UP_LIMIT", &network.upLimit, 10000)
-	("NET_DOWN_BPP", &network.downBPP, 200)
-	("NET_DOWN_PPS", &network.downPPS, 20)
 	("NET_CHECK_CRC", &network.checkCRC, 1)
-	("NET_LOG", &logNetstream, 0) //TODO: Zoidcom
-	("NET_AUTODOWNLOADS", &network.autoDownloads, 1)
 	;
 
-	console.registerCommands()
-	("NET_SET_PROXY", setProxy)
-	("DISCONNECT", disconnectCmd)
-	;
 }
 
 Net_ConnID Network::getServerID()
@@ -385,8 +265,6 @@ void Network::update()
 		m_control->Net_processOutput();
 		m_control->Net_processInput(eNet_NoBlock);
 	}
-
-	processHttpRequests();
 
 	switch(state) {
 			case StateConnecting:
@@ -435,27 +313,11 @@ void Network::update()
 				mq_end_case()
 				*/
 				mq_end_process_messages()
-
-				if(m_host) {
-					if(registerGlobally && ++updateTimer > 6000*3) {
-						updateTimer = 0;
-						if(!serverAdded) {
-							registerToMasterServer();
-						} else {
-							std::list<std::pair<std::string, std::string> > data;
-							push_back(data)
-							("action", "update")
-							("port", convert<std::string>::value(m_serverPort))
-							;
-							network.addHttpRequest(masterServer.post("gusserv.php", data), onServerUpdate);
-						}
-					}
-				}
 			}
 			break;
 
 			case StateDisconnecting: {
-				if(requests.size() == 0 && (connCount == 0 || stateTimeOut <= 0)) {
+				if(connCount == 0 || stateTimeOut <= 0) {
 					if(connCount != 0)
 						WLOG(connCount << " connection(s) might not have disconnected properly.");
 					setLuaState(StateDisconnected);
@@ -491,16 +353,6 @@ void Network::update()
 	}
 }
 
-HTTP::Request* Network::fetchServerList()
-{
-	std::list<std::pair<std::string, std::string> > data;
-	push_back(data)
-	("action", "list")
-	("protocol", convert<std::string>::value(protocolVersion))
-	;
-	return masterServer.post("gusserv.php", data);
-}
-
 void Network::host()
 {
 	//disconnect();
@@ -512,7 +364,6 @@ void Network::host()
 	m_host = true;
 	game.assignNetworkRole( true ); // Gives the game class node authority role
 	updater.assignNetworkRole(true);
-	registerToMasterServer();
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
 }
@@ -537,15 +388,6 @@ void Network::disconnect( DConnEvents event )
 		LOG("Disconnecting...");
 		network.clientRetry = true;
 		m_control->Net_disconnectAll(eventData);
-	}
-
-	if(serverAdded) {
-		std::list<std::pair<std::string, std::string> > data;
-		push_back(data)
-		("action", "remove")
-		("port", convert<std::string>::value(m_serverPort))
-		;
-		network.addHttpRequest(masterServer.post("gusserv.php", data), onServerRemoved);
 	}
 }
 
@@ -626,11 +468,6 @@ int Network::getServerPing()
 			return m_control->Net_getConnectionStats(m_serverID).avg_ping;
 	}
 	return -1;
-}
-
-void Network::addHttpRequest(HTTP::Request* req, HttpRequestCallback handler)
-{
-	requests.push_back(HttpRequest(req, handler));
 }
 
 LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, char const* name, LuaEventDef* event)

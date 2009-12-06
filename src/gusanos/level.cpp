@@ -17,7 +17,7 @@
 #include "game.h"
 
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <vector>
 

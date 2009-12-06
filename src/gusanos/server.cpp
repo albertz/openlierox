@@ -15,7 +15,7 @@
 #ifndef DISABLE_ZOIDCOM
 
 #include "netstream.h"
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <list>
 
 

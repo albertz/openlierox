@@ -6,7 +6,7 @@
 #include "gfx.h"
 #include <boost/cstdint.hpp>
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;

@@ -1,5 +1,5 @@
 #include "edit.h"
-#include <allegro.h> //TEMP!!!!!!!!!!!
+#include "gusanos/allegro.h" //TEMP!!!!!!!!!!!
 
 #include <algorithm>
 

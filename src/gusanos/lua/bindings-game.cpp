@@ -13,13 +13,13 @@
 #include "../player.h"
 #include "../base_worm.h"
 #include "../level.h"
-#include "../util/log.h"
-#include "../util/stringbuild.h"
+#include "util/log.h"
+#include "util/stringbuild.h"
 
 #include <cmath>
 #include <iostream>
 #include <list>
-#include <allegro.h>
+#include "gusanos/allegro.h"
 using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>

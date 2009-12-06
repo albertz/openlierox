@@ -5,7 +5,7 @@
 #include <vector>
 #include <iostream>
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <boost/static_assert.hpp>
 
 using namespace std;

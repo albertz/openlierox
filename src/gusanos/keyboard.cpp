@@ -5,7 +5,7 @@
 #include "console/console.h"
 #include <algorithm> // For std::find
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <list>
 #include <iostream>
 #include <cctype>

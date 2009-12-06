@@ -129,9 +129,6 @@ bool InitSoundSystem(int rate, int channels, int buffers) {
 
 	if(bDedicated) return false;
 
-initSoundSystem:
-
-	// TODO openal
 	if(!sfx.init()) {
 		errors << "InitSoundSystem failed" << endl;
 		return false;

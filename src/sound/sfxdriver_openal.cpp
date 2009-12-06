@@ -23,7 +23,7 @@ using namespace std;
 
 namespace
 {
-	std::list< GusSound* > chanObject;
+	std::list< Sound* > chanObject;
 }
 
 
@@ -77,7 +77,7 @@ void SfxDriverOpenAL::think()
 
 }
 
-void SfxDriverOpenAL::setChanObject(GusSound* sound)
+void SfxDriverOpenAL::setChanObject(Sound* sound)
 {
 	chanObject.push_back( sound );
 }

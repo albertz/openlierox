@@ -19,8 +19,7 @@
 //#include "../gfx.h"
 #include "../network.h"
 #include "../glua.h"
-#include "../util/log.h"
-#include "../http/http.h"
+#include "util/log.h"
 
 #include "../gconsole.h"
 #include "../vermes.h"
@@ -36,7 +35,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <allegro.h>
+#include "gusanos/allegro.h"
 using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>
@@ -249,7 +248,8 @@ int l_console_action_for_key(lua_State* L)
 
 int l_quit(lua_State* L)
 {
-	exit();
+	// TODO: quit from Lua?
+	// I would vote for no
 	return 0;
 }
 
@@ -292,17 +292,11 @@ int l_host(lua_State* L)
 	char const* map = lua_tostring(L, 1);
 	if(!map)
 		return 0;
-
-	/*
-	game.options.host = 1;
-	if(!game.changeLevelCmd( map ))
-		return 0;
-	lua_pushboolean(L, true);*/
 	
-	//console.addQueueCommand("host 1");
-	//console.addQueueCommand(std::string("map \"") + map + '"');
-	game.options.host = 1;
-	game.changeLevelCmd( map );
+	// TODO: Lua host
+	// or should we also ignore this (as well as map)?
+	//game.options.host = 1;
+	//game.changeLevelCmd( map );
 	return 0;
 }
 
@@ -316,15 +310,10 @@ int l_map(lua_State* L)
 	if(!map)
 		return 0;
 
-	/*
-	game.options.host = 1;
-	if(!game.changeLevelCmd( map ))
-		return 0;
-	lua_pushboolean(L, true);*/
-	
-	//console.addQueueCommand(std::string("map \"") + map + '"');
-	game.options.host = 0;
-	game.changeLevelCmd( map );
+	// TODO: Lua map command
+	// or should we ignore this?
+//	game.options.host = 0;
+//	game.changeLevelCmd( map );
 	return 0;
 }
 
@@ -491,73 +480,6 @@ std::string runLua(LuaReference ref, std::list<std::string> const& args)
 	return "";
 }*/
 
-void serverListCallb(lua_State* L, LuaReference ref, HTTP::Request* req)
-{
-	static char const* fields[] =
-	{
-		"ip",
-		"title",
-		"desc",
-		"mod",
-		"map"
-	};
-	
-	LuaContext context(L);
-	AssertStack as(context);
-	
-	context.pushReference(ref);
-	
-	if(!req->success)
-	{
-		lua_pushnil(context);
-		lua.call(1, 0);
-		return;
-	}
-	
-	lua_newtable(context);
-	
-	std::string::size_type p = 0, endp;
-	
-	for(int i = 1; (endp = req->data.find('|', p)) != std::string::npos; p = endp + 1, ++i)
-	{
-		std::string::size_type p2 = p, endp2;
-		lua_newtable(context);
-		
-		for(int f = 0; f < 5 && (endp2 = req->data.find('^', p2)) < endp; p2 = endp2 + 1, ++f)
-		{
-			lua_pushlstring(context, req->data.c_str() + p2, endp2 - p2);
-			lua_setfield(context, -2, fields[f]);
-		}
-		
-		lua_rawseti(context, -2, i);
-	}
-	
-	delete req; // We don't need this anymore
-
-	lua.call(1, 0);
-}
-
-/*! fetch_server_list(handler)
-
-	Fetches the server list from the master server and calls
-	//handler// with one parameter containing an array of
-	the servers.
-*/
-int l_fetch_server_list(lua_State* L)
-{
-	lua_pushvalue(L, 1);
-	LuaReference ref = lua.createReference();
-	
-	HTTP::Request* req = network.fetchServerList();
-	
-	if(!req)
-		return 0;
-
-	network.addHttpRequest(req,
-		boost::bind(serverListCallb, L, ref, _1));
-
-	return 0;
-}
 
 void init()
 {
@@ -581,7 +503,6 @@ void init()
 		("console_action_for_key", l_console_action_for_key)
 		//("dump", l_dump)
 		//("undump", l_undump)
-		("fetch_server_list", l_fetch_server_list)
 #ifndef DEDICATED_ONLY
 		("clear_keybuf", l_clear_keybuf)
 		("key_name", l_key_name)

@@ -9,7 +9,7 @@
 #include "message_queue.h"
 
 #ifndef DEDICATED_ONLY
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #endif
 #include <string>
 #include <vector>
@@ -33,7 +33,7 @@ class Explosion;
 class Net_BitStream;
 struct LuaEventDef;
 #ifndef DEDICATED_ONLY
-class GusSound;
+class Sound;
 class Font;
 #endif
 
@@ -232,7 +232,7 @@ public:
 	std::string const& getDefaultPath();
 
 #ifndef DEDICATED_ONLY
-	GusSound* chatSound;
+	Sound* chatSound;
 	Font *infoFont;
 #endif
 	std::list<ScreenMessage> messages;

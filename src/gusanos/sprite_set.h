@@ -6,7 +6,7 @@
 #include "util/GusCache.h"
 #include "util/rect.h"
 #include "glua.h"
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <vector>
 #include <utility>

@@ -8,7 +8,7 @@
 #include <memory>
 #include <vector>
 #include <stdexcept>
-#include "../util/log.h"
+#include "util/log.h"
 #include <boost/crc.hpp>
 
 struct BaseAction;

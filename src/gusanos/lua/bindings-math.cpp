@@ -5,9 +5,9 @@
 #include "../lua51/luaapi/macros.h"
 
 #include "../glua.h"
-#include "../util/vec.h"
-#include "../util/angle.h"
-#include "../util/math_func.h"
+#include "util/vec.h"
+#include "util/angle.h"
+#include "util/math_func.h"
 
 #include <cmath>
 #include <cstdio>

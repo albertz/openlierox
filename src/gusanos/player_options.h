@@ -4,7 +4,7 @@
 #include <string>
 #include <list>
 #include "util/angle.h"
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 // TODO: Move these to blitters/<somewhere>
 inline int universalColor(int r, int g, int b)

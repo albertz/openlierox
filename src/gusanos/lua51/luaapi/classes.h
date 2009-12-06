@@ -2,7 +2,7 @@
 #define LUA_CLASSES_H
 
 #include "context.h"
-#include "../../util/log.h"
+#include "util/log.h"
 
 template<class T>
 struct LuaID
@@ -28,7 +28,7 @@ class Weapon;
 class PartType;
 class WeaponType;
 class Font;
-class GusSound;
+class Sound;
 class SpriteSet;
 
 namespace OmfgGUI
@@ -57,7 +57,7 @@ CLASSID(Weapon, 13);
 CLASSID(PartType, 14);
 CLASSID(WeaponType, 15);
 CLASSID(Font, 16);
-CLASSID(GusSound, 17);
+CLASSID(Sound, 17);
 CLASSID(SpriteSet, 18);
 CLASSID(OmfgGUI::Wnd, 19);
 CLASSID(OmfgGUI::List, 20);

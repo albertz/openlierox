@@ -15,7 +15,7 @@
 #include "Debug.h"
 #include "FindFile.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 using boost::lexical_cast;

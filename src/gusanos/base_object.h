@@ -6,7 +6,7 @@
 #include "lua51/luaapi/types.h"
 #include "glua.h"
 
-//#include <allegro.h>
+//#include "gusanos/allegro.h"
 struct BITMAP;
 class Viewport;
 

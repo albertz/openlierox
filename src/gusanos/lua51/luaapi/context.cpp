@@ -10,7 +10,7 @@ extern "C"
 using std::cerr;
 using std::endl;
 
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include <cmath>
 #include <map>
 #include <set>

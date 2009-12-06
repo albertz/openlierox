@@ -15,7 +15,7 @@
 
 #include "netstream.h"
 #include "network.h"
-//#include <allegro.h>
+//#include "gusanos/allegro.h"
 #include <list>
 
 using namespace std;

@@ -3,12 +3,12 @@
 #include "command.h"
 #include "special_command.h"
 #include "alias.h"
-#include "../util/text.h"
-#include "../util/macros.h"
+#include "util/text.h"
+#include "util/macros.h"
 #include "consoleitem.h"
 
 #include "console-grammar.h"
-#include "allegro.h"
+#include "gusanos/allegro.h"
 
 #include <algorithm>
 #include <fstream>

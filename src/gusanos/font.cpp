@@ -6,7 +6,7 @@
 #include "resource_locator.h"
 #include "blitters/blitters.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <vector>
 #include <utility>

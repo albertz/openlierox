@@ -1,5 +1,5 @@
 #include <string.h>
-#include "allegro.h"
+#include "gusanos/allegro.h"
 #include "2xsai.h"
 
 #define uint32 unsigned long

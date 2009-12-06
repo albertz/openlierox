@@ -47,7 +47,7 @@
 #include "Debug.h"
 #include "FindFile.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <string>
 #include <algorithm>
 #include <list>
@@ -115,18 +115,14 @@ Game game;
 
 string mapCmd(const list<string> &args)
 {
-	if (!args.empty())
+	return "Gusanos MAP not available";
+	/*if (!args.empty())
 	{
 		string tmp = *args.begin();
 		std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) tolower);
-		/*
-		if(!game.changeLevelCmd( tmp ))
-			return "ERROR LOADING MAP";
-		*/
-		//mq_queue(game.msg, Game::ChangeLevel, tmp);
 		game.changeLevelCmd( tmp );
 		return "";
-	}
+	}*/
 	return "MAP <MAPNAME> : LOAD A MAP";
 }
 

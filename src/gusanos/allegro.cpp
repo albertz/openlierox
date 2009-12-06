@@ -11,7 +11,7 @@
 #include <SDL_image.h>
 #include <boost/static_assert.hpp>
 
-#include "allegro.h"
+#include "gusanos/allegro.h"
 #include "FindFile.h"
 #include "Debug.h"
 #include "GfxPrimitives.h"
@@ -22,133 +22,6 @@
 #include "Options.h"
 
 
-
-SDL_PixelFormat pixelformat32alpha =
-{
-NULL, //SDL_Palette *palette;
-32, //Uint8  BitsPerPixel;
-4, //Uint8  BytesPerPixel;
-0, 0, 0, 0, //Uint8  Rloss, Gloss, Bloss, Aloss;
-24, 16, 8, 0, //Uint8  Rshift, Gshift, Bshift, Ashift;
-0xff000000, 0xff0000, 0xff00, 0xff, //Uint32 Rmask, Gmask, Bmask, Amask;
-0, //Uint32 colorkey;
-255 //Uint8  alpha;
-};
-
-SDL_PixelFormat* mainPixelFormat = &pixelformat32alpha;
-
-
-
-
-SDL_PixelFormat pixelformat[5];
-
-
-/*
- * Calculate an 8-bit (3 red, 3 green, 2 blue) dithered palette of colors
- */
-static void DitherColors(SDL_Color *colors, int bpp)
-{
-	int i;
-	if(bpp != 8)
-		return;         /* only 8bpp supported right now */
-	
-	for(i = 0; i < 256; i++) {
-		int r, g, b;
-		/* map each bit field to the full [0, 255] interval,
-		 so 0 is mapped to (0, 0, 0) and 255 to (255, 255, 255) */
-		r = i & 0xe0;
-		r |= r >> 3 | r >> 6;
-		colors[i].r = r;
-		g = (i << 3) & 0xe0;
-		g |= g >> 3 | g >> 6;
-		colors[i].g = g;
-		b = i & 0x3;
-		b |= b << 2;
-		b |= b << 4;
-		colors[i].b = b;
-	}
-}
-
-static void SetPixelFormat(SDL_PixelFormat& fmt, int bpp) {
-	SDL_PixelFormat *format = &fmt;
-	
-	SDL_memset(format, 0, sizeof(*format));
-	format->alpha = SDL_ALPHA_OPAQUE;
-	
-	/* Set up the format */
-	format->BitsPerPixel = bpp;
-	format->BytesPerPixel = (bpp+7)/8;
-	if ( bpp > 8 ) {         /* Packed pixels with standard mask */
-		/* R-G-B */
-		if ( bpp > 24 )
-			bpp = 24;
-		format->Rloss = 8-(bpp/3);
-		format->Gloss = 8-(bpp/3)-(bpp%3);
-		format->Bloss = 8-(bpp/3);
-		format->Rshift = ((bpp/3)+(bpp%3))+(bpp/3);
-		format->Gshift = (bpp/3);
-		format->Bshift = 0;
-		format->Rmask = ((0xFF>>format->Rloss)<<format->Rshift);
-		format->Gmask = ((0xFF>>format->Gloss)<<format->Gshift);
-		format->Bmask = ((0xFF>>format->Bloss)<<format->Bshift);
-	} else {
-		/* Palettized formats have no mask info */
-		format->Rloss = 8;
-		format->Gloss = 8;
-		format->Bloss = 8;
-		format->Aloss = 8;
-		format->Rshift = 0;
-		format->Gshift = 0;
-		format->Bshift = 0;
-		format->Ashift = 0;
-		format->Rmask = 0;
-		format->Gmask = 0;
-		format->Bmask = 0;
-		format->Amask = 0;
-	}
-	if ( bpp <= 8 ) {                       /* Palettized mode */
-		int ncolors = 1<<bpp;
-#ifdef DEBUG_PALETTE
-		fprintf(stderr,"bpp=%d ncolors=%d\n",bpp,ncolors);
-#endif
-		format->palette = (SDL_Palette *)SDL_malloc(sizeof(SDL_Palette));
-		if ( format->palette == NULL ) {
-			SDL_OutOfMemory();
-			return;
-		}
-		(format->palette)->ncolors = ncolors;
-		(format->palette)->colors = (SDL_Color *)SDL_malloc(
-															(format->palette)->ncolors*sizeof(SDL_Color));
-		if ( (format->palette)->colors == NULL ) {
-			SDL_OutOfMemory();
-			return;
-		}
-		if ( ncolors == 2 ) {
-			/* Create a black and white bitmap palette */
-			format->palette->colors[0].r = 0xFF;
-			format->palette->colors[0].g = 0xFF;
-			format->palette->colors[0].b = 0xFF;
-			format->palette->colors[1].r = 0x00;
-			format->palette->colors[1].g = 0x00;
-			format->palette->colors[1].b = 0x00;
-		} else if(ncolors == 256) {
-			DitherColors(format->palette->colors, 8);
-		} else {
-			/* Create an empty palette */
-			SDL_memset((format->palette)->colors, 0,
-					   (format->palette)->ncolors*sizeof(SDL_Color));
-		}
-	}
-}
-
-static void init_pixelformats() {
-	for(int bpp = 1; bpp <= 3; ++bpp) {
-		SetPixelFormat(pixelformat[bpp], bpp * 8);
-	}
-	pixelformat[4] = pixelformat32alpha;
-	
-	mainPixelFormat = &pixelformat[4];
-}
 
 static int color_conversion = 0;
 int get_color_conversion() { return color_conversion; }
@@ -259,204 +132,20 @@ BITMAP* screen = NULL;
 int allegro_error = 0;
 
 
-
-
-
-///////////////////
-// Set the video mode
-static bool SetVideoMode(int bpp = 32) {
-	bool resetting = false;
-
-	int DoubleBuf = false;
-	int vidflags = 0;
-
-	// Check that the bpp is valid
-	switch (bpp) {
-	case 0:
-	case 16:
-	case 24:
-	case 32:
-		break;
-	default: bpp = 16;
-	}
-	notes << "ColorDepth: " << bpp << endl;
-
-	// BlueBeret's addition (2007): OpenGL support
-	bool opengl = false; //tLXOptions->bOpenGL;
-
-	// Initialize the video
-	if(/*tLXOptions->bFullscreen*/ false)  {
-		vidflags |= SDL_FULLSCREEN;
-	}
-
-	if (opengl) {
-		vidflags |= SDL_OPENGL;
-		vidflags |= SDL_OPENGLBLIT; // SDL will behave like normally
-		SDL_GL_SetAttribute (SDL_GL_DOUBLEBUFFER, 1); // always use double buffering in OGL mode
-	}	
-
-	vidflags |= SDL_SWSURFACE;
-
-	if(DoubleBuf && !opengl)
-		vidflags |= SDL_DOUBLEBUF;
-
-#ifdef WIN32
-	UnSubclassWindow();  // Unsubclass before doing anything with the window
-#endif
-
-#ifdef WIN32
-	static bool firsttime = true;
-	// Reset the video subsystem under WIN32, else we get a "Could not reset OpenGL context" error when switching mode
-	if (opengl && !firsttime)  {  // Don't reset when we're setting up the mode for first time
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_InitSubSystem(SDL_INIT_VIDEO);
-	}
-	firsttime = false;
-#endif
-
-	int scrW = SCREEN_W;
-	int scrH = SCREEN_H;
-setvideomode:
-	if( SDL_SetVideoMode(scrW, scrH, bpp, vidflags) == NULL) {
-		if (resetting)  {
-			errors << "Failed to reset video mode"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " let's wait a bit and retry" << endl;
-			SDL_Delay(500);
-			resetting = false;
-			goto setvideomode;
-		}
-
-		if(bpp != 0) {
-			errors << "Failed to use " << bpp << " bpp"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying automatic bpp detection ..." << endl;
-			bpp = 0;
-			goto setvideomode;
-		}
-
-		if(vidflags & SDL_OPENGL) {
-			errors << "Failed to use OpenGL"
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying without ..." << endl;
-			vidflags &= ~(SDL_OPENGL | SDL_OPENGLBLIT | SDL_HWSURFACE | SDL_HWPALETTE | SDL_HWACCEL);
-			goto setvideomode;
-		}
-		
-		if(vidflags & SDL_FULLSCREEN) {
-			errors << "Failed to set full screen video mode "
-					<< scrW << "x" << scrH << "x" << bpp
-					<< " (ErrorMsg: " << SDL_GetError() << "),"
-					<< " trying window mode ..." << endl;
-			vidflags &= ~SDL_FULLSCREEN;
-			goto setvideomode;
-		}
-
-		errors << "Failed to set the video mode " << scrW << "x" << scrH << "x" << bpp << endl;
-		errors << "nErrorMsg: " << std::string(SDL_GetError()) << endl;
-		return false;
-	}
-
-	SDL_WM_SetCaption("Gusanos", NULL);
-	SDL_ShowCursor(SDL_DISABLE);
-
-#ifdef WIN32
-	if (false/*!tLXOptions->bFullscreen*/)  {
-		SubclassWindow();
-	}
-#endif
-
-	mainPixelFormat = SDL_GetVideoSurface()->format;
-	DumpPixelFormat(mainPixelFormat);
-	if(SDL_GetVideoSurface()->flags & SDL_DOUBLEBUF)
-		notes << "using doublebuffering" << endl;
-
-	if(SDL_GetVideoSurface()->flags & SDL_OPENGL)
-		hints << "using OpenGL" << endl;
-	
-	FillSurface(SDL_GetVideoSurface(), Color(0, 0, 0));
-	
-	notes << "video mode was set successfully" << endl;
-	return true;
-}
-
-static bool sdl_video_init() {
-	if(getenv("SDL_VIDEODRIVER"))
-		notes << "SDL_VIDEODRIVER=" << getenv("SDL_VIDEODRIVER") << endl;
-
-	// Solves problem with FPS in fullscreen
-#ifdef WIN32
-	if(!getenv("SDL_VIDEODRIVER")) {
-		notes << "SDL_VIDEODRIVER not set, setting to directx" << endl;
-		putenv((char*)"SDL_VIDEODRIVER=directx");
-	}
-#endif
-
-	// Initialize SDL
-	int SDLflags = SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
-	if(SDL_Init(SDLflags) == -1) {
-		errors << "Failed to initialize the SDL system!\nErrorMsg: " << std::string(SDL_GetError()) << endl;
-#ifdef WIN32
-		// retry it with any available video driver
-		unsetenv("SDL_VIDEODRIVER");
-		if(SDL_Init(SDLflags) != -1)
-			hints << "... but we have success with the any driver" << endl;
-		// retry with windib
-		else if(putenv((char*)"SDL_VIDEODRIVER=windib") == 0 && SDL_Init(SDLflags) != -1)
-			hints << "... but we have success with the windib driver" << endl;
-		else
-#endif
-			return false;
-	}
-
-	if(!SetVideoMode())
-		return false;
-
-    // Enable the system events
-	SDL_EventState(SDL_SYSWMEVENT, SDL_ENABLE);
-	SDL_EventState(SDL_VIDEOEXPOSE, SDL_ENABLE);
-
-	// Enable unicode and key repeat
-	SDL_EnableUNICODE(1);
-	//SDL_EnableKeyRepeat(200,20);
-
-	return true;
-}
-
 int cpu_capabilities = 0;
 
 bool allegro_init() {
-	InitBaseSearchPaths();
-	GameOptions::Init();
-	
-	init_pixelformats();
-	bJoystickSupport = false;
-	
-	InitEventQueue();
-	InitEventSystem();
-		
-	if(!sdl_video_init()) {
-		errors << "Allegro init: video init failed" << endl;
-		return false;
-	}
-
 	if(SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
 	if(SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
 	if(SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
 	
-	screen = create_bitmap_from_sdl(SDL_GetVideoSurface());
+	screen = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
 	return true;
 }
 
 void allegro_exit() {
-	screen->surf = NULL; // to not free the video surface (SDL does that)
 	destroy_bitmap(screen);
 	screen = NULL;
-
-	SDL_Quit();
-
-	ShutdownEventSystem();
-	ShutdownEventQueue();
 }
 
 void rest(int t) { SDL_Delay(t); }
@@ -518,7 +207,10 @@ extern "C" {
 
 
 int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) { return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b); }
+int makecol_depth(int color_depth, int r, int g, int b) {
+	return makecol(r,g,b);
+	//return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b);
+}
 
 
 int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
@@ -732,7 +424,7 @@ void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2) {}
 
 
 // index is allegro key, value is sdl keysym
-static const int sdlkeymap[KEY_MAX+1] =
+static const Uint32 sdlkeymap[KEY_MAX+1] =
 {
 SDLK_UNKNOWN,
 'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
@@ -906,53 +598,3 @@ static void handle_sdlevents() {
 
 
 
-
-// OLX wrappers
-
-#include "CGameMode.h"
-#include "Options.h"
-				 
-void InitGameModes() {}
-CGameMode* GameMode(GameModeIndex i) { return NULL; }
-GameModeIndex GetGameModeIndex(CGameMode* gameMode) { return GameModeIndex(0); }
-void SystemError(const std::string& txt) {}
-bool Con_IsInited() { return false; }
-void Con_AddText(int color, const std::string&, bool) {}
-
-#ifndef WIN32
-#include <setjmp.h>
-sigjmp_buf longJumpBuffer;
-#endif
-
-#include "DeprecatedGUI/Menu.h"
-
-namespace DeprecatedGUI { menu_t	*tMenu = NULL; }
-
-void ClearUserNotify() {}
-void updateFileListCaches() {}
-void SetQuitEngineFlag(const std::string&) {}
-
-#include "AuxLib.h"
-SDL_Surface* VideoPostProcessor::m_videoSurface = NULL;
-void VideoPostProcessor::transformCoordinates_ScreenToVideo( int& x, int& y ) {}
-std::string GetConfigFile() { return ""; }
-
-#include "Debug.h"
-void SetError(const std::string& t) { errors << "OLX SetError: " << t << endl; }
-
-void handle_system_event(const SDL_Event& ) {}
-
-#include "Cache.h"
-CCache cCache;
-SmartPointer<SDL_Surface> CCache::GetImage__unsafe(const std::string& file) { return NULL; }
-void CCache::SaveImage__unsafe(const std::string& file, const SmartPointer<SDL_Surface> & img) {}
-
-struct SoundSample;
-class CMap; class CGameScript;
-template <> void SmartPointer_ObjectDeinit<SoundSample> ( SoundSample * obj ) {}
-template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj ) {}
-template <> void SmartPointer_ObjectDeinit<CGameScript> ( CGameScript * obj ) {}
-
-#include "CServer.h"
-GameServer	*cServer = NULL;
-bool GameServer::clientsConnected_less(const Version& ver) { return false; }

@@ -1,7 +1,7 @@
 #ifndef GFX_H
 #define GFX_H
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 
 #include <string>
 //#include <list>

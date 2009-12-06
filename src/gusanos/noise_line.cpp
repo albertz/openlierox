@@ -2,7 +2,7 @@
 #include "util/vec.h"
 #include "util/math_func.h"
 
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #include <vector>
 
 using namespace std;

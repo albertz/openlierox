@@ -1,8 +1,8 @@
 #ifndef OMFG_GUI_CONTEXT_H
 #define OMFG_GUI_CONTEXT_H
 
-#include "../../util/rect.h"
-#include "../../util/common.h"
+#include "util/rect.h"
+#include "util/common.h"
 #include "renderer.h"
 //#include "formatting.h"
 #include <iostream>

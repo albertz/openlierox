@@ -1,7 +1,7 @@
 #include "variables.h"
-#include "../util/text.h"
-#include "../util/macros.h"
-#include "../util/stringbuild.h"
+#include "util/text.h"
+#include "util/macros.h"
+#include "util/stringbuild.h"
 #include "console.h"
 
 ///////////////////////////////EnumVariable////////////////////////////////
