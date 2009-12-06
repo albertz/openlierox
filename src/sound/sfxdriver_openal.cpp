@@ -32,7 +32,7 @@ bool SfxDriverOpenAL::init()
 	ALboolean init=alutInit(NULL,NULL);
 	if (init==AL_FALSE) 
 	{
-	   errors<<"Sound: ALUT error: "<<alutGetErrorString (alutGetError ())<<endl;;
+	   errors << "SfxDriverOpenAL: ALUT error: " << alutGetErrorString (alutGetError ()) << endl;
 	   return false;
 	}
 	volumeChange();
@@ -40,7 +40,7 @@ bool SfxDriverOpenAL::init()
 	ALfloat listenerOri[]={0.0,0.0,-1.0, 0.0,1.0,0.0};
 	alListenerfv(AL_ORIENTATION,listenerOri);
 
-	console.addLogMsg(string("* OPENAL LIB INITIALIZED"));
+	hints << "OpenAL lib initialized" << endl;
 	return true;
 }
 
@@ -90,7 +90,6 @@ void SfxDriverOpenAL::clear()
 
 void SfxDriverOpenAL::volumeChange()
 {
-	notes<<"SfxDriverOpenAL::volumeChange()"<<endl;
 	//multi listeners are not supported in OpenAL
 	alListenerf(AL_GAIN,(float)m_volume/MAX_VOLUME);
 }

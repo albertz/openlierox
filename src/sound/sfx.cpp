@@ -39,7 +39,6 @@ void update_volume( int oldValue )
 
 Sfx::Sfx():driver(0)
 {
-	notes<<"Sfx::Sfx()"<<endl;
 }
 
 Sfx::~Sfx()

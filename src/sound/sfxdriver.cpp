@@ -13,7 +13,6 @@ using namespace std;
 
 SfxDriver::SfxDriver():MAX_VOLUME(255)
 {
-	cerr<<"SfxDriver::SfxDriver()"<<endl;
 	m_volume=MAX_VOLUME;
 	m_listenerDistance=0;
 }
