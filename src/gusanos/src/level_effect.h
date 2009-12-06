@@ -20,7 +20,7 @@ public:
 	LevelEffect();
 	~LevelEffect();
 
-	bool load(fs::path const& filename);
+	bool load(std::string const& filename);
 	
 	SpriteSet* mask;
 	uint32_t crc;

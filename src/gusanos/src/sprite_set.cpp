@@ -63,11 +63,11 @@ SpriteSet::~SpriteSet()
 	delete *frame;
 }
 
-bool SpriteSet::load(fs::path const& filename)
+bool SpriteSet::load(std::string const& filename)
 {
 	//cerr << "Loading sprite set: " << filename.native_file_string() << endl;
 
-	BITMAP *tempBitmap = gfx.loadBitmap(filename.native_file_string().c_str(), true);
+	BITMAP *tempBitmap = gfx.loadBitmap(filename.c_str(), true);
 
 	if (!tempBitmap)
 		return false;

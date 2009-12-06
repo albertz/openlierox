@@ -16,7 +16,7 @@ class SoundSampleOpenAL : public SoundSample
 	
 	public:
 		
-	SoundSampleOpenAL(fs::path const& filename);
+	SoundSampleOpenAL(std::string const& filename);
 	~SoundSampleOpenAL();
 	
 	void play( float pitch,float volume);

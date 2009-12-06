@@ -3,6 +3,7 @@
 
 #include "gfx.h"
 #include "resource_base.h"
+#include "StringUtils.h"
 
 #include <string>
 #include <vector>
@@ -25,7 +26,7 @@ public:
 	WeaponType();
 	~WeaponType();
 	
-	bool load(const fs::path &filename);
+	bool load(const std::string &filename);
 	
 	virtual void makeReference();
 	virtual void finalize();
@@ -48,7 +49,7 @@ public:
 	SpriteSet *skin;
 #endif
 	std::string name;
-	fs::path fileName;
+	std::string fileName;
 
 	std::vector< TimerEvent* > timer;
 	std::vector< TimerEvent* > activeTimer;
@@ -65,7 +66,7 @@ struct WeaponOrder
 {
 	bool operator () ( WeaponType* weap1, WeaponType* weap2)
 	{
-		if ( weap1->fileName.leaf() < weap2->fileName.leaf() )
+		if ( stringcasecmp(GetBaseFilename(weap1->fileName), GetBaseFilename(weap2->fileName)) < 0 )
 			return true;
 		return false;
 	}

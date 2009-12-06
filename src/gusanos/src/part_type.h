@@ -46,7 +46,7 @@ public:
 	
 	void touch();
 	bool isSimpleParticleType();
-	bool load(fs::path const& filename);
+	bool load(std::string const& filename);
 	
 	virtual void makeReference();
 	virtual void finalize();

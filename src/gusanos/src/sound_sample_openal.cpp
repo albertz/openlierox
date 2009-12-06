@@ -126,10 +126,10 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
 }
 
 
-SoundSampleOpenAL::SoundSampleOpenAL(fs::path const& filename):SoundSample(filename)
+SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(filename)
 {
     ALuint bufferID;                        // The OpenAL sound buffer ID
-	string name = filename.native_file_string();
+	string name = filename;
 	
 	if (boost::iends_with(name, ".ogg"))
 	{

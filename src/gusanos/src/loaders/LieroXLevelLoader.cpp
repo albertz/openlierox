@@ -13,20 +13,20 @@ namespace fs = boost::filesystem;
 
 LieroXLevelLoader LieroXLevelLoader::instance;
 
-bool LieroXLevelLoader::canLoad(fs::path const& path, std::string& name)
+bool LieroXLevelLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".lxl")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 
-bool LieroXLevelLoader::load(Level* level, fs::path const& path)
+bool LieroXLevelLoader::load(Level* level, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		

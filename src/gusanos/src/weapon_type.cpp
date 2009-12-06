@@ -87,17 +87,17 @@ namespace GameEventID
 	};
 }
 
-bool WeaponType::load(fs::path const& filename)
+bool WeaponType::load(std::string const& filename)
 {
 	std::ifstream fileStream;
-	gusOpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
+	gusOpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 	if (!fileStream )
 		return false;
 
 	fileName = filename;
 
-	OmfgScript::Parser parser(fileStream, gameActions, filename.native_file_string());
+	OmfgScript::Parser parser(fileStream, gameActions, filename);
 
 	namespace af = OmfgScript::ActionParamFlags;
 

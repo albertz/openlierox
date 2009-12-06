@@ -10,11 +10,12 @@
 #include <stdexcept>
 //#include <console.h> //For IStrCompare
 #include "util/text.h"
+#include "allegro.h"
+#include "Debug.h"
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/exception.hpp>
 #include <boost/utility.hpp>
-namespace fs = boost::filesystem;
 
 template<class T, bool Cache = true, bool ReturnResource = true>
 struct ResourceLocator
@@ -28,10 +29,10 @@ struct ResourceLocator
 		// Should return true and set name to the resource name 
 		// if the file/folder specified by path can be loaded.
 		// Otherwise, it should return false.
-		virtual bool canLoad(fs::path const& path, std::string& name) = 0;
+		virtual bool canLoad(std::string const& path, std::string& name) = 0;
 		
 		// Should load the resource located at path
-		virtual bool load(T*, fs::path const& path) = 0;
+		virtual bool load(T*, std::string const& path) = 0;
 		
 		virtual const char* getName() = 0;
 		
@@ -43,7 +44,7 @@ struct ResourceLocator
 	{
 		ResourceInfo() : loader(0), cached(0) {}
 		
-		ResourceInfo(fs::path const& path_, BaseLoader* loader_)
+		ResourceInfo(std::string const& path_, BaseLoader* loader_)
 		: path(path_), loader(loader_), cached(0)
 		{
 
@@ -54,7 +55,7 @@ struct ResourceLocator
 			delete cached;
 		}
 				
-		fs::path path; // Path to load from
+		std::string path; // Path to load from
 		BaseLoader* loader;   // Loader to use
 		T* cached;
 	};
@@ -96,7 +97,7 @@ struct ResourceLocator
 	}
 	
 	// Adds a path to the path list
-	void addPath(fs::path const& path)
+	void addPath(std::string const& path)
 	{
 		//m_paths.insert(path);
 		if(std::find(m_paths.begin(), m_paths.end(), path) == m_paths.end())
@@ -109,7 +110,7 @@ struct ResourceLocator
 	// Loads and returns the named resource or, if it was loaded already, returns a cached version
 	T* load(std::string const& name);
 	
-	fs::path const& getPathOf(std::string const& name);
+	std::string const& getPathOf(std::string const& name);
 	
 	// Returns true if the named resource can be loaded
 	bool exists(std::string const& name);
@@ -126,65 +127,57 @@ struct ResourceLocator
 	}
 	
 private:
-	void refresh(fs::path const& path);
+	void refresh(std::string const& path);
 	
 	NamedResourceMap m_namedResources; //The resource list
 	
 	std::list<BaseLoader *> m_loaders; // Registered loaders
-	std::list<fs::path>     m_paths; // Paths to scan
+	std::list<std::string>     m_paths; // Paths to scan
 };
 
 template<class T, bool Cache, bool ReturnResource>
-void ResourceLocator<T, Cache, ReturnResource>::refresh(fs::path const& path)
+void ResourceLocator<T, Cache, ReturnResource>::refresh(std::string const& path)
 {
-	//std::cout << "Scanning: " << path.native_file_string() << std::endl;
-	try
+	//notes << typeid(T).name() << ": Scanning: " << path << endl;
+	for(Iterator<std::string>::Ref i = gusFileListIter(path); i->isValid(); i->next())
 	{
-		fs::directory_iterator i(path), e;
+		//notes << " . entry: " << i->get() << endl;
+		std::string name;
+		BaseLoader* loader = 0;
 		
-		for(; i != e; ++i)
+		// Try loaders until a working one is found
+		
+		for(typename std::list<BaseLoader *>::iterator l = m_loaders.begin();
+			l != m_loaders.end();
+			++l)
 		{
-			std::string name;
-			BaseLoader* loader = 0;
-			
-			// Try loaders until a working one is found
-			
-			for(typename std::list<BaseLoader *>::iterator l = m_loaders.begin();
-			    l != m_loaders.end();
-			    ++l)
+			if((*l)->canLoad(path + "/" + i->get(), name))
 			{
-				if((*l)->canLoad(*i, name))
-				{
-					loader = *l;
-					break;
-				}
-			}
-						
-			if(loader)
-			{
-				// We found a loader
-				std::pair<typename NamedResourceMap::iterator, bool> r = m_namedResources.insert(std::make_pair(name, ResourceInfo(*i, loader)));
-				/*
-				if(r.second)
-				{
-					std::cout << "Found resource: " << name << ", loader: " << loader->getName() << std::endl;
-				}
-				else
-				{
-					std::cout << "Duplicate resource: " << name << ", old path: " << r.first->second.path.native_file_string() << ", new path: " << i->native_file_string() << std::endl;
-				}
-				*/
-			}
-			else if(fs::is_directory(*i))
-			{
-				// If no loader was found and this is a directory, scan it
-				refresh(*i);
+				loader = *l;
+				break;
 			}
 		}
-	}
-	catch(fs::filesystem_error& err)
-	{
-		std::cout << err.what() << std::endl;
+					
+		if(loader)
+		{			
+			// We found a loader
+			std::pair<typename NamedResourceMap::iterator, bool> r = m_namedResources.insert(std::make_pair(name, ResourceInfo(path + "/" + i->get(), loader)));
+			/*
+			if(r.second)
+			{
+				notes << "Found resource: " << name << ", loader: " << loader->getName() << endl;
+			}
+			else
+			{
+				notes << "Duplicate resource: " << name << ", old path: " << r.first->second.path << ", new path: " << i->get() << endl;
+			}
+			*/
+		}
+		else if(gusIsDirectory(path + "/" + i->get()))
+		{
+			// If no loader was found and this is a directory, scan it
+			refresh(path + "/" + i->get());
+		}
 	}
 }
 
@@ -193,8 +186,8 @@ void ResourceLocator<T, Cache, ReturnResource>::refresh()
 {
 	clearUncached();
 	
-	for(std::list<fs::path>::const_reverse_iterator p = m_paths.rbegin();
-	    p != std::list<fs::path>::const_reverse_iterator(m_paths.rend());
+	for(std::list<std::string>::const_reverse_iterator p = m_paths.rbegin();
+	    p != std::list<std::string>::const_reverse_iterator(m_paths.rend());
 	    ++p)
 	{
 		refresh(*p);
@@ -241,7 +234,7 @@ T* ResourceLocator<T, Cache, ReturnResource>::load(std::string const& name)
 }
 
 template<class T, bool Cache, bool ReturnResource>
-fs::path const& ResourceLocator<T, Cache, ReturnResource>::getPathOf(std::string const& name)
+std::string const& ResourceLocator<T, Cache, ReturnResource>::getPathOf(std::string const& name)
 {
 	typename NamedResourceMap::iterator i = m_namedResources.find(name);
 	if(i == m_namedResources.end())

@@ -23,7 +23,7 @@ class Sound : public LuaObject
 	Sound();
 	~Sound();
 	
-	bool load(fs::path const& filename);
+	bool load(std::string const& filename);
 	void play( float volume = 1,float pitch = 1,float volumeVariation = 1,float pitchVariation = 1);
 	void play1D( float volume = 1,float pitch = 1,float volumeVariation = 0,float pitchVariation = 0);
 	void play2D(const Vec& pos, float loudness = 100, float pitch = 1, float pitchVariation = 1);

@@ -8,6 +8,7 @@
 #include "message_queue.h"
 #include "util/text.h"
 #include "util/macros.h"
+#include "FindFile.h"
 #include <list>
 #include <string>
 #include <map>
@@ -52,7 +53,7 @@ namespace
 		Net_ConnID connID;
 
 		void sendOne();
-		void queuePath(fs::path const& p);
+		void queuePath(std::string const& p);
 		void queueLevel(std::string const& level, unsigned long reqID);
 	};
 
@@ -99,24 +100,23 @@ namespace
 		}
 	}
 
-	void ConnData::queuePath(fs::path const& p)
+	void ConnData::queuePath(std::string const& p)
 	{
-		if(fs::is_directory(p)) {
-			fs::directory_iterator i(p), e;
+		if(gusIsDirectory(p)) {
 
-			for(; i != e; ++i) {
-				queuePath(*i);
+			for(Iterator<std::string>::Ref i = gusFileListIter(p); i->isValid(); i->next()) {
+				queuePath(p + "/" + i->get());
 			}
 		} else {
 			DLOG("Queing " << p.string());
-			fileQueue.push_back(std::make_pair(0, p.native_file_string()));
+			fileQueue.push_back(std::make_pair(0, p));
 		}
 	}
 
 	void ConnData::queueLevel(std::string const& level, unsigned long reqID)
 	{
 		// TODO: WARNING: Prevent exception throwing if level doesn't exist
-		fs::path const& p = levelLocator.getPathOf(level);
+		std::string const& p = levelLocator.getPathOf(level);
 
 		queuePath(p);
 		fileQueue.push_back(std::make_pair(reqID, level));
@@ -192,15 +192,14 @@ void Updater::think()
 						bool accept = true;
 
 						try {
-							fs::path p(info.path);
-
-							foreach(i, p) {
-								if(*i == "..")
-									accept = false;
-							}
+							std::string p(info.path);
+							
+							if(gusExists(p))
+								accept = false;
 
 							if(accept) {
-								fs::create_directories(p.branch_path());
+								// create directories for p
+								GetWriteFullFileName("gusanos/" + p, true);
 
 								ILOG("Accepting incoming file with ID " << fid);
 							}

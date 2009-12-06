@@ -18,7 +18,7 @@ class SoundSample
 	
 	public:
 		
-	SoundSample(fs::path const& filename);
+	SoundSample(std::string const& filename);
 	virtual ~SoundSample();
 	
 	virtual void play( float pitch,float volume)=0;

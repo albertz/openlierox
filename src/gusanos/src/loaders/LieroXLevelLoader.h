@@ -6,9 +6,9 @@
 
 struct LieroXLevelLoader : ResourceLocator<Level>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, fs::path const& path);
+	virtual bool load(Level*, std::string const& path);
 	
 	virtual const char* getName();
 	

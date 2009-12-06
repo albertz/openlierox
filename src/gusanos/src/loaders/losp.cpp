@@ -11,11 +11,11 @@ namespace fs = boost::filesystem;
 
 LOSPFontLoader LOSPFontLoader::instance;
 
-bool LOSPFontLoader::canLoad(fs::path const& path, std::string& name)
+bool LOSPFontLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".lfn")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
@@ -37,12 +37,12 @@ Font format:
 	UINT8      surface[surfaceWidth * surfaceHeight]
 */
 	
-bool LOSPFontLoader::load(Font* font, fs::path const& path)
+bool LOSPFontLoader::load(Font* font, std::string const& path)
 {
 	font->free();
 
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		

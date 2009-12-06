@@ -20,7 +20,7 @@ public:
 	void volumeChange();
 	void setChanObject(Sound*);
 	void clear();
-	SoundSample* load(fs::path const& filename);
+	SoundSample* load(std::string const& filename);
 };
 
 #endif // SFXDRIVER_OPENAL_H

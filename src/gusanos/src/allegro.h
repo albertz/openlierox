@@ -18,6 +18,7 @@
 #include <cstdio>
 #include <fstream>
 #include "SmartPointer.h"
+#include "FindFile.h"
 
 extern int allegro_error;
 extern int cpu_capabilities;
@@ -91,11 +92,18 @@ enum {
 int set_display_switch_mode(int mode);
 
 bool gusExists(const std::string& filename);
+bool gusExistsFile(const std::string& filename);
+bool gusIsDirectory(const std::string& filename);
 
 bool gusOpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::in);
 FILE* gusOpenGameFile(const std::string& path, const char *mode);
 
 
+Iterator<std::string>::Ref gusFileListIter(
+										const std::string& dir,
+										bool absolutePath = false,
+										const filemodes_t modefilter = -1,
+										const std::string& namefilter = "");
 
 
 int makecol(int r, int g, int b);

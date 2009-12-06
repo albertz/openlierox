@@ -28,7 +28,7 @@ public:
 	ExpType();
 	~ExpType();
 
-	bool load(fs::path const& filename);
+	bool load(std::string const& filename);
 
 	int timeout;
 	int timeoutVariation;

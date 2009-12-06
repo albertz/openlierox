@@ -30,7 +30,7 @@ class ResourceList
 {
 public:
 
-	typedef std::map<fs::path, T1*> MapT;
+	typedef std::map<std::string, T1*> MapT;
 	
 	ResourceList()
 	: m_locked(false)
@@ -51,24 +51,24 @@ public:
 		m_resItemsIndex.clear();
 	}
 	
-	void addPath(fs::path const& path)
+	void addPath(std::string const& path)
 	{
 		if(std::find(m_paths.begin(), m_paths.end(), path) == m_paths.end())
 			m_paths.push_back(path);
 	}
 	
-	bool load(fs::path const& name, T1& resource)
+	bool load(std::string const& name, T1& resource)
 	{
-		std::list<fs::path>::iterator i = m_paths.begin();
+		std::list<std::string>::iterator i = m_paths.begin();
 		for(; i != m_paths.end(); ++i)
 		{
-			if(resource.load(*i / name))
+			if(resource.load(*i + "/" + name))
 				return true;
 		}
 		return false;
 	}
 		
-	T1* load( fs::path const& filename, bool suppressError = false )
+	T1* load( std::string const& filename, bool suppressError = false )
 	{
 		if ( m_locked )
 		{
@@ -96,7 +96,7 @@ public:
 				item = m_resItems.find(filename);
 				m_resItems.erase(item);
 				if(!suppressError)
-					cerr << "ERROR: Could not load " << filename.native_file_string() << endl;
+					cerr << "ERROR: Could not load " << filename << endl;
 				return NULL;
 			}
 		}
@@ -166,7 +166,7 @@ private:
 	bool m_locked;
 	std::vector<T1*> m_resItemsIndex;
 	MapT m_resItems;
-	std::list<fs::path>     m_paths; // Paths to scan
+	std::list<std::string>     m_paths; // Paths to scan
 };
 
 #endif // _RESOURCE_LIST_H_

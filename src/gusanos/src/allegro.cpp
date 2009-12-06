@@ -484,12 +484,30 @@ bool gusExists(const std::string& filename) {
 	return IsFileAvailable("gusanos/" + filename, false, false);
 }
 
+bool gusExistsFile(const std::string& filename) {
+	return IsFileAvailable("gusanos/" + filename, false, true);	
+}
+
+bool gusIsDirectory(const std::string& filename) {
+	// TODO: better
+	return gusExists(filename) && !gusExistsFile(filename);
+}
+
+
 bool gusOpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode) {
 	return OpenGameFileR(f, "gusanos/" + path, mode);
 }
 
 FILE* gusOpenGameFile(const std::string& path, const char *mode) {
 	return OpenGameFile("gusanos/" + path, mode);
+}
+
+Iterator<std::string>::Ref gusFileListIter(
+										   const std::string& dir,
+										   bool absolutePath,
+										   const filemodes_t modefilter,
+										   const std::string& namefilter) {
+	return FileListIter("gusanos/" + dir, absolutePath, modefilter, namefilter);
 }
 
 

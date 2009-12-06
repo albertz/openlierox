@@ -1051,3 +1051,42 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose)  {
 #endif
 }
 
+
+
+
+struct FileIter : Iterator<std::string> {
+	typedef std::set<std::string> List;
+	List files;
+	List::iterator it;
+	
+	bool operator() (const std::string& path) {
+		files.insert( GetBaseFilename(path) );
+		return true;
+	}
+	
+	void setBegin() { it = files.begin(); }
+	
+	Iterator<std::string>* copy() const { return new FileIter(*this); }
+	bool isValid() { return it != files.end(); }
+	void next() { ++it; }
+	bool operator==(const Iterator<std::string>& _oth) const {
+		if( const FileIter* oth = dynamic_cast<const FileIter*> (&_oth) )
+			return oth->files == files && oth->it == it;
+		return false;
+	}
+	std::string get() { return *it; }
+};
+
+Iterator<std::string>::Ref FileListIter(
+										const std::string& dir,
+										bool absolutePath,
+										const filemodes_t modefilter,
+										const std::string& namefilter) {
+	FileIter* iter = new FileIter();
+	FindFiles(*iter, dir, absolutePath, modefilter, namefilter);
+	iter->setBegin();
+	return iter;
+}
+
+
+

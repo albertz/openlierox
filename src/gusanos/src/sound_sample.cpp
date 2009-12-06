@@ -5,7 +5,7 @@
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
 
-SoundSample::SoundSample(fs::path const& filename)
+SoundSample::SoundSample(std::string const& filename)
 {
 }
 

@@ -383,9 +383,8 @@ int l_dump(lua_State* L)
 
 	try
 	{	
-		fs::path dumpPath(fs::path("persistance") / (std::string(s) + ".lpr"));
-		fs::create_directories( dumpPath.branch_path() );
-		fs::ofstream f(dumpPath, std::ios::binary);
+		std::string dumpPath(std::string("persistance") + "/" + std::string(s) + ".lpr");
+		fs::ofstream f(GetWriteFullFileName("gusanos/" + dumpPath, true), std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;
@@ -421,10 +420,10 @@ int l_undump(lua_State* L)
 	
 	try
 	{
-		fs::path dumpPath(fs::path("persistance") / (std::string(s) + ".lpr"));
+		std::string dumpPath(std::string("persistance") + "/" + std::string(s) + ".lpr");
 	
 		std::ifstream f;
-		gusOpenGameFileR(f, dumpPath.native_file_string(), std::ios::binary);
+		gusOpenGameFileR(f, dumpPath, std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;

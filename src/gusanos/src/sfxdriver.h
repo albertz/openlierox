@@ -29,7 +29,7 @@ public:
 	virtual void clear()=0;
 	virtual void volumeChange()=0;
 	void setListeners(std::vector<Listener*> &_listeners);
-	virtual SoundSample *load(fs::path const& filename)=0;
+	virtual SoundSample *load(std::string const& filename)=0;
 
 protected:
 	std::vector<Listener*> listeners;

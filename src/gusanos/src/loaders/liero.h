@@ -9,9 +9,9 @@
 
 struct LieroLevelLoader : ResourceLocator<Level>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, fs::path const& path);
+	virtual bool load(Level*, std::string const& path);
 	
 	virtual const char* getName();
 	
@@ -22,9 +22,9 @@ struct LieroLevelLoader : ResourceLocator<Level>::BaseLoader
 
 struct LieroFontLoader : ResourceLocator<Font>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Font*, fs::path const& path);
+	virtual bool load(Font*, std::string const& path);
 	
 	virtual const char* getName();
 	

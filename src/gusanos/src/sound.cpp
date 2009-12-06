@@ -32,7 +32,7 @@ Sound::~Sound()
 }
 
 
-bool Sound::load(fs::path const& filename)
+bool Sound::load(std::string const& filename)
 {	
 	//cout<<"Sound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;

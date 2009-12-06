@@ -19,11 +19,11 @@ LieroLevelLoader LieroLevelLoader::instance;
 LieroFontLoader LieroFontLoader::instance;
 #endif
 
-bool LieroLevelLoader::canLoad(fs::path const& path, std::string& name)
+bool LieroLevelLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".lev")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
@@ -184,10 +184,10 @@ void initMaterialMappings()
 	}
 }
 
-bool LieroLevelLoader::load(Level* level, fs::path const& path)
+bool LieroLevelLoader::load(Level* level, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -264,22 +264,22 @@ const char* LieroLevelLoader::getName()
 
 #ifndef DEDSERV
 
-bool LieroFontLoader::canLoad(fs::path const& path, std::string& name)
+bool LieroFontLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".lft")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 	
-bool LieroFontLoader::load(Font* font, fs::path const& path)
+bool LieroFontLoader::load(Font* font, std::string const& path)
 {
 	font->free();
 	
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		

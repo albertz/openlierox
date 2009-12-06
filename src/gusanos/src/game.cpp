@@ -87,9 +87,9 @@ namespace
 	std::list<LevelEffectEvent> appliedLevelEffects;
 
 	std::string nextMod;
-	fs::path    m_modPath;
+	std::string    m_modPath;
 	std::string m_modName;
-	fs::path    m_defaultPath;
+	std::string    m_defaultPath;
 	bool loaded;
 	Net_Node *m_node;
 	bool m_isAuthority;
@@ -681,21 +681,18 @@ void Game::applyLevelEffect( LevelEffect* effect, int x, int y )
 
 void Game::loadWeapons()
 {
-	fs::path path( m_modPath );
-	path /= "weapons";
+	std::string path = m_modPath + "/weapons";
 	
-	if ( gusExists( path.native_file_string() ) )
-	{
-		fs::directory_iterator end_itr;
-		
-		for( fs::directory_iterator iter(path); iter != end_itr; ++iter)
+	if ( gusExists( path ) )
+	{		
+		for( Iterator<std::string>::Ref iter = gusFileListIter(path); iter->isValid(); iter->next())
 		{
-			if( !is_directory(*iter) )
+			if( gusExistsFile(iter->get()) )
 			{
-				if ( fs::extension(*iter) == ".wpn")
+				if ( fs::extension(iter->get()) == ".wpn")
 				{
 					WeaponType* weapon = new WeaponType;
-					weapon->load(*iter);
+					weapon->load(iter->get());
 					weaponList.push_back(weapon);
 				}
 			}
@@ -711,7 +708,7 @@ void Game::loadWeapons()
 	}
 };
 
-void Game::loadMod(bool doLoadWeapons)
+bool Game::loadMod(bool doLoadWeapons)
 {
 	options.maxWeapons = options.maxWeaponsVar;
 	options.splitScreen = ( options.splitScreenVar != 0 );
@@ -726,6 +723,11 @@ void Game::loadMod(bool doLoadWeapons)
 	if (!chatSound)
 		sound1DList.load("chat.wav");
 	infoFont = fontLocator.load("minifont");
+	if(infoFont == NULL) {
+		errors << "Gusanos Game::loadMod: cannot load minifont" << endl;
+		return false;
+	}
+	
 #endif
 	if(doLoadWeapons)
 	{
@@ -744,6 +746,8 @@ void Game::loadMod(bool doLoadWeapons)
 	
 	if(!loaded)
 		error(ErrorModLoading);
+	
+	return loaded;
 }
 
 void Game::runInitScripts()
@@ -872,55 +876,55 @@ bool Game::isLoaded()
 	return loaded;
 }
 
-void Game::refreshResources(fs::path const& levelPath)
+void Game::refreshResources(std::string const& levelPath)
 {
 #ifndef DEDSERV
-	fontLocator.addPath(levelPath / "fonts");
-	fontLocator.addPath(m_defaultPath / "fonts");
-	fontLocator.addPath(fs::path(nextMod) / "fonts");
+	fontLocator.addPath(levelPath + "/fonts");
+	fontLocator.addPath(m_defaultPath + "/fonts");
+	fontLocator.addPath(std::string(nextMod) + "/fonts");
 	fontLocator.refresh();
 
-	xmlLocator.addPath(m_defaultPath / "gui");
-	xmlLocator.addPath(fs::path(nextMod) / "gui");
+	xmlLocator.addPath(m_defaultPath + "/gui");
+	xmlLocator.addPath(std::string(nextMod) + "/gui");
 	xmlLocator.refresh();
 	
-	gssLocator.addPath(m_defaultPath / "gui");
-	gssLocator.addPath(fs::path(nextMod) / "gui");
+	gssLocator.addPath(m_defaultPath + "/gui");
+	gssLocator.addPath(std::string(nextMod) + "/gui");
 	gssLocator.refresh();
 #endif
 	
-	scriptLocator.addPath(levelPath / "scripts");
-	scriptLocator.addPath(m_defaultPath / "scripts");
-	scriptLocator.addPath(fs::path(nextMod) / "scripts");
+	scriptLocator.addPath(levelPath + "/scripts");
+	scriptLocator.addPath(m_defaultPath + "/scripts");
+	scriptLocator.addPath(std::string(nextMod) + "/scripts");
 	scriptLocator.refresh();
 	
 	// These are added in reverse order compared to
 	// the resource locator paths! Fix maybe?
-	partTypeList.addPath(levelPath / "objects");
-	partTypeList.addPath(fs::path(nextMod) / "objects");
-	partTypeList.addPath(m_defaultPath / "objects");
+	partTypeList.addPath(levelPath + "/objects");
+	partTypeList.addPath(std::string(nextMod) + "/objects");
+	partTypeList.addPath(m_defaultPath + "/objects");
 	
-	expTypeList.addPath(levelPath / "objects");
-	expTypeList.addPath(fs::path(nextMod) / "objects");
-	expTypeList.addPath(m_defaultPath / "objects");
+	expTypeList.addPath(levelPath + "/objects");
+	expTypeList.addPath(std::string(nextMod) + "/objects");
+	expTypeList.addPath(m_defaultPath + "/objects");
 	
 #ifndef DEDSERV
-	soundList.addPath(levelPath / "sounds");
-	soundList.addPath(fs::path(nextMod) / "sounds");
-	soundList.addPath(m_defaultPath / "sounds");
+	soundList.addPath(levelPath + "/sounds");
+	soundList.addPath(std::string(nextMod) + "/sounds");
+	soundList.addPath(m_defaultPath + "/sounds");
 	
-	sound1DList.addPath(levelPath / "sounds");
-	sound1DList.addPath(fs::path(nextMod) / "sounds");
-	sound1DList.addPath(m_defaultPath / "sounds");
+	sound1DList.addPath(levelPath + "/sounds");
+	sound1DList.addPath(std::string(nextMod) + "/sounds");
+	sound1DList.addPath(m_defaultPath + "/sounds");
 #endif
 	
-	spriteList.addPath(levelPath / "sprites");
-	spriteList.addPath(fs::path(nextMod) / "sprites");
-	spriteList.addPath(m_defaultPath / "sprites");
+	spriteList.addPath(levelPath + "/sprites");
+	spriteList.addPath(std::string(nextMod) + "/sprites");
+	spriteList.addPath(m_defaultPath + "/sprites");
 	
-	levelEffectList.addPath(levelPath / "mapeffects");
-	levelEffectList.addPath(fs::path(nextMod) / "mapeffects");
-	levelEffectList.addPath(m_defaultPath / "mapeffects");
+	levelEffectList.addPath(levelPath + "/mapeffects");
+	levelEffectList.addPath(std::string(nextMod) + "/mapeffects");
+	levelEffectList.addPath(m_defaultPath + "/mapeffects");
 	
 	refreshMods();
 }
@@ -928,21 +932,21 @@ void Game::refreshResources(fs::path const& levelPath)
 void Game::refreshLevels()
 {
 	levelLocator.clear();
-	levelLocator.addPath(m_defaultPath / "maps");
-	levelLocator.addPath(fs::path(nextMod) / "maps");
+	levelLocator.addPath(m_defaultPath + "/maps");
+	levelLocator.addPath(std::string(nextMod) + "/maps");
 	levelLocator.refresh();
 }
 
 void Game::refreshMods()
 {
 	modList.clear();
-	for( fs::directory_iterator i("."), e; i != e; ++i)
+	for( Iterator<std::string>::Ref i = gusFileListIter("."); i->isValid(); i->next())
 	{
-		if( is_directory(*i) )
+		if( gusIsDirectory(i->get()) )
 		{
-			if ( gusExists(fs::path(*i).native_file_string() + "/weapons"))
+			if ( gusExists(i->get() + "/weapons"))
 			{
-				modList.insert(i->string());
+				modList.insert(i->get());
 			}
 		}
 	}
@@ -984,7 +988,7 @@ bool Game::reloadModWithoutMap()
 	unload();
 	level.setName("");
 	refreshResources("default");
-	loadMod(false);
+	if(!loadMod(false)) return false;
 	runInitScripts();
 	
 	return true;
@@ -1019,7 +1023,7 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 		return false;
 	}
 		
-	fs::path const& levelPath = levelLocator.getPathOf(levelName);
+	std::string const& levelPath = levelLocator.getPathOf(levelName);
 	
 	unload();
 	
@@ -1146,12 +1150,12 @@ const string& Game::getMod()
 	return m_modName;
 }
 
-fs::path const& Game::getModPath()
+std::string const& Game::getModPath()
 {
 	return m_modPath;
 }
 
-fs::path const& Game::getDefaultPath()
+std::string const& Game::getDefaultPath()
 {
 	return m_defaultPath;
 }

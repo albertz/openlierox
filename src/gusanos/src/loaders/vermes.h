@@ -11,9 +11,9 @@
 
 struct VermesLevelLoader : ResourceLocator<Level>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, fs::path const& path);
+	virtual bool load(Level*, std::string const& path);
 	
 	virtual const char* getName();
 	
@@ -23,9 +23,9 @@ struct VermesLevelLoader : ResourceLocator<Level>::BaseLoader
 #ifndef DEDSERV
 struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Font*, fs::path const& path);
+	virtual bool load(Font*, std::string const& path);
 	
 	virtual const char* getName();
 	
@@ -34,9 +34,9 @@ struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
 
 struct XMLLoader : ResourceLocator<XMLFile, false, false>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(XMLFile*, fs::path const& path);
+	virtual bool load(XMLFile*, std::string const& path);
 	
 	virtual const char* getName();
 	
@@ -45,9 +45,9 @@ struct XMLLoader : ResourceLocator<XMLFile, false, false>::BaseLoader
 
 struct GSSLoader : ResourceLocator<GSSFile>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(GSSFile*, fs::path const& path);
+	virtual bool load(GSSFile*, std::string const& path);
 	
 	virtual const char* getName();
 	
@@ -57,9 +57,9 @@ struct GSSLoader : ResourceLocator<GSSFile>::BaseLoader
 
 struct LuaLoader : ResourceLocator<Script>::BaseLoader
 {
-	virtual bool canLoad(fs::path const& path, std::string& name);
+	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Script*, fs::path const& path);
+	virtual bool load(Script*, std::string const& path);
 	
 	virtual const char* getName();
 	

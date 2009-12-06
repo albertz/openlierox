@@ -175,9 +175,9 @@ public:
 	void reset(ResetReason reason);
 	void unload();
 	void error(Error err);
-	void loadMod(bool doLoadWeapons = true);
+	bool loadMod(bool doLoadWeapons = true);
 	bool isLoaded();
-	void refreshResources(fs::path const& levelPath);
+	void refreshResources(std::string const& levelPath);
 	void refreshLevels();
 	void refreshMods();
 	bool reloadModWithoutMap();
@@ -228,8 +228,8 @@ public:
 	PartType* digObject;
 		
 	const std::string& getMod();
-	fs::path const& getModPath();
-	fs::path const& getDefaultPath();
+	std::string const& getModPath();
+	std::string const& getDefaultPath();
 
 #ifndef DEDSERV
 	Sound* chatSound;

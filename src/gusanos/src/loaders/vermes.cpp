@@ -26,11 +26,11 @@ using namespace std;
 
 VermesLevelLoader VermesLevelLoader::instance;
 
-bool VermesLevelLoader::canLoad(fs::path const& path, std::string& name)
+bool VermesLevelLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(gusExists((path / "config.cfg").native_file_string()))
+	if(gusExists(path + "/config.cfg"))
 	{
-		name = path.leaf();
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
@@ -44,15 +44,15 @@ namespace{
 		GameEnd
 	};
 
-	LevelConfig* loadConfig( fs::path const& filename )
+	LevelConfig* loadConfig( std::string const& filename )
 	{
 		std::ifstream fileStream;
-		gusOpenGameFileR(fileStream, filename.native_file_string(), std::ios::binary | std::ios::in);
+		gusOpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 		if (!fileStream )
 			return false;
 		
-		OmfgScript::Parser parser(fileStream, gameActions, filename.native_file_string());
+		OmfgScript::Parser parser(fileStream, gameActions, filename);
 		
 		parser.addEvent("game_start", GameStart, 0);
 		parser.addEvent("game_end", GameEnd, 0);
@@ -124,11 +124,11 @@ namespace{
 
 }
 	
-bool VermesLevelLoader::load(Level* level, fs::path const& path)
+bool VermesLevelLoader::load(Level* level, std::string const& path)
 {
-	std::string materialPath = (path / "material").native_file_string();
+	std::string materialPath = path + "/material";
 	
-	level->path = path.native_directory_string();
+	level->path = path;
 	
 	{
 		LocalSetColorDepth cd(8);
@@ -137,24 +137,24 @@ bool VermesLevelLoader::load(Level* level, fs::path const& path)
 	
 	if (level->material)
 	{
-		level->setEvents( loadConfig( path / "config.cfg" ) );
+		level->setEvents( loadConfig( path + "/config.cfg" ) );
 #ifndef DEDSERV
-		std::string imagePath = (path / "level").native_file_string();
+		std::string imagePath = path + "/level";
 		
 		level->image = gfx.loadBitmap(imagePath.c_str());
 		if (level->image)
 		{			
-			std::string backgroundPath = (path / "background").native_file_string();
+			std::string backgroundPath = path + "/background";
 			
 			level->background = gfx.loadBitmap(backgroundPath.c_str());
 			
-			std::string paralaxPath = (path / "paralax").native_file_string();
+			std::string paralaxPath = path + "/paralax";
 			level->paralax = gfx.loadBitmap(paralaxPath.c_str());
 			
 			if(!level->paralax)
 				std::cerr << "Paralax not loaded" << std::endl;
 			
-			std::string lightmapPath = (path / "lightmap").native_file_string();
+			std::string lightmapPath = path + "/lightmap";
 		
 		//	level->lightmap = gfx.loadBitmap(lightmapPath.c_str());
 			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
@@ -195,17 +195,17 @@ const char* VermesLevelLoader::getName()
 #ifndef DEDSERV
 VermesFontLoader VermesFontLoader::instance;
 
-bool VermesFontLoader::canLoad(fs::path const& path, std::string& name)
+bool VermesFontLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".bmp" || fs::extension(path) == ".png")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 	
-bool VermesFontLoader::load(Font* font, fs::path const& path)
+bool VermesFontLoader::load(Font* font, std::string const& path)
 {
 	font->free();
 	
@@ -213,7 +213,7 @@ bool VermesFontLoader::load(Font* font, fs::path const& path)
 		LocalSetColorDepth cd(8);
 		LocalSetColorConversion cc( /*COLORCONV_REDUCE_TO_256 | COLORCONV_KEEP_TRANS*/ 0);
 	
-		font->m_bitmap = load_bitmap(path.native_file_string().c_str(), 0);
+		font->m_bitmap = load_bitmap(path.c_str(), 0);
 		if(!font->m_bitmap)
 			return false;
 		
@@ -273,19 +273,19 @@ const char* VermesFontLoader::getName()
 
 XMLLoader XMLLoader::instance;
 
-bool XMLLoader::canLoad(fs::path const& path, std::string& name)
+bool XMLLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".xml")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 	
-bool XMLLoader::load(XMLFile* xml, fs::path const& path)
+bool XMLLoader::load(XMLFile* xml, std::string const& path)
 {
-	gusOpenGameFileR(xml->f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(xml->f, path, std::ios::binary);
 	
 	if(!xml->f)
 		return false;
@@ -301,25 +301,25 @@ const char* XMLLoader::getName()
 
 GSSLoader GSSLoader::instance;
 
-bool GSSLoader::canLoad(fs::path const& path, std::string& name)
+bool GSSLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".gss")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 	
-bool GSSLoader::load(GSSFile* gss, fs::path const& path)
+bool GSSLoader::load(GSSFile* gss, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary);
+	gusOpenGameFileR(f, path, std::ios::binary);
 	
 	if(!f)
 		return false;
 	
-	OmfgGUI::menu.loadGSS(f, path.string());
+	OmfgGUI::menu.loadGSS(f, path);
 		
 	return true;
 }
@@ -332,25 +332,25 @@ const char* GSSLoader::getName()
 
 LuaLoader LuaLoader::instance;
 
-bool LuaLoader::canLoad(fs::path const& path, std::string& name)
+bool LuaLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".lua")
 	{
-		name = basename(path);
+		name = GetBaseFilenameWithoutExt(path);
 		return true;
 	}
 	return false;
 }
 	
-bool LuaLoader::load(Script* script, fs::path const& path)
+bool LuaLoader::load(Script* script, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path.native_file_string(), std::ios::binary | std::ios::in);
+	gusOpenGameFileR(f, path, std::ios::binary | std::ios::in);
 	if(!f)
 		return false;
 		
 	// Create the table to store the functions in	
-	std::string name = basename(path);
+	std::string name = GetBaseFilenameWithoutExt(path);
 	lua_pushstring(lua, name.c_str());
 	lua_rawget(lua, LUA_GLOBALSINDEX);
 	if(lua_isnil(lua, -1))
@@ -363,7 +363,7 @@ bool LuaLoader::load(Script* script, fs::path const& path)
 	}
 	lua_settop(lua, -2); // Pop table or nil
 	
-	lua.load(path.native_file_string().c_str(), f);
+	lua.load(path, f);
 	
 	script->lua = &lua;
 	script->table = name;
@@ -379,7 +379,7 @@ const char* LuaLoader::getName()
 /*
 VermesParticleLoader VermesParticleLoader::instance;
 
-bool VermesParticleLoader::canLoad(fs::path const& path, std::string& name)
+bool VermesParticleLoader::canLoad(std::string const& path, std::string& name)
 {
 	if(fs::extension(path) == ".obj")
 	{

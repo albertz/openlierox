@@ -28,7 +28,7 @@ public:
 #endif
 	~SpriteSet();
 
-	bool load(fs::path const& filename);
+	bool load(std::string const& filename);
 	
 	void think();
 	
