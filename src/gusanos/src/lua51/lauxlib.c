@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "allegro.h"
 
 /* This file uses only the official API of Lua.
 ** Any function declared here could be written as an application function.
@@ -537,7 +537,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   else {
     lua_pushfstring(L, "@%s", filename);
-    lf.f = fopen(filename, "r");
+    lf.f = gusOpenGameFile(filename, "r");
     if (lf.f == NULL) return errfile(L, "open", fnameindex);
   }
   c = getc(lf.f);
@@ -548,7 +548,7 @@ LUALIB_API int luaL_loadfile (lua_State *L, const char *filename) {
   }
   if (c == LUA_SIGNATURE[0] && lf.f != stdin) {  /* binary file? */
     fclose(lf.f);
-    lf.f = fopen(filename, "rb");  /* reopen in binary mode */
+    lf.f = gusOpenGameFile(filename, "rb");  /* reopen in binary mode */
     if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
     /* skip eventual `#!...' */
    while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;

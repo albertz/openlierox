@@ -14,6 +14,8 @@
 #ifndef __GUS_ALLEGRO_H__
 #define __GUS_ALLEGRO_H__
 
+#ifdef __cplusplus
+
 #include <SDL.h>
 #include <cstdio>
 #include <fstream>
@@ -634,6 +636,14 @@ int readkey();
 extern int key[KEY_MAX];
 void clear_keybuf();
 
+extern "C" {
+#endif // C++ only stuff
 
+#include <stdio.h>
+FILE* gusOpenGameFile(const char* path, const char *mode);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

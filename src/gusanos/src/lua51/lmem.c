@@ -18,6 +18,8 @@
 #include "lobject.h"
 #include "lstate.h"
 
+#include "allegro.h"
+
 
 
 /*
@@ -91,7 +93,7 @@ void *luaM_realloc_ (lua_State *L, void *block, size_t osize, size_t nsize) {
     if ((int)g->totalbytes - (int)last > 1000 ||
         (int)g->totalbytes - (int)last < -1000) {
       last = g->totalbytes;
-      if (f == NULL) f = fopen("trace", "w");
+      if (f == NULL) f = gusOpenGameFile("trace", "w");
       fprintf(f, "%lu %u %u %u %d\n", total, g->totalbytes, g->GCthreshold,
                                       g->estimate, g->gcstate);
     }

@@ -510,6 +510,12 @@ Iterator<std::string>::Ref gusFileListIter(
 	return FileListIter("gusanos/" + dir, absolutePath, modefilter, namefilter);
 }
 
+extern "C" {
+	FILE* gusOpenGameFile(const char* path, const char *mode) {
+		return gusOpenGameFile(std::string(path), mode);
+	}
+}
+
 
 
 int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
