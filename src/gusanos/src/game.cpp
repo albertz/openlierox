@@ -747,7 +747,7 @@ bool Game::loadMod(bool doLoadWeapons)
 	if(!loaded)
 		error(ErrorModLoading);
 	
-	return loaded;
+	return true;
 }
 
 void Game::runInitScripts()
@@ -988,7 +988,7 @@ bool Game::reloadModWithoutMap()
 	unload();
 	level.setName("");
 	refreshResources("default");
-	if(!loadMod(false)) return false;
+	loadMod(false);
 	runInitScripts();
 	
 	return true;
