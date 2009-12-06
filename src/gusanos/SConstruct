@@ -20,7 +20,7 @@ if env['PLATFORM'] == 'win32':
 	print "Forcing MinGW - MSVC++ not supported"
 
 
-env.Append(CPPPATH = ['src', '../../include', '/usr/include/libxml2'])
+env.Append(CPPPATH = ['.', '../../include', '/usr/include/libxml2'])
 env.ParseConfig("sdl-config --cflags --libs")
 
 ###
@@ -46,15 +46,15 @@ env.Append(CCFLAGS = '-DDEBUG')
 ###
 # Build the source libraries
 ###
-env.StaticLibrary('omfgconsole', glob('src/console/*.cpp'))
-env.StaticLibrary('omfghttp', glob('src/http/*.cpp'))
-env.StaticLibrary('omfgutil', glob('src/util/*.cpp'))
-env.StaticLibrary('omfgscript', glob('src/omfgscript/*.cpp'))
-env.StaticLibrary('loadpng', glob('src/loadpng/*.c'))
-env.StaticLibrary('omfgui', glob('src/gui/detail/*.cpp')
-								+ glob('src/gui/lua/*.cpp'))
-env.StaticLibrary('glua', glob('src/lua51/*.c') 
-							+ glob('src/lua51/luaapi/*.cpp'))
+env.StaticLibrary('omfgconsole', glob('console/*.cpp'))
+env.StaticLibrary('omfghttp', glob('http/*.cpp'))
+env.StaticLibrary('omfgutil', glob('util/*.cpp'))
+env.StaticLibrary('omfgscript', glob('omfgscript/*.cpp'))
+env.StaticLibrary('loadpng', glob('loadpng/*.c'))
+env.StaticLibrary('omfgui', glob('gui/detail/*.cpp')
+								+ glob('gui/lua/*.cpp'))
+env.StaticLibrary('glua', glob('lua51/*.c') 
+							+ glob('lua51/luaapi/*.cpp'))
 
 
 #breakpad
@@ -110,9 +110,9 @@ env.Append(CCFLAGS = "-DNBREAKPAD")
 ###
 # Build the main program
 ###
-env.Program('vermes', glob('src/*.cpp') + glob('src/loaders/*.cpp')
-						+ glob('src/lua/*.cpp') + glob('src/blitters/*.cpp')
-						+ ['src/util/text.o']
+env.Program('vermes', glob('*.cpp') + glob('loaders/*.cpp')
+						+ glob('lua/*.cpp') + glob('blitters/*.cpp')
+						+ ['util/text.o']
 					, LIBS = libs
 					, LIBPATH = ['.', '/usr/local/lib', '/usr/lib'])
 
