@@ -6,9 +6,9 @@
 #endif //DEDICATED_ONLY
 
 #include "util/vec.h"
-#include "sound.h"
+#include "gusanos/sound.h"
 
-void volume( int oldValue );
+void update_volume( int oldValue );
 
 
 struct Listener
@@ -19,7 +19,8 @@ struct Listener
 
 
 class SfxDriver;
-	
+class GusSound;
+
 class Sfx
 {
 public:
@@ -27,11 +28,11 @@ public:
 	Sfx();
 	~Sfx();
 	
-	void init();
+	bool init();
 	void shutDown();
 	void registerInConsole();
 	void think();
-	void setChanObject(int chan, Sound* sound);
+	void setChanObject(int chan, GusSound* sound);
 	void clear();
 	Listener* newListener();
 	void freeListener(Listener* listener);

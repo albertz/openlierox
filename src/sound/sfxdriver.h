@@ -8,10 +8,7 @@
 #include "sfx.h"
 
 #include <vector>
-using namespace std;
-
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
+#include <string>
 
 class SoundSample;
 
@@ -31,6 +28,9 @@ public:
 	void setListeners(std::vector<Listener*> &_listeners);
 	virtual SoundSample *load(std::string const& filename)=0;
 
+	void setVolume(float val); // val is between 0 and 1
+	float volume() const;
+	
 protected:
 	std::vector<Listener*> listeners;
 	int m_volume;

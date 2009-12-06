@@ -1,13 +1,11 @@
 #ifndef SOUND_SAMPLE_OPENAL_H
 #define SOUND_SAMPLE_OPENAL_H
 
-#include "resource_list.h"
+#include "gusanos/resource_list.h"
 #include "util/vec.h"
-#include "glua.h"
+#include "gusanos/glua.h"
 #include "sound_sample.h"
 #include <AL/al.h>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 class BaseObject;
 

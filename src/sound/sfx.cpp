@@ -1,11 +1,5 @@
 #ifndef DEDICATED_ONLY
 
-#include "sfx.h"
-#include "gconsole.h"
-#include "base_object.h"
-#include "sfxdriver.h"
-#include "sfxdriver_openal.h"
-#include "util/macros.h"
 #include <boost/assign/list_inserter.hpp>
 using namespace boost::assign;
 
@@ -13,6 +7,16 @@ using namespace boost::assign;
 #include <list>
 #include <AL/al.h>
 #include <boost/utility.hpp>
+
+#include "sfx.h"
+#include "sfxdriver.h"
+#include "sfxdriver_openal.h"
+#include "gusanos/gconsole.h"
+#include "gusanos/base_object.h"
+#include "util/macros.h"
+
+#include "Debug.h"
+
 
 using namespace std;
 
@@ -25,9 +29,9 @@ namespace
 	std::vector<Listener*> listeners;
 }
 
-void volume( int oldValue )
+void update_volume( int oldValue )
 {
-	cout<<"volume"<<endl;
+	notes<<"update_volume"<<endl;
 	if (sfx)
 		sfx.volumeChange();
 }
@@ -35,7 +39,7 @@ void volume( int oldValue )
 
 Sfx::Sfx():driver(0)
 {
-	cerr<<"Sfx::Sfx()"<<endl;
+	notes<<"Sfx::Sfx()"<<endl;
 }
 
 Sfx::~Sfx()
@@ -45,23 +49,23 @@ Sfx::~Sfx()
 	}
 }
 
-void Sfx::init()
+bool Sfx::init()
 {
-	//cerr<<"Sfx::init()"<<endl;
+	//notes<<"Sfx::init()"<<endl;
 	driver = new SfxDriverOpenAL();
 	m_initialized = driver->init();
-	cout<<m_initialized <<endl;
+	return m_initialized;
 }
 
 void Sfx::shutDown()
 {
-	//cerr<<"Sfx::shutDown()"<<endl;
+	//notes<<"Sfx::shutDown()"<<endl;
 	driver->shutDown();
 }
 
 void Sfx::registerInConsole()
 {
-	cerr<<"Sfx::registerInConsole()"<<endl;
+	notes<<"Sfx::registerInConsole()"<<endl;
 	if (m_initialized ) {
 	driver->registerInConsole();
 	}

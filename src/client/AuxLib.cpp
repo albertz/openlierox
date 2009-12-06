@@ -878,17 +878,7 @@ void ShutdownAuxLib()
 	UnSubclassWindow();
 #endif
 
-	// Shutdown the SDL system
-	// HINT: Sometimes we get a segfault here. Because
-	// all important stuff is already closed and save here, it's not that
-	// important to do any more cleanup.
-#if SDLMIXER_WORKAROUND_RESTART == 1
-	if(bRestartGameAfterQuit)
-		// quit everything but audio
-		SDL_QuitSubSystem( SDL_WasInit(0) & (~SDL_INIT_AUDIO) );
-	else
-#endif
-		SDL_Quit();
+	SDL_Quit();
 }
 
 

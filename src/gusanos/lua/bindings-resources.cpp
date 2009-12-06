@@ -272,7 +272,7 @@ METHODC(Font, font_render,
 
 /*! sounds
 
-	This table returns Sound objects when indexed with a valid sound name, and
+	This table returns GusSound objects when indexed with a valid sound name, and
 	nil otherwise.
 	
 	Example:
@@ -290,7 +290,7 @@ int l_sound_load2(lua_State* L)
 	
 	if(!n) return 0;
 
-	Sound* s = soundList.load(n);
+	GusSound* s = soundList.load(n);
 	if(!s) return 0;
 	
 	context.pushFullReference(*s, LuaBindings::SoundMetaTable);
@@ -299,12 +299,12 @@ int l_sound_load2(lua_State* L)
 	return 1;
 }
 
-/*! Sound:play([x, y | object] [, loudness, pitch, pitchVariation])
+/*! GusSound:play([x, y | object] [, loudness, pitch, pitchVariation])
 
 	Plays a sound either at position (x, y) on the map, or attached to
 	object //object// (depending on which is passed to the function).
 */
-METHODC(Sound, sound_play,
+METHODC(GusSound, sound_play,
 	lua_Number loudness = 100.0;
 	lua_Number pitch = 1.0;
 	lua_Number pitchVariation = 1.0;
@@ -652,7 +652,7 @@ void initResources()
 		("Formatting", Formatting)
 	)
 	
-	CLASS(Sound,
+	CLASS(GusSound,
 		("play", l_sound_play)
 	)
 	

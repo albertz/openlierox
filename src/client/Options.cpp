@@ -279,7 +279,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
 		;
 
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue, 
 				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->minValue, f->get()->maxValue, f->get()->unsignedValue );

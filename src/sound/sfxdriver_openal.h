@@ -18,7 +18,7 @@ public:
 	void shutDown();
 	void think();
 	void volumeChange();
-	void setChanObject(Sound*);
+	void setChanObject(GusSound*);
 	void clear();
 	SoundSample* load(std::string const& filename);
 };

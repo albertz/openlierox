@@ -4,7 +4,7 @@
 #include <cassert>
 #include <climits>
 #include <iostream>
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include <stdexcept>
 
 template<class T>

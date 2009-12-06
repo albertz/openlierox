@@ -1060,7 +1060,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 	}
 	
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
 
@@ -1081,7 +1081,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	// FeatureSettings() constructor initializes with default values, and we want here an unset values
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -2110,7 +2110,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
 	

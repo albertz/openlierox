@@ -178,9 +178,28 @@
 		23C34BD310CC1CAE00DABBD6 /* sfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC710CC1CAE00DABBD6 /* sfx.cpp */; };
 		23C34BD410CC1CAE00DABBD6 /* sfxdriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */; };
 		23C34BD510CC1CAE00DABBD6 /* sfxdriver_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */; };
-		23C34BD610CC1CAE00DABBD6 /* sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCD10CC1CAE00DABBD6 /* sound.cpp */; };
 		23C34BD710CC1CAE00DABBD6 /* sound_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */; };
 		23C34BD810CC1CAE00DABBD6 /* sound_sample_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */; };
+		23C34C2010CC208200DABBD6 /* alutBufferData.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1110CC208200DABBD6 /* alutBufferData.c */; };
+		23C34C2110CC208200DABBD6 /* alutCodec.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1210CC208200DABBD6 /* alutCodec.c */; };
+		23C34C2210CC208200DABBD6 /* alutError.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1310CC208200DABBD6 /* alutError.c */; };
+		23C34C2310CC208200DABBD6 /* alutInit.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1410CC208200DABBD6 /* alutInit.c */; };
+		23C34C2410CC208200DABBD6 /* alutInputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1510CC208200DABBD6 /* alutInputStream.c */; };
+		23C34C2510CC208200DABBD6 /* alutInternal.h in Headers */ = {isa = PBXBuildFile; fileRef = 23C34C1610CC208200DABBD6 /* alutInternal.h */; };
+		23C34C2610CC208200DABBD6 /* alutLoader.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1710CC208200DABBD6 /* alutLoader.c */; };
+		23C34C2710CC208200DABBD6 /* alutOutputStream.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1810CC208200DABBD6 /* alutOutputStream.c */; };
+		23C34C2810CC208200DABBD6 /* alutUtil.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1910CC208200DABBD6 /* alutUtil.c */; };
+		23C34C2910CC208200DABBD6 /* alutVersion.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1A10CC208200DABBD6 /* alutVersion.c */; };
+		23C34C2A10CC208200DABBD6 /* alutWaveform.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1B10CC208200DABBD6 /* alutWaveform.c */; };
+		23C34C2E10CC20B300DABBD6 /* libfreealut.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34C0A10CC206F00DABBD6 /* libfreealut.a */; };
+		23C34C6F10CC274100DABBD6 /* Ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34C6E10CC274100DABBD6 /* Ogg.framework */; };
+		23C34C7110CC275500DABBD6 /* Vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34C7010CC275500DABBD6 /* Vorbis.framework */; };
+		23C34C7610CC277700DABBD6 /* Vorbis.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23C34C7010CC275500DABBD6 /* Vorbis.framework */; };
+		23C34C7710CC277700DABBD6 /* Ogg.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 23C34C6E10CC274100DABBD6 /* Ogg.framework */; };
+		23C34CC510CC392100DABBD6 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34CC410CC392100DABBD6 /* OpenAL.framework */; };
+		23C34CD010CC395500DABBD6 /* libboost_system.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34CCD10CC395500DABBD6 /* libboost_system.a */; };
+		23C34CD110CC395500DABBD6 /* libboost_filesystem.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34CCE10CC395500DABBD6 /* libboost_filesystem.a */; };
+		23C34CD210CC395500DABBD6 /* libboost_signals.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C34CCF10CC395500DABBD6 /* libboost_signals.a */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -331,6 +350,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		23C34C2C10CC20A000DABBD6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 23C34C0910CC206F00DABBD6 /* freealut */;
+			remoteInfo = freealut;
+		};
 		23ECBE780E894D97007B8D55 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
@@ -365,6 +391,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				23C34C7610CC277700DABBD6 /* Vorbis.framework in Copy Frameworks into .app */,
+				23C34C7710CC277700DABBD6 /* Ogg.framework in Copy Frameworks into .app */,
 				2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */,
 				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
 				EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */,
@@ -715,12 +743,32 @@
 		23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver.h; sourceTree = "<group>"; };
 		23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfxdriver_openal.cpp; sourceTree = "<group>"; };
 		23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver_openal.h; sourceTree = "<group>"; };
-		23C34BCD10CC1CAE00DABBD6 /* sound.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound.cpp; sourceTree = "<group>"; };
-		23C34BCE10CC1CAE00DABBD6 /* sound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound.h; sourceTree = "<group>"; };
 		23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample.cpp; sourceTree = "<group>"; };
 		23C34BD010CC1CAE00DABBD6 /* sound_sample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample.h; sourceTree = "<group>"; };
 		23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample_openal.cpp; sourceTree = "<group>"; };
 		23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample_openal.h; sourceTree = "<group>"; };
+		23C34C0A10CC206F00DABBD6 /* libfreealut.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libfreealut.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		23C34C1110CC208200DABBD6 /* alutBufferData.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutBufferData.c; sourceTree = "<group>"; };
+		23C34C1210CC208200DABBD6 /* alutCodec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutCodec.c; sourceTree = "<group>"; };
+		23C34C1310CC208200DABBD6 /* alutError.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutError.c; sourceTree = "<group>"; };
+		23C34C1410CC208200DABBD6 /* alutInit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutInit.c; sourceTree = "<group>"; };
+		23C34C1510CC208200DABBD6 /* alutInputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutInputStream.c; sourceTree = "<group>"; };
+		23C34C1610CC208200DABBD6 /* alutInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alutInternal.h; sourceTree = "<group>"; };
+		23C34C1710CC208200DABBD6 /* alutLoader.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutLoader.c; sourceTree = "<group>"; };
+		23C34C1810CC208200DABBD6 /* alutOutputStream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutOutputStream.c; sourceTree = "<group>"; };
+		23C34C1910CC208200DABBD6 /* alutUtil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutUtil.c; sourceTree = "<group>"; };
+		23C34C1A10CC208200DABBD6 /* alutVersion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutVersion.c; sourceTree = "<group>"; };
+		23C34C1B10CC208200DABBD6 /* alutWaveform.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = alutWaveform.c; sourceTree = "<group>"; };
+		23C34C1C10CC208200DABBD6 /* helloworld.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = helloworld.wav; sourceTree = "<group>"; };
+		23C34C1D10CC208200DABBD6 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
+		23C34C1E10CC208200DABBD6 /* Makefile.in */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.in; sourceTree = "<group>"; };
+		23C34C1F10CC208200DABBD6 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		23C34C6E10CC274100DABBD6 /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogg.framework; sourceTree = "<group>"; };
+		23C34C7010CC275500DABBD6 /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Vorbis.framework; sourceTree = "<group>"; };
+		23C34CC410CC392100DABBD6 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
+		23C34CCD10CC395500DABBD6 /* libboost_system.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_system.a; path = /usr/local/lib/libboost_system.a; sourceTree = "<absolute>"; };
+		23C34CCE10CC395500DABBD6 /* libboost_filesystem.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_filesystem.a; path = /usr/local/lib/libboost_filesystem.a; sourceTree = "<absolute>"; };
+		23C34CCF10CC395500DABBD6 /* libboost_signals.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libboost_signals.a; path = /usr/local/lib/libboost_signals.a; sourceTree = "<absolute>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -957,6 +1005,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		23C34C0810CC206F00DABBD6 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23ECBE370E894D1A007B8D55 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -985,6 +1040,13 @@
 				EAD6E47D0C47EE0400D6C836 /* Cocoa.framework in Frameworks */,
 				EABBC2450C5A021F003884A9 /* SDL_image.framework in Frameworks */,
 				2389FB660D2D5A4700358F27 /* UnixImageIO.framework in Frameworks */,
+				23C34C2E10CC20B300DABBD6 /* libfreealut.a in Frameworks */,
+				23C34C6F10CC274100DABBD6 /* Ogg.framework in Frameworks */,
+				23C34C7110CC275500DABBD6 /* Vorbis.framework in Frameworks */,
+				23C34CC510CC392100DABBD6 /* OpenAL.framework in Frameworks */,
+				23C34CD010CC395500DABBD6 /* libboost_system.a in Frameworks */,
+				23C34CD110CC395500DABBD6 /* libboost_filesystem.a in Frameworks */,
+				23C34CD210CC395500DABBD6 /* libboost_signals.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -994,8 +1056,14 @@
 		08FB7794FE84155DC02AAC07 /* OpenLieroX */ = {
 			isa = PBXGroup;
 			children = (
-				23099D0F0F609EEE008E6C7F /* Dedicated script */,
+				23C34CCD10CC395500DABBD6 /* libboost_system.a */,
+				23C34CCE10CC395500DABBD6 /* libboost_filesystem.a */,
+				23C34CCF10CC395500DABBD6 /* libboost_signals.a */,
+				23C34C7010CC275500DABBD6 /* Vorbis.framework */,
+				23C34C6E10CC274100DABBD6 /* Ogg.framework */,
 				08FB7795FE84155DC02AAC07 /* Source */,
+				23C34C1010CC208200DABBD6 /* freealut source */,
+				23099D0F0F609EEE008E6C7F /* Dedicated script */,
 				EA430C8E0BEFCF5B00C6547E /* Scripts */,
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
@@ -1004,6 +1072,7 @@
 				EAD99FD10C06408E003BE563 /* share */,
 				EAD6E4BE0C47EF1F00D6C836 /* Frameworks */,
 				EAD99F630C063CA6003BE563 /* OpenLieroX-Info.plist */,
+				23C34CC410CC392100DABBD6 /* OpenAL.framework */,
 			);
 			name = OpenLieroX;
 			sourceTree = "<group>";
@@ -1025,6 +1094,7 @@
 				EA430DD20BEFEA8900C6547E /* libHawkNL.a */,
 				EAD99F610C063CA6003BE563 /* OpenLieroX.app */,
 				237885401050248500195629 /* memstats_test */,
+				23C34C0A10CC206F00DABBD6 /* libfreealut.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1374,14 +1444,35 @@
 				23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */,
 				23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */,
 				23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */,
-				23C34BCD10CC1CAE00DABBD6 /* sound.cpp */,
-				23C34BCE10CC1CAE00DABBD6 /* sound.h */,
 				23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */,
 				23C34BD010CC1CAE00DABBD6 /* sound_sample.h */,
 				23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */,
 				23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */,
 			);
 			path = sound;
+			sourceTree = "<group>";
+		};
+		23C34C1010CC208200DABBD6 /* freealut source */ = {
+			isa = PBXGroup;
+			children = (
+				23C34C1110CC208200DABBD6 /* alutBufferData.c */,
+				23C34C1210CC208200DABBD6 /* alutCodec.c */,
+				23C34C1310CC208200DABBD6 /* alutError.c */,
+				23C34C1410CC208200DABBD6 /* alutInit.c */,
+				23C34C1510CC208200DABBD6 /* alutInputStream.c */,
+				23C34C1610CC208200DABBD6 /* alutInternal.h */,
+				23C34C1710CC208200DABBD6 /* alutLoader.c */,
+				23C34C1810CC208200DABBD6 /* alutOutputStream.c */,
+				23C34C1910CC208200DABBD6 /* alutUtil.c */,
+				23C34C1A10CC208200DABBD6 /* alutVersion.c */,
+				23C34C1B10CC208200DABBD6 /* alutWaveform.c */,
+				23C34C1C10CC208200DABBD6 /* helloworld.wav */,
+				23C34C1D10CC208200DABBD6 /* Makefile.am */,
+				23C34C1E10CC208200DABBD6 /* Makefile.in */,
+				23C34C1F10CC208200DABBD6 /* README */,
+			);
+			name = "freealut source";
+			path = freealut/src;
 			sourceTree = "<group>";
 		};
 		23ECBDFB0E894CC5007B8D55 /* LibZip source */ = {
@@ -1826,6 +1917,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		23C34C0610CC206F00DABBD6 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C34C2510CC208200DABBD6 /* alutInternal.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		23ECBE350E894D1A007B8D55 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1860,6 +1959,23 @@
 			productName = memstats_test;
 			productReference = 237885401050248500195629 /* memstats_test */;
 			productType = "com.apple.product-type.tool";
+		};
+		23C34C0910CC206F00DABBD6 /* freealut */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 23C34C2B10CC208300DABBD6 /* Build configuration list for PBXNativeTarget "freealut" */;
+			buildPhases = (
+				23C34C0610CC206F00DABBD6 /* Headers */,
+				23C34C0710CC206F00DABBD6 /* Sources */,
+				23C34C0810CC206F00DABBD6 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = freealut;
+			productName = freealut;
+			productReference = 23C34C0A10CC206F00DABBD6 /* libfreealut.a */;
+			productType = "com.apple.product-type.library.static";
 		};
 		23ECBE380E894D1A007B8D55 /* LibZip */ = {
 			isa = PBXNativeTarget;
@@ -1909,6 +2025,7 @@
 			);
 			comments = "visit us at http://openlierox.sourceforge.net !";
 			dependencies = (
+				23C34C2D10CC20A000DABBD6 /* PBXTargetDependency */,
 				23ECBE790E894D97007B8D55 /* PBXTargetDependency */,
 				EAD99FC20C063F42003BE563 /* PBXTargetDependency */,
 			);
@@ -1929,6 +2046,7 @@
 			projectDirPath = "";
 			projectRoot = ../..;
 			targets = (
+				23C34C0910CC206F00DABBD6 /* freealut */,
 				23ECBE380E894D1A007B8D55 /* LibZip */,
 				EA430DD10BEFEA8900C6547E /* HawkNL */,
 				EAD99F600C063CA6003BE563 /* OpenLieroX */,
@@ -1967,6 +2085,23 @@
 			files = (
 				237885471050249900195629 /* memstats_test.cpp in Sources */,
 				237885761050369300195629 /* memstats.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		23C34C0710CC206F00DABBD6 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				23C34C2010CC208200DABBD6 /* alutBufferData.c in Sources */,
+				23C34C2110CC208200DABBD6 /* alutCodec.c in Sources */,
+				23C34C2210CC208200DABBD6 /* alutError.c in Sources */,
+				23C34C2310CC208200DABBD6 /* alutInit.c in Sources */,
+				23C34C2410CC208200DABBD6 /* alutInputStream.c in Sources */,
+				23C34C2610CC208200DABBD6 /* alutLoader.c in Sources */,
+				23C34C2710CC208200DABBD6 /* alutOutputStream.c in Sources */,
+				23C34C2810CC208200DABBD6 /* alutUtil.c in Sources */,
+				23C34C2910CC208200DABBD6 /* alutVersion.c in Sources */,
+				23C34C2A10CC208200DABBD6 /* alutWaveform.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2272,7 +2407,6 @@
 				23C34BD310CC1CAE00DABBD6 /* sfx.cpp in Sources */,
 				23C34BD410CC1CAE00DABBD6 /* sfxdriver.cpp in Sources */,
 				23C34BD510CC1CAE00DABBD6 /* sfxdriver_openal.cpp in Sources */,
-				23C34BD610CC1CAE00DABBD6 /* sound.cpp in Sources */,
 				23C34BD710CC1CAE00DABBD6 /* sound_sample.cpp in Sources */,
 				23C34BD810CC1CAE00DABBD6 /* sound_sample_openal.cpp in Sources */,
 			);
@@ -2281,6 +2415,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		23C34C2D10CC20A000DABBD6 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 23C34C0910CC206F00DABBD6 /* freealut */;
+			targetProxy = 23C34C2C10CC20A000DABBD6 /* PBXContainerItemProxy */;
+		};
 		23ECBE790E894D97007B8D55 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 23ECBE380E894D1A007B8D55 /* LibZip */;
@@ -2438,6 +2577,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2469,7 +2613,9 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
@@ -2564,6 +2710,11 @@
 			buildSettings = {
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2591,7 +2742,9 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
@@ -2689,6 +2842,11 @@
 			buildSettings = {
 				ARCHS = i386;
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2716,7 +2874,9 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
@@ -2798,6 +2958,62 @@
 			};
 			name = Release;
 		};
+		23C34C0B10CC207000DABBD6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/freealut/include",
+					"$(SRCROOT)/include",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+			};
+			name = Debug;
+		};
+		23C34C0C10CC207000DABBD6 /* Debug for ppc */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+			};
+			name = "Debug for ppc";
+		};
+		23C34C0D10CC207000DABBD6 /* Debug with Fuzzy S2C */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+			};
+			name = "Debug with Fuzzy S2C";
+		};
+		23C34C0E10CC207000DABBD6 /* Debug with Fuzzy C2S */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+			};
+			name = "Debug with Fuzzy C2S";
+		};
+		23C34C0F10CC207000DABBD6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PREBINDING = NO;
+				PRODUCT_NAME = freealut;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 		23ECBE3A0E894D1C007B8D55 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2859,6 +3075,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -2879,9 +3100,12 @@
 					"$(SRCROOT)/../../libs/coredumper/src",
 					"$(SRCROOT)/../../src/breakpad/external/src",
 					/usr/include/libxml2,
+					/usr/local/include,
 					/Library/Frameworks/SDL.framework/Headers,
 					/Library/Frameworks/SDL_image.framework/Headers,
 					/Library/Frameworks/GD.framework/Headers,
+					"$(SRCROOT)/include",
+					"$(SRCROOT)/freealut/include",
 				);
 				INFOPLIST_FILE = "OpenLieroX-Info.plist";
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2890,7 +3114,9 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				OTHER_CFLAGS = (
 					"-DMACOSX",
@@ -2917,6 +3143,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+				);
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)\"";
 				GCC_ENABLE_ASM_KEYWORD = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -2943,7 +3174,9 @@
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_1)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_2)",
 					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
+					"$(LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 				);
+				LIBRARY_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/build/Debug\"";
 				LINKER_DISPLAYS_MANGLED_NAMES = YES;
 				OTHER_LDFLAGS = (
 					"-lcrypto",
@@ -2983,6 +3216,18 @@
 				237885441050248700195629 /* Debug with Fuzzy S2C */,
 				237885451050248700195629 /* Debug with Fuzzy C2S */,
 				237885461050248700195629 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		23C34C2B10CC208300DABBD6 /* Build configuration list for PBXNativeTarget "freealut" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				23C34C0B10CC207000DABBD6 /* Debug */,
+				23C34C0C10CC207000DABBD6 /* Debug for ppc */,
+				23C34C0D10CC207000DABBD6 /* Debug with Fuzzy S2C */,
+				23C34C0E10CC207000DABBD6 /* Debug with Fuzzy C2S */,
+				23C34C0F10CC207000DABBD6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

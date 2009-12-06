@@ -5,7 +5,7 @@
 //#include "font.h"
 
 #ifndef DEDICATED_ONLY
-#include <allegro.h>
+#include "gusanos/allegro.h"
 #endif
 
 #include <list>

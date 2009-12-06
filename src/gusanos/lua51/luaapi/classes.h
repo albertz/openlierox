@@ -28,7 +28,7 @@ class Weapon;
 class PartType;
 class WeaponType;
 class Font;
-class Sound;
+class GusSound;
 class SpriteSet;
 
 namespace OmfgGUI
@@ -57,7 +57,7 @@ CLASSID(Weapon, 13);
 CLASSID(PartType, 14);
 CLASSID(WeaponType, 15);
 CLASSID(Font, 16);
-CLASSID(Sound, 17);
+CLASSID(GusSound, 17);
 CLASSID(SpriteSet, 18);
 CLASSID(OmfgGUI::Wnd, 19);
 CLASSID(OmfgGUI::List, 20);

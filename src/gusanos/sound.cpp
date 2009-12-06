@@ -15,30 +15,30 @@
 
 
 
-ResourceList<Sound> soundList;
-ResourceList<Sound> sound1DList;
+ResourceList<GusSound> soundList;
+ResourceList<GusSound> sound1DList;
 
-Sound::Sound():m_sound(0)
+GusSound::GusSound():m_sound(0)
 {
 	// actually it should have been passed as an argument
 	driver = sfx.getDriver();
 }
 
-Sound::~Sound()
+GusSound::~GusSound()
 {
 	delete m_sound;
 }
 
 
-bool Sound::load(std::string const& filename)
+bool GusSound::load(std::string const& filename)
 {	
-	//cout<<"Sound::load";
+	//cout<<"GusSound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;
-	m_sound = driver->load(filename);
+	m_sound = driver->load("gusanos/" + filename);
 	return ( m_sound->avail());
 }
 
-void Sound::play(float volume,float pitch, float volumeVariation, float pitchVariation)
+void GusSound::play(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
 	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
 			
@@ -46,7 +46,7 @@ void Sound::play(float volume,float pitch, float volumeVariation, float pitchVar
 	m_sound ->play(rndPitch,rndVolume );
 }
 
-void Sound::play1D(float volume,float pitch, float volumeVariation, float pitchVariation)
+void GusSound::play1D(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
 	float rndPitch = pitch + midrnd()*pitchVariation - pitchVariation / 2;
 			
@@ -54,13 +54,13 @@ void Sound::play1D(float volume,float pitch, float volumeVariation, float pitchV
 	m_sound ->play(rndPitch,rndVolume );
 }
 
-void Sound::play2D(const Vec& pos, float loudness, float pitch, float pitchVariation)
+void GusSound::play2D(const Vec& pos, float loudness, float pitch, float pitchVariation)
 {
 	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
 	m_sound ->play2D(pos,loudness, rndPitch );
 }
 
-void Sound::play2D(BaseObject* obj, float loudness, float pitch, float pitchVariation)
+void GusSound::play2D(BaseObject* obj, float loudness, float pitch, float pitchVariation)
 {
 	//cout<<"Play 2d(obj)"<<endl;
 	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
@@ -69,7 +69,7 @@ void Sound::play2D(BaseObject* obj, float loudness, float pitch, float pitchVari
 	
 }
 
-bool Sound::isValid()
+bool GusSound::isValid()
 {
 	if (m_obj && !m_obj->deleteMe)
 	{
@@ -78,7 +78,7 @@ bool Sound::isValid()
 	return false;
 }
 
-void Sound::updateObjSound()
+void GusSound::updateObjSound()
 {
 	Vec v(m_obj->pos.x, m_obj->pos.y);
 	return m_sound->updateObjSound(v);

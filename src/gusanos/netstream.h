@@ -169,6 +169,7 @@ enum Net_ProcessType { eNet_NoBlock };
 struct Net_Address;
 
 struct Net_Control {
+	virtual ~Net_Control() {}
 	void Net_Connect(const Net_Address&, void*);
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);

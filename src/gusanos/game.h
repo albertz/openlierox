@@ -33,7 +33,7 @@ class Explosion;
 class Net_BitStream;
 struct LuaEventDef;
 #ifndef DEDICATED_ONLY
-class Sound;
+class GusSound;
 class Font;
 #endif
 
@@ -232,7 +232,7 @@ public:
 	std::string const& getDefaultPath();
 
 #ifndef DEDICATED_ONLY
-	Sound* chatSound;
+	GusSound* chatSound;
 	Font *infoFont;
 #endif
 	std::list<ScreenMessage> messages;

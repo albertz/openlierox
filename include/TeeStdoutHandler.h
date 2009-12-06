@@ -14,7 +14,7 @@
 
 void teeStdoutInit();
 void teeStdoutFile(const std::string& absfilename);
-void teeStdoutQuit();
+void teeStdoutQuit(bool wait = true);
 
 const char* GetLogFilename();
 

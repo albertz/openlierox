@@ -7,7 +7,7 @@
 // PROJECT INCLUDES
 //
 #include "bindings.h"
-#include "../util/text.h"
+#include "util/text.h"
 #include "variables.h"
 #include "command.h"
 

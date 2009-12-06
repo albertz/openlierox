@@ -1,26 +1,29 @@
 #ifndef DEDICATED_ONLY
 
-#include "gconsole.h"
-#include "base_object.h"
-#include "util/macros.h"
-#include "sfxdriver_openal.h"
-#include "sound_sample_openal.h"
-
-#include <boost/assign/list_inserter.hpp>
-using namespace boost::assign;
-
 #include <vector>
 #include <list>
 #include <AL/al.h>
 #include <AL/alut.h>
 #include <boost/utility.hpp>
 
+#include "Debug.h"
+
+#include "gusanos/gconsole.h"
+#include "gusanos/base_object.h"
+#include "util/macros.h"
+#include "sfxdriver_openal.h"
+#include "sound_sample_openal.h"
+#include "sound_sample.h"
+
+#include <boost/assign/list_inserter.hpp>
+using namespace boost::assign;
+
 using namespace std;
 
 
 namespace
 {
-	std::list< Sound* > chanObject;
+	std::list< GusSound* > chanObject;
 }
 
 
@@ -29,7 +32,7 @@ bool SfxDriverOpenAL::init()
 	ALboolean init=alutInit(NULL,NULL);
 	if (init==AL_FALSE) 
 	{
-	   cerr<<"Sound: ALUT error: "<<alutGetErrorString (alutGetError ())<<endl;;
+	   errors<<"Sound: ALUT error: "<<alutGetErrorString (alutGetError ())<<endl;;
 	   return false;
 	}
 	volumeChange();
@@ -74,7 +77,7 @@ void SfxDriverOpenAL::think()
 
 }
 
-void SfxDriverOpenAL::setChanObject(Sound* sound)
+void SfxDriverOpenAL::setChanObject(GusSound* sound)
 {
 	chanObject.push_back( sound );
 }
@@ -87,7 +90,7 @@ void SfxDriverOpenAL::clear()
 
 void SfxDriverOpenAL::volumeChange()
 {
-	cerr<<"SfxDriverOpenAL::volumeChange()"<<endl;
+	notes<<"SfxDriverOpenAL::volumeChange()"<<endl;
 	//multi listeners are not supported in OpenAL
 	alListenerf(AL_GAIN,(float)m_volume/MAX_VOLUME);
 }

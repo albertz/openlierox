@@ -2,7 +2,7 @@
 #define VARIABLES_H
 
 #include "consoleitem.h"
-#include "../util/text.h"
+#include "util/text.h"
 #include <boost/function.hpp>
 //#include <boost/lexical_cast.hpp>
 //using boost::lexical_cast;

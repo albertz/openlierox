@@ -632,7 +632,7 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	assert(ftC < 256*256);
 	CBytestream bs1;
 	int sendCount = 0;
-	foreach( Feature*, f, Array(featureArray,ftC) )
+	for_each_iterator( Feature*, f, Array(featureArray,ftC) )
 	{
 		if( f->get()->group < GIG_GameModeSpecific_Start ||
 			f->get()->group == cServer->getGameMode()->getGameInfoGroupInOptions() )

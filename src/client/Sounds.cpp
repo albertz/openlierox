@@ -33,6 +33,8 @@
 #include "Options.h"
 #include "FindFile.h"
 
+#include "sound/sfx.h"
+#include "sound/sfxdriver.h"
 
 
 ///////////////////
@@ -91,85 +93,56 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
 
 #else // not DEDICATED_ONLY
 
+static bool SoundSystemAvailable = false;
+
 ///////////////////
 // Load a sample and cache it
-SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays);
 
 SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying)
 {
 	if(bDedicated) return NULL;
+	if(!SoundSystemAvailable) return NULL;
 	
 	// Try cache first
 	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
 	if (SampleCached.get())
 		return SampleCached;
 
-	SmartPointer<SoundSample> Sample;
+	if(_filename.size() > 0 && IsFileAvailable(_filename)) {
+		SmartPointer<SoundSample> Sample = sfx.getDriver()->load(_filename);
+		
+		// Save to cache
+		if(Sample.get())
+			cCache.SaveSound(_filename, Sample);
+		
+		return Sample;
 
-	std::string fullfname = GetFullFileName(_filename);
-	if(fullfname.size() == 0 || !IsFileAvailable(fullfname, true))
-		return NULL;
-
-	// Load the sample
-	Sample = LoadSoundSample(fullfname, maxplaying);
-	if( Sample.get() == NULL )
-		return NULL;
+	}
 	
-	// Save to cache
-	cCache.SaveSound(_filename, Sample);
-	return Sample;
+	return NULL;
 }
 
-
-static bool SoundSystemAvailable = false;
 
 bool InitSoundSystem(int rate, int channels, int buffers) {
 	if(SoundSystemAvailable) return true;
 	SoundSystemAvailable = false;
 
 	if(bDedicated) return false;
-	
-	if(getenv("SDL_AUDIODRIVER"))
-		notes << "SDL_AUDIODRIVER=" << getenv("SDL_AUDIODRIVER") << endl;
-#if defined(__linux__)
-	if(!getenv("SDL_AUDIODRIVER")) {
-		notes << "SDL_AUDIODRIVER not set, setting to ALSA" << endl;
-		putenv((char*)"SDL_AUDIODRIVER=alsa");
-	}
-#endif
 
 initSoundSystem:
 
-	// HINT: other SDL stuff is already inited, we don't care here
-	if( SDL_InitSubSystem(SDL_INIT_AUDIO) != 0 ) {
-		warnings << "InitSoundSystem: Unable to initialize SDL-sound: " << SDL_GetError() << endl;
-		if(getenv("SDL_AUDIODRIVER")) {
-			notes << "trying again with SDL_AUDIODRIVER unset" << endl;
-			unsetenv("SDL_AUDIODRIVER");
-			goto initSoundSystem;
-		} else
-			return false;
+	// TODO openal
+	if(!sfx.init()) {
+		errors << "InitSoundSystem failed" << endl;
+		return false;
 	}
-
-	if(Mix_OpenAudio(rate, AUDIO_S16, channels, buffers)) {
-		warnings << "InitSoundSystem: Unable to open audio (SDL_mixer): " << Mix_GetError() << endl;
-		if(getenv("SDL_AUDIODRIVER")) {
-			notes << "trying again with SDL_AUDIODRIVER unset" << endl;
-			unsetenv("SDL_AUDIODRIVER");
-			goto initSoundSystem;
-		} else
-			return false;
-	}
-
-	int allocChanNum = Mix_AllocateChannels(1000); // TODO: enough?
-
+	
 	SoundSystemAvailable = true;
-	notes << "SoundSystem initialised, " << allocChanNum << " channels allocated" << endl;
+	notes << "SoundSystem initialised" << endl;
 	return true;
 }
 
 static bool SoundSystemStarted = false;
-static int SoundSystemVolume = 100;
 
 bool StartSoundSystem() {
 	if(!SoundSystemAvailable) return false;
@@ -185,7 +158,8 @@ bool StopSoundSystem() {
 
 	// TODO: this is only a workaround
 	SoundSystemStarted = false;
-	Mix_Volume(-1, 0);
+	if(SoundSystemAvailable)
+		sfx.getDriver()->setVolume(0);
 	return true;
 }
 
@@ -194,12 +168,7 @@ bool SetSoundVolume(int vol) {
 	if(!SoundSystemAvailable) return false;
 
 	if(SoundSystemStarted) {
-		SoundSystemVolume = vol;
-
-		// The volume to use from 0 to MIX_MAX_VOLUME(128).
-		float tmp = (float)MIX_MAX_VOLUME*(float)vol/100.0f;
-		Mix_Volume(-1, Round(tmp));
-
+		sfx.getDriver()->setVolume(float(vol) / 100.0f);
 		return true;
 	}
 
@@ -209,44 +178,15 @@ bool SetSoundVolume(int vol) {
 int GetSoundVolume()  {
 	if(!SoundSystemAvailable) return 0;
 
-	return SoundSystemVolume;
+	return Round(sfx.getDriver()->volume() * 100);
 }
 
-bool QuitSoundSystem() {
-#if SDLMIXER_WORKAROUND_RESTART == 1
-	if(bRestartGameAfterQuit) {
-		warnings << "You are using an old version of SDL_mixer. You should at least use 1.2.8.\n";
-		warnings << "There is a known bug in 1.2.7, therefore we cannot restart the sound-system and we will leave it running at this point." << endl;
-		// HINT: in ShutdownAuxLib, SDL_Quit will exclude the quitting of audio
-		return false;
-	}
-#endif
-
+bool QuitSoundSystem() {	
 	if(!SoundSystemAvailable) return false;
 	SoundSystemAvailable = false;
 
-	Mix_CloseAudio();
+	sfx.shutDown();
 	return true;
-}
-
-SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays) {
-	if(!SoundSystemAvailable) return NULL;
-
-	if(filename.size() > 0) {
-		Mix_Chunk* sample = Mix_LoadWAV(Utf8ToSystemNative(filename).c_str());
-
-		if(!sample) {
-			notes << "LoadSoundSample: Error while loading " << filename << ": " << Mix_GetError() << endl;
-			return NULL;
-		}
-
-		SoundSample* ret = new SoundSample;
-		ret->sample = sample;
-		ret->maxsimulplays = maxsimulplays;
-		return ret;
-
-	} else
-		return NULL;
 }
 
 bool FreeSoundSample(SoundSample* sample) {
@@ -256,11 +196,7 @@ bool FreeSoundSample(SoundSample* sample) {
 	// no sample, so we are ready
 	if(!sample) return true;
 
-	if(sample->sample) {
-		Mix_FreeChunk(sample->sample);
-		sample->sample = NULL;
-	}
-
+	// the destructor will free the internal sfxdriver dependend buffer
 	delete sample;
 	return true;
 }
@@ -268,10 +204,11 @@ bool FreeSoundSample(SoundSample* sample) {
 bool PlaySoundSample(SoundSample* sample) {
 	if(!SoundSystemAvailable || !SoundSystemStarted) return false;
 
-	if(sample == NULL || sample->sample == NULL)
+	if(sample == NULL)
 		return false;
 	
-	return Mix_PlayChannel(-1, sample->sample, 0) >= 0;
+	sample->play(0, 1.0f);
+	return true;
 }
 
 

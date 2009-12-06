@@ -1781,7 +1781,7 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
 	
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
 			if(ver < f->get()->minVersion) {
 				if(incompReason)

@@ -1,9 +1,9 @@
 #ifndef DEDICATED_ONLY
 
 #include "sound_sample_openal.h"
-#include "resource_list.h"
-#include "base_object.h"
-#include "allegro.h"
+#include "gusanos/resource_list.h"
+#include "gusanos/base_object.h"
+#include "gusanos/allegro.h"
 
 #ifdef __APPLE__
 #ifndef __MACOSX__
@@ -43,7 +43,7 @@ void LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, ALsizei
     FILE *f;
 
     // Open for binary reading
-    f = gusOpenGameFile(fileName, "rb");
+    f = OpenGameFile(fileName, "rb");
 
     if (f == NULL)
         {

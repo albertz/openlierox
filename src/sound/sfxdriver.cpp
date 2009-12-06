@@ -1,8 +1,9 @@
 #ifndef DEDICATED_ONLY
 
-#include "gconsole.h"
+#include "gusanos/gconsole.h"
 #include "util/macros.h"
 #include "sfxdriver.h"
+#include "MathLib.h"
 
 #include <vector>
 
@@ -31,7 +32,7 @@ void SfxDriver::registerInConsole()
 {
 //aaaaaaa
 	console.registerVariables()
-			("SFX_VOLUME", &m_volume, MAX_VOLUME , volume)
+			("SFX_VOLUME", &m_volume, MAX_VOLUME , update_volume)
 			("SFX_LISTENER_DISTANCE", &m_listenerDistance, 20)
 		;
 		
@@ -40,5 +41,13 @@ void SfxDriver::registerInConsole()
 
 }
 
+void SfxDriver::setVolume(float val) {
+	m_volume = Round(val * MAX_VOLUME);
+	volumeChange();
+}
+
+float SfxDriver::volume() const {
+	return float(m_volume) / MAX_VOLUME;
+}
 
 #endif
