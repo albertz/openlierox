@@ -204,7 +204,6 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
 static void dumpUsedColors(SDL_Surface* surf);
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
-	notes << "load " << filename << endl;
 	std::string fullfilename = GetFullFileName(std::string("gusanos/") + filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
