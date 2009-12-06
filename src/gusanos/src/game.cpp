@@ -687,12 +687,12 @@ void Game::loadWeapons()
 	{		
 		for( Iterator<std::string>::Ref iter = gusFileListIter(path); iter->isValid(); iter->next())
 		{
-			if( gusExistsFile(iter->get()) )
+			if( gusExistsFile(path + "/" + iter->get()) )
 			{
 				if ( fs::extension(iter->get()) == ".wpn")
 				{
 					WeaponType* weapon = new WeaponType;
-					weapon->load(iter->get());
+					weapon->load(path + "/" + iter->get());
 					weaponList.push_back(weapon);
 				}
 			}
