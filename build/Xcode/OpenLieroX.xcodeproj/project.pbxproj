@@ -337,6 +337,7 @@
 		23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCF10CC57FB00DABBD6 /* xml.cpp */; };
 		23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FD210CC57FB00DABBD6 /* bindings-gui.cpp */; };
 		23C3500510CC590A00DABBD6 /* menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3500310CC590A00DABBD6 /* menu.cpp */; };
+		23C3506D10CC63DB00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3506B10CC63DB00DABBD6 /* vermes.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -491,7 +492,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 23C34C0910CC206F00DABBD6 /* freealut */;
+			remoteGlobalIDString = 23C34C0910CC206F00DABBD6;
 			remoteInfo = freealut;
 		};
 		23ECBE780E894D97007B8D55 /* PBXContainerItemProxy */ = {
@@ -1186,6 +1187,8 @@
 		23C34FD510CC57FB00DABBD6 /* omfggui_windows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = omfggui_windows.h; sourceTree = "<group>"; };
 		23C3500310CC590A00DABBD6 /* menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menu.cpp; sourceTree = "<group>"; };
 		23C3500410CC590A00DABBD6 /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = menu.h; sourceTree = "<group>"; };
+		23C3506B10CC63DB00DABBD6 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
+		23C3506C10CC63DB00DABBD6 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1895,6 +1898,8 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				23C3506B10CC63DB00DABBD6 /* vermes.cpp */,
+				23C3506C10CC63DB00DABBD6 /* vermes.h */,
 				23C3500310CC590A00DABBD6 /* menu.cpp */,
 				23C3500410CC590A00DABBD6 /* menu.h */,
 				23C34FB610CC57FA00DABBD6 /* gui */,
@@ -3339,6 +3344,7 @@
 				23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */,
 				23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */,
 				23C3500510CC590A00DABBD6 /* menu.cpp in Sources */,
+				23C3506D10CC63DB00DABBD6 /* vermes.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

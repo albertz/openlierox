@@ -27,7 +27,6 @@
 #include "font.h"
 #include "menu.h"
 #include "keyboard.h"
-#include "mouse.h"
 #include "player_input.h"
 #include "viewport.h"
 #endif //DEDICATED_ONLY
@@ -404,7 +403,7 @@ void Game::parseCommandLine(int argc, char** argv)
 	}
 }
 
-bool Game::init(int argc, char** argv)
+bool Game::init()
 {
 	if(!allegro_init()) return false;
 
@@ -459,7 +458,7 @@ bool Game::init(int argc, char** argv)
 	console.executeConfig("config-ded.cfg");
 #endif
 
-	parseCommandLine(argc, argv);
+	//parseCommandLine(argc, argv);
 	
 	gfx.init();
 #ifndef DEDICATED_ONLY

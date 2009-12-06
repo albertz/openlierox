@@ -156,7 +156,6 @@ bool VermesLevelLoader::load(Level* level, std::string const& path)
 			
 			std::string lightmapPath = path + "/lightmap";
 		
-		//	level->lightmap = gfx.loadBitmap(lightmapPath.c_str());
 			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
 			
 			if ( tempLightmap )

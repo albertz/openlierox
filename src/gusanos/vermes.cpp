@@ -12,9 +12,8 @@
 #include "worm.h"
 #include "player.h"
 #include "util/macros.h"
-//#include "util/log.h"
+
 #ifndef DEDICATED_ONLY
-#include "mouse.h"
 #include "viewport.h"
 #include "font.h"
 #include "gfx.h"
@@ -32,13 +31,7 @@
 #include "glua.h"
 #include "lua51/luaapi/context.h"
 #include "util/log.h"
-#include "http/http.h"
 #include <memory>
-
-#ifdef WINDOWS
-	#include <winalleg.h>
-#endif
-
 #include <string>
 #include <vector>
 
@@ -49,43 +42,32 @@
 using namespace std;
 
 bool quit = false;
-int showFps;
-int showDebug;
+int showFps = 1;
+int showDebug = 0;
+
+static unsigned int fpsLast = 0;
+static int fpsCount = 0;
+static int fps = 0;
+static unsigned int logicLast = 0;
 
 
-void exit()
-{
-	quit = true;
-	network.disconnect();
-}
-
-string exitCmd(list<string> const& args)
-{
-	exit();
-	return "";
-}
-
-void setBinaryDirAndName(char* argv0);
-
-int main(int argc, char **argv)
-try
-{
-	setBinaryDirAndName(argv[0]);
+bool gusInit() {
+	quit = false;
+	fpsLast = 0;
+	fpsCount = 0;
+	fps = 0;
+	logicLast = 0;
 	
 	console.registerVariables()
-		("CL_SHOWFPS", &showFps, 1) 
-		("CL_SHOWDEBUG", &showDebug, 0)
+	("CL_SHOWFPS", &showFps, 1) 
+	("CL_SHOWDEBUG", &showDebug, 0)
 	;
 	
-	if(!game.init(argc, argv))
-		return 1;
-
-	console.registerCommands()
-		("QUIT", exitCmd)
-	;
+	if(!game.init())
+		return false;
 	
 	console.parseLine("BIND F12 SCREENSHOT");
-
+	
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
@@ -93,272 +75,262 @@ try
 	game.reloadModWithoutMap();
 	//game.runInitScripts();
 	
-	unsigned int fpsLast = 0;
-	int fpsCount = 0;
-	int fps = 0;
-	unsigned int logicLast = 0;
-	
+	// TODO: check bDedicated instead
 #ifndef DEDICATED_ONLY
 	console.executeConfig("autoexec.cfg");
 #else
 	console.executeConfig("autoexec-ded.cfg");
 #endif
+	
+	return true;
+}
 
-	//main game loop
-	while (!quit || !network.isDisconnected())
+bool gusCanRunFrame() {
+	return !quit || !network.isDisconnected();
+}
+
+//main game loop frame of Gusanos
+void gusFrame() {
+	Uint32 timer = SDL_GetTicks() / 10;
+	
+	while ( logicLast + 1 <= timer )
 	{
-		Uint32 timer = SDL_GetTicks() / 10;
 		
-		while ( logicLast + 1 <= timer )
+#ifdef USE_GRID
+		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 		{
-			
-#ifdef USE_GRID
-			for ( Grid::iterator iter = game.objects.beginAll(); iter;)
-			{
-				if(iter->deleteMe)
-					iter.erase();
-				else
-					++iter;
-			}
-#else
-			for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
-			{
-				if ( (*iter)->deleteMe )
-				{
-					ObjectsList::Iterator tmp = iter;
-					++iter;
-					delete *tmp;
-					game.objects.erase(tmp);
-				}
-				else
-					++iter;
-			}
-#endif
-			
-			if ( game.isLoaded() && game.level.isLoaded() )
-			{
-				
-#ifdef USE_GRID
-				
-				for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
-				{
-					iter->think();
-					game.objects.relocateIfNecessary(iter);
-				}
-				
-				game.objects.flush(); // Insert all new objects
-#else
-				for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
-				{
-					(*iter)->think();
-				}
-#endif
-				
-				for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
-				{
-					(*iter)->think();
-				}
-			}
-			
-			game.think();
-			updater.think(); // TODO: Move?
-			
-#ifndef DEDICATED_ONLY
-			sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
-#endif
-			
-			//for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end();)
-			foreach_delete(iter, game.players)
-			{
-				if ( (*iter)->deleteMe )
-				{
-/* Done in deleteThis()
-#ifdef USE_GRID
-					for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter)
-					{
-						objIter->removeRefsToPlayer(*iter);
-					}
-#else
-					for ( ObjectsList::Iterator objIter = game.objects.begin(); (bool)objIter; ++objIter)
-					{
-						(*objIter)->removeRefsToPlayer(*iter);
-					}
-#endif
-*/
-					if ( Player* player = dynamic_cast<Player*>(*iter) )
-					{
-						foreach ( p, game.localPlayers )
-						{
-							if ( player == *p )
-							{
-								game.localPlayers.erase(p);
-								break;
-							}
-						}
-					}
-/*
-					(*iter)->removeWorm();
-*/
-					(*iter)->deleteThis();
-					game.players.erase(iter);
-				}
-			}
-
-			network.update();
-
-#ifndef DEDICATED_ONLY
-			console.checkInput();
-			mouseHandler.poll();
-#endif
-			console.think();
-			
-			spriteList.think();
-			
-			EACH_CALLBACK(i, afterUpdate)
-			{
-				(lua.call(*i))();
-			}
-			
-			++logicLast;
+			if(iter->deleteMe)
+				iter.erase();
+			else
+				++iter;
 		}
+#else
+		for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
+		{
+			if ( (*iter)->deleteMe )
+			{
+				ObjectsList::Iterator tmp = iter;
+				++iter;
+				delete *tmp;
+				game.objects.erase(tmp);
+			}
+			else
+				++iter;
+		}
+#endif
 		
-#ifdef WINDOWS
-		Sleep(0);
-#else
-#ifndef DEDICATED_ONLY
-		rest(0);
-#else
-		rest(2);
-#endif
-#endif
-
-#ifndef DEDICATED_ONLY
-		//Update FPS
-		if (fpsLast + 100 <= timer)
-		{
-			fps = fpsCount;
-			fpsCount = 0;
-			fpsLast = timer;
-			
-			//console.addLogMsg(cast<string>(fps));
-		}
-
-
 		if ( game.isLoaded() && game.level.isLoaded() )
 		{
-
+			
+#ifdef USE_GRID
+			
+			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
+			{
+				iter->think();
+				game.objects.relocateIfNecessary(iter);
+			}
+			
+			game.objects.flush(); // Insert all new objects
+#else
+			for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
+			{
+				(*iter)->think();
+			}
+#endif
+			
 			for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{
-				(*iter)->render();
-			}
-
-			//debug info
-			if (showDebug)
-			{
-				game.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(game.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
-				game.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
-				game.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
-				game.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);
-			}
-						
-			int miny = 150;
-			int maxw = 160;
-			int y = 235;
-			int w = 0;
-			
-			std::list<ScreenMessage>::reverse_iterator rmsgiter = game.messages.rbegin();
-			
-			for(;
-		    rmsgiter != game.messages.rend() && y > miny;
-		    ++rmsgiter)
-			{
-				ScreenMessage const& msg = *rmsgiter;
-				
-				string::const_iterator b = msg.str.begin(), e = msg.str.end(), n;
-				
-				do
-				{
-					pair<int, int> dim;
-					n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
-					if(n == b)
-						break;
-					b = n;
-					y -= dim.second;
-					
-					if(dim.first > w)
-						w = dim.first;
-				}
-				while(b != e);
-			}
-			
-			//rectfill_blend(gfx.buffer, 3, y-2, 3+w+5, 237, 0, 130);
-			
-			for(std::list<ScreenMessage>::iterator msgiter = rmsgiter.base();
-			    msgiter != game.messages.end();
-			    ++msgiter)
-			{
-				ScreenMessage const& msg = *msgiter;
-				
-				string::const_iterator b = msg.str.begin(), e = msg.str.end(), n;
-				
-				int fact = 255;
-				if(msg.timeOut < 100)
-					fact = msg.timeOut * 255 / 100;
-				
-				Font::CharFormatting format;
-				switch(msg.type)
-				{
-					case ScreenMessage::Chat:
-						format.cur.color = Font::Color(255, 255, 255);
-					break;
-					
-					case ScreenMessage::Death:
-						format.cur.color = Font::Color(200, 255, 200);
-					break;
-				}
-				
-				do
-				{
-					pair<int, int> dim;
-					n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
-					if(n == b)
-						break;
-					game.infoFont->draw(gfx.buffer, b, n, 5, y, format, 0, fact, Font::Formatting | Font::Shadow);
-					y += dim.second;
-					
-					b = n;
-				}
-				while(b != e);
+				(*iter)->think();
 			}
 		}
-		else
-		{
-			clear_bitmap(gfx.buffer);
-		}
-
-		//show fps
-		if (showFps)
-		{
-			game.infoFont->draw(gfx.buffer, "FPS: \01303" + cast<string>(fps), 5, 5, 0, 255, 255, 255, 255, Font::Formatting);
-		}
-		fpsCount++;
 		
-		if(quit)
-			game.infoFont->draw(gfx.buffer, "Quitting...", 15, 110, 0, 255, 255, 255, 255);
-
-		OmfgGUI::menu.render();
-		console.render(gfx.buffer);
-
-		EACH_CALLBACK(i, afterRender)
+		game.think();
+		updater.think(); // TODO: Move?
+		
+#ifndef DEDICATED_ONLY
+		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
+#endif
+		
+		//for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end();)
+		foreach_delete(iter, game.players)
 		{
-			//lua.callReference(*i);
+			if ( (*iter)->deleteMe )
+			{
+/* Done in deleteThis()
+#ifdef USE_GRID
+				for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter)
+				{
+					objIter->removeRefsToPlayer(*iter);
+				}
+#else
+				for ( ObjectsList::Iterator objIter = game.objects.begin(); (bool)objIter; ++objIter)
+				{
+					(*objIter)->removeRefsToPlayer(*iter);
+				}
+#endif
+*/
+				if ( Player* player = dynamic_cast<Player*>(*iter) )
+				{
+					foreach ( p, game.localPlayers )
+					{
+						if ( player == *p )
+						{
+							game.localPlayers.erase(p);
+							break;
+						}
+					}
+				}
+/*
+				(*iter)->removeWorm();
+*/
+				(*iter)->deleteThis();
+				game.players.erase(iter);
+			}
+		}
+
+		network.update();
+
+#ifndef DEDICATED_ONLY
+		console.checkInput();
+#endif
+		console.think();
+		
+		spriteList.think();
+		
+		EACH_CALLBACK(i, afterUpdate)
+		{
 			(lua.call(*i))();
 		}
 		
-		gfx.updateScreen();
-#endif
+		++logicLast;
 	}
 	
+#ifndef DEDICATED_ONLY
+	//Update FPS
+	if (fpsLast + 100 <= timer)
+	{
+		fps = fpsCount;
+		fpsCount = 0;
+		fpsLast = timer;
+	}
+
+
+	if ( game.isLoaded() && game.level.isLoaded() )
+	{
+
+		for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+		{
+			(*iter)->render();
+		}
+
+		//debug info
+		if (showDebug)
+		{
+			game.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(game.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
+			game.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
+			game.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
+			game.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);
+		}
+					
+		int miny = 150;
+		int maxw = 160;
+		int y = 235;
+		int w = 0;
+		
+		std::list<ScreenMessage>::reverse_iterator rmsgiter = game.messages.rbegin();
+		
+		for(;
+		rmsgiter != game.messages.rend() && y > miny;
+		++rmsgiter)
+		{
+			ScreenMessage const& msg = *rmsgiter;
+			
+			string::const_iterator b = msg.str.begin(), e = msg.str.end(), n;
+			
+			do
+			{
+				pair<int, int> dim;
+				n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
+				if(n == b)
+					break;
+				b = n;
+				y -= dim.second;
+				
+				if(dim.first > w)
+					w = dim.first;
+			}
+			while(b != e);
+		}
+		
+		//rectfill_blend(gfx.buffer, 3, y-2, 3+w+5, 237, 0, 130);
+		
+		for(std::list<ScreenMessage>::iterator msgiter = rmsgiter.base();
+			msgiter != game.messages.end();
+			++msgiter)
+		{
+			ScreenMessage const& msg = *msgiter;
+			
+			string::const_iterator b = msg.str.begin(), e = msg.str.end(), n;
+			
+			int fact = 255;
+			if(msg.timeOut < 100)
+				fact = msg.timeOut * 255 / 100;
+			
+			Font::CharFormatting format;
+			switch(msg.type)
+			{
+				case ScreenMessage::Chat:
+					format.cur.color = Font::Color(255, 255, 255);
+				break;
+				
+				case ScreenMessage::Death:
+					format.cur.color = Font::Color(200, 255, 200);
+				break;
+			}
+			
+			do
+			{
+				pair<int, int> dim;
+				n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
+				if(n == b)
+					break;
+				game.infoFont->draw(gfx.buffer, b, n, 5, y, format, 0, fact, Font::Formatting | Font::Shadow);
+				y += dim.second;
+				
+				b = n;
+			}
+			while(b != e);
+		}
+	}
+	else
+	{
+		clear_bitmap(gfx.buffer);
+	}
+
+	//show fps
+	if (showFps)
+	{
+		game.infoFont->draw(gfx.buffer, "FPS: \01303" + cast<string>(fps), 5, 5, 0, 255, 255, 255, 255, Font::Formatting);
+	}
+	fpsCount++;
+	
+	if(quit)
+		game.infoFont->draw(gfx.buffer, "Quitting...", 15, 110, 0, 255, 255, 255, 255);
+
+	OmfgGUI::menu.render();
+	console.render(gfx.buffer);
+
+	EACH_CALLBACK(i, afterRender)
+	{
+		//lua.callReference(*i);
+		(lua.call(*i))();
+	}
+	
+	gfx.updateScreen();
+#endif
+}
+
+void gusQuit() {
 	//network.disconnect(); // If we haven't already, it's too late
 	network.shutDown();
 	game.unload();
@@ -373,19 +345,5 @@ try
 	lua.close();
 
 	allegro_exit();
-
-	return(0);
 }
-catch(std::exception& e)
-{
-	std::cerr << "Unhandled exception: " << e.what() << '\n';
-	return -1;
-}
-catch(...)
-{
-	std::cerr << "Unknown unhandled exception\n";
-	return -1;
-}
-//Control reaches end of non-void function
-END_OF_MAIN();
 

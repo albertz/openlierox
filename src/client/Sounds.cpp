@@ -103,17 +103,22 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	if(bDedicated) return NULL;
 	if(!SoundSystemAvailable) return NULL;
 	
+	if(_filename.size() == 0) return NULL;
+	
 	// Try cache first
 	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
 	if (SampleCached.get())
 		return SampleCached;
 
-	if(_filename.size() > 0 && IsFileAvailable(_filename)) {
-		SmartPointer<SoundSample> Sample = sfx.getDriver()->load(_filename);
+	std::string fullfilename = GetFullFileName(_filename);
+	if(fullfilename.size() > 0) {
+		SmartPointer<SoundSample> Sample = sfx.getDriver()->load(fullfilename);
 		
 		// Save to cache
 		if(Sample.get())
 			cCache.SaveSound(_filename, Sample);
+		else
+			notes << "LoadSample: cannot load " << _filename << endl;
 		
 		return Sample;
 

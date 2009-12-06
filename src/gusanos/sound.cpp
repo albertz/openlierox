@@ -34,7 +34,7 @@ bool Sound::load(std::string const& filename)
 {	
 	//cout<<"Sound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;
-	m_sound = driver->load("gusanos/" + filename);
+	m_sound = driver->load(filename);
 	return ( m_sound->avail());
 }
 
