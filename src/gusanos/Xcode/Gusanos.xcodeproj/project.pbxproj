@@ -974,7 +974,6 @@
 				23C34AF510CBC8E200DABBD6 /* sprite.h */,
 				23C34AF610CBC8E200DABBD6 /* sprite_set.cpp */,
 				23C34AF710CBC8E200DABBD6 /* sprite_set.h */,
-				23C34AF810CBC8E200DABBD6 /* src */,
 				23C34AF910CBC8E200DABBD6 /* stl_str_replicator.cpp */,
 				23C34AFA10CBC8E200DABBD6 /* stl_str_replicator.h */,
 				23C34AFB10CBC8E200DABBD6 /* timer_event.cpp */,
@@ -1433,13 +1432,6 @@
 				23C34AC910CBC8E200DABBD6 /* omfg_script_parser.pg */,
 			);
 			path = omfgscript;
-			sourceTree = "<group>";
-		};
-		23C34AF810CBC8E200DABBD6 /* src */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 		23C34AFF10CBC8E200DABBD6 /* util */ = {
