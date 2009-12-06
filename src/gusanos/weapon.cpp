@@ -159,7 +159,7 @@ void Weapon::think( bool isFocused, size_t index )
 	}
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void Weapon::drawBottom(BITMAP* where, int x, int y )
 {
 	if ( m_type->laserSightIntensity > 0 ) {

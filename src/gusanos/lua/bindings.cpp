@@ -1,7 +1,7 @@
 #include "bindings.h"
 #include "FindFile.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../gui/lua/bindings-gui.h"
 #endif
 #include "bindings-math.h"
@@ -24,7 +24,7 @@
 
 #include "../gconsole.h"
 #include "../vermes.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../keys.h"
 #include "../menu.h"
 #include "../blitters/context.h"
@@ -253,7 +253,7 @@ int l_quit(lua_State* L)
 	return 0;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 int l_clear_keybuf(lua_State* L)
 {
 	clear_keybuf();
@@ -564,7 +564,7 @@ void init()
 	LuaContext& context = lua;
 	
 	initMath();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	initGUI(OmfgGUI::menu, context);
 #endif
 	initNetwork(context);
@@ -582,7 +582,7 @@ void init()
 		//("dump", l_dump)
 		//("undump", l_undump)
 		("fetch_server_list", l_fetch_server_list)
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		("clear_keybuf", l_clear_keybuf)
 		("key_name", l_key_name)
 #endif
@@ -625,15 +625,15 @@ void init()
 
 	lua_rawset(context, LUA_GLOBALSINDEX);
 
-	lua_pushstring(context, "DEDSERV");
-#ifdef DEDSERV
+	lua_pushstring(context, "DEDICATED_ONLY");
+#ifdef DEDICATED_ONLY
 	lua_pushboolean(context, 1);
 #else
 	lua_pushboolean(context, 0);
 #endif
 	lua_rawset(context, LUA_GLOBALSINDEX);
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	lua_newtable(context); // Key table
 	for(size_t i = 0; i < keyNames.size(); ++i)
 	{

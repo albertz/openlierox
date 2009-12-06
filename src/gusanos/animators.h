@@ -1,9 +1,9 @@
 #ifndef ANIMATORS_H
 #define ANIMATORS_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 #include "base_animator.h"
 

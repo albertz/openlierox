@@ -4,7 +4,7 @@
 #include "base_player.h"
 #include <string>
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class Viewport;
 struct BITMAP;
 #endif
@@ -31,7 +31,7 @@ public:
 	~Player();
 	
 	void subThink();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void render();
 
 	void assignViewport(Viewport* Viewport);
@@ -47,7 +47,7 @@ private:
 	bool jumping;
 	bool walkingLeft;
 	bool walkingRight;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Viewport* m_viewport;
 #endif
 };

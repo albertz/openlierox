@@ -16,7 +16,7 @@ void ProxyPlayer::subThink()
 {
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void ProxyPlayer::render()
 {
 }

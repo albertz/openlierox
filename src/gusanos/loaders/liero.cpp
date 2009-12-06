@@ -15,7 +15,7 @@ using std::endl;
 namespace fs = boost::filesystem;
 
 LieroLevelLoader LieroLevelLoader::instance;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 LieroFontLoader LieroFontLoader::instance;
 #endif
 
@@ -29,7 +29,7 @@ bool LieroLevelLoader::canLoad(std::string const& path, std::string& name)
 	return false;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 static array<unsigned char, 256*3> const lieroPalette = 
 {0x0,0x0,0x0,0x6c,0x38,0x0,0x6c,0x50,0x0,0xa4,0x94,0x80,0x0,0x90,0x0,0x3c,0xac,0x3c,0xfc,0x54,0x54,0xa8,0xa8,0xa8,0x54,
@@ -203,7 +203,7 @@ bool LieroLevelLoader::load(Level* level, std::string const& path)
 		
 	array<unsigned char, 256*3> palette;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	palette = lieroPalette;
 		
 	if(fileSize >= width*height+10+256*3)
@@ -226,7 +226,7 @@ bool LieroLevelLoader::load(Level* level, std::string const& path)
 #endif
 	
 	level->material = create_bitmap_ex(8, width, height);
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	level->image = create_bitmap(width, height);
 	level->background = create_bitmap(width, height);
 #endif
@@ -239,7 +239,7 @@ bool LieroLevelLoader::load(Level* level, std::string const& path)
 		{
 			int c = f.get();
 			
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			unsigned char const* entry = &palette[c * 3];
 			int imagec = makecol(entry[0], entry[1], entry[2]);
 			putpixel(level->image, x, y, imagec);
@@ -262,7 +262,7 @@ const char* LieroLevelLoader::getName()
 	return "Liero level loader";
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 bool LieroFontLoader::canLoad(std::string const& path, std::string& name)
 {

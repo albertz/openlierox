@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "player_input.h"
 
 #include "game.h"

@@ -3,7 +3,7 @@
 #include "util/vec.h"
 #include "game.h"
 #include "base_object.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/blitters.h"
 #include "viewport.h"
@@ -48,7 +48,7 @@ void SimpleParticle::think()
 	*/
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void SimpleParticle::draw(Viewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(pos));

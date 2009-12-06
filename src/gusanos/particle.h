@@ -9,7 +9,7 @@
 #include <vector>
 #include "netstream.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class Sprite;
 class BaseAnimator;
 class BlitterContext;
@@ -39,14 +39,14 @@ public:
 	~Particle();
 
 	void assignNetworkRole( bool authority );
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void draw(Viewport* viewport);
 #endif
 	void think();
 	Angle getAngle();
 	void setAngle(Angle v) { m_angle = v; }
 	void addAngleSpeed(AngleDiff);
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void setAlphaFade(int frames, int dest);
 #endif
 	void customEvent( size_t index );
@@ -76,7 +76,7 @@ public:
 	
 private:
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void drawLine2Origin(Viewport* viewport, BlitterContext const& blitter);
 #endif
 	
@@ -86,7 +86,7 @@ private:
 	float m_health;
 	Angle m_angle;
 	AngleDiff m_angleSpeed;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	float m_fadeSpeed;
 	float m_alpha;
 	int m_alphaDest;

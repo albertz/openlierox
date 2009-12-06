@@ -3,7 +3,7 @@
 
 #include "resource_list.h"
 #include "glua.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/context.h"
 #endif
@@ -33,14 +33,14 @@ public:
 	int timeout;
 	int timeoutVariation;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Distortion* distortion;
 	float distortMagnitude;
 	SpriteSet* sprite;
 	BlitterContext::Type blender;
 	Sprite* lightHax;
 	bool rockHidden;
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 	int renderLayer;
 	int colour;
 	int alpha;

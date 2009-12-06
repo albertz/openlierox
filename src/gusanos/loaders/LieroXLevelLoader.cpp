@@ -109,7 +109,7 @@ bool LieroXLevelLoader::load(Level* level, std::string const& path)
 	
 	level->material = create_bitmap_ex(8, width, height);
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	level->image = create_bitmap(width, height);
 	level->background = create_bitmap(width, height);
 #endif
@@ -122,12 +122,12 @@ bool LieroXLevelLoader::load(Level* level, std::string const& path)
 		for (int x = 0; x < width; x++)
 		{
 			
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			int backgroundc = makecol(pbackground[0], pbackground[1], pbackground[2]);
 #endif
 			int m = pmaterial[0];
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			if(m == 1)
 				putpixel(level->image, x, y, backgroundc);
 			else
@@ -148,7 +148,7 @@ bool LieroXLevelLoader::load(Level* level, std::string const& path)
 			
 			putpixel(level->material, x, y, m);
 			
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			pimage += 3;
 			pbackground += 3;
 #endif

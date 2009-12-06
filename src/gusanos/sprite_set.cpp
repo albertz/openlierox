@@ -13,7 +13,7 @@
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "blitters/context.h"
 #endif
 
@@ -23,14 +23,14 @@ ResourceList<SpriteSet> spriteList;
 
 SpriteSet::SpriteSet()
 //: m_flipped(0)
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		:
 		m_coloredCache(ColorSpriteSet(*this))
 #endif
 {
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 // This does not copy the colored cache naturally
 SpriteSet::SpriteSet(SpriteSet const& b, SpriteSet const& mask, int color)
 		: 
@@ -163,12 +163,12 @@ Sprite* SpriteSet::getSprite( size_t frame, Angle angle )
 
 void SpriteSet::think()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	m_coloredCache.think();
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 SpriteSet* SpriteSet::ColorSpriteSet::operator()(ColorKey const& key)
 {
 	return new SpriteSet(parent, *key.first, key.second);

@@ -5,7 +5,7 @@
 #include "game.h"
 #include "base_object.h"
 #include "part_type.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "sprite_set.h"
 #include "sprite.h"
 #include "base_animator.h"
@@ -30,7 +30,7 @@ NinjaRope::NinjaRope(PartType *type, BaseObject* worm)
 	m_angleSpeed = 0;
 	//m_animator = NULL;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	m_sprite = m_type->sprite;
 	
 	m_animator = m_type->allocateAnimator();
@@ -135,7 +135,7 @@ void NinjaRope::think()
 			}
 		}
 		
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		if ( m_animator )
 			m_animator->tick();
 #endif
@@ -218,7 +218,7 @@ Vec& NinjaRope::getPosReference()
 	return pos;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void NinjaRope::draw(Viewport *viewport)
 {
 	BITMAP* where = viewport->dest;

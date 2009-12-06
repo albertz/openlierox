@@ -7,7 +7,7 @@
 #include "base_player.h"
 #include "exp_type.h"
 #include "events.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "viewport.h"
 #include "distortion.h"
 #include "gfx.h"
@@ -28,7 +28,7 @@ Explosion::Explosion(ExpType *type, const Vec& _pos, BasePlayer* owner) : BaseOb
 	
 	m_type = type;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	m_alpha = m_type->alpha;
 	
 	m_timeout = m_type->timeout + (int)( rnd() * (m_type->timeoutVariation+1) ); 
@@ -57,7 +57,7 @@ Explosion::Explosion(ExpType *type, const Vec& _pos, BasePlayer* owner) : BaseOb
 		(*t)->check(this);
 	}
 	
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 	deleteMe = true; // We have no use of explosions except for the first frame
 #else
 	if(type->invisible)
@@ -67,12 +67,12 @@ Explosion::Explosion(ExpType *type, const Vec& _pos, BasePlayer* owner) : BaseOb
 
 Explosion::~Explosion()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete m_animator;
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 void Explosion::think()
 {

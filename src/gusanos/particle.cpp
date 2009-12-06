@@ -5,7 +5,7 @@
 #include "base_worm.h"
 #include "base_player.h"
 #include "part_type.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "sprite.h"
 #include "sprite_set.h"
@@ -129,7 +129,7 @@ Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, BasePlayer* owne
 		m_health(type->health),
 		m_angle(angle),
 		m_angleSpeed(0),
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		m_fadeSpeed(0),
 		m_alpha(m_type->alpha),
 		m_alphaDest(255),
@@ -147,7 +147,7 @@ Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, BasePlayer* owne
 	flags = (dir > 0 ? FaceRight : 0)
 	        | RepPos;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	if ( m_sprite ) {
 		m_animator = m_type->allocateAnimator();
@@ -172,7 +172,7 @@ Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, BasePlayer* owne
 
 Particle::~Particle()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete m_animator;
 #endif
 
@@ -369,7 +369,7 @@ void Particle::think()
 				if ( deleteMe )
 					break;
 			}
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			if ( !m_type->animOnGround && m_animator )
 				m_animator->freeze(5); //I GOT DEFEATED!
 #endif
@@ -407,7 +407,7 @@ void Particle::think()
 		//Position update
 		pos += spd;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		// Animation
 		if ( m_animator )
 			m_animator->tick();
@@ -435,7 +435,7 @@ void Particle::addAngleSpeed( AngleDiff speed )
 	m_angleSpeed += speed;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void Particle::setAlphaFade(int frames, int dest)
 {
 	m_fadeSpeed = ( dest - m_alpha ) / frames;
@@ -462,7 +462,7 @@ void Particle::remove()
 	}
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 void Particle::drawLine2Origin( Viewport* viewport, BlitterContext const& blitter)
 {

@@ -1,9 +1,9 @@
 #ifndef KEYBOARD_h
 #define KEYBOARD_h
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 #include <allegro.h>
 #include <boost/signal.hpp>

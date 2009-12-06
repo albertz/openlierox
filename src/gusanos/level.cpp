@@ -1,6 +1,6 @@
 #include "level.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/context.h"
 #include "viewport.h"
@@ -25,7 +25,7 @@ using namespace std;
 
 ResourceLocator<Level> levelLocator;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 struct AddCuller : Culler<AddCuller>
 {
 	AddCuller( Level& level, BITMAP* dest, BITMAP* source, int alpha,int dOffx, int dOffy, int sOffx, int sOffy, Rect const& rect )
@@ -82,7 +82,7 @@ Level::Level()
 	m_firstFrame = true;
 	m_config = 0;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	image = NULL;
 	background = NULL;
@@ -147,7 +147,7 @@ void Level::unload()
 	delete m_config;
 	m_config = 0;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	destroy_bitmap(image);
 	image = NULL;
@@ -206,7 +206,7 @@ void Level::think()
 		if ( m_config && m_config->gameStart )
 			m_config->gameStart->run(0,0,0,0);
 	}
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	foreach_delete( wp, m_water ) {
 		if ( getMaterialIndex( wp->x, wp->y ) != wp->mat ) {
 			putpixel_solid(image, wp->x, wp->y, getpixel(background, wp->x, wp->y) );
@@ -257,7 +257,7 @@ void Level::think()
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void Level::draw(BITMAP* where, int x, int y)
 {
 	if (image) {
@@ -372,7 +372,7 @@ bool Level::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					returnValue = true;
 					putMaterial( 1, drawX+x, drawY+y );
 					checkWBorders( drawX+x, drawY+y );
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
@@ -477,7 +477,7 @@ void Level::loaderSucceeded()
 			}
 		}
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( !lightmap ) {
 		LocalSetColorDepth cd(8);
 		lightmap = create_bitmap(material->w, material->h);

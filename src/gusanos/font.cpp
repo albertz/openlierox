@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "font.h"
 
@@ -284,4 +284,4 @@ int Font::height()
 
 */
 
-#endif //DEDSERV
+#endif //DEDICATED_ONLY

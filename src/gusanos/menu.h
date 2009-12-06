@@ -1,9 +1,9 @@
 #ifndef VERMES_MENU_H
 #define VERMES_MENU_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 #include "gui/omfggui.h"
 #include "resource_locator.h"

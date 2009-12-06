@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "mouse.h"
 #include "gfx.h"
 #include "Debug.h"

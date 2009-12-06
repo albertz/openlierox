@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "blitters.h"
 #include "colors.h"

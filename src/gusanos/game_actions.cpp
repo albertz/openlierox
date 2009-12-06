@@ -5,7 +5,7 @@
 #include "part_type.h"
 #include "explosion.h"
 #include "exp_type.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "sound.h"
 #include "sprite_set.h"
 #endif
@@ -431,7 +431,7 @@ Remove::~Remove()
 
 PlaySound::PlaySound( vector<OmfgScript::TokenBase*> const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( soundList.load(params[0]->toString()) );
@@ -451,7 +451,7 @@ PlaySound::PlaySound( vector<OmfgScript::TokenBase*> const& params )
 
 void PlaySound::run( ActionParams const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( !sounds.empty() )
 	{
 		int sound = rndInt(sounds.size());
@@ -473,7 +473,7 @@ PlaySound::~PlaySound()
 
 PlaySoundStatic::PlaySoundStatic( vector<OmfgScript::TokenBase*> const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( soundList.load(params[0]->toString()) );
@@ -494,7 +494,7 @@ PlaySoundStatic::PlaySoundStatic( vector<OmfgScript::TokenBase*> const& params )
 
 void PlaySoundStatic::run( ActionParams const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( !sounds.empty() )
 	{
 		int sound = rndInt(sounds.size());
@@ -516,7 +516,7 @@ PlaySoundStatic::~PlaySoundStatic()
 
 PlayGlobalSound::PlayGlobalSound( vector<OmfgScript::TokenBase*> const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( sound1DList.load(params[0]->toString()) );
@@ -537,7 +537,7 @@ PlayGlobalSound::PlayGlobalSound( vector<OmfgScript::TokenBase*> const& params )
 
 void PlayGlobalSound::run( ActionParams const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( !sounds.empty() )
 	{
 		int sound = rndInt(sounds.size());
@@ -602,7 +602,7 @@ UseAmmo::~UseAmmo()
 
 ShowFirecone::ShowFirecone( vector<OmfgScript::TokenBase*> const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	sprite = spriteList.load(params[0]->toString());
 	frames = params[1]->toInt(0);
 	drawDistance = params[2]->toDouble(0);
@@ -611,7 +611,7 @@ ShowFirecone::ShowFirecone( vector<OmfgScript::TokenBase*> const& params )
 
 void ShowFirecone::run( ActionParams const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if( BaseWorm* w = dynamic_cast<BaseWorm*>(params.object) )
 	{
 		w->showFirecone( sprite, frames, drawDistance );
@@ -681,7 +681,7 @@ SetAlphaFade::SetAlphaFade( vector<OmfgScript::TokenBase*> const& params )
 
 void SetAlphaFade::run( ActionParams const& params )
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if (params.object)
 	{
 		params.object->setAlphaFade( frames, dest );

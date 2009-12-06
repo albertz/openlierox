@@ -15,7 +15,7 @@ public:
 	~ProxyPlayer();
 	
 	void subThink();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void render();
 #endif
 private:

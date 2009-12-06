@@ -1,9 +1,9 @@
 #ifndef VIEWPORT_H
 #define VIEWPORT_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 #include "util/vec.h"
 #include "lua51/luaapi/types.h"

@@ -4,7 +4,7 @@
 #include "../glua.h"
 #include "../lua51/luaapi/context.h"
 #include "../events.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../menu.h"
 #endif
 #include "../game_actions.h"
@@ -138,7 +138,7 @@ bool VermesLevelLoader::load(Level* level, std::string const& path)
 	if (level->material)
 	{
 		level->setEvents( loadConfig( path + "/config.cfg" ) );
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		std::string imagePath = path + "/level";
 		
 		level->image = gfx.loadBitmap(imagePath.c_str());
@@ -192,7 +192,7 @@ const char* VermesLevelLoader::getName()
 	return "Vermes 0.9 level loader";
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 VermesFontLoader VermesFontLoader::instance;
 
 bool VermesFontLoader::canLoad(std::string const& path, std::string& name)

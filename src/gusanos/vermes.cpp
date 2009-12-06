@@ -13,7 +13,7 @@
 #include "player.h"
 #include "util/macros.h"
 //#include "util/log.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "mouse.h"
 #include "viewport.h"
 #include "font.h"
@@ -86,7 +86,7 @@ try
 	
 	console.parseLine("BIND F12 SCREENSHOT");
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
 	//game.loadMod();
@@ -98,7 +98,7 @@ try
 	int fps = 0;
 	unsigned int logicLast = 0;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	console.executeConfig("autoexec.cfg");
 #else
 	console.executeConfig("autoexec-ded.cfg");
@@ -163,7 +163,7 @@ try
 			game.think();
 			updater.think(); // TODO: Move?
 			
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 			
@@ -206,7 +206,7 @@ try
 
 			network.update();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			console.checkInput();
 			mouseHandler.poll();
 #endif
@@ -225,14 +225,14 @@ try
 #ifdef WINDOWS
 		Sleep(0);
 #else
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		rest(0);
 #else
 		rest(2);
 #endif
 #endif
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		//Update FPS
 		if (fpsLast + 100 <= timer)
 		{
@@ -362,11 +362,11 @@ try
 	//network.disconnect(); // If we haven't already, it's too late
 	network.shutDown();
 	game.unload();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	OmfgGUI::menu.destroy();
 #endif
 	console.shutDown();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	sfx.shutDown();
 #endif
 	gfx.shutDown();

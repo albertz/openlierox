@@ -39,7 +39,7 @@ protected:
 	int spdy;*/
 };
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SimpleParticle32 : public SimpleParticle
 {
 public:

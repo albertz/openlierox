@@ -29,7 +29,7 @@ WeaponType::WeaponType() : ResourceBase()
 {
 	ammo = 1;
 	reloadTime = 0;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	firecone = NULL;
 	skin = 0;
@@ -148,7 +148,7 @@ bool WeaponType::load(std::string const& filename)
 	}
 
 	laserSightColour = parser.getProperty("laser_sight_colour", "laser_sight_color")->toColor(255, 0, 0);
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	{
 		OmfgScript::TokenBase* v = parser.getProperty("firecone");

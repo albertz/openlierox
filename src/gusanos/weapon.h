@@ -43,7 +43,7 @@ public:
 	
 	void reset();
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void drawBottom(BITMAP* where,int x, int y);
 	void drawTop(BITMAP* where,int x, int y);
 #endif

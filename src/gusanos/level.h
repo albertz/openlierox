@@ -86,7 +86,7 @@ class Level
 	void think();
 	void unload();
 	bool isLoaded();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void draw(BITMAP* where, int x, int y);
 #endif
 	int width();
@@ -144,7 +144,7 @@ class Level
 	template<class PredT>
 	bool trace(long srcx, long srcy, long destx, long desty, PredT predicate);
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void specialDrawSprite(Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
 	
 	void culledDrawSprite(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
@@ -158,7 +158,7 @@ class Level
 	void loaderSucceeded();
 
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	BITMAP* image;
 	BITMAP* background;
 	BITMAP* paralax;

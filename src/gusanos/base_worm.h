@@ -13,7 +13,7 @@ class NinjaRope;
 class Weapon;
 class WeaponType;
 struct LuaEventDef;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;
 class Viewport;
@@ -72,7 +72,7 @@ class BaseWorm : public BaseObject
 		void addRopeLength(float distance);
 
 		Vec getWeaponPos();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 		Vec getRenderPos();
 #endif
@@ -115,7 +115,7 @@ class BaseWorm : public BaseObject
 		bool isActive();
 		void removeRefsToPlayer( BasePlayer* player );
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 		void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
@@ -159,7 +159,7 @@ class BaseWorm : public BaseObject
 	protected:
 		//LuaReference luaReference;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 		Vec renderPos;
 #endif
@@ -170,7 +170,7 @@ class BaseWorm : public BaseObject
 		float health;
 		//float currentRopeLength; //moved to Ninjarope
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 		int m_fireconeTime;
 		float m_fireconeDistance;
@@ -186,7 +186,7 @@ class BaseWorm : public BaseObject
 		BasePlayer* m_lastHurt;
 		NinjaRope* m_ninjaRope;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 		SpriteSet *skin;
 		SpriteSet *skinMask;

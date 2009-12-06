@@ -4,7 +4,7 @@
 #include "console/console.h"
 //#include "font.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include <allegro.h>
 #endif
 
@@ -16,7 +16,7 @@
 #include <boost/array.hpp>
 using boost::array;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SpriteSet;
 class Font;
 #endif
@@ -24,7 +24,7 @@ class Font;
 class GConsole : public Console
 {
 public:
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	struct BindingLock
 	{
 		BindingLock()
@@ -42,16 +42,16 @@ public:
 	void shutDown();
 	void loadResources();
 	void checkInput();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void render(BITMAP *where, bool fullScreen = false);
 #endif
 	void think();
 	int executeConfig(const std::string &filename);
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 	virtual void addLogMsg(const std::string &msg);
 #endif
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	bool eventPrintableChar(char c, int k);
 	bool eventKeyDown(int k);
 	bool eventKeyUp(int k);
@@ -99,7 +99,7 @@ private:
 	
 	//KeyHandler keyHandler;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Font* m_font;
 	std::string m_fontName;
 	int m_consoleKey;

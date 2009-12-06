@@ -99,7 +99,7 @@ public:
 	// subThink() gets called inside think() and its used to give the derivations
 	// the ability to think without replacing the main BasePlayer::think().
 	virtual void subThink() = 0;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	virtual void render() {}
 #endif
 

@@ -4,7 +4,7 @@
 #include "../../lua51/luaapi/macros.h"
 #include "../../lua51/luaapi/classes.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../omfggui.h"
 #include "../omfggui_windows.h"
 #endif
@@ -27,7 +27,7 @@ namespace LuaBindings
 	
 LuaReference listIterator;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 //std::vector<LuaReference> guiWndMetaTable;
 //LuaReference gui_listIterator;
@@ -609,7 +609,7 @@ LMETHODC(OmfgGUI::ListNode, gui_list_node_data,
 #endif
 
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void addGUIWndFunctions(LuaContext& context)
 {
 	context.tableFunctions()
@@ -674,7 +674,7 @@ void GUIWndMetatable(LuaContext& context)
 
 void initGUI(OmfgGUI::Context& gui, LuaContext& context)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	// GUI Wnd method and metatable
 

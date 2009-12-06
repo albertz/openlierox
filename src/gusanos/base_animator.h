@@ -1,9 +1,9 @@
 #ifndef BASE_ANIMATOR_H
 #define BASE_ANIMATOR_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 	
 class BaseAnimator
 {

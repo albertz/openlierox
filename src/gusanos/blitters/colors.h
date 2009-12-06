@@ -1,9 +1,9 @@
 #ifndef OMFG_BLITTERS_COLORS_H
 #define OMFG_BLITTERS_COLORS_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 #include <allegro.h>
 #include "types.h"

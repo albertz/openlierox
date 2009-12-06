@@ -21,7 +21,7 @@ class BaseObject : public LuaObject
 		BaseObject( BasePlayer* owner = 0, Vec pos_ = Vec(), Vec spd_ = Vec() );
 		virtual ~BaseObject();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		// Draw the object in the where bitmap with an offset ( used for camera )
 		//virtual void draw(BITMAP* where, int xOff, int yOff) {}
 		virtual void draw(Viewport* viewport)
@@ -61,7 +61,7 @@ class BaseObject : public LuaObject
 
 		virtual void makeReference();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		// Sets a destination alpha value and the time in logic frames it will take to reach that value
 		virtual void setAlphaFade( int frames, int dest )
 		{}

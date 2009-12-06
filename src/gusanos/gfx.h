@@ -24,7 +24,7 @@ public:
 	void shutDown();
 	void registerInConsole();
 	void loadResources();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void fullscreenChange();
 	void doubleResChange();
 	int  getGraphicsDriver(); // Selects and returns graphics driver
@@ -75,7 +75,7 @@ public:
 
 };
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 //std::string screenShot(const std::list<std::string> &args);
 #endif
 

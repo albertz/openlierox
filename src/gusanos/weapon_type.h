@@ -12,7 +12,7 @@
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SpriteSet;
 #endif
 class GameEvent;
@@ -44,7 +44,7 @@ public:
 	Blenders laserSightBlender; // Change to BlitterContext::Type
 	uint32_t crc;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	SpriteSet *firecone;
 	SpriteSet *skin;
 #endif

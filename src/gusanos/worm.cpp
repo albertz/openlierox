@@ -9,7 +9,7 @@ Worm::~Worm()
 void Worm::think()
 {
 	BaseWorm::think();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	renderPos = pos;
 #endif
 }

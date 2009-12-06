@@ -9,7 +9,7 @@
 #include "../game.h"
 #include "../gfx.h"
 #include "../script.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../sound.h"
 #endif
 #include "../part_type.h"
@@ -20,7 +20,7 @@
 #include "../sprite_set.h"
 #include "../sprite.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../font.h"
 #endif
 #include <cmath>
@@ -37,7 +37,7 @@ using boost::lexical_cast;
 namespace LuaBindings
 {
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 LuaReference FontMetaTable;
 LuaReference SpriteSetMetaTable;
 LuaReference SoundMetaTable;
@@ -57,7 +57,7 @@ enum FontFlags
 	Bottom      = (1<<5),
 };
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 /*! sprites_load(name)
 
@@ -610,7 +610,7 @@ void initResources()
 		("load_particle", l_load_particle)
 		("weapon_random", l_weapon_random)
 		("weapon_count", l_weapon_count)
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		("sprites_load", l_sprites_load)
 		("font_load", l_font_load)
 #endif
@@ -635,7 +635,7 @@ void initResources()
 		("ammo", l_weapon_ammo)
 	)
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	// Font method and metatable
 
 	CLASS(Font,

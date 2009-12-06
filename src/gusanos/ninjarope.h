@@ -10,7 +10,7 @@
 #include <vector>
 //#include <boost/variant.hpp>
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;
 #endif
@@ -26,7 +26,7 @@ public:
 	void shoot(Vec _pos, Vec _spd);
 	void remove();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void draw(Viewport *viewport);
 #endif
 	void think();
@@ -59,7 +59,7 @@ private:
 	AngleDiff m_angleSpeed;
 	float m_length;
 	BaseObject* m_worm;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	SpriteSet* m_sprite;
 	BaseAnimator* m_animator;
 #endif

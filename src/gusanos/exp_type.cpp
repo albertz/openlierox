@@ -3,12 +3,12 @@
 #include "resource_list.h"
 
 #include "events.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "sprite_set.h"
 #include "distortion.h"
 #include "gfx.h"
 #include "sprite.h"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 #include "util/text.h"
 #include "util/macros.h"
 #include "parser.h"
@@ -43,7 +43,7 @@ ExpType::ExpType()
 	alpha = 255;
 	destAlpha = -1;	
 	renderLayer = Grid::WormRenderLayer;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	sprite = NULL;
 	lightHax = NULL;
 	distortion = NULL;
@@ -59,7 +59,7 @@ ExpType::ExpType()
 ExpType::~ExpType()
 {
 	delete creation;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete distortion;
 	delete lightHax;
 #endif
@@ -107,7 +107,7 @@ bool ExpType::load(std::string const& filename)
 	
 	crc = parser.getCRC();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	{
 		OmfgScript::TokenBase* v = parser.getProperty("sprite");
 		if(!v->isDefault())
@@ -119,7 +119,7 @@ bool ExpType::load(std::string const& filename)
 	timeoutVariation = parser.getInt("timeout_variation", 0);
 	renderLayer = parser.getInt("render_layer", Grid::WormRenderLayer);
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	rockHidden = parser.getBool("rock_hidden", true);
 	if(OmfgScript::Function const* f = parser.getFunction("distortion"))
 	{
@@ -187,7 +187,7 @@ bool ExpType::load(std::string const& filename)
 	}
 			
 /*
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 					else if ( var == "light_radius" ) lightHax = genLight( cast<int>(val) );
 #else
 					else if ( var == "light_radius" ) ;

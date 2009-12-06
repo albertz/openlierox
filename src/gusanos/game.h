@@ -8,7 +8,7 @@
 #include "object_grid.h"
 #include "message_queue.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include <allegro.h>
 #endif
 #include <string>
@@ -32,7 +32,7 @@ class PartType;
 class Explosion;
 class Net_BitStream;
 struct LuaEventDef;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class Sound;
 class Font;
 #endif
@@ -231,7 +231,7 @@ public:
 	std::string const& getModPath();
 	std::string const& getDefaultPath();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Sound* chatSound;
 	Font *infoFont;
 #endif

@@ -3,7 +3,7 @@
 
 #include "../resource_locator.h"
 #include "../level.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../font.h"
 #include "../menu.h"
 #endif
@@ -20,7 +20,7 @@ struct VermesLevelLoader : ResourceLocator<Level>::BaseLoader
 	static VermesLevelLoader instance;
 };
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);

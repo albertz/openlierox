@@ -23,7 +23,7 @@ class SpriteSet : public LuaObject
 public:
 		
 	SpriteSet();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	SpriteSet(SpriteSet const&, SpriteSet const& mask, int color);
 #endif
 	~SpriteSet();
@@ -34,7 +34,7 @@ public:
 	
 	Sprite* getSprite( size_t frame, Angle angle );
 	Sprite* getSprite( size_t frame = 0 );
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Sprite* getColoredSprite( size_t frame, SpriteSet* mask, int color, Angle angle = Angle(0.0) );
 	
 	void drawSkinnedBox(BITMAP* b, BlitterContext& blitter, Rect const& rect, int backgroundColor);
@@ -79,7 +79,7 @@ private:
 	long m_halfAngleDivisonSize;
 
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	struct ColorSpriteSet
 	{
 		ColorSpriteSet(SpriteSet& parent_)

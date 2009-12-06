@@ -1,5 +1,5 @@
 #include "gconsole.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "keyboard.h"
 #include "keys.h"
 #include "font.h"
@@ -22,7 +22,7 @@ using boost::lexical_cast;
 
 using namespace std;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #define TEST_KEY(k_, keyname_) if(k_ < 0) return "UNKNOWN KEY \"" + keyname_ + '"'
 
@@ -91,7 +91,7 @@ string echoCmd(list<string> const& args)
 	return "ECHO <ARGS> ... : PRINTS OUT ARGS TO THE CONSOLE";
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 /*
 // Key map swapping command
 string swapKeysCmd(const list<string> &args)
@@ -289,11 +289,11 @@ string restCmd(list<string> const& args)
 
 GConsole::GConsole()
 : Console(256)
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 , m_consoleKey(KEY_TILDE), background(NULL)
 #endif
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	m_lockRefCount.assign(0);
 #endif
 	scrolling = false;
@@ -301,7 +301,7 @@ GConsole::GConsole()
 
 //============================= INTERFACE ====================================
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void GConsole::varCbFont( std::string oldValue )
 {
 	Font* newFont = fontLocator.load(m_fontName);
@@ -316,7 +316,7 @@ void GConsole::varCbFont( std::string oldValue )
 #endif
 void GConsole::init()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	keyHandler.init();
 	
 	//Connect the handlers as group 0 so they are called first
@@ -332,13 +332,13 @@ void GConsole::init()
 	console.registerVariables()
 		("CON_SPEED", &speed, 4)
 		("CON_HEIGHT", &height, 120)
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		("CON_FONT", &m_fontName, "minifont", boost::bind(&GConsole::varCbFont, this, _1))
 #endif
 	;
 
 	console.registerCommands()
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		(string("BIND"), bindCmd, bindCompleter)
 /*
 		(string("SWAPKEYS"), swapKeysCmd)
@@ -363,7 +363,7 @@ void GConsole::init()
 
 void GConsole::shutDown()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	keyHandler.shutDown();
 	
 	//m_font must be deleted here!!!! hmm not sure now
@@ -372,7 +372,7 @@ void GConsole::shutDown()
 
 void GConsole::loadResources()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	m_font = fontLocator.load(m_fontName);
 
 	if(!m_font)
@@ -382,7 +382,7 @@ void GConsole::loadResources()
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void GConsole::render(BITMAP* where, bool fullScreen)
 {
 	//int textIndex = 0;
@@ -629,7 +629,7 @@ bool GConsole::eventPrintableChar(char c, int k)
 
 void GConsole::think()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( height > 240 ) height=240;
 	if ( m_mode == CONSOLE_MODE_INPUT && m_pos < height )
 	{
@@ -662,7 +662,7 @@ void GConsole::addQueueCommand( std::string const & command )
 	commandsQueue.push_back( command );
 }
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 void GConsole::addLogMsg(const std::string &msg)
 {
 	cout << "CONSOLE: " << msg << endl;

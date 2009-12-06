@@ -4,7 +4,7 @@
 #include "../lua51/luaapi/context.h"
 #include "../lua51/luaapi/types.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../blitters/context.h"
 #endif
 
@@ -12,7 +12,7 @@ namespace LuaBindings
 {
 	void initGfx();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	extern LuaReference ViewportMetaTable;
 	extern LuaReference BITMAPMetaTable;
 	extern BlitterContext blitter;

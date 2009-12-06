@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "menu.h"
 #include "keyboard.h"

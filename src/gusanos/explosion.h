@@ -7,7 +7,7 @@
 //#include "animators.h"
 #include <vector>
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class Sprite;
 class BaseAnimator;
 #endif
@@ -22,7 +22,7 @@ public:
 
 	~Explosion(); //ZOMG WE HAD FORGOTTEN ABOUT THIS :O LEAKOFDEATH
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	void draw(Viewport* viewport);
 	void think();
 #endif
@@ -36,7 +36,7 @@ private:
 
 	ExpType* m_type;
 	
-#ifndef DEDSERV	
+#ifndef DEDICATED_ONLY	
 	int m_timeout;
 	
 	float m_fadeSpeed;

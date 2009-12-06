@@ -3,7 +3,7 @@
 
 #include "../resource_locator.h"
 #include "../level.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../font.h"
 #endif
 
@@ -18,7 +18,7 @@ struct LieroLevelLoader : ResourceLocator<Level>::BaseLoader
 	static LieroLevelLoader instance;
 };
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 struct LieroFontLoader : ResourceLocator<Font>::BaseLoader
 {

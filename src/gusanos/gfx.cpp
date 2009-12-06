@@ -1,7 +1,7 @@
 #include "gfx.h"
 #include "gconsole.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "2xsai.h"
 #include "blitters/blitters.h"
 #include "blitters/colors.h"
@@ -30,7 +30,7 @@ namespace
 {
 	bool m_initialized = false;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	enum Filters
 	{
 		NO_FILTER,
@@ -109,7 +109,7 @@ namespace
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 /*
 void Gfx::fullscreen( int oldValue )
@@ -138,7 +138,7 @@ void Gfx::doubleRes( int oldValue )
 */
 #endif
 Gfx::Gfx()
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 : buffer(NULL)
 #endif
 {
@@ -151,7 +151,7 @@ Gfx::~Gfx()
 
 void Gfx::init()
 {	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	set_color_depth(m_bitdepth); //Ugh
 
 	doubleResChange(); // This calls fullscreenChange() that sets the gfx mode
@@ -168,14 +168,14 @@ void Gfx::init()
 
 void Gfx::shutDown()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	destroy_bitmap(buffer); buffer = 0;
 #endif
 }
 
 void Gfx::registerInConsole()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	console.registerCommands()
 		("SCREENSHOT", screenShot)
 	;
@@ -234,11 +234,11 @@ void Gfx::registerInConsole()
 
 void Gfx::loadResources()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	mouseCursor = spriteList.load("cursor");
 #endif
 }
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 void Gfx::updateScreen()
 {
@@ -753,7 +753,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 		}
 	}
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if(returnValue && !keepAlpha && bitmap_color_depth(returnValue) == 32 && get_color_depth() == 32)
 	{
 		typedef Pixel32 pixel_t_1;

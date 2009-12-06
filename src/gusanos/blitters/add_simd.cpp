@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "blitters.h"
 #include "colors.h"
@@ -396,4 +396,4 @@ void drawSpriteLine_add_8_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int
 
 }
 
-#endif //DEDSERV
+#endif //DEDICATED_ONLY

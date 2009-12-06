@@ -10,7 +10,7 @@
 #include "particle.h"
 #include "player_options.h"
 #include "player.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "base_animator.h"
 #include "animators.h"
 #include "sprite_set.h"
@@ -46,14 +46,14 @@ LuaReference BaseWorm::metaTable;
 
 BaseWorm::BaseWorm()
 		: BaseObject(), aimSpeed(0.0), aimAngle(90.0), m_lastHurt(0),
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		m_animator(0),
 #endif
 		animate(false), movable(false), changing(false),
 		m_dir(1)
 
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	skin = spriteList.load("skin");
 	skinMask = spriteList.load("skin-mask");
 	m_animator = new AnimLoopRight(skin,35);
@@ -89,7 +89,7 @@ BaseWorm::BaseWorm()
 
 BaseWorm::~BaseWorm()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete m_animator;
 	m_animator = 0;
 	delete m_fireconeAnimator;
@@ -425,7 +425,7 @@ void BaseWorm::think()
 				m_weapons[i]->think( i == currentWeapon, i );
 		}
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		if(animate)
 			m_animator->tick();
 		else
@@ -593,7 +593,7 @@ Vec BaseWorm::getWeaponPos()
 	return pos;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 Vec BaseWorm::getRenderPos()
 {
 	return renderPos;// - Vec(0,0.5);
@@ -737,7 +737,7 @@ void BaseWorm::removeRefsToPlayer(BasePlayer* player)
 
 //#define DEBUG_WORM_REACTS
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 void BaseWorm::draw(Viewport* viewport)
 {
@@ -839,7 +839,7 @@ void BaseWorm::draw(Viewport* viewport)
 
 
 }
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 void BaseWorm::respawn()
 {
@@ -856,7 +856,7 @@ void BaseWorm::respawn( const Vec& newPos)
 	spd = Vec ( 0, 0 );
 	pos = newPos;
 	m_dir = 1;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 	renderPos = pos;
 #endif
@@ -931,7 +931,7 @@ void BaseWorm::addRopeLength( float distance )
 	m_ninjaRope->addLength(distance);
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void BaseWorm::showFirecone( SpriteSet* sprite, int frames, float distance )
 {
 	if(sprite) {

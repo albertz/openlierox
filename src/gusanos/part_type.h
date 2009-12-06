@@ -2,7 +2,7 @@
 #define PART_TYPE_H
 
 #include "resource_list.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "distortion.h"
 #include "blitters/context.h"
@@ -21,7 +21,7 @@
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;
 class Sprite;
@@ -51,7 +51,7 @@ public:
 	virtual void makeReference();
 	virtual void finalize();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	BaseAnimator* allocateAnimator();
 #endif
 	NewParticleFunc newParticle;
@@ -79,14 +79,14 @@ public:
 	LazyScript lightGen;
 	IVec lightSize;
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Distortion* distortion;
 	float distortMagnitude;
 #endif
 	int renderLayer;
 	int colour;
 	int alpha;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	SpriteSet* sprite;
 	Sprite* lightHax;
 #endif
@@ -94,7 +94,7 @@ public:
 	int animType;
 	int animOnGround;
 	//Blenders blender;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	BlitterContext::Type blender;
 #endif
 	bool line2Origin;

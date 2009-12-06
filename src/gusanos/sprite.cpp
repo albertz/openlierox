@@ -1,7 +1,7 @@
 #include "sprite.h"
 
 #include "gfx.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "blitters/context.h"
 #endif
 
@@ -60,7 +60,7 @@ inline int brightenColor(int a, int b)
 	           std::min(getb(a) + b, 255));
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 Sprite::Sprite(Sprite const& b, Sprite const& mask, int color)
 		: m_bitmap(
@@ -152,7 +152,7 @@ void Sprite::draw(BITMAP *where, int x, int y, bool flipped, int alignment )
 }
 */
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 void Sprite::drawCut(BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right)
 {

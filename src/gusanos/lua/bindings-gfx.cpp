@@ -7,7 +7,7 @@
 #include "../glua.h"
 #include "../util/log.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../viewport.h"
 #include "../gfx.h"
 #endif
@@ -24,7 +24,7 @@ using boost::lexical_cast;
 namespace LuaBindings
 {
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 LuaReference ViewportMetaTable;
 LuaReference BITMAPMetaTable;
 BlitterContext blitter;
@@ -42,7 +42,7 @@ BlitterContext blitter;
 */
 int l_gfx_draw_box(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	//BITMAP* b = *static_cast<BITMAP **>(lua_touserdata(L, 1));
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
@@ -85,7 +85,7 @@ int l_gfx_draw_box_depr(lua_State* L)
 */
 int l_gfx_line(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
 	
@@ -107,7 +107,7 @@ int l_gfx_line(lua_State* L)
 */
 int l_gfx_linewu(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
 	
@@ -129,7 +129,7 @@ int l_gfx_linewu(lua_State* L)
 */
 int l_gfx_putpixelwu(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
 	
@@ -149,7 +149,7 @@ int l_gfx_putpixelwu(lua_State* L)
 */
 int l_gfx_putpixel(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
 	
@@ -171,7 +171,7 @@ int l_gfx_putpixel(lua_State* L)
 */
 int l_gfx_hline(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	LuaContext context(L);
 	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
 	
@@ -208,7 +208,7 @@ int l_color(lua_State* L)
 */
 int l_gfx_set_alpha(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	int alpha = lua_tointeger(L, 1);
 	blitter.set(BlitterContext::alpha(), alpha);
 #endif
@@ -225,7 +225,7 @@ int l_gfx_set_alpha(lua_State* L)
 */
 int l_gfx_set_alphach(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	int alpha = lua_tointeger(L, 1);
 	blitter.set(BlitterContext::AlphaChannel, alpha);
 #endif
@@ -242,7 +242,7 @@ int l_gfx_set_alphach(lua_State* L)
 */
 int l_gfx_set_add(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	int alpha = lua_tointeger(L, 1);
 	blitter.set(BlitterContext::add(), alpha);
 #endif
@@ -256,13 +256,13 @@ int l_gfx_set_add(lua_State* L)
 */
 int l_gfx_reset_blending(lua_State* L)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	blitter.set(BlitterContext::none());
 #endif
 	return 0;
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 /*! Viewport:bitmap()
 
@@ -352,7 +352,7 @@ void initGfx()
 	;
 
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	// Viewport method and metatable
 	
 	CLASS(Viewport,

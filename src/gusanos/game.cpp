@@ -21,7 +21,7 @@
 #include "sprite_set.h"
 #include "util/macros.h"
 #include "util/log.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "sfx.h"
 #include "sound.h"
 #include "font.h"
@@ -30,7 +30,7 @@
 #include "mouse.h"
 #include "player_input.h"
 #include "viewport.h"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 #include "player_ai.h"
 #include "net_worm.h"
 #include "network.h"
@@ -416,7 +416,7 @@ bool Game::init(int argc, char** argv)
 	levelLocator.registerLoader(&LieroXLevelLoader::instance);
 	levelLocator.registerLoader(&LieroLevelLoader::instance);
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	fontLocator.registerLoader(&VermesFontLoader::instance);
 	fontLocator.registerLoader(&LOSPFontLoader::instance);
 	fontLocator.registerLoader(&LieroFontLoader::instance);
@@ -439,7 +439,7 @@ bool Game::init(int argc, char** argv)
 	refreshResources("default");
 
 	console.init();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	OmfgGUI::menu.init();
 	
 	sfx.registerInConsole();
@@ -457,7 +457,7 @@ bool Game::init(int argc, char** argv)
 		playerOptions.push_back(options);
 	}
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	console.executeConfig("config.cfg");
 #else
 	console.executeConfig("config-ded.cfg");
@@ -466,7 +466,7 @@ bool Game::init(int argc, char** argv)
 	parseCommandLine(argc, argv);
 	
 	gfx.init();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	sfx.init();
 
 	keyHandler.init();
@@ -477,7 +477,7 @@ bool Game::init(int argc, char** argv)
 	network.init();
 #endif
 	registerGameActions();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	registerPlayerInput();
 #endif
 	
@@ -560,7 +560,7 @@ void Game::think()
 		mq_end_case()
 	mq_end_process_messages()
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if(!messages.empty())
 	{
 		int size = messages.size();
@@ -718,7 +718,7 @@ bool Game::loadMod(bool doLoadWeapons)
 	NRPartType = partTypeList.load("ninjarope.obj");
 	deathObject = partTypeList.load("death.obj");
 	digObject = partTypeList.load("wormdig.obj");
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	chatSound = sound1DList.load("chat.ogg");
 	if (!chatSound)
 		sound1DList.load("chat.wav");
@@ -808,7 +808,7 @@ void Game::unload()
 {
 	//cerr << "Unloading..." << endl;
 	loaded = false;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	OmfgGUI::menu.destroy();
 	sfx.clear();
 #endif
@@ -848,14 +848,14 @@ void Game::unload()
 	
 	partTypeList.clear();
 	expTypeList.clear();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	soundList.clear();
 	sound1DList.clear();
 #endif
 	spriteList.clear();
 	levelEffectList.clear();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	fontLocator.clear();
 	xmlLocator.clear();
 	gssLocator.clear();
@@ -866,7 +866,7 @@ void Game::unload()
 	lua.reset();
 	luaCallbacks = LuaCallbacks(); // Reset callbacks
 	LuaBindings::init();
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
 }
@@ -878,7 +878,7 @@ bool Game::isLoaded()
 
 void Game::refreshResources(std::string const& levelPath)
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	fontLocator.addPath(levelPath + "/fonts");
 	fontLocator.addPath(m_defaultPath + "/fonts");
 	fontLocator.addPath(std::string(nextMod) + "/fonts");
@@ -908,7 +908,7 @@ void Game::refreshResources(std::string const& levelPath)
 	expTypeList.addPath(std::string(nextMod) + "/objects");
 	expTypeList.addPath(m_defaultPath + "/objects");
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	soundList.addPath(levelPath + "/sounds");
 	soundList.addPath(std::string(nextMod) + "/sounds");
 	soundList.addPath(m_defaultPath + "/sounds");
@@ -1114,7 +1114,7 @@ void Game::displayChatMsg( std::string const& owner, std::string const& message)
 	console.addLogMsg('<' + owner + "> " + message);
 	displayMessage(ScreenMessage(ScreenMessage::Chat, '{' + owner + "}: " + message, 800));
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if ( chatSound ) chatSound->play1D();
 #endif
 }
@@ -1192,7 +1192,7 @@ BasePlayer* Game::addPlayer( PLAYER_TYPE type, int team, BaseWorm* worm )
 		{
 			if ( localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
 			Player* player = new Player( playerOptions[localPlayers.size()], worm );
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 			Viewport* viewport = new Viewport;
 			if ( options.splitScreen )
 			{

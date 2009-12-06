@@ -21,13 +21,13 @@ public:
 	struct MirrorTag { };
 	
 	Sprite(BITMAP* bitmap, int xPivot, int yPivot);
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	Sprite(Sprite const&, Sprite const&, int);
 #endif
 	Sprite(Sprite const& b, MirrorTag);
 	~Sprite();
 	
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	//void draw(BITMAP *where, int x, int y, bool flipped = false, int Alignment = 0);
 	void drawCut(BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right);
 	//void drawBlended(BITMAP *where, int x, int y, bool flipped = false, int alignment = 0, Blenders blender = ADD );

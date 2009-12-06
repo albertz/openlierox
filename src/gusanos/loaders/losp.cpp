@@ -1,7 +1,7 @@
 #include "losp.h"
 #include "FindFile.h"
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>

@@ -2,11 +2,11 @@
 #define VERMES_LOADERS_LOSP_H
 
 #include "../resource_locator.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "../font.h"
 #endif
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 struct LOSPFontLoader : ResourceLocator<Font>::BaseLoader
 {

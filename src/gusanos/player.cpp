@@ -1,7 +1,7 @@
 #include "player.h"
 #include "player_options.h"
 #include "worm.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "viewport.h"
 #endif
 #include "ninjarope.h"
@@ -24,12 +24,12 @@ Player::Player(shared_ptr<PlayerOptions> options, BaseWorm* worm)
 
 Player::~Player()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete m_viewport;
 #endif
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void Player::assignViewport(Viewport* viewport)
 {
 	m_viewport = viewport;
@@ -39,7 +39,7 @@ void Player::assignViewport(Viewport* viewport)
 void Player::subThink()
 {
 	if ( m_worm ) {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		if ( m_viewport )
 			m_viewport->interpolateTo(m_worm->getRenderPos(), m_options->viewportFollowFactor);
 #endif
@@ -69,7 +69,7 @@ void Player::subThink()
 	}
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 void Player::render()
 {
 	if ( m_viewport ) {

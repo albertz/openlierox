@@ -3,7 +3,7 @@
 #include "resource_list.h"
 
 #include "game.h"
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 #include "sprite_set.h"
 #include "sprite.h"
 #include "gfx.h"
@@ -99,7 +99,7 @@ BaseObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f),
 	return particle;
 }
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 BaseObject* newParticle_Dummy(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, BasePlayer* owner = NULL, Angle angle = Angle(0))
 {
 	if(type->creation)
@@ -138,7 +138,7 @@ PartType::PartType()
 	needsNode = false;
 	
 	renderLayer = Grid::WormRenderLayer;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	sprite = NULL;
 	distortion = NULL;
 	distortMagnitude = 0.8;
@@ -165,7 +165,7 @@ PartType::~PartType()
 {
 	delete groundCollision;
 	delete creation;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete distortion;
 	delete lightHax;
 #endif
@@ -181,7 +181,7 @@ PartType::~PartType()
 
 void PartType::touch()
 {
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	if(!distortion && !distortionGen.empty())
 	{
 		LuaReference f = distortionGen.get();
@@ -252,7 +252,7 @@ void PartType::touch()
 bool PartType::isSimpleParticleType()
 {
 	if(repeat != 1 || alpha != 255
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	|| sprite || distortion || blender || lightHax
 #endif
 	|| damping != 1.f
@@ -355,7 +355,7 @@ bool PartType::load(std::string const& filename)
 	//FLOG(parttypecrc, filename.string() << ": " << std::hex << parser.getCRC());
 	crc = parser.getCRC();
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	{
 		OmfgScript::TokenBase* v = parser.getProperty("sprite");
 		if(!v->isDefault())
@@ -455,7 +455,7 @@ bool PartType::load(std::string const& filename)
 	
 	
 /*
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	else if ( var == "light_radius" ) lightHax = genLight(cast<int>(val));
 #else
 	else if ( var == "light_radius" ) ;
@@ -530,7 +530,7 @@ bool PartType::load(std::string const& filename)
 	
 	if(isSimpleParticleType())
 	{
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 		if(wupixels)
 		{
 			switch(bitmap_color_depth(screen))
@@ -574,7 +574,7 @@ void PartType::finalize()
 {
 	delete groundCollision; groundCollision = 0;
 	delete creation; creation = 0;
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 	delete distortion; distortion = 0;
 	delete lightHax; lightHax = 0;
 #endif
@@ -591,7 +591,7 @@ void PartType::finalize()
 	detectRanges.clear();
 }
 
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 BaseAnimator* PartType::allocateAnimator()
 {
 	switch ( animType )
