@@ -8,7 +8,7 @@
 #include "../omfggui.h"
 #include "../omfggui_windows.h"
 #endif
-#include "../../util/macros.h"
+#include "util/macros.h"
 
 #include <cmath>
 #include <string>

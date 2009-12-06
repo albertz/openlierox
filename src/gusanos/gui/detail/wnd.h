@@ -2,8 +2,8 @@
 #define OMFG_GUI_WND_H
 
 #include <string>
-#include "../../util/rect.h"
-#include "../../util/common.h"
+#include "util/rect.h"
+#include "util/common.h"
 #include "renderer.h"
 #include "context.h"
 #include "../../lua51/luaapi/types.h"

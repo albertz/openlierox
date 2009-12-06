@@ -9,7 +9,7 @@
 #endif
 #include "../game_actions.h"
 #include "../parser.h"
-#include "../util/macros.h"
+#include "util/macros.h"
 #include <string>
 
 #include "../omfgscript/omfg_script.h"

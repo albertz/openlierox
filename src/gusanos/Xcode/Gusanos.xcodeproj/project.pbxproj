@@ -214,7 +214,6 @@
 		23C34B8010CBC8E200DABBD6 /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AAE10CBC8E200DABBD6 /* print.c */; };
 		23C34B8110CBC8E200DABBD6 /* material.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AAF10CBC8E200DABBD6 /* material.cpp */; };
 		23C34B8210CBC8E200DABBD6 /* menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AB110CBC8E200DABBD6 /* menu.cpp */; };
-		23C34B8310CBC8E200DABBD6 /* message_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AB310CBC8E200DABBD6 /* message_queue.cpp */; };
 		23C34B8410CBC8E200DABBD6 /* mouse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AB510CBC8E200DABBD6 /* mouse.cpp */; };
 		23C34B8510CBC8E200DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AB710CBC8E200DABBD6 /* net_worm.cpp */; };
 		23C34B8610CBC8E200DABBD6 /* netstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34AB910CBC8E200DABBD6 /* netstream.cpp */; };
@@ -637,7 +636,6 @@
 		23C34AB010CBC8E200DABBD6 /* material.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = material.h; sourceTree = "<group>"; };
 		23C34AB110CBC8E200DABBD6 /* menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menu.cpp; sourceTree = "<group>"; };
 		23C34AB210CBC8E200DABBD6 /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = menu.h; sourceTree = "<group>"; };
-		23C34AB310CBC8E200DABBD6 /* message_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = message_queue.cpp; sourceTree = "<group>"; };
 		23C34AB410CBC8E200DABBD6 /* message_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_queue.h; sourceTree = "<group>"; };
 		23C34AB510CBC8E200DABBD6 /* mouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mouse.cpp; sourceTree = "<group>"; };
 		23C34AB610CBC8E200DABBD6 /* mouse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mouse.h; sourceTree = "<group>"; };
@@ -909,7 +907,6 @@
 				23C34AB010CBC8E200DABBD6 /* material.h */,
 				23C34AB110CBC8E200DABBD6 /* menu.cpp */,
 				23C34AB210CBC8E200DABBD6 /* menu.h */,
-				23C34AB310CBC8E200DABBD6 /* message_queue.cpp */,
 				23C34AB410CBC8E200DABBD6 /* message_queue.h */,
 				23C34AB510CBC8E200DABBD6 /* mouse.cpp */,
 				23C34AB610CBC8E200DABBD6 /* mouse.h */,
@@ -1786,7 +1783,6 @@
 				23C34B8010CBC8E200DABBD6 /* print.c in Sources */,
 				23C34B8110CBC8E200DABBD6 /* material.cpp in Sources */,
 				23C34B8210CBC8E200DABBD6 /* menu.cpp in Sources */,
-				23C34B8310CBC8E200DABBD6 /* message_queue.cpp in Sources */,
 				23C34B8410CBC8E200DABBD6 /* mouse.cpp in Sources */,
 				23C34B8510CBC8E200DABBD6 /* net_worm.cpp in Sources */,
 				23C34B8610CBC8E200DABBD6 /* netstream.cpp in Sources */,

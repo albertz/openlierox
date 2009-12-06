@@ -174,11 +174,11 @@ void GContext::init()
 	keyHandler.keyUp.connect(boost::bind(&GContext::eventKeyUp, this, _1));
 	keyHandler.printableChar.connect(boost::bind(&GContext::eventPrintableChar, this, _1, _2));
 	
-	mouseHandler.buttonDown.connect(boost::bind(&GContext::eventMouseDown, this, _1));
+	/*mouseHandler.buttonDown.connect(boost::bind(&GContext::eventMouseDown, this, _1));
 	mouseHandler.buttonUp.connect(boost::bind(&GContext::eventMouseUp, this, _1));
 	mouseHandler.move.connect(boost::bind(&GContext::eventMouseMove, this, _1, _2));
 	mouseHandler.scroll.connect(boost::bind(&GContext::eventMouseScroll, this, _1));
-	
+	*/
 	console.registerCommands()
 		("GUI_LOADXML", cmdLoadXML)
 		("GUI_LOADGSS", cmdLoadGSS)
@@ -189,28 +189,25 @@ void GContext::init()
 
 bool GContext::eventMouseDown(int b)
 {
-	Context::mouseDown(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
+	//Context::mouseDown(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
 	return true;
 }
 
 bool GContext::eventMouseUp(int b)
 {
-	//m_rootWnd->doMouseUp(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
-	Context::mouseUp(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
+	//Context::mouseUp(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
 	return true;
 }
 
 bool GContext::eventMouseMove(int x, int y)
 {
-	//m_rootWnd->doMouseMove(x, y);
 	Context::mouseMove(x, y);
 	return true;
 }
 
 bool GContext::eventMouseScroll(int offs)
 {
-	//m_rootWnd->doMouseScroll(mouseHandler.getX(), mouseHandler.getY(), offs);
-	Context::mouseScroll(mouseHandler.getX(), mouseHandler.getY(), offs);
+	//Context::mouseScroll(mouseHandler.getX(), mouseHandler.getY(), offs);
 	return true;
 }
 

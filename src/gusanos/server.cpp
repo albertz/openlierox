@@ -24,11 +24,6 @@ Server::Server( int _udpport )
 		port(_udpport),
 		socketsInited(false)
 {
-	if(network.simLag > 0)
-		Net_simulateLag(0, network.simLag);
-	if(network.simLoss > 0.f)
-		Net_simulateLoss(0, network.simLoss);
-
 	// TODO: Asynchronize this loop
 	int tries = 10;
 	bool result = false;
@@ -41,8 +36,7 @@ Server::Server( int _udpport )
 
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
-	Net_setUpstreamLimit(network.upLimit, network.upLimit);
-	console.addLogMsg("SERVER UP");
+	console.addLogMsg("GUSANOS SERVER UP");
 }
 
 Server::~Server()
@@ -123,7 +117,7 @@ bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Ne
 	if(network.isBanned(id)) {
 		reply.addInt(Network::ConnectionReply::Banned, 8);
 		return false;
-	} else if(network.clientRetry) {
+	} else if( false /*network.clientRetry*/) {
 		reply.addInt(Network::ConnectionReply::Retry, 8);
 		return false;
 	} else if ( !m_preShutdown ) {
@@ -133,16 +127,15 @@ bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Ne
 		reply.addString( game.level.getName().c_str() );
 
 		return true;
-	} else {
-		reply.addInt(Network::ConnectionReply::Refused, 8);
-		return false;
 	}
+	
+	reply.addInt(Network::ConnectionReply::Refused, 8);
+	return false;
 }
 
 void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
 	console.addLogMsg("* CONNECTION SPAWNED");
-	Net_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
 	network.incConnCount();
 
 	std::auto_ptr<Net_BitStream> data(new Net_BitStream);

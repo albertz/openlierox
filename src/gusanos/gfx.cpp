@@ -242,13 +242,14 @@ void Gfx::loadResources()
 
 void Gfx::updateScreen()
 {
+	/*
 	if(mouseCursor)
 	{
 		int x = mouseHandler.getX();
 		int y = mouseHandler.getY();
 		mouseCursor->getSprite()->draw(buffer, x, y);
 	}
-	//show_mouse(0);
+	*/
 	
 	if ( m_vsync ) vsync();
 	if ( !m_doubleRes )

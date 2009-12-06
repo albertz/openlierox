@@ -42,8 +42,8 @@ Viewport::~Viewport()
 struct TestCuller : public Culler<TestCuller>
 {
 	TestCuller(BITMAP* dest_, BITMAP* src_, int scrOffX_, int scrOffY_, int destOffX_, int destOffY_, Rect const& rect)
-			: dest(dest_), src(src_), scrOffX(scrOffX_), scrOffY(scrOffY_), destOffX(destOffX_), destOffY(destOffY_)
-			, Culler<TestCuller>(rect)
+			: Culler<TestCuller>(rect), dest(dest_), src(src_),
+			scrOffX(scrOffX_), scrOffY(scrOffY_), destOffX(destOffX_), destOffY(destOffY_)
 	{
 	}
 

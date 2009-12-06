@@ -466,7 +466,7 @@ bool Game::init(int argc, char** argv)
 	sfx.init();
 
 	keyHandler.init();
-	mouseHandler.init();
+	//mouseHandler.init();
 #endif
 
 #ifndef DISABLE_ZOIDCOM

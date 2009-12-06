@@ -2,7 +2,7 @@
 
 #include "../../lua51/luaapi/types.h"
 #include "../../lua51/luaapi/context.h"
-#include "../../util/log.h"
+#include "util/log.h"
 
 #include <iostream>
 #include <map>

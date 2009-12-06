@@ -2,7 +2,7 @@
 
 #include "renderer.h"
 #include "wnd.h"
-#include "../../util/macros.h"
+#include "util/macros.h"
 #include <iostream>
 using std::cerr;
 using std::endl;

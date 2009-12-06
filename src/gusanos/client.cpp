@@ -19,17 +19,12 @@
 
 Client::Client( int _udpport )
 {
-	if(network.simLag > 0)
-		Net_simulateLag(0, network.simLag);
-	if(network.simLoss > 0.f)
-		Net_simulateLoss(0, network.simLoss);
 	if ( !Net_initSockets( true,_udpport, 1, 0 ) )
 	{
 		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
 	}
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
-	Net_setUpstreamLimit(network.upLimit, network.upLimit); 
 }
 
 Client::~Client()
@@ -85,7 +80,6 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 	else
 	{
 		network.setClient(true);
-		Net_requestDownstreamLimit(_id, network.downPPS, network.downBPP);
 		console.addLogMsg("* CONNECTION ACCEPTED");
 		network.setServerID(_id);
 		network.incConnCount();
@@ -105,7 +99,9 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		}
 		else if(!hasLevel)
 		{
-			if(network.autoDownloads)
+			// TODO: do that only if auto map download is set
+			// do we have such a setting?
+			if( true /* network.autoDownloads*/ )
 			{
 				Net_requestNetMode(_id, 2); // We need to update
 				if(!hasLevel)

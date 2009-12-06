@@ -71,21 +71,21 @@ public:
 		template<class FT>
 		RegisterCommandProxy const& operator()(std::string const& name, FT func) const
 		{
-			m_console.registerCommand(name, new Command(func));
+			m_console.registerCommand(name, new GusCommand(func));
 			return *this;
 		}
 		
 		template<class FT, class CFT>
 		RegisterCommandProxy const& operator()(std::string const& name, FT func, CFT completeFunc) const
 		{
-			m_console.registerCommand(name, new Command(func, completeFunc));
+			m_console.registerCommand(name, new GusCommand(func, completeFunc));
 			return *this;
 		}
 		
 		template<class FT>
 		RegisterCommandProxy const& operator()(std::string const& name, FT func, bool temp) const
 		{
-			Command *c = new Command(func);
+			GusCommand *c = new GusCommand(func);
 			m_console.registerCommand(name, c);
 			c->temp = temp;
 			return *this;
@@ -111,7 +111,7 @@ public:
 	
 	void registerItem(std::string const& name, ConsoleItem* item);
 	void registerAlias(const std::string &name, const std::string &action);
-	void registerCommand(std::string const& name, Command* command);
+	void registerCommand(std::string const& name, GusCommand* command);
 	void registerSpecialCommand(const std::string &name, int index, std::string (*func)(int,const std::list<std::string>&));
 	void clearTemporaries();
 	

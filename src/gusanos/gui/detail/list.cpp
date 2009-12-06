@@ -1,6 +1,6 @@
 #include "list.h"
 #include <cassert>
-#include "../../util/macros.h"
+#include "util/macros.h"
 #include "../../lua51/luaapi/context.h"
 #include <boost/lexical_cast.hpp>
 using boost::lexical_cast;

@@ -6,16 +6,16 @@ using namespace std;
 
 //============================= LIFECYCLE ================================
 
-Command::Command()
+GusCommand::GusCommand()
 {
 	m_func=NULL;
 }
 
-Command::~Command()
+GusCommand::~GusCommand()
 {
 }
 
-Command::Command(CallbackT const& func, CompleteCallbackT const& completeFunc)
+GusCommand::GusCommand(CallbackT const& func, CompleteCallbackT const& completeFunc)
 : m_func(func), m_completeFunc(completeFunc)
 {
 
@@ -23,12 +23,12 @@ Command::Command(CallbackT const& func, CompleteCallbackT const& completeFunc)
 
 //============================= INTERFACE ================================
 
-string Command::invoke(std::list<std::string> const& args)
+string GusCommand::invoke(std::list<std::string> const& args)
 {
 	return m_func(args);
 }
 
-std::string Command::completeArgument(int idx, std::string const& beginning)
+std::string GusCommand::completeArgument(int idx, std::string const& beginning)
 {
 	if(m_completeFunc)
 	{

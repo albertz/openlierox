@@ -1,7 +1,7 @@
 #include "consoleitem.h"
 
 ConsoleItem::ConsoleItem(bool locked)
-: temp(false), m_locked(locked), m_owner(0)
+: temp(false), m_owner(0), m_locked(locked)
 {
 	
 }

@@ -87,7 +87,7 @@ void Console::registerVariable(Variable* var)
 	}
 }
 
-void Console::registerCommand(std::string const& name, Command* command)
+void Console::registerCommand(std::string const& name, GusCommand* command)
 {
 	if (!name.empty() && items.find(name) == items.end())
 	{
@@ -318,8 +318,7 @@ struct CompletionHandler : public ConsoleGrammarBase
 		}
 		
 		State(string::const_iterator b_)
-		: argumentIdx(0), commandComplete(false), argumentComplete(false)
-		, beginCommand(b_), beginArgument(b_)
+		: commandComplete(false), argumentComplete(false), beginArgument(b_), beginCommand(b_), argumentIdx(0)
 		{
 		}
 		
@@ -337,8 +336,7 @@ struct CompletionHandler : public ConsoleGrammarBase
 		string::const_iterator e_,
 		Console& console_
 	)
-	: b(b_), e(e_), console(console_), current(b_), endPrefix(b_)
-	, beginPrefix(b_)
+	: b(b_), e(e_), current(b_), console(console_), beginPrefix(b_), endPrefix(b_)
 	{
 		c = (unsigned char)*b;
 	}
@@ -420,14 +418,14 @@ struct CompletionHandler : public ConsoleGrammarBase
 	}
 
 	int c;
-	string::const_iterator beginPrefix;
 	string::const_iterator b;
 	string::const_iterator e;
+	State current;
+	Console& console;
+	string::const_iterator beginPrefix;
 	string::const_iterator endPrefix;
 	
-	State current;
 	std::stack<State> states;
-	Console& console;
 };
 
 struct ItemGetText

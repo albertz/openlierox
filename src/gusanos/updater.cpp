@@ -182,7 +182,7 @@ void Updater::think()
 
 						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
 
-						if(!network.autoDownloads) {
+						if(/*!network.autoDownloads*/ false ) {
 							node->acceptFile(conn_id, fid, 0, false);
 							break;
 						}
@@ -236,7 +236,7 @@ void Updater::think()
 					break;
 
 					case eNet_EventInit: {
-						if(network.autoDownloads) {
+						if(true /*network.autoDownloads*/) {
 							Net_BitStream* str = new Net_BitStream;
 							str->addInt(MsgHello, 8);
 							node->sendEventDirect(eNet_ReliableOrdered, str, conn_id );
@@ -254,7 +254,7 @@ void Updater::think()
 
 						switch(i) {
 								case MsgRequestLevel: {
-									if(isAuthority && network.autoDownloads) {
+									if(isAuthority /*&& network.autoDownloads*/) {
 										unsigned long reqID = data->getInt(32);
 										ConnData& c = getConnection(conn_id);
 										c.queueLevel(data->getStringStatic(), reqID);

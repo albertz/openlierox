@@ -1,8 +1,8 @@
 #ifndef OMFG_GUI_EDIT
 #define OMFG_GUI_EDIT
 
-#include "../../util/rect.h"
-#include "../../util/common.h"
+#include "util/rect.h"
+#include "util/common.h"
 #include <string>
 #include "wnd.h"
 

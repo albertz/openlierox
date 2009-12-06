@@ -200,7 +200,6 @@ LuaEventDef::~LuaEventDef()
 }
 
 Network::Network()
-		: clientRetry(false)
 {
 	/*
 		m_host = false;
@@ -325,8 +324,6 @@ void Network::update()
 
 					if(m_control) {
 						m_control->Shutdown();
-						network.clientRetry = false;
-
 						delete m_control;
 						m_control = 0;
 					}
@@ -386,7 +383,6 @@ void Network::disconnect( DConnEvents event )
 		eventData->addInt( static_cast<int>( event ), 8 );
 
 		LOG("Disconnecting...");
-		network.clientRetry = true;
 		m_control->Net_disconnectAll(eventData);
 	}
 }

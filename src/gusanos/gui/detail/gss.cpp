@@ -1,7 +1,7 @@
 #include "context.h"
 #include <istream>
 #include <string>
-#include "../../util/log.h"
+#include "util/log.h"
 
 namespace OmfgGUI
 {

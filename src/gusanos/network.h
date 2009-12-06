@@ -153,14 +153,7 @@ public:
 	
 	static bool isBanned(Net_ConnID connID);
 	
-	int simLag;
-	float simLoss;
-	int upLimit;
-	int downBPP;
-	int downPPS;
 	int checkCRC;
-	bool clientRetry;
-	bool autoDownloads;
 	
 private:
 	static void setClient(bool v);
