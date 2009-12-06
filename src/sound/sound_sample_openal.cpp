@@ -1,4 +1,4 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "sound_sample_openal.h"
 #include "resource_list.h"

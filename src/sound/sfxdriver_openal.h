@@ -1,9 +1,9 @@
 #ifndef SFXDRIVER_OPENAL_H
 #define SFXDRIVER_OPENAL_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
 
 #include "sfxdriver.h"

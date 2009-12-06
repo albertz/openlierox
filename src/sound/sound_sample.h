@@ -1,15 +1,13 @@
 #ifndef SOUND_SAMPLE_H
 #define SOUND_SAMPLE_H
 
-#ifdef DEDSERV
+#ifdef DEDICATED_ONLY
 #error "Can't use this in dedicated server"
-#endif //DEDSERV
+#endif //DEDICATED_ONLY
 
-#include "resource_list.h"
+#include "gusanos/resource_list.h"
 #include "util/vec.h"
-#include "glua.h"
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
+#include "gusanos/glua.h"
 
 class BaseObject;
 

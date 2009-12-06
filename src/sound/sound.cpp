@@ -1,19 +1,17 @@
-#ifndef DEDSERV
+#ifndef DEDICATED_ONLY
 
 #include "sound.h"
 #include "sound_sample.h"
 #include "sfxdriver.h"
 
 #include "sfx.h"
-#include "resource_list.h"
+#include "gusanos/resource_list.h"
 #include "base_object.h"
 #include "util/math_func.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <vector>
 #include <string>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 
 

@@ -175,6 +175,12 @@
 		23C1826E10C49FD6003DBB09 /* SystemFunctions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */; };
 		23C3436010C825A300DABBD6 /* GfxSaveSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */; };
 		23C3439E10C8278700DABBD6 /* GfxUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3439D10C8278700DABBD6 /* GfxUtils.cpp */; };
+		23C34BD310CC1CAE00DABBD6 /* sfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC710CC1CAE00DABBD6 /* sfx.cpp */; };
+		23C34BD410CC1CAE00DABBD6 /* sfxdriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */; };
+		23C34BD510CC1CAE00DABBD6 /* sfxdriver_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */; };
+		23C34BD610CC1CAE00DABBD6 /* sound.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCD10CC1CAE00DABBD6 /* sound.cpp */; };
+		23C34BD710CC1CAE00DABBD6 /* sound_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */; };
+		23C34BD810CC1CAE00DABBD6 /* sound_sample_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -703,6 +709,18 @@
 		23C182B210C4A8B3003DBB09 /* OLXConsole.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OLXConsole.h; sourceTree = "<group>"; };
 		23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GfxSaveSurface.cpp; sourceTree = "<group>"; };
 		23C3439D10C8278700DABBD6 /* GfxUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GfxUtils.cpp; sourceTree = "<group>"; };
+		23C34BC710CC1CAE00DABBD6 /* sfx.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfx.cpp; sourceTree = "<group>"; };
+		23C34BC810CC1CAE00DABBD6 /* sfx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfx.h; sourceTree = "<group>"; };
+		23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfxdriver.cpp; sourceTree = "<group>"; };
+		23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver.h; sourceTree = "<group>"; };
+		23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfxdriver_openal.cpp; sourceTree = "<group>"; };
+		23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver_openal.h; sourceTree = "<group>"; };
+		23C34BCD10CC1CAE00DABBD6 /* sound.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound.cpp; sourceTree = "<group>"; };
+		23C34BCE10CC1CAE00DABBD6 /* sound.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound.h; sourceTree = "<group>"; };
+		23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample.cpp; sourceTree = "<group>"; };
+		23C34BD010CC1CAE00DABBD6 /* sound_sample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample.h; sourceTree = "<group>"; };
+		23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample_openal.cpp; sourceTree = "<group>"; };
+		23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample_openal.h; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1347,6 +1365,25 @@
 			path = breakpad/external/src/common/dwarf;
 			sourceTree = "<group>";
 		};
+		23C34BC610CC1CAE00DABBD6 /* sound */ = {
+			isa = PBXGroup;
+			children = (
+				23C34BC710CC1CAE00DABBD6 /* sfx.cpp */,
+				23C34BC810CC1CAE00DABBD6 /* sfx.h */,
+				23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */,
+				23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */,
+				23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */,
+				23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */,
+				23C34BCD10CC1CAE00DABBD6 /* sound.cpp */,
+				23C34BCE10CC1CAE00DABBD6 /* sound.h */,
+				23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */,
+				23C34BD010CC1CAE00DABBD6 /* sound_sample.h */,
+				23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */,
+				23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */,
+			);
+			path = sound;
+			sourceTree = "<group>";
+		};
 		23ECBDFB0E894CC5007B8D55 /* LibZip source */ = {
 			isa = PBXGroup;
 			children = (
@@ -1423,6 +1460,7 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				23C34BC610CC1CAE00DABBD6 /* sound */,
 				EABBC2580C5A5718003884A9 /* MacMain.m */,
 				EA430C3D0BEFCEB400C6547E /* main.cpp */,
 				EA430BED0BEFCEB400C6547E /* client */,
@@ -2231,6 +2269,12 @@
 				23C1826E10C49FD6003DBB09 /* SystemFunctions.cpp in Sources */,
 				23C3436010C825A300DABBD6 /* GfxSaveSurface.cpp in Sources */,
 				23C3439E10C8278700DABBD6 /* GfxUtils.cpp in Sources */,
+				23C34BD310CC1CAE00DABBD6 /* sfx.cpp in Sources */,
+				23C34BD410CC1CAE00DABBD6 /* sfxdriver.cpp in Sources */,
+				23C34BD510CC1CAE00DABBD6 /* sfxdriver_openal.cpp in Sources */,
+				23C34BD610CC1CAE00DABBD6 /* sound.cpp in Sources */,
+				23C34BD710CC1CAE00DABBD6 /* sound_sample.cpp in Sources */,
+				23C34BD810CC1CAE00DABBD6 /* sound_sample_openal.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2828,6 +2872,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/hawknl/include",
 					"$(SRCROOT)/../../libs/libzip",
 					"$(SRCROOT)/../../libs/pstreams",
