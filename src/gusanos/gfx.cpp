@@ -6,7 +6,6 @@
 #include "blitters/blitters.h"
 #include "blitters/colors.h"
 #include "blitters/macros.h"
-#include "mouse.h"
 #include "sprite_set.h"
 #include "sprite.h"
 #endif
