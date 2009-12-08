@@ -12,6 +12,7 @@
 #include "sprite.h"
 #include "lua51/luaapi/context.h"
 #include "network.h"
+#include "CMap.h"
 
 #include <iostream>
 
@@ -177,7 +178,7 @@ void Weapon::drawBottom(BITMAP* where, int x, int y )
 		}
 		Vec posDiff;
 		float intensity = m_type->laserSightIntensity;
-		while ( game.level.getMaterial( (int)(m_owner->pos.x+posDiff.x), (int)(m_owner->pos.y+posDiff.y) ).particle_pass ) {
+		while ( game.level().getMaterial( (int)(m_owner->pos.x+posDiff.x), (int)(m_owner->pos.y+posDiff.y) ).particle_pass ) {
 			if ( rnd() < intensity ) {
 				if ( m_type->laserSightBlender != NONE )
 					gfx.setBlender( m_type->laserSightBlender, m_type->laserSightAlpha );

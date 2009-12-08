@@ -45,6 +45,7 @@
 #include "lua/bindings.h"
 #include "Debug.h"
 #include "FindFile.h"
+#include "CClient.h"
 
 #include "gusanos/allegro.h"
 #include <string>
@@ -530,7 +531,7 @@ void Game::think()
 			runInitScripts();
 				
 			// All this is temporal, dont be scared ;D
-			if ( loaded && level.isLoaded() ) 
+			if ( loaded && level().gusIsLoaded() ) 
 			{
 				if ( network.isHost() )
 				{
@@ -565,7 +566,7 @@ void Game::think()
 	}
 #endif
 
-	level.think();
+	level().think();
 
 	if ( !m_node )
 		return;
@@ -588,8 +589,8 @@ void Game::think()
 					case eHole:
 					{
 						int index = Encoding::decode(*data, levelEffectList.size());
-						BaseVec<int> v = level.intVectorEncoding.decode<BaseVec<int> >(*data);
-						level.applyEffect( levelEffectList[index], v.x, v.y );
+						BaseVec<int> v = level().intVectorEncoding.decode<BaseVec<int> >(*data);
+						level().applyEffect( levelEffectList[index], v.x, v.y );
 					}
 					break;
 					
@@ -640,7 +641,7 @@ void Game::think()
 					Net_BitStream *data = new Net_BitStream;
 					addEvent(data, eHole);
 					Encoding::encode(*data, iter->index, levelEffectList.size());
-					level.intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
+					level().intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
 					
 					m_node->sendEventDirect(eNet_ReliableOrdered, data, conn_id );
 				}
@@ -659,13 +660,13 @@ void Game::applyLevelEffect( LevelEffect* effect, int x, int y )
 {
 	if ( !network.isClient() )
 	{
-		if ( level.applyEffect( effect, x, y ) && m_node && network.isHost() )
+		if ( level().applyEffect( effect, x, y ) && m_node && network.isHost() )
 		{
 			Net_BitStream *data = new Net_BitStream;
 
 			addEvent(data, eHole);
 			Encoding::encode(*data, effect->getIndex(), levelEffectList.size());
-			level.intVectorEncoding.encode(*data, BaseVec<int>(x, y));
+			level().intVectorEncoding.encode(*data, BaseVec<int>(x, y));
 
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 			
@@ -755,7 +756,7 @@ void Game::runInitScripts()
 		(lua.call(ref))();
 	}
 
-	Script* levelScript = scriptLocator.load("map_" + level.getName());
+	Script* levelScript = scriptLocator.load("map_" + level().getName());
 	if(levelScript)
 	{
 		LuaReference ref = levelScript->createFunctionRef("init");
@@ -788,7 +789,7 @@ void Game::reset(ResetReason reason)
 
 	appliedLevelEffects.clear();
 	
-	level.unload();
+	level().gusUnload();
 	
 	if(reason != LoadingLevel)
 	{
@@ -981,7 +982,7 @@ bool Game::changeLevelCmd(const std::string& levelName )
 bool Game::reloadModWithoutMap()
 {
 	unload();
-	level.setName("");
+	//level.gusUnload();
 	refreshResources("default");
 	loadMod(false);
 	runInitScripts();
@@ -1025,11 +1026,11 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 	m_modName = nextMod;
 	m_modPath = nextMod;
 
-	level.setName(levelName);
+	//level.setName(levelName);
 	refreshResources(levelPath);
 	//cerr << "Loading level" << endl;
 	
-	if(!levelLocator.load(&level, levelName))
+	if(!levelLocator.load(&level(), levelName))
 	{
 		reloadModWithoutMap();
 		error(ErrorMapLoading);
@@ -1037,7 +1038,7 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 	}
 
 #ifdef USE_GRID
-	objects.resize(0, 0, level.width(), level.height());
+	objects.resize(0, 0, level().width(), level().height());
 #endif
 	
 	//cerr << "Loading mod" << endl;
@@ -1262,7 +1263,7 @@ BaseWorm* Game::addWorm(bool isAuthority)
 
 void Game::addBot(int team)
 {
-	if ( loaded && level.isLoaded() )
+	if ( loaded && level().gusIsLoaded() )
 	{
 		BaseWorm* worm = addWorm(true); 
 		BasePlayer* player = addPlayer(AI, team, worm);
@@ -1323,3 +1324,8 @@ Net_Node* Game::getNode()
 {
 	return m_node;
 }*/
+
+CMap& Game::level() {
+	return *cClient->getMap();
+}
+

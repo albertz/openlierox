@@ -11,6 +11,7 @@
 #include "util/macros.h"
 #include "util/log.h"
 #include "encoding.h"
+#include "CMap.h"
 
 #ifndef DISABLE_ZOIDCOM
 
@@ -124,7 +125,7 @@ bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Ne
 		console.addLogMsg("* CONNECTION REQUESTED");
 		//_reply.addInt(Network::ConnectionReply::Ok, 8);
 		reply.addString( game.getMod().c_str() );
-		reply.addString( game.level.getName().c_str() );
+		reply.addString( game.level().getName().c_str() );
 
 		return true;
 	}

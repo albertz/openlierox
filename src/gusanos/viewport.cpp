@@ -13,6 +13,7 @@
 #include "lua/bindings-gfx.h"
 #include "blitters/blitters.h"
 #include "culling.h"
+#include "CMap.h"
 #include <list>
 
 #include "sprite_set.h" // TEMP
@@ -49,7 +50,7 @@ struct TestCuller : public Culler<TestCuller>
 
 	bool block(int x, int y)
 	{
-		return !game.level.unsafeGetMaterial(x, y).worm_pass;
+		return !game.level().unsafeGetMaterial(x, y).worm_pass;
 	}
 
 	void line(int y, int x1, int x2)
@@ -122,7 +123,7 @@ void Viewport::drawLight(IVec const& v)
 	IVec off(m_pos);
 	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
 
-	Rect r(0, 0, game.level.width() - 1, game.level.height() - 1);
+	Rect r(0, 0, game.level().width() - 1, game.level().height() - 1);
 	r &= Rect(testLight) + loff;
 
 	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
@@ -136,10 +137,10 @@ void Viewport::render(BasePlayer* player)
 	int offX = static_cast<int>(m_pos.x);
 	int offY = static_cast<int>(m_pos.y);
 
-	game.level.draw(dest, offX, offY);
+	game.level().draw(dest, offX, offY);
 
-	if ( game.level.config()->darkMode && game.level.lightmap )
-		blit( game.level.lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
+	if ( game.level().config()->darkMode && game.level().lightmap )
+		blit( game.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 #ifdef USE_GRID
 
@@ -175,7 +176,7 @@ void Viewport::render(BasePlayer* player)
 	}
 #endif
 
-	if(game.level.config()->darkMode)
+	if(game.level().config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
 	EACH_CALLBACK(i, wormRender) {
@@ -213,12 +214,12 @@ void Viewport::setPos(float x, float y)
 	if (m_listener)
 		m_listener->pos = m_pos + Vec(dest->w/2,dest->h/2);
 
-	if ( m_pos.x + dest->w > game.level.width() )
-		m_pos.x = game.level.width() - dest->w;
+	if ( m_pos.x + dest->w > game.level().width() )
+		m_pos.x = game.level().width() - dest->w;
 	else if ( m_pos.x < 0 )
 		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level.height() )
-		m_pos.y = game.level.height() - dest->h;
+	if ( m_pos.y + dest->h > game.level().height() )
+		m_pos.y = game.level().height() - dest->h;
 	else if ( m_pos.y < 0 )
 		m_pos.y = 0;
 
@@ -234,12 +235,12 @@ void Viewport::interpolateTo(float x, float y, float factor)
 	if (m_listener)
 		m_listener->pos = Vec(x,y);
 
-	if ( m_pos.x + dest->w > game.level.width() )
-		m_pos.x = game.level.width() - dest->w;
+	if ( m_pos.x + dest->w > game.level().width() )
+		m_pos.x = game.level().width() - dest->w;
 	else if ( m_pos.x < 0 )
 		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level.height() )
-		m_pos.y = game.level.height() - dest->h;
+	if ( m_pos.y + dest->h > game.level().height() )
+		m_pos.y = game.level().height() - dest->h;
 	else if ( m_pos.y < 0 )
 		m_pos.y = 0;
 }
@@ -251,12 +252,12 @@ void Viewport::interpolateTo(Vec destPos, float factor)
 	if (m_listener)
 		m_listener->pos = destPos;
 
-	if ( m_pos.x + dest->w > game.level.width() )
-		m_pos.x = game.level.width() - dest->w;
+	if ( m_pos.x + dest->w > game.level().width() )
+		m_pos.x = game.level().width() - dest->w;
 	else if ( m_pos.x < 0 )
 		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level.height() )
-		m_pos.y = game.level.height() - dest->h;
+	if ( m_pos.y + dest->h > game.level().height() )
+		m_pos.y = game.level().height() - dest->h;
 	else if ( m_pos.y < 0 )
 		m_pos.y = 0;
 }

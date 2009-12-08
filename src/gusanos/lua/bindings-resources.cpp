@@ -15,6 +15,7 @@
 #include "../part_type.h"
 #include "../weapon_type.h"
 #include "../glua.h"
+#include "CMap.h"
 
 //TEMP:
 #include "../sprite_set.h"
@@ -356,7 +357,7 @@ METHODC(Sound, sound_play,
 */
 int l_map_is_loaded(lua_State* L)
 {
-	lua_pushboolean(L, game.level.loaded);
+	lua_pushboolean(L, game.level().isLoaded());
 	
 	return 1;
 }
@@ -534,7 +535,7 @@ int l_maps(lua_State* L)
 	
 	context.pushReference(mapIterator);
 	
-	typedef ResourceLocator<Level>::NamedResourceMap::const_iterator iter;
+	typedef ResourceLocator<CMap>::NamedResourceMap::const_iterator iter;
 	
 	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
 	i = levelLocator.getMap().begin();
@@ -547,7 +548,7 @@ int l_mapIterator(lua_State* L)
 {
 	LuaContext context(L);
 	
-	typedef ResourceLocator<Level>::NamedResourceMap::const_iterator iter;
+	typedef ResourceLocator<CMap>::NamedResourceMap::const_iterator iter;
 	
 	iter& i = *(iter *)lua_touserdata(L, 1);
 	if(i == levelLocator.getMap().end())

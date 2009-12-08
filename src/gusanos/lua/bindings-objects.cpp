@@ -14,6 +14,7 @@
 #include "../game.h"
 #include "../glua.h"
 #include "util/log.h"
+#include "CMap.h"
 
 #include <cmath>
 #include <iostream>
@@ -419,7 +420,7 @@ METHODC(BaseObject, baseObject_getClosestWorm,
 			//if(worm->isActive())
 			{
 				float distSqr = (worm->pos - from).lengthSqr();
-				if(distSqr < minDistSqr && !game.level.trace(fromx, fromy, int(worm->pos.x), int(worm->pos.y), Level::ParticleBlockPredicate()))
+				if(distSqr < minDistSqr && !game.level().trace(fromx, fromy, int(worm->pos.x), int(worm->pos.y), CMap::ParticleBlockPredicate()))
 				{
 					minDistSqr = distSqr;
 					minWorm = worm;

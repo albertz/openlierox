@@ -22,6 +22,7 @@
 #endif
 #include "weapon.h"
 #include "ninjarope.h"
+#include "CMap.h"
 
 #include "glua.h"
 #include "lua51/luaapi/context.h"
@@ -196,7 +197,7 @@ void BaseWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 
 
 	for(reacts[d] = 0; len > 0; --len) {
-		Material const& g = game.level.getMaterial(origin.x, origin.y);
+		Material const& g = game.level().getMaterial(origin.x, origin.y);
 
 		if(!g.worm_pass) {
 			++reacts[d];
@@ -222,12 +223,12 @@ void BaseWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>
 	// Add more if the worm is outside the screen
 	if(inextPos.x < 5)
 		reacts[Right] += 5;
-	else if(inextPos.x > game.level.width() - 5)
+	else if(inextPos.x > game.level().width() - 5)
 		reacts[Left] += 5;
 
 	if(inextPos.y < 5)
 		reacts[Down] += 5;
-	else if(inextPos.y > game.level.height() - 5)
+	else if(inextPos.y > game.level().height() - 5)
 		reacts[Up] += 5;
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
@@ -468,7 +469,7 @@ void BaseWorm::think()
 		{
 			if ( spd.x < game.options.worm_maxSpeed )
 			{
-				if (game.level.getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
+				if (game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
 					spd.x += game.options.worm_acceleration * game.options.worm_airAccelerationFactor;
 				else
 					spd.x += game.options.worm_acceleration;
@@ -480,7 +481,7 @@ void BaseWorm::think()
 		{
 			if ( -spd.x < game.options.worm_maxSpeed )
 			{
-				if (game.level.getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
+				if (game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
 					spd.x -= game.options.worm_acceleration * game.options.worm_airAccelerationFactor;
 				else
 					spd.x -= game.options.worm_acceleration;
@@ -490,7 +491,7 @@ void BaseWorm::think()
 		
 		
 		// Bottom collision
-		Material g = game.level.getMaterial( (int)pos.x, (int)(pos.y + spd.y) );
+		Material g = game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y) );
 		if (!g.particle_pass && spd.y > 0)
 		{
 			// Floor friction;
@@ -506,7 +507,7 @@ void BaseWorm::think()
 		}
 		
 		// Top collision
-		g = game.level.getMaterial( (int)pos.x, (int)(pos.y + spd.y - game.options.worm_height) );
+		g = game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y - game.options.worm_height) );
 		if (!g.particle_pass && spd.y < 0)
 		{
 			// Roof friction;
@@ -527,11 +528,11 @@ void BaseWorm::think()
 		int lower = -1;
 		for ( int i = 0; i < game.options.worm_height; i++ )
 		{
-			if (!game.level.getMaterial( (int)(pos.x + spd.x), (int)(pos.y - i) ).particle_pass) lower = i;
+			if (!game.level().getMaterial( (int)(pos.x + spd.x), (int)(pos.y - i) ).particle_pass) lower = i;
 		}
 		for ( int i = 0; i <= game.options.worm_height; i++ )
 		{
-			if (!game.level.getMaterial( (int)(pos.x + spd.x), (int)(pos.y - game.options.worm_height + i) ).particle_pass) upper = i;
+			if (!game.level().getMaterial( (int)(pos.x + spd.x), (int)(pos.y - game.options.worm_height + i) ).particle_pass) upper = i;
 		}
 		
 		// Floor climb
@@ -845,7 +846,7 @@ void BaseWorm::respawn()
 {
 	// Check if its already allowed to respawn
 	if ( m_timeSinceDeath > game.options.minRespawnTime )
-		respawn( game.level.getSpawnLocation( m_owner ) );
+		respawn( game.level().getSpawnLocation( m_owner ) );
 }
 
 void BaseWorm::respawn( const Vec& newPos)

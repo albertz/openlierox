@@ -1,4 +1,5 @@
 #include "level.h"
+#include "CMap.h"
 
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
@@ -23,12 +24,12 @@
 
 using namespace std;
 
-ResourceLocator<Level> levelLocator;
+ResourceLocator<CMap> levelLocator;
 
 #ifndef DEDICATED_ONLY
 struct AddCuller : Culler<AddCuller>
 {
-	AddCuller( Level& level, BITMAP* dest, BITMAP* source, int alpha,int dOffx, int dOffy, int sOffx, int sOffy, Rect const& rect )
+	AddCuller( CMap& level, BITMAP* dest, BITMAP* source, int alpha,int dOffx, int dOffy, int sOffx, int sOffy, Rect const& rect )
 			: Culler<AddCuller>(rect),
 			m_level(level),
 			m_dest( dest ),
@@ -61,7 +62,7 @@ struct AddCuller : Culler<AddCuller>
 
 private:
 
-	Level const &m_level;
+	CMap const &m_level;
 
 	BITMAP* m_dest;
 	BITMAP* m_source;
@@ -76,9 +77,9 @@ private:
 };
 #endif
 
-Level::Level()
+void CMap::initGusanosPart()
 {
-	loaded = false;
+	m_gusLoaded = false;
 	m_firstFrame = true;
 	m_config = 0;
 
@@ -135,18 +136,17 @@ Level::Level()
 	}
 }
 
-Level::~Level()
-{}
 
-void Level::unload()
+void CMap::gusUnload()
 {
-	loaded = false;
-	path = "";
+	m_gusLoaded = false;
 	m_firstFrame = true;
 
-	delete m_config;
-	m_config = 0;
-
+	if(m_config) {
+		delete m_config;
+		m_config = 0;
+	}
+	
 #ifndef DEDICATED_ONLY
 
 	destroy_bitmap(image);
@@ -167,14 +167,9 @@ void Level::unload()
 	vectorEncoding = Encoding::VectorEncoding();
 }
 
-bool Level::isLoaded()
-{
-	return loaded;
-}
 
 
-
-void Level::checkWBorders( int x, int y )
+void CMap::checkWBorders( int x, int y )
 {
 	if ( getMaterial( x, y-1 ).is_stagnated_water ) {
 		unsigned char mat = getMaterialIndex(x, y-1) - 1;
@@ -196,9 +191,9 @@ void Level::checkWBorders( int x, int y )
 
 static const float WaterSkipFactor = 0.05f;
 
-void Level::think()
+void CMap::think()
 {
-	if(!isLoaded())
+	if(!gusIsLoaded())
 		return;
 
 	if( m_firstFrame ) {
@@ -258,7 +253,7 @@ void Level::think()
 }
 
 #ifndef DEDICATED_ONLY
-void Level::draw(BITMAP* where, int x, int y)
+void CMap::draw(BITMAP* where, int x, int y)
 {
 	if (image) {
 		if (!paralax) {
@@ -281,7 +276,7 @@ void Level::draw(BITMAP* where, int x, int y)
 
 
 // TODO: optimize this
-void Level::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter )
+void CMap::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter )
 {
 	int transCol = makecol(255,0,255); // TODO: make a gfx.getTransCol() function
 
@@ -300,7 +295,7 @@ void Level::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, c
 		}
 }
 
-void Level::culledDrawSprite( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
+void CMap::culledDrawSprite( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
 {
 	BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
@@ -328,7 +323,7 @@ void Level::culledDrawSprite( Sprite* sprite, Viewport* viewport, const IVec& po
 
 }
 
-void Level::culledDrawLight( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
+void CMap::culledDrawLight( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
 {
 	BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
@@ -357,7 +352,7 @@ void Level::culledDrawLight( Sprite* sprite, Viewport* viewport, const IVec& pos
 
 #endif
 
-bool Level::applyEffect(LevelEffect* effect, int drawX, int drawY )
+bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 {
 	bool returnValue = false;
 	if ( effect && effect->mask ) {
@@ -393,7 +388,7 @@ namespace
 	}
 }
 
-Vec Level::getSpawnLocation(BasePlayer* player)
+Vec CMap::getSpawnLocation(BasePlayer* player)
 {
 	if(m_config) {
 		int alt = 0;
@@ -423,7 +418,7 @@ Vec Level::getSpawnLocation(BasePlayer* player)
 	return pos;
 }
 
-int Level::width()
+int CMap::width()
 {
 	if ( material )
 		return material->w;
@@ -431,7 +426,7 @@ int Level::width()
 		return 0;
 }
 
-int Level::height()
+int CMap::height()
 {
 	if ( material )
 		return material->h;
@@ -439,24 +434,9 @@ int Level::height()
 		return 0;
 }
 
-void Level::setName(const std::string& _name)
+void CMap::loaderSucceeded()
 {
-	name = _name;
-}
-
-const string& Level::getPath()
-{
-	return path;
-}
-
-const string& Level::getName()
-{
-	return name;
-}
-
-void Level::loaderSucceeded()
-{
-	loaded = true;
+	m_gusLoaded = true;
 	m_water.clear();
 	for ( int y = 0; y < material->h; ++y )
 		for ( int x = 0; x < material->w; ++x ) {

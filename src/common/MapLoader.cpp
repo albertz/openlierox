@@ -1888,8 +1888,8 @@ private:
 
 class ML_Gusanos : public MapLoad {
 public:
-	ResourceLocator<Level>::BaseLoader* loader;
-	ML_Gusanos(ResourceLocator<Level>::BaseLoader* l, const std::string& name) : loader(l) { head.name = name; }
+	ResourceLocator<CMap>::BaseLoader* loader;
+	ML_Gusanos(ResourceLocator<CMap>::BaseLoader* l, const std::string& name) : loader(l) { head.name = name; }
 	
 	std::string format() { return loader->format(); }
 	std::string formatShort() { return loader->formatShort(); }
@@ -1899,8 +1899,8 @@ public:
 	}
 	
 	virtual bool parseData(CMap* m) {
-		// TODO ...
-		return false;
+		// TODO: abs filename
+		return loader->load(m, "levels/" + GetBaseFilename(filename));
 	}
 
 };
@@ -1914,9 +1914,9 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 	}
 	
 	if(IsDirectory(filename, abs_filename)) {
+		// TODO: abs filename
 		std::string basename = GetBaseFilename(filename);
-		notes << "check " << basename << " for Gus level" << endl;
-		ResourceLocator<Level>::BaseLoader* loader = NULL;
+		ResourceLocator<CMap>::BaseLoader* loader = NULL;
 		std::string name;
 		if(levelLocator.canLoad("levels/" + basename, name, loader))
 			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;			

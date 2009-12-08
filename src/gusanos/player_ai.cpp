@@ -6,6 +6,7 @@
 #include "weapon.h"
 #include "util/angle.h"
 #include "util/vec.h"
+#include "CMap.h"
 #include <vector>
 #include <list>
 #include <cmath>
@@ -28,7 +29,7 @@ bool check_materials( int x1, int y1, int x2, int y2 )
 #define DO_COL(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)		\
 {										\
 	if (d##pri_c == 0) {							\
-		return game.level.getMaterial(x1, y1).particle_pass;		\
+		return game.level().getMaterial(x1, y1).particle_pass;		\
 	}									\
 										\
 	i1 = 2 * d##sec_c;							\
@@ -39,7 +40,7 @@ bool check_materials( int x1, int y1, int x2, int y2 )
 	y = y1;									\
 										\
 	while (pri_c pri_cond pri_c##2) {					\
-		if ( !game.level.getMaterial(x, y).particle_pass )		\
+		if ( !game.level().getMaterial(x, y).particle_pass )		\
 			return true;						\
 										\
 		if (dd sec_cond 0) {						\

@@ -13,6 +13,7 @@
 #include "viewport.h"
 #endif
 #include "part_type.h"
+#include "CMap.h"
 
 #include <vector>
 
@@ -104,7 +105,7 @@ void NinjaRope::think()
 		}
 		else
 		*/
-		if(!game.level.getMaterial( ipos.x, ipos.y ).particle_pass)
+		if(!game.level().getMaterial( ipos.x, ipos.y ).particle_pass)
 		{
 			if(!attached)
 			{
@@ -147,7 +148,7 @@ void NinjaRope::think()
 			justCreated = false;
 		}
 		
-		if( !game.level.getMaterial( (int)(pos+spd).x, (int)(pos+spd).y ).particle_pass )
+		if( !game.level().getMaterial( (int)(pos+spd).x, (int)(pos+spd).y ).particle_pass )
 		{
 			if (!attached)
 			{

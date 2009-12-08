@@ -10,6 +10,7 @@
 #include "../game_actions.h"
 #include "../parser.h"
 #include "util/macros.h"
+#include "CMap.h"
 #include <string>
 
 #include "../omfgscript/omfg_script.h"
@@ -124,11 +125,11 @@ namespace{
 
 }
 	
-bool VermesLevelLoader::load(Level* level, std::string const& path)
+bool VermesLevelLoader::load(CMap* level, std::string const& path)
 {
 	std::string materialPath = path + "/material";
 	
-	level->path = path;
+	level->FileName = path;
 	
 	{
 		LocalSetColorDepth cd(8);
@@ -182,7 +183,7 @@ bool VermesLevelLoader::load(Level* level, std::string const& path)
 		return true;
 #endif
 	}
-	level->unload();
+	level->gusUnload();
 	return false;
 }
 

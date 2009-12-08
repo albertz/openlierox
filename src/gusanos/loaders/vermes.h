@@ -9,11 +9,11 @@
 #endif
 #include "../script.h"
 
-struct VermesLevelLoader : ResourceLocator<Level>::BaseLoader
+struct VermesLevelLoader : ResourceLocator<CMap>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, std::string const& path);
+	virtual bool load(CMap*, std::string const& path);
 	
 	virtual const char* getName();
 	virtual std::string format();

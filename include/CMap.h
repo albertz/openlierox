@@ -26,6 +26,9 @@
 #include "GfxPrimitives.h" // for Rectangle<>
 #include "CClient.h" // only for cClient->getMap() for fastTraceLine()
 #include "Color.h"
+#include "MathLib.h" // for SIGN
+#include "gusanos/level.h"
+
 
 class CViewport;
 class CCache;
@@ -84,12 +87,15 @@ class MapLoad;
 class ML_OrigLiero;
 class ML_LieroX;
 class ML_CommanderKeen123;
+struct VermesLevelLoader;
 
 class CMap {
 	friend class MapLoad;
 	friend class ML_OrigLiero;
 	friend class ML_LieroX;
 	friend class ML_CommanderKeen123;
+	friend class VermesLevelLoader;
+	
 private:
 	// just don't do that
 	CMap(const CMap&) { assert(false); }
@@ -427,7 +433,180 @@ public:
 			for(int x = r.x(); x < r.x2(); x++)
 				if(!walker(x, y)) return;
 	}
+	
+	
+	
+	
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ---------------------------      Gusanos       -------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+
+public:
+	void think();
+	bool gusIsLoaded() { return m_gusLoaded; }
+	void gusUnload();
+#ifndef DEDICATED_ONLY
+	void draw(BITMAP* where, int x, int y);
+#endif
+	int width();
+	int height();
+		
+	Vec getSpawnLocation(BasePlayer* player);
+	
+	Material const& getMaterial(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return m_materialList[(unsigned char)material->line[y][x]];
+		else
+			return m_materialList[0];
+	}
+	
+	Material const& unsafeGetMaterial(unsigned int x, unsigned int y) const
+	{
+		return m_materialList[(unsigned char)material->line[y][x]];
+	}
+	
+	unsigned char getMaterialIndex(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return (unsigned char)material->line[y][x];
+		else
+			return 0;
+	}
+	
+	void putMaterial( unsigned char index, unsigned int x, unsigned int y )
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			material->line[y][x] = index;
+	}
+	
+	void putMaterial( Material const& mat, unsigned int x, unsigned int y )
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			material->line[y][x] = mat.index;
+	}
+	
+	bool isInside(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return true;
+		else
+			return false;
+	}
+	
+	template<class PredT>
+	bool trace(long srcx, long srcy, long destx, long desty, PredT predicate);
+	
+#ifndef DEDICATED_ONLY
+	void specialDrawSprite(Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
+	
+	void culledDrawSprite(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
+	void culledDrawLight(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
+	
+#endif
+	// applies the effect and returns true if it actually changed something on the map
+	bool applyEffect( LevelEffect* effect, int x, int y);
+	
+	void loaderSucceeded();
+	
+	
+#ifndef DEDICATED_ONLY
+	BITMAP* image;
+	BITMAP* background;
+	BITMAP* paralax;
+	BITMAP* lightmap; // This has to be 8 bit.
+	BITMAP* watermap; // How water looks in each pixel of the map
+#endif
+	BITMAP* material;
+	Encoding::VectorEncoding vectorEncoding;
+	Encoding::VectorEncoding intVectorEncoding;
+	Encoding::DiffVectorEncoding diffVectorEncoding;
+	
+	struct ParticleBlockPredicate
+	{
+		bool operator()(Material const& m)
+		{
+			return !m.particle_pass;
+		}
+	};
+			
+	void setEvents( LevelConfig* events )
+	{
+		delete m_config;
+		m_config = events;
+	}
+	
+	LevelConfig* config()
+	{ return m_config; }
+	
+private:
+	void initGusanosPart();
+	
+	void checkWBorders( int x, int y );
+	
+	array<Material, 256> m_materialList;
+	
+	LevelConfig *m_config;
+	bool m_firstFrame;
+	bool m_gusLoaded;
+	
+	std::list<WaterParticle> m_water;
+	
 };
+
+
+
+template<class PredT>
+bool CMap::trace(long x, long y, long destx, long desty, PredT predicate)
+{
+	if(!isInside(x, y))
+	{
+		if(predicate(m_materialList[0]))
+			return true;
+		else
+		{
+			return true; //TODO: Clip the beginning of the line instead of returning
+		}
+	}
+	if(!isInside(destx, desty))
+	{
+		if(predicate(m_materialList[0]))
+			return true;
+		else
+		{
+			return true; //TODO: Clip the end of the line instead of returning
+		}
+	}
+		
+	long xdiff = destx - x;
+	long ydiff = desty - y;
+	
+	long sx = SIGN(xdiff);
+	long sy = SIGN(ydiff);
+
+	xdiff = labs(xdiff);
+	ydiff = labs(ydiff);
+	
+	#define WORK(a, b) { \
+		long i = a##diff >> 1; \
+		long c = a##diff; \
+		while(c-- >= 0) { \
+			if(predicate(unsafeGetMaterial(x, y))) return true; \
+			i -= b##diff; \
+			a += s##a; \
+			if(i < 0) b += s##b, i += a##diff; } }
+	
+	if(xdiff > ydiff)
+		WORK(x, y)
+	else
+		WORK(y, x)
+
+	#undef WORK
+
+	return false;
+}
 
 
 

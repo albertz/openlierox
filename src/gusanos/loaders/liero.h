@@ -6,12 +6,13 @@
 #ifndef DEDICATED_ONLY
 #include "../font.h"
 #endif
+#include "CMap.h"
 
-struct LieroLevelLoader : ResourceLocator<Level>::BaseLoader
+struct LieroLevelLoader : ResourceLocator<CMap>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, std::string const& path);
+	virtual bool load(CMap*, std::string const& path);
 	
 	virtual const char* getName();
 	virtual std::string format();

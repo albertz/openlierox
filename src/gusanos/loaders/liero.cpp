@@ -184,7 +184,7 @@ void initMaterialMappings()
 	}
 }
 
-bool LieroLevelLoader::load(Level* level, std::string const& path)
+bool LieroLevelLoader::load(CMap* level, std::string const& path)
 {
 	std::ifstream f;
 	OpenGameFileR(f, path, std::ios::binary);

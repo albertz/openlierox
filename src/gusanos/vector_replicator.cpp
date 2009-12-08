@@ -32,7 +32,7 @@ void VectorReplicator::packData(Net_BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 	/*
-		dynamic_bitset<> n = game.level.vectorEncoding.encode(*m_ptr);
+		dynamic_bitset<> n = game.level().vectorEncoding.encode(*m_ptr);
 		Encoding::writeBitset(*_stream, n);
 	*/
 	encoding.encode(*_stream, *m_ptr);
@@ -49,8 +49,8 @@ void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _
 	if (_store) {
 #ifdef COMPACT_FLOATS
 		/*
-				dynamic_bitset<> n = Encoding::readBitset(*_stream, game.level.vectorEncoding.bits);
-				*m_ptr = game.level.vectorEncoding.decode<Vec>(n);*/
+				dynamic_bitset<> n = Encoding::readBitset(*_stream, game.level().vectorEncoding.bits);
+				*m_ptr = game.level().vectorEncoding.decode<Vec>(n);*/
 		*m_ptr = encoding.decode<Vec>(*_stream);
 #else
 
@@ -60,7 +60,7 @@ void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _
 
 	} else {
 #ifdef COMPACT_FLOATS
-		//Encoding::readBitset(*_stream, game.level.vectorEncoding.bits);
+		//Encoding::readBitset(*_stream, game.level().vectorEncoding.bits);
 		encoding.decode<Vec>(*_stream);
 #else
 
@@ -77,8 +77,8 @@ void* VectorReplicator::peekData()
 	Vec *retVec = new Vec;
 #ifdef COMPACT_FLOATS
 	/*
-		dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), game.level.vectorEncoding.bits);
-		*retVec = game.level.vectorEncoding.decode<Vec>(n);*/
+		dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), game.level().vectorEncoding.bits);
+		*retVec = game.level().vectorEncoding.decode<Vec>(n);*/
 	*retVec = encoding.decode<Vec>(*getPeekStream());
 #else
 

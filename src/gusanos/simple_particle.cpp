@@ -8,6 +8,7 @@
 #include "blitters/blitters.h"
 #include "viewport.h"
 #endif
+#include "CMap.h"
 
 #define BOOST_NO_MT
 #include <boost/pool/pool.hpp>
@@ -30,7 +31,7 @@ void SimpleParticle::think()
 {
 	spd.y += gravity;
 	Vec nextPos = pos + spd;
-	if(!game.level.getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
+	if(!game.level().getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 	else
@@ -39,7 +40,7 @@ void SimpleParticle::think()
 	/*
 	spdy += gravity;
 	
-	if(!game.level.getMaterial(posx >> 8, posy >> 8).particle_pass
+	if(!game.level().getMaterial(posx >> 8, posy >> 8).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 		

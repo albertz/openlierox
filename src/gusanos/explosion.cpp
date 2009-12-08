@@ -17,6 +17,7 @@
 #include "animators.h"
 #endif
 #include "detect_event.h"
+#include "CMap.h"
 
 #include <vector>
 
@@ -127,7 +128,7 @@ void Explosion::draw(Viewport* viewport)
 		}
 		else
 		{
-			game.level.specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(pos), blitter );
+			game.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(pos), blitter );
 		}
 	}
 	if (m_type->distortion)
@@ -136,7 +137,7 @@ void Explosion::draw(Viewport* viewport)
 	}
 	if ( m_type->lightHax )
 	{
-		game.level.culledDrawLight( m_type->lightHax, viewport, IVec(pos), (int)m_alpha );
+		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(pos), (int)m_alpha );
 	}
 }
 

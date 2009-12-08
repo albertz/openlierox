@@ -25,6 +25,7 @@
 #include "sprite_set.h"
 #include "player_ai.h"
 #include "network.h"
+#include "CMap.h"
 
 
 #include "script.h"
@@ -129,7 +130,7 @@ void gusFrame() {
 		}
 #endif
 		
-		if ( game.isLoaded() && game.level.isLoaded() )
+		if ( game.isLoaded() && game.level().gusIsLoaded() )
 		{
 			
 #ifdef USE_GRID
@@ -225,7 +226,7 @@ void gusFrame() {
 	}
 
 
-	if ( game.isLoaded() && game.level.isLoaded() )
+	if ( game.isLoaded() && game.level().gusIsLoaded() )
 	{
 
 		for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)

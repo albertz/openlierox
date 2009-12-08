@@ -4,11 +4,11 @@
 #include "../resource_locator.h"
 #include "../level.h"
 
-struct LieroXLevelLoader : ResourceLocator<Level>::BaseLoader
+struct LieroXLevelLoader : ResourceLocator<CMap>::BaseLoader
 {
 	virtual bool canLoad(std::string const& path, std::string& name);
 	
-	virtual bool load(Level*, std::string const& path);
+	virtual bool load(CMap*, std::string const& path);
 	
 	virtual const char* getName();
 	virtual std::string format();

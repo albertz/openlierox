@@ -15,6 +15,7 @@
 #include "../level.h"
 #include "util/log.h"
 #include "util/stringbuild.h"
+#include "CMap.h"
 
 #include <cmath>
 #include <iostream>
@@ -335,7 +336,7 @@ int l_map_isBlocked(lua_State* L)
 	int y1 = lua_tointeger(L, 2);
 	int x2 = lua_tointeger(L, 3);
 	int y2 = lua_tointeger(L, 4);
-	lua_pushboolean(L, game.level.trace(x1, y1, x2, y2, Level::ParticleBlockPredicate()));
+	lua_pushboolean(L, game.level().trace(x1, y1, x2, y2, CMap::ParticleBlockPredicate()));
 	return 1;
 }
 
@@ -349,7 +350,7 @@ int l_map_isParticlePass(lua_State* L)
 	int x = lua_tointeger(L, 1);
 	int y = lua_tointeger(L, 2);
 
-	lua_pushboolean(L, game.level.getMaterial(x, y).particle_pass);
+	lua_pushboolean(L, game.level().getMaterial(x, y).particle_pass);
 	return 1;
 }
 

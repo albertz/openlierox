@@ -36,7 +36,7 @@ struct LuaEventDef;
 class Sound;
 class Font;
 #endif
-
+class CMap;
 
 #define USE_GRID
 
@@ -204,7 +204,7 @@ public:
 	void displayKillMsg( BasePlayer* killed, BasePlayer* killer );
 	void displayMessage( ScreenMessage const& msg );
 	
-	Level level;
+	CMap& level();
 	std::vector<WeaponType*> weaponList;
 	Options options;
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;

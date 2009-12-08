@@ -16,6 +16,7 @@
 #include "posspd_replicator.h"
 #include "encoding.h"
 #include "gconsole.h"
+#include "CMap.h"
 
 #include <math.h>
 #include <vector>
@@ -42,11 +43,11 @@ NetWorm::NetWorm(bool isAuthority) : BaseWorm()
 		
 		//m_node->setInterceptID( static_cast<Net_InterceptID>(Position) );
 		
-		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos, &spd, game.level.vectorEncoding, game.level.diffVectorEncoding ), true);
+		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos, &spd, game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
 		
 		static Net_ReplicatorSetup nrSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 		
-		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference(), game.level.vectorEncoding ), true);
+		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference(), game.level().vectorEncoding ), true);
 		
 		m_node->addReplicationFloat ((Net_Float*)&m_ninjaRope->getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		//m_node->addReplicationInt ((Net_S32*)&m_ninjaRope->getLengthReference(), 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
@@ -140,13 +141,13 @@ void NetWorm::think()
 						pos.y = data->getFloat(32);
 						spd.x = data->getFloat(32);
 						spd.y = data->getFloat(32);*/
-						pos = game.level.vectorEncoding.decode<Vec>(*data);
-						spd = game.level.vectorEncoding.decode<Vec>(*data);
+						pos = game.level().vectorEncoding.decode<Vec>(*data);
+						spd = game.level().vectorEncoding.decode<Vec>(*data);
 					}
 					break;
 					case Respawn:
 					{
-						Vec newpos = game.level.vectorEncoding.decode<Vec>(*data);
+						Vec newpos = game.level().vectorEncoding.decode<Vec>(*data);
 						//newpos.x = data->getFloat(32);
 						//newpos.y = data->getFloat(32);
 						BaseWorm::respawn( newpos );
@@ -154,7 +155,7 @@ void NetWorm::think()
 					break;
 					case Dig:
 					{
-						Vec digPos = game.level.vectorEncoding.decode<Vec>(*data);
+						Vec digPos = game.level().vectorEncoding.decode<Vec>(*data);
 						Angle digAngle = Angle((int)data->getInt(Angle::prec));
 						BaseWorm::dig(digPos, digAngle);
 					}
@@ -274,8 +275,8 @@ void NetWorm::correctOwnerPosition()
 	data->addFloat(pos.y,32);
 	data->addFloat(spd.x,32);
 	data->addFloat(spd.y,32);*/
-	game.level.vectorEncoding.encode<Vec>(*data, pos); // ...nah ;o
-	game.level.vectorEncoding.encode<Vec>(*data, spd);
+	game.level().vectorEncoding.encode<Vec>(*data, pos); // ...nah ;o
+	game.level().vectorEncoding.encode<Vec>(*data, spd);
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
@@ -344,7 +345,7 @@ void NetWorm::respawn()
 			/*
 			data->addFloat(pos.x,32);
 			data->addFloat(pos.y,32);*/
-			game.level.vectorEncoding.encode<Vec>(*data, pos);
+			game.level().vectorEncoding.encode<Vec>(*data, pos);
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
 	}
@@ -359,7 +360,7 @@ void NetWorm::dig()
 		{
 			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, Dig);
-			game.level.vectorEncoding.encode<Vec>(*data, pos);
+			game.level().vectorEncoding.encode<Vec>(*data, pos);
 			data->addInt(int(getAngle()), Angle::prec);
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}

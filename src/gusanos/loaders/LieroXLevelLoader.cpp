@@ -2,6 +2,7 @@
 #include "../gfx.h"
 #include "zlib.h"
 #include "FindFile.h"
+#include "CMap.h"
 #include <string>
 #include <cstring>
 
@@ -23,7 +24,7 @@ bool LieroXLevelLoader::canLoad(std::string const& path, std::string& name)
 	return false;
 }
 
-bool LieroXLevelLoader::load(Level* level, std::string const& path)
+bool LieroXLevelLoader::load(CMap* level, std::string const& path)
 {
 	std::ifstream f;
 	OpenGameFileR(f, path, std::ios::binary);
