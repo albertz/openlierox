@@ -14,7 +14,7 @@
 #include "util/macros.h"
 
 #ifndef DEDICATED_ONLY
-#include "viewport.h"
+#include "CViewport.h"
 #include "font.h"
 #include "gfx.h"
 #include "sfx.h"

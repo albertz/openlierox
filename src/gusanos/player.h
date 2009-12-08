@@ -5,7 +5,7 @@
 #include <string>
 
 #ifndef DEDICATED_ONLY
-class Viewport;
+class CViewport;
 struct BITMAP;
 #endif
 class Worm;
@@ -34,7 +34,7 @@ public:
 #ifndef DEDICATED_ONLY
 	void render();
 
-	void assignViewport(Viewport* Viewport);
+	void assignViewport(CViewport* CViewport);
 #endif
 	void actionStart( Actions action );
 	void actionStop( Actions action );
@@ -48,7 +48,7 @@ private:
 	bool walkingLeft;
 	bool walkingRight;
 #ifndef DEDICATED_ONLY
-	Viewport* m_viewport;
+	CViewport* m_viewport;
 #endif
 };
 

@@ -1898,9 +1898,18 @@ public:
 		return true;
 	}
 	
-	virtual bool parseData(CMap* m) {
+	virtual bool parseData(CMap* m) {		
 		// TODO: abs filename
-		return loader->load(m, "levels/" + GetBaseFilename(filename));
+		if(!loader->load(m, "levels/" + GetBaseFilename(filename)))
+			return false;
+		
+		if(!m->material)
+			return false;
+		
+		m->Width = m->material->w;
+		m->Height = m->material->h;
+		
+		return false;
 	}
 
 };

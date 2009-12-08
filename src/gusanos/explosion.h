@@ -12,7 +12,7 @@ class Sprite;
 class BaseAnimator;
 #endif
 class BasePlayer;
-class Viewport;
+class CViewport;
 
 class Explosion : public BaseObject
 {
@@ -23,7 +23,7 @@ public:
 	~Explosion(); //ZOMG WE HAD FORGOTTEN ABOUT THIS :O LEAKOFDEATH
 
 #ifndef DEDICATED_ONLY
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 	void think();
 #endif
 	ExpType* getType()

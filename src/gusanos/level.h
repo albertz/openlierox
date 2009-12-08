@@ -19,7 +19,7 @@ using boost::array;
 
 class Sprite;
 class LevelEffect;
-class Viewport;
+class CViewport;
 class BasePlayer;
 struct BlitterContext;
 

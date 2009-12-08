@@ -28,7 +28,7 @@
 #include "menu.h"
 #include "keyboard.h"
 #include "player_input.h"
-#include "viewport.h"
+#include "CViewport.h"
 #endif //DEDICATED_ONLY
 #include "player_ai.h"
 #include "net_worm.h"
@@ -566,7 +566,7 @@ void Game::think()
 	}
 #endif
 
-	level().think();
+	level().gusThink();
 
 	if ( !m_node )
 		return;
@@ -789,7 +789,8 @@ void Game::reset(ResetReason reason)
 
 	appliedLevelEffects.clear();
 	
-	level().gusUnload();
+	// OLX manages this
+	//level().gusUnload();
 	
 	if(reason != LoadingLevel)
 	{
@@ -1038,7 +1039,7 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 	}
 
 #ifdef USE_GRID
-	objects.resize(0, 0, level().width(), level().height());
+	objects.resize(0, 0, level().GetWidth(), level().GetHeight());
 #endif
 	
 	//cerr << "Loading mod" << endl;
@@ -1189,7 +1190,7 @@ BasePlayer* Game::addPlayer( PLAYER_TYPE type, int team, BaseWorm* worm )
 			if ( localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
 			Player* player = new Player( playerOptions[localPlayers.size()], worm );
 #ifndef DEDICATED_ONLY
-			Viewport* viewport = new Viewport;
+			CViewport* viewport = new CViewport;
 			if ( options.splitScreen )
 			{
 				viewport->setDestination(gfx.buffer,localPlayers.size()*160,0,160,240);

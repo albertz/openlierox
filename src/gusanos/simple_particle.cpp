@@ -6,7 +6,7 @@
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/blitters.h"
-#include "viewport.h"
+#include "CViewport.h"
 #endif
 #include "CMap.h"
 
@@ -50,14 +50,14 @@ void SimpleParticle::think()
 }
 
 #ifndef DEDICATED_ONLY
-void SimpleParticle::draw(Viewport* viewport)
+void SimpleParticle::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(pos));
 	putpixel(viewport->dest, rPos.x, rPos.y, colour);
 	//putpixel(where, (posx >> 8)-xOff, (posy >> 8)-yOff, colour);
 }
 
-void SimpleParticle32::draw(Viewport* viewport)
+void SimpleParticle32::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(pos));
 	BITMAP* where = viewport->dest;
@@ -67,7 +67,7 @@ void SimpleParticle32::draw(Viewport* viewport)
 		Blitters::putpixel_solid_32(where, rPos.x, rPos.y, colour);
 }
 
-void SimpleParticle16::draw(Viewport* viewport)
+void SimpleParticle16::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(pos));
 	BITMAP* where = viewport->dest;
@@ -77,13 +77,13 @@ void SimpleParticle16::draw(Viewport* viewport)
 		Blitters::putpixel_solid_16(where, rPos.x, rPos.y, colour);
 }
 
-void SimpleParticle32wu::draw(Viewport* viewport)
+void SimpleParticle32wu::draw(CViewport* viewport)
 {
 	Vec rPos = viewport->convertCoordsPrec( pos );
 	Blitters::putpixelwu_blend_32(viewport->dest, rPos.x, rPos.y, colour, 256);
 }
 
-void SimpleParticle16wu::draw(Viewport* viewport)
+void SimpleParticle16wu::draw(CViewport* viewport)
 {
 	Vec rPos = viewport->convertCoordsPrec( pos );
 	Blitters::putpixelwu_blend_16(viewport->dest, rPos.x, rPos.y, colour, 32);

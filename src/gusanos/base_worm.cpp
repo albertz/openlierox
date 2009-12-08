@@ -16,7 +16,7 @@
 #include "sprite_set.h"
 #include "sprite.h"
 #include "gfx.h"
-#include "viewport.h"
+#include "CViewport.h"
 #include "font.h"
 #include "blitters/blitters.h"
 #endif
@@ -223,12 +223,12 @@ void BaseWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>
 	// Add more if the worm is outside the screen
 	if(inextPos.x < 5)
 		reacts[Right] += 5;
-	else if(inextPos.x > game.level().width() - 5)
+	else if(inextPos.x > game.level().GetWidth() - 5)
 		reacts[Left] += 5;
 
 	if(inextPos.y < 5)
 		reacts[Down] += 5;
-	else if(inextPos.y > game.level().height() - 5)
+	else if(inextPos.y > game.level().GetHeight() - 5)
 		reacts[Up] += 5;
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
@@ -740,7 +740,7 @@ void BaseWorm::removeRefsToPlayer(BasePlayer* player)
 
 #ifndef DEDICATED_ONLY
 
-void BaseWorm::draw(Viewport* viewport)
+void BaseWorm::draw(CViewport* viewport)
 {
 	if(!m_owner)
 		return;

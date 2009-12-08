@@ -8,7 +8,7 @@
 #include "util/log.h"
 
 #ifndef DEDICATED_ONLY
-#include "../viewport.h"
+#include "CViewport.h"
 #include "../gfx.h"
 #endif
 
@@ -25,7 +25,7 @@ namespace LuaBindings
 {
 	
 #ifndef DEDICATED_ONLY
-LuaReference ViewportMetaTable;
+LuaReference CViewportMetaTable;
 LuaReference BITMAPMetaTable;
 BlitterContext blitter;
 #endif
@@ -264,13 +264,13 @@ int l_gfx_reset_blending(lua_State* L)
 
 #ifndef DEDICATED_ONLY
 
-/*! Viewport:bitmap()
+/*! CViewport:bitmap()
 
 	(Known as get_bitmap before 0.9c)
 	
 	Returns the HUD bitmap of this viewport.
 */
-METHOD(Viewport, viewport_getBitmap,
+METHOD(CViewport, viewport_getBitmap,
 	context.pushFullReference(*p->hud, BITMAPMetaTable);
 	return 1;
 )
@@ -284,19 +284,19 @@ int l_viewport_getBitmap_depr(lua_State* L)
 }
 #endif
 
-METHOD(Viewport, viewport_getGameBitmap,
+METHOD(CViewport, viewport_getGameBitmap,
 	context.pushFullReference(*p->dest, BITMAPMetaTable);
 	return 1;
 )
 
 //! version 0.9c
 
-/*! Viewport:from_map(x, y)
+/*! CViewport:from_map(x, y)
 
 	Converts the map coordinates (x, y) to
 	coordinates relative to the viewport bitmap and returns them.
 */
-METHOD(Viewport, viewport_fromMap,
+METHOD(CViewport, viewport_fromMap,
 	lua_Integer x = lua_tointeger(context, 2);
 	lua_Integer y = lua_tointeger(context, 3);
 	
@@ -353,9 +353,9 @@ void initGfx()
 
 
 #ifndef DEDICATED_ONLY
-	// Viewport method and metatable
+	// CViewport method and metatable
 	
-	CLASS(Viewport,
+	CLASS(CViewport,
 #ifndef NO_DEPRECATED
 		("get_bitmap", l_viewport_getBitmap_depr)
 #endif

@@ -626,8 +626,13 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
 	if(bDedicated) return;
+	
+	if(gusIsLoaded())
+		return;
+
 	if( bmpBackImageHiRes.get() )
 		return;
+		
 	if(tLXOptions->bAntiAliasing)
 		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
 	else
@@ -1005,6 +1010,9 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
+	if(gusIsLoaded())		
+		return;
+	
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
 		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
@@ -1095,6 +1103,8 @@ bool CMap::CheckAreaFree(int x, int y, int w, int h)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface * bmpObjShadow, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
+	if(gusIsLoaded()) return;
+	
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
 	if(!bmpDest) {
@@ -1192,6 +1202,7 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Sur
 void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy)
 {
 	if(bDedicated) return;
+	if(gusIsLoaded()) return;
 	
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
@@ -2310,26 +2321,31 @@ void CMap::UpdateMiniMap(bool force)
 		return;
 	}
 	
-	if(!bmpDrawImage.get()) {
-		errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
-		return;
+	if(gusIsLoaded()) {
+		gusUpdateMinimap(0, 0, Width, Height);
+	}
+	else {
+		if(!bmpDrawImage.get()) {
+			errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
+			return;
+		}
+		
+		if( bmpBackImageHiRes.get() )
+		{
+			if (tLXOptions->bAntiAliasing)
+				DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+			else
+				DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		}
+		else
+		{
+			if (tLXOptions->bAntiAliasing)
+				DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+			else
+				DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		}
 	}
 	
-	if( bmpBackImageHiRes.get() )
-	{
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-	}
-	else
-	{
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-	}
-
 	// Not dirty anymore
 	bMiniMapDirty = false;
 }
@@ -2344,6 +2360,11 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 	// If the minimap is going to be fully repainted, just move on
 	if (bMiniMapDirty)
 		return;
+
+	if(gusIsLoaded()) {
+		gusUpdateMinimap(x, y, w, h);
+		return;
+	}
 
 	if( bmpBackImageHiRes.get() )
 	{

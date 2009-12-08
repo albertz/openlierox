@@ -46,6 +46,8 @@
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
 		23210161101DFAF900510514 /* CGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23210160101DFAF900510514 /* CGameObject.cpp */; };
 		2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B02710CE9F4300D3F035 /* gusanos.cpp */; };
+		2326B22310CEF4BE00D3F035 /* Ogg.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 231BE15110CE60480023780D /* Ogg.framework */; };
+		2326B22410CEF4BE00D3F035 /* Vorbis.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 231BE15210CE60480023780D /* Vorbis.framework */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
@@ -538,6 +540,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				2326B22310CEF4BE00D3F035 /* Ogg.framework in Copy Frameworks into .app */,
+				2326B22410CEF4BE00D3F035 /* Vorbis.framework in Copy Frameworks into .app */,
 				2389FB990D2D5F1A00358F27 /* UnixImageIO.framework in Copy Frameworks into .app */,
 				EABBC3240C5AA046003884A9 /* FreeType.framework in Copy Frameworks into .app */,
 				EABBC2B80C5A9E1D003884A9 /* GD.framework in Copy Frameworks into .app */,

@@ -2,7 +2,7 @@
 #include "player_options.h"
 #include "worm.h"
 #ifndef DEDICATED_ONLY
-#include "viewport.h"
+#include "CViewport.h"
 #endif
 #include "ninjarope.h"
 
@@ -30,7 +30,7 @@ Player::~Player()
 }
 
 #ifndef DEDICATED_ONLY
-void Player::assignViewport(Viewport* viewport)
+void Player::assignViewport(CViewport* viewport)
 {
 	m_viewport = viewport;
 }
@@ -40,8 +40,8 @@ void Player::subThink()
 {
 	if ( m_worm ) {
 #ifndef DEDICATED_ONLY
-		if ( m_viewport )
-			m_viewport->interpolateTo(m_worm->getRenderPos(), m_options->viewportFollowFactor);
+	//	if ( m_viewport )
+	//		m_viewport->interpolateTo(m_worm->getRenderPos(), m_options->viewportFollowFactor);
 #endif
 
 		if(changing && m_worm->getNinjaRopeObj()->active) {

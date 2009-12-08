@@ -26,7 +26,7 @@
 #include "../keys.h"
 #include "../menu.h"
 #include "../blitters/context.h"
-#include "../viewport.h"
+#include "CViewport.h"
 #endif
 #include <cmath>
 #include <string>
@@ -89,7 +89,7 @@ int print(lua_State* L)
 	(x, y) is the position of the worm in viewport coordinates.
 	
 	//worm// is the Worm object for which HUD should be rendered and //viewport// is
-	the Viewport object it should be rendered to. Use the bitmap() method of Viewport
+	the CViewport object it should be rendered to. Use the bitmap() method of CViewport
 	to retrieve the relevant bitmap to draw on.
 	
 	//ownerPlayer// is the Player object that owns //viewport//.
@@ -99,7 +99,7 @@ int print(lua_State* L)
 
 	This is called for every viewport when it's time to render the viewport HUD.
 	
-	//viewport// is the Viewport object it should be rendered to and //worm// is the
+	//viewport// is the CViewport object it should be rendered to and //worm// is the
 	Worm object of the Player object that owns //viewport//.
 */
 

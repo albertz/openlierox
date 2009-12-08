@@ -87,6 +87,7 @@ class MapLoad;
 class ML_OrigLiero;
 class ML_LieroX;
 class ML_CommanderKeen123;
+struct ML_Gusanos;
 struct VermesLevelLoader;
 
 class CMap {
@@ -94,7 +95,8 @@ class CMap {
 	friend class ML_OrigLiero;
 	friend class ML_LieroX;
 	friend class ML_CommanderKeen123;
-	friend class VermesLevelLoader;
+	friend struct ML_Gusanos;
+	friend struct VermesLevelLoader;
 	
 private:
 	// just don't do that
@@ -140,6 +142,8 @@ public:
 		bmpSavedImage = NULL;
 		savedPixelFlags = NULL;
 		savedMapCoords.clear();
+		
+		initGusanosPart();
    	}
 
 	~CMap() {
@@ -444,15 +448,14 @@ public:
 	// ------------------------------------------------------------------------------
 
 public:
-	void think();
+	void gusThink();
 	bool gusIsLoaded() { return m_gusLoaded; }
 	void gusUnload();
 #ifndef DEDICATED_ONLY
-	void draw(BITMAP* where, int x, int y);
+	void gusDraw(BITMAP* where, int x, int y);
 #endif
-	int width();
-	int height();
-		
+	void gusUpdateMinimap(int x, int y, int w, int h);
+	
 	Vec getSpawnLocation(BasePlayer* player);
 	
 	Material const& getMaterial(unsigned int x, unsigned int y) const
@@ -502,8 +505,8 @@ public:
 #ifndef DEDICATED_ONLY
 	void specialDrawSprite(Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
 	
-	void culledDrawSprite(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
-	void culledDrawLight(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
+	void culledDrawSprite(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
+	void culledDrawLight(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
 	
 #endif
 	// applies the effect and returns true if it actually changed something on the map

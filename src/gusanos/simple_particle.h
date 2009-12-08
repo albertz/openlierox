@@ -19,7 +19,7 @@ public:
 	
 	}
 
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 	void think();
 		
 	void* operator new(size_t count);
@@ -50,7 +50,7 @@ public:
 	
 	}
 	
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 };
 
 class SimpleParticle16 : public SimpleParticle
@@ -63,7 +63,7 @@ public:
 	
 	}
 	
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 };
 
 class SimpleParticle32wu : public SimpleParticle
@@ -76,7 +76,7 @@ public:
 	
 	}
 	
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 };
 
 class SimpleParticle16wu : public SimpleParticle
@@ -89,7 +89,7 @@ public:
 	
 	}
 	
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 };
 #endif
 

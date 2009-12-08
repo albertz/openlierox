@@ -10,7 +10,7 @@
 #include "sprite.h"
 #include "base_animator.h"
 #include "animators.h"
-#include "viewport.h"
+#include "CViewport.h"
 #endif
 #include "part_type.h"
 #include "CMap.h"
@@ -220,7 +220,7 @@ Vec& NinjaRope::getPosReference()
 }
 
 #ifndef DEDICATED_ONLY
-void NinjaRope::draw(Viewport *viewport)
+void NinjaRope::draw(CViewport *viewport)
 {
 	BITMAP* where = viewport->dest;
 	IVec rPos = viewport->convertCoords( IVec(pos) );

@@ -13,7 +13,7 @@ namespace LuaBindings
 	void initGfx();
 
 #ifndef DEDICATED_ONLY
-	extern LuaReference ViewportMetaTable;
+	extern LuaReference CViewportMetaTable;
 	extern LuaReference BITMAPMetaTable;
 	extern BlitterContext blitter;
 #endif

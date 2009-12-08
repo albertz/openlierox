@@ -16,7 +16,7 @@ class BaseObject;
 class BaseWorm;
 class Particle;
 struct BITMAP;
-class Viewport;
+class CViewport;
 struct LuaGameEvent; // virtual
 struct LuaPlayerEvent; // virtual
 struct LuaWormEvent; // virtual
@@ -45,7 +45,7 @@ CLASSID(BaseObject, 1);
 CLASSID(BaseWorm, 2);
 CLASSID(Particle, 3);
 CLASSID(BITMAP, 4);
-CLASSID(Viewport, 5);
+CLASSID(CViewport, 5);
 CLASSID(LuaGameEvent, 6);
 CLASSID(LuaPlayerEvent, 7);
 CLASSID(LuaWormEvent, 8);

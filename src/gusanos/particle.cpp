@@ -11,7 +11,7 @@
 #include "sprite_set.h"
 #include "base_animator.h"
 #include "blitters/blitters.h"
-#include "viewport.h"
+#include "CViewport.h"
 #endif
 #include "glua.h"
 #include "lua51/luaapi/context.h"
@@ -465,7 +465,7 @@ void Particle::remove()
 
 #ifndef DEDICATED_ONLY
 
-void Particle::drawLine2Origin( Viewport* viewport, BlitterContext const& blitter)
+void Particle::drawLine2Origin( CViewport* viewport, BlitterContext const& blitter)
 {
 	if(m_type->wupixels) {
 		Vec rPos = viewport->convertCoordsPrec( pos );
@@ -482,7 +482,7 @@ void Particle::drawLine2Origin( Viewport* viewport, BlitterContext const& blitte
 	}
 }
 
-void Particle::draw(Viewport* viewport)
+void Particle::draw(CViewport* viewport)
 {
 
 	IVec rPos = viewport->convertCoords( IVec(pos) );

@@ -27,7 +27,7 @@ public:
 	void remove();
 
 #ifndef DEDICATED_ONLY
-	void draw(Viewport *viewport);
+	void draw(CViewport *viewport);
 #endif
 	void think();
 

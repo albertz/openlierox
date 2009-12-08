@@ -8,7 +8,7 @@
 #include "exp_type.h"
 #include "events.h"
 #ifndef DEDICATED_ONLY
-#include "viewport.h"
+#include "CViewport.h"
 #include "distortion.h"
 #include "gfx.h"
 #include "base_animator.h"
@@ -98,7 +98,7 @@ void Explosion::think()
 	}
 }
 
-void Explosion::draw(Viewport* viewport)
+void Explosion::draw(CViewport* viewport)
 {
 
 	BITMAP* where = viewport->dest;

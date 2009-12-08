@@ -16,7 +16,7 @@ struct LuaEventDef;
 #ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;
-class Viewport;
+class CViewport;
 #endif
 
 class BaseWorm : public BaseObject
@@ -57,7 +57,7 @@ class BaseWorm : public BaseObject
 		virtual void assignOwner( BasePlayer* owner);
 
 		//void draw(BITMAP* where,int xOff, int yOff);
-		void draw(Viewport* viewport);
+		void draw(CViewport* viewport);
 
 		void calculateReactionForce(BaseVec<long> origin, Direction dir);
 		void calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& inextPos);

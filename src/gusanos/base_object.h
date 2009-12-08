@@ -8,7 +8,7 @@
 
 //#include "gusanos/allegro.h"
 struct BITMAP;
-class Viewport;
+class CViewport;
 
 class BasePlayer;
 
@@ -24,7 +24,7 @@ class BaseObject : public LuaObject
 #ifndef DEDICATED_ONLY
 		// Draw the object in the where bitmap with an offset ( used for camera )
 		//virtual void draw(BITMAP* where, int xOff, int yOff) {}
-		virtual void draw(Viewport* viewport)
+		virtual void draw(CViewport* viewport)
 		{}
 #endif
 		// All the object logic here

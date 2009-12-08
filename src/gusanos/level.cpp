@@ -4,7 +4,7 @@
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/context.h"
-#include "viewport.h"
+#include "CViewport.h"
 #endif
 #include "material.h"
 #include "base_player.h"
@@ -191,7 +191,7 @@ void CMap::checkWBorders( int x, int y )
 
 static const float WaterSkipFactor = 0.05f;
 
-void CMap::think()
+void CMap::gusThink()
 {
 	if(!gusIsLoaded())
 		return;
@@ -253,7 +253,7 @@ void CMap::think()
 }
 
 #ifndef DEDICATED_ONLY
-void CMap::draw(BITMAP* where, int x, int y)
+void CMap::gusDraw(BITMAP* where, int x, int y)
 {
 	if (image) {
 		if (!paralax) {
@@ -295,13 +295,13 @@ void CMap::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, co
 		}
 }
 
-void CMap::culledDrawSprite( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
+void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
 	BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
 	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
 
-	Rect r(0, 0, width() - 1, height() - 1);
+	Rect r(0, 0, Width - 1, Height - 1);
 	r &= Rect(renderBitmap) + loff;
 
 
@@ -323,13 +323,13 @@ void CMap::culledDrawSprite( Sprite* sprite, Viewport* viewport, const IVec& pos
 
 }
 
-void CMap::culledDrawLight( Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha )
+void CMap::culledDrawLight( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
 	BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
 	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
 
-	Rect r(0, 0, width() - 1, height() - 1);
+	Rect r(0, 0, Width - 1, Height - 1);
 	r &= Rect(renderBitmap) + loff;
 
 
@@ -418,22 +418,6 @@ Vec CMap::getSpawnLocation(BasePlayer* player)
 	return pos;
 }
 
-int CMap::width()
-{
-	if ( material )
-		return material->w;
-	else
-		return 0;
-}
-
-int CMap::height()
-{
-	if ( material )
-		return material->h;
-	else
-		return 0;
-}
-
 void CMap::loaderSucceeded()
 {
 	m_gusLoaded = true;
@@ -480,11 +464,33 @@ void CMap::loaderSucceeded()
 #endif
 	// Make the domain one pixel larger than the level so that things like ninjarope hook
 	// can get slightly outside the level and attach.
-	vectorEncoding = Encoding::VectorEncoding(Rect(-1, -1, width() + 1, height() + 1), 2048);
-	intVectorEncoding = Encoding::VectorEncoding(Rect(-1, -1, width() + 1, height() + 1), 1);
+	vectorEncoding = Encoding::VectorEncoding(Rect(-1, -1, Width + 1, Height + 1), 2048);
+	intVectorEncoding = Encoding::VectorEncoding(Rect(-1, -1, Width + 1, Height + 1), 1);
 	diffVectorEncoding = Encoding::DiffVectorEncoding(1024);
 	//cerr << "vectorEncoding: " << vectorEncoding.totalBits() << endl;
 
 	if(!m_config)
 		m_config = new LevelConfig(); // Default config
 }
+
+
+
+void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
+	void (*blitFct) ( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+	
+	if (tLXOptions->bAntiAliasing)
+		blitFct = &DrawImageResampledAdv;
+	else
+		blitFct = &DrawImageResizedAdv;
+	
+	// Calculate ratios
+	const float xratio = (float)bmpMiniMap.get()->w / (float)Width;
+	const float yratio = (float)bmpMiniMap.get()->h / (float)Height;
+	
+	const int dx = (int)((float)x * xratio);
+	const int dy = (int)((float)y * yratio);
+
+	(*blitFct) (bmpMiniMap.get(), background->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	(*blitFct) (bmpMiniMap.get(), image->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+}
+

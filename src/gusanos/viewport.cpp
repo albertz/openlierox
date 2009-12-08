@@ -1,6 +1,6 @@
 #ifndef DEDICATED_ONLY
 
-#include "viewport.h"
+#include "CViewport.h"
 
 #include "game.h"
 #include "sfx.h"
@@ -23,15 +23,17 @@
 
 using namespace std;
 
-Viewport::Viewport()
-		: dest(0), hud(0)
+void CViewport::gusInit()
 {
-	lua.pushFullReference(*this, LuaBindings::ViewportMetaTable);
+	dest = 0;
+	hud = 0;
+
+	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
 	//lua.pushLightReference(this, LuaBindings::viewportMetaTable);
 	luaReference = lua.createReference();
 }
 
-Viewport::~Viewport()
+void CViewport::gusShutdown()
 {
 	lua.destroyReference(luaReference);
 	destroy_bitmap(dest);
@@ -80,7 +82,7 @@ struct TestCuller : public Culler<TestCuller>
 
 static BITMAP* testLight = 0;
 
-void Viewport::setDestination(BITMAP* where, int x, int y, int width, int height)
+void CViewport::setDestination(BITMAP* where, int x, int y, int width, int height)
 {
 	if(width > where->w
 	        || height > where->h)
@@ -118,12 +120,12 @@ void Viewport::setDestination(BITMAP* where, int x, int y, int width, int height
 	}
 }
 
-void Viewport::drawLight(IVec const& v)
+void CViewport::drawLight(IVec const& v)
 {
-	IVec off(m_pos);
+	IVec off(Left,Top);
 	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
 
-	Rect r(0, 0, game.level().width() - 1, game.level().height() - 1);
+	Rect r(0, 0, game.level().GetWidth() - 1, game.level().GetHeight() - 1);
 	r &= Rect(testLight) + loff;
 
 	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
@@ -132,12 +134,12 @@ void Viewport::drawLight(IVec const& v)
 }
 
 
-void Viewport::render(BasePlayer* player)
+void CViewport::render(BasePlayer* player)
 {
-	int offX = static_cast<int>(m_pos.x);
-	int offY = static_cast<int>(m_pos.y);
+	int offX = static_cast<int>(Left);
+	int offY = static_cast<int>(Top);
 
-	game.level().draw(dest, offX, offY);
+	game.level().gusDraw(dest, offX, offY);
 
 	if ( game.level().config()->darkMode && game.level().lightmap )
 		blit( game.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
@@ -206,60 +208,5 @@ void Viewport::render(BasePlayer* player)
 	}
 }
 
-void Viewport::setPos(float x, float y)
-{
-	m_pos.x=x;
-	m_pos.y=y;
-
-	if (m_listener)
-		m_listener->pos = m_pos + Vec(dest->w/2,dest->h/2);
-
-	if ( m_pos.x + dest->w > game.level().width() )
-		m_pos.x = game.level().width() - dest->w;
-	else if ( m_pos.x < 0 )
-		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level().height() )
-		m_pos.y = game.level().height() - dest->h;
-	else if ( m_pos.y < 0 )
-		m_pos.y = 0;
-
-}
-
-void Viewport::interpolateTo(float x, float y, float factor)
-{
-	Vec destPos(x-dest->w/2,y-dest->h/2);
-
-	m_pos = m_pos + (destPos-m_pos)*factor;
-
-
-	if (m_listener)
-		m_listener->pos = Vec(x,y);
-
-	if ( m_pos.x + dest->w > game.level().width() )
-		m_pos.x = game.level().width() - dest->w;
-	else if ( m_pos.x < 0 )
-		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level().height() )
-		m_pos.y = game.level().height() - dest->h;
-	else if ( m_pos.y < 0 )
-		m_pos.y = 0;
-}
-
-void Viewport::interpolateTo(Vec destPos, float factor)
-{
-	m_pos = m_pos + (destPos-Vec(dest->w/2,dest->h/2)-m_pos)*factor;
-
-	if (m_listener)
-		m_listener->pos = destPos;
-
-	if ( m_pos.x + dest->w > game.level().width() )
-		m_pos.x = game.level().width() - dest->w;
-	else if ( m_pos.x < 0 )
-		m_pos.x = 0;
-	if ( m_pos.y + dest->h > game.level().height() )
-		m_pos.y = game.level().height() - dest->h;
-	else if ( m_pos.y < 0 )
-		m_pos.y = 0;
-}
 
 #endif

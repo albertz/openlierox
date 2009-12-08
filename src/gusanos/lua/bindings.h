@@ -11,7 +11,7 @@
 class BaseObject;
 class BasePlayer;
 class BaseWorm;
-class Viewport;
+class CViewport;
 */
 
 namespace LuaBindings

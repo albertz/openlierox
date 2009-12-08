@@ -24,6 +24,9 @@
 #include "Options.h" // for control_t
 #include "SmartPointer.h"
 
+#include "util/vec.h"
+#include "gusanos/lua51/luaapi/types.h"
+
 
 // Viewport types
 // !!! Don't change the order !!!
@@ -36,6 +39,9 @@ enum {
 
 
 class CWorm;
+struct Listener;
+struct BITMAP;
+class BasePlayer;
 
 
 class CViewport {
@@ -58,9 +64,15 @@ public:
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
         fTimer = AbsTime();
-		bSmooth = false;		
+		bSmooth = false;
+		
+		gusInit();
 	}
 
+	~CViewport() {
+		gusShutdown();
+	}
+	
 private:
 	// Attributes
 
@@ -89,8 +101,8 @@ private:
 	
 	bool	bSmooth;
 	CVec	cSmoothVel, cSmoothAccel;
-
-
+	
+	
 public:
 	// Methods
 
@@ -172,6 +184,47 @@ public:
 	bool	physicsInside(VectorD2<int> p, bool wrapAround = false, long mapW = 0, long mapH = 0) const {
 		return posInside(physicToReal(p, wrapAround, mapW, mapH));
 	}
+	
+	
+	
+	// ---------------------------------------------------
+	// ---------------- Gusanos --------------------------
+	
+	void gusInit();
+	void gusShutdown();
+	
+	void setDestination(BITMAP* where, int x, int y, int w, int h);
+	void render(BasePlayer* player);
+		
+	void drawLight(IVec const& v); // TEMP
+	
+	IVec getPos()
+	{
+		return IVec(Left,Top);
+	}
+	
+	IVec convertCoords( IVec const & coord )
+	{
+		return coord - IVec(Left,Top);
+	}
+	
+	Vec convertCoordsPrec( Vec const & coord )
+	{
+		return coord - Vec(Left,Top);
+	}
+	
+	BITMAP* getBitmap() { return dest; }
+	
+	LuaReference luaReference;
+	
+	BITMAP* dest;
+	BITMAP* hud;
+	BITMAP* fadeBuffer;
+	
+private:
+	
+	Listener* m_listener;
+	
 	
 };
 

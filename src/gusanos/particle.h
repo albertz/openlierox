@@ -13,7 +13,7 @@
 class Sprite;
 class BaseAnimator;
 class BlitterContext;
-class Viewport;
+class CViewport;
 #endif
 struct LuaEventDef;
 class BasePlayer;
@@ -40,7 +40,7 @@ public:
 
 	void assignNetworkRole( bool authority );
 #ifndef DEDICATED_ONLY
-	void draw(Viewport* viewport);
+	void draw(CViewport* viewport);
 #endif
 	void think();
 	Angle getAngle();
@@ -77,7 +77,7 @@ public:
 private:
 
 #ifndef DEDICATED_ONLY
-	void drawLine2Origin(Viewport* viewport, BlitterContext const& blitter);
+	void drawLine2Origin(CViewport* viewport, BlitterContext const& blitter);
 #endif
 	
 	//int m_dir;
