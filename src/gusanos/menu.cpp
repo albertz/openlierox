@@ -2,6 +2,7 @@
 
 #include "menu.h"
 #include "keyboard.h"
+#include "mouse.h"
 #include "gfx.h"
 #include "blitters/blitters.h"
 #include "font.h"

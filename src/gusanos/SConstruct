@@ -20,7 +20,7 @@ if env['PLATFORM'] == 'win32':
 	print "Forcing MinGW - MSVC++ not supported"
 
 
-env.Append(CPPPATH = ['.', '../../include', '/usr/include/libxml2', '..', '../sound', '../../libs/hawknl/include'])
+env.Append(CPPPATH = ['.', '../../include', '/usr/include/libxml2'])
 env.ParseConfig("sdl-config --cflags --libs")
 
 ###
@@ -32,12 +32,12 @@ env.Default('vermes' + env['PROGSUFFIX'])
 # Libraries to be built from source
 ###
 libs += ['omfgconsole', 'omfghttp', 'omfgutil', 'omfgui', 'omfgscript',
-			'loadpng', 'glua', 'openlierox', 'util', 'sfx', 'hawknl']
+			'loadpng', 'glua', 'openlierox']
 
 ###
 # Libraries to be picked up from the system
 ###
-libs += ['SDL', 'SDL_image', 'boost_filesystem-mt', 'boost_signals-mt', 'png', 'z', 'alut',
+libs += ['SDL', 'SDL_image', 'boost_filesystem', 'boost_signals', 'png', 'z', 'alut',
 			'openal', 'vorbisfile', 'xml2', 'crypto']
 
 env.Append(CCFLAGS = '-ggdb -Wall')
@@ -88,8 +88,7 @@ olxfiles = [
 	"Geometry.cpp",
 	"MathLib.cpp",
 	"Options.cpp",
-	"FeatureList.cpp",
-]
+	"FeatureList.cpp" ]
 
 def findFullOlxFn(fn):
 	olxsrcdir = ".."
@@ -105,10 +104,6 @@ env.StaticLibrary('openlierox',
 	[ "../breakpad/ExtractInfo.cpp" ]
 	)
 
-env.StaticLibrary('util', glob('../util/*.cpp'))
-env.StaticLibrary('sfx', glob('../sound/*.cpp'))
-env.StaticLibrary('hawknl', glob('../../libs/hawknl/src/*.c'))
-
 env.Append(CCFLAGS = "-DNBREAKPAD")
 
 
@@ -117,6 +112,7 @@ env.Append(CCFLAGS = "-DNBREAKPAD")
 ###
 env.Program('vermes', glob('*.cpp') + glob('loaders/*.cpp')
 						+ glob('lua/*.cpp') + glob('blitters/*.cpp')
+						+ ['util/text.o']
 					, LIBS = libs
 					, LIBPATH = ['.', '/usr/local/lib', '/usr/lib'])
 
