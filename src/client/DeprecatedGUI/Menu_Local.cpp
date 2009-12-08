@@ -45,6 +45,7 @@
 #include "FeatureList.h"
 #include "Options.h"
 #include "CGameMode.h"
+#include "game/Mod.h"
 
 
 namespace DeprecatedGUI {
@@ -718,12 +719,9 @@ bool Menu_LocalCheckPlaying(int index)
 		CCombobox* combobox;
 		ModAdder(CCombobox* cb_) : combobox(cb_) {}
 		bool operator() (const std::string& abs_filename) {
-			size_t sep = findLastPathSep(abs_filename);
-			if(sep != std::string::npos) {
-				std::string name;
-				if(CGameScript::CheckFile(abs_filename, name, true))
-					combobox->addItem(abs_filename.substr(sep+1), name);
-			}
+			ModInfo info = infoForMod(abs_filename, true);
+			if(info.valid)
+				combobox->addItem(info.path, "[" + info.typeShort + "] " + info.name);
 
 			return true;
 		}

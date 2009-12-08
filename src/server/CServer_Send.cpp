@@ -32,6 +32,8 @@
 #include "MathLib.h"
 #endif
 #include "CGameMode.h"
+#include "game/Mod.h"
+
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
@@ -699,7 +701,7 @@ void GameServer::UpdateGameLobby()
 	
 	// Read map/mod name from map/mod file
 	tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
-	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
+	tLXOptions->tGameInfo.sModName = modName(tLXOptions->tGameInfo.sModDir);
 	
 	m_clientsNeedLobbyUpdate = true;
 	m_clientsNeedLobbyUpdateTime = tLX->currentTime;

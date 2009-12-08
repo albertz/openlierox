@@ -41,6 +41,7 @@
 #include "FileUtils.h"
 #include "EndianSwap.h"
 #include "MapLoader.h"
+#include "game/Level.h"
 
 
 ////////////////////
@@ -2515,7 +2516,7 @@ bool CMap::Load(const std::string& filename)
 		return true;
 	}
 	
-	MapLoader* loader = MapLoader::open(filename);
+	MapLoad* loader = MapLoad::open(filename);
 	if(!loader) {
 		warnings << "level " << filename << " couldn't be loaded" << endl;
 		return false;
@@ -3203,10 +3204,7 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
 // Get the level name from specified file
 std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 {
-	MapLoader* loader = MapLoader::open(abs_filename ? filename : ("levels/" + filename), abs_filename, false);
-	if(!loader) return "";
-
-	std::string name = loader->header().name;
-	delete loader;
-	return name;
+	LevelInfo info = infoForLevel(filename, abs_filename);
+	if(info.valid) return info.name;
+	return "";
 }

@@ -44,7 +44,7 @@
 #include "HTTP.h"
 #include "Version.h"
 #include "CrashHandler.h"
-
+#include "game/Level.h"
 
 // TODO: move this out here
 // declare them only locally here as nobody really should use them explicitly
@@ -1004,9 +1004,9 @@ void Menu_AddDefaultWidgets()
 		CCombobox* cmb;
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
-			std::string mapName = CMap::GetLevelName(filename, true);
-			if(mapName.size() != 0)
-				cmb->addItem(GetBaseFilename(filename), mapName);
+			LevelInfo info = infoForLevel(filename, true);
+			if(info.valid)
+				cmb->addItem(info.path, "[" + info.typeShort + "] " + info.name);
 
 			return true;
 		}
@@ -1022,7 +1022,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	cmb->setUnique(true);
 
 	LevelComboFiller filler(cmb);
-	FindFiles(filler, "levels", false, FM_REG);
+	FindFiles(filler, "levels", false);
 
 	// Disable sorting and add the random level at the beginning
 	cmb->setSorted(SORT_NONE);

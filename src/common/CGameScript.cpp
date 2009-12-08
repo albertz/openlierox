@@ -1147,7 +1147,7 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 
 
 ///////////////////
-// Check if a file is a valid liero game script
+// Check if a file is a valid LX game script
 bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
 {
 	name = "";

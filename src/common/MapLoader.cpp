@@ -1,5 +1,5 @@
 /*
- *  MapLoader.cpp
+ *  MapLoad.cpp
  *  OpenLieroX
  *
  *  Created by Albert Zeyer on 03.05.09.
@@ -22,12 +22,13 @@
 #include "ConfigHandler.h"
 
 
-class ML_OrigLiero : public MapLoader {
+class ML_OrigLiero : public MapLoad {
 public:
 	static const long Width = 504, Height = 350;
 	PIVar(bool,false) Powerlevel;
 	
 	std::string format() { return "Original Liero"; }
+	std::string formatShort() { return "Liero"; }
 	
 	bool parseHeader(bool printErrors) {
 		// Validate the liero level
@@ -174,7 +175,7 @@ public:
 };
 
 
-class ML_LieroX : public MapLoader {
+class ML_LieroX : public MapLoad {
 	
 	std::string id;
 	PIVar(int,0) Type;
@@ -182,6 +183,7 @@ class ML_LieroX : public MapLoader {
 	PIVar(int,0) numobj;
 	PIVar(bool,false) ctf;
 	std::string format() { return id; }
+	std::string formatShort() { return "LX"; }
 	
 	bool parseHeader(bool printErrors) {
 		// Header
@@ -689,9 +691,10 @@ class ML_LieroX : public MapLoader {
 
 
 
-class ML_CommanderKeen123 : public MapLoader {
+class ML_CommanderKeen123 : public MapLoad {
 public:
 	std::string format() { return "Commander Keen (1-3) level"; }
+	std::string formatShort() { return "CK"; }
 	
 	enum {
 		MAX_TILES  =  700,
@@ -1882,24 +1885,28 @@ private:
 };
 
 
-MapLoader* MapLoader::open(const std::string& filename, bool abs_filename, bool printErrors) {
+MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool printErrors) {
 	FILE* fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
 	if(fp == NULL) {
 		if(printErrors) errors << "level " << filename << " does not exist" << endl;
 		return NULL;
 	}
 	
-	std::string fileext = GetFileExtension(filename); stringlwr(fileext);
-	if( fileext == "lxl" )
-		return (new ML_LieroX()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;
-	
-	if( fileext == "lev" )
-		return (new ML_OrigLiero()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+	if(IsDirectory(filename, abs_filename)) {
+		// TODO gus
+	}
+	else { // regular file
+		std::string fileext = GetFileExtension(filename); stringlwr(fileext);
 		
-	if( fileext == "ck1" || fileext == "ck2" || fileext == "ck3" )
-		return (new ML_CommanderKeen123()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
-
-	// HINT: Other level formats could be added here
+		if( fileext == "lxl" )
+			return (new ML_LieroX()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;
+		
+		if( fileext == "lev" )
+			return (new ML_OrigLiero()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+			
+		if( fileext == "ck1" || fileext == "ck2" || fileext == "ck3" )
+			return (new ML_CommanderKeen123()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+	}
 	
 	if(printErrors) errors << "level format of file " << filename << " unknown" << endl;
 	return NULL;

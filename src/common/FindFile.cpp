@@ -74,14 +74,13 @@
 searchpathlist tSearchPaths;
 
 
-
-bool IsFileAvailable(const std::string& f, bool absolute, bool onlyregfiles) {
+static bool doFileStat(const std::string& f, bool absolute, struct stat& s) {
 	std::string abs_f;
 	if(absolute) {
 		abs_f = f;
 	} else
 		if((abs_f = GetFullFileName(f)) == "") return false;
-
+	
 	// remove trailing slashes
 	// don't remove them on WIN, if it is a drive-letter
 	while(abs_f.size() > 0 && (abs_f[abs_f.size()-1] == '\\' || abs_f[abs_f.size()-1] == '/')) {
@@ -90,19 +89,40 @@ bool IsFileAvailable(const std::string& f, bool absolute, bool onlyregfiles) {
 #endif
 		abs_f.erase(abs_f.size()-1);
 	}
-
+	
 	abs_f = Utf8ToSystemNative(abs_f);
-
+	
 	// HINT: this should also work on WIN32, as we have _stat here
+	return stat(abs_f.c_str(), &s) == 0;
+}
+
+
+bool IsFileAvailable(const std::string& f, bool absolute, bool onlyregfiles) {
 	struct stat s;
-	if(stat(abs_f.c_str(), &s) != 0 || (onlyregfiles && !S_ISREG(s.st_mode))) {
-		// it's not stat-able or not a reg file
+	if(!doFileStat(f, absolute, s))
+		// it's not stat-able or not found
+		return false;
+	
+	if(onlyregfiles && !S_ISREG(s.st_mode)) {
+		// it's not a reg file
 		return false;
 	}
 
-	// it's stat-able and a file
 	return true;
 }
+
+bool IsDirectory(const std::string& f, bool absolute) {
+	struct stat s;
+	if(!doFileStat(f, absolute, s))
+		// it's not stat-able or not found
+		return false;
+	
+	if(!S_ISDIR(s.st_mode))
+		return false;
+	
+	return true;	
+}
+
 
 
 

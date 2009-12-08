@@ -48,6 +48,7 @@
 #include "ConversationLogger.h"
 #include "StaticAssert.h"
 #include "OLXCommand.h"
+#include "game/Mod.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -1370,12 +1371,9 @@ FileListCacheIntf* mapList = &mapListInstance;
 struct CheckDirForMod {
 	typedef FileListCacheIntf::FileList List;
 	void operator()(List& filelist, const std::string& abs_filename) {
-		size_t sep = findLastPathSep(abs_filename);
-		if(sep != std::string::npos) {
-			std::string name;
-			if(CGameScript::CheckFile(abs_filename, name, true))
-				filelist.insert( List::value_type(abs_filename.substr(sep+1), name) );
-		}
+		ModInfo info = infoForMod(abs_filename, true);
+		if(info.valid)
+			filelist.insert( List::value_type(info.path, info.name) );
 	}
 };
 static FileListCache<CheckDirForMod> modListInstance("mod", "", false, FM_DIR);

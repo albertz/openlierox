@@ -80,13 +80,13 @@ struct theme_t {
 
 
 class CPlayer;
-class MapLoader;
+class MapLoad;
 class ML_OrigLiero;
 class ML_LieroX;
 class ML_CommanderKeen123;
 
 class CMap {
-	friend class MapLoader;
+	friend class MapLoad;
 	friend class ML_OrigLiero;
 	friend class ML_LieroX;
 	friend class ML_CommanderKeen123;
