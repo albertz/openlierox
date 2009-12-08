@@ -31,5 +31,8 @@ ModInfo infoForMod(const std::string& f, bool absolute) {
 }
 
 std::string modName(const std::string& f) {
-	
+	ModInfo info = infoForMod(f);
+	if(info.valid)
+		return info.name;
+	return "";
 }
