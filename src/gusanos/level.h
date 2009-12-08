@@ -80,9 +80,7 @@ class Level
 		
 	Level();
 	~Level();
-	/*
-	bool load(const std::string &name);
-	bool loadLiero(const std::string &name);*/
+
 	void think();
 	void unload();
 	bool isLoaded();
@@ -95,8 +93,6 @@ class Level
 	const std::string &getPath();
 	const std::string &getName();
 	void setName(const std::string &_name);
-	/*
-	const Material& getMaterial(int x, int y);*/
 	
 	Vec getSpawnLocation(BasePlayer* player);
 	
@@ -150,7 +146,6 @@ class Level
 	void culledDrawSprite(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
 	void culledDrawLight(Sprite* sprite, Viewport* viewport, const IVec& pos, int alpha);
 	
-	//void culledDrawLight(Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos);
 #endif
 	// applies the effect and returns true if it actually changed something on the map
 	bool applyEffect( LevelEffect* effect, int x, int y);
