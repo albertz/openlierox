@@ -111,7 +111,7 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 		return SampleCached;
 
 	std::string fullfilename = GetFullFileName(_filename);
-	if(fullfilename.size() > 0) {
+	if(fullfilename.size() > 0 && IsFileAvailable(fullfilename, true)) {
 		SmartPointer<SoundSample> Sample = sfx.getDriver()->load(fullfilename);
 		
 		if(Sample.get() && Sample->avail()) {
