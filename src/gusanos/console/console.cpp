@@ -297,7 +297,7 @@ int Console::executeConfig(const string &filename)
 		//...parse the file
 		while (portable_getline(file, text2Parse))
 		{
-			//getline(file,text2Parse);
+			//LUA_getline(file,text2Parse);
 			//std::transform(text2Parse.begin(), text2Parse.end(), text2Parse.begin(), (int(*)(int)) toupper);
 			parseLine(text2Parse);
 		}
