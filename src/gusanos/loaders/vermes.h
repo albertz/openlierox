@@ -16,6 +16,8 @@ struct VermesLevelLoader : ResourceLocator<Level>::BaseLoader
 	virtual bool load(Level*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static VermesLevelLoader instance;
 };
@@ -28,6 +30,8 @@ struct VermesFontLoader : ResourceLocator<Font>::BaseLoader
 	virtual bool load(Font*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static VermesFontLoader instance;
 };
@@ -39,6 +43,8 @@ struct XMLLoader : ResourceLocator<XMLFile, false, false>::BaseLoader
 	virtual bool load(XMLFile*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static XMLLoader instance;
 };
@@ -50,6 +56,8 @@ struct GSSLoader : ResourceLocator<GSSFile>::BaseLoader
 	virtual bool load(GSSFile*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static GSSLoader instance;
 };
@@ -62,6 +70,8 @@ struct LuaLoader : ResourceLocator<Script>::BaseLoader
 	virtual bool load(Script*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static LuaLoader instance;
 };

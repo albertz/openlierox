@@ -22,7 +22,6 @@
 #include "util/log.h"
 
 #include "../gconsole.h"
-#include "../vermes.h"
 #ifndef DEDICATED_ONLY
 #include "../keys.h"
 #include "../menu.h"
@@ -412,7 +411,7 @@ int l_undump(lua_State* L)
 		std::string dumpPath(std::string("persistance") + "/" + std::string(s) + ".lpr");
 	
 		std::ifstream f;
-		gusOpenGameFileR(f, dumpPath, std::ios::binary);
+		OpenGameFileR(f, dumpPath, std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;

@@ -51,17 +51,26 @@ static int fps = 0;
 static unsigned int logicLast = 0;
 
 
-bool gusInit() {
+bool gusInitBase() {
+	console.registerVariables()
+	("CL_SHOWFPS", &showFps, 1) 
+	("CL_SHOWDEBUG", &showDebug, 0)
+	;
+	
+	if(!game.init())
+		return false;
+	
+	//game.refreshLevels();
+
+	return true;
+}
+
+bool gusInit(const std::string& mod) {
 	quit = false;
 	fpsLast = 0;
 	fpsCount = 0;
 	fps = 0;
 	logicLast = 0;
-	
-	console.registerVariables()
-	("CL_SHOWFPS", &showFps, 1) 
-	("CL_SHOWDEBUG", &showDebug, 0)
-	;
 	
 	if(!game.init())
 		return false;
@@ -82,7 +91,8 @@ bool gusInit() {
 	console.executeConfig("autoexec-ded.cfg");
 #endif
 	
-	return true;
+	game.setMod(mod);
+	return game.loadMod(true);
 }
 
 bool gusCanRunFrame() {

@@ -187,7 +187,7 @@ void initMaterialMappings()
 bool LieroLevelLoader::load(Level* level, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary);
+	OpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -262,6 +262,10 @@ const char* LieroLevelLoader::getName()
 	return "Liero level loader";
 }
 
+std::string LieroLevelLoader::format() { return "Liero level"; }
+std::string LieroLevelLoader::formatShort() { return "Liero"; }
+
+
 #ifndef DEDICATED_ONLY
 
 bool LieroFontLoader::canLoad(std::string const& path, std::string& name)
@@ -279,7 +283,7 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 	font->free();
 	
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary);
+	OpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -338,5 +342,9 @@ const char* LieroFontLoader::getName()
 {
 	return "Liero font loader";
 }
+
+std::string LieroFontLoader::format() { return "Liero font"; }
+std::string LieroFontLoader::formatShort() { return "Liero"; }
+
 
 #endif

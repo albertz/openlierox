@@ -36,6 +36,9 @@ struct ResourceLocator
 		
 		virtual const char* getName() = 0;
 		
+		virtual std::string format() = 0;
+		virtual std::string formatShort() = 0;
+
 		virtual ~BaseLoader() { }
 	};
 	
@@ -107,6 +110,8 @@ struct ResourceLocator
 	// Loads the named resource
 	bool load(T*, std::string const& name);
 	
+	void addResource(const std::string& name, const std::string& path, BaseLoader* loader);
+
 	// Loads and returns the named resource or, if it was loaded already, returns a cached version
 	T* load(std::string const& name);
 	
@@ -114,6 +119,8 @@ struct ResourceLocator
 	
 	// Returns true if the named resource can be loaded
 	bool exists(std::string const& name);
+
+	bool canLoad(const std::string& file, std::string& name, BaseLoader*& loader);
 
 	// Registers a new loader for this resource type
 	void registerLoader(BaseLoader* loader)
@@ -136,42 +143,52 @@ private:
 };
 
 template<class T, bool Cache, bool ReturnResource>
+void ResourceLocator<T, Cache, ReturnResource>::addResource(const std::string& name, const std::string& path, BaseLoader* loader) {
+	std::pair<typename NamedResourceMap::iterator, bool> r = m_namedResources.insert(std::make_pair(name, ResourceInfo(path, loader)));
+	/*
+	 if(r.second)
+	 {
+	 notes << "Found resource: " << name << ", loader: " << loader->getName() << endl;
+	 }
+	 else
+	 {
+	 notes << "Duplicate resource: " << name << ", old path: " << r.first->second.path << ", new path: " << i->get() << endl;
+	 }
+	 */	
+}
+
+template<class T, bool Cache, bool ReturnResource>
+bool ResourceLocator<T, Cache, ReturnResource>::canLoad(const std::string& file, std::string& name, BaseLoader*& loader) {
+	// Try loaders until a working one is found					
+
+	for(typename std::list<BaseLoader *>::iterator l = m_loaders.begin();
+		l != m_loaders.end();
+		++l)
+	{
+		if((*l)->canLoad(file, name))
+		{
+			loader = *l;
+			return true;
+		}
+	}	
+	
+	return false;
+}
+
+template<class T, bool Cache, bool ReturnResource>
 void ResourceLocator<T, Cache, ReturnResource>::refresh(std::string const& path)
 {
 	//notes << typeid(T).name() << ": Scanning: " << path << endl;
-	for(Iterator<std::string>::Ref i = gusFileListIter(path); i->isValid(); i->next())
+	for(Iterator<std::string>::Ref i = FileListIter(path); i->isValid(); i->next())
 	{
 		//notes << " . entry: " << i->get() << endl;
 		std::string name;
 		BaseLoader* loader = 0;
 		
-		// Try loaders until a working one is found
-		
-		for(typename std::list<BaseLoader *>::iterator l = m_loaders.begin();
-			l != m_loaders.end();
-			++l)
-		{
-			if((*l)->canLoad(path + "/" + i->get(), name))
-			{
-				loader = *l;
-				break;
-			}
-		}
-					
-		if(loader)
+		if(canLoad(path + "/" + i->get(), name, loader))
 		{			
 			// We found a loader
-			std::pair<typename NamedResourceMap::iterator, bool> r = m_namedResources.insert(std::make_pair(name, ResourceInfo(path + "/" + i->get(), loader)));
-			/*
-			if(r.second)
-			{
-				notes << "Found resource: " << name << ", loader: " << loader->getName() << endl;
-			}
-			else
-			{
-				notes << "Duplicate resource: " << name << ", old path: " << r.first->second.path << ", new path: " << i->get() << endl;
-			}
-			*/
+			addResource(name, path + "/" + i->get(), loader);
 		}
 		else if(gusIsDirectory(path + "/" + i->get()))
 		{
@@ -252,5 +269,6 @@ bool ResourceLocator<T, Cache, ReturnResource>::exists(std::string const& name)
 		
 	return true;
 }
+
 
 #endif //VERMES_RESOURCE_LOCATOR_H

@@ -42,7 +42,7 @@ bool LOSPFontLoader::load(Font* font, std::string const& path)
 	font->free();
 
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary);
+	OpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -115,5 +115,8 @@ const char* LOSPFontLoader::getName()
 {
 	return "LOSP font loader";
 }
+
+std::string LOSPFontLoader::format() { return "LOSP font"; }
+std::string LOSPFontLoader::formatShort() { return "LOSP"; }
 
 #endif

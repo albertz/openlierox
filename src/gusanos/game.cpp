@@ -406,7 +406,7 @@ void Game::parseCommandLine(int argc, char** argv)
 bool Game::init()
 {
 	if(!allegro_init()) return false;
-
+	
 	levelLocator.registerLoader(&VermesLevelLoader::instance);
 	levelLocator.registerLoader(&LieroXLevelLoader::instance);
 	levelLocator.registerLoader(&LieroLevelLoader::instance);
@@ -415,27 +415,27 @@ bool Game::init()
 	fontLocator.registerLoader(&VermesFontLoader::instance);
 	fontLocator.registerLoader(&LOSPFontLoader::instance);
 	fontLocator.registerLoader(&LieroFontLoader::instance);
-
+	
 	xmlLocator.registerLoader(&XMLLoader::instance);
 	gssLocator.registerLoader(&GSSLoader::instance);
 #endif
-
+	
 	scriptLocator.registerLoader(&LuaLoader::instance);
 	
 	LuaBindings::init();
 
-	m_defaultPath = "default";
-	m_modPath = "default";
-	m_modName = "default";
-	if(!setMod("default")) {
+	m_defaultPath = "Gusanos";
+	m_modPath = "Gusanos";
+	m_modName = "Gusanos";
+	if(!setMod("Gusanos")) {
 		errors << "default Gusanos mod not found" << endl;
 		return false;
 	}
-	refreshResources("default");
-
+	refreshResources("Gusanos");
+	
 	console.init();
 #ifndef DEDICATED_ONLY
-	OmfgGUI::menu.init();
+	//OmfgGUI::menu.init();
 	
 	sfx.registerInConsole();
 #endif
@@ -457,17 +457,17 @@ bool Game::init()
 #else
 	console.executeConfig("config-ded.cfg");
 #endif
-
+	
 	//parseCommandLine(argc, argv);
 	
 	gfx.init();
 #ifndef DEDICATED_ONLY
 	sfx.init();
-
+	
 	keyHandler.init();
 	//mouseHandler.init();
 #endif
-
+	
 #ifndef DISABLE_ZOIDCOM
 	network.init();
 #endif
@@ -927,8 +927,8 @@ void Game::refreshResources(std::string const& levelPath)
 void Game::refreshLevels()
 {
 	levelLocator.clear();
-	levelLocator.addPath(m_defaultPath + "/maps");
-	levelLocator.addPath(std::string(nextMod) + "/maps");
+	levelLocator.addPath("levels");
+	//levelLocator.addPath(std::string(nextMod) + "/maps");
 	levelLocator.refresh();
 }
 

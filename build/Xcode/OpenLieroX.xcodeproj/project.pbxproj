@@ -45,6 +45,7 @@
 		231BE16610CE6B670023780D /* Level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231BE16510CE6B670023780D /* Level.cpp */; };
 		231FE0200F001B7A007F4CC8 /* FeatureList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */; };
 		23210161101DFAF900510514 /* CGameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23210160101DFAF900510514 /* CGameObject.cpp */; };
+		2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B02710CE9F4300D3F035 /* gusanos.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
@@ -338,7 +339,6 @@
 		23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FCF10CC57FB00DABBD6 /* xml.cpp */; };
 		23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FD210CC57FB00DABBD6 /* bindings-gui.cpp */; };
 		23C3500510CC590A00DABBD6 /* menu.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3500310CC590A00DABBD6 /* menu.cpp */; };
-		23C3506D10CC63DB00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C3506B10CC63DB00DABBD6 /* vermes.cpp */; };
 		23C5AC3C0FADB2C4005A36AE /* MapLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */; };
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
@@ -492,7 +492,7 @@
 			isa = PBXContainerItemProxy;
 			containerPortal = 08FB7793FE84155DC02AAC07 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 23C34C0910CC206F00DABBD6 /* freealut */;
+			remoteGlobalIDString = 23C34C0910CC206F00DABBD6;
 			remoteInfo = freealut;
 		};
 		23ECBE780E894D97007B8D55 /* PBXContainerItemProxy */ = {
@@ -682,6 +682,8 @@
 		231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatureList.cpp; sourceTree = "<group>"; };
 		2321012C101DF88A00510514 /* CGameObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameObject.h; sourceTree = "<group>"; };
 		23210160101DFAF900510514 /* CGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameObject.cpp; sourceTree = "<group>"; };
+		2326B02710CE9F4300D3F035 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
+		2326B02810CE9F4300D3F035 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
@@ -1198,8 +1200,6 @@
 		23C34FD510CC57FB00DABBD6 /* omfggui_windows.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = omfggui_windows.h; sourceTree = "<group>"; };
 		23C3500310CC590A00DABBD6 /* menu.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = menu.cpp; sourceTree = "<group>"; };
 		23C3500410CC590A00DABBD6 /* menu.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = menu.h; sourceTree = "<group>"; };
-		23C3506B10CC63DB00DABBD6 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
-		23C3506C10CC63DB00DABBD6 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
 		23C5AC3A0FADB032005A36AE /* MapLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MapLoader.h; sourceTree = "<group>"; };
 		23C5AC3B0FADB2C4005A36AE /* MapLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MapLoader.cpp; sourceTree = "<group>"; };
 		23C5AC3D0FADB842005A36AE /* PreInitVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreInitVar.h; sourceTree = "<group>"; };
@@ -1920,8 +1920,8 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
-				23C3506B10CC63DB00DABBD6 /* vermes.cpp */,
-				23C3506C10CC63DB00DABBD6 /* vermes.h */,
+				2326B02710CE9F4300D3F035 /* gusanos.cpp */,
+				2326B02810CE9F4300D3F035 /* gusanos.h */,
 				23C3500310CC590A00DABBD6 /* menu.cpp */,
 				23C3500410CC590A00DABBD6 /* menu.h */,
 				23C34FB610CC57FA00DABBD6 /* gui */,
@@ -3365,12 +3365,12 @@
 				23C34FE110CC57FB00DABBD6 /* xml.cpp in Sources */,
 				23C34FE210CC57FB00DABBD6 /* bindings-gui.cpp in Sources */,
 				23C3500510CC590A00DABBD6 /* menu.cpp in Sources */,
-				23C3506D10CC63DB00DABBD6 /* vermes.cpp in Sources */,
 				231BE12510CE5C390023780D /* sfx.cpp in Sources */,
 				231BE12910CE5CFD0023780D /* sfxdriver.cpp in Sources */,
 				231BE12F10CE5D1F0023780D /* sound_sample.cpp in Sources */,
 				231BE16310CE68BD0023780D /* Mod.cpp in Sources */,
 				231BE16610CE6B670023780D /* Level.cpp in Sources */,
+				2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

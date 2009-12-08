@@ -28,7 +28,7 @@ VermesLevelLoader VermesLevelLoader::instance;
 
 bool VermesLevelLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(gusExists(path + "/config.cfg"))
+	if(IsFileAvailable(path + "/config.cfg"))
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -47,7 +47,7 @@ namespace{
 	LevelConfig* loadConfig( std::string const& filename )
 	{
 		std::ifstream fileStream;
-		gusOpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
+		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 		if (!fileStream )
 			return false;
@@ -191,6 +191,10 @@ const char* VermesLevelLoader::getName()
 	return "Vermes 0.9 level loader";
 }
 
+std::string VermesLevelLoader::format() { return "Gusanos 0.9 level"; }
+std::string VermesLevelLoader::formatShort() { return "Gus"; }
+
+
 #ifndef DEDICATED_ONLY
 VermesFontLoader VermesFontLoader::instance;
 
@@ -270,6 +274,9 @@ const char* VermesFontLoader::getName()
 	return "Vermes 0.9 font loader";
 }
 
+std::string VermesFontLoader::format() { return "Gusanos 0.9 font"; }
+std::string VermesFontLoader::formatShort() { return "Gus"; }
+
 XMLLoader XMLLoader::instance;
 
 bool XMLLoader::canLoad(std::string const& path, std::string& name)
@@ -284,7 +291,7 @@ bool XMLLoader::canLoad(std::string const& path, std::string& name)
 	
 bool XMLLoader::load(XMLFile* xml, std::string const& path)
 {
-	gusOpenGameFileR(xml->f, path, std::ios::binary);
+	OpenGameFileR(xml->f, path, std::ios::binary);
 	
 	if(!xml->f)
 		return false;
@@ -296,6 +303,10 @@ const char* XMLLoader::getName()
 {
 	return "XML loader";
 }
+
+std::string XMLLoader::format() { return "Gusanos XML"; }
+std::string XMLLoader::formatShort() { return "GusXML"; }
+
 
 
 GSSLoader GSSLoader::instance;
@@ -313,7 +324,7 @@ bool GSSLoader::canLoad(std::string const& path, std::string& name)
 bool GSSLoader::load(GSSFile* gss, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary);
+	OpenGameFileR(f, path, std::ios::binary);
 	
 	if(!f)
 		return false;
@@ -327,6 +338,11 @@ const char* GSSLoader::getName()
 {
 	return "GSS loader";
 }
+
+std::string GSSLoader::format() { return "Gusanos GSS"; }
+std::string GSSLoader::formatShort() { return "GSS"; }
+
+
 #endif
 
 LuaLoader LuaLoader::instance;
@@ -344,7 +360,7 @@ bool LuaLoader::canLoad(std::string const& path, std::string& name)
 bool LuaLoader::load(Script* script, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary | std::ios::in);
+	OpenGameFileR(f, path, std::ios::binary | std::ios::in);
 	if(!f)
 		return false;
 		
@@ -374,6 +390,10 @@ const char* LuaLoader::getName()
 {
 	return "Lua loader";
 }
+
+std::string LuaLoader::format() { return "Gusanos Lua"; }
+std::string LuaLoader::formatShort() { return "Lua"; }
+
 
 /*
 VermesParticleLoader VermesParticleLoader::instance;

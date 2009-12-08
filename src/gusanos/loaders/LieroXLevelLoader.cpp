@@ -26,7 +26,7 @@ bool LieroXLevelLoader::canLoad(std::string const& path, std::string& name)
 bool LieroXLevelLoader::load(Level* level, std::string const& path)
 {
 	std::ifstream f;
-	gusOpenGameFileR(f, path, std::ios::binary);
+	OpenGameFileR(f, path, std::ios::binary);
 	if(!f)
 		return false;
 		
@@ -164,3 +164,6 @@ const char* LieroXLevelLoader::getName()
 {
 	return "LieroX level loader";
 }
+
+std::string LieroXLevelLoader::format() { return "LieroX level"; }
+std::string LieroXLevelLoader::formatShort() { return "LX"; }

@@ -49,6 +49,7 @@
 #include "StaticAssert.h"
 #include "OLXCommand.h"
 #include "game/Mod.h"
+#include "gusanos/gusanos.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -410,7 +411,7 @@ startpoint:
 	}
 
 	// speedup for Menu_Start()
-	DrawLoading(85, "Loading main menu");
+	DrawLoading(80, "Loading main menu");
 	DeprecatedGUI::iSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
@@ -423,6 +424,9 @@ startpoint:
 	// Setup the global keys
 	tLX->setupInputs();
 
+	DrawLoading(90, "Loading Gusanos engine");
+	gusInitBase();
+	
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();
 
@@ -494,6 +498,7 @@ quit:
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
 	
+	gusQuit();
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
@@ -1364,7 +1369,7 @@ struct CheckFileForMap {
 		if(mapName != "") filelist.insert( List::value_type(GetBaseFilename(abs_filename), mapName) );
 	}
 };
-static FileListCache<CheckFileForMap> mapListInstance("map", "levels");
+static FileListCache<CheckFileForMap> mapListInstance("map", "levels", false, FM_REG | FM_DIR);
 FileListCacheIntf* mapList = &mapListInstance;
 
 

@@ -90,7 +90,7 @@ namespace GameEventID
 bool WeaponType::load(std::string const& filename)
 {
 	std::ifstream fileStream;
-	gusOpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
+	OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 	if (!fileStream )
 		return false;

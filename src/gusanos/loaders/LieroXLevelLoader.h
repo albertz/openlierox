@@ -11,6 +11,8 @@ struct LieroXLevelLoader : ResourceLocator<Level>::BaseLoader
 	virtual bool load(Level*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static LieroXLevelLoader instance;
 };

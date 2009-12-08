@@ -289,7 +289,7 @@ std::string Console::getActionForBinding(char key)
 int Console::executeConfig(const string &filename)
 {
 	ifstream file;
-	gusOpenGameFileR(file, filename.c_str());
+	OpenGameFileR(file, filename.c_str());
 
 	if (file.is_open() && file.good())
 	{

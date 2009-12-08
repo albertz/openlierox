@@ -15,6 +15,8 @@ struct LOSPFontLoader : ResourceLocator<Font>::BaseLoader
 	virtual bool load(Font*, std::string const& path);
 	
 	virtual const char* getName();
+	virtual std::string format();
+	virtual std::string formatShort();
 	
 	static LOSPFontLoader instance;
 };
