@@ -787,7 +787,59 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// HINT: gamescript is shut down by the cache
 
     //bs->Dump();
-
+	
+	if(!isReconnect)
+		PhysicsEngine::Get()->initGame();
+	
+	if(!isReconnect) {
+		if(tLX->iGameType == GME_JOIN) {
+			client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
+			if( client->cGameScript.get() == NULL )
+			{
+				client->cGameScript = new CGameScript();
+				
+				if (client->bDownloadingMod)
+					client->bWaitingForMod = true;
+				else {
+					client->bWaitingForMod = false;
+					
+					int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
+					cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
+					if(result != GSE_OK) {
+						
+						// Show any error messages
+						if (tLX->iGameType == GME_JOIN)  {
+							FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+							std::string err("Error load game mod: ");
+							err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
+							DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
+							client->bClientError = true;
+							
+							// Go back to the menu
+							GotoNetMenu();
+						} else {
+							errors << "ParsePrepareGame: load mod error for a local game!" << endl;
+						}
+						client->bGameReady = false;
+						
+						errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
+						return false;
+					}
+				}
+			}
+		}
+		else { // hosting
+			client->cGameScript = cServer->getGameScript();
+			if(client->cGameScript.get() == NULL) {
+				errors << "ParsePrepareGame: server has mod unset" << endl;
+				client->bGameReady = false;
+				
+				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
+				return false;
+			}
+		}
+	}
+	
 
 	if(tLX->iGameType == GME_JOIN) {
 		client->cMap = new CMap;
@@ -883,58 +935,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			}
 		}
 
-	}
-
-	if(!isReconnect)
-		PhysicsEngine::Get()->initGame();
-
-	if(!isReconnect) {
-		if(tLX->iGameType == GME_JOIN) {
-			client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
-			if( client->cGameScript.get() == NULL )
-			{
-				client->cGameScript = new CGameScript();
-	
-				if (client->bDownloadingMod)
-					client->bWaitingForMod = true;
-				else {
-					client->bWaitingForMod = false;
-	
-					int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
-					cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
-					if(result != GSE_OK) {
-	
-						// Show any error messages
-						if (tLX->iGameType == GME_JOIN)  {
-							FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-							std::string err("Error load game mod: ");
-							err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
-							DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-							client->bClientError = true;
-	
-							// Go back to the menu
-							GotoNetMenu();
-						} else {
-							errors << "ParsePrepareGame: load mod error for a local game!" << endl;
-						}
-						client->bGameReady = false;
-	
-						errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
-						return false;
-					}
-				}
-			}
-		}
-		else { // hosting
-			client->cGameScript = cServer->getGameScript();
-			if(client->cGameScript.get() == NULL) {
-				errors << "ParsePrepareGame: server has mod unset" << endl;
-				client->bGameReady = false;
-	
-				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
-				return false;
-			}
-		}
 	}
 	
     // Read the weapon restrictions

@@ -334,6 +334,8 @@ public:
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
 	Color	getColorAt(long x, long y);
+	void	putColorTo(long x, long y, Color c);
+	void	putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh);
 	
 	SmartPointer<SDL_Surface> GetDrawImage()		{ return bmpDrawImage; }
 	SmartPointer<SDL_Surface> GetImage()			{ return bmpImage; }

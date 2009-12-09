@@ -69,14 +69,17 @@ bool gusInitBase() {
 }
 
 bool gusInit(const std::string& mod) {
-	notes << "Gusanos: init mod " << mod << endl;
+	notes << "Gusanos: set mod " << mod << endl;
+	
+	gusGame.setMod(mod);
 	
 	quit = false;
 	fpsLast = 0;
 	fpsCount = 0;
 	fps = 0;
 	logicLast = 0;
-		
+	
+	/*
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
@@ -92,7 +95,8 @@ bool gusInit(const std::string& mod) {
 #endif
 	
 	gusGame.setMod(mod);
-	return gusGame.loadMod(true);
+	return gusGame.loadMod(true);*/
+	return true;
 }
 
 bool gusCanRunFrame() {

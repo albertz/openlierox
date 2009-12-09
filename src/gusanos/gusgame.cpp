@@ -46,6 +46,7 @@
 #include "Debug.h"
 #include "FindFile.h"
 #include "CClient.h"
+#include "CServer.h"
 
 #include "gusanos/allegro.h"
 #include <string>
@@ -565,7 +566,8 @@ void GusGame::think()
 	}
 #endif
 
-	level().gusThink();
+	if(isLevelLoaded())
+		level().gusThink();
 
 	if ( !m_node )
 		return;
@@ -755,11 +757,13 @@ void GusGame::runInitScripts()
 		(lua.call(ref))();
 	}
 
-	Script* levelScript = scriptLocator.load("map_" + level().getName());
-	if(levelScript)
-	{
-		LuaReference ref = levelScript->createFunctionRef("init");
-		(lua.call(ref))();
+	if(isLevelLoaded()) {
+		Script* levelScript = scriptLocator.load("map_" + level().getName());
+		if(levelScript)
+		{
+			LuaReference ref = levelScript->createFunctionRef("init");
+			(lua.call(ref))();
+		}
 	}
 	levelEffectList.indexate();
 	partTypeList.indexate();
@@ -1022,7 +1026,7 @@ bool GusGame::changeLevel(const std::string& levelName, bool refresh)
 
 bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m )
 {
-	notes << "GusGame::changeLevel: " << levelPath << endl;
+	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
 	
 	unload();
 	
@@ -1331,7 +1335,18 @@ Net_Node* GusGame::getNode()
 	return m_node;
 }*/
 
-CMap& GusGame::level() {
-	return *cClient->getMap();
+static CMap* getMap() {
+	if(tLX) {
+		if(tLX->iGameType == GME_JOIN) return cServer->getMap();
+		return cClient->getMap();
+	}
+	return NULL;
 }
 
+CMap& GusGame::level() {
+	return *getMap();
+}
+
+bool GusGame::isLevelLoaded() {
+	return getMap() && getMap()->isLoaded();
+}

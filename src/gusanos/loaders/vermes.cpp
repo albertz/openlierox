@@ -112,11 +112,11 @@ namespace{
 			switch(i.type())
 			{
 				case GameStart:
-					returnConf->gameStart = new GameEvent(i.actions());
+					returnConf->gameStart = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
 				break;
 				
 				case GameEnd:
-					returnConf->gameEnd = new GameEvent(i.actions());
+					returnConf->gameEnd = boost::shared_ptr<GameEvent>( new GameEvent(i.actions()) );
 				break;
 			}
 		}

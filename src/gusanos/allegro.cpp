@@ -98,10 +98,14 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	int flags = SDL_SWSURFACE;
 	SDL_Surface* surf = SDL_CreateRGBSurface(flags, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
-	if(!surf) return NULL;
+	if(!surf) {
+		errors << "create_bitmap_ex: cannot create surface with " << width << "x" << height << "x" << color_depth << endl;
+		return NULL;
+	}
+	FillSurface(surf, Color());
 	
 	if(surf->format->BitsPerPixel != color_depth)
-		warnings << "couldn't create surface with " << color_depth << " bpp" << endl;
+		warnings << "create_bitmap_ex: couldn't create surface with " << color_depth << " bpp" << endl;
 	
 	return create_bitmap_from_sdl(surf);
 }

@@ -86,6 +86,7 @@ struct weapon_t;
 struct proj_t;
 struct Proj_SpawnInfo;
 struct Proj_Action;
+struct ModInfo;
 
 
 class CGameScript {
@@ -171,7 +172,7 @@ public:
 	const weapon_t	*FindWeapon(const std::string& name);
     bool        weaponExists(const std::string& szName);
 
-	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
+	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false, ModInfo* info = NULL);
 
     void        modLog(const std::string& text);
 

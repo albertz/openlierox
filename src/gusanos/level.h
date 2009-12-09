@@ -45,9 +45,8 @@ struct WaterParticle
 struct SpawnPoint
 {
 	SpawnPoint( const Vec& pos_, int team_ )
-	: pos( pos_ ), team(team_)
-	{
-	}
+	: pos( pos_ ), team(team_) {}
+	
 	Vec pos;
 	int team;
 	
@@ -56,26 +55,11 @@ struct SpawnPoint
 
 struct LevelConfig
 {
-	LevelConfig()
-	: gameStart(0), gameEnd(0)
-	, darkMode(false)
-	{
-	}
-	
-	LevelConfig(const LevelConfig& c) : spawnPoints(c.spawnPoints), gameStart(NULL), gameEnd(NULL), darkMode(c.darkMode) {
-		if(c.gameStart) gameStart = new GameEvent(*c.gameStart);
-		if(c.gameEnd) gameStart = new GameEvent(*c.gameEnd);
-	}
-	
-	~LevelConfig()
-	{
-		if(gameStart) delete gameStart;
-		if(gameEnd) delete gameEnd;
-	}
+	LevelConfig() : darkMode(false)	{}
 	
 	std::vector<SpawnPoint> spawnPoints;
-	GameEvent* gameStart;
-	GameEvent* gameEnd;
+	boost::shared_ptr<GameEvent> gameStart;
+	boost::shared_ptr<GameEvent> gameEnd;
 	bool darkMode;
 };
 

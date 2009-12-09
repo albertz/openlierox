@@ -294,6 +294,9 @@ void GameServer::ProcessGetExternalIP()
 	if (sExternalIP.size()) // already got it
 		return;
 
+	if(tLX->iGameType == GME_LOCAL) // dont need it
+		return;
+	
 	int result = tHttp2.ProcessRequest();
 
 	switch(result)  {
@@ -374,44 +377,6 @@ int GameServer::StartGame(std::string* errMsg)
 		}
 	}
 	
-	// TODO: why delete + create new map instead of simply shutdown/clear map?
-	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
-
-	// Shutdown any previous map instances
-	if(cMap) {
-		cMap->Shutdown();
-		delete cMap;
-		cMap = NULL;
-		cClient->resetMap();
-	}
-
-	// Create the map
-mapCreate:
-	cMap = new CMap;
-	if(cMap == NULL) {
-		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
-		if(cCache.GetEntryCount() > 0) {
-			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-			cCache.Clear();
-			goto mapCreate;
-		}
-		if(errMsg) *errMsg = "Out of memory while loading map";
-		return false;
-	}
-	
-	
-	bRandomMap = false;
-	{
-		timer = SDL_GetTicks()/1000.0f;
-		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
-		if(!cMap->Load(sMapFilename)) {
-			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
-			if(errMsg) *errMsg = "Could not load level " + tLXOptions->tGameInfo.sMapFile;
-			return false;
-		}
-		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
-	}
-	
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
@@ -441,11 +406,52 @@ mapCreate:
 		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 	}
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
-
+	
 	// Load & update the weapon restrictions
 	cWeaponRestrictions.loadList(sWeaponRestFile);
 	cWeaponRestrictions.updateList(cGameScript.get());
 
+
+	// TODO: why delete + create new map instead of simply shutdown/clear map?
+	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
+	
+	// Shutdown any previous map instances
+	if(cMap) {
+		cMap->Shutdown();
+		delete cMap;
+		cMap = NULL;
+		cClient->resetMap();
+	}
+	
+	// Create the map
+mapCreate:
+	cMap = new CMap;
+	if(cMap == NULL) {
+		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
+		if(cCache.GetEntryCount() > 0) {
+			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+			cCache.Clear();
+			goto mapCreate;
+		}
+		if(errMsg) *errMsg = "Out of memory while loading map";
+		return false;
+	}
+	
+	
+	bRandomMap = false;
+	{
+		timer = SDL_GetTicks()/1000.0f;
+		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+		if(!cMap->Load(sMapFilename)) {
+			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
+			if(errMsg) *errMsg = "Could not load level " + tLXOptions->tGameInfo.sMapFile;
+			return false;
+		}
+		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
+	}
+	
+	
+	
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {

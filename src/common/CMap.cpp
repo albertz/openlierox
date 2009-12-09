@@ -3321,7 +3321,32 @@ Color CMap::getColorAt(long x, long y) {
 	else if(bmpImage.get()) {
 		if(!LockSurface(bmpImage)) return Color();
 		return Color(bmpImage->format, GetPixel(bmpImage.get(), x, y));
-		UnlockSurface(cClient->getMap()->GetImage());		
+		UnlockSurface(bmpImage);		
 	}
 	return Color();
 }
+
+void CMap::putColorTo(long x, long y, Color c) {
+	if(gusIsLoaded()) {
+		return putpixel(image, x, y, c.get());
+	}
+	else if(bmpImage.get()) {
+		if(!LockSurface(bmpImage)) return;
+		PutPixel(bmpImage.get(),x, y, c.get(bmpImage->format));
+		UnlockSurface(bmpImage);		
+
+		DrawRectFill2x2(GetDrawImage().get(), x*2, y*2, c);
+	}
+}
+
+void CMap::putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh) {
+	if(gusIsLoaded()) {
+		DrawImageAdv(image->surf.get(), surf, sx, sy, x, y, sw, sh);
+	}
+	else if(bmpImage.get()) {
+		DrawImageAdv(GetImage().get(), surf, sx, sy, x, y, sw, sh);
+		DrawImageStretch2(GetDrawImage().get(), GetImage(), x, y, x*2, y*2, sw, sh);
+	}
+}
+
+

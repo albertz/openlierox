@@ -12,16 +12,13 @@
 
 #include <string>
 
-struct ModLoader;
-
 struct ModInfo {
 	bool valid;
 	std::string name;
 	std::string path;
 	std::string type;
 	std::string typeShort;
-	ModLoader* loader;
-	ModInfo() : valid(false), loader(NULL) {}
+	ModInfo() : valid(false) {}
 };
 
 ModInfo infoForMod(const std::string& f, bool absolute = false);

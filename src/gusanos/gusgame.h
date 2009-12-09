@@ -177,6 +177,7 @@ public:
 	void error(Error err);
 	bool loadMod(bool doLoadWeapons = true);
 	bool isLoaded();
+	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
 	void refreshLevels();
 	void refreshMods();

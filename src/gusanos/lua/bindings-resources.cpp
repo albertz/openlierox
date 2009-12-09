@@ -357,7 +357,7 @@ METHODC(Sound, sound_play,
 */
 int l_map_is_loaded(lua_State* L)
 {
-	lua_pushboolean(L, gusGame.level().isLoaded());
+	lua_pushboolean(L, gusGame.isLevelLoaded());
 	
 	return 1;
 }
