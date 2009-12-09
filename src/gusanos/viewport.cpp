@@ -86,9 +86,11 @@ static BITMAP* testLight = 0;
 void CViewport::setDestination(BITMAP* where, int x, int y, int width, int height)
 {
 	if(width > where->w
-	        || height > where->h)
+	   || height > where->h) {
+		errors << "CViewport::setDestination: " << width << "x" << height << " too big" << endl;
 		return;
-
+	}
+	
 	destroy_bitmap(dest);
 	destroy_bitmap(hud);
 	if ( x < 0 )
@@ -145,20 +147,19 @@ void CViewport::gusRender()
 		int destw = Width;
 		int desth = Height;
 		bool needDestReset = false;
-		if(!dest) needDestReset = true;
-		else {
-			if(dest->sub_x != destx || dest->sub_y != desty || dest->w != destw || dest->h != desth )
-				needDestReset = true;
-		}
+		if(!dest)
+			needDestReset = true;
+		else if(dest->sub_x != destx || dest->sub_y != desty || dest->w != destw || dest->h != desth )
+			needDestReset = true;
+		else if(dest->surf.get() != gfx.buffer->surf.get())
+			needDestReset = true;
 		
 		if(needDestReset)
 			setDestination(gfx.buffer, destx, desty, destw, desth);
 	}
-	
-	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
-	
-	int offX = static_cast<int>(Left);
-	int offY = static_cast<int>(Top);
+		
+	int offX = static_cast<int>(WorldX);
+	int offY = static_cast<int>(WorldY);
 
 	gusGame.level().gusDraw(dest, offX, offY);
 
@@ -202,6 +203,8 @@ void CViewport::gusRender()
 	if(gusGame.level().config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
+	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
+
 	EACH_CALLBACK(i, wormRender) {
 		for(list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter) {
 			CWorm* worm = (*playerIter)->getWorm();
@@ -221,7 +224,7 @@ void CViewport::gusRender()
 		}
 	}
 
-	if(CWorm* worm = player->getWorm()) {
+	if(CWorm* worm = pcTargetWorm) {
 		EACH_CALLBACK(i, viewportRender) {
 			//lua.callReference(0, *i, luaReference, worm->luaReference);
 			(lua.call(*i), luaReference, worm->getLuaReference())();

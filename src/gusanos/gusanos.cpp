@@ -69,6 +69,8 @@ bool gusInitBase() {
 }
 
 bool gusInit(const std::string& mod) {
+	notes << "Gusanos: init mod " << mod << endl;
+	
 	quit = false;
 	fpsLast = 0;
 	fpsCount = 0;

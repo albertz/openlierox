@@ -27,6 +27,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "Cache.h"
 #include "gusanos/gusanos.h"
+#include "gusanos/gusgame.h"
 
 Game game;
 
@@ -37,6 +38,12 @@ void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 	
+/*	if(cClient->getMap() && cClient->getMap()->gusIsLoaded()) {
+		// we need the default mod present to have a working map
+		gusInit("Gusanos");
+		gusGame.prepareLevel(cClient->getMap()->getFilename(), false);
+	}
+*/	
 	ClearEntities();
 	
 	ProcessEvents();

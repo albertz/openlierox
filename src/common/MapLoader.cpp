@@ -21,6 +21,7 @@
 #include "SafeVector.h"
 #include "ConfigHandler.h"
 #include "gusanos/level.h"
+#include "gusanos/gusgame.h"
 
 
 class ML_OrigLiero : public MapLoad {
@@ -1907,7 +1908,7 @@ public:
 		notes << "Gusanos level loader: using " << loader->getName() << " for " << f << endl;
 		
 		// TODO: abs filename
-		if(!loader->load(m, f))
+		if(!gusGame.changeLevel(loader, f, m))
 			return false;
 
 		// Allocate the map

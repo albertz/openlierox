@@ -975,7 +975,7 @@ bool GusGame::changeLevelCmd(const std::string& levelName )
 		network.disconnect();
 	*/
 	mq_queue(msg, ChangeLevel, levelName);
-
+	
 	return true;
 }
 
@@ -1008,42 +1008,47 @@ bool GusGame::hasMod(std::string const& mod)
 	return modList.find(mod) != modList.end();
 }
 
-bool GusGame::changeLevel(const std::string& levelName, bool refresh )
+bool GusGame::changeLevel(const std::string& levelName, bool refresh)
 {
 	if(refresh)
 		refreshLevels();
-		
-	if(!levelLocator.exists(levelName))
-	{
-		error(ErrorMapNotFound);
+	
+	ResourceLocator<CMap>::NamedResourceMap::const_iterator i = levelLocator.getMap().find(levelName);
+	if(i == levelLocator.getMap().end())
 		return false;
-	}
-		
-	std::string const& levelPath = levelLocator.getPathOf(levelName);
+	
+	return changeLevel(i->second.loader, i->second.path);
+}
+
+bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m )
+{
+	notes << "GusGame::changeLevel: " << levelPath << endl;
 	
 	unload();
 	
 	m_modName = nextMod;
 	m_modPath = nextMod;
-
+	
 	//level.setName(levelName);
 	refreshResources(levelPath);
 	//cerr << "Loading level" << endl;
 	
-	if(!levelLocator.load(&level(), levelName))
+	if(!m) m = &level();
+	
+	if(!loader->load(m, levelPath))
 	{
 		reloadModWithoutMap();
 		error(ErrorMapLoading);
 		return false;
 	}
-
+	
 #ifdef USE_GRID
-	objects.resize(0, 0, level().GetWidth(), level().GetHeight());
+	objects.resize(0, 0, m->GetWidth(), m->GetHeight());
 #endif
 	
 	//cerr << "Loading mod" << endl;
 	loadMod();
-	
+		
 	return true;
 }
 

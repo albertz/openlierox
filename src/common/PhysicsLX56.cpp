@@ -652,7 +652,6 @@ public:
 			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
 			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
 			
-			LOCK_OR_QUIT(cClient->getMap()->GetImage());
 			uchar px = outsideMap ? PX_ROCK : cClient->getMap()->GetPixelFlag(wrappedHookPos.x, wrappedHookPos.y);
 			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
 				rope->setShooting( false );
@@ -660,12 +659,11 @@ public:
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), wrappedHookPos.x, wrappedHookPos.y));
+					Color col = cClient->getMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}
 			}
-			UnlockSurface(cClient->getMap()->GetImage());
 		}
 
 		// Check if the hook has hit another worm

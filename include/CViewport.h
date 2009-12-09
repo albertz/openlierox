@@ -200,17 +200,17 @@ public:
 	
 	IVec getPos()
 	{
-		return IVec(Left,Top);
+		return IVec(WorldX,WorldY);
 	}
 	
 	IVec convertCoords( IVec const & coord )
 	{
-		return coord - IVec(Left,Top);
+		return coord - IVec(WorldX,WorldY);
 	}
 	
 	Vec convertCoordsPrec( Vec const & coord )
 	{
-		return coord - Vec(Left,Top);
+		return coord - Vec(WorldX,WorldY);
 	}
 	
 	BITMAP* getBitmap() { return dest; }

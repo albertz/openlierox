@@ -3311,3 +3311,17 @@ std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 	if(info.valid) return info.name;
 	return "";
 }
+
+
+
+Color CMap::getColorAt(long x, long y) {
+	if(gusIsLoaded()) {
+		return Color(getpixel(image, x, y));
+	}
+	else if(bmpImage.get()) {
+		if(!LockSurface(bmpImage)) return Color();
+		return Color(bmpImage->format, GetPixel(bmpImage.get(), x, y));
+		UnlockSurface(cClient->getMap()->GetImage());		
+	}
+	return Color();
+}

@@ -182,7 +182,8 @@ public:
 	void refreshMods();
 	bool reloadModWithoutMap();
 	void createNetworkPlayers();
-	bool changeLevel(const std::string& level, bool refresh = true);
+	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
+	bool changeLevel(const std::string& levelName, bool refresh = true);
 	bool changeLevelCmd(const std::string& level);
 	bool hasLevel(std::string const& level);
 	bool hasMod(std::string const& mod);
