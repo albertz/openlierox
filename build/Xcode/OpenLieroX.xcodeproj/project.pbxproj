@@ -51,6 +51,8 @@
 		2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */; };
 		2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34110CF0F8500D3F035 /* CWormBot.cpp */; };
 		2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34210CF0F8500D3F035 /* CWormHuman.cpp */; };
+		2326B57210CF9D6500D3F035 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B57110CF9D6500D3F035 /* Game.cpp */; };
+		2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B58910CF9E2A00D3F035 /* gusgame.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
@@ -326,7 +328,6 @@
 		23C34F8410CC557D00DABBD6 /* vector_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */; };
 		23C34F8510CC557D00DABBD6 /* viewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6D10CC557D00DABBD6 /* viewport.cpp */; };
 		23C34F8610CC557D00DABBD6 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6F10CC557D00DABBD6 /* worm.cpp */; };
-		23C34FAF10CC577100DABBD6 /* game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FAD10CC577100DABBD6 /* game.cpp */; };
 		23C34FD610CC57FB00DABBD6 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FB810CC57FB00DABBD6 /* button.cpp */; };
 		23C34FD710CC57FB00DABBD6 /* check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBA10CC57FB00DABBD6 /* check.cpp */; };
 		23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBC10CC57FB00DABBD6 /* context.cpp */; };
@@ -686,10 +687,14 @@
 		23210160101DFAF900510514 /* CGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameObject.cpp; sourceTree = "<group>"; };
 		2326B02710CE9F4300D3F035 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
 		2326B02810CE9F4300D3F035 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
-		2326B29A10CF090A00D3F035 /* WormInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WormInputHandler.h; path = ../../src/game/WormInputHandler.h; sourceTree = SOURCE_ROOT; };
-		2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WormInputHandler.cpp; path = ../../src/game/WormInputHandler.cpp; sourceTree = SOURCE_ROOT; };
+		2326B29A10CF090A00D3F035 /* WormInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WormInputHandler.h; sourceTree = "<group>"; };
+		2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = WormInputHandler.cpp; sourceTree = "<group>"; };
 		2326B34110CF0F8500D3F035 /* CWormBot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormBot.cpp; sourceTree = "<group>"; };
 		2326B34210CF0F8500D3F035 /* CWormHuman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormHuman.cpp; sourceTree = "<group>"; };
+		2326B57010CF9D6500D3F035 /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
+		2326B57110CF9D6500D3F035 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
+		2326B58910CF9E2A00D3F035 /* gusgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusgame.cpp; sourceTree = "<group>"; };
+		2326B58A10CF9E2A00D3F035 /* gusgame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusgame.h; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
@@ -1165,8 +1170,6 @@
 		23C34F6D10CC557D00DABBD6 /* viewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewport.cpp; sourceTree = "<group>"; };
 		23C34F6F10CC557D00DABBD6 /* worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worm.cpp; sourceTree = "<group>"; };
 		23C34F7010CC557D00DABBD6 /* worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worm.h; sourceTree = "<group>"; };
-		23C34FAD10CC577100DABBD6 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
-		23C34FAE10CC577100DABBD6 /* game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = game.h; sourceTree = "<group>"; };
 		23C34FB810CC57FB00DABBD6 /* button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = button.cpp; sourceTree = "<group>"; };
 		23C34FB910CC57FB00DABBD6 /* button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = button.h; sourceTree = "<group>"; };
 		23C34FBA10CC57FB00DABBD6 /* check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = check.cpp; sourceTree = "<group>"; };
@@ -1638,10 +1641,14 @@
 		231BE16010CE68AD0023780D /* game */ = {
 			isa = PBXGroup;
 			children = (
+				2326B29A10CF090A00D3F035 /* WormInputHandler.h */,
+				2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */,
 				231BE16110CE68BD0023780D /* Mod.h */,
 				231BE16210CE68BD0023780D /* Mod.cpp */,
 				231BE16410CE6B670023780D /* Level.h */,
 				231BE16510CE6B670023780D /* Level.cpp */,
+				2326B57010CF9D6500D3F035 /* Game.h */,
+				2326B57110CF9D6500D3F035 /* Game.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1916,15 +1923,13 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
-				2326B29A10CF090A00D3F035 /* WormInputHandler.h */,
-				2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */,
+				2326B58910CF9E2A00D3F035 /* gusgame.cpp */,
+				2326B58A10CF9E2A00D3F035 /* gusgame.h */,
 				2326B02710CE9F4300D3F035 /* gusanos.cpp */,
 				2326B02810CE9F4300D3F035 /* gusanos.h */,
 				23C3500310CC590A00DABBD6 /* menu.cpp */,
 				23C3500410CC590A00DABBD6 /* menu.h */,
 				23C34FB610CC57FA00DABBD6 /* gui */,
-				23C34FAD10CC577100DABBD6 /* game.cpp */,
-				23C34FAE10CC577100DABBD6 /* game.h */,
 				23C34F4410CC557D00DABBD6 /* 2xsai.cpp */,
 				23C34F4510CC557D00DABBD6 /* 2xsai.h */,
 				23C34F4A10CC557D00DABBD6 /* base_worm.cpp */,
@@ -3336,7 +3341,6 @@
 				23C34F8410CC557D00DABBD6 /* vector_replicator.cpp in Sources */,
 				23C34F8510CC557D00DABBD6 /* viewport.cpp in Sources */,
 				23C34F8610CC557D00DABBD6 /* worm.cpp in Sources */,
-				23C34FAF10CC577100DABBD6 /* game.cpp in Sources */,
 				23C34FD610CC57FB00DABBD6 /* button.cpp in Sources */,
 				23C34FD710CC57FB00DABBD6 /* check.cpp in Sources */,
 				23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */,
@@ -3359,6 +3363,8 @@
 				2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */,
 				2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */,
 				2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */,
+				2326B57210CF9D6500D3F035 /* Game.cpp in Sources */,
+				2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,6 +1,6 @@
 #include "server.h"
 #include "gconsole.h"
-#include "game.h"
+#include "gusgame.h"
 #include "net_worm.h"
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
@@ -62,11 +62,11 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 				int team = _data.getSignedInt(8);
 				unsigned int uniqueID = static_cast<unsigned int>(_data.getInt(32));
 
-				CWorm* worm = game.addWorm(true);
+				CWorm* worm = gusGame.addWorm(true);
 				if ( NetWorm* netWorm = dynamic_cast<NetWorm*>(worm) ) {
 					netWorm->setOwnerId(_id);
 				}
-				CWormInputHandler* player = game.addPlayer ( Game::PROXY );
+				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
 
 				let_(i, savedScores.find(uniqueID));
 				if(i != savedScores.end()) {
@@ -92,7 +92,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 			break;
 			case Network::RConMsg: {
 				char const* passwordSent = _data.getStringStatic();
-				if ( !game.options.rConPassword.empty() && game.options.rConPassword == passwordSent ) {
+				if ( !gusGame.options.rConPassword.empty() && gusGame.options.rConPassword == passwordSent ) {
 					//console.addQueueCommand(_data.getStringStatic());
 					console.parseLine(_data.getStringStatic());
 				}
@@ -105,7 +105,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 					network.disconnect(_id, Network::IncompatibleProtocol);
 				}
 
-				if(!game.checkCRCs(_data) && network.checkCRC) // We call checkCRC anyway so that the stream is advanced
+				if(!gusGame.checkCRCs(_data) && network.checkCRC) // We call checkCRC anyway so that the stream is advanced
 					network.disconnect(_id, Network::IncompatibleData);
 
 			}
@@ -124,8 +124,8 @@ bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Ne
 	} else if ( !m_preShutdown ) {
 		console.addLogMsg("* CONNECTION REQUESTED");
 		//_reply.addInt(Network::ConnectionReply::Ok, 8);
-		reply.addString( game.getMod().c_str() );
-		reply.addString( game.level().getName().c_str() );
+		reply.addString( gusGame.getMod().c_str() );
+		reply.addString( gusGame.level().getName().c_str() );
 
 		return true;
 	}
@@ -148,7 +148,7 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
-	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
+	for ( std::list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++) {
 		if ( (*iter)->getConnectionID() == _id ) {
 			(*iter)->deleteMe = true;
 		}

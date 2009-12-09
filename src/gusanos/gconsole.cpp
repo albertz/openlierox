@@ -7,7 +7,7 @@
 #include "sprite.h"
 #endif
 #include "script.h"
-#include "game.h"
+#include "gusgame.h"
 #include "glua.h"
 #include "util/math_func.h"
 
@@ -575,11 +575,11 @@ void GConsole::think()
 
 int GConsole::executeConfig(const std::string& filename)
 {
-	std::string p(game.getModPath() + "/" + filename);
+	std::string p(gusGame.getModPath() + "/" + filename);
 	if ( gusExists(p) )
 		return Console::executeConfig(p);
 	else
-		return Console::executeConfig(game.getDefaultPath() + "/" + filename);
+		return Console::executeConfig(gusGame.getDefaultPath() + "/" + filename);
 }
 
 void GConsole::addQueueCommand( std::string const & command )

@@ -4,7 +4,7 @@
 #include "particle.h"
 #include "part_type.h"
 #include "game/WormInputHandler.h"
-#include "game.h"
+#include "gusgame.h"
 #include "updater.h"
 #include "network.h"
 #include "player_options.h"
@@ -44,9 +44,9 @@ void Client::requestPlayer(PlayerOptions const& playerOptions)
 
 void Client::requestPlayers()
 {
-	requestPlayer(*game.playerOptions[0]);
-	if ( game.options.splitScreen )
-		requestPlayer(*game.playerOptions[1]);
+	requestPlayer(*gusGame.playerOptions[0]);
+	if ( gusGame.options.splitScreen )
+		requestPlayer(*gusGame.playerOptions[1]);
 }
 
 void Client::sendConsistencyInfo()
@@ -54,7 +54,7 @@ void Client::sendConsistencyInfo()
 	std::auto_ptr<Net_BitStream> req(new Net_BitStream);
 	req->addInt(Network::ConsistencyInfo, 8);
 	req->addInt(Network::protocolVersion, 32);
-	game.addCRCs(req.get());
+	gusGame.addCRCs(req.get());
 	Net_sendData( network.getServerID(), req.release(), eNet_ReliableOrdered );
 }
 
@@ -86,14 +86,14 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		
 		std::string mod = _reply.getStringStatic();
 		std::string map = _reply.getStringStatic();
-		game.refreshLevels();
-		game.refreshMods();
-		bool hasLevel = game.hasLevel(map);
-		bool hasMod = game.hasMod(mod);
+		gusGame.refreshLevels();
+		gusGame.refreshMods();
+		bool hasLevel = gusGame.hasLevel(map);
+		bool hasMod = gusGame.hasMod(mod);
 		
 		if(!hasMod)
 		{
-			game.error(Game::ErrorModNotFound);
+			gusGame.error(GusGame::ErrorModNotFound);
 			//This doesn't work somewhy: network.disconnect();
 			//And maybe we don't want to do it since it would overwrite our error message
 		}
@@ -108,14 +108,14 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 					updater.requestLevel(map);
 			}
 			else
-				game.error(Game::ErrorMapNotFound);
+				gusGame.error(GusGame::ErrorMapNotFound);
 		}
 		else
 		{
-			game.setMod( mod );
-			if(game.changeLevel( map, false ) && game.isLoaded())
+			gusGame.setMod( mod );
+			if(gusGame.changeLevel( map, false ) && gusGame.isLoaded())
 			{
-				game.runInitScripts();
+				gusGame.runInitScripts();
 				sendConsistencyInfo();
 				Net_requestNetMode(_id, 1);
 			}
@@ -131,10 +131,10 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 /*
 void Client::loadNextGame()
 {
-	game.setMod( nextMod );
-	if(game.changeLevel( nextMap ) && game.isLoaded())
+	gusGame.setMod( nextMod );
+	if(gusGame.changeLevel( nextMap ) && gusGame.isLoaded())
 	{
-		game.runInitScripts();
+		gusGame.runInitScripts();
 		sendConsistencyInfo();
 		Net_requestNetMode(network.getServerID(), 1);
 	}
@@ -156,39 +156,39 @@ void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 				{
 					console.addLogMsg("* SERVER CHANGED MAP");
 					network.reconnect(150);
-					game.reset(Game::ServerChangeMap);
+					gusGame.reset(GusGame::ServerChangeMap);
 				}
 				break;
 				case Network::Quit:
 				{
 					console.addLogMsg("* CONNECTION CLOSED BY SERVER");
-					game.reset(Game::ServerQuit);
+					gusGame.reset(GusGame::ServerQuit);
 				}
 				break;
 				case Network::Kick:
 				{
 					console.addLogMsg("* YOU WERE KICKED");
-					game.reset(Game::Kicked);
+					gusGame.reset(GusGame::Kicked);
 				}
 				break;
 				case Network::IncompatibleData:
 				{
 					console.addLogMsg("* YOU HAVE INCOMPATIBLE DATA");
-					game.reset(Game::IncompatibleData);
+					gusGame.reset(GusGame::IncompatibleData);
 				}
 				break;
 				
 				case Network::IncompatibleProtocol:
 				{
 					console.addLogMsg("* THE HOST RUNS AN INCOMPATIBLE VERSION OF VERMES");
-					game.reset(Game::IncompatibleProtocol);
+					gusGame.reset(GusGame::IncompatibleProtocol);
 				}
 				break;
 				
 				default:
 				{
 					console.addLogMsg("* CONNECTION CLOSED BY DUNNO WHAT :O");
-					game.reset(Game::ServerQuit);
+					gusGame.reset(GusGame::ServerQuit);
 				}
 				break;
 			}
@@ -197,7 +197,7 @@ void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 		
 		case eNet_ClosedTimeout:
 			console.addLogMsg("* CONNECTION TIMEDOUT");
-			game.reset(Game::ServerQuit);
+			gusGame.reset(GusGame::ServerQuit);
 		break;
 		
 		case eNet_ClosedReconnect:
@@ -218,7 +218,7 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 	{
 		case Network::ClientEvents::LuaEvents:
 		{
-			for(int t = Network::LuaEventGroup::Game;
+			for(int t = Network::LuaEventGroup::GusGame;
 				t < Network::LuaEventGroup::Max; ++t)
 			{
 				int c = data.getInt(8);
@@ -243,12 +243,12 @@ void Client::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 new_
 		console.addLogMsg("* JOINED ZOIDMODE");
 		
 		updater.removeNode();
-		game.removeNode();
+		gusGame.removeNode();
 		
 		switch(new_level)
 		{
 			case 1:
-				game.assignNetworkRole( false );
+				gusGame.assignNetworkRole( false );
 				requestPlayers();
 			break;
 			
@@ -264,23 +264,23 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 	// check the requested class
 	if ( _requested_class == NetWorm::classID )
 	{
-		game.addWorm(false);
+		gusGame.addWorm(false);
 	}else if ( _requested_class == CWormInputHandler::classID )
 	{
 		// Creates a player class depending on the role
 		if( _role == eNet_RoleOwner )
 		{
-			CWormInputHandler* player = game.addPlayer ( Game::OWNER );
+			CWormInputHandler* player = gusGame.addPlayer ( GusGame::OWNER );
 			player->assignNetworkRole(false);
 		}else
 		{
-			CWormInputHandler* player = game.addPlayer ( Game::PROXY );
+			CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
 			player->assignNetworkRole(false);
 		}
 	}else if( _requested_class == Particle::classID )
 	{
 		int typeIndex = Encoding::decode(*_announcedata, partTypeList.size());
-		CWormInputHandler* owner = game.findPlayerWithID(_announcedata->getInt(32));
+		CWormInputHandler* owner = gusGame.findPlayerWithID(_announcedata->getInt(32));
 		newParticle_requested(partTypeList[typeIndex], Vec(), Vec(), 1, owner, Angle());
 	}else
 	{

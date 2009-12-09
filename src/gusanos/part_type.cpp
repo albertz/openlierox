@@ -2,7 +2,7 @@
 
 #include "resource_list.h"
 
-#include "game.h"
+#include "gusgame.h"
 #ifndef DEDICATED_ONLY
 #include "sprite_set.h"
 #include "sprite.h"
@@ -53,11 +53,11 @@ CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir,
 	
 #ifdef USE_GRID
 	if(type->colLayer != Grid::NoColLayer)
-		game.objects.insert( particle, type->colLayer, type->renderLayer);
+		gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
 	else
-		game.objects.insert( particle, type->renderLayer);
+		gusGame.objects.insert( particle, type->renderLayer);
 #else
-	game.objects.insert( type->colLayer, type->renderLayer, particle );	
+	gusGame.objects.insert( type->colLayer, type->renderLayer, particle );	
 #endif
 	return particle;
 }
@@ -75,11 +75,11 @@ CGameObject* newParticle_Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec 
 	
 #ifdef USE_GRID
 	if(type->colLayer != Grid::NoColLayer)
-		game.objects.insert( particle, type->colLayer, type->renderLayer);
+		gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
 	else
-		game.objects.insert( particle, type->renderLayer);
+		gusGame.objects.insert( particle, type->renderLayer);
 #else
-	game.objects.insert( type->colLayer, type->renderLayer, particle );	
+	gusGame.objects.insert( type->colLayer, type->renderLayer, particle );	
 #endif
 	return particle;
 }
@@ -95,7 +95,7 @@ CGameObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f)
 		type->creation->run(particle);
 	
 	USE_GRID // If this errors out, USE_GRID isn't defined, so define it ffs! >:o
-	game.objects.insert( particle, type->colLayer, type->renderLayer);
+	gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
 	return particle;
 }
 

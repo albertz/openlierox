@@ -77,7 +77,7 @@ mq_end_define_message()
 
 mq_process_messages(messages)
 	mq_case(ChangeLevel)
-		game.changeLevel(data.level);
+		gusGame.changeLevel(data.level);
 	mq_end_case()
 mq_end_process_messages()
 

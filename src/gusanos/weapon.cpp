@@ -2,7 +2,7 @@
 #include "weapon_type.h"
 #include "events.h"
 #include "CWorm.h"
-#include "game.h"
+#include "gusgame.h"
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/macros.h"
@@ -178,7 +178,7 @@ void Weapon::drawBottom(BITMAP* where, int x, int y )
 		}
 		Vec posDiff;
 		float intensity = m_type->laserSightIntensity;
-		while ( game.level().getMaterial( (int)(m_owner->pos().x+posDiff.x), (int)(m_owner->pos().y+posDiff.y) ).particle_pass ) {
+		while ( gusGame.level().getMaterial( (int)(m_owner->pos().x+posDiff.x), (int)(m_owner->pos().y+posDiff.y) ).particle_pass ) {
 			if ( rnd() < intensity ) {
 				if ( m_type->laserSightBlender != NONE )
 					gfx.setBlender( m_type->laserSightBlender, m_type->laserSightAlpha );

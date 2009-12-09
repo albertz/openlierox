@@ -1,6 +1,6 @@
 #include "particle.h"
 
-#include "game.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
@@ -194,7 +194,7 @@ void Particle::assignNetworkRole( bool authority )
 
 	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 
-	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
+	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), gusGame.level().vectorEncoding, gusGame.level().diffVectorEncoding ), true);
 
 	m_node->endReplicationSetup();
 
@@ -336,7 +336,7 @@ void Particle::think()
 			for ( int y = -iradius; y <= iradius; ++y )
 				for ( int x = -iradius; x <= iradius; ++x )
 				{
-					if ( !game.level().getMaterial( iPos.x + x, iPos.y + y ).particle_pass ) {
+					if ( !gusGame.level().getMaterial( iPos.x + x, iPos.y + y ).particle_pass ) {
 						averageCorrection += getCorrectionBox( pos() , iPos + IVec( x, y ), radius );
 						++n;
 					}
@@ -354,12 +354,12 @@ void Particle::think()
 		}
 
 		bool collision = false;
-		if ( !game.level().getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
+		if ( !gusGame.level().getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
 			velocity().x *= -m_type->bounceFactor; // TODO: Precompute the negative of this
 			velocity().y *= m_type->groundFriction;
 			collision = true;
 		}
-		if ( !game.level().getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
+		if ( !gusGame.level().getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
 			velocity().y *= -m_type->bounceFactor; // TODO: Precompute the negative of this
 			velocity().x *= m_type->groundFriction;
 			collision = true;
@@ -426,7 +426,7 @@ void Particle::think()
 	}
 }
 
-Angle Particle::getAngle()
+Angle Particle::getPointingAngle()
 {
 	return m_angle;
 }
@@ -510,15 +510,15 @@ void Particle::draw(CViewport* viewport)
 			//Blitters::drawSpriteRotate_solid_32(where, m_sprite->getSprite(m_animator->getFrame())->m_bitmap, x, y, -m_angle.toRad());
 		} else {
 			Sprite* renderSprite = m_sprite->getSprite(m_animator->getFrame(), m_angle);
-			game.level().culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
+			gusGame.level().culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
 		}
 	}
 
 	if (m_type->distortion) {
 		m_type->distortion->apply( where, x, y, m_type->distortMagnitude );
 	}
-	if ( game.level().config()->darkMode && m_type->lightHax ) {
-		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
+	if ( gusGame.level().config()->darkMode && m_type->lightHax ) {
+		gusGame.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 #endif

@@ -15,7 +15,7 @@
 #include "level_effect.h"
 #include "culling.h"
 #include "events.h"
-#include "game.h"
+#include "gusgame.h"
 
 
 #include "gusanos/allegro.h"
@@ -265,7 +265,7 @@ void CMap::gusDraw(BITMAP* where, int x, int y)
 			masked_blit(image,where,x,y,0,0,where->w,where->h);
 		}
 
-		if ( game.options.showMapDebug ) {
+		if ( gusGame.options.showMapDebug ) {
 			foreach( s, m_config->spawnPoints ) {
 				int c = (s->team == 0 ? makecol( 255,0,0 ) : makecol( 0, 255, 0 ));
 				circle( where, (int)(s->pos.x - x), (int)(s->pos.y - y), 4, c );
@@ -382,7 +382,7 @@ namespace
 {
 	bool canPlayerRespawn(CWormInputHandler* player, SpawnPoint const& point)
 	{
-		if(game.options.teamPlay && point.team != -1 && point.team != player->team)
+		if(gusGame.options.teamPlay && point.team != -1 && point.team != player->team)
 			return false;
 		return true;
 	}

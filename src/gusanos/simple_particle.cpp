@@ -1,7 +1,7 @@
 #include "simple_particle.h"
 
 #include "util/vec.h"
-#include "game.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
@@ -31,7 +31,7 @@ void SimpleParticle::think()
 {
 	velocity().y += gravity;
 	CVec nextPos = pos() + velocity();
-	if(!game.level().getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
+	if(!gusGame.level().getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 	else
@@ -40,7 +40,7 @@ void SimpleParticle::think()
 	/*
 	spdy += gravity;
 	
-	if(!game.level().getMaterial(posx >> 8, posy >> 8).particle_pass
+	if(!gusGame.level().getMaterial(posx >> 8, posy >> 8).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 		

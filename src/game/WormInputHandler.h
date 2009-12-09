@@ -133,7 +133,7 @@ public:
 	
 	void gusInit(CWorm* w);
 	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
-	virtual void gusShutdown();
+	void gusShutdown();
 	
 	void think();
 	// subThink() gets called inside think() and its used to give the derivations

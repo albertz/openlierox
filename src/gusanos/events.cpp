@@ -5,7 +5,7 @@
 #include "base_action.h"
 //#include "game_actions.h"
 #include "util/macros.h"
-#include "game.h"
+#include "gusgame.h"
 
 #include <vector>
 #include <string>
@@ -34,8 +34,8 @@ GameEvent::~GameEvent()
 // This will be oobsol33t
 bool GameEvent::addAction( const string& name, const vector<string>& params )
 {
-	map<string, BaseAction*(*)( const std::vector< std::string > &) >::iterator tempAction = game.actionList.find(name);
-	if ( tempAction != game.actionList.end() )
+	map<string, BaseAction*(*)( const std::vector< std::string > &) >::iterator tempAction = gusGame.actionList.find(name);
+	if ( tempAction != gusGame.actionList.end() )
 	{
 		BaseAction* action = tempAction->second(params);
 

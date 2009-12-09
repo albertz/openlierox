@@ -14,7 +14,7 @@
 #include "../lua51/luaapi/types.h"
 #include "../lua51/luaapi/macros.h"
 
-#include "../game.h"
+#include "../gusgame.h"
 //#include "../vec.h"
 //#include "../gfx.h"
 #include "../network.h"
@@ -294,8 +294,8 @@ int l_host(lua_State* L)
 	
 	// TODO: Lua host
 	// or should we also ignore this (as well as map)?
-	//game.options.host = 1;
-	//game.changeLevelCmd( map );
+	//gusGame.options.host = 1;
+	//gusGame.changeLevelCmd( map );
 	return 0;
 }
 
@@ -311,8 +311,8 @@ int l_map(lua_State* L)
 
 	// TODO: Lua map command
 	// or should we ignore this?
-//	game.options.host = 0;
-//	game.changeLevelCmd( map );
+//	gusGame.options.host = 0;
+//	gusGame.changeLevelCmd( map );
 	return 0;
 }
 

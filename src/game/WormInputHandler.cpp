@@ -21,7 +21,7 @@
 
 #include "gusanos/glua.h"
 #include "gusanos/lua/bindings-game.h"
-#include "gusanos/game.h"
+#include "gusanos/gusgame.h"
 
 #include "gusanos/netstream.h"
 #include "gusanos/network.h"
@@ -90,7 +90,7 @@ void CWormInputHandler::deleteThis()
 	
 	deleted = true; // We set this after the callback loop otherwise getLuaReference() will think the player is already deleted
 	
-	for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter) {
+	for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter) {
 		objIter->removeRefsToPlayer(this);
 	}
 	
@@ -228,13 +228,13 @@ void CWormInputHandler::think()
 								break;
 								
 							case SELECT_WEAPONS: {
-								size_t size = Encoding::decode(*data, game.options.maxWeapons+1);
-								if(size > game.options.maxWeapons)
+								size_t size = Encoding::decode(*data, gusGame.options.maxWeapons+1);
+								if(size > gusGame.options.maxWeapons)
 									break; // Avoid horrible crashes etc.
 								
 								vector<WeaponType*> weaps(size,0);
 								for ( size_t i = 0; i < size; ++i ) {
-									weaps[i] = game.weaponList[Encoding::decode(*data, game.weaponList.size())];
+									weaps[i] = gusGame.weaponList[Encoding::decode(*data, gusGame.weaponList.size())];
 								}
 								selectWeapons(weaps);
 							}
@@ -352,7 +352,7 @@ void CWormInputHandler::addActionStop(Net_BitStream* data, CWormInputHandler::Ba
 bool nameIsTaken( const std::string& name )
 {
 	list<CWormInputHandler*>::iterator playerIter;
-	for ( playerIter = game.players.begin(); playerIter != game.players.end(); playerIter++ ) {
+	for ( playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); playerIter++ ) {
 		if ( (*playerIter)->m_name == name ) {
 			return true;
 		}
@@ -463,7 +463,7 @@ void CWormInputHandler::teamChangePetition_( int team_ )
 
 void CWormInputHandler::sendChatMsg( std::string const& message )
 {
-	game.displayChatMsg( m_name, message );
+	gusGame.displayChatMsg( m_name, message );
 	if ( m_node ) {
 		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, CHAT_MSG);
@@ -478,7 +478,7 @@ void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
 		m_worm->setWeapons( weaps );
 	}
 	if ( network.isClient() && m_node ) {
-		if(weaps.size() > game.options.maxWeapons) {
+		if(weaps.size() > gusGame.options.maxWeapons) {
 			cerr << "ERROR: Requested a too large weapon selection" << endl;
 			return;
 		}
@@ -486,9 +486,9 @@ void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
 		Net_BitStream *data = new Net_BitStream;
 		addEvent(data, SELECT_WEAPONS );
 		
-		Encoding::encode(*data, weaps.size(), game.options.maxWeapons+1 );
+		Encoding::encode(*data, weaps.size(), gusGame.options.maxWeapons+1 );
 		for( vector<WeaponType*>::const_iterator iter = weaps.begin(); iter != weaps.end(); ++iter ) {
-			Encoding::encode(*data, (*iter)->getIndex(), game.weaponList.size());
+			Encoding::encode(*data, (*iter)->getIndex(), gusGame.weaponList.size());
 		}
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
 	}
@@ -584,7 +584,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 #ifdef USE_GRID
 			
-			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
+			for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter) {
 				if ( NetWorm* worm = dynamic_cast<NetWorm*>(&*iter)) {
 					if ( worm->getNodeID() == recievedID ) {
 						m_parent->assignWorm(worm);
@@ -593,7 +593,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 			}
 #else
 			ObjectsList::Iterator objIter;
-			for ( objIter = game.objects.begin(); objIter; ++objIter) {
+			for ( objIter = gusGame.objects.begin(); objIter; ++objIter) {
 				if ( NetWorm* worm = dynamic_cast<NetWorm*>(*objIter) ) {
 					if ( worm->getNodeID() == recievedID ) {
 						m_parent->assignWorm(worm);
@@ -646,7 +646,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				if ( m_node ) {
 					Net_BitStream *data = new Net_BitStream;
 					addActionStart(data, FIRE);
-					data->addInt(int(m_worm->getAngle()), Angle::prec);
+					data->addInt(int(m_worm->getPointingAngle()), Angle::prec);
 					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				}
 			}

@@ -3,7 +3,7 @@
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/log.h"
-#include "game.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #include "game/WormInputHandler.h"
 #include "weapon_type.h"
@@ -66,15 +66,15 @@ void CWorm::gusInit()
 
 	currentWeapon = 0;
 
-	m_weapons.assign(game.options.maxWeapons, 0 );
+	m_weapons.assign(gusGame.options.maxWeapons, 0 );
 	m_weaponCount = 0;
 
 	for ( size_t i = 0; i < m_weapons.size(); ++i ) {
-		m_weapons[i] = new Weapon(game.weaponList[rndInt(game.weaponList.size())], this);
+		m_weapons[i] = new Weapon(gusGame.weaponList[rndInt(gusGame.weaponList.size())], this);
 		m_weaponCount++;
 	}
 
-	m_ninjaRope = new NinjaRope(game.NRPartType, this);
+	m_ninjaRope = new NinjaRope(gusGame.NRPartType, this);
 	movingLeft = false;
 	movingRight = false;
 	jumping = false;
@@ -92,6 +92,10 @@ void CWorm::gusShutdown()
 		m_fireconeAnimator = 0;
 	}
 #endif
+	if(m_ninjaRope) {
+		delete m_ninjaRope;
+		m_ninjaRope = NULL;
+	}
 
 	//m_ninjaRope->deleteMe = true;
 	for ( size_t i = 0; i < m_weapons.size(); ++i) {
@@ -152,37 +156,37 @@ void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 	BaseVec<long> step;
 	long len = 0;
 
-	int bottom = game.options.worm_weaponHeight;
-	int top = bottom - game.options.worm_height + 1;
-	int left = (-game.options.worm_width) / 2;
-	int right = (game.options.worm_width) / 2;
+	int bottom = gusGame.options.worm_weaponHeight;
+	int top = bottom - gusGame.options.worm_height + 1;
+	int left = (-gusGame.options.worm_width) / 2;
+	int right = (gusGame.options.worm_width) / 2;
 
 	switch(d) {
 			case Down: {
 				origin += BaseVec<long>(left, top);
 				step = BaseVec<long>(1, 0);
-				len = game.options.worm_width;
+				len = gusGame.options.worm_width;
 			}
 			break;
 
 			case Left: {
 				origin += BaseVec<long>(right, top + 1);
 				step = BaseVec<long>(0, 1);
-				len = game.options.worm_height - 2;
+				len = gusGame.options.worm_height - 2;
 			}
 			break;
 
 			case Up: {
 				origin += BaseVec<long>(left, bottom);
 				step = BaseVec<long>(1, 0);
-				len = game.options.worm_width;
+				len = gusGame.options.worm_width;
 			}
 			break;
 
 			case Right: {
 				origin += BaseVec<long>(left, top + 1);
 				step = BaseVec<long>(0, 1);
-				len = game.options.worm_height - 2;
+				len = gusGame.options.worm_height - 2;
 			}
 			break;
 
@@ -193,7 +197,7 @@ void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 
 
 	for(reacts[d] = 0; len > 0; --len) {
-		Material const& g = game.level().getMaterial(origin.x, origin.y);
+		Material const& g = gusGame.level().getMaterial(origin.x, origin.y);
 
 		if(!g.worm_pass) {
 			++reacts[d];
@@ -219,12 +223,12 @@ void CWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& i
 	// Add more if the worm is outside the screen
 	if(inextPos.x < 5)
 		reacts[Right] += 5;
-	else if(inextPos.x > (long)game.level().GetWidth() - 5)
+	else if(inextPos.x > (long)gusGame.level().GetWidth() - 5)
 		reacts[Left] += 5;
 
 	if(inextPos.y < 5)
 		reacts[Down] += 5;
-	else if(inextPos.y > (long)game.level().GetHeight() - 5)
+	else if(inextPos.y > (long)gusGame.level().GetHeight() - 5)
 		reacts[Up] += 5;
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
@@ -258,7 +262,7 @@ void CWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& i
 		calculateReactionForce(inextPos, Right);
 	}
 
-	if(game.options.worm_disableWallHugging) {
+	if(gusGame.options.worm_disableWallHugging) {
 		if(reacts[Up] == 1 && reacts[Down] == 1
 		        && (reacts[Left] > 0 || reacts[Right] > 0)) {
 			reacts[Up] = 0;
@@ -271,24 +275,24 @@ void CWorm::processPhysics()
 {
 	if(reacts[Up] > 0) {
 		// Friction
-		velocity().x *= game.options.worm_friction;
+		velocity().x *= gusGame.options.worm_friction;
 	}
 
-	velocity() *= game.options.worm_airFriction;
+	velocity() *= gusGame.options.worm_airFriction;
 
 	if(velocity().x > 0.f) {
 		if(reacts[Left] > 0) {
-			if(velocity().x > game.options.worm_bounceLimit) {
+			if(velocity().x > gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().x *= -game.options.worm_bounceQuotient;
+				velocity().x *= -gusGame.options.worm_bounceQuotient;
 			} else
 				velocity().x = 0.f;
 		}
 	} else if(velocity().x < 0.f) {
 		if(reacts[Right] > 0) {
-			if(velocity().x < -game.options.worm_bounceLimit) {
+			if(velocity().x < -gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().x *= -game.options.worm_bounceQuotient;
+				velocity().x *= -gusGame.options.worm_bounceQuotient;
 			} else
 				velocity().x = 0.f;
 		}
@@ -296,24 +300,24 @@ void CWorm::processPhysics()
 
 	if(velocity().y > 0.f) {
 		if(reacts[Up] > 0) {
-			if(velocity().y > game.options.worm_bounceLimit) {
+			if(velocity().y > gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().y *= -game.options.worm_bounceQuotient;
+				velocity().y *= -gusGame.options.worm_bounceQuotient;
 			} else
 				velocity().y = 0.f;
 		}
 	} else if(velocity().y < 0.f) {
 		if(reacts[Down] > 0) {
-			if(velocity().y < -game.options.worm_bounceLimit) {
+			if(velocity().y < -gusGame.options.worm_bounceLimit) {
 				// TODO: Play bump sound
-				velocity().y *= -game.options.worm_bounceQuotient;
+				velocity().y *= -gusGame.options.worm_bounceQuotient;
 			} else
 				velocity().y = 0.f;
 		}
 	}
 
 	if(reacts[Up] == 0) {
-		velocity().y += game.options.worm_gravity;
+		velocity().y += gusGame.options.worm_gravity;
 	}
 
 	if(velocity().x >= 0.f) {
@@ -339,7 +343,7 @@ void CWorm::processJumpingAndNinjaropeControls()
 	if(jumping && reacts[Up]) {
 		//Jump
 
-		velocity().y -= game.options.worm_jumpForce;
+		velocity().y -= gusGame.options.worm_jumpForce;
 		jumping = false;
 	}
 }
@@ -354,13 +358,13 @@ void CWorm::processMoveAndDig(void)
 
 	//if(movable)
 	if( true ) {
-		float acc = game.options.worm_acceleration;
+		float acc = gusGame.options.worm_acceleration;
 
 		if(reacts[Up] <= 0)
-			acc *= game.options.worm_airAccelerationFactor;
+			acc *= gusGame.options.worm_airAccelerationFactor;
 		if(movingLeft && !movingRight) {
 			//TODO: Air acceleration
-			if(velocity().x > -game.options.worm_maxSpeed) {
+			if(velocity().x > -gusGame.options.worm_maxSpeed) {
 				velocity().x -= acc;
 			}
 
@@ -372,7 +376,7 @@ void CWorm::processMoveAndDig(void)
 			animate = true;
 		} else if(movingRight && !movingLeft) {
 			//TODO: Air acceleration
-			if(velocity().x < game.options.worm_maxSpeed) {
+			if(velocity().x < gusGame.options.worm_maxSpeed) {
 				velocity().x += acc;
 			}
 
@@ -441,7 +445,7 @@ void CWorm::think()
 #endif
 
 	} else {
-		if ( m_timeSinceDeath > game.options.maxRespawnTime && game.options.maxRespawnTime >= 0 ) {
+		if ( m_timeSinceDeath > gusGame.options.maxRespawnTime && gusGame.options.maxRespawnTime >= 0 ) {
 			respawn();
 		}
 		++m_timeSinceDeath;
@@ -496,37 +500,37 @@ bool CWorm::isCollidingWith( Vec const& point, float radius )
 	if ( !m_isActive )
 		return false;
 
-	float top = pos().y - game.options.worm_boxTop;
+	float top = pos().y - gusGame.options.worm_boxTop;
 	if(point.y < top) {
-		float left = pos().x - game.options.worm_boxRadius;
+		float left = pos().x - gusGame.options.worm_boxRadius;
 		if(point.x < left)
 			return (point - Vec(left, top)).lengthSqr() < radius*radius;
 
-		float right = pos().x + game.options.worm_boxRadius;
+		float right = pos().x + gusGame.options.worm_boxRadius;
 		if(point.x > right)
 			return (point - Vec(right, top)).lengthSqr() < radius*radius;
 
 		return top - point.y < radius;
 	}
 
-	float bottom = pos().y + game.options.worm_boxBottom;
+	float bottom = pos().y + gusGame.options.worm_boxBottom;
 	if(point.y > bottom) {
-		float left = pos().x - game.options.worm_boxRadius;
+		float left = pos().x - gusGame.options.worm_boxRadius;
 		if(point.x < left)
 			return (point - Vec(left, bottom)).lengthSqr() < radius*radius;
 
-		float right = pos().x + game.options.worm_boxRadius;
+		float right = pos().x + gusGame.options.worm_boxRadius;
 		if(point.x > right)
 			return (point - Vec(right, bottom)).lengthSqr() < radius*radius;
 
 		return point.y - bottom < radius;
 	}
 
-	float left = pos().x - game.options.worm_boxRadius;
+	float left = pos().x - gusGame.options.worm_boxRadius;
 	if(point.x < left)
 		return left - point.x < radius;
 
-	float right = pos().x + game.options.worm_boxRadius;
+	float right = pos().x + gusGame.options.worm_boxRadius;
 	if(point.x > right)
 		return point.x - right < radius;
 
@@ -596,10 +600,10 @@ void CWorm::draw(CViewport* viewport)
 		{
 			int x = rPos.x;
 			int y = rPos.y;
-			game.infoFont->draw(where, lexical_cast<std::string>(reacts[Up]), x, y + 15, 0);
-			game.infoFont->draw(where, lexical_cast<std::string>(reacts[Down]), x, y - 15, 0);
-			game.infoFont->draw(where, lexical_cast<std::string>(reacts[Left]), x + 15, y, 0);
-			game.infoFont->draw(where, lexical_cast<std::string>(reacts[Right]), x - 15, y, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Up]), x, y + 15, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Down]), x, y - 15, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Left]), x + 15, y, 0);
+			gusGame.infoFont->draw(where, lexical_cast<std::string>(reacts[Right]), x - 15, y, 0);
 		}
 #endif
 
@@ -612,8 +616,8 @@ void CWorm::draw(CViewport* viewport)
 void CWorm::respawn()
 {
 	// Check if its already allowed to respawn
-	if ( m_timeSinceDeath > game.options.minRespawnTime )
-		respawn( game.level().getSpawnLocation( m_owner ) );
+	if ( m_timeSinceDeath > gusGame.options.minRespawnTime )
+		respawn( gusGame.level().getSpawnLocation( m_owner ) );
 }
 
 void CWorm::respawn( const Vec& newPos)
@@ -643,8 +647,8 @@ void CWorm::dig()
 
 void CWorm::dig( const Vec& digPos, Angle angle )
 {
-	if( game.digObject )
-		game.digObject->newParticle( game.digObject, digPos, Vec(angle), m_dir, m_owner, angle );
+	if( gusGame.digObject )
+		gusGame.digObject->newParticle( gusGame.digObject, digPos, Vec(angle), m_dir, m_owner, angle );
 }
 
 void CWorm::die()
@@ -655,15 +659,15 @@ void CWorm::die()
 	m_isActive = false;
 	if (m_owner) {
 		m_owner->stats->deaths++;
-		game.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
+		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
 	if (m_lastHurt && m_lastHurt != m_owner)
 		m_lastHurt->stats->kills++;
 
 	m_ninjaRope->remove();
 	m_timeSinceDeath = 0;
-	if ( game.deathObject ) {
-		game.deathObject->newParticle( game.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
+	if ( gusGame.deathObject ) {
+		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
 	}
 }
 
@@ -732,7 +736,7 @@ void CWorm::actionStart( Actions action )
 
 			case NINJAROPE:
 			if ( m_isActive )
-				m_ninjaRope->shoot(getWeaponPos(), Vec(getAngle(), (double)game.options.ninja_rope_shootSpeed));
+				m_ninjaRope->shoot(getWeaponPos(), Vec(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed));
 			break;
 
 			case CHANGEWEAPON:

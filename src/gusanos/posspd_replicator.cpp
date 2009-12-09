@@ -38,7 +38,7 @@ void PosSpdReplicator::packData(Net_BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 /*
-	dynamic_bitset<> n = game.level().vectorEncoding.encode(*m_posPtr);
+	dynamic_bitset<> n = gusGame.level().vectorEncoding.encode(*m_posPtr);
 	Encoding::writeBitset(*_stream, n);
 */
 	encoding.encode(*_stream, *m_posPtr);
@@ -69,9 +69,9 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _
 	{
 #ifdef COMPACT_FLOATS
 /*
-		dynamic_bitset<> n = Encoding::readBitset(*_stream, game.level().vectorEncoding.bits);
-		*m_posPtr = game.level().vectorEncoding.decode<Vec>(n);*/
-		*m_posPtr = encoding.decode<Vec>(*_stream);
+		dynamic_bitset<> n = Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
+		*m_posPtr = gusGame.level().vectorEncoding.decode<Vec>(n);*/
+		*m_posPtr = CVec(encoding.decode<Vec>(*_stream));
 #else
 		m_posPtr->x = _stream->getFloat(32);
 		m_posPtr->y = _stream->getFloat(32);
@@ -82,14 +82,14 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _
 			/*
 			m_spdPtr->x = _stream->getFloat(speedPrec);
 			m_spdPtr->y = _stream->getFloat(speedPrec);*/
-			*m_spdPtr = diffEncoding.decode<Vec>(*_stream);
+			*m_spdPtr = CVec(diffEncoding.decode<Vec>(*_stream));
 		}
 
 	}
 	else 
 	{
 #ifdef COMPACT_FLOATS
-		//Encoding::readBitset(*_stream, game.level().vectorEncoding.bits);
+		//Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
 		encoding.decode<Vec>(*_stream);
 #else
 		_stream->getFloat(32);
@@ -101,7 +101,7 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _
 			/*
 			_stream->getFloat(speedPrec);
 			_stream->getFloat(speedPrec);*/
-			*m_spdPtr = diffEncoding.decode<Vec>(*_stream);
+			*m_spdPtr = CVec(diffEncoding.decode<Vec>(*_stream));
 		}
 	}
 }
@@ -112,8 +112,8 @@ void* PosSpdReplicator::peekData()
 	Vec *retVec = new Vec;
 #ifdef COMPACT_FLOATS
 /*
-	dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), game.level().vectorEncoding.bits);
-	*retVec = game.level().vectorEncoding.decode<Vec>(n);*/
+	dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), gusGame.level().vectorEncoding.bits);
+	*retVec = gusGame.level().vectorEncoding.decode<Vec>(n);*/
 	*retVec = encoding.decode<Vec>(*getPeekStream());
 #else
 	retVec->x = getPeekStream()->getFloat(32);

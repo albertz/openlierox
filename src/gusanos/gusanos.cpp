@@ -5,7 +5,7 @@
 #include "sprite.h"
 
 #include "level.h"
-#include "game.h"
+#include "gusgame.h"
 #include "updater.h"
 #include "part_type.h"
 #include "particle.h"
@@ -58,10 +58,10 @@ bool gusInitBase() {
 	("CL_SHOWDEBUG", &showDebug, 0)
 	;
 	
-	if(!game.init())
+	if(!gusGame.init())
 		return false;
 	
-	//game.refreshLevels();
+	//gusGame.refreshLevels();
 
 	return true;
 }
@@ -73,7 +73,7 @@ bool gusInit(const std::string& mod) {
 	fps = 0;
 	logicLast = 0;
 	
-	if(!game.init())
+	if(!gusGame.init())
 		return false;
 	
 	console.parseLine("BIND F12 SCREENSHOT");
@@ -81,9 +81,9 @@ bool gusInit(const std::string& mod) {
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
-	//game.loadMod();
-	game.reloadModWithoutMap();
-	//game.runInitScripts();
+	//gusGame.loadMod();
+	gusGame.reloadModWithoutMap();
+	//gusGame.runInitScripts();
 	
 	// TODO: check bDedicated instead
 #ifndef DEDICATED_ONLY
@@ -92,15 +92,15 @@ bool gusInit(const std::string& mod) {
 	console.executeConfig("autoexec-ded.cfg");
 #endif
 	
-	game.setMod(mod);
-	return game.loadMod(true);
+	gusGame.setMod(mod);
+	return gusGame.loadMod(true);
 }
 
 bool gusCanRunFrame() {
 	return !quit || !network.isDisconnected();
 }
 
-//main game loop frame of Gusanos
+//main gusGame loop frame of Gusanos
 void gusFrame() {
 	Uint32 timer = SDL_GetTicks() / 10;
 	
@@ -108,7 +108,7 @@ void gusFrame() {
 	{
 		
 #ifdef USE_GRID
-		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
+		for ( Grid::iterator iter = gusGame.objects.beginAll(); iter;)
 		{
 			if(iter->deleteMe)
 				iter.erase();
@@ -116,65 +116,65 @@ void gusFrame() {
 				++iter;
 		}
 #else
-		for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
+		for ( ObjectsList::Iterator iter = gusGame.objects.begin();  iter; )
 		{
 			if ( (*iter)->deleteMe )
 			{
 				ObjectsList::Iterator tmp = iter;
 				++iter;
 				delete *tmp;
-				game.objects.erase(tmp);
+				gusGame.objects.erase(tmp);
 			}
 			else
 				++iter;
 		}
 #endif
 		
-		if ( game.isLoaded() && game.level().gusIsLoaded() )
+		if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
 		{
 			
 #ifdef USE_GRID
 			
-			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
+			for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter)
 			{
 				iter->think();
-				game.objects.relocateIfNecessary(iter);
+				gusGame.objects.relocateIfNecessary(iter);
 			}
 			
-			game.objects.flush(); // Insert all new objects
+			gusGame.objects.flush(); // Insert all new objects
 #else
-			for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
+			for ( ObjectsList::Iterator iter = gusGame.objects.begin(); (bool)iter; ++iter)
 			{
 				(*iter)->think();
 			}
 #endif
 			
-			for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+			for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
 			{
 				(*iter)->think();
 			}
 		}
 		
-		game.think();
+		gusGame.think();
 		updater.think(); // TODO: Move?
 		
 #ifndef DEDICATED_ONLY
 		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 		
-		//for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end();)
-		foreach_delete(iter, game.players)
+		//for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end();)
+		foreach_delete(iter, gusGame.players)
 		{
 			if ( (*iter)->deleteMe )
 			{
 /* Done in deleteThis()
 #ifdef USE_GRID
-				for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter)
+				for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter)
 				{
 					objIter->removeRefsToPlayer(*iter);
 				}
 #else
-				for ( ObjectsList::Iterator objIter = game.objects.begin(); (bool)objIter; ++objIter)
+				for ( ObjectsList::Iterator objIter = gusGame.objects.begin(); (bool)objIter; ++objIter)
 				{
 					(*objIter)->removeRefsToPlayer(*iter);
 				}
@@ -182,11 +182,11 @@ void gusFrame() {
 */
 				if ( CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*>(*iter) )
 				{
-					foreach ( p, game.localPlayers )
+					foreach ( p, gusGame.localPlayers )
 					{
 						if ( player == *p )
 						{
-							game.localPlayers.erase(p);
+							gusGame.localPlayers.erase(p);
 							break;
 						}
 					}
@@ -195,7 +195,7 @@ void gusFrame() {
 				(*iter)->removeWorm();
 */
 				(*iter)->deleteThis();
-				game.players.erase(iter);
+				gusGame.players.erase(iter);
 			}
 		}
 
@@ -226,10 +226,10 @@ void gusFrame() {
 	}
 
 
-	if ( game.isLoaded() && game.level().gusIsLoaded() )
+	if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
 	{
 
-		for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+		for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
 		{
 			(*iter)->render();
 		}
@@ -237,10 +237,10 @@ void gusFrame() {
 		//debug info
 		if (showDebug)
 		{
-			game.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(game.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
-			game.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
-			game.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
-			game.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(gusGame.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(gusGame.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);
 		}
 					
 		int miny = 150;
@@ -248,10 +248,10 @@ void gusFrame() {
 		int y = 235;
 		int w = 0;
 		
-		std::list<ScreenMessage>::reverse_iterator rmsgiter = game.messages.rbegin();
+		std::list<ScreenMessage>::reverse_iterator rmsgiter = gusGame.messages.rbegin();
 		
 		for(;
-		rmsgiter != game.messages.rend() && y > miny;
+		rmsgiter != gusGame.messages.rend() && y > miny;
 		++rmsgiter)
 		{
 			ScreenMessage const& msg = *rmsgiter;
@@ -261,7 +261,7 @@ void gusFrame() {
 			do
 			{
 				pair<int, int> dim;
-				n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
+				n = gusGame.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
 				if(n == b)
 					break;
 				b = n;
@@ -276,7 +276,7 @@ void gusFrame() {
 		//rectfill_blend(gfx.buffer, 3, y-2, 3+w+5, 237, 0, 130);
 		
 		for(std::list<ScreenMessage>::iterator msgiter = rmsgiter.base();
-			msgiter != game.messages.end();
+			msgiter != gusGame.messages.end();
 			++msgiter)
 		{
 			ScreenMessage const& msg = *msgiter;
@@ -302,10 +302,10 @@ void gusFrame() {
 			do
 			{
 				pair<int, int> dim;
-				n = game.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
+				n = gusGame.infoFont->fitString(b, e, maxw, dim, 0, Font::Formatting);
 				if(n == b)
 					break;
-				game.infoFont->draw(gfx.buffer, b, n, 5, y, format, 0, fact, Font::Formatting | Font::Shadow);
+				gusGame.infoFont->draw(gfx.buffer, b, n, 5, y, format, 0, fact, Font::Formatting | Font::Shadow);
 				y += dim.second;
 				
 				b = n;
@@ -321,12 +321,12 @@ void gusFrame() {
 	//show fps
 	if (showFps)
 	{
-		game.infoFont->draw(gfx.buffer, "FPS: \01303" + cast<string>(fps), 5, 5, 0, 255, 255, 255, 255, Font::Formatting);
+		gusGame.infoFont->draw(gfx.buffer, "FPS: \01303" + cast<string>(fps), 5, 5, 0, 255, 255, 255, 255, Font::Formatting);
 	}
 	fpsCount++;
 	
 	if(quit)
-		game.infoFont->draw(gfx.buffer, "Quitting...", 15, 110, 0, 255, 255, 255, 255);
+		gusGame.infoFont->draw(gfx.buffer, "Quitting...", 15, 110, 0, 255, 255, 255, 255);
 
 	OmfgGUI::menu.render();
 	console.render(gfx.buffer);
@@ -344,7 +344,7 @@ void gusFrame() {
 void gusQuit() {
 	//network.disconnect(); // If we haven't already, it's too late
 	network.shutDown();
-	game.unload();
+	gusGame.unload();
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.destroy();
 #endif

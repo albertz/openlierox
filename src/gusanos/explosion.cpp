@@ -1,7 +1,7 @@
 #include "explosion.h"
 
 #include "util/vec.h"
-#include "game.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
@@ -128,7 +128,7 @@ void Explosion::draw(CViewport* viewport)
 		}
 		else
 		{
-			game.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(Vec(pos())), blitter );
+			gusGame.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(Vec(pos())), blitter );
 		}
 	}
 	if (m_type->distortion)
@@ -137,7 +137,7 @@ void Explosion::draw(CViewport* viewport)
 	}
 	if ( m_type->lightHax )
 	{
-		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
+		gusGame.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 

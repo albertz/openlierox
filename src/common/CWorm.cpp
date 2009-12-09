@@ -56,7 +56,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 	}
 };
 
-CWorm::CWorm() : cSparkles(this)
+CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	// set all pointers to NULL
 	m_inputHandler = NULL;
@@ -71,11 +71,13 @@ CWorm::CWorm() : cSparkles(this)
 	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
 }
 
-CWorm::~CWorm() {
+CWorm::~CWorm() {	
 	Shutdown();
 	
-	Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
-	skinPreviewDrawerP->worm = NULL;
+	{
+		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
+		skinPreviewDrawerP->worm = NULL;
+	}
 }
 
 
@@ -194,6 +196,9 @@ void CWorm::Clear()
 	}
 	
 	cDamageReport.clear();
+
+	gusShutdown();
+	gusInit();
 }
 
 
@@ -206,6 +211,8 @@ void CWorm::Init()
 	tState = worm_state_t();
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
+
+	gusInit();
 }
 
 
@@ -213,6 +220,7 @@ void CWorm::Init()
 // Shutdown the worm
 void CWorm::Shutdown()
 {
+	gusShutdown();
 	Unprepare();
 	FreeGraphics();
 }

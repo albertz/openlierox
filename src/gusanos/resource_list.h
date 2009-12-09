@@ -7,6 +7,7 @@
 #include <list>
 #include <iostream>
 #include "util/macros.h"
+#include "Debug.h"
 #include <boost/cstdint.hpp>
 #include <boost/filesystem/path.hpp>
 namespace fs = boost::filesystem;
@@ -96,7 +97,7 @@ public:
 				item = m_resItems.find(filename);
 				m_resItems.erase(item);
 				if(!suppressError)
-					cerr << "ERROR: Could not load " << filename << endl;
+					errors << "Gus Resource: Could not load " << filename << endl;
 				return NULL;
 			}
 		}

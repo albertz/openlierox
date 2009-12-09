@@ -110,7 +110,7 @@ struct ScreenMessage
 	int timeOut;
 };
 
-class Game
+class GusGame
 {
 public:
 #ifndef USE_GRID
@@ -162,8 +162,8 @@ public:
 		ErrorModLoading
 	};
 		
-	Game();
-	~Game();
+	GusGame();
+	~GusGame();
 	
 	bool init();
 	void parseCommandLine(int argc, char** argv);
@@ -269,6 +269,6 @@ public:
 	
 };
 
-extern Game game;
+extern GusGame gusGame;
 
 #endif // _GAME_H_

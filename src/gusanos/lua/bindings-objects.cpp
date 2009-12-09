@@ -11,7 +11,7 @@
 #include "../particle.h"
 #include "../weapon.h"
 #include "../weapon_type.h"
-#include "../game.h"
+#include "../gusgame.h"
 #include "../glua.h"
 #include "util/log.h"
 #include "CMap.h"
@@ -91,7 +91,7 @@ int shootFromObject(lua_State* L, CGameObject* object)
 			spd += Vec(object->velocity()) * motionInheritance;
 			angle = spd.getAngle(); // Need to recompute angle
 		}
-		//game.insertParticle( new Particle( p, object->getPos() + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle ));
+		//gusGame.insertParticle( new Particle( p, object->getPos() + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle ));
 		last = p->newParticle(p, Vec(object->pos()) + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle);
 	}
 	
@@ -410,7 +410,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for(std::list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
 	{
 		if(p->getOwner() != *playerIter)
 		{
@@ -420,7 +420,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,
 			//if(worm->isActive())
 			{
 				float distSqr = (Vec(worm->pos()) - from).lengthSqr();
-				if(distSqr < minDistSqr && !game.level().trace(fromx, fromy, int(worm->pos().x), int(worm->pos().y), CMap::ParticleBlockPredicate()))
+				if(distSqr < minDistSqr && !gusGame.level().trace(fromx, fromy, int(worm->pos().x), int(worm->pos().y), CMap::ParticleBlockPredicate()))
 				{
 					minDistSqr = distSqr;
 					minWorm = worm;
@@ -471,7 +471,7 @@ METHOD(CGameObject, baseObject_getAngle,
 */
 
 METHODC(Particle, particle_setAngle,
-	p->setAngle(Angle((double)lua_tonumber(context, 2)));
+	p->setPointingAngle(Angle((double)lua_tonumber(context, 2)));
 	return 0;
 )
 

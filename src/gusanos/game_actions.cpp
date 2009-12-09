@@ -1,6 +1,6 @@
 #include "game_actions.h"
 
-#include "game.h"
+#include "gusgame.h"
 //#include "particle.h"
 #include "part_type.h"
 #include "explosion.h"
@@ -185,7 +185,7 @@ void ShootParticles::run( ActionParams const& params )
 	if (type)
 	{
 		int dir = params.object->getDir();
-		Angle baseAngle(params.object->getAngle() + angleOffset * dir);
+		Angle baseAngle(params.object->getPointingAngle() + angleOffset * dir);
 		
 		int realAmount = amount + int(rnd()*amountVariation);
 		for(int i = 0; i < realAmount; ++i)
@@ -197,11 +197,11 @@ void ShootParticles::run( ActionParams const& params )
 			if(motionInheritance)
 			{
 				spd += params.object->velocity() * motionInheritance;
-				//angle = spd.getAngle(); // Need to recompute angle // <basara> No you dont
+				//angle = spd.getPointingAngle(); // Need to recompute angle // <basara> No you dont
 				//Perhaps as an option later.
 			}
 
-			type->newParticle(type, params.object->pos() + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
+			type->newParticle(type, Vec(params.object->pos()) + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
 		}
 	}
 }
@@ -232,7 +232,7 @@ void UniformShootParticles::run( ActionParams const& params )
 	if (type)
 	{
 		int dir = params.object->getDir();
-		Angle angle(params.object->getAngle() + (angleOffset * dir) - ( distribution * 0.5f ) );
+		Angle angle(params.object->getPointingAngle() + (angleOffset * dir) - ( distribution * 0.5f ) );
 		
 		
 		int realAmount = amount + int(rnd()*amountVariation);
@@ -246,10 +246,10 @@ void UniformShootParticles::run( ActionParams const& params )
 			if(motionInheritance)
 			{
 				spd += params.object->velocity() * motionInheritance;
-				//angle = spd.getAngle(); // Need to recompute angle
+				//angle = spd.getPointingAngle(); // Need to recompute angle
 			}
 
-			type->newParticle(type, params.object->pos() + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
+			type->newParticle(type, Vec(params.object->pos()) + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
 		}
 	}
 }
@@ -297,7 +297,7 @@ void CreateExplosion::run( ActionParams const& params )
 {
 	if (type != NULL)
 	{
-		game.insertExplosion( new Explosion( type, params.object->pos(), params.object->getOwner() ) );
+		gusGame.insertExplosion( new Explosion( type, params.object->pos(), params.object->getOwner() ) );
 	}
 }
 
@@ -660,9 +660,9 @@ AddSpeed::AddSpeed( vector<OmfgScript::TokenBase*> const& params )
 void AddSpeed::run( ActionParams const& params  )
 {
 	int dir = params.object->getDir();
-	Angle angle(params.object->getAngle() + offs * dir);
+	Angle angle(params.object->getPointingAngle() + offs * dir);
 	if(offsVariation) angle += offsVariation * midrnd();
-	params.object->velocity() += Vec(angle, speed + midrnd()*speedVariation );
+	params.object->velocity() += CVec(angle, speed + midrnd()*speedVariation );
 }
 
 AddSpeed::~AddSpeed()
@@ -793,7 +793,7 @@ ApplyMapEffect::ApplyMapEffect( vector<OmfgScript::TokenBase*> const& params )
 void ApplyMapEffect::run( ActionParams const& params )
 {
 	if ( effect )
-		game.applyLevelEffect(effect, (int)params.object->pos().x, (int)params.object->pos().y);
+		gusGame.applyLevelEffect(effect, (int)params.object->pos().x, (int)params.object->pos().y);
 }
 
 ApplyMapEffect::~ApplyMapEffect()

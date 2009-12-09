@@ -43,8 +43,8 @@ public:
 	void draw(CViewport* viewport);
 #endif
 	void think();
-	Angle getAngle();
-	void setAngle(Angle v) { m_angle = v; }
+	Angle getPointingAngle();
+	void setPointingAngle(Angle v) { m_angle = v; }
 	void addAngleSpeed(AngleDiff);
 #ifndef DEDICATED_ONLY
 	void setAlphaFade(int frames, int dest);

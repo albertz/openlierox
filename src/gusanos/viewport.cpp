@@ -2,7 +2,7 @@
 
 #include "CViewport.h"
 
-#include "game.h"
+#include "gusgame.h"
 #include "sfx.h"
 #include "gfx.h"
 #include "gusanos/allegro.h"
@@ -52,7 +52,7 @@ struct TestCuller : public Culler<TestCuller>
 
 	bool block(int x, int y)
 	{
-		return !game.level().unsafeGetMaterial(x, y).worm_pass;
+		return !gusGame.level().unsafeGetMaterial(x, y).worm_pass;
 	}
 
 	void line(int y, int x1, int x2)
@@ -125,7 +125,7 @@ void CViewport::drawLight(IVec const& v)
 	IVec off(Left,Top);
 	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
 
-	Rect r(0, 0, game.level().GetWidth() - 1, game.level().GetHeight() - 1);
+	Rect r(0, 0, gusGame.level().GetWidth() - 1, gusGame.level().GetHeight() - 1);
 	r &= Rect(testLight) + loff;
 
 	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
@@ -139,21 +139,21 @@ void CViewport::render(CWormInputHandler* player)
 	int offX = static_cast<int>(Left);
 	int offY = static_cast<int>(Top);
 
-	game.level().gusDraw(dest, offX, offY);
+	gusGame.level().gusDraw(dest, offX, offY);
 
-	if ( game.level().config()->darkMode && game.level().lightmap )
-		blit( game.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
+	if ( gusGame.level().config()->darkMode && gusGame.level().lightmap )
+		blit( gusGame.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 #ifdef USE_GRID
 
-	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
+	for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter) {
 		//iter->draw(dest, offX, offY);
 		iter->draw(this);
 	}
 #else
 	for ( int i = 0; i < RENDER_LAYERS_AMMOUNT ; ++i) {
 		ObjectsList::RenderLayerIterator iter;
-		for ( iter = game.objects.renderLayerBegin(i); (bool)iter; ++iter) {
+		for ( iter = gusGame.objects.renderLayerBegin(i); (bool)iter; ++iter) {
 			//(*iter)->draw(dest, offX, offY);
 			(*iter)->draw(this);
 		}
@@ -168,7 +168,7 @@ void CViewport::render(CWormInputHandler* player)
 
 #if 0
 	if(gfx.m_haxWormLight) {
-		CWormInputHandler* player = game.localPlayers[0];
+		CWormInputHandler* player = gusGame.localPlayers[0];
 
 		CWorm* worm = player->getWorm();
 		if(worm->isActive()) {
@@ -178,11 +178,11 @@ void CViewport::render(CWormInputHandler* player)
 	}
 #endif
 
-	if(game.level().config()->darkMode)
+	if(gusGame.level().config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
 	EACH_CALLBACK(i, wormRender) {
-		for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
+		for(list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter) {
 			CWorm* worm = (*playerIter)->getWorm();
 			if( worm && worm->isActive() ) {
 				IVec renderPos( worm->getRenderPos() );

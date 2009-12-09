@@ -2,7 +2,7 @@
 
 #include "server.h"
 #include "client.h"
-#include "game.h"
+#include "gusgame.h"
 #include "updater.h"
 #include "glua.h"
 #include "gconsole.h"
@@ -165,7 +165,7 @@ namespace
 	{
 		NetWorm::classID = m_control->Net_registerClass("worm",0);
 		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
-		Game::classID = m_control->Net_registerClass("game",0);
+		GusGame::classID = m_control->Net_registerClass("gusGame",0);
 		Updater::classID = m_control->Net_registerClass("updater",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
@@ -305,7 +305,7 @@ void Network::update()
 					m_control = new Server(m_serverPort);
 					registerClasses();
 					m_host = true;
-					game.assignNetworkRole( true ); // Gives the game class node authority role
+					gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
 					updater.assignNetworkRole(true);
 					registerToMasterServer();
 					SET_STATE(Idle);
@@ -333,7 +333,7 @@ void Network::update()
 					m_host = false;
 					m_serverID = Net_Invalid_ID;
 
-					game.removeNode();
+					gusGame.removeNode();
 					updater.removeNode();
 				} else
 					--stateTimeOut;
@@ -359,7 +359,7 @@ void Network::host()
 	m_control = new Server(m_serverPort);
 	registerClasses();
 	m_host = true;
-	game.assignNetworkRole( true ); // Gives the game class node authority role
+	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
 	updater.assignNetworkRole(true);
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
@@ -400,7 +400,7 @@ void Network::disconnect( Net_ConnID id, DConnEvents event )
 void Network::clear()
 {
 	// The lua event tables contain pointers to objects allocated by lua
-	for(int t = LuaEventGroup::Game; t < LuaEventGroup::Max; ++t) {
+	for(int t = LuaEventGroup::GusGame; t < LuaEventGroup::Max; ++t) {
 		luaEvents[t].clear();
 	}
 }
@@ -468,7 +468,7 @@ int Network::getServerPing()
 
 LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, char const* name, LuaEventDef* event)
 {
-	if(game.options.host)
+	if(gusGame.options.host)
 		return luaEvents[type].add(name, event);
 	else if(m_client)
 		return luaEvents[type].assign(name, event);
@@ -484,7 +484,7 @@ void Network::indexLuaEvent(LuaEventGroup::type type, char const* name)
 
 void Network::encodeLuaEvents(Net_BitStream* data)
 {
-	for(int t = LuaEventGroup::Game; t < LuaEventGroup::Max; ++t) {
+	for(int t = LuaEventGroup::GusGame; t < LuaEventGroup::Max; ++t) {
 		luaEvents[t].encode(data);
 	}
 }

@@ -2,7 +2,7 @@
 
 #include "util/vec.h"
 #include "util/macros.h"
-#include "game.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
@@ -47,9 +47,9 @@ NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 
 void NinjaRope::shoot(Vec _pos, Vec _spd)
 {
-	pos() = _pos;
-	velocity() = _spd;
-	m_length = game.options.ninja_rope_startDistance;
+	pos() = CVec(_pos);
+	velocity() = CVec(_spd);
+	m_length = gusGame.options.ninja_rope_startDistance;
 	
 	justCreated = true;
 	active = true;
@@ -74,8 +74,8 @@ void NinjaRope::remove()
 
 void NinjaRope::think()
 {
-	if ( m_length > game.options.ninja_rope_maxLength )
-		m_length = game.options.ninja_rope_maxLength;
+	if ( m_length > gusGame.options.ninja_rope_maxLength )
+		m_length = gusGame.options.ninja_rope_maxLength;
 
 	if (!active)
 		return;
@@ -96,7 +96,7 @@ void NinjaRope::think()
 				
 		Vec diff(m_worm->pos(), pos());
 		float curLen = diff.length();
-		Vec force(diff * game.options.ninja_rope_pullForce);
+		Vec force(diff * gusGame.options.ninja_rope_pullForce);
 		
 		/*
 		if(<attached to object>)
@@ -105,7 +105,7 @@ void NinjaRope::think()
 		}
 		else
 		*/
-		if(!game.level().getMaterial( ipos.x, ipos.y ).particle_pass)
+		if(!gusGame.level().getMaterial( ipos.x, ipos.y ).particle_pass)
 		{
 			if(!attached)
 			{
@@ -132,7 +132,7 @@ void NinjaRope::think()
 			
 			if(curLen > m_length)
 			{
-				velocity() -= force / curLen;
+				velocity() -= CVec(force) / curLen;
 			}
 		}
 		
@@ -148,7 +148,7 @@ void NinjaRope::think()
 			justCreated = false;
 		}
 		
-		if( !game.level().getMaterial( (int)(pos+spd).x, (int)(pos+spd).y ).particle_pass )
+		if( !gusGame.level().getMaterial( (int)(pos+spd).x, (int)(pos+spd).y ).particle_pass )
 		{
 			if (!attached)
 			{
@@ -199,7 +199,7 @@ void NinjaRope::think()
 	}
 }
 
-Angle NinjaRope::getAngle()
+Angle NinjaRope::getPointingAngle()
 {
 	return m_angle;
 }

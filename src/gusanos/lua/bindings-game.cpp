@@ -7,7 +7,7 @@
 
 #include "../glua.h"
 #include "../gconsole.h"
-#include "../game.h"
+#include "../gusgame.h"
 #include "game/WormInputHandler.h"
 #include "../player_options.h"
 #include "CWormHuman.h"
@@ -34,9 +34,9 @@ LuaReference playerIterator(0);
 LuaReference CWormInputHandlerMetaTable;
 
 LUA_CALLBACK(luaControl(LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))
-	if(playerIdx >= game.localPlayers.size())
+	if(playerIdx >= gusGame.localPlayers.size())
 		LUA_ABORT();
-	game.localPlayers[playerIdx]->pushLuaReference();
+	gusGame.localPlayers[playerIdx]->pushLuaReference();
 	lua.push(state);
 	params += 2;
 END_LUA_CALLBACK()
@@ -70,7 +70,7 @@ int l_console_register_control(lua_State* L)
 	lua_pushvalue(L, 2);
 	LuaReference ref = lua.createReference();
 	
-	for(size_t i = 0; i < Game::MAX_LOCAL_PLAYERS; ++i)
+	for(size_t i = 0; i < GusGame::MAX_LOCAL_PLAYERS; ++i)
 	{
 		console.registerCommands()
 			((S_("+P") << i << '_' << name), boost::bind(LuaBindings::luaControl, ref, i, true, _1), true)
@@ -85,7 +85,7 @@ int l_console_register_control(lua_State* L)
 /*! game_players()
 
 	Returns an iterator object that returns a CWormHumanInputHandler object
-	for every player in the game.
+	for every player in the gusGame.
 	
 	Intended to be use together
 	with a for loop, like this:
@@ -100,7 +100,7 @@ int l_game_players(lua_State* L)
 	lua.pushReference(LuaBindings::playerIterator);
 	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
-	i = game.players.begin();
+	i = gusGame.players.begin();
 	lua_pushnil(L);
 	
 	return 3;
@@ -114,9 +114,9 @@ int l_game_players(lua_State* L)
 int l_game_localPlayer(lua_State* L)
 {
 	size_t i = (size_t)lua_tointeger(L, 1);
-	if(i < game.localPlayers.size())
+	if(i < gusGame.localPlayers.size())
 	{
-		game.localPlayers[i]->pushLuaReference();
+		gusGame.localPlayers[i]->pushLuaReference();
 		return 1;
 	}
 	else
@@ -126,9 +126,9 @@ int l_game_localPlayer(lua_State* L)
 int l_game_localPlayerName(lua_State* L)
 {
 	size_t i = (int)lua_tointeger(L, 1);
-	if(i < game.playerOptions.size())
+	if(i < gusGame.playerOptions.size())
 	{
-		lua.push(game.playerOptions[i]->name);
+		lua.push(gusGame.playerOptions[i]->name);
 		return 1;
 	}
 	else
@@ -287,7 +287,7 @@ int l_game_getClosestWorm(lua_State* L)
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for(std::list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
 	{
 		CWorm* worm = (*playerIter)->getWorm();
 		
@@ -313,7 +313,7 @@ int l_game_playerIterator(lua_State* L)
 {
 	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == game.players.end())
+	if(i == gusGame.players.end())
 		lua_pushnil(L);
 	else
 	{
@@ -336,7 +336,7 @@ int l_map_isBlocked(lua_State* L)
 	int y1 = lua_tointeger(L, 2);
 	int x2 = lua_tointeger(L, 3);
 	int y2 = lua_tointeger(L, 4);
-	lua_pushboolean(L, game.level().trace(x1, y1, x2, y2, CMap::ParticleBlockPredicate()));
+	lua_pushboolean(L, gusGame.level().trace(x1, y1, x2, y2, CMap::ParticleBlockPredicate()));
 	return 1;
 }
 
@@ -350,7 +350,7 @@ int l_map_isParticlePass(lua_State* L)
 	int x = lua_tointeger(L, 1);
 	int y = lua_tointeger(L, 2);
 
-	lua_pushboolean(L, game.level().getMaterial(x, y).particle_pass);
+	lua_pushboolean(L, gusGame.level().getMaterial(x, y).particle_pass);
 	return 1;
 }
 
@@ -389,20 +389,20 @@ void initGame()
 	)
 	
 	ENUM(EndReason,
-		("ServerQuit", Game::ServerQuit)
-		("ServerChangeMap", Game::ServerChangeMap)
-		("Kicked", Game::Kicked)
-		//("LoadingLevel", Game::LoadingLevel)
-		("IncompatibleProtocol", Game::IncompatibleProtocol)
-		("IncompatibleData", Game::IncompatibleData)
+		("ServerQuit", GusGame::ServerQuit)
+		("ServerChangeMap", GusGame::ServerChangeMap)
+		("Kicked", GusGame::Kicked)
+		//("LoadingLevel", GusGame::LoadingLevel)
+		("IncompatibleProtocol", GusGame::IncompatibleProtocol)
+		("IncompatibleData", GusGame::IncompatibleData)
 	)
 	
 	ENUM(Error,
-		("None", Game::ErrorNone)
-		("MapNotFound", Game::ErrorMapNotFound)
-		("MapLoading", Game::ErrorMapLoading)
-		("ModNotFound", Game::ErrorModNotFound)
-		("ModLoading", Game::ErrorModLoading)
+		("None", GusGame::ErrorNone)
+		("MapNotFound", GusGame::ErrorMapNotFound)
+		("MapLoading", GusGame::ErrorMapLoading)
+		("ModNotFound", GusGame::ErrorModNotFound)
+		("ModLoading", GusGame::ErrorModLoading)
 	)
 	
 	ENUM(CWormHumanInputHandler,

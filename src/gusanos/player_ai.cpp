@@ -2,7 +2,7 @@
 #include "player_options.h"
 #include "game/WormInputHandler.h"
 #include "worm.h"
-#include "game.h"
+#include "gusgame.h"
 #include "weapon.h"
 #include "util/angle.h"
 #include "util/vec.h"
@@ -30,7 +30,7 @@ bool check_materials( int x1, int y1, int x2, int y2 )
 #define DO_COL(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)		\
 {										\
 	if (d##pri_c == 0) {							\
-		return game.level().getMaterial(x1, y1).particle_pass;		\
+		return gusGame.level().getMaterial(x1, y1).particle_pass;		\
 	}									\
 										\
 	i1 = 2 * d##sec_c;							\
@@ -41,7 +41,7 @@ bool check_materials( int x1, int y1, int x2, int y2 )
 	y = y1;									\
 										\
 	while (pri_c pri_cond pri_c##2) {					\
-		if ( !game.level().getMaterial(x, y).particle_pass )		\
+		if ( !gusGame.level().getMaterial(x, y).particle_pass )		\
 			return true;						\
 										\
 		if (dd sec_cond 0) {						\
@@ -124,10 +124,10 @@ void PlayerAI::getTarget()
 	m_targetBlocked = true;
 	float tmpDist = -1;
 #ifdef USE_GRID
-	for ( Grid::iterator worm = game.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
+	for ( Grid::iterator worm = gusGame.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
 	{
 		if ( worm->getOwner() != this )
-		if ( !game.options.teamPlay || (worm->getOwner()->team != team || team == -1) )
+		if ( !gusGame.options.teamPlay || (worm->getOwner()->team != team || team == -1) )
 		if ( CWorm * tmpWorm = dynamic_cast<CWorm*>(&*worm) )
 		if ( tmpWorm->isActive() )
 		{
@@ -144,7 +144,7 @@ void PlayerAI::getTarget()
 	}
 #else
 	ObjectsList::ColLayerIterator worm;
-	for ( worm = game.objects.colLayerBegin(Game::WORMS_COLLISION_LAYER); worm; ++worm)
+	for ( worm = gusGame.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
 	{
 		CWorm *tmpWorm;
 		if ( (*worm)->getOwner() != this )

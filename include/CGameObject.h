@@ -69,7 +69,7 @@ public:
 	//static int const luaID = 1;
 	
 	void gusInit( CWormInputHandler* owner = 0, Vec pos_ = Vec(), Vec spd_ = Vec() );
-	virtual void gusShutdown();
+	void gusShutdown();
 	
 #ifndef DEDICATED_ONLY
 	// Draw the object in the where bitmap with an offset ( used for camera )

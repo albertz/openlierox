@@ -1,7 +1,7 @@
 #ifndef DEDICATED_ONLY
 #include "player_input.h"
 
-#include "game.h"
+#include "gusgame.h"
 #include "CWormHuman.h"
 #include "gconsole.h"
 #include "glua.h"
@@ -19,9 +19,9 @@ using namespace std;
 
 string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
-	if ( index < game.localPlayers.size() )
+	if ( index < gusGame.localPlayers.size() )
 	{
-		CWormHumanInputHandler& player = *game.localPlayers[index];
+		CWormHumanInputHandler& player = *gusGame.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -49,9 +49,9 @@ string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<str
 
 string eventStop(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
-	if ( index < game.localPlayers.size() )
+	if ( index < gusGame.localPlayers.size() )
 	{
-		CWormHumanInputHandler& player = *game.localPlayers[index];
+		CWormHumanInputHandler& player = *gusGame.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -79,7 +79,7 @@ string eventStop(size_t index, CWormHumanInputHandler::Actions action, list<stri
 
 void registerPlayerInput()
 {
-	for ( size_t i = 0; i < Game::MAX_LOCAL_PLAYERS; ++i)
+	for ( size_t i = 0; i < GusGame::MAX_LOCAL_PLAYERS; ++i)
 	{
 		static char const* actionNames[] =
 		{
@@ -102,9 +102,9 @@ string say( const list<string> &args )
 {
 	if ( !args.empty() )
 	{
-		if ( !game.localPlayers.empty() )
+		if ( !gusGame.localPlayers.empty() )
 		{
-			game.localPlayers[0]->sendChatMsg( *(args.begin()) );
+			gusGame.localPlayers[0]->sendChatMsg( *(args.begin()) );
 		}
 	}
 	else

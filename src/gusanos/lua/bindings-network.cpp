@@ -5,7 +5,7 @@
 #include "../lua51/luaapi/classes.h"
 
 #include "../network.h"
-#include "../game.h"
+#include "../gusgame.h"
 #include "game/WormInputHandler.h"
 #include "CWorm.h"
 #include "../particle.h"
@@ -209,7 +209,7 @@ LMETHOD(LuaEventDef, luaEvent_##type_##_send, \
 	from owners to the server or from the server to all clients (depending on if we're the server or not).
 */
 LUA_EVENT_SEND_METHOD(game, 0, /* no declarations */, /* no cases */,
-	game.sendLuaEvent(p, mode, rules, userdata, connID);
+	gusGame.sendLuaEvent(p, mode, rules, userdata, connID);
 )
 
 /*! NetworkPlayerEvent:send(player, [data[, connection[, mode[, rules]]]])
@@ -287,7 +287,7 @@ int l_network_game_event(lua_State* L)
 	lua_pushvalue(context, 2);
 	LuaReference ref = context.createReference();
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaGameEventMetaTable);
-	event = network.addLuaEvent(Network::LuaEventGroup::Game, name, event);
+	event = network.addLuaEvent(Network::LuaEventGroup::GusGame, name, event);
 
 	return 1;
 }

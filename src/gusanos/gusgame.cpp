@@ -1,4 +1,4 @@
-#include "game.h"
+#include "gusgame.h"
 
 #include "CWorm.h"
 #include "worm.h"
@@ -99,7 +99,7 @@ namespace
 	uint32_t getWeaponCRC()
 	{
 		uint32_t v = 0;
-		foreach(i, game.weaponList)
+		foreach(i, gusGame.weaponList)
 		{
 			v ^= (*i)->crc;
 			++v;
@@ -109,9 +109,9 @@ namespace
 	}
 }
 
-Net_ClassID Game::classID = Net_Invalid_ID;
+Net_ClassID GusGame::classID = Net_Invalid_ID;
 
-Game game;
+GusGame gusGame;
 
 string mapCmd(const list<string> &args)
 {
@@ -120,7 +120,7 @@ string mapCmd(const list<string> &args)
 	{
 		string tmp = *args.begin();
 		std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) tolower);
-		game.changeLevelCmd( tmp );
+		gusGame.changeLevelCmd( tmp );
 		return "";
 	}*/
 	return "MAP <MAPNAME> : LOAD A MAP";
@@ -155,7 +155,7 @@ string gameCmd(const list<string> &args)
 	{
 		string tmp = *args.begin();
 		std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) tolower);
-		if(!game.setMod( tmp ))
+		if(!gusGame.setMod( tmp ))
 			return "MOD " + tmp + " NOT FOUND";
 		return "THE GAME WILL CHANGE THE NEXT TIME YOU CHANGE MAP";
 	}
@@ -177,7 +177,7 @@ string gameCompleter(Console* con, int idx, std::string const& beginning)
 		return beginning;
 		
 	return shellComplete(
-		game.modList,
+		gusGame.modList,
 		beginning.begin(),
 		beginning.end(),
 		GameIterGetText(),
@@ -196,7 +196,7 @@ string addbotCmd(const list<string> &args)
 			team = cast<int>(*i);
 			++i;
 		}
-		game.addBot(team);
+		gusGame.addBot(team);
 		return "";
 	}else
 	{
@@ -227,7 +227,7 @@ string rConCmd(const list<string> &args)
 		{
 			tmp += " \"" + *iter + '"';
 		}
-		game.sendRConMsg( tmp );
+		gusGame.sendRConMsg( tmp );
 		return "";
 	}
 	return "";
@@ -244,8 +244,8 @@ string rConCompleter(Console* con, int idx, std::string const& beginning)
 CWormInputHandler* findPlayerByName(std::string const& name)
 {
 	//CWormInputHandler* player2Kick = 0;
-	//for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
-	foreach(iter, game.players)
+	//for ( std::list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
+	foreach(iter, gusGame.players)
 	{
 		if ( (*iter)->m_name == name )
 		{
@@ -302,7 +302,7 @@ string kickCompleter(Console* con, int idx, std::string const& beginning)
 		return beginning;
 		
 	return shellComplete(
-		game.players,
+		gusGame.players,
 		beginning.begin(),
 		beginning.end(),
 		BasePlayerIterGetText(),
@@ -371,7 +371,7 @@ void Options::registerInConsole()
 	;
 }
 
-Game::Game()
+GusGame::GusGame()
 {
 	NRPartType = NULL;
 	deathObject = NULL;
@@ -379,12 +379,12 @@ Game::Game()
 	m_node = NULL;
 }
 
-Game::~Game()
+GusGame::~GusGame()
 {
 
 }
 
-void Game::parseCommandLine(int argc, char** argv)
+void GusGame::parseCommandLine(int argc, char** argv)
 {
 	for(int i = 0; i < argc; ++i)
 	{
@@ -404,7 +404,7 @@ void Game::parseCommandLine(int argc, char** argv)
 	}
 }
 
-bool Game::init()
+bool GusGame::init()
 {
 	if(!allegro_init()) return false;
 	
@@ -480,7 +480,7 @@ bool Game::init()
 	return true;
 }
 
-void Game::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void GusGame::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) return;
 	
@@ -497,7 +497,7 @@ void Game::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Ne
 		m_node->sendEventDirect(mode, data, connID);
 }
 
-void Game::think()
+void GusGame::think()
 {
 	mq_process_messages(msg)
 		mq_case(ChangeLevel)
@@ -597,7 +597,7 @@ void Game::think()
 /*
 					case RegisterLuaEvents:
 					{
-						for(int t = Network::LuaEventGroup::Game;
+						for(int t = Network::LuaEventGroup::GusGame;
 							t < Network::LuaEventGroup::Max; ++t)
 						{
 							int c = data->getInt(8);
@@ -615,7 +615,7 @@ void Game::think()
 					{
 						int index = data->getInt(8);
 						DLOG("Got lua event index " << index);
-						if(LuaEventDef* event = network.indexToLuaEvent(Network::LuaEventGroup::Game, index))
+						if(LuaEventDef* event = network.indexToLuaEvent(Network::LuaEventGroup::GusGame, index))
 						{
 							event->call(data);
 						}
@@ -656,7 +656,7 @@ void Game::think()
 
 }
 
-void Game::applyLevelEffect( LevelEffect* effect, int x, int y )
+void GusGame::applyLevelEffect( LevelEffect* effect, int x, int y )
 {
 	if ( !network.isClient() )
 	{
@@ -675,7 +675,7 @@ void Game::applyLevelEffect( LevelEffect* effect, int x, int y )
 	}
 }
 
-void Game::loadWeapons()
+void GusGame::loadWeapons()
 {
 	std::string path = m_modPath + "/weapons";
 	
@@ -704,7 +704,7 @@ void Game::loadWeapons()
 	}
 };
 
-bool Game::loadMod(bool doLoadWeapons)
+bool GusGame::loadMod(bool doLoadWeapons)
 {
 	options.maxWeapons = options.maxWeaponsVar;
 	options.splitScreen = ( options.splitScreenVar != 0 );
@@ -720,7 +720,7 @@ bool Game::loadMod(bool doLoadWeapons)
 		sound1DList.load("chat.wav");
 	infoFont = fontLocator.load("minifont");
 	if(infoFont == NULL) {
-		errors << "Gusanos Game::loadMod: cannot load minifont" << endl;
+		errors << "Gusanos GusGame::loadMod: cannot load minifont" << endl;
 		return false;
 	}
 	
@@ -746,7 +746,7 @@ bool Game::loadMod(bool doLoadWeapons)
 	return true;
 }
 
-void Game::runInitScripts()
+void GusGame::runInitScripts()
 {
 	Script* modScript = scriptLocator.load(m_modName);
 	if(!modScript) modScript = scriptLocator.load("common");
@@ -766,7 +766,7 @@ void Game::runInitScripts()
 	partTypeList.indexate();
 }
 
-void Game::reset(ResetReason reason)
+void GusGame::reset(ResetReason reason)
 {
 	// Delete all players
 	for ( list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
@@ -801,7 +801,7 @@ void Game::reset(ResetReason reason)
 	}
 }
 
-void Game::unload()
+void GusGame::unload()
 {
 	//cerr << "Unloading..." << endl;
 	loaded = false;
@@ -868,12 +868,12 @@ void Game::unload()
 #endif
 }
 
-bool Game::isLoaded()
+bool GusGame::isLoaded()
 {
 	return loaded;
 }
 
-void Game::refreshResources(std::string const& levelPath)
+void GusGame::refreshResources(std::string const& levelPath)
 {
 #ifndef DEDICATED_ONLY
 	fontLocator.addPath(levelPath + "/fonts");
@@ -926,7 +926,7 @@ void Game::refreshResources(std::string const& levelPath)
 	refreshMods();
 }
 
-void Game::refreshLevels()
+void GusGame::refreshLevels()
 {
 	levelLocator.clear();
 	levelLocator.addPath("levels");
@@ -934,7 +934,7 @@ void Game::refreshLevels()
 	levelLocator.refresh();
 }
 
-void Game::refreshMods()
+void GusGame::refreshMods()
 {
 	modList.clear();
 	for( Iterator<std::string>::Ref i = gusFileListIter("."); i->isValid(); i->next())
@@ -949,7 +949,7 @@ void Game::refreshMods()
 	}
 }
 
-void Game::createNetworkPlayers()
+void GusGame::createNetworkPlayers()
 {
 	CWorm* worm = addWorm(true);
 	CWormInputHandler* player = addPlayer ( OWNER, -1, worm );
@@ -967,7 +967,7 @@ void Game::createNetworkPlayers()
 }
 
 
-bool Game::changeLevelCmd(const std::string& levelName )
+bool GusGame::changeLevelCmd(const std::string& levelName )
 {
 	/*
 	if( network.isHost() && options.host )
@@ -980,7 +980,7 @@ bool Game::changeLevelCmd(const std::string& levelName )
 	return true;
 }
 
-bool Game::reloadModWithoutMap()
+bool GusGame::reloadModWithoutMap()
 {
 	unload();
 	//level.gusUnload();
@@ -991,7 +991,7 @@ bool Game::reloadModWithoutMap()
 	return true;
 }
 
-void Game::error(Error err)
+void GusGame::error(Error err)
 {
 	EACH_CALLBACK(i, gameError)
 	{
@@ -999,17 +999,17 @@ void Game::error(Error err)
 	}
 }
 
-bool Game::hasLevel(std::string const& level)
+bool GusGame::hasLevel(std::string const& level)
 {
 	return levelLocator.exists(level);
 }
 
-bool Game::hasMod(std::string const& mod)
+bool GusGame::hasMod(std::string const& mod)
 {
 	return modList.find(mod) != modList.end();
 }
 
-bool Game::changeLevel(const std::string& levelName, bool refresh )
+bool GusGame::changeLevel(const std::string& levelName, bool refresh )
 {
 	if(refresh)
 		refreshLevels();
@@ -1048,7 +1048,7 @@ bool Game::changeLevel(const std::string& levelName, bool refresh )
 	return true;
 }
 
-void Game::assignNetworkRole( bool authority )
+void GusGame::assignNetworkRole( bool authority )
 {
 	m_node = new Net_Node;
 	
@@ -1064,17 +1064,17 @@ void Game::assignNetworkRole( bool authority )
 	{
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
 		if( !m_node->registerNodeUnique(classID, eNet_RoleAuthority, network.getNetControl() ) )
-			ELOG("Unable to register game authority node.");
+			ELOG("Unable to register gusGame authority node.");
 	}else
 	{
 		if( !m_node->registerNodeUnique( classID, eNet_RoleProxy, network.getNetControl() ) )
-			ELOG("Unable to register game requested node.");
+			ELOG("Unable to register gusGame requested node.");
 	}
 
 	m_node->applyForNetLevel(1);
 }
 
-void Game::sendRConMsg( string const& message )
+void GusGame::sendRConMsg( string const& message )
 {
 	Net_BitStream *req = new Net_BitStream;
 	req->addInt(Network::RConMsg, 8);
@@ -1083,13 +1083,13 @@ void Game::sendRConMsg( string const& message )
 	network.getNetControl()->Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
-void Game::removeNode()
+void GusGame::removeNode()
 {
 	delete m_node;
 	m_node = NULL;
 }
 
-bool Game::setMod( const string& modname )
+bool GusGame::setMod( const string& modname )
 {
 	if( gusExists(modname) )
 	{
@@ -1106,7 +1106,7 @@ bool Game::setMod( const string& modname )
 	return true;
 }
 
-void Game::displayChatMsg( std::string const& owner, std::string const& message)
+void GusGame::displayChatMsg( std::string const& owner, std::string const& message)
 {
 	console.addLogMsg('<' + owner + "> " + message);
 	displayMessage(ScreenMessage(ScreenMessage::Chat, '{' + owner + "}: " + message, 800));
@@ -1116,7 +1116,7 @@ void Game::displayChatMsg( std::string const& owner, std::string const& message)
 #endif
 }
 
-void Game::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer )
+void GusGame::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer )
 {
 	std::string str = "{" + killed->m_name + "} ";
 	
@@ -1137,30 +1137,30 @@ void Game::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer 
 	if ( options.logDeathMessages ) console.addLogMsg(str);
 }
 
-void Game::displayMessage( ScreenMessage const& msg )
+void GusGame::displayMessage( ScreenMessage const& msg )
 {
 	messages.push_back(msg);
 }
 
-const string& Game::getMod()
+const string& GusGame::getMod()
 {
 	return m_modName;
 }
 
-std::string const& Game::getModPath()
+std::string const& GusGame::getModPath()
 {
 	return m_modPath;
 }
 
-std::string const& Game::getDefaultPath()
+std::string const& GusGame::getDefaultPath()
 {
 	return m_defaultPath;
 }
 
-CWormInputHandler* Game::findPlayerWithID( Net_NodeID ID )
+CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
 {
 	list<CWormInputHandler*>::iterator playerIter;
-	for ( playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for ( playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
 	{
 		if ( (*playerIter)->getNodeID() == ID )
 		{
@@ -1170,16 +1170,16 @@ CWormInputHandler* Game::findPlayerWithID( Net_NodeID ID )
 	return NULL;
 }
 
-void Game::insertExplosion( Explosion* explosion )
+void GusGame::insertExplosion( Explosion* explosion )
 {
 #ifdef USE_GRID
-	game.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
+	gusGame.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
 #else
-	game.objects.insert( NO_COLLISION_LAYER, explosion->getType()->renderLayer, explosion );
+	gusGame.objects.insert( NO_COLLISION_LAYER, explosion->getType()->renderLayer, explosion );
 #endif
 }
 
-CWormInputHandler* Game::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
+CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 {
 	CWormInputHandler* p = 0;
 	switch(type)
@@ -1188,7 +1188,7 @@ CWormInputHandler* Game::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		case OWNER:
 		{
 			if ( localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
-			// TODO: game::addplayer
+			// TODO: gusGame::addplayer
 			CWormHumanInputHandler* player = NULL; // new CWormHumanInputHandler( playerOptions[localPlayers.size()], worm );
 #ifndef DEDICATED_ONLY
 			CViewport* viewport = new CViewport;
@@ -1239,7 +1239,7 @@ CWormInputHandler* Game::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 	return p;
 }
 
-CWorm* Game::addWorm(bool isAuthority)
+CWorm* GusGame::addWorm(bool isAuthority)
 {
 	CWorm* returnWorm = NULL;
 	if ( network.isHost() || network.isClient() )
@@ -1263,7 +1263,7 @@ CWorm* Game::addWorm(bool isAuthority)
 	return returnWorm;
 }
 
-void Game::addBot(int team)
+void GusGame::addBot(int team)
 {
 	if ( loaded && level().gusIsLoaded() )
 	{
@@ -1274,7 +1274,7 @@ void Game::addBot(int team)
 	}
 }
 
-unsigned long Game::stringToIndex(std::string const& str)
+unsigned long GusGame::stringToIndex(std::string const& str)
 {
 	HashTable<std::string, unsigned long>::iterator i = stringToIndexMap.find(str);
 	if(i != stringToIndexMap.end())
@@ -1286,17 +1286,17 @@ unsigned long Game::stringToIndex(std::string const& str)
 	return idx;
 }
 
-std::string const& Game::indexToString(unsigned long idx)
+std::string const& GusGame::indexToString(unsigned long idx)
 {
 	return indexToStringMap.at(idx);
 }
 
-std::string const& Game::getModName()
+std::string const& GusGame::getModName()
 {
 	return m_modName;
 }
 
-void Game::addCRCs(Net_BitStream* req)
+void GusGame::addCRCs(Net_BitStream* req)
 {
 	req->addInt(partTypeList.crc(), 32);
 	req->addInt(expTypeList.crc(), 32);
@@ -1304,7 +1304,7 @@ void Game::addCRCs(Net_BitStream* req)
 	req->addInt(levelEffectList.crc(), 32);
 }
 
-bool Game::checkCRCs(Net_BitStream& data)
+bool GusGame::checkCRCs(Net_BitStream& data)
 {
 	uint32_t particleCRC = data.getInt(32);
 	uint32_t expCRC = data.getInt(32);
@@ -1322,12 +1322,12 @@ bool Game::checkCRCs(Net_BitStream& data)
 	return true;
 }
 /*
-Net_Node* Game::getNode()
+Net_Node* GusGame::getNode()
 {
 	return m_node;
 }*/
 
-CMap& Game::level() {
+CMap& GusGame::level() {
 	return *cClient->getMap();
 }
 

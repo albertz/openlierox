@@ -6,7 +6,7 @@
 #include "../lua51/luaapi/macros.h"
 #include "../lua51/luaapi/classes.h"
 
-#include "../game.h"
+#include "../gusgame.h"
 #include "../gfx.h"
 #include "../script.h"
 #ifndef DEDICATED_ONLY
@@ -357,7 +357,7 @@ METHODC(Sound, sound_play,
 */
 int l_map_is_loaded(lua_State* L)
 {
-	lua_pushboolean(L, game.level().isLoaded());
+	lua_pushboolean(L, gusGame.level().isLoaded());
 	
 	return 1;
 }
@@ -408,7 +408,7 @@ int l_load_particle(lua_State* L)
 int l_weapon_random(lua_State* L)
 {
 	LuaContext context(L);
-	WeaponType* p = game.weaponList[rndInt(game.weaponList.size())];
+	WeaponType* p = gusGame.weaponList[rndInt(gusGame.weaponList.size())];
 	//context.pushFullReference(*p, WeaponTypeMetaTable);
 	p->pushLuaReference();
 	return 1;
@@ -420,7 +420,7 @@ int l_weapon_random(lua_State* L)
 */
 int l_weapon_count(lua_State* L)
 {
-	lua_pushinteger(L, game.weaponList.size());
+	lua_pushinteger(L, gusGame.weaponList.size());
 	return 1;
 }
 
@@ -430,9 +430,9 @@ int l_weapon_count(lua_State* L)
 */
 METHODC(WeaponType, weapon_next,
 	size_t n = p->getIndex() + 1;
-	if(n >= game.weaponList.size())
+	if(n >= gusGame.weaponList.size())
 		n = 0;
-	game.weaponList[n]->pushLuaReference();
+	gusGame.weaponList[n]->pushLuaReference();
 	return 1;
 )
 
@@ -443,10 +443,10 @@ METHODC(WeaponType, weapon_next,
 METHODC(WeaponType, weapon_prev,
 	size_t n = p->getIndex();
 	if(n == 0)
-		n = game.weaponList.size() - 1;
+		n = gusGame.weaponList.size() - 1;
 	else
 		--n;
-	game.weaponList[n]->pushLuaReference();
+	gusGame.weaponList[n]->pushLuaReference();
 	return 1;
 )
 
@@ -495,7 +495,7 @@ int l_modIterator(lua_State* L)
 	typedef std::set<std::string>::const_iterator iter;
 	
 	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == game.modList.end())
+	if(i == gusGame.modList.end())
 		lua_pushnil(L);
 	else
 	{
@@ -519,7 +519,7 @@ int l_mods(lua_State* L)
 	typedef std::set<std::string>::const_iterator iter;
 	
 	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
-	i = game.modList.begin();
+	i = gusGame.modList.begin();
 	lua_pushnil(L);
 	
 	return 3;

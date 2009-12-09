@@ -679,7 +679,7 @@ public:
 	//static int const luaID = 2;
 	
 	void gusInit();
-	virtual void gusShutdown();
+	void gusShutdown();
 	
 	virtual void assignOwner( CWormInputHandler* owner);
 	

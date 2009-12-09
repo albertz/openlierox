@@ -31,7 +31,7 @@ public:
 #endif
 	void think();
 
-	Angle getAngle();
+	Angle getPointingAngle();
 	void addAngleSpeed(AngleDiff);
 	
 	void addLength(float length_)

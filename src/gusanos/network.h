@@ -103,7 +103,7 @@ public:
 	{
 		enum type
 		{
-			Game,
+			GusGame,
 			CWormHumanInputHandler,
 			Worm,
 			Particle,
