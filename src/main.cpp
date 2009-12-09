@@ -402,7 +402,7 @@ startpoint:
 
 	tLX->currentTime = GetTime();
 
-	DrawLoading(60, "Initializing menu system");
+	DrawLoading(70, "Initializing menu system");
 
 	// Initialize menu
 	if(!DeprecatedGUI::Menu_Initialize(&menu_startgame)) {
@@ -411,7 +411,7 @@ startpoint:
 	}
 
 	// speedup for Menu_Start()
-	DrawLoading(80, "Loading main menu");
+	DrawLoading(90, "Loading main menu");
 	DeprecatedGUI::iSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
@@ -423,9 +423,6 @@ startpoint:
 
 	// Setup the global keys
 	tLX->setupInputs();
-
-	DrawLoading(90, "Loading Gusanos engine");
-	gusInitBase();
 	
 	DrawLoading(99, "Loading Physics Engine");
 	PhysicsEngine::Init();
@@ -498,7 +495,6 @@ quit:
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
 	
-	gusQuit();
 	PhysicsEngine::UnInit();
 
 	ShutdownLieroX();
@@ -928,9 +924,10 @@ int InitializeLieroX()
 	// Initialize the loading screen
 	InitializeLoading();
 
-	//DrawLoading(0, "Initializing network");
-
-	DrawLoading(5, "Initializing client and server");
+	DrawLoading(5, "Loading Gusanos engine");
+	gusInitBase();	
+	
+	DrawLoading(10, "Initializing client and server");
 
 	// Allocate the client & server
 	cClient = new CClient;
@@ -949,7 +946,7 @@ int InitializeLieroX()
 		return false;
 	}
 
-	DrawLoading(10, "Initializing game entities");
+	DrawLoading(15, "Initializing game entities");
 
 	// Initialize the entities
 	if(!InitializeEntities()) {
@@ -957,7 +954,7 @@ int InitializeLieroX()
 		return false;
 	}
 
-	DrawLoading(15, "Loading graphics");
+	DrawLoading(20, "Loading graphics");
 
 
 	// Load the graphics
@@ -1223,7 +1220,7 @@ static void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
-
+	
 	// Options
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
@@ -1294,6 +1291,8 @@ void ShutdownLieroX()
 
 	// Event system
 	ShutdownEventSystem();
+
+	gusQuit();
 
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();

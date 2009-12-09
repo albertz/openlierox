@@ -169,25 +169,24 @@ int set_display_switch_mode(int mode) { return 0; }
 
 
 bool gusExists(const std::string& filename) {
-	return IsFileAvailable("gusanos/" + filename, false, false);
+	return IsFileAvailable(filename, false, false);
 }
 
 bool gusExistsFile(const std::string& filename) {
-	return IsFileAvailable("gusanos/" + filename, false, true);	
+	return IsFileAvailable(filename, false, true);	
 }
 
 bool gusIsDirectory(const std::string& filename) {
-	// TODO: better
-	return gusExists(filename) && !gusExistsFile(filename);
+	return IsDirectory(filename);
 }
 
 
 bool gusOpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode) {
-	return OpenGameFileR(f, "gusanos/" + path, mode);
+	return OpenGameFileR(f, path, mode);
 }
 
 FILE* gusOpenGameFile(const std::string& path, const char *mode) {
-	return OpenGameFile("gusanos/" + path, mode);
+	return OpenGameFile(path, mode);
 }
 
 Iterator<std::string>::Ref gusFileListIter(
@@ -195,7 +194,7 @@ Iterator<std::string>::Ref gusFileListIter(
 										   bool absolutePath,
 										   const filemodes_t modefilter,
 										   const std::string& namefilter) {
-	return FileListIter("gusanos/" + dir, absolutePath, modefilter, namefilter);
+	return FileListIter(dir, absolutePath, modefilter, namefilter);
 }
 
 extern "C" {

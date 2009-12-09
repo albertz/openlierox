@@ -47,10 +47,15 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 {
 	stats = shared_ptr<Stats>(new Stats());
 	deleteMe=(false);
-	colour=(options->colour);
-	team=(options->team);
+	// TODO: OLX col/team
+	if(options) {
+		colour=(options->colour);
+		team=(options->team);
+	}
+	else
+		colour = team = 0;
+	
 	local=(false);
-	m_worm=(0);
 	m_options=(options);
 	m_isAuthority=(false);
 	m_node=(0);
@@ -59,10 +64,8 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 	m_id=(0); // TODO: make a invalid_connection_id define thingy
 	deleted=(false);
 	
-	localChangeName(m_options->name);
-	m_options->clearChangeFlags();
-	if(worm)
-		assignWorm(worm);
+	if(m_options)
+		m_options->clearChangeFlags();
 }
 
 LuaReference CWormInputHandler::getLuaReference()
@@ -113,11 +116,14 @@ void CWormInputHandler::deleteThis()
 
 void CWormInputHandler::gusShutdown()
 {
-	delete m_node;
-	m_node = 0;
-	delete m_interceptor;
-	m_interceptor = 0;
-	m_worm = 0;
+	if(m_node) {
+		delete m_node;
+		m_node = 0;
+	}
+	if(m_interceptor) {
+		delete m_interceptor;
+		m_interceptor = 0;
+	}
 }
 
 void CWormInputHandler::removeWorm()

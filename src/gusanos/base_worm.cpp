@@ -46,7 +46,14 @@ void CWorm::gusInit()
 	animate=(false); movable=(false); changing=(false);
 	m_dir=(1);
 	
-
+	if(!gusGame.isLoaded()) {
+		skin = skinMask = NULL;
+		m_animator = m_fireconeAnimator = NULL;
+		m_currentFirecone = NULL;
+		m_ninjaRope = NULL;
+		return;
+	}
+	
 #ifndef DEDICATED_ONLY
 	skin = spriteList.load("skin");
 	skinMask = spriteList.load("skin-mask");

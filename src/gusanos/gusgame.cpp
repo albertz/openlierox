@@ -463,7 +463,6 @@ bool GusGame::init()
 	
 	gfx.init();
 #ifndef DEDICATED_ONLY
-	sfx.init();
 	
 	keyHandler.init();
 	//mouseHandler.init();
@@ -984,7 +983,7 @@ bool GusGame::reloadModWithoutMap()
 {
 	unload();
 	//level.gusUnload();
-	refreshResources("default");
+	refreshResources("Gusanos");
 	loadMod(false);
 	runInitScripts();
 	

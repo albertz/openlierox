@@ -89,6 +89,7 @@ void CMap::initGusanosPart()
 	background = NULL;
 	paralax = NULL;
 	lightmap = NULL;
+	watermap = NULL;
 #endif
 
 	material = NULL;
