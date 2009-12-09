@@ -4,7 +4,8 @@
 bool gusInitBase();
 bool gusInit(const std::string& mod);
 bool gusCanRunFrame();
-void gusFrame();
+void gusLogicFrame(); // always called
+void gusRenderFrameMenu();
 void gusQuit();
 
 #endif //VERMES_VERMES_H

@@ -69,7 +69,7 @@ bool CMap::NewFrom(CMap* map)
 	
 	bmpGreenMask = map->bmpGreenMask.get() ? GetCopiedImage(map->bmpGreenMask) : NULL;
 
-	if(gusIsLoaded()) {
+	if(map->gusIsLoaded()) {
 		if (!MiniCreate(Width, Height, MinimapWidth, MinimapHeight))
 			return false;
 		
@@ -219,9 +219,6 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 // Allocate a new map
 bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 {
-	if(Created)
-		Shutdown();
-	
 	Width = _width;
 	Height = _height;
 	MinimapWidth = _minimap_w;
@@ -1307,6 +1304,11 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 // IMPORTANT: hole and map must have same gfx format
 int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 {
+	if(gusIsLoaded()) {
+		// TODO ...
+		return 0;
+	}
+	
 	// Just clamp it and continue
 	size = MAX(size, 0);
 	size = MIN(size, 4);
@@ -3099,6 +3101,7 @@ void CMap::Shutdown()
 		savedMapCoords.clear();
 	}
 
+	gusShutdown();
 	Created = false;
 	FileName = "";
 

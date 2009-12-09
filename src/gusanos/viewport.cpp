@@ -27,7 +27,8 @@ void CViewport::gusInit()
 {
 	dest = 0;
 	hud = 0;
-
+	fadeBuffer = 0;
+	
 	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
 	//lua.pushLightReference(this, LuaBindings::viewportMetaTable);
 	luaReference = lua.createReference();
@@ -103,10 +104,12 @@ void CViewport::setDestination(BITMAP* where, int x, int y, int width, int heigh
 
 	m_listener = sfx.newListener();
 
+	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
 
 	if(!testLight) {
 		static int s = 500;
+		destroy_bitmap(testLight);
 		testLight = create_bitmap_ex(8, s, s);
 
 		for(int y = 0; y < s; ++y)
@@ -134,8 +137,26 @@ void CViewport::drawLight(IVec const& v)
 }
 
 
-void CViewport::render(CWormInputHandler* player)
+void CViewport::gusRender()
 {
+	{
+		int destx = Left/2;
+		int desty = Top/2;
+		int destw = Width;
+		int desth = Height;
+		bool needDestReset = false;
+		if(!dest) needDestReset = true;
+		else {
+			if(dest->sub_x != destx || dest->sub_y != desty || dest->w != destw || dest->h != desth )
+				needDestReset = true;
+		}
+		
+		if(needDestReset)
+			setDestination(gfx.buffer, destx, desty, destw, desth);
+	}
+	
+	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
+	
 	int offX = static_cast<int>(Left);
 	int offY = static_cast<int>(Top);
 

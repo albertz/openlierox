@@ -26,6 +26,7 @@
 #include "Physics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "Cache.h"
+#include "gusanos/gusanos.h"
 
 Game game;
 
@@ -120,6 +121,8 @@ void Game::frameInner()
 	
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
+	
+	gusLogicFrame();
 	
 	// Local
 	switch (tLX->iGameType)  {

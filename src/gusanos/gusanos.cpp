@@ -61,6 +61,8 @@ bool gusInitBase() {
 	if(!gusGame.init())
 		return false;
 	
+	console.parseLine("BIND F12 SCREENSHOT");
+	
 	//gusGame.refreshLevels();
 
 	return true;
@@ -72,12 +74,7 @@ bool gusInit(const std::string& mod) {
 	fpsCount = 0;
 	fps = 0;
 	logicLast = 0;
-	
-	if(!gusGame.init())
-		return false;
-	
-	console.parseLine("BIND F12 SCREENSHOT");
-	
+		
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
@@ -100,8 +97,7 @@ bool gusCanRunFrame() {
 	return !quit || !network.isDisconnected();
 }
 
-//main gusGame loop frame of Gusanos
-void gusFrame() {
+void gusLogicFrame() {
 	Uint32 timer = SDL_GetTicks() / 10;
 	
 	while ( logicLast + 1 <= timer )
@@ -167,19 +163,19 @@ void gusFrame() {
 		{
 			if ( (*iter)->deleteMe )
 			{
-/* Done in deleteThis()
-#ifdef USE_GRID
-				for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter)
-				{
-					objIter->removeRefsToPlayer(*iter);
-				}
-#else
-				for ( ObjectsList::Iterator objIter = gusGame.objects.begin(); (bool)objIter; ++objIter)
-				{
-					(*objIter)->removeRefsToPlayer(*iter);
-				}
-#endif
-*/
+				/* Done in deleteThis()
+				 #ifdef USE_GRID
+				 for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter)
+				 {
+				 objIter->removeRefsToPlayer(*iter);
+				 }
+				 #else
+				 for ( ObjectsList::Iterator objIter = gusGame.objects.begin(); (bool)objIter; ++objIter)
+				 {
+				 (*objIter)->removeRefsToPlayer(*iter);
+				 }
+				 #endif
+				 */
 				if ( CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*>(*iter) )
 				{
 					foreach ( p, gusGame.localPlayers )
@@ -191,16 +187,16 @@ void gusFrame() {
 						}
 					}
 				}
-/*
-				(*iter)->removeWorm();
-*/
+				/*
+				 (*iter)->removeWorm();
+				 */
 				(*iter)->deleteThis();
 				gusGame.players.erase(iter);
 			}
 		}
-
+		
 		network.update();
-
+		
 #ifndef DEDICATED_ONLY
 		console.checkInput();
 #endif
@@ -215,7 +211,7 @@ void gusFrame() {
 		
 		++logicLast;
 	}
-	
+
 #ifndef DEDICATED_ONLY
 	//Update FPS
 	if (fpsLast + 100 <= timer)
@@ -224,8 +220,11 @@ void gusFrame() {
 		fpsCount = 0;
 		fpsLast = timer;
 	}
+#endif	
+}
 
-
+void gusRenderFrameMenu() {	
+#ifndef DEDICATED_ONLY
 	if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
 	{
 

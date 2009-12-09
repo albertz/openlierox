@@ -995,7 +995,7 @@ void CWormHumanInputHandler::subThink()
 void CWormHumanInputHandler::render()
 {
 	if ( m_viewport ) {
-		m_viewport->render(this);
+		m_viewport->gusRender();
 	}
 }
 #endif

@@ -1901,14 +1901,13 @@ public:
 	
 	virtual bool parseData(CMap* m) {
 		curMap = m;
+		m->Shutdown();
+		
 		std::string f = "levels/" + GetBaseFilename(filename);
 		notes << "Gusanos level loader: using " << loader->getName() << " for " << f << endl;
 		
 		// TODO: abs filename
 		if(!loader->load(m, f))
-			return false;
-		
-		if(!m->material || !m->image)
 			return false;
 
 		// Allocate the map
@@ -1921,7 +1920,10 @@ public:
 				goto createMap;
 			}
 			return false;
-		}
+		}		
+		
+		if(!m->material || !m->image)
+			return false;
 		
 		SetColorKey(m->image->surf.get());
 

@@ -194,7 +194,7 @@ public:
 	void gusShutdown();
 	
 	void setDestination(BITMAP* where, int x, int y, int w, int h);
-	void render(CWormInputHandler* player);
+	void gusRender();
 		
 	void drawLight(IVec const& v); // TEMP
 	

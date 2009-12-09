@@ -52,8 +52,8 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
-
-
+#include "gusanos/gusanos.h"
+#include "gusanos/gfx.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -819,7 +819,17 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	// Set the clipping
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
+
+	const bool haveMap = cMap && cMap->isLoaded();
+	const bool gusanosDrawing = haveMap && cMap->gusIsLoaded();
 	
+	if(gusanosDrawing) {
+		v->gusRender();
+		//gusRenderFrameMenu();	
+		DrawImageScale2x(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
+		return;
+	}
+		
 	// Weather
 	//cWeather.Draw(bmpDest, v);
 	
@@ -885,7 +895,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
     CViewport *v = &cViewports[viewport_index];
 	if (!v->getUsed())
 		return;
-
+	
 	{
 		float sizeFactor = cClient->getGameLobby()->features[FT_SizeFactor];
 		if(sizeFactor == 1.0f)
