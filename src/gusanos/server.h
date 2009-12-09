@@ -3,7 +3,7 @@
 
 #ifndef DISABLE_ZOIDCOM
 
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 
 #include "netstream.h"
 #include <map>
@@ -14,7 +14,7 @@ class Server : public Net_Control
 private:
 	// Flag to refuse connection while waiting for all players to aknowledge disconnection
 	bool m_preShutdown;
-	std::map<unsigned int, boost::shared_ptr<BasePlayer::Stats> > savedScores;
+	std::map<unsigned int, boost::shared_ptr<CWormInputHandler::Stats> > savedScores;
 	
 public:
 	Server( int _udpport );

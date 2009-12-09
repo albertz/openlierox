@@ -8,7 +8,7 @@
 #include "gconsole.h"
 //#include "text.h"
 #include "net_worm.h"
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include "particle.h"
 #include "util/macros.h"
 #include "util/log.h"
@@ -164,7 +164,7 @@ namespace
 	void registerClasses() // Factorization of class registering in client and server
 	{
 		NetWorm::classID = m_control->Net_registerClass("worm",0);
-		BasePlayer::classID = m_control->Net_registerClass("player",0);
+		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
 		Game::classID = m_control->Net_registerClass("game",0);
 		Updater::classID = m_control->Net_registerClass("updater",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);

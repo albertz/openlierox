@@ -14,6 +14,12 @@
 #define __CWORMHUMAN_H__
 
 #include "CWorm.h"
+#include "game/WormInputHandler.h"
+
+
+struct BITMAP;
+class PlayerOptions;
+class CViewport;
 
 
 class CWormHumanInputHandler : public CWormInputHandler {
@@ -60,6 +66,47 @@ public:
 	void		initInputSystem();
 	void		stopInputSystem();
 	
+	
+	
+	// ---------------------- Gusanos -------------------------
+	
+public:
+	
+	enum Actions
+	{
+		LEFT = 0,
+		RIGHT,
+		UP,
+		DOWN,
+		FIRE,
+		JUMP,
+		CHANGE,
+		ACTION_COUNT,
+	};
+	
+	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
+	void gusShutdown();
+	
+	void subThink();
+#ifndef DEDICATED_ONLY
+	void render();
+	
+	void assignViewport(CViewport* CViewport);
+#endif
+	void actionStart( Actions action );
+	void actionStop( Actions action );
+	
+private:
+	
+	bool aimingUp;
+	bool aimingDown;
+	bool changing;
+	bool jumping;
+	bool walkingLeft;
+	bool walkingRight;
+#ifndef DEDICATED_ONLY
+	CViewport* m_viewport;
+#endif
 };
 
 #endif  //  __CWORMHUMAN_H__

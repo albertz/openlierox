@@ -1,12 +1,13 @@
 #include "player_ai.h"
 #include "player_options.h"
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include "worm.h"
 #include "game.h"
 #include "weapon.h"
 #include "util/angle.h"
 #include "util/vec.h"
 #include "CMap.h"
+#include "CWorm.h"
 #include <vector>
 #include <list>
 #include <cmath>
@@ -93,8 +94,8 @@ bool check_materials( int x1, int y1, int x2, int y2 )
    }
 }
 
-PlayerAI::PlayerAI(int team_, BaseWorm* worm)
-: BasePlayer(shared_ptr<PlayerOptions>(new PlayerOptions("bot")), worm)
+PlayerAI::PlayerAI(int team_, CWorm* worm)
+: CWormInputHandler(shared_ptr<PlayerOptions>(new PlayerOptions("bot")), worm)
 , m_pathSteps(100)
 , m_target(0)
 , m_thinkTime(0)
@@ -113,7 +114,7 @@ PlayerAI::~PlayerAI()
 
 bool PlayerAI::checkMaterialsTo( const Vec& pos )
 {
-	return check_materials( (int)m_worm->pos.x, (int)m_worm->pos.y, (int)pos.x, (int)pos.y );
+	return check_materials( (int)m_worm->pos().x, (int)m_worm->pos().y, (int)pos.x, (int)pos.y );
 }
 
 // getTarget assumes that a m_worm is a valid pointer, please dont call this if m_worm is null or sth
@@ -127,11 +128,11 @@ void PlayerAI::getTarget()
 	{
 		if ( worm->getOwner() != this )
 		if ( !game.options.teamPlay || (worm->getOwner()->team != team || team == -1) )
-		if ( BaseWorm * tmpWorm = dynamic_cast<BaseWorm*>(&*worm) )
+		if ( CWorm * tmpWorm = dynamic_cast<CWorm*>(&*worm) )
 		if ( tmpWorm->isActive() )
 		{
-			bool blocked = checkMaterialsTo( worm->pos );
-			float dist = ( m_worm->pos - worm->pos ).length();
+			bool blocked = checkMaterialsTo( worm->pos() );
+			float dist = ( m_worm->pos() - worm->pos() ).GetLength();
 			bool distIsShorter = dist < tmpDist;
 			if ( ( !blocked && ( m_targetBlocked || distIsShorter ) ) || ( blocked && m_targetBlocked && distIsShorter ) || tmpDist < 0 )
 			{
@@ -145,9 +146,9 @@ void PlayerAI::getTarget()
 	ObjectsList::ColLayerIterator worm;
 	for ( worm = game.objects.colLayerBegin(Game::WORMS_COLLISION_LAYER); worm; ++worm)
 	{
-		BaseWorm *tmpWorm;
+		CWorm *tmpWorm;
 		if ( (*worm)->getOwner() != this )
-		if ( ( tmpWorm = dynamic_cast<BaseWorm*>(*worm) ) && tmpWorm->isActive() )
+		if ( ( tmpWorm = dynamic_cast<CWorm*>(*worm) ) && tmpWorm->isActive() )
 		{
 			bool blocked = checkMaterialsTo( (*worm)->pos );
 			bool distIsShorter = ( m_worm->pos - (*worm)->pos ).length() < tmpDist;
@@ -164,8 +165,8 @@ void PlayerAI::getTarget()
 
 void PlayerAI::getPath()
 {
-	Vec pos = m_worm->pos;		//AI position
-	Vec target = m_worm->pos;		//Target position
+	Vec pos = m_worm->pos();		//AI position
+	Vec target = m_worm->pos();		//Target position
 	
 	//create "nodes" array
 	for (int y = 0; y < 128; y++)
@@ -192,8 +193,8 @@ void PlayerAI::subThink()
 		if (!m_target)
 			return;
 		
-		Vec pos = m_worm->pos;		//AI position
-		Vec target = m_target->pos;	//Target position
+		Vec pos = m_worm->pos();		//AI position
+		Vec target = m_target->pos();	//Target position
 		
 		if ( m_worm->isActive() )
 		if ( pos.x < target.x )
@@ -241,7 +242,7 @@ void PlayerAI::subThink()
 		}
 	
 	
-		if ( ( m_worm->getCurrentWeapon()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
+		if ( ( m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
 		{
 			m_worm->changeWeaponTo(m_worm->getWeaponIndexOffset( rand() % 50 ) );
 		}
@@ -262,8 +263,8 @@ void PlayerAI::subThink()
 	{
 		if ( m_target )
 		{
-			Vec pos = m_worm->pos;		//AI position
-			Vec target = m_target->pos;	//Target position
+			Vec pos = m_worm->pos();		//AI position
+			Vec target = m_target->pos();	//Target position
 			
 			Vec tmpVec = ( target - pos );
 			if ( tmpVec.x < 0 ) tmpVec.x = -tmpVec.x;

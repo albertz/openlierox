@@ -1,6 +1,6 @@
 #include "worm.h"
 
-Worm::Worm() : BaseWorm()
+Worm::Worm() : CWorm()
 {}
 
 Worm::~Worm()
@@ -8,8 +8,8 @@ Worm::~Worm()
 
 void Worm::think()
 {
-	BaseWorm::think();
+	CWorm::think();
 #ifndef DEDICATED_ONLY
-	renderPos = pos;
+	renderPos = pos();
 #endif
 }

@@ -6,9 +6,9 @@
 #include "game.h"
 #include "weapon.h"
 #include "weapon_type.h"
-#include "base_worm.h"
-#include "base_object.h"
-#include "base_player.h"
+#include "CWorm.h"
+#include "CGameObject.h"
+#include "game/WormInputHandler.h"
 #include "player_options.h"
 #include "ninjarope.h"
 #include "network.h"
@@ -26,7 +26,7 @@ using namespace std;
 
 Net_ClassID NetWorm::classID = Net_Invalid_ID;
 
-NetWorm::NetWorm(bool isAuthority) : BaseWorm()
+NetWorm::NetWorm(bool isAuthority) : CWorm()
 {
 	timeSinceLastUpdate = 1;
 	
@@ -43,7 +43,7 @@ NetWorm::NetWorm(bool isAuthority) : BaseWorm()
 		
 		//m_node->setInterceptID( static_cast<Net_InterceptID>(Position) );
 		
-		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos, &spd, game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
+		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
 		
 		static Net_ReplicatorSetup nrSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 		
@@ -102,11 +102,11 @@ void NetWorm::addEvent(Net_BitStream* data, NetWorm::NetEvents event)
 
 void NetWorm::think()
 {
-	BaseWorm::think();
+	CWorm::think();
 #ifndef DEDICATED_ONLY
 	//renderPos += (pos - renderPos)*0.2;
-	double fact = 1.0 / (1.0 + Vec(renderPos, pos).length() / 4.0);
-	renderPos = renderPos * (1.0 - fact) + pos * fact;
+	double fact = 1.0 / (1.0 + Vec(renderPos, pos()).length() / 4.0);
+	renderPos = renderPos * (1.0 - fact) + Vec(pos()) * fact;
 #endif
 
 	++timeSinceLastUpdate;
@@ -141,8 +141,8 @@ void NetWorm::think()
 						pos.y = data->getFloat(32);
 						spd.x = data->getFloat(32);
 						spd.y = data->getFloat(32);*/
-						pos = game.level().vectorEncoding.decode<Vec>(*data);
-						spd = game.level().vectorEncoding.decode<Vec>(*data);
+						pos() = game.level().vectorEncoding.decode<Vec>(*data);
+						velocity() = game.level().vectorEncoding.decode<Vec>(*data);
 					}
 					break;
 					case Respawn:
@@ -150,20 +150,20 @@ void NetWorm::think()
 						Vec newpos = game.level().vectorEncoding.decode<Vec>(*data);
 						//newpos.x = data->getFloat(32);
 						//newpos.y = data->getFloat(32);
-						BaseWorm::respawn( newpos );
+						CWorm::respawn( newpos );
 					}
 					break;
 					case Dig:
 					{
 						Vec digPos = game.level().vectorEncoding.decode<Vec>(*data);
 						Angle digAngle = Angle((int)data->getInt(Angle::prec));
-						BaseWorm::dig(digPos, digAngle);
+						CWorm::dig(digPos, digAngle);
 					}
 					break;
 					case Die:
 					{
 						m_lastHurt = game.findPlayerWithID( data->getInt(32) );
-						BaseWorm::die();
+						CWorm::die();
 					}
 					break;
 					case ChangeWeapon:
@@ -188,20 +188,20 @@ void NetWorm::think()
 						{
 							size_t weaponIndex = Encoding::decode(*data, game.weaponList.size());
 							if(weaponIndex < game.weaponList.size())
-								BaseWorm::setWeapon( index, game.weaponList[weaponIndex] );
+								CWorm::setWeapon( index, game.weaponList[weaponIndex] );
 							else
-								BaseWorm::setWeapon( index, 0 );
+								CWorm::setWeapon( index, 0 );
 						}
 						else
 						{
-							BaseWorm::setWeapon( index, 0 );
+							CWorm::setWeapon( index, 0 );
 						}
 					}
 					break;
 					case ClearWeapons:
 					{
 						DLOG("Clearing weapons");
-						BaseWorm::clearWeapons();
+						CWorm::clearWeapons();
 					}
 					break;
 					case SYNC:
@@ -210,7 +210,7 @@ void NetWorm::think()
 						m_ninjaRope->active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(game.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
-						BaseWorm::clearWeapons();
+						CWorm::clearWeapons();
 						while ( data->getBool() )
 						{
 							size_t index = Encoding::decode(*data, m_weapons.size());
@@ -275,14 +275,14 @@ void NetWorm::correctOwnerPosition()
 	data->addFloat(pos.y,32);
 	data->addFloat(spd.x,32);
 	data->addFloat(spd.y,32);*/
-	game.level().vectorEncoding.encode<Vec>(*data, pos); // ...nah ;o
-	game.level().vectorEncoding.encode<Vec>(*data, spd);
+	game.level().vectorEncoding.encode<Vec>(*data, pos()); // ...nah ;o
+	game.level().vectorEncoding.encode<Vec>(*data, velocity());
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
-void NetWorm::assignOwner( BasePlayer* owner)
+void NetWorm::assignOwner( CWormInputHandler* owner)
 {
-	BaseWorm::assignOwner(owner);
+	CWorm::assignOwner(owner);
 	m_playerID = m_owner->getNodeID();
 }
 
@@ -337,7 +337,7 @@ void NetWorm::respawn()
 {
 	if ( m_isAuthority && m_node )
 	{
-		BaseWorm::respawn();
+		CWorm::respawn();
 		if ( m_isActive )
 		{
 			Net_BitStream *data = new Net_BitStream;
@@ -345,7 +345,7 @@ void NetWorm::respawn()
 			/*
 			data->addFloat(pos.x,32);
 			data->addFloat(pos.y,32);*/
-			game.level().vectorEncoding.encode<Vec>(*data, pos);
+			game.level().vectorEncoding.encode<Vec>(*data, pos());
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
 	}
@@ -355,12 +355,12 @@ void NetWorm::dig()
 {
 	if ( m_isAuthority && m_node )
 	{
-		BaseWorm::dig();
+		CWorm::dig();
 		if ( m_isActive )
 		{
 			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, Dig);
-			game.level().vectorEncoding.encode<Vec>(*data, pos);
+			game.level().vectorEncoding.encode<Vec>(*data, pos());
 			data->addInt(int(getAngle()), Angle::prec);
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 		}
@@ -382,7 +382,7 @@ void NetWorm::die()
 			data->addInt( INVALID_NODE_ID, 32 );
 		}
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		BaseWorm::die();
+		CWorm::die();
 	}
 }
 
@@ -394,7 +394,7 @@ void NetWorm::changeWeaponTo( unsigned int weapIndex )
 		addEvent(data, ChangeWeapon);
 		Encoding::encode(*data, weapIndex, m_weapons.size());
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_PROXY, data);
-		BaseWorm::changeWeaponTo( weapIndex );
+		CWorm::changeWeaponTo( weapIndex );
 	}
 }
 
@@ -402,7 +402,7 @@ void NetWorm::setWeapon( size_t index, WeaponType* type )
 {
 	if ( !network.isClient() )
 	{
-		BaseWorm::setWeapon( index, type );
+		CWorm::setWeapon( index, type );
 		if ( m_node )
 		{
 			Net_BitStream *data = new Net_BitStream;
@@ -423,7 +423,7 @@ void NetWorm::clearWeapons()
 {
 	if ( !network.isClient() )
 	{
-		BaseWorm::clearWeapons();
+		CWorm::clearWeapons();
 		if ( m_node )
 		{
 			Net_BitStream *data = new Net_BitStream;
@@ -433,17 +433,17 @@ void NetWorm::clearWeapons()
 	}
 }
 
-void NetWorm::damage( float amount, BasePlayer* damager )
+void NetWorm::damage( float amount, CWormInputHandler* damager )
 {
 	if ( m_isAuthority )
 	{
-		BaseWorm::damage( amount, damager );
+		CWorm::damage( amount, damager );
 	}
 }
 
 void NetWorm::finalize()
 {
-	BaseWorm::finalize();
+	CWorm::finalize();
 	delete m_node; m_node = 0;
 	delete m_interceptor; m_interceptor = 0;
 }
@@ -460,7 +460,7 @@ bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNe
 		case NetWorm::PlayerID:
 		{
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
-			list<BasePlayer*>::iterator playerIter;
+			list<CWormInputHandler*>::iterator playerIter;
 			for ( playerIter = game.players.begin(); playerIter != game.players.end(); playerIter++)
 			{
 				if ( (*playerIter)->getNodeID() == recievedID )

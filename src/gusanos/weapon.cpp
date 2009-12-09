@@ -1,7 +1,7 @@
 #include "weapon.h"
 #include "weapon_type.h"
 #include "events.h"
-#include "base_worm.h"
+#include "CWorm.h"
 #include "game.h"
 #include "util/vec.h"
 #include "util/angle.h"
@@ -16,11 +16,11 @@
 
 #include <iostream>
 
-class BaseObject;
+class CGameObject;
 
 LuaReference Weapon::metaTable;
 
-Weapon::Weapon(WeaponType* type, BaseWorm* owner)
+Weapon::Weapon(WeaponType* type, CWorm* owner)
 {
 	m_type = type;
 	m_owner = owner;
@@ -178,7 +178,7 @@ void Weapon::drawBottom(BITMAP* where, int x, int y )
 		}
 		Vec posDiff;
 		float intensity = m_type->laserSightIntensity;
-		while ( game.level().getMaterial( (int)(m_owner->pos.x+posDiff.x), (int)(m_owner->pos.y+posDiff.y) ).particle_pass ) {
+		while ( game.level().getMaterial( (int)(m_owner->pos().x+posDiff.x), (int)(m_owner->pos().y+posDiff.y) ).particle_pass ) {
 			if ( rnd() < intensity ) {
 				if ( m_type->laserSightBlender != NONE )
 					gfx.setBlender( m_type->laserSightBlender, m_type->laserSightAlpha );
@@ -286,7 +286,7 @@ void Weapon::actionStop( Actions action )
 	}
 }
 
-BaseWorm* Weapon::getOwner()
+CWorm* Weapon::getOwner()
 {
 	return m_owner;
 }

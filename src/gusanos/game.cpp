@@ -1,12 +1,12 @@
 #include "game.h"
 
-#include "base_worm.h"
+#include "CWorm.h"
 #include "worm.h"
 #include "part_type.h"
 #include "exp_type.h"
 #include "weapon_type.h"
-#include "base_object.h"
-#include "player.h"
+#include "CGameObject.h"
+#include "CWormHuman.h"
 #include "player_options.h"
 #include "particle.h"
 #include "explosion.h"
@@ -15,7 +15,7 @@
 #include "level.h"
 #include "gconsole.h"
 #include "game_actions.h"
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include "proxy_player.h"
 #include "gfx.h"
 #include "sprite_set.h"
@@ -241,10 +241,10 @@ string rConCompleter(Console* con, int idx, std::string const& beginning)
 	return con->completeCommand(beginning);
 }
 
-BasePlayer* findPlayerByName(std::string const& name)
+CWormInputHandler* findPlayerByName(std::string const& name)
 {
-	//BasePlayer* player2Kick = 0;
-	//for ( std::list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+	//CWormInputHandler* player2Kick = 0;
+	//for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 	foreach(iter, game.players)
 	{
 		if ( (*iter)->m_name == name )
@@ -260,7 +260,7 @@ string banCmd(list<string> const& args)
 {
 	if ( !network.isClient() && !args.empty() )
 	{
-		if ( BasePlayer* player = findPlayerByName(*args.begin()))
+		if ( CWormInputHandler* player = findPlayerByName(*args.begin()))
 		if ( !player->local )
 		{
 			network.ban( player->getConnectionID() );
@@ -275,7 +275,7 @@ string kickCmd(const list<string> &args)
 {
 	if ( !network.isClient() && !args.empty() )
 	{
-		if ( BasePlayer* player2Kick = findPlayerByName(*args.begin()))
+		if ( CWormInputHandler* player2Kick = findPlayerByName(*args.begin()))
 		if ( !player2Kick->local )
 		{
 			player2Kick->deleteMe = true;
@@ -541,13 +541,13 @@ void Game::think()
 				{
 					if(true)
 					{
-						BaseWorm* worm = addWorm(true);
+						CWorm* worm = addWorm(true);
 						addPlayer ( OWNER, -1, worm );
 						//player->assignWorm(worm);
 					}
 					if(options.splitScreen)
 					{
-						BaseWorm* worm = addWorm(true);
+						CWorm* worm = addWorm(true);
 						addPlayer ( OWNER, -1, worm );
 						//player->assignWorm(worm);
 					}
@@ -769,7 +769,7 @@ void Game::runInitScripts()
 void Game::reset(ResetReason reason)
 {
 	// Delete all players
-	for ( list<BasePlayer*>::iterator iter = players.begin(); iter != players.end(); ++iter)
+	for ( list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
 	{
 		(*iter)->deleteThis();
 	}
@@ -815,7 +815,7 @@ void Game::unload()
 	reset(LoadingLevel);
 /*
 	// Delete all players
-	for ( list<BasePlayer*>::iterator iter = players.begin(); iter != players.end(); ++iter)
+	for ( list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
 	{
 		(*iter)->deleteThis();
 	}
@@ -951,16 +951,16 @@ void Game::refreshMods()
 
 void Game::createNetworkPlayers()
 {
-	BaseWorm* worm = addWorm(true);
-	BasePlayer* player = addPlayer ( OWNER, -1, worm );
+	CWorm* worm = addWorm(true);
+	CWormInputHandler* player = addPlayer ( OWNER, -1, worm );
 	player->assignNetworkRole(true);
 	//player->assignWorm(worm);
 
 	if(options.splitScreen)
 	{
 		// TODO: Factorize all this out, its being duplicated on client.cpp also :O
-		BaseWorm* worm = addWorm(true); 
-		BasePlayer* player = addPlayer ( OWNER, -1, worm );
+		CWorm* worm = addWorm(true); 
+		CWormInputHandler* player = addPlayer ( OWNER, -1, worm );
 		player->assignNetworkRole(true);
 		//player->assignWorm(worm);
 	}
@@ -1116,7 +1116,7 @@ void Game::displayChatMsg( std::string const& owner, std::string const& message)
 #endif
 }
 
-void Game::displayKillMsg( BasePlayer* killed, BasePlayer* killer )
+void Game::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer )
 {
 	std::string str = "{" + killed->m_name + "} ";
 	
@@ -1157,9 +1157,9 @@ std::string const& Game::getDefaultPath()
 	return m_defaultPath;
 }
 
-BasePlayer* Game::findPlayerWithID( Net_NodeID ID )
+CWormInputHandler* Game::findPlayerWithID( Net_NodeID ID )
 {
-	list<BasePlayer*>::iterator playerIter;
+	list<CWormInputHandler*>::iterator playerIter;
 	for ( playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		if ( (*playerIter)->getNodeID() == ID )
@@ -1179,16 +1179,17 @@ void Game::insertExplosion( Explosion* explosion )
 #endif
 }
 
-BasePlayer* Game::addPlayer( PLAYER_TYPE type, int team, BaseWorm* worm )
+CWormInputHandler* Game::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 {
-	BasePlayer* p = 0;
+	CWormInputHandler* p = 0;
 	switch(type)
 	{
 		
 		case OWNER:
 		{
 			if ( localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
-			Player* player = new Player( playerOptions[localPlayers.size()], worm );
+			// TODO: game::addplayer
+			CWormHumanInputHandler* player = NULL; // new CWormHumanInputHandler( playerOptions[localPlayers.size()], worm );
 #ifndef DEDICATED_ONLY
 			CViewport* viewport = new CViewport;
 			if ( options.splitScreen )
@@ -1238,9 +1239,9 @@ BasePlayer* Game::addPlayer( PLAYER_TYPE type, int team, BaseWorm* worm )
 	return p;
 }
 
-BaseWorm* Game::addWorm(bool isAuthority)
+CWorm* Game::addWorm(bool isAuthority)
 {
-	BaseWorm* returnWorm = NULL;
+	CWorm* returnWorm = NULL;
 	if ( network.isHost() || network.isClient() )
 	{
 		NetWorm* netWorm = new NetWorm(isAuthority);
@@ -1256,7 +1257,7 @@ BaseWorm* Game::addWorm(bool isAuthority)
 	objects.insertImmediately(returnWorm->getNinjaRopeObj(), 1, 1);
 #else
 	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, returnWorm);
-	objects.insert( 1,1, (BaseObject*)returnWorm->getNinjaRopeObj() );
+	objects.insert( 1,1, (CGameObject*)returnWorm->getNinjaRopeObj() );
 #endif
 
 	return returnWorm;
@@ -1266,8 +1267,8 @@ void Game::addBot(int team)
 {
 	if ( loaded && level().gusIsLoaded() )
 	{
-		BaseWorm* worm = addWorm(true); 
-		BasePlayer* player = addPlayer(AI, team, worm);
+		CWorm* worm = addWorm(true); 
+		CWormInputHandler* player = addPlayer(AI, team, worm);
 		if ( network.isHost() ) player->assignNetworkRole(true);
 		//player->assignWorm(worm);
 	}

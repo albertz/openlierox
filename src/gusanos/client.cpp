@@ -3,7 +3,7 @@
 #include "net_worm.h"
 #include "particle.h"
 #include "part_type.h"
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include "game.h"
 #include "updater.h"
 #include "network.h"
@@ -265,22 +265,22 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 	if ( _requested_class == NetWorm::classID )
 	{
 		game.addWorm(false);
-	}else if ( _requested_class == BasePlayer::classID )
+	}else if ( _requested_class == CWormInputHandler::classID )
 	{
 		// Creates a player class depending on the role
 		if( _role == eNet_RoleOwner )
 		{
-			BasePlayer* player = game.addPlayer ( Game::OWNER );
+			CWormInputHandler* player = game.addPlayer ( Game::OWNER );
 			player->assignNetworkRole(false);
 		}else
 		{
-			BasePlayer* player = game.addPlayer ( Game::PROXY );
+			CWormInputHandler* player = game.addPlayer ( Game::PROXY );
 			player->assignNetworkRole(false);
 		}
 	}else if( _requested_class == Particle::classID )
 	{
 		int typeIndex = Encoding::decode(*_announcedata, partTypeList.size());
-		BasePlayer* owner = game.findPlayerWithID(_announcedata->getInt(32));
+		CWormInputHandler* owner = game.findPlayerWithID(_announcedata->getInt(32));
 		newParticle_requested(partTypeList[typeIndex], Vec(), Vec(), 1, owner, Angle());
 	}else
 	{

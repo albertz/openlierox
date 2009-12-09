@@ -1,18 +1,29 @@
-#ifndef BASE_PLAYER_H
-#define BASE_PLAYER_H
+/*
+ *  WormInputHandler.h
+ *  OpenLieroX
+ *
+ *  Created by Albert Zeyer on 08.12.09.
+ *  code under LGPL
+ *
+ */
 
+#ifndef __WORMINPUTHANDLER_H__
+#define __WORMINPUTHANDLER_H__
+
+#include <SDL.h>
 #include <string>
+
+#include "gusanos/netstream.h"
+
 //#include "vec.h"
-#include "lua51/luaapi/types.h"
+#include "gusanos/lua51/luaapi/types.h"
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <vector>
 using boost::shared_ptr;
 
-#include "netstream.h"
-
 struct PlayerOptions;
-class BaseWorm;
+class CWorm;
 class BasePlayerInterceptor;
 class WeaponType;
 struct LuaEventDef;
@@ -21,18 +32,46 @@ struct LuaEventDef;
 // For example: Activating JUMP and CHANGE does nothing here ( instead 
 // of shooting the Ninja Rope ) So key combinations should be created
 // on the Player class instead. Because of that, all actions in the 
-// BasePlayer class are direct ( they do nothing more and nothing less
+// CWormInputHandler class are direct ( they do nothing more and nothing less
 // than what the name tells )
 
-// Note2: All access to the worm class from a derivation of BasePlayer
-// should pass by the BasePlayer class ( This is because the BasePlayer
+// Note2: All access to the worm class from a derivation of CWormInputHandler
+// should pass by the CWormInputHandler class ( This is because the CWormInputHandler
 // class will be responsible of the network part )
 
 #define COMPACT_EVENTS
 #define COMPACT_ACTIONS
 
-class BasePlayer
-{
+
+class CWorm;
+class CViewport;
+
+class CWormInputHandler {
+protected:
+	CWorm* m_worm;
+public: 
+	CWormInputHandler(CWorm* w) : m_worm(w) {}
+	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm) { gusInit(options, worm); }
+	virtual ~CWormInputHandler() { gusShutdown(); }
+	
+	virtual std::string name() = 0;
+	
+	virtual void initWeaponSelection() = 0; // should reset at least bWeaponsReady
+	virtual void doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) = 0;
+	
+	// simulation
+	virtual void startGame() {}
+	virtual void getInput() = 0;
+    virtual void clearInput() {}
+	
+	virtual void onRespawn() {}
+
+	
+	
+	// ------------------------------------------------------
+	// ----------------- Gusanos ----------------------------
+	// ----------------- CWormInputHandler -------------------------
+	
 public:
 	
 	enum BaseActions
@@ -87,26 +126,26 @@ public:
 	};
 	
 	//static LuaReference metaTable();
-
+	
 	// ClassID is Used by zoidcom to identify the class over the network,
 	// do not confuse with the node ID which identifies instances of the class.
 	static Net_ClassID  classID;
 	
-	BasePlayer(shared_ptr<PlayerOptions> options, BaseWorm* worm);
-	virtual ~BasePlayer();
+	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
+	virtual void gusShutdown();
 	
 	void think();
 	// subThink() gets called inside think() and its used to give the derivations
-	// the ability to think without replacing the main BasePlayer::think().
+	// the ability to think without replacing the main CWormInputHandler::think().
 	virtual void subThink() = 0;
 #ifndef DEDICATED_ONLY
 	virtual void render() {}
 #endif
-
+	
 	void assignNetworkRole( bool authority );
 	void setOwnerId( Net_ConnID id );
-
-	void assignWorm(BaseWorm* worm);
+	
+	void assignWorm(CWorm* worm);
 	void removeWorm();
 	
 	void sendChatMsg( std::string const& message );
@@ -119,30 +158,30 @@ public:
 	
 	void addKill();
 	void addDeath();
-
+	
 	Net_NodeID getNodeID();
 	Net_ConnID getConnectionID();
 	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
 	shared_ptr<PlayerOptions> getOptions();
-	BaseWorm* getWorm() { return m_worm; }
+	CWorm* getWorm() { return m_worm; }
 	
 	LuaReference getLuaReference();
 	void pushLuaReference();
 	virtual void deleteThis();
 	
-/*
-	void* operator new(size_t count);
-
-	void operator delete(void* block)
-	{
-
-	}
-	
-	void* operator new(size_t count, void* space)
-	{
-		return space;
-	}
-*/
+	/*
+	 void* operator new(size_t count);
+	 
+	 void operator delete(void* block)
+	 {
+	 
+	 }
+	 
+	 void* operator new(size_t count, void* space)
+	 {
+	 return space;
+	 }
+	 */
 	shared_ptr<Stats> stats;
 	
 	bool deleteMe;
@@ -151,7 +190,7 @@ public:
 	int colour;
 	int team;
 	bool local;
-
+	
 	LuaReference luaData;
 	
 	void selectWeapons( std::vector< WeaponType* > const& weaps );
@@ -173,10 +212,9 @@ protected:
 	void colorChangePetition_( int colour_ );
 	void changeTeam_( int team_ );
 	void teamChangePetition_( int team_ );
-
-	BaseWorm* m_worm;
+	
 	shared_ptr<PlayerOptions> m_options;
-
+	
 	bool m_isAuthority;
 	Net_Node *m_node;
 	BasePlayerInterceptor* m_interceptor;
@@ -184,12 +222,15 @@ protected:
 	Net_ConnID m_id;
 	
 	bool deleted; //TEMP
+	
+	
 };
+
 
 class BasePlayerInterceptor : public Net_NodeReplicationInterceptor
 {
 public:
-	BasePlayerInterceptor( BasePlayer* parent );
+	BasePlayerInterceptor( CWormInputHandler* parent );
 
 	bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent);
 
@@ -205,8 +246,9 @@ public:
 	virtual ~BasePlayerInterceptor()
 	{}
 private:
-	BasePlayer* m_parent;
+	CWormInputHandler* m_parent;
 };
 
 
-#endif  // _BASE_PLAYER_H_
+#endif
+

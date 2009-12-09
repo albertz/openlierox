@@ -2,7 +2,7 @@
 #include "player_input.h"
 
 #include "game.h"
-#include "player.h"
+#include "CWormHuman.h"
 #include "gconsole.h"
 #include "glua.h"
 #include "lua51/luaapi/context.h"
@@ -17,11 +17,11 @@
 
 using namespace std;
 
-string eventStart(size_t index, Player::Actions action, list<string> const& args)
+string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
 	if ( index < game.localPlayers.size() )
 	{
-		Player& player = *game.localPlayers[index];
+		CWormHumanInputHandler& player = *game.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -47,11 +47,11 @@ string eventStart(size_t index, Player::Actions action, list<string> const& args
 	return "";
 }
 
-string eventStop(size_t index, Player::Actions action, list<string> const& args)
+string eventStop(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
 	if ( index < game.localPlayers.size() )
 	{
-		Player& player = *game.localPlayers[index];
+		CWormHumanInputHandler& player = *game.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -86,11 +86,11 @@ void registerPlayerInput()
 			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE"
 		};
 		
-		for(int action = Player::LEFT; action < Player::ACTION_COUNT; ++action)
+		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{
 			console.registerCommands()
-				((S_("+P") << i << actionNames[action]), boost::bind(eventStart, i, (Player::Actions)action, _1))
-				((S_("-P") << i << actionNames[action]), boost::bind(eventStop, i, (Player::Actions)action, _1))
+				((S_("+P") << i << actionNames[action]), boost::bind(eventStart, i, (CWormHumanInputHandler::Actions)action, _1))
+				((S_("-P") << i << actionNames[action]), boost::bind(eventStop, i, (CWormHumanInputHandler::Actions)action, _1))
 			;
 		}
 	}

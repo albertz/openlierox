@@ -27,13 +27,13 @@ class BaseAnimator;
 class Sprite;
 #endif
 class DetectEvent;
-class BasePlayer;
+class CWormInputHandler;
 class PartType;
 class TimerEvent;
 
-typedef BaseObject* (*NewParticleFunc)(PartType* type, Vec pos_, Vec spd_, int dir, BasePlayer* owner, Angle angle);
+typedef CGameObject* (*NewParticleFunc)(PartType* type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle);
 
-BaseObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, BasePlayer* owner, Angle angle );
+CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle );
 
 class PartType : public ResourceBase
 {

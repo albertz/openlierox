@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <boost/utility.hpp>
-#include "base_object.h"
+#include "CGameObject.h"
 
 #include <iostream>
 #include <cassert>
@@ -363,13 +363,13 @@ public:
 	
 	static const int layerCount = ColLayerCount * RenderLayerCount;
 	
-	typedef List<BaseObject> ObjectList;
+	typedef List<CGameObject> ObjectList;
 	
 	struct Layer
 	{
 		struct Square
 		{
-			BaseObject* guardNode;
+			CGameObject* guardNode;
 			
 			ObjectList::light_iterator guard()
 			{
@@ -392,13 +392,13 @@ public:
 			}
 		}
 		
-		void insertDelayed(BaseObject* obj)
+		void insertDelayed(CGameObject* obj)
 		{
 			obj->nextS_ = firstDelayed;
 			firstDelayed = obj;
 		}
 		
-		void insertDelayedNoCol(BaseObject* obj)
+		void insertDelayedNoCol(CGameObject* obj)
 		{
 			obj->nextS_ = firstDelayedNoCol;
 			firstDelayedNoCol = obj;
@@ -406,10 +406,10 @@ public:
 		
 		void flushDelayed()
 		{
-			BaseObject* obj = firstDelayed;
+			CGameObject* obj = firstDelayed;
 			while(obj)
 			{
-				BaseObject* next = obj->nextS_;
+				CGameObject* next = obj->nextS_;
 				list.insertAfter(grid[obj->cellIndex_].guard(), obj);
 				obj = next;
 			}
@@ -419,7 +419,7 @@ public:
 			obj = firstDelayedNoCol;
 			while(obj)
 			{
-				BaseObject* next = obj->nextS_;
+				CGameObject* next = obj->nextS_;
 				list.insertS(obj);
 				obj = next;
 			}
@@ -428,8 +428,8 @@ public:
 		}
 		
 		std::vector<Square> grid;
-		BaseObject* firstDelayed;
-		BaseObject* firstDelayedNoCol;
+		CGameObject* firstDelayed;
+		CGameObject* firstDelayedNoCol;
 		ObjectList list;
 	};
 	
@@ -471,7 +471,7 @@ public:
 			
 			for(std::vector<Layer::Square>::reverse_iterator s = l->grid.rbegin(); s != l->grid.rend(); ++s)
 			{
-				s->guardNode = new BaseObject;
+				s->guardNode = new CGameObject;
 				l->list.insertD(s->guardNode);
 			}
 			
@@ -506,14 +506,14 @@ public:
 			return *this;
 		}
 		
-		BaseObject& operator*()
+		CGameObject& operator*()
 		{
 			return *curObj;
 		}
 		
-		BaseObject* operator->()
+		CGameObject* operator->()
 		{
-			return (BaseObject *)curObj;
+			return (CGameObject *)curObj;
 		}
 		
 		operator bool()
@@ -629,14 +629,14 @@ public:
 			return *this;
 		}
 		
-		BaseObject& operator*()
+		CGameObject& operator*()
 		{
 			return *curObj;
 		}
 		
-		BaseObject* operator->()
+		CGameObject* operator->()
 		{
-			return (BaseObject *)curObj;
+			return (CGameObject *)curObj;
 		}
 		
 		operator bool()
@@ -707,9 +707,9 @@ public:
 		return x + y*squaresH;
 	}
 	
-	void insert(BaseObject* obj, int colLayer, int renderLayer)
+	void insert(CGameObject* obj, int colLayer, int renderLayer)
 	{
-		int squareIndex = getListIndex(obj->pos);
+		int squareIndex = getListIndex(obj->pos());
 		obj->cellIndex_ = squareIndex;
 
 		Layer& layer = layers[colLayer + ColLayerCount*renderLayer];
@@ -717,15 +717,15 @@ public:
 		layer.insertDelayed(obj);
 	}
 	
-	void insert(BaseObject* obj, int renderLayer)
+	void insert(CGameObject* obj, int renderLayer)
 	{
 		Layer& layer = layers[NoColLayer + ColLayerCount*renderLayer];
 		layer.insertDelayedNoCol(obj);
 	}
 	
-	void insertImmediately(BaseObject* obj, int colLayer, int renderLayer)
+	void insertImmediately(CGameObject* obj, int colLayer, int renderLayer)
 	{
-		int cellIndex = getListIndex(obj->pos);
+		int cellIndex = getListIndex(obj->pos());
 		obj->cellIndex_ = cellIndex;
 
 		Layer& layer = layers[colLayer + ColLayerCount*renderLayer];
@@ -747,7 +747,7 @@ public:
 			return;
 		
 		int curIndex = o->cellIndex_;
-		int realIndex = getListIndex(o->pos);
+		int realIndex = getListIndex(o->pos());
 		if(realIndex != curIndex)
 		{
 			assert((unsigned int)realIndex < o.curLayer->grid.size());

@@ -2,8 +2,8 @@
 #include "gconsole.h"
 #include "game.h"
 #include "net_worm.h"
-#include "base_worm.h"
-#include "base_player.h"
+#include "CWorm.h"
+#include "game/WormInputHandler.h"
 #include "part_type.h"
 #include "player_options.h"
 #include "network.h"
@@ -62,11 +62,11 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 				int team = _data.getSignedInt(8);
 				unsigned int uniqueID = static_cast<unsigned int>(_data.getInt(32));
 
-				BaseWorm* worm = game.addWorm(true);
+				CWorm* worm = game.addWorm(true);
 				if ( NetWorm* netWorm = dynamic_cast<NetWorm*>(worm) ) {
 					netWorm->setOwnerId(_id);
 				}
-				BasePlayer* player = game.addPlayer ( Game::PROXY );
+				CWormInputHandler* player = game.addPlayer ( Game::PROXY );
 
 				let_(i, savedScores.find(uniqueID));
 				if(i != savedScores.end()) {
@@ -148,7 +148,7 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
-	for ( std::list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
+	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
 		if ( (*iter)->getConnectionID() == _id ) {
 			(*iter)->deleteMe = true;
 		}

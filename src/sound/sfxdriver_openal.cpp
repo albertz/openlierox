@@ -9,7 +9,7 @@
 #include "Debug.h"
 
 #include "gusanos/gconsole.h"
-#include "gusanos/base_object.h"
+#include "CGameObject.h"
 #include "util/macros.h"
 #include "sfxdriver_openal.h"
 #include "sound_sample_openal.h"

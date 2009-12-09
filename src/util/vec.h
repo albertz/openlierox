@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include "angle.h"
+#include "CVec.h"
 
 template<class T>
 struct BaseVec
@@ -46,6 +47,8 @@ struct BaseVec
 	: x(x_) , y(y_)
 	{
 	}
+	
+	BaseVec(const VectorD2<T>& v) : x(v.x), y(v.y) {}
 	
 	void zero()
 	{
@@ -141,6 +144,8 @@ struct BaseVec
 	{
 		return Angle::fromRad( atan2(double(x), double(-y)) );
 	}
+	
+	operator VectorD2<T>() { return VectorD2<T>(x,y); }
 	
 	T x;
 	T y;

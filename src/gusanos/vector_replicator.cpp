@@ -6,7 +6,7 @@
 using std::cerr;
 using std::endl;
 
-VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_) :
+VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data, Encoding::VectorEncoding& encoding_) :
 		Net_ReplicatorBasic(_setup),
 		m_ptr(_data), encoding(encoding_)
 {

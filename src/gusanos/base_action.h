@@ -1,19 +1,19 @@
 #ifndef BASE_ACTION_H
 #define BASE_ACTION_H
 
-class BaseObject;
-class BaseWorm;
+class CGameObject;
+class CWorm;
 class Weapon;
 
 struct ActionParams
 {
-	ActionParams( BaseObject *object_, BaseObject *object2_, BaseWorm *worm_, Weapon *weapon_ ) :
+	ActionParams( CGameObject *object_, CGameObject *object2_, CWorm *worm_, Weapon *weapon_ ) :
 			object(object_), object2(object2_), worm(worm_), weapon(weapon_)
 	{
 	}
-	BaseObject* object;
-	BaseObject *object2;
-	BaseWorm *worm;
+	CGameObject* object;
+	CGameObject *object2;
+	CWorm *worm;
 	Weapon *weapon;
 };
 

@@ -6,8 +6,8 @@
 
 #include "../network.h"
 #include "../game.h"
-#include "../base_player.h"
-#include "../base_worm.h"
+#include "game/WormInputHandler.h"
+#include "CWorm.h"
 #include "../particle.h"
 #include "../encoding.h"
 #include "util/log.h"
@@ -216,14 +216,14 @@ LUA_EVENT_SEND_METHOD(game, 0, /* no declarations */, /* no cases */,
 
 	Sends a player event to one or more computers.
 	
-	//player// is the Player object to send the event on.
+	//player// is the CWormHumanInputHandler object to send the event on.
 	
 	See NetworkGameEvent:send for documentation of the other parameters.
 */
 LUA_EVENT_SEND_METHOD(player, 1,
-	BasePlayer* player = 0;
+	CWormInputHandler* player = 0;
 ,
-	case 2: player = ASSERT_OBJECT(BasePlayer, 2);
+	case 2: player = ASSERT_OBJECT(CWormInputHandler, 2);
 ,
 	if(player)
 		player->sendLuaEvent(p, mode, rules, userdata, connID);
@@ -238,9 +238,9 @@ LUA_EVENT_SEND_METHOD(player, 1,
 	See NetworkGameEvent:send for documentation of the other parameters.
 */
 LUA_EVENT_SEND_METHOD(worm, 1,
-	BaseWorm* worm = 0;
+	CWorm* worm = 0;
 ,
-	case 2: worm = ASSERT_OBJECT(BaseWorm, 2);
+	case 2: worm = ASSERT_OBJECT(CWorm, 2);
 ,
 	if(worm)
 		worm->sendLuaEvent(p, mode, rules, userdata, connID);
@@ -302,7 +302,7 @@ int l_network_game_event(lua_State* L)
 	function(event, player, data)
 	</code>
 	Where //event// is the NetworkPlayerEvent returned by //network_player_event//, //player//
-	is the Player object the event was sent on, and //data// is a bitstream with data sent
+	is the CWormHumanInputHandler object the event was sent on, and //data// is a bitstream with data sent
 	with the event.
 */
 int l_network_player_event(lua_State* L)
@@ -313,7 +313,7 @@ int l_network_player_event(lua_State* L)
 	lua_pushvalue(context, 2);
 	LuaReference ref = context.createReference();
 	LuaEventDef* event = lua_new_m_keep(LuaEventDef, (name, ref), context, LuaPlayerEventMetaTable);
-	event = network.addLuaEvent(Network::LuaEventGroup::Player, name, event);
+	event = network.addLuaEvent(Network::LuaEventGroup::CWormHumanInputHandler, name, event);
 
 	return 1;
 }

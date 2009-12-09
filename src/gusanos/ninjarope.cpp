@@ -3,7 +3,7 @@
 #include "util/vec.h"
 #include "util/macros.h"
 #include "game.h"
-#include "base_object.h"
+#include "CGameObject.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
 #include "sprite_set.h"
@@ -19,7 +19,7 @@
 
 using namespace std;
 
-NinjaRope::NinjaRope(PartType *type, BaseObject* worm)
+NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 : m_worm(worm)
 {
 	justCreated = false;
@@ -47,15 +47,15 @@ NinjaRope::NinjaRope(PartType *type, BaseObject* worm)
 
 void NinjaRope::shoot(Vec _pos, Vec _spd)
 {
-	pos = _pos;
-	spd = _spd;
+	pos() = _pos;
+	velocity() = _spd;
 	m_length = game.options.ninja_rope_startDistance;
 	
 	justCreated = true;
 	active = true;
 	attached = false;
 	
-	m_angle = spd.getAngle();
+	m_angle = Vec(velocity()).getAngle();
 	m_angleSpeed = 0;
 	
 	//for ( vector< TimerEvent::State >::iterator t = timer.begin(); t != timer.end(); t++)
@@ -88,13 +88,13 @@ void NinjaRope::think()
 	
 	for ( int i = 0; !deleteMe && i < m_type->repeat; ++i)
 	{
-		pos += spd;
+		pos() += velocity();
 		
-		BaseVec<long> ipos(pos);
+		BaseVec<long> ipos = BaseVec<long>(Vec(pos()));
 		
 		// TODO: Try to attach to worms/objects
 				
-		Vec diff(m_worm->pos, pos);
+		Vec diff(m_worm->pos(), pos());
 		float curLen = diff.length();
 		Vec force(diff * game.options.ninja_rope_pullForce);
 		
@@ -111,7 +111,7 @@ void NinjaRope::think()
 			{
 				m_length = 450.f / 16.f - 1.0f;
 				attached = true;
-				spd.zero();
+				velocity() = CVec();
 				if ( m_type->groundCollision  )
 					m_type->groundCollision->run(this);
 			}
@@ -128,11 +128,11 @@ void NinjaRope::think()
 		}
 		else
 		{
-			spd.y += m_type->gravity;
+			velocity().y += m_type->gravity;
 			
 			if(curLen > m_length)
 			{
-				spd -= force / curLen;
+				velocity() -= force / curLen;
 			}
 		}
 		
@@ -214,16 +214,16 @@ int NinjaRope::getColour()
 	return m_type->colour;
 }
 
-Vec& NinjaRope::getPosReference()
+CVec& NinjaRope::getPosReference()
 {
-	return pos;
+	return pos();
 }
 
 #ifndef DEDICATED_ONLY
 void NinjaRope::draw(CViewport *viewport)
 {
 	BITMAP* where = viewport->dest;
-	IVec rPos = viewport->convertCoords( IVec(pos) );
+	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	if (active)
 	{
 		if (!m_sprite)

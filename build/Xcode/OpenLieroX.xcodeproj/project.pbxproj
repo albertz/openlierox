@@ -48,6 +48,9 @@
 		2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B02710CE9F4300D3F035 /* gusanos.cpp */; };
 		2326B22310CEF4BE00D3F035 /* Ogg.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 231BE15110CE60480023780D /* Ogg.framework */; };
 		2326B22410CEF4BE00D3F035 /* Vorbis.framework in Copy Frameworks into .app */ = {isa = PBXBuildFile; fileRef = 231BE15210CE60480023780D /* Vorbis.framework */; };
+		2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */; };
+		2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34110CF0F8500D3F035 /* CWormBot.cpp */; };
+		2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34210CF0F8500D3F035 /* CWormHuman.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
@@ -305,8 +308,6 @@
 		23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3710CC549C00DABBD6 /* level_effect.cpp */; };
 		23C34F4010CC54C800DABBD6 /* level.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F3E10CC54C800DABBD6 /* level.cpp */; };
 		23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4410CC557D00DABBD6 /* 2xsai.cpp */; };
-		23C34F7210CC557D00DABBD6 /* base_object.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4610CC557D00DABBD6 /* base_object.cpp */; };
-		23C34F7310CC557D00DABBD6 /* base_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4810CC557D00DABBD6 /* base_player.cpp */; };
 		23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4A10CC557D00DABBD6 /* base_worm.cpp */; };
 		23C34F7510CC557D00DABBD6 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4C10CC557D00DABBD6 /* client.cpp */; };
 		23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4F10CC557D00DABBD6 /* liero.cpp */; };
@@ -315,7 +316,6 @@
 		23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5510CC557D00DABBD6 /* vermes.cpp */; };
 		23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5810CC557D00DABBD6 /* net_worm.cpp */; };
 		23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */; };
-		23C34F7C10CC557D00DABBD6 /* player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5C10CC557D00DABBD6 /* player.cpp */; };
 		23C34F7D10CC557D00DABBD6 /* player_ai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5E10CC557D00DABBD6 /* player_ai.cpp */; };
 		23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6010CC557D00DABBD6 /* player_input.cpp */; };
 		23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6210CC557D00DABBD6 /* player_options.cpp */; };
@@ -464,9 +464,7 @@
 		EAD99F930C063ECA003BE563 /* CViewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C060BEFCEB400C6547E /* CViewport.cpp */; };
 		EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C070BEFCEB400C6547E /* CWeather.cpp */; };
 		EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C300BEFCEB400C6547E /* CWorm.cpp */; };
-		EAD99F980C063ECA003BE563 /* CWorm_AI.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */; };
 		EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */; };
-		EAD99F9A0C063ECA003BE563 /* CWorm_Simulate.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */; };
 		EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C340BEFCEB400C6547E /* CWpnRest.cpp */; };
 		EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0A0BEFCEB400C6547E /* Entity.cpp */; };
 		EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0B0BEFCEB400C6547E /* Error.cpp */; };
@@ -688,6 +686,10 @@
 		23210160101DFAF900510514 /* CGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameObject.cpp; sourceTree = "<group>"; };
 		2326B02710CE9F4300D3F035 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
 		2326B02810CE9F4300D3F035 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
+		2326B29A10CF090A00D3F035 /* WormInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = WormInputHandler.h; path = ../../src/game/WormInputHandler.h; sourceTree = SOURCE_ROOT; };
+		2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = WormInputHandler.cpp; path = ../../src/game/WormInputHandler.cpp; sourceTree = SOURCE_ROOT; };
+		2326B34110CF0F8500D3F035 /* CWormBot.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormBot.cpp; sourceTree = "<group>"; };
+		2326B34210CF0F8500D3F035 /* CWormHuman.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CWormHuman.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
@@ -1129,12 +1131,7 @@
 		23C34F3F10CC54C800DABBD6 /* level.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = level.h; sourceTree = "<group>"; };
 		23C34F4410CC557D00DABBD6 /* 2xsai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = 2xsai.cpp; sourceTree = "<group>"; };
 		23C34F4510CC557D00DABBD6 /* 2xsai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = 2xsai.h; sourceTree = "<group>"; };
-		23C34F4610CC557D00DABBD6 /* base_object.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_object.cpp; sourceTree = "<group>"; };
-		23C34F4710CC557D00DABBD6 /* base_object.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_object.h; sourceTree = "<group>"; };
-		23C34F4810CC557D00DABBD6 /* base_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_player.cpp; sourceTree = "<group>"; };
-		23C34F4910CC557D00DABBD6 /* base_player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_player.h; sourceTree = "<group>"; };
 		23C34F4A10CC557D00DABBD6 /* base_worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = base_worm.cpp; sourceTree = "<group>"; };
-		23C34F4B10CC557D00DABBD6 /* base_worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = base_worm.h; sourceTree = "<group>"; };
 		23C34F4C10CC557D00DABBD6 /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
 		23C34F4D10CC557D00DABBD6 /* client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
 		23C34F4F10CC557D00DABBD6 /* liero.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = liero.cpp; sourceTree = "<group>"; };
@@ -1150,8 +1147,6 @@
 		23C34F5910CC557D00DABBD6 /* net_worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_worm.h; sourceTree = "<group>"; };
 		23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ninjarope.cpp; sourceTree = "<group>"; };
 		23C34F5B10CC557D00DABBD6 /* ninjarope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ninjarope.h; sourceTree = "<group>"; };
-		23C34F5C10CC557D00DABBD6 /* player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player.cpp; sourceTree = "<group>"; };
-		23C34F5D10CC557D00DABBD6 /* player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player.h; sourceTree = "<group>"; };
 		23C34F5E10CC557D00DABBD6 /* player_ai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_ai.cpp; sourceTree = "<group>"; };
 		23C34F5F10CC557D00DABBD6 /* player_ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player_ai.h; sourceTree = "<group>"; };
 		23C34F6010CC557D00DABBD6 /* player_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_input.cpp; sourceTree = "<group>"; };
@@ -1168,7 +1163,6 @@
 		23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_replicator.cpp; sourceTree = "<group>"; };
 		23C34F6C10CC557D00DABBD6 /* vector_replicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_replicator.h; sourceTree = "<group>"; };
 		23C34F6D10CC557D00DABBD6 /* viewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewport.cpp; sourceTree = "<group>"; };
-		23C34F6E10CC557D00DABBD6 /* viewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = viewport.h; sourceTree = "<group>"; };
 		23C34F6F10CC557D00DABBD6 /* worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worm.cpp; sourceTree = "<group>"; };
 		23C34F7010CC557D00DABBD6 /* worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worm.h; sourceTree = "<group>"; };
 		23C34FAD10CC577100DABBD6 /* game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = game.cpp; sourceTree = "<group>"; };
@@ -1330,9 +1324,7 @@
 		EA430C2D0BEFCEB400C6547E /* CShootList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CShootList.cpp; path = ../../src/common/CShootList.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C2F0BEFCEB400C6547E /* CssParser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CssParser.cpp; path = ../../src/common/CssParser.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C300BEFCEB400C6547E /* CWorm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm.cpp; path = ../../src/common/CWorm.cpp; sourceTree = SOURCE_ROOT; };
-		EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_AI.cpp; path = ../../src/common/CWorm_AI.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_SendRecv.cpp; path = ../../src/common/CWorm_SendRecv.cpp; sourceTree = SOURCE_ROOT; };
-		EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWorm_Simulate.cpp; path = ../../src/common/CWorm_Simulate.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C340BEFCEB400C6547E /* CWpnRest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CWpnRest.cpp; path = ../../src/common/CWpnRest.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C350BEFCEB400C6547E /* FindFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FindFile.cpp; path = ../../src/common/FindFile.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C360BEFCEB400C6547E /* MathLib.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MathLib.cpp; path = ../../src/common/MathLib.cpp; sourceTree = SOURCE_ROOT; };
@@ -1924,6 +1916,8 @@
 		23C34D0A10CC3A4400DABBD6 /* gusanos */ = {
 			isa = PBXGroup;
 			children = (
+				2326B29A10CF090A00D3F035 /* WormInputHandler.h */,
+				2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */,
 				2326B02710CE9F4300D3F035 /* gusanos.cpp */,
 				2326B02810CE9F4300D3F035 /* gusanos.h */,
 				23C3500310CC590A00DABBD6 /* menu.cpp */,
@@ -1933,12 +1927,7 @@
 				23C34FAE10CC577100DABBD6 /* game.h */,
 				23C34F4410CC557D00DABBD6 /* 2xsai.cpp */,
 				23C34F4510CC557D00DABBD6 /* 2xsai.h */,
-				23C34F4610CC557D00DABBD6 /* base_object.cpp */,
-				23C34F4710CC557D00DABBD6 /* base_object.h */,
-				23C34F4810CC557D00DABBD6 /* base_player.cpp */,
-				23C34F4910CC557D00DABBD6 /* base_player.h */,
 				23C34F4A10CC557D00DABBD6 /* base_worm.cpp */,
-				23C34F4B10CC557D00DABBD6 /* base_worm.h */,
 				23C34F4C10CC557D00DABBD6 /* client.cpp */,
 				23C34F4D10CC557D00DABBD6 /* client.h */,
 				23C34F4E10CC557D00DABBD6 /* loaders */,
@@ -1947,8 +1936,6 @@
 				23C34F5910CC557D00DABBD6 /* net_worm.h */,
 				23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */,
 				23C34F5B10CC557D00DABBD6 /* ninjarope.h */,
-				23C34F5C10CC557D00DABBD6 /* player.cpp */,
-				23C34F5D10CC557D00DABBD6 /* player.h */,
 				23C34F5E10CC557D00DABBD6 /* player_ai.cpp */,
 				23C34F5F10CC557D00DABBD6 /* player_ai.h */,
 				23C34F6010CC557D00DABBD6 /* player_input.cpp */,
@@ -1965,7 +1952,6 @@
 				23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */,
 				23C34F6C10CC557D00DABBD6 /* vector_replicator.h */,
 				23C34F6D10CC557D00DABBD6 /* viewport.cpp */,
-				23C34F6E10CC557D00DABBD6 /* viewport.h */,
 				23C34F6F10CC557D00DABBD6 /* worm.cpp */,
 				23C34F7010CC557D00DABBD6 /* worm.h */,
 				23C34F3E10CC54C800DABBD6 /* level.cpp */,
@@ -2436,6 +2422,8 @@
 		EA430C200BEFCEB400C6547E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				2326B34110CF0F8500D3F035 /* CWormBot.cpp */,
+				2326B34210CF0F8500D3F035 /* CWormHuman.cpp */,
 				23C174EC10BEF632003DBB09 /* GeoIPDatabase.cpp */,
 				23606B2C0FEBEA22000A6439 /* Geometry.cpp */,
 				238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */,
@@ -2469,9 +2457,7 @@
 				EA430C2D0BEFCEB400C6547E /* CShootList.cpp */,
 				EA430C2F0BEFCEB400C6547E /* CssParser.cpp */,
 				EA430C300BEFCEB400C6547E /* CWorm.cpp */,
-				EA430C310BEFCEB400C6547E /* CWorm_AI.cpp */,
 				EA430C320BEFCEB400C6547E /* CWorm_SendRecv.cpp */,
-				EA430C330BEFCEB400C6547E /* CWorm_Simulate.cpp */,
 				EA430C340BEFCEB400C6547E /* CWpnRest.cpp */,
 				EA430C350BEFCEB400C6547E /* FindFile.cpp */,
 				EA430C360BEFCEB400C6547E /* MathLib.cpp */,
@@ -3050,9 +3036,7 @@
 				EAD99F930C063ECA003BE563 /* CViewport.cpp in Sources */,
 				EAD99F940C063ECA003BE563 /* CWeather.cpp in Sources */,
 				EAD99F970C063ECA003BE563 /* CWorm.cpp in Sources */,
-				EAD99F980C063ECA003BE563 /* CWorm_AI.cpp in Sources */,
 				EAD99F990C063ECA003BE563 /* CWorm_SendRecv.cpp in Sources */,
-				EAD99F9A0C063ECA003BE563 /* CWorm_Simulate.cpp in Sources */,
 				EAD99F9B0C063ECA003BE563 /* CWpnRest.cpp in Sources */,
 				EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */,
 				EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */,
@@ -3334,8 +3318,6 @@
 				23C34F3910CC549C00DABBD6 /* level_effect.cpp in Sources */,
 				23C34F4010CC54C800DABBD6 /* level.cpp in Sources */,
 				23C34F7110CC557D00DABBD6 /* 2xsai.cpp in Sources */,
-				23C34F7210CC557D00DABBD6 /* base_object.cpp in Sources */,
-				23C34F7310CC557D00DABBD6 /* base_player.cpp in Sources */,
 				23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */,
 				23C34F7510CC557D00DABBD6 /* client.cpp in Sources */,
 				23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */,
@@ -3344,7 +3326,6 @@
 				23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */,
 				23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */,
 				23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */,
-				23C34F7C10CC557D00DABBD6 /* player.cpp in Sources */,
 				23C34F7D10CC557D00DABBD6 /* player_ai.cpp in Sources */,
 				23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */,
 				23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */,
@@ -3375,6 +3356,9 @@
 				231BE16310CE68BD0023780D /* Mod.cpp in Sources */,
 				231BE16610CE6B670023780D /* Level.cpp in Sources */,
 				2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */,
+				2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */,
+				2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */,
+				2326B34410CF0F8500D3F035 /* CWormHuman.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

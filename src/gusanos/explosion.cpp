@@ -2,9 +2,9 @@
 
 #include "util/vec.h"
 #include "game.h"
-#include "base_object.h"
-#include "base_worm.h"
-#include "base_player.h"
+#include "CGameObject.h"
+#include "CWorm.h"
+#include "game/WormInputHandler.h"
 #include "exp_type.h"
 #include "events.h"
 #ifndef DEDICATED_ONLY
@@ -23,9 +23,9 @@
 
 using namespace std;
 
-Explosion::Explosion(ExpType *type, const Vec& _pos, BasePlayer* owner) : BaseObject(owner)
+Explosion::Explosion(ExpType *type, const Vec& _pos, CWormInputHandler* owner) : CGameObject(owner)
 {
-	pos = _pos;
+	vPos = _pos;
 	
 	m_type = type;
 	
@@ -103,8 +103,8 @@ void Explosion::draw(CViewport* viewport)
 
 	BITMAP* where = viewport->dest;
 
-	IVec rPos = viewport->convertCoords( IVec( pos ) );
-	Vec rPosPrec = viewport->convertCoordsPrec( pos );
+	IVec rPos = viewport->convertCoords( IVec( Vec(pos()) ) );
+	Vec rPosPrec = viewport->convertCoordsPrec( pos() );
 	int x = rPos.x;
 	int y = rPos.y;
 	
@@ -128,7 +128,7 @@ void Explosion::draw(CViewport* viewport)
 		}
 		else
 		{
-			game.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(pos), blitter );
+			game.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(Vec(pos())), blitter );
 		}
 	}
 	if (m_type->distortion)
@@ -137,7 +137,7 @@ void Explosion::draw(CViewport* viewport)
 	}
 	if ( m_type->lightHax )
 	{
-		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(pos), (int)m_alpha );
+		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 

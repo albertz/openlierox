@@ -7,7 +7,7 @@
 #include "sound_sample.h"
 #include <AL/al.h>
 
-class BaseObject;
+class CGameObject;
 
 class SoundSampleOpenAL : public SoundSample 
 {
@@ -19,7 +19,7 @@ class SoundSampleOpenAL : public SoundSample
 	
 	void play( float pitch,float volume);
 	void play2D(const Vec& pos, float loudness, float pitch);
-	void play2D( BaseObject* obj, float loudness, float pitch);
+	void play2D( CGameObject* obj, float loudness, float pitch);
 	bool isValid();
 	void updateObjSound(Vec& vec);
 	bool avail();

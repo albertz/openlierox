@@ -8,10 +8,10 @@
 #include "../glua.h"
 #include "../gconsole.h"
 #include "../game.h"
-#include "../base_player.h"
+#include "game/WormInputHandler.h"
 #include "../player_options.h"
-#include "../player.h"
-#include "../base_worm.h"
+#include "CWormHuman.h"
+#include "CWorm.h"
 #include "../level.h"
 #include "util/log.h"
 #include "util/stringbuild.h"
@@ -31,7 +31,7 @@ namespace LuaBindings
 {
 	
 LuaReference playerIterator(0);
-LuaReference BasePlayerMetaTable;
+LuaReference CWormInputHandlerMetaTable;
 
 LUA_CALLBACK(luaControl(LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))
 	if(playerIdx >= game.localPlayers.size())
@@ -55,7 +55,7 @@ END_LUA_CALLBACK()
 	end
 	</code>
 	
-	Where //player// is the Player object the control applies to, and //state// is either true
+	Where //player// is the CWormHumanInputHandler object the control applies to, and //state// is either true
 	or false depending on if the control is activated or deactivated.
 	
 	The control can be bound to keys like built-in controls such as FIRE and JUMP
@@ -84,7 +84,7 @@ int l_console_register_control(lua_State* L)
 
 /*! game_players()
 
-	Returns an iterator object that returns a Player object
+	Returns an iterator object that returns a CWormHumanInputHandler object
 	for every player in the game.
 	
 	Intended to be use together
@@ -98,7 +98,7 @@ int l_console_register_control(lua_State* L)
 int l_game_players(lua_State* L)
 {
 	lua.pushReference(LuaBindings::playerIterator);
-	typedef std::list<BasePlayer*>::iterator iter;
+	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
 	i = game.players.begin();
 	lua_pushnil(L);
@@ -108,7 +108,7 @@ int l_game_players(lua_State* L)
 
 /*! game_local_player(i)
 
-	Returns a Player object of the local player with index i.
+	Returns a CWormHumanInputHandler object of the local player with index i.
 	If the index is invalid, nil is returned.
 */
 int l_game_localPlayer(lua_State* L)
@@ -136,49 +136,49 @@ int l_game_localPlayerName(lua_State* L)
 }
 
 
-/*! Player:kills()
+/*! CWormHumanInputHandler:kills()
 
 	Returns the number of kills a player has made.
 */
-METHODC(BasePlayer, player_kills,
+METHODC(CWormInputHandler, player_kills,
 	context.push(p->stats->kills);
 	return 1;
 )
 
 
-/*! Player:deaths()
+/*! CWormHumanInputHandler:deaths()
 
 	Returns the number of deaths a player has suffered.
 */
-METHODC(BasePlayer, player_deaths,
+METHODC(CWormInputHandler, player_deaths,
 	context.push(p->stats->deaths);
 	return 1;
 )
 
-/*! Player:name()
+/*! CWormHumanInputHandler:name()
 
 	Returns the name of the player.
 */
-METHODC(BasePlayer, player_name,
+METHODC(CWormInputHandler, player_name,
 	context.push(p->m_name.c_str());
 	return 1;
 )
 
-/*! Player:team()
+/*! CWormHumanInputHandler:team()
 
 	Returns the team number of the player.
 */
-METHODC(BasePlayer, player_team,
+METHODC(CWormInputHandler, player_team,
 	context.push(p->team);
 	return 1;
 )
 
-/*! Player:worm()
+/*! CWormHumanInputHandler:worm()
 
 	Returns the worm of the player.
 */
-METHODC(BasePlayer, player_worm,
-	if(BaseWorm* worm = p->getWorm())
+METHODC(CWormInputHandler, player_worm,
+	if(CWorm* worm = p->getWorm())
 	{
 		worm->pushLuaReference();
 		return 1;
@@ -188,22 +188,22 @@ METHODC(BasePlayer, player_worm,
 
 //! version 0.9c
 
-/*! Player:is_local()
+/*! CWormHumanInputHandler:is_local()
 
 	Returns true if this player is a local player, otherwise false.
 */
-METHODC(BasePlayer, player_isLocal,
+METHODC(CWormInputHandler, player_isLocal,
 	context.push(p->local);
 	return 1;
 )
 
 //! version any
 
-/*! Player:data()
+/*! CWormHumanInputHandler:data()
 
 	Returns a lua table associated with this player.
 */
-METHODC(BasePlayer, player_data,
+METHODC(CWormInputHandler, player_data,
 	if(p->luaData)
 		context.pushReference(p->luaData);
 	else
@@ -217,11 +217,11 @@ METHODC(BasePlayer, player_data,
 	return 1;
 )
 
-/*! Player:stats()
+/*! CWormHumanInputHandler:stats()
 
 	Returns a lua table associated with the stats of this player.
 */
-METHODC(BasePlayer, player_stats,
+METHODC(CWormInputHandler, player_stats,
 	if(p->stats->luaData)
 		context.pushReference(p->stats->luaData);
 	else
@@ -235,23 +235,23 @@ METHODC(BasePlayer, player_stats,
 	return 1;
 )
 
-/*! Player:say(text)
+/*! CWormHumanInputHandler:say(text)
 
 	Makes the player send 'text' as a chat message.
 */
-METHODC(BasePlayer, player_say,
+METHODC(CWormInputHandler, player_say,
 	char const* s = context.tostring(2);
 	if(s)
 		p->sendChatMsg(s);
 	return 0;
 )
 
-/*! Player:select_weapons(weapons)
+/*! CWormHumanInputHandler:select_weapons(weapons)
 
 	Tries to change the player's weapons to the WeaponType objects
 	in the array //weapons//.
 */
-METHODC(BasePlayer, player_selectWeapons,
+METHODC(CWormInputHandler, player_selectWeapons,
 	
 	std::vector<WeaponType *> weapons;
 	for(size_t i = 1;; ++i)
@@ -275,7 +275,7 @@ METHODC(BasePlayer, player_selectWeapons,
 	return 0;
 )
 
-METHOD(BasePlayer, player_destroy,
+METHOD(CWormInputHandler, player_destroy,
 	delete p;
 	return 0;
 )
@@ -284,16 +284,16 @@ int l_game_getClosestWorm(lua_State* L)
 {
 	Vec from((float)lua_tonumber(L, 1), (float)lua_tonumber(L, 2));
 	
-	BaseWorm* minWorm = 0;
+	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<BasePlayer*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
-		BaseWorm* worm = (*playerIter)->getWorm();
+		CWorm* worm = (*playerIter)->getWorm();
 		
 		if(worm->isActive())
 		{
-			float distSqr = (worm->pos - from).lengthSqr();
+			float distSqr = (Vec(worm->pos()) - from).lengthSqr();
 			if(distSqr < minDistSqr)
 			{
 				minDistSqr = distSqr;
@@ -311,7 +311,7 @@ int l_game_getClosestWorm(lua_State* L)
 
 int l_game_playerIterator(lua_State* L)
 {
-	typedef std::list<BasePlayer*>::iterator iter;
+	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_touserdata(L, 1);
 	if(i == game.players.end())
 		lua_pushnil(L);
@@ -371,9 +371,9 @@ void initGame()
 		("map_is_particle_pass", l_map_isParticlePass)
 	;
 	
-	// Player method and metatable
+	// CWormHumanInputHandler method and metatable
 	
-	CLASSM(BasePlayer,
+	CLASSM(CWormInputHandler,
 		("__gc", l_player_destroy)
 	,
 		("kills", l_player_kills)
@@ -405,14 +405,14 @@ void initGame()
 		("ModLoading", Game::ErrorModLoading)
 	)
 	
-	ENUM(Player,
-		("Left", Player::LEFT)
-		("Right", Player::RIGHT)
-		("Up", Player::UP)
-		("Down", Player::DOWN)
-		("Fire", Player::FIRE)
-		("Jump", Player::JUMP)
-		("Change", Player::CHANGE)
+	ENUM(CWormHumanInputHandler,
+		("Left", CWormHumanInputHandler::LEFT)
+		("Right", CWormHumanInputHandler::RIGHT)
+		("Up", CWormHumanInputHandler::UP)
+		("Down", CWormHumanInputHandler::DOWN)
+		("Fire", CWormHumanInputHandler::FIRE)
+		("Jump", CWormHumanInputHandler::JUMP)
+		("Change", CWormHumanInputHandler::CHANGE)
 	)
 	
 /*

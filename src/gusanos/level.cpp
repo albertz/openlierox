@@ -7,7 +7,7 @@
 #include "CViewport.h"
 #endif
 #include "material.h"
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include "sprite_set.h"
 #include "sprite.h"
 #include "util/vec.h"
@@ -380,7 +380,7 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 
 namespace
 {
-	bool canPlayerRespawn(BasePlayer* player, SpawnPoint const& point)
+	bool canPlayerRespawn(CWormInputHandler* player, SpawnPoint const& point)
 	{
 		if(game.options.teamPlay && point.team != -1 && point.team != player->team)
 			return false;
@@ -388,7 +388,7 @@ namespace
 	}
 }
 
-Vec CMap::getSpawnLocation(BasePlayer* player)
+Vec CMap::getSpawnLocation(CWormInputHandler* player)
 {
 	if(m_config) {
 		int alt = 0;

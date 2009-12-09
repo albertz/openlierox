@@ -6,9 +6,9 @@
 #include "sfx.h"
 #include "gfx.h"
 #include "gusanos/allegro.h"
-#include "base_worm.h"
-#include "base_player.h"
-#include "player.h"
+#include "CWorm.h"
+#include "game/WormInputHandler.h"
+#include "CWormHuman.h"
 #include "glua.h"
 #include "lua/bindings-gfx.h"
 #include "blitters/blitters.h"
@@ -134,7 +134,7 @@ void CViewport::drawLight(IVec const& v)
 }
 
 
-void CViewport::render(BasePlayer* player)
+void CViewport::render(CWormInputHandler* player)
 {
 	int offX = static_cast<int>(Left);
 	int offY = static_cast<int>(Top);
@@ -168,9 +168,9 @@ void CViewport::render(BasePlayer* player)
 
 #if 0
 	if(gfx.m_haxWormLight) {
-		BasePlayer* player = game.localPlayers[0];
+		CWormInputHandler* player = game.localPlayers[0];
 
-		BaseWorm* worm = player->getWorm();
+		CWorm* worm = player->getWorm();
 		if(worm->isActive()) {
 			IVec v(worm->pos);
 			drawLight(v);
@@ -182,8 +182,8 @@ void CViewport::render(BasePlayer* player)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
 	EACH_CALLBACK(i, wormRender) {
-		for(list<BasePlayer*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
-			BaseWorm* worm = (*playerIter)->getWorm();
+		for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
+			CWorm* worm = (*playerIter)->getWorm();
 			if( worm && worm->isActive() ) {
 				IVec renderPos( worm->getRenderPos() );
 				int x = renderPos.x - offX;
@@ -200,7 +200,7 @@ void CViewport::render(BasePlayer* player)
 		}
 	}
 
-	if(BaseWorm* worm = player->getWorm()) {
+	if(CWorm* worm = player->getWorm()) {
 		EACH_CALLBACK(i, viewportRender) {
 			//lua.callReference(0, *i, luaReference, worm->luaReference);
 			(lua.call(*i), luaReference, worm->getLuaReference())();

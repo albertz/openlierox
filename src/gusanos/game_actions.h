@@ -12,7 +12,7 @@ class PartType;
 class ExpType;
 class Sound;
 class SpriteSet;
-class BaseObject;
+class CGameObject;
 class LevelEffect;
 
 namespace OmfgScript

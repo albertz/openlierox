@@ -20,7 +20,7 @@ using boost::array;
 class Sprite;
 class LevelEffect;
 class CViewport;
-class BasePlayer;
+class CWormInputHandler;
 struct BlitterContext;
 
 struct WaterParticle

@@ -3,7 +3,7 @@
 
 #include "netstream.h"
 
-#include "util/vec.h"
+#include "CVec.h"
 #include "encoding.h"
 #include <utility>
 #include <stdexcept>
@@ -14,16 +14,16 @@ class VectorReplicator : public Net_ReplicatorBasic
 {
 private:
 	
-	Vec*	m_ptr;
+	CVec*	m_ptr;
 #ifdef COMPACT_FLOATS
 	std::pair<long, long> m_old;
 #else
-	Vec	m_cmp;
+	CVec	m_cmp;
 #endif
 	
 public:
 
-	VectorReplicator(Net_ReplicatorSetup *_setup, Vec *_data, Encoding::VectorEncoding& encoding_);
+	VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data, Encoding::VectorEncoding& encoding_);
 	
 	// TODO: Implement this for safeness sake
 	Net_Replicator* Duplicate(Net_Replicator *_dest)

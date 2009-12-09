@@ -1,7 +1,7 @@
 #include "events.h"
 
-#include "base_worm.h"
-#include "base_object.h"
+#include "CWorm.h"
+#include "CGameObject.h"
 #include "base_action.h"
 //#include "game_actions.h"
 #include "util/macros.h"
@@ -49,7 +49,7 @@ bool GameEvent::addAction( const string& name, const vector<string>& params )
 	}
 }
 
-void GameEvent::run( BaseObject *object, BaseObject *object2, BaseWorm *worm, Weapon *weapon )
+void GameEvent::run( CGameObject *object, CGameObject *object2, CWorm *worm, Weapon *weapon )
 {
 	ActionParams params(object, object2, worm, weapon);
 	for ( vector<BaseAction*>::iterator action = actions.begin(); action != actions.end(); action++)

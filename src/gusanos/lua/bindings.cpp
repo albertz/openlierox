@@ -92,7 +92,7 @@ int print(lua_State* L)
 	the CViewport object it should be rendered to. Use the bitmap() method of CViewport
 	to retrieve the relevant bitmap to draw on.
 	
-	//ownerPlayer// is the Player object that owns //viewport//.
+	//ownerPlayer// is the CWormHumanInputHandler object that owns //viewport//.
 */
 
 /*! bindings.viewportRender(viewport, worm)
@@ -100,7 +100,7 @@ int print(lua_State* L)
 	This is called for every viewport when it's time to render the viewport HUD.
 	
 	//viewport// is the CViewport object it should be rendered to and //worm// is the
-	Worm object of the Player object that owns //viewport//.
+	Worm object of the CWormHumanInputHandler object that owns //viewport//.
 */
 
 /*! bindings.wormDeath(worm)
@@ -115,12 +115,12 @@ int print(lua_State* L)
 
 /*! bindings.playerUpdate(player)
 
-	This is called in every logic cycle for every player. //player// is the relevant Player object.
+	This is called in every logic cycle for every player. //player// is the relevant CWormHumanInputHandler object.
 */
 
 /*! bindings.playerInit(player)
 
-	This is called when a new player is added to the game. //player// is the Player object that was added.
+	This is called when a new player is added to the game. //player// is the CWormHumanInputHandler object that was added.
 */
 
 /*! bindings.playerNetworkInit(player, connID)
@@ -136,7 +136,7 @@ int print(lua_State* L)
 
 /*! bindings.playerRemoved(player)
 	
-	This is called when a player is removed from the game. //player// is the Player object that will be removed.
+	This is called when a player is removed from the game. //player// is the CWormHumanInputHandler object that will be removed.
 */
 
 /*! bindings.gameNetworkInit(connID)

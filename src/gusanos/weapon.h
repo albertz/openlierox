@@ -8,14 +8,14 @@
 //#include <cstddef>
 
 class BITMAP;
-class BaseWorm;
+class CWorm;
 class WeaponType;
 
 class Weapon : public LuaObject
 {
 public:
 	
-	friend class BaseWorm;
+	friend class CWorm;
 	
 	static LuaReference metaTable;
 	//static int const luaID = 4;
@@ -36,7 +36,7 @@ public:
 		GameEventsCount
 	};
 		
-	Weapon(WeaponType* type, BaseWorm* owner);
+	Weapon(WeaponType* type, CWorm* owner);
 	~Weapon();
 	
 	void think( bool isFocused, size_t index );
@@ -54,7 +54,7 @@ public:
 	
 	void delay( int time );
 	void useAmmo( int amount );
-	BaseWorm* getOwner();
+	CWorm* getOwner();
 	
 	WeaponType* getType() { return m_type; }
 	
@@ -85,7 +85,7 @@ private:
 	std::vector< TimerEvent::State > shootTimer;
 
 	WeaponType* m_type;
-	BaseWorm* m_owner;
+	CWorm* m_owner;
 };
 
 #endif  // _WEAPON_H_

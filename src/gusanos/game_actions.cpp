@@ -14,7 +14,7 @@
 #include "util/vec.h"
 #include "util/macros.h"
 #include "util/log.h"
-#include "base_object.h"
+#include "CGameObject.h"
 #include "weapon.h"
 #include "worm.h"
 #include "level_effect.h"
@@ -196,12 +196,12 @@ void ShootParticles::run( ActionParams const& params )
 			Vec spd(direction * (speed + midrnd()*speedVariation));
 			if(motionInheritance)
 			{
-				spd += params.object->spd * motionInheritance;
+				spd += params.object->velocity() * motionInheritance;
 				//angle = spd.getAngle(); // Need to recompute angle // <basara> No you dont
 				//Perhaps as an option later.
 			}
 
-			type->newParticle(type, params.object->pos + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
+			type->newParticle(type, params.object->pos() + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
 		}
 	}
 }
@@ -245,11 +245,11 @@ void UniformShootParticles::run( ActionParams const& params )
 			Vec spd(direction * (speed + midrnd()*speedVariation));
 			if(motionInheritance)
 			{
-				spd += params.object->spd * motionInheritance;
+				spd += params.object->velocity() * motionInheritance;
 				//angle = spd.getAngle(); // Need to recompute angle
 			}
 
-			type->newParticle(type, params.object->pos + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
+			type->newParticle(type, params.object->pos() + direction * distanceOffset, spd, params.object->getDir(), params.object->getOwner(), angle);
 		}
 	}
 }
@@ -297,7 +297,7 @@ void CreateExplosion::run( ActionParams const& params )
 {
 	if (type != NULL)
 	{
-		game.insertExplosion( new Explosion( type, params.object->pos, params.object->getOwner() ) );
+		game.insertExplosion( new Explosion( type, params.object->pos(), params.object->getOwner() ) );
 	}
 }
 
@@ -316,7 +316,7 @@ Push::Push( vector<OmfgScript::TokenBase*> const& params )
 
 void Push::run( ActionParams const& params  )
 {
-	params.object2->spd += params.object->spd*factor;
+	params.object2->velocity() += params.object->velocity() * factor;
 }
 
 Push::~Push()
@@ -347,13 +347,13 @@ void Repel::run( ActionParams const& params )
 		params.object2->spd += ( params.object2->pos - params.object->pos ).normal() * ( maxForce + distance * ( minForce - maxForce ) / maxDistance );
 	}
 */
-	Vec dir( params.object2->pos - params.object->pos );
+	Vec dir( params.object2->pos() - params.object->pos() );
 	double distanceSqr = dir.lengthSqr();
 	if ( distanceSqr > 0.f && distanceSqr < maxDistanceSqr )
 	{
 		double distance = sqrt(distanceSqr);
 		dir /= distance; // Normalize
-		params.object2->spd += dir * ( maxForce + distance * forceDiffScaled);
+		params.object2->velocity() += CVec( dir * ( maxForce + distance * forceDiffScaled) );
 	}
 }
 
@@ -372,7 +372,7 @@ Damp::Damp( vector<OmfgScript::TokenBase*> const& params )
 
 void Damp::run( ActionParams const& params )
 {
-	params.object2->spd *= factor;
+	params.object2->velocity() *= factor;
 }
 
 Damp::~Damp()
@@ -395,7 +395,7 @@ void Damage::run( ActionParams const& params )
 	float damageAmount = m_damage + rnd() * m_damageVariation;
 	if ( m_maxDistance > 0 )
 	{
-		float distance = ( params.object->pos - params.object2->pos ).length();
+		float distance = ( params.object->pos() - params.object2->pos() ).GetLength();
 		if ( distance < m_maxDistance )
 			damageAmount *= 1.0 - (distance / m_maxDistance);
 		else
@@ -500,7 +500,7 @@ void PlaySoundStatic::run( ActionParams const& params )
 		int sound = rndInt(sounds.size());
 		if ( sounds[sound] )
 		{
-			sounds[sound]->play2D(params.object->pos,loudness,pitch,pitchVariation);
+			sounds[sound]->play2D(params.object->pos(),loudness,pitch,pitchVariation);
 		}
 	}
 #endif
@@ -612,7 +612,7 @@ ShowFirecone::ShowFirecone( vector<OmfgScript::TokenBase*> const& params )
 void ShowFirecone::run( ActionParams const& params )
 {
 #ifndef DEDICATED_ONLY
-	if( BaseWorm* w = dynamic_cast<BaseWorm*>(params.object) )
+	if( CWorm* w = dynamic_cast<CWorm*>(params.object) )
 	{
 		w->showFirecone( sprite, frames, drawDistance );
 	}
@@ -662,7 +662,7 @@ void AddSpeed::run( ActionParams const& params  )
 	int dir = params.object->getDir();
 	Angle angle(params.object->getAngle() + offs * dir);
 	if(offsVariation) angle += offsVariation * midrnd();
-	params.object->spd += Vec(angle, speed + midrnd()*speedVariation );
+	params.object->velocity() += Vec(angle, speed + midrnd()*speedVariation );
 }
 
 AddSpeed::~AddSpeed()
@@ -793,7 +793,7 @@ ApplyMapEffect::ApplyMapEffect( vector<OmfgScript::TokenBase*> const& params )
 void ApplyMapEffect::run( ActionParams const& params )
 {
 	if ( effect )
-		game.applyLevelEffect(effect, (int)params.object->pos.x, (int)params.object->pos.y);
+		game.applyLevelEffect(effect, (int)params.object->pos().x, (int)params.object->pos().y);
 }
 
 ApplyMapEffect::~ApplyMapEffect()

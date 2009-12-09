@@ -8,9 +8,9 @@
 #include <list>
 
 /*
-class BaseObject;
-class BasePlayer;
-class BaseWorm;
+class CGameObject;
+class CWormInputHandler;
+class CWorm;
 class CViewport;
 */
 

@@ -10,7 +10,7 @@
 #include "part_type.h"
 #include "particle.h"
 #include "worm.h"
-#include "player.h"
+#include "CWormHuman.h"
 #include "util/macros.h"
 
 #ifndef DEDICATED_ONLY
@@ -149,7 +149,7 @@ void gusFrame() {
 			}
 #endif
 			
-			for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+			for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{
 				(*iter)->think();
 			}
@@ -162,7 +162,7 @@ void gusFrame() {
 		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 		
-		//for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end();)
+		//for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end();)
 		foreach_delete(iter, game.players)
 		{
 			if ( (*iter)->deleteMe )
@@ -180,7 +180,7 @@ void gusFrame() {
 				}
 #endif
 */
-				if ( Player* player = dynamic_cast<Player*>(*iter) )
+				if ( CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*>(*iter) )
 				{
 					foreach ( p, game.localPlayers )
 					{
@@ -229,7 +229,7 @@ void gusFrame() {
 	if ( game.isLoaded() && game.level().gusIsLoaded() )
 	{
 
-		for ( list<BasePlayer*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+		for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 		{
 			(*iter)->render();
 		}

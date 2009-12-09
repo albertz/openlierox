@@ -9,7 +9,7 @@ using std::cerr;
 using std::endl;
 
 PosSpdReplicator::PosSpdReplicator(Net_ReplicatorSetup *_setup,
-	Vec *pos, Vec *spd, Encoding::VectorEncoding& encoding_,
+	CVec *pos, CVec *spd, Encoding::VectorEncoding& encoding_,
 	Encoding::DiffVectorEncoding& diffEncoding_)
 : Net_ReplicatorBasic(_setup)
 , m_posPtr(pos)

@@ -10,7 +10,7 @@
 #include "util/vec.h"
 #include "gusanos/glua.h"
 
-class BaseObject;
+class CGameObject;
 class SfxDriver;
 class SoundSample;
 
@@ -26,7 +26,7 @@ class Sound : public LuaObject
 	void play( float volume = 1,float pitch = 1,float volumeVariation = 1,float pitchVariation = 1);
 	void play1D( float volume = 1,float pitch = 1,float volumeVariation = 0,float pitchVariation = 0);
 	void play2D(const Vec& pos, float loudness = 100, float pitch = 1, float pitchVariation = 1);
-	void play2D( BaseObject* obj, float loudness = 100, float pitch = 1, float pitchVariation = 1);
+	void play2D( CGameObject* obj, float loudness = 100, float pitch = 1, float pitchVariation = 1);
 	bool isValid();
 	void updateObjSound();
 	
@@ -34,7 +34,7 @@ class Sound : public LuaObject
 	
 	SfxDriver* driver;
 	SoundSample *m_sound;
-	BaseObject* m_obj;
+	CGameObject* m_obj;
 	
 };
 

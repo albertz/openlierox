@@ -12,8 +12,8 @@ struct LuaID
 #define CLASSID(name_, id_) \
 template<> struct LuaID<name_> { static int const value = id_; }
 
-class BaseObject;
-class BaseWorm;
+class CGameObject;
+class CWorm;
 class Particle;
 struct BITMAP;
 class CViewport;
@@ -23,7 +23,7 @@ struct LuaWormEvent; // virtual
 struct LuaParticleEvent; // virtual
 struct Socket; // virtual
 class Net_BitStream;
-class BasePlayer;
+class CWormInputHandler;
 class Weapon;
 class PartType;
 class WeaponType;
@@ -41,8 +41,8 @@ class Check;
 class Label;
 }
 
-CLASSID(BaseObject, 1);
-CLASSID(BaseWorm, 2);
+CLASSID(CGameObject, 1);
+CLASSID(CWorm, 2);
 CLASSID(Particle, 3);
 CLASSID(BITMAP, 4);
 CLASSID(CViewport, 5);
@@ -52,7 +52,7 @@ CLASSID(LuaWormEvent, 8);
 CLASSID(LuaParticleEvent, 9);
 CLASSID(Socket, 10);
 CLASSID(Net_BitStream, 11);
-CLASSID(BasePlayer, 12);
+CLASSID(CWormInputHandler, 12);
 CLASSID(Weapon, 13);
 CLASSID(PartType, 14);
 CLASSID(WeaponType, 15);

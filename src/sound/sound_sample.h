@@ -9,7 +9,7 @@
 #include "util/vec.h"
 #include "gusanos/glua.h"
 
-class BaseObject;
+class CGameObject;
 
 class SoundSample 
 {
@@ -21,7 +21,7 @@ class SoundSample
 	
 	virtual void play( float pitch,float volume)=0;
 	virtual void play2D(const Vec& pos, float loudness, float pitch)=0;
-	virtual void play2D( BaseObject* obj, float loudness, float pitch)=0;
+	virtual void play2D( CGameObject* obj, float loudness, float pitch)=0;
 	virtual bool isValid()=0;
 	virtual void updateObjSound(Vec& vec)=0;
 	virtual bool avail()=0;

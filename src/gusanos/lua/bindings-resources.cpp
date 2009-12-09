@@ -310,7 +310,7 @@ METHODC(Sound, sound_play,
 	lua_Number pitch = 1.0;
 	lua_Number pitchVariation = 1.0;
 	
-	if(BaseObject* obj = getObject<BaseObject>(context, 2))
+	if(CGameObject* obj = getObject<CGameObject>(context, 2))
 	{
 		int params = lua_gettop(context);
 		switch(params)
@@ -322,7 +322,7 @@ METHODC(Sound, sound_play,
 			case 2:  break;
 		}
 		
-		//BaseObject* obj = *static_cast<BaseObject**>(lua_touserdata(context, 2));
+		//CGameObject* obj = *static_cast<CGameObject**>(lua_touserdata(context, 2));
 
 		p->play2D(obj, loudness, pitch, pitchVariation);
 	}
@@ -582,7 +582,7 @@ METHODC(PartType, parttype_put,
 		case 2:  x = lua_tonumber(context, 2);
 	}
 	
-	BaseObject* last = p->newParticle(p, Vec(x, y), Vec(xspd, yspd), 1, 0, angle);
+	CGameObject* last = p->newParticle(p, Vec(x, y), Vec(xspd, yspd), 1, 0, angle);
 
 	if(last)
 	{

@@ -2,7 +2,7 @@
 
 #include "util/vec.h"
 #include "game.h"
-#include "base_object.h"
+#include "CGameObject.h"
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/blitters.h"
@@ -29,13 +29,13 @@ void SimpleParticle::operator delete(void* block)
 
 void SimpleParticle::think()
 {
-	spd.y += gravity;
-	Vec nextPos = pos + spd;
+	velocity().y += gravity;
+	CVec nextPos = pos() + velocity();
 	if(!game.level().getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 	else
-		pos = nextPos;
+		pos() = nextPos;
 	
 	/*
 	spdy += gravity;
@@ -52,14 +52,14 @@ void SimpleParticle::think()
 #ifndef DEDICATED_ONLY
 void SimpleParticle::draw(CViewport* viewport)
 {
-	IVec rPos = viewport->convertCoords(IVec(pos));
+	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
 	putpixel(viewport->dest, rPos.x, rPos.y, colour);
 	//putpixel(where, (posx >> 8)-xOff, (posy >> 8)-yOff, colour);
 }
 
 void SimpleParticle32::draw(CViewport* viewport)
 {
-	IVec rPos = viewport->convertCoords(IVec(pos));
+	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
 	BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
@@ -69,7 +69,7 @@ void SimpleParticle32::draw(CViewport* viewport)
 
 void SimpleParticle16::draw(CViewport* viewport)
 {
-	IVec rPos = viewport->convertCoords(IVec(pos));
+	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
 	BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
@@ -79,13 +79,13 @@ void SimpleParticle16::draw(CViewport* viewport)
 
 void SimpleParticle32wu::draw(CViewport* viewport)
 {
-	Vec rPos = viewport->convertCoordsPrec( pos );
+	Vec rPos = viewport->convertCoordsPrec( pos() );
 	Blitters::putpixelwu_blend_32(viewport->dest, rPos.x, rPos.y, colour, 256);
 }
 
 void SimpleParticle16wu::draw(CViewport* viewport)
 {
-	Vec rPos = viewport->convertCoordsPrec( pos );
+	Vec rPos = viewport->convertCoordsPrec( pos() );
 	Blitters::putpixelwu_blend_16(viewport->dest, rPos.x, rPos.y, colour, 32);
 }
 

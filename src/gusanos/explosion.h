@@ -1,7 +1,7 @@
 #ifndef EXPLOSION_H
 #define EXPLOSION_H
 
-#include "base_object.h"
+#include "CGameObject.h"
 #include "exp_type.h"
 #include "util/vec.h"
 //#include "animators.h"
@@ -11,14 +11,14 @@
 class Sprite;
 class BaseAnimator;
 #endif
-class BasePlayer;
+class CWormInputHandler;
 class CViewport;
 
-class Explosion : public BaseObject
+class Explosion : public CGameObject
 {
 public:
 	
-	Explosion(ExpType* type, const Vec& _pos = Vec(0,0), BasePlayer* owner = NULL);
+	Explosion(ExpType* type, const Vec& _pos = Vec(0,0), CWormInputHandler* owner = NULL);
 
 	~Explosion(); //ZOMG WE HAD FORGOTTEN ABOUT THIS :O LEAKOFDEATH
 

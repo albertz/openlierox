@@ -1,9 +1,9 @@
 #include "particle.h"
 
 #include "game.h"
-#include "base_object.h"
-#include "base_worm.h"
-#include "base_player.h"
+#include "CGameObject.h"
+#include "CWorm.h"
+#include "game/WormInputHandler.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
@@ -123,8 +123,8 @@ void Particle::operator delete(void* block)
 	particlePool.free(block);
 }
 
-Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, BasePlayer* owner, Angle angle)
-		: BaseObject(owner, pos_, spd_), 
+Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle)
+		: CGameObject(owner, pos_, spd_), 
 		/*m_dir(dir),*/
 		m_type(type),
 		m_health(type->health),
@@ -194,7 +194,7 @@ void Particle::assignNetworkRole( bool authority )
 
 	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 
-	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos, &spd, game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
+	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), game.level().vectorEncoding, game.level().diffVectorEncoding ), true);
 
 	m_node->endReplicationSetup();
 
@@ -314,15 +314,15 @@ void Particle::think()
 				break;
 		}
 
-		spd.y += m_type->gravity;
+		velocity().y += m_type->gravity;
 
 		if ( m_type->acceleration ) {
 			Vec dir(m_angle);
-			if ( m_type->maxSpeed < 0 || spd.dotProduct(dir) < m_type->maxSpeed )
-				spd += dir * m_type->acceleration;
+			if ( m_type->maxSpeed < 0 || Vec(velocity()).dotProduct(dir) < m_type->maxSpeed )
+				velocity() += CVec(dir * m_type->acceleration);
 		}
 
-		spd *= m_type->damping;
+		velocity() *= m_type->damping;
 
 		if ( m_type->radius > 0 ) // HAX
 		{
@@ -330,14 +330,14 @@ void Particle::think()
 			float radius = m_type->radius;
 			float speedCorrection = m_type->bounceFactor;
 			float friction = m_type->groundFriction;
-			IVec iPos = IVec( pos );
+			IVec iPos = IVec(Vec(pos()));
 			int n = 0;
 			int iradius = static_cast<int>(radius);
 			for ( int y = -iradius; y <= iradius; ++y )
 				for ( int x = -iradius; x <= iradius; ++x )
 				{
 					if ( !game.level().getMaterial( iPos.x + x, iPos.y + y ).particle_pass ) {
-						averageCorrection += getCorrectionBox( pos , iPos + IVec( x, y ), radius );
+						averageCorrection += getCorrectionBox( pos() , iPos + IVec( x, y ), radius );
 						++n;
 					}
 				}
@@ -346,22 +346,22 @@ void Particle::think()
 				if ( averageCorrection.length() > 0 ) {
 					averageCorrection /= n;
 					Vec tmpNorm = averageCorrection.normal();
-					spd -= ( tmpNorm.perp() * tmpNorm.perpDotProduct(spd) ) * ( 1 - friction );
-					pos += averageCorrection;
-					spd += averageCorrection* speedCorrection * 2;
+					velocity() -= ( tmpNorm.perp() * tmpNorm.perpDotProduct(velocity()) ) * ( 1 - friction );
+					pos() += CVec(averageCorrection);
+					velocity() += averageCorrection* speedCorrection * 2;
 				}
 			}
 		}
 
 		bool collision = false;
-		if ( !game.level().getMaterial( roundAny(pos.x + spd.x), roundAny(pos.y) ).particle_pass) {
-			spd.x *= -m_type->bounceFactor; // TODO: Precompute the negative of this
-			spd.y *= m_type->groundFriction;
+		if ( !game.level().getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
+			velocity().x *= -m_type->bounceFactor; // TODO: Precompute the negative of this
+			velocity().y *= m_type->groundFriction;
 			collision = true;
 		}
-		if ( !game.level().getMaterial( roundAny(pos.x), roundAny(pos.y + spd.y) ).particle_pass) {
-			spd.y *= -m_type->bounceFactor; // TODO: Precompute the negative of this
-			spd.x *= m_type->groundFriction;
+		if ( !game.level().getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
+			velocity().y *= -m_type->bounceFactor; // TODO: Precompute the negative of this
+			velocity().x *= m_type->groundFriction;
 			collision = true;
 		}
 		if( collision ) {
@@ -406,7 +406,7 @@ void Particle::think()
 		m_angle.clamp();
 
 		//Position update
-		pos += spd;
+		pos() += velocity();
 
 #ifndef DEDICATED_ONLY
 		// Animation
@@ -451,7 +451,7 @@ void Particle::customEvent( size_t index )
 	}
 }
 
-void Particle::damage( float amount, BasePlayer* damager )
+void Particle::damage( float amount, CWormInputHandler* damager )
 {
 	m_health -= amount;
 }
@@ -468,11 +468,11 @@ void Particle::remove()
 void Particle::drawLine2Origin( CViewport* viewport, BlitterContext const& blitter)
 {
 	if(m_type->wupixels) {
-		Vec rPos = viewport->convertCoordsPrec( pos );
+		Vec rPos = viewport->convertCoordsPrec( pos() );
 		Vec rOPos = viewport->convertCoordsPrec( m_origin );
 		blitter.linewu(viewport->dest, rOPos.x, rOPos.y, rPos.x, rPos.y, m_type->colour);
 	} else {
-		IVec rPos = viewport->convertCoords( IVec(pos) );
+		IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 		IVec rOPos = viewport->convertCoords( IVec(m_origin) );
 		blitter.line(viewport->dest, rOPos.x, rOPos.y, rPos.x, rPos.y, m_type->colour);
 		//mooo.createPath( 7, 7);
@@ -485,8 +485,8 @@ void Particle::drawLine2Origin( CViewport* viewport, BlitterContext const& blitt
 void Particle::draw(CViewport* viewport)
 {
 
-	IVec rPos = viewport->convertCoords( IVec(pos) );
-	Vec rPosPrec = viewport->convertCoordsPrec( pos );
+	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
+	Vec rPosPrec = viewport->convertCoordsPrec( pos() );
 	BITMAP* where = viewport->dest;
 	int x = rPos.x;
 	int y = rPos.y;
@@ -510,7 +510,7 @@ void Particle::draw(CViewport* viewport)
 			//Blitters::drawSpriteRotate_solid_32(where, m_sprite->getSprite(m_animator->getFrame())->m_bitmap, x, y, -m_angle.toRad());
 		} else {
 			Sprite* renderSprite = m_sprite->getSprite(m_animator->getFrame(), m_angle);
-			game.level().culledDrawSprite(renderSprite, viewport, IVec(pos), (int)m_alpha );
+			game.level().culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
 		}
 	}
 
@@ -518,7 +518,7 @@ void Particle::draw(CViewport* viewport)
 		m_type->distortion->apply( where, x, y, m_type->distortMagnitude );
 	}
 	if ( game.level().config()->darkMode && m_type->lightHax ) {
-		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(pos), (int)m_alpha );
+		game.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 #endif

@@ -17,8 +17,8 @@ class PosSpdReplicator : public Net_ReplicatorBasic
 		static const int speedRepTime = 0;
 		static const int speedPrec = 16;
 		
-		Vec*	m_posPtr;
-		Vec*	m_spdPtr;
+		CVec*	m_posPtr;
+		CVec*	m_spdPtr;
 		
 		int m_repCount;
 
@@ -31,7 +31,7 @@ class PosSpdReplicator : public Net_ReplicatorBasic
 	
 	public:
 
-		PosSpdReplicator(Net_ReplicatorSetup *_setup, Vec *pos, Vec *spd, Encoding::VectorEncoding& encoding_, Encoding::DiffVectorEncoding& diffEncoding_);
+		PosSpdReplicator(Net_ReplicatorSetup *_setup, CVec *pos, CVec *spd, Encoding::VectorEncoding& encoding_, Encoding::DiffVectorEncoding& diffEncoding_);
 	
 	// TODO: Implement this for safeness sake
 		Net_Replicator* Duplicate(Net_Replicator *_dest)

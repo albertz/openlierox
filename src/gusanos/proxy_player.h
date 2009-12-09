@@ -1,23 +1,29 @@
 #ifndef PROXY_PLAYER_H
 #define PROXY_PLAYER_H
 
-#include "base_player.h"
+#include "game/WormInputHandler.h"
 #include <string>
 
 class Worm;
 class PlayerOptions;
 
-class ProxyPlayer : public BasePlayer
+class ProxyPlayer : public CWormInputHandler
 {
 public:
 
-	ProxyPlayer(BaseWorm* worm);
+	ProxyPlayer(CWorm* worm);
 	~ProxyPlayer();
 	
 	void subThink();
 #ifndef DEDICATED_ONLY
 	void render();
 #endif
+	
+	void initWeaponSelection() {}
+	void doWeaponSelectionFrame(SDL_Surface*, CViewport*) {}
+	void getInput() { think(); }
+	std::string name() { return "ProxyPlayer"; }
+	
 private:
 
 };

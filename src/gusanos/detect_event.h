@@ -4,7 +4,7 @@
 #include "events.h"
 
 class GameEvent;
-class BaseObject;
+class CGameObject;
 
 struct DetectEvent : public GameEvent
 {
@@ -12,7 +12,7 @@ struct DetectEvent : public GameEvent
 	DetectEvent(std::vector<BaseAction*>&, float range, bool detectOwner, int detectFilter);
 	~DetectEvent();
 	
-	void check( BaseObject* ownerObject );
+	void check( CGameObject* ownerObject );
 			
 	//GameEvent* m_event;
 	float m_range;

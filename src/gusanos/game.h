@@ -2,7 +2,7 @@
 #define GAME_H
 
 #include "level.h"
-//#include "base_object.h"
+//#include "CGameObject.h"
 //#include "base_action.h"
 //#include "objects_list.h"
 #include "object_grid.h"
@@ -22,8 +22,8 @@ using boost::shared_ptr;
 namespace fs = boost::filesystem;
 #include "netstream.h"
 
-class BasePlayer;
-class BaseWorm;
+class CWormInputHandler;
+class CWorm;
 class BaseAction;
 class PlayerOptions;
 class WeaponType;
@@ -40,7 +40,7 @@ class CMap;
 
 #define USE_GRID
 
-class Player;
+class CWormHumanInputHandler;
 
 struct Options
 {
@@ -188,9 +188,9 @@ public:
 	bool hasMod(std::string const& mod);
 	void runInitScripts();
 	void addBot( int team = -1 );
-	BasePlayer* findPlayerWithID( Net_NodeID ID );
-	BasePlayer* addPlayer( PLAYER_TYPE type, int team = -1, BaseWorm* worm = 0 );
-	BaseWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
+	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
+	CWormInputHandler* addPlayer( PLAYER_TYPE type, int team = -1, CWorm* worm = 0 );
+	CWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
 	//static Net_Node* getNode();
 	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* data, Net_ConnID connID);
 	
@@ -201,7 +201,7 @@ public:
 	
 	void sendRConMsg( std::string const & message );
 	void displayChatMsg( std::string const& owner, std::string const& message);
-	void displayKillMsg( BasePlayer* killed, BasePlayer* killer );
+	void displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer );
 	void displayMessage( ScreenMessage const& msg );
 	
 	CMap& level();
@@ -210,8 +210,8 @@ public:
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;
 	std::set<std::string> modList;
 	
-	std::vector<Player*> localPlayers;
-	std::list<BasePlayer*> players;
+	std::vector<CWormHumanInputHandler*> localPlayers;
+	std::list<CWormInputHandler*> players;
 #ifdef USE_GRID
 	Grid objects;
 #else

@@ -1,5 +1,5 @@
 #include "glua.h"
-#include "player.h"
+#include "CWormHuman.h"
 #include "lua51/luaapi/context.h"
 
 //LuaContext lua;
@@ -20,19 +20,19 @@ void LuaCallbacks::bind(std::string callback, LuaReference ref)
 	else if(callback == "viewportRender")
 		idx = viewportRender;
 	else if(callback == "localplayerLeft")
-		idx = localplayerEvent + Player::LEFT;
+		idx = localplayerEvent + CWormHumanInputHandler::LEFT;
 	else if(callback == "localplayerRight")
-		idx = localplayerEvent + Player::RIGHT;
+		idx = localplayerEvent + CWormHumanInputHandler::RIGHT;
 	else if(callback == "localplayerUp")
-		idx = localplayerEvent + Player::UP;
+		idx = localplayerEvent + CWormHumanInputHandler::UP;
 	else if(callback == "localplayerDown")
-		idx = localplayerEvent + Player::DOWN;
+		idx = localplayerEvent + CWormHumanInputHandler::DOWN;
 	else if(callback == "localplayerJump")
-		idx = localplayerEvent + Player::JUMP;
+		idx = localplayerEvent + CWormHumanInputHandler::JUMP;
 	else if(callback == "localplayerFire")
-		idx = localplayerEvent + Player::FIRE;
+		idx = localplayerEvent + CWormHumanInputHandler::FIRE;
 	else if(callback == "localplayerChange")
-		idx = localplayerEvent + Player::CHANGE;
+		idx = localplayerEvent + CWormHumanInputHandler::CHANGE;
 	else if(callback == "localplayerInit")
 		idx = localplayerInit;
 	else if(callback == "wormDeath")

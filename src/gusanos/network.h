@@ -104,7 +104,7 @@ public:
 		enum type
 		{
 			Game,
-			Player,
+			CWormHumanInputHandler,
 			Worm,
 			Particle,
 			Max

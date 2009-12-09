@@ -2,7 +2,7 @@
 
 #include "sound_sample_openal.h"
 #include "gusanos/resource_list.h"
-#include "gusanos/base_object.h"
+#include "CGameObject.h"
 #include "gusanos/allegro.h"
 
 #ifdef __APPLE__
@@ -211,10 +211,10 @@ void SoundSampleOpenAL::play2D(const Vec& pos, float loudness, float pitch)
 	}
 }
 
-void SoundSampleOpenAL::play2D(BaseObject* obj, float loudness, float pitch)
+void SoundSampleOpenAL::play2D(CGameObject* obj, float loudness, float pitch)
 {
 	//cout<<"Play 2d(obj)"<<endl;
-	Vec pos( obj->pos.x, obj->pos.y) ;
+	Vec pos( obj->pos().x, obj->pos().y) ;
 	play2D(pos,loudness, pitch);
 	
 }

@@ -6,7 +6,7 @@
 
 #include "sfx.h"
 #include "gusanos/resource_list.h"
-#include "base_object.h"
+#include "CGameObject.h"
 #include "util/math_func.h"
 
 #include <cstdio>
@@ -60,7 +60,7 @@ void Sound::play2D(const Vec& pos, float loudness, float pitch, float pitchVaria
 	m_sound ->play2D(pos,loudness, rndPitch );
 }
 
-void Sound::play2D(BaseObject* obj, float loudness, float pitch, float pitchVariation)
+void Sound::play2D(CGameObject* obj, float loudness, float pitch, float pitchVariation)
 {
 	//cout<<"Play 2d(obj)"<<endl;
 	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
@@ -80,7 +80,7 @@ bool Sound::isValid()
 
 void Sound::updateObjSound()
 {
-	Vec v(m_obj->pos.x, m_obj->pos.y);
+	Vec v(m_obj->pos());
 	return m_sound->updateObjSound(v);
 }
 

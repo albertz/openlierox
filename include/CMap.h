@@ -456,7 +456,7 @@ public:
 #endif
 	void gusUpdateMinimap(int x, int y, int w, int h);
 	
-	Vec getSpawnLocation(BasePlayer* player);
+	Vec getSpawnLocation(CWormInputHandler* player);
 	
 	Material const& getMaterial(unsigned int x, unsigned int y) const
 	{

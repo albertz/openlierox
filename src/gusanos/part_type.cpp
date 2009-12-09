@@ -44,7 +44,7 @@ ResourceList<PartType> partTypeList;
 
 LuaReference PartType::metaTable;
 
-BaseObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, BasePlayer* owner, Angle angle )
+CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle )
 {
 	assert(type->needsNode);
 	
@@ -62,7 +62,7 @@ BaseObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, 
 	return particle;
 }
 
-BaseObject* newParticle_Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, BasePlayer* owner = NULL, Angle angle = Angle(0))
+CGameObject* newParticle_Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, CWormInputHandler* owner = NULL, Angle angle = Angle(0))
 {
 	if( type->needsNode && network.isClient() ) return 0;
 	
@@ -85,11 +85,11 @@ BaseObject* newParticle_Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec s
 }
 
 template<class T>
-BaseObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, BasePlayer* owner = NULL, Angle angle = Angle(0))
+CGameObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, CWormInputHandler* owner = NULL, Angle angle = Angle(0))
 {
 	int timeout = type->simpleParticle_timeout + rndInt(type->simpleParticle_timeoutVariation);
 	
-	BaseObject* particle = new T(pos_, spd_, owner, timeout, type->gravity, type->colour);
+	CGameObject* particle = new T(pos_, spd_, owner, timeout, type->gravity, type->colour);
 	
 	if(type->creation)
 		type->creation->run(particle);
@@ -100,11 +100,11 @@ BaseObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f),
 }
 
 #ifdef DEDICATED_ONLY
-BaseObject* newParticle_Dummy(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, BasePlayer* owner = NULL, Angle angle = Angle(0))
+CGameObject* newParticle_Dummy(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec spd_ = Vec(0.f, 0.f), int dir = 1, CWormInputHandler* owner = NULL, Angle angle = Angle(0))
 {
 	if(type->creation)
 	{
-		BaseObject particle(owner, pos_, spd_);
+		CGameObject particle(owner, pos_, spd_);
 		type->creation->run(&particle);
 	}
 	return 0;

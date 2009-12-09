@@ -1,7 +1,7 @@
 #include "detect_event.h"
 
 #include "events.h"
-#include "base_object.h"
+#include "CGameObject.h"
 #include "game.h"
 #include "util/macros.h"
 
@@ -23,13 +23,13 @@ DetectEvent::~DetectEvent()
 	//delete m_event;
 }
 
-void DetectEvent::check( BaseObject* ownerObject )
+void DetectEvent::check( CGameObject* ownerObject )
 {
 #ifdef USE_GRID
 	// TODO: Detect event
 	
-	int x = int(ownerObject->pos.x);
-	int y = int(ownerObject->pos.y);
+	int x = int(ownerObject->pos().x);
+	int y = int(ownerObject->pos().y);
 	int radius = int(m_range);
 	int x1 = x - radius;
 	int y1 = y - radius;
@@ -58,7 +58,7 @@ void DetectEvent::check( BaseObject* ownerObject )
 			if(&*worm != ownerObject)
 			{
 				if ( m_detectOwner || worm->getOwner() != ownerObject->getOwner() )
-				if ( worm->isCollidingWith( ownerObject->pos, m_range) )
+				if ( worm->isCollidingWith( ownerObject->pos(), m_range) )
 				{
 					//m_event->run( ownerObject, &*worm );
 					run( ownerObject, &*worm );
@@ -79,7 +79,7 @@ void DetectEvent::check( BaseObject* ownerObject )
 				{
 					//cerr << "Found: " << &*worm << endl;
 					if ( !object->deleteMe && (m_detectOwner || object->getOwner() != ownerObject->getOwner() ) )
-					if ( object->isCollidingWith( ownerObject->pos, m_range) )
+					if ( object->isCollidingWith( ownerObject->pos(), m_range) )
 					{
 						//m_event->run( ownerObject, &*object );
 						run( ownerObject, &*object );

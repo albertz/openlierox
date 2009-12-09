@@ -1,12 +1,12 @@
 #include "objects_list.h"
-#include "base_object.h"
+#include "CGameObject.h"
 
 #include <list>
 #include <vector>
 
 ObjectsList::ObjectsList()
 {
-	m_objects.insert( m_objects.begin(), RENDER_LAYERS_AMMOUNT*COLLISION_LAYERS_AMMOUNT, std::list<BaseObject*>() );
+	m_objects.insert( m_objects.begin(), RENDER_LAYERS_AMMOUNT*COLLISION_LAYERS_AMMOUNT, std::list<CGameObject*>() );
 }
 
 ObjectsList::~ObjectsList()
@@ -14,7 +14,7 @@ ObjectsList::~ObjectsList()
 	
 }
 
-void ObjectsList::insert(int colLayer, int renderLayer, BaseObject* object )
+void ObjectsList::insert(int colLayer, int renderLayer, CGameObject* object )
 {
 	if( colLayer < COLLISION_LAYERS_AMMOUNT && renderLayer < RENDER_LAYERS_AMMOUNT )
 	{
@@ -57,7 +57,7 @@ ObjectsList::Iterator ObjectsList::begin()
 {
 	Iterator retIterator;
 	// Find the first non empty list or the last list
-	std::vector< std::list<BaseObject*> >::iterator iter = m_objects.begin();
+	std::vector< std::list<CGameObject*> >::iterator iter = m_objects.begin();
 	for ( ; iter != m_objects.end() && iter->empty(); ++iter);
 	retIterator.m_list = &m_objects;
 	retIterator.currentList = iter;
@@ -118,7 +118,7 @@ ObjectsList::ColLayerIterator& ObjectsList::ColLayerIterator::operator ++()
 	return *this;
 }
 
-BaseObject* ObjectsList::ColLayerIterator::operator *()
+CGameObject* ObjectsList::ColLayerIterator::operator *()
 {
 	return *currentObject;
 }
@@ -164,7 +164,7 @@ ObjectsList::RenderLayerIterator& ObjectsList::RenderLayerIterator::operator ++(
 	return *this;
 }
 
-BaseObject* ObjectsList::RenderLayerIterator::operator *()
+CGameObject* ObjectsList::RenderLayerIterator::operator *()
 {
 	return *currentObject;
 }
@@ -206,7 +206,7 @@ ObjectsList::Iterator& ObjectsList::Iterator::operator ++()
 	return *this;
 }
 
-BaseObject* ObjectsList::Iterator::operator *()
+CGameObject* ObjectsList::Iterator::operator *()
 {
 	return *currentObject;
 }

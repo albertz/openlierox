@@ -1,7 +1,7 @@
 #ifndef NINJAROPE_H
 #define NINJAROPE_H
 
-#include "base_object.h"
+#include "CGameObject.h"
 #include "events.h"
 #include "util/vec.h"
 #include "util/angle.h"
@@ -15,13 +15,13 @@ class SpriteSet;
 class BaseAnimator;
 #endif
 class PartType;
-//class BaseWorm;
+//class CWorm;
 
-class NinjaRope : public BaseObject
+class NinjaRope : public CGameObject
 {
 public:
 
-	NinjaRope(PartType* type, BaseObject* worm);
+	NinjaRope(PartType* type, CGameObject* worm);
 	
 	void shoot(Vec _pos, Vec _spd);
 	void remove();
@@ -42,7 +42,7 @@ public:
 	}
 	
 	int getColour();
-	Vec& getPosReference();
+	CVec& getPosReference();
 	float& getLengthReference()
 	{
 		return m_length;
@@ -58,7 +58,7 @@ private:
 	Angle m_angle;
 	AngleDiff m_angleSpeed;
 	float m_length;
-	BaseObject* m_worm;
+	CGameObject* m_worm;
 #ifndef DEDICATED_ONLY
 	SpriteSet* m_sprite;
 	BaseAnimator* m_animator;

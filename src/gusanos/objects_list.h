@@ -1,14 +1,14 @@
 #ifndef OBJECTS_LIST
 #define OBJECTS_LIST
 
-//#include "base_object.h"
+//#include "CGameObject.h"
 #include <list>
 #include <vector>
 
 static const int RENDER_LAYERS_AMMOUNT = 10;
 static const int COLLISION_LAYERS_AMMOUNT = 10;
 
-class BaseObject;
+class CGameObject;
 
 class ObjectsList
 {
@@ -30,15 +30,15 @@ public:
 			~ColLayerIterator();
 	
 			ColLayerIterator& operator ++ ();
-			BaseObject* operator * ();
+			CGameObject* operator * ();
 			operator bool ();
 	
 		protected:
 		
 			int m_layer;
 			int m_position;
-			std::list<BaseObject*>::iterator currentObject;
-			std::vector< std::list<BaseObject*> >* m_list;
+			std::list<CGameObject*>::iterator currentObject;
+			std::vector< std::list<CGameObject*> >* m_list;
 	};
 
 	class RenderLayerIterator
@@ -50,15 +50,15 @@ public:
 			~RenderLayerIterator();
 	
 			RenderLayerIterator& operator ++ ();
-			BaseObject* operator * ();
+			CGameObject* operator * ();
 			operator bool ();
 	
 		protected:
 		
 			int m_layer;
 			int m_position;
-			std::list<BaseObject*>::iterator currentObject;
-			std::vector< std::list<BaseObject*> >* m_list;
+			std::list<CGameObject*>::iterator currentObject;
+			std::vector< std::list<CGameObject*> >* m_list;
 	};
 
 	class Iterator
@@ -70,21 +70,21 @@ public:
 			~Iterator();
 
 			Iterator& operator ++ ();
-			BaseObject* operator * ();
+			CGameObject* operator * ();
 			operator bool ();
 	
 		protected:
 		
-			std::vector< std::list<BaseObject*> >::iterator currentList;
-			std::list<BaseObject*>::iterator currentObject;
-			std::vector< std::list<BaseObject*> >* m_list;
+			std::vector< std::list<CGameObject*> >::iterator currentList;
+			std::list<CGameObject*>::iterator currentObject;
+			std::vector< std::list<CGameObject*> >* m_list;
 	};
 #endif
 
 	ObjectsList();
 	~ObjectsList();
 	
-	void insert(int colLayer, int renderLayer, BaseObject* object);
+	void insert(int colLayer, int renderLayer, CGameObject* object);
 	void erase(const Iterator& location);
 	void clear();
 	size_t size();
@@ -96,7 +96,7 @@ public:
 	
 	private:
 		
-	std::vector< std::list<BaseObject*> > m_objects;
+	std::vector< std::list<CGameObject*> > m_objects;
 };
 
 #endif // OBJECTS_LIST_H

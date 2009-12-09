@@ -41,7 +41,7 @@ enum {
 class CWorm;
 struct Listener;
 struct BITMAP;
-class BasePlayer;
+class CWormInputHandler;
 
 
 class CViewport {
@@ -194,7 +194,7 @@ public:
 	void gusShutdown();
 	
 	void setDestination(BITMAP* where, int x, int y, int w, int h);
-	void render(BasePlayer* player);
+	void render(CWormInputHandler* player);
 		
 	void drawLight(IVec const& v); // TEMP
 	

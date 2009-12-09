@@ -37,6 +37,26 @@
 // TODO: remove this after we changed network
 #include "CBytestream.h"
 
+// Gusanos related includes
+#include "gusanos/lua51/luaapi/types.h"
+#include "gusanos/netstream.h"
+#include "util/vec.h"
+#include "util/angle.h"
+#include <vector>
+
+
+class CWormInputHandler;
+class NinjaRope;
+class Weapon;
+class WeaponType;
+struct LuaEventDef;
+#ifndef DEDICATED_ONLY
+class SpriteSet;
+class BaseAnimator;
+class CViewport;
+#endif
+
+
 #ifdef _MSC_VER
 // Warning: this used in member initializer list
 #pragma warning(disable:4355)
@@ -148,36 +168,14 @@ float get_ai_nodes_length(NEW_ai_node_t* start);
 // this do the same as the fct above except that it don't do the sqrt
 float get_ai_nodes_length2(NEW_ai_node_t* start);
 
-class CWorm;
-
-class CWormInputHandler {
-protected:
-	CWorm* m_worm;
-public: 
-	CWormInputHandler(CWorm* w) : m_worm(w) {}
-	virtual ~CWormInputHandler() {}
-	
-	virtual std::string name() = 0;
-	
-	virtual void initWeaponSelection() = 0; // should reset at least bWeaponsReady
-	virtual void doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) = 0;
-
-	// simulation
-	virtual void startGame() {}
-	virtual void getInput() = 0;
-    virtual void clearInput() {}
-	
-	virtual void onRespawn() {}
-};
-
-
+class CWormInputHandler;
 struct WormJoinInfo;
 
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
 class CWorm: public CGameObject {
 	friend class CWormInputHandler;
-	friend class CWormBotInputHandler;
-	friend class CWormHumanInputHandler;
+	friend class CWormBotInputHandler; // TODO: remove
+	friend class CWormHumanInputHandler; // TODO: remove
 	friend struct WormJoinInfo;
 public:
 	CWorm();
@@ -644,6 +642,196 @@ public:
 	AbsTime	fLastSimulationTime;
 
 	NewNet::NetSyncedRandom NewNet_random;
+	
+	
+	// --------------------------------------------------
+	// --------------------- Gusanos --------------------
+	
+	
+public:
+	
+	enum Actions
+	{
+		MOVELEFT,
+		MOVERIGHT,
+		//AIMUP,
+		//AIMDOWN,
+		FIRE,
+		FIRE2,
+		JUMP,
+		DIG,
+		NINJAROPE,
+		CHANGEWEAPON,
+		RESPAWN
+	};
+	
+	enum Direction
+	{
+		Down = 0,
+		Left,
+		Up,
+		Right,
+		
+		DirMax
+	};
+	
+	static LuaReference metaTable;
+	//static int const luaID = 2;
+	
+	void gusInit();
+	virtual void gusShutdown();
+	
+	virtual void assignOwner( CWormInputHandler* owner);
+	
+	//void draw(BITMAP* where,int xOff, int yOff);
+	void draw(CViewport* viewport);
+	
+	void calculateReactionForce(BaseVec<long> origin, Direction dir);
+	void calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& inextPos);
+	void processMoveAndDig(void);
+	void processPhysics();
+	void processJumpingAndNinjaropeControls();
+	
+	virtual void think();
+	void actionStart( Actions action );
+	void actionStop( Actions action );
+	void addAimSpeed(AngleDiff speed);
+	void addRopeLength(float distance);
+	
+	Vec getWeaponPos();
+#ifndef DEDICATED_ONLY
+	
+	Vec getRenderPos();
+#endif
+	
+	float getHealth();
+	bool isChanging()
+	{
+		return changing;
+	}
+	
+	virtual void damage( float amount, CWormInputHandler* damager );
+	
+	// This are virtual so that NetWorm can know about them and tell others over the network.
+	virtual void respawn();
+	void respawn(const Vec& newPos);
+	
+	virtual void dig();
+	void dig(const Vec& digPos, Angle angle);
+	
+	virtual void die();
+	virtual void changeWeaponTo( unsigned int weapIndex );
+	
+	virtual void setWeapon(size_t index, WeaponType* type );
+	virtual void setWeapons( std::vector<WeaponType*> const& weaps);
+	virtual void clearWeapons();
+	
+	Weapon* getCurrentWeaponRef();
+	
+	// getWeaponIndexOffset can be used to get the currentWeapon index or
+	//to get the one to the right or the left or the one 1000 units to the
+	//right ( it will wrap the value so that its always inside the worm's weapons size )
+	int getWeaponIndexOffset( int offset );
+	Angle getAngle();
+	void setDir(int d); // Only use this if you are going to sync it over netplay with an event
+	int getDir()
+	{
+		return m_dir;
+	}
+	bool isCollidingWith( const Vec& point, float radius );
+	bool isActive();
+	void removeRefsToPlayer( CWormInputHandler* player );
+	
+#ifndef DEDICATED_ONLY
+	
+	void showFirecone( SpriteSet* sprite, int frames, float distance );
+#endif
+	
+	NinjaRope* getNinjaRopeObj();
+	
+	AngleDiff aimSpeed; // Useless to add setters and getters for this
+	Angle aimAngle;
+	
+	virtual void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL )
+	{}
+	virtual eNet_NodeRole getRole()
+	{
+		return eNet_RoleUndefined;
+	}
+	/*
+	 virtual LuaReference getLuaReference();
+	 virtual void finalize();
+	 */
+	
+	virtual void makeReference();
+	virtual void finalize();
+	
+	virtual void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+	{}
+	
+	/*
+	 void* operator new(size_t count);
+	 
+	 void operator delete(void* block)
+	 {
+	 // Lua frees the memory
+	 }
+	 
+	 void* operator new(size_t count, void* space)
+	 {
+	 return space;
+	 }
+	 */
+	
+protected:
+	//LuaReference luaReference;
+	
+#ifndef DEDICATED_ONLY
+	
+	Vec renderPos;
+#endif
+	
+	int reacts[DirMax];
+	
+	float aimRecoilSpeed;
+	float health;
+	//float currentRopeLength; //moved to Ninjarope
+	
+#ifndef DEDICATED_ONLY
+	
+	int m_fireconeTime;
+	float m_fireconeDistance;
+#endif
+	
+	int m_timeSinceDeath; // Used for the min and max respawn time sv variables
+	
+	size_t currentWeapon;
+	
+	std::vector<Weapon*> m_weapons;
+	int m_weaponCount;
+	
+	CWormInputHandler* m_lastHurt;
+	NinjaRope* m_ninjaRope;
+	
+#ifndef DEDICATED_ONLY
+	
+	SpriteSet *skin;
+	SpriteSet *skinMask;
+	SpriteSet *m_currentFirecone;
+	BaseAnimator* m_fireconeAnimator;
+	
+	BaseAnimator* m_animator;
+#endif
+	// Smaller vars last to improve alignment and/or decrease structure size
+	bool m_isActive;
+	bool movingLeft;
+	bool movingRight;
+	bool jumping;
+	bool animate;
+	bool movable; // What do we need this for? // Dunno, did I put this here? :o
+	bool changing; // This shouldnt be in the worm class ( its player stuff >:O )
+	int m_dir;
+	
 };
 
 

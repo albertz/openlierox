@@ -2,15 +2,15 @@
 #define NET_WORM_H
 
 //#include "vec.h"
-//#include "base_object.h"
-#include "base_worm.h"
+//#include "CGameObject.h"
+#include "CWorm.h"
 //#include "sprite.h"
 
 #include "netstream.h"
 
 class NetWormInterceptor;
 
-class NetWorm : public BaseWorm
+class NetWorm : public CWorm
 {	
 public:
 	friend class NetWormInterceptor;
@@ -46,7 +46,7 @@ public:
 	void think();
 	void correctOwnerPosition();
 
-	void assignOwner( BasePlayer* owner);
+	void assignOwner( CWormInputHandler* owner);
 	void setOwnerId( Net_ConnID _id );
 	void sendSyncMessage( Net_ConnID id );
 	void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
@@ -68,7 +68,7 @@ public:
 	void dig();
 	void die();
 	void changeWeaponTo( unsigned int weapIndex );
-	void damage( float amount, BasePlayer* damager );
+	void damage( float amount, CWormInputHandler* damager );
 	void setWeapon(size_t index, WeaponType* type );
 	void clearWeapons();
 	
