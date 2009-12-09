@@ -1908,7 +1908,7 @@ public:
 		if(!loader->load(m, f))
 			return false;
 		
-		if(!m->material)
+		if(!m->material || !m->image)
 			return false;
 
 		// Allocate the map
@@ -1922,7 +1922,9 @@ public:
 			}
 			return false;
 		}
-				
+		
+		SetColorKey(m->image->surf.get());
+
 		m->lockFlags();
 		for(Uint32 y = 0; y < m->Height; ++y)
 			for(Uint32 x = 0; x < m->Width; ++x)

@@ -491,7 +491,21 @@ void CMap::gusUpdateMinimap(int x, int y, int w, int h) {
 	const int dx = (int)((float)x * xratio);
 	const int dy = (int)((float)y * yratio);
 
-	(*blitFct) (bmpMiniMap.get(), background->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	if (paralax) {
+		// Calculate ratios
+		const float parxratio = (float)paralax->w / (float)Width;
+		const float paryratio = (float)paralax->h / (float)Height;
+		
+		const int parx = (int)((float)x * parxratio);
+		const int pary = (int)((float)y * paryratio);
+		const int parw = (int)((float)w * parxratio);
+		const int parh = (int)((float)h * paryratio);
+
+		(*blitFct) (bmpMiniMap.get(), paralax->surf.get(), parx, pary, dx, dy, parw, parh, xratio / parxratio, yratio / paryratio);
+	} else if(background) {
+		(*blitFct) (bmpMiniMap.get(), background->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+	}
+	
 	(*blitFct) (bmpMiniMap.get(), image->surf.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 }
 
