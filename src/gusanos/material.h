@@ -1,6 +1,8 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include "level/LXMapFlags.h"
+
 struct Material
 {
 	Material();
@@ -20,6 +22,12 @@ struct Material
 	
 	// Use as read only
 	unsigned char index;
+	
+	unsigned char toLxFlags() const {
+		if(worm_pass && particle_pass) return PX_EMPTY;
+		if(destroyable) return PX_DIRT;
+		return PX_ROCK;
+	}
 };
 
 #endif // _MATERIAL_H_

@@ -28,38 +28,10 @@
 #include "Color.h"
 #include "MathLib.h" // for SIGN
 #include "gusanos/level.h"
-
+#include "level/LXMapFlags.h"
 
 class CViewport;
 class CCache;
-
-
-#define		MAP_VERSION	0
-
-// Map types
-#define		MPT_PIXMAP	0
-#define		MPT_IMAGE	1
-
-// Pixel flags
-#define		PX_EMPTY	0x01
-#define		PX_DIRT		0x02
-#define		PX_ROCK		0x04
-#define		PX_SHADOW	0x08
-#define		PX_WORM		0x10
-
-// Object types
-#define		OBJ_HOLE	0
-#define		OBJ_STONE	1
-#define		OBJ_MISC	2
-
-#define		MAX_OBJECTS	8192
-
-// Antialiasing blur
-#define		MINIMAP_BLUR	10.0f
-
-// Shadow drop
-#define		SHADOW_DROP	3
-
 
 
 class CWorm;
@@ -143,7 +115,7 @@ public:
 		savedPixelFlags = NULL;
 		savedMapCoords.clear();
 		
-		initGusanosPart();
+		gusInit();
    	}
 
 	~CMap() {
@@ -231,14 +203,16 @@ private:
 
 public:
 	// Methods
+	bool		MiniCreate(uint _width, uint _height, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
+	bool		MiniNew(uint _width, uint _height, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return bmpImage.get() && GridFlags && AbsoluteGridFlags && PixelFlags; }
+	bool		isLoaded()	{ return bmpImage.get() && GridFlags && AbsoluteGridFlags && PixelFlags || gusIsLoaded(); }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
@@ -447,10 +421,13 @@ public:
 	// ------------------------------------------------------------------------------
 	// ------------------------------------------------------------------------------
 
+private:
+	void gusInit();
+	void gusShutdown();
+	
 public:
 	void gusThink();
 	bool gusIsLoaded() { return m_gusLoaded; }
-	void gusUnload();
 #ifndef DEDICATED_ONLY
 	void gusDraw(BITMAP* where, int x, int y);
 #endif
@@ -545,7 +522,6 @@ public:
 	{ return m_config; }
 	
 private:
-	void initGusanosPart();
 	
 	void checkWBorders( int x, int y );
 	

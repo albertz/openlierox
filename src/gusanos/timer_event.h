@@ -24,7 +24,7 @@ struct TimerEvent : public GameEvent
 	};
 
 	TimerEvent(int _delay, int _delayVariation, int _triggerTimes, int _startDelay = -1);
-	TimerEvent(std::vector<BaseAction*>& actions, int _delay, int _delayVariation, int _triggerTimes, int _startDelay = -1);
+	TimerEvent(GameEvent::Actions& actions, int _delay, int _delayVariation, int _triggerTimes, int _startDelay = -1);
 	//~TimerEvent() {};
 	State createState();
 };

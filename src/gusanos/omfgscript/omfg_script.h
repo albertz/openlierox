@@ -10,6 +10,7 @@
 #include <stdexcept>
 #include "util/log.h"
 #include <boost/crc.hpp>
+#include <boost/shared_ptr.hpp>
 
 struct BaseAction;
 
@@ -251,7 +252,7 @@ struct Parser : public Pimpl<ParserImpl>
 		
 		int type();
 		std::vector<TokenBase*> const& params();
-		std::vector<BaseAction*>& actions();
+		std::vector< boost::shared_ptr<BaseAction> >& actions();
 		
 		GameEventIter(Parser&);
 		

@@ -62,10 +62,15 @@ struct LevelConfig
 	{
 	}
 	
+	LevelConfig(const LevelConfig& c) : spawnPoints(c.spawnPoints), gameStart(NULL), gameEnd(NULL), darkMode(c.darkMode) {
+		if(c.gameStart) gameStart = new GameEvent(*c.gameStart);
+		if(c.gameEnd) gameStart = new GameEvent(*c.gameEnd);
+	}
+	
 	~LevelConfig()
 	{
-		delete gameStart;
-		delete gameEnd;
+		if(gameStart) delete gameStart;
+		if(gameEnd) delete gameEnd;
 	}
 	
 	std::vector<SpawnPoint> spawnPoints;

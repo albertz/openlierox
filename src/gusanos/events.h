@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <boost/shared_ptr.hpp>
 
 class Weapon;
 class CWorm;
@@ -14,8 +15,10 @@ class BaseAction;
 struct GameEvent
 {
 public:
+	typedef std::vector< boost::shared_ptr<BaseAction> > Actions;
+
 	GameEvent();
-	GameEvent(std::vector<BaseAction*>&);
+	GameEvent(Actions&);
 	virtual ~GameEvent();
 
 	bool addAction( const std::string& name, const std::vector<std::string>& params );
@@ -24,7 +27,7 @@ public:
 	
 	//private:
 	
-	std::vector<BaseAction*> actions;
+	Actions actions;
 };
 
 #endif  // _PART_EVENTS_H_

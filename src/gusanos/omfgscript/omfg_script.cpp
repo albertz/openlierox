@@ -520,7 +520,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 {
 	struct GameEvent
 	{
-		GameEvent(GameEventDef* def_, Parameters* params_, std::vector<BaseAction*>& actions_)
+		GameEvent(GameEventDef* def_, Parameters* params_, std::vector< boost::shared_ptr<BaseAction> >& actions_)
 		: def(def_), params(params_)
 		{
 			actions.swap(actions_);
@@ -534,7 +534,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 		//std::string name;
 		GameEventDef* def;
 		Parameters* params;
-		std::vector<BaseAction*> actions;
+		std::vector< boost::shared_ptr<BaseAction> > actions;
 	};
 	
 	struct Property
@@ -677,7 +677,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 		return action->create(params->params);
 	}
 	
-	void addEvent(GameEventDef* event, std::auto_ptr<Parameters> params, std::vector<BaseAction*>& actions)
+	void addEvent(GameEventDef* event, std::auto_ptr<Parameters> params, std::vector< boost::shared_ptr<BaseAction> >& actions)
 	{
 		params->calcCRC(crc);
 		events.push_back(new GameEvent(event, params.release(), actions));
@@ -735,7 +735,7 @@ std::vector<TokenBase*> const& Parser::GameEventIter::params()
 	return (*self->i)->params->params;
 }
 
-std::vector<BaseAction*>& Parser::GameEventIter::actions()
+std::vector< boost::shared_ptr<BaseAction> >& Parser::GameEventIter::actions()
 {
 	return (*self->i)->actions;
 }

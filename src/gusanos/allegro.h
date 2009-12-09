@@ -184,6 +184,7 @@ BITMAP *load_bitmap(const char *filename, RGB *pal);
 BITMAP *create_bitmap(int width, int height);
 BITMAP *create_bitmap_ex(int color_depth, int width, int height);
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height);
+BITMAP *create_copy_bitmap(BITMAP* other);
 void destroy_bitmap(BITMAP *bitmap);
 
 

@@ -6,6 +6,7 @@
 //#include "game_actions.h"
 #include "util/macros.h"
 #include "gusgame.h"
+#include "Debug.h"
 
 #include <vector>
 #include <string>
@@ -18,17 +19,14 @@ GameEvent::GameEvent()
 {
 }
 
-GameEvent::GameEvent(std::vector<BaseAction*>& actions_)
+GameEvent::GameEvent(Actions& actions_)
 {
 	actions.swap(actions_);
 }
 
 GameEvent::~GameEvent()
 {
-	foreach(i, actions)
-	{
-		delete *i;
-	}
+	actions.clear();
 }
 
 // This will be oobsol33t
@@ -37,14 +35,14 @@ bool GameEvent::addAction( const string& name, const vector<string>& params )
 	map<string, BaseAction*(*)( const std::vector< std::string > &) >::iterator tempAction = gusGame.actionList.find(name);
 	if ( tempAction != gusGame.actionList.end() )
 	{
-		BaseAction* action = tempAction->second(params);
+		boost::shared_ptr<BaseAction> action ( tempAction->second(params) );
 
 		actions.push_back( action );
 		return true;
 	}
 	else
 	{
-		cerr << "Action with name \"" << name << "\" does not exist" << endl;
+		errors << "Action with name \"" << name << "\" does not exist" << endl;
 		return false;
 	}
 }
@@ -52,7 +50,7 @@ bool GameEvent::addAction( const string& name, const vector<string>& params )
 void GameEvent::run( CGameObject *object, CGameObject *object2, CWorm *worm, Weapon *weapon )
 {
 	ActionParams params(object, object2, worm, weapon);
-	for ( vector<BaseAction*>::iterator action = actions.begin(); action != actions.end(); action++)
+	for ( Actions::iterator action = actions.begin(); action != actions.end(); action++)
 	{
 		(*action)->run( params );
 	}

@@ -11,7 +11,7 @@ DetectEvent::DetectEvent( float range, bool detectOwner, int detectFilter)
 	//m_event = new GameEvent;
 }
 
-DetectEvent::DetectEvent(std::vector<BaseAction*>& actions_, float range, bool detectOwner, int detectFilter)
+DetectEvent::DetectEvent(Actions& actions_, float range, bool detectOwner, int detectFilter)
 : GameEvent(actions_)
 , m_range(range), m_detectOwner(detectOwner), m_detectFilter(detectFilter)
 {

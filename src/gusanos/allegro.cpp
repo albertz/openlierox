@@ -77,7 +77,7 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
 static void dumpUsedColors(SDL_Surface* surf);
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
-	std::string fullfilename = GetFullFileName(std::string("gusanos/") + filename);	
+	std::string fullfilename = GetFullFileName(filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
 	
@@ -113,6 +113,13 @@ BITMAP *create_bitmap(int width, int height) {
 BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) {
 	sub_to_abs_coords(parent, x, y);
 	return create_bitmap_from_sdl(parent->surf, x, y, width, height);
+}
+
+BITMAP* create_copy_bitmap(BITMAP* other) {
+	if(other)
+		return create_bitmap_from_sdl(GetCopiedImage(other->surf), other->sub_x, other->sub_y, other->w, other->h);
+	else
+		return NULL;
 }
 
 void destroy_bitmap(BITMAP *bmp) {

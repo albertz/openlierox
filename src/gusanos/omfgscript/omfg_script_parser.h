@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
+#include "base_action.h"
 using std::auto_ptr;
 
 #include <boost/lexical_cast.hpp>
@@ -994,7 +995,7 @@ return false;
  }}
 return true; }
 bool full() { return cur == 0 && !error; }
-void rule_action(GameEventDef* event, std::vector<BaseAction*>& actions) {
+void rule_action(GameEventDef* event, std::vector< boost::shared_ptr<BaseAction> >& actions) {
 if(!matchToken(16)) return;
 std::auto_ptr<STRING> name(static_cast<STRING*>(curData.release()));
 next();
@@ -1031,7 +1032,7 @@ next();
 			if(param->flags & Parameters::Error)
 				semanticError("Malformed parameters", param->loc);
 			else
-				actions.push_back(self->createAction(action, param));
+				actions.push_back( boost::shared_ptr<BaseAction>( self->createAction(action, param) ) );
 		}
 	
 }
@@ -1060,7 +1061,7 @@ rule_parameters(*param);
 }
 if(!matchToken(6)) return;
 next();
- std::vector<BaseAction*> actions; 
+ std::vector< boost::shared_ptr<BaseAction> > actions; 
 while((cur == 16)) {
 rule_action(event, actions);
 }

@@ -77,7 +77,7 @@ private:
 };
 #endif
 
-void CMap::initGusanosPart()
+void CMap::gusInit()
 {
 	m_gusLoaded = false;
 	m_firstFrame = true;
@@ -138,7 +138,7 @@ void CMap::initGusanosPart()
 }
 
 
-void CMap::gusUnload()
+void CMap::gusShutdown()
 {
 	m_gusLoaded = false;
 	m_firstFrame = true;

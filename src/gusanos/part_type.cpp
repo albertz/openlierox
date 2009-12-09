@@ -264,10 +264,10 @@ bool PartType::isSimpleParticleType()
 		return false;
 	}
 		
-	std::vector<BaseAction*>::const_iterator i = groundCollision->actions.begin();
+	GameEvent::Actions::const_iterator i = groundCollision->actions.begin();
 	for(; i != groundCollision->actions.end(); ++i)
 	{
-		Remove* event = dynamic_cast<Remove *>(*i);
+		Remove* event = dynamic_cast<Remove *>(&**i);
 		if(!event)
 			return false; // groundCollision contains non-remove actions
 	}
@@ -279,7 +279,7 @@ bool PartType::isSimpleParticleType()
 		if(timer[0]->actions.size() != 1)
 			return false;
 			
-		Remove* event = dynamic_cast<Remove *>(timer[0]->actions[0]);
+		Remove* event = dynamic_cast<Remove *>(&*timer[0]->actions[0]);
 		if(!event)
 			return false; // timer event contains non-remove actions
 		

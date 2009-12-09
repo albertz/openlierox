@@ -124,7 +124,7 @@ namespace{
 	}
 
 }
-	
+
 bool VermesLevelLoader::load(CMap* level, std::string const& path)
 {
 	std::string materialPath = path + "/material";
@@ -183,7 +183,10 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 		return true;
 #endif
 	}
-	level->gusUnload();
+	
+	errors << "VermesLevelLoader: none of " << materialPath << "{.bmp,.png,''} found" << endl;
+	
+	level->gusShutdown();
 	return false;
 }
 

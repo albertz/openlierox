@@ -67,27 +67,52 @@ bool CMap::NewFrom(CMap* map)
 	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
 	
-	bmpGreenMask = GetCopiedImage(map->bmpGreenMask);
+	bmpGreenMask = map->bmpGreenMask.get() ? GetCopiedImage(map->bmpGreenMask) : NULL;
 
-	// Create the map (and bmpImage and friends)
-	if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
-		return false;
+	if(gusIsLoaded()) {
+		if (!MiniCreate(Width, Height, MinimapWidth, MinimapHeight))
+			return false;
+		
+		image = create_copy_bitmap(map->image);
+		background = create_copy_bitmap(map->background);
+		paralax = create_copy_bitmap(map->paralax);
+		lightmap = create_copy_bitmap(map->lightmap);
+		watermap = create_copy_bitmap(map->watermap);
+		material = create_copy_bitmap(map->material);
+		
+		vectorEncoding = map->vectorEncoding;
+		intVectorEncoding = map->intVectorEncoding;
+		diffVectorEncoding = map->diffVectorEncoding;
 
-	// Copy the data
-	// TODO: why DrawImage and not CopySurface?
-	DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
-	DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
-	DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
+		m_materialList = map->m_materialList;
+		m_config = map->m_config ? new LevelConfig(*map->m_config) : NULL;
+		m_firstFrame = true;
+		m_gusLoaded = true;
+		
+		m_water = map->m_water;
+		
+	} else {
+		// Create the map (and bmpImage and friends)
+		if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
+			return false;
+
+		// Copy the data
+		// TODO: why DrawImage and not CopySurface?
+		DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
+		DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
+		DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
+		DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
+	#ifdef _AI_DEBUG
+		DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
+	#endif
+	}
 	DrawImage(bmpMiniMap.get(), map->bmpMiniMap, 0, 0);
 	memcpy(PixelFlags, map->PixelFlags, Width * Height);
 	memcpy(CollisionGrid, map->CollisionGrid, Width * Height);
-	DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
-#ifdef _AI_DEBUG
-	DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
-#endif
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
-	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
+	if(Objects && map->Objects)
+		memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
 	bmpBackImageHiRes = NULL;
 	if( map->bmpBackImageHiRes.get() )
 	{
@@ -159,16 +184,12 @@ size_t CMap::GetMemorySize()
 // Allocate a new map
 bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
-	if(Created)
-		Shutdown();
+	if(!MiniCreate(_width, _height, _minimap_w, _minimap_h))
+		return false;
 
-	Width = _width;
-	Height = _height;
-	MinimapWidth = _minimap_w;
-	MinimapHeight = _minimap_h;
-
-	fBlinkTime = 0;
-
+	// reset it again and load the rest
+	Created = false;
+	
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
 	{
@@ -190,30 +211,57 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 		return false;
 	}
 
+	Created = true;
+	return true;
+}
+
+///////////////////
+// Allocate a new map
+bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
+{
+	if(Created)
+		Shutdown();
+	
+	Width = _width;
+	Height = _height;
+	MinimapWidth = _minimap_w;
+	MinimapHeight = _minimap_h;
+	
+	fBlinkTime = 0;
+	
+	Objects = NULL;
+	
 	// Create the pixel flags
 	if(!CreatePixelFlags())
 	{
 		errors("CMap::New:: ERROR: cannot create pixel flags\n");
 		return false;
 	}
-
+	
     // Create the AI Grid
     if(!createGrid())
 	{
 		errors("CMap::New: ERROR: cannot create AI grid\n");
 		return false;
 	}
-
+	
 	// Create collision grid
 	if (!createCollisionGrid())  {
 		errors("CMap::New: ERROR: cannot create collision grid\n");
 		return false;
 	}
-
+	
+	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
+	if(bmpMiniMap.get() == NULL) {
+		SetError("CMap::MiniCreate(): bmpMiniMap creation failed, perhaps out of memory");
+		return false;
+	}
+	
 	Created = true;
-
+	
 	return true;
 }
+
 
 ///////////////////
 // Create a new map
@@ -241,6 +289,33 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 
 	Created = true;
 
+	return true;
+}
+
+
+///////////////////
+// Create a new map with minimal settings (used for Gusanos)
+bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
+{
+	NumObjects = 0;
+    nTotalDirtCount = 0;
+    //sRandomLayout.bUsed = false;
+	
+	// Create the map
+	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
+		return false;
+		
+	// Update the mini map
+	UpdateMiniMap();
+	
+    // Calculate the total dirt count
+    CalculateDirtCount();
+	
+    // Calculate the grid
+    calculateGrid();
+	
+	Created = true;
+	
 	return true;
 }
 
@@ -425,18 +500,14 @@ bool CMap::CreateSurface()
 		return false;
 	}
 
-	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
-	if(bmpMiniMap.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpMiniMap creation failed, perhaps out of memory");
-		return false;
-	}
-
     bmpShadowMap = gfxCreateSurface(Width, Height);
 	if(bmpShadowMap.get() == NULL) {
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
 
+	// minimap will be allocated in MiniCreate()
+	
 	return true;
 }
 
@@ -896,7 +967,9 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 void CMap::TileMap()
 {
 	if(bDedicated) return;
-
+	
+	if(gusIsLoaded()) return;
+	
 	if(!bmpImage.get()) {
 		errors << "CMap::TileMap: map-image not loaded" << endl;
 		return;
@@ -907,17 +980,19 @@ void CMap::TileMap()
 	// Place the tiles
 
 	// Place the first row
-	for(y=0;y<Height;y+=Theme.bmpFronttile.get()->h) {
-		for(x=0;x<Width;x+=Theme.bmpFronttile.get()->w) {
-			DrawImage(bmpImage.get(), Theme.bmpFronttile,x,y);
+	if(bmpImage.get())
+		for(y=0;y<Height;y+=Theme.bmpFronttile.get()->h) {
+			for(x=0;x<Width;x+=Theme.bmpFronttile.get()->w) {
+				DrawImage(bmpImage.get(), Theme.bmpFronttile,x,y);
+			}
 		}
-	}
 
-	for(y=0;y<Height;y+=Theme.bmpBacktile.get()->h) {
-		for(x=0;x<Width;x+=Theme.bmpBacktile.get()->w) {
-			DrawImage(bmpBackImage.get(), Theme.bmpBacktile,x,y);
+	if(bmpBackImage.get())
+		for(y=0;y<Height;y+=Theme.bmpBacktile.get()->h) {
+			for(x=0;x<Width;x+=Theme.bmpBacktile.get()->w) {
+				DrawImage(bmpBackImage.get(), Theme.bmpBacktile,x,y);
+			}
 		}
-	}
 
 	// Update the draw image
 	UpdateDrawImage(0, 0, Width, Height);
@@ -2102,9 +2177,11 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 // Calculate the shadow map
 void CMap::CalculateShadowMap()
 {
-	// This should be faster
-	SDL_BlitSurface(bmpBackImage.get(), NULL, bmpShadowMap.get(), NULL);
-	DrawRectFillA(bmpShadowMap.get(),0,0,bmpShadowMap.get()->w,bmpShadowMap.get()->h,tLX->clBlack,96);
+	if(bmpBackImage.get() && bmpShadowMap.get()) {
+		// This should be faster
+		SDL_BlitSurface(bmpBackImage.get(), NULL, bmpShadowMap.get(), NULL);
+		DrawRectFillA(bmpShadowMap.get(),0,0,bmpShadowMap.get()->w,bmpShadowMap.get()->h,tLX->clBlack,96);
+	}
 }
 
 
@@ -2547,7 +2624,7 @@ bool CMap::Load(const std::string& filename)
 		bool res = loader->parseData(this);
 		delete loader;
 		if(!res) {
-			warnings << "level " << filename << " is corrupted" << endl;
+			warnings << "level loader for " << filename << " returned with error" << endl;
 			return false;
 		}
 		
@@ -2561,15 +2638,17 @@ bool CMap::Load(const std::string& filename)
 	Created = true;
     //sRandomLayout.bUsed = false;
 	
-    // Calculate the shadowmap
-	CalculateShadowMap();
+	if(!gusIsLoaded()) {
+		// Calculate the shadowmap
+		CalculateShadowMap();
+		
+		// Apply the shadow
+		ApplyShadow(0, 0, Width, Height);
+
+		// Update the draw image
+		UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
+	}
 	
-	// Apply the shadow
-	ApplyShadow(0, 0, Width, Height);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-
 	// Update the minimap
 	UpdateMiniMap(true);
 

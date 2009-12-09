@@ -47,7 +47,7 @@ TimerEvent::TimerEvent(int _delay, int _delayVariation, int _triggerTimes, int _
 		: delay(_delay), delayVariation(_delayVariation), triggerTimes(_triggerTimes), startDelay(_startDelay)
 {}
 
-TimerEvent::TimerEvent(std::vector<BaseAction*>& actions, int _delay, int _delayVariation, int _triggerTimes, int _startDelay)
+TimerEvent::TimerEvent(GameEvent::Actions& actions, int _delay, int _delayVariation, int _triggerTimes, int _startDelay)
 		: GameEvent(actions)
 		, delay(_delay), delayVariation(_delayVariation), triggerTimes(_triggerTimes), startDelay(_startDelay)
 {}

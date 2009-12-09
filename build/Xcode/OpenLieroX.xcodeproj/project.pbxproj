@@ -695,6 +695,7 @@
 		2326B57110CF9D6500D3F035 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
 		2326B58910CF9E2A00D3F035 /* gusgame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusgame.cpp; sourceTree = "<group>"; };
 		2326B58A10CF9E2A00D3F035 /* gusgame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusgame.h; sourceTree = "<group>"; };
+		2326B68110CFB34E00D3F035 /* LXMapFlags.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LXMapFlags.h; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
@@ -1653,6 +1654,14 @@
 			path = game;
 			sourceTree = "<group>";
 		};
+		2326B68010CFB33200D3F035 /* level */ = {
+			isa = PBXGroup;
+			children = (
+				2326B68110CFB34E00D3F035 /* LXMapFlags.h */,
+			);
+			path = level;
+			sourceTree = "<group>";
+		};
 		2378853A1050244700195629 /* optional */ = {
 			isa = PBXGroup;
 			children = (
@@ -2364,6 +2373,7 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2326B68010CFB33200D3F035 /* level */,
 				231BE16010CE68AD0023780D /* game */,
 				23C34F1E10CC546200DABBD6 /* util */,
 				23C34D0A10CC3A4400DABBD6 /* gusanos */,

@@ -1888,8 +1888,9 @@ private:
 
 class ML_Gusanos : public MapLoad {
 public:
+	CMap* curMap;
 	ResourceLocator<CMap>::BaseLoader* loader;
-	ML_Gusanos(ResourceLocator<CMap>::BaseLoader* l, const std::string& name) : loader(l) { head.name = name; }
+	ML_Gusanos(ResourceLocator<CMap>::BaseLoader* l, const std::string& name) : curMap(NULL), loader(l) { head.name = name; }
 	
 	std::string format() { return loader->format(); }
 	std::string formatShort() { return loader->formatShort(); }
@@ -1898,20 +1899,44 @@ public:
 		return true;
 	}
 	
-	virtual bool parseData(CMap* m) {		
+	virtual bool parseData(CMap* m) {
+		curMap = m;
+		std::string f = "levels/" + GetBaseFilename(filename);
+		notes << "Gusanos level loader: using " << loader->getName() << " for " << f << endl;
+		
 		// TODO: abs filename
-		if(!loader->load(m, "levels/" + GetBaseFilename(filename)))
+		if(!loader->load(m, f))
 			return false;
 		
 		if(!m->material)
 			return false;
+
+		// Allocate the map
+	createMap:
+		if(!m->MiniNew(m->material->w, m->material->h)) {
+			errors << "Gus lvl loader (" << filename << "): cannot allocate map" << endl;
+			if(cCache.GetEntryCount() > 0) {
+				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+				cCache.Clear();
+				goto createMap;
+			}
+			return false;
+		}
+				
+		m->lockFlags();
+		for(Uint32 y = 0; y < m->Height; ++y)
+			for(Uint32 x = 0; x < m->Width; ++x)
+				setpixelflags(x, y, m->getMaterial(x,y).toLxFlags());
+		m->unlockFlags();
 		
-		m->Width = m->material->w;
-		m->Height = m->material->h;
-		
-		return false;
+		curMap = NULL;
+		return true;
 	}
 
+	void setpixelflags(Uint32 x, Uint32 y, unsigned char flag) {
+		curMap->PixelFlags[y * curMap->Width + x] = flag;
+	}
+	
 };
 
 
