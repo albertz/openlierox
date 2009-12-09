@@ -124,7 +124,8 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 		return NULL;
 	}
 	
-	notes << "LoadSample: cannot find " << _filename << endl;
+	// dont give this warning, we expect that in many cases and try to load from default location then
+	//notes << "LoadSample: cannot find " << _filename << endl;
 	return NULL;
 }
 
