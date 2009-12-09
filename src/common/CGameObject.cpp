@@ -48,7 +48,7 @@ Vec CGameObject::getRenderPos()
 	return pos();
 }
 
-Angle CGameObject::getAngle()
+Angle CGameObject::getPointingAngle()
 {
 	return Angle(0);
 }

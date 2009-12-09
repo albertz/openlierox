@@ -88,7 +88,7 @@ public:
 	virtual CWormInputHandler* getOwner();
 	
 	// Gets the angle the object is pointing
-	virtual Angle getAngle();
+	virtual Angle getPointingAngle();
 	
 	// Gets the object's dir ( left = -1 right = 1 )
 	virtual int getDir();

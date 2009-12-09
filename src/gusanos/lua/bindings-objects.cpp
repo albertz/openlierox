@@ -76,7 +76,7 @@ int shootFromObject(lua_State* L, CGameObject* object)
 	}
 
 	char dir = object->getDir();
-	Angle baseAngle(object->getAngle() + angleOffset * dir);
+	Angle baseAngle(object->getPointingAngle() + angleOffset * dir);
 	
 	CGameObject* last = 0;
 	
@@ -234,7 +234,7 @@ METHOD(CWorm, worm_destroy,
 */
 
 METHODC(CGameObject, baseObject_getAngle,
-	lua_pushnumber(context, p->getAngle().toDeg());
+	lua_pushnumber(context, p->getPointingAngle().toDeg());
 	return 1;
 )
 

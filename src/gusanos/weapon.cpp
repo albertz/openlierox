@@ -164,7 +164,7 @@ void Weapon::think( bool isFocused, size_t index )
 void Weapon::drawBottom(BITMAP* where, int x, int y )
 {
 	if ( m_type->laserSightIntensity > 0 ) {
-		Vec direction( m_owner->getAngle() );
+		Vec direction( m_owner->getPointingAngle() );
 		Vec inc;
 		float intensityInc = 0;
 		if ( fabs(direction.x) > fabs(direction.y) ) {
@@ -194,7 +194,7 @@ void Weapon::drawBottom(BITMAP* where, int x, int y )
 void Weapon::drawTop(BITMAP* where,int x, int y)
 {
 	if ( m_type->skin ) {
-		m_type->skin->getSprite( 0, m_owner->getAngle() )->draw(where, x, y);
+		m_type->skin->getSprite( 0, m_owner->getPointingAngle() )->draw(where, x, y);
 	}
 }
 #endif

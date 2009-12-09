@@ -704,7 +704,6 @@ public:
 	Vec getRenderPos();
 #endif
 	
-	float getHealth();
 	bool isChanging()
 	{
 		return changing;
@@ -732,7 +731,7 @@ public:
 	//to get the one to the right or the left or the one 1000 units to the
 	//right ( it will wrap the value so that its always inside the worm's weapons size )
 	int getWeaponIndexOffset( int offset );
-	Angle getAngle();
+	Angle getPointingAngle();
 	void setDir(int d); // Only use this if you are going to sync it over netplay with an event
 	int getDir()
 	{
@@ -794,7 +793,6 @@ protected:
 	int reacts[DirMax];
 	
 	float aimRecoilSpeed;
-	float health;
 	//float currentRopeLength; //moved to Ninjarope
 	
 #ifndef DEDICATED_ONLY

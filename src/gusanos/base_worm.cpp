@@ -70,7 +70,6 @@ void CWorm::gusInit()
 
 	m_isActive = false;
 
-	health = 0;
 	aimRecoilSpeed = 0;
 
 	currentWeapon = 0;
@@ -607,12 +606,7 @@ Vec CWorm::getWeaponPos()
 	return renderPos - Vec(0,game.options.worm_weaponHeight+0.5);
 }*/
 
-float CWorm::getHealth()
-{
-	return health;
-}
-
-Angle CWorm::getAngle()
+Angle CWorm::getPointingAngle()
 {
 	return m_dir > 0 ? aimAngle : Angle(360.0) - aimAngle ;
 }
@@ -792,14 +786,14 @@ void CWorm::draw(CViewport* viewport)
 			int colour = universalToLocalColor(m_owner->colour);
 			
 			
-			skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getAngle())->draw(where, renderX, renderY);
+			skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);
 
 			if ( m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);
 
 			if ( m_currentFirecone ) {
 				Vec distance = Vec(aimAngle, (double)m_fireconeDistance);
-				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getAngle())->
+				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
 				draw(where, renderX+static_cast<int>(distance.x)*m_dir, renderY+static_cast<int>(distance.y));
 			}
 
@@ -853,7 +847,6 @@ void CWorm::respawn()
 void CWorm::respawn( const Vec& newPos)
 {
 	m_isActive = true;
-	health = 100;
 	aimAngle = Angle(90.0);
 	velocity() = CVec ( 0, 0 );
 	pos() = newPos;
@@ -873,7 +866,7 @@ void CWorm::respawn( const Vec& newPos)
 void CWorm::dig()
 {
 	if ( m_isActive )
-		dig( pos(), getAngle() );
+		dig( pos(), getPointingAngle() );
 }
 
 void CWorm::dig( const Vec& digPos, Angle angle )
