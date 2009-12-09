@@ -14,6 +14,7 @@
 #include "blitters/blitters.h"
 #include "culling.h"
 #include "CMap.h"
+#include "game/Game.h"
 #include <list>
 
 #include "sprite_set.h" // TEMP
@@ -190,7 +191,7 @@ void CViewport::gusRender()
 
 #if 0
 	if(gfx.m_haxWormLight) {
-		CWormInputHandler* player = gusGame.localPlayers[0];
+		CWormInputHandler* player = game.localPlayers[0];
 
 		CWorm* worm = player->getWorm();
 		if(worm->isActive()) {
@@ -206,7 +207,7 @@ void CViewport::gusRender()
 	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
 
 	EACH_CALLBACK(i, wormRender) {
-		for(list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter) {
+		for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
 			CWorm* worm = (*playerIter)->getWorm();
 			if( worm && worm->isActive() ) {
 				IVec renderPos( worm->getRenderPos() );

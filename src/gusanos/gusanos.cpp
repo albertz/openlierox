@@ -32,6 +32,7 @@
 #include "glua.h"
 #include "lua51/luaapi/context.h"
 #include "util/log.h"
+#include "game/Game.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -151,7 +152,7 @@ void gusLogicFrame() {
 			}
 #endif
 			
-			for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
+			for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{
 				(*iter)->think();
 			}
@@ -164,8 +165,8 @@ void gusLogicFrame() {
 		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
 		
-		//for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end();)
-		foreach_delete(iter, gusGame.players)
+		//for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end();)
+		foreach_delete(iter, game.players)
 		{
 			if ( (*iter)->deleteMe )
 			{
@@ -184,11 +185,11 @@ void gusLogicFrame() {
 				 */
 				if ( CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*>(*iter) )
 				{
-					foreach ( p, gusGame.localPlayers )
+					foreach ( p, game.localPlayers )
 					{
 						if ( player == *p )
 						{
-							gusGame.localPlayers.erase(p);
+							game.localPlayers.erase(p);
 							break;
 						}
 					}
@@ -197,7 +198,7 @@ void gusLogicFrame() {
 				 (*iter)->removeWorm();
 				 */
 				(*iter)->deleteThis();
-				gusGame.players.erase(iter);
+				game.players.erase(iter);
 			}
 		}
 		
@@ -234,7 +235,7 @@ void gusRenderFrameMenu() {
 	if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
 	{
 
-		for ( list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
+		for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 		{
 			(*iter)->render();
 		}
@@ -243,7 +244,7 @@ void gusRenderFrameMenu() {
 		if (showDebug)
 		{
 			gusGame.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(gusGame.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
-			gusGame.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(gusGame.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
 			gusGame.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
 			gusGame.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);
 		}

@@ -9,6 +9,7 @@
 #include "util/text.h"
 #include "util/log.h"
 #include "util/stringbuild.h"
+#include "game/Game.h"
 #include <boost/bind.hpp>
 
 #include <string>
@@ -19,9 +20,9 @@ using namespace std;
 
 string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
-	if ( index < gusGame.localPlayers.size() )
+	if ( index < game.localPlayers.size() )
 	{
-		CWormHumanInputHandler& player = *gusGame.localPlayers[index];
+		CWormHumanInputHandler& player = *game.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -49,9 +50,9 @@ string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<str
 
 string eventStop(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
 {
-	if ( index < gusGame.localPlayers.size() )
+	if ( index < game.localPlayers.size() )
 	{
-		CWormHumanInputHandler& player = *gusGame.localPlayers[index];
+		CWormHumanInputHandler& player = *game.localPlayers[index];
 		
 		bool ignore = false;
 		
@@ -102,9 +103,9 @@ string say( const list<string> &args )
 {
 	if ( !args.empty() )
 	{
-		if ( !gusGame.localPlayers.empty() )
+		if ( !game.localPlayers.empty() )
 		{
-			gusGame.localPlayers[0]->sendChatMsg( *(args.begin()) );
+			game.localPlayers[0]->sendChatMsg( *(args.begin()) );
 		}
 	}
 	else

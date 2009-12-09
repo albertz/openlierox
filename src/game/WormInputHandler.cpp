@@ -18,6 +18,7 @@
 #include "gusanos/encoding.h"
 #include "gusanos/weapon_type.h"
 #include "util/log.h"
+#include "game/Game.h"
 
 #include "gusanos/glua.h"
 #include "gusanos/lua/bindings-game.h"
@@ -358,7 +359,7 @@ void CWormInputHandler::addActionStop(Net_BitStream* data, CWormInputHandler::Ba
 bool nameIsTaken( const std::string& name )
 {
 	list<CWormInputHandler*>::iterator playerIter;
-	for ( playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); playerIter++ ) {
+	for ( playerIter = game.players.begin(); playerIter != game.players.end(); playerIter++ ) {
 		if ( (*playerIter)->m_name == name ) {
 			return true;
 		}

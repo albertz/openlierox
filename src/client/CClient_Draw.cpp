@@ -826,9 +826,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	if(gusanosDrawing) {
 		v->gusRender();
 		//gusRenderFrameMenu();	
-		//DrawImageScale2x(bmpDest, gfx.buffer->surf.get(), 0,0,0,0, 320, 240);
 		DrawImageScale2x(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
-		//CopySurface(bmpDest, gfx.buffer->surf.get(), 0, 0, 0, 0, 320, 240);
 		return;
 	}
 		

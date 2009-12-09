@@ -73,7 +73,7 @@ public:
 	{
 		if ( m_locked )
 		{
-			std::cout << "Attempt to load resource after indexation" << std::endl;
+			errors << "Attempt to load resource after indexation" << endl;
 			return NULL;
 		}
 

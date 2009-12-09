@@ -17,6 +17,7 @@
 #include "encoding.h"
 #include "gconsole.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 #include <math.h>
 #include <vector>
@@ -461,7 +462,7 @@ bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNe
 		{
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 			list<CWormInputHandler*>::iterator playerIter;
-			for ( playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); playerIter++)
+			for ( playerIter = game.players.begin(); playerIter != game.players.end(); playerIter++)
 			{
 				if ( (*playerIter)->getNodeID() == recievedID )
 				{

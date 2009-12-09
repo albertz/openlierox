@@ -15,6 +15,7 @@
 #include "../glua.h"
 #include "util/log.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 #include <cmath>
 #include <iostream>
@@ -410,7 +411,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
+	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		if(p->getOwner() != *playerIter)
 		{

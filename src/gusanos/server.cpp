@@ -12,6 +12,7 @@
 #include "util/log.h"
 #include "encoding.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 #ifndef DISABLE_ZOIDCOM
 
@@ -148,7 +149,7 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
-	for ( std::list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++) {
+	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
 		if ( (*iter)->getConnectionID() == _id ) {
 			(*iter)->deleteMe = true;
 		}

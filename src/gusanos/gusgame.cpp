@@ -47,6 +47,7 @@
 #include "FindFile.h"
 #include "CClient.h"
 #include "CServer.h"
+#include "game/Game.h"
 
 #include "gusanos/allegro.h"
 #include <string>
@@ -245,8 +246,8 @@ string rConCompleter(Console* con, int idx, std::string const& beginning)
 CWormInputHandler* findPlayerByName(std::string const& name)
 {
 	//CWormInputHandler* player2Kick = 0;
-	//for ( std::list<CWormInputHandler*>::iterator iter = gusGame.players.begin(); iter != gusGame.players.end(); iter++)
-	foreach(iter, gusGame.players)
+	//for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+	foreach(iter, game.players)
 	{
 		if ( (*iter)->m_name == name )
 		{
@@ -303,7 +304,7 @@ string kickCompleter(Console* con, int idx, std::string const& beginning)
 		return beginning;
 		
 	return shellComplete(
-		gusGame.players,
+		game.players,
 		beginning.begin(),
 		beginning.end(),
 		BasePlayerIterGetText(),
@@ -772,12 +773,12 @@ void GusGame::runInitScripts()
 void GusGame::reset(ResetReason reason)
 {
 	// Delete all players
-	for ( list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
+	for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); ++iter)
 	{
 		(*iter)->deleteThis();
 	}
-	players.clear();
-	localPlayers.clear();
+	game.players.clear();
+	game.localPlayers.clear();
 	
 	// Delete all objects
 #ifdef USE_GRID
@@ -1168,7 +1169,7 @@ std::string const& GusGame::getDefaultPath()
 CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
 {
 	list<CWormInputHandler*>::iterator playerIter;
-	for ( playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
+	for ( playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		if ( (*playerIter)->getNodeID() == ID )
 		{
@@ -1195,22 +1196,22 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		
 		case OWNER:
 		{
-			if ( localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
+			if ( game.localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
 			// TODO: gusGame::addplayer
 			CWormHumanInputHandler* player = NULL; // new CWormHumanInputHandler( playerOptions[localPlayers.size()], worm );
 #ifndef DEDICATED_ONLY
 			CViewport* viewport = new CViewport;
 			if ( options.splitScreen )
 			{
-				viewport->setDestination(gfx.buffer,localPlayers.size()*160,0,160,240);
+				viewport->setDestination(gfx.buffer,game.localPlayers.size()*160,0,160,240);
 			}else
 			{
 				viewport->setDestination(gfx.buffer,0,0,320,240);
 			}
 			player->assignViewport(viewport);
 #endif
-			players.push_back( player );
-			localPlayers.push_back( player );
+			game.players.push_back( player );
+			game.localPlayers.push_back( player );
 			player->local = true;
 			EACH_CALLBACK(i, localplayerInit)
 			{
@@ -1223,7 +1224,7 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		case PROXY:
 		{
 			ProxyPlayer* player = new ProxyPlayer(worm);
-			players.push_back( player );
+			game.players.push_back( player );
 			p = player;
 		}
 		break;
@@ -1231,7 +1232,7 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		case AI:
 		{
 			PlayerAI* player = new PlayerAI(team, worm);
-			players.push_back( player );
+			game.players.push_back( player );
 			p = player;
 		}
 	}

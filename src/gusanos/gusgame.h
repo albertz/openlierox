@@ -212,8 +212,6 @@ public:
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;
 	std::set<std::string> modList;
 	
-	std::vector<CWormHumanInputHandler*> localPlayers;
-	std::list<CWormInputHandler*> players;
 #ifdef USE_GRID
 	Grid objects;
 #else

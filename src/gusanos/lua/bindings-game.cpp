@@ -16,6 +16,7 @@
 #include "util/log.h"
 #include "util/stringbuild.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 #include <cmath>
 #include <iostream>
@@ -34,9 +35,9 @@ LuaReference playerIterator(0);
 LuaReference CWormInputHandlerMetaTable;
 
 LUA_CALLBACK(luaControl(LuaReference ref, size_t playerIdx, bool state, std::list<std::string> const& args))
-	if(playerIdx >= gusGame.localPlayers.size())
+	if(playerIdx >= game.localPlayers.size())
 		LUA_ABORT();
-	gusGame.localPlayers[playerIdx]->pushLuaReference();
+	game.localPlayers[playerIdx]->pushLuaReference();
 	lua.push(state);
 	params += 2;
 END_LUA_CALLBACK()
@@ -100,7 +101,7 @@ int l_game_players(lua_State* L)
 	lua.pushReference(LuaBindings::playerIterator);
 	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
-	i = gusGame.players.begin();
+	i = game.players.begin();
 	lua_pushnil(L);
 	
 	return 3;
@@ -114,9 +115,9 @@ int l_game_players(lua_State* L)
 int l_game_localPlayer(lua_State* L)
 {
 	size_t i = (size_t)lua_tointeger(L, 1);
-	if(i < gusGame.localPlayers.size())
+	if(i < game.localPlayers.size())
 	{
-		gusGame.localPlayers[i]->pushLuaReference();
+		game.localPlayers[i]->pushLuaReference();
 		return 1;
 	}
 	else
@@ -287,7 +288,7 @@ int l_game_getClosestWorm(lua_State* L)
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = gusGame.players.begin(); playerIter != gusGame.players.end(); ++playerIter)
+	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		CWorm* worm = (*playerIter)->getWorm();
 		
@@ -313,7 +314,7 @@ int l_game_playerIterator(lua_State* L)
 {
 	typedef std::list<CWormInputHandler*>::iterator iter;
 	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == gusGame.players.end())
+	if(i == game.players.end())
 		lua_pushnil(L);
 	else
 	{
