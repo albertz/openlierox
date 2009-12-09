@@ -10,6 +10,19 @@
 #ifndef __OLX_GAME_H__
 #define __OLX_GAME_H__
 
+#include "types.h"
 
+class Game {
+public:
+	void prepareGameloop();
+	void frameOuter();
+	void frameInner();
+	void cleanupAfterGameloopEnd();
+	
+private:
+	AbsTime oldtime;
+};
+
+extern Game game;
 
 #endif
