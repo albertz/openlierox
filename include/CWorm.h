@@ -683,7 +683,6 @@ public:
 	
 	virtual void assignOwner( CWormInputHandler* owner);
 	
-	//void draw(BITMAP* where,int xOff, int yOff);
 	void draw(CViewport* viewport);
 	
 	void calculateReactionForce(BaseVec<long> origin, Direction dir);
@@ -700,7 +699,6 @@ public:
 	
 	Vec getWeaponPos();
 #ifndef DEDICATED_ONLY
-	
 	Vec getRenderPos();
 #endif
 	
@@ -742,7 +740,6 @@ public:
 	void removeRefsToPlayer( CWormInputHandler* player );
 	
 #ifndef DEDICATED_ONLY
-	
 	void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
 	
@@ -757,31 +754,13 @@ public:
 	{
 		return eNet_RoleUndefined;
 	}
-	/*
-	 virtual LuaReference getLuaReference();
-	 virtual void finalize();
-	 */
 	
 	virtual void makeReference();
 	virtual void finalize();
 	
 	virtual void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 	{}
-	
-	/*
-	 void* operator new(size_t count);
-	 
-	 void operator delete(void* block)
-	 {
-	 // Lua frees the memory
-	 }
-	 
-	 void* operator new(size_t count, void* space)
-	 {
-	 return space;
-	 }
-	 */
-	
+		
 protected:
 	//LuaReference luaReference;
 	
@@ -793,7 +772,6 @@ protected:
 	int reacts[DirMax];
 	
 	float aimRecoilSpeed;
-	//float currentRopeLength; //moved to Ninjarope
 	
 #ifndef DEDICATED_ONLY
 	

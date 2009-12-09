@@ -34,20 +34,12 @@
 #include <boost/lexical_cast.hpp>
 using boost::lexical_cast;
 
-/*
-void* CWorm::operator new(size_t count)
-{
-	//CWorm* p = (CWorm *)lua_newuserdata (lua, count);
-	CWorm* p = (CWorm *)lua.pushObject(LuaBindings::wormMetaTable, count);
-	p->luaReference = lua.createReference();
-	return (void *)p;
-}*/
 
 LuaReference CWorm::metaTable;
 
 void CWorm::gusInit()
 {
-	aimSpeed=(0.0); aimAngle=(90.0); m_lastHurt=(0);
+	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
 #ifndef DEDICATED_ONLY
 	m_animator=(0);
 #endif
@@ -91,10 +83,14 @@ void CWorm::gusInit()
 void CWorm::gusShutdown()
 {
 #ifndef DEDICATED_ONLY
-	delete m_animator;
-	m_animator = 0;
-	delete m_fireconeAnimator;
-	m_fireconeAnimator = 0;
+	if(m_animator) {
+		delete m_animator;
+		m_animator = 0;
+	}
+	if(m_fireconeAnimator) {
+		delete m_fireconeAnimator;
+		m_fireconeAnimator = 0;
+	}
 #endif
 
 	//m_ninjaRope->deleteMe = true;
@@ -223,12 +219,12 @@ void CWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& i
 	// Add more if the worm is outside the screen
 	if(inextPos.x < 5)
 		reacts[Right] += 5;
-	else if(inextPos.x > game.level().GetWidth() - 5)
+	else if(inextPos.x > (long)game.level().GetWidth() - 5)
 		reacts[Left] += 5;
 
 	if(inextPos.y < 5)
 		reacts[Down] += 5;
-	else if(inextPos.y > game.level().GetHeight() - 5)
+	else if(inextPos.y > (long)game.level().GetHeight() - 5)
 		reacts[Up] += 5;
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
@@ -450,143 +446,6 @@ void CWorm::think()
 		}
 		++m_timeSinceDeath;
 	}
-	/* TODO
-}
-	else
-{
-		//Respawn
-}
-	*/
-	/* OLD CODE
-		spd.y+=game.options.worm_gravity;
-		
-		if ( m_ninjaRope->attached && (m_ninjaRope->pos - pos).length() > currentRopeLength)
-		{
-			spd += (m_ninjaRope->pos - pos).normal() * game.options.ninja_rope_pullForce;
-		}
-	 
-		if ( movingRight ) 
-		{
-			if ( spd.x < game.options.worm_maxSpeed )
-			{
-				if (game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
-					spd.x += game.options.worm_acceleration * game.options.worm_airAccelerationFactor;
-				else
-					spd.x += game.options.worm_acceleration;
-			}
-			dir = 1;
-		}
-		
-		if ( movingLeft ) 
-		{
-			if ( -spd.x < game.options.worm_maxSpeed )
-			{
-				if (game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y + 1) ).particle_pass)
-					spd.x -= game.options.worm_acceleration * game.options.worm_airAccelerationFactor;
-				else
-					spd.x -= game.options.worm_acceleration;
-			}
-			dir = -1;
-		}
-		
-		
-		// Bottom collision
-		Material g = game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y) );
-		if (!g.particle_pass && spd.y > 0)
-		{
-			// Floor friction;
-			if ( fabs(spd.x) < game.options.worm_friction ) spd.x=0;
-			if ( spd.x < 0 ) spd.x += game.options.worm_friction;
-			if ( spd.x > 0 ) spd.x += -game.options.worm_friction;
-				
-			if ( spd.y < game.options.worm_bounceLimit ) spd.y=0;
-			else
-			{
-				spd.y*=-game.options.worm_bounceQuotient;
-			}
-		}
-		
-		// Top collision
-		g = game.level().getMaterial( (int)pos.x, (int)(pos.y + spd.y - game.options.worm_height) );
-		if (!g.particle_pass && spd.y < 0)
-		{
-			// Roof friction;
-			if ( fabs(spd.x) < game.options.worm_friction ) spd.x=0;
-			if ( spd.x < 0 ) spd.x += game.options.worm_friction;
-			if ( spd.x > 0 ) spd.x += -game.options.worm_friction;
-				
-			if ( -spd.y < game.options.worm_bounceLimit ) spd.y=0;
-			else
-			{
-				spd.y*=-game.options.worm_bounceQuotient;
-			}
-		}
-		
-		//Side collisions and climbing
-		//int o = 0;
-		int upper = -1;
-		int lower = -1;
-		for ( int i = 0; i < game.options.worm_height; i++ )
-		{
-			if (!game.level().getMaterial( (int)(pos.x + spd.x), (int)(pos.y - i) ).particle_pass) lower = i;
-		}
-		for ( int i = 0; i <= game.options.worm_height; i++ )
-		{
-			if (!game.level().getMaterial( (int)(pos.x + spd.x), (int)(pos.y - game.options.worm_height + i) ).particle_pass) upper = i;
-		}
-		
-		// Floor climb
-		if (lower <= game.options.worm_maxClimb && lower != -1 && !spd.x == 0)
-		{
-			pos.y -= 1;
-		}
-		
-		// Roof climb
-		if (upper <= game.options.worm_maxClimb && upper != -1 && !spd.x == 0)
-		{
-			pos.y += 1;
-		}
-		
-		if ( lower >= game.options.worm_maxClimb / 2 )
-		{
-			if ( fabs( spd.x ) > game.options.worm_bounceLimit )
-			{
-				spd.x *= -game.options.worm_bounceQuotient;
-			}
-			else spd.x = 0;
-		}
-		
-		if ( upper == -1 && lower == -1 )
-			pos.x += spd.x;
-		pos.y += spd.y;
-		
-		if ( m_owner )
-		{
-			if ( fabs(aimSpeed) < m_owner->getOptions()->aimFriction ) aimSpeed = 0;
-			else if ( aimSpeed > 0 ) aimSpeed -= m_owner->getOptions()->aimFriction;
-			else if ( aimSpeed < 0 ) aimSpeed += m_owner->getOptions()->aimFriction;
-		}
-		aimAngle += aimSpeed;
-	 
-		if( aimAngle < 0 )
-		{
-			aimAngle = 0;
-			aimSpeed = 0;
-		}
-		if( aimAngle > 180 )
-		{
-			aimAngle = 180;
-			aimSpeed = 0;
-		}
-			
-		if ( movingLeft || movingRight ) m_animator->tick();
-			
-		// Make weapons think
-		for ( size_t i = 0; i < m_weapons.size(); ++i )
-		{
-			m_weapons[i]->think();
-		}
-	*/
 }
 
 Vec CWorm::getWeaponPos()
@@ -600,11 +459,6 @@ Vec CWorm::getRenderPos()
 	return renderPos;// - Vec(0,0.5);
 }
 #endif
-/*
-Vec CWorm::getWeaponPos()
-{
-	return renderPos - Vec(0,game.options.worm_weaponHeight+0.5);
-}*/
 
 Angle CWorm::getPointingAngle()
 {
@@ -636,46 +490,6 @@ void CWorm::setDir(int d)
 {
 	m_dir = d;
 }
-
-/*
-bool CWorm::isCollidingWith( const Vec& point, float radius )
-{
-	if ( m_isActive )
-	if ( pos.x+game.options.worm_boxRadius > point.x-radius && pos.x-game.options.worm_boxRadius < point.x+radius )
-	if ( pos.y+game.options.worm_boxBottom > point.y-radius && pos.y-game.options.worm_boxTop < point.y+radius )
-	{
-		if ( point.x > pos.x+game.options.worm_boxRadius )
-		{
-			if ( point.y > pos.y+game.options.worm_boxBottom)
-			{
-				if ( (pos + Vec(game.options.worm_boxRadius,game.options.worm_boxBottom) - point).lengthSqr() < radius*radius )
-					return true;
-			}else if (point.y < pos.y-game.options.worm_boxTop)
-			{
-				if ( (pos + Vec(game.options.worm_boxRadius,-game.options.worm_boxTop) - point).lengthSqr() < radius*radius )
-					return true;
-			}else
-				return true;
-		}else if ( point.x < pos.x-game.options.worm_boxRadius )
-		{
-			if ( point.y > pos.y+game.options.worm_boxBottom)
-			{
-				if ( (pos + Vec(-game.options.worm_boxRadius,game.options.worm_boxBottom) - point).lengthSqr() < radius*radius )
-					return true;
-			}else if (point.y < pos.y-game.options.worm_boxTop)
-			{
-				if ( (pos + Vec(-game.options.worm_boxRadius,-game.options.worm_boxTop) - point).lengthSqr() < radius*radius )	
-					return true;
-			}else
-				return true;
-		}else
-		{
-			return true;
-		}
-	}
-	return false;
-}
-*/
 
 bool CWorm::isCollidingWith( Vec const& point, float radius )
 {
@@ -755,29 +569,9 @@ void CWorm::draw(CViewport* viewport)
 			int renderX = x;
 			int renderY = y;
 
-			/*
-			if ( m_weapons[currentWeapon] && m_weapons[currentWeapon]->reloading )
-			{
-				IVec crosshair = IVec(getAngle(), 25.0) + rPos;
-				float radius = m_weapons[currentWeapon]->reloadTime / (float)m_weapons[currentWeapon]->m_type->reloadTime;
-				circle(where, crosshair.x,crosshair.y,2,makecol(static_cast<int>(255*radius), static_cast<int>(255*(1-radius)),0));
-		}
-			else for(int i = 0; i < 10; i++)
-			{
-				Vec crosshair = Vec(getAngle(), rnd()*10.0+20.0);
-				putpixel(where, x+static_cast<int>( crosshair.x ), y+static_cast<int>(crosshair.y), makecol(255,0,0));
-		}*/
-
-
 			if (m_ninjaRope->active) {
 				IVec nrPos = viewport->convertCoords( IVec(Vec(m_ninjaRope->pos())) );
 				line(where, x, y, nrPos.x, nrPos.y, m_ninjaRope->getColour());
-				/*linewu_solid(where
-					, x
-					, y
-					, nrPos.x
-					, nrPos.y
-				, m_ninjaRope->getColour());*/
 			}
 
 			if ( m_weapons[currentWeapon] )
@@ -796,28 +590,6 @@ void CWorm::draw(CViewport* viewport)
 				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
 				draw(where, renderX+static_cast<int>(distance.x)*m_dir, renderY+static_cast<int>(distance.y));
 			}
-
-			/*
-			if(changing && m_weapons[currentWeapon])
-			{
-				std::string const& weaponName = m_weapons[currentWeapon]->m_type->name;
-				std::pair<int, int> dim = game.infoFont->getDimensions(weaponName);
-				int wx = x - dim.first / 2;
-				int wy = y - dim.second / 2 - 10;
-							
-				game.infoFont->draw(where, weaponName, wx, wy);
-		}*/
-
-			/*
-			if ( false && m_owner && !dynamic_cast<CWormHumanInputHandler*>(m_owner) )
-			{
-				std::string const& playerName = m_owner->m_name;
-				std::pair<int, int> dim = game.infoFont->getDimensions(playerName, 0, Font::Formatting);
-				int wx = x - dim.first / 2;
-				int wy = y - dim.second / 2 - 10;
-								
-				game.infoFont->draw(where, playerName, wx, wy, 0, 256, 255, 255, 255, Font::Formatting);
-		}*/
 		}
 
 #ifdef DEBUG_WORM_REACTS
@@ -891,7 +663,6 @@ void CWorm::die()
 	m_ninjaRope->remove();
 	m_timeSinceDeath = 0;
 	if ( game.deathObject ) {
-		//game.insertParticle( new Particle( game.deathObject, pos, spd, m_dir, m_owner, spd.getAngle() ) );
 		game.deathObject->newParticle( game.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
 	}
 }
@@ -1010,29 +781,10 @@ void CWorm::actionStop( Actions action )
 	}
 }
 
-/*
-void CWorm::pushLuaReference()
-{
-	lua.pushReference(luaReference);
-}*/
-
 void CWorm::makeReference()
 {
 	lua.pushFullReference(*this, metaTable);
 }
-
-/*
-LuaReference CWorm::getLuaReference()
-{
-	if(luaReference)
-		return luaReference;
-	else
-	{
-		lua.pushFullReference(*this, metaTable);
-		luaReference = lua.createReference();
-		return luaReference;
-	}
-}*/
 
 void CWorm::finalize()
 {

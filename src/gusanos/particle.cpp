@@ -346,9 +346,9 @@ void Particle::think()
 				if ( averageCorrection.length() > 0 ) {
 					averageCorrection /= n;
 					Vec tmpNorm = averageCorrection.normal();
-					velocity() -= ( tmpNorm.perp() * tmpNorm.perpDotProduct(velocity()) ) * ( 1 - friction );
+					velocity() -= CVec( tmpNorm.perp() * tmpNorm.perpDotProduct(velocity()) ) * ( 1 - friction );
 					pos() += CVec(averageCorrection);
-					velocity() += averageCorrection* speedCorrection * 2;
+					velocity() += CVec(averageCorrection) * speedCorrection * 2;
 				}
 			}
 		}

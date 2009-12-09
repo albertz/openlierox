@@ -141,8 +141,8 @@ void NetWorm::think()
 						pos.y = data->getFloat(32);
 						spd.x = data->getFloat(32);
 						spd.y = data->getFloat(32);*/
-						pos() = game.level().vectorEncoding.decode<Vec>(*data);
-						velocity() = game.level().vectorEncoding.decode<Vec>(*data);
+						pos() = CVec(game.level().vectorEncoding.decode<Vec>(*data));
+						velocity() = CVec(game.level().vectorEncoding.decode<Vec>(*data));
 					}
 					break;
 					case Respawn:

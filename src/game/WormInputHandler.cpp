@@ -38,12 +38,10 @@ CWormInputHandler::Stats::~Stats()
 		lua.destroyReference(luaData);
 }
 
-/*
- LuaReference CWormInputHandler::metaTable()
- {
- return LuaBindings::playerMetaTable;
- }
- */
+
+void CWormInputHandler::gusInit(CWorm* w) {
+	gusInit(shared_ptr<PlayerOptions>(), w);
+}
 
 void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 {

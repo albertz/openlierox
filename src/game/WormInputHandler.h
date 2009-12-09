@@ -50,7 +50,7 @@ class CWormInputHandler {
 protected:
 	CWorm* m_worm;
 public: 
-	CWormInputHandler(CWorm* w) : m_worm(w) {}
+	CWormInputHandler(CWorm* w) : m_worm(w) { gusInit(w); }
 	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm) { gusInit(options, worm); }
 	virtual ~CWormInputHandler() { gusShutdown(); }
 	
@@ -131,6 +131,7 @@ public:
 	// do not confuse with the node ID which identifies instances of the class.
 	static Net_ClassID  classID;
 	
+	void gusInit(CWorm* w);
 	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
 	virtual void gusShutdown();
 	
@@ -169,19 +170,6 @@ public:
 	void pushLuaReference();
 	virtual void deleteThis();
 	
-	/*
-	 void* operator new(size_t count);
-	 
-	 void operator delete(void* block)
-	 {
-	 
-	 }
-	 
-	 void* operator new(size_t count, void* space)
-	 {
-	 return space;
-	 }
-	 */
 	shared_ptr<Stats> stats;
 	
 	bool deleteMe;
