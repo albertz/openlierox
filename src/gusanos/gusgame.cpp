@@ -22,7 +22,7 @@
 #include "util/macros.h"
 #include "util/log.h"
 #ifndef DEDICATED_ONLY
-#include "sfx.h"
+#include "sound/sfx.h"
 #include "sound.h"
 #include "font.h"
 #include "menu.h"

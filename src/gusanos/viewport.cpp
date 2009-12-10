@@ -3,7 +3,7 @@
 #include "CViewport.h"
 
 #include "gusgame.h"
-#include "sfx.h"
+#include "sound/sfx.h"
 #include "gfx.h"
 #include "gusanos/allegro.h"
 #include "CWorm.h"

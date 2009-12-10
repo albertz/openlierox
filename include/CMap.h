@@ -212,7 +212,7 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return bmpImage.get() && GridFlags && AbsoluteGridFlags && PixelFlags || gusIsLoaded(); }
+	bool		isLoaded()	{ return PixelFlags && ((bmpImage.get() && GridFlags && AbsoluteGridFlags) || gusIsLoaded()); }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }

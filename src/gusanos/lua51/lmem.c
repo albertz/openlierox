@@ -18,7 +18,6 @@
 #include "lobject.h"
 #include "lstate.h"
 
-#include "gusanos/allegro.h"
 
 
 

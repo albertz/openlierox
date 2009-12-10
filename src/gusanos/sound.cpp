@@ -1,10 +1,10 @@
 #ifndef DEDICATED_ONLY
 
 #include "sound.h"
-#include "sound_sample.h"
-#include "sfxdriver.h"
+#include "sound/sound_sample.h"
+#include "sound/sfxdriver.h"
 
-#include "sfx.h"
+#include "sound/sfx.h"
 #include "gusanos/resource_list.h"
 #include "CGameObject.h"
 #include "util/math_func.h"

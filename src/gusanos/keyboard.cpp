@@ -33,9 +33,9 @@ KeyHandler::KeyHandler()
 		oldKeys[i] = false;
 	}
 	
-#ifdef X11
+/*#ifdef X11
 	_xwin_keyboard_callback =; //TODO
-#endif
+#endif*/
 }
 
 KeyHandler::~KeyHandler()

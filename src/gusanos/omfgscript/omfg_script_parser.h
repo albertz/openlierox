@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
-#include "base_action.h"
+#include "gusanos/base_action.h"
 using std::auto_ptr;
 
 #include <boost/lexical_cast.hpp>
