@@ -4,6 +4,7 @@
 #include "CGameObject.h"
 #include "gusgame.h"
 #include "util/macros.h"
+#include "game/Game.h"
 
 DetectEvent::DetectEvent( float range, bool detectOwner, int detectFilter)
 : m_range(range), m_detectOwner(detectOwner), m_detectFilter(detectFilter)
@@ -39,7 +40,7 @@ void DetectEvent::check( CGameObject* ownerObject )
 	if ( m_detectFilter & 1 ) // 1 is the worm collision layer flag
 	{
 /*
-		for ( Grid::area_iterator worm = gusGame.objects.beginArea(x1, y1, x2, y2, Grid::WormColLayer); worm; ++worm)
+		for ( Grid::area_iterator worm = game.objects.beginArea(x1, y1, x2, y2, Grid::WormColLayer); worm; ++worm)
 		{
 			if(&*worm != ownerObject)
 			{
@@ -52,8 +53,8 @@ void DetectEvent::check( CGameObject* ownerObject )
 		}*/
 		
 
-		//for ( Grid::iterator worm = gusGame.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
-		forrange_bool(worm, gusGame.objects.beginColLayer(Grid::WormColLayer))
+		//for ( Grid::iterator worm = game.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
+		forrange_bool(worm, game.objects.beginColLayer(Grid::WormColLayer))
 		{
 			if(&*worm != ownerObject)
 			{
@@ -71,8 +72,8 @@ void DetectEvent::check( CGameObject* ownerObject )
 	{
 		if ( m_detectFilter & filterFlag )
 		{
-			//for ( Grid::area_iterator object = gusGame.objects.beginArea(x1, y1, x2, y2, customFilter); object; ++object)
-			forrange_bool(object, gusGame.objects.beginArea(x1, y1, x2, y2, customFilter))
+			//for ( Grid::area_iterator object = game.objects.beginArea(x1, y1, x2, y2, customFilter); object; ++object)
+			forrange_bool(object, game.objects.beginArea(x1, y1, x2, y2, customFilter))
 			{
 				//cerr << "Found: " << &*worm << endl;
 				if(&*object != ownerObject)
@@ -92,7 +93,7 @@ void DetectEvent::check( CGameObject* ownerObject )
 	if ( m_detectFilter & 1 ) // 1 is the worm collision layer flag
 	{
 		ObjectsList::ColLayerIterator worm;
-		for ( worm = gusGame.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
+		for ( worm = game.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
 		{
 			if ( m_detectOwner || (*worm)->getOwner() != ownerObject->getOwner() )
 				if ( (*worm)->isCollidingWith( ownerObject->pos, m_range) )
@@ -109,7 +110,7 @@ void DetectEvent::check( CGameObject* ownerObject )
 		if ( m_detectFilter & filterFlag )
 		{
 			ObjectsList::ColLayerIterator object;
-			for ( object = gusGame.objects.colLayerBegin(customFilter); object; ++object)
+			for ( object = game.objects.colLayerBegin(customFilter); object; ++object)
 			{
 				if ( (*object) != ownerObject )
 				if ( !(*object)->deleteMe && (m_detectOwner || (*object)->getOwner() != ownerObject->getOwner() ) )

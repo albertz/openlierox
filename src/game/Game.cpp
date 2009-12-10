@@ -28,6 +28,11 @@
 #include "Cache.h"
 #include "gusanos/gusanos.h"
 #include "gusanos/gusgame.h"
+#include "gusanos/ninjarope.h"
+#include "game/WormInputHandler.h"
+#include "CWormHuman.h"
+#include "gusanos/glua.h"
+#include "gusanos/lua51/luaapi/context.h"
 
 Game game;
 
@@ -38,12 +43,6 @@ void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 	
-/*	if(cClient->getMap() && cClient->getMap()->gusIsLoaded()) {
-		// we need the default mod present to have a working map
-		gusInit("Gusanos");
-		gusGame.prepareLevel(cClient->getMap()->getFilename(), false);
-	}
-*/	
 	ClearEntities();
 	
 	ProcessEvents();
@@ -182,6 +181,8 @@ void Game::frameInner()
 void Game::cleanupAfterGameloopEnd() {
 	CrashHandler::recoverAfterCrash = false;
 	
+	gusGame.reset(GusGame::ServerQuit);
+	
 	PhysicsEngine::Get()->uninitGame();
 	
 	notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
@@ -225,4 +226,69 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 }
 
 
+void Game::onNewWorm(CWorm* w) {
+#ifdef USE_GRID
+	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
+	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
+#else
+	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, w);
+	if(w->getNinjaRopeObj()) objects.insert( 1,1, (CGameObject*)w->getNinjaRopeObj() );
+#endif	
+}
+
+void Game::onRemoveWorm(CWorm* w) {
+/*#ifdef USE_GRID
+	objects.(w, Grid::WormColLayer, Grid::WormRenderLayer);
+	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
+#else
+	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, w);
+	if(w->getNinjaRopeObj()) objects.insert( 1,1, (CGameObject*)w->getNinjaRopeObj() );
+#endif	*/
+}
+
+void Game::onNewPlayer(CWormInputHandler* player) {
+	players.push_back( player );	
+}
+
+void Game::onNewPlayer_Lua(CWormInputHandler* p) {
+	EACH_CALLBACK(i, playerInit)
+	{
+		(lua.call(*i), p->getLuaReference())();
+	}	
+}
+
+void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
+	localPlayers.push_back( player );	
+	player->local = true;
+}
+
+void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
+	EACH_CALLBACK(i, localplayerInit)
+	{
+		(lua.call(*i), player->getLuaReference())();
+	}	
+}
+
+
+void Game::reset() {
+	// Delete all players
+	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); ++iter)
+	{
+		// handled by CClient for now
+		//(*iter)->deleteThis();
+	}
+	game.players.clear();
+	game.localPlayers.clear();
+	
+	// Delete all objects
+#ifdef USE_GRID
+	game.objects.clear();
+#else
+	for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
+	{
+		(*iter)->deleteThis();
+	}
+	objects.clear();
+#endif	
+}
 

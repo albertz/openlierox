@@ -98,7 +98,7 @@ struct LuaObject
 	{
 	}
 	
-	void deleteThis();
+	virtual void deleteThis();
 	
 	virtual ~LuaObject()
 	{

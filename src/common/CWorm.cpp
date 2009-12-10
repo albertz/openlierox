@@ -33,7 +33,7 @@
 #include "Physics.h"
 #include "WeaponDesc.h"
 #include "Mutex.h"
-
+#include "game/Game.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -85,6 +85,9 @@ CWorm::~CWorm() {
 // Clear the worm details
 void CWorm::Clear()
 {
+	if(bUsed)
+	game.onRemoveWorm(this);
+	
 	bUsed = false;
 	bIsPrepared = false;
 	bSpawnedOnce = false;
@@ -267,7 +270,7 @@ void CWorm::Prepare(bool serverSide)
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
 		warnings << m_inputHandler->name(); warnings << endl;
-		delete m_inputHandler;
+		m_inputHandler->deleteMe = true;
 		m_inputHandler = NULL;
 	}
 
@@ -283,9 +286,15 @@ void CWorm::Prepare(bool serverSide)
 	}
 	
 	bIsPrepared = true;
+	
+	if(bLocal && !serverSide)
+		game.onNewWorm(this);
 }
 
 void CWorm::Unprepare() {
+	if(bLocal)
+		game.onRemoveWorm(this);
+
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
@@ -297,7 +306,7 @@ void CWorm::Unprepare() {
 			warnings << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; warnings.flush();
 			warnings << m_inputHandler->name() << endl;
 		}
-		delete m_inputHandler;
+		m_inputHandler->deleteMe = true;
 		m_inputHandler = NULL;
 	}
 		

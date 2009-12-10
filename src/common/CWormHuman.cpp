@@ -35,6 +35,7 @@
 #include "Physics.h"
 #include "WeaponDesc.h"
 #include "AuxLib.h" // for doActionInMainThread
+#include "game/Game.h"
 
 
 ///////////////////
@@ -634,6 +635,11 @@ WormType* PRF_HUMAN = &PRF_HUMAN_instance;
 CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) {	
 	// we use the normal init system first after the weapons are selected and we are ready
 	stopInputSystem();
+
+	game.onNewPlayer( this );
+	game.onNewHumanPlayer( this );
+	game.onNewHumanPlayer_Lua( this );
+	game.onNewPlayer_Lua(this);
 }
 
 CWormHumanInputHandler::~CWormHumanInputHandler() {}
@@ -922,11 +928,11 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 
 #include "gusanos/player_options.h"
-#include "worm.h"
+#include "gusanos/worm.h"
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
 #endif
-#include "ninjarope.h"
+#include "gusanos/ninjarope.h"
 
 //#include "gusanos/allegro.h"
 

@@ -41,7 +41,7 @@ CWormInputHandler::Stats::~Stats()
 
 
 void CWormInputHandler::gusInit(CWorm* w) {
-	gusInit(shared_ptr<PlayerOptions>(), w);
+	gusInit(shared_ptr<PlayerOptions>(new PlayerOptions("-")), w);
 }
 
 void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
@@ -94,7 +94,7 @@ void CWormInputHandler::deleteThis()
 	
 	deleted = true; // We set this after the callback loop otherwise getLuaReference() will think the player is already deleted
 	
-	for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter) {
+	for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter) {
 		objIter->removeRefsToPlayer(this);
 	}
 	
@@ -130,9 +130,10 @@ void CWormInputHandler::gusShutdown()
 void CWormInputHandler::removeWorm()
 {
 	if ( m_worm ) {
-		m_worm->deleteMe = true;
+/*		m_worm->deleteMe = true;
 		if ( m_worm->getNinjaRopeObj() )
-			m_worm->getNinjaRopeObj()->deleteMe = true;
+			m_worm->getNinjaRopeObj()->deleteMe = true;*/
+		// worms are managed via game
 		m_worm = 0;
 	}
 }
@@ -591,7 +592,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 #ifdef USE_GRID
 			
-			for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter) {
+			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
 				if ( NetWorm* worm = dynamic_cast<NetWorm*>(&*iter)) {
 					if ( worm->getNodeID() == recievedID ) {
 						m_parent->assignWorm(worm);
@@ -600,7 +601,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 			}
 #else
 			ObjectsList::Iterator objIter;
-			for ( objIter = gusGame.objects.begin(); objIter; ++objIter) {
+			for ( objIter = game.objects.begin(); objIter; ++objIter) {
 				if ( NetWorm* worm = dynamic_cast<NetWorm*>(*objIter) ) {
 					if ( worm->getNodeID() == recievedID ) {
 						m_parent->assignWorm(worm);

@@ -27,6 +27,7 @@
 #include "omfgscript/omfg_script.h"
 #include "script.h"
 #include "FindFile.h"
+#include "game/Game.h"
 
 
 #include "gusanos/allegro.h"
@@ -53,11 +54,11 @@ CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir,
 	
 #ifdef USE_GRID
 	if(type->colLayer != Grid::NoColLayer)
-		gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
+		game.objects.insert( particle, type->colLayer, type->renderLayer);
 	else
-		gusGame.objects.insert( particle, type->renderLayer);
+		game.objects.insert( particle, type->renderLayer);
 #else
-	gusGame.objects.insert( type->colLayer, type->renderLayer, particle );	
+	game.objects.insert( type->colLayer, type->renderLayer, particle );	
 #endif
 	return particle;
 }
@@ -75,11 +76,11 @@ CGameObject* newParticle_Particle(PartType* type, Vec pos_ = Vec(0.f, 0.f), Vec 
 	
 #ifdef USE_GRID
 	if(type->colLayer != Grid::NoColLayer)
-		gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
+		game.objects.insert( particle, type->colLayer, type->renderLayer);
 	else
-		gusGame.objects.insert( particle, type->renderLayer);
+		game.objects.insert( particle, type->renderLayer);
 #else
-	gusGame.objects.insert( type->colLayer, type->renderLayer, particle );	
+	game.objects.insert( type->colLayer, type->renderLayer, particle );	
 #endif
 	return particle;
 }
@@ -95,7 +96,7 @@ CGameObject* newParticle_SimpleParticle(PartType* type, Vec pos_ = Vec(0.f, 0.f)
 		type->creation->run(particle);
 	
 	USE_GRID // If this errors out, USE_GRID isn't defined, so define it ffs! >:o
-	gusGame.objects.insert( particle, type->colLayer, type->renderLayer);
+	game.objects.insert( particle, type->colLayer, type->renderLayer);
 	return particle;
 }
 

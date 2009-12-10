@@ -680,6 +680,7 @@ public:
 	
 	void gusInit();
 	void gusShutdown();
+	void deleteThis();
 	
 	virtual void assignOwner( CWormInputHandler* owner);
 	

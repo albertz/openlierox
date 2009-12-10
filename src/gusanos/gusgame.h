@@ -2,11 +2,8 @@
 #define GAME_H
 
 #include "level.h"
-//#include "CGameObject.h"
-//#include "base_action.h"
-//#include "objects_list.h"
-#include "object_grid.h"
 #include "message_queue.h"
+#include "object_grid.h"
 
 #ifndef DEDICATED_ONLY
 #include "gusanos/allegro.h"
@@ -37,8 +34,6 @@ class Sound;
 class Font;
 #endif
 class CMap;
-
-#define USE_GRID
 
 class CWormHumanInputHandler;
 
@@ -212,12 +207,6 @@ public:
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;
 	std::set<std::string> modList;
 	
-#ifdef USE_GRID
-	Grid objects;
-#else
-	ObjectsList objects;
-#endif
-
 	void insertExplosion( Explosion* explosion );
 	
 	std::map< std::string, BaseAction*(*)( const std::vector< std::string > & ) > actionList;

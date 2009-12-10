@@ -100,7 +100,7 @@ void CWorm::gusShutdown()
 	}
 #endif
 	if(m_ninjaRope) {
-		delete m_ninjaRope;
+		m_ninjaRope->deleteMe = true;
 		m_ninjaRope = NULL;
 	}
 
@@ -109,6 +109,22 @@ void CWorm::gusShutdown()
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
 	}
+}
+
+void CWorm::deleteThis() {
+	finalize();
+	
+#ifndef NDEBUG
+	deleted = true;
+#endif
+	
+	if(luaReference)
+	{
+		lua.destroyReference(luaReference);
+		luaReference.reset();
+	}
+
+	// dont delete the object itself because we store it in CClient atm
 }
 
 void CWorm::assignOwner( CWormInputHandler* owner)

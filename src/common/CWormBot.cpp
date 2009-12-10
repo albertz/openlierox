@@ -45,6 +45,7 @@
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
 #include "Mutex.h"
+#include "game/Game.h"
 
 
 // used by searchpath algo
@@ -4501,6 +4502,9 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 		iAiDiffLevel = AI_MEDIUM;
 	
 	AI_Initialize();
+	
+	game.onNewPlayer(this);
+	game.onNewPlayer_Lua(this);
 }
 
 CWormBotInputHandler::~CWormBotInputHandler() {

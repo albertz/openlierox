@@ -111,7 +111,7 @@ void gusLogicFrame() {
 	{
 		
 #ifdef USE_GRID
-		for ( Grid::iterator iter = gusGame.objects.beginAll(); iter;)
+		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 		{
 			if(iter->deleteMe)
 				iter.erase();
@@ -119,14 +119,14 @@ void gusLogicFrame() {
 				++iter;
 		}
 #else
-		for ( ObjectsList::Iterator iter = gusGame.objects.begin();  iter; )
+		for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
 		{
 			if ( (*iter)->deleteMe )
 			{
 				ObjectsList::Iterator tmp = iter;
 				++iter;
 				delete *tmp;
-				gusGame.objects.erase(tmp);
+				game.objects.erase(tmp);
 			}
 			else
 				++iter;
@@ -138,15 +138,15 @@ void gusLogicFrame() {
 			
 #ifdef USE_GRID
 			
-			for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter)
+			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 			{
 				iter->think();
-				gusGame.objects.relocateIfNecessary(iter);
+				game.objects.relocateIfNecessary(iter);
 			}
 			
-			gusGame.objects.flush(); // Insert all new objects
+			game.objects.flush(); // Insert all new objects
 #else
-			for ( ObjectsList::Iterator iter = gusGame.objects.begin(); (bool)iter; ++iter)
+			for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
 			{
 				(*iter)->think();
 			}
@@ -172,12 +172,12 @@ void gusLogicFrame() {
 			{
 				/* Done in deleteThis()
 				 #ifdef USE_GRID
-				 for (Grid::iterator objIter = gusGame.objects.beginAll(); objIter; ++objIter)
+				 for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter)
 				 {
 				 objIter->removeRefsToPlayer(*iter);
 				 }
 				 #else
-				 for ( ObjectsList::Iterator objIter = gusGame.objects.begin(); (bool)objIter; ++objIter)
+				 for ( ObjectsList::Iterator objIter = game.objects.begin(); (bool)objIter; ++objIter)
 				 {
 				 (*objIter)->removeRefsToPlayer(*iter);
 				 }
@@ -243,7 +243,7 @@ void gusRenderFrameMenu() {
 		//debug info
 		if (showDebug)
 		{
-			gusGame.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(gusGame.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
+			gusGame.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(game.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
 			gusGame.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
 			gusGame.infoFont->draw(gfx.buffer, "PING:    \01303" + cast<string>(network.getServerPing()), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
 			gusGame.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 25, 0, 255, 255, 255, 255, Font::Formatting);

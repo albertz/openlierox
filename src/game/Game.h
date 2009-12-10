@@ -14,9 +14,11 @@
 #include <list>
 
 #include "types.h"
+#include "gusanos/object_grid.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
+class CWorm;
 
 class Game {
 public:
@@ -25,8 +27,23 @@ public:
 	void frameInner();
 	void cleanupAfterGameloopEnd();
 	
+	void reset();
+	
+	void onNewWorm(CWorm* w);
+	void onRemoveWorm(CWorm* w);
+	void onNewPlayer(CWormInputHandler*);
+	void onNewPlayer_Lua(CWormInputHandler*);
+	void onNewHumanPlayer(CWormHumanInputHandler*);
+	void onNewHumanPlayer_Lua(CWormHumanInputHandler*);
+	
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::list<CWormInputHandler*> players;
+	
+#ifdef USE_GRID
+	Grid objects;
+#else
+	ObjectsList objects;
+#endif
 	
 private:
 	AbsTime oldtime;

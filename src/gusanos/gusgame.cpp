@@ -772,25 +772,8 @@ void GusGame::runInitScripts()
 
 void GusGame::reset(ResetReason reason)
 {
-	// Delete all players
-	for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); ++iter)
-	{
-		(*iter)->deleteThis();
-	}
-	game.players.clear();
-	game.localPlayers.clear();
+	game.reset();
 	
-	// Delete all objects
-#ifdef USE_GRID
-	objects.clear();
-#else
-	for ( ObjectsList::Iterator iter = objects.begin(); (bool)iter; ++iter)
-	{
-		(*iter)->deleteThis();
-	}
-	objects.clear();
-#endif
-
 	appliedLevelEffects.clear();
 	
 	// OLX manages this
@@ -1048,7 +1031,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	}
 	
 #ifdef USE_GRID
-	objects.resize(0, 0, m->GetWidth(), m->GetHeight());
+	game.objects.resize(0, 0, m->GetWidth(), m->GetHeight());
 #endif
 	
 	//cerr << "Loading mod" << endl;
@@ -1182,9 +1165,9 @@ CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
 void GusGame::insertExplosion( Explosion* explosion )
 {
 #ifdef USE_GRID
-	gusGame.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
+	game.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
 #else
-	gusGame.objects.insert( NO_COLLISION_LAYER, explosion->getType()->renderLayer, explosion );
+	game.objects.insert( NO_COLLISION_LAYER, explosion->getType()->renderLayer, explosion );
 #endif
 }
 
@@ -1210,13 +1193,9 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 			}
 			player->assignViewport(viewport);
 #endif
-			game.players.push_back( player );
-			game.localPlayers.push_back( player );
-			player->local = true;
-			EACH_CALLBACK(i, localplayerInit)
-			{
-				(lua.call(*i), player->getLuaReference())();
-			}
+			game.onNewPlayer( player );
+			game.onNewHumanPlayer( player );
+			game.onNewHumanPlayer_Lua( player );
 			p = player;
 		}
 		break;
@@ -1224,7 +1203,7 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		case PROXY:
 		{
 			ProxyPlayer* player = new ProxyPlayer(worm);
-			game.players.push_back( player );
+			game.onNewPlayer( player );
 			p = player;
 		}
 		break;
@@ -1232,18 +1211,13 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 		case AI:
 		{
 			PlayerAI* player = new PlayerAI(team, worm);
-			game.players.push_back( player );
+			game.onNewPlayer( player );
 			p = player;
 		}
 	}
 	
 	if(p)
-	{
-		EACH_CALLBACK(i, playerInit)
-		{
-			(lua.call(*i), p->getLuaReference())();
-		}
-	}
+		game.onNewPlayer_Lua(p);
 	
 	return p;
 }
@@ -1261,14 +1235,9 @@ CWorm* GusGame::addWorm(bool isAuthority)
 		returnWorm = worm;
 	}
 	if ( !returnWorm ) allegro_message("moo");
-#ifdef USE_GRID
-	objects.insertImmediately(returnWorm, Grid::WormColLayer, Grid::WormRenderLayer);
-	objects.insertImmediately(returnWorm->getNinjaRopeObj(), 1, 1);
-#else
-	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, returnWorm);
-	objects.insert( 1,1, (CGameObject*)returnWorm->getNinjaRopeObj() );
-#endif
 
+	game.onNewWorm(returnWorm);
+	
 	return returnWorm;
 }
 

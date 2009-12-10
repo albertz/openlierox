@@ -10,6 +10,8 @@
 using std::cerr;
 using std::endl;
 
+#define USE_GRID
+
 template<class T>
 struct List
 {

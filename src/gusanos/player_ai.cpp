@@ -8,6 +8,7 @@
 #include "util/vec.h"
 #include "CMap.h"
 #include "CWorm.h"
+#include "game/Game.h"
 #include <vector>
 #include <list>
 #include <cmath>
@@ -124,7 +125,7 @@ void PlayerAI::getTarget()
 	m_targetBlocked = true;
 	float tmpDist = -1;
 #ifdef USE_GRID
-	for ( Grid::iterator worm = gusGame.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
+	for ( Grid::iterator worm = game.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
 	{
 		if ( worm->getOwner() != this )
 		if ( !gusGame.options.teamPlay || (worm->getOwner()->team != team || team == -1) )
@@ -144,7 +145,7 @@ void PlayerAI::getTarget()
 	}
 #else
 	ObjectsList::ColLayerIterator worm;
-	for ( worm = gusGame.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
+	for ( worm = game.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
 	{
 		CWorm *tmpWorm;
 		if ( (*worm)->getOwner() != this )

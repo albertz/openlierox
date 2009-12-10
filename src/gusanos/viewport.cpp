@@ -169,14 +169,14 @@ void CViewport::gusRender()
 
 #ifdef USE_GRID
 
-	for ( Grid::iterator iter = gusGame.objects.beginAll(); iter; ++iter) {
+	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
 		//iter->draw(dest, offX, offY);
 		iter->draw(this);
 	}
 #else
 	for ( int i = 0; i < RENDER_LAYERS_AMMOUNT ; ++i) {
 		ObjectsList::RenderLayerIterator iter;
-		for ( iter = gusGame.objects.renderLayerBegin(i); (bool)iter; ++iter) {
+		for ( iter = game.objects.renderLayerBegin(i); (bool)iter; ++iter) {
 			//(*iter)->draw(dest, offX, offY);
 			(*iter)->draw(this);
 		}
