@@ -24,7 +24,7 @@
 #include "NotifyUser.h"
 #include "Event.h"
 
-
+#include "gusanos/allegro.h"
 
 
 
@@ -587,6 +587,8 @@ bool ProcessEvents()
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
 
+	pushAllegroEvents();
+	
 	return ret;
 }
 

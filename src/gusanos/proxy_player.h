@@ -21,7 +21,7 @@ public:
 	
 	void initWeaponSelection() {}
 	void doWeaponSelectionFrame(SDL_Surface*, CViewport*) {}
-	void getInput() { think(); }
+	void getInput() { /* not needed to set LX states, this input handler is only used for Gus right now */ }
 	std::string name() { return "ProxyPlayer"; }
 	
 private:

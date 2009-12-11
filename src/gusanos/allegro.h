@@ -637,6 +637,9 @@ int readkey();
 extern int key[KEY_MAX];
 void clear_keybuf();
 
+
+void pushAllegroEvents();
+
 extern "C" {
 #endif // C++ only stuff
 

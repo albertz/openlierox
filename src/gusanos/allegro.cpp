@@ -168,7 +168,6 @@ static void handle_sdlevents();
 void acquire_screen() {}
 void release_screen() {
 	SDL_Flip(SDL_GetVideoSurface());
-	handle_sdlevents();
 }
 
 
@@ -599,12 +598,15 @@ static void handle_sdlevents_pushall() {
 }
 
 static void handle_sdlevents() {
-	handle_sdlevents_pushall();
-	ProcessEvents(); // calls event handler from OLX
+	//handle_sdlevents_pushall();
+	//ProcessEvents(); // calls event handler from OLX
 
 	handle_sdlevents_keyb();
 	handle_sdlevents_mouse();	
 }
 
 
+void pushAllegroEvents() {
+	handle_sdlevents();
+}
 

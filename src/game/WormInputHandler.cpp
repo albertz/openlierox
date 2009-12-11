@@ -145,7 +145,10 @@ void CWormInputHandler::addEvent(Net_BitStream* data, CWormInputHandler::NetEven
 }
 
 void CWormInputHandler::think()
-{	
+{
+	
+
+	
 	subThink();
 	if ( m_node ) {
 		while ( m_node->checkEventWaiting() ) {
