@@ -133,7 +133,7 @@ void gusLogicFrame() {
 		}
 #endif
 		
-		if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
+		if ( gusGame.isLoaded() && gusGame.isLevelLoaded() )
 		{
 			
 #ifdef USE_GRID
