@@ -788,8 +788,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
     //bs->Dump();
 	
-	if(!isReconnect)
-		PhysicsEngine::Get()->initGame();
+	/*if(!isReconnect)
+		PhysicsEngine::Get()->initGame();*/
 	
 	if(!isReconnect) {
 		if(tLX->iGameType == GME_JOIN) {

@@ -1,18 +1,19 @@
 #ifndef PLAYER_OPTIONS_H
 #define PLAYER_OPTIONS_H
 
+#include <SDL.h>
 #include <string>
 #include <list>
 #include "util/angle.h"
 #include "gusanos/allegro.h"
 
 // TODO: Move these to blitters/<somewhere>
-inline int universalColor(int r, int g, int b)
+inline Uint32 universalColor(Uint8 r, Uint8 g, Uint8 b)
 {
-	return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+	return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF) | 0xff000000;
 }
 
-inline int universalToLocalColor(int c)
+inline Uint32 universalToLocalColor(Uint32 c)
 {
 	return makecol(
 		(c >> 16) & 0xFF,

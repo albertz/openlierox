@@ -425,9 +425,6 @@ startpoint:
 	// Setup the global keys
 	tLX->setupInputs();
 	
-	DrawLoading(99, "Loading Physics Engine");
-	PhysicsEngine::Init();
-
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore
@@ -496,8 +493,6 @@ quit:
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
 	
-	PhysicsEngine::UnInit();
-
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;

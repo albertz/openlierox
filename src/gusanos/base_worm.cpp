@@ -23,6 +23,7 @@
 #include "weapon.h"
 #include "ninjarope.h"
 #include "CMap.h"
+#include "CGameScript.h"
 
 #include "glua.h"
 #include "lua51/luaapi/context.h"
@@ -446,6 +447,8 @@ void CWorm::processMoveAndDig(void)
 
 void CWorm::think()
 {
+	if(!game.gameScript()->gusEngineUsed()) return;
+	
 	if(getAlive()) {
 		if ( health <= 0 )
 			die();
@@ -499,6 +502,9 @@ void CWorm::think()
 		}
 		++m_timeSinceDeath;
 	}
+
+	// NOTE: This was from Worm::think() which isn't used right now
+	renderPos = pos();
 }
 
 Vec CWorm::getWeaponPos()
@@ -604,9 +610,6 @@ void CWorm::removeRefsToPlayer(CWormInputHandler* player)
 
 void CWorm::draw(CViewport* viewport)
 {
-	if(!m_owner)
-		return;
-
 	if (getAlive()) {
 		/*
 		bool flipped = false;
@@ -630,7 +633,7 @@ void CWorm::draw(CViewport* viewport)
 			if ( m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->drawBottom(where, renderX, renderY);
 
-			int colour = universalToLocalColor(m_owner->colour);
+			int colour = universalToLocalColor(this->getSkin().getColor().get());
 			
 			
 			skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);

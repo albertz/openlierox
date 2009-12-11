@@ -1307,8 +1307,8 @@ Net_Node* GusGame::getNode()
 
 static CMap* getMap() {
 	if(tLX) {
-		if(tLX->iGameType == GME_JOIN) return cServer->getMap();
-		return cClient->getMap();
+		if(tLX->iGameType == GME_JOIN) return cClient->getMap();
+		return cServer->getMap();
 	}
 	return NULL;
 }

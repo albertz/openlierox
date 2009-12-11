@@ -49,12 +49,8 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 	stats = shared_ptr<Stats>(new Stats());
 	deleteMe=(false);
 	// TODO: OLX col/team
-	if(options) {
-		colour=(options->colour);
-		team=(options->team);
-	}
-	else
-		colour = team = 0;
+	colour=(options->colour);
+	team=(options->team);
 	
 	local=(false);
 	m_options=(options);
@@ -65,8 +61,7 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 	m_id=(0); // TODO: make a invalid_connection_id define thingy
 	deleted=(false);
 	
-	if(m_options)
-		m_options->clearChangeFlags();
+	m_options->clearChangeFlags();
 }
 
 LuaReference CWormInputHandler::getLuaReference()
@@ -150,7 +145,7 @@ void CWormInputHandler::addEvent(Net_BitStream* data, CWormInputHandler::NetEven
 }
 
 void CWormInputHandler::think()
-{
+{	
 	subThink();
 	if ( m_node ) {
 		while ( m_node->checkEventWaiting() ) {

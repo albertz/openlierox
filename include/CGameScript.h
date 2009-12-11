@@ -97,6 +97,7 @@ public:
 	// Constructor
 	CGameScript() {
 		loaded = false;
+		m_gusEngineUsed = false;
 		needCollisionInfo = false;
 		NumWeapons = 0;
 		Weapons = NULL;
@@ -120,7 +121,7 @@ private:
 	// Header
 	bool loaded;
 	gs_header_t	Header;
-
+	bool m_gusEngineUsed;
 
 	// Weapons
 	int			NumWeapons;
@@ -216,7 +217,9 @@ public:
 
 	size_t	getProjectileCount() const	{ return projectiles.size(); }
 	
-	bool		Compile(const std::string& dir);
+	bool	Compile(const std::string& dir);
+
+	bool	gusEngineUsed() const		{ return m_gusEngineUsed; }
 	
 private:
 	bool	CompileWeapon(const std::string& dir, const std::string& weapon, int id);

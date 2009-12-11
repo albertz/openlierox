@@ -19,6 +19,7 @@
 class CWormHumanInputHandler;
 class CWormInputHandler;
 class CWorm;
+class CGameScript;
 
 class Game {
 public:
@@ -44,6 +45,8 @@ public:
 #else
 	ObjectsList objects;
 #endif
+
+	CGameScript* gameScript();
 	
 private:
 	AbsTime oldtime;

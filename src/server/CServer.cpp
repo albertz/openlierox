@@ -527,7 +527,7 @@ mapCreate:
 		}
 	}
 	
-	PhysicsEngine::Get()->initGame();
+	//PhysicsEngine::Get()->initGame();
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();

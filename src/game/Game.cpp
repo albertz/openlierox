@@ -42,6 +42,34 @@ static std::string quitEngineFlagReason;
 void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
+
+	while(cClient->getStatus() != NET_CONNECTED) {
+		notes << "client not connected yet - waiting" << endl;
+		SDL_Delay(10);
+		SyncServerAndClient();
+	}
+		
+	if(cServer->getState() == SVS_LOBBY) {
+		notes << "prepareGameloop: starting game" << endl;
+		std::string errMsg;
+		if(!cServer->StartGame(&errMsg)) {
+			errors << "starting game in local game failed for reason: " << errMsg << endl;
+			DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
+			GotoLocalMenu();
+			return;
+		}
+	}
+	else
+		warnings << "prepareGameloop: server was not in lobby" << endl;
+
+	// we need the gamescript in physics init
+	while(gameScript() == NULL) {
+		notes << "gamescript not loaded yet - waiting" << endl;
+		SDL_Delay(10);
+		SyncServerAndClient();
+	}
+	
+	PhysicsEngine::Init();
 	
 	ClearEntities();
 	
@@ -136,19 +164,6 @@ void Game::frameInner()
 			cClient->Frame();
 			cServer->Frame();
 			
-			// If we are connected, just start the game straight away (bypass lobby in local)
-			if(cClient->getStatus() == NET_CONNECTED) {
-				if(cServer->getState() == SVS_LOBBY) {
-					std::string errMsg;
-					if(!cServer->StartGame(&errMsg)) {
-						errors << "starting game in local game failed for reason: " << errMsg << endl;
-						DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-						GotoLocalMenu();
-						return;
-					}
-				}
-			}
-			
 			if(tLX && !tLX->bQuitEngine)
 				cClient->Draw(VideoPostProcessor::videoSurface());
 			break;
@@ -183,7 +198,7 @@ void Game::cleanupAfterGameloopEnd() {
 	
 	gusGame.reset(GusGame::ServerQuit);
 	
-	PhysicsEngine::Get()->uninitGame();
+	PhysicsEngine::UnInit();
 	
 	notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
 	inMainGameLoop = false;
@@ -292,3 +307,11 @@ void Game::reset() {
 #endif	
 }
 
+
+CGameScript* Game::gameScript() {
+	if(tLX) {
+		if(tLX->iGameType == GME_JOIN) return cClient->getGameScript().get();
+		return cServer->getGameScript().get();
+	}
+	return NULL;
+}

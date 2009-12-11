@@ -591,7 +591,7 @@ int CGameScript::Load(const std::string& dir)
 		ModInfo info;
 		if(checkGusMod(dir, false, info)) {
 			if(gusInit(info.path)) {
-				
+				m_gusEngineUsed = true;
 				return GSE_OK;
 			}
 			
@@ -1233,6 +1233,7 @@ size_t CGameScript::GetMemorySize()
 void CGameScript::Shutdown()
 {
 	loaded = false;
+	m_gusEngineUsed = false;
 	needCollisionInfo = false;
 	
     // Close the log file
