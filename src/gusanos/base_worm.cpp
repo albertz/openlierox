@@ -27,6 +27,7 @@
 #include "glua.h"
 #include "lua51/luaapi/context.h"
 #include "lua/bindings-objects.h"
+#include "game/Game.h"
 
 #include <math.h>
 #include <string>
@@ -107,6 +108,33 @@ void CWorm::gusShutdown()
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
 	}
+
+	// We must delete the object now out of the list because this destructor
+	// is not called from Gusanos but from CClient.
+	// NOTE: Not really the best way but I don't know a better way
+	// TODO: move this out here
+#ifdef USE_GRID
+	for ( Grid::iterator iter = game.objects.beginAll(); iter;)
+	{
+		if( &*iter == this )
+			iter.erase();
+		else
+			++iter;
+	}
+#else
+	for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
+	{
+		if ( &*iter == this )
+		{
+			ObjectsList::Iterator tmp = iter;
+			++iter;
+			tmp->deleteThis();
+			game.objects.erase(tmp);
+		}
+		else
+			++iter;
+	}
+#endif
 }
 
 void CWorm::deleteThis() {
