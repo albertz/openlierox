@@ -559,7 +559,10 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 	// RGB -> RGB
 	// RGB -> RGBA
 	if (!src_isrgba)  {
-		SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+		if(bmpDest->format->BitsPerPixel == 8 && bmpSrc->format->BitsPerPixel == 8)
+			CopySurfaceFast(bmpDest, bmpSrc, rSrc.x, rSrc.y, rDest.x, rDest.y, rSrc.w, rSrc.h);
+		else
+			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 
 	// RGBA -> RGB
 	} else if (src_isrgba && !dst_isrgba)  {
