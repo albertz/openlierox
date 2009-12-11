@@ -121,6 +121,7 @@ private:
 	// Header
 	bool loaded;
 	gs_header_t	Header;
+	std::string modname;
 	bool m_gusEngineUsed;
 
 	// Weapons
@@ -187,7 +188,7 @@ public:
 		return GS_MINLXVERSION(scriptVer) <= ver;		
 	}
 	bool		isCompatibleWith(const Version& ver) const { return isCompatibleWith(Header.Version, ver); }
-	std::string modName() const { return Header.ModName; }
+	std::string modName() const { return modname; }
 	std::string directory() const { return sDirectory; }
 	
 	int			GetNumWeapons()				{ return NumWeapons; }

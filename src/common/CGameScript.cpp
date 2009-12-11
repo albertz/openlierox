@@ -592,6 +592,8 @@ int CGameScript::Load(const std::string& dir)
 		if(checkGusMod(dir, false, info)) {
 			if(gusInit(info.path)) {
 				m_gusEngineUsed = true;
+				loaded = true;
+				modname = info.name;
 				return GSE_OK;
 			}
 			
@@ -627,6 +629,8 @@ int CGameScript::Load(const std::string& dir)
 		return GSE_VERSION;
 	}
 
+	modname = Header.ModName;
+	
     // Clear an old mod file
     modLog("Loading game mod file " + filename);
 	//modLog("  ID = %s", Header.ID);
@@ -1233,6 +1237,7 @@ size_t CGameScript::GetMemorySize()
 void CGameScript::Shutdown()
 {
 	loaded = false;
+	modname = "";
 	m_gusEngineUsed = false;
 	needCollisionInfo = false;
 	
@@ -1460,7 +1465,6 @@ bool CGameScript::Compile(const std::string& dir)
 	
 	int num,n;
 
-	std::string modname;
 	ini.ReadString("General","ModName", modname,"untitled");
 	fix_strncpy(Header.ModName, modname.c_str());
 

@@ -1911,6 +1911,8 @@ public:
 		if(!gusGame.changeLevel(loader, f, m))
 			return false;
 
+		m->Name = head.name;
+		
 		// Allocate the map
 	createMap:
 		if(!m->MiniNew(m->material->w, m->material->h)) {
