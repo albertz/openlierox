@@ -207,7 +207,7 @@ void NetWorm::think()
 					break;
 					case SYNC:
 					{
-						m_isActive = data->getBool();
+						setAlive(data->getBool());
 						m_ninjaRope->active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
@@ -297,7 +297,7 @@ void NetWorm::sendSyncMessage( Net_ConnID id )
 {
 	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, SYNC);
-	data->addBool(m_isActive);
+	data->addBool(getAlive());
 	data->addBool(m_ninjaRope->active);
 	//data->addInt(currentWeapon, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, currentWeapon, m_weapons.size());
@@ -339,7 +339,7 @@ void NetWorm::respawn()
 	if ( m_isAuthority && m_node )
 	{
 		CWorm::respawn();
-		if ( m_isActive )
+		if ( getAlive() )
 		{
 			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, Respawn);
@@ -357,7 +357,7 @@ void NetWorm::dig()
 	if ( m_isAuthority && m_node )
 	{
 		CWorm::dig();
-		if ( m_isActive )
+		if ( getAlive() )
 		{
 			Net_BitStream *data = new Net_BitStream;
 			addEvent(data, Dig);
@@ -490,7 +490,7 @@ bool NetWormInterceptor::outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet
 	switch ( replicator->getSetup()->getInterceptID() )
 	{
 		case NetWorm::Position:
-			if(!m_parent->m_isActive) // Prevent non-active worms from replicating position
+			if(!m_parent->getAlive()) // Prevent non-active worms from replicating position
 				return false;
 		break;
 	}

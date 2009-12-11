@@ -67,8 +67,6 @@ void CWorm::gusInit()
 
 	m_timeSinceDeath = 0;
 
-	m_isActive = false;
-
 	aimRecoilSpeed = 0;
 
 	currentWeapon = 0;
@@ -420,7 +418,7 @@ void CWorm::processMoveAndDig(void)
 
 void CWorm::think()
 {
-	if(m_isActive) {
+	if(getAlive()) {
 		if ( health <= 0 )
 			die();
 
@@ -520,7 +518,7 @@ void CWorm::setDir(int d)
 
 bool CWorm::isCollidingWith( Vec const& point, float radius )
 {
-	if ( !m_isActive )
+	if ( !getAlive() )
 		return false;
 
 	float top = pos().y - gusGame.options.worm_boxTop;
@@ -562,7 +560,7 @@ bool CWorm::isCollidingWith( Vec const& point, float radius )
 
 bool CWorm::isActive()
 {
-	return m_isActive;
+	return getAlive();
 }
 
 void CWorm::removeRefsToPlayer(CWormInputHandler* player)
@@ -581,7 +579,7 @@ void CWorm::draw(CViewport* viewport)
 	if(!m_owner)
 		return;
 
-	if (m_isActive) {
+	if (getAlive()) {
 		/*
 		bool flipped = false;
 		if ( m_dir < 0 ) flipped = true;*/
@@ -645,7 +643,7 @@ void CWorm::respawn()
 
 void CWorm::respawn( const Vec& newPos)
 {
-	m_isActive = true;
+	setAlive(true);
 	aimAngle = Angle(90.0);
 	velocity() = CVec ( 0, 0 );
 	pos() = newPos;
@@ -664,7 +662,7 @@ void CWorm::respawn( const Vec& newPos)
 
 void CWorm::dig()
 {
-	if ( m_isActive )
+	if ( getAlive() )
 		dig( pos(), getPointingAngle() );
 }
 
@@ -679,7 +677,7 @@ void CWorm::die()
 	EACH_CALLBACK(i, wormDeath) {
 		(lua.call(*i), getLuaReference())();
 	}
-	m_isActive = false;
+	bAlive = false;
 	if (m_owner) {
 		m_owner->stats->deaths++;
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
@@ -749,7 +747,7 @@ void CWorm::actionStart( Actions action )
 			break;
 
 			case FIRE:
-			if ( m_isActive && m_weapons[currentWeapon] )
+			if ( getAlive() && m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->actionStart( Weapon::PRIMARY_TRIGGER );
 			break;
 
@@ -758,7 +756,7 @@ void CWorm::actionStart( Actions action )
 			break;
 
 			case NINJAROPE:
-			if ( m_isActive )
+			if ( getAlive() )
 				m_ninjaRope->shoot(getWeaponPos(), Vec(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed));
 			break;
 
@@ -787,7 +785,7 @@ void CWorm::actionStop( Actions action )
 			break;
 
 			case FIRE:
-			if ( m_isActive && m_weapons[currentWeapon] )
+			if ( getAlive() && m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->actionStop( Weapon::PRIMARY_TRIGGER );
 			break;
 

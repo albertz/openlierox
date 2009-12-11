@@ -800,7 +800,7 @@ protected:
 	BaseAnimator* m_animator;
 #endif
 	// Smaller vars last to improve alignment and/or decrease structure size
-	bool m_isActive;
+	//bool m_isActive; -> alive
 	bool movingLeft;
 	bool movingRight;
 	bool jumping;
