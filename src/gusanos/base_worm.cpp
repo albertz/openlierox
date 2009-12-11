@@ -447,7 +447,11 @@ void CWorm::processMoveAndDig(void)
 
 void CWorm::think()
 {
-	if(!game.gameScript()->gusEngineUsed()) return;
+	if(!game.gameScript()->gusEngineUsed()) {
+		// NOTE: This was from Worm::think() which isn't used right now
+		renderPos = pos();
+		return;
+	}
 	
 	if(getAlive()) {
 		if ( health <= 0 )
