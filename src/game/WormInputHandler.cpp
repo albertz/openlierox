@@ -62,6 +62,8 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 	deleted=(false);
 	
 	m_options->clearChangeFlags();
+	
+	worm->m_owner = this;
 }
 
 LuaReference CWormInputHandler::getLuaReference()
