@@ -418,7 +418,7 @@ bool PartType::load(std::string const& filename)
 	
 	distortMagnitude = parser.getDouble("distort_magnitude", 1);
 	
-	std::string const& blenderstr = parser.getString("blender", "none");
+	std::string blenderstr = parser.getString("blender", "none");
 	if(blenderstr == "add") blender = BlitterContext::Add;
 	else if(blenderstr == "alpha") blender = BlitterContext::Alpha;
 	else if(blenderstr == "alphach") blender = BlitterContext::AlphaChannel;
@@ -449,7 +449,7 @@ bool PartType::load(std::string const& filename)
 	//networkInitName = parser.getString("network_init", "");
 	networkInit = parser.getString("network_init", "");
 	
-	std::string const& animtypestr = parser.getString("anim_type", "loop_right");
+	std::string animtypestr = parser.getString("anim_type", "loop_right");
 	if(animtypestr == "ping_pong") animType = ANIM_PINGPONG;
 	else if(animtypestr == "loop_right") animType = ANIM_LOOPRIGHT;
 	else if(animtypestr == "right_once") animType = ANIM_RIGHTONCE;
