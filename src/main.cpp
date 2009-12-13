@@ -866,10 +866,7 @@ int InitializeLieroX()
 	// Initialize the loading screen
 	InitializeLoading();
 
-	DrawLoading(5, "Loading Gusanos engine");
-	gusInitBase();	
-	
-	DrawLoading(10, "Initializing client and server");
+	DrawLoading(5, "Initializing client and server");
 
 	// Allocate the client & server
 	cClient = new CClient;
@@ -888,6 +885,11 @@ int InitializeLieroX()
 		return false;
 	}
 
+	
+	DrawLoading(10, "Loading Gusanos engine");
+	gusInitBase();
+
+	
 	DrawLoading(15, "Initializing game entities");
 
 	// Initialize the entities
