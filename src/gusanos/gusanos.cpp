@@ -50,7 +50,7 @@ int showDebug = 0;
 static unsigned int fpsLast = 0;
 static int fpsCount = 0;
 static int fps = 0;
-static unsigned int logicLast = 0;
+static Uint32 logicLast = 0;
 
 
 bool gusInitBase() {
@@ -66,21 +66,7 @@ bool gusInitBase() {
 	
 	//gusGame.refreshLevels();
 
-	return true;
-}
-
-bool gusInit(const std::string& mod) {
-	notes << "Gusanos: set mod " << mod << endl;
 	
-	gusGame.setMod(mod);
-	
-	quit = false;
-	fpsLast = 0;
-	fpsCount = 0;
-	fps = 0;
-	logicLast = 0;
-	
-	/*
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
@@ -95,8 +81,21 @@ bool gusInit(const std::string& mod) {
 	console.executeConfig("autoexec-ded.cfg");
 #endif
 	
+
+	return true;
+}
+
+bool gusInit(const std::string& mod) {
+	notes << "Gusanos: set mod " << mod << endl;
+	
 	gusGame.setMod(mod);
-	return gusGame.loadMod(true);*/
+	
+	quit = false;
+	fpsLast = 0;
+	fpsCount = 0;
+	fps = 0;
+	logicLast = SDL_GetTicks() / 10;
+	
 	return true;
 }
 
