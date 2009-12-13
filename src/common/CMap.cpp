@@ -144,7 +144,9 @@ bool CMap::NewFrom(CMap* map)
 // Save this map to cache
 void CMap::SaveToCache()
 {
-	cCache.SaveMap(FileName, this);
+	// no map caching for gusanos because the map can be different depending on the mod so we should always reload it
+	if(!gusIsLoaded())
+		cCache.SaveMap(FileName, this);
 }
 
 ///////////////
