@@ -295,12 +295,12 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 		
 	font->m_supportColoring = true;
 		
-	std::vector<char> buffer(16000);
+	std::vector<char> buffer(/*16000*/ 249 * 8 * 8 + 64 + 1 );
 	
 	f.ignore(8); //First 8 bytes are useless
-	f.read(&buffer[0], 16000);
+	f.read(&buffer[0], buffer.size());
 	
-	if(f.gcount() < 16000)
+	if(f.gcount() < buffer.size())
 		return false;
 
 	font->m_chars.assign(2, Font::CharInfo(Rect(0, 0, 1, 1), 0)); // Two empty slots
