@@ -57,6 +57,7 @@ void CWorm::gusInit()
 		return;
 	}
 	
+	
 #ifndef DEDICATED_ONLY
 	skin = spriteList.load("skin");
 	skinMask = spriteList.load("skin-mask");
@@ -77,10 +78,11 @@ void CWorm::gusInit()
 	m_weapons.assign(gusGame.options.maxWeapons, 0 );
 	m_weaponCount = 0;
 
-	for ( size_t i = 0; i < m_weapons.size(); ++i ) {
-		m_weapons[i] = new Weapon(gusGame.weaponList[rndInt(gusGame.weaponList.size())], this);
-		m_weaponCount++;
-	}
+	if(gusGame.weaponList.size() > 0)
+		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
+			m_weapons[i] = new Weapon(gusGame.weaponList[rndInt(gusGame.weaponList.size())], this);
+			m_weaponCount++;
+		}
 
 	m_ninjaRope = new NinjaRope(gusGame.NRPartType, this);
 	movingLeft = false;
@@ -111,6 +113,9 @@ void CWorm::gusShutdown()
 		m_weapons[i] = 0;
 	}
 
+	skin = skinMask = NULL;
+	
+	/*
 	// We must delete the object now out of the list because this destructor
 	// is not called from Gusanos but from CClient.
 	// NOTE: Not really the best way but I don't know a better way
@@ -137,6 +142,7 @@ void CWorm::gusShutdown()
 			++iter;
 	}
 #endif
+	*/
 }
 
 void CWorm::deleteThis() {
