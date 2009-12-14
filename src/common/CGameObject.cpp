@@ -34,7 +34,11 @@ LuaReference CGameObject::metaTable;
 void CGameObject::gusInit( CWormInputHandler* owner, Vec pos_, Vec spd_ )
 {
 	nextS_=(0); nextD_=(0); prevD_=(0); cellIndex_=(-1);
-	deleteMe=(false); m_owner=(owner);
+	deleteMe=(false);
+
+	m_owner=(owner);
+	vPos = CVec(pos_);
+	vVelocity = CVec(spd_);
 }
 
 void CGameObject::gusShutdown()
