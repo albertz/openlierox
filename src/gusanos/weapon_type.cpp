@@ -138,7 +138,7 @@ bool WeaponType::load(std::string const& filename)
 	laserSightRange = parser.getInt("laser_sight_range", -1);
 	laserSightAlpha = parser.getInt("laser_sight_alpha", 255);
 	{
-		std::string const& str = parser.getString("laser_sight_blender", "none");
+		std::string str = parser.getString("laser_sight_blender", "none");
 		if(str == "add")
 			laserSightBlender = ADD;
 		else if(str == "alpha")

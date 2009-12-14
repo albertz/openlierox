@@ -138,7 +138,7 @@ bool ExpType::load(std::string const& filename)
 	}
 	distortMagnitude = parser.getDouble("distort_magnitude", 0.8);
 	
-	std::string const& blenderstr = parser.getString("blender", "none");
+	std::string blenderstr = parser.getString("blender", "none");
 	if(blenderstr == "add") blender = BlitterContext::Add;
 	else if(blenderstr == "alpha") blender = BlitterContext::Alpha;
 	else if(blenderstr == "alphach") blender = BlitterContext::AlphaChannel;
