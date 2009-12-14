@@ -939,17 +939,17 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Copied over from SDL_stretch.c from SDL-1.2.9
 // This is a safe, esp multithreadingsafe version of SDL_SoftStretch without any ASM magic.
 
-static inline void copy_row(PixelCopy& copier, Uint8 *src, int src_w, Uint8 *dst, int dst_w, int bpp)
+static inline void copy_row(PixelCopy& copier, Uint8 *src, int src_w, int sbpp, Uint8 *dst, int dst_w, int dbpp)
 {                                                                                                               
         int pos = 0x10000;                              
         int inc = (src_w << 16) / dst_w;                
         for ( int i=dst_w; i>0; --i ) {                 
                 while ( pos >= 0x10000L ) {             
-                        src += bpp;                 
+                        src += sbpp;                 
                         pos -= 0x10000L;                
                 } 
-				copier.copy(dst, src - bpp);
-                dst += bpp;                         
+				copier.copy(dst, src - sbpp);
+                dst += dbpp;                         
                 pos += inc;                             
         }                                               
 }
@@ -969,13 +969,9 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	Uint8 *dstp;
 	SDL_Rect full_src;
 	SDL_Rect full_dst;
-	const int bpp = dst->format->BytesPerPixel;
-	
-	if ( src->format->BitsPerPixel != dst->format->BitsPerPixel ) {
-		SDL_SetError("Only works with same format surfaces");
-		return(-1);
-	}
-	
+	const int sbpp = src->format->BytesPerPixel;
+	const int dbpp = dst->format->BytesPerPixel;
+		
 	/* Verify the blit rectangles */
 	if ( srcrect ) {
 		if ( (srcrect->x < 0) || (srcrect->y < 0) ||
@@ -1033,22 +1029,22 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	inc = (srcrect->h << 16) / dstrect->h;
 	src_row = srcrect->y;
 	dst_row = dstrect->y;
-	dst_width = dstrect->w*bpp;
+	dst_width = dstrect->w*dbpp;
 
 	PixelCopy& copier = getPixelCopyFunc(src, dst);
 
 	/* Perform the stretch blit */
 	for ( dst_maxrow = dst_row+dstrect->h; dst_row<dst_maxrow; ++dst_row ) {
 		dstp = (Uint8 *)dst->pixels + (dst_row*dst->pitch)
-		+ (dstrect->x*bpp);
+		+ (dstrect->x*dbpp);
 		while ( pos >= 0x10000L ) {
 			srcp = (Uint8 *)src->pixels + (src_row*src->pitch)
-			+ (srcrect->x*bpp);
+			+ (srcrect->x*sbpp);
 			++src_row;
 			pos -= 0x10000L;
 		}
 		
-		copy_row(copier, srcp, srcrect->w, dstp, dstrect->w, bpp);
+		copy_row(copier, srcp, srcrect->w, sbpp, dstp, dstrect->w, dbpp);
 		pos += inc;
 	}
 	
