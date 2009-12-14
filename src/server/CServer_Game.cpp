@@ -130,7 +130,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	if(!getGameMode()->Spawn(Worm, pos))
 		return;
 
-	Worm->setAlive(true);
+	Worm->Spawn(pos);
 	bool sendWormUpdate = true;
 	if(Worm->getLives() == WRM_OUT) {
 		if(tLXOptions->tGameInfo.iLives < 0)

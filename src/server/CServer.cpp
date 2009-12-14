@@ -651,11 +651,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	}
 	
 	if(firstStart) {
-		for(int i=0;i<MAX_WORMS;i++) {
-			if(cWorms[i].isUsed())
-				cWorms[i].setAlive(false);
-		}
-		
 		// Prepare the gamemode
 		getGameMode()->BeginMatch();
 		
@@ -1641,7 +1636,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		
 		// Reset variables
 		(*w)->setUsed(false);
-		(*w)->setAlive(false);
 		(*w)->setSpectating(false);
 	}
 	

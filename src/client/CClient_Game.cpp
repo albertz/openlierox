@@ -488,7 +488,6 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			if(someOwnWorm || NewNet::Active() ||
 				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth) ) {
 
-				w->setAlive(false);
 				w->Kill();
 				if( !NewNet::Active() )
 	        	    w->clearInput();

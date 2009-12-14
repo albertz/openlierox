@@ -236,7 +236,7 @@ void gusRenderFrameMenu() {
 
 		for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 		{
-			(*iter)->render();
+			//(*iter)->render();
 		}
 
 		//debug info
@@ -342,7 +342,7 @@ void gusRenderFrameMenu() {
 		(lua.call(*i))();
 	}
 	
-	gfx.updateScreen();
+	//gfx.updateScreen();
 #endif
 }
 

@@ -207,7 +207,7 @@ void NetWorm::think()
 					break;
 					case SYNC:
 					{
-						setAlive(data->getBool());
+						bAlive = data->getBool();
 						m_ninjaRope->active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());

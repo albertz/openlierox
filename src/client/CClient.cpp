@@ -1821,7 +1821,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			hints << "Worm added: " << serverWorm->getName();
 			hints << " (id " << serverWorm->getID() << ", team " << serverWorm->getTeam() << ")" << endl;
 
-			serverWorm->setAlive(false);
 			if(outOfGame) serverWorm->setLives(WRM_OUT);
 			if(cServer->getState() != SVS_LOBBY) {
 				serverWorm->Prepare(true); // prepare serverside
@@ -1863,8 +1862,8 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				warnings << cClient->getWorm(i)->getID() << ":" << cClient->getWorm(i)->getName() << endl;
 			}
 			
+			cClient->getWorm(i)->Clear();
 			cClient->getWorm(i)->setUsed(true);
-			cClient->getWorm(i)->setAlive(false);
 			info.applyTo(cClient->getWorm(i)); // sets skin
 			cClient->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
 			cClient->getWorm(i)->setLocal(true);
@@ -2084,7 +2083,6 @@ void CClient::RemoveWorm(int id)
 		cRemoteWorms[id].Unprepare();
 		// TODO: why not a Clear() here?
 		cRemoteWorms[id].setUsed(false);
-		cRemoteWorms[id].setAlive(false);
 		cRemoteWorms[id].setKills(0);
 		cRemoteWorms[id].setDeaths(0);
 		cRemoteWorms[id].setTeamkills(0);

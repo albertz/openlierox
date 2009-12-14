@@ -186,7 +186,7 @@ private:
 	CWorm(const CWorm&): cSparkles(this) { assert(false); }
 	CWorm& operator=(const CWorm&) { assert(false); return *this; }
 	
-private:
+protected:
 	// Attributes
 
 	// General
@@ -493,7 +493,6 @@ public:
     void        setType(WormType* t)        { m_type = t; }
 
 	bool		getAlive()				{ return bAlive; }
-	void		setAlive(bool _a)			{ bAlive = _a; }
 
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 

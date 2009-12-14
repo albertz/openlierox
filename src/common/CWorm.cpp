@@ -286,7 +286,8 @@ void CWorm::Prepare(bool serverSide)
 		setShieldFactor(tLXOptions->tGameInfo.features[FT_WormShieldFactor]);
 		setCanAirJump(tLXOptions->tGameInfo.features[FT_InstantAirJump]);
 	}
-	
+
+	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	bIsPrepared = true;
 	
 	if(bLocal && !serverSide) {
@@ -302,6 +303,7 @@ void CWorm::Unprepare() {
 	if(bLocal)
 		game.onRemoveWorm(this);
 
+	bAlive = false;
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
@@ -454,6 +456,10 @@ void CWorm::Spawn(CVec position) {
 	if (bSpectating)
 		return;
 
+	if(game.gameScript()->gusEngineUsed())
+		// Gusanos will use its own spawning fct
+		return;
+	
 	bAlive = true;
 	bAlreadyKilled = false;
 	bSpawnedOnce = true;

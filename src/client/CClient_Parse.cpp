@@ -1009,7 +1009,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 			// Also set some game details
 			w->setLives(client->tGameInfo.iLives);
-			w->setAlive(false);
 			w->setKills(0);
 			w->setDeaths(0);
 			w->setTeamkills(0);
@@ -1185,12 +1184,6 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	client->iNetStatus = NET_PLAYING;
 	client->fServertime = 0;
 
-	// Set the local players to dead so we wait until the server spawns us
-	for(uint i=0;i<client->iNumWorms;i++) {
-		if(!client->cLocalWorms[i]->haveSpawnedOnce())
-			client->cLocalWorms[i]->setAlive(false);
-	}
-	
 	// Re-initialize the ingame scoreboard
 	client->InitializeIngameScore(false);
 	client->bUpdateScore = true;
@@ -1279,7 +1272,6 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		return;
 	}
 
-	client->cRemoteWorms[id].setAlive(true);
 	client->cRemoteWorms[id].Spawn(p);
 
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()->features[FT_InfiniteMap]);
@@ -2161,8 +2153,8 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		if (client->cRemoteWorms[id].getHookedWorm())
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		client->cRemoteWorms[id].setAlive(false);
-		client->cRemoteWorms[id].setDeaths(client->cRemoteWorms[id].getDeaths()+1);
+		
+		client->cRemoteWorms[id].Kill();
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 
@@ -2603,7 +2595,7 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 		return;
 	}
 
-	w->setAlive(true);	// We won't get SpawnWorm packet from H&S server
+	w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
 	if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
 		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
 
