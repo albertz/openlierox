@@ -662,7 +662,7 @@ void AddSpeed::run( ActionParams const& params  )
 	int dir = params.object->getDir();
 	Angle angle(params.object->getPointingAngle() + offs * dir);
 	if(offsVariation) angle += offsVariation * midrnd();
-	params.object->velocity() += CVec(angle, speed + midrnd()*speedVariation );
+	params.object->velocity() += CVec(Vec(angle, speed + midrnd()*speedVariation ));
 }
 
 AddSpeed::~AddSpeed()
