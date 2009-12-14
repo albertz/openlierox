@@ -317,8 +317,10 @@ bool PartType::load(std::string const& filename)
 	std::ifstream fileStream;
 	OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
-	if (!fileStream )
+	if (!fileStream ) {
+		//notes << "PartType: cannot open " << filename << endl;
 		return false;
+	}
 	
 	OmfgScript::Parser parser(fileStream, gameActions, filename);
 	
@@ -350,6 +352,7 @@ bool PartType::load(std::string const& filename)
 	{
 		if(parser.incomplete())
 			parser.error("Trailing garbage");
+		notes << "PartType: cannot parse " << filename << endl;
 		return false;
 	}
 	

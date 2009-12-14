@@ -370,8 +370,10 @@ int l_load_script(lua_State* L)
 		return 0;
 	Script* script = scriptLocator.load(s);
 	
-	if(!script)
+	if(!script) {
+		//notes << "Lua load script: cannot load " << s << endl;
 		return 0;
+	}
 	
 	// Return the allocated table
 	lua_pushvalue(L, 2);

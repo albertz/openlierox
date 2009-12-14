@@ -92,9 +92,11 @@ bool WeaponType::load(std::string const& filename)
 	std::ifstream fileStream;
 	OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
-	if (!fileStream )
+	if (!fileStream ) {
+		//notes << "WeaponType: cannot load " << filename << endl;
 		return false;
-
+	}
+	
 	fileName = filename;
 
 	OmfgScript::Parser parser(fileStream, gameActions, filename);
@@ -124,6 +126,7 @@ bool WeaponType::load(std::string const& filename)
 	if(!parser.run()) {
 		if(parser.incomplete())
 			parser.error("Trailing garbage");
+		notes << "WeaponType: error at parsing" << endl;
 		return false;
 	}
 
