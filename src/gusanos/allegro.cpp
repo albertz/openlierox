@@ -80,19 +80,22 @@ static void dumpUsedColors(SDL_Surface* surf);
 BITMAP* screen = NULL;
 
 static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
-	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff;
+	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff, amask = 0xff000000;
 	if(screen != NULL) {
 		rmask = screen->surf->format->Rmask;
 		gmask = screen->surf->format->Gmask;
 		bmask = screen->surf->format->Bmask;
+		amask = screen->surf->format->Amask;
 	}
 	else if(SDL_GetVideoSurface() && SDL_GetVideoSurface()->format->BitsPerPixel == 32) {
 		rmask = SDL_GetVideoSurface()->format->Rmask;
 		gmask = SDL_GetVideoSurface()->format->Gmask;
 		bmask = SDL_GetVideoSurface()->format->Bmask;		
+		amask = SDL_GetVideoSurface()->format->Amask;
 	}
+	if(amask == 0) amask = 0xff000000;
 	
-	return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, rmask,gmask,bmask,0);
+	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,0);
 }
 
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
