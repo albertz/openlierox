@@ -277,6 +277,9 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 	// Place default tiles
 	TileMap();
 
+	// TODO: does that make sense? we haven't loaded anything yet...
+	
+	/*
 	// Update the mini map
 	UpdateMiniMap();
 
@@ -285,7 +288,8 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 
     // Calculate the grid
     calculateGrid();
-
+	*/
+	
 	Created = true;
 
 	return true;
@@ -303,7 +307,10 @@ bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 	// Create the map
 	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
 		return false;
-		
+
+	// TODO: does that make sense? we haven't loaded anything yet...
+
+	/*
 	// Update the mini map
 	UpdateMiniMap();
 	
@@ -312,6 +319,7 @@ bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 	
     // Calculate the grid
     calculateGrid();
+	*/
 	
 	Created = true;
 	
