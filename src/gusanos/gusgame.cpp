@@ -1008,7 +1008,7 @@ bool GusGame::changeLevel(const std::string& levelName, bool refresh)
 	return changeLevel(i->second.loader, i->second.path);
 }
 
-bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m )
+bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m)
 {
 	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
 	
@@ -1025,6 +1025,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	
 	if(!loader->load(m, levelPath))
 	{
+		warnings << "GusGame::changeLevel: error while loading map" << endl;
 		reloadModWithoutMap();
 		error(ErrorMapLoading);
 		return false;
