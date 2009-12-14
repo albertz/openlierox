@@ -40,6 +40,14 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
     pcTargetWorm = NULL;
     nType = type;
 	bSmooth = false;
+
+	bUsed = true;
+	gusReset();
+}
+
+void CViewport::shutdown() {
+	bUsed = false;
+	gusReset();
 }
 
 

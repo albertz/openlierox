@@ -2226,7 +2226,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 				int v2_target = v2Target->getSelectedItem()->iTag;
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
-                    cViewports[i].setUsed(false);
+					cViewports[i].shutdown();
 					cViewports[i].setTarget(NULL);
                     cViewports[i].reset();
                 }

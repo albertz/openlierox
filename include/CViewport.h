@@ -70,7 +70,7 @@ public:
 	}
 
 	~CViewport() {
-		gusShutdown();
+		gusReset();
 	}
 	
 private:
@@ -144,7 +144,7 @@ public:
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 
 	bool	getUsed() const	{ return bUsed; }
-	void	setUsed(bool _u)	{ bUsed = _u; }
+	void	shutdown();
 
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
     CWorm   *getTarget() const { return pcTargetWorm; }
@@ -191,7 +191,7 @@ public:
 	// ---------------- Gusanos --------------------------
 	
 	void gusInit();
-	void gusShutdown();
+	void gusReset();
 	
 	void setDestination(BITMAP* where, int x, int y, int w, int h);
 	void gusRender();

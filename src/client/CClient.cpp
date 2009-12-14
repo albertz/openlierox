@@ -139,7 +139,7 @@ void CClient::Clear()
 	cWeaponRestrictions.Shutdown();
 
     for(int i=0; i<NUM_VIEWPORTS; i++) {
-        cViewports[i].setUsed(false);
+        cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
         cViewports[i].setID(i);
 		cViewports[i].SetWorldX(0);
@@ -216,7 +216,7 @@ void CClient::MinorClear()
 		cBonuses[i].setUsed(false);
 
     for(i=0; i<NUM_VIEWPORTS; i++)  {
-        cViewports[i].setUsed(false);
+		cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
@@ -1684,7 +1684,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 	// Reset
 	for( int i=0; i<NUM_VIEWPORTS; i++ )  {
-        cViewports[i].setUsed(false);
+		cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
 	}
 
@@ -1719,7 +1719,6 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[0].Setup(0, top, 640, h, type1);
 		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
-		cViewports[0].setUsed(true);
 	}
 
 	// Two wormsize
@@ -1727,12 +1726,10 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[0].Setup(0, top, 318, h, type1);
 		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
-		cViewports[0].setUsed(true);
 
 		cViewports[1].Setup(322, top, 318, h, type2);
 		cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 		cViewports[1].setTarget(w2);
-		cViewports[1].setUsed(true);
 	}
 	
 	bShouldRepaintInfo = true;

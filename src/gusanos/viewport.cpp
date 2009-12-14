@@ -29,15 +29,16 @@ void CViewport::gusInit()
 	dest = 0;
 	hud = 0;
 	fadeBuffer = 0;
+	m_listener = 0;
 }
 
-void CViewport::gusShutdown()
+void CViewport::gusReset()
 {
-	if(luaReference) lua.destroyReference(luaReference);
-	destroy_bitmap(dest);
-	destroy_bitmap(hud);
-	sfx.freeListener(m_listener);
-	destroy_bitmap(fadeBuffer);
+	if(luaReference) lua.destroyReference(luaReference); luaReference = LuaReference();
+	destroy_bitmap(dest); dest = 0;
+	destroy_bitmap(hud); hud = 0;
+	sfx.freeListener(m_listener); m_listener = 0;
+	destroy_bitmap(fadeBuffer); fadeBuffer = 0;
 }
 
 struct TestCuller : public Culler<TestCuller>
