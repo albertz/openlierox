@@ -939,45 +939,19 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Copied over from SDL_stretch.c from SDL-1.2.9
 // This is a safe, esp multithreadingsafe version of SDL_SoftStretch without any ASM magic.
 
-#define DEFINE_COPY_ROW(name, type)                     \
-void name(type *src, int src_w, type *dst, int dst_w)   \
-{                                                       \
-        type pixel = 0;                                 \
-                                                        \
-        int pos = 0x10000;                              \
-        int inc = (src_w << 16) / dst_w;                \
-        for ( int i=dst_w; i>0; --i ) {                 \
-                while ( pos >= 0x10000L ) {             \
-                        pixel = *src++;                 \
-                        pos -= 0x10000L;                \
-                }                                       \
-                *dst++ = pixel;                         \
-                pos += inc;                             \
-        }                                               \
-}
-DEFINE_COPY_ROW(copy_row1, Uint8)
-DEFINE_COPY_ROW(copy_row2, Uint16)
-DEFINE_COPY_ROW(copy_row4, Uint32)
-
-/* The ASM code doesn't handle 24-bpp stretch blits */
-void copy_row3(Uint8 *src, int src_w, Uint8 *dst, int dst_w)
-{
-	Uint8 pixel[3] = {0,0,0};
-	
-	int pos = 0x10000;
-	int inc = (src_w << 16) / dst_w;
-	for ( int i=dst_w; i>0; --i ) {
-		while ( pos >= 0x10000L ) {
-			pixel[0] = *src++;
-			pixel[1] = *src++;
-			pixel[2] = *src++;
-			pos -= 0x10000L;
-		}
-		*dst++ = pixel[0];
-		*dst++ = pixel[1];
-		*dst++ = pixel[2];
-		pos += inc;
-	}
+static inline void copy_row(PixelCopy& copier, Uint8 *src, int src_w, Uint8 *dst, int dst_w, int bpp)
+{                                                                                                               
+        int pos = 0x10000;                              
+        int inc = (src_w << 16) / dst_w;                
+        for ( int i=dst_w; i>0; --i ) {                 
+                while ( pos >= 0x10000L ) {             
+                        src += bpp;                 
+                        pos -= 0x10000L;                
+                } 
+				copier.copy(dst, src - bpp);
+                dst += bpp;                         
+                pos += inc;                             
+        }                                               
 }
 
 /* Perform a stretch blit between two surfaces of the same format.
@@ -1060,7 +1034,9 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	src_row = srcrect->y;
 	dst_row = dstrect->y;
 	dst_width = dstrect->w*bpp;
-		
+
+	PixelCopy& copier = getPixelCopyFunc(src, dst);
+
 	/* Perform the stretch blit */
 	for ( dst_maxrow = dst_row+dstrect->h; dst_row<dst_maxrow; ++dst_row ) {
 		dstp = (Uint8 *)dst->pixels + (dst_row*dst->pitch)
@@ -1071,22 +1047,8 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 			++src_row;
 			pos -= 0x10000L;
 		}
-		switch (bpp) {
-			case 1:
-				copy_row1(srcp, srcrect->w, dstp, dstrect->w);
-				break;
-			case 2:
-				copy_row2((Uint16 *)srcp, srcrect->w,
-						  (Uint16 *)dstp, dstrect->w);
-				break;
-			case 3:
-				copy_row3(srcp, srcrect->w, dstp, dstrect->w);
-				break;
-			case 4:
-				copy_row4((Uint32 *)srcp, srcrect->w,
-						  (Uint32 *)dstp, dstrect->w);
-				break;
-		}
+		
+		copy_row(copier, srcp, srcrect->w, dstp, dstrect->w, bpp);
 		pos += inc;
 	}
 	
