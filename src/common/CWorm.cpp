@@ -66,6 +66,8 @@ CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m
 	cGameScript = NULL;
 	cWeaponRest = NULL;
 	m_type = NULL;
+
+	bUsed = false;
 	Clear();
 	
 	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
@@ -85,10 +87,8 @@ CWorm::~CWorm() {
 // Clear the worm details
 void CWorm::Clear()
 {
-	if(bUsed)
-	game.onRemoveWorm(this);
+	if(bUsed) game.onRemoveWorm(this);
 	
-	bUsed = false;
 	bIsPrepared = false;
 	bSpawnedOnce = false;
 	iID = 0;
@@ -194,14 +194,16 @@ void CWorm::Clear()
 	
 	
 	if(m_inputHandler) {
-		delete m_inputHandler;
+		m_inputHandler->deleteMe = true;
 		m_inputHandler = NULL;
 	}
 	
 	cDamageReport.clear();
 
-	gusShutdown();
+	if(bUsed) gusShutdown();
 	gusInit();
+
+	bUsed = false;
 }
 
 
@@ -287,8 +289,13 @@ void CWorm::Prepare(bool serverSide)
 	
 	bIsPrepared = true;
 	
-	if(bLocal && !serverSide)
+	if(bLocal && !serverSide) {
+		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
+		// NOTE: this is only a workaround for now and not very elegant
+		gusShutdown();
+		gusInit();
 		game.onNewWorm(this);
+	}
 }
 
 void CWorm::Unprepare() {
