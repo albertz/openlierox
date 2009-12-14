@@ -228,6 +228,14 @@ class PixelCopy_32na_32 : public PixelCopy  { public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *(Uint32 *)dstaddr = Uint32(0xff000000) | *(Uint32 *)srcaddr; }
 };
 
+class PixelCopy_32key_32 : public PixelCopy  { public:
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  {
+		if(*(Uint32 *)srcaddr != sfmt->colorkey)
+			*(Uint32 *)dstaddr = Uint32(0xff000000) | *(Uint32 *)srcaddr;
+	}
+};
+
+
 class PixelCopy_8_32 : public PixelCopy  { public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { 
 		*(Uint32 *)dstaddr = Pack(Color(sfmt->palette->colors[*srcaddr]), dfmt);
@@ -462,12 +470,18 @@ inline PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Sur
 	static PixelCopy_32_24	copy_32_24;	copy_32_24.setformats(source_surf->format, dest_surf->format);
 	static PixelCopy_32_32	copy_32_32;	copy_32_32.setformats(source_surf->format, dest_surf->format);
 	static PixelCopy_32na_32	copy_32na_32;	copy_32na_32.setformats(source_surf->format, dest_surf->format);
-
+	static PixelCopy_32key_32	copy_32key_32;	copy_32key_32.setformats(source_surf->format, dest_surf->format);
+	
 #define DEST_SWITCH(sourcebpp)  switch (dest_surf->format->BytesPerPixel)  {\
 	case 1: return copy_##sourcebpp##_8;  \
 	case 2: return copy_##sourcebpp##_16;  \
 	case 3: return copy_##sourcebpp##_24;  \
-	case 4: if(sourcebpp == 32 && source_surf->format->Amask == 0) return copy_32na_32; else return copy_##sourcebpp##_32;  \
+	case 4: if(sourcebpp == 32 && source_surf->format->Amask == 0) { \
+				if(source_surf->flags & SDL_SRCCOLORKEY) \
+					return copy_32key_32; \
+				else \
+					return copy_32na_32; } \
+			else return copy_##sourcebpp##_32;  \
 	}
 
 	switch (source_surf->format->BytesPerPixel)  {
