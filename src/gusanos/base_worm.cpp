@@ -114,8 +114,7 @@ void CWorm::gusShutdown()
 	}
 
 	skin = skinMask = NULL;
-	
-	/*
+		
 	// We must delete the object now out of the list because this destructor
 	// is not called from Gusanos but from CClient.
 	// NOTE: Not really the best way but I don't know a better way
@@ -142,7 +141,6 @@ void CWorm::gusShutdown()
 			++iter;
 	}
 #endif
-	*/
 }
 
 void CWorm::deleteThis() {
