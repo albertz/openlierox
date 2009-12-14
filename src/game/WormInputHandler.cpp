@@ -41,7 +41,7 @@ CWormInputHandler::Stats::~Stats()
 
 
 void CWormInputHandler::gusInit(CWorm* w) {
-	gusInit(shared_ptr<PlayerOptions>(new PlayerOptions("-")), w);
+	gusInit(gusGame.playerOptions[0], w);
 }
 
 void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
