@@ -131,10 +131,12 @@ public:
 	// do not confuse with the node ID which identifies instances of the class.
 	static Net_ClassID  classID;
 	
+private:
 	void gusInit(CWorm* w);
 	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
 	void gusShutdown();
 	
+public:
 	void think();
 	// subThink() gets called inside think() and its used to give the derivations
 	// the ability to think without replacing the main CWormInputHandler::think().

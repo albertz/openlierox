@@ -636,13 +636,17 @@ CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) 
 	// we use the normal init system first after the weapons are selected and we are ready
 	stopInputSystem();
 
+	gusInit();
+	
 	game.onNewPlayer( this );
 	game.onNewHumanPlayer( this );
 	game.onNewHumanPlayer_Lua( this );
 	game.onNewPlayer_Lua(this);
 }
 
-CWormHumanInputHandler::~CWormHumanInputHandler() {}
+CWormHumanInputHandler::~CWormHumanInputHandler() {
+	gusShutdown();
+}
 
 void CWormHumanInputHandler::startGame() {
 	initInputSystem();
@@ -938,9 +942,8 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 using namespace std;
 
-void CWormHumanInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
+void CWormHumanInputHandler::gusInit()
 {
-	CWormInputHandler::gusInit(options, worm);
 	aimingUp=(false);
 	aimingDown=(false);
 	changing=(false);

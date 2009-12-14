@@ -84,9 +84,11 @@ public:
 		ACTION_COUNT,
 	};
 	
-	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
+private:
+	void gusInit();
 	void gusShutdown();
 	
+public:
 	void subThink();
 #ifndef DEDICATED_ONLY
 	void render();
