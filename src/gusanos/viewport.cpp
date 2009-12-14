@@ -29,15 +29,11 @@ void CViewport::gusInit()
 	dest = 0;
 	hud = 0;
 	fadeBuffer = 0;
-	
-	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
-	//lua.pushLightReference(this, LuaBindings::viewportMetaTable);
-	luaReference = lua.createReference();
 }
 
 void CViewport::gusShutdown()
 {
-	lua.destroyReference(luaReference);
+	if(luaReference) lua.destroyReference(luaReference);
 	destroy_bitmap(dest);
 	destroy_bitmap(hud);
 	sfx.freeListener(m_listener);
@@ -92,6 +88,7 @@ void CViewport::setDestination(BITMAP* where, int x, int y, int width, int heigh
 		return;
 	}
 	
+	if(luaReference) lua.destroyReference(luaReference);
 	destroy_bitmap(dest);
 	destroy_bitmap(hud);
 	if ( x < 0 )
@@ -124,6 +121,11 @@ void CViewport::setDestination(BITMAP* where, int x, int y, int width, int heigh
 				putpixel_solid(testLight, x, y, iv);
 			}
 	}
+
+		
+	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
+	//lua.pushLightReference(this, LuaBindings::viewportMetaTable);
+	luaReference = lua.createReference();
 }
 
 void CViewport::drawLight(IVec const& v)
