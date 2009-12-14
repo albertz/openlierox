@@ -52,12 +52,18 @@ static int fpsCount = 0;
 static int fps = 0;
 static Uint32 logicLast = 0;
 
+static bool debug_onlyOneLogicFrame = false;
+
 
 bool gusInitBase() {
 	console.registerVariables()
 	("CL_SHOWFPS", &showFps, 1) 
 	("CL_SHOWDEBUG", &showDebug, 0)
 	;
+	
+	console.registerVariables()
+			("SV_DEBUG_onlyOneLogicFrame", &debug_onlyOneLogicFrame, false)
+			;
 	
 	if(!gusGame.init())
 		return false;
@@ -216,6 +222,8 @@ void gusLogicFrame() {
 		}
 		
 		++logicLast;
+
+		if(debug_onlyOneLogicFrame) break;
 	}
 
 #ifndef DEDICATED_ONLY
