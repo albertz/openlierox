@@ -751,7 +751,11 @@ bool GusGame::loadMod(bool doLoadWeapons)
 void GusGame::runInitScripts()
 {
 	Script* modScript = scriptLocator.load(m_modName);
-	if(!modScript) modScript = scriptLocator.load("common");
+	if(!modScript) {
+		notes << "init script " << m_modName << ".lua not found, trying common.lua" << endl;
+		modScript = scriptLocator.load("common");
+		if(!modScript) notes << "common.lua also not found" << endl;
+	}
 	if(modScript)
 	{
 		LuaReference ref = modScript->createFunctionRef("init");
@@ -1037,7 +1041,10 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	
 	//cerr << "Loading mod" << endl;
 	loadMod();
-		
+
+	// earlier, this was in GusGame::think() for the ChangeLevel event
+	runInitScripts();
+	
 	return true;
 }
 
