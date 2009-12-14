@@ -76,6 +76,25 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
 
 static void dumpUsedColors(SDL_Surface* surf);
 
+
+BITMAP* screen = NULL;
+
+static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
+	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff;
+	if(screen != NULL) {
+		rmask = screen->surf->format->Rmask;
+		gmask = screen->surf->format->Gmask;
+		bmask = screen->surf->format->Bmask;
+	}
+	else if(SDL_GetVideoSurface() && SDL_GetVideoSurface()->format->BitsPerPixel == 32) {
+		rmask = SDL_GetVideoSurface()->format->Rmask;
+		gmask = SDL_GetVideoSurface()->format->Gmask;
+		bmask = SDL_GetVideoSurface()->format->Bmask;		
+	}
+	
+	return SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, 32, rmask,gmask,bmask,0);
+}
+
 BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	std::string fullfilename = GetFullFileName(filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
@@ -84,7 +103,7 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	if( img->format->BitsPerPixel == 8 )
 		return create_bitmap_from_sdl(img);
 	
-	SDL_Surface* converted = SDL_CreateRGBSurface(SDL_SWSURFACE, img->w, img->h, 32, 0xff,0xff00,0xff0000,0);
+	SDL_Surface* converted = create_32bpp_sdlsurface(img->w, img->h);
 	CopySurface(converted, img, 0, 0, 0, 0, img->w, img->h);
 	
 	//SDL_Surface* converted = SDL_DisplayFormat(img);
@@ -103,7 +122,7 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	if(color_depth == 8)
 		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0,0,0,0);
 	else
-		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,0xff00,0xff0000,0);
+		surf = create_32bpp_sdlsurface(width, height);
 	if(!surf) {
 		errors << "create_bitmap_ex: cannot create surface with " << width << "x" << height << "x" << color_depth << endl;
 		return NULL;
@@ -144,8 +163,6 @@ void destroy_bitmap(BITMAP *bmp) {
 int set_gfx_mode(int card, int w, int h, int v_w, int v_h) { return 0; }
 int SCREEN_W = 640, SCREEN_H = 480;
 
-BITMAP* screen = NULL;
-
 int allegro_error = 0;
 
 
@@ -157,6 +174,9 @@ bool allegro_init() {
 	if(SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
 	
 	screen = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
+	notes << "Allegro screen format:" << endl;
+	DumpPixelFormat(screen->surf->format);
+	
 	return true;
 }
 
@@ -427,13 +447,13 @@ int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); retur
 int getg(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return g; }
 int getb(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return b; }
 */
-int getr(int c) { return Uint8(Uint32(c)); }
-int getg(int c) { return Uint8(Uint32(c) >> 8); }
-int getb(int c) { return Uint8(Uint32(c) >> 16); }
+int getr(int c) { return Uint8(Uint32(c) >> screen->surf->format->Rshift); }
+int getg(int c) { return Uint8(Uint32(c) >> screen->surf->format->Gshift); }
+int getb(int c) { return Uint8(Uint32(c) >> screen->surf->format->Bshift); }
 
 
 static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {
-	return r | (g << 8) | (b << 16);
+	return ((r & 0xff) << screen->surf->format->Rshift) | ((g & 0xff) << screen->surf->format->Gshift) | ((b & 0xff) << screen->surf->format->Bshift);
 }
 
 int makecol(int r, int g, int b) { return makecol_intern(r,g,b); }
