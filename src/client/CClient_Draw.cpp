@@ -825,7 +825,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	
 	if(gusanosDrawing) {
 		v->gusRender();
-		gusRenderFrameMenu();
+		//gusRenderFrameMenu();
 		
 		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
 		return;
