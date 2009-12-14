@@ -84,8 +84,11 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	if( img->format->BitsPerPixel == 8 )
 		return create_bitmap_from_sdl(img);
 	
-	SDL_Surface* converted = SDL_DisplayFormat(img);
-	SDL_FreeSurface(img);
+	SDL_Surface* converted = SDL_CreateRGBSurface(SDL_SWSURFACE, img->w, img->h, 32, 0xff,0xff00,0xff0000,0);
+	CopySurface(converted, img, 0, 0, 0, 0, img->w, img->h);
+	
+	//SDL_Surface* converted = SDL_DisplayFormat(img);
+	//SDL_FreeSurface(img);
 
 	if(!converted) {
 		errors << "Failed: Converting of bitmap " << filename << /*" to " << bpp <<*/ " bit" << endl;
@@ -95,9 +98,12 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	return create_bitmap_from_sdl(converted);
 }
 
-BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
-	int flags = SDL_SWSURFACE;
-	SDL_Surface* surf = SDL_CreateRGBSurface(flags, width, height, color_depth, 0,0,0,0); //fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask);
+BITMAP *create_bitmap_ex(int color_depth, int width, int height) {	
+	SDL_Surface* surf = NULL;
+	if(color_depth == 8)
+		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0,0,0,0);
+	else
+		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0xff,0xff00,0xff0000,0);
 	if(!surf) {
 		errors << "create_bitmap_ex: cannot create surface with " << width << "x" << height << "x" << color_depth << endl;
 		return NULL;
@@ -215,13 +221,6 @@ extern "C" {
 
 
 
-int makecol(int r, int g, int b) { return SDL_MapRGB(mainPixelFormat,r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) {
-	return makecol(r,g,b);
-	//return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b);
-}
-
-
 int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
     _rgb_r_shift_16, _rgb_g_shift_16, _rgb_b_shift_16,
     _rgb_r_shift_24, _rgb_g_shift_24, _rgb_b_shift_24,
@@ -291,10 +290,14 @@ void putpixel(BITMAP *bmp, int x, int y, int color) {
 
 
 
+static Color allegcol_to_Col(int col) {
+	return Color(getr(col), getg(col), getb(col), SDL_ALPHA_OPAQUE);
+}
+
 void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
 	sub_to_abs_coords(bmp, x, y1);
 	sub_to_abs_coords_y(bmp, y2);
-	DrawVLine(bmp->surf.get(), y1, y2, x, Color(color));
+	DrawVLine(bmp->surf.get(), y1, y2, x, allegcol_to_Col(color));
 /*	for(int y = y1; y < y2; ++y)
 		if(abscoord_in_bmp(bmp, x, y))
 			putpixel(bmp, x, y, color);*/
@@ -303,7 +306,7 @@ void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
 void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
 	sub_to_abs_coords(bmp, x1, y);
 	sub_to_abs_coords_x(bmp, x2);
-	DrawHLine(bmp->surf.get(), x1, x2, y, Color(color));
+	DrawHLine(bmp->surf.get(), x1, x2, y, allegcol_to_Col(color));
 /*	for(int x = x1; x < x2; ++x)
 		if(abscoord_in_bmp(bmp, x, y))
 			putpixel(bmp, x, y, color);*/
@@ -312,7 +315,7 @@ void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
 void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
-	DrawLine(bmp->surf.get(), x1, y1, x2, y2, Color(color));
+	DrawLine(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
 }
 
 void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
@@ -324,7 +327,7 @@ void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 
 void circle(BITMAP *bmp, int x, int y, int radius, int color) {
 	sub_to_abs_coords(bmp, x, y);
-	DrawCircleFilled(bmp->surf.get(), x, y, radius, radius, Color(color));
+	DrawCircleFilled(bmp->surf.get(), x, y, radius, radius, allegcol_to_Col(color));
 }
 
 
@@ -419,9 +422,26 @@ void set_trans_blender(int r, int g, int b, int a) {}
 void set_add_blender (int r, int g, int b, int a) {}
 void solid_mode() {}
 
+/*
 int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return r; }
 int getg(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return g; }
 int getb(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return b; }
+*/
+int getr(int c) { return Uint8(Uint32(c)); }
+int getg(int c) { return Uint8(Uint32(c) >> 8); }
+int getb(int c) { return Uint8(Uint32(c) >> 16); }
+
+
+static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {
+	return r | (g << 8) | (b << 16);
+}
+
+int makecol(int r, int g, int b) { return makecol_intern(r,g,b); }
+int makecol_depth(int color_depth, int r, int g, int b) {
+	return makecol(r,g,b);
+	//return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b);
+}
+
 
 
 void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2) {}
