@@ -224,7 +224,8 @@ LBINOP(CWorm, worm_eq,
 )*/
 
 METHOD(CWorm, worm_destroy,
-	delete p;
+	// NOTE: worms are currently handled by CClient
+	//delete p;
 	return 0;
 )
 
