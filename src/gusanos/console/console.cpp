@@ -80,6 +80,11 @@ void Console::registerVariable(Variable* var)
 		}
 		
 		registerItem(name, var);
+
+		// register also at OLX
+		const static std::string dummyDefault("");
+		CScriptableVars::RegisterVars("Gusanos") ((DynamicVar<std::string>*)var, name, dummyDefault);
+	
 	}
 	else
 	{

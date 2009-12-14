@@ -210,7 +210,7 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( DynamicVar<bool>* v, bool def ): type(SVT_DYNAMIC), isUnsigned(false), bdef(def) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<int>* v, int def ): type(SVT_DYNAMIC), isUnsigned(false), idef(def) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<float>* v, float def ): type(SVT_DYNAMIC), isUnsigned(false), fdef(def) { dynVar = v; }
-	ScriptVarPtr_t( DynamicVar<std::string>* v, const char * def ): type(SVT_DYNAMIC), isUnsigned(false), sdef(def) { dynVar = v; }
+	ScriptVarPtr_t( DynamicVar<std::string>* v, const std::string& def ): type(SVT_DYNAMIC), isUnsigned(false), sdef(def.c_str()) { dynVar = v; }
 	ScriptVarPtr_t( DynamicVar<Color>* v, Color def ): type(SVT_DYNAMIC), isUnsigned(false) { dynVar = v; cldef = def; }
 	
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t * def ) : type(v->type), isUnsigned(v->isUnsigned)  {

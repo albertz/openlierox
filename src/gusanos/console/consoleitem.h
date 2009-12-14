@@ -4,9 +4,11 @@
 #include <string>
 #include <list>
 
+#include "CScriptableVars.h"
+
 class Console;
 
-class ConsoleItem
+class ConsoleItem : /* OLX wrapper: */ private DynamicVar<std::string>
 {
 public:
 	friend class Console;
@@ -26,12 +28,18 @@ public:
 	
 	virtual ~ConsoleItem()
 	{}
-	
+
 protected:
 	Console* m_owner;
 	
 private:
 	bool m_locked;
+
+	
+	/* OLX dynamicvar wrapper */
+	std::string get() { return invoke(std::list<std::string>()); }
+	void set(const std::string& p) { std::list<std::string> l; l.push_back(p); invoke(l); }
+
 };
 
 #endif  // _CONSOLE_ITEM_H_
