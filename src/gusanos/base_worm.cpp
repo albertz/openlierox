@@ -685,6 +685,7 @@ void CWorm::respawn()
 
 void CWorm::respawn( const Vec& newPos)
 {
+	health = 100;
 	bAlive = true;
 	aimAngle = Angle(90.0);
 	velocity() = CVec ( 0, 0 );
