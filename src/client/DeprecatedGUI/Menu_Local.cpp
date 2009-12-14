@@ -206,7 +206,7 @@ void Menu_LocalFrame()
 
 	// Reload the list if user switches back to the game
 	// Do not reload when a dialog is open
-	if (bActivated)  {
+	if (tLXOptions->bAutoFileCacheRefresh && bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());

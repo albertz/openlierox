@@ -250,7 +250,7 @@ static void EvHndl_ActiveEvent(SDL_Event* ev) {
 			//notes << "OpenLieroX lost the focus" << endl;
 		}
 
-		if(bActivated)
+		if(tLXOptions->bAutoFileCacheRefresh && bActivated)
 			updateFileListCaches();
 	}
 }

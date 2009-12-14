@@ -303,6 +303,7 @@ struct GameOptions {
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
+	bool	bAutoFileCacheRefresh;	// when you refocus, it will automatically reload the map/mod and the list and the caches
 	
 	// Widget states
 	int		iInternetList[7];
