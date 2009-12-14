@@ -143,6 +143,8 @@ static SDL_Event QuitEventThreadEvent() {
 
 
 static void startMainLockDetector() {
+	if(!tLXOptions->bUseMainLockDetector) return;
+	
 	struct MainLockDetector : Action {
 		bool wait(Uint32 time) {
 			if(!tLX) return false;

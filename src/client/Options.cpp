@@ -215,6 +215,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->doProjectileSimulationInDedicated, "Misc.DoProjectileSimulationInDedicated", true )
 		( tLXOptions->bAutoFileCacheRefresh, "Misc.AutoFileCacheRefresh", true )
+		( tLXOptions->bUseMainLockDetector, "Misc.UseMainLockDetector", true )
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )

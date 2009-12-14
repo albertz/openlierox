@@ -304,6 +304,7 @@ struct GameOptions {
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
 	bool	bAutoFileCacheRefresh;	// when you refocus, it will automatically reload the map/mod and the list and the caches
+	bool	bUseMainLockDetector;
 	
 	// Widget states
 	int		iInternetList[7];
