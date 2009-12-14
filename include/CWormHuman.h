@@ -83,6 +83,9 @@ public:
 		CHANGE,
 		ACTION_COUNT,
 	};
+
+protected:
+	void OlxInputToGusEvents();
 	
 private:
 	void gusInit();

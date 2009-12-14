@@ -622,34 +622,13 @@ static void handle_sdlevents_mouse() {
 	mouse_b = m->Button;
 }
 
-static void handle_sdlevents_pushall() {
-	SDL_Event ev;
-	while( SDL_PollEvent(&ev) ) {
-		if( ev.type == SDL_SYSWMEVENT ) {
-			EvHndl_SysWmEvent_MainThread( &ev );
-			continue;
-		}
-
-		if( ev.type == SDL_QUIT ) {
-			notes << "SDL quit event" << endl;
-			// not the best way but does the trick for now
-			exit(0);
-		}
-		
-		mainQueue->push(ev);
-	}
-}
-
 static void handle_sdlevents() {
-	//handle_sdlevents_pushall();
-	//ProcessEvents(); // calls event handler from OLX
-
 	handle_sdlevents_keyb();
 	handle_sdlevents_mouse();	
 }
 
 
 void pushAllegroEvents() {
-	handle_sdlevents();
+	//handle_sdlevents();
 }
 

@@ -130,6 +130,9 @@ public:
 	// ClassID is Used by zoidcom to identify the class over the network,
 	// do not confuse with the node ID which identifies instances of the class.
 	static Net_ClassID  classID;
+
+protected:
+	virtual void OlxInputToGusEvents();	
 	
 private:
 	void gusInit(CWorm* w);

@@ -54,6 +54,8 @@
 #include "WeaponDesc.h"
 #include "gusanos/gusanos.h"
 #include "gusanos/gfx.h"
+#include "game/Game.h"
+
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -2273,6 +2275,11 @@ void CClient::ProcessSpectatorViewportKeys()
 	if(!cLocalWorms) return;
 	
 	if( iNetStatus != NET_PLAYING )
+		return;
+
+	if( game.gameScript()->gusEngineUsed() )
+		// TODO: only for now
+		// we should just update iNetStatus to NET_PLAYING, that would be nicer
 		return;
 
 	// don't proceed if any of the local human worms is not out of the game

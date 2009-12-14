@@ -36,6 +36,7 @@
 #include "WeaponDesc.h"
 #include "AuxLib.h" // for doActionInMainThread
 #include "game/Game.h"
+#include "gusanos/player_input.h"
 
 
 ///////////////////
@@ -1170,4 +1171,59 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 
 
 
+
+void CWormHumanInputHandler::OlxInputToGusEvents()
+{
+	// change + jump -> ninja
+
+	size_t i = 0;
+	for(; i < game.localPlayers.size(); ++i)
+		if(game.localPlayers[i] == this) break;
+
+	if(i >= game.localPlayers.size()) {
+		errors << "CWormHumanInputHandler::OlxInputToGusEvents: local player unknown" << endl;
+		return;
+	}
+	
+	//LEFT
+	if(cLeft.wasDown()) eventStart(i, CWormHumanInputHandler::LEFT);
+	if(cLeft.wasUp()) eventStop(i, CWormHumanInputHandler::LEFT);
+	
+ 	//RIGHT
+	if(cRight.wasDown()) eventStart(i, CWormHumanInputHandler::RIGHT);
+	if(cRight.wasUp()) eventStop(i, CWormHumanInputHandler::RIGHT);
+ 	
+	//UP
+	if(cUp.wasDown()) eventStart(i, CWormHumanInputHandler::UP);
+	if(cUp.wasUp()) eventStop(i, CWormHumanInputHandler::UP);
+	
+	//DOWN
+	if(cDown.wasDown()) eventStart(i, CWormHumanInputHandler::DOWN);
+	if(cDown.wasUp()) eventStop(i, CWormHumanInputHandler::DOWN);
+	
+	//FIRE
+	if(cShoot.wasDown()) eventStart(i, CWormHumanInputHandler::FIRE);
+	if(cShoot.wasUp()) eventStop(i, CWormHumanInputHandler::FIRE);
+	
+	//JUMP
+	if(cJump.wasDown()) eventStart(i, CWormHumanInputHandler::JUMP);
+	if(cJump.wasUp()) eventStop(i, CWormHumanInputHandler::JUMP);
+	
+	//CHANGE
+	if(cSelWeapon.wasDown()) eventStart(i, CWormHumanInputHandler::CHANGE);
+	if(cSelWeapon.wasUp()) eventStop(i, CWormHumanInputHandler::CHANGE);
+	
+	cUp.reset();
+	cDown.reset();
+	cLeft.reset();
+	cRight.reset();
+	cShoot.reset();
+	cJump.reset();
+	cSelWeapon.reset();
+	cInpRope.reset();
+	cStrafe.reset();
+	for( size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]) ; i++  )
+		cWeapons[i].reset();
+
+}
 

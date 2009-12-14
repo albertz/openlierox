@@ -148,8 +148,11 @@ void CWormInputHandler::addEvent(Net_BitStream* data, CWormInputHandler::NetEven
 
 void CWormInputHandler::think()
 {
+	if(!m_worm) return;
 	
-
+	// OLX input
+	//getInput();
+	OlxInputToGusEvents();
 	
 	subThink();
 	if ( m_node ) {
@@ -790,6 +793,11 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 		case ACTION_COUNT:
 			break; // Do nothing
 	}
+}
+
+void CWormInputHandler::OlxInputToGusEvents()
+{
+	
 }
 
 

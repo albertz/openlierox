@@ -18,7 +18,7 @@
 
 using namespace std;
 
-string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
+std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
 {
 	if ( index < game.localPlayers.size() )
 	{
@@ -48,7 +48,7 @@ string eventStart(size_t index, CWormHumanInputHandler::Actions action, list<str
 	return "";
 }
 
-string eventStop(size_t index, CWormHumanInputHandler::Actions action, list<string> const& args)
+std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
 {
 	if ( index < game.localPlayers.size() )
 	{
