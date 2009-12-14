@@ -406,7 +406,7 @@ void initGame()
 		("ModLoading", GusGame::ErrorModLoading)
 	)
 	
-	ENUM(CWormHumanInputHandler,
+	ENUM(Player,
 		("Left", CWormHumanInputHandler::LEFT)
 		("Right", CWormHumanInputHandler::RIGHT)
 		("Up", CWormHumanInputHandler::UP)
