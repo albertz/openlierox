@@ -1675,7 +1675,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
 
-	float angleSpeed = game.gameScript()->gusEngineUsed() ? m_options->aimAcceleration.toDeg() : m_worm->cGameScript->getWorm()->AngleSpeed;
+	float angleSpeed = game.gameScript()->gusEngineUsed() ? m_options->aimMaxSpeed.toDeg() : (m_worm->cGameScript->getWorm()->AngleSpeed * dt.seconds());
 	
 	NormalizeVector(&tgDir);
 
@@ -1715,9 +1715,9 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > m_worm->fAngle)
-		m_worm->fAngle += angleSpeed * dt.seconds();
+		m_worm->fAngle += angleSpeed;
 	else if(ang < m_worm->fAngle)
-		m_worm->fAngle -= angleSpeed * dt.seconds();
+		m_worm->fAngle -= angleSpeed;
 
 	// If the angle is within +/- 3 degrees, just snap it
     if( fabs(m_worm->fAngle - ang) < 3 )
@@ -4662,8 +4662,8 @@ void CWormBotInputHandler::subThink() {
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
 	worm_state_t oldS = *m_worm->getWormState();
 	
-	//m_worm->fAngle = m_worm->aimAngle.toDeg() + 90.0f;
-	m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
+	m_worm->fAngle = m_worm->aimAngle.toDeg() - 90.0f;
+	//m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
 	oldS.iAngle = (int)m_worm->fAngle;
 	getInput();
 
@@ -4695,6 +4695,10 @@ void CWormBotInputHandler::subThink() {
 	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
 	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
 
+	m_worm->aimAngle = Angle(m_worm->fAngle + 90.0f);
+	//m_worm->aimAngle = Angle(90.0f - m_worm->fAngle);
+	
+	/*
 	const bool aimingUp = oldS.iAngle > newS.iAngle;
 	const bool aimingDown = oldS.iAngle < newS.iAngle;
 	
@@ -4710,7 +4714,7 @@ void CWormBotInputHandler::subThink() {
 	if(!aimingDown && !aimingUp)
 		// I placed this here since CWorm doesn't have access to aiming flags
 		m_worm->aimSpeed *= m_options->aimFriction;
-
+	*/
 
 	// stupid wpn change code from player_ai.cpp
 	if ( ( m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
