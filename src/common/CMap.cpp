@@ -3138,32 +3138,23 @@ int CarveHole(CVec pos)
 		return 0;
 	}
 	
-	if(!cClient->getMap()->GetImage().get()) {
-		errors << "CarveHole: client map invalid" << endl;
-		return 0;
-	}
-	
 	int x,y;
-	Color Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
 	y = MAX(MIN((int)pos.y, (int)cClient->getMap()->GetHeight() - 1), 0);
 
-	if (!LockSurface(cClient->getMap()->GetImage()))
-		return 0;
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
 		if((uint)x >= cClient->getMap()->GetWidth())	break;
 
 		if(cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), x, y));
+			Color col = cClient->getMap()->getColorAt(x, y);
 			for(short n=0; n<3; n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),col,NULL);
 			break;
 		}
 	}
-	UnlockSurface(cClient->getMap()->GetImage());
 
 	// Just carve a hole for the moment
 	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()->features[FT_InfiniteMap]);
