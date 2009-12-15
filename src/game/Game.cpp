@@ -169,8 +169,9 @@ void Game::frameInner()
 	
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
-	
-	gusLogicFrame();
+
+	if(gameScript()->gusEngineUsed() || gusGame.level().gusIsLoaded())
+		gusLogicFrame();
 	
 	// Local
 	switch (tLX->iGameType)  {
