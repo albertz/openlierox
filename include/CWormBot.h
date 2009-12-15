@@ -34,8 +34,8 @@ public:
     virtual void clearInput() {}
 
 	virtual void onRespawn();
-	
-	virtual void subThink() {}
+
+	virtual void quit();
 	
 protected:
 	
@@ -147,6 +147,10 @@ public:
 #endif
 	
 	
+	// ----------- Gusanos ---------------
+
+	virtual void subThink();
+
 };
 
 #endif  //  __CWORMBOT_H__

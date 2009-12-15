@@ -159,7 +159,8 @@ void gusLogicFrame() {
 			
 			for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{
-				(*iter)->think();
+				if(!(*iter)->deleteMe)
+					(*iter)->think();
 			}
 		}
 		

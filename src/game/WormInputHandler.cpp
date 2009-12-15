@@ -273,7 +273,7 @@ void CWormInputHandler::think()
 				}
 					break;
 				case eNet_EventRemoved: {
-					deleteMe = true;
+					quit();
 				}
 					break;
 					

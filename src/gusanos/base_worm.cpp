@@ -107,7 +107,6 @@ void CWorm::gusShutdown()
 		m_ninjaRope = NULL;
 	}
 
-	//m_ninjaRope->deleteMe = true;
 	for ( size_t i = 0; i < m_weapons.size(); ++i) {
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
@@ -146,10 +145,6 @@ void CWorm::gusShutdown()
 void CWorm::deleteThis() {
 	finalize();
 	
-#ifndef NDEBUG
-	deleted = true;
-#endif
-	
 	if(luaReference)
 	{
 		lua.destroyReference(luaReference);
@@ -157,6 +152,7 @@ void CWorm::deleteThis() {
 	}
 
 	// dont delete the object itself because we store it in CClient atm
+	// also dont set deleted=true because we may reuse this object
 }
 
 void CWorm::assignOwner( CWormInputHandler* owner)
@@ -683,6 +679,9 @@ void CWorm::respawn()
 
 void CWorm::respawn( const Vec& newPos)
 {
+	// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
+	bWeaponsReady = true;
+	
 	health = 100;
 	bAlive = true;
 	aimAngle = Angle(90.0);

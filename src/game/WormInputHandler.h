@@ -66,6 +66,7 @@ public:
 	
 	virtual void onRespawn() {}
 
+	virtual void quit() { deleteMe = true; }
 	
 	
 	// ------------------------------------------------------

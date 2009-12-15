@@ -194,7 +194,7 @@ void CWorm::Clear()
 	
 	
 	if(m_inputHandler) {
-		m_inputHandler->deleteMe = true;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
 	
@@ -272,7 +272,7 @@ void CWorm::Prepare(bool serverSide)
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
 		warnings << m_inputHandler->name(); warnings << endl;
-		m_inputHandler->deleteMe = true;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
 
@@ -317,7 +317,7 @@ void CWorm::Unprepare() {
 			warnings << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; warnings.flush();
 			warnings << m_inputHandler->name() << endl;
 		}
-		m_inputHandler->deleteMe = true;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
 		

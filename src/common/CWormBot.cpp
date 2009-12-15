@@ -46,6 +46,8 @@
 #include "WeaponDesc.h"
 #include "Mutex.h"
 #include "game/Game.h"
+#include "gusanos/player_options.h"
+#include "gusanos/weapon.h"
 
 
 // used by searchpath algo
@@ -926,7 +928,10 @@ void CWormBotInputHandler::AI_Shutdown()
 	NEW_psLastNode = NULL;
 }
 
-
+void CWormBotInputHandler::quit() {
+	AI_Shutdown();
+	CWormInputHandler::quit();
+}
 
 
 
@@ -1010,7 +1015,7 @@ void CWormBotInputHandler::getInput() {
 	ws->bMove = false;
 	ws->bShoot = false;
 	ws->bJump = false;
-
+	
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4f)
 		return;
@@ -1095,7 +1100,9 @@ void CWormBotInputHandler::getInput() {
     }
 
     // we have no strafing for bots at the moment
-    m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
+	ws->iFaceDirectionSide = m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
+
+	ws->iAngle = (float)m_worm->fAngle;	
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -1667,8 +1674,9 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
     CVec	tgPos = cPos;
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
-    const gs_worm_t *wd = m_worm->cGameScript->getWorm();
 
+	float angleSpeed = game.gameScript()->gusEngineUsed() ? m_options->aimAcceleration.toDeg() : m_worm->cGameScript->getWorm()->AngleSpeed;
+	
 	NormalizeVector(&tgDir);
 
 	DIR_TYPE wantedDir = (tgDir.x < 0) ? DIR_LEFT : DIR_RIGHT;
@@ -1707,9 +1715,9 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	
 	// Move the angle at the same speed humans are allowed to move the angle
 	if(ang > m_worm->fAngle)
-		m_worm->fAngle += wd->AngleSpeed * dt.seconds();
+		m_worm->fAngle += angleSpeed * dt.seconds();
 	else if(ang < m_worm->fAngle)
-		m_worm->fAngle -= wd->AngleSpeed * dt.seconds();
+		m_worm->fAngle -= angleSpeed * dt.seconds();
 
 	// If the angle is within +/- 3 degrees, just snap it
     if( fabs(m_worm->fAngle - ang) < 3 )
@@ -1972,6 +1980,10 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 
 
 static bool canShootRightNowWithCurWeapon(CWorm* w) {
+	if(game.gameScript()->gusEngineUsed())
+		// TODO: reloading check and so on
+		return true;
+	
 	// code from GameServer::WormShoot, CClient::PlayerShoot
 	// and look also at CClient::ShootSpecial for special weapons like jetpack
 	
@@ -2029,7 +2041,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	CVec    cTrgPos = w->getPos();
     bool    bDirect = true;
 
-
+	
     /*
       Here we check if we have a line of sight with the target.
       If we do, and our 'direct' firing weapons are loaded, we shoot.
@@ -2078,6 +2090,19 @@ bool CWormBotInputHandler::AI_Shoot()
 		return false;
 	}
 
+
+	if(game.gameScript()->gusEngineUsed()) {
+		// TODO: merge this with rest (we have to merge wpns for this)
+		
+		if(!bDirect) return false;
+		if(!AI_SetAim(cTrgPos)) return false;
+		
+		m_worm->tState.bShoot = true;
+		fLastShoot = tLX->currentTime;
+		return true;
+	}
+
+	
 	// If target is blocked by large amount of dirt, we can't shoot it
 	// But we can use a clearing weapon :)
 	if (nType & PX_DIRT)  {
@@ -2332,6 +2357,11 @@ bool CWormBotInputHandler::AI_Shoot()
 // AI: Get the best weapon for the situation
 // Returns weapon id or -1 if no weapon is suitable for the situation
 int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool bDirect, float fTraceDist) {
+	if(game.gameScript()->gusEngineUsed()) {
+		// TODO: right weapon
+		return 0;
+	}
+
 	// if we are to close to the target, don't selct any weapon (=> move away)
 	/*if(fDistance < 5)
 		return -1; */
@@ -2803,43 +2833,48 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 		return 0;
 	}
 
-	if(!m_worm->getCurWeapon() || !m_worm->getCurWeapon()->Weapon)
-		return 0;
-	
-    // Trace a line from the worm to length or until it hits something
+	// Trace a line from the worm to length or until it hits something
 	CVec    pos = m_worm->vPos;
 	CVec    dir = target-pos;
-    int     nTotalLength = (int)NormalizeVector(&dir);
+	int     nTotalLength = (int)NormalizeVector(&dir);
 
 	int first_division = 7;	// How many pixels we go through first check (we can shoot through walls)
 	int divisions = 5;		// How many pixels we go through each check (more = slower)
 
-	//
-	// Predefined divisions
-	//
+	if(!game.gameScript()->gusEngineUsed()) {
 
-	// Beam
-	if (m_worm->tWeapons[m_worm->iCurrentWeapon].Weapon->Type == WPN_BEAM)  {
-		first_division = 1;
-		divisions = 1;
-	}
+		if(!m_worm->getCurWeapon() || !m_worm->getCurWeapon()->Weapon)
+			return 0;
+		
 
-	// Rifles
-	else if (iAiGameType == GAM_RIFLES)  {
-		first_division = 10;
-		divisions = 6;
-	}
+		//
+		// Predefined divisions
+		//
 
-	// Mortars
-	else if (iAiGameType == GAM_MORTARS)  {
-		first_division = 7;
-		divisions = 2;
-	}
+		// Beam
+		if (m_worm->tWeapons[m_worm->iCurrentWeapon].Weapon->Type == WPN_BEAM)  {
+			first_division = 1;
+			divisions = 1;
+		}
 
-	// 100lt
-	else if (iAiGameType == GAM_100LT)  {
-		first_division = 6;
-		divisions = 3;
+		// Rifles
+		else if (iAiGameType == GAM_RIFLES)  {
+			first_division = 10;
+			divisions = 6;
+		}
+
+		// Mortars
+		else if (iAiGameType == GAM_MORTARS)  {
+			first_division = 7;
+			divisions = 2;
+		}
+
+		// 100lt
+		else if (iAiGameType == GAM_100LT)  {
+			first_division = 6;
+			divisions = 3;
+		}
+
 	}
 
 	// Add the worm thickness
@@ -4615,4 +4650,72 @@ void CWormBotInputHandler::setAiDiff(int aiDiff) {
 	}
 	
 	iAiDiffLevel = aiDiff;
+}
+
+
+void CWormBotInputHandler::subThink() {
+	if(!m_worm) return;
+	
+	if ( !m_worm->isActive() )
+		baseActionStart(RESPAWN);
+
+	bool oldNinja = m_worm->cNinjaRope.isReleased();
+	worm_state_t oldS = *m_worm->getWormState();
+	
+	//m_worm->fAngle = m_worm->aimAngle.toDeg() + 90.0f;
+	m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
+	oldS.iAngle = (int)m_worm->fAngle;
+	getInput();
+
+	bool newNinja = m_worm->cNinjaRope.isReleased();
+	worm_state_t& newS = *m_worm->getWormState();
+
+	if(oldS.bMove && newS.bMove) {
+		if(oldS.iFaceDirectionSide == DIR_LEFT && newS.iFaceDirectionSide == DIR_RIGHT) {
+			baseActionStop(LEFT);
+			baseActionStart(RIGHT);
+		}
+		if(oldS.iFaceDirectionSide == DIR_RIGHT && newS.iFaceDirectionSide == DIR_LEFT) {
+			baseActionStop(RIGHT);
+			baseActionStart(LEFT);
+		}
+	}
+	if(oldS.bMove && !newS.bMove) baseActionStop((oldS.iFaceDirectionSide == DIR_LEFT) ? LEFT : RIGHT);
+	if(!oldS.bMove && newS.bMove) baseActionStart((newS.iFaceDirectionSide == DIR_LEFT) ? LEFT : RIGHT);
+
+	if(oldS.bJump && !newS.bJump) baseActionStop(JUMP);
+	if(!oldS.bJump && newS.bJump) baseActionStart(JUMP);
+	
+	if(oldS.bShoot && !newS.bShoot) baseActionStop(FIRE);
+	if(!oldS.bShoot && newS.bShoot) baseActionStart(FIRE);
+	
+	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
+	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
+
+	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
+	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
+
+	const bool aimingUp = oldS.iAngle > newS.iAngle;
+	const bool aimingDown = oldS.iAngle < newS.iAngle;
+	
+	if (aimingUp && m_worm->aimSpeed > -m_options->aimMaxSpeed) {
+		m_worm->addAimSpeed(-m_options->aimAcceleration);
+	}
+	
+	// No "else if" since we want to support precision aiming
+	if (aimingDown && m_worm->aimSpeed < m_options->aimMaxSpeed) {
+		m_worm->addAimSpeed(m_options->aimAcceleration);
+	}
+
+	if(!aimingDown && !aimingUp)
+		// I placed this here since CWorm doesn't have access to aiming flags
+		m_worm->aimSpeed *= m_options->aimFriction;
+
+
+	// stupid wpn change code from player_ai.cpp
+	if ( ( m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
+	{
+		m_worm->changeWeaponTo(m_worm->getWeaponIndexOffset( rand() % 50 ) );
+	}
+
 }
