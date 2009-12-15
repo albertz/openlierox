@@ -288,6 +288,7 @@ void CWorm::Prepare(bool serverSide)
 	}
 
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
+	health = 0;
 	bIsPrepared = true;
 	
 	if(bLocal && !serverSide) {
@@ -304,6 +305,7 @@ void CWorm::Unprepare() {
 		game.onRemoveWorm(this);
 
 	bAlive = false;
+	health = 0;
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
