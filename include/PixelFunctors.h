@@ -21,6 +21,8 @@
 #define __PIXELFUNCTORS_H__
 
 #include <cassert>
+#include <SDL.h>
+#include "Color.h"
 
 //
 // Color packing and unpacking (mainly grabbed from SDL)
