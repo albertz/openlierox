@@ -68,6 +68,20 @@ void Game::prepareGameloop() {
 		SDL_Delay(10);
 		SyncServerAndClient();
 	}
+
+	if(gameScript()->gusEngineUsed() && !gusGame.level().gusIsLoaded()) {
+		// WARNING: This may be temporary
+		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
+		// Thus, when we don't load a gus level, we must load the mod manually.
+
+#ifdef USE_GRID
+		game.objects.resize(0, 0, gusGame.level().GetWidth(), gusGame.level().GetHeight());
+#endif		
+		
+		gusGame.refreshResources( gameScript()->directory() );
+		gusGame.loadMod();
+		gusGame.runInitScripts();
+	}
 	
 	PhysicsEngine::Init();
 	

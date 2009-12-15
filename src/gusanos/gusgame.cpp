@@ -1094,6 +1094,8 @@ bool GusGame::setMod( const string& modname )
 	if( gusExists(modname) )
 	{
 		nextMod = modname;
+		m_modName = nextMod;
+		m_modPath = nextMod;		
 	}
 	else
 	{
