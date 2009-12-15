@@ -1394,9 +1394,9 @@ void CWorm::reinitInputHandler() {
 		return;
 	}
 	
-	if(m_inputHandler)
-		delete m_inputHandler;
-	else
+	if(m_inputHandler) {
+		m_inputHandler->quit();
+	} else
 		warnings << "reinitInputHandler: inputhandler was unset for worm " << getID() << endl;
 	m_inputHandler = m_type->createInputHandler(this);
 	

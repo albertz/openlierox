@@ -151,7 +151,7 @@ void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
 	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {
 		if ( (*iter)->getConnectionID() == _id ) {
-			(*iter)->deleteMe = true;
+			(*iter)->quit();
 		}
 	}
 	network.decConnCount();
