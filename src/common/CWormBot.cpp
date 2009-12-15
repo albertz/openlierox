@@ -4522,7 +4522,12 @@ void CWormBotInputHandler::onRespawn() {
 
 
 void CWormBotInputHandler::initWeaponSelection() {
-	
+
+	if(game.gameScript()->gusEngineUsed())
+		// TODO: for now where we dont have wpns merged (yet)
+		// Gusanos will mostly (depending on mod) init with random wpns anyway
+		return;
+		
 	// If this is an AI worm, lets give him a preset or random arsenal (but only with client side weapon selection)
 		
 	// TODO: move this to CWorm_AI

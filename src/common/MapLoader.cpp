@@ -1935,7 +1935,7 @@ public:
 			for(Uint32 x = 0; x < m->Width; ++x)
 				setpixelflags(x, y, m->getMaterial(x,y).toLxFlags());
 		m->unlockFlags();
-		
+
 		curMap = NULL;
 		return true;
 	}
