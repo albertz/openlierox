@@ -275,8 +275,13 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 
 
 static bool abscoord_in_bmp(BITMAP* bmp, int x, int y) {
-	return x >= 0 && x < bmp->sub_x + bmp->w && y >= 0 && y < bmp->sub_y + bmp->h;
+	return x >= bmp->sub_x && x < bmp->sub_x + bmp->w && y >= bmp->sub_y && y < bmp->sub_y + bmp->h;
 }
+
+static bool coord_in_bmp(BITMAP* bmp, int x, int y) {
+	return x >= 0 && x < bmp->w && y >= 0 && y < bmp->h;
+}
+
 
 static int getpixel__nocheck(BITMAP *bmp, int x, int y) {
 	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
@@ -300,14 +305,12 @@ static void putpixel__nocheck(BITMAP *bmp, int x, int y, int color) {
 }
 
 int getpixel(BITMAP *bmp, int x, int y) {
-	sub_to_abs_coords(bmp, x, y);
-	if(!abscoord_in_bmp(bmp, x, y)) return 0;
+	if(!coord_in_bmp(bmp, x, y)) return 0;
 	return getpixel__nocheck(bmp, x, y);
 }
 
 void putpixel(BITMAP *bmp, int x, int y, int color) {
-	sub_to_abs_coords(bmp, x, y);
-	if(!abscoord_in_bmp(bmp, x, y)) return;
+	if(!coord_in_bmp(bmp, x, y)) return;
 	putpixel__nocheck(bmp, x, y, color);
 }
 
