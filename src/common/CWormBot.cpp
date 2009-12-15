@@ -1675,7 +1675,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
 
-	float angleSpeed = game.gameScript()->gusEngineUsed() ? m_options->aimMaxSpeed.toDeg() : (m_worm->cGameScript->getWorm()->AngleSpeed * dt.seconds());
+	float angleSpeed = m_worm->cGameScript->getWorm()->AngleSpeed * dt.seconds();
 	
 	NormalizeVector(&tgDir);
 

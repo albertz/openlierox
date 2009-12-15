@@ -594,6 +594,16 @@ int CGameScript::Load(const std::string& dir)
 				m_gusEngineUsed = true;
 				loaded = true;
 				modname = info.name;
+
+				// they are not really used but the AI code or other stuff may access them
+				Worm.AngleSpeed = 100;  //m_options->aimMaxSpeed.toDeg() * 100.f;
+				Worm.GroundSpeed = 1;
+				Worm.AirSpeed = 1;
+				Worm.Gravity = 1;
+				Worm.JumpForce = 1;
+				Worm.AirFriction = 1;
+				Worm.GroundFriction = 1;
+				
 				return GSE_OK;
 			}
 			
