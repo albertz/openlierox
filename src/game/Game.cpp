@@ -242,6 +242,8 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 
 
 void Game::onNewWorm(CWorm* w) {
+	if(!game.gameScript()->gusEngineUsed()) return;
+
 #ifdef USE_GRID
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
@@ -266,10 +268,12 @@ void Game::onNewPlayer(CWormInputHandler* player) {
 }
 
 void Game::onNewPlayer_Lua(CWormInputHandler* p) {
-	EACH_CALLBACK(i, playerInit)
-	{
-		(lua.call(*i), p->getLuaReference())();
-	}	
+	if(game.gameScript()->gusEngineUsed()) {
+		EACH_CALLBACK(i, playerInit)
+		{
+			(lua.call(*i), p->getLuaReference())();
+		}	
+	}
 }
 
 void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
@@ -278,10 +282,12 @@ void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 }
 
 void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
-	EACH_CALLBACK(i, localplayerInit)
-	{
-		(lua.call(*i), player->getLuaReference())();
-	}	
+	if(game.gameScript()->gusEngineUsed()) {
+		EACH_CALLBACK(i, localplayerInit)
+		{
+			(lua.call(*i), player->getLuaReference())();
+		}
+	}
 }
 
 
