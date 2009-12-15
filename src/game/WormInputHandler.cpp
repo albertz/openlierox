@@ -29,6 +29,10 @@
 //#include "gusanos/allegro.h"
 #include <list>
 
+#include "CServer.h"
+#include "CServerConnection.h"
+#include "CServerNetEngine.h"
+
 using namespace std;
 
 Net_ClassID CWormInputHandler::classID = Net_Invalid_ID;
@@ -801,3 +805,23 @@ void CWormInputHandler::OlxInputToGusEvents()
 }
 
 
+void CWormInputHandler::addDeath() {
+	if(m_worm) m_worm->addDeath();
+	stats->deaths++;
+}
+
+// TODO: very hacky, make this in a clean way / more merging of gus&olx
+static void sendWormScoreUpdate(CWorm* w) {
+	for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+		if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
+		if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
+		cServer->getClients()[ii].getNetEngine()->SendWormScore( w );
+	}
+}
+
+void CWormInputHandler::addKill() {
+	if(m_worm) m_worm->addKill();
+	stats->kills++;
+	
+	if(m_worm) sendWormScoreUpdate(m_worm);
+}

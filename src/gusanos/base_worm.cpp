@@ -719,11 +719,11 @@ void CWorm::die()
 	}
 	bAlive = false;
 	if (m_owner) {
-		m_owner->stats->deaths++;
+		m_owner->addDeath();
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
 	if (m_lastHurt && m_lastHurt != m_owner)
-		m_lastHurt->stats->kills++;
+		m_lastHurt->addKill();
 
 	m_ninjaRope->remove();
 	m_timeSinceDeath = 0;
