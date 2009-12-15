@@ -1052,7 +1052,7 @@ void CWormHumanInputHandler::actionStart ( Actions action )
 			case JUMP: {
 				if ( m_worm ) {
 					if ( m_worm->isActive() ) {
-						if (changing) {
+						if (tLXOptions->bOldSkoolRope && changing) {
 							CWormInputHandler::baseActionStart(CWormInputHandler::NINJAROPE);
 						} else {
 							CWormInputHandler::baseActionStart(CWormInputHandler::JUMP);
@@ -1085,7 +1085,7 @@ void CWormHumanInputHandler::actionStart ( Actions action )
 				if ( m_worm ) {
 					m_worm->actionStart(Worm::CHANGEWEAPON);
 
-					if (jumping) {
+					if (tLXOptions->bOldSkoolRope && jumping) {
 						CWormInputHandler::baseActionStart(CWormInputHandler::NINJAROPE);
 						jumping = false;
 					} else {
@@ -1212,6 +1212,12 @@ void CWormHumanInputHandler::OlxInputToGusEvents()
 	//CHANGE
 	if(cSelWeapon.wasDown()) eventStart(i, CWormHumanInputHandler::CHANGE);
 	if(cSelWeapon.wasUp()) eventStop(i, CWormHumanInputHandler::CHANGE);
+	
+	if(!tLXOptions->bOldSkoolRope) {
+		if(cInpRope.isDownOnce()) baseActionStart(NINJAROPE);
+		//if(cInpRope.wasUp()) baseActionStop(NINJAROPE);
+	}
+
 	
 	cUp.reset();
 	cDown.reset();
