@@ -21,7 +21,7 @@
 #include "Options.h" // for controls_t
 #include "CWorm.h"
 #include "MathLib.h"
-
+#include "sound/sfx.h"
 
 
 
@@ -299,6 +299,9 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 	// Clamp it
 	Clamp(MWidth, MHeight);
+
+	if (m_listener)
+		m_listener->pos = Vec(WorldX,WorldY) + Vec(Width/2,Height/2);
 }
 
 
