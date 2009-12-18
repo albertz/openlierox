@@ -43,10 +43,21 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <unistd.h>
+#include <signal.h>
 #endif
 
 #include "StringUtils.h"
 
+
+#ifndef _MSC_VER
+static void setCurThreadName__signalraiser(const char* name) {
+	// this signal is only for debuggers, we should ignore it
+	signal( SIGUSR1, SIG_IGN );
+
+	// KDevelop will catch this, read the 'name' parameter and continue execution
+	raise( SIGUSR1 );
+}
+#endif
 
 
 //////////////////
@@ -79,7 +90,7 @@ void setCurThreadName(const std::string& name)
 	{
 	}
 #else
-	// TODO: similar for other systems
+	setCurThreadName__signalraiser(name.c_str());
 #endif
 }
 
