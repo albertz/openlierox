@@ -1,0 +1,25 @@
+sprite = smoke_alphach.png
+blender = alphach
+alpha = 0
+anim_duration = 75
+anim_type = loop_left
+anim_on_ground = 1
+render_layer = 1
+occluded = 0
+gravity=-0.003
+bounce_factor=0
+repeat=3
+
+on timer(74)
+remove()
+
+on ground_collision()
+remove()
+
+on timer(16,0,1)
+set_alpha_fade(20,150)
+shoot_particles(flame_distro1.obj,1,0,0,1)
+
+on timer(36,0,1)
+set_alpha_fade(38,0)
+shoot_particles(flame_distro2.obj,1,0,0,1)

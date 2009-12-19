@@ -1,0 +1,6 @@
+sprite = bfg_smaller_add.png
+blender=add
+alpha = 7
+dest_alpha = 0
+timeout = 1
+rock_hidden = 0

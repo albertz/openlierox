@@ -1,0 +1,24 @@
+name="Lightning Gun"
+ammo=350
+reload_time=286
+
+on primary_press()
+run_script(weaponeffects.lg_start_zap)
+run_script(weaponeffects.lg_start_sound)
+
+on primary_release()
+run_script(weaponeffects.lg_end_zap)
+
+on primary_shoot()
+ run_script(weaponeffects.lg_start_zap)
+ delay_fire(0)
+ play_sound([lg.ogg], 10, 1, 0.05)
+ shoot_particles(lg_main.obj, 1, speed=1, speed_var=0, motion_inheritance=0, distribution=0, distance_offs=6)
+ shoot_particles(lg_init_flash_add.obj, 1, speed=0, speed_var=0, motion_inheritance=1.0, distribution=0, angle_offs=0,distance_offs=5)
+use_ammo(1)
+
+on reload_end()
+  play_sound([gauss_reload.wav], 100, 1, 0.05)
+run_script(weaponeffects.lg_end_zap)
+
+

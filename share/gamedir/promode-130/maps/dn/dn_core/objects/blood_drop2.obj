@@ -1,0 +1,8 @@
+color = [0,0,220]
+blender = alphach
+alpha = 255
+render_layer = 3
+gravity = 0.0112
+invisible = 0
+wu_pixels = 1on ground_collision()
+ remove()

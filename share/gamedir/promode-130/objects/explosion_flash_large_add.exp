@@ -1,0 +1,6 @@
+sprite=flash_large_add.png
+blender=add
+alpha = 200
+dest_alpha = 0
+timeout = 50
+rock_hidden = 0

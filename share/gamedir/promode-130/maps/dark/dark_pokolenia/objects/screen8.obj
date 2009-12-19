@@ -1,0 +1,20 @@
+sprite = screen8.png
+blender = alphach
+alpha = 0
+render_layer = 3
+gravity = 0.0
+bounce_factor=0
+damping = 0
+anim_type = loop_right
+
+on creation()
+set_alpha_fade(100,255)
+
+on timer(800,0,1)
+set_alpha_fade(100,0)
+
+on timer(850)
+shoot_particles(screen1.obj,1,0,0,0,0,0,0,0)
+
+on timer(900)
+remove()

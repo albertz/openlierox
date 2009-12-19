@@ -1,0 +1,6 @@
+sprite = missile_smoke.png
+blender=alphach
+alpha = 40
+dest_alpha = 0
+timeout = 30
+rock_hidden = 0

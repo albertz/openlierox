@@ -1,0 +1,166 @@
+==============================================
+BASIC VARIABLES
+==============================================
+cg_enemybox (0|1, default 0) - show the enemy box
+
+cg_enemycolor (r g b, defautl 0 255 0) - set the enemy box color
+
+cg_teambox (0|1, default 0) - show boxes of the players from your team (in the tdm mode)
+
+cg_teamcolor (r g b, default 0 0 255) - set the teambox color
+
+ch_bloodscreen (0|1, default 1) - the screen gets red after you die
+
+ch_crosshaircolor (r g b, default 0 255 0) - set the crosschair color
+
+ch_crosshairdist (0 - 30, default 25) - set the distance between the worm and the crosshair
+
+ch_corsshairtype (0 - 7, default 5) - set the crosshair type
+
+ch_playerhealth (0|1, default 1) - show the health status over the worm 
+
+ch_playernames (0|1, default 1) - show the nickname over the worm
+
+ch_radar (0|1, default 0) - show radar
+
+ch_radartype (0 - 2, default 0) - radar dot type 
+
+ch_reloadtimer (0|1, default 0) - show time left for the weapon to reload over the worm
+
+ch_statusbar (0 - 4, default 2) - set hud type
+
+cl_weapons (a b c d e, default 1 1 1 1 1) - weapons which are automaticly selected after the map changes 
+1 - "Bazooka"
+2 - "BFG 9000"
+3 - "Blowtorch"
+4 - "Chaingun"
+5 - "Doomsday"
+6 - "Flak Cannon"
+7 - "Grenade"
+8 - "Gauss Gun"
+9 - "Grenade Launcher"
+10 - "Lightning Gun"
+11 - "Mortar"
+12 - "Rifle"
+13 - "Shotgun"
+14 - "Throwing Knife"
+15 - "Winchester"
+16 - "Autocannon"
+
+mode (ffa|1v1|tdm|instagib|ballpark, default ffa) [map name] - loads a map and a game mode eg. pm_mode tdm pokolenia runs tdm on the pokolenia map
+
+sv_deathslimit (0 - 99, default 20) - set lifes limit
+
+sv_killslimit (0 - 99, default 20) - set kills limit
+
+sv_maxclients (0 - 8, default 4) - set max amount of players on the server
+
+sv_timelimit (0 - 99, default 15) - set time limit
+
+ch_messages_x (0 - 320, default 315) - x-position for messages
+
+ch_messages_y (0 - 240, default 2) - y-position for messages
+
+ch_messages_visible (0 - 1, default 1) - messages toggle on/off
+
+ch_messages_timer (0 - 9999, default 1000) - amount of time before the message disappears
+
+ch_messages_align (left|right)- aligns the messages to the left or right
+
+cg_lasercolor (r g b, default 255 0 0) - rifle's lasersight laser color
+
+ch_weaponsinfo (0 - 1, default 1) - additional hud bar showing amount of ammo for all weapons at once
+
+cg_gibs (0 - 9999, default 10) - amount of gibs after death
+
+sv_healthpacks (0 - 1, default 1) - health drops toggle on/off
+
+sv_healthpacks_delay (0 - 9999, default 60) - delay between health drops
+
+join - joins the game
+
+joinred - joins red team in team games (ctf, tdm)
+
+joinblue - joins blue team in team games (ctf, tdm)
+
+==============================================
+CALLVOTING
+==============================================
+callvote [vote] [variable]
+
+Available votes:
+map [map_name]
+kick [player_name]
+deathslimit [amount]
+killslimit [amount]
+timelimit [amount]
+mode [game_mode] [map_name]
+healthpacks [bool]
+healthpacks_delay [amount]
+
+eg.: callvote map pokolenia - changes the map to pokolenia
+another eg.: callvote mode ctf ctf_dark_duel2 - changes the mode to ctf and map to ctf_dark_duel2
+
+p0_vote yes - vote after
+p0_vote no - vote against
+
+Default binds: F1 - p0_vote yes, F2 - p0_vote no
+
+==============================================
+CHOOSING A TEAM 
+==============================================
+
+After you have connected to a server and chosen your weapons just press f4 and click join[blue/red]/spectate
+
+==============================================
+CONFIGURATION OF THE DEDICATED SERVER
+==============================================
+
+Open server.cfg in promode folder, then edit:
+
+sv_ded_desc - description
+sv_ded_port - server's port
+sv_ded_password - rcon password
+sv_ded_map - default map
+sv_ded_map_list - list of avaible maps
+sv_ded_mode - game mode (1 - ffa, 2 - 1v1, 3 - tdm, 4 - ctf, 5 - instagib, 6 - ballpark)
+sv_ded_timelimit - time limit
+sv_ded_killslimit - frag limit 
+sv_ded_deathslimit - deaths limit
+sv_ded_maxclients - maximum amount of players
+sv_ded_showmessage - toggles showing messages on/off
+sv_ded_messagedelay - delay between messages 
+sv_ded_message - text in the message
+sv_ded_map_random - when set to 1 new map will be picked out of map list randomly. sv_ded_map_reload must be set to 0.
+sv_ded_map_reload - when set to 1 server will select a map specified in sv_ded_map. sv_ded_map_random must be set to 0.
+sv_ded_map_reloadtime - time after the end of match after which server selects new one and begins another match.
+sv_ded_ircbot - toggles the ircbot on/off
+sv_ded_ircbot_name - bot's nick
+sv_ded_ircbot_channel - channel the ircbot will connect to
+sv_ded_ircbot_server - address of server the ircbot will connect to
+sv_ded_ircbot_admin1 - nick of admin 1
+sv_ded_ircbot_admin2 - nick of admin 2
+sv_ded_ircbot_admin3 - nick of admin 3
+sv_ded_healthpacks - toggles health drops on/off
+sv_ded_healthpacks_delay - time delay between health drops
+==============================================
+IRCBOT MAINTENANCE
+==============================================
+
+All the orders must be given on the channel the bot is connected to, The ircbot will accept your commands if your nick is stated in the botadmin command 
+
+!addbot [team] - add a bot to the team
+!ban [player] - ban a player
+!deathslimit [limit] - set the deaths limit
+!help - print all available commands
+!kick [player] - kick a player
+!killslimit [limit] - set the kills limit
+!map [map name] - change map
+!maxclients [limit] - change amount of players who can join the server
+!plist - print names of the players present on the server
+!score - show player scores
+!say [message] - send a message to a server
+!timelimit [limit] - set the time limit
+!quit - shut down the server
+
+

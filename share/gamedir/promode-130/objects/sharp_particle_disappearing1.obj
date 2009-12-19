@@ -1,0 +1,25 @@
+gravity = 0.00032711025
+repeat = 6
+colour = [200,180,150]
+invisible=1
+bounce_factor=1
+col_layer = 1
+blender = add
+alpha = 150
+
+on timer(0)
+ create_explosion ( sharp_trailb.exp )
+
+on timer(25,10)
+ remove()
+ shoot_particles ( sharp_particle_disappearing2.obj,1,0,0,1)
+
+on detect_range(1, 1)
+# run_script(damage.launcher_particle_medium)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ push ( 0.4 )
+ shoot_particles ( blood_explosion_alphach.obj,3, distance_offs = 4, angle_offs=0, distribution=0)
+ shoot_particles ( shotgun_small_smoke_alphach.obj, 10, 0.2,0.3)
+ shoot_particles ( shotgun_spark.obj,8, 0, 0.7)
+ remove()
+ 

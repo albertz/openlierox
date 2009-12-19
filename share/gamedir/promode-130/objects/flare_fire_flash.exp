@@ -1,0 +1,6 @@
+blender=add
+alpha=50
+dest_alpha=0
+sprite=flare_fire_small_add.png
+timeout=2
+rock_hidden = 0

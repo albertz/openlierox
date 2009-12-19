@@ -1,0 +1,14 @@
+sprite = blood_explosion_alphach2.png
+blender = alphach
+alpha = 120
+anim_duration = 15
+anim_type = loop_right
+anim_on_ground = 1
+gravity=0.0
+bounce_factor=0
+
+on timer(20)
+remove()
+
+on creation()
+ set_alpha_fade(15,0)

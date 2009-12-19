@@ -1,0 +1,99 @@
+
+body {
+	background: #000000;
+	color: #FFFFFF;
+}
+
+p,span {
+	margin-top:	1px;
+	margin-bottom:	1px;
+}
+
+
+TABLE {
+	border-collapse: collapse;
+}
+
+TD {
+	border: 1px dotted;
+	border-color: #0000FF;
+}
+
+img {
+	border: none;
+}
+
+a, a:hover, a:link, a:visited {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+
+.ReturnUp {
+	font-weight: bold;
+}
+
+
+.SectionTitle {
+	font-weight: bold;
+	padding-top: 8px;
+	padding-bottom: 4px;
+	color: #FF0000;
+}
+
+
+.MatchInfo {
+}
+
+.MatchInfoLabel {
+	font-weight: bold;
+	text-align: right;
+}
+
+.MatchInfoValue {
+	text-indent: 0.5em;
+}
+
+.PlayerScores {
+	text-indent: 1em;
+}
+
+.PlayerHeaderName {
+	font-weight: bold;
+}
+
+.PlayerHeaderScore {
+	font-weight: bold;
+	text-align: right;
+	text-indent: 2em;
+}
+
+
+.StatName {
+	font-weight: bold;
+	font-variant: small-caps;
+	color: #CCCCCC;
+	text-align: center;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+.StatValue {
+	color: #FFFFFF;
+	text-align: center;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+
+
+.Combat {
+}
+
+.Weapons {
+}
+
+.Items {
+}
+
+.Powerups {
+}

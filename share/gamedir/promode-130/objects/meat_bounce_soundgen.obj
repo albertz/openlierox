@@ -1,0 +1,5 @@
+invisible=1
+
+on creation()
+   play_sound([gibimp1.ogg,gibimp2.ogg,gibimp3.ogg], 35, 1, 0.1)
+remove()

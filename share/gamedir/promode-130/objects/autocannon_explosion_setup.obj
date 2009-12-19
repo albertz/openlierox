@@ -1,0 +1,9 @@
+gravity=0.0
+bounce_factor=0
+invisible = 1
+repeat = 5
+
+on timer(10,20)
+create_explosion(autocannon_explosion_add.exp)
+remove()
+

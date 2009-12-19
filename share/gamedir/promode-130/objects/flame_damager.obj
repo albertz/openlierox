@@ -1,0 +1,21 @@
+gravity=-0.002
+invisible=1
+repeat=3
+
+on timer(45)
+remove()
+
+on creation()
+	run_script(stats.blowtorch)
+
+on detect_range(3,0)
+  run_script(damage.blowtorch)
+  remove()
+  
+on ground_collision()
+ apply_map_effect( hole_small.mfx )
+  remove()
+
+
+
+

@@ -1,0 +1,15 @@
+repeat = 20
+colour = [100,150,250]
+invisible=0
+wu_pixels=0
+blender = alphach
+alpha=50
+
+on timer(0)
+ create_explosion(lg_zap.exp)
+
+on timer(6,5)
+ shoot_particles(lg_hitzap2.obj,1,speed=0.5,speed_var=1.3,distribution=0,distance_offs=0)
+ remove()
+
+

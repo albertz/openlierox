@@ -1,0 +1,26 @@
+gravity = 0.00032711025
+repeat = 6
+colour = [200,180,150]
+invisible=1
+bounce_factor=1
+col_layer=1
+blender = add
+alpha = 200
+
+on timer(0)
+ create_explosion ( mortar_particle_trail.exp )
+
+on timer(5,5)
+ remove()
+ shoot_particles ( autocannon_particle_disappearing1.obj,1,0,0,1)
+
+on detect_range(1, 1)
+# run_script(damage.mortar_particle_close)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ push ( 0.1 )
+ shoot_particles ( blood.obj , 10 , 0.2, 0.3,1)
+ shoot_particles ( blood_explosion_alphach.obj,3, distance_offs = 4, angle_offs=0, distribution=0)
+ shoot_particles ( shotgun_small_smoke_alphach.obj, 5, 0.2,0.3)
+ shoot_particles ( shotgun_spark.obj,4, 0, 0.7)
+ remove()
+ 

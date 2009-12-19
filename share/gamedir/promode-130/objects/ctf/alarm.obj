@@ -1,0 +1,9 @@
+invisible = 1
+gravity = 0
+col_layer = -1
+
+on creation()
+ play_sound_static( teamplay/flagtk.ogg, 100, 1, 0 )
+
+on timer(500)
+ remove()

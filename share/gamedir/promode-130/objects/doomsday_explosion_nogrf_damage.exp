@@ -1,0 +1,19 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+
+on detect_range(14,1)
+ run_script(damage.explosion_8)
+  repel(0.2,15,0.2)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ 
+on detect_range(14,1,[2])
+  damage(100)
+
+#on detect_range(9,1)
+# run_script(damage.explosion_6)
+
+on detect_range(200,1,[worms])
+  run_script(weaponeffects.white_flash_minimal)
+

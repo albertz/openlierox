@@ -1,0 +1,10 @@
+gravity=0.0
+bounce_factor=0
+invisible = 1
+repeat = 20
+damping=0.8
+
+on timer(10,40)
+create_explosion(medium_explosion_add.exp)
+remove()
+

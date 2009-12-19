@@ -1,0 +1,6 @@
+blender=add
+alpha=20
+dest_alpha=0
+sprite=bolter_trail_add.bmp
+timeout=15
+ rock_hidden = 0

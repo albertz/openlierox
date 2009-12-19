@@ -1,0 +1,6 @@
+col_layer=-1
+invisible=1
+
+on timer(33)
+ shoot_particles(steam.particle.obj, 1, speed=0.02, speed_var=0.03, distribution=45, angle_offs=45)
+ 

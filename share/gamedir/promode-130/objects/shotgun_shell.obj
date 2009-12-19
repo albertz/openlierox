@@ -1,0 +1,18 @@
+gravity = 0.007476806640625
+bounce_factor=0.4
+sprite = shell_red.png
+anim_duration = 30
+anim_type = loop_right
+anim_on_ground = 0
+ground_friction = 0.4
+alpha = 255
+blender = alphach
+
+on timer(500)
+  set_alpha_fade(100,0)
+
+on ground_collision()
+run_script(weaponeffects.shell_sound)
+
+on timer(600)
+  remove()

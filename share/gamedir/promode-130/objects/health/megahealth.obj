@@ -1,0 +1,16 @@
+gravity = 0
+bounce_factor = 0.333
+sprite = health.png
+anim_duration = 40
+anim_type = loop_right
+alpha = 255
+blender = alphach
+render_layer = 2
+col_layer = -1
+
+sync_pos = true
+
+on detect_range(10, 0, [worms])
+ run_script(effects.mega_health)
+ shoot_particles(health/megahealth_respawn.obj, 1, 0, 0, 0, 0, 0, 0, 0)
+remove()

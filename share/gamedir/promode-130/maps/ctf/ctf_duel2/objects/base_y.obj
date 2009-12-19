@@ -1,0 +1,14 @@
+
+col_layer = -1
+damping = 0.96
+gravity = 0.015
+bounce_factor = 0
+
+sprite = base_y.bmp
+
+
+on detect_range(10, 0)
+ run_script(ctf.base_reach)
+ 
+on timer(0)
+ run_script(ctf.base_think)

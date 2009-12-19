@@ -1,0 +1,6 @@
+blender=add
+alpha=30
+dest_alpha=0
+sprite=flak_flash_add.png
+timeout=3
+rock_hidden = 0

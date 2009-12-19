@@ -1,0 +1,7 @@
+sprite = rolling_lieros2.png
+blender = alphach
+render_layer = 3
+damping = 0
+anim_duration = 350
+anim_type = loop_right
+

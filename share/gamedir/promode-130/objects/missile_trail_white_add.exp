@@ -1,0 +1,8 @@
+blender=add
+alpha=255
+dest_alpha=0
+wu_pixels=1
+colour=[255,250,250]
+#sprite=bolter_mini_trail_add.bmp
+timeout=12
+ rock_hidden = 0

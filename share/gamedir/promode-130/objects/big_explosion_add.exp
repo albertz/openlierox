@@ -1,0 +1,6 @@
+sprite=big_explosion_add.png
+blender=add
+alpha = 255
+dest_alpha = 20
+timeout = 60
+rock_hidden = 0

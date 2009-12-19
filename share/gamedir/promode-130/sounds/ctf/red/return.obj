@@ -1,0 +1,9 @@
+invisible = 1
+gravity = 0
+col_layer = -1
+
+on creation()
+ play_global_sound( teamplay/voc_red_returned.ogg, 100, 0, 1 )
+
+on timer(0)
+ remove()

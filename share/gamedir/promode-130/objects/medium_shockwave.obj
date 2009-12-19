@@ -1,0 +1,11 @@
+invisible=1
+col_layer=-1
+damping=0.9
+alpha=64
+
+distort_magnitude = 1
+distort_gen = <<< distortions.ripple(1,2) >>>
+distort_size = [25,25]
+
+on timer(15)
+ remove()

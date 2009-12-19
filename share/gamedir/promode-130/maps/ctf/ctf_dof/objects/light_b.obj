@@ -1,0 +1,10 @@
+
+col_layer = -1
+gravity = 0
+bounce_factor = 0.3
+blender = add
+alpha = 50
+sprite = light_b.png
+
+on timer(0)
+ remove()

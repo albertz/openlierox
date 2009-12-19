@@ -1,0 +1,6 @@
+sprite = bio_smoke_alphach.png
+blender=alphach
+alpha = 150
+dest_alpha = 0
+timeout = 20
+rock_hidden = 0

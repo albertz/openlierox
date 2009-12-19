@@ -1,0 +1,26 @@
+name="Gauss Gun "
+ammo=1
+reload_time=150
+sync_reload = false
+sync_shot = true
+
+on primary_shoot()
+ play_sound([gauss.wav], 100, 1, 0.05)
+  shoot_particles(yellow_light_firecone.obj,10,1.3,0.6,0,0,30,0,3)
+shoot_particles(yellow_light_firecone.obj,4,0.3,0.2,0,0,20,10,4)
+shoot_particles(yellow_light_firecone.obj,4,0.3,0.2,0,0,20,-10,4)
+ delay_fire(150)
+# shoot_particles(gauss_bullet.obj, 4, speed=2, speed_var=0.0, motion_inheritance=0.0, distribution=0, distance_offs=9)
+# shoot_particles(gauss_bullet_that_makes_hurt.obj, 1, speed=2, speed_var=0.0, motion_inheritance=0.0, distribution=0, distance_offs=9)
+# shoot_particles(gauss_trail.obj,1, speed=2, distance_offs=9, distribution=0)
+ shoot_particles(gauss_light_firecone.obj,10, speed=1.5, speed_var=1.5,distance_offs=5, distribution=0)
+ shoot_particles(flash_large_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+ #create_explosion(star_shaped_flash.exp)
+  add_speed(-0.639)
+run_script(weaponsyncing.shoot_gauss)
+use_ammo(1)
+
+on reload_end()
+  play_sound([gauss_reload.wav], 100, 1, 0.05)
+
+

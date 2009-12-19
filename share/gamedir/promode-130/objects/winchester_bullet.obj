@@ -1,0 +1,33 @@
+repeat = 12
+colour = [200,140,140]
+alpha = 200
+blender = alphach
+col_layer = 2
+invisible = 0
+col_layer = 1
+
+on creation()
+	run_script(stats.winchester)
+on ground_collision()
+ play_sound_static([ric1.wav,ric2.wav,ric3.wav,ric4.wav,ric5.wav],100,1,0.3)
+ create_explosion ( bullet_on_ground.exp )
+ shoot_particles ( shotgun_spark.obj,5, 0, 0.7)
+ create_explosion ( very_small_explosion_add.exp )
+ apply_map_effect( hole_small.mfx )
+ remove()
+
+on timer(0)
+  create_explosion(winchester_trail.exp)
+  create_explosion(winchester_trail2.exp)
+
+on death()
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ remove()
+
+on detect_range(2, 0)
+ run_script(damage.winchester)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 40, 1, 0.05)
+ push ( 0.1 )
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ remove()
+ 

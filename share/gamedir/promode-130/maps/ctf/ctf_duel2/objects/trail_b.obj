@@ -1,0 +1,12 @@
+col_layer = -1
+gravity = 0
+blender = add
+alpha = 30
+
+sprite = trail_b.bmp
+
+on timer(100)
+ remove()
+ 
+on creation()
+ shoot_particles(team.worm.blue.obj, 1)

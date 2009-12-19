@@ -1,0 +1,63 @@
+sprite=bfg_tiny_add.png
+blender=add
+alpha=100
+#anim_type=loop_right
+#anim_on_ground=0
+#anim_duration=32
+invisible = 1
+col_layer = 1
+repeat=6
+
+on creation()
+ run_script(stats.bfg)
+  create_explosion(bfg_large_short_add.exp)
+  shoot_particles(greenblue_light_firecone.obj,20,2,0.7,0,0,20,0,3)
+  shoot_particles(greenblue_light_firecone.obj,4,0.5,0.2,0,0,20,20,4)
+  shoot_particles(greenblue_light_firecone.obj,4,0.5,0.2,0,0,20,-20,4)
+   play_sound([bfg.wav], 100, 1, 0.05)
+
+on timer(0)
+  create_explosion(bfg_tiny_add.exp)
+  create_explosion(bfg_smaller_add.exp)
+  create_explosion(bfg_small_light_add.exp)
+  
+on timer(1,1)
+  shoot_particles(small_smoke_alphach.obj,1,0.1,0.3,0.05,0,360,0,0)
+  
+on timer(3,4)
+  shoot_particles(smoke_shorter_alphach.obj,1,0.2,0.3,0.05,0,360,0,0)
+ 
+
+on ground_collision()
+  #shoot_particles(bfg_explosion_setup.obj,8,0.2,0.5,0,0,360,0,0)
+  shoot_particles(bfg_exp_stream1.obj,10,0.6,0.3,0,0,360,0,1)
+  create_explosion(bfg_explosion_add.exp)
+  create_explosion(bfg_explosion2_add.exp)
+  create_explosion(bfg_large_add.exp)
+  create_explosion(bfg_hit_check_explosion_nogrf.exp)
+  shoot_particles ( smoke_short_alphach.obj, 30, 1.0,0.5,distribution=360)
+  #shoot_particles ( bfg_on_ground.obj,1,0,0,0,0,0,0,0)
+  uniform_shoot_particles( big_explosion_shockwave_alphach.obj,40,1)
+  uniform_shoot_particles(big_shockwave.obj, 16, speed=6, speed_var=0, distribution=360, distance_offs=5)
+  play_sound([explosion1.ogg,explosion2.ogg,explosion3.ogg,explosion4.ogg], 200, 1, 0.05)
+  create_explosion( explosion_flash_large_add.exp)
+  apply_map_effect( hole_huge.mfx )
+ remove()
+
+on detect_range(4,0)
+  #shoot_particles(bfg_explosion_setup.obj,8,0.2,0.5,0,0,360,0,0)
+  shoot_particles(bfg_exp_stream1.obj,10,0.6,0.3,0,0,360,0,1)
+  create_explosion(bfg_explosion_add.exp)
+  create_explosion(bfg_explosion2_add.exp)
+  create_explosion(bfg_large_add.exp)
+  create_explosion(bfg_hit_check_explosion_nogrf.exp)
+  shoot_particles ( smoke_short_alphach.obj, 30, 1.0,0.5,distribution=360)
+  #shoot_particles ( bfg_on_ground.obj,1,0,0,0,0,0,0,0)
+  uniform_shoot_particles( big_explosion_shockwave_alphach.obj,40,1)
+  uniform_shoot_particles(big_shockwave.obj, 16, speed=6, speed_var=0, distribution=360, distance_offs=5)
+ run_script(damage.bfg)
+  play_sound([explosion1.ogg,explosion2.ogg,explosion3.ogg,explosion4.ogg], 200, 1, 0.05)
+  create_explosion( explosion_flash_large_add.exp)
+ remove()
+
+

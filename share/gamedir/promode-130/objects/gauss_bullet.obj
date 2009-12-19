@@ -1,0 +1,31 @@
+sprite=gauss_normal.png
+blender=normal
+alpha=255
+repeat=8
+
+gravity=0.0
+bounce_factor=0
+
+on ground_collision()
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+  shoot_particles( gauss_main_explosion_setup.obj,1,0.2,0.1, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,3,1.2,1.1, distribution = 360)
+  shoot_particles ( super_shotgun_spark.obj, 1, 0.4, 0.7)
+  shoot_particles ( gauss_smoke_alphach.obj, 4, 1,0)
+#  shoot_particles( particle_small_damage_YE.obj,1,0.56,0.98,distribution = 360)
+  shoot_particles( medium_explosion_setup_add.obj,1,1,0.5, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 1, 0.1,0.1,distribution=360)
+  remove()
+
+on detect_range(4, 0)
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+  shoot_particles( gauss_main_explosion_setup.obj,1,0.2,0.1, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,3,1.2,1.1, distribution = 360)
+  shoot_particles ( super_shotgun_spark.obj, 1, 0.4, 0.7)
+  shoot_particles ( gauss_smoke_alphach.obj, 4, 1,0)
+  shoot_particles ( blood_explosion_alphach.obj,1, distance_offs = 4, angle_offs=0, distribution=0)
+#  shoot_particles( particle_small_damage_YE.obj,1,0.56,0.98,distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 1, 0.1,0.1,distribution=360)
+   shoot_particles( medium_explosion_setup_add.obj,3,1,0.5, distribution = 360)
+  push ( 0.2 )
+  remove()

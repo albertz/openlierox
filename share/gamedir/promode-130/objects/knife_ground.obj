@@ -1,0 +1,14 @@
+sprite = knife.png
+blender = alphach
+alpha = 255
+col_layer = 1
+repeat = 1
+gravity = 0
+damping = 0
+
+
+on timer(500)
+	set_alpha_fade(100,0)
+	
+on timer(600)
+	remove()

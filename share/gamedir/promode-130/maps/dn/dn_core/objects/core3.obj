@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+
+distort_magnitude = 1
+distort_gen = <<< distortions.ripple(5, 10) >>>
+distort_size = [90,90]
+
+on timer(10)
+	shoot_particles( core4.obj, 1, 0 )
+	remove()

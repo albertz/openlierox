@@ -1,0 +1,8 @@
+sprite = blood_stain.png
+blender = alphach
+render_layer = 4
+damping = 0
+anim_type = right_once
+anim_duration = 80000
+anim_on_ground = 1
+

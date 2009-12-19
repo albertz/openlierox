@@ -1,0 +1,20 @@
+sprite = read2.png
+anim_type = loop_right
+damping = 0
+blender = alphach
+render_layer = 3
+
+on creation()
+add_angle_speed(0.1)
+
+on timer(0)
+run_script(weszjestfajny)
+
+
+on timer(1795)
+shoot_particles(read1.obj,1,0,0,0,0,0,0,0)
+
+on timer(1796)
+remove()
+
+

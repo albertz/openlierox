@@ -1,0 +1,11 @@
+sprite=gauss_light_add.png
+blender=add
+alpha=50
+gravity=0.0
+bounce_factor=0
+
+on timer(10)
+ remove()
+
+on creation()
+ set_alpha_fade(10,0)

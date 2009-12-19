@@ -1,0 +1,12 @@
+blender = alphach
+alpha = 0
+render_layer = 3
+gravity = 0.0
+bounce_factor=0
+damping = 0
+
+on creation()
+shoot_particles(screen1.obj,1,0,0,0,0,0,180,0)
+
+on timer(1)
+remove()
