@@ -64,8 +64,8 @@ inline bool istrCmp( const std::string &a, const std::string &b )
 		    itA != a.end() && itB != b.end();
 		    ++itA, ++itB)
 	{
-		char ca = std::toupper(*itA);
-		char cb = std::toupper(*itB);
+		char ca = toupper((unsigned char)*itA);
+		char cb = toupper((unsigned char)*itB);
 		if(ca != cb)
 			return false;
 	}
@@ -83,8 +83,8 @@ inline bool iisPrefixOfOther(
 	for (; a != ae && b != be;
 		    ++a, ++b)
 	{
-		char ca = std::toupper(*a);
-		char cb = std::toupper(*b);
+		char ca = toupper((unsigned char)*a);
+		char cb = toupper((unsigned char)*b);
 		if(ca != cb)
 			return false;
 	}
@@ -139,8 +139,8 @@ struct IStrCompare
 	         itA != a.end() && itB != b.end();
 	         ++itA, ++itB)
 	    {
-	    	char ca = std::toupper(*itA);
-	    	char cb = std::toupper(*itB);
+	    	char ca = toupper((unsigned char)*itA);
+	    	char cb = toupper((unsigned char)*itB);
 	        if(ca != cb)
 	            return ca < cb;
 	    }

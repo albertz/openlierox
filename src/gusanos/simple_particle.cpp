@@ -60,7 +60,7 @@ void SimpleParticle::draw(CViewport* viewport)
 void SimpleParticle32::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
-	BITMAP* where = viewport->dest;
+	ALLEGRO_BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
 	&& (unsigned int)rPos.y < (unsigned int)where->h )
@@ -70,7 +70,7 @@ void SimpleParticle32::draw(CViewport* viewport)
 void SimpleParticle16::draw(CViewport* viewport)
 {
 	IVec rPos = viewport->convertCoords(IVec(Vec(pos())));
-	BITMAP* where = viewport->dest;
+	ALLEGRO_BITMAP* where = viewport->dest;
 
 	if((unsigned int)rPos.x < (unsigned int)where->w
 	&& (unsigned int)rPos.y < (unsigned int)where->h )

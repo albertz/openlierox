@@ -1,7 +1,5 @@
 #include "material.h"
 
-using namespace std;
-
 Material::Material()
 {
 	worm_pass = true;

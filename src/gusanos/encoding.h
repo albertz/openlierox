@@ -50,7 +50,7 @@ inline unsigned int signedToUnsigned(int n)
 inline int unsignedToSigned(unsigned int n)
 {
 	if(n & 1)
-		return -(n >> 1);
+		return -(int)(n >> 1);
 	else
 		return (n >> 1);
 }

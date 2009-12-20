@@ -38,7 +38,7 @@ public:
 	};
 		
 	static Net_ClassID  classID;
-	static const float MAX_ERROR_RADIUS = 10;
+	static const float MAX_ERROR_RADIUS;
 		
 	NetWorm(bool isAuthority);
 	~NetWorm();

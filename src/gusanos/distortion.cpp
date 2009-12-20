@@ -150,7 +150,7 @@ DistortionMap* bitmapMap(const string &filename)
 	
 	DistortionMap* lens = new DistortionMap;
 	
-	BITMAP* heightMap = load_bitmap(filename.c_str(),0);
+	ALLEGRO_BITMAP* heightMap = load_bitmap(filename.c_str(),0);
 
 	if ( heightMap )
 	{
@@ -218,7 +218,7 @@ Distortion::~Distortion()
 	delete m_map;
 }
 /*
-void Distortion::apply( BITMAP* where, int _x, int _y, float multiply = 1)
+void Distortion::apply( ALLEGRO_BITMAP* where, int _x, int _y, float multiply = 1)
 {
 	_x -= width / 2;
 	_y -= height / 2;
@@ -236,7 +236,7 @@ void Distortion::apply( BITMAP* where, int _x, int _y, float multiply = 1)
 	blit(buffer, where, 0, 0, _x, _y, buffer->w, buffer->h);
 }
 */
-void Distortion::apply( BITMAP* where, int destx, int desty, float multiply = 1.f)
+void Distortion::apply( ALLEGRO_BITMAP* where, int destx, int desty, float multiply = 1.f)
 {
 	destx -= width / 2;
 	desty -= height / 2;

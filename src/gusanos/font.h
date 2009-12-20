@@ -71,7 +71,7 @@ public:
 		int  width; // The width of the character (= rect.getWidth())
 		int  height; // The height of the character (= rect.getHeight())
 		int  spacing; // Extra spacing to the next character
-		BITMAP* subBitmap;
+		ALLEGRO_BITMAP* subBitmap;
 	};
 	
 	struct CharFormatting
@@ -125,32 +125,32 @@ public:
 	
 	void free();
 	
-	void draw(BITMAP* where, std::string const& text, int x, int y, int spacing = 0, int fact = 256, int cr = 255, int cg = 255, int cb = 255, int flags = 0)
+	void draw(ALLEGRO_BITMAP* where, std::string const& text, int x, int y, int spacing = 0, int fact = 256, int cr = 255, int cg = 255, int cb = 255, int flags = 0)
 	{
 		CharFormatting format(CharFormatting::Item(Color(cr, cg, cb)));
 		draw(where, text.begin(), text.end(), x, y, format, spacing, fact, flags);
 	}
 
-	void draw(BITMAP* where, std::string const& text, int x, int y, CharFormatting& format, int spacing = 0, int fact = 256, int flags = 0)
+	void draw(ALLEGRO_BITMAP* where, std::string const& text, int x, int y, CharFormatting& format, int spacing = 0, int fact = 256, int flags = 0)
 	{
 		draw(where, text.begin(), text.end(), x, y, format, spacing, fact, flags);
 	}
 	
-	void draw(BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, int spacing = 0, int fact = 256, int cr = 255, int cg = 255, int cb = 255, int flags = 0)
+	void draw(ALLEGRO_BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, int spacing = 0, int fact = 256, int cr = 255, int cg = 255, int cb = 255, int flags = 0)
 	{
 		CharFormatting format(CharFormatting::Item(Color(cr, cg, cb)));
 		draw(where, b, e, x, y, format, spacing, fact, flags);
 	}
 	
-	void draw(BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, CharFormatting& format, int spacing = 0, int fact = 256, int flags = 0);
+	void draw(ALLEGRO_BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, CharFormatting& format, int spacing = 0, int fact = 256, int flags = 0);
 	
 /*
-	void drawFormatted(BITMAP* where, std::string const& text, int x, int y, int spacing = 0, int fact = 256, int flags = 0, CharFormatting& format = CharFormatting())
+	void drawFormatted(ALLEGRO_BITMAP* where, std::string const& text, int x, int y, int spacing = 0, int fact = 256, int flags = 0, CharFormatting& format = CharFormatting())
 	{
 		drawFormatted(where, text.begin(), text.end(), x, y, spacing, fact, flags, format);
 	}
 	
-	void drawFormatted(BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, int spacing = 0, int fact = 256, int flags = 0, CharFormatting& format = CharFormatting());
+	void drawFormatted(ALLEGRO_BITMAP* where, std::string::const_iterator b, std::string::const_iterator e, int x, int y, int spacing = 0, int fact = 256, int flags = 0, CharFormatting& format = CharFormatting());
 */
 	CharInfo* lookupChar(char c);
 	
@@ -372,7 +372,7 @@ public:
 
 	void buildSubBitmaps();
 	std::vector<CharInfo> m_chars;
-	BITMAP*               m_bitmap;
+	ALLEGRO_BITMAP*               m_bitmap;
 	bool                  m_supportColoring;
 
 };

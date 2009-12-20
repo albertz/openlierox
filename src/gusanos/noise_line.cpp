@@ -34,7 +34,7 @@ void NoiseLine::createPath( int iterations, float variation )
 	}
 }
 
-void NoiseLine::render(BITMAP* where, int x, int y, int x1, int y1, int colour)
+void NoiseLine::render(ALLEGRO_BITMAP* where, int x, int y, int x1, int y1, int colour)
 {
 	Vec inc = Vec( x1 - x, y1-y ) / m_nodes.size();
 	Vec perpToLine = inc.perp().normal();

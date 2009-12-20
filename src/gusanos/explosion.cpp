@@ -101,7 +101,7 @@ void Explosion::think()
 void Explosion::draw(CViewport* viewport)
 {
 
-	BITMAP* where = viewport->dest;
+	ALLEGRO_BITMAP* where = viewport->dest;
 
 	IVec rPos = viewport->convertCoords( IVec( Vec(pos()) ) );
 	Vec rPosPrec = viewport->convertCoordsPrec( pos() );

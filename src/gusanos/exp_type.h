@@ -17,8 +17,8 @@ namespace fs = boost::filesystem;
 
 class SpriteSet;
 class Distortion;
-class GameEvent;
-class DetectEvent;
+struct GameEvent;
+struct DetectEvent;
 class Sprite;
 
 class ExpType : public LuaObject

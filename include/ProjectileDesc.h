@@ -16,7 +16,7 @@
 #include "ProjAction.h"
 #include "Geometry.h"
 
-struct SoundSample;
+class SoundSample;
 
 
 // Projectile types

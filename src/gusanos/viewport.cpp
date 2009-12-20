@@ -43,7 +43,7 @@ void CViewport::gusReset()
 
 struct TestCuller : public Culler<TestCuller>
 {
-	TestCuller(BITMAP* dest_, BITMAP* src_, int scrOffX_, int scrOffY_, int destOffX_, int destOffY_, Rect const& rect)
+	TestCuller(ALLEGRO_BITMAP* dest_, ALLEGRO_BITMAP* src_, int scrOffX_, int scrOffY_, int destOffX_, int destOffY_, Rect const& rect)
 			: Culler<TestCuller>(rect), dest(dest_), src(src_),
 			scrOffX(scrOffX_), scrOffY(scrOffY_), destOffX(destOffX_), destOffY(destOffY_)
 	{
@@ -70,8 +70,8 @@ struct TestCuller : public Culler<TestCuller>
 		    255);
 	}
 
-	BITMAP* dest;
-	BITMAP* src;
+	ALLEGRO_BITMAP* dest;
+	ALLEGRO_BITMAP* src;
 
 	int scrOffX;
 	int scrOffY;
@@ -79,9 +79,9 @@ struct TestCuller : public Culler<TestCuller>
 	int destOffY;
 };
 
-static BITMAP* testLight = 0;
+static ALLEGRO_BITMAP* testLight = 0;
 
-void CViewport::setDestination(BITMAP* where, int x, int y, int width, int height)
+void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, int height)
 {
 	if(width > where->w
 	   || height > where->h) {

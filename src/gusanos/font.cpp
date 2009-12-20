@@ -46,7 +46,7 @@ Font::Font()
 Font::~Font()
 {
 	/*
-	vector<BITMAP*>::iterator iter = m_char.begin();
+	vector<ALLEGRO_BITMAP*>::iterator iter = m_char.begin();
 	while (iter != m_char.end())
 	{
 		destroy_bitmap(*iter);
@@ -79,7 +79,7 @@ Font::CharInfo* Font::lookupChar(char c)
 	return &m_chars[idx];
 }
 
-void Font::draw( BITMAP* where, string::const_iterator b, string::const_iterator e, int x, int y, CharFormatting& format, int spacing, int fact, int flags)
+void Font::draw( ALLEGRO_BITMAP* where, string::const_iterator b, string::const_iterator e, int x, int y, CharFormatting& format, int spacing, int fact, int flags)
 {
 	for(; b != e; ++b)
 	{
@@ -108,7 +108,7 @@ void Font::draw( BITMAP* where, string::const_iterator b, string::const_iterator
 }
 
 /*
-void Font::drawFormatted( BITMAP* where, string::const_iterator b, string::const_iterator e, int x, int y, int spacing, int fact, int flags)
+void Font::drawFormatted( ALLEGRO_BITMAP* where, string::const_iterator b, string::const_iterator e, int x, int y, int spacing, int fact, int flags)
 {
 	for(; b != e; ++b)
 	{

@@ -15,8 +15,8 @@ namespace fs = boost::filesystem;
 #ifndef DEDICATED_ONLY
 class SpriteSet;
 #endif
-class GameEvent;
-class TimerEvent;
+struct GameEvent;
+struct TimerEvent;
 
 class WeaponType : public ResourceBase
 {

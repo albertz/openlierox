@@ -21,7 +21,7 @@ namespace OmfgGUI
 	{
 		public:
 			friend class Context;
-			friend class Context::GSSselector;
+			friend struct Context::GSSselector;
 
 			static LuaReference metaTable;
 

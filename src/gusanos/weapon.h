@@ -7,7 +7,7 @@
 #include "glua.h"
 //#include <cstddef>
 
-class BITMAP;
+struct ALLEGRO_BITMAP;
 class CWorm;
 class WeaponType;
 
@@ -44,8 +44,8 @@ public:
 	void reset();
 	
 #ifndef DEDICATED_ONLY
-	void drawBottom(BITMAP* where,int x, int y);
-	void drawTop(BITMAP* where,int x, int y);
+	void drawBottom(ALLEGRO_BITMAP* where,int x, int y);
+	void drawTop(ALLEGRO_BITMAP* where,int x, int y);
 #endif
 	
 	void actionStart( Actions action );

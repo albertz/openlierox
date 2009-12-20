@@ -16,7 +16,7 @@ using namespace std;
 #include "util/vec.h"
 Sprite* genLight( int radius )
 {
-	BITMAP* lightHax;
+	ALLEGRO_BITMAP* lightHax;
 	{
 		//LocalSetColorDepth cd(8);
 		lightHax = create_bitmap_ex(8, 2*radius, 2*radius );
@@ -31,7 +31,7 @@ Sprite* genLight( int radius )
 	return new Sprite(lightHax, radius, radius);
 }
 
-Sprite::Sprite( BITMAP* bitmap, int xPivot, int yPivot)
+Sprite::Sprite( ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot)
 		: m_bitmap(bitmap) //, m_mirror(0)
 {
 	if ( xPivot == -1 )
@@ -78,8 +78,8 @@ Sprite::Sprite(Sprite const& b, Sprite const& mask, int color)
 	int wormColor = makecol(0, 0, 0);
 	//int max = getr(makecol(255, 0, 0)); //unused
 
-	BITMAP* maskBitmap = mask.m_bitmap;
-	BITMAP* srcBitmap = b.m_bitmap;
+	ALLEGRO_BITMAP* maskBitmap = mask.m_bitmap;
+	ALLEGRO_BITMAP* srcBitmap = b.m_bitmap;
 
 	/*
 	for(int y = 0; y < m_bitmap->h; ++y)
@@ -133,7 +133,7 @@ Sprite::~Sprite()
 	//destroy_bitmap( m_mirror );
 }
 /*
-void Sprite::draw(BITMAP *where, int x, int y, bool flipped, int alignment )
+void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, bool flipped, int alignment )
 {
 	int _x,_y;
 	
@@ -154,7 +154,7 @@ void Sprite::draw(BITMAP *where, int x, int y, bool flipped, int alignment )
 
 #ifndef DEDICATED_ONLY
 
-void Sprite::drawCut(BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right)
+void Sprite::drawCut(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right)
 {
 	int realX = x + left, realY = y + top;
 
@@ -179,12 +179,12 @@ void Sprite::drawCut(BITMAP *where, int x, int y, BlitterContext const& blender,
 
 }
 
-void Sprite::draw(BITMAP *where, int x, int y/*, bool flipped*/, int alignment)
+void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y/*, bool flipped*/, int alignment)
 {
 	draw(where, x, y, BlitterContext()/*, flipped*/, alignment);
 }
 
-void Sprite::draw(BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped*/, int alignment )
+void Sprite::draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped*/, int alignment )
 {
 	int _x,_y;
 

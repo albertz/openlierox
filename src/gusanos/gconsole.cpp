@@ -308,7 +308,7 @@ void GConsole::loadResources()
 }
 
 #ifndef DEDICATED_ONLY
-void GConsole::render(BITMAP* where, bool fullScreen)
+void GConsole::render(ALLEGRO_BITMAP* where, bool fullScreen)
 {
 	//int textIndex = 0;
 

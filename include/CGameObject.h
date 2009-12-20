@@ -23,7 +23,7 @@
 #include "gusanos/glua.h"
 
 //#include "gusanos/allegro.h"
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 class CViewport;
 
 class CWormInputHandler;
@@ -73,7 +73,7 @@ public:
 	
 #ifndef DEDICATED_ONLY
 	// Draw the object in the where bitmap with an offset ( used for camera )
-	//virtual void draw(BITMAP* where, int xOff, int yOff) {}
+	//virtual void draw(ALLEGRO_BITMAP* where, int xOff, int yOff) {}
 	virtual void draw(CViewport* viewport)
 	{}
 #endif

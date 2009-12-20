@@ -12,7 +12,7 @@ extern boost::mt19937 rndgen;
 extern boost::uniform_01<boost::mt19937> rnd;
 extern boost::variate_generator<boost::mt19937, boost::uniform_real<> > midrnd;
 
-double const Pi = 3.14159265358979323846;
+float const Pi = 3.14159265358979323846f;
 
 inline float deg2rad( float Degrees )
 {
@@ -37,6 +37,28 @@ struct ctpow { static unsigned int const value = ctpow<B*B, E>::value * ((E & 1)
 
 template<unsigned int B>
 struct ctpow<B, 0> { static unsigned int const value = 1; };
+
+// MSVC lrintf implementation, taken from http://www.dpvreony.co.uk/blog/post/63
+#ifdef _MSC_VER
+inline long lrintf(float f){
+
+#ifdef _M_X64
+	//x64 fix
+	//http://groups.google.com/group/openjpeg/browse_thread/thread/64b89cdb1a44bb3b
+	return (long)((f > 0.0f) ? (f + 0.5f) : (f - 0.5f)); 
+#else 
+
+	int i;
+	_asm{
+		fld f
+		fistp i
+	};
+	return i;
+
+#endif
+
+}
+#endif
 
 inline long roundAny(float v)
 {

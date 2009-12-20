@@ -1,6 +1,10 @@
 #ifndef OMFG_BLITTERS_MACROS_H
 #define OMFG_BLITTERS_MACROS_H
 
+#ifdef _MSC_VER
+#define __attribute__(u)
+#endif
+
 // Rectangles
 
 //#include "util/log.h"
@@ -14,7 +18,7 @@
 		
 #define APPLY_ON_BITMAP(bitmap_, body_) \
 	do { \
-		BITMAP* where = bitmap_; \
+		ALLEGRO_BITMAP* where = bitmap_; \
 		int x1 = 0, y1 = 0, x2 = where->w - 1, y2 = where->h - 1; \
 		body_ \
 	} while(false) \

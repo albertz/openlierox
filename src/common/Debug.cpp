@@ -17,6 +17,8 @@
 
 #ifdef WIN32
 
+#include <windows.h>
+
 // TODO implement
 bool AmIBeingDebugged() { return false; }
 

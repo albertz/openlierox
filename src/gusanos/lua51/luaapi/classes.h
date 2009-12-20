@@ -15,14 +15,14 @@ template<> struct LuaID<name_> { static int const value = id_; }
 class CGameObject;
 class CWorm;
 class Particle;
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 class CViewport;
 struct LuaGameEvent; // virtual
 struct LuaPlayerEvent; // virtual
 struct LuaWormEvent; // virtual
 struct LuaParticleEvent; // virtual
 struct Socket; // virtual
-class Net_BitStream;
+struct Net_BitStream;
 class CWormInputHandler;
 class Weapon;
 class PartType;
@@ -44,7 +44,7 @@ class Label;
 CLASSID(CGameObject, 1);
 CLASSID(CWorm, 2);
 CLASSID(Particle, 3);
-CLASSID(BITMAP, 4);
+CLASSID(ALLEGRO_BITMAP, 4);
 CLASSID(CViewport, 5);
 CLASSID(LuaGameEvent, 6);
 CLASSID(LuaPlayerEvent, 7);

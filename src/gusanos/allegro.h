@@ -63,8 +63,8 @@ extern void (*mouse_callback)(int flags);
 
 int poll_mouse();
 
-struct BITMAP;
-extern BITMAP* screen;
+struct ALLEGRO_BITMAP;
+extern ALLEGRO_BITMAP* screen;
 
 
 void acquire_screen();
@@ -158,11 +158,11 @@ struct RGB
 };
 
 
-struct BITMAP            /* a bitmap structure */
+struct ALLEGRO_BITMAP            /* a bitmap structure */
 	{
 		SmartPointer<SDL_Surface> surf;
 		
-		// BITMAP itself
+		// ALLEGRO_BITMAP itself
 		int sub_x, sub_y;		// subpart (if you use create_sub_bitmap)
 		int w, h;                     /* width and height in pixels */
 		//int clip;                     /* flag if clipping is turned on */
@@ -180,17 +180,17 @@ struct BITMAP            /* a bitmap structure */
 	};
 
 
-BITMAP *load_bitmap(const char *filename, RGB *pal);
-BITMAP *create_bitmap(int width, int height);
-BITMAP *create_bitmap_ex(int color_depth, int width, int height);
-BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height);
-BITMAP *create_copy_bitmap(BITMAP* other);
-void destroy_bitmap(BITMAP *bitmap);
+ALLEGRO_BITMAP *load_bitmap(const char *filename, RGB *pal);
+ALLEGRO_BITMAP *create_bitmap(int width, int height);
+ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height);
+ALLEGRO_BITMAP *create_sub_bitmap(ALLEGRO_BITMAP *parent, int x, int y, int width, int height);
+ALLEGRO_BITMAP *create_copy_bitmap(ALLEGRO_BITMAP* other);
+void destroy_bitmap(ALLEGRO_BITMAP *bitmap);
 
 
 #define BYTES_PER_PIXEL(bpp)     (((int)(bpp) + 7) / 8)
 
-__INLINE__ int bitmap_color_depth(BITMAP *bmp)
+__INLINE__ int bitmap_color_depth(ALLEGRO_BITMAP *bmp)
 {
 	return bmp->surf->format->BitsPerPixel;
 }
@@ -199,34 +199,34 @@ __INLINE__ int bitmap_color_depth(BITMAP *bmp)
 #define BMP_TYPE_LINEAR    1     /* memory bitmaps, mode 13h, SVGA */
 #define BMP_TYPE_PLANAR    2     /* mode-X bitmaps */
 
-__INLINE__ int is_planar_bitmap(BITMAP *bmp)
+__INLINE__ int is_planar_bitmap(ALLEGRO_BITMAP *bmp)
 {
 	return true; // TODO ?
 }
 
-__INLINE__ int is_video_bitmap(BITMAP *bmp)
+__INLINE__ int is_video_bitmap(ALLEGRO_BITMAP *bmp)
 {
 	return false; // TODO ?
 }
 
 
 
-int getpixel(BITMAP *bmp, int x, int y);
-void putpixel(BITMAP *bmp, int x, int y, int color);
-void vline(BITMAP *bmp, int x, int y1, int y2, int color);
-void hline(BITMAP *bmp, int x1, int y, int x2, int color);
-void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-void circle(BITMAP *bmp, int x, int y, int radius, int color);
-void clear_to_color(struct BITMAP *bitmap, int color);
-void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y);
-void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y);
+int getpixel(ALLEGRO_BITMAP *bmp, int x, int y);
+void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, int color);
+void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, int color);
+void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, int color);
+void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
+void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, int color);
+void clear_to_color(struct ALLEGRO_BITMAP *bitmap, int color);
+void draw_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y);
+void draw_sprite_h_flip(struct ALLEGRO_BITMAP *bmp, struct ALLEGRO_BITMAP *sprite, int x, int y);
 
-void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
-void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h);
-void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
+void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h);
+void masked_blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height);
 
-void clear_bitmap(BITMAP*);
+void clear_bitmap(ALLEGRO_BITMAP*);
 
 
 
@@ -308,8 +308,8 @@ AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
 
 #endif
 
-unsigned long bmp_write_line(BITMAP *bmp, int line);
-void bmp_unwrite_line(BITMAP* bmp);
+unsigned long bmp_write_line(ALLEGRO_BITMAP *bmp, int line);
+void bmp_unwrite_line(ALLEGRO_BITMAP* bmp);
 
 
 
@@ -320,7 +320,7 @@ void bmp_unwrite_line(BITMAP* bmp);
 #define DRAW_MODE_MASKED_PATTERN    4
 #define DRAW_MODE_TRANS             5
 
-void drawing_mode(int mode, BITMAP *pattern, int x_anchor, int y_anchor);
+void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor);
 void set_trans_blender(int r, int g, int b, int a);
 void set_add_blender (int r, int g, int b, int a);
 void solid_mode();
@@ -336,8 +336,8 @@ int get_color_depth();
 void set_color_depth(int depth);
 
 
-void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2);
-void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2);
+void set_clip_rect(ALLEGRO_BITMAP *bitmap, int x1, int y_1, int x2, int y2);
+void get_clip_rect(ALLEGRO_BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2);
 
 
 

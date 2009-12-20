@@ -394,7 +394,7 @@ size_t CHttp::GetDataToSendLength() const
 	curl_easy_getinfo(curlThread->curl, CURLINFO_CONTENT_LENGTH_UPLOAD, &d);
 	if( d <= 0 )
 		d = 1;
-	return d;
+	return (size_t)d;
 };
 
 size_t CHttp::GetSentDataLen() const
@@ -410,5 +410,5 @@ size_t CHttp::GetSentDataLen() const
 		d = total;
 	if( d <= 0 )
 		d = 1;
-	return d;
+	return (size_t)d;
 };

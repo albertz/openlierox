@@ -12,7 +12,7 @@
 #ifndef DEDICATED_ONLY
 class Sprite;
 class BaseAnimator;
-class BlitterContext;
+struct BlitterContext;
 class CViewport;
 #endif
 struct LuaEventDef;

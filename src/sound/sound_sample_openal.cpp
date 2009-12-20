@@ -116,7 +116,7 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
     LoadOGG(inSoundFile, bufferData, format, freq);
 	}
 	catch 
-	 (int error) {
+	 (int) {
 		return 0;
 	}
     // Upload sound data to buffer

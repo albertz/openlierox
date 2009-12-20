@@ -86,8 +86,8 @@ int l_sprites_load(lua_State* L)
 	Draws the frame //frame// of the sprite set on //bitmap// with the pivot at position (x, y).
 */
 METHODC(SpriteSet, sprites_render,
-	//BITMAP* b = *static_cast<BITMAP **>(lua_touserdata(context, 2));
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 2);
+	//ALLEGRO_BITMAP* b = *static_cast<ALLEGRO_BITMAP **>(lua_touserdata(context, 2));
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 		
 	int frame = lua_tointeger(context, 3);
 	int x = lua_tointeger(context, 4);
@@ -105,16 +105,16 @@ METHODC(SpriteSet, sprites_render,
 	**Note that in versions before 0.9c, color was specified as
 	three parameters. This has been deprecated.**
 */
+#ifndef NO_DEPRECATED
 METHODC(SpriteSet, sprites_render_skinned_box,
-	//BITMAP* b = *static_cast<BITMAP **>(lua_touserdata(context, 2));
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 2);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
 	int x1 = lua_tointeger(context, 3);
 	int y1 = lua_tointeger(context, 4);
 	int x2 = lua_tointeger(context, 5);
 	int y2 = lua_tointeger(context, 6);
 	int c = lua_tointeger(context, 7);
-#ifndef NO_DEPRECATED
+
 	if(lua_gettop(context) >= 9) // Deprecated
 	{
 		LUA_WLOG_ONCE("The r, g, b version of render_skinned_box is deprecated, replace the r, g, b parameters by color(r, g, b)");
@@ -122,11 +122,25 @@ METHODC(SpriteSet, sprites_render_skinned_box,
 		int b = lua_tointeger(context, 9);
 		c = makecol(c, g, b);
 	}
-#endif
+
 	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
 	
 	return 0;
 )
+#else
+METHODC(SpriteSet, sprites_render_skinned_box,
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
+	
+	int x1 = lua_tointeger(context, 3);
+	int y1 = lua_tointeger(context, 4);
+	int x2 = lua_tointeger(context, 5);
+	int y2 = lua_tointeger(context, 6);
+	int c = lua_tointeger(context, 7);
+	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
+	
+	return 0;
+)
+#endif
 
 /*! SpriteSet:frames()
 
@@ -203,8 +217,8 @@ METHODC(Font, font_render,
 	if(params < 5)
 		return 0;
 		
-	//BITMAP* b = *static_cast<BITMAP **>(lua_touserdata(L, 2));
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 2);
+	//ALLEGRO_BITMAP* b = *static_cast<ALLEGRO_BITMAP **>(lua_touserdata(L, 2));
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
 	char const* sc = lua_tostring(context, 3);
 	if(!sc)
@@ -324,7 +338,7 @@ METHODC(Sound, sound_play,
 		
 		//CGameObject* obj = *static_cast<CGameObject**>(lua_touserdata(context, 2));
 
-		p->play2D(obj, loudness, pitch, pitchVariation);
+		p->play2D(obj, (float)loudness, (float)pitch, (float)pitchVariation);
 	}
 	else
 	{
@@ -342,7 +356,7 @@ METHODC(Sound, sound_play,
 		lua_Number x = lua_tonumber(context, 2);
 		lua_Number y = lua_tonumber(context, 3);
 		
-		p->play2D(Vec(x, y), loudness, pitch, pitchVariation);
+		p->play2D(Vec(x, y), (float)loudness, (float)pitch, (float)pitchVariation);
 	}
 	
 	return 0;

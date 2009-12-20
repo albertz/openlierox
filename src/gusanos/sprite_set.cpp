@@ -67,7 +67,7 @@ bool SpriteSet::load(std::string const& filename)
 {
 	//cerr << "Loading sprite set: " << filename.native_file_string() << endl;
 
-	BITMAP *tempBitmap = gfx.loadBitmap(filename.c_str(), true);
+	ALLEGRO_BITMAP *tempBitmap = gfx.loadBitmap(filename.c_str(), true);
 
 	if (!tempBitmap)
 		return false;
@@ -96,7 +96,7 @@ bool SpriteSet::load(std::string const& filename)
 					if( gfx.compareRGB(getpixel(tempBitmap,x,0), makecol(255,0,0)) ) {
 						pivotX = x-lastX;
 					} else if(gfx.compareRGB(getpixel(tempBitmap,x,0), 0) || x == tempBitmap->w - 1 ) {
-						BITMAP* spriteFrame = create_bitmap(x-lastX+1, y-lastY+1);
+						ALLEGRO_BITMAP* spriteFrame = create_bitmap(x-lastX+1, y-lastY+1);
 						blit(tempBitmap, spriteFrame, lastX, lastY, 0, 0, spriteFrame->w, spriteFrame->h);
 						//m_frames.back().push_back(new Sprite( spriteFrame, pivotX, pivotY ) );
 						m_frames.push_back(new Sprite( spriteFrame, pivotX, pivotY ) );
@@ -199,7 +199,7 @@ Sprite* SpriteSet::getColoredSprite( size_t frame, SpriteSet* mask, int color, A
 }
 
 
-void SpriteSet::drawSkinnedBox(BITMAP* b, BlitterContext& blitter, Rect const& rect, int backgroundColor)
+void SpriteSet::drawSkinnedBox(ALLEGRO_BITMAP* b, BlitterContext& blitter, Rect const& rect, int backgroundColor)
 {
 	int skinWidth = getSprite(0)->getWidth(), skinHeight = getSprite(0)->getHeight();
 

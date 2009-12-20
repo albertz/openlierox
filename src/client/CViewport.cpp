@@ -301,7 +301,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 	Clamp(MWidth, MHeight);
 
 	if (m_listener)
-		m_listener->pos = Vec(WorldX,WorldY) + Vec(Width/2,Height/2);
+		m_listener->pos = Vec((float)WorldX, (float)WorldY) + Vec((float)(Width/2), (float)(Height/2));
 }
 
 

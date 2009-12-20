@@ -183,11 +183,11 @@ static int GetResult2(uint32 A, uint32 B, uint32 C, uint32 D, uint32 E)
 //static unsigned char *dst_line[2];
 
 
-void Super2xSaI(BITMAP * src, BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void Super2xSaI(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
 	int sbpp, dbpp;
 
-	BITMAP *dst2 = NULL;
+	ALLEGRO_BITMAP *dst2 = NULL;
 
 	if (!src || !dest)
 		return;
@@ -217,7 +217,7 @@ void Super2xSaI(BITMAP * src, BITMAP * dest, int s_x, int s_y, int d_x, int d_y,
 	return;
 }
 
-void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, BITMAP *dest, uint32 width, uint32 height) {
+void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height) {
 
 	int j, v;
 	unsigned int x, y;
@@ -444,11 +444,11 @@ void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, BITMAP *dest, ui
 
 
 
-void SuperEagle(BITMAP * src, BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
+void SuperEagle(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h)
 {
 	int sbpp, dbpp;
 
-	BITMAP *dst2 = NULL;
+	ALLEGRO_BITMAP *dst2 = NULL;
 
 	if (!src || !dest)
 		return;
@@ -478,7 +478,7 @@ void SuperEagle(BITMAP * src, BITMAP * dest, int s_x, int s_y, int d_x, int d_y,
 	return;
 }
 
-void SuperEagle_ex(uint8 *src, uint32 src_pitch, uint8 *unused, BITMAP *dest, uint32 width, uint32 height) {
+void SuperEagle_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height) {
 
 	int j, v;
 	unsigned int x, y;

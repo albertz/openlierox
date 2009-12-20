@@ -222,7 +222,7 @@ void PartType::touch()
 			int width = lightSize.x;
 			int height = lightSize.y;
 			
-			BITMAP* l = create_bitmap_ex(8, width, height );
+			ALLEGRO_BITMAP* l = create_bitmap_ex(8, width, height );
 			
 			int hwidth = width / 2;
 			int hheight = height / 2;

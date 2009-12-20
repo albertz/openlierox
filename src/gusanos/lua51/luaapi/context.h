@@ -19,7 +19,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-class Net_BitStream;
+struct Net_BitStream;
 
 class LuaContext
 {
@@ -484,7 +484,7 @@ private:
 template<>
 inline bool LuaContext::get<bool>(int idx)
 {
-	return lua_toboolean(m_State, idx);
+	return lua_toboolean(m_State, idx) != 0;
 }
 
 extern LuaContext lua;

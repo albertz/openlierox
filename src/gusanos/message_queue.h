@@ -51,7 +51,7 @@ m_##_MQMessage params_
 
 #define mq_end_define_message() };
 
-#define mq_queue(q_, m_, params_...) (q_).queue(new m_##_MQMessage(params_))
+#define mq_queue(q_, m_, ... /* params */) (q_).queue(new m_##_MQMessage(__VA_ARGS__))
 
 #define mq_process_messages(q_) \
 { MessageQueue& q = (q_); \

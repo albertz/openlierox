@@ -8,7 +8,7 @@
 namespace Blitters
 {
 
-void rectfill_add_32_mmx(BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+void rectfill_add_32_mmx(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	typedef Pixel32 pixel_t_2; // Doesn't really matter what type this is
@@ -58,7 +58,7 @@ void rectfill_add_32_mmx(BITMAP* where, int x1, int y1, int x2, int y2, Pixel co
 	emms();
 }
 
-void hline_add_32_mmx(BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+void hline_add_32_mmx(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	typedef Pixel32 pixel_t_2; // Doesn't really matter what type this is
@@ -99,7 +99,7 @@ void hline_add_32_mmx(BITMAP* where, int x1, int y1, int x2, Pixel colour, int f
 	emms();
 }
 
-void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+void drawSprite_add_32_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	typedef Pixel32 pixel_t_2; // Doesn't really matter what type this is
@@ -108,6 +108,14 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 		return;
 	
 	CLIP_SPRITE_REGION();
+
+#ifdef NDEBUG
+#define MEM_PREFETCH  \
+		prefetchnta(src[8]);  \
+		prefetcht0(dest[8])
+#else
+#define MEM_PREFETCH // GCC 4 has problems with these instructions with -O0 somewhy
+#endif
 
 	static unsigned long long rb_mask32 = 0x00FF00FF00FF00FFull;
 	//static unsigned long long g_mask32  = 0x0000FF000000FF00ull;
@@ -124,11 +132,9 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 			,
 				//prefetchnta 32(%esi);
 				//prefetcht0  %es:32(%edi);
+
+				MEM_PREFETCH;
 				
-#ifdef NDEBUG // GCC 4 has problems with these instructions with -O0 somewhy
-				prefetchnta(src[8]);
-				prefetcht0(dest[8]);
-#endif
 				movq_rm(mm4, src[0]);    // mm0 = src1 | src2
 				movq_rm(mm5, src[2]);    // mm4 = src3 | src4
 				movq_rm(mm6, src[4]);    // mm4 = src3 | src4
@@ -167,6 +173,8 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 				movq_mr(dest[6], mm7);
 			)
 		)
+
+#undef MEM_PREFETCH
 	}
 	else
 	{
@@ -175,6 +183,14 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 		punpcklwd_rr(mm7, mm7); // 00000000ff00ff00
 		punpcklwd_rr(mm7, mm7); // ff00ff00ff00ff00
 		pxor_rr(mm6, mm6);
+
+#ifdef NDEBUG
+#define MEM_PREFETCH \
+				prefetchnta(src[8]);  \
+				prefetcht0(dest[8])
+#else
+#define MEM_PREFETCH // GCC 4 has problems with these instructions with -O0 somewhy
+#endif
 		
 		SPRITE_Y_LOOP(
 			SPRITE_X_LOOP_NOALIGN(4,
@@ -187,10 +203,7 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 				movq_rm(mm0, src[0]);    // mm0 = src1 | src2
 				movq_rm(mm4, src[2]);    // mm4 = src3 | src4
 				
-#ifdef NDEBUG // GCC 4 has problems with these instructions with -O0 somewhy
-				prefetchnta(src[8]);
-				prefetcht0(dest[8]);
-#endif
+				MEM_PREFETCH;
 				
 				movq_rr(mm1, mm0);
 				movq_rr(mm5, mm4);
@@ -228,12 +241,14 @@ void drawSprite_add_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 				movq_mr(dest[2], mm5);
 			)
 		)
+
+#undef MEM_PREFETCH
 	}
 	
 	emms();
 }
 
-void drawSprite_add_16_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+void drawSprite_add_16_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	typedef Pixel16 pixel_t_1;
 	typedef Pixel16 pixel_t_2; // Doesn't really matter what type this is
@@ -258,6 +273,14 @@ void drawSprite_add_16_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 	
 	movq_rm(mm7, MASK);
 
+#ifdef NDEBUG
+#define MEM_PREFETCH  \
+		prefetchnta(src[8]);  \
+		prefetcht0(dest[8])
+#else
+#define MEM_PREFETCH	// GCC 4 has problems with these instructions with -O0 somewhy
+#endif
+
 	SPRITE_Y_LOOP(
 		SPRITE_X_LOOP_NOALIGN(4,
 			Pixel s = *src;
@@ -265,10 +288,7 @@ void drawSprite_add_16_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 				*dest = addColors_16_2(*dest, scaleColor_16(s, scaledFact))
 		,
 			//TODO: Rearrange
-#ifdef NDEBUG // GCC 4 has problems with these instructions with -O0 somewhy
-			prefetchnta(src[8]);
-			prefetcht0(dest[8]);
-#endif
+			MEM_PREFETCH;
 
 			movq_rm(mm0, dest[0]);    // mm1 = dest1 | dest2 | dest3 | dest4
 			movq_rm(mm3, src[0]);     // mm0 = src1 | src2 | src3 | src4
@@ -317,10 +337,12 @@ void drawSprite_add_16_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cu
 		)
 	)
 
+#undef MEM_PREFETCH
+
 	emms();
 }
 
-void drawSpriteLine_add_8_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
+void drawSpriteLine_add_8_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
 {
 	typedef Pixel8 pixel_t_1;
 	typedef Pixel32 pixel_t_2; // Doesn't really matter what type this is

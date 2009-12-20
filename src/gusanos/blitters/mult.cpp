@@ -9,7 +9,7 @@
 namespace Blitters
 {
 	
-void drawSprite_multsec_32_with_8(BITMAP* where, BITMAP* from, BITMAP* secondary, int x, int y, int sx, int sy, int cutl, int cutt, int cutr, int cutb)
+void drawSprite_multsec_32_with_8(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, ALLEGRO_BITMAP* secondary, int x, int y, int sx, int sy, int cutl, int cutt, int cutr, int cutb)
 {
 	typedef Pixel32 pixel_t_1;
 	typedef Pixel8 pixel_t_sec;
@@ -28,7 +28,7 @@ void drawSprite_multsec_32_with_8(BITMAP* where, BITMAP* from, BITMAP* secondary
 
 }
 
-void drawSprite_mult_8_to_32(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
+void drawSprite_mult_8_to_32(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
 {
 	typedef Pixel32 pixel_t_dest;
 	typedef Pixel8 pixel_t_src;
@@ -47,7 +47,7 @@ void drawSprite_mult_8_to_32(BITMAP* where, BITMAP* from, int x, int y, int cutl
 
 }
 
-void drawSprite_mult_8_to_16(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
+void drawSprite_mult_8_to_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
 {
 	typedef Pixel16 pixel_t_dest;
 	typedef Pixel8 pixel_t_src;

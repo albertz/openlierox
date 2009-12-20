@@ -43,7 +43,7 @@ public:
 	void loadResources();
 	void checkInput();
 #ifndef DEDICATED_ONLY
-	void render(BITMAP *where, bool fullScreen = false);
+	void render(ALLEGRO_BITMAP *where, bool fullScreen = false);
 #endif
 	void think();
 	int executeConfig(const std::string &filename);

@@ -1887,7 +1887,7 @@ private:
 };
 
 
-class ML_Gusanos : public MapLoad {
+struct ML_Gusanos : public MapLoad {
 public:
 	CMap* curMap;
 	ResourceLocator<CMap>::BaseLoader* loader;
@@ -1948,11 +1948,7 @@ public:
 
 
 MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool printErrors) {
-	FILE* fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
-	if(fp == NULL) {
-		if(printErrors) errors << "level " << filename << " does not exist" << endl;
-		return NULL;
-	}
+	FILE* fp = NULL;
 	
 	if(IsDirectory(filename, abs_filename)) {
 		// TODO: abs filename
@@ -1963,6 +1959,12 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;			
 	}
 	else { // regular file
+		fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
+		if(fp == NULL) {
+			if(printErrors) errors << "level " << filename << " does not exist" << endl;
+			return NULL;
+		}
+
 		std::string fileext = GetFileExtension(filename); stringlwr(fileext);
 		
 		if( fileext == "lxl" )

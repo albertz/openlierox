@@ -12,7 +12,7 @@ class NoiseLine
 		~NoiseLine();
 	
 		void createPath(int iterations, float variation);
-		void render(BITMAP* where, int x, int y, int x1, int y1, int colour);
+		void render(ALLEGRO_BITMAP* where, int x, int y, int x1, int y1, int colour);
 	
 	private:
 	

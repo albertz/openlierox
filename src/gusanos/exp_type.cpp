@@ -47,7 +47,7 @@ ExpType::ExpType()
 	sprite = NULL;
 	lightHax = NULL;
 	distortion = NULL;
-	distortMagnitude = 0.8;
+	distortMagnitude = 0.8f;
 	
 	rockHidden = true;
 	blender = BlitterContext::None;
@@ -136,7 +136,7 @@ bool ExpType::load(std::string const& filename)
 		else if ( f->name == "bitmap" )
 			distortion = new Distortion( bitmapMap( (*f)[0]->toString() ) );
 	}
-	distortMagnitude = parser.getDouble("distort_magnitude", 0.8);
+	distortMagnitude = parser.getDouble("distort_magnitude", 0.8f);
 	
 	std::string blenderstr = parser.getString("blender", "none");
 	if(blenderstr == "add") blender = BlitterContext::Add;

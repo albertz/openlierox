@@ -12,7 +12,7 @@
 #include <boost/crc.hpp>
 #include <boost/shared_ptr.hpp>
 
-struct BaseAction;
+class BaseAction;
 
 namespace OmfgScript
 {

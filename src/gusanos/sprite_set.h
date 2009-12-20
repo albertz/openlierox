@@ -16,7 +16,7 @@ namespace fs = boost::filesystem;*/
 
 class Sprite;
 
-class BlitterContext;
+struct BlitterContext;
 
 class SpriteSet : public LuaObject
 {
@@ -37,7 +37,7 @@ public:
 #ifndef DEDICATED_ONLY
 	Sprite* getColoredSprite( size_t frame, SpriteSet* mask, int color, Angle angle = Angle(0.0) );
 	
-	void drawSkinnedBox(BITMAP* b, BlitterContext& blitter, Rect const& rect, int backgroundColor);
+	void drawSkinnedBox(ALLEGRO_BITMAP* b, BlitterContext& blitter, Rect const& rect, int backgroundColor);
 #endif
 
 	void flipSprites();

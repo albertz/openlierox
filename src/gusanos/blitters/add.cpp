@@ -9,14 +9,14 @@
 namespace Blitters
 {
 
-void putpixel_add_16(BITMAP* where, int x, int y, Pixel color1)
+void putpixel_add_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	Pixel16* p = ((Pixel16 *)where->line[y]) + x;
 
 	*p = addColors_16_2(*p, color1);
 }
 
-void putpixel_addFact_16(BITMAP* where, int x, int y, Pixel color1, int fact)
+void putpixel_addFact_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
 {
 	Pixel16* p = ((Pixel16 *)where->line[y]) + x;
 	
@@ -25,14 +25,14 @@ void putpixel_addFact_16(BITMAP* where, int x, int y, Pixel color1, int fact)
 	*p = addColors_16_2(*p, scaleColor_16(color1, fact));
 }
 
-void putpixel_addFact_32(BITMAP* where, int x, int y, Pixel color1, int fact)
+void putpixel_addFact_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
 {
 	Pixel32* p = ((Pixel32 *)where->line[y]) + x;
 
 	*p = addColorsCrude_32(*p, scaleColor_32(color1, fact));
 }
 
-void putpixel_add_32(BITMAP* where, int x, int y, Pixel color1)
+void putpixel_add_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	Pixel32* p = ((Pixel32 *)where->line[y]) + x;
 
@@ -40,7 +40,7 @@ void putpixel_add_32(BITMAP* where, int x, int y, Pixel color1)
 }
 
 
-void putpixelwu_add_32(BITMAP* where, float x, float y, Pixel color1, int fact)
+void putpixelwu_add_32(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
 {
 	int xf = int(x * 256.f);
 	int yf = int(y * 256.f);
@@ -74,7 +74,7 @@ void putpixelwu_add_32(BITMAP* where, float x, float y, Pixel color1, int fact)
 	}
 }
 
-void putpixelwu_add_16(BITMAP* where, float x, float y, Pixel color1, int fact)
+void putpixelwu_add_16(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
 {
 	int xf = int(x * 32.f);
 	int yf = int(y * 32.f);
@@ -109,7 +109,7 @@ void putpixelwu_add_16(BITMAP* where, float x, float y, Pixel color1, int fact)
 	}
 }
 
-void rectfill_add_16(BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+void rectfill_add_16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	typedef Pixel16 pixel_t_1;
 	typedef Pixel16_2 pixel_t_2;
@@ -130,7 +130,7 @@ void rectfill_add_16(BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour
 	)
 }
 
-void rectfill_add_32(BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+void rectfill_add_32(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	
@@ -145,7 +145,7 @@ void rectfill_add_32(BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour
 	)
 }
 
-void hline_add_16(BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+void hline_add_16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	typedef Pixel16 pixel_t_1;
 	typedef Pixel16_2 pixel_t_2;
@@ -162,7 +162,7 @@ void hline_add_16(BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 	)
 }
 
-void hline_add_32(BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+void hline_add_32(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	
@@ -173,7 +173,7 @@ void hline_add_32(BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 	)
 }
 
-bool linewu_add(BITMAP* where, float x, float y, float destx, float desty, Pixel colour, int fact)
+bool linewu_add(ALLEGRO_BITMAP* where, float x, float y, float destx, float desty, Pixel colour, int fact)
 {
 	const long prec = 8;
 	const long one = (1 << prec);
@@ -214,7 +214,7 @@ bool linewu_add(BITMAP* where, float x, float y, float destx, float desty, Pixel
 }
 
 
-void line_add(BITMAP* where, int x, int y, int destx, int desty, Pixel colour, int fact)
+void line_add(ALLEGRO_BITMAP* where, int x, int y, int destx, int desty, Pixel colour, int fact)
 {
 	#define BLEND32(dest_, src_) addColorsCrude_32(dest_, scaleColor_32(src_, fact))
 	#define BLEND16(dest_, src_) addColors_16_2(dest_, scaleColor_16(src_, fact))
@@ -234,7 +234,7 @@ void line_add(BITMAP* where, int x, int y, int destx, int desty, Pixel colour, i
 	#undef BLEND32
 }
 
-void drawSprite_add_32(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+void drawSprite_add_32(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	
@@ -278,7 +278,7 @@ void drawSprite_add_32(BITMAP* where, BITMAP* from, int x, int y, int cutl, int 
 	
 }
 
-void drawSprite_add_16(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+void drawSprite_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	typedef Pixel16 pixel_t_1;
 	typedef Pixel16_2 pixel_t_2;
@@ -317,7 +317,7 @@ void drawSprite_add_16(BITMAP* where, BITMAP* from, int x, int y, int cutl, int 
 	
 }
 
-void drawSpriteLine_add_32(BITMAP* where, BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
+void drawSpriteLine_add_32(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
 {
 	typedef Pixel32 pixel_t_1;
 	
@@ -345,7 +345,7 @@ void drawSpriteLine_add_32(BITMAP* where, BITMAP* from, int x, int y, int x1, in
 	}
 }
 
-void drawSpriteLine_add_16(BITMAP* where, BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
+void drawSpriteLine_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
 {
 	typedef Pixel16 pixel_t_1;
 	typedef Pixel16_2 pixel_t_2;
@@ -379,7 +379,7 @@ void drawSpriteLine_add_16(BITMAP* where, BITMAP* from, int x, int y, int x1, in
 	}
 }
 
-void drawSpriteLine_add_8(BITMAP* where, BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
+void drawSpriteLine_add_8(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
 {
 	typedef Pixel8 pixel_t_1;
 	typedef Pixel8_4 pixel_t_2;

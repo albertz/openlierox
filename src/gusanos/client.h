@@ -6,7 +6,7 @@
 #include "netstream.h"
 //#include <string>
 
-class PlayerOptions;
+struct PlayerOptions;
 
 class Client : public Net_Control
 {

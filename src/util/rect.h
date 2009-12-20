@@ -18,7 +18,7 @@ public:
 
 	}
 	
-	BasicRect(BITMAP* b)
+	BasicRect(ALLEGRO_BITMAP* b)
 	: x1(0), y1(0), x2(b->w - 1), y2(b->h - 1)
 	{
 

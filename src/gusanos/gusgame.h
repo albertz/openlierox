@@ -22,12 +22,12 @@ namespace fs = boost::filesystem;
 class CWormInputHandler;
 class CWorm;
 class BaseAction;
-class PlayerOptions;
+struct PlayerOptions;
 class WeaponType;
 class Particle;
 class PartType;
 class Explosion;
-class Net_BitStream;
+struct Net_BitStream;
 struct LuaEventDef;
 #ifndef DEDICATED_ONLY
 class Sound;

@@ -17,8 +17,8 @@
 #include "game/WormInputHandler.h"
 
 
-struct BITMAP;
-class PlayerOptions;
+struct ALLEGRO_BITMAP;
+struct PlayerOptions;
 class CViewport;
 
 

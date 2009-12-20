@@ -35,6 +35,9 @@ std::string	LastError;
 FILE *ErrorFile = NULL;
 
 
+#ifdef WIN32
+#include <windows.h>
+#endif
 
 
 ///////////////////

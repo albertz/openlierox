@@ -14,7 +14,7 @@ namespace LuaBindings
 
 #ifndef DEDICATED_ONLY
 	extern LuaReference CViewportMetaTable;
-	extern LuaReference BITMAPMetaTable;
+	extern LuaReference ALLEGRO_BITMAPMetaTable;
 	extern BlitterContext blitter;
 #endif
 }

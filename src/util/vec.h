@@ -19,15 +19,15 @@ struct BaseVec
 	BaseVec(Angle angle, double length)
 	{
 		double radians = angle.toRad();
-		x = sin(radians) * length;
-		y = -cos(radians) * length;
+		x = (T)(sin(radians) * length);
+		y = (T)(-cos(radians) * length);
 	}
 	
 	BaseVec(Angle angle)
 	{
 		double radians = angle.toRad();
-		x = sin(radians);
-		y = -cos(radians);
+		x = (T)sin(radians);
+		y = (T)(-cos(radians));
 	}
 	
 	template<class T2>
@@ -126,7 +126,7 @@ struct BaseVec
 	
 	double length() const
 	{
-		return sqrt(x*x + y*y);
+		return sqrt((double)(x*x + y*y));
 	}
 	
 	BaseVec normal() const

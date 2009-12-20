@@ -186,6 +186,11 @@ void teeStdoutQuit(bool wait) {
 
 #else
 
+#include "Unicode.h"
+#include "Version.h"
+#include "FindFile.h"
+#include "AuxLib.h"
+
 static char teeLogfile[2048] = "stdout.txt";
 
 void teeStdoutInit() {}

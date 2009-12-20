@@ -43,7 +43,6 @@
 #include <sys/stat.h>
 
 #ifdef WIN32
-#	include <windows.h>
 #	include <io.h>
 #	include <direct.h>
 	// wrappers to provide the standards
@@ -278,7 +277,6 @@ void ForEachSearchpath(_handler& handler) {
 		}
 	}
 }
-
 
 // functor for ForEachSearchpath, used by FindFiles
 // it will search a subdir of a given searchpath for files

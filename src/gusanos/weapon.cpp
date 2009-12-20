@@ -161,7 +161,7 @@ void Weapon::think( bool isFocused, size_t index )
 }
 
 #ifndef DEDICATED_ONLY
-void Weapon::drawBottom(BITMAP* where, int x, int y )
+void Weapon::drawBottom(ALLEGRO_BITMAP* where, int x, int y )
 {
 	if ( m_type->laserSightIntensity > 0 ) {
 		Vec direction( m_owner->getPointingAngle() );
@@ -191,7 +191,7 @@ void Weapon::drawBottom(BITMAP* where, int x, int y )
 	}
 }
 
-void Weapon::drawTop(BITMAP* where,int x, int y)
+void Weapon::drawTop(ALLEGRO_BITMAP* where,int x, int y)
 {
 	if ( m_type->skin ) {
 		m_type->skin->getSprite( 0, m_owner->getPointingAngle() )->draw(where, x, y);

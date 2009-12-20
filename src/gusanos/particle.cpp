@@ -487,7 +487,7 @@ void Particle::draw(CViewport* viewport)
 
 	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	Vec rPosPrec = viewport->convertCoordsPrec( pos() );
-	BITMAP* where = viewport->dest;
+	ALLEGRO_BITMAP* where = viewport->dest;
 	int x = rPos.x;
 	int y = rPos.y;
 

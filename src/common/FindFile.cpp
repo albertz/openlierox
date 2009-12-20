@@ -37,6 +37,7 @@
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	endif
 
+#	include <windows.h>
 #	include <shlobj.h>
 
 #else // WIN32

@@ -223,7 +223,7 @@ CVec& NinjaRope::getPosReference()
 #ifndef DEDICATED_ONLY
 void NinjaRope::draw(CViewport *viewport)
 {
-	BITMAP* where = viewport->dest;
+	ALLEGRO_BITMAP* where = viewport->dest;
 	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	if (active)
 	{

@@ -25,6 +25,10 @@
 
 #include "omfgscript/omfg_script.h"
 
+#ifdef PlaySound  // stupid Windows headers...
+#undef PlaySound
+#endif
+
 using namespace std;
 
 OmfgScript::ActionFactory gameActions;

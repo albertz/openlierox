@@ -26,6 +26,6 @@ typedef uint32_t Pixel8_4;
 // and passing around.
 typedef boost::uint_fast32_t Pixel;
 
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 
 #endif //OMFG_BLITTERS_TYPES_H

@@ -4,8 +4,8 @@
 #include "gfx.h"
 //#include "gusanos/allegro.h"
 
-struct BITMAP;
-class BlitterContext;
+struct ALLEGRO_BITMAP;
+struct BlitterContext;
 
 enum
 {
@@ -20,7 +20,7 @@ class Sprite
 public:
 	struct MirrorTag { };
 	
-	Sprite(BITMAP* bitmap, int xPivot, int yPivot);
+	Sprite(ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot);
 #ifndef DEDICATED_ONLY
 	Sprite(Sprite const&, Sprite const&, int);
 #endif
@@ -28,13 +28,13 @@ public:
 	~Sprite();
 	
 #ifndef DEDICATED_ONLY
-	//void draw(BITMAP *where, int x, int y, bool flipped = false, int Alignment = 0);
-	void drawCut(BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right);
-	//void drawBlended(BITMAP *where, int x, int y, bool flipped = false, int alignment = 0, Blenders blender = ADD );
-	void draw(BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped = false*/, int alignment = 0);
+	//void draw(ALLEGRO_BITMAP *where, int x, int y, bool flipped = false, int Alignment = 0);
+	void drawCut(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender, int alignment, int left, int top, int bottom, int right);
+	//void drawBlended(ALLEGRO_BITMAP *where, int x, int y, bool flipped = false, int alignment = 0, Blenders blender = ADD );
+	void draw(ALLEGRO_BITMAP *where, int x, int y, BlitterContext const& blender/*, bool flipped = false*/, int alignment = 0);
 	
 	// To ease transition
-	void draw(BITMAP *where, int x, int y/*, bool flipped = false*/, int alignment = 0);
+	void draw(ALLEGRO_BITMAP *where, int x, int y/*, bool flipped = false*/, int alignment = 0);
 
 #endif
 
@@ -44,8 +44,8 @@ public:
 	int getHeight()
 	{ return m_bitmap->h; }
 	
-	BITMAP *m_bitmap;
-	//BITMAP *m_mirror;
+	ALLEGRO_BITMAP *m_bitmap;
+	//ALLEGRO_BITMAP *m_mirror;
 	int m_xPivot;
 	int m_yPivot;
 	

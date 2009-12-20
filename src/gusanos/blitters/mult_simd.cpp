@@ -8,7 +8,7 @@
 namespace Blitters
 {
 	
-void drawSprite_mult_8_to_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
+void drawSprite_mult_8_to_32_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
 {
 	typedef Pixel32 pixel_t_dest_1;
 	typedef Pixel32 pixel_t_dest_2; // Doesn't matter what this is
@@ -24,15 +24,20 @@ void drawSprite_mult_8_to_32_mmx_sse(BITMAP* where, BITMAP* from, int x, int y, 
 	#define SHUF_MASK(a, b, c, d) ((a << 6) | (b << 4) | (c << 2) | d)
 
 	pxor_rr(mm6, mm6);
+
+#ifdef NDEBUG	// GCC 4 has problems with these instructions with -O0 somewhy
+#define MEM_PREFETCH  \
+			prefetchnta(src[8]);  \
+			prefetcht0(dest[8])
+#else
+#define MEM_PREFETCH
+#endif
 	
 	SPRITE_Y_LOOP(
 		SPRITE_X_LOOP_NOALIGN_T(4,
 			*dest = scaleColor_32(*dest, *src)
 		,
-#ifdef NDEBUG // GCC 4 has problems with these instructions with -O0 somewhy
-			prefetchnta(src[8]);
-			prefetcht0(dest[8]);
-#endif
+			MEM_PREFETCH;
 			
 			pxor_rr(mm0, mm0);
 			

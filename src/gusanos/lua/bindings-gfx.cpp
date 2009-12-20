@@ -26,7 +26,7 @@ namespace LuaBindings
 	
 #ifndef DEDICATED_ONLY
 LuaReference CViewportMetaTable;
-LuaReference BITMAPMetaTable;
+LuaReference ALLEGRO_BITMAPMetaTable;
 BlitterContext blitter;
 #endif
 
@@ -44,8 +44,8 @@ int l_gfx_draw_box(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	//BITMAP* b = *static_cast<BITMAP **>(lua_touserdata(L, 1));
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	//ALLEGRO_BITMAP* b = *static_cast<ALLEGRO_BITMAP **>(lua_touserdata(L, 1));
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	int x1 = lua_tointeger(L, 2);
 	int y1 = lua_tointeger(L, 3);
@@ -87,7 +87,7 @@ int l_gfx_line(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	int x1 = lua_tointeger(L, 2);
 	int y1 = lua_tointeger(L, 3);
@@ -109,7 +109,7 @@ int l_gfx_linewu(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	lua_Number x1 = lua_tonumber(L, 2);
 	lua_Number y1 = lua_tonumber(L, 3);
@@ -131,7 +131,7 @@ int l_gfx_putpixelwu(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	lua_Number x = lua_tonumber(L, 2);
 	lua_Number y = lua_tonumber(L, 3);
@@ -151,7 +151,7 @@ int l_gfx_putpixel(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	int x = lua_tointeger(L, 2);
 	int y = lua_tointeger(L, 3);
@@ -173,7 +173,7 @@ int l_gfx_hline(lua_State* L)
 {
 #ifndef DEDICATED_ONLY
 	LuaContext context(L);
-	BITMAP* b = ASSERT_OBJECT(BITMAP, 1);
+	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 1);
 	
 	int x1 = lua_tointeger(L, 2);
 	int y1 = lua_tointeger(L, 3);
@@ -271,7 +271,7 @@ int l_gfx_reset_blending(lua_State* L)
 	Returns the HUD bitmap of this viewport.
 */
 METHOD(CViewport, viewport_getBitmap,
-	context.pushFullReference(*p->hud, BITMAPMetaTable);
+	context.pushFullReference(*p->hud, ALLEGRO_BITMAPMetaTable);
 	return 1;
 )
 
@@ -285,7 +285,7 @@ int l_viewport_getBitmap_depr(lua_State* L)
 #endif
 
 METHOD(CViewport, viewport_getGameBitmap,
-	context.pushFullReference(*p->dest, BITMAPMetaTable);
+	context.pushFullReference(*p->dest, ALLEGRO_BITMAPMetaTable);
 	return 1;
 )
 
@@ -312,7 +312,7 @@ METHOD(CViewport, viewport_fromMap,
 
 	Returns the width of this bitmap.
 */
-METHOD(BITMAP, bitmap_w,
+METHOD(ALLEGRO_BITMAP, bitmap_w,
 	lua_pushinteger(context, p->w);
 	return 1;
 )
@@ -321,7 +321,7 @@ METHOD(BITMAP, bitmap_w,
 
 	Returns the width of this bitmap.
 */
-METHOD(BITMAP, bitmap_h,
+METHOD(ALLEGRO_BITMAP, bitmap_h,
 	lua_pushinteger(context, p->h);
 	return 1;
 )
@@ -354,19 +354,25 @@ void initGfx()
 
 #ifndef DEDICATED_ONLY
 	// CViewport method and metatable
-	
-	CLASS(CViewport,
 #ifndef NO_DEPRECATED
+	CLASS(CViewport,
 		("get_bitmap", l_viewport_getBitmap_depr)
-#endif
 		("bitmap", l_viewport_getBitmap)
 		("game_bitmap", l_viewport_getGameBitmap)
 		("from_map", l_viewport_fromMap)
 	)
+#else
+	CLASS(CViewport,
+		("bitmap", l_viewport_getBitmap)
+		("game_bitmap", l_viewport_getGameBitmap)
+		("from_map", l_viewport_fromMap)
+	)
+#endif
+
 
 	// Bitmap method and metatable
 	
-	CLASS(BITMAP,
+	CLASS(ALLEGRO_BITMAP,
 		("w", l_bitmap_w)
 		("h", l_bitmap_h)
 		("draw_box", l_gfx_draw_box)

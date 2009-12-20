@@ -40,7 +40,7 @@ enum {
 
 class CWorm;
 struct Listener;
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 class CWormInputHandler;
 
 
@@ -193,7 +193,7 @@ public:
 	void gusInit();
 	void gusReset();
 	
-	void setDestination(BITMAP* where, int x, int y, int w, int h);
+	void setDestination(ALLEGRO_BITMAP* where, int x, int y, int w, int h);
 	void gusRender();
 		
 	void drawLight(IVec const& v); // TEMP
@@ -210,16 +210,16 @@ public:
 	
 	Vec convertCoordsPrec( Vec const & coord )
 	{
-		return coord - Vec(WorldX,WorldY);
+		return coord - Vec((float)WorldX,(float)WorldY);
 	}
 	
-	BITMAP* getBitmap() { return dest; }
+	ALLEGRO_BITMAP* getBitmap() { return dest; }
 	
 	LuaReference luaReference;
 	
-	BITMAP* dest;
-	BITMAP* hud;
-	BITMAP* fadeBuffer;
+	ALLEGRO_BITMAP* dest;
+	ALLEGRO_BITMAP* hud;
+	ALLEGRO_BITMAP* fadeBuffer;
 	
 private:
 	

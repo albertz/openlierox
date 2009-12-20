@@ -3,7 +3,7 @@
 
 #include "events.h"
 
-class GameEvent;
+struct GameEvent;
 class CGameObject;
 
 struct DetectEvent : public GameEvent

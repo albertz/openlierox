@@ -52,7 +52,7 @@ namespace
 	int m_driver = GFX_AUTODETECT;
 	int m_bitdepth = 32;
 
-	BITMAP* m_doubleResBuffer = 0;
+	ALLEGRO_BITMAP* m_doubleResBuffer = 0;
 	SpriteSet* mouseCursor = 0;
 	
 	string screenShot(const list<string> &args)
@@ -71,7 +71,7 @@ namespace
 			++nameIndex;
 		} while( gusExists( filename.c_str() ) );
 		
-		BITMAP * tmpbitmap = create_bitmap_ex(24,screen->w,screen->h);
+		ALLEGRO_BITMAP * tmpbitmap = create_bitmap_ex(24,screen->w,screen->h);
 		blit(screen,tmpbitmap,0,0,0,0,screen->w,screen->h);
 		bool success = gfx.saveBitmap( filename.c_str(),tmpbitmap);
 		destroy_bitmap(tmpbitmap);
@@ -715,9 +715,9 @@ int Gfx::getScalingFactor()
 
 #endif
 
-BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
+ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 {
-	BITMAP* returnValue = NULL;
+	ALLEGRO_BITMAP* returnValue = NULL;
 	/*
 	int flags = COLORCONV_DITHER | COLORCONV_KEEP_TRANS;
 	
@@ -770,7 +770,7 @@ BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 	return returnValue;
 }
 
-bool Gfx::saveBitmap( const string &filename,BITMAP* image)
+bool Gfx::saveBitmap( const string &filename,ALLEGRO_BITMAP* image)
 {
 	bool returnValue = false;
 	

@@ -501,14 +501,14 @@ setvideomode:
 #ifdef WIN32
 //////////////////////
 // Get the window handle
-HWND GetWindowHandle()
+void *GetWindowHandle()
 {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if(!SDL_GetWMInfo(&info))
 		return 0;
 
-	return info.window;
+	return (void *)info.window;
 }
 #endif
 
@@ -1010,6 +1010,8 @@ static void TakeScreenshot(const std::string& scr_path, const std::string& addit
 LONG wpOriginal;
 bool Subclassed = false;
 
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 ////////////////////
 // Subclass the window (control the incoming Windows messages)
 void SubclassWindow()
@@ -1018,7 +1020,7 @@ void SubclassWindow()
 		return;
 
 #pragma warning(disable:4311)  // Temporarily disable, the typecast is OK here
-	wpOriginal = SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)(&WindowProc));
+	wpOriginal = SetWindowLong((HWND)GetWindowHandle(),GWL_WNDPROC,(LONG)(&WindowProc));
 #pragma warning(default:4311) // Enable the warning
 	Subclassed = true;
 }
@@ -1030,7 +1032,7 @@ void UnSubclassWindow()
 	if (!Subclassed)
 		return;
 
-	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, wpOriginal);
+	SetWindowLong((HWND)GetWindowHandle(),GWL_WNDPROC, wpOriginal);
 
 	Subclassed = false;
 }

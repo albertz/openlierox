@@ -196,7 +196,7 @@ void Wnd::applyGSSreally(Context::GSSselectors const& style)
 {
 	std::multimap<int, Context::GSSpropertyMap const*> clauses;
 	
-	foreach(i, style)
+	const_foreach(i, style)
 	{
 		if(int level = i->matchesWindow(this))
 		{

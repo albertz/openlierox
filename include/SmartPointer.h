@@ -31,7 +31,7 @@ void SmartPointer_ObjectDeinit( _Type * obj )
 
 // these forward-declaration are needed here
 struct SDL_Surface;
-struct SoundSample;
+class SoundSample;
 class CMap;
 class CGameScript;
 

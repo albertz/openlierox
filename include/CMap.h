@@ -433,7 +433,7 @@ public:
 	void gusThink();
 	bool gusIsLoaded() { return m_gusLoaded; }
 #ifndef DEDICATED_ONLY
-	void gusDraw(BITMAP* where, int x, int y);
+	void gusDraw(ALLEGRO_BITMAP* where, int x, int y);
 #endif
 	void gusUpdateMinimap(int x, int y, int w, int h);
 	
@@ -484,7 +484,7 @@ public:
 	bool trace(long srcx, long srcy, long destx, long desty, PredT predicate);
 	
 #ifndef DEDICATED_ONLY
-	void specialDrawSprite(Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
+	void specialDrawSprite(Sprite* sprite, ALLEGRO_BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
 	
 	void culledDrawSprite(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
 	void culledDrawLight(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
@@ -497,13 +497,13 @@ public:
 	
 	
 #ifndef DEDICATED_ONLY
-	BITMAP* image;
-	BITMAP* background;
-	BITMAP* paralax;
-	BITMAP* lightmap; // This has to be 8 bit.
-	BITMAP* watermap; // How water looks in each pixel of the map
+	ALLEGRO_BITMAP* image;
+	ALLEGRO_BITMAP* background;
+	ALLEGRO_BITMAP* paralax;
+	ALLEGRO_BITMAP* lightmap; // This has to be 8 bit.
+	ALLEGRO_BITMAP* watermap; // How water looks in each pixel of the map
 #endif
-	BITMAP* material;
+	ALLEGRO_BITMAP* material;
 	Encoding::VectorEncoding vectorEncoding;
 	Encoding::VectorEncoding intVectorEncoding;
 	Encoding::DiffVectorEncoding diffVectorEncoding;

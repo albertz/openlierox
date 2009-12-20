@@ -3,6 +3,12 @@
 
 #include <boost/preprocessor/cat.hpp>
 
+#ifdef _MSC_VER
+#define BOOST_TYPEOF_SILENT
+#include <boost/typeof/typeof.hpp>
+#define __typeof__ BOOST_TYPEOF
+#endif
+
 //NOTE: It's important that these are defined on a single-line
 //since all references to __LINE__ must evaluate to the same value.
 
@@ -16,8 +22,13 @@
 #define foreach_delete( i, c )\
   typedef __typeof__( c ) BOOST_PP_CAT(T_, __LINE__); BOOST_PP_CAT(T_, __LINE__)& BOOST_PP_CAT(C_, __LINE__) = (c); for( __typeof__(BOOST_PP_CAT(C_, __LINE__).begin()) i = BOOST_PP_CAT(C_, __LINE__).begin(), next; (i != BOOST_PP_CAT(C_, __LINE__).end()) && (next = i, ++next, true); i = next )
   
+#ifdef _MSC_VER
+#define const_foreach( i, c )\
+  typedef __typeof__( c ) BOOST_PP_CAT(T_, __LINE__); const BOOST_PP_CAT(T_, __LINE__)& BOOST_PP_CAT(C_, __LINE__) = (c); for( __typeof__(BOOST_PP_CAT(C_, __LINE__).begin()) i = BOOST_PP_CAT(C_, __LINE__).begin(); i != BOOST_PP_CAT(C_, __LINE__).end(); ++i )
+#else
 #define const_foreach( i, c )\
   typedef __typeof__( c ) BOOST_PP_CAT(T_, __LINE__); BOOST_PP_CAT(T_, __LINE__)& BOOST_PP_CAT(C_, __LINE__) = (c); for( __typeof__(BOOST_PP_CAT(C_, __LINE__).begin()) i = BOOST_PP_CAT(C_, __LINE__).begin(); i != BOOST_PP_CAT(C_, __LINE__).end(); ++i )
+#endif
 
 #define reverse_foreach( i, c )\
   typedef __typeof__( c ) BOOST_PP_CAT(T_, __LINE__); BOOST_PP_CAT(T_, __LINE__)& BOOST_PP_CAT(C_, __LINE__) = (c); for( __typeof__(BOOST_PP_CAT(C_, __LINE__).rbegin()) i = BOOST_PP_CAT(C_, __LINE__).rbegin(); i != BOOST_PP_CAT(C_, __LINE__).rend(); ++i )

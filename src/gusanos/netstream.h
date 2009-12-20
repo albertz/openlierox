@@ -13,7 +13,7 @@
 #define __GUS_NETSTREAM_H__
 
 #include <string>
-#include <stdint.h>
+#include <SDL.h> // for uint8_t etc.
 
 typedef float Net_Float;
 typedef uint8_t Net_U8;

@@ -620,7 +620,7 @@ void CWorm::draw(CViewport* viewport)
 		bool flipped = false;
 		if ( m_dir < 0 ) flipped = true;*/
 
-		BITMAP* where = viewport->dest;
+		ALLEGRO_BITMAP* where = viewport->dest;
 		IVec rPos = viewport->convertCoords( IVec(renderPos) );
 
 		{

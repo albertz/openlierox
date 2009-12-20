@@ -29,7 +29,7 @@ ResourceLocator<CMap> levelLocator;
 #ifndef DEDICATED_ONLY
 struct AddCuller : Culler<AddCuller>
 {
-	AddCuller( CMap& level, BITMAP* dest, BITMAP* source, int alpha,int dOffx, int dOffy, int sOffx, int sOffy, Rect const& rect )
+	AddCuller( CMap& level, ALLEGRO_BITMAP* dest, ALLEGRO_BITMAP* source, int alpha,int dOffx, int dOffy, int sOffx, int sOffy, Rect const& rect )
 			: Culler<AddCuller>(rect),
 			m_level(level),
 			m_dest( dest ),
@@ -64,8 +64,8 @@ private:
 
 	CMap const &m_level;
 
-	BITMAP* m_dest;
-	BITMAP* m_source;
+	ALLEGRO_BITMAP* m_dest;
+	ALLEGRO_BITMAP* m_source;
 
 	int m_destOffx;
 	int m_destOffy;
@@ -254,7 +254,7 @@ void CMap::gusThink()
 }
 
 #ifndef DEDICATED_ONLY
-void CMap::gusDraw(BITMAP* where, int x, int y)
+void CMap::gusDraw(ALLEGRO_BITMAP* where, int x, int y)
 {
 	if (image) {
 		if (!paralax) {
@@ -277,7 +277,7 @@ void CMap::gusDraw(BITMAP* where, int x, int y)
 
 
 // TODO: optimize this
-void CMap::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter )
+void CMap::specialDrawSprite( Sprite* sprite, ALLEGRO_BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter )
 {
 	int transCol = makecol(255,0,255); // TODO: make a gfx.getTransCol() function
 
@@ -298,7 +298,7 @@ void CMap::specialDrawSprite( Sprite* sprite, BITMAP* where, const IVec& pos, co
 
 void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
-	BITMAP* renderBitmap = sprite->m_bitmap;
+	ALLEGRO_BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
 	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
 
@@ -326,7 +326,7 @@ void CMap::culledDrawSprite( Sprite* sprite, CViewport* viewport, const IVec& po
 
 void CMap::culledDrawLight( Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha )
 {
-	BITMAP* renderBitmap = sprite->m_bitmap;
+	ALLEGRO_BITMAP* renderBitmap = sprite->m_bitmap;
 	IVec off = viewport->getPos();
 	IVec loff(pos - IVec(sprite->m_xPivot, sprite->m_yPivot));
 

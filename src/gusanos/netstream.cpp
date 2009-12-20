@@ -29,14 +29,14 @@ Net_BitStream* Net_BitStream::Duplicate() { return NULL; }
 
 
 
-eNet_NodeRole Net_Node::getRole() {}
+eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
 void Net_Node::setOwner(Net_ConnID, bool something) {}
 void Net_Node::setAnnounceData(Net_BitStream*) {}
-Net_NodeID Net_Node::getNetworkID() {}
+Net_NodeID Net_Node::getNetworkID() { return 0; }
 
-bool Net_Node::registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*) {}
-bool Net_Node::registerNodeDynamic(Net_ClassID, Net_Control*) {}
-bool Net_Node::registerRequestedNode(Net_ClassID, Net_Control*) {}
+bool Net_Node::registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*) { return false; }
+bool Net_Node::registerNodeDynamic(Net_ClassID, Net_Control*) { return false; }
+bool Net_Node::registerRequestedNode(Net_ClassID, Net_Control*) { return false; }
 
 void Net_Node::applyForNetLevel(int something) {}
 void Net_Node::removeFromNetLevel(int something) {}
@@ -45,8 +45,8 @@ void Net_Node::removeFromNetLevel(int something) {}
 void Net_Node::setEventNotification(bool,bool) {} // TODO: true,false -> enables eEvent_Init
 void Net_Node::sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*) {}
 void Net_Node::sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID) {}
-bool Net_Node::checkEventWaiting() {}
-Net_BitStream* Net_Node::getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*) {}
+bool Net_Node::checkEventWaiting() { return false; }
+Net_BitStream* Net_Node::getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*) { return NULL; }
 
 
 void Net_Node::addReplicator(Net_ReplicatorBasic*, bool) {}	
@@ -59,8 +59,8 @@ void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
 void Net_Node::acceptFile(Net_ConnID, Net_FileTransID, int, bool accept) {}
-Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, float) {}
-Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) {}
+Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, float) { return 0; }
+Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return Net_FileTransInfo(); }
 
 
 void Net_Control::Net_Connect(const Net_Address&, void*) {}
@@ -68,35 +68,35 @@ void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
-Net_Address* Net_Control::Net_getPeer(Net_ConnID) {}
+Net_Address* Net_Control::Net_getPeer(Net_ConnID) { return NULL; }
 
-Net_BitStream* Net_Control::Net_createBitStream() {}
+Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
 void Net_Control::Net_processOutput() {}
 void Net_Control::Net_processInput(Net_ProcessType) {}
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
-Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) {}
+Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
 
-Net_ConnectionStats Net_Control::Net_getConnectionStats(Net_ConnID) {}
+Net_ConnectionStats Net_Control::Net_getConnectionStats(Net_ConnID) { return Net_ConnectionStats(); }
 
 Net_ReplicatorBasic::Net_ReplicatorBasic(Net_ReplicatorSetup*) {}
 
-Net_BitStream* Net_ReplicatorBasic::getPeekStream() {}
-void* Net_ReplicatorBasic::peekDataRetrieve() {}
+Net_BitStream* Net_ReplicatorBasic::getPeekStream() { return NULL; }
+void* Net_ReplicatorBasic::peekDataRetrieve() { return NULL; }
 
-Net_ReplicatorSetup* Net_ReplicatorBasic::getSetup() {}	
-void* Net_ReplicatorBasic::peekData() {}
+Net_ReplicatorSetup* Net_ReplicatorBasic::getSetup() { return NULL; }	
+void* Net_ReplicatorBasic::peekData() { return NULL; }
 void Net_ReplicatorBasic::peekDataStore(void*) {}
 
 
 
 Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-Net_InterceptID Net_ReplicatorSetup::getInterceptID() {}
+Net_InterceptID Net_ReplicatorSetup::getInterceptID() { return 0; }
 
 
 void Net_Address::setAddress(eNet_AddressType, int, const char*) {}
-Net_U32 Net_Address::getIP() const {}
+Net_U32 Net_Address::getIP() const { return 0; }
 
 
 NetStream::NetStream() {}
@@ -110,7 +110,7 @@ bool NetStream::Init() { return true; }
 void Net_simulateLag(int,int) {}
 void Net_simulateLoss(int,int) {}
 
-bool Net_initSockets(bool, int port, int, int) {}
+bool Net_initSockets(bool, int port, int, int) { return false; }
 
 void Net_setControlID(int) {}
 void Net_setDebugName(const std::string&) {}

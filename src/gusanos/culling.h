@@ -5,6 +5,13 @@
 #include <algorithm>
 #include "util/rect.h"
 
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
+#endif
+
 //#define DEBUG_CULLER
 
 #ifdef DEBUG_CULLER

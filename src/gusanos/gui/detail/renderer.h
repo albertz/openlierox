@@ -7,6 +7,16 @@
 #include <algorithm>
 #include <utility>
 
+#ifdef min  // stupid <windows.h> defines this
+#undef min
+#endif
+#ifdef max  // stupid <windows.h> defines this
+#undef max
+#endif
+#ifdef RGB
+#undef RGB
+#endif
+
 namespace OmfgGUI
 {
 

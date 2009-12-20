@@ -35,7 +35,7 @@
 struct proj_t;
 class CProjectile;
 struct shoot_t;
-struct SoundSample;
+class SoundSample;
 struct LX56ProjAttribs;
 class IniReader;
 

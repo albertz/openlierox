@@ -62,7 +62,7 @@ bool LevelEffect::load(std::string const& filename)
 	{
 		uint32_t bits = 0;
 		int c = 8;
-		BITMAP* b = mask->getSprite()->m_bitmap;
+		ALLEGRO_BITMAP* b = mask->getSprite()->m_bitmap;
 		for( int y = 0; y < b->h; ++y )
 		for( int x = 0; x < b->w; ++x )
 		{

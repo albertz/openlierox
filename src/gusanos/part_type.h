@@ -26,10 +26,10 @@ class SpriteSet;
 class BaseAnimator;
 class Sprite;
 #endif
-class DetectEvent;
+struct DetectEvent;
 class CWormInputHandler;
 class PartType;
-class TimerEvent;
+struct TimerEvent;
 
 typedef CGameObject* (*NewParticleFunc)(PartType* type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle);
 

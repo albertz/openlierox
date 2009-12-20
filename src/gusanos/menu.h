@@ -13,7 +13,7 @@
 
 class Font;
 class SpriteSet;
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 
 namespace OmfgGUI
 {
@@ -90,8 +90,8 @@ struct AllegroRenderer : public Renderer
 	void drawSkinnedBox(BaseSpriteSet const& skin, Rect const& rect, RGB const& backgroundColor);
 	
 /*
-	void rectfill32(BITMAP* where, int x1, int y1, int x2, int y2, int colour);
-	void rectfill16(BITMAP* where, int x1, int y1, int x2, int y2, int colour);*/
+	void rectfill32(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, int colour);
+	void rectfill16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, int colour);*/
 	
 private:
 	Rect clipRect;
@@ -145,7 +145,7 @@ class XMLFile
 public:
 	operator bool()
 	{
-		return f;
+		return f != NULL;
 	}
 	
 	std::ifstream f;

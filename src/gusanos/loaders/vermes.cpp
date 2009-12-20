@@ -157,7 +157,7 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			
 			std::string lightmapPath = path + "/lightmap";
 		
-			BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
+			ALLEGRO_BITMAP* tempLightmap = gfx.loadBitmap(lightmapPath.c_str());
 			
 			if ( tempLightmap )
 			{
@@ -245,7 +245,7 @@ bool VermesFontLoader::load(Font* font, std::string const& path)
 	int x = 0;
 	for (int i = 0; i < 256; ++i)
 	{
-		/*BITMAP* character = create_bitmap(width,tempBitmap->h);
+		/*ALLEGRO_BITMAP* character = create_bitmap(width,tempBitmap->h);
 		blit(tempBitmap,character,i * width,0,0,0,width,character->h);*/
 		font->m_chars.push_back(Font::CharInfo(Rect(x, 0, x + monoWidth, monoHeight), 0));
 		
@@ -256,13 +256,13 @@ bool VermesFontLoader::load(Font* font, std::string const& path)
 	
 	return true;
 	/*
-	BITMAP *tempBitmap = load_bmp(path.native_file_string().c_str(),0);
+	ALLEGRO_BITMAP *tempBitmap = load_bmp(path.native_file_string().c_str(),0);
 	if (tempBitmap)
 	{
 		int width = tempBitmap->w / 256;
 		for (int i = 0; i < 256; ++i)
 		{
-			BITMAP* character = create_bitmap(width,tempBitmap->h);
+			ALLEGRO_BITMAP* character = create_bitmap(width,tempBitmap->h);
 			blit(tempBitmap,character,i * width,0,0,0,width,character->h);
 			font->m_char.push_back(character);
 		}

@@ -27,6 +27,8 @@ using namespace std;
 
 Net_ClassID NetWorm::classID = Net_Invalid_ID;
 
+const float NetWorm::MAX_ERROR_RADIUS = 10.0f;
+
 NetWorm::NetWorm(bool isAuthority) : CWorm()
 {
 	timeSinceLastUpdate = 1;

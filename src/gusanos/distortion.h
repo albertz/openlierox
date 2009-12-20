@@ -11,7 +11,7 @@
 #include <map>
 #include <vector>
 
-struct BITMAP;
+struct ALLEGRO_BITMAP;
 
 struct DistortionMap
 {
@@ -30,16 +30,16 @@ class Distortion
 	Distortion(DistortionMap* map);
 	~Distortion();
 	
-	void apply( BITMAP* where, int x, int y, float multiply );
+	void apply( ALLEGRO_BITMAP* where, int x, int y, float multiply );
 	
-	//void applyFast( BITMAP* where, int x, int y, float multiply );
+	//void applyFast( ALLEGRO_BITMAP* where, int x, int y, float multiply );
 	
 	private:
 	
 	int width;
 	int height;
 	DistortionMap* m_map;
-	BITMAP* buffer;
+	ALLEGRO_BITMAP* buffer;
 	
 };
 

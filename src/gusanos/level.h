@@ -27,12 +27,12 @@ struct WaterParticle
 {
 	WaterParticle( IVec pos, unsigned char material_ ) : x(pos.x), y(pos.y), mat(material_), count(0)
 	{
-		dir = static_cast<bool>( rndInt(2) );
+		dir = rndInt(2) != 0;
 	}
 	
 	WaterParticle( int x_, int y_, unsigned char material_ ) : x(x_), y(y_), mat(material_), count(0)
 	{
-		dir = static_cast<bool>( rndInt(2) );
+		dir = rndInt(2) != 0;
 	}
 	
 	int x;

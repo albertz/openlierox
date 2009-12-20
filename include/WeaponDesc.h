@@ -85,7 +85,7 @@ struct Wpn_Beam {
 	bool write(CGameScript* gs, FILE* fp);
 };
 
-struct SoundSample;
+class SoundSample;
 
 // Weapon structure
 struct weapon_t {

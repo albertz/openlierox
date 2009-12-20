@@ -520,7 +520,7 @@ public:
 		
 		operator bool()
 		{
-			return curObj;
+			return curObj != NULL;
 		}
 		
 		void findFirstValid()
@@ -643,7 +643,7 @@ public:
 		
 		operator bool()
 		{
-			return curObj;
+			return curObj != NULL;
 		}
 		
 		void findFirstValid()

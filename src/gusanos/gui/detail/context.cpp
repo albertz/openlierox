@@ -220,7 +220,7 @@ int Context::GSSselector::matchesWindow(Wnd* w) const
 {
 	int matchLevel = 1;
 	
-	foreach(c, cond)
+	for (std::list<Condition>::const_iterator c = cond.begin(); c != cond.end(); c++)
 	{
 		switch(c->type)
 		{

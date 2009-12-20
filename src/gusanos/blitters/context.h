@@ -113,14 +113,14 @@ struct BlitterContext
 		return m_fact;
 	}
 	
-	FUNC_6(rectfill, BITMAP*, int, int, int, int, Pixel)
-	FUNC_4(drawSprite, BITMAP*, BITMAP*, int, int)
-	FUNC_8(drawSpriteCut, BITMAP*, BITMAP*, int, int, int, int, int, int)
-	FUNC_4(putpixel, BITMAP*, int, int, Pixel)
-	FUNC_4(putpixelwu, BITMAP*, float, float, Pixel)
-	FUNC_6(linewu, BITMAP*, float, float, float, float, Pixel)
-	FUNC_6(line, BITMAP*, int, int, int, int, Pixel)
-	FUNC_5(hline, BITMAP*, int, int, int, Pixel)
+	FUNC_6(rectfill, ALLEGRO_BITMAP*, int, int, int, int, Pixel)
+	FUNC_4(drawSprite, ALLEGRO_BITMAP*, ALLEGRO_BITMAP*, int, int)
+	FUNC_8(drawSpriteCut, ALLEGRO_BITMAP*, ALLEGRO_BITMAP*, int, int, int, int, int, int)
+	FUNC_4(putpixel, ALLEGRO_BITMAP*, int, int, Pixel)
+	FUNC_4(putpixelwu, ALLEGRO_BITMAP*, float, float, Pixel)
+	FUNC_6(linewu, ALLEGRO_BITMAP*, float, float, float, float, Pixel)
+	FUNC_6(line, ALLEGRO_BITMAP*, int, int, int, int, Pixel)
+	FUNC_5(hline, ALLEGRO_BITMAP*, int, int, int, Pixel)
 
 private:
 	Type m_type;

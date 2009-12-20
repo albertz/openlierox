@@ -32,15 +32,15 @@ int get_color_depth() { return color_depth; }
 void set_color_depth(int depth) { color_depth = depth; }
 
 
-static void sub_to_abs_coords_x(BITMAP* bmp, int& x) { x += bmp->sub_x; }
-static void sub_to_abs_coords_y(BITMAP* bmp, int& y) { y += bmp->sub_y; }
-static void sub_to_abs_coords(BITMAP* bmp, int& x, int& y) {
+static void sub_to_abs_coords_x(ALLEGRO_BITMAP* bmp, int& x) { x += bmp->sub_x; }
+static void sub_to_abs_coords_y(ALLEGRO_BITMAP* bmp, int& y) { y += bmp->sub_y; }
+static void sub_to_abs_coords(ALLEGRO_BITMAP* bmp, int& x, int& y) {
 	sub_to_abs_coords_x(bmp, x);
 	sub_to_abs_coords_y(bmp, y);
 }
 
-static BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh) {
-	BITMAP* bmp = new BITMAP();
+static ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int subx, int suby, int subw, int subh) {
+	ALLEGRO_BITMAP* bmp = new ALLEGRO_BITMAP();
 	
 	bmp->surf = surf;
 	bmp->sub_x = subx;
@@ -59,7 +59,7 @@ static BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf, int
 	return bmp;
 }
 
-static BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {	
+static ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {	
 	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
 }
 
@@ -77,7 +77,7 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
 static void dumpUsedColors(SDL_Surface* surf);
 
 
-BITMAP* screen = NULL;
+ALLEGRO_BITMAP* screen = NULL;
 
 static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
 	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff, amask = 0xff000000;
@@ -98,7 +98,7 @@ static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
 	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,0);
 }
 
-BITMAP *load_bitmap(const char *filename, RGB *pal) {
+ALLEGRO_BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	std::string fullfilename = GetFullFileName(filename);	
 	SDL_Surface* img = IMG_Load(fullfilename.c_str());
 	if(!img) return NULL;
@@ -120,7 +120,7 @@ BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	return create_bitmap_from_sdl(converted);
 }
 
-BITMAP *create_bitmap_ex(int color_depth, int width, int height) {	
+ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height) {	
 	SDL_Surface* surf = NULL;
 	if(color_depth == 8)
 		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0,0,0,0);
@@ -138,23 +138,23 @@ BITMAP *create_bitmap_ex(int color_depth, int width, int height) {
 	return create_bitmap_from_sdl(surf);
 }
 
-BITMAP *create_bitmap(int width, int height) {
+ALLEGRO_BITMAP *create_bitmap(int width, int height) {
 	return create_bitmap_ex(color_depth, width, height);
 }
 
-BITMAP *create_sub_bitmap(BITMAP *parent, int x, int y, int width, int height) {
+ALLEGRO_BITMAP *create_sub_bitmap(ALLEGRO_BITMAP *parent, int x, int y, int width, int height) {
 	sub_to_abs_coords(parent, x, y);
 	return create_bitmap_from_sdl(parent->surf, x, y, width, height);
 }
 
-BITMAP* create_copy_bitmap(BITMAP* other) {
+ALLEGRO_BITMAP* create_copy_bitmap(ALLEGRO_BITMAP* other) {
 	if(other)
 		return create_bitmap_from_sdl(GetCopiedImage(other->surf), other->sub_x, other->sub_y, other->w, other->h);
 	else
 		return NULL;
 }
 
-void destroy_bitmap(BITMAP *bmp) {
+void destroy_bitmap(ALLEGRO_BITMAP *bmp) {
 	if(bmp == NULL) return;
 	bmp->surf = NULL;
 	delete[] bmp->line;
@@ -252,8 +252,8 @@ int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
 int _rgb_scale_5[32], _rgb_scale_6[64];
 
 void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {	
-    float maxc = MAX(MAX(r, g), b);
-    float minc = MIN(MIN(r, g), b);
+    float maxc = (float)MAX(MAX(r, g), b);
+    float minc = (float)MIN(MIN(r, g), b);
     *v = maxc;
     if(minc == maxc) {
 		*h = 0;
@@ -266,24 +266,24 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 	float gc = (maxc-g) / (maxc-minc);
 	float bc = (maxc-b) / (maxc-minc);
 	if(r == maxc) *h = bc-gc;
-	else if(g == maxc) *h = 2.0+rc-bc;
-	else *h = 4.0+gc-rc;
+	else if(g == maxc) *h = 2.0f+rc-bc;
+	else *h = 4.0f+gc-rc;
 
-	*h = *h/6.0;
+	*h = *h/6.0f;
 	FMOD(*h, 1.0f);
 }
 
 
-static bool abscoord_in_bmp(BITMAP* bmp, int x, int y) {
+static bool abscoord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
 	return x >= bmp->sub_x && x < bmp->sub_x + bmp->w && y >= bmp->sub_y && y < bmp->sub_y + bmp->h;
 }
 
-static bool coord_in_bmp(BITMAP* bmp, int x, int y) {
+static bool coord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
 	return x >= 0 && x < bmp->w && y >= 0 && y < bmp->h;
 }
 
 
-static int getpixel__nocheck(BITMAP *bmp, int x, int y) {
+static int getpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y) {
 	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: return bmp_read8(addr);
@@ -294,7 +294,7 @@ static int getpixel__nocheck(BITMAP *bmp, int x, int y) {
 	return 0;
 }
 
-static void putpixel__nocheck(BITMAP *bmp, int x, int y, int color) {
+static void putpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y, int color) {
 	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: bmp_write8(addr, color); break;
@@ -304,12 +304,12 @@ static void putpixel__nocheck(BITMAP *bmp, int x, int y, int color) {
 	}
 }
 
-int getpixel(BITMAP *bmp, int x, int y) {
+int getpixel(ALLEGRO_BITMAP *bmp, int x, int y) {
 	if(!coord_in_bmp(bmp, x, y)) return 0;
 	return getpixel__nocheck(bmp, x, y);
 }
 
-void putpixel(BITMAP *bmp, int x, int y, int color) {
+void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, int color) {
 	if(!coord_in_bmp(bmp, x, y)) return;
 	putpixel__nocheck(bmp, x, y, color);
 }
@@ -320,7 +320,7 @@ static Color allegcol_to_Col(int col) {
 	return Color(getr(col), getg(col), getb(col), SDL_ALPHA_OPAQUE);
 }
 
-void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
+void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, int color) {
 	sub_to_abs_coords(bmp, x, y1);
 	sub_to_abs_coords_y(bmp, y2);
 	DrawVLine(bmp->surf.get(), y1, y2, x, allegcol_to_Col(color));
@@ -329,7 +329,7 @@ void vline(BITMAP *bmp, int x, int y1, int y2, int color) {
 			putpixel(bmp, x, y, color);*/
 }
 
-void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
+void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, int color) {
 	sub_to_abs_coords(bmp, x1, y);
 	sub_to_abs_coords_x(bmp, x2);
 	DrawHLine(bmp->surf.get(), x1, x2, y, allegcol_to_Col(color));
@@ -338,31 +338,31 @@ void hline(BITMAP *bmp, int x1, int y, int x2, int color) {
 			putpixel(bmp, x, y, color);*/
 }
 
-void line(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
 	DrawLine(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
 }
 
-void rectfill(BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
 	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
 	SDL_FillRect(bmp->surf.get(), &rect, color);
 }
 
-void circle(BITMAP *bmp, int x, int y, int radius, int color) {
+void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, int color) {
 	sub_to_abs_coords(bmp, x, y);
 	DrawCircleFilled(bmp->surf.get(), x, y, radius, radius, allegcol_to_Col(color));
 }
 
 
-void clear_to_color(BITMAP *bmp, int color) {
+void clear_to_color(ALLEGRO_BITMAP *bmp, int color) {
 	rectfill(bmp, 0,0, bmp->w, bmp->h, color);
 }
 
 
-static void blit_8to8__abscoord(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+static void blit_8to8__abscoord(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	int& sy = source_y;
 	int& dy = dest_y;
 	for(int Cy = height; Cy >= 0; --Cy, ++sy, ++dy) {
@@ -397,7 +397,7 @@ static void dumpUsedColors(SDL_Surface* surf) {
 		notes << "  : " << *i << endl;
 }
 
-void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	sub_to_abs_coords(source, source_x, source_y);
 	sub_to_abs_coords(dest, dest_x, dest_y);
 /*	if(source->surf->format->BitsPerPixel == 8 && dest->surf->format->BitsPerPixel == 8) {
@@ -410,40 +410,40 @@ void blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, 
 //	}
 }
 
-void stretch_blit(BITMAP *s, BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
+void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
 	sub_to_abs_coords(s, s_x, s_y);
 	sub_to_abs_coords(d, d_x, d_y);
 	DrawImageResizedAdv(d->surf.get(), s->surf.get(), s_x, s_y, d_x, d_y, s_w, s_h, d_w, d_h);
 }
 
-void masked_blit(BITMAP *source, BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+void masked_blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
 	SetColorKey(source->surf.get());
 	blit(source, dest, source_x, source_y, dest_x, dest_y, width, height);
 }
 
-void draw_sprite(BITMAP *bmp, BITMAP *sprite, int x, int y) {
+void draw_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y) {
 	masked_blit(sprite, bmp, 0, 0, x, y, sprite->w, sprite->h);
 }
 
-void draw_sprite_h_flip(struct BITMAP *bmp, struct BITMAP *sprite, int x, int y) {
+void draw_sprite_h_flip(struct ALLEGRO_BITMAP *bmp, struct ALLEGRO_BITMAP *sprite, int x, int y) {
 	DrawImageAdv_Mirror(bmp->surf.get(), sprite->surf.get(), 0, 0, x, y, sprite->w, sprite->h);
 }
 
 
-void clear_bitmap(BITMAP* bmp) { clear_to_color(bmp, 0); }
+void clear_bitmap(ALLEGRO_BITMAP* bmp) { clear_to_color(bmp, 0); }
 
 
 
-unsigned long bmp_write_line(BITMAP *bmp, int line) {
+unsigned long bmp_write_line(ALLEGRO_BITMAP *bmp, int line) {
 	return (unsigned long) bmp->line[line];
 }
 
-void bmp_unwrite_line(BITMAP* bmp) {}
+void bmp_unwrite_line(ALLEGRO_BITMAP* bmp) {}
 
 
 
 
-void drawing_mode(int mode, BITMAP *pattern, int x_anchor, int y_anchor) {}
+void drawing_mode(int mode, ALLEGRO_BITMAP *pattern, int x_anchor, int y_anchor) {}
 void set_trans_blender(int r, int g, int b, int a) {}
 void set_add_blender (int r, int g, int b, int a) {}
 void solid_mode() {}
@@ -470,8 +470,8 @@ int makecol_depth(int color_depth, int r, int g, int b) {
 
 
 
-void set_clip_rect(BITMAP *bitmap, int x1, int y_1, int x2, int y2) {}
-void get_clip_rect(BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2) {}
+void set_clip_rect(ALLEGRO_BITMAP *bitmap, int x1, int y_1, int x2, int y2) {}
+void get_clip_rect(ALLEGRO_BITMAP *bitmap, int *x1, int *y_1, int *x2, int *y2) {}
 
 
 
