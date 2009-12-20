@@ -1,0 +1,13 @@
+invisible = 1
+repeat = 20
+
+on timer(0)
+  create_explosion(bfg_exp_trail4_add.exp)
+  
+on timer(10)
+  remove()
+  
+  
+  
+on ground_collision()
+  remove()

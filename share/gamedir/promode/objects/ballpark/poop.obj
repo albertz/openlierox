@@ -1,0 +1,12 @@
+damping = 0.96
+sprite = uzumaki.png
+anim_duration = 40
+anim_type = loop_right
+
+sync_pos = true
+
+on detect_range(10, 0)
+ run_script(mode.bpSetOwner)
+ 
+on timer(0)
+ run_script(mode.bpBallThink)

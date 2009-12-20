@@ -1,0 +1,8 @@
+blender=alpha
+col_layer = -1
+render_layer = 4
+sprite = talk.png
+	
+	
+	on timer(0)
+	remove()

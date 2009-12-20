@@ -1,0 +1,6 @@
+sprite=team.worm.blue.png
+blender=add
+col_layer=-1
+
+on creation()
+ remove()

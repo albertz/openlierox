@@ -1,0 +1,21 @@
+name="Grenade Launcher"
+ammo=1
+reload_time=320
+sync_reload = false
+sync_shot = true
+
+on primary_shoot()
+ delay_fire(250)
+ play_sound([grenade_launcher.wav], 100, 1, 0.05)
+ shoot_particles(smoke_alphach.obj, 1, speed=0.4, speed_var=0.1, motion_inheritance=0.0,  distribution=9, angle_offs=0,distance_offs=5)
+ #shoot_particles(grenade.obj, 1, speed=1.85, motion_inheritance=0.5882353, distance_offs=0, distribution=0)
+ shoot_particles(grenade_smoke_alphach.obj, 40, speed=0.4, speed_var=0.8, motion_inheritance=0.0,  distribution=40, angle_offs=0,distance_offs=0)
+ shoot_particles(flash_medium_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5) 
+run_script(weaponsyncing.shoot_grnlauncher)
+ add_speed(-0.45)
+ use_ammo(1)
+
+
+on reload_end()
+  play_sound([bazooka_reload.wav], 100, 1, 0.05)
+

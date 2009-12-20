@@ -1,0 +1,18 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+
+on detect_range(14,1)
+ run_script(damage.explosion_18)
+  repel(0.2,20,0.5)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ 
+ on detect_range(14,1,[2])
+  damage(100)
+
+
+
+
+
+

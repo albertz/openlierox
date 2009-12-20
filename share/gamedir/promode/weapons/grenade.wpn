@@ -1,0 +1,21 @@
+name="Grenade"
+ammo=1
+reload_time=220
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(120)
+ play_sound([throw.wav], 100, 1, 0.05)
+ #shoot_particles(kgrenade.obj, 1, speed=1.65, motion_inheritance=0.5882353, distance_offs=5, distribution=0)
+run_script(weaponsyncing.shoot_grenade)
+ add_speed(-0.45)
+ use_ammo(1)
+
+
+on reload_end()
+  play_sound([pinpull.wav],100,1,0.05)
+
+on active_timer(0,0,1)
+  play_sound([pinpull.wav],100,1,0.05)
+

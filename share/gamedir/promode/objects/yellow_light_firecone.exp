@@ -1,0 +1,5 @@
+blender=add
+alpha=200
+colour=[250,200,150]
+timeout=1
+rock_hidden = 0

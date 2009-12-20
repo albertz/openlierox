@@ -1,0 +1,23 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+on detect_range(26,1)
+ run_script(damage.explosion_80)
+  repel(2,25,1.5)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+
+on detect_range(26,1,[2])
+  damage(100)
+
+on detect_range(16,1)
+ run_script(damage.explosion_mine)
+ 
+ on detect_range(200,1,[worms])
+  run_script(weaponeffects.white_flash_large)
+  
+  on creation()
+ apply_map_effect( hole_huge.mfx )
+
+
+

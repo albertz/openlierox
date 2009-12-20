@@ -1,0 +1,17 @@
+name="BFG 9000"
+ammo=1
+reload_time=330
+sync_reload = false
+sync_shot = true
+
+on primary_shoot()
+ delay_fire(250)
+
+ play_sound([bfg_charge.wav], 100, 1, 0.05)
+ use_ammo(1)
+run_script(weaponsyncing.shoot_bfg)
+
+
+on reload_end()
+  play_sound([bfg_reload.wav], 100, 1, 0.05)
+

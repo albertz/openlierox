@@ -1,0 +1,30 @@
+invisible = 1
+col_layer = 1
+repeat = 8
+gravity = 0.0014
+damping = 0.999
+
+on creation()
+	run_script(stats.flaregun)
+
+on ground_collision()
+ shoot_particles ( shotgun_small_smoke_alphach.obj, 40, 0.3,0.2)
+ shoot_particles ( shotgun_spark.obj,20, 0.4, 0.7,0)
+ create_explosion( explosion_flash_small_add.exp)
+ shoot_particles ( flare_gun_ground_fire.obj,1,0,0,0)
+ remove()
+
+on timer(0)
+ create_explosion ( flare_trail.exp )
+ shoot_particles ( flare_spark.obj,1, 0.0, 0.3,0.8)
+ 
+on timer(1,3)
+  shoot_particles( grenade_smoke_alphach.obj,1,0.1)
+ 
+on detect_range(3, 0)
+ run_script(damage.flaregun)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ shoot_particles ( bloodgen.obj , 2 , 0.5, 1, 0.5 )
+ run_script(weaponsyncing.sync_flare)
+ remove()
+ 

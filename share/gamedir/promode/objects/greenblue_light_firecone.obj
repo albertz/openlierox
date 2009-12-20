@@ -1,0 +1,15 @@
+repeat = 20
+colour = [50,200,250]
+invisible=0
+wu_pixels=0
+blender = alphach
+alpha=50
+
+on timer(0)
+ create_explosion(greenblue_light_firecone.exp)
+
+on timer(6,6)
+ remove()
+
+
+

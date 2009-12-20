@@ -1,0 +1,17 @@
+name="Mine"
+ammo=1
+reload_time=220
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(120)
+ play_sound([throw.wav], 100, 1, 0.05)
+run_script(weaponsyncing.shoot_mine)
+ use_ammo(1)
+
+
+on reload_end()
+
+on active_timer(0,0,1)
+

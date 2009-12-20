@@ -1,0 +1,8 @@
+repeat = 100
+invisible = true
+
+on timer( 35, 50 )
+ shoot_particles( "rain.obj", 1, 3, distribution = 5 )
+
+on timer( 50000, 10000 )
+ shoot_particles( "lightning.obj", 1, 0)

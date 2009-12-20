@@ -1,0 +1,5 @@
+invisible = 1
+
+on timer(0)
+ create_explosion(bfg_small_add.exp)
+ shoot_particles(bfg_exp_stream3.obj,1,0.4,0.3,0,0,360,0,1)

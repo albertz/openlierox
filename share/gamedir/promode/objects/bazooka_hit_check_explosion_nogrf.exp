@@ -1,0 +1,13 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+on detect_range(10,1,[2])
+  damage(100)
+  
+on detect_range(40,1)
+  run_script(damage.special_explosion_bazooka)
+  repel(1.5,20,1)
+  
+  on creation()
+  apply_map_effect( hole_evenmorehuge.mfx )

@@ -1,0 +1,106 @@
+>main#menu
+{
+	background: #000000;
+	background-image: menu_logo.png;
+	border: #000000;
+	top: 0; left: 0; right: 320; bottom: 240;
+	alpha: 255;
+}
+
+>main#win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+>main#titlehax
+{
+	top: 8;
+	border: #000000;
+	left: 20;
+	right: -20;
+	font-family: liero ;
+	height: 18;
+	background: #000000;
+	//border-bottom: #9f9f9f;
+}
+
+>main#titlehax:focused
+{
+	top: 8;
+	border: #000000;
+	left: 20;
+	right: -20;
+	font-family: liero ;
+	height: 18;
+	background: #000000;
+}
+
+>main#titlehax:active
+{
+	top: 8;
+	border: #000000;
+	left: 20;
+	right: -20;
+	font-family: liero ;
+	height: 18;
+	background: #000000;
+}
+
+>main#continue
+{
+	right: -5;
+	top: 5;
+	width: 10;
+	height: 10;
+}
+
+#split
+{
+	left: 40;
+	bottom: -135;
+	width: 64;
+	height: 15;
+}
+
+#multi
+{
+	left: 40;
+	bottom: -115;
+	width: 64;
+	height: 15;
+}
+
+#options
+{
+	left: 40;
+	bottom: -95;
+	width: 64;
+	height: 15;
+}
+
+#mods
+{
+	left: 40;
+	bottom: -75;
+	width: 64;
+	height: 15;
+}
+
+#exit
+{
+	left: 40;
+	bottom: -55;
+	width: 64;
+	height: 15;
+}
+
+#status
+{
+	right: -5;
+	height: 15;
+	bottom: -5;
+	left: 5;
+}

@@ -1,0 +1,4 @@
+sprite = f5.png
+blender = alphach
+render_layer = 3
+damping = 0

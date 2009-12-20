@@ -1,0 +1,13 @@
+invisible = 1
+anim_duration = 40
+anim_type = loop_right
+network_init = domination.pointNetworkInit
+
+on creation()
+	run_script(domination.pointInit)
+
+on detect_range(20, 0, [worms])
+ run_script(domination.pointSetTeam)
+ 
+on timer(0)
+ run_script(domination.pointThink)

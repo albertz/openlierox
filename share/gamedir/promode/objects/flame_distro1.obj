@@ -1,0 +1,16 @@
+gravity=-0.002
+invisible=1
+distort_magnitude = 1
+distort_gen = <<< distortions.ripple(1,1) >>>
+distort_size = [5,5]
+repeat=3
+
+on timer(33)
+remove()
+
+on ground_collision()
+remove()
+
+
+
+

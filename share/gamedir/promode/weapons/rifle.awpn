@@ -1,0 +1,28 @@
+name="Rifle"
+ammo=1
+reload_time=160
+
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ shoot_particles(yellow_light_firecone.obj,5,0.6,0.3,0,0,8,0,3)
+ delay_fire(160)
+
+ play_sound([rifle.wav], 100, 1, 0.05)
+# shoot_particles(rifle_bullet.obj, 1, speed=1, speed_var=0.0, motion_inheritance=0.0, distribution=0, distance_offs=11)
+ shoot_particles(shell.obj, 1, speed=0.3, speed_var=0.1, motion_inheritance=0.5, distribution=20, angle_offs=-105)
+ shoot_particles(small_smoke_alphach.obj, 3, speed=0.5, speed_var=0.1, motion_inheritance=0.0, distribution=9, angle_offs=0,distance_offs=5)
+ shoot_particles(flash_medium_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+ add_speed(-0.568)
+use_ammo(1)
+run_script(weaponsyncing.shoot_rifle)
+
+on out_of_ammo()
+  run_script(weaponeffects.rifleLasersightOff)
+
+on reload_end()
+  run_script(weaponeffects.rifleLasersightOn)
+  play_sound([sniper_reload.wav], 100, 1, 0.05)
+
+

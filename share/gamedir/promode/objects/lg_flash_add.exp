@@ -1,0 +1,6 @@
+sprite=lg_flash.png
+blender=add
+alpha = 220
+dest_alpha = 20
+timeout = 1
+rock_hidden = 0

@@ -1,0 +1,16 @@
+sprite = big_explosion_alphach.png
+blender = alphach
+alpha = 180
+anim_duration = 80
+anim_type = loop_right
+anim_on_ground = 1
+col_layer = -1
+
+gravity=0.0
+bounce_factor=0
+
+on creation()
+set_alpha_fade(80,0)
+
+on timer(78)
+remove()

@@ -1,0 +1,50 @@
+sprite=frag_grenade_normal.png
+blender=normal
+alpha=255
+ground_friction=0.55
+gravity = 0.015
+bounce_factor=0.6
+anim_type=loop_right
+anim_on_ground=0
+anim_duration=32
+col_layer = 1
+
+on creation()
+	run_script(stats.grenade_launcher)
+
+on timer(0,0,20)
+  shoot_particles( grenade_smoke_alphach.obj,1,0.1)
+
+on timer(0,1,20)
+  shoot_particles( grenade_smoke_alphach.obj,1,0.1)
+
+on timer(0,2,20)
+  shoot_particles( grenade_smoke_alphach.obj,1,0.1)
+
+on timer(0,3,20)
+  shoot_particles( grenade_smoke_alphach.obj,1,0.1)
+
+on timer(120)
+#shoot_particles( big_explosion_alphach.obj,1,0.02,0.02, distribution = 360)
+  shoot_particles( big_explosion_setup.obj,3,0.2,0.1, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 12, 0.5,0.5,distribution=360)
+#  uniform_shoot_particles( big_explosion_shockwave_alphach.obj,40,1)
+#  uniform_shoot_particles(big_shockwave.obj, 16, speed=6, speed_var=0, distribution=360, distance_offs=5)
+  shoot_particles( gauss_main_explosion_setup.obj,25,0.15,0.3, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,15,1.8,1.1, distribution = 360)
+#  shoot_particles ( super_shotgun_spark.obj, 15, 0.4, 0.7)
+#--end of medium Explosion's graphics
+  play_sound([frag1.wav,frag2.wav,frag3.wav], 200, 1, 0.05)
+  play_sound([big_boom_shortened.wav], 200, 1, 0.05)
+  create_explosion( small_explosion_nogrf_damage.exp)
+  create_explosion( grnlauncher_hit_check_explosion_nogrf.exp)
+  shoot_particles(sharp_particle.obj, 36, 1,0.6,distribution = 360)
+  create_explosion( explosion_flash_large_add.exp)
+ remove()
+
+on ground_collision()
+run_script(weaponeffects.grenade_sound)
+
+
+
+

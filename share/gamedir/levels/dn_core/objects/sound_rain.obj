@@ -1,0 +1,7 @@
+invisible =  1
+
+on creation()
+  play_sound_static([rain1.wav,rain2.wav],18,1,0.05)
+
+on timer(150,50)
+  play_sound_static([rain1.wav,rain2.wav],18,1,0.05)

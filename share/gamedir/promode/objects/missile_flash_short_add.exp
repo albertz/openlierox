@@ -1,0 +1,6 @@
+blender=add
+alpha=8
+dest_alpha=0
+sprite=jetpack_small_flash_add.png
+timeout=1
+ rock_hidden = 0

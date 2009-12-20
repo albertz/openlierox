@@ -1,0 +1,99 @@
+#connect-menu
+{
+	background: #000000;
+	background-image: menu_logo.png;
+	border: #000000;
+	top: 0; left: 0; right: 320; bottom: 240;
+	alpha: 255;
+}
+
+#connect-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+	alpha: 0;
+}
+
+#address
+{
+	top: 10; left: 10;
+	width: 150; height: 20;
+	border: #000000;
+	background: #b31a1a;
+	color: #CFCFCF;
+}
+
+#connect
+{
+	right: -5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#refresh
+{
+	right: 110; bottom: -5;
+	width: 50; height: 15;
+}
+
+#byip
+{
+	right: -145; bottom: -5;
+	width: 40; height: 15;
+}
+
+#create
+{
+	right: -60; bottom: -5;
+	width: 50; height: 15;
+}
+
+#back
+{
+	left: 5; bottom: -5;
+	right: 55; height: 15;
+}
+
+#serverlist
+{
+	top: 20;
+	left: 5;
+	right: -5;
+	bottom: -30;
+}
+
+#splitscreen
+{
+	right: -85; bottom: -30;
+	width: 80; height: 8;
+}
+#serveripLb
+{
+	left: 5; top: 5;
+	width: 70; height: 10;
+}
+
+#serverip
+{
+	left: 77; top: 5;
+	width: 80; height: 10;
+}
+
+#serverportLb
+{
+	left: 159; top: 5;
+	width: 30; height: 10;
+}
+
+#serverport
+{
+	left: 185; top: 5;
+	width: 40; height: 10;
+}
+
+#connectSpec
+{
+	left: 230; top: 5;
+	width: 73; height: 10;
+}

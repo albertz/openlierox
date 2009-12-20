@@ -1,0 +1,11 @@
+gravity=0.0
+bounce_factor=0
+invisible = 1
+repeat = 1
+damping = 0.8
+col_layer = -1
+
+on timer(0,40)
+shoot_particles(gauss_explosion_alphach.obj, 1, speed=0.0, speed_var=0.0, motion_inheritance=0.0, distribution=360)
+remove()
+

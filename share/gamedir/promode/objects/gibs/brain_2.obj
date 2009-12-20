@@ -1,0 +1,20 @@
+anim_duration = 60
+anim_type = loop_right
+bounce_factor = 0.5
+col_layer= 7
+gravity = 0.0112
+ground_friction = 0.5
+render_layer = 7
+sprite = gibs/brain.png
+
+	on ground_collision()
+		play_sound([gibimp2.ogg],20,1,0.05)
+		shoot_particles(gibs/brain_3.obj,1,0,0,1)
+		shoot_particles(gibs/blood_stain.obj,1,0,0,0,0,0,0,0)
+	remove()
+	
+	on timer(0)
+	  shoot_particles(blood_cloud_particle.obj,1,0,0,0,0,360,0,1)
+
+	on timer(500)
+	remove()

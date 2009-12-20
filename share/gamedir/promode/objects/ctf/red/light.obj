@@ -1,0 +1,12 @@
+
+col_layer = -1
+gravity = 0
+bounce_factor = 0.3
+blender = add
+alpha = 100
+sprite = ctf/red/glow.png
+occluded = true
+light_radius = 25
+
+on timer(0)
+ remove()

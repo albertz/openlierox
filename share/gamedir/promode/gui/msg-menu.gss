@@ -1,0 +1,63 @@
+>main#msg
+{
+	background: #3f0101;
+	//background-image: menu_logo.png;
+	border: #404040;
+	top: 90; left: 75; 
+	height: 45;
+	width: 170;
+	alpha: 150;
+	skin: gui/list.png;
+}
+
+>msg#win
+{
+	top: 5;
+	bottom: -5;
+	left: 0;
+	right: -1;
+}
+
+
+#close
+{
+	left: 47;
+	bottom: -1;
+	width: 64;
+	height: 15;
+	alpha: 150;
+}
+
+#infobtn
+{
+	left: 0;
+	width: 165;
+	height: 20;
+	top: 1;
+	border: #000000;
+	background: #000000;
+	alpha: 0;
+}
+
+#infobtn:focused
+{
+	left: 0;
+	width: 165;
+	height: 20;
+	top: 1;
+	border: #000000;
+	background: #000000;
+	alpha: 0;
+}
+
+#infobtn:active
+{
+	left: 0;
+	width: 165;
+	height: 20;
+	top: 1;
+	border: #000000;
+	background: #000000;
+	alpha: 0;
+}
+	

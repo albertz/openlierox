@@ -1,0 +1,42 @@
+sprite = doomsday.png
+col_layer = 1
+repeat = 3
+acceleration = 0.007
+max_speed = 1.4
+
+on timer(0)
+  shoot_particles( missile_smoke_short_alphach.obj,1,0.15)
+  create_explosion (missile_trail_blue_short_add.exp)
+  create_explosion (missile_trail_white_short_add.exp)
+  create_explosion (missile_flash_short_add.exp)
+
+on ground_collision()
+   play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+  create_explosion( doomsday_hit_check_explosion_nogrf.exp)
+  create_explosion( explosion_flash_small_add.exp)
+  shoot_particles( gauss_main_explosion_setup.obj,3,0.2,0.1, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,6,1.2,1.1, distribution = 360)
+  shoot_particles ( super_shotgun_spark.obj, 3, 0.4, 0.7)
+  shoot_particles ( gauss_smoke_alphach.obj, 6, 1,0)
+  shoot_particles( medium_explosion_setup_add.obj,3,1,0.5, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 3, 0.1,0.1,distribution=360)
+  apply_map_effect( hole_verylarge.mfx )
+  remove()
+
+on timer(30,10)
+  shoot_particles(doomsday2.obj,1,0.001,0.001,1,0,20,0,0)
+  remove()
+
+on detect_range(3, 0)
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+   create_explosion( doomsday_hit_check_explosion_nogrf.exp)
+   create_explosion( explosion_flash_small_add.exp)
+  shoot_particles( gauss_main_explosion_setup.obj,3,0.2,0.1, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,6,1.2,1.1, distribution = 360)
+  shoot_particles ( super_shotgun_spark.obj, 3, 0.4, 0.7)
+  shoot_particles( medium_explosion_setup_add.obj,3,1,0.5, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 3, 0.1,0.1,distribution=360)
+  shoot_particles ( gauss_smoke_alphach.obj, 6, 1,0)
+  run_script(damage.doomsday)
+  remove()

@@ -1,0 +1,24 @@
+name="Chaingun"
+ammo=32
+reload_time=220
+
+
+on primary_shoot()
+# show_firecone( firecone.bmp, 4, 5 )
+ delay_fire(6)
+shoot_particles(yellow_light_firecone.obj,5,0.7,0.4,0,0,15,0,3)
+shoot_particles(yellow_light_firecone.obj,2,0.1,0.1,0,0,20,35,4)
+shoot_particles(yellow_light_firecone.obj,2,0.1,0.1,0,0,20,-35,4)
+ play_sound_static([chaingun.wav], 100, 1, 0.05)
+ shoot_particles(chaingun_bullet.obj, 1, speed=0.7, speed_var=0.00799875, motion_inheritance=0.006375, distribution=1, distance_offs=11)
+ shoot_particles(shell_special_care.obj, 0, amount_var = 2, speed=0.3, speed_var=0.1, motion_inheritance=0.5, distribution=20, angle_offs=-105)
+ shoot_particles(small_smoke_alphach.obj, 2, speed=0.5, speed_var=0.1, motion_inheritance=0.0, distribution=9, angle_offs=0,distance_offs=5)
+ shoot_particles(small_flash_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+shoot_particles(flash_medium_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+ add_speed(-0.04)
+use_ammo(1)
+
+on reload_end()
+  play_sound([chaingun_reload.wav], 100, 1, 0.05)
+
+

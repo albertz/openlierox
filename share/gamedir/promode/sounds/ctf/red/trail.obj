@@ -1,0 +1,15 @@
+
+col_layer = -1
+gravity = 0
+blender = add
+alpha = 25
+render_layer = 0
+light_radius = 5
+
+sprite = ctf/red/trail.png
+
+on creation()
+ set_alpha_fade(100,0)
+
+on timer(100)
+ remove()

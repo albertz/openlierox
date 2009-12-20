@@ -1,0 +1,17 @@
+name="Throwing Knife"
+ammo=1
+reload_time=80
+
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(90)
+ play_sound([knife.wav], 100, 1, 0.05)
+use_ammo(1)
+run_script(weaponsyncing.shoot_knife)
+
+on active_timer(0,0,1)
+ play_sound([knife_reload.wav], 100, 1, 0.05)
+
+

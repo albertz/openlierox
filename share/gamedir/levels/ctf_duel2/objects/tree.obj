@@ -1,0 +1,5 @@
+sprite=tree.png
+blender=alphach
+alpha=255
+col_layer=-1
+render_layer=0

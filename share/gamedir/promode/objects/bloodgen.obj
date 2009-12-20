@@ -1,0 +1,13 @@
+gravity = 0.013
+colour = [230, 0, 0]
+bounce_factor = 0.2
+
+on death()
+remove()
+
+on ground_collision()
+ run_script(weaponeffects.blood_damage)
+
+on timer(3)
+ shoot_particles ( blood.obj , 1 , 0 , 0.2, 0.5, 0, 0, 0,0)
+

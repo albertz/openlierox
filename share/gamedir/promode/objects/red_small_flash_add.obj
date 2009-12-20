@@ -1,0 +1,14 @@
+sprite=red_flash_medium_add.png
+blender = add
+alpha = 20
+anim_duration = 3
+anim_type = loop_right
+anim_on_ground = 1
+gravity=0.0
+bounce_factor=0
+
+on creation()
+set_alpha_fade(3,0)
+
+on timer(2)
+remove()

@@ -1,0 +1,5 @@
+blender=add
+alpha=255
+dest_alpha=0
+sprite=very_small_explosion_add.png
+timeout=8

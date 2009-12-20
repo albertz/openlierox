@@ -1,0 +1,36 @@
+#map-menu
+{
+	background: #000000;
+	background-image: menu_logo.png;
+	border: #000000;
+	top: 0; left: 0; right: 320; bottom: 240;
+	alpha: 255;
+}
+
+#map-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+#map-choose
+{
+	right: -5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#back
+{
+	left: 5; bottom: -5;
+	right: 55; height: 15;
+}
+
+#maplist
+{
+	top: 5;
+	left: 5;
+	right: -5;
+	bottom: -30;
+}

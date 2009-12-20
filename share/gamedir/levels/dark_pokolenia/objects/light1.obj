@@ -1,0 +1,5 @@
+sprite = light1.png
+blender = alphach
+render_layer = 8
+anim_duration = 250
+damping = 0

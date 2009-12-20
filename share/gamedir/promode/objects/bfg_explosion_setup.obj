@@ -1,0 +1,10 @@
+gravity=0.0
+bounce_factor=0
+invisible = 1
+repeat = 5
+damping=0.95
+
+on timer(0,60)
+create_explosion(bfg_explosion_add.exp)
+remove()
+

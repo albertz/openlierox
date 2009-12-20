@@ -1,0 +1,16 @@
+alpha = 255
+blender = alphach
+col_layer = -1
+#occluded = 1
+render_layer = 0
+sprite = gibs/blood_stain.png
+
+	on creation()
+		run_script("weaponeffects.checkBloodCollision")
+
+	
+	on timer(850)
+		set_alpha_fade(150)
+
+	on timer(1000)
+	remove()

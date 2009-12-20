@@ -1,0 +1,6 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 1
+distort_gen = <<< distortions.noob >>>
+distort_size = [84,13]

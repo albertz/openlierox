@@ -1,0 +1,5 @@
+invisible = 1
+
+on creation()
+  create_explosion(bfg_smaller_short_add.exp)
+remove()

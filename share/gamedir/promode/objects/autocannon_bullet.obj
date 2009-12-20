@@ -1,0 +1,41 @@
+sprite = autocannon.png
+gravity=0.0
+repeat=8
+col_layer = 1
+
+on creation()
+ run_script(stats.autocannon)
+
+on timer(0)
+ create_explosion(flak_smoke2_alphach.exp)
+
+on timer(210)
+  shoot_particles ( smoke_short_alphach.obj, 6, 0.3,0.5,distribution=360)
+  shoot_particles( autocannon_explosion_setup.obj,3,0.05,0.05, distribution = 360)
+  play_sound([frag1.wav,frag2.wav,frag3.wav], 100, 1, 0.05)
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+   create_explosion( explosion_flash_medium_add.exp)
+  create_explosion( autocannon_hit_check_explosion_nogrf.exp)
+  shoot_particles(autocannon_particle.obj, 15, 1,0.6,distribution = 360)
+ remove()
+ 
+on detect_range(4,0)
+  shoot_particles ( smoke_short_alphach.obj, 6, 0.3,0.5,distribution=360)
+  shoot_particles( autocannon_explosion_setup.obj,3,0.05,0.05, distribution = 360)
+  play_sound([frag1.wav,frag2.wav,frag3.wav], 100, 1, 0.05)
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+   create_explosion( explosion_flash_medium_add.exp)
+  create_explosion( autocannon_hit_check_explosion_nogrf.exp)
+  shoot_particles(autocannon_particle.obj, 15, 1,0.6,distribution = 360)
+  push ( 0.5 )
+ remove()
+ 
+on ground_collision()
+  shoot_particles ( smoke_short_alphach.obj, 6, 0.3,0.5,distribution=360)
+  shoot_particles( autocannon_explosion_setup.obj,3,0.05,0.05, distribution = 360)
+  play_sound([frag1.wav,frag2.wav,frag3.wav], 100, 1, 0.05)
+  play_sound([big_boom_shortened.wav], 100, 1, 0.05)
+   create_explosion( explosion_flash_medium_add.exp)
+  create_explosion( autocannon_hit_check_explosion_nogrf.exp)
+  shoot_particles(autocannon_particle.obj, 15, 1,0.6,distribution = 360)
+ remove()

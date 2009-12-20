@@ -1,0 +1,25 @@
+sprite=mine.png
+blender=normal
+alpha=255
+ground_friction=0.4
+gravity = 0.015
+bounce_factor=0.2
+anim_type=loop_right
+anim_on_ground=0
+anim_duration=32
+col_layer = 1
+
+on creation()
+	#run_script(stats.mine)
+	#create_explosion(mine_removing_explosion.exp)
+
+on timer(200)
+  shoot_particles( mine_ready.obj,1,0,0,1)
+  remove()
+
+on ground_collision()
+run_script(weaponeffects.grenade_sound)
+
+
+
+

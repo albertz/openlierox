@@ -1,0 +1,52 @@
+sprite = missile.png
+acceleration = 0.01
+max_speed = 1
+gravity=0.0
+repeat=4
+col_layer = 1
+
+on creation()
+ run_script(stats.bazooka)
+
+on timer(0)
+  shoot_particles( missile_smoke_alphach.obj,1,0.05)
+#  create_explosion (missile_trail_add.exp)
+  create_explosion (missile_trail_red_add.exp)
+  create_explosion (missile_trail_white_add.exp)
+  create_explosion (missile_flash_add.exp)
+
+on ground_collision()
+#--General Big Explosion graphic here --
+  shoot_particles( big_explosion_alphach.obj,1,0.02,0.02, distribution = 360)
+  shoot_particles( big_explosion_setup.obj,4,0.2,0.1, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 15, 0.5,0.5,distribution=360)
+  uniform_shoot_particles( big_explosion_shockwave_alphach.obj,40,1)
+  uniform_shoot_particles(big_shockwave.obj, 16, speed=6, speed_var=0, distribution=360, distance_offs=5)
+  shoot_particles( gauss_main_explosion_setup.obj,30,0.2,0.4, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,10,1.8,1.1, distribution = 360)
+  shoot_particles ( grenade_spark.obj, 20, 0.3, 0.7)
+#--end of Big Explosion's graphics
+  play_sound([explosion1.ogg,explosion2.ogg,explosion3.ogg,explosion4.ogg], 200, 1, 0.05)
+  create_explosion( explosion_flash_large_add.exp)
+  create_explosion( bazooka_hit_check_explosion_nogrf.exp)
+  apply_map_effect( hole_huge.mfx )
+ remove()
+
+on detect_range(3,0)
+#--General Big Explosion graphic here --
+  shoot_particles( big_explosion_alphach.obj,1,0.02,0.02, distribution = 360)
+  shoot_particles( big_explosion_setup.obj,4,0.2,0.1, distribution = 360)
+  shoot_particles ( smoke_short_alphach.obj, 15, 0.5,0.5,distribution=360)
+  uniform_shoot_particles( big_explosion_shockwave_alphach.obj,40,1)
+  uniform_shoot_particles(big_shockwave.obj, 16, speed=6, speed_var=0, distribution=360, distance_offs=5)
+  shoot_particles( gauss_main_explosion_setup.obj,30,0.2,0.4, distribution = 360)
+  shoot_particles( gauss_mini_explosion_setup.obj,10,1.8,1.1, distribution = 360)
+  shoot_particles ( grenade_spark.obj, 20, 0.3, 0.7)
+#--end of Big Explosion's graphics
+ run_script(damage.bazooka)
+  play_sound([explosion1.ogg,explosion2.ogg,explosion3.ogg,explosion4.ogg], 200, 1, 0.05)
+  create_explosion( bazooka_hit_check_explosion_nogrf.exp)
+  create_explosion( explosion_flash_large_add.exp)
+ remove()
+
+

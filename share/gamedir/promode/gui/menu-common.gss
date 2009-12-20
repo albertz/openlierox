@@ -1,0 +1,142 @@
+label
+{
+	font-family: liero ;
+}
+
+edit
+{
+	font-family: liero ;
+	color: #BBBBBB;
+	background: #000000;
+	border: #4a4a4a;
+	skin: gui/edit.png;
+	alpha: 150;
+}
+
+edit:focused
+{
+	background: #330000;
+}
+
+edit:active
+{
+	background: #330000;
+	color: #ffffff;
+}
+
+button
+{
+	font-family: liero ;
+	color: #ffffff;
+	background: #202020 ;
+	skin: gui/round.png;
+	border: #404040;
+	width: 30;
+	height: 30;
+	alpha: 150;
+	//background-image: gui/button.png;
+}
+
+button:focused
+{
+	color: #ffffff;
+	border: #808080;
+	alpha: 100;
+}
+
+button:active
+{
+	skin: gui/round-active.png;
+	color: #ffffff;
+	border: #a0a0a0;
+	background: #353535;
+	alpha: 150;
+}
+
+list
+{
+	background: #000000;
+	color: #BBBBBB;
+	border: #b31a1a;
+	selection-color: #aa0000;
+	selection-frame-color: #ffffff ;
+	header-color: #b31a1a ;
+	alpha: 150;
+	skin: gui/list.png;
+}
+
+list:focused
+{
+	background: #330000;
+}
+
+list:active
+{
+	background: #330000;
+	color: #ffffff;
+}
+
+check
+{
+	font-family: liero ;
+	color: #ffffff;
+	background: #202020 ;
+	border: #404040;
+	width: 30;
+	height: 30;
+	skin: gui/edit.png;
+	alpha: 150;
+	background-image: emptyhax.png;
+}
+
+check:focused
+{
+	color: #ffffff;
+	border: #808080;
+	skin: gui/edit.png;
+	alpha: 150;
+}
+
+check:active
+{
+	color: #ffffff;
+	border: #ffffff;
+	background: #202020;
+	alpha: 255;
+	background-image: emptyhax.png;
+	skin: gui/edit.png;
+	alpha: 150;
+}
+
+check:checked
+{
+	color: #ffffff;
+	border: #404040;
+	background: #202020;
+	alpha: 255;
+	background-image: checkbox.png;
+	skin: gui/edit.png;
+	alpha: 150;
+}
+
+check:focused-checked
+{
+	color: #ffffff;
+	border: #808080;
+	background: #202020;
+	alpha: 255;
+	background-image: checkbox.png;
+	skin: gui/edit.png;
+	alpha: 150;
+}
+
+check:active-checked
+{
+	color: #ffffff;
+	border: #ffffff;
+	background: #404040;
+	alpha: 255;
+	background-image: checkbox.png;
+	skin: gui/edit.png;
+	alpha: 150;
+}

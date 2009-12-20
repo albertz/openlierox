@@ -1,0 +1,6 @@
+invisible = 1
+timeout = 1
+
+on detect_range(10,1,[3])
+ damage(100)
+ remove()

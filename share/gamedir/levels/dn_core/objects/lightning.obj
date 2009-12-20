@@ -1,0 +1,10 @@
+blender = add
+alpha = 255
+sprite = lightmap.png
+anim_duration = 15
+
+on creation()
+  play_sound_static([thunder1.wav,thunder2.wav,thunder3.wav,lightning1.wav],200,1,0.05)
+  
+on timer(15)
+	remove()
