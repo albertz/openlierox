@@ -1102,7 +1102,7 @@ void CWormBotInputHandler::getInput() {
     // we have no strafing for bots at the moment
 	ws->iFaceDirectionSide = m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
 
-	ws->iAngle = (float)m_worm->fAngle;	
+	ws->iAngle = (int)m_worm->fAngle;	
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
