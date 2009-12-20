@@ -9,15 +9,15 @@
 #include "types.h"
 #include "mmx.h"
 
-/*#define HAS_MMX (cpu_capabilities & CPU_MMX)
+#define HAS_MMX (cpu_capabilities & CPU_MMX)
 #define HAS_SSE (cpu_capabilities & CPU_SSE)
-#define HAS_MMXSSE (cpu_capabilities & CPU_MMXPLUS)*/
+#define HAS_MMXSSE (cpu_capabilities & CPU_MMXPLUS)
 
-
+/*
 #define HAS_MMX (false)
 #define HAS_SSE (false)
 #define HAS_MMXSSE (false)
-
+*/
 
 #define FOR_MMX(x_) if(HAS_MMX) { x_ }
 
