@@ -29,7 +29,7 @@
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		if(type_* p = getLObject<type_>(context, 1)) { \
-		__VA_ARGS__ } else { \
+		body_ } else { \
 		lua_pushstring(context, "Method called on invalid object. Did you use '.' instead of ':'?"); \
 		lua_error(context); return 0; }  }
 		
