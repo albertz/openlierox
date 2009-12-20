@@ -1948,7 +1948,6 @@ public:
 
 
 MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool printErrors) {
-	FILE* fp = NULL;
 	
 	if(IsDirectory(filename, abs_filename)) {
 		// TODO: abs filename
@@ -1956,10 +1955,10 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 		ResourceLocator<CMap>::BaseLoader* loader = NULL;
 		std::string name;
 		if(levelLocator.canLoad("levels/" + basename, name, loader))
-			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;			
+			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;			
 	}
 	else { // regular file
-		fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
+		FILE *fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
 		if(fp == NULL) {
 			if(printErrors) errors << "level " << filename << " does not exist" << endl;
 			return NULL;
