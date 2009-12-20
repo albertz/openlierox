@@ -354,20 +354,14 @@ void initGfx()
 
 #ifndef DEDICATED_ONLY
 	// CViewport method and metatable
+	CLASS(CViewport,
 #ifndef NO_DEPRECATED
-	CLASS(CViewport,
 		("get_bitmap", l_viewport_getBitmap_depr)
-		("bitmap", l_viewport_getBitmap)
-		("game_bitmap", l_viewport_getGameBitmap)
-		("from_map", l_viewport_fromMap)
-	)
-#else
-	CLASS(CViewport,
-		("bitmap", l_viewport_getBitmap)
-		("game_bitmap", l_viewport_getGameBitmap)
-		("from_map", l_viewport_fromMap)
-	)
 #endif
+		("bitmap", l_viewport_getBitmap)
+		("game_bitmap", l_viewport_getGameBitmap)
+		("from_map", l_viewport_fromMap)
+	)
 
 
 	// Bitmap method and metatable
