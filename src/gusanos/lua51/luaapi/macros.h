@@ -2,7 +2,7 @@
 #define LUA_MACROS_H
 
 
-#define METHOD(type_, name_, body_...) \
+#define METHOD(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		void* p2 = lua_touserdata (context, 1); \
@@ -10,7 +10,7 @@
 		type_* p = *static_cast<type_ **>(p2); \
 		body_ }
 		
-#define METHODC(type_, name_, body_...) \
+#define METHODC(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		if(type_* p = getObject<type_>(context, 1)) { \
@@ -18,14 +18,14 @@
 		lua_pushstring(context, "Method called on invalid object. Did you use '.' instead of ':'?"); \
 		lua_error(context); return 0; }  }
 			
-#define LMETHOD(type_, name_, body_...) \
+#define LMETHOD(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		type_* p = static_cast<type_ *>(lua_touserdata (context, 1)); \
 		if(!p) return 0; \
 		body_ }
 		
-#define LMETHODC(type_, name_, body_...) \
+#define LMETHODC(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		if(type_* p = getLObject<type_>(context, 1)) { \
@@ -33,7 +33,7 @@
 		lua_pushstring(context, "Method called on invalid object. Did you use '.' instead of ':'?"); \
 		lua_error(context); return 0; }  }
 		
-#define BINOP(type_, name_, body_...) \
+#define BINOP(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		void* a_ = lua_touserdata (context, 1); \
@@ -44,7 +44,7 @@
 		type_* b = *static_cast<type_ **>(b_); \
 		body_ }
 		
-#define LBINOP(type_, name_, body_...) \
+#define LBINOP(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		type_* a = static_cast<type_ *>(lua_touserdata (context, 1)); \
@@ -53,7 +53,7 @@
 		if(!b) return 0; \
 		body_ }
 
-#define CLASS(name_, body_...) { \
+#define CLASS(name_, body_) { \
 	lua_newtable(context); \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
@@ -74,7 +74,7 @@
 	lua_rawset(context, -3); \
 	name_##MetaTable = context.createReference(); }
 	*/
-#define CLASS_(name_, ...) { \
+#define CLASS_(name_, body_) { \
 	lua_newtable(context); \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
@@ -84,7 +84,7 @@
 	context.tableSetField(LuaID<name_>::value); \
 	name_::metaTable = context.createReference(); }
 	
-#define CLASSM(name_, meta_, body_...) { \
+#define CLASSM(name_, meta_, body_) { \
 	lua_newtable(context); \
 	context.tableFunctions() \
 		meta_ ; \
@@ -96,7 +96,7 @@
 	context.tableSetField(LuaID<name_>::value); \
 	name_##MetaTable = context.createReference(); }
 	
-#define CLASSM_(name_, meta_, body_...) { \
+#define CLASSM_(name_, meta_, body_) { \
 	lua_newtable(context); \
 	context.tableFunctions() \
 		meta_ ; \

@@ -123,10 +123,10 @@ int l_worm_getPlayer(lua_State* L)
 	(Known as get_health before 0.9c)
 	Returns the health of this worm.
 */
-METHODC(CWorm, worm_getHealth,
+METHODC(CWorm, worm_getHealth,  {
 	context.push(p->getHealth());
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_worm_getHealth_depr(lua_State* L)
@@ -137,10 +137,10 @@ int l_worm_getHealth_depr(lua_State* L)
 }
 #endif
 
-METHODC(CWorm, worm_isChanging,
+METHODC(CWorm, worm_isChanging,  {
 	context.push(p->isChanging());
 	return 1;
-)
+})
 
 
 /*@ Worm:set_weapon(slot, weapon)
@@ -148,8 +148,8 @@ METHODC(CWorm, worm_isChanging,
 	Sets the weapon of a slot in [1, max] to the WeaponType //weapon//.
 */
 /* TODO
-LMETHOD(CWorm, worm_setWeapon,
-	p->m_weapons*/
+LMETHOD(CWorm, worm_setWeapon,  (
+	p->m_weapons )*/
 	
 /*
 int l_worm_remove(lua_State* L)
@@ -207,7 +207,7 @@ int l_worm_shoot(lua_State* L)
 	return shootFromObject(L, object);
 }*/
 
-METHODC(CWorm, worm_current_weapon,
+METHODC(CWorm, worm_current_weapon,  {
 	if(Weapon* w = p->getCurrentWeaponRef())
 	{
 		//context.pushFullReference(*w, WeaponMetaTable);
@@ -215,19 +215,19 @@ METHODC(CWorm, worm_current_weapon,
 		return 1;
 	}
 	return 0;
-)
+})
 
 /*
-LBINOP(CWorm, worm_eq,
+LBINOP(CWorm, worm_eq,  (
 	context.push(a == b);
 	return 1;
-)*/
+))*/
 
-METHOD(CWorm, worm_destroy,
+METHOD(CWorm, worm_destroy,  {
 	// NOTE: worms are currently handled by CClient
 	//delete p;
 	return 0;
-)
+})
 
 /*! Object:angle()
 
@@ -235,10 +235,10 @@ METHOD(CWorm, worm_destroy,
 	Returns the current angle of the object.
 */
 
-METHODC(CGameObject, baseObject_getAngle,
+METHODC(CGameObject, baseObject_getAngle,  {
 	lua_pushnumber(context, p->getPointingAngle().toDeg());
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_baseObject_getAngle_depr(lua_State* L)
@@ -253,10 +253,10 @@ int l_baseObject_getAngle_depr(lua_State* L)
 
 	Removes the object in the next frame.
 */
-METHODC(CGameObject, baseObject_remove,
+METHODC(CGameObject, baseObject_remove,  {
 	p->deleteMe = true;
 	return 0;
-)
+})
 
 /*! Object:pos()
 
@@ -267,11 +267,11 @@ METHODC(CGameObject, baseObject_remove,
 	</code>
 */
 
-METHODC(CGameObject, baseObject_pos,
+METHODC(CGameObject, baseObject_pos,  {
 	context.push(p->pos().x);
 	context.push(p->pos().y);
 	return 2;
-)
+})
 
 /*! Object:set_pos(x, y)
 
@@ -281,10 +281,10 @@ METHODC(CGameObject, baseObject_pos,
 	object:set_spd(0, 0) -- Moves the object to the upper-left corner
 	</code>
 */
-METHODC(CGameObject, baseObject_setPos,
+METHODC(CGameObject, baseObject_setPos,  {
 	p->setPos(Vec(lua_tonumber(context, 2), lua_tonumber(context, 3))); 
 	return 0;
-)
+})
 
 /*! Object:spd()
 
@@ -294,11 +294,11 @@ METHODC(CGameObject, baseObject_setPos,
 	local vx, vy = object:spd()
 	</code>
 */
-METHODC(CGameObject, baseObject_spd,
+METHODC(CGameObject, baseObject_spd,  {
 	context.push(p->velocity().x);
 	context.push(p->velocity().y);
 	return 2;
-)
+})
 
 //! version 0.9c
 
@@ -310,11 +310,11 @@ METHODC(CGameObject, baseObject_spd,
 	object:set_spd(10, 0) -- Makes the object move to the right
 	</code>
 */
-METHODC(CGameObject, baseObject_setSpd,
+METHODC(CGameObject, baseObject_setSpd,  {
 	p->velocity().x = lua_tonumber(context, 2);
 	p->velocity().y = lua_tonumber(context, 3); 
 	return 0;
-)
+})
 
 //! version any
 
@@ -326,11 +326,11 @@ METHODC(CGameObject, baseObject_setSpd,
 	object:push(0, 10) -- Accelerates the object downwards
 	</code>
 */
-METHODC(CGameObject, baseObject_push,
+METHODC(CGameObject, baseObject_push,  {
 	p->velocity().x += lua_tonumber(context, 2);
 	p->velocity().y += lua_tonumber(context, 3);
 	return 0;
-)
+})
 
 /*! Object:data()
 
@@ -338,7 +338,7 @@ METHODC(CGameObject, baseObject_push,
 	be used by Lua scripts to store values.
 */
 
-METHODC(CGameObject, baseObject_data,
+METHODC(CGameObject, baseObject_data,  {
 	if(p->luaData)
 	{
 		lua.pushReference(p->luaData);
@@ -351,7 +351,7 @@ METHODC(CGameObject, baseObject_data,
 	}
 	
 	return 1;
-)
+})
 
 /*! Object:player()
 
@@ -359,12 +359,12 @@ METHODC(CGameObject, baseObject_data,
 	
 	Returns a CWormHumanInputHandler object of the player that owns this object.
 */
-METHODC(CGameObject, baseObject_getPlayer,
+METHODC(CGameObject, baseObject_getPlayer, {
 	if(!p->getOwner())
 		return 0;
 	lua.pushReference(p->getOwner()->getLuaReference());
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_baseObject_getPlayer_depr(lua_State* L)
@@ -382,13 +382,13 @@ int l_baseObject_getPlayer_depr(lua_State* L)
 	Causes damage to the object. //player// is the player inflicting the damage.
 	If //player// isn't specified or nil, the damage is anonymous.
 */
-METHODC(CGameObject, baseObject_damage,
+METHODC(CGameObject, baseObject_damage,  {
 	lua_Number amount = lua_tonumber(context, 2);
 	//CWormInputHandler* player = *static_cast<CWormInputHandler **>(lua_touserdata(context, 3));
 	CWormInputHandler* player = getObject<CWormInputHandler>(context, 3);
 	p->damage(amount, player);
 	return 1;
-)
+})
 
 //! version any
 
@@ -402,7 +402,7 @@ METHODC(CGameObject, baseObject_damage,
 	  * It is visible and active.
 	  * The straight path to it from the object is not, for particles, blocked.
 */
-METHODC(CGameObject, baseObject_getClosestWorm,
+METHODC(CGameObject, baseObject_getClosestWorm,  {
 
 	Vec from = p->pos();
 	
@@ -437,7 +437,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,
 	minWorm->pushLuaReference();
 
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_baseObject_getClosestWorm_depr(lua_State* L)
@@ -453,16 +453,16 @@ int l_baseObject_getClosestWorm_depr(lua_State* L)
 	Shoots an object of ParticleType 'type'. All parameters except 'type' are optional.
 */
 
-METHODC(CGameObject, baseObject_shoot, 
+METHODC(CGameObject, baseObject_shoot,  {
 	return shootFromObject(context, p);
-)
+})
 
 /*
 
-METHOD(CGameObject, baseObject_getAngle,
+METHOD(CGameObject, baseObject_getAngle,  (
 	lua_pushnumber(context, p->getAngle().toDeg());
 	return 1;
-)
+))
 */
 
 //! Particle inherits Object
@@ -472,10 +472,10 @@ METHOD(CGameObject, baseObject_getAngle,
 	Changes the angle of the particle to //angle//.
 */
 
-METHODC(Particle, particle_setAngle,
+METHODC(Particle, particle_setAngle,  {
 	p->setPointingAngle(Angle((double)lua_tonumber(context, 2)));
 	return 0;
-)
+})
 
 //! version 0.9c
 
@@ -496,7 +496,7 @@ METHODC(Particle, particle_setAngle,
 	//state// is either true or false, where true turns on replication and false turns it off.
 */
 
-METHODC(Particle, particle_set_replication,
+METHODC(Particle, particle_set_replication,  {
 	
 	int mask = 0;
 	switch(lua_tointeger(context, 2))
@@ -514,59 +514,59 @@ METHODC(Particle, particle_set_replication,
 		p->resetFlag(mask);
 
 	return 0;
-)
+})
 
 //! version any
 
-METHOD(Particle, particle_destroy,
+METHOD(Particle, particle_destroy,  {
 	delete p;
 	return 0;
-)
+})
 
 /*! Weapon:is_reloading()
 
 	Returns true if this weapon is reloading.
 */
 
-METHODC(Weapon, weaponinst_reloading,
+METHODC(Weapon, weaponinst_reloading,  {
 	context.push(p->reloading);
 	return 1;
-)
+})
 
 /*! Weapon:reload_time()
 
 	Returns the reload time left on this weapon.
 	Does only make sense if is_reloading() is true.
 */
-METHODC(Weapon, weaponinst_reload_time,
+METHODC(Weapon, weaponinst_reload_time,  {
 	context.push(p->getReloadTime());
 	return 1;
-)
+})
 
 /*! Weapon:ammo()
 
 	Returns the amount of ammo left in this weapon.
 */
-METHODC(Weapon, weaponinst_ammo,
+METHODC(Weapon, weaponinst_ammo,  {
 	context.push(p->getAmmo());
 	return 1;
-)
+})
 
 /*! Weapon:type()
 
 	Returns the weapon type in the form of a WeaponType object.
 */
-METHODC(Weapon, weaponinst_type,
+METHODC(Weapon, weaponinst_type,  {
 	//context.pushFullReference(*p->getType(), WeaponTypeMetaTable);
 	p->getType()->pushLuaReference();
 	return 1;
-)
+})
 
-METHOD(Weapon, weaponinst_destroy,
+METHOD(Weapon, weaponinst_destroy,  {
 	assert(!p->luaReference);
 	delete p;
 	return 1;
-)
+})
 
 void addBaseObjectFunctions(LuaContext& context)
 {
@@ -655,7 +655,7 @@ void initObjects()
 	context.tableSetField(LuaID<CGameObject>::value);
 	CWorm::metaTable = context.createReference();
 	
-	CLASSM_(Weapon,
+	CLASSM_(Weapon,  
 		("__gc", l_weaponinst_destroy)
 	,
 		("is_reloading", l_weaponinst_reloading)
@@ -664,7 +664,7 @@ void initObjects()
 		("type", l_weaponinst_type)
 	)
 	
-	ENUM(Particle,
+	ENUM(Particle,  
 		("Position", ParticleRep::Position)
 	)
 }

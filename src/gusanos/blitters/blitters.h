@@ -13,11 +13,11 @@
 #define HAS_SSE (cpu_capabilities & CPU_SSE)
 #define HAS_MMXSSE (cpu_capabilities & CPU_MMXPLUS)
 
-/*
-#define HAS_MMX (false)
+
+
+/*#define HAS_MMX (false)
 #define HAS_SSE (false)
-#define HAS_MMXSSE (false)
-*/
+#define HAS_MMXSSE (false)*/
 
 #define FOR_MMX(x_) if(HAS_MMX) { x_ }
 
