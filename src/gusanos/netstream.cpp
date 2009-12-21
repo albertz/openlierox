@@ -60,7 +60,7 @@ void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 void Net_Node::acceptFile(Net_ConnID, Net_FileTransID, int, bool accept) {}
 Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, float) { return 0; }
-Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return Net_FileTransInfo(); }
+Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
 
 
 void Net_Control::Net_Connect(const Net_Address&, void*) {}

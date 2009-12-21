@@ -270,10 +270,10 @@ int l_gfx_reset_blending(lua_State* L)
 	
 	Returns the HUD bitmap of this viewport.
 */
-METHOD(CViewport, viewport_getBitmap,
+METHOD(CViewport, viewport_getBitmap,  {
 	context.pushFullReference(*p->hud, ALLEGRO_BITMAPMetaTable);
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_viewport_getBitmap_depr(lua_State* L)
@@ -284,10 +284,10 @@ int l_viewport_getBitmap_depr(lua_State* L)
 }
 #endif
 
-METHOD(CViewport, viewport_getGameBitmap,
+METHOD(CViewport, viewport_getGameBitmap,  {
 	context.pushFullReference(*p->dest, ALLEGRO_BITMAPMetaTable);
 	return 1;
-)
+})
 
 //! version 0.9c
 
@@ -296,7 +296,7 @@ METHOD(CViewport, viewport_getGameBitmap,
 	Converts the map coordinates (x, y) to
 	coordinates relative to the viewport bitmap and returns them.
 */
-METHOD(CViewport, viewport_fromMap,
+METHOD(CViewport, viewport_fromMap,  {
 	lua_Integer x = lua_tointeger(context, 2);
 	lua_Integer y = lua_tointeger(context, 3);
 	
@@ -304,7 +304,7 @@ METHOD(CViewport, viewport_fromMap,
 	context.push(v.x);
 	context.push(v.y);
 	return 2;
-)
+})
 
 //! version any
 
@@ -312,19 +312,19 @@ METHOD(CViewport, viewport_fromMap,
 
 	Returns the width of this bitmap.
 */
-METHOD(ALLEGRO_BITMAP, bitmap_w,
+METHOD(ALLEGRO_BITMAP, bitmap_w,  {
 	lua_pushinteger(context, p->w);
 	return 1;
-)
+})
 
 /*! Bitmap:h()
 
 	Returns the width of this bitmap.
 */
-METHOD(ALLEGRO_BITMAP, bitmap_h,
+METHOD(ALLEGRO_BITMAP, bitmap_h,  {
 	lua_pushinteger(context, p->h);
 	return 1;
-)
+})
 
 #endif
 
@@ -355,14 +355,14 @@ void initGfx()
 #ifndef DEDICATED_ONLY
 	// CViewport method and metatable
 #ifndef NO_DEPRECATED
-	CLASS(CViewport,
+	CLASS(CViewport,  
 		("get_bitmap", l_viewport_getBitmap_depr)
 		("bitmap", l_viewport_getBitmap)
 		("game_bitmap", l_viewport_getGameBitmap)
 		("from_map", l_viewport_fromMap)
 	)
 #else
-	CLASS(CViewport,
+	CLASS(CViewport,  
 		("bitmap", l_viewport_getBitmap)
 		("game_bitmap", l_viewport_getGameBitmap)
 		("from_map", l_viewport_fromMap)
@@ -372,7 +372,7 @@ void initGfx()
 
 	// Bitmap method and metatable
 	
-	CLASS(ALLEGRO_BITMAP,
+	CLASS(ALLEGRO_BITMAP,  
 		("w", l_bitmap_w)
 		("h", l_bitmap_h)
 		("draw_box", l_gfx_draw_box)

@@ -106,7 +106,7 @@ METHODC(SpriteSet, sprites_render,
 	three parameters. This has been deprecated.**
 */
 #ifndef NO_DEPRECATED
-METHODC(SpriteSet, sprites_render_skinned_box,
+METHODC(SpriteSet, sprites_render_skinned_box,  {
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
 	int x1 = lua_tointeger(context, 3);
@@ -126,9 +126,9 @@ METHODC(SpriteSet, sprites_render_skinned_box,
 	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
 	
 	return 0;
-)
+})
 #else
-METHODC(SpriteSet, sprites_render_skinned_box,
+METHODC(SpriteSet, sprites_render_skinned_box,  (
 	ALLEGRO_BITMAP* b = ASSERT_OBJECT(ALLEGRO_BITMAP, 2);
 	
 	int x1 = lua_tointeger(context, 3);
@@ -139,17 +139,17 @@ METHODC(SpriteSet, sprites_render_skinned_box,
 	p->drawSkinnedBox(b, blitter, Rect(x1, y1, x2, y2), c);
 	
 	return 0;
-)
+))
 #endif
 
 /*! SpriteSet:frames()
 
 	Returns the number of frames in this sprite set.
 */
-METHODC(SpriteSet, sprites_frames,
+METHODC(SpriteSet, sprites_frames,  {
 	context.push(static_cast<int>(p->getFramesWidth()));
 	return 1;
-)
+})
 
 
 /*! font_load(name)
@@ -212,7 +212,9 @@ int l_font_load2(lua_State* L)
 	
 */
 
-METHODC(Font, font_render,
+typedef std::pair<int, int> pair_int;
+
+METHODC(Font, font_render,  {
 	int params = lua_gettop(context);
 	if(params < 5)
 		return 0;
@@ -265,7 +267,7 @@ METHODC(Font, font_render,
 	
 	if(flags & (CenterV | CenterH | Right | Bottom))
 	{
-		std::pair<int, int> dim = p->getDimensions(s, 0, realFlags);
+		pair_int dim = p->getDimensions(s, 0, realFlags);
 
 		if(flags & Right)
 			x -= dim.first;
@@ -281,7 +283,7 @@ METHODC(Font, font_render,
 	p->draw(b, s, x, y, 0, fact, cr, cg, cb, realFlags);
 	
 	return 0;
-)
+})
 
 //! version 0.9c
 
@@ -319,7 +321,7 @@ int l_sound_load2(lua_State* L)
 	Plays a sound either at position (x, y) on the map, or attached to
 	object //object// (depending on which is passed to the function).
 */
-METHODC(Sound, sound_play,
+METHODC(Sound, sound_play,  {
 	lua_Number loudness = 100.0;
 	lua_Number pitch = 1.0;
 	lua_Number pitchVariation = 1.0;
@@ -360,7 +362,7 @@ METHODC(Sound, sound_play,
 	}
 	
 	return 0;
-)
+})
 #endif
 
 //! version any
@@ -444,19 +446,19 @@ int l_weapon_count(lua_State* L)
 
 	Returns the next weapon type after this one.
 */
-METHODC(WeaponType, weapon_next,
+METHODC(WeaponType, weapon_next,  {
 	size_t n = p->getIndex() + 1;
 	if(n >= gusGame.weaponList.size())
 		n = 0;
 	gusGame.weaponList[n]->pushLuaReference();
 	return 1;
-)
+})
 
 /*! WeaponType:prev()
 
 	Returns the previous weapon type after this one.
 */
-METHODC(WeaponType, weapon_prev,
+METHODC(WeaponType, weapon_prev,  {
 	size_t n = p->getIndex();
 	if(n == 0)
 		n = gusGame.weaponList.size() - 1;
@@ -464,45 +466,45 @@ METHODC(WeaponType, weapon_prev,
 		--n;
 	gusGame.weaponList[n]->pushLuaReference();
 	return 1;
-)
+})
 
 /*! WeaponType:name()
 
 	Returns the name of this weapon type.
 */
-METHODC(WeaponType, weapon_name,
+METHODC(WeaponType, weapon_name,  {
 	lua_pushstring(context, p->name.c_str());
 	return 1;
-)
+})
 
 /*! WeaponType:reload_time()
 
 	Returns the time it takes for this weapon type to reload.
 */
-METHODC(WeaponType, weapon_reload_time,
+METHODC(WeaponType, weapon_reload_time,  {
 	context.push(p->reloadTime);
 	return 1;
-)
+})
 
 /*! WeaponType:ammo()
 
 	Returns the amount of ammo for this weapon type when reloaded.
 */
-METHODC(WeaponType, weapon_ammo,
+METHODC(WeaponType, weapon_ammo,  {
 	context.push(p->ammo);
 	return 1;
-)
+})
 
-METHOD(WeaponType, weapon_destroy,
+METHOD(WeaponType, weapon_destroy,  {
 	delete p;
 	return 0;
-)
+})
 
 /*
-BINOP(WeaponType, weapon_eq,
+BINOP(WeaponType, weapon_eq,  {
 	context.push(a == b);
 	return 1;
-)*/
+})*/
 
 int l_modIterator(lua_State* L)
 {
@@ -580,7 +582,7 @@ int l_mapIterator(lua_State* L)
 }
 
 
-METHODC(PartType, parttype_put,
+METHODC(PartType, parttype_put,  {
 	float x = 0.f;
 	float y = 0.f;
 	float xspd = 0.f;
@@ -607,12 +609,12 @@ METHODC(PartType, parttype_put,
 	}
 	
 	return 0;
-)
+})
 
-METHOD(PartType, parttype_destroy,
+METHOD(PartType, parttype_destroy,  {
 	delete p;
 	return 0;
-)
+})
 
 void initResources()
 {
@@ -636,13 +638,13 @@ void initResources()
 		("mods", l_mods)
 	;
 	
-	CLASSM_(PartType,
+	CLASSM_(PartType,  
 		("__gc", l_parttype_destroy)
 	,
 		("put", l_parttype_put)
 	)
 	
-	CLASSM_(WeaponType,
+	CLASSM_(WeaponType,  
 		("__gc", l_weapon_destroy)
 	,
 		("next", l_weapon_next)
@@ -655,11 +657,11 @@ void initResources()
 #ifndef DEDICATED_ONLY
 	// Font method and metatable
 
-	CLASS(Font,
+	CLASS(Font,  
 		("render", l_font_render)
 	)
 	
-	ENUM(Font,
+	ENUM(Font,  
 		("None", None)
 		("CenterV", CenterV)
 		("CenterH", CenterH)
@@ -669,11 +671,11 @@ void initResources()
 		("Formatting", Formatting)
 	)
 	
-	CLASS(Sound,
+	CLASS(Sound,  
 		("play", l_sound_play)
 	)
 	
-	CLASS(SpriteSet,
+	CLASS(SpriteSet,  
 		("render", l_sprites_render)
 		("render_skinned_box", l_sprites_render_skinned_box)
 		("frames", l_sprites_frames)

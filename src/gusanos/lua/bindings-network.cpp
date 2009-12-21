@@ -38,26 +38,26 @@ LuaReference LuaGameEventMetaTable, LuaPlayerEventMetaTable, LuaWormEventMetaTab
 	WARNING: This function is not very space efficient and can only encode tables
 	, strings, numbers, booleans and nil (or tables with keys and values of those types)
 */
-METHODC(Net_BitStream, bitStream_dump,
+METHODC(Net_BitStream, bitStream_dump,  {
 	context.serialize(*p, 2);
 	context.pushvalue(1);
 	return 1;
-)
+})
 
 /*! Bitstream:undump()
 	
 	Extracts a lua object added to the bitstream using the //dump// method.
 */
-METHODC(Net_BitStream, bitStream_undump,
+METHODC(Net_BitStream, bitStream_undump,  {
 	context.deserialize(*p);
 	return 1;
-)
+})
 
 /*! Bitstream:encode_elias_gamma(value)
 	
 	Adds an integer above or equal to 1 encoded using the elias gamma universal encoding.
 */
-METHODC(Net_BitStream, bitStream_encodeEliasGamma,
+METHODC(Net_BitStream, bitStream_encodeEliasGamma,  {
 	int v = lua_tointeger(context, 2);
 	if(v < 1)
 	{
@@ -67,35 +67,35 @@ METHODC(Net_BitStream, bitStream_encodeEliasGamma,
 	Encoding::encodeEliasGamma(*p, static_cast<unsigned int>(v));
 	context.pushvalue(1);
 	return 1;
-)
+})
 
 /*! Bitstream:decode_elias_gamma()
 	
 	Extracts an integer above or equal to 1 encoded using the elias gamma universal encoding.
 */
-METHODC(Net_BitStream, bitStream_decodeEliasGamma,
+METHODC(Net_BitStream, bitStream_decodeEliasGamma,  {
 	context.push(Encoding::decodeEliasGamma(*p));
 	return 1;
-)
+})
 
 /*! Bitstream:add_bool()
 	
 	Extracts a boolean value from this bitstream (Returns either true or false).
 */
-METHODC(Net_BitStream, bitStream_addBool,
+METHODC(Net_BitStream, bitStream_addBool,  {
 	p->addBool(lua_toboolean(context, 2));
 	context.pushvalue(1);
 	return 1;
-)
+})
 
 /*! Bitstream:get_bool()
 	
 	Extracts a boolean value from this bitstream (Returns either true or false).
 */
-METHODC(Net_BitStream, bitStream_getBool,
+METHODC(Net_BitStream, bitStream_getBool,  {
 	context.push(p->getBool());
 	return 1;
-)
+})
 
 /*! Bitstream:add_int(value[, bits])
 	
@@ -103,14 +103,14 @@ METHODC(Net_BitStream, bitStream_getBool,
 	
 	If bits is left out, 32 bits is assumed.
 */
-METHODC(Net_BitStream, bitStream_addInt,
+METHODC(Net_BitStream, bitStream_addInt,  {
 	int bits = 32;
 	if(lua_gettop(context) >= 3)
 		bits = lua_tointeger(context, 3);
 	p->addInt(lua_tointeger(context, 2), bits);
 	context.pushvalue(1);
 	return 1;
-)
+})
 
 /*! Bitstream:get_int([bits])
 	
@@ -118,37 +118,37 @@ METHODC(Net_BitStream, bitStream_addInt,
 	
 	If bits is left out, 32 bits is assumed.
 */
-METHODC(Net_BitStream, bitStream_getInt,
+METHODC(Net_BitStream, bitStream_getInt,  {
 	int bits = 32;
 	if(lua_gettop(context) >= 2)
 		bits = lua_tointeger(context, 2);
 	context.push(static_cast<int>(p->getInt(bits)));
 	return 1;
-)
+})
 
 /*! Bitstream:add_string(str)
 	
 	Adds the string //str// to this bitstream.
 */
-METHODC(Net_BitStream, bitStream_addString,
+METHODC(Net_BitStream, bitStream_addString,  {
 	p->addString(lua_tostring(context, 2));
 	context.pushvalue(1);
 	return 1;
-)
+})
 
 /*! Bitstream:get_string()
 	
 	Extracts a string from this bitstream.
 */
-METHODC(Net_BitStream, bitStream_getString,
+METHODC(Net_BitStream, bitStream_getString,  {
 	context.push(p->getStringStatic());
 	return 1;
-)
+})
 
-METHODC(Net_BitStream, bitStream_destroy,
+METHODC(Net_BitStream, bitStream_destroy,  {
 	delete p;
 	return 0;
-)
+})
 
 /*! new_bitstream()
 	
@@ -163,7 +163,7 @@ int l_new_bitstream(lua_State* L)
 }
 
 #define LUA_EVENT_SEND_METHOD(type_, params_, decl_, cases_, body_) \
-LMETHOD(LuaEventDef, luaEvent_##type_##_send, \
+LMETHOD(LuaEventDef, luaEvent_##type_##_send, {\
 	if(p->idx > 0)	{ \
 		Net_BitStream* userdata = 0; \
 		eNet_SendMode mode = eNet_ReliableOrdered; \
@@ -182,7 +182,7 @@ LMETHOD(LuaEventDef, luaEvent_##type_##_send, \
 		body_ \
 	} \
 	return 0; \
-)
+})
 
 /*! NetworkGameEvent:send([data[, connection[, mode[, rules]]]])
 
@@ -384,23 +384,23 @@ void initNetwork(LuaContext& context)
 		("new_bitstream", l_new_bitstream)
 	;
 		
-	CLASS(LuaGameEvent,
+	CLASS(LuaGameEvent,  
 		("send", l_luaEvent_game_send)
 	)
 	
-	CLASS(LuaPlayerEvent,
+	CLASS(LuaPlayerEvent,  
 		("send", l_luaEvent_player_send)
 	)
 	
-	CLASS(LuaWormEvent,
+	CLASS(LuaWormEvent,  
 		("send", l_luaEvent_worm_send)
 	)
 	
-	CLASS(LuaParticleEvent,
+	CLASS(LuaParticleEvent,  
 		("send", l_luaEvent_particle_send)
 	)
 	
-	CLASSM(Net_BitStream,
+	CLASSM(Net_BitStream,  
 		("__gc", l_bitStream_destroy)
 	,
 		("add_int", l_bitStream_addInt)
@@ -415,13 +415,13 @@ void initNetwork(LuaContext& context)
 		("undump", l_bitStream_undump)
 	)
 	
-	ENUM(SendMode,
+	ENUM(SendMode,  
 		("ReliableUnordered", eNet_ReliableUnordered)
 		("ReliableOrdered", eNet_ReliableOrdered)
 		("Unreliable", eNet_Unreliable)
 	)
 	
-	ENUM(RepRule,
+	ENUM(RepRule,  
 		("Auth2All", Net_REPRULE_AUTH_2_ALL)
 		("Auth2Owner", Net_REPRULE_AUTH_2_OWNER)
 		("Auth2Proxy", Net_REPRULE_AUTH_2_PROXY)
@@ -430,7 +430,7 @@ void initNetwork(LuaContext& context)
 	)
 	
 	
-	ENUM(Network,
+	ENUM(Network,  
 		("Connecting", Network::StateConnecting)
 		("Disconnecting", Network::StateDisconnecting)
 		("Disconnected", Network::StateDisconnected)

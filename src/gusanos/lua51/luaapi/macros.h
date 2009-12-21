@@ -2,38 +2,38 @@
 #define LUA_MACROS_H
 
 
-#define METHOD(type_, name_, ... /* body*/ ) \
+#define METHOD(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		void* p2 = lua_touserdata (context, 1); \
 		if(!p2) return 0; \
 		type_* p = *static_cast<type_ **>(p2); \
-		__VA_ARGS__ }
+		body_ }
 		
-#define METHODC(type_, name_, ... /* body */) \
+#define METHODC(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		if(type_* p = getObject<type_>(context, 1)) { \
-		__VA_ARGS__ } else { \
+		body_ } else { \
 		lua_pushstring(context, "Method called on invalid object. Did you use '.' instead of ':'?"); \
 		lua_error(context); return 0; }  }
 			
-#define LMETHOD(type_, name_, ... /* body */) \
+#define LMETHOD(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		type_* p = static_cast<type_ *>(lua_touserdata (context, 1)); \
 		if(!p) return 0; \
-		__VA_ARGS__ }
+		body_ }
 		
-#define LMETHODC(type_, name_, ... /* body */) \
+#define LMETHODC(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		if(type_* p = getLObject<type_>(context, 1)) { \
-		__VA_ARGS__ } else { \
+		body_ } else { \
 		lua_pushstring(context, "Method called on invalid object. Did you use '.' instead of ':'?"); \
 		lua_error(context); return 0; }  }
 		
-#define BINOP(type_, name_, ... /* body */) \
+#define BINOP(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		void* a_ = lua_touserdata (context, 1); \
@@ -42,23 +42,23 @@
 		if(!b_) return 0; \
 		type_* a = *static_cast<type_ **>(a_); \
 		type_* b = *static_cast<type_ **>(b_); \
-		__VA_ARGS__ }
+		body_ }
 		
-#define LBINOP(type_, name_, ... /* body */) \
+#define LBINOP(type_, name_, body_) \
 	int l_##name_(lua_State* L_) { \
 		LuaContext context(L_); \
 		type_* a = static_cast<type_ *>(lua_touserdata (context, 1)); \
 		if(!a) return 0; \
 		type_* b = static_cast<type_ *>(lua_touserdata (context, 2)); \
 		if(!b) return 0; \
-		__VA_ARGS__ }
+		body_ }
 
-#define CLASS(name_, ... /* body */) { \
+#define CLASS(name_, body_) { \
 	lua_newtable(context); \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
 	context.tableFunctions() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
 	name_##MetaTable = context.createReference(); }
@@ -69,50 +69,50 @@
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
 	context.tableFunctions() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	context.tableSetField(id_); \
 	lua_rawset(context, -3); \
 	name_##MetaTable = context.createReference(); }
 	*/
-#define CLASS_(name_, ... /* body */) { \
+#define CLASS_(name_, body_) { \
 	lua_newtable(context); \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
 	context.tableFunctions() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
 	name_::metaTable = context.createReference(); }
 	
-#define CLASSM(name_, meta_, ... /* body */) { \
+#define CLASSM(name_, meta_, body_) { \
 	lua_newtable(context); \
 	context.tableFunctions() \
 		meta_ ; \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
 	context.tableFunctions() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
 	name_##MetaTable = context.createReference(); }
 	
-#define CLASSM_(name_, meta_, ... /* body */) { \
+#define CLASSM_(name_, meta_, body_) { \
 	lua_newtable(context); \
 	context.tableFunctions() \
 		meta_ ; \
 	lua_pushstring(context, "__index"); \
 	lua_newtable(context); \
 	context.tableFunctions() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	lua_rawset(context, -3); \
 	context.tableSetField(LuaID<name_>::value); \
 	name_::metaTable = context.createReference(); }
 
-#define ENUM(name_, __VA_ARGS__) { \
+#define ENUM(name_, body_) { \
 	lua_pushstring(context, #name_); \
 	lua_newtable(context); \
 	context.tableItems() \
-		__VA_ARGS__ ; \
+		body_ ; \
 	lua_rawset(context, LUA_GLOBALSINDEX); }
 	
 #define REQUEST_TABLE(name_, func_) { \

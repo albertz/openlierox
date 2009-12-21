@@ -221,7 +221,7 @@ int l_gui_windows_index(lua_State* L)
 	Adds child windows to this window.
 	//windows// can be either a table of Wnd objects or a single Wnd object.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_add,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_add,  {
 	int top = lua_gettop(context);
 	for(int s = 2; s <= top; ++s)
 	{
@@ -251,13 +251,13 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_add,
 	}
 	
 	return 0;
-)
+})
 
 /*! Wnd:attribute(name)
 
 	Returns the value of the attribute //name// of the window.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_attribute,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_attribute,  {
 	char const* name = lua_tostring(context, 2);
 	std::string res;
 	if(p->getAttrib(name, res))
@@ -266,7 +266,7 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_attribute,
 		return 0;
 	
 	return 1;
-)
+})
 
 /*! Wnd:set_visibility(value)
 
@@ -274,39 +274,39 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_attribute,
 	Otherwise makes it visible.
 */
 
-LMETHODC(OmfgGUI::Wnd, gui_wnd_set_visibility,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_set_visibility,  {
 	p->setVisibility(lua_toboolean(context, 2));
 	return 0;
-)
+})
 
 /*! Wnd:switch_to()
 
 	Hides all windows, except this one, in the parent window.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_switch_to,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_switch_to,  {
 	context.push(p->switchTo());
 	return 1;
-)
+})
 
 /*! Wnd:is_visible()
 
 	Returns true if the window is visible.
 	Otherwise false.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_is_visible,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_is_visible,  {
 	lua_pushboolean(context, p->isVisibile());
 	return 1;
-)
+})
 
-LMETHODC(OmfgGUI::Wnd, gui_wnd_is_active,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_is_active,  {
 	lua_pushboolean(context, p->isActive());
 	return 1;
-)
+})
 
-LMETHODC(OmfgGUI::Wnd, gui_wnd_deactivate,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_deactivate,  {
 	p->doSetActivation(false);
 	return 0;
-)
+})
 
 /*! Wnd:text()
 
@@ -314,14 +314,14 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_deactivate,
 	
 	Returns the text of the window.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_get_text,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_get_text,  {
 	if(p)
 		lua_pushstring(context, p->getText().c_str());
 	else
 		return 0;
 	
 	return 1;
-)
+})
 
 #ifndef NO_DEPRECATED
 int l_gui_wnd_get_text_depr(lua_State* L)
@@ -336,29 +336,29 @@ int l_gui_wnd_get_text_depr(lua_State* L)
 
 	Sets the text of the window to //text//.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_set_text,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_set_text,  {
 	char const* s = lua_tostring(context, 2);
 	if(s)
 		p->setText(s);
 	
 	return 0;
-)
+})
 
 /*! Wnd:focus()
 
 	Focuses the window.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_focus,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_focus,  {
 	p->focus();
 	return 0;
-)
+})
 
 /*! Wnd:set_sub_focus()
 
 	Sets a window that will be focused when
 	this window is focused.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_set_sub_focus,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_set_sub_focus,  {
 	//OmfgGUI::Wnd* sub = static_cast<OmfgGUI::Wnd*>(lua_touserdata(context, 2));
 	OmfgGUI::Wnd* sub = ASSERT_LOBJECT(OmfgGUI::Wnd, 2); //(lua_touserdata(context, 2));
 	
@@ -381,53 +381,53 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_set_sub_focus,
 	}
 
 	return 0;
-)
+})
 
 /*! Wnd:activate()
 
 	Makes the window recieve input from now on until it's deactivated.
 */
-LMETHODC(OmfgGUI::Wnd, gui_wnd_activate,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_activate,  {
 	p->doSetActivation(true);
 	return 0;
-)
+})
 
-LMETHODC(OmfgGUI::Wnd, gui_wnd_bind,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_bind,  {
 	char const* cb = lua_tostring(context, 2);
 	if(!cb) return 0;
 	lua_pushvalue(context, 3);
 	context.push(p->registerCallback(cb, context.createReference()));
 	return 1;
-)
+})
 
-LMETHODC(OmfgGUI::Wnd, gui_wnd_child,
+LMETHODC(OmfgGUI::Wnd, gui_wnd_child,  {
 	char const* name = lua_tostring(context, 2);
 	if(!name) return 0;
 	OmfgGUI::Wnd* ch = p->getChildByName(name);
 	if(!ch) return 0;
 	context.push(ch->luaReference);
 	return 1;
-)
+})
 
 //! Check inherits Wnd
 
-LMETHODC(OmfgGUI::Check, gui_check_state,
+LMETHODC(OmfgGUI::Check, gui_check_state,  {
 	context.push(p->getState());
 	return 1;
-)
+})
 
-LMETHODC(OmfgGUI::Check, gui_check_set_state,
+LMETHODC(OmfgGUI::Check, gui_check_set_state,  {
 	if(lua_toboolean(context, 2) != p->getState())
 		p->toggleState();
 	return 0;
-)
+})
 
 //! Edit inherits Wnd
 
-LMETHODC(OmfgGUI::Edit, gui_edit_set_lock,
+LMETHODC(OmfgGUI::Edit, gui_edit_set_lock,  {
 	p->setLock(lua_toboolean(context, 2));
 	return 0;
-)
+})
 
 //! List inherits Wnd
 
@@ -435,7 +435,7 @@ LMETHODC(OmfgGUI::Edit, gui_edit_set_lock,
 
 	Inserts an item into the list with the column values passed.
 */
-LMETHODC(OmfgGUI::List, gui_list_insert,
+LMETHODC(OmfgGUI::List, gui_list_insert,  {
 
 	int c = lua_gettop(context);
 	OmfgGUI::ListNode* n = lua_new_keep(OmfgGUI::ListNode, (""), context);
@@ -444,16 +444,16 @@ LMETHODC(OmfgGUI::List, gui_list_insert,
 		n->setText(i - 2, lua_tostring(context, i));
 	
 	return 1;
-)
+})
 
-LMETHODC(OmfgGUI::List, gui_list_each,
+LMETHODC(OmfgGUI::List, gui_list_each,  {
 
 	context.push(listIterator);
 	context.push(p->getFirstNode()->luaReference);
 	lua_pushnil(context);
 
 	return 3;
-)
+})
 
 int l_gui_listIterator(lua_State* L)
 {
@@ -481,7 +481,7 @@ int l_gui_listIterator(lua_State* L)
 
 	Inserts an item into the list, under another node, with the column values passed.
 */
-LMETHODC(OmfgGUI::List, gui_list_subinsert,
+LMETHODC(OmfgGUI::List, gui_list_subinsert,  {
 
 	//OmfgGUI::ListNode* parent = static_cast<OmfgGUI::ListNode *>(lua_touserdata(context, 2));
 	OmfgGUI::ListNode* parent = ASSERT_LOBJECT(OmfgGUI::ListNode, 2);
@@ -499,16 +499,16 @@ LMETHODC(OmfgGUI::List, gui_list_subinsert,
 		n->setText(i - 3, lua_tostring(context, i));
 	
 	return 1;
-)
+})
 
 /*! List:clear()
 
 	Removes all items in the list.
 */
-LMETHODC(OmfgGUI::List, gui_list_clear,
+LMETHODC(OmfgGUI::List, gui_list_clear,  {
 	p->clear();
 	return 0;
-)
+})
 
 /*! List:sort(criteria)
 
@@ -520,7 +520,7 @@ LMETHODC(OmfgGUI::List, gui_list_clear,
 	two parameters. It should return true if parameter 1 is supposed to appear before
 	parameter 2.
 */
-LMETHODC(OmfgGUI::List, gui_list_sort,
+LMETHODC(OmfgGUI::List, gui_list_sort,  {
 	if(lua_isnumber(context, 2))
 	{
 		unsigned int column = static_cast<unsigned int>(lua_tointeger(context, 2));
@@ -536,9 +536,9 @@ LMETHODC(OmfgGUI::List, gui_list_sort,
 	}
 
 	return 0;
-)
+})
 
-LMETHODC(OmfgGUI::List, gui_list_selection,
+LMETHODC(OmfgGUI::List, gui_list_selection,  {
 	if(!p->getMainSel())
 		return 0;
 		
@@ -548,50 +548,50 @@ LMETHODC(OmfgGUI::List, gui_list_selection,
 		context.push(*i); ++c;
 	}
 	return c;
-)
+})
 
-LMETHODC(OmfgGUI::List, gui_list_main_selection,
+LMETHODC(OmfgGUI::List, gui_list_main_selection,  {
 	if(OmfgGUI::ListNode* n = p->getMainSel())
 	{
 		context.push(n->luaReference);
 		return 1;
 	}
 	return 0;
-)
+})
 
-LMETHODC(OmfgGUI::List, gui_list_scroll_bottom,
+LMETHODC(OmfgGUI::List, gui_list_scroll_bottom,  {
 	p->scrollBottom();
 	return 0;
-)
+})
 
 /*! List:add_column(title, width)
 
 	Adds a column to a list with the title //title//.
 	//width// is a value in (0, 1) that specifies the width of this column proportional to the total width of the list.
 */
-LMETHODC(OmfgGUI::List, gui_list_add_column,
+LMETHODC(OmfgGUI::List, gui_list_add_column,  {
 	char const* name = lua_tostring(context, 2);
 	lua_Number widthFactor = lua_tonumber(context, 3);
 	
 	p->addColumn(OmfgGUI::List::ColumnHeader(name, widthFactor));
 
 	return 0;
-)
+})
 
 /*! ListNode:is_selected()
 
 	Returns true if the node is selected, otherwise false.
 */
-LMETHODC(OmfgGUI::ListNode, gui_list_node_is_selected,
+LMETHODC(OmfgGUI::ListNode, gui_list_node_is_selected,  {
 	context.push(p->selected);
 	return 1;
-)
+})
 
 /*! ListNode:data()
 
 	Returns a table associated with this node.
 */
-LMETHODC(OmfgGUI::ListNode, gui_list_node_data,
+LMETHODC(OmfgGUI::ListNode, gui_list_node_data,  {
 	if(p->luaData)
 	{
 		context.pushReference(p->luaData);
@@ -604,7 +604,7 @@ LMETHODC(OmfgGUI::ListNode, gui_list_node_data,
 	}
 	
 	return 1;
-)
+})
 
 #endif
 

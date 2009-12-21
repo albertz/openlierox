@@ -141,51 +141,51 @@ int l_game_localPlayerName(lua_State* L)
 
 	Returns the number of kills a player has made.
 */
-METHODC(CWormInputHandler, player_kills,
+METHODC(CWormInputHandler, player_kills,  {
 	context.push(p->stats->kills);
 	return 1;
-)
+})
 
 
 /*! CWormHumanInputHandler:deaths()
 
 	Returns the number of deaths a player has suffered.
 */
-METHODC(CWormInputHandler, player_deaths,
+METHODC(CWormInputHandler, player_deaths,  {
 	context.push(p->stats->deaths);
 	return 1;
-)
+})
 
 /*! CWormHumanInputHandler:name()
 
 	Returns the name of the player.
 */
-METHODC(CWormInputHandler, player_name,
+METHODC(CWormInputHandler, player_name,  {
 	context.push(p->m_name.c_str());
 	return 1;
-)
+})
 
 /*! CWormHumanInputHandler:team()
 
 	Returns the team number of the player.
 */
-METHODC(CWormInputHandler, player_team,
+METHODC(CWormInputHandler, player_team,  {
 	context.push(p->team);
 	return 1;
-)
+})
 
 /*! CWormHumanInputHandler:worm()
 
 	Returns the worm of the player.
 */
-METHODC(CWormInputHandler, player_worm,
+METHODC(CWormInputHandler, player_worm,  {
 	if(CWorm* worm = p->getWorm())
 	{
 		worm->pushLuaReference();
 		return 1;
 	}
 	return 0;
-)
+})
 
 //! version 0.9c
 
@@ -193,10 +193,10 @@ METHODC(CWormInputHandler, player_worm,
 
 	Returns true if this player is a local player, otherwise false.
 */
-METHODC(CWormInputHandler, player_isLocal,
+METHODC(CWormInputHandler, player_isLocal,  {
 	context.push(p->local);
 	return 1;
-)
+})
 
 //! version any
 
@@ -204,7 +204,7 @@ METHODC(CWormInputHandler, player_isLocal,
 
 	Returns a lua table associated with this player.
 */
-METHODC(CWormInputHandler, player_data,
+METHODC(CWormInputHandler, player_data,  {
 	if(p->luaData)
 		context.pushReference(p->luaData);
 	else
@@ -216,13 +216,13 @@ METHODC(CWormInputHandler, player_data,
 	}
 	
 	return 1;
-)
+})
 
 /*! CWormHumanInputHandler:stats()
 
 	Returns a lua table associated with the stats of this player.
 */
-METHODC(CWormInputHandler, player_stats,
+METHODC(CWormInputHandler, player_stats,  {
 	if(p->stats->luaData)
 		context.pushReference(p->stats->luaData);
 	else
@@ -234,25 +234,25 @@ METHODC(CWormInputHandler, player_stats,
 	}
 	
 	return 1;
-)
+})
 
 /*! CWormHumanInputHandler:say(text)
 
 	Makes the player send 'text' as a chat message.
 */
-METHODC(CWormInputHandler, player_say,
+METHODC(CWormInputHandler, player_say,  {
 	char const* s = context.tostring(2);
 	if(s)
 		p->sendChatMsg(s);
 	return 0;
-)
+})
 
 /*! CWormHumanInputHandler:select_weapons(weapons)
 
 	Tries to change the player's weapons to the WeaponType objects
 	in the array //weapons//.
 */
-METHODC(CWormInputHandler, player_selectWeapons,
+METHODC(CWormInputHandler, player_selectWeapons,  {
 	
 	std::vector<WeaponType *> weapons;
 	for(size_t i = 1;; ++i)
@@ -274,12 +274,12 @@ METHODC(CWormInputHandler, player_selectWeapons,
 	p->selectWeapons(weapons);
 	
 	return 0;
-)
+})
 
-METHOD(CWormInputHandler, player_destroy,
+METHOD(CWormInputHandler, player_destroy, {
 	delete p;
 	return 0;
-)
+})
 
 int l_game_getClosestWorm(lua_State* L)
 {
@@ -374,7 +374,7 @@ void initGame()
 	
 	// CWormHumanInputHandler method and metatable
 	
-	CLASSM(CWormInputHandler,
+	CLASSM(CWormInputHandler,  
 		("__gc", l_player_destroy)
 	,
 		("kills", l_player_kills)
@@ -389,7 +389,7 @@ void initGame()
 		("is_local", l_player_isLocal)
 	)
 	
-	ENUM(EndReason,
+	ENUM(EndReason,  
 		("ServerQuit", GusGame::ServerQuit)
 		("ServerChangeMap", GusGame::ServerChangeMap)
 		("Kicked", GusGame::Kicked)
@@ -398,7 +398,7 @@ void initGame()
 		("IncompatibleData", GusGame::IncompatibleData)
 	)
 	
-	ENUM(Error,
+	ENUM(Error,  
 		("None", GusGame::ErrorNone)
 		("MapNotFound", GusGame::ErrorMapNotFound)
 		("MapLoading", GusGame::ErrorMapLoading)
@@ -406,7 +406,7 @@ void initGame()
 		("ModLoading", GusGame::ErrorModLoading)
 	)
 	
-	ENUM(Player,
+	ENUM(Player,  
 		("Left", CWormHumanInputHandler::LEFT)
 		("Right", CWormHumanInputHandler::RIGHT)
 		("Up", CWormHumanInputHandler::UP)
