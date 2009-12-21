@@ -137,7 +137,7 @@ bool WeaponType::load(std::string const& filename)
 	reloadTime = parser.getInt("reload_time", 0);
 	syncHax = parser.getBool("sync_shot", false);
 	syncReload = parser.getBool("sync_reload", true);
-	laserSightIntensity = parser.getDouble("laser_sight_intensity", 0.0);
+	laserSightIntensity = (float)parser.getDouble("laser_sight_intensity", 0.0);
 	laserSightRange = parser.getInt("laser_sight_range", -1);
 	laserSightAlpha = parser.getInt("laser_sight_alpha", 255);
 	{

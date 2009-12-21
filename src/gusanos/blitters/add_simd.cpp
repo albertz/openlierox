@@ -283,9 +283,9 @@ void drawSprite_add_16_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int 
 
 	SPRITE_Y_LOOP(
 		SPRITE_X_LOOP_NOALIGN(4,
-			Pixel s = *src;
+			Pixel s = (pixel_t_1)*src;
 			if(s != maskcolor_16)
-				*dest = addColors_16_2(*dest, scaleColor_16(s, scaledFact))
+				*dest = (pixel_t_1)addColors_16_2(*dest, scaleColor_16(s, scaledFact))
 		,
 			//TODO: Rearrange
 			MEM_PREFETCH;
@@ -355,7 +355,7 @@ void drawSpriteLine_add_8_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, i
 	if(fact >= 255)
 	{
 		SPRITE_X_LOOP_NOALIGN(16,
-			*dest = addColorsCrude_8_4(*dest, *src)
+			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, *src)
 		,
 			//prefetchnta(src[8]);
 			//prefetcht0(dest[8]);
@@ -379,7 +379,7 @@ void drawSpriteLine_add_8_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, i
 		pxor_rr(mm6, mm6);
 
 		SPRITE_X_LOOP_NOALIGN(16,
-			*dest = addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
+			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
 		,
 			movq_rm(mm0, src[0]);    // mm0 = src1 | src2
 			movq_rm(mm4, src[2]);    // mm4 = src3 | src4

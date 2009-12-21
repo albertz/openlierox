@@ -26,7 +26,7 @@ struct StringBuilder
 	
 	operator bool()
 	{
-		return ss;
+		return ss != NULL;
 	}
 	
 private:

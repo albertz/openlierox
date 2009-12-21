@@ -104,7 +104,7 @@ PlayerAI::PlayerAI(int team_, CWorm* worm)
 , m_movingLeft(false)
 , m_shooting(false)
 {
-	colour = universalColor(rndInt(256), rndInt(256), rndInt(256));
+	colour = universalColor((Uint8)rndInt(256), (Uint8)rndInt(256), (Uint8)rndInt(256));
 	team = team_;
 }
 

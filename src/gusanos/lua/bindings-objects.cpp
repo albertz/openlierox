@@ -86,14 +86,14 @@ int shootFromObject(lua_State* L, CGameObject* object)
 	{
 		Angle angle = baseAngle + distribution * midrnd();
 		Vec direction(angle);
-		Vec spd(direction * (speed + midrnd()*speedVariation));
+		Vec spd(direction * (float)(speed + midrnd()*speedVariation));
 		if(motionInheritance)
 		{
-			spd += Vec(object->velocity()) * motionInheritance;
+			spd += Vec(object->velocity()) * (float)motionInheritance;
 			angle = spd.getAngle(); // Need to recompute angle
 		}
 		//gusGame.insertParticle( new Particle( p, object->getPos() + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle ));
-		last = p->newParticle(p, Vec(object->pos()) + direction * distanceOffset, spd, object->getDir(), object->getOwner(), angle);
+		last = p->newParticle(p, Vec(object->pos()) + direction * (float)distanceOffset, spd, object->getDir(), object->getOwner(), angle);
 	}
 	
 	if(last)
@@ -282,7 +282,7 @@ METHODC(CGameObject, baseObject_pos,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_setPos,  {
-	p->setPos(Vec(lua_tonumber(context, 2), lua_tonumber(context, 3))); 
+	p->setPos(Vec((float)lua_tonumber(context, 2), (float)lua_tonumber(context, 3))); 
 	return 0;
 })
 
@@ -311,8 +311,8 @@ METHODC(CGameObject, baseObject_spd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_setSpd,  {
-	p->velocity().x = lua_tonumber(context, 2);
-	p->velocity().y = lua_tonumber(context, 3); 
+	p->velocity().x = (float)lua_tonumber(context, 2);
+	p->velocity().y = (float)lua_tonumber(context, 3); 
 	return 0;
 })
 
@@ -327,8 +327,8 @@ METHODC(CGameObject, baseObject_setSpd,  {
 	</code>
 */
 METHODC(CGameObject, baseObject_push,  {
-	p->velocity().x += lua_tonumber(context, 2);
-	p->velocity().y += lua_tonumber(context, 3);
+	p->velocity().x += (float)lua_tonumber(context, 2);
+	p->velocity().y += (float)lua_tonumber(context, 3);
 	return 0;
 })
 
@@ -386,7 +386,7 @@ METHODC(CGameObject, baseObject_damage,  {
 	lua_Number amount = lua_tonumber(context, 2);
 	//CWormInputHandler* player = *static_cast<CWormInputHandler **>(lua_touserdata(context, 3));
 	CWormInputHandler* player = getObject<CWormInputHandler>(context, 3);
-	p->damage(amount, player);
+	p->damage((float)amount, player);
 	return 1;
 })
 

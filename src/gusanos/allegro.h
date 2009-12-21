@@ -273,9 +273,9 @@ void clear_bitmap(ALLEGRO_BITMAP*);
 #endif
 
 #ifndef bmp_write8
-#define bmp_write8(addr, c)         (*((Uint8  *)(addr)) = (c))
-#define bmp_write15(addr, c)        (*((Uint16 *)(addr)) = (c))
-#define bmp_write16(addr, c)        (*((Uint16 *)(addr)) = (c))
+#define bmp_write8(addr, c)         (*((Uint8  *)(addr)) = (Uint8)(c))
+#define bmp_write15(addr, c)        (*((Uint16 *)(addr)) = (Uint16)(c))
+#define bmp_write16(addr, c)        (*((Uint16 *)(addr)) = (Uint16)(c))
 #define bmp_write32(addr, c)        (*((Uint32 *)(addr)) = (c))
 
 #define bmp_read8(addr)             (*((Uint8  *)(addr)))

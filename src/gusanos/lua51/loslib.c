@@ -179,7 +179,7 @@ static int io_time (lua_State *L) {
   if (t == (time_t)(-1))
     lua_pushnil(L);
   else
-    lua_pushnumber(L, t);
+    lua_pushnumber(L, (lua_Number)t);
   return 1;
 }
 

@@ -17,7 +17,7 @@ PlayerOptions::PlayerOptions(std::string const& name_)
 {
 	aimAcceleration = AngleDiff(0.1);
 	//aimFriction = 0.05;
-	aimFriction = pow(0.89, 0.7);
+	aimFriction = (float)pow(0.89, 0.7);
 	aimMaxSpeed = AngleDiff(1);
 	viewportFollowFactor = 1;
 	ropeAdjustSpeed = 0.5;

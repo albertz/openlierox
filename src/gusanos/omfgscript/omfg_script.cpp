@@ -91,7 +91,7 @@ struct Parameters
 				}
 			}
 			
-			if(minParam >= 0 && minDist <= (name.size() + 1) / 2)
+			if(minParam >= 0 && minDist <= ((int)name.size() + 1) / 2)
 				error("Unknown parameter '" + name + "'. Did you mean '" + paramDef->params[minParam].name + "'?", loc_);
 			else
 				error("Unknown parameter '" + name + "'", loc_);
@@ -116,7 +116,7 @@ struct Parameters
 			error("Positional parameters not allowed after named parameters", loc_);
 			return;
 		}
-		if(cur >= params.size() && !(flags & MaxReachParam))
+		if(cur >= (int)params.size() && !(flags & MaxReachParam))
 		{
 			flags |= MaxReachParam;
 			error(S_("Too many parameters. Maximum allowed is ") << params.size() << '.', loc_);
@@ -634,7 +634,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 			}
 		}
 		
-		if(!minEvent.empty() && minDist <= name.size() / 2)
+		if(!minEvent.empty() && minDist <= (int)(name.size() / 2))
 			semanticError("Unknown event '" + name + "'. Did you mean '" + minEvent + "'?");
 		else
 			semanticError("Unknown event '" + name + "'");
@@ -663,7 +663,7 @@ struct ParserImpl : public TGrammar<ParserImpl>
 			}
 		}
 		
-		if(!minAction.empty() && minDist <= name.size() / 2)
+		if(!minAction.empty() && minDist <= (int)(name.size() / 2))
 			semanticError("Unknown action '" + name + "'. Did you mean '" + minAction + "'?");
 		else
 			semanticError("Unknown action '" + name + "'");

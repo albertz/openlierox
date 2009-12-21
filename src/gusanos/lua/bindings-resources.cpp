@@ -358,7 +358,7 @@ METHODC(Sound, sound_play,  {
 		lua_Number x = lua_tonumber(context, 2);
 		lua_Number y = lua_tonumber(context, 3);
 		
-		p->play2D(Vec(x, y), (float)loudness, (float)pitch, (float)pitchVariation);
+		p->play2D(Vec((float)x, (float)y), (float)loudness, (float)pitch, (float)pitchVariation);
 	}
 	
 	return 0;
@@ -594,10 +594,10 @@ METHODC(PartType, parttype_put,  {
 	{
 		default: if(params < 3) return 0;
 		case 6:  angle = Angle(lua_tonumber(context, 6));
-		case 5:  yspd = lua_tonumber(context, 5);
-		case 4:  xspd = lua_tonumber(context, 4);
-		case 3:  y = lua_tonumber(context, 3);
-		case 2:  x = lua_tonumber(context, 2);
+		case 5:  yspd = (float)lua_tonumber(context, 5);
+		case 4:  xspd = (float)lua_tonumber(context, 4);
+		case 3:  y = (float)lua_tonumber(context, 3);
+		case 2:  x = (float)lua_tonumber(context, 2);
 	}
 	
 	CGameObject* last = p->newParticle(p, Vec(x, y), Vec(xspd, yspd), 1, 0, angle);

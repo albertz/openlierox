@@ -29,16 +29,16 @@ void NoiseLine::createPath( int iterations, float variation )
 		for ( int x = offset; x < N; x += step )
 		{
 			//m_nodes[x] = ( m_nodes[x-offset] + m_nodes[x+offset] )/2 + variation*(midrnd()*i)/iterations;
-			m_nodes[x] = ( m_nodes[x-offset] + m_nodes[x+offset] )/2.f + variation*(midrnd()*i);
+			m_nodes[x] = ( m_nodes[x-offset] + m_nodes[x+offset] )/2.f + variation*((float)midrnd()*i);
 		}
 	}
 }
 
 void NoiseLine::render(ALLEGRO_BITMAP* where, int x, int y, int x1, int y1, int colour)
 {
-	Vec inc = Vec( x1 - x, y1-y ) / m_nodes.size();
+	Vec inc = Vec( (float)(x1 - x), (float)(y1-y) ) / (float)m_nodes.size();
 	Vec perpToLine = inc.perp().normal();
-	Vec pos = Vec(x,y);
+	Vec pos = Vec((float)x, (float)y);
 	Vec oldRenderPos = pos;
 	for ( size_t x = 0; x < m_nodes.size(); ++x )
 	{

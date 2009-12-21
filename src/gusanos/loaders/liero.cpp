@@ -147,7 +147,7 @@ enum LieroMaterialFlags
 
 bool getLieroMaterialFlag(LieroMaterialFlags type, int material)
 {
-	return lieroMaterials[material + int(type)*256];
+	return lieroMaterials[material + int(type)*256] != 0;
 }
 
 void initMaterialMappings()
@@ -300,7 +300,7 @@ bool LieroFontLoader::load(Font* font, std::string const& path)
 	f.ignore(8); //First 8 bytes are useless
 	f.read(&buffer[0], buffer.size());
 	
-	if(f.gcount() < buffer.size())
+	if(f.gcount() < (int)buffer.size())
 		return false;
 
 	font->m_chars.assign(2, Font::CharInfo(Rect(0, 0, 1, 1), 0)); // Two empty slots

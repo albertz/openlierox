@@ -24,13 +24,13 @@ DistortionMap* lensMap(int radius)
 	for ( int y = 0; y < radius*2; ++y )
 	for ( int x = 0; x < radius*2; ++x )
 	{
-		Vec delta = Vec( x - radius, y - radius );
+		Vec delta = Vec( (float)(x - radius), (float)(y - radius) );
 		
 		if ( delta.length() <= radius )
 		{
 			if (delta.length() != 0)
 			{
-				float newLength = ( radius - sqrt( radius * radius - delta.length() * delta.length() )) - delta.length();
+				float newLength = (float)(( radius - sqrt( radius * radius - delta.length() * delta.length() )) - delta.length());
 				lens->map.push_back( delta.normal()*newLength );
 			}else
 				lens->map.push_back( Vec(0,0) );
@@ -48,7 +48,7 @@ DistortionMap* swirlMap(int radius)
 	for ( int y = 0; y < radius*2; ++y )
 	for ( int x = 0; x < radius*2; ++x )
 	{
-		Vec delta = Vec( x - radius, y - radius );
+		Vec delta = Vec( (float)(x - radius), (float)(y - radius) );
 		Vec deltaPerp = delta.perp();
 		
 		float perpFactor;
@@ -58,7 +58,7 @@ DistortionMap* swirlMap(int radius)
 		{
 			if (delta.length() != 0)
 			{
-				normFactor = delta.length() / radius;
+				normFactor = (float)delta.length() / radius;
 				perpFactor = 1 - normFactor;
 				
 				Vec newPos = delta*normFactor + deltaPerp*perpFactor;
@@ -80,7 +80,7 @@ DistortionMap* spinMap(int radius)
 	for ( int y = 0; y < radius*2; ++y )
 	for ( int x = 0; x < radius*2; ++x )
 	{
-		Vec delta = Vec( x - radius, y - radius );
+		Vec delta = Vec( (float)(x - radius), (float)(y - radius) );
 		
 		float factor;
 		
@@ -88,7 +88,7 @@ DistortionMap* spinMap(int radius)
 		{
 			if (delta.length() != 0)
 			{
-				factor = 1 - delta.length() / radius;
+				factor = 1 - (float)delta.length() / radius;
 				
 				Vec newPos = Vec( delta.getAngle() + Angle(180.0 * factor), delta.length());
 				
@@ -109,7 +109,7 @@ DistortionMap* rippleMap(int radius, int frequency)
 	for ( int y = 0; y < radius*2; ++y )
 	for ( int x = 0; x < radius*2; ++x )
 	{
-		Vec delta = Vec( x - radius, y - radius );
+		Vec delta = Vec( (float)(x - radius), (float)(y - radius) );
 		
 		float rippleFactor;
 		
@@ -117,9 +117,9 @@ DistortionMap* rippleMap(int radius, int frequency)
 		{
 			if (delta.length() != 0)
 			{
-				rippleFactor = -cos(delta.length() * 2 * frequency * Pi / radius) + 1;
+				rippleFactor = (float)-cos(delta.length() * 2 * frequency * Pi / radius) + 1;
 				
-				ripple->map.push_back( delta.normal() * rippleFactor * radius / frequency);
+				ripple->map.push_back( delta.normal() * rippleFactor * (float)radius / (float)frequency);
 			}else
 				ripple->map.push_back( Vec(0,0) );
 		}else
@@ -409,7 +409,7 @@ void Distortion::apply( ALLEGRO_BITMAP* where, int destx, int desty, float multi
 							// We use 32-rx rather than 31-rx to avoid ugly artifacts with identity distortions
 							Pixel p = Blitters::blendColorsFact_16(v, 32-rx);
 							
-							*dest++ = p;
+							*dest++ = (Pixel16)p;
 						}
 						else
 						{

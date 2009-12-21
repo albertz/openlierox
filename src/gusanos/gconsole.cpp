@@ -313,7 +313,7 @@ void GConsole::render(ALLEGRO_BITMAP* where, bool fullScreen)
 	//int textIndex = 0;
 
 	float pos = m_pos;
-	if ( fullScreen ) pos = where->h-1;
+	if ( fullScreen ) pos = (float)(where->h-1);
 		
 	if ( pos > 0)
 	{
@@ -563,7 +563,7 @@ void GConsole::think()
 	{
 		m_pos-=speed;
 	}
-	if (m_pos > height) m_pos = height;
+	if (m_pos > height) m_pos = (float)height;
 	if (m_pos < 0) m_pos = 0;
 #endif
 	while( !commandsQueue.empty() )

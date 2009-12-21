@@ -40,30 +40,30 @@ bool Sound::load(std::string const& filename)
 
 void Sound::play(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
-	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
+	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
 			
-	float rndVolume = pitch + rnd()*volumeVariation - volumeVariation / 2;
+	float rndVolume = pitch + (float)rnd()*volumeVariation - volumeVariation / 2;
 	m_sound ->play(rndPitch,rndVolume );
 }
 
 void Sound::play1D(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
-	float rndPitch = pitch + midrnd()*pitchVariation - pitchVariation / 2;
+	float rndPitch = pitch + (float)midrnd()*pitchVariation - pitchVariation / 2;
 			
-	float rndVolume = pitch + midrnd()*volumeVariation - volumeVariation / 2;
+	float rndVolume = pitch + (float)midrnd()*volumeVariation - volumeVariation / 2;
 	m_sound ->play(rndPitch,rndVolume );
 }
 
 void Sound::play2D(const Vec& pos, float loudness, float pitch, float pitchVariation)
 {
-	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
+	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
 	m_sound ->play2D(pos,loudness, rndPitch );
 }
 
 void Sound::play2D(CGameObject* obj, float loudness, float pitch, float pitchVariation)
 {
 	//cout<<"Play 2d(obj)"<<endl;
-	float rndPitch = pitch + rnd()*pitchVariation - pitchVariation / 2;
+	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
 	m_sound ->play2D(obj,loudness, rndPitch );
 	m_obj=obj;
 	

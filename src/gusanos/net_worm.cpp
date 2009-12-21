@@ -109,7 +109,7 @@ void NetWorm::think()
 #ifndef DEDICATED_ONLY
 	//renderPos += (pos - renderPos)*0.2;
 	double fact = 1.0 / (1.0 + Vec(renderPos, pos()).length() / 4.0);
-	renderPos = renderPos * (1.0 - fact) + Vec(pos()) * fact;
+	renderPos = renderPos * (1.0f - (float)fact) + Vec(pos()) * (float)fact;
 #endif
 
 	++timeSinceLastUpdate;

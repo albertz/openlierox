@@ -47,7 +47,7 @@ public:
 		template<class T, class IT>
 		RegisterVariableProxy const& operator()(std::string const& name, T* src, IT defaultValue) const
 		{
-			m_console.registerVariable(new TVariable<T>(name, src, defaultValue));
+			m_console.registerVariable(new TVariable<T>(name, src, (T)defaultValue));
 			return *this;
 		}
 		

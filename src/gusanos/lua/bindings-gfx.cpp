@@ -117,7 +117,7 @@ int l_gfx_linewu(lua_State* L)
 	lua_Number y2 = lua_tonumber(L, 5);
 	int c = lua_tointeger(L, 6);
 	
-	blitter.linewu(b, x1, y1, x2, y2, c);
+	blitter.linewu(b, (float)x1, (float)y1, (float)x2, (float)y2, c);
 #endif
 	return 0;
 }
@@ -137,7 +137,7 @@ int l_gfx_putpixelwu(lua_State* L)
 	lua_Number y = lua_tonumber(L, 3);
 	int c = lua_tointeger(L, 4);
 	
-	blitter.putpixelwu(b, x, y, c);
+	blitter.putpixelwu(b, (float)x, (float)y, c);
 #endif
 	return 0;
 }

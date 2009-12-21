@@ -84,12 +84,12 @@ namespace{
 					
 					if ( iter != spParams.end() )
 					{
-						x = (*iter)->toDouble();
+						x = (float)(*iter)->toDouble();
 						++iter;
 					}
 					if ( iter != spParams.end() )
 					{
-						y = (*iter)->toDouble();
+						y = (float)(*iter)->toDouble();
 						++iter;
 					}
 					if ( iter != spParams.end() )

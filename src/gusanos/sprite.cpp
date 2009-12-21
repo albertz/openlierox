@@ -23,7 +23,7 @@ Sprite* genLight( int radius )
 	}
 	for ( int x = 0; x < lightHax->w; ++x )
 		for ( int y = 0; y < lightHax->h; ++y ) {
-			int color = (int)(255 - ( 255 * Vec( radius-x, radius-y ).length() ) / (float)radius);
+			int color = (int)(255 - ( 255 * Vec( (float)(radius-x), (float)(radius-y) ).length() ) / (float)radius);
 			if ( color < 0 )
 				color = 0;
 			putpixel(lightHax,x,y,color);

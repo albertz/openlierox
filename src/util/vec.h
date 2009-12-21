@@ -132,7 +132,7 @@ struct BaseVec
 	BaseVec normal() const
 	{
 		double invLength = 1.0 / length();
-		return BaseVec(invLength*x, invLength*y);
+		return BaseVec((T)(invLength*x), (T)(invLength*y));
 	}
 	
 	T lengthSqr() const

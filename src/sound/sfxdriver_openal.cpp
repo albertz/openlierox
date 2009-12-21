@@ -55,7 +55,7 @@ void SfxDriverOpenAL::think()
 	
 	for (size_t i = 0; i < listeners.size(); ++i )
 	{
-		ALfloat listenerPos[]={listeners[i]->pos.x,listeners[i]->pos.y,-m_listenerDistance };
+		ALfloat listenerPos[]={listeners[i]->pos.x,listeners[i]->pos.y,(ALfloat)-m_listenerDistance };
 		//cout<<"listener x,y,z "<<listenerPos[0]<<" "<<listenerPos[1]<<" "<<listenerPos[2]<<endl;
 		alListenerfv(AL_POSITION,listenerPos);
 		//multi listeners are not supported in OpenAL

@@ -136,7 +136,7 @@ bool ExpType::load(std::string const& filename)
 		else if ( f->name == "bitmap" )
 			distortion = new Distortion( bitmapMap( (*f)[0]->toString() ) );
 	}
-	distortMagnitude = parser.getDouble("distort_magnitude", 0.8f);
+	distortMagnitude = (float)parser.getDouble("distort_magnitude", 0.8f);
 	
 	std::string blenderstr = parser.getString("blender", "none");
 	if(blenderstr == "add") blender = BlitterContext::Add;
@@ -181,7 +181,7 @@ bool ExpType::load(std::string const& filename)
 				{
 					detectFilter = 1;
 				}
-				detectRanges.push_back( new DetectEvent(i.actions(), p[0]->toDouble(0.0), p[1]->toBool(true), detectFilter));
+				detectRanges.push_back( new DetectEvent(i.actions(), (float)p[0]->toDouble(0.0), p[1]->toBool(true), detectFilter));
 			break;
 		}
 	}

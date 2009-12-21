@@ -15,7 +15,7 @@ bool List::LuaLT::operator()(ListNode* a, ListNode* b)
 {
 	if((context.call(comp, 1), a->luaReference, b->luaReference)() == 1)
 	{
-		bool v = lua_toboolean(context, -1);
+		bool v = lua_toboolean(context, -1) != 0;
 		context.pop(1);
 		return v;
 	}
@@ -410,7 +410,7 @@ bool List::keyDown(int key)
 			break;
 			
 			case KEY_RIGHT:
-				if(checkSelection());
+				if(checkSelection())
 					expand(m_MainSel);
 			break;
 			

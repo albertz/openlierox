@@ -347,6 +347,14 @@
 			<File
 				RelativePath="..\..\src\breakpad\external\src\processor\pathname_stripper.cc"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						DebugInformationFormat="3"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\breakpad\external\src\processor\process_state.cc"

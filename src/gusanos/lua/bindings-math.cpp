@@ -26,8 +26,8 @@ namespace LuaBindings
 inline lua_Number luaL_checknumber(lua_State *L, int narg)
 {
 	lua_Number d = lua_tonumber(L, narg);
-	if(d == 0 && !lua_isnumber(L, narg))
-		; // TODO: tag_error(L, narg, LUA_TNUMBER);
+	//if(d == 0 && !lua_isnumber(L, narg))
+	//	; // TODO: tag_error(L, narg, LUA_TNUMBER);
 	return d;
 }
 
@@ -160,7 +160,7 @@ int l_vector_direction(lua_State* L)
 	lua_Number vx = lua_tonumber(L, 3) - lua_tonumber(L, 1);
 	lua_Number vy = lua_tonumber(L, 4) - lua_tonumber(L, 2);
 
-	lua_pushnumber(L, rad2deg(atan2(vx, -vy)) );
+	lua_pushnumber(L, rad2deg((float)atan2(vx, -vy)) );
 	
 	return 1;
 }

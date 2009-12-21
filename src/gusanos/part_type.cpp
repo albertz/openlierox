@@ -142,7 +142,7 @@ PartType::PartType()
 #ifndef DEDICATED_ONLY
 	sprite = NULL;
 	distortion = NULL;
-	distortMagnitude = 0.8;
+	distortMagnitude = 0.8f;
 
 	blender = BlitterContext::None;
 	
@@ -203,7 +203,7 @@ void PartType::touch()
 				int n = (lua.call(f, 2), x - hwidth, y - hheight, width, height)();
 				if(n == 2)
 				{
-					d->map[y * width + x] = Vec(lua_tonumber(lua, -2), lua_tonumber(lua, -1));
+					d->map[y * width + x] = Vec((float)lua_tonumber(lua, -2), (float)lua_tonumber(lua, -1));
 					lua.pop(2);
 				}
 				else
@@ -419,7 +419,7 @@ bool PartType::load(std::string const& filename)
 		}
 	}
 	
-	distortMagnitude = parser.getDouble("distort_magnitude", 1);
+	distortMagnitude = (float)parser.getDouble("distort_magnitude", 1);
 	
 	std::string blenderstr = parser.getString("blender", "none");
 	if(blenderstr == "add") blender = BlitterContext::Add;
@@ -438,16 +438,16 @@ bool PartType::load(std::string const& filename)
 	syncAngle = parser.getBool("sync_angle", false);
 	
 	animDuration = parser.getInt("anim_duration", 100);
-	gravity = parser.getDouble("gravity", 0.0);
+	gravity = (float)parser.getDouble("gravity", 0.0);
 	repeat = parser.getInt("repeat", 1);
-	bounceFactor = parser.getDouble("bounce_factor", 1.0);
-	groundFriction = parser.getDouble("ground_friction", 1.0);
-	damping = parser.getDouble("damping", 1.0);
-	acceleration = parser.getDouble("acceleration", 0.0);
-	maxSpeed = parser.getDouble("max_speed", -1.0);
+	bounceFactor = (float)parser.getDouble("bounce_factor", 1.0);
+	groundFriction = (float)parser.getDouble("ground_friction", 1.0);
+	damping = (float)parser.getDouble("damping", 1.0);
+	acceleration = (float)parser.getDouble("acceleration", 0.0);
+	maxSpeed = (float)parser.getDouble("max_speed", -1.0);
 	angularFriction = Angle(parser.getDouble("angular_friction", 0.0));
-	health = parser.getDouble("health", 100.0);
-	radius = parser.getDouble("radius", 0.0);
+	health = (float)parser.getDouble("health", 100.0);
+	radius = (float)parser.getDouble("radius", 0.0);
 	line2Origin = parser.getBool("line_to_origin", false);
 	//networkInitName = parser.getString("network_init", "");
 	networkInit = parser.getString("network_init", "");
@@ -514,7 +514,7 @@ bool PartType::load(std::string const& filename)
 				{
 					detectFilter = 1;
 				}
-				detectRanges.push_back( new DetectEvent(i.actions(), p[0]->toDouble(10.0), p[1]->toBool(true), detectFilter));
+				detectRanges.push_back( new DetectEvent(i.actions(), (float)p[0]->toDouble(10.0), p[1]->toBool(true), detectFilter));
 			}
 			break;
 			

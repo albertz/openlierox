@@ -30,7 +30,7 @@ Explosion::Explosion(ExpType *type, const Vec& _pos, CWormInputHandler* owner) :
 	m_type = type;
 	
 #ifndef DEDICATED_ONLY
-	m_alpha = m_type->alpha;
+	m_alpha = (float)m_type->alpha;
 	
 	m_timeout = m_type->timeout + (int)( rnd() * (m_type->timeoutVariation+1) ); 
 	// I add +1 or variation will always be 0 if the value of timeout variation is 1
@@ -86,7 +86,7 @@ void Explosion::think()
 		if ( fabs( m_type->destAlpha - m_alpha ) < fabs(m_fadeSpeed) )
 		{
 			m_fadeSpeed = 0;
-			m_alpha = m_type->destAlpha;
+			m_alpha = (float)m_type->destAlpha;
 		}
 		else
 			m_alpha += m_fadeSpeed;

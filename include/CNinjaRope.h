@@ -82,7 +82,7 @@ public:
 
 	void		Setup(CGameScript *gs);
 
-	int			isReleased()		{ return Released; }
+	bool		isReleased()		{ return Released; }
 	void		Release();
 	void		UnAttachPlayer();
 	void		AttachToPlayer(CWorm *worm, CWorm *owner);

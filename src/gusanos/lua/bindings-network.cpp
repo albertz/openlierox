@@ -83,7 +83,7 @@ METHODC(Net_BitStream, bitStream_decodeEliasGamma,  {
 	Extracts a boolean value from this bitstream (Returns either true or false).
 */
 METHODC(Net_BitStream, bitStream_addBool,  {
-	p->addBool(lua_toboolean(context, 2));
+	p->addBool(lua_toboolean(context, 2) != 0);
 	context.pushvalue(1);
 	return 1;
 })

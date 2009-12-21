@@ -175,13 +175,13 @@ ShootParticles::ShootParticles( vector<OmfgScript::TokenBase*> const& params )
 {
 	type = partTypeList.load(params[0]->toString());
 	amount = params[1]->toInt(1);
-	speed = params[2]->toDouble(0.0);
-	speedVariation = params[3]->toDouble(0.0);
-	motionInheritance = params[4]->toDouble(0.0);
+	speed = (float)params[2]->toDouble(0.0);
+	speedVariation = (float)params[3]->toDouble(0.0);
+	motionInheritance = (float)params[4]->toDouble(0.0);
 	amountVariation = params[5]->toInt(0);
 	distribution = Angle(params[6]->toDouble(360.0));
 	angleOffset = AngleDiff(params[7]->toDouble(0.0));
-	distanceOffset = params[8]->toDouble(0.0);
+	distanceOffset = (float)params[8]->toDouble(0.0);
 }
 
 void ShootParticles::run( ActionParams const& params )
@@ -197,7 +197,7 @@ void ShootParticles::run( ActionParams const& params )
 			Angle angle = baseAngle;
 			if(distribution) angle += distribution * midrnd();
 			Vec direction(angle);
-			Vec spd(direction * (speed + midrnd()*speedVariation));
+			Vec spd(direction * (float)(speed + midrnd()*speedVariation));
 			if(motionInheritance)
 			{
 				spd += params.object->velocity() * motionInheritance;
@@ -222,13 +222,13 @@ UniformShootParticles::UniformShootParticles( vector<OmfgScript::TokenBase*> con
 {
 	type = partTypeList.load(params[0]->toString());
 	amount = params[1]->toInt(1);
-	speed = params[2]->toDouble(0.0);
-	speedVariation = params[3]->toDouble(0.0);
-	motionInheritance = params[4]->toDouble(0.0);
+	speed = (float)params[2]->toDouble(0.0);
+	speedVariation = (float)params[3]->toDouble(0.0);
+	motionInheritance = (float)params[4]->toDouble(0.0);
 	amountVariation = params[5]->toInt(0);
 	distribution = Angle(params[6]->toDouble(360.0));
 	angleOffset = AngleDiff(params[7]->toDouble(0.0));
-	distanceOffset = params[8]->toDouble(0.0);
+	distanceOffset = (float)params[8]->toDouble(0.0);
 }
 
 void UniformShootParticles::run( ActionParams const& params )
@@ -246,7 +246,7 @@ void UniformShootParticles::run( ActionParams const& params )
 		for(int i = 0; i < realAmount; ++i, angle += angleIncrease )
 		{
 			Vec direction(angle);
-			Vec spd(direction * (speed + midrnd()*speedVariation));
+			Vec spd(direction * (float)(speed + midrnd()*speedVariation));
 			if(motionInheritance)
 			{
 				spd += params.object->velocity() * motionInheritance;
@@ -269,10 +269,10 @@ UniformShootParticles::~UniformShootParticles()
 PutParticle::PutParticle( vector<OmfgScript::TokenBase*> const& params )
 {
 	type = partTypeList.load(params[0]->toString());
-	x = params[1]->toDouble();
-	y = params[2]->toDouble();
-	xspd = params[3]->toDouble(0.0);
-	yspd = params[4]->toDouble(0.0);
+	x = (float)params[1]->toDouble();
+	y = (float)params[2]->toDouble();
+	xspd = (float)params[3]->toDouble(0.0);
+	yspd = (float)params[4]->toDouble(0.0);
 	angle = Angle(params[5]->toDouble(0.0));
 }
 
@@ -315,7 +315,7 @@ CreateExplosion::~CreateExplosion()
 
 Push::Push( vector<OmfgScript::TokenBase*> const& params )
 {
-	factor = params[0]->toDouble(0.0);
+	factor = (float)params[0]->toDouble(0.0);
 }
 
 void Push::run( ActionParams const& params  )
@@ -334,9 +334,9 @@ Push::~Push()
 Repel::Repel( vector<OmfgScript::TokenBase*> const& params )
 {
 	// Sensible defaults?
-	maxForce = params[0]->toDouble(0.0);
-	maxDistance = params[1]->toDouble(0.0);
-	minForce = params[2]->toDouble(0.0);
+	maxForce = (float)params[0]->toDouble(0.0);
+	maxDistance = (float)params[1]->toDouble(0.0);
+	minForce = (float)params[2]->toDouble(0.0);
 
 	maxDistanceSqr = maxDistance*maxDistance;
 	forceDiffScaled = (minForce - maxForce) / maxDistance;
@@ -356,8 +356,8 @@ void Repel::run( ActionParams const& params )
 	if ( distanceSqr > 0.f && distanceSqr < maxDistanceSqr )
 	{
 		double distance = sqrt(distanceSqr);
-		dir /= distance; // Normalize
-		params.object2->velocity() += CVec( dir * ( maxForce + distance * forceDiffScaled) );
+		dir /= (float)distance; // Normalize
+		params.object2->velocity() += CVec( dir * (float)( maxForce + distance * forceDiffScaled) );
 	}
 }
 
@@ -371,7 +371,7 @@ Repel::~Repel()
 
 Damp::Damp( vector<OmfgScript::TokenBase*> const& params )
 {
-	factor = params[0]->toDouble(0.0);
+	factor = (float)params[0]->toDouble(0.0);
 }
 
 void Damp::run( ActionParams const& params )
@@ -389,19 +389,19 @@ Damp::~Damp()
 
 Damage::Damage( vector<OmfgScript::TokenBase*> const& params )
 {
-	m_damage = params[0]->toDouble(0.0);
-	m_damageVariation = params[1]->toDouble(0.0);
-	m_maxDistance = params[2]->toDouble(-1.0);
+	m_damage = (float)params[0]->toDouble(0.0);
+	m_damageVariation = (float)params[1]->toDouble(0.0);
+	m_maxDistance = (float)params[2]->toDouble(-1.0);
 }
 
 void Damage::run( ActionParams const& params )
 {
-	float damageAmount = m_damage + rnd() * m_damageVariation;
+	float damageAmount = (float)(m_damage + rnd() * m_damageVariation);
 	if ( m_maxDistance > 0 )
 	{
 		float distance = ( params.object->pos() - params.object2->pos() ).GetLength();
 		if ( distance < m_maxDistance )
-			damageAmount *= 1.0 - (distance / m_maxDistance);
+			damageAmount *= 1.0f - (distance / m_maxDistance);
 		else
 			damageAmount = 0;
 	}
@@ -447,9 +447,9 @@ PlaySound::PlaySound( vector<OmfgScript::TokenBase*> const& params )
 				sounds.push_back(soundList.load((*s)->toString()));
 		}
 	}
-	loudness = params[1]->toDouble(100.0);
-	pitch = params[2]->toDouble(1.0);
-	pitchVariation = params[3]->toDouble(0.0);
+	loudness = (float)params[1]->toDouble(100.0);
+	pitch = (float)params[2]->toDouble(1.0);
+	pitchVariation = (float)params[3]->toDouble(0.0);
 #endif
 }
 
@@ -489,9 +489,9 @@ PlaySoundStatic::PlaySoundStatic( vector<OmfgScript::TokenBase*> const& params )
 				sounds.push_back(soundList.load((*s)->toString()));
 		}
 	}
-	loudness = params[1]->toDouble(100.0);
-	pitch = params[2]->toDouble(1.0);
-	pitchVariation = params[3]->toDouble(0.0);
+	loudness = (float)params[1]->toDouble(100.0);
+	pitch = (float)params[2]->toDouble(1.0);
+	pitchVariation = (float)params[3]->toDouble(0.0);
 #endif
 }
 
@@ -532,10 +532,10 @@ PlayGlobalSound::PlayGlobalSound( vector<OmfgScript::TokenBase*> const& params )
 				sounds.push_back(sound1DList.load((*s)->toString()));
 		}
 	}
-	volume = params[1]->toDouble(1.0);
-	volumeVariation = params[2]->toDouble(0.0);
-	pitch = params[3]->toDouble(1.0);
-	pitchVariation = params[4]->toDouble(0.0);
+	volume = (float)params[1]->toDouble(1.0);
+	volumeVariation = (float)params[2]->toDouble(0.0);
+	pitch = (float)params[3]->toDouble(1.0);
+	pitchVariation = (float)params[4]->toDouble(0.0);
 #endif
 }
 
@@ -609,7 +609,7 @@ ShowFirecone::ShowFirecone( vector<OmfgScript::TokenBase*> const& params )
 #ifndef DEDICATED_ONLY
 	sprite = spriteList.load(params[0]->toString());
 	frames = params[1]->toInt(0);
-	drawDistance = params[2]->toDouble(0);
+	drawDistance = (float)params[2]->toDouble(0);
 #endif
 }
 
@@ -655,8 +655,8 @@ AddAngleSpeed::~AddAngleSpeed()
 
 AddSpeed::AddSpeed( vector<OmfgScript::TokenBase*> const& params )
 {
-	speed = params[0]->toDouble(0.0);
-	speedVariation = params[1]->toDouble(0.0);
+	speed = (float)params[0]->toDouble(0.0);
+	speedVariation = (float)params[1]->toDouble(0.0);
 	offs = AngleDiff(params[2]->toDouble(0.0));
 	offsVariation = Angle(params[3]->toDouble(0.0));
 }

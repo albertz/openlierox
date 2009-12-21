@@ -88,11 +88,12 @@
 				OutputFile=".\../../bin/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
+				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib,LIBCMT"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../../bin/OpenLieroX_debug.pdb"
 				SubSystem="1"
 				EnableCOMDATFolding="0"
+				LinkTimeCodeGeneration="0"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -3831,13 +3832,6 @@
 				<File
 					RelativePath="..\..\src\gusanos\blitters\add_simd.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\gusanos\blitters\blend.cpp"
@@ -3846,13 +3840,6 @@
 				<File
 					RelativePath="..\..\src\gusanos\blitters\blend_simd.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\gusanos\blitters\blitters.h"
@@ -3881,13 +3868,6 @@
 				<File
 					RelativePath="..\..\src\gusanos\blitters\mult_simd.cpp"
 					>
-					<FileConfiguration
-						Name="Debug|Win32"
-						>
-						<Tool
-							Name="VCCLCompilerTool"
-						/>
-					</FileConfiguration>
 				</File>
 				<File
 					RelativePath="..\..\src\gusanos\blitters\types.h"

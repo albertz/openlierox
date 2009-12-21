@@ -187,6 +187,7 @@ bool Edit::charPressed(char c, int key)
 				
 				switch(c)
 				{
+					// TODO: where are the case labels?!
 					default:
 					{
 						if(m_selTo < m_caretPos)

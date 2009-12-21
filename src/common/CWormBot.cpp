@@ -1102,7 +1102,7 @@ void CWormBotInputHandler::getInput() {
     // we have no strafing for bots at the moment
 	ws->iFaceDirectionSide = m_worm->iMoveDirectionSide = m_worm->iFaceDirectionSide;
 
-	ws->iAngle = (float)m_worm->fAngle;	
+	ws->iAngle = (int)m_worm->fAngle;	
 }
 
 static bool moveToOwnBase(int t, CVec& pos) {
@@ -4662,7 +4662,7 @@ void CWormBotInputHandler::subThink() {
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
 	worm_state_t oldS = *m_worm->getWormState();
 	
-	m_worm->fAngle = m_worm->aimAngle.toDeg() - 90.0f;
+	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
 	//m_worm->fAngle = 180.0f - (m_worm->aimAngle.toDeg() + 90.0f);
 	oldS.iAngle = (int)m_worm->fAngle;
 	getInput();

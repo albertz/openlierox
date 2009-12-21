@@ -648,7 +648,7 @@ bool Wnd::doAction()
 		int r = (lua.call(m_callbacks[OnAction], 1), luaReference)();
 		if(r == 1)
 		{
-			bool v = lua_toboolean(lua, -1);
+			bool v = lua_toboolean(lua, -1) != 0;
 			lua.pop(1);
 			return v;
 		}
@@ -835,7 +835,7 @@ bool Wnd::doKeyDown(int key)
 		int r = (lua.call(m_callbacks[OnKeyDown], 1), luaReference, key)();
 		if(r == 1)
 		{
-			bool v = lua_toboolean(lua, -1);
+			bool v = lua_toboolean(lua, -1) != 0;
 			lua.pop(1);
 			if(v)
 				return false;

@@ -154,7 +154,7 @@ int l_gui_loadgss(lua_State* L)
 			return 1;
 		
 		if(params > 1)
-			passive = lua_toboolean(L, 2);
+			passive = lua_toboolean(L, 2) != 0;
 			
 		gui.loadGSSFile(name, passive);
 	}
@@ -275,7 +275,7 @@ LMETHODC(OmfgGUI::Wnd, gui_wnd_attribute,  {
 */
 
 LMETHODC(OmfgGUI::Wnd, gui_wnd_set_visibility,  {
-	p->setVisibility(lua_toboolean(context, 2));
+	p->setVisibility(lua_toboolean(context, 2) != 0);
 	return 0;
 })
 
@@ -417,7 +417,7 @@ LMETHODC(OmfgGUI::Check, gui_check_state,  {
 })
 
 LMETHODC(OmfgGUI::Check, gui_check_set_state,  {
-	if(lua_toboolean(context, 2) != p->getState())
+	if((lua_toboolean(context, 2) != 0) != p->getState())
 		p->toggleState();
 	return 0;
 })
@@ -425,7 +425,7 @@ LMETHODC(OmfgGUI::Check, gui_check_set_state,  {
 //! Edit inherits Wnd
 
 LMETHODC(OmfgGUI::Edit, gui_edit_set_lock,  {
-	p->setLock(lua_toboolean(context, 2));
+	p->setLock(lua_toboolean(context, 2) != 0);
 	return 0;
 })
 

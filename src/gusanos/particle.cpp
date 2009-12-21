@@ -132,7 +132,7 @@ Particle::Particle(PartType *type, Vec pos_, Vec spd_, int dir, CWormInputHandle
 		m_angleSpeed(0),
 #ifndef DEDICATED_ONLY
 		m_fadeSpeed(0),
-		m_alpha(m_type->alpha),
+		m_alpha((float)m_type->alpha),
 		m_alphaDest(255),
 		m_sprite(m_type->sprite),
 		m_animator(0),
@@ -226,7 +226,7 @@ inline Vec getCorrection( const Vec& objPos, const Vec& pointPos, float radius )
 {
 	Vec diff = pointPos - objPos;
 	if ( diff.lengthSqr() < radius*radius ) {
-		float lengthDiff = diff.length() - radius;
+		float lengthDiff = (float)diff.length() - radius;
 		return diff.normal() * lengthDiff;
 	} else {
 		return Vec();
@@ -238,27 +238,27 @@ Vec getCorrectionBox( const Vec& objPos, const IVec& boxPos, float radius )
 	IVec iObjPos = IVec( objPos );
 	if ( iObjPos.x == boxPos.x ) {
 		if ( objPos.y < boxPos.y ) {
-			return getCorrection( objPos, Vec ( objPos.x, boxPos.y), radius );
+			return getCorrection( objPos, Vec ( objPos.x, (float)boxPos.y), radius );
 		} else {
-			return getCorrection( objPos, Vec ( objPos.x, boxPos.y+1), radius );
+			return getCorrection( objPos, Vec ( objPos.x, (float)(boxPos.y+1)), radius );
 		}
 	} else if ( iObjPos.y == boxPos.y ) {
 		if ( objPos.x < boxPos.x ) {
-			return getCorrection( objPos, Vec( boxPos.x, objPos.y), radius );
+			return getCorrection( objPos, Vec( (float)boxPos.x, objPos.y), radius );
 		} else {
-			return getCorrection( objPos, Vec( boxPos.x+1, objPos.y), radius );
+			return getCorrection( objPos, Vec( (float)(boxPos.x+1), objPos.y), radius );
 		}
 	} else if ( objPos.y < boxPos.y ) {
 		if ( objPos.x < boxPos.x ) {
-			return getCorrection( objPos, Vec( boxPos.x, boxPos.y), radius );
+			return getCorrection( objPos, Vec( (float)boxPos.x, (float)boxPos.y), radius );
 		} else {
-			return getCorrection( objPos, Vec( boxPos.x+1, boxPos.y), radius );
+			return getCorrection( objPos, Vec( (float)(boxPos.x+1), (float)boxPos.y), radius );
 		}
 	} else {
 		if ( objPos.x < boxPos.x ) {
-			return getCorrection( objPos, Vec( boxPos.x, boxPos.y + 1 ), radius );
+			return getCorrection( objPos, Vec( (float)boxPos.x, (float)(boxPos.y + 1) ), radius );
 		} else {
-			return getCorrection( objPos, Vec( boxPos.x+1, boxPos.y + 1), radius );
+			return getCorrection( objPos, Vec( (float)(boxPos.x+1), (float)(boxPos.y + 1) ), radius );
 		}
 	}
 }
@@ -344,7 +344,7 @@ void Particle::think()
 			if ( n > 0 )
 			{
 				if ( averageCorrection.length() > 0 ) {
-					averageCorrection /= n;
+					averageCorrection /= (float)n;
 					Vec tmpNorm = averageCorrection.normal();
 					velocity() -= CVec( tmpNorm.perp() * tmpNorm.perpDotProduct(velocity()) ) * ( 1 - friction );
 					pos() += CVec(averageCorrection);
@@ -417,7 +417,7 @@ void Particle::think()
 		if ( ( m_type->blender || m_type->lightHax ) && m_fadeSpeed ) {
 			if ( fabs(m_alphaDest - m_alpha) < fabs(m_fadeSpeed) ) {
 				m_fadeSpeed = 0;
-				m_alpha = m_alphaDest;
+				m_alpha = (float)m_alphaDest;
 			} else
 				m_alpha += m_fadeSpeed;
 		}
