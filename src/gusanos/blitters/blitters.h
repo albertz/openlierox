@@ -9,15 +9,15 @@
 #include "types.h"
 #include "mmx.h"
 
+#ifndef WIN32
 #define HAS_MMX (cpu_capabilities & CPU_MMX)
 #define HAS_SSE (cpu_capabilities & CPU_SSE)
 #define HAS_MMXSSE (cpu_capabilities & CPU_MMXPLUS)
-
-
-
-/*#define HAS_MMX (false)
+#else  // TODO: currently buggy on Windows
+#define HAS_MMX (false)
 #define HAS_SSE (false)
-#define HAS_MMXSSE (false)*/
+#define HAS_MMXSSE (false)
+#endif
 
 #define FOR_MMX(x_) if(HAS_MMX) { x_ }
 
