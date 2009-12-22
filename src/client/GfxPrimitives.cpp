@@ -1378,6 +1378,90 @@ void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
 
 }
 
+static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, SDL_PixelFormat *src)
+{
+	Color c1(src, s1);
+	Color c2(src, s2);
+	Color c3(src, s3);
+	Color c4(src, s4);
+	if (usekey)  {
+		if (EqualRGB(s1, src->colorkey, src))
+			c1.a = 0;
+		if (EqualRGB(s2, src->colorkey, src))
+			c2.a = 0;
+		if (EqualRGB(s3, src->colorkey, src))
+			c3.a = 0;
+		if (EqualRGB(s4, src->colorkey, src))
+			c4.a = 0;
+	}
+
+#define CHPART(var, chan) ((var.chan * var.a) >> 10)
+
+	Color res(CHPART(c1, r) + CHPART(c2, r) + CHPART(c3, r) + CHPART(c4, r),
+				CHPART(c1, g) + CHPART(c2, g) + CHPART(c3, g) + CHPART(c4, g),
+				CHPART(c1, b) + CHPART(c2, b) + CHPART(c3, b) + CHPART(c4, b),
+				(c1.a + c2.a + c3.a + c4.a) >> 2);
+	return res;
+}
+
+/////////////////////////
+// Draws the image half-scaled onto the destination surface
+// Handles colorkey and alpha correctly
+void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh)
+{
+	// Lock
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	// Clip
+	int dw = sw / 2;
+	int dh = sh / 2;
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+		return;
+	sw = dw * 2;
+	sh = dh * 2;
+	if (!ClipRefRectWith(sx, sy, sw, sh, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	if (sh < 2 || sw < 2)
+		return;
+	dw = sw / 2;
+	dh = sh / 2;
+
+	const short bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *srcrow_1 = GetPixelAddr(bmpSrc, sx, sy);
+	Uint8 *srcrow_2 = GetPixelAddr(bmpSrc, sx, sy + 1);
+	Uint8 *dstrow = GetPixelAddr(bmpDest, dx, dy);
+	const Uint32 key = bmpDest->format->colorkey;
+	PixelPutAlpha& put = getPixelAlphaPutFunc(bmpDest);
+	const bool usekey = (bmpSrc->flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY;
+
+	for(int y = sy + dh; y != sy; --y)  {
+		Uint8 *srcpx_1 = srcrow_1;
+		Uint8 *srcpx_2 = srcrow_2;
+		Uint8 *dstpx = dstrow;
+		for(int x = sx + dw; x != sx; --x, srcpx_1 += bpp * 2, srcpx_2 += bpp * 2, dstpx += bpp) {
+			Uint32 px1 = GetPixelFromAddr(srcpx_1, bpp);  // x, y
+			Uint32 px2 = GetPixelFromAddr(srcpx_1 + bpp, bpp); // x + 1, y
+			Uint32 px3 = GetPixelFromAddr(srcpx_2, bpp);  // x, y + 1
+			Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
+			const Color pxBg(bmpDest->format, GetPixelFromAddr(dstpx, bpp));
+
+			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc->format));
+			//PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
+		}
+
+		srcrow_1 += 2*bmpSrc->pitch;
+		srcrow_2 += 2*bmpSrc->pitch;
+		dstrow += bmpDest->pitch;
+	}
+
+	// Unlock
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+
+}
+
 
 //////////////////////
 // Generates a shadow for the given object

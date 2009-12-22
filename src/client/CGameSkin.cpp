@@ -475,7 +475,7 @@ bool CGameSkin::operator ==(const CGameSkin &oth)
 
 ///////////////////////
 // Draw the worm skin at the specified coordinates
-void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
+void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half)
 {
 	// No skins in dedicated mode
 	if (bDedicated)
@@ -492,8 +492,10 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 	
 	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return;
 	
-	if (getFrameCount() != 0)
-		frame %= getFrameCount();
+	if (frame < 0)
+		frame = 0;
+	else if (frame >= getFrameCount())
+		frame = getFrameCount() - 1;
 	
 	// Get the correct frame
 	const int sx = frame * iFrameWidth + iFrameSpacing;
@@ -501,9 +503,15 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 
 	// Draw the skin
 	if (mirrored)  {
-		DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
+		if (half)
+			DrawImageScaleHalfAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
+		else
+			DrawImageAdv(surf, bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1, sy, x, y, iSkinWidth, iSkinHeight);
 	} else {
-		DrawImageAdv(surf, bmpNormal.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
+		if (half)
+			DrawImageScaleHalfAdv(surf, bmpNormal.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
+		else
+			DrawImageAdv(surf, bmpNormal.get(), sx, sy, x, y, iSkinWidth, iSkinHeight);
 	}
 
 	// Bot icon?
@@ -511,6 +519,16 @@ void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, 
 		DrawImageAdv(surf, DeprecatedGUI::gfxGame.bmpAI.get(),
 		iBotIcon * CPU_WIDTH, 0, 0, iSkinHeight - DeprecatedGUI::gfxGame.bmpAI->h, CPU_WIDTH, DeprecatedGUI::gfxGame.bmpAI->h); 
 	}
+}
+
+void CGameSkin::Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
+{
+	DrawInternal(surf, x, y, frame, draw_cpu, mirrored, blockUntilReady, false);
+}
+
+void CGameSkin::DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady)
+{
+	DrawInternal(surf, x, y, frame, draw_cpu, mirrored, blockUntilReady, true);
 }
 
 void GameSkinPreviewDrawer::draw(SDL_Surface* dest, int x, int y) {
