@@ -641,7 +641,7 @@ void CWorm::draw(CViewport* viewport)
 
 			int colour = universalToLocalColor(this->getSkin().getColor().get());
 
-			Angle angle = getPointingAngle();
+			/*Angle angle = getPointingAngle();
 			bool flipped = false;
 			if(angle > Angle(180.0)) {
 				angle = Angle(360.0) - angle;
@@ -651,19 +651,19 @@ void CWorm::draw(CViewport* viewport)
 			// Find the right pic
 			int f = (m_animator->getFrame() % 3) * 7;
 			int ang = MIN((int)( (angle.toDeg())/151 * 7 ), 6);  // clamp the value because LX skins don't have the very bottom aim
-			f += ang;
+			f += ang;*/
 			
-			//skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);
-			cSkin.DrawHalf(where->surf.get(), renderX - cSkin.getSkinWidth() / 4, renderY - cSkin.getSkinHeight() / 4, f, false, flipped);
+			skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);
+			//cSkin.DrawHalf(where->surf.get(), renderX - cSkin.getSkinWidth() / 4, renderY - cSkin.getSkinHeight() / 4, f, false, flipped);
 
-			/*if ( m_weapons[currentWeapon] )
-				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);*/
+			if ( m_weapons[currentWeapon] )
+				m_weapons[currentWeapon]->drawTop(where, renderX, renderY);
 
-			/*if ( m_currentFirecone ) {
+			if ( m_currentFirecone ) {
 				Vec distance = Vec(aimAngle, (double)m_fireconeDistance);
 				m_currentFirecone->getSprite(m_fireconeAnimator->getFrame(), getPointingAngle())->
 				draw(where, renderX+static_cast<int>(distance.x)*m_dir, renderY+static_cast<int>(distance.y));
-			}*/
+			}
 		}
 
 #ifdef DEBUG_WORM_REACTS
