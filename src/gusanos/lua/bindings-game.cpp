@@ -100,7 +100,7 @@ int l_game_players(lua_State* L)
 {
 	lua.pushReference(LuaBindings::playerIterator);
 	typedef std::list<CWormInputHandler*>::iterator iter;
-	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
+	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
 	i = game.players.begin();
 	lua_pushnil(L);
 	

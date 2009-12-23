@@ -536,7 +536,7 @@ int l_mods(lua_State* L)
 	
 	typedef std::set<std::string>::const_iterator iter;
 	
-	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
+	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
 	i = gusGame.modList.begin();
 	lua_pushnil(L);
 	
@@ -555,7 +555,7 @@ int l_maps(lua_State* L)
 	
 	typedef ResourceLocator<CMap>::NamedResourceMap::const_iterator iter;
 	
-	iter& i = *(iter *)lua_newuserdata (L, sizeof(iter));
+	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
 	i = levelLocator.getMap().begin();
 	lua_pushnil(L);
 	

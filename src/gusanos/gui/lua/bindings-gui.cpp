@@ -490,7 +490,7 @@ LMETHODC(OmfgGUI::List, gui_list_subinsert,  {
 	//	return 0;
 			
 	int c = lua_gettop(context);
-	//void* mem = lua_newuserdata(context, sizeof(LuaListNode));
+	//void* mem = lua_newuserdata_init(context, sizeof(LuaListNode));
 	//lua_pushvalue(context, -1);
 	OmfgGUI::ListNode* n = lua_new_keep(OmfgGUI::ListNode, (""), context);
 	//LuaListNode* n = new (mem) LuaListNode(context.createReference(), "");

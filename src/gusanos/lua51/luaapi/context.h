@@ -203,7 +203,7 @@ public:
 	template<class T>
 	LuaContext& push(FullReference<T> const& v)
 	{
-		T** i = (T **)lua_newuserdata (m_State, sizeof(T *));
+		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T *));
 		*i = &v.x;
 		pushReference(v.metatable);
 		
@@ -269,7 +269,7 @@ public:
 	template<class T>
 	void pushFullReference(T& x, LuaReference metatable)
 	{
-		T** i = (T **)lua_newuserdata (m_State, sizeof(T *));
+		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T *));
 		*i = &x;
 		pushReference(metatable);
 		
@@ -287,14 +287,14 @@ public:
 	template<class T>
 	void pushFullReference(T& x)
 	{
-		T** i = (T **)lua_newuserdata (m_State, sizeof(T*));
+		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T*));
 		*i = &x;
 	}
 	
 	template<class T>
 	void pushObject(T const& x)
 	{
-		T* i = (T *)lua_newuserdata (m_State, sizeof(T));
+		T* i = (T *)lua_newuserdata_init (m_State, sizeof(T));
 		*i = x;
 	}
 	
@@ -313,7 +313,7 @@ public:
 	
 	void* pushObject(size_t count) // Pops a metatable from the stack
 	{
-		void* p = lua_newuserdata (m_State, count); // <metatable> <object>
+		void* p = lua_newuserdata_init (m_State, count); // <metatable> <object>
 
 		lua_insert(m_State, -2); // <object> <metatable>
 		lua_setmetatable(m_State, -2);
@@ -323,7 +323,7 @@ public:
 	
 	void* pushObject(LuaReference metatable, size_t count)
 	{
-		void* p = lua_newuserdata (m_State, count);
+		void* p = lua_newuserdata_init (m_State, count);
 		
 		pushReference(metatable);
 		lua_setmetatable(m_State, -2);

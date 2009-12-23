@@ -86,4 +86,11 @@ inline T* __lua_new_finalize_keep(T* p, _Lua& lua_) {
 #define lua_new_m_keep(t_, param_, lua_, metatable_) \
 	__lua_new_finalize_keep<t_>( new ( __lua_alloc_meta<t_>(lua_, metatable_) ) t_ param_, lua_ )
 
+template <typename _Context>
+void *lua_newuserdata_init(_Context& lua, size_t size)  {
+	void *res = lua_newuserdata(lua, size);
+	memset(res, 0, size);
+	return res;
+}
+
 #endif //LUA_TYPES_H
