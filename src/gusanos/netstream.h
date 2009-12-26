@@ -98,6 +98,25 @@ enum eNet_NetResult {
 
 
 struct Net_BitStream {
+private:
+	std::string m_data;
+	size_t m_readPos;  // in bits
+	size_t m_size;  // in bits
+
+	void growIfNeeded(size_t addBits);
+	void writeBits(const char *bits, size_t bitCount);
+	std::string readBits(size_t bitCount);
+	void reset();
+
+	bool testBool();
+	bool testInt();
+	bool testFloat();
+	bool testStream();
+	bool testString();
+	bool testSafety();
+public:
+	Net_BitStream() : m_readPos(0), m_size(0) {}
+
 	void addBool(bool);
 	void addInt(int n, int bits);
 	void addSignedInt(int n, int bits);
@@ -112,6 +131,7 @@ struct Net_BitStream {
 	const char* getStringStatic();
 	
 	Net_BitStream* Duplicate();
+	bool runTests();
 };
 
 struct Net_FileTransInfo {
