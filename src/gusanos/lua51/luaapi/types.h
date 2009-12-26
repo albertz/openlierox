@@ -1,6 +1,8 @@
 #ifndef LUA_TYPES_H
 #define LUA_TYPES_H
 
+#include <cstring> //size_t
+
 struct LuaReference
 {
 	LuaReference()
