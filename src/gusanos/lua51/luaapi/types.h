@@ -55,27 +55,6 @@ inline T* __lua_new_finalize_keep(T* p, _Lua& lua_) {
 }
 
 
-#define LUA_NEW_(t_, param_, lua_) \
-({ \
-	LuaContext& lua_once_ = lua_; \
-	lua_once_.pushRegObject(t_::metaTable); \
-	void* space_ = lua_once_.pushObject(sizeof(t_)); \
-	t_* p_ = new (space_) t_ param_; \
-	p_->luaReference = lua_once_.createReference(); \
-	p_; \
-})
-
-#define LUA_NEW_KEEP(t_, param_, lua_) \
-({ \
-	LuaContext& lua_once_ = lua_; \
-	lua_once_.pushRegObject(t_::metaTable); \
-	void* space_ = lua_once_.pushObject(sizeof(t_)); \
-	t_* p_ = new (space_) t_ param_; \
-	lua_pushvalue(lua_once_, -1); \
-	p_->luaReference = lua_once_.createReference(); \
-	p_; \
-})
-
 #define lua_new(t_, param_, lua_) \
 	__lua_new_finalize<t_>( new ( __lua_alloc<t_>(lua_) ) t_ param_, lua_ )
 
