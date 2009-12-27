@@ -292,25 +292,6 @@ void Network::update()
 				SET_STATE(Idle);
 				mq_end_case()
 
-				/*
-				mq_case(Host)
-					if(!isDisconnected())
-					{
-						if(!isDisconnecting())
-							disconnect();
-						
-						mq_delay(); // Wait until network is disconnected
-					}
-					
-					m_control = new Server(m_serverPort);
-					registerClasses();
-					m_host = true;
-					gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
-					updater.assignNetworkRole(true);
-					registerToMasterServer();
-					SET_STATE(Idle);
-				mq_end_case()
-				*/
 				mq_end_process_messages()
 			}
 			break;
