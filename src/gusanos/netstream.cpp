@@ -371,7 +371,7 @@ Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, f
 Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
 
 
-void Net_Control::Net_Connect(const Net_Address&, void*) {}
+void Net_Control::Net_Connect() {}
 void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}

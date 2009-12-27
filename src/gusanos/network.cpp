@@ -33,10 +33,7 @@ LuaReference LuaEventDef::metaTable;
 namespace
 {
 
-	mq_define_message(Connect, 0, ())
-	{}
-
-	std::string addr;
+	mq_define_message(Connect, 0, ()) {}
 	mq_end_define_message()
 
 	Network::State state = Network::StateDisconnected;
@@ -252,11 +249,8 @@ void Network::update()
 
 				m_control = new Client( 0 );
 				registerClasses();
-				Net_Address address;
-				address.setAddress( eNet_AddressUDP, 0, ( data.addr + ":" + cast<string>(m_serverPort) ).c_str() );
-				m_control->Net_Connect( address, NULL );
+				m_control->Net_Connect();
 				//m_client = true; // We wait with setting this until we've connected
-				m_lastServerAddr = data.addr;
 				setLuaState(StateConnecting);
 				SET_STATE(Idle);
 				mq_end_case()

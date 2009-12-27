@@ -190,7 +190,7 @@ struct Net_Address;
 
 struct Net_Control {
 	virtual ~Net_Control() {}
-	void Net_Connect(const Net_Address&, void*);
+	void Net_Connect();
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
