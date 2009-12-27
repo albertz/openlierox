@@ -222,7 +222,8 @@ bool PlaySoundSample(SoundSample* sample) {
 // Play a sound in the viewport
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 {
-    // TODO: not used
+	if(!SoundSystemAvailable || !SoundSystemStarted) return;
+
 //	int pan = 0;
 //	int maxhearing = 750;	// Maximum distance for hearing
 
@@ -257,13 +258,14 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 		if(y+t+10 < t || y-10 > v->GetVirtH())
 			return;*/
 	}
-
-	// TODO: implement a PlayExSoundSample for this
+	
+	if(smp == NULL)
+		return;
+	
+	smp->play2D(Vec(pos), 100, 1);
+	
 	// this was the old call (using BASS_SamplePlayEx):
 	//PlayExSampleSoundEx(smp,0,-1,volume,pan,-1);
-	// we are using a workaround here
-	// TODO: let it like that, in LX 0.6x this has been made and no one liked it much
-	PlaySoundSample(smp);
 }
 
 

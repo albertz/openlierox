@@ -86,20 +86,18 @@ void Sfx::clear()
 	driver->clear();
 }
 
-Listener* Sfx::newListener()
+void Sfx::registerListener(Listener* l)
 {
-	listeners.push_back( new Listener );
-	return listeners.back();
+	listeners.push_back(l);
 }
 
-void Sfx::freeListener(Listener* listener)
+void Sfx::removeListener(Listener* listener)
 {
 	vector<Listener*>::iterator i;
 	for ( i = listeners.begin(); i != listeners.end(); ++i )
 	{
 		if ( listener == *i )
 		{
-			delete *i;
 			listeners.erase(i);
 			break;
 		}

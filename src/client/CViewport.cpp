@@ -29,6 +29,10 @@
 // Setup the viewport
 void CViewport::Setup(int l, int t, int vw, int vh, int type)
 {
+	shutdown();
+	
+	bUsed = true;
+
 	Left = l;
 	Top = t;
 	VirtWidth = vw;
@@ -40,13 +44,14 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
     pcTargetWorm = NULL;
     nType = type;
 	bSmooth = false;
-
-	bUsed = true;
-	gusReset();
+	
+	m_listener = new Listener();
+	sfx.registerListener(m_listener);
 }
 
 void CViewport::shutdown() {
 	bUsed = false;
+	sfx.removeListener(m_listener); delete m_listener; m_listener = NULL;
 	gusReset();
 }
 
@@ -71,6 +76,11 @@ void CViewport::setupInputs(const PlyControls& Inputs)
 // Process a viewport
 void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
 {    
+	if(!bUsed) {
+		errors << "Unused CViewport process" << endl;
+		return;
+	}
+	
 	int hx = Width/2;
 	int hy = Height/2;
 
@@ -300,8 +310,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 	// Clamp it
 	Clamp(MWidth, MHeight);
 
-	if (m_listener)
-		m_listener->pos = Vec((float)WorldX, (float)WorldY) + Vec((float)(Width/2), (float)(Height/2));
+	m_listener->pos = Vec((float)WorldX, (float)WorldY) + Vec((float)(Width/2), (float)(Height/2));
 }
 
 

@@ -29,7 +29,6 @@ void CViewport::gusInit()
 	dest = 0;
 	hud = 0;
 	fadeBuffer = 0;
-	m_listener = 0;
 }
 
 void CViewport::gusReset()
@@ -37,7 +36,6 @@ void CViewport::gusReset()
 	if(luaReference) lua.destroyReference(luaReference); luaReference = LuaReference();
 	destroy_bitmap(dest); dest = 0;
 	destroy_bitmap(hud); hud = 0;
-	sfx.freeListener(m_listener); m_listener = 0;
 	destroy_bitmap(fadeBuffer); fadeBuffer = 0;
 }
 
@@ -102,8 +100,6 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 		y = where->h - height;
 	dest = create_sub_bitmap(where,x,y,width,height);
 	hud = create_sub_bitmap(where,x,y,width,height);
-
-	m_listener = sfx.newListener();
 
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);

@@ -190,9 +190,18 @@ void SoundSampleOpenAL::play( float pitch,float volume)
 	if( m_sound ) 
 	{
 		//cout<<"Play "<<endl;
-			alSourcef(	 m_sound ,AL_PITCH,pitch);
-			alSourcef(	 m_sound ,AL_GAIN,volume );
-			alSourcePlay( m_sound) ;			
+
+		float _pos[3];
+		alGetListenerfv(AL_POSITION, _pos);
+		_pos[2] = 0;
+		
+		alSourcefv( m_sound , AL_POSITION, _pos);		
+		alSourcef(	 m_sound ,AL_REFERENCE_DISTANCE,100.0/100*50); //ok?
+
+		
+		alSourcef(	 m_sound ,AL_PITCH,pitch);
+		alSourcef(	 m_sound ,AL_GAIN,volume );
+		alSourcePlay( m_sound) ;			
 	}
 }
 

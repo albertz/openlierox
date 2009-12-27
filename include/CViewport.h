@@ -221,11 +221,8 @@ public:
 	ALLEGRO_BITMAP* hud;
 	ALLEGRO_BITMAP* fadeBuffer;
 	
-private:
-	
+private:	
 	Listener* m_listener;
-	
-	
 };
 
 
