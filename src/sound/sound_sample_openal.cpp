@@ -142,7 +142,7 @@ SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(fi
 	}
 	else
 	{
-		bufferID=alutCreateBufferFromFile (name.c_str());
+		bufferID=alutCreateBufferFromFile (GetFullFileName(name).c_str());
 		if (bufferID==AL_NONE)
 		{
 			m_sound=0;
