@@ -18,16 +18,20 @@ struct FixedPointNumber {
 	Sint64 number;
 	
 	FixedPointNumber() : number(0) {}
+	FixedPointNumber(int n) : number(n * factor) {}
 	FixedPointNumber(Sint64 n) : number(n * factor) {}
-	FixedPointNumber(double n) : number(n * factor) {}
-	FixedPointNumber& operator=(Sint64 n) { number = n * factor; return *this; }
-	FixedPointNumber& operator=(double n) { number = n * factor; return *this; }
+	FixedPointNumber(double n) : number(Sint64(n * factor)) {}
 	
-	FixedPointNumber& operator++/* prefix */(int) { number += factor; }
+	FixedPointNumber& operator++/* prefix */(int) { number += factor; return *this; }
+	FixedPointNumber& operator--/* prefix */(int) { number -= factor; return *this; }
+	FixedPointNumber& operator-=(const FixedPointNumber& n) { number -= n.number; return *this; }
 	
 	bool operator==(const FixedPointNumber& n) const { return number == n.number; }
 	bool operator!=(const FixedPointNumber& n) const { return !(*this == n); }
+	bool operator<(const FixedPointNumber& n) const { return number < n.number; }
+	bool operator>(const FixedPointNumber& n) const { return number > n.number; }
 	
+	int asInt() { return number / factor; }
 	
 };
 
