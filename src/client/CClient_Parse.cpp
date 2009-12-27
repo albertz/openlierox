@@ -316,7 +316,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 			client->cLocalWorms[i]->setUsed(true);
 			client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
 			client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
-			//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
 			client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
 			if(client->tProfiles[i]) {
 				client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
@@ -1016,7 +1015,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setHealth(100);
 			w->setGameScript(client->cGameScript.get());
 			w->setWpnRest(&client->cWeaponRestrictions);
-			w->setLoadingTime(client->tGameInfo.iLoadingTime/100.0f);
 			w->setWeaponsReady(false);
 
 			// Prepare for battle!

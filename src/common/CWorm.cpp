@@ -1435,7 +1435,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( vFollowPos );
 	COPY( bFollowOverride );
     COPY( fLastCarve );
-	COPY( fLoadingTime );
 	COPY( health );
 	// Do not copy fDamage / suicides / teamkills etc - they are managed by scoreboard routines on server
 	COPY( bAlive );

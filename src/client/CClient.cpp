@@ -1868,7 +1868,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			cClient->getWorm(i)->setID(serverWorm->getID());
 			cClient->getWorm(i)->setTeam(serverWorm->getTeam());
 			cClient->getWorm(i)->setGameScript(cClient->getGameScript().get()); // TODO: why was this commented out?
-			//cClient->getWorm(i)->setLoadingTime(cClient->fLoadingTime);  // TODO: why is this commented out?
 			cClient->getWorm(i)->setProfile(cClient->getLocalWormProfiles()[i]);
 			if(cClient->getLocalWormProfiles()[i]) {
 				cClient->getWorm(i)->setType(WormType::fromInt(cClient->getLocalWormProfiles()[i]->iType));
@@ -1892,7 +1891,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				cClient->getWorm(i)->setHealth(serverWorm->getHealth());
 				cClient->getWorm(i)->setGameScript(cClient->getGameScript().get());
 				cClient->getWorm(i)->setWpnRest(cClient->getWeaponRestrictions());
-				cClient->getWorm(i)->setLoadingTime(cClient->getGameLobby()->iLoadingTime/100.0f);
 				cClient->getWorm(i)->setWeaponsReady(serverWorm->getWeaponsReady());
 				cClient->getWorm(i)->CloneWeaponsFrom(serverWorm); // if we had serverside weapons, this will clone them
 				

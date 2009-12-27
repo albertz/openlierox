@@ -241,7 +241,6 @@ protected:
 	Version		cClientVersion;
 
 	// Game
-	float		fLoadingTime;
 	bool		bDrawMuzzle;
 	int			iLives;
 	bool		bAlive;
@@ -531,9 +530,6 @@ public:
 	CVec		getMoveDirection() const {
 		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
 					sinf(getAngle() * ((float)PI/180)) ); }
-	
-	void		setLoadingTime(float l)		{ fLoadingTime = l; }
-	float		getLoadingTime()			{ return fLoadingTime; }
 
 	void		setCanUseNinja(bool b) { bCanUseNinja = b; }
 	bool		canUseNinja() const { return bCanUseNinja; }

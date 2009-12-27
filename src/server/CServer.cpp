@@ -462,7 +462,6 @@ mapCreate:
 			cWorms[i].setDamage(0);
 			cWorms[i].setGameScript(cGameScript.get());
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
-			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setWeaponsReady(false);
 			cWorms[i].Prepare(true);
 		}
@@ -1869,7 +1868,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setTeamkills(0);
 		w->setGameScript(cGameScript.get());
 		w->setWpnRest(&cWeaponRestrictions);
-		w->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 		w->setWeaponsReady(false);
 		
 		iNumPlayers++;
