@@ -70,6 +70,11 @@ namespace OmfgGUI
 			return space;
 		}
 
+		void operator delete(void*, void*)
+		{
+			// Lua frees the memory
+		}
+
 		void setText(unsigned int column, std::string const& text)
 		{
 			if(column < columns.size())

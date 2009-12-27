@@ -9,7 +9,7 @@
 
 #include "netstream.h"
 #include "Networking.h"
-#include "endianswap.h"
+#include "EndianSwap.h"
 
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
@@ -302,7 +302,7 @@ bool Net_BitStream::testString()
 	addString("some short text to test bitstream");
 	if (getBool() != true)
 		return false;
-	if (getStringStatic() != "some short text to test bitstream")
+	if (std::string(getStringStatic()) != "some short text to test bitstream")
 		return false;
 	return true;
 }

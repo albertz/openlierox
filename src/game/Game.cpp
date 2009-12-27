@@ -49,13 +49,16 @@ void Game::prepareGameloop() {
 		SyncServerAndClient();
 	}
 		
-	if(cServer->getState() == SVS_LOBBY) {
+	if(cServer->getState() == SVS_LOBBY && tLX->iGameType != GME_JOIN) {
 		notes << "prepareGameloop: starting game" << endl;
 		std::string errMsg;
 		if(!cServer->StartGame(&errMsg)) {
 			errors << "starting game in local game failed for reason: " << errMsg << endl;
 			DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-			GotoLocalMenu();
+			if (tLX->iGameType == GME_LOCAL)
+				GotoLocalMenu();
+			else
+				GotoNetMenu();
 			return;
 		}
 	}

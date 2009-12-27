@@ -77,6 +77,11 @@ namespace OmfgGUI
 				// Lua frees the memory
 			}
 
+			void operator delete(void* block, void *)
+			{
+				// Lua frees the memory
+			}
+
 			void* operator new(size_t count, void* space)
 			{
 				return space;
