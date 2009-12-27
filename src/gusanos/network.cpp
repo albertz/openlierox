@@ -361,16 +361,6 @@ void Network::olxReconnect(int delay)
 	reconnectTimer = delay;
 }
 
-bool Network::isBanned(Net_ConnID connID)
-{
-	if( m_control ) {
-		Net_Address const* addr = m_control->Net_getPeer(connID);
-		if(bannedIPs.find(addr->getIP()) != bannedIPs.end())
-			return true;
-	}
-	return false;
-}
-
 void Network::setServerID(Net_ConnID serverID)
 {
 	m_serverID = serverID;

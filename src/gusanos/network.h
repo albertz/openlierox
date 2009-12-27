@@ -145,9 +145,7 @@ public:
 	
 	static bool isDisconnected();
 	static bool isDisconnecting();
-	
-	static bool isBanned(Net_ConnID connID);
-	
+		
 	int checkCRC;
 	
 private:

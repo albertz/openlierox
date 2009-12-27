@@ -94,10 +94,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 
 bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Net_BitStream &reply )
 {
-	if(network.isBanned(id)) {
-		reply.addInt(Network::ConnectionReply::Banned, 8);
-		return false;
-	} else if( false /*network.clientRetry*/) {
+	if( false /*network.clientRetry*/) {
 		reply.addInt(Network::ConnectionReply::Retry, 8);
 		return false;
 	} else if ( !m_preShutdown ) {
