@@ -208,12 +208,7 @@ string addbotCmd(const list<string> &args)
 
 string connectCmd(const list<string> &args)
 {
-	if ( !args.empty() )
-	{
-		network.connect( *args.begin() );
-		return "";
-	}
-	return "CONNECT <HOST_ADDRESS> : JOIN A NETWORK SERVER";
+	return "Error: Gusanos connect command not supported";
 }
 
 string rConCmd(const list<string> &args)
@@ -520,7 +515,7 @@ void GusGame::think()
 			
 			if ( options.host && !network.isClient() )
 			{
-				network.host();
+				network.olxHost();
 			}
 			
 			runInitScripts();

@@ -19,21 +19,10 @@
 #include <list>
 
 
-Server::Server( int _udpport )
+Server::Server()
 		: m_preShutdown(false),
-		port(_udpport),
 		socketsInited(false)
 {
-	// TODO: Asynchronize this loop
-	int tries = 10;
-	bool result = false;
-	while ( !result && tries-- > 0 ) {
-		rest(100);
-		result = Net_initSockets( true, _udpport, 1, 0 );
-	}
-	if(!result)
-		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
-
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
 	console.addLogMsg("GUSANOS SERVER UP");
@@ -41,15 +30,6 @@ Server::Server( int _udpport )
 
 Server::~Server()
 {}
-
-/*
-bool Server::initSockets()
-{
-	if(socketsInited)
-		return true;
-	socketsInited = Net_initSockets( true, port, 1, 0 );
-	return socketsInited; 
-}*/
 
 void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 {

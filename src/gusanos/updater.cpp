@@ -287,7 +287,7 @@ void Updater::think()
 									}
 
 									if(reqID == 1)
-										network.reconnect(50);
+										network.olxReconnect(50);
 								}
 								break;
 						}

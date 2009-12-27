@@ -119,11 +119,11 @@ public:
 	static void registerInConsole();
 	static void update();
 	
-	static void host();
-	static void connect( const std::string &address);
+	static void olxHost();
+	static void olxConnect();
 	static void disconnect( DConnEvents event = Quit );
 	static void disconnect( Net_ConnID id, DConnEvents event );
-	static void reconnect(int delay = 1);
+	static void olxReconnect(int delay = 1);
 	static void clear();
 	
 	static void kick( Net_ConnID connID );

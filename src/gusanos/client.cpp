@@ -17,10 +17,6 @@
 
 Client::Client( int _udpport )
 {
-	if ( !Net_initSockets( true,_udpport, 1, 0 ) )
-	{
-		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
-	}
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
 }
@@ -64,7 +60,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		if(r == Network::ConnectionReply::Retry)
 		{
 			DLOG("Got retry from server");
-			network.reconnect(50);
+			network.olxReconnect(50);
 		}
 		else if(r == Network::ConnectionReply::Banned)
 		{
@@ -153,7 +149,7 @@ void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 				case Network::ServerMapChange:
 				{
 					console.addLogMsg("* SERVER CHANGED MAP");
-					network.reconnect(150);
+					network.olxReconnect(150);
 					gusGame.reset(GusGame::ServerChangeMap);
 				}
 				break;

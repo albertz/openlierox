@@ -33,8 +33,7 @@ LuaReference LuaEventDef::metaTable;
 namespace
 {
 
-	mq_define_message(Connect, 0, (std::string addr_))
-			: addr(addr_)
+	mq_define_message(Connect, 0, ())
 	{}
 
 	std::string addr;
@@ -296,19 +295,19 @@ void Network::update()
 	if( reconnectTimer > 0 ) {
 		//disconnect();
 		if(--reconnectTimer == 0) {
-			DLOG("Reconnecting to " << m_lastServerAddr);
-			connect( m_lastServerAddr );
+			DLOG("Reconnecting Gusanos");
+			olxConnect();
 		}
 	}
 }
 
-void Network::host()
+void Network::olxHost()
 {
 	//disconnect();
 	assert(state == StateDisconnected); // We assume that we're disconnected
 
 	//mq_queue(msg, Host);
-	m_control = new Server(m_serverPort);
+	m_control = new Server();
 	registerClasses();
 	m_host = true;
 	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
@@ -317,11 +316,11 @@ void Network::host()
 	SET_STATE(Idle);
 }
 
-void Network::connect( const std::string &_address )
+void Network::olxConnect()
 {
 	//disconnect(); // Done is message handler
 
-	mq_queue(msg, Connect, _address);
+	mq_queue(msg, Connect);
 }
 
 void Network::disconnect( DConnEvents event )
@@ -357,7 +356,7 @@ void Network::clear()
 	}
 }
 
-void Network::reconnect(int delay)
+void Network::olxReconnect(int delay)
 {
 	reconnectTimer = delay;
 }

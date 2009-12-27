@@ -418,8 +418,6 @@ bool NetStream::Init() { return true; }
 void Net_simulateLag(int,int) {}
 void Net_simulateLoss(int,int) {}
 
-bool Net_initSockets(bool, int port, int, int) { return false; }
-
 void Net_setControlID(int) {}
 void Net_setDebugName(const std::string&) {}
 void Net_setUpstreamLimit(int,int) {}
