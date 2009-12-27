@@ -152,8 +152,7 @@ namespace
 
 	std::string disconnectCmd(std::list<std::string> const& args)
 	{
-		network.disconnect();
-		return "";
+		return "Gusanos disconnect command not available";
 	}
 }
 

@@ -122,20 +122,6 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 	}
 }
 
-/*
-void Client::loadNextGame()
-{
-	gusGame.setMod( nextMod );
-	if(gusGame.changeLevel( nextMap ) && gusGame.isLoaded())
-	{
-		gusGame.runInitScripts();
-		sendConsistencyInfo();
-		Net_requestNetMode(network.getServerID(), 1);
-	}
-	else
-		network.disconnect();
-}*/
-
 void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
 {
 	network.decConnCount();

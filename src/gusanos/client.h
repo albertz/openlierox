@@ -16,12 +16,7 @@ public:
 	void requestPlayer(PlayerOptions const& playerOptions);
 	void requestPlayers();
 	void sendConsistencyInfo();
-	
-	void loadNextGame();
-	
-	//std::string nextMod;
-	//std::string nextMap;
-
+		
 protected:
 
 	// called when initiated connection process yields a result
