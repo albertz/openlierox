@@ -253,33 +253,12 @@ CWormInputHandler* findPlayerByName(std::string const& name)
 
 string banCmd(list<string> const& args)
 {
-	if ( !network.isClient() && !args.empty() )
-	{
-		if ( CWormInputHandler* player = findPlayerByName(*args.begin()))
-		if ( !player->local )
-		{
-			network.ban( player->getConnectionID() );
-			return "PLAYER BANNED";
-		}
-		return "PLAYER NOT FOUND OR IS LOCAL";
-	}
-	return "BAN <PLAYER_NAME> : BANS THE PLAYER WITH THE SPECIFIED NAME";
+	return "Gusanos ban command not available";
 }
 
 string kickCmd(const list<string> &args)
 {
-	if ( !network.isClient() && !args.empty() )
-	{
-		if ( CWormInputHandler* player2Kick = findPlayerByName(*args.begin()))
-		if ( !player2Kick->local )
-		{
-			player2Kick->deleteMe = true;
-			network.kick( player2Kick->getConnectionID() );
-			return "PLAYER KICKED";
-		}
-		return "PLAYER NOT FOUND OR IS LOCAL";
-	}
-	return "KICK <PLAYER_NAME> : KICKS THE PLAYER WITH THE SPECIFIED NAME";
+	return "Gusanos kick command not available";
 }
 
 struct BasePlayerIterGetText

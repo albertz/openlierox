@@ -126,9 +126,6 @@ public:
 	static void olxReconnect(int delay = 1);
 	static void clear();
 	
-	static void kick( Net_ConnID connID );
-	static void ban( Net_ConnID connID );
-	
 	static void setServerID( Net_ConnID serverID );
 	static Net_ConnID getServerID();
 	

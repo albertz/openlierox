@@ -361,23 +361,6 @@ void Network::olxReconnect(int delay)
 	reconnectTimer = delay;
 }
 
-void Network::kick( Net_ConnID connID )
-{
-	if( m_control ) {
-		Net_BitStream *eventData = new Net_BitStream;
-		eventData->addInt( static_cast<int>( Kick ), 8 );
-		m_control->Net_Disconnect( connID, eventData );
-	}
-}
-
-void Network::ban( Net_ConnID connID )
-{
-	if( m_control ) {
-		Net_Address const* addr = m_control->Net_getPeer(connID);
-		bannedIPs.insert(addr->getIP());
-	}
-}
-
 bool Network::isBanned(Net_ConnID connID)
 {
 	if( m_control ) {
