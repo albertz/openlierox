@@ -9,7 +9,7 @@
 
 #include "netstream.h"
 #include "Networking.h"
-#include "endianswap.h"
+#include "EndianSwap.h"
 
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
