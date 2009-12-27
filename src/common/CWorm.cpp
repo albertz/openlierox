@@ -458,7 +458,7 @@ void CWorm::Spawn(CVec position) {
 	if (bSpectating)
 		return;
 
-	if(game.gameScript()->gusEngineUsed())
+	if(game.gameScript() && game.gameScript()->gusEngineUsed())
 		// Gusanos will use its own spawning fct
 		return;
 	

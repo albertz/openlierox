@@ -1733,6 +1733,11 @@ bool GameServer::serverAllowsConnectDuringGame() {
 }
 
 void GameServer::checkVersionCompatibilities(bool dropOut) {
+	if (!cClients)  {
+		warnings << "checkVersionCompatibilities: cClients NULL!" << endl;
+		return;
+	}
+
 	// Cycle through clients
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
