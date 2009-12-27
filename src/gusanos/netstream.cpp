@@ -302,7 +302,7 @@ bool Net_BitStream::testString()
 	addString("some short text to test bitstream");
 	if (getBool() != true)
 		return false;
-	if (getStringStatic() != "some short text to test bitstream")
+	if (std::string(getStringStatic()) != "some short text to test bitstream")
 		return false;
 	return true;
 }
