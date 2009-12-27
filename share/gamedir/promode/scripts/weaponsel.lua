@@ -249,11 +249,23 @@ function weaponsel.init()
 						weaponsNumber[o.list[1]:name()] = 1
 						table.insert(weaponsName, o.list[1]:name())
 					end
-					player:data().weaponSelection.finished = 1
+					playerWeaponStart(player)
 				end
 			end
 		end
 		
+		function playerWeaponStart(player)
+			player:data().weaponSelection.finished = 1
+			-- this immediate start was added for OLX:
+			if isTeamPlay() then
+				local hax = console["joinred"]
+				console.p1_team = 1
+			else
+				console.p0_team = 1
+				console.p1_team = 1
+			end
+		end
+
 		function bindings.playerInit(player)
 			player:data().weaponSelection =
 			{
