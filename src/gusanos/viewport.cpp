@@ -108,7 +108,8 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 	destroy_bitmap(fadeBuffer);
 	fadeBuffer = create_bitmap_ex(8, width, height);
 
-	if(!testLight) {
+	// TODO: is this good for anything? Everything seems to work OK without that
+	/*if(!testLight) {
 		static int s = 500;
 		destroy_bitmap(testLight);
 		testLight = create_bitmap_ex(8, s, s);
@@ -121,7 +122,7 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 				int iv = int(v);
 				putpixel_solid(testLight, x, y, iv);
 			}
-	}
+	}*/
 
 		
 	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);

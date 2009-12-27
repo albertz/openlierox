@@ -145,6 +145,10 @@ Gfx::Gfx()
 
 Gfx::~Gfx()
 {
+	if (m_doubleResBuffer)  {
+		destroy_bitmap(m_doubleResBuffer);
+		m_doubleResBuffer = NULL;
+	}
 }
 
 
