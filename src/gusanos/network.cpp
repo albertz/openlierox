@@ -40,22 +40,6 @@ namespace
 	std::string addr;
 	mq_end_define_message()
 
-	/*
-	mq_define_message(Host, 0)
-		{
-			
-		}
-	mq_end_define_message()
-	*/
-
-	/*
-	enum State
-{
-		StateIdle,	// Not doing anything
-		StateDisconnecting, // Starting disconnection sequence
-		StateDisconnected, // Disconnected
-};*/
-
 	Network::State state = Network::StateDisconnected;
 	int stateTimeOut = 0;
 
@@ -198,25 +182,15 @@ LuaEventDef::~LuaEventDef()
 
 Network::Network()
 {
-	/*
-		m_host = false;
-		m_netstream = NULL;
-		m_control = NULL;
-		connCount = 0;
-		m_reconnect = false;*/
 }
 
 Network::~Network()
 {
-	/* What's with this?
-		m_host = false;
-		m_client = false;
-		m_serverID = Net_Invalid_ID;*/
 }
 
 void Network::log(char const* msg)
 {
-	cerr << "ZOIDCOM: " << msg << endl;
+	cerr << "Gusanos Network: " << msg << endl;
 }
 
 void Network::init()
