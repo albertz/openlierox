@@ -6,7 +6,6 @@
 #include "updater.h"
 #include "glua.h"
 #include "gconsole.h"
-//#include "text.h"
 #include "net_worm.h"
 #include "game/WormInputHandler.h"
 #include "particle.h"
@@ -14,8 +13,6 @@
 #include "util/log.h"
 #include "util/text.h"
 #include "lua/bindings-network.h"
-
-#ifndef DISABLE_ZOIDCOM
 
 #include <string>
 #include <iostream>
@@ -499,8 +496,6 @@ void Network::setClient(bool v)
 {
 	m_client = v;
 }
-
-#endif
 
 
 

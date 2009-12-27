@@ -14,8 +14,6 @@
 #include "CMap.h"
 #include "game/Game.h"
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 #include "gusanos/allegro.h"
 #include <list>
@@ -177,6 +175,4 @@ void Server::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new
 {
 	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }
-
-#endif
 

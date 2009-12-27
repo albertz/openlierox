@@ -1,8 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "game/WormInputHandler.h"
 
 #include "netstream.h"
@@ -47,8 +45,6 @@ protected:
 	int port;
 	bool socketsInited;
 };
-
-#endif
 
 #endif // _SERVER_H_
 

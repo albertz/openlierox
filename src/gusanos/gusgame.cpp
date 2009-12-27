@@ -210,9 +210,7 @@ string connectCmd(const list<string> &args)
 {
 	if ( !args.empty() )
 	{
-#ifndef DISABLE_ZOIDCOM
 		network.connect( *args.begin() );
-#endif
 		return "";
 	}
 	return "CONNECT <HOST_ADDRESS> : JOIN A NETWORK SERVER";
@@ -444,9 +442,7 @@ bool GusGame::init()
 #endif
 	gfx.registerInConsole();
 	options.registerInConsole();
-#ifndef DISABLE_ZOIDCOM
 	network.registerInConsole();
-#endif
 	
 	for ( size_t i = 0; i< MAX_LOCAL_PLAYERS; ++i)
 	{
@@ -470,9 +466,7 @@ bool GusGame::init()
 	//mouseHandler.init();
 #endif
 	
-#ifndef DISABLE_ZOIDCOM
 	network.init();
-#endif
 	registerGameActions();
 #ifndef DEDICATED_ONLY
 	registerPlayerInput();

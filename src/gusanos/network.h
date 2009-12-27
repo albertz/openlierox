@@ -2,8 +2,6 @@
 #define NETWORK_H
 
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 #include <string>
 #include <boost/function.hpp>
@@ -160,7 +158,5 @@ private:
 };
 
 extern Network network;
-
-#endif
 
 #endif // _NETWORK_H_

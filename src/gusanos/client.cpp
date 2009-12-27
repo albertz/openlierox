@@ -13,8 +13,6 @@
 #include <memory>
 #include "util/log.h"
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 
 Client::Client( int _udpport )
@@ -288,8 +286,6 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 	}
 	
 }
-
-#endif
 
 
 
