@@ -192,7 +192,6 @@ void Network::init()
 {
 	if(logNetstream) { //TODO: Netstream
 		m_netstream = new NetStream(log);
-		m_netstream->setLogLevel(2);
 	} else
 		m_netstream = new NetStream();
 
@@ -372,15 +371,6 @@ bool Network::isClient()
 Net_Control* Network::getNetControl()
 {
 	return m_control;
-}
-
-int Network::getServerPing()
-{
-	if( m_client ) {
-		if ( m_serverID )
-			return m_control->Net_getConnectionStats(m_serverID).avg_ping;
-	}
-	return -1;
 }
 
 LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, char const* name, LuaEventDef* event)

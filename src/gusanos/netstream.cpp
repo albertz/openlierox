@@ -371,6 +371,24 @@ Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, f
 Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
 
 
+struct Net_Control::NetControlIntern {
+	int controlId;
+	std::string debugName;
+	
+	NetControlIntern() {
+		controlId = 0;
+	}
+};
+
+Net_Control::Net_Control() : intern(NULL) {
+	intern = new NetControlIntern();
+}
+
+Net_Control::~Net_Control() {
+	delete intern;
+	intern = NULL;
+}
+
 void Net_Control::Net_Connect() {}
 void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
@@ -384,7 +402,15 @@ void Net_Control::Net_processInput() {}
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
 
-Net_ConnectionStats Net_Control::Net_getConnectionStats(Net_ConnID) { return Net_ConnectionStats(); }
+
+void Net_Control::Net_setControlID(int id) { intern->controlId = id; }
+void Net_Control::Net_setDebugName(const std::string& n) { intern->debugName = n; }
+
+
+void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
+
+
+
 
 Net_ReplicatorBasic::Net_ReplicatorBasic(Net_ReplicatorSetup*) {}
 
@@ -405,16 +431,35 @@ void Net_Address::setAddress(eNet_AddressType, int, const char*) {}
 Net_U32 Net_Address::getIP() const { return 0; }
 
 
-NetStream::NetStream() {}
-NetStream::NetStream( void (*)( const char* ) ) {}
-void NetStream::setLogLevel(int) {}
-bool NetStream::Init() { return true; }
+struct NetStream::NetStreamIntern {
+	void (*logFct)( const char* );
+	
+	NetStreamIntern() {
+		logFct = NULL;
+	}
+	
+	void log(const std::string& msg) {
+		if(logFct) (*logFct) (msg.c_str());
+	}
+};
 
+NetStream::NetStream() {
+	intern = new NetStreamIntern();
+}
 
+NetStream::NetStream( void (*logFct)( const char* ) ) {
+	intern = new NetStreamIntern();
+	intern->logFct = logFct;
+}
 
-void Net_Control::Net_setControlID(int) {}
-void Net_Control::Net_setDebugName(const std::string&) {}
+NetStream::~NetStream() {
+	delete intern;
+	intern = NULL;
+}
 
-void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
+bool NetStream::Init() {
+	intern->log("NetStream::Init()");
+	return true;
+}
 
 

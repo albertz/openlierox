@@ -181,14 +181,14 @@ struct Net_Node {
 	Net_FileTransInfo& getFileInfo(Net_ConnID, Net_FileTransID);
 };
 
-struct Net_ConnectionStats {
-	int avg_ping;
-};
-
 struct Net_Address;
 
 struct Net_Control {		
-	virtual ~Net_Control() {}
+	struct NetControlIntern; NetControlIntern* intern;
+
+	Net_Control();
+	virtual ~Net_Control();
+
 	void Net_Connect();
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);
@@ -205,9 +205,7 @@ struct Net_Control {
 	
 	void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode);
 	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);
-	
-	Net_ConnectionStats Net_getConnectionStats(Net_ConnID);
-	
+		
 	// ------- virtual callbacks -----------
 
 	// called when initiated connection process yields a result
@@ -233,7 +231,6 @@ struct Net_Control {
 
 	virtual bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) = 0;
 	virtual void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply ) = 0;
-	
 };
 
 struct Net_ReplicatorBasic {
@@ -270,9 +267,12 @@ struct Net_Address {
 };
 
 struct NetStream {
+	struct NetStreamIntern; NetStreamIntern* intern;
+	
 	NetStream();
 	NetStream( void (*)( const char* ) );
-	void setLogLevel(int);
+	~NetStream();
+	
 	bool Init();
 };
 
