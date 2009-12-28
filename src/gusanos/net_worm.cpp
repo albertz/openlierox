@@ -53,12 +53,10 @@ NetWorm::NetWorm(bool isAuthority) : CWorm()
 		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference(), gusGame.level().vectorEncoding ), true);
 		
 		m_node->addReplicationFloat ((Net_Float*)&m_ninjaRope->getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
-		//m_node->addReplicationInt ((Net_S32*)&m_ninjaRope->getLengthReference(), 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		
 		static Net_ReplicatorSetup angleSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 				
 		m_node->addReplicationFloat ((Net_Float*)&health, 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
-		//m_node->addReplicationInt ((Net_S32*)&health, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
 		
 		m_node->addReplicator(new AngleReplicator( &angleSetup, &aimAngle), true );
 		

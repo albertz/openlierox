@@ -136,6 +136,7 @@ void Net_BitStream::addBitStream(Net_BitStream* str) {
 }
 
 void Net_BitStream::addString(const std::string& str) {
+	while(m_readPos % 8 != 0) m_readPos++;
 	writeBits(str.c_str(), (str.size() + 1) * 8);
 }
 
@@ -181,15 +182,15 @@ float Net_BitStream::getFloat(int bits) {
 }
 
 const char* Net_BitStream::getStringStatic() { 
-	std::string res;
-	for (size_t i = 0; m_readPos + i < m_size; i++)  {
-		if ((i % 8) == 0)
-			res += '\0';
-		res[i / 8] |= (m_data[m_readPos / 8] & bitMasks[m_readPos % 8]);
-		m_readPos++;
+	while(m_readPos % 8 != 0) m_readPos++;
+	const char* ret = &m_data[m_readPos / 8];
+	while(true) {
+		if(m_readPos >= m_size) return NULL;
+		if(m_data[m_readPos / 8] == 0) break;
+		m_readPos += 8;
 	}
-
-	return res.c_str();
+	m_readPos += 8;	
+	return ret;
 }
 
 Net_BitStream* Net_BitStream::Duplicate() { 
@@ -336,6 +337,21 @@ bool Net_BitStream::runTests()
 	}
 	return res;
 }
+
+
+struct Net_Node::NetNodeIntern {
+	
+};
+
+Net_Node::Net_Node() {
+	intern = new NetNodeIntern();
+}
+
+Net_Node::~Net_Node() {
+	delete intern;
+	intern = NULL;
+}
+
 
 eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
 void Net_Node::setOwner(Net_ConnID, bool something) {}

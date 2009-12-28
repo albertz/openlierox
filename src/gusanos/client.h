@@ -26,16 +26,11 @@ protected:
 	void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata );
 	
 	void Net_cbDataReceived( Net_ConnID id, Net_BitStream &data);
-	
-	// zoidlevel transition finished
-	void Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason);
-	
+		
 	// server wants to tell us about new node
 	void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id );
 	
-	virtual bool Net_cbConnectionRequest( Net_ConnID  _id, Net_BitStream &_request, Net_BitStream &_reply ){return false;}
 	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) {}
-	virtual bool Net_cbNetRequest( Net_ConnID _id, Net_U8 _requested_level, Net_BitStream &_reason ) {return false;}
 	virtual void Net_cbNodeRequest_Tag( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_U32 _tag ) {}
 	//virtual void Net_cbDataReceived( Net_ConnID _id, Net_BitStream &_data ) {}
 };
