@@ -412,19 +412,18 @@ void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
 
 
 
-Net_ReplicatorBasic::Net_ReplicatorBasic(Net_ReplicatorSetup*) {}
+Net_BitStream* Net_Replicator::getPeekStream() { return NULL; }
+void* Net_Replicator::peekDataRetrieve() { return NULL; }
 
-Net_BitStream* Net_ReplicatorBasic::getPeekStream() { return NULL; }
-void* Net_ReplicatorBasic::peekDataRetrieve() { return NULL; }
-
-Net_ReplicatorSetup* Net_ReplicatorBasic::getSetup() { return NULL; }	
-void* Net_ReplicatorBasic::peekData() { return NULL; }
-void Net_ReplicatorBasic::peekDataStore(void*) {}
+void* Net_Replicator::peekData() { return NULL; }
+void Net_Replicator::peekDataStore(void*) {}
 
 
 
-Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-Net_InterceptID Net_ReplicatorSetup::getInterceptID() { return 0; }
+Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID p1, int p2, int p3) {
+	interceptId = p1;
+}
+
 
 
 struct NetStream::NetStreamIntern {

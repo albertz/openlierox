@@ -229,29 +229,56 @@ struct Net_Control {
 
 };
 
-struct Net_ReplicatorBasic {
-	uint8_t m_flags;
+struct Net_Replicator {
+	Net_ReplicatorSetup* setup;
 
-	Net_ReplicatorBasic(Net_ReplicatorSetup*);
+	virtual ~Net_Replicator() {}
+	virtual Net_Replicator* Duplicate(Net_Replicator *_dest) = 0;
+
+	Net_Replicator(Net_ReplicatorSetup* s) : setup(s) {}
+	Net_ReplicatorSetup* getSetup() const { return setup; }
 	
+	// replicator
 	Net_BitStream* getPeekStream();
 	void* peekDataRetrieve();
-
-	// replicator
-	Net_ReplicatorSetup* getSetup();	
-	void* peekData();
 	void peekDataStore(void*);
+
+	virtual bool checkState() = 0;	
+	virtual bool checkInitialState() = 0;
+	virtual void packData(Net_BitStream *_stream) = 0;
+	virtual void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) = 0;	
+	virtual void Process(eNet_NodeRole _localrole, Net_U32 _simulation_time_passed) = 0;	
+	virtual void* peekData() = 0;
+	virtual void clearPeekData() = 0;
 };
 
-#define Net_Replicator Net_ReplicatorBasic
+struct Net_ReplicatorBasic : Net_Replicator {
+	uint8_t m_flags;
+
+	Net_ReplicatorBasic(Net_ReplicatorSetup* s) : Net_Replicator(s) {}
+	
+};
+
 
 
 struct Net_ReplicatorSetup {
-	Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
-	Net_InterceptID getInterceptID();
+	Net_InterceptID interceptId;
+	Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID p1 = 0, int p2 = 0, int p3 = 0);
+	Net_InterceptID getInterceptID() { return interceptId; }
 };
 
-struct Net_NodeReplicationInterceptor {};
+struct Net_NodeReplicationInterceptor {
+	virtual ~Net_NodeReplicationInterceptor() {}
+	
+	virtual void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
+	virtual void outPreDereplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
+	virtual bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
+	virtual bool outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator) = 0;
+	virtual void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
+	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent) = 0;
+	virtual bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role) = 0;
+	virtual void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
+};
 
 struct NetStream {
 	struct NetStreamIntern; NetStreamIntern* intern;
