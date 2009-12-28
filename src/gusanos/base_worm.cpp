@@ -494,9 +494,7 @@ void CWorm::think()
 			if ( m_fireconeTime == 0 )
 				m_currentFirecone = NULL;
 			--m_fireconeTime;
-			/*
-			if(m_fireconeAnimator)
-				m_fireconeAnimator->tick();*/
+
 			m_fireconeAnimator->tick();
 		}
 #endif
