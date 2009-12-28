@@ -228,7 +228,7 @@ void Network::update()
 {
 	if ( m_control ) {
 		m_control->Net_processOutput();
-		m_control->Net_processInput(eNet_NoBlock);
+		m_control->Net_processInput();
 	}
 
 	switch(state) {

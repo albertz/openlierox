@@ -185,7 +185,6 @@ struct Net_ConnectionStats {
 	int avg_ping;
 };
 
-enum Net_ProcessType { eNet_NoBlock };
 struct Net_Address;
 
 struct Net_Control {
@@ -200,7 +199,7 @@ struct Net_Control {
 	Net_BitStream* Net_createBitStream();
 
 	void Net_processOutput();
-	void Net_processInput(Net_ProcessType);
+	void Net_processInput();
 	
 	void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode);
 	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);

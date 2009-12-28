@@ -136,7 +136,7 @@ void Net_BitStream::addBitStream(Net_BitStream* str) {
 }
 
 void Net_BitStream::addString(const std::string& str) {
-	writeBits(str.c_str(), str.size() * 8);
+	writeBits(str.c_str(), (str.size() + 1) * 8);
 }
 
 bool Net_BitStream::getBool() { 
@@ -381,7 +381,7 @@ Net_Address* Net_Control::Net_getPeer(Net_ConnID) { return NULL; }
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
 void Net_Control::Net_processOutput() {}
-void Net_Control::Net_processInput(Net_ProcessType) {}
+void Net_Control::Net_processInput() {}
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
