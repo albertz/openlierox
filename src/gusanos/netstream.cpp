@@ -376,8 +376,6 @@ void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
-Net_Address* Net_Control::Net_getPeer(Net_ConnID) { return NULL; }
-
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
 void Net_Control::Net_processOutput() {}
@@ -414,16 +412,9 @@ bool NetStream::Init() { return true; }
 
 
 
+void Net_Control::Net_setControlID(int) {}
+void Net_Control::Net_setDebugName(const std::string&) {}
 
-void Net_simulateLag(int,int) {}
-void Net_simulateLoss(int,int) {}
+void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
 
-void Net_setControlID(int) {}
-void Net_setDebugName(const std::string&) {}
-void Net_setUpstreamLimit(int,int) {}
-
-void Net_requestDownstreamLimit(Net_ConnID, int,int) {}
-void Net_requestNetMode(Net_ConnID, int) {}
-
-void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 

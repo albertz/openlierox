@@ -187,15 +187,17 @@ struct Net_ConnectionStats {
 
 struct Net_Address;
 
-struct Net_Control {
+struct Net_Control {		
 	virtual ~Net_Control() {}
 	void Net_Connect();
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
-	
-	Net_Address* Net_getPeer(Net_ConnID);
-		
+			
+	void Net_setControlID(int);
+	void Net_setDebugName(const std::string&);
+	void Net_requestNetMode(Net_ConnID, int);
+
 	Net_BitStream* Net_createBitStream();
 
 	void Net_processOutput();
@@ -273,21 +275,6 @@ struct NetStream {
 	void setLogLevel(int);
 	bool Init();
 };
-
-
-void Net_simulateLag(int,int);
-void Net_simulateLoss(int,int);
-
-bool Net_initSockets(bool, int port, int, int);
-
-void Net_setControlID(int);
-void Net_setDebugName(const std::string&);
-void Net_setUpstreamLimit(int,int);
-
-void Net_requestDownstreamLimit(Net_ConnID, int,int);
-void Net_requestNetMode(Net_ConnID, int);
-
-void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode);
 
 #endif
 
