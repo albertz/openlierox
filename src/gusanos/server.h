@@ -1,8 +1,6 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "game/WormInputHandler.h"
 
 #include "netstream.h"
@@ -17,7 +15,7 @@ private:
 	std::map<unsigned int, boost::shared_ptr<CWormInputHandler::Stats> > savedScores;
 	
 public:
-	Server( int _udpport );
+	Server();
 	~Server();
 	
 	void preShutdown() { m_preShutdown = true; }
@@ -44,11 +42,8 @@ protected:
 	void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply )  {}
 	bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) {return false;}
 	
-	int port;
 	bool socketsInited;
 };
-
-#endif
 
 #endif // _SERVER_H_
 

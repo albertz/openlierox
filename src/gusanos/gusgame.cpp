@@ -208,14 +208,7 @@ string addbotCmd(const list<string> &args)
 
 string connectCmd(const list<string> &args)
 {
-	if ( !args.empty() )
-	{
-#ifndef DISABLE_ZOIDCOM
-		network.connect( *args.begin() );
-#endif
-		return "";
-	}
-	return "CONNECT <HOST_ADDRESS> : JOIN A NETWORK SERVER";
+	return "Error: Gusanos connect command not supported";
 }
 
 string rConCmd(const list<string> &args)
@@ -260,33 +253,12 @@ CWormInputHandler* findPlayerByName(std::string const& name)
 
 string banCmd(list<string> const& args)
 {
-	if ( !network.isClient() && !args.empty() )
-	{
-		if ( CWormInputHandler* player = findPlayerByName(*args.begin()))
-		if ( !player->local )
-		{
-			network.ban( player->getConnectionID() );
-			return "PLAYER BANNED";
-		}
-		return "PLAYER NOT FOUND OR IS LOCAL";
-	}
-	return "BAN <PLAYER_NAME> : BANS THE PLAYER WITH THE SPECIFIED NAME";
+	return "Gusanos ban command not available";
 }
 
 string kickCmd(const list<string> &args)
 {
-	if ( !network.isClient() && !args.empty() )
-	{
-		if ( CWormInputHandler* player2Kick = findPlayerByName(*args.begin()))
-		if ( !player2Kick->local )
-		{
-			player2Kick->deleteMe = true;
-			network.kick( player2Kick->getConnectionID() );
-			return "PLAYER KICKED";
-		}
-		return "PLAYER NOT FOUND OR IS LOCAL";
-	}
-	return "KICK <PLAYER_NAME> : KICKS THE PLAYER WITH THE SPECIFIED NAME";
+	return "Gusanos kick command not available";
 }
 
 struct BasePlayerIterGetText
@@ -444,9 +416,7 @@ bool GusGame::init()
 #endif
 	gfx.registerInConsole();
 	options.registerInConsole();
-#ifndef DISABLE_ZOIDCOM
 	network.registerInConsole();
-#endif
 	
 	for ( size_t i = 0; i< MAX_LOCAL_PLAYERS; ++i)
 	{
@@ -470,9 +440,7 @@ bool GusGame::init()
 	//mouseHandler.init();
 #endif
 	
-#ifndef DISABLE_ZOIDCOM
 	network.init();
-#endif
 	registerGameActions();
 #ifndef DEDICATED_ONLY
 	registerPlayerInput();
@@ -526,7 +494,7 @@ void GusGame::think()
 			
 			if ( options.host && !network.isClient() )
 			{
-				network.host();
+				network.olxHost();
 			}
 			
 			runInitScripts();

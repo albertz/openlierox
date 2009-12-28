@@ -136,7 +136,7 @@ void Net_BitStream::addBitStream(Net_BitStream* str) {
 }
 
 void Net_BitStream::addString(const std::string& str) {
-	writeBits(str.c_str(), str.size() * 8);
+	writeBits(str.c_str(), (str.size() + 1) * 8);
 }
 
 bool Net_BitStream::getBool() { 
@@ -371,7 +371,7 @@ Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, f
 Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
 
 
-void Net_Control::Net_Connect(const Net_Address&, void*) {}
+void Net_Control::Net_Connect() {}
 void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
@@ -381,7 +381,7 @@ Net_Address* Net_Control::Net_getPeer(Net_ConnID) { return NULL; }
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
 void Net_Control::Net_processOutput() {}
-void Net_Control::Net_processInput(Net_ProcessType) {}
+void Net_Control::Net_processInput() {}
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
@@ -417,8 +417,6 @@ bool NetStream::Init() { return true; }
 
 void Net_simulateLag(int,int) {}
 void Net_simulateLoss(int,int) {}
-
-bool Net_initSockets(bool, int port, int, int) { return false; }
 
 void Net_setControlID(int) {}
 void Net_setDebugName(const std::string&) {}

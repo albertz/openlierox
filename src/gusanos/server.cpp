@@ -14,28 +14,15 @@
 #include "CMap.h"
 #include "game/Game.h"
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 #include "gusanos/allegro.h"
 #include <list>
 
 
-Server::Server( int _udpport )
+Server::Server()
 		: m_preShutdown(false),
-		port(_udpport),
 		socketsInited(false)
 {
-	// TODO: Asynchronize this loop
-	int tries = 10;
-	bool result = false;
-	while ( !result && tries-- > 0 ) {
-		rest(100);
-		result = Net_initSockets( true, _udpport, 1, 0 );
-	}
-	if(!result)
-		console.addLogMsg("* ERROR: FAILED TO INITIALIZE SOCKETS");
-
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
 	console.addLogMsg("GUSANOS SERVER UP");
@@ -43,15 +30,6 @@ Server::Server( int _udpport )
 
 Server::~Server()
 {}
-
-/*
-bool Server::initSockets()
-{
-	if(socketsInited)
-		return true;
-	socketsInited = Net_initSockets( true, port, 1, 0 );
-	return socketsInited; 
-}*/
 
 void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 {
@@ -116,10 +94,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 
 bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Net_BitStream &reply )
 {
-	if(network.isBanned(id)) {
-		reply.addInt(Network::ConnectionReply::Banned, 8);
-		return false;
-	} else if( false /*network.clientRetry*/) {
+	if( false /*network.clientRetry*/) {
 		reply.addInt(Network::ConnectionReply::Retry, 8);
 		return false;
 	} else if ( !m_preShutdown ) {
@@ -177,6 +152,4 @@ void Server::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new
 {
 	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }
-
-#endif
 

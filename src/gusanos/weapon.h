@@ -3,9 +3,8 @@
 
 #include "netstream.h"
 #include "timer_event.h"
-//#include "lua51/luaapi/types.h"
 #include "glua.h"
-//#include <cstddef>
+#include "util/FixedPointNumber.h"
 
 struct ALLEGRO_BITMAP;
 class CWorm;
@@ -58,7 +57,7 @@ public:
 	
 	WeaponType* getType() { return m_type; }
 	
-	int getReloadTime() { return reloadTime; }
+	int getReloadTime() { return reloadTime.asInt(); }
 	int getAmmo() { return ammo; }
 	
 	virtual void makeReference();
@@ -78,7 +77,7 @@ private:
 	bool primaryShooting;
 	int ammo;
 	int inactiveTime;
-	int reloadTime;
+	FixedPointNumber<100> reloadTime;
 	
 	std::vector< TimerEvent::State > timer;
 	std::vector< TimerEvent::State > activeTimer;

@@ -548,10 +548,10 @@ public:
 			Slot->LastFire -= dt.seconds();
 		
 		if(Slot->Reloading) {
-			if(worm->getLoadingTime() == 0)
+			if(cClient->getGameLobby()->iLoadingTime == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
+				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/(cClient->getGameLobby()->iLoadingTime * 0.01f)));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;

@@ -2,8 +2,6 @@
 #define NETWORK_H
 
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 #include <string>
 #include <boost/function.hpp>
@@ -121,15 +119,12 @@ public:
 	static void registerInConsole();
 	static void update();
 	
-	static void host();
-	static void connect( const std::string &address);
+	static void olxHost();
+	static void olxConnect();
 	static void disconnect( DConnEvents event = Quit );
 	static void disconnect( Net_ConnID id, DConnEvents event );
-	static void reconnect(int delay = 1);
+	static void olxReconnect(int delay = 1);
 	static void clear();
-	
-	static void kick( Net_ConnID connID );
-	static void ban( Net_ConnID connID );
 	
 	static void setServerID( Net_ConnID serverID );
 	static Net_ConnID getServerID();
@@ -150,9 +145,7 @@ public:
 	
 	static bool isDisconnected();
 	static bool isDisconnecting();
-	
-	static bool isBanned(Net_ConnID connID);
-	
+		
 	int checkCRC;
 	
 private:
@@ -160,7 +153,5 @@ private:
 };
 
 extern Network network;
-
-#endif
 
 #endif // _NETWORK_H_

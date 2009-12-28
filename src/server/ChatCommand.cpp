@@ -955,11 +955,6 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 	if (cServer->getState() == SVS_LOBBY)
 		cServer->UpdateGameLobby();
 	else  {
-		// Update the loading time for worms
-		CWorm *w = cServer->getWorms();
-		for (int i = 0; i < MAX_WORMS; i++)
-			if (w->isUsed())
-				w->setLoadingTime((float)lt/100.0f);
 
 		// TODO: updating the LT in game won't update the value on clients
 		// which means that in the Game Settings dialog they will see an incorrect value

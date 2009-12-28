@@ -34,8 +34,8 @@ public:
 	void think();
 	void setChanObject(int chan, Sound* sound);
 	void clear();
-	Listener* newListener();
-	void freeListener(Listener* listener);
+	void registerListener(Listener* listener);
+	void removeListener(Listener* listener);
 	void volumeChange();
 	SfxDriver* getDriver();
 	

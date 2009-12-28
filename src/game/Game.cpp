@@ -33,6 +33,7 @@
 #include "CWormHuman.h"
 #include "gusanos/glua.h"
 #include "gusanos/lua51/luaapi/context.h"
+#include "sound/sfx.h"
 
 Game game;
 
@@ -177,6 +178,10 @@ void Game::frameInner()
 
 	if(gameScript()->gusEngineUsed() || gusGame.level().gusIsLoaded())
 		gusLogicFrame();
+	else {
+		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case
+		sfx.think();
+	}
 	
 	// Local
 	switch (tLX->iGameType)  {

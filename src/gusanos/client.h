@@ -1,8 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#ifndef DISABLE_ZOIDCOM
-
 #include "netstream.h"
 //#include <string>
 
@@ -18,12 +16,7 @@ public:
 	void requestPlayer(PlayerOptions const& playerOptions);
 	void requestPlayers();
 	void sendConsistencyInfo();
-	
-	void loadNextGame();
-	
-	//std::string nextMod;
-	//std::string nextMap;
-
+		
 protected:
 
 	// called when initiated connection process yields a result
@@ -48,7 +41,5 @@ protected:
 	virtual bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) {return false;}
 	virtual void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply )  {}
 };
-
-#endif
 
 #endif // _CLIENT_H_

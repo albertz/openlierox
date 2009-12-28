@@ -128,9 +128,13 @@ void Weapon::think( bool isFocused, size_t index )
 			}
 		}
 		if ( reloading ) {
-			if ( reloadTime > 0 )
-				--reloadTime;
-			else if ( !network.isClient() || !m_type->syncReload ) {
+			if ( reloadTime > 0 ) {
+				if(cClient->getGameLobby() == NULL || cClient->getGameLobby()->iLoadingTime == 0)
+					reloadTime = 0;
+				else
+					reloadTime -= 100.0 / cClient->getGameLobby()->iLoadingTime;
+				if(reloadTime < 0) reloadTime = 0;
+			} else if ( !network.isClient() || !m_type->syncReload ) {
 				reload();
 
 				if ( network.isHost() && m_type->syncReload ) {

@@ -6,7 +6,6 @@
 #include "updater.h"
 #include "glua.h"
 #include "gconsole.h"
-//#include "text.h"
 #include "net_worm.h"
 #include "game/WormInputHandler.h"
 #include "particle.h"
@@ -14,8 +13,6 @@
 #include "util/log.h"
 #include "util/text.h"
 #include "lua/bindings-network.h"
-
-#ifndef DISABLE_ZOIDCOM
 
 #include <string>
 #include <iostream>
@@ -36,28 +33,8 @@ LuaReference LuaEventDef::metaTable;
 namespace
 {
 
-	mq_define_message(Connect, 0, (std::string addr_))
-			: addr(addr_)
-	{}
-
-	std::string addr;
+	mq_define_message(Connect, 0, ()) {}
 	mq_end_define_message()
-
-	/*
-	mq_define_message(Host, 0)
-		{
-			
-		}
-	mq_end_define_message()
-	*/
-
-	/*
-	enum State
-{
-		StateIdle,	// Not doing anything
-		StateDisconnecting, // Starting disconnection sequence
-		StateDisconnected, // Disconnected
-};*/
 
 	Network::State state = Network::StateDisconnected;
 	int stateTimeOut = 0;
@@ -172,8 +149,7 @@ namespace
 
 	std::string disconnectCmd(std::list<std::string> const& args)
 	{
-		network.disconnect();
-		return "";
+		return "Gusanos disconnect command not available";
 	}
 }
 
@@ -201,25 +177,15 @@ LuaEventDef::~LuaEventDef()
 
 Network::Network()
 {
-	/*
-		m_host = false;
-		m_netstream = NULL;
-		m_control = NULL;
-		connCount = 0;
-		m_reconnect = false;*/
 }
 
 Network::~Network()
 {
-	/* What's with this?
-		m_host = false;
-		m_client = false;
-		m_serverID = Net_Invalid_ID;*/
 }
 
 void Network::log(char const* msg)
 {
-	cerr << "ZOIDCOM: " << msg << endl;
+	cerr << "Gusanos Network: " << msg << endl;
 }
 
 void Network::init()
@@ -262,7 +228,7 @@ void Network::update()
 {
 	if ( m_control ) {
 		m_control->Net_processOutput();
-		m_control->Net_processInput(eNet_NoBlock);
+		m_control->Net_processInput();
 	}
 
 	switch(state) {
@@ -283,34 +249,12 @@ void Network::update()
 
 				m_control = new Client( 0 );
 				registerClasses();
-				Net_Address address;
-				address.setAddress( eNet_AddressUDP, 0, ( data.addr + ":" + cast<string>(m_serverPort) ).c_str() );
-				m_control->Net_Connect( address, NULL );
+				m_control->Net_Connect();
 				//m_client = true; // We wait with setting this until we've connected
-				m_lastServerAddr = data.addr;
 				setLuaState(StateConnecting);
 				SET_STATE(Idle);
 				mq_end_case()
 
-				/*
-				mq_case(Host)
-					if(!isDisconnected())
-					{
-						if(!isDisconnecting())
-							disconnect();
-						
-						mq_delay(); // Wait until network is disconnected
-					}
-					
-					m_control = new Server(m_serverPort);
-					registerClasses();
-					m_host = true;
-					gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
-					updater.assignNetworkRole(true);
-					registerToMasterServer();
-					SET_STATE(Idle);
-				mq_end_case()
-				*/
 				mq_end_process_messages()
 			}
 			break;
@@ -344,19 +288,19 @@ void Network::update()
 	if( reconnectTimer > 0 ) {
 		//disconnect();
 		if(--reconnectTimer == 0) {
-			DLOG("Reconnecting to " << m_lastServerAddr);
-			connect( m_lastServerAddr );
+			DLOG("Reconnecting Gusanos");
+			olxConnect();
 		}
 	}
 }
 
-void Network::host()
+void Network::olxHost()
 {
 	//disconnect();
 	assert(state == StateDisconnected); // We assume that we're disconnected
 
 	//mq_queue(msg, Host);
-	m_control = new Server(m_serverPort);
+	m_control = new Server();
 	registerClasses();
 	m_host = true;
 	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
@@ -365,11 +309,11 @@ void Network::host()
 	SET_STATE(Idle);
 }
 
-void Network::connect( const std::string &_address )
+void Network::olxConnect()
 {
 	//disconnect(); // Done is message handler
 
-	mq_queue(msg, Connect, _address);
+	mq_queue(msg, Connect);
 }
 
 void Network::disconnect( DConnEvents event )
@@ -405,36 +349,9 @@ void Network::clear()
 	}
 }
 
-void Network::reconnect(int delay)
+void Network::olxReconnect(int delay)
 {
 	reconnectTimer = delay;
-}
-
-void Network::kick( Net_ConnID connID )
-{
-	if( m_control ) {
-		Net_BitStream *eventData = new Net_BitStream;
-		eventData->addInt( static_cast<int>( Kick ), 8 );
-		m_control->Net_Disconnect( connID, eventData );
-	}
-}
-
-void Network::ban( Net_ConnID connID )
-{
-	if( m_control ) {
-		Net_Address const* addr = m_control->Net_getPeer(connID);
-		bannedIPs.insert(addr->getIP());
-	}
-}
-
-bool Network::isBanned(Net_ConnID connID)
-{
-	if( m_control ) {
-		Net_Address const* addr = m_control->Net_getPeer(connID);
-		if(bannedIPs.find(addr->getIP()) != bannedIPs.end())
-			return true;
-	}
-	return false;
 }
 
 void Network::setServerID(Net_ConnID serverID)
@@ -518,8 +435,6 @@ void Network::setClient(bool v)
 {
 	m_client = v;
 }
-
-#endif
 
 
 
