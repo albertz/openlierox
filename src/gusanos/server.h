@@ -39,8 +39,6 @@ protected:
 	void Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply ) {}
 	void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id ) {}
 	void Net_cbNodeRequest_Tag( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_U32 _tag ) {}
-	void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply )  {}
-	bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) {return false;}
 	
 	bool socketsInited;
 };
