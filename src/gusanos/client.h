@@ -38,8 +38,6 @@ protected:
 	virtual bool Net_cbNetRequest( Net_ConnID _id, Net_U8 _requested_level, Net_BitStream &_reason ) {return false;}
 	virtual void Net_cbNodeRequest_Tag( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_U32 _tag ) {}
 	//virtual void Net_cbDataReceived( Net_ConnID _id, Net_BitStream &_data ) {}
-	virtual bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) {return false;}
-	virtual void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply )  {}
 };
 
 #endif // _CLIENT_H_

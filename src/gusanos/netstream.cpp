@@ -427,10 +427,6 @@ Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1, int
 Net_InterceptID Net_ReplicatorSetup::getInterceptID() { return 0; }
 
 
-void Net_Address::setAddress(eNet_AddressType, int, const char*) {}
-Net_U32 Net_Address::getIP() const { return 0; }
-
-
 struct NetStream::NetStreamIntern {
 	void (*logFct)( const char* );
 	

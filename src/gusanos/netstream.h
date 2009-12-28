@@ -181,8 +181,6 @@ struct Net_Node {
 	Net_FileTransInfo& getFileInfo(Net_ConnID, Net_FileTransID);
 };
 
-struct Net_Address;
-
 struct Net_Control {		
 	struct NetControlIntern; NetControlIntern* intern;
 
@@ -229,8 +227,6 @@ struct Net_Control {
 	// zoidlevel transition finished
 	virtual void Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason) = 0;
 
-	virtual bool Net_cbDiscoverRequest( const Net_Address &_addr, Net_BitStream &_request, Net_BitStream &_reply ) = 0;
-	virtual void Net_cbDiscovered( const Net_Address & _addr, Net_BitStream &_reply ) = 0;
 };
 
 struct Net_ReplicatorBasic {
@@ -256,15 +252,6 @@ struct Net_ReplicatorSetup {
 };
 
 struct Net_NodeReplicationInterceptor {};
-
-enum eNet_AddressType {
-	eNet_AddressUDP
-};
-
-struct Net_Address {
-	void setAddress(eNet_AddressType, int, const char*);
-	Net_U32 getIP() const;
-};
 
 struct NetStream {
 	struct NetStreamIntern; NetStreamIntern* intern;
