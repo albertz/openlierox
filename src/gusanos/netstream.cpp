@@ -35,6 +35,8 @@ static const unsigned char bitMasks[] = { 1, 2, 4, 8, 16, 32, 64, 128 };
 
 void Net_BitStream::writeBits(const char *bits, size_t bitCount)
 {
+	if(bitCount == 0) return;
+	
 	growIfNeeded(bitCount);
 
 	size_t byteCount = (bitCount + 7) / 8;  // Number of bytes that will be needed
