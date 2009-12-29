@@ -129,7 +129,6 @@ public:
 	void olxParse(CBytestream& bs);
 	void olxSend(bool sendPendingOnly);
 	
-	static void setServerID( Net_ConnID serverID );
 	static Net_ConnID getServerID();
 	
 	static bool isHost();

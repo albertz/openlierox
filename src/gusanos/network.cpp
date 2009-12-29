@@ -134,7 +134,6 @@ namespace
 
 	NetStream* m_netstream = 0;
 	Net_Control* m_control = 0;
-	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
 
 	void registerClasses() // Factorization of class registering in client and server
@@ -218,7 +217,7 @@ void Network::registerInConsole()
 
 Net_ConnID Network::getServerID()
 {
-	return m_serverID;
+	return NetConnID_server();
 }
 
 void Network::update()
@@ -271,7 +270,6 @@ void Network::update()
 					connCount = 0;
 					m_client = false;
 					m_host = false;
-					m_serverID = Net_Invalid_ID;
 
 					gusGame.removeNode();
 				} else
@@ -346,11 +344,6 @@ void Network::clear()
 void Network::olxReconnect(int delay)
 {
 	reconnectTimer = delay;
-}
-
-void Network::setServerID(Net_ConnID serverID)
-{
-	m_serverID = serverID;
 }
 
 bool Network::isHost()

@@ -73,7 +73,6 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 	{
 		network.setClient(true);
 		console.addLogMsg("* CONNECTION ACCEPTED");
-		network.setServerID(_id);
 		network.incConnCount();
 		
 		std::string mod = _reply.getStringStatic();

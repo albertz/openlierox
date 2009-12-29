@@ -158,7 +158,7 @@ struct Net_Control;
 struct Net_ReplicatorSetup;
 struct Net_ReplicatorBasic;
 
-struct Net_Node {
+struct Net_Node : DontCopyTag {
 	struct NetNodeIntern; NetNodeIntern* intern;
 	Net_Node(); ~Net_Node();
 	
