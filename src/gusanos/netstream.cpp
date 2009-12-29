@@ -11,6 +11,10 @@
 #include "Networking.h"
 #include "EndianSwap.h"
 
+#include "Protocol.h"
+#include "CServer.h"
+#include "CBytestream.h"
+
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
 void Net_BitStream::growIfNeeded(size_t addBits)
@@ -136,6 +140,7 @@ void Net_BitStream::addBitStream(Net_BitStream* str) {
 }
 
 void Net_BitStream::addString(const std::string& str) {
+	while(m_readPos % 8 != 0) m_readPos++;
 	writeBits(str.c_str(), (str.size() + 1) * 8);
 }
 
@@ -181,15 +186,15 @@ float Net_BitStream::getFloat(int bits) {
 }
 
 const char* Net_BitStream::getStringStatic() { 
-	std::string res;
-	for (size_t i = 0; m_readPos + i < m_size; i++)  {
-		if ((i % 8) == 0)
-			res += '\0';
-		res[i / 8] |= (m_data[m_readPos / 8] & bitMasks[m_readPos % 8]);
-		m_readPos++;
+	while(m_readPos % 8 != 0) m_readPos++;
+	const char* ret = &m_data[m_readPos / 8];
+	while(true) {
+		if(m_readPos >= m_size) return NULL;
+		if(m_data[m_readPos / 8] == 0) break;
+		m_readPos += 8;
 	}
-
-	return res.c_str();
+	m_readPos += 8;	
+	return ret;
 }
 
 Net_BitStream* Net_BitStream::Duplicate() { 
@@ -337,6 +342,21 @@ bool Net_BitStream::runTests()
 	return res;
 }
 
+
+struct Net_Node::NetNodeIntern {
+	
+};
+
+Net_Node::Net_Node() {
+	intern = new NetNodeIntern();
+}
+
+Net_Node::~Net_Node() {
+	delete intern;
+	intern = NULL;
+}
+
+
 eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
 void Net_Node::setOwner(Net_ConnID, bool something) {}
 void Net_Node::setAnnounceData(Net_BitStream*) {}
@@ -374,7 +394,22 @@ Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *
 struct Net_Control::NetControlIntern {
 	int controlId;
 	std::string debugName;
+		
+	struct DataPackage {
+		enum Type {
+			GPT_Global = 0,
+			
+		};
+
+		Type type;
+		Net_BitStream data;
+		eNet_SendMode sendMode;
+		DataPackage() : sendMode(eNet_ReliableOrdered) {}
+		void send();
+	};
 	
+	std::list<DataPackage> packetsToSend;
+		
 	NetControlIntern() {
 		controlId = 0;
 	}
@@ -396,8 +431,21 @@ void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
-void Net_Control::Net_processOutput() {}
-void Net_Control::Net_processInput() {}
+void Net_Control::NetControlIntern::DataPackage::send() {
+	CBytestream bs;
+	bs.writeByte(S2C_GUSANOS);
+	bs.writeByte(type);
+	bs.writeData(data.data());
+	cServer->SendGlobalPacket(&bs);
+}
+
+void Net_Control::Net_processOutput() {
+	
+
+}
+
+void Net_Control::Net_processInput() {
+}
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
@@ -412,19 +460,18 @@ void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
 
 
 
-Net_ReplicatorBasic::Net_ReplicatorBasic(Net_ReplicatorSetup*) {}
+Net_BitStream* Net_Replicator::getPeekStream() { return NULL; }
+void* Net_Replicator::peekDataRetrieve() { return NULL; }
 
-Net_BitStream* Net_ReplicatorBasic::getPeekStream() { return NULL; }
-void* Net_ReplicatorBasic::peekDataRetrieve() { return NULL; }
-
-Net_ReplicatorSetup* Net_ReplicatorBasic::getSetup() { return NULL; }	
-void* Net_ReplicatorBasic::peekData() { return NULL; }
-void Net_ReplicatorBasic::peekDataStore(void*) {}
+void* Net_Replicator::peekData() { return NULL; }
+void Net_Replicator::peekDataStore(void*) {}
 
 
 
-Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-Net_InterceptID Net_ReplicatorSetup::getInterceptID() { return 0; }
+Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID p1, int p2, int p3) {
+	interceptId = p1;
+}
+
 
 
 struct NetStream::NetStreamIntern {

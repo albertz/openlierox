@@ -213,31 +213,6 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 	}
 }
 
-void Client::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 new_level, Net_BitStream &_reason)
-{
-	if (_result != eNet_NetEnabled)
-	{
-		console.addLogMsg("* ERROR: COULDNT ENTER ZOIDMODE");
-	}else
-	{
-		console.addLogMsg("* JOINED ZOIDMODE");
-		
-		updater.removeNode();
-		gusGame.removeNode();
-		
-		switch(new_level)
-		{
-			case 1:
-				gusGame.assignNetworkRole( false );
-				requestPlayers();
-			break;
-			
-			case 2:
-				updater.assignNetworkRole(false);
-			break;
-		}
-	}
-}
 
 void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id )
 {

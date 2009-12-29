@@ -22,8 +22,6 @@ public:
 	
 protected:
 		
-	// called on incoming connections
-	bool Net_cbConnectionRequest( Net_ConnID _id, Net_BitStream &_request, Net_BitStream &_reply );
 	// called when incoming connection has been established
 	void Net_cbConnectionSpawned( Net_ConnID _id );
 	// called when a connection closed
@@ -31,8 +29,6 @@ protected:
 	
 	bool Net_cbNetRequest( Net_ConnID _id, Net_U8 _requested_level, Net_BitStream &_reason);
 	
-	void Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason);
-
 	void Net_cbDataReceived( Net_ConnID _id, Net_BitStream &_data );
 	
 	

@@ -92,24 +92,6 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 	}
 }
 
-bool Server::Net_cbConnectionRequest( Net_ConnID id, Net_BitStream &_request, Net_BitStream &reply )
-{
-	if( false /*network.clientRetry*/) {
-		reply.addInt(Network::ConnectionReply::Retry, 8);
-		return false;
-	} else if ( !m_preShutdown ) {
-		console.addLogMsg("* CONNECTION REQUESTED");
-		//_reply.addInt(Network::ConnectionReply::Ok, 8);
-		reply.addString( gusGame.getMod().c_str() );
-		reply.addString( gusGame.level().getName().c_str() );
-
-		return true;
-	}
-	
-	reply.addInt(Network::ConnectionReply::Refused, 8);
-	return false;
-}
-
 void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
 	console.addLogMsg("* CONNECTION SPAWNED");
@@ -131,25 +113,5 @@ void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 	}
 	network.decConnCount();
 	DLOG("A connection was closed");
-}
-
-bool Server::Net_cbNetRequest( Net_ConnID _id, Net_U8 requested_level, Net_BitStream &_reason)
-{
-	switch(requested_level) {
-			case 1:
-			case 2: {
-				console.addLogMsg("* ZOIDMODE REQUEST ACCEPTED");
-				return true;
-			}
-			break;
-
-			default:
-			return false;
-	}
-}
-
-void Server::Net_cbNetResult(Net_ConnID _id, eNet_NetResult _result, Net_U8 _new_level, Net_BitStream &_reason)
-{
-	console.addLogMsg("* NEW CONNECTION JOINED ZOIDMODE");
 }
 
