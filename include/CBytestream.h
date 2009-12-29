@@ -111,6 +111,8 @@ public:
 	uchar		peekByte() const;
 	std::string	peekData(size_t len) const;
 
+	const std::string& data() const { return Data; }
+	
 	// Skips
 	// Folowing functions return true if we're at the end of stream after the skip
 	bool		Skip(size_t num);

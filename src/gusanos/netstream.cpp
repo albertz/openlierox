@@ -10,10 +10,12 @@
 #include "netstream.h"
 #include "Networking.h"
 #include "EndianSwap.h"
+#include "gusanos/encoding.h"
+#include "CBytestream.h"
 
 #include "Protocol.h"
 #include "CServer.h"
-#include "CBytestream.h"
+#include "CServerConnection.h"
 
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
@@ -386,11 +388,6 @@ void Net_Node::endReplicationSetup() {}
 void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
-void Net_Node::acceptFile(Net_ConnID, Net_FileTransID, int, bool accept) {}
-Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, float) { return 0; }
-Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
-
-
 struct Net_Control::NetControlIntern {
 	int controlId;
 	std::string debugName;
@@ -404,11 +401,14 @@ struct Net_Control::NetControlIntern {
 		Type type;
 		Net_BitStream data;
 		eNet_SendMode sendMode;
+		
 		DataPackage() : sendMode(eNet_ReliableOrdered) {}
-		void send();
+		void send(CBytestream& bs);
+		void read(CBytestream& bs);
 	};
 	
-	std::list<DataPackage> packetsToSend;
+	typedef std::list<DataPackage> Packages;
+	Packages packetsToSend;
 		
 	NetControlIntern() {
 		controlId = 0;
@@ -431,17 +431,36 @@ void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
-void Net_Control::NetControlIntern::DataPackage::send() {
-	CBytestream bs;
-	bs.writeByte(S2C_GUSANOS);
+void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
+	
+	Net_BitStream bits;
+	Encoding::encodeEliasGamma(bits, data.data().size() + 1);
+	bs.writeData(bits.data());
+
 	bs.writeData(data.data());
-	cServer->SendGlobalPacket(&bs);
 }
 
-void Net_Control::Net_processOutput() {
+void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
+	type = (NetControlIntern::DataPackage::Type) bs.readByte();
 	
+	Net_BitStream bits(bs.data());
+	bits.getInt(bs.GetPos() * 8); // skip to bs pos
+	unsigned int len = Encoding::decodeEliasGamma(bits) - 1;
+	
+	data = Net_BitStream( bs.getRawData( (bits.bitPos() + 7) / 8, len ) );
+	bs.Skip(len);
+}
 
+
+void Net_Control::Net_processOutput() {
+	CBytestream bs;
+	bs.writeByte(S2C_GUSANOS);
+
+	for(NetControlIntern::Packages::iterator i = intern->packetsToSend.begin(); i != intern->packetsToSend.end(); ++i)
+		i->send(bs);
+	
+	cServer->SendGlobalPacket(&bs);
 }
 
 void Net_Control::Net_processInput() {
@@ -503,6 +522,36 @@ NetStream::~NetStream() {
 bool NetStream::Init() {
 	intern->log("NetStream::Init()");
 	return true;
+}
+
+
+Net_ConnID NetConnID_server() {
+	return Net_ConnID(-1);
+}
+
+Net_ConnID NetConnID_conn(CServerConnection* cl) {
+	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(&cServer->getClients()[i] == cl) return i;
+	}
+	
+	errors << "NetConnID_conn: connection invalid" << endl;
+	return 0;
+}
+
+CServerConnection* serverConnFromNetConnID(Net_ConnID id) {
+	if(!cServer->getClients() || !cServer->isServerRunning()) {
+		errors << "serverConnFromNetConnID: server is not running" << endl;
+		return NULL;
+	}
+	
+	if(id >= 0 && id < MAX_CLIENTS) return &cServer->getClients()[id];
+	
+	errors << "serverConnFromNetConnID: id " << id << " is invalid" << endl;
+	return NULL;
+}
+
+bool isServerNetConnID(Net_ConnID id) {
+	return id == NetConnID_server();
 }
 
 

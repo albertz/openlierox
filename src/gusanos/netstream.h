@@ -116,6 +116,7 @@ private:
 	bool testSafety();
 public:
 	Net_BitStream() : m_readPos(0), m_size(0) {}
+	Net_BitStream(const std::string& rawdata) : m_data(rawdata), m_readPos(0), m_size(rawdata.size()*8) {}
 
 	void addBool(bool);
 	void addInt(int n, int bits);
@@ -134,7 +135,8 @@ public:
 	bool runTests();
 	
 	const std::string& data() const { return m_data; }
-	
+	void resetPos() { m_readPos = 0; }
+	size_t bitPos() const { return m_readPos; }
 };
 
 struct Net_FileTransInfo {
@@ -143,6 +145,12 @@ struct Net_FileTransInfo {
 	size_t transferred;
 	size_t size;
 };
+
+class CServerConnection;
+Net_ConnID NetConnID_server();
+Net_ConnID NetConnID_conn(CServerConnection* cl);
+CServerConnection* serverConnFromNetConnID(Net_ConnID id);
+bool isServerNetConnID(Net_ConnID id);
 
 struct Net_NodeReplicationInterceptor;
 struct Net_Control;
@@ -180,11 +188,7 @@ struct Net_Node {
 	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
-	
-	
-	void acceptFile(Net_ConnID, Net_FileTransID, int, bool accept);
-	Net_FileTransID sendFile(const char* filename, int, Net_ConnID, int, float);
-	Net_FileTransInfo& getFileInfo(Net_ConnID, Net_FileTransID);
+
 };
 
 struct Net_Control {		

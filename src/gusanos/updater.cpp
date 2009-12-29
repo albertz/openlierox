@@ -78,49 +78,6 @@ namespace
 	bool ready = false;
 	bool noTransfers = false;
 
-	void ConnData::sendOne()
-	{
-		if(!fileQueue.empty()) {
-			std::pair<unsigned long, std::string>& t = fileQueue.front();
-			if(!sendingFile) {
-				if(t.first == 0) {
-					std::string const& file = t.second;
-					Net_FileTransID fid = node->sendFile(file.c_str(), 0, connID, 0, 1.0f);
-					ILOG("Sending file with ID " << fid);
-					sendingFile = true;
-					fileQueue.pop_front();
-				} else {
-					Net_BitStream* str = new Net_BitStream;
-					str->addInt(MsgRequestDone, 8);
-					str->addInt(t.first, 32);
-					node->sendEventDirect(eNet_ReliableOrdered, str, connID );
-					fileQueue.pop_front();
-				}
-			}
-		}
-	}
-
-	void ConnData::queuePath(std::string const& p)
-	{
-		if(gusIsDirectory(p)) {
-
-			for(Iterator<std::string>::Ref i = gusFileListIter(p); i->isValid(); i->next()) {
-				queuePath(p + "/" + i->get());
-			}
-		} else {
-			DLOG("Queing " << p.string());
-			fileQueue.push_back(std::make_pair(0, p));
-		}
-	}
-
-	void ConnData::queueLevel(std::string const& level, unsigned long reqID)
-	{
-		// TODO: WARNING: Prevent exception throwing if level doesn't exist
-		std::string const& p = levelLocator.getPathOf(level);
-
-		queuePath(p);
-		fileQueue.push_back(std::make_pair(reqID, level));
-	}
 }
 
 Updater::Updater()
@@ -183,32 +140,9 @@ void Updater::think()
 						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
 
 						if(/*!network.autoDownloads*/ false ) {
-							node->acceptFile(conn_id, fid, 0, false);
 							break;
 						}
 
-						Net_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
-
-						bool accept = true;
-
-						try {
-							std::string p(info.path);
-							
-							if(gusExists(p))
-								accept = false;
-
-							if(accept) {
-								// create directories for p
-								GetWriteFullFileName("gusanos/" + p, true);
-
-								ILOG("Accepting incoming file with ID " << fid);
-							}
-						} catch(fs::filesystem_error& e) {
-							ELOG("Filesystem error: " << e.what());
-							accept = false;
-						}
-
-						node->acceptFile(conn_id, fid, 0, accept);
 					}
 					break;
 
@@ -223,14 +157,6 @@ void Updater::think()
 
 					case eNet_EventFile_Data: {
 						Net_FileTransID fid = static_cast<Net_FileTransID>(data->getInt(Net_FTRANS_ID_BITS));
-						Net_FileTransInfo const& info = node->getFileInfo(conn_id, fid);
-
-						//DLOG("Transfer: " << double(info.bps) / 1000.0 << " kB/s, " << ((100 * info.transferred) / info.size) << "% done.");
-						EACH_CALLBACK(i, transferUpdate) {
-							(lua.call(*i), info.path, info.bps, info.transferred, info.size)();
-						}
-
-						//Net_ConnStats const& state = network.getNetControl()->Net_getConnectionStats(conn_id);
 
 					}
 					break;
