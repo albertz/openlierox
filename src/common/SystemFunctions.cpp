@@ -90,7 +90,11 @@ void setCurThreadName(const std::string& name)
 	{
 	}
 #else
+	
+#ifdef THREADNAME_VIA_SIGUSR1
 	setCurThreadName__signalraiser(name.c_str());
+#endif
+
 #endif
 }
 
