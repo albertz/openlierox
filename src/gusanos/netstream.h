@@ -14,6 +14,7 @@
 
 #include <string>
 #include <SDL.h> // for uint8_t etc.
+#include "Utils.h"
 
 typedef float Net_Float;
 typedef uint8_t Net_U8;
@@ -191,13 +192,14 @@ struct Net_Node {
 
 };
 
-struct Net_Control {		
+class CBytestream;
+
+struct Net_Control : DontCopyTag {
 	struct NetControlIntern; NetControlIntern* intern;
 
-	Net_Control();
+	Net_Control(bool isServer);
 	virtual ~Net_Control();
 
-	void Net_Connect();
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
@@ -208,6 +210,9 @@ struct Net_Control {
 
 	Net_BitStream* Net_createBitStream();
 
+	void olxSend(bool sendPendingOnly);
+	void olxParse(CBytestream& bs);
+	
 	void Net_processOutput();
 	void Net_processInput();
 	

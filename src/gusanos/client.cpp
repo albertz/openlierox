@@ -13,7 +13,7 @@
 
 #include "netstream.h"
 
-Client::Client( int _udpport )
+Client::Client( int _udpport ) : Net_Control(false)
 {
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");

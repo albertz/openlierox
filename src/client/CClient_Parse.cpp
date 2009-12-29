@@ -51,6 +51,7 @@
 #include "FlagInfo.h"
 #include "CMap.h"
 #include "Utils.h"
+#include "gusanos/network.h"
 
 
 #ifdef _MSC_VER
@@ -650,6 +651,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 			
 			case S2C_SELECTWEAPONS:
 				ParseSelectWeapons(bs);
+				break;
+				
+			case S2C_GUSANOS:
+				network.olxParse(*bs);
 				break;
 				
 			default:

@@ -246,7 +246,6 @@ void Network::update()
 
 				m_control = new Client( 0 );
 				registerClasses();
-				m_control->Net_Connect();
 				//m_client = true; // We wait with setting this until we've connected
 				setLuaState(StateConnecting);
 				SET_STATE(Idle);
@@ -422,6 +421,27 @@ void Network::setClient(bool v)
 	m_client = v;
 }
 
+void Network::olxParse(CBytestream& bs) {
+	if(m_control)
+		m_control->olxParse(bs);
+	else {
+		errors << "GusNetwork::olxParse: net control not initialised" << endl;
+		bs.SkipAll();
+	}
+}
+
+void Network::olxSend(bool sendPendingOnly) {
+	// we can ignore Gusanos network in local play
+	if(tLX->iGameType == GME_LOCAL) return;
+
+	// if we don't use Gusanos at all, we don't need it
+	if(!gusGame.isEngineNeeded()) return;
+	
+	if(m_control)
+		m_control->olxSend(sendPendingOnly);
+	else
+		errors << "GusNetwork::olxSend: net control not initialised" << endl;
+}
 
 
 

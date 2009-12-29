@@ -49,6 +49,7 @@
 #include "CMap.h"
 #include "DedicatedControl.h"
 #include "OLXCommand.h"
+#include "gusanos/network.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -1236,6 +1237,9 @@ void CClient::SendPackets(bool sendPendingOnly)
 			cNetEngine->SendRandomPacket();
 #endif
 	}
+
+	if(tLX->iGameType == GME_JOIN) // in server mode, we call this from CServer::SendPackets
+		network.olxSend(sendPendingOnly);
 	
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);

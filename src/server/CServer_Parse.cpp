@@ -43,6 +43,7 @@
 #include "Autocompletion.h"
 #include "OLXCommand.h"
 #include "TaskManager.h"
+#include "gusanos/network.h"
 
 
 #ifdef _MSC_VER
@@ -169,6 +170,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 
 		case C2S_NEWNET_CHECKSUM:
 			ParseNewNetChecksum(bs);
+			break;
+				
+		case C2S_GUSANOS:
+			network.olxParse(*bs);
 			break;
 
 		default:

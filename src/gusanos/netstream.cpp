@@ -16,6 +16,9 @@
 #include "Protocol.h"
 #include "CServer.h"
 #include "CServerConnection.h"
+#include "CClient.h"
+#include "CServerNetEngine.h"
+#include "CChannel.h"
 
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
@@ -389,16 +392,19 @@ void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
 struct Net_Control::NetControlIntern {
+	bool isServer;
 	int controlId;
 	std::string debugName;
-		
+	
 	struct DataPackage {
 		enum Type {
 			GPT_Global = 0,
-			
+			GPT_NodeNew = 1,
+			GPT_NodeUpdate = 2
 		};
 
 		Type type;
+		Net_ConnID connID; // target or source
 		Net_BitStream data;
 		eNet_SendMode sendMode;
 		
@@ -409,14 +415,17 @@ struct Net_Control::NetControlIntern {
 	
 	typedef std::list<DataPackage> Packages;
 	Packages packetsToSend;
+	Packages packetsReceived;
 		
 	NetControlIntern() {
+		isServer = false;
 		controlId = 0;
 	}
 };
 
-Net_Control::Net_Control() : intern(NULL) {
+Net_Control::Net_Control(bool isServer) : intern(NULL) {
 	intern = new NetControlIntern();
+	intern->isServer = isServer;
 }
 
 Net_Control::~Net_Control() {
@@ -424,43 +433,74 @@ Net_Control::~Net_Control() {
 	intern = NULL;
 }
 
-void Net_Control::Net_Connect() {}
 void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
+static void writeEliasGammaNr(CBytestream& bs, size_t n) {
+	Net_BitStream bits;
+	Encoding::encodeEliasGamma(bits, n + 1);
+	bs.writeData(bits.data());
+}
+
+static size_t readEliasGammaNr(CBytestream& bs) {
+	Net_BitStream bits(bs.data());
+	bits.getInt(bs.GetPos() * 8); // skip to bs pos
+	size_t len = Encoding::decodeEliasGamma(bits) - 1;
+	bs.Skip( (bits.bitPos() + 7) / 8 - bs.GetPos() );
+	return len;
+}
+
 void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
-	
-	Net_BitStream bits;
-	Encoding::encodeEliasGamma(bits, data.data().size() + 1);
-	bs.writeData(bits.data());
-
+	writeEliasGammaNr(bs, data.data().size());
 	bs.writeData(data.data());
 }
 
 void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	
-	Net_BitStream bits(bs.data());
-	bits.getInt(bs.GetPos() * 8); // skip to bs pos
-	unsigned int len = Encoding::decodeEliasGamma(bits) - 1;
-	
-	data = Net_BitStream( bs.getRawData( (bits.bitPos() + 7) / 8, len ) );
+	size_t len = readEliasGammaNr(bs);
+	data = Net_BitStream( bs.getRawData( bs.GetPos(), len ) );
 	bs.Skip(len);
 }
 
-
-void Net_Control::Net_processOutput() {
+void Net_Control::olxSend(bool sendPendingOnly) {
 	CBytestream bs;
-	bs.writeByte(S2C_GUSANOS);
+	bs.writeByte(intern->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
 
+	writeEliasGammaNr(bs, intern->packetsToSend.size());
 	for(NetControlIntern::Packages::iterator i = intern->packetsToSend.begin(); i != intern->packetsToSend.end(); ++i)
 		i->send(bs);
 	
-	cServer->SendGlobalPacket(&bs);
+	if(tLX->iGameType == GME_JOIN)
+		cClient->getChannel()->AddReliablePacketToSend(bs);
+	else {
+		// send to all except local client
+		CServerConnection *cl = cServer->getClients();
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getNetEngine() == NULL) continue;
+			
+			if(!cl->isLocalClient())
+				cl->getNetEngine()->SendPacket(&bs);
+		}
+	}
+}
+
+void Net_Control::olxParse(CBytestream& bs) {
+	size_t len = readEliasGammaNr(bs);
+
+	intern->packetsReceived.clear();
+	for(size_t i = 0; i < len; ++i) {
+		intern->packetsReceived.push_back(NetControlIntern::DataPackage());
+		NetControlIntern::DataPackage& p = intern->packetsReceived.back();
+		p.read(bs);
+	}
+}
+
+void Net_Control::Net_processOutput() {
 }
 
 void Net_Control::Net_processInput() {
