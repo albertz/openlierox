@@ -97,7 +97,7 @@ enum eNet_NetResult {
 };
 
 
-struct Net_BitStream {
+class Net_BitStream {
 private:
 	std::string m_data;
 	size_t m_readPos;  // in bits
@@ -132,6 +132,9 @@ public:
 	
 	Net_BitStream* Duplicate();
 	bool runTests();
+	
+	const std::string& data() const { return m_data; }
+	
 };
 
 struct Net_FileTransInfo {

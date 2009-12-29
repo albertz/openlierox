@@ -11,6 +11,10 @@
 #include "Networking.h"
 #include "EndianSwap.h"
 
+#include "Protocol.h"
+#include "CServer.h"
+#include "CBytestream.h"
+
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
 void Net_BitStream::growIfNeeded(size_t addBits)
@@ -390,7 +394,22 @@ Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *
 struct Net_Control::NetControlIntern {
 	int controlId;
 	std::string debugName;
+		
+	struct DataPackage {
+		enum Type {
+			GPT_Global = 0,
+			
+		};
+
+		Type type;
+		Net_BitStream data;
+		eNet_SendMode sendMode;
+		DataPackage() : sendMode(eNet_ReliableOrdered) {}
+		void send();
+	};
 	
+	std::list<DataPackage> packetsToSend;
+		
 	NetControlIntern() {
 		controlId = 0;
 	}
@@ -412,8 +431,21 @@ void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
-void Net_Control::Net_processOutput() {}
-void Net_Control::Net_processInput() {}
+void Net_Control::NetControlIntern::DataPackage::send() {
+	CBytestream bs;
+	bs.writeByte(S2C_GUSANOS);
+	bs.writeByte(type);
+	bs.writeData(data.data());
+	cServer->SendGlobalPacket(&bs);
+}
+
+void Net_Control::Net_processOutput() {
+	
+
+}
+
+void Net_Control::Net_processInput() {
+}
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
