@@ -51,7 +51,11 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
 
 void CViewport::shutdown() {
 	bUsed = false;
-	sfx.removeListener(m_listener); delete m_listener; m_listener = NULL;
+	if (m_listener)  {
+		sfx.removeListener(m_listener);
+		delete m_listener;
+		m_listener = NULL;
+	}
 	gusReset();
 }
 

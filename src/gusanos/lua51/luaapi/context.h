@@ -19,7 +19,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-struct Net_BitStream;
+class Net_BitStream;
 
 class LuaContext
 {

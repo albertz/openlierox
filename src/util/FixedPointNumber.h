@@ -31,7 +31,7 @@ struct FixedPointNumber {
 	bool operator<(const FixedPointNumber& n) const { return number < n.number; }
 	bool operator>(const FixedPointNumber& n) const { return number > n.number; }
 	
-	int asInt() { return number / factor; }
+	int asInt() { return (int)(number / factor); }
 	
 };
 

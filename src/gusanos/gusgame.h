@@ -27,7 +27,7 @@ class WeaponType;
 class Particle;
 class PartType;
 class Explosion;
-struct Net_BitStream;
+class Net_BitStream;
 struct LuaEventDef;
 #ifndef DEDICATED_ONLY
 class Sound;
