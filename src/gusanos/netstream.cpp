@@ -65,6 +65,8 @@ void Net_BitStream::writeBits(const char *bits, size_t bitCount)
 
 std::string Net_BitStream::readBits(size_t bitCount)
 {
+	if(bitCount == 0) return;
+	
 	// Check
 	if (m_readPos + bitCount >= m_size)
 		return "";
