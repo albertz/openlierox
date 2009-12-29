@@ -637,8 +637,6 @@ void CWorm::draw(CViewport* viewport)
 			if ( m_weapons[currentWeapon] )
 				m_weapons[currentWeapon]->drawBottom(where, renderX, renderY);
 
-			int colour = universalToLocalColor(this->getSkin().getColor().get());
-
 			Angle angle = getPointingAngle();
 			bool flipped = false;
 			if(angle > Angle(180.0)) {
@@ -651,6 +649,7 @@ void CWorm::draw(CViewport* viewport)
 			int ang = MIN((int)( (angle.toDeg())/151 * 7 ), 6);  // clamp the value because LX skins don't have the very bottom aim
 			f += ang;
 			
+			//int colour = universalToLocalColor(this->getSkin().getColor().get());
 			//skin->getColoredSprite(m_animator->getFrame(), skinMask, colour, getPointingAngle())->draw(where, renderX, renderY);			
 			cSkin.DrawHalf(where->surf.get(), where->sub_x + renderX - cSkin.getSkinWidth() / 4, where->sub_y + renderY - cSkin.getSkinHeight() / 4, f, false, flipped);
 
