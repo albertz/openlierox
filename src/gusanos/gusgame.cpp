@@ -928,15 +928,8 @@ void GusGame::createNetworkPlayers()
 
 bool GusGame::changeLevelCmd(const std::string& levelName )
 {
-	/*
-	if( network.isHost() && options.host )
-		network.disconnect( Network::ServerMapChange );
-	else
-		network.disconnect();
-	*/
-	mq_queue(msg, ChangeLevel, levelName);
-	
-	return true;
+	warnings << "GusGame::changeLevelCmd not supported anymore" << endl;
+	return false;
 }
 
 bool GusGame::reloadModWithoutMap()

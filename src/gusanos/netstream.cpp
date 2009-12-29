@@ -471,12 +471,15 @@ void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
 }
 
 void Net_Control::olxSend(bool sendPendingOnly) {
+	if(intern->packetsToSend.size() == 0) return;
+	
 	CBytestream bs;
 	bs.writeByte(intern->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
 
 	writeEliasGammaNr(bs, intern->packetsToSend.size());
 	for(NetControlIntern::Packages::iterator i = intern->packetsToSend.begin(); i != intern->packetsToSend.end(); ++i)
 		i->send(bs);
+	intern->packetsToSend.clear();
 	
 	if(tLX->iGameType == GME_JOIN)
 		cClient->getChannel()->AddReliablePacketToSend(bs);

@@ -233,25 +233,7 @@ void Network::update()
 			break;
 
 			case StateDisconnected:
-			case StateIdle: {
-				mq_process_messages(msg)
-				mq_case(Connect)
-				if(!isDisconnected()) {
-					//if(!isDisconnecting())
-					disconnect();
-
-					mq_delay(); // Wait until network is disconnected
-				}
-
-				m_control = new Client( 0 );
-				registerClasses();
-				//m_client = true; // We wait with setting this until we've connected
-				setLuaState(StateConnecting);
-				SET_STATE(Idle);
-				mq_end_case()
-
-				mq_end_process_messages()
-			}
+			case StateIdle:
 			break;
 
 			case StateDisconnecting: {
@@ -289,10 +271,10 @@ void Network::update()
 
 void Network::olxHost()
 {
-	//disconnect();
-	assert(state == StateDisconnected); // We assume that we're disconnected
-
-	//mq_queue(msg, Host);
+	if(state != StateDisconnected) { // We assume that we're disconnected
+		errors << "Network::olxHost: state is not disconnected" << endl;
+	}
+	
 	m_control = new Server();
 	registerClasses();
 	m_host = true;
@@ -303,9 +285,22 @@ void Network::olxHost()
 
 void Network::olxConnect()
 {
-	//disconnect(); // Done is message handler
-
-	mq_queue(msg, Connect);
+	// moved frmo Network::update() message queue handler to here:
+	
+	if(!isDisconnected()) {
+		disconnect();
+		
+		// This would leave the Connect msg in the msg queue to do the connect as soon as we are disconnected
+		//mq_delay(); // Wait until network is disconnected
+		
+		errors << "Network::olxConnect: we were not disconnected" << endl;
+	}
+	
+	m_control = new Client( 0 );
+	registerClasses();
+	//m_client = true; // We wait with setting this until we've connected
+	setLuaState(StateConnecting);
+	SET_STATE(Idle);
 }
 
 void Network::disconnect( DConnEvents event )

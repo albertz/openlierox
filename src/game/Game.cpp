@@ -34,6 +34,7 @@
 #include "gusanos/glua.h"
 #include "gusanos/lua51/luaapi/context.h"
 #include "sound/sfx.h"
+#include "gusanos/network.h"
 
 Game game;
 
@@ -90,6 +91,11 @@ void Game::prepareGameloop() {
 	}
 	
 	PhysicsEngine::Init();
+	
+	if(tLX->iGameType == GME_JOIN)
+		network.olxConnect();
+	else
+		network.olxHost();
 	
 	ClearEntities();
 	
