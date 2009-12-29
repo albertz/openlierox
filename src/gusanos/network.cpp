@@ -3,7 +3,6 @@
 #include "server.h"
 #include "client.h"
 #include "gusgame.h"
-#include "updater.h"
 #include "glua.h"
 #include "gconsole.h"
 #include "net_worm.h"
@@ -135,7 +134,6 @@ namespace
 
 	NetStream* m_netstream = 0;
 	Net_Control* m_control = 0;
-	Net_ConnID m_serverID = Net_Invalid_ID;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
 
 	void registerClasses() // Factorization of class registering in client and server
@@ -143,7 +141,6 @@ namespace
 		NetWorm::classID = m_control->Net_registerClass("worm",0);
 		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
 		GusGame::classID = m_control->Net_registerClass("gusGame",0);
-		Updater::classID = m_control->Net_registerClass("updater",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
 
@@ -220,7 +217,7 @@ void Network::registerInConsole()
 
 Net_ConnID Network::getServerID()
 {
-	return m_serverID;
+	return NetConnID_server();
 }
 
 void Network::update()
@@ -248,7 +245,6 @@ void Network::update()
 
 				m_control = new Client( 0 );
 				registerClasses();
-				m_control->Net_Connect();
 				//m_client = true; // We wait with setting this until we've connected
 				setLuaState(StateConnecting);
 				SET_STATE(Idle);
@@ -274,10 +270,8 @@ void Network::update()
 					connCount = 0;
 					m_client = false;
 					m_host = false;
-					m_serverID = Net_Invalid_ID;
 
 					gusGame.removeNode();
-					updater.removeNode();
 				} else
 					--stateTimeOut;
 			}
@@ -303,7 +297,6 @@ void Network::olxHost()
 	registerClasses();
 	m_host = true;
 	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
-	updater.assignNetworkRole(true);
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
 }
@@ -351,11 +344,6 @@ void Network::clear()
 void Network::olxReconnect(int delay)
 {
 	reconnectTimer = delay;
-}
-
-void Network::setServerID(Net_ConnID serverID)
-{
-	m_serverID = serverID;
 }
 
 bool Network::isHost()
@@ -426,6 +414,27 @@ void Network::setClient(bool v)
 	m_client = v;
 }
 
+void Network::olxParse(CBytestream& bs) {
+	if(m_control)
+		m_control->olxParse(bs);
+	else {
+		errors << "GusNetwork::olxParse: net control not initialised" << endl;
+		bs.SkipAll();
+	}
+}
+
+void Network::olxSend(bool sendPendingOnly) {
+	// we can ignore Gusanos network in local play
+	if(tLX->iGameType == GME_LOCAL) return;
+
+	// if we don't use Gusanos at all, we don't need it
+	if(!gusGame.isEngineNeeded()) return;
+	
+	if(m_control)
+		m_control->olxSend(sendPendingOnly);
+	else
+		errors << "GusNetwork::olxSend: net control not initialised" << endl;
+}
 
 
 

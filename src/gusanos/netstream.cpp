@@ -10,10 +10,15 @@
 #include "netstream.h"
 #include "Networking.h"
 #include "EndianSwap.h"
+#include "gusanos/encoding.h"
+#include "CBytestream.h"
 
 #include "Protocol.h"
 #include "CServer.h"
-#include "CBytestream.h"
+#include "CServerConnection.h"
+#include "CClient.h"
+#include "CServerNetEngine.h"
+#include "CChannel.h"
 
 
 // Grows the bit stream if the number of bits that are going to be added exceeds the buffer size
@@ -386,37 +391,41 @@ void Net_Node::endReplicationSetup() {}
 void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
-void Net_Node::acceptFile(Net_ConnID, Net_FileTransID, int, bool accept) {}
-Net_FileTransID Net_Node::sendFile(const char* filename, int, Net_ConnID, int, float) { return 0; }
-Net_FileTransInfo& Net_Node::getFileInfo(Net_ConnID, Net_FileTransID) { return *(Net_FileTransInfo*)NULL; }
-
-
 struct Net_Control::NetControlIntern {
+	bool isServer;
 	int controlId;
 	std::string debugName;
-		
+	
 	struct DataPackage {
 		enum Type {
 			GPT_Global = 0,
-			
+			GPT_NodeNew = 1,
+			GPT_NodeUpdate = 2
 		};
 
 		Type type;
+		Net_ConnID connID; // target or source
 		Net_BitStream data;
 		eNet_SendMode sendMode;
+		
 		DataPackage() : sendMode(eNet_ReliableOrdered) {}
-		void send();
+		void send(CBytestream& bs);
+		void read(CBytestream& bs);
 	};
 	
-	std::list<DataPackage> packetsToSend;
+	typedef std::list<DataPackage> Packages;
+	Packages packetsToSend;
+	Packages packetsReceived;
 		
 	NetControlIntern() {
+		isServer = false;
 		controlId = 0;
 	}
 };
 
-Net_Control::Net_Control() : intern(NULL) {
+Net_Control::Net_Control(bool isServer) : intern(NULL) {
 	intern = new NetControlIntern();
+	intern->isServer = isServer;
 }
 
 Net_Control::~Net_Control() {
@@ -424,24 +433,74 @@ Net_Control::~Net_Control() {
 	intern = NULL;
 }
 
-void Net_Control::Net_Connect() {}
 void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
 Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
-void Net_Control::NetControlIntern::DataPackage::send() {
-	CBytestream bs;
-	bs.writeByte(S2C_GUSANOS);
+static void writeEliasGammaNr(CBytestream& bs, size_t n) {
+	Net_BitStream bits;
+	Encoding::encodeEliasGamma(bits, n + 1);
+	bs.writeData(bits.data());
+}
+
+static size_t readEliasGammaNr(CBytestream& bs) {
+	Net_BitStream bits(bs.data());
+	bits.getInt(bs.GetPos() * 8); // skip to bs pos
+	size_t len = Encoding::decodeEliasGamma(bits) - 1;
+	bs.Skip( (bits.bitPos() + 7) / 8 - bs.GetPos() );
+	return len;
+}
+
+void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
+	writeEliasGammaNr(bs, data.data().size());
 	bs.writeData(data.data());
-	cServer->SendGlobalPacket(&bs);
+}
+
+void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
+	type = (NetControlIntern::DataPackage::Type) bs.readByte();
+	size_t len = readEliasGammaNr(bs);
+	data = Net_BitStream( bs.getRawData( bs.GetPos(), len ) );
+	bs.Skip(len);
+}
+
+void Net_Control::olxSend(bool sendPendingOnly) {
+	CBytestream bs;
+	bs.writeByte(intern->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
+
+	writeEliasGammaNr(bs, intern->packetsToSend.size());
+	for(NetControlIntern::Packages::iterator i = intern->packetsToSend.begin(); i != intern->packetsToSend.end(); ++i)
+		i->send(bs);
+	
+	if(tLX->iGameType == GME_JOIN)
+		cClient->getChannel()->AddReliablePacketToSend(bs);
+	else {
+		// send to all except local client
+		CServerConnection *cl = cServer->getClients();
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getNetEngine() == NULL) continue;
+			
+			if(!cl->isLocalClient())
+				cl->getNetEngine()->SendPacket(&bs);
+		}
+	}
+}
+
+void Net_Control::olxParse(CBytestream& bs) {
+	size_t len = readEliasGammaNr(bs);
+
+	intern->packetsReceived.clear();
+	for(size_t i = 0; i < len; ++i) {
+		intern->packetsReceived.push_back(NetControlIntern::DataPackage());
+		NetControlIntern::DataPackage& p = intern->packetsReceived.back();
+		p.read(bs);
+	}
 }
 
 void Net_Control::Net_processOutput() {
-	
-
 }
 
 void Net_Control::Net_processInput() {
@@ -503,6 +562,36 @@ NetStream::~NetStream() {
 bool NetStream::Init() {
 	intern->log("NetStream::Init()");
 	return true;
+}
+
+
+Net_ConnID NetConnID_server() {
+	return Net_ConnID(-1);
+}
+
+Net_ConnID NetConnID_conn(CServerConnection* cl) {
+	for(int i = 0; i < MAX_CLIENTS; i++) {
+		if(&cServer->getClients()[i] == cl) return i;
+	}
+	
+	errors << "NetConnID_conn: connection invalid" << endl;
+	return 0;
+}
+
+CServerConnection* serverConnFromNetConnID(Net_ConnID id) {
+	if(!cServer->getClients() || !cServer->isServerRunning()) {
+		errors << "serverConnFromNetConnID: server is not running" << endl;
+		return NULL;
+	}
+	
+	if(id >= 0 && id < MAX_CLIENTS) return &cServer->getClients()[id];
+	
+	errors << "serverConnFromNetConnID: id " << id << " is invalid" << endl;
+	return NULL;
+}
+
+bool isServerNetConnID(Net_ConnID id) {
+	return id == NetConnID_server();
 }
 
 

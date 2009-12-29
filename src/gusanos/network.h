@@ -131,7 +131,9 @@ public:
 	static void olxReconnect(int delay = 1);
 	static void clear();
 	
-	static void setServerID( Net_ConnID serverID );
+	void olxParse(CBytestream& bs);
+	void olxSend(bool sendPendingOnly);
+	
 	static Net_ConnID getServerID();
 	
 	static bool isHost();

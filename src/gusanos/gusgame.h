@@ -202,6 +202,8 @@ public:
 	void displayMessage( ScreenMessage const& msg );
 	
 	CMap& level();
+	bool isEngineNeeded();
+	
 	std::vector<WeaponType*> weaponList;
 	Options options;
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;

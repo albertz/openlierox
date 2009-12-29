@@ -20,7 +20,8 @@
 
 
 Server::Server()
-		: m_preShutdown(false),
+		: Net_Control(true),
+		m_preShutdown(false),
 		socketsInited(false)
 {
 	Net_setControlID(0);

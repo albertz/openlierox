@@ -176,7 +176,7 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	if(gameScript()->gusEngineUsed() || gusGame.level().gusIsLoaded())
+	if(gusGame.isEngineNeeded())
 		gusLogicFrame();
 	else {
 		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case

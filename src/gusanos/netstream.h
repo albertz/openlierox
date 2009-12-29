@@ -14,6 +14,7 @@
 
 #include <string>
 #include <SDL.h> // for uint8_t etc.
+#include "Utils.h"
 
 typedef float Net_Float;
 typedef uint8_t Net_U8;
@@ -116,6 +117,7 @@ private:
 	bool testSafety();
 public:
 	Net_BitStream() : m_readPos(0), m_size(0) {}
+	Net_BitStream(const std::string& rawdata) : m_data(rawdata), m_readPos(0), m_size(rawdata.size()*8) {}
 
 	void addBool(bool);
 	void addInt(int n, int bits);
@@ -134,7 +136,8 @@ public:
 	bool runTests();
 	
 	const std::string& data() const { return m_data; }
-	
+	void resetPos() { m_readPos = 0; }
+	size_t bitPos() const { return m_readPos; }
 };
 
 struct Net_FileTransInfo {
@@ -144,12 +147,18 @@ struct Net_FileTransInfo {
 	size_t size;
 };
 
+class CServerConnection;
+Net_ConnID NetConnID_server();
+Net_ConnID NetConnID_conn(CServerConnection* cl);
+CServerConnection* serverConnFromNetConnID(Net_ConnID id);
+bool isServerNetConnID(Net_ConnID id);
+
 struct Net_NodeReplicationInterceptor;
 struct Net_Control;
 struct Net_ReplicatorSetup;
 struct Net_ReplicatorBasic;
 
-struct Net_Node {
+struct Net_Node : DontCopyTag {
 	struct NetNodeIntern; NetNodeIntern* intern;
 	Net_Node(); ~Net_Node();
 	
@@ -180,20 +189,17 @@ struct Net_Node {
 	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
-	
-	
-	void acceptFile(Net_ConnID, Net_FileTransID, int, bool accept);
-	Net_FileTransID sendFile(const char* filename, int, Net_ConnID, int, float);
-	Net_FileTransInfo& getFileInfo(Net_ConnID, Net_FileTransID);
+
 };
 
-struct Net_Control {		
+class CBytestream;
+
+struct Net_Control : DontCopyTag {
 	struct NetControlIntern; NetControlIntern* intern;
 
-	Net_Control();
+	Net_Control(bool isServer);
 	virtual ~Net_Control();
 
-	void Net_Connect();
 	void Shutdown();
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
@@ -204,6 +210,9 @@ struct Net_Control {
 
 	Net_BitStream* Net_createBitStream();
 
+	void olxSend(bool sendPendingOnly);
+	void olxParse(CBytestream& bs);
+	
 	void Net_processOutput();
 	void Net_processInput();
 	

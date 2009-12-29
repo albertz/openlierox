@@ -45,6 +45,7 @@
 #include "Utils.h"
 #include "OLXCommand.h"
 #include "AuxLib.h"
+#include "gusanos/network.h"
 
 
 GameServer	*cServer = NULL;
@@ -1026,7 +1027,7 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 ///////////////////
 // Read packets
 bool GameServer::ReadPackets()
-{
+{	
 	bool anythingNew = false;
 	// Main sockets
 	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
@@ -1087,6 +1088,8 @@ void GameServer::SendPackets(bool sendPendingOnly)
 #endif
 	}
 
+	network.olxSend(sendPendingOnly);
+	
 	// Go through each client and send them a message
 	CServerConnection *cl = cClients;
 	for(int c=0;c<MAX_CLIENTS;c++,cl++) {

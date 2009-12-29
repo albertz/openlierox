@@ -5,17 +5,15 @@
 #include "part_type.h"
 #include "game/WormInputHandler.h"
 #include "gusgame.h"
-#include "updater.h"
 #include "network.h"
 #include "player_options.h"
 #include "encoding.h"
-#include "updater.h"
 #include <memory>
 #include "util/log.h"
 
 #include "netstream.h"
 
-Client::Client( int _udpport )
+Client::Client( int _udpport ) : Net_Control(false)
 {
 	Net_setControlID(0);
 	Net_setDebugName("Net_CLI");
@@ -75,7 +73,6 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 	{
 		network.setClient(true);
 		console.addLogMsg("* CONNECTION ACCEPTED");
-		network.setServerID(_id);
 		network.incConnCount();
 		
 		std::string mod = _reply.getStringStatic();
@@ -93,16 +90,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		}
 		else if(!hasLevel)
 		{
-			// TODO: do that only if auto map download is set
-			// do we have such a setting?
-			if( true /* network.autoDownloads*/ )
-			{
-				Net_requestNetMode(_id, 2); // We need to update
-				if(!hasLevel)
-					updater.requestLevel(map);
-			}
-			else
-				gusGame.error(GusGame::ErrorMapNotFound);
+			gusGame.error(GusGame::ErrorMapNotFound);
 		}
 		else
 		{

@@ -6,7 +6,6 @@
 
 #include "level.h"
 #include "gusgame.h"
-#include "updater.h"
 #include "part_type.h"
 #include "particle.h"
 #include "worm.h"
@@ -165,7 +164,6 @@ void gusLogicFrame() {
 		}
 		
 		gusGame.think();
-		updater.think(); // TODO: Move?
 		
 #ifndef DEDICATED_ONLY
 		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP

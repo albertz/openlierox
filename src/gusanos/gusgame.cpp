@@ -1298,3 +1298,8 @@ CMap& GusGame::level() {
 bool GusGame::isLevelLoaded() {
 	return getMap() && getMap()->isLoaded();
 }
+
+bool GusGame::isEngineNeeded() {
+	return (game.gameScript() && game.gameScript()->gusEngineUsed()) || (getMap() && getMap()->gusIsLoaded());
+}
+
