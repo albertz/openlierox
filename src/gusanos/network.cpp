@@ -3,7 +3,6 @@
 #include "server.h"
 #include "client.h"
 #include "gusgame.h"
-#include "updater.h"
 #include "glua.h"
 #include "gconsole.h"
 #include "net_worm.h"
@@ -143,7 +142,6 @@ namespace
 		NetWorm::classID = m_control->Net_registerClass("worm",0);
 		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
 		GusGame::classID = m_control->Net_registerClass("gusGame",0);
-		Updater::classID = m_control->Net_registerClass("updater",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
 
@@ -277,7 +275,6 @@ void Network::update()
 					m_serverID = Net_Invalid_ID;
 
 					gusGame.removeNode();
-					updater.removeNode();
 				} else
 					--stateTimeOut;
 			}
@@ -303,7 +300,6 @@ void Network::olxHost()
 	registerClasses();
 	m_host = true;
 	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
-	updater.assignNetworkRole(true);
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
 }

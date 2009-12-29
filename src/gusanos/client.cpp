@@ -5,11 +5,9 @@
 #include "part_type.h"
 #include "game/WormInputHandler.h"
 #include "gusgame.h"
-#include "updater.h"
 #include "network.h"
 #include "player_options.h"
 #include "encoding.h"
-#include "updater.h"
 #include <memory>
 #include "util/log.h"
 
@@ -93,16 +91,7 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		}
 		else if(!hasLevel)
 		{
-			// TODO: do that only if auto map download is set
-			// do we have such a setting?
-			if( true /* network.autoDownloads*/ )
-			{
-				Net_requestNetMode(_id, 2); // We need to update
-				if(!hasLevel)
-					updater.requestLevel(map);
-			}
-			else
-				gusGame.error(GusGame::ErrorMapNotFound);
+			gusGame.error(GusGame::ErrorMapNotFound);
 		}
 		else
 		{

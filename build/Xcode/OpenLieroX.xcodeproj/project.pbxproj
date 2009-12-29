@@ -291,7 +291,6 @@
 		23C34EA810CC4AC400DABBD6 /* sprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E8A10CC4AC400DABBD6 /* sprite.cpp */; };
 		23C34EA910CC4AC400DABBD6 /* sprite_set.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E8C10CC4AC400DABBD6 /* sprite_set.cpp */; };
 		23C34EAA10CC4AC400DABBD6 /* timer_event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E8E10CC4AC400DABBD6 /* timer_event.cpp */; };
-		23C34EAB10CC4AC400DABBD6 /* updater.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E9010CC4AC400DABBD6 /* updater.cpp */; };
 		23C34EAC10CC4AC400DABBD6 /* weapon.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E9210CC4AC400DABBD6 /* weapon.cpp */; };
 		23C34EAD10CC4AC400DABBD6 /* weapon_type.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E9410CC4AC400DABBD6 /* weapon_type.cpp */; };
 		23C34EB410CC4B1900DABBD6 /* base_action.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34EB010CC4B1900DABBD6 /* base_action.cpp */; };
@@ -1093,8 +1092,6 @@
 		23C34E8D10CC4AC400DABBD6 /* sprite_set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sprite_set.h; sourceTree = "<group>"; };
 		23C34E8E10CC4AC400DABBD6 /* timer_event.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = timer_event.cpp; sourceTree = "<group>"; };
 		23C34E8F10CC4AC400DABBD6 /* timer_event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timer_event.h; sourceTree = "<group>"; };
-		23C34E9010CC4AC400DABBD6 /* updater.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = updater.cpp; sourceTree = "<group>"; };
-		23C34E9110CC4AC400DABBD6 /* updater.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = updater.h; sourceTree = "<group>"; };
 		23C34E9210CC4AC400DABBD6 /* weapon.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weapon.cpp; sourceTree = "<group>"; };
 		23C34E9310CC4AC400DABBD6 /* weapon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = weapon.h; sourceTree = "<group>"; };
 		23C34E9410CC4AC400DABBD6 /* weapon_type.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weapon_type.cpp; sourceTree = "<group>"; };
@@ -2030,8 +2027,6 @@
 				23C34E8D10CC4AC400DABBD6 /* sprite_set.h */,
 				23C34E8E10CC4AC400DABBD6 /* timer_event.cpp */,
 				23C34E8F10CC4AC400DABBD6 /* timer_event.h */,
-				23C34E9010CC4AC400DABBD6 /* updater.cpp */,
-				23C34E9110CC4AC400DABBD6 /* updater.h */,
 				23C34E9210CC4AC400DABBD6 /* weapon.cpp */,
 				23C34E9310CC4AC400DABBD6 /* weapon.h */,
 				23C34E9410CC4AC400DABBD6 /* weapon_type.cpp */,
@@ -3321,7 +3316,6 @@
 				23C34EA810CC4AC400DABBD6 /* sprite.cpp in Sources */,
 				23C34EA910CC4AC400DABBD6 /* sprite_set.cpp in Sources */,
 				23C34EAA10CC4AC400DABBD6 /* timer_event.cpp in Sources */,
-				23C34EAB10CC4AC400DABBD6 /* updater.cpp in Sources */,
 				23C34EAC10CC4AC400DABBD6 /* weapon.cpp in Sources */,
 				23C34EAD10CC4AC400DABBD6 /* weapon_type.cpp in Sources */,
 				23C34EB410CC4B1900DABBD6 /* base_action.cpp in Sources */,
