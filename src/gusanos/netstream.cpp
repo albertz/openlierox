@@ -351,50 +351,6 @@ bool Net_BitStream::runTests()
 	return res;
 }
 
-
-struct Net_Node::NetNodeIntern {
-	
-};
-
-Net_Node::Net_Node() {
-	intern = new NetNodeIntern();
-}
-
-Net_Node::~Net_Node() {
-	delete intern;
-	intern = NULL;
-}
-
-
-eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
-void Net_Node::setOwner(Net_ConnID, bool something) {}
-void Net_Node::setAnnounceData(Net_BitStream*) {}
-Net_NodeID Net_Node::getNetworkID() { return 0; }
-
-bool Net_Node::registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*) { return false; }
-bool Net_Node::registerNodeDynamic(Net_ClassID, Net_Control*) { return false; }
-bool Net_Node::registerRequestedNode(Net_ClassID, Net_Control*) { return false; }
-
-void Net_Node::applyForNetLevel(int something) {}
-void Net_Node::removeFromNetLevel(int something) {}
-
-
-void Net_Node::setEventNotification(bool,bool) {} // TODO: true,false -> enables eEvent_Init
-void Net_Node::sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*) {}
-void Net_Node::sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID) {}
-bool Net_Node::checkEventWaiting() { return false; }
-Net_BitStream* Net_Node::getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*) { return NULL; }
-
-
-void Net_Node::addReplicator(Net_ReplicatorBasic*, bool) {}	
-void Net_Node::beginReplicationSetup(int something) {}
-void Net_Node::setInterceptID(Net_InterceptID) {}
-void Net_Node::addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-void Net_Node::endReplicationSetup() {}
-void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
-
-
 struct Net_Control::NetControlIntern {
 	bool isServer;
 	int controlId;
@@ -433,7 +389,7 @@ struct Net_Control::NetControlIntern {
 	typedef std::map<Net_ClassID, Class> Classes;
 	Classes classes;
 	
-	typedef std::map<Net_NodeID, Net_Node> Nodes;
+	typedef std::map<Net_NodeID, Net_Node*> Nodes;
 	Nodes nodes;
 	
 	NetControlIntern() {
@@ -443,6 +399,12 @@ struct Net_Control::NetControlIntern {
 	
 	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
 };
+
+struct Net_Node::NetNodeIntern {
+	Net_Control* control;
+	NetNodeIntern() : control(NULL) {}
+};
+
 
 Net_Control::Net_Control(bool isServer) : intern(NULL) {
 	intern = new NetControlIntern();
@@ -526,6 +488,9 @@ void Net_Control::Net_processOutput() {
 	// TODO: we should go through all Net_Nodes here,
 	// check if they need an update and if so, push it to intern->packetsToSend
 	
+	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
+	//	if(i->second->intern->
+	}
 }
 
 void Net_Control::Net_processInput() {
@@ -558,6 +523,47 @@ void Net_Control::Net_setDebugName(const std::string& n) { intern->debugName = n
 void Net_Control::Net_requestNetMode(Net_ConnID, int) {
 	// we silently ignore that because we dont have different netstream levels
 }
+
+
+
+Net_Node::Net_Node() {
+	intern = new NetNodeIntern();
+}
+
+Net_Node::~Net_Node() {
+	delete intern;
+	intern = NULL;
+}
+
+
+eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
+void Net_Node::setOwner(Net_ConnID, bool something) {}
+void Net_Node::setAnnounceData(Net_BitStream*) {}
+Net_NodeID Net_Node::getNetworkID() { return 0; }
+
+bool Net_Node::registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*) { return false; }
+bool Net_Node::registerNodeDynamic(Net_ClassID, Net_Control*) { return false; }
+bool Net_Node::registerRequestedNode(Net_ClassID, Net_Control*) { return false; }
+
+void Net_Node::applyForNetLevel(int something) {}
+void Net_Node::removeFromNetLevel(int something) {}
+
+
+void Net_Node::setEventNotification(bool,bool) {} // TODO: true,false -> enables eEvent_Init
+void Net_Node::sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*) {}
+void Net_Node::sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID) {}
+bool Net_Node::checkEventWaiting() { return false; }
+Net_BitStream* Net_Node::getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*) { return NULL; }
+
+
+void Net_Node::addReplicator(Net_ReplicatorBasic*, bool) {}	
+void Net_Node::beginReplicationSetup(int something) {}
+void Net_Node::setInterceptID(Net_InterceptID) {}
+void Net_Node::addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
+void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
+void Net_Node::endReplicationSetup() {}
+void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
+
 
 
 

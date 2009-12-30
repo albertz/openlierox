@@ -227,7 +227,6 @@ struct Net_Control : DontCopyTag {
 	
 	// server wants to tell us about new node
 	virtual void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id ) = 0;
-	virtual void Net_cbNodeRequest_Tag( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_U32 _tag ) = 0;
 	
 	// called when incoming connection has been established
 	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) = 0;
