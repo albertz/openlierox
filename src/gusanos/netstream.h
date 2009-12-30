@@ -24,7 +24,7 @@ typedef int32_t Net_S32;
 typedef uint32_t Net_ClassID;
 typedef uint32_t Net_ConnID;
 typedef uint32_t Net_NodeID;
-typedef uint32_t Net_InterceptID;
+typedef uint8_t Net_InterceptID;
 typedef uint32_t Net_FileTransID;
 	
 enum eNet_NodeRole {
