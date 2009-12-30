@@ -74,39 +74,11 @@ void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Ne
 		network.setClient(true);
 		console.addLogMsg("* CONNECTION ACCEPTED");
 		network.incConnCount();
-		
-		std::string mod = _reply.getStringStatic();
-		std::string map = _reply.getStringStatic();
-		gusGame.refreshLevels();
-		gusGame.refreshMods();
-		bool hasLevel = gusGame.hasLevel(map);
-		bool hasMod = gusGame.hasMod(mod);
-		
-		if(!hasMod)
-		{
-			gusGame.error(GusGame::ErrorModNotFound);
-			//This doesn't work somewhy: network.disconnect();
-			//And maybe we don't want to do it since it would overwrite our error message
-		}
-		else if(!hasLevel)
-		{
-			gusGame.error(GusGame::ErrorMapNotFound);
-		}
-		else
-		{
-			gusGame.setMod( mod );
-			if(gusGame.changeLevel( map, false ) && gusGame.isLoaded())
-			{
-				gusGame.runInitScripts();
-				sendConsistencyInfo();
-				Net_requestNetMode(_id, 1);
-			}
-			else
-			{
-				console.addLogMsg("* COULDN'T LOAD MOD OR LEVEL");
-				network.disconnect();
-			}
-		}
+
+		// earlier, we did the mod/level loading here
+		// _reply contained two strings, containing level/mod name
+		sendConsistencyInfo();
+		Net_requestNetMode(_id, 1);
 	}
 }
 

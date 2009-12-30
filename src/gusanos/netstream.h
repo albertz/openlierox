@@ -208,8 +208,6 @@ struct Net_Control : DontCopyTag {
 	void Net_setDebugName(const std::string&);
 	void Net_requestNetMode(Net_ConnID, int);
 
-	Net_BitStream* Net_createBitStream();
-
 	void olxSend(bool sendPendingOnly);
 	void olxParse(CBytestream& bs);
 	

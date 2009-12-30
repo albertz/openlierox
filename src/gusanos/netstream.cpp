@@ -441,7 +441,6 @@ void Net_Control::Shutdown() {}
 void Net_Control::Net_disconnectAll(Net_BitStream*) {}
 void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 
-Net_BitStream* Net_Control::Net_createBitStream() { return NULL; }
 
 static void writeEliasGammaNr(CBytestream& bs, size_t n) {
 	Net_BitStream bits;
@@ -499,7 +498,6 @@ void Net_Control::olxSend(bool sendPendingOnly) {
 void Net_Control::olxParse(CBytestream& bs) {
 	size_t len = readEliasGammaNr(bs);
 
-	intern->packetsReceived.clear();
 	for(size_t i = 0; i < len; ++i) {
 		intern->packetsReceived.push_back(NetControlIntern::DataPackage());
 		NetControlIntern::DataPackage& p = intern->packetsReceived.back();
@@ -508,9 +506,14 @@ void Net_Control::olxParse(CBytestream& bs) {
 }
 
 void Net_Control::Net_processOutput() {
+	// TODO: we should go through all Net_Nodes here,
+	// check if they need an update and if so, push it to intern->packetsToSend
+	
 }
 
 void Net_Control::Net_processInput() {
+	// TODO: go through all intern->packetsReceived and handle them
+	
 }
 
 void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
