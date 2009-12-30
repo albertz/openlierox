@@ -26,9 +26,7 @@ protected:
 	void Net_cbConnectionSpawned( Net_ConnID _id );
 	// called when a connection closed
 	void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata );
-	
-	bool Net_cbNetRequest( Net_ConnID _id, Net_U8 _requested_level, Net_BitStream &_reason);
-	
+		
 	void Net_cbDataReceived( Net_ConnID _id, Net_BitStream &_data );
 	
 	

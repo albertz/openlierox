@@ -402,7 +402,7 @@ struct Net_Control::NetControlIntern {
 	
 	struct DataPackage {
 		enum Type {
-			GPT_Global = 0,
+			GPT_Direct = 0,
 			GPT_NodeNew = 1,
 			GPT_NodeUpdate = 2
 		};
@@ -416,15 +416,32 @@ struct Net_Control::NetControlIntern {
 		void send(CBytestream& bs);
 		void read(CBytestream& bs);
 	};
-	
+		
 	typedef std::list<DataPackage> Packages;
 	Packages packetsToSend;
 	Packages packetsReceived;
-		
+	
+	struct Class {
+		std::string name;
+		Net_ClassID id;
+		Net_ClassFlags flags;
+
+		Class() : id(Net_ClassID(-1)), flags(0) {}
+		Class(const std::string& n, Net_ClassID i, Net_ClassFlags f) : name(n), id(i), flags(f) {}
+	};
+
+	typedef std::map<Net_ClassID, Class> Classes;
+	Classes classes;
+	
+	typedef std::map<Net_NodeID, Net_Node> Nodes;
+	Nodes nodes;
+	
 	NetControlIntern() {
 		isServer = false;
 		controlId = 0;
 	}
+	
+	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
 };
 
 Net_Control::Net_Control(bool isServer) : intern(NULL) {
@@ -516,15 +533,31 @@ void Net_Control::Net_processInput() {
 	
 }
 
-void Net_Control::Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode) {}
-Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags) { return 0; }
+void Net_Control::Net_sendData(Net_ConnID id, Net_BitStream* s, eNet_SendMode m) {
+	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
+	p.connID = id;
+	p.sendMode = m;
+	p.type = NetControlIntern::DataPackage::GPT_Direct;
+	p.data = *s;
+}
+
+Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags flags) {
+	Net_ClassID id = 0;
+	if(intern->classes.size() > 0)
+		id = intern->classes.rbegin()->first + 1;
+
+	intern->classes[id] = NetControlIntern::Class(classname, id, flags);
+	return id;
+}
 
 
 void Net_Control::Net_setControlID(int id) { intern->controlId = id; }
 void Net_Control::Net_setDebugName(const std::string& n) { intern->debugName = n; }
 
 
-void Net_Control::Net_requestNetMode(Net_ConnID, int) {}
+void Net_Control::Net_requestNetMode(Net_ConnID, int) {
+	// we silently ignore that because we dont have different netstream levels
+}
 
 
 
