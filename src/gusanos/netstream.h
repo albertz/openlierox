@@ -254,7 +254,6 @@ struct Net_Replicator {
 	virtual bool checkInitialState() = 0;
 	virtual void packData(Net_BitStream *_stream) = 0;
 	virtual void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) = 0;	
-	virtual void Process(eNet_NodeRole _localrole, Net_U32 _simulation_time_passed) = 0;	
 	virtual void* peekData() = 0;
 	virtual void clearPeekData() = 0;
 };

@@ -241,9 +241,6 @@ class BasicAngleReplicator : public Net_ReplicatorBasic
 				*m_ptr = angle;
 		}
 
-		void Process(eNet_NodeRole localrole, Net_U32 simulation_time_passed)
-	{}
-
 		void* peekData()
 		{
 			Net_BitStream* stream = getPeekStream();

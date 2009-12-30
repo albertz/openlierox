@@ -10,7 +10,7 @@ class Client : public Net_Control
 {
 public:
 	
-	Client( int _udpport );
+	Client();
 	~Client();
 	
 	void requestPlayer(PlayerOptions const& playerOptions);

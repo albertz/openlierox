@@ -296,7 +296,7 @@ void Network::olxConnect()
 		errors << "Network::olxConnect: we were not disconnected" << endl;
 	}
 	
-	m_control = new Client( 0 );
+	m_control = new Client();
 	registerClasses();
 	//m_client = true; // We wait with setting this until we've connected
 	setLuaState(StateConnecting);
