@@ -65,6 +65,7 @@ public:
         nType = VW_FOLLOW;
         fTimer = AbsTime();
 		bSmooth = false;
+		m_listener = NULL;
 		
 		gusInit();
 	}

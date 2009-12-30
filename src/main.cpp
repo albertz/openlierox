@@ -836,6 +836,8 @@ int InitializeLieroX()
 
 	LIBXML_TEST_VERSION;
 
+	IMG_Init(IMG_INIT_JPG | IMG_INIT_PNG | IMG_INIT_TIF);
+
 	// Initialize the aux library
 	if(!InitializeAuxLib("config.cfg",16,0)) {
         SystemError("strange problems with the aux library");
@@ -1160,6 +1162,8 @@ void ShutdownLieroX()
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
+
+	IMG_Quit();
 
 	// Save and clear options
 

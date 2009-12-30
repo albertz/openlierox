@@ -32,6 +32,11 @@ struct LuaEventDef
 	{
 		// Lua frees the memory
 	}
+
+	void operator delete(void*, void*)
+	{
+		// Lua frees the memory
+	}
 	
 	void* operator new(size_t count, void* space)
 	{

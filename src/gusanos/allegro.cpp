@@ -156,8 +156,8 @@ ALLEGRO_BITMAP* create_copy_bitmap(ALLEGRO_BITMAP* other) {
 
 void destroy_bitmap(ALLEGRO_BITMAP *bmp) {
 	if(bmp == NULL) return;
-	bmp->surf = NULL;
 	delete[] bmp->line;
+	bmp->surf = NULL;
 	delete bmp;
 }
 

@@ -324,17 +324,17 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 
 void Game::reset() {
 	// Delete all players
-	for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); ++iter)
+	for ( std::list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
 	{
 		// handled by CClient for now
 		//(*iter)->deleteThis();
 	}
-	game.players.clear();
-	game.localPlayers.clear();
+	players.clear();
+	localPlayers.clear();
 	
 	// Delete all objects
 #ifdef USE_GRID
-	game.objects.clear();
+	objects.clear();
 #else
 	for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
 	{

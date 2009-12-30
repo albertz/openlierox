@@ -195,6 +195,7 @@ static char teeLogfile[2048] = "stdout.txt";
 
 void teeStdoutInit() {}
 void teeStdoutFile(const std::string& f) {
+#ifndef _DEBUG
 	if(f.size() < sizeof(teeLogfile) - 1)
 		strcpy(teeLogfile, f.c_str());
 	else
@@ -234,6 +235,7 @@ void teeStdoutFile(const std::string& f) {
 	notes << "Searchpaths finished." << endl;
 	
 	// we still miss some more output but let's hope that this is enough
+#endif
 }
 void teeStdoutQuit(bool wait) {}
 const char* GetLogFilename() { return teeLogfile; }

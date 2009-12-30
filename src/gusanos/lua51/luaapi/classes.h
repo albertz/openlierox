@@ -22,7 +22,7 @@ struct LuaPlayerEvent; // virtual
 struct LuaWormEvent; // virtual
 struct LuaParticleEvent; // virtual
 struct Socket; // virtual
-struct Net_BitStream;
+class Net_BitStream;
 class CWormInputHandler;
 class Weapon;
 class PartType;
