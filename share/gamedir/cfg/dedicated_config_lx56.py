@@ -46,7 +46,7 @@ if MAX_TEAMS >= 4:
 RANKING = 1 # Should we allow !rank user command
 RANKING_AUTHENTICATION = 0 # Should we authenticate worm by it's skin color (pretty weak, but !password cmd is kinda ugly)
 
-VOTING = 1 # Should we allow voting for preset/map/mod/lt/kick/mute
+VOTING = 0 # Should we allow voting for preset/map/mod/lt/kick/mute
 VOTING_PERCENT = 51 # How much users in percent should vote yes for vote to pass
 VOTING_TIME = 40 # For how much time we should wait votes from users
 VOTING_COUNT_NEGATIVE = 1 # If we should count negative votes, so users can fail unpopular vote before timeout
@@ -55,54 +55,51 @@ VOTING_AUTO_ACCEPT = 1 # If we should accept the vote after timeout, if too litt
 
 # List of levels - preset chooses a random level from those
 LEVELS = [	
-			"Alien Hood.lxl",
 			"Blat Arena.lxl",
 			"CastleStrike.lxl",
+			"castle_wars.lxl",
 			"Complex.lxl",
 			"destrdome.lxl",
 			"FossilFacility.lxl",
 			"GammaComplex.lxl",
 			"HW-house.lxl",
 			"LieroFactory(Revisited).lxl",
-			"LieroFactory_Maintenance.lxl",
 			"JailBreak.lxl",
 			"JukkeDome.lxl",
-			"Kirby_ice_cream_island.lxl",
-			"KitchenKombat.lxl",
-			"Labrinth.lxl",
-			"Lake Liero.lxl",
-			"Lamda_bunker_(Razvisited).lxl",
-			"MsPaintPower.lxl",
 			"Ore Quarry.lxl",
-			"RIP_Home.lxl",
-			"Snus Industry Ltd.lxl",
-			"Sunrise_Mansion.lxl",
-			"Temple Hood.lxl",
 			"Tetrisv2.lxl",
-			"Treasurev2.lxl",
 			"tombofwormses.lxl",
+			"Utopia.lxl",
 			"wormmountain.lxl",
 		]
 
 MAX_PLAYERS_SMALL_LEVELS = 3 # If 3 or less players, select only small levels
 SMALL_LEVELS = [
 			"BetaBoxDE.lxl",
-			"BoN.lxl",
-			"black cave.lxl",
 			"Blat Arena.lxl",
 			"Duel.lxl",
-			"HW Arena.lxl",
 			"Poo Arena.lxl",
 			"Utopia.lxl",
 			"wormmountain.lxl",
 			"X Arena.lxl",
 ]
 
-MODS = [ ] # Empty = all mods
+MODS = [ 
+	"8-Bit Warfare v1.2", 
+	"Classic", 
+	"FoodFight v0.6", 
+	"MSF II", 
+	"MW 1.0", 
+	"NarutoNT-1.26", 
+	"Shock v1.40 Air",
+	"Trick or Treat v0.4",
+	"WH40K 0.13",
+	"Zelda v0.8",
+]
 
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
-PRESETS = [ "Mortars", "Random" ]
+PRESETS = [ "Random" ]
 
 # General options that should be set
 GLOBAL_SETTINGS = {	
