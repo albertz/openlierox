@@ -70,7 +70,7 @@ class Worm:
 		self.iID = -1
 		self.isAdmin = False
 		self.isDedAdmin = False
-		self.Ping = [] # Contains 10 ping values, real ping = average of them
+		self.Ping = [] # Contains 25 ping values, real ping = average
 		self.Lives = -1 # -1 means Out
 		self.Team = 0
 		self.Alive = False
@@ -186,9 +186,9 @@ def parseNewWorm(wormID, name):
 		worm = Worm()
 	worm.Name = name
 	worm.iID = wormID
+	worm.Ping = []
 
-	if not exists:
-		worms[wormID] = worm
+	worms[wormID] = worm
 
 	if io.getGameType() == 4: # Hide and Seek
 		minSeekers = 1
@@ -365,8 +365,8 @@ def average(a):
 	return r / len(a)
 
 def checkMaxPing():
+	
 	global worms
-
 	for f in worms.keys():
 		if worms[f].iID == -1 or not worms[f].Alive:
 			continue
@@ -480,7 +480,9 @@ class ModCicler(StandardCiclerGameVar):
 
 
 modCicler = ModCicler()
-modCicler.list = io.listMods()
+modCicler.list = cfg.MODS
+if len(modCicler.list) == 0:
+	modCicler.list = io.listMods()
 if len(modCicler.list) == 0:
 	io.messageLog("Waiting for mod list ...")
 	while len(modCicler.list) == 0:
