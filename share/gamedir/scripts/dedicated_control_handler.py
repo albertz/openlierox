@@ -494,6 +494,9 @@ mapCicler = MapCicler()
 #shuffle(mapCicler.list)
 mapCicler.cicle()
 
+def SetWeaponBans(name = "Standard 100lt"):
+	modName = io.getVar("GameOptions.GameInfo.ModName")
+	io.setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + modName + "/" + name + ".wps" )
 
 class ModCicler(StandardCiclerGameVar):
 	def __init__(self):
@@ -503,7 +506,7 @@ class ModCicler(StandardCiclerGameVar):
 	def apply(self):
 		if not self.curSelection: return
 		StandardCiclerGameVar.apply(self)
-		setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + self.curSelection + "/Standard 100lt.wps" )
+		SetWeaponBans()
 
 
 modCicler = ModCicler()
