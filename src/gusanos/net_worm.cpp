@@ -454,7 +454,7 @@ NetWormInterceptor::NetWormInterceptor( NetWorm* parent )
 	m_parent = parent;
 }
 
-bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent)
+bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator)
 {
 	switch ( _replicator->getSetup()->getInterceptID() )
 	{

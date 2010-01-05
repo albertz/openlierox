@@ -63,7 +63,7 @@ void PosSpdReplicator::packData(Net_BitStream *_stream)
 
 }
 
-void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
+void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
 {
 	if (_store)
 	{

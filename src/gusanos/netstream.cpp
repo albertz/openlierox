@@ -593,7 +593,7 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 		
 		bool checkState() { return *n != old; }
 		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
-		void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) {
+		void unpackData(Net_BitStream *_stream, bool _store) {
 			Net_S32 i = _stream->getInt(bits);
 			if(_store) *n = i;
 		}

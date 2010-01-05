@@ -25,7 +25,7 @@ void STLStringReplicator::packData(Net_BitStream *_stream)
 	_stream->addString( m_ptr->c_str() );
 }
 
-void STLStringReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
+void STLStringReplicator::unpackData(Net_BitStream *_stream, bool _store)
 {
 	if (_store) {
 		*m_ptr = _stream->getStringStatic();

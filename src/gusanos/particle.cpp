@@ -53,7 +53,7 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 				: parent(parent_)
 		{}
 
-		bool inPreUpdateItem(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent)
+		bool inPreUpdateItem(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator)
 		{
 			return true;
 		}

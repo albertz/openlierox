@@ -592,7 +592,7 @@ BasePlayerInterceptor::BasePlayerInterceptor( CWormInputHandler* parent )
 	m_parent = parent;
 }
 
-bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent)
+bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator)
 {
 	switch ( (CWormInputHandler::ReplicationItems) _replicator->getSetup()->getInterceptID() ) {
 		case CWormInputHandler::WormID: {

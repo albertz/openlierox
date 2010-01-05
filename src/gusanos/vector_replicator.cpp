@@ -44,7 +44,7 @@ void VectorReplicator::packData(Net_BitStream *_stream)
 #endif
 }
 
-void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent)
+void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store)
 {
 	if (_store) {
 #ifdef COMPACT_FLOATS

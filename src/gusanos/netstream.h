@@ -261,7 +261,7 @@ struct Net_ReplicatorBasic : Net_Replicator {
 	
 	virtual bool checkState() = 0;	
 	virtual void packData(Net_BitStream *_stream) = 0;
-	virtual void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) = 0;	
+	virtual void unpackData(Net_BitStream *_stream, bool _store) = 0;	
 };
 
 
@@ -282,7 +282,7 @@ struct Net_NodeReplicationInterceptor {
 	virtual bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
 	virtual bool outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator) = 0;
 	virtual void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
-	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent) = 0;
+	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator) = 0;
 	virtual bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role) = 0;
 	virtual void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
 };

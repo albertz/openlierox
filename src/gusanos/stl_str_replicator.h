@@ -30,7 +30,7 @@ class STLStringReplicator : public Net_ReplicatorBasic
 		
 		void packData(Net_BitStream *_stream);
 	
-		void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent);
+		void unpackData(Net_BitStream *_stream, bool _store);
 		
 		void* peekData();
 	

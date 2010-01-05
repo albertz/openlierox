@@ -93,7 +93,7 @@ class NetWormInterceptor : public Net_NodeReplicationInterceptor
 public:
 	NetWormInterceptor( NetWorm* parent );
 
-	bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator, Net_U32 _estimated_time_sent);
+	bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator);
 
 	// Not used virtual stuff
 	void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) {}
