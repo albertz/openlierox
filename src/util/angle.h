@@ -229,7 +229,7 @@ class BasicAngleReplicator : public Net_ReplicatorBasic
 			stream->addInt(*m_ptr, Type::prec);
 		}
 
-		void unpackData(Net_BitStream* stream, bool store, Net_U32 estimated_time_sent)
+		void unpackData(Net_BitStream* stream, bool store)
 		{
 			Type angle(T(stream->getInt(Type::prec)));
 			if(store)
