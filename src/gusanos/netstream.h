@@ -184,8 +184,8 @@ struct Net_Node : DontCopyTag {
 
 	void beginReplicationSetup();
 	void addReplicator(Net_Replicator*, bool autodelete);	
-	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
-	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
+	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, Net_InterceptID id = 0, int p2 = 0, int p3 = 0);
+	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, Net_InterceptID id = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
 
 	void setInterceptID(Net_InterceptID);
@@ -267,8 +267,10 @@ struct Net_ReplicatorBasic : Net_Replicator {
 
 
 struct Net_ReplicatorSetup {
+	Net_RepFlags repFlags;
+	Net_RepRules repRules;
 	Net_InterceptID interceptId;
-	Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID p1 = 0, int p2 = 0, int p3 = 0);
+	Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID id = 0, int p2 = 0, int p3 = 0);
 	Net_InterceptID getInterceptID() { return interceptId; }
 };
 

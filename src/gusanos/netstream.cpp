@@ -404,9 +404,9 @@ struct Net_Node::NetNodeIntern {
 	Net_Control* control;
 	typedef std::list< std::pair<Net_Replicator*,bool> > ReplicationSetup;
 	ReplicationSetup replicationSetup;
-	Net_InterceptID interceptID;
+	Net_InterceptID forthcomingReplicatorInterceptID;
 	
-	NetNodeIntern() : control(NULL) {}
+	NetNodeIntern() : control(NULL), forthcomingReplicatorInterceptID(0) {}
 	~NetNodeIntern() { clearReplicationSetup(); }
 	
 	void clearReplicationSetup() {
@@ -577,17 +577,41 @@ void Net_Node::addReplicator(Net_Replicator* rep, bool autodelete) {
 	intern->replicationSetup.push_back( std::make_pair(rep, autodelete) );
 }
 
-void Net_Node::addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {
-
+void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net_RepRules r, Net_InterceptID id, int p2, int p3) {
+	
+	struct IntReplicator : Net_ReplicatorBasic {
+		Net_ReplicatorSetup setup;
+		Net_S32* n;
+		Net_S32 old;
+		int bits;
+		
+		IntReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
+		Net_Replicator* Duplicate(Net_Replicator*) { return new IntReplicator(*this); }		
+		
+		void* peekData() { return (void*) getPeekStream()->getInt(bits); }
+		void clearPeekData() {}
+		
+		bool checkState() { return *n != old; }
+		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
+		void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) {
+			Net_S32 i = _stream->getInt(bits);
+			if(_store) *n = i;
+		}
+	};
+	
+	IntReplicator* rep = new IntReplicator(Net_ReplicatorSetup(f, r, id, p2, p3));
+	rep->n = n;
+	rep->old = *n;
+	rep->bits = bits;
 }
 
-void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {
+void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags f, Net_RepRules r, Net_InterceptID id, int p2, int p3) {
 
 }
 
 void Net_Node::endReplicationSetup() {}
 
-void Net_Node::setInterceptID(Net_InterceptID id) { intern->interceptID = id; }
+void Net_Node::setInterceptID(Net_InterceptID id) { intern->forthcomingReplicatorInterceptID = id; }
 
 void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
@@ -598,8 +622,10 @@ void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
 
-Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags, Net_RepRules, Net_InterceptID p1, int p2, int p3) {
-	interceptId = p1;
+Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags flags, Net_RepRules rules, Net_InterceptID id, int p2, int p3) {
+	repFlags = flags;
+	repRules = rules;
+	interceptId = id;
 }
 
 
