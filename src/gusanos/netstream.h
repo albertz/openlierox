@@ -29,8 +29,7 @@ typedef uint32_t Net_FileTransID;
 	
 enum eNet_NodeRole {
 	eNet_RoleUndefined,
-	eNet_RoleOwner,
-	
+	eNet_RoleOwner,	
 	eNet_RoleAuthority,
 	eNet_RoleProxy
 };

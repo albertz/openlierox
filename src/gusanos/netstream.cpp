@@ -355,6 +355,8 @@ struct Net_Control::NetControlIntern {
 	bool isServer;
 	int controlId;
 	std::string debugName;
+	bool cbNodeRequest_Dynamic;
+	Net_NodeID cbNodeRequest_nodeId;
 	
 	struct DataPackage {
 		enum Type {
@@ -395,18 +397,36 @@ struct Net_Control::NetControlIntern {
 	NetControlIntern() {
 		isServer = false;
 		controlId = 0;
+		cbNodeRequest_Dynamic = false;
+		cbNodeRequest_nodeId = 0;
 	}
 	
 	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
+	
+	Net_NodeID getUnusedNodeId() {
+		if(nodes.size() == 0) return 1;
+		return nodes.rbegin()->first + 1;
+	}
+	
+	Net_Node* getNode(Net_NodeID id) {
+		Nodes::iterator i = nodes.find(id);
+		if(i != nodes.end()) return i->second;
+		return NULL;
+	}
 };
 
 struct Net_Node::NetNodeIntern {
-	Net_Control* control;
+	Net_Control* control;	
+	Net_ClassID classId;
+	Net_NodeID nodeId;
+	eNet_NodeRole role;
+	
 	typedef std::list< std::pair<Net_Replicator*,bool> > ReplicationSetup;
 	ReplicationSetup replicationSetup;
 	Net_InterceptID forthcomingReplicatorInterceptID;
+	Net_NodeReplicationInterceptor* interceptor;
 	
-	NetNodeIntern() : control(NULL), forthcomingReplicatorInterceptID(0) {}
+	NetNodeIntern() : control(NULL), classId(Net_ClassID(-1)), nodeId(Net_NodeID(-1)), role(eNet_RoleUndefined), forthcomingReplicatorInterceptID(0), interceptor(NULL) {}
 	~NetNodeIntern() { clearReplicationSetup(); }
 	
 	void clearReplicationSetup() {
@@ -539,24 +559,85 @@ void Net_Control::Net_requestNetMode(Net_ConnID, int) {
 
 
 
+static bool __unregisterNode(Net_Node* node) {
+	if(node->intern->nodeId != Net_NodeID(-1)) {
+		if(node->intern->control == NULL) {
+			errors << "Net_Node::unregisterNode: node was a valid id but no reference to Net_Control" << endl;
+			return false;
+		}
+		
+		Net_Control::NetControlIntern::Nodes& nodes = node->intern->control->intern->nodes;
+		Net_Control::NetControlIntern::Nodes::iterator i = nodes.find(node->intern->nodeId);
+		if(i == nodes.end()) {
+			errors << "Net_Node::unregisterNode: node not found in node-list" << endl;
+			return false;
+		}
+		
+		nodes.erase(i);
+		return true;
+	}
+	return false;
+}
+
+static bool unregisterNode(Net_Node* node) {
+	bool ret = __unregisterNode(node);
+	node->intern->nodeId = Net_NodeID(-1);
+	node->intern->classId = Net_ClassID(-1);
+	node->intern->control = NULL;
+	node->intern->role = eNet_RoleUndefined;
+	return ret;
+}
+
 Net_Node::Net_Node() {
 	intern = new NetNodeIntern();
 }
 
 Net_Node::~Net_Node() {
+	unregisterNode(this);
 	delete intern;
 	intern = NULL;
 }
 
 
-eNet_NodeRole Net_Node::getRole() { return eNet_RoleUndefined; }
+eNet_NodeRole Net_Node::getRole() { return intern->role; }
 void Net_Node::setOwner(Net_ConnID, bool something) {}
 void Net_Node::setAnnounceData(Net_BitStream*) {}
-Net_NodeID Net_Node::getNetworkID() { return 0; }
+Net_NodeID Net_Node::getNetworkID() { return intern->nodeId; }
 
-bool Net_Node::registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*) { return false; }
-bool Net_Node::registerNodeDynamic(Net_ClassID, Net_Control*) { return false; }
-bool Net_Node::registerRequestedNode(Net_ClassID, Net_Control*) { return false; }
+static bool registerNode(Net_ClassID cid, Net_Node* node, Net_NodeID nid, eNet_NodeRole role, Net_Control* con) {
+	if(node->intern->nodeId != Net_NodeID(-1)) {
+		errors << "Net_Node::registerNode: trying to register node twice" << endl;
+		return false;
+	}
+	
+	if(con->intern->getNode(nid)) {
+		errors << "Net_Node::registerNode: node id was already taken" << endl;
+		return false;
+	}
+	
+	node->intern->control = con;
+	node->intern->classId = cid;
+	node->intern->nodeId = nid;
+	node->intern->role = role;
+	
+	con->intern->nodes[nid] = node;
+	
+	notes << "Node " << nid << " registers with role " << role << " and class " << con->intern->classes[cid].name << endl;
+	return true;
+}
+
+bool Net_Node::registerNodeUnique(Net_ClassID cid, eNet_NodeRole role, Net_Control* con) {
+	return registerNode(cid, this, con->intern->getUnusedNodeId(), role, con);
+}
+
+bool Net_Node::registerNodeDynamic(Net_ClassID cid, Net_Control* con) {
+	eNet_NodeRole role = con->intern->cbNodeRequest_Dynamic ? eNet_RoleProxy : eNet_RoleAuthority;
+	Net_NodeID nid = con->intern->cbNodeRequest_Dynamic ? con->intern->cbNodeRequest_nodeId : con->intern->getUnusedNodeId();
+	con->intern->cbNodeRequest_Dynamic = false; // only for first node
+	return registerNode(cid, this, nid, role, con);
+}
+
+bool Net_Node::registerRequestedNode(Net_ClassID cid, Net_Control* con) { return registerNodeDynamic(cid, con); }
 
 void Net_Node::applyForNetLevel(int something) {}
 void Net_Node::removeFromNetLevel(int something) {}
@@ -647,7 +728,7 @@ void Net_Node::endReplicationSetup() {}
 
 void Net_Node::setInterceptID(Net_InterceptID id) { intern->forthcomingReplicatorInterceptID = id; }
 
-void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
+void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor* inter) { intern->interceptor = inter; }
 
 
 
