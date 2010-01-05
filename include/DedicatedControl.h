@@ -56,7 +56,7 @@ public:
 	
 	void Menu_Frame();
 	void GameLoop_Frame();
-	void ChangeScript(const std::string& filename);
+	void ChangeScript(const std::string& filename, const std::string& args);
 	bool GetNextSignal(CmdLineIntf* sender); // false means that we should not finalizeReturn() yet!
 };
 

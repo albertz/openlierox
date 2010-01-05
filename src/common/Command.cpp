@@ -927,9 +927,10 @@ void Cmd_msg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 	hints << "DedicatedControl: message: " << params[0] << endl;
 }
 
-COMMAND(script, "load extern dedicated script", "[script]", 0, 1);
+COMMAND(script, "load extern dedicated script", "[script] [args]", 0, 2);
 void Cmd_script::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	std::string script = (params.size() > 0) ? params[0] : "";
+	std::string args = (params.size() > 1) ? params[1] : "";
 	
 	if(!DedicatedControl::Get()) {
 		caller->writeMsg("Error: can only load extern script in dedicated mode");
@@ -946,7 +947,7 @@ void Cmd_script::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		return;
 	}
 
-	DedicatedControl::Get()->ChangeScript(script);
+	DedicatedControl::Get()->ChangeScript(script, args);
 }
 
 COMMAND(addHuman, "add human player to game", "[profile]", 0, 1);

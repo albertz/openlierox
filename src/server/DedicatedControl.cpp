@@ -184,7 +184,7 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 		return true;
 	}
 	
-	bool loadScript(const std::string& script) 
+	bool loadScript(const std::string& script, const std::string& scriptArgs)
 	{
 		breakCurrentScript();
 #ifdef PYTHON_DED_EMBEDDED
@@ -194,14 +194,14 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 			std::string fpContents = ReadUntil( fp, '\n' );
 			fclose(fp);
 			if( fpContents.find("python") != std::string::npos )
-				return loadScript_Python(script);
+				return loadScript_Python(script, scriptArgs);
 		}
 #endif
-		return loadScript_Pipe(script);
+		return loadScript_Pipe(script, scriptArgs);
 	}
 
 	
-	bool loadScript_Pipe(const std::string& script) {
+	bool loadScript_Pipe(const std::string& script, const std::string& scriptArgs) {
 		breakCurrentScript();
 		
 		std::string scriptfn = GetAbsolutePath(GetFullFileName(script));
@@ -211,10 +211,11 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 				return false;
 			}			
 
-			notes << "Dedicated server: running script \"" << scriptfn << "\"" << endl;
+			notes << "Dedicated server: running script \"" << scriptfn << "\" args \"" << scriptArgs << "\"" << endl;
 			// HINT: If a script need this change in his own directory, it is a bug in the script.
 			// If we change into script directory, ded function "getfullfilename" won't work anymore
-			if(!pipe.open(scriptfn, std::vector<std::string>() , ExtractDirectory(scriptfn) )) {
+			std::vector<std::string> args = explode(script + " " + scriptArgs, " ");
+			if(!pipe.open(scriptfn, args, ExtractDirectory(scriptfn) )) {
 				errors << "cannot start dedicated server - cannot run script " << scriptfn << endl;
 				return false;
 			}
@@ -745,19 +746,19 @@ bool DedicatedControl::Init_priv() {
 	DedIntern* dedIntern = new DedIntern; // constr will assign this->internData to this obj
 	if(tLXOptions->sDedicatedScript != "" && tLXOptions->sDedicatedScript != "/dev/null") {
 		if(IsAbsolutePath(tLXOptions->sDedicatedScript)) {
-			dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
+			dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript, tLXOptions->sDedicatedScriptArgs);
 			return true;
 		}
 
 		if(strStartsWith(tLXOptions->sDedicatedScript, "scripts/")) { // old clients will use it like that
-			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript);
+			return dedIntern->scriptInterface->loadScript(tLXOptions->sDedicatedScript, tLXOptions->sDedicatedScriptArgs);
 			return true;
 		}
 		
-		dedIntern->scriptInterface->loadScript("scripts/" + tLXOptions->sDedicatedScript);
+		dedIntern->scriptInterface->loadScript("scripts/" + tLXOptions->sDedicatedScript, tLXOptions->sDedicatedScriptArgs);
 	}
 	else
-		dedIntern->scriptInterface->loadScript("/dev/null");
+		dedIntern->scriptInterface->loadScript("/dev/null", "");
 	
 	return true;
 }
@@ -785,7 +786,7 @@ void DedicatedControl::Custom_Signal(const std::list<std::string>& args) { inter
 void DedicatedControl::Menu_Frame() { internData->Frame_Basic(); }
 void DedicatedControl::GameLoop_Frame() { internData->Frame_Basic(); }
 
-void DedicatedControl::ChangeScript(const std::string& filename) {
+void DedicatedControl::ChangeScript(const std::string& filename, const std::string& args) {
 	{
 		ScopedLock lock(internData->pendingSignalsMutex);
 		internData->waitingForNextSignal = false;
@@ -793,9 +794,9 @@ void DedicatedControl::ChangeScript(const std::string& filename) {
 	}
 
 	if(filename == "" || filename == "/dev/null")
-		internData->scriptInterface->loadScript("/dev/null");
+		internData->scriptInterface->loadScript("/dev/null", "");
 	else
-		internData->scriptInterface->loadScript("scripts/" + filename);
+		internData->scriptInterface->loadScript("scripts/" + filename, args);
 }
 
 bool DedicatedControl::GetNextSignal(CmdLineIntf* sender) {

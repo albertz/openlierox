@@ -11,9 +11,7 @@ import os
 import sys
 import threading
 import traceback
-from random import *
-
-import dedicated_config as cfg # Per-host config like admin password
+import random
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -434,7 +432,7 @@ class StandardCiclerBase: #TODO: it's cycler not cicler lol
 		self.curIndex = self.curIndex + 1
 		if self.curIndex >= len(self.list):
 			self.curIndex = 0
-			shuffle(self.list)
+			random.shuffle(self.list)
 		self.curSelection = self.list[self.curIndex]
 		self.apply()
 
@@ -481,7 +479,7 @@ class MapCicler(StandardCiclerGameVar):
 
 		if self.list != oldlist:
 			self.curIndex = 0
-			shuffle(self.list)
+			random.shuffle(self.list)
 		
 		StandardCiclerGameVar.cicle(self)
 
@@ -491,7 +489,7 @@ mapCicler = MapCicler()
 #	io.messageLog("Waiting for level list ...")
 #	while len(mapCicler.list) == 0:
 #		mapCicler.list = io.listMaps()
-#shuffle(mapCicler.list)
+#random.shuffle(mapCicler.list)
 mapCicler.cicle()
 
 def SetWeaponBans(name = "Standard 100lt"):
@@ -558,7 +556,7 @@ presetCicler = PresetCicler()
 presetCicler.list = cfg.PRESETS
 if( len(presetCicler.list) == 0 ):
 	presetCicler.list = availablePresets
-shuffle(presetCicler.list)
+random.shuffle(presetCicler.list)
 
 LT_Cicler = StandardCiclerGameVar()
 LT_Cicler.list = [ "100" ]

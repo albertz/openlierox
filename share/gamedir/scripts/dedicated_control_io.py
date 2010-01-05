@@ -273,8 +273,6 @@ def messageLog(message,severity = LOG_INFO):
 	outline += " -- "
 	outline += str(message) #incase we get anything other than string
 	try:
-		import dedicated_config  # Per-host config like admin password
-		cfg = dedicated_config # shortcut
 		f = open(cfg.LOG_FILE,"a")
 		f.write((outline + "\n"))
 		f.close()
