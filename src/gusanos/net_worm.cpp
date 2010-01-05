@@ -22,14 +22,15 @@
 #include <math.h>
 #include <vector>
 #include "netstream.h"
+#include "CWorm.h"
 
 using namespace std;
 
-Net_ClassID NetWorm::classID = Net_Invalid_ID;
+Net_ClassID CWorm::classID = Net_Invalid_ID;
 
-const float NetWorm::MAX_ERROR_RADIUS = 10.0f;
+const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
-NetWorm::NetWorm(bool isAuthority) : CWorm()
+void CWorm::NetWorm_Init(bool isAuthority)
 {
 	timeSinceLastUpdate = 1;
 	
@@ -85,23 +86,23 @@ NetWorm::NetWorm(bool isAuthority) : CWorm()
 	m_node->applyForNetLevel(1);
 }
 
-NetWorm::~NetWorm()
+void CWorm::NetWorm_Shutdown()
 {
 	delete m_node;
 	delete m_interceptor;
 }
 
-void NetWorm::addEvent(Net_BitStream* data, NetWorm::NetEvents event)
+void CWorm::addEvent(Net_BitStream* data, CWorm::NetEvents event)
 {
 #ifdef COMPACT_EVENTS
 	//data->addInt(event, Encoding::bitsOf(NetWorm::EVENT_COUNT - 1));
-	Encoding::encode(*data, event, NetWorm::EVENT_COUNT);
+	Encoding::encode(*data, event, CWorm::EVENT_COUNT);
 #else
 	data->addInt(static_cast<int>(event),8 );
 #endif
 }
 
-void NetWorm::think()
+void CWorm::NetWorm_think()
 {
 	CWorm::think();
 #ifndef DEDICATED_ONLY
@@ -251,7 +252,7 @@ void NetWorm::think()
 	}
 }
 
-void NetWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void CWorm::NetWorm_sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) return;
 	Net_BitStream* data = new Net_BitStream;
@@ -267,7 +268,7 @@ void NetWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules,
 		m_node->sendEventDirect(mode, data, connID);
 }
 
-void NetWorm::correctOwnerPosition()
+void CWorm::correctOwnerPosition()
 {
 	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, PosCorrection);
@@ -281,19 +282,19 @@ void NetWorm::correctOwnerPosition()
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
-void NetWorm::assignOwner( CWormInputHandler* owner)
+void CWorm::NetWorm_assignOwner( CWormInputHandler* owner)
 {
 	CWorm::assignOwner(owner);
 	m_playerID = m_owner->getNodeID();
 }
 
-void NetWorm::setOwnerId( Net_ConnID _id )
+void CWorm::setOwnerId( Net_ConnID _id )
 {
 	m_node->setOwner(_id,true);
 }
 
 
-void NetWorm::sendSyncMessage( Net_ConnID id )
+void CWorm::sendSyncMessage( Net_ConnID id )
 {
 	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, SYNC);
@@ -316,7 +317,7 @@ void NetWorm::sendSyncMessage( Net_ConnID id )
 	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }
 
-void NetWorm::sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repRules )
+void CWorm::NetWorm_sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repRules )
 {
 	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, WeaponMessage);
@@ -326,7 +327,7 @@ void NetWorm::sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 re
 	m_node->sendEvent(eNet_ReliableOrdered, repRules, data);
 }
 
-Net_NodeID NetWorm::getNodeID()
+Net_NodeID CWorm::getNodeID()
 {
 	if ( m_node )
 		return m_node->getNetworkID();
@@ -334,7 +335,7 @@ Net_NodeID NetWorm::getNodeID()
 		return INVALID_NODE_ID;
 }
 
-void NetWorm::respawn()
+void CWorm::NetWorm_respawn()
 {
 	if ( m_isAuthority && m_node )
 	{
@@ -352,7 +353,7 @@ void NetWorm::respawn()
 	}
 }
 
-void NetWorm::dig()
+void CWorm::NetWorm_dig()
 {
 	if ( m_isAuthority && m_node )
 	{
@@ -368,7 +369,7 @@ void NetWorm::dig()
 	}
 }
 
-void NetWorm::die()
+void CWorm::NetWorm_die()
 {
 	if ( m_isAuthority && m_node )
 	{
@@ -387,7 +388,7 @@ void NetWorm::die()
 	}
 }
 
-void NetWorm::changeWeaponTo( unsigned int weapIndex )
+void CWorm::NetWorm_changeWeaponTo( unsigned int weapIndex )
 {
 	if ( m_node )
 	{
@@ -399,7 +400,7 @@ void NetWorm::changeWeaponTo( unsigned int weapIndex )
 	}
 }
 
-void NetWorm::setWeapon( size_t index, WeaponType* type )
+void CWorm::NetWorm_setWeapon( size_t index, WeaponType* type )
 {
 	if ( !network.isClient() )
 	{
@@ -420,7 +421,7 @@ void NetWorm::setWeapon( size_t index, WeaponType* type )
 	}
 }
 
-void NetWorm::clearWeapons()
+void CWorm::NetWorm_clearWeapons()
 {
 	if ( !network.isClient() )
 	{
@@ -434,7 +435,7 @@ void NetWorm::clearWeapons()
 	}
 }
 
-void NetWorm::damage( float amount, CWormInputHandler* damager )
+void CWorm::NetWorm_damage( float amount, CWormInputHandler* damager )
 {
 	if ( m_isAuthority )
 	{
@@ -442,14 +443,14 @@ void NetWorm::damage( float amount, CWormInputHandler* damager )
 	}
 }
 
-void NetWorm::finalize()
+void CWorm::NetWorm_finalize()
 {
 	CWorm::finalize();
 	delete m_node; m_node = 0;
 	delete m_interceptor; m_interceptor = 0;
 }
 
-NetWormInterceptor::NetWormInterceptor( NetWorm* parent )
+NetWormInterceptor::NetWormInterceptor( CWorm* parent )
 {
 	m_parent = parent;
 }
@@ -458,7 +459,7 @@ bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNe
 {
 	switch ( _replicator->getSetup()->getInterceptID() )
 	{
-		case NetWorm::PlayerID:
+		case CWorm::PlayerID:
 		{
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 			list<CWormInputHandler*>::iterator playerIter;
@@ -489,7 +490,7 @@ bool NetWormInterceptor::outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet
 
 	switch ( replicator->getSetup()->getInterceptID() )
 	{
-		case NetWorm::Position:
+		case CWorm::Position:
 			if(!m_parent->getAlive()) // Prevent non-active worms from replicating position
 				return false;
 		break;

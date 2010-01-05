@@ -804,6 +804,86 @@ protected:
 	bool changing; // This shouldnt be in the worm class ( its player stuff >:O )
 	int m_dir;
 	
+	
+	// ----------------------------------
+	// ---------- Gusanos NetWorm -----------------
+	// -------------------------------------
+	
+public:
+	friend class NetWormInterceptor;
+	
+	enum NetEvents
+	{
+		PosCorrection = 0,
+		Respawn,
+		Dig,
+		Die,
+		ChangeWeapon,
+		WeaponMessage,
+		SetWeapon,
+		ClearWeapons,
+		SYNC,
+		LuaEvent,
+		EVENT_COUNT,
+	};
+	
+	enum ReplicationItems
+	{
+		PlayerID = 0,
+		Position,
+		AIM
+	};
+	
+	static Net_ClassID  classID;
+	static const float MAX_ERROR_RADIUS;
+	
+	void NetWorm_Init(bool isAuthority);
+	void NetWorm_Shutdown();
+	
+	void NetWorm_think();
+	void correctOwnerPosition();
+	
+	void NetWorm_assignOwner( CWormInputHandler* owner);
+	void setOwnerId( Net_ConnID _id );
+	void sendSyncMessage( Net_ConnID id );
+	void NetWorm_sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
+	
+	eNet_NodeRole NetWorm_getRole()
+	{
+		if ( m_node )
+		{
+			return m_node->getRole();
+		}else
+			return eNet_RoleUndefined;
+	}
+	
+	virtual void NetWorm_sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
+	
+	Net_NodeID getNodeID();
+	
+	void NetWorm_respawn();
+	void NetWorm_dig();
+	void NetWorm_die();
+	void NetWorm_changeWeaponTo( unsigned int weapIndex );
+	void NetWorm_damage( float amount, CWormInputHandler* damager );
+	void NetWorm_setWeapon(size_t index, WeaponType* type );
+	void NetWorm_clearWeapons();
+	
+	//virtual void deleteThis();
+	virtual void NetWorm_finalize();
+	
+	Vec lastPosUpdate;
+	int timeSinceLastUpdate;
+	
+private:
+	
+	void addEvent(Net_BitStream* data, NetEvents event);
+	
+	bool m_isAuthority;
+	Net_Node *m_node;
+	NetWormInterceptor* m_interceptor;
+	Net_NodeID m_playerID; // The id of the owner player node to replicate to all proxys
+	
 };
 
 

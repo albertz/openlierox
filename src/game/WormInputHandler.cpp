@@ -513,9 +513,7 @@ void CWormInputHandler::assignWorm(CWorm* worm)
 {
 	m_worm = worm;
 	worm->assignOwner( this );
-	if ( NetWorm* netWorm = dynamic_cast<NetWorm*>(worm)) {
-		m_wormID = netWorm->getNodeID();
-	}
+	m_wormID = worm->getNodeID();
 }
 
 shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
@@ -600,7 +598,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 #ifdef USE_GRID
 			
 			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
-				if ( NetWorm* worm = dynamic_cast<NetWorm*>(&*iter)) {
+				if ( CWorm* worm = dynamic_cast<CWorm*>(&*iter)) {
 					if ( worm->getNodeID() == recievedID ) {
 						m_parent->assignWorm(worm);
 					}

@@ -1196,6 +1196,8 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 CWorm* GusGame::addWorm(bool isAuthority)
 {
 	CWorm* returnWorm = NULL;
+/*
+ // commented out for OLX
 	if ( network.isHost() || network.isClient() )
 	{
 		NetWorm* netWorm = new NetWorm(isAuthority);
@@ -1205,6 +1207,7 @@ CWorm* GusGame::addWorm(bool isAuthority)
 		Worm* worm = new Worm();
 		returnWorm = worm;
 	}
+ */
 	if ( !returnWorm ) allegro_message("moo");
 
 	game.onNewWorm(returnWorm);

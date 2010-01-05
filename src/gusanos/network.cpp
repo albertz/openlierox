@@ -138,7 +138,7 @@ namespace
 
 	void registerClasses() // Factorization of class registering in client and server
 	{
-		NetWorm::classID = m_control->Net_registerClass("worm",0);
+		CWorm::classID = m_control->Net_registerClass("worm",0);
 		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
 		GusGame::classID = m_control->Net_registerClass("gusGame",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);

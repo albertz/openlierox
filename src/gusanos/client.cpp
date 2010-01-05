@@ -177,7 +177,7 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id )
 {
 	// check the requested class
-	if ( _requested_class == NetWorm::classID )
+	if ( _requested_class == CWorm::classID )
 	{
 		gusGame.addWorm(false);
 	}else if ( _requested_class == CWormInputHandler::classID )

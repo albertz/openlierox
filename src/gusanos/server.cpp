@@ -43,9 +43,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 				unsigned int uniqueID = static_cast<unsigned int>(_data.getInt(32));
 
 				CWorm* worm = gusGame.addWorm(true);
-				if ( NetWorm* netWorm = dynamic_cast<NetWorm*>(worm) ) {
-					netWorm->setOwnerId(_id);
-				}
+				worm->setOwnerId(_id);
 				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
 
 				let_(i, savedScores.find(uniqueID));
