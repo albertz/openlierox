@@ -865,6 +865,7 @@
 		23AFF03B0F701755005B964D /* Ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ref.h; sourceTree = "<group>"; };
 		23AFF03C0F70175F005B964D /* Functors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functors.h; sourceTree = "<group>"; };
 		23AFF05A0F701804005B964D /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		23BA8C1110F3918400053EF0 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
 		23C17090108B7E420083A2BF /* ExtractInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExtractInfo.h; path = breakpad/ExtractInfo.h; sourceTree = "<group>"; };
 		23C17091108B7E420083A2BF /* ExtractInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExtractInfo.cpp; path = breakpad/ExtractInfo.cpp; sourceTree = "<group>"; };
 		23C170D0108B824B0083A2BF /* call_stack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = call_stack.cc; path = breakpad/external/src/processor/call_stack.cc; sourceTree = "<group>"; };
@@ -2048,6 +2049,7 @@
 				23C34DFF10CC404D00DABBD6 /* font.cpp */,
 				23C34E0010CC404D00DABBD6 /* font.h */,
 				23C34DFD10CC401C00DABBD6 /* netstream.cpp */,
+				23BA8C1110F3918400053EF0 /* netstream.h */,
 				23C34DE810CC3F9800DABBD6 /* blitters */,
 				23C34D2A10CC3C5500DABBD6 /* lua */,
 				23C34D3910CC3C5500DABBD6 /* lua51 */,
