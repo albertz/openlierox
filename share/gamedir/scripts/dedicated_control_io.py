@@ -11,59 +11,14 @@ import sys
 import traceback
 
 
-OlxImported = False
-try:
-	import OLX
-	OlxImported = True
-	def RawSendCommand(X):
-		OLX.SendCommand(str(X))
-except:
-	def RawSendCommand(X):
-		print X
-
-
-## Receiving functions ##
-
-if not OlxImported:
-
-	EmptySignalsCount = 0
-
-	def getRawResponse():
-		global EmptySignalsCount
-		while True:
-			ret = sys.stdin.readline().strip()
-			if ret != "": 
-				EmptySignalsCount = 0
-				return ret
-			else:
-				EmptySignalsCount += 1
-				if EmptySignalsCount >= 100:
-					sys.stderr.write("Dedicated_control: OLX terminated, exiting\n")
-					sys.exit(1)
-			return ""
-
-
-else:
-
-	# Use this function to get signals, don't access bufferedSignals array directly
-	def getRawResponse():
-		global bufferedSignals
-		ret = ""
-		if len(bufferedSignals) > 0:
-			ret = bufferedSignals[0]
-			bufferedSignals = bufferedSignals[1:]
-		else:
-			signal = OLX.GetSignal().strip()
-			if signal != "":
-				ret = signal
+def getRawResponse():
+	global EmptySignalsCount
+	ret = sys.stdin.readline().strip()
+	if ret != "": 
 		return ret
-
-	# Use this function to push signal into bufferedSignals array, don't access bufferedSignals array directly
-	def pushSignal(sig):
-		global bufferedSignals
-		bufferedSignals.append(sig)
-
-
+	else:
+		sys.stderr.write("Dedicated_control: OLX terminated, exiting\n")
+		sys.exit(1)
 
 def getResponse():
 	ret = []
@@ -78,12 +33,11 @@ def getResponse():
 
 
 def SendCommand(cmd):
-	RawSendCommand(cmd)
+	print cmd
 	return getResponse()
 
 def getSignal():
 	return SendCommand("nextsignal")
-
 
 ## Sending functions ##
 

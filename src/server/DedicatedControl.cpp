@@ -14,11 +14,6 @@
 #undef new
 #endif
 
-
-#ifdef PYTHON_DED_EMBEDDED
-#include <Python.h>
-#endif
-
 #include <string>
 #include <sstream>
 #include <stdexcept>
@@ -85,41 +80,12 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 	Process pipe;
 	ThreadPoolItem* thread;
 	
-#ifdef PYTHON_DED_EMBEDDED
-	// The new way, embedded Python
-	PyObject * scriptModule;
-	PyObject * scriptMainLoop;
-	SDL_sem * ScriptSignalHandlerRecursive;
-	std::ostringstream inSignals;
-	static PyMethodDef DedScriptEngineMethods[3]; // Array for registerging GetSignals() and SendCommand()
-	bool usePython;
-#endif
-
 
 	ScriptCmdLineIntf() : thread(NULL) {
-#ifdef PYTHON_DED_EMBEDDED
-		Py_SetProgramName("python"); // Where to look for Python DLL and standard modules
-		Py_Initialize();
-		Py_InitModule("OLX", DedScriptEngineMethods);
-		//PyEval_InitThreads(); // Python-threading magic stuff, need so OLX won't crash
-		scriptModule = NULL;
-		scriptMainLoop = NULL;
-
-		ScriptSignalHandlerRecursive = SDL_CreateSemaphore(1);
-		usePython = false;
-#endif
 	}
 	
 	~ScriptCmdLineIntf() {
 		breakCurrentScript();
-
-#ifdef PYTHON_DED_EMBEDDED
-		Py_XDECREF(scriptMainLoop);
-		Py_XDECREF(scriptModule);
-		Py_Finalize();
-		usePython = false;
-		SDL_DestroySemaphore(ScriptSignalHandlerRecursive);
-#endif
 	}
 
 	
@@ -138,42 +104,20 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 
 	
 	std::ostream& pipeOut() {
-#ifdef PYTHON_DED_EMBEDDED
-		if( usePython )
-			return inSignals;
-#endif
 		return pipe.in();
 	}
 	
 	void closePipe() {
-#ifdef PYTHON_DED_EMBEDDED
-		if( usePython )
-			return;
-#endif
 		pipe.close();
 	}
 	
 	bool havePipe() {
-#ifdef PYTHON_DED_EMBEDDED
-		return usePython;
-#endif		
 		return thread != NULL;
 	}
 
 	
 	
 	bool breakCurrentScript() {
-#ifdef PYTHON_DED_EMBEDDED
-		if( usePython )
-		{
-			Py_XDECREF(scriptMainLoop);
-			Py_XDECREF(scriptModule);
-			scriptMainLoop = NULL;
-			scriptModule = NULL;
-			usePython = false;
-			return true;
-		}
-#endif
 		if(thread) {
 			notes << "waiting for pipeThread ..." << endl;
 			pipe.close();
@@ -187,16 +131,6 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 	bool loadScript(const std::string& script, const std::string& scriptArgs)
 	{
 		breakCurrentScript();
-#ifdef PYTHON_DED_EMBEDDED
-		FILE * fp = OpenGameFile(script, "r");
-		if( fp )
-		{
-			std::string fpContents = ReadUntil( fp, '\n' );
-			fclose(fp);
-			if( fpContents.find("python") != std::string::npos )
-				return loadScript_Python(script, scriptArgs);
-		}
-#endif
 		return loadScript_Pipe(script, scriptArgs);
 	}
 
@@ -228,176 +162,7 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 		return true;
 	}
 
-#ifdef PYTHON_DED_EMBEDDED
-	// Embed Python into OLX
-
-	static PyObject *
-			GetSignal(PyObject *self, PyObject *args) // Get one signal from script
-	{
-		if(!PyArg_ParseTuple(args, ""))
-			return Py_None;
-
-		const std::string & sigs = ((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str();
-		std::string sig;
-		if( sigs.find('\n') != std::string::npos )
-		{
-			sig = sigs.substr( 0, sigs.find('\n') );
-			((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str( sigs.substr( sigs.find('\n')+1 ) );
-		}
-		else if( sigs != "" )	// Error, some Sig_XXX() func didn't put '\n' in the end
-		{
-			warnings << "DedControlIntern::GetSignal(): extra data in inSignals: " << sigs << endl;
-			((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str( "" );
-		}
-			
-		PyObject * ret = Py_BuildValue("s", sig.c_str());
-		((DedIntern *)DedicatedControl::Get()->internData)->inSignals.str("");
-		return ret;
-	}
-
-	static PyObject *
-			SendCommand(PyObject *self, PyObject *args)
-	{
-		const char *command = NULL;
-		if (!PyArg_ParseTuple(args, "s", &command))
-			return Py_None;
-			
-		std::string cmd, rest;
-		std::stringstream os;
-		os << command << "\n";
-		Ded_ParseCommand(os, cmd, rest);
-
-		((DedIntern *)DedicatedControl::Get()->internData)->HandleCommand(cmd, rest);
-
-		return Py_None;
-	}
-
-	// TODO: it should not be needed to always call this function after you put a signal
-	void ScriptSignalHandler()
-	{
-		if(!usePython)
-			return;
-			
-		if( SDL_SemTryWait(ScriptSignalHandlerRecursive) != 0 )
-			return;
-		
-		//PyGILState_STATE gstate;
-		//gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
-		
-		while( inSignals.str() != "" ) // If there are signals available for ded script
-		{
-			PyObject * pArgs = PyTuple_New(0);
-			PyObject * pRet = PyObject_CallObject(scriptMainLoop, pArgs);
-
-			if( PyErr_Occurred() )
-			{
-				notes << "Python exception (in stderr)" << endl;
-				PyErr_Print();
-				PyErr_Clear();
-			}
-
-			Py_XDECREF(pArgs);
-			Py_XDECREF(pRet);
-		}
-
-		//PyGILState_Release(gstate);	// Python-threading magic stuff, need so OLX won't crash
-		
-		SDL_SemPost(ScriptSignalHandlerRecursive);
-	}
-                     
-
-	bool loadScript_Python(const std::string& script) 
-	{
-		std::string scriptfn = GetAbsolutePath(GetFullFileName(script));
-		if(script != "/dev/null") {
-			if(!IsFileAvailable(scriptfn, true)) {
-				errors << "Dedicated: " << scriptfn << " not found" << endl;
-				return false;
-			}			
-
-			notes << "Dedicated server: running script \"" << scriptfn << "\" using built-in Python" << endl;
-			//PyGILState_STATE gstate;
-			//gstate = PyGILState_Ensure();	// Python-threading magic stuff, need so OLX won't crash
-
-			char tmp[1024];
-			strcpy(tmp, scriptfn.c_str());
-			char * tmp1 = tmp;
-			PySys_SetArgv(1, & tmp1 );
-			
-			FILE * fp = OpenGameFile(scriptfn, "r");
-			std::string fpContents = ReadUntil( fp, '\0' );
-			fclose(fp);
-			
-			// This just compiles ded script, not executes it yet
-			PyObject * codeObject = Py_CompileString( fpContents.c_str(), scriptfn.c_str(), Py_file_input);
-			
-			if( codeObject == NULL )
-			{
-				notes << "Dedicated server: compiling script \"" << scriptfn << "\" failed!" << endl;
-				if( PyErr_Occurred() )
-				{
-					notes << "Python exception (in stderr)" << endl;
-					PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
-					PyErr_Clear();
-				}
-				return false;
-				//PyGILState_Release(gstate);
-			}
-			
-			// Execute and import the module (reloads it if called second time)
-			usePython = true;
-			SDL_SemWait( ScriptSignalHandlerRecursive );
-			scriptModule = PyImport_ExecCodeModule("dedicated_control", codeObject);
-			SDL_SemPost( ScriptSignalHandlerRecursive );
-			
-			Py_XDECREF(codeObject);
-			
-			if( scriptModule == NULL )
-			{
-				notes << "Dedicated server: importing script \"" << scriptfn << "\" failed!" << endl;
-				if( PyErr_Occurred() )
-				{
-					notes << "Python exception (in stderr)" << endl;
-					PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
-					PyErr_Clear();
-				}
-				usePython = false;
-				//PyGILState_Release(gstate);
-				return false;
-			}
-			
-			PyObject * pFunc = PyObject_GetAttrString(scriptModule, "MainLoop");
-			if (pFunc && PyCallable_Check(pFunc))
-				scriptMainLoop = pFunc;
-			else
-			{
-				notes << "Dedicated server: importing script \"" << scriptfn << "\" failed - no MainLoop() function in module" << endl;
-				if( PyErr_Occurred() )
-				{
-					notes << "Python exception (in stderr)" << endl;
-					PyErr_Print(); // TODO: prints to stderr, dunno how to fetch string from it
-					PyErr_Clear();
-				}
-				Py_XDECREF(pFunc);
-				Py_XDECREF(scriptModule);
-				pFunc = NULL;
-				scriptModule = NULL;
-				usePython = false;
-				//PyGILState_Release(gstate);
-				return false;
-			}
-			//PyGILState_Release(gstate);
-		}
-		else
-			notes << "Dedicated server: not running any script" << endl;
-		
-		return true;
-	}
-
-#else
 	void ScriptSignalHandler() {} // stub
-#endif	
-	
 	
 	
 	
@@ -728,15 +493,6 @@ struct DedIntern {
 	}
 };
 
-
-#ifdef PYTHON_DED_EMBEDDED
-
-PyMethodDef DedIntern::DedScriptEngineMethods[3] = {
-		{ "GetSignal",  GetSignal, METH_VARARGS, "Get next signal from OLX"},
-		{ "SendCommand",  SendCommand, METH_VARARGS, "Send command to OLX, as string"},
-		{NULL, NULL, 0, NULL}        /* Sentinel */
-	};
-#endif
 
 DedicatedControl::DedicatedControl() : internData(NULL) {}
 DedicatedControl::~DedicatedControl() { if(internData) delete internData; internData = NULL; }

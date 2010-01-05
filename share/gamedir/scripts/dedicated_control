@@ -48,8 +48,7 @@ def MainLoop():
 	hnd.signalHandler(io.getSignal())
 
 
-if not io.OlxImported:
-	while hnd.gameState != hnd.GAME_QUIT:
-		MainLoop()
-	
-	io.messageLog("Dedicated_control stopped",io.LOG_INFO)
+while hnd.gameState != hnd.GAME_QUIT:
+	MainLoop()
+
+io.messageLog("Dedicated_control stopped",io.LOG_INFO)
