@@ -5,6 +5,7 @@
 
 # TODO: register commands in ChatCommand system
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
+SERVER_PORT = 23402 # What port to start server on, 23400 is the default
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"

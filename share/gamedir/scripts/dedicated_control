@@ -36,8 +36,6 @@ __builtins__.cfg = cfg # Make it accessible from all modules
 
 import dedicated_control_handler as hnd # control handler
 
-io.msg( "dedicated_control: using config file: " + str(cfg) )
-
 ## The game loop ##
 
 hnd.init()

@@ -107,7 +107,7 @@ class Worm:
 def init():
 	initPresets()
 
-	io.startLobby(0)
+	io.startLobby(cfg.SERVER_PORT)
 
 	# if we load this script with already some worms on board, we have to update our worm list now
 	for w in io.getWormList():
