@@ -1013,7 +1013,7 @@ void GusGame::assignNetworkRole( bool authority )
 {
 	m_node = new Net_Node;
 	
-	m_node->beginReplicationSetup(2);
+	m_node->beginReplicationSetup();
 		//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
 	m_node->addReplicationInt( (Net_S32*)&options.worm_gravity, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
 	m_node->addReplicationInt( (Net_S32*)&options.teamPlay, 1, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );

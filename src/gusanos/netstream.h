@@ -156,7 +156,7 @@ bool isServerNetConnID(Net_ConnID id);
 struct Net_NodeReplicationInterceptor;
 struct Net_Control;
 struct Net_ReplicatorSetup;
-struct Net_ReplicatorBasic;
+struct Net_Replicator;
 
 struct Net_Node : DontCopyTag {
 	struct NetNodeIntern; NetNodeIntern* intern;
@@ -182,12 +182,13 @@ struct Net_Node : DontCopyTag {
 	Net_BitStream* getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*);
 	
 
-	void addReplicator(Net_ReplicatorBasic*, bool);	
-	void beginReplicationSetup(int something = 0);
-	void setInterceptID(Net_InterceptID);
+	void beginReplicationSetup();
+	void addReplicator(Net_Replicator*, bool autodelete);	
 	void addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	void addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1 = 0, int p2 = 0, int p3 = 0);
 	void endReplicationSetup();
+
+	void setInterceptID(Net_InterceptID);
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
 
 };
@@ -236,32 +237,31 @@ struct Net_Control : DontCopyTag {
 };
 
 struct Net_Replicator {
+	uint8_t m_flags;
 	Net_ReplicatorSetup* setup;
-
+	void* ptr;
+	Net_BitStream* peekStream;
+	
 	virtual ~Net_Replicator() {}
 	virtual Net_Replicator* Duplicate(Net_Replicator *_dest) = 0;
 
-	Net_Replicator(Net_ReplicatorSetup* s) : setup(s) {}
+	Net_Replicator(Net_ReplicatorSetup* s) : m_flags(0), setup(s), ptr(NULL), peekStream(NULL) {}
 	Net_ReplicatorSetup* getSetup() const { return setup; }
 	
-	// replicator
-	Net_BitStream* getPeekStream();
-	void* peekDataRetrieve();
-	void peekDataStore(void*);
-
-	virtual bool checkState() = 0;	
-	virtual bool checkInitialState() = 0;
-	virtual void packData(Net_BitStream *_stream) = 0;
-	virtual void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) = 0;	
+	Net_BitStream* getPeekStream() { return peekStream; }
+	void* peekDataRetrieve() { return ptr; }
+	void peekDataStore(void* p) { if(ptr) clearPeekData(); ptr = p; }
+	
 	virtual void* peekData() = 0;
 	virtual void clearPeekData() = 0;
 };
 
 struct Net_ReplicatorBasic : Net_Replicator {
-	uint8_t m_flags;
-
 	Net_ReplicatorBasic(Net_ReplicatorSetup* s) : Net_Replicator(s) {}
 	
+	virtual bool checkState() = 0;	
+	virtual void packData(Net_BitStream *_stream) = 0;
+	virtual void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent) = 0;	
 };
 
 

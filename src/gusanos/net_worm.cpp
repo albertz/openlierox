@@ -40,7 +40,7 @@ NetWorm::NetWorm(bool isAuthority) : CWorm()
 		allegro_message("ERROR: Unable to create worm node.");
 	}
 	
-	m_node->beginReplicationSetup(6);
+	m_node->beginReplicationSetup();
 	
 		static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH , Position, -1, 1000);
 		

@@ -190,7 +190,7 @@ void Particle::assignNetworkRole( bool authority )
 		allegro_message("ERROR: Unable to create particle node.");
 }*/
 
-	m_node->beginReplicationSetup(0);
+	m_node->beginReplicationSetup();
 
 	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 

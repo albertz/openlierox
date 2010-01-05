@@ -44,9 +44,7 @@ class PosSpdReplicator : public Net_ReplicatorBasic
 		}
 	
 		bool checkState();
-	
-		bool checkInitialState() { return true; }
-	
+		
 		void packData(Net_BitStream *_stream);
 	
 		void unpackData(Net_BitStream *_stream, bool _store, Net_U32 _estimated_time_sent);

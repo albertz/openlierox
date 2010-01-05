@@ -530,7 +530,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 		allegro_message("ERROR: Unable to create player node.");
 	}
 	
-	m_node->beginReplicationSetup(1);
+	m_node->beginReplicationSetup();
 	//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
 	m_node->setInterceptID( static_cast<Net_InterceptID>(WormID) );
 	m_node->addReplicationInt( (Net_S32*)&m_wormID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);

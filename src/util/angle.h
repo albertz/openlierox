@@ -224,11 +224,6 @@ class BasicAngleReplicator : public Net_ReplicatorBasic
 			return res;
 		}
 
-		bool checkInitialState()
-		{
-			return true;
-		}
-
 		void packData(Net_BitStream *stream)
 		{
 			stream->addInt(*m_ptr, Type::prec);

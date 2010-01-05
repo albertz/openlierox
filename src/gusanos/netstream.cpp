@@ -402,7 +402,20 @@ struct Net_Control::NetControlIntern {
 
 struct Net_Node::NetNodeIntern {
 	Net_Control* control;
+	typedef std::list< std::pair<Net_Replicator*,bool> > ReplicationSetup;
+	ReplicationSetup replicationSetup;
+	Net_InterceptID interceptID;
+	
 	NetNodeIntern() : control(NULL) {}
+	~NetNodeIntern() { clearReplicationSetup(); }
+	
+	void clearReplicationSetup() {
+		for(ReplicationSetup::iterator i = replicationSetup.begin(); i != replicationSetup.end(); ++i)
+			if(/* autodelete */ i->second)
+				delete i->first;
+		replicationSetup.clear();
+	}
+	
 };
 
 
@@ -556,23 +569,32 @@ bool Net_Node::checkEventWaiting() { return false; }
 Net_BitStream* Net_Node::getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*) { return NULL; }
 
 
-void Net_Node::addReplicator(Net_ReplicatorBasic*, bool) {}	
-void Net_Node::beginReplicationSetup(int something) {}
-void Net_Node::setInterceptID(Net_InterceptID) {}
-void Net_Node::addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
-void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {}
+void Net_Node::beginReplicationSetup() {
+	intern->clearReplicationSetup();
+}
+
+void Net_Node::addReplicator(Net_Replicator* rep, bool autodelete) {
+	intern->replicationSetup.push_back( std::make_pair(rep, autodelete) );
+}
+
+void Net_Node::addReplicationInt(Net_S32*, int bits, bool, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {
+
+}
+
+void Net_Node::addReplicationFloat(Net_Float*, int bits, Net_RepFlags, Net_RepRules, int p1, int p2, int p3) {
+
+}
+
 void Net_Node::endReplicationSetup() {}
+
+void Net_Node::setInterceptID(Net_InterceptID id) { intern->interceptID = id; }
+
 void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor*) {}
 
 
 
 
 
-Net_BitStream* Net_Replicator::getPeekStream() { return NULL; }
-void* Net_Replicator::peekDataRetrieve() { return NULL; }
-
-void* Net_Replicator::peekData() { return NULL; }
-void Net_Replicator::peekDataStore(void*) {}
 
 
 
