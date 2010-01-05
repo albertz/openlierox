@@ -29,6 +29,8 @@
 #include "lua51/luaapi/context.h"
 #include "lua/bindings-objects.h"
 #include "game/Game.h"
+#include "gusanos/network.h"
+#include "gusanos/net_worm.h"
 
 #include <math.h>
 #include <string>
@@ -140,6 +142,8 @@ void CWorm::gusShutdown()
 			++iter;
 	}
 #endif
+	
+	NetWorm_Shutdown();
 }
 
 void CWorm::deleteThis() {
@@ -158,6 +162,7 @@ void CWorm::deleteThis() {
 void CWorm::assignOwner( CWormInputHandler* owner)
 {
 	m_owner = owner;
+	m_playerID = m_owner->getNodeID();
 }
 
 NinjaRope* CWorm::getNinjaRopeObj()
@@ -172,14 +177,30 @@ Weapon* CWorm::getCurrentWeaponRef()
 
 void CWorm::setWeapon( size_t index, WeaponType* type )
 {
-	if(index >= m_weapons.size())
-		return;
+	if( !m_node || !network.isClient() ) {
+		if(index >= m_weapons.size())
+			return;
 
-	luaDelete(m_weapons[index]);
-	m_weapons[index] = 0;
+		luaDelete(m_weapons[index]);
+		m_weapons[index] = 0;
 
-	if ( type )
-		m_weapons[index] = new Weapon( type, this );
+		if ( type )
+			m_weapons[index] = new Weapon( type, this );
+		
+		// NetWorm code
+		if( m_node && !network.isClient() ) {
+			Net_BitStream *data = new Net_BitStream;
+			addEvent(data, SetWeapon);
+			Encoding::encode(*data, index, gusGame.options.maxWeapons);
+			if ( type )
+			{
+				data->addBool(true);
+				Encoding::encode(*data, type->getIndex(), gusGame.weaponList.size());
+			}else
+				data->addBool(false);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
+		}
+	}
 }
 
 void CWorm::setWeapons( std::vector<WeaponType*> const& weaps )
@@ -196,9 +217,18 @@ void CWorm::setWeapons( std::vector<WeaponType*> const& weaps )
 
 void CWorm::clearWeapons()
 {
-	for ( size_t i = 0; i < m_weapons.size(); ++i) {
-		luaDelete(m_weapons[i]);
-		m_weapons[i] = 0;
+	if( !m_node || !network.isClient() ) {
+		for ( size_t i = 0; i < m_weapons.size(); ++i) {
+			luaDelete(m_weapons[i]);
+			m_weapons[i] = 0;
+		}
+		
+		// NetWorm code
+		if( m_node && !network.isClient() ) {
+			Net_BitStream *data = new Net_BitStream;
+			addEvent(data, ClearWeapons);
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
+		}
 	}
 }
 
@@ -508,6 +538,8 @@ void CWorm::think()
 
 	// NOTE: This was from Worm::think() which isn't used right now
 	renderPos = pos();
+
+	NetWorm_think();
 }
 
 Vec CWorm::getWeaponPos()
@@ -689,31 +721,57 @@ void CWorm::respawn()
 
 void CWorm::respawn( const Vec& newPos)
 {
-	// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
-	bWeaponsReady = true;
-	
-	health = 100;
-	bAlive = true;
-	aimAngle = Angle(90.0);
-	velocity() = CVec ( 0, 0 );
-	pos() = newPos;
-	m_dir = 1;
-#ifndef DEDICATED_ONLY
+	if( m_isAuthority || !m_node ) {
+		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
+		bWeaponsReady = true;
+		
+		health = 100;
+		bAlive = true;
+		aimAngle = Angle(90.0);
+		velocity() = CVec ( 0, 0 );
+		pos() = newPos;
+		m_dir = 1;
+	#ifndef DEDICATED_ONLY
 
-	renderPos = pos();
-#endif
+		renderPos = pos();
+	#endif
 
-	m_lastHurt = NULL;
-	for ( size_t i = 0; i < m_weapons.size(); ++i ) {
-		if ( m_weapons[i] )
-			m_weapons[i]->reset();
-	}
+		m_lastHurt = NULL;
+		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
+			if ( m_weapons[i] )
+				m_weapons[i]->reset();
+		}
+
+		// NetWorm code
+		if ( m_isAuthority && m_node && getAlive() )
+		{
+			Net_BitStream *data = new Net_BitStream;
+			addEvent(data, Respawn);
+			/*
+			 data->addFloat(pos.x,32);
+			 data->addFloat(pos.y,32);*/
+			gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
+		}
+	}	
 }
 
 void CWorm::dig()
 {
-	if ( getAlive() )
-		dig( pos(), getPointingAngle() );
+	if( m_isAuthority || !m_node ) {
+		if ( getAlive() ) {
+			dig( pos(), getPointingAngle() );
+		
+			// NetWorm code
+			if( m_isAuthority && m_node ) {
+				Net_BitStream *data = new Net_BitStream;
+				addEvent(data, Dig);
+				gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
+				data->addInt(int(getPointingAngle()), Angle::prec);
+				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
+			}
+		}
+	}
 }
 
 void CWorm::dig( const Vec& digPos, Angle angle )
@@ -724,26 +782,50 @@ void CWorm::dig( const Vec& digPos, Angle angle )
 
 void CWorm::die()
 {
-	EACH_CALLBACK(i, wormDeath) {
-		(lua.call(*i), getLuaReference())();
-	}
-	bAlive = false;
-	if (m_owner) {
-		m_owner->addDeath();
-		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
-	}
-	if (m_lastHurt && m_lastHurt != m_owner)
-		m_lastHurt->addKill();
+	if( m_isAuthority || !m_node ) {
+		// NetWorm code
+		if( m_isAuthority && m_node ) {
+			Net_BitStream *data = new Net_BitStream;
+			addEvent(data, Die);
+			if ( m_lastHurt )
+			{
+				data->addInt( static_cast<int>( m_lastHurt->getNodeID() ), 32 );
+			}
+			else
+			{
+				data->addInt( INVALID_NODE_ID, 32 );
+			}
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
+		}
+		
+		EACH_CALLBACK(i, wormDeath) {
+			(lua.call(*i), getLuaReference())();
+		}
+		bAlive = false;
+		if (m_owner) {
+			m_owner->addDeath();
+			gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
+		}
+		if (m_lastHurt && m_lastHurt != m_owner)
+			m_lastHurt->addKill();
 
-	m_ninjaRope->remove();
-	m_timeSinceDeath = 0;
-	if ( gusGame.deathObject ) {
-		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
+		m_ninjaRope->remove();
+		m_timeSinceDeath = 0;
+		if ( gusGame.deathObject ) {
+			gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
+		}
 	}
 }
 
 void CWorm::changeWeaponTo( unsigned int weapIndex )
 {
+	if( m_node ) {
+		Net_BitStream *data = new Net_BitStream;
+		addEvent(data, ChangeWeapon);
+		Encoding::encode(*data, weapIndex, m_weapons.size());
+		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_PROXY, data);		
+	}
+	
 	if ( m_weapons[currentWeapon] ) {
 		m_weapons[currentWeapon]->actionStop( Weapon::PRIMARY_TRIGGER );
 		m_weapons[currentWeapon]->actionStop( Weapon::SECONDARY_TRIGGER );
@@ -754,11 +836,13 @@ void CWorm::changeWeaponTo( unsigned int weapIndex )
 
 void CWorm::damage( float amount, CWormInputHandler* damager )
 {
-	// TODO: maybe we could implement an armor system? ;O
-	m_lastHurt = damager;
-	health -= amount;
-	if ( health < 0 )
-		health = 0;
+	if( !m_node || m_isAuthority ) {
+		// TODO: maybe we could implement an armor system? ;O
+		m_lastHurt = damager;
+		health -= amount;
+		if ( health < 0 )
+			health = 0;
+	}
 }
 
 void CWorm::addAimSpeed( AngleDiff speed )
@@ -871,4 +955,7 @@ void CWorm::finalize()
 		luaDelete(m_weapons[i]);
 		m_weapons[i] = 0;
 	}
+	
+	if(m_node) delete m_node; m_node = 0;
+	if(m_interceptor) delete m_interceptor; m_interceptor = 0;
 }

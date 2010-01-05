@@ -744,18 +744,12 @@ public:
 	AngleDiff aimSpeed; // Useless to add setters and getters for this
 	Angle aimAngle;
 	
-	virtual void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL )
-	{}
-	virtual eNet_NodeRole getRole()
-	{
-		return eNet_RoleUndefined;
-	}
+	void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
 	virtual void makeReference();
 	virtual void finalize();
 	
-	virtual void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
-	{}
+	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
 		
 protected:
 	//LuaReference luaReference;
@@ -843,12 +837,10 @@ public:
 	void NetWorm_think();
 	void correctOwnerPosition();
 	
-	void NetWorm_assignOwner( CWormInputHandler* owner);
 	void setOwnerId( Net_ConnID _id );
 	void sendSyncMessage( Net_ConnID id );
-	void NetWorm_sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
-	eNet_NodeRole NetWorm_getRole()
+	eNet_NodeRole getRole()
 	{
 		if ( m_node )
 		{
@@ -856,21 +848,8 @@ public:
 		}else
 			return eNet_RoleUndefined;
 	}
-	
-	virtual void NetWorm_sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
-	
+		
 	Net_NodeID getNodeID();
-	
-	void NetWorm_respawn();
-	void NetWorm_dig();
-	void NetWorm_die();
-	void NetWorm_changeWeaponTo( unsigned int weapIndex );
-	void NetWorm_damage( float amount, CWormInputHandler* damager );
-	void NetWorm_setWeapon(size_t index, WeaponType* type );
-	void NetWorm_clearWeapons();
-	
-	//virtual void deleteThis();
-	virtual void NetWorm_finalize();
 	
 	Vec lastPosUpdate;
 	int timeSinceLastUpdate;

@@ -88,8 +88,8 @@ void CWorm::NetWorm_Init(bool isAuthority)
 
 void CWorm::NetWorm_Shutdown()
 {
-	delete m_node;
-	delete m_interceptor;
+	if(m_node) delete m_node; m_node = NULL;
+	if(m_interceptor) delete m_interceptor; m_interceptor = NULL;
 }
 
 void CWorm::addEvent(Net_BitStream* data, CWorm::NetEvents event)
@@ -104,7 +104,6 @@ void CWorm::addEvent(Net_BitStream* data, CWorm::NetEvents event)
 
 void CWorm::NetWorm_think()
 {
-	CWorm::think();
 #ifndef DEDICATED_ONLY
 	//renderPos += (pos - renderPos)*0.2;
 	double fact = 1.0 / (1.0 + Vec(renderPos, pos()).length() / 4.0);
@@ -252,7 +251,7 @@ void CWorm::NetWorm_think()
 	}
 }
 
-void CWorm::NetWorm_sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) return;
 	Net_BitStream* data = new Net_BitStream;
@@ -282,11 +281,6 @@ void CWorm::correctOwnerPosition()
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
-void CWorm::NetWorm_assignOwner( CWormInputHandler* owner)
-{
-	CWorm::assignOwner(owner);
-	m_playerID = m_owner->getNodeID();
-}
 
 void CWorm::setOwnerId( Net_ConnID _id )
 {
@@ -317,7 +311,7 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }
 
-void CWorm::NetWorm_sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repRules )
+void CWorm::sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repRules )
 {
 	Net_BitStream *data = new Net_BitStream;
 	addEvent(data, WeaponMessage);
@@ -335,120 +329,7 @@ Net_NodeID CWorm::getNodeID()
 		return INVALID_NODE_ID;
 }
 
-void CWorm::NetWorm_respawn()
-{
-	if ( m_isAuthority && m_node )
-	{
-		CWorm::respawn();
-		if ( getAlive() )
-		{
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, Respawn);
-			/*
-			data->addFloat(pos.x,32);
-			data->addFloat(pos.y,32);*/
-			gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	}
-}
 
-void CWorm::NetWorm_dig()
-{
-	if ( m_isAuthority && m_node )
-	{
-		CWorm::dig();
-		if ( getAlive() )
-		{
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, Dig);
-			gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
-			data->addInt(int(getPointingAngle()), Angle::prec);
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	}
-}
-
-void CWorm::NetWorm_die()
-{
-	if ( m_isAuthority && m_node )
-	{
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, Die);
-		if ( m_lastHurt )
-		{
-			data->addInt( static_cast<int>( m_lastHurt->getNodeID() ), 32 );
-		}
-		else
-		{
-			data->addInt( INVALID_NODE_ID, 32 );
-		}
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		CWorm::die();
-	}
-}
-
-void CWorm::NetWorm_changeWeaponTo( unsigned int weapIndex )
-{
-	if ( m_node )
-	{
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, ChangeWeapon);
-		Encoding::encode(*data, weapIndex, m_weapons.size());
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_PROXY, data);
-		CWorm::changeWeaponTo( weapIndex );
-	}
-}
-
-void CWorm::NetWorm_setWeapon( size_t index, WeaponType* type )
-{
-	if ( !network.isClient() )
-	{
-		CWorm::setWeapon( index, type );
-		if ( m_node )
-		{
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, SetWeapon);
-			Encoding::encode(*data, index, gusGame.options.maxWeapons);
-			if ( type )
-			{
-				data->addBool(true);
-				Encoding::encode(*data, type->getIndex(), gusGame.weaponList.size());
-			}else
-				data->addBool(false);
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	}
-}
-
-void CWorm::NetWorm_clearWeapons()
-{
-	if ( !network.isClient() )
-	{
-		CWorm::clearWeapons();
-		if ( m_node )
-		{
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, ClearWeapons);
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	}
-}
-
-void CWorm::NetWorm_damage( float amount, CWormInputHandler* damager )
-{
-	if ( m_isAuthority )
-	{
-		CWorm::damage( amount, damager );
-	}
-}
-
-void CWorm::NetWorm_finalize()
-{
-	CWorm::finalize();
-	delete m_node; m_node = 0;
-	delete m_interceptor; m_interceptor = 0;
-}
 
 NetWormInterceptor::NetWormInterceptor( CWorm* parent )
 {
