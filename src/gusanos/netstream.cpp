@@ -578,7 +578,10 @@ void Net_Node::addReplicator(Net_Replicator* rep, bool autodelete) {
 }
 
 void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net_RepRules r, Net_InterceptID id, int p2, int p3) {
-	
+
+	if((f & Net_REPFLAG_INTERCEPT) && id == 0)
+		id = intern->forthcomingReplicatorInterceptID;
+
 	struct IntReplicator : Net_ReplicatorBasic {
 		Net_ReplicatorSetup setup;
 		Net_S32* n;
@@ -588,7 +591,7 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 		IntReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
 		Net_Replicator* Duplicate(Net_Replicator*) { return new IntReplicator(*this); }		
 		
-		void* peekData() { return (void*) getPeekStream()->getInt(bits); }
+		void* peekData() { return NULL; }
 		void clearPeekData() {}
 		
 		bool checkState() { return *n != old; }
@@ -608,23 +611,26 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 }
 
 void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_RepRules r, Net_InterceptID id, int p2, int p3) {
-	
+
+	if((f & Net_REPFLAG_INTERCEPT) && id == 0)
+		id = intern->forthcomingReplicatorInterceptID;
+
 	struct FloatReplicator : Net_ReplicatorBasic {
 		Net_ReplicatorSetup setup;
 		Net_Float* n;
 		Net_Float old;
 		int bits;
 		
-		IntReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
+		FloatReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
 		Net_Replicator* Duplicate(Net_Replicator*) { return new FloatReplicator(*this); }		
 		
-		void* peekData() { return (void*) getPeekStream()->getFloat(bits); }
+		void* peekData() { return NULL; }
 		void clearPeekData() {}
 		
 		bool checkState() { return *n != old; }
 		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); }
 		void unpackData(Net_BitStream *_stream, bool _store) {
-			Net_S32 i = _stream->getFloat(bits);
+			Net_Float i = _stream->getFloat(bits);
 			if(_store) *n = i;
 		}
 	};
@@ -633,7 +639,7 @@ void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_R
 	rep->n = n;
 	rep->old = *n;
 	rep->bits = bits;
-	
+		
 	addReplicator(rep, true);	
 }
 
