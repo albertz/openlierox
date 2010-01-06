@@ -405,9 +405,11 @@ int GameServer::StartGame(std::string* errMsg)
 			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
 			return false;
 		}
-
+		
 		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
 	}
+	else
+		notes << "used cached version of mod, ";
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	
 	// Load & update the weapon restrictions

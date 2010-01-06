@@ -97,7 +97,7 @@ public:
 				item = m_resItems.find(filename);
 				m_resItems.erase(item);
 				if(!suppressError)
-					errors << "Gus Resource: Could not load " << filename << endl;
+					notes << "Gus Resource: Could not load " << filename << endl;
 				return NULL;
 			}
 		}
