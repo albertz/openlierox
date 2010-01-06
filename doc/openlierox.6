@@ -11,7 +11,6 @@ openlierox - real-time, excessive clone of Worms with network support.
 .SH DESCRIPTION
 
 OpenLieroX is based on Jason Boettcher's famous Liero Xtreme.
-( Take a look here: http://lxalliance.net/lierox/ )
 Jason B. has released his work in 2006 under the zlib-licence
 and after some months of work, we ported and enhanced his work
 and got OpenLieroX.
@@ -28,7 +27,7 @@ file at startup but you can override from command line a few of the
 options:
 .TP
 .B -help
-Shows commandline help.
+Show commandline help.
 .TP
 .B -opengl
 Use OpenGL for drawing.
@@ -37,18 +36,27 @@ Use OpenGL for drawing.
 Explicitly disable using OpenGL.
 .TP
 .B -fullscreen
-Runs the game in fullscreen mode.
+Run the game in fullscreen mode.
 .TP
 .B -window
-Runs the game in windowed mode.
+Run the game in windowed mode.
 .TP
 .B -nosound
-Disables sound output.
+Disable sound output.
+.TP
+.B -nojoystick
+Disable joystick detection.
 .TP
 .B -dedicated
-Enables dedicated mode - no graphics or sound initialized, OpenLieroX runs as standalone console process. 
-The file 'scripts/dedicated_control' is executed by OpenLieroX - this file is CGI-like script which operates the OpenLieroX server. 
+Enable dedicated mode - no graphics or sound initialized, OpenLieroX runs as standalone console process.
+The file 'scripts/dedicated_control' is executed by OpenLieroX - this file is CGI-like script which operates the OpenLieroX server.
 It is located in default directory '/usr/share/games/OpenLieroX' , but may be overridden by user as '~/.OpenLieroX/scripts/dedicated_control'.
+.TP
+.B -exec COMMAND
+Executes a command inside game console after starting openlierox. Several -exec statements may be specified.
+.TP
+.B -connect SERVER-ADDRESS
+Start a game client and immediately connect to the specified server.
 .PP
 Configuration file name is '~/.OpenLieroX/cfg/options.cfg'.
 
@@ -70,16 +78,19 @@ Author of original Liero for DOS.
 .B Jason Boettcher
 Author of Liero Xtreme.
 .TP
-.B RuNyoufool
-Project admin.
+.B Bram Ueffing
+Project ex-admin.
 .TP
-.B Albert Zeyer, Karel Petranek, Martin Griffin, SteelSide, Da_Nick, pelya
+.B Albert Zeyer, Karel Petranek, Sergii Pylypenko
 Current OpenLieroX developers.
 .TP
-.B Michal Futer ( [RIP]Raziel )
-GUI frontend design.
+.B Martin Griffin, Daniel Sjoholm
+Inactive OpenLieroX developers.
 .TP
-.B http://lxalliance.net/
-LieroX community.
+.B Michal Futer ( [RIP]Raziel )
+GUI frontend designer.
+.TP
+.B http://openlierox.net/
+The OpenLieroX homepage.
 .PP
 And many others for comments, bug reports and ideas.
