@@ -282,7 +282,13 @@ IF(PYTHON_DED_EMBEDDED)
 ENDIF(PYTHON_DED_EMBEDDED)
 
 SET(LIBS ${PYTHONLIBS})
-SET(LIBS ${LIBS} curl boost_filesystem boost_signals alut openal vorbisfile)
+SET(BOOST_LIB_SUFFIX)
+EXEC_PROGRAM(cat ARGS /etc/debian_version OUTPUT_VARIABLE DEBIAN_VERSION)
+IF(DEBIAN_VERSION)
+	SET(BOOST_LIB_SUFFIX "-mt")
+ENDIF(DEBIAN_VERSION)
+
+SET(LIBS ${LIBS} curl boost_filesystem${BOOST_LIB_SUFFIX} boost_signals${BOOST_LIB_SUFFIX} alut openal vorbisfile)
 
 if(APPLE)
 	FIND_PACKAGE(SDL REQUIRED)

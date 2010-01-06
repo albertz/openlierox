@@ -50,6 +50,7 @@ class NinjaRope;
 class Weapon;
 class WeaponType;
 struct LuaEventDef;
+class NetWormInterceptor;
 #ifndef DEDICATED_ONLY
 class SpriteSet;
 class BaseAnimator;
