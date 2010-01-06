@@ -984,7 +984,8 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	
 	//level.setName(levelName);
 	refreshResources(levelPath);
-	//cerr << "Loading level" << endl;
+
+	nextMod = "Gusanos"; // we must explicitly set the mod each time we load a new level
 	
 	if(!m) m = &level();
 	
