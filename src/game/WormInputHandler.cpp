@@ -88,7 +88,7 @@ void CWormInputHandler::pushLuaReference()
 }
 
 void CWormInputHandler::deleteThis()
-{
+{	
 	EACH_CALLBACK(i, playerRemoved) {
 		(lua.call(*i), getLuaReference())();
 	}
@@ -101,25 +101,29 @@ void CWormInputHandler::deleteThis()
 	
 	removeWorm();
 	
-	delete m_node;
-	m_node = 0;
-	delete m_interceptor;
-	m_interceptor = 0;
-	
+	delete m_node; m_node = 0;
+	delete m_interceptor; m_interceptor = 0;
+		
 	if(luaReference) {
 		lua.destroyReference(luaReference);
 		luaReference.reset();
 	} else {
 		delete this;
-	}
-	
-	m_worm->m_inputHandler = NULL;
+	}	
 }
 
 
 
 void CWormInputHandler::gusShutdown()
 {
+	notes << "CWormInputHandler:gusShutdown: " << (m_worm ? m_worm->getName() : "NOWORM") << endl;
+
+	for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter) {
+		objIter->removeRefsToPlayer(this);
+	}
+
+	removeWorm();
+	
 	if(m_node) {
 		delete m_node;
 		m_node = 0;
@@ -133,6 +137,8 @@ void CWormInputHandler::gusShutdown()
 void CWormInputHandler::removeWorm()
 {
 	if ( m_worm ) {
+		if(m_worm->m_inputHandler == this)
+			m_worm->m_inputHandler = NULL;
 /*		m_worm->deleteMe = true;
 		if ( m_worm->getNinjaRopeObj() )
 			m_worm->getNinjaRopeObj()->deleteMe = true;*/

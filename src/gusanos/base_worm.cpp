@@ -147,6 +147,8 @@ void CWorm::gusShutdown()
 }
 
 void CWorm::deleteThis() {
+	notes << "CWorm:deleteThis: " << getName() << endl;
+	
 	finalize();
 	
 	if(luaReference)
