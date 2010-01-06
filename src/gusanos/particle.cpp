@@ -58,7 +58,6 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 			return true;
 		}
 
-		// Not used virtual stuff
 		void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
 		{
 			Net_BitStream *type = new Net_BitStream;
@@ -69,9 +68,6 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 				type->addInt(0, 32);
 			parent->m_node->setAnnounceData( type );
 		}
-
-		void outPreDereplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
-	{}
 
 		bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
 		{
@@ -90,17 +86,6 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 
 			return true;
 		}
-
-		void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits)
-		{}
-
-		bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role)
-		{
-			return true;
-		}
-
-		void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits)
-		{}
 
 	private:
 		Particle* parent;
@@ -194,7 +179,7 @@ void Particle::assignNetworkRole( bool authority )
 
 	static Net_ReplicatorSetup posSetup( Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL, ParticleInterceptor::Position, -1, 1000);
 
-	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), gusGame.level().vectorEncoding, gusGame.level().diffVectorEncoding ), true);
+	m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity() ), true);
 
 	m_node->endReplicationSetup();
 

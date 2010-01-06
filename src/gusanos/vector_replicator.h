@@ -23,7 +23,7 @@ private:
 	
 public:
 
-	VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data, Encoding::VectorEncoding& encoding_);
+	VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data);
 	
 	// TODO: Implement this for safeness sake
 	Net_Replicator* Duplicate(Net_Replicator *_dest)
@@ -48,7 +48,7 @@ public:
 	//const Vec& getLastUpdate();
 	
 private:
-	Encoding::VectorEncoding& encoding;
+	Encoding::VectorEncoding& encoding();
 };
 
 #endif

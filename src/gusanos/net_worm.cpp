@@ -52,11 +52,11 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		
 		//m_node->setInterceptID( static_cast<Net_InterceptID>(Position) );
 		
-		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity(), gusGame.level().vectorEncoding, gusGame.level().diffVectorEncoding ), true);
+		m_node->addReplicator(new PosSpdReplicator( &posSetup, &pos(), &velocity() ), true);
 		
 		static Net_ReplicatorSetup nrSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 		
-		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference(), gusGame.level().vectorEncoding ), true);
+		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference() ), true);
 		
 		m_node->addReplicationFloat ((Net_Float*)&m_ninjaRope->getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		

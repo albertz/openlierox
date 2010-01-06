@@ -4,27 +4,29 @@
 #include <iostream>
 #include "util/vec.h"
 #include "encoding.h"
+#include "gusgame.h"
+#include "CMap.h"
 #include <utility>
 using std::cerr;
 using std::endl;
 
 PosSpdReplicator::PosSpdReplicator(Net_ReplicatorSetup *_setup,
-	CVec *pos, CVec *spd, Encoding::VectorEncoding& encoding_,
-	Encoding::DiffVectorEncoding& diffEncoding_)
+	CVec *pos, CVec *spd)
 : Net_ReplicatorBasic(_setup)
 , m_posPtr(pos)
 , m_spdPtr(spd)
 , m_repCount(0)
-, encoding(encoding_)
-, diffEncoding(diffEncoding_)
 {
 	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
+Encoding::VectorEncoding& PosSpdReplicator::encoding() { return gusGame.level().vectorEncoding; }
+Encoding::DiffVectorEncoding& PosSpdReplicator::diffEncoding() { return gusGame.level().diffVectorEncoding; }
+
 bool PosSpdReplicator::checkState()
 {
 #ifdef COMPACT_FLOATS
-	std::pair<long, long> v = encoding.quantize(*m_posPtr);
+	std::pair<long, long> v = encoding().quantize(*m_posPtr);
 	bool s = (m_oldPos.first != v.first || m_oldPos.second != v.second);
 	m_oldPos = v;
 #else
@@ -41,7 +43,7 @@ void PosSpdReplicator::packData(Net_BitStream *_stream)
 	dynamic_bitset<> n = gusGame.level().vectorEncoding.encode(*m_posPtr);
 	Encoding::writeBitset(*_stream, n);
 */
-	encoding.encode(*_stream, *m_posPtr);
+	encoding().encode(*_stream, *m_posPtr);
 #else
 	_stream->addFloat(m_posPtr->x,32);
 	_stream->addFloat(m_posPtr->y,32);
@@ -54,7 +56,7 @@ void PosSpdReplicator::packData(Net_BitStream *_stream)
 /*
 		_stream->addFloat(m_spdPtr->x,speedPrec);
 		_stream->addFloat(m_spdPtr->y,speedPrec);*/
-		diffEncoding.encode(*_stream, *m_spdPtr);
+		diffEncoding().encode(*_stream, *m_spdPtr);
 	}else
 	{
 		++m_repCount;
@@ -71,7 +73,7 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
 /*
 		dynamic_bitset<> n = Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
 		*m_posPtr = gusGame.level().vectorEncoding.decode<Vec>(n);*/
-		*m_posPtr = CVec(encoding.decode<Vec>(*_stream));
+		*m_posPtr = CVec(encoding().decode<Vec>(*_stream));
 #else
 		m_posPtr->x = _stream->getFloat(32);
 		m_posPtr->y = _stream->getFloat(32);
@@ -82,7 +84,7 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
 			/*
 			m_spdPtr->x = _stream->getFloat(speedPrec);
 			m_spdPtr->y = _stream->getFloat(speedPrec);*/
-			*m_spdPtr = CVec(diffEncoding.decode<Vec>(*_stream));
+			*m_spdPtr = CVec(diffEncoding().decode<Vec>(*_stream));
 		}
 
 	}
@@ -90,7 +92,7 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
 	{
 #ifdef COMPACT_FLOATS
 		//Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
-		encoding.decode<Vec>(*_stream);
+		encoding().decode<Vec>(*_stream);
 #else
 		_stream->getFloat(32);
 		_stream->getFloat(32);
@@ -101,7 +103,7 @@ void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
 			/*
 			_stream->getFloat(speedPrec);
 			_stream->getFloat(speedPrec);*/
-			*m_spdPtr = CVec(diffEncoding.decode<Vec>(*_stream));
+			*m_spdPtr = CVec(diffEncoding().decode<Vec>(*_stream));
 		}
 	}
 }
@@ -114,7 +116,7 @@ void* PosSpdReplicator::peekData()
 /*
 	dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), gusGame.level().vectorEncoding.bits);
 	*retVec = gusGame.level().vectorEncoding.decode<Vec>(n);*/
-	*retVec = encoding.decode<Vec>(*getPeekStream());
+	*retVec = encoding().decode<Vec>(*getPeekStream());
 #else
 	retVec->x = getPeekStream()->getFloat(32);
 	retVec->y = getPeekStream()->getFloat(32);
@@ -134,3 +136,4 @@ void PosSpdReplicator::clearPeekData()
 {
 	return m_posCmp;
 }*/
+

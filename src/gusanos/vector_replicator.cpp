@@ -3,20 +3,24 @@
 #include "netstream.h"
 #include <iostream>
 #include "util/vec.h"
+#include "gusgame.h"
+#include "CMap.h"
 using std::cerr;
 using std::endl;
 
-VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data, Encoding::VectorEncoding& encoding_) :
+VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data) :
 		Net_ReplicatorBasic(_setup),
-		m_ptr(_data), encoding(encoding_)
+		m_ptr(_data)
 {
 	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
+Encoding::VectorEncoding& VectorReplicator::encoding() { return gusGame.level().vectorEncoding; }
+
 bool VectorReplicator::checkState()
 {
 #ifdef COMPACT_FLOATS
-	std::pair<long, long> v = encoding.quantize(*m_ptr);
+	std::pair<long, long> v = encoding().quantize(*m_ptr);
 	bool s = (m_old.first != v.first || m_old.second != v.second);
 	m_old = v;
 	return s;
@@ -35,7 +39,7 @@ void VectorReplicator::packData(Net_BitStream *_stream)
 		dynamic_bitset<> n = gusGame.level().vectorEncoding.encode(*m_ptr);
 		Encoding::writeBitset(*_stream, n);
 	*/
-	encoding.encode(*_stream, *m_ptr);
+	encoding().encode(*_stream, *m_ptr);
 
 #else
 
@@ -51,7 +55,7 @@ void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store)
 		/*
 				dynamic_bitset<> n = Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
 				*m_ptr = gusGame.level().vectorEncoding.decode<Vec>(n);*/
-		*m_ptr = CVec(encoding.decode<Vec>(*_stream));
+		*m_ptr = CVec(encoding().decode<Vec>(*_stream));
 #else
 
 		m_ptr->x = _stream->getFloat(32);
@@ -61,7 +65,7 @@ void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store)
 	} else {
 #ifdef COMPACT_FLOATS
 		//Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
-		encoding.decode<Vec>(*_stream);
+		encoding().decode<Vec>(*_stream);
 #else
 
 		_stream->getFloat(32);
@@ -79,7 +83,7 @@ void* VectorReplicator::peekData()
 	/*
 		dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), gusGame.level().vectorEncoding.bits);
 		*retVec = gusGame.level().vectorEncoding.decode<Vec>(n);*/
-	*retVec = encoding.decode<Vec>(*getPeekStream());
+	*retVec = encoding().decode<Vec>(*getPeekStream());
 #else
 
 	retVec->x = getPeekStream()->getFloat(32);

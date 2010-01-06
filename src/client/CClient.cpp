@@ -1882,9 +1882,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			cClient->getWorm(i)->setClientVersion(cClient->getClientVersion());
 			if(!cClient->getWorm(i)->ChangeGraphics(cClient->getGeneralGameType()))
 				warnings << "updateAddedWorms: changegraphics for worm " << serverWorm->getID() << " failed" << endl;
-			
-			cClient->getWorm(i)->NetWorm_Init(true);
-			
+						
 			// gameready means that we had a preparegame package
 			// status==NET_PLAYING means that we are already playing
 			if( cClient->getGameReady() ) {

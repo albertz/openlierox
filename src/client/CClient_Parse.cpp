@@ -326,7 +326,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 				warnings << "ParseConnected: profile " << i << " for worm " << id << " is not set" << endl;
 			client->cLocalWorms[i]->setLocal(true);
 			client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
-			client->cLocalWorms[i]->NetWorm_Init(true);
 		}
 		if(!client->cLocalWorms[i]->getLocal()) {
 			warnings << "ParseConnected: already used local worm " << id << " was not set to local" << endl;
@@ -1361,8 +1360,6 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
-		
-		client->cRemoteWorms[id].NetWorm_Init(false);
 	}
 
 	WormJoinInfo wormInfo;

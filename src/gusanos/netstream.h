@@ -129,6 +129,8 @@ public:
 	const std::string& data() const { return m_data; }
 	void resetPos() { m_readPos = 0; }
 	size_t bitPos() const { return m_readPos; }
+	size_t bitSize() const { return m_size; }
+	size_t restBitSize() const { return m_size - m_readPos; }
 };
 
 struct Net_FileTransInfo {
@@ -250,7 +252,7 @@ struct Net_Replicator {
 struct Net_ReplicatorBasic : Net_Replicator {
 	Net_ReplicatorBasic(Net_ReplicatorSetup* s) : Net_Replicator(s) {}
 	
-	virtual bool checkState() = 0;	
+	virtual bool checkState() = 0; // true if update is needed
 	virtual void packData(Net_BitStream *_stream) = 0;
 	virtual void unpackData(Net_BitStream *_stream, bool _store) = 0;	
 };
@@ -269,13 +271,9 @@ struct Net_NodeReplicationInterceptor {
 	virtual ~Net_NodeReplicationInterceptor() {}
 	
 	virtual void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
-	virtual void outPreDereplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
 	virtual bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
 	virtual bool outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator) = 0;
-	virtual void outPostUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
 	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator) = 0;
-	virtual bool inPreUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role) = 0;
-	virtual void inPostUpdate(Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_U32 _rep_bits, Net_U32 _event_bits, Net_U32 _meta_bits) = 0;
 };
 
 struct NetStream {

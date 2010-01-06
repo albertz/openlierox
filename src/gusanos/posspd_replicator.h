@@ -31,7 +31,7 @@ class PosSpdReplicator : public Net_ReplicatorBasic
 	
 	public:
 
-		PosSpdReplicator(Net_ReplicatorSetup *_setup, CVec *pos, CVec *spd, Encoding::VectorEncoding& encoding_, Encoding::DiffVectorEncoding& diffEncoding_);
+		PosSpdReplicator(Net_ReplicatorSetup *_setup, CVec *pos, CVec *spd);
 	
 	// TODO: Implement this for safeness sake
 		Net_Replicator* Duplicate(Net_Replicator *_dest)
@@ -56,8 +56,8 @@ class PosSpdReplicator : public Net_ReplicatorBasic
 	//const Vec& getLastUpdate();
 	
 	private:
-		Encoding::VectorEncoding& encoding;
-		Encoding::DiffVectorEncoding& diffEncoding;
+		Encoding::VectorEncoding& encoding();
+		Encoding::DiffVectorEncoding& diffEncoding();
 };
 
 #endif
