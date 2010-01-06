@@ -957,7 +957,7 @@ void CWormHumanInputHandler::gusInit()
 void CWormHumanInputHandler::gusShutdown()
 {
 #ifndef DEDICATED_ONLY
-	delete m_viewport;
+	//delete m_viewport; m_viewport = NULL;
 #endif
 }
 
