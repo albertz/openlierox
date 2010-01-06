@@ -66,6 +66,8 @@ CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m
 	cGameScript = NULL;
 	cWeaponRest = NULL;
 	m_type = NULL;
+	m_node = NULL;
+	m_interceptor = NULL;
 
 	bUsed = false;
 	Clear();
