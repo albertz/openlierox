@@ -72,11 +72,7 @@ enum {
 enum eNet_Event {
 	eNet_EventUser,
 	eNet_EventInit,
-	eNet_EventRemoved,
-	
-	eNet_EventFile_Incoming,
-	eNet_EventFile_Complete,
-	eNet_EventFile_Data
+	eNet_EventRemoved
 };
 
 
