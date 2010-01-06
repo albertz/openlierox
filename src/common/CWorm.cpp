@@ -297,6 +297,7 @@ void CWorm::Prepare(bool serverSide)
 		gusShutdown();
 		gusInit();
 		game.onNewWorm(this);
+		NetWorm_Init(bLocal);
 	}
 }
 

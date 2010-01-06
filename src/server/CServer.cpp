@@ -278,6 +278,8 @@ int GameServer::StartServer()
 
 	SetSocketWithEvents(true);
 	
+	network.olxHost();
+	
 	return true;
 }
 

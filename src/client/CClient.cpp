@@ -1296,6 +1296,8 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 		if(bDedicated && ply->iType == PRF_HUMAN->toInt())
 			warnings << "JoinServer: player " << player << " is a human - a human cannot be used in dedicated mode" << endl;
 		else {
+			// this is the current (ugly) way to tell CClient to create a local worm later on with that profile
+			// that is done in CClientNetEngine::ParseConnected or updateAddedWorms
 			cClient->getLocalWormProfiles()[0] = ply;
 			cClient->setNumWorms(1);
 		}
@@ -1881,6 +1883,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			if(!cClient->getWorm(i)->ChangeGraphics(cClient->getGeneralGameType()))
 				warnings << "updateAddedWorms: changegraphics for worm " << serverWorm->getID() << " failed" << endl;
 			
+			cClient->getWorm(i)->NetWorm_Init(true);
 			
 			// gameready means that we had a preparegame package
 			// status==NET_PLAYING means that we are already playing

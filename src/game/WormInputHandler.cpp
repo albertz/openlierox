@@ -112,6 +112,8 @@ void CWormInputHandler::deleteThis()
 	} else {
 		delete this;
 	}
+	
+	m_worm->m_inputHandler = NULL;
 }
 
 

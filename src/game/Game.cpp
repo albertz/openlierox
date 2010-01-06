@@ -45,6 +45,11 @@ void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
 
+	if(tLX->iGameType == GME_JOIN)
+		// in CServer::StartServer, we call olxHost
+		// we must do the same here now in case of client
+		network.olxConnect();
+	
 	while(cClient->getStatus() != NET_CONNECTED) {
 		notes << "client not connected yet - waiting" << endl;
 		SDL_Delay(10);
@@ -91,12 +96,7 @@ void Game::prepareGameloop() {
 	}
 	
 	PhysicsEngine::Init();
-	
-	if(tLX->iGameType == GME_JOIN)
-		network.olxConnect();
-	else
-		network.olxHost();
-	
+		
 	ClearEntities();
 	
 	ProcessEvents();
