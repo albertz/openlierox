@@ -1,0 +1,12 @@
+#!/bin/sh
+
+CFGDIR=/etc/openlierox-dedicated
+if [ -n "$1" ] ; then
+	CFGDIR="$1"
+fi
+for f in "$CFGDIR/*.py"; do
+	config=`basename $f | sed 's/[.]py$//'`
+	openlierox -dedicated -exec "script dedicated_control $CFGDIR/$config" > ded_$config.log &
+done
+
+wait
