@@ -360,7 +360,7 @@ bool Net_BitStream::runTests()
 
 
 static const Net_NodeID UNIQUE_NODE_ID = 0; // unique nodes are local-only nodes
-static const Net_NodeID INVALID_NODE_ID = 0;
+static const Net_NodeID INVALID_NODE_ID = Net_NodeID(-1);
 
 struct Net_Control::NetControlIntern {
 	bool isServer;
@@ -439,7 +439,7 @@ struct Net_Control::NetControlIntern {
 
 struct Net_Node::NetNodeIntern {
 	NetNodeIntern() :
-	control(NULL), classId(Net_ClassID(-1)), nodeId(Net_NodeID(-1)), role(eNet_RoleUndefined),
+	control(NULL), classId(Net_ClassID(-1)), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
 	eventForInit(false), eventForRemove(false),
 	forthcomingReplicatorInterceptID(0), interceptor(NULL) {}
 	~NetNodeIntern() { clearReplicationSetup(); }
