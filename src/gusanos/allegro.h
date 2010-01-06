@@ -112,7 +112,7 @@ int makecol(int r, int g, int b);
 int makecol_depth(int color_depth, int r, int g, int b);
 
 #define TRACE printf
-#define allegro_message printf
+#define allegro_message(str) notes("Allegro: " str "\n")
 
 extern int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
            _rgb_r_shift_16, _rgb_g_shift_16, _rgb_b_shift_16,

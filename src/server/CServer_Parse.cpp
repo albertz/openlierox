@@ -173,7 +173,7 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			break;
 				
 		case C2S_GUSANOS:
-			network.olxParse(*bs);
+			network.olxParse(NetConnID_conn(cl), *bs);
 			break;
 
 		default:

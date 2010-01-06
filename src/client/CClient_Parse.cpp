@@ -656,7 +656,7 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				break;
 				
 			case S2C_GUSANOS:
-				network.olxParse(*bs);
+				network.olxParse(NetConnID_server(), *bs);
 				break;
 				
 			default:

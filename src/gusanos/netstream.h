@@ -65,10 +65,6 @@ enum {
 	Net_CLASSFLAG_ANNOUNCEDATA = 1
 };
 
-enum {
-	Net_FTRANS_ID_BITS = sizeof(Net_FileTransID) * 8
-};
-
 enum eNet_Event {
 	eNet_EventUser,
 	eNet_EventInit,
@@ -205,7 +201,7 @@ struct Net_Control : DontCopyTag {
 	void Net_requestNetMode(Net_ConnID, int);
 
 	void olxSend(bool sendPendingOnly);
-	void olxParse(CBytestream& bs);
+	void olxParse(Net_ConnID src, CBytestream& bs);
 	
 	void Net_processOutput();
 	void Net_processInput();

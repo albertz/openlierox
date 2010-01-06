@@ -409,9 +409,9 @@ void Network::setClient(bool v)
 	m_client = v;
 }
 
-void Network::olxParse(CBytestream& bs) {
+void Network::olxParse(Net_ConnID src, CBytestream& bs) {
 	if(m_control)
-		m_control->olxParse(bs);
+		m_control->olxParse(src, bs);
 	else {
 		errors << "GusNetwork::olxParse: net control not initialised" << endl;
 		bs.SkipAll();
