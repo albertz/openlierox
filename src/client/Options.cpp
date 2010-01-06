@@ -403,6 +403,9 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	if (iJpegQuality > 100)
 		iJpegQuality = 100;
 
+	if(tLXOptions->sForceMinVersion == "")
+		tLXOptions->sForceMinVersion = "LieroX/0.56";
+	
 	notes << "DONE loading options" << endl;
 
 	return true;
