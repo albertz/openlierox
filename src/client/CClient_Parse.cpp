@@ -382,6 +382,11 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->bHostAllowsStrafing = false;
 	}
 	
+	if(tLX->iGameType == GME_JOIN)
+		// in CServer::StartServer, we call olxHost
+		// we must do the same here now in case of client
+		network.olxConnect();	
+	
 	// Log the connecting
 	if (!isReconnect && tLXOptions->bLogConvos && convoLogger)
 		convoLogger->enterServer(client->getServerName());
