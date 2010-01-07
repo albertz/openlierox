@@ -186,7 +186,7 @@ public:
 	void runInitScripts();
 	void addBot();
 	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
-	CWormInputHandler* addPlayer( PLAYER_TYPE type, CWorm* worm = 0 );
+	CWormInputHandler* addPlayer( PLAYER_TYPE type, CWorm* worm );
 	CWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
 	//static Net_Node* getNode();
 	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* data, Net_ConnID connID);

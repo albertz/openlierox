@@ -301,7 +301,7 @@ void CWorm::Prepare(bool serverSide)
 				Net_ConnID _id = NetConnID_conn(cl);
 				this->setOwnerId(_id);
 				
-				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
+				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY, this );
 			
 				unsigned int uniqueID = 0;
 				do {
