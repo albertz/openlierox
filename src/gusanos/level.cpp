@@ -16,6 +16,7 @@
 #include "culling.h"
 #include "events.h"
 #include "gusgame.h"
+#include "CWorm.h"
 
 
 #include "gusanos/allegro.h"
@@ -383,7 +384,9 @@ namespace
 {
 	bool canPlayerRespawn(CWormInputHandler* player, SpawnPoint const& point)
 	{
-		if(gusGame.options.teamPlay && point.team != -1 && point.team != player->team)
+		if(player->worm() == NULL) return false;
+		// point.team - 1 because OLX team numbers start at 0, Gus team numbers at 1
+		if(gusGame.options.teamPlay && (point.team != -1) && (point.team - 1 != player->worm()->getTeam()))
 			return false;
 		return true;
 	}

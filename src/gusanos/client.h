@@ -5,6 +5,7 @@
 //#include <string>
 
 struct PlayerOptions;
+class CWorm;
 
 class Client : public Net_Control
 {
@@ -13,14 +14,13 @@ public:
 	Client();
 	~Client();
 	
-	void requestPlayer(PlayerOptions const& playerOptions);
-	void requestPlayers();
-	void sendConsistencyInfo();
+	void finalizeConnect();
 		
 protected:
 
-	// called when initiated connection process yields a result
-	void Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply );
+	void requestPlayer(CWorm* worm);
+	void requestPlayers();
+	void sendConsistencyInfo();
 	
 	// connection has closed
 	void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata );

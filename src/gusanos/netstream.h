@@ -214,9 +214,6 @@ struct Net_Control : DontCopyTag {
 	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);
 		
 	// ------- virtual callbacks -----------
-
-	// called when initiated connection process yields a result
-	virtual void Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply ) = 0;
 		
 	virtual void Net_cbDataReceived( Net_ConnID id, Net_BitStream &data) = 0;
 	

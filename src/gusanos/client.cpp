@@ -16,29 +16,39 @@
 Client::Client() : Net_Control(false)
 {
 	Net_setControlID(0);
-	Net_setDebugName("Net_CLI");
+	Net_setDebugName("Net_CLI");	
+}
+
+void Client::finalizeConnect() {
+	// moved from Net_cbConnectResult; OLX does all the connection handling, we are immediatly connected here
+	network.setClient(true);
+	console.addLogMsg("* CONNECTION ACCEPTED");
+	network.incConnCount();
+	
+	// earlier, we did the mod/level loading here
+	// _reply contained two strings, containing level/mod name
+	sendConsistencyInfo();
+	Net_requestNetMode(NetConnID_server(), 1);
+	
+	requestPlayers();	
 }
 
 Client::~Client()
 {
 }
 
-void Client::requestPlayer(PlayerOptions const& playerOptions)
+void Client::requestPlayer(CWorm* worm)
 {
 	Net_BitStream *req = new Net_BitStream;
 	req->addInt(Network::PLAYER_REQUEST,8);
-	req->addString( playerOptions.name.c_str() );
-	req->addInt(playerOptions.colour, 24);
-	req->addSignedInt(playerOptions.team, 8);
-	req->addInt(playerOptions.uniqueID, 32);
+	req->addInt(worm->getID(), 8);
 	Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
 void Client::requestPlayers()
 {
-	requestPlayer(*gusGame.playerOptions[0]);
-	if ( gusGame.options.splitScreen )
-		requestPlayer(*gusGame.playerOptions[1]);
+	for(int i = 0; i < cClient->getNumWorms(); i++)
+		requestPlayer(cClient->getWorm(i));
 }
 
 void Client::sendConsistencyInfo()
@@ -48,38 +58,6 @@ void Client::sendConsistencyInfo()
 	req->addInt(Network::protocolVersion, 32);
 	gusGame.addCRCs(req.get());
 	Net_sendData( network.getServerID(), req.release(), eNet_ReliableOrdered );
-}
-
-void Client::Net_cbConnectResult( Net_ConnID _id, eNet_ConnectResult _result, Net_BitStream &_reply )
-{
-	if ( _result != eNet_ConnAccepted )
-	{
-		Network::ConnectionReply::type r = static_cast<Network::ConnectionReply::type>(_reply.getInt(8));
-		if(r == Network::ConnectionReply::Retry)
-		{
-			DLOG("Got retry from server");
-			network.olxReconnect(50);
-		}
-		else if(r == Network::ConnectionReply::Banned)
-		{
-			console.addLogMsg("* YOU ARE BANNED FROM THIS SERVER");
-		}
-		else
-		{
-			console.addLogMsg("* COULDNT ESTABLISH CONNECTION");
-		}
-	}
-	else
-	{
-		network.setClient(true);
-		console.addLogMsg("* CONNECTION ACCEPTED");
-		network.incConnCount();
-
-		// earlier, we did the mod/level loading here
-		// _reply contained two strings, containing level/mod name
-		sendConsistencyInfo();
-		Net_requestNetMode(_id, 1);
-	}
 }
 
 void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
@@ -179,7 +157,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 	// check the requested class
 	if ( _requested_class == CWorm::classID )
 	{
-		gusGame.addWorm(false);
+		// TODO ...
 	}else if ( _requested_class == CWormInputHandler::classID )
 	{
 		// Creates a player class depending on the role

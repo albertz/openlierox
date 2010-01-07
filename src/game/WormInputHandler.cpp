@@ -52,9 +52,6 @@ void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
 {
 	stats = shared_ptr<Stats>(new Stats());
 	deleteMe=(false);
-	// TODO: OLX col/team
-	colour=(options->colour);
-	team=(options->team);
 	
 	local=(false);
 	m_options=(options);
@@ -223,33 +220,10 @@ void CWormInputHandler::think()
 							case SYNC: {
 								stats->kills = data->getInt(32);
 								stats->deaths = data->getInt(32);
-								m_name = data->getStringStatic();
-								colour = data->getInt(24);
-								team = data->getSignedInt(8);
 								m_options->uniqueID = static_cast<unsigned int>(data->getInt(32));
 							}
 								break;
-								
-							case NAME_CHANGE: {
-								changeName_( data->getStringStatic() );
-							}
-								break;
-								
-							case COLOR_CHANGE: {
-								changeColor_(data->getInt(24));
-							}
-								break;
-								
-							case TEAM_CHANGE: {
-								changeTeam_(data->getSignedInt(8));
-							}
-								break;
-								
-							case CHAT_MSG: {
-								sendChatMsg( data->getStringStatic() );
-							}
-								break;
-								
+																								
 							case SELECT_WEAPONS: {
 								size_t size = Encoding::decode(*data, gusGame.options.maxWeapons+1);
 								if(size > gusGame.options.maxWeapons)
@@ -294,39 +268,7 @@ void CWormInputHandler::think()
 			}
 		}
 	}
-	
-	if ( m_options->nameChanged() ) {
-		if ( m_node ) {
-			if ( m_isAuthority ) {
-				changeName_( m_options->name );
-			} else {
-				nameChangePetition();
-			}
-		} else {
-			changeName_(m_options->name);
-		}
-	}
-	
-	if( m_options->colorChanged() ) {
-		if ( m_node ) {
-			if(m_isAuthority)
-				changeColor_(m_options->colour);
-			else
-				colorChangePetition_(m_options->colour);
-		} else
-			changeColor_(m_options->colour);
-	}
-	
-	if( m_options->teamChanged() ) {
-		if ( m_node ) {
-			if(m_isAuthority)
-				changeTeam_(m_options->team);
-			else
-				teamChangePetition_(m_options->team);
-		} else
-			changeTeam_(m_options->team);
-	}
-	
+		
 	EACH_CALLBACK(i, playerUpdate) {
 		(lua.call(*i), getLuaReference())();
 	}
@@ -370,129 +312,6 @@ void CWormInputHandler::addActionStop(Net_BitStream* data, CWormInputHandler::Ba
 	
 	data->addInt(static_cast<int>(action),8 );
 #endif
-}
-
-bool nameIsTaken( const std::string& name )
-{
-	list<CWormInputHandler*>::iterator playerIter;
-	for ( playerIter = game.players.begin(); playerIter != game.players.end(); playerIter++ ) {
-		if ( (*playerIter)->m_name == name ) {
-			return true;
-		}
-	}
-	return false;
-}
-
-void CWormInputHandler::changeName( std::string const& name)
-{
-	m_options->changeName(name);
-}
-
-void CWormInputHandler::localChangeName(std::string const& name, bool forceChange)
-{
-	if(m_name == name)
-		return;
-	
-	string nameToUse = name;
-	
-	if(!forceChange) {
-		int nameSuffix = 0;
-		while ( nameIsTaken( nameToUse ) ) {
-			++nameSuffix;
-			nameToUse = name + "(" + cast<string>(nameSuffix) + ")";
-		}
-	}
-	
-	if(!m_name.empty())
-		console.addLogMsg( "* " + m_name + " CHANGED NAME TO " + nameToUse );
-	
-	m_name = nameToUse;
-}
-
-void CWormInputHandler::changeName_( const std::string& name )
-{
-	if(m_isAuthority) {
-		localChangeName(name);
-		if ( m_node ) {
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, NAME_CHANGE);
-			data->addString( m_name.c_str() );
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	} else {
-		localChangeName(name, true);
-	}
-}
-
-void CWormInputHandler::nameChangePetition()
-{
-	if ( m_node ) {
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, NAME_CHANGE);
-		data->addString( m_options->name.c_str() );
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
-	}
-}
-
-void CWormInputHandler::changeColor_( int colour_ )
-{
-	if(m_isAuthority) {
-		colour = colour_;
-		if ( m_node ) {
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, COLOR_CHANGE);
-			data->addInt( colour, 24 );
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	} else {
-		colour = colour_;
-	}
-}
-
-void CWormInputHandler::colorChangePetition_( int colour_ )
-{
-	if ( m_node ) {
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, COLOR_CHANGE);
-		data->addInt( colour_, 24 );
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
-	}
-}
-
-void CWormInputHandler::changeTeam_( int team_ )
-{
-	if(m_isAuthority) {
-		team = team_;
-		if ( m_node ) {
-			Net_BitStream *data = new Net_BitStream;
-			addEvent(data, TEAM_CHANGE);
-			data->addSignedInt( team, 8 );
-			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-		}
-	} else {
-		team = team_;
-	}
-}
-
-void CWormInputHandler::teamChangePetition_( int team_ )
-{
-	if ( m_node ) {
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, TEAM_CHANGE);
-		data->addSignedInt( team_, 8 );
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH, data);
-	}
-}
-
-void CWormInputHandler::sendChatMsg( std::string const& message )
-{
-	gusGame.displayChatMsg( m_name, message );
-	if ( m_node ) {
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, CHAT_MSG);
-		data->addString( message.c_str() );
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH|Net_REPRULE_AUTH_2_PROXY, data);
-	}
 }
 
 void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
@@ -573,9 +392,6 @@ void CWormInputHandler::sendSyncMessage( Net_ConnID id )
 	addEvent(data, SYNC);
 	data->addInt(stats->kills, 32);
 	data->addInt(stats->deaths, 32);
-	data->addString( m_name.c_str() );
-	data->addInt(colour, 24);
-	data->addSignedInt(static_cast<int>(team), 8);
 	data->addInt(static_cast<int>(m_options->uniqueID), 32);
 	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }

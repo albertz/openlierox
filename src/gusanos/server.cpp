@@ -37,32 +37,21 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
 	switch( event ) {
 			case Network::PLAYER_REQUEST: {
-				std::string name = _data.getStringStatic();
-				int colour = _data.getInt(24);
-				int team = _data.getSignedInt(8);
-				unsigned int uniqueID = static_cast<unsigned int>(_data.getInt(32));
+				int wormid = _data.getInt(8);
+				unsigned int uniqueID = 0;
 
-				CWorm* worm = gusGame.addWorm(true);
+				CWorm* worm = (wormid >= 0 && wormid < MAX_WORMS) ? &cClient->getRemoteWorms()[wormid] : NULL;
 				worm->setOwnerId(_id);
 				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
 
-				let_(i, savedScores.find(uniqueID));
-				if(i != savedScores.end()) {
-					player->stats = i->second;
-					player->getOptions()->uniqueID = uniqueID;
-				} else {
-					do {
-						uniqueID = rndgen();
-					} while(!uniqueID);
+				do {
+					uniqueID = rndgen();
+				} while(!uniqueID);
 
-					player->getOptions()->uniqueID = uniqueID;
-					savedScores[uniqueID] = player->stats;
-				}
+				player->getOptions()->uniqueID = uniqueID;
+				savedScores[uniqueID] = player->stats;
 
-				player->colour = colour;
-				player->team = team;
-				player->localChangeName( name );
-				console.addLogMsg( "* " + player->m_name + " HAS JOINED THE GAME");
+				console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
 				player->assignNetworkRole(true);
 				player->setOwnerId(_id);
 				player->assignWorm(worm);

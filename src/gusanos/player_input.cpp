@@ -10,6 +10,7 @@
 #include "util/log.h"
 #include "util/stringbuild.h"
 #include "game/Game.h"
+#include "CClientNetEngine.h"
 #include <boost/bind.hpp>
 
 #include <string>
@@ -101,11 +102,14 @@ void registerPlayerInput()
 
 string say( const list<string> &args )
 {
+	
 	if ( !args.empty() )
 	{
 		if ( !game.localPlayers.empty() )
 		{
-			game.localPlayers[0]->sendChatMsg( *(args.begin()) );
+			CWorm* w = game.localPlayers[0]->worm();
+			if(w)
+				cClient->getNetEngine()->SendText(*(args.begin()), w->getName());
 		}
 	}
 	else

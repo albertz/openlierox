@@ -54,6 +54,8 @@ public:
 	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm) { gusInit(options, worm); }
 	virtual ~CWormInputHandler() { gusShutdown(); }
 	
+	CWorm* worm() const { return m_worm; }
+	
 	virtual std::string name() = 0;
 	
 	virtual void initWeaponSelection() = 0; // should reset at least bWeaponsReady
@@ -96,11 +98,7 @@ public:
 		SYNC = 0,
 		ACTION_STOP,
 		ACTION_START,
-		NAME_CHANGE,
-		CHAT_MSG,
-		COLOR_CHANGE,
 		SELECT_WEAPONS,
-		TEAM_CHANGE,
 		LuaEvent,
 		//
 		EVENT_COUNT,
@@ -155,7 +153,6 @@ public:
 	void assignWorm(CWorm* worm);
 	void removeWorm();
 	
-	void sendChatMsg( std::string const& message );
 	void sendSyncMessage( Net_ConnID id ); // Its the initializing message that is sent to new clients that recieve the node.
 	
 	void nameChangePetition(); // Asks the server to change the name to the one in the player options.
@@ -180,33 +177,22 @@ public:
 	
 	bool deleteMe;
 	
-	std::string m_name;
+/*	std::string m_name;
 	int colour;
-	int team;
+	int team;*/
 	bool local;
 	
 	LuaReference luaData;
 	
 	void selectWeapons( std::vector< WeaponType* > const& weaps );
 	
-	void changeName( std::string const& name);
-	
-	// Changes the name only locally
-	void localChangeName(std::string const& name, bool forceChange = false);
 protected:
 	LuaReference luaReference;
 	
 	void addEvent(Net_BitStream* data, NetEvents event);
 	void addActionStart(Net_BitStream* data, BaseActions action);
 	void addActionStop(Net_BitStream* data, BaseActions action);
-	
-	void changeName_( const std::string& name ); // Changes the name and if its server it will tell all clients about it.	
-	
-	void changeColor_( int colour_ );
-	void colorChangePetition_( int colour_ );
-	void changeTeam_( int team_ );
-	void teamChangePetition_( int team_ );
-	
+		
 	shared_ptr<PlayerOptions> m_options;
 	
 	bool m_isAuthority;

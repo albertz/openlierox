@@ -17,6 +17,7 @@
 #include "util/stringbuild.h"
 #include "CMap.h"
 #include "game/Game.h"
+#include "CClientNetEngine.h"
 
 #include <cmath>
 #include <iostream>
@@ -161,8 +162,11 @@ METHODC(CWormInputHandler, player_deaths,  {
 	Returns the name of the player.
 */
 METHODC(CWormInputHandler, player_name,  {
-	context.push(p->m_name.c_str());
-	return 1;
+	if(p->worm()) {
+		context.push(p->worm()->getName().c_str());
+		return 1;
+	}
+	return 0;
 })
 
 /*! CWormHumanInputHandler:team()
@@ -170,8 +174,12 @@ METHODC(CWormInputHandler, player_name,  {
 	Returns the team number of the player.
 */
 METHODC(CWormInputHandler, player_team,  {
-	context.push(p->team);
-	return 1;
+	if(p->worm()) {
+		// +1 because OLX team nrs start at 0, gus team nrs at 1
+		context.push(p->worm()->getTeam() + 1);
+		return 1;		
+	}
+	return 0;
 })
 
 /*! CWormHumanInputHandler:worm()
@@ -242,8 +250,10 @@ METHODC(CWormInputHandler, player_stats,  {
 */
 METHODC(CWormInputHandler, player_say,  {
 	char const* s = context.tostring(2);
-	if(s)
-		p->sendChatMsg(s);
+	CWorm* w = p->worm();
+	if(s && w) {
+		cClient->getNetEngine()->SendText(s, w->getName());
+	}
 	return 0;
 })
 

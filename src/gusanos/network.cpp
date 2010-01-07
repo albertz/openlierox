@@ -301,6 +301,8 @@ void Network::olxConnect()
 	//m_client = true; // We wait with setting this until we've connected
 	setLuaState(StateConnecting);
 	SET_STATE(Idle);
+	
+	((Client*)m_control)->finalizeConnect();
 }
 
 void Network::disconnect( DConnEvents event )

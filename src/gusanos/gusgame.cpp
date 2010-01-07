@@ -236,20 +236,6 @@ string rConCompleter(Console* con, int idx, std::string const& beginning)
 	return con->completeCommand(beginning);
 }
 
-CWormInputHandler* findPlayerByName(std::string const& name)
-{
-	//CWormInputHandler* player2Kick = 0;
-	//for ( std::list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
-	foreach(iter, game.players)
-	{
-		if ( (*iter)->m_name == name )
-		{
-			return *iter;
-		}
-	}
-	
-	return 0;
-}
 
 string banCmd(list<string> const& args)
 {
@@ -264,9 +250,9 @@ string kickCmd(const list<string> &args)
 struct BasePlayerIterGetText
 {
 	template<class IteratorT>
-	std::string const& operator()(IteratorT i) const
+	std::string operator()(IteratorT i) const
 	{
-		return (*i)->m_name;
+		return (*i)->worm()->getName();
 	}
 };
 
@@ -1082,13 +1068,13 @@ void GusGame::displayChatMsg( std::string const& owner, std::string const& messa
 
 void GusGame::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer )
 {
-	std::string str = "{" + killed->m_name + "} ";
+	std::string str = "{" + killed->worm()->getName() + "} ";
 	
 	if(killed != killer)
 	{
 		str += "got killed by";
 		if(killer)
-			str += " {" + killer->m_name + '}';
+			str += " {" + killer->worm()->getName() + '}';
 		else
 			str += " {\01305anonymous}";
 	}

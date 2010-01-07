@@ -91,17 +91,7 @@ public:
 			Max
 		};
 	};
-	
-	struct ConnectionReply
-	{
-		enum type
-		{
-			Refused = 0,
-			Retry,
-			Banned,
-		};
-	};
-	
+		
 	struct LuaEventGroup
 	{
 		enum type

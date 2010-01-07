@@ -104,8 +104,6 @@ PlayerAI::PlayerAI(int team_, CWorm* worm)
 , m_movingLeft(false)
 , m_shooting(false)
 {
-	colour = universalColor((Uint8)rndInt(256), (Uint8)rndInt(256), (Uint8)rndInt(256));
-	team = team_;
 }
 
 PlayerAI::~PlayerAI()
@@ -128,8 +126,8 @@ void PlayerAI::getTarget()
 	for ( Grid::iterator worm = game.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
 	{
 		if ( worm->getOwner() != this )
-		if ( !gusGame.options.teamPlay || (worm->getOwner()->team != team || team == -1) )
 		if ( CWorm * tmpWorm = dynamic_cast<CWorm*>(&*worm) )
+		if ( !gusGame.options.teamPlay || (tmpWorm->getTeam() != m_worm->getTeam()) )
 		if ( tmpWorm->isActive() )
 		{
 			bool blocked = checkMaterialsTo( worm->pos() );
