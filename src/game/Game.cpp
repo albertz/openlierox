@@ -347,3 +347,12 @@ CGameScript* Game::gameScript() {
 	}
 	return NULL;
 }
+
+bool Game::isServer() {
+	return tLX->iGameType != GME_JOIN;
+}
+
+bool Game::needToCreateOwnWormInputHandlers() {
+	return isServer() || (cClient->getServerVersion() < OLXVersion(0, 59));
+}
+

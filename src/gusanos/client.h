@@ -15,8 +15,6 @@ public:
 	~Client();
 			
 protected:	
-	void requestPlayer(CWorm* worm);
-	void requestPlayers();
 	void sendConsistencyInfo();
 	
 	// connection has closed

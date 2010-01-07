@@ -189,21 +189,7 @@ string gameCompleter(Console* con, int idx, std::string const& beginning)
 
 string addbotCmd(const list<string> &args)
 {
-	if ( !network.isClient() )
-	{
-		int team = -1;
-		list<string>::const_iterator i = args.begin();
-		if(i != args.end())
-		{
-			team = cast<int>(*i);
-			++i;
-		}
-		gusGame.addBot(team);
-		return "";
-	}else
-	{
-		return "You cant add bots as client";
-	}
+	return "Gusanos addbot command not supported - use OLX interface";
 }
 
 string connectCmd(const list<string> &args)
@@ -497,13 +483,13 @@ void GusGame::think()
 					if(true)
 					{
 						CWorm* worm = addWorm(true);
-						addPlayer ( OWNER, -1, worm );
+						addPlayer ( OWNER, worm );
 						//player->assignWorm(worm);
 					}
 					if(options.splitScreen)
 					{
 						CWorm* worm = addWorm(true);
-						addPlayer ( OWNER, -1, worm );
+						addPlayer ( OWNER, worm );
 						//player->assignWorm(worm);
 					}
 				}
@@ -897,7 +883,7 @@ void GusGame::refreshMods()
 void GusGame::createNetworkPlayers()
 {
 	CWorm* worm = addWorm(true);
-	CWormInputHandler* player = addPlayer ( OWNER, -1, worm );
+	CWormInputHandler* player = addPlayer ( OWNER, worm );
 	player->assignNetworkRole(true);
 	//player->assignWorm(worm);
 
@@ -905,7 +891,7 @@ void GusGame::createNetworkPlayers()
 	{
 		// TODO: Factorize all this out, its being duplicated on client.cpp also :O
 		CWorm* worm = addWorm(true); 
-		CWormInputHandler* player = addPlayer ( OWNER, -1, worm );
+		CWormInputHandler* player = addPlayer ( OWNER, worm );
 		player->assignNetworkRole(true);
 		//player->assignWorm(worm);
 	}
@@ -1129,45 +1115,21 @@ void GusGame::insertExplosion( Explosion* explosion )
 #endif
 }
 
-CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
+CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, CWorm* worm )
 {
-	CWormInputHandler* p = 0;
 	switch(type)
 	{
-		
 		case OWNER:
-		{
-			if ( game.localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
-			// TODO: gusGame::addplayer
-			CWormHumanInputHandler* player = NULL; // new CWormHumanInputHandler( playerOptions[localPlayers.size()], worm );
-
-			game.onNewPlayer( player );
-			game.onNewHumanPlayer( player );
-			game.onNewHumanPlayer_Lua( player );
-			p = player;
-		}
-		break;
+			return new CWormHumanInputHandler( worm );
 				
 		case PROXY:
-		{
-			ProxyPlayer* player = new ProxyPlayer(worm);
-			game.onNewPlayer( player );
-			p = player;
-		}
-		break;
+			return new ProxyPlayer(worm);
 		
 		case AI:
-		{
-			PlayerAI* player = new PlayerAI(team, worm);
-			game.onNewPlayer( player );
-			p = player;
-		}
+			return new PlayerAI(worm);
 	}
-	
-	if(p)
-		game.onNewPlayer_Lua(p);
-	
-	return p;
+		
+	return NULL;
 }
 
 CWorm* GusGame::addWorm(bool isAuthority)
@@ -1192,12 +1154,12 @@ CWorm* GusGame::addWorm(bool isAuthority)
 	return returnWorm;
 }
 
-void GusGame::addBot(int team)
+void GusGame::addBot()
 {
 	if ( loaded && level().gusIsLoaded() )
 	{
 		CWorm* worm = addWorm(true); 
-		CWormInputHandler* player = addPlayer(AI, team, worm);
+		CWormInputHandler* player = addPlayer(AI, worm);
 		if ( network.isHost() ) player->assignNetworkRole(true);
 		//player->assignWorm(worm);
 	}

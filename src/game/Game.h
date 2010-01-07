@@ -37,6 +37,10 @@ public:
 	void onNewHumanPlayer(CWormHumanInputHandler*);
 	void onNewHumanPlayer_Lua(CWormHumanInputHandler*);
 	
+	bool isServer();
+	bool isClient() { return !isServer(); }
+	bool needToCreateOwnWormInputHandlers();
+	
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::list<CWormInputHandler*> players;
 	

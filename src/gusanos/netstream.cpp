@@ -568,9 +568,11 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 	if(intern->packetsToSend.size() == 0) return;
 		
 	if(tLX->iGameType == GME_JOIN) {
-		CBytestream bs;
-		if(composePackagesForConn(bs, this, NetConnID_server()))
-			cClient->getChannel()->AddReliablePacketToSend(bs);
+		if(cClient->getServerVersion() >= OLXVersion(0,59)) {
+			CBytestream bs;
+			if(composePackagesForConn(bs, this, NetConnID_server()))
+				cClient->getChannel()->AddReliablePacketToSend(bs);
+		}
 	} else {
 		// send to all except local client
 		CServerConnection *cl = cServer->getClients();
@@ -578,6 +580,7 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
 			if(cl->getNetEngine() == NULL) continue;
 			if(cl->isLocalClient()) continue;
+			if(cl->getClientVersion() < OLXVersion(0,59)) continue;
 			
 			CBytestream bs;
 			if(composePackagesForConn(bs, this, NetConnID_conn(cl)))

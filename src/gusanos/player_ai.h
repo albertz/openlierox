@@ -11,7 +11,7 @@
 class PlayerAI : public CWormInputHandler
 {
 	public:
-	PlayerAI(int team_, CWorm* worm);
+	PlayerAI(CWorm* worm);
 	~PlayerAI();
 	
 	void initWeaponSelection() {}

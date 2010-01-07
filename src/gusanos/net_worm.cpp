@@ -31,7 +31,7 @@ Net_ClassID CWorm::classID = INVALID_CLASS_ID;
 const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
 void CWorm::NetWorm_Init(bool isAuthority)
-{
+{	
 	if(m_ninjaRope == NULL) {
 		errors << "CWorm::NetWorm_Init: ninja rope is NULL, should not have happend here" << endl;
 		gusInit(); // hack, try to make it initialised

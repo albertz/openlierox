@@ -33,26 +33,10 @@ void Client::Net_cbConnectResult(eNet_ConnectResult res) {
 	// _reply contained two strings, containing level/mod name
 	sendConsistencyInfo();
 	Net_requestNetMode(NetConnID_server(), 1);
-	
-	requestPlayers();	
 }
 
 Client::~Client()
 {
-}
-
-void Client::requestPlayer(CWorm* worm)
-{
-	Net_BitStream *req = new Net_BitStream;
-	req->addInt(Network::PLAYER_REQUEST,8);
-	req->addInt(worm->getID(), 8);
-	Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
-}
-
-void Client::requestPlayers()
-{
-	for(int i = 0; i < cClient->getNumWorms(); i++)
-		requestPlayer(cClient->getWorm(i));
 }
 
 void Client::sendConsistencyInfo()
@@ -207,8 +191,9 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: worm " << wormid << ":" << worm->getName() << " is a local worm, so we should be authority" << endl;
 			return;
 		}
-				
-		CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY, 0, worm );
+
+		// Creates a player class depending on the role
+		CWormInputHandler* player = gusGame.addPlayer ( (_role == eNet_RoleOwner) ? GusGame::OWNER : GusGame::PROXY, worm );
 		player->assignNetworkRole(false);
 		
 		if(worm->m_inputHandler) {
@@ -219,19 +204,6 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		}
 		
 		worm->m_inputHandler = player;
-		
-		/*
-		 // Creates a player class depending on the role
-		if( _role == eNet_RoleOwner )
-		{
-			CWormInputHandler* player = gusGame.addPlayer ( GusGame::OWNER );
-			player->assignNetworkRole(false);
-		}else
-		{
-			CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
-			player->assignNetworkRole(false);
-		}
-		 */
 	}else if( _requested_class == Particle::classID )
 	{
 		int typeIndex = Encoding::decode(*_announcedata, partTypeList.size());

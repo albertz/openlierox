@@ -36,27 +36,6 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 {
 	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
 	switch( event ) {
-			case Network::PLAYER_REQUEST: {
-				int wormid = _data.getInt(8);
-				unsigned int uniqueID = 0;
-
-				CWorm* worm = (wormid >= 0 && wormid < MAX_WORMS) ? &cClient->getRemoteWorms()[wormid] : NULL;
-				worm->setOwnerId(_id);
-				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
-
-				do {
-					uniqueID = rndgen();
-				} while(!uniqueID);
-
-				player->getOptions()->uniqueID = uniqueID;
-				savedScores[uniqueID] = player->stats;
-
-				console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
-				player->assignNetworkRole(true);
-				player->setOwnerId(_id);
-				player->assignWorm(worm);
-			}
-			break;
 			case Network::RConMsg: {
 				char const* passwordSent = _data.getStringStatic();
 				if ( !gusGame.options.rConPassword.empty() && gusGame.options.rConPassword == passwordSent ) {
@@ -84,8 +63,6 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
 	console.addLogMsg("* CONNECTION SPAWNED");
 	network.incConnCount();
-
-	
 	
 	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
 	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);

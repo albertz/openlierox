@@ -34,6 +34,8 @@
 #include "WeaponDesc.h"
 #include "Mutex.h"
 #include "game/Game.h"
+#include "gusanos/gusgame.h"
+#include "gusanos/player_options.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -278,8 +280,33 @@ void CWorm::Prepare(bool serverSide)
 		m_inputHandler = NULL;
 	}
 
-	if(!serverSide && bLocal) {
-		m_inputHandler = m_type->createInputHandler(this);
+	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
+		if(bLocal)
+			m_inputHandler = m_type->createInputHandler(this);
+		else {			
+			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
+			if(cl) {
+				Net_ConnID _id = NetConnID_conn(cl);
+				this->setOwnerId(_id);
+				
+				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
+			
+				unsigned int uniqueID = 0;
+				do {
+					uniqueID = rndgen();
+				} while(!uniqueID);
+				
+				player->getOptions()->uniqueID = uniqueID;
+				//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
+				
+				//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
+				player->assignNetworkRole(true);
+				player->setOwnerId(_id);
+				player->assignWorm(this);
+			}
+			else
+				errors << "CWorm::Prepare clientside: non local worm has no client set" << endl;
+		}
 	}
 	
 	if(serverSide) {
@@ -299,11 +326,11 @@ void CWorm::Prepare(bool serverSide)
 		gusShutdown();
 		gusInit();
 		game.onNewWorm(this);
-
-		// we announce authority worm-nodes here
-		// proxy worm-nodes are registered in Net_cbNodeRequest_Dynamic
+	}
+	
+	if(!serverSide)
+		// register network node
 		NetWorm_Init(true);		
-	}	
 }
 
 void CWorm::Unprepare() {

@@ -95,7 +95,7 @@ bool check_materials( int x1, int y1, int x2, int y2 )
    }
 }
 
-PlayerAI::PlayerAI(int team_, CWorm* worm)
+PlayerAI::PlayerAI(CWorm* worm)
 : CWormInputHandler(shared_ptr<PlayerOptions>(new PlayerOptions("bot")), worm)
 , m_pathSteps(100)
 , m_target(0)
@@ -104,6 +104,8 @@ PlayerAI::PlayerAI(int team_, CWorm* worm)
 , m_movingLeft(false)
 , m_shooting(false)
 {
+	game.onNewPlayer( this );
+	game.onNewPlayer_Lua( this );	
 }
 
 PlayerAI::~PlayerAI()
