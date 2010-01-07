@@ -518,7 +518,7 @@ void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
 static void writeEliasGammaNr(CBytestream& bs, size_t n) {
 	Net_BitStream bits;
 	Encoding::encodeEliasGamma(bits, n + 1);
-	bs.writeData(bits.data());
+	bs.writeData(bits.data().substr(0, (bits.bitSize() + 7) / 8));
 }
 
 static size_t readEliasGammaNr(CBytestream& bs) {
@@ -532,8 +532,8 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
 	if(type >= GPT_NodeInit) writeEliasGammaNr(bs, nodeID);
-	writeEliasGammaNr(bs, data.data().size());
-	bs.writeData(data.data());
+	writeEliasGammaNr(bs, (data.bitSize() + 7)/8);
+	bs.writeData(data.data().substr(0, (data.bitSize() + 7) / 8));
 }
 
 void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
