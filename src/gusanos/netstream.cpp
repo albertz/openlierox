@@ -518,7 +518,7 @@ static void writeEliasGammaNr(CBytestream& bs, size_t n) {
 
 static size_t readEliasGammaNr(CBytestream& bs) {
 	Net_BitStream bits(bs.data());
-	bits.getInt(bs.GetPos() * 8); // skip to bs pos
+	bits.setBitPos(bs.GetPos() * 8); // skip to bs pos
 	size_t len = Encoding::decodeEliasGamma(bits) - 1;
 	bs.Skip( (bits.bitPos() + 7) / 8 - bs.GetPos() );
 	return len;
@@ -535,7 +535,7 @@ void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
 	nodeID = (type == GPT_Direct) ? INVALID_NODE_ID : readEliasGammaNr(bs);
 	size_t len = readEliasGammaNr(bs);
-	data = Net_BitStream( bs.getRawData( bs.GetPos(), len ) );
+	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
 }
 
@@ -637,9 +637,14 @@ static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 			break; // nothing else we can do
 		}
 		
+		Net_BitStream peekStream(bs);
+		replicator->peekStream = &peekStream;
+		
 		bool store = true;
 		if(node->intern->interceptor)
 			store = node->intern->interceptor->inPreUpdateItem(node, cid, eNet_RoleAuthority, replicator);
+		
+		replicator->clearPeekData(); replicator->ptr = NULL;
 		
 		replicator->unpackData(&bs, store);
 	}
@@ -950,20 +955,21 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 
 	struct IntReplicator : Net_ReplicatorBasic {
 		Net_ReplicatorSetup setup;
-		Net_S32* n;
-		Net_S32 old;
+		typedef Net_S32 Num;
+		Num* n;
+		Num old;
 		int bits;
 		
 		IntReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
 		Net_Replicator* Duplicate(Net_Replicator*) { return new IntReplicator(*this); }		
 		
-		void* peekData() { return NULL; }
-		void clearPeekData() {}
+		void* peekData() { peekDataStore(new Num(peekStream->getInt(bits))); return peekDataRetrieve(); }
+		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { return *n != old; }
 		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
 		void unpackData(Net_BitStream *_stream, bool _store) {
-			Net_S32 i = _stream->getInt(bits);
+			Num i = _stream->getInt(bits);
 			if(_store) *n = i;
 		}
 	};
@@ -983,20 +989,21 @@ void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_R
 
 	struct FloatReplicator : Net_ReplicatorBasic {
 		Net_ReplicatorSetup setup;
-		Net_Float* n;
-		Net_Float old;
+		typedef Net_Float Num;
+		Num* n;
+		Num old;
 		int bits;
 		
 		FloatReplicator(const Net_ReplicatorSetup& s) : Net_ReplicatorBasic(&setup), setup(s) {}
 		Net_Replicator* Duplicate(Net_Replicator*) { return new FloatReplicator(*this); }		
 		
-		void* peekData() { return NULL; }
-		void clearPeekData() {}
+		void* peekData() { peekDataStore(new Num(peekStream->getFloat(bits))); return peekDataRetrieve(); }
+		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { return *n != old; }
 		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); }
 		void unpackData(Net_BitStream *_stream, bool _store) {
-			Net_Float i = _stream->getFloat(bits);
+			Num i = _stream->getFloat(bits);
 			if(_store) *n = i;
 		}
 	};

@@ -128,6 +128,8 @@ public:
 	
 	const std::string& data() const { return m_data; }
 	void resetPos() { m_readPos = 0; }
+	void setBitPos(size_t p) { m_readPos = p; }
+	void skipBits(size_t b) { m_readPos += b; }
 	size_t bitPos() const { return m_readPos; }
 	size_t bitSize() const { return m_size; }
 	size_t restBitSize() const { return m_size - m_readPos; }
