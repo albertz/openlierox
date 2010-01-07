@@ -293,7 +293,10 @@ void CWorm::correctOwnerPosition()
 
 void CWorm::setOwnerId( Net_ConnID _id )
 {
-	m_node->setOwner(_id);
+	if(m_node)
+		m_node->setOwner(_id);
+	else
+		errors << "CWorm::setOwnerId: network node == NULL" << endl;
 }
 
 

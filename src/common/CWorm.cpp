@@ -280,6 +280,18 @@ void CWorm::Prepare(bool serverSide)
 		m_inputHandler = NULL;
 	}
 
+	if(bLocal && !serverSide) {
+		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
+		// NOTE: this is only a workaround for now and not very elegant
+		gusShutdown();
+		gusInit();
+		game.onNewWorm(this);
+	}
+	
+	if(!serverSide)
+		// register network node
+		NetWorm_Init(true);		
+	
 	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
 		if(bLocal)
 			m_inputHandler = m_type->createInputHandler(this);
@@ -319,18 +331,6 @@ void CWorm::Prepare(bool serverSide)
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
 	bIsPrepared = true;
-	
-	if(bLocal && !serverSide) {
-		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
-		// NOTE: this is only a workaround for now and not very elegant
-		gusShutdown();
-		gusInit();
-		game.onNewWorm(this);
-	}
-	
-	if(!serverSide)
-		// register network node
-		NetWorm_Init(true);		
 }
 
 void CWorm::Unprepare() {
