@@ -72,7 +72,11 @@ enum eNet_Event {
 };
 
 
-static const Net_ClassID Net_Invalid_ID = Net_ClassID(-1);
+static const Net_NodeID UNIQUE_NODE_ID = 1; // unique nodes are local-only nodes
+static const Net_NodeID INVALID_NODE_ID = 0;
+static const Net_ClassID INVALID_CLASS_ID = 0;
+static const Net_ConnID INVALID_CONN_ID = 0;
+
 
 enum eNet_ConnectResult {
 	eNet_ConnAccepted
@@ -158,7 +162,7 @@ struct Net_Node : DontCopyTag {
 	Net_Node(); ~Net_Node();
 	
 	eNet_NodeRole getRole();
-	void setOwner(Net_ConnID, bool something);
+	void setOwner(Net_ConnID);
 	void setAnnounceData(Net_BitStream*);	
 	Net_NodeID getNetworkID();
 	
@@ -197,6 +201,7 @@ struct Net_Control : DontCopyTag {
 	virtual ~Net_Control();
 
 	void Shutdown();
+	void Net_ConnectToServer();
 	void Net_disconnectAll(Net_BitStream*);
 	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
 			
@@ -225,7 +230,9 @@ struct Net_Control : DontCopyTag {
 	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) = 0;
 	// called when a connection closed
 	virtual void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata ) = 0;
-
+	// called when we got connected to server
+	virtual void Net_cbConnectResult( eNet_ConnectResult res ) = 0;
+	
 };
 
 struct Net_Replicator {

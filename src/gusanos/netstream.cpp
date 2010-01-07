@@ -358,24 +358,34 @@ bool Net_BitStream::runTests()
 
 
 
-
-static const Net_NodeID UNIQUE_NODE_ID = 0; // unique nodes are local-only nodes
-static const Net_NodeID INVALID_NODE_ID = Net_NodeID(-1);
-
 struct Net_Control::NetControlIntern {
+	NetControlIntern() {
+		isServer = false;
+		controlId = 0;
+		myConnIdOnServer = INVALID_CONN_ID;
+		cbNodeRequest_Dynamic = false;
+		cbNodeRequest_nodeId = INVALID_NODE_ID;
+	}
+
 	bool isServer;
 	int controlId;
 	std::string debugName;
+	Net_ConnID myConnIdOnServer;	
+
 	bool cbNodeRequest_Dynamic;
 	Net_NodeID cbNodeRequest_nodeId;
 	
 	struct DataPackage {
 		enum Type {
-			GPT_Direct = 0,
-			GPT_NodeInit = 1,
-			GPT_NodeRemove = 2,
-			GPT_NodeUpdate = 3,
-			GPT_NodeEvent = 4, /* eNet_EventUser */
+			GPT_Direct,
+			GPT_ConnectRequest,
+			GPT_ConnectResult,
+			
+			// here start all types where we send also the nodeID
+			GPT_NodeInit,
+			GPT_NodeRemove,
+			GPT_NodeUpdate,
+			GPT_NodeEvent, /* eNet_EventUser */
 		};
 
 		Type type;
@@ -398,7 +408,7 @@ struct Net_Control::NetControlIntern {
 		Net_ClassID id;
 		Net_ClassFlags flags;
 
-		Class() : id(Net_ClassID(-1)), flags(0) {}
+		Class() : id(INVALID_CLASS_ID), flags(0) {}
 		Class(const std::string& n, Net_ClassID i, Net_ClassFlags f) : name(n), id(i), flags(f) {}
 	};
 
@@ -409,18 +419,11 @@ struct Net_Control::NetControlIntern {
 	Nodes nodes;
 	typedef std::set<Net_Node*> LocalNodes;
 	LocalNodes localNodes;
-	
-	NetControlIntern() {
-		isServer = false;
-		controlId = 0;
-		cbNodeRequest_Dynamic = false;
-		cbNodeRequest_nodeId = 0;
-	}
-	
+		
 	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
 	
 	Net_NodeID getUnusedNodeId() {
-		if(nodes.size() == 0) return 1;
+		if(nodes.size() == 0) return 2;
 		return nodes.rbegin()->first + 1;
 	}
 	
@@ -445,8 +448,9 @@ struct Net_Control::NetControlIntern {
 
 struct Net_Node::NetNodeIntern {
 	NetNodeIntern() :
-	control(NULL), classId(Net_ClassID(-1)), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
+	control(NULL), classId(INVALID_CLASS_ID), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
 	eventForInit(false), eventForRemove(false),
+	ownerConn(NetConnID_server()),
 	forthcomingReplicatorInterceptID(0), interceptor(NULL) {}
 	~NetNodeIntern() { clearReplicationSetup(); }
 
@@ -456,6 +460,7 @@ struct Net_Node::NetNodeIntern {
 	eNet_NodeRole role;
 	bool eventForInit, eventForRemove;
 	std::auto_ptr<Net_BitStream> announceData;
+	Net_ConnID ownerConn;
 	
 	typedef std::list< std::pair<Net_Replicator*,bool> > ReplicationSetup;
 	ReplicationSetup replicationSetup;
@@ -474,7 +479,7 @@ struct Net_Node::NetNodeIntern {
 		eNet_NodeRole role;
 		Net_ConnID cid;
 		Net_BitStream stream;
-		Event() : ev(eNet_Event(-1)), role(eNet_RoleUndefined), cid(0) {}
+		Event() : ev(eNet_Event(-1)), role(eNet_RoleUndefined), cid(INVALID_CONN_ID) {}
 		Event(eNet_Event _ev, eNet_NodeRole _r, Net_ConnID _cid, const Net_BitStream& _s) : ev(_ev), role(_r), cid(_cid), stream(_s) {}
 		static Event NodeInit(Net_ConnID c) { return Event(eNet_EventInit, eNet_RoleAuthority /* TODO? */, c, Net_BitStream()); }
 		static Event NodeRemoved(Net_ConnID c) { return Event(eNet_EventRemoved, eNet_RoleAuthority /* TODO? */, c, Net_BitStream()); }
@@ -488,7 +493,7 @@ struct Net_Node::NetNodeIntern {
 	std::string debugStr() {
 		if(!control) return "Node-no-control";
 		if(nodeId == INVALID_NODE_ID) return "Node-invalid";
-		if(classId == Net_ClassID(-1)) return "Node-no-ClassID";
+		if(classId == INVALID_CLASS_ID) return "Node-no-ClassID";
 		return "Node(" + itoa(nodeId) + "," + control->intern->debugClassName(classId) + ")";
 	}
 	
@@ -526,43 +531,61 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 
 void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
-	if(type != GPT_Direct) writeEliasGammaNr(bs, nodeID);
+	if(type >= GPT_NodeInit) writeEliasGammaNr(bs, nodeID);
 	writeEliasGammaNr(bs, data.data().size());
 	bs.writeData(data.data());
 }
 
 void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	nodeID = (type == GPT_Direct) ? INVALID_NODE_ID : readEliasGammaNr(bs);
+	nodeID = (type >= GPT_NodeInit) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
 	size_t len = readEliasGammaNr(bs);
 	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
 }
 
-void Net_Control::olxSend(bool sendPendingOnly) {
-	if(intern->packetsToSend.size() == 0) return;
-	
-	CBytestream bs;
-	bs.writeByte(intern->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
 
-	writeEliasGammaNr(bs, intern->packetsToSend.size());
-	for(NetControlIntern::Packages::iterator i = intern->packetsToSend.begin(); i != intern->packetsToSend.end(); ++i)
-		i->send(bs);
-	intern->packetsToSend.clear();
+static bool composePackagesForConn(CBytestream& bs, Net_Control* con, Net_ConnID connid) {
+	typedef std::list<Net_Control::NetControlIntern::DataPackage*> Packages;
+	Packages packages;
 	
-	if(tLX->iGameType == GME_JOIN)
-		cClient->getChannel()->AddReliablePacketToSend(bs);
-	else {
+	for(Net_Control::NetControlIntern::Packages::iterator i = con->intern->packetsToSend.begin(); i != con->intern->packetsToSend.end(); ++i)
+		if(i->connID == INVALID_CONN_ID || i->connID == connid)
+			packages.push_back(&*i);
+	
+	if(packages.size() == 0) return false;
+	
+	bs.writeByte(con->intern->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
+
+	writeEliasGammaNr(bs, packages.size());
+	for(Packages::iterator i = packages.begin(); i != packages.end(); ++i)
+		(*i)->send(bs);
+	
+	return true;
+}
+
+void Net_Control::olxSend(bool /* sendPendingOnly */) {
+	if(intern->packetsToSend.size() == 0) return;
+		
+	if(tLX->iGameType == GME_JOIN) {
+		CBytestream bs;
+		if(composePackagesForConn(bs, this, NetConnID_server()))
+			cClient->getChannel()->AddReliablePacketToSend(bs);
+	} else {
 		// send to all except local client
 		CServerConnection *cl = cServer->getClients();
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
 			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
 			if(cl->getNetEngine() == NULL) continue;
+			if(cl->isLocalClient()) continue;
 			
-			if(!cl->isLocalClient())
+			CBytestream bs;
+			if(composePackagesForConn(bs, this, NetConnID_conn(cl)))
 				cl->getNetEngine()->SendPacket(&bs);
 		}
 	}
+	
+	intern->packetsToSend.clear();
 }
 
 void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
@@ -581,7 +604,7 @@ void Net_Control::Net_processOutput() {
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
 		Net_Node::NetNodeIntern* node = i->second->intern;
 		if(node->role == eNet_RoleAuthority || node->role == eNet_RoleOwner) {
-			Net_ConnID cid = 0;
+			Net_ConnID cid = INVALID_CONN_ID;
 			eNet_NodeRole remoterole = eNet_RoleProxy;
 			
 			if(node->interceptor) {
@@ -653,7 +676,35 @@ static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 	}
 }
 
+
+static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
+	if(node->intern->interceptor)
+		node->intern->interceptor->outPreReplicateNode(node, connid, (connid == node->intern->ownerConn) ? eNet_RoleOwner : eNet_RoleProxy);
+	
+	Net_Control::NetControlIntern::DataPackage& p = node->intern->control->intern->pushPackageToSend();
+	p.connID = connid;
+	p.sendMode = eNet_ReliableOrdered;
+	p.type = Net_Control::NetControlIntern::DataPackage::GPT_NodeInit;
+	p.nodeID = node->intern->nodeId;
+	p.data.addInt(node->intern->classId, 32);
+	p.data.addInt(node->intern->ownerConn, 32);
+	
+	bool announce = node->intern->control->intern->classes[node->intern->classId].flags & Net_CLASSFLAG_ANNOUNCEDATA;
+	if(node->intern->announceData.get() && !announce)
+		warnings << "node " << node->intern->debugStr() << " has announce data but class doesnt have flag set" << endl;
+	else if(!node->intern->announceData.get() && announce)
+		warnings << "node " << node->intern->debugStr() << " has no announce data but class requests it" << endl;
+	else if(node->intern->announceData.get() && announce)
+		p.data.addBitStream(node->intern->announceData.get());	
+}
+
 static bool unregisterNode(Net_Node* node);
+
+static void tellClientAboutAllNodes(Net_Control* con, Net_ConnID connid) {
+	for(Net_Control::NetControlIntern::Nodes::iterator i = con->intern->nodes.begin(); i != con->intern->nodes.end(); ++i) {
+		tellClientAboutNode(i->second, connid);
+	}
+}
 
 void Net_Control::Net_processInput() {
 	for(NetControlIntern::Packages::iterator i = intern->packetsReceived.begin(); i != intern->packetsReceived.end(); ++i) {
@@ -662,8 +713,38 @@ void Net_Control::Net_processInput() {
 				Net_cbDataReceived(i->connID, i->data);
 				break;
 				
+			case NetControlIntern::DataPackage::GPT_ConnectRequest: {
+				if(!intern->isServer) {
+					warnings << "Net_processInput: got GPT_ConnectRequest as client" << endl;
+					break;
+				}
+				
+				Net_cbConnectionSpawned(i->connID);
+				
+				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
+				p.connID = i->connID;
+				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
+				p.data.addInt(i->connID, 32); // we tell client about its connection ID
+				
+				tellClientAboutAllNodes(this, i->connID);				
+				break;
+			}
+			
+			case NetControlIntern::DataPackage::GPT_ConnectResult: {
+				if(intern->isServer) {
+					warnings << "Net_processInput: got GPT_ConnectResult as server" << endl;
+					break;
+				}
+				
+				intern->myConnIdOnServer = i->data.getInt(32);
+				
+				Net_cbConnectResult(eNet_ConnAccepted);
+			}
+				
 			case NetControlIntern::DataPackage::GPT_NodeInit: {
 				Net_ClassID classId = i->data.getInt(32);
+				Net_ConnID ownerConnId = i->data.getInt(32);
+
 				NetControlIntern::Class* nodeClass = intern->getClass(classId);
 				if(nodeClass == NULL) {
 					warnings << "NodeInit for node " << i->nodeID << " with class " << classId << " failed because that class is unknown" << endl;
@@ -674,7 +755,7 @@ void Net_Control::Net_processInput() {
 				intern->cbNodeRequest_nodeId = i->nodeID;
 				bool announce = nodeClass->flags & Net_CLASSFLAG_ANNOUNCEDATA;
 				
-				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, eNet_RoleProxy, i->nodeID);
+				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, (ownerConnId == intern->myConnIdOnServer) ? eNet_RoleOwner : eNet_RoleProxy, i->nodeID);
 				if(intern->cbNodeRequest_Dynamic) { // we didnt created the node - otherwise this would be false
 					errors << "Net_cbNodeRequest_Dynamic callback didnt created the node " << i->nodeID << " with class " << classId << endl;
 					intern->cbNodeRequest_Dynamic = false; // reset anyway
@@ -683,9 +764,11 @@ void Net_Control::Net_processInput() {
 
 				Net_Node* node = intern->getNode(i->nodeID);
 				if(node == NULL) {
-					errors << "NodeInit: node " << i->nodeID << " not found after dynamic creation" << endl;
+					errors << "NodeInit: node " << i->nodeID << " not found after dynamic creation; " << endl;
 					break;
 				}
+				
+				node->intern->ownerConn = ownerConnId;
 
 				if(node->intern->eventForInit)
 					node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::NodeInit(i->connID) );
@@ -737,6 +820,12 @@ void Net_Control::Net_processInput() {
 	intern->packetsReceived.clear();
 }
 
+void Net_Control::Net_ConnectToServer() {
+	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
+	p.connID = NetConnID_server();
+	p.type = NetControlIntern::DataPackage::GPT_ConnectRequest;	
+}
+
 void Net_Control::Net_sendData(Net_ConnID id, Net_BitStream* s, eNet_SendMode m) {
 	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 	p.connID = id;
@@ -747,7 +836,7 @@ void Net_Control::Net_sendData(Net_ConnID id, Net_BitStream* s, eNet_SendMode m)
 }
 
 Net_ClassID Net_Control::Net_registerClass(const std::string& classname, Net_ClassFlags flags) {
-	Net_ClassID id = 0;
+	Net_ClassID id = 1;
 	if(intern->classes.size() > 0)
 		id = intern->classes.rbegin()->first + 1;
 
@@ -811,7 +900,7 @@ static bool __unregisterNode(Net_Node* node) {
 static bool unregisterNode(Net_Node* node) {
 	bool ret = __unregisterNode(node);
 	node->intern->nodeId = INVALID_NODE_ID;
-	node->intern->classId = Net_ClassID(-1);
+	node->intern->classId = INVALID_CLASS_ID;
 	node->intern->control = NULL;
 	node->intern->role = eNet_RoleUndefined;
 	return ret;
@@ -829,11 +918,19 @@ Net_Node::~Net_Node() {
 
 
 eNet_NodeRole Net_Node::getRole() { return intern->role; }
-void Net_Node::setOwner(Net_ConnID, bool something) {}
+void Net_Node::setOwner(Net_ConnID cid) { intern->ownerConn = cid; }
 void Net_Node::setAnnounceData(Net_BitStream* s) { intern->announceData = std::auto_ptr<Net_BitStream>(s); }
 Net_NodeID Net_Node::getNetworkID() { return intern->nodeId; }
 
-static bool registerNode(Net_ClassID cid, Net_Node* node, Net_NodeID nid, eNet_NodeRole role, Net_Control* con) {
+static void tellAllClientsAboutNode(Net_Node* node) {
+	for(int i = 0; i < MAX_CLIENTS; ++i) {
+		if(cServer->getClients()[i].getStatus() != NET_CONNECTED) continue;
+		if(cServer->getClients()[i].getNetEngine() == NULL) continue;
+		tellClientAboutNode(node, NetConnID_conn(&cServer->getClients()[i]));
+	}
+}
+
+static bool registerNode(Net_ClassID classid, Net_Node* node, Net_NodeID nid, eNet_NodeRole role, Net_Control* con) {
 	if(node->intern->nodeId != INVALID_NODE_ID) {
 		errors << "Net_Node::registerNode " << node->intern->debugStr() << " trying to register node twice" << endl;
 		return false;
@@ -850,7 +947,7 @@ static bool registerNode(Net_ClassID cid, Net_Node* node, Net_NodeID nid, eNet_N
 	}
 	
 	node->intern->control = con;
-	node->intern->classId = cid;
+	node->intern->classId = classid;
 	node->intern->nodeId = nid;
 	node->intern->role = role;
 	
@@ -859,30 +956,11 @@ static bool registerNode(Net_ClassID cid, Net_Node* node, Net_NodeID nid, eNet_N
 	else {
 		con->intern->nodes[nid] = node;
 	
-		if(role == eNet_RoleAuthority) {
-			Net_ConnID cid = 0;
-			
-			if(node->intern->interceptor)
-				node->intern->interceptor->outPreReplicateNode(node, cid, role);
-
-			Net_Control::NetControlIntern::DataPackage& p = con->intern->pushPackageToSend();
-			p.connID = cid;
-			p.sendMode = eNet_ReliableOrdered;
-			p.type = Net_Control::NetControlIntern::DataPackage::GPT_NodeInit;
-			p.nodeID = nid;
-			p.data.addInt(cid, 32);
-			
-			bool announce = con->intern->classes[cid].flags & Net_CLASSFLAG_ANNOUNCEDATA;
-			if(node->intern->announceData.get() && !announce)
-				warnings << "node " << node->intern->debugStr() << " has announce data but class doesnt have flag set" << endl;
-			else if(!node->intern->announceData.get() && announce)
-				warnings << "node " << node->intern->debugStr() << " has no announce data but class requests it" << endl;
-			else if(node->intern->announceData.get() && announce)
-				p.data.addBitStream(node->intern->announceData.get());			
-		}
+		if(role == eNet_RoleAuthority)
+			tellAllClientsAboutNode(node);
 	}
 	
-	notes << "Node " << nid << " registers with role " << role << " and class " << con->intern->classes[cid].name << endl;
+	notes << "Node " << nid << " registers with role " << role << " and class " << con->intern->classes[classid].name << endl;
 	return true;
 }
 
@@ -892,6 +970,12 @@ bool Net_Node::registerNodeUnique(Net_ClassID cid, eNet_NodeRole role, Net_Contr
 
 bool Net_Node::registerNodeDynamic(Net_ClassID cid, Net_Control* con) {
 	eNet_NodeRole role = con->intern->cbNodeRequest_Dynamic ? eNet_RoleProxy : eNet_RoleAuthority;
+	
+	if(con->intern->isServer && role != eNet_RoleAuthority) {
+		errors << "registerNodeDynamic: want to register proxy node on server" << endl;
+		// proceed anyway but the chance is high that something is terribly fucked up
+	}
+	
 	Net_NodeID nid = con->intern->cbNodeRequest_Dynamic ? con->intern->cbNodeRequest_nodeId : con->intern->getUnusedNodeId();
 	con->intern->cbNodeRequest_Dynamic = false; // only for first node
 	return registerNode(cid, this, nid, role, con);
@@ -910,7 +994,7 @@ void Net_Node::setEventNotification(bool eventForInit /* eNet_EventInit */, bool
 
 void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) {
 	Net_Control::NetControlIntern::DataPackage& p = intern->control->intern->pushPackageToSend();
-	p.connID = 0;
+	p.connID = INVALID_CONN_ID;
 	p.sendMode = m;
 	p.type = Net_Control::NetControlIntern::DataPackage::GPT_NodeEvent;
 	p.nodeID = intern->nodeId;
@@ -1082,7 +1166,7 @@ Net_ConnID NetConnID_conn(CServerConnection* cl) {
 	}
 	
 	errors << "NetConnID_conn: connection invalid" << endl;
-	return 0;
+	return INVALID_CONN_ID;
 }
 
 CServerConnection* serverConnFromNetConnID(Net_ConnID id) {

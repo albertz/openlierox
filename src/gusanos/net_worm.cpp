@@ -26,7 +26,7 @@
 
 using namespace std;
 
-Net_ClassID CWorm::classID = Net_Invalid_ID;
+Net_ClassID CWorm::classID = INVALID_CLASS_ID;
 
 const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
@@ -76,6 +76,10 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	m_interceptor = new NetWormInterceptor( this );
 	m_node->setReplicationInterceptor(m_interceptor);
 
+	Net_BitStream* announceData = new Net_BitStream();
+	announceData->addInt(getID(), 8);
+	m_node->setAnnounceData(announceData);
+	
 	m_isAuthority = isAuthority;
 	if( isAuthority)
 	{
@@ -289,7 +293,7 @@ void CWorm::correctOwnerPosition()
 
 void CWorm::setOwnerId( Net_ConnID _id )
 {
-	m_node->setOwner(_id,true);
+	m_node->setOwner(_id);
 }
 
 

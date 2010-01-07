@@ -35,7 +35,7 @@
 
 using namespace std;
 
-Net_ClassID CWormInputHandler::classID = Net_Invalid_ID;
+Net_ClassID CWormInputHandler::classID = INVALID_CLASS_ID;
 
 CWormInputHandler::Stats::~Stats()
 {
@@ -364,6 +364,16 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 	m_interceptor = new BasePlayerInterceptor( this );
 	m_node->setReplicationInterceptor(m_interceptor);
 	
+	if(authority) {
+		if(m_worm) {
+			Net_BitStream* announceData = new Net_BitStream();
+			announceData->addInt(m_worm->getID(), 8);
+			m_node->setAnnounceData(announceData);	
+		}
+		else
+			errors << "CWormInputHandler::assignNetworkRole: cannot be authority node without worm" << endl;
+	}
+	
 	m_isAuthority = authority;
 	if( m_isAuthority) {
 		m_node->setEventNotification(true, false); // Enables the eEvent_Init.
@@ -380,7 +390,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 
 void CWormInputHandler::setOwnerId( Net_ConnID id )
 {
-	m_node->setOwner( id, true );
+	m_node->setOwner( id );
 	m_id = id;
 }
 

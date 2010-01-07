@@ -93,7 +93,7 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 
 LuaReference Particle::metaTable;
 
-Net_ClassID Particle::classID = Net_Invalid_ID;
+Net_ClassID Particle::classID = INVALID_CLASS_ID;
 
 void* Particle::operator new(size_t count)
 {

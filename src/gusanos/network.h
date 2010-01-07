@@ -9,8 +9,6 @@
 
 #include "message_queue.h"
 
-const unsigned int INVALID_NODE_ID = 0;
-
 struct LuaEventDef
 {
 	static LuaReference metaTable;
@@ -88,6 +86,7 @@ public:
 		enum type
 		{
 			LuaEvents,
+			ConnectionInfo,
 			Max
 		};
 	};

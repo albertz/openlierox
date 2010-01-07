@@ -299,10 +299,11 @@ void CWorm::Prepare(bool serverSide)
 		gusShutdown();
 		gusInit();
 		game.onNewWorm(this);
-	}
-	
-	if(!serverSide)
-		NetWorm_Init(bLocal);		
+
+		// we announce authority worm-nodes here
+		// proxy worm-nodes are registered in Net_cbNodeRequest_Dynamic
+		NetWorm_Init(true);		
+	}	
 }
 
 void CWorm::Unprepare() {

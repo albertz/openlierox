@@ -19,8 +19,12 @@ Client::Client() : Net_Control(false)
 	Net_setDebugName("Net_CLI");	
 }
 
-void Client::finalizeConnect() {
-	// moved from Net_cbConnectResult; OLX does all the connection handling, we are immediatly connected here
+void Client::Net_cbConnectResult(eNet_ConnectResult res) {
+	if(res != eNet_ConnAccepted) {
+		errors << "Client::Net_cbConnectResult: connection not accepted" << endl;
+		return;
+	}
+
 	network.setClient(true);
 	console.addLogMsg("* CONNECTION ACCEPTED");
 	network.incConnCount();
@@ -157,10 +161,67 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 	// check the requested class
 	if ( _requested_class == CWorm::classID )
 	{
-		// TODO ...
+		if(_announcedata == NULL) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWorm without announce data" << endl;
+			return;
+		}
+
+		int wormid = _announcedata->getInt(8);
+		if(wormid < 0 || wormid >= MAX_WORMS) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWorm: wormid " << wormid << " invalid" << endl;
+			return;
+		}
+		
+		CWorm* worm = &cClient->getRemoteWorms()[wormid];
+		if(!worm->isUsed()) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWorm: worm " << wormid << " is not used" << endl;
+			return;
+		}
+		
+		if(worm->getLocal()) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWorm: worm " << wormid << ":" << worm->getName() << " is a local worm, so we should be authority" << endl;
+			return;
+		}
+		
+		worm->NetWorm_Init(false);
 	}else if ( _requested_class == CWormInputHandler::classID )
 	{
-		// Creates a player class depending on the role
+		if(_announcedata == NULL) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler without announce data" << endl;
+			return;
+		}
+		
+		int wormid = _announcedata->getInt(8);
+		if(wormid < 0 || wormid >= MAX_WORMS) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: wormid " << wormid << " invalid" << endl;
+			return;
+		}
+		
+		CWorm* worm = &cClient->getRemoteWorms()[wormid];
+		if(!worm->isUsed()) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: worm " << wormid << " is not used" << endl;
+			return;
+		}
+		
+		if(worm->getLocal()) {
+			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: worm " << wormid << ":" << worm->getName() << " is a local worm, so we should be authority" << endl;
+			return;
+		}
+				
+		CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY, 0, worm );
+		player->assignNetworkRole(false);
+		
+		if(worm->m_inputHandler) {
+			warnings << "Net_cbNodeRequest_Dynamic: worm " << worm->getName() << " has already the following input handler set: "; warnings.flush();
+			warnings << worm->m_inputHandler->name() << endl;
+			worm->m_inputHandler->quit();
+			worm->m_inputHandler = NULL;			
+		}
+		
+		worm->m_inputHandler = player;
+		
+		/*
+		 // Creates a player class depending on the role
 		if( _role == eNet_RoleOwner )
 		{
 			CWormInputHandler* player = gusGame.addPlayer ( GusGame::OWNER );
@@ -170,6 +231,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 			CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY );
 			player->assignNetworkRole(false);
 		}
+		 */
 	}else if( _requested_class == Particle::classID )
 	{
 		int typeIndex = Encoding::decode(*_announcedata, partTypeList.size());

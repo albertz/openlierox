@@ -111,7 +111,7 @@ namespace
 	}
 }
 
-Net_ClassID GusGame::classID = Net_Invalid_ID;
+Net_ClassID GusGame::classID = INVALID_CLASS_ID;
 
 GusGame gusGame;
 
@@ -1140,17 +1140,7 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, int team, CWorm* worm )
 			if ( game.localPlayers.size() >= MAX_LOCAL_PLAYERS ) allegro_message("OMFG Too much local players");
 			// TODO: gusGame::addplayer
 			CWormHumanInputHandler* player = NULL; // new CWormHumanInputHandler( playerOptions[localPlayers.size()], worm );
-#ifndef DEDICATED_ONLY
-			CViewport* viewport = new CViewport;
-			if ( options.splitScreen )
-			{
-				viewport->setDestination(gfx.buffer,game.localPlayers.size()*160,0,160,240);
-			}else
-			{
-				viewport->setDestination(gfx.buffer,0,0,320,240);
-			}
-			player->assignViewport(viewport);
-#endif
+
 			game.onNewPlayer( player );
 			game.onNewHumanPlayer( player );
 			game.onNewHumanPlayer_Lua( player );

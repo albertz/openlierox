@@ -138,8 +138,8 @@ namespace
 
 	void registerClasses() // Factorization of class registering in client and server
 	{
-		CWorm::classID = m_control->Net_registerClass("worm",0);
-		CWormInputHandler::classID = m_control->Net_registerClass("player",0);
+		CWorm::classID = m_control->Net_registerClass("worm",Net_CLASSFLAG_ANNOUNCEDATA);
+		CWormInputHandler::classID = m_control->Net_registerClass("player",Net_CLASSFLAG_ANNOUNCEDATA);
 		GusGame::classID = m_control->Net_registerClass("gusGame",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
@@ -302,7 +302,7 @@ void Network::olxConnect()
 	setLuaState(StateConnecting);
 	SET_STATE(Idle);
 	
-	((Client*)m_control)->finalizeConnect();
+	m_control->Net_ConnectToServer();
 }
 
 void Network::disconnect( DConnEvents event )

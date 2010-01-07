@@ -85,6 +85,8 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 	console.addLogMsg("* CONNECTION SPAWNED");
 	network.incConnCount();
 
+	
+	
 	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
 	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);
 	network.encodeLuaEvents(data.get());
