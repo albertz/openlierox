@@ -636,15 +636,18 @@ static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 			errors << "Replicator " << i << " in update of node " << node->intern->debugStr() << " is not a basic replicator" << endl;
 			break; // nothing else we can do
 		}
-		
-		Net_BitStream peekStream(bs);
-		replicator->peekStream = &peekStream;
-		
+				
 		bool store = true;
-		if(node->intern->interceptor)
+		if(node->intern->interceptor) {
+			Net_BitStream peekStream(bs);
+			replicator->peekStream = &peekStream;
+
 			store = node->intern->interceptor->inPreUpdateItem(node, cid, eNet_RoleAuthority, replicator);
-		
-		replicator->clearPeekData(); replicator->ptr = NULL;
+
+			replicator->clearPeekData();
+			replicator->ptr = NULL;
+			replicator->peekStream = NULL;
+		}
 		
 		replicator->unpackData(&bs, store);
 	}
