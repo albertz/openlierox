@@ -61,7 +61,7 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 
 void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
-	console.addLogMsg("* CONNECTION SPAWNED");
+	console.addLogMsg("* CONNECTION SPAWNED: " + itoa(_id));
 	network.incConnCount();
 	
 	std::auto_ptr<Net_BitStream> data(new Net_BitStream);

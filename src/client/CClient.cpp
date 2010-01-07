@@ -2081,17 +2081,7 @@ void CClient::RemoveWorm(int id)
 		}
 
 		cRemoteWorms[id].Unprepare();
-		// TODO: why not a Clear() here?
-		cRemoteWorms[id].setUsed(false);
-		cRemoteWorms[id].setKills(0);
-		cRemoteWorms[id].setDeaths(0);
-		cRemoteWorms[id].setTeamkills(0);
-		cRemoteWorms[id].setLives(WRM_OUT);
-		cRemoteWorms[id].setProfile(NULL);
-		cRemoteWorms[id].setType(PRF_HUMAN);
-		cRemoteWorms[id].setLocal(false);
-		cRemoteWorms[id].setTagIT(false);
-		cRemoteWorms[id].setTagTime(TimeDiff(0));
+		cRemoteWorms[id].Clear();
 	}
 	else
 		errors << "CClient::RemoveWorm: cRemoteWorms not set" << endl;

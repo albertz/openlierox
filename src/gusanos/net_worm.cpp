@@ -37,6 +37,11 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		gusInit(); // hack, try to make it initialised
 	}
 	
+	if(m_node || m_interceptor) {
+		warnings << "CWorm::NetWorm_Init: earlier node was not correctly uninitialised" << endl;
+		NetWorm_Shutdown();
+	}
+	
 	timeSinceLastUpdate = 1;
 	
 	m_playerID = INVALID_NODE_ID;

@@ -721,15 +721,15 @@ void Net_Control::Net_processInput() {
 					warnings << "Net_processInput: got GPT_ConnectRequest as client" << endl;
 					break;
 				}
-				
-				Net_cbConnectionSpawned(i->connID);
-				
+								
 				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 				p.connID = i->connID;
 				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
 				p.data.addInt(i->connID, 32); // we tell client about its connection ID
 				
-				tellClientAboutAllNodes(this, i->connID);				
+				tellClientAboutAllNodes(this, i->connID);
+				
+				Net_cbConnectionSpawned(i->connID);
 				break;
 			}
 			
@@ -742,6 +742,7 @@ void Net_Control::Net_processInput() {
 				intern->myConnIdOnServer = i->data.getInt(32);
 				
 				Net_cbConnectResult(eNet_ConnAccepted);
+				break;
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeInit: {
@@ -773,6 +774,9 @@ void Net_Control::Net_processInput() {
 				
 				node->intern->ownerConn = ownerConnId;
 
+				if(node->intern->classId != classId)
+					warnings << "NodeInit requested a node of class " << classId << " but a node of class " << node->intern->classId << " was created" << endl;
+				
 				if(node->intern->eventForInit)
 					node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::NodeInit(i->connID) );
 				
@@ -895,6 +899,7 @@ static bool __unregisterNode(Net_Node* node) {
 			nodes.erase(i);
 		}
 		
+		notes << "Node " << node->intern->nodeId << " with class " << node->intern->control->intern->classes[node->intern->classId].name << " unregisters" << endl;
 		return true;
 	}
 	return false;
