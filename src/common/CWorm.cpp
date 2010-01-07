@@ -288,10 +288,12 @@ void CWorm::Prepare(bool serverSide)
 		game.onNewWorm(this);
 	}
 	
-	if(!serverSide)
+	if(!serverSide && game.isServer()) {
 		// register network node
+		// as client, we do that in Net_cbNodeRequest_Dynamic
 		NetWorm_Init(true);		
-	
+	}
+		
 	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
 		if(bLocal)
 			m_inputHandler = m_type->createInputHandler(this);

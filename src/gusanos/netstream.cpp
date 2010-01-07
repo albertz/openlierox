@@ -976,7 +976,12 @@ bool Net_Node::registerNodeDynamic(Net_ClassID cid, Net_Control* con) {
 	
 	if(con->intern->isServer && role != eNet_RoleAuthority) {
 		errors << "registerNodeDynamic: want to register proxy node on server" << endl;
-		// proceed anyway but the chance is high that something is terribly fucked up
+		return false; // stop because otherwise we probably would crash
+	}
+
+	if(!con->intern->isServer && role == eNet_RoleAuthority) {
+		errors << "registerNodeDynamic: want to register authority node on client" << endl;
+		return false; // stop because otherwise we probably would crash
 	}
 	
 	Net_NodeID nid = con->intern->cbNodeRequest_Dynamic ? con->intern->cbNodeRequest_nodeId : con->intern->getUnusedNodeId();
