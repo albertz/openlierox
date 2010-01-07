@@ -724,8 +724,6 @@ void CWorm::respawn()
 void CWorm::respawn( const Vec& newPos)
 {
 	if( m_isAuthority || !m_node ) {
-		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
-		bWeaponsReady = true;
 		
 		health = 100;
 		bAlive = true;

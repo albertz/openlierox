@@ -289,7 +289,7 @@ void CWorm::Prepare(bool serverSide)
 	}
 	
 	if(!serverSide && game.isServer()) {
-		// register network node
+		// register network worm-node
 		// as client, we do that in Net_cbNodeRequest_Dynamic
 		NetWorm_Init(true);		
 	}
@@ -330,6 +330,12 @@ void CWorm::Prepare(bool serverSide)
 		setCanAirJump(tLXOptions->tGameInfo.features[FT_InstantAirJump]);
 	}
 
+	if(!serverSide && game.gameScript()->gusEngineUsed()) {
+		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
+		// Gusanos has own weapon handling, this isn't merge yet (not sure if it even would make sense to merge)
+		bWeaponsReady = true;		
+	}
+	
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
 	bIsPrepared = true;
@@ -381,12 +387,12 @@ WormType* WormType::fromInt(int type) {
 
 void CWorm::getInput() {
 	if(!bLocal) {
-		warnings << "WARNING: called getInput() on non-local worm " << getName() << endl;
+		warnings << "CWorm::getInput: called getInput() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot get input" << endl;
+		warnings << "CWorm::getInput: input handler not set for worm " << getName() << ", cannot get input" << endl;
 		return;
 	}
 	
@@ -408,12 +414,12 @@ void CWorm::clearInput() {
 
 void CWorm::initWeaponSelection() {
 	if(!bLocal) {
-		warnings << "WARNING: called initWeaponSelection() on non-local worm " << getName() << endl;
+		warnings << "CWorm::initWeaponSelection: called initWeaponSelection() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
+		warnings << "CWorm::initWeaponSelection: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
 		return;
 	}
 	
@@ -432,17 +438,17 @@ void CWorm::initWeaponSelection() {
 
 void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	if(!bLocal) {
-		warnings << "WARNING: called doWeaponSelectionFrame() on non-local worm " << getName() << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: called on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
 		return;
 	}
 	
 	if(bWeaponsReady) {
-		warnings << "WARNING: doWeaponSelectionFrame: weapons already selected" << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: weapons already selected" << endl;
 		return;
 	}
 	
