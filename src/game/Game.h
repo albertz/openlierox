@@ -40,6 +40,7 @@ public:
 	bool isServer();
 	bool isClient() { return !isServer(); }
 	bool needToCreateOwnWormInputHandlers();
+	bool needProxyWormInputHandler();
 	
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::list<CWormInputHandler*> players;

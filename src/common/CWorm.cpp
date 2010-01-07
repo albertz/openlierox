@@ -297,7 +297,7 @@ void CWorm::Prepare(bool serverSide)
 	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
 		if(bLocal)
 			m_inputHandler = m_type->createInputHandler(this);
-		else {			
+		else if(game.needProxyWormInputHandler()) {
 			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
 			if(cl) {
 				Net_ConnID _id = NetConnID_conn(cl);

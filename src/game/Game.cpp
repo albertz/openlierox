@@ -352,7 +352,11 @@ bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }
 
+bool Game::needProxyWormInputHandler() {
+	return isServer();
+}
+
 bool Game::needToCreateOwnWormInputHandlers() {
-	return isServer() || (cClient->getServerVersion() < OLXVersion(0, 59));
+	return isServer() || (cClient->getServerVersion() < OLXBetaVersion(0,59,1));
 }
 
