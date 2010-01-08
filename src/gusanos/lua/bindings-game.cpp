@@ -287,6 +287,7 @@ METHODC(CWormInputHandler, player_selectWeapons,  {
 })
 
 METHOD(CWormInputHandler, player_destroy, {
+	p->removeWorm(); // just to be sure to not access it anymore
 	delete p;
 	return 0;
 })
