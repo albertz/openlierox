@@ -42,14 +42,13 @@ install: build
 	dh_installdirs
 
 	# install the package into debian/openlierox-dedicated.
-	cp debian/copyright $(CURDIR)/debian/openlierox-dedicated/usr/share/doc/openlierox-dedicated/copyright
-	cp bin/openlierox-dedicated $(CURDIR)/debian/openlierox-dedicated/usr/games
 #	mkdir -p $(CURDIR)/debian/openlierox-dedicated/etc/init.d
 #	mkdir -p $(CURDIR)/debian/openlierox-dedicated/etc/openlierox-dedicated
 #	mkdir -p $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
+	cp debian/copyright $(CURDIR)/debian/openlierox-dedicated/usr/share/doc/openlierox-dedicated/copyright
+	cp doc/* $(CURDIR)/debian/openlierox-dedicated/usr/share/doc/openlierox-dedicated/
+	cp bin/openlierox-dedicated $(CURDIR)/debian/openlierox-dedicated/usr/games/
 	cp bin/openlierox-dedicated-initscript $(CURDIR)/debian/openlierox-dedicated/etc/init.d/openlierox-dedicated
-	chown root:games $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
-	chmod g+w $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
 
 # Build architecture-independent files here.
 binary-indep: build install

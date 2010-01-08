@@ -4,7 +4,7 @@ Priority: optional
 Maintainer: Albert Zeyer <albert.zeyer@rwth-aachen.de>
 Standards-Version: 3.7.3
 Build-Depends: debhelper (>= 5),
- bash (>= 3.1dfsg-8), gzip (>= 1.3.5-15), python (>= 2.4)
+ bash (>= 3.1dfsg-8), gzip (>= 1.3.5-15)
 
 Package: openlierox-dedicated
 Architecture: all

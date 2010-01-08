@@ -1,0 +1,3 @@
+#!/bin/sh -e
+/etc/init.d/openlierox-dedicated stop || true
+exit 0
