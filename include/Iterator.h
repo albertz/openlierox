@@ -151,7 +151,7 @@ inline
 Iterator<char&>::Ref GetIterator(std::string& s) { return new StringIterator(s); }
 
 inline
-Iterator<char>::Ref GetConstIterator(std::string& s) { return new ConstStringIterator(s); }
+Iterator<char>::Ref GetConstIterator(const std::string& s) { return new ConstStringIterator(s); }
 
 template< typename _T >
 typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }
