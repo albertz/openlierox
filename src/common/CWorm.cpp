@@ -354,14 +354,11 @@ void CWorm::Unprepare() {
 	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
-		if(!bLocal) {
-			warnings << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; warnings.flush();
-			warnings << m_inputHandler->name() << endl;
-		}
 		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
-		
+	
+	gusShutdown();
 	bIsPrepared = false;
 }
 
