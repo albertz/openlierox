@@ -20,6 +20,7 @@ RECORD=$!
 #TODO: youtube upload, use scripts at http://code.google.com/p/gdata-python-client/downloads/list
 # and http://code.google.com/apis/youtube/1.0/developers_guide_python.html#DirectUpload
 
+# Send INT signal or Ctrl-C when you done
 trap "kill -INT $RECORD ; kill -INT $OLX ; sleep 10 ; kill -INT $JOBS ; killall -INT Xvfb ; sleep 1 ; wait" INT QUIT
 
 wait
