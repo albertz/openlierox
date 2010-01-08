@@ -38,7 +38,7 @@ build-stamp: configure-stamp
 	-D HAWKNL_BUILTIN=1 \
 	-D LIBZIP_BUILTIN=1 \
 	-D DEBUG=0 \
-	-D GCODEDUMPER=0 \
+	-D BREAKPAD=0 \
 	-D SYSTEM_DATA_DIR=/usr/share/games .
 	$(MAKE) -j2
 	#docbook-to-man debian/openlierox.sgml > openlierox.1
