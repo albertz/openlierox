@@ -1,0 +1,90 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# configure the package.
+	if [ \! -e bin ] ; then mkdir bin ; fi
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# clean up after the build process.
+	#$(MAKE) clean #not needed? is called in pbuilder before CMake
+	# we have nothing to cleanup as compile.sh doesn't generate any temp files
+	# though here some cleanups for unclean orig.sources
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# install the package into debian/openlierox-dedicated.
+	cp debian/copyright $(CURDIR)/debian/openlierox-dedicated/usr/share/doc/openlierox-dedicated/copyright
+	cp bin/openlierox-dedicated $(CURDIR)/debian/openlierox-dedicated/usr/games
+#	mkdir -p $(CURDIR)/debian/openlierox-dedicated/etc/init.d
+#	mkdir -p $(CURDIR)/debian/openlierox-dedicated/etc/openlierox-dedicated
+#	mkdir -p $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
+	cp bin/openlierox-dedicated-initscript $(CURDIR)/debian/openlierox-dedicated/etc/init.d/openlierox-dedicated
+	chown root:games $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
+	chmod g+w $(CURDIR)/debian/openlierox-dedicated/var/games/openlierox-dedicated
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs # doc/ChangeLog is intalled by installer, this makes the DEB changelog
+#	dh_installdocs # already done by installer
+#	dh_installexamples
+#	dh_install
+#	dh_installmenu
+#	dh_installdebconf
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+#	dh_installman
+	dh_link
+#	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

@@ -1,3 +1,0 @@
-#!/bin/sh -e
-update-rc.d openlierox-dedicated defaults || true
-exit 0

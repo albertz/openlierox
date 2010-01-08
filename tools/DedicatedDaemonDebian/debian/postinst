@@ -1,0 +1,6 @@
+#!/bin/sh -e
+for F in /usr/share/games/OpenLieroX/cfg/*.py ; do 
+	ln -f -s "$F" "/etc/openlierox-dedicated/`basename $F`" || true # TODO: overwrites old config files, we're changing config file format often
+done
+update-rc.d openlierox-dedicated defaults || true
+exit 0

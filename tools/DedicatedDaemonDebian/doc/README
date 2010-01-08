@@ -1,0 +1,4 @@
+This is init.d script that will start dedicated OpenLieroX server(s) at system startup.
+It will start one server per one config file in /etc/openlierox-dedicated dir - 
+be sure that every config has different port number.
+It will write logs and player ranking statistics to /var/games/openlierox-dedicated.

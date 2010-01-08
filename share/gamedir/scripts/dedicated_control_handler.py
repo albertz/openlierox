@@ -12,6 +12,7 @@ import sys
 import threading
 import traceback
 import random
+import portalocker
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -241,6 +242,10 @@ def parseNewWorm(wormID, name):
 			ranking.auth[name] = getWormSkin(wormID)
 			try:
 				f = open(io.getFullFileName("pwn0meter_auth.txt"),"r")
+				try:
+					portalocker.lock(f, portalocker.LOCK_EX)
+				except:
+					pass
 				f.write( name + "\t" + str(ranking.auth[name][0]) + " " + ranking.auth[name][1] + "\n" )
 				f.close()
 			except IOError:
@@ -326,6 +331,10 @@ def parseWormDied(sig):
 	try:
 		f = open(io.getWriteFullFileName("pwn0meter.txt"),"a")
 		if not killerID in io.getComputerWormList():
+			try:
+				portalocker.lock(f, portalocker.LOCK_EX)
+			except:
+				pass
 			f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + worms[deaderID].Name + "\t" + worms[killerID].Name + "\n" )
 		f.close()
 	except IOError:
