@@ -87,7 +87,7 @@ std::string Net_BitStream::readBits(size_t bitCount)
 		unsigned char byte1 = m_data[m_readPos / 8];
 		byte1 <<= shift;
 		unsigned char byte2 = m_data[m_readPos / 8 + 1];
-		byte2 >>= shift;
+		byte2 >>= 8 - shift;
 		unsigned char b = byte1 | byte2;
 		res[i] |= b >> leftIndex;
 		m_readPos += 8;
@@ -103,7 +103,7 @@ std::string Net_BitStream::readBits(size_t bitCount)
 	byte <<= shift;
 	if (shift + bitRest + 1 > 8)  {
 		unsigned char b2 = m_data[m_readPos / 8 + 1];
-		b2 >>= shift;
+		b2 >>= 8 - shift;
 		res[byteCount - 1] = (byte | b2) >> leftIndex;
 	} else
 		res[byteCount - 1] = (byte >> leftIndex);
@@ -377,15 +377,15 @@ struct Net_Control::NetControlIntern {
 	
 	struct DataPackage {
 		enum Type {
+			GPT_NodeUpdate, // very first because the most often -> less bits to sends
+			GPT_NodeInit,
+			GPT_NodeRemove,
+			GPT_NodeEvent, /* eNet_EventUser */
+			
+			// here start all types where we dont send the nodeID
 			GPT_Direct,
 			GPT_ConnectRequest,
 			GPT_ConnectResult,
-			
-			// here start all types where we send also the nodeID
-			GPT_NodeInit,
-			GPT_NodeRemove,
-			GPT_NodeUpdate,
-			GPT_NodeEvent, /* eNet_EventUser */
 		};
 
 		Type type;
@@ -394,7 +394,7 @@ struct Net_Control::NetControlIntern {
 		Net_BitStream data;
 		eNet_SendMode sendMode;
 		
-		DataPackage() : sendMode(eNet_ReliableOrdered) {}
+		DataPackage() : type(Type(-1)), sendMode(eNet_ReliableOrdered) {}
 		void send(CBytestream& bs);
 		void read(CBytestream& bs);
 	};
@@ -524,21 +524,21 @@ static void writeEliasGammaNr(CBytestream& bs, size_t n) {
 static size_t readEliasGammaNr(CBytestream& bs) {
 	Net_BitStream bits(bs.data());
 	bits.setBitPos(bs.GetPos() * 8); // skip to bs pos
-	size_t len = Encoding::decodeEliasGamma(bits) - 1;
+	size_t n = Encoding::decodeEliasGamma(bits) - 1;
 	bs.Skip( (bits.bitPos() + 7) / 8 - bs.GetPos() );
-	return len;
+	return n;
 }
 
 void Net_Control::NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
-	if(type >= GPT_NodeInit) writeEliasGammaNr(bs, nodeID);
+	if(type < GPT_Direct) writeEliasGammaNr(bs, nodeID);
 	writeEliasGammaNr(bs, (data.bitSize() + 7)/8);
 	bs.writeData(data.data().substr(0, (data.bitSize() + 7) / 8));
 }
 
 void Net_Control::NetControlIntern::DataPackage::read(CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	nodeID = (type >= GPT_NodeInit) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
+	nodeID = (type < GPT_Direct) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
 	size_t len = readEliasGammaNr(bs);
 	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
@@ -619,6 +619,7 @@ void Net_Control::Net_processOutput() {
 			p.connID = cid;
 			p.sendMode = eNet_ReliableOrdered; // TODO ?
 			p.type = NetControlIntern::DataPackage::GPT_NodeUpdate;
+			p.nodeID = node->nodeId;
 			
 			size_t count = 0;
 			
