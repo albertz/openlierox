@@ -376,6 +376,8 @@ struct NetControlIntern {
 	Net_NodeID cbNodeRequest_nodeId;
 	
 	struct DataPackage {
+		DataPackage() : type(Type(-1)), sendMode(eNet_ReliableOrdered), repRules(Net_REPRULE_NONE) {}
+
 		enum Type {
 			GPT_NodeUpdate, // very first because the most often -> less bits to sends
 			GPT_NodeInit,
@@ -393,8 +395,10 @@ struct NetControlIntern {
 		Net_NodeID nodeID; // node this is about; invalid if type==direct
 		Net_BitStream data;
 		eNet_SendMode sendMode;
+		Net_RepRules repRules; // if node is set, while sending, these are checked
 		
-		DataPackage() : type(Type(-1)), sendMode(eNet_ReliableOrdered) {}
+		bool nodeMustBeSet() { return type < GPT_Direct; }
+		
 		void send(CBytestream& bs);
 		void read(CBytestream& bs);
 	};
@@ -536,14 +540,14 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 
 void NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
-	if(type < GPT_Direct) writeEliasGammaNr(bs, nodeID);
+	if(nodeMustBeSet()) writeEliasGammaNr(bs, nodeID);
 	writeEliasGammaNr(bs, (data.bitSize() + 7)/8);
 	bs.writeData(data.data().substr(0, (data.bitSize() + 7) / 8));
 }
 
 void NetControlIntern::DataPackage::read(CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	nodeID = (type < GPT_Direct) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
+	nodeID = (nodeMustBeSet()) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
 	size_t len = readEliasGammaNr(bs);
 	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
@@ -566,6 +570,28 @@ static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetContro
 				}
 			}
 			
+			if(i->nodeMustBeSet()) {
+				if(!con->isServer) {
+					if(i->repRules & Net_REPRULE_OWNER_2_AUTH) {
+						if(con->getNode(i->nodeID)->intern->ownerConn != con->myConnIdOnServer)
+							continue;
+					}
+					else
+						continue;
+				}
+				else { // server
+					bool trgtIsOwner = con->getNode(i->nodeID)->intern->ownerConn == connid;
+					if(trgtIsOwner && !(i->repRules & Net_REPRULE_AUTH_2_OWNER))
+						continue;
+					if(!trgtIsOwner && !(i->repRules & Net_REPRULE_AUTH_2_PROXY))
+						continue;
+				}
+			}
+			else { // no node
+				if(i->repRules != Net_REPRULE_NONE)
+					warnings << "reprules should be none for gus package of type " << i->type << endl;
+			}
+					   
 			packages.push_back(&*i);
 		}
 	
@@ -642,6 +668,7 @@ void Net_Control::Net_processOutput() {
 			NetControlIntern::DataPackage p;
 			p.connID = cid;
 			p.sendMode = eNet_ReliableOrdered; // TODO ?
+			p.repRules = Net_REPRULE_AUTH_2_ALL; // TODO: check reprules of replicators?
 			p.type = NetControlIntern::DataPackage::GPT_NodeUpdate;
 			p.nodeID = node->nodeId;
 			
@@ -712,6 +739,7 @@ static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
 	NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
 	p.connID = connid;
 	p.sendMode = eNet_ReliableOrdered;
+	p.repRules = Net_REPRULE_AUTH_2_ALL;
 	p.type = NetControlIntern::DataPackage::GPT_NodeInit;
 	p.nodeID = node->intern->nodeId;
 	p.data.addInt(node->intern->classId, 32);
@@ -761,6 +789,8 @@ void Net_Control::Net_processInput() {
 				// in olxSend, when we handle this package, we set gusLoggedIn() = true
 				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 				p.connID = i->connID;
+				p.sendMode = eNet_ReliableOrdered;
+				p.repRules = Net_REPRULE_AUTH_2_ALL;
 				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
 				p.data.addInt(i->connID, 32); // we tell client about its connection ID
 				
@@ -872,11 +902,6 @@ void Net_Control::Net_processInput() {
 						warnings << "NodeEvent: got event for node " << i->nodeID << " from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
 						break;
 					}
-					
-					// TODO: redistribute according to flags
-					NetControlIntern::DataPackage& p = intern->pushPackageToSend();
-					p = *i; // copy event
-					p.connID = INVALID_CONN_ID; // TODO: not to all but only to proxies (i.e. all except owner)
 				}
 				
 				node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::User(i->data, i->connID) );
@@ -894,13 +919,16 @@ void Net_Control::Net_processInput() {
 void Net_Control::Net_ConnectToServer() {
 	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 	p.connID = NetConnID_server();
-	p.type = NetControlIntern::DataPackage::GPT_ConnectRequest;	
+	p.type = NetControlIntern::DataPackage::GPT_ConnectRequest;
+	p.sendMode = eNet_ReliableOrdered;
+	p.repRules = Net_REPRULE_NONE; // this is anyway ignored here
 }
 
 void Net_Control::Net_sendData(Net_ConnID id, Net_BitStream* s, eNet_SendMode m) {
 	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 	p.connID = id;
 	p.sendMode = m;
+	p.repRules = Net_REPRULE_NONE; // anyway ignored
 	p.type = NetControlIntern::DataPackage::GPT_Direct;
 	p.data = *s;
 	delete s;
@@ -947,6 +975,7 @@ static bool __unregisterNode(Net_Node* node) {
 				NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
 				p.connID = 0;
 				p.sendMode = eNet_ReliableOrdered;
+				p.repRules = Net_REPRULE_AUTH_2_ALL;
 				p.type = NetControlIntern::DataPackage::GPT_NodeRemove;
 				p.nodeID = node->intern->nodeId;
 			}
@@ -1073,6 +1102,7 @@ void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) 
 	NetControlIntern::DataPackage& p = intern->control->pushPackageToSend();
 	p.connID = INVALID_CONN_ID;
 	p.sendMode = m;
+	p.repRules = rules;
 	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
 	p.nodeID = intern->nodeId;
 	p.data = *s;
@@ -1080,9 +1110,15 @@ void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) 
 }
 
 void Net_Node::sendEventDirect(eNet_SendMode m, Net_BitStream* s, Net_ConnID cid) {
+	if(!intern->control->isServer) {
+		errors << "Net_Node::sendEventDirect (node " << intern->nodeId << ") only works as server" << endl;
+		return;
+	}
+	
 	NetControlIntern::DataPackage& p = intern->control->pushPackageToSend();
 	p.connID = cid;
 	p.sendMode = m;
+	p.repRules = Net_REPRULE_AUTH_2_ALL;
 	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
 	p.nodeID = intern->nodeId;
 	p.data = *s;

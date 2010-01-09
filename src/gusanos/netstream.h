@@ -48,10 +48,10 @@ enum {
 typedef Net_U8 Net_RepRules;
 enum Net_RepRule {
 	Net_REPRULE_NONE = 0,
-	Net_REPRULE_AUTH_2_ALL = 1,
-	Net_REPRULE_OWNER_2_AUTH = 2,
-	Net_REPRULE_AUTH_2_PROXY = 4,
-	Net_REPRULE_AUTH_2_OWNER = 8,
+	Net_REPRULE_AUTH_2_PROXY = 1,
+	Net_REPRULE_AUTH_2_OWNER = 2,
+	Net_REPRULE_AUTH_2_ALL = Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_AUTH_2_OWNER,
+	Net_REPRULE_OWNER_2_AUTH = 4,
 };
 
 typedef Net_U8 Net_RepFlags;
