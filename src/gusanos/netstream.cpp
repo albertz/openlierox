@@ -863,11 +863,21 @@ void Net_Control::Net_processInput() {
 			case NetControlIntern::DataPackage::GPT_NodeEvent: {
 				Net_Node* node = intern->getNode(i->nodeID);
 				if(node == NULL) {
-					warnings << "NodeUpdate: node " << i->nodeID << " not found" << endl;
+					warnings << "NodeEvent: node " << i->nodeID << " not found" << endl;
 					break;
 				}
 				
-				// TODO: redistribute according to flags
+				if(intern->isServer) {
+					if(node->intern->ownerConn != i->connID) {
+						warnings << "NodeEvent: got event from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
+						break;
+					}
+					
+					// TODO: redistribute according to flags
+					NetControlIntern::DataPackage& p = intern->pushPackageToSend();
+					p = *i; // copy event
+					p.connID = INVALID_CONN_ID; // TODO: not to all but only to proxies (i.e. all except owner)
+				}
 				
 				node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::User(i->data, i->connID) );
 				break;
