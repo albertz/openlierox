@@ -623,6 +623,10 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 }
 
 void Net_Control::Net_processOutput() {
+	if(!intern->isServer)
+		// only server pushs node updates
+		return;
+	
 	// goes through the nodes and push Node-updates as needed
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
 		Net_Node::NetNodeIntern* node = i->second->intern;
@@ -779,6 +783,11 @@ void Net_Control::Net_processInput() {
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeInit: {
+				if(intern->isServer) {
+					warnings << "Net_processInput: got GPT_NodeInit as server" << endl;
+					break;
+				}
+				
 				Net_ClassID classId = i->data.getInt(32);
 				Net_ConnID ownerConnId = i->data.getInt(32);
 
@@ -817,6 +826,11 @@ void Net_Control::Net_processInput() {
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeRemove: {
+				if(intern->isServer) {
+					warnings << "Net_processInput: got GPT_NodeRemove as server" << endl;
+					break;
+				}
+
 				Net_Node* node = intern->getNode(i->nodeID);
 				if(node == NULL) {
 					warnings << "NodeRemove: node " << i->nodeID << " not found" << endl;
@@ -831,6 +845,11 @@ void Net_Control::Net_processInput() {
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeUpdate: {
+				if(intern->isServer) {
+					warnings << "Net_processInput: got GPT_NodeUpdate as server" << endl;
+					break;
+				}
+
 				Net_Node* node = intern->getNode(i->nodeID);
 				if(node == NULL) {
 					warnings << "NodeUpdate: node " << i->nodeID << " not found" << endl;
@@ -847,6 +866,8 @@ void Net_Control::Net_processInput() {
 					warnings << "NodeUpdate: node " << i->nodeID << " not found" << endl;
 					break;
 				}
+				
+				// TODO: redistribute according to flags
 				
 				node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::User(i->data, i->connID) );
 				break;
