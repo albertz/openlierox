@@ -280,7 +280,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 				CWorm::skipWeapons(bs);
 				continue;
 			}
-			notes << "Server:ParseImReady: ";
+			//notes << "Server:ParseImReady: ";
 			server->cWorms[id].readWeapons(bs);
 			for (j = 0; j < 5; j++) {
 				if(server->cWorms[id].getWeapon(j)->Weapon)

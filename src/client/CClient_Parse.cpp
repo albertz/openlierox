@@ -1437,7 +1437,7 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseWormWeaponInfo", CWorm::skipWeapons);
 	if(!w) return;
 
-	notes << "Client:ParseWormWeaponInfo: ";
+	//notes << "Client:ParseWormWeaponInfo: ";
 	w->readWeapons(bs);
 
 	client->UpdateScoreboard();
@@ -1886,7 +1886,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 		w->setGameReady(true);
 
 		// Read the weapon info
-		notes << "Client:ParseCLReady: ";
+		//notes << "Client:ParseCLReady: ";
 		w->readWeapons(bs);
 
 	}
