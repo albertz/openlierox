@@ -581,6 +581,7 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 			if(cl->getNetEngine() == NULL) continue;
 			if(cl->isLocalClient()) continue;
 			if(cl->getClientVersion() < OLXBetaVersion(0,59,1)) continue;
+			if(!cl->gusLoggedIn()) continue;
 			
 			CBytestream bs;
 			if(composePackagesForConn(bs, this, NetConnID_conn(cl)))
@@ -722,13 +723,26 @@ void Net_Control::Net_processInput() {
 					warnings << "Net_processInput: got GPT_ConnectRequest as client" << endl;
 					break;
 				}
-								
+				
+				CServerConnection* cl = serverConnFromNetConnID(i->connID);
+				if(cl == NULL) {
+					errors << "Net_processInput GPT_ConnectRequest: didn't found connection for id " << i->connID << endl;
+					break;
+				}
+				
+				if(cl->gusLoggedIn()) {
+					warnings << "Net_processInput GPT_ConnectRequest: client " << i->connID << " was already logged in" << endl;
+					break;
+				}
+				
 				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 				p.connID = i->connID;
 				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
 				p.data.addInt(i->connID, 32); // we tell client about its connection ID
 				
 				tellClientAboutAllNodes(this, i->connID);
+				
+				cl->gusLoggedIn() = true;
 				
 				Net_cbConnectionSpawned(i->connID);
 				break;

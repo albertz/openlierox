@@ -1385,6 +1385,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	if (!newcl)
 		return;
 
+	if(!reconnectFrom)
+		newcl->Clear();
+		
 	// TODO: this is a bad hack, fix it
 	// If this is the first client connected, it is our local client
 	if (!bLocalClientConnected)  {
@@ -1400,8 +1403,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	if( newcl->getChannel() ) {
 		// Note: do it also for reconnecting clients as reconnecting detection could be wrong
-		// TODO: It seems that this happens very often. Why?
-		//warnings << "ParseConnect: new client has old channel set" << endl;
 		newcl->resetChannel();
 	}
 

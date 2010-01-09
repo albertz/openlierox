@@ -49,10 +49,10 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 
 	fSendWait = 0;
 
-	bMuted = false;
-	
+	bMuted = false;	
 	bGameReady = false;
-
+	m_gusLoggedIn = false;
+	
 	fLastFileRequest = fConnectTime = tLX->currentTime;
 	
 	cNetEngine = new CServerNetEngine( server, this );
@@ -68,8 +68,7 @@ void CServerConnection::resetChannel() {
 void CServerConnection::Clear()
 {
 	iNumWorms = 0;
-	int i;
-	for(i=0;i<MAX_PLAYERS;i++)
+	for(int i=0;i<MAX_PLAYERS;i++)
 		cLocalWorms[i] = NULL;
 
 	if( cNetChan )
@@ -78,7 +77,8 @@ void CServerConnection::Clear()
 	iNetStatus = NET_DISCONNECTED;
 	bsUnreliable.Clear();
 	bLocalClient = false;
-
+	bGameReady = bMuted = m_gusLoggedIn = false;
+	
 	fLastReceived = AbsTime::Max();
 	fSendWait = 0;
 	fLastUpdateSent = AbsTime();
@@ -117,36 +117,6 @@ int CServerConnection::getConnectionArrayIndex() {
 	return this - &server->getClients()[0];
 }
 
-
-///////////////////
-// Initialize the client
-int CServerConnection::Initialize()
-{
-	// TODO: where is this function used? it's totally messed up and does not make much sense at various places
-	assert(false);
-	
-	uint i;
-
-	// Shutdown & clear any old client data
-	Shutdown();
-	Clear();
-
-	iNetSpeed = tLXOptions->iNetworkSpeed;
-
-	// Local/host games use instant speed
-	if(tLX->iGameType != GME_JOIN)
-		iNetSpeed = NST_LOCAL;
-
-
-	for(i=0;i<iNumWorms;i++) {
-		cLocalWorms[i] = NULL;
-	}
-
-	// Initialize the shooting list
-	cShootList.Initialize();
-
-	return true;
-}
 
 ///////////////////
 // Return true if we own the worm
