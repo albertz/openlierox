@@ -303,23 +303,26 @@ void CWorm::Prepare(bool serverSide)
 				Net_ConnID _id = NetConnID_conn(cl);
 				this->setOwnerId(_id);
 				
-				CWormInputHandler* player = gusGame.addPlayer ( GusGame::PROXY, this );
+				m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
 			
 				unsigned int uniqueID = 0;
 				do {
 					uniqueID = rndgen();
 				} while(!uniqueID);
 				
-				player->getOptions()->uniqueID = uniqueID;
+				m_inputHandler->getOptions()->uniqueID = uniqueID;
 				//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
 				
 				//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
-				player->assignNetworkRole(true);
-				player->setOwnerId(_id);
-				player->assignWorm(this);
+				m_inputHandler->setOwnerId(_id);
 			}
 			else
 				errors << "CWorm::Prepare clientside: non local worm has no client set" << endl;
+		}
+		
+		if(m_inputHandler) {
+			m_inputHandler->assignNetworkRole(true);
+			m_inputHandler->assignWorm(this);
 		}
 	}
 	
