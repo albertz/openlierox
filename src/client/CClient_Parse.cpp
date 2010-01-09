@@ -315,6 +315,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
 		if(!client->cLocalWorms[i]->isUsed()) {
 			client->cLocalWorms[i]->Clear();
+			client->cLocalWorms[i]->setID(id);
 			client->cLocalWorms[i]->setUsed(true);
 			client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
 			client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
