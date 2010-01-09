@@ -615,7 +615,7 @@ void CWorm::readWeapons(CBytestream *bs)
 	//notes << "weapons for " << iID << ":" << sName << ": ";
 	
 	for(ushort i=0; i<5; i++) {
-		if(i > 0) notes << ", ";
+		//if(i > 0) notes << ", ";
 		int id = bs->readByte();
 
 		tWeapons[i].Weapon = NULL;
