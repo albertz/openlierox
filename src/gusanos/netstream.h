@@ -15,6 +15,7 @@
 #include <string>
 #include <SDL.h> // for uint8_t etc.
 #include "Utils.h"
+#include "SmartPointer.h"
 
 typedef float Net_Float;
 typedef uint8_t Net_U8;
@@ -193,10 +194,13 @@ struct Net_Node : DontCopyTag {
 };
 
 class CBytestream;
+struct NetControlIntern;
+template <> void SmartPointer_ObjectDeinit<NetControlIntern> ( NetControlIntern * obj );
 
 struct Net_Control : DontCopyTag {
-	struct NetControlIntern; NetControlIntern* intern;
-
+	// we have that as smartptr because we may still refer to it after Net_Control was deleted
+	SmartPointer<NetControlIntern> intern;
+	
 	Net_Control(bool isServer);
 	virtual ~Net_Control();
 
