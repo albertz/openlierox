@@ -869,7 +869,7 @@ void Net_Control::Net_processInput() {
 				
 				if(intern->isServer) {
 					if(node->intern->ownerConn != i->connID) {
-						warnings << "NodeEvent: got event from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
+						warnings << "NodeEvent: got event for node " << i->nodeID << " from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
 						break;
 					}
 					
