@@ -1351,25 +1351,30 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	}
 
 	// A new worm?
+	bool newWorm = false;
 	if (!client->cRemoteWorms[id].isUsed())  {
 		client->cRemoteWorms[id].Clear();
-		client->cRemoteWorms[id].setLives((client->tGameInfo.iLives < 0) ? WRM_UNLIM : client->tGameInfo.iLives);
+		client->cRemoteWorms[id].setID(id);
 		client->cRemoteWorms[id].setUsed(true);
+		newWorm = true;
+	}
+	
+	WormJoinInfo wormInfo;
+	wormInfo.readInfo(bs);
+	wormInfo.applyTo(&client->cRemoteWorms[id]);
+
+	if(newWorm) {
+		client->cRemoteWorms[id].setLives((client->tGameInfo.iLives < 0) ? WRM_UNLIM : client->tGameInfo.iLives);
 		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
 		client->cRemoteWorms[id].setLocal(false);
 		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
 			client->cRemoteWorms[id].Prepare(false);
 		}
-		client->cRemoteWorms[id].setID(id);
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
 	}
-
-	WormJoinInfo wormInfo;
-	wormInfo.readInfo(bs);
-	wormInfo.applyTo(&client->cRemoteWorms[id]);
 
 	// Load the worm graphics
 	if(!client->cRemoteWorms[id].ChangeGraphics(client->getGeneralGameType())) {
