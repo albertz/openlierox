@@ -282,15 +282,5 @@ struct Net_NodeReplicationInterceptor {
 	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator) = 0;
 };
 
-struct NetStream {
-	struct NetStreamIntern; NetStreamIntern* intern;
-	
-	NetStream();
-	NetStream( void (*)( const char* ) );
-	~NetStream();
-	
-	bool Init();
-};
-
 #endif
 

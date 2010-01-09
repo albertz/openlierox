@@ -1165,37 +1165,6 @@ Net_ReplicatorSetup::Net_ReplicatorSetup(Net_RepFlags flags, Net_RepRules rules,
 
 
 
-struct NetStream::NetStreamIntern {
-	void (*logFct)( const char* );
-	
-	NetStreamIntern() {
-		logFct = NULL;
-	}
-	
-	void log(const std::string& msg) {
-		if(logFct) (*logFct) (msg.c_str());
-	}
-};
-
-NetStream::NetStream() {
-	intern = new NetStreamIntern();
-}
-
-NetStream::NetStream( void (*logFct)( const char* ) ) {
-	intern = new NetStreamIntern();
-	intern->logFct = logFct;
-}
-
-NetStream::~NetStream() {
-	delete intern;
-	intern = NULL;
-}
-
-bool NetStream::Init() {
-	intern->log("NetStream::Init()");
-	return true;
-}
-
 
 Net_ConnID NetConnID_server() {
 	return Net_ConnID(-1);

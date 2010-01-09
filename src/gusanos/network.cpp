@@ -132,7 +132,6 @@ namespace
 	int reconnectTimer = 0;
 	int connCount = 0;
 
-	NetStream* m_netstream = 0;
 	Net_Control* m_control = 0;
 	LuaEventList luaEvents[Network::LuaEventGroup::Max];
 
@@ -187,16 +186,6 @@ void Network::log(char const* msg)
 
 void Network::init()
 {
-	if(logNetstream) { //TODO: Netstream
-		m_netstream = new NetStream(log);
-	} else
-		m_netstream = new NetStream();
-
-	if ( !m_netstream->Init() ) {
-		console.addLogMsg("* ERROR: UNABLE TO INITIALIZE NETSTREAM NETWORK LIB");
-	} else {
-		console.addLogMsg("* NETSTREAM NETWORK LIB INITIALIZED");
-	}
 }
 
 void Network::shutDown()
