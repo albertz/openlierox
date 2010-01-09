@@ -192,8 +192,6 @@ void Network::shutDown()
 {
 	delete m_control;
 	m_control = 0;
-	delete m_netstream;
-	m_netstream = 0;
 }
 
 void Network::registerInConsole()
