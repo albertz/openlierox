@@ -31,15 +31,15 @@ Net_ClassID CWorm::classID = INVALID_CLASS_ID;
 const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
 void CWorm::NetWorm_Init(bool isAuthority)
-{	
+{
 	if(m_ninjaRope == NULL) {
 		errors << "CWorm::NetWorm_Init: ninja rope is NULL, should not have happend here" << endl;
 		gusInit(); // hack, try to make it initialised
 	}
 	
 	if(m_node || m_interceptor) {
-		warnings << "CWorm::NetWorm_Init: earlier node was not correctly uninitialised" << endl;
-		NetWorm_Shutdown();
+		errors << "CWorm::NetWorm_Init(" << getID() << "," << isAuthority << "): earlier node was not correctly uninitialised" << endl;
+		return; // we return here because the chance is high that the old node is really in use and it was incorrect to call NetWorm_Init here again
 	}
 	
 	timeSinceLastUpdate = 1;
