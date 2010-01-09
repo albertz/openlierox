@@ -184,11 +184,8 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 			return;
 		}
 		
-		if(worm->getLocal()) {
-			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: worm " << wormid << ":" << worm->getName() << " is a local worm, so we should be authority" << endl;
-			return;
-		}
-
+		notes << "Net_cbNodeRequest_Dynamic: new player (node " << _net_id << ") for worm " << wormid << ", set to " << ((_role == eNet_RoleOwner) ? "owner" : "proxy") << endl;
+		
 		// Creates a player class depending on the role
 		CWormInputHandler* player = gusGame.addPlayer ( (_role == eNet_RoleOwner) ? GusGame::OWNER : GusGame::PROXY, worm );
 		player->assignNetworkRole(false);
