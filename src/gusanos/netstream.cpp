@@ -561,6 +561,7 @@ static bool composePackagesForConn(CBytestream& bs, Net_Control* con, Net_ConnID
 	for(Packages::iterator i = packages.begin(); i != packages.end(); ++i)
 		(*i)->send(bs);
 	
+	//bs.Dump();
 	return true;
 }
 
@@ -593,6 +594,7 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 }
 
 void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
+	//size_t bsStart = bs.GetPos();
 	size_t len = readEliasGammaNr(bs);
 
 	for(size_t i = 0; i < len; ++i) {
@@ -601,6 +603,8 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 		p.read(bs);
 		p.connID = src;
 	}
+	
+	//bs.Dump(PrintOnLogger(notes), std::set<size_t>(), bsStart, bs.GetPos() - bsStart);
 }
 
 void Net_Control::Net_processOutput() {
