@@ -550,8 +550,19 @@ static bool composePackagesForConn(CBytestream& bs, Net_Control* con, Net_ConnID
 	Packages packages;
 	
 	for(Net_Control::NetControlIntern::Packages::iterator i = con->intern->packetsToSend.begin(); i != con->intern->packetsToSend.end(); ++i)
-		if(i->connID == INVALID_CONN_ID || i->connID == connid)
+		if(i->connID == INVALID_CONN_ID || i->connID == connid) {
+			if(!isServerNetConnID(connid)) {
+				CServerConnection* cl = serverConnFromNetConnID(connid);
+				if(!cl->gusLoggedIn()) {
+					if(i->type == Net_Control::NetControlIntern::DataPackage::GPT_ConnectResult)
+						cl->gusLoggedIn() = true;
+					else
+						continue;
+				}
+			}
+			
 			packages.push_back(&*i);
+		}
 	
 	if(packages.size() == 0) return false;
 	
@@ -582,7 +593,6 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 			if(cl->getNetEngine() == NULL) continue;
 			if(cl->isLocalClient()) continue;
 			if(cl->getClientVersion() < OLXBetaVersion(0,59,1)) continue;
-			if(!cl->gusLoggedIn()) continue;
 			
 			CBytestream bs;
 			if(composePackagesForConn(bs, this, NetConnID_conn(cl)))
@@ -739,15 +749,14 @@ void Net_Control::Net_processInput() {
 					break;
 				}
 				
+				// in olxSend, when we handle this package, we set gusLoggedIn() = true
 				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 				p.connID = i->connID;
 				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
 				p.data.addInt(i->connID, 32); // we tell client about its connection ID
 				
 				tellClientAboutAllNodes(this, i->connID);
-				
-				cl->gusLoggedIn() = true;
-				
+								
 				Net_cbConnectionSpawned(i->connID);
 				break;
 			}
