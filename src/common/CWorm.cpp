@@ -1428,6 +1428,12 @@ void CWorm::addDamage(float damage, CWorm* victim, const GameOptions::GameInfo &
 }
 
 void CWorm::reinitInputHandler() {
+	warnings << "CWorm::reinitInputHandler not implemented right now" << endl;
+	return;
+	// TODO: why are we doing this here?
+	// WARNING: this code is wrong, we cannot recreate the input handler because we must keep the network node
+	// also, it shouldn't be needed to recreate it
+	
 	if(!bLocal) {
 		warnings << "reinitInputHandler called for non-local worm " << getID() << endl;
 		return;
