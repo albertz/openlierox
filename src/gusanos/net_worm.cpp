@@ -178,7 +178,7 @@ void CWorm::NetWorm_think()
 					case Die:
 					{
 						m_lastHurt = gusGame.findPlayerWithID( data->getInt(32) );
-						CWorm::die();
+						CWorm::base_die();
 					}
 					break;
 					case ChangeWeapon:
@@ -203,20 +203,20 @@ void CWorm::NetWorm_think()
 						{
 							size_t weaponIndex = Encoding::decode(*data, gusGame.weaponList.size());
 							if(weaponIndex < gusGame.weaponList.size())
-								CWorm::setWeapon( index, gusGame.weaponList[weaponIndex] );
+								CWorm::base_setWeapon( index, gusGame.weaponList[weaponIndex] );
 							else
-								CWorm::setWeapon( index, 0 );
+								CWorm::base_setWeapon( index, 0 );
 						}
 						else
 						{
-							CWorm::setWeapon( index, 0 );
+							CWorm::base_setWeapon( index, 0 );
 						}
 					}
 					break;
 					case ClearWeapons:
 					{
 						DLOG("Clearing weapons");
-						CWorm::clearWeapons();
+						CWorm::base_clearWeapons();
 					}
 					break;
 					case SYNC:
@@ -225,7 +225,7 @@ void CWorm::NetWorm_think()
 						m_ninjaRope->active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
-						CWorm::clearWeapons();
+						CWorm::base_clearWeapons();
 						while ( data->getBool() )
 						{
 							size_t index = Encoding::decode(*data, m_weapons.size());

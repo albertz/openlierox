@@ -280,7 +280,7 @@ void CWorm::Prepare(bool serverSide)
 		m_inputHandler = NULL;
 	}
 
-	if(bLocal && !serverSide) {
+	if(!serverSide) {
 		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
 		// NOTE: this is only a workaround for now and not very elegant
 		gusShutdown();

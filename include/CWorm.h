@@ -716,11 +716,14 @@ public:
 	void dig(const Vec& digPos, Angle angle);
 	
 	virtual void die();
+	void base_die();
 	virtual void changeWeaponTo( unsigned int weapIndex );
 	
 	virtual void setWeapon(size_t index, WeaponType* type );
+	void base_setWeapon(size_t index, WeaponType* type );
 	virtual void setWeapons( std::vector<WeaponType*> const& weaps);
 	virtual void clearWeapons();
+	void base_clearWeapons();
 	
 	Weapon* getCurrentWeaponRef();
 	
