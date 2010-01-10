@@ -392,8 +392,8 @@ struct NetControlIntern {
 
 		Type type;
 		Net_ConnID connID; // target or source
-		SmartPointer<NetNodeIntern> node; // node this is about; it may be that this is NULL and nodeId is valid (if the node wasnt created yet)
-		Net_NodeID nodeId; // same as node; NULL iff !nodeMustBeSet()
+		SmartPointer<NetNodeIntern> node; // node this is about; this is used for sending
+		Net_NodeID nodeId; // node this is about; this is used for receiving; NULL iff !nodeMustBeSet()
 		Net_BitStream data;
 		eNet_SendMode sendMode;
 		Net_RepRules repRules; // if node is set, while sending, these are checked
@@ -556,15 +556,8 @@ void NetControlIntern::DataPackage::send(CBytestream& bs) {
 
 void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& con, CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	if(nodeMustBeSet()) {
-		nodeId = readEliasGammaNr(bs);
-		Net_Node* n = con->getNode(nodeId);
-		node = n ? n->intern : NULL;
-	}
-	else {
-		nodeId = INVALID_NODE_ID;
-		node = NULL;
-	}
+	nodeId = nodeMustBeSet() ? readEliasGammaNr(bs) : INVALID_NODE_ID;
+	node = NULL;
 	size_t len = readEliasGammaNr(bs);
 	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
@@ -883,18 +876,14 @@ void Net_Control::Net_processInput() {
 					break;
 				}
 
-				if(i->node.get() == NULL) {
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL) {
 					warnings << "NodeRemove: node " << i->nodeId << " not found" << endl;
 					break;
 				}
 				
-				Net_Node* node = intern->getNode(i->nodeId);
-				if(node == NULL)
-					// may happen if the node was already deleted
-					break;
-				
-				if(i->node->eventForRemove)
-					i->node->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(i->connID) );
+				if(node->intern->eventForRemove)
+					node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(i->connID) );
 				
 				unregisterNode(node);
 				break;
@@ -906,30 +895,22 @@ void Net_Control::Net_processInput() {
 					break;
 				}
 				
-				if(i->node.get() == NULL) {
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL) {
 					warnings << "NodeUpdate: node " << i->nodeId << " not found" << endl;
 					break;
 				}
-
-				Net_Node* node = intern->getNode(i->nodeId);
-				if(node == NULL)
-					// may happen if the node was already deleted
-					break;
-
+				
 				doNodeUpdate(node, i->data, i->connID);
 				break;
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeEvent: {
-				if(i->node.get() == NULL) {
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL) {
 					warnings << "NodeEvent: node " << i->nodeId << " not found" << endl;
 					break;
 				}
-
-				Net_Node* node = intern->getNode(i->nodeId);
-				if(node == NULL)
-					// may happen if the node was already deleted
-					break;
 				
 				if(intern->isServer) {
 					if(node->intern->ownerConn != i->connID) {
