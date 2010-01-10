@@ -790,7 +790,7 @@ void Net_Control::Net_processInput() {
 				NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 				p.connID = i->connID;
 				p.sendMode = eNet_ReliableOrdered;
-				p.repRules = Net_REPRULE_AUTH_2_ALL;
+				p.repRules = Net_REPRULE_NONE;
 				p.type = NetControlIntern::DataPackage::GPT_ConnectResult;	
 				p.data.addInt(i->connID, 32); // we tell client about its connection ID
 				
