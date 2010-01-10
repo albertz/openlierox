@@ -36,7 +36,7 @@
 #include "AuxLib.h"
 #include "CClientNetEngine.h"
 #include "Debug.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "DeprecatedGUI/CChatWidget.h"
 
 
@@ -441,7 +441,7 @@ static void updateDetailsList(CListview* l) {
 		for( int rm = index; rm < numItems; rm++ )
 			l->RemoveItem(rm);
 		
-		foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 			if( cClient->getGameLobby()->features[f->get()] == f->get()->unsetValue )
 				continue;
 			i = l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel);
@@ -453,7 +453,7 @@ static void updateDetailsList(CListview* l) {
 			si->sText = cClient->getGameLobby()->features[f->get()].toString();
 		}
 
-		foreach( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
+		for_each_iterator( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
 			i = l->AddItem("feature:" + f->get().name, index++, tLX->clNormalLabel);
 			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", (DynDrawIntf*)NULL, NULL);
 			l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);

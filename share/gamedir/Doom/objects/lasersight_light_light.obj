@@ -1,0 +1,9 @@
+blender = add
+alpha = 255
+colour = [200, 0, 0]
+col_layer = 6
+wu_pixels = true
+light_radius=1
+
+on timer( 3 )
+remove()

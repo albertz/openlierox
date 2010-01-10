@@ -1,0 +1,22 @@
+Utopia
+----------------
+v0.1  2006-02-13
+
+By Gliptic with 3D Studio Max & Photoshop
+Made for Gusanos 0.9c
+Orginally made for LOSP.
+Converted by Uthar.
+
+History:
+--------
+0.1 - 2006-02-13 (215kb)
+  Converted from LOSP to Gusanos.
+  Added paralax.
+  Minor material changes.
+
+Links:
+------
+Gusanos:
+  http://gusanos.sourceforge.net/
+Liero chat:
+  irc://irc.quakenet.org/Liero

@@ -1,0 +1,8 @@
+invisible = 1
+col_layer=-1
+bounce_factor = 1
+
+on timer(5,3)
+ shoot_particles ( NWH_flames.obj , 1,1 )
+ shoot_particles( tinysmoke.obj, 5)
+ remove()

@@ -43,7 +43,6 @@
 #include <sys/stat.h>
 
 #ifdef WIN32
-#	include <windows.h>
 #	include <io.h>
 #	include <direct.h>
 	// wrappers to provide the standards
@@ -182,6 +181,9 @@ FILE*	OpenGameFile(const std::string& path, const char *mode);
 
 FILE*	OpenAbsFile(const std::string& path, const char *mode);
 
+bool OpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::in);
+bool OpenGameFileW(std::ofstream& f, const std::string& path, std::ios_base::openmode mode = std::ios_base::out);
+
 std::ifstream* OpenGameFileR(const std::string& path);
 
 std::string GetFileContents(const std::string& path, bool absolute = false);
@@ -191,7 +193,9 @@ std::string JoinPaths(const std::string& path1, const std::string& path2);
 std::string GetScriptInterpreterCommandForFile(const std::string& filename);
 
 
-bool IsFileAvailable(const std::string& f, bool absolute = false);
+bool IsFileAvailable(const std::string& f, bool absolute = false, bool onlyregfiles = true);
+bool IsDirectory(const std::string& f, bool absolute = false);
+
 
 // the dir will be created recursivly
 // IMPORTANT: filename is absolute; no game-path!
@@ -219,7 +223,6 @@ std::string	GetSystemDataDir();
 // returns the dir of the executable-binary
 std::string	GetBinaryDir();
 const char* GetBinaryFilename();
-const char* GetLogFilename();
 // returns the temp-dir of the system
 std::string	GetTempDir();
 
@@ -274,7 +277,6 @@ void ForEachSearchpath(_handler& handler) {
 		}
 	}
 }
-
 
 // functor for ForEachSearchpath, used by FindFiles
 // it will search a subdir of a given searchpath for files
@@ -393,6 +395,14 @@ void GetFileList(
 	GetFileList_FileListAdder<_List,_CheckFct> adder(checkFct, filelist);
 	FindFiles(adder, dir, absolutePath, modefilter, namefilter);
 }
+
+
+// WARNING: current implementation is slow!
+Iterator<std::string>::Ref FileListIter(
+	const std::string& dir,
+	bool absolutePath = false,
+	const filemodes_t modefilter = -1,
+	const std::string& namefilter = "");
 
 
 class Command;

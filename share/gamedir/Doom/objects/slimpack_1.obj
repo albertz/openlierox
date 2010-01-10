@@ -1,0 +1,14 @@
+col_layer = -1
+invisible = 1
+
+distort_magnitude = 0.2
+distort_gen = <<< distortions.lens >>>
+distort_size = [30,30]
+
+blender = add
+alpha = 0
+
+on timer(5)
+ shoot_particles ( slimpack_2.obj, 1,motion_inheritance=1)
+ remove()
+ 

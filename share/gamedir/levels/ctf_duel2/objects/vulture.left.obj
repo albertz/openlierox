@@ -1,0 +1,5 @@
+col_layer=0
+
+on timer(3000, 1000)
+ shoot_particles(vulture.bird.obj, 1, speed=0.2, speed_var=0.1, distribution=20, angle_offs=80)
+ 

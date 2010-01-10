@@ -19,9 +19,6 @@
 
 
 #include <cassert>
-#ifndef DEDICATED_ONLY
-#include <gd.h>
-#endif
 #include <SDL.h>
 #include <algorithm>
 
@@ -43,6 +40,7 @@
 #include "Mutex.h"
 #include "Condition.h"
 #include "CVec.h"
+#include "Cache.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -561,7 +559,10 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 	// RGB -> RGB
 	// RGB -> RGBA
 	if (!src_isrgba)  {
-		SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
+		if(bmpDest->format->BitsPerPixel == 8 && bmpSrc->format->BitsPerPixel == 8)
+			CopySurfaceFast(bmpDest, bmpSrc, rSrc.x, rSrc.y, rDest.x, rDest.y, rSrc.w, rSrc.h);
+		else
+			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
 
 	// RGBA -> RGB
 	} else if (src_isrgba && !dst_isrgba)  {
@@ -938,45 +939,19 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Copied over from SDL_stretch.c from SDL-1.2.9
 // This is a safe, esp multithreadingsafe version of SDL_SoftStretch without any ASM magic.
 
-#define DEFINE_COPY_ROW(name, type)                     \
-void name(type *src, int src_w, type *dst, int dst_w)   \
-{                                                       \
-        type pixel = 0;                                 \
-                                                        \
-        int pos = 0x10000;                              \
-        int inc = (src_w << 16) / dst_w;                \
-        for ( int i=dst_w; i>0; --i ) {                 \
-                while ( pos >= 0x10000L ) {             \
-                        pixel = *src++;                 \
-                        pos -= 0x10000L;                \
-                }                                       \
-                *dst++ = pixel;                         \
-                pos += inc;                             \
-        }                                               \
-}
-DEFINE_COPY_ROW(copy_row1, Uint8)
-DEFINE_COPY_ROW(copy_row2, Uint16)
-DEFINE_COPY_ROW(copy_row4, Uint32)
-
-/* The ASM code doesn't handle 24-bpp stretch blits */
-void copy_row3(Uint8 *src, int src_w, Uint8 *dst, int dst_w)
-{
-	Uint8 pixel[3] = {0,0,0};
-	
-	int pos = 0x10000;
-	int inc = (src_w << 16) / dst_w;
-	for ( int i=dst_w; i>0; --i ) {
-		while ( pos >= 0x10000L ) {
-			pixel[0] = *src++;
-			pixel[1] = *src++;
-			pixel[2] = *src++;
-			pos -= 0x10000L;
-		}
-		*dst++ = pixel[0];
-		*dst++ = pixel[1];
-		*dst++ = pixel[2];
-		pos += inc;
-	}
+static inline void copy_row(PixelCopy& copier, Uint8 *src, int src_w, int sbpp, Uint8 *dst, int dst_w, int dbpp)
+{                                                                                                               
+        int pos = 0x10000;                              
+        int inc = (src_w << 16) / dst_w;                
+        for ( int i=dst_w; i>0; --i ) {                 
+                while ( pos >= 0x10000L ) {             
+                        src += sbpp;                 
+                        pos -= 0x10000L;                
+                } 
+				copier.copy(dst, src - sbpp);
+                dst += dbpp;                         
+                pos += inc;                             
+        }                                               
 }
 
 /* Perform a stretch blit between two surfaces of the same format.
@@ -994,13 +969,9 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	Uint8 *dstp;
 	SDL_Rect full_src;
 	SDL_Rect full_dst;
-	const int bpp = dst->format->BytesPerPixel;
-	
-	if ( src->format->BitsPerPixel != dst->format->BitsPerPixel ) {
-		SDL_SetError("Only works with same format surfaces");
-		return(-1);
-	}
-	
+	const int sbpp = src->format->BytesPerPixel;
+	const int dbpp = dst->format->BytesPerPixel;
+		
 	/* Verify the blit rectangles */
 	if ( srcrect ) {
 		if ( (srcrect->x < 0) || (srcrect->y < 0) ||
@@ -1058,34 +1029,22 @@ int SafeSoftStretch(SDL_Surface *src, SDL_Rect *srcrect,
 	inc = (srcrect->h << 16) / dstrect->h;
 	src_row = srcrect->y;
 	dst_row = dstrect->y;
-	dst_width = dstrect->w*bpp;
-		
+	dst_width = dstrect->w*dbpp;
+
+	PixelCopy& copier = getPixelCopyFunc(src, dst);
+
 	/* Perform the stretch blit */
 	for ( dst_maxrow = dst_row+dstrect->h; dst_row<dst_maxrow; ++dst_row ) {
 		dstp = (Uint8 *)dst->pixels + (dst_row*dst->pitch)
-		+ (dstrect->x*bpp);
+		+ (dstrect->x*dbpp);
 		while ( pos >= 0x10000L ) {
 			srcp = (Uint8 *)src->pixels + (src_row*src->pitch)
-			+ (srcrect->x*bpp);
+			+ (srcrect->x*sbpp);
 			++src_row;
 			pos -= 0x10000L;
 		}
-		switch (bpp) {
-			case 1:
-				copy_row1(srcp, srcrect->w, dstp, dstrect->w);
-				break;
-			case 2:
-				copy_row2((Uint16 *)srcp, srcrect->w,
-						  (Uint16 *)dstp, dstrect->w);
-				break;
-			case 3:
-				copy_row3(srcp, srcrect->w, dstp, dstrect->w);
-				break;
-			case 4:
-				copy_row4((Uint32 *)srcp, srcrect->w,
-						  (Uint32 *)dstp, dstrect->w);
-				break;
-		}
+		
+		copy_row(copier, srcp, srcrect->w, sbpp, dstp, dstrect->w, dbpp);
 		pos += inc;
 	}
 	
@@ -1412,6 +1371,90 @@ void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc) {
 			const Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
 			PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
 		}
+
+	// Unlock
+	UnlockSurface(bmpDest);
+	UnlockSurface(bmpSrc);
+
+}
+
+static Color HalfBlendPixelAdv(Uint32 s1, Uint32 s2, Uint32 s3, Uint32 s4, bool usekey, SDL_PixelFormat *src)
+{
+	Color c1(src, s1);
+	Color c2(src, s2);
+	Color c3(src, s3);
+	Color c4(src, s4);
+	if (usekey)  {
+		if (EqualRGB(s1, src->colorkey, src))
+			c1.a = 0;
+		if (EqualRGB(s2, src->colorkey, src))
+			c2.a = 0;
+		if (EqualRGB(s3, src->colorkey, src))
+			c3.a = 0;
+		if (EqualRGB(s4, src->colorkey, src))
+			c4.a = 0;
+	}
+
+#define CHPART(var, chan) ((var.chan * var.a) >> 10)
+
+	Color res(CHPART(c1, r) + CHPART(c2, r) + CHPART(c3, r) + CHPART(c4, r),
+				CHPART(c1, g) + CHPART(c2, g) + CHPART(c3, g) + CHPART(c4, g),
+				CHPART(c1, b) + CHPART(c2, b) + CHPART(c3, b) + CHPART(c4, b),
+				(c1.a + c2.a + c3.a + c4.a) >> 2);
+	return res;
+}
+
+/////////////////////////
+// Draws the image half-scaled onto the destination surface
+// Handles colorkey and alpha correctly
+void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh)
+{
+	// Lock
+	LOCK_OR_QUIT(bmpDest);
+	LOCK_OR_QUIT(bmpSrc);
+
+	// Clip
+	int dw = sw / 2;
+	int dh = sh / 2;
+	if (!ClipRefRectWith(dx, dy, dw, dh, (SDLRect&)bmpDest->clip_rect))
+		return;
+	sw = dw * 2;
+	sh = dh * 2;
+	if (!ClipRefRectWith(sx, sy, sw, sh, (SDLRect&)bmpSrc->clip_rect))
+		return;
+
+	if (sh < 2 || sw < 2)
+		return;
+	dw = sw / 2;
+	dh = sh / 2;
+
+	const short bpp = bmpDest->format->BytesPerPixel;
+	Uint8 *srcrow_1 = GetPixelAddr(bmpSrc, sx, sy);
+	Uint8 *srcrow_2 = GetPixelAddr(bmpSrc, sx, sy + 1);
+	Uint8 *dstrow = GetPixelAddr(bmpDest, dx, dy);
+	const Uint32 key = bmpDest->format->colorkey;
+	PixelPutAlpha& put = getPixelAlphaPutFunc(bmpDest);
+	const bool usekey = (bmpSrc->flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY;
+
+	for(int y = sy + dh; y != sy; --y)  {
+		Uint8 *srcpx_1 = srcrow_1;
+		Uint8 *srcpx_2 = srcrow_2;
+		Uint8 *dstpx = dstrow;
+		for(int x = sx + dw; x != sx; --x, srcpx_1 += bpp * 2, srcpx_2 += bpp * 2, dstpx += bpp) {
+			Uint32 px1 = GetPixelFromAddr(srcpx_1, bpp);  // x, y
+			Uint32 px2 = GetPixelFromAddr(srcpx_1 + bpp, bpp); // x + 1, y
+			Uint32 px3 = GetPixelFromAddr(srcpx_2, bpp);  // x, y + 1
+			Uint32 px4 = GetPixelFromAddr(srcpx_2 + bpp, bpp);  // x + 1, y + 1
+			const Color pxBg(bmpDest->format, GetPixelFromAddr(dstpx, bpp));
+
+			put.put(dstpx, bmpDest->format, HalfBlendPixelAdv(px1, px2, px3, px4, usekey, bmpSrc->format));
+			//PutPixelToAddr(dstpx, HalfBlendPixel(px1, px2, px3, px4, bmpSrc->format), bpp);
+		}
+
+		srcrow_1 += 2*bmpSrc->pitch;
+		srcrow_2 += 2*bmpSrc->pitch;
+		dstrow += bmpDest->pitch;
+	}
 
 	// Unlock
 	UnlockSurface(bmpDest);
@@ -2497,136 +2540,6 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	return Image;
 }
 
-#ifndef DEDICATED_ONLY
-///////////////////////
-// Converts the SDL_surface to gdImagePtr
-static gdImagePtr SDLSurface2GDImage(SDL_Surface * src) {
-	gdImagePtr gd_image = gdImageCreateTrueColor(src->w,src->h);
-	if(!gd_image)
-		return NULL;
-
-	Uint32 rmask, gmask, bmask;
-	// format of gdImage
-	rmask=0x00FF0000; gmask=0x0000FF00; bmask=0x000000FF;
-
-	SmartPointer<SDL_Surface> formated = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, 0);
-	if(!formated.get())
-		return NULL;
-	#ifdef DEBUG
-	//printf("SDLSurface2GDImage() %p\n", formated.get() );
-	#endif
-	// convert it to the new format (32 bpp)
-	CopySurface(formated.get(), src, 0, 0, 0, 0, src->w, src->h);
-
-	if (!LockSurface(formated))
-		return NULL;
-
-	for(int y = 0; y < src->h; y++) {
-		memcpy(gd_image->tpixels[y], (uchar*)formated.get()->pixels + y*formated.get()->pitch, formated.get()->pitch);
-	}
-
-	UnlockSurface(formated);
-
-	return gd_image;
-}
-#endif //DEDICATED_ONLY
-
-///////////////////////
-// Saves the surface into the specified file with the specified format
-bool SaveSurface(SDL_Surface * image, const std::string& FileName, int Format, const std::string& Data)
-{
-	//
-	// BMP
-	//
-
-	// We use standard SDL function for saving BMPs
-	if (Format == FMT_BMP)  {
-
-		// Save the image
-		std::string abs_fn = GetWriteFullFileName (FileName, true);  // SDL requires full paths
-		SDL_SaveBMP(image, abs_fn.c_str());
-
-		// Append any additional data
-		if (!Data.empty())  {
-
-			FILE *f = OpenGameFile (FileName, "ab");
-			if (!f)
-				return false;
-
-			fwrite(Data.data(), 1, Data.size(), f);
-			fclose (f);
-		}
-
-		return true;
-	}
-
-#ifdef DEDICATED_ONLY
-	warnings << "SaveSurface: cannot use something else than BMP in dedicated-only-mode" << endl;
-	return false;
-
-#else
-	
-	//
-	// JPG, PNG, GIF
-	//
-
-	// We use GD for saving these formats
-	gdImagePtr gd_image = NULL;
-
-	// Convert the surface
-	gd_image = SDLSurface2GDImage ( image );
-	if ( !gd_image )
-		return false;
-
-	// Save the image
-	int s;
-	char *data = NULL;
-	FILE *out = OpenGameFile (FileName, "wb");
-	if ( !out )
-		return false;
-
-	// Get the data depending on the format
-	switch (Format)
-	{
-		case FMT_PNG:
-			data = ( char * ) gdImagePngPtr ( gd_image, &s );
-			break;
-		case FMT_JPG:
-			data = ( char * ) gdImageJpegPtr ( gd_image, &s,tLXOptions->iJpegQuality );
-			break;
-		case FMT_GIF:
-			data = ( char * ) gdImageGifPtr ( gd_image, &s );
-			break;
-		default:
-			data = ( char * ) gdImagePngPtr ( gd_image, &s );
-			break;
-	}
-
-	// Check
-	if (!data)
-		return false;
-
-	// Size of the data
-	size_t size = s > 0 ? s : -s;
-
-	// Write the image data
-	if (fwrite(data, 1, size, out) != size)
-		return false;
-
-	// Write any additional data
-	if (!Data.empty())
-		fwrite(Data.data(), 1, Data.size(), out);
-
-	// Free everything
-	gdFree ( data );
-	gdImageDestroy ( gd_image );
-
-	// Close the file and quit
-	return fclose(out) == 0;
-#endif // !DEDICATED_ONLY
-}
-
-
 void test_Clipper() {
 	SDL_Rect r1 = {52, 120, 7, 14};
 	SDL_Rect r2 = {52, 162, 558, 258};
@@ -2652,112 +2565,6 @@ std::map< void *, SDL_mutex * > * SmartPointer_CollisionDetector = NULL;
 
 
 
-
-
-void DrawLoadingAni(SDL_Surface* bmpDest, int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
-	switch(type) {
-		case LAT_CIRCLES: {
-			static const int STEPS = 12;
-			int cur = int(((GetTime().milliseconds() % 1000)) * STEPS * 0.001f);
-			for(int i = 0; i < STEPS; ++i) {
-				const float a = (float)PI * 2.0f * i / STEPS;
-				VectorD2<float> p( cosf(a) * rx, sinf(a) * ry );
-				
-				DrawCircleFilled(bmpDest, int(x + p.x), int(y + p.y), rx / 5, ry / 5, (i == cur) ? fg : bg);
-			}
-			break;
-		}
-		case LAT_CAKE: {
-			static const int STEPS = 6;
-			int cur = int(((GetTime().milliseconds() % 500)) * STEPS * 0.002f);
-			for(int i = 0; i < STEPS; ++i) {
-				const float angle = (float)PI * 2.0f * i / STEPS;
-				const float a = angle + (float)PI * 2.0f * -0.5f / STEPS;
-				const float b = angle + (float)PI * 2.0f * 0.5f / STEPS;
-				Polygon2D poly;
-				poly.startPointAdding();
-				poly.addPoint(VectorD2<float>(cosf(a) * rx, sinf(a) * ry));
-				poly.addPoint(VectorD2<float>(cosf(b) * rx, sinf(b) * ry));
-				poly.addPoint(VectorD2<int>(0,0));
-				poly.endPointAdding();
-				float colf = float((STEPS + cur - i) % STEPS) / float(STEPS - 1);
-				Color col = bg * colf + fg * (1.0f - colf);
-				poly.drawFilled(bmpDest, x, y, col);
-			}
-			break;
-		}
-	}
-}
-
-struct ScopedBackgroundLoadingAni::Data {
-	ThreadPoolItem* thread;
-	Mutex mutex;
-	bool quit;
-	Condition breakSig;
-	SmartPointer<SDL_Surface> screenBackup;
-	
-	Data() : thread(NULL), quit(false) {
-		screenBackup = gfxCreateSurface(640,480);
-		CopySurface(screenBackup.get(), VideoPostProcessor::videoSurface(), 0,0,0,0,640,480);
-	}
-	~Data() {
-		CopySurface(VideoPostProcessor::videoSurface(), screenBackup.get(), 0,0,0,0,640,480);	
-	}
-};
-
-ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
-	data = NULL;
-	if(bDedicated) return;
-	
-	data = new Data();
-	struct Animator : Action {
-		int x, y, rx, ry;
-		LoadingAniType type;
-		Color fg, bg;
-		Data* data;
-		
-		int handle() {
-			Mutex::ScopedLock lock(data->mutex);
-			while(!data->quit) {
-				// Kind of a hack: we update the time so that mainlockdetector does not break this
-				// loading, no matter how slow it is.
-				// As we are only loading the mod/map, we can savly access tLX->currentTime.
-				tLX->currentTime = GetTime();
-				
-				DrawImageEx(VideoPostProcessor::videoSurface(), data->screenBackup, 0,0,640,480);
-				DrawLoadingAni(VideoPostProcessor::videoSurface(), x, y, rx, ry, fg, bg, type);
-				doVideoFrameInMainThread();
-				
-				data->breakSig.wait(data->mutex, 10);
-			}
-			return 0;
-		}
-	};
-	
-	Animator* anim = new Animator();
-	anim->x = x;
-	anim->y = y;
-	anim->rx = rx;
-	anim->ry = ry;
-	anim->fg = fg;
-	anim->bg = bg;
-	anim->type = type;
-	anim->data = data;
-	
-	data->thread = threadPool->start(anim, "Background Loading animation");
-}
-
-ScopedBackgroundLoadingAni::~ScopedBackgroundLoadingAni() {
-	if(data) {
-		{
-			Mutex::ScopedLock lock(data->mutex);
-			data->quit = true;
-			data->breakSig.signal();
-		}
-		threadPool->wait(data->thread);
-		delete data; data = NULL;
-	}
-}
 
 
 

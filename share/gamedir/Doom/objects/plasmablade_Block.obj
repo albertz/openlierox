@@ -1,0 +1,31 @@
+colour = [250,250,250]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+
+on ground_collision()
+ play_sound( [plasmasaber_ground_01.ogg,plasmasaber_ground_02.ogg], 100, 1, 0.05 )
+ shoot_particles ( plasmablade_hit.obj, 1 , 0, 0, 0, 0, 0, 180, 2)
+ shoot_particles ( recoil3.obj , 1)
+ apply_map_effect( laserhole.mfx )
+remove()
+
+on timer(0)
+shoot_particles (plasmablade_trail3.obj , 1)
+
+on detect_range(5,1,[0,2,3,4])
+push (0.2)
+custom_event(3)
+custom_event(8)
+damage (2)
+
+on detect_range(10,0,[1,6])
+ damage(99)
+
+on detect_range(4,0)
+damage (1)
+shoot_particles ( ash.obj , 2 , 0.3, 0.2 )
+
+on timer(2)
+ remove()

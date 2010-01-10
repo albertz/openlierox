@@ -1,0 +1,14 @@
+#col_layer = -1
+invisible = 1
+render_layer = 7
+
+	on creation()
+		play_sound([gibsplt1.ogg],100,1,0)
+		#shoot_particles(gibs/brain.obj,1,1.2,0.3,0.5,0,0,5,0)
+		#shoot_particles(gibs/gib.obj,1,1.2,0.3,0.5,0,0,15,0)
+		#shoot_particles(gibs/rib.obj,1,1.2,0.3,0.5,0,0,25,0)
+		#shoot_particles(gibs/gib2.obj,1,1.2,0.3,0.5,0,0,-5,0)
+		#shoot_particles(gibs/skull.obj,1,1.2,0.3,0.5,0,0,-15,0)
+		#shoot_particles(gibs/gib.obj,1,1.2,0.3,0.5,0,0,-25,0)
+		run_script(effects.createGibs)
+	remove()

@@ -1,0 +1,15 @@
+
+col_layer = -1
+damping = 0.96
+gravity = 0.015
+bounce_factor = 0.3
+
+sprite = flag_b.bmp
+
+
+on detect_range(10, 0)
+ run_script(ctf.flag_reach)
+ 
+on timer(0)
+ run_script(ctf.flag_think)
+shoot_particles(light_b.obj, 1)

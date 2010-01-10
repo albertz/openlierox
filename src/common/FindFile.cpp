@@ -37,6 +37,7 @@
 #   define  _WIN32_IE  0x0400  // Because of Dev-cpp
 #	endif
 
+#	include <windows.h>
 #	include <shlobj.h>
 
 #else // WIN32
@@ -53,11 +54,8 @@
 #			define hash_set std::tr1::unordered_set
 #		else
 #			include <ext/hash_set>
-#			ifdef _GLIBCXX_DEBUG
-				using namespace __gnu_debug_def;
-#			else
-				using namespace __gnu_cxx;
-#			endif
+			using namespace __gnu_cxx;
+			using namespace __gnu_debug_def;
 #		endif
 #	else // STLPORT
 #		include <hash_set>
@@ -77,14 +75,13 @@
 searchpathlist tSearchPaths;
 
 
-
-bool IsFileAvailable(const std::string& f, bool absolute) {
+static bool doFileStat(const std::string& f, bool absolute, struct stat& s) {
 	std::string abs_f;
 	if(absolute) {
 		abs_f = f;
 	} else
 		if((abs_f = GetFullFileName(f)) == "") return false;
-
+	
 	// remove trailing slashes
 	// don't remove them on WIN, if it is a drive-letter
 	while(abs_f.size() > 0 && (abs_f[abs_f.size()-1] == '\\' || abs_f[abs_f.size()-1] == '/')) {
@@ -93,19 +90,40 @@ bool IsFileAvailable(const std::string& f, bool absolute) {
 #endif
 		abs_f.erase(abs_f.size()-1);
 	}
-
+	
 	abs_f = Utf8ToSystemNative(abs_f);
-
+	
 	// HINT: this should also work on WIN32, as we have _stat here
+	return stat(abs_f.c_str(), &s) == 0;
+}
+
+
+bool IsFileAvailable(const std::string& f, bool absolute, bool onlyregfiles) {
 	struct stat s;
-	if(stat(abs_f.c_str(), &s) != 0 || !S_ISREG(s.st_mode)) {
-		// it's not stat-able or not a reg file
+	if(!doFileStat(f, absolute, s))
+		// it's not stat-able or not found
+		return false;
+	
+	if(onlyregfiles && !S_ISREG(s.st_mode)) {
+		// it's not a reg file
 		return false;
 	}
 
-	// it's stat-able and a file
 	return true;
 }
+
+bool IsDirectory(const std::string& f, bool absolute) {
+	struct stat s;
+	if(!doFileStat(f, absolute, s))
+		// it's not stat-able or not found
+		return false;
+	
+	if(!S_ISDIR(s.st_mode))
+		return false;
+	
+	return true;	
+}
+
 
 
 
@@ -428,7 +446,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 searchpathlist	basesearchpaths;
 void InitBaseSearchPaths() {
 	basesearchpaths.clear();
-#if defined(MACOSX)
+#if defined(__APPLE__)
 	AddToFileList(&basesearchpaths, "${HOME}/Library/Application Support/OpenLieroX");
 	AddToFileList(&basesearchpaths, ".");
 	AddToFileList(&basesearchpaths, "${BIN}/../Resources/gamedir");
@@ -616,6 +634,40 @@ FILE *OpenGameFile(const std::string& path, const char *mode) {
 	return NULL;
 }
 
+
+
+
+bool OpenGameFileR(std::ifstream& f, const std::string& path, std::ios_base::openmode mode) {
+	if(path.size() == 0)
+		return false;
+
+	std::string fullfn = GetFullFileName(path);
+	if(fullfn.size() != 0) {
+		try {
+			f.open(Utf8ToSystemNative(fullfn).c_str(), mode);
+			return f.is_open();
+		} catch(...) {}
+		return false;
+	}
+
+	return false;
+}
+
+bool OpenGameFileW(std::ofstream& f, const std::string& path, std::ios_base::openmode mode) {
+	if(path.size() == 0)
+		return false;
+	
+	std::string fullfn = GetWriteFullFileName(path, true);
+	if(fullfn.size() != 0) {
+		try {
+			f.open(Utf8ToSystemNative(fullfn).c_str(), mode);
+			return f.is_open();
+		} catch(...) {}
+		return false;
+	}
+	
+	return false;	
+}
 
 
 std::ifstream* OpenGameFileR(const std::string& path) {
@@ -1019,4 +1071,43 @@ SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose)  {
 	return SDL_RWFromFP(fp, (int)autoclose);
 #endif
 }
+
+
+
+
+struct FileIter : Iterator<std::string> {
+	typedef std::set<std::string> List;
+	List files;
+	List::iterator it;
+	
+	bool operator() (const std::string& path) {
+		files.insert( GetBaseFilename(path) );
+		return true;
+	}
+	
+	void setBegin() { it = files.begin(); }
+	
+	Iterator<std::string>* copy() const { return new FileIter(*this); }
+	bool isValid() { return it != files.end(); }
+	void next() { ++it; }
+	bool operator==(const Iterator<std::string>& _oth) const {
+		if( const FileIter* oth = dynamic_cast<const FileIter*> (&_oth) )
+			return oth->files == files && oth->it == it;
+		return false;
+	}
+	std::string get() { return *it; }
+};
+
+Iterator<std::string>::Ref FileListIter(
+										const std::string& dir,
+										bool absolutePath,
+										const filemodes_t modefilter,
+										const std::string& namefilter) {
+	FileIter* iter = new FileIter();
+	FindFiles(*iter, dir, absolutePath, modefilter, namefilter);
+	iter->setBegin();
+	return iter;
+}
+
+
 

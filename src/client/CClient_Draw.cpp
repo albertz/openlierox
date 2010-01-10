@@ -23,7 +23,7 @@
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DeprecatedGUI/CMenu.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
 #include "DeprecatedGUI/CBar.h"
@@ -52,7 +52,9 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
-
+#include "gusanos/gusanos.h"
+#include "gusanos/gfx.h"
+#include "game/Game.h"
 
 
 
@@ -819,7 +821,18 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	// Set the clipping
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
+
+	const bool haveMap = cMap && cMap->isLoaded();
+	const bool gusanosDrawing = haveMap && cMap->gusIsLoaded();
 	
+	if(gusanosDrawing) {
+		v->gusRender();
+		//gusRenderFrameMenu();
+		
+		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
+		return;
+	}
+		
 	// Weather
 	//cWeather.Draw(bmpDest, v);
 	
@@ -885,7 +898,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
     CViewport *v = &cViewports[viewport_index];
 	if (!v->getUsed())
 		return;
-
+	
 	{
 		float sizeFactor = cClient->getGameLobby()->features[FT_SizeFactor];
 		if(sizeFactor == 1.0f)
@@ -2213,7 +2226,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 				int v2_target = v2Target->getSelectedItem()->iTag;
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
-                    cViewports[i].setUsed(false);
+					cViewports[i].shutdown();
 					cViewports[i].setTarget(NULL);
                     cViewports[i].reset();
                 }
@@ -2262,6 +2275,11 @@ void CClient::ProcessSpectatorViewportKeys()
 	if(!cLocalWorms) return;
 	
 	if( iNetStatus != NET_PLAYING )
+		return;
+
+	if( game.gameScript()->gusEngineUsed() )
+		// TODO: only for now
+		// we should just update iNetStatus to NET_PLAYING, that would be nicer
 		return;
 
 	// don't proceed if any of the local human worms is not out of the game

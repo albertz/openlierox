@@ -1,0 +1,16 @@
+invisible=1
+col_layer=8
+health=1
+
+on timer(50)
+ remove()
+ 
+on detect_range(5)
+ put_particle(steam.creator.left.obj, 371, 402)
+ put_particle(steam.creator.right.obj, 376, 402)
+ remove()
+ 
+on death()
+ put_particle(steam.creator.left.obj, 371, 402)
+ put_particle(steam.creator.right.obj, 376, 402)
+ remove()

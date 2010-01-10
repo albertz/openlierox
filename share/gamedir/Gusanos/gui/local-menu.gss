@@ -1,0 +1,47 @@
+#local-menu
+{
+	background: #000000;
+	border: #404040;
+	top: 80; left: 60; right: -60; bottom: -86;
+	alpha: 255;
+}
+
+#local-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+#local-choosemap
+{
+	right: -5; bottom: -40;
+	width: 50; height: 15;
+}
+
+#local-maptext
+{
+	color: #ffffff;
+	left: 5; bottom: -40;
+	right: -60; height: 15;
+}
+
+#play
+{
+	right: -5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#splitscreen
+{
+	left: 5; bottom: -27;
+	width: 80; height: 8;
+}
+
+#back
+{
+	left: 5; bottom: -5;
+	right: 55; height: 15;
+}
+

@@ -1,0 +1,15 @@
+sprite = shotgun_small_explosion_alphach.png
+blender = alphach
+alpha = 255
+anim_duration = 20
+anim_type = loop_right
+anim_on_ground = 1
+
+gravity=0.0
+bounce_factor=0
+
+on creation()
+set_alpha_fade(20,0)
+
+on timer(19)
+remove()

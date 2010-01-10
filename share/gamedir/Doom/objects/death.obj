@@ -1,0 +1,34 @@
+invisible = 1
+col_layer=7
+
+on custom_event(10)
+shoot_particles ( ioncannon_hit.obj,30, 0, 0.7) 
+shoot_particles ( meat_ion.obj , 6 , 0.5, 1 , 0.5 )
+shoot_particles ( chaingun_trail.obj , 12 , 0.02 , 0.04, 0, 0, 0,1)
+play_sound_static( [death1.ogg, death2.ogg, death3.ogg], 100 )
+run_script(doom.slimpack_speed_reset)
+run_script(doom.crosshair_reset)
+shoot_particles ( deatheffect.obj ,1)
+remove()
+
+on custom_event(3)
+ shoot_particles ( meat_burned.obj , 6 , 0.5, 1 , 0.5 )
+ shoot_particles ( ash.obj , 30 , 0.8, 1, 0.5 ) 
+ shoot_particles ( deatheffect.obj ,1)
+ play_sound_static( [death1.ogg, death2.ogg, death3.ogg], 100 )
+ run_script(doom.slimpack_speed_reset)
+ run_script(doom.crosshair_reset)
+ remove()
+
+on detect_range(8, 0,[6])
+custom_event(10)
+
+on timer(2)
+ shoot_particles ( meat.obj , 6 , 0.5, 1 , 0.5 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodgen.obj , 20 , 0.8, 1, 0.5 )
+ shoot_particles ( blood.obj , 100 , 0.5, 1, 0.5 )
+ play_sound_static( [death1.ogg, death2.ogg, death3.ogg], 100 )
+ run_script(doom.slimpack_speed_reset)
+ run_script(doom.crosshair_reset)
+ remove()

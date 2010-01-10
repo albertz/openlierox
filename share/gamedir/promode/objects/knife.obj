@@ -1,0 +1,22 @@
+sprite = knife.png
+col_layer = 1
+repeat = 2
+gravity = 0.015
+
+on creation()
+	run_script(stats.knife)
+
+on ground_collision()
+  play_sound([knifehit.wav], 30, 1, 0.05)
+  shoot_particles(knife_ground.obj,1,0,0,1,0,0,0,0)
+  remove()
+  
+on timer(2)
+  run_script(weaponeffects.knifeAlign)
+
+on detect_range(4, 0)
+ run_script(damage.knife)
+ push ( 0.4 )
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ play_sound([knife_flesh.wav,knife_flesh2.wav,knife_flesh3.wav], 100, 1, 0.05)
+ remove()

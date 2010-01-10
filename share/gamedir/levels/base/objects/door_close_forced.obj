@@ -1,0 +1,13 @@
+sprite = door_close.bmp
+anim_duration = 50
+anim_type = loop_right
+col_layer=-1
+render_layer = 1
+
+on timer(0,0,1)
+ play_sound( door_close.ogg, pitch_var = 0.3 )
+ shoot_particles (door_hurt.obj,1,1.5,0,0,0,0,180,0)
+
+on timer(50)
+shoot_particles ( door_forced.obj , 1,0,0,0,0,0,0,0)
+remove()

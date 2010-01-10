@@ -1,0 +1,76 @@
+#team-menu
+{
+	background: #000000;
+	border: #000000;
+	top: 80; left: 130; right: -130; bottom: -86;
+	alpha: 120;
+}
+
+#team-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+#redT
+{
+	top: 5; left: 0;
+	right: -1; height: 10;
+	color: #ff0000;
+}
+
+#blueT
+{
+	top: 20; left: 0;
+	right: -1; height: 10;
+	color: #0000ff;
+}
+
+#joinT
+{
+	top: 35; left: 0;
+	right: -1; height: 10;
+}
+
+#spectT
+{
+	top: 50; left: 0;
+	right: -1; height: 10;
+	color: #ffff00;
+}
+
+#red1T
+{
+	top: 20; left: 0;
+	right: -1; height: 10;
+	color: #ff0000;
+}
+
+#blue1T
+{
+	top: 35; left: 0;
+	right: -1; height: 10;
+	color: #0000ff;
+}
+
+#spect1T
+{
+	top: 50; left: 0;
+	right: -1; height: 10;
+	color: #ffff00;
+}
+
+#join2T
+{
+	top: 5; left: 0;
+	right: -1; height: 10;
+}
+
+#spect2T
+{
+	top: 35; left: 0;
+	right: -1; height: 10;
+	color: #ffff00;
+}

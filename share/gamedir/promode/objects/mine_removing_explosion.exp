@@ -1,0 +1,11 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+on detect_range(100000,1,[2])
+  damage(34)
+  
+
+
+
+

@@ -44,7 +44,7 @@ struct worm_state_t {
 	worm_state_t() {
 		iFlags = iX = iY = iAngle = iHookType = iHookX = iHookY = 0;
 		bShoot = bCarve = bMove = bJump = false;
-		iFaceDirectionSide = iWeapon = 0;	
+		iFaceDirectionSide = iWeapon = 0;
 	}
 	
 	int		iFlags;

@@ -1,0 +1,11 @@
+sprite = BFG2.png
+blender = add
+occluded = 1
+light_radius= 6
+render_layer = 8
+col_layer = -1
+alpha = 35
+
+on timer( 1 )
+remove()
+

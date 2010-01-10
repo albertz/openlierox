@@ -1,0 +1,5 @@
+invisible=1
+
+on creation()
+   play_sound([boing2.wav], 50, 1, 0.2)
+remove()

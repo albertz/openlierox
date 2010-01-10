@@ -1,0 +1,9 @@
+invisible = 0
+repeat = 5
+
+on ground_collision()
+apply_map_effect( hole_small.mfx )
+remove()
+
+on timer(10)
+remove()

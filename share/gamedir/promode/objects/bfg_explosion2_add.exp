@@ -1,0 +1,6 @@
+sprite = bfg_explosion2_add.png
+blender=add
+alpha = 150
+dest_alpha = 0
+timeout = 30
+rock_hidden = 0

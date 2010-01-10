@@ -1,0 +1,15 @@
+sprite = lamp.bmp
+col_layer=7
+render_layer = 7
+light_radius=200
+health=1
+
+on death() 
+shoot_particles (light_broken.obj,1)
+shoot_particles ( ash.obj , 20 , 0.2, 0.2 )
+shoot_particles( tinysmoke.obj, 1, -0.3,0.1 )
+play_sound( spark_hit.wav,100, 1, 0.05 )
+shoot_particles ( spark1.obj , 1 , 0.25, 0.2, 0.5 )
+shoot_particles ( spark3.obj , 1)
+shoot_particles ( glasspiece.obj , 8 , 0.1, 0.3 )  
+remove()

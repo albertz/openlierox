@@ -12,7 +12,7 @@
 #include "Debug.h"
 #include "AuxLib.h"
 #include "ReadWriteLock.h" // for ScopedLock
-#include "Command.h"
+#include "OLXCommand.h"
 
 
 

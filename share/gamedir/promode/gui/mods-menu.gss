@@ -1,0 +1,48 @@
+#mods-menu
+{
+	background: #000000;
+	background-image: menu_logo.png;
+	border: #000000;
+	top: 0; left: 0; right: 320; bottom: 240;
+	alpha: 255;
+}
+
+#mods-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+#mods-choosemods
+{
+	right: -5; bottom: -40;
+	width: 50; height: 15;
+}
+
+#mods-modstext
+{
+	color: #ffffff;
+	left: 5; bottom: -40;
+	right: -60; height: 15;
+}
+
+#mods_list
+{
+	top: 5; right: -5;
+	width: 100; height: 143;
+}
+
+#changemod
+{
+	right: -5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#back
+{
+	left: 5; bottom: -5;
+	right: 55; height: 15;
+}
+

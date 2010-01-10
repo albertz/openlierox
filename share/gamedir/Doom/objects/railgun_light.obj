@@ -1,0 +1,8 @@
+sprite = light_railgun.png
+blender = add
+occluded = 1
+light_radius=25
+col_layer = -1
+
+on timer( 4 )
+remove()

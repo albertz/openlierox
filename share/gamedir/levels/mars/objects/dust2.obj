@@ -1,0 +1,16 @@
+sprite = dust2.png
+alpha = 75
+blender = add
+col_layer=-1
+repeat = 1
+occluded = 1
+bounce_factor = -1
+
+on detect_range (130, 0)
+ push (0.015)
+
+on detect_range (130, 0,[0,2,3,4,5])
+ push (0.02)
+ 
+on timer(1200)
+remove()

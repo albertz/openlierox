@@ -1,0 +1,45 @@
+sprite = box.bmp
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.04
+health = 100
+bounce_factor = 0.3
+ground_friction = 0.7
+col_layer=2
+health=100
+render_layer = 1
+
+on ground_collision()
+ run_script(map_base.clingbox)
+
+on detect_range(5, 5)
+run_script(map_base.clingbox)
+push (0.6)
+
+on custom_event(3)
+shoot_particles ( tinysmoke.obj , 8 , 0.3 , 0.4, 0.2, 0, 50, 0,0)
+shoot_particles ( box_part.obj , 24 , 0.1, 0.1 )
+shoot_particles ( box_parts.obj , 6 , 0.5, 0.5, 0, 0, 360, 0, 0)
+put_particle( box_spawner.obj, 255,583 )
+play_sound( box_break.wav,pitch_var = 0.3)
+remove()
+
+on custom_event(7)
+shoot_particles ( tinysmoke.obj , 16 , -0.3 , -0.4, 0.2, 0, 360, 0,0)
+shoot_particles ( box_part.obj , 24 , 0.4, 0.6 )
+play_sound( box_break.wav,pitch_var = 0.3)
+shoot_particles ( box_parts.obj , 6 , 2.5, 1.5, 0, 0, 360, 0, 0)
+put_particle( box_spawner.obj, 255,583 )
+remove()
+
+on death()
+put_particle( box_spawner.obj, 255,583 )
+play_sound( box_break.wav,pitch_var = 0.3)
+shoot_particles ( box_part.obj , 24 , 0.1, 0.1 )
+shoot_particles ( box_parts.obj , 6 , 0.5, 0.5, 0, 0, 360, 0, 0)
+remove()
+
+on detect_range(4, 0,[2,3,4,5])
+run_script(map_base.clingbox)
+push (0.1)
+

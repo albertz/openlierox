@@ -20,7 +20,7 @@
 #include "CWorm.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "CClient.h"
 #include "CClientNetEngine.h"
 #include "CMap.h"
@@ -28,6 +28,7 @@
 #include "Debug.h"
 #include "DeprecatedGUI/Menu.h"
 #include "DedicatedControl.h"
+#include "game/Mod.h"
 
 
 //////////////////
@@ -860,19 +861,19 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 		mod += " " + *it;
 
 	// Check if the mod is available
-	std::string name;
-	if (!CGameScript::CheckFile(mod, name))
+	ModInfo info = infoForMod(mod);
+	if (!info.valid)
 		return "Mod \"" + mod + "\" not available";
 
 	// Set the mod
 	tLXOptions->tGameInfo.sModDir = mod;
-	tLXOptions->tGameInfo.sModName = name;
+	tLXOptions->tGameInfo.sModName = info.name;
 	if (!bDedicated)
 		DeprecatedGUI::Menu_Net_HostLobbySetMod(mod);
 	cServer->UpdateGameLobby();
 
 	// Notify everybody
-	cServer->SendGlobalText(w->getName() + " changed mod to " + name, TXT_NOTICE);
+	cServer->SendGlobalText(w->getName() + " changed mod to [" + info.typeShort + "] " + info.name, TXT_NOTICE);
 
 	return "";
 }
@@ -954,11 +955,6 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 	if (cServer->getState() == SVS_LOBBY)
 		cServer->UpdateGameLobby();
 	else  {
-		// Update the loading time for worms
-		CWorm *w = cServer->getWorms();
-		for (int i = 0; i < MAX_WORMS; i++)
-			if (w->isUsed())
-				w->setLoadingTime((float)lt/100.0f);
 
 		// TODO: updating the LT in game won't update the value on clients
 		// which means that in the Game Settings dialog they will see an incorrect value

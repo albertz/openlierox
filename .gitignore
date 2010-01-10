@@ -21,6 +21,8 @@ cmake_install.cmake
 bin
 *~
 *.build
+*.o
+*.a
 
 # this one is automatically created by CMake
 gamedecompiler.xcodeproj

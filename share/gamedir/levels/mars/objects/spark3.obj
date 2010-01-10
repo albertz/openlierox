@@ -1,0 +1,11 @@
+blender = add
+alpha = 200
+invisible = 1
+occluded = 1
+col_layer = -1 
+light_radius=10
+render_layer = 8
+
+on timer( 3 )
+remove()
+

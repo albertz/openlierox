@@ -1,0 +1,13 @@
+invisible = 1
+blender = add
+alpha = 255
+occluded = 1
+light_radius=3
+col_layer = 5
+
+on creation()
+ set_alpha_fade(80,0)
+
+on timer( 80 )
+remove()
+

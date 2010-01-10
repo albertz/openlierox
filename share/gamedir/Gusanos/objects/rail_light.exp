@@ -1,0 +1,6 @@
+timeout = 40
+timeout_variation = 30
+
+light_radius = 8
+alpha = 100
+dest_alpha = 0

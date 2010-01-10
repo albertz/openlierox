@@ -1,0 +1,13 @@
+sprite = flash_plasmarifle.png
+blender = add
+alpha = 255
+render_layer = 6
+anim_duration = 30
+anim_type = loop_right 
+
+on creation()
+ set_alpha_fade(35,0)
+
+on timer (30)
+remove()
+

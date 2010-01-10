@@ -1,0 +1,5 @@
+blender = add
+alpha = 80
+sprite = splash.png
+
+timeout = 0

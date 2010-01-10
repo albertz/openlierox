@@ -1,0 +1,15 @@
+sprite = gauss_explosion_alphach.png
+blender = alphach
+alpha = 255
+anim_duration = 40
+anim_type = loop_right
+anim_on_ground = 1
+
+gravity=0.0
+bounce_factor=0
+
+on creation()
+set_alpha_fade(40,0)
+
+on timer(38)
+remove()

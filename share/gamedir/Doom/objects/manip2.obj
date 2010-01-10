@@ -1,0 +1,12 @@
+repeat = 10
+col_layer = -1
+invisible = 1
+
+on timer(1)
+ remove()
+
+on detect_range(25, 1, [0,2,3,4])
+push( 1.6 )
+
+on detect_range(25, 0)
+push( 1.6 )

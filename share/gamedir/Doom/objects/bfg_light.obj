@@ -1,0 +1,9 @@
+sprite = light_BFG.png
+blender = add
+occluded = 1
+light_radius=50
+render_layer = 8
+col_layer = -1
+
+on timer( 2 )
+remove()

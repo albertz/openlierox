@@ -1,5 +1,5 @@
 /*
- *  MapLoader.h
+ *  MapLoad.h
  *  OpenLieroX
  *
  *  Created by Albert Zeyer on 03.05.09.
@@ -21,7 +21,7 @@ struct MapHeader {
 	Sint64 width, height;
 };
 
-class MapLoader {
+class MapLoad {
 protected:
 	std::string filename;
 	bool abs_filename;
@@ -30,18 +30,19 @@ protected:
 	
 public:
 	// determines level format and creates the specific maploader
-	static MapLoader* open(const std::string& filename, bool abs_filename = false, bool printErrors = true);
+	static MapLoad* open(const std::string& filename, bool abs_filename = false, bool printErrors = true);
 	
-	MapLoader() : fp(NULL) {}
-	MapLoader* Set(const std::string& fn, bool absfn, FILE* f) { filename = fn; abs_filename = absfn; fp = f; return this; }
-	virtual ~MapLoader() { if(fp) fclose(fp); fp = NULL; }
+	MapLoad() : fp(NULL) {}
+	MapLoad* Set(const std::string& fn, bool absfn, FILE* f) { filename = fn; abs_filename = absfn; fp = f; return this; }
+	virtual ~MapLoad() { if(fp) fclose(fp); fp = NULL; }
 	virtual std::string format() = 0;
+	virtual std::string formatShort() = 0;
 	const MapHeader& header() { return head; }
 	
 	virtual bool parseHeader(bool printErrors = true) = 0;
 	virtual bool parseData(CMap* m) = 0;
 	
-	MapLoader* parseHeaderAndCheck(bool printErrors = true) {
+	MapLoad* parseHeaderAndCheck(bool printErrors = true) {
 		if(parseHeader(printErrors)) return this;
 		delete this;
 		return NULL;

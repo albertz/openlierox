@@ -1,0 +1,4 @@
+sprite = t3.png
+blender = alphach
+render_layer = 3
+damping = 0

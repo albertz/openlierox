@@ -724,7 +724,7 @@ NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
 			
 			while(!sharedData->quitSignal) {
 				NLsocket s;
-				NLint ret = nlPollGroup(sharedData->nlGroup, pollType, &s, /* amount of sockets */ 1, /* timeout */ max_frame_time.milliseconds());
+				NLint ret = nlPollGroup(sharedData->nlGroup, pollType, &s, /* amount of sockets */ 1, /* timeout */ (NLint)max_frame_time.milliseconds());
 				// if no error, ret is amount of sockets which triggered the event
 				
 				if(ret > 0) {

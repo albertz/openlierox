@@ -10,12 +10,14 @@
 #include "Debug.h"
 #include "StringUtils.h"
 #include "CrashHandler.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 
 #include <time.h>
 
 #ifdef WIN32
+
+#include <windows.h>
 
 // TODO implement
 bool AmIBeingDebugged() { return false; }
@@ -538,7 +540,7 @@ Logger errors(-1,-1,1, "E: ");
 #include <sstream>
 #include "ThreadPool.h"
 #include "Options.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "StringUtils.h"
 
 static SDL_mutex* globalCoutMutex = NULL;

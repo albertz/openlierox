@@ -1,0 +1,17 @@
+col_layer = -1
+damping = 0.98
+gravity = 0.018
+bounce_factor = 0.3
+blender = alphach
+anim_type = loop_right
+anim_duration = 50
+anim_on_ground = true
+
+sprite = ctf/red/flag.png
+
+on detect_range(10, 0, [worms])
+ run_script(ctf.flagTouch)
+
+on timer(0)
+ run_script(ctf.flagUpdate)
+ shoot_particles(ctf/red/light.obj,1)

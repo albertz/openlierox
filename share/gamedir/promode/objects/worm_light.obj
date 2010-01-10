@@ -1,0 +1,13 @@
+alpha = 255
+blender = add
+col_layer = -1
+light_gen = <<< dark.light >>>
+light_size = [400,400]
+occluded = 1
+render_layer = 8
+invisible = 1
+
+	on timer(1)
+		run_script(dark.lightFollow)
+	#remove()
+

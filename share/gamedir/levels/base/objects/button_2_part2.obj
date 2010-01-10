@@ -1,0 +1,32 @@
+invisible = 1
+col_layer=-1
+sprite = button2_pressed.bmp
+render_layer = 1
+
+on detect_range(5, 0)
+play_sound( click.ogg,pitch_var = 0.3 )
+shoot_particles ( button_2_part4.obj , 1,motion_inheritance=1)
+put_particle( power_off.obj,266,453)
+put_particle( power_off.obj,354,453)
+put_particle( power_off.obj,709,179)
+put_particle( power_off.obj,265,242)
+put_particle( power_off.obj,223,76)
+put_particle( power_off.obj,575,256)
+put_particle( power_off.obj,919,175)
+put_particle( power_off.obj,507,541)
+put_particle( power_off.obj,651,452)
+put_particle( power_off.obj,764,475)
+put_particle( power_off.obj,847,417)
+put_particle( power_off.obj,887,319)
+put_particle( power_off.obj,791,285)
+put_particle( power_off.obj,615,347)
+put_particle( power_off.obj,403,242)
+put_particle( power_off.obj,501,186)
+put_particle( power_off.obj,65,76)
+put_particle( power_off.obj,180,131)
+put_particle( power_off.obj,500,131)
+put_particle( power_off.obj,539,30)
+
+play_sound(comp_systems_activated.ogg)
+remove()
+

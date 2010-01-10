@@ -1,0 +1,25 @@
+name = PlasmaBlade
+sync_shot = true
+
+on active_timer(0,0,1)
+run_script (doom.plasmablade_reset)
+play_sound( plasmablade_use.ogg, 100, 1, 0.05 )
+shoot_particles (plasmablade_begin.obj, 7, 1, 0, 0, 0, 20, -59, 4)
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on active_timer(0)
+run_script(doom.plasmablade_loop) 
+run_script(doom.crosshair_set)
+
+on active_timer( 13)
+play_sound( plasmarifle_idle.ogg,pitch_var = 0.5)
+
+on primary_press()
+delay_fire(30)
+run_script(doom.plasmablade_block_trigger)
+
+on primary_release()
+run_script(doom.plasmablade_strike_trigger)

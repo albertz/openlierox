@@ -1,0 +1,10 @@
+gravity=0.0
+bounce_factor=0
+invisible = 1
+repeat = 5
+
+on timer(10,20)
+#shoot_particles(gauss_explosion_alphach.obj, 1, speed=0.0, speed_var=0.0, motion_inheritance=0.0, distribution=360)
+create_explosion(gauss_explosion_add.exp)
+remove()
+

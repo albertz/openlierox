@@ -75,6 +75,7 @@ private:
 
 	bool		bGameReady;
 	bool		bMuted;
+	bool		m_gusLoggedIn;
 
 	int			iNetSpeed;
 	int			iNetStatus;
@@ -106,7 +107,6 @@ public:
 
 	void		Clear();
 	void 		MinorClear();
-	int			Initialize();
 	void		Shutdown();
 
 	void		RemoveWorm(int id);
@@ -185,6 +185,8 @@ public:
 	void		setLocalClient(bool _l)	{ bLocalClient = _l; }	
 	
 	int			getConnectionArrayIndex();
+
+	bool&		gusLoggedIn() { return m_gusLoggedIn; }
 	
 	IpInfo ipInfo();
 	std::string getAddrAsString();

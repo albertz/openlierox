@@ -1,0 +1,19 @@
+alpha = 255
+anim_duration = 70
+anim_on_ground = 1
+blender = alphach
+col_layer = 5
+render_layer = 6
+sprite = spawn.png
+
+	on creation()
+		play_sound(respawn.wav,100,1,0)
+
+	on timer(0)
+		run_script("effects.follow")
+
+	on timer(10)
+		set_alpha_fade(50,0)
+
+	on timer(71)
+	remove()

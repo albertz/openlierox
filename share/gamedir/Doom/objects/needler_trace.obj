@@ -1,0 +1,11 @@
+invisible = true
+repeat = 1000
+col_layer = -1
+
+on ground_collision()
+ run_script(doom.lgrSetTarg)
+ remove()
+
+on detect_range( 3, 0 )
+ run_script(doom.lgrSetTarg)
+ remove()

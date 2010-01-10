@@ -1,0 +1,11 @@
+col_layer = -1
+sprite = domination/blue.png
+
+blender = alphach
+alpha = 255
+render_layer = 8
+anim_duration = 400
+
+
+on timer(0)
+remove()

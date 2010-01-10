@@ -711,7 +711,7 @@ int CInput::wasUp() {
 
 	switch(Type) {
 	case INP_KEYBOARD:
-		counter = nDown;
+		counter = nUp;
 		break;
 
 	case INP_MOUSE:

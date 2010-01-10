@@ -1,0 +1,15 @@
+gravity = 0
+bounce_factor = 0.333
+anim_duration = 40
+invisible = 1
+anim_type = loop_right
+alpha = 255
+blender = alphach
+render_layer = 2
+col_layer = -1
+
+sync_pos = true
+
+on timer(4500)
+ shoot_particles(health/megahealth.obj, 1, 0, 0, 0, 0, 0, 0, 0)
+remove()

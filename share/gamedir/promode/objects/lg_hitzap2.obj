@@ -1,0 +1,15 @@
+repeat = 20
+colour = [100,150,250]
+invisible=0
+wu_pixels=0
+blender = alphach
+alpha=25
+
+on timer(0)
+ create_explosion(lg_zap2.exp)
+
+on timer(4,2)
+ remove()
+
+
+

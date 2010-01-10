@@ -1,0 +1,27 @@
+invisible = 1
+col_layer=-1
+repeat = 1
+blender = add
+
+on ground_collision()
+remove()
+
+on detect_range (6,6, [0,2,3,4,5])
+ custom_event(8)
+ repel( 0.3 , 6, 0.5 )
+
+on detect_range (3,3, [0,2,3,4,5])
+ damp( 0 )
+ repel( 0.3 , 5, 0.5 )
+
+on detect_range (6,6)
+ repel( 0.3 , 4, 0.5 )
+
+on detect_range (1,1)
+ damp( 0.2 )
+ 
+on detect_range (8,0,[0,1,6,7])
+ damage (1000)
+
+on timer(30)
+remove()

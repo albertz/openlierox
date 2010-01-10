@@ -1,0 +1,13 @@
+sprite = grenade_light.png
+blender = add
+alpha = 255
+occluded = 1
+col_layer = -1 
+render_layer=8
+light_radius=160
+
+on timer( 50 )
+ set_alpha_fade(50,0)
+
+on timer( 100 )
+remove()

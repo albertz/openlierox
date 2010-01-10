@@ -14,6 +14,7 @@
 #define __CWORMBOT_H__
 
 #include "CWorm.h"
+#include "game/WormInputHandler.h"
 
 class searchpath_base;
 
@@ -33,6 +34,8 @@ public:
     virtual void clearInput() {}
 
 	virtual void onRespawn();
+
+	virtual void quit();
 	
 protected:
 	
@@ -144,6 +147,10 @@ public:
 #endif
 	
 	
+	// ----------- Gusanos ---------------
+
+	virtual void subThink();
+
 };
 
 #endif  //  __CWORMBOT_H__

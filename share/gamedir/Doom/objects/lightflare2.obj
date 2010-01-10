@@ -1,0 +1,13 @@
+invisible = 1
+col_layer=-1
+
+on timer (3) 
+shoot_particles( lightflare_light.obj, 1)
+shoot_particles( lightflare_trail.obj,1 , 0.6, 0.4,0,0, 18, 0, 0 )
+play_sound( lightflare_burn.ogg, 100, 1, 0.05 )
+shoot_particles( lightflare_flare.obj, 1)
+remove()
+
+on death()
+shoot_particles( tinysmoke.obj, 2, -0.2 )
+remove()

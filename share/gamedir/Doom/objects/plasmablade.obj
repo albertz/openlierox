@@ -1,0 +1,17 @@
+colour = [250,250,250]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+
+on creation()
+set_alpha_fade(10,0)
+
+on ground_collision()
+remove()
+
+on timer(0,2)
+shoot_particles ( plasmablade_trail1.obj , 1 , 0, 0, 0, 0)
+
+on timer(7)
+ remove()

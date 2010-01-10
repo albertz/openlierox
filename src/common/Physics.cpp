@@ -9,6 +9,7 @@
 
 #include "Physics.h"
 #include "PhysicsLX56.h"
+#include "PhysicsDummy.h"
 #include "Debug.h"
 #include "NewNetEngine.h"
 #include "LieroX.h"
@@ -16,6 +17,8 @@
 #include "CClient.h"
 #include "CProjectile.h"
 #include "CBonus.h"
+#include "game/Game.h"
+#include "CGameScript.h"
 
 
 static PhysicsEngine* engine = NULL;
@@ -23,13 +26,18 @@ PhysicsEngine* PhysicsEngine::Get() { return engine; }
 void PhysicsEngine::Set(PhysicsEngine* e) { engine = e; }
 
 void PhysicsEngine::Init() {
-	engine = CreatePhysicsEngineLX56();
+	if(game.gameScript()->gusEngineUsed())
+		engine = CreatePhysicsEngineDummy("Gusanos physics");
+	else
+		engine = CreatePhysicsEngineLX56();
 	
 	notes << "PhysicsEngine " << engine->name() << " loaded" << endl;
+	engine->initGame();
 }
 
 void PhysicsEngine::UnInit() {
 	if(engine) {
+		engine->uninitGame();
 		notes << "unloading PhysicsEngine " << engine->name() << " .." << endl;
 		delete engine;
 		engine = NULL;

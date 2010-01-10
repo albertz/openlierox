@@ -1,0 +1,24 @@
+name="Blowtorch"
+ammo=500
+reload_time=250
+
+on primary_press()
+ play_sound([flamer_start.wav], 30, 0.8, 0.05)
+ 
+on primary_release()
+ play_sound([flamer_end.wav], 30, 0.8, 0.05)
+
+on primary_shoot()
+ delay_fire(0)
+ play_sound([flamer.wav], 30, 0.8, 0.05)
+ shoot_particles(flame_add.obj, 1, speed=0.7,speed_var=0.04, distribution=0, distance_offs=7,motion_inheritance=0.3)
+ shoot_particles(flame_flash_add.obj, 1, speed=0.7,speed_var=0.04, distribution=0, distance_offs=7,motion_inheritance=0.3)
+ shoot_particles(flame_smoke_alphach.obj, 1, speed=0.7,speed_var=0.04, distribution=8, distance_offs=7,motion_inheritance=0.3)
+ shoot_particles(flame_line_normal.obj, 1, speed=0.7,speed_var=0.04, distribution=0, motion_inheritance=0.3, distance_offs=2)
+ shoot_particles(flame_damager.obj, 1, speed=0.7,speed_var=0.04, distribution=8, motion_inheritance=0.3, distance_offs=2)
+use_ammo(1)
+
+on reload_end()
+  play_sound([flamer_reload.wav], 100, 1, 0.05)
+
+

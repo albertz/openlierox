@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=-1
+
+on timer(300)
+ shoot_particles ( button_3_part1.obj , 1,motion_inheritance=1)
+ remove()

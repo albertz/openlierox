@@ -1,0 +1,20 @@
+sprite = door.bmp
+col_layer=7
+render_layer = 1
+
+on timer(1) 
+ shoot_particles (door_material.obj,1,2,0,0,0,0,180,0)
+
+on detect_range( 30 , 30)
+shoot_particles ( door_open.obj ,1,0,0,0,0,0,0,0)
+remove()
+
+on custom_event(10)
+play_sound( [door_tear_01.ogg,door_tear_02.ogg],pitch_var = 0.3 )
+shoot_particles (door_destroyed_part_2.obj,1,0,0,0,0,0,0,0)
+shoot_particles ( door_destroyed_parts.obj ,1,0,0,0,0,0,180,5)
+shoot_particles ( door_destroyed_parts.obj ,1,0,0,0,0,0,180,10)
+shoot_particles ( door_destroyed_parts.obj ,1,0,0,0,0,0,180,15)
+shoot_particles ( door_destroyed_parts.obj ,1,0,0,0,0,0,180,20)
+shoot_particles ( door_destroyed_parts.obj ,1,0,0,0,0,0,180,25)
+remove()

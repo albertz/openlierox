@@ -151,7 +151,7 @@ inline
 Iterator<char&>::Ref GetIterator(std::string& s) { return new StringIterator(s); }
 
 inline
-Iterator<char>::Ref GetConstIterator(std::string& s) { return new ConstStringIterator(s); }
+Iterator<char>::Ref GetConstIterator(const std::string& s) { return new ConstStringIterator(s); }
 
 template< typename _T >
 typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T const&>(s); }
@@ -162,7 +162,7 @@ typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return 
 template< typename _T >
 typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArrayIterator<_T>(s); }
 
+#define for_each_iterator( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
 
-#define foreach( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
 
 #endif

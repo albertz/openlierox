@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=-1
+
+on timer(0)
+ play_sound( [clang_01.ogg,clang_02.ogg],pitch_var = 0.3 )
+ remove()

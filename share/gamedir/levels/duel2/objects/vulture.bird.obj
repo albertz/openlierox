@@ -1,0 +1,18 @@
+gravity=0
+sprite=vulture.png
+blender=alpha
+alpha=0
+col_layer=-1
+anim_duration=300
+
+# on timer(
+#  fixme:play_sound
+
+on creation()
+ set_alpha_fade(255, 100)
+
+on ground_collision()
+ remove()
+ 
+on timer(10000)
+ remove()

@@ -1,0 +1,36 @@
+repeat = 4
+colour = [250,200,50]
+gravity = 0.0002
+alpha = 200
+blender = alphach
+col_layer = 2
+invisible = 0
+col_layer = 1
+
+on creation()
+	run_script(stats.shotgun)
+
+on ground_collision()
+# play_sound_static([ricchet1.wav,ricchet2.wav,ricchet3.wav],100,1,0.3)
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ create_explosion ( bullet_on_ground.exp )
+ apply_map_effect( hole_small.mfx )
+ remove()
+
+on timer(0)
+  create_explosion(shotgun_trail.exp)
+
+on timer(0,0,5)
+ create_explosion ( sniper_trail_red_add.exp )
+
+on death()
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ remove()
+
+on detect_range(2, 0)
+ run_script(damage.shotgun)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 40, 1, 0.05)
+ push ( 0.01 )
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ remove()
+ 

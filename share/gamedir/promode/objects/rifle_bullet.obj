@@ -1,0 +1,29 @@
+repeat = 100
+colour = [215,215,215]
+col_layer = 1
+
+on creation()
+	run_script(stats.rifle)
+
+on ground_collision()
+ shoot_particles ( shotgun_small_smoke_alphach.obj, 40, 0.3,0.2)
+ shoot_particles ( minigun_spark.obj, 5, 0, 0.7)
+ shoot_particles ( shotgun_small_explosion_alphach.obj , 1 )
+ shoot_particles( rifle_mini_explosion_setup.obj,8,0.5,0.5,1, distribution = 360)
+ apply_map_effect( hole_small.mfx )
+ run_script(awards.porReset)
+ remove()
+
+on timer(0)
+ create_explosion ( rifle_trail.exp )
+
+on detect_range(3, 0)
+ run_script(damage.rifle)
+ run_script(awards.por)
+ push ( 1.8 )
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ shoot_particles( rifle_mini_explosion_setup.obj,8,0.5,0.5,1, distribution = 360)
+ shoot_particles ( shotgun_small_explosion_alphach.obj , 1 )
+ shoot_particles ( blood_explosion_alphach.obj,3, distance_offs = 4, angle_offs=0, distribution=0)
+ remove()
+ 

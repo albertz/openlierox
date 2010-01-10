@@ -22,7 +22,7 @@
 #include "Debug.h"
 #include "CServer.h"
 #include "CClient.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "StringUtils.h"
 #include "sex.h"
 #include "CWorm.h"
@@ -42,8 +42,9 @@
 #include "IpToCountryDB.h"
 #include "Unicode.h"
 #include "Autocompletion.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "TaskManager.h"
+#include "game/Mod.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -1622,9 +1623,14 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 
 	if(tLXOptions->tGameInfo.sModDir == "")
 		tLXOptions->tGameInfo.sModDir = "MW 1.0";
-	if(!CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName)) {
-		caller->writeMsg("no mod for dedicated, " + tLXOptions->tGameInfo.sModDir + " not found");
-		// TODO..
+	{
+		ModInfo modInfo = infoForMod(tLXOptions->tGameInfo.sModDir);
+		if(!modInfo.valid) {
+			caller->writeMsg("no mod for dedicated, " + tLXOptions->tGameInfo.sModDir + " not found");
+			// TODO..			
+		}
+		else
+			tLXOptions->tGameInfo.sModName = modInfo.name;
 	}
 
 	// Get the game type

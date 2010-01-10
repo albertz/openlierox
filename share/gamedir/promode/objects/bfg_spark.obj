@@ -1,0 +1,11 @@
+repeat = 3
+colour = [0,250,100]
+wu_pixels=1
+blender = add
+alpha=100
+
+on timer(1)
+  remove()
+
+
+

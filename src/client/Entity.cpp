@@ -357,14 +357,7 @@ void SimulateEntities(TimeDiff dt)
 						case ENT_BLOOD: {
 							int x = (int)ent->vPos.x;
 							int y = (int)ent->vPos.y;
-							LOCK_OR_QUIT(map->GetImage());
-							PutPixel(map->GetImage().get(),x, y, ent->iColour.get(map->GetImage()->format));
-							UnlockSurface(map->GetImage());
-
-							x *= 2;
-							y *= 2;
-							DrawRectFill2x2(map->GetDrawImage().get(), x, y, ent->iColour);
-
+							map->putColorTo(x, y, ent->iColour);
 							ent->setUnused();
 							
 							break;
@@ -383,10 +376,8 @@ void SimulateEntities(TimeDiff dt)
 								int y = (int)ent->vPos.y-1;
 
 								// Safety
-								if (ent->bmpSurf.get()) {
-									DrawImageAdv(map->GetImage().get(),ent->bmpSurf,(int)ent->iRotation*4,8,x,y,4,4);
-									DrawImageStretch2(map->GetDrawImage().get(),map->GetImage(),x,y,x*2,y*2,4,4);
-								}
+								if (ent->bmpSurf.get())
+									map->putSurfaceTo(x,y,ent->bmpSurf.get(), (int)ent->iRotation*4, 8, 4, 4);
 
 								ent->setUnused();
 							}

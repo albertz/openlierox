@@ -1,0 +1,15 @@
+gravity = -0.003
+damping = 0.97
+sprite = tinysmoke.png
+blender = alphach
+alpha = 175
+render_layer = 6
+col_layer = 5
+anim_duration = 61
+anim_type = loop_right
+
+on timer(0,0,1)
+set_alpha_fade(60)
+
+on timer(60)
+ remove()

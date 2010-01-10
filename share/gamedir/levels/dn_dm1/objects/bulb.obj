@@ -1,0 +1,8 @@
+blender = alpha
+alpha = 255
+sprite = bulb.png
+occluded = 0
+col_layer = -1
+
+on creation()
+	shoot_particles( bulbglow.obj, 1, 0)

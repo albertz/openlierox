@@ -1,0 +1,32 @@
+blender = add
+alpha = 244
+sprite = EPD.bmp
+anim_duration = 80
+anim_type = right_once
+repeat = 500
+col_layer = -1
+line_to_origin = 1
+bounce_factor = 0
+ground_friction = 0
+light_radius=10
+
+on timer(0,0,1)
+play_global_sound(EPD.wav)
+
+on ground_collision()
+ remove()
+
+on timer(0)
+shoot_particles ( EPD_trail2.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+
+on timer(2)
+shoot_particles ( EPD_trail.obj , 1 , 0.2, 0.8, 0, 0, 360, 0, 5)
+
+on detect_range(40, 40)
+ damage ( 300,100,40 )
+ push ( 1 )
+ 
+on detect_range(20, 20,[2,3,4,5])
+ damage ( 300,0,40 )
+ push ( 0 )
+

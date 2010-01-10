@@ -24,7 +24,7 @@
 #include "Cache.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "CBanList.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
@@ -43,8 +43,9 @@
 #include "ProfileSystem.h"
 #include "FlagInfo.h"
 #include "Utils.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "AuxLib.h"
+#include "gusanos/network.h"
 
 
 GameServer	*cServer = NULL;
@@ -277,11 +278,15 @@ int GameServer::StartServer()
 
 	SetSocketWithEvents(true);
 	
+	network.olxHost();
+	
 	return true;
 }
 
 void GameServer::ObtainExternalIP()
 {
+	return;
+	
 	if (sExternalIP.size())
 		return;
 
@@ -291,9 +296,14 @@ void GameServer::ObtainExternalIP()
 
 void GameServer::ProcessGetExternalIP()
 {
+	return;
+	
 	if (sExternalIP.size()) // already got it
 		return;
 
+	if(tLX->iGameType == GME_LOCAL) // dont need it
+		return;
+	
 	int result = tHttp2.ProcessRequest();
 
 	switch(result)  {
@@ -374,9 +384,46 @@ int GameServer::StartGame(std::string* errMsg)
 		}
 	}
 	
+	// Load the game script
+	timer = SDL_GetTicks()/1000.0f;
+
+	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
+	if( cGameScript.get() == NULL )
+	{
+	gameScriptCreate:
+		cGameScript = new CGameScript();
+		if(cGameScript.get() == NULL) {
+			errors << "Server StartGame: cannot allocate gamescript" << endl;
+			if(cCache.GetEntryCount() > 0) {
+				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+				cCache.Clear();
+				goto gameScriptCreate;
+			}
+			if(errMsg) *errMsg = "Out of memory while loading mod";
+			return false;
+		}
+		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
+
+		if(result != GSE_OK) {
+			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
+			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
+			return false;
+		}
+		
+		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
+	}
+	else
+		notes << "used cached version of mod, ";
+	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
+	
+	// Load & update the weapon restrictions
+	cWeaponRestrictions.loadList(sWeaponRestFile);
+	cWeaponRestrictions.updateList(cGameScript.get());
+
+
 	// TODO: why delete + create new map instead of simply shutdown/clear map?
 	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
-
+	
 	// Shutdown any previous map instances
 	if(cMap) {
 		cMap->Shutdown();
@@ -384,7 +431,7 @@ int GameServer::StartGame(std::string* errMsg)
 		cMap = NULL;
 		cClient->resetMap();
 	}
-
+	
 	// Create the map
 mapCreate:
 	cMap = new CMap;
@@ -412,40 +459,8 @@ mapCreate:
 		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	}
 	
-	// Load the game script
-	timer = SDL_GetTicks()/1000.0f;
-
-	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
-	if( cGameScript.get() == NULL )
-	{
-	gameScriptCreate:
-		cGameScript = new CGameScript();
-		if(cGameScript.get() == NULL) {
-			errors << "Server StartGame: cannot allocate gamescript" << endl;
-			if(cCache.GetEntryCount() > 0) {
-				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-				cCache.Clear();
-				goto gameScriptCreate;
-			}
-			if(errMsg) *errMsg = "Out of memory while loading mod";
-			return false;
-		}
-		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
-
-		if(result != GSE_OK) {
-			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
-			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
-			return false;
-		}
-
-		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
-	}
-	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
-
-	// Load & update the weapon restrictions
-	cWeaponRestrictions.loadList(sWeaponRestFile);
-	cWeaponRestrictions.updateList(cGameScript.get());
-
+	
+	
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
@@ -456,7 +471,6 @@ mapCreate:
 			cWorms[i].setDamage(0);
 			cWorms[i].setGameScript(cGameScript.get());
 			cWorms[i].setWpnRest(&cWeaponRestrictions);
-			cWorms[i].setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 			cWorms[i].setWeaponsReady(false);
 			cWorms[i].Prepare(true);
 		}
@@ -521,7 +535,7 @@ mapCreate:
 		}
 	}
 	
-	PhysicsEngine::Get()->initGame();
+	//PhysicsEngine::Get()->initGame();
 
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->WeaponSelections_Signal();
@@ -645,11 +659,6 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	}
 	
 	if(firstStart) {
-		for(int i=0;i<MAX_WORMS;i++) {
-			if(cWorms[i].isUsed())
-				cWorms[i].setAlive(false);
-		}
-		
 		// Prepare the gamemode
 		getGameMode()->BeginMatch();
 		
@@ -1026,7 +1035,7 @@ bool GameServer::ReadPacketsFromSocket(const SmartPointer<NetworkSocket>& sock)
 ///////////////////
 // Read packets
 bool GameServer::ReadPackets()
-{
+{	
 	bool anythingNew = false;
 	// Main sockets
 	for( int i = 0; i < MAX_SERVER_SOCKETS; i++ )
@@ -1087,6 +1096,8 @@ void GameServer::SendPackets(bool sendPendingOnly)
 #endif
 	}
 
+	network.olxSend(sendPendingOnly);
+	
 	// Go through each client and send them a message
 	CServerConnection *cl = cClients;
 	for(int c=0;c<MAX_CLIENTS;c++,cl++) {
@@ -1635,7 +1646,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		
 		// Reset variables
 		(*w)->setUsed(false);
-		(*w)->setAlive(false);
 		(*w)->setSpectating(false);
 	}
 	
@@ -1733,6 +1743,11 @@ bool GameServer::serverAllowsConnectDuringGame() {
 }
 
 void GameServer::checkVersionCompatibilities(bool dropOut) {
+	if (!cClients)  {
+		warnings << "checkVersionCompatibilities: cClients NULL!" << endl;
+		return;
+	}
+
 	// Cycle through clients
 	CServerConnection *cl = cClients;
 	for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
@@ -1781,7 +1796,7 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
 	
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
 			if(ver < f->get()->minVersion) {
 				if(incompReason)
@@ -1864,7 +1879,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setTeamkills(0);
 		w->setGameScript(cGameScript.get());
 		w->setWpnRest(&cWeaponRestrictions);
-		w->setLoadingTime( (float)tLXOptions->tGameInfo.iLoadingTime / 100.0f );
 		w->setWeaponsReady(false);
 		
 		iNumPlayers++;

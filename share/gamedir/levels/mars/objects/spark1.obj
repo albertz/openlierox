@@ -1,0 +1,10 @@
+
+gravity = 0
+col_layer = -1
+invisible = 1
+
+on timer(0)
+ create_explosion ( spark2.exp )
+
+on timer(14,5)
+ remove()

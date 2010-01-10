@@ -22,7 +22,7 @@
 #include "Cache.h"
 #include "CClient.h"
 #include "CServer.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
@@ -51,6 +51,7 @@
 #include "FlagInfo.h"
 #include "CMap.h"
 #include "Utils.h"
+#include "gusanos/network.h"
 
 
 #ifdef _MSC_VER
@@ -313,10 +314,11 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		}
 		client->cLocalWorms[i] = &client->cRemoteWorms[id];
 		if(!client->cLocalWorms[i]->isUsed()) {
+			client->cLocalWorms[i]->Clear();
+			client->cLocalWorms[i]->setID(id);
 			client->cLocalWorms[i]->setUsed(true);
 			client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
 			client->cLocalWorms[i]->setGameScript(client->cGameScript.get()); // TODO: why was this commented out?
-			//client->cLocalWorms[i]->setLoadingTime(client->fLoadingTime);  // TODO: why is this commented out?
 			client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
 			if(client->tProfiles[i]) {
 				client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
@@ -380,6 +382,11 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	if(!isReconnect) {
 		client->bHostAllowsStrafing = false;
 	}
+	
+	if(tLX->iGameType == GME_JOIN)
+		// in CServer::StartServer, we call olxHost
+		// we must do the same here now in case of client
+		network.olxConnect();	
 	
 	// Log the connecting
 	if (!isReconnect && tLXOptions->bLogConvos && convoLogger)
@@ -653,6 +660,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				ParseSelectWeapons(bs);
 				break;
 				
+			case S2C_GUSANOS:
+				network.olxParse(NetConnID_server(), *bs);
+				break;
+				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
@@ -787,7 +798,59 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	// HINT: gamescript is shut down by the cache
 
     //bs->Dump();
-
+	
+	/*if(!isReconnect)
+		PhysicsEngine::Get()->initGame();*/
+	
+	if(!isReconnect) {
+		if(tLX->iGameType == GME_JOIN) {
+			client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
+			if( client->cGameScript.get() == NULL )
+			{
+				client->cGameScript = new CGameScript();
+				
+				if (client->bDownloadingMod)
+					client->bWaitingForMod = true;
+				else {
+					client->bWaitingForMod = false;
+					
+					int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
+					cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
+					if(result != GSE_OK) {
+						
+						// Show any error messages
+						if (tLX->iGameType == GME_JOIN)  {
+							FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+							std::string err("Error load game mod: ");
+							err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
+							DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
+							client->bClientError = true;
+							
+							// Go back to the menu
+							GotoNetMenu();
+						} else {
+							errors << "ParsePrepareGame: load mod error for a local game!" << endl;
+						}
+						client->bGameReady = false;
+						
+						errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
+						return false;
+					}
+				}
+			}
+		}
+		else { // hosting
+			client->cGameScript = cServer->getGameScript();
+			if(client->cGameScript.get() == NULL) {
+				errors << "ParsePrepareGame: server has mod unset" << endl;
+				client->bGameReady = false;
+				
+				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
+				return false;
+			}
+		}
+	}
+	
 
 	if(tLX->iGameType == GME_JOIN) {
 		client->cMap = new CMap;
@@ -884,58 +947,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 
 	}
-
-	if(!isReconnect)
-		PhysicsEngine::Get()->initGame();
-
-	if(!isReconnect) {
-		if(tLX->iGameType == GME_JOIN) {
-			client->cGameScript = cCache.GetMod( client->tGameInfo.sModName );
-			if( client->cGameScript.get() == NULL )
-			{
-				client->cGameScript = new CGameScript();
-	
-				if (client->bDownloadingMod)
-					client->bWaitingForMod = true;
-				else {
-					client->bWaitingForMod = false;
-	
-					int result = client->cGameScript.get()->Load(client->tGameInfo.sModName);
-					cCache.SaveMod( client->tGameInfo.sModName, client->cGameScript );
-					if(result != GSE_OK) {
-	
-						// Show any error messages
-						if (tLX->iGameType == GME_JOIN)  {
-							FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-							std::string err("Error load game mod: ");
-							err += client->tGameInfo.sModName + "\r\nError code: " + itoa(result);
-							DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-							client->bClientError = true;
-	
-							// Go back to the menu
-							GotoNetMenu();
-						} else {
-							errors << "ParsePrepareGame: load mod error for a local game!" << endl;
-						}
-						client->bGameReady = false;
-	
-						errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
-						return false;
-					}
-				}
-			}
-		}
-		else { // hosting
-			client->cGameScript = cServer->getGameScript();
-			if(client->cGameScript.get() == NULL) {
-				errors << "ParsePrepareGame: server has mod unset" << endl;
-				client->bGameReady = false;
-	
-				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->tGameInfo.sModName << endl;
-				return false;
-			}
-		}
-	}
 	
     // Read the weapon restrictions
     client->cWeaponRestrictions.updateList(client->cGameScript.get());
@@ -1009,7 +1020,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 			// Also set some game details
 			w->setLives(client->tGameInfo.iLives);
-			w->setAlive(false);
 			w->setKills(0);
 			w->setDeaths(0);
 			w->setTeamkills(0);
@@ -1017,7 +1027,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			w->setHealth(100);
 			w->setGameScript(client->cGameScript.get());
 			w->setWpnRest(&client->cWeaponRestrictions);
-			w->setLoadingTime(client->tGameInfo.iLoadingTime/100.0f);
 			w->setWeaponsReady(false);
 
 			// Prepare for battle!
@@ -1060,7 +1069,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 	}
 	
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
 
@@ -1081,7 +1090,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	// FeatureSettings() constructor initializes with default values, and we want here an unset values
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -1185,12 +1194,6 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	client->iNetStatus = NET_PLAYING;
 	client->fServertime = 0;
 
-	// Set the local players to dead so we wait until the server spawns us
-	for(uint i=0;i<client->iNumWorms;i++) {
-		if(!client->cLocalWorms[i]->haveSpawnedOnce())
-			client->cLocalWorms[i]->setAlive(false);
-	}
-	
 	// Re-initialize the ingame scoreboard
 	client->InitializeIngameScore(false);
 	client->bUpdateScore = true;
@@ -1279,7 +1282,6 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		return;
 	}
 
-	client->cRemoteWorms[id].setAlive(true);
 	client->cRemoteWorms[id].Spawn(p);
 
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()->features[FT_InfiniteMap]);
@@ -1350,25 +1352,30 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	}
 
 	// A new worm?
+	bool newWorm = false;
 	if (!client->cRemoteWorms[id].isUsed())  {
 		client->cRemoteWorms[id].Clear();
-		client->cRemoteWorms[id].setLives((client->tGameInfo.iLives < 0) ? WRM_UNLIM : client->tGameInfo.iLives);
+		client->cRemoteWorms[id].setID(id);
 		client->cRemoteWorms[id].setUsed(true);
+		newWorm = true;
+	}
+	
+	WormJoinInfo wormInfo;
+	wormInfo.readInfo(bs);
+	wormInfo.applyTo(&client->cRemoteWorms[id]);
+
+	if(newWorm) {
+		client->cRemoteWorms[id].setLives((client->tGameInfo.iLives < 0) ? WRM_UNLIM : client->tGameInfo.iLives);
 		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
 		client->cRemoteWorms[id].setLocal(false);
 		client->cRemoteWorms[id].setGameScript(client->cGameScript.get());
 		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
 			client->cRemoteWorms[id].Prepare(false);
 		}
-		client->cRemoteWorms[id].setID(id);
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
 	}
-
-	WormJoinInfo wormInfo;
-	wormInfo.readInfo(bs);
-	wormInfo.applyTo(&client->cRemoteWorms[id]);
 
 	// Load the worm graphics
 	if(!client->cRemoteWorms[id].ChangeGraphics(client->getGeneralGameType())) {
@@ -1431,7 +1438,7 @@ void CClientNetEngine::ParseWormWeaponInfo(CBytestream *bs)
 	CWorm* w = getWorm(client, bs, "CClientNetEngine::ParseWormWeaponInfo", CWorm::skipWeapons);
 	if(!w) return;
 
-	notes << "Client:ParseWormWeaponInfo: ";
+	//notes << "Client:ParseWormWeaponInfo: ";
 	w->readWeapons(bs);
 
 	client->UpdateScoreboard();
@@ -1880,7 +1887,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 		w->setGameReady(true);
 
 		// Read the weapon info
-		notes << "Client:ParseCLReady: ";
+		//notes << "Client:ParseCLReady: ";
 		w->readWeapons(bs);
 
 	}
@@ -2110,7 +2117,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
     else
         fclose(fp);
 
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
 	
@@ -2161,8 +2168,8 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		if (client->cRemoteWorms[id].getHookedWorm())
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		client->cRemoteWorms[id].setAlive(false);
-		client->cRemoteWorms[id].setDeaths(client->cRemoteWorms[id].getDeaths()+1);
+		
+		client->cRemoteWorms[id].Kill();
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 
@@ -2603,7 +2610,7 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 		return;
 	}
 
-	w->setAlive(true);	// We won't get SpawnWorm packet from H&S server
+	w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
 	if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
 		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
 

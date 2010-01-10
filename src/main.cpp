@@ -14,13 +14,14 @@
 #include <set>
 #include <string>
 
+#include "TeeStdoutHandler.h"
 #include "LieroX.h"
 #include "IpToCountryDB.h"
 #include "AuxLib.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "ConfigHandler.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "InputEvents.h"
@@ -46,7 +47,10 @@
 #include "CGameMode.h"
 #include "ConversationLogger.h"
 #include "StaticAssert.h"
-#include "Command.h"
+#include "OLXCommand.h"
+#include "game/Mod.h"
+#include "gusanos/gusanos.h"
+#include "game/Game.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -66,25 +70,7 @@
 
 // TODO: i hate globals ...
 // we have to create a basic class Game or something
-
-lierox_t	*tLX = NULL;
-
-bool        bDisableSound = false;
-#ifdef DEDICATED_ONLY
-bool		bDedicated = true;
-bool		bJoystickSupport = false;
-#else //DEDICATED_ONLY
-bool		bDedicated = false;
-bool		bJoystickSupport = true;
-#endif //DEDICATED_ONLY
-bool		bRestartGameAfterQuit = false;
-TStartFunction startFunction = NULL;
-void*		startFunctionData = NULL;
-ConversationLogger *convoLogger = NULL;
-
-
 keyboard_t	*kb = NULL;
-IpToCountryDB *tIpToCountryDB = NULL;
 
 static std::list<std::string> startupCommands;
 
@@ -140,10 +126,6 @@ static void DoSystemChecks() {
 }
 
 
-char binaryfilename[2048] = {0};
-
-const char* GetBinaryFilename() { return binaryfilename; }
-
 #ifndef WIN32
 sigjmp_buf longJumpBuffer;
 #endif
@@ -161,6 +143,8 @@ static SDL_Event QuitEventThreadEvent() {
 
 
 static void startMainLockDetector() {
+	if(!tLXOptions->bUseMainLockDetector) return;
+	
 	struct MainLockDetector : Action {
 		bool wait(Uint32 time) {
 			if(!tLX) return false;
@@ -317,268 +301,12 @@ struct VideoHandler {
 
 static VideoHandler videoHandler;
 
-#ifndef WIN32
-
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-
-static char* teeOlxOutputFile = NULL;
-static const size_t MAXFILENAMESIZE = 2048;
-
-const char* GetLogFilename() { if(teeOlxOutputFile) return teeOlxOutputFile; return ""; }
-
-#include <unistd.h>
-#include <signal.h>
-
-static void teeOlxOutputToFileHandler(int c) {
-	static std::string buffer;
-	static std::string currentOlxOutputFilename = "";
-	static FILE* out = NULL;
-
-	if(c == EOF) {
-		if(out) fclose(out); out = NULL;
-		return;
-	}
-	
-	char ch = c;
-	if(out)
-		fwrite(&ch, 1, 1, out);
-	else
-		buffer += c;
-	
-	if(ch == '\n' && currentOlxOutputFilename != teeOlxOutputFile) {
-		if(out) fclose(out); out = NULL;
-		currentOlxOutputFilename = teeOlxOutputFile;
-		if(currentOlxOutputFilename != "") {
-			out = fopen(currentOlxOutputFilename.c_str(), "a");
-			if(out)
-				// We want to have everything written immediatly, to have the last output when it crashes
-				setvbuf(out, NULL, _IONBF, 0);				
-			if(out && !buffer.empty()) {
-				fwrite(buffer.c_str(), buffer.size(), 1, out);
-				buffer = "";
-			}
-		}
-	}
-}
-
-static void teeOlxOutputHandler(int in, int out) {
-	unsigned long c = 0;
-	const static bool printlinenum = false; // just for debugging
-	bool newline = true;
-	
-	// The main process will quit this fork by closing the pipe.
-	// There will be problems if this fork terminates earlier.
-	signal(SIGINT, SIG_IGN);
-	signal(SIGTERM, SIG_IGN);
-	while( true ) {
-		char ch = 0;
-		if(read(in, &ch, 1) <= 0) break;
-		if(printlinenum && newline) {
-			char tmp[10];
-			sprintf(tmp, "%06lu: ", c);
-			write(out, &tmp, 8);
-			c++;
-			newline = false;
-		}
-		write( out, &ch, 1 );
-		if(ch == '\n')
-			newline = true;
-		teeOlxOutputToFileHandler((unsigned char)ch);
-	}
-	
-	teeOlxOutputToFileHandler(EOF);
-}
-
-struct TeeStdoutInfo {
-	pid_t proc;
-	int pipeend;
-	int oldstdout;
-	int oldstderr;
-};
-
-static TeeStdoutInfo teeStdoutInfo = {0,0,0,0};
-
-#include <sys/errno.h>
-#include <cstdio>
-#include <cstring>
-
-void teeStdoutInit() {
-	int pipe_to_handler[2];
-
-#ifdef __APPLE__
-	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_ANON, 0, 0);
-#else	
-	int fd = open("/dev/zero", O_RDWR);
-	if(fd < 0) {
-		errors << "teeStdout: cannot open dummy file" << endl;
-		return;
-	}
-	
-	teeOlxOutputFile = (char*) mmap(0, MAXFILENAMESIZE, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-#endif
-	
-	if(!teeOlxOutputFile || teeOlxOutputFile == (char*)-1) {
-		teeOlxOutputFile = NULL;
-		errors << "teeStdout: cannot mmap: " << strerror(errno) << endl;
-		return;
-	}
-	
-	if(pipe(pipe_to_handler) != 0) { // error creating pipe
-		errors << "teeStdout: cannot create pipe: " << strerror(errno) << endl;		
-		return;
-	}
-	
-	pid_t p = fork();
-	if(p < 0) { // error forking
-		errors << "teeStdout: cannot fork: " << strerror(errno) << endl;		
-		return;
-	}
-	else if(p == 0) { // fork		
-		close(pipe_to_handler[1]);
-		teeOlxOutputHandler(pipe_to_handler[0], STDOUT_FILENO);
-		_exit(0);
-	}
-	else { // parent
-		close(pipe_to_handler[0]);
-		teeStdoutInfo.proc = p;
-		teeStdoutInfo.pipeend = pipe_to_handler[1];
-		teeStdoutInfo.oldstdout = dup(STDOUT_FILENO);
-		teeStdoutInfo.oldstderr = dup(STDERR_FILENO);
-		dup2(pipe_to_handler[1], STDOUT_FILENO);
-		dup2(pipe_to_handler[1], STDERR_FILENO);
-		setvbuf(stdout, NULL, _IONBF, 0);
-		setvbuf(stderr, NULL, _IONBF, 0);
-	}
-}
-
-void teeStdoutFile(const std::string& file) {
-	if(!teeOlxOutputFile) return;
-		
-	if(file.size() >= MAXFILENAMESIZE - 1) {
-		errors << "teeStdoutFile: filename " << file << " too big" << endl;
-		strcpy(teeOlxOutputFile, "");
-		return;
-	}
-	
-	strcpy(teeOlxOutputFile, file.c_str());
-}
-
-#include <sys/wait.h>
-
-// NOTE: We are calling this also when we crashed, so be sure that we only do save operations here!
-void teeStdoutQuit(bool wait = true) {
-	if(teeStdoutInfo.proc) {
-		close(STDOUT_FILENO);
-		close(STDERR_FILENO);
-		close(teeStdoutInfo.pipeend);
-		// The forked process should quit itself now.
-		if(wait) waitpid(teeStdoutInfo.proc, NULL, 0);
-
-		// Recover stdout/err
-		dup2(teeStdoutInfo.oldstdout, STDOUT_FILENO);
-		dup2(teeStdoutInfo.oldstderr, STDERR_FILENO);
-		close(teeStdoutInfo.oldstdout);
-		close(teeStdoutInfo.oldstderr);
-		printf("Standard Out/Err recovered\n");
-	}
-	
-	if(teeOlxOutputFile) {
-		munmap(teeOlxOutputFile, MAXFILENAMESIZE);
-		teeOlxOutputFile = NULL;
-	}
-}
-
-#else
-
-static char teeLogfile[2048] = "stdout.txt";
-
-void teeStdoutInit() {}
-void teeStdoutFile(const std::string& f) {
-	if(f.size() < sizeof(teeLogfile) - 1)
-		strcpy(teeLogfile, f.c_str());
-	else
-		errors << "teeStdoutFile: filename " << f << " is too long" << endl;
-	
-	// If you would just see the old output, it would look kind of strange
-	// that it suddenly stops, so print where we continue.
-	notes << "Logfile: " << f << endl;
-
-	if(freopen(Utf8ToSystemNative(f).c_str(), "a", stdout) == NULL) {
-		freopen("stdout.txt", "a", stdout); // reopen fallback
-		errors << "Could not open logfile" << endl;
-		return;
-	}
-	// no caching for stdout/logfile, it should be written immediatly to
-	// have the important information in case of a crash
-	setvbuf(stdout, NULL, _IONBF, 0);
-	
-	// print some messages again because they are missing in the logfile
-	hints << GetFullGameName() << " is starting ..." << endl;
-#ifdef DEBUG
-	hints << "This is a DEBUG build." << endl;
-#endif
-#ifdef DEDICATED_ONLY
-	hints << "This is a DEDICATED_ONLY build." << endl;
-#endif
-	notes << "Free memory: " << (GetFreeSysMemory() / 1024 / 1024) << " MB" << endl;
-	notes << "Current time: " << GetDateTimeText() << endl;
-
-	// print the searchpaths, this may be very usefull for the user
-	notes << "Searchpaths (in this order):\n";
-	for(searchpathlist::const_iterator p2 = tSearchPaths.begin(); p2 != tSearchPaths.end(); p2++) {
-		std::string path = *p2;
-		ReplaceFileVariables(path);
-		notes << "  " << path << "\n";
-	}
-	notes << "Searchpaths finished." << endl;
-
-	// we still miss some more output but let's hope that this is enough
-}
-void teeStdoutQuit(bool wait = true) {}
-const char* GetLogFilename() { return teeLogfile; }
-
-#endif
-
-static void saveSetBinFilename(const std::string& f) {
-	if(f.size() < sizeof(binaryfilename) - 1)
-		strcpy(binaryfilename, f.c_str());
-}
-
-void setBinaryDirAndName(char* argv0) {
-	saveSetBinFilename(SystemNativeToUtf8(argv0)); // set system native binary filename
-	binary_dir = SystemNativeToUtf8(argv0);
-	size_t slashpos = findLastPathSep(binary_dir);
-	if(slashpos != std::string::npos)  {
-		binary_dir.erase(slashpos);
-
-	} else {
-		binary_dir = ".";
-		
-		// We where called somewhere and located in some PATH.
-		// Search which one.
-#ifdef WIN32
-		static const char* PATHENTRYSEPERATOR = ";";
-#else
-		static const char* PATHENTRYSEPERATOR = ":";
-#endif
-		std::vector<std::string> paths = explode(getenv("PATH"), PATHENTRYSEPERATOR);
-		for(std::vector<std::string>::iterator p = paths.begin(); p != paths.end(); ++p) {
-			if(IsFileAvailable(SystemNativeToUtf8(*p) + "/" + binaryfilename, true)) {
-				binary_dir = SystemNativeToUtf8(*p);
-				saveSetBinFilename(binary_dir + "/" + binaryfilename);
-				return;
-			}
-		}
-		
-		// Hm, nothing found. Nothing we can do about it...
-	}
-}
 
 // ParseArguments will set this eventually to true
 static bool afterCrash = false;
 static bool afterCrashInformedUser = false;
+
+void setBinaryDirAndName(char* argv0);
 
 ///////////////////
 // Main entry point
@@ -677,7 +405,7 @@ startpoint:
 
 	tLX->currentTime = GetTime();
 
-	DrawLoading(60, "Initializing menu system");
+	DrawLoading(70, "Initializing menu system");
 
 	// Initialize menu
 	if(!DeprecatedGUI::Menu_Initialize(&menu_startgame)) {
@@ -686,7 +414,7 @@ startpoint:
 	}
 
 	// speedup for Menu_Start()
-	DrawLoading(85, "Loading main menu");
+	DrawLoading(90, "Loading main menu");
 	DeprecatedGUI::iSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
@@ -698,10 +426,7 @@ startpoint:
 
 	// Setup the global keys
 	tLX->setupInputs();
-
-	DrawLoading(99, "Loading Physics Engine");
-	PhysicsEngine::Init();
-
+	
 	DrawLoading(100, "Done! Starting menu");
 
 	// Everything loaded, this is not needed anymore
@@ -770,8 +495,6 @@ quit:
 	if(!bRestartGameAfterQuit)
 		CrashHandler::restartAfterCrash = false;
 	
-	PhysicsEngine::UnInit();
-
 	ShutdownLieroX();
 
 	notes << "waiting for all left threads and tasks" << endl;
@@ -866,9 +589,6 @@ void doActionInMainThread(Action* act) {
 }
 
 
-static std::string quitEngineFlagReason;
-static bool inMainGameLoop = false;
-
 static int MainLoopThread(void*) {
 	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
@@ -926,66 +646,15 @@ static int MainLoopThread(void*) {
 			// a single menu-frame, we quit the menu and set the quitengine flag
 			continue;
 		
-		// Pre-game initialization
-		if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
-		
-		ClearEntities();
-		
-		ProcessEvents();
-		notes << "MaxFPS is " << tLXOptions->nMaxFPS << endl;
-		
-		//cCache.ClearExtraEntries(); // Do not clear anything before game started, it may be slow
-		
-		notes << "GameLoopStart" << endl;
-		inMainGameLoop = true;
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->GameLoopStart_Signal();
+		game.prepareGameloop();
 
-		CrashHandler::recoverAfterCrash = tLXOptions->bRecoverAfterCrash && GetGameVersion().releasetype == Version::RT_NORMAL;
-		
 		//
         // Main game loop
         //
-		ResetQuitEngineFlag();
-		AbsTime oldtime = GetTime();
-		while(!tLX->bQuitEngine) {
-			
-			tLX->currentTime = GetTime();
-			SetCrashHandlerReturnPoint("main game loop");
-			
-			// Timing
-			tLX->fDeltaTime = tLX->currentTime - oldtime;
-			tLX->fRealDeltaTime = tLX->fDeltaTime;
-			oldtime = tLX->currentTime;
-			
-			// cap the delta
-			if(tLX->fDeltaTime.seconds() > 0.5f) {
-				warnings << "deltatime " << tLX->fDeltaTime.seconds() << " is too high" << endl;
-				// only if not in new net mode because it would screw up the gamestate there
-				if(!NewNet::Active())
-					tLX->fDeltaTime = 0.5f; // don't simulate more than 500ms, it could crash the game
-			}
-			
-			ProcessEvents();
-			
-			// Main frame
-			GameLoopFrame();
-			
-			doVideoFrameInMainThread();
-			CapFPS();
-		}
+		while(!tLX->bQuitEngine)
+			game.frameOuter();
 		
-		CrashHandler::recoverAfterCrash = false;
-		
-		PhysicsEngine::Get()->uninitGame();
-		
-		notes << "GameLoopEnd: " << quitEngineFlagReason << endl;
-		inMainGameLoop = false;
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->GameLoopEnd_Signal();		
-
-		cCache.ClearExtraEntries(); // Game ended - clear cache
-		
+		game.cleanupAfterGameloopEnd();
 	}
 
 	SDL_Event quitEv = QuitEventThreadEvent();
@@ -1199,8 +868,6 @@ int InitializeLieroX()
 	// Initialize the loading screen
 	InitializeLoading();
 
-	//DrawLoading(0, "Initializing network");
-
 	DrawLoading(5, "Initializing client and server");
 
 	// Allocate the client & server
@@ -1220,7 +887,12 @@ int InitializeLieroX()
 		return false;
 	}
 
-	DrawLoading(10, "Initializing game entities");
+	
+	DrawLoading(10, "Loading Gusanos engine");
+	gusInitBase();
+
+	
+	DrawLoading(15, "Initializing game entities");
 
 	// Initialize the entities
 	if(!InitializeEntities()) {
@@ -1228,7 +900,7 @@ int InitializeLieroX()
 		return false;
 	}
 
-	DrawLoading(15, "Loading graphics");
+	DrawLoading(20, "Loading graphics");
 
 
 	// Load the graphics
@@ -1266,93 +938,6 @@ int InitializeLieroX()
 	notes << "Initializing ready" << endl;
 
 	return true;
-}
-
-
-///////////////////
-// Game loop
-void GameLoopFrame()
-{
-	HandlePendingCommands();
-	
-	if(bDedicated)
-		DedicatedControl::Get()->GameLoop_Frame();
-
-    if(tLX->bQuitEngine)
-        return;
-
-	// Check if user pressed screenshot key
-	if (tLX->cTakeScreenshot.isDownOnce())  {
-		PushScreenshot("scrshots", "");
-	}
-	
-	// Switch between window and fullscreen mode
-	// Switch only if delta time is low enough. This is because when the game does not
-	// respond for >30secs and the user presses cSwitchMode in the meantime, the mainlock-detector
-	// would switch to window and here we would switch again to fullscreen which is stupid.
-	if( tLX->cSwitchMode.isUp() && tLX && tLX->fRealDeltaTime < 1.0f )  {
-		// Set to fullscreen
-		tLXOptions->bFullscreen = !tLXOptions->bFullscreen;
-
-		// Set the new video mode
-		doSetVideoModeInMainThread();
-
-		tLX->cSwitchMode.reset();
-	}
-
-#ifdef WITH_G15
-	if (OLXG15)
-		OLXG15->gameFrame();
-#endif //WITH_G15
-
-	if(tLXOptions->bEnableChat)
-		ProcessIRC();
-
-	// Local
-	switch (tLX->iGameType)  {
-	case GME_LOCAL:
-		cClient->Frame();
-		cServer->Frame();
-
-		// If we are connected, just start the game straight away (bypass lobby in local)
-		if(cClient->getStatus() == NET_CONNECTED) {
-			if(cServer->getState() == SVS_LOBBY) {
-				std::string errMsg;
-				if(!cServer->StartGame(&errMsg)) {
-					errors << "starting game in local game failed for reason: " << errMsg << endl;
-					DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-					GotoLocalMenu();
-					return;
-				}
-			}
-		}
-
-		if(tLX && !tLX->bQuitEngine)
-			cClient->Draw(VideoPostProcessor::videoSurface());
-		break;
-
-
-	// Hosting
-	case GME_HOST:
-		cClient->Frame();
-		cServer->Frame();
-
-		if(tLX && !tLX->bQuitEngine)
-			cClient->Draw(VideoPostProcessor::videoSurface());
-		break;
-
-	// Joined
-	case GME_JOIN:
-		cClient->Frame();
-		if(tLX && !tLX->bQuitEngine)
-			cClient->Draw(VideoPostProcessor::videoSurface());
-		break;
-
-	} // SWITCH
-	
-	cClient->resetDebugStr();
-	
-	EnableSystemMouseCursor(false);
 }
 
 
@@ -1494,7 +1079,7 @@ static void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
-
+	
 	// Options
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
@@ -1566,6 +1151,8 @@ void ShutdownLieroX()
 	// Event system
 	ShutdownEventSystem();
 
+	gusQuit();
+
 	// SDL, Cache and other small stuff
 	ShutdownAuxLib();
 
@@ -1573,7 +1160,7 @@ void ShutdownLieroX()
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
-
+	
 	// Save and clear options
 
 	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
@@ -1603,36 +1190,6 @@ void ShutdownLieroX()
 }
 
 
-void ResetQuitEngineFlag() {
-	tLX->bQuitEngine = false;
-}
-
-void SetQuitEngineFlag(const std::string& reason) {
-	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
-	quitEngineFlagReason = reason;
-	tLX->bQuitEngine = true;
-	// If we call this from within the menu, the menu should shutdown.
-	// It will be restarted then in the next frame.
-	// If we are not in the menu (i.e. in maingameloop), this has no
-	// effect as we set it to true in Menu_Start().
-	if(DeprecatedGUI::tMenu)
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-	// If we were in menu, because we forced the menu restart above,
-	// we must set this, otherwise OLX would quit (because of current maingamelogic).
-	if(DeprecatedGUI::bGame)
-		*DeprecatedGUI::bGame = true;
-}
-
-bool Warning_QuitEngineFlagSet(const std::string& preText) {
-	if(tLX->bQuitEngine) {
-		hints << preText << endl;
-		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
-		return true;
-	}
-	return false;
-}
-
-
 struct CheckFileForMap {
 	typedef FileListCacheIntf::FileList List;
 	void operator()(List& filelist, const std::string& abs_filename) {
@@ -1640,19 +1197,16 @@ struct CheckFileForMap {
 		if(mapName != "") filelist.insert( List::value_type(GetBaseFilename(abs_filename), mapName) );
 	}
 };
-static FileListCache<CheckFileForMap> mapListInstance("map", "levels");
+static FileListCache<CheckFileForMap> mapListInstance("map", "levels", false, FM_REG | FM_DIR);
 FileListCacheIntf* mapList = &mapListInstance;
 
 
 struct CheckDirForMod {
 	typedef FileListCacheIntf::FileList List;
 	void operator()(List& filelist, const std::string& abs_filename) {
-		size_t sep = findLastPathSep(abs_filename);
-		if(sep != std::string::npos) {
-			std::string name;
-			if(CGameScript::CheckFile(abs_filename, name, true))
-				filelist.insert( List::value_type(abs_filename.substr(sep+1), name) );
-		}
+		ModInfo info = infoForMod(abs_filename, true);
+		if(info.valid)
+			filelist.insert( List::value_type(info.path, info.name) );
 	}
 };
 static FileListCache<CheckDirForMod> modListInstance("mod", "", false, FM_DIR);

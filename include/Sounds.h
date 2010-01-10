@@ -20,48 +20,9 @@
 #include "CVec.h"
 #include "SmartPointer.h"
 #include "types.h"
+#include "sound/sound_sample.h"
 
 
-#ifndef DEDICATED_ONLY
-// we are using SDL_mixer at the moment
-#include <SDL_mixer.h>
-
-#	if !defined(SDL_MIXER_MAJOR_VERSION) || (SDL_MIXER_MAJOR_VERSION < 1) || !defined(SDL_MIXER_MINOR_VERSION) || (SDL_MIXER_MINOR_VERSION < 2) || !defined(SDL_MIXER_PATCHLEVEL) || (SDL_MIXER_PATCHLEVEL < 8)
-// <=SDL_mixer-1.2.7 does not restart correctly 
-#		define SDLMIXER_WORKAROUND_RESTART	1
-#	else
-#		define SDLMIXER_WORKAROUND_RESTART	0
-#	endif
-#endif //DEDICATED_ONLY
-
-#define MUSIC_REPEAT_INFINITE -1
-
-#define SND_CMD MUS_CMD
-#define SND_WAV MUS_WAV
-#define SND_MOD MUS_MOD
-#define SND_MID MUS_MID
-#define SND_OGG MUS_OGG
-#define SND_MP3 MUS_MP3
-
-// TODO: use DECLARE_INTERN_DATA here to avoid SDL_mixer.h in this file
-// this typedef can be replaced if another sound system is wanted
-// also, all *Sound* functions need to be recoded then
-// for using this, handle with pointers of it
-struct SoundSample {
-#ifndef DEDICATED_ONLY	
-	Mix_Chunk* sample;
-#endif	//DEDICATED_ONLY
-	int maxsimulplays;
-// TODO: and other stuff
-};
-
-// TODO: use DECLARE_INTERN_DATA here to avoid SDL_mixer.h in this file
-// Music
-struct SoundMusic {
-#ifndef DEDICATED_ONLY	
-	Mix_Music *sndMusic;
-#endif //DEDICATED_ONLY
-};
 
 // General sounds
 typedef struct {
@@ -129,10 +90,7 @@ extern bool	 bSongFinished;
 
 // Music
 
-typedef void (*MusicFinishedCB)();
-
 id3v1_t			GetMP3Info(const std::string& file);
-void			SetMusicFinishedHandler(MusicFinishedCB cb);
 
 
 

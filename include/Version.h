@@ -92,13 +92,13 @@ inline Version OLXBetaVersion(int num, int subnum, int betaversion) {
 	return v;
 }
 
-inline Version OLXVersion(int num, int subnum) {
+inline Version OLXVersionBranchStart(int num, int subnum) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = num;
 	v.subnum = subnum;
 	v.subsubnum = 0;
-	v.releasetype = Version::RT_NORMAL;
+	v.releasetype = Version::RT_ALPHA; // lowest possible value
 	return v;	
 }
 

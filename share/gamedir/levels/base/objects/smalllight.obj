@@ -1,0 +1,12 @@
+blender=alpha
+alpha=80
+occluded=1
+light_radius=30
+damping=0
+col_layer=-1
+
+on timer(4)
+remove()
+
+on creation()
+ set_alpha_fade(4,0)

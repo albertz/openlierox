@@ -1,0 +1,19 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 0.6
+distort_gen = <<< distortions.swirl >>>
+distort_size = [26,26]
+
+blender = add
+alpha = 0
+
+on ground_collision()
+
+on creation()
+ create_explosion( manip.exp )
+
+on timer(2)
+ remove()
+
+

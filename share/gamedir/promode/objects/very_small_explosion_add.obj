@@ -1,0 +1,17 @@
+sprite = very_small_explosion_add.png
+blender = add
+alpha = 255
+anim_duration = 6
+anim_type = loop_right
+anim_on_ground = 1
+render_layer = 1
+occluded = 0
+gravity=0.0
+bounce_factor=0
+repeat = 1
+
+on timer(4)
+remove()
+
+on ground_collision()
+remove()

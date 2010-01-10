@@ -86,6 +86,7 @@ struct weapon_t;
 struct proj_t;
 struct Proj_SpawnInfo;
 struct Proj_Action;
+struct ModInfo;
 
 
 class CGameScript {
@@ -96,6 +97,7 @@ public:
 	// Constructor
 	CGameScript() {
 		loaded = false;
+		m_gusEngineUsed = false;
 		needCollisionInfo = false;
 		NumWeapons = 0;
 		Weapons = NULL;
@@ -119,7 +121,8 @@ private:
 	// Header
 	bool loaded;
 	gs_header_t	Header;
-
+	std::string modname;
+	bool m_gusEngineUsed;
 
 	// Weapons
 	int			NumWeapons;
@@ -171,7 +174,7 @@ public:
 	const weapon_t	*FindWeapon(const std::string& name);
     bool        weaponExists(const std::string& szName);
 
-	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false);
+	static bool	CheckFile(const std::string& dir, std::string& name, bool abs_filename = false, ModInfo* info = NULL);
 
     void        modLog(const std::string& text);
 
@@ -185,7 +188,7 @@ public:
 		return GS_MINLXVERSION(scriptVer) <= ver;		
 	}
 	bool		isCompatibleWith(const Version& ver) const { return isCompatibleWith(Header.Version, ver); }
-	std::string modName() const { return Header.ModName; }
+	std::string modName() const { return modname; }
 	std::string directory() const { return sDirectory; }
 	
 	int			GetNumWeapons()				{ return NumWeapons; }
@@ -215,7 +218,9 @@ public:
 
 	size_t	getProjectileCount() const	{ return projectiles.size(); }
 	
-	bool		Compile(const std::string& dir);
+	bool	Compile(const std::string& dir);
+
+	bool	gusEngineUsed() const		{ return m_gusEngineUsed; }
 	
 private:
 	bool	CompileWeapon(const std::string& dir, const std::string& weapon, int id);

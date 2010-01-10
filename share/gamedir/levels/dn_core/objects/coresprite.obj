@@ -1,0 +1,11 @@
+blender = add
+alpha = 255
+sprite = core.png
+occluded = 0
+col_layer = -1
+
+on timer(50)
+ set_alpha_fade(50,150)
+ 
+on timer(101,100)
+ set_alpha_fade(50,255)

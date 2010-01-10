@@ -1,0 +1,9 @@
+col_layer = -1
+invisible = 1
+render_layer = 7
+
+	on creation()
+		play_global_sound(gameend.ogg, 100, 100, 1, 0)
+
+	on detect_range(1000000,1,[worms])
+		run_script("limits.hold")

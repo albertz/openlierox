@@ -31,7 +31,7 @@
 
 // these forward-declaration are needed here
 // they will be declared in CMap.h and CGameScript.h
-struct SoundSample;
+class SoundSample;
 class CMap;
 class CGameScript;
  

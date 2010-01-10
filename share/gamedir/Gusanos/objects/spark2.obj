@@ -1,0 +1,13 @@
+blender = alpha
+color = [255, 255, 0]
+alpha = 150
+gravity = 0
+
+on creation()
+ set_alpha_fade( 11 , 0 )
+
+on ground_collision()
+ remove()
+
+on timer(11)
+ remove()

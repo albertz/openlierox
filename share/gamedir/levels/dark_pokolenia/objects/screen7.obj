@@ -1,0 +1,21 @@
+sprite = screen7.png
+blender = alphach
+alpha = 0
+render_layer = 3
+gravity = 0.0
+bounce_factor=0
+damping = 0
+anim_type = loop_right
+
+on creation()
+set_alpha_fade(100,255)
+
+on timer(400,0,1)
+set_alpha_fade(100,0)
+
+on timer(450)
+put_particle(rolling_lieros2_b.obj,391,177,0,0,360)
+shoot_particles(black_screen.obj,1,0,0,0,0,0,180,0)
+
+on timer(500)
+remove()

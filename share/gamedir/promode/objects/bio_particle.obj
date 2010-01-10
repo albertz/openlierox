@@ -1,0 +1,25 @@
+gravity = 0.00523
+repeat = 1
+blender = add
+alpha = 200
+wu_pixels = 1
+colour = [50,200,0]
+
+on ground_collision()
+ shoot_particles ( bio_smoke_alphach.obj, 4, 0.4,0.2)
+ create_explosion (bio_flash_small_long_add.exp)
+ remove()
+
+on timer(0)
+ create_explosion (bio_small_flash_add.exp)
+
+
+on detect_range(2, 1)
+ damage ( 4 )
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+ push ( 0.015 )
+ shoot_particles ( bloodgen.obj , 3, 0.5, 1, 0.5 )
+ shoot_particles ( bio_smoke_alphach.obj, 4, 0.4,0.2)
+ create_explosion (bio_flash_small_long_add.exp)
+ remove()
+ 

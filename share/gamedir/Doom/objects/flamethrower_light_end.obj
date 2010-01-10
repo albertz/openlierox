@@ -1,0 +1,13 @@
+sprite = flamethrower_light.png
+blender = add
+alpha = 245
+occluded = 1
+col_layer = -1 
+light_radius=100
+render_layer = 7
+
+on timer( 40 )
+ set_alpha_fade(110,0)
+
+on timer( 150 )
+remove()

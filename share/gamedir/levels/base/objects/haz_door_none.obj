@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=7
+ 
+on custom_event(4)
+shoot_particles ( haz_door_close.obj,1,0,0,0,0,0,0,0)
+remove()

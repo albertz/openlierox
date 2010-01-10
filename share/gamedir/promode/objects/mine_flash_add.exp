@@ -1,0 +1,6 @@
+sprite=mine_flash_add.png
+blender=add
+alpha = 230
+dest_alpha = 0
+timeout = 6
+rock_hidden = 0

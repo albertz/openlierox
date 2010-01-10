@@ -1,0 +1,12 @@
+invisible=1
+timeout=1
+rock_hidden = 0
+
+on detect_range(10,1,[2])
+  damage(100)
+  
+on detect_range(45,1)
+   run_script(damage.special_explosion_mortar)
+   
+   on creation()
+  apply_map_effect( hole_evenmorehuge.mfx )

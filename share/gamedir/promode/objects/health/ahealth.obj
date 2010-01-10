@@ -1,0 +1,36 @@
+gravity = 0.0112
+bounce_factor = 0.333
+sprite = health.png
+anim_duration = 40
+anim_type = loop_right
+alpha = 255
+blender = alphach
+col_layer = 2
+
+sync_pos = true
+
+on detect_range(5, 0, [worms])
+ run_script(effects.healthRun)
+remove()
+
+on detect_range(5,1,[1])
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,2)
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,1)
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,0)
+  shoot_particles(health/health_part_red.obj,3,0.2,0.3,0,0,360,0,2)
+  shoot_particles(health/health_part_red.obj,3,0.2,0.3,0,0,360,0,1)
+  remove()
+
+on death()
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,2)
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,1)
+  shoot_particles(health/health_part_white.obj,5,0.2,0.3,0,0,360,0,0)
+  shoot_particles(health/health_part_red.obj,3,0.2,0.3,0,0,360,0,2)
+  shoot_particles(health/health_part_red.obj,3,0.2,0.3,0,0,360,0,1)
+remove()
+ 
+on timer(2800,0,1)
+set_alpha_fade(200,0) 
+ 
+on timer(3000)
+remove()

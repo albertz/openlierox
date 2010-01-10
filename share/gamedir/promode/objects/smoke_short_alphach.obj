@@ -1,0 +1,20 @@
+sprite = smoke_alphach.png
+blender = alphach
+alpha = 255
+anim_duration = 85
+anim_type = loop_left
+anim_on_ground = 1
+render_layer = 1
+occluded = 0
+damping = 0.95
+gravity=-0.01
+bounce_factor=0
+
+on timer(84)
+remove()
+
+on ground_collision()
+remove()
+
+on creation()
+set_alpha_fade(90,0)

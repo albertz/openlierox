@@ -1,0 +1,11 @@
+#sprite = lightflare_light.png
+invisible = 1
+blender = add
+alpha = 250
+occluded = 1
+col_layer = -1 
+light_radius=350
+render_layer = 8
+
+on timer( 2 )
+remove()

@@ -105,7 +105,7 @@ void NotifyUserOnEvent()
 #elif defined(WIN32) || defined(__MINGW32_VERSION)
 	FLASHWINFO flash;
 	flash.cbSize = sizeof(flash);
-	flash.hwnd = GetWindowHandle();
+	flash.hwnd = (HWND)GetWindowHandle();
 	if (!flash.hwnd)
 		return;
 

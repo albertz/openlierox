@@ -1,0 +1,16 @@
+gravity = 0.00
+damping = 0.97
+sprite = railgun3.png
+alpha = 255
+blender = add
+anim_duration = 110
+anim_type = right_once
+render_layer = 3
+light_radius=2
+col_layer = 5
+
+on creation()
+ set_alpha_fade(100,0)
+
+on timer(100, 20)
+ remove()

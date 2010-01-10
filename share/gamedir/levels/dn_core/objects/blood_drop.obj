@@ -1,0 +1,9 @@
+color = [0,0,220]
+blender = alphach
+alpha = 255
+render_layer = 3
+gravity = 0.0112
+invisible = 0
+wu_pixels = 1on ground_collision()
+	shoot_particles(blood_drop2.obj,5,0.4,0.3,0,2,30,0,0)
+ remove()

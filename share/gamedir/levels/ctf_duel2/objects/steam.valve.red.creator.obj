@@ -1,0 +1,5 @@
+invisible=1
+col_layer=-1
+
+on timer(50)
+ shoot_particles(steam.valve.red.obj, 1)

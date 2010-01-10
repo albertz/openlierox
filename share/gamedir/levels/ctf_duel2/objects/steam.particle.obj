@@ -1,0 +1,17 @@
+color=[64,64,64]
+blender=alphach
+alpha=64
+sprite=steam.png
+gravity=-0.0008
+
+anim_type=loop_right
+anim_duration=200
+
+on timer(200)
+ remove()
+ 
+on creation()
+ set_alpha_fade(200,128)
+ 
+on detect_range(5)
+ damage(3, 0, 5)

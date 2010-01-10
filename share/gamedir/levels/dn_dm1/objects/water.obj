@@ -1,0 +1,5 @@
+invisible = 1
+col_layer = -1
+sprite = water.png
+blender = add
+alpha = 80

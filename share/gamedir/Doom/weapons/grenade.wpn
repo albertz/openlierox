@@ -1,0 +1,31 @@
+name = FragGrenade
+skin=skin.grenade.png
+ammo = 1
+sync_shot = true
+reload_time=150
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(20)
+ play_sound( grenade_use.ogg, 75, 1, 0.05 )
+ run_script(doom.grenade_reset)
+ run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on primary_press()
+play_sound(grenade-pullout.ogg, 100, 1, 0.05 )
+
+on primary_shoot()
+run_script(doom.grenade_loop)
+
+on primary_release()
+delay_fire(150)
+use_ammo(1)
+run_script(doom.grenade_release)
+
+on out_of_ammo()
+run_script(doom.grenade_out_of_ammo)
+
+on reload_end()
+run_script(doom.grenade_reload)

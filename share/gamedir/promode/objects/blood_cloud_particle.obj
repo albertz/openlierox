@@ -1,0 +1,17 @@
+blender=alphach
+gravity = 0.015
+bounce_factor=0
+colour = [180, 0, 0]
+render_layer = 8
+col_layer = -1
+wu_pixels = 1
+
+on creation()
+  set_alpha_fade(50,0)
+
+
+on timer(50)
+remove()
+
+on ground_collision()
+ remove()

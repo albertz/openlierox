@@ -1,0 +1,8 @@
+invisible = 1
+col_layer=-1
+sprite = button1_pressed.bmp
+render_layer = 1
+
+on timer(1080)
+ shoot_particles ( button_4_part1.obj , 1,motion_inheritance=1)
+ remove()

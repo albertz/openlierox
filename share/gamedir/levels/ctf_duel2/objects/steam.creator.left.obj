@@ -1,0 +1,12 @@
+col_layer=-1
+invisible=1
+
+on creation()
+ play_sound([steam.wav], 100, 1, 0.2)
+
+on timer(5)
+ shoot_particles(steam.particle.obj, 1, speed=0.5, speed_var=0.03, distribution=20, angle_offs=90)
+
+on timer(150)
+ remove()
+  

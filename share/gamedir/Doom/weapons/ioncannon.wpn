@@ -1,0 +1,29 @@
+name=IonRifle
+skin=skin.ioncannon.png
+ammo=18
+reload_time=125
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(40)
+ play_sound( ioncannon_use.ogg, 75, 1, 0.05 )
+ run_script(doom.ion_reset)
+ run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set_ioncannon)
+
+on primary_press()
+run_script(doom.ion_fire_start)
+ 
+on primary_shoot()
+delay_fire(0)
+run_script(doom.ion_fire_loop)
+
+on primary_release()
+run_script(doom.ion_fire_end)
+use_ammo(1)
+
+on out_of_ammo()
+ play_sound(ioncannon_reload.ogg,100,1,0.05)

@@ -1,0 +1,17 @@
+name = NWH-Grenade
+skin=skin.NWHGrenade.png
+reload_time = 400
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(50)
+ play_sound( nwhgrenade_use.ogg, 75, 1, 0.05 )
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on primary_shoot()
+ play_sound( grenade_throw.ogg, 100, 1, 0.05 )
+use_ammo(1)
+ shoot_particles ( nwhgrenade.obj , 1 , 2, 0.1, 0.5, 0, 20, 0, 7)

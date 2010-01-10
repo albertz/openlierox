@@ -160,6 +160,9 @@ void CCache::SaveMod(const std::string& file1, const SmartPointer<CGameScript> &
 		return;
 	}
 	
+	// dont save gus mods
+	if(mod->gusEngineUsed()) return;
+	
 	std::string file = file1;
 	stringlwr(file);
 

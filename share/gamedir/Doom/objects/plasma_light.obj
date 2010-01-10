@@ -1,0 +1,12 @@
+sprite = plasmarifle_light.png
+blender = add
+occluded = 1
+alpha = 255
+light_radius=25
+render_layer = 8
+
+on creation()
+ set_alpha_fade(4,0)
+
+on timer( 4 )
+remove()

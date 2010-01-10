@@ -31,7 +31,8 @@
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
 #include "IniReader.h"
-
+#include "game/Mod.h"
+#include "gusanos/gusanos.h"
 
 
 void CGameScript::initNewWeapons(int num) {
@@ -446,6 +447,112 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 }
 
 
+
+static bool checkLXBinMod(const std::string& dir, bool abs_filename, ModInfo& info) {
+	// Open it
+	FILE *fp = NULL;
+	if(abs_filename) {
+		fp = OpenAbsFile(dir + "/script.lgs", "rb");
+	} else
+		fp = OpenGameFile(dir + "/script.lgs", "rb");
+	
+	if(!fp) return false;
+	
+	// Header
+	gs_header_t head;
+	memset(&head,0,sizeof(gs_header_t));
+	fread_compat(head,sizeof(gs_header_t),1,fp);
+	fclose(fp);
+	
+	EndianSwap(head.Version);
+	// for security
+	fix_markend(head.ID);
+	fix_markend(head.ModName);
+	
+	// Check ID
+	if(strcmp(head.ID,"Liero Game Script") != 0) {
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs is not a Liero game script";
+		warnings << " (but \"" << head.ID << "\" instead)" << endl;
+		return false;
+	}
+	
+	// Check version
+	if(head.Version < GS_FIRST_SUPPORTED_VERSION || head.Version > GS_VERSION) {
+		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
+		warnings << " (" << (unsigned)head.Version << ", required is in the range ";
+		warnings << "[" << GS_FIRST_SUPPORTED_VERSION << "," << GS_VERSION << "])" << endl;
+		return false;
+	}
+	
+	info.valid = true;
+	info.name = head.ModName;
+	info.path = GetBaseFilename(dir);
+	info.type = "LieroX mod";
+	info.typeShort = "LX";
+	
+	return true;
+}
+
+static bool checkLXSourceMod(const std::string& dir, bool abs_filename, ModInfo& info) {
+	// try source gamescript
+	
+	std::string filename = dir + "/main.txt";
+	if(abs_filename) {
+		if(!GetExactFileName(dir + "/main.txt", filename))
+			return false;
+	} else {
+		if(!IsFileAvailable(filename))
+			return false;
+	}
+	
+	info.valid = true;
+	ReadString(filename,"General","ModName", info.name,"untitled", abs_filename);	
+	info.path = GetBaseFilename(dir);
+	info.type = "LieroX mod source";
+	info.typeShort = "LX src";
+	
+	return true;	
+}
+
+static bool checkGusMod(const std::string& dir, bool abs_filename, ModInfo& info) {
+	std::string basefn = GetBaseFilename(dir);
+	
+	// TODO: absfn
+	// there is no better way to check that
+	if(IsDirectory(basefn + "/objects")) {
+		info.valid = true;
+		info.name = basefn;
+		info.path = basefn;
+		info.type = "Gusanos mod";
+		info.typeShort = "Gus";
+		
+		return true;
+	}
+	
+	return false;
+}
+
+///////////////////
+// Check if a file is a valid LX game script
+bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename, ModInfo* _i)
+{
+	ModInfo __modInfo;
+	ModInfo& info = _i ? *_i : __modInfo;
+	
+	info = ModInfo();
+	name = "";
+	
+	if(!IsDirectory(dir, abs_filename)) return false;
+	if(checkLXBinMod(dir, abs_filename, info)) goto CheckFileEnd;
+	if(checkLXSourceMod(dir, abs_filename, info)) goto CheckFileEnd;
+	if(checkGusMod(dir, abs_filename, info)) goto CheckFileEnd;
+	
+CheckFileEnd:
+	name = info.name;
+	return info.valid;
+}
+
+
 ///////////////////
 // Load the game script from a file (game)
 int CGameScript::Load(const std::string& dir)
@@ -481,6 +588,29 @@ int CGameScript::Load(const std::string& dir)
 			}
 		}
 		
+		ModInfo info;
+		if(checkGusMod(dir, false, info)) {
+			if(gusInit(info.path)) {
+				m_gusEngineUsed = true;
+				loaded = true;
+				modname = info.name;
+
+				// they are not really used but the AI code or other stuff may access them
+				Worm.AngleSpeed = 100;  //m_options->aimMaxSpeed.toDeg() * 100.f;
+				Worm.GroundSpeed = 1;
+				Worm.AirSpeed = 1;
+				Worm.Gravity = 1;
+				Worm.JumpForce = 1;
+				Worm.AirFriction = 1;
+				Worm.GroundFriction = 1;
+				
+				return GSE_OK;
+			}
+			
+			warnings << "CGameScript::Load(): Could not load Gusanos mod " << filename << endl;
+			return GSE_BAD;
+		}
+		
 		warnings << "CGameScript::Load(): Could not load file " << filename << endl;
 		return GSE_FILE;
 	}
@@ -509,6 +639,8 @@ int CGameScript::Load(const std::string& dir)
 		return GSE_VERSION;
 	}
 
+	modname = Header.ModName;
+	
     // Clear an old mod file
     modLog("Loading game mod file " + filename);
 	//modLog("  ID = %s", Header.ID);
@@ -1115,6 +1247,8 @@ size_t CGameScript::GetMemorySize()
 void CGameScript::Shutdown()
 {
 	loaded = false;
+	modname = "";
+	m_gusEngineUsed = false;
 	needCollisionInfo = false;
 	
     // Close the log file
@@ -1143,69 +1277,6 @@ void CGameScript::ShutdownProjectile(proj_t *prj)
 	if(prj) {
 		delete prj;
 	}
-}
-
-
-///////////////////
-// Check if a file is a valid liero game script
-bool CGameScript::CheckFile(const std::string& dir, std::string& name, bool abs_filename)
-{
-	name = "";
-
-	// Open it
-	FILE *fp = NULL;
-	if(abs_filename) {
-		std::string filename;
-		// we still need to add "/script.lgs" and then do an exact filename search
-		if(GetExactFileName(dir + "/script.lgs", filename))
-	 		fp = fopen(Utf8ToSystemNative(filename).c_str(), "rb");
-	} else
-		fp = OpenGameFile(dir + "/script.lgs", "rb");
-	
-	if(fp == NULL) {
-		// try source gamescript
-		
-		std::string filename = dir + "/main.txt";
-		if(abs_filename) {
-			if(!GetExactFileName(dir + "/main.txt", filename))
-				return false;
-		} else {
-			if(!IsFileAvailable(filename))
-				return false;
-		}
-		
-		ReadString(filename,"General","ModName", name,"untitled", abs_filename);
-		return true;
-	}
-
-	// Header
-	gs_header_t head;
-	memset(&head,0,sizeof(gs_header_t));
-	fread_compat(head,sizeof(gs_header_t),1,fp);
-	fclose(fp);
-
-	EndianSwap(head.Version);
-	// for security
-	fix_markend(head.ID);
-	fix_markend(head.ModName);
-
-	// Check ID
-	if(strcmp(head.ID,"Liero Game Script") != 0) {
-		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs is not a Liero game script";
-		warnings << " (but \"" << head.ID << "\" instead)" << endl;
-		return false;
-	}
-
-	// Check version
-	if(head.Version < GS_FIRST_SUPPORTED_VERSION || head.Version > GS_VERSION) {
-		warnings << "GS:CheckFile: WARNING: " << dir << "/script.lgs has the wrong version";
-		warnings << " (" << (unsigned)head.Version << ", required is in the range ";
-		warnings << "[" << GS_FIRST_SUPPORTED_VERSION << "," << GS_VERSION << "])" << endl;
-		return false;
-	}
-
-	name = head.ModName;
-	return true;
 }
 
 
@@ -1404,7 +1475,6 @@ bool CGameScript::Compile(const std::string& dir)
 	
 	int num,n;
 
-	std::string modname;
 	ini.ReadString("General","ModName", modname,"untitled");
 	fix_strncpy(Header.ModName, modname.c_str());
 

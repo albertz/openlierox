@@ -28,6 +28,7 @@
 #include "CGameMode.h"
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
+#include "game/Game.h"
 
 
 CVec GameServer::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad) {
@@ -101,6 +102,10 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	if (bGameOver || Worm->isSpectating())
 		return;
 
+	if(game.gameScript()->gusEngineUsed())
+		// NOTE: only for now
+		return;
+	
 	CVec pos;
 
 	if( _pos )
@@ -130,7 +135,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	if(!getGameMode()->Spawn(Worm, pos))
 		return;
 
-	Worm->setAlive(true);
+	Worm->Spawn(pos);
 	bool sendWormUpdate = true;
 	if(Worm->getLives() == WRM_OUT) {
 		if(tLXOptions->tGameInfo.iLives < 0)

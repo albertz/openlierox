@@ -14,8 +14,8 @@
 // Jason Boettcher
 
 
-#ifndef __OPTIONS_H__
-#define __OPTIONS_H__
+#ifndef __OLX_OPTIONS_H__
+#define __OLX_OPTIONS_H__
 
 #include <map>
 #include <vector>
@@ -303,6 +303,8 @@ struct GameOptions {
 	int		iRandomTeamForNewWorm; // server will randomly choose a team between 0-iRandomTeamForNewWorm
 	std::string cfgFilename;
 	bool	doProjectileSimulationInDedicated;
+	bool	bAutoFileCacheRefresh;	// when you refocus, it will automatically reload the map/mod and the list and the caches
+	bool	bUseMainLockDetector;
 	
 	// Widget states
 	int		iInternetList[7];

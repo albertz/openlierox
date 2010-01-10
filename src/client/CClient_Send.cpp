@@ -22,14 +22,14 @@
 #include "CWorm.h"
 #include "MathLib.h"
 #include "ChatCommand.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "EndianSwap.h"
 #include "CServer.h"
 #include "AuxLib.h"
 #include "CChannel.h"
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
-#include "console.h"
+#include "OLXConsole.h"
 
 
 

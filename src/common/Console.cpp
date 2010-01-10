@@ -21,7 +21,7 @@
 #include "Debug.h"
 #include "Clipboard.h"
 #include "AuxLib.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
@@ -33,7 +33,7 @@
 #include "Condition.h"
 #include "PreInitVar.h"
 #include "Autocompletion.h"
-#include "Command.h"
+#include "OLXCommand.h"
 
 
 

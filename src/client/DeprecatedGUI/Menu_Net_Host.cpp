@@ -42,7 +42,7 @@
 #include "CServerConnection.h"
 #include "ProfileSystem.h"
 #include "Debug.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "CGameMode.h"
 #include "DeprecatedGUI/CChatWidget.h"
 
@@ -901,7 +901,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 	// Reload the level and mod list when the user switches back to game
 	// Do not reaload when any of the dialogs is open
-	if (bActivated)  {
+	if (bActivated && tLXOptions->bAutoFileCacheRefresh)  {
 		notes << "Switched back to OLX, re-filling the level and mod lists" << endl;
 
 		// Get the mod name

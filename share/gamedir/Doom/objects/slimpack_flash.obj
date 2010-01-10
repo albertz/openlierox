@@ -1,0 +1,16 @@
+alpha = 255
+blender = add
+sprite = slimpack.png
+col_layer=-2
+render_layer = 7
+occluded = 1
+light_radius=20
+
+on creation()
+ set_alpha_fade(50,0)
+
+on timer(0,0,1)
+shoot_particles (slimpack_1.obj,1)
+
+on timer(50)
+remove ()

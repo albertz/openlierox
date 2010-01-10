@@ -1,0 +1,16 @@
+sprite = missile_smoke.png
+blender = alphach
+alpha = 10
+col_layer = -1
+
+gravity=0.0
+bounce_factor=0
+
+on creation()
+set_alpha_fade(20,100)
+
+on timer(20,0,1)
+set_alpha_fade(40,0)
+
+on timer(60)
+remove()

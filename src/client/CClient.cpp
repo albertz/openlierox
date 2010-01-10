@@ -19,7 +19,7 @@
 #include "CClient.h"
 #include "CBonus.h"
 #include "DeprecatedGUI/Menu.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "FindFile.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "DeprecatedGUI/CBar.h"
@@ -48,7 +48,8 @@
 #include "FlagInfo.h"
 #include "CMap.h"
 #include "DedicatedControl.h"
-#include "Command.h"
+#include "OLXCommand.h"
+#include "gusanos/network.h"
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -139,7 +140,7 @@ void CClient::Clear()
 	cWeaponRestrictions.Shutdown();
 
     for(int i=0; i<NUM_VIEWPORTS; i++) {
-        cViewports[i].setUsed(false);
+        cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
         cViewports[i].setID(i);
 		cViewports[i].SetWorldX(0);
@@ -216,7 +217,7 @@ void CClient::MinorClear()
 		cBonuses[i].setUsed(false);
 
     for(i=0; i<NUM_VIEWPORTS; i++)  {
-        cViewports[i].setUsed(false);
+		cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
 		cViewports[i].SetWorldX(0);
 		cViewports[i].SetWorldY(0);
@@ -1236,6 +1237,9 @@ void CClient::SendPackets(bool sendPendingOnly)
 			cNetEngine->SendRandomPacket();
 #endif
 	}
+
+	if(tLX->iGameType == GME_JOIN) // in server mode, we call this from CServer::SendPackets
+		network.olxSend(sendPendingOnly);
 	
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
@@ -1292,6 +1296,8 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 		if(bDedicated && ply->iType == PRF_HUMAN->toInt())
 			warnings << "JoinServer: player " << player << " is a human - a human cannot be used in dedicated mode" << endl;
 		else {
+			// this is the current (ugly) way to tell CClient to create a local worm later on with that profile
+			// that is done in CClientNetEngine::ParseConnected or updateAddedWorms
 			cClient->getLocalWormProfiles()[0] = ply;
 			cClient->setNumWorms(1);
 		}
@@ -1684,7 +1690,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 	// Reset
 	for( int i=0; i<NUM_VIEWPORTS; i++ )  {
-        cViewports[i].setUsed(false);
+		cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
 	}
 
@@ -1719,7 +1725,6 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[0].Setup(0, top, 640, h, type1);
 		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
-		cViewports[0].setUsed(true);
 	}
 
 	// Two wormsize
@@ -1727,12 +1732,10 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		cViewports[0].Setup(0, top, 318, h, type1);
 		cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
-		cViewports[0].setUsed(true);
 
 		cViewports[1].Setup(322, top, 318, h, type2);
 		cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 		cViewports[1].setTarget(w2);
-		cViewports[1].setUsed(true);
 	}
 	
 	bShouldRepaintInfo = true;
@@ -1821,7 +1824,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			hints << "Worm added: " << serverWorm->getName();
 			hints << " (id " << serverWorm->getID() << ", team " << serverWorm->getTeam() << ")" << endl;
 
-			serverWorm->setAlive(false);
 			if(outOfGame) serverWorm->setLives(WRM_OUT);
 			if(cServer->getState() != SVS_LOBBY) {
 				serverWorm->Prepare(true); // prepare serverside
@@ -1863,8 +1865,8 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				warnings << cClient->getWorm(i)->getID() << ":" << cClient->getWorm(i)->getName() << endl;
 			}
 			
+			cClient->getWorm(i)->Clear();
 			cClient->getWorm(i)->setUsed(true);
-			cClient->getWorm(i)->setAlive(false);
 			info.applyTo(cClient->getWorm(i)); // sets skin
 			cClient->getWorm(i)->setClient(NULL); // Local worms won't get CServerConnection owner
 			cClient->getWorm(i)->setLocal(true);
@@ -1872,7 +1874,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			cClient->getWorm(i)->setID(serverWorm->getID());
 			cClient->getWorm(i)->setTeam(serverWorm->getTeam());
 			cClient->getWorm(i)->setGameScript(cClient->getGameScript().get()); // TODO: why was this commented out?
-			//cClient->getWorm(i)->setLoadingTime(cClient->fLoadingTime);  // TODO: why is this commented out?
 			cClient->getWorm(i)->setProfile(cClient->getLocalWormProfiles()[i]);
 			if(cClient->getLocalWormProfiles()[i]) {
 				cClient->getWorm(i)->setType(WormType::fromInt(cClient->getLocalWormProfiles()[i]->iType));
@@ -1881,8 +1882,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			cClient->getWorm(i)->setClientVersion(cClient->getClientVersion());
 			if(!cClient->getWorm(i)->ChangeGraphics(cClient->getGeneralGameType()))
 				warnings << "updateAddedWorms: changegraphics for worm " << serverWorm->getID() << " failed" << endl;
-			
-			
+						
 			// gameready means that we had a preparegame package
 			// status==NET_PLAYING means that we are already playing
 			if( cClient->getGameReady() ) {
@@ -1896,7 +1896,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 				cClient->getWorm(i)->setHealth(serverWorm->getHealth());
 				cClient->getWorm(i)->setGameScript(cClient->getGameScript().get());
 				cClient->getWorm(i)->setWpnRest(cClient->getWeaponRestrictions());
-				cClient->getWorm(i)->setLoadingTime(cClient->getGameLobby()->iLoadingTime/100.0f);
 				cClient->getWorm(i)->setWeaponsReady(serverWorm->getWeaponsReady());
 				cClient->getWorm(i)->CloneWeaponsFrom(serverWorm); // if we had serverside weapons, this will clone them
 				
@@ -2082,18 +2081,7 @@ void CClient::RemoveWorm(int id)
 		}
 
 		cRemoteWorms[id].Unprepare();
-		// TODO: why not a Clear() here?
-		cRemoteWorms[id].setUsed(false);
-		cRemoteWorms[id].setAlive(false);
-		cRemoteWorms[id].setKills(0);
-		cRemoteWorms[id].setDeaths(0);
-		cRemoteWorms[id].setTeamkills(0);
-		cRemoteWorms[id].setLives(WRM_OUT);
-		cRemoteWorms[id].setProfile(NULL);
-		cRemoteWorms[id].setType(PRF_HUMAN);
-		cRemoteWorms[id].setLocal(false);
-		cRemoteWorms[id].setTagIT(false);
-		cRemoteWorms[id].setTagTime(TimeDiff(0));
+		cRemoteWorms[id].Clear();
 	}
 	else
 		errors << "CClient::RemoveWorm: cRemoteWorms not set" << endl;

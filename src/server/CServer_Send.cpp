@@ -32,6 +32,8 @@
 #include "MathLib.h"
 #endif
 #include "CGameMode.h"
+#include "game/Mod.h"
+
 
 // declare them only locally here as nobody really should use them explicitly
 std::string OldLxCompatibleString(const std::string &Utf8String);
@@ -632,7 +634,7 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	assert(ftC < 256*256);
 	CBytestream bs1;
 	int sendCount = 0;
-	foreach( Feature*, f, Array(featureArray,ftC) )
+	for_each_iterator( Feature*, f, Array(featureArray,ftC) )
 	{
 		if( f->get()->group < GIG_GameModeSpecific_Start ||
 			f->get()->group == cServer->getGameMode()->getGameInfoGroupInOptions() )
@@ -699,7 +701,7 @@ void GameServer::UpdateGameLobby()
 	
 	// Read map/mod name from map/mod file
 	tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
-	CGameScript::CheckFile(tLXOptions->tGameInfo.sModDir, tLXOptions->tGameInfo.sModName);
+	tLXOptions->tGameInfo.sModName = modName(tLXOptions->tGameInfo.sModDir);
 	
 	m_clientsNeedLobbyUpdate = true;
 	m_clientsNeedLobbyUpdateTime = tLX->currentTime;

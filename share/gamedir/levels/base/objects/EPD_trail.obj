@@ -1,0 +1,17 @@
+gravity = -0.01
+colour = [20, 180, 20]
+render_layer = 6
+col_layer = 5
+wu_pixels = 1
+
+on timer(0)
+set_alpha_fade(100,50)
+
+on timer(100,50)
+remove()
+
+
+
+
+
+

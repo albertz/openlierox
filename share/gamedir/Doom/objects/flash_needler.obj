@@ -1,0 +1,13 @@
+sprite = needler_flash.png
+col_layer=-1
+blender = add
+render_layer = 7
+alpha = 175
+occluded = 1
+
+on creation()
+ set_alpha_fade(20,0)
+ create_explosion ( needler_trail.exp )
+
+on timer(20)
+ remove()

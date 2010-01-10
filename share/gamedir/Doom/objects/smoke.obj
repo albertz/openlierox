@@ -1,0 +1,14 @@
+sprite = smoke.png
+blender = alphach
+alpha = 50
+anim_duration = 61
+anim_type = loop_right
+gravity = -0.004
+render_layer = 7
+col_layer = 5
+
+on creation()
+set_alpha_fade(60,0)
+
+on timer( 60 )
+remove ()

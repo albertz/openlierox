@@ -1,0 +1,33 @@
+repeat = 5
+sprite=flak_normal.bmp
+gravity = 0.002
+blender = normal
+col_layer = 1
+invisible = 0
+bounce_factor = 0.45
+ground_friction = 0.3
+
+on timer(1,1)
+ # shoot_particles( flak_smoke_alphach2.obj,1,0.05)
+  create_explosion(flak_smoke2_alphach.exp)
+
+on timer(0)
+  create_explosion(flak_trail.exp)
+  create_explosion(flak_white_trail.exp)
+  
+on timer(1)
+   create_explosion(flak_flash_add.exp)
+
+on timer(50,5)
+ shoot_particles(flak_bullet3.obj,1,0,0,1,0,0,0,0)
+remove()
+
+on detect_range(3, 0)
+ play_sound([hurt1.wav,hurt2.wav,hurt3.wav,hurt4.wav,hurt5.wav,hurt6.wav], 100, 1, 0.05)
+  shoot_particles ( shotgun_small_explosion_alphach.obj , 1 )
+ shoot_particles ( shotgun_small_smoke_alphach.obj, 2, 0.2,0.3)
+ shoot_particles ( shotgun_spark.obj,1, 0, 0.7)
+ create_explosion ( very_small_explosion_add.exp )
+  push ( 0.25 )
+  run_script(damage.flak)
+  remove()

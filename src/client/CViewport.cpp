@@ -21,7 +21,7 @@
 #include "Options.h" // for controls_t
 #include "CWorm.h"
 #include "MathLib.h"
-
+#include "sound/sfx.h"
 
 
 
@@ -29,6 +29,10 @@
 // Setup the viewport
 void CViewport::Setup(int l, int t, int vw, int vh, int type)
 {
+	shutdown();
+	
+	bUsed = true;
+
 	Left = l;
 	Top = t;
 	VirtWidth = vw;
@@ -40,6 +44,19 @@ void CViewport::Setup(int l, int t, int vw, int vh, int type)
     pcTargetWorm = NULL;
     nType = type;
 	bSmooth = false;
+	
+	m_listener = new Listener();
+	sfx.registerListener(m_listener);
+}
+
+void CViewport::shutdown() {
+	bUsed = false;
+	if (m_listener)  {
+		sfx.removeListener(m_listener);
+		delete m_listener;
+		m_listener = NULL;
+	}
+	gusReset();
 }
 
 
@@ -63,6 +80,11 @@ void CViewport::setupInputs(const PlyControls& Inputs)
 // Process a viewport
 void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
 {    
+	if(!bUsed) {
+		errors << "Unused CViewport process" << endl;
+		return;
+	}
+	
 	int hx = Width/2;
 	int hy = Height/2;
 
@@ -291,6 +313,8 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 	// Clamp it
 	Clamp(MWidth, MHeight);
+
+	m_listener->pos = Vec((float)WorldX, (float)WorldY) + Vec((float)(Width/2), (float)(Height/2));
 }
 
 

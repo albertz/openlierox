@@ -26,37 +26,12 @@
 #include "GfxPrimitives.h" // for Rectangle<>
 #include "CClient.h" // only for cClient->getMap() for fastTraceLine()
 #include "Color.h"
+#include "MathLib.h" // for SIGN
+#include "gusanos/level.h"
+#include "level/LXMapFlags.h"
 
 class CViewport;
 class CCache;
-
-
-#define		MAP_VERSION	0
-
-// Map types
-#define		MPT_PIXMAP	0
-#define		MPT_IMAGE	1
-
-// Pixel flags
-#define		PX_EMPTY	0x01
-#define		PX_DIRT		0x02
-#define		PX_ROCK		0x04
-#define		PX_SHADOW	0x08
-#define		PX_WORM		0x10
-
-// Object types
-#define		OBJ_HOLE	0
-#define		OBJ_STONE	1
-#define		OBJ_MISC	2
-
-#define		MAX_OBJECTS	8192
-
-// Antialiasing blur
-#define		MINIMAP_BLUR	10.0f
-
-// Shadow drop
-#define		SHADOW_DROP	3
-
 
 
 class CWorm;
@@ -80,16 +55,21 @@ struct theme_t {
 
 
 class CPlayer;
-class MapLoader;
+class MapLoad;
 class ML_OrigLiero;
 class ML_LieroX;
 class ML_CommanderKeen123;
+struct ML_Gusanos;
+struct VermesLevelLoader;
 
 class CMap {
-	friend class MapLoader;
+	friend class MapLoad;
 	friend class ML_OrigLiero;
 	friend class ML_LieroX;
 	friend class ML_CommanderKeen123;
+	friend struct ML_Gusanos;
+	friend struct VermesLevelLoader;
+	
 private:
 	// just don't do that
 	CMap(const CMap&) { assert(false); }
@@ -134,6 +114,8 @@ public:
 		bmpSavedImage = NULL;
 		savedPixelFlags = NULL;
 		savedMapCoords.clear();
+		
+		gusInit();
    	}
 
 	~CMap() {
@@ -221,14 +203,16 @@ private:
 
 public:
 	// Methods
+	bool		MiniCreate(uint _width, uint _height, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
+	bool		MiniNew(uint _width, uint _height, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		New(uint _width, uint _height, const std::string& _theme, uint _minimap_w = 128, uint _minimap_h = 96);
 	bool		Load(const std::string& filename);
 	bool		Save(const std::string& name, const std::string& filename);
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return bmpImage.get() && GridFlags && AbsoluteGridFlags && PixelFlags; }
+	bool		isLoaded()	{ return PixelFlags && ((bmpImage.get() && GridFlags && AbsoluteGridFlags) || gusIsLoaded()); }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
@@ -349,6 +333,10 @@ public:
 	
 	uchar	*GetPixelFlags() const	{ return PixelFlags; }
 
+	Color	getColorAt(long x, long y);
+	void	putColorTo(long x, long y, Color c);
+	void	putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh);
+	
 	SmartPointer<SDL_Surface> GetDrawImage()		{ return bmpDrawImage; }
 	SmartPointer<SDL_Surface> GetImage()			{ return bmpImage; }
 	SmartPointer<SDL_Surface> GetBackImage()		{ return bmpBackImage; }
@@ -427,7 +415,181 @@ public:
 			for(int x = r.x(); x < r.x2(); x++)
 				if(!walker(x, y)) return;
 	}
+	
+	
+	
+	
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+	// ---------------------------      Gusanos       -------------------------------
+	// ------------------------------------------------------------------------------
+	// ------------------------------------------------------------------------------
+
+private:
+	void gusInit();
+	void gusShutdown();
+	
+public:
+	void gusThink();
+	bool gusIsLoaded() { return m_gusLoaded; }
+#ifndef DEDICATED_ONLY
+	void gusDraw(ALLEGRO_BITMAP* where, int x, int y);
+#endif
+	void gusUpdateMinimap(int x, int y, int w, int h);
+	
+	Vec getSpawnLocation(CWormInputHandler* player);
+	
+	Material const& getMaterial(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return m_materialList[(unsigned char)material->line[y][x]];
+		else
+			return m_materialList[0];
+	}
+	
+	Material const& unsafeGetMaterial(unsigned int x, unsigned int y) const
+	{
+		return m_materialList[(unsigned char)material->line[y][x]];
+	}
+	
+	unsigned char getMaterialIndex(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return (unsigned char)material->line[y][x];
+		else
+			return 0;
+	}
+	
+	void putMaterial( unsigned char index, unsigned int x, unsigned int y )
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			material->line[y][x] = index;
+	}
+	
+	void putMaterial( Material const& mat, unsigned int x, unsigned int y )
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			material->line[y][x] = mat.index;
+	}
+	
+	bool isInside(unsigned int x, unsigned int y) const
+	{
+		if(x < static_cast<unsigned int>(material->w) && y < static_cast<unsigned int>(material->h))
+			return true;
+		else
+			return false;
+	}
+	
+	template<class PredT>
+	bool trace(long srcx, long srcy, long destx, long desty, PredT predicate);
+	
+#ifndef DEDICATED_ONLY
+	void specialDrawSprite(Sprite* sprite, ALLEGRO_BITMAP* where, const IVec& pos, const IVec& matPos, BlitterContext const& blitter );
+	
+	void culledDrawSprite(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
+	void culledDrawLight(Sprite* sprite, CViewport* viewport, const IVec& pos, int alpha);
+	
+#endif
+	// applies the effect and returns true if it actually changed something on the map
+	bool applyEffect( LevelEffect* effect, int x, int y);
+	
+	void loaderSucceeded();
+	
+	
+#ifndef DEDICATED_ONLY
+	ALLEGRO_BITMAP* image;
+	ALLEGRO_BITMAP* background;
+	ALLEGRO_BITMAP* paralax;
+	ALLEGRO_BITMAP* lightmap; // This has to be 8 bit.
+	ALLEGRO_BITMAP* watermap; // How water looks in each pixel of the map
+#endif
+	ALLEGRO_BITMAP* material;
+	Encoding::VectorEncoding vectorEncoding;
+	Encoding::VectorEncoding intVectorEncoding;
+	Encoding::DiffVectorEncoding diffVectorEncoding;
+	
+	struct ParticleBlockPredicate
+	{
+		bool operator()(Material const& m)
+		{
+			return !m.particle_pass;
+		}
+	};
+			
+	void setEvents( LevelConfig* events )
+	{
+		delete m_config;
+		m_config = events;
+	}
+	
+	LevelConfig* config()
+	{ return m_config; }
+	
+private:
+	
+	void checkWBorders( int x, int y );
+	
+	array<Material, 256> m_materialList;
+	
+	LevelConfig *m_config;
+	bool m_firstFrame;
+	bool m_gusLoaded;
+	
+	std::list<WaterParticle> m_water;
+	
 };
+
+
+
+template<class PredT>
+bool CMap::trace(long x, long y, long destx, long desty, PredT predicate)
+{
+	if(!isInside(x, y))
+	{
+		if(predicate(m_materialList[0]))
+			return true;
+		else
+		{
+			return true; //TODO: Clip the beginning of the line instead of returning
+		}
+	}
+	if(!isInside(destx, desty))
+	{
+		if(predicate(m_materialList[0]))
+			return true;
+		else
+		{
+			return true; //TODO: Clip the end of the line instead of returning
+		}
+	}
+		
+	long xdiff = destx - x;
+	long ydiff = desty - y;
+	
+	long sx = SIGN(xdiff);
+	long sy = SIGN(ydiff);
+
+	xdiff = labs(xdiff);
+	ydiff = labs(ydiff);
+	
+	#define WORK(a, b) { \
+		long i = a##diff >> 1; \
+		long c = a##diff; \
+		while(c-- >= 0) { \
+			if(predicate(unsafeGetMaterial(x, y))) return true; \
+			i -= b##diff; \
+			a += s##a; \
+			if(i < 0) b += s##b, i += a##diff; } }
+	
+	if(xdiff > ydiff)
+		WORK(x, y)
+	else
+		WORK(y, x)
+
+	#undef WORK
+
+	return false;
+}
 
 
 

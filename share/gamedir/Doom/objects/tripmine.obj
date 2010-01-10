@@ -1,0 +1,22 @@
+sprite = tripmine.png
+anim_duration = 50
+anim_type = loop_right
+##gravity = 0.03
+health = 100
+bounce_factor = 0.375
+ground_friction = 0.275
+col_layer=7
+health=50
+
+on timer (0) 
+shoot_particles ( tripmine_laser1.obj , 1 , -1, 0, 0, 0, 0, 0, 1)
+
+on ground_collision() 
+run_script(doom.bouncing)
+
+on death()
+play_sound( explosion.ogg, 100, 1, 0.05 )
+shoot_particles ( grenade_light.obj , 1 )
+create_explosion ( grenade_explosion.exp )
+shoot_particles ( grenade_explosion_ending.obj , 1 )
+remove()

@@ -1,0 +1,6 @@
+blender = alpha
+alpha = 80
+dest_alpha = 0
+timeout = 2
+colour = [250,200,0]
+rock_hidden = 0

@@ -1,0 +1,5 @@
+invisible = 1
+on timer(61,0,1)
+shoot_particles(bunnyhop3.obj,1,0,0,0,0,0,0,0)
+
+

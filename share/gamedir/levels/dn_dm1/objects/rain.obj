@@ -1,0 +1,13 @@
+blender = add
+alpha = 130
+colour = [80,80,83]
+repeat = 3
+line_to_origin = 1
+wu_pixels = 1
+
+on creation()
+ set_alpha_fade(100,0)
+
+on ground_collision()
+ create_explosion( splash.exp )
+ remove()

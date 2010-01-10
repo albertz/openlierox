@@ -22,9 +22,6 @@
 #include <SDL.h>
 #include <string>
 
-#ifdef WIN32
-#include <windows.h>
-#endif
 
 #include "SmartPointer.h"
 
@@ -35,7 +32,7 @@ void		ShutdownAuxLib();
 bool		SetVideoMode(); // only call from main thread; use doSetVideoModeInMainThread elsewhere
 
 #ifdef WIN32
-HWND		GetWindowHandle();
+void		*GetWindowHandle();
 #endif
 
 void        FlipScreen();
@@ -108,7 +105,6 @@ public:
 
 // Subclass
 #ifdef WIN32
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void		SubclassWindow();
 void		UnSubclassWindow();
 #endif

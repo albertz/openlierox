@@ -1,0 +1,17 @@
+name="Doomsday"
+ammo=8
+reload_time = 357
+
+
+on primary_shoot()
+	use_ammo(1)
+	delay_fire(14)
+	add_speed(-0.2)
+	shoot_particles(doomsday.obj,2,speed=0.7,distribution=1.8,motion_inheritance=0.0,distance_offs=5)
+	shoot_particles(grenade_smoke_alphach.obj, 8, speed=0.1, speed_var=1.5, motion_inheritance=0.0,  distribution=40, angle_offs=180,distance_offs=0)
+	shoot_particles(flash_medium_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+	play_sound(m_fury.wav,100,1,0.05)
+
+
+
+

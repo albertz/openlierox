@@ -1,0 +1,11 @@
+col_layer = 7
+render_layer = 6
+sprite = skins/skin8/3.png
+blender = alpha
+anim_on_ground = 1
+anim_duration = 50
+
+	on timer (0)
+	remove()
+	
+

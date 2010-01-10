@@ -501,14 +501,14 @@ setvideomode:
 #ifdef WIN32
 //////////////////////
 // Get the window handle
-HWND GetWindowHandle()
+void *GetWindowHandle()
 {
 	SDL_SysWMinfo info;
 	SDL_VERSION(&info.version);
 	if(!SDL_GetWMInfo(&info))
 		return 0;
 
-	return info.window;
+	return (void *)info.window;
 }
 #endif
 
@@ -878,17 +878,7 @@ void ShutdownAuxLib()
 	UnSubclassWindow();
 #endif
 
-	// Shutdown the SDL system
-	// HINT: Sometimes we get a segfault here. Because
-	// all important stuff is already closed and save here, it's not that
-	// important to do any more cleanup.
-#if SDLMIXER_WORKAROUND_RESTART == 1
-	if(bRestartGameAfterQuit)
-		// quit everything but audio
-		SDL_QuitSubSystem( SDL_WasInit(0) & (~SDL_INIT_AUDIO) );
-	else
-#endif
-		SDL_Quit();
+	SDL_Quit();
 }
 
 
@@ -1020,6 +1010,8 @@ static void TakeScreenshot(const std::string& scr_path, const std::string& addit
 LONG wpOriginal;
 bool Subclassed = false;
 
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 ////////////////////
 // Subclass the window (control the incoming Windows messages)
 void SubclassWindow()
@@ -1028,7 +1020,7 @@ void SubclassWindow()
 		return;
 
 #pragma warning(disable:4311)  // Temporarily disable, the typecast is OK here
-	wpOriginal = SetWindowLong(GetWindowHandle(),GWL_WNDPROC,(LONG)(&WindowProc));
+	wpOriginal = SetWindowLong((HWND)GetWindowHandle(),GWL_WNDPROC,(LONG)(&WindowProc));
 #pragma warning(default:4311) // Enable the warning
 	Subclassed = true;
 }
@@ -1040,7 +1032,7 @@ void UnSubclassWindow()
 	if (!Subclassed)
 		return;
 
-	SetWindowLong(GetWindowHandle(),GWL_WNDPROC, wpOriginal);
+	SetWindowLong((HWND)GetWindowHandle(),GWL_WNDPROC, wpOriginal);
 
 	Subclassed = false;
 }
@@ -1143,125 +1135,6 @@ bool HandleDebugCommand(const std::string& text) {
 
 
 
-//////////////////
-// Gives a name to the thread
-// Code taken from http://www.codeproject.com/KB/threads/Name_threads_in_debugger.aspx
-void setCurThreadName(const std::string& name)
-{
-#ifdef _MSC_VER // Currently only for MSVC, haven't found a Windows-general way (I doubt there is one)
-	typedef struct tagTHREADNAME_INFO
-	{
-		DWORD dwType; // Must be 0x1000.
-		LPCSTR szName; // Pointer to name (in user addr space).
-		DWORD dwThreadID; // Thread ID (-1=caller thread).
-		DWORD dwFlags; // Reserved for future use, must be zero.
-	} THREADNAME_INFO;
-	
-	THREADNAME_INFO info;
-	{
-		info.dwType = 0x1000;
-		info.szName = name.c_str();
-		info.dwThreadID = (DWORD)-1;
-		info.dwFlags = 0;
-	}
-	
-	__try
-	{
-		RaiseException( 0x406D1388 /* MSVC EXCEPTION */, 0, sizeof(info)/sizeof(DWORD), (DWORD*)&info );
-	}
-	__except (EXCEPTION_CONTINUE_EXECUTION)
-	{
-	}
-#else
-	// TODO: similar for other systems
-#endif
-}
-
-void setCurThreadPriority(float p) {
-#ifdef WIN32
-	
-#elif defined(__APPLE__)
-	//int curp = getpriority(PRIO_DARWIN_THREAD, 0); 
-	//int newp = p >= 0 ? 0 : 1;
-	//notes << "curp:" << curp << ", newp:" << newp << endl;
-	//setpriority(PRIO_DARWIN_THREAD, 0, newp);
-#endif
-}
-
-
-
-size_t GetFreeSysMemory() {
-#if defined(__APPLE__)
-	vm_statistics_data_t page_info;
-	vm_size_t pagesize;
-	mach_msg_type_number_t count;
-	kern_return_t kret;
-	
-	pagesize = 0;
-	kret = host_page_size (mach_host_self(), &pagesize);
-	count = HOST_VM_INFO_COUNT;
-	
-	kret = host_statistics (mach_host_self(), HOST_VM_INFO,(host_info_t)&page_info, &count);
-	return page_info.free_count * pagesize;
-#elif defined(__WIN64__)
-	MEMORYSTATUSEX memStatex;
-	memStatex.dwLength = sizeof (memStatex);
-	::GlobalMemoryStatusEx (&memStatex);
-	return memStatex.ullAvailPhys;
-#elif defined(__WIN32__)
-	MEMORYSTATUS memStatus;
-	memStatus.dwLength = sizeof(MEMORYSTATUS);
-	::GlobalMemoryStatus(&memStatus);
-	return memStatus.dwAvailPhys;
-#elif defined(__SUN__) && defined(_SC_AVPHYS_PAGES)
-	return sysconf(_SC_AVPHYS_PAGES) * sysconf(_SC_PAGESIZE);
-#elif defined(__FREEBSD__)
-	int vm_vmtotal[] = { CTL_VM, VM_METER };
-	struct vmtotal vmdata;
-
-	size_t len = sizeof(vmdata);
-        int result = sysctl(vm_vmtotal, sizeof(vm_vmtotal) / sizeof(*vm_vmtotal), &vmdata, &len, NULL, 0);
-	if(result != 0) return 0;
-
-	return vmdata.t_free * sysconf(_SC_PAGESIZE);
-#elif defined(__linux__)
-
-	// get it from /proc/meminfo
-	FILE *fp = fopen("/proc/meminfo", "r");
-	if ( fp )
-	{
-		unsigned long freeMem = 0;
-		unsigned long buffersMem = 0;
-		unsigned long cachedMem = 0;
-		struct SearchTerm { const char* name; unsigned long* var; };
-		SearchTerm terms[] = { {"MemFree:", &freeMem}, {"Buffers:", &buffersMem}, {"Cached:", &cachedMem} };
-				
-		char buf[1024];
-		int n = fread(buf, sizeof(char), sizeof(buf) - 1, fp);
-		buf[sizeof(buf)-1] = '\0';
-		if(n > 0) {
-			for(unsigned int i = 0; i < sizeof(terms) / sizeof(SearchTerm); ++i) {
-				char* p = strstr(buf, terms[i].name);
-				if(p) {
-					p += strlen(terms[i].name);
-					*terms[i].var = strtoul(p, NULL, 10);
-				}
-			}
-		}
-				
-		fclose(fp);
-		// it's written in KB in meminfo
-		return ((size_t)freeMem + (size_t)buffersMem + (size_t)cachedMem) * 1024;
-	}
-	
-	return 0;
-#else
-#warning No GetFreeSysMemory implementation for this arch/sys
-	return 50 * 1024 * 1024; // return 50 MB (really randomly made up, but helps for cache system)
-#endif
-}
-
-
 
 void lierox_t::setupInputs() {
 	if(!tLXOptions) {
@@ -1274,7 +1147,7 @@ void lierox_t::setupInputs() {
 	cSwitchMode.Setup(tLXOptions->sGeneralControls[SIN_SWITCHMODE]);
 	cIrcChat.Setup(tLXOptions->sGeneralControls[SIN_IRCCHAT]);
 	cConsoleToggle.Setup(tLXOptions->sGeneralControls[SIN_CONSOLETOGGLE]);
-
+	
 	if(cClient)
 		cClient->SetupGameInputs();
 	else
@@ -1285,37 +1158,6 @@ bool lierox_t::isAnyControlKeyDown() const {
 	return cTakeScreenshot.isDown() || cSwitchMode.isDown() || cIrcChat.isDown() || cConsoleToggle.isDown();
 }
 
-
-
-std::string GetDateTimeText()
-{
-	time_t t = time(NULL);
-
-	if (t == (time_t)-1)
-		return "TIME-ERROR1";
-	
-	char* timeCstr = ctime(&t);
-	if(timeCstr == NULL)
-		return "TIME-ERROR2";
-	
-	std::string timeStr(timeCstr);
-	TrimSpaces(timeStr);
-	return timeStr;
-}
-
-std::string GetDateTimeFilename()
-{
-	// Add date and server name to screenshot filename
-	time_t curtime1 = time(NULL);
-	if (curtime1 == (time_t)-1)
-		return "TIME-ERROR1";
-	struct tm *curtime = localtime(&curtime1);
-	if (curtime == NULL)
-		return "TIME-ERROR2";
-	char filePrefixTime[200] = {0};
-	strftime(filePrefixTime, sizeof(filePrefixTime), "%Y%m%d-%H%M", curtime);
-	return filePrefixTime;
-}
 
 void EnableSystemMouseCursor(bool enable)
 {

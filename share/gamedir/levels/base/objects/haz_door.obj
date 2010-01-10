@@ -1,0 +1,10 @@
+sprite = haz_door.bmp
+col_layer=7
+render_layer = 1
+
+on timer(1) 
+ shoot_particles (haz_door_material.obj,1,2,0,0,0,0,90,0)
+
+on custom_event(4)
+shoot_particles ( haz_door_open.obj ,1,0,0,0,0,0,0,0)
+remove()

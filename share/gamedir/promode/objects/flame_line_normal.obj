@@ -1,0 +1,14 @@
+alpha = 255
+gravity=-0.002
+bounce_factor=0
+repeat = 3
+invisible=1
+
+on timer(20)
+remove()
+
+on timer(0)
+ create_explosion ( flamer_trail_blue_add.exp )
+
+on ground_collision()
+remove()

@@ -1,0 +1,14 @@
+blender=add
+alpha=255
+sprite=ioncannon_hit.png
+col_layer=-1
+
+on creation()
+ set_alpha_fade(100,0)
+
+on timer(3,4,30) 
+ shoot_particles ( chaingun_trail.obj , 1 , 0.03 , 0.06, 0, 0, 0,0)
+
+on timer(200)
+remove ()
+

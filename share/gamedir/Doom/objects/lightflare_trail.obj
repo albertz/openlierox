@@ -1,0 +1,17 @@
+gravity = -0.0025
+damping = 0.97
+colour = [200, 200, 220]
+render_layer = 6
+wu_pixels = 1
+col_layer=-1
+blender = alpha
+alpha = 255
+
+on creation()
+ set_alpha_fade(110,50)
+
+on ground_collision()
+ remove()
+
+on timer(110, 50)
+ remove()

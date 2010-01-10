@@ -33,7 +33,9 @@
 #include "Physics.h"
 #include "WeaponDesc.h"
 #include "Mutex.h"
-
+#include "game/Game.h"
+#include "gusanos/gusgame.h"
+#include "gusanos/player_options.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -56,7 +58,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 	}
 };
 
-CWorm::CWorm() : cSparkles(this)
+CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	// set all pointers to NULL
 	m_inputHandler = NULL;
@@ -66,16 +68,22 @@ CWorm::CWorm() : cSparkles(this)
 	cGameScript = NULL;
 	cWeaponRest = NULL;
 	m_type = NULL;
+	m_node = NULL;
+	m_interceptor = NULL;
+
+	bUsed = false;
 	Clear();
 	
 	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
 }
 
-CWorm::~CWorm() {
+CWorm::~CWorm() {	
 	Shutdown();
 	
-	Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
-	skinPreviewDrawerP->worm = NULL;
+	{
+		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
+		skinPreviewDrawerP->worm = NULL;
+	}
 }
 
 
@@ -83,7 +91,8 @@ CWorm::~CWorm() {
 // Clear the worm details
 void CWorm::Clear()
 {
-	bUsed = false;
+	if(bUsed) game.onRemoveWorm(this);
+	
 	bIsPrepared = false;
 	bSpawnedOnce = false;
 	iID = 0;
@@ -189,11 +198,16 @@ void CWorm::Clear()
 	
 	
 	if(m_inputHandler) {
-		delete m_inputHandler;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
 	
 	cDamageReport.clear();
+
+	if(bUsed) gusShutdown();
+	gusInit();
+
+	bUsed = false;
 }
 
 
@@ -206,6 +220,8 @@ void CWorm::Init()
 	tState = worm_state_t();
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
+
+	gusInit();
 }
 
 
@@ -213,6 +229,7 @@ void CWorm::Init()
 // Shutdown the worm
 void CWorm::Shutdown()
 {
+	gusShutdown();
 	Unprepare();
 	FreeGraphics();
 }
@@ -259,12 +276,52 @@ void CWorm::Prepare(bool serverSide)
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
 		warnings << m_inputHandler->name(); warnings << endl;
-		delete m_inputHandler;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
 
-	if(!serverSide && bLocal) {
-		m_inputHandler = m_type->createInputHandler(this);
+	if(!serverSide) {
+		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
+		// NOTE: this is only a workaround for now and not very elegant
+		gusShutdown();
+		gusInit();
+		game.onNewWorm(this);
+	}
+	
+	if(!serverSide && game.isServer()) {
+		// register network worm-node
+		// as client, we do that in Net_cbNodeRequest_Dynamic
+		NetWorm_Init(true);		
+	}
+		
+	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
+		if(bLocal) {
+			m_inputHandler = m_type->createInputHandler(this);
+			m_inputHandler->assignNetworkRole(true);
+		} else if(game.needProxyWormInputHandler()) {
+			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
+			if(cl) {
+				Net_ConnID _id = NetConnID_conn(cl);
+				this->setOwnerId(_id);
+				
+				m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
+			
+				unsigned int uniqueID = 0;
+				do {
+					uniqueID = rndgen();
+				} while(!uniqueID);
+				
+				m_inputHandler->getOptions()->uniqueID = uniqueID;
+				//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
+				
+				//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
+				m_inputHandler->assignNetworkRole(true);
+				m_inputHandler->assignWorm(this);
+				m_inputHandler->setOwnerId(_id);
+			}
+			else
+				errors << "CWorm::Prepare clientside: non local worm has no client set" << endl;
+		}		
 	}
 	
 	if(serverSide) {
@@ -273,11 +330,24 @@ void CWorm::Prepare(bool serverSide)
 		setShieldFactor(tLXOptions->tGameInfo.features[FT_WormShieldFactor]);
 		setCanAirJump(tLXOptions->tGameInfo.features[FT_InstantAirJump]);
 	}
+
+	if(!serverSide && game.gameScript()->gusEngineUsed()) {
+		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
+		// Gusanos has own weapon handling, this isn't merge yet (not sure if it even would make sense to merge)
+		bWeaponsReady = true;		
+	}
 	
+	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
+	health = 0;
 	bIsPrepared = true;
 }
 
 void CWorm::Unprepare() {
+	if(bLocal)
+		game.onRemoveWorm(this);
+
+	bAlive = false;
+	health = 0;
 	setGameReady(false);
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
@@ -285,14 +355,11 @@ void CWorm::Unprepare() {
 	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
-		if(!bLocal) {
-			warnings << "WARNING: the following input handler was set for the non-local worm " << getName() << ": "; warnings.flush();
-			warnings << m_inputHandler->name() << endl;
-		}
-		delete m_inputHandler;
+		m_inputHandler->quit();
 		m_inputHandler = NULL;
 	}
-		
+	
+	gusShutdown();
 	bIsPrepared = false;
 }
 
@@ -318,12 +385,12 @@ WormType* WormType::fromInt(int type) {
 
 void CWorm::getInput() {
 	if(!bLocal) {
-		warnings << "WARNING: called getInput() on non-local worm " << getName() << endl;
+		warnings << "CWorm::getInput: called getInput() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot get input" << endl;
+		warnings << "CWorm::getInput: input handler not set for worm " << getName() << ", cannot get input" << endl;
 		return;
 	}
 	
@@ -345,12 +412,12 @@ void CWorm::clearInput() {
 
 void CWorm::initWeaponSelection() {
 	if(!bLocal) {
-		warnings << "WARNING: called initWeaponSelection() on non-local worm " << getName() << endl;
+		warnings << "CWorm::initWeaponSelection: called initWeaponSelection() on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
+		warnings << "CWorm::initWeaponSelection: input handler not set for worm " << getName() << ", cannot init weapon selection" << endl;
 		return;
 	}
 	
@@ -369,17 +436,17 @@ void CWorm::initWeaponSelection() {
 
 void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	if(!bLocal) {
-		warnings << "WARNING: called doWeaponSelectionFrame() on non-local worm " << getName() << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: called on non-local worm " << getName() << endl;
 		return;
 	}
 	
 	if(!m_inputHandler) {
-		warnings << "WARNING: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
 		return;
 	}
 	
 	if(bWeaponsReady) {
-		warnings << "WARNING: doWeaponSelectionFrame: weapons already selected" << endl;
+		warnings << "CWorm::doWeaponSelectionFrame: weapons already selected" << endl;
 		return;
 	}
 	
@@ -430,6 +497,10 @@ void CWorm::Spawn(CVec position) {
 	if (bSpectating)
 		return;
 
+	if(game.gameScript() && game.gameScript()->gusEngineUsed())
+		// Gusanos will use its own spawning fct
+		return;
+	
 	bAlive = true;
 	bAlreadyKilled = false;
 	bSpawnedOnce = true;
@@ -1357,14 +1428,20 @@ void CWorm::addDamage(float damage, CWorm* victim, const GameOptions::GameInfo &
 }
 
 void CWorm::reinitInputHandler() {
+	warnings << "CWorm::reinitInputHandler not implemented right now" << endl;
+	return;
+	// TODO: why are we doing this here?
+	// WARNING: this code is wrong, we cannot recreate the input handler because we must keep the network node
+	// also, it shouldn't be needed to recreate it
+	
 	if(!bLocal) {
 		warnings << "reinitInputHandler called for non-local worm " << getID() << endl;
 		return;
 	}
 	
-	if(m_inputHandler)
-		delete m_inputHandler;
-	else
+	if(m_inputHandler) {
+		m_inputHandler->quit();
+	} else
 		warnings << "reinitInputHandler: inputhandler was unset for worm " << getID() << endl;
 	m_inputHandler = m_type->createInputHandler(this);
 	
@@ -1403,7 +1480,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( vFollowPos );
 	COPY( bFollowOverride );
     COPY( fLastCarve );
-	COPY( fLoadingTime );
 	COPY( health );
 	// Do not copy fDamage / suicides / teamkills etc - they are managed by scoreboard routines on server
 	COPY( bAlive );

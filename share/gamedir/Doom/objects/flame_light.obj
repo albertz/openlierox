@@ -1,0 +1,9 @@
+sprite = flash_light.png
+blender = add
+occluded = 1
+alpha = 30
+render_layer = 8
+col_layer = -1
+
+on timer( 2 )
+remove()

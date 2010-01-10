@@ -23,7 +23,7 @@
 #include "CServer.h"
 #include "CServerConnection.h"
 #include "CBonus.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
@@ -275,35 +275,41 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 ///////////////////
 // Explosion
 void CClient::Explosion(CVec pos, float damage, int shake, int owner)
-{
-	int		x,y,px;
-	ushort i;
-	Color	Colour = cMap->GetTheme()->iDefaultColour;
-    bool    gotDirt = false;
-
-	// Go through until we find dirt to throw around
-	y = MIN((uint)pos.y,cMap->GetHeight()-1);
-
-	px = (uint)pos.x;
-
-	LOCK_OR_QUIT(cMap->GetImage());
-	for(x=px-2; x<px+2; x++) {
-		// Clipping
-		if(x < 0)	continue;
-		if(x >= (int)cMap->GetWidth())	break;
-
-		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
-            gotDirt = true;
-			break;
-		}
+{	
+	bool    gotDirt = false;
+	Color	DirtEntityColour;
+	
+	if(cMap->gusIsLoaded()) {
+		// TODO ... 
 	}
-	UnlockSurface(cMap->GetImage());
+	else {
+		int		x,y,px;
+		DirtEntityColour = cMap->GetTheme()->iDefaultColour;
 
+		// Go through until we find dirt to throw around
+		y = MIN((uint)pos.y,cMap->GetHeight()-1);
+
+		px = (uint)pos.x;
+
+		LOCK_OR_QUIT(cMap->GetImage());
+		for(x=px-2; x<px+2; x++) {
+			// Clipping
+			if(x < 0)	continue;
+			if(x >= (int)cMap->GetWidth())	break;
+
+			if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
+				DirtEntityColour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
+				gotDirt = true;
+				break;
+			}
+		}
+		UnlockSurface(cMap->GetImage());
+	}
+	
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
 	if (tGameInfo.bBonusesOn)  {
 		CBonus *b = cBonuses;
-		for(i=0; i < MAX_BONUSES; i++,b++) {
+		for(int i=0; i < MAX_BONUSES; i++,b++) {
 			if(!b->getUsed())
 				continue;
 
@@ -335,8 +341,8 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 
 	// Particles
     if(gotDirt) {
-	    for(x=0;x<2;x++)
-		    SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+	    for(short x=0;x<2;x++)
+		    SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),DirtEntityColour,NULL);
     }
 
 
@@ -354,7 +360,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 		cRemoteWorms[owner].incrementDirtCount( d );
 
 	// If this is within a viewport, shake the viewport
-	for(i=0; i<NUM_VIEWPORTS; i++) {
+	for(int i=0; i<NUM_VIEWPORTS; i++) {
 		if(!cViewports[i].getUsed())
             continue;
 
@@ -366,7 +372,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 
 
 	// Check if any worm is near the explosion, for both my worms and remote worms
-	for(i=0;i<MAX_WORMS;i++) {
+	for(int i=0;i<MAX_WORMS;i++) {
 		CWorm* w = & cRemoteWorms[i];
 
 		if( !w->isUsed() || !w->getAlive())
@@ -482,7 +488,6 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			if(someOwnWorm || NewNet::Active() ||
 				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth) ) {
 
-				w->setAlive(false);
 				w->Kill();
 				if( !NewNet::Active() )
 	        	    w->clearInput();

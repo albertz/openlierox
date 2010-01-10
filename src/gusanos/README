@@ -1,0 +1,48 @@
+Vermes doesn't require installation beyond putting all of its files in a 
+directory somewhere. If you can read this, you're probably already ready to
+play. You may want to edit default/config.cfg first, though, to set up your
+nickname and key bindings.
+
+For instructions on building Vermes from source, see BUILD
+
+Vermes is released under the terms of the GNU Public License Version 2.0. For 
+the terms of this license, see LICENSE
+
+Vermes is based on Gusanos 0.9c, available at:
+ http://gusanos.sourceforge.net/
+ 
+For more information about the creators of Gusanos and Vermes, see CREDITS
+
+And if you'd like to get developing, check out our TODO - patches welcome! The
+source for Vermes currently lives at http://home.dubdot.com/vermes/ - that's 
+an SVN repository, so feel free to grab the code. And email dominic@dubdot.com
+if you'd like karma.
+
+===
+
+What is Vermes?
+ Vermes is a fork of the popular Liero clone, Gusanos.
+ 
+What is Liero?
+ Liero is a great, fast-paced, 2D action game. With worms. And guns.
+ 
+Why fork Gusanos?
+ In a single word: liberty.
+
+ The main reason for Vermes' existance is the use of non-free libraries in 
+ Gusanos. Vermes aims to be a completely open and free Liero clone. There are 
+ philosophical and esoteric reasons for this, and more practical ones. 
+ Philosophically, it's nice to be in control of the software you use. 
+ Practically, removing proprietary dependencies means Vermes can be integrated
+ into free software projects, like operating system repositories.
+ 
+ There are also a number of smaller reasons for the fork. A borked scons build
+ system, unfriendly CVS, hard-to-get source releases, and inactive development.
+ At the time Gusanos was forked, there hadn't been a release in a year. 
+ Furthermore, the developers had decided to abandon the code base, to redevelop
+ 1.0 from scratch. Vermes decided to avoid Joel Spolsky's idea of a strategic
+ mistake (http://www.joelonsoftware.com/articles/fog0000000069.html)
+ 
+ That's not to say anything bad about Basra and Gliptic. They've put a lot
+ of work into this game. In fact, for now, 99% of the code in Vermes was 
+ written by them. See CREDITS for more details.

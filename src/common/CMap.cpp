@@ -41,6 +41,7 @@
 #include "FileUtils.h"
 #include "EndianSwap.h"
 #include "MapLoader.h"
+#include "game/Level.h"
 
 
 ////////////////////
@@ -66,27 +67,52 @@ bool CMap::NewFrom(CMap* map)
 	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
 	
-	bmpGreenMask = GetCopiedImage(map->bmpGreenMask);
+	bmpGreenMask = map->bmpGreenMask.get() ? GetCopiedImage(map->bmpGreenMask) : NULL;
 
-	// Create the map (and bmpImage and friends)
-	if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
-		return false;
+	if(map->gusIsLoaded()) {
+		if (!MiniCreate(Width, Height, MinimapWidth, MinimapHeight))
+			return false;
+		
+		image = create_copy_bitmap(map->image);
+		background = create_copy_bitmap(map->background);
+		paralax = create_copy_bitmap(map->paralax);
+		lightmap = create_copy_bitmap(map->lightmap);
+		watermap = create_copy_bitmap(map->watermap);
+		material = create_copy_bitmap(map->material);
+		
+		vectorEncoding = map->vectorEncoding;
+		intVectorEncoding = map->intVectorEncoding;
+		diffVectorEncoding = map->diffVectorEncoding;
 
-	// Copy the data
-	// TODO: why DrawImage and not CopySurface?
-	DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
-	DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
-	DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
+		m_materialList = map->m_materialList;
+		m_config = map->m_config ? new LevelConfig(*map->m_config) : NULL;
+		m_firstFrame = true;
+		m_gusLoaded = true;
+		
+		m_water = map->m_water;
+		
+	} else {
+		// Create the map (and bmpImage and friends)
+		if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
+			return false;
+
+		// Copy the data
+		// TODO: why DrawImage and not CopySurface?
+		DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
+		DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
+		DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
+		DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
+	#ifdef _AI_DEBUG
+		DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
+	#endif
+	}
 	DrawImage(bmpMiniMap.get(), map->bmpMiniMap, 0, 0);
 	memcpy(PixelFlags, map->PixelFlags, Width * Height);
 	memcpy(CollisionGrid, map->CollisionGrid, Width * Height);
-	DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
-#ifdef _AI_DEBUG
-	DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
-#endif
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
 	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
-	memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
+	if(Objects && map->Objects)
+		memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
 	bmpBackImageHiRes = NULL;
 	if( map->bmpBackImageHiRes.get() )
 	{
@@ -118,7 +144,9 @@ bool CMap::NewFrom(CMap* map)
 // Save this map to cache
 void CMap::SaveToCache()
 {
-	cCache.SaveMap(FileName, this);
+	// no map caching for gusanos because the map can be different depending on the mod so we should always reload it
+	if(!gusIsLoaded())
+		cCache.SaveMap(FileName, this);
 }
 
 ///////////////
@@ -158,16 +186,12 @@ size_t CMap::GetMemorySize()
 // Allocate a new map
 bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _minimap_w, uint _minimap_h)
 {
-	if(Created)
-		Shutdown();
+	if(!MiniCreate(_width, _height, _minimap_w, _minimap_h))
+		return false;
 
-	Width = _width;
-	Height = _height;
-	MinimapWidth = _minimap_w;
-	MinimapHeight = _minimap_h;
-
-	fBlinkTime = 0;
-
+	// reset it again and load the rest
+	Created = false;
+	
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
 	{
@@ -189,30 +213,54 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 		return false;
 	}
 
+	Created = true;
+	return true;
+}
+
+///////////////////
+// Allocate a new map
+bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
+{
+	Width = _width;
+	Height = _height;
+	MinimapWidth = _minimap_w;
+	MinimapHeight = _minimap_h;
+	
+	fBlinkTime = 0;
+	
+	Objects = NULL;
+	
 	// Create the pixel flags
 	if(!CreatePixelFlags())
 	{
 		errors("CMap::New:: ERROR: cannot create pixel flags\n");
 		return false;
 	}
-
+	
     // Create the AI Grid
     if(!createGrid())
 	{
 		errors("CMap::New: ERROR: cannot create AI grid\n");
 		return false;
 	}
-
+	
 	// Create collision grid
 	if (!createCollisionGrid())  {
 		errors("CMap::New: ERROR: cannot create collision grid\n");
 		return false;
 	}
-
+	
+	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
+	if(bmpMiniMap.get() == NULL) {
+		SetError("CMap::MiniCreate(): bmpMiniMap creation failed, perhaps out of memory");
+		return false;
+	}
+	
 	Created = true;
-
+	
 	return true;
 }
+
 
 ///////////////////
 // Create a new map
@@ -229,6 +277,9 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 	// Place default tiles
 	TileMap();
 
+	// TODO: does that make sense? we haven't loaded anything yet...
+	
+	/*
 	// Update the mini map
 	UpdateMiniMap();
 
@@ -237,9 +288,41 @@ bool CMap::New(uint _width, uint _height, const std::string& _theme, uint _minim
 
     // Calculate the grid
     calculateGrid();
-
+	*/
+	
 	Created = true;
 
+	return true;
+}
+
+
+///////////////////
+// Create a new map with minimal settings (used for Gusanos)
+bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
+{
+	NumObjects = 0;
+    nTotalDirtCount = 0;
+    //sRandomLayout.bUsed = false;
+	
+	// Create the map
+	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
+		return false;
+
+	// TODO: does that make sense? we haven't loaded anything yet...
+
+	/*
+	// Update the mini map
+	UpdateMiniMap();
+	
+    // Calculate the total dirt count
+    CalculateDirtCount();
+	
+    // Calculate the grid
+    calculateGrid();
+	*/
+	
+	Created = true;
+	
 	return true;
 }
 
@@ -424,18 +507,14 @@ bool CMap::CreateSurface()
 		return false;
 	}
 
-	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
-	if(bmpMiniMap.get() == NULL) {
-		SetError("CMap::CreateSurface(): bmpMiniMap creation failed, perhaps out of memory");
-		return false;
-	}
-
     bmpShadowMap = gfxCreateSurface(Width, Height);
 	if(bmpShadowMap.get() == NULL) {
 		SetError("CMap::CreateSurface(): bmpShadowMap creation failed, perhaps out of memory");
 		return false;
 	}
 
+	// minimap will be allocated in MiniCreate()
+	
 	return true;
 }
 
@@ -625,8 +704,13 @@ void DrawImageResampled2(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int 
 void CMap::UpdateDrawImage(int x, int y, int w, int h)
 {
 	if(bDedicated) return;
+	
+	if(gusIsLoaded())
+		return;
+
 	if( bmpBackImageHiRes.get() )
 		return;
+		
 	if(tLXOptions->bAntiAliasing)
 		DrawImageScale2x(bmpDrawImage.get(), bmpImage, x, y, x*2, y*2, w, h);
 	else
@@ -890,7 +974,9 @@ void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
 void CMap::TileMap()
 {
 	if(bDedicated) return;
-
+	
+	if(gusIsLoaded()) return;
+	
 	if(!bmpImage.get()) {
 		errors << "CMap::TileMap: map-image not loaded" << endl;
 		return;
@@ -901,17 +987,19 @@ void CMap::TileMap()
 	// Place the tiles
 
 	// Place the first row
-	for(y=0;y<Height;y+=Theme.bmpFronttile.get()->h) {
-		for(x=0;x<Width;x+=Theme.bmpFronttile.get()->w) {
-			DrawImage(bmpImage.get(), Theme.bmpFronttile,x,y);
+	if(bmpImage.get())
+		for(y=0;y<Height;y+=Theme.bmpFronttile.get()->h) {
+			for(x=0;x<Width;x+=Theme.bmpFronttile.get()->w) {
+				DrawImage(bmpImage.get(), Theme.bmpFronttile,x,y);
+			}
 		}
-	}
 
-	for(y=0;y<Height;y+=Theme.bmpBacktile.get()->h) {
-		for(x=0;x<Width;x+=Theme.bmpBacktile.get()->w) {
-			DrawImage(bmpBackImage.get(), Theme.bmpBacktile,x,y);
+	if(bmpBackImage.get())
+		for(y=0;y<Height;y+=Theme.bmpBacktile.get()->h) {
+			for(x=0;x<Width;x+=Theme.bmpBacktile.get()->w) {
+				DrawImage(bmpBackImage.get(), Theme.bmpBacktile,x,y);
+			}
 		}
-	}
 
 	// Update the draw image
 	UpdateDrawImage(0, 0, Width, Height);
@@ -1004,6 +1092,9 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 {
 	if(!bmpDrawImage.get() || !bmpDest) return; // safty
 
+	if(gusIsLoaded())		
+		return;
+	
 	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
 		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
@@ -1094,6 +1185,8 @@ bool CMap::CheckAreaFree(int x, int y, int w, int h)
 // Draw an object's shadow
 void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface * bmpObjShadow, int sx, int sy, int w, int h, CViewport *view, int wx, int wy)
 {
+	if(gusIsLoaded()) return;
+	
 	// TODO: simplify, possibly think up a better algo...
 	// TODO: reduce local variables to 5
 	if(!bmpDest) {
@@ -1191,6 +1284,7 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Sur
 void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy)
 {
 	if(bDedicated) return;
+	if(gusIsLoaded()) return;
 	
     wx += SHADOW_DROP;
     wy += SHADOW_DROP;
@@ -1220,6 +1314,11 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 // IMPORTANT: hole and map must have same gfx format
 int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 {
+	if(gusIsLoaded()) {
+		// TODO ...
+		return 0;
+	}
+	
 	// Just clamp it and continue
 	size = MAX(size, 0);
 	size = MIN(size, 4);
@@ -2090,9 +2189,11 @@ void CMap::ApplyShadow(int sx, int sy, int w, int h)
 // Calculate the shadow map
 void CMap::CalculateShadowMap()
 {
-	// This should be faster
-	SDL_BlitSurface(bmpBackImage.get(), NULL, bmpShadowMap.get(), NULL);
-	DrawRectFillA(bmpShadowMap.get(),0,0,bmpShadowMap.get()->w,bmpShadowMap.get()->h,tLX->clBlack,96);
+	if(bmpBackImage.get() && bmpShadowMap.get()) {
+		// This should be faster
+		SDL_BlitSurface(bmpBackImage.get(), NULL, bmpShadowMap.get(), NULL);
+		DrawRectFillA(bmpShadowMap.get(),0,0,bmpShadowMap.get()->w,bmpShadowMap.get()->h,tLX->clBlack,96);
+	}
 }
 
 
@@ -2309,26 +2410,31 @@ void CMap::UpdateMiniMap(bool force)
 		return;
 	}
 	
-	if(!bmpDrawImage.get()) {
-		errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
-		return;
+	if(gusIsLoaded()) {
+		gusUpdateMinimap(0, 0, Width, Height);
+	}
+	else {
+		if(!bmpDrawImage.get()) {
+			errors << "CMap::UpdateMiniMap: drawimage surface not initialised" << endl;
+			return;
+		}
+		
+		if( bmpBackImageHiRes.get() )
+		{
+			if (tLXOptions->bAntiAliasing)
+				DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+			else
+				DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		}
+		else
+		{
+			if (tLXOptions->bAntiAliasing)
+				DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+			else
+				DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
+		}
 	}
 	
-	if( bmpBackImageHiRes.get() )
-	{
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpDrawImage, 0, 0, 0, 0, bmpDrawImage.get()->w, bmpDrawImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-	}
-	else
-	{
-		if (tLXOptions->bAntiAliasing)
-			DrawImageResampledAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-		else
-			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
-	}
-
 	// Not dirty anymore
 	bMiniMapDirty = false;
 }
@@ -2343,6 +2449,11 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 	// If the minimap is going to be fully repainted, just move on
 	if (bMiniMapDirty)
 		return;
+
+	if(gusIsLoaded()) {
+		gusUpdateMinimap(x, y, w, h);
+		return;
+	}
 
 	if( bmpBackImageHiRes.get() )
 	{
@@ -2515,7 +2626,7 @@ bool CMap::Load(const std::string& filename)
 		return true;
 	}
 	
-	MapLoader* loader = MapLoader::open(filename);
+	MapLoad* loader = MapLoad::open(filename);
 	if(!loader) {
 		warnings << "level " << filename << " couldn't be loaded" << endl;
 		return false;
@@ -2525,7 +2636,7 @@ bool CMap::Load(const std::string& filename)
 		bool res = loader->parseData(this);
 		delete loader;
 		if(!res) {
-			warnings << "level " << filename << " is corrupted" << endl;
+			warnings << "level loader for " << filename << " returned with error" << endl;
 			return false;
 		}
 		
@@ -2539,15 +2650,17 @@ bool CMap::Load(const std::string& filename)
 	Created = true;
     //sRandomLayout.bUsed = false;
 	
-    // Calculate the shadowmap
-	CalculateShadowMap();
+	if(!gusIsLoaded()) {
+		// Calculate the shadowmap
+		CalculateShadowMap();
+		
+		// Apply the shadow
+		ApplyShadow(0, 0, Width, Height);
+
+		// Update the draw image
+		UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
+	}
 	
-	// Apply the shadow
-	ApplyShadow(0, 0, Width, Height);
-
-	// Update the draw image
-	UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
-
 	// Update the minimap
 	UpdateMiniMap(true);
 
@@ -2998,6 +3111,7 @@ void CMap::Shutdown()
 		savedMapCoords.clear();
 	}
 
+	gusShutdown();
 	Created = false;
 	FileName = "";
 
@@ -3024,32 +3138,23 @@ int CarveHole(CVec pos)
 		return 0;
 	}
 	
-	if(!cClient->getMap()->GetImage().get()) {
-		errors << "CarveHole: client map invalid" << endl;
-		return 0;
-	}
-	
 	int x,y;
-	Color Colour = cClient->getMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
 	y = MAX(MIN((int)pos.y, (int)cClient->getMap()->GetHeight() - 1), 0);
 
-	if (!LockSurface(cClient->getMap()->GetImage()))
-		return 0;
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
 		if((uint)x >= cClient->getMap()->GetWidth())	break;
 
 		if(cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), x, y));
+			Color col = cClient->getMap()->getColorAt(x, y);
 			for(short n=0; n<3; n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),col,NULL);
 			break;
 		}
 	}
-	UnlockSurface(cClient->getMap()->GetImage());
 
 	// Just carve a hole for the moment
 	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()->features[FT_InfiniteMap]);
@@ -3203,10 +3308,46 @@ template <> void SmartPointer_ObjectDeinit<CMap> ( CMap * obj )
 // Get the level name from specified file
 std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 {
-	MapLoader* loader = MapLoader::open(abs_filename ? filename : ("levels/" + filename), abs_filename, false);
-	if(!loader) return "";
-
-	std::string name = loader->header().name;
-	delete loader;
-	return name;
+	LevelInfo info = infoForLevel(filename, abs_filename);
+	if(info.valid) return info.name;
+	return "";
 }
+
+
+
+Color CMap::getColorAt(long x, long y) {
+	if(gusIsLoaded()) {
+		return Color(getpixel(image, x, y));
+	}
+	else if(bmpImage.get()) {
+		if(!LockSurface(bmpImage)) return Color();
+		return Color(bmpImage->format, GetPixel(bmpImage.get(), x, y));
+		UnlockSurface(bmpImage);		
+	}
+	return Color();
+}
+
+void CMap::putColorTo(long x, long y, Color c) {
+	if(gusIsLoaded()) {
+		return putpixel(image, x, y, c.get());
+	}
+	else if(bmpImage.get()) {
+		if(!LockSurface(bmpImage)) return;
+		PutPixel(bmpImage.get(),x, y, c.get(bmpImage->format));
+		UnlockSurface(bmpImage);		
+
+		DrawRectFill2x2(GetDrawImage().get(), x*2, y*2, c);
+	}
+}
+
+void CMap::putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh) {
+	if(gusIsLoaded()) {
+		DrawImageAdv(image->surf.get(), surf, sx, sy, x, y, sw, sh);
+	}
+	else if(bmpImage.get()) {
+		DrawImageAdv(GetImage().get(), surf, sx, sy, x, y, sw, sh);
+		DrawImageStretch2(GetDrawImage().get(), GetImage(), x, y, x*2, y*2, sw, sh);
+	}
+}
+
+

@@ -1,0 +1,176 @@
+PODSTAWOWE ZMIENNE
+==============================================
+cg_enemybox (0|1, default 0) - pokazywanie boxow przeciwnikow
+
+cg_enemycolor (r g b, defautl 0 255 0) - kolor boxow przeciwnikow
+
+cg_teambox (0|1, default 0) - pokazywanie boxow robali z tego samego teamu (dziala tylko w trybach druzynowych)
+
+cg_teamcolor (r g b, default 0 0 255) - kolor boxow twojegu teamu
+
+ch_bloodscreen (0|1, default 1) - zaczerwienianie sie ekranu po smierci
+
+ch_crosshaircolor (r g b, default 0 255 0) - kolor celownika
+
+ch_crosshairdist (0 - 30, default 25) - odleglosc celownika od robaka
+
+ch_corsshairtype (0 - 7, default 5) - rodzaj celownika
+
+ch_playerhealth (0|1, default 1) - pokazywanie paska zycia pod robakiem
+
+ch_playerhealth_own (0|1, default 0) - pokazuje pasek zycia pod robakiem
+
+ch_playernames (0|1, default 1) - pokazywanie ksywki nad robakiem
+
+ch_spectator (0|1, default 1) - hud spectatora
+
+ch_radar (0|1, default 0) - pokazywanie radaru
+
+ch_radartype (0 - 2, default 0) - rodzaj kropek na radarze
+
+ch_reloadtimer (0|1, default 0) - pokazywanie czasu pozostalego do konca przeladowania nad glowa robaka
+
+ch_showtime (0|1, default 1) - pokazywanie licznika czasu
+
+ch_statusbar (0 - 4, default 2) - rodzaj huda
+
+cg_logstats (0|1, default 1) - zapisuje statystyki w xml, posortowane wedlug dat
+
+cl_weapons (a b c d e, default 1 1 1 1 1) numery poszegolnych broni, ktore maja zostac automatycznie wybrane, po kazdym wczytaniu mapy
+1 - "Bazooka"
+2 - "Chaingun"
+3 - "Doomsday"
+4 - "Flak Cannon"
+5 - "Grenade Launcher"
+6 - "Gauss Gun"
+7 - "Grenade"
+8 - "Lightning Gun"
+9 - "Mortar"
+10 - "Shotgun"
+11 - "Throwing Knife"
+12 - "Winchester"
+13 - "Autocannon"
+wybranie dwoch, lub wiecej tych samych broni powoduje autolosowanie broni
+
+mode (ffa|1v1|tdm|instagib|ballpark, default ffa) [nazwa mapy] - wczytuje mape z wybranym trybem, przyklad: mode tdm pokolenia
+sv_deathslimit (0 - 99, default 20) - limit zyc
+sv_killslimit (0 - 99, default 20) - limit zabic
+sv_maxclients (0 - 8, default 4) - limit graczy na serwerze
+sv_timelimit (0 - 99, default 15) - limit czasu w minutach
+ch_messages_x (0 - 320, default 315) - pozycja x wiadomosci dotyczacych roznych zdarzen
+ch_messages_y (0 - 240, default 2) - pozycja y, j.w.
+ch_messages_visible (0 - 1, default 1) - pokazywanie wiadomosci
+ch_messages_timer (0 - 9999, default 1000) - ilosc czasu 
+ch_messages_align (0 - 2, default 1) - justowanie wiadomosci
+cg_lasercolor (r g b, default 255 0 0) - kolor celownika rifle
+ch_weaponsinfo (0 - 1, default 1) - dodatkowy hud broni
+cg_gibs (0 - 9999, default 6) - ilosc flakow jaka wypada po smierci robaka
+cg_draw2d (0|1, default 1) - wlacza/wylacza render wszystkich elementow huda
+cg_autoscreenshot (0|1, default 1) - wlaczenie tej opcji powoduje ze po zakonczeniu kazdego meczu gra bedzie wykonywala autoscreenshota
+sv_healthpacks (0 - 1, default 1) - rzucanie apteczek
+sv_healthpacks_delay (0 - 9999, default 60) - odstep czasowy miedzy rzucanymi apteczkami
+sv_password (default "") - ustawia haslo serwera
++stats - umozliwia podgladanie na biezaco statystyk broni (domyslnie podbindowane na lshift)
+join - dolacza do aktywnych graczy
+joinred - dolacza do teamu red w trybach druzynowych
+joinblue - dolacza do teamu blue w trybach druzynowych
+player_list - zwraca ksywki graczy wraz z numerami id
+player_kick [id] - wykopuje gracza o podanym numerze id
+sv_pmc (0|1, default 1)
+sv_anticamp (0|1, default 0)
+sv_netauth [nick] - wysyla do serwera zapytanie sprawdzajace poprawnosc danych klienta promode
+cl_netauth - wysyla do serwera prosbe o sprawdzenie naszych danych klienta promode
+
+GLOSOWANIA
+callvote [vote] [wartosc]
+
+Dostepne vote'y:
+map [mapa]
+kick [ksywka gracza]
+kick [numer id gracza] (aby sprawdzic numer id gracza, wydaj polecenie player_list)
+deathslimit [wartosc]
+killslimit [wartosc]
+timelimit [wartosc]
+mode [nazwa trybu] [nazwa mapy]
+healthpacks [wartosc]
+healthpacks_delay [wartosc]
+pmc [wartosc]
+anticamp [wartosc]
+
+Przyklad: callvote map pokolenia
+callvote 1v1 pokolenia
+
+p0_vote yes - dodaje glos popierajacy
+p0_vote no - dodaje glos przeciwny
+
+Domyslne bindy: F1 - p0_vote yes, F2 - p0_vote no
+
+Jezeli liczba glosow popierajacych jest wyzsza od liczby glosow przeciwnych, akacja zostaje wykonana
+
+==============================================
+MENU WYBORU DRUZYNY
+==============================================
+Po dolaczeniu sie do serwera, o raz wybraniu broni nalezy wcisnac F4 w celu dolaczenia do gry. Domyslnie zbindowane na F4
+
+==============================================
+OBSLUGA HASEL PO STRONIE KLIENTA I SERWERA
+==============================================
+Serwer ma mozliwosc ustawienia hasla, co uniemozliwi wstep nieproszonym gosciom na serwer. Czyni to za pomoca polecenia sv_password (serwer dedykowany sv_ded_password).
+UWAGA! Jezeli nie chcesz aby twoj serwer byl chroniony haslem, wystarczy ustawic wartosc "" dla sv_password/sv_ded_password
+
+Klient ktory chce podlaczyc sie do serwera chronionego haslem, wpisuje rcon_password haslo_serwera, a nastepnie laczy sie z serwerem. Jezeli hasla zgadzaja sie, klient zostaje wpuszczony na serwer.
+
+==============================================
+KONFIGURACJA SERWERA DEDYKOWANEGO
+==============================================
+Otwieramy server.cfg znajdujacy sie w katalogu promode.
+
+sv_ded_name - nazwa serwera
+sv_ded_desc - opis serwera
+sv_ded_port - port
+sv_ded_rcon_password - haslo rcon
+sv_ded_map - domyslna mapa
+sv_ded_map_list - lista map dostepnych w grze
+sv_ded_mode - tryb gry (1 - ffa, 2 - 1v1, 3 - tdm, 4 - ctf, 5 - instagib, 6 - ballpark 7 - clan arena, 8 - domination)
+sv_ded_timelimit - limit czasowy
+sv_ded_killslimit - limit zabojstw
+sv_ded_deathslimit - limit smierci
+sv_ded_maxclients - maksymalna ilosc klientow
+sv_ded_showmessage - pokzywanie wiadomosci
+sv_ded_messagedelay - odstep czasowy miedzy kolejnymi wiadomosciami
+sv_ded_message - tresc wiadomosci 
+sv_ded_map_random - wartosc 1 sprawia ze po zakonczeniu kazdego pojedynku, serwer losuje mape z puli dostepnych map, opcja reloadmap musi miec wartosc 0, aby ta opcja dzialala poprawnie
+sv_ded_map_reload - wartosc 1 sprawia ze serwer po zakonczeniu kazdego pojedynku wczytuje jedna mape, ktora ustalana jest w sv_ded_map, randommaps musi miec wartosc 0, aby ta opcja dzialala poprawnie
+sv_ded_map_reloadtime - czas liczony od zakonczenia pojedynku, po ktorym zostanie wczytana nastepna mapa
+sv_ded_ircbot - wlacza/wylacza ircbota na serwerze
+sv_ded_ircbot_name - nick bota
+sv_ded_ircbot_channel - kanal do ktorego dolaczy bot
+sv_ded_ircbot_server - adres serwera irc
+sv_ded_ircbot_admin1 - ksywka admina 1
+sv_ded_ircbot_admin2 - ksywka admina 2
+sv_ded_ircbot_admin3 - ksywka admina 3
+sv_ded_healthpacks - wlacza/wylacza apteczki
+sv_ded_healthpacks_delay - odstep czasowy miedzy kolejnymi apteczkami (sekundy)
+sv_ded_password - haslo jakie musi podac klient, aby moc grac na serwerze, ustawienie wartosci "" wylacza ochrone haslem
+sv_ded_pmc - ustawienie na 0 ukatywnie nowy tryb zadawania damage
+sv_ded_anticamp - wartosc 1 wlacza mutator anticamp
+
+==============================================
+OBSLUGA IRCBOTA
+==============================================
+Wszystkie polecenia wydajemy na kanale, do ktorego podlaczy sie nasz bota, polecenia zostana zaakceptowane, jezeli twoj nick zostal dodany do puli adminow
+
+!addbot [team] - dodaje bota do okreslonego teamu
+!ban [player] - banuje gracza o podanym nicku
+!deathslimit [limit] - limit smierci
+!help - podaje wszystkie dostepne polecenia
+!kick [player] - kickuje gracza o podanym nicku
+!killslimit [limit] - ustawia limit zabojstw
+!map [map name] - zmienia mape
+!maxclients [limit] - zmienia limit klientow
+!plist - podaje liste graczy na serwerze
+!score - podaje wyniki graczy
+!say [message] - wysyla wiadomosc do serwera
+!timelimit [limit] - zmienia limit czasu
+!quit - wylacza serwer
+

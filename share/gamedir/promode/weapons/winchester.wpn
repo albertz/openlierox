@@ -1,0 +1,28 @@
+name="Winchester"
+ammo=10
+reload_time=175
+sync_shot = true
+
+on primary_press()
+shoot_particles(yellow_light_firecone.obj,5,1,0.4,0,0,15,0,3)
+shoot_particles(yellow_light_firecone.obj,2,0.2,0.2,0,0,20,35,4)
+shoot_particles(yellow_light_firecone.obj,2,0.2,0.2,0,0,20,-35,4)
+ delay_fire(26)
+ play_sound([auto_shotgun2.wav], 100, 1, 0.1)
+ shoot_particles(winchester_bullet.obj, 1, speed=3,speed_var=0, distribution=0, distance_offs=5)
+ shoot_particles(shell.obj, 1, speed=0.3, speed_var=0.1, motion_inheritance=0.5, distribution=20, angle_offs=-105)
+ shoot_particles(smoke_alphach.obj, 2, speed=0.5, speed_var=0.1, motion_inheritance=0.0, distribution=30, angle_offs=0,distance_offs=5)
+ shoot_particles(flash_medium_add.obj, 1, speed=0, speed_var=0, motion_inheritance=0.0, distribution=0, angle_offs=0,distance_offs=5)
+ add_speed(-0.25)
+ use_ammo(1)
+#run_script(weaponeffects.firecone_winchester)
+
+on reload_end()
+  play_sound([gun_reload1.wav], 100, 1, 0.05)
+
+on out_of_ammo()
+  run_script(weaponeffects.rifleLasersightOff)
+
+on reload_end()
+  run_script(weaponeffects.rifleLasersightOn)
+  play_sound([sniper_reload.wav], 100, 1, 0.05)

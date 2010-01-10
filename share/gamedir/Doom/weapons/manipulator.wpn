@@ -1,0 +1,26 @@
+name = Manipulator
+skin=skin.manipulator.png
+sync_shot = true
+
+on active_timer( 0, max_trigger = 1 )
+ delay_fire(40)
+ play_sound( manip_use.ogg, 80, 1, 0.05 )
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+
+on primary_press()
+ play_sound( manip_pickup.ogg, 50, 1, 0.05 )
+
+on primary_shoot()
+ delay_fire(3)
+ shoot_particles ( manip1.obj , 1 , 0, 0, 0, 0, 0, 0, 28)
+ shoot_particles ( manip3.obj , 1 , 15, 0, 0, 0, 0, 0, 50)
+
+on primary_release()
+ play_sound( manip_shoot.wav, 50, 1, 0.05 )
+ delay_fire(50)
+ shoot_particles ( manipspark.obj , 8 , 0.8, 0.5, 0, 0, 20, 0, 5)
+ shoot_particles ( manip2.obj , 1 , 1, 0, 0, 0, 0, 0, 28)
+

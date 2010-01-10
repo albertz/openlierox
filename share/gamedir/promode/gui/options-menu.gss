@@ -1,0 +1,584 @@
+#options-menu
+{
+	background: #000000;
+	background-image: menu_logo.png;
+	border: #000000;
+	top: 0; left: 0;
+	width: 320; height: 240;
+	alpha: 255;
+}
+
+#options-win
+{
+	top: 5;
+	bottom: -5;
+	left: 5;
+	right: -5;
+}
+
+#player
+{
+	right: -135; bottom: -150;
+	width: 50; height: 15;
+}
+
+#controls
+{
+	right: -135; bottom: -130;
+	width: 50; height: 15;
+}
+
+#system
+{
+	right: -135; bottom: -110;
+	width: 50; height: 15;
+}
+
+#gameoptions
+{
+	right: -135; bottom: -90;
+	width: 50; height: 15;
+}
+
+#save
+{
+	right: -135; bottom: -70;
+	width: 50; height: 15;
+}
+
+#back
+{
+	left: 5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#apply
+{
+	right: -5; bottom: -5;
+	width: 50; height: 15;
+}
+
+#system-graphics
+{
+	right: -200; bottom: -140;
+	width: 50; height: 15;
+}
+
+#system-sound
+{
+	right: -200; bottom: -120;
+	width: 50; height: 15;
+}
+
+#system-network
+{
+	right: -200; bottom: -100;
+	width: 50; height: 15;
+}
+
+#fullscreen
+{
+	left: 130; top: 60;
+	width: 100; height: 10;
+}
+
+#videoMode
+{
+	left: 130; top: 75;
+	width: 100; height: 10;
+}
+
+#driver
+{
+	left: 130; top: 90;
+	width: 100; height: 10;
+}
+
+#bitDepth
+{
+	left: 130; top: 105;
+	width: 100; height: 10;
+}
+
+#filter
+{
+	left: 130; top: 120;
+	width: 100; height: 10;
+}
+
+#clearBuffer
+{
+	left: 130; top: 135;
+	width: 100; height: 10;
+}
+
+#sync
+{
+	left: 130; top: 150;
+	width: 100; height: 10;
+}
+#volume
+{
+	left: 130; top: 85;
+	width: 100; height: 10;
+}
+
+#outputMode
+{
+	left: 130; top: 100;
+	width: 100; height: 10;
+}
+
+#listenerDistance
+{
+	left: 202; top: 115;
+	width: 28; height: 10;
+}
+
+#listenerDistanceLb
+{
+	left: 130; top: 115;
+	width: 70; height: 10;
+}
+
+#autodownloads
+{
+	left: 130; top: 60;
+	width: 100; height: 10;
+}
+
+#checkCRC
+{
+	left: 130; top: 75;
+	width: 100; height: 10;
+}
+
+#BPP
+{
+	left: 200; top: 90;
+	width: 30; height: 10;
+}
+
+#BPPLb
+{
+	left: 130; top: 90;
+	width: 70; height: 10;
+}
+
+#PPS
+{
+	left: 208; top: 105;
+	width: 22; height: 10;
+}
+
+#PPSLb
+{
+	left: 130; top: 105;
+	width: 74; height: 10;
+}
+
+#netLog
+{
+	left: 130; top: 120;
+	width: 100; height: 10;
+}
+
+#simLag
+{
+	left: 182; top: 135;
+	width: 48; height: 10;
+}
+
+#simLagLb
+{
+	left: 130; top: 135;
+	width: 74; height: 10;
+}
+
+#upLimit
+{
+	left: 192; top: 150;
+	width: 38; height: 10;
+}
+
+#upLimitLb
+{
+	left: 130; top: 150;
+	width: 74; height: 10;
+}
+
+#player1
+{
+	left: 130; top: 45;
+	width: 47; height: 10;
+}
+	
+#player2
+{
+	left: 182; top: 45;
+	width: 48; height: 10;
+}
+
+#playerid
+{
+	left: 130; top: 60;
+	width: 100; height: 10;
+}
+
+#up
+{
+	left: 130; top: 75;
+	width: 33; height: 10;
+}
+
+#down
+{
+	left: 130; top: 90;
+	width: 46; height: 10;
+}
+
+#left
+{
+	left: 130; top: 105;
+	width: 43; height: 10;
+}
+
+#right
+{
+	left: 130; top: 120;
+	width: 47; height: 10;
+}
+
+#fire
+{
+	left: 130; top: 135;
+	width: 24; height: 10;
+}
+
+#change
+{
+	left: 130; top: 150;
+	width: 33; height: 10;
+}
+
+#jump
+{
+	left: 130; top: 165;
+	width: 28; height: 10;
+}
+
+#upEd
+{
+	left: 166; top: 75;
+	width: 64; height: 10;
+}
+
+#downEd
+{
+	left: 176; top: 90;
+	width: 54; height: 10;
+}
+
+#leftEd
+{
+	left: 173; top: 105;
+	width: 57; height: 10;
+}
+
+#rightEd
+{
+	left: 177; top: 120;
+	width: 53; height: 10;
+}
+
+#fireEd
+{
+	left: 154; top: 135;
+	width: 76; height: 10;
+}
+
+#changeEd
+{
+	left: 163; top: 150;
+	width: 67; height: 10;
+}
+
+#jumpEd
+{
+	left: 158; top: 165;
+	width: 72; height: 10;
+}
+
+#unbind
+{ 
+	left: 130; top: 180;
+	width: 100; height: 10;
+}
+
+#player1s
+{
+	left: 130; top: 60;
+	width: 47; height: 10;
+}
+	
+#player2s
+{
+	left: 182; top: 60;
+	width: 48; height: 10;
+}
+
+#pshoot
+{
+	left: 130; top: 75;
+	width: 100; height: 10;
+}
+
+#wpn1Lb
+{
+	left: 130; top: 90;
+	width: 37; height: 10;
+}
+
+#wpn2Lb
+{
+	left: 130; top: 105;
+	width: 37; height: 10;
+}
+
+#wpn3Lb
+{
+	left: 130; top: 120;
+	width: 37; height: 10;
+}
+
+#wpn4Lb
+{
+	left: 130; top: 135;
+	width: 37; height: 10;
+}
+
+#wpn5Lb
+{
+	left: 130; top: 150;
+	width: 37; height: 10;
+}
+
+#wpn1
+{
+	left: 172; top: 90;
+	width: 58; height: 10;
+}
+
+#wpn2
+{
+	left: 172; top: 105;
+	width: 58; height: 10;
+}
+
+#wpn3
+{
+	left: 172; top: 120;
+	width: 58; height: 10;
+}
+
+#wpn4
+{
+	left: 172; top: 135;
+	width: 58; height: 10;
+}
+
+#wpn5
+{
+	left: 172; top: 150;
+	width: 58; height: 10;
+}
+
+#showmenuLb
+{
+	left: 130; top: 85;
+	width: 22; height: 10;
+}
+
+#showchatLb
+{
+	left: 130; top: 100;
+	width: 22; height: 10;
+}
+
+#showscoreLb
+{
+	left: 130; top: 115;
+	width: 48; height: 10;
+}
+
+#showmenu
+{
+	left: 156; top: 85;
+	width: 72; height: 10;
+}
+
+#showchat
+{
+	left: 156; top: 100;
+	width: 72; height: 10;
+}
+
+#showscore
+{
+	left: 179; top: 115;
+	width: 49; height: 10;
+}
+
+#playeropt0
+{
+	right: -200; bottom: -125;
+	width: 50; height: 15;
+}
+
+#playeropt1
+{
+	right: -200; bottom: -105;
+	width: 50; height: 15;
+}
+
+#playerID
+{
+	left: 130; top: 60;
+	width: 100; height: 10;
+}
+
+#nameLb
+{
+	left: 130; top: 75;
+	width: 24; height: 10;
+}
+
+#name
+{
+	left: 158; top: 75;
+	width: 72; height: 10;
+}
+
+#colorLb
+{
+	left: 130; top: 90;
+	width: 30; height: 10;
+}
+
+#red
+{
+	left: 160; top: 90;
+	width: 20; height: 10;
+	border: #ff0000;
+}
+
+#green
+{
+	left: 185; top: 90;
+	width: 20; height: 10;
+	border: #00ff00;
+}
+
+#blue
+{
+	left: 210; top: 90;
+	width: 20; height: 10;
+	border: #0000ff;
+}
+
+#team
+{
+	left: 130; top: 105;
+	width: 100; height: 10;
+}
+
+#accelLb
+{
+	left: 130; top: 120;
+	width: 37; height: 10;
+}
+
+#frictionLb
+{
+	left: 130; top: 135;
+	width: 63; height: 10;
+}
+
+#speedLb
+{
+	left: 130; top: 150;
+	width: 40; height: 10;
+}
+
+#accel
+{
+	left: 172; top: 120;
+	width: 58; height: 10;
+}
+
+#friction
+{
+	left: 182; top: 135;
+	width: 48; height: 10;
+}
+
+#speed
+{
+	left: 174; top: 150;
+	width: 56; height: 10;
+}
+
+#viewport
+{
+	left: 130; top: 165;
+	width: 100; height: 10;
+}
+
+#fps
+{
+	left: 100; top: 60;
+	width: 100; height: 10;
+}
+
+#debug
+{
+	left: 100; top: 75;
+	width: 100; height: 10;
+}
+
+#mapdebug
+{
+	left: 100; top: 90;
+	width: 100; height: 10;
+}
+
+#deathmsg
+{
+	left: 100; top: 105;
+	width: 100; height: 10;
+}
+
+#pnames
+{
+	left: 100; top: 120;
+	width: 100; height: 10;
+}
+
+#radar
+{
+	left: 100; top: 135;
+	width: 100; height: 10;
+}
+
+#enemybox
+{
+	left: 100; top: 150;
+	width: 100; height: 10;
+}
+
+#teambox
+{
+	left: 100; top: 165;
+	width: 100; height: 10;
+}
+

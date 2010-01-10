@@ -27,7 +27,7 @@
 #include "Entity.h"
 #include "CBonus.h"
 #include "CClient.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "Debug.h"
 #include "CServer.h"
 #include "FlagInfo.h"
@@ -548,10 +548,10 @@ public:
 			Slot->LastFire -= dt.seconds();
 		
 		if(Slot->Reloading) {
-			if(worm->getLoadingTime() == 0)
+			if(cClient->getGameLobby()->iLoadingTime == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/worm->getLoadingTime()));
+				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/(cClient->getGameLobby()->iLoadingTime * 0.01f)));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;
@@ -652,7 +652,6 @@ public:
 			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
 			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
 			
-			LOCK_OR_QUIT(cClient->getMap()->GetImage());
 			uchar px = outsideMap ? PX_ROCK : cClient->getMap()->GetPixelFlag(wrappedHookPos.x, wrappedHookPos.y);
 			if((px & PX_ROCK || px & PX_DIRT || outsideMap)) {
 				rope->setShooting( false );
@@ -660,12 +659,11 @@ public:
 				rope->hookVelocity() = CVec(0,0);
 
 				if((px & PX_DIRT) && firsthit) {
-					Color col = Color(cClient->getMap()->GetImage()->format, GetPixel(cClient->getMap()->GetImage().get(), wrappedHookPos.x, wrappedHookPos.y));
+					Color col = cClient->getMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}
 			}
-			UnlockSurface(cClient->getMap()->GetImage());
 		}
 
 		// Check if the hook has hit another worm

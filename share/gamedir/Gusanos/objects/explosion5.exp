@@ -1,0 +1,9 @@
+sprite = explosion5.png
+blender = NONE
+alpha = 255
+dest_alpha = -1
+timeout = 50
+
+on creation()
+ play_sound_static( exp2.ogg, 60, 1, 0.05 )
+ apply_map_effect(testdig.mfx)

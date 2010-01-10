@@ -20,7 +20,7 @@
 
 #include "Debug.h"
 #include "LieroX.h"
-#include "console.h"
+#include "OLXConsole.h"
 #include "EndianSwap.h"
 #include "AuxLib.h"
 #include "Error.h"
@@ -40,11 +40,11 @@
 #include "Timer.h"
 #include "IRC.h"
 #include "FileUtils.h"
-#include "Command.h"
+#include "OLXCommand.h"
 #include "HTTP.h"
 #include "Version.h"
 #include "CrashHandler.h"
-
+#include "game/Level.h"
 
 // TODO: move this out here
 // declare them only locally here as nobody really should use them explicitly
@@ -1004,9 +1004,9 @@ void Menu_AddDefaultWidgets()
 		CCombobox* cmb;
 		LevelComboFiller(CCombobox* c) : cmb(c) {}
 		bool operator() (const std::string& filename) {
-			std::string mapName = CMap::GetLevelName(filename, true);
-			if(mapName.size() != 0)
-				cmb->addItem(GetBaseFilename(filename), mapName);
+			LevelInfo info = infoForLevel(filename, true);
+			if(info.valid)
+				cmb->addItem(info.path, "[" + info.typeShort + "] " + info.name);
 
 			return true;
 		}
@@ -1022,7 +1022,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	cmb->setUnique(true);
 
 	LevelComboFiller filler(cmb);
-	FindFiles(filler, "levels", false, FM_REG);
+	FindFiles(filler, "levels", false);
 
 	// Disable sorting and add the random level at the beginning
 	cmb->setSorted(SORT_NONE);
@@ -2508,7 +2508,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), (DynDrawIntf*)NULL, NULL);
 			}
 			
-			foreach( FeatureCompatibleSettingList::Feature&, it, features.list ){
+			for_each_iterator( FeatureCompatibleSettingList::Feature&, it, features.list ){
 				Color col;
 				switch(it->get().type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;

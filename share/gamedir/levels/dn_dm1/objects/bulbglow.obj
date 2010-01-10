@@ -1,0 +1,11 @@
+blender = add
+alpha = 150
+sprite = bulb_glow.png
+occluded = 0
+col_layer = -1
+
+on timer(50)
+ set_alpha_fade(50,100)
+ 
+on timer(101,100)
+ set_alpha_fade(50,150)

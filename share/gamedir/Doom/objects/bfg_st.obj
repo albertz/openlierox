@@ -1,0 +1,24 @@
+invisible = 1
+col_layer=6
+health=50
+col_layer = 6
+
+on ground_collision()
+ play_sound( [BFG_explode1.ogg,BFG_explode2.ogg,BFG_explode3.ogg], 50, 1, 0.05 )
+ shoot_particles ( BFG_wave3_smallest.obj , 1 , 0, 0, 0, 0, 0, 180, 2)
+ shoot_particles ( light_bfg_explosion.obj , 1 , 0, 0, 0, 0, 0, 180, 2)
+ shoot_particles ( bfg_wave4_st.obj , 150 , -1, 0, 0, 0, 360, 0, 5)
+ remove()
+
+on timer(1)
+ shoot_particles ( bfg_trail_small.obj ,1)
+ shoot_particles ( bfg_trail_small.obj ,1)
+ shoot_particles ( BFG_light_st.obj,1)
+
+on detect_range(3, 0)
+ damage( 100 )
+ play_sound( [BFG_explode1.ogg,BFG_explode2.ogg,BFG_explode3.ogg], 50, 1, 0.05 )
+ shoot_particles ( BFG_wave3_smallest.obj , 1 , 0, 0, 0, 0, 0, 180, 2)
+ shoot_particles ( light_bfg_explosion.obj , 1 , 0, 0, 0, 0, 0, 180, 2)
+ shoot_particles ( bfg_wave4_st.obj , 150 , -1, 0, 0, 0, 360, 0, 5)
+ remove()

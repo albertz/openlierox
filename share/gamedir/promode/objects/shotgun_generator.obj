@@ -1,0 +1,6 @@
+invisible = 1
+
+on creation()
+  shoot_particles(shotgun_bullet_with_ric.obj,3,0.05,0.05,1,0,360,0,0)
+  shoot_particles(shotgun_bullet.obj,12,0.05,0.05,1,0,360,0,0)
+  remove()

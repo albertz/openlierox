@@ -1,5 +1,5 @@
 /*
- *  MapLoader.cpp
+ *  MapLoad.cpp
  *  OpenLieroX
  *
  *  Created by Albert Zeyer on 03.05.09.
@@ -20,14 +20,17 @@
 #include "FileUtils.h"
 #include "SafeVector.h"
 #include "ConfigHandler.h"
+#include "gusanos/level.h"
+#include "gusanos/gusgame.h"
 
 
-class ML_OrigLiero : public MapLoader {
+class ML_OrigLiero : public MapLoad {
 public:
 	static const long Width = 504, Height = 350;
 	PIVar(bool,false) Powerlevel;
 	
 	std::string format() { return "Original Liero"; }
+	std::string formatShort() { return "Liero"; }
 	
 	bool parseHeader(bool printErrors) {
 		// Validate the liero level
@@ -174,7 +177,7 @@ public:
 };
 
 
-class ML_LieroX : public MapLoader {
+class ML_LieroX : public MapLoad {
 	
 	std::string id;
 	PIVar(int,0) Type;
@@ -182,6 +185,7 @@ class ML_LieroX : public MapLoader {
 	PIVar(int,0) numobj;
 	PIVar(bool,false) ctf;
 	std::string format() { return id; }
+	std::string formatShort() { return "LX"; }
 	
 	bool parseHeader(bool printErrors) {
 		// Header
@@ -689,9 +693,10 @@ class ML_LieroX : public MapLoader {
 
 
 
-class ML_CommanderKeen123 : public MapLoader {
+class ML_CommanderKeen123 : public MapLoad {
 public:
 	std::string format() { return "Commander Keen (1-3) level"; }
+	std::string formatShort() { return "CK"; }
 	
 	enum {
 		MAX_TILES  =  700,
@@ -1882,24 +1887,94 @@ private:
 };
 
 
-MapLoader* MapLoader::open(const std::string& filename, bool abs_filename, bool printErrors) {
-	FILE* fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
-	if(fp == NULL) {
-		if(printErrors) errors << "level " << filename << " does not exist" << endl;
-		return NULL;
+struct ML_Gusanos : public MapLoad {
+public:
+	CMap* curMap;
+	ResourceLocator<CMap>::BaseLoader* loader;
+	ML_Gusanos(ResourceLocator<CMap>::BaseLoader* l, const std::string& name) : curMap(NULL), loader(l) { head.name = name; }
+	
+	std::string format() { return loader->format(); }
+	std::string formatShort() { return loader->formatShort(); }
+
+	virtual bool parseHeader(bool printErrors) {
+		return true;
 	}
 	
-	std::string fileext = GetFileExtension(filename); stringlwr(fileext);
-	if( fileext == "lxl" )
-		return (new ML_LieroX()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;
-	
-	if( fileext == "lev" )
-		return (new ML_OrigLiero()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+	virtual bool parseData(CMap* m) {
+		curMap = m;
+		m->Shutdown();
 		
-	if( fileext == "ck1" || fileext == "ck2" || fileext == "ck3" )
-		return (new ML_CommanderKeen123()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+		std::string f = "levels/" + GetBaseFilename(filename);
+		notes << "Gusanos level loader: using " << loader->getName() << " for " << f << endl;
+		
+		// TODO: abs filename
+		if(!gusGame.changeLevel(loader, f, m))
+			return false;
 
-	// HINT: Other level formats could be added here
+		m->Name = head.name;
+		
+		// Allocate the map
+	createMap:
+		if(!m->MiniNew(m->material->w, m->material->h)) {
+			errors << "Gus lvl loader (" << filename << "): cannot allocate map" << endl;
+			if(cCache.GetEntryCount() > 0) {
+				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
+				cCache.Clear();
+				goto createMap;
+			}
+			return false;
+		}		
+		
+		if(!m->material || !m->image)
+			return false;
+		
+		SetColorKey(m->image->surf.get());
+
+		m->lockFlags();
+		for(Uint32 y = 0; y < m->Height; ++y)
+			for(Uint32 x = 0; x < m->Width; ++x)
+				setpixelflags(x, y, m->getMaterial(x,y).toLxFlags());
+		m->unlockFlags();
+
+		curMap = NULL;
+		return true;
+	}
+
+	void setpixelflags(Uint32 x, Uint32 y, unsigned char flag) {
+		curMap->PixelFlags[y * curMap->Width + x] = flag;
+	}
+	
+};
+
+
+MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool printErrors) {
+	
+	if(IsDirectory(filename, abs_filename)) {
+		// TODO: abs filename
+		std::string basename = GetBaseFilename(filename);
+		ResourceLocator<CMap>::BaseLoader* loader = NULL;
+		std::string name;
+		if(levelLocator.canLoad("levels/" + basename, name, loader))
+			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;			
+	}
+	else { // regular file
+		FILE *fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");
+		if(fp == NULL) {
+			if(printErrors) errors << "level " << filename << " does not exist" << endl;
+			return NULL;
+		}
+
+		std::string fileext = GetFileExtension(filename); stringlwr(fileext);
+		
+		if( fileext == "lxl" )
+			return (new ML_LieroX()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);;
+		
+		if( fileext == "lev" )
+			return (new ML_OrigLiero()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+			
+		if( fileext == "ck1" || fileext == "ck2" || fileext == "ck3" )
+			return (new ML_CommanderKeen123()) -> Set(filename, abs_filename, fp) -> parseHeaderAndCheck(printErrors);
+	}
 	
 	if(printErrors) errors << "level format of file " << filename << " unknown" << endl;
 	return NULL;

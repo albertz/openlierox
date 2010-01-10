@@ -42,7 +42,7 @@ const std::string DefaultCfgFilename = "cfg/options.cfg";
 
 const std::string    ply_keys[] = {"Up", "Down", "Left", "Right", "Shoot", "Jump", "SelectWeapon", "Rope", "Strafe", "Weapon1", "Weapon2", "Weapon3", "Weapon4", "Weapon5" };
 const std::string    ply_def1[] =
-#ifdef MACOSX
+#ifdef __APPLE__
 	{"up", "down", "left", "right", "lalt", "lmeta", "space", "x", "c", "1", "2", "3", "4", "5" };
 #else
 	{"up", "down", "left", "right", "lctrl", "lalt", "lshift", "x", "z", "1", "2", "3", "4", "5" };
@@ -138,7 +138,7 @@ bool GameOptions::Init() {
 #endif
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 		( tLXOptions->bOpenGL, "Video.OpenGL",
-#ifdef MACOSX
+#ifdef __APPLE__
 			true )
 #else
 			false )
@@ -214,6 +214,8 @@ bool GameOptions::Init() {
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )
 		( tLXOptions->bShowCountryFlags, "Misc.ShowCountryFlags", true )
 		( tLXOptions->doProjectileSimulationInDedicated, "Misc.DoProjectileSimulationInDedicated", true )
+		( tLXOptions->bAutoFileCacheRefresh, "Misc.AutoFileCacheRefresh", true )
+		( tLXOptions->bUseMainLockDetector, "Misc.UseMainLockDetector", true )
 
 		( tLXOptions->iInternetSortColumn, "Widgets.InternetSortColumn", 4 )
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
@@ -279,7 +281,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
 		;
 
-	foreach( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue, 
 				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->minValue, f->get()->maxValue, f->get()->unsignedValue );
@@ -401,6 +403,9 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	if (iJpegQuality > 100)
 		iJpegQuality = 100;
 
+	if(tLXOptions->sForceMinVersion == "")
+		tLXOptions->sForceMinVersion = "LieroX/0.56";
+	
 	notes << "DONE loading options" << endl;
 
 	return true;

@@ -1,0 +1,11 @@
+invisible = true
+bounce_factor = 0
+col_layer = -1
+
+on detect_range( 12 )
+ damp( 0 )
+ repel( 1.8, 250, 1.8 )
+ play_sound( hangar_kicker.ogg )
+ put_particle(hangar_kicker_sparker.obj, 561,389, 1, 0, 0 )
+ put_particle(hangar_kicker_sparker.obj, 561,389, -1, 0, 0 )
+ shoot_particles ( smalllight.obj,1)

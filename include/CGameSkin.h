@@ -80,12 +80,14 @@ private:
 	void	GenerateMirroredImage();
 	void	Colorize_Execute(bool& breakSignal);
 	void	Load_Execute(bool& breakSignal);
+	void	DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half);
 
 public:
 	bool operator==(const CGameSkin& oth);
 	bool operator!=(const CGameSkin& oth)  { return !(*this == oth); }
 
 	void	Draw(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false);
+	void	DrawHalf(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady = false);
 	void	DrawShadow(SDL_Surface *surf, int x, int y, int frame, bool mirrored);
 	void	DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int x, int y, int frame, bool mirrored);
 	void	Colorize(Color col);

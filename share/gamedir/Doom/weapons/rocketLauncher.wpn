@@ -1,0 +1,33 @@
+name = RocketLauncher
+skin=skin.rocket.png
+ammo = 1
+sync_shot = true
+reload_time=550
+
+on active_timer( 0, max_trigger = 1 )
+delay_fire(150)
+play_sound( rocket_use.ogg, 75, 1, 0.05 )
+run_script(doom.homing_rocket_reset)
+run_script(doom.crosshair_reset)
+
+on active_timer( 0)
+run_script(doom.slimpack_speed)
+run_script(doom.crosshair_set_railgun)
+ shoot_particles ( lasersight.obj , 1 , 1, 0, 0, 0, 0, 0, 7)
+ shoot_particles ( lasersight_trail.obj , 1 , 1, 0, 0, 0, 0, 0, 7)
+ shoot_particles ( rocket_trace.obj , 1 , 1, 0, 0, 0, 0, 0, 0)
+ 
+on primary_shoot()
+delay_fire(100)
+play_sound( rocket.ogg, 100, 1, 0.05 )
+add_speed(-0.6)
+use_ammo(1)
+shoot_particles ( rocket1.obj , 1 , 1, 0, 0, 0, 1, 0, 7 )
+shoot_particles ( tinysmoke.obj , 7 , 0.05, 0, 0, 0, 40, 0, 7 )
+shoot_particles ( tinysmoke.obj , 14 , 0.11, 0.06, 0, 0, 50, 0, -7 )
+
+on out_of_ammo()
+play_sound( rocket_reload.ogg, 100, 1, 0.05 )
+
+on primary_release()
+play_sound(assaultrifle_release.ogg,100,1,0.05)

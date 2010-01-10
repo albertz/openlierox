@@ -551,7 +551,10 @@ inline void DrawImageScale2x(SDL_Surface* bmpDest, const SmartPointer<SDL_Surfac
 	DrawImageScale2x(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
 }
 
+/////////////////
+// Draws a sprite half scaled
 void DrawImageScaleHalf(SDL_Surface* bmpDest, SDL_Surface* bmpSrc);
+void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh);
 
 ///////////////////
 // Tiles the source image onto the dest image

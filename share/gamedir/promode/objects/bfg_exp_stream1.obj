@@ -1,0 +1,13 @@
+invisible = 1
+repeat = 20
+
+#on timer(0)
+#  create_explosion(bfg_exp_trail1_add.exp)
+  
+on timer(10)
+  shoot_particles(bfg_exp_stream2.obj,1,0,0,1)
+  remove()
+  
+on ground_collision()
+remove()
+  

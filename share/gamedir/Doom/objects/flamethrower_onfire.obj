@@ -1,0 +1,20 @@
+invisible=1
+col_layer=6
+health=10
+col_layer=6
+gravity = -0.01
+repeat = 2
+damping = 0.99
+bounce_factor = 0
+
+on timer(78)
+ remove()
+
+on detect_range(5,0)
+  shoot_particles(onfire_gen.obj,1)
+  remove()
+
+on death()
+remove()
+
+

@@ -1,0 +1,19 @@
+gravity = 0.00032711025
+repeat = 4
+colour = [250,200,0]
+bounce_factor=0.9
+alpha=255
+blender=alphach
+gravity = 0.0028692
+
+on timer(0,0,1150)
+ create_explosion ( shotgun_trail.exp )
+
+on timer(0,0,130)
+ create_explosion ( shotgun_trail.exp )
+
+on timer(130)
+  set_alpha_fade(10,0)
+
+on timer(150)
+  remove()

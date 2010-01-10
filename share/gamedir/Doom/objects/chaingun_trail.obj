@@ -1,0 +1,12 @@
+gravity = -0.003
+sprite = chaingunsmoke.png
+alpha = 175
+blender = alphach
+render_layer = 6
+col_layer = 5
+
+on timer(0,0,1)
+set_alpha_fade(80,20)
+
+on timer(80, 20)
+ remove()

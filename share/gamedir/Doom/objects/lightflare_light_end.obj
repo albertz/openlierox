@@ -1,0 +1,13 @@
+sprite = lightflare_flare.png
+blender = add
+alpha = 250
+occluded = 1
+col_layer = -1 
+light_radius=350
+render_layer = 8
+
+on creation()
+ set_alpha_fade(150,0)
+
+on timer( 150 )
+remove()

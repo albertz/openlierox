@@ -1,0 +1,9 @@
+sprite = lightflare_flare.png
+blender = add
+alpha = 125
+occluded = 1
+col_layer = -1 
+render_layer = 8
+
+on timer( 2 )
+remove()

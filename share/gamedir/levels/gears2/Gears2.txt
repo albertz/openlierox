@@ -1,0 +1,21 @@
+Gears 2
+----------------
+v0.1  2006-02-10
+By Uthar/Strider
+Made for Gusanos 0.9c
+Orginally made by Tim (Podex's brother) for Liero.
+Later converted to LOSP, with a lot of additions making the lavel double size.
+
+History:
+--------
+0.1 - 2006-02-10 (138kb)
+  Converted from LOSP to Gusanos.
+  Added paralax.
+  Minor graphical improvements.
+
+Links:
+------
+Gusanos:
+  http://gusanos.sourceforge.net/
+Liero chat:
+  irc://irc.quakenet.org/Liero

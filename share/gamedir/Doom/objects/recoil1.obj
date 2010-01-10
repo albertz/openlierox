@@ -1,0 +1,10 @@
+
+gravity = 0
+col_layer = -1
+invisible = 1
+
+on timer(0)
+ create_explosion ( recoil2.exp )
+
+on timer(10)
+ remove()

@@ -45,6 +45,7 @@
 #include "FeatureList.h"
 #include "Options.h"
 #include "CGameMode.h"
+#include "game/Mod.h"
 
 
 namespace DeprecatedGUI {
@@ -205,7 +206,7 @@ void Menu_LocalFrame()
 
 	// Reload the list if user switches back to the game
 	// Do not reload when a dialog is open
-	if (bActivated)  {
+	if (tLXOptions->bAutoFileCacheRefresh && bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
@@ -718,12 +719,9 @@ bool Menu_LocalCheckPlaying(int index)
 		CCombobox* combobox;
 		ModAdder(CCombobox* cb_) : combobox(cb_) {}
 		bool operator() (const std::string& abs_filename) {
-			size_t sep = findLastPathSep(abs_filename);
-			if(sep != std::string::npos) {
-				std::string name;
-				if(CGameScript::CheckFile(abs_filename, name, true))
-					combobox->addItem(abs_filename.substr(sep+1), name);
-			}
+			ModInfo info = infoForMod(abs_filename, true);
+			if(info.valid)
+				combobox->addItem(info.path, "[" + info.typeShort + "] " + info.name);
 
 			return true;
 		}

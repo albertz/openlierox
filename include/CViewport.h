@@ -24,6 +24,9 @@
 #include "Options.h" // for control_t
 #include "SmartPointer.h"
 
+#include "util/vec.h"
+#include "gusanos/lua51/luaapi/types.h"
+
 
 // Viewport types
 // !!! Don't change the order !!!
@@ -36,6 +39,9 @@ enum {
 
 
 class CWorm;
+struct Listener;
+struct ALLEGRO_BITMAP;
+class CWormInputHandler;
 
 
 class CViewport {
@@ -58,9 +64,16 @@ public:
         pcTargetWorm = NULL;
         nType = VW_FOLLOW;
         fTimer = AbsTime();
-		bSmooth = false;		
+		bSmooth = false;
+		m_listener = NULL;
+		
+		gusInit();
 	}
 
+	~CViewport() {
+		gusReset();
+	}
+	
 private:
 	// Attributes
 
@@ -89,8 +102,8 @@ private:
 	
 	bool	bSmooth;
 	CVec	cSmoothVel, cSmoothAccel;
-
-
+	
+	
 public:
 	// Methods
 
@@ -132,7 +145,7 @@ public:
 	void	SetWorldY(int _y)	{ WorldY = _y; }
 
 	bool	getUsed() const	{ return bUsed; }
-	void	setUsed(bool _u)	{ bUsed = _u; }
+	void	shutdown();
 
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
     CWorm   *getTarget() const { return pcTargetWorm; }
@@ -173,6 +186,44 @@ public:
 		return posInside(physicToReal(p, wrapAround, mapW, mapH));
 	}
 	
+	
+	
+	// ---------------------------------------------------
+	// ---------------- Gusanos --------------------------
+	
+	void gusInit();
+	void gusReset();
+	
+	void setDestination(ALLEGRO_BITMAP* where, int x, int y, int w, int h);
+	void gusRender();
+		
+	void drawLight(IVec const& v); // TEMP
+	
+	IVec getPos()
+	{
+		return IVec(WorldX,WorldY);
+	}
+	
+	IVec convertCoords( IVec const & coord )
+	{
+		return coord - IVec(WorldX,WorldY);
+	}
+	
+	Vec convertCoordsPrec( Vec const & coord )
+	{
+		return coord - Vec((float)WorldX,(float)WorldY);
+	}
+	
+	ALLEGRO_BITMAP* getBitmap() { return dest; }
+	
+	LuaReference luaReference;
+	
+	ALLEGRO_BITMAP* dest;
+	ALLEGRO_BITMAP* hud;
+	ALLEGRO_BITMAP* fadeBuffer;
+	
+private:	
+	Listener* m_listener;
 };
 
 
