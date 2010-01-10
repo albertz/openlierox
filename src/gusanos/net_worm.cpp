@@ -383,7 +383,7 @@ bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNe
 	return true;
 }
 
-bool NetWormInterceptor::outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator)
+bool NetWormInterceptor::outPreUpdateItem (Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator)
 {
 
 	switch ( replicator->getSetup()->getInterceptID() )

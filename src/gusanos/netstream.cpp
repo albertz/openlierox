@@ -663,58 +663,78 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	//bs.Dump(PrintOnLogger(notes), std::set<size_t>(), bsStart, bs.GetPos() - bsStart);
 }
 
-void Net_Control::Net_processOutput() {
-	if(!intern->isServer)
-		// only server pushs node updates
-		return;
+static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<bool>& replIncludeList, Net_RepRules rule) {
+	NetControlIntern::DataPackage p;
+	p.connID = INVALID_CONN_ID;
+	p.sendMode = eNet_ReliableOrdered; // TODO ?
+	p.repRules = rule;
+	p.type = NetControlIntern::DataPackage::GPT_NodeUpdate;
+	p.node = node->intern;
 	
-	// goes through the nodes and push Node-updates as needed
-	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
-		SmartPointer<NetNodeIntern> node = i->second->intern;
-		if(node->role == eNet_RoleAuthority || node->role == eNet_RoleOwner) {
-			Net_ConnID cid = INVALID_CONN_ID;
-			eNet_NodeRole remoterole = eNet_RoleProxy;
-			
-			if(node->interceptor) {
-				if(!node->interceptor->outPreUpdate(i->second, cid, remoterole))
-					continue;
-			}
-			
-			NetControlIntern::DataPackage p;
-			p.connID = cid;
-			p.sendMode = eNet_ReliableOrdered; // TODO ?
-			p.repRules = Net_REPRULE_AUTH_2_ALL; // TODO: check reprules of replicators?
-			p.type = NetControlIntern::DataPackage::GPT_NodeUpdate;
-			p.node = node;
-			
-			size_t count = 0;
-			
-			for(NetNodeIntern::ReplicationSetup::iterator j = node->replicationSetup.begin(); j != node->replicationSetup.end(); ++j) {
-				Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
-				if(replicator == NULL) {
-					errors << "Replicator is not a basic replicator" << endl;
-					goto skipUpdateItem;
-				}
+	size_t count = 0;
+	size_t k = 0;
+	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
+		if(replIncludeList[k]) {
+			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
+			if(replicator->getSetup()->repRules & rule) {
+				p.data.addBool(true);
 				
-				if(!replicator->checkState())
-					goto skipUpdateItem;
-				
-				if(node->interceptor) {
-					if(!node->interceptor->outPreUpdateItem(i->second, cid, remoterole, replicator))
-						goto skipUpdateItem;
-				}
-				
-				p.data.addBool(true); // mark that update item follows
 				replicator->packData(&p.data);
 				count++;
-				continue;
-				
-			skipUpdateItem:
-				p.data.addBool(false); // mark that update item is skipped
+			}
+			else
+				p.data.addBool(false);				
+		}
+		else
+			p.data.addBool(false);
+	}
+	
+	if(count > 0)
+		con->intern->pushPackageToSend() = p;
+}
+
+void Net_Control::Net_processOutput() {
+	// goes through the nodes and push Node-updates as needed
+	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
+		Net_Node* node = i->second;
+		
+		std::vector<bool> replIncludeList;
+		replIncludeList.resize(node->intern->replicationSetup.size());
+		
+		size_t count = 0;
+		size_t k = 0;
+		for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
+			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
+			if(replicator == NULL) {
+				errors << "Replicator is not a basic replicator" << endl;
+				goto skipUpdateItem;
 			}
 			
-			if(count > 0)
-				intern->pushPackageToSend() = p;
+			if(!replicator->checkState())
+				goto skipUpdateItem;
+			
+			//eNet_NodeRole remoterole = !con->intern->isServer ? eNet_RoleAuthority : (rule == Net_REPRULE_AUTH_2_OWNER) ? eNet_RoleOwner : eNet_RoleProxy;
+			if(node->intern->interceptor) {
+				if(!node->intern->interceptor->outPreUpdateItem(node, eNet_RoleProxy, replicator))
+					goto skipUpdateItem;
+			}
+			
+			replIncludeList[k] = true;
+			count++;
+			continue;
+			
+		skipUpdateItem:
+			replIncludeList[k] = false;
+		}		
+		
+		if(count == 0) continue;
+		
+		if(node->intern->role == eNet_RoleAuthority) {
+			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_AUTH_2_PROXY);
+			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_AUTH_2_OWNER);
+		}
+		else if(node->intern->role == eNet_RoleOwner) {						
+			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_OWNER_2_AUTH);
 		}
 	}
 }
@@ -749,7 +769,7 @@ static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 
 static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
 	if(node->intern->interceptor)
-		node->intern->interceptor->outPreReplicateNode(node, connid, (connid == node->intern->ownerConn) ? eNet_RoleOwner : eNet_RoleProxy);
+		node->intern->interceptor->outPreReplicateNode(node, (connid == node->intern->ownerConn) ? eNet_RoleOwner : eNet_RoleProxy);
 	
 	NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
 	p.connID = connid;
@@ -846,7 +866,8 @@ void Net_Control::Net_processInput() {
 				intern->cbNodeRequest_nodeId = i->nodeId;
 				bool announce = nodeClass->flags & Net_CLASSFLAG_ANNOUNCEDATA;
 				
-				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, (ownerConnId == intern->myConnIdOnServer) ? eNet_RoleOwner : eNet_RoleProxy, i->nodeId);
+				eNet_NodeRole role = (ownerConnId == intern->myConnIdOnServer) ? eNet_RoleOwner : eNet_RoleProxy;
+				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, role, i->nodeId);
 				if(intern->cbNodeRequest_Dynamic) { // we didnt created the node - otherwise this would be false
 					errors << "Net_cbNodeRequest_Dynamic callback didnt created the node " << i->nodeId << " with class " << classId << endl;
 					intern->cbNodeRequest_Dynamic = false; // reset anyway
@@ -860,6 +881,7 @@ void Net_Control::Net_processInput() {
 				}
 				
 				node->intern->ownerConn = ownerConnId;
+				node->intern->role = role;
 
 				if(node->intern->classId != classId)
 					warnings << "NodeInit requested a node of class " << classId << " but a node of class " << node->intern->classId << " was created" << endl;

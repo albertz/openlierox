@@ -283,9 +283,8 @@ struct Net_ReplicatorSetup {
 struct Net_NodeReplicationInterceptor {
 	virtual ~Net_NodeReplicationInterceptor() {}
 	
-	virtual void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
-	virtual bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) = 0;
-	virtual bool outPreUpdateItem (Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator) = 0;
+	virtual void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role) = 0;
+	virtual bool outPreUpdateItem (Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator) = 0;
 	virtual bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator) = 0;
 };
 

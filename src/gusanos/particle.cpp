@@ -58,7 +58,7 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 			return true;
 		}
 
-		void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
+		void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role)
 		{
 			Net_BitStream *type = new Net_BitStream;
 			Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
@@ -69,12 +69,7 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 			parent->m_node->setAnnounceData( type );
 		}
 
-		bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role)
-		{
-			return true;
-		}
-
-		bool outPreUpdateItem(Net_Node* node, Net_ConnID from, eNet_NodeRole remote_role, Net_Replicator* replicator)
+		bool outPreUpdateItem(Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator)
 		{
 			switch ( replicator->getSetup()->getInterceptID() ) {
 					case Position:

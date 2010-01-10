@@ -215,9 +215,8 @@ public:
 	bool inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNet_NodeRole _remote_role, Net_Replicator *_replicator);
 
 	// Not used virtual stuff
-	void outPreReplicateNode(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) {}
-	bool outPreUpdate(Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role) { return true; }
-	bool outPreUpdateItem (Net_Node *_node, Net_ConnID _to, eNet_NodeRole _remote_role, Net_Replicator *_replicator) { return true; }
+	void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role) {}
+	bool outPreUpdateItem (Net_Node *_node, eNet_NodeRole _remote_role, Net_Replicator *_replicator) { return true; }
 
 	virtual ~BasePlayerInterceptor()
 	{}
