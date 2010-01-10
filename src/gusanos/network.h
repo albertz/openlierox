@@ -13,7 +13,7 @@ struct LuaEventDef
 {
 	static LuaReference metaTable;
 	
-	LuaEventDef(std::string name_, LuaReference callb_)
+	LuaEventDef(const std::string& name_, LuaReference callb_)
 	: name(name_), idx(0), callb(callb_)
 	{
 	}
@@ -127,8 +127,8 @@ public:
 	static bool isHost();
 	static bool isClient();
 		
-	static LuaEventDef* addLuaEvent(LuaEventGroup::type, char const* name, LuaEventDef* event);
-	static void indexLuaEvent(LuaEventGroup::type, char const* name);
+	static LuaEventDef* addLuaEvent(LuaEventGroup::type, const std::string& name, LuaEventDef* event);
+	static void indexLuaEvent(LuaEventGroup::type, const std::string& name);
 	static LuaEventDef* indexToLuaEvent(LuaEventGroup::type type, int idx);
 	static void encodeLuaEvents(Net_BitStream* data);
 	

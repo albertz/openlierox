@@ -130,7 +130,7 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 				int c = data.getInt(8);
 				for(int i = 0; i < c; ++i)
 				{
-					char const* name = data.getStringStatic();
+					std::string name = data.getString();
 					network.indexLuaEvent((Network::LuaEventGroup::type)t, name);
 				}
 			}

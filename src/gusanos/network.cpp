@@ -345,7 +345,7 @@ Net_Control* Network::getNetControl()
 	return m_control;
 }
 
-LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, char const* name, LuaEventDef* event)
+LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, const std::string& name, LuaEventDef* event)
 {
 	if(gusGame.options.host)
 		return luaEvents[type].add(name, event);
@@ -355,7 +355,7 @@ LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, char const* name, Lu
 	return event;
 }
 
-void Network::indexLuaEvent(LuaEventGroup::type type, char const* name)
+void Network::indexLuaEvent(LuaEventGroup::type type, const std::string& name)
 {
 	if(m_client)
 		luaEvents[type].index(name);

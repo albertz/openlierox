@@ -141,7 +141,8 @@ METHODC(Net_BitStream, bitStream_addString,  {
 	Extracts a string from this bitstream.
 */
 METHODC(Net_BitStream, bitStream_getString,  {
-	context.push(p->getStringStatic());
+	static std::string staticstr = p->getString();
+	context.push(staticstr.c_str());
 	return 1;
 })
 

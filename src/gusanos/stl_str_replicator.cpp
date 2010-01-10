@@ -28,9 +28,9 @@ void STLStringReplicator::packData(Net_BitStream *_stream)
 void STLStringReplicator::unpackData(Net_BitStream *_stream, bool _store)
 {
 	if (_store) {
-		*m_ptr = _stream->getStringStatic();
+		*m_ptr = _stream->getString();
 	} else {
-		_stream->getStringStatic();
+		_stream->getString();
 	}
 }
 
@@ -38,7 +38,7 @@ void* STLStringReplicator::peekData()
 {
 	assert(getPeekStream());
 	string* retString = new string;
-	*retString = getPeekStream()->getStringStatic();
+	*retString = getPeekStream()->getString();
 
 	peekDataStore(retString);
 

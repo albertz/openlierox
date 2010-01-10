@@ -567,7 +567,7 @@ bool LuaContext::deserialize(Net_BitStream& s)
 		
 		case LuaType::String:
 		{
-			push(s.getStringStatic());				
+			push(s.getString());				
 		}
 		break;
 		

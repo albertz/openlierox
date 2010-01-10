@@ -95,10 +95,9 @@ void Weapon::think( bool isFocused, size_t index )
 				if ( m_owner->getRole() != eNet_RoleProxy || !m_type->syncHax ) {
 					m_type->primaryShoot->run(m_owner, NULL, NULL, this );
 					if ( m_owner->getRole() == eNet_RoleAuthority && m_type->syncHax ) {
-						Net_BitStream* data = new Net_BitStream;
-						Encoding::encode(*data, SHOOT, GameEventsCount);
-						m_owner->sendWeaponMessage( index, data, Net_REPRULE_AUTH_2_PROXY );
-						delete data;
+						Net_BitStream data;
+						Encoding::encode(data, SHOOT, GameEventsCount);
+						m_owner->sendWeaponMessage( index, &data, Net_REPRULE_AUTH_2_PROXY );
 					}
 				}
 			}
@@ -112,18 +111,16 @@ void Weapon::think( bool isFocused, size_t index )
 				outOfAmmo();
 
 				if ( network.isHost() && m_type->syncReload ) {
-					Net_BitStream* data = new Net_BitStream;
+					Net_BitStream data;
 					//data->addInt( OUTOFAMMO , 8);
-					Encoding::encode(*data, OUTOFAMMO, GameEventsCount);
-					m_owner->sendWeaponMessage( index, data );
-					delete data;
+					Encoding::encode(data, OUTOFAMMO, GameEventsCount);
+					m_owner->sendWeaponMessage( index, &data );
 					sentOutOfAmmo = true;
 				}
 			} else {
-				Net_BitStream* data = new Net_BitStream;
-				Encoding::encode(*data, OutOfAmmoCheck, GameEventsCount);
-				m_owner->sendWeaponMessage( index, data, Net_REPRULE_OWNER_2_AUTH );
-				delete data;
+				Net_BitStream data;
+				Encoding::encode(data, OutOfAmmoCheck, GameEventsCount);
+				m_owner->sendWeaponMessage( index, &data, Net_REPRULE_OWNER_2_AUTH );
 				//std::cout << "sent check plz message" << endl;
 			}
 		}
@@ -138,11 +135,10 @@ void Weapon::think( bool isFocused, size_t index )
 				reload();
 
 				if ( network.isHost() && m_type->syncReload ) {
-					Net_BitStream* data = new Net_BitStream;
+					Net_BitStream data;
 					//data->addInt( RELOADED , 8);
-					Encoding::encode(*data, RELOADED, GameEventsCount);
-					m_owner->sendWeaponMessage( index, data );
-					delete data;
+					Encoding::encode(data, RELOADED, GameEventsCount);
+					m_owner->sendWeaponMessage( index, &data );
 				}
 			}
 		}
@@ -153,10 +149,10 @@ void Weapon::think( bool isFocused, size_t index )
 		outOfAmmoCheck = false;
 		if ( ammo > 0 ) {
 			//std::cout << "Sending correction" << endl;
-			Net_BitStream* data = new Net_BitStream;
-			Encoding::encode(*data, AmmoCorrection, GameEventsCount);
-			Encoding::encode(*data, ammo, m_type->ammo+1);
-			m_owner->sendWeaponMessage(index, data, Net_REPRULE_AUTH_2_OWNER );
+			Net_BitStream data;
+			Encoding::encode(data, AmmoCorrection, GameEventsCount);
+			Encoding::encode(data, ammo, m_type->ammo+1);
+			m_owner->sendWeaponMessage(index, &data, Net_REPRULE_AUTH_2_OWNER );
 		} else {
 			//std::cout << "Everything was in order" << endl;
 			sentOutOfAmmo = false;

@@ -282,7 +282,7 @@ void CWormInputHandler::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata) {
-		data->addBitStream(userdata);
+		data->addBitStream(*userdata);
 	}
 	if(!connID)
 		m_node->sendEvent(mode, rules, data);

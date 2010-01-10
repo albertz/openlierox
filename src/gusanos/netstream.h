@@ -14,6 +14,7 @@
 
 #include <string>
 #include <SDL.h> // for uint8_t etc.
+#include <vector>
 #include "Utils.h"
 #include "SmartPointer.h"
 
@@ -96,13 +97,12 @@ enum eNet_NetResult {
 
 class Net_BitStream {
 private:
-	std::string m_data;
+	std::vector<bool> m_data;
 	size_t m_readPos;  // in bits
-	size_t m_size;  // in bits
 
 	void growIfNeeded(size_t addBits);
-	void writeBits(const char *bits, size_t bitCount);
-	std::string readBits(size_t bitCount);
+	void writeBits(const std::vector<bool>& bits);
+	std::vector<bool> readBits(size_t bitCount);
 	void reset();
 
 	bool testBool();
@@ -112,32 +112,32 @@ private:
 	bool testString();
 	bool testSafety();
 public:
-	Net_BitStream() : m_readPos(0), m_size(0) {}
-	Net_BitStream(const std::string& rawdata) : m_data(rawdata), m_readPos(0), m_size(rawdata.size()*8) {}
+	Net_BitStream() : m_readPos(0) {}
+	Net_BitStream(const std::string& rawdata);
 
 	void addBool(bool);
 	void addInt(int n, int bits);
 	void addSignedInt(int n, int bits);
 	void addFloat(float f, int bits);
-	void addBitStream(const Net_BitStream* str);
+	void addBitStream(const Net_BitStream& str);
 	void addString(const std::string&);
 	
 	bool getBool();
 	int getInt(int bits);
 	int getSignedInt(int bits);
 	float getFloat(int bits);
-	const char* getStringStatic();
+	std::string getString();
 	
 	Net_BitStream* Duplicate();
 	bool runTests();
 	
-	const std::string& data() const { return m_data; }
+	const std::vector<bool>& data() const { return m_data; }
 	void resetPos() { m_readPos = 0; }
 	void setBitPos(size_t p) { m_readPos = p; }
 	void skipBits(size_t b) { m_readPos += b; }
 	size_t bitPos() const { return m_readPos; }
-	size_t bitSize() const { return m_size; }
-	size_t restBitSize() const { return m_size - m_readPos; }
+	size_t bitSize() const { return m_data.size(); }
+	size_t restBitSize() const { return m_data.size() - m_readPos; }
 };
 
 struct Net_FileTransInfo {

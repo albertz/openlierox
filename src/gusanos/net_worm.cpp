@@ -273,7 +273,7 @@ void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, N
 	data->addInt(event->idx, 8);
 	if(userdata)
 	{
-		data->addBitStream(userdata);
+		data->addBitStream(*userdata);
 	}
 	if(!connID)
 		m_node->sendEvent(mode, rules, data);
@@ -334,7 +334,7 @@ void CWorm::sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repR
 	addEvent(data, WeaponMessage);
 	//data->addInt(index, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, index, m_weapons.size());
-	data->addBitStream( weaponData );
+	data->addBitStream( *weaponData );
 	m_node->sendEvent(eNet_ReliableOrdered, repRules, data);
 }
 
