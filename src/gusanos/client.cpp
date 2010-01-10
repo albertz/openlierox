@@ -198,6 +198,17 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		}
 		
 		worm->m_inputHandler = player;
+
+		cClient->SetupGameInputs(); // we must init the inputs for the new inputhandler
+		
+		if(cClient->getGameReady()) {
+			if(cClient->getStatus() == NET_PLAYING) // playing
+				player->startGame();
+			// Dont do that right now, no wpn selection in gus
+			/* else
+				player->initWeaponSelection(); */
+		}
+		
 	}else if( _requested_class == Particle::classID )
 	{
 		int typeIndex = Encoding::decode(*_announcedata, partTypeList.size());
