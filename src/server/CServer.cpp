@@ -285,6 +285,8 @@ int GameServer::StartServer()
 
 void GameServer::ObtainExternalIP()
 {
+	return;
+	
 	if (sExternalIP.size())
 		return;
 
@@ -294,6 +296,8 @@ void GameServer::ObtainExternalIP()
 
 void GameServer::ProcessGetExternalIP()
 {
+	return;
+	
 	if (sExternalIP.size()) // already got it
 		return;
 
