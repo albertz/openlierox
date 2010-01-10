@@ -655,5 +655,5 @@ void CWormInputHandler::addKill() {
 	if(m_worm) m_worm->addKill();
 	stats->kills++;
 	
-	if(m_worm) sendWormScoreUpdate(m_worm);
+	if(m_worm && game.isServer()) sendWormScoreUpdate(m_worm);
 }
