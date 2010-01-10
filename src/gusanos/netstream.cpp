@@ -674,19 +674,22 @@ static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<b
 	size_t count = 0;
 	size_t k = 0;
 	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
-		if(replIncludeList[k]) {
-			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
-			if(replicator->getSetup()->repRules & rule) {
+		Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
+		if(replicator == NULL)
+			// really need the replicator here, so nothing we can do
+			// we already printed an error about it
+			return;
+
+		if(replicator->getSetup()->repRules & rule) {		
+			if(replIncludeList[k]) {
 				p.data.addBool(true);
 				
 				replicator->packData(&p.data);
 				count++;
 			}
 			else
-				p.data.addBool(false);				
+				p.data.addBool(false);
 		}
-		else
-			p.data.addBool(false);
 	}
 	
 	if(count > 0)
@@ -742,14 +745,32 @@ void Net_Control::Net_processOutput() {
 static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 	size_t i = 0;
 	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++i) {
-		if( /* skip mark */ !bs.getBool()) continue;
-		
 		Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
 		if(replicator == NULL) {
 			errors << "Replicator " << i << " in update of node " << node->intern->debugStr() << " is not a basic replicator" << endl;
-			break; // nothing else we can do
+			return; // nothing else we can do
 		}
-				
+
+		switch(node->intern->role) {
+			case eNet_RoleUndefined:
+				errors << "doNodeUpdate: node " << node->intern->debugStr() << " has undefined role" << endl;
+				return;
+			case eNet_RoleAuthority:
+				if(!(replicator->getSetup()->repRules & Net_REPRULE_OWNER_2_AUTH)) continue;
+				break;
+			case eNet_RoleOwner:
+				if(!(replicator->getSetup()->repRules & Net_REPRULE_AUTH_2_OWNER)) continue;
+				break;
+			case eNet_RoleProxy:
+				if(!(replicator->getSetup()->repRules & Net_REPRULE_AUTH_2_PROXY)) continue;
+				break;
+			default:
+				errors << "doNodeUpdate: node " << node->intern->debugStr() << " has invalid role" << endl;
+				return;	
+		}
+
+		if( /* skip mark */ !bs.getBool()) continue;
+						
 		bool store = true;
 		if(node->intern->interceptor) {
 			Net_BitStream peekStream(bs);
