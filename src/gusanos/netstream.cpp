@@ -392,7 +392,8 @@ struct NetControlIntern {
 
 		Type type;
 		Net_ConnID connID; // target or source
-		Net_NodeID nodeID; // node this is about; invalid if type==direct
+		SmartPointer<NetNodeIntern> node; // node this is about; it may be that this is NULL and nodeId is valid (if the node wasnt created yet)
+		Net_NodeID nodeId; // same as node; NULL iff !nodeMustBeSet()
 		Net_BitStream data;
 		eNet_SendMode sendMode;
 		Net_RepRules repRules; // if node is set, while sending, these are checked
@@ -400,7 +401,7 @@ struct NetControlIntern {
 		bool nodeMustBeSet() { return type < GPT_Direct; }
 		
 		void send(CBytestream& bs);
-		void read(CBytestream& bs);
+		void read(const SmartPointer<NetControlIntern>& con, CBytestream& bs);
 	};
 		
 	typedef std::list<DataPackage> Packages;
@@ -432,6 +433,7 @@ struct NetControlIntern {
 	}
 	
 	Net_Node* getNode(Net_NodeID id) {
+		if(id == INVALID_NODE_ID) return NULL;
 		Nodes::iterator i = nodes.find(id);
 		if(i != nodes.end()) return i->second;
 		return NULL;
@@ -450,7 +452,7 @@ struct NetControlIntern {
 	}
 };
 
-struct Net_Node::NetNodeIntern {
+struct NetNodeIntern {
 	NetNodeIntern() :
 	control(NULL), classId(INVALID_CLASS_ID), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
 	eventForInit(false), eventForRemove(false),
@@ -495,7 +497,7 @@ struct Net_Node::NetNodeIntern {
 	Event curIncomingEvent;
 
 	std::string debugStr() {
-		if(!control.get()) return "Node-no-control";
+		if(control.get() == NULL) return "Node-no-control";
 		if(nodeId == INVALID_NODE_ID) return "Node-invalid";
 		if(classId == INVALID_CLASS_ID) return "Node-no-ClassID";
 		return "Node(" + itoa(nodeId) + "," + control->debugClassName(classId) + ")";
@@ -540,14 +542,29 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 
 void NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
-	if(nodeMustBeSet()) writeEliasGammaNr(bs, nodeID);
+	if(nodeMustBeSet()) {
+		if(node.get() == NULL) {
+			errors << "NetControlIntern::DataPackage::send: node was not set" << endl;
+			writeEliasGammaNr(bs, INVALID_NODE_ID);
+		}
+		else
+			writeEliasGammaNr(bs, node->nodeId);
+	}
 	writeEliasGammaNr(bs, (data.bitSize() + 7)/8);
 	bs.writeData(data.data().substr(0, (data.bitSize() + 7) / 8));
 }
 
-void NetControlIntern::DataPackage::read(CBytestream& bs) {
+void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& con, CBytestream& bs) {
 	type = (NetControlIntern::DataPackage::Type) bs.readByte();
-	nodeID = (nodeMustBeSet()) ? readEliasGammaNr(bs) : INVALID_NODE_ID;
+	if(nodeMustBeSet()) {
+		nodeId = readEliasGammaNr(bs);
+		Net_Node* n = con->getNode(nodeId);
+		node = n ? n->intern : NULL;
+	}
+	else {
+		nodeId = INVALID_NODE_ID;
+		node = NULL;
+	}
 	size_t len = readEliasGammaNr(bs);
 	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
@@ -571,16 +588,21 @@ static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetContro
 			}
 			
 			if(i->nodeMustBeSet()) {
+				if(i->node.get() == NULL) {
+					errors << "composePackagesForConn: node must be set but is unset" << endl;
+					continue;
+				}
+				
 				if(!con->isServer) {
 					if(i->repRules & Net_REPRULE_OWNER_2_AUTH) {
-						if(con->getNode(i->nodeID)->intern->ownerConn != con->myConnIdOnServer)
+						if(i->node->ownerConn != con->myConnIdOnServer)
 							continue;
 					}
 					else
 						continue;
 				}
 				else { // server
-					bool trgtIsOwner = con->getNode(i->nodeID)->intern->ownerConn == connid;
+					bool trgtIsOwner = i->node->ownerConn == connid;
 					if(trgtIsOwner && !(i->repRules & Net_REPRULE_AUTH_2_OWNER))
 						continue;
 					if(!trgtIsOwner && !(i->repRules & Net_REPRULE_AUTH_2_PROXY))
@@ -641,7 +663,7 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	for(size_t i = 0; i < len; ++i) {
 		intern->packetsReceived.push_back(NetControlIntern::DataPackage());
 		NetControlIntern::DataPackage& p = intern->packetsReceived.back();
-		p.read(bs);
+		p.read(this->intern, bs);
 		p.connID = src;
 	}
 	
@@ -655,7 +677,7 @@ void Net_Control::Net_processOutput() {
 	
 	// goes through the nodes and push Node-updates as needed
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
-		Net_Node::NetNodeIntern* node = i->second->intern;
+		SmartPointer<NetNodeIntern> node = i->second->intern;
 		if(node->role == eNet_RoleAuthority || node->role == eNet_RoleOwner) {
 			Net_ConnID cid = INVALID_CONN_ID;
 			eNet_NodeRole remoterole = eNet_RoleProxy;
@@ -670,11 +692,11 @@ void Net_Control::Net_processOutput() {
 			p.sendMode = eNet_ReliableOrdered; // TODO ?
 			p.repRules = Net_REPRULE_AUTH_2_ALL; // TODO: check reprules of replicators?
 			p.type = NetControlIntern::DataPackage::GPT_NodeUpdate;
-			p.nodeID = node->nodeId;
+			p.node = node;
 			
 			size_t count = 0;
 			
-			for(Net_Node::NetNodeIntern::ReplicationSetup::iterator j = node->replicationSetup.begin(); j != node->replicationSetup.end(); ++j) {
+			for(NetNodeIntern::ReplicationSetup::iterator j = node->replicationSetup.begin(); j != node->replicationSetup.end(); ++j) {
 				Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
 				if(replicator == NULL) {
 					errors << "Replicator is not a basic replicator" << endl;
@@ -706,7 +728,7 @@ void Net_Control::Net_processOutput() {
 
 static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 	size_t i = 0;
-	for(Net_Node::NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++i) {
+	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++i) {
 		if( /* skip mark */ !bs.getBool()) continue;
 		
 		Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
@@ -741,7 +763,7 @@ static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
 	p.sendMode = eNet_ReliableOrdered;
 	p.repRules = Net_REPRULE_AUTH_2_ALL;
 	p.type = NetControlIntern::DataPackage::GPT_NodeInit;
-	p.nodeID = node->intern->nodeId;
+	p.node = node->intern;
 	p.data.addInt(node->intern->classId, 32);
 	p.data.addInt(node->intern->ownerConn, 32);
 	
@@ -823,24 +845,24 @@ void Net_Control::Net_processInput() {
 
 				NetControlIntern::Class* nodeClass = intern->getClass(classId);
 				if(nodeClass == NULL) {
-					warnings << "NodeInit for node " << i->nodeID << " with class " << classId << " failed because that class is unknown" << endl;
+					warnings << "NodeInit for node " << i->nodeId << " with class " << classId << " failed because that class is unknown" << endl;
 					break;
 				}
 				
 				intern->cbNodeRequest_Dynamic = true;
-				intern->cbNodeRequest_nodeId = i->nodeID;
+				intern->cbNodeRequest_nodeId = i->nodeId;
 				bool announce = nodeClass->flags & Net_CLASSFLAG_ANNOUNCEDATA;
 				
-				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, (ownerConnId == intern->myConnIdOnServer) ? eNet_RoleOwner : eNet_RoleProxy, i->nodeID);
+				Net_cbNodeRequest_Dynamic(i->connID, classId, announce ? &i->data : NULL, (ownerConnId == intern->myConnIdOnServer) ? eNet_RoleOwner : eNet_RoleProxy, i->nodeId);
 				if(intern->cbNodeRequest_Dynamic) { // we didnt created the node - otherwise this would be false
-					errors << "Net_cbNodeRequest_Dynamic callback didnt created the node " << i->nodeID << " with class " << classId << endl;
+					errors << "Net_cbNodeRequest_Dynamic callback didnt created the node " << i->nodeId << " with class " << classId << endl;
 					intern->cbNodeRequest_Dynamic = false; // reset anyway
 					break;
 				}
-
-				Net_Node* node = intern->getNode(i->nodeID);
+				
+				Net_Node* node = intern->getNode(i->nodeId);
 				if(node == NULL) {
-					errors << "NodeInit: node " << i->nodeID << " not found after dynamic creation; " << endl;
+					errors << "NodeInit: node " << i->nodeId << " not found after dynamic creation" << endl;
 					break;
 				}
 				
@@ -850,7 +872,7 @@ void Net_Control::Net_processInput() {
 					warnings << "NodeInit requested a node of class " << classId << " but a node of class " << node->intern->classId << " was created" << endl;
 				
 				if(node->intern->eventForInit)
-					node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::NodeInit(i->connID) );
+					node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(i->connID) );
 				
 				break;
 			}
@@ -861,14 +883,18 @@ void Net_Control::Net_processInput() {
 					break;
 				}
 
-				Net_Node* node = intern->getNode(i->nodeID);
-				if(node == NULL) {
-					warnings << "NodeRemove: node " << i->nodeID << " not found" << endl;
+				if(i->node.get() == NULL) {
+					warnings << "NodeRemove: node " << i->nodeId << " not found" << endl;
 					break;
 				}
 				
-				if(node->intern->eventForRemove)
-					node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::NodeRemoved(i->connID) );
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL)
+					// may happen if the node was already deleted
+					break;
+				
+				if(i->node->eventForRemove)
+					i->node->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(i->connID) );
 				
 				unregisterNode(node);
 				break;
@@ -879,32 +905,40 @@ void Net_Control::Net_processInput() {
 					warnings << "Net_processInput: got GPT_NodeUpdate as server" << endl;
 					break;
 				}
-
-				Net_Node* node = intern->getNode(i->nodeID);
-				if(node == NULL) {
-					warnings << "NodeUpdate: node " << i->nodeID << " not found" << endl;
+				
+				if(i->node.get() == NULL) {
+					warnings << "NodeUpdate: node " << i->nodeId << " not found" << endl;
 					break;
 				}
+
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL)
+					// may happen if the node was already deleted
+					break;
 
 				doNodeUpdate(node, i->data, i->connID);
 				break;
 			}
 				
 			case NetControlIntern::DataPackage::GPT_NodeEvent: {
-				Net_Node* node = intern->getNode(i->nodeID);
-				if(node == NULL) {
-					warnings << "NodeEvent: node " << i->nodeID << " not found" << endl;
+				if(i->node.get() == NULL) {
+					warnings << "NodeEvent: node " << i->nodeId << " not found" << endl;
 					break;
 				}
+
+				Net_Node* node = intern->getNode(i->nodeId);
+				if(node == NULL)
+					// may happen if the node was already deleted
+					break;
 				
 				if(intern->isServer) {
 					if(node->intern->ownerConn != i->connID) {
-						warnings << "NodeEvent: got event for node " << i->nodeID << " from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
+						warnings << "NodeEvent: got event for node " << i->nodeId << " from non-owner " << i->connID << ", owner is " << node->intern->ownerConn << endl;
 						break;
 					}
 				}
 				
-				node->intern->incomingEvents.push_back( Net_Node::NetNodeIntern::Event::User(i->data, i->connID) );
+				node->intern->incomingEvents.push_back( NetNodeIntern::Event::User(i->data, i->connID) );
 				break;
 			}
 				
@@ -977,7 +1011,7 @@ static bool __unregisterNode(Net_Node* node) {
 				p.sendMode = eNet_ReliableOrdered;
 				p.repRules = Net_REPRULE_AUTH_2_ALL;
 				p.type = NetControlIntern::DataPackage::GPT_NodeRemove;
-				p.nodeID = node->intern->nodeId;
+				p.node = node->intern;
 			}
 		}
 		
@@ -1000,11 +1034,12 @@ static bool __unregisterNode(Net_Node* node) {
 
 static bool unregisterNode(Net_Node* node) {
 	bool ret = __unregisterNode(node);
-	node->intern->nodeId = INVALID_NODE_ID;
-	node->intern->classId = INVALID_CLASS_ID;
-	node->intern->control = NULL;
-	node->intern->role = eNet_RoleUndefined;
 	return ret;
+}
+
+template <> void SmartPointer_ObjectDeinit<NetNodeIntern> ( NetNodeIntern * obj )
+{
+	delete obj;
 }
 
 Net_Node::Net_Node() {
@@ -1013,7 +1048,6 @@ Net_Node::Net_Node() {
 
 Net_Node::~Net_Node() {
 	unregisterNode(this);
-	delete intern;
 	intern = NULL;
 }
 
@@ -1104,7 +1138,7 @@ void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) 
 	p.sendMode = m;
 	p.repRules = rules;
 	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
-	p.nodeID = intern->nodeId;
+	p.node = intern;
 	p.data = *s;
 	delete s;
 }
@@ -1120,7 +1154,7 @@ void Net_Node::sendEventDirect(eNet_SendMode m, Net_BitStream* s, Net_ConnID cid
 	p.sendMode = m;
 	p.repRules = Net_REPRULE_AUTH_2_ALL;
 	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
-	p.nodeID = intern->nodeId;
+	p.node = intern;
 	p.data = *s;
 	delete s;
 }

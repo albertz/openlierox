@@ -157,9 +157,12 @@ struct Net_NodeReplicationInterceptor;
 struct Net_Control;
 struct Net_ReplicatorSetup;
 struct Net_Replicator;
+struct NetNodeIntern;
+template <> void SmartPointer_ObjectDeinit<NetNodeIntern> ( NetNodeIntern * obj );
 
 struct Net_Node : DontCopyTag {
-	struct NetNodeIntern; NetNodeIntern* intern;
+	// we have that as smartptr because we may still refer to it (in packets queue) after Net_Node was deleted
+	SmartPointer<NetNodeIntern> intern;
 	Net_Node(); ~Net_Node();
 	
 	eNet_NodeRole getRole();
