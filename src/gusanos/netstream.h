@@ -119,7 +119,7 @@ public:
 	void addInt(int n, int bits);
 	void addSignedInt(int n, int bits);
 	void addFloat(float f, int bits);
-	void addBitStream(Net_BitStream* str);
+	void addBitStream(const Net_BitStream* str);
 	void addString(const std::string&);
 	
 	bool getBool();

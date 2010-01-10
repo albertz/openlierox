@@ -68,9 +68,12 @@ std::string Net_BitStream::readBits(size_t bitCount)
 	if(bitCount == 0) return "";
 	
 	// Check
-	if (m_readPos + bitCount >= m_size)
+	if (m_readPos + bitCount > m_size) {
+		m_readPos = m_size;
+		errors << "Net_BitStream::readBits: reading stream from behind end" << endl;
 		return "";
-
+	}
+	
 	// Allocate space for the result
 	std::string res;
 	const size_t byteCount = (bitCount + 7) / 8;
@@ -144,7 +147,7 @@ void Net_BitStream::addFloat(float f, int bits) {
 	writeBits(data.bytes, (size_t)bits);
 }
 
-void Net_BitStream::addBitStream(Net_BitStream* str) {
+void Net_BitStream::addBitStream(const Net_BitStream* str) {
 	writeBits(str->m_data.data(), str->m_size);
 }
 
@@ -164,7 +167,11 @@ bool Net_BitStream::getBool() {
 }
 
 int Net_BitStream::getInt(int bits) { 
-	assert(bits >= 0 && bits < 33);
+	if(bits < 0 || bits >= 33) {
+		errors << "Net_BitStream::getInt: bits = " << bits << endl;
+		return 0;
+	}
+	
 	std::string b = readBits(bits);
 	if (b.size() * 8 < (size_t)bits)
 		return 0; // TODO: throw an exception?
@@ -663,7 +670,7 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	//bs.Dump(PrintOnLogger(notes), std::set<size_t>(), bsStart, bs.GetPos() - bsStart);
 }
 
-static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<bool>& replIncludeList, Net_RepRules rule) {
+static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<Net_BitStream>& replData, Net_RepRules rule) {
 	NetControlIntern::DataPackage p;
 	p.connID = INVALID_CONN_ID;
 	p.sendMode = eNet_ReliableOrdered; // TODO ?
@@ -674,12 +681,10 @@ static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<b
 	size_t count = 0;
 	size_t k = 0;
 	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
-		if(replIncludeList[k]) {
+		if(replData[k].bitSize() > 0) {
 			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
 			if(replicator->getSetup()->repRules & rule) {
-				p.data.addBool(true);
-				
-				replicator->packData(&p.data);
+				p.data.addBitStream(&replData[k]);
 				count++;
 			}
 			else
@@ -698,8 +703,8 @@ void Net_Control::Net_processOutput() {
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
 		Net_Node* node = i->second;
 		
-		std::vector<bool> replIncludeList;
-		replIncludeList.resize(node->intern->replicationSetup.size());
+		std::vector<Net_BitStream> replData;
+		replData.resize(node->intern->replicationSetup.size());
 		
 		size_t count = 0;
 		size_t k = 0;
@@ -707,34 +712,31 @@ void Net_Control::Net_processOutput() {
 			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
 			if(replicator == NULL) {
 				errors << "Replicator is not a basic replicator" << endl;
-				goto skipUpdateItem;
+				continue;
 			}
 			
 			if(!replicator->checkState())
-				goto skipUpdateItem;
+				continue;
 			
 			//eNet_NodeRole remoterole = !con->intern->isServer ? eNet_RoleAuthority : (rule == Net_REPRULE_AUTH_2_OWNER) ? eNet_RoleOwner : eNet_RoleProxy;
 			if(node->intern->interceptor) {
 				if(!node->intern->interceptor->outPreUpdateItem(node, eNet_RoleProxy, replicator))
-					goto skipUpdateItem;
+					continue;
 			}
 			
-			replIncludeList[k] = true;
+			replData[k].addBool(true);
+			replicator->packData(&replData[k]);
 			count++;
-			continue;
-			
-		skipUpdateItem:
-			replIncludeList[k] = false;
 		}		
 		
 		if(count == 0) continue;
 		
 		if(node->intern->role == eNet_RoleAuthority) {
-			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_AUTH_2_PROXY);
-			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_AUTH_2_OWNER);
+			pushNodeUpdate(this, node, replData, Net_REPRULE_AUTH_2_PROXY);
+			pushNodeUpdate(this, node, replData, Net_REPRULE_AUTH_2_OWNER);
 		}
 		else if(node->intern->role == eNet_RoleOwner) {						
-			pushNodeUpdate(this, node, replIncludeList, Net_REPRULE_OWNER_2_AUTH);
+			pushNodeUpdate(this, node, replData, Net_REPRULE_OWNER_2_AUTH);
 		}
 	}
 }
@@ -911,18 +913,20 @@ void Net_Control::Net_processInput() {
 				break;
 			}
 				
-			case NetControlIntern::DataPackage::GPT_NodeUpdate: {
-				if(intern->isServer) {
-					warnings << "Net_processInput: got GPT_NodeUpdate as server" << endl;
-					break;
-				}
-				
+			case NetControlIntern::DataPackage::GPT_NodeUpdate: {				
 				Net_Node* node = intern->getNode(i->nodeId);
 				if(node == NULL) {
 					warnings << "NodeUpdate: node " << i->nodeId << " not found" << endl;
 					break;
 				}
 				
+				if(intern->isServer) {
+					if(node->intern->ownerConn != i->connID) {
+						warnings << "Net_processInput: got GPT_NodeUpdate as server from proxy" << endl;
+						break;
+					}
+				}
+					   
 				doNodeUpdate(node, i->data, i->connID);
 				break;
 			}
@@ -1204,7 +1208,7 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { return *n != old; }
-		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
+		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); old = *n; }
 		void unpackData(Net_BitStream *_stream, bool _store) {
 			Num i = _stream->getInt(bits);
 			if(_store) *n = i;
@@ -1238,7 +1242,7 @@ void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_R
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { return *n != old; }
-		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); }
+		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); old = *n; }
 		void unpackData(Net_BitStream *_stream, bool _store) {
 			Num i = _stream->getFloat(bits);
 			if(_store) *n = i;

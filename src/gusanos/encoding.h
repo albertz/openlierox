@@ -82,9 +82,13 @@ inline void encodeEliasGamma(Net_BitStream& stream, unsigned int n)
 inline unsigned int decodeEliasGamma(Net_BitStream& stream)
 {
 	int prefix = 0;
-	for(; decodeBit(stream) == 0; )
+	for(; decodeBit(stream) == 0 && stream.bitPos() < stream.bitSize(); )
 		++prefix;
-		
+	
+	if(stream.bitPos() >= stream.bitSize())
+		// error - reached end		
+		return 0;
+	
 	// prefix = number of prefixed zeroes
 	
 	return stream.getInt(prefix) | (1 << prefix);
@@ -101,6 +105,9 @@ inline void encodeEliasDelta(Net_BitStream& stream, unsigned int n)
 inline unsigned int decodeEliasDelta(Net_BitStream& stream)
 {
 	int prefix = decodeEliasGamma(stream) - 1;
+	if(prefix < 0)
+		// error - probably end reached
+		return 0;
 	
 	return stream.getInt(prefix) | (1 << prefix);
 }
