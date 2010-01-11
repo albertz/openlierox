@@ -30,24 +30,31 @@ NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 	m_length = 0;
 	m_angle = 0;
 	m_angleSpeed = 0;
-	//m_animator = NULL;
-	
+	m_animator = NULL;
+	m_sprite = NULL;
+		
+	if(m_type != NULL) {
 #ifndef DEDICATED_ONLY
-	m_sprite = m_type->sprite;
-	
-	m_animator = m_type->allocateAnimator();
+		m_sprite = m_type->sprite;	
+		m_animator = m_type->allocateAnimator();
 #endif
 		
-	// Why this?? :OO // Re: Modders may want to make the rope leave trails or sth :o
-	//for ( vector< TimerEvent* >::iterator i = m_type->timer.begin(); i != m_type->timer.end(); i++)
-	foreach(i, m_type->timer)
-	{
-		timer.push_back( (*i)->createState() );
+		// Why this?? :OO // Re: Modders may want to make the rope leave trails or sth :o
+		//for ( vector< TimerEvent* >::iterator i = m_type->timer.begin(); i != m_type->timer.end(); i++)
+		foreach(i, m_type->timer)
+		{
+			timer.push_back( (*i)->createState() );
+		}
+
 	}
+	else
+		errors << "NinjaRope::NinjaRope: particle type is NULL" << endl;
 }
 
 void NinjaRope::shoot(Vec _pos, Vec _spd)
 {
+	if(m_type == NULL) return;
+	
 	pos() = CVec(_pos);
 	velocity() = CVec(_spd);
 	m_length = gusGame.options.ninja_rope_startDistance;
@@ -79,6 +86,9 @@ void NinjaRope::think()
 		m_length = gusGame.options.ninja_rope_maxLength;
 
 	if (!active)
+		return;
+	
+	if(m_type == NULL)
 		return;
 		
 	if ( justCreated && m_type->creation )
@@ -212,7 +222,10 @@ void NinjaRope::addAngleSpeed( AngleDiff speed )
 
 int NinjaRope::getColour()
 {
-	return m_type->colour;
+	if(m_type)
+		return m_type->colour;
+	else
+		return 0;
 }
 
 CVec& NinjaRope::getPosReference()
@@ -223,6 +236,8 @@ CVec& NinjaRope::getPosReference()
 #ifndef DEDICATED_ONLY
 void NinjaRope::draw(CViewport *viewport)
 {
+	if(m_type == NULL) return;
+	
 	ALLEGRO_BITMAP* where = viewport->dest;
 	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	if (active)
