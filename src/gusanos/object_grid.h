@@ -373,6 +373,8 @@ public:
 		{
 			CGameObject* guardNode;
 			
+			Square() : guardNode(NULL) {}
+			
 			ObjectList::light_iterator guard()
 			{
 				return ObjectList::light_iterator(guardNode);
@@ -448,7 +450,9 @@ public:
 			l->clear();
 			for(std::vector<Layer::Square>::iterator s = l->grid.begin(); s != l->grid.end(); ++s)
 			{
-				delete s->guardNode;
+				if(s->guardNode)
+					delete s->guardNode;
+				s->guardNode = NULL;
 			}
 		}
 		
