@@ -648,7 +648,7 @@ void Net_Control::olxHandleClientDisconnect(Net_ConnID cl) {
 	}
 }
 
-static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<Net_BitStream>& replData, Net_RepRules rule) {
+static void pushNodeUpdate(Net_Node* node, const std::vector<Net_BitStream>& replData, Net_RepRules rule) {
 	NetControlIntern::DataPackage p;
 	p.connID = INVALID_CONN_ID;
 	p.sendMode = eNet_ReliableOrdered; // TODO ?
@@ -673,49 +673,52 @@ static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<N
 	}
 	
 	if(count > 0)
-		con->intern->pushPackageToSend() = p;
+		node->intern->control->pushPackageToSend() = p;
+}
+
+static void handleNodeForUpdate(Net_Node* node, bool forceUpdate) {
+	std::vector<Net_BitStream> replData;
+	replData.resize(node->intern->replicationSetup.size());
+	
+	size_t count = 0;
+	size_t k = 0;
+	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
+		Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
+		if(replicator == NULL) {
+			errors << "Replicator is not a basic replicator" << endl;
+			continue;
+		}
+		
+		if(!forceUpdate && !replicator->checkState())
+			continue;
+		
+		//eNet_NodeRole remoterole = !con->intern->isServer ? eNet_RoleAuthority : (rule == Net_REPRULE_AUTH_2_OWNER) ? eNet_RoleOwner : eNet_RoleProxy;
+		if(node->intern->interceptor) {
+			if(!node->intern->interceptor->outPreUpdateItem(node, eNet_RoleProxy, replicator))
+				continue;
+		}
+		
+		replData[k].addBool(true);
+		replicator->packData(&replData[k]);
+		count++;
+	}		
+	
+	if(count == 0) return;
+	
+	if(node->intern->role == eNet_RoleAuthority) {
+		pushNodeUpdate(node, replData, Net_REPRULE_AUTH_2_PROXY);
+		pushNodeUpdate(node, replData, Net_REPRULE_AUTH_2_OWNER);
+	}
+	else if(node->intern->role == eNet_RoleOwner) {						
+		pushNodeUpdate(node, replData, Net_REPRULE_OWNER_2_AUTH);
+	}	
 }
 
 void Net_Control::Net_processOutput() {
 	// goes through the nodes and push Node-updates as needed
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
 		Net_Node* node = i->second;
-		
-		std::vector<Net_BitStream> replData;
-		replData.resize(node->intern->replicationSetup.size());
-		
-		size_t count = 0;
-		size_t k = 0;
-		for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++k) {
-			Net_ReplicatorBasic* replicator = dynamic_cast<Net_ReplicatorBasic*>(j->first);
-			if(replicator == NULL) {
-				errors << "Replicator is not a basic replicator" << endl;
-				continue;
-			}
-			
-			if(!replicator->checkState())
-				continue;
-			
-			//eNet_NodeRole remoterole = !con->intern->isServer ? eNet_RoleAuthority : (rule == Net_REPRULE_AUTH_2_OWNER) ? eNet_RoleOwner : eNet_RoleProxy;
-			if(node->intern->interceptor) {
-				if(!node->intern->interceptor->outPreUpdateItem(node, eNet_RoleProxy, replicator))
-					continue;
-			}
-			
-			replData[k].addBool(true);
-			replicator->packData(&replData[k]);
-			count++;
-		}		
-		
-		if(count == 0) continue;
-		
-		if(node->intern->role == eNet_RoleAuthority) {
-			pushNodeUpdate(this, node, replData, Net_REPRULE_AUTH_2_PROXY);
-			pushNodeUpdate(this, node, replData, Net_REPRULE_AUTH_2_OWNER);
-		}
-		else if(node->intern->role == eNet_RoleOwner) {						
-			pushNodeUpdate(this, node, replData, Net_REPRULE_OWNER_2_AUTH);
-		}
+		handleNodeForUpdate(node, false);		
 	}
 }
 
@@ -773,6 +776,8 @@ static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
 		for(size_t i = 0; i < conns.size(); ++i)
 			node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(NetConnID_conn(conns[i])) );
 	}
+	
+	handleNodeForUpdate(node, true);
 }
 
 static bool unregisterNode(Net_Node* node);
@@ -1188,8 +1193,8 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 		void* peekData() { peekDataStore(new Num(peekStream->getInt(bits))); return peekDataRetrieve(); }
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
-		bool checkState() { return *n != old; }
-		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); old = *n; }
+		bool checkState() { bool diff = *n != old; old = *n; return diff;  }
+		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
 		void unpackData(Net_BitStream *_stream, bool _store) {
 			Num i = _stream->getInt(bits);
 			if(_store) *n = i;
@@ -1222,8 +1227,8 @@ void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_R
 		void* peekData() { peekDataStore(new Num(peekStream->getFloat(bits))); return peekDataRetrieve(); }
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
-		bool checkState() { return *n != old; }
-		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); old = *n; }
+		bool checkState() { bool diff = *n != old; old = *n; return diff;  }
+		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); }
 		void unpackData(Net_BitStream *_stream, bool _store) {
 			Num i = _stream->getFloat(bits);
 			if(_store) *n = i;
