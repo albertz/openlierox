@@ -218,6 +218,7 @@ struct Net_Control : DontCopyTag {
 
 	void olxSend(bool sendPendingOnly);
 	void olxParse(Net_ConnID src, CBytestream& bs);
+	void olxHandleClientDisconnect(Net_ConnID cl);
 	
 	void Net_processOutput();
 	void Net_processInput();

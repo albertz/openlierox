@@ -581,6 +581,27 @@ static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetContro
 	return true;
 }
 
+static std::vector<CServerConnection*> getConnsForId(Net_ConnID cid) {
+	std::vector<CServerConnection*> ret;
+	if(cid == INVALID_CONN_ID) {
+		ret.reserve(MAX_CLIENTS);
+		CServerConnection *cl = cServer->getClients();
+		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
+			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+			if(cl->getNetEngine() == NULL) continue;
+			if(cl->isLocalClient()) continue;
+			if(cl->getClientVersion() < OLXBetaVersion(0,59,1)) continue;
+			
+			ret.push_back(cl);
+		}
+	}
+	else {
+		CServerConnection *cl = serverConnFromNetConnID(cid);
+		if(cl) ret.push_back(cl);
+	}
+	return ret;
+}
+
 void Net_Control::olxSend(bool /* sendPendingOnly */) {
 	if(intern->packetsToSend.size() == 0) return;
 		
@@ -592,16 +613,11 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 		}
 	} else {
 		// send to all except local client
-		CServerConnection *cl = cServer->getClients();
-		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
-			if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
-			if(cl->getNetEngine() == NULL) continue;
-			if(cl->isLocalClient()) continue;
-			if(cl->getClientVersion() < OLXBetaVersion(0,59,1)) continue;
-			
+		std::vector<CServerConnection*> conns = getConnsForId(INVALID_CONN_ID);
+		for(size_t i = 0; i < conns.size(); ++i) {
 			CBytestream bs;
-			if(composePackagesForConn(bs, this->intern, NetConnID_conn(cl)))
-				cl->getNetEngine()->SendPacket(&bs);
+			if(composePackagesForConn(bs, this->intern, NetConnID_conn(conns[i])))
+				conns[i]->getNetEngine()->SendPacket(&bs);
 		}
 	}
 	
@@ -620,6 +636,16 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	}
 	
 	//bs.Dump(PrintOnLogger(notes), std::set<size_t>(), bsStart, bs.GetPos() - bsStart);
+}
+
+void Net_Control::olxHandleClientDisconnect(Net_ConnID cl) {
+	// push node remove events for those nodes where we requested it
+	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
+		Net_Node* node = i->second;
+	
+		if(node->intern->eventForRemove)
+			node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(cl) );
+	}
 }
 
 static void pushNodeUpdate(Net_Control* con, Net_Node* node, const std::vector<Net_BitStream>& replData, Net_RepRules rule) {
@@ -740,7 +766,13 @@ static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
 	else if(!node->intern->announceData.get() && announce)
 		warnings << "node " << node->intern->debugStr() << " has no announce data but class requests it" << endl;
 	else if(node->intern->announceData.get() && announce)
-		p.data.addBitStream(*node->intern->announceData.get());	
+		p.data.addBitStream(*node->intern->announceData.get());
+	
+	if(node->intern->eventForInit) {
+		std::vector<CServerConnection*> conns = getConnsForId(p.connID);
+		for(size_t i = 0; i < conns.size(); ++i)
+			node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(NetConnID_conn(conns[i])) );
+	}
 }
 
 static bool unregisterNode(Net_Node* node);
@@ -839,10 +871,7 @@ void Net_Control::Net_processInput() {
 
 				if(node->intern->classId != classId)
 					warnings << "NodeInit requested a node of class " << classId << " but a node of class " << node->intern->classId << " was created" << endl;
-				
-				if(node->intern->eventForInit)
-					node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(i->connID) );
-				
+								
 				break;
 			}
 				
@@ -858,8 +887,8 @@ void Net_Control::Net_processInput() {
 					break;
 				}
 				
-				if(node->intern->eventForRemove)
-					node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(i->connID) );
+				// we are proxy or owner -> in any case, always push this event
+				node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(i->connID) );
 				
 				unregisterNode(node);
 				break;

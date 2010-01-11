@@ -1711,9 +1711,11 @@ void GameServer::RemoveClient(CServerConnection* cl, const std::string& reason) 
 			break;
 		}
 	
+	network.getNetControl()->olxHandleClientDisconnect(NetConnID_conn(cl));
+
 	RemoveAllClientWorms(cl, "removed client (" + reason + ")");
 	cl->setStatus(NET_DISCONNECTED);
-	
+		
 	CheckForFillWithBots();
 }
 
