@@ -356,9 +356,10 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 	}
 	
 	m_node->beginReplicationSetup();
-	//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
+	/*
 	m_node->setInterceptID( static_cast<Net_InterceptID>(WormID) );
 	m_node->addReplicationInt( (Net_S32*)&m_wormID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
+	 */
 	m_node->endReplicationSetup();
 	
 	m_interceptor = new BasePlayerInterceptor( this );
@@ -428,6 +429,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 {
 	switch ( (CWormInputHandler::ReplicationItems) _replicator->getSetup()->getInterceptID() ) {
 		case CWormInputHandler::WormID: {
+			/*
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
 #ifdef USE_GRID
 			
@@ -448,6 +450,7 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 				}
 			}
 #endif
+			 */
 			return true;
 		}
 			break;
