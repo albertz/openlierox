@@ -32,6 +32,8 @@ WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTi
 # A user with a high ping doesn't give any disadvantages to other players (or at least that should not be the case and I wonder if it is).
 MAX_PING = 2000 # Max ping to auto-kick player
 
+RECORD_VIDEO = 1 # If we should record video on our ded server. Warning: it eats CPU!
+
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.
 # Users can enter some commands too

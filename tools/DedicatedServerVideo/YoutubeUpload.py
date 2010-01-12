@@ -7,6 +7,8 @@ if len(sys.argv) < 4:
 	print "Usage: YoutubeUpload.py username password filepath \"video name\""
 	sys.exit(0)
 
+print "Uploading video file " + sys.argv[3] + " title " + sys.argv[4]
+
 yt_service = gdata.youtube.service.YouTubeService()
 yt_service.email = sys.argv[1]
 yt_service.password = sys.argv[2]
@@ -38,5 +40,6 @@ video_entry = gdata.youtube.YouTubeVideoEntry(media=my_media_group)
 
 new_entry = yt_service.InsertVideoEntry(video_entry, sys.argv[3])
 
+print "Uploading video file " + sys.argv[3] + " title " + sys.argv[4] + " - successful"
 
 
