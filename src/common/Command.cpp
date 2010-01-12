@@ -44,6 +44,7 @@
 #include "Autocompletion.h"
 #include "Command.h"
 #include "TaskManager.h"
+#include "StringUtils.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -904,6 +905,135 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 }
 
+COMMAND(wait, "Execute commands after wait", "seconds|lobby|game command [args] [ ; command2 args... ]", 2, INT_MAX);
+void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	
+	if(cClient && cClient->getStatus() != NET_DISCONNECTED)
+		cClient->Disconnect();
+	
+	struct WaitThread: public Action
+	{
+		std::vector<std::string> params;
+		WaitThread(const std::vector<std::string>& _params): params(_params) {};
+		int handle()
+		{
+			int seconds = atoi(params[0]);
+			if(seconds == 0)
+				seconds = -1;
+			
+			while( tLX && !tLX->bQuitGame ) // TODO: put mutex here
+			{
+				if(params[0] == "game" && cClient && cClient->getStatus() == NET_PLAYING) // TODO: put mutex here
+				{
+					//stdoutCLI().writeMsg("wait: trigger: game started");
+					break;
+				}
+				if(params[0] == "lobby" && cClient && cClient->getStatus() == NET_CONNECTED) // TODO: put mutex here
+				{
+					//stdoutCLI().writeMsg("wait: trigger: lobby started");
+					break;
+				}
+				if(seconds > 0)
+				{
+					seconds--;
+					if(seconds <= 0)
+					{
+						//stdoutCLI().writeMsg("wait: trigger: timeout");
+						break;
+					}
+				}
+				SDL_Delay(1000);
+			}
+			
+			if( ! (tLX && !tLX->bQuitGame) ) // TODO: put mutex here
+				return 1;
+				
+			for( std::vector<std::string>::iterator it = (++params.begin()); it != params.end(); )
+			{
+				std::string cmdName = *it;
+				Command * cmd = Cmd_GetCommand(cmdName);
+				std::string params1;
+				it++;
+				for( ; it != params.end() && *it != ";"; it++ )
+					params1 += *it + " ";
+				if( it != params.end() )
+					it++;
+				if(!cmd)
+					stdoutCLI().writeMsg("wait: cannot execute command " + cmdName + " " + params1);
+				if(cmd)
+				{
+					struct ExecCmd: public Action
+					{
+						Command * cmd;
+						std::string params;
+						int handle()
+						{
+							cmd->exec( &stdoutCLI(), params );
+							return 0;
+						}
+					};
+					ExecCmd * execCmd = new ExecCmd();
+					execCmd->cmd = cmd;
+					execCmd->params = params1;
+					//stdoutCLI().writeMsg("wait: executing cmd: " + cmdName + " " + params1);
+					doActionInMainThread( execCmd );
+				}
+			}
+			return 0;
+		}
+	};
+	
+	threadPool->start( new WaitThread(params), "Cmd_wait() command thread", true );
+}
+
+COMMAND(setViewport, "Set viewport mode", "mode=follow|cycle|freelook|actioncam [wormID] [mode2] [wormID2]", 1, 4);
+void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	
+	if(!cClient || cClient->getStatus() != NET_PLAYING)
+	{
+		caller->writeMsg("Cannot set viewport while not playing");
+		return;
+	}
+	
+	int mode1 = VW_FOLLOW, mode2 = VW_FOLLOW;
+	int * modePtr = &mode1;
+	for( int idx = 0; (int)params.size() > idx; idx += 2, modePtr = &mode2 )
+	{
+		if( params[idx] == "follow" )
+			*modePtr = VW_FOLLOW;
+		else if( params[idx] == "cycle" )
+			*modePtr = VW_CYCLE;
+		else if( params[idx] == "freelook" )
+			*modePtr = VW_FREELOOK;
+		else if( params[idx] == "actioncam" )
+			*modePtr = VW_ACTIONCAM;
+		else
+		{
+			caller->writeMsg("Invalid mode");
+			return;
+		}
+	}
+	CWorm *w1 = NULL;
+	CWorm *w2 = NULL;
+	CWorm **w = &w1;
+	for( int idx = 1; (int)params.size() > idx; idx += 2, w = &w2 )
+	{
+		int id = atoi(params[idx]);
+		if(id < 0 || id >= MAX_WORMS) 
+		{
+			caller->writeMsg("Faulty worm ID " + itoa(id));
+			return;
+		}
+		*w = cClient->getRemoteWorms() + id;
+		if(!(*w)->isUsed())
+		{
+			caller->writeMsg("Worm ID " + itoa(id) + " not used");
+			return;
+		}
+	}
+
+	cClient->SetupViewports(w1, w2, mode1, mode2);
+}
 
 
 
@@ -1785,7 +1915,17 @@ void Cmd_gotoLobby::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
 
 COMMAND(chatMsg, "give a global chat message", "text", 1, 1);
 void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) 
+	{
+		if( cClient && (cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING) )
+			cClient->getNetEngine()->SendText( params[0], (cClient->getNumWorms() > 0) ? cClient->getWorm(0)->getName() : "" );
+		else
+		{
+			caller->writeMsg("We are not running server and not connected to a server, cannot send msg");
+			//hints << "Cmd_chatMsg::exec(): cClient " << cClient << " cClient->getStatus() " << NetStateString((ClientNetState)cClient->getStatus()) << endl;
+		}
+		return;
+	}
 	
 	std::string msg = params[0];
 	int type = TXT_NOTICE; // TODO: make variable
