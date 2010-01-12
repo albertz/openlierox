@@ -102,3 +102,7 @@ MODS = [
 # If this list is empty all presets are used
 PRESETS = [ "Random" ]
 
+GLOBAL_SETTINGS = {
+	"GameOptions.Network.ServerName":                "LX56 compatible",
+	"GameOptions.GameInfo.WeaponSelectionMaxTime":   60,
+}
