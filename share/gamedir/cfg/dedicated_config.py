@@ -16,13 +16,13 @@ MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
-WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 30 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
 
-GAME_LIVES = int(io.getVar("GameOptions.GameInfo.Lives"))
+GAME_LIVES = -2
 GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
 GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
 WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
@@ -104,4 +104,19 @@ MODS = [ ] # Empty = all mods
 # List of presets to cycle on server - you may specify some preset multiple times, then it will have higher chances of appearing
 # If this list is empty all presets are used
 PRESETS = [ "Mortars", "Random" ]
+
+GLOBAL_SETTINGS = {
+	"GameOptions.Network.ServerName":               "Games nonstop + voting",
+	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
+	"GameOptions.GameInfo.AllowEmptyGames":         1,
+	"GameOptions.GameInfo.ImmediateStart":          1,
+	"GameOptions.GameInfo.SelfHit":                 0,
+	"GameOptions.GameInfo.SelfInjure":              0,
+	"GameOptions.GameInfo.TeamHit":                 0,
+	"GameOptions.GameInfo.TeamInjure":              0,
+	"GameOptions.GameInfo.WeaponSelectionMaxTime":  60,
+	"GameOptions.GameInfo.CTF_AllowRopeForCarrier": 0,
+	"GameOptions.GameInfo.RelativeAirJump":         1, # Won't change gameplay much
+	"GameOptions.GameInfo.InfiniteMap":             0, # Infinite map is still broken and the rope is warping
+}
 

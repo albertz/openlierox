@@ -48,7 +48,7 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.AllowRemoteBots":          1,
 	"GameOptions.Network.AllowWantsJoinMsg":        1,
 	"GameOptions.Network.WantsToJoinFromBanned":    0,
-	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages ; TODO: fix that
+	"GameOptions.Network.UseIpToCountry":           1,
 	"GameOptions.Network.RegisterServer":           1,
 	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
 	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
@@ -59,6 +59,7 @@ GLOBAL_SETTINGS = {
 	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
 	"GameOptions.Network.AutoSetupHttpProxy":       0,
 	"GameOptions.Network.HttpProxy":                "",
+	"GameOptions.Advanced.MaxCachedEntries":        0, # Disable cache for ded server
 }
 
 
@@ -117,6 +118,8 @@ def init():
 	global GLOBAL_SETTINGS;
 	for f in GLOBAL_SETTINGS.keys():
 		io.setvar( f, GLOBAL_SETTINGS[f] )
+	for f in cfg.GLOBAL_SETTINGS.keys():
+		io.setvar( f, cfg.GLOBAL_SETTINGS[f] )
 	
 	if io.getVar("GameOptions.GameInfo.AllowEmptyGames") == "false" and cfg.MIN_PLAYERS < 2:
 		io.messageLog("GameOptions.GameInfo.AllowEmptyGames is false - setting cfg.MIN_PLAYERS to 2", io.LOG_WARN)

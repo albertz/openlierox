@@ -15,6 +15,7 @@ env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp jacklaunch openlierox \
 -exec 'setVar GameOptions.Advanced.MaxFPS 10' \
 -exec 'setVar GameOptions.Game.LastSelectedPlayer "[CPU] Dummi"' \
 -exec 'setVar GameOptions.Audio.Enabled 1' \
+-exec 'wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam' \
 -connect 127.0.0.1 &
 OLX=$!
 sleep 5
