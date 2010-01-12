@@ -80,7 +80,7 @@ static std::string Demangle(const std::string &mangled) {
 // Fix offset into virtual address by adding the mapped base into offsets.
 // Make life easier when want to find something by offset.
 static void FixAddress(void *obj_base) {
-  ElfW(Addr) base = reinterpret_cast<ElfW(Addr)>(obj_base);
+  ElfW(Word) base = reinterpret_cast<ElfW(Word)>(obj_base);
   ElfW(Ehdr) *elf_header = static_cast<ElfW(Ehdr) *>(obj_base);
   elf_header->e_phoff += base;
   elf_header->e_shoff += base;
