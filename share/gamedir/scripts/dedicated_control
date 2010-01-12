@@ -21,13 +21,19 @@ sys.path.append( os.path.dirname(sys.argv[0]) )
 
 import dedicated_control_io as io # control handler
 
+cfg_name = "cfg/dedicated_config"
+if len(sys.argv) > 1:
+	cfg_name = sys.argv[1]
+
 # Add dir with config file to module search path
 try:
-	sys.path.append(os.path.dirname(io.getFullFileName("cfg/dedicated_config.py")))
+	sys.path.append(os.path.dirname(io.getFullFileName(cfg_name+".py")))
 except:
 	pass
 
-import dedicated_config as cfg # Per-host config
+exec("import %s as cfg" % os.path.basename(cfg_name)) # Per-host config
+__builtins__.cfg = cfg # Make it accessible from all modules
+
 import dedicated_control_handler as hnd # control handler
 
 ## The game loop ##
@@ -40,8 +46,7 @@ def MainLoop():
 	hnd.signalHandler(io.getSignal())
 
 
-if not io.OlxImported:
-	while hnd.gameState != hnd.GAME_QUIT:
-		MainLoop()
-	
-	io.messageLog("Dedicated_control stopped",io.LOG_INFO)
+while hnd.gameState != hnd.GAME_QUIT:
+	MainLoop()
+
+io.messageLog("Dedicated_control stopped",io.LOG_INFO)

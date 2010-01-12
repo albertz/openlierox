@@ -153,14 +153,16 @@ int keys_t::keySymFromName(const std::string & name)
 
 	
 	
-#ifdef DEDICATED_ONLY
+#if defined(DEDICATED_ONLY) || defined(DISABLE_JOYSTICK)
 
 void updateAxisStates() {}
 void CInput::InitJoysticksTemp() {}
 void CInput::UnInitJoysticksTemp() {}
 
 #else
-	
+
+#define HAVE_JOYSTICK
+
 // Joystick axes
 // TODO: these are set up according to my joystick, are they general enough?
 enum {
@@ -458,7 +460,7 @@ int CInput::Wait(std::string& strText)
 		}
 	}
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	// joystick
 	// TODO: more joysticks
 	for(uint n = 0; n < sizeof(Joysticks) / sizeof(joystick_t); n++) {
@@ -494,7 +496,7 @@ int CInput::Setup(const std::string& string)
 		return true;
 	}
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	// Check if it's a joystick #1
 	// TODO: allow more joysticks
 	if(string.substr(0,5) == "joy1_") {
@@ -541,7 +543,7 @@ int CInput::Setup(const std::string& string)
 			}
 		}
 	}
-#endif // !DEDICATED_ONLY
+#endif // HAVE_JOYSTICK
 
 
 	// Must be a keyboard character
@@ -571,7 +573,7 @@ int CInput::Setup(const std::string& string)
 // Returns the "force" value for a joystick axis
 int CInput::getJoystickValue()
 {
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	switch (Type)  {
 	case INP_JOYSTICK1:
 		return getJoystickControlValue(Data, Extra, joys[0]);
@@ -588,7 +590,7 @@ int CInput::getJoystickValue()
 // Returns true if this input is a joystick axis
 bool CInput::isJoystickAxis()
 {
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
 		return Data != JOY_BUTTON;
 #endif
@@ -599,7 +601,7 @@ bool CInput::isJoystickAxis()
 // Returns true if this joystick is a throttle
 bool CInput::isJoystickThrottle()
 {
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	if (Type == INP_JOYSTICK1 || Type == INP_JOYSTICK2)
 		return (Data == JOY_THROTTLE_LEFT) || (Data == JOY_THROTTLE_RIGHT);
 #endif
@@ -627,7 +629,7 @@ bool CInput::isUp()
 				return true;
 			break;
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 		// Joystick
 		case INP_JOYSTICK1:
 		case INP_JOYSTICK2:
@@ -656,7 +658,7 @@ bool CInput::isDown() const
 				return true;
 			break;
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 		// Joystick
 		case INP_JOYSTICK1:
 			return checkJoystickState(Data, Extra, 0);
@@ -694,7 +696,7 @@ int CInput::wasDown() const {
 		counter = nDownOnce; // no other way at the moment
 		break;
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = nDownOnce; // no other way at the moment
@@ -719,7 +721,7 @@ int CInput::wasUp() {
 		counter = 0;  // no other way at the moment
 		break;
 
-#ifndef DEDICATED_ONLY
+#ifdef HAVE_JOYSTICK
 	case INP_JOYSTICK1:
 	case INP_JOYSTICK2:
 		counter = 0; // no other way at the moment

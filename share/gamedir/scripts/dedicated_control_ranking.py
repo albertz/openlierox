@@ -86,7 +86,14 @@ def firstRank(wormid):
 def myRank(wormName, wormid):
         global rank
         try:
-                io.privateMsg(wormid, str(rank[wormName][3]) + ") " + wormName + " (" + str(rank[wormName][0]) + " kills, " + str(rank[wormName][1]) + " deaths, " + str(rank[wormName][2]) + " suicides)")
+                rankPos = rank[wormName][3]
+                rankNames = [ False, False, False, False ]
+                for k in rank:
+                    if rank[k][3] >= rankPos - 2 and rank[k][3] <= rankPos + 1:
+                        rankNames[ rank[k][3] - rankPos + 2 ] = k
+                for k in rankNames:
+                    if k:
+                        io.privateMsg(wormid, str(rank[k][3]) + ") " + k + " (" + str(rank[k][0]) + " kills, " + str(rank[k][1]) + " deaths, " + str(rank[k][2]) + " suicides)")
         except KeyError:
                 io.privateMsg(wormid, wormName + " has not played yet")
 

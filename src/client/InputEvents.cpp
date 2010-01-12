@@ -518,7 +518,9 @@ bool WaitForNextEvent() {
 	HandleMouseState();
 	HandleKeyboardState();
 #ifndef DEDICATED_ONLY	
+#ifndef DISABLE_JOYSTICK
 	if(bJoystickSupport) SDL_JoystickUpdate();
+#endif
 #endif
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
@@ -579,10 +581,12 @@ bool ProcessEvents()
 	HandleMouseState();
 	HandleKeyboardState();
 #ifndef DEDICATED_ONLY
+#ifndef DISABLE_JOYSTICK
 	if(bJoystickSupport)  {
 		SDL_JoystickUpdate();
 		updateAxisStates();
 	}
+#endif
 #endif
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();

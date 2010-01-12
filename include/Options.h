@@ -296,6 +296,7 @@ struct GameOptions {
 	bool	bShowPing;
 	int		iScreenshotFormat;
 	std::string sDedicatedScript;
+	std::string sDedicatedScriptArgs;
 	int		iVerbosity;			// the higher the number, the higher the amount of debug messages; 0 is default, at 10 it shows backtraces for all warnings
 	bool	bLogTimestamps;  // Show timestamps in console output
 	bool	bAdvancedLobby;  // Show advanced game info in join lobby

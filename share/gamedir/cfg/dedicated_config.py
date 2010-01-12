@@ -5,6 +5,7 @@
 
 # TODO: register commands in ChatCommand system
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
+SERVER_PORT = 23400 # What port to start server on, 23400 is the default
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
@@ -15,13 +16,13 @@ MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
 
-WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
-WAIT_BEFORE_GAME = 30 # Seconds to wait in lobby before next round, will give some message
+WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
+WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message
 WAIT_BEFORE_GAME_MESSAGE = "Game will start in %i seconds" % WAIT_BEFORE_GAME
 
 import dedicated_control_io as io # control handler
 
-GAME_LIVES = int(io.getVar("GameOptions.GameInfo.Lives"))
+GAME_LIVES = -2
 GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
 GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
 WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
@@ -104,27 +105,18 @@ MODS = [ ] # Empty = all mods
 # If this list is empty all presets are used
 PRESETS = [ "Mortars", "Random" ]
 
-# General options that should be set
-GLOBAL_SETTINGS = {	
-
-	# Various options that should be set, you don't need to touch them in most cases
-
-	"GameOptions.GameInfo.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
-	"GameOptions.GameInfo.AllowNickChange":         1,
-	"GameOptions.GameInfo.AllowStrafing":           1,
-	"GameOptions.Network.AllowRemoteBots":          1,
-	"GameOptions.Network.AllowWantsJoinMsg":        1,
-	"GameOptions.Network.WantsToJoinFromBanned":    0,
-	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages ; TODO: fix that
-	"GameOptions.Network.RegisterServer":           1,
-	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
-	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
-	"GameOptions.Game.AntilagMovementPrediction":   1, # If ServerSideHealth = 1 this influences gameplay
-	"GameOptions.Misc.LogConversations":            0,
-	"GameOptions.Advanced.MatchLogging":            0, # Do not save game results screenshot
-	"GameOptions.Misc.ScreenshotFormat":            1, # 0 = JPG, 1 = PNG
-	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
-	"GameOptions.Network.AutoSetupHttpProxy":       0,
-	"GameOptions.Network.HttpProxy":                "",
+GLOBAL_SETTINGS = {
+	"GameOptions.Network.ServerName":               "Games nonstop + voting",
+	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
+	"GameOptions.GameInfo.AllowEmptyGames":         1,
+	"GameOptions.GameInfo.ImmediateStart":          1,
+	"GameOptions.GameInfo.SelfHit":                 0,
+	"GameOptions.GameInfo.SelfInjure":              0,
+	"GameOptions.GameInfo.TeamHit":                 0,
+	"GameOptions.GameInfo.TeamInjure":              0,
+	"GameOptions.GameInfo.WeaponSelectionMaxTime":  60,
+	"GameOptions.GameInfo.CTF_AllowRopeForCarrier": 0,
+	"GameOptions.GameInfo.RelativeAirJump":         1, # Won't change gameplay much
+	"GameOptions.GameInfo.InfiniteMap":             0, # Infinite map is still broken and the rope is warping
 }
 

@@ -1,0 +1,22 @@
+#!/bin/sh
+
+CFGDIR=/etc/openlierox-dedicated
+if [ -n "$1" ] ; then
+	CFGDIR="$1"
+fi
+
+JOBS=""
+for f in $CFGDIR/*.py; do
+	config=`basename $f | sed 's/[.]py$//'`
+	#echo -n Starting $f $config ...
+	openlierox -dedicated -exec "script dedicated_control $CFGDIR/$config" > ded_$config.log &
+	#echo " Done, job " $!
+	JOBS="$JOBS $!"
+	sleep 2 # If we won't do sleep all OLX instances will write to the same log file
+done
+
+#echo Jobs: $JOBS
+#echo Setting trap: trap "kill -INT $JOBS" INT QUIT TERM EXIT
+trap "kill -INT $JOBS" INT QUIT TERM EXIT
+
+wait

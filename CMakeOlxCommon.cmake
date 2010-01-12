@@ -33,6 +33,7 @@ OPTION(PYTHON_DED_EMBEDDED "Python embedded in dedicated server"  No)
 OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
 OPTION(MEMSTATS "Enable memory statistics and debugging" No)
 OPTION(BREAKPAD "Google Breakpad support" Yes)
+OPTION(DISABLE_JOYSTICK "Disable joystick support" No)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -164,6 +165,10 @@ IF (BREAKPAD)
 ELSE (BREAKPAD)
 	ADD_DEFINITIONS(-DNBREAKPAD)
 ENDIF (BREAKPAD)
+
+IF (DISABLE_JOYSTICK)
+	ADD_DEFINITIONS(-DDISABLE_JOYSTICK)
+ENDIF (DISABLE_JOYSTICK)
 
 IF (GCOREDUMPER)
 	INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/coredumper/src)

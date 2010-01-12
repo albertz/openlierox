@@ -209,6 +209,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowProjectileUsage, "Misc.ShowProjectileUsage", false )
 		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "dedicated_control" )
+		( tLXOptions->sDedicatedScriptArgs, "Misc.DedicatedScriptArgs", "cfg/dedicated_config" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
 		( tLXOptions->bLogTimestamps, "Misc.LogTimestamps", false )	
 		( tLXOptions->bAdvancedLobby, "Misc.ShowAdvancedLobby", false )

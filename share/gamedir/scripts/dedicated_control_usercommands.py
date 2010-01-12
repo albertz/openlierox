@@ -9,8 +9,6 @@ import threading
 import traceback
 import math
 
-import dedicated_config as cfg
-
 import dedicated_control_io as io
 setvar = io.setvar
 formatExceptionInfo = io.formatExceptionInfo

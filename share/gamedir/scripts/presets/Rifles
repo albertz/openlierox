@@ -4,6 +4,6 @@ setvar( "GameOptions.GameInfo.ModName", "Classic" )
 
 setvar( "GameOptions.GameInfo.LoadingTime", "20" )
 
-setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/Rifle only.wps" )
+SetWeaponBans("Rifle only")
 
 

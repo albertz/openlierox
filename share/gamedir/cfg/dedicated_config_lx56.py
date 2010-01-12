@@ -5,6 +5,7 @@
 
 # TODO: register commands in ChatCommand system
 ADMIN_PREFIX = "!" # What kind of prefix you want for admin commands. Example: !?-.@$ A.K.A you can use prettymuch everything.
+SERVER_PORT = 23402 # What port to start server on, 23400 is the default
 
 # Where to log what is happening
 LOG_FILE = "dedicated_control.log"
@@ -101,27 +102,7 @@ MODS = [
 # If this list is empty all presets are used
 PRESETS = [ "Random" ]
 
-# General options that should be set
-GLOBAL_SETTINGS = {	
-
-	# Various options that should be set, you don't need to touch them in most cases
-
-	"GameOptions.GameInfo.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
-	"GameOptions.GameInfo.AllowNickChange":         1,
-	"GameOptions.GameInfo.AllowStrafing":           1,
-	"GameOptions.Network.AllowRemoteBots":          1,
-	"GameOptions.Network.AllowWantsJoinMsg":        1,
-	"GameOptions.Network.WantsToJoinFromBanned":    0,
-	"GameOptions.Network.UseIpToCountry":           1, # Do not change, needed for correct server messages ; TODO: fix that
-	"GameOptions.Network.RegisterServer":           1,
-	"GameOptions.Network.Speed":                    2, # 2 = LAN, do not change
-	"GameOptions.Advanced.MaxFPS":                  95, # Higher values will decrease netlag, also needed if ServerSideHealth = 1, 
-	"GameOptions.Game.AntilagMovementPrediction":   1, # If ServerSideHealth = 1 this influences gameplay
-	"GameOptions.Misc.LogConversations":            0,
-	"GameOptions.Advanced.MatchLogging":            0, # Do not save game results screenshot
-	"GameOptions.Misc.ScreenshotFormat":            1, # 0 = JPG, 1 = PNG
-	"GameOptions.Network.EnableChat":               0, # No IRC chat needed for ded server
-	"GameOptions.Network.AutoSetupHttpProxy":       0,
-	"GameOptions.Network.HttpProxy":                "",
+GLOBAL_SETTINGS = {
+	"GameOptions.Network.ServerName":                "LX56 compatible",
+	"GameOptions.GameInfo.WeaponSelectionMaxTime":   60,
 }
-
