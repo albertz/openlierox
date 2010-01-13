@@ -205,10 +205,13 @@ void CViewport::gusRender()
 
 	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
 
+	// Note that we only process worms in the Lua callbacks which have a player set.
+	// Most Lua code depends on this assumption so it would break otherwise.
+	
 	EACH_CALLBACK(i, wormRender) {
 		for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
 			CWorm* worm = (*playerIter)->getWorm();
-			if( worm && worm->isActive() ) {
+			if( worm && worm->isActive() && worm->inputHandler() ) {
 				IVec renderPos( worm->getRenderPos() );
 				int x = renderPos.x - offX;
 				int y = renderPos.y - offY;
@@ -224,10 +227,10 @@ void CViewport::gusRender()
 		}
 	}
 
-	if(CWorm* worm = pcTargetWorm) {
+	if(pcTargetWorm && pcTargetWorm->inputHandler()) {
 		EACH_CALLBACK(i, viewportRender) {
 			//lua.callReference(0, *i, luaReference, worm->luaReference);
-			(lua.call(*i), luaReference, worm->getLuaReference())();
+			(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
 		}
 	}
 }
