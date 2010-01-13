@@ -281,9 +281,7 @@ int GameServer::StartServer()
 }
 
 void GameServer::ObtainExternalIP()
-{
-	return;
-	
+{	
 	if (sExternalIP.size())
 		return;
 
@@ -292,9 +290,7 @@ void GameServer::ObtainExternalIP()
 }
 
 void GameServer::ProcessGetExternalIP()
-{
-	return;
-	
+{	
 	if (sExternalIP.size()) // already got it
 		return;
 
@@ -309,6 +305,7 @@ void GameServer::ProcessGetExternalIP()
 	// Failed
 	case HTTP_PROC_ERROR:
 		errors << "Could not obtain external IP address: " + tHttp2.GetError().sErrorMsg << endl;
+		sExternalIP = "0.0.0.0";
 	break;
 
 	// Completed ok
