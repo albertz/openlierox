@@ -1009,7 +1009,6 @@ void ParseArguments(int argc, char *argv[])
     char *a;
     for(int i=1; i<argc; i++) {
         a = argv[i];
-        hints << "Arg: '" << a << "'" << endl;
 
         // -opengl
         // Turns OpenGL on
