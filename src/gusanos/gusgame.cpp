@@ -945,11 +945,18 @@ bool GusGame::changeLevel(const std::string& levelName, bool refresh)
 	return changeLevel(i->second.loader, i->second.path);
 }
 
+void GusGame::reinit() {
+	unload();
+	
+	options.registerInConsole();
+	
+}
+
 bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m)
 {
 	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
 	
-	unload();
+	reinit();
 	
 	m_modName = nextMod;
 	m_modPath = nextMod;

@@ -169,6 +169,7 @@ public:
 	void loadWeapons();
 	void reset(ResetReason reason);
 	void unload();
+	void reinit();
 	void error(Error err);
 	bool loadMod(bool doLoadWeapons = true);
 	bool isLoaded();
