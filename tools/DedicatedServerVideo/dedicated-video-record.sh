@@ -5,6 +5,9 @@ IFS='
 
 CURDATE=`date "+%Y-%m-%d_%H:%M"`
 
+rm -rf /tmp/rMD-session-* video-*.ogv
+killall -KILL recordmydesktop
+
 jackd -d dummy &
 JOBS=$!
 sleep 1

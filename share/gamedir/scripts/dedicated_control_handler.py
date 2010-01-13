@@ -84,6 +84,7 @@ gameState = GAME_READY
 sentStartGame = False
 
 videoRecorder = None
+videoRecorderSignalTime = 0
 
 def DoNothing(): pass
 
@@ -622,7 +623,7 @@ def controlHandlerDefault():
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
 	global presetCicler, modCicler, mapCicler, LT_Cicler
-	global videoRecorder
+	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
 		return
@@ -646,12 +647,16 @@ def controlHandlerDefault():
 				lobbyWaitAfterGame = curTime + cfg.WAIT_AFTER_GAME
 			if videoRecorder:
 				os.kill(videoRecorder.pid, signal.SIGINT)  # videoRecorder.send_signal(signal.SIGINT) # This is available only on Python 2.6
+				videoRecorderSignalTime = time.time()
 				io.chatMsg("Waiting for video recorder to finish")
 
 		canStart = True
 		if videoRecorder and videoRecorder.returncode == None:
 			canStart = False
 			videoRecorder.poll()
+			if time.time() - videoRecorderSignalTime > 30:
+				os.kill(videoRecorder.pid, signal.SIGKILL)
+				videoRecorder.poll()
 			if videoRecorder.returncode != None:
 				canStart = True
 				videoRecorder = None

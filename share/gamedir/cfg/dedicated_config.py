@@ -118,7 +118,7 @@ GLOBAL_SETTINGS = {
 	"GameOptions.GameInfo.TeamInjure":              0,
 	"GameOptions.GameInfo.WeaponSelectionMaxTime":  60,
 	"GameOptions.GameInfo.CTF_AllowRopeForCarrier": 0,
-	"GameOptions.GameInfo.RelativeAirJump":         1, # Won't change gameplay much
+	"GameOptions.GameInfo.RelativeAirJump":         0, # SorZ said it's lame
 	"GameOptions.GameInfo.InfiniteMap":             0, # Infinite map is still broken and the rope is warping
 }
 
