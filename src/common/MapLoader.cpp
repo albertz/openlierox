@@ -24,6 +24,30 @@
 #include "gusanos/gusgame.h"
 
 
+static void lxflagsToGusflags(CMap* m) {
+	m->material = create_bitmap_ex(8, m->GetWidth(), m->GetHeight());
+	
+	m->lockFlags();
+	for(Uint32 y = 0; y < m->GetHeight(); ++y)
+		for(Uint32 x = 0; x < m->GetWidth(); ++x) {
+			int f = 1; // background
+			if(m->GetPixelFlag(x, y) & PX_DIRT) f = 2;
+			if(m->GetPixelFlag(x, y) & PX_ROCK) f = 0;
+			
+			putpixel(m->material, x, y, f);
+		}
+	m->unlockFlags();
+	
+	m->image = create_bitmap(m->GetWidth(), m->GetHeight());
+	m->image->surf = m->GetImage(); // that's actually a hack but fits perfictly here :)
+	//CopySurface(level->image->surf.get(), m->bmpImage, 0, 0, 0, 0, m->GetWidth(), m->GetHeight());
+	m->background = create_bitmap(m->GetWidth(), m->GetHeight());
+	m->background->surf = m->GetBackImage(); // same thing
+	//CopySurface(level->background->surf.get(), m->bmpBackImage, 0, 0, 0, 0, m->GetWidth(), m->GetHeight());
+	
+	m->loaderSucceeded();
+}
+
 class ML_OrigLiero : public MapLoad {
 public:
 	static const long Width = 504, Height = 350;
@@ -170,7 +194,8 @@ public:
 		
 		delete[] palette;
 		delete[] bytearr;
-				
+		
+		lxflagsToGusflags(m);
 		return true;
 	}
 	
@@ -344,7 +369,8 @@ class ML_LieroX : public MapLoad {
 		
 		// Try to load additional data (like hi-res images)
 		LoadAdditionalLevelData(m);
-				
+		
+		lxflagsToGusflags(m);
 		return true;
 	}
 	
@@ -686,6 +712,7 @@ class ML_LieroX : public MapLoad {
 				m->PlaceMisc(o.Size, CVec((float)o.X, (float)o.Y));
 		}
 		
+		lxflagsToGusflags(m);
 		return true;
 	}
 };
@@ -1811,6 +1838,7 @@ private:
 		UnlockSurface(m->bmpImage);
 		UnlockSurface(m->bmpBackImage);
 		
+		lxflagsToGusflags(m);
 		return true;
 	}
 
@@ -1930,16 +1958,19 @@ public:
 		
 		SetColorKey(m->image->surf.get());
 
-		m->lockFlags();
-		for(Uint32 y = 0; y < m->Height; ++y)
-			for(Uint32 x = 0; x < m->Width; ++x)
-				setpixelflags(x, y, m->getMaterial(x,y).toLxFlags());
-		m->unlockFlags();
-
+		gusflagsToLxflags();
 		curMap = NULL;
 		return true;
 	}
 
+	void gusflagsToLxflags() {
+		curMap->lockFlags();
+		for(Uint32 y = 0; y < curMap->Height; ++y)
+			for(Uint32 x = 0; x < curMap->Width; ++x)
+				setpixelflags(x, y, curMap->getMaterial(x,y).toLxFlags());
+		curMap->unlockFlags();		
+	}
+	
 	void setpixelflags(Uint32 x, Uint32 y, unsigned char flag) {
 		curMap->PixelFlags[y * curMap->Width + x] = flag;
 	}

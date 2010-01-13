@@ -174,12 +174,14 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			}
 			
 			level->loaderSucceeded();
+			level->m_gusLoaded = true;
 			return true;
 		}
 		
 
 #else
 		level->loaderSucceeded();
+		level->m_gusLoaded = true;
 		return true;
 #endif
 	}

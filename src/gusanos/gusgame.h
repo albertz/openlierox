@@ -179,6 +179,7 @@ public:
 	void refreshMods();
 	bool reloadModWithoutMap();
 	void createNetworkPlayers();
+	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
 	bool changeLevel(const std::string& levelName, bool refresh = true);
 	bool changeLevelCmd(const std::string& level);
@@ -258,7 +259,9 @@ public:
 		std::string level;
 	mq_end_define_message()
 	
-	
+private:
+	void prepareLoad(const std::string& path);
+	void finishLoad();
 };
 
 extern GusGame gusGame;

@@ -424,7 +424,6 @@ Vec CMap::getSpawnLocation(CWormInputHandler* player)
 
 void CMap::loaderSucceeded()
 {
-	m_gusLoaded = true;
 	m_water.clear();
 	for ( int y = 0; y < material->h; ++y )
 		for ( int x = 0; x < material->w; ++x ) {

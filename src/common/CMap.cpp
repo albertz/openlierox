@@ -72,41 +72,42 @@ bool CMap::NewFrom(CMap* map)
 	if(map->gusIsLoaded()) {
 		if (!MiniCreate(Width, Height, MinimapWidth, MinimapHeight))
 			return false;
-		
-		image = create_copy_bitmap(map->image);
-		background = create_copy_bitmap(map->background);
-		paralax = create_copy_bitmap(map->paralax);
-		lightmap = create_copy_bitmap(map->lightmap);
-		watermap = create_copy_bitmap(map->watermap);
-		material = create_copy_bitmap(map->material);
-		
-		vectorEncoding = map->vectorEncoding;
-		intVectorEncoding = map->intVectorEncoding;
-		diffVectorEncoding = map->diffVectorEncoding;
-
-		m_materialList = map->m_materialList;
-		m_config = map->m_config ? new LevelConfig(*map->m_config) : NULL;
-		m_firstFrame = true;
-		m_gusLoaded = true;
-		
-		m_water = map->m_water;
-		
 	} else {
 		// Create the map (and bmpImage and friends)
 		if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
 			return false;
-
-		// Copy the data
-		// TODO: why DrawImage and not CopySurface?
-		DrawImage(bmpImage.get(), map->bmpImage, 0, 0);
-		DrawImage(bmpDrawImage.get(), map->bmpDrawImage, 0, 0);
-		DrawImage(bmpBackImage.get(), map->bmpBackImage, 0, 0);
-		DrawImage(bmpShadowMap.get(), map->bmpShadowMap, 0, 0);
-	#ifdef _AI_DEBUG
-		DrawImage(bmpDebugImage.get(), map->bmpDebugImage, 0, 0);
-	#endif
 	}
-	DrawImage(bmpMiniMap.get(), map->bmpMiniMap, 0, 0);
+	
+	m_gusLoaded = map->m_gusLoaded;
+	
+	image = create_copy_bitmap(map->image);
+	background = create_copy_bitmap(map->background);
+	paralax = create_copy_bitmap(map->paralax);
+	lightmap = create_copy_bitmap(map->lightmap);
+	watermap = create_copy_bitmap(map->watermap);
+	material = create_copy_bitmap(map->material);
+	
+	vectorEncoding = map->vectorEncoding;
+	intVectorEncoding = map->intVectorEncoding;
+	diffVectorEncoding = map->diffVectorEncoding;
+	
+	m_materialList = map->m_materialList;
+	m_config = map->m_config ? new LevelConfig(*map->m_config) : NULL;
+	m_firstFrame = true;
+	
+	m_water = map->m_water;	
+	
+	// Copy the data
+	bmpImage = GetCopiedImage(map->bmpImage);
+	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
+	bmpBackImage = GetCopiedImage(map->bmpBackImage);
+	bmpShadowMap = map->bmpShadowMap.get() ? GetCopiedImage(map->bmpShadowMap) : NULL;
+#ifdef _AI_DEBUG
+	bmpDebugImage = map->bmpDebugImage.get() ? GetCopiedImage(map->bmpDebugImage) : NULL;
+#endif
+	
+	CopySurface(bmpMiniMap.get(), map->bmpMiniMap, 0, 0, 0, 0, bmpMiniMap->w, bmpMiniMap->h);
+
 	memcpy(PixelFlags, map->PixelFlags, Width * Height);
 	memcpy(CollisionGrid, map->CollisionGrid, Width * Height);
 	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);

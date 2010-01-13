@@ -81,13 +81,7 @@ void Game::prepareGameloop() {
 		
 		notes << "using Gusanos engine but no Gusanos level -> loading Gusanos mod '" << gameScript()->directory() << "' now manually" << endl;
 
-#ifdef USE_GRID
-		game.objects.resize(0, 0, gusGame.level().GetWidth(), gusGame.level().GetHeight());
-#endif		
-		
-		gusGame.refreshResources( gameScript()->directory() );
-		gusGame.loadMod();
-		gusGame.runInitScripts();
+		gusGame.loadModWithoutMap();
 	}
 	
 	PhysicsEngine::Init();

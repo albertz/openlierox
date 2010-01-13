@@ -55,6 +55,7 @@
 #include "gusanos/gusanos.h"
 #include "gusanos/gfx.h"
 #include "game/Game.h"
+#include "gusanos/gusgame.h"
 
 
 
@@ -823,7 +824,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	ScopedSurfaceClip clip(bmpDest, rect);
 
 	const bool haveMap = cMap && cMap->isLoaded();
-	const bool gusanosDrawing = haveMap && cMap->gusIsLoaded();
+	const bool gusanosDrawing = haveMap && gusGame.isEngineNeeded(); //haveMap && cMap->gusIsLoaded();
 	
 	if(gusanosDrawing) {
 		v->gusRender();

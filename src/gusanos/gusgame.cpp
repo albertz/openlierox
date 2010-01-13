@@ -952,19 +952,43 @@ void GusGame::reinit() {
 	
 }
 
-bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m)
-{
-	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
-	
+void GusGame::prepareLoad(const std::string& path) {
 	reinit();
 	
 	m_modName = nextMod;
 	m_modPath = nextMod;
 	
 	//level.setName(levelName);
-	refreshResources(levelPath);
+	refreshResources(path);
+	
+	nextMod = "Gusanos"; // we must explicitly set the mod each time we load a new level	
+}
 
-	nextMod = "Gusanos"; // we must explicitly set the mod each time we load a new level
+void GusGame::finishLoad() {
+#ifdef USE_GRID
+	if(isLevelLoaded())
+		game.objects.resize(0, 0, level().GetWidth(), level().GetHeight());
+#endif
+	
+	//cerr << "Loading mod" << endl;
+	loadMod();
+	
+	// earlier, this was in GusGame::think() for the ChangeLevel event
+	runInitScripts();
+}
+
+bool GusGame::loadModWithoutMap() {
+	notes << "GusGame::loadModWithoutMap: " << nextMod << endl;
+	prepareLoad( /* dummy path */ m_defaultPath );
+	finishLoad();
+	return true;
+}
+
+bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& levelPath, CMap* m)
+{
+	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
+	
+	prepareLoad(levelPath);
 	
 	if(!m) m = &level();
 	
@@ -976,16 +1000,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 		return false;
 	}
 	
-#ifdef USE_GRID
-	game.objects.resize(0, 0, m->GetWidth(), m->GetHeight());
-#endif
-	
-	//cerr << "Loading mod" << endl;
-	loadMod();
-
-	// earlier, this was in GusGame::think() for the ChangeLevel event
-	runInitScripts();
-	
+	finishLoad();
 	return true;
 }
 
