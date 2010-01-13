@@ -140,6 +140,9 @@ int l_gui_loadxml(lua_State* L)
 
 int l_gui_loadgss(lua_State* L)
 {
+	// we ignore that for now
+	return 0;
+	
 	OmfgGUI::Context& gui = *static_cast<OmfgGUI::Context *>(lua_touserdata(L, lua_upvalueindex(1)));
 	
 	bool passive = false;
