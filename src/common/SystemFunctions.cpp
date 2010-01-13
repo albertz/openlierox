@@ -49,6 +49,7 @@
 #include "StringUtils.h"
 
 
+#ifdef THREADNAME_VIA_SIGUSR1
 #ifndef _MSC_VER
 static void setCurThreadName__signalraiser(const char* name) {
 	// this signal is only for debuggers, we should ignore it
@@ -58,7 +59,11 @@ static void setCurThreadName__signalraiser(const char* name) {
 	raise( SIGUSR1 );
 }
 #endif
+#endif
 
+#ifdef __APPLE__
+extern "C" void setCurThreadName__macosx(const char* name);
+#endif
 
 //////////////////
 // Gives a name to the thread
@@ -95,6 +100,10 @@ void setCurThreadName(const std::string& name)
 	setCurThreadName__signalraiser(name.c_str());
 #endif
 
+#ifdef __APPLE__
+	setCurThreadName__macosx(name.c_str());
+#endif
+	
 #endif
 }
 
