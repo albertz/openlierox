@@ -382,35 +382,44 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 
 namespace
 {
-	bool canPlayerRespawn(CWormInputHandler* player, SpawnPoint const& point)
+	bool canPlayerRespawn(CWorm* worm, SpawnPoint const& point)
 	{
-		if(player->worm() == NULL) return false;
 		// point.team - 1 because OLX team numbers start at 0, Gus team numbers at 1
-		if(gusGame.options.teamPlay && (point.team != -1) && (point.team - 1 != player->worm()->getTeam()))
+		if(gusGame.options.teamPlay && (point.team != -1) && (point.team - 1 != worm->getTeam()))
 			return false;
 		return true;
 	}
 }
 
-Vec CMap::getSpawnLocation(CWormInputHandler* player)
-{
+bool CMap::getPredefinedSpawnLocation(CWorm* worm, CVec* v) {
 	if(m_config) {
 		int alt = 0;
 		foreach(i, m_config->spawnPoints) {
-			if(canPlayerRespawn(player, *i))
+			if(canPlayerRespawn(worm, *i))
 				++alt;
 		}
-
+		
 		if(alt > 0) {
 			int idx = rndInt(alt);
 			foreach(i, m_config->spawnPoints) {
-				if(canPlayerRespawn(player, *i) && --idx < 0) {
-					return i->pos;
+				if(canPlayerRespawn(worm, *i) && --idx < 0) {
+					*v = CVec(i->pos);
+					return true;
 				}
 			}
 		}
 	}
 
+	return false;
+}
+
+Vec CMap::getSpawnLocation(CWormInputHandler* player)
+{
+	if(player->worm()) {
+		CVec pos;
+		if(getPredefinedSpawnLocation(player->worm(), &pos)) return pos;
+	}
+	
 	Vec pos;
 
 	//pos = Vec(rnd() * material->w, rnd()*material->h);

@@ -204,10 +204,10 @@ void PartType::touch()
 				if(n == 2)
 				{
 					d->map[y * width + x] = Vec((float)lua_tonumber(lua, -2), (float)lua_tonumber(lua, -1));
-					lua.pop(2);
+					lua.pop(n);
 				}
 				else
-					assert(false);
+					warnings << "PartType::touch with dissortion, expected 2 but got " << n << endl;
 			}
 			distortion = new Distortion(d);
 		}
