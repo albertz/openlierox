@@ -111,6 +111,7 @@ bool gusCanRunFrame() {
 void gusLogicFrame() {
 	Uint32 timer = SDL_GetTicks() / 10;
 	
+	size_t logicFrameCount = 0;
 	while ( logicLast + 1 <= timer )
 	{
 		
@@ -221,8 +222,10 @@ void gusLogicFrame() {
 		}
 		
 		++logicLast;
-
+		++logicFrameCount;
+		
 		if(debug_onlyOneLogicFrame) break;
+		if(logicFrameCount > 10) break; // don't be too slow
 	}
 
 #ifndef DEDICATED_ONLY
