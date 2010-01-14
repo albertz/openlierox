@@ -828,16 +828,12 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	ScopedSurfaceClip clip(bmpDest, rect);
 
 	if(!cMap || !cMap->isLoaded()) return;
-	const bool gusanosDrawing = gusGame.isEngineNeeded();	
+	const bool gusanosDrawing = gusGame.isEngineNeeded();
 	if(gusanosDrawing) {
 		v->gusRender();
 		//gusRenderFrameMenu();
 		
 		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
-
-		if(game.gameScript()->gusEngineUsed())
-			// everything is done by Gusanos, so we don't want other stuff be drawn by OLX
-			return;
 	}
 		
 	// Weather
@@ -845,11 +841,12 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	
 	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
 	// We draw it anyway now because we could use some nice alpha blending or so
-	if (cMap) {
+	if (!gusanosDrawing)
 		cMap->Draw(bmpDest, v);
 		
-		// The following will be drawn only when playing
-		if (bGameReady || iNetStatus == NET_PLAYING)  {
+	// The following will be drawn only when playing
+	if (bGameReady || iNetStatus == NET_PLAYING)  {
+		if(!game.gameScript()->gusEngineUsed()) {
 			// update the drawing position
 			CWorm *w = cRemoteWorms;
 			for(short i=0;i<MAX_WORMS;i++,w++) {
@@ -874,17 +871,18 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 			
 			// Draw the projectiles
 			DrawProjectiles(bmpDest, v);
+		}
 			
-			// Draw the bonuses
-			DrawBonuses(bmpDest, v);
-			
-			// draw unattached flags and flag spawnpoints
-			cClient->flagInfo()->draw(bmpDest, v);
-			
+		// Draw the bonuses
+		DrawBonuses(bmpDest, v);
+		
+		// draw unattached flags and flag spawnpoints
+		cClient->flagInfo()->draw(bmpDest, v);
+		
+		if(!game.gameScript()->gusEngineUsed()) {
 			// Draw all the worms in the game
-			ushort i;
-			w = cRemoteWorms;
-			for(i=0;i<MAX_WORMS;i++,w++) {
+			CWorm* w = cRemoteWorms;
+			for(short i=0;i<MAX_WORMS;i++,w++) {
 				if(w->isUsed())
 					w->Draw(bmpDest, v);
 			}
