@@ -172,6 +172,7 @@ float get_ai_nodes_length2(NEW_ai_node_t* start);
 class CWormInputHandler;
 struct WormJoinInfo;
 class Client;
+class Game;
 
 // TODO: split into classes: one for CClient and one for CServerConnection (latter only containing some general information, more like a simple struct)
 class CWorm: public CGameObject {
@@ -180,6 +181,7 @@ class CWorm: public CGameObject {
 	friend class CWormHumanInputHandler; // TODO: remove
 	friend struct WormJoinInfo;
 	friend class Client;
+	friend class Game;
 public:
 	CWorm();
 	~CWorm();

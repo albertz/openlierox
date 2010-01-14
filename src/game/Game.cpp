@@ -185,6 +185,18 @@ void Game::frameInner()
 				scopedSpeeds[i].reset( new CGameObject::ScopedGusCompatibleSpeed(cClient->getRemoteWorms()[i]) );
 		
 		gusLogicFrame();
+		
+		if(gameScript()->gusEngineUsed()) {
+			// copy worm states to CServer worms because they are never updated in this mode
+			for(int i = 0; i < MAX_WORMS; ++i) {
+				if(cServer->getWorms()[i].isUsed() && cClient->getRemoteWorms()[i].isUsed()) {
+					cServer->getWorms()[i].health = cClient->getRemoteWorms()[i].health;
+					cServer->getWorms()[i].vPos = cClient->getRemoteWorms()[i].vPos;
+					cServer->getWorms()[i].vVelocity = cClient->getRemoteWorms()[i].vVelocity;
+					cServer->getWorms()[i].bAlive = cClient->getRemoteWorms()[i].bAlive;					
+				}
+			}
+		}
 	}
 	/*} else {
 		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case
