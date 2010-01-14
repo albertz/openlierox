@@ -154,8 +154,7 @@ namespace{
 						}
 					}
 					if(!failed) {
-						iParams[2]--; // to OLX teams (start at 0)
-						if(iParams[2] < 0 || iParams[2] >= 4)
+						if(iParams[2] < 1 || iParams[2] > 4)
 							warnings << "team-number must be in [1,4], got: " << line << endl;
 						else
 							config->teamBases.push_back(SpawnPoint( Vec(iParams[0],iParams[1]), iParams[2] ));
