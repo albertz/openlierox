@@ -57,6 +57,7 @@ struct LevelConfig
 {
 	LevelConfig() : darkMode(false)	{}
 	
+	std::vector<SpawnPoint> teamBases;
 	std::vector<SpawnPoint> spawnPoints;
 	boost::shared_ptr<GameEvent> gameStart;
 	boost::shared_ptr<GameEvent> gameEnd;

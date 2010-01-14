@@ -24,6 +24,7 @@
 #include "ninjarope.h"
 #include "CMap.h"
 #include "CGameScript.h"
+#include "CGameMode.h"
 
 #include "glua.h"
 #include "lua51/luaapi/context.h"
@@ -814,11 +815,12 @@ void CWorm::base_die() {
 	}
 	bAlive = false;
 	if (m_owner) {
-		m_owner->addDeath();
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
-	if (m_lastHurt && m_lastHurt != m_owner)
-		m_lastHurt->addKill();
+	
+	if(m_isAuthority) {
+		game.gameMode()->Kill(this, m_lastHurt ? m_lastHurt->getWorm() : NULL);
+	}
 	
 	m_ninjaRope->remove();
 	m_timeSinceDeath = 0;

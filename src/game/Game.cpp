@@ -353,6 +353,14 @@ CGameScript* Game::gameScript() {
 	return NULL;
 }
 
+CGameMode* Game::gameMode() {
+	if(tLX) {
+		if(tLX->iGameType != GME_JOIN) return cServer->getGameMode();
+		return cClient->getGameLobby()->gameMode;
+	}
+	return NULL;
+}
+
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }

@@ -147,7 +147,7 @@ std::string	ReadUntil(FILE* fp, char until_character) {
 	res = "";
 	size_t buf_pos = 0;
 	while(true) {
-		if(fread(&buf[buf_pos],1,1,fp) == 0 || buf[buf_pos] == until_character) {
+		if(ferror(fp) || feof(fp) || fread(&buf[buf_pos],1,1,fp) == 0 || buf[buf_pos] == until_character) {
 			res.append(buf,buf_pos);
 			break;
 		}

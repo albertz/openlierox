@@ -20,6 +20,7 @@ class CWormHumanInputHandler;
 class CWormInputHandler;
 class CWorm;
 class CGameScript;
+class CGameMode;
 
 class Game {
 public:
@@ -52,6 +53,7 @@ public:
 #endif
 
 	CGameScript* gameScript();
+	CGameMode* gameMode();
 	
 private:
 	AbsTime oldtime;

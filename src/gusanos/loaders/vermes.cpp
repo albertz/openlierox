@@ -45,28 +45,8 @@ namespace{
 		GameEnd
 	};
 
-	LevelConfig* loadConfig( std::string const& filename )
-	{
-		std::ifstream fileStream;
-		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
-
-		if (!fileStream )
-			return false;
-		
-		OmfgScript::Parser parser(fileStream, gameActions, filename);
-		
-		parser.addEvent("game_start", GameStart, 0);
-		parser.addEvent("game_end", GameEnd, 0);
-		
-		if(!parser.run())
-		{
-			parser.error("Trailing garbage");
-			return false;
-		}
-		
-		LevelConfig* returnConf = new LevelConfig;
-		
-		OmfgScript::TokenBase* tmpProp = parser.getProperty("spawnpoints");
+	void fillSpawnPointList(OmfgScript::Parser& parser, const std::string& propname, std::vector<SpawnPoint>& pts) {
+		OmfgScript::TokenBase* tmpProp = parser.getProperty(propname);
 		if ( tmpProp->isList() )
 		{
 			std::list<OmfgScript::TokenBase*>::const_iterator sp;
@@ -98,10 +78,35 @@ namespace{
 						++iter;
 					}
 					
-					returnConf->spawnPoints.push_back(SpawnPoint( Vec(x,y), team ));
+					pts.push_back(SpawnPoint( Vec(x,y), team ));
 				}
 			}
+		}		
+	}
+	
+	LevelConfig* loadConfig( std::string const& filename )
+	{
+		std::ifstream fileStream;
+		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
+
+		if (!fileStream )
+			return false;
+		
+		OmfgScript::Parser parser(fileStream, gameActions, filename);
+		
+		parser.addEvent("game_start", GameStart, 0);
+		parser.addEvent("game_end", GameEnd, 0);
+		
+		if(!parser.run())
+		{
+			parser.error("Trailing garbage");
+			return false;
 		}
+		
+		LevelConfig* returnConf = new LevelConfig;
+		
+		fillSpawnPointList(parser, "spawnpoints", returnConf->spawnPoints);
+		fillSpawnPointList(parser, "teambases", returnConf->teamBases);
 		
 		returnConf->darkMode = parser.getBool("dark_mode");
 		
@@ -123,6 +128,45 @@ namespace{
 		return returnConf;
 	}
 
+	void parseCtfBasesFromLua(const std::string& filename, LevelConfig* config) {
+		FILE* f = OpenGameFile(filename, "r");
+		if(!f) return;
+		
+		while(!ferror(f) && !feof(f)) {
+			std::string line = ReadUntil(f);
+			TrimSpaces(line);
+			stringlwr(line);
+			
+			static const char* parseStart = "ctf.maketeam(";
+			static const size_t parseStartLen = strlen(parseStart);
+			if(strStartsWith(line, parseStart) && line[line.size()-1] == ')') {
+				std::vector<std::string> params = explode( line.substr(parseStartLen, line.size() - parseStartLen - 1), "," );
+				if(params.size() != 3)
+					warnings << "ctf.maketeam found in " << filename << " but not 3 params: " << line << endl;
+				else {
+					int iParams[3] = {0,0,0};
+					bool failed = false;
+					for(short i = 0; i < 3; ++i) {
+						iParams[i] = from_string<int>(params[i], failed);
+						if(failed) {
+							warnings << "failed to parse " << params[i] << " to number in: " << line << endl;
+							break;
+						}
+					}
+					if(!failed) {
+						iParams[2]--; // to OLX teams (start at 0)
+						if(iParams[2] < 0 || iParams[2] >= 4)
+							warnings << "team-number must be in [1,4], got: " << line << endl;
+						else
+							config->teamBases.push_back(SpawnPoint( Vec(iParams[0],iParams[1]), iParams[2] ));
+					}
+				}
+			}
+		}
+		
+		fclose(f);
+	}
+	
 }
 
 bool VermesLevelLoader::load(CMap* level, std::string const& path)
@@ -139,6 +183,10 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 	if (level->material)
 	{
 		level->setEvents( loadConfig( path + "/config.cfg" ) );
+		
+		if(level->config() && level->config()->teamBases.size() == 0)
+			parseCtfBasesFromLua(path + "/scripts/map_" + GetBaseFilenameWithoutExt(path) + ".lua", level->config() );
+		
 #ifndef DEDICATED_ONLY
 		std::string imagePath = path + "/level";
 		
