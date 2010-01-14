@@ -879,8 +879,16 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		// draw unattached flags and flag spawnpoints
 		cClient->flagInfo()->draw(bmpDest, v);
 		
-		if(!game.gameScript()->gusEngineUsed()) {
-			// Draw all the worms in the game
+		// Draw all the worms in the game
+		if(game.gameScript()->gusEngineUsed()) {
+			// draw attached flag
+			CWorm* w = cRemoteWorms;
+			for(short i=0;i<MAX_WORMS;i++,w++)
+				if(w->isUsed() && w->isVisible(v))
+					cClient->flagInfo()->drawWormAttachedFlag(w, bmpDest, v);
+			
+		} else {
+			// no gus worm drawing, draw them now
 			CWorm* w = cRemoteWorms;
 			for(short i=0;i<MAX_WORMS;i++,w++) {
 				if(w->isUsed())
