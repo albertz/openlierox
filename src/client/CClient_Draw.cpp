@@ -56,7 +56,7 @@
 #include "gusanos/gfx.h"
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
-
+#include "gusanos/lua51/luaapi/context.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -696,8 +696,12 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 
 	if(tLXOptions->bShowProjectileUsage) {
-		std::string txt = "Projs: " + itoa(cProjectiles.size());
-		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 2 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, txt);
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 2 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Projs: " + itoa(cProjectiles.size()));
+
+		// Gusanos
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 3 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Objects: " + cast<std::string>(game.objects.size()));
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 4 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Players: " + cast<std::string>(game.players.size()));
+		tLX->cOutlineFont.Draw(bmpDest, 550, 20 + 5 * tLX->cOutlineFont.GetHeight(), tLX->clWhite, "Lua Mem: " + cast<std::string>(lua_gc(lua, LUA_GCCOUNT, 0)));
 	}
 	
 	// Go through and draw the first two worms select menus
