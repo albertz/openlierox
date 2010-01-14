@@ -186,7 +186,7 @@ void Game::frameInner()
 		
 		gusLogicFrame();
 		
-		if(gameScript()->gusEngineUsed()) {
+		if(gameScript()->gusEngineUsed() && game.isServer()) {
 			// copy worm states to CServer worms because they are never updated in this mode
 			for(int i = 0; i < MAX_WORMS; ++i) {
 				if(cServer->getWorms()[i].isUsed() && cClient->getRemoteWorms()[i].isUsed()) {
