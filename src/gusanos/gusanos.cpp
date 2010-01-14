@@ -210,9 +210,7 @@ void gusLogicFrame() {
 				game.players.erase(iter);
 			}
 		}
-		
-		network.update();
-		
+				
 #ifndef DEDICATED_ONLY
 		console.checkInput();
 #endif
@@ -233,6 +231,8 @@ void gusLogicFrame() {
 			break;
 		}
 	}
+	
+	network.update();
 	
 #ifndef DEDICATED_ONLY
 	//Update FPS
