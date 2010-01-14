@@ -50,6 +50,8 @@
 #include "DedicatedControl.h"
 #include "OLXCommand.h"
 #include "gusanos/network.h"
+#include "game/Mod.h"
+
 
 #include <zip.h> // For unzipping downloaded mod
 
@@ -732,8 +734,8 @@ void CClient::FinishModDownloads()
 	}
 
 	// Check that the script.lgs file is available
-	if (!IsFileAvailable(sModDownloadName + "/script.lgs", false))  {
-		warnings("Cannot access the downloaded mod!\n");
+	if (!infoForMod(sModDownloadName).valid)  {
+		warnings << "Cannot access the downloaded mod!" << endl;
 
 		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
 			Disconnect();

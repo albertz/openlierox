@@ -53,6 +53,7 @@
 #include "Utils.h"
 #include "gusanos/network.h"
 #include "game/Game.h"
+#include "game/Mod.h"
 
 
 #ifdef _MSC_VER
@@ -2112,11 +2113,8 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	}
 
     // Does the 'script.lgs' file exist in the mod dir?
-    fp = OpenGameFile(client->tGameInfo.sModDir + "/script.lgs", "rb");
-    if(!fp)
+	if(!infoForMod(client->tGameInfo.sModDir).valid)
         client->bHaveMod = false;
-    else
-        fclose(fp);
 
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
