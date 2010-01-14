@@ -230,7 +230,8 @@ void CViewport::gusRender()
 			}
 		}
 
-		if(pcTargetWorm && pcTargetWorm->inputHandler()) {
+		// draw viewport specific stuff only for human worms
+		if(pcTargetWorm && dynamic_cast<CWormHumanInputHandler*>(pcTargetWorm->inputHandler()) != NULL) {
 			EACH_CALLBACK(i, viewportRender) {
 				//lua.callReference(0, *i, luaReference, worm->luaReference);
 				(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
