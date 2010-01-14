@@ -46,6 +46,7 @@
 #include "TaskManager.h"
 #include "game/Mod.h"
 #include "StringUtils.h"
+#include "game/Game.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -2076,7 +2077,42 @@ void Cmd_getWormProps::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	caller->pushReturnArg("CanUseNinja: " + to_string<bool>(w->canUseNinja()));
 }
 
-COMMAND(whoIs, "get some info about a worm", "worm-id", 1, 1);
+COMMAND(selectWeapons, "select weapons for worm", "id", 1, 1);
+void Cmd_selectWeapons::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(game.isClient()) {
+		caller->writeMsg("selectWeapons only works as server", CNC_WARNING);
+		return;
+	}
+	
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;
+	
+	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
+	if(!tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
+		w->GetRandomWeapons();
+		// TODO: move that out here
+		CBytestream bs;
+		bs.writeByte(S2C_WORMWEAPONINFO);
+		w->writeWeapons(&bs);
+		cServer->SendGlobalPacket(&bs);		
+		return;
+	}
+	
+	if(!w->isFirstLocalHostWorm() && cServer->serverChoosesWeapons()) {
+		caller->writeMsg("unhandled case for server chooses weapons", CNC_ERROR);
+		return;
+	}
+	
+	if(w->getClient() == NULL) {
+		caller->writeMsg("connection of worm unset", CNC_ERROR);
+		return;
+	}
+	
+	w->setWeaponsReady(false);
+	w->getClient()->setGameReady(false);
+	w->getClient()->getNetEngine()->SendSelectWeapons(w);
+}
+
+COMMAND(whoIs, "get some info about a connection", "worm-id", 1, 1);
 void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
 	caller->pushReturnArg("ID/Name: " + itoa(w->getID()) + ":" + w->getName());

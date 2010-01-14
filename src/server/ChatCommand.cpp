@@ -1164,24 +1164,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "same weapons as host worm are forced";
 	}
 	
-	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
-	if(!tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
-		w->GetRandomWeapons();
-		// TODO: move that out here
-		CBytestream bs;
-		bs.writeByte(S2C_WORMWEAPONINFO);
-		w->writeWeapons(&bs);
-		cServer->SendGlobalPacket(&bs);		
-		return "";
-	}
-	
-	if(!w->isFirstLocalHostWorm() && cServer->serverChoosesWeapons()) {
-		warnings << "ProcessWeapons: unhandled case for server chooses weapons" << endl;
-		return "server chooses weapons";
-	}
-	
-	w->setWeaponsReady(false);
-	cl->setGameReady(false);
-	cl->getNetEngine()->SendSelectWeapons(w);
+	// a bit hacky, but well...
+	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), "selectWeapons " + itoa(w->getID())) );	
 	return "";
 }
