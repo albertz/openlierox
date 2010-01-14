@@ -290,7 +290,7 @@ function mode.init()
 			d.respawnTimer = 0
 		end
 		
-		if not isTeamPlay() then
+		--[[if not isTeamPlay() then
 			if p:team() ~= 1 then
 				d.canJoin = false
 			end
@@ -316,7 +316,7 @@ function mode.init()
 				end
 
 			end
-		end
+		end]]
 		
 		d.team = p:team()
 		

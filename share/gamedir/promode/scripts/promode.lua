@@ -222,6 +222,11 @@ function promode.init()
 	end
 	
 	function isSpectator(p)
+		if p:worm():health() <= 0 then
+			return true
+		else
+			return false
+		end
 		if gameMode == 3 or gameMode == 4 or gameMode == 7 or gameMode == 8 then
 			if p:team() == 1 or p:team() == 2 then
 				return false
