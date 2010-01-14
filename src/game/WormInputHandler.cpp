@@ -159,11 +159,15 @@ void CWormInputHandler::think()
 {
 	if(!m_worm) return;
 	
-	// OLX input
-	//getInput();
-	OlxInputToGusEvents();
+	// for now, we ignore this totally if we use a lx-mod
+	if(!game.gameScript()->gusEngineUsed()) {
+		// OLX input
+		//getInput();
+		OlxInputToGusEvents();
+		
+		subThink();
+	}
 	
-	subThink();
 	if ( m_node ) {
 		while ( m_node->checkEventWaiting() ) {
 			eNet_Event type;
