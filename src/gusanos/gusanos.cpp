@@ -228,8 +228,10 @@ void gusLogicFrame() {
 		++logicLast;
 		++logicFrameCount;
 		
-		if(debug_onlyOneLogicFrame) break;
-		if(logicFrameCount > 10) break; // don't be too slow
+		if(debug_onlyOneLogicFrame || logicFrameCount > 10) { // don't be too slow
+			logicLast = timer; // skip left frames
+			break;
+		}
 	}
 	
 #ifndef DEDICATED_ONLY
