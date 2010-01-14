@@ -53,6 +53,8 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	bGameReady = false;
 	m_gusLoggedIn = false;
 	
+	cShootList.Initialize();
+
 	fLastFileRequest = fConnectTime = tLX->currentTime;
 	
 	cNetEngine = new CServerNetEngine( server, this );
@@ -84,9 +86,11 @@ void CServerConnection::Clear()
 	fLastUpdateSent = AbsTime();
 
 	cShootList.Shutdown();
-
+	cShootList.Initialize();
+	
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();
+	getUdpFileDownloader()->allowFileRequest(true);
 }
 
 

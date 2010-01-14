@@ -265,16 +265,8 @@ int GameServer::StartServer()
 	}
 
 	// Initialize the clients
-	for(i=0;i<MAX_CLIENTS;i++) {
+	for(i=0;i<MAX_CLIENTS;i++)
 		cClients[i].Clear();
-		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
-
-		// Initialize the shooting list
-		if( !cClients[i].getShootList()->Initialize() ) {
-			SetError( "Server Error: cannot initialize the shooting list of some client" );
-			return false;
-		}
-	}
 
 	SetSocketWithEvents(true);
 	

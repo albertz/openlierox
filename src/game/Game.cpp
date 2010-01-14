@@ -74,13 +74,14 @@ void Game::prepareGameloop() {
 		SyncServerAndClient();
 	}
 
-	if(gameScript()->gusEngineUsed() && !gusGame.level().gusIsLoaded()) {
+	// always also load Gusanos engine
+	if( /*gameScript()->gusEngineUsed() && */ !gusGame.level().gusIsLoaded() ) {
 		// WARNING: This may be temporary
 		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
 		// Thus, when we don't load a gus level, we must load the mod manually.
 		
-		notes << "using Gusanos engine but no Gusanos level -> loading Gusanos mod '" << gameScript()->directory() << "' now manually" << endl;
-
+		if(!gameScript()->gusEngineUsed())
+			gusGame.setMod(gusGame.getDefaultPath());
 		gusGame.loadModWithoutMap();
 	}
 	
