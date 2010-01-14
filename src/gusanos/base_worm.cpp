@@ -663,7 +663,7 @@ void CWorm::draw(CViewport* viewport)
 		// OLX will draw this worm
 		return;
 	
-	if (getAlive()) {
+	if (getAlive() && isVisible(viewport)) {
 		/*
 		bool flipped = false;
 		if ( m_dir < 0 ) flipped = true;*/
