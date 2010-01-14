@@ -11,6 +11,7 @@
 #include "CServer.h"
 #include "CWorm.h"
 #include "FlagInfo.h"
+#include "gusanos/gusgame.h"
 
 struct CaptureTheFlag : public CGameMode {
 	
@@ -93,12 +94,21 @@ struct CaptureTheFlag : public CGameMode {
 		}		
 	}
 	
+	CVec getTeamBasePos(int team, CVec fallback) {
+		for(size_t i = 0; i < gusGame.level().config()->teamBases.size(); ++i) {
+			if(gusGame.level().config()->teamBases[i].team == team + 1) // Gus team numbers
+				return CVec(gusGame.level().config()->teamBases[i].pos);
+		}
+		
+		return fallback;
+	}
+	
 	virtual bool Spawn(CWorm* worm, CVec pos) {
 		if(!CGameMode::Spawn(worm, pos)) return false;
 		
 		if(!cServer->flagInfo()->getFlag(worm->getTeam())) {
 			// we have to create the new flag, there isn't any yet
-			initFlag(worm->getTeam(), pos);
+			initFlag(worm->getTeam(), getTeamBasePos(worm->getTeam(), pos));
 		}
 		return true;
 	}
