@@ -48,6 +48,7 @@
 #include "game/Game.h"
 #include "gusanos/player_options.h"
 #include "gusanos/weapon.h"
+#include "gusanos/ninjarope.h"
 
 
 // used by searchpath algo
@@ -4659,6 +4660,12 @@ void CWormBotInputHandler::subThink() {
 	if ( !m_worm->isActive() )
 		baseActionStart(RESPAWN);
 
+	if(m_worm->m_ninjaRope->active) {
+		m_worm->cNinjaRope.Shoot(m_worm, m_worm->m_ninjaRope->pos(), CVec());
+		if(m_worm->m_ninjaRope->attached)
+			m_worm->cNinjaRope.setAttached(m_worm->m_ninjaRope->attached);			
+	}
+	
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
 	worm_state_t oldS = *m_worm->getWormState();
 	
