@@ -733,8 +733,12 @@ void CWorm::respawn()
 {
 	if(m_isAuthority || !m_node) {
 		// Check if its already allowed to respawn
-		if ( m_timeSinceDeath > gusGame.options.minRespawnTime )
-			respawn( gusGame.level().getSpawnLocation( m_owner ) );
+		if ( m_timeSinceDeath > gusGame.options.minRespawnTime ) {
+			Vec pos = gusGame.level().getSpawnLocation( m_owner );
+			
+			if(game.gameMode()->Spawn(this, CVec(pos)))
+				respawn( pos );
+		}
 	}
 }
 
@@ -767,7 +771,7 @@ void CWorm::respawn( const Vec& newPos)
 		 data->addFloat(pos.y,32);*/
 		gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
-	}
+	}	
 }
 
 void CWorm::dig()
