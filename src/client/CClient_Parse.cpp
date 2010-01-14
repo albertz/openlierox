@@ -52,6 +52,7 @@
 #include "CMap.h"
 #include "Utils.h"
 #include "gusanos/network.h"
+#include "game/Game.h"
 
 
 #ifdef _MSC_VER
@@ -2672,10 +2673,20 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	w->setWeaponsReady(false);
 	if(client->OwnsWorm(w->getID())) {
 		notes << "server sends us SelectWeapons for worm " << w->getID() << endl;
-		client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
-		client->bReadySent = false;
-		w->reinitInputHandler();
-		w->initWeaponSelection();
+		
+		if(game.gameScript()->gusEngineUsed()) {
+			if(CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*> (w->inputHandler()))
+				// this will restart the weapon selection in most mods
+				game.onNewHumanPlayer_Lua(player);
+			else
+				//notes << "SelectWeapons in Gusanos for bots not supported yet" << endl;
+				game.onNewPlayer_Lua(player);
+		} else {	
+			client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
+			client->bReadySent = false;
+			w->reinitInputHandler();
+			w->initWeaponSelection();
+		}
 	}
 }
 
