@@ -373,3 +373,7 @@ bool Game::needToCreateOwnWormInputHandlers() {
 	return isServer() || (cClient->getServerVersion() < OLXBetaVersion(0,59,1));
 }
 
+bool Game::isTeamPlay() {
+	return cClient->isTeamGame();
+}
+

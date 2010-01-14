@@ -40,6 +40,7 @@ public:
 	
 	bool isServer();
 	bool isClient() { return !isServer(); }
+	bool isTeamPlay();
 	bool needToCreateOwnWormInputHandlers();
 	bool needProxyWormInputHandler();
 	
