@@ -823,15 +823,17 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
 
-	const bool haveMap = cMap && cMap->isLoaded();
-	const bool gusanosDrawing = haveMap && gusGame.isEngineNeeded(); //haveMap && cMap->gusIsLoaded();
-	
+	if(!cMap || !cMap->isLoaded()) return;
+	const bool gusanosDrawing = gusGame.isEngineNeeded();	
 	if(gusanosDrawing) {
 		v->gusRender();
 		//gusRenderFrameMenu();
 		
 		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), v->GetLeft()/2, v->GetTop()/2, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
-		return;
+
+		if(game.gameScript()->gusEngineUsed())
+			// everything is done by Gusanos, so we don't want other stuff be drawn by OLX
+			return;
 	}
 		
 	// Weather

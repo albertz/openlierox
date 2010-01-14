@@ -658,6 +658,10 @@ void CWorm::removeRefsToPlayer(CWormInputHandler* player)
 
 void CWorm::draw(CViewport* viewport)
 {
+	if(!game.gameScript() || !game.gameScript()->gusEngineUsed())
+		// OLX will draw this worm
+		return;
+	
 	if (getAlive()) {
 		/*
 		bool flipped = false;
