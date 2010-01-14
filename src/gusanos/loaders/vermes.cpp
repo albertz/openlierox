@@ -166,6 +166,13 @@ namespace{
 		fclose(f);
 	}
 	
+	void swapTeam_1_2(std::vector<SpawnPoint>& pts) {
+		for(size_t i = 0; i < pts.size(); ++i) {
+			if(pts[i].team == 1) pts[i].team = 2;
+			else if(pts[i].team == 2) pts[i].team = 1;
+		}
+	}
+	
 }
 
 bool VermesLevelLoader::load(CMap* level, std::string const& path)
@@ -220,17 +227,18 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 				destroy_bitmap( tempLightmap );
 			}
 			
-			level->loaderSucceeded();
-			level->m_gusLoaded = true;
-			return true;
+		}
+#endif		
+		if(level->config()) {
+			// seems that Gusanos interprets first team as red and second as blue
+			// in OLX, it is the opposite, thus we swap these teams to have colors nicer
+			swapTeam_1_2(level->config()->teamBases);
+			swapTeam_1_2(level->config()->spawnPoints);		
 		}
 		
-
-#else
 		level->loaderSucceeded();
 		level->m_gusLoaded = true;
 		return true;
-#endif
 	}
 	
 	errors << "VermesLevelLoader: none of " << materialPath << "{.bmp,.png,''} found" << endl;
