@@ -160,7 +160,7 @@ void CWormInputHandler::think()
 	if(!m_worm) return;
 	
 	// for now, we ignore this totally if we use a lx-mod
-	if(!game.gameScript()->gusEngineUsed()) {
+	if(game.gameScript()->gusEngineUsed()) {
 		// OLX input
 		//getInput();
 		OlxInputToGusEvents();
