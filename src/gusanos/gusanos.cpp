@@ -114,6 +114,10 @@ void gusLogicFrame() {
 	size_t logicFrameCount = 0;
 	while ( logicLast + 1 <= timer )
 	{
+		if(!game.shouldDoPhysicsFrame()) {
+			logicLast = timer;
+			break;
+		}
 		
 #ifdef USE_GRID
 		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
@@ -227,7 +231,7 @@ void gusLogicFrame() {
 		if(debug_onlyOneLogicFrame) break;
 		if(logicFrameCount > 10) break; // don't be too slow
 	}
-
+	
 #ifndef DEDICATED_ONLY
 	//Update FPS
 	if (fpsLast + 100 <= timer)

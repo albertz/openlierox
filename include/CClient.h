@@ -58,7 +58,7 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 
 
 // Chatbox line
-class chat_line_t { public:
+struct chat_line_t {
 	std::string	sText;
 	float	fTime;
 	float	fScroll;
@@ -66,7 +66,7 @@ class chat_line_t { public:
 };
 
 // Structure for logging worms
-class log_worm_t { public:
+struct log_worm_t {
 	std::string	sName;
 	std::string	sSkin;
 	int			iLives;
@@ -84,7 +84,7 @@ class log_worm_t { public:
 };
 
 // Game log structure
-class game_log_t { public:
+struct game_log_t {
 	log_worm_t	*tWorms;
 	int			iNumWorms;
 	int			iWinner;
@@ -95,7 +95,7 @@ class game_log_t { public:
 };
 
 
-class interface_sett { public:
+struct interface_sett {
 	int		ChatterX;
 	int		ChatterY;
 	int		ChatBoxX;
@@ -181,6 +181,8 @@ enum  {
 };
 
 
+class Game;
+
 class CClient {
 public:
 	CClient();
@@ -190,7 +192,8 @@ public:
 	friend class CClientNetEngineBeta7;
 	friend class CClientNetEngineBeta9;
 	friend class CClientNetEngineBeta9NewNet;
-
+	friend class Game;
+	
 	typedef void (*DownloadFinishedCB) ();
 
 private:
@@ -630,7 +633,7 @@ public:
 	
 	bool isHostAllowingStrafing()				{ return bHostAllowsStrafing; }
 
-	bool		getGamePaused()					{ return (bViewportMgr || bGameMenu) && tLX->iGameType == GME_LOCAL; }
+	bool		getGamePaused();
 	
 	int			getDlProgress()					{ return iDlProgress; }
 	bool		getDownloadingMap()				{ return bDownloadingMap; }

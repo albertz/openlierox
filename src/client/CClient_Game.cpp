@@ -40,6 +40,7 @@
 #include "CHideAndSeek.h"
 #include "ProjectileDesc.h"
 #include "WeaponDesc.h"
+#include "game/Game.h"
 
 
 CClient		*cClient = NULL;
@@ -64,32 +65,27 @@ void CClient::Simulation()
 		return;
 	}
 
-
-	// If we're in a menu & a local game, don't do simulation
-	if (tLX->iGameType == GME_LOCAL)  {
-		if( bGameOver || bGameMenu || bViewportMgr || Con_IsVisible() ) {
-
-			// Clear the input of the local worms
-			clearLocalWormInputs();
-			
-			// gameover case will be checked below
-			if(!bGameOver) {
-				// skip simulations for this frame
-				for(int i = 0; i < MAX_WORMS; i++) {
-					CWorm* w = &cRemoteWorms[i];
-					if(!w->isUsed()) continue;
-					if(!w->getAlive()) continue;
-					PhysicsEngine::Get()->skipWorm(w);
-				}
-				PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
-				PhysicsEngine::Get()->skipBonuses(cBonuses, MAX_BONUSES);				
+	if(game.isGamePaused()) {
+		// Clear the input of the local worms
+		clearLocalWormInputs();
+		
+		// gameover case will be checked below
+		if(!bGameOver) {
+			// skip simulations for this frame
+			for(int i = 0; i < MAX_WORMS; i++) {
+				CWorm* w = &cRemoteWorms[i];
+				if(!w->isUsed()) continue;
+				if(!w->getAlive()) continue;
+				PhysicsEngine::Get()->skipWorm(w);
 			}
+			PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
+			PhysicsEngine::Get()->skipBonuses(cBonuses, MAX_BONUSES);				
 		}
 	}
 
-    // We stop a few seconds after the actual game over
-    if(bGameOver && (tLX->currentTime - fGameOverTime).seconds() > GAMEOVER_WAIT)
-        return;
+	// gameover check and maybe other stuff
+	if(game.shouldDoPhysicsFrame())
+		return;
 
 
 	// TODO: does it work also, if we

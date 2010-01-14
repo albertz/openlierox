@@ -41,6 +41,9 @@ public:
 	bool isServer();
 	bool isClient() { return !isServer(); }
 	bool isTeamPlay();
+	bool isGamePaused();
+	bool shouldDoPhysicsFrame();
+	
 	bool needToCreateOwnWormInputHandlers();
 	bool needProxyWormInputHandler();
 	

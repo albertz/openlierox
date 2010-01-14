@@ -35,6 +35,8 @@
 #include "gusanos/lua51/luaapi/context.h"
 #include "sound/sfx.h"
 #include "gusanos/network.h"
+#include "OLXConsole.h"
+
 #include <boost/shared_ptr.hpp>
 
 Game game;
@@ -375,5 +377,21 @@ bool Game::needToCreateOwnWormInputHandlers() {
 
 bool Game::isTeamPlay() {
 	return cClient->isTeamGame();
+}
+
+
+bool CClient::getGamePaused() {
+	return (tLX->iGameType == GME_LOCAL) && (bGameOver || bViewportMgr || bGameMenu || Con_IsVisible());
+}
+
+bool Game::isGamePaused() {
+	// If we're in a menu & a local game, don't do simulation
+	return cClient->getGamePaused();
+}
+
+bool Game::shouldDoPhysicsFrame() {
+	return !isGamePaused() && cClient->canSimulate() &&
+    // We stop a few seconds after the actual game over
+	!(cClient->bGameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
 }
 
