@@ -19,6 +19,7 @@
 
 #include "sprite_set.h" // TEMP
 #include "sprite.h" // TEMP
+#include "CGameScript.h"
 
 #include <iostream>
 
@@ -203,35 +204,43 @@ void CViewport::gusRender()
 	if(gusGame.level().config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
-	CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
+	// only use the player/worm specific drawings in gus mods
+	if(game.gameScript()->gusEngineUsed()) {
+		CWormInputHandler* player = pcTargetWorm ? pcTargetWorm->inputHandler() : NULL;
+		
+		// Note that we only process worms in the Lua callbacks which have a player set.
+		// Most Lua code depends on this assumption so it would break otherwise.
+		
+		EACH_CALLBACK(i, wormRender) {
+			for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
+				CWorm* worm = (*playerIter)->getWorm();
+				if( worm && worm->isActive() && worm->inputHandler() ) {
+					IVec renderPos( worm->getRenderPos() );
+					int x = renderPos.x - offX;
+					int y = renderPos.y - offY;
+					//bool ownViewport = (*playerIter == player);
+					LuaReference ownerRef;
 
-	// Note that we only process worms in the Lua callbacks which have a player set.
-	// Most Lua code depends on this assumption so it would break otherwise.
-	
-	EACH_CALLBACK(i, wormRender) {
-		for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
-			CWorm* worm = (*playerIter)->getWorm();
-			if( worm && worm->isActive() && worm->inputHandler() ) {
-				IVec renderPos( worm->getRenderPos() );
-				int x = renderPos.x - offX;
-				int y = renderPos.y - offY;
-				//bool ownViewport = (*playerIter == player);
-				LuaReference ownerRef;
+					if ( player )
+						ownerRef = player->getLuaReference();
 
-				if ( player )
-					ownerRef = player->getLuaReference();
+					//lua.callReference(0, *i, (lua_Number)x, (lua_Number)y, worm->luaReference, luaReference, ownViewport);
+					(lua.call(*i), (lua_Number)x, (lua_Number)y, worm->getLuaReference(), luaReference, ownerRef)();
+				}
+			}
+		}
 
-				//lua.callReference(0, *i, (lua_Number)x, (lua_Number)y, worm->luaReference, luaReference, ownViewport);
-				(lua.call(*i), (lua_Number)x, (lua_Number)y, worm->getLuaReference(), luaReference, ownerRef)();
+		if(pcTargetWorm && pcTargetWorm->inputHandler()) {
+			EACH_CALLBACK(i, viewportRender) {
+				//lua.callReference(0, *i, luaReference, worm->luaReference);
+				(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
 			}
 		}
 	}
-
-	if(pcTargetWorm && pcTargetWorm->inputHandler()) {
-		EACH_CALLBACK(i, viewportRender) {
-			//lua.callReference(0, *i, luaReference, worm->luaReference);
-			(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
-		}
+	
+	// no gus mod
+	else {
+		
 	}
 }
 

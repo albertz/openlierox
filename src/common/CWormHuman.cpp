@@ -1174,6 +1174,9 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 
 void CWormHumanInputHandler::OlxInputToGusEvents()
 {
+	// for now, we ignore this totally if we use a lx-mod
+	if(!game.gameScript()->gusEngineUsed()) return;
+	
 	// change + jump -> ninja
 
 	size_t i = 0;

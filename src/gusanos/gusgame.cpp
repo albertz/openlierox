@@ -952,7 +952,7 @@ void GusGame::reinit() {
 	
 }
 
-void GusGame::prepareLoad(const std::string& path) {
+void GusGame::prepareLoad(const std::string& path) {	
 	reinit();
 	
 	m_modName = nextMod;

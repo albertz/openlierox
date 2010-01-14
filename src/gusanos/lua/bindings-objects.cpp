@@ -44,6 +44,11 @@ namespace ParticleRep
 
 int shootFromObject(lua_State* L, CGameObject* object)
 {
+	if(object == NULL) {
+		errors << "shootFromObject: object == NULL" << endl;
+		return 0;
+	}
+	
 	/*
 	void* typeP = lua_touserdata (L, 2);
 	if(!typeP)

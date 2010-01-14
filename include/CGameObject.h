@@ -17,6 +17,7 @@
 #ifndef __CGAMEOBJECT_H__
 #define __CGAMEOBJECT_H__
 
+#include "Utils.h"
 #include "util/angle.h"
 #include "util/vec.h"
 #include "gusanos/lua51/luaapi/types.h"
@@ -137,6 +138,11 @@ public:
 		vPos = CVec(pos_.x, pos_.y);
 	}
 	
+	struct ScopedGusCompatibleSpeed : DontCopyTag {
+		CGameObject& obj;
+		ScopedGusCompatibleSpeed(CGameObject& o);
+		~ScopedGusCompatibleSpeed();
+	};
 	
 	LuaReference luaData;
 	
@@ -151,7 +157,6 @@ public:
 protected:
 	//LuaReference luaReference; //Defined in LuaObject
 	CWormInputHandler* m_owner;
-	
 	
 };
 

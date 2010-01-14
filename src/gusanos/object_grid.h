@@ -440,6 +440,7 @@ public:
 	Grid()
 	: width(0), height(0)
 	{
+		resize(0,0,100,100);
 	}
 	
 	void resize(int x1_, int y1_, int x2_, int y2_)

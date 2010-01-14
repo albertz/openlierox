@@ -8,6 +8,11 @@
  */
 
 #include "CGameObject.h"
+#include "game/Game.h"
+#include "CGameScript.h"
+#include "CWorm.h"
+#include "PhysicsLX56.h"
+
 
 bool CGameObject::injure(float damage) {
 	health -= damage;
@@ -120,3 +125,19 @@ void CGameObject::makeReference()
  delete this;
  }
  */
+
+
+CGameObject::ScopedGusCompatibleSpeed::ScopedGusCompatibleSpeed(CGameObject& o) : obj(o) {
+	if(dynamic_cast<CWorm*> (&obj) == NULL) return;
+	if(!game.gameScript()->gusEngineUsed())
+		// we do this if we use the LX56 Physics simulation on worms
+		// Gusanos interprets the velocity in a different way, so we convert it while we are doing Gus stuff
+		obj.velocity() *= LX56PhysicsDT.seconds();
+}
+
+CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
+	if(dynamic_cast<CWorm*> (&obj) == NULL) return;
+	if(!game.gameScript()->gusEngineUsed())
+		obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
+}
+

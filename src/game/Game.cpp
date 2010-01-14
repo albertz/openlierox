@@ -35,6 +35,7 @@
 #include "gusanos/lua51/luaapi/context.h"
 #include "sound/sfx.h"
 #include "gusanos/network.h"
+#include <boost/shared_ptr.hpp>
 
 Game game;
 
@@ -172,12 +173,21 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	if(gusGame.isEngineNeeded())
+	//if(gusGame.isEngineNeeded()) {
+	// do lua frames in all cases
+	{
+		// convert speed to lua if needed
+		boost::shared_ptr<CGameObject::ScopedGusCompatibleSpeed> scopedSpeeds[MAX_WORMS];
+		for(int i = 0; i < MAX_WORMS; ++i)
+			if(cClient->getRemoteWorms()[i].isUsed())
+				scopedSpeeds[i].reset( new CGameObject::ScopedGusCompatibleSpeed(cClient->getRemoteWorms()[i]) );
+		
 		gusLogicFrame();
-	else {
+	}
+	/*} else {
 		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case
 		sfx.think();
-	}
+	}*/
 	
 	// Local
 	switch (tLX->iGameType)  {
@@ -263,7 +273,7 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 
 
 void Game::onNewWorm(CWorm* w) {
-	if(!game.gameScript()->gusEngineUsed()) return;
+	//if(!game.gameScript()->gusEngineUsed()) return;
 
 #ifdef USE_GRID
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
