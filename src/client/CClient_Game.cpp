@@ -84,7 +84,7 @@ void CClient::Simulation()
 	}
 
 	// gameover check and maybe other stuff
-	if(game.shouldDoPhysicsFrame())
+	if(!game.shouldDoPhysicsFrame())
 		return;
 
 
