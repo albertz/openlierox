@@ -4667,6 +4667,7 @@ void CWormBotInputHandler::subThink() {
 	}
 	
 	bool oldNinja = m_worm->cNinjaRope.isReleased();
+	CVec oldNinjaPos = m_worm->cNinjaRope.getHookPos();
 	worm_state_t oldS = *m_worm->getWormState();
 	
 	m_worm->fAngle = (float)m_worm->aimAngle.toDeg() - 90.0f;
@@ -4675,6 +4676,7 @@ void CWormBotInputHandler::subThink() {
 	getInput();
 
 	bool newNinja = m_worm->cNinjaRope.isReleased();
+	CVec newNinjaPos = m_worm->cNinjaRope.getHookPos();
 	worm_state_t& newS = *m_worm->getWormState();
 
 	if(oldS.bMove && newS.bMove) {
@@ -4698,10 +4700,7 @@ void CWormBotInputHandler::subThink() {
 	
 	if(oldS.bCarve && !newS.bCarve) baseActionStop(DIG);
 	if(!oldS.bCarve && newS.bCarve) baseActionStart(DIG);
-
-	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
-	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
-
+	
 	m_worm->aimAngle = Angle(m_worm->fAngle + 90.0f);
 	//m_worm->aimAngle = Angle(90.0f - m_worm->fAngle);
 	
@@ -4723,6 +4722,15 @@ void CWormBotInputHandler::subThink() {
 		m_worm->aimSpeed *= m_options->aimFriction;
 	*/
 
+	if(oldNinja && !newNinja) baseActionStop(NINJAROPE);
+	if(!oldNinja && newNinja) baseActionStart(NINJAROPE);
+	if(oldNinja && newNinja && oldNinjaPos != newNinjaPos) {
+		// very hacky this check but actually should work
+		// it means that we have reshooted the rope
+		baseActionStop(NINJAROPE);
+		baseActionStart(NINJAROPE);
+	}
+	
 	// stupid wpn change code from player_ai.cpp
 	if ( ( m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
 	{
