@@ -241,44 +241,50 @@ void CWormHumanInputHandler::getInput() {
 		}
 	}
 
-    //
-    // Weapon changing
-	//
-	if(cSelWeapon.isDown()) {
-		// TODO: was is the intention of this var? if weapon change, then it's wrong
-		// if cSelWeapon.isDown(), then we don't need it
-		weap = true;
+	
+	bool allocombo = cClient->getGameLobby()->features[FT_WeaponCombos];
+	
+	ws->bShoot = cShoot.isDown();
 
-		// we don't want keyrepeats here, so only count the first down-event
-		int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
-		m_worm->iCurrentWeapon += change;
-		MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+	if(!ws->bShoot || allocombo) {
+		//
+		// Weapon changing
+		//
+		if(cSelWeapon.isDown()) {
+			// TODO: was is the intention of this var? if weapon change, then it's wrong
+			// if cSelWeapon.isDown(), then we don't need it
+			weap = true;
 
-		// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
-		if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
-			m_worm->iCurrentWeapon++;
+			// we don't want keyrepeats here, so only count the first down-event
+			int change = (rightOnce ? 1 : 0) - (leftOnce ? 1 : 0);
+			m_worm->iCurrentWeapon += change;
 			MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
-		}
-	}
 
-	// Process weapon quick-selection keys
-	for(size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]); i++ )
-	{
-		if( cWeapons[i].isDown() )
+			// Joystick: if the button is pressed, change the weapon (it is annoying to move the axis for weapon changing)
+			if (cSelWeapon.isJoystick() && change == 0 && cSelWeapon.isDownOnce())  {
+				m_worm->iCurrentWeapon++;
+				MOD(m_worm->iCurrentWeapon, m_worm->iNumWeaponSlots);
+			}
+		}
+
+		// Process weapon quick-selection keys
+		for(size_t i = 0; i < sizeof(cWeapons) / sizeof(cWeapons[0]); i++ )
 		{
-			m_worm->iCurrentWeapon = i;
-			// Let the weapon name show up for a short moment
-			m_worm->bForceWeapon_Name = true;
-			m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
+			if( cWeapons[i].isDown() )
+			{
+				m_worm->iCurrentWeapon = i;
+				// Let the weapon name show up for a short moment
+				m_worm->bForceWeapon_Name = true;
+				m_worm->fForceWeapon_Time = tLX->currentTime + 0.75f;
+			}
 		}
-	}
 
+	}
 
 	// Safety: clamp the current weapon
 	m_worm->iCurrentWeapon = CLAMP(m_worm->iCurrentWeapon, 0, m_worm->iNumWeaponSlots-1);
 
 
-	ws->bShoot = cShoot.isDown();
 
 	if(!cSelWeapon.isDown()) {
 		if(cLeft.isDown()) {

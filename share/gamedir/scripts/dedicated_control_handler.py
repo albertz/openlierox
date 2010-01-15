@@ -13,6 +13,7 @@ import threading
 import traceback
 import random
 import portalocker
+import subprocess, signal, os.path
 
 import dedicated_control_io as io
 setvar = io.setvar
@@ -81,6 +82,9 @@ GAME_PLAYING = 3
 gameState = GAME_READY
 
 sentStartGame = False
+
+videoRecorder = None
+videoRecorderSignalTime = 0
 
 def DoNothing(): pass
 
@@ -619,6 +623,7 @@ def controlHandlerDefault():
 	global worms, gameState, lobbyChangePresetTimeout, lobbyWaitBeforeGame, lobbyWaitAfterGame
 	global lobbyWaitGeneral, lobbyEnoughPlayers, oldGameState, scriptPaused, sentStartGame
 	global presetCicler, modCicler, mapCicler, LT_Cicler
+	global videoRecorder, videoRecorderSignalTime
 	
 	if scriptPaused:
 		return
@@ -640,6 +645,21 @@ def controlHandlerDefault():
 			lobbyWaitAfterGame = curTime
 			if oldGameState == GAME_PLAYING:
 				lobbyWaitAfterGame = curTime + cfg.WAIT_AFTER_GAME
+			if videoRecorder:
+				os.kill(videoRecorder.pid, signal.SIGINT)  # videoRecorder.send_signal(signal.SIGINT) # This is available only on Python 2.6
+				videoRecorderSignalTime = time.time()
+				io.chatMsg("Waiting for video recorder to finish")
+
+		canStart = True
+		if videoRecorder and videoRecorder.returncode == None:
+			canStart = False
+			videoRecorder.poll()
+			if time.time() - videoRecorderSignalTime > 30:
+				os.kill(videoRecorder.pid, signal.SIGKILL)
+				videoRecorder.poll()
+			if videoRecorder.returncode != None:
+				canStart = True
+				videoRecorder = None
 
 		if lobbyWaitAfterGame <= curTime:
 
@@ -658,7 +678,7 @@ def controlHandlerDefault():
 
 			if lobbyEnoughPlayers and not sentStartGame:
 
-				if lobbyWaitBeforeGame <= curTime: # Start the game
+				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
 
 					if io.getGameType() <= 1:
 						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
@@ -674,8 +694,16 @@ def controlHandlerDefault():
 
 					if io.startGame():
 						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
-							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)	
+							io.chatMsg(cfg.TEAM_CHANGE_MESSAGE)
 						sentStartGame = True
+						if cfg.RECORD_VIDEO:
+							try:
+								#io.messageLog("Running dedicated-video-record.sh, curdir " + os.path.abspath(os.path.curdir) ,io.LOG_INFO)
+								videoRecorder = subprocess.Popen( ["dedicated-video-record.sh", "dedicated-video-record.sh"],
+												stdin=open("/dev/null","r"), stdout=open("../../../dedicatedVideo.log","w"),
+												stderr=subprocess.STDOUT, cwd=".." )
+							except:
+								io.messageLog(formatExceptionInfo(),io.LOG_ERROR)
 					else:
 						io.chatMsg("Game could not be started")
 						oldGameState == GAME_PLAYING # hack that it resets at next control handler call

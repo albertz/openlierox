@@ -129,6 +129,7 @@ enum FeatureIndex {
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
 	FT_DisableWpnsWhenEmpty,
+	FT_WeaponCombos,
 	FT_InfiniteMap,
 	FT_WormFriction,
 	FT_WormGroundFriction,

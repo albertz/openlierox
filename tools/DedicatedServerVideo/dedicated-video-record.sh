@@ -1,7 +1,12 @@
 #!/bin/sh
 
+IFS='
+'
 
 CURDATE=`date "+%Y-%m-%d_%H:%M"`
+
+rm -rf /tmp/rMD-session-* video-*.ogv
+killall -KILL recordmydesktop
 
 jackd -d dummy &
 JOBS=$!
@@ -11,11 +16,13 @@ setsid Xvfb :11 -screen 0 640x480x16 &
 XVFB=$!
 JOBS="$JOBS $XVFB"
 sleep 1
-env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp jacklaunch openlierox \
--exec 'setVar GameOptions.Advanced.MaxFPS 10' \
--exec 'setVar GameOptions.Game.LastSelectedPlayer "[CPU] Dummi"' \
--exec 'setVar GameOptions.Audio.Enabled 1' \
--exec 'wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam' \
+# jacklaunch is a simple script which messes up quoted arguments, so we're just doing LD_PRELOAD
+env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp LD_PRELOAD=/usr/lib/libjackasyn.so.0 \
+openlierox \
+-exec "setVar GameOptions.Advanced.MaxFPS 10" \
+-exec "setVar GameOptions.Game.LastSelectedPlayer [CPU] Dummi" \
+-exec "setVar GameOptions.Audio.Enabled 1" \
+-exec "wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam" \
 -connect 127.0.0.1 &
 OLX=$!
 sleep 5
