@@ -33,6 +33,7 @@
 #endif
 #include "CGameMode.h"
 #include "game/Mod.h"
+#include "game/Game.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -976,6 +977,10 @@ void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 
 void CServerNetEngine::SendWormDied(CWorm *Worm)
 {
+	if(game.gameScript()->gusEngineUsed())
+		// we don't use this in Gusanos
+		return;
+	
 	CBytestream bs;
 	bs.writeByte(S2C_WORMDOWN);
 	bs.writeInt(Worm->getID(), 1);

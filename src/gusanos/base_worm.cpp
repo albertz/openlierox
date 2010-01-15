@@ -32,6 +32,7 @@
 #include "game/Game.h"
 #include "gusanos/network.h"
 #include "gusanos/net_worm.h"
+#include "CServer.h"
 
 #include <math.h>
 #include <string>
@@ -823,7 +824,7 @@ void CWorm::base_die() {
 	}
 	
 	if(m_isAuthority) {
-		game.gameMode()->Kill(this, m_lastHurt ? m_lastHurt->getWorm() : NULL);
+		cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1, 0);
 	}
 	
 	m_ninjaRope->remove();
