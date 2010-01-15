@@ -468,19 +468,7 @@ inline void DrawImageStretchMirrorKey(SDL_Surface * bmpDest, const SmartPointer<
 	DrawImageStretchMirrorKey(bmpDest, bmpSrc.get(), sx, sy, dx, dy, w, h);
 }
 
-inline SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
-	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
-															bmpSrc->flags,
-															bmpSrc->w, bmpSrc->h,
-															bmpSrc->format->BitsPerPixel,
-															bmpSrc->format->Rmask,
-															bmpSrc->format->Gmask,
-															bmpSrc->format->Bmask,
-															bmpSrc->format->Amask);
-	if (result.get() == NULL) return NULL;
-	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
-	return result;
-}
+SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc);
 inline SmartPointer<SDL_Surface> GetCopiedImage(const SmartPointer<SDL_Surface> & bmpSrc) {
 	return GetCopiedImage(bmpSrc.get());
 }

@@ -478,6 +478,28 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 		SDL_SetColorKey(src, SDL_SRCCOLORKEY, Colorkey);
 }
 
+SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
+															bmpSrc->flags,
+															bmpSrc->w, bmpSrc->h,
+															bmpSrc->format->BitsPerPixel,
+															bmpSrc->format->Rmask,
+															bmpSrc->format->Gmask,
+															bmpSrc->format->Bmask,
+															bmpSrc->format->Amask);
+	if (result.get() == NULL) return NULL;
+	
+	CopySurface(result.get(), bmpSrc, 0, 0, 0, 0, bmpSrc->w, bmpSrc->h);
+	
+	if(bmpSrc->flags & SDL_SRCCOLORKEY) {
+		Color colorkey = Color(bmpSrc->format, bmpSrc->format->colorkey);
+		SetColorKey(result.get(), colorkey.r, colorkey.g, colorkey.b);
+	}
+	
+	return result;
+}
+
+
 /////////////////////
 // Performs a "correct" blit of RGBA surfaces to RGB or RGBA surfaces
 static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
