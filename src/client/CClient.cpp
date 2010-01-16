@@ -167,6 +167,7 @@ void CClient::Clear()
 	bWaitingForMod = false;
 	bHaveMap = false;
 	bHaveMod = false;
+	permanentText = "";
 }
 
 

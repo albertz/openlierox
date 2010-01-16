@@ -589,7 +589,13 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		DrawLocalChat(bmpDest);
 	else
 		DrawRemoteChat(bmpDest);
-
+	
+	if(permanentText != "") {
+		int y = tInterfaceSettings.LocalChatY;
+		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX + 1, y+1, tLX->clBlack, permanentText); // Shadow
+		tLX->cFont.Draw(bmpDest, tInterfaceSettings.LocalChatX, y, Color(0,0,255), permanentText);
+	}
+	
 	// FPS
 	if(tLXOptions->bShowFPS) {
 		if (tLXOptions->bTopBarVisible)  {
@@ -1942,6 +1948,8 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 		return;
 
 	int y = tInterfaceSettings.LocalChatY;
+	if(permanentText != "") y += tLX->cFont.GetHeight(permanentText) + 2;
+	
 	lines_riterator it = cChatbox.RBegin();
 	if(it != cChatbox.REnd()) it++;
 

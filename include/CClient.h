@@ -394,6 +394,7 @@ private:
     bool		bClientError;
 
 	std::string	strDebug;	// This is only a debug string which is reset after each frame and which is printed on the screen.
+	std::string permanentText; // drawn always on top, only reset at gamestart
 	
 	struct		cSpectatorViewportKeys_t {
 				CInput Up, Down, Left, Right, V1Type, V2Type, V2Toggle;
@@ -536,6 +537,8 @@ public:
 	void		ProcessModDownloads();
 	void		FinishModDownloads();
 	void		ProcessUdpUploads();
+
+	void		SetPermanentText(const std::string& t) { permanentText = t; }
 
 	// Variables
 	CChannel	*getChannel()			{ return cNetChan; }
