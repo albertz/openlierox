@@ -491,8 +491,14 @@ void CWorm::processMoveAndDig(void)
 }
 
 void CWorm::think()
-{
+{	
 	if(!game.gameScript()->gusEngineUsed()) {
+		// we do that in any case, it may be that some map object was trying to kill us
+		if(getAlive()) {
+			if ( health <= 0 )
+				die();
+		}		
+
 		// NOTE: This was from Worm::think() which isn't used right now
 		renderPos = pos();
 		return;
@@ -800,24 +806,27 @@ void CWorm::dig( const Vec& digPos, Angle angle )
 }
 
 void CWorm::base_die() {
-	// NetWorm code
-	if( m_isAuthority && m_node ) {
-		Net_BitStream *data = new Net_BitStream;
-		addEvent(data, Die);
-		if ( m_lastHurt )
-		{
-			data->addInt( static_cast<int>( m_lastHurt->getNodeID() ), 32 );
+	if(game.gameScript()->gusEngineUsed()) {
+		// NetWorm code
+		if( m_isAuthority && m_node ) {
+			Net_BitStream *data = new Net_BitStream;
+			addEvent(data, Die);
+			if ( m_lastHurt )
+			{
+				data->addInt( static_cast<int>( m_lastHurt->getNodeID() ), 32 );
+			}
+			else
+			{
+				data->addInt( INVALID_NODE_ID, 32 );
+			}
+			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
 		}
-		else
-		{
-			data->addInt( INVALID_NODE_ID, 32 );
+		
+		EACH_CALLBACK(i, wormDeath) {
+			(lua.call(*i), getLuaReference())();
 		}
-		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
 	}
 	
-	EACH_CALLBACK(i, wormDeath) {
-		(lua.call(*i), getLuaReference())();
-	}
 	bAlive = false;
 	if (m_owner) {
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
