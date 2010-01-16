@@ -2601,6 +2601,11 @@ void SyncServerAndClient() {
 		return;
 	}
 	
+	if(cServer->getClients() == NULL) {
+		errors << "SyncServerAndClient: server was not correctly initialised" << endl;
+		return;
+	}
+	
 	//notes << "Syncing server and client ..." << endl;
 
 	{
