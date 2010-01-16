@@ -256,7 +256,7 @@ static void Menu_Local_InitGameMenu() {
 	cLocalMenu.Add( new CBrowser(),		ml_LevelDescription,	   30, boxy + boxh + 30, 640 - 2*30, 480 - browsery - bottombuttonsh);
 
 	cLocalMenu.Add( new CLabel("Level number", tLX->clHeading),		-1,	   150, 445, 0, 0);
-	cLocalMenu.Add( new CSlider(1,1,1,true,202,-6,tLX->clNormalLabel),		ml_LevelNumber,	   250, 445 + 7, 200, 1);
+	cLocalMenu.Add( new CSlider(1,1,1,true,204,-3,tLX->clNormalLabel),		ml_LevelNumber,	   250, 445 + 2, 200, 10);
 	
 	updateGameLevel();
 }
@@ -420,7 +420,15 @@ void Menu_LocalFrame()
 				handleGameSwitch();
 				//}
 				break;
-				
+
+			case ml_LevelNumber:
+				if(ev->iEventMsg == SLD_CHANGE) {
+					CSlider *s = (CSlider *)cLocalMenu.getWidget(ml_LevelNumber);
+					singlePlayerGame.setLevel( s->getValue() );
+					updateGameLevel();
+				}
+				break;
+								
 			// Back
 			case ml_Back:
 				if(ev->iEventMsg == BTN_CLICKED) {
