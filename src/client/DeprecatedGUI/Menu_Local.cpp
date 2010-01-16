@@ -247,9 +247,9 @@ static void Menu_Local_InitGameMenu() {
 	Menu_DrawBox(tMenu->bmpBuffer.get(), boxx - 2, boxy - 2, boxx + boxw + 4, boxy + boxh + 4);
 	
 	cLocalMenu.Add( new CLabel("Level",tLX->clHeading),			-1,    120, boxy + boxh + 10, 0, 0);
-	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),	ml_LevelLabel,   210, boxy + boxh + 10, 0, 0);
+	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),	ml_LevelLabel,   170, boxy + boxh + 10, 0, 0);
 	cLocalMenu.Add( new CLabel("Mod",tLX->clHeading),			-1,	   300, boxy + boxh + 10, 0, 0);
-	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),		ml_ModLabel,  390, boxy + boxh + 10, 0, 0);
+	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),		ml_ModLabel,  350, boxy + boxh + 10, 0, 0);
 
 	static const int browsery = boxy + boxh + 30;
 	static const int bottombuttonsh = 50;
