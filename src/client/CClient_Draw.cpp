@@ -57,6 +57,7 @@
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
 #include "gusanos/lua51/luaapi/context.h"
+#include "game/SinglePlayer.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -741,7 +742,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// TODO: remove this static here; it is a bad hack and doesn't work in all cases
 	static bool was_gameovermenu = false;
 	if(bGameOver) {
-		if(tLX->currentTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {
+		if(tLX->currentTime - fGameOverTime > GAMEOVER_WAIT && !was_gameovermenu)  {			
 			InitializeGameMenu();
 
 			// If this is a tournament, take screenshot of the final screen
@@ -752,8 +753,15 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			}
 
 			was_gameovermenu = true;
-		} else
-			tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+		} else {
+			if(cServer->getGameMode() == &singlePlayerGame && singlePlayerGame.levelSucceeded) {
+				std::string s = "Congratulations, you have done it!";
+				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clWhite, s);
+				tLX->cOutlineFont.DrawCentre(bmpDest, 321, 201, tLX->clBlack, s);
+				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, Color(100,255,100), s);
+			} else
+				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clNormalText, "Game Over");
+		}
 	} else
 		was_gameovermenu = false;
 

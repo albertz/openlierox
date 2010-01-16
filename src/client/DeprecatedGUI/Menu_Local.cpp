@@ -46,6 +46,8 @@
 #include "Options.h"
 #include "CGameMode.h"
 #include "game/Mod.h"
+#include "IniReader.h"
+#include "game/SinglePlayer.h"
 
 
 namespace DeprecatedGUI {
@@ -54,22 +56,233 @@ CGuiLayout cLocalMenu;
 
 // Gui layout id's
 enum {
-	ml_Back=0,
+	ml_GameLabel,
+	ml_Game,
+		
+	ml_Back,
 	ml_Start,
+	
+	__ml_AutoRemoveBegin,
+	
 	ml_Playing,
 	ml_PlayerList,
 	ml_LevelList,
 	ml_Gametype,
 	ml_ModName,
 	ml_GameSettings,
-    ml_WeaponOptions
+    ml_WeaponOptions,
+	
+	ml_LevelLabel,
+	ml_ModLabel,
+	ml_LevelDescription,
+	ml_LevelNumber,
+	
+	__ml_LowerLimit,
 };
 
 
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
+	
+static void Menu_Local_InitCustomLevel() {
+	// Minimap box
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 133,129, 266, 230);
 
+	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 126);
+	cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
+	
+	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, 310, 170,15);
+    cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,27, 335, 185,15);
+	
+	cLocalMenu.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  284, 0,   0);
+	cLocalMenu.Add( new CCombobox(),				ml_ModName,    120, 283, 170, 17);
+	cLocalMenu.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  260, 0,   0);
+	cLocalMenu.Add( new CCombobox(),				ml_Gametype,   120, 259, 170, 17);
+    cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
+	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
+	
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 24);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
+	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
+	
+	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
+	
+	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 24);
+	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
+	
+	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
+	
+	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
+		cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
+	}		
+    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
+	
+	// Add players to player/playing lists
+	Menu_LocalAddProfiles();
+	
+	// Fill the level list
+	CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
+	Menu_FillLevelList( cbLevel, true);
+	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
+	Menu_LocalShowMinimap(true);
+	
+	// Fill in the mod list
+	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
+	Menu_Local_FillModList( cbMod );
+	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
+		
+}
+	
+static int selectedGameIndex() {
+	CCombobox* cb = (CCombobox *)cLocalMenu.getWidget(ml_Game);
+	if(cb == NULL) {
+		errors << "Local menu: selectedGameIndex: game combobox not found" << endl;
+		return -1;
+	}
+	
+	const cb_item_t* item = cb->getSelectedItem();
+	if(item == NULL) {
+		errors << "Local menu: selectedGameIndex: game combobox has not selected anything" << endl;
+		return -1;		
+	}
+	
+	return from_string<int>(item->sIndex);
+}
 
+static std::string selectedGameName() {
+	CCombobox* cb = (CCombobox *)cLocalMenu.getWidget(ml_Game);
+	if(cb == NULL) {
+		errors << "Local menu: selectedGameName: game combobox not found" << endl;
+		return "";
+	}
+	
+	const cb_item_t* item = cb->getSelectedItem();
+	if(item == NULL) {
+		errors << "Local menu: selectedGameName: game combobox has not selected anything" << endl;
+		return "";		
+	}
+	
+	return item->sName;
+}
+	
+static void newGameListEntry(const std::string& game, int index) {
+	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->addItem(-1, itoa(index), game);
+}
+	
+static void setCurGameComboIndex(int index) {
+	((CCombobox *)cLocalMenu.getWidget(ml_Game)) ->setCurSIndexItem(itoa(index));
+}
+	
+static void fillGameList() {
+	newGameListEntry("- Custom level/mod -", -1);
+	
+	struct Ini : public IniReader {
+		int index;
+		Ini() : IniReader("games/games.cfg"), index(0) {}
+		bool OnNewSection (const std::string& section) {
+			newGameListEntry(section, index);
+			index++;
+			return true;
+		}
+	} ini;
+	
+	if(!ini.Parse())
+		warnings << "error while parsing games.cfg" << endl;
+	
+	setCurGameComboIndex(tLXOptions->iLocalPlayGame);
+}	
+	
+static bool deleteWidgets(int index) {
+	bool one = false;
+	while(cLocalMenu.getWidget(index)) {
+		cLocalMenu.removeWidget(index);
+		one = true;
+	}
+	return one;
+}
+	
+static void uninitCurrentGameMenu() {
+	deleteWidgets(-1);
+	for(int i = __ml_AutoRemoveBegin + 1; i < __ml_LowerLimit; ++i)
+		deleteWidgets(i);
+}
+
+static const int boxw = 600;
+static const int boxh = 150;
+static const int boxx = (640 - boxw) / 2;
+static const int boxy = 80;
+	
+static void redrawGamePreviewImage() {
+	DrawImageAdv(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common, boxx, boxy, boxx, boxy, boxw, boxh);
+	
+	if(singlePlayerGame.image.get())
+		DrawImageResampledAdv(tMenu->bmpBuffer.get(), singlePlayerGame.image, 0, 0, boxx, boxy, singlePlayerGame.image->w, singlePlayerGame.image->h, boxw, boxh);
+}
+
+static void updateGameLevel() {
+	redrawGamePreviewImage();
+
+	CLabel* lvlLb = (CLabel *)cLocalMenu.getWidget(ml_LevelLabel);
+	if(lvlLb) lvlLb->setText(singlePlayerGame.levelInfo.name);
+
+	CLabel* modLb = (CLabel *)cLocalMenu.getWidget(ml_ModLabel);
+	if(modLb) modLb->setText(singlePlayerGame.modInfo.name);
+
+	CBrowser *b = (CBrowser *)cLocalMenu.getWidget(ml_LevelDescription);
+	if(b) b->LoadFromString(singlePlayerGame.description);
+	
+	CSlider* s = (CSlider*)cLocalMenu.getWidget(ml_LevelNumber);
+	if(s) {
+		s->setMin(1);
+		s->setMax(singlePlayerGame.maxAllowedLevelForCurrentGame());
+		s->setValue(singlePlayerGame.currentLevel);
+	}
+}
+	
+static void Menu_Local_InitGameMenu() {
+	std::string game = selectedGameName();
+	singlePlayerGame.setGame(game);
+	
+	// box for preview image
+	Menu_DrawBox(tMenu->bmpBuffer.get(), boxx - 2, boxy - 2, boxx + boxw + 4, boxy + boxh + 4);
+	
+	cLocalMenu.Add( new CLabel("Level",tLX->clHeading),			-1,    120, boxy + boxh + 10, 0, 0);
+	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),	ml_LevelLabel,   210, boxy + boxh + 10, 0, 0);
+	cLocalMenu.Add( new CLabel("Mod",tLX->clHeading),			-1,	   300, boxy + boxh + 10, 0, 0);
+	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),		ml_ModLabel,  390, boxy + boxh + 10, 0, 0);
+
+	static const int browsery = boxy + boxh + 30;
+	static const int bottombuttonsh = 50;
+	cLocalMenu.Add( new CBrowser(),		ml_LevelDescription,	   30, boxy + boxh + 30, 640 - 2*30, 480 - browsery - bottombuttonsh);
+
+	cLocalMenu.Add( new CLabel("Level number", tLX->clHeading),		-1,	   150, 445, 0, 0);
+	cLocalMenu.Add( new CSlider(1,1,1,true,202,-6,tLX->clNormalLabel),		ml_LevelNumber,	   250, 445 + 7, 200, 1);
+	
+	updateGameLevel();
+}
+	
+static void initCurrentGameMenu() {
+	// Create the buffer
+	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
+	Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_LOCAL,15);
+	if (tMenu->tFrontendInfo.bPageBoxes)
+		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
+
+	if(tLXOptions->iLocalPlayGame < 0)
+		Menu_Local_InitCustomLevel();
+	else
+		Menu_Local_InitGameMenu();
+}
+	
+static void handleGameSwitch() {
+	int newGame = selectedGameIndex();
+	if(newGame != tLXOptions->iLocalPlayGame) {
+		uninitCurrentGameMenu();
+		tLXOptions->iLocalPlayGame = newGame;
+		initCurrentGameMenu();
+	}
+}
+	
 ///////////////////
 // Initialize the local menu
 void Menu_LocalInitialize()
@@ -77,66 +290,23 @@ void Menu_LocalInitialize()
 	tMenu->iMenuType = MNU_LOCAL;
 	bGameSettings = false;
 
-	// Create the buffer
-	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-	Menu_DrawSubTitleAdv(tMenu->bmpBuffer.get(),SUB_LOCAL,15);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,100, 625, 465);
-
-    // Minimap box
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 133,129, 266, 230);
-
-	Menu_RedrawMouse(true);
 
 	// Shutdown any previous data from before
 	cLocalMenu.Shutdown();
 	cLocalMenu.Initialize();
 
+    cLocalMenu.Add( new CLabel("Game",tLX->clNormalLabel),	  ml_GameLabel,  180,  15, 0,   0);
+	cLocalMenu.Add( new CCombobox(),	ml_Game,  250, 15, 170, 17);
+	fillGameList();
+
 	cLocalMenu.Add( new CButton(BUT_BACK, tMenu->bmpButtons), ml_Back, 27,440, 50,15);
 	cLocalMenu.Add( new CButton(BUT_START, tMenu->bmpButtons), ml_Start, 555,440, 60,15);
-	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 126);
-	cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
-
-	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, 310, 170,15);
-    cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,27, 335, 185,15);
-
-	cLocalMenu.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  284, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_ModName,    120, 283, 170, 17);
-	cLocalMenu.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  260, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_Gametype,   120, 259, 170, 17);
-    cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
-
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 24);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
-	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
-
-	cLocalMenu.SendMessage(ml_Playing,		LVM_SETOLDSTYLE, (DWORD)1, 0);
-
-	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "Players", 24);
-	cLocalMenu.SendMessage(ml_PlayerList,	LVS_ADDCOLUMN, "", 60);
-
-	cLocalMenu.SendMessage(ml_PlayerList,		LVM_SETOLDSTYLE, (DWORD)0, 0);
-
-	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
-		cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
-	}		
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
-
-	// Add players to player/playing lists
-	Menu_LocalAddProfiles();
-
-	// Fill the level list
-	CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
-	Menu_FillLevelList( cbLevel, true);
-	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
-	Menu_LocalShowMinimap(true);
-
-	// Fill in the mod list
-	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
-	Menu_Local_FillModList( cbMod );
-	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
-
+	
+	initCurrentGameMenu();
+	
+	
+	Menu_RedrawMouse(true);
+	cLocalMenu.Draw(VideoPostProcessor::videoSurface());
 }
 
 //////////////
@@ -206,7 +376,7 @@ void Menu_LocalFrame()
 
 	// Reload the list if user switches back to the game
 	// Do not reload when a dialog is open
-	if (tLXOptions->bAutoFileCacheRefresh && bActivated)  {
+	if (tLXOptions->iLocalPlayGame < 0 && tLXOptions->bAutoFileCacheRefresh && bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
@@ -231,7 +401,7 @@ void Menu_LocalFrame()
 
 
     // Was the mouse clicked on the map section
-    if( Mouse->Up & SDL_BUTTON(1) ) {
+    if( (tLXOptions->iLocalPlayGame < 0) && (Mouse->Up & SDL_BUTTON(1)) ) {
     	// TODO: hardcoded sizes here
         if( MouseInRect(136,132,128,96) )
 	    	// TODO: why are we redrawing the minimap here?
@@ -245,6 +415,12 @@ void Menu_LocalFrame()
 	if(ev) {
 
 		switch(ev->iControlID) {
+			case ml_Game:
+				//if(ev->iEventMsg == BTN_CLICKED) {
+				handleGameSwitch();
+				//}
+				break;
+				
 			// Back
 			case ml_Back:
 				if(ev->iEventMsg == BTN_CLICKED) {
@@ -571,48 +747,45 @@ void Menu_LocalShowMinimap(bool bReload)
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 130,130,130,130,140,110);
 }
 
-
-///////////////////
-// Start a local game
-void Menu_LocalStartGame()
-{
+static bool Menu_LocalStartGame_CustomGame() {
+	
 	// Level
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
-
-
+	
+	
 	//
 	// Players
 	//
 	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
-
+	
 	if (lv_playing->getItemCount() == 0) {
 		Menu_MessageBox("Too few players", "You have to select at least one player.");
-		return;
+		return false;
 	}
 	
 	if(lv_playing->getItemCount() > MAX_PLAYERS) {
 		Menu_MessageBox("Too many players",
 						"You have selected " + itoa(lv_playing->getItemCount()) + " players "
 						"but only " + itoa(MAX_PLAYERS) + " players are possible.");
-		return;
+		return false;
 	}
 	
 	tLX->iGameType = GME_LOCAL;
-
+	
 	if(! cClient->Initialize() )
 	{
 		errors << "Could not initialize client" << endl;
-		return;
+		return false;
 	}
-
+	
 	if(!cServer->StartServer()) {
 		errors << "Could not start server" << endl;
-		return;
+		return false;
 	}
 	
     int count = 0;
-
+	
     // Add the human players onto the list
     for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
     	int i = item->iIndex;
@@ -621,7 +794,7 @@ void Menu_LocalStartGame()
 			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
         }
     }
-
+	
     // Add the unhuman players onto the list
     for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
     	int i = item->iIndex;
@@ -632,30 +805,30 @@ void Menu_LocalStartGame()
     }
     
     cClient->setNumWorms(count);
-
+	
 	// Can't start a game with no-one playing
 	if(count == 0)
-		return;
-
+		return false;
+	
 	// Save the current level in the options
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
-
+	
 	//
 	// Game Info
 	//
 	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
-
+	
     //tLXOptions->sServerPassword = ""; // TODO: we have set this, why? it overwrites the password which is very annoying
-    tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise, new net engine doesn't support any kind of pause
-
-
+	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise, new net engine doesn't support any kind of pause
+	
+	
     // Get the mod name
 	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
     if(it) {
         tLXOptions->tGameInfo.sModName = it->sName;
 		tLXOptions->tGameInfo.sModDir = it->sIndex;
     } else {
-
+		
 		// Couldn't find a mod to load
 		cLocalMenu.Draw(tMenu->bmpBuffer.get());
 		Menu_MessageBox("Error","Could not find a mod to load!", LMB_OK);
@@ -663,17 +836,32 @@ void Menu_LocalStartGame()
         Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
 		Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_LOCAL);
 		Menu_RedrawMouse(true);
-		return;
+		return false;
 	}
+	
+	return true;
+}
 
-	*bGame = true;
-	tMenu->bMenuRunning = false;
-	tLX->iGameType = GME_LOCAL;
+///////////////////
+// Start a local game
+void Menu_LocalStartGame()
+{
+	bool ok = false;
+	if(tLXOptions->iLocalPlayGame < 0)
+		ok = Menu_LocalStartGame_CustomGame();
+	else
+		ok = singlePlayerGame.startGame();
 
-	// Tell the client to connect to the server
-	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
-
-	cLocalMenu.Shutdown();
+	if(ok) {
+		*bGame = true;
+		tMenu->bMenuRunning = false;
+		tLX->iGameType = GME_LOCAL;
+		
+		// Tell the client to connect to the server
+		cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
+		
+		cLocalMenu.Shutdown();	
+	}
 }
 
 ///////////////////

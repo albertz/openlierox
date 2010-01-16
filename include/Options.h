@@ -316,6 +316,7 @@ struct GameOptions {
 	int		iLANSortColumn;
 	int		iFavouritesSortColumn;
 	int		iAdvancedLevelLimit;
+	int		iLocalPlayGame;
 	
 	// Last used game details - used as game lobby structure in client
 	// Put everything that impacts gameplay here, both server and client-sided
@@ -355,6 +356,8 @@ struct GameOptions {
 		FeatureSettings features;
 	} tGameInfo;
 
+	std::map<std::string,int> localplayLevels;
+	
 	// not specified options found in options-file
 	std::map< std::string, std::string > additionalOptions;
 };

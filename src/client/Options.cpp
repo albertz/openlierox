@@ -222,6 +222,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
 		( tLXOptions->iFavouritesSortColumn, "Widgets.FavouritesSortColumn", 4 )
 		( tLXOptions->iAdvancedLevelLimit, "Widgets.AdvancedLevelLimit", 0 )
+		( tLXOptions->iLocalPlayGame, "Widgets.LocalPlayGame", 0 )
 		;
 
 	for( uint i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
@@ -344,6 +345,11 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 			// ConfigFileInfo is additional data about the config file itself - we ignore it atm at this place
 			if(stringcaseequal(section, "ConfigFileInfo")) return true;
 			if(stringcaseequal(section, "GameInfo")) haveGameInfo = true;
+			
+			if(stringcaseequal(section, "Games.Levels")) {
+				opts->localplayLevels[propname] = from_string<int>(value);
+				return true;
+			}
 			
 			RegisteredVar* var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var !=  NULL ) { // found entry
@@ -523,6 +529,11 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 			break;
 	}
 
+	fprintf(fp, "\n[Games.Levels]\n");
+	for(std::map<std::string,int>::iterator i = localplayLevels.begin(); i != localplayLevels.end(); ++i)
+		fprintf(fp, "%s = %i\n", i->first.c_str(), i->second);
+
+	
 	fprintf(fp, "\n\n# This is for OLX to know what type of config file this is.\n");
 	fprintf(fp, "[ConfigFileInfo]\n");
 	fprintf(fp, "Type = MainConfig\n");

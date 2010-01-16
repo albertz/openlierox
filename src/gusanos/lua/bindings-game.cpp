@@ -18,6 +18,8 @@
 #include "CMap.h"
 #include "game/Game.h"
 #include "CClientNetEngine.h"
+#include "game/SinglePlayer.h"
+#include "OLXCommand.h"
 
 #include <cmath>
 #include <iostream>
@@ -82,6 +84,120 @@ int l_console_register_control(lua_State* L)
 	return 0;
 }
 
+		
+
+static int l_olx_exec(lua_State* L) {
+	LuaContext context(L);
+
+	/* get number of arguments */
+	int n = lua_gettop(L);
+
+	if(n == 0) {
+		LUA_ELOG("l_olx_exec: needs at least one parameter");
+		return 0;
+	}
+	
+	/* loop through each argument */
+	if(!lua_isstring(L,1)) {
+		LUA_ELOG("l_olx_exec: first param must be a string");
+		return 0;
+	}
+	std::string cmd = lua_tostring(L,1);
+		
+	int error = -1;
+	for (int i = 2; i <= n; i++) {
+		std::string p;
+		if( lua_isnumber(L,i) )
+			p = ftoa( lua_tonumber(L,i) );
+		else if( lua_isstring(L,i) )
+			p = "\"" + Replace(lua_tostring(L,i), "\"", "") + "\"";
+		else {
+			if(error < 0) error = i;
+			p = "???";
+		}
+		cmd += " " + p;
+	}
+	
+	if(error > 0) {
+		LUA_ELOG("l_olx_exec: parameter " + itoa(error) + " cannot be handled in: " + cmd);
+		return 0;
+	}
+	
+	std::vector<std::string> returns = Execute_Here(cmd);
+	
+	for(size_t i = 0; i < returns.size(); ++i)
+		lua.push(returns[i]);
+	
+	return returns.size();
+}
+
+
+static int l_olx_getVar(lua_State* L) {
+	LuaContext context(L);
+	
+	// mostly copied from Cmd_getVar
+	
+	std::string var = lua_tostring(L,1);
+	RegisteredVar* varptr = CScriptableVars::GetVar(var);
+	if( varptr == NULL ) {
+		LUA_ELOG("GetVar: no var with name " + var);
+		return 0;
+	}
+	
+	if( varptr->var.type == SVT_CALLBACK ) {
+		LUA_ELOG("GetVar: callbacks are not allowed");
+		// If we want supoort for that, I would suggest a seperated command like "call ...".
+		return 0;
+	}
+	
+	if( varptr->var.s == &tLXOptions->sServerPassword ) {
+		LUA_ELOG("GetVar: this variable is restricted");
+		// If you want to check if a worm is authorized, use another function for that.
+		return 0;
+	}
+	
+	switch(varptr->var.type) {
+		case SVT_BOOL:	lua_pushnumber(L, *varptr->var.b); break;
+		case SVT_INT:	lua_pushnumber(L, *varptr->var.i); break;
+		case SVT_FLOAT:	lua_pushnumber(L, *varptr->var.f); break;
+		default:		lua_pushstring(L, varptr->var.toString().c_str());
+	}
+
+	return 1;
+}
+
+static int l_olx_setVar(lua_State* L) {
+	std::string var = Replace(lua_tostring(L,1), "\"", "");
+	
+	std::string value;
+	if( lua_isnumber(L,2) )
+		value = ftoa( lua_tonumber(L,2) );
+	else if( lua_isstring(L,2) )
+		value = "\"" + Replace(lua_tostring(L,2), "\"", "") + "\"";
+	else {
+		LuaContext context(L);
+		LUA_ELOG("l_olx_setVar: unknown value type");
+		return 0;
+	}
+	
+	// hacky, but I don't care now
+	Execute_Here("setVar \"" + var + "\" " + value);
+	return 0;
+}
+		
+static int l_olx_setLevelSucceeded(lua_State* L) {
+	singlePlayerGame.setLevelSucceeded();
+	return 0;
+}
+
+		
+static int l_olx_message(lua_State* L) {
+	std::string msg = lua_tostring(L,1);
+	cClient->SetPermanentText(msg);
+	return 0;
+}
+		
+		
 //! version any
 
 /*! game_players()
@@ -381,6 +497,11 @@ void initGame()
 		("game_get_closest_worm", l_game_getClosestWorm)
 		("map_is_blocked", l_map_isBlocked)
 		("map_is_particle_pass", l_map_isParticlePass)
+		("exec", l_olx_exec)
+		("getVar", l_olx_getVar)
+		("setVar", l_olx_setVar)
+		("setLevelSucceeded", l_olx_setLevelSucceeded)
+		("message", l_olx_message)
 	;
 	
 	// CWormHumanInputHandler method and metatable
