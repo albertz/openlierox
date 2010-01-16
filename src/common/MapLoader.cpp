@@ -1932,7 +1932,7 @@ public:
 		curMap = m;
 		m->Shutdown();
 		
-		std::string f = "levels/" + GetBaseFilename(filename);
+		std::string f = filename;
 		notes << "Gusanos level loader: using " << loader->getName() << " for " << f << endl;
 		
 		// TODO: abs filename
@@ -1982,10 +1982,9 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 	
 	if(IsDirectory(filename, abs_filename)) {
 		// TODO: abs filename
-		std::string basename = GetBaseFilename(filename);
 		ResourceLocator<CMap>::BaseLoader* loader = NULL;
 		std::string name;
-		if(levelLocator.canLoad("levels/" + basename, name, loader))
+		if(levelLocator.canLoad(filename, name, loader))
 			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;			
 	}
 	else { // regular file
