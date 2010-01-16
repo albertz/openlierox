@@ -130,12 +130,7 @@ bool GameOptions::Init() {
 	}
 
 	CScriptableVars::RegisterVars("GameOptions")
-		( tLXOptions->bFullscreen, "Video.Fullscreen",
-#ifdef WIN32
-			true )
-#else
-			false )
-#endif
+		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
 		( tLXOptions->bOpenGL, "Video.OpenGL",
 #ifdef MACOSX
