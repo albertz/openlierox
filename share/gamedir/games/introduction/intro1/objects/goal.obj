@@ -1,0 +1,5 @@
+col_layer = 1
+invisible = 0
+
+on detect_range (10, 0)
+ run_script(goalhit)
