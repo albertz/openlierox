@@ -96,5 +96,9 @@ inline void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLi
 // Executes all commands in the queue. This is called from the gameloopthread.
 void HandlePendingCommands();
 
+// Executes in current thread, right now. Returns all pushed return values.
+// WARNING: Only call this if you know this is safe. If you don't really need that, use Execute above.
+std::vector<std::string> Execute_Here(const std::string& cmd);
+
 
 #endif  //  __CON_COMMAND_H__

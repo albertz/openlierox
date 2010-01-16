@@ -2349,6 +2349,27 @@ void HandlePendingCommands() {
 	}
 }
 
+std::vector<std::string> Execute_Here(const std::string& cmd) {
+	struct DirectCliWrapper : CmdLineIntf {
+		std::vector<std::string> returns;
+		
+		virtual void pushReturnArg(const std::string& str) {
+			returns.push_back(str);
+		}
+
+		virtual void finalizeReturn() {}
+
+		virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) {
+			stdoutCLI().writeMsg("Execute_Here: " + msg, type);
+		}
+		
+	}
+	directCli;
+	
+	HandleCommand(CmdLineIntf::Command(&directCli, cmd));
+	return directCli.returns;
+}
+
 
 ///////////////////
 // Auto complete a command
