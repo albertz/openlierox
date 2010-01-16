@@ -61,6 +61,7 @@
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23606B2C0FEBEA22000A6439 /* Geometry.cpp */; };
 		2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */; };
+		2370EE151100D0C80097F7BA /* SinglePlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2370EE141100D0C80097F7BA /* SinglePlayer.cpp */; };
 		237885471050249900195629 /* memstats_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885221050237B00195629 /* memstats_test.cpp */; };
 		237885751050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
 		237885761050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
@@ -716,6 +717,8 @@
 		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
 		2367B2E50F7AFC9000F7B302 /* CChatWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CChatWidget.h; sourceTree = "<group>"; };
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
+		2370EE131100D0C80097F7BA /* SinglePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePlayer.h; sourceTree = "<group>"; };
+		2370EE141100D0C80097F7BA /* SinglePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SinglePlayer.cpp; sourceTree = "<group>"; };
 		23754FB50EDC32AB005EC287 /* CWormBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormBot.h; sourceTree = "<group>"; };
 		23754FB60EDC32AB005EC287 /* CWormHuman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormHuman.h; sourceTree = "<group>"; };
 		2378851C1050117B00195629 /* memstats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memstats.h; path = "../../optional-includes/memdebug/memstats.h"; sourceTree = SOURCE_ROOT; };
@@ -1652,6 +1655,8 @@
 				231BE16510CE6B670023780D /* Level.cpp */,
 				2326B57010CF9D6500D3F035 /* Game.h */,
 				2326B57110CF9D6500D3F035 /* Game.cpp */,
+				2370EE131100D0C80097F7BA /* SinglePlayer.h */,
+				2370EE141100D0C80097F7BA /* SinglePlayer.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -3379,6 +3384,7 @@
 				2326B57210CF9D6500D3F035 /* Game.cpp in Sources */,
 				2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */,
 				2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */,
+				2370EE151100D0C80097F7BA /* SinglePlayer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
