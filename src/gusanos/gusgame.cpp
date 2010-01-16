@@ -972,9 +972,6 @@ void GusGame::finishLoad() {
 	
 	//cerr << "Loading mod" << endl;
 	loadMod();
-	
-	// earlier, this was in GusGame::think() for the ChangeLevel event
-	runInitScripts();
 }
 
 bool GusGame::loadModWithoutMap() {

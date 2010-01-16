@@ -78,7 +78,8 @@ void Game::prepareGameloop() {
 	}
 
 	// always also load Gusanos engine
-	if( /*gameScript()->gusEngineUsed() && */ !gusGame.level().gusIsLoaded() ) {
+	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
+	if( !gusGame.level().gusIsLoaded() ) {
 		// WARNING: This may be temporary
 		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
 		// Thus, when we don't load a gus level, we must load the mod manually.
@@ -86,6 +87,10 @@ void Game::prepareGameloop() {
 		if(!gameScript()->gusEngineUsed())
 			gusGame.setMod(gusGame.getDefaultPath());
 		gusGame.loadModWithoutMap();
+	}
+	
+	if(gusGame.isEngineNeeded()) {
+		gusGame.runInitScripts();
 	}
 	
 	PhysicsEngine::Init();
