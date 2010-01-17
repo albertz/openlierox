@@ -45,6 +45,8 @@ Sfx::~Sfx()
 {
 	if (driver) {
 		delete driver;
+		driver = NULL;
+		m_initialized = false;
 	}
 }
 
@@ -58,22 +60,25 @@ bool Sfx::init()
 
 void Sfx::shutDown()
 {
-	//notes<<"Sfx::shutDown()"<<endl;
-	driver->shutDown();
+	if(driver)
+		driver->shutDown();
+	m_initialized = false;
 }
 
 void Sfx::registerInConsole()
 {
 	notes<<"Sfx::registerInConsole()"<<endl;
-	if (m_initialized ) {
-	driver->registerInConsole();
+	if (driver && m_initialized) {
+		driver->registerInConsole();
 	}
 }
 
 void Sfx::think()
 {
-	driver->setListeners(listeners);
-	driver->think();
+	if(driver) {
+		driver->setListeners(listeners);
+		driver->think();
+	}
 }
 
 SfxDriver* Sfx::getDriver()
@@ -107,7 +112,8 @@ void Sfx::removeListener(Listener* listener)
 
 void Sfx::volumeChange()
 {
-	driver->volumeChange();
+	if(driver)
+		driver->volumeChange();
 }
 
 Sfx::operator bool()
