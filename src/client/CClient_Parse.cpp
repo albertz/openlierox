@@ -2080,8 +2080,6 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 	}
 
-    FILE            *fp = NULL;
-
 	client->tGameInfo.iMaxPlayers = bs->readByte();
 	client->tGameInfo.sMapFile = bs->readString();
     client->tGameInfo.sModName = bs->readString();
