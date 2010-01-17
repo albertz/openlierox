@@ -244,7 +244,7 @@ static void Menu_Local_InitGameMenu() {
 	singlePlayerGame.setGame(game);
 	
 	// box for preview image
-	Menu_DrawBox(tMenu->bmpBuffer.get(), boxx - 2, boxy - 2, boxx + boxw + 4, boxy + boxh + 4);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), boxx - 4, boxy - 4, boxx + boxw + 3, boxy + boxh + 3);
 	
 	cLocalMenu.Add( new CLabel("Level",tLX->clHeading),			-1,    120, boxy + boxh + 10, 0, 0);
 	cLocalMenu.Add( new CLabel("",tLX->clNormalLabel),	ml_LevelLabel,   170, boxy + boxh + 10, 0, 0);
