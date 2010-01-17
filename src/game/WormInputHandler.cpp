@@ -354,6 +354,10 @@ shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
 
 void CWormInputHandler::assignNetworkRole( bool authority )
 {
+	if(!gusGame.isEngineNeeded() && game.isClient() && authority)
+		// probably we are on an older server or so; anyway, we cannot create an authority node as client
+		return;
+	
 	m_node = new Net_Node();
 	if (!m_node) {
 		allegro_message("ERROR: Unable to create player node.");
