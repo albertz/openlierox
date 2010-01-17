@@ -83,7 +83,8 @@ SfxDriver* Sfx::getDriver()
 	
 void Sfx::clear()
 {
-	driver->clear();
+	if(driver)
+		driver->clear();
 }
 
 void Sfx::registerListener(Listener* l)
