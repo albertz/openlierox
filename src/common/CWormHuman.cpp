@@ -806,8 +806,10 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 	        t = v->GetTop();
             centrex = v->GetLeft() + v->GetVirtW()/2;
         }
+		
+		DrawRectFill(bmpDest, l, t, l + v->GetVirtW(), t + v->GetVirtH(), Color(0,0,0,100));
     }
-	
+		
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+30, tLX->clWeaponSelectionTitle, "~ Weapons Selection ~");
 		
 	tLX->cFont.DrawCentre(bmpDest, centrex, t+48, tLX->clWeaponSelectionTitle, "(Use up/down and left/right for selection.)");
