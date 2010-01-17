@@ -301,6 +301,8 @@ METHODC(Font, font_render,  {
 
 int l_sound_load2(lua_State* L)
 {
+	if(bDedicated) return 0;
+	
 	LuaContext context(L);
 	
 	char const* n = lua_tostring(L, 2);
