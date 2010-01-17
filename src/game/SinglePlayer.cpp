@@ -216,6 +216,7 @@ bool SinglePlayerGame::CheckGameOver() {
 }
 
 int SinglePlayerGame::Winner() {
+	if(!levelSucceeded) return -1;
 	for(int i = 0; i < cClient->getNumWorms(); ++i)
 		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
 			return cClient->getWorm(i)->getID();
