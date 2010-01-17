@@ -904,7 +904,7 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 		level += " " + *it;
 
 	// Check if the level is available
-	if (!IsFileAvailable("levels/"  + level))
+	if (!IsFileAvailable("levels/"  + level, false, false))
 		return "Level \"" + level + "\" not available";
 	std::string name = CMap::GetLevelName(level);
 	if (!name.size())
