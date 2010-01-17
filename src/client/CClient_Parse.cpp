@@ -2012,7 +2012,7 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 	
-	if(!client->bGameReady) {
+	if(!client->bGameReady || !client->cMap || !client->cMap->isLoaded()) {
 		// We could receive an update if we didn't got the preparegame package yet.
 		// This is because all the data about the preparegame could be sent in multiple packages
 		// and each reliable package can contain a worm update.

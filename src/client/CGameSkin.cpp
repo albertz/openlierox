@@ -217,7 +217,7 @@ void CGameSkin::Load_Execute(bool& breakSignal) {
 		if (bmpSurface->w % iFrameWidth != 0 || bmpSurface->h != 2 * iFrameHeight) {
 			notes << "The skin " << sFileName << " has a non-standard size (" << bmpSurface->w << "x" << bmpSurface->h << ")" << endl;
 			SmartPointer<SDL_Surface> old = bmpSurface;
-			bmpSurface = gfxCreateSurface( old->w - (old->w % iFrameWidth), 2 * iFrameHeight );
+			bmpSurface = gfxCreateSurfaceAlpha( old->w - (old->w % iFrameWidth), 2 * iFrameHeight );
 			if(bmpSurface.get()) {
 				CopySurface(bmpSurface.get(), old.get(), 0, 0, 0, 0, bmpSurface->w, MIN(old->h, 2 * iFrameHeight));
 				SetColorKey(bmpSurface.get());

@@ -1528,11 +1528,14 @@ int CListview::KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate
 			}
 		} else {
 			tSelected = tItems;
-			tSelected->bSelected = true;
-			if (bGotScrollbar)
-				cScrollbar.setValue(0);
-			return LV_CHANGED;
+			if(tSelected) {
+				tSelected->bSelected = true;
+				if (bGotScrollbar)
+					cScrollbar.setValue(0);
+				return LV_CHANGED;
+			}
 		}
+		return LV_NONE;
 	}
 
 

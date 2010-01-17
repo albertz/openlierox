@@ -159,7 +159,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
-		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", false, "Force Compatible", "Don't allow incompatible clients to connect" )
+		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
 		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", "LieroX/0.56", "Force Min Version", "Minimal version needed to play on this server" )
 
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )

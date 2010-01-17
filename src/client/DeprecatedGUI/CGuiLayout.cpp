@@ -209,8 +209,44 @@ void CGuiLayout::Shutdown()
 
 	cFocused = NULL;
 	cMouseOverWidget = NULL;
+	
+	tooltip = NULL;
 }
 
+}
+
+struct TooltipIntern {
+	std::string text;
+	DeprecatedGUI::CBox box;
+	SDL_Rect keepArea;
+	TooltipIntern() : box(0, 2, tLX->clBoxLight, tLX->clBoxDark, tLX->clDialogBackground) {}
+
+	void setPos(const VectorD2<int>& p) { box.Setup(0, p.x, p.y, box.getWidth(), box.getHeight()); }
+	
+	void setText(const std::string& t) {
+		text = t;
+		VectorD2<int> txtSize;
+		txtSize.x = tLX->cFont.GetWidth(text);
+		txtSize.y = tLX->cFont.GetHeight(text);
+		if(txtSize.x + 2 != box.getWidth() || txtSize.y + 2 != box.getHeight()) {
+			box.Setup(0, box.getX(), box.getY(), txtSize.x + 2, txtSize.y + 2);
+			box.PreDraw();
+		}
+	}
+	
+	void setKeepArea(const SDL_Rect& a) { keepArea = a; }
+	
+	void draw(SDL_Surface* dst) {
+		box.Draw(dst);
+		tLX->cFont.Draw(dst, box.getX() + 1, box.getY() + 1, tLX->clNormalLabel, text);
+	}
+};
+
+template <> void SmartPointer_ObjectDeinit<TooltipIntern> ( TooltipIntern * obj ) {
+	delete obj;
+}
+
+namespace DeprecatedGUI {
 
 ///////////////////
 // Draw the widgets
@@ -221,6 +257,9 @@ void CGuiLayout::Draw(SDL_Surface * bmpDest)
 		if((*w)->getEnabled())
 			(*w)->Draw(bmpDest);
 	}
+	
+	if(tooltip.get())
+		tooltip->draw(bmpDest);
 }
 
 //////////////////
@@ -575,6 +614,9 @@ gui_event_t *CGuiLayout::Process()
 
 	SetGameCursor(CURSOR_ARROW); // Reset the cursor here
 
+	if(tooltip.get() && !PointInRect(tMouse->X, tMouse->Y, tooltip->keepArea))
+		tooltip = NULL;
+	
 	if (!tEvent)  {
 		// TODO: when can this happen? is this an error? if so, why no error msg?
 		// TODO: what is tEvent? why is it global and not local?
@@ -968,4 +1010,17 @@ DWORD CGuiLayout::SendMessage(int iControl, int iMsg, std::string *sStr, DWORD P
 	return w->SendMessage(iMsg, sStr, Param);
 }
 
+void CGuiLayout::setTooltip(const SDL_Rect& keepArea, VectorD2<int> pos, const std::string& msg) {
+	if(msg == "") {
+		tooltip = NULL;
+		return;
+	}
+	
+	if(tooltip.get() == NULL) tooltip = new TooltipIntern();
+	tooltip->setText(msg);
+	tooltip->setPos(pos);
+	tooltip->setKeepArea(keepArea);
+}
+	
+	
 }; // namespace DeprecatedGUI
