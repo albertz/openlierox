@@ -218,7 +218,8 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 	const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
 
 	// if we are small, we can make a fast check
-	if(radius.x*2 < map->getGridWidth() && radius.y*2 < map->getGridHeight()) {
+	// do the check only if we know that px/py is correct, i.e. no wrapAround
+	if(!wrapAround && radius.x*2 < map->getGridWidth() && radius.y*2 < map->getGridHeight()) {
 		// If the current cells are empty, don't check for the collision
 		const int gf1 = (py - radius.y) / map->getGridHeight() * map->getGridCols() + (px - radius.x) / map->getGridWidth();
 		const int gf2 = (py - radius.y) / map->getGridHeight() * map->getGridCols() + (px + radius.x) / map->getGridWidth();
