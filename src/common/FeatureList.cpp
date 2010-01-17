@@ -81,7 +81,7 @@ Feature featureArray[] = {
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(0,58,1),		GIG_Weapons, ALT_Advanced,	true, true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
-			false,	false,			OLXBetaVersion(8),		GIG_Advanced, ALT_Advanced,	true),
+			true,	true,			OLXBetaVersion(8),		GIG_Advanced, ALT_Advanced,	true),
 	Feature("DisableWpnsWhenEmpty",	"Disable weapons when empty", "When a weapon got uncharged, it got disabled and you have to catch a bonus (be sure that you have bonuses activated). This is usefull in games like Race.",
 			false,	false,			OLXBetaVersion(7) /* it needs wpninfo packet which is there since beta7 */,		GIG_Weapons, ALT_VeryAdvanced,	true),
 	Feature("WeaponCombos",			"Weapon combos",	"Enable/disable weapon combos, i.e. fast changing of weapons and shooting at the same time",
