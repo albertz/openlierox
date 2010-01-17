@@ -1798,6 +1798,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\SinglePlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\SinglePlayer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\WormInputHandler.cpp"
 				>
 			</File>
@@ -3776,14 +3784,6 @@
 			</File>
 			<File
 				RelativePath="..\..\src\gusanos\timer_event.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\gusanos\updater.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\src\gusanos\updater.h"
 				>
 			</File>
 			<File
