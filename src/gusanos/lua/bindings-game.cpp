@@ -136,7 +136,15 @@ static int l_olx_exec(lua_State* L) {
 	// If there is any need in the future to get the return parameter,
 	// we could implement a special Lua CLI and the lua interface can just check there.
 	// Maybe we could even return this CLI here as a Lua object?
-	Execute( CmdLineIntf::Command(&stdoutCLI(), cmd) );
+	struct DummyCli : CmdLineIntf {
+		virtual void pushReturnArg(const std::string& str) {}
+		virtual void finalizeReturn() {}
+		virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) {
+			stdoutCLI().writeMsg("Lua exec: " + msg, type);
+		}
+	};
+	static DummyCli dummyCli;
+	Execute( CmdLineIntf::Command(&dummyCli, cmd) );
 	return 0;
 }
 
