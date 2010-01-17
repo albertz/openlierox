@@ -328,6 +328,7 @@ struct NetControlIntern {
 			
 			// here start all types where we dont send the nodeID
 			GPT_Direct,
+			GPT_UniqueNodeEvent,
 			GPT_ConnectRequest,
 			GPT_ConnectResult,
 		};
@@ -364,7 +365,7 @@ struct NetControlIntern {
 	
 	typedef std::map<Net_NodeID, Net_Node*> Nodes;
 	Nodes nodes;
-	typedef std::set<Net_Node*> LocalNodes;
+	typedef std::map<Net_ClassID, Net_Node*> LocalNodes;
 	LocalNodes localNodes;
 		
 	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
@@ -384,6 +385,12 @@ struct NetControlIntern {
 	Class* getClass(Net_ClassID cid) {
 		Classes::iterator i = classes.find(cid);
 		if(i != classes.end()) return &i->second;
+		return NULL;
+	}
+	
+	Net_Node* getLocalNode(Net_ClassID cid) {
+		LocalNodes::iterator i = localNodes.find(cid);
+		if(i != localNodes.end()) return i->second;
 		return NULL;
 	}
 	
@@ -481,20 +488,28 @@ static std::string rawFromBits(Net_BitStream& bits) {
 	return ret;
 }
 
+static void writeEliasGammaNr(Net_BitStream& bits, size_t n) {
+	Encoding::encodeEliasGamma(bits, n + 1);
+}
+
+static size_t readEliasGammaNr(Net_BitStream& bits) {
+	size_t n = Encoding::decodeEliasGamma(bits) - 1;
+	if(n == size_t(-1)) {
+		errors << "readEliasGammaNr: stream reached end" << endl;
+		return 0;
+	}
+	return n;
+}
+
 static void writeEliasGammaNr(CBytestream& bs, size_t n) {
 	Net_BitStream bits;
-	Encoding::encodeEliasGamma(bits, n + 1);
+	writeEliasGammaNr(bits, n);
 	bs.writeData(rawFromBits(bits));
 }
 
 static size_t readEliasGammaNr(CBytestream& bs) {
 	Net_BitStream bits(bs.data().substr(bs.GetPos()));
-	size_t n = Encoding::decodeEliasGamma(bits) - 1;
-	if(n == size_t(-1)) {
-		errors << "readEliasGammaNr: stream reached end" << endl;
-		bs.SkipAll();
-		return 0;
-	}
+	size_t n = readEliasGammaNr(bits);
 	bs.Skip( (bits.bitPos() + 7) / 8 );
 	return n;
 }
@@ -539,7 +554,7 @@ static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetContro
 				}
 			}
 			
-			if(i->nodeMustBeSet()) {
+			if(i->nodeMustBeSet() || i->node.get()) {
 				if(i->node.get() == NULL) {
 					errors << "composePackagesForConn: node must be set but is unset" << endl;
 					continue;
@@ -934,6 +949,25 @@ void Net_Control::Net_processInput() {
 				node->intern->incomingEvents.push_back( NetNodeIntern::Event::User(i->data, i->connID) );
 				break;
 			}
+			
+			case NetControlIntern::DataPackage::GPT_UniqueNodeEvent: {
+				Net_ClassID classId = readEliasGammaNr(i->data);
+				NetControlIntern::Class* c = intern->getClass(classId);
+				if(c == NULL) {
+					warnings << "UniqueNodeEvent: class " << classId << " not found" << endl;
+					break;
+				}
+				
+				Net_Node* node = intern->getLocalNode(classId);
+				if(node == NULL) {
+					warnings << "UniqueNodeEvent: unique node of class " << c->name << " not found" << endl;
+					break;
+				}
+				
+				node->intern->incomingEvents.push_back( NetNodeIntern::Event::User(i->data, i->connID) );
+				
+				break;
+			}
 				
 			default:
 				warnings << "invalid Gusanos data package type" << endl;
@@ -1010,7 +1044,7 @@ static bool __unregisterNode(Net_Node* node) {
 		
 		else { // unique node
 			NetControlIntern::LocalNodes& nodes = node->intern->control->localNodes;
-			NetControlIntern::LocalNodes::iterator i = nodes.find(node);
+			NetControlIntern::LocalNodes::iterator i = nodes.find(node->intern->classId);
 			if(i == nodes.end()) {
 				errors << "Net_Node::unregisterNode: unique node not found in node-list" << endl;
 				return false;
@@ -1079,9 +1113,11 @@ static bool registerNode(Net_ClassID classid, Net_Node* node, Net_NodeID nid, eN
 	node->intern->nodeId = nid;
 	node->intern->role = role;
 	
-	if(nid == UNIQUE_NODE_ID)
-		con->localNodes.insert(node);
-	else {
+	if(nid == UNIQUE_NODE_ID) {
+		if(con->getLocalNode(classid) != NULL)
+			errors << "Net_Node::registerNode: unique node " << node->intern->debugStr() << " overwrites another unique node of the same class" << endl;
+		con->localNodes[classid] = node;
+	} else {
 		con->nodes[nid] = node;
 	
 		if(role == eNet_RoleAuthority)
@@ -1125,14 +1161,22 @@ void Net_Node::setEventNotification(bool eventForInit /* eNet_EventInit */, bool
 	intern->eventForRemove = eventForRemove;
 }
 
-void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) {
-	NetControlIntern::DataPackage& p = intern->control->pushPackageToSend();
-	p.connID = INVALID_CONN_ID;
+static void __sendNodeEvent(Net_ConnID connId, eNet_SendMode m, Net_RepRules rules, Net_Node* node, Net_BitStream& s) {
+	NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
+	p.connID = connId;
 	p.sendMode = m;
 	p.repRules = rules;
-	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
-	p.node = intern;
-	p.data = *s;
+	p.node = node->intern;
+	if(node->intern->nodeId == UNIQUE_NODE_ID) {
+		p.type = NetControlIntern::DataPackage::GPT_UniqueNodeEvent;
+		writeEliasGammaNr(p.data, node->intern->classId);
+	} else
+		p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
+	p.data.addBitStream(s);	
+}
+
+void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) {
+	__sendNodeEvent(INVALID_CONN_ID, m, rules, this, *s);
 	delete s;
 }
 
@@ -1142,13 +1186,7 @@ void Net_Node::sendEventDirect(eNet_SendMode m, Net_BitStream* s, Net_ConnID cid
 		return;
 	}
 	
-	NetControlIntern::DataPackage& p = intern->control->pushPackageToSend();
-	p.connID = cid;
-	p.sendMode = m;
-	p.repRules = Net_REPRULE_AUTH_2_ALL;
-	p.type = NetControlIntern::DataPackage::GPT_NodeEvent;
-	p.node = intern;
-	p.data = *s;
+	__sendNodeEvent(cid, m, Net_REPRULE_AUTH_2_ALL, this, *s);
 	delete s;
 }
 
