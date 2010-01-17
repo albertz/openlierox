@@ -86,7 +86,7 @@ struct lv_column_t : DontCopyTag {
 
 // Sub item structure
 struct lv_subitem_t : DontCopyTag {
-	lv_subitem_t() : tWidget(NULL), fMouseOverTime(0) {} // safety
+	lv_subitem_t() : iType(0), tWidget(NULL), fMouseOverTime(0), tNext(NULL) {} // safety
 	~lv_subitem_t()  { if (tWidget) delete tWidget; }
 
 	int			iType;
@@ -108,6 +108,8 @@ struct lv_subitem_t : DontCopyTag {
 
 // Item structure
 struct lv_item_t : DontCopyTag {
+	lv_item_t() : iIndex(0), tSubitems(NULL), tNext(NULL) {}
+	
 	std::string	sIndex;
 	int			iIndex;
     int         _iID;
