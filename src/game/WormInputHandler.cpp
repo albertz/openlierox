@@ -668,3 +668,30 @@ void CWormInputHandler::addKill() {
 	
 	if(m_worm && game.isServer()) sendWormScoreUpdate(m_worm);
 }
+
+
+void CWormInputHandler::quit() {
+	deleteMe = true;
+	removeWorm();
+	
+	foreach ( p, game.localPlayers )
+	{
+		if ( this == (CWormInputHandler*) *p )
+		{
+			game.localPlayers.erase(p);
+			break;
+		}
+	}
+
+	foreach ( p, game.players )
+	{
+		if ( this == *p )
+		{
+			game.players.erase(p);
+			break;
+		}
+	}
+	
+	// call at very last
+	deleteThis();
+}

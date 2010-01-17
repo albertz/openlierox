@@ -68,7 +68,7 @@ public:
 	
 	virtual void onRespawn() {}
 
-	virtual void quit() { deleteMe = true; removeWorm(); }
+	virtual void quit();
 	
 	
 	// ------------------------------------------------------

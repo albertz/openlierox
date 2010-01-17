@@ -494,7 +494,7 @@ void CWorm::think()
 {	
 	if(!game.gameScript()->gusEngineUsed()) {
 		// we do that in any case, it may be that some map object was trying to kill us
-		if(getAlive()) {
+		if(luaReference && getAlive()) {
 			if ( health <= 0 )
 				die();
 		}		
@@ -503,6 +503,10 @@ void CWorm::think()
 		renderPos = pos();
 		return;
 	}
+	
+	if(!luaReference)
+		// if we called this after a deleteThis, this may happen
+		return;
 	
 	if(getAlive()) {
 		if ( health <= 0 )

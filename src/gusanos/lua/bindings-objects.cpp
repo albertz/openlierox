@@ -365,7 +365,7 @@ METHODC(CGameObject, baseObject_data,  {
 	Returns a CWormHumanInputHandler object of the player that owns this object.
 */
 METHODC(CGameObject, baseObject_getPlayer, {
-	if(!p->getOwner())
+	if(p->getOwner() == NULL || p->getOwner()->getWorm() == NULL || !p->getOwner()->getWorm()->luaReference)
 		return 0;
 	lua.pushReference(p->getOwner()->getLuaReference());
 	return 1;

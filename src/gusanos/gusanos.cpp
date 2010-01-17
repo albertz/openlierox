@@ -118,7 +118,7 @@ void gusLogicFrame() {
 			logicLast = timer;
 			break;
 		}
-		
+
 #ifdef USE_GRID
 		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 		{
@@ -173,44 +173,7 @@ void gusLogicFrame() {
 #ifndef DEDICATED_ONLY
 		sfx.think(); // WARNING: THIS MUST! BE PLACED BEFORE THE OBJECT DELETE LOOP
 #endif
-		
-		//for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end();)
-		foreach_delete(iter, game.players)
-		{
-			if ( (*iter)->deleteMe )
-			{
-				/* Done in deleteThis()
-				 #ifdef USE_GRID
-				 for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter)
-				 {
-				 objIter->removeRefsToPlayer(*iter);
-				 }
-				 #else
-				 for ( ObjectsList::Iterator objIter = game.objects.begin(); (bool)objIter; ++objIter)
-				 {
-				 (*objIter)->removeRefsToPlayer(*iter);
-				 }
-				 #endif
-				 */
-				if ( CWormHumanInputHandler* player = dynamic_cast<CWormHumanInputHandler*>(*iter) )
-				{
-					foreach ( p, game.localPlayers )
-					{
-						if ( player == *p )
-						{
-							game.localPlayers.erase(p);
-							break;
-						}
-					}
-				}
-				/*
-				 (*iter)->removeWorm();
-				 */
-				(*iter)->deleteThis();
-				game.players.erase(iter);
-			}
-		}
-				
+						
 #ifndef DEDICATED_ONLY
 		console.checkInput();
 #endif
