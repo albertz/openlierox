@@ -17,6 +17,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "ProfileSystem.h"
+#include "CWormHuman.h"
 
 SinglePlayerGame singlePlayerGame;
 
@@ -145,6 +146,8 @@ static bool addPlayerToClient() {
 	return true;
 }
 
+static GameOptions::GameInfo oldSettings;
+
 bool SinglePlayerGame::startGame() {
 	if(!currentGameValid) {
 		errors << "SinglePlayerGame::startGame: cannot start game: current game/level is invalid" << endl;
@@ -157,6 +160,7 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	oldSettings = tLXOptions->tGameInfo;
 	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
 	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	
@@ -204,5 +208,16 @@ void SinglePlayerGame::Simulate() {
 
 bool SinglePlayerGame::CheckGameOver() {
 	return levelSucceeded;
+}
+
+int SinglePlayerGame::Winner() {
+	for(int i = 0; i < cClient->getNumWorms(); ++i)
+		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
+			return cClient->getWorm(i)->getID();
+	return -1;
+}
+
+void SinglePlayerGame::GameOver() {
+	tLXOptions->tGameInfo = oldSettings;	
 }
 

@@ -46,6 +46,7 @@
 #include "OLXCommand.h"
 #include "AuxLib.h"
 #include "gusanos/network.h"
+#include "game/Game.h"
 
 
 GameServer	*cServer = NULL;
@@ -719,7 +720,7 @@ void GameServer::GameOver()
 	}
 	
 	hints << endl;
-
+	
 	// TODO: move that out here!
 	// Let everyone know that the game is over
 	for(int c = 0; c < MAX_CLIENTS; c++) {
@@ -784,6 +785,8 @@ void GameServer::GameOver()
 	}
 	
 	DumpGameState(&stdoutCLI());
+	
+	game.gameMode()->GameOver();
 }
 
 
@@ -2443,6 +2446,11 @@ float GameServer::GetUpload(float timeRange)
 // Shutdown the server
 void GameServer::Shutdown()
 {
+	if(iState != SVS_LOBBY && !bGameOver) {
+		// call this, maybe we need to clean something up there
+		game.gameMode()->GameOver();
+	}
+	
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;
