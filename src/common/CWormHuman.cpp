@@ -724,6 +724,9 @@ void CWormHumanInputHandler::stopInputSystem() {
 ///////////////////
 // Initialize the weapon selection screen
 void CWormHumanInputHandler::initWeaponSelection() {
+	// the way we handle the inputs in wpn selection is different
+	stopInputSystem();
+	
 	// This is used for the menu screen as well
 	m_worm->iCurrentWeapon = 0;
 	

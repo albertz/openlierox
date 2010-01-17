@@ -2683,7 +2683,6 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 		} else {	
 			client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
 			client->bReadySent = false;
-			w->reinitInputHandler();
 			w->initWeaponSelection();
 		}
 	}
