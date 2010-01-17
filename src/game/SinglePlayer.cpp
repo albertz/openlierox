@@ -197,6 +197,8 @@ bool SinglePlayerGame::startGame() {
 }
 
 void SinglePlayerGame::setLevelSucceeded() {
+	if(levelSucceeded) return;
+	
 	notes << "SinglePlayerGame: level was succeeded" << endl;
 	levelSucceeded = true;
 
