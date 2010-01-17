@@ -182,9 +182,13 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
-	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false;
 	tLXOptions->tGameInfo.sModDir = modInfo.path;
 	tLXOptions->tGameInfo.sModName = modInfo.name;
+
+	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false;
+	tLXOptions->tGameInfo.iLives = -2;
+	tLXOptions->tGameInfo.iKillLimit = -1;
+	tLXOptions->tGameInfo.fTimeLimit = -1;
 	
 	tLXOptions->tGameInfo.gameMode = this;
 	
