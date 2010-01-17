@@ -197,6 +197,7 @@ bool SinglePlayerGame::startGame() {
 }
 
 void SinglePlayerGame::setLevelSucceeded() {
+	notes << "SinglePlayerGame: level was succeeded" << endl;
 	levelSucceeded = true;
 
 	if(gameLevelExists(currentGame, currentLevel + 1)) {
@@ -223,5 +224,8 @@ int SinglePlayerGame::Winner() {
 
 void SinglePlayerGame::GameOver() {
 	tLXOptions->tGameInfo = oldSettings;	
+	// this is kind of a hack; we need it because in CClient::Draw for example,
+	// we check for it to draw the congratulation msg
+	tLXOptions->tGameInfo.gameMode = this;
 }
 
