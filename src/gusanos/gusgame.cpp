@@ -293,7 +293,6 @@ void Options::registerInConsole()
 		("SV_MIN_RESPAWN_TIME", &minRespawnTime, 100 )
 		("SV_TEAM_PLAY", &teamPlay, 0)
 
-		("HOST", &host, 0)
 		
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
 		("CL_SPLITSCREEN", &splitScreenVar, 0)
@@ -423,7 +422,10 @@ bool GusGame::init()
 
 void GusGame::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
 {
-	if(!m_node) return;
+	if(!m_node) {
+		errors << "GusGame::sendLuaEvent: we dont have network node" << endl;
+		return;
+	}
 	
 	Net_BitStream* data = new Net_BitStream;
 	addEvent(data, LuaEvent);
@@ -447,7 +449,7 @@ void GusGame::think()
 			{
 				if(!network.isDisconnecting())
 				{
-					if( network.isHost() && options.host )
+					if( network.isHost() )
 						network.disconnect( Network::ServerMapChange );
 					else
 						network.disconnect();
@@ -464,7 +466,7 @@ void GusGame::think()
 			if(!changeLevel( data.level, false ))
 				break;
 			
-			if ( options.host && !network.isClient() )
+			if ( !network.isClient() )
 			{
 				network.olxHost();
 			}

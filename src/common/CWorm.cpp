@@ -299,26 +299,19 @@ void CWorm::Prepare(bool serverSide)
 			m_inputHandler = m_type->createInputHandler(this);
 			m_inputHandler->assignNetworkRole(true);
 		} else if(game.needProxyWormInputHandler()) {
-			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
-			if(cl) {
-				Net_ConnID _id = NetConnID_conn(cl);
-				
-				m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
+			m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
+		
+			unsigned int uniqueID = 0;
+			do {
+				uniqueID = rndgen();
+			} while(!uniqueID);
 			
-				unsigned int uniqueID = 0;
-				do {
-					uniqueID = rndgen();
-				} while(!uniqueID);
-				
-				m_inputHandler->getOptions()->uniqueID = uniqueID;
-				//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
-				
-				//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
-				m_inputHandler->assignNetworkRole(true);
-				m_inputHandler->assignWorm(this);
-			}
-			else
-				errors << "CWorm::Prepare clientside: non local worm has no client set" << endl;
+			m_inputHandler->getOptions()->uniqueID = uniqueID;
+			//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
+			
+			//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
+			m_inputHandler->assignNetworkRole(true);
+			m_inputHandler->assignWorm(this);
 		}		
 	}
 	

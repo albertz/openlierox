@@ -11,6 +11,7 @@
 #include "../particle.h"
 #include "../encoding.h"
 #include "util/log.h"
+#include "game/Game.h"
 
 #include <iostream>
 #include <memory>
@@ -438,8 +439,8 @@ void initNetwork(LuaContext& context)
 		("Hosting", Network::StateHosting)
 	)
 
-	
-	lua_pushboolean(context, !network.isClient());
+	notes << "Lua: Registering as " << (game.isServer() ? "AUTH" : "non-AUTH") << endl;
+	lua_pushboolean(context, game.isServer());
 	lua_setfield(context, LUA_GLOBALSINDEX, "AUTH");
 }
 

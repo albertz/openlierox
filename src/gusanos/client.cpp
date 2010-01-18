@@ -25,7 +25,6 @@ void Client::Net_cbConnectResult(eNet_ConnectResult res) {
 		return;
 	}
 
-	network.setClient(true);
 	console.addLogMsg("* CONNECTION ACCEPTED");
 	network.incConnCount();
 	

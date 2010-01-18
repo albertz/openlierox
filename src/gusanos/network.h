@@ -140,10 +140,7 @@ public:
 	static bool isDisconnected();
 	static bool isDisconnecting();
 		
-	int checkCRC;
-	
-private:
-	static void setClient(bool v);
+	int checkCRC;	
 };
 
 extern Network network;

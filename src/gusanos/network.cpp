@@ -12,6 +12,7 @@
 #include "util/log.h"
 #include "util/text.h"
 #include "lua/bindings-network.h"
+#include "game/Game.h"
 
 #include <string>
 #include <iostream>
@@ -121,14 +122,9 @@ namespace
 
 	std::string serverName;
 	std::string serverDesc;
-	bool m_host = false;
-	bool m_client = false; //? This wasn't initialized before
 	int logNetstream = 0; //TODO: Netstream
 	std::set<Net_U32> bannedIPs;
 
-	int m_serverPort; // Neither was this
-
-	std::string m_lastServerAddr;
 	int reconnectTimer = 0;
 	int connCount = 0;
 
@@ -237,8 +233,6 @@ void Network::update()
 					}
 
 					connCount = 0;
-					m_client = false;
-					m_host = false;
 
 					gusGame.removeNode();
 				} else
@@ -264,7 +258,6 @@ void Network::olxHost()
 	
 	m_control = new Server();
 	registerClasses();
-	m_host = true;
 	gusGame.assignNetworkRole( true ); // Gives the gusGame class node authority role
 	setLuaState(StateHosting);
 	SET_STATE(Idle);
@@ -334,12 +327,12 @@ void Network::olxReconnect(int delay)
 
 bool Network::isHost()
 {
-	return m_host;
+	return game.isServer();
 }
 
 bool Network::isClient()
 {
-	return m_client;
+	return game.isClient();
 }
 
 Net_Control* Network::getNetControl()
@@ -349,9 +342,9 @@ Net_Control* Network::getNetControl()
 
 LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, const std::string& name, LuaEventDef* event)
 {
-	if(gusGame.options.host)
+	if(game.isServer())
 		return luaEvents[type].add(name, event);
-	else if(m_client)
+	else if(game.isClient())
 		return luaEvents[type].assign(name, event);
 
 	return event;
@@ -359,7 +352,7 @@ LuaEventDef* Network::addLuaEvent(LuaEventGroup::type type, const std::string& n
 
 void Network::indexLuaEvent(LuaEventGroup::type type, const std::string& name)
 {
-	if(m_client)
+	if(game.isClient())
 		luaEvents[type].index(name);
 }
 
@@ -393,11 +386,6 @@ bool Network::isDisconnected()
 bool Network::isDisconnecting()
 {
 	return state == StateDisconnecting;
-}
-
-void Network::setClient(bool v)
-{
-	m_client = v;
 }
 
 void Network::olxParse(Net_ConnID src, CBytestream& bs) {
