@@ -170,6 +170,9 @@ struct Net_Node : DontCopyTag {
 	void setAnnounceData(Net_BitStream*);	
 	Net_NodeID getNetworkID();
 	
+	bool isNodeRegistered();
+	bool areWeOwner();
+	
 	bool registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*);
 	bool registerNodeDynamic(Net_ClassID, Net_Control*);
 	bool registerRequestedNode(Net_ClassID, Net_Control*);

@@ -1155,6 +1155,23 @@ bool Net_Node::registerRequestedNode(Net_ClassID cid, Net_Control* con) { return
 void Net_Node::applyForNetLevel(int something) {}
 void Net_Node::removeFromNetLevel(int something) {}
 
+bool Net_Node::isNodeRegistered() {
+	return intern->nodeId != INVALID_NODE_ID;
+}
+
+bool Net_Node::areWeOwner() {
+	if(isNodeRegistered()) {
+		if(intern->control->isServer)
+			return intern->ownerConn == NetConnID_server();
+		else
+			return intern->ownerConn == intern->control->myConnIdOnServer;
+	}
+	
+	// node not registered
+	return false;
+}
+
+
 
 void Net_Node::setEventNotification(bool eventForInit /* eNet_EventInit */, bool eventForRemove /* eNet_EventRemoved */) {
 	intern->eventForInit = eventForInit;

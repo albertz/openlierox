@@ -858,6 +858,7 @@ public:
 	}
 		
 	Net_NodeID getNodeID();
+	Net_Node* getNode() { return m_node; }
 	
 	Vec lastPosUpdate;
 	int timeSinceLastUpdate;
