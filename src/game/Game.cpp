@@ -343,24 +343,30 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 
 void Game::reset() {
 	// Delete all players
-	for ( std::list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
+	for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); ++iter)
 	{
-		// handled by CClient for now
-		//(*iter)->deleteThis();
+		(*iter)->deleteThis();
 	}
-	players.clear();
-	localPlayers.clear();
+	game.players.clear();
+	game.localPlayers.clear();
+	
+	// we must call this first because the references to weapons, ninjarope and what may be deleted
+	if(cClient && cClient->getRemoteWorms())
+		for(int i = 0; i < MAX_WORMS; ++i)
+			cClient->getRemoteWorms()[i].gusShutdown();
 	
 	// Delete all objects
 #ifdef USE_GRID
-	objects.clear();
+	game.objects.clear();
 #else
 	for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
 	{
 		(*iter)->deleteThis();
 	}
-	objects.clear();
-#endif	
+	game.objects.clear();
+#endif
+	
+	appliedLevelEffects.clear();
 }
 
 
