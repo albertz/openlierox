@@ -1,0 +1,11 @@
+blender = add
+alpha = 255
+col_layer = -1
+render_layer = 7
+sprite = greendragonwings.png
+
+on timer( 1 )
+ remove()
+
+on creation()
+ create_explosion( dragonboostage.exp )

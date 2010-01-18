@@ -1,0 +1,16 @@
+invisible = 1
+col_layer = -1
+
+on timer(5)
+ shoot_particles ( sinshatter12.obj , 1 , 1 , 0, 0, 0 , 111, 0, 0)
+ remove()
+
+on timer(0)
+ shoot_particles ( kineticglows.obj , 1)
+
+on timer(2, 3)
+ shoot_particles ( sinshatterspark.obj , 1 , 0.35 , 0.35, 0, 0 , 360, 0, 0)
+
+on ground_collision()
+ shoot_particles ( sinshatterspark.obj , 15 , 0.35 , 0.35, 0, 0 , 360, 0, 0)
+ remove()

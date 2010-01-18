@@ -2080,8 +2080,6 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 		return;
 	}
 
-    FILE            *fp = NULL;
-
 	client->tGameInfo.iMaxPlayers = bs->readByte();
 	client->tGameInfo.sMapFile = bs->readString();
     client->tGameInfo.sModName = bs->readString();
@@ -2683,7 +2681,6 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 		} else {	
 			client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
 			client->bReadySent = false;
-			w->reinitInputHandler();
 			w->initWeaponSelection();
 		}
 	}

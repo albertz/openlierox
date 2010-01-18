@@ -1,0 +1,20 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+damping = 0
+
+on ground_collision()
+ remove()
+
+on timer(2)
+ remove()
+
+on detect_range(3, 0)
+ damage ( 77 )
+ shoot_particles ( telekpulse1.obj , 1)
+ shoot_particles ( bloodgen.obj , 35 , 1.9, 1.9, 0, 0, 30, 0, 0)
+ shoot_particles ( bloodiedclawfinal.obj , 1 , 0.0001, 0.0001, 0, 0, 30, 0, 0)
+ play_sound( silenvoblow.ogg, 100, 1, 0)
+ play_sound( silenvoblow.ogg, 100, 1, 0)
+ push ( 2.667 )
+ remove()

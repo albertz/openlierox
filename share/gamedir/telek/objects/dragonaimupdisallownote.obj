@@ -1,0 +1,14 @@
+col_layer = -1
+repeat = 300
+gravity = -1.946
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ remove()
+
+on detect_range(3, 1)
+ shoot_particles ( warningupaimtelek.obj , 1)
+ remove()

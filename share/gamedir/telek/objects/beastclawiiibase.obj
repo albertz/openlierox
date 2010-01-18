@@ -1,0 +1,13 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on timer(10, max_trigger = 1 )
+ shoot_particles ( beastclawiiixbase.obj, 1, 1.2, 0, 0, 0, 0, 35, 0)
+ shoot_particles ( beastclawiix.obj, 1, 1, 0, 0, 0, 0, 60, 0)
+ shoot_particles ( beastclawiv.obj, 1, 1, 0, 0, 0, 0, 80, 0)
+ remove()
+
+on ground_collision()
+ remove()
+

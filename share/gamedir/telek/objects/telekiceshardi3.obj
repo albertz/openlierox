@@ -1,0 +1,9 @@
+
+gravity = 0.05
+sprite = telekicyshardblast3.png
+anim_duration = 40
+anim_type = loop_right
+
+on ground_collision()
+ #play_sound_static( dropshell.ogg, 20 )
+ remove()

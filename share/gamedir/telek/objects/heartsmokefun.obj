@@ -1,0 +1,14 @@
+sprite = heartdiminish.png
+anim_duration = 80
+anim_type = right_once
+anim_on_ground = 1
+blender = add
+alpha = 200
+gravity = -0.0097
+render_layer = 5
+col_layer = 5
+damping = 0.96
+repeat = 2
+
+on timer( 80 )
+remove ()

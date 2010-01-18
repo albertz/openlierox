@@ -1,0 +1,13 @@
+repeat = 3
+col_layer = -1
+sprite = iceshardrupturetel.png
+ground_friction=0
+bounce_factor=0
+damping = 0.9
+
+on timer( 200,50 )
+ play_sound( iceshatteringblocks.wav, 50, 1, 0.3 )
+ shoot_particles ( telekiceshardi1.obj, 1 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( telekiceshardi2.obj, 1 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( telekiceshardi3.obj, 1 , 1, 1, 0, 0, 360, 0, 0)
+ remove()

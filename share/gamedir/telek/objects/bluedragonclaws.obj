@@ -1,0 +1,14 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ remove()
+
+on detect_range(3, 0)
+ damage ( 2.5 )
+ shoot_particles ( bloodyclawsrange.obj , 1 , 0.9, 0.9, 0, 0, 130, 0, 0)
+ play_sound_static( [dragonclaw1.ogg, dragonclaw2.ogg, dragonclaw3.ogg], 25 )

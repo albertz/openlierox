@@ -1,0 +1,14 @@
+sprite = protondust.png
+bounce_factor = 0
+ground_friction = 0
+repeat = 2
+blender = add
+alpha = 64
+light_radius = 3
+render_layer = 0
+
+on ground_collision()
+ remove()
+
+on timer(15)
+ remove()

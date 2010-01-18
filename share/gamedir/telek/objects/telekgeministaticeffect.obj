@@ -1,0 +1,9 @@
+sprite = beamillusionxation.png
+blender = add
+alpha = 255
+col_layer = -1
+damping = 0.9
+repeat = 2
+
+on timer(2)
+ remove()

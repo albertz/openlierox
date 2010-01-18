@@ -1,0 +1,15 @@
+repeat = 200
+invisible = 1
+col_layer = -1
+
+on ground_collision()
+ shoot_particles ( gretelnoisesquare.obj, 1)
+ remove()
+
+on timer(30,275)
+ shoot_particles ( gretelnoisesquare.obj, 1)
+ remove()
+
+on detect_range(2, 0)
+ shoot_particles ( gretelnoisesquare.obj, 1)
+ remove()

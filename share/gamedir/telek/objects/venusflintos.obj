@@ -1,0 +1,29 @@
+sprite = lovelyvenuschunk.png
+anim_on_ground = 1
+anim_duration = 25
+gravity = 0.009
+colour = [200, 200, 200]
+health = 1
+anim_type = ping_pong
+blender = add
+alpha = 230
+light_radius = 7
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( heartsmokefun2.obj , 3 , 1 , 0.75, 0, 0, 360, 0, 0)
+ shoot_particles ( lovestoneflintohit.obj , 1)
+ create_explosion( lovestoneflinto.exp )
+ remove()
+
+on detect_range(1)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ shoot_particles ( heartsmokefun2.obj , 3 , 1 , 0.75, 0, 0, 360, 0, 0)
+ shoot_particles ( lovestoneflintohit.obj , 1)
+ shoot_particles ( bulletbloodspray.obj , 1)
+ damage ( 12 )
+ push ( 0.1 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ remove()

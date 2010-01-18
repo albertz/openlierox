@@ -1,0 +1,6 @@
+colour = [0, 128, 0]
+wu_pixels = 1
+blender = add
+
+on timer(90)
+ remove()

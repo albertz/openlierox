@@ -1,0 +1,15 @@
+sprite = greendragontail.png
+blender = add
+alpha = 128
+col_layer = -1
+anim_duration = 70
+anim_type = right_once
+light_radius = 6
+bounce_factor = 0
+ground_friction = 0.995
+repeat = 5
+render_layer = 1
+anim_on_ground = 1
+
+on timer(30)
+ remove()

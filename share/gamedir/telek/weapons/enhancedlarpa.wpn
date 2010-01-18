@@ -1,0 +1,11 @@
+name = "Enhanced LARPA"
+ammo = 1
+sync_shot = true
+reload_time = 50
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(50)
+ use_ammo(1)
+ play_sound( larpa.ogg, 100, 1, 0.05 )
+ shoot_particles ( larpa.obj , 1 , 1.8, 0, 0, 0, 0, 0, 9)

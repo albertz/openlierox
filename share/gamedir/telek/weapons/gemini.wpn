@@ -1,0 +1,18 @@
+name = "Gemini"
+reload_time = 50
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(50)
+ use_ammo(1)
+ play_sound( ravardespiseshot.wav, 20, 1, 0.05 )
+ play_sound( geminiquickflashswitch.wav, 100, 1, 0 )
+ shoot_particles ( geminimovementbackquick.obj , 1 , 2, 0, 0, 0, 0, 180, 0)
+ shoot_particles ( inversegeminimovementbackquick.obj , 1 , 2, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( ravarddespisebullet.obj , 1 , 1, 1, 0, 0, 30, 180, 0)
+
+on primary_release()
+ play_sound( ravardespiseshot.wav, 20, 1, 0.05 )
+ shoot_particles ( ravarddespisebullet.obj , 1 , 1, 1, 0, 0, 30, 0, 0)
+ delay_fire(35)

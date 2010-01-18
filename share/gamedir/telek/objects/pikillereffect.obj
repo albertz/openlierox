@@ -1,0 +1,17 @@
+sprite = telekchaostheorypi.png
+damping = 0
+blender = add
+alpha = 255
+repeat = 2
+
+on creation()
+ add_angle_speed(1)
+
+on timer(1)
+ shoot_particles ( pidrawpixelar.obj , 1 , 0, 0, 0, 0, 0, 0, 31)
+ shoot_particles ( pidrawpixelar.obj , 1 , 0, 0, 0, 0, 0, 0, -31)
+ shoot_particles ( pidrawpixelar.obj , 1 , 0, 0, 0, 0, 0, 90, 31)
+ shoot_particles ( pidrawpixelar.obj , 1 , 0, 0, 0, 0, 0, -90, 31)
+
+on timer(90)
+ remove()

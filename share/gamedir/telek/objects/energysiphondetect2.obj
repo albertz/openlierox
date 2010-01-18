@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ damage ( 999 )
+ remove()
+
+on timer(1)
+ remove()

@@ -1,0 +1,11 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+distort_magnitude = 0.72
+distort_gen = <<< distortions.swirl >>>
+distort_size = [15,15]
+
+on timer(7)
+ shoot_particles ( thewinddragonwave4.obj , 1 , 0.001 , 0, 0, 0, 0)
+ remove()

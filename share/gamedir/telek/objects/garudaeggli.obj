@@ -1,0 +1,91 @@
+damping = 0.96
+sprite = garudaegg.png
+col_layer = -1
+
+on timer(150, max_trigger = 1 )
+ shoot_particles ( garudaangellight.obj, 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+ play_sound( luminairechorserge.wav, 100, 1, 0 )
+
+on timer(160, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(170, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(180, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(190, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(160, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(170, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(180, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(190, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(200, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(210, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(220, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(230, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(240, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(250, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(260, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(270, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(280, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(290, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(300, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(310, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(320, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(330, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(340, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(350, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(360, max_trigger = 1 )
+ shoot_particles ( laserwaveticgar.obj, 1)
+
+on timer(370, max_trigger = 1 )
+ shoot_particles ( laserwaveticgari.obj, 1)
+
+on timer(550)
+ shoot_particles ( garudaangellightflash.obj, 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+ play_sound( unknownspeedgaruda.wav, 100, 1, 0)
+ shoot_particles ( garudafeathersspread.obj, 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+ remove()

@@ -1,0 +1,13 @@
+sprite = uzumaki.png
+anim_duration = 40
+anim_type = loop_right
+damping = 0.96
+health = 1
+
+on death()
+ remove()
+
+on timer(200)
+ shoot_particles ( gretelnoisepower.obj , 1, 0, 0, 1 )
+ shoot_particles ( gretelspreader.obj, 3 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()

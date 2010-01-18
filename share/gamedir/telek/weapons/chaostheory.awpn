@@ -1,0 +1,10 @@
+name = "Chaos Theory(INCOMPLETE)"
+reload_time = 100
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(100)
+ use_ammo(1)
+ play_sound( cloudstrikestrike.wav, 100, 1, 0 )
+ shoot_particles ( pikillereffect.obj , 1, 0.5, 0, 0, 0, 0, 0, 0)

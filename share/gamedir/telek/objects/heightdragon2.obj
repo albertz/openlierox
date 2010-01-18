@@ -1,0 +1,10 @@
+col_layer = -1
+gravity = -0.05
+repeat = 300
+invisible = 1
+
+on timer(0)
+ create_explosion ( dragonheight.exp )
+
+on timer(24)
+ remove()

@@ -1,0 +1,13 @@
+blender = add
+alpha = 75
+colour = [255,0,255]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+bounce_factor = 0
+ground_friction = 0
+render_layer = 5
+
+on ground_collision()
+ remove()

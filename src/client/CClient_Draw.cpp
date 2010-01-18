@@ -1957,7 +1957,7 @@ void CClient::DrawLocalChat(SDL_Surface * bmpDest)
 		return;
 
 	int y = tInterfaceSettings.LocalChatY;
-	if(permanentText != "") y += tLX->cFont.GetHeight(permanentText) + 2;
+	if(permanentText != "") y += tLX->cFont.GetHeight(permanentText) + tLX->cFont.GetHeight();
 	
 	lines_riterator it = cChatbox.RBegin();
 	if(it != cChatbox.REnd()) it++;

@@ -1,0 +1,14 @@
+sprite = dragonredsmoker.png
+blender = add
+alpha = 35
+gravity = -0.002
+render_layer = 6
+col_layer = 5
+
+damping = 0.96
+
+on timer( 50, max_trigger = 1 )
+set_alpha_fade(35,0)
+
+on timer( 85 )
+remove ()

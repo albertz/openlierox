@@ -51,6 +51,7 @@ public:
 	virtual void Simulate() {}
 	virtual bool CheckGameOver();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
+	virtual void GameOver() {}
 	
 	virtual int CompareWormsScore(CWorm* w1, CWorm* w2);
 	virtual int CompareTeamsScore(int t1, int t2);

@@ -1,0 +1,23 @@
+name = "Daedalus Shotgun HV916"
+sync_shot = 1
+sync_reload = false
+ammo = 1
+reload_time = 250
+
+on primary_shoot()
+ add_speed( -0.3 )
+ delay_fire(250)
+ use_ammo()
+ play_sound( daedshotgunfire.wav, 100, 1, 0.05 )
+ shoot_particles ( shotgunbulletsz.obj , 5 , 1, 0.2, 0, 0, 15, 0, 7)
+ shoot_particles ( shotgunbulletszz.obj , 1 , 1, 0.2, 0, 0, 15, 0, 7)
+ shoot_particles ( pshellbuckfire.obj, 1 , 1, 0.3, 0.5, 0, 20, -105)
+ shoot_particles ( lightningflare.obj, 1 , 0, 0, 0, 0, 0, 0, 7)
+ shoot_particles ( shotgunmuzzleflare.obj, 1 , 0, 0, 0, 0, 0, 0, 7)
+ shoot_particles ( shotgunmuzzleflashi.obj, 1 , 0, 0, 0, 0, 0, 0, 7)
+ shoot_particles ( teleksmoke.obj , 6 , 0.3, 0.6, 0, 0, 30, 0, 6)
+ shoot_particles ( esubshock2.obj , 2 , 0.4, 0, 0, 0, 50, 0, 5)
+ shoot_particles ( esubshock3.obj , 1 , 0.4, 0, 0, 0, 0, 0, 6)
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( deadalusshotgundraw.wav, 100, 1, 0 )

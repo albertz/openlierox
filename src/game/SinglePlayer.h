@@ -42,7 +42,8 @@ struct SinglePlayerGame : CGameMode {
 	std::string Name() { return "Game: " + currentGame; }
 	void Simulate();
 	bool CheckGameOver();
-
+	int Winner();
+	void GameOver();
 };
 
 extern SinglePlayerGame singlePlayerGame;

@@ -1,0 +1,19 @@
+
+gravity = 0.009
+invisible = 1
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on detect_range(1)
+ damage ( 10 )
+ push ( 0.2 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ remove()
+
+on timer(50, 20)
+ remove()

@@ -1,0 +1,19 @@
+damping = 0
+col_layer = -1
+invisible = 1
+
+on death()
+ remove()
+
+on timer(2)
+ add_angle_speed(-0.3)
+
+on timer(0)
+ shoot_particles ( telekhollowlaserx.obj, 1, 1, 0, 0, 0, 0, 60, 0)
+
+on timer(1)
+ shoot_particles ( telekhollowlaserz.obj, 1, 1, 0, 0, 0, 0, 60, 0)
+ shoot_particles ( telekhollowlaserx.obj, 1, 1, 0, 0, 0, 0, 60, 0)
+
+on timer(50)
+ remove()

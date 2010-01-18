@@ -1,0 +1,5 @@
+invisible = 1
+timeout = 0
+
+on creation()
+ apply_map_effect( exp1hole.mfx )

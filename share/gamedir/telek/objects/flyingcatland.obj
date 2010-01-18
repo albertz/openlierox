@@ -1,0 +1,15 @@
+sprite = catland.png
+anim_duration = 50
+anim_type = right_once
+bounce_factor = 0
+ground_friction = 0
+gravity = 1
+anim_on_ground = 1
+
+on death()
+ remove()
+
+on timer(70)
+ play_sound( catturn.wav, 100, 1, 0.05 )
+ shoot_particles ( catstartrest.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

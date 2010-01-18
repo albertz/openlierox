@@ -1,0 +1,8 @@
+gravity = 0.0005
+sprite = hook.png
+anim_duration = 20
+anim_type = loop_right
+colour = [220, 140, 0]
+
+on creation()
+ play_sound(throw.ogg,100,1,0.05)

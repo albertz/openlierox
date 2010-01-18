@@ -1,0 +1,30 @@
+colour = [0, 198, 255]
+gravity = 0.0009
+repeat = 4
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( esubshock1.obj , 2 , 0.4, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( lightningsmoke.obj , 1)
+ remove()
+
+on timer(5)
+ shoot_particles ( telekbullettrailz.obj , 1 , 0, 0, 10, 0, 0, 0, 0)
+
+on detect_range(5, 0)
+ shoot_particles ( bloodiedclawfinal.obj , 1 , 0.0001, 0.0001, 0, 0, 30, 0, 0)
+ play_sound_static( [smashy1.ogg, smashy2.ogg], 25 )
+ play_sound_static( [lightningsmack.wav], 100 )
+ damage ( 99 )
+ push ( 5.5 )
+ shoot_particles ( electrok.obj , 1 , 0.5 , 0, 0, 0 , 0, 0, 0)
+ remove()
+
+on timer(25)
+ shoot_particles ( shotgunbulletsz2.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

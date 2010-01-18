@@ -1,0 +1,17 @@
+blender=add
+alpha=255
+sprite = pebolt1.png
+occluded = 1
+col_layer = -1
+render_layer = 0
+repeat = 1
+col_layer = -1
+colour = [160, 160, 255]
+blender = alpha
+wu_pixels = 1
+
+on creation()
+ set_alpha_fade(10,0)
+
+on timer(10)
+ remove()

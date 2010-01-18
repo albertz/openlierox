@@ -1,0 +1,31 @@
+colour = [255, 255, 0]
+gravity = 0.0009
+repeat = 4
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( achillesflashhit.obj, 1)
+ play_sound( uttriccochet.wav, 15, 1, 0.05 )
+ shoot_particles ( warrocksmoke.obj , 5 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( shotgunelecksparkx.obj , 3 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ remove()
+
+on timer(0)
+ create_explosion ( telekbullettrailii.exp )
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ play_sound_static( [smashy1.ogg, smashy2.ogg], 25 )
+ damage ( 15.7 )
+ push ( 0.4 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsplatterrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()
+
+on timer(25)
+ shoot_particles ( shotgunbulletsii2.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

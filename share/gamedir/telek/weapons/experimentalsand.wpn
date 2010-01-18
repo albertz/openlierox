@@ -1,0 +1,8 @@
+name = "Experimental Sand"
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( sandtake.wav, 100, 1, 0 )
+
+on primary_shoot()
+ delay_fire(4)
+ shoot_particles ( telekwaterparticle.obj , 3 , 0.05, 0.05, 0, 0, 360, 0, 2)

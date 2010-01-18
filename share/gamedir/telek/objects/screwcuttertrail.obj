@@ -1,0 +1,17 @@
+sprite = screwcutterstill.png
+blender = add
+alpha = 50
+health = 1
+damping = 0
+
+on death()
+ remove()
+
+on creation()
+ set_alpha_fade( 5 , 0 )
+
+on ground_collision()
+ remove()
+
+on timer(5)
+ remove()

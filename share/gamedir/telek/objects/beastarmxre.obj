@@ -1,0 +1,13 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on timer(0)
+ shoot_particles ( beastfire.obj, 1, 0.85, 0.85, 0, 0, -50, -30, 3)
+
+on timer(15)
+ shoot_particles ( beastarmi.obj, 1, 1, 0, 0, 0, 0, -90, 0)
+ remove()
+
+on ground_collision()
+ remove()

@@ -1,0 +1,12 @@
+sprite = solarlightfxx.png
+blender = add
+alpha = 255
+col_layer = -1 
+light_radius = 45
+render_layer = 7
+
+on timer(15)
+ remove()
+
+on creation()
+ set_alpha_fade(15,0)

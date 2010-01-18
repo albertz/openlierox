@@ -1,0 +1,20 @@
+repeat = 50
+col_layer = -1
+
+on ground_collision()
+ shoot_particles ( eleckspark.obj , 1 , 1, 1, 0, 0, 360, 0, 0)
+ remove()
+
+on timer(10,30)
+ shoot_particles ( esubshock2.obj , 2 , 0.4, 0, 0, 0, 150, 0, 0)
+ remove()
+
+on timer(1)
+ shoot_particles ( electrolight.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+
+on timer(0)
+ shoot_particles ( electroktail1.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+
+on detect_range(2, 0)
+ damage ( 0.5 )
+ push ( 0.1 )

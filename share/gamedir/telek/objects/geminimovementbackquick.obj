@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+repeat = 2
+
+on ground_collision()
+ shoot_particles ( geminstaticfat.obj , 1)
+ create_explosion ( dragonexps.exp )
+ remove()
+
+on timer(0)
+ shoot_particles ( settingtheblurofflame.obj , 1)
+ create_explosion ( dragonexp.exp )
+
+on timer(25)
+ shoot_particles ( geminstaticfat.obj , 1)
+ create_explosion ( dragonexps.exp )
+ remove()

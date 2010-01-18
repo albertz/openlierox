@@ -1,0 +1,16 @@
+name = "Electrokinesis Persistance"
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( zelectrokenesis.wav, 100, 1, 0.05 )
+ delay_fire(20)
+
+on primary_shoot()
+ delay_fire(7)
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( zelectrok.obj , 1 , 0.5 , 0, 0, 0 , 0, 0, 0)
+
+on active_timer( 7)
+ shoot_particles ( zesubshock2.obj , 2 , 0.4, 0, 0, 0, 50, 0, 0)
+
+on active_timer( 55,56)
+ delay_fire(53)

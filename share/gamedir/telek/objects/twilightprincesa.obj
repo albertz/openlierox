@@ -1,0 +1,27 @@
+
+gravity = 0.000045
+repeat = 7
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( achillesflashhit.obj, 1)
+ shoot_particles ( shotgunelecksparkx.obj , 3 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( warrocksmoke.obj , 5 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ play_sound_static( [hric1.wav, hric2.wav, hric3.wav, hric4.wav, hric5.wav, nullsound.wav], 50 )
+ remove()
+
+on timer(0)
+ create_explosion ( xtelekbullettrail.exp )
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ play_sound_static( [minorflesh1.wav, minorflesh2.wav], 50 )
+ damage ( 11.975 )
+ push ( 0.4 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()

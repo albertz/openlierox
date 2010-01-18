@@ -1,0 +1,20 @@
+repeat = 200
+col_layer = -1
+
+on creation()
+ add_angle_speed(4)
+
+on ground_collision()
+ shoot_particles ( spark.obj , 5 , 0.4, 0.8 )
+ shoot_particles ( prettyrailgunimpact.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on timer(0)
+ shoot_particles ( prettytrailgun.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 3)
+
+on timer(1)
+ shoot_particles( prettyrailgunner.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+
+on detect_range(2, 0)
+ damage ( 5 , 2 )
+ push ( 0.2 )

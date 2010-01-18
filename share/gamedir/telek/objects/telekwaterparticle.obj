@@ -1,0 +1,32 @@
+gravity = 0.015
+blender = alpha
+wu_pixels = 1
+alpha = 255
+colour = [250,210,150]
+bounce_factor = 0
+ground_friction = 0.99
+health = 1
+col_layer = 7
+radius = 1.5
+
+on death()
+ remove()
+
+on detect_range(1, 1, [7])
+ damp( 0.1 )
+ repel( 0.05 , 1, 0.05 )
+
+on detect_range(1, 2, [0,1,2,3,4,5,6])
+ create_explosion ( watercollisionsys.exp )
+ damp( 0.05 )
+ repel( 0.1 , 1.3, 0.05 )
+
+on detect_range(1, 1)
+ damp( 0.995 )
+ create_explosion ( watercollisionsys.exp )
+
+on timer( 747, max_trigger = 1 )
+ set_alpha_fade(30,0)
+
+on timer(777)
+ remove()

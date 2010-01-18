@@ -1,0 +1,8 @@
+invisible = 1
+repeat = 1000
+col_layer = -1
+
+on creation()
+ shoot_particles ( hollowlasergirth1.obj , 1 , 0.5, 0, 0, 0, 0, -30, 0 )
+ shoot_particles ( hollowlasergirth.obj , 1 , 0.5, 0, 0, 0, 0, 30, 0 )
+ remove()

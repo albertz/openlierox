@@ -1,0 +1,8 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+on creation()
+ shoot_particles ( gunmuzzle.obj , 2 , 0.45, 0.2, 0, 0, 25, 90, 0)
+ shoot_particles ( gunmuzzle.obj , 2 , 0.45, 0.2, 0, 0, 25, -90, 0)
+ remove()

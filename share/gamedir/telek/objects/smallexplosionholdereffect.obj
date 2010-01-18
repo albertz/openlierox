@@ -1,0 +1,8 @@
+col_layer = -1
+invisible = 1
+
+on timer(0)
+ create_explosion ( smallplasmaconstantplast.exp )
+
+on timer(50)
+ remove()

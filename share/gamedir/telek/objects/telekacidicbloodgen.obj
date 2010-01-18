@@ -1,0 +1,23 @@
+gravity = 0.013
+colour = [64, 255, 64]
+blender = add
+bounce_factor = 0.2
+col_layer = 7
+health = 1
+repeat = 2
+
+on death()
+ remove()
+
+on timer(35, 25)
+ remove()
+
+on ground_collision()
+ shoot_particles ( teleacidicsmokinggas.obj , 1)
+ remove()
+
+on timer(5)
+ shoot_particles ( telekacidicblood.obj , 1 , 0 , 0.2, 0.5, 0, 0, 0,0)
+
+on creation()
+ shoot_particles ( telekacidicabloodyvapour.obj , 1 , 0.3, 1, 0.5 )

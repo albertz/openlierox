@@ -1,0 +1,13 @@
+damping = 0.9
+repeat = 7
+health = 1
+invisible = 1
+
+on death()
+ remove()
+
+on timer(50)
+ shoot_particles ( lovelybeater.obj , 1, 0, 0, 1 )
+
+on timer(200)
+ remove()

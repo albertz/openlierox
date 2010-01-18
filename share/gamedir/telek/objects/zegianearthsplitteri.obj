@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+
+on timer( 5 )
+ shoot_particles ( warrockspin.obj , 1 , 0.7, 0.5, 0.3, 0, 360, 0, 0)
+
+on timer( 8,9 )
+ shoot_particles ( warrockend.obj , 1 , 0.3, 0.3, 0, 0, 360, 0, 0)
+
+on timer( 0,150 )
+ shoot_particles ( zegianemebers.obj , 1 , 0.5, 0.5, 0, 0, 360, 0, 0)
+
+on timer( 150 )
+ remove()

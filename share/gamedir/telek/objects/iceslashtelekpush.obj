@@ -1,0 +1,13 @@
+repeat = 10
+col_layer = 1
+invisible = 1
+
+on timer(1)
+ remove()
+
+on detect_range(25, 1, [0,1,2,3,4,5,6,7])
+ push( 0.01 )
+
+on detect_range(25, 0)
+ push( 0.01 )
+ damage ( 0.25 )

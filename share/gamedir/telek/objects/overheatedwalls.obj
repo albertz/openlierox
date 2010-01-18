@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+repeat = 200
+
+on ground_collision()
+ shoot_particles ( overheatembers.obj, 1)
+ remove()
+
+on timer(150)
+ remove()

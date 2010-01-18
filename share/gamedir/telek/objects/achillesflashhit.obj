@@ -1,0 +1,13 @@
+sprite = achilleshit.png
+blender = add
+alpha = 35
+occluded = 1
+col_layer = -1 
+render_layer= 1
+light_radius=45
+
+on ground_collision()
+ remove()
+
+on timer(3)
+ remove()

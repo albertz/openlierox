@@ -1,0 +1,5 @@
+blender = alpha
+alpha = 50
+dest_alpha = 0
+timeout = 2
+sprite = whitesquares.png

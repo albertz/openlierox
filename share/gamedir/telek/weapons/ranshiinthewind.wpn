@@ -1,0 +1,9 @@
+name = "Ranshiin The Wind"
+reload_time = 600
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(600)
+ use_ammo(1)
+ shoot_particles ( thewinddragonwave.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)

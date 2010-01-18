@@ -1,0 +1,10 @@
+sprite = zegianryuusei.png
+blender = add
+alpha = 64
+col_layer = -1
+anim_duration = 2
+anim_type = right_once
+anim_on_ground = 1
+
+on timer(2)
+ remove()

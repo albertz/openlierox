@@ -1,0 +1,10 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 0.05
+distort_gen = <<< distortions.lens >>>
+distort_size = [300,300]
+
+on timer(1)
+ shoot_particles ( dragonoidpulse3.obj, 1)
+ remove()

@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 190
+distort_gen = <<< distortions.pinch >>>
+distort_size = [200,200]
+
+on timer(5)
+ play_sound( vortex_run.wav, 100, 1, 0 )
+ shoot_particles ( dtdz.obj , 1, 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on timer(1)
+ shoot_particles ( whitedotremoval.obj , 1)

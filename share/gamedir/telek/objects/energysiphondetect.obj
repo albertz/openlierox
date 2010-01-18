@@ -1,0 +1,16 @@
+col_layer = -1
+sprite = vampiricspellaura.png
+damping = 0
+blender = alpha
+alpha = 52
+render_layer = 4
+
+on detect_range(1, 0)
+ damage ( 2 )
+ shoot_particles ( bloodgensiphon.obj , 16 , 0.5, 1, 0.5, 0, 360, 0, 6 )
+ shoot_particles ( bloodgensiphon.obj , 8 , 0.5, 1, 0.5, 0, 360, 0, 10 )
+ shoot_particles ( energysiphonheal.obj , 1 , 0, 0, 0, 0, 0, 0, -29)
+ remove()
+
+on timer(1)
+ remove()

@@ -1,0 +1,9 @@
+invisible = 1
+bounce_factor = 1
+repeat = 10
+
+on timer(3,5)
+ remove()
+
+on timer(0)
+ shoot_particles ( medshotgunsparks1.obj , 1 )

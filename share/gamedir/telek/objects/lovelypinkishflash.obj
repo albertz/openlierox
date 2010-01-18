@@ -1,0 +1,13 @@
+sprite = girlypinkflash.png
+blender = add
+alpha = 185
+occluded = 1
+col_layer = -1 
+render_layer= 5
+light_radius=65
+
+on creation()
+set_alpha_fade(160,0)
+
+on timer( 160 )
+remove()

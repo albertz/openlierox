@@ -1,0 +1,9 @@
+col_layer = -1
+sprite = railbow.png
+damping = 0
+
+on ground_collision()
+ remove()
+
+on timer(50,50)
+ remove()

@@ -1,0 +1,11 @@
+sprite = launchedcat.png
+gravity = 0.007
+repeat = 3
+
+on death()
+ remove()
+
+on ground_collision()
+ play_sound( catlands.wav, 100, 1, 0.05 )
+ shoot_particles ( flyingcatland.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

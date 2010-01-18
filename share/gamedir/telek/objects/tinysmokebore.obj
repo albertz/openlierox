@@ -1,0 +1,14 @@
+sprite = tinysmokebore.png
+blender = alphach
+alpha = 80
+gravity = -0.02
+render_layer = 5
+col_layer = 5
+
+damping = 0.96
+
+on creation()
+set_alpha_fade(50,0)
+
+on timer( 50 )
+remove ()

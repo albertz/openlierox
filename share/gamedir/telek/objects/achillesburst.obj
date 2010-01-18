@@ -1,0 +1,11 @@
+sprite = telekincendatory.png
+blender = add
+alpha = 255
+render_layer = 0
+col_layer = -1
+
+on timer( 5, max_trigger = 1 )
+ set_alpha_fade(30,0)
+
+on timer( 35 )
+ remove ()

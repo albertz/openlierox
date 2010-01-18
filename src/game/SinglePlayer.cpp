@@ -17,6 +17,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "ProfileSystem.h"
+#include "CWormHuman.h"
 
 SinglePlayerGame singlePlayerGame;
 
@@ -145,6 +146,8 @@ static bool addPlayerToClient() {
 	return true;
 }
 
+static GameOptions::GameInfo oldSettings;
+
 bool SinglePlayerGame::startGame() {
 	if(!currentGameValid) {
 		errors << "SinglePlayerGame::startGame: cannot start game: current game/level is invalid" << endl;
@@ -157,6 +160,7 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	oldSettings = tLXOptions->tGameInfo;
 	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
 	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	
@@ -178,9 +182,13 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
-	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false;
 	tLXOptions->tGameInfo.sModDir = modInfo.path;
 	tLXOptions->tGameInfo.sModName = modInfo.name;
+
+	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false;
+	tLXOptions->tGameInfo.iLives = -2;
+	tLXOptions->tGameInfo.iKillLimit = -1;
+	tLXOptions->tGameInfo.fTimeLimit = -1;
 	
 	tLXOptions->tGameInfo.gameMode = this;
 	
@@ -189,6 +197,9 @@ bool SinglePlayerGame::startGame() {
 }
 
 void SinglePlayerGame::setLevelSucceeded() {
+	if(levelSucceeded) return;
+	
+	notes << "SinglePlayerGame: level was succeeded" << endl;
 	levelSucceeded = true;
 
 	if(gameLevelExists(currentGame, currentLevel + 1)) {
@@ -204,5 +215,20 @@ void SinglePlayerGame::Simulate() {
 
 bool SinglePlayerGame::CheckGameOver() {
 	return levelSucceeded;
+}
+
+int SinglePlayerGame::Winner() {
+	if(!levelSucceeded) return -1;
+	for(int i = 0; i < cClient->getNumWorms(); ++i)
+		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
+			return cClient->getWorm(i)->getID();
+	return -1;
+}
+
+void SinglePlayerGame::GameOver() {
+	tLXOptions->tGameInfo = oldSettings;	
+	// this is kind of a hack; we need it because in CClient::Draw for example,
+	// we check for it to draw the congratulation msg
+	tLXOptions->tGameInfo.gameMode = this;
 }
 

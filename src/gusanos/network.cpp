@@ -290,6 +290,8 @@ void Network::olxConnect()
 	SET_STATE(Idle);
 	
 	m_control->Net_ConnectToServer();
+	
+	gusGame.assignNetworkRole( false );
 }
 
 void Network::disconnect( DConnEvents event )

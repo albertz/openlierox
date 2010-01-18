@@ -1,0 +1,15 @@
+name = "Hatred Ray"
+ammo = 200
+reload_time = 150
+
+on primary_press()
+ play_sound( steadywavecannonar.wav, 50, 1, 0.05 )
+
+on primary_shoot()
+ play_sound_static( [sawtoothkill.wav, sawtoothkill1.wav, sawtoothkill2.wav, sawtoothkill3.wav], 100 )
+ shoot_particles ( hatredraymixxer.obj , 1 , 1, 0, 0, 0, 0, 0, 5)
+ shoot_particles ( hatredraymixxerx.obj , 1 , 1, 0, 0, 0, 0, 0, 5)
+ shoot_particles ( dualbeammixxer.obj , 1 , 1, 0, 0, 0, 0, 0, 5)
+
+on primary_release()
+ play_sound( hatredrayendar.wav, 50, 1, 0.05 )

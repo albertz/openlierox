@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+repeat = 200
+
+on ground_collision()
+ shoot_particles ( dragondischarge.obj, 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(250)
+ remove()

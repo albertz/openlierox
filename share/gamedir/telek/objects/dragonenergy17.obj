@@ -1,0 +1,12 @@
+sprite = dragonenergy.png
+blender = add
+alpha = 90
+col_layer = 1 
+light_radius= 3
+render_layer = 0
+ground_friction=0
+bounce_factor=0
+
+on timer(5)
+ shoot_particles ( dragonenergy18.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

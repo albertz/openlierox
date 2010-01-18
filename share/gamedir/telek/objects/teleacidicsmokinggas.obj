@@ -1,0 +1,8 @@
+invisible = 1
+col_layer = -1
+
+on timer(5,75)
+ shoot_particles ( telekstandardsmoke.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 0)
+
+on timer(35)
+ remove()

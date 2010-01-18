@@ -1,0 +1,13 @@
+sprite = telekgas.png
+blender = add
+alpha = 70
+gravity = -0.004
+render_layer = 2
+col_layer = -1
+damping = 0.96
+
+on timer( 30, max_trigger = 1 )
+ set_alpha_fade(70,0)
+
+on timer( 100 )
+ remove ()

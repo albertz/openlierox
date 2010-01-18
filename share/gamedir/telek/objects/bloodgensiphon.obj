@@ -1,0 +1,16 @@
+gravity = 0.013
+colour = [230, 0, 0]
+bounce_factor = 0.2
+col_layer = 1
+
+on timer(70, 50)
+ remove()
+
+on ground_collision()
+ remove()
+
+on timer(5)
+ shoot_particles ( bloodsiphon.obj , 1 , 0 , 0.2, 0.5, 0, 0, 0,0)
+
+on detect_range(1)
+ remove()

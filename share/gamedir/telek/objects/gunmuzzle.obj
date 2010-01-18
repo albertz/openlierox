@@ -1,0 +1,13 @@
+invisible = 1
+bounce_factor = 1
+repeat = 10
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer(10,10)
+ remove()
+
+on timer(0)
+ shoot_particles ( gunmuzzletrail.obj , 1 )

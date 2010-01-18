@@ -1,0 +1,14 @@
+sprite = bacteria2.png
+damping = 0.96
+invisible = 1
+anim_duration = 300
+anim_type = right_once
+health = 1
+anim_on_ground = 1
+
+on death()
+ remove()
+
+on timer(300)
+ shoot_particles ( bacterium3.obj , 3 , 3 , 0, 0, 0 , 360, 0, 0)
+ remove()

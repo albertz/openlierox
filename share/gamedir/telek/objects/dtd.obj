@@ -1,0 +1,18 @@
+sprite = dtd.png
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.05
+health = 100
+bounce_factor = 0.225
+ground_friction = 0.575
+col_layer = 1
+render_layer = 0
+health = 1
+
+on death()
+ remove()
+
+on timer(200)
+ shoot_particles ( dtdx.obj , 1)
+ play_sound( vortex_start.wav, 100, 1, 0 )
+ remove()

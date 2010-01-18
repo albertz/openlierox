@@ -1,0 +1,17 @@
+sprite = cuttersparksglow.png
+repeat = 4
+blender = add
+anim_duration = 200
+anim_type = right_once
+alpha = 200
+col_layer = -1
+damping = 0.98
+
+on ground_collision()
+ remove()
+
+on timer(200)
+ remove()
+
+on timer(150)
+ set_alpha_fade( 50 , 0 )

@@ -1,0 +1,11 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on timer(15)
+ shoot_particles ( beastarmibase.obj, 1, 0.0001, 0, 0, 0, 0, 180, 0)
+ remove()
+
+on ground_collision()
+ remove()
+

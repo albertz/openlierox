@@ -1,0 +1,23 @@
+name = "Hydra"
+reload_time = 200
+sync_shot = true
+sync_reload = false
+ammo = 10
+reload_time = 130
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( grenadevalor.wav, 100, 1, 0 )
+ delay_fire(30)
+
+on primary_press()
+ use_ammo(1)
+ play_sound( parnadelancher.wav, 100, 1, 0.05 )
+ shoot_particles ( shotgunmuzzleflash.obj, 1 , 0, 0, 0, 0, 0, 10)
+ shoot_particles ( gunmuzzle.obj , 3 , 0.55, 0.4, 0, 0, 15, 0, 5)
+ shoot_particles ( greysharkabullet.obj , 1 , 1, 0, 0, 0, 1, 0, 7)
+ shoot_particles ( greyshellsfire.obj , 1 , 1, 0.3, 0.5, 0, 20, -125)
+
+on out_of_ammo()
+ play_sound( greysharkreload.wav, 100, 1, 0.05 )
+ delay_fire(130)
+

@@ -1,0 +1,24 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on timer(1)
+ create_explosion ( dragonexps.exp )
+ shoot_particles ( rockblastedaway.obj , 1)
+ shoot_particles ( unicornrippleeffect.obj , 1)
+ remove()
+
+on detect_range(15, 0)
+ damage( 999 )
+ create_explosion ( dragonexps.exp )
+ play_sound( bonebreakernut.wav, 100, 1, 0 )
+ create_explosion( unicorneffectblow.exp )
+ shoot_particles ( pistonflasher.obj , 1)
+ shoot_particles ( unicornrippleeffect.obj , 1)
+ shoot_particles ( bloodexplosion.obj, 1)
+ shoot_particles ( elecksparkx.obj , 29 , 0, 5, 0, 0, 360, 0, 5)
+ shoot_particles ( telekbloodsmoker.obj , 10 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( telekbloodsmoker.obj , 20 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( telekbloodsmoker.obj , 35 , 2, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( meatparticlesz.obj , 70 , 0, 10, 0, 0, 360, 0, 0)
+ remove()

@@ -1,0 +1,5 @@
+sprite = boreexplosion.png
+blender = add
+alpha = 255
+dest_alpha = 0
+timeout = 50

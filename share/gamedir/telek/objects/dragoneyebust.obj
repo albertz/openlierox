@@ -1,0 +1,13 @@
+invisible = 1
+col_layer = -1
+repeat = 2
+damping = 0.98
+
+on timer(2)
+ shoot_particles ( dragoneyedustpart.obj , 2 , 1, 1, -0.5, -1, 5, 0, 0)
+
+on timer(115)
+ remove()
+
+on ground_collision()
+ remove()

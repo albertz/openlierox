@@ -1,0 +1,24 @@
+
+gravity = 0.0009
+repeat = 4
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ create_explosion ( explosion1.exp )
+ remove()
+
+on timer(0)
+ create_explosion ( bullet_trail.exp )
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ play_sound_static( [chaoshit1.wav, chaoshit2.wav, chaoshit3.wav, chaoshit4.wav], 100 )
+ damage ( 15.7 )
+ push ( 0.4 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()

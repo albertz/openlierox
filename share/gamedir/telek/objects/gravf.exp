@@ -1,0 +1,37 @@
+timeout = 0
+invisible = 1
+
+on detect_range (25, 26, [0,1,2,3,4,5,6,7])
+ damp( 0.5 )
+ repel( -1 , 26, -0.7 )
+
+on detect_range (15, 15, [0,1,2,3,4,5,6,7])
+ damp( 0.5 )
+ repel( -0.3 , 15, -0.63 )
+
+on detect_range (10, 10, [0,1,2,3,4,5,6,7])
+ damp( 0.1 )
+ repel( -0.2 , 10, -0.4 )
+
+on detect_range (5, 5, [0,1,2,3,4,5,6,7])
+ damp( 0.05 )
+ repel( -0.2 , 5, -0.4 )
+
+on detect_range (3, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.05 )
+
+on detect_range (35, 0)
+ damp( 0.8 )
+ repel( -0.8 , 36, -0.8 )
+
+on detect_range (25, 0)
+ damp( 0.5 )
+ repel( -0.8 , 26, -0.8 )
+
+on detect_range (15, 0)
+ damp( 0.3 )
+ repel( -0.1 , 16, -0.2 )
+
+on detect_range (5, 0)
+ damp( 0.5 )
+ repel( -0.05 , 6, -0.1 )

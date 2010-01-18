@@ -1,0 +1,52 @@
+damping = 0
+repeat = 5
+col_layer = -1
+invisible = 1
+
+on creation()
+ play_sound( iceswordswingora.wav, 100, 1, 0 )
+ add_angle_speed(2)
+
+on timer( 1, max_trigger = 39 )
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 17)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 23)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 29)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 35)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 41)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 47)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 53)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 59)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 65)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 71)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 77)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 83)
+ shoot_particles ( iceslashblureffector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 89)
+
+on timer( 75, max_trigger = 1 )
+ add_angle_speed(-2)
+
+on timer(1)
+ shoot_particles ( iceswordvisualeffector.obj , 1 , 1 , 0, 0, 0, 0, 0, 15)
+
+on timer(160)
+ play_sound( iceshatteringblocks.wav, 100, 1, 0 )
+ shoot_particles ( telekiceshardi4.obj , 3, 2, -4, 0, 0, 30, 0, 15)
+ shoot_particles ( telekiceshardi8.obj , 3, 2, -4, 0, 0, 30, 0, 18)
+ shoot_particles ( telekiceshardi6.obj , 3, 2, -4, 0, 0, 30, 0, 19)
+ shoot_particles ( telekiceshardi7.obj , 3, 2, -4, 0, 0, 30, 0, 23)
+ shoot_particles ( telekiceshardi5.obj , 3, 2, -4, 0, 0, 30, 0, 25)
+ shoot_particles ( telekiceshardi9.obj , 3, 2, -4, 0, 0, 30, 0, 27)
+ shoot_particles ( telekiceshardi10.obj , 4, 2, -4, 0, 0, 30, 0, 31)
+ shoot_particles ( telekiceshardi4.obj , 4, 2, -4, 0, 0, 30, 0, 35)
+ shoot_particles ( telekiceshardi12.obj , 4, 2, -4, 0, 0, 30, 0, 38)
+ shoot_particles ( telekiceshardi5.obj , 4, 2, -4, 0, 0, 30, 0, 42)
+ shoot_particles ( telekiceshardi14.obj , 4, 2, -4, 0, 0, 30, 0, 46)
+ shoot_particles ( telekiceshardi6.obj , 4, 2, -4, 0, 0, 30, 0, 51)
+ shoot_particles ( telekiceshardi16.obj , 4, 2, -4, 0, 0, 30, 0, 55)
+ shoot_particles ( telekiceshardi7.obj , 5, 2, -4, 0, 0, 30, 0, 57)
+ shoot_particles ( telekiceshardi11.obj , 5, 2, -4, 0, 0, 30, 0, 60)
+ shoot_particles ( telekiceshardi8.obj , 5, 2, -4, 0, 0, 30, 0, 60)
+ shoot_particles ( telekiceshardi7.obj , 5, 2, -4, 0, 0, 30, 0, 63)
+ shoot_particles ( telekiceshardi8.obj , 5, 2, -4, 0, 0, 20, 0, 66)
+ shoot_particles ( telekiceshardi9.obj , 5, 2, -4, 0, 0, 20, 0, 71)
+ remove()

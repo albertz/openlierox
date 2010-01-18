@@ -1,0 +1,10 @@
+damping = 0
+repeat = 2
+invisible = 1
+col_layer = -1
+
+on timer(10)
+ shoot_particles ( acadiacbblebeamstart.obj , 1 , 1 , 0, 0, 0, 30, 0, 0)
+
+on timer(60)
+ remove()

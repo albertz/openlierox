@@ -1,0 +1,10 @@
+name = "Shiron's Wing Tornado"
+reload_time = 200
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(200)
+ use_ammo(1)
+ play_sound_static( [ranshiinwingtornadoquote.wav, wingtornadosettwo.wav, nullsound.wav], 100 )
+ shoot_particles ( zsetthewinddragonwave.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)

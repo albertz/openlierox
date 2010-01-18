@@ -1,0 +1,18 @@
+gravity = 0.015
+bounce_factor=0
+colour = [128, 255, 128]
+render_layer = 8
+blender = add
+col_layer = -1
+
+on ground_collision()
+ apply_map_effect( laserhole.mfx )
+ shoot_particles ( teleacidicsmokinggas.obj , 1)
+ remove()
+
+on detect_range(1, 0)
+ play_sound( telekacidicsizzle.wav, 100, 1, 0.1 )
+ damage ( 3.35 )
+ shoot_particles ( warrocksmoke.obj , 6 , 0.3, 0.6, 0, 0, 360, 0, 6)
+ shoot_particles ( telekstandardsmoke.obj , 3 , 0.1, 0.1, 0, 0, 360, 0, 0)
+ remove()

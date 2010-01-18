@@ -1,0 +1,13 @@
+sprite = gzglow.png
+blender = add
+occluded = 1
+light_radius= 20
+render_layer = 1
+col_layer = -1
+alpha = 55
+
+on creation()
+ set_alpha_fade(10,0)
+
+on timer( 10 )
+ remove()

@@ -1,0 +1,11 @@
+sprite = keneticorb.png
+blender = add
+alpha = 128
+col_layer = -1
+damping = 0.9
+anim_duration = 30
+anim_type = right_once
+light_radius = 6
+
+on timer(30)
+ remove()

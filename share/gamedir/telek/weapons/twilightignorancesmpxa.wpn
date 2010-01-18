@@ -1,0 +1,20 @@
+name = "Twilight Ignorance SMP2XA"
+ammo = 70
+reload_time = 100
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( twilgihtprinca.wav, 100, 1, 0 )
+
+on primary_shoot()
+ delay_fire(4)
+ use_ammo(1)
+ add_speed(-0.0025)
+ play_sound( smpfilabra.wav, 100, 1, 0.05 )
+ shoot_particles ( twilightprincesa.obj , 2 , 1, 0.5, 0, 0, 10, 0, 7)
+ shoot_particles ( bulletshells.obj , 2 , 1, 0.3, 0.5, 0, 20, -105)
+ shoot_particles ( shotgunmuzzleflash.obj, 1 , 0, 0, 0, 0, 0, 10)
+ shoot_particles ( gunmuzzle.obj , 5 , 0.65, 0.4, 0, 0, 25, 0, 5)
+ shoot_particles ( gunmizzl.obj , 1 , 0.001, 0, 0, 0, 0, 0, 5)
+
+on out_of_ammo()
+ play_sound( famasfullreload.wav, 100, 1, 0 )

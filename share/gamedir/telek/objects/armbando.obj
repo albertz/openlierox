@@ -1,0 +1,6 @@
+col_layer = -1
+sprite = armband.png
+render_layer = 6
+
+on timer( 0 )
+ remove()

@@ -1,0 +1,16 @@
+sprite = spikeballshardian.png
+col_layer = -1
+damping = 0
+
+on detect_range(1, 0)
+ damage ( 3 )
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ play_sound_static( [minorflesh1.wav, minorflesh2.wav], 50 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ remove()
+
+on timer(300,100)
+ shoot_particles ( warrocksmoke.obj , 5 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( achillesflashhit.obj, 1)
+ shoot_particles ( medshotgunsparks.obj , 3 , 0.85, 0.7, 0, 0, 360, 0, 0)
+ remove()

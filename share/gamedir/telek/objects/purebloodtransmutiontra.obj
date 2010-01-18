@@ -1,0 +1,9 @@
+col_layer = -1
+invisible = 1
+damping = 0
+
+on timer(0)
+ create_explosion ( boreholderx.exp )
+
+on timer(1)
+ remove()

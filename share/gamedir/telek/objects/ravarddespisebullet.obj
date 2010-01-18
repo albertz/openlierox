@@ -1,0 +1,28 @@
+repeat = 2
+invisible = 1
+acceleration = 0.053
+max_speed = 1
+damping = 0.99
+health = 1
+
+on death()
+ remove()
+
+on timer(1)
+ shoot_particles ( ravardespisetrail.obj , 1)
+
+on detect_range(3, 0)
+ push ( 1.6 )
+ play_sound( despiseimpact.wav, 20, 1, 0.05 )
+ damage( 28,20 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodyhellrange.obj , 1 , 0.9, 0.9, 0, 0, 35, 0, 0)
+ shoot_particles ( despisevapour.obj , 3 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( ravardespisesmoke.obj , 13 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()
+
+on ground_collision()
+ play_sound( despiseimpact.wav, 20, 1, 0.05 )
+ shoot_particles ( despisevapour.obj , 3 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( ravardespisesmoke.obj , 13 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()

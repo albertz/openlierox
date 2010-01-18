@@ -1,0 +1,20 @@
+sprite = screwattackerset.png
+blender = add
+alpha = 128
+col_layer = -1 
+render_layer= 5
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ create_explosion ( screwattackdamager.exp )
+ remove()
+
+on detect_range(10, 0)
+ shoot_particles ( dirthunkle.obj , 10 , 0.5, 1 , 0.5 )
+ create_explosion ( screwattackdamager.exp )
+ shoot_particles ( screwattacksclutter.obj , 1)
+ damage( 999 )
+ play_sound( icemissilehit.wav, 100, 1, 0 )
+ remove()

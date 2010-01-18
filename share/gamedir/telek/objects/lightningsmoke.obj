@@ -1,0 +1,20 @@
+invisible = 1
+col_layer = -1
+
+on timer( 100, max_trigger = 1 )
+ set_alpha_fade(55,0)
+
+on timer( 155 )
+ remove ()
+
+on timer( 25,75 )
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( lightningflare.obj , 1)
+ shoot_particles ( esubshock2.obj , 1 , 0.4, 0, 0, 0, 50, 0, 0)
+
+on timer( 25,75 )
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( lightningflare.obj , 1)
+ shoot_particles ( esubshock1.obj , 1 , 0.4, 0, 0, 0, 50, 0, 0)
+ shoot_particles ( eleckspark.obj , 1 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 1 , 0.6, 0.6, 0, 0, 360, 0, 0)

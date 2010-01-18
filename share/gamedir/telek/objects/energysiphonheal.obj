@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+
+on detect_range(2)
+ create_explosion( energysiphonsteal.exp )
+ damage ( -2 )
+ remove()
+
+on timer(1)
+ remove()

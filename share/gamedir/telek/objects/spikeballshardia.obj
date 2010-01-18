@@ -1,0 +1,21 @@
+sprite = spikeballshardian.png
+gravity = 0.0003
+repeat = 5
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( spikeballshardian.obj , 1 , 0.01, 0, 0, 0, 0, 0, 2)
+ remove()
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ damage ( 15 )
+ push ( 0.5 )
+ play_sound_static( [minorflesh1.wav, minorflesh2.wav], 50 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()

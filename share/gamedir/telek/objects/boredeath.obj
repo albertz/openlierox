@@ -1,0 +1,8 @@
+invisible = 1
+col_layer = -1
+
+on timer(1)
+ remove()
+
+on detect_range(2, 0)
+ damage ( 999 )

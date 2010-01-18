@@ -1,0 +1,15 @@
+col_layer = -1
+sprite = browncthulsperentuswaveii.png
+anim_duration = 35
+anim_type = right_once
+anim_on_ground = 1
+render_layer = 5
+alpha = 255
+blender = add
+damping = 0
+
+on timer(35)
+ remove()
+
+on timer( 25, max_trigger = 1 )
+ set_alpha_fade(10,0)

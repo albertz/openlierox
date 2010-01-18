@@ -1,0 +1,48 @@
+sprite = acidicbubblesspawnloop.png
+blender = add
+alpha = 200
+col_layer = -1
+damping = 0.99
+repeat = 1
+anim_on_ground = 1
+gravity = -0.0017
+ground_friction=0
+bounce_factor=0
+radius = 7
+render_layer = 5
+anim_duration = 50
+anim_type = ping_pong
+repeat = 2
+col_layer = 2
+
+on timer(1000,50)
+ play_sound( bubblepopplaorasa.wav, 100, 1, 0.1 )
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 5)
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 3)
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 1)
+ shoot_particles ( telekacidicbloodgen.obj , 3 , 0.35, 1, 0.3, 0, 360, 0, 6 )
+ shoot_particles ( telekacidicbloodgen.obj , 6 , 0.4, 1, 0.3, 0, 360, 0, 6 )
+ remove()
+
+on detect_range(15, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.9745 )
+ repel( 0.005 , 14, 0.006 )
+
+on detect_range(16, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.9955 )
+
+on detect_range(17, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.99 )
+
+on detect_range(17, 0)
+ play_sound( bubblepopplaorasa.wav, 100, 1, 0.1 )
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 5)
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 3)
+ shoot_particles ( telekacidicblood.obj , 7 , 0.3 , 0.5, 0.5, 0, 360, 0, 1)
+ shoot_particles ( telekacidicbloodgen.obj , 3 , 0.35, 1, 0.3, 0, 360, 0, 6 )
+ shoot_particles ( telekacidicbloodgen.obj , 6 , 0.4, 1, 0.3, 0, 360, 0, 6 )
+ remove()
+
+on detect_range(15, 1)
+ damp( 0.9745 )
+ repel( 0.05 , 14, 0.06 )

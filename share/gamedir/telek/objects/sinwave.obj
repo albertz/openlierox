@@ -1,0 +1,13 @@
+damping = 0.96
+invisible = 1
+health = 1
+
+on death()
+ remove()
+
+on timer(200)
+ shoot_particles ( sinwave1.obj , 1 , 0 , 0, 1, 0 , 0, 0, 0)
+ remove()
+
+on timer(0)
+ shoot_particles ( kineticglow.obj , 1)

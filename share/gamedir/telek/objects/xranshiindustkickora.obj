@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+repeat = 10
+
+on ground_collision()
+ remove()
+
+on timer(3,2)
+ shoot_particles ( inversewalldustdetectdragon.obj , 1 , 0.5, 0, 0, 0, 180, 90, 0)
+ shoot_particles ( inversewalldustdetectdragonx.obj , 1 , 0.5, 0, 0, 0, 180, -90, 0)
+
+on timer(10,170)
+ shoot_particles ( xinversewalldustdetectdragon.obj , 1 , 0.5, 0, 0, 0, 180, 90, 0)
+ shoot_particles ( xinversewalldustdetectdragonx.obj , 1 , 0.5, 0, 0, 0, 180, -90, 0)

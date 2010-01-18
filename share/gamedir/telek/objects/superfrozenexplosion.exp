@@ -1,0 +1,5 @@
+timeout = 0
+invisible = 1
+
+on detect_range (15, 0)
+ damage( 0.095 )

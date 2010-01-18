@@ -1,0 +1,31 @@
+blender = add
+alpha = 254
+col_layer = -1
+render_layer = 0
+sprite = unicornterraincrush.png
+damping = 0
+anim_duration = 25
+anim_type = right_once
+occluded = 1
+
+on timer( 150, max_trigger = 1 )
+ set_alpha_fade(100,0)
+
+on timer( 250 )
+ remove()
+
+on creation()
+ uniform_shoot_particles ( pistonbloodrange.obj, 7 , 1, 0, 0, 0, 360, 0, 0)
+
+on timer( 1, max_trigger = 1 )
+ create_explosion( unicorneffectblow.exp )
+
+on timer( 2, max_trigger = 1 )
+ shoot_particles ( pistonflasher.obj , 1)
+ shoot_particles ( dusttraileffector.obj , 10 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( dustparticlesz.obj , 70 , 0, 10, 0, 0, 360, 0, 8)
+ uniform_shoot_particles ( walldustdetectx.obj, 100 , 0.5, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( telekdirtsmoker.obj , 10 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( telekdirtsmoker.obj , 20 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( telekdirtsmoker.obj , 35 , 2, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 29 , 0, 5, 0, 0, 360, 0, 5)

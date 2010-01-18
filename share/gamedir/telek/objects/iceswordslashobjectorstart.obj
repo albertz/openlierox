@@ -1,0 +1,33 @@
+damping = 0
+repeat = 5
+col_layer = -1
+invisible = 1
+
+on creation()
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 0, 15)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 0, 18)
+ shoot_particles ( icybeamgas3.obj , 4, 0.3, 0.3, 0, 0, 50, 0, 19)
+ shoot_particles ( icybeamgas3.obj , 4, 0.3, 0.3, 0, 0, 50, 0, 23)
+ shoot_particles ( icybeamgas3.obj , 5, 0.3, 0.3, 0, 0, 50, 0, 25)
+ shoot_particles ( icybeamgas3.obj , 5, 0.3, 0.3, 0, 0, 50, 0, 27)
+ shoot_particles ( icybeamgas3.obj , 7, 0.3, 0.3, 0, 0, 50, 0, 31)
+ shoot_particles ( icybeamgas3.obj , 7, 0.3, 0.3, 0, 0, 50, 0, 35)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 38)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 42)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 46)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 51)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 55)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 57)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 60)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 60)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 50, 0, 63)
+ shoot_particles ( icybeamgas3.obj , 10, 0.3, 0.3, 0, 0, 40, 0, 66)
+ shoot_particles ( icybeamgas3.obj , 5, 0.3, 0.3, 0, 0, 40, 0, 71)
+ shoot_particles ( icybeamgas3.obj , 5, 0.3, 0.3, 0, 0, 20, 0, 78)
+
+on timer(1)
+ shoot_particles ( iceswordvisualeffector.obj , 1 , 1 , 0, 0, 0, 0, 0, 15)
+
+on timer(200)
+ shoot_particles ( iceswordslashobjector.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+ remove()

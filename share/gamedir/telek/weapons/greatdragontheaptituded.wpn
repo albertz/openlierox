@@ -1,0 +1,11 @@
+name = "GreatDragon the Aptituded"
+reload_time = 200
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(200)
+ use_ammo(1)
+ shoot_particles ( greatdragonish.obj , 1 , 1.8, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( redflashtransform.obj , 1, 0.0001, 0, 0, 0, 0, 0, 0)
+ play_sound_static( [dragonroaring1.wav, dragonroaring2.wav, dragonroaring3.wav, dragonroaring4.wav], 100 )

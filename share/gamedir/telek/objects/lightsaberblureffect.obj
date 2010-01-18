@@ -1,0 +1,13 @@
+sprite = lightsaberredtelek.png
+blender = add
+col_layer = -1
+alpha = 128
+
+on death()
+ remove()
+
+on timer(1)
+ remove()
+
+on detect_range(1, 0)
+ damage ( 0.035 )

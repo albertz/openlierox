@@ -1,0 +1,19 @@
+name = "Lachesis Shotgun MM031"
+sync_shot = 1
+sync_reload = false
+ammo = 1
+reload_time = 79
+
+on primary_shoot()
+ add_speed( -0.3 )
+ delay_fire(79)
+ use_ammo()
+ play_sound( slorgiashotgnuz.wav, 100, 1, 0.05 )
+ shoot_particles ( gunmuzzle.obj , 9 , 0.85, 0.7, 0, 0, 15, 0, 5)
+ shoot_particles ( zshotgunbulletsi.obj , 6 , 1, 0.1, 0, 0, 5.6, 0, 7)
+ shoot_particles ( oshellbuckfire.obj, 1 , 1, 0.3, 0.5, 0, 20, -105)
+ shoot_particles ( shotgunmuzzleflash.obj, 1 , 0, 0, 0, 0, 0, 10)
+ shoot_particles ( warrocksmoke.obj , 6 , 0.3, 0.6, 0, 0, 30, 0, 6)
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( shotgunreadier.wav, 100, 1, 0 )

@@ -1,0 +1,10 @@
+sprite = blazinghatredlight.png
+blender = add
+alpha = 32
+col_layer = -1 
+render_layer= 6
+light_radius=60
+damping = 0
+
+on timer(1)
+ remove()

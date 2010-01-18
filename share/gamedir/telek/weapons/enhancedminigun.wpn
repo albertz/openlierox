@@ -1,0 +1,9 @@
+name = "Enhanced MINIGUN"
+
+on primary_shoot()
+ show_firecone( firecone.png, 7, 5 )
+ delay_fire(5)
+ add_speed(-0.05)
+ play_sound( shot.ogg, 100, 1, 0.05 )
+ shoot_particles ( machinegun_bullet.obj , 1 , 1, 0, 0, 0, 10, 0, 7)
+ shoot_particles ( bulletshells.obj , 1 , 1, 0.3, 0.5, 0, 20, -105)

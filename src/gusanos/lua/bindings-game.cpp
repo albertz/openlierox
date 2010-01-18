@@ -123,12 +123,29 @@ static int l_olx_exec(lua_State* L) {
 		return 0;
 	}
 	
+	/*
 	std::vector<std::string> returns = Execute_Here(cmd);
 	
 	for(size_t i = 0; i < returns.size(); ++i)
 		lua.push(returns[i]);
 	
 	return returns.size();
+	 */
+	
+	// It's too unsafe to use Execute_Here, thus I am using this now.
+	// If there is any need in the future to get the return parameter,
+	// we could implement a special Lua CLI and the lua interface can just check there.
+	// Maybe we could even return this CLI here as a Lua object?
+	struct DummyCli : CmdLineIntf {
+		virtual void pushReturnArg(const std::string& str) {}
+		virtual void finalizeReturn() {}
+		virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) {
+			stdoutCLI().writeMsg("Lua exec: " + msg, type);
+		}
+	};
+	static DummyCli dummyCli;
+	Execute( CmdLineIntf::Command(&dummyCli, cmd) );
+	return 0;
 }
 
 

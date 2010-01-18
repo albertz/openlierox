@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1 
+sprite = icebeamshafter.png
+anim_duration = 5
+anim_type = right_once
+render_layer = 6
+damping = 0.96
+blender = add
+alpha = 64
+anim_on_ground = 1
+light_radius = 7
+
+on timer( 6 )
+ remove()
+
+on timer( 3, max_trigger = 1 )
+set_alpha_fade(3,0)

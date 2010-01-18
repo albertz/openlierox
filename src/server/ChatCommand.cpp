@@ -903,12 +903,8 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 	for (std::vector<std::string>::const_iterator it = params.begin() + 1; it != params.end(); it++)
 		level += " " + *it;
 
-	// Add the extension if necessary
-	if (stringcaserfind(level, ".lxl") == std::string::npos)
-		level += ".lxl";
-
 	// Check if the level is available
-	if (!IsFileAvailable("levels/"  + level))
+	if (!IsFileAvailable("levels/"  + level, false, false))
 		return "Level \"" + level + "\" not available";
 	std::string name = CMap::GetLevelName(level);
 	if (!name.size())

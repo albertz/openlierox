@@ -1,0 +1,10 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+on timer(1)
+ remove()
+
+on detect_range(1, 0)
+ shoot_particles ( bloodyhellrange.obj , 1 , 0.9, 0.9, 0, 0, 35, -100, 0)
+ remove()

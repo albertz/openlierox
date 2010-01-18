@@ -1,0 +1,11 @@
+sprite = redevildragonlightsaber.png
+blender = add
+col_layer = -1
+alpha = 64
+light_radius = 15
+
+on death()
+ remove()
+
+on timer(1)
+ remove()

@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 160
+distort_gen = <<< distortions.pinch >>>
+distort_size = [200,200]
+
+on timer(5)
+ shoot_particles ( dragonclimax4.obj , 1)
+ remove()
+
+on timer(1)
+ create_explosion( vortexstartmaster.exp )
+ shoot_particles ( whitedotremoval.obj , 1)

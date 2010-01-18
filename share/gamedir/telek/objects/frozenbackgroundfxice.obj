@@ -1,0 +1,59 @@
+blender = add
+alpha = 75
+col_layer = -1
+render_layer = 0
+sprite = frozenbackgrounfxset.png
+occluded = 1
+
+on timer( 470, 30, max_trigger = 1 )
+ play_sound( icecreaksher.wav, 70, 1, 0.3 )
+
+on timer( 510, max_trigger = 1 )
+ set_alpha_fade(255,0)
+
+on timer( 765 )
+ remove()
+
+on timer( 1, max_trigger = 55 )
+ create_explosion ( superfrozenexplosion.exp )
+
+on creation()
+ uniform_shoot_particles ( icesprayfxdetectx.obj , 100 , 0.1, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( icesprayfxdetect.obj , 15, 0.1, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas1.obj , 2, 0.3, 0.3, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas2.obj , 4, 0.3, 0.3, 0, 0, 360, 0, 3)
+ shoot_particles ( icybeamgas3.obj , 8, 0.3, 0.3, 0, 0, 360, 0, 5)
+ shoot_particles ( icybeamgas1.obj , 8, 0.3, 0.3, 0, 0, 360, 0, 7)
+ shoot_particles ( icybeamgas2.obj , 11, 0.3, 0.3, 0, 0, 360, 0, 11)
+ shoot_particles ( icybeamgas3.obj , 11, 0.3, 0.3, 0, 0, 360, 0, 13)
+
+on timer( 3, max_trigger = 3 )
+ shoot_particles ( icybeamgasx.obj , 5, 0.3, 0.3, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgasx.obj , 5, 0.3, 0.3, 0, 0, 360, 0, 3)
+ shoot_particles ( icybeamgasx.obj , 5, 0.3, 0.3, 0, 0, 360, 0, 5)
+ shoot_particles ( icybeamgasx.obj , 6, 0.3, 0.3, 0, 0, 360, 0, 7)
+ shoot_particles ( icybeamgasx.obj , 6, 0.35, 0.35, 0, 0, 360, 0, 10)
+ shoot_particles ( icybeamgasx.obj , 6, 0.35, 0.35, 0, 0, 360, 0, 14)
+
+on timer( 10, max_trigger = 5 )
+ shoot_particles ( icybeamgas1.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas2.obj , 2, 0.3, 0.3, 0, 0, 360, 0, 3)
+ shoot_particles ( icybeamgas3.obj , 4, 0.3, 0.3, 0, 0, 360, 0, 5)
+ shoot_particles ( icybeamgasx.obj , 4, 0.3, 0.3, 0, 0, 360, 0, 7)
+
+on timer( 10, max_trigger = 7 )
+ shoot_particles ( icybeamgas.obj , 1, 0.2, 0.2, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas.obj , 1, 0.2, 0.2, 0, 0, 360, 0, 3)
+
+on timer( 10, max_trigger = 10 )
+ shoot_particles ( icybeamgas1.obj , 1, 0.2, 0.2, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas1.obj , 1, 0.2, 0.2, 0, 0, 360, 0, 3)
+
+on timer( 10, max_trigger = 15 )
+ shoot_particles ( icybeamgas.obj , 1, 0.1, 0.1, 0, 0, 360, 0, 5)
+
+on timer( 10, max_trigger = 53 )
+ shoot_particles ( nitrogenicebeamgas.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 3)
+ shoot_particles ( nitrogenicebeamgas.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 5)
+ shoot_particles ( nitrogenicebeamgas.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 7)
+ shoot_particles ( nitrogenicebeamgas.obj , 1 , 0.1, 0.1, 0 )

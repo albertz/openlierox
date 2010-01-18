@@ -1,0 +1,26 @@
+repeat = 7
+sprite = screwcutterstill.png
+col_layer = -1
+blender = add
+alpha = 235
+
+on death()
+ remove()
+
+on ground_collision()
+ play_sound( screwslice.wav, 50, 1, 0.05 )
+ shoot_particles ( screwcutterzegiana6.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on detect_range(2, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ shoot_particles ( bloodgen.obj , 2 , 1 , 1, 0.5, 0, 360, 0, 0)
+ shoot_particles ( bloodsprayrange.obj , 1, 0.5, 0.5, 0, 0, 360, 0, 0)
+ play_sound( screwslice.wav, 50, 1, 0.05 )
+ shoot_particles ( screwcutterzegiana6.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( screwholder.obj , 1 , 0, 0, 0, 0, 0, 0, 2)
+ damage( 7 )
+ remove()
+
+on timer(2)
+ shoot_particles ( screwcuttertrail.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)

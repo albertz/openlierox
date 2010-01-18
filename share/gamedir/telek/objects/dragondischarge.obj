@@ -1,0 +1,15 @@
+invisible = 1
+col_layer = -1
+
+on timer(70,160)
+ shoot_particles ( magnetalightningflare.obj , 1)
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( pelectrokx.obj , 1 , 0.5 , 0, 0, 0 , 90, 180, 0)
+ remove()
+
+on timer(30,50)
+ shoot_particles ( magnetalightningflare.obj , 1)
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( pesubshock1.obj , 1 , 0.5, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( peleckspark.obj , 2 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 1 , 0.6, 0.6, 0, 0, 360, 0, 0)

@@ -1,0 +1,11 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ create_explosion ( cblaserdot.exp )
+ remove()
+
+on detect_range(2, 0)
+ create_explosion ( cblaserdot.exp )
+ remove()

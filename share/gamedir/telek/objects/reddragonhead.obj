@@ -1,0 +1,27 @@
+blender = add
+alpha = 150
+col_layer = -1
+render_layer = 7
+sprite = reddragonbody.png
+anim_duration = 80
+anim_type = right_once
+repeat = 2
+bounce_factor = 1
+
+on timer(80)
+ remove()
+
+on timer(1)
+ create_explosion( dragonsheild.exp )
+
+on creation()
+ shoot_particles ( reddragonsnout.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+
+on timer( 15, max_trigger = 1 )
+ shoot_particles ( reddragonclawright.obj , 1 , 1.6, 0, 0, 0, 0, 35, 0)
+ shoot_particles ( reddragonclawleft.obj , 1 , 1.6, 0, 0, 0, 0, -35, 0)
+ shoot_particles ( reddragonwings.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+
+on timer( 25, max_trigger = 1 )
+ shoot_particles ( reddragonrightleg.obj , 1 , 1, 0, 0, 0, 0, 95, 0)
+ shoot_particles ( reddragonleftleg.obj , 1 , 1, 0, 0, 0, 0, -95, 0)

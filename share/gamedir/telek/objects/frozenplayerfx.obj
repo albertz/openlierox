@@ -1,0 +1,19 @@
+col_layer = -1
+invisible = 1
+damping = 0
+
+on timer(750)
+ remove()
+
+on creation()
+ shoot_particles ( frozenplayerdetectioner.obj , 1)
+ shoot_particles ( chunkyicewalleffectx.obj , 3, 0, 0, 0, 0, 360, 0, 1)
+ shoot_particles ( chunkyicewalleffectx.obj , 5, 0, 0, 0, 0, 360, 0, 2)
+ shoot_particles ( chunkyicewalleffectx.obj , 7, 0, 0, 0, 0, 360, 0, 3)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0, 0, 0, 0, 360, 0, 4)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0, 0, 0, 0, 360, 0, 5)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0, 0, 0, 0, 360, 0, 6)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0, 0, 0, 0, 360, 0, 7)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0, 0, 0, 0, 360, 0, 8)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0.3, 0.3, 0, 0, 60, 0, 9)
+ shoot_particles ( chunkyicewalleffectx.obj , 10, 0.3, 0.3, 0, 0, 30, 0, 10)

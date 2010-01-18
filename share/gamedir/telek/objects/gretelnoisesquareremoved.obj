@@ -1,0 +1,7 @@
+sprite = gretelerased.png
+render_layer = 0
+col_layer = -1
+
+on timer( 900,250 )
+ shoot_particles ( gretelnoisesquarerepair.obj, 1)
+remove ()

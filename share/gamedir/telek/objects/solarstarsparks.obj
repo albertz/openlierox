@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1 
+sprite = solarsparkstars.png
+anim_duration = 25
+anim_type = right_once
+render_layer = 6
+damping = 0.96
+blender = add
+alpha = 200
+light_radius = 3
+ground_friction = 0
+bounce_factor = 0
+anim_on_ground = 1
+
+on timer( 25 )
+ remove()
+

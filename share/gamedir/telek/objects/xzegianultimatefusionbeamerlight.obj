@@ -1,0 +1,10 @@
+sprite = zegianpreenlightatera.png
+blender = add
+alpha = 84
+col_layer = -1 
+render_layer= 7
+light_radius=60
+damping = 0
+
+on timer(1)
+ remove()

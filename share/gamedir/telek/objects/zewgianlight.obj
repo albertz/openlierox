@@ -1,0 +1,13 @@
+sprite = zewgainelight.png
+blender = add
+alpha = 25
+occluded = 1
+col_layer = -1
+light_radius = 50
+repeat = 2
+
+on creation()
+ set_alpha_fade(25,0)
+
+on timer(25)
+ remove()

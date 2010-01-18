@@ -1,0 +1,24 @@
+repeat = 4
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ shoot_particles ( djangohitflash.obj , 1)
+ shoot_particles ( elecksparkx.obj , 3 , 0.3, 0.3, 1, 0, 360, 0, 0)
+ remove()
+
+on timer(0)
+ shoot_particles ( solarcolourfx.obj , 1 , -0.175, -0.1, 4, 0, 360, 0, 1)
+
+on timer(15)
+ shoot_particles ( djangoglowlight.obj , 1 , 0, 0, 5, 0, 0, 0, 0)
+ shoot_particles ( solarstarsparks.obj , 1 , 0.5, 0.3, 5, 0, 360, 0, 0)
+
+on detect_range(3, 0)
+ damage ( 47 )
+ push ( 0.6 )
+ shoot_particles ( djangohitflash.obj , 1)
+ shoot_particles ( elecksparkx.obj , 3 , 0.3, 0.3, 1, 0, 360, 0, 0)
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()

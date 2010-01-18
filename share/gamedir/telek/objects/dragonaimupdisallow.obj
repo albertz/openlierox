@@ -1,0 +1,17 @@
+col_layer = -1
+repeat = 300
+gravity = -1.946
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ remove()
+
+on detect_range(0.0005, 1)
+ play_sound_static( [hurtdragon1.wav, hurtdragon2.wav, hurtdragon3.wav], 100 )
+ play_sound( wizardoff.wav, 100, 1, 0.05 )
+ damage ( 999 )
+ remove()
+

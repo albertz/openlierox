@@ -1,0 +1,12 @@
+invisible = 1
+bounce_factor = 0.2753
+ground_friction = 0.8355
+repeat = 2
+ground_friction=0
+bounce_factor=0
+
+on timer(100,160)
+ remove()
+
+on timer(0)
+ shoot_particles ( protondusttrail.obj , 1 )

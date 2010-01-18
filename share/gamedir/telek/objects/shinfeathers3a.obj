@@ -1,0 +1,15 @@
+sprite = shirorfeathers3.png
+blender = alphach
+anim_duration = 90
+anim_type = loop_right
+alpha = 70
+gravity = 0.0085
+render_layer = 5
+col_layer = 5
+damping = 0.98
+bounce_factor = 0
+ground_friction = 0.5 
+
+on timer( 5 )
+ shoot_particles ( shinfeathers3b.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

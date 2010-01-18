@@ -1,0 +1,13 @@
+damping = 0.96
+invisible = 1
+col_layer = -1
+repeat = 5
+
+on timer(1)
+ create_explosion ( plasmablueburster.exp )
+
+on timer(100)
+ remove()
+
+on ground_collision()
+ remove()

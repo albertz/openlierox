@@ -47,6 +47,8 @@
 #include "game/Mod.h"
 #include "StringUtils.h"
 #include "game/Game.h"
+#include "gusanos/gusgame.h"
+#include "WormInputHandler.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -2217,6 +2219,71 @@ void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>
 	printMemStats();
 }
 #endif
+
+COMMAND(debugFindProblems, "do some system checks and print problems - no output means everything seems ok", "", 0, 0);
+void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(!tLX->bQuitEngine) { // game is running
+		if(cClient == NULL)
+			warnings << "game is running but cClient == NULL" << endl;
+		else if(cClient->getRemoteWorms() == NULL)
+			warnings << "game is running but cClient remoteworms == NULL" << endl;
+		else {
+			for(int i = 0; i < MAX_WORMS; ++i) {
+				if(cClient->getRemoteWorms()[i].isUsed()) {
+					CWorm& w = cClient->getRemoteWorms()[i];
+					std::string name = itoa(i) + ":" + w.getName();
+					if(!w.luaReference)
+						warnings << "worm " << name << " has no Lua reference" << endl;
+					if(w.getID() != i)
+						warnings << "worm " << name << " has bad id " << w.getID() << endl;
+
+					if(gusGame.isEngineNeeded()) {
+						if(w.getOwner() == NULL)
+							warnings << "worm " << name << " has no owner player set" << endl;
+						
+						if(tLX->iGameType != GME_LOCAL) {
+							if(w.getNode() == NULL)
+								warnings << "worm " << name << " has no network node" << endl;
+							else {
+								if(w.getLocal() && !w.getNode()->areWeOwner())
+									warnings << "worm " << name << " is local but network node is not owner" << endl;
+								else if(!w.getLocal() && w.getNode()->areWeOwner())
+									warnings << "worm " << name << " is not local but network node is owner" << endl;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		foreach(pi, game.players) {
+			if(*pi == NULL) {
+				warnings << "entry in game.players with player NULL" << endl;
+				continue;
+			}
+			CWormInputHandler& p = **pi;
+			
+			std::string name = p.name() + " of worm " + (p.worm() ? (itoa(p.worm()->getID()) + ":" + p.worm()->getName()) : "UNSET");
+			if(p.worm() == NULL)
+				warnings << name << " has no worm set" << endl;
+			else {
+				if(p.worm()->getOwner() != &p)
+					warnings << p.name() << "'s worm " << p.worm()->getID() << ":" << p.worm()->getName() << " has different player set" << endl;
+
+				if(tLX->iGameType != GME_LOCAL) {
+					if(p.getNode() == NULL)
+						warnings << name << " has no network node" << endl;
+					else {
+						if(p.worm()->getLocal() && !p.getNode()->areWeOwner())
+							warnings << name << " is local but network node is not owner" << endl;
+						else if(!p.worm()->getLocal() && p.getNode()->areWeOwner())
+							warnings << name << " is not local but network node is owner" << endl;
+					}
+				}
+			}
+		}
+	}	
+}
 
 
 COMMAND(saveConfig, "save current config", "[filename]", 0, 1);

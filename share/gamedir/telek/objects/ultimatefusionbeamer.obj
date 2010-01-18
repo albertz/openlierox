@@ -1,0 +1,9 @@
+sprite = supertwilightglow.png
+blender = add
+alpha = 150
+occluded = 1
+col_layer = -1 
+render_layer= 6
+
+on timer(1)
+ remove()

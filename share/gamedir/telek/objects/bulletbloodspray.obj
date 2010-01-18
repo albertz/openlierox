@@ -1,0 +1,12 @@
+blender = add
+alpha = 255
+col_layer = -1
+render_layer = 0
+sprite = bloodsprayset.png
+occluded = 1
+
+on timer( 1020, max_trigger = 1 )
+ set_alpha_fade(255,0)
+
+on timer( 1275 )
+ remove()

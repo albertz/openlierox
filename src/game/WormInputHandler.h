@@ -68,7 +68,7 @@ public:
 	
 	virtual void onRespawn() {}
 
-	virtual void quit() { deleteMe = true; removeWorm(); }
+	virtual void quit();
 	
 	
 	// ------------------------------------------------------
@@ -186,9 +186,10 @@ public:
 	
 	void selectWeapons( std::vector< WeaponType* > const& weaps );
 	
-protected:
 	LuaReference luaReference;
+	Net_Node* getNode() { return m_node; }
 	
+protected:
 	void addEvent(Net_BitStream* data, NetEvents event);
 	void addActionStart(Net_BitStream* data, BaseActions action);
 	void addActionStop(Net_BitStream* data, BaseActions action);

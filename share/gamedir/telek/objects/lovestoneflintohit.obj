@@ -1,0 +1,12 @@
+sprite = lovelysyer.png
+blender = add
+alpha = 200
+render_layer = 5
+col_layer = -1
+occluded = 1
+anim_duration = 50
+anim_type = right_once
+anim_on_ground = 1
+
+on timer( 50 )
+remove ()

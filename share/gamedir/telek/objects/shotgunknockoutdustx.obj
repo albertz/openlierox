@@ -1,0 +1,19 @@
+damping = 0.985
+gravity = 0.009
+colour = [220, 220, 220]
+blender = alpha
+alpha = 128
+wu_pixels = 1
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on timer( 30, max_trigger = 1 )
+ set_alpha_fade(20,0)
+
+on timer(50)
+ remove()

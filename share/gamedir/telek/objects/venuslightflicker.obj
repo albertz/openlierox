@@ -1,0 +1,9 @@
+sprite = pinkishflicker.png
+blender = add
+alpha = 128
+col_layer = -1 
+render_layer= 6
+light_radius = 25
+
+on timer( 1 )
+remove()

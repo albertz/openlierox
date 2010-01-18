@@ -1,0 +1,19 @@
+name = "Mysre Song Zero"
+reload_time = 690
+ammo = 1
+sync_shot = 1
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( fatalwave.wav, 50, 1, 0 )
+ delay_fire(20)
+
+on primary_shoot()
+ use_ammo(1)
+ play_sound( pingthrow.wav, 25, 1, 0 )
+ shoot_particles ( sinwave.obj , 1 , 3 , 0, 0, 0 , 0, 0, 0)
+
+on active_timer( 20,25)
+ shoot_particles ( sinshatterspark.obj , 1 , 0.3, 0, 0, 0, 360, 0, 0)
+
+on active_timer( 5,10)
+ shoot_particles ( sinshatterspark.obj , 1 , 0.3, 0, 0, 0, 360, 0, 0)

@@ -1,0 +1,8 @@
+name = "Screw Attack"
+
+on active_timer( 0)
+ shoot_particles ( screwattackgrounddetect.obj , 1)
+
+on primary_press()
+ delay_fire(65)
+ shoot_particles ( spacejumpscrew.obj , 1)

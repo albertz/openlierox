@@ -1,0 +1,23 @@
+sprite = cthultheserpentrock.png
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.015
+health = 100
+bounce_factor = 0.285
+ground_friction = 0.875
+col_layer = 1
+render_layer = 0
+health = 1
+
+on death()
+ remove()
+
+on timer(150)
+ play_sound( bignukeshatterai.wav, 100, 1, 0.05 )
+ shoot_particles ( dragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ shoot_particles ( whitedragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ shoot_particles ( blackdragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ shoot_particles ( reddragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ shoot_particles ( bluedragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ shoot_particles ( browndragonorbourus.obj , 8 , 0, 4, 0.75, 0, 360, 0, 0)
+ remove()

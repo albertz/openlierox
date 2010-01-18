@@ -1,0 +1,15 @@
+sprite = teleklayer.png
+blender = add
+alpha = 255
+render_layer = 3
+col_layer = -1
+damping = 0.96
+anim_duration = 255
+anim_type = right
+repeat = 4
+
+on creation()
+ set_alpha_fade(255,0)
+
+on timer( 255 )
+ remove()

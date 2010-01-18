@@ -1,0 +1,13 @@
+sprite = solarlightfx.png
+blender = add
+alpha = 255
+occluded = 1
+col_layer = -1 
+render_layer= 1
+light_radius=25
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ remove()

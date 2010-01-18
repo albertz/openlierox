@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+on timer(45)
+ remove()
+
+on timer(0)
+ shoot_particles ( zegteksmoke.obj , 1 , 0.5, 2.5, 0, 0, 25, 30, 22)

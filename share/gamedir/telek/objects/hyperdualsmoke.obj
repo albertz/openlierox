@@ -1,0 +1,17 @@
+sprite = hyperdualbeamsplash.png
+blender = add
+alpha = 150
+gravity = -0.004
+render_layer = 7
+col_layer = -1
+damping = 0.98
+repeat = 2
+anim_duration = 20
+anim_type = right_once
+anim_on_ground = 1
+
+on timer( 10, max_trigger = 1 )
+ set_alpha_fade(15,0)
+
+on timer( 25 )
+ remove ()

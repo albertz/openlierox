@@ -1,0 +1,21 @@
+
+gravity = 0.009
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ create_explosion ( explosion1.exp )
+ remove()
+
+on detect_range(1)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ damage ( 6 )
+ push ( 0.1 )
+ shoot_particles ( bloodgen.obj , 4 , 0.5, 1, 0.5 )
+ remove()
+
+on timer(1)
+ shoot_particles( bazooka_trail.obj,1 )

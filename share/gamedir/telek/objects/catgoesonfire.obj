@@ -1,0 +1,47 @@
+sprite = catonfire.png
+anim_duration = 35
+anim_type = loop_right
+bounce_factor = 1.01
+ground_friction = 1
+gravity = 0.009
+anim_on_ground = 0
+repeat = 2
+
+on death()
+ remove()
+
+on creation()
+ play_sound( catscream.wav, 35, 1, 0.05 )
+
+on timer(670)
+ create_explosion( expvesboreholder.exp )
+ play_sound( heavyblasting.wav, 100, 1, 0.05 )
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( elecksparkx.obj , 16 , 1.6, 1.6, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 9 , 0.6, 0.6, 0, 0, 360, 0, 0)
+
+ shoot_particles ( bloodexplosion.obj, 1)
+ shoot_particles ( meat.obj , 10 , 0.5, 1 , 0.5 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodgen.obj , 20 , 0.8, 1, 0.5 )
+ shoot_particles ( blood.obj , 100 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodyvapour.obj , 20 , 0.3, 1, 0.52 )
+ shoot_particles ( bloodyvapour.obj , 30 , 0.9, 1, 0.3, 0, 360, 0, 0 )
+ shoot_particles ( bloodyvapour.obj , 35 , 1.5, 1, 0.5, 0, 360, 0, 0 )
+ remove()
+
+on timer(0)
+ create_explosion( vesboreholder.exp )
+
+on timer(5,15)
+ shoot_particles ( ashparticles.obj , 3 , 0.35, 0.35, 0.1, 0, 360, 0, 3)
+
+on timer( 5 )
+ shoot_particles ( warrockspin.obj , 2 , 0.7, 0.5, 1.5, 0, 360, 0, 3)
+
+on timer( 8,9 )
+ shoot_particles ( warrockend.obj , 2 , 0.3, 0.3, 1.5, 0, 360, 0, 3)
+
+on timer( 0,150 )
+ shoot_particles ( zegianemebers.obj , 2 , 0.5, 0.5, 1.5, 0, 360, 0, 3)

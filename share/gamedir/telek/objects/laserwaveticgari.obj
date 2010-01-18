@@ -1,0 +1,15 @@
+damping = 0.9
+repeat = 3
+col_layer = -1
+
+on creation()
+ add_angle_speed(-2)
+
+on timer(0,5)
+ add_angle_speed(0.02)
+
+on timer(3)
+ shoot_particles ( harmlessraygar.obj , 1 , 1 , 0, 0, 0,0)
+
+on timer(550)
+ remove()

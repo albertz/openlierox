@@ -1,0 +1,24 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 10
+distort_gen = <<< distortions.pinch >>>
+distort_size = [200,200]
+
+on timer(5)
+ shoot_particles ( dragoneyedust.obj , 3 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyedust.obj , 6 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyedust.obj , 1 , 0.05, 0.05, 0, 0, 360, 0, 0)
+ uniform_shoot_particles ( overheatedwalls.obj , 359 , 0.5, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalflash.obj , 3, 0.0001, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( dragonaftercharge.obj , 10, 0.5, 0, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyebust.obj , 25 , 2, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyebust.obj , 15 , 0.5, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyedustdistort.obj , 3 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyedustdistort.obj , 6 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragoneyedustdistort.obj , 1 , 0.05, 0.05, 0, 0, 360, 0, 0)
+ remove()
+
+on timer(1)
+ create_explosion( vortexstartmaster.exp )
+ shoot_particles ( whitedotremoval.obj , 1)

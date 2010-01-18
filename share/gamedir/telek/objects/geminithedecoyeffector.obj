@@ -1,0 +1,14 @@
+gravity = 0.009
+damping = 0.998
+ground_friction = 0
+sprite = telekgemininormimage.png
+bounce_factor = 0.09535
+col_layer = 0
+
+on timer(500)
+ shoot_particles ( endgeminithedecoyeffector.obj, 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(20,30)
+ play_sound( ravardespiseshot.wav, 20, 1, 0.05 )
+ shoot_particles ( ravarddespisebullet.obj , 1 , 1, 1, 0, 0, 30, 0, 0)

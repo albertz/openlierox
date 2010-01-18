@@ -1,0 +1,7 @@
+sprite = zegianupwarning.png
+col_layer = -1
+render_layer = 8
+light_radius = 1
+
+on timer(0)
+ remove()

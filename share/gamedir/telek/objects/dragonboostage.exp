@@ -1,0 +1,5 @@
+timeout = 0
+invisible = 1
+
+on detect_range (3, 1)
+ damp( 0.97 )

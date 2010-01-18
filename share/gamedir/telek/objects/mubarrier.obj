@@ -1,0 +1,10 @@
+invisible = 1
+col_layer = -1
+
+on timer(1)
+ remove()
+
+on detect_range(75, 0)
+ play_sound( grandrepel.wav, 20, 1, 0 )
+ uniform_shoot_particles ( murepeller.obj , 100 , 1.5, 0, 0, 0, 360, 0, 0)
+ remove()

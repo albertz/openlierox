@@ -1,0 +1,10 @@
+name = "Vuhlian Sphere"
+sync_shot = 1
+sync_reload = false
+reload_time = 150
+
+on primary_shoot()
+ use_ammo(1)
+ delay_fire(150)
+ play_sound( throw.ogg, 100, 1, 0 )
+ shoot_particles ( spikedetdaz.obj , 1 , 3, 0, 0.6, 0, 0, 0, 4)

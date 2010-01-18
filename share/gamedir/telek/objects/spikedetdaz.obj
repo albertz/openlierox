@@ -1,0 +1,19 @@
+sprite = rollingspikeball.png
+anim_duration = 15
+anim_type = loop_right
+gravity = 0.05
+health = 100
+bounce_factor = 0.625
+ground_friction = 0.475
+col_layer = 1
+render_layer = 0
+health = 1
+
+on death()
+ remove()
+
+on timer(80)
+ shoot_particles ( spikespreadingchaos.obj , 1 , 0.1, 0, 0, 0, 0, 0, 0)
+ uniform_shoot_particles ( spikeballshardia.obj , 100 , 1, 0, 0, 0, 360, 0, 0)
+ play_sound( aforakiprimal.wav, 100, 1, 0 )
+ remove()

@@ -1,0 +1,16 @@
+repeat = 11
+col_layer = -1
+invisible = 1
+
+on timer(60)
+ remove()
+
+on detect_range(15, 0)
+ push( -0.0075)
+ damp( 0.96 )
+ damage ( 1 )
+ shoot_particles ( bloodgensiphon.obj , 1 , 0, 1, -0.075, 0, 20, 180, 25)
+ shoot_particles ( bloodgensiphon.obj , 1 , 0, 1, -0.075, 0, 20, 180, 55)
+
+on ground_collision()
+ remove()

@@ -1,0 +1,21 @@
+repeat = 3
+col_layer = -1
+sprite = iceshardrupturetel.png
+ground_friction=0
+bounce_factor=0
+damping = 0.9
+
+on detect_range(6, 0)
+ damage ( 1.65 )
+ push ( 0.23 )
+
+on timer( 50 )
+ shoot_particles ( icepillarspokestelx.obj, 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on creation()
+ shoot_particles ( nitrogenicebeamgas.obj , 5 , 0.5, 0.5, 0 )
+ shoot_particles ( icecubiccrusher.obj , 2 , 0.5, 0.25, 0.35 )
+ shoot_particles ( icybeamgas1.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 0)
+ shoot_particles ( icybeamgas2.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 3)
+ shoot_particles ( icybeamgas3.obj , 1, 0.3, 0.3, 0, 0, 360, 0, 5)

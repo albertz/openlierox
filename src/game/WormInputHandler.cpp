@@ -354,6 +354,10 @@ boost::shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
 
 void CWormInputHandler::assignNetworkRole( bool authority )
 {
+	if(!gusGame.isEngineNeeded() && game.isClient() && authority)
+		// probably we are on an older server or so; anyway, we cannot create an authority node as client
+		return;
+	
 	m_node = new Net_Node();
 	if (!m_node) {
 		allegro_message("ERROR: Unable to create player node.");
@@ -663,4 +667,31 @@ void CWormInputHandler::addKill() {
 	stats->kills++;
 	
 	if(m_worm && game.isServer()) sendWormScoreUpdate(m_worm);
+}
+
+
+void CWormInputHandler::quit() {
+	deleteMe = true;
+	removeWorm();
+	
+	foreach ( p, game.localPlayers )
+	{
+		if ( this == (CWormInputHandler*) *p )
+		{
+			game.localPlayers.erase(p);
+			break;
+		}
+	}
+
+	foreach ( p, game.players )
+	{
+		if ( this == *p )
+		{
+			game.players.erase(p);
+			break;
+		}
+	}
+	
+	// call at very last
+	deleteThis();
 }

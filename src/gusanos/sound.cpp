@@ -32,6 +32,7 @@ Sound::~Sound()
 
 bool Sound::load(std::string const& filename)
 {	
+	if(driver == NULL) return false;
 	//cout<<"Sound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;
 	m_sound = driver->load(filename);

@@ -1,0 +1,23 @@
+sprite = bacteria8.png
+invisible = 1
+health = 1
+
+on death()
+ remove()
+
+on timer(500,600)
+ play_sound( explodingvirus.wav, 100, 1, 0 )
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( boreexplosionsmoke.obj , 2 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ remove()
+
+on detect_range(2, 1)
+ shoot_particles ( bulletbloodspray.obj , 1)
+ play_sound( explodingvirus.wav, 100, 1, 0 )
+ push( 0.05 )
+ damage ( 3.35 )
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( boreexplosionsmoke.obj , 2 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()

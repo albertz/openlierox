@@ -1,0 +1,6 @@
+timeout = 0
+invisible = 1
+
+on detect_range (11, 0)
+ damp( 0.3 )
+ repel( -2 , 13, -1.8 )

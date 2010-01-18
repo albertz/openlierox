@@ -1,0 +1,8 @@
+gravity = -0.0097
+damping = 0.96
+repeat = 200
+invisible = 1
+
+on timer( 75 )
+ shoot_particles ( warrocksmoke.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+remove ()

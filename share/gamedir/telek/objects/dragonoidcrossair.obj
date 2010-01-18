@@ -1,0 +1,7 @@
+sprite = zegiancrosshair.png
+col_layer = -1
+render_layer = 5
+light_radius = 1
+
+on timer(0)
+ remove()

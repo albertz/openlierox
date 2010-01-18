@@ -1,0 +1,5 @@
+blender = add
+alpha = 255
+sprite = bluelaserdotta.png
+
+timeout = 0

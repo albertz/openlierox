@@ -1,0 +1,34 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(2)
+ remove()
+
+on detect_range(3, 0)
+ damage ( 15)
+ create_explosion( dragonexplosionpunch.exp )
+ shoot_particles ( supernovadragon.obj , 1, 0.0001, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( bloodexplosion.obj, 1)
+ shoot_particles ( evildragonflash.obj, 1)
+ shoot_particles ( dragonfinalblowsmoke.obj , 10 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmoke.obj , 20 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmoke.obj , 35 , 3.5, 3.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokez.obj , 5 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokez.obj , 10 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokez.obj , 20 , 3.5, 3.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokey.obj , 5 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokey.obj , 10 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonfinalblowsmokey.obj , 20 , 3.5, 3.5, 0, 0, 360, 0, 0)
+ shoot_particles ( dragonoidpulse1.obj, 1)
+ shoot_particles ( bloodgen.obj , 35 , 1.9, 1.9, 0, 0, 30, 0, 0)
+ shoot_particles ( bloodiedclawfinal.obj , 1 , 0.0001, 0.0001, 0, 0, 30, 0, 0)
+ play_sound( dragonfinalstrike.ogg, 100, 1, 0)
+ play_sound( dragonfinalstrike.ogg, 100, 1, 0)
+ play_sound( hugelightningstrike.wav, 100, 1, 0)
+ play_sound( hugelightningstrike.wav, 100, 1, 0)
+ push ( 2.667 )
+ remove()

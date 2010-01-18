@@ -49,39 +49,8 @@ inline bool cstrComp(char const* a, char const* b)
 	return strcmp(a, b) < 0;
 }
 
-struct LogStreams
-{
-	LogStreams()
-	: streams(cstrComp)
-	{
-	}
-	
-	~LogStreams()
-	{
-		foreach(i, streams)
-		{
-			delete i->second;
-		}
-	}
-	
-	std::ostream& operator()(char const* name, char const* path)
-	{
-		let_(i, streams.find(name));
-		if(i == streams.end())
-		{
-			std::ostream* str = new std::ofstream(path);
-			streams[name] = str;
-			return *str;
-		}
-		else
-			return *i->second;
-	}
-	
-	std::map<char const*, std::ostream*, bool(*)(char const* a, char const* b)> streams;
-};
 
 extern LogOptions logOptions;
-extern LogStreams logStreams_;
 
 #define LOG_ERRORS 0
 #define LOG_INFO 1
@@ -89,8 +58,6 @@ extern LogStreams logStreams_;
 #define LOG_TRACE 3
 
 #define LOG(x_) (std::cout << x_ << std::endl)
-
-#define FLOG(f_, x_) (logStreams_(#f_, #f_ ".log") << x_ << std::endl)
 
 #define WLOG_ONCE(x_) do { static bool warned = false; if(!warned) { WLOG(x_); warned = true; } } while(0)
 

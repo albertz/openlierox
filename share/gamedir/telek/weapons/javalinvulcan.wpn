@@ -1,0 +1,26 @@
+name = "Javalin Vulcan"
+ammo = 32
+reload_time = 75
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( valiantarequipzor.wav, 100, 1, 0 )
+
+on primary_shoot()
+ delay_fire(5)
+ add_speed(-0.1445)
+ use_ammo(1)
+ play_sound( avarislightwavecannon.wav, 100, 1, 0.05 )
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 5, 0, 7)
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 35, 0, 7)
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 70, 0, 7)
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 105, 0, 7)
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 140, 0, 7)
+ shoot_particles ( javalinvulcanbulletsa.obj , 1 , 1, 0.5, 0, 0, 175, 0, 7)
+ shoot_particles ( gunmuzzle.obj , 5 , 0.65, 0.4, 0, 0, 70, 0, 5)
+ shoot_particles ( gunmuzzle.obj , 5 , 0.85, 0.7, 0, 0, 40, 0, 5)
+ shoot_particles ( shotgunmuzzleflash.obj, 1 , 0, 0, 0, 0, 0, 10)
+ shoot_particles ( warrocksmoke.obj , 10 , 0.3, 0.6, 0, 0, 60, 0, 6)
+
+on out_of_ammo()
+ play_sound( vulcanreloadfexxor.wav, 100, 1, 0 )
+ shoot_particles ( telekobulletshells.obj , 1 , 1.5, 0.7, 0.5, 0, 20, -105)

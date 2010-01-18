@@ -1,0 +1,13 @@
+col_layer = -1
+damping = 0
+sprite = icehunkoblivion.png
+blender = add
+alpha = 255
+
+on timer(0)
+ create_explosion ( boreholderx.exp )
+
+on timer(730)
+ play_sound( iceshatteringblocks.wav, 30, 1, 0.3 )
+ shoot_particles ( oblivioniceshatter.obj, 3, 0.08, 0.08, 0, 0, 360, 0, 0)
+ remove()

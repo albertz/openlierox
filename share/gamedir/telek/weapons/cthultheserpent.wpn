@@ -1,0 +1,10 @@
+name = "Cthul The Serpent"
+reload_time = 430
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(430)
+ use_ammo(1)
+ play_sound( throw.ogg, 100, 1, 0.05 )
+ shoot_particles ( setdragonorbourus.obj , 1 , 1.7, 0.5, 1, 0, 10, 0, 0)

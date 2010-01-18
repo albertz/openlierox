@@ -1,0 +1,14 @@
+sprite = greteldepart1.png
+render_layer = 4
+col_layer = -1
+bounce_factor = 0
+ground_friction = 0
+repeat = 2
+gravity = -0.001
+
+on timer( 25,30 )
+ shoot_particles ( gretelnoisesquarepart1.obj, 1 , 0.05, 0.05, 0, 0, 0, 45, 2)
+ shoot_particles ( gretelnoisesquarepart1.obj, 1 , 0.05, 0.05, 0, 0, 0, 135, 2)
+ shoot_particles ( gretelnoisesquarepart1.obj, 1 , 0.05, 0.05, 0, 0, 0, 225, 2)
+ shoot_particles ( gretelnoisesquarepart1.obj, 1 , 0.05, 0.05, 0, 0, 0, 315, 2)
+remove ()

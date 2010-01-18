@@ -1,0 +1,43 @@
+repeat = 2
+invisible = 1
+acceleration = 0.053
+max_speed = 1
+damping = 0.99
+health = 1
+
+on death()
+ remove()
+
+on creation()
+ add_angle_speed(7)
+
+on timer( 10,3, max_trigger = 1 )
+ add_angle_speed(-7)
+
+on timer(1)
+ shoot_particles ( despisetrail.obj , 1)
+
+on timer(2)
+ shoot_particles ( despiselight.obj , 1)
+
+on timer(10)
+ shoot_particles ( despiseflare.obj , 1)
+
+on timer(5,3)
+ shoot_particles ( despisetrailii.obj, 1, 0, 0, -6.7, 0, 360, 0, 2)
+
+on detect_range(3, 0)
+ push ( 0.4 )
+ play_sound( despiseimpact.wav, 50, 1, 0.05 )
+ damage( 7,5 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodyhellrange.obj , 1 , 0.9, 0.9, 0, 0, 35, 0, 0)
+ shoot_particles ( despisevapour.obj , 3 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( despisesmoke.obj , 13 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()
+
+on ground_collision()
+ play_sound( despiseimpact.wav, 50, 1, 0.05 )
+ shoot_particles ( despisevapour.obj , 3 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( despisesmoke.obj , 13 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ remove()

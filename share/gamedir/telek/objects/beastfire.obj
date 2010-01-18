@@ -1,0 +1,15 @@
+sprite = beastflame.png
+blender = add
+alpha = 128
+col_layer = -1
+gravity = -0.0092
+damping = 0.97
+anim_duration = 15
+anim_on_ground = 1
+anim_type = right_once
+
+on timer(15)
+ remove()
+
+on ground_collision()
+ remove()

@@ -1,0 +1,20 @@
+gravity = 0.009
+damping = 0.998
+ground_friction = 0
+invisible = 1
+bounce_factor = 0.09535
+col_layer = 0
+blender = add
+alpha = 189
+
+on timer( 20, max_trigger = 1 )
+ play_sound( mirrorseffectvanisher.wav, 100, 1, 0 )
+
+on timer(40)
+ remove()
+
+on timer(5,5)
+ shoot_particles ( telekgeministaticeffect.obj , 1)
+
+on timer(1, 3)
+ shoot_particles ( geminifakesaintenergies.obj , 2 , 0, 0, 1, 0, 360, 0, 3)

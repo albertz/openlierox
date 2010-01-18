@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+repeat = 2
+damping = 0.99
+
+on creation()
+ add_angle_speed(0.1)
+
+on timer(2)
+ add_angle_speed(0.1)
+
+on timer(38,38)
+ shoot_particles ( spacedistortioneffect.obj , 1 , 0, 0, 0, 0, 360, 0, 7)
+ shoot_particles ( spacedistortioneffect.obj , 1 , 0, 0, 0, 0, 360, 0, 14)
+
+on timer(450)
+ remove()

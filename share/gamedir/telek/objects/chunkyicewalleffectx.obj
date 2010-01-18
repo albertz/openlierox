@@ -1,0 +1,15 @@
+blender = add
+alpha = 32
+col_layer = -1
+render_layer = 7
+sprite = icehunkoblivion.png
+damping = 0.98
+
+on timer( 10 )
+ play_sound( iceshatteringblocks.wav, 30, 1, 0.3 )
+ shoot_particles ( oblivioniceshatter.obj, 3, 0.08, 0.08, 0, 0, 360, 0, 0)
+ remove()
+
+on detect_range(5, 0)
+ shoot_particles ( chunkyicewalleffectx.obj, 1, 0, 0, 1, 0, 0, 0, 0)
+ remove()

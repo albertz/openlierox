@@ -1,0 +1,56 @@
+sprite = danshakudragon.png
+blender = add
+alpha = 150
+acceleration = -0.095
+max_speed = -2
+damping = 0.95
+health = 1
+
+on timer( 2500, max_trigger = 1 )
+ set_alpha_fade(150,0)
+
+on timer(2650)
+ remove()
+
+on creation()
+ add_angle_speed(1.5)
+
+on timer( 35, max_trigger = 1 )
+ add_angle_speed(3)
+
+on timer( 70, max_trigger = 1 )
+ add_angle_speed(-3)
+
+on timer( 105, max_trigger = 1 )
+ add_angle_speed(3)
+
+on timer( 140, max_trigger = 1 )
+ add_angle_speed(-3)
+
+on timer( 175, max_trigger = 1 )
+ add_angle_speed(3)
+
+on timer( 210, max_trigger = 1 )
+ add_angle_speed(-3)
+
+on timer( 245, max_trigger = 1 )
+ add_angle_speed(3)
+
+on timer( 355, max_trigger = 1 )
+ add_angle_speed(3)
+
+on timer( 450, max_trigger = 1 )
+ add_angle_speed(-7)
+
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on detect_range(2, 0)
+ damage( 2.55 )
+ push ( 0.03 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ remove()

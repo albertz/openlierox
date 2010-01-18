@@ -1,0 +1,12 @@
+col_layer = -1
+blender = add
+alpha = 152
+sprite = forneousbloodsplashblue.png
+anim_duration = 30
+anim_type = right_once
+anim_on_ground = 1
+damping = 0
+render_layer = 8
+
+on timer( 30 )
+ remove()
