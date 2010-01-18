@@ -108,7 +108,7 @@ static int l_olx_exec(lua_State* L) {
 	for (int i = 2; i <= n; i++) {
 		std::string p;
 		if( lua_isnumber(L,i) )
-			p = ftoa( lua_tonumber(L,i) );
+			p = ftoa( (float)lua_tonumber(L,i) );
 		else if( lua_isstring(L,i) )
 			p = "\"" + Replace(lua_tostring(L,i), "\"", "") + "\"";
 		else {
@@ -171,7 +171,7 @@ static int l_olx_setVar(lua_State* L) {
 	
 	std::string value;
 	if( lua_isnumber(L,2) )
-		value = ftoa( lua_tonumber(L,2) );
+		value = ftoa( (float)lua_tonumber(L,2) );
 	else if( lua_isstring(L,2) )
 		value = "\"" + Replace(lua_tostring(L,2), "\"", "") + "\"";
 	else {

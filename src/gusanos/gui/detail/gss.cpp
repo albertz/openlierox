@@ -25,7 +25,7 @@ struct GSSImpl : public TGrammar<GSSImpl>
 	size_t read(char* p, size_t s)
 	{
 		str.read(p, s);
-		return str.gcount();
+		return (size_t)str.gcount();
 	}
 	
 	void reportError(std::string const& error, Location loc)

@@ -1,0 +1,1296 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectName>OpenLieroX</ProjectName>
+    <ProjectGuid>{EA0C2715-65F3-4238-AA7E-B3A92D706334}</ProjectGuid>
+    <RootNamespace>OpenLieroX</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseOfMfc>false</UseOfMfc>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" />
+    <Import Project="$(VCTargetsPath)Microsoft.CPP.UpgradeFromVC60.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.21006.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">../../bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">../../bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_debug</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\../../share/gamedir/Game.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile>.\obj/Debug_ded/Game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\obj/Debug/</AssemblerListingLocation>
+      <ObjectFileName>.\obj/Debug/</ObjectFileName>
+      <ProgramDataBaseFileName>..\..\bin\</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ForcedIncludeFiles>%(ForcedIncludeFiles)</ForcedIncludeFiles>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c09</Culture>
+      <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\zlib.lib;$(ProjectDir)\..\msvc\libs\curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)\DIA SDK\lib\diaguids.lib;openal32.lib;alut.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\../../bin/OpenLieroX_debug.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <IgnoreSpecificDefaultLibraries>LIBC;msvcrt.lib;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\../../bin/OpenLieroX_debug.pdb</ProgramDatabaseFile>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>
+      </EnableCOMDATFolding>
+      <LinkTimeCodeGeneration>
+      </LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>obj/debug/Game.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <Midl>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MkTypLibCompatible>true</MkTypLibCompatible>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <TargetEnvironment>Win32</TargetEnvironment>
+      <TypeLibraryName>.\../../share/gamedir/Game.tlb</TypeLibraryName>
+      <HeaderFileName>
+      </HeaderFileName>
+    </Midl>
+    <ClCompile>
+      <Optimization>Full</Optimization>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <StringPooling>true</StringPooling>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <PrecompiledHeaderOutputFile>.\obj/Release/Game.pch</PrecompiledHeaderOutputFile>
+      <AssemblerListingLocation>.\obj/Release/</AssemblerListingLocation>
+      <ObjectFileName>.\obj/Release/</ObjectFileName>
+      <ProgramDataBaseFileName>..\..\bin\</ProgramDataBaseFileName>
+      <BrowseInformation>
+      </BrowseInformation>
+      <WarningLevel>Level3</WarningLevel>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <CallingConvention>Cdecl</CallingConvention>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0c09</Culture>
+      <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Link>
+      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\zlib.lib;$(ProjectDir)\..\msvc\libs\curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)DIA SDK\lib\diaguids.lib;openal32.lib;alut.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>.\../../bin/OpenLieroX.exe</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <IgnoreSpecificDefaultLibraries>LIBC;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ProgramDatabaseFile>.\../../bin/OpenLieroX.pdb</ProgramDatabaseFile>
+      <GenerateMapFile>true</GenerateMapFile>
+      <MapFileName>..\..\bin\OpenLieroX.map</MapFileName>
+      <MapExports>true</MapExports>
+      <SubSystem>Windows</SubSystem>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <Bscmake>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+      <OutputFile>obj/debug/Game.bsc</OutputFile>
+    </Bscmake>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ProjectReference Include="Breakpad.vcxproj">
+      <Project>{b55ca863-b374-4baf-95ac-539e4fa4c90c}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Autocompletion.h" />
+    <ClInclude Include="..\..\include\AuxLib.h" />
+    <ClInclude Include="..\..\include\Cache.h" />
+    <ClInclude Include="..\..\include\CBytestream.h" />
+    <ClInclude Include="..\..\include\CChannel.h" />
+    <ClInclude Include="..\..\include\CFont.h" />
+    <ClInclude Include="..\..\include\CInput.h" />
+    <ClInclude Include="..\..\include\Clipboard.h" />
+    <ClInclude Include="..\..\include\Color.h" />
+    <ClInclude Include="..\..\include\Condition.h" />
+    <ClInclude Include="..\..\include\ConversationLogger.h" />
+    <ClInclude Include="..\..\include\CssParser.h" />
+    <ClInclude Include="..\..\include\CsvReader.h" />
+    <ClInclude Include="..\..\include\Cursor.h" />
+    <ClInclude Include="..\..\include\CVec.h" />
+    <ClInclude Include="..\..\include\Debug.h" />
+    <ClInclude Include="..\..\include\DynDraw.h" />
+    <ClInclude Include="..\..\include\Error.h" />
+    <ClInclude Include="..\..\include\EventQueue.h" />
+    <ClInclude Include="..\..\include\FastVector.h" />
+    <ClInclude Include="..\..\include\FindFile.h" />
+    <ClInclude Include="..\..\include\GeoIPDatabase.h" />
+    <ClInclude Include="..\..\include\Geometry.h" />
+    <ClInclude Include="..\..\include\GfxPrimitives.h" />
+    <ClInclude Include="..\..\include\IniReader.h" />
+    <ClInclude Include="..\..\include\InputEvents.h" />
+    <ClInclude Include="..\..\include\IpToCountryDB.h" />
+    <ClInclude Include="..\..\include\IRC.h" />
+    <ClInclude Include="..\..\include\MathLib.h" />
+    <ClInclude Include="..\..\include\Music.h" />
+    <ClInclude Include="..\..\include\Mutex.h" />
+    <ClInclude Include="..\..\include\NewNetEngine.h" />
+    <ClInclude Include="..\..\include\PixelFunctors.h" />
+    <ClInclude Include="..\..\include\Process.h" />
+    <ClInclude Include="..\..\include\RandomNumberList.h" />
+    <ClInclude Include="..\..\include\ReadWriteLock.h" />
+    <ClInclude Include="..\..\include\sex.h" />
+    <ClInclude Include="..\..\include\SmartPointer.h" />
+    <ClInclude Include="..\..\include\StackWalker.h" />
+    <ClInclude Include="..\..\include\StringBuf.h" />
+    <ClInclude Include="..\..\include\StringUtils.h" />
+    <ClInclude Include="..\..\include\StyleVar.h" />
+    <ClInclude Include="..\..\include\TaskManager.h" />
+    <ClInclude Include="..\..\include\ThreadPool.h" />
+    <ClInclude Include="..\..\include\ThreadVar.h" />
+    <ClInclude Include="..\..\include\Timer.h" />
+    <ClInclude Include="..\..\include\types.h" />
+    <ClInclude Include="..\..\include\UCString.h" />
+    <ClInclude Include="..\..\include\Unicode.h" />
+    <ClInclude Include="..\..\include\win32memleakdebug.h" />
+    <ClInclude Include="..\..\include\XMLutils.h" />
+    <ClInclude Include="..\..\src\sound\sfx.h" />
+    <ClInclude Include="..\..\src\sound\sfxdriver.h" />
+    <ClInclude Include="..\..\src\sound\sfxdriver_openal.h" />
+    <ClInclude Include="..\..\src\sound\sound_sample.h" />
+    <ClInclude Include="..\..\src\sound\sound_sample_openal.h" />
+    <ClInclude Include="..\..\src\util\angle.h" />
+    <ClInclude Include="..\..\src\util\bitarray.h" />
+    <ClInclude Include="..\..\src\util\common.h" />
+    <ClInclude Include="..\..\src\util\compare.h" />
+    <ClInclude Include="..\..\src\util\GusCache.h" />
+    <ClInclude Include="..\..\src\util\log.h" />
+    <ClInclude Include="..\..\src\util\macros.h" />
+    <ClInclude Include="..\..\src\util\math_func.h" />
+    <ClInclude Include="..\..\src\util\rect.h" />
+    <ClInclude Include="..\..\src\util\stringbuild.h" />
+    <ClInclude Include="..\..\src\util\text.h" />
+    <ClInclude Include="..\..\src\util\trace.h" />
+    <ClInclude Include="..\..\src\util\vec.h" />
+    <ClInclude Include="..\..\include\CBanList.h" />
+    <ClInclude Include="..\..\include\CBonus.h" />
+    <ClInclude Include="..\..\include\CChatBox.h" />
+    <ClInclude Include="..\..\include\CClient.h" />
+    <ClInclude Include="..\..\include\CGameScript.h" />
+    <ClInclude Include="..\..\include\CGameSkin.h" />
+    <ClInclude Include="..\..\include\ChatCommand.h" />
+    <ClInclude Include="..\..\include\CMap.h" />
+    <ClInclude Include="..\..\include\CNinjaRope.h" />
+    <ClInclude Include="..\..\include\CProjectile.h" />
+    <ClInclude Include="..\..\include\CServer.h" />
+    <ClInclude Include="..\..\include\CShootList.h" />
+    <ClInclude Include="..\..\include\CViewport.h" />
+    <ClInclude Include="..\..\include\CWeather.h" />
+    <ClInclude Include="..\..\include\CWorm.h" />
+    <ClInclude Include="..\..\include\CWormBot.h" />
+    <ClInclude Include="..\..\include\CWpnRest.h" />
+    <ClInclude Include="..\..\include\DedicatedControl.h" />
+    <ClInclude Include="..\..\include\Entity.h" />
+    <ClInclude Include="..\..\include\FlagInfo.h" />
+    <ClInclude Include="..\..\src\game\Game.h" />
+    <ClInclude Include="..\..\src\game\Level.h" />
+    <ClInclude Include="..\..\src\game\Mod.h" />
+    <ClInclude Include="..\..\include\Physics.h" />
+    <ClInclude Include="..\..\include\PhysicsLX56.h" />
+    <ClInclude Include="..\..\include\ProfileSystem.h" />
+    <ClInclude Include="..\..\include\ProjAction.h" />
+    <ClInclude Include="..\..\include\Protocol.h" />
+    <ClInclude Include="..\..\src\game\SinglePlayer.h" />
+    <ClInclude Include="..\..\src\game\WormInputHandler.h" />
+    <ClInclude Include="..\..\include\CGameMode.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CAnimation.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBar.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBox.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBrowser.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CButton.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CChatWidget.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCheckbox.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCombobox.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiLayout.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkin.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkinnedLayout.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CImage.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CInputBox.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLabel.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLine.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CListview.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CMenu.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CProgressbar.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CScrollbar.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CSlider.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextbox.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextButton.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTitleButton.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidget.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidgetList.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\Graphics.h" />
+    <ClInclude Include="..\..\include\DeprecatedGUI\Menu.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="..\..\include\con_cmd.h" />
+    <ClInclude Include="..\..\include\Console.h" />
+    <ClInclude Include="..\..\include\CScriptableVars.h" />
+    <ClInclude Include="..\..\include\FeatureList.h" />
+    <ClInclude Include="..\..\include\FileDownload.h" />
+    <ClInclude Include="..\..\include\HTTP.h" />
+    <ClInclude Include="..\..\include\LieroX.h" />
+    <ClInclude Include="..\..\include\Networking.h" />
+    <ClInclude Include="..\..\include\Options.h" />
+    <ClInclude Include="..\..\include\Sounds.h" />
+    <ClInclude Include="..\..\include\UploadSpeedTest.h" />
+    <ClInclude Include="..\..\include\Utils.h" />
+    <ClInclude Include="..\..\include\Version.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CAnimation.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CBackground.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CBar.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CBorder.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CBox.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CBrowser.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CButton.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CCheckbox.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CCombobox.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CDialog.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkin.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkinnedLayout.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CImage.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CImageButton.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CInputBox.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CItem.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CLabel.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CLine.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CListview.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CMapEditor.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CMarquee.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CMenu.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CMinimap.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CommonDialogs.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CProgressbar.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CScrollbar.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CSlider.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CTabControl.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextbox.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextButton.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CTitleButton.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CToggleButton.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidget.h" />
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidgetEffect.h" />
+    <ClInclude Include="..\..\include\FontHandling.h" />
+    <ClInclude Include="..\..\include\GuiPrimitives.h" />
+    <ClInclude Include="..\..\src\breakpad\BreakPad.h" />
+    <ClInclude Include="..\..\src\breakpad\BreakpadDllExportMacro.h" />
+    <ClInclude Include="..\..\src\breakpad\config.h" />
+    <ClInclude Include="..\..\src\breakpad\DumpSyms.h" />
+    <ClInclude Include="..\..\src\breakpad\ExtractInfo.h" />
+    <ClInclude Include="..\..\src\breakpad\on_demand_symbol_supplier.h" />
+    <ClInclude Include="..\..\src\gusanos\2xsai.h" />
+    <ClInclude Include="..\..\src\gusanos\allegro.h" />
+    <ClInclude Include="..\..\src\gusanos\animators.h" />
+    <ClInclude Include="..\..\src\gusanos\base_action.h" />
+    <ClInclude Include="..\..\src\gusanos\base_animator.h" />
+    <ClInclude Include="..\..\src\gusanos\client.h" />
+    <ClInclude Include="..\..\src\gusanos\culling.h" />
+    <ClInclude Include="..\..\src\gusanos\detect_event.h" />
+    <ClInclude Include="..\..\src\gusanos\distortion.h" />
+    <ClInclude Include="..\..\src\gusanos\encoding.h" />
+    <ClInclude Include="..\..\src\gusanos\events.h" />
+    <ClInclude Include="..\..\src\gusanos\exp_type.h" />
+    <ClInclude Include="..\..\src\gusanos\explosion.h" />
+    <ClInclude Include="..\..\src\gusanos\font.h" />
+    <ClInclude Include="..\..\src\gusanos\game_actions.h" />
+    <ClInclude Include="..\..\src\gusanos\gconsole.h" />
+    <ClInclude Include="..\..\src\gusanos\gfx.h" />
+    <ClInclude Include="..\..\src\gusanos\glua.h" />
+    <ClInclude Include="..\..\src\gusanos\gusanos.h" />
+    <ClInclude Include="..\..\src\gusanos\gusgame.h" />
+    <ClInclude Include="..\..\src\gusanos\hash_table.h" />
+    <ClInclude Include="..\..\src\gusanos\keyboard.h" />
+    <ClInclude Include="..\..\src\gusanos\keys.h" />
+    <ClInclude Include="..\..\src\gusanos\level.h" />
+    <ClInclude Include="..\..\src\gusanos\level_effect.h" />
+    <ClInclude Include="..\..\src\gusanos\material.h" />
+    <ClInclude Include="..\..\src\gusanos\menu.h" />
+    <ClInclude Include="..\..\src\gusanos\message_queue.h" />
+    <ClInclude Include="..\..\src\gusanos\net_worm.h" />
+    <ClInclude Include="..\..\src\gusanos\netstream.h" />
+    <ClInclude Include="..\..\src\gusanos\network.h" />
+    <ClInclude Include="..\..\src\gusanos\ninjarope.h" />
+    <ClInclude Include="..\..\src\gusanos\noise_line.h" />
+    <ClInclude Include="..\..\src\gusanos\object_grid.h" />
+    <ClInclude Include="..\..\src\gusanos\objects_list.h" />
+    <ClInclude Include="..\..\src\gusanos\parser.h" />
+    <ClInclude Include="..\..\src\gusanos\part_type.h" />
+    <ClInclude Include="..\..\src\gusanos\particle.h" />
+    <ClInclude Include="..\..\src\gusanos\player_ai.h" />
+    <ClInclude Include="..\..\src\gusanos\player_input.h" />
+    <ClInclude Include="..\..\src\gusanos\player_options.h" />
+    <ClInclude Include="..\..\src\gusanos\posspd_replicator.h" />
+    <ClInclude Include="..\..\src\gusanos\proxy_player.h" />
+    <ClInclude Include="..\..\src\gusanos\resource_base.h" />
+    <ClInclude Include="..\..\src\gusanos\resource_list.h" />
+    <ClInclude Include="..\..\src\gusanos\resource_locator.h" />
+    <ClInclude Include="..\..\src\gusanos\script.h" />
+    <ClInclude Include="..\..\src\gusanos\server.h" />
+    <ClInclude Include="..\..\src\gusanos\simple_particle.h" />
+    <ClInclude Include="..\..\src\gusanos\sound.h" />
+    <ClInclude Include="..\..\src\gusanos\sprite.h" />
+    <ClInclude Include="..\..\src\gusanos\sprite_set.h" />
+    <ClInclude Include="..\..\src\gusanos\stl_str_replicator.h" />
+    <ClInclude Include="..\..\src\gusanos\timer_event.h" />
+    <ClInclude Include="..\..\src\gusanos\vector_replicator.h" />
+    <ClInclude Include="..\..\src\gusanos\weapon.h" />
+    <ClInclude Include="..\..\src\gusanos\weapon_type.h" />
+    <ClInclude Include="..\..\src\gusanos\worm.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\blitters.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\colors.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\context.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\macros.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\mmx.h" />
+    <ClInclude Include="..\..\src\gusanos\blitters\types.h" />
+    <ClInclude Include="..\..\src\gusanos\console\alias.h" />
+    <ClInclude Include="..\..\src\gusanos\console\bindings.h" />
+    <ClInclude Include="..\..\src\gusanos\console\command.h" />
+    <ClInclude Include="..\..\src\gusanos\console\console-grammar.h" />
+    <ClInclude Include="..\..\src\gusanos\console\console.h" />
+    <ClInclude Include="..\..\src\gusanos\console\consoleitem.h" />
+    <ClInclude Include="..\..\src\gusanos\console\special_command.h" />
+    <ClInclude Include="..\..\src\gusanos\console\variables.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\omfggui.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\omfggui_windows.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\button.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\check.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\context.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\edit.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\group.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\gss-grammar.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\label.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\list.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\llist.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\renderer.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\wnd.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\xml-grammar.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\detail\xml.h" />
+    <ClInclude Include="..\..\src\gusanos\gui\lua\bindings-gui.h" />
+    <ClInclude Include="..\..\src\gusanos\loaders\liero.h" />
+    <ClInclude Include="..\..\src\gusanos\loaders\LieroXLevelLoader.h" />
+    <ClInclude Include="..\..\src\gusanos\loaders\losp.h" />
+    <ClInclude Include="..\..\src\gusanos\loaders\vermes.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-game.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-gfx.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-math.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-network.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-objects.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-resources.h" />
+    <ClInclude Include="..\..\src\gusanos\lua\bindings.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lapi.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lauxlib.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lcode.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\ldebug.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\ldo.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lfunc.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lgc.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\llex.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\llimits.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lmem.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lobject.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lopcodes.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lparser.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lstate.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lstring.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\ltable.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\ltm.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lua.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\luaconf.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lualib.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lundump.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lvm.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\lzio.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\classes.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\context.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\macros.h" />
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\types.h" />
+    <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script.h" />
+    <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script_parser.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\client\AuxLib.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cache.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBytestream.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CChannel.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CFont.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CInput.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Clipboard.cpp" />
+    <ClCompile Include="..\..\src\common\ConfigHandler.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ConversationLogger.cpp" />
+    <ClCompile Include="..\..\src\common\CssParser.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cursor.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug.cpp" />
+    <ClCompile Include="..\..\src\client\DynDraw.cpp" />
+    <ClCompile Include="..\..\src\client\Error.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\EventQueue.cpp" />
+    <ClCompile Include="..\..\src\common\FindFile.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\GeoIPDatabase.cpp" />
+    <ClCompile Include="..\..\src\common\Geometry.cpp" />
+    <ClCompile Include="..\..\src\client\GfxPrimitives.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GfxSaveSurface.cpp" />
+    <ClCompile Include="..\..\src\client\GfxUtils.cpp" />
+    <ClCompile Include="..\..\src\common\IniReader.cpp" />
+    <ClCompile Include="..\..\src\client\InputEvents.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\IpToCountryDB.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\IRC.cpp" />
+    <ClCompile Include="..\..\src\common\MathLib.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Music.cpp" />
+    <ClCompile Include="..\..\src\common\memstats.cpp" />
+    <ClCompile Include="..\..\src\common\Mutex.cpp" />
+    <ClCompile Include="..\..\src\common\NewNetEngine.cpp" />
+    <ClCompile Include="..\..\src\client\NotifyUser.cpp" />
+    <ClCompile Include="..\..\src\client\OpenExternBrowser.cpp" />
+    <ClCompile Include="..\..\src\common\Process.cpp" />
+    <ClCompile Include="..\..\src\common\sex.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\SMTP.cpp" />
+    <ClCompile Include="..\..\src\common\StackWalker.cpp" />
+    <ClCompile Include="..\..\src\common\StringBuf.cpp" />
+    <ClCompile Include="..\..\src\common\StringUtils.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\SystemFunctions.cpp" />
+    <ClCompile Include="..\..\src\common\TaskManager.cpp" />
+    <ClCompile Include="..\..\src\common\TeeStdoutHandler.cpp" />
+    <ClCompile Include="..\..\src\common\ThreadPool.cpp" />
+    <ClCompile Include="..\..\src\common\Timer.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Unicode.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\XMLutils.cpp" />
+    <ClCompile Include="..\..\src\sound\sfx.cpp" />
+    <ClCompile Include="..\..\src\sound\sfxdriver.cpp" />
+    <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp" />
+    <ClCompile Include="..\..\src\sound\sound_sample.cpp" />
+    <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp" />
+    <ClCompile Include="..\..\src\util\angle.cpp" />
+    <ClCompile Include="..\..\src\util\log.cpp" />
+    <ClCompile Include="..\..\src\util\math_func.cpp" />
+    <ClCompile Include="..\..\src\util\text.cpp" />
+    <ClCompile Include="..\..\src\util\vec.cpp" />
+    <ClCompile Include="..\..\src\server\CBanList.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBonus.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CChatBox.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient.cpp" />
+    <ClCompile Include="..\..\src\client\CClient_Draw.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Game.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Parse.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Send.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CGameObject.cpp" />
+    <ClCompile Include="..\..\src\common\CGameScript.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CGameSkin.cpp" />
+    <ClCompile Include="..\..\src\server\ChatCommand.cpp" />
+    <ClCompile Include="..\..\src\common\CMap.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CNinjaRope.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CProjectile.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Game.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Parse.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Send.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServerConnection.cpp" />
+    <ClCompile Include="..\..\src\common\CShootList.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CViewport.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CWeather.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm_SendRecv.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWormBot.cpp" />
+    <ClCompile Include="..\..\src\common\CWormHuman.cpp" />
+    <ClCompile Include="..\..\src\common\CWpnRest.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\DedicatedControl.cpp" />
+    <ClCompile Include="..\..\src\client\Entity.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FlagInfo.cpp" />
+    <ClCompile Include="..\..\src\game\Game.cpp" />
+    <ClCompile Include="..\..\src\game\Level.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader.cpp" />
+    <ClCompile Include="..\..\src\game\Mod.cpp" />
+    <ClCompile Include="..\..\src\common\Physics.cpp" />
+    <ClCompile Include="..\..\src\common\PhysicsDummy.cpp" />
+    <ClCompile Include="..\..\src\common\PhysicsLX56.cpp" />
+    <ClCompile Include="..\..\src\common\PhysicsLX56_Projectiles.cpp" />
+    <ClCompile Include="..\..\src\client\ProfileSystem.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\SinglePlayer.cpp" />
+    <ClCompile Include="..\..\src\game\WormInputHandler.cpp" />
+    <ClCompile Include="..\..\src\server\CaptureTheFlag.cpp" />
+    <ClCompile Include="..\..\src\server\CDeathMatch.cpp" />
+    <ClCompile Include="..\..\src\server\CDemolitionsMatch.cpp" />
+    <ClCompile Include="..\..\src\server\CGameMode.cpp" />
+    <ClCompile Include="..\..\src\server\CHideAndSeek.cpp" />
+    <ClCompile Include="..\..\src\server\CRace.cpp" />
+    <ClCompile Include="..\..\src\server\CTag.cpp" />
+    <ClCompile Include="..\..\src\server\CTeamDeathMatch.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CAnimation.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBar.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBox.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBrowser.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CButton.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CChatWidget.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCheckbox.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCombobox.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiLayout.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkin.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkinnedLayout.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CImage.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CInputBox.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CListview.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CMenu.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CScrollbar.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CSlider.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextbox.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextButton.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTitleButton.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidget.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidgetList.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Graphics.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_FloatingOptions.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Local.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Main.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Mapeditor.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Chat.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Favourites.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Host.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Internet.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Join.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Lan.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Main.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_News.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Options.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Player.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_SpeedTest.cpp" />
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\MenuSystem.cpp" />
+    <ClCompile Include="..\..\src\common\Command.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Console.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CrashHandler.cpp" />
+    <ClCompile Include="..\..\src\common\CScriptableVars.cpp" />
+    <ClCompile Include="..\..\src\common\FeatureList.cpp" />
+    <ClCompile Include="..\..\src\common\FileDownload.cpp" />
+    <ClCompile Include="..\..\src\common\HTTP.cpp" />
+    <ClCompile Include="..\..\src\main.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MainGlobals.cpp" />
+    <ClCompile Include="..\..\src\common\Misc.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Networking.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Options.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Sounds.cpp">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\UploadSpeedTest.cpp" />
+    <ClCompile Include="..\..\src\common\Version.cpp" />
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CAnimation.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBackground.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBorder.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CButton.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCheckbox.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCombobox.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CDialog.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkin.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkinnedLayout.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImage.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImageButton.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CInputBox.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CItem.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLabel.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLine.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CListview.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMapEditor.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMarquee.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMenu.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMinimap.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CommonDialogs.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CProgressbar.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CScrollbar.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CSlider.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTabControl.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTextbox.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CToggleButton.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CWidget.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\FontHandling.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GuiPrimitives.cpp">
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/SkinnedGUI/</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/SkinnedGUI/</ObjectFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\BreakPad.cpp" />
+    <ClCompile Include="..\..\src\breakpad\DumpSyms.cpp" />
+    <ClCompile Include="..\..\src\breakpad\ExtractInfo.cpp" />
+    <ClCompile Include="..\..\src\breakpad\on_demand_symbol_supplier.cpp" />
+    <ClCompile Include="..\..\src\gusanos\2xsai.cpp" />
+    <ClCompile Include="..\..\src\gusanos\allegro.cpp" />
+    <ClCompile Include="..\..\src\gusanos\animators.cpp" />
+    <ClCompile Include="..\..\src\gusanos\base_action.cpp" />
+    <ClCompile Include="..\..\src\gusanos\base_animator.cpp" />
+    <ClCompile Include="..\..\src\gusanos\base_worm.cpp" />
+    <ClCompile Include="..\..\src\gusanos\client.cpp" />
+    <ClCompile Include="..\..\src\gusanos\culling.cpp" />
+    <ClCompile Include="..\..\src\gusanos\detect_event.cpp" />
+    <ClCompile Include="..\..\src\gusanos\distortion.cpp" />
+    <ClCompile Include="..\..\src\gusanos\encoding.cpp" />
+    <ClCompile Include="..\..\src\gusanos\events.cpp" />
+    <ClCompile Include="..\..\src\gusanos\exp_type.cpp" />
+    <ClCompile Include="..\..\src\gusanos\explosion.cpp" />
+    <ClCompile Include="..\..\src\gusanos\font.cpp" />
+    <ClCompile Include="..\..\src\gusanos\game_actions.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gconsole.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gfx.cpp" />
+    <ClCompile Include="..\..\src\gusanos\glua.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gusanos.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gusgame.cpp" />
+    <ClCompile Include="..\..\src\gusanos\hash_table.cpp" />
+    <ClCompile Include="..\..\src\gusanos\keyboard.cpp" />
+    <ClCompile Include="..\..\src\gusanos\keys.cpp" />
+    <ClCompile Include="..\..\src\gusanos\level.cpp" />
+    <ClCompile Include="..\..\src\gusanos\level_effect.cpp" />
+    <ClCompile Include="..\..\src\gusanos\material.cpp" />
+    <ClCompile Include="..\..\src\gusanos\menu.cpp" />
+    <ClCompile Include="..\..\src\gusanos\net_worm.cpp" />
+    <ClCompile Include="..\..\src\gusanos\netstream.cpp" />
+    <ClCompile Include="..\..\src\gusanos\network.cpp" />
+    <ClCompile Include="..\..\src\gusanos\ninjarope.cpp" />
+    <ClCompile Include="..\..\src\gusanos\noise_line.cpp" />
+    <ClCompile Include="..\..\src\gusanos\object_grid.cpp" />
+    <ClCompile Include="..\..\src\gusanos\objects_list.cpp" />
+    <ClCompile Include="..\..\src\gusanos\parser.cpp" />
+    <ClCompile Include="..\..\src\gusanos\part_type.cpp" />
+    <ClCompile Include="..\..\src\gusanos\particle.cpp" />
+    <ClCompile Include="..\..\src\gusanos\player_ai.cpp" />
+    <ClCompile Include="..\..\src\gusanos\player_input.cpp" />
+    <ClCompile Include="..\..\src\gusanos\player_options.cpp" />
+    <ClCompile Include="..\..\src\gusanos\posspd_replicator.cpp" />
+    <ClCompile Include="..\..\src\gusanos\proxy_player.cpp" />
+    <ClCompile Include="..\..\src\gusanos\resource_base.cpp" />
+    <ClCompile Include="..\..\src\gusanos\resource_list.cpp" />
+    <ClCompile Include="..\..\src\gusanos\resource_locator.cpp" />
+    <ClCompile Include="..\..\src\gusanos\script.cpp" />
+    <ClCompile Include="..\..\src\gusanos\server.cpp" />
+    <ClCompile Include="..\..\src\gusanos\simple_particle.cpp" />
+    <ClCompile Include="..\..\src\gusanos\sound.cpp" />
+    <ClCompile Include="..\..\src\gusanos\sprite.cpp" />
+    <ClCompile Include="..\..\src\gusanos\sprite_set.cpp" />
+    <ClCompile Include="..\..\src\gusanos\stl_str_replicator.cpp" />
+    <ClCompile Include="..\..\src\gusanos\timer_event.cpp" />
+    <ClCompile Include="..\..\src\gusanos\vector_replicator.cpp" />
+    <ClCompile Include="..\..\src\gusanos\viewport.cpp" />
+    <ClCompile Include="..\..\src\gusanos\weapon.cpp" />
+    <ClCompile Include="..\..\src\gusanos\weapon_type.cpp" />
+    <ClCompile Include="..\..\src\gusanos\worm.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\add.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\add_simd.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\blend.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\blend_simd.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\mult.cpp" />
+    <ClCompile Include="..\..\src\gusanos\blitters\mult_simd.cpp" />
+    <ClCompile Include="..\..\src\gusanos\console\alias.cpp" />
+    <ClCompile Include="..\..\src\gusanos\console\bindings.cpp" />
+    <ClCompile Include="..\..\src\gusanos\console\command.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\console.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\consoleitem.cpp" />
+    <ClCompile Include="..\..\src\gusanos\console\special_command.cpp" />
+    <ClCompile Include="..\..\src\gusanos\console\variables.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\button.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\check.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\context.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\edit.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\group.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\gss.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\label.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\list.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\renderer.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\wnd.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\xml.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\lua\bindings-gui.cpp" />
+    <ClCompile Include="..\..\src\gusanos\loaders\liero.cpp" />
+    <ClCompile Include="..\..\src\gusanos\loaders\LieroXLevelLoader.cpp" />
+    <ClCompile Include="..\..\src\gusanos\loaders\losp.cpp" />
+    <ClCompile Include="..\..\src\gusanos\loaders\vermes.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-game.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-gfx.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-math.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-network.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-objects.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-resources.cpp" />
+    <ClCompile Include="..\..\src\gusanos\lua\bindings.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lapi.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lauxlib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lbaselib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lcode.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ldblib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ldebug.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ldo.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ldump.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lfunc.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lgc.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\linit.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\liolib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\llex.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lmathlib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lmem.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\loadlib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lobject.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lopcodes.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\loslib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lparser.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lstate.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lstring.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lstrlib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ltable.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ltablib.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\ltm.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lundump.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lvm.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\lzio.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\print.c" />
+    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\context.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
+      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\types.cpp" />
+    <ClCompile Include="..\..\src\gusanos\omfgscript\omfg_script.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\msvc\libs\bgd.lib" />
+    <Library Include="..\msvc\libs\dbghelp.lib" />
+    <Library Include="..\msvc\libs\libxml2.lib" />
+    <Library Include="..\msvc\libs\lua5.1.lib" />
+    <Library Include="..\msvc\libs\pthreadVCE.lib" />
+    <Library Include="..\msvc\libs\SDL.lib" />
+    <Library Include="..\msvc\libs\SDL_image.lib" />
+    <Library Include="..\msvc\libs\SDL_mixer.lib" />
+    <Library Include="..\msvc\libs\sdlgfx.lib" />
+    <Library Include="..\msvc\libs\SDLmain.lib" />
+    <Library Include="..\msvc\libs\zlib.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\share\OpenLieroX.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

@@ -48,9 +48,9 @@ void CWormInputHandler::gusInit(CWorm* w) {
 	gusInit(gusGame.playerOptions[0], w);
 }
 
-void CWormInputHandler::gusInit(shared_ptr<PlayerOptions> options, CWorm* worm)
+void CWormInputHandler::gusInit(boost::shared_ptr<PlayerOptions> options, CWorm* worm)
 {
-	stats = shared_ptr<Stats>(new Stats());
+	stats = boost::shared_ptr<Stats>(new Stats());
 	deleteMe=(false);
 	
 	local=(false);
@@ -347,7 +347,7 @@ void CWormInputHandler::assignWorm(CWorm* worm)
 	m_wormID = worm->getNodeID();
 }
 
-shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
+boost::shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
 {
 	return m_options;
 }
