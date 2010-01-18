@@ -1,7 +1,6 @@
 #include "log.h"
 
 LogOptions logOptions;
-LogStreams logStreams_;
 
 LogOptions::LogOptions()
 : debug(true), level(LOG_WARNINGS)
