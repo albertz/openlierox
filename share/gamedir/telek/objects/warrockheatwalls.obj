@@ -1,0 +1,15 @@
+blender = add
+alpha = 255
+col_layer = -1
+render_layer = 7
+colour = [255, 128, 0]
+
+on timer( 510, max_trigger = 1 )
+ set_alpha_fade(255,0)
+
+on timer( 765 )
+ remove()
+
+on detect_range(1, 0)
+ shoot_particles ( tinyembersmoke.obj , 1 , 0.3, 0.3, 0, 0, 360, 0, 0)
+ damage ( 0.083 )

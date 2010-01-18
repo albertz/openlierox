@@ -1,0 +1,41 @@
+timeout = 0
+invisible = 1
+
+on detect_range(500, 1)
+ repel( -0.08 , 500, -0.04 )
+
+on detect_range(300, 1)
+ repel( -0.16 , 300, -0.08 )
+
+on detect_range(250, 1)
+ repel( -0.16 , 200, -0.08 )
+
+on detect_range(200, 1)
+ repel( -0.24 , 150, -0.24 )
+
+on detect_range(150, 1)
+ repel( -0.8 , 100, -0.8 )
+
+on detect_range(100, 1)
+ repel( -0.4 , 100, -0.4 )
+
+on detect_range(50, 1)
+ repel( -0.4 , 100, -0.4 )
+
+on detect_range(500, 1, [0,1,2,3,4,5,6,7])
+ repel( -1.5 , 500, -1.5 )
+
+on detect_range(340, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.5 )
+
+on detect_range(7, 1, [0,1,2,3,4,5,6,7])
+ damp( 0.005 )
+
+on detect_range(20, 1, [0,1,2,3,4,5,6,7])
+ repel( -1.5 , 20, -1.5 )
+
+on detect_range(15, 1, [0,1,2,3,4,5,6,7])
+ damage ( 999 )
+
+on detect_range(10, 1)
+ damage ( 999 )

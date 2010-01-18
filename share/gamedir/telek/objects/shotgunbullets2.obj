@@ -1,0 +1,33 @@
+colour = [255, 198, 0]
+gravity = 0.0009
+repeat = 4
+col_layer = 2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( shotgunelecksparkx.obj , 3 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( achillesflashhit.obj, 1)
+ play_sound( achilleshit.wav, 50, 1, 0.05 )
+ shoot_particles ( warrocksmoke.obj , 5 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( achillesburst.obj , 1)
+ create_explosion ( achillesexp.exp )
+ remove()
+
+on timer(0)
+ create_explosion ( telekbullettrail.exp )
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ play_sound_static( [chaoshit1.wav, chaoshit2.wav, chaoshit3.wav, chaoshit4.wav], 100 )
+ play_sound( achilleshit.wav, 50, 1, 0.05 )
+ shoot_particles ( warrocksmoke.obj , 5 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( achillesburst.obj , 1)
+ create_explosion ( achillesexp.exp )
+ damage ( 31.4 )
+ push ( 0.4 )
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodyhellrange.obj , 1 , 0.9, 0.9, 0, 0, 35, 0, 0)
+ remove()

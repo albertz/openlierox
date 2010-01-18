@@ -1,0 +1,19 @@
+repeat = 200
+col_layer = -1
+
+on creation()
+ add_angle_speed(4)
+
+on ground_collision()
+ shoot_particles ( spark.obj , 5 , 0.4, 0.8 )
+ remove()
+
+on timer(0)
+ shoot_particles ( icerailtrail.obj , 1 , -2, 0, 0, 0, 0, 0, 15)
+
+on timer(1)
+ create_explosion ( rail_white_trail.exp )
+
+on detect_range(2, 0)
+ damage ( 5 , 2 )
+ push ( 0.2 )

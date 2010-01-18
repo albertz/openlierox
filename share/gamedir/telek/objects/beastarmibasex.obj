@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on timer(20, max_trigger = 1 )
+ shoot_particles ( armbando.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( beastclawiz.obj, 1, 1, 0, 0, 0, 0, -70, 0)
+ shoot_particles ( beastclawibasez.obj, 1, 1, 0, 0, 0, 0, -70, 0)
+ shoot_particles ( beastclawiiiz.obj, 1, 1.2, 0, 0, 0, 0, 45, 0)
+ shoot_particles ( beastclawiiibasez.obj, 1, 1.2, 0, 0, 0, 0, 45, 0)
+ remove()
+
+on ground_collision()
+ remove()

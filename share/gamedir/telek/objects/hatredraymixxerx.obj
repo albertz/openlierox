@@ -1,0 +1,42 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+damping = 0
+
+on ground_collision()
+ remove()
+
+on timer(1,3)
+ shoot_particles ( formbluelaser1.obj , 1 , 1, 0, 0, 0, 0, 45, 0)
+ remove()
+
+on timer(1,3)
+ shoot_particles ( aformbluelaser1.obj , 1 , 1, 0, 0, 0, 0, 70, 0)
+ remove()
+
+on timer(1,3)
+ shoot_particles ( bformbluelaser1.obj , 1 , 1, 0, 0, 0, 0, 15, 0)
+ remove()
+
+on timer(1,3)
+ shoot_particles ( cformbluelaser1.obj , 1 , 1, 0, 0, 0, 0, -45, 0)
+ remove()
+
+on timer(1,3)
+ shoot_particles ( dformbluelaser1.obj , 1 , 1, 0, 0, 0, 0, -70, 0)
+ remove()
+
+on timer(1,3)
+ shoot_particles ( eformbluelaser1.obj , 1 , 1, 0, 0, 0, 0, -15, 0)
+ remove()
+
+on timer(0,3)
+ shoot_particles ( bluebeamfusionflash.obj , 1 , 0, 0, 0, 0, 0, 25, 10)
+ remove()
+
+on timer(0,3)
+ shoot_particles ( bluebeamfusionflash.obj , 1 , 0, 0, 0, 0, 0, -25, 10)
+ remove()
+
+on timer(0,3)
+ remove()

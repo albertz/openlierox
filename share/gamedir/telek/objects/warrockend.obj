@@ -1,0 +1,36 @@
+sprite = telekinfernal.png
+alpha = 200
+blender = add
+anim_duration = 120
+anim_type = loop_right
+bounce_factor = 0
+ground_friction = 0
+health = 1
+anim_on_ground = 1
+render_layer = 6
+damping = 0.983
+
+on timer(30,30)
+ shoot_particles ( warrocksmokeinvisible.obj , 1 , 0.1, 0.1, 0.75, 0, 360, 0, 0)
+
+on death()
+ remove()
+
+on timer( 10, max_trigger = 1 )
+ set_alpha_fade(130,0)
+
+on timer( 100, max_trigger = 1 )
+ shoot_particles ( warrocksmoke.obj , 1 , 0.2, 0.2, 1, 0, 360, 0, 0)
+
+on timer( 110, max_trigger = 1 )
+ shoot_particles ( warrocksmoke.obj , 1 , 0.2, 0.2, 1, 0, 360, 0, 0)
+
+on timer( 120, max_trigger = 1 )
+ shoot_particles ( warrocksmoke.obj , 1 , 0.2, 0.2, 1, 0, 360, 0, 0)
+
+on timer(130)
+ remove()
+
+on detect_range(5, 0)
+ damage ( 0.055 )
+ push ( 0.001 )

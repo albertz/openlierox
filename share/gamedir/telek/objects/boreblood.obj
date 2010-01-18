@@ -1,0 +1,21 @@
+col_layer = -1
+invisible = 1
+
+on timer(0)
+ create_explosion ( boreholder.exp )
+
+on timer(3)
+ shoot_particles ( blooodyboredetect1.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)
+
+on timer(5,10)
+ shoot_particles ( blooodyboredetect2.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)
+
+on timer(20,25)
+ shoot_particles ( blooodyboredetect3.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)
+
+on timer(160)
+ shoot_particles ( dragonfinalblowsmoke.obj , 15 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( fireteksmoke.obj , 15 , 1.5, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( boredeath.obj , 1)
+ remove()

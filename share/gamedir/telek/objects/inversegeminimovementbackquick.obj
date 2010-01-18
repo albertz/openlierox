@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+repeat = 2
+sprite = inversetelekgemininormimage.png
+
+on ground_collision()
+ shoot_particles ( geminithedecoyeffector.obj , 1 , 0.0001, 0, 0, 0, 0, 180, 0)
+ shoot_particles ( geminstaticfat.obj , 1)
+ remove()
+
+on timer(0)
+ shoot_particles ( settingtheblurofflame.obj , 1)
+
+on timer(25)
+ shoot_particles ( geminithedecoyeffector.obj , 1 , 0.0001, 0, 0, 0, 0, 180, 0)
+ shoot_particles ( geminstaticfat.obj , 1)
+ remove()

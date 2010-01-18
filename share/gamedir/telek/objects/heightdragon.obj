@@ -1,0 +1,12 @@
+col_layer = -1
+gravity = 1
+repeat = 300
+invisible = 1
+
+on ground_collision()
+ create_explosion ( dragonheightx.exp )
+ shoot_particles ( heightdragon2.obj, 1)
+ remove()
+
+on timer(7)
+ remove()

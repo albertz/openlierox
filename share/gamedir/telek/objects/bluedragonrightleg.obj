@@ -1,0 +1,22 @@
+blender = add
+alpha = 75
+col_layer = -1
+render_layer = 7
+sprite = dragonlegs.png
+anim_duration = 57
+anim_type = right_once
+repeat = 2
+damping = 0.935
+bounce_factor = 0
+ground_friction = 0
+
+on timer(35)
+ remove()
+
+on timer( 24, max_trigger = 1 )
+ add_speed(-1)
+ add_angle_speed(5)
+
+on timer( 25, max_trigger = 1 )
+ add_speed(1)
+ add_angle_speed(-5)

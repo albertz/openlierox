@@ -1,0 +1,37 @@
+invisible = 1
+repeat = 7
+col_layer = 2
+health = 1
+
+on creation()
+ shoot_particles ( lightningflicker.obj , 1)
+ create_explosion ( cthullasershafterb.exp )
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( lightningflicker.obj , 1)
+ shoot_particles ( warrocksmoke.obj , 3 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ create_explosion ( cthullasershafterb.exp )
+ remove()
+
+on timer(0)
+ create_explosion ( cthullasershafter.exp )
+
+on detect_range(1, 0)
+ shoot_particles ( forneousbloodsplashfx.obj, 1)
+ damage ( 26.575 )
+ push ( 0.6 )
+ create_explosion ( cthullasershafter.exp )
+ shoot_particles ( lightningflicker.obj , 1)
+ shoot_particles ( warrocksmoke.obj , 3 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( bloodgen.obj , 10 , 0.5, 1, 0.5 )
+ shoot_particles ( bloodsprayrange.obj , 1, 1, 0.5, 0, 0, 50, 0, 0)
+ remove()
+
+on timer(7000)
+ shoot_particles ( lightningflicker.obj , 1)
+ shoot_particles ( warrocksmoke.obj , 3 , 0.3, 0.6, 0, 0, 360, 0, 0)
+ create_explosion ( cthullasershafterb.exp )
+ remove()

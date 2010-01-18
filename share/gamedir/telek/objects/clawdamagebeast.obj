@@ -1,0 +1,6 @@
+col_layer = -1
+invisible = 1
+
+on creation()
+ create_explosion( clawradiushit.exp )
+ remove()

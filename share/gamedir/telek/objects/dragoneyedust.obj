@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+repeat = 2
+damping = 0.98
+
+on creation()
+ add_angle_speed(0.1)
+
+on timer(2)
+ shoot_particles ( dragoneyedustspawn.obj , 1 , 0, 0, 0, 0, 0, 0, 7)
+ add_angle_speed(0.1)
+
+on timer(250)
+ remove()

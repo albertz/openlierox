@@ -1,0 +1,11 @@
+name = "SilverDragon[M] the Arbiter"
+reload_time = 800
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(800)
+ use_ammo(1)
+ shoot_particles ( silenvoardesh.obj , 1 , 1.8, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( flashtransform.obj , 1, 0.0001, 0, 0, 0, 0, 0, 0)
+ play_sound_static( [dragonroaring1.wav, dragonroaring2.wav, dragonroaring3.wav, dragonroaring4.wav], 100 )

@@ -1,0 +1,9 @@
+name = "Naigez's Explosive Bacteria"
+reload_time = 1600
+ammo = 1
+sync_shot = 1
+
+on primary_shoot()
+ use_ammo(1)
+ play_sound( throw.ogg, 25, 1, 0 )
+ shoot_particles ( bacterium1.obj , 1 , 3 , 0, 0, 0 , 0, 0, 0)

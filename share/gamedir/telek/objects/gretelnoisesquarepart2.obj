@@ -1,0 +1,10 @@
+colour = [255, 255, 255]
+render_layer = 4
+col_layer = -1
+bounce_factor = 0
+ground_friction = 0
+repeat = 2
+gravity = -0.001
+
+on timer( 30,90 )
+remove ()

@@ -1,0 +1,31 @@
+damping = 0
+invisible = 1
+repeat = 3
+
+on creation()
+ add_angle_speed(-7)
+
+on timer( 60, max_trigger = 1 )
+ play_sound( firerailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( firerailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+
+on timer( 120, max_trigger = 1 )
+ play_sound( earthrailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( earthrailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+
+on timer( 180, max_trigger = 1 )
+ play_sound( lightrailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( lightrailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+
+on timer( 240, max_trigger = 1 )
+ play_sound( windrailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( windrailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+
+on timer( 300, max_trigger = 1 )
+ play_sound( waterrailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( watertrailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+
+on timer( 360, max_trigger = 1 )
+ play_sound( icerailgun.wav, 100, 1, 0.05 )
+ uniform_shoot_particles ( icerailslug.obj , 5 , 0.5, 0, 0, 0, 360, 0, 0)
+ remove()

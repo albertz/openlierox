@@ -1,0 +1,16 @@
+blender = add
+color = [64, 255, 64]
+alpha = 255
+health = 1
+
+on death()
+ remove()
+
+on creation()
+ set_alpha_fade( 15 , 0 )
+
+on ground_collision()
+ remove()
+
+on timer(15)
+ remove()

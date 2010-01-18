@@ -1,0 +1,30 @@
+sprite = venusheart.png
+anim_duration = 35
+anim_type = right_once
+anim_on_ground = 1
+blender = add
+alpha = 255
+damping = 0.96
+health = 1
+
+on death()
+ remove()
+
+on timer(3)
+ shoot_particles ( venuslightflicker.obj , 1)
+
+on timer(150)
+ play_sound( heartfulexplosion.wav, 100, 1, 0 )
+ shoot_particles ( lovelypinkishflash.obj , 1)
+ shoot_particles ( heartyeyecander.obj , 1, 0, 0, 1 )
+ shoot_particles ( venusflintos.obj , 50, 1, 2, 1 )
+ shoot_particles ( lovelovewave.obj , 1, 0, 0, 1 )
+ remove()
+
+on detect_range(2, 0)
+ play_sound( heartfulexplosion.wav, 100, 1, 0 )
+ shoot_particles ( lovelypinkishflash.obj , 1)
+ shoot_particles ( heartyeyecander.obj , 1, 0, 0, 1 )
+ shoot_particles ( venusflintos.obj , 50, 1, 2, 1 )
+ shoot_particles ( lovelovewave.obj , 1, 0, 0, 1 )
+ remove()

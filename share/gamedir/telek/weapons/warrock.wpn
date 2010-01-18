@@ -1,0 +1,12 @@
+name = "Warrock"
+
+on primary_press()
+ play_sound( warrockfire.wav, 100, 1, 0.05 )
+
+on primary_shoot()
+ delay_fire(1)
+ add_speed(-0.02)
+ shoot_particles ( warrockshaft.obj , 1 , 0.5, 0.1, 0, 0, 2, 0, 0)
+ shoot_particles ( warrocklight.obj , 1 , 0, 0, 0, 0, 0, 0, 15)
+ play_sound_static( [warrock01.wav, warrock02.wav, warrock03.wav, warrock04.wav, warrock05.wav], 100 )
+ shoot_particles ( warrockshadow.obj , 1 , 0.001, 0, 0, 0, 0, 0, -4)

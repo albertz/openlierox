@@ -1,0 +1,10 @@
+sprite = reddragonpaceglow.png
+blender = add
+alpha = 32
+col_layer = -1
+damping = 1
+light_radius = 15
+occluded = 1
+
+on timer(0)
+ remove()

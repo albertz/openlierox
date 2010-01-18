@@ -1,0 +1,21 @@
+damping = 0.9
+repeat = 7
+health = 1
+
+on death()
+ remove()
+
+on creation()
+ add_angle_speed(2)
+
+on timer(0)
+ shoot_particles ( meanblueheartsdamage.obj , 1 , 1 , 0, 0, 0,0)
+
+on timer(7)
+ shoot_particles ( meanbluehearts.obj , 1 , 1 , 0, 0, 0,0)
+
+on timer(20,25)
+ shoot_particles ( heartsmokefun.obj , 1 , 1 , 0.75, 0, 0, 360, 0, 0)
+
+on timer(400)
+ remove()

@@ -1,0 +1,20 @@
+sprite = iceefffectormissile.png
+damping = 0
+col_layer = -1
+
+on creation()
+ shoot_particles ( icybeamgas3.obj , 1, 0.3, 0.3, 0, 0, 50, 180, 0)
+ shoot_particles ( icybeamgas3.obj , 1, 0.3, 0.3, 0, 0, 50, 180, 3)
+ shoot_particles ( icybeamgas3.obj , 2, 0.3, 0.3, 0, 0, 50, 180, 4)
+ shoot_particles ( icybeamgas3.obj , 2, 0.3, 0.3, 0, 0, 50, 180, 8)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 180, 10)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 180, 12)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 180, 16)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 180, 20)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 50, 180, 25)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 60, 180, 30)
+ shoot_particles ( icybeamgas3.obj , 3, 0.3, 0.3, 0, 0, 60, 180, 33)
+
+on timer(30)
+ shoot_particles ( icefangleprojectile.obj , 1, 0.001, 0, 0, 0, 0, 0, 0)
+ remove()

@@ -1,0 +1,16 @@
+sprite = boreexplosionsmoke.png
+blender = alphach
+alpha = 60
+anim_duration = 151
+anim_type = loop_right
+gravity = -0.005
+render_layer = 2
+col_layer = 1
+
+damping = 0.96
+
+on creation()
+set_alpha_fade(150,0)
+
+on timer( 150 )
+remove ()

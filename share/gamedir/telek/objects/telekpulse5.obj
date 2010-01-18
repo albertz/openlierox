@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 0.11
+distort_gen = <<< distortions.lens >>>
+distort_size = [70,70]
+
+on timer(1)
+ remove()

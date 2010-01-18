@@ -1,0 +1,16 @@
+sprite = greendragoneck.png
+blender = add
+alpha = 128
+col_layer = -1
+light_radius = 6
+bounce_factor = 0
+ground_friction = 0
+repeat = 200
+render_layer = 6
+acceleration = 0.4485
+max_speed = 0.4485
+
+on timer(33)
+ shoot_particles ( screwcutterzegian.obj , 1 , 1, 0, 0, 0, 0, 120, 5)
+ remove()
+

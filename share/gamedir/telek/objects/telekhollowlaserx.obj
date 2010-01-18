@@ -1,0 +1,13 @@
+blender = add
+alpha = 200
+colour = [0,255,0]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+bounce_factor = 0
+ground_friction = 0
+
+on ground_collision()
+ shoot_particles ( zegianimactz.obj, 1, 0.1, 0.1, 0, 0, 360, 0, 0)
+ remove()

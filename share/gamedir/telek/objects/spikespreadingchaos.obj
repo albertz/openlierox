@@ -1,0 +1,14 @@
+damping = 0
+repeat = 7
+col_layer = -1
+
+on creation()
+ add_angle_speed(2)
+
+on timer(3)
+ shoot_particles ( spikeballshardia.obj , 1 , 1 , 0, 0, 0,0)
+ shoot_particles ( spikeballshardia.obj , 1 , 1 , 0, 0, 0, 0, 180,0)
+
+on timer(100)
+ shoot_particles ( spikespreadingchaosx.obj , 1 , 0.1, 0, 0, 0, 0, 0, 0)
+ remove()

@@ -1,0 +1,13 @@
+sprite = screwcutterend.png
+anim_on_ground = 1
+anim_duration = 7
+anim_type = right_once
+blender = add
+alpha = 255
+col_layer = -1
+damping = 0
+
+on timer(7)
+ shoot_particles ( cuttingvanisher.obj, 35 , 0, 3, 0, 0, 0, 0, 0)
+ shoot_particles ( cuttingvanisher.obj, 35 , 0, 3, 0, 0, 0, 180, 0)
+ remove()

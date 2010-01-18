@@ -1,0 +1,12 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on detect_range(7, 0)
+ shoot_particles ( bloodiedclawfinalx.obj , 1 , 0.0001, 0.0001, 0, 0, 50, 0, 0)
+
+on ground_collision()
+ remove()
+
+on timer(100)
+ remove()

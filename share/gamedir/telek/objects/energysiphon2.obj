@@ -1,0 +1,25 @@
+col_layer = -1
+damping = 0
+sprite = vampiricspellauraringend.png
+blender = alpha
+alpha = 64
+anim_type = right_once
+anim_duration = 32
+anim_on_ground = 1
+render_layer = 3
+
+on timer(45)
+ remove()
+
+on timer( 3)
+ create_explosion( energysiphonsteal.exp )
+ create_explosion( energysiphon.exp )
+
+on timer( 30, max_trigger = 1 )
+ shoot_particles ( energysiphondetect2.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+
+on creation()
+ shoot_particles ( bloodgensiphonx.obj , 10 , -0.5, -1, 0, 0, 360, 0, 20)
+ shoot_particles ( bloodgensiphonx.obj , 10 , -0.8, -1, 0, 0, 360, 0, 20)
+ shoot_particles ( bloodsiphonx.obj , 100 , -0.5, -1, 0, 0, 360, 0, 20)
+

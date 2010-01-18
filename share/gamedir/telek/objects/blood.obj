@@ -1,0 +1,8 @@
+gravity = 0.015
+bounce_factor=0
+colour = [180, 0, 0]
+render_layer = 7
+col_layer = -1
+
+on ground_collision()
+ remove()

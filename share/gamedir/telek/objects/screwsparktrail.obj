@@ -1,0 +1,19 @@
+sprite = cuttersparksglow.png
+anim_on_ground = 1
+anim_duration = 2
+anim_type = right_once
+blender = add
+alpha = 100
+health = 1
+
+on death()
+ remove()
+
+on creation()
+ set_alpha_fade( 6 , 0 )
+
+on ground_collision()
+ remove()
+
+on timer(6)
+ remove()

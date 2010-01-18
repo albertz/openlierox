@@ -1,0 +1,24 @@
+sprite = catidle.png
+anim_duration = 100
+anim_type = right_once
+bounce_factor = 0
+ground_friction = 0
+gravity = 1
+anim_on_ground = 1
+
+on death()
+ remove()
+
+on timer(170)
+ shoot_particles ( catcontinueidle7.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on timer(75,200)
+ play_sound_static( [felinemeow1.wav, felinemeow2.wav, felinemeow3.wav, catmeowzorz.wav], 35 )
+
+on detect_range(15, 1)
+ play_sound( hyberflamethrower.wav, 35, 1, 0.05 )
+ shoot_particles ( catgoesonfire.obj , 1 , 1, 0, 1, 0, 0, 0, 0)
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ remove()

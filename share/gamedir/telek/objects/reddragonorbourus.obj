@@ -1,0 +1,49 @@
+sprite = redcthulgrenade.png
+anim_duration = 40
+anim_type = loop_right
+gravity = 0.01
+health = 100
+bounce_factor = 0.885
+ground_friction = 0.975
+col_layer = 1
+render_layer = 0
+health = 1
+
+on death()
+ remove()
+
+on timer(5)
+ create_explosion ( redplasmabluebursterx.exp )
+
+on timer(150,120)
+ shoot_particles ( smallexplosionholdereffect.obj , 1)
+ create_explosion ( smallinstantexplosionplasma.exp )
+ apply_map_effect( smallcthulultradelete.mfx )
+ shoot_particles ( telekpulse1.obj , 1)
+ play_sound( cthultheserpentexplosion.wav, 40, 1, 0.05 )
+ shoot_particles ( redplasmaorboutertriangle.obj , 20 , 0.01, 0, 0, 0, 360, 0, 25)
+ shoot_particles ( redplasmaorboutertriangle.obj , 7 , 0.01, 0, 0, 0, 360, 0, 27)
+ shoot_particles ( redplasmaorboutertriangle.obj , 7 , 0.01, 0, 0, 0, 360, 0, 23)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 24)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 23)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 22)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 22)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 21)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 20)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 19)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 18)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 17)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 16)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 15)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 14)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 13)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 12)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 11)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 10)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 9)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 8)
+ shoot_particles ( redplasmaorbinnertriangle.obj , 1 , 0.01, 0, 0, 0, 360, 0, 7)
+ shoot_particles ( redplasmatrianglelight.obj , 1)
+ shoot_particles ( redplasmachargesparker.obj , 15 , 1, 1, 0, 0, 360, 0, 20)
+ shoot_particles ( redplasmachargesparker.obj , 15 , 1, 1, 0, 0, 360, 0, 25)
+ remove()

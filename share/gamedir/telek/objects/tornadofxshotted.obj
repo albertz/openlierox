@@ -1,0 +1,38 @@
+sprite = wingtornadoshiiron.png
+blender = add
+alpha = 164
+render_layer = 5
+anim_duration = 10
+anim_type = loop_right
+anim_on_ground = 1
+col_layer = -1
+
+on timer(15)
+ remove()
+
+on timer( 5, max_trigger = 1 )
+ set_alpha_fade(10,0)
+
+on detect_range(23, 1)
+ push( 0.85 )
+
+on detect_range(43, 0)
+ repel( -0.007 , 40, -0.009 )
+
+on detect_range(73, 0)
+ repel( -0.007 , 70, -0.009 )
+
+on detect_range(23, 0)
+ push( 15.75 )
+ damp( 0.96 )
+ damage ( 0.75 )
+
+on detect_range(23, 1, [0,1,2,3,4,5,6,7])
+ push( 15.75 )
+ damp( 0.96 )
+
+on detect_range(43, 1, [0,1,2,3,4,5,6,7])
+ repel( -0.007 , 60, -0.009 )
+
+on detect_range(73, 1, [0,1,2,3,4,5,6,7])
+ repel( -0.007 , 70, -0.009 )

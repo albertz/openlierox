@@ -1,0 +1,14 @@
+col_layer = -1
+sprite = zegianlightlight.png
+anim_on_ground = 1
+render_layer = 5
+alpha = 255
+blender = alphach
+damping = 0
+light_radius = 45
+
+on timer(45)
+ remove()
+
+on creation()
+ set_alpha_fade(45,0)

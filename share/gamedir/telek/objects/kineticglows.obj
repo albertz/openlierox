@@ -1,0 +1,13 @@
+sprite = keneticshatter.png
+blender = add
+alpha = 128
+col_layer = -1
+damping = 0.9
+anim_duration = 20
+anim_type = right_once
+render_layer = 1
+light_radius = 3
+render_layer = 7
+
+on timer(20)
+ remove()

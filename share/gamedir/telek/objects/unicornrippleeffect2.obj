@@ -1,0 +1,9 @@
+col_layer = -1
+invisible = 1
+
+distort_magnitude = 0.3
+distort_gen = <<< distortions.ripple(1, 4) >>>
+distort_size = [160,60]
+
+on timer(5)
+ remove()

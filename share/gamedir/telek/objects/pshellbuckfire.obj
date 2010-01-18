@@ -1,0 +1,25 @@
+gravity = 0.05
+sprite = pfirebucks.png
+anim_duration = 30
+anim_type = loop_right
+health = 1
+bounce_factor = 0.3
+ground_friction = 0.65
+
+on death()
+ remove()
+
+on timer(10,15)
+ shoot_particles ( lightningflicker.obj , 1)
+ shoot_particles ( lightningbuckflicker.obj , 1)
+
+on timer(100,175)
+ play_sound_static( [shellspark1.wav, shellspark2.wav, shellspark3.wav], 50 )
+ shoot_particles ( lightningflare.obj , 1)
+ shoot_particles ( eleckspark.obj , 3 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 3 , 0.6, 0.6, 0, 0, 360, 0, 0)
+
+on ground_collision()
+ shoot_particles ( pshellbuckfire1.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ play_sound_static( shotguncasings.ogg, 100 )
+ remove()

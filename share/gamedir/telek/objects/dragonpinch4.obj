@@ -1,0 +1,13 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 20
+distort_gen = <<< distortions.pinch >>>
+distort_size = [15,15]
+
+on timer(5)
+ shoot_particles ( dragonpinch5.obj , 1)
+ remove()
+
+on timer(1)
+ shoot_particles ( whitedotremoval.obj , 1)

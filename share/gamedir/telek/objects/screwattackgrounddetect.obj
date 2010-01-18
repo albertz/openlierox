@@ -1,0 +1,11 @@
+gravity = 2
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(1)
+ shoot_particles ( screwattackgrounddetected.obj, 1)
+ remove()

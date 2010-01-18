@@ -1,0 +1,5 @@
+blender = alpha
+alpha = 150
+dest_alpha = 0
+timeout = 15
+colour = [128,64,0]

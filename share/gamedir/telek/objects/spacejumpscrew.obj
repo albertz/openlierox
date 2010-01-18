@@ -1,0 +1,13 @@
+gravity = -1
+repeat = 200
+col_layer = -1
+invisible = 1
+ground_friction = 0
+bounce_factor = 0
+
+on timer(1)
+ remove()
+
+on detect_range(25, 1)
+ push( 0.9 )
+ remove()

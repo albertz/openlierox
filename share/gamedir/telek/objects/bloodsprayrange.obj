@@ -1,0 +1,11 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ shoot_particles ( bulletbloodspray.obj , 1)
+ remove()
+
+on timer(50)
+ shoot_particles ( bulletbloodspray.obj , 1)
+ remove()

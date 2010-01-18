@@ -1,0 +1,8 @@
+blender = add
+alpha = 150
+col_layer = -1
+render_layer = 0
+sprite = xdragonwings.png
+
+on timer( 1 )
+ remove()

@@ -1,0 +1,10 @@
+col_layer = -1
+colour = [255, 255, 0]
+damping = 0
+
+on ground_collision()
+ remove()
+
+on timer(50,50)
+ shoot_particles ( lighttrailflash.obj , 1)
+ remove()

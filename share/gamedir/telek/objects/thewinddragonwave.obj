@@ -1,0 +1,14 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+distort_magnitude = 1
+distort_gen = <<< distortions.swirl >>>
+distort_size = [15,15]
+
+on timer(6)
+ shoot_particles ( thewinddragonwave1.obj , 1 , 0.001 , 0, 0, 0, 0)
+ remove()
+
+on creation()
+ play_sound( wingedwinddragonwind.wav, 100, 1, 0 )

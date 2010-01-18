@@ -1,0 +1,13 @@
+name = "Retentions of Rue"
+reload_time = 70
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(70)
+ use_ammo(1)
+ play_sound( icebeamfirea.wav, 100, 1, 0 )
+ shoot_particles ( icebeambulletra.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+
+on active_timer( 5)
+ shoot_particles ( nitrogenicebeamgas.obj , 1, 0.5, 1, 0, 0, 10, 0, 0)

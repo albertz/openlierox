@@ -1,0 +1,9 @@
+timeout = 0
+invisible = 1
+
+on detect_range (2.5, 0)
+ damp( 0.5 )
+ repel( -1 , 26, -0.8 )
+
+on detect_range(10, 0, [7])
+ damage ( 999 )

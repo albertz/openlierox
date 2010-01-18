@@ -1,0 +1,4 @@
+blender = add
+alpha = 255
+timeout = 3
+sprite = cthulcybernb.png

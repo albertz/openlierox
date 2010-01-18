@@ -1,0 +1,14 @@
+sprite = catresting.png
+anim_duration = 65
+anim_type = right_once
+bounce_factor = 0
+ground_friction = 0
+gravity = 1
+anim_on_ground = 1
+
+on death()
+ remove()
+
+on timer(200)
+ shoot_particles ( catcontinueidle.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()

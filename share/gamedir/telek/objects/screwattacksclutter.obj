@@ -1,0 +1,11 @@
+sprite = screwattacksplash.png
+anim_duration = 12
+anim_type = right_once
+anim_on_ground = 1
+col_layer = -1
+blender = add
+alpha = 255
+render_layer = 6
+
+on timer(12)
+ remove()

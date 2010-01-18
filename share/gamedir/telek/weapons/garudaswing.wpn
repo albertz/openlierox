@@ -1,0 +1,10 @@
+name = "Garuda's Wing"
+reload_time = 600
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(600)
+ use_ammo(1)
+ play_sound( throwingaruda.wav, 100, 1, 0.05 )
+ shoot_particles ( garudaeggli.obj, 1 , 2, 0, 0, 0, 0, 0, 0)

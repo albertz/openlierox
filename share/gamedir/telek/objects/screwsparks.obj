@@ -1,0 +1,15 @@
+invisible = 1
+repeat = 6
+health = 1
+
+on death()
+ remove()
+
+on timer(15,20)
+ remove()
+
+on timer(0)
+ shoot_particles ( screwsparktrail.obj , 1 )
+
+on ground_collision()
+ remove()

@@ -1,0 +1,7 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on ground_collision()
+ shoot_particles ( zegianearthsplitter.obj , 1)
+ remove()

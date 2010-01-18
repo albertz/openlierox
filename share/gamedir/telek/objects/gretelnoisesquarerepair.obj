@@ -1,0 +1,12 @@
+sprite = gretelrepair.png
+render_layer = 0
+col_layer = -1
+anim_duration = 35
+anim_type = right_once
+anim_on_ground = 1
+
+on timer( 35 )
+remove ()
+
+on creation()
+ play_sound( wizardoff.wav, 100, 1, 0.05 )

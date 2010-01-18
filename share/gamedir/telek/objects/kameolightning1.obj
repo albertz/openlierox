@@ -1,0 +1,11 @@
+col_layer = -1 
+sprite = tellightningshockone.png
+blender = add
+anim_duration = 20
+anim_type = right_once
+anim_on_ground = 1
+damping = 0
+render_layer = 8
+
+on timer( 20 )
+ remove()

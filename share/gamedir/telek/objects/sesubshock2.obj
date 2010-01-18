@@ -1,0 +1,15 @@
+repeat = 50
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer(10,30)
+ shoot_particles ( sesubshock3.obj , 2 , 0.4, 0, 0, 0, 150, 0, 0)
+ remove()
+
+on timer(1)
+ shoot_particles ( selectrolight2.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+
+on timer(0)
+ shoot_particles ( selectroktail2.obj , 1 , 0, 0, 0, 0, 0, 0, 0)

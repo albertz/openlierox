@@ -1,0 +1,13 @@
+invisible = 1
+col_layer = -1
+damping = 0.975
+repeat = 3
+
+on timer(1)
+ shoot_particles ( sentienttrailerspik.obj, 1)
+
+on timer(100)
+ remove()
+
+on ground_collision()
+ remove()

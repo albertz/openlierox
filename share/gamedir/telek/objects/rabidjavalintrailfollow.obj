@@ -1,0 +1,11 @@
+sprite = rabidjavalintraila.png
+blender = add
+anim_duration = 5
+anim_type = right_once
+anim_on_ground = 1
+alpha = 255
+render_layer = 5
+col_layer = -1
+
+on timer( 1 )
+ remove ()

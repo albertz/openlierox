@@ -1,0 +1,21 @@
+sprite = danshakudragon.png
+blender = add
+alpha = 150
+acceleration = -0.02
+max_speed = -2
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on detect_range(2, 0)
+ damage( 3.5 )
+ push ( 0.03 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ remove()
+
+on timer(2650)
+ remove()

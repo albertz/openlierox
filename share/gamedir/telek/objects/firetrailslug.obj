@@ -1,0 +1,20 @@
+colour = [255, 255, 100]
+sprite = r2yfade.png
+anim_duration = 71
+anim_type = ping_pong
+health = 1
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on detect_range(1, 0)
+ damage ( 5 )
+ push ( 0.1 )
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 0.5 )
+ remove()
+
+on timer(50,50)
+ remove()

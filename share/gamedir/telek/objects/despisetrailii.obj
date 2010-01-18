@@ -1,0 +1,12 @@
+sprite = despisetrail.png
+blender = add
+alpha = 50
+col_layer = -1
+light_radius = 5
+damping = 0.9
+anim_duration = 15
+anim_type = right_once
+damping = 0.775
+
+on timer(15)
+ remove()

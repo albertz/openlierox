@@ -1,0 +1,15 @@
+sprite = dragoneyeopen.png
+blender = add
+alpha = 130
+col_layer = -1
+render_layer = 9
+ground_friction = 0
+bounce_factor= 0
+anim_duration = 75
+anim_type = right_once
+
+on timer(210)
+ remove()
+
+on timer( 80, max_trigger = 1 )
+ set_alpha_fade( 130 , 0 )

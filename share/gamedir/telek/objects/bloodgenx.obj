@@ -1,0 +1,16 @@
+gravity = 0.013
+colour = [230, 0, 0]
+bounce_factor = 0.2
+health = 1
+
+on death()
+ remove()
+
+on timer(70, 50)
+ remove()
+
+on ground_collision()
+ remove()
+
+on timer(5)
+ shoot_particles ( blood.obj , 1 , 0 , 0.2, 0.5, 0, 0, 0,0)

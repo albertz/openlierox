@@ -1,0 +1,10 @@
+name = "Enhanced BAZOOKA"
+reload_time = 70
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(70)
+ use_ammo(1)
+ play_sound( bazooka.ogg, 100, 1, 0.05 )
+ shoot_particles ( bazooka.obj , 1 , 0.8, distribution = 0, distance_offs = 9 )

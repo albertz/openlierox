@@ -1,0 +1,5 @@
+damping = 0.96
+invisible = 1
+
+on timer(200)
+ remove()

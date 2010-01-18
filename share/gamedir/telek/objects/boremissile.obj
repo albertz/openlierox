@@ -1,0 +1,23 @@
+repeat = 10
+col_layer = -1
+
+on creation()
+ add_angle_speed(-3)
+
+on timer(0)
+ shoot_particles ( boretrail.obj, 1, 0.05, 0.05)
+
+on ground_collision()
+ play_sound( nohitdrill.wav, 35, 1, 0.1 )
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( boreexplosionsmoke.obj , 30 , 0.9, 0.9, 0, 0, 360, 0, 0)
+ remove()
+
+on detect_range(2, 0)
+ play_sound( driller.wav, 35, 1, 0 )
+ shoot_particles ( boreblood.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(17)
+ play_sound( drillingbience.wav, 15, 1, 0.1 )

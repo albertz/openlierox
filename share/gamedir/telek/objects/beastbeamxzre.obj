@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+repeat = 3
+
+on creation()
+ add_angle_speed(2.2)
+
+on timer(10)
+ shoot_particles ( clawdamagebeast.obj, 1, 0, 0, 0, 0, 0, -120, 30)
+
+on timer(75, max_trigger = 1 )
+ remove()
+
+on timer(0)
+ shoot_particles ( beastclawmarks.obj, 1, 0, 0, 0, 0, 0, -150, 50)
+ shoot_particles ( beastclawmarks.obj, 1, 0, 0, 0, 0, 0, -150, 45)
+ shoot_particles ( beastclawmarks.obj, 1, 0, 0, 0, 0, 0, -120, 30)

@@ -1,0 +1,17 @@
+sprite = telekemberparticle.png
+blender = alpha
+alpha = 255
+gravity = -0.00975
+render_layer = 0
+col_layer = 1
+damping = 0.96
+anim_duration = 70
+anim_type = loop_right
+bounce_factor = 0
+ground_friction = 0
+
+on timer( 130, max_trigger = 1 )
+set_alpha_fade(20,0)
+
+on timer( 150 )
+ remove()

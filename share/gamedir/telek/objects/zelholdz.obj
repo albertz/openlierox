@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+
+on timer(70,160)
+ shoot_particles ( zeleckspark.obj , 1 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 1 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( zesubshock1.obj , 1 , 0.5, 0, 0, 0, 360, 0, 0)
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( redlightningflare.obj , 1)
+ remove()
+
+on timer(30,50)
+ shoot_particles ( zesubshock1.obj , 1 , 0.5, 0, 0, 0, 360, 0, 0)
+ play_sound_static( [zelectroambience.wav, zelectroambience1.wav, zelectroambience2.wav, zelectroambience3.wav, zelectroambience4.wav], 100 )
+ shoot_particles ( zeleckspark.obj , 1 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 1 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ shoot_particles ( redlightningflare.obj , 1)

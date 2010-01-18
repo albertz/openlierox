@@ -1,0 +1,15 @@
+gravity = 0.05
+sprite = greyshellso.png
+anim_duration = 30
+anim_type = loop_right
+health = 1
+bounce_factor = 0.3
+ground_friction = 0.65
+
+on death()
+ remove()
+
+on ground_collision()
+ shoot_particles ( greyshellsfire1.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ play_sound_static( shotguncasings.ogg, 100 )
+ remove()

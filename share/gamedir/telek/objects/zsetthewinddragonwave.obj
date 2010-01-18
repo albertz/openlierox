@@ -1,0 +1,26 @@
+sprite = shiirontornadowingtel.png
+blender = add
+alpha = 255
+render_layer = 5
+damping = 0
+anim_duration = 70
+anim_type = right_once
+anim_on_ground = 1
+col_layer = -1
+
+on timer( 80, max_trigger = 1 )
+ set_alpha_fade(50,0)
+
+on timer( 50, max_trigger = 1 )
+ shoot_particles ( shiironfeathers1.obj , 5 , 2, 5, 0, 0, 70, 180, 7)
+ shoot_particles ( shiironfeathers2.obj , 5 , 2, 5, 0, 0, 70, 180, 7)
+ shoot_particles ( shiironfeathers3.obj , 5 , 2, 5, 0, 0, 70, 180, 7)
+
+on timer(45, max_trigger = 1 )
+ play_sound( shiironwingstrikefx.wav, 100, 1, 0 )
+
+on timer(46, max_trigger = 1 )
+ shoot_particles ( zxsetthewinddragonwave.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+
+on timer(150)
+ remove()

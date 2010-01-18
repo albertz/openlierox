@@ -1,0 +1,8 @@
+col_layer = -1
+invisible = 1
+
+on creation()
+ shoot_particles ( bloodgenx.obj , 10 , 0.5, 1, 0, 0, 360, 0, 20)
+ shoot_particles ( bloodgenx.obj , 10 , 0.8, 1, 0, 0, 360, 0, 20)
+ shoot_particles ( blood.obj , 100 , 0.5, 1, 0, 0, 360, 0, 20)
+ remove()

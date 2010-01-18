@@ -1,0 +1,16 @@
+
+invisible = 1
+bounce_factor = 0.2753
+ground_friction = 0.8355
+gravity=0.0095
+repeat = 4
+health = 1
+
+on death()
+ remove()
+
+on timer(20,25)
+ remove()
+
+on timer(0)
+ shoot_particles ( elecksparktrail.obj , 1 )

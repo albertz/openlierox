@@ -1,0 +1,17 @@
+name = "Vampire Bane"
+reload_time = 200
+ammo = 3
+reload_time = 20
+
+on primary_press()
+ play_sound( gundelsolhairpin.wav, 100, 1, 0.05 )
+ delay_fire(10)
+
+on primary_shoot()
+ delay_fire(13)
+ use_ammo()
+ play_sound( gundelsolfire.wav, 100, 1, 0.05 )
+ shoot_particles ( djangoprojectile.obj , 1 , 1, 0, 0, 0, 0, 0, 5)
+
+on primary_release()
+ use_ammo(3)

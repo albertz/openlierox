@@ -1,0 +1,60 @@
+repeat = 50
+col_layer = -1
+
+on timer(1)
+ shoot_particles ( xelectrolight.obj , 1)
+
+on timer(0)
+ shoot_particles ( xelectroktail1.obj , 1)
+
+on ground_collision()
+ shoot_particles ( xeleckspark.obj , 3 , 1, 1, 0, 0, 360, 0, 0)
+ shoot_particles ( elecksparkx.obj , 3 , 0.6, 0.6, 0, 0, 360, 0, 0)
+ remove()
+
+on timer(10,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 10, 0, 0)
+ remove()
+
+on timer(11,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, -10, 0, 0)
+ remove()
+
+on timer(15,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, 15, 0)
+ remove()
+
+on timer(16,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, -15, 0)
+ remove()
+
+on timer(20,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, 20, 0)
+ remove()
+
+on timer(21,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, -20, 0)
+ remove()
+
+on timer(25,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, 25, 0)
+ remove()
+
+on timer(26,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, -25, 0)
+ remove()
+
+on timer(30,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, 30, 0)
+ remove()
+
+on timer(31,32)
+ shoot_particles ( xelectrok4.obj , 1 , 1, 0, 0, 0, 0, -30, 0)
+ remove()
+
+on timer(5,30)
+ shoot_particles ( xesubshock1.obj , 1 , 1, 0, 0, 0, 360, 0, 0)
+
+on detect_range(1, 0)
+ damage ( 15 )
+ push ( 0.1 )

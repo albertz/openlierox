@@ -1,0 +1,11 @@
+name = "Pretty Princess Railgun"
+sync_shot = true
+sync_reload = false
+reload_time = 370
+
+on primary_shoot()
+ delay_fire(370)
+ use_ammo(1)
+ add_speed( -0.5 )
+ play_sound( princessrailgun.wav, 100, 1, 0.05 )
+ shoot_particles ( prettyrailgun.obj , 1 , 0.5, 0, 0, 0, 0, 0, 5)

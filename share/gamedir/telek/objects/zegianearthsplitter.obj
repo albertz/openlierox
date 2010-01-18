@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+
+on timer( 90 )
+ play_sound( explodingvirus.wav, 60, 1, 0 )
+ create_explosion( boreexplosion.exp )
+ shoot_particles ( boreflash.obj , 1)
+ shoot_particles ( zegianearthsplitteri.obj , 1)
+ remove()

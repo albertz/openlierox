@@ -1,0 +1,13 @@
+sprite = garudawingsenlargena.png
+invisible = 1
+anim_duration = 15
+anim_type = right_once
+anim_on_ground = 1
+col_layer = -1
+damping = 0
+blender = add
+alpha = 255
+
+on timer(15)
+ shoot_particles ( garudafeathersspreadx.obj, 1 , 0.001 , 0, 0, 0, 0, 0, 0)
+ remove()

@@ -1,0 +1,6 @@
+sprite = shinebeam.png
+col_layer = -1
+damping = 0
+
+on timer(50,50)
+ remove()

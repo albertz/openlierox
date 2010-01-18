@@ -1,0 +1,16 @@
+colour = [128,232,255]
+blender = add
+wu_pixels = 1
+gravity = 0.000955
+repeat = 10
+health = 1
+alpha = 100
+
+on death()
+ remove()
+
+on ground_collision()
+ remove()
+
+on timer(0)
+ create_explosion ( waterdroptrail.exp )

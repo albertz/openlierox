@@ -1,0 +1,16 @@
+invisible = 1
+damping = 0.96
+repeat = 3
+col_layer = -1
+
+on creation()
+ add_angle_speed(1)
+
+on timer(220)
+ shoot_particles ( dragonformend29.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on timer(1)
+ shoot_particles ( dragonspiritglow.obj , 1 , 0, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( dragonspiritorb.obj, 1 , 0 , 0, 0, 0, 0, 0, 0)
+ uniform_shoot_particles ( danshakudragony.obj , 4 , 1.3, 0, 0, 0, 360, 0, 0)

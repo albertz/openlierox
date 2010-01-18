@@ -1,0 +1,9 @@
+repeat = 7
+col_layer = -1
+sprite = uzumaki.png
+
+on timer(35)
+ shoot_particles ( gretelspreader.obj, 1 , 0.5, 0.5, 0, 0, 360, 0, 0)
+
+on timer(3000)
+ remove()

@@ -1,0 +1,7 @@
+col_layer = -1
+invisible = 1
+
+on timer(50,150)
+ play_sound( icepillarspawnage.wav, 50, 1, 0.05 )
+ shoot_particles ( icepillarspokestel.obj, 3 , 0.83, 0.33, 0, 0, 360, 0, 0)
+ remove()

@@ -1,0 +1,10 @@
+name = "Unicorn's Horn"
+reload_time = 250
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(250)
+ use_ammo(1)
+ play_sound( unicornstrike.wav, 100, 1, 0 )
+ shoot_particles ( detectbashingplayers.obj , 1)

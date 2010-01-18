@@ -1,0 +1,43 @@
+sprite = flameshaft.png
+alpha = 210
+blender = add
+anim_duration = 90
+anim_type = right_once
+bounce_factor = 0
+ground_friction = 0
+health = 1
+anim_on_ground = 1
+render_layer = 6
+repeat = 10
+occluded = 1
+
+on timer( 90, max_trigger = 1 )
+ set_alpha_fade(40,0)
+
+on death()
+ remove()
+
+on timer(110,50)
+ shoot_particles ( warrockspin.obj , 1 , 1.7, 0.5, 0.3, 0, 15, 0, 0)
+
+on timer(210)
+ shoot_particles ( warrockspin.obj , 1 , 1.7, 0.5, 0.3, 0, 15, 0, 0)
+ shoot_particles ( warrockend.obj , 1 , 1.7, 0.5, 0, 0, 45, 0, 0)
+ remove()
+
+on timer( 190, max_trigger = 1 )
+ shoot_particles ( warrockend.obj , 1 , 1.7, 0.5, 0, 0, 15, 0, 0)
+
+on detect_range(3, 0)
+ shoot_particles ( bloodgen.obj , 1 , 0.5, 1, 1.5 )
+ damage ( 3.75 )
+ push ( 0.325 )
+ shoot_particles ( warrockspin.obj , 1 , 1, 0.65, 0, 0, 15, 0, 0)
+ remove()
+
+on ground_collision()
+ shoot_particles ( warrockheatwalls.obj, 1)
+ shoot_particles ( warrockend.obj , 1 , 0.5, 0.5, 0, 0, 360, 0, 0)
+ shoot_particles ( warrockspin.obj , 1 , 1, 0.65, 0, 0, 15, -100, 0)
+ shoot_particles ( warrockspin.obj , 1 , 1, 0.65, 0, 0, 15, 100, 0)
+ remove()

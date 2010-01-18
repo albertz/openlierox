@@ -1,0 +1,12 @@
+name = "Cthul Cybernetic Laser Deployer"
+reload_time = 50
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(50)
+ use_ammo(1)
+ shoot_particles ( cyberneticdevicespawn.obj , 1 , 0.001, 0, 0.365, 0, 0, 0, 0)
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( cthuliaequp.wav, 100, 1, 0 )

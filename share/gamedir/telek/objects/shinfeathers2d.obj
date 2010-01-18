@@ -1,0 +1,17 @@
+sprite = shirorfeathers2.png
+blender = alphach
+anim_duration = 90
+anim_type = loop_right
+alpha = 175
+gravity = 0.0085
+render_layer = 5
+col_layer = 5
+damping = 0.98
+bounce_factor = 0
+ground_friction = 0.5 
+
+on timer( 50,50, max_trigger = 1 )
+set_alpha_fade(30,0)
+
+on timer( 130 )
+ remove ()

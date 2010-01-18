@@ -1,0 +1,10 @@
+invisible = 1
+col_layer = -1
+
+on timer(35, max_trigger = 1 )
+ remove()
+
+on timer(0)
+ shoot_particles ( beastfire.obj, 1, 0.85, 0.85, 0, 0, 30, -200, 0)
+ shoot_particles ( beastarm.obj, 1, 1, 0, 0, 0, 30, -200, 0)
+ shoot_particles ( beastarmbase.obj, 1, 1, 0, 0, 0, 0, -200, 0)

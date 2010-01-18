@@ -1,0 +1,13 @@
+sprite = supernovadragon.png
+blender = add
+alpha = 255
+col_layer = -1 
+repeat = 8
+light_radius = 170
+render_layer = 7
+
+on timer(255)
+ remove()
+
+on creation()
+ set_alpha_fade(255,0)

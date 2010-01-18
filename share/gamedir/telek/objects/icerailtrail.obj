@@ -1,0 +1,10 @@
+col_layer = -1
+colour = [164, 0, 164]
+damping = 0.9
+
+on ground_collision()
+ remove()
+
+on timer(65)
+ shoot_particles (icebarrieroblivion.obj , 1)
+ remove()

@@ -1,0 +1,12 @@
+invisible = 1
+col_layer = -1
+
+distort_magnitude = 0.35
+distort_gen = <<< distortions.swirl >>>
+distort_size = [26,26]
+
+on timer(3)
+ remove()
+
+on creation()
+ create_explosion( telekeff.exp )

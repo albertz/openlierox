@@ -1,0 +1,21 @@
+repeat = 2
+sprite = screwcutter.png
+anim_on_ground = 1
+anim_duration = 20
+anim_type = right_once
+col_layer = -1
+blender = add
+alpha = 235
+damping = 0
+
+on timer(20)
+ shoot_particles ( screwcutterend.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(2,3)
+ shoot_particles ( screwingproton.obj , 2 , 2, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( screwsparks.obj , 1 , 1, 0.5, 0, 0, 35, -85, 0)
+
+on timer(2,3)
+ shoot_particles ( screwingproton.obj , 2 , 2, 1.5, 0, 0, 360, 0, 0)
+ shoot_particles ( screwsparks.obj , 1 , 1, 0.5, 0, 0, 35, 85, 0)

@@ -1,0 +1,6 @@
+colour = [255,255,255]
+col_layer = -1 
+render_layer= 7
+
+on timer( 1 )
+remove()

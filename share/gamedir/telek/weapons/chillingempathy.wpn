@@ -1,0 +1,22 @@
+name = "Chilling Empathy"
+ammo = 1
+reload_time = 110
+sync_shot = true
+sync_reload = false
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( beamgunarmmed.wav, 100, 1, 0 )
+on primary_press()
+ play_sound( ghostlytelekicespawn.wav, 100, 1, 0 )
+ shoot_particles ( iceswordslashobjectorstart.obj , 1 , 0.001 , 0, 0, 0, 0, -150, 0)
+ delay_fire(110)
+
+on primary_shoot()
+ play_sound( darkheartbeat.wav, 100, 1, 0 )
+ delay_fire(110)
+ use_ammo(1)
+ shoot_particles ( icepillarspokeeffectsprout.obj , 30 ,  1, 1, 0, 0)
+
+on primary_release()
+ play_sound( telekicyspawneff.wav, 100, 1, 0 )
+ shoot_particles ( iceneedlespawneffector.obj, 1 , 0.001, 0, 0, 0, 0, 0, 0)

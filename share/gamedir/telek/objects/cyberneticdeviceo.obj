@@ -1,0 +1,20 @@
+damping = 0.98
+sprite = cthulcyberndevice.png
+repeat = 5
+health = 1
+bounce_factor = 0
+ground_friction = 0.7
+
+on death()
+ remove()
+
+on creation()
+ add_angle_speed(2)
+
+on timer( 20, max_trigger = 20 )
+ add_angle_speed(-0.1)
+
+on timer(350,30)
+ play_sound( primalgun2.wav, 100, 1, 0 )
+ shoot_particles ( cthullaserbeame.obj , 1 , 1, 0, 0, 0, 25, -19, 0)
+ remove()

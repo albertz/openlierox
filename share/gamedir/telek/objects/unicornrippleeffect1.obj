@@ -1,0 +1,10 @@
+col_layer = -1
+invisible = 1
+
+distort_magnitude = 0.6
+distort_gen = <<< distortions.ripple(2, 7) >>>
+distort_size = [155,155]
+
+on timer(5)
+ shoot_particles( unicornrippleeffect2.obj, 1)
+ remove()

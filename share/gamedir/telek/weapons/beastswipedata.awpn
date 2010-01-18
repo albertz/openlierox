@@ -1,0 +1,9 @@
+name = "Beast Swipe Data(INCOMPLETE)/(REMOVED)"
+reload_time = 35
+sync_shot = true
+sync_reload = false
+
+on primary_shoot()
+ delay_fire(35)
+ use_ammo(1)
+ shoot_particles ( beastbeamrandom.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)

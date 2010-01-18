@@ -1,0 +1,31 @@
+invisible = 1
+damping = 1
+col_layer = -1
+
+on timer(1200)
+ remove()
+
+on timer(10,15)
+ shoot_particles ( ranshiindustkickora.obj , 1 , 1 , 0, 0, 0, 0, 0, 0)
+
+on timer(5)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 30)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 25)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 20)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 15)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 10)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 5)
+ shoot_particles ( crownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 0)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 30)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 25)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 20)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 15)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 10)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 5)
+ shoot_particles ( inversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 0)
+
+on timer(5,30)
+ shoot_particles ( xcrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 0)
+
+on timer(5,30)
+ shoot_particles ( xinversecrownwindparticletel.obj , 1 , 0.1 , 0, 0, 0, 25, 180, 0)

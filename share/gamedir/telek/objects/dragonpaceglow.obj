@@ -1,0 +1,14 @@
+sprite = dragonpaceglow.png
+blender = add
+alpha = 55
+occluded = 1
+col_layer = -1 
+render_layer=8
+light_radius=30
+repeat = 2
+
+on timer( 10, max_trigger = 1 )
+set_alpha_fade(55,0)
+
+on timer( 65 )
+remove()

@@ -1,0 +1,10 @@
+sprite = telekflash.png
+blender = add
+alpha = 128
+occluded = 1
+col_layer = -1 
+render_layer= 1
+light_radius=45
+
+on timer( 1 )
+remove()

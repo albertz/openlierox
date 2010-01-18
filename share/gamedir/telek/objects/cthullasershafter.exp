@@ -1,0 +1,4 @@
+blender = add
+alpha = 255
+timeout = 1
+sprite = cthulcyberna.png

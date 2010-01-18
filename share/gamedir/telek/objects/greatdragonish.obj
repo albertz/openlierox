@@ -1,0 +1,35 @@
+invisible = 1
+col_layer = -1
+
+on ground_collision()
+ shoot_particles ( dragonspiritstrike.obj , 35 , 1, 1, 0, 0, 360, 0, 15)
+ shoot_particles ( reddragonclawsfinal.obj , 1 , 0.0001, 0, 0, 0, 35, 0, 0)
+ create_explosion ( dragonexps.exp )
+ create_explosion ( dragonexp.exp )
+ remove()
+
+on timer(0)
+ create_explosion ( dragonexp.exp )
+
+on timer(1)
+ shoot_particles ( reddragonhead.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+
+on timer(1,1)
+ shoot_particles ( walldustdetectdragon.obj , 2 , 0.5, 0, 0, 0, 180, 90, 0)
+ shoot_particles ( walldustdetectdragonx.obj , 2 , 0.5, 0, 0, 0, 180, -90, 0)
+
+on timer(1)
+ shoot_particles ( reddragonpaceglow.obj , 1)
+
+on timer(95)
+ shoot_particles ( dragonspiritstrike.obj , 35 , 1, 1, 0, 0, 360, 0, 15)
+ shoot_particles ( reddragonclawsfinal.obj , 1 , 0.0001, 0, 0, 0, 35, 0, 0)
+ create_explosion ( dragonexps.exp )
+ remove()
+
+on detect_range (6, 0)
+ damage( 0.067 )
+ shoot_particles ( blood.obj , 1 , 0.05, 0.05, 0.5 )
+
+on timer(10,10)
+ shoot_particles ( bluedragonclaws.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)

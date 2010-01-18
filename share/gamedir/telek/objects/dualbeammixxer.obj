@@ -1,0 +1,14 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(20)
+ shoot_particles ( duallasertrailac.obj , 1, 1, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( ultimatefusionbeamer.obj , 1)
+ shoot_particles ( ultimatefusionbeamerlight.obj , 1 , 0.1, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( arangeubeamshafter.obj , 1, 1.3, 0, 0, 0, 0, 90, -1)
+ shoot_particles ( brangeubeamshafter.obj , 1, 1.3, 0, 0, 0, 0, -90, -1)
+ remove()

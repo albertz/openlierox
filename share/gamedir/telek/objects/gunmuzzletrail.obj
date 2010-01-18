@@ -1,0 +1,11 @@
+blender = add
+color = [255, 128, 64]
+alpha = 150
+gravity = 0
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer(5)
+ remove()

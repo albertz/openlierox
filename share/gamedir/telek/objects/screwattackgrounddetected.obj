@@ -1,0 +1,12 @@
+gravity = -2
+repeat = 200
+col_layer = -1
+invisible = 1
+ground_friction = 0
+bounce_factor = 0
+
+on timer(1)
+ play_sound_static( [screwattacker2.wav, screwattacker2.wav, screwattacker3.wav], 100 )
+ shoot_particles ( screwattackelectrical.obj , 1)
+ shoot_particles ( screwattackelectricallight.obj , 1)
+ remove()

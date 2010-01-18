@@ -1,0 +1,11 @@
+repeat = 200
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ shoot_particles ( dirtyduster.obj , 3 , 2.5, 1.5, 0, 0, 5, -95, 0)
+ shoot_particles ( dirtyduster.obj , 3 , 2.5, 1.5, 0, 0, 5, 95, 0)
+ remove()
+
+on timer(250)
+ remove()

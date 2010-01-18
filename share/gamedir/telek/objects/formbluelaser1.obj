@@ -1,0 +1,18 @@
+blender = add
+alpha = 244
+colour = [0,0,200]
+repeat = 1000
+col_layer = -1
+line_to_origin = 1
+wu_pixels = 1
+bounce_factor = 0
+ground_friction = 0
+
+on ground_collision()
+ create_explosion( formabluelaser.exp )
+ apply_map_effect( laserhole.mfx )
+ remove()
+
+on timer(6)
+ shoot_particles ( formbluelaser2.obj , 1 , 1, 0, 0, 0, 0, -90, 0)
+ remove()

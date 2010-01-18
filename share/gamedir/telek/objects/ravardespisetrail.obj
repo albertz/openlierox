@@ -1,0 +1,11 @@
+sprite = ravardespisetrail.png
+blender = alphach
+alpha = 128
+col_layer = -1
+light_radius = 5
+damping = 0.9
+anim_duration = 11
+anim_type = right_once
+
+on timer(10)
+ remove()

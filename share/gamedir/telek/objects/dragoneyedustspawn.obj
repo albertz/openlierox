@@ -1,0 +1,6 @@
+invisible = 1
+col_layer = -1
+
+on timer(0)
+ shoot_particles ( dragoneyedustpart.obj , 2 , 0.09, 0.09, 0, 0, 360, 0, 1)
+ remove()

@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+damping = 0
+
+on timer(5,2)
+ shoot_particles ( shotgunknockoutdustx.obj , 1, 0.05, 0.05, 0, 0, 0)
+
+on timer(35,55)
+ remove()

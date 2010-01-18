@@ -1,0 +1,13 @@
+blender = add
+alpha = 50
+col_layer = -1
+render_layer = 0
+sprite = bloodiedclawset.png
+occluded = 1
+damping = 0
+
+on timer( 1020, max_trigger = 1 )
+ set_alpha_fade(255,0)
+
+on timer( 1275 )
+ remove()

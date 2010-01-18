@@ -1,0 +1,17 @@
+sprite = zegianbreath.png
+blender = add
+alpha = 64
+anim_duration = 165
+anim_type = right_once
+anim_on_ground = 1
+render_layer = 7
+col_layer = -1
+repeat = 3
+
+damping = 0.96
+
+on timer( 30, max_trigger = 1 )
+set_alpha_fade(64,0)
+
+on timer( 94 )
+remove ()

@@ -1,0 +1,16 @@
+sprite = telekillusionizationendalong.png
+blender = add
+alpha = 255
+col_layer = -1
+repeat = 1
+anim_on_ground = 1
+ground_friction = 0
+bounce_factor = 0
+render_layer = 4
+
+on creation()
+ shoot_particles ( iceslashtelekpush.obj , 1 , 1, 0, 0, 0, 0, 100, 0)
+ set_alpha_fade(15,0)
+
+on timer( 15 )
+ remove ()

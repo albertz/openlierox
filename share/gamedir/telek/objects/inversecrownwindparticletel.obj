@@ -1,0 +1,31 @@
+repeat = 4
+col_layer = -1
+acceleration = 1
+max_speed = 1
+damping = 0.85
+invisible = 1
+
+on timer(50, max_trigger = 1 )
+ add_angle_speed(-4.5)
+
+on timer( 90,5, max_trigger = 1 )
+ add_angle_speed(4.5)
+
+on timer(300)
+ remove()
+
+on detect_range(5, 1, [0,1,2,3,4,5,6,7])
+ push( 0.275 )
+ damp( 0.855 )
+
+on timer( 120,3500 )
+ shoot_particles ( shinfeathers1.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 0)
+
+on timer( 120,3500 )
+ shoot_particles ( shinfeathers2.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 0)
+
+on timer( 120,3500 )
+ shoot_particles ( shinfeathers3.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 0)
+
+on detect_range(3, 1)
+ push( 0.0065 )

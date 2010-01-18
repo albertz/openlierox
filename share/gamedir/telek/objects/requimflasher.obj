@@ -1,0 +1,13 @@
+sprite = requimlighter.png
+blender = add
+alpha = 255
+anim_duration = 41
+col_layer = -1 
+render_layer= 5
+light_radius=100
+
+on creation()
+set_alpha_fade(70,0)
+
+on timer( 70 )
+remove()

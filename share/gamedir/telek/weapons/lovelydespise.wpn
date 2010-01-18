@@ -1,0 +1,11 @@
+name = "Lovely Despise"
+
+on primary_shoot()
+ delay_fire(6)
+ play_sound( despiseshot.wav, 100, 1, 0.05 )
+ shoot_particles ( despisebullet3.obj , 1 , 1, 1, 0, 0, 50, 0, 0)
+ shoot_particles ( despisebullet2.obj , 1 , 1, 1, 0, 0, 30, 50, 0)
+ shoot_particles ( despisebullet.obj , 1 , 1, 1, 0, 0, 30, -50, 0)
+
+on active_timer( 150)
+ delay_fire(100)

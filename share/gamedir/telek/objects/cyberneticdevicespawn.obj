@@ -1,0 +1,118 @@
+damping = 0.99
+invisible = 1
+repeat = 7
+health = 1
+bounce_factor = 0
+ground_friction = 0.7
+
+on death()
+ remove()
+
+on creation()
+ add_angle_speed(1)
+
+on timer( 10, max_trigger = 2 )
+ shoot_particles ( cyberneticdevice.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 30, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicea.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 40, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicea.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 50, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceb.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 60, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceb.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 70, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicec.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 80, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicec.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 90, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviced.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 100, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviced.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 110, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicee.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 120, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicee.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 130, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicef.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 140, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicef.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 150, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceg.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 160, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceg.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 170, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceh.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 180, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceh.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 190, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicei.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 200, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicei.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 210, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicej.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 220, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicej.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 230, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicek.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 240, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicek.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 250, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicel.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 260, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicel.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 270, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicem.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 280, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicem.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 290, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicen.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 300, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicen.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 310, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceo.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 320, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceo.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 330, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicep.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 340, max_trigger = 1 )
+ shoot_particles ( cyberneticdevicep.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 350, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceq.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+
+on timer( 360, max_trigger = 1 )
+ shoot_particles ( cyberneticdeviceq.obj , 1 , 0.7, 0.35, 0, 0, 15, 0, 0)
+ remove()

@@ -1,0 +1,7 @@
+col_layer = -1
+render_layer = 5
+sprite = icyswordstriketel.png
+damping = 0
+
+on timer(0)
+ remove()

@@ -1,0 +1,15 @@
+invisible = 1
+damping = 0.96
+repeat = 3
+col_layer = -1
+
+on creation()
+ add_angle_speed(4.2)
+
+on timer(15)
+ shoot_particles ( dragonformend14.obj , 1 , 0, 0, 1, 0, 0, 0, 0)
+ remove()
+
+on timer(1)
+ shoot_particles ( dragonspiritglow.obj , 1 , 0, 0, 0, 0, 0, 0, 8.5)
+ shoot_particles ( dragonspiritorb.obj, 1 , 0 , 0, 0, 0, 0, 0, 8.5)

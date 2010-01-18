@@ -1,0 +1,12 @@
+invisible = 1
+col_layer = -1
+
+on timer(10, max_trigger = 1 )
+ shoot_particles ( beastbeamxrb.obj , 1 , 1, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( beastbeamxza.obj , 1 , 0.3, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(0)
+ shoot_particles ( beastfire.obj, 1, 0.85, 0.85, 0, 0, 30, 230, 0)
+ shoot_particles ( beastarm.obj, 1, 1, 0, 0, 0, 30, 230, 0)
+ shoot_particles ( beastarmbase.obj, 1, 1, 0, 0, 0, 0, 230, 0)

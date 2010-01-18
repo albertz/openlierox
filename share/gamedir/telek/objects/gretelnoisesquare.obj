@@ -1,0 +1,25 @@
+sprite = gretelnoise.png
+anim_duration = 75
+anim_type = right_once
+anim_on_ground = 1
+render_layer = 4
+col_layer = -1
+
+on timer( 0 )
+ create_explosion( gretelhold.exp )
+
+on timer( 75 )
+ play_sound( wizardon.wav, 100, 1, 0.05 )
+ apply_map_effect( datalosthole.mfx )
+ create_explosion( gretelholddeath.exp )
+ shoot_particles ( gretelnoisesquareremoved.obj, 1)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0, 0, 0, 0, 0, 0, 0)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.05, 0.05, 0, 0, 0, 0, 6)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.05, 0.05, 0, 0, 0, 45, 8.5)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.05, 0.05, 0, 0, 0, 90, 6)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.05, 0.05, 0, 0, 0, 135, 8.5)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.05, 0.05, 0, 0, 0, 180, 6)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.25, 0.25, 0, 0, 0, 225, 8.5)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.25, 0.25, 0, 0, 0, 270, 6)
+ shoot_particles ( gretelnoisesquarepart.obj, 1 , 0.25, 0.25, 0, 0, 0, 315, 8.5)
+ remove()

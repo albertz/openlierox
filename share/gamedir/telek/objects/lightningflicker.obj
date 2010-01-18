@@ -1,0 +1,10 @@
+sprite = lightingbuck.png
+blender = add
+alpha = 75
+col_layer = -1 
+render_layer= 7
+occluded = 1
+light_radius = 35
+
+on timer( 1 )
+remove()

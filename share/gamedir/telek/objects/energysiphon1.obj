@@ -1,0 +1,25 @@
+col_layer = -1
+damping = 0
+sprite = vampiricspellauraring.png
+blender = alpha
+alpha = 64
+anim_type = loop_right
+anim_duration = 3
+anim_on_ground = 1
+render_layer = 3
+
+on timer(3)
+ remove()
+
+on timer(0,25)
+ shoot_particles ( bloodgenx.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 20)
+
+on timer(0,25)
+ shoot_particles ( bloodgenx.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 20)
+
+on timer(0,25)
+ shoot_particles ( blood.obj , 1 , 0.1, 0.1, 0, 0, 360, 0, 20)
+
+on creation()
+ create_explosion( energysiphon.exp )
+ shoot_particles ( energysiphondetect.obj , 1 , 0.001, 0, 0, 0, 0, 0, 0)

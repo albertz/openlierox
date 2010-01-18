@@ -1,0 +1,13 @@
+sprite = ranshiinthewinddragon.png
+blender = add
+alpha = 164
+render_layer = 5
+damping = 0
+anim_duration = 100
+anim_type = right_once
+anim_on_ground = 1
+col_layer = -1
+
+on timer(100)
+ shoot_particles ( xsetthewinddragonwave.obj , 1 , 0.001 , 0, 0, 0, 0, 0, 60)
+ remove()

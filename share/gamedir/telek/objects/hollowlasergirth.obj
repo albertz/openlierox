@@ -1,0 +1,127 @@
+invisible = 1
+repeat = 200
+col_layer = -1
+
+on creation()
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 1, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 3, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 4, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 5, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 6, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser1.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 7, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 8, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 9, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 10, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 11, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 12, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser2.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 13, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 14, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 15, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 16, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 17, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 18, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 19, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 20, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 21, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 22, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 23, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser3.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 24, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 25, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 26, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 27, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 28, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 29, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 30, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 31, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser4.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 32, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 33, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 34, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 35, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 36, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 37, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 38, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 39, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+
+on timer( 40, max_trigger = 1 )
+ shoot_particles ( telekhollowlaser5.obj , 1 , 1, 0, 0, 0, 0, -30, 0 )
+ remove()
+
+on ground_collision()
+ remove()

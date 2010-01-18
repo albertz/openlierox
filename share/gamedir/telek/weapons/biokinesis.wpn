@@ -1,0 +1,15 @@
+name = "Biokinesis"
+
+on primary_press()
+ play_sound( bloodsiphonactivate.wav, 50, 1, 0.05 )
+ shoot_particles ( bloodsetra.obj , 1 , 0, 0, 0, 0, 0, 0, 28)
+
+on primary_shoot()
+ delay_fire(4)
+ shoot_particles ( siphongravf3.obj , 1 , 15, 0, 0, 0, 0, 0, 50)
+ shoot_particles ( energysiphon1.obj , 1 , 0.001, 0, 0, 0, 0, 0, 28)
+
+on primary_release()
+ shoot_particles ( energysiphon2.obj , 1 , 0.001, 0, 0, 0, 0, 0, 28)
+ play_sound( shadowdwindlw.wav, 50, 1, 0.05 )
+ delay_fire(4)

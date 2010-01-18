@@ -1,0 +1,19 @@
+invisible = 1
+col_layer = -1
+repeat = 200
+
+on timer(3,11)
+ shoot_particles ( beastbeam.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(4,10)
+ shoot_particles ( beastbeamra.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(5,9)
+ shoot_particles ( beastbeamrb.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()
+
+on timer(6,8)
+ shoot_particles ( beastbeamre.obj , 1 , 0.0001, 0, 0, 0, 0, 0, 0)
+ remove()

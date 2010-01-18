@@ -1,0 +1,9 @@
+repeat = 10
+col_layer = -1
+invisible = 1
+
+on ground_collision()
+ remove()
+
+on timer(21)
+ shoot_particles ( tornadofxshotted.obj , 1 , 0.01, 0, 0, 0, 0, 0, 0)

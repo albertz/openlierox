@@ -1,0 +1,16 @@
+name = "Telekinesis Offensive"
+
+on active_timer( 0, max_trigger = 1 )
+ play_sound( telekequip.wav, 100, 1, 0.05 )
+ delay_fire(20)
+
+on primary_press()
+ play_sound( [telehold1.wav, telehold2.wav, telehold3.wav] , 100, 1, 0.05 )
+
+on primary_shoot()
+ delay_fire(4)
+ shoot_particles ( telekshot.obj , 1 , 2, 0, 0, 0, 0, 0, 0)
+
+on primary_release()
+ delay_fire(50)
+ shoot_particles ( telekpunch.obj , 1 , 2, 0, 0, 0, 0, 0, 0)
