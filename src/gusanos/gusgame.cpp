@@ -745,6 +745,8 @@ void GusGame::unload()
 	
 	reset(LoadingLevel);
 
+	appliedLevelEffects.clear();
+	
 	
 	//level.unload();
 	for ( vector<WeaponType*>::iterator iter = weaponList.begin(); iter != weaponList.end(); ++iter)
