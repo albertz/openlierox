@@ -58,8 +58,6 @@ void CWormInputHandler::gusInit(boost::shared_ptr<PlayerOptions> options, CWorm*
 	m_isAuthority=(false);
 	m_node=(0);
 	m_interceptor=(0);
-	m_wormID=(INVALID_NODE_ID);
-	m_id=(0); // TODO: make a invalid_connection_id define thingy
 	deleted=(false);
 	
 	m_options->clearChangeFlags();
@@ -344,7 +342,6 @@ void CWormInputHandler::assignWorm(CWorm* worm)
 {
 	m_worm = worm;
 	worm->assignOwner( this );
-	m_wormID = worm->getNodeID();
 }
 
 boost::shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
@@ -377,10 +374,22 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 		if(m_worm) {
 			Net_BitStream* announceData = new Net_BitStream();
 			announceData->addInt(m_worm->getID(), 8);
-			m_node->setAnnounceData(announceData);	
+			m_node->setAnnounceData(announceData);
+						
+			if(!m_worm->getLocal()) {
+				if(cServer->getWorms()) {
+					CServerConnection* cl = cServer->getWorms()[m_worm->getID()].getClient();
+					if(cl)
+						m_node->setOwner(NetConnID_conn(cl));
+					else
+						errors << "CWormInputHandler::assignNetworkRole: connection of worm " << m_worm->getName() << " not found" << endl;
+				}
+				else
+					errors << "CWormInputHandler::assignNetworkRole: server->worms == NULL" << endl;
+			}
 		}
 		else
-			errors << "CWormInputHandler::assignNetworkRole: cannot be authority node without worm" << endl;
+			errors << "CWormInputHandler::assignNetworkRole: cannot be authority node without worm" << endl;	
 	}
 	
 	m_isAuthority = authority;
@@ -395,12 +404,6 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 	}
 	
 	m_node->applyForNetLevel(1);
-}
-
-void CWormInputHandler::setOwnerId( Net_ConnID id )
-{
-	m_node->setOwner( id );
-	m_id = id;
 }
 
 
@@ -423,9 +426,12 @@ Net_NodeID CWormInputHandler::getNodeID()
 		return INVALID_NODE_ID;
 }
 
-Net_NodeID CWormInputHandler::getConnectionID()
+Net_ConnID CWormInputHandler::getConnectionID()
 {
-	return m_id;
+	if(m_worm && m_worm->getNode())
+		return m_worm->getNode()->getOwner();
+
+	return INVALID_NODE_ID;
 }
 
 BasePlayerInterceptor::BasePlayerInterceptor( CWormInputHandler* parent )

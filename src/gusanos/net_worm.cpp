@@ -18,6 +18,7 @@
 #include "gconsole.h"
 #include "CMap.h"
 #include "game/Game.h"
+#include "CServer.h"
 
 #include <math.h>
 #include <vector>
@@ -84,6 +85,18 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	Net_BitStream* announceData = new Net_BitStream();
 	announceData->addInt(getID(), 8);
 	m_node->setAnnounceData(announceData);
+	
+	if(isAuthority && !bLocal) {
+		if(cServer->getWorms()) {
+			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
+			if(cl)
+				m_node->setOwner(NetConnID_conn(cl));
+			else
+				errors << "NetWorm_Init: connection of worm " << getName() << " not found" << endl;
+		}
+		else
+			errors << "NetWorm_Init: server->worms == NULL" << endl;
+	}
 	
 	m_isAuthority = isAuthority;
 	if( isAuthority)
@@ -295,14 +308,6 @@ void CWorm::correctOwnerPosition()
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
-
-void CWorm::setOwnerId( Net_ConnID _id )
-{
-	if(m_node)
-		m_node->setOwner(_id);
-	else
-		errors << "CWorm::setOwnerId: network node == NULL" << endl;
-}
 
 
 void CWorm::sendSyncMessage( Net_ConnID id )

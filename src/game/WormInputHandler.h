@@ -148,7 +148,6 @@ public:
 #endif
 	
 	void assignNetworkRole( bool authority );
-	void setOwnerId( Net_ConnID id );
 	
 	void assignWorm(CWorm* worm);
 	void removeWorm();
@@ -199,8 +198,6 @@ protected:
 	bool m_isAuthority;
 	Net_Node *m_node;
 	BasePlayerInterceptor* m_interceptor;
-	Net_NodeID m_wormID;
-	Net_ConnID m_id;
 	
 	bool deleted; //TEMP
 	

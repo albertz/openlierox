@@ -1159,6 +1159,10 @@ bool Net_Node::isNodeRegistered() {
 	return intern->nodeId != INVALID_NODE_ID;
 }
 
+Net_ConnID Net_Node::getOwner() {
+	return intern->ownerConn;
+}
+
 bool Net_Node::areWeOwner() {
 	if(isNodeRegistered()) {
 		if(intern->control->isServer)

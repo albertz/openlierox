@@ -845,7 +845,6 @@ public:
 	void NetWorm_think();
 	void correctOwnerPosition();
 	
-	void setOwnerId( Net_ConnID _id );
 	void sendSyncMessage( Net_ConnID id );
 	
 	eNet_NodeRole getRole()

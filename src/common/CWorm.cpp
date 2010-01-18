@@ -302,7 +302,6 @@ void CWorm::Prepare(bool serverSide)
 			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
 			if(cl) {
 				Net_ConnID _id = NetConnID_conn(cl);
-				this->setOwnerId(_id);
 				
 				m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
 			
@@ -317,7 +316,6 @@ void CWorm::Prepare(bool serverSide)
 				//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");
 				m_inputHandler->assignNetworkRole(true);
 				m_inputHandler->assignWorm(this);
-				m_inputHandler->setOwnerId(_id);
 			}
 			else
 				errors << "CWorm::Prepare clientside: non local worm has no client set" << endl;
