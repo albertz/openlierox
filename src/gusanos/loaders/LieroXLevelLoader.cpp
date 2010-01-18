@@ -74,7 +74,7 @@ bool LieroXLevelLoader::load(CMap* level, std::string const& path)
 	do
 	{
 		f.read((char *)in, ChunkSize);
-		strm.avail_in = f.gcount();
+		strm.avail_in = (uInt)f.gcount();
 
 		if (strm.avail_in == 0)
 		    break;

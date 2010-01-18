@@ -1,0 +1,2024 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Breakpad">
+      <UniqueIdentifier>{8d98024e-1f82-450e-9287-3221028d6a61}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Deprecated GUI">
+      <UniqueIdentifier>{a4edf720-59fb-486b-93ff-0b364ba81eae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game Core">
+      <UniqueIdentifier>{f9680ecf-6e0a-475d-8b41-8e9763c8bde9}</UniqueIdentifier>
+      <Extensions>cpp, h</Extensions>
+    </Filter>
+    <Filter Include="Game files">
+      <UniqueIdentifier>{b9702d7d-339e-495f-a5d1-8adf3efeb3ed}</UniqueIdentifier>
+      <Extensions>cpp; h</Extensions>
+    </Filter>
+    <Filter Include="Game files\Game Modes">
+      <UniqueIdentifier>{e6b35394-da96-40ae-9c2a-74251585aca5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos">
+      <UniqueIdentifier>{4ded50b2-c703-4714-93e1-3fd626be4f77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\blitters">
+      <UniqueIdentifier>{edbb4788-15a6-4578-bdf6-85aae5c15547}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\console">
+      <UniqueIdentifier>{a3152325-ef3d-40ef-a3f1-c2bb3ac2b36f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\gui">
+      <UniqueIdentifier>{78ea8279-f1d1-4be4-a8aa-fe25d3b984d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\gui\detail">
+      <UniqueIdentifier>{9e075422-c9b8-45b9-b002-9f4b54c4c1ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\gui\lua">
+      <UniqueIdentifier>{c050f9c8-029f-4f38-994b-c146fd2e25f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\loaders">
+      <UniqueIdentifier>{c1e12046-5483-4c8d-b713-bd40c9757181}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\lua">
+      <UniqueIdentifier>{fbb6173e-cd84-4464-afb4-1a21d7068527}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\lua51">
+      <UniqueIdentifier>{d9ddc297-9389-4f64-b734-0e17d6a1c61f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\lua51\luaapi">
+      <UniqueIdentifier>{2204139b-7b0b-4abc-815c-956984752070}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Gusanos\omfgscript">
+      <UniqueIdentifier>{bde557b7-e046-4a7c-ab05-65bb70a945b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{70f173f9-ec27-4699-8f4a-dd33e7cdc8cb}</UniqueIdentifier>
+      <Extensions>lib</Extensions>
+    </Filter>
+    <Filter Include="New GUI">
+      <UniqueIdentifier>{e7ec9a07-24b7-416f-9206-4399714ef5f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{8ab44476-12d4-4c56-b1db-40c040f2632a}</UniqueIdentifier>
+      <Extensions>*</Extensions>
+    </Filter>
+    <Filter Include="System Files">
+      <UniqueIdentifier>{ef34d036-22f6-4b06-b91a-547c2116d283}</UniqueIdentifier>
+      <Extensions>cpp, h</Extensions>
+    </Filter>
+    <Filter Include="System Files\GusanosUtil">
+      <UniqueIdentifier>{cf1c7635-f1a5-4d05-a8fd-0221c0bf23c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System Files\Sound">
+      <UniqueIdentifier>{e692cd5b-37fe-4774-98f6-9521f22451a1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Autocompletion.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\AuxLib.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Cache.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBanList.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBonus.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBytestream.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CChannel.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CChatBox.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CClient.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CFont.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameMode.h">
+      <Filter>Game files\Game Modes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameScript.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameSkin.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ChatCommand.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CInput.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Clipboard.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CMap.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CNinjaRope.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Color.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Condition.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Console.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ConversationLogger.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\con_cmd.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CProjectile.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CScriptableVars.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CServer.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CShootList.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CssParser.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CsvReader.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Cursor.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CVec.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CViewport.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWeather.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWorm.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWormBot.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWpnRest.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Debug.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DedicatedControl.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CAnimation.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBrowser.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CChatWidget.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCheckbox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCombobox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiLayout.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkin.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkinnedLayout.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CImage.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CInputBox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLabel.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLine.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CListview.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CMenu.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CProgressbar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CScrollbar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CSlider.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextbox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTitleButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidget.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidgetList.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\Graphics.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\Menu.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DynDraw.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Entity.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Error.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EventQueue.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FastVector.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FeatureList.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FileDownload.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FindFile.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FlagInfo.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FontHandling.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GeoIPDatabase.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Geometry.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GfxPrimitives.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GuiPrimitives.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\HTTP.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IniReader.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\InputEvents.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IpToCountryDB.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IRC.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\LieroX.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\MathLib.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Music.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Mutex.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Networking.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\NewNetEngine.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Options.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Physics.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\PhysicsLX56.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\PixelFunctors.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Process.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ProfileSystem.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ProjAction.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Protocol.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\RandomNumberList.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ReadWriteLock.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\sex.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CAnimation.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBackground.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBorder.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBrowser.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CCheckbox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CCombobox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CDialog.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkin.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkinnedLayout.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CImage.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CImageButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CInputBox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CItem.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CLabel.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CLine.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CListview.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMapEditor.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMarquee.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMenu.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMinimap.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CommonDialogs.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CProgressbar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CScrollbar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CSlider.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTabControl.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextbox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTitleButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CToggleButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidget.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidgetEffect.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SmartPointer.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Sounds.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StackWalker.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StringBuf.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StringUtils.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StyleVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TaskManager.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ThreadPool.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ThreadVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Timer.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\types.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\UCString.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Unicode.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\UploadSpeedTest.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Utils.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Version.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\win32memleakdebug.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\XMLutils.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\BreakPad.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\BreakpadDllExportMacro.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\config.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\DumpSyms.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\ExtractInfo.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\on_demand_symbol_supplier.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Game.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Level.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Mod.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\SinglePlayer.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\WormInputHandler.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\2xsai.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\allegro.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\animators.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\base_action.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\base_animator.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\blitters.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\colors.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\context.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\macros.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\mmx.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\blitters\types.h">
+      <Filter>Gusanos\blitters</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\client.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\alias.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\bindings.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\command.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\console-grammar.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\console.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\consoleitem.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\special_command.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\console\variables.h">
+      <Filter>Gusanos\console</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\culling.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\detect_event.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\distortion.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\encoding.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\events.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\explosion.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\exp_type.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\font.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\game_actions.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gconsole.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gfx.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\glua.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\button.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\check.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\context.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\edit.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\group.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\gss-grammar.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\label.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\list.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\llist.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\renderer.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\wnd.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\xml-grammar.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\detail\xml.h">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\lua\bindings-gui.h">
+      <Filter>Gusanos\gui\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\omfggui.h">
+      <Filter>Gusanos\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gui\omfggui_windows.h">
+      <Filter>Gusanos\gui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gusanos.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\gusgame.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\hash_table.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\keyboard.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\keys.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\level.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\level_effect.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\loaders\liero.h">
+      <Filter>Gusanos\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\loaders\LieroXLevelLoader.h">
+      <Filter>Gusanos\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\loaders\losp.h">
+      <Filter>Gusanos\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\loaders\vermes.h">
+      <Filter>Gusanos\loaders</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lapi.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lauxlib.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lcode.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\ldebug.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\ldo.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lfunc.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lgc.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\llex.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\llimits.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lmem.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lobject.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lopcodes.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lparser.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lstate.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lstring.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\ltable.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\ltm.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lua.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\classes.h">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\context.h">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\macros.h">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\types.h">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\luaconf.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lualib.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lundump.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lvm.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua51\lzio.h">
+      <Filter>Gusanos\lua51</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-game.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-gfx.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-math.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-network.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-objects.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings-resources.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\lua\bindings.h">
+      <Filter>Gusanos\lua</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\material.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\menu.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\message_queue.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\netstream.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\network.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\net_worm.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\ninjarope.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\noise_line.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\objects_list.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\object_grid.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script.h">
+      <Filter>Gusanos\omfgscript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script_parser.h">
+      <Filter>Gusanos\omfgscript</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\parser.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\particle.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\part_type.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\player_ai.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\player_input.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\player_options.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\posspd_replicator.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\proxy_player.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\resource_base.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\resource_list.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\resource_locator.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\script.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\server.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\simple_particle.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\sound.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\sprite.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\sprite_set.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\stl_str_replicator.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\timer_event.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\vector_replicator.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\weapon.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\weapon_type.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gusanos\worm.h">
+      <Filter>Gusanos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound\sfx.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound\sfxdriver.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound\sfxdriver_openal.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound\sound_sample.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\sound\sound_sample_openal.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\angle.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\bitarray.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\common.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\compare.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\GusCache.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\log.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\macros.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\math_func.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\rect.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\stringbuild.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\text.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\trace.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\vec.h">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\DumpSyms.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\ExtractInfo.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\on_demand_symbol_supplier.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\AuxLib.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cache.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CChatBox.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Draw.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Parse.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Send.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CFont.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CGameSkin.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CInput.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Clipboard.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CNinjaRope.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ConversationLogger.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CrashHandler.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cursor.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CViewport.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CWeather.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CAnimation.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBar.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBrowser.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CChatWidget.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCheckbox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCombobox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiLayout.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkin.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkinnedLayout.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CImage.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CInputBox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CListview.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CMenu.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CScrollbar.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CSlider.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextbox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTitleButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidget.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidgetList.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Graphics.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\MenuSystem.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_FloatingOptions.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Local.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Main.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Mapeditor.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Chat.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Favourites.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Host.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Internet.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Join.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Lan.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Main.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_News.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Options.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Player.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_SpeedTest.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DynDraw.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Entity.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Error.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\FontHandling.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GfxPrimitives.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GfxSaveSurface.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GfxUtils.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GuiPrimitives.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\InputEvents.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\IRC.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Music.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\NotifyUser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\OpenExternBrowser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Options.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ProfileSystem.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CAnimation.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBackground.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBorder.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCheckbox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCombobox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CDialog.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkin.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkinnedLayout.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImage.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImageButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CInputBox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CItem.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLabel.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLine.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CListview.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMapEditor.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMarquee.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMenu.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMinimap.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CommonDialogs.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CProgressbar.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CScrollbar.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CSlider.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTabControl.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTextbox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CToggleButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CWidget.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Sounds.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBonus.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBytestream.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CChannel.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CGameObject.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CGameScript.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CMap.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Command.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\ConfigHandler.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Console.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CProjectile.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CScriptableVars.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CShootList.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CssParser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWormBot.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWormHuman.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm_SendRecv.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWpnRest.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\EventQueue.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FeatureList.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FileDownload.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FindFile.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FlagInfo.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\GeoIPDatabase.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Geometry.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\HTTP.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\IniReader.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\IpToCountryDB.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MainGlobals.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MathLib.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\memstats.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Misc.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Mutex.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Networking.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\NewNetEngine.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Physics.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\PhysicsDummy.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\PhysicsLX56.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\PhysicsLX56_Projectiles.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Process.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\sex.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\SMTP.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StackWalker.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StringBuf.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StringUtils.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\SystemFunctions.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\TaskManager.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\TeeStdoutHandler.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\ThreadPool.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Timer.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Unicode.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\UploadSpeedTest.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Version.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\XMLutils.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Level.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Mod.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\SinglePlayer.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\WormInputHandler.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\2xsai.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\allegro.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\animators.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\base_action.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\base_animator.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\base_worm.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\add.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\add_simd.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\blend.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\blend_simd.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\mult.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\blitters\mult_simd.cpp">
+      <Filter>Gusanos\blitters</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\client.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\alias.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\bindings.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\command.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\console.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\consoleitem.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\special_command.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\console\variables.cpp">
+      <Filter>Gusanos\console</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\culling.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\detect_event.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\distortion.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\encoding.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\events.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\explosion.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\exp_type.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\font.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\game_actions.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gconsole.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gfx.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\glua.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\button.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\check.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\context.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\edit.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\group.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\gss.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\label.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\list.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\renderer.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\wnd.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\detail\xml.cpp">
+      <Filter>Gusanos\gui\detail</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gui\lua\bindings-gui.cpp">
+      <Filter>Gusanos\gui\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gusanos.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\gusgame.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\hash_table.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\keyboard.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\keys.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\level.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\level_effect.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\loaders\liero.cpp">
+      <Filter>Gusanos\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\loaders\LieroXLevelLoader.cpp">
+      <Filter>Gusanos\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\loaders\losp.cpp">
+      <Filter>Gusanos\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\loaders\vermes.cpp">
+      <Filter>Gusanos\loaders</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lapi.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lauxlib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lbaselib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lcode.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ldblib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ldebug.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ldo.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ldump.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lfunc.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lgc.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\linit.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\liolib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\llex.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lmathlib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lmem.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\loadlib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lobject.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lopcodes.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\loslib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lparser.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lstate.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lstring.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lstrlib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ltable.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ltablib.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\ltm.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\context.cpp">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\types.cpp">
+      <Filter>Gusanos\lua51\luaapi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lundump.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lvm.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\lzio.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua51\print.c">
+      <Filter>Gusanos\lua51</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-game.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-gfx.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-math.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-network.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-objects.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings-resources.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\lua\bindings.cpp">
+      <Filter>Gusanos\lua</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\material.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\menu.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\netstream.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\network.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\net_worm.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\ninjarope.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\noise_line.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\objects_list.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\object_grid.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\omfgscript\omfg_script.cpp">
+      <Filter>Gusanos\omfgscript</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\parser.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\particle.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\part_type.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\player_ai.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\player_input.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\player_options.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\posspd_replicator.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\proxy_player.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\resource_base.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\resource_list.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\resource_locator.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\script.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\server.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\simple_particle.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\sound.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\sprite.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\sprite_set.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\stl_str_replicator.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\timer_event.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\vector_replicator.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\viewport.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\weapon.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\weapon_type.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gusanos\worm.cpp">
+      <Filter>Gusanos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CaptureTheFlag.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CBanList.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CDeathMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CDemolitionsMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CGameMode.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\ChatCommand.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CHideAndSeek.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CRace.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServerConnection.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Parse.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Send.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CTag.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CTeamDeathMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\DedicatedControl.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\sfx.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\sfxdriver.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\sound_sample.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\angle.cpp">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\log.cpp">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\math_func.cpp">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\text.cpp">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\vec.cpp">
+      <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\msvc\libs\bgd.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\dbghelp.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\libxml2.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\lua5.1.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\pthreadVCE.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\SDL.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\sdlgfx.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\SDLmain.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\SDL_image.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\SDL_mixer.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\zlib.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\share\OpenLieroX.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
