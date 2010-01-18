@@ -53,22 +53,24 @@ void Game::prepareGameloop() {
 		SDL_Delay(10);
 		SyncServerAndClient();
 	}
-		
-	if(cServer->getState() == SVS_LOBBY && tLX->iGameType != GME_JOIN) {
-		notes << "prepareGameloop: starting game" << endl;
-		std::string errMsg;
-		if(!cServer->StartGame(&errMsg)) {
-			errors << "starting game in local game failed for reason: " << errMsg << endl;
-			DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-			if (tLX->iGameType == GME_LOCAL)
-				GotoLocalMenu();
-			else
-				GotoNetMenu();
-			return;
+	
+	if(tLX->iGameType != GME_JOIN) {
+		if(cServer->getState() == SVS_LOBBY) {
+			notes << "prepareGameloop: starting game" << endl;
+			std::string errMsg;
+			if(!cServer->StartGame(&errMsg)) {
+				errors << "starting game in local game failed for reason: " << errMsg << endl;
+				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
+				if (tLX->iGameType == GME_LOCAL)
+					GotoLocalMenu();
+				else
+					GotoNetMenu();
+				return;
+			}
 		}
+		else
+			warnings << "prepareGameloop: server was not in lobby" << endl;
 	}
-	else
-		warnings << "prepareGameloop: server was not in lobby" << endl;
 
 	// we need the gamescript in physics init
 	while(gameScript() == NULL) {
