@@ -48,7 +48,7 @@
 #include "StringUtils.h"
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
-#include "WormInputHandler.h"
+#include "game/WormInputHandler.h"
 
 
 CmdLineIntf& stdoutCLI() {
