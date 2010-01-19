@@ -190,8 +190,15 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 	{
 		level->setEvents( loadConfig( path + "/config.cfg" ) );
 		
-		if(level->config() && level->config()->teamBases.size() == 0)
-			parseCtfBasesFromLua(path + "/scripts/map_" + GetBaseFilenameWithoutExt(path) + ".lua", level->config() );
+		if(level->config()) {
+			if(level->config()->teamBases.size() == 0) {
+				parseCtfBasesFromLua(path + "/scripts/map_" + GetBaseFilenameWithoutExt(path) + ".lua", level->config() );
+				if(level->config()->teamBases.size() > 0)
+					notes << "parsed CTF bases from Gusanos level" << endl;
+			}
+		}
+		else
+			errors << "VermesLevelLoader::load: config structure not loaded" << endl;
 		
 #ifndef DEDICATED_ONLY
 		std::string imagePath = path + "/level";
