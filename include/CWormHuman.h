@@ -81,6 +81,7 @@ public:
 		FIRE,
 		JUMP,
 		CHANGE,
+		NINJAROPE,
 		ACTION_COUNT,
 	};
 

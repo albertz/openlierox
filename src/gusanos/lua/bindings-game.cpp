@@ -563,6 +563,7 @@ void initGame()
 		("Fire", CWormHumanInputHandler::FIRE)
 		("Jump", CWormHumanInputHandler::JUMP)
 		("Change", CWormHumanInputHandler::CHANGE)
+		("Ninjarope", CWormHumanInputHandler::NINJAROPE)
 	)
 	
 /*

@@ -1112,7 +1112,11 @@ void CWormHumanInputHandler::actionStart ( Actions action )
 				}
 			}
 			break;
-
+			
+			case NINJAROPE:
+				CWormInputHandler::baseActionStart(CWormInputHandler::NINJAROPE);
+				break;
+			
 			case ACTION_COUNT:
 			break;
 	}
@@ -1175,6 +1179,9 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 			}
 			break;
 
+			case NINJAROPE:
+			break;
+			
 			case ACTION_COUNT:
 			break;
 	}
@@ -1225,8 +1232,8 @@ void CWormHumanInputHandler::OlxInputToGusEvents()
 	if(cSelWeapon.wasUp()) eventStop(i, CWormHumanInputHandler::CHANGE);
 	
 	if(!tLXOptions->bOldSkoolRope) {
-		if(cInpRope.isDownOnce()) baseActionStart(NINJAROPE);
-		//if(cInpRope.wasUp()) baseActionStop(NINJAROPE);
+		if(cInpRope.isDownOnce()) eventStart(i, CWormHumanInputHandler::NINJAROPE);
+		if(cInpRope.wasUp()) eventStop(i, CWormHumanInputHandler::NINJAROPE);
 	}
 
 	
