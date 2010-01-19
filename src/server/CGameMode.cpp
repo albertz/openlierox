@@ -306,18 +306,6 @@ bool CGameMode::CheckGameOver() {
 			notes << " -> game over" << endl;
 			return true;
 		}
-		else {
-			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
-			
-			if(restSecs <= 60 && lastTimeLimitReport > 60) {
-				cServer->SendPlaySound("1minuteremains");
-				lastTimeLimitReport = restSecs;
-			}
-			else if(restSecs <= 5*60  && lastTimeLimitReport > 5*60) {
-				cServer->SendPlaySound("5minutesremain");
-				lastTimeLimitReport = restSecs;		
-			}
-		}
 	}
 	
 	bool allowEmptyGames =
@@ -366,6 +354,24 @@ bool CGameMode::CheckGameOver() {
 	}
 	
 	return false;
+}
+
+void CGameMode::Simulate() {
+	// play time remaining sounds
+	if(TimeLimit() > 0) {		
+		if(cServer->getServerTime() <= TimeLimit()) {
+			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
+			
+			if(restSecs <= 60 && lastTimeLimitReport > 60) {
+				cServer->SendPlaySound("1minuteremains");
+				lastTimeLimitReport = restSecs;
+			}
+			else if(restSecs <= 5*60  && lastTimeLimitReport > 5*60) {
+				cServer->SendPlaySound("5minutesremain");
+				lastTimeLimitReport = restSecs;		
+			}
+		}
+	}	
 }
 
 int CGameMode::Winner() {
