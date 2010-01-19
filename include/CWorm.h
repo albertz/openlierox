@@ -681,9 +681,7 @@ public:
 	void gusInit();
 	void gusShutdown();
 	void deleteThis();
-	
-	virtual void assignOwner( CWormInputHandler* owner);
-	
+		
 	void draw(CViewport* viewport);
 	
 	void calculateReactionForce(BaseVec<long> origin, Direction dir);
@@ -862,6 +860,8 @@ public:
 	Vec lastPosUpdate;
 	int timeSinceLastUpdate;
 	
+	bool gusSkinVisble;
+	
 private:
 	
 	void addEvent(Net_BitStream* data, NetEvents event);
@@ -869,7 +869,6 @@ private:
 	bool m_isAuthority;
 	Net_Node *m_node;
 	NetWormInterceptor* m_interceptor;
-	Net_NodeID m_playerID; // The id of the owner player node to replicate to all proxys
 	
 };
 

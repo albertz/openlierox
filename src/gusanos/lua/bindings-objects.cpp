@@ -222,6 +222,12 @@ METHODC(CWorm, worm_current_weapon,  {
 	return 0;
 })
 
+METHODC(CWorm, worm_setSkinVisible,  {
+	p->gusSkinVisble = lua_toboolean(context, 2) != 0;
+	return 0;
+})
+	
+	
 /*
 LBINOP(CWorm, worm_eq,  (
 	context.push(a == b);
@@ -653,6 +659,7 @@ void initObjects()
 		("health", l_worm_getHealth)
 		("current_weapon", l_worm_current_weapon)
 		("is_changing", l_worm_isChanging)
+		("setSkinVisible", l_worm_setSkinVisible)
 	;
 	
 	lua_rawset(context, -3);

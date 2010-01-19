@@ -45,7 +45,6 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	
 	timeSinceLastUpdate = 1;
 	
-	m_playerID = INVALID_NODE_ID;
 	m_node = new Net_Node();
 	if (!m_node)
 	{
@@ -71,12 +70,7 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		m_node->addReplicationFloat ((Net_Float*)&health, 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
 		
 		m_node->addReplicator(new AngleReplicator( &angleSetup, &aimAngle), true );
-		
-		// Intercepted stuff
-		m_node->setInterceptID( PlayerID );
-		
-		m_node->addReplicationInt( (Net_S32*)&m_playerID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
-		
+				
 	m_node->endReplicationSetup();
 
 	m_interceptor = new NetWormInterceptor( this );

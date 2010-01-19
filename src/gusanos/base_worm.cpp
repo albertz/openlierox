@@ -163,11 +163,6 @@ void CWorm::deleteThis() {
 	// also dont set deleted=true because we may reuse this object
 }
 
-void CWorm::assignOwner( CWormInputHandler* owner)
-{
-	m_owner = owner;
-	m_playerID = m_owner->getNodeID();
-}
 
 NinjaRope* CWorm::getNinjaRopeObj()
 {
@@ -670,7 +665,7 @@ void CWorm::draw(CViewport* viewport)
 		// OLX will draw this worm
 		return;
 	
-	if (getAlive() && isVisible(viewport)) {
+	if (getAlive() && isVisible(viewport) && gusSkinVisble) {
 		/*
 		bool flipped = false;
 		if ( m_dir < 0 ) flipped = true;*/

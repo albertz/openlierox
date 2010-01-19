@@ -341,7 +341,7 @@ void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
 void CWormInputHandler::assignWorm(CWorm* worm)
 {
 	m_worm = worm;
-	worm->assignOwner( this );
+	m_worm->m_owner = this;
 }
 
 boost::shared_ptr<PlayerOptions> CWormInputHandler::getOptions()

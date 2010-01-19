@@ -193,7 +193,8 @@ void CWorm::Clear()
 	cHealthBar.SetLabelVisible(false);
 
 	bAlreadyKilled = false;
-
+	gusSkinVisble = true;
+	
 	fLastSimulationTime = tLX->currentTime;
 	
 	
@@ -257,7 +258,8 @@ void CWorm::Prepare(bool serverSide)
 	
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
-
+	gusSkinVisble = true;
+	
 	setTeamkills(0);
 	setSuicides(0);
 	setDeaths(0);
