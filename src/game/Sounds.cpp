@@ -24,7 +24,23 @@ void LoadSounds_Game() {
 	if( sfxGame.smpTeamScore.get() == NULL ) {
 		notes << "LoadSounds: cannot load teamscore.wav" << endl;
 		sfxGame.smpTeamScore = sfxGeneral.smpNotify;
-	}
-	
+	}	
 }
 
+
+static SmartPointer<SoundSample> getGameSound(const std::string& name) {
+	std::map<std::string, SmartPointer<SoundSample> >::iterator f = sfxGame.gameSounds.find(name);
+	if(f != sfxGame.gameSounds.end()) return f->second;
+	
+	SmartPointer<SoundSample> s = LoadSample("data/sounds/game/" + name + ".ogg", 1);
+	if(s.get()) {
+		sfxGame.gameSounds[name] = s;
+		return s;
+	}
+	
+	return NULL;
+}
+
+void PlayGameSound(const std::string& name) {
+	PlaySoundSample(getGameSound(name).get());
+}

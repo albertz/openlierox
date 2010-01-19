@@ -272,12 +272,15 @@ public:
 	void		SendWeapons(CServerConnection* cl = NULL); // if NULL, send globally, else only to that client
 	void		SendWormTagged(CWorm *w);
 	void		SendTeamScoreUpdate();
+	void		SendPlaySound(const std::string& name);
+
 	void		SetWormSpeedFactor(int wormID, float f);
 	void		SetWormCanUseNinja(int wormID, bool b);
 	void		SetWormDamageFactor(int wormID, float f);
 	void		SetWormShieldFactor(int wormID, float f);
 	void		SetWormCanAirJump(int wormID, bool b);
 
+	
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);
 	void		ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs);

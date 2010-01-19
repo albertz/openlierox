@@ -84,6 +84,7 @@ public:
 	static bool isWormPropertyDefault(CWorm* worm);
 	virtual void SendSelectWeapons(CWorm* worm);
 	virtual void SendUpdateWorm(CWorm* w);
+	void SendPlaySound(const std::string& name);
 	
 	int getConnectionArrayIndex();
 	
@@ -185,5 +186,6 @@ private:
     AbsTime fLastDamageReportSent;
     std::map< std::pair< int, int >, float > cDamageReport;
 };
+
 
 #endif  //  __CSERVER_NET_ENGINE_H__

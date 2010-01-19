@@ -22,12 +22,16 @@ struct sfxgame_t {
 	SmartPointer<SoundSample> smpBump;
 	SmartPointer<SoundSample> smpDeath[3];
 	SmartPointer<SoundSample> smpTeamScore;
+	
+	std::map< std::string, SmartPointer<SoundSample> > gameSounds;
 };
 
 extern	sfxgame_t	sfxGame;
 
 void LoadSounds_Game();
 void ShutdownSounds_Game();
+
+void PlayGameSound(const std::string& name);
 
 
 #endif

@@ -1218,3 +1218,22 @@ void GameServer::SetWormCanAirJump(int wormID, bool b) {
 			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
 	}		
 }
+
+
+void CServerNetEngine::SendPlaySound(const std::string& name) {
+	if(cl->getClientVersion() >= OLXBetaVersion(0,59,1)) {
+		CBytestream bs;
+		bs.writeByte(S2C_PLAYSOUND);
+		bs.writeString(name);
+		SendPacket(&bs);		
+	}
+}
+
+void GameServer::SendPlaySound(const std::string& name) {
+	CServerConnection* cl = cClients;
+	for(short c=0; c<MAX_CLIENTS; c++,cl++) {
+		if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE) continue;
+		if(cl->getNetEngine() == NULL) continue;
+		cl->getNetEngine()->SendPlaySound(name);
+	}
+}

@@ -668,6 +668,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				network.olxParse(NetConnID_server(), *bs);
 				break;
 				
+			case S2C_PLAYSOUND:
+				ParsePlaySound(bs);
+				break;
+				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
@@ -2698,5 +2702,16 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 			w->initWeaponSelection();
 		}
 	}
+}
+
+void CClientNetEngineBeta9::ParsePlaySound(CBytestream* bs) {
+	std::string fn = bs->readString();
+	// security check
+	if(fn.find("..") != std::string::npos) {
+		warnings << "ParsePlaySound: filename " << fn << " seems corrupt" << endl;
+		return;
+	}
+	
+	PlayGameSound(fn);
 }
 
