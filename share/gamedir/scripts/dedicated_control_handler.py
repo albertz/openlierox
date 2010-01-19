@@ -510,7 +510,7 @@ mapCicler.cicle()
 
 def SetWeaponBans(name = "Standard 100lt"):
 	modName = io.getVar("GameOptions.GameInfo.ModName")
-	io.setvar( "GameServer.WeaponRestrictionsFile", "cfg/presets/" + modName + "/" + name + ".wps" )
+	io.setvar( "GameOptions.GameInfo.WeaponRestrictionsFile", name + ".wps" )
 
 class ModCicler(StandardCiclerGameVar):
 	def __init__(self):

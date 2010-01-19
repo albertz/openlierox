@@ -54,6 +54,7 @@
 #include "gusanos/network.h"
 #include "game/Game.h"
 #include "game/Mod.h"
+#include "game/SinglePlayer.h"
 
 
 #ifdef _MSC_VER
@@ -1148,7 +1149,19 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	ParseFeatureSettings(bs);
 
 	client->tGameInfo.sGameMode = bs->readString();
-	client->tGameInfo.gameMode = GameMode( client->tGameInfo.sGameMode );
+	if(game.isServer()) {
+		// grab from server
+		client->tGameInfo.gameMode = tLXOptions->tGameInfo.gameMode;
+		
+		// overwrite in case of single player mode
+		// we do this so in case we have a standard mode, the bots can act normal
+		if(client->tGameInfo.gameMode == &singlePlayerGame)
+			client->tGameInfo.gameMode = singlePlayerGame.standardGameMode;
+		
+		// NOTE: NULL is valid here
+	}
+	else
+		client->tGameInfo.gameMode = GameMode( client->tGameInfo.sGameMode );
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	if(!isReconnect)

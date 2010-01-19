@@ -1468,18 +1468,20 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
     cWeaponsRest.Add( new CButton(BUT_SAVE, tMenu->bmpButtons),	wr_Save,   330,445, 60,15);
     cWeaponsRest.Add( new CScrollbar(),                         wr_Scroll, 490,185, 14,230);
 
-    // Load the weapons
-    cWpnRestList.loadList("cfg/wpnrest.dat");
-
-
+	cWpnRestList.reset();
+	
     //
     // Update the list with the currently selected mod
     //
 
     cWpnGameScript = new CGameScript;
     if( cWpnGameScript ) {
-        if( cWpnGameScript->Load(szMod) )
+        if( cWpnGameScript->Load(szMod) ) {
+			// Load the weapons
+			cWpnRestList.loadList(tLXOptions->tGameInfo.sWeaponRestFile, cWpnGameScript->directory());
+
             cWpnRestList.updateList( cWpnGameScript );
+		}
     }
 
     // Get the weapons for the list
@@ -1549,7 +1551,9 @@ bool Menu_WeaponsRestrictions_Frame()
                 if( Mouse->Up & SDL_BUTTON(1) ) {
                     (*it)->psLink->nState++;
                     (*it)->psLink->nState %= 3;
-                }
+    
+					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
+				}
             }
         }
 
@@ -1599,6 +1603,7 @@ bool Menu_WeaponsRestrictions_Frame()
             // Reset the list
             case wr_Reset:
                 if( ev->iEventMsg == BTN_CLICKED ) {
+					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
                     cWpnRestList.cycleVisible(cWpnGameScript);
                 }
                 break;
@@ -1606,6 +1611,7 @@ bool Menu_WeaponsRestrictions_Frame()
             // Randomize the list
             case wr_Random:
                 if(ev->iEventMsg == BTN_CLICKED) {
+					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
                     cWpnRestList.randomizeVisible(cWpnGameScript);
                 }
                 break;
@@ -1703,7 +1709,20 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	FindFiles(adder, "cfg/presets", false, FM_REG);
 	
 	lv->SortBy( 0, true );
-
+	
+	if(tLXOptions->tGameInfo.sWeaponRestFile != "cfg/wpnrest.dat") {
+		std::string fn = tLXOptions->tGameInfo.sWeaponRestFile;
+		if(fn.find(".wps") == std::string::npos )
+			fn += ".wps";
+		
+		lv_item_t* it = lv->getItem(cWpnGameScript->directory() + "/" + fn);
+		if(!it) it = lv->getItem(fn);;
+		if(it) {
+			lv->setSelectedID(it->_iID);
+			lv->setFocused(true); // just looks nicer			
+		}
+	}
+	
 	ProcessEvents();
 	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && !quitloop && tMenu->bMenuRunning) {
 		Menu_RedrawMouse(true);
@@ -1761,17 +1780,19 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 								fn += ".wps";
 
 							// Check if it exists already. If so, ask user if they wanna overwrite
-							if(Menu_WeaponPresetsOkSave(fn))
+							if(Menu_WeaponPresetsOkSave(fn)) {
 								wpnrest->saveList(fn);
-							else
+								tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(fn);
+							} else
 								quitloop = false;
 						} else {
 
 							// Load
 							std::string fn = "cfg/presets/" + t->getText();
-							wpnrest->loadList(fn);
+							wpnrest->loadList(fn, "");
 							wpnrest->updateList(cWpnGameScript);
 							UpdateWeaponList();
+							tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(t->getText());
 						}
 					}
 				}

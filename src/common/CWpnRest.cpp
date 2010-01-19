@@ -187,12 +187,22 @@ void CWpnRest::saveList(const std::string& szFilename)
 
 ///////////////////
 // Load the weapons restrictions list
-void CWpnRest::loadList(const std::string& szFilename)
+void CWpnRest::loadList(const std::string& szFilename, const std::string& moddir)
 {
     // Shutdown the list first
     Shutdown();
 
-    FILE *fp = OpenGameFile(szFilename, "rt");
+	std::string fn = szFilename;
+	if(!strCaseStartsWith(fn, "cfg/")) {
+		if(fn.size() > 4 && !stringcaseequal(fn.substr(fn.size()-4), ".wps"))
+			fn += ".wps";
+		if(moddir != "" && IsFileAvailable("cfg/presets/" + moddir + "/" + fn))
+			fn = "cfg/presets/" + moddir + "/" + fn;
+		else
+			fn = "cfg/presets/" + fn;
+	}
+	
+    FILE *fp = OpenGameFile(fn, "rt");
     if( !fp )
         return;
 

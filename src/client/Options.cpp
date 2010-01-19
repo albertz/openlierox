@@ -276,6 +276,7 @@ bool GameOptions::Init() {
 		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other, ALT_VeryAdvanced )
 		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other, ALT_OnlyViaConfig )
 		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
+		( tLXOptions->tGameInfo.sWeaponRestFile, "WeaponRestrictionsFile", "Standard 100lt"  )
 		;
 
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
@@ -345,7 +346,7 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 				opts->localplayLevels[propname] = from_string<int>(value);
 				return true;
 			}
-			
+						
 			RegisteredVar* var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var !=  NULL ) { // found entry
 				CScriptableVars::SetVarByString(var->var, value);

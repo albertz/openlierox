@@ -97,7 +97,6 @@ private:
 	AbsTime		fGameOverTime;
 	
 	SmartPointer<CGameScript> cGameScript;
-	std::string	sWeaponRestFile;
     CWpnRest    cWeaponRestrictions;
     
 	// Clients
@@ -323,8 +322,8 @@ public:
 	int		getAliveTeamCount() const;
 	CWorm	*getFirstAliveWorm() const;
 	
-	void	setWeaponRestFile(const std::string& fn) { sWeaponRestFile = fn; }
-	void	setDefaultWeaponRestFile() { sWeaponRestFile = "cfg/wpnrest.dat"; }
+	void	setWeaponRestFile(const std::string& fn);
+	void	setDefaultWeaponRestFile();
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();

@@ -62,14 +62,14 @@ GameServer::GameServer() {
 	cWorms = NULL;
 	iNumPlayers = 0;
 	Clear();
-	CScriptableVars::RegisterVars("GameServer")
-		( sWeaponRestFile, "WeaponRestrictionsFile" ) // Only for dedicated server
-		;
 }
 
 GameServer::~GameServer()  {
-	CScriptableVars::DeRegisterVars("GameServer");
 }
+
+void GameServer::setWeaponRestFile(const std::string& fn) { tLXOptions->tGameInfo.sWeaponRestFile = fn; }
+void GameServer::setDefaultWeaponRestFile() { tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat"; }
+
 
 ///////////////////
 // Clear the server
@@ -137,7 +137,6 @@ int GameServer::StartServer()
 		notes << "Server max upload bandwidth is " << tLXOptions->iMaxUploadBandwidth << " bytes/s" << endl;
 
 	// Is this the right place for this?
-	setDefaultWeaponRestFile();
 	bLocalClientConnected = false;
 
 	// Disable SSH for non-dedicated servers as it is cheaty
@@ -407,9 +406,9 @@ int GameServer::StartGame(std::string* errMsg)
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	
 	// Load & update the weapon restrictions
-	cWeaponRestrictions.loadList(sWeaponRestFile);
+	notes << "Weapon restriction: " << tLXOptions->tGameInfo.sWeaponRestFile << endl;
+	cWeaponRestrictions.loadList(tLXOptions->tGameInfo.sWeaponRestFile, cGameScript->directory());
 	cWeaponRestrictions.updateList(cGameScript.get());
-
 
 	// TODO: why delete + create new map instead of simply shutdown/clear map?
 	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)

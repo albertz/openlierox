@@ -352,6 +352,7 @@ struct GameOptions {
 		bool	bAllowNickChange;
 		bool	bServerSideHealth;
 		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
+		std::string sWeaponRestFile;
 		
 		FeatureSettings features;
 	} tGameInfo;

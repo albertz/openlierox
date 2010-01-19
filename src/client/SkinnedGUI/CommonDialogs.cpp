@@ -586,7 +586,7 @@ CDialog(name, parent, "Weapon Options")
 	cRestrictionList = new CWpnRest();
 
 	// Load the gamescript and apply the restrictions
-	cRestrictionList->loadList("cfg/wpnrest.dat");
+	cRestrictionList->loadList("cfg/wpnrest.dat", "");
 	if (cGameScript->Load(mod))
 		cRestrictionList->updateList(cGameScript);
 
@@ -664,7 +664,7 @@ void CWeaponOptionsDialog::SaveClick(CButton *sender, MouseButton button, const 
 // Confirmed the load dialog
 void CWeaponOptionsDialog::LoadDialogConfirm(CFileDialog *sender, const std::string &file)
 {
-	cRestrictionList->loadList(file);
+	cRestrictionList->loadList(file, cGameScript->directory());
 	cRestrictionList->updateList(cGameScript);
 	UpdateListview();
 }
