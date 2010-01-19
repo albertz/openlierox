@@ -1,5 +1,5 @@
 /*
-** $Id: llex.h,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: llex.h,v 1.58.1.1 2007/12/27 13:02:25 roberto Exp $
 ** Lexical Analyzer
 ** See Copyright Notice in lua.h
 */
@@ -63,14 +63,16 @@ typedef struct LexState {
   ZIO *z;  /* input stream */
   Mbuffer *buff;  /* buffer for tokens */
   TString *source;  /* current source name */
+  char decpoint;  /* locale decimal point */
 } LexState;
 
 
 LUAI_FUNC void luaX_init (lua_State *L);
-LUAI_FUNC void luaX_setinput (lua_State *L, LexState *LS, ZIO *z,
+LUAI_FUNC void luaX_setinput (lua_State *L, LexState *ls, ZIO *z,
                               TString *source);
-LUAI_FUNC TString *luaX_newstring (LexState *LS, const char *str, size_t l);
-LUAI_FUNC int luaX_lex (LexState *LS, SemInfo *seminfo);
+LUAI_FUNC TString *luaX_newstring (LexState *ls, const char *str, size_t l);
+LUAI_FUNC void luaX_next (LexState *ls);
+LUAI_FUNC void luaX_lookahead (LexState *ls);
 LUAI_FUNC void luaX_lexerror (LexState *ls, const char *msg, int token);
 LUAI_FUNC void luaX_syntaxerror (LexState *ls, const char *s);
 LUAI_FUNC const char *luaX_token2str (LexState *ls, int token);

@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.c,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lobject.c,v 2.22.1.1 2007/12/27 13:02:25 roberto Exp $
 ** Some generic functions over Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -24,7 +24,7 @@
 
 
 
-const TValue luaO_nilobject = {{NULL}, LUA_TNIL};
+const TValue luaO_nilobject_ = {{NULL}, LUA_TNIL};
 
 
 /*
@@ -39,7 +39,7 @@ int luaO_int2fb (unsigned int x) {
     e++;
   }
   if (x < 8) return x;
-  else return ((e+1) << 3) | (cast(int, x) - 8);
+  else return ((e+1) << 3) | (cast_int(x) - 8);
 }
 
 
@@ -91,6 +91,8 @@ int luaO_str2d (const char *s, lua_Number *result) {
   char *endptr;
   *result = lua_str2number(s, &endptr);
   if (endptr == s) return 0;  /* conversion failed */
+  if (*endptr == 'x' || *endptr == 'X')  /* maybe an hexadecimal constant? */
+    *result = cast_num(strtoul(s, &endptr, 16));
   if (*endptr == '\0') return 1;  /* most common case */
   while (isspace(cast(unsigned char, *endptr))) endptr++;
   if (*endptr != '\0') return 0;  /* invalid trailing characters? */
@@ -129,12 +131,12 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
         break;
       }
       case 'd': {
-        setnvalue(L->top, cast(lua_Number, va_arg(argp, int)));
+        setnvalue(L->top, cast_num(va_arg(argp, int)));
         incr_top(L);
         break;
       }
       case 'f': {
-        setnvalue(L->top, cast(lua_Number, va_arg(argp, l_uacNumber)));
+        setnvalue(L->top, cast_num(va_arg(argp, l_uacNumber)));
         incr_top(L);
         break;
       }
@@ -161,7 +163,7 @@ const char *luaO_pushvfstring (lua_State *L, const char *fmt, va_list argp) {
     fmt = e+2;
   }
   pushstr(L, fmt);
-  luaV_concat(L, n+1, cast(int, L->top - L->base) - 1);
+  luaV_concat(L, n+1, cast_int(L->top - L->base) - 1);
   L->top -= n;
   return svalue(L->top - 1);
 }

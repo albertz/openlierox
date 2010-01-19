@@ -1,6 +1,6 @@
 /*
-** $Id: ldump.c,v 1.2 2005/11/19 17:39:12 gliptic Exp $
-** save pre-compiled Lua chunks
+** $Id: ldump.c,v 2.8.1.1 2007/12/27 13:02:25 roberto Exp $
+** save precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
 
@@ -12,7 +12,6 @@
 #include "lua.h"
 
 #include "lobject.h"
-#include "lopcodes.h"
 #include "lstate.h"
 #include "lundump.h"
 
@@ -24,10 +23,8 @@ typedef struct {
  int status;
 } DumpState;
 
-#define DumpCode(f,D)	 DumpVector(f->code,f->sizecode,sizeof(Instruction),D)
-#define DumpLines(f,D)	 DumpVector(f->lineinfo,f->sizelineinfo,sizeof(int),D)
-#define DumpVar(x,D)	 DumpMem(&x,1,sizeof(x),D)
 #define DumpMem(b,n,size,D)	DumpBlock(b,(n)*(size),D)
+#define DumpVar(x,D)	 	DumpMem(&x,1,sizeof(x),D)
 
 static void DumpBlock(const void* b, size_t size, DumpState* D)
 {
@@ -76,24 +73,7 @@ static void DumpString(const TString* s, DumpState* D)
  }
 }
 
-static void DumpLocals(const Proto* f, DumpState* D)
-{
- int i,n=f->sizelocvars;
- DumpInt(n,D);
- for (i=0; i<n; i++)
- {
-  DumpString(f->locvars[i].varname,D);
-  DumpInt(f->locvars[i].startpc,D);
-  DumpInt(f->locvars[i].endpc,D);
- }
-}
-
-static void DumpUpvalues(const Proto* f, DumpState* D)
-{
- int i,n=f->sizeupvalues;
- DumpInt(n,D);
- for (i=0; i<n; i++) DumpString(f->upvalues[i],D);
-}
+#define DumpCode(f,D)	 DumpVector(f->code,f->sizecode,sizeof(Instruction),D)
 
 static void DumpFunction(const Proto* f, const TString* p, DumpState* D);
 
@@ -128,20 +108,36 @@ static void DumpConstants(const Proto* f, DumpState* D)
  for (i=0; i<n; i++) DumpFunction(f->p[i],f->source,D);
 }
 
+static void DumpDebug(const Proto* f, DumpState* D)
+{
+ int i,n;
+ n= (D->strip) ? 0 : f->sizelineinfo;
+ DumpVector(f->lineinfo,n,sizeof(int),D);
+ n= (D->strip) ? 0 : f->sizelocvars;
+ DumpInt(n,D);
+ for (i=0; i<n; i++)
+ {
+  DumpString(f->locvars[i].varname,D);
+  DumpInt(f->locvars[i].startpc,D);
+  DumpInt(f->locvars[i].endpc,D);
+ }
+ n= (D->strip) ? 0 : f->sizeupvalues;
+ DumpInt(n,D);
+ for (i=0; i<n; i++) DumpString(f->upvalues[i],D);
+}
+
 static void DumpFunction(const Proto* f, const TString* p, DumpState* D)
 {
- DumpString((f->source==p) ? NULL : f->source,D);
+ DumpString((f->source==p || D->strip) ? NULL : f->source,D);
  DumpInt(f->linedefined,D);
  DumpInt(f->lastlinedefined,D);
  DumpChar(f->nups,D);
  DumpChar(f->numparams,D);
  DumpChar(f->is_vararg,D);
  DumpChar(f->maxstacksize,D);
- if (D->strip) DumpInt(0,D); else DumpLines(f,D);
- if (D->strip) DumpInt(0,D); else DumpLocals(f,D);
- if (D->strip) DumpInt(0,D); else DumpUpvalues(f,D);
- DumpConstants(f,D);
  DumpCode(f,D);
+ DumpConstants(f,D);
+ DumpDebug(f,D);
 }
 
 static void DumpHeader(DumpState* D)

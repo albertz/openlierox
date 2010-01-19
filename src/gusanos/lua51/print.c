@@ -1,5 +1,5 @@
 /*
-** $Id: print.c,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: print.c,v 1.55a 2006/05/31 13:30:05 lhf Exp $
 ** print bytecodes
 ** See Copyright Notice in lua.h
 */
@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#define luac_c
 #define LUA_CORE
 
 #include "ldebug.h"
@@ -14,18 +15,23 @@
 #include "lopcodes.h"
 #include "lundump.h"
 
+#define PrintFunction	luaU_print
+
 #define Sizeof(x)	((int)sizeof(x))
 #define VOID(p)		((const void*)(p))
 
-static void PrintString(const Proto* f, int n)
+static void PrintString(const TString* ts)
 {
- const char* s=svalue(&f->k[n]);
+ const char* s=getstr(ts);
+ size_t i,n=ts->tsv.len;
  putchar('"');
- for (; *s; s++)
+ for (i=0; i<n; i++)
  {
-  switch (*s)
+  int c=s[i];
+  switch (c)
   {
    case '"': printf("\\\""); break;
+   case '\\': printf("\\\\"); break;
    case '\a': printf("\\a"); break;
    case '\b': printf("\\b"); break;
    case '\f': printf("\\f"); break;
@@ -33,7 +39,10 @@ static void PrintString(const Proto* f, int n)
    case '\r': printf("\\r"); break;
    case '\t': printf("\\t"); break;
    case '\v': printf("\\v"); break;
-   default:   printf(isprint((unsigned char)*s) ? "%c" : "\\%03d",*s);
+   default:	if (isprint((unsigned char)c))
+   			putchar(c);
+		else
+			printf("\\%03u",(unsigned char)c);
   }
  }
  putchar('"');
@@ -54,7 +63,7 @@ static void PrintConstant(const Proto* f, int i)
 	printf(LUA_NUMBER_FMT,nvalue(o));
 	break;
   case LUA_TSTRING:
-	PrintString(f,i);
+	PrintString(rawtsvalue(o));
 	break;
   default:				/* cannot happen */
 	printf("? type=%d",ttype(o));
@@ -203,7 +212,7 @@ static void PrintUpvalues(const Proto* f)
  }
 }
 
-void luaU_print(const Proto* f, int full)
+void PrintFunction(const Proto* f, int full)
 {
  int i,n=f->sizep;
  PrintHeader(f);
@@ -214,5 +223,5 @@ void luaU_print(const Proto* f, int full)
   PrintLocals(f);
   PrintUpvalues(f);
  }
- for (i=0; i<n; i++) luaU_print(f->p[i],full);
+ for (i=0; i<n; i++) PrintFunction(f->p[i],full);
 }

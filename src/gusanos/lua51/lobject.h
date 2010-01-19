@@ -1,5 +1,5 @@
 /*
-** $Id: lobject.h,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lobject.h,v 2.20.1.2 2008/08/06 13:29:48 roberto Exp $
 ** Type definitions for Lua objects
 ** See Copyright Notice in lua.h
 */
@@ -119,9 +119,6 @@ typedef struct lua_TValue {
 #define setnvalue(obj,x) \
   { TValue *i_o=(obj); i_o->value.n=(x); i_o->tt=LUA_TNUMBER; }
 
-#define chgnvalue(obj,x) \
-	check_exp(ttype(obj)==LUA_TNUMBER, (obj)->value.n=(x))
-
 #define setpvalue(obj,x) \
   { TValue *i_o=(obj); i_o->value.p=(x); i_o->tt=LUA_TLIGHTUSERDATA; }
 
@@ -211,7 +208,7 @@ typedef union TString {
 
 
 #define getstr(ts)	cast(const char *, (ts) + 1)
-#define svalue(o)       getstr(tsvalue(o))
+#define svalue(o)       getstr(rawtsvalue(o))
 
 
 
@@ -323,9 +320,12 @@ typedef union Closure {
 ** Tables
 */
 
-typedef struct TKey {
-  TValuefields;
-  struct Node *next;  /* for chaining */
+typedef union TKey {
+  struct {
+    TValuefields;
+    struct Node *next;  /* for chaining */
+  } nk;
+  TValue tvk;
 } TKey;
 
 
@@ -360,8 +360,9 @@ typedef struct Table {
 #define sizenode(t)	(twoto((t)->lsizenode))
 
 
+#define luaO_nilobject		(&luaO_nilobject_)
 
-LUAI_DATA const TValue luaO_nilobject;
+LUAI_DATA const TValue luaO_nilobject_;
 
 #define ceillog2(x)	(luaO_log2((x)-1) + 1)
 

@@ -1,5 +1,5 @@
 /*
-** $Id: lvm.c,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lvm.c,v 2.63.1.3 2007/12/28 15:32:23 roberto Exp $
 ** Lua virtual machine
 ** See Copyright Notice in lua.h
 */
@@ -61,11 +61,9 @@ static void traceexec (lua_State *L, const Instruction *pc) {
   lu_byte mask = L->hookmask;
   const Instruction *oldpc = L->savedpc;
   L->savedpc = pc;
-  if (mask > LUA_MASKLINE) {  /* instruction-hook set? */
-    if (L->hookcount == 0) {
-      resethookcount(L);
-      luaD_callhook(L, LUA_HOOKCOUNT, -1);
-    }
+  if ((mask & LUA_MASKCOUNT) && L->hookcount == 0) {
+    resethookcount(L);
+    luaD_callhook(L, LUA_HOOKCOUNT, -1);
   }
   if (mask & LUA_MASKLINE) {
     Proto *p = ci_func(L->ci)->l.p;
@@ -95,7 +93,8 @@ static void callTMres (lua_State *L, StkId res, const TValue *f,
 
 
 
-static void callTM (lua_State *L, const TValue *f, const TValue *p1,                                const TValue *p2, const TValue *p3) {
+static void callTM (lua_State *L, const TValue *f, const TValue *p1,
+                    const TValue *p2, const TValue *p3) {
   setobj2s(L, L->top, f);  /* push function */
   setobj2s(L, L->top+1, p1);  /* 1st argument */
   setobj2s(L, L->top+2, p2);  /* 2nd argument */
@@ -164,7 +163,7 @@ static int call_binTM (lua_State *L, const TValue *p1, const TValue *p2,
   const TValue *tm = luaT_gettmbyobj(L, p1, event);  /* try first operand */
   if (ttisnil(tm))
     tm = luaT_gettmbyobj(L, p2, event);  /* try second operand */
-  if (!ttisfunction(tm)) return 0;
+  if (ttisnil(tm)) return 0;
   callTMres(L, res, tm, p1, p2);
   return 1;
 }
@@ -280,10 +279,12 @@ void luaV_concat (lua_State *L, int total, int last) {
   do {
     StkId top = L->base + last + 1;
     int n = 2;  /* number of elements handled in this pass (at least 2) */
-    if (!tostring(L, top-2) || !tostring(L, top-1)) {
+    if (!(ttisstring(top-2) || ttisnumber(top-2)) || !tostring(L, top-1)) {
       if (!call_binTM(L, top-2, top-1, top-2, TM_CONCAT))
         luaG_concaterror(L, top-2, top-1);
-    } else if (tsvalue(top-1)->len > 0) {  /* if len=0, do nothing */
+    } else if (tsvalue(top-1)->len == 0)  /* second op is empty? */
+      (void)tostring(L, top - 2);  /* result is first op (as string) */
+    else {
       /* at least two string values; get as many as possible */
       size_t tl = tsvalue(top-1)->len;
       char *buffer;
@@ -375,6 +376,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
   TValue *k;
   const Instruction *pc;
  reentry:  /* entry point */
+  lua_assert(isLua(L->ci));
   pc = L->savedpc;
   cl = &clvalue(L->ci->func)->l;
   base = L->base;
@@ -509,16 +511,16 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         const TValue *rb = RB(i);
         switch (ttype(rb)) {
           case LUA_TTABLE: {
-            setnvalue(ra, cast(lua_Number, luaH_getn(hvalue(rb))));
+            setnvalue(ra, cast_num(luaH_getn(hvalue(rb))));
             break;
           }
           case LUA_TSTRING: {
-            setnvalue(ra, cast(lua_Number, tsvalue(rb)->len));
+            setnvalue(ra, cast_num(tsvalue(rb)->len));
             break;
           }
           default: {  /* try metamethod */
             Protect(
-              if (!call_binTM(L, rb, &luaO_nilobject, ra, TM_LEN))
+              if (!call_binTM(L, rb, luaO_nilobject, ra, TM_LEN))
                 luaG_typeerror(L, rb, "get length of");
             )
           }
@@ -649,7 +651,8 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         lua_Number step = nvalue(ra+2);
         lua_Number idx = luai_numadd(nvalue(ra), step); /* increment index */
         lua_Number limit = nvalue(ra+1);
-        if (step > 0 ? luai_numle(idx, limit) : luai_numle(limit, idx)) {
+        if (luai_numlt(0, step) ? luai_numle(idx, limit)
+                                : luai_numle(limit, idx)) {
           dojump(L, pc, GETARG_sBx(i));  /* jump back */
           setnvalue(ra, idx);  /* update internal index... */
           setnvalue(ra+3, idx);  /* ...and external index */
@@ -693,10 +696,10 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         int last;
         Table *h;
         if (n == 0) {
-          n = cast(int, L->top - ra) - 1;
+          n = cast_int(L->top - ra) - 1;
           L->top = L->ci->top;
         }
-        if (c == 0) c = cast(int, *pc++);
+        if (c == 0) c = cast_int(*pc++);
         runtime_check(L, ttistable(ra));
         h = hvalue(ra);
         last = ((c-1)*LFIELDS_PER_FLUSH) + n;
@@ -737,7 +740,7 @@ void luaV_execute (lua_State *L, int nexeccalls) {
         int b = GETARG_B(i) - 1;
         int j;
         CallInfo *ci = L->ci;
-        int n = cast(int, ci->base - ci->func) - cl->p->numparams - 1;
+        int n = cast_int(ci->base - ci->func) - cl->p->numparams - 1;
         if (b == LUA_MULTRET) {
           Protect(luaD_checkstack(L, n));
           ra = RA(i);  /* previous call may change the stack */

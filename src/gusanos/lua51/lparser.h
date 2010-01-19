@@ -1,5 +1,5 @@
 /*
-** $Id: lparser.h,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lparser.h,v 1.57.1.1 2007/12/27 13:02:25 roberto Exp $
 ** Lua Parser
 ** See Copyright Notice in lua.h
 */
@@ -9,7 +9,6 @@
 
 #include "llimits.h"
 #include "lobject.h"
-#include "ltable.h"
 #include "lzio.h"
 
 

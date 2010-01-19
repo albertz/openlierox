@@ -1,5 +1,5 @@
 /*
-** $Id: lua.h,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lua.h,v 1.218.1.5 2008/08/06 13:30:12 roberto Exp $
 ** Lua - An Extensible Extension Language
 ** Lua.org, PUC-Rio, Brazil (http://www.lua.org)
 ** See Copyright Notice at the end of this file
@@ -16,9 +16,10 @@
 #include "luaconf.h"
 
 
-#define LUA_VERSION	"Lua 5.1 (beta)"
+#define LUA_VERSION	"Lua 5.1"
+#define LUA_RELEASE	"Lua 5.1.4"
 #define LUA_VERSION_NUM	501
-#define LUA_COPYRIGHT	"Copyright (C) 1994-2005 Lua.org, PUC-Rio"
+#define LUA_COPYRIGHT	"Copyright (C) 1994-2008 Lua.org, PUC-Rio"
 #define LUA_AUTHORS 	"R. Ierusalimschy, L. H. de Figueiredo & W. Celes"
 
 
@@ -293,6 +294,9 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 #define lua_Chunkwriter		lua_Writer
 
 
+/* hack */
+LUA_API void lua_setlevel	(lua_State *from, lua_State *to);
+
 
 /*
 ** {======================================================================
@@ -302,7 +306,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** GameEvent codes
+** Event codes
 */
 #define LUA_HOOKCALL	0
 #define LUA_HOOKRET	1
@@ -312,7 +316,7 @@ LUA_API void lua_setallocf (lua_State *L, lua_Alloc f, void *ud);
 
 
 /*
-** GameEvent masks
+** Event masks
 */
 #define LUA_MASKCALL	(1 << LUA_HOOKCALL)
 #define LUA_MASKRET	(1 << LUA_HOOKRET)
@@ -358,7 +362,7 @@ struct lua_Debug {
 
 
 /******************************************************************************
-* Copyright (C) 1994-2005 Lua.org, PUC-Rio.  All rights reserved.
+* Copyright (C) 1994-2008 Lua.org, PUC-Rio.  All rights reserved.
 *
 * Permission is hereby granted, free of charge, to any person obtaining
 * a copy of this software and associated documentation files (the

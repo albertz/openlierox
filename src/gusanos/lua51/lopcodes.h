@@ -1,5 +1,5 @@
 /*
-** $Id: lopcodes.h,v 1.2 2005/11/19 17:39:12 gliptic Exp $
+** $Id: lopcodes.h,v 1.125.1.1 2007/12/27 13:02:25 roberto Exp $
 ** Opcodes for Lua virtual machine
 ** See Copyright Notice in lua.h
 */
@@ -197,8 +197,8 @@ OP_FORLOOP,/*	A sBx	R(A)+=R(A+2);
 			if R(A) <?= R(A+1) then { pc+=sBx; R(A+3)=R(A) }*/
 OP_FORPREP,/*	A sBx	R(A)-=R(A+2); pc+=sBx				*/
 
-OP_TFORLOOP,/*	A C	R(A+3), ... ,R(A+3+C) := R(A)(R(A+1), R(A+2)); 
-                        if R(A+3) ~= nil then { pc++; R(A+2)=R(A+3); }	*/ 
+OP_TFORLOOP,/*	A C	R(A+3), ... ,R(A+2+C) := R(A)(R(A+1), R(A+2)); 
+                        if R(A+3) ~= nil then R(A+2)=R(A+3) else pc++	*/ 
 OP_SETLIST,/*	A B C	R(A)[(C-1)*FPF+i] := R(A+i), 1 <= i <= B	*/
 
 OP_CLOSE,/*	A 	close all variables in the stack up to (>=) R(A)*/
@@ -208,7 +208,7 @@ OP_VARARG/*	A B	R(A), R(A+1), ..., R(A+B-1) = vararg		*/
 } OpCode;
 
 
-#define NUM_OPCODES	(cast(int, OP_VARARG+1))
+#define NUM_OPCODES	(cast(int, OP_VARARG) + 1)
 
 
 
