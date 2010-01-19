@@ -76,6 +76,8 @@ protected:
 	bool bFirstBlood;
 	int	iKillsInRow[MAX_WORMS];
 	int	iDeathsInRow[MAX_WORMS];
+	int lastTimeLimitReport;
+	int lastFragsLeftReport;
 };
 
 void InitGameModes();
