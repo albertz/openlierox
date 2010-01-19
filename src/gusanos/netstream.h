@@ -172,6 +172,7 @@ struct Net_Node : DontCopyTag {
 	
 	bool isNodeRegistered();
 	bool areWeOwner();
+	Net_ConnID getOwner();
 	
 	bool registerNodeUnique(Net_ClassID, eNet_NodeRole, Net_Control*);
 	bool registerNodeDynamic(Net_ClassID, Net_Control*);

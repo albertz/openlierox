@@ -10,7 +10,7 @@
 #include "timer_event.h"
 #include "sprite_set.h"
 #include "sprite.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "network.h"
 #include "CMap.h"
 

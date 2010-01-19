@@ -6,7 +6,7 @@
 #include "util/common.h"
 #include "renderer.h"
 #include "context.h"
-#include "../../lua51/luaapi/types.h"
+#include "../../luaapi/types.h"
 
 #include <iostream>
 #include <list>

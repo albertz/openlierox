@@ -9,7 +9,7 @@
 #include "omfgscript/omfg_script.h"
 #include "util/macros.h"
 #include "timer_event.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "FindFile.h"
 
 #include <string>

@@ -20,7 +20,7 @@
 #include "level_effect.h"
 
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "script.h"
 
 #include "omfgscript/omfg_script.h"

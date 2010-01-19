@@ -2,7 +2,7 @@
 #define SCRIPT_H
 
 #include "resource_locator.h"
-#include "lua51/luaapi/types.h"
+#include "luaapi/types.h"
 
 #include <string>
 #include <map>

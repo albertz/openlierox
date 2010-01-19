@@ -66,7 +66,7 @@
 #include "FindFile.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "Version.h"
 #include "Timer.h"
 #include "types.h"

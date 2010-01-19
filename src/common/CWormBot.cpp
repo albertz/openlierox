@@ -35,7 +35,6 @@
 #include "CWorm.h"
 #include "AuxLib.h"
 #include "Timer.h"
-#include "Sounds.h"
 #include "ProfileSystem.h"
 #include "CWormBot.h"
 #include "Debug.h"

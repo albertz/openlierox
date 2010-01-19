@@ -18,6 +18,7 @@
 #include "gconsole.h"
 #include "CMap.h"
 #include "game/Game.h"
+#include "CServer.h"
 
 #include <math.h>
 #include <vector>
@@ -44,7 +45,6 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	
 	timeSinceLastUpdate = 1;
 	
-	m_playerID = INVALID_NODE_ID;
 	m_node = new Net_Node();
 	if (!m_node)
 	{
@@ -70,12 +70,7 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		m_node->addReplicationFloat ((Net_Float*)&health, 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL);
 		
 		m_node->addReplicator(new AngleReplicator( &angleSetup, &aimAngle), true );
-		
-		// Intercepted stuff
-		m_node->setInterceptID( PlayerID );
-		
-		m_node->addReplicationInt( (Net_S32*)&m_playerID, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_INTERCEPT, Net_REPRULE_AUTH_2_ALL , INVALID_NODE_ID);
-		
+				
 	m_node->endReplicationSetup();
 
 	m_interceptor = new NetWormInterceptor( this );
@@ -84,6 +79,18 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	Net_BitStream* announceData = new Net_BitStream();
 	announceData->addInt(getID(), 8);
 	m_node->setAnnounceData(announceData);
+	
+	if(isAuthority && !bLocal) {
+		if(cServer->getWorms()) {
+			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
+			if(cl)
+				m_node->setOwner(NetConnID_conn(cl));
+			else
+				errors << "NetWorm_Init: connection of worm " << getName() << " not found" << endl;
+		}
+		else
+			errors << "NetWorm_Init: server->worms == NULL" << endl;
+	}
 	
 	m_isAuthority = isAuthority;
 	if( isAuthority)
@@ -295,14 +302,6 @@ void CWorm::correctOwnerPosition()
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
-
-void CWorm::setOwnerId( Net_ConnID _id )
-{
-	if(m_node)
-		m_node->setOwner(_id);
-	else
-		errors << "CWorm::setOwnerId: network node == NULL" << endl;
-}
 
 
 void CWorm::sendSyncMessage( Net_ConnID id )

@@ -5,7 +5,7 @@
 #include "CWormHuman.h"
 #include "gconsole.h"
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "util/text.h"
 #include "util/log.h"
 #include "util/stringbuild.h"
@@ -85,7 +85,7 @@ void registerPlayerInput()
 	{
 		static char const* actionNames[] =
 		{
-			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE"
+			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE", "_NINJAROPE"
 		};
 		
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)

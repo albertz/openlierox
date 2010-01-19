@@ -60,7 +60,7 @@ public:
     // Constructor
     CWpnRest();
 
-    void        loadList(const std::string& szFilename);
+    void        loadList(const std::string& szFilename, const std::string& moddir);
     void        saveList(const std::string& szFilename);
     void        Shutdown();
 

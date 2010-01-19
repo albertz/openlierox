@@ -1,8 +1,8 @@
 #include "bindings-network.h"
 
-#include "../lua51/luaapi/types.h"
-#include "../lua51/luaapi/macros.h"
-#include "../lua51/luaapi/classes.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
+#include "../luaapi/classes.h"
 
 #include "../network.h"
 #include "../gusgame.h"
@@ -11,6 +11,7 @@
 #include "../particle.h"
 #include "../encoding.h"
 #include "util/log.h"
+#include "game/Game.h"
 
 #include <iostream>
 #include <memory>
@@ -438,8 +439,8 @@ void initNetwork(LuaContext& context)
 		("Hosting", Network::StateHosting)
 	)
 
-	
-	lua_pushboolean(context, !network.isClient());
+	notes << "Lua: Registering as " << (game.isServer() ? "AUTH" : "non-AUTH") << endl;
+	lua_pushboolean(context, game.isServer());
 	lua_setfield(context, LUA_GLOBALSINDEX, "AUTH");
 }
 

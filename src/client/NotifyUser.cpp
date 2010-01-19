@@ -65,7 +65,7 @@ void x11_SetDemandsAttention( bool v ) {
 
 
 #include "InputEvents.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "AuxLib.h"
 #include "LieroX.h"
 

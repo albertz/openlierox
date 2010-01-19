@@ -94,6 +94,7 @@ enum S2C_MESSAGES {
 	S2C_SETWORMPROPS	= 32, // >=beta9
 	S2C_SELECTWEAPONS	= 33, // >=beta9
 	S2C_GUSANOS			= 34, // >=0.59
+	S2C_PLAYSOUND		= 35, // >=0.59
 };
 
 

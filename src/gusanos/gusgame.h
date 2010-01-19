@@ -64,7 +64,6 @@ struct Options
 	float worm_boxBottom;
 	int maxRespawnTime;
 	int minRespawnTime;
-	int host;
 	int maxWeaponsVar;
 	size_t maxWeapons;
 	int splitScreenVar;

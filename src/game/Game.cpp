@@ -32,7 +32,7 @@
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "gusanos/glua.h"
-#include "gusanos/lua51/luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 #include "sound/sfx.h"
 #include "gusanos/network.h"
 #include "OLXConsole.h"
@@ -53,22 +53,24 @@ void Game::prepareGameloop() {
 		SDL_Delay(10);
 		SyncServerAndClient();
 	}
-		
-	if(cServer->getState() == SVS_LOBBY && tLX->iGameType != GME_JOIN) {
-		notes << "prepareGameloop: starting game" << endl;
-		std::string errMsg;
-		if(!cServer->StartGame(&errMsg)) {
-			errors << "starting game in local game failed for reason: " << errMsg << endl;
-			DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
-			if (tLX->iGameType == GME_LOCAL)
-				GotoLocalMenu();
-			else
-				GotoNetMenu();
-			return;
+	
+	if(tLX->iGameType != GME_JOIN) {
+		if(cServer->getState() == SVS_LOBBY) {
+			notes << "prepareGameloop: starting game" << endl;
+			std::string errMsg;
+			if(!cServer->StartGame(&errMsg)) {
+				errors << "starting game in local game failed for reason: " << errMsg << endl;
+				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
+				if (tLX->iGameType == GME_LOCAL)
+					GotoLocalMenu();
+				else
+					GotoNetMenu();
+				return;
+			}
 		}
+		else
+			warnings << "prepareGameloop: server was not in lobby" << endl;
 	}
-	else
-		warnings << "prepareGameloop: server was not in lobby" << endl;
 
 	// we need the gamescript in physics init
 	while(gameScript() == NULL) {
@@ -91,6 +93,11 @@ void Game::prepareGameloop() {
 	
 	if(gusGame.isEngineNeeded()) {
 		gusGame.runInitScripts();
+	}
+	
+	if(isServer()) {
+		// resend lua event index to everyone
+		network.sendEncodedLuaEvents(INVALID_CONN_ID);		
 	}
 	
 	PhysicsEngine::Init();

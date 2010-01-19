@@ -30,7 +30,7 @@
 #include "DeprecatedGUI/CCheckbox.h"
 #include "DeprecatedGUI/CBrowser.h"
 #include "DeprecatedGUI/CTextButton.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 
 
 namespace DeprecatedGUI {

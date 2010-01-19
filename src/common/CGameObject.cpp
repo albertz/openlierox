@@ -31,7 +31,7 @@ bool CGameObject::injure(float damage) {
 #include "util/angle.h"
 #include "game/WormInputHandler.h"
 #include "gusanos/glua.h"
-#include "gusanos/lua51/luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 #include "gusanos/lua/bindings-objects.h"
 
 LuaReference CGameObject::metaTable;

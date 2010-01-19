@@ -12,6 +12,9 @@
 #include "Options.h"
 #include "CWorm.h"
 #include "Protocol.h"
+#include "CServerConnection.h"
+#include "CServerNetEngine.h"
+#include "ProfileSystem.h"
 
 int CGameMode::GeneralGameType() {
 	if(GameTeams() == 1)
@@ -37,12 +40,26 @@ std::string CGameMode::TeamName(int t) {
 
 void CGameMode::PrepareGame()
 {
+	lastTimeLimitReport = int(TimeLimit());
+	lastFragsLeftReport = -1;
 	bFirstBlood = true;
 	for(int i = 0; i < MAX_WORMS; i++) {
 		iKillsInRow[i] = 0;
 		iDeathsInRow[i] = 0;
 	}
+	cServer->SendPlaySound("prepareforbattle");
 }
+
+static void playSoundForWorm(CWorm* worm, const std::string& s) {
+	if(worm->getType() == PRF_HUMAN && worm->getClient() && worm->getClient()->getNetEngine())
+		worm->getClient()->getNetEngine()->SendPlaySound(s);	
+}
+
+static void playSoundForWorm(int w, const std::string& s) {
+	if(w >= 0 && w < MAX_WORMS && cServer->getWorms()[w].isUsed())
+		playSoundForWorm(&cServer->getWorms()[w], s);
+}
+
 
 bool CGameMode::Spawn(CWorm* worm, CVec pos) {
 	worm->Spawn(pos);
@@ -51,6 +68,10 @@ bool CGameMode::Spawn(CWorm* worm, CVec pos) {
 
 void CGameMode::Kill(CWorm* victim, CWorm* killer)
 {
+	int oldLeadWorm = HighestScoredWorm();
+	int oldLeadTeam = HighestScoredTeam();
+	bool wasZeroScore = TeamScores(oldLeadTeam) == 0;
+	
 	// Kill or suicide message
 	std::string buf;
 	if( killer )
@@ -105,11 +126,13 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	if(killer && killer != victim) {
 		switch(iKillsInRow[killer->getID()]) {
 			case 3:
+				playSoundForWorm(killer, "03kills");
 				if(networkTexts->sSpree1 != "<none>")
 					cServer->SendGlobalText(replacemax(networkTexts->sSpree1, "<player>",
 											killer->getName(), 1), TXT_NORMAL);
 				break;
 			case 5:
+				playSoundForWorm(killer, "05kills");
 				if(networkTexts->sSpree2 != "<none>")
 					cServer->SendGlobalText(replacemax(networkTexts->sSpree2, "<player>",
 											killer->getName(), 1), TXT_NORMAL);
@@ -125,9 +148,16 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 											killer->getName(), 1), TXT_NORMAL);
 				break;
 			case 10:
+				playSoundForWorm(killer, "10kills");
 				if(networkTexts->sSpree5 != "<none>")
 					cServer->SendGlobalText(replacemax(networkTexts->sSpree5, "<player>",
 											killer->getName(), 1), TXT_NORMAL);
+				break;
+			case 15:
+			case 20:
+			case 25:
+			case 30:
+				playSoundForWorm(killer, itoa(iKillsInRow[killer->getID()]) + "kills");
 				break;
 		}
 	}
@@ -162,10 +192,12 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	}
 
 	// Victim is out of the game
-	if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
+	if(victim->Kill() && networkTexts->sPlayerOut != "<none>") {
+		playSoundForWorm(victim, "terminated");
 		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 								victim->getName(), 1), TXT_NORMAL);
-
+	}
+	
 	if( GameTeams() > 1 )
 	{
 		int worms[4] = { 0, 0, 0, 0 };
@@ -178,6 +210,37 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 		if(worms[victim->getTeam()] == 0 && networkTexts->sTeamOut != "<none>")
 			cServer->SendGlobalText(replacemax(networkTexts->sTeamOut, "<team>",
 				TeamName(victim->getTeam()), 1), TXT_NORMAL);
+	}
+	
+	int newLeadWorm = HighestScoredWorm();
+	int newLeadTeam = HighestScoredTeam();
+
+	if(oldLeadWorm != newLeadWorm) {
+		playSoundForWorm(oldLeadWorm, "leadlost");
+		playSoundForWorm(newLeadWorm, "leadgained");		
+	}
+	
+	if(isTeamGame() && (oldLeadTeam != newLeadTeam || wasZeroScore)) {
+		// for all
+		cServer->SendPlaySound(TeamName(newLeadTeam) + "teamtakeslead");
+	}
+	
+	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+		CWorm* w = (newLeadWorm >= 0) ? &cServer->getWorms()[newLeadWorm] : NULL;
+		int rest = w ? (tLXOptions->tGameInfo.iKillLimit - w->getScore()) : 0;
+		if(lastFragsLeftReport < 0 || lastFragsLeftReport > rest) {
+			if(rest >= 1 && rest <= 3)
+				cServer->SendPlaySound(itoa(rest) + "fragsleft");
+			lastFragsLeftReport = rest;
+		}
+	}
+	else if(isTeamGame() && (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] > 0) {
+		int rest = (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] - TeamScores(newLeadTeam);
+		if(lastFragsLeftReport < 0 || lastFragsLeftReport > rest) {
+			if(rest >= 1 && rest <= 3)
+				cServer->SendPlaySound(itoa(rest) + "fragsleft");
+			lastFragsLeftReport = rest;
+		}		
 	}
 }
 
@@ -234,8 +297,9 @@ bool CGameMode::CheckGameOver() {
 	}
 	
 	// Check if the timelimit has been reached
-	if(TimeLimit() > 0) {
+	if(TimeLimit() > 0) {		
 		if (cServer->getServerTime() > TimeLimit()) {
+			cServer->SendPlaySound("timeoutcalled");
 			if(networkTexts->sTimeLimit != "<none>")
 				cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
 			notes << "time limit (" << TimeLimit() << ") reached with current time " << cServer->getServerTime().seconds();
@@ -290,6 +354,30 @@ bool CGameMode::CheckGameOver() {
 	}
 	
 	return false;
+}
+
+void CGameMode::Simulate() {
+	// play time remaining sounds
+	if(TimeLimit() > 0) {		
+		if(cServer->getServerTime() <= TimeLimit()) {
+			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
+			
+			for(int i = 1; i <= 5; ++i)
+				if(restSecs <= i && lastTimeLimitReport > i) {
+					cServer->SendPlaySound(itoa(i));
+					lastTimeLimitReport = restSecs;
+				}
+			
+			if(restSecs <= 60 && lastTimeLimitReport > 60) {
+				cServer->SendPlaySound("1minuteremains");
+				lastTimeLimitReport = restSecs;
+			}
+			else if(restSecs <= 5*60  && lastTimeLimitReport > 5*60) {
+				cServer->SendPlaySound("5minutesremain");
+				lastTimeLimitReport = restSecs;		
+			}
+		}
+	}	
 }
 
 int CGameMode::Winner() {

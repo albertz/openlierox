@@ -11,8 +11,8 @@
 #include "bindings-gfx.h"
 #include "bindings-game.h"
 
-#include "../lua51/luaapi/types.h"
-#include "../lua51/luaapi/macros.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
 
 #include "../gusgame.h"
 //#include "../vec.h"

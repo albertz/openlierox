@@ -19,7 +19,7 @@
 
 #include "LieroX.h"
 #include "Debug.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "Cache.h"
 #include "GfxPrimitives.h"
 #include "FindFile.h"

@@ -48,7 +48,7 @@ public:
 	virtual void hitFlagSpawnPoint(CWorm* worm, Flag* flag) {}
 	virtual void Drop(CWorm* worm);
 	virtual void Carve(CWorm* worm, int d) {}
-	virtual void Simulate() {}
+	virtual void Simulate();
 	virtual bool CheckGameOver();
 	virtual bool NeedUpdate(CServerConnection* cl, CWorm* worm) { return true; }
 	virtual void GameOver() {}
@@ -76,6 +76,8 @@ protected:
 	bool bFirstBlood;
 	int	iKillsInRow[MAX_WORMS];
 	int	iDeathsInRow[MAX_WORMS];
+	int lastTimeLimitReport;
+	int lastFragsLeftReport;
 };
 
 void InitGameModes();

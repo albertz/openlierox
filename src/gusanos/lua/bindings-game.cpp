@@ -1,9 +1,9 @@
 #include "bindings-game.h"
 #include "bindings.h"
 
-#include "../lua51/luaapi/types.h"
-#include "../lua51/luaapi/macros.h"
-#include "../lua51/luaapi/classes.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
+#include "../luaapi/classes.h"
 
 #include "../glua.h"
 #include "../gconsole.h"
@@ -565,6 +565,7 @@ void initGame()
 		("Fire", CWormHumanInputHandler::FIRE)
 		("Jump", CWormHumanInputHandler::JUMP)
 		("Change", CWormHumanInputHandler::CHANGE)
+		("Ninjarope", CWormHumanInputHandler::NINJAROPE)
 	)
 	
 /*

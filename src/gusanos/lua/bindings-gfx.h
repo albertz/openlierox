@@ -1,8 +1,8 @@
 #ifndef LUA_BINDINGS_GFX_H
 #define LUA_BINDINGS_GFX_H
 
-#include "../lua51/luaapi/context.h"
-#include "../lua51/luaapi/types.h"
+#include "../luaapi/context.h"
+#include "../luaapi/types.h"
 
 #ifndef DEDICATED_ONLY
 #include "../blitters/context.h"

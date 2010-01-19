@@ -5,7 +5,7 @@
 #include "netstream.h"
 #include <string>
 #include <boost/function.hpp>
-#include "lua51/luaapi/types.h"
+#include "luaapi/types.h"
 
 #include "message_queue.h"
 
@@ -118,6 +118,7 @@ public:
 	static void disconnect( Net_ConnID id, DConnEvents event );
 	static void olxReconnect(int delay = 1);
 	static void clear();
+	static void olxShutdown();
 	
 	void olxParse(Net_ConnID src, CBytestream& bs);
 	void olxSend(bool sendPendingOnly);
@@ -132,6 +133,8 @@ public:
 	static LuaEventDef* indexToLuaEvent(LuaEventGroup::type type, int idx);
 	static void encodeLuaEvents(Net_BitStream* data);
 	
+	static void sendEncodedLuaEvents(Net_ConnID cid);
+	
 	static Net_Control* getNetControl();
 
 	static void incConnCount();
@@ -140,10 +143,7 @@ public:
 	static bool isDisconnected();
 	static bool isDisconnecting();
 		
-	int checkCRC;
-	
-private:
-	static void setClient(bool v);
+	int checkCRC;	
 };
 
 extern Network network;

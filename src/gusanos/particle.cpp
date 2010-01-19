@@ -14,7 +14,7 @@
 #include "CViewport.h"
 #endif
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "lua/bindings-objects.h"
 #include "detect_event.h"
 #include "noise_line.h"

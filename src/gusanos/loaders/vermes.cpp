@@ -2,7 +2,7 @@
 #include "../gfx.h"
 #include "../blitters/types.h"
 #include "../glua.h"
-#include "../lua51/luaapi/context.h"
+#include "../luaapi/context.h"
 #include "../events.h"
 #ifndef DEDICATED_ONLY
 #include "../menu.h"

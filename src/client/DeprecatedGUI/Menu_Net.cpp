@@ -16,7 +16,7 @@
 
 
 #include "LieroX.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "Error.h"
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"

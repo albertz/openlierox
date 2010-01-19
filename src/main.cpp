@@ -51,6 +51,7 @@
 #include "game/Mod.h"
 #include "gusanos/gusanos.h"
 #include "game/Game.h"
+#include "sound/SoundsBase.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"

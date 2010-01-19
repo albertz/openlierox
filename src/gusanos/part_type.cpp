@@ -19,7 +19,7 @@
 #include "detect_event.h"
 #include "timer_event.h"
 #include "network.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 
 #include "particle.h"
 #include "simple_particle.h"

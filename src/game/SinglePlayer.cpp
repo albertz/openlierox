@@ -18,6 +18,8 @@
 #include "CServer.h"
 #include "ProfileSystem.h"
 #include "CWormHuman.h"
+#include "OLXCommand.h"
+#include "util/macros.h"
 
 SinglePlayerGame singlePlayerGame;
 
@@ -161,8 +163,6 @@ bool SinglePlayerGame::startGame() {
 	}
 	
 	oldSettings = tLXOptions->tGameInfo;
-	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
-	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	
 	tLX->iGameType = GME_LOCAL;
 	
@@ -182,6 +182,19 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	standardGameMode = NULL;
+	
+	// don't have any wpn restrictions
+	cServer->setWeaponRestFile("");
+	
+	// first set the standards
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++) {
+		if( strStartsWith(it->first, "GameOptions.GameInfo.") )
+			it->second.var.setDefault();
+	}
+	
+	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
+	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	tLXOptions->tGameInfo.sModDir = modInfo.path;
 	tLXOptions->tGameInfo.sModName = modInfo.name;
 
@@ -191,6 +204,33 @@ bool SinglePlayerGame::startGame() {
 	tLXOptions->tGameInfo.fTimeLimit = -1;
 	
 	tLXOptions->tGameInfo.gameMode = this;
+	
+	{
+		std::string extraConfig;
+		ReadString("games/games.cfg", currentGame, "Config" + itoa(currentLevel), extraConfig, ""); TrimSpaces(extraConfig);
+		if(extraConfig != "") {
+			notes << "SinglePlayerGame: config: " << extraConfig << endl;
+			tLXOptions->LoadFromDisc("games/" + currentGame + "/" + extraConfig);
+		}
+	}
+	
+	{
+		std::string extraCmdStr;
+		std::vector<std::string> extraCmds;
+		ReadString("games/games.cfg", currentGame, "Exec" + itoa(currentLevel), extraCmdStr, ""); TrimSpaces(extraCmdStr);
+		extraCmds = explode(extraCmdStr, ";");
+		foreach(c, extraCmds) {
+			notes << "SinglePlayerGame: exec: " << *c << endl;
+			Execute( CmdLineIntf::Command(&stdoutCLI(), *c) );
+		}
+	}
+	
+	// this can happen if the config has overwritten it
+	if(tLXOptions->tGameInfo.gameMode != this) {
+		// we set the fallback gamemode
+		standardGameMode = tLXOptions->tGameInfo.gameMode;
+		tLXOptions->tGameInfo.gameMode = this;
+	}
 	
 	levelSucceeded = false;
 	return true;
@@ -209,23 +249,47 @@ void SinglePlayerGame::setLevelSucceeded() {
 }
 
 void SinglePlayerGame::Simulate() {
+	if(standardGameMode)
+		standardGameMode->Simulate();
+	
 	if(levelSucceeded)
 		cServer->RecheckGame();
 }
 
+static CWorm* ourLocalHumanWorm() {
+	for(int i = 0; i < cClient->getNumWorms(); ++i)
+		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
+			return cClient->getWorm(i);
+	return NULL;
+}
+
 bool SinglePlayerGame::CheckGameOver() {
+	if(standardGameMode && standardGameMode->CheckGameOver()) {
+		CWorm* w = ourLocalHumanWorm();
+		if(w && standardGameMode->Winner() == w->getID())
+			setLevelSucceeded();
+		
+		return true;
+	}
+	
 	return levelSucceeded;
 }
 
 int SinglePlayerGame::Winner() {
-	if(!levelSucceeded) return -1;
-	for(int i = 0; i < cClient->getNumWorms(); ++i)
-		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
-			return cClient->getWorm(i)->getID();
+	if(!levelSucceeded) {
+		if(standardGameMode) return standardGameMode->Winner();
+		return -1;
+	}
+	
+	CWorm* w = ourLocalHumanWorm();
+	if(w) return w->getID();
+	
 	return -1;
 }
 
 void SinglePlayerGame::GameOver() {
+	if(standardGameMode) standardGameMode->GameOver();
+	
 	tLXOptions->tGameInfo = oldSettings;	
 	// this is kind of a hack; we need it because in CClient::Draw for example,
 	// we check for it to draw the congratulation msg

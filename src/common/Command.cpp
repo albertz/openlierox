@@ -49,6 +49,7 @@
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
 #include "game/WormInputHandler.h"
+#include "sound/SoundsBase.h"
 
 
 CmdLineIntf& stdoutCLI() {
