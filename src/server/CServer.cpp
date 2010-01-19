@@ -137,7 +137,7 @@ int GameServer::StartServer()
 		notes << "Server max upload bandwidth is " << tLXOptions->iMaxUploadBandwidth << " bytes/s" << endl;
 
 	// Is this the right place for this?
-	sWeaponRestFile = "cfg/wpnrest.dat";
+	setDefaultWeaponRestFile();
 	bLocalClientConnected = false;
 
 	// Disable SSH for non-dedicated servers as it is cheaty

@@ -180,11 +180,14 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	// don't have any wpn restrictions
+	cServer->setWeaponRestFile("");
+	
 	// first set the standards
 	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++) {
 		if( strStartsWith(it->first, "GameOptions.GameInfo.") )
 			it->second.var.setDefault();
-	}	
+	}
 	
 	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
 	tLXOptions->tGameInfo.sMapName = levelInfo.name;

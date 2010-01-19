@@ -323,6 +323,9 @@ public:
 	int		getAliveTeamCount() const;
 	CWorm	*getFirstAliveWorm() const;
 	
+	void	setWeaponRestFile(const std::string& fn) { sWeaponRestFile = fn; }
+	void	setDefaultWeaponRestFile() { sWeaponRestFile = "cfg/wpnrest.dat"; }
+	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();
 	
