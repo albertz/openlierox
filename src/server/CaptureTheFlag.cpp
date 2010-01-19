@@ -134,11 +134,13 @@ struct CaptureTheFlag : public CGameMode {
 			if(!flag->atSpawnPoint && flag->holderWorm < 0) {
 				cServer->flagInfo()->applySetBack(flag);
 				cServer->SendGlobalText(worm->getName() + " returned " + flagName(flag->id), TXT_NORMAL);
+				cServer->SendPlaySound("ctf-" + TeamName(flag->id) + "flag-returned");
 			}
 		}
 		else { // enemy flag
 			cServer->flagInfo()->applyHolderWorm(flag, worm->getID());
 			cServer->SendGlobalText(worm->getName() + " caught " + flagName(flag->id), TXT_NORMAL);
+			cServer->SendPlaySound("ctf-" + TeamName(flag->id) + "flag-taken");
 			wormCatchFlag_Handler(worm, flag);
 		}
 	}
@@ -152,6 +154,7 @@ struct CaptureTheFlag : public CGameMode {
 				wormLooseFlag_Handler(worm, wormsFlag);
 				cServer->flagInfo()->applySetBack(wormsFlag);
 				cServer->SendGlobalText(worm->getName() + " scored for " + TeamName(worm->getTeam()), TXT_NORMAL);
+				cServer->SendPlaySound("ctf-" + TeamName(worm->getTeam()) + "-scores");
 				cServer->SendTeamScoreUpdate();
 				cServer->RecheckGame();
 			}
