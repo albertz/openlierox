@@ -362,6 +362,12 @@ void CGameMode::Simulate() {
 		if(cServer->getServerTime() <= TimeLimit()) {
 			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
 			
+			for(int i = 1; i <= 5; ++i)
+				if(restSecs <= i && lastTimeLimitReport > i) {
+					cServer->SendPlaySound(itoa(i));
+					lastTimeLimitReport = restSecs;
+				}
+			
 			if(restSecs <= 60 && lastTimeLimitReport > 60) {
 				cServer->SendPlaySound("1minuteremains");
 				lastTimeLimitReport = restSecs;
