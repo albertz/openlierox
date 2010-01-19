@@ -233,9 +233,9 @@ static int l_olx_message(lua_State* L) {
 int l_game_players(lua_State* L)
 {
 	lua.pushReference(LuaBindings::playerIterator);
-	typedef std::list<CWormInputHandler*>::iterator iter;
+	typedef long iter;
 	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
-	i = game.players.begin();
+	i = 0;
 	lua_pushnil(L);
 	
 	return 3;
@@ -432,7 +432,7 @@ int l_game_getClosestWorm(lua_State* L)
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for(std::vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		CWorm* worm = (*playerIter)->getWorm();
 		
@@ -456,13 +456,15 @@ int l_game_getClosestWorm(lua_State* L)
 
 int l_game_playerIterator(lua_State* L)
 {
-	typedef std::list<CWormInputHandler*>::iterator iter;
+	typedef long iter;
+
 	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == game.players.end())
+	std::vector<CWormInputHandler*>::iterator it = game.players.begin() + i;
+	if(it == game.players.end())
 		lua_pushnil(L);
 	else
 	{
-		(*i)->pushLuaReference();
+		(*it)->pushLuaReference();
 		++i;
 	}
 	

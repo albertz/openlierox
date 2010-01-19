@@ -417,7 +417,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,  {
 	CWorm* minWorm = 0;
 	float minDistSqr = 10000000.f;
 	
-	for(std::list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
+	for(std::vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		if(p->getOwner() != *playerIter)
 		{

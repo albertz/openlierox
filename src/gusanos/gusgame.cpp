@@ -1097,7 +1097,7 @@ std::string const& GusGame::getDefaultPath()
 
 CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
 {
-	list<CWormInputHandler*>::iterator playerIter;
+	vector<CWormInputHandler*>::iterator playerIter;
 	for ( playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter)
 	{
 		if ( (*playerIter)->getNodeID() == ID )

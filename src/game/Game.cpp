@@ -343,7 +343,7 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 
 void Game::reset() {
 	// Delete all players
-	for ( std::list<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
+	for ( std::vector<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
 	{
 		(*iter)->deleteThis();
 	}
