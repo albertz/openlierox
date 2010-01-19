@@ -93,6 +93,8 @@
 		2370F69F1106179A0097F7BA /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 2370F6801106179A0097F7BA /* lzio.c */; };
 		2370F6A01106179A0097F7BA /* print.c in Sources */ = {isa = PBXBuildFile; fileRef = 2370F6821106179A0097F7BA /* print.c */; };
 		2370F6A7110617C70097F7BA /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2370F6A3110617C70097F7BA /* context.cpp */; };
+		2370F7601106432C0097F7BA /* Sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2370F75F1106432C0097F7BA /* Sounds.cpp */; };
+		2370F763110644320097F7BA /* Sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2370F761110644320097F7BA /* Sounds.cpp */; };
 		237885471050249900195629 /* memstats_test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885221050237B00195629 /* memstats_test.cpp */; };
 		237885751050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
 		237885761050369300195629 /* memstats.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 237885741050369300195629 /* memstats.cpp */; };
@@ -480,7 +482,6 @@
 		EAD99FB40C063ECA003BE563 /* Networking.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C380BEFCEB400C6547E /* Networking.cpp */; };
 		EAD99FB60C063ECA003BE563 /* ProfileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */; };
 		EAD99FB70C063ECA003BE563 /* sex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C390BEFCEB400C6547E /* sex.cpp */; };
-		EAD99FB80C063ECA003BE563 /* Sounds.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1F0BEFCEB400C6547E /* Sounds.cpp */; };
 		EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3A0BEFCEB400C6547E /* StringUtils.cpp */; };
 		EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3B0BEFCEB400C6547E /* Timer.cpp */; };
 		EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3C0BEFCEB400C6547E /* Unicode.cpp */; };
@@ -777,6 +778,10 @@
 		2370F6A4110617C70097F7BA /* context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = context.h; sourceTree = "<group>"; };
 		2370F6A5110617C70097F7BA /* macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = macros.h; sourceTree = "<group>"; };
 		2370F6A6110617C70097F7BA /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = types.h; sourceTree = "<group>"; };
+		2370F75E1106432C0097F7BA /* Sounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Sounds.h; sourceTree = "<group>"; };
+		2370F75F1106432C0097F7BA /* Sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sounds.cpp; sourceTree = "<group>"; };
+		2370F761110644320097F7BA /* Sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Sounds.cpp; sourceTree = "<group>"; };
+		2370F762110644320097F7BA /* SoundsBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SoundsBase.h; sourceTree = "<group>"; };
 		23754FB50EDC32AB005EC287 /* CWormBot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormBot.h; sourceTree = "<group>"; };
 		23754FB60EDC32AB005EC287 /* CWormHuman.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWormHuman.h; sourceTree = "<group>"; };
 		2378851C1050117B00195629 /* memstats.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = memstats.h; path = "../../optional-includes/memdebug/memstats.h"; sourceTree = SOURCE_ROOT; };
@@ -1320,7 +1325,6 @@
 		EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputEvents.cpp; path = ../../src/client/InputEvents.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C1D0BEFCEB400C6547E /* Options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Options.cpp; path = ../../src/client/Options.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ProfileSystem.cpp; path = ../../src/client/ProfileSystem.cpp; sourceTree = SOURCE_ROOT; };
-		EA430C1F0BEFCEB400C6547E /* Sounds.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Sounds.cpp; path = ../../src/client/Sounds.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C210BEFCEB400C6547E /* CBonus.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBonus.cpp; path = ../../src/common/CBonus.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C220BEFCEB400C6547E /* CBytestream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CBytestream.cpp; path = ../../src/common/CBytestream.cpp; sourceTree = SOURCE_ROOT; };
 		EA430C230BEFCEB400C6547E /* CChannel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CChannel.cpp; path = ../../src/common/CChannel.cpp; sourceTree = SOURCE_ROOT; };
@@ -1387,7 +1391,6 @@
 		EA430C820BEFCEDE00C6547E /* RandomNumberList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RandomNumberList.h; path = ../../include/RandomNumberList.h; sourceTree = SOURCE_ROOT; };
 		EA430C830BEFCEDE00C6547E /* ReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ReadWriteLock.h; path = ../../include/ReadWriteLock.h; sourceTree = SOURCE_ROOT; };
 		EA430C840BEFCEDE00C6547E /* sex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sex.h; path = ../../include/sex.h; sourceTree = SOURCE_ROOT; };
-		EA430C850BEFCEDE00C6547E /* Sounds.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Sounds.h; path = ../../include/Sounds.h; sourceTree = SOURCE_ROOT; };
 		EA430C860BEFCEDE00C6547E /* StringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringUtils.h; path = ../../include/StringUtils.h; sourceTree = SOURCE_ROOT; };
 		EA430C870BEFCEDE00C6547E /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../../include/Timer.h; sourceTree = SOURCE_ROOT; };
 		EA430C880BEFCEDE00C6547E /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../include/types.h; sourceTree = SOURCE_ROOT; };
@@ -1658,6 +1661,8 @@
 				2326B57110CF9D6500D3F035 /* Game.cpp */,
 				2370EE131100D0C80097F7BA /* SinglePlayer.h */,
 				2370EE141100D0C80097F7BA /* SinglePlayer.cpp */,
+				2370F75E1106432C0097F7BA /* Sounds.h */,
+				2370F75F1106432C0097F7BA /* Sounds.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1973,6 +1978,8 @@
 		23C34BC610CC1CAE00DABBD6 /* sound */ = {
 			isa = PBXGroup;
 			children = (
+				2370F761110644320097F7BA /* Sounds.cpp */,
+				2370F762110644320097F7BA /* SoundsBase.h */,
 				23C34BC710CC1CAE00DABBD6 /* sfx.cpp */,
 				23C34BC810CC1CAE00DABBD6 /* sfx.h */,
 				23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */,
@@ -2433,7 +2440,6 @@
 				EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */,
 				EA430C1D0BEFCEB400C6547E /* Options.cpp */,
 				EA430C1E0BEFCEB400C6547E /* ProfileSystem.cpp */,
-				EA430C1F0BEFCEB400C6547E /* Sounds.cpp */,
 				23F6A3420FD6DF0300793B24 /* DynDraw.cpp */,
 				23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */,
 				23C3439D10C8278700DABBD6 /* GfxUtils.cpp */,
@@ -2638,7 +2644,6 @@
 				EA430C820BEFCEDE00C6547E /* RandomNumberList.h */,
 				EA430C830BEFCEDE00C6547E /* ReadWriteLock.h */,
 				EA430C840BEFCEDE00C6547E /* sex.h */,
-				EA430C850BEFCEDE00C6547E /* Sounds.h */,
 				EA430C860BEFCEDE00C6547E /* StringUtils.h */,
 				EA430C870BEFCEDE00C6547E /* Timer.h */,
 				EA430C880BEFCEDE00C6547E /* types.h */,
@@ -3075,7 +3080,6 @@
 				EAD99FB40C063ECA003BE563 /* Networking.cpp in Sources */,
 				EAD99FB60C063ECA003BE563 /* ProfileSystem.cpp in Sources */,
 				EAD99FB70C063ECA003BE563 /* sex.cpp in Sources */,
-				EAD99FB80C063ECA003BE563 /* Sounds.cpp in Sources */,
 				EAD99FB90C063ECA003BE563 /* StringUtils.cpp in Sources */,
 				EAD99FBA0C063ECA003BE563 /* Timer.cpp in Sources */,
 				EAD99FBB0C063ECA003BE563 /* Unicode.cpp in Sources */,
@@ -3386,6 +3390,8 @@
 				2370F69F1106179A0097F7BA /* lzio.c in Sources */,
 				2370F6A01106179A0097F7BA /* print.c in Sources */,
 				2370F6A7110617C70097F7BA /* context.cpp in Sources */,
+				2370F7601106432C0097F7BA /* Sounds.cpp in Sources */,
+				2370F763110644320097F7BA /* Sounds.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
