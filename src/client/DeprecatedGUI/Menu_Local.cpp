@@ -40,7 +40,7 @@
 #include "DeprecatedGUI/CListview.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
 #include "DeprecatedGUI/CBrowser.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "ProfileSystem.h"
 #include "FeatureList.h"
 #include "Options.h"

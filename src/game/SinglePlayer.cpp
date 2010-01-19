@@ -19,6 +19,7 @@
 #include "ProfileSystem.h"
 #include "CWormHuman.h"
 #include "OLXCommand.h"
+#include "util/macros.h"
 
 SinglePlayerGame singlePlayerGame;
 

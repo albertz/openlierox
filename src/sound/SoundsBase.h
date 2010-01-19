@@ -32,15 +32,6 @@ typedef struct {
 } sfxgen_t;
 
 
-// Game sounds
-typedef struct {
-	SmartPointer<SoundSample> smpNinja;
-	SmartPointer<SoundSample> smpPickup;
-	SmartPointer<SoundSample> smpBump;
-	SmartPointer<SoundSample> smpDeath[3];
-	SmartPointer<SoundSample> smpTeamScore;	
-} sfxgame_t;
-
 // ID3 tag format
 // HINT: this are fixed widths, which are directly read out of the file
 // TODO: ID3v2 support
@@ -97,7 +88,6 @@ id3v1_t			GetMP3Info(const std::string& file);
 
 
 // Globals
-extern	sfxgame_t	sfxGame;
 extern	sfxgen_t	sfxGeneral;
 
 

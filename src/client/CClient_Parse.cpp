@@ -55,6 +55,7 @@
 #include "game/Game.h"
 #include "game/Mod.h"
 #include "game/SinglePlayer.h"
+#include "sound/SoundsBase.h"
 
 
 #ifdef _MSC_VER

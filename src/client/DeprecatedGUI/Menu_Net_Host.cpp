@@ -45,6 +45,7 @@
 #include "OLXConsole.h"
 #include "CGameMode.h"
 #include "DeprecatedGUI/CChatWidget.h"
+#include "sound/SoundsBase.h"
 
 
 /*

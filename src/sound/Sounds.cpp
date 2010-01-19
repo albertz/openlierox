@@ -22,16 +22,17 @@
 #include <SDL.h>
 #include <stdlib.h>
 
+#include "sound/SoundsBase.h"
 #include "LieroX.h"
 #include "Debug.h"
 #include "AuxLib.h"
 #include "Cache.h"
 #include "StringUtils.h"
-#include "Sounds.h"
 #include "MathLib.h"
 #include "Timer.h"
 #include "Options.h"
 #include "FindFile.h"
+#include "game/Sounds.h"
 
 #include "sound/sfx.h"
 #include "sound/sfxdriver.h"
@@ -43,13 +44,6 @@ bool LoadSounds()
 {
 	if(bDedicated) return false;
 	
-	sfxGame.smpNinja = LoadSample("data/sounds/throw.wav",4);
-	sfxGame.smpPickup = LoadSample("data/sounds/pickup.wav",2);
-	sfxGame.smpBump = LoadSample("data/sounds/bump.wav", 2);
-	sfxGame.smpDeath[0] = LoadSample("data/sounds/death1.wav", 2);
-	sfxGame.smpDeath[1] = LoadSample("data/sounds/death2.wav", 2);
-	sfxGame.smpDeath[2] = LoadSample("data/sounds/death3.wav", 2);
-
 	//sfxGeneral.smpChat = LoadSample("data/sounds/chat.wav",2);
 	sfxGeneral.smpClick = LoadSample("data/sounds/click.wav",2);
 	sfxGeneral.smpNotify = LoadSample("data/sounds/notify.wav",2);
@@ -58,17 +52,12 @@ bool LoadSounds()
 		sfxGeneral.smpNotify = LoadSample("data/sounds/dirt.wav",2);	// Very funny sound
 	}
 	
-	sfxGame.smpTeamScore = LoadSample("data/sounds/teamscore.wav",2);
-	if( sfxGame.smpTeamScore.get() == NULL ) {
-		notes << "LoadSounds: cannot load teamscore.wav" << endl;
-		sfxGame.smpTeamScore = sfxGeneral.smpNotify;
-	}
+	LoadSounds_Game();
 	
 	return true;
 }
 
 
-sfxgame_t	sfxGame;
 sfxgen_t	sfxGeneral;
 
 
@@ -224,6 +213,9 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 {
 	if(!SoundSystemAvailable || !SoundSystemStarted) return;
 
+	if(smp == NULL)
+		return;
+		
 //	int pan = 0;
 //	int maxhearing = 750;	// Maximum distance for hearing
 
@@ -258,9 +250,6 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 		if(y+t+10 < t || y-10 > v->GetVirtH())
 			return;*/
 	}
-	
-	if(smp == NULL)
-		return;
 	
 	smp->play2D(Vec(pos), 100, 1);
 	

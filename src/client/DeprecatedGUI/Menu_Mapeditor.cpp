@@ -23,7 +23,7 @@
 #include "StringUtils.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "EndianSwap.h"
 #include "FileUtils.h"
 

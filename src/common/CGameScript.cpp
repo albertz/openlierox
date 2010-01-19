@@ -33,6 +33,8 @@
 #include "IniReader.h"
 #include "game/Mod.h"
 #include "gusanos/gusanos.h"
+#include "sound/SoundsBase.h"
+
 
 
 void CGameScript::initNewWeapons(int num) {

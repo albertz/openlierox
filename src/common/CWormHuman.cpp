@@ -19,7 +19,6 @@
 
 
 #include "LieroX.h"
-#include "Sounds.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
 #include "CWorm.h"
@@ -37,6 +36,7 @@
 #include "AuxLib.h" // for doActionInMainThread
 #include "game/Game.h"
 #include "gusanos/player_input.h"
+#include "sound/SoundsBase.h"
 
 
 ///////////////////

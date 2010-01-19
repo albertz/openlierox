@@ -15,7 +15,7 @@
 // Karel Petranek
 
 #include "Options.h"
-#include "Sounds.h"
+#include "sound/SoundsBase.h"
 #include "CClient.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
