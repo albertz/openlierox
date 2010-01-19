@@ -14,17 +14,10 @@
 sfxgame_t	sfxGame;
 
 
-static SmartPointer<SoundSample> getGameSound(const std::string& name) {
-	std::map<std::string, SmartPointer<SoundSample> >::iterator f = sfxGame.gameSounds.find(name);
-	if(f != sfxGame.gameSounds.end()) return f->second;
-	
-	SmartPointer<SoundSample> s = LoadSample("data/sounds/game/" + name + ".ogg", 1);
-	if(s.get()) {
-		sfxGame.gameSounds[name] = s;
-		return s;
-	}
-	
-	return NULL;
+static void loadGameSound(const std::string& name) {	
+	SmartPointer<SoundSample> s = LoadSample("data/sounds/game/" + name, 1);
+	if(s.get())
+		sfxGame.gameSounds[GetBaseFilenameWithoutExt(name)] = s;
 }
 
 
@@ -43,12 +36,12 @@ void LoadSounds_Game() {
 	}
 	
 	// preload game sounds
-	for(Iterator<std::string>::Ref f = FileListIter("data/sounds/game"); f->isValid(); f->next()) {
-		if(GetFileExtension(f->get()) == ".ogg")
-			getGameSound(GetBaseFilenameWithoutExt(f->get()));
-	}
+	for(Iterator<std::string>::Ref f = FileListIter("data/sounds/game"); f->isValid(); f->next())
+		loadGameSound(GetBaseFilename(f->get()));
 }
 
 void PlayGameSound(const std::string& name) {
-	PlaySoundSample(getGameSound(name).get());
+	std::map<std::string, SmartPointer<SoundSample> >::iterator f = sfxGame.gameSounds.find(name);
+	if(f != sfxGame.gameSounds.end())
+		PlaySoundSample(f->second);
 }
