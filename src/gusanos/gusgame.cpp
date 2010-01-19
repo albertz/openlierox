@@ -563,6 +563,8 @@ void GusGame::think()
 						{
 							event->call(data);
 						}
+						else
+							notes << "GusGame: Lua event index " << index << " unknown" << endl;
 					}
 					break;
 					
