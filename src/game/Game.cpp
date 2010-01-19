@@ -95,6 +95,11 @@ void Game::prepareGameloop() {
 		gusGame.runInitScripts();
 	}
 	
+	if(isServer()) {
+		// resend lua event index to everyone
+		network.sendEncodedLuaEvents(INVALID_CONN_ID);		
+	}
+	
 	PhysicsEngine::Init();
 		
 	ClearEntities();

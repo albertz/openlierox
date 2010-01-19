@@ -133,6 +133,8 @@ public:
 	static LuaEventDef* indexToLuaEvent(LuaEventGroup::type type, int idx);
 	static void encodeLuaEvents(Net_BitStream* data);
 	
+	static void sendEncodedLuaEvents(Net_ConnID cid);
+	
 	static Net_Control* getNetControl();
 
 	static void incConnCount();

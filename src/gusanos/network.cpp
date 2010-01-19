@@ -431,6 +431,17 @@ void Network::olxSend(bool sendPendingOnly) {
 }
 
 
+void Network::sendEncodedLuaEvents(Net_ConnID cid) {
+	if(!m_control) {
+		errors << "Network::sendEncodedLuaEvents: control unset" << endl;
+		return;
+	}
+	
+	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
+	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);
+	network.encodeLuaEvents(data.get());
+	m_control->Net_sendData(cid, data.release(), eNet_ReliableOrdered);		
+}
 
 
 

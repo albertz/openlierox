@@ -62,12 +62,9 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
 void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
 	console.addLogMsg("* CONNECTION SPAWNED: " + itoa(_id));
-	network.incConnCount();
-	
-	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
-	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);
-	network.encodeLuaEvents(data.get());
-	Net_sendData ( _id, data.release(), eNet_ReliableOrdered);
+	network.incConnCount();	
+
+	network.sendEncodedLuaEvents(_id);
 }
 
 void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
