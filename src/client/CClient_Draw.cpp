@@ -58,6 +58,7 @@
 #include "gusanos/gusgame.h"
 #include "gusanos/lua51/luaapi/context.h"
 #include "game/SinglePlayer.h"
+#include "gusanos/network.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -428,6 +429,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// Check for any communication errors
 	if(bServerError) {
 
+		network.olxShutdown();
+		
 		// Stop any file downloads
 		if (bDownloadingMap && cHttpDownloader)
 			cHttpDownloader->CancelFileDownload(sMapDownloadName);

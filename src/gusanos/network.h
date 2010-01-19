@@ -118,6 +118,7 @@ public:
 	static void disconnect( Net_ConnID id, DConnEvents event );
 	static void olxReconnect(int delay = 1);
 	static void clear();
+	static void olxShutdown();
 	
 	void olxParse(Net_ConnID src, CBytestream& bs);
 	void olxSend(bool sendPendingOnly);

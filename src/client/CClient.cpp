@@ -1649,6 +1649,7 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect()
 {
+	network.olxShutdown();
 	cNetEngine->SendDisconnect();
 
 	iNetStatus = NET_DISCONNECTED;

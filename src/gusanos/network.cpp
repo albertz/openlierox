@@ -250,6 +250,23 @@ void Network::update()
 	}
 }
 
+void Network::olxShutdown() {
+	setLuaState(StateDisconnected);
+	SET_STATE(Disconnected);
+	
+	if(m_control) {
+		m_control->Shutdown();
+		delete m_control;
+		m_control = 0;
+	}
+	
+	connCount = 0;
+	
+	gusGame.removeNode();
+	
+	clear();
+}
+
 void Network::olxHost()
 {
 	if(state != StateDisconnected) { // We assume that we're disconnected
@@ -403,6 +420,9 @@ void Network::olxSend(bool sendPendingOnly) {
 
 	// if we don't use Gusanos at all, we don't need it
 	if(!gusGame.isEngineNeeded()) return;
+	
+	// dont send if in lobby
+	if(!cClient->getGameReady()) return;
 	
 	if(m_control)
 		m_control->olxSend(sendPendingOnly);
