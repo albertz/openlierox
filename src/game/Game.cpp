@@ -32,7 +32,7 @@
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "gusanos/glua.h"
-#include "gusanos/lua51/luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 #include "sound/sfx.h"
 #include "gusanos/network.h"
 #include "OLXConsole.h"

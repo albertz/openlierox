@@ -1,8 +1,8 @@
 #ifndef LUA_BINDINGS_GAME_H
 #define LUA_BINDINGS_GAME_H
 
-#include "../lua51/luaapi/context.h"
-#include "../lua51/luaapi/types.h"
+#include "../luaapi/context.h"
+#include "../luaapi/types.h"
 
 namespace LuaBindings
 {

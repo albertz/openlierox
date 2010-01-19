@@ -29,7 +29,7 @@
 
 #include "script.h"
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "util/log.h"
 #include "game/Game.h"
 #include <memory>

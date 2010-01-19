@@ -27,7 +27,7 @@
 #include "CGameMode.h"
 
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "lua/bindings-objects.h"
 #include "game/Game.h"
 #include "gusanos/network.h"

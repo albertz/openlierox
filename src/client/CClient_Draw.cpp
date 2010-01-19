@@ -56,7 +56,7 @@
 #include "gusanos/gfx.h"
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
-#include "gusanos/lua51/luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 #include "game/SinglePlayer.h"
 #include "gusanos/network.h"
 

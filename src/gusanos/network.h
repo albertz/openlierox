@@ -5,7 +5,7 @@
 #include "netstream.h"
 #include <string>
 #include <boost/function.hpp>
-#include "lua51/luaapi/types.h"
+#include "luaapi/types.h"
 
 #include "message_queue.h"
 

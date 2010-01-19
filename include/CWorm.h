@@ -38,7 +38,7 @@
 #include "CBytestream.h"
 
 // Gusanos related includes
-#include "gusanos/lua51/luaapi/types.h"
+#include "gusanos/luaapi/types.h"
 #include "gusanos/netstream.h"
 #include "util/vec.h"
 #include "util/angle.h"

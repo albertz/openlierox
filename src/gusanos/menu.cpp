@@ -8,7 +8,7 @@
 #include "sprite_set.h"
 #include "sprite.h"
 #include "script.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "gui/omfggui_windows.h"
 #include "gconsole.h"
 #include "glua.h"

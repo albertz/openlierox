@@ -1,8 +1,8 @@
 #include "bindings-gfx.h"
 
-#include "../lua51/luaapi/types.h"
-#include "../lua51/luaapi/macros.h"
-#include "../lua51/luaapi/classes.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
+#include "../luaapi/classes.h"
 
 #include "../glua.h"
 #include "util/log.h"

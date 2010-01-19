@@ -5,7 +5,7 @@
 #include "CWormHuman.h"
 #include "gconsole.h"
 #include "glua.h"
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 #include "util/text.h"
 #include "util/log.h"
 #include "util/stringbuild.h"

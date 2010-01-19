@@ -1,7 +1,7 @@
 #include "script.h"
 
 #include <iostream>
-#include "lua51/luaapi/context.h"
+#include "luaapi/context.h"
 using std::string;
 using std::cerr;
 using std::endl;

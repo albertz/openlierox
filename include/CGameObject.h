@@ -20,7 +20,7 @@
 #include "Utils.h"
 #include "util/angle.h"
 #include "util/vec.h"
-#include "gusanos/lua51/luaapi/types.h"
+#include "gusanos/luaapi/types.h"
 #include "gusanos/glua.h"
 
 //#include "gusanos/allegro.h"

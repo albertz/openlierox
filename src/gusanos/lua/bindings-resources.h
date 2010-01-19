@@ -1,7 +1,7 @@
 #ifndef LUA_BINDINGS_RESOURCES_H
 #define LUA_BINDINGS_RESOURCES_H
 
-#include "../lua51/luaapi/types.h"
+#include "../luaapi/types.h"
 
 namespace LuaBindings
 {

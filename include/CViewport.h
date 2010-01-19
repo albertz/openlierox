@@ -25,7 +25,7 @@
 #include "SmartPointer.h"
 
 #include "util/vec.h"
-#include "gusanos/lua51/luaapi/types.h"
+#include "gusanos/luaapi/types.h"
 
 
 // Viewport types

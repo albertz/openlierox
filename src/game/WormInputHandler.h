@@ -16,7 +16,7 @@
 #include "gusanos/netstream.h"
 
 //#include "vec.h"
-#include "gusanos/lua51/luaapi/types.h"
+#include "gusanos/luaapi/types.h"
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include <vector>
