@@ -161,8 +161,6 @@ bool SinglePlayerGame::startGame() {
 	}
 	
 	oldSettings = tLXOptions->tGameInfo;
-	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
-	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	
 	tLX->iGameType = GME_LOCAL;
 	
@@ -182,6 +180,14 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	// first set the standards
+	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++) {
+		if( strStartsWith(it->first, "GameOptions.GameInfo.") )
+			it->second.var.setDefault();
+	}	
+	
+	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
+	tLXOptions->tGameInfo.sMapName = levelInfo.name;
 	tLXOptions->tGameInfo.sModDir = modInfo.path;
 	tLXOptions->tGameInfo.sModName = modInfo.name;
 

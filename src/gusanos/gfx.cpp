@@ -161,7 +161,8 @@ void Gfx::init()
 	
 	Init_2xSaI(m_bitdepth); // needed for SUPER2XSAI and SUPEREAGLE filters
 	
-	buffer = create_bitmap(320,240);
+	buffer = create_bitmap(640,480); // this is because we may need up to this size for the sizefactor
+	//buffer = create_bitmap(320,240);
 #else
 	set_color_depth(32);
 #endif
