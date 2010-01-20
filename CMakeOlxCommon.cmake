@@ -69,6 +69,7 @@ IF(UNIX)
 		SET(LIBZIP_BUILTIN ON)
 		SET(LIBLUA_BUILTIN ON)
 		SET(X11 OFF)
+		#SET(OPTIM_PROJECTILES OFF) # Inline optimized _powf and _powf defined in stdlib conflict at link time
 		#SET(CMAKE_C_COMPILER i586-mingw32msvc-cc) # Does not work anyway, use mingw_cross_compile.sh script
 		#SET(CMAKE_CXX_COMPILER i586-mingw32msvc-c++)
 		#SET(CMAKE_C_FLAGS -Ibuild/mingw/include -Lbuild/mingw/lib)
@@ -269,7 +270,7 @@ ELSE(WIN32)
 	MESSAGE( "OLX_VERSION = ${OLXVER}" )
 
 	IF(MINGW_CROSS_COMPILE)
-		ADD_DEFINITIONS(-DHAVE_BOOST -DZLIB_WIN32_NODLL -D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500)
+		ADD_DEFINITIONS(-DHAVE_BOOST -DZLIB_WIN32_NODLL -DLIBXML_STATIC -D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500)
 		INCLUDE_DIRECTORIES(
 					${OLXROOTDIR}/build/mingw/include
 					${OLXROOTDIR}/libs/hawknl/include
@@ -377,7 +378,10 @@ if(UNIX)
 		SET(LIBS ${LIBS} g15daemon_client g15render)
 	ENDIF (G15)
 
-	SET(LIBS ${LIBS} ${SDLLIBS} pthread xml2 z)
+	SET(LIBS ${LIBS} ${SDLLIBS} xml2 z)
+	IF(NOT MINGW_CROSS_COMPILE)
+		SET(LIBS ${LIBS} ${SDLLIBS} pthread)
+	ENDIF(NOT MINGW_CROSS_COMPILE)
 endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)
