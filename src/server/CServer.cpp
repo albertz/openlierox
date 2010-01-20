@@ -612,6 +612,10 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	else
 		SendGlobalPacket(&bs);
 	
+	if(receiver)
+		receiver->getNetEngine()->SendPlaySound("begin");
+	else
+		SendPlaySound("begin");
 
 	if(receiver) {
 		// inform new client about other ready clients
