@@ -307,6 +307,14 @@
 			<File
 				RelativePath="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="&quot;$(VCInstallDir)include\&quot;;&quot;$(VCInstallDir)atlmfc\include\&quot;"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\breakpad\external\src\common\string_conversion.cc"
