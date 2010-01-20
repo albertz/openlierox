@@ -1,0 +1,6 @@
+blender = alpha
+alpha = 150
+color = [111,153,185]
+dest_alpha = 0
+timeout = 4
+wu_pixels = true

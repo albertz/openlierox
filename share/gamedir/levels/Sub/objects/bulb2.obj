@@ -1,0 +1,11 @@
+sprite=bulb2.bmp
+col_layer=3
+light_radius=180
+health=1
+
+on death()
+ play_sound(mineexp.wav,80,1,0)
+ shoot_particles(bulletsmoke.obj,1,0.5,1,0,0,360,0,0)
+ shoot_particles(mine_proximity/smokestreak.obj,7,2,2,0,0,360,0,0)
+ shoot_particles(bulbgen2.obj,1)
+ remove()

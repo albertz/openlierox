@@ -1,0 +1,5 @@
+blender=add
+sprite=glass.png
+alpha=x (50)
+col_layer=-1
+render_layer=6 

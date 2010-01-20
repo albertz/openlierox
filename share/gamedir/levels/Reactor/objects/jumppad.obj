@@ -1,0 +1,25 @@
+invisible = true
+bounce_factor = 0
+col_layer = -1
+
+on detect_range(84)
+ damp(0)
+ repel(3.0,100,3.0)
+ play_sound(jumppad.wav,80,1,0.05)
+ put_particle(jumppad_spark.obj,731,532)
+ put_particle(jumppad_spark.obj,732,532)
+ put_particle(jumppad_spark.obj,733,532)
+ put_particle(jumppad_spark.obj,734,532)
+ put_particle(jumppad_spark.obj,735,532)
+ put_particle(jumppad_spark.obj,736,532)
+ put_particle(jumppad_spark.obj,737,532)
+ put_particle(jumppad_spark.obj,738,532)
+ put_particle(jumppad_spark.obj,739,532)
+ put_particle(jumppad_spark.obj,740,532)
+ put_particle(jumppad_spark.obj,741,532)
+ put_particle(jumppad_spark.obj,742,532)
+ put_particle(jumppad_spark.obj,743,532)
+ put_particle(jumppad_spark.obj,744,532)
+ put_particle(jumppad_spark.obj,745,532)
+ put_particle(jumppad_spark.obj,746,532)
+ put_particle(jumppad_spark.obj,747,532)

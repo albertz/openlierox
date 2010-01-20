@@ -1,0 +1,15 @@
+invisible = 1
+col_layer=-1
+bounce_factor = -1
+
+on creation()
+play_global_sound( [ambience1.ogg, ambience2.ogg], 100)
+
+on timer(1400)
+play_global_sound( [ambience1.ogg, ambience2.ogg], 100)
+
+
+
+
+
+

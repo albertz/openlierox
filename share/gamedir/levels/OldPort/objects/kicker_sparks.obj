@@ -1,0 +1,15 @@
+color = [100,100,255]
+blender = add
+alpha = 255
+light_radius=2
+col_layer = -1
+repeat = 2
+
+on ground_collision()
+ remove()
+
+on creation()
+ set_alpha_fade(0,25)
+
+on timer(10,60)
+ remove()

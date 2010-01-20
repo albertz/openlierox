@@ -1,0 +1,60 @@
+function map_g3tourney1.init()
+
+	print("------------ Map Loading ------------")
+	print("trying to load maps/g3tourney1")
+
+	mapGameMode(1)
+
+	put_weapon("rocket_launcher",623,188)
+	put_weapon("rocket_launcher",370,408)
+	put_weapon("railgun",471,273)
+	put_weapon("plasmagun",685,402)
+	put_weapon("shotgun",619,269)
+	put_weapon("lightning_gun",204,280)
+	put_weapon("grenade_launcher",759,381)
+
+	put_ammo("lightning",503,450)
+	put_ammo("cells",343,311)
+	put_ammo("shells",535,450)
+	put_ammo("rockets",586,329)
+	put_ammo("slugs",384,408)
+	put_ammo("grenades",606,268)
+	put_ammo("grenades",248,279)
+	put_ammo("bullets",807,254)
+	put_ammo("bullets",796,254)
+
+	put_health("mega_health",505,385)
+	put_health("yellow_health",280,279)
+	put_health("yellow_health",356,311)
+	put_health("orange_health",482,451)
+	put_health("orange_health",602,330)
+	put_health("orange_health",810,381)
+	put_health("green_health",229,185)
+	put_health("green_health",239,185)
+	put_health("green_health",274,185)
+	put_health("green_health",264,185)
+
+	put_armor("armor_shard",764,254)
+	put_armor("armor_shard",755,254)
+	put_armor("yellow_armor",497,210)
+	put_armor("yellow_armor",169,175)
+	put_armor("red_armor",766,185)
+
+	put_jumppad(457,455,0,-1.5)
+	put_jumppad(186,284,0,-2.4)
+	put_jumppad(570,455,0,-1.2)
+	put_jumppad(628,426,0,-2.3)
+	put_jumppad(681,334,0,-1.9)
+	put_jumppad(235,400,0,-2.5)
+	put_jumppad(555,349,0,-3.1)
+	put_jumppad(466,216,0,-1.3)
+	put_jumppad(779,385,0,-2.6)
+
+	put_teleport(342,237,317,423)
+	put_teleport(291,424,369,243)
+
+	print("loaded maps/g3tourney1")
+	print("found "..itemsCount.." level items")
+	print("-------------------------------------")
+
+end

@@ -1,0 +1,8 @@
+color=[44,61,73]
+gravity=0.007
+
+on detect_range(6,1,[worms])
+ remove()
+
+on ground_collision()
+ remove()

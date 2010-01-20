@@ -1,0 +1,20 @@
+damping = 0.98
+gravity = 0.009
+repeat = 2
+col_layer = -1
+bounce_factor = 1
+wu_pixels = 1
+color = [255,200,128]
+light_radius=2
+
+on creation()
+ shoot_particles(spark_2.obj, 1,0.8,0.4,0,0,60,0,0)
+ play_sound( [spark1.ogg,spark2.ogg,spark3.ogg,spark4.ogg,spark5.ogg],75,1,0 )
+
+on ground_collision()
+
+on timer(100,50)
+ remove()
+
+on timer(0)
+ create_explosion(spark_1.exp)

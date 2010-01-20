@@ -1,0 +1,15 @@
+damping = 0.99
+gravity = 0.0045
+repeat = 2
+col_layer = -1
+color = [255,255,255]
+light_radius=2
+
+on timer(0,1)
+ create_explosion ( spark_2.exp )
+
+on ground_collision()
+ remove()
+
+on timer(25,10)
+ remove()

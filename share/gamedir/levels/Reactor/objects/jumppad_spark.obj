@@ -1,0 +1,14 @@
+blender=add
+colour = [10,30,40]
+gravity = -0.05
+repeat = 100
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer(0)
+ shoot_particles (jumppad_spark_trail.exp,1,0,0,0,0)
+
+on timer(20)
+ remove()

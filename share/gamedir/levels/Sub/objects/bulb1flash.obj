@@ -1,0 +1,10 @@
+sprite=bulb1.bmp
+invisible=1
+col_layer=-1
+
+on timer(10,10)
+ shoot_particles(flash.obj,1)
+
+on timer(100)
+ shoot_particles(bulb1.obj,1)
+ remove()

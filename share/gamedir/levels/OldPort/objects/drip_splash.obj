@@ -1,0 +1,17 @@
+gravity = 0.013
+bounce_factor=0
+color = [111,153,185]
+render_layer = 6
+wu_pixels = 1
+col_layer = 3
+
+on custom_event(1)
+remove()
+
+on timer(20, 20)
+ remove()
+
+on timer(0)
+ create_explosion(drip_splash.exp)
+
+

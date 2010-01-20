@@ -1,0 +1,11 @@
+invisible = 1
+gravity = 0
+bounce_factor = 0
+ground_friction = 0
+col_layer = 7
+
+on detect_range(100,1,[7])
+custom_event(3)
+
+on timer(2)
+ remove()

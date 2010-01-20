@@ -1,0 +1,19 @@
+sprite = lamp_off.png
+col_layer=-1
+render_layer = 2
+
+on timer(2,7,4) 
+shoot_particles (light_flash.obj,1)
+shoot_particles (spark_1.obj, 1, 0.85, 0.3, 0, 0, 30, 360, 1)
+
+on timer(5,10,6) 
+shoot_particles (light_flash.obj,1)
+shoot_particles (spark_1.obj, 1, 0.85, 0.3, 0, 0, 30, 360, 1)
+
+on timer(300,900)
+shoot_particles (light_flash.obj,1)
+shoot_particles (spark_1.obj, 3, 0.85, 0.3, 0, 0, 30, 360, 1)
+
+on timer(3500) 
+shoot_particles (light_on.obj,1)
+remove()
