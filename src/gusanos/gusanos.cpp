@@ -161,7 +161,7 @@ void gusLogicFrame() {
 			}
 #endif
 			
-			for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+			for ( vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{
 				if(!(*iter)->deleteMe)
 					(*iter)->think();
@@ -213,7 +213,7 @@ void gusRenderFrameMenu() {
 	if ( gusGame.isLoaded() && gusGame.level().gusIsLoaded() )
 	{
 
-		for ( list<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
+		for ( vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 		{
 			//(*iter)->render();
 		}

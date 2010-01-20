@@ -48,7 +48,7 @@ public:
 	bool needProxyWormInputHandler();
 	
 	std::vector<CWormHumanInputHandler*> localPlayers;
-	std::list<CWormInputHandler*> players;
+	std::vector<CWormInputHandler*> players;
 	
 #ifdef USE_GRID
 	Grid objects;

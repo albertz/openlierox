@@ -51,7 +51,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;../../libs/lua"
 				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
@@ -163,7 +163,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;../../libs/lua"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -197,7 +197,7 @@
 				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC"
+				IgnoreDefaultLibraryNames="LIBC;LIBCMT"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\../../bin/OpenLieroX.pdb"
 				GenerateMapFile="true"
@@ -239,6 +239,10 @@
 		<ProjectReference
 			ReferencedProjectIdentifier="{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
 			RelativePathToProject=".\Breakpad.vcproj"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D904199E-F28B-4AD5-8043-ED81BDD30CFD}"
+			RelativePathToProject="..\Lua\Lua.vcproj"
 		/>
 	</References>
 	<Files>
@@ -820,6 +824,32 @@
 			</File>
 			<File
 				RelativePath="..\..\src\common\SMTP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Sounds.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Sounds.h"
 				>
 			</File>
 			<File
@@ -2425,29 +2455,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Sounds.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\Sounds.h"
+				RelativePath="..\..\src\sound\Sounds.cpp"
 				>
 			</File>
 			<File
@@ -4211,268 +4219,44 @@
 					RelativePath="..\..\src\gusanos\lua\bindings.h"
 					>
 				</File>
-			</Filter>
-			<Filter
-				Name="lua51"
-				>
 				<File
-					RelativePath="..\..\src\gusanos\lua51\lapi.c"
+					RelativePath="..\..\src\gusanos\luaapi\classes.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\gusanos\lua51\lapi.h"
+					RelativePath="..\..\src\gusanos\luaapi\context.cpp"
 					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lauxlib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lauxlib.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lbaselib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lcode.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lcode.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldblib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldebug.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldebug.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldo.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldo.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ldump.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lfunc.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lfunc.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lgc.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lgc.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\linit.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\liolib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\llex.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\llex.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\llimits.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lmathlib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lmem.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lmem.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\loadlib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lobject.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lobject.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lopcodes.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lopcodes.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\loslib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lparser.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lparser.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lstate.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lstate.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lstring.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lstring.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lstrlib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ltable.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ltable.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ltablib.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ltm.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\ltm.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lua.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\luaconf.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lualib.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lundump.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lundump.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lvm.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lvm.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lzio.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\lzio.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\gusanos\lua51\print.c"
-					>
-				</File>
-				<Filter
-					Name="luaapi"
-					>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\classes.h"
+					<FileConfiguration
+						Name="Debug|Win32"
 						>
-					</File>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\context.cpp"
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
 						>
-						<FileConfiguration
-							Name="Debug|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)\$(InputName)1.obj"
-								XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-							/>
-						</FileConfiguration>
-						<FileConfiguration
-							Name="Release|Win32"
-							>
-							<Tool
-								Name="VCCLCompilerTool"
-								ObjectFile="$(IntDir)\$(InputName)1.obj"
-								XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
-							/>
-						</FileConfiguration>
-					</File>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\context.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\macros.h"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\types.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\..\src\gusanos\lua51\luaapi\types.h"
-						>
-					</File>
-				</Filter>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\context.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\macros.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\types.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="omfgscript"

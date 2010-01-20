@@ -212,7 +212,7 @@ void CViewport::gusRender()
 		// Most Lua code depends on this assumption so it would break otherwise.
 		
 		EACH_CALLBACK(i, wormRender) {
-			for(list<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
+			for(vector<CWormInputHandler*>::iterator playerIter = game.players.begin(); playerIter != game.players.end(); ++playerIter) {
 				CWorm* worm = (*playerIter)->getWorm();
 				if( worm && worm->isActive() && worm->inputHandler() ) {
 					IVec renderPos( worm->getRenderPos() );

@@ -14,6 +14,7 @@ extern "C"
 #include <ostream>
 #include <utility>
 #include <map>
+#include <assert.h>
 using std::istream;
 using std::cerr;
 using std::endl;
