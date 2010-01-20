@@ -94,7 +94,7 @@ void SfxDriverOpenAL::volumeChange()
 	alListenerf(AL_GAIN,(float)m_volume/MAX_VOLUME);
 }
 
-SoundSample* SfxDriverOpenAL::load(std::string const& filename)
+SmartPointer<SoundSample> SfxDriverOpenAL::load(std::string const& filename)
 {
 	return new SoundSampleOpenAL(filename);
 		
