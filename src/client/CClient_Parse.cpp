@@ -1141,6 +1141,25 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	}
 }
 
+static void setClientGameMode(CGameMode*& mode, const std::string& modeName) {
+	if(game.isServer()) {
+		// grab from server
+		mode = tLXOptions->tGameInfo.gameMode;
+		
+		// overwrite in case of single player mode
+		// we do this so in case we have a standard mode, the bots can act normal
+		if(mode == &singlePlayerGame) {
+			mode = singlePlayerGame.standardGameMode;
+			if(mode)
+				notes << "Playing " << tLXOptions->tGameInfo.gameMode->Name() << " with gamemode " << mode->Name() << endl;
+		}
+	}
+	else
+		mode = GameMode( modeName );	
+	
+	// NOTE: NULL is valid here
+}
+
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
 	bool isReconnect = client->bGameReady || client->iNetStatus == NET_PLAYING;
@@ -1154,19 +1173,7 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	ParseFeatureSettings(bs);
 
 	client->tGameInfo.sGameMode = bs->readString();
-	if(game.isServer()) {
-		// grab from server
-		client->tGameInfo.gameMode = tLXOptions->tGameInfo.gameMode;
-		
-		// overwrite in case of single player mode
-		// we do this so in case we have a standard mode, the bots can act normal
-		if(client->tGameInfo.gameMode == &singlePlayerGame)
-			client->tGameInfo.gameMode = singlePlayerGame.standardGameMode;
-		
-		// NOTE: NULL is valid here
-	}
-	else
-		client->tGameInfo.gameMode = GameMode( client->tGameInfo.sGameMode );
+	setClientGameMode(client->tGameInfo.gameMode, client->tGameInfo.sGameMode);
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	if(!isReconnect)
@@ -2160,7 +2167,7 @@ void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 	ParseFeatureSettings(bs);
 	
 	client->tGameInfo.sGameMode = bs->readString();
-	client->tGameInfo.gameMode = GameMode(client->tGameInfo.sGameMode);
+	setClientGameMode(client->tGameInfo.gameMode, client->tGameInfo.sGameMode);
 }
 
 

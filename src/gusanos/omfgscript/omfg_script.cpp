@@ -598,8 +598,10 @@ struct ParserImpl : public TGrammar<ParserImpl>
 	void property(std::string const& name, TokenBase* t, Location loc)
 	{
 		crc.process_bytes(name.data(), name.size());
-		t->calcCRC(crc);
-		properties[name] = new Property(loc, t);
+		if(t) {
+			t->calcCRC(crc);
+			properties[name] = new Property(loc, t);
+		}
 	}
 	
 	TokenBase* getRawProperty(std::string const& name)
