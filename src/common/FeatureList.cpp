@@ -138,9 +138,7 @@ FeatureSettings::~FeatureSettings() {
 }
 
 FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
-	if(settings) delete[] settings;
-
-	settings = new ScriptVar_t[featureArrayLen()];
+	if(!settings) settings = new ScriptVar_t[featureArrayLen()];
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		(*this)[f->get()] = r[f->get()];		
 	}
