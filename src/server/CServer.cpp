@@ -612,11 +612,13 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	else
 		SendGlobalPacket(&bs);
 	
-	if(receiver)
-		receiver->getNetEngine()->SendPlaySound("begin");
-	else
-		SendPlaySound("begin");
-
+	if(!tLXOptions->tGameInfo.features[FT_ImmediateStart] && !game.gameScript()->gusEngineUsed()) {
+		if(receiver)
+			receiver->getNetEngine()->SendPlaySound("begin");
+		else
+			SendPlaySound("begin");
+	}
+	
 	if(receiver) {
 		// inform new client about other ready clients
 		CServerConnection *cl = cClients;
