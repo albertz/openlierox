@@ -26,7 +26,6 @@ Sound::Sound():m_sound(0)
 
 Sound::~Sound()
 {
-	delete m_sound;
 }
 
 

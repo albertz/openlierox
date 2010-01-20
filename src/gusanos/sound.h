@@ -33,7 +33,7 @@ class Sound : public LuaObject
 	private:
 	
 	SfxDriver* driver;
-	SoundSample *m_sound;
+	SmartPointer<SoundSample> m_sound;
 	CGameObject* m_obj;
 	
 };
