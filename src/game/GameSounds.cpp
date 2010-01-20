@@ -8,7 +8,7 @@
  */
 
 #include "sound/SoundsBase.h"
-#include "game/Sounds.h"
+#include "game/GameSounds.h"
 #include "FindFile.h"
 
 sfxgame_t	sfxGame;
