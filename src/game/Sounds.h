@@ -13,7 +13,7 @@
 
 #include "SmartPointer.h"
 
-struct SoundSample;
+class SoundSample;
 
 // Game sounds
 struct sfxgame_t {
