@@ -268,6 +268,8 @@ bool SinglePlayerGame::CheckGameOver() {
 		CWorm* w = ourLocalHumanWorm();
 		if(w && standardGameMode->Winner() == w->getID())
 			setLevelSucceeded();
+		else if(w && standardGameMode->isTeamGame() && standardGameMode->WinnerTeam() == w->getTeam())
+			setLevelSucceeded();
 		
 		return true;
 	}
