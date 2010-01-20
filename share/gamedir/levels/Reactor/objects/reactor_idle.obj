@@ -1,0 +1,20 @@
+blender = add
+alpha = 150
+gravity = 0
+sprite = reactor_idle.png
+anim_duration = 100
+anim_type = ping_pong
+damping = 0
+render_layer = 1
+col_layer = -1
+
+on timer(100,300) 
+ play_global_sound( [exp_01.wav,exp_02.wav,exp_03.wav,exp_04.wav,exp_05.wav,exp_06.wav,exp_07.wav,exp_08.wav,exp_09.wav,exp_10.wav,exp_11.wav],25,5,0.5,0.1)
+
+on timer(100,200) 
+ play_sound([arc_01.wav,arc_02.wav],30,1,0.05)
+
+on timer(1000,1000) 
+ play_sound([Jolt_01.wav,Jolt_02.wav,Jolt_03.wav,Jolt_04.wav],100,1,0.05)
+ shoot_particles (reactor_glow.obj,1,0,0,0,0,0,0,0)
+ shoot_particles (reactor_glow2.obj,1,0,0,0,0,0,0,0)

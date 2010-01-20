@@ -1,0 +1,27 @@
+sprite = lamp_on.png
+col_layer=4
+render_layer = 1
+light_radius=200
+health=1
+blender=add
+alpha=255
+
+on timer(100,50)
+set_alpha_fade(150,255)
+
+on timer(100,50)
+set_alpha_fade(50,255)
+
+on timer(100,50)
+set_alpha_fade(255)
+
+on timer(100,50)
+set_alpha_fade(15,25)
+
+on timer(100,50)
+set_alpha_fade(50,175)
+
+on death() 
+play_sound( [lightbreak1.ogg,lightbreak2.ogg,lightbreak3.ogg],75,1,0 )
+shoot_particles ( light_broken.obj , 1)
+remove()

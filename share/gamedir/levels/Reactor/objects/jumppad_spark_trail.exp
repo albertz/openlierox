@@ -1,0 +1,8 @@
+colour = [5,30,40]
+blender = add
+
+on creation()
+set_alpha_fade(20,0)
+
+on timer(20)
+remove()

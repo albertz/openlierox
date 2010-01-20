@@ -1,0 +1,28 @@
+invisible = 1
+timeout = 0
+
+on detect_range (80,1,[1])
+ repel(0.2,82,0.1)
+
+on detect_range (80,1,[1])
+ damage(1)
+
+on detect_range (80,1,[2,3])
+ repel(0.1,82,0.05)
+
+on detect_range (80,1)
+ repel(0.2,82,0.1)
+
+on detect_range (80,1)
+ damage(2)
+
+on detect_range (60,1)
+ damage(4)
+
+on detect_range (40,1)
+ damage(6)
+
+
+
+
+

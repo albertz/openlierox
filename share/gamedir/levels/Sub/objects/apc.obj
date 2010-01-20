@@ -1,0 +1,7 @@
+invisible=1
+
+on creation()
+ play_sound(apc.wav,50,1,0.05)
+
+on timer(470)
+ play_sound(apc.wav,50,1,0.05)

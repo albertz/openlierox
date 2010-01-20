@@ -1,0 +1,19 @@
+col_layer = -1
+sprite = light_kicker.png
+blender = add
+occluded = 1
+alpha = 200
+light_radius=15
+render_layer = 8
+
+on detect_range(3,1)
+ damp( 0 )
+ repel( 3.2, 100, 2.8 )
+ play_sound( kicker.ogg,75,1,0 )
+ shoot_particles(kicker_sparker.obj,1)
+
+on detect_range(4,1,[6])
+ damp( 0 )
+ repel( 3.2, 100, 2.8 )
+ play_sound( kicker.ogg,75,1,0 )
+ shoot_particles(kicker_sparker.obj,1)

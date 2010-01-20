@@ -1,0 +1,20 @@
+gravity = 0.0045
+repeat = 2
+col_layer = 3
+color = [111,153,185]
+
+on custom_event(1)
+remove()
+
+on timer(0)
+ create_explosion(drip_splash.exp)
+
+on ground_collision()
+ shoot_particles ( drip_splash.obj , 4, 0.6, 0.6,0,0, 360, 360, 1 )
+ play_sound( [drip_1.ogg,drip_2.ogg,drip_3.ogg],50,1,0 )
+ remove()
+
+on detect_range(1,1)
+shoot_particles ( drip_splash.obj , 4, 0.6, 0.6,0,0, 360, 360, 1 )
+ play_sound( [drip_1.ogg,drip_2.ogg,drip_3.ogg],50,1,0 )
+remove()

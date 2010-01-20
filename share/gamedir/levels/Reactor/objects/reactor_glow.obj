@@ -1,0 +1,25 @@
+blender = add
+alpha = 150
+gravity = 0
+sprite = reactor_glow.png
+damping = 0
+render_layer = 1
+col_layer = -1
+
+on creation()
+set_alpha_fade(100)
+
+on timer(5)
+ create_explosion (reactor_damage.exp)
+ shoot_particles (reactor_death.obj,1,0,0,0,0,0,0,0)
+
+on timer(1,max_trigger=60)
+ create_explosion (reactor_damage.exp)
+ shoot_particles (reactor_death.obj,1,0,0,0,0,0,0,0)
+
+on timer(1,max_trigger=30)
+ create_explosion (reactor_damage.exp)
+ shoot_particles (reactor_death.obj,2,0,0,0,0,0,0,0)
+
+on timer(100)
+remove()

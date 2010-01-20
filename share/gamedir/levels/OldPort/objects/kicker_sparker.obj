@@ -1,0 +1,13 @@
+invisible = true
+light_radius=25
+alpha=255
+col_layer = -1
+
+on creation()
+ set_alpha_fade(12)
+
+on timer(12)
+ remove()
+
+on timer(0,1,6)
+ shoot_particles(kicker_sparks.obj, 10, 0.3, 0.6, distribution = 360 )

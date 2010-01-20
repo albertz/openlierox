@@ -1,0 +1,14 @@
+blender = add
+alpha = 250
+gravity = 0
+sprite = reactor_discharge.png
+damping = 0
+render_layer = 1
+col_layer = -1
+
+on creation()
+set_alpha_fade(10)
+
+
+on timer(10)
+remove()

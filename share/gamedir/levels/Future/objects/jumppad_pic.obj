@@ -1,0 +1,7 @@
+sprite = jumppad_pic2.png
+blender = alphach
+anim_duration = 60
+anim_type = loop_left
+render_layer = 6
+anim_on_ground = 1
+
