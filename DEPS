@@ -49,10 +49,30 @@ Gentoo: net-misc/curl
 Debian: libcurl4-dev
 tested versions: 7.19.6
 
+-- libboost-signals
+Debian: libboost-signals-dev
+tested versions: 1.38
+
+-- libboost-filesystem
+Debian: libboost-filesystem-dev
+tested versions: 1.38
+
+-- libopenal
+Debian: libopenal-dev
+tested versions: 1.8.466-2
+
+-- libalut
+Debian: libalut-dev
+tested versions: 1.1.0
+
+-- libvorbis
+Debian: libvorbis-dev
+tested versions: 1.2.0
+
 ----
 
 Quick command for Debian/Ubuntu:
-sudo apt-get install build-essential subversion cmake libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-dev
+sudo apt-get install build-essential subversion cmake libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-dev libboost-signals-dev libboost-filesystem-dev libopenal-dev libalut-dev libvorbis-dev
 cmake -D HAWKNL_BUILTIN=1 -D DEBUG=0 -D X11=1 .
 
 Quick command for OpenBSD:
