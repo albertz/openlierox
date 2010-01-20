@@ -19,7 +19,7 @@
 
 #include <map>
 #include <set>
-#include "game/Sounds.h"
+#include "game/GameSounds.h"
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Version.h"
