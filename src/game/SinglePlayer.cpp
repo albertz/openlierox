@@ -241,11 +241,10 @@ void SinglePlayerGame::setLevelSucceeded() {
 	
 	notes << "SinglePlayerGame: level was succeeded" << endl;
 	levelSucceeded = true;
-
-	if(gameLevelExists(currentGame, currentLevel + 1)) {
+	tLXOptions->localplayLevels[currentGame] = MAX((int)tLXOptions->localplayLevels[currentGame], (int)currentLevel + 1);
+	
+	if(gameLevelExists(currentGame, currentLevel + 1))
 		setLevel(currentLevel + 1);
-		tLXOptions->localplayLevels[currentGame] = MAX((int)tLXOptions->localplayLevels[currentGame], (int)currentLevel);
-	}
 }
 
 void SinglePlayerGame::Simulate() {
