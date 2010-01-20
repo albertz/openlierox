@@ -35,7 +35,7 @@
 #include "WeaponDesc.h"
 #include "PhysicsLX56.h"
 #include "sound/SoundsBase.h"
-#include "game/GameSounds.h"
+#include "game/Sounds.h"
 
 
 // defined in PhysicsLX56_Projectiles

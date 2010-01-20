@@ -32,7 +32,7 @@
 #include "Timer.h"
 #include "Options.h"
 #include "FindFile.h"
-#include "game/GameSounds.h"
+#include "game/Sounds.h"
 
 #include "sound/sfx.h"
 #include "sound/sfxdriver.h"
