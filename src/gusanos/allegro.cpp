@@ -100,7 +100,7 @@ static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
 
 ALLEGRO_BITMAP *load_bitmap(const char *filename, RGB *pal) {
 	std::string fullfilename = GetFullFileName(filename);	
-	SDL_Surface* img = IMG_Load(fullfilename.c_str());
+	SDL_Surface* img = IMG_Load(Utf8ToSystemNative(fullfilename).c_str());
 	if(!img) return NULL;
 	
 	if( img->format->BitsPerPixel == 8 )
