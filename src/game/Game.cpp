@@ -36,6 +36,7 @@
 #include "sound/sfx.h"
 #include "gusanos/network.h"
 #include "OLXConsole.h"
+#include "game/SinglePlayer.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -263,6 +264,9 @@ void Game::cleanupAfterGameloopEnd() {
 		DedicatedControl::Get()->GameLoopEnd_Signal();		
 	
 	cCache.ClearExtraEntries(); // Game ended - clear cache	
+	
+	if(tLXOptions->tGameInfo.gameMode == &singlePlayerGame)
+		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
 }
 
 
