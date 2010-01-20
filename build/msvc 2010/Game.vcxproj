@@ -67,7 +67,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\optional-includes\generated;..\..\include;../../libs/hawknl/src/;..\..\libs\boost_process;..\..\libs\libzip;..\..\src\breakpad\external\src;../../src/;..\..\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Sync</ExceptionHandling>
@@ -175,6 +175,9 @@
     <ProjectReference Include="Breakpad.vcxproj">
       <Project>{b55ca863-b374-4baf-95ac-539e4fa4c90c}</Project>
     </ProjectReference>
+    <ProjectReference Include="Lua.vcxproj">
+      <Project>{f9c7b86a-c5f0-4bb0-acfe-6e5ad9616436}</Project>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\Autocompletion.h" />
@@ -228,6 +231,12 @@
     <ClInclude Include="..\..\include\Unicode.h" />
     <ClInclude Include="..\..\include\win32memleakdebug.h" />
     <ClInclude Include="..\..\include\XMLutils.h" />
+    <ClInclude Include="..\..\src\game\GameSounds.h" />
+    <ClInclude Include="..\..\src\game\Sounds.h" />
+    <ClInclude Include="..\..\src\gusanos\luaapi\classes.h" />
+    <ClInclude Include="..\..\src\gusanos\luaapi\context.h" />
+    <ClInclude Include="..\..\src\gusanos\luaapi\macros.h" />
+    <ClInclude Include="..\..\src\gusanos\luaapi\types.h" />
     <ClInclude Include="..\..\src\sound\sfx.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver_openal.h" />
@@ -314,7 +323,6 @@
     <ClInclude Include="..\..\include\LieroX.h" />
     <ClInclude Include="..\..\include\Networking.h" />
     <ClInclude Include="..\..\include\Options.h" />
-    <ClInclude Include="..\..\include\Sounds.h" />
     <ClInclude Include="..\..\include\UploadSpeedTest.h" />
     <ClInclude Include="..\..\include\Utils.h" />
     <ClInclude Include="..\..\include\Version.h" />
@@ -459,33 +467,6 @@
     <ClInclude Include="..\..\src\gusanos\lua\bindings-objects.h" />
     <ClInclude Include="..\..\src\gusanos\lua\bindings-resources.h" />
     <ClInclude Include="..\..\src\gusanos\lua\bindings.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lapi.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lauxlib.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lcode.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\ldebug.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\ldo.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lfunc.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lgc.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\llex.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\llimits.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lmem.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lobject.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lopcodes.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lparser.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lstate.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lstring.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\ltable.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\ltm.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lua.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\luaconf.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lualib.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lundump.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lvm.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\lzio.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\classes.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\context.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\macros.h" />
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\types.h" />
     <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script.h" />
     <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script_parser.h" />
   </ItemGroup>
@@ -630,9 +611,12 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\common\XMLutils.cpp" />
+    <ClCompile Include="..\..\src\game\GameSounds.cpp" />
+    <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp" />
     <ClCompile Include="..\..\src\sound\sfx.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp" />
+    <ClCompile Include="..\..\src\sound\Sounds.cpp" />
     <ClCompile Include="..\..\src\sound\sound_sample.cpp" />
     <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp" />
     <ClCompile Include="..\..\src\util\angle.cpp" />
@@ -897,12 +881,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\client\Options.cpp">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="..\..\src\client\Sounds.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1206,7 +1184,9 @@
     <ClCompile Include="..\..\src\gusanos\console\variables.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\detail\button.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\detail\check.cpp" />
-    <ClCompile Include="..\..\src\gusanos\gui\detail\context.cpp" />
+    <ClCompile Include="..\..\src\gusanos\gui\detail\context.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/detail_context.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\gui\detail\edit.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\detail\group.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\detail\gss.cpp" />
@@ -1232,50 +1212,12 @@
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lapi.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lauxlib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lbaselib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lcode.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ldblib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ldebug.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ldo.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ldump.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lfunc.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lgc.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\linit.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\liolib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\llex.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lmathlib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lmem.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\loadlib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lobject.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lopcodes.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\loslib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lparser.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lstate.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lstring.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lstrlib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ltable.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ltablib.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\ltm.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lundump.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lvm.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\lzio.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\print.c" />
-    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\context.cpp">
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
-      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
-      <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\types.cpp" />
     <ClCompile Include="..\..\src\gusanos\omfgscript\omfg_script.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\msvc\libs\bgd.lib" />
     <Library Include="..\msvc\libs\dbghelp.lib" />
     <Library Include="..\msvc\libs\libxml2.lib" />
-    <Library Include="..\msvc\libs\lua5.1.lib" />
     <Library Include="..\msvc\libs\pthreadVCE.lib" />
     <Library Include="..\msvc\libs\SDL.lib" />
     <Library Include="..\msvc\libs\SDL_image.lib" />

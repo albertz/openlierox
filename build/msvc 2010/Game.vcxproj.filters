@@ -42,12 +42,6 @@
     <Filter Include="Gusanos\lua">
       <UniqueIdentifier>{fbb6173e-cd84-4464-afb4-1a21d7068527}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Gusanos\lua51">
-      <UniqueIdentifier>{d9ddc297-9389-4f64-b734-0e17d6a1c61f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Gusanos\lua51\luaapi">
-      <UniqueIdentifier>{2204139b-7b0b-4abc-815c-956984752070}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Gusanos\omfgscript">
       <UniqueIdentifier>{bde557b7-e046-4a7c-ab05-65bb70a945b6}</UniqueIdentifier>
     </Filter>
@@ -482,9 +476,6 @@
     <ClInclude Include="..\..\include\SmartPointer.h">
       <Filter>System Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\include\Sounds.h">
-      <Filter>Game Core</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\include\StackWalker.h">
       <Filter>System Files</Filter>
     </ClInclude>
@@ -554,6 +545,9 @@
     <ClInclude Include="..\..\src\game\Game.h">
       <Filter>Game files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\GameSounds.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\game\Level.h">
       <Filter>Game files</Filter>
     </ClInclude>
@@ -562,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\game\SinglePlayer.h">
       <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\Sounds.h">
+      <Filter>Game Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\game\WormInputHandler.h">
       <Filter>Game files</Filter>
@@ -743,86 +740,17 @@
     <ClInclude Include="..\..\src\gusanos\loaders\vermes.h">
       <Filter>Gusanos\loaders</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lapi.h">
-      <Filter>Gusanos\lua51</Filter>
+    <ClInclude Include="..\..\src\gusanos\luaapi\classes.h">
+      <Filter>Gusanos\lua</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lauxlib.h">
-      <Filter>Gusanos\lua51</Filter>
+    <ClInclude Include="..\..\src\gusanos\luaapi\context.h">
+      <Filter>Gusanos\lua</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lcode.h">
-      <Filter>Gusanos\lua51</Filter>
+    <ClInclude Include="..\..\src\gusanos\luaapi\macros.h">
+      <Filter>Gusanos\lua</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\ldebug.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\ldo.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lfunc.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lgc.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\llex.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\llimits.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lmem.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lobject.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lopcodes.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lparser.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lstate.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lstring.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\ltable.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\ltm.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lua.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\classes.h">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\context.h">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\macros.h">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\luaapi\types.h">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\luaconf.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lualib.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lundump.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lvm.h">
-      <Filter>Gusanos\lua51</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\lua51\lzio.h">
-      <Filter>Gusanos\lua51</Filter>
+    <ClInclude Include="..\..\src\gusanos\luaapi\types.h">
+      <Filter>Gusanos\lua</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\gusanos\lua\bindings-game.h">
       <Filter>Gusanos\lua</Filter>
@@ -1324,9 +1252,6 @@
     <ClCompile Include="..\..\src\client\SkinnedGUI\CWidget.cpp">
       <Filter>New GUI</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\client\Sounds.cpp">
-      <Filter>Game Core</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\common\CBonus.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
@@ -1496,6 +1421,9 @@
       <Filter>System Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game\Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\GameSounds.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game\Level.cpp">
@@ -1675,101 +1603,8 @@
     <ClCompile Include="..\..\src\gusanos\loaders\vermes.cpp">
       <Filter>Gusanos\loaders</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lapi.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lauxlib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lbaselib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lcode.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ldblib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ldebug.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ldo.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ldump.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lfunc.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lgc.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\linit.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\liolib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\llex.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lmathlib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lmem.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\loadlib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lobject.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lopcodes.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\loslib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lparser.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lstate.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lstring.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lstrlib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ltable.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ltablib.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\ltm.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\context.cpp">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\luaapi\types.cpp">
-      <Filter>Gusanos\lua51\luaapi</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lundump.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lvm.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\lzio.c">
-      <Filter>Gusanos\lua51</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\lua51\print.c">
-      <Filter>Gusanos\lua51</Filter>
+    <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp">
+      <Filter>Gusanos\lua</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\lua\bindings-game.cpp">
       <Filter>Gusanos\lua</Filter>
@@ -1954,6 +1789,9 @@
     <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp">
       <Filter>System Files\Sound</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\sound\Sounds.cpp">
+      <Filter>System Files\Sound</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\src\sound\sound_sample.cpp">
       <Filter>System Files\Sound</Filter>
     </ClCompile>
@@ -1984,9 +1822,6 @@
       <Filter>Libraries</Filter>
     </Library>
     <Library Include="..\msvc\libs\libxml2.lib">
-      <Filter>Libraries</Filter>
-    </Library>
-    <Library Include="..\msvc\libs\lua5.1.lib">
       <Filter>Libraries</Filter>
     </Library>
     <Library Include="..\msvc\libs\pthreadVCE.lib">

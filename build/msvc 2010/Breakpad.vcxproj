@@ -140,7 +140,12 @@
     <ClCompile Include="..\..\src\breakpad\external\src\common\convert_UTF.c" />
     <ClCompile Include="..\..\src\breakpad\external\src\common\windows\guid_string.cc" />
     <ClCompile Include="..\..\src\breakpad\external\src\common\md5.c" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc" />
+    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
     <ClCompile Include="..\..\src\breakpad\external\src\common\string_conversion.cc" />
     <ClCompile Include="..\..\src\breakpad\external\src\common\windows\string_utils.cc" />
     <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_code_modules.cc" />

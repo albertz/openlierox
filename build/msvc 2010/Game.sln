@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenLieroX", "Game.vcxproj"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Breakpad", "Breakpad.vcxproj", "{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lua", "Lua.vcxproj", "{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.Release|Win32.Build.0 = Release|Win32
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.ReleaseStaticCRT|Win32.ActiveCfg = ReleaseStaticCRT|Win32
 		{B55CA863-B374-4BAF-95AC-539E4FA4C90C}.ReleaseStaticCRT|Win32.Build.0 = ReleaseStaticCRT|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.Debug|Win32.Build.0 = Debug|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.DebugStaticCRT|Win32.ActiveCfg = Debug|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.DebugStaticCRT|Win32.Build.0 = Debug|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.Release|Win32.ActiveCfg = Release|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.Release|Win32.Build.0 = Release|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.ReleaseStaticCRT|Win32.ActiveCfg = Release|Win32
+		{F9C7B86A-C5F0-4BB0-ACFE-6E5AD9616436}.ReleaseStaticCRT|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
