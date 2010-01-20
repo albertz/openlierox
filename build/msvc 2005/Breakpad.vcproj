@@ -315,6 +315,14 @@
 						AdditionalIncludeDirectories="&quot;$(VCInstallDir)include\&quot;;&quot;$(VCInstallDir)atlmfc\include\&quot;"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="$(VCInstallDir)atlmfc/include"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\breakpad\external\src\common\string_conversion.cc"

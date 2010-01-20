@@ -131,7 +131,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -242,7 +242,7 @@
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{D904199E-F28B-4AD5-8043-ED81BDD30CFD}"
-			RelativePathToProject="..\Lua\Lua.vcproj"
+			RelativePathToProject=".\Lua.vcproj"
 		/>
 	</References>
 	<Files>
@@ -3337,6 +3337,14 @@
 			<File
 				RelativePath="..\..\src\breakpad\DumpSyms.cpp"
 				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="$(VCInstallDir)atlmfc/include"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\src\breakpad\DumpSyms.h"
