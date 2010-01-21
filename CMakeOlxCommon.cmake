@@ -300,7 +300,10 @@ ENDIF(PYTHON_DED_EMBEDDED)
 SET(LIBS ${PYTHONLIBS})
 
 IF(BOOST_LINK_STATIC)
-	SET(LIBS ${LIBS} /usr/lib/libboost_filesystem.a /usr/lib/libboost_signals.a /usr/lib/libboost_system.a)
+	# seems this is the way for Debian:
+	SET(LIBS ${LIBS} boost_filesystem.a boost_signals.a)
+	# and this on newer CMake (>=2.6?)
+	#SET(LIBS ${LIBS} /usr/lib/libboost_filesystem.a /usr/lib/libboost_signals.a /usr/lib/libboost_system.a)
 ELSE(BOOST_LINK_STATIC)
 	SET(LIBS ${LIBS} boost_filesystem-mt boost_signals-mt)
 ENDIF(BOOST_LINK_STATIC)
