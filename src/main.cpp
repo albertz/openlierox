@@ -69,6 +69,10 @@
 
 #include <libxml/parser.h>
 
+#ifdef __MINGW32_VERSION
+#include <SDL_main.h>
+#endif
+
 // TODO: i hate globals ...
 // we have to create a basic class Game or something
 keyboard_t	*kb = NULL;
