@@ -304,13 +304,7 @@ IF(BOOST_LINK_STATIC)
 	SET(LIBS ${LIBS} /usr/lib/libboost_filesystem-mt.a /usr/lib/libboost_signals-mt.a /usr/lib/libboost_system-mt.a)
 	
 ELSE(BOOST_LINK_STATIC)
-	SET(BOOST_LIB_SUFFIX)
-	EXEC_PROGRAM(cat ARGS /etc/debian_version OUTPUT_VARIABLE DEBIAN_VERSION)
-	IF(DEBIAN_VERSION)
-		SET(BOOST_LIB_SUFFIX "-mt")
-	ENDIF(DEBIAN_VERSION)
-
-	SET(LIBS ${LIBS} boost_filesystem${BOOST_LIB_SUFFIX} boost_signals${BOOST_LIB_SUFFIX})
+	SET(LIBS ${LIBS} boost_filesystem-mt boost_signals-mt)
 ENDIF(BOOST_LINK_STATIC)
 
 SET(LIBS ${LIBS} curl alut openal vorbisfile)
