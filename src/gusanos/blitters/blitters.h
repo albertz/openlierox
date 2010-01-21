@@ -20,6 +20,12 @@
 #define HAS_MMX (false)
 #define HAS_SSE (false)
 #define HAS_MMXSSE (false)
+
+#if defined(WIN32)
+// built in anyway, it is still needed for linking
+#define BUILTIN_MMXSSE
+#endif
+
 #endif
 
 #define FOR_MMX(x_) if(HAS_MMX) { x_ }
