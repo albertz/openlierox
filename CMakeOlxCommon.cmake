@@ -300,9 +300,7 @@ ENDIF(PYTHON_DED_EMBEDDED)
 SET(LIBS ${PYTHONLIBS})
 
 IF(BOOST_LINK_STATIC)
-	ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
 	SET(LIBS ${LIBS} /usr/lib/libboost_filesystem-mt.a /usr/lib/libboost_signals-mt.a /usr/lib/libboost_system-mt.a)
-	
 ELSE(BOOST_LINK_STATIC)
 	SET(LIBS ${LIBS} boost_filesystem-mt boost_signals-mt)
 ENDIF(BOOST_LINK_STATIC)
