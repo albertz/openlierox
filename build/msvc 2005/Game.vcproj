@@ -131,7 +131,7 @@
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -3338,11 +3338,11 @@
 				RelativePath="..\..\src\breakpad\DumpSyms.cpp"
 				>
 				<FileConfiguration
-					Name="Debug|Win32"
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories="$(VCInstallDir)atlmfc\include"
+						AdditionalIncludeDirectories="$(VCInstallDir)atlmfc/include"
 					/>
 				</FileConfiguration>
 			</File>

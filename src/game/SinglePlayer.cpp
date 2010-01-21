@@ -148,7 +148,7 @@ static bool addPlayerToClient() {
 	return true;
 }
 
-static GameOptions::GameInfo oldSettings;
+static SmartPointer<GameOptions::GameInfo> oldSettings;
 
 bool SinglePlayerGame::startGame() {
 	if(!currentGameValid) {
@@ -162,7 +162,7 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
-	oldSettings = tLXOptions->tGameInfo;
+	oldSettings = new GameOptions::GameInfo(tLXOptions->tGameInfo);
 	
 	tLX->iGameType = GME_LOCAL;
 	
@@ -291,7 +291,11 @@ int SinglePlayerGame::Winner() {
 void SinglePlayerGame::GameOver() {
 	if(standardGameMode) standardGameMode->GameOver();
 	
-	tLXOptions->tGameInfo = oldSettings;	
+	if(oldSettings.get()) {
+		tLXOptions->tGameInfo = *oldSettings.get();
+		oldSettings = NULL;
+	}
+
 	// this is kind of a hack; we need it because in CClient::Draw for example,
 	// we check for it to draw the congratulation msg
 	tLXOptions->tGameInfo.gameMode = this;
