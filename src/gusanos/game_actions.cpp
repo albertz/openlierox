@@ -1,3 +1,10 @@
+#ifdef WIN32
+#include <windows.h>
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
 #include "game_actions.h"
 
 #include "gusgame.h"
