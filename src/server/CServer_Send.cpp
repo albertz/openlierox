@@ -451,7 +451,7 @@ bool GameServer::SendUpdate()
 			byte num_worms = 0;
 
 			// Send all the _other_ worms details
-			{
+			if(!game.gameScript()->gusEngineUsed()) {
 				std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
 				for(; w_it != worms_to_update.end(); w_it++) {
 					CWorm* w = *w_it;
@@ -478,13 +478,15 @@ bool GameServer::SendUpdate()
 			CBytestream *bs = cl->getUnreliable();
 			size_t oldBsPos = bs->GetPos();
 
-			// Write the packets to the unreliable bytestream
-			bs->writeByte(S2C_UPDATEWORMS);
-			bs->writeByte(num_worms);
-			bs->Append(&update_packets);
+			if(num_worms > 0) {
+				// Write the packets to the unreliable bytestream
+				bs->writeByte(S2C_UPDATEWORMS);
+				bs->writeByte(num_worms);
+				bs->Append(&update_packets);
+			}
 			
 			// Write out a stat packet
-			{
+			if(!game.gameScript()->gusEngineUsed()) {
 				bool need_send = false;
 				{
 					for (short j=0; j < cl->getNumWorms(); j++)
@@ -930,6 +932,8 @@ void GameServer::SendFiles()
 
 void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 {
+	if(game.gameScript()->gusEngineUsed()) return;
+	
 	CBytestream bs;
 	CServerConnection * cl = Worm->getClient();
 	if(cl == NULL) {
