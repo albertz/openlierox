@@ -148,6 +148,7 @@ size_t			maxStartingCaseEqualStr(const std::list<std::string>& strs);
 std::vector<std::string> splitstring(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 std::string		splitStringWithNewLine(const std::string& str, size_t maxlen, size_t maxwidth, class CFont& font);
 std::string		GetFileExtension(const std::string& filename);
+std::string		GetFileExtensionWithDot(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
 std::string		GetBaseFilenameWithoutExt(const std::string& filename);
 std::list<std::string> SplitFilename(const std::string& filename, size_t numPartsFromRight = (size_t)-1); // splits fn by PathSep

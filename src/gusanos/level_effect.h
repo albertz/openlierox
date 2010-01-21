@@ -8,8 +8,6 @@
 
 #include "gusanos/allegro.h"
 #include <string>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 class SpriteSet;
 

@@ -12,8 +12,6 @@
 #include <string>
 #include <vector>
 #include <boost/cstdint.hpp>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 class SpriteSet;
 class Distortion;

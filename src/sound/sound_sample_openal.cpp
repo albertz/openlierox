@@ -18,9 +18,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <boost/filesystem/path.hpp>
 #include <boost/algorithm/string.hpp>
-namespace fs = boost::filesystem;
 
 
 using namespace std;

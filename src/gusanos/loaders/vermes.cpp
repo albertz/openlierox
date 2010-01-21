@@ -16,12 +16,6 @@
 #include "../omfgscript/omfg_script.h"
 #include "FindFile.h"
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/fstream.hpp>
-namespace fs = boost::filesystem;
-
 #include <iostream>
 using namespace std;
 
@@ -268,7 +262,7 @@ VermesFontLoader VermesFontLoader::instance;
 
 bool VermesFontLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".bmp" || fs::extension(path) == ".png")
+	if(GetFileExtensionWithDot(path) == ".bmp" || GetFileExtensionWithDot(path) == ".png")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -349,7 +343,7 @@ XMLLoader XMLLoader::instance;
 
 bool XMLLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".xml")
+	if(GetFileExtensionWithDot(path) == ".xml")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -381,7 +375,7 @@ GSSLoader GSSLoader::instance;
 
 bool GSSLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".gss")
+	if(GetFileExtensionWithDot(path) == ".gss")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -417,7 +411,7 @@ LuaLoader LuaLoader::instance;
 
 bool LuaLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".lua")
+	if(GetFileExtensionWithDot(path) == ".lua")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -468,7 +462,7 @@ VermesParticleLoader VermesParticleLoader::instance;
 
 bool VermesParticleLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".obj")
+	if(GetFileExtensionWithDot(path) == ".obj")
 	{
 		name = path.leaf();
 		return true;

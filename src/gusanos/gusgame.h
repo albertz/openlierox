@@ -14,9 +14,7 @@
 #include <map>
 #include <set>
 #include <boost/shared_ptr.hpp>
-#include <boost/filesystem/path.hpp>
 using boost::shared_ptr;
-namespace fs = boost::filesystem;
 #include "netstream.h"
 
 class CWormInputHandler;

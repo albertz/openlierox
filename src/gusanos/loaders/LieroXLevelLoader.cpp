@@ -6,17 +6,11 @@
 #include <string>
 #include <cstring>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/convenience.hpp>
-namespace fs = boost::filesystem;
-
 LieroXLevelLoader LieroXLevelLoader::instance;
 
 bool LieroXLevelLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".lxl")
+	if(GetFileExtensionWithDot(path) == ".lxl")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;

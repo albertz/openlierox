@@ -3,17 +3,11 @@
 
 #ifndef DEDICATED_ONLY
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/fstream.hpp>
-namespace fs = boost::filesystem;
-
 LOSPFontLoader LOSPFontLoader::instance;
 
 bool LOSPFontLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".lfn")
+	if(GetFileExtensionWithDot(path) == ".lfn")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;

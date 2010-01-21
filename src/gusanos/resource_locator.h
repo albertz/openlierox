@@ -12,9 +12,6 @@
 #include "util/text.h"
 #include "gusanos/allegro.h"
 #include "Debug.h"
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/exception.hpp>
 #include <boost/utility.hpp>
 
 template<class T, bool Cache = true, bool ReturnResource = true>

@@ -18,8 +18,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 #ifndef DEDICATED_ONLY
 class SpriteSet;

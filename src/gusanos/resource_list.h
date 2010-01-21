@@ -9,8 +9,6 @@
 #include "util/macros.h"
 #include "Debug.h"
 #include <boost/cstdint.hpp>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 /*
 namespace fs {
