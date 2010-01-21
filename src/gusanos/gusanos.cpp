@@ -114,10 +114,6 @@ void gusLogicFrame() {
 	size_t logicFrameCount = 0;
 	while ( logicLast + 1 <= timer )
 	{
-		if(!game.shouldDoPhysicsFrame()) {
-			logicLast = timer;
-			break;
-		}
 
 #ifdef USE_GRID
 		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
@@ -142,7 +138,7 @@ void gusLogicFrame() {
 		}
 #endif
 		
-		if ( gusGame.isLoaded() && gusGame.isLevelLoaded() )
+		if ( game.shouldDoPhysicsFrame() && gusGame.isLoaded() && gusGame.isLevelLoaded() )
 		{
 			
 #ifdef USE_GRID
