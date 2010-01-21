@@ -37,6 +37,8 @@ build-stamp: configure-stamp
 	-D CMAKE_C_FLAGS="-g" -D CMAKE_CXX_FLAGS="-g" \
 	-D HAWKNL_BUILTIN=1 \
 	-D LIBZIP_BUILTIN=1 \
+	-D LIBLUA_BUILTIN=1 \
+	-D BOOST_LINK_STATIC=1 \
 	-D DEBUG=0 \
 	-D SYSTEM_DATA_DIR=/usr/share/games .
 	$(MAKE) -j2
