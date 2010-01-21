@@ -368,7 +368,7 @@ int l_dump(lua_State* L)
 	try
 	{	
 		std::string dumpPath(std::string("persistance") + "/" + std::string(s) + ".lpr");
-		std::ofstream f(GetWriteFullFileName("gusanos/" + dumpPath, true), std::ios::binary);
+		std::ofstream f(GetWriteFullFileName("gusanos/" + dumpPath, true).c_str(), std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;
