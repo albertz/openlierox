@@ -82,3 +82,6 @@ Quick command for FreeBSD/PC-BSD:
 pkg_add -r subversion cmake sdl sdl_image sdl_mixer libxml2 gd
 cmake -DHAWKNL_BUILTIN=1 -DLIBZIP_BUILTIN=1 -D DEBUG=0 .
 
+You can cross-compile Windows .EXE using Mingw from Linux -
+install "mingw32" Debian package, run "mingw_cross_compile.sh" and then "make".
+Note that you'll need 64-bit CPU, because linker chews up 1.6 Gb of RAM, and that number will grow.

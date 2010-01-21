@@ -22,7 +22,7 @@ bin
 *~
 *.build
 *.o
-*.a
+libopenlierox_pch_dephelp.a
 
 # this one is automatically created by CMake
 gamedecompiler.xcodeproj
