@@ -35,6 +35,7 @@ OPTION(OPTIM_PROJECTILES "Enable optimisations for projectiles" Yes)
 OPTION(MEMSTATS "Enable memory statistics and debugging" No)
 OPTION(BREAKPAD "Google Breakpad support" Yes)
 OPTION(DISABLE_JOYSTICK "Disable joystick support" No)
+OPTION(BOOST_LINK_STATIC "Link boost-libs statically" No)
 
 IF (DEBUG)
 	SET(CMAKE_BUILD_TYPE Debug)
@@ -297,13 +298,23 @@ IF(PYTHON_DED_EMBEDDED)
 ENDIF(PYTHON_DED_EMBEDDED)
 
 SET(LIBS ${PYTHONLIBS})
-SET(BOOST_LIB_SUFFIX)
-EXEC_PROGRAM(cat ARGS /etc/debian_version OUTPUT_VARIABLE DEBIAN_VERSION)
-IF(DEBIAN_VERSION)
-	SET(BOOST_LIB_SUFFIX "-mt")
-ENDIF(DEBIAN_VERSION)
 
-SET(LIBS ${LIBS} curl boost_filesystem${BOOST_LIB_SUFFIX} boost_signals${BOOST_LIB_SUFFIX} alut openal vorbisfile)
+IF(BOOST_LINK_STATIC)
+	ADD_DEFINITIONS(-DBOOST_ALL_NO_LIB)
+	SET(LIBS ${LIBS} /usr/lib/libboost_filesystem-mt.a /usr/lib/libboost_signals-mt.a /usr/lib/libboost_system-mt.a)
+	
+ELSE(BOOST_LINK_STATIC)
+	SET(BOOST_LIB_SUFFIX)
+	EXEC_PROGRAM(cat ARGS /etc/debian_version OUTPUT_VARIABLE DEBIAN_VERSION)
+	IF(DEBIAN_VERSION)
+		SET(BOOST_LIB_SUFFIX "-mt")
+	ENDIF(DEBIAN_VERSION)
+
+	SET(LIBS ${LIBS} boost_filesystem${BOOST_LIB_SUFFIX} boost_signals${BOOST_LIB_SUFFIX})
+ENDIF(BOOST_LINK_STATIC)
+
+SET(LIBS ${LIBS} curl alut openal vorbisfile)
+
 
 if(APPLE)
 	FIND_PACKAGE(SDL REQUIRED)
