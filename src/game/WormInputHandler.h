@@ -215,6 +215,7 @@ public:
 	// Not used virtual stuff
 	void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role) {}
 	bool outPreUpdateItem (Net_Node *_node, eNet_NodeRole _remote_role, Net_Replicator *_replicator) { return true; }
+	bool outPreUpdate (Net_Node* node, eNet_NodeRole remote_role) { return true; }
 
 	virtual ~BasePlayerInterceptor()
 	{}

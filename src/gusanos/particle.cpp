@@ -82,6 +82,8 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 			return true;
 		}
 
+		bool outPreUpdate (Net_Node* node, eNet_NodeRole remote_role) { return true; }
+
 	private:
 		Particle* parent;
 };

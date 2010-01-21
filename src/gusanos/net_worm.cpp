@@ -382,6 +382,11 @@ bool NetWormInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, eNe
 	return true;
 }
 
+bool NetWormInterceptor::outPreUpdate (Net_Node* node, eNet_NodeRole remote_role) {
+	// do the update exactly in this case
+	return game.gameScript()->gusEngineUsed();
+}
+
 bool NetWormInterceptor::outPreUpdateItem (Net_Node* node, eNet_NodeRole remote_role, Net_Replicator* replicator)
 {
 
