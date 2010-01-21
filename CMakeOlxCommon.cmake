@@ -279,6 +279,7 @@ ELSE(WIN32)
 					${OLXROOTDIR}/libs/libzip
 					${OLXROOTDIR}/libs/lua
 					${OLXROOTDIR}/libs/boost_process)
+		ADD_DEFINITIONS(-g2) # limit debug info somewhat, or it will produce huge .EXE
 	ELSE(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS("-pthread")
 	ENDIF(MINGW_CROSS_COMPILE)
