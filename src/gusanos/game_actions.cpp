@@ -1,8 +1,3 @@
-#include <windows.h>
-#ifdef PlaySound  // stupid Windows headers...
-#undef PlaySound
-#endif
-
 #include "game_actions.h"
 
 #include "gusgame.h"
