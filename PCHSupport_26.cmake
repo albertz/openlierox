@@ -45,7 +45,7 @@ MACRO(_PCH_GET_COMPILE_FLAGS _out_compile_flags)
   SET(${_out_compile_flags} ${CMAKE_CXX_FLAGS} )
   #MESSAGE("_out_compile_flags1 ${${_out_compile_flags}}" )
   IF(CMAKE_BUILD_TYPE MATCHES Debug)
-    SET(${_out_compile_flags} "${CMAKE_CXX_FLAGS} -ggdb" ) #hack to get rid of nasty warning
+    SET(${_out_compile_flags} "${CMAKE_CXX_FLAGS} -g" ) #hack to get rid of nasty warning
   ENDIF()
   
   IF(CMAKE_COMPILER_IS_GNUCXX)

@@ -38,7 +38,7 @@ extern "C" {
 /*#define NL_SAFE_COPY */
 
 /* undefine this to remove IPX code, Windows only  */
-#define NL_INCLUDE_IPX
+//#define NL_INCLUDE_IPX
 
 /* undefine this to remove loopback code */
 #define NL_INCLUDE_LOOPBACK
@@ -84,7 +84,7 @@ extern "C" {
   #define NL_APIENTRY __stdcall
   #define NL_CALLBACK __cdecl
   #ifdef __GNUC__
-    #define NL_INLINE extern __inline__
+    #define NL_INLINE static inline
   #else
     #define NL_INLINE __inline
   #endif /* __GNUC__ */

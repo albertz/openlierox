@@ -56,12 +56,6 @@
 #include <iostream>
 #include <sstream> //TEMP
 
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/path.hpp>
-
-namespace fs = boost::filesystem;
-
 //using namespace std; // Conflicting
 using std::string;
 using std::list;
@@ -631,7 +625,7 @@ void GusGame::loadWeapons()
 		{
 			if( gusExistsFile(path + "/" + iter->get()) )
 			{
-				if ( fs::extension(iter->get()) == ".wpn")
+				if ( GetFileExtensionWithDot(iter->get()) == ".wpn")
 				{
 					WeaponType* weapon = new WeaponType;
 					weapon->load(path + "/" + iter->get());

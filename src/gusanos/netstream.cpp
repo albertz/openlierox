@@ -692,6 +692,10 @@ static void pushNodeUpdate(Net_Node* node, const std::vector<Net_BitStream>& rep
 }
 
 static void handleNodeForUpdate(Net_Node* node, bool forceUpdate) {
+	if(node->intern->interceptor)
+		if(!node->intern->interceptor->outPreUpdate(node, eNet_RoleProxy))
+			return;
+
 	std::vector<Net_BitStream> replData;
 	replData.resize(node->intern->replicationSetup.size());
 	

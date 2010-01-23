@@ -12,6 +12,9 @@
 #include "util/log.h"
 
 #include "netstream.h"
+#include "game/Game.h"
+#include "CGameScript.h"
+
 
 Client::Client() : Net_Control(false)
 {
@@ -203,9 +206,8 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		if(cClient->getGameReady()) {
 			if(cClient->getStatus() == NET_PLAYING) // playing
 				player->startGame();
-			// Dont do that right now, no wpn selection in gus
-			/* else
-				player->initWeaponSelection(); */
+			else if(!game.gameScript()->gusEngineUsed())
+				player->initWeaponSelection();
 		}
 		
 	}else if( _requested_class == Particle::classID )

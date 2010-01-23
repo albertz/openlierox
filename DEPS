@@ -53,10 +53,6 @@ tested versions: 7.19.6
 Debian: libboost-signals-dev
 tested versions: 1.38
 
--- libboost-filesystem
-Debian: libboost-filesystem-dev
-tested versions: 1.38
-
 -- libopenal
 Debian: libopenal-dev
 tested versions: 1.8.466-2
@@ -72,7 +68,7 @@ tested versions: 1.2.0
 ----
 
 Quick command for Debian/Ubuntu:
-sudo apt-get install build-essential subversion cmake libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-dev libboost-signals-dev libboost-filesystem-dev libopenal-dev libalut-dev libvorbis-dev
+sudo apt-get install build-essential subversion cmake libsdl1.2-dev libsdl-mixer1.2-dev libsdl-image1.2-dev libgd2-noxpm-dev zlib1g-dev libzip-dev libxml2-dev libx11-dev libcurl4-dev libboost-signals-dev libopenal-dev libalut-dev libvorbis-dev
 cmake -D HAWKNL_BUILTIN=1 -D DEBUG=0 -D X11=1 .
 
 Quick command for OpenBSD:
@@ -82,3 +78,6 @@ Quick command for FreeBSD/PC-BSD:
 pkg_add -r subversion cmake sdl sdl_image sdl_mixer libxml2 gd
 cmake -DHAWKNL_BUILTIN=1 -DLIBZIP_BUILTIN=1 -D DEBUG=0 .
 
+You can cross-compile Windows .EXE using Mingw from Linux -
+install "mingw32" Debian package, run "mingw_cross_compile.sh" and then "make".
+Note that you'll need 64-bit CPU, because linker chews up 1.6 Gb of RAM, and that number will grow.

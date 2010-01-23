@@ -9,7 +9,6 @@
 #include "resource_locator.h"
 #include "gconsole.h"
 #include "blitters/context.h"
-#include <boost/filesystem/fstream.hpp>
 
 class Font;
 class SpriteSet;

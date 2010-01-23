@@ -55,6 +55,7 @@
 #		else
 #			include <ext/hash_set>
 			using namespace __gnu_cxx;
+			namespace __gnu_debug_def {} // because it may be undefined
 			using namespace __gnu_debug_def;
 #		endif
 #	else // STLPORT

@@ -1,3 +1,10 @@
+#ifdef WIN32
+#include <windows.h>
+#ifdef PlaySound
+#undef PlaySound
+#endif
+#endif
+
 #include "game_actions.h"
 
 #include "gusgame.h"
@@ -25,9 +32,6 @@
 
 #include "omfgscript/omfg_script.h"
 
-#ifdef PlaySound  // stupid Windows headers...
-#undef PlaySound
-#endif
 
 using namespace std;
 

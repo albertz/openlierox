@@ -17,10 +17,6 @@
 #include <fstream>
 #include <iostream>
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/fstream.hpp>
-namespace fs = boost::filesystem;
-
 using namespace std;
 
 LuaReference WeaponType::metaTable;

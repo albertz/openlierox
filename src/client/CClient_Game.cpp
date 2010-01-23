@@ -61,7 +61,7 @@ void CClient::Simulation()
     CWorm *w;
 
 	// Don't simulate if the physics engine is not ready
-	if (!PhysicsEngine::Get()->isInitialised())  {
+	if (!PhysicsEngine::Get() || !PhysicsEngine::Get()->isInitialised())  {
 		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
 		return;
 	}

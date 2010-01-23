@@ -609,6 +609,14 @@ std::string GetFileExtension(const std::string& path) {
 	return filename.substr(p+1);
 }
 
+std::string GetFileExtensionWithDot(const std::string& path) {
+	std::string filename = GetBaseFilename(path);
+	size_t p = filename.rfind('.');
+	if(p == std::string::npos) return "";
+	return filename.substr(p);	
+}
+
+
 std::string GetBaseFilename(const std::string& filename) {
 	size_t p = findLastPathSep(filename);
 	if(p == std::string::npos) return filename;

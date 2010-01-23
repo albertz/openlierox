@@ -417,9 +417,6 @@ void Network::olxParse(Net_ConnID src, CBytestream& bs) {
 void Network::olxSend(bool sendPendingOnly) {
 	// we can ignore Gusanos network in local play
 	if(tLX->iGameType == GME_LOCAL) return;
-
-	// if we don't use Gusanos at all, we don't need it
-	if(!gusGame.isEngineNeeded()) return;
 	
 	// dont send if in lobby
 	if(!cClient->getGameReady()) return;

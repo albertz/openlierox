@@ -5,6 +5,8 @@
 #include "mmx.h"
 #include "macros.h"
 
+#ifdef BUILTIN_MMXSSE
+
 namespace Blitters
 {
 	
@@ -84,4 +86,5 @@ void drawSprite_mult_8_to_32_mmx_sse(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from
 
 } //namespace Blitters
 
+#endif
 #endif

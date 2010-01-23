@@ -9,8 +9,6 @@
 #include "util/macros.h"
 #include "Debug.h"
 #include <boost/cstdint.hpp>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 /*
 namespace fs {
@@ -54,8 +52,9 @@ public:
 	
 	void addPath(std::string const& path)
 	{
-		if(std::find(m_paths.begin(), m_paths.end(), path) == m_paths.end())
-			m_paths.push_back(path);
+		for(std::list<std::string>::iterator i = m_paths.begin(); i != m_paths.end(); ++i)
+			if(path == *i) return;
+		m_paths.push_back(path);
 	}
 	
 	bool load(std::string const& name, T1& resource)

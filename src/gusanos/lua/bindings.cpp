@@ -39,11 +39,7 @@ using std::cerr;
 using std::endl;
 #include <boost/lexical_cast.hpp>
 #include <boost/bind.hpp>
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/fstream.hpp>
 using boost::lexical_cast;
-namespace fs = boost::filesystem;
 
 namespace LuaBindings
 {
@@ -372,7 +368,7 @@ int l_dump(lua_State* L)
 	try
 	{	
 		std::string dumpPath(std::string("persistance") + "/" + std::string(s) + ".lpr");
-		fs::ofstream f(GetWriteFullFileName("gusanos/" + dumpPath, true), std::ios::binary);
+		std::ofstream f(GetWriteFullFileName("gusanos/" + dumpPath, true).c_str(), std::ios::binary);
 		
 		if(!f.is_open())
 			return 0;

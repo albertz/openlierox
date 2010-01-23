@@ -8,12 +8,6 @@
 using std::cerr;
 using std::endl;
 
-#include <boost/filesystem/path.hpp>
-#include <boost/filesystem/operations.hpp>
-#include <boost/filesystem/fstream.hpp>
-#include <boost/filesystem/convenience.hpp>
-namespace fs = boost::filesystem;
-
 LieroLevelLoader LieroLevelLoader::instance;
 #ifndef DEDICATED_ONLY
 LieroFontLoader LieroFontLoader::instance;
@@ -21,7 +15,7 @@ LieroFontLoader LieroFontLoader::instance;
 
 bool LieroLevelLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".lev")
+	if(GetFileExtensionWithDot(path) == ".lev")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;
@@ -270,7 +264,7 @@ std::string LieroLevelLoader::formatShort() { return "Liero"; }
 
 bool LieroFontLoader::canLoad(std::string const& path, std::string& name)
 {
-	if(fs::extension(path) == ".lft")
+	if(GetFileExtensionWithDot(path) == ".lft")
 	{
 		name = GetBaseFilenameWithoutExt(path);
 		return true;

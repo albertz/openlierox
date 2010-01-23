@@ -5,18 +5,27 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
+#include <SDL.h>
 #include "gusanos/allegro.h"
 #include "types.h"
 #include "mmx.h"
 
-#ifndef WIN32
+// TODO: correct check if we should include MMX/SSE code
+#if !defined(WIN32) && (SDL_BYTEORDER == SDL_LIL_ENDIAN)
 #define HAS_MMX (cpu_capabilities & CPU_MMX)
 #define HAS_SSE (cpu_capabilities & CPU_SSE)
 #define HAS_MMXSSE (cpu_capabilities & CPU_MMXPLUS)
+#define BUILTIN_MMXSSE
 #else  // TODO: currently buggy on Windows
 #define HAS_MMX (false)
 #define HAS_SSE (false)
 #define HAS_MMXSSE (false)
+
+#if defined(WIN32)
+// built in anyway, it is still needed for linking
+#define BUILTIN_MMXSSE
+#endif
+
 #endif
 
 #define FOR_MMX(x_) if(HAS_MMX) { x_ }

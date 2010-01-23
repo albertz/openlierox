@@ -10,8 +10,6 @@
 #include <vector>
 #include <iostream> //TEMP
 #include <stdexcept>
-#include <boost/filesystem/path.hpp>
-namespace fs = boost::filesystem;
 
 #ifndef DEDICATED_ONLY
 #include "blitters/context.h"
