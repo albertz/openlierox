@@ -254,6 +254,11 @@ void Game::frameInner()
 void Game::cleanupAfterGameloopEnd() {
 	CrashHandler::recoverAfterCrash = false;
 	
+	// can happen if we have aborted a game
+	if(isServer() && !cServer->getGameOver())
+		// call gameover because we may do some important cleanup there
+		game.gameMode()->GameOver();
+	
 	gusGame.reset(GusGame::ServerQuit);
 	
 	PhysicsEngine::UnInit();
@@ -392,6 +397,12 @@ CGameMode* Game::gameMode() {
 		if(tLX->iGameType != GME_JOIN) return cServer->getGameMode();
 		return cClient->getGameLobby()->gameMode;
 	}
+	return NULL;
+}
+
+CWpnRest* Game::weaponRestrictions() {
+	if(isServer() && cServer) return cServer->getWeaponRestrictions();
+	if(isClient() && cClient) return cClient->getWeaponRestrictions();
 	return NULL;
 }
 

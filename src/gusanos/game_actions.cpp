@@ -29,7 +29,7 @@
 #include "glua.h"
 #include "luaapi/context.h"
 #include "script.h"
-#include "sfx.h"
+#include "sound/sfx.h"
 
 #include "omfgscript/omfg_script.h"
 

@@ -47,7 +47,7 @@
 #include "AuxLib.h"
 #include "gusanos/network.h"
 #include "game/Game.h"
-
+#include "gusanos/gusgame.h"
 
 GameServer	*cServer = NULL;
 
@@ -353,8 +353,6 @@ int GameServer::StartGame(std::string* errMsg)
 		tLXOptions->tGameInfo.features[FT_GameSpeed] = 1;
 	}
 	
-		
-	checkVersionCompatibilities(true);
 
 
 	CBytestream bs;
@@ -372,6 +370,9 @@ int GameServer::StartGame(std::string* errMsg)
 			w->Unprepare();
 		}
 	}
+	
+	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
+	cClient->SetPermanentText("");
 	
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
@@ -449,6 +450,14 @@ mapCreate:
 	}
 	
 	
+	iState = SVS_GAME;		// In-game, waiting for players to load
+	iServerFrame = 0;
+	bGameOver = false;
+	
+	// do after loading of mod/map because this also checks map/mod compatibility
+	// but do it anyway as early as possible
+	checkVersionCompatibilities(true);
+
 	
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
@@ -458,8 +467,6 @@ mapCreate:
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
-			cWorms[i].setGameScript(cGameScript.get());
-			cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setWeaponsReady(false);
 			cWorms[i].Prepare(true);
 		}
@@ -498,10 +505,6 @@ mapCreate:
 		warnings << "New net engine enabled, we are disabling some features" << endl;
 		NewNet::DisableAdvancedFeatures();
 	}
-
-	iState = SVS_GAME;		// In-game, waiting for players to load
-	iServerFrame = 0;
-	bGameOver = false;
 
 	notes << "preparing game mode " << getGameMode()->Name() << endl;
 	getGameMode()->PrepareGame();
@@ -1791,6 +1794,12 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		return false;
 	}
 	
+	// check only if not in lobby anymore - because in lobby, we cannot know (atm) about the level/mod
+	if((iState != SVS_LOBBY) && gusGame.isEngineNeeded() && ver < OLXBetaVersion(0,59,1)) {
+		if(incompReason) *incompReason = "Gusanos engine is used";
+		return false;
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
@@ -1876,8 +1885,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setKills(0);
 		w->setDeaths(0);
 		w->setTeamkills(0);
-		w->setGameScript(cGameScript.get());
-		w->setWpnRest(&cWeaponRestrictions);
 		w->setWeaponsReady(false);
 		
 		iNumPlayers++;
@@ -2451,11 +2458,6 @@ float GameServer::GetUpload(float timeRange)
 // Shutdown the server
 void GameServer::Shutdown()
 {
-	if(iState != SVS_LOBBY && !bGameOver) {
-		// call this, maybe we need to clean something up there
-		game.gameMode()->GameOver();
-	}
-	
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;
