@@ -21,22 +21,9 @@
 #include "OLXCommand.h"
 #include "util/macros.h"
 
+
 SinglePlayerGame singlePlayerGame;
 
-int SinglePlayerGame::maxAllowedLevelForCurrentGame() {
-	int level = 1;
-	std::map<std::string,int>::iterator f = tLXOptions->localplayLevels.find(currentGame);
-	if(f != tLXOptions->localplayLevels.end())
-		level = MAX(f->second, 1);
-	return level;
-}
-
-void SinglePlayerGame::setGame(const std::string& game) {
-	if(!stringcaseequal(currentGame, game)) {
-		currentGame = game;		
-		setLevel(maxAllowedLevelForCurrentGame());
-	}
-}
 
 static bool gameLevelExists(const std::string& game, int levelNr) {
 	std::string level;
@@ -48,6 +35,26 @@ static bool gameLevelExists(const std::string& game, int levelNr) {
 
 static bool gameExists(const std::string& game) {
 	return gameLevelExists(game, 1);
+}
+
+
+int SinglePlayerGame::maxAllowedLevelForCurrentGame() {
+	int level = 1;
+	std::map<std::string,int>::iterator f = tLXOptions->localplayLevels.find(currentGame);
+	if(f != tLXOptions->localplayLevels.end())
+		level = MAX(f->second, 1);
+	
+	while(level > 1 && !gameLevelExists(currentGame, level))
+		--level;
+	
+	return level;
+}
+
+void SinglePlayerGame::setGame(const std::string& game) {
+	if(!stringcaseequal(currentGame, game)) {
+		currentGame = game;		
+		setLevel(maxAllowedLevelForCurrentGame());
+	}
 }
 
 bool SinglePlayerGame::setLevel(int levelNr) {
