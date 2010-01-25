@@ -24,6 +24,7 @@
 #include "Entity.h"
 #include "CClient.h"
 #include "CGameScript.h"
+#include "game/Game.h"
 
 
 ///////////////////
@@ -79,13 +80,15 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 
 ///////////////////
 // Setup the details from the gamescript
-void CNinjaRope::Setup(CGameScript *gs)
+void CNinjaRope::Setup()
 {
-	assert( gs );
-
-	RopeLength = (float)gs->getRopeLength();
-	RestLength = (float)gs->getRestLength();
-	Strength = gs->getStrength();
+	if(game.gameScript() && game.gameScript()->isLoaded()) {
+		RopeLength = (float)game.gameScript()->getRopeLength();
+		RestLength = (float)game.gameScript()->getRestLength();
+		Strength = game.gameScript()->getStrength();
+	}
+	else
+		errors << "CNinjaRope::Setup: gamescript not loaded" << endl;
 }
 
 

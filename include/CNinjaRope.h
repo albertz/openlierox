@@ -19,7 +19,6 @@
 
 #include "CVec.h"
 
-class CGameScript;
 class CWorm;
 struct SDL_Surface;
 class CBytestream;
@@ -70,7 +69,7 @@ private:
 
 public:
 	// Methods
-
+	void		Setup();
 	void		Clear();
 
 	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);
@@ -79,9 +78,6 @@ public:
 	CVec		GetForce(CVec playerpos);
 	CVec		CalculateForce(CVec playerpos);
     
-
-	void		Setup(CGameScript *gs);
-
 	bool		isReleased()		{ return Released; }
 	void		Release();
 	void		UnAttachPlayer();

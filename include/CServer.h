@@ -327,6 +327,7 @@ public:
 	
 	void	setWeaponRestFile(const std::string& fn);
 	void	setDefaultWeaponRestFile();
+	CWpnRest* getWeaponRestrictions() { return &cWeaponRestrictions; }
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();

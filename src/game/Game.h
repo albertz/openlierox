@@ -21,6 +21,7 @@ class CWormInputHandler;
 class CWorm;
 class CGameScript;
 class CGameMode;
+class CWpnRest;
 
 class Game {
 public:
@@ -58,6 +59,7 @@ public:
 
 	CGameScript* gameScript();
 	CGameMode* gameMode();
+	CWpnRest* weaponRestrictions();
 	
 private:
 	AbsTime oldtime;

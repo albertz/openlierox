@@ -36,6 +36,7 @@
 #include "PhysicsLX56.h"
 #include "sound/SoundsBase.h"
 #include "game/Sounds.h"
+#include "game/Game.h"
 
 
 // defined in PhysicsLX56_Projectiles
@@ -378,7 +379,7 @@ public:
 				cClient->shouldRepaintInfo() = true;
 		}
 
-		const gs_worm_t *wd = worm->getGameScript()->getWorm();
+		const gs_worm_t *wd = game.gameScript()->getWorm();
 		worm_state_t *ws = worm->getWormState();
 
 

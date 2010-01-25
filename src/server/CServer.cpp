@@ -47,7 +47,7 @@
 #include "AuxLib.h"
 #include "gusanos/network.h"
 #include "game/Game.h"
-
+#include "gusanos/gusgame.h"
 
 GameServer	*cServer = NULL;
 
@@ -458,8 +458,6 @@ mapCreate:
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
-			cWorms[i].setGameScript(cGameScript.get());
-			cWorms[i].setWpnRest(&cWeaponRestrictions);
 			cWorms[i].setWeaponsReady(false);
 			cWorms[i].Prepare(true);
 		}
@@ -1882,8 +1880,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setKills(0);
 		w->setDeaths(0);
 		w->setTeamkills(0);
-		w->setGameScript(cGameScript.get());
-		w->setWpnRest(&cWeaponRestrictions);
 		w->setWeaponsReady(false);
 		
 		iNumPlayers++;

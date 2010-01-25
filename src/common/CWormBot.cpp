@@ -1675,7 +1675,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
 
-	float angleSpeed = m_worm->cGameScript->getWorm()->AngleSpeed * dt.seconds();
+	float angleSpeed = game.gameScript()->getWorm()->AngleSpeed * dt.seconds();
 	
 	NormalizeVector(&tgDir);
 
@@ -2141,7 +2141,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 	float alpha = 0;
 
-	const gs_worm_t *wd = m_worm->cGameScript->getWorm();
+	const gs_worm_t *wd = game.gameScript()->getWorm();
 	if (!wd)
 		return false;
 
@@ -3741,10 +3741,10 @@ void CWormBotInputHandler::AI_Carve()
 }
 
 
-static float estimateYDiffAfterJump(CWorm* w, float dt) {
-	const float jumpForce = w->getGameScript()->getWorm()->JumpForce;
+static float estimateYDiffAfterJump(float dt) {
+	const float jumpForce = game.gameScript()->getWorm()->JumpForce;
 	//const float drag = w->getGameScript()->getWorm()->AirFriction; // ignoring for now
-	const float grav = w->getGameScript()->getWorm()->Gravity;
+	const float grav = game.gameScript()->getWorm()->Gravity;
 
 	return grav*dt*dt*0.5f + jumpForce*dt;
 }
@@ -3752,7 +3752,7 @@ static float estimateYDiffAfterJump(CWorm* w, float dt) {
 static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
 	if(!node) return false;
 	
-	float dy = estimateYDiffAfterJump(w, 0.3f);
+	float dy = estimateYDiffAfterJump(0.3f);
 	if(!traceWormLine(CVec(node->fX, node->fY), w->getPos() + CVec(0,dy)))
 		return true;
 	
@@ -3760,7 +3760,7 @@ static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
 }
 
 static float estimateXDiffAfterMove(CWorm* w, float dt) {
-	const gs_worm_t *wd = w->getGameScript()->getWorm();
+	const gs_worm_t *wd = game.gameScript()->getWorm();
 	worm_state_t *ws = w->getWormState();
 	float speed = w->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 	if(ws->iFaceDirectionSide == DIR_LEFT) speed = -speed;
@@ -4289,7 +4289,7 @@ find_one_visible_node:
 		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - m_worm->vPos).GetLength();
 		float time = sqrt(2*dist/(force.GetLength()));
 		//float time2 = dist/vVelocity.GetLength();*/
-		float diff = m_worm->vVelocity.y - (m_worm->cGameScript->getWorm()->Gravity * time);
+		float diff = m_worm->vVelocity.y - (game.gameScript()->getWorm()->Gravity * time);
 		if (diff < 0)
 			m_worm->cNinjaRope.Release();
 	}
@@ -4311,7 +4311,7 @@ find_one_visible_node:
             bStuck = true;
             fStuckPause = tLX->currentTime;
 
-            m_worm->fAngle -= m_worm->cGameScript->getWorm()->AngleSpeed * tLX->fDeltaTime.seconds();
+            m_worm->fAngle -= game.gameScript()->getWorm()->AngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
 	        m_worm->fAngle = MIN((float)60,m_worm->fAngle);
 	        m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
@@ -4571,9 +4571,9 @@ void CWormBotInputHandler::initWeaponSelection() {
 	if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
 		(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
 		 cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
-		if (m_worm->cWeaponRest->isEnabled("Rifle"))  {
+		if (game.weaponRestrictions()->isEnabled("Rifle"))  {
 			for (short i=0; i<5; i++)
-				m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Rifle");  // set all weapons to Rifle
+				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Rifle");  // set all weapons to Rifle
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_RIFLES);
 		}
@@ -4582,14 +4582,14 @@ void CWormBotInputHandler::initWeaponSelection() {
 	else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
 			  cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
 			 cClient->getGameLobby()->iLoadingTime == 100)  {
-		int MyWeaps = m_worm->cWeaponRest->isEnabled("Super Shotgun") + m_worm-> cWeaponRest->isEnabled("Napalm") +  m_worm->cWeaponRest->isEnabled("Cannon") + m_worm->cWeaponRest->isEnabled("Doomsday") + m_worm->cWeaponRest->isEnabled("Chaingun");
+		int MyWeaps = game.weaponRestrictions()->isEnabled("Super Shotgun") + game.weaponRestrictions()->isEnabled("Napalm") +  game.weaponRestrictions()->isEnabled("Cannon") + game.weaponRestrictions()->isEnabled("Doomsday") + game.weaponRestrictions()->isEnabled("Chaingun");
 		if (MyWeaps == 5)  {
 			// Set our weapons
-			m_worm->tWeapons[0].Weapon = m_worm->cGameScript->FindWeapon("Super Shotgun");
-			m_worm->tWeapons[1].Weapon = m_worm->cGameScript->FindWeapon("Napalm");
-			m_worm->tWeapons[2].Weapon = m_worm->cGameScript->FindWeapon("Cannon");
-			m_worm->tWeapons[3].Weapon = m_worm->cGameScript->FindWeapon("Doomsday");
-			m_worm->tWeapons[4].Weapon = m_worm->cGameScript->FindWeapon("Chaingun");
+			m_worm->tWeapons[0].Weapon = game.gameScript()->FindWeapon("Super Shotgun");
+			m_worm->tWeapons[1].Weapon = game.gameScript()->FindWeapon("Napalm");
+			m_worm->tWeapons[2].Weapon = game.gameScript()->FindWeapon("Cannon");
+			m_worm->tWeapons[3].Weapon = game.gameScript()->FindWeapon("Doomsday");
+			m_worm->tWeapons[4].Weapon = game.gameScript()->FindWeapon("Chaingun");
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_100LT);
 		}
@@ -4598,9 +4598,9 @@ void CWormBotInputHandler::initWeaponSelection() {
 	else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
 			  cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
 			 cClient->getGameLobby()->iLoadingTime < 50)  {
-		if (m_worm->cWeaponRest->isEnabled("Mortar Launcher"))  {
+		if (game.weaponRestrictions()->isEnabled("Mortar Launcher"))  {
 			for (short i=0; i<5; i++)
-				m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
+				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Mortar Launcher");  // set all weapons to Mortar
 			bRandomWeaps = false;
 			AI_SetGameType(GAM_MORTARS);
 		}

@@ -400,6 +400,12 @@ CGameMode* Game::gameMode() {
 	return NULL;
 }
 
+CWpnRest* Game::weaponRestrictions() {
+	if(isServer() && cServer) return cServer->getWeaponRestrictions();
+	if(isClient() && cClient) return cClient->getWeaponRestrictions();
+	return NULL;
+}
+
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }
