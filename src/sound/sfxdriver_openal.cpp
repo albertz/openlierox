@@ -76,11 +76,6 @@ void SfxDriverOpenAL::think()
 	}
 
 }
-
-void SfxDriverOpenAL::setChanObject(Sound* sound)
-{
-	chanObject.push_back( sound );
-}
 	
 void SfxDriverOpenAL::clear()
 {
