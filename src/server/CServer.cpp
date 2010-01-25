@@ -2451,12 +2451,6 @@ float GameServer::GetUpload(float timeRange)
 // Shutdown the server
 void GameServer::Shutdown()
 {
-	if(iState != SVS_LOBBY && !bGameOver) {
-		// call this, maybe we need to clean something up there
-		if(game.gameMode())
-			game.gameMode()->GameOver();
-	}
-	
 	// If we've hosted this session, set the FirstHost option to false
 	if (tLX->bHosted)  {
 		tLXOptions->bFirstHosting = false;

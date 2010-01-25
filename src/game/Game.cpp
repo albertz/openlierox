@@ -254,6 +254,11 @@ void Game::frameInner()
 void Game::cleanupAfterGameloopEnd() {
 	CrashHandler::recoverAfterCrash = false;
 	
+	// can happen if we have aborted a game
+	if(isServer() && !cServer->getGameOver())
+		// call gameover because we may do some important cleanup there
+		game.gameMode()->GameOver();
+	
 	gusGame.reset(GusGame::ServerQuit);
 	
 	PhysicsEngine::UnInit();
