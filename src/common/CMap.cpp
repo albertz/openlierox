@@ -1594,6 +1594,11 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	// Calculate half
 	hole = Theme.bmpHoles[size];
+	if(hole.get() == NULL) {
+		errors << "CMap::PlaceDirt: hole with size " << size << " unset" << endl;
+		return 0;
+	}
+	
 	Uint32 pink = tLX->clPink.get(hole.get()->format);
 	w = hole.get()->w;
 	h = hole.get()->h;
