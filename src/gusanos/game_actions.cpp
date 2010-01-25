@@ -29,6 +29,7 @@
 #include "glua.h"
 #include "luaapi/context.h"
 #include "script.h"
+#include "sfx.h"
 
 #include "omfgscript/omfg_script.h"
 
@@ -440,6 +441,8 @@ Remove::~Remove()
 PlaySound::PlaySound( vector<OmfgScript::TokenBase*> const& params )
 {
 #ifndef DEDICATED_ONLY
+	if(!sfx) return;
+	
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( soundList.load(params[0]->toString()) );
@@ -482,6 +485,8 @@ PlaySound::~PlaySound()
 PlaySoundStatic::PlaySoundStatic( vector<OmfgScript::TokenBase*> const& params )
 {
 #ifndef DEDICATED_ONLY
+	if(!sfx) return;
+	
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( soundList.load(params[0]->toString()) );
@@ -525,6 +530,8 @@ PlaySoundStatic::~PlaySoundStatic()
 PlayGlobalSound::PlayGlobalSound( vector<OmfgScript::TokenBase*> const& params )
 {
 #ifndef DEDICATED_ONLY
+	if(!sfx) return;
+	
 	if ( params[0]->isString() )
 	{
 		sounds.push_back( sound1DList.load(params[0]->toString()) );
