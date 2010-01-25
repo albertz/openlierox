@@ -11,9 +11,7 @@ class CGameObject;
 
 class SoundSampleOpenAL : public SoundSample 
 {
-	
-	public:
-		
+public:		
 	SoundSampleOpenAL(std::string const& filename);
 	~SoundSampleOpenAL();
 	
@@ -23,9 +21,13 @@ class SoundSampleOpenAL : public SoundSample
 	bool isValid();
 	void updateObjSound(Vec& vec);
 	bool avail();
-	private:
+	
+	size_t GetMemorySize() { return size; }
+	
+private:
 	
 	ALuint m_sound;
+	size_t size;
 	
 };
 
