@@ -2453,7 +2453,8 @@ void GameServer::Shutdown()
 {
 	if(iState != SVS_LOBBY && !bGameOver) {
 		// call this, maybe we need to clean something up there
-		game.gameMode()->GameOver();
+		if(game.gameMode())
+			game.gameMode()->GameOver();
 	}
 	
 	// If we've hosted this session, set the FirstHost option to false
