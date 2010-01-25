@@ -2233,11 +2233,14 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 				if(cClient->getRemoteWorms()[i].isUsed()) {
 					CWorm& w = cClient->getRemoteWorms()[i];
 					std::string name = itoa(i) + ":" + w.getName();
-					if(!w.luaReference)
+					if(gusGame.isEngineNeeded() && !w.luaReference)
 						warnings << "worm " << name << " has no Lua reference" << endl;
 					if(w.getID() != i)
 						warnings << "worm " << name << " has bad id " << w.getID() << endl;
 
+					if(w.getLocal() && w.inputHandler() == NULL)
+						warnings << "local worm " << name << " does not have input handler set" << endl;
+					
 					if(gusGame.isEngineNeeded()) {
 						if(w.getOwner() == NULL)
 							warnings << "worm " << name << " has no owner player set" << endl;
