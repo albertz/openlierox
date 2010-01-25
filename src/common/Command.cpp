@@ -2070,6 +2070,12 @@ void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::strin
 	caller->pushReturnArg(ftoa(w->velocity().y));
 }
 
+COMMAND(getWormHealth, "get worm health", "id", 1, 1);
+void Cmd_getWormHealth::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
+	caller->pushReturnArg(ftoa(w->getHealth()));
+}
+
 COMMAND(getWormProps, "get worm properties", "id", 1, 1);
 void Cmd_getWormProps::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
