@@ -16,7 +16,7 @@
 #include "../weapon_type.h"
 #include "../glua.h"
 #include "CMap.h"
-#include "sfx.h"
+#include "sound/sfx.h"
 
 //TEMP:
 #include "../sprite_set.h"
