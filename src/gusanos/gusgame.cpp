@@ -655,9 +655,11 @@ bool GusGame::loadMod(bool doLoadWeapons)
 	deathObject = partTypeList.load("death.obj");
 	digObject = partTypeList.load("wormdig.obj");
 #ifndef DEDICATED_ONLY
-	chatSound = sound1DList.load("chat.ogg");
-	if (!chatSound)
-		sound1DList.load("chat.wav");
+	if(sfx) {
+		chatSound = sound1DList.load("chat.ogg");
+		if (!chatSound)
+			chatSound = sound1DList.load("chat.wav");
+	}
 	infoFont = fontLocator.load("minifont");
 	if(infoFont == NULL) {
 		errors << "Gusanos GusGame::loadMod: cannot load minifont" << endl;

@@ -18,8 +18,8 @@
 ResourceList<Sound> soundList;
 ResourceList<Sound> sound1DList;
 
-Sound::Sound():m_sound(0)
-{
+Sound::Sound():m_obj(0)
+{	
 	// actually it should have been passed as an argument
 	driver = sfx.getDriver();
 }
@@ -34,39 +34,47 @@ bool Sound::load(std::string const& filename)
 	if(driver == NULL) return false;
 	//cout<<"Sound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;
-	m_sound = driver->load(filename);
-	return ( m_sound->avail());
+	m_sound = LoadSample(filename, 1);
+	return ( m_sound.get() && m_sound->avail() );
 }
 
 void Sound::play(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
-	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
-			
-	float rndVolume = pitch + (float)rnd()*volumeVariation - volumeVariation / 2;
-	m_sound ->play(rndPitch,rndVolume );
+	if(m_sound.get()) {
+		float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
+				
+		float rndVolume = pitch + (float)rnd()*volumeVariation - volumeVariation / 2;
+		m_sound ->play(rndPitch,rndVolume );
+	}
 }
 
 void Sound::play1D(float volume,float pitch, float volumeVariation, float pitchVariation)
 {
-	float rndPitch = pitch + (float)midrnd()*pitchVariation - pitchVariation / 2;
-			
-	float rndVolume = pitch + (float)midrnd()*volumeVariation - volumeVariation / 2;
-	m_sound ->play(rndPitch,rndVolume );
+	if(m_sound.get()) {
+		float rndPitch = pitch + (float)midrnd()*pitchVariation - pitchVariation / 2;
+				
+		float rndVolume = pitch + (float)midrnd()*volumeVariation - volumeVariation / 2;
+		m_sound ->play(rndPitch,rndVolume );
+	}
 }
 
 void Sound::play2D(const Vec& pos, float loudness, float pitch, float pitchVariation)
 {
-	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
-	m_sound ->play2D(pos,loudness, rndPitch );
+	if(m_sound.get()) {
+		float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
+		m_sound ->play2D(pos,loudness, rndPitch );
+	}
 }
 
 void Sound::play2D(CGameObject* obj, float loudness, float pitch, float pitchVariation)
 {
-	//cout<<"Play 2d(obj)"<<endl;
-	float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
-	m_sound ->play2D(obj,loudness, rndPitch );
+	if(m_sound.get()) {
+
+		//cout<<"Play 2d(obj)"<<endl;
+		float rndPitch = pitch + (float)rnd()*pitchVariation - pitchVariation / 2;
+		m_sound ->play2D(obj,loudness, rndPitch );
+	}
 	m_obj=obj;
-	
 }
 
 bool Sound::isValid()
@@ -80,8 +88,10 @@ bool Sound::isValid()
 
 void Sound::updateObjSound()
 {
-	Vec v(m_obj->pos());
-	return m_sound->updateObjSound(v);
+	if(m_sound.get() && m_obj) {
+		Vec v(m_obj->pos());
+		m_sound->updateObjSound(v);
+	}
 }
 
 #endif

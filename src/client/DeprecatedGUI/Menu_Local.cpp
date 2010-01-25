@@ -234,7 +234,7 @@ static void updateGameLevel() {
 	CSlider* s = (CSlider*)cLocalMenu.getWidget(ml_LevelNumber);
 	if(s) {
 		s->setMin(1);
-		s->setMax(singlePlayerGame.maxAllowedLevelForCurrentGame());
+		s->setMax(singlePlayerGame.maxSelectableLevelForCurrentGame());
 		s->setValue(singlePlayerGame.currentLevel);
 	}
 }

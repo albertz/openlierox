@@ -361,6 +361,8 @@ void CGameMode::Simulate() {
 	if(TimeLimit() > 0) {		
 		if(cServer->getServerTime() <= TimeLimit()) {
 			int restSecs = int( (TimeDiff(TimeLimit()) - cServer->getServerTime()).seconds() );
+			// can happen if we set the timelimit while in game
+			if(lastTimeLimitReport < 0) lastTimeLimitReport = restSecs + 1;
 			
 			for(int i = 1; i <= 5; ++i)
 				if(restSecs <= i && lastTimeLimitReport > i) {

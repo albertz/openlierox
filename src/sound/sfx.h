@@ -32,7 +32,6 @@ public:
 	void shutDown();
 	void registerInConsole();
 	void think();
-	void setChanObject(int chan, Sound* sound);
 	void clear();
 	void registerListener(Listener* listener);
 	void removeListener(Listener* listener);

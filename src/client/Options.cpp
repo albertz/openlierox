@@ -342,7 +342,7 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 			if(stringcaseequal(section, "ConfigFileInfo")) return true;
 			if(stringcaseequal(section, "GameInfo")) haveGameInfo = true;
 			
-			if(stringcaseequal(section, "Games.Levels")) {
+			if(stringcaseequal(section, "Games_Levels")) {
 				opts->localplayLevels[propname] = from_string<int>(value);
 				return true;
 			}
@@ -525,7 +525,7 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 			break;
 	}
 
-	fprintf(fp, "\n[Games.Levels]\n");
+	fprintf(fp, "\n[Games_Levels]\n");
 	for(std::map<std::string,int>::iterator i = localplayLevels.begin(); i != localplayLevels.end(); ++i)
 		fprintf(fp, "%s = %i\n", i->first.c_str(), i->second);
 
