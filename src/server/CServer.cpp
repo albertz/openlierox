@@ -1791,6 +1791,12 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		return false;
 	}
 	
+	// check only if not in lobby anymore - because in lobby, we cannot know (atm) about the level/mod
+	if((iState != SVS_LOBBY) && gusGame.isEngineNeeded() && ver < OLXBetaVersion(0,59,1)) {
+		if(incompReason) *incompReason = "Gusanos engine is used";
+		return false;
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
