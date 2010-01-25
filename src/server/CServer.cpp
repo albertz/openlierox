@@ -373,6 +373,9 @@ int GameServer::StartGame(std::string* errMsg)
 		}
 	}
 	
+	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
+	cClient->SetPermanentText("");
+	
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
