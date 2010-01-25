@@ -308,19 +308,12 @@ bool CMap::MiniNew(uint _width, uint _height, uint _minimap_w, uint _minimap_h)
 	// Create the map
 	if (!MiniCreate(_width, _height, _minimap_w, _minimap_h))
 		return false;
-
-	// TODO: does that make sense? we haven't loaded anything yet...
-
-	/*
-	// Update the mini map
-	UpdateMiniMap();
 	
-    // Calculate the total dirt count
-    CalculateDirtCount();
-	
-    // Calculate the grid
-    calculateGrid();
-	*/
+	// we need the standard theme in any case to make LX-like carving possible (in case of a LX mod)
+	if(!LoadTheme("dirt")) {
+		warnings << "CMap::MiniNew: cannot load theme" << endl;
+		return false;
+	}
 	
 	Created = true;
 	
@@ -1577,6 +1570,11 @@ int CMap::CarveHole(int size, CVec pos)
 // Returns the number of dirt pixels placed
 int CMap::PlaceDirt(int size, CVec pos)
 {
+	if(gusIsLoaded()) {
+		// TODO: ...
+		return 0;
+	}
+	
 	SmartPointer<SDL_Surface> hole;
 	int dx,dy, sx,sy;
 	int x,y;
