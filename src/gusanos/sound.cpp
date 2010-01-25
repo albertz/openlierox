@@ -34,8 +34,8 @@ bool Sound::load(std::string const& filename)
 	if(driver == NULL) return false;
 	//cout<<"Sound::load";
 	//cerr << "Loading sound: " << filename.native_file_string() << endl;
-	m_sound = driver->load(filename);
-	return ( m_sound->avail());
+	m_sound = LoadSample(filename, 1);
+	return ( m_sound.get() && m_sound->avail() );
 }
 
 void Sound::play(float volume,float pitch, float volumeVariation, float pitchVariation)
