@@ -353,8 +353,6 @@ int GameServer::StartGame(std::string* errMsg)
 		tLXOptions->tGameInfo.features[FT_GameSpeed] = 1;
 	}
 	
-		
-	checkVersionCompatibilities(true);
 
 
 	CBytestream bs;
@@ -452,6 +450,14 @@ mapCreate:
 	}
 	
 	
+	iState = SVS_GAME;		// In-game, waiting for players to load
+	iServerFrame = 0;
+	bGameOver = false;
+	
+	// do after loading of mod/map because this also checks map/mod compatibility
+	// but do it anyway as early as possible
+	checkVersionCompatibilities(true);
+
 	
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
@@ -499,10 +505,6 @@ mapCreate:
 		warnings << "New net engine enabled, we are disabling some features" << endl;
 		NewNet::DisableAdvancedFeatures();
 	}
-
-	iState = SVS_GAME;		// In-game, waiting for players to load
-	iServerFrame = 0;
-	bGameOver = false;
 
 	notes << "preparing game mode " << getGameMode()->Name() << endl;
 	getGameMode()->PrepareGame();
