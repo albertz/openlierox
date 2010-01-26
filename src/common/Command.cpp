@@ -2070,6 +2070,12 @@ void Cmd_getWormVelocity::exec(CmdLineIntf* caller, const std::vector<std::strin
 	caller->pushReturnArg(ftoa(w->velocity().y));
 }
 
+COMMAND(getWormHealth, "get worm health", "id", 1, 1);
+void Cmd_getWormHealth::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
+	caller->pushReturnArg(ftoa(w->getHealth()));
+}
+
 COMMAND(getWormProps, "get worm properties", "id", 1, 1);
 void Cmd_getWormProps::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
@@ -2233,11 +2239,14 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 				if(cClient->getRemoteWorms()[i].isUsed()) {
 					CWorm& w = cClient->getRemoteWorms()[i];
 					std::string name = itoa(i) + ":" + w.getName();
-					if(!w.luaReference)
+					if(gusGame.isEngineNeeded() && !w.luaReference)
 						warnings << "worm " << name << " has no Lua reference" << endl;
 					if(w.getID() != i)
 						warnings << "worm " << name << " has bad id " << w.getID() << endl;
 
+					if(w.getLocal() && w.inputHandler() == NULL)
+						warnings << "local worm " << name << " does not have input handler set" << endl;
+					
 					if(gusGame.isEngineNeeded()) {
 						if(w.getOwner() == NULL)
 							warnings << "worm " << name << " has no owner player set" << endl;

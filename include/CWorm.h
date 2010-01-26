@@ -111,7 +111,6 @@ enum CELL_TYPE
 
 struct WormType;
 class CWpnRest;
-class CGameScript;
 struct weapon_t;
 
 // Weapon slot structure
@@ -320,8 +319,6 @@ protected:
 	bool		bWeaponsReady;
 	bool		bIsPrepared;
 	bool		bGameReady;
-	CGameScript	*cGameScript;
-    CWpnRest    *cWeaponRest;
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
@@ -549,10 +546,6 @@ public:
 	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
 	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
 	
-	CGameScript* getGameScript()			{ return cGameScript; }
-	void		setGameScript(CGameScript *gs)	{ cGameScript = gs; }
-    void        setWpnRest(CWpnRest *wr)    { cWeaponRest = wr; }
-
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
 	bool		getWeaponsReady()		{ return bWeaponsReady; }

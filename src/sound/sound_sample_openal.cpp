@@ -32,70 +32,71 @@ namespace
 
 // This function loads a .ogg file into a memory buffer and returns
 // the format and frequency.
-void LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, ALsizei &freq)
-    {
+static bool LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, ALsizei &freq) {
     int endian = 0;                         // 0 for Little-Endian, 1 for Big-Endian
     int bitStream;
     long bytes;
     char array[BUFFER_SIZE];                // Local fixed size array
     FILE *f;
-
+	
     // Open for binary reading
     f = OpenGameFile(fileName, "rb");
-
+	
     if (f == NULL)
-        {
+	{
         //cerr << "Cannot open " << fileName << " for reading..." << endl;
-        throw -1;
-        }
+        return false;
+	}
     // end if
-
-    vorbis_info *pInfo;
+	
+    vorbis_info *pInfo = NULL;
     OggVorbis_File oggFile;
-
+	
     // Try opening the given file
     if (ov_open(f, &oggFile, NULL, 0) != 0)
-        {
-        cerr << "Error opening " << fileName << " for decoding..." << endl;
-        throw -1;
-        }
+	{
+        errors << "Error opening " << fileName << " for decoding..." << endl;
+        return false;
+	}
     // end if
-
+	
     // Get some information about the OGG file
     pInfo = ov_info(&oggFile, -1);
-
+	
     // Check the number of channels... always use 16-bit samples
     if (pInfo->channels == 1)
         format = AL_FORMAT_MONO16;
     else
         format = AL_FORMAT_STEREO16;
     // end if
-
+	
     // The frequency of the sampling rate
     freq = pInfo->rate;
-
+	
     // Keep reading until all is read
     do
-        {
+	{
         // Read up to a buffer's worth of decoded sound data
         bytes = ov_read(&oggFile, array, BUFFER_SIZE, endian, 2, 1, &bitStream);
-
+		
         if (bytes < 0)
-            {
+		{
             ov_clear(&oggFile);
-            cerr << "Error decoding " << fileName << "..." << endl;
-        throw -1;
-            }
+            errors << "Error decoding " << fileName << "..." << endl;
+			return false;
+		}
         // end if
-
+		
         // Append to end of buffer
         buffer.insert(buffer.end(), array, array + bytes);
-        }
+	}
     while (bytes > 0);
-
+	
     // Clean up!
     ov_clear(&oggFile);
-    }
+	
+	return true;
+}
 // end of LoadOGG
 
 
@@ -106,17 +107,13 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
     ALsizei freq;                           // The frequency of the sound data
     vector<char> bufferData;                // The sound buffer data from file
 
-    // Create sound buffer and source
+	// Load the OGG file into memory
+	if(!LoadOGG(inSoundFile, bufferData, format, freq))
+		return 0;
+
+	// Create sound buffer and source
     alGenBuffers(1, &bufferID);
 
-	try{
-    // Load the OGG file into memory
-    LoadOGG(inSoundFile, bufferData, format, freq);
-	}
-	catch 
-	 (int) {
-		return 0;
-	}
     // Upload sound data to buffer
     alBufferData(bufferID, format, &bufferData[0], static_cast<ALsizei>(bufferData.size()), freq);
     return bufferID;
@@ -125,33 +122,38 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
 
 
 SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(filename)
-{
-    ALuint bufferID;                        // The OpenAL sound buffer ID
+{	
+	size = 0;
+	m_sound = 0;
+
+	if(!IsFileAvailable(filename))
+		// we silently ignore this
+		return;
+
+    ALuint bufferID = 0;           // The OpenAL sound buffer ID
 	string name = filename;
 	
 	if (boost::iends_with(name, ".ogg"))
 	{
 		bufferID=LoadSoundFromFile( name.c_str());
 		if (bufferID==0)
-		{
-			m_sound=0;
 			return;
-		}
 	}
 	else
 	{
 		bufferID=alutCreateBufferFromFile (Utf8ToSystemNative(GetFullFileName(name)).c_str());
 		if (bufferID==AL_NONE)
 		{
-			m_sound=0;
+			notes << "SoundSampleOpenAL: cannot load " << name << ": " << alutGetErrorString(alutGetError()) << endl;
 			return;
 		}
 	}
-    ALuint sourceID;                        // The OpenAL sound source
+	
+    ALuint sourceID = 0;                        // The OpenAL sound source
     alGenSources(1, &sourceID);
     // Attach sound buffer to source
     alSourcei(sourceID, AL_BUFFER, bufferID);
-	alSourcef(	 sourceID,AL_ROLLOFF_FACTOR,2);
+	alSourcef(sourceID,AL_ROLLOFF_FACTOR,2);
 	alSourcef(sourceID,AL_GAIN,0.7f);
 	//alSourcef(	 mALSource,AL_REFERENCE_DISTANCE,20);
     /*alSource3f(mALSource, AL_POSITION,        0.0, 0.0, 0.0);
@@ -161,6 +163,9 @@ SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(fi
     alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_TRUE      );*/
 	m_sound=sourceID ;
 
+	ALint s = 0;
+	alGetBufferi(bufferID, AL_SIZE, &s);
+	if(s >= 0) size = s;
 }
 
 SoundSampleOpenAL::~SoundSampleOpenAL()
@@ -170,10 +175,9 @@ SoundSampleOpenAL::~SoundSampleOpenAL()
 		ALint mALBufferi;
 		alGetSourcei(m_sound, AL_BUFFER ,&mALBufferi);
 		ALuint mALBufferu = (ALuint )mALBufferi;
-		alDeleteBuffers(1,&mALBufferu);
 		alDeleteSources(1,&m_sound);
+		alDeleteBuffers(1,&mALBufferu);
 	}
-	
 }
 
 
@@ -240,8 +244,7 @@ bool SoundSampleOpenAL::isValid()
 void SoundSampleOpenAL::updateObjSound(Vec& vec)
 {
 	ALfloat pos[3] = { vec.x, vec.y, 0 };
-	alSourcefv( m_sound , AL_POSITION, pos);
-	
+	alSourcefv( m_sound , AL_POSITION, pos);	
 }
 
 

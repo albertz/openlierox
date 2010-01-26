@@ -171,10 +171,28 @@ int allegro_error = 0;
 
 int cpu_capabilities = 0;
 
+// NOTE: This is only for testing right now, so people with gfx problems can test it.
+// Later on, this is supposed to be removed. There is no reason why the user should
+// be able to set this. If it is available and works, it should be used - otherwise not.
+static bool cfgUseSSE = true, cfgUseMMX = true, cfgUseMMXExt = true;
+static bool bRegisteredAllegroVars = CScriptableVars::RegisterVars("GameOptions")
+( cfgUseSSE, "Video.UseSSE", true )
+( cfgUseMMX, "Video.UseMMX", true )
+( cfgUseMMXExt, "Video.UseMMXExt", true );
+
+
 bool allegro_init() {
-	if(SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
-	if(SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
-	if(SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
+	cpu_capabilities = 0;
+	notes << "Allegro: ";
+	
+	if(cfgUseSSE && SDL_HasSSE()) cpu_capabilities |= CPU_SSE;
+	if(cfgUseMMX && SDL_HasMMX()) cpu_capabilities |= CPU_MMX;
+	if(cfgUseMMXExt && SDL_HasMMXExt()) cpu_capabilities |= CPU_MMXPLUS;
+	
+	if(cpu_capabilities & CPU_SSE) notes << "SSE, "; else notes << "no SSE, ";
+	if(cpu_capabilities & CPU_MMX) notes << "MMX, "; else notes << "no MMX, ";
+	if(cpu_capabilities & CPU_MMXPLUS) notes << "MMXExt"; else notes << "no MMXExt";
+	notes << endl;
 	
 	screen = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
 	notes << "Allegro screen format:" << endl;

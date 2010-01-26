@@ -5,6 +5,7 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
+#include "SmartPointer.h"
 #include "sfx.h"
 
 #include <vector>
@@ -15,6 +16,8 @@ class SoundSample;
 
 class SfxDriver
 {
+	friend SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplaying);
+
 public:
 	
 	SfxDriver();
@@ -26,12 +29,13 @@ public:
 	virtual void clear()=0;
 	virtual void volumeChange()=0;
 	void setListeners(std::vector<Listener*> &_listeners);
-	virtual SmartPointer<SoundSample> load(std::string const& filename)=0;
 
 	void setVolume(float val); // val is between 0 and 1
 	float volume() const;
 	
 protected:
+	virtual SmartPointer<SoundSample> load(std::string const& filename)=0;
+
 	std::vector<Listener*> listeners;
 	int m_volume;
 	int m_listenerDistance;

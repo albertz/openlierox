@@ -746,12 +746,11 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	short i;
 	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
 		
-		m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->tProfile->sWeaponSlots[i] );
+		m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon( m_worm->tProfile->sWeaponSlots[i] );
 		
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
-        if( !m_worm->tWeapons[i].Weapon || !m_worm->cWeaponRest->isEnabled( m_worm->tWeapons[i].Weapon->Name ) ) {
-			
-			m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript->GetWeaponList() ) );
+        if( !m_worm->tWeapons[i].Weapon || !game.weaponRestrictions()->isEnabled( m_worm->tWeapons[i].Weapon->Name ) ) {
+			m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon( game.weaponRestrictions()->findEnabledWeapon( game.gameScript()->GetWeaponList() ) );
         }
 		
 		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
@@ -767,8 +766,8 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	
 	// Skip the dialog if there's only one weapon available
 	int enabledWeaponsAmount = 0;
-	for( int f = 0; f < m_worm->cGameScript->GetNumWeapons(); f++ )
-		if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[f].Name ) )
+	for( int f = 0; f < game.gameScript()->GetNumWeapons(); f++ )
+		if( game.weaponRestrictions()->isEnabled( game.gameScript()->GetWeapons()[f].Name ) )
 			enabledWeaponsAmount++;
 	
 	if( enabledWeaponsAmount <= 1 ) // server can ban ALL weapons, noone will be able to shoot then
@@ -843,8 +842,8 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 			if(cSelWeapon.isDown()) change *= 6; // jump with multiple speed if selWeapon is pressed
 			int id = m_worm->tWeapons[i].Weapon ? m_worm->tWeapons[i].Weapon->ID : 0;
 			if(change > 0) while(change) {
-				id++; MOD(id, m_worm->cGameScript->GetNumWeapons());
-				if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
+				id++; MOD(id, game.gameScript()->GetNumWeapons());
+				if( game.weaponRestrictions()->isEnabled( game.gameScript()->GetWeapons()[id].Name ) )
 					change--;
 				if(!m_worm->tWeapons[i].Weapon && id == 0)
 					break;
@@ -852,15 +851,15 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 					break;
 			} else
 				if(change < 0) while(change) {
-					id--; MOD(id, m_worm->cGameScript->GetNumWeapons());
-					if( m_worm->cWeaponRest->isEnabled( m_worm->cGameScript->GetWeapons()[id].Name ) )
+					id--; MOD(id, game.gameScript()->GetNumWeapons());
+					if( game.weaponRestrictions()->isEnabled( game.gameScript()->GetWeapons()[id].Name ) )
 						change++;
 					if(!m_worm->tWeapons[i].Weapon && id == 0)
 						break;
 					if(m_worm->tWeapons[i].Weapon && id == m_worm->tWeapons[i].Weapon->ID) // back where we were before
 						break;
 				}
-			m_worm->tWeapons[i].Weapon = &m_worm->cGameScript->GetWeapons()[id];
+			m_worm->tWeapons[i].Weapon = &game.gameScript()->GetWeapons()[id];
 			m_worm->tWeapons[i].Enabled = true;
 		}
 		

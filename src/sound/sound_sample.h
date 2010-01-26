@@ -13,8 +13,7 @@ class CGameObject;
 
 class SoundSample 
 {
-	
-	public:
+public:
 		
 	SoundSample(std::string const& filename);
 	virtual ~SoundSample();
@@ -25,9 +24,9 @@ class SoundSample
 	virtual bool isValid()=0;
 	virtual void updateObjSound(Vec& vec)=0;
 	virtual bool avail()=0;
-	private:
 
-	
+
+	virtual size_t GetMemorySize() = 0;
 };
 
 

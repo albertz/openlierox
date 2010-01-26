@@ -82,7 +82,7 @@ void Game::prepareGameloop() {
 
 	// always also load Gusanos engine
 	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
-	if( !gusGame.level().gusIsLoaded() ) {
+	if( !gusGame.level().gusIsLoaded() && (isServer() || cClient->getServerVersion() >= OLXBetaVersion(0,59,1) ) ) {
 		// WARNING: This may be temporary
 		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
 		// Thus, when we don't load a gus level, we must load the mod manually.
@@ -254,6 +254,11 @@ void Game::frameInner()
 void Game::cleanupAfterGameloopEnd() {
 	CrashHandler::recoverAfterCrash = false;
 	
+	// can happen if we have aborted a game
+	if(isServer() && !cServer->getGameOver())
+		// call gameover because we may do some important cleanup there
+		game.gameMode()->GameOver();
+	
 	gusGame.reset(GusGame::ServerQuit);
 	
 	PhysicsEngine::UnInit();
@@ -392,6 +397,12 @@ CGameMode* Game::gameMode() {
 		if(tLX->iGameType != GME_JOIN) return cServer->getGameMode();
 		return cClient->getGameLobby()->gameMode;
 	}
+	return NULL;
+}
+
+CWpnRest* Game::weaponRestrictions() {
+	if(isServer() && cServer) return cServer->getWeaponRestrictions();
+	if(isClient() && cClient) return cClient->getWeaponRestrictions();
 	return NULL;
 }
 

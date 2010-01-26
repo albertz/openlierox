@@ -65,8 +65,6 @@ CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m
 	cOwner = NULL;
 	tProfile = NULL;
 	pcHookWorm = NULL;
-	cGameScript = NULL;
-	cWeaponRest = NULL;
 	m_type = NULL;
 	m_node = NULL;
 	m_interceptor = NULL;
@@ -170,15 +168,12 @@ void CWorm::Clear()
 	//pcViewport = NULL;//.Setup(0,0,640,480);
 	tProfile = NULL;
 
-	cGameScript = NULL;
 	short i;
 	for(i=0;i<NUM_FRAMES;i++)
 		fFrameTimes[i] = AbsTime();
 
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
-
-	cWeaponRest = NULL;
 	
 	
 
@@ -250,7 +245,10 @@ void CWorm::FreeGraphics()
 // Prepare the worm for the game
 void CWorm::Prepare(bool serverSide)
 {
-	assert(cGameScript);
+	if(game.gameScript() == NULL || !game.gameScript()->isLoaded()) {
+		errors << "CWorm::Prepare " << (serverSide ? "server" : "client") << " for worm " << getID() << ":" << getName() << ": gamescript not loaded" << endl;
+		return;
+	}
 
 	if(bIsPrepared) {
 		warnings << "worm " << getID() << ":" << getName() << " was already prepared!" << endl;
@@ -271,7 +269,7 @@ void CWorm::Prepare(bool serverSide)
 	setCanAirJump(false);
 	
 	// Setup the rope
-	cNinjaRope.Setup(cGameScript);
+	cNinjaRope.Setup();
 
 	iCurrentWeapon = 0;
 
@@ -669,27 +667,27 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 void CWorm::GetRandomWeapons()
 {
 	for(short i=0; i<5; i++) {
-		int num = MAX(1, GetRandomInt(cGameScript->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
+		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
 		// Cycle through weapons starting from the random one until we get an enabled weapon
 		int n=num;
 		int lastenabled = -1;
 		while(true) {
 			// Wrap around
-			if(n >= cGameScript->GetNumWeapons())
+			if(n >= game.gameScript()->GetNumWeapons())
  			   n = 0;
 
 			// Have we already got this weapon?
 			bool bSelected = false;
 			for(int k=0; k<i; k++) {
-				if(tWeapons[k].Weapon && (cGameScript->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
+				if(tWeapons[k].Weapon && (game.gameScript()->GetWeapons()+n)->ID == tWeapons[k].Weapon->ID) {
 					bSelected = true;
 					break;
 				}
 			}
 
 			// If this weapon is enabled AND we have not selected it already, then exit the loop
-			if(cWeaponRest->isEnabled( (cGameScript->GetWeapons()+n)->Name ))  {
+			if(game.weaponRestrictions()->isEnabled( (game.gameScript()->GetWeapons()+n)->Name ))  {
 				if (!bSelected)
 					break;
 				lastenabled = n;
@@ -704,8 +702,8 @@ void CWorm::GetRandomWeapons()
 			}
 
 		}  // while
-		if(n >= 0 && n < cGameScript->GetNumWeapons()) {
-			tWeapons[i].Weapon = cGameScript->GetWeapons()+n;
+		if(n >= 0 && n < game.gameScript()->GetNumWeapons()) {
+			tWeapons[i].Weapon = game.gameScript()->GetWeapons()+n;
 			tWeapons[i].Enabled = true;
 		}
 		else {
@@ -1265,8 +1263,8 @@ bool CWorm::GiveBonus(CBonus *b)
 	if(b->getType() == BNS_WEAPON) {
 
 		// Replace our current weapon
-		if(b->getWeapon() >= 0 && b->getWeapon() < cGameScript->GetNumWeapons()) {
-			tWeapons[iCurrentWeapon].Weapon = cGameScript->GetWeapons() + b->getWeapon();
+		if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
+			tWeapons[iCurrentWeapon].Weapon = game.gameScript()->GetWeapons() + b->getWeapon();
 			tWeapons[iCurrentWeapon].Charge = 1;
 			tWeapons[iCurrentWeapon].Reloading = false;
 			tWeapons[iCurrentWeapon].Enabled = true;

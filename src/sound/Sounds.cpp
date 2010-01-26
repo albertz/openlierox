@@ -99,22 +99,15 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	if (SampleCached.get())
 		return SampleCached;
 
-	std::string fullfilename = GetFullFileName(_filename);
-	if(fullfilename.size() > 0 && IsFileAvailable(fullfilename, true)) {
-		SmartPointer<SoundSample> Sample = sfx.getDriver()->load(fullfilename);
+	SmartPointer<SoundSample> Sample = sfx.getDriver()->load(_filename);
 		
-		if(Sample.get() && Sample->avail()) {
-			// Save to cache
-			cCache.SaveSound(_filename, Sample);
-			return Sample;
-		}
-
-		notes << "LoadSample: cannot load " << _filename << endl;
-		return NULL;
+	if(Sample.get() && Sample->avail()) {
+		// Save to cache
+		cCache.SaveSound(_filename, Sample);
+		return Sample;
 	}
-	
-	// dont give this warning, we expect that in many cases and try to load from default location then
-	//notes << "LoadSample: cannot find " << _filename << endl;
+
+	// dont print additional warnings here, we will print all warnings inside of load
 	return NULL;
 }
 

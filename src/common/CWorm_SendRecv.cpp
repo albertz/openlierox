@@ -26,6 +26,7 @@
 #include "CServerConnection.h"
 #include "WeaponDesc.h"
 #include "ProfileSystem.h"
+#include "game/Game.h"
 
 
 
@@ -227,7 +228,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	vPos = newpos;
 	bOnGround = CheckOnGround(); // update bOnGround; will perhaps be updated later in simulation
 
-	if (!cGameScript)
+	if (!game.gameScript())
 		return;
 
 	CVec dist = newpos - vOldPosOfLastPaket;
@@ -265,7 +266,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Approximate with velocity and acceleration (including gravity)
 			CVec a(0, 0);
 
-			const gs_worm_t *wd = cGameScript->getWorm();
+			const gs_worm_t *wd = game.gameScript()->getWorm();
 			// Air drag (Mainly to dampen the ninja rope)
 			float Drag = wd->AirFriction;
 
@@ -621,9 +622,9 @@ void CWorm::readWeapons(CBytestream *bs)
 		tWeapons[i].Weapon = NULL;
 		tWeapons[i].Enabled = false;
 
-		if(cGameScript) {
-			if(id >= 0 && id < cGameScript->GetNumWeapons()) {
-				tWeapons[i].Weapon = cGameScript->GetWeapons() + id;
+		if(game.gameScript()) {
+			if(id >= 0 && id < game.gameScript()->GetNumWeapons()) {
+				tWeapons[i].Weapon = game.gameScript()->GetWeapons() + id;
 				tWeapons[i].Enabled = true;
 				//notes << tWeapons[i].Weapon->Name;
 			}

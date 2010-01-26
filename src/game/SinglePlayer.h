@@ -39,7 +39,7 @@ struct SinglePlayerGame : CGameMode {
 	
 	void setLevelSucceeded();
 	
-	int maxAllowedLevelForCurrentGame();
+	int maxSelectableLevelForCurrentGame();
 
 	// CGameMode virtual callbacks
 	std::string Name() { return "Game: " + currentGame; }

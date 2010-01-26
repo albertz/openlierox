@@ -18,7 +18,6 @@ public:
 	void shutDown();
 	void think();
 	void volumeChange();
-	void setChanObject(Sound*);
 	void clear();
 	SmartPointer<SoundSample> load(std::string const& filename);
 };
