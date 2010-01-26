@@ -86,7 +86,7 @@ public:
     std::list<wpnrest_t> & getList();
     wpnrest_t   *findWeapon(const std::string& szName);
     int         getNumWeapons() const;
-
+    static bool weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList);
 
 private:
     // Internal methods

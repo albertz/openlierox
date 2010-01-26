@@ -366,3 +366,8 @@ void CWpnRest::Shutdown()
 {
     m_psWeaponList.clear();
 }
+
+bool CWpnRest::weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList)
+{
+	return std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(weapon) ) != weaponList.end();
+};
