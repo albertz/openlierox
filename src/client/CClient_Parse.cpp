@@ -958,7 +958,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}
 	
     // Read the weapon restrictions
-    client->cWeaponRestrictions.updateList(client->cGameScript.get());
+    client->cWeaponRestrictions.updateList(client->cGameScript.get()->GetWeaponList());
     client->cWeaponRestrictions.readList(bs);
 	
 	client->projPosMap.clear();

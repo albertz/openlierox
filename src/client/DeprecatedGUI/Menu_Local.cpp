@@ -1429,20 +1429,19 @@ enum {
 };
 
 
-std::list<wpnrest_t *> tWeaponList;
+std::list< std::list<wpnrest_t> :: iterator > tWeaponList;
 
 /////////////////
 // Updates the weapon list that is shown in the dialog
 static void UpdateWeaponList()
 {
 	tWeaponList.clear();
-	wpnrest_t *psWpn = cWpnRestList.getList();
-	if (!psWpn)
-		return;
 	
-	for(int i=0; i < cWpnRestList.getNumWeapons(); i++) {
-        if(cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
-			tWeaponList.push_back(&psWpn[i]);
+	for(std::list<wpnrest_t> :: iterator it = cWpnRestList.getList().begin(); 
+			it != cWpnRestList.getList().end(); it++) 
+	{
+		if(cWpnGameScript->weaponExists(it->szName))
+			tWeaponList.push_back(it);
     }
 }
 
@@ -1480,7 +1479,7 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 			// Load the weapons
 			cWpnRestList.loadList(tLXOptions->tGameInfo.sWeaponRestFile, cWpnGameScript->directory());
 
-            cWpnRestList.updateList( cWpnGameScript );
+            cWpnRestList.updateList( cWpnGameScript->GetWeaponList() );
 		}
     }
 
@@ -1526,7 +1525,7 @@ bool Menu_WeaponsRestrictions_Frame()
 
 	int w, j;
 	w = j = 0;
-	for (std::list<wpnrest_t *>::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
+	for (std::list< std::list<wpnrest_t> :: iterator >::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
         if( w++ < count )
             continue;
         if( j > 10 )
@@ -1536,9 +1535,9 @@ bool Menu_WeaponsRestrictions_Frame()
         int y = 190 + (j++)*20;
         Color Colour = tLX->clNormalLabel;
 		Color StateColour = Colour;
-		if( (*it)->psLink->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
+		if( (*it)->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
 			StateColour = tLX->clSubHeading;
-		if( (*it)->psLink->nState == wpr_banned )
+		if( (*it)->nState == wpr_banned )
 			StateColour = tLX->clDisabled;
 
         // If a mouse is over the line, highlight it
@@ -1549,18 +1548,18 @@ bool Menu_WeaponsRestrictions_Frame()
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
-                    (*it)->psLink->nState++;
-                    (*it)->psLink->nState %= 3;
+                    (*it)->nState++;
+                    (*it)->nState %= 3;
     
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
 				}
             }
         }
 
-		std::string buf = (*it)->psLink->szName;
+		std::string buf = (*it)->szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 150, y, Colour, buf );
-        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it)->psLink->nState] );
+        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it)->nState] );
 	}
 
     // Adjust the scrollbar
@@ -1604,7 +1603,7 @@ bool Menu_WeaponsRestrictions_Frame()
             case wr_Reset:
                 if( ev->iEventMsg == BTN_CLICKED ) {
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
-                    cWpnRestList.cycleVisible(cWpnGameScript);
+                    cWpnRestList.cycleVisible(cWpnGameScript->GetWeaponList());
                 }
                 break;
 
@@ -1612,7 +1611,7 @@ bool Menu_WeaponsRestrictions_Frame()
             case wr_Random:
                 if(ev->iEventMsg == BTN_CLICKED) {
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
-                    cWpnRestList.randomizeVisible(cWpnGameScript);
+                    cWpnRestList.randomizeVisible(cWpnGameScript->GetWeaponList());
                 }
                 break;
 
@@ -1790,7 +1789,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							// Load
 							std::string fn = "cfg/presets/" + t->getText();
 							wpnrest->loadList(fn, "");
-							wpnrest->updateList(cWpnGameScript);
+							wpnrest->updateList(cWpnGameScript->GetWeaponList());
 							UpdateWeaponList();
 							tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(t->getText());
 						}

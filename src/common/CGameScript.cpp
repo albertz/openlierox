@@ -557,7 +557,7 @@ CheckFileEnd:
 
 ///////////////////
 // Load the game script from a file (game)
-int CGameScript::Load(const std::string& dir)
+int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 {
 	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
 	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
@@ -729,7 +729,7 @@ int CGameScript::Load(const std::string& dir)
 				if(wpn->UseSound)
 					wpn->SndFilename = readString(fp);
 
-				wpn->Proj.Proj = LoadProjectile(fp);
+				wpn->Proj.Proj = LoadProjectile(fp, loadImagesAndSounds);
 			}
 			else { // newer GS versions
 				fread_endian<char>(fp, wpn->LaserSight);
@@ -741,7 +741,7 @@ int CGameScript::Load(const std::string& dir)
 				wpn->Proj.read(this, fp);
 			}
 
-			if(!bDedicated && wpn->UseSound) {
+			if(!bDedicated && wpn->UseSound && loadImagesAndSounds) {
 				// Load the sample
 				wpn->smpSample = LoadGSSample(dir,wpn->SndFilename);
 
@@ -794,7 +794,7 @@ int CGameScript::Load(const std::string& dir)
 
 ///////////////////
 // Load a projectile
-proj_t *CGameScript::LoadProjectile(FILE *fp)
+proj_t *CGameScript::LoadProjectile(FILE *fp, bool loadImagesAndSounds)
 {
 	int projIndex = -1;
 	if(Header.Version > GS_LX56_VERSION) {
@@ -905,7 +905,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		case PRJ_IMAGE:
 			proj->ImgFilename = readString(fp);
 		
-			if(!bDedicated) {
+			if(!bDedicated && loadImagesAndSounds) {
 				proj->bmpImage = LoadGSImage(sDirectory, proj->ImgFilename);
 				if(!proj->bmpImage)
 					modLog("Could not open image '" + proj->ImgFilename + "'");
@@ -973,7 +973,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			EndianSwap(proj->Hit.Damage);
 		}
 
-		if(!bDedicated && proj->Hit.UseSound) {
+		if(!bDedicated && proj->Hit.UseSound && loadImagesAndSounds) {
 			// Load the sample
 			proj->Hit.Sound = LoadGSSample(sDirectory,proj->Hit.SndFilename);
 			
@@ -1075,7 +1075,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 	}
 	
 	if(Header.Version > GS_LX56_VERSION) {
-		proj->GeneralSpawnInfo.read(this, fp);		
+		proj->GeneralSpawnInfo.read(this, fp);
 	}
 	else if(proj->Timer.Projectiles || proj->Hit.Projectiles || proj->PlyHit.Projectiles || proj->Exp.Projectiles ||
        proj->Tch.Projectiles) {
@@ -1091,7 +1091,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 		fread_compat(proj->GeneralSpawnInfo.SpeedVar,	sizeof(float),	1, fp);
 		EndianSwap(proj->GeneralSpawnInfo.SpeedVar);
 
-		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp);
+		proj->GeneralSpawnInfo.Proj = LoadProjectile(fp, loadImagesAndSounds);
 	}
 
 
@@ -1113,7 +1113,7 @@ proj_t *CGameScript::LoadProjectile(FILE *fp)
 			fread_compat(proj->Trail.Proj.Spread,			sizeof(float),	1, fp);
 			EndianSwap(proj->Trail.Proj.Spread);
 
-			proj->Trail.Proj.Proj = LoadProjectile(fp);
+			proj->Trail.Proj.Proj = LoadProjectile(fp, loadImagesAndSounds);
 		}
 		else { // new GS versions
 			proj->Trail.Proj.read(this, fp);
@@ -2466,4 +2466,62 @@ bool Proj_TerrainHitEvent::write(CGameScript* gs, FILE* fp) {
 	fwrite_endian<char>(fp, Dirt);
 	fwrite_endian<char>(fp, Rock);
 	return true;
+}
+
+std::vector<std::string> CGameScript::LoadWeaponList(const std::string dir)
+{
+	std::vector<std::string> ret;
+	ModInfo info;
+	std::string name;
+	if( !CheckFile(dir, name, false, &info) )
+		return ret;
+	
+	if( info.typeShort == "LX src" )
+	{
+		// Read only weapons
+		//InitDefaultCompilerKeywords();
+		IniReader ini(dir + "/Main.txt", compilerKeywords);
+
+		if (!ini.Parse())
+		{
+			errors << "Error while parsing the gamescript " << dir << endl;
+			return ret;
+		}
+
+		int numWeapons = 0;
+		ini.ReadInteger("Weapons","NumWeapons", &numWeapons,0);
+		for(int i = 0; i < numWeapons; i++) 
+		{
+			std::string wpn = "Weapon" + itoa(i+1);
+			std::string weap;
+			ini.ReadString("Weapons", wpn, weap, "");
+			if( weap != "" )
+				ret.push_back( weap );
+		}
+		return ret;
+	}
+	
+	if( info.typeShort == "LX" )
+	{
+		// Too complicated to parse here
+		static CGameScript loader;
+		if( loader.Load(dir, false) != GSE_OK )
+			return ret;
+		for( int i = 0; i < loader.NumWeapons; i++ )
+			ret.push_back( loader.Weapons[i].Name );
+		return ret;
+	}
+	
+	// TODO: Gusanos does not support weapon restrictions
+	return ret;
+}
+
+std::vector<std::string> CGameScript::GetWeaponList() const
+{
+	std::vector<std::string> ret;
+	if( ! loaded )
+		return ret;
+	for( int i = 0; i < NumWeapons; i++ )
+		ret.push_back( Weapons[i].Name );
+	return ret;
 }

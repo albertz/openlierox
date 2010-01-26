@@ -751,7 +751,7 @@ void CWormHumanInputHandler::initWeaponSelection() {
         // If this weapon is not enabled in the restrictions, find another weapon that is enabled
         if( !m_worm->tWeapons[i].Weapon || !m_worm->cWeaponRest->isEnabled( m_worm->tWeapons[i].Weapon->Name ) ) {
 			
-			m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript ) );
+			m_worm->tWeapons[i].Weapon = m_worm->cGameScript->FindWeapon( m_worm->cWeaponRest->findEnabledWeapon( m_worm->cGameScript->GetWeaponList() ) );
         }
 		
 		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;

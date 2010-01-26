@@ -151,7 +151,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
 	bs->writeString(tLXOptions->tGameInfo.sModDir);
 	
-	server->cWeaponRestrictions.sendList(bs, server->cGameScript.get());
+	server->cWeaponRestrictions.sendList(bs, CGameScript::LoadWeaponList(tLXOptions->tGameInfo.sModDir));
 }
 
 void CServerNetEngine::SendPrepareGame()

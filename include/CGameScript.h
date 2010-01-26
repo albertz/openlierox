@@ -117,7 +117,6 @@ private:
 
 	std::string		sDirectory;
 
-
 	// Header
 	bool loaded;
 	gs_header_t	Header;
@@ -154,17 +153,17 @@ private:
 
 	void		Shutdown();
 	void		ShutdownProjectile(proj_t *prj);
-	void		InitDefaultCompilerKeywords();
+	static void	InitDefaultCompilerKeywords();
 
 public:
 	// Methods
 
-	int			Load(const std::string& dir);
+	int			Load(const std::string& dir, bool loadImagesAndSounds = true);
 	int			Save(const std::string& filename);
 	bool		isLoaded() const { return loaded; }
 	
 private:
-	proj_t		*LoadProjectile(FILE *fp);
+	proj_t		*LoadProjectile(FILE *fp, bool loadImagesAndSounds = true);
 	bool		SaveProjectile(proj_t *proj, FILE *fp);
 
 public:
@@ -221,6 +220,9 @@ public:
 	bool	Compile(const std::string& dir);
 
 	bool	gusEngineUsed() const		{ return m_gusEngineUsed; }
+	
+	static std::vector<std::string> LoadWeaponList(const std::string dir); // Does not load images & GFX, should be way faster than Load()
+	std::vector<std::string> GetWeaponList() const;
 	
 private:
 	bool	CompileWeapon(const std::string& dir, const std::string& weapon, int id);
