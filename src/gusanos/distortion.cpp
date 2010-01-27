@@ -1,13 +1,13 @@
 #ifndef DEDICATED_ONLY
 
-#include "distortion.h"
+#include "gusanos/distortion.h"
 
 #include "gusanos/allegro.h"
 #include <vector>
 #include "util/math_func.h"
-#include "gfx.h"
+#include "gusanos/gfx.h"
 //#include "blitters/blitters.h"
-#include "blitters/colors.h"
+#include "gusanos/blitters/colors.h"
 
 #include <string>
 

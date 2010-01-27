@@ -1,9 +1,9 @@
 #ifndef DEDICATED_ONLY
 
-#include "animators.h"
+#include "gusanos/animators.h"
 
-#include "base_animator.h"
-#include "sprite_set.h"
+#include "gusanos/base_animator.h"
+#include "gusanos/sprite_set.h"
 
 #include "gusanos/allegro.h"
 

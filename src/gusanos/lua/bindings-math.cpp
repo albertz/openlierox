@@ -1,10 +1,10 @@
-#include "bindings-math.h"
+#include "gusanos/lua/bindings-math.h"
 
-#include "../luaapi/context.h"
-#include "../luaapi/types.h"
-#include "../luaapi/macros.h"
+#include "gusanos/luaapi/context.h"
+#include "gusanos/luaapi/types.h"
+#include "gusanos/luaapi/macros.h"
 
-#include "../glua.h"
+#include "gusanos/glua.h"
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/math_func.h"

@@ -1,8 +1,8 @@
 #ifndef DEDICATED_ONLY
 
-#include "keyboard.h"
-#include "keys.h"
-#include "console/console.h"
+#include "gusanos/keyboard.h"
+#include "gusanos/keys.h"
+#include "gusanos/console/console.h"
 #include <algorithm> // For std::find
 
 #include "gusanos/allegro.h"

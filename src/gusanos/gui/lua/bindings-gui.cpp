@@ -1,12 +1,12 @@
-#include "bindings-gui.h"
+#include "gusanos/gui/lua/bindings-gui.h"
 
-#include "../../luaapi/types.h"
-#include "../../luaapi/macros.h"
-#include "../../luaapi/classes.h"
+#include "gusanos/luaapi/types.h"
+#include "gusanos/luaapi/macros.h"
+#include "gusanos/luaapi/classes.h"
 
 #ifndef DEDICATED_ONLY
-#include "../omfggui.h"
-#include "../omfggui_windows.h"
+#include "gusanos/gui/omfggui.h"
+#include "gusanos/gui/omfggui_windows.h"
 #endif
 #include "util/macros.h"
 

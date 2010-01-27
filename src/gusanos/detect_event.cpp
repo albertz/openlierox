@@ -1,8 +1,8 @@
-#include "detect_event.h"
+#include "gusanos/detect_event.h"
 
-#include "events.h"
+#include "gusanos/events.h"
 #include "CGameObject.h"
-#include "gusgame.h"
+#include "gusanos/gusgame.h"
 #include "util/macros.h"
 #include "game/Game.h"
 

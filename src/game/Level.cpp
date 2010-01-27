@@ -7,7 +7,7 @@
  *
  */
 
-#include "Level.h"
+#include "game/Level.h"
 #include "MapLoader.h"
 #include "StringUtils.h"
 

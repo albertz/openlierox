@@ -1,6 +1,6 @@
 #ifndef DEDICATED_ONLY
 
-#include "sound_sample_openal.h"
+#include "sound/sound_sample_openal.h"
 #include "gusanos/resource_list.h"
 #include "CGameObject.h"
 #include "gusanos/allegro.h"

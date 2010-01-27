@@ -6,9 +6,9 @@ mv PrecompiledHeader.hpp PrecompiledHeader.hpp.old
 grep -v "#include\|#endif // !defined(__cplusplus)" PrecompiledHeader.hpp.old >PrecompiledHeader.hpp
 rm PrecompiledHeader.hpp.old
 
-# SkinnedGUI seems broken
-for h in *.h DeprecatedGUI/*.h ; do
+for h in *.h */*.h */*/*.h */*/*/*.h ; do
 echo "#include \"$h\""; done | \
+grep -v "SkinnedGUI" | \
 grep -v "CWorld.h" | \
 grep -v "UCString.h" | \
 grep -v "_generated.h" | \

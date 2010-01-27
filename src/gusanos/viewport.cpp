@@ -2,23 +2,23 @@
 
 #include "CViewport.h"
 
-#include "gusgame.h"
+#include "gusanos/gusgame.h"
 #include "sound/sfx.h"
-#include "gfx.h"
+#include "gusanos/gfx.h"
 #include "gusanos/allegro.h"
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
-#include "glua.h"
-#include "lua/bindings-gfx.h"
-#include "blitters/blitters.h"
-#include "culling.h"
+#include "gusanos/glua.h"
+#include "gusanos/lua/bindings-gfx.h"
+#include "gusanos/blitters/blitters.h"
+#include "gusanos/culling.h"
 #include "CMap.h"
 #include "game/Game.h"
 #include <list>
 
-#include "sprite_set.h" // TEMP
-#include "sprite.h" // TEMP
+#include "gusanos/sprite_set.h" // TEMP
+#include "gusanos/sprite.h" // TEMP
 #include "CGameScript.h"
 
 #include <iostream>

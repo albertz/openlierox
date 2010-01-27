@@ -1,4 +1,4 @@
-#include "command.h"
+#include "gusanos/console/command.h"
 
 using namespace std;
 

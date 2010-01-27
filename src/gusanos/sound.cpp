@@ -1,7 +1,7 @@
 #ifndef DEDICATED_ONLY
 
 #include "sound/SoundsBase.h"
-#include "sound.h"
+#include "gusanos/sound.h"
 #include "sound/sound_sample.h"
 #include "sound/sfxdriver.h"
 #include "sound/sfx.h"

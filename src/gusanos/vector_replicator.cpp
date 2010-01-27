@@ -1,9 +1,9 @@
-#include "vector_replicator.h"
+#include "gusanos/vector_replicator.h"
 
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include <iostream>
 #include "util/vec.h"
-#include "gusgame.h"
+#include "gusanos/gusgame.h"
 #include "CMap.h"
 using std::cerr;
 using std::endl;

@@ -1,19 +1,19 @@
-#include "vermes.h"
-#include "../gfx.h"
-#include "../blitters/types.h"
-#include "../glua.h"
-#include "../luaapi/context.h"
-#include "../events.h"
+#include "gusanos/loaders/vermes.h"
+#include "gusanos/gfx.h"
+#include "gusanos/blitters/types.h"
+#include "gusanos/glua.h"
+#include "gusanos/luaapi/context.h"
+#include "gusanos/events.h"
 #ifndef DEDICATED_ONLY
-#include "../menu.h"
+#include "gusanos/menu.h"
 #endif
-#include "../game_actions.h"
-#include "../parser.h"
+#include "gusanos/game_actions.h"
+#include "gusanos/parser.h"
 #include "util/macros.h"
 #include "CMap.h"
 #include <string>
 
-#include "../omfgscript/omfg_script.h"
+#include "gusanos/omfgscript/omfg_script.h"
 #include "FindFile.h"
 
 #include <iostream>

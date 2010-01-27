@@ -7,7 +7,7 @@
  *
  */
 
-#include "Mod.h"
+#include "game/Mod.h"
 #include "CGameScript.h"
 #include "FindFile.h"
 

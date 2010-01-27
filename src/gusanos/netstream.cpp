@@ -7,7 +7,7 @@
  *
  */
 
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include "Networking.h"
 #include "EndianSwap.h"
 #include "gusanos/encoding.h"

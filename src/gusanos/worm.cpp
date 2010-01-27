@@ -1,4 +1,4 @@
-#include "worm.h"
+#include "gusanos/worm.h"
 
 Worm::Worm() : CWorm()
 {}

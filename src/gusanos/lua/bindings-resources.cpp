@@ -1,29 +1,29 @@
-#include "bindings-resources.h"
-#include "bindings-gfx.h"
-#include "bindings.h"
+#include "gusanos/lua/bindings-resources.h"
+#include "gusanos/lua/bindings-gfx.h"
+#include "gusanos/lua/bindings.h"
 
-#include "../luaapi/types.h"
-#include "../luaapi/macros.h"
-#include "../luaapi/classes.h"
+#include "gusanos/luaapi/types.h"
+#include "gusanos/luaapi/macros.h"
+#include "gusanos/luaapi/classes.h"
 
-#include "../gusgame.h"
-#include "../gfx.h"
-#include "../script.h"
+#include "gusanos/gusgame.h"
+#include "gusanos/gfx.h"
+#include "gusanos/script.h"
 #ifndef DEDICATED_ONLY
-#include "../sound.h"
+#include "gusanos/sound.h"
 #endif
-#include "../part_type.h"
-#include "../weapon_type.h"
-#include "../glua.h"
+#include "gusanos/part_type.h"
+#include "gusanos/weapon_type.h"
+#include "gusanos/glua.h"
 #include "CMap.h"
 #include "sound/sfx.h"
 
 //TEMP:
-#include "../sprite_set.h"
-#include "../sprite.h"
+#include "gusanos/sprite_set.h"
+#include "gusanos/sprite.h"
 
 #ifndef DEDICATED_ONLY
-#include "../font.h"
+#include "gusanos/font.h"
 #endif
 #include <cmath>
 #include <string>

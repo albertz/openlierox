@@ -1,6 +1,6 @@
-#include "keys.h"
+#include "gusanos/keys.h"
 
-#include "console/console.h"
+#include "gusanos/console/console.h"
 #include <string>
 #include <vector>
 #include <iostream>

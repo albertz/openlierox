@@ -1,6 +1,6 @@
-#include "glua.h"
+#include "gusanos/glua.h"
 #include "CWormHuman.h"
-#include "luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 
 //LuaContext lua;
 

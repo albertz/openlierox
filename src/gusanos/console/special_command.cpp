@@ -1,4 +1,4 @@
-#include "special_command.h"
+#include "gusanos/console/special_command.h"
 
 using namespace std;
 

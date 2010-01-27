@@ -1,31 +1,31 @@
-#include "bindings.h"
+#include "gusanos/lua/bindings.h"
 #include "FindFile.h"
 
 #ifndef DEDICATED_ONLY
-#include "../gui/lua/bindings-gui.h"
+#include "gusanos/gui/lua/bindings-gui.h"
 #endif
-#include "bindings-math.h"
-#include "bindings-network.h"
-#include "bindings-objects.h"
-#include "bindings-resources.h"
-#include "bindings-gfx.h"
-#include "bindings-game.h"
+#include "gusanos/lua/bindings-math.h"
+#include "gusanos/lua/bindings-network.h"
+#include "gusanos/lua/bindings-objects.h"
+#include "gusanos/lua/bindings-resources.h"
+#include "gusanos/lua/bindings-gfx.h"
+#include "gusanos/lua/bindings-game.h"
 
-#include "../luaapi/types.h"
-#include "../luaapi/macros.h"
+#include "gusanos/luaapi/types.h"
+#include "gusanos/luaapi/macros.h"
 
-#include "../gusgame.h"
-//#include "../vec.h"
-//#include "../gfx.h"
-#include "../network.h"
-#include "../glua.h"
+#include "gusanos/gusgame.h"
+//#include "gusanos/vec.h"
+//#include "gusanos/gfx.h"
+#include "gusanos/network.h"
+#include "gusanos/glua.h"
 #include "util/log.h"
 
-#include "../gconsole.h"
+#include "gusanos/gconsole.h"
 #ifndef DEDICATED_ONLY
-#include "../keys.h"
-#include "../menu.h"
-#include "../blitters/context.h"
+#include "gusanos/keys.h"
+#include "gusanos/menu.h"
+#include "gusanos/blitters/context.h"
 #include "CViewport.h"
 #endif
 #include <cmath>

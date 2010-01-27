@@ -2,7 +2,7 @@
 
 #include "gusanos/gconsole.h"
 #include "util/macros.h"
-#include "sfxdriver.h"
+#include "sound/sfxdriver.h"
 #include "MathLib.h"
 
 #include <vector>

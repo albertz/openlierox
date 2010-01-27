@@ -24,7 +24,9 @@
 #include <iomanip>
 #include <time.h>
 #include <SDL.h>
+#define Font Xlib_Font // Hack to prevent name clash in precompiled header and system libs
 #include <SDL_syswm.h>
+#undef Font
 #ifdef REAL_OPENGL
 #include <SDL_opengl.h>
 #endif

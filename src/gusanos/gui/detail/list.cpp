@@ -1,7 +1,7 @@
-#include "list.h"
+#include "gusanos/gui/detail/list.h"
 #include <cassert>
 #include "util/macros.h"
-#include "../../luaapi/context.h"
+#include "gusanos/luaapi/context.h"
 #include <boost/lexical_cast.hpp>
 using boost::lexical_cast;
 

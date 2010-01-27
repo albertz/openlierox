@@ -1,14 +1,11 @@
-#include "level_effect.h"
+#include "gusanos/level_effect.h"
 
-#include "resource_list.h"
+#include "gusanos/resource_list.h"
 
-//#include "gfx.h"
-//#include "util/text.h"
-//#include "parser.h"
-#include "sprite_set.h"
-#include "sprite.h"
-#include "omfgscript/omfg_script.h"
-#include "game_actions.h"
+#include "gusanos/sprite_set.h"
+#include "gusanos/sprite.h"
+#include "gusanos/omfgscript/omfg_script.h"
+#include "gusanos/game_actions.h"
 #include "FindFile.h"
 
 #include "gusanos/allegro.h"

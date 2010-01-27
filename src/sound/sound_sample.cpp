@@ -1,6 +1,6 @@
 #ifndef DEDICATED_ONLY
 
-#include "sound_sample.h"
+#include "sound/sound_sample.h"
 
 SoundSample::SoundSample(std::string const& filename)
 {

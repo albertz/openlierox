@@ -1,11 +1,11 @@
-#include "simple_particle.h"
+#include "gusanos/simple_particle.h"
 
 #include "util/vec.h"
-#include "gusgame.h"
+#include "gusanos/gusgame.h"
 #include "CGameObject.h"
 #ifndef DEDICATED_ONLY
-#include "gfx.h"
-#include "blitters/blitters.h"
+#include "gusanos/gfx.h"
+#include "gusanos/blitters/blitters.h"
 #include "CViewport.h"
 #endif
 #include "CMap.h"

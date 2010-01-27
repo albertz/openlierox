@@ -8,9 +8,9 @@ using namespace boost::assign;
 #include <AL/al.h>
 #include <boost/utility.hpp>
 
-#include "sfx.h"
-#include "sfxdriver.h"
-#include "sfxdriver_openal.h"
+#include "sound/sfx.h"
+#include "sound/sfxdriver.h"
+#include "sound/sfxdriver_openal.h"
 #include "gusanos/gconsole.h"
 #include "CGameObject.h"
 #include "util/macros.h"

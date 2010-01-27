@@ -7,7 +7,7 @@
  *
  */
 
-#include "SinglePlayer.h"
+#include "game/SinglePlayer.h"
 #include "Options.h"
 #include "ConfigHandler.h"
 #include "game/Mod.h"

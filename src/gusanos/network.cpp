@@ -1,17 +1,17 @@
-#include "network.h"
+#include "gusanos/network.h"
 
-#include "server.h"
-#include "client.h"
-#include "gusgame.h"
-#include "glua.h"
-#include "gconsole.h"
-#include "net_worm.h"
+#include "gusanos/server.h"
+#include "gusanos/client.h"
+#include "gusanos/gusgame.h"
+#include "gusanos/glua.h"
+#include "gusanos/gconsole.h"
+#include "gusanos/net_worm.h"
 #include "game/WormInputHandler.h"
-#include "particle.h"
+#include "gusanos/particle.h"
 #include "util/macros.h"
 #include "util/log.h"
 #include "util/text.h"
-#include "lua/bindings-network.h"
+#include "gusanos/lua/bindings-network.h"
 #include "game/Game.h"
 
 #include <string>
@@ -20,7 +20,7 @@
 #include <list>
 #include <set>
 #include <utility>
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include <boost/assign/list_inserter.hpp>
 using namespace boost::assign;
 

@@ -1,4 +1,4 @@
-#include "check.h"
+#include "gusanos/gui/detail/check.h"
 
 namespace OmfgGUI
 {

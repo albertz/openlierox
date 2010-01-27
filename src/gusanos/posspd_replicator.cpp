@@ -1,10 +1,10 @@
-#include "posspd_replicator.h"
+#include "gusanos/posspd_replicator.h"
 
-#include "netstream.h"
+#include "gusanos/netstream.h"
 #include <iostream>
 #include "util/vec.h"
-#include "encoding.h"
-#include "gusgame.h"
+#include "gusanos/encoding.h"
+#include "gusanos/gusgame.h"
 #include "CMap.h"
 #include <utility>
 using std::cerr;

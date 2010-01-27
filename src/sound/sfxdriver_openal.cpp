@@ -11,9 +11,9 @@
 #include "gusanos/gconsole.h"
 #include "CGameObject.h"
 #include "util/macros.h"
-#include "sfxdriver_openal.h"
-#include "sound_sample_openal.h"
-#include "sound_sample.h"
+#include "sound/sfxdriver_openal.h"
+#include "sound/sound_sample_openal.h"
+#include "sound/sound_sample.h"
 
 #include <boost/assign/list_inserter.hpp>
 using namespace boost::assign;

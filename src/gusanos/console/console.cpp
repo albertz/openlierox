@@ -1,13 +1,13 @@
-#include "console.h"
-#include "variables.h"
-#include "command.h"
-#include "special_command.h"
-#include "alias.h"
+#include "gusanos/console/console.h"
+#include "gusanos/console/variables.h"
+#include "gusanos/console/command.h"
+#include "gusanos/console/special_command.h"
+#include "gusanos/console/alias.h"
 #include "util/text.h"
 #include "util/macros.h"
-#include "consoleitem.h"
+#include "gusanos/console/consoleitem.h"
 
-#include "console-grammar.h"
+#include "gusanos/console/console-grammar.h"
 #include "gusanos/allegro.h"
 
 #include <algorithm>
