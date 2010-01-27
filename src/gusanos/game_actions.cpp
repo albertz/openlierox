@@ -1,10 +1,3 @@
-#ifdef WIN32
-#include <windows.h>
-#ifdef PlaySound
-#undef PlaySound
-#endif
-#endif
-
 #include "gusanos/game_actions.h"
 
 #include "gusanos/gusgame.h"
