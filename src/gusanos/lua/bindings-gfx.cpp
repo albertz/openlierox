@@ -1,15 +1,15 @@
-#include "gusanos/lua/bindings-gfx.h"
+#include "bindings-gfx.h"
 
-#include "gusanos/luaapi/types.h"
-#include "gusanos/luaapi/macros.h"
-#include "gusanos/luaapi/classes.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
+#include "../luaapi/classes.h"
 
-#include "gusanos/glua.h"
+#include "../glua.h"
 #include "util/log.h"
 
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
-#include "gusanos/gfx.h"
+#include "../gfx.h"
 #endif
 
 #include <cmath>

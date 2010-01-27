@@ -1,4 +1,4 @@
-#include "gusanos/gui/detail/group.h"
+#include "group.h"
 
 using std::cout;
 using std::cerr;

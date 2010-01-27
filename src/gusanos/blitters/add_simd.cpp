@@ -1,9 +1,9 @@
 #ifndef DEDICATED_ONLY
 
-#include "gusanos/blitters/blitters.h"
-#include "gusanos/blitters/colors.h"
-#include "gusanos/blitters/mmx.h"
-#include "gusanos/blitters/macros.h"
+#include "blitters.h"
+#include "colors.h"
+#include "mmx.h"
+#include "macros.h"
 
 #ifdef BUILTIN_MMXSSE
 

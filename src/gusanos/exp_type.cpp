@@ -1,22 +1,22 @@
-#include "gusanos/exp_type.h"
+#include "exp_type.h"
 
-#include "gusanos/resource_list.h"
+#include "resource_list.h"
 
-#include "gusanos/events.h"
+#include "events.h"
 #ifndef DEDICATED_ONLY
-#include "gusanos/sprite_set.h"
-#include "gusanos/distortion.h"
-#include "gusanos/gfx.h"
-#include "gusanos/sprite.h"
+#include "sprite_set.h"
+#include "distortion.h"
+#include "gfx.h"
+#include "sprite.h"
 #endif //DEDICATED_ONLY
 #include "util/text.h"
 #include "util/macros.h"
-#include "gusanos/parser.h"
-#include "gusanos/detect_event.h"
-#include "gusanos/object_grid.h"
+#include "parser.h"
+#include "detect_event.h"
+#include "object_grid.h"
 
-#include "gusanos/omfgscript/omfg_script.h"
-#include "gusanos/game_actions.h"
+#include "omfgscript/omfg_script.h"
+#include "game_actions.h"
 #include "FindFile.h"
 
 

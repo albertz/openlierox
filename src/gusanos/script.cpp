@@ -1,7 +1,7 @@
-#include "gusanos/script.h"
+#include "script.h"
 
 #include <iostream>
-#include "gusanos/luaapi/context.h"
+#include "luaapi/context.h"
 using std::string;
 using std::cerr;
 using std::endl;

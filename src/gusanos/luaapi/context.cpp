@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include "gusanos/luaapi/context.h"
+#include "context.h"
 
 extern "C"
 {

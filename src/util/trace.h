@@ -1,10 +1,6 @@
 #ifndef OMFGUTIL_DETAIL_TRACE_H
 #define OMFGUTIL_DETAIL_TRACE_H
 
-#include <algorithm>
-using std::min;
-using std::max;
-
 struct Fixed
 {
 	Fixed fromInt(int v)
@@ -82,7 +78,7 @@ struct Fixed
 	Fixed operator/(Fixed rhs)
 	{
 		long long ve = v;
-		return Fixed((ve << 16) / rhs.v);
+		return (ve << 16) / rhs.v;
 	}
 	
 	long v;
@@ -107,7 +103,7 @@ struct Tracer
 		
 		if(diff.y < 0)
 		{
-			if(abs(diff.x).v < abs(diff.y).v)
+			if(abs(diff.x) < abs(diff.y))
 			{
 				// \/
 				Fixed d(diff.x / -diff.y);

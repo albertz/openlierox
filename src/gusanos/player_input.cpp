@@ -1,11 +1,11 @@
 #ifndef DEDICATED_ONLY
-#include "gusanos/player_input.h"
+#include "player_input.h"
 
-#include "gusanos/gusgame.h"
+#include "gusgame.h"
 #include "CWormHuman.h"
-#include "gusanos/gconsole.h"
-#include "gusanos/glua.h"
-#include "gusanos/luaapi/context.h"
+#include "gconsole.h"
+#include "glua.h"
+#include "luaapi/context.h"
 #include "util/text.h"
 #include "util/log.h"
 #include "util/stringbuild.h"

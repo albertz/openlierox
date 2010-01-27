@@ -1,6 +1,6 @@
 #include <string.h>
 #include "gusanos/allegro.h"
-#include "gusanos/2xsai.h"
+#include "2xsai.h"
 
 #define uint32 unsigned long
 #define uint16 unsigned short

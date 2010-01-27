@@ -1,2 +1,2 @@
-#include "gusanos/resource_list.h"
+#include "resource_list.h"
 

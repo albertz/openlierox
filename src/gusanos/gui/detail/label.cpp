@@ -1,4 +1,4 @@
-#include "gusanos/gui/detail/label.h"
+#include "label.h"
 
 namespace OmfgGUI
 {

@@ -1,22 +1,22 @@
-#include "gusanos/explosion.h"
+#include "explosion.h"
 
 #include "util/vec.h"
-#include "gusanos/gusgame.h"
+#include "gusgame.h"
 #include "CGameObject.h"
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
-#include "gusanos/exp_type.h"
-#include "gusanos/events.h"
+#include "exp_type.h"
+#include "events.h"
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
-#include "gusanos/distortion.h"
-#include "gusanos/gfx.h"
-#include "gusanos/base_animator.h"
-#include "gusanos/sprite.h"
-#include "gusanos/sprite_set.h"
-#include "gusanos/animators.h"
+#include "distortion.h"
+#include "gfx.h"
+#include "base_animator.h"
+#include "sprite.h"
+#include "sprite_set.h"
+#include "animators.h"
 #endif
-#include "gusanos/detect_event.h"
+#include "detect_event.h"
 #include "CMap.h"
 
 #include <vector>

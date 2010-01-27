@@ -1,8 +1,8 @@
-#include "gusanos/console/variables.h"
+#include "variables.h"
 #include "util/text.h"
 #include "util/macros.h"
 #include "util/stringbuild.h"
-#include "gusanos/console/console.h"
+#include "console.h"
 
 ///////////////////////////////EnumVariable////////////////////////////////
 

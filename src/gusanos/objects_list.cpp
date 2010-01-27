@@ -1,4 +1,4 @@
-#include "gusanos/objects_list.h"
+#include "objects_list.h"
 #include "CGameObject.h"
 
 #include <list>

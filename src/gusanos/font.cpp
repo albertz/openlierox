@@ -1,10 +1,10 @@
 #ifndef DEDICATED_ONLY
 
-#include "gusanos/font.h"
+#include "font.h"
 
 //#include "resource_list.h"
-#include "gusanos/resource_locator.h"
-#include "gusanos/blitters/blitters.h"
+#include "resource_locator.h"
+#include "blitters/blitters.h"
 
 #include "gusanos/allegro.h"
 #include <string>

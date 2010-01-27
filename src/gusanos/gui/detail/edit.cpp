@@ -1,4 +1,4 @@
-#include "gusanos/gui/detail/edit.h"
+#include "edit.h"
 #include "gusanos/allegro.h" //TEMP!!!!!!!!!!!
 
 #include <algorithm>

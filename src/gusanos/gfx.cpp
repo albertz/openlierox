@@ -1,13 +1,13 @@
-#include "gusanos/gfx.h"
-#include "gusanos/gconsole.h"
+#include "gfx.h"
+#include "gconsole.h"
 
 #ifndef DEDICATED_ONLY
-#include "gusanos/2xsai.h"
-#include "gusanos/blitters/blitters.h"
-#include "gusanos/blitters/colors.h"
-#include "gusanos/blitters/macros.h"
-#include "gusanos/sprite_set.h"
-#include "gusanos/sprite.h"
+#include "2xsai.h"
+#include "blitters/blitters.h"
+#include "blitters/colors.h"
+#include "blitters/macros.h"
+#include "sprite_set.h"
+#include "sprite.h"
 #endif
 #include <boost/bind.hpp>
 #include <boost/assign/list_inserter.hpp>

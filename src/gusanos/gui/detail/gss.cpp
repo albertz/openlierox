@@ -1,4 +1,4 @@
-#include "gusanos/gui/detail/context.h"
+#include "context.h"
 #include <istream>
 #include <string>
 #include "util/log.h"
@@ -9,7 +9,7 @@ namespace OmfgGUI
 
 }
 
-#include "gusanos/gui/detail/gss-grammar.h"
+#include "gss-grammar.h"
 
 namespace OmfgGUI
 {

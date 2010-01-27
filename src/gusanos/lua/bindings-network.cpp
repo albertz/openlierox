@@ -1,15 +1,15 @@
-#include "gusanos/lua/bindings-network.h"
+#include "bindings-network.h"
 
-#include "gusanos/luaapi/types.h"
-#include "gusanos/luaapi/macros.h"
-#include "gusanos/luaapi/classes.h"
+#include "../luaapi/types.h"
+#include "../luaapi/macros.h"
+#include "../luaapi/classes.h"
 
-#include "gusanos/network.h"
-#include "gusanos/gusgame.h"
+#include "../network.h"
+#include "../gusgame.h"
 #include "game/WormInputHandler.h"
 #include "CWorm.h"
-#include "gusanos/particle.h"
-#include "gusanos/encoding.h"
+#include "../particle.h"
+#include "../encoding.h"
 #include "util/log.h"
 #include "game/Game.h"
 

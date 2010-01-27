@@ -5,15 +5,16 @@
 #endif
 #endif
 
-#include "gusanos/game_actions.h"
+#include "game_actions.h"
 
-#include "gusanos/gusgame.h"
-#include "gusanos/part_type.h"
-#include "gusanos/explosion.h"
-#include "gusanos/exp_type.h"
+#include "gusgame.h"
+//#include "particle.h"
+#include "part_type.h"
+#include "explosion.h"
+#include "exp_type.h"
 #ifndef DEDICATED_ONLY
-#include "gusanos/sound.h"
-#include "gusanos/sprite_set.h"
+#include "sound.h"
+#include "sprite_set.h"
 #endif
 #include "util/text.h"
 #include "util/angle.h"
@@ -21,16 +22,16 @@
 #include "util/macros.h"
 #include "util/log.h"
 #include "CGameObject.h"
-#include "gusanos/weapon.h"
-#include "gusanos/worm.h"
-#include "gusanos/level_effect.h"
+#include "weapon.h"
+#include "worm.h"
+#include "level_effect.h"
 
-#include "gusanos/glua.h"
-#include "gusanos/luaapi/context.h"
-#include "gusanos/script.h"
+#include "glua.h"
+#include "luaapi/context.h"
+#include "script.h"
 #include "sound/sfx.h"
 
-#include "gusanos/omfgscript/omfg_script.h"
+#include "omfgscript/omfg_script.h"
 
 
 using namespace std;

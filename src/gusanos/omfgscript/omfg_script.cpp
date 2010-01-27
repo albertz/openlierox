@@ -1,4 +1,4 @@
-#include "gusanos/omfgscript/omfg_script.h"
+#include "omfg_script.h"
 #include "util/macros.h"
 #include <map>
 #include <vector>
