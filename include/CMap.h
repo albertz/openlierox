@@ -142,6 +142,7 @@ private:
 	SmartPointer<SDL_Surface> bmpBackImage;
 	SmartPointer<SDL_Surface> bmpBackImageHiRes;
 	SmartPointer<SDL_Surface> bmpMiniMap;
+	SmartPointer<SDL_Surface> bmpMiniMapTransparent; // Half-transparent minimap for Gusanos
     SmartPointer<SDL_Surface> bmpGreenMask;
 	uchar		*PixelFlags;
     SmartPointer<SDL_Surface> bmpShadowMap;
@@ -194,6 +195,7 @@ private:
 	void		UpdateMiniMap(bool force = false);
 	void		UpdateMiniMapRect(int x, int y, int w, int h);
 	void		UpdateArea(int x, int y, int w, int h, bool update_image = false);
+	void		UpdateMiniMapTransparent();
 
 	friend class CCache;
 
