@@ -51,8 +51,11 @@
 #include "OLXCommand.h"
 #include "gusanos/network.h"
 #include "game/Mod.h"
-#include "gusanos/gusgame.h"
+
+
 #include <zip.h> // For unzipping downloaded mod
+
+
 
 
 
@@ -403,7 +406,7 @@ int CClient::Initialize()
 		cChatList->InitializeChatBox();
 		cChatList->Setup(0,	tInterfaceSettings.ChatBoxX,
 							tInterfaceSettings.ChatBoxY,
-							tInterfaceSettings.ChatBoxW,
+							tInterfaceSettings.ChatBoxW, // A little hack because of replacing CListview with CBrowser to put the scrollbar on the correct place
 							tInterfaceSettings.ChatBoxH);
 	}
 	// Clear the network channel
@@ -1710,6 +1713,7 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		bottombar = DeprecatedGUI::gfxGame.bmpGameNetBackground;
 		topbar = DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 	}
+
 
 	int top = topbar.get() ? (topbar.get()->h) : (tLX->cFont.GetHeight() + 3); // Top bound of the viewports
 	if (!tLXOptions->bTopBarVisible)

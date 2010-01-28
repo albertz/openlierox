@@ -42,7 +42,6 @@
 #include "EndianSwap.h"
 #include "MapLoader.h"
 #include "game/Level.h"
-#include "gusanos/gusgame.h"
 
 
 ////////////////////
@@ -2440,7 +2439,7 @@ void CMap::UpdateMiniMap(bool force)
 				DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 		}
 	}
-
+	
 	// Not dirty anymore
 	bMiniMapDirty = false;
 	UpdateMiniMapTransparent();
