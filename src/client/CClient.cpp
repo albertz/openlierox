@@ -51,6 +51,7 @@
 #include "OLXCommand.h"
 #include "gusanos/network.h"
 #include "game/Mod.h"
+#include "gusanos/gusgame.h"
 
 
 #include <zip.h> // For unzipping downloaded mod
