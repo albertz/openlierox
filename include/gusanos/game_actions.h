@@ -8,12 +8,6 @@
 #include <string>
 #include <vector>
 
-#ifdef WIN32
-#define PlaySound PlaySound_Win32 // Prevent name clash with precompiled header
-#include <windows.h>
-#undef PlaySound
-#endif
-
 class PartType;
 class ExpType;
 class Sound;
