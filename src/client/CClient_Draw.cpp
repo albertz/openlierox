@@ -571,8 +571,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		int MiniMapX = tInterfaceSettings.MiniMapX;
 		int MiniMapY = tInterfaceSettings.MiniMapY;
 		if(gusGame.isEngineNeeded()) {
-			MiniMapX = 511;
-			MiniMapY = 382;
+			MiniMapX = 640 - tInterfaceSettings.MiniMapW;
+			MiniMapY = 480 - tInterfaceSettings.MiniMapH;
 		}
 
 		// Mini-Map
