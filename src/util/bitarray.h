@@ -1,6 +1,9 @@
 #ifndef OMFGUTIL_DETAIL_BITARRAY_H
 #define OMFGUTIL_DETAIL_BITARRAY_H
 
+//TODO: fix that file
+#if 0
+
 class BitArray
 {
 public:
@@ -196,5 +199,7 @@ private:
 	SegmentCont segments;
 	size_t s;
 };
+
+#endif // 0
 
 #endif //OMFGUTIL_DETAIL_BITARRAY_H
