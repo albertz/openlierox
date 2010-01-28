@@ -132,6 +132,7 @@
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
 			CharacterSet="0"
+			ManagedExtensions="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -164,7 +165,7 @@
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;../../libs/lua"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;CURL_STATICLIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -193,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib"
+				AdditionalDependencies="wsock32.lib Ws2_32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib_static.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libeay32.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\openldap.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\ssleay32.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib"
 				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
