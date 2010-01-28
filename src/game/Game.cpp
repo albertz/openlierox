@@ -7,7 +7,7 @@
  *
  */
 
-#include "game/Game.h"
+#include "Game.h"
 #include "AuxLib.h"
 #include "Debug.h"
 #include "LieroX.h"

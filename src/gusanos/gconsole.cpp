@@ -1,17 +1,17 @@
-#include "gusanos/gconsole.h"
+#include "gconsole.h"
 #ifndef DEDICATED_ONLY
-#include "gusanos/keyboard.h"
-#include "gusanos/keys.h"
-#include "gusanos/font.h"
-#include "gusanos/sprite_set.h"
-#include "gusanos/sprite.h"
+#include "keyboard.h"
+#include "keys.h"
+#include "font.h"
+#include "sprite_set.h"
+#include "sprite.h"
 #endif
-#include "gusanos/script.h"
-#include "gusanos/gusgame.h"
-#include "gusanos/glua.h"
+#include "script.h"
+#include "gusgame.h"
+#include "glua.h"
 #include "util/math_func.h"
 
-#include "gusanos/network.h" //TEMP
+#include "network.h" //TEMP
 #include "Debug.h"
 #include "FindFile.h"
 

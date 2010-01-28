@@ -1,8 +1,8 @@
-#include "gusanos/sprite_set.h"
+#include "sprite_set.h"
 
-#include "gusanos/resource_list.h"
-#include "gusanos/gfx.h"
-#include "gusanos/sprite.h"
+#include "resource_list.h"
+#include "gfx.h"
+#include "sprite.h"
 #include "util/macros.h"
 
 #include "gusanos/allegro.h"
@@ -12,7 +12,7 @@
 #include <stdexcept>
 
 #ifndef DEDICATED_ONLY
-#include "gusanos/blitters/context.h"
+#include "blitters/context.h"
 #endif
 
 using namespace std;

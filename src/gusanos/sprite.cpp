@@ -1,8 +1,8 @@
-#include "gusanos/sprite.h"
+#include "sprite.h"
 
-#include "gusanos/gfx.h"
+#include "gfx.h"
 #ifndef DEDICATED_ONLY
-#include "gusanos/blitters/context.h"
+#include "blitters/context.h"
 #endif
 
 

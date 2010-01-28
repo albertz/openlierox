@@ -1,5 +1,5 @@
-#include "gusanos/player_options.h"
-#include "gusanos/gconsole.h"
+#include "player_options.h"
+#include "gconsole.h"
 #include <boost/bind.hpp>
 #include "util/text.h"
 #include <cmath>

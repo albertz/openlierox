@@ -1,4 +1,4 @@
-#include "util/math_func.h"
+#include "math_func.h"
 
 boost::mt19937 rndgen;
 boost::uniform_01<boost::mt19937> rnd(rndgen);

@@ -7,7 +7,7 @@
  *
  */
 
-#include "game/WormInputHandler.h"
+#include "WormInputHandler.h"
 
 #include "gusanos/worm.h"
 #include "gusanos/ninjarope.h"

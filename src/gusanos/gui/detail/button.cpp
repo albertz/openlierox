@@ -1,4 +1,4 @@
-#include "gusanos/gui/detail/button.h"
+#include "button.h"
 
 using std::cout;
 using std::cerr;

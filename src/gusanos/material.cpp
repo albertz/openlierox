@@ -1,4 +1,4 @@
-#include "gusanos/material.h"
+#include "material.h"
 
 Material::Material()
 {

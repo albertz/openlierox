@@ -1,5 +1,5 @@
-#include "gusanos/proxy_player.h"
-#include "gusanos/player_options.h"
+#include "proxy_player.h"
+#include "player_options.h"
 #include "game/Game.h"
 
 ProxyPlayer::ProxyPlayer(CWorm* worm)

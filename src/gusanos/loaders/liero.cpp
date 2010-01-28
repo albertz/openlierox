@@ -1,5 +1,5 @@
-#include "gusanos/loaders/liero.h"
-#include "gusanos/gfx.h"
+#include "liero.h"
+#include "../gfx.h"
 #include "FindFile.h"
 #include <string>
 #include <vector>

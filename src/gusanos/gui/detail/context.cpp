@@ -1,7 +1,7 @@
-#include "gusanos/gui/detail/context.h"
+#include "context.h"
 
-#include "gusanos/gui/detail/renderer.h"
-#include "gusanos/gui/detail/wnd.h"
+#include "renderer.h"
+#include "wnd.h"
 #include "util/macros.h"
 #include <iostream>
 using std::cerr;

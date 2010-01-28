@@ -1,8 +1,8 @@
 #ifndef DEDICATED_ONLY
 
-#include "gusanos/blitters/blitters.h"
-#include "gusanos/blitters/colors.h"
-#include "gusanos/blitters/macros.h"
+#include "blitters.h"
+#include "colors.h"
+#include "macros.h"
 
 #include <algorithm>
 #include <iostream>

@@ -1,6 +1,6 @@
-#include "gusanos/stl_str_replicator.h"
+#include "stl_str_replicator.h"
 
-#include "gusanos/netstream.h"
+#include "netstream.h"
 #include <string>
 #include <cassert>
 

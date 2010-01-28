@@ -1,7 +1,7 @@
-#include "gusanos/gui/detail/wnd.h"
+#include "wnd.h"
 
-#include "gusanos/luaapi/types.h"
-#include "gusanos/luaapi/context.h"
+#include "../../luaapi/types.h"
+#include "../../luaapi/context.h"
 #include "util/log.h"
 
 #include <iostream>

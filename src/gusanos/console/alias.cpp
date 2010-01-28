@@ -1,4 +1,4 @@
-#include "gusanos/console/alias.h"
+#include "alias.h"
 #include "util/text.h"
 
 using namespace std;

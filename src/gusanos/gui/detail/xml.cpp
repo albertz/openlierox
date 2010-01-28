@@ -1,16 +1,16 @@
-#include "gusanos/gui/detail/xml-grammar.h"
-#include "gusanos/gui/detail/context.h"
-#include "gusanos/gui/detail/wnd.h"
-#include "gusanos/gui/detail/list.h"
-#include "gusanos/gui/detail/button.h"
-#include "gusanos/gui/detail/edit.h"
-#include "gusanos/gui/detail/group.h"
-#include "gusanos/gui/detail/check.h"
+#include "xml-grammar.h"
+#include "context.h"
+#include "wnd.h"
+#include "list.h"
+#include "button.h"
+#include "edit.h"
+#include "group.h"
+#include "check.h"
 #include <sstream>
 #include <iostream>
 #include <utility>
-#include "gusanos/luaapi/types.h"
-#include "gusanos/luaapi/context.h"
+#include "../../luaapi/types.h"
+#include "../../luaapi/context.h"
 
 using namespace std;
 

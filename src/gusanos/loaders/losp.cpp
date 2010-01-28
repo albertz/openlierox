@@ -1,4 +1,4 @@
-#include "gusanos/loaders/losp.h"
+#include "losp.h"
 #include "FindFile.h"
 
 #ifndef DEDICATED_ONLY

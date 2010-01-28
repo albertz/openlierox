@@ -1,11 +1,11 @@
-#include "gusanos/events.h"
+#include "events.h"
 
 #include "CWorm.h"
 #include "CGameObject.h"
-#include "gusanos/base_action.h"
+#include "base_action.h"
 //#include "game_actions.h"
 #include "util/macros.h"
-#include "gusanos/gusgame.h"
+#include "gusgame.h"
 #include "Debug.h"
 
 #include <vector>

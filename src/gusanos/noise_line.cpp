@@ -1,4 +1,4 @@
-#include "gusanos/noise_line.h"
+#include "noise_line.h"
 #include "util/vec.h"
 #include "util/math_func.h"
 

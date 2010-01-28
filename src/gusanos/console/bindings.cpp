@@ -1,4 +1,4 @@
-#include "gusanos/console/bindings.h"
+#include "bindings.h"
 #include "util/text.h"
 #include "util/log.h"
 

@@ -1,5 +1,5 @@
-#include "gusanos/loaders/LieroXLevelLoader.h"
-#include "gusanos/gfx.h"
+#include "LieroXLevelLoader.h"
+#include "../gfx.h"
 #include "zlib.h"
 #include "FindFile.h"
 #include "CMap.h"
