@@ -126,8 +126,8 @@ void RaiseDebugger() {
 
 #endif
 
-
-#ifdef WIN32
+// not for MingW as it seems it has some different dbghelp version (or none at all)
+#if defined(WIN32) && !defined(__MINGW32_VERSION)
 
 #include "AuxLib.h" // for Windows.h
 
@@ -147,9 +147,7 @@ void RaiseDebugger() {
 void *ReadGameStateForReport(char *buffer, size_t bufsize)
 {
 	memset(buffer, 0, bufsize);
-#ifndef __MINGW32_VERSION
 	__try {
-#endif
 		if (cClient)  {
 			strncat(buffer, "Game state:\n", bufsize);
 			if (cClient->getStatus() == NET_CONNECTED)  {
@@ -168,10 +166,8 @@ void *ReadGameStateForReport(char *buffer, size_t bufsize)
 			}
 		}
 		buffer[bufsize - 1] = '\0';
-#ifndef __MINGW32_VERSION
 	} __except (EXCEPTION_EXECUTE_HANDLER)
 	{ return buffer; }
-#endif
 
 	return buffer;
 }
@@ -182,9 +178,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 	if (!tLXOptions || !tLX)
 		return buffer;
 	char tmp[32];
-#ifndef __MINGW32_VERSION
 	__try  {
-#endif
 		// Game type
 		strncat(buffer, "iGameType = ", bufsize);
 		switch (tLX->iGameType)  {
@@ -296,11 +290,9 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		}
 
 		buffer[bufsize - 1] = '\0';
-#ifndef __MINGW32_VERSION
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 		return buffer;
 	}
-#endif
 	return buffer;
 }
 
@@ -363,7 +355,9 @@ void OlxWriteCoreDump(const char* fileName)
 	OlxWriteCoreDump_Win32(fileName, NULL);
 }
 
-#else
+
+// all rest cases, except mingw
+#elif !defined(__MINGW32_VERSION)
 
 #ifdef GCOREDUMPER
 #include <google/coredumper.h>
@@ -374,7 +368,7 @@ void OlxWriteCoreDump(const char* fileName)
 #include <cstring>
 #include <cstdio>
 
-#ifndef GCOREDUMPER
+#if !defined(GCOREDUMPER)
 static void GdbWriteCoreDump(const char* fname) {
 	// WARNING: this is terribly slow like this
 	char gdbparam[1000];
@@ -402,12 +396,20 @@ void OlxWriteCoreDump(const char* file_postfix) {
 	printf("writing coredump to %s\n", corefile);
 	
 	printf("dumping core ... "); fflush(0);
-#ifdef GCOREDUMPER
+#if defined(GCOREDUMPER)
 	WriteCoreDump(corefile);
 #else
 	GdbWriteCoreDump(corefile);
 #endif
 	printf("ready\n");
+}
+
+
+// MingW case for coredump, maybe later also others
+#else
+
+void OlxWriteCoreDump(const char*) {
+	errors << "Coredumping not supported in this version" << endl;
 }
 
 #endif
