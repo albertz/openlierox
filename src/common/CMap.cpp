@@ -2567,9 +2567,16 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 	if(bMiniMapDirty)
 		UpdateMiniMap();
 
-
+	// TODO: SetPerSurfaceAlpha() does not work, dunno why
+	if( gusGame.isEngineNeeded() )
+		SetPerSurfaceAlpha(bmpMiniMap.get(), 128); // 128 should be optimised in SDL
+	else
+		SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
+	
 	// Draw the minimap
 	DrawImage(bmpDest, bmpMiniMap, x, y);
+
+	SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
 
 	fBlinkTime+=dt;
 	if(fBlinkTime>0.5f)
