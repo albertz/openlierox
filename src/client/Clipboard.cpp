@@ -38,7 +38,9 @@
 
 #define CLIPBOARD_FUNCS_DEFINED
 
+#define Font Font_Xlib // Hack to prevent name clash in precompiled header
 #include <X11/Xlib.h>
+#undef Font
 #include <unistd.h>
 #include <SDL_syswm.h>
 

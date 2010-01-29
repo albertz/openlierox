@@ -2503,9 +2503,11 @@ void CMap::UpdateMiniMapTransparent()
 	{
 		bmpMiniMapTransparent = gfxCreateSurface(bmpMiniMap.get()->w, bmpMiniMap.get()->h);
 		SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // 128 should be optimised in SDL
-		FillSurface(bmpMiniMapTransparent.get(), MakeColour(0, 0, 0, 128));
+		FillSurface(bmpMiniMapTransparent.get(), MakeColour(0, 0, 0, 128)); // Enable per-pixel alpha
 	}
+	SetPerSurfaceAlpha(bmpMiniMap.get(), 255); // Make it not overwrite per-pixel alpha
 	DrawImage(bmpMiniMapTransparent.get(), bmpMiniMap, 0, 0);
+	//SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // Just in case
 }
 
 void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special) {
