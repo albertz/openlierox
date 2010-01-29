@@ -1296,6 +1296,11 @@ void CClient::SimulateHud()
 			toph = -toph;
 			top = 0;
 		}
+		if( gusGame.isEngineNeeded() )
+		{
+			top = 0;
+			toph = 0;
+		}
 
 		// TODO: allow more viewports
 		// Setup the viewports
