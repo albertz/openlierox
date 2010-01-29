@@ -220,7 +220,7 @@ bool CClient::InitializeDrawing()
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2X",&tInterfaceSettings.WeaponLabel2X, 390);
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2Y",&tInterfaceSettings.WeaponLabel2Y, 425);
 	}
-
+	
 	// Setup the loading boxes
 	int NumBars = tLX->iGameType == GME_LOCAL ? 4 : 2;
 	for (byte i=0; i<NumBars; i++)
@@ -526,8 +526,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(cViewports[1].getUsed())
 		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
-	// Top bar
-	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
+	// Top bar (do not draw for Gusanos)
+	if (tLXOptions->bTopBarVisible && !bGameMenu && 
+		(bShouldRepaintInfo || tLX->bVideoModeChanged) && ! gusGame.isEngineNeeded())  {
 		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 		if (top_bar.get())
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -564,13 +565,20 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			}
 		}
 
+		int MiniMapX = tInterfaceSettings.MiniMapX;
+		int MiniMapY = tInterfaceSettings.MiniMapY;
+		if(gusGame.isEngineNeeded()) {
+			MiniMapX = 511;
+			MiniMapY = 382;
+		}
+
 		// Mini-Map
 		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
+				cMap->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
 			else {
 				if(cMap->GetMiniMap().get())
-					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+					DrawImage( bmpDest, cMap->GetMiniMap(), MiniMapX, MiniMapY);
 			}
 		}
 
