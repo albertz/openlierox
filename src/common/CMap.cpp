@@ -2440,7 +2440,7 @@ void CMap::UpdateMiniMap(bool force)
 				DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, 0, 0, 0, 0, bmpImage.get()->w, bmpImage.get()->h, bmpMiniMap->w, bmpMiniMap->h);
 		}
 	}
-	
+
 	// Not dirty anymore
 	bMiniMapDirty = false;
 	UpdateMiniMapTransparent();
@@ -2588,6 +2588,8 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 		DrawImage(bmpDest, bmpMiniMapTransparent, x, y);
 	else
 		DrawImage(bmpDest, bmpMiniMap, x, y);
+
+	SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
 
 	fBlinkTime+=dt;
 	if(fBlinkTime>0.5f)
