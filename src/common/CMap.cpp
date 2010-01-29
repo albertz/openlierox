@@ -2495,7 +2495,7 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 
 void CMap::UpdateMiniMapTransparent()
 {
-	if( ! gusGame.isEngineNeeded() )
+	if( !( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
 		return;
 	if( bmpMiniMapTransparent.get() == NULL || 
 		bmpMiniMapTransparent.get()->w != bmpMiniMap.get()->w || 
@@ -2586,7 +2586,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 		UpdateMiniMap();
 
 	// Draw the minimap
-	if( gusGame.isEngineNeeded() )
+	if( game.gameScript() && game.gameScript()->gusEngineUsed() )
 		DrawImage(bmpDest, bmpMiniMapTransparent, x, y);
 	else
 		DrawImage(bmpDest, bmpMiniMap, x, y);

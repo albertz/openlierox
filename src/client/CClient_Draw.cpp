@@ -494,7 +494,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	// TODO: allow more viewports
 	// Draw the borders
 
-	if( ! gusGame.isEngineNeeded() )
+	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{
 		// Fill the viewport area with black, only if map will be smaller than viewport
 		if( (float)tLXOptions->tGameInfo.features[FT_SizeFactor] < 1.0f )
@@ -531,7 +531,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// Top bar (do not draw for Gusanos)
 	if (tLXOptions->bTopBarVisible && !bGameMenu && 
-		(bShouldRepaintInfo || tLX->bVideoModeChanged) && ! gusGame.isEngineNeeded())  {
+		(bShouldRepaintInfo || tLX->bVideoModeChanged) && 
+		!(game.gameScript() && game.gameScript()->gusEngineUsed()) )  {
 		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 		if (top_bar.get())
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -570,7 +571,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		int MiniMapX = tInterfaceSettings.MiniMapX;
 		int MiniMapY = tInterfaceSettings.MiniMapY;
-		if(gusGame.isEngineNeeded()) {
+		if(game.gameScript() && game.gameScript()->gusEngineUsed()) {
 			MiniMapX = 640 - tInterfaceSettings.MiniMapW;
 			MiniMapY = 480 - tInterfaceSettings.MiniMapH;
 		}
@@ -875,7 +876,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		
 	// The following will be drawn only when playing
 	if (bGameReady || iNetStatus == NET_PLAYING)  {
-		if(!gusanosDrawing) {
+		if(!game.gameScript()->gusEngineUsed()) {
 			// update the drawing position
 			CWorm *w = cRemoteWorms;
 			for(short i=0;i<MAX_WORMS;i++,w++) {
@@ -1076,7 +1077,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// Draw the details only when current settings is not displayed, and don't draw for Gus
-	if (!bCurrentSettings && ! gusGame.isEngineNeeded() ) {
+	if (!bCurrentSettings && !(game.gameScript() && game.gameScript()->gusEngineUsed()) ) {
 		// Health
 		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
@@ -1296,7 +1297,7 @@ void CClient::SimulateHud()
 			toph = -toph;
 			top = 0;
 		}
-		if( gusGame.isEngineNeeded() )
+		if( game.gameScript() && game.gameScript()->gusEngineUsed() )
 		{
 			top = 0;
 			toph = 0;
@@ -2036,7 +2037,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		bRepaintChatbox = true;
 
 	// TODO: ... (Issue about double buffering; see comment about it in CClient::Draw)
-	if( ! gusGame.isEngineNeeded() )
+	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{	
 																		// or when user is moving the mouse over the chat
 		// Local and net play use different backgrounds
