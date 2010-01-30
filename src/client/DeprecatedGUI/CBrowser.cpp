@@ -561,7 +561,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 	if (!bFocused)
 		return BRW_NONE;
 
-	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()))
+	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && bShowScrollbar)
 	{
 		cScrollbar.MouseDown(tMouse, nDown);
 		bNeedsRender = true; // Always redraw, scrollbar may change its image
@@ -618,7 +618,7 @@ int CBrowser::MouseDown(mouse_t *tMouse, int nDown)
 // Mouse over event
 int CBrowser::MouseOver(mouse_t *tMouse)
 {
-	if(bUseScroll && tMouse->X > iX+iWidth-20)
+	if(bUseScroll && tMouse->X > iX+iWidth-20 && bShowScrollbar)
 	{
 		if( cScrollbar.MouseOver(tMouse) == SCR_CHANGE )
 			bNeedsRender = true;
@@ -665,7 +665,7 @@ int CBrowser::MouseWheelUp(mouse_t *tMouse)
 // Mouse up event
 int CBrowser::MouseUp(mouse_t *tMouse, int nDown)
 {
-	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()))
+	if(bUseScroll && (tMouse->X > iX+iWidth-20 || cScrollbar.getGrabbed()) && bShowScrollbar)
 	{
 		cScrollbar.MouseUp(tMouse, nDown);
 		bNeedsRender = true; // Always redraw, scrollbar may change it's image
@@ -946,7 +946,7 @@ void CBrowser::Draw(SDL_Surface * bmpDest)
 	DrawCursor(bmpDest);
 
 	// Scrollbar
-	if (bUseScroll)  {
+	if (bUseScroll && bShowScrollbar)  {
 		cScrollbar.Draw(bmpDest);
 	}
 }
