@@ -1066,6 +1066,23 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// Init viewports once if we're playing with bot
 		if(client->cLocalWorms[0] && client->cLocalWorms[0]->getType() == PRF_COMPUTER)
 			client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+		
+		if( ! ( client->cGameScript.get() && client->cGameScript->gusEngineUsed() ) )
+		{
+			client->cChatList->Setup(0,	client->tInterfaceSettings.ChatBoxX,
+										client->tInterfaceSettings.ChatBoxY,
+										client->tInterfaceSettings.ChatBoxW,
+										client->tInterfaceSettings.ChatBoxH);
+			client->cChatList->showScrollbar(true);
+		}
+		else // Expand chatbox for Gus, looks better
+		{
+			client->cChatList->Setup(0,	5,
+										client->tInterfaceSettings.ChatBoxY,
+										client->tInterfaceSettings.ChatBoxW + client->tInterfaceSettings.ChatBoxX - 5,
+										client->tInterfaceSettings.ChatBoxH);
+			client->cChatList->showScrollbar(false);
+		}
 	}
 	
 	client->UpdateScoreboard();

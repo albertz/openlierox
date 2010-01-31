@@ -74,6 +74,7 @@ public:
 		bSelectionGrabbed(false),
 		bDrawCursor(true),
 		tTimer(NULL),
+		bShowScrollbar(true),
 		bmpBuffer(NULL),
 		bNeedsRender(false)
 	{
@@ -286,6 +287,7 @@ private:
 	// Window attributes
 	CScrollbar				cScrollbar;
 	bool					bUseScroll;
+	bool					bShowScrollbar;
 
 	// Other
 	SmartPointer<SDL_Surface>	bmpBuffer;
@@ -378,6 +380,8 @@ public:
 	bool	IsLoaded()		{ return bFinished; }
 
 	CHttp&	GetHttp()		{ return cHttp; }
+
+	void	showScrollbar(bool b)		{ bShowScrollbar = b; }
 
 
 	// TODO: add function for getting individual text lines & their color

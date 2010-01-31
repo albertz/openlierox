@@ -52,6 +52,7 @@
 #include "gusanos/network.h"
 #include "game/Mod.h"
 #include "gusanos/gusgame.h"
+#include "game/Game.h"
 #include <zip.h> // For unzipping downloaded mod
 
 
@@ -1717,8 +1718,11 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 
 	int h = bottombar.get() ? (480 - bottombar.get()->h - top) : (382 - top); // Height of the viewports
 
-	if( gusGame.isEngineNeeded() )
-		h = 480 - top;
+	if( game.gameScript() && game.gameScript()->gusEngineUsed() )
+	{
+		top = 0; // Topbar is transparent
+		h = 480;
+	}
 	
 	// One worm
 	if(w2 == NULL) {

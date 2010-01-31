@@ -43,6 +43,7 @@
 #include "MapLoader.h"
 #include "game/Level.h"
 #include "gusanos/gusgame.h"
+#include "game/Game.h"
 
 
 ////////////////////
@@ -170,6 +171,7 @@ size_t CMap::GetMemorySize()
 		GetSurfaceMemorySize(bmpBackImage.get()) + GetSurfaceMemorySize(bmpImage.get()) +
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
 		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) +
+		GetSurfaceMemorySize(bmpMiniMapTransparent.get()) +
 		2 * Width * Height + // Pixel flags + Collision grid
 		2 * nGridCols * nGridRows + // Grids
 		Name.size() + FileName.size() +
@@ -2442,6 +2444,7 @@ void CMap::UpdateMiniMap(bool force)
 
 	// Not dirty anymore
 	bMiniMapDirty = false;
+	UpdateMiniMapTransparent();
 }
 
 ///////////////////
@@ -2488,8 +2491,25 @@ void CMap::UpdateMiniMapRect(int x, int y, int w, int h)
 		else
 			DrawImageResizedAdv(bmpMiniMap.get(), bmpImage, x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
 	}
+	UpdateMiniMapTransparent();
 }
 
+void CMap::UpdateMiniMapTransparent()
+{
+	if( !( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
+		return;
+	if( bmpMiniMapTransparent.get() == NULL || 
+		bmpMiniMapTransparent.get()->w != bmpMiniMap.get()->w || 
+		bmpMiniMapTransparent.get()->h != bmpMiniMap.get()->h )
+	{
+		bmpMiniMapTransparent = gfxCreateSurface(bmpMiniMap.get()->w, bmpMiniMap.get()->h);
+		SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // 128 should be optimised in SDL
+		FillSurface(bmpMiniMapTransparent.get(), MakeColour(0, 0, 0, 128)); // Enable per-pixel alpha
+	}
+	SetPerSurfaceAlpha(bmpMiniMap.get(), 255); // Make it not overwrite per-pixel alpha
+	DrawImage(bmpMiniMapTransparent.get(), bmpMiniMap, 0, 0);
+	//SetPerSurfaceAlpha(bmpMiniMapTransparent.get(), 128); // Just in case
+}
 
 void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special) {
 	if(bDedicated) return;
@@ -2562,19 +2582,15 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 	if(worms == NULL || bmpMiniMap.get() == NULL)
 		return;
 
-
 	// Update the minimap (only if dirty)
 	if(bMiniMapDirty)
 		UpdateMiniMap();
 
-	// TODO: SetPerSurfaceAlpha() does not work, dunno why
-	if( gusGame.isEngineNeeded() )
-		SetPerSurfaceAlpha(bmpMiniMap.get(), 128); // 128 should be optimised in SDL
-	else
-		SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
-	
 	// Draw the minimap
-	DrawImage(bmpDest, bmpMiniMap, x, y);
+	if( game.gameScript() && game.gameScript()->gusEngineUsed() )
+		DrawImage(bmpDest, bmpMiniMapTransparent, x, y);
+	else
+		DrawImage(bmpDest, bmpMiniMap, x, y);
 
 	SetPerSurfaceAlpha(bmpMiniMap.get(), 255);
 

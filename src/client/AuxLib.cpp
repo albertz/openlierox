@@ -1064,7 +1064,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 //////////////////////
 // unsetenv for WIN32, taken from libc source
-int unsetenv(const char *name)
+static int _unsetenv(const char *name)
 {
   size_t len;
   char **ep;
@@ -1076,7 +1076,7 @@ int unsetenv(const char *name)
 
   len = strlen (name);
 
-  ep = _environ;
+  ep = environ;
   while (*ep != NULL)
     if (!strncmp (*ep, name, len) && (*ep)[len] == '=')
       {
@@ -1093,6 +1093,44 @@ int unsetenv(const char *name)
 
   return 0;
 }
+
+#if 0
+static int _unsetenv(const wchar_t *name)
+{
+  size_t len;
+  wchar_t **ep;
+
+  if (name == NULL || *name == '\0' || wcschr (name, '=') != NULL)
+    {
+      return -1;
+    }
+
+  len = wcslen (name);
+
+ // ep = _wenviron;
+  while (*ep != NULL)
+    if (!wcsncmp (*ep, name, len) && (*ep)[len] == '=')
+      {
+	/* Found it.  Remove this pointer by moving later ones back.  */
+	wchar_t **dp = ep;
+
+	do
+	  dp[0] = dp[1];
+	while (*dp++);
+	// Continue the loop in case NAME appears again.  */
+      }
+    else
+      ++ep;
+
+  return 0;
+}
+#endif
+
+int unsetenv(const char *name) {
+	return _unsetenv(name);
+//	return _unsetenv(Utf8ToUtf16(name).c_str());
+}
+
 #endif
 
 
