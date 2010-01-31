@@ -43,6 +43,7 @@
 #include "MapLoader.h"
 #include "game/Level.h"
 #include "gusanos/gusgame.h"
+#include "game/Game.h"
 
 
 ////////////////////
