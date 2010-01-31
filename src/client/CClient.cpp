@@ -52,6 +52,7 @@
 #include "gusanos/network.h"
 #include "game/Mod.h"
 #include "gusanos/gusgame.h"
+#include "game/Game.h"
 #include <zip.h> // For unzipping downloaded mod
 
 
