@@ -31,8 +31,11 @@ OLX=$!
 sleep 5
 # Warning: Debian includes recordmydesktop with no Jack support, you'll have to compile it yourself
 # --on-the-fly-encoding eats FPS
-env DISPLAY=:11.0 recordmydesktop -o video-$$.ogv --no-cursor --fps 10 --v_quality 30 --s_quality 3 \
-	--use-jack `jack_lsp | grep openlierox | head -n 1` &
+# Nice it a bit, so it won't slow down ded server itself
+nice -n 2 \
+env DISPLAY=:11.0 \
+recordmydesktop -o video-$$.ogv --no-cursor --fps 15 --v_quality 30 --s_quality 3 \
+--use-jack `jack_lsp | grep openlierox | head -n 1` --no-frame --overwrite &
 RECORD=$!
 
 #TODO: youtube upload, use scripts at http://code.google.com/p/gdata-python-client/downloads/list
