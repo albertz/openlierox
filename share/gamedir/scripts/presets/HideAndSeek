@@ -20,6 +20,8 @@ setvar("GameOptions.GameInfo.GameType", 4)
 # time (the time from options), we could make this optional here.
 setvar("GameOptions.GameInfo.TimeLimit", -1)
 
+setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
+
 # Pick one random seeker
 for w in worms.values():
 	io.setWormTeam( w.iID, 0 )

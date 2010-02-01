@@ -1,0 +1,24 @@
+#!/usr/bin/python -u
+
+import random
+global worms, io
+
+# just set some default stuff, it doesn't matter for Hide&Seek
+
+setvar( "GameOptions.GameInfo.ModName", random.choice(["MSF II", "Classic", "WH40K 0.13"]) )
+SetWeaponBans()
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+# set hide&seek
+setvar("GameOptions.GameInfo.GameType", 5)
+
+setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
+
+for w in worms.values():
+	io.setWormTeam( w.iID, 0 )
+for f in range(int(len(worms)/2)):
+	red = random.choice(worms.values()).iID
+	if io.getWormTeam( red ) == 1: # Not "while" to avoid infinite loop
+		red = random.choice(worms.values()).iID
+	io.setWormTeam( red, 1 )

@@ -15,6 +15,7 @@ MIN_PLAYERS_TEAMS = 6 # Players will be split in two teams automatically if ther
 MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
+FILL_WITH_BOTS_TO = 0 # Fill server with bots if noone playing, set to 2 to get 1 bot with a single human player
 
 WAIT_AFTER_GAME = 0 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 0 # Seconds to wait in lobby before next round, will give some message

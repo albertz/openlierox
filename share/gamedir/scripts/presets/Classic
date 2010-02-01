@@ -1,0 +1,9 @@
+#!/usr/bin/python -u
+
+setvar( "GameOptions.GameInfo.LevelName", "LieroFactory(Revisited).lxl" )
+
+setvar( "GameOptions.GameInfo.ModName", "Classic" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )
+
+SetWeaponBans("Restricted 100lt")
