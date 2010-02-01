@@ -5,8 +5,11 @@ IFS='
 
 CURDATE=`date "+%Y-%m-%d_%H:%M"`
 
+# Clean up stale processes, or it will easily eat everything and you won't be able to enter the host by ssh
 rm -rf /tmp/rMD-session-* video-*.ogv
-killall -KILL recordmydesktop
+killall -KILL recordmydesktop jackd Xvfb
+kill -KILL `ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh | \
+			cat - ../ded_main_pids.pid | sort -n | uniq -u`
 
 jackd -d dummy &
 JOBS=$!
