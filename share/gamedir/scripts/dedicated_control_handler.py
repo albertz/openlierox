@@ -655,9 +655,11 @@ def controlHandlerDefault():
 			canStart = False
 			videoRecorder.poll()
 			if time.time() - videoRecorderSignalTime > cfg.TIME_TO_KILL_VIDEORECORDER:
+				io.chatMsg("Video recorder stalled, killing")
 				os.kill(videoRecorder.pid, signal.SIGKILL)
 				videoRecorder.poll()
 			if videoRecorder.returncode != None:
+				io.chatMsg("Video recorder encoding took " + str(int(time.time() - videoRecorderSignalTime)) + " secs")
 				canStart = True
 				videoRecorder = None
 

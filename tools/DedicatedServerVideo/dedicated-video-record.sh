@@ -33,11 +33,11 @@ env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp LD_PRELOAD=/usr/lib/libjackasyn.so.0 \
 OLX=$!
 sleep 5
 # Warning: Debian includes recordmydesktop with no Jack support, you'll have to compile it yourself
-# --on-the-fly-encoding eats FPS
+# --on-the-fly-encoding eats CPU, and --compress-cache too
 # Nice it a bit, so it won't slow down ded server itself
 nice -n 2 \
 env DISPLAY=:11.0 \
-recordmydesktop -o video-$$.ogv --no-cursor --fps 12 --v_quality 40 --s_quality 3 --compress-cache \
+recordmydesktop -o video-$$.ogv --no-cursor --fps 12 --v_quality 30 --s_quality 3 --on-the-fly-encoding \
 --use-jack `jack_lsp | grep openlierox | head -n 1` --no-frame --overwrite &
 RECORD=$!
 
