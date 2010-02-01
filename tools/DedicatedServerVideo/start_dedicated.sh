@@ -4,5 +4,5 @@ killall -KILL openlierox dedicated_control recordmydesktop Xvfb jackd dedicated-
 sleep 2
 cd share/gamedir
 setsid nohup ../../bin/openlierox -dedicated > ../../dedicated.log &
-sleep 8
+sleep 5
 ps -o pid --no-heading -C openlierox -C dedicated_control > ded_main_pids.pid

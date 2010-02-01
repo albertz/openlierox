@@ -14,6 +14,7 @@ setvar( "GameOptions.GameInfo.LoadingTime", "100" )
 setvar("GameOptions.GameInfo.GameType", 5)
 
 setvar( "GameOptions.GameInfo.FillWithBotsTo", 4 )
+setvar( "GameOptions.GameInfo.CTF_AllowRopeForCarrier", 1 ) # That's impossible to play on most maps without rope
 
 for w in worms.values():
 	io.setWormTeam( w.iID, 0 )
