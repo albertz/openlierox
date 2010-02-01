@@ -33,6 +33,7 @@ WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTi
 MAX_PING = 2000 # Max ping to auto-kick player
 
 RECORD_VIDEO = 1 # If we should record video on our ded server. Warning: it eats CPU!
+TIME_TO_KILL_VIDEORECORDER = 60 # Wait one minute before killing recorder - it may encode rather slowly!
 
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.

@@ -8,8 +8,11 @@ CURDATE=`date "+%Y-%m-%d_%H:%M"`
 # Clean up stale processes, or it will easily eat everything and you won't be able to enter the host by ssh
 rm -rf /tmp/rMD-session-* video-*.ogv
 killall -KILL recordmydesktop jackd Xvfb
-kill -KILL `ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh | \
-			cat - ../ded_main_pids.pid | sort -n | uniq -u`
+echo $$ > video_record.pid
+PIDS_TO_KILL=`ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh | \
+			cat - ded_main_pids.pid video_record.pid | sort -n | uniq -u`
+echo Killing stale processes $PIDS_TO_KILL
+test -n "$PIDS_TO_KILL" && kill -KILL $PIDS_TO_KILL
 
 jackd -d dummy &
 JOBS=$!
@@ -21,8 +24,8 @@ JOBS="$JOBS $XVFB"
 sleep 1
 # jacklaunch is a simple script which messes up quoted arguments, so we're just doing LD_PRELOAD
 env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp LD_PRELOAD=/usr/lib/libjackasyn.so.0 \
-openlierox \
--exec "setVar GameOptions.Advanced.MaxFPS 10" \
+../../bin/openlierox \
+-exec "setVar GameOptions.Advanced.MaxFPS 12" \
 -exec "setVar GameOptions.Game.LastSelectedPlayer [CPU] Dummi" \
 -exec "setVar GameOptions.Audio.Enabled 1" \
 -exec "wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam" \
@@ -34,7 +37,7 @@ sleep 5
 # Nice it a bit, so it won't slow down ded server itself
 nice -n 2 \
 env DISPLAY=:11.0 \
-recordmydesktop -o video-$$.ogv --no-cursor --fps 15 --v_quality 30 --s_quality 3 \
+recordmydesktop -o video-$$.ogv --no-cursor --fps 12 --v_quality 40 --s_quality 3 --compress-cache \
 --use-jack `jack_lsp | grep openlierox | head -n 1` --no-frame --overwrite &
 RECORD=$!
 
