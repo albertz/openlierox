@@ -8,10 +8,12 @@ CURDATE=`date "+%Y-%m-%d_%H:%M"`
 # Clean up stale processes, or it will easily eat everything and you won't be able to enter the host by ssh
 rm -rf /tmp/rMD-session-* video-*.ogv
 killall -KILL recordmydesktop jackd Xvfb
-echo $$ > video_record.pid
+rm video_record-*.pid
+echo $$ > video_record-$$.pid
 PIDS_TO_KILL=`ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh | \
-			cat - ded_main_pids.pid video_record.pid | sort -n | uniq -u`
+			cat - ded_main_pids.pid video_record-$$.pid | sort -n | uniq -u`
 echo Killing stale processes $PIDS_TO_KILL
+rm video_record-$$.pid
 test -n "$PIDS_TO_KILL" && kill -KILL $PIDS_TO_KILL
 
 jackd -d dummy &
