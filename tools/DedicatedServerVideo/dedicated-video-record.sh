@@ -1,24 +1,26 @@
 #!/bin/sh
 
-IFS='
-'
-
 CURDATE=`date "+%Y-%m-%d_%H:%M"`
 
 # Clean up stale processes, or it will easily eat everything and you won't be able to enter the host by ssh
 rm -rf /tmp/rMD-session-* video-*.ogv
 killall -KILL recordmydesktop jackd Xvfb
-DO_NOT_KILL="`echo $$ | cat - ded_main_pids.pid`"
+DO_NOT_KILL="`cat ded_main_pids.pid` $$"
 ALL_PIDS="`ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh`"
-PIDS_TO_KILL=""
+PIDS_TO_KILL=
+#echo ALL_PIDS $ALL_PIDS
+#echo DO_NOT_KILL $DO_NOT_KILL
 for PID in $ALL_PIDS; do
-	NO_KILL="`echo $DO_NOT_KILL | grep \\b$PID\\b`"
+	#echo CHECK $PID
+	NO_KILL=`echo $DO_NOT_KILL | egrep \\\b$PID\\\b`
+	#echo NO_KILL $NO_KILL
 	if [ -z "$NO_KILL" ] ; then
 		PIDS_TO_KILL="$PIDS_TO_KILL $PID"
 	fi
+	#echo PIDS_TO_KILL $PIDS_TO_KILL
 done
-echo Killing stale processes $PIDS_TO_KILL - my PID $$
-test -n "$PIDS_TO_KILL" && kill -KILL $PIDS_TO_KILL
+echo Killing stale processes $PIDS_TO_KILL
+for PID in $PIDS_TO_KILL; do kill -KILL $PID ; done
 
 jackd -d dummy &
 JOBS=$!
