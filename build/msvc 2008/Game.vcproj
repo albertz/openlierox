@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="../../bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
@@ -28,7 +28,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -52,23 +52,24 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				AdditionalIncludeDirectories="../../optional-includes/generated,../../include,../../libs/hawknl/src/,../../libs/boost_process,../../libs/libzip"
-				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;../../libs/lua"
+				PreprocessorDefinitions="WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD"
 				MinimalRebuild="true"
 				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				PrecompiledHeaderFile=".\obj/Debug_ded/Game.pch"
-				AssemblerListingLocation=".\obj/Debug_ded/"
-				ObjectFile=".\obj/Debug_ded/"
-				ProgramDataBaseFileName=".\obj/Debug_ded/"
+				AssemblerListingLocation=".\obj/Debug/"
+				ObjectFile=".\obj/Debug/"
+				ProgramDataBaseFileName="..\..\bin\"
 				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
 				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="3"
-				ForcedIncludeFiles="win32memleakdebug.h"
+				DisableSpecificWarnings="4996"
+				ForcedIncludeFiles=""
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -84,15 +85,16 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX_debug.exe"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib"
+				OutputFile=".\../../bin/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib"
+				IgnoreDefaultLibraryNames="LIBC,msvcrt.lib,LIBCMT"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile="obj/debug_ded/OpenLieroX.pdb"
+				ProgramDatabaseFile=".\../../bin/OpenLieroX_debug.pdb"
 				SubSystem="1"
 				EnableCOMDATFolding="0"
+				LinkTimeCodeGeneration="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				TargetMachine="1"
@@ -123,18 +125,19 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(ConfigurationName)"
+			OutputDirectory="../../bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC60.vsprops"
 			UseOfMFC="0"
 			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
+			CharacterSet="0"
+			ManagedExtensions="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="svn_revision.exe &quot;../../optional-includes/generated/Version_generated.h&quot; &quot;../../&quot;"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -161,8 +164,8 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				WholeProgramOptimization="true"
-				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../src;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL"
+				AdditionalIncludeDirectories="&quot;../../optional-includes/generated&quot;;../../include;../../libs/hawknl/src/;../../libs/boost_process;../../libs/libzip;../../src/breakpad/external/src;../../src/;../../libs/lua"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;CURL_STATICLIB"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -170,7 +173,7 @@
 				PrecompiledHeaderFile=".\obj/Release/Game.pch"
 				AssemblerListingLocation=".\obj/Release/"
 				ObjectFile=".\obj/Release/"
-				ProgramDataBaseFileName="..\..\bin"
+				ProgramDataBaseFileName="..\..\bin\"
 				BrowseInformation="0"
 				WarningLevel="3"
 				SuppressStartupBanner="true"
@@ -191,15 +194,15 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)..\msvc\libs\zlib.lib&quot;"
-				OutputFile=".\../../distrib/win32/OpenLieroX.exe"
+				AdditionalDependencies="wsock32.lib Ws2_32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib_static.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libeay32.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\openldap.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\ssleay32.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib"
+				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				IgnoreDefaultLibraryNames="LIBC"
+				IgnoreDefaultLibraryNames="LIBC;LIBCMT"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\../../distrib/win32/OpenLieroX.pdb"
+				ProgramDatabaseFile=".\../../bin/OpenLieroX.pdb"
 				GenerateMapFile="true"
-				MapFileName="..\..\distrib\win32\OpenLieroX.map"
+				MapFileName="..\..\bin\OpenLieroX.map"
 				MapExports="true"
 				SubSystem="2"
 				LinkTimeCodeGeneration="1"
@@ -233,6 +236,12 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<ProjectReference
+			ReferencedProjectIdentifier="{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
+		/>
+		<ProjectReference
+			ReferencedProjectIdentifier="{D904199E-F28B-4AD5-8043-ED81BDD30CFD}"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -586,6 +595,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\GeoIPDatabase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\include\GeoIPDatabase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Geometry.cpp"
 				>
 			</File>
@@ -617,6 +634,14 @@
 			</File>
 			<File
 				RelativePath="..\..\include\GfxPrimitives.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\GfxSaveSurface.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\client\GfxUtils.cpp"
 				>
 			</File>
 			<File
@@ -796,6 +821,36 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\SMTP.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Sounds.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Sounds.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\StackWalker.cpp"
 				>
 			</File>
@@ -842,11 +897,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\common\SystemFunctions.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\TaskManager.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\include\TaskManager.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\TeeStdoutHandler.cpp"
 				>
 			</File>
 			<File
@@ -933,6 +996,126 @@
 				RelativePath="..\..\include\XMLutils.h"
 				>
 			</File>
+			<Filter
+				Name="Sound"
+				>
+				<File
+					RelativePath="..\..\src\sound\sfx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sfx.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sfxdriver.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sfxdriver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sfxdriver_openal.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sfxdriver_openal.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sound_sample.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sound_sample.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sound_sample_openal.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\sound\sound_sample_openal.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="GusanosUtil"
+				>
+				<File
+					RelativePath="..\..\src\util\angle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\angle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\bitarray.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\common.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\compare.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\GusCache.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\log.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\log.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\macros.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\math_func.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\math_func.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\rect.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\stringbuild.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\text.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\text.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\trace.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\vec.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\util\vec.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Game files"
@@ -1111,6 +1294,10 @@
 						PreprocessorDefinitions=""
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\common\CGameObject.cpp"
+				>
 			</File>
 			<File
 				RelativePath="..\..\src\common\CGameScript.cpp"
@@ -1433,28 +1620,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\common\CWorm_AI.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\src\common\CWorm_SendRecv.cpp"
 				>
 				<FileConfiguration
@@ -1477,29 +1642,15 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\common\CWorm_Simulate.cpp"
+				RelativePath="..\..\src\common\CWormBot.cpp"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\include\CWormBot.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\CWormHuman.cpp"
 				>
 			</File>
 			<File
@@ -1571,7 +1722,49 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\Game.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Game.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Level.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Level.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\MapLoader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Mod.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\Mod.h"
 				>
 			</File>
 			<File
@@ -1580,6 +1773,10 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Physics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\common\PhysicsDummy.cpp"
 				>
 			</File>
 			<File
@@ -1626,6 +1823,22 @@
 			</File>
 			<File
 				RelativePath="..\..\include\Protocol.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\SinglePlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\SinglePlayer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WormInputHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\WormInputHandler.h"
 				>
 			</File>
 			<Filter
@@ -2162,6 +2375,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\src\common\MainGlobals.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\common\Misc.cpp"
 				>
 				<FileConfiguration
@@ -2236,29 +2453,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\src\client\Sounds.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\include\Sounds.h"
+				RelativePath="..\..\src\sound\Sounds.cpp"
 				>
 			</File>
 			<File
@@ -3117,6 +3312,974 @@
 				RelativePath="..\..\include\GuiPrimitives.h"
 				>
 			</File>
+		</Filter>
+		<Filter
+			Name="Breakpad"
+			>
+			<File
+				RelativePath="..\..\src\breakpad\BreakPad.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\BreakPad.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\BreakpadDllExportMacro.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\DumpSyms.cpp"
+				>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						AdditionalIncludeDirectories="$(VCInstallDir)atlmfc/include"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\DumpSyms.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\ExtractInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\ExtractInfo.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\on_demand_symbol_supplier.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\breakpad\on_demand_symbol_supplier.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Gusanos"
+			>
+			<File
+				RelativePath="..\..\src\gusanos\2xsai.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\2xsai.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\allegro.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\allegro.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\animators.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\animators.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\base_action.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\base_action.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\base_animator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\base_animator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\base_worm.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\client.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\client.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\culling.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\culling.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\detect_event.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\detect_event.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\distortion.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\distortion.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\encoding.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\encoding.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\events.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\events.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\exp_type.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\exp_type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\explosion.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\explosion.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\font.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\font.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\game_actions.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\game_actions.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gconsole.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gconsole.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gfx.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gfx.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\glua.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\glua.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gusanos.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gusanos.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gusgame.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\gusgame.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\hash_table.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\hash_table.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\keyboard.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\keyboard.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\keys.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\keys.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\level.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\level.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\level_effect.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\level_effect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\material.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\material.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\menu.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\menu.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\message_queue.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\net_worm.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\net_worm.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\netstream.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\netstream.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\network.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\network.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\ninjarope.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\ninjarope.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\noise_line.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\noise_line.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\object_grid.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\object_grid.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\objects_list.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\objects_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\parser.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\parser.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\part_type.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\part_type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\particle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\particle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_ai.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_ai.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_input.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_input.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_options.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\player_options.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\posspd_replicator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\posspd_replicator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\proxy_player.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\proxy_player.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_base.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_base.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_list.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_list.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_locator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\resource_locator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\script.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\script.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\server.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\server.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\simple_particle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\simple_particle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sound.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sound.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sprite.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sprite.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sprite_set.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\sprite_set.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\stl_str_replicator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\stl_str_replicator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\timer_event.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\timer_event.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\vector_replicator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\vector_replicator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\viewport.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\weapon.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\weapon.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\weapon_type.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\weapon_type.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\worm.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\gusanos\worm.h"
+				>
+			</File>
+			<Filter
+				Name="blitters"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\add.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\add_simd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\blend.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\blend_simd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\blitters.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\colors.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\context.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\macros.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\mmx.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\mult.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\mult_simd.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\blitters\types.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="console"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\console\alias.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\alias.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\bindings.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\bindings.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\command.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\command.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\console-grammar.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\console.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\console.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\consoleitem.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\consoleitem.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\special_command.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\special_command.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\variables.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\console\variables.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="gui"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\gui\omfggui.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\gui\omfggui_windows.h"
+					>
+				</File>
+				<Filter
+					Name="detail"
+					>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\button.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\button.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\check.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\check.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\context.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\context.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\edit.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\edit.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\group.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\group.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\gss-grammar.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\gss.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\label.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\label.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\list.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\list.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\llist.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\renderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\renderer.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\wnd.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\wnd.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\xml-grammar.h"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\xml.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\detail\xml.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="lua"
+					>
+					<File
+						RelativePath="..\..\src\gusanos\gui\lua\bindings-gui.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\..\src\gusanos\gui\lua\bindings-gui.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="loaders"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\liero.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\liero.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\LieroXLevelLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\LieroXLevelLoader.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\losp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\losp.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\vermes.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\loaders\vermes.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="lua"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-game.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-game.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-gfx.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-gfx.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-math.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-math.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-network.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-network.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-objects.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-objects.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-resources.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings-resources.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\lua\bindings.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\classes.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\context.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							ObjectFile="$(IntDir)\$(InputName)1.obj"
+							XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\context.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\macros.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\luaapi\types.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="omfgscript"
+				>
+				<File
+					RelativePath="..\..\src\gusanos\omfgscript\omfg_script.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\omfgscript\omfg_script.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\gusanos\omfgscript\omfg_script_parser.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 	</Files>
 	<Globals>
