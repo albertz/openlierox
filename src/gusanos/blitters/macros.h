@@ -194,8 +194,8 @@
 					int fu = (MAX) - fl; \
 					Pixel##DEPTH* u = ((Pixel##DEPTH *)where->line[drawy]) + drawx; \
 					Pixel##DEPTH* l = ((Pixel##DEPTH *)where->line[drawy + (OFFB)]) + drawx + (OFFA); \
-					*u = (Pixel##DEPTH)BLEND(*u, colour, (fu * fact >> 8)); \
-					*l = (Pixel##DEPTH)BLEND(*l, colour, (fl * fact >> 8)); \
+					*u = BLEND(*u, colour, (fu * fact >> 8)); \
+					*l = BLEND(*l, colour, (fl * fact >> 8)); \
 				} \
 				b##f += grad; \
 		} } }
@@ -206,7 +206,7 @@ long c = a##diff; \
 while(c-- >= 0) { \
 	if((unsigned int)x < (unsigned int)where->w && (unsigned int)y < (unsigned int)where->h) { \
 	Pixel##DEPTH* p = ((Pixel##DEPTH *)where->line[y]) + x; \
-	*p = (Pixel##DEPTH)BLEND(*p, colour); } \
+	*p = BLEND(*p, colour); } \
 	i -= b##diff; \
 	a += s##a; \
 	if(i < 0) b += s##b, i += a##diff; } } while(0)

@@ -13,7 +13,7 @@ void putpixel_add_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	Pixel16* p = ((Pixel16 *)where->line[y]) + x;
 
-	*p = (Pixel16)addColors_16_2(*p, color1);
+	*p = addColors_16_2(*p, color1);
 }
 
 void putpixel_addFact_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
@@ -22,7 +22,7 @@ void putpixel_addFact_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int 
 	
 	fact = (fact + 7) / 8;
 
-	*p = (Pixel16)addColors_16_2(*p, scaleColor_16(color1, fact));
+	*p = addColors_16_2(*p, scaleColor_16(color1, fact));
 }
 
 void putpixel_addFact_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
@@ -124,8 +124,8 @@ void rectfill_add_16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixe
 	
 	RECT_Y_LOOP(
 		RECT_X_LOOP_ALIGN(2, 4,
-			*p = (pixel_t_1)addColors_16_2(*p, colA, colB),
-			*p = (pixel_t_1)addColors_16_2(*p, colA, colB)
+			*p = addColors_16_2(*p, colA, colB),
+			*p = addColors_16_2(*p, colA, colB)
 		)
 	)
 }
@@ -157,8 +157,8 @@ void hline_add_16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, i
 	prepareAddColors_16_2(col, colA, colB);
 	
 	RECT_X_LOOP_ALIGN(2, 4,
-		*p = (pixel_t_1)addColors_16_2(*p, colA, colB),
-		*p = (pixel_t_1)addColors_16_2(*p, colA, colB)
+		*p = addColors_16_2(*p, colA, colB),
+		*p = addColors_16_2(*p, colA, colB)
 	)
 }
 
@@ -296,9 +296,9 @@ void drawSprite_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y
 			SPRITE_X_LOOP_ALIGN(2, 4,
 				Pixel s = *src;
 				if(s != maskcolor_16)
-					*dest = (pixel_t_1)addColors_16_2(*dest, *src)
+					*dest = addColors_16_2(*dest, *src)
 			,
-				*dest = (pixel_t_1)addColors_16_2(*dest, add_mask_16_2(*src))
+				*dest = addColors_16_2(*dest, add_mask_16_2(*src))
 			)
 		)
 	}
@@ -308,9 +308,9 @@ void drawSprite_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y
 			SPRITE_X_LOOP_ALIGN(2, 4,
 				Pixel s = *src;
 				if(s != maskcolor_16)
-					*dest = (pixel_t_1)addColors_16_2(*dest, scaleColor_16(s, fact))
+					*dest = addColors_16_2(*dest, scaleColor_16(s, fact))
 			,
-				*dest = (pixel_t_1)addColors_16_2(*dest, scaleColor_16_2(add_mask_16_2(*src), fact));
+				*dest = addColors_16_2(*dest, scaleColor_16_2(add_mask_16_2(*src), fact));
 			)
 		)
 	}
@@ -362,9 +362,9 @@ void drawSpriteLine_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, i
 		SPRITE_X_LOOP_ALIGN(2, 4,
 			Pixel s = *src;
 			if(s != maskcolor_16)
-				*dest = (pixel_t_1)addColors_16_2(*dest, *src)
+				*dest = addColors_16_2(*dest, *src)
 		,
-			*dest = (pixel_t_1)addColors_16_2(*dest, add_mask_16_2(*src))
+			*dest = addColors_16_2(*dest, add_mask_16_2(*src))
 		)
 	}
 	else if(fact > 0)
@@ -372,9 +372,9 @@ void drawSpriteLine_add_16(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, i
 		SPRITE_X_LOOP_ALIGN(2, 4,
 			Pixel s = *src;
 			if(s != maskcolor_16)
-				*dest = (pixel_t_1)addColors_16_2(*dest, scaleColor_16(s, fact))
+				*dest = addColors_16_2(*dest, scaleColor_16(s, fact))
 		,
-			*dest = (pixel_t_1)addColors_16_2(*dest, scaleColor_16_2(add_mask_16_2(*src), fact));
+			*dest = addColors_16_2(*dest, scaleColor_16_2(add_mask_16_2(*src), fact));
 		)
 	}
 }
@@ -392,17 +392,17 @@ void drawSpriteLine_add_8(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, in
 	if(fact >= 255)
 	{
 		SPRITE_X_LOOP_ALIGN(4, 4,
-			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, *src)
+			*dest = addColorsCrude_8_4(*dest, *src)
 		,
-			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, *src)
+			*dest = addColorsCrude_8_4(*dest, *src)
 		)
 	}
 	else if(fact > 0)
 	{
 		SPRITE_X_LOOP_ALIGN(4, 4,
-			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
+			*dest = addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
 		,
-			*dest = (pixel_t_1)addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
+			*dest = addColorsCrude_8_4(*dest, scaleColor_8_4(*src, fact))
 		)
 	}
 }
