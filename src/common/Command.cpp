@@ -98,7 +98,7 @@ ParamSeps ParseParams_Seps(const std::string& params) {
 			if(*i == '/' && params[i.pos+1] == '/') {
 				if(start < i.pos)
 					lastentry = res.insert(lastentry, ParamSeps::value_type(start, i.pos - start));
-				start = params.size();
+				start = params.size() + 1;
 				
 				// Just end here
 				break;
@@ -875,7 +875,7 @@ void Cmd_irc::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		caller->writeMsg("IRC system is not running");
 }
 
-COMMAND(connect, "join a server", "server[:port]", 1, 1);
+COMMAND(connect, "join a server", "server[:port] [player]", 1, 2);
 void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(cServer)
 		cServer->Shutdown();
@@ -890,8 +890,11 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 	
 	std::string server = params[0];
-	std::string player = bDedicated ? FindFirstCPUProfileName() : tLXOptions->sLastSelectedPlayer;
-	if(player == "" && GetProfiles()) player = GetProfiles()->sName;
+	std::string player =
+		(params.size() >= 2) ? params[1] :
+		bDedicated ? FindFirstCPUProfileName() :
+		tLXOptions->sLastSelectedPlayer;
+	if(params.size() == 1 && player == "" && GetProfiles()) player = GetProfiles()->sName;
 	if(!JoinServer(server, server, player)) return;
 	
 	if(!bDedicated) {
