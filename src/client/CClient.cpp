@@ -1292,8 +1292,8 @@ bool JoinServer(const std::string& addr, const std::string& name, const std::str
 	// Initialize has cleaned up all worms, so this is not necessarily needed
 	cClient->setNumWorms(0);
 	// Add the player to the list
-	profile_t *ply = FindProfile(player);
-	if(ply) {
+	profile_t *ply = NULL;
+	if(player != "" && (ply = FindProfile(player))) {
 		if(bDedicated && ply->iType == PRF_HUMAN->toInt())
 			warnings << "JoinServer: player " << player << " is a human - a human cannot be used in dedicated mode" << endl;
 		else {
