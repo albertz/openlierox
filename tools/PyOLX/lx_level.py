@@ -1,13 +1,14 @@
-<?php
-// Liero Xtreme utilities for PHP
-// Code released under the LGPL license
-// Created on 18/02/2009 by Karel Petranek
+#!/usr/bin/python
 
-// Requirements:
-// PHP 4 or 5
-// gd (for the image processing functions) and zlib modules
+# Liero Xtreme utilities for Python
+# Code released under the LGPL license
+# Created on 18/02/2009 by Karel Petranek
+# Ported to Python on 04/02/2010 by Albert Zeyer
 
-// This file contains functions for working with (Open)LieroX levels (*.lxl)
+# Requirements:
+# gd (for the image processing functions) and zlib modules
+
+# This file contains functions for working with (Open)LieroX levels (*.lxl)
 
 // Includes
 require_once "binaryfunctions.php";
@@ -31,31 +32,19 @@ if (!defined("LXUTILS_PATH"))
 
 // Structures
 
-////////////////////////////
-// Map info structure
-// $Width - map width
-// $Height - map height
-// $Name - map name
-// $Theme - theme name, should always be "dirt"
-// $ObjectCount - number of objects in the level, valid only for pixmap levels
-// $MapImage - image of the map (not resized) 
-// $MinimapImage - gd image containing resized map image
-// $Type - type of the level, can be LXL_IMAGE, LXL_PIXMAP or LXL_ORIGINAL
-// Destroy - frees the images stored in the structure, call this when you
-// don't use the structure anymore
-class MapInfo  {
-  var $Width;
-  var $Height;
-  var $Name;
-  var $Theme;
-  var $ObjectCount;
-  var $MapImage;
-  var $MinimapImage;
-  var $Type;
+class MapInfo:
+	Width = 0
+	Height = 0
+	Name = ""
+	Theme = "" # always "dirt"
+	ObjectCount = 0
+	MapImage = None
+	MinimapImage = None
+	Type = None # LXL_IMAGE, LXL_PIXMAP or LXL_ORIGINAL
   
-  function Destroy()
-  {
-    if ($this->MapImage) 
+	def Destroy:
+
+		if ($this->MapImage) 
       imagedestroy($this->MapImage);
     if ($this->MinimapImage)
       imagedestroy($this->MinimapImage);
