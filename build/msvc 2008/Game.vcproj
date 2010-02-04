@@ -194,7 +194,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib Ws2_32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib_static.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libeay32.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\openldap.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\ssleay32.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib"
+				AdditionalDependencies="wsock32.lib Ws2_32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib_static.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libeay32.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\openldap.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\ssleay32.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)DIA SDK\lib\diaguids.lib&quot; openal32.lib alut.lib libvorbis_static.lib libvorbisfile_static.lib libogg_static.lib sdl.lib sdlmain.lib sdl_image.lib"
 				OutputFile=".\../../bin/OpenLieroX.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -238,9 +238,11 @@
 	<References>
 		<ProjectReference
 			ReferencedProjectIdentifier="{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
+			RelativePathToProject=".\Breakpad.vcproj"
 		/>
 		<ProjectReference
 			ReferencedProjectIdentifier="{D904199E-F28B-4AD5-8043-ED81BDD30CFD}"
+			RelativePathToProject=".\Lua.vcproj"
 		/>
 	</References>
 	<Files>
@@ -2215,23 +2217,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\msvc\libs\SDL.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\SDL_image.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\SDL_mixer.lib"
-				>
-			</File>
-			<File
 				RelativePath="..\msvc\libs\sdlgfx.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\SDLmain.lib"
 				>
 			</File>
 			<File
