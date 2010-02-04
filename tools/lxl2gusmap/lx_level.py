@@ -125,7 +125,8 @@ class LXLevel:
 				back[x,y] = backCol
 
 				if ord(uncompressed[mi]) & PX_EMPTY:
-					front[x,y] = frontTransp
+					front[x,y] = backCol
+					#front[x,y] = frontTransp # only makes sense at all with paralax but even then, better the user edits it
 					mat[x,y] = 1 # background
 				elif ord(uncompressed[mi]) & PX_ROCK:
 					mat[x,y] = 0 # rock

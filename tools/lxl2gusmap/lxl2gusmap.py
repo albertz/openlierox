@@ -11,7 +11,6 @@ if not level.load(sys.argv[1]):
 if not os.path.exists(level.Name): os.mkdir(level.Name)
 
 level.Front.save(level.Name + "/level.png")
-level.Back.save(level.Name + "/paralax.png")
 level.Back.save(level.Name + "/background.png")
 level.Mat.save(level.Name + "/material.png")
 
