@@ -6,7 +6,7 @@ CURDATE=`date "+%Y-%m-%d_%H:%M"`
 rm -rf /tmp/rMD-session-* video-*.ogv
 killall -KILL recordmydesktop jackd Xvfb
 DO_NOT_KILL="`cat ded_main_pids.pid` $$"
-ALL_PIDS="`ps -o pid --no-heading -C openlierox -C dedicated_control -C dedicated-video-record.sh`"
+ALL_PIDS="`pgrep -U $USER 'openlierox|dedicated_contr|dedicated-video-record'`"
 PIDS_TO_KILL=
 #echo ALL_PIDS $ALL_PIDS
 #echo DO_NOT_KILL $DO_NOT_KILL
@@ -34,10 +34,11 @@ sleep 1
 env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp LD_PRELOAD=/usr/lib/libjackasyn.so.0 \
 ../../bin/openlierox \
 -exec "setVar GameOptions.Advanced.MaxFPS 12" \
--exec "setVar GameOptions.Game.LastSelectedPlayer [CPU] Dummi" \
+-exec "setVar GameOptions.Game.LastSelectedPlayer ''" \
 -exec "setVar GameOptions.Audio.Enabled 1" \
+-exec "connect 127.0.0.1" \
 -exec "wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam" \
--connect 127.0.0.1 &
+&
 OLX=$!
 sleep 5
 # Warning: Debian includes recordmydesktop with no Jack support, you'll have to compile it yourself

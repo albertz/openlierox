@@ -5,4 +5,4 @@ sleep 2
 cd share/gamedir
 setsid nohup ../../bin/openlierox -dedicated > ../../dedicated.log &
 sleep 5
-ps -o pid --no-heading -C openlierox -C dedicated_control > ded_main_pids.pid
+pgrep -u $USER 'openlierox|dedicated_contr' > ded_main_pids.pid
