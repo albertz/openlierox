@@ -12,6 +12,7 @@ if not os.path.exists(level.Name): os.mkdir(level.Name)
 
 level.Front.save(level.Name + "/level.png")
 level.Back.save(level.Name + "/paralax.png")
+level.Back.save(level.Name + "/background.png")
 level.Mat.save(level.Name + "/material.png")
 
 open(level.Name + "/config.cfg", "w").close()
