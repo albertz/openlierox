@@ -403,7 +403,7 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	if(newestVersion <= Version("OpenLieroX/0.58_rc1") ||
 		(newestVersion >= OLXBetaVersion(0,59,1) && newestVersion <= OLXBetaVersion(0,59,4)))
 		// overwrite it to new default
-		tLXOptions->sForceMinVersion = std::max(defaultMinVersion, Version(tLXOptions->sForceMinVersion)).asString();
+		tLXOptions->sForceMinVersion = MAX(defaultMinVersion, Version(tLXOptions->sForceMinVersion)).asString();
 	
 	notes << "DONE loading options" << endl;
 
