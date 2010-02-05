@@ -15,6 +15,7 @@ MIN_PLAYERS_TEAMS = 6 # Players will be split in two teams automatically if ther
 MAX_TEAMS = 2 # Only blue and red teams
 TOO_FEW_PLAYERS_MESSAGE = "Game will start with minimum %i players. Team Deathmatch if there's %i or more players" % (MIN_PLAYERS, MIN_PLAYERS_TEAMS)
 WAIT_BEFORE_SPAMMING_TOO_FEW_PLAYERS_MESSAGE = 30 # Seconds to wait before another "Game will start with %i players" message
+FILL_WITH_BOTS_TO = 0 # Fill server with bots if noone playing, set to 2 to get 1 bot with a single human player
 
 WAIT_AFTER_GAME = 10 # Seconds to wait in lobby after round finished
 WAIT_BEFORE_GAME = 30 # Seconds to wait in lobby before next round, will give some message
@@ -33,6 +34,7 @@ WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTi
 MAX_PING = 2000 # Max ping to auto-kick player
 
 RECORD_VIDEO = 1 # If we should record video on our ded server. Warning: it eats CPU!
+TIME_TO_KILL_VIDEORECORDER = 60 # Wait one minute before killing recorder - it may encode rather slowly!
 
 # TODO: We should use the OLX chatcommand system.
 # TODO: Register dedscript commands in OLX chatcommand system.

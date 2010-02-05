@@ -57,6 +57,7 @@ static_assert( sizeof(ply_def2) / sizeof(std::string) == __SIN_PLY_BOTTOM, ply_d
 static_assert( sizeof(gen_keys) / sizeof(std::string) == __SIN_GENERAL_BOTTOM, gen_keys__sizecheck );
 static_assert( sizeof(gen_def) / sizeof(std::string) == __SIN_GENERAL_BOTTOM, gen_def__sizecheck );
 
+static const Version defaultMinVersion("OpenLieroX/0.58_rc1");
 
 
 
@@ -160,7 +161,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
-		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", "LieroX/0.56", "Force Min Version", "Minimal version needed to play on this server" )
+		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString().c_str(), "Force Min Version", "Minimal version needed to play on this server" )
 
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
@@ -406,9 +407,16 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	if (iJpegQuality > 100)
 		iJpegQuality = 100;
 
-	if(tLXOptions->sForceMinVersion == "")
-		tLXOptions->sForceMinVersion = "LieroX/0.56";
+	const Version newestVersion(sNewestVersion);
+	// check if option file was saved with version where we had LX56 as default min version
+	if(newestVersion <= Version("OpenLieroX/0.58_rc1") ||
+		(newestVersion >= OLXBetaVersion(0,59,1) && newestVersion <= OLXBetaVersion(0,59,4)))
+		// overwrite it to new default
+		tLXOptions->sForceMinVersion = std::max(defaultMinVersion, Version(tLXOptions->sForceMinVersion)).asString();
 	
+	if(tLXOptions->sForceMinVersion == "")
+		tLXOptions->sForceMinVersion = defaultMinVersion.asString();
+
 	notes << "DONE loading options" << endl;
 
 	return true;

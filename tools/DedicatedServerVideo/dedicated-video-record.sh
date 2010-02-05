@@ -1,12 +1,26 @@
 #!/bin/sh
 
-IFS='
-'
-
 CURDATE=`date "+%Y-%m-%d_%H:%M"`
 
+# Clean up stale processes, or it will easily eat everything and you won't be able to enter the host by ssh
 rm -rf /tmp/rMD-session-* video-*.ogv
-killall -KILL recordmydesktop
+killall -KILL recordmydesktop jackd Xvfb
+DO_NOT_KILL="`cat ded_main_pids.pid` $$"
+ALL_PIDS="`pgrep -U $USER 'openlierox|dedicated_contr|dedicated-video-record'`"
+PIDS_TO_KILL=
+#echo ALL_PIDS $ALL_PIDS
+#echo DO_NOT_KILL $DO_NOT_KILL
+for PID in $ALL_PIDS; do
+	#echo CHECK $PID
+	NO_KILL=`echo $DO_NOT_KILL | egrep \\\b$PID\\\b`
+	#echo NO_KILL $NO_KILL
+	if [ -z "$NO_KILL" ] ; then
+		PIDS_TO_KILL="$PIDS_TO_KILL $PID"
+	fi
+	#echo PIDS_TO_KILL $PIDS_TO_KILL
+done
+echo Killing stale processes $PIDS_TO_KILL
+for PID in $PIDS_TO_KILL; do kill -KILL $PID ; done
 
 jackd -d dummy &
 JOBS=$!
@@ -18,18 +32,22 @@ JOBS="$JOBS $XVFB"
 sleep 1
 # jacklaunch is a simple script which messes up quoted arguments, so we're just doing LD_PRELOAD
 env DISPLAY=:11.0 SDL_AUDIODRIVER=dsp LD_PRELOAD=/usr/lib/libjackasyn.so.0 \
-openlierox \
--exec "setVar GameOptions.Advanced.MaxFPS 10" \
--exec "setVar GameOptions.Game.LastSelectedPlayer [CPU] Dummi" \
+../../bin/openlierox \
+-exec "setVar GameOptions.Advanced.MaxFPS 12" \
+-exec "setVar GameOptions.Game.LastSelectedPlayer ''" \
 -exec "setVar GameOptions.Audio.Enabled 1" \
+-exec "connect 127.0.0.1" \
 -exec "wait game chatMsg /spectate ; chatMsg /suicide ; setViewport actioncam" \
--connect 127.0.0.1 &
+&
 OLX=$!
 sleep 5
 # Warning: Debian includes recordmydesktop with no Jack support, you'll have to compile it yourself
-# --on-the-fly-encoding eats FPS
-env DISPLAY=:11.0 recordmydesktop -o video-$$.ogv --no-cursor --fps 10 --v_quality 30 --s_quality 3 \
-	--use-jack `jack_lsp | grep openlierox | head -n 1` &
+# --on-the-fly-encoding eats CPU, and --compress-cache too
+# Nice it a bit, so it won't slow down ded server itself
+nice -n 2 \
+env DISPLAY=:11.0 \
+recordmydesktop -o video-$$.ogv --no-cursor --fps 12 --v_quality 30 --s_quality 3 --on-the-fly-encoding \
+--use-jack `jack_lsp | grep openlierox | head -n 1` --no-frame --overwrite &
 RECORD=$!
 
 #TODO: youtube upload, use scripts at http://code.google.com/p/gdata-python-client/downloads/list

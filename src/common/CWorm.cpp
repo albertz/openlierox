@@ -666,6 +666,11 @@ SmartPointer<SDL_Surface> CWorm::ChangeGraphics(const std::string& filename, boo
 // Randomize the weapons
 void CWorm::GetRandomWeapons()
 {
+	if(game.weaponRestrictions() == NULL) {
+		errors << "CWorm::GetRandomWeapons: cWeaponRest == NULL" << endl;
+		// no break here, the function will anyway work and ignore the restrictions
+	}
+	
 	for(short i=0; i<5; i++) {
 		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
@@ -687,7 +692,7 @@ void CWorm::GetRandomWeapons()
 			}
 
 			// If this weapon is enabled AND we have not selected it already, then exit the loop
-			if(game.weaponRestrictions()->isEnabled( (game.gameScript()->GetWeapons()+n)->Name ))  {
+			if(!game.weaponRestrictions() || game.weaponRestrictions()->isEnabled( (game.gameScript()->GetWeapons()+n)->Name ))  {
 				if (!bSelected)
 					break;
 				lastenabled = n;

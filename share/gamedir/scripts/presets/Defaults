@@ -21,3 +21,5 @@ setvar("GameOptions.GameInfo.KillLimit", cfg.GAME_MAX_KILLS)
 
 setvar("GameOptions.GameInfo.TimeLimit", cfg.GAME_MAX_TIME)
 
+setvar( "GameOptions.GameInfo.FillWithBotsTo", cfg.FILL_WITH_BOTS_TO )
+
