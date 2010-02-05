@@ -16,7 +16,7 @@
 #include "Version_generated.h"
 
 #ifndef		LX_VERSION
-#	define		LX_VERSION	"0.58_rc1"
+#	define		LX_VERSION	"0.58_rc2"
 #endif
 
 #define		GAMENAME			"OpenLieroX"
