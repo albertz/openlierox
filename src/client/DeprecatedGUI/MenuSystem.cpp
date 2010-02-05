@@ -499,6 +499,11 @@ void Menu_DrawBox(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 // Draw an inset box
 void Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
+	if(bmpDest == NULL) {
+		errors << "Menu_DrawBoxInset: bmpDest is NULL" << endl;
+		return;
+	}
+	
 	// Clipping
 	if (x < 0) { x2 += x; x = 0; }
 	if (x2 >= bmpDest->w) { x2 = bmpDest->w - 1; }
