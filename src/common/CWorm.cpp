@@ -625,7 +625,7 @@ void CWorm::GetRandomWeapons()
 			}
 
 			// If this weapon is enabled AND we have not selected it already, then exit the loop
-			if(cWeaponRest->isEnabled( (cGameScript->GetWeapons()+n)->Name ))  {
+			if(cWeaponRest && cWeaponRest->isEnabled( (cGameScript->GetWeapons()+n)->Name ))  {
 				if (!bSelected)
 					break;
 				lastenabled = n;
