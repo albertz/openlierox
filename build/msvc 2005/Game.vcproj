@@ -2218,23 +2218,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\msvc\libs\SDL.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\SDL_image.lib"
-				>
-			</File>
-			<File
 				RelativePath="..\msvc\libs\SDL_mixer.lib"
 				>
 			</File>
 			<File
 				RelativePath="..\msvc\libs\sdlgfx.lib"
-				>
-			</File>
-			<File
-				RelativePath="..\msvc\libs\SDLmain.lib"
 				>
 			</File>
 			<File
