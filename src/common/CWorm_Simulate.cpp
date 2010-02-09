@@ -146,7 +146,7 @@ void CWormHumanInputHandler::getInput() {
 		}
 
 		m_worm->fAngle += m_worm->fAngleSpeed * dt.seconds();
-		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, 60.0f) != 0)
+		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, cClient->getGameLobby()->features[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
 	} // end angle section
