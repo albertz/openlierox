@@ -284,7 +284,7 @@ struct GameOptions {
 	float	fAimAcceleration;
 	float	fAimMaxSpeed;
 	float	fAimFriction;
-	bool	bAimFrictionLikeLX56;
+	bool	bAimLikeLX56;
 
     // Advanced
     int     nMaxFPS;

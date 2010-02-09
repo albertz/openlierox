@@ -110,22 +110,24 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
 		}
 
+		// Note: 100 was LX56 max aimspeed
+		const float aimMaxSpeed = MAX((float)fabs(tLXOptions->fAimMaxSpeed), 20.0f);
 		// HINT: 500 is the LX56 value here (rev 1)
 		const float aimAccel = MAX((float)fabs(tLXOptions->fAimAcceleration), 100.0f);
 		if(cUp.isDown() && !cUp.isJoystickThrottle()) { // Up
 			m_worm->fAngleSpeed -= aimAccel * dt.seconds();
+			if(!tLXOptions->bAimLikeLX56) CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
 		} else if(cDown.isDown() && !cDown.isJoystickThrottle()) { // Down
 			m_worm->fAngleSpeed += aimAccel * dt.seconds();
+			if(!tLXOptions->bAimLikeLX56) CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
 		} else {
-			// Note: 100 was LX56 max aimspeed
-			const float aimMaxSpeed = MAX((float)fabs(tLXOptions->fAimMaxSpeed), 20.0f);
 			// we didn't had that in LX56; it behaves more natural
 			const float aimFriction = CLAMP(tLXOptions->fAimFriction, 0.0f, 1.0f);
 			
 			if(!mouseControl) {
 				// HINT: this is the original order and code (before mouse patch - rev 1007)
 				CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
-				if(tLXOptions->bAimFrictionLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+				if(tLXOptions->bAimLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
 				else m_worm->fAngleSpeed *= powf(aimFriction, dt.seconds() * 100.0f);
 				RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 
@@ -138,7 +140,7 @@ void CWormHumanInputHandler::getInput() {
 				// this tries to be like keyboard where this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
 					CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
-					if(tLXOptions->bAimFrictionLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+					if(tLXOptions->bAimLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
 					else m_worm->fAngleSpeed *= powf(aimFriction, dt.seconds() * 100.0f);
 					RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 				}
