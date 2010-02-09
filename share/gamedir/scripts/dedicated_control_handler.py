@@ -654,10 +654,12 @@ def controlHandlerDefault():
 		if videoRecorder and videoRecorder.returncode == None:
 			canStart = False
 			videoRecorder.poll()
-			if time.time() - videoRecorderSignalTime > 30:
+			if time.time() - videoRecorderSignalTime > cfg.TIME_TO_KILL_VIDEORECORDER:
+				io.chatMsg("Video recorder stalled, killing")
 				os.kill(videoRecorder.pid, signal.SIGKILL)
 				videoRecorder.poll()
 			if videoRecorder.returncode != None:
+				io.chatMsg("Video recorder encoding took " + str(int(time.time() - videoRecorderSignalTime)) + " secs")
 				canStart = True
 				videoRecorder = None
 
@@ -699,7 +701,7 @@ def controlHandlerDefault():
 						if cfg.RECORD_VIDEO:
 							try:
 								#io.messageLog("Running dedicated-video-record.sh, curdir " + os.path.abspath(os.path.curdir) ,io.LOG_INFO)
-								videoRecorder = subprocess.Popen( ["dedicated-video-record.sh", "dedicated-video-record.sh"],
+								videoRecorder = subprocess.Popen( ["./dedicated-video-record.sh", "./dedicated-video-record.sh"],
 												stdin=open("/dev/null","r"), stdout=open("../../../dedicatedVideo.log","w"),
 												stderr=subprocess.STDOUT, cwd=".." )
 							except:

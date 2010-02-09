@@ -13,7 +13,7 @@
 // Created 30/3/03
 // Jason Boettcher
 
-
+#include <algorithm>
 #include <assert.h>
 
 #include "LieroX.h"
@@ -30,32 +30,31 @@
 // WpnRest Constructor
 CWpnRest::CWpnRest()
 {
-    m_psWeaponList = NULL;
-    m_psSortedList = NULL;
-    m_nCount = 0;
 	iCycleState = wpr_banned;
 }
+
+bool wpnrest_t::operator < ( const wpnrest_t & rest ) const
+{
+	return strcasecmp( szName.c_str(), rest.szName.c_str() ) < 0 ;
+};
 
 
 ///////////////////
 // Update the weapons list from a gamescript file
-void CWpnRest::updateList(CGameScript *pcGameS)
+void CWpnRest::updateList(const std::vector<std::string> & weaponList)
 {
-    assert( pcGameS );
-
     // Go through the weapons in the gamescript
     // If any weapon is not in our list, add it to the list
-    const weapon_t *psWpn = pcGameS->GetWeapons();
-    int count = pcGameS->GetNumWeapons();
+    int count = weaponList.size();
     int i;
 
 
-    for(i=0; i<count; i++, psWpn++) {
+    for(i=0; i<count; i++) {
 
-        wpnrest_t *w = findWeapon( psWpn->Name );
+        wpnrest_t *w = findWeapon( weaponList[i] );
         if( !w ) {
             // No match, add it to the list
-            addWeapon( psWpn->Name, wpr_enabled );
+            addWeapon( weaponList[i], wpr_enabled );
         }
     }
 
@@ -68,53 +67,59 @@ void CWpnRest::updateList(CGameScript *pcGameS)
 // Reset all the weapons to default (enabled)
 void CWpnRest::reset()
 {
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
-        psWpn->nState = wpr_enabled;
-    }
+	
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+				it->nState = wpr_enabled;
 }
 
+class findWeaponByName
+{
+	std::string name;
+	public:
+	findWeaponByName( const std::string & _name ): name(_name) {};
+	bool operator() ( const wpnrest_t & w )
+	{
+		return strcasecmp( name.c_str(), w.szName.c_str() ) == 0;
+	}
+	bool operator() ( const std::string & szName )
+	{
+		return strcasecmp( name.c_str(), szName.c_str() ) == 0;
+	}
+};
 
 ///////////////////
 // Reset all the weapons in the current game script to default (enabled)
-void CWpnRest::resetVisible(CGameScript *pcGameS)
+void CWpnRest::resetVisible(const std::vector<std::string> & weaponList)
 {
-    assert(pcGameS);
-
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
-        if(pcGameS->weaponExists(psWpn->szName)) 
-            psWpn->nState = wpr_enabled;
-    }
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+				if( std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->szName) ) != weaponList.end() )
+					it->nState = wpr_enabled;
 }
 
 
 ///////////////////
 // Randomize all the weapons in the current game script
-void CWpnRest::randomizeVisible(CGameScript *pcGameS)
+void CWpnRest::randomizeVisible(const std::vector<std::string> & weaponList)
 {
-    assert(pcGameS);
-
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
-        if(pcGameS->weaponExists(psWpn->szName))
-            psWpn->nState = GetRandomInt(2);
-    }
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+				if( std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->szName) ) != weaponList.end() )
+					it->nState = GetRandomInt(2);
 }
 
 ///////////////////
 // Cycles the weapon states (enabled -> bonus -> disabled)
-void CWpnRest::cycleVisible(CGameScript *pcGameS)
+void CWpnRest::cycleVisible(const std::vector<std::string> & weaponList)
 {
-    assert(pcGameS);
-
 	if (iCycleState == 3) iCycleState = 0;
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
-        if(pcGameS->weaponExists(psWpn->szName))  {
-            psWpn->nState = iCycleState;
-		}
-    }
+
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+				if( std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->szName) ) != weaponList.end() )
+					it->nState = iCycleState;
+
 	iCycleState++;
 }
 
@@ -123,24 +128,19 @@ void CWpnRest::cycleVisible(CGameScript *pcGameS)
 // Find a weapon in the list
 wpnrest_t *CWpnRest::findWeapon(const std::string& szName)
 {
-    if(szName == "")
-    	return NULL;
+	if(szName == "")
+		return NULL;
 
 	std::string tmp = szName;
 	TrimSpaces(tmp);
 
-    wpnrest_t *psWpn = m_psWeaponList;
+	std::list< wpnrest_t > :: iterator it = std::find_if( m_psWeaponList.begin(), m_psWeaponList.end(), findWeaponByName(szName) );
 
-    for(; psWpn; psWpn=psWpn->psNext) {
+	if( it != m_psWeaponList.end() )
+		return & ( * it );
 
-        // We need to be a bit lenient here in case some simple mistakes in different game scripts occur
-        // Like case & leading/trailing spaces
-        if( stringcasecmp(psWpn->szName, tmp) == 0 )
-            return psWpn;
-    }
-
-    // No match
-    return NULL;
+	// No match
+	return NULL;
 }
 
 
@@ -150,17 +150,7 @@ void CWpnRest::addWeapon(const std::string& szName, int nState)
 {
     if(szName == "") return;
 
-    wpnrest_t *psWpn = new wpnrest_t;
-
-    if( !psWpn )
-        return;
-
-    psWpn->szName = szName;
-    psWpn->nState = nState;
-    
-    // Link it in
-    psWpn->psNext = m_psWeaponList;
-    m_psWeaponList = psWpn;
+    m_psWeaponList.push_back( wpnrest_t( szName, nState ) );
 
     // Sort the list
     sortList();
@@ -176,10 +166,9 @@ void CWpnRest::saveList(const std::string& szFilename)
     if( !fp )
         return;
 
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
-        fprintf(fp, "%s,%d\n", psWpn->szName.c_str(), psWpn->nState);
-    }
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+				fprintf(fp, "%s,%d\n", it->szName.c_str(), it->nState);
 
     fclose(fp);
 }
@@ -231,7 +220,7 @@ bool CWpnRest::isEnabled(const std::string& szName)
     // If we can't find the weapon, then assume it is banned
     if( !psWpn )
         return false;
-    
+
     return (psWpn->nState == wpr_enabled);
 }
 
@@ -244,30 +233,30 @@ bool CWpnRest::isBonus(const std::string& szName)
     // If we can't find the weapon, then assume it is banned
     if( !psWpn )
         return false;
-    
+
     return (psWpn->nState == wpr_bonus);
 }
 
 
 ///////////////////
 // Finds a weapon that is enabled and returns the name
-std::string CWpnRest::findEnabledWeapon(CGameScript *pcGameS) {
-    assert(pcGameS);
+std::string CWpnRest::findEnabledWeapon(const std::vector<std::string> & weaponList) {
 
     // Go from the start of the list looking for an enabled weapon
     // The weapon must also be in the gamescript
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext) {
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+	{
 
-        if( psWpn->nState != wpr_enabled )
+        if( it->nState != wpr_enabled )
             continue;
 
         // Is the weapon in the gamescript?
-        if( !pcGameS->weaponExists(psWpn->szName) )
+        if( std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->szName) ) == weaponList.end() )
             continue;
 
         // Must be good
-        return psWpn->szName;
+        return it->szName;
     }
 
     // No enabled weapons found
@@ -291,17 +280,17 @@ int CWpnRest::getWeaponState(const std::string& szName)
 
 ///////////////////
 // Return the sorted weapon list
-wpnrest_t *CWpnRest::getList()
+std::list<wpnrest_t> & CWpnRest::getList()
 {
-    return m_psSortedList;
+    return m_psWeaponList;
 }
 
 
 ///////////////////
 // Return the number of weapons
-int CWpnRest::getNumWeapons()
+int CWpnRest::getNumWeapons() const
 {
-    return m_nCount;
+    return m_psWeaponList.size();
 }
 
 
@@ -309,65 +298,24 @@ int CWpnRest::getNumWeapons()
 // Create a sorted list
 void CWpnRest::sortList()
 {
-    int i, j;
-
-    // Free any previous list
-    if( m_psSortedList )
-        delete[] m_psSortedList;
-
-    // Count the number of weapons
-    m_nCount = 0;
-    wpnrest_t *psWpn = m_psWeaponList;
-    for(; psWpn; psWpn=psWpn->psNext)
-        m_nCount++;
-
-    // Allocate the sorted list
-	// TODO: is the following comment still valid?
-    // TODO: valgrid says, this got lost
-    m_psSortedList = new wpnrest_t[m_nCount];
-    if( !m_psSortedList )
-        return;
-
-    // Fill in the links
-    psWpn = m_psWeaponList;
-    for( i=0; i<m_nCount; i++, psWpn=psWpn->psNext)
-        m_psSortedList[i].psLink = psWpn;
-    
-    if( m_nCount < 2 )
-        return;
-
-    // Sort the list using a simple bubble sort
-    wpnrest_t temp;
-   	for(i=0; i<m_nCount; i++) {
-		for(j=0; j<m_nCount-1-i; j++) {
-
-            if( m_psSortedList[j].psLink->szName.compare( m_psSortedList[j+1].psLink->szName) > 0 ) {
-
-                // Swap the 2 items
-                temp = m_psSortedList[j];
-                m_psSortedList[j] = m_psSortedList[j+1];
-                m_psSortedList[j+1] = temp;
-            }
-        }
-    }
+	m_psWeaponList.sort();
 }
 
 
 ///////////////////
 // Send the list
-void CWpnRest::sendList(CBytestream *psByteS, CGameScript *pcGameS)
+void CWpnRest::sendList(CBytestream *psByteS, const std::vector<std::string> & weaponList)
 {
-    wpnrest_t *psWpn = NULL;
-
 	std::list<wpnrest_t *> rest_to_send;
 
     // Add only weapons that are _not_ enabled
-	psWpn = m_psWeaponList;
-    for(; psWpn; psWpn = psWpn->psNext ) {
-        if(psWpn->nState != wpr_enabled && pcGameS->FindWeapon(psWpn->szName))
-			rest_to_send.push_back(psWpn); 
+	for( std::list<wpnrest_t> :: iterator it = m_psWeaponList.begin(); 
+			it != m_psWeaponList.end(); it++ )
+	{
+		if( it->nState != wpr_enabled && 
+			std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(it->szName) ) != weaponList.end() )
+			rest_to_send.push_back( & ( *it ) );
     }
-
 
     // Write the header
     psByteS->writeInt((int)rest_to_send.size(), 2);
@@ -390,11 +338,7 @@ void CWpnRest::readList(CBytestream *psByteS)
     wpnrest_t *psWpn = NULL;
 
     // Initialize all the weapons to a default of 'enabled'
-    psWpn = m_psWeaponList;
-    for(; psWpn; psWpn = psWpn->psNext ) {
-        psWpn->nState = wpr_enabled;
-    }
-
+    reset();
 
     int nCount = psByteS->readInt(2);
 
@@ -420,19 +364,10 @@ void CWpnRest::readList(CBytestream *psByteS)
 // Shutdown the weapons restrictions list
 void CWpnRest::Shutdown()
 {
-     wpnrest_t *psWpn = m_psWeaponList;
-     wpnrest_t *psNext = NULL;
-
-     for(; psWpn; psWpn=psNext) {
-         psNext = psWpn->psNext;
-
-         delete psWpn;
-     }
-
-     m_psWeaponList = NULL;
-
-    // Free any sorted list
-    if( m_psSortedList )
-        delete[] m_psSortedList;
-    m_psSortedList = NULL;
+    m_psWeaponList.clear();
 }
+
+bool CWpnRest::weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList)
+{
+	return std::find_if( weaponList.begin(), weaponList.end(), findWeaponByName(weapon) ) != weaponList.end();
+};

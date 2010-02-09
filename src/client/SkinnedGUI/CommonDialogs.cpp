@@ -588,7 +588,7 @@ CDialog(name, parent, "Weapon Options")
 	// Load the gamescript and apply the restrictions
 	cRestrictionList->loadList("cfg/wpnrest.dat", "");
 	if (cGameScript->Load(mod))
-		cRestrictionList->updateList(cGameScript);
+		cRestrictionList->updateList(cGameScript->GetWeaponList());
 
 	UpdateListview();
 }
@@ -601,6 +601,8 @@ CWeaponOptionsDialog::~CWeaponOptionsDialog()
 	delete cRestrictionList;
 }
 
+
+// TODO: fix that
 ///////////////////////
 // Updates the listview
 void CWeaponOptionsDialog::UpdateListview()
@@ -608,17 +610,15 @@ void CWeaponOptionsDialog::UpdateListview()
 	// Clear
 	lsvRestrictions->Clear();
 
-	// Get the list
-	wpnrest_t *psWpn = cRestrictionList->getList();
-	if (!psWpn)
-		return;
-	
 	// Fill the listview
-	for(int i=0; i < cRestrictionList->getNumWeapons(); i++) {
-		if(cGameScript->weaponExists(psWpn[i].psLink->szName))  {
-			lsvRestrictions->AddItem(psWpn[i].psLink->szName, i);
-			lsvRestrictions->AddTextSubitem(psWpn[i].psLink->szName);
-			lsvRestrictions->AddTextSubitem(states[CLAMP(psWpn[i].psLink->nState, 0, 2)]);
+	int i = 0;
+	for( std::list<wpnrest_t>::const_iterator it = cRestrictionList->getList().begin(); 
+			it != cRestrictionList->getList().end(); it++, i++) 
+	{
+		if(cGameScript->weaponExists(it->szName))  {
+			lsvRestrictions->AddItem(it->szName, i);
+			lsvRestrictions->AddTextSubitem(it->szName);
+			lsvRestrictions->AddTextSubitem(states[CLAMP(it->nState, 0, 2)]);
 		}
 	}
 }
@@ -634,14 +634,14 @@ void CWeaponOptionsDialog::OkClick(CButton *sender, MouseButton button, const Mo
 // Cycle click
 void CWeaponOptionsDialog::CycleClick(CButton *sender, MouseButton button, const ModifiersState &modstate)
 {
-	cRestrictionList->cycleVisible(cGameScript);
+	cRestrictionList->cycleVisible(cGameScript->GetWeaponList());
 }
 
 ///////////////////
 // Random click
 void CWeaponOptionsDialog::RandomClick(CButton *sender, MouseButton button, const ModifiersState &modstate)
 {
-	cRestrictionList->randomizeVisible(cGameScript);
+	cRestrictionList->randomizeVisible(cGameScript->GetWeaponList());
 }
 
 ////////////////////
@@ -665,7 +665,7 @@ void CWeaponOptionsDialog::SaveClick(CButton *sender, MouseButton button, const 
 void CWeaponOptionsDialog::LoadDialogConfirm(CFileDialog *sender, const std::string &file)
 {
 	cRestrictionList->loadList(file, cGameScript->directory());
-	cRestrictionList->updateList(cGameScript);
+	cRestrictionList->updateList(cGameScript->GetWeaponList());
 	UpdateListview();
 }
 
@@ -680,23 +680,17 @@ void CWeaponOptionsDialog::SaveDialogConfirm(CFileDialog *sender, const std::str
 // Clicked on an item in the list
 void CWeaponOptionsDialog::ItemClick(CListview *sender, CListviewItem *item, int index)
 {
-	// Get the list
-	wpnrest_t *psWpn = cRestrictionList->getList();
-	if (!psWpn)
+	// Update the listview
+	CListviewSubitem *sub = item->getSubitem(1);
+	if (!sub)
 		return;
-
-	// Check
-	if (index < 0 || index >= cRestrictionList->getNumWeapons())
+	// Get the list
+	if( ! cRestrictionList->findWeapon(sub->getName()) );
 		return;
 
 	// Change the state
-	psWpn[index].nState++;
-	psWpn[index].nState %= 3;
-
-	// Update the listview
-	CListviewSubitem *sub = item->getSubitem(1);
-	if (sub)
-		sub->setName(states[psWpn[index].nState]);
+	cRestrictionList->findWeapon(sub->getName())->nState++;
+	cRestrictionList->findWeapon(sub->getName())->nState %= 3;
 }
 
 }; // namespace SkinnedGUI

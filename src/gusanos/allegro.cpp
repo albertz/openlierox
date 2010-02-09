@@ -477,7 +477,12 @@ int getb(int c) { return Uint8(Uint32(c) >> screen->surf->format->Bshift); }
 
 
 static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {
-	return ((r & 0xff) << screen->surf->format->Rshift) | ((g & 0xff) << screen->surf->format->Gshift) | ((b & 0xff) << screen->surf->format->Bshift);
+	// we currently dont have alpha at all in gusanos
+	return
+		((r & 0xff) << screen->surf->format->Rshift) |
+		((g & 0xff) << screen->surf->format->Gshift) |
+		((b & 0xff) << screen->surf->format->Bshift)
+		;
 }
 
 int makecol(int r, int g, int b) { return makecol_intern(r,g,b); }

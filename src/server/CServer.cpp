@@ -377,6 +377,24 @@ int GameServer::StartGame(std::string* errMsg)
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
+	// Send Startgame packet to clients first, then load gamescript, because it will take some time and clients will think server lags
+	std::vector<std::string> weaponList = CGameScript::LoadWeaponList(tLXOptions->tGameInfo.sModDir);
+	
+	// Load & update the weapon restrictions
+	notes << "Weapon restriction: " << tLXOptions->tGameInfo.sWeaponRestFile << endl;
+	cWeaponRestrictions.loadList(tLXOptions->tGameInfo.sWeaponRestFile, tLXOptions->tGameInfo.sModDir);
+	cWeaponRestrictions.updateList(weaponList);
+
+	for( int i = 0; i < MAX_CLIENTS; i++ )
+	{
+		if( !cClients[i].isConnected() )
+			continue;
+		cClients[i].getNetEngine()->SendPrepareGame();
+	}
+	// It will send just one packet, which may be lost across net, if that will happen the packet will be resent later anyway
+	// But in most cases clients will load the gamescript with server and game start time will speed up somewhat
+	SendPackets();
+	
 	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
 	if( cGameScript.get() == NULL )
 	{
@@ -406,11 +424,6 @@ int GameServer::StartGame(std::string* errMsg)
 		notes << "used cached version of mod, ";
 	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	
-	// Load & update the weapon restrictions
-	notes << "Weapon restriction: " << tLXOptions->tGameInfo.sWeaponRestFile << endl;
-	cWeaponRestrictions.loadList(tLXOptions->tGameInfo.sWeaponRestFile, cGameScript->directory());
-	cWeaponRestrictions.updateList(cGameScript.get());
-
 	// TODO: why delete + create new map instead of simply shutdown/clear map?
 	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
 	
@@ -513,7 +526,7 @@ mapCreate:
 	{
 		if( !cClients[i].isConnected() )
 			continue;
-		cClients[i].getNetEngine()->SendPrepareGame();
+		//cClients[i].getNetEngine()->SendPrepareGame(); // Already sent
 
 		// Force random weapons for spectating clients
 		if( cClients[i].getNumWorms() > 0 && cClients[i].getWorm(0)->isSpectating() )

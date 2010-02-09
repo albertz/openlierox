@@ -476,6 +476,11 @@ void Menu_DrawBoxAdv(SDL_Surface * bmpDest, int x, int y, int x2, int y2, int bo
 // Draw a box
 void Menu_DrawBox(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
+	if(bmpDest == NULL) {
+		errors << "Menu_DrawBox: bmpDest == NULL" << endl;
+		return;
+	}
+	
 	DrawRect( bmpDest,x+1, y+1, x2-1,y2-1, tLX->clBoxLight);
     //DrawRect( bmpDest,x+2, y+2, x2-2,y2-2, tLX->clBoxDark);
 	DrawHLine(bmpDest,x+2, x2-1,y,  tLX->clBoxDark);
@@ -499,6 +504,11 @@ void Menu_DrawBox(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 // Draw an inset box
 void Menu_DrawBoxInset(SDL_Surface * bmpDest, int x, int y, int x2, int y2)
 {
+	if(bmpDest == NULL) {
+		errors << "Menu_DrawBoxInset: bmpDest is NULL" << endl;
+		return;
+	}
+	
 	// Clipping
 	if (x < 0) { x2 += x; x = 0; }
 	if (x2 >= bmpDest->w) { x2 = bmpDest->w - 1; }

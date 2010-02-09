@@ -534,4 +534,6 @@ struct Culler
 	int orgY;
 };
 
+#undef self
+
 #endif //VERMES_CULLING_H

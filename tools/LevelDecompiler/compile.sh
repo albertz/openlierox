@@ -1,5 +1,5 @@
 #!/bin/bash
 
-if [ -n bin ] ; then mkdir bin ; fi
+mkdir bin 2>/dev/null
 
-g++ src/*.cpp `wx-config --cflags` -o bin/LevelDecompiler `wx-config --libs`
+g++ src/*.cpp `wx-config --cflags` -o bin/LevelDecompiler `wx-config --libs` -lz

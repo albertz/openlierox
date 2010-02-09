@@ -220,7 +220,7 @@ bool CClient::InitializeDrawing()
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2X",&tInterfaceSettings.WeaponLabel2X, 390);
 		ReadInteger("data/frontend/frontend.cfg",section,"WeaponLabel2Y",&tInterfaceSettings.WeaponLabel2Y, 425);
 	}
-
+	
 	// Setup the loading boxes
 	int NumBars = tLX->iGameType == GME_LOCAL ? 4 : 2;
 	for (byte i=0; i<NumBars; i++)
@@ -493,11 +493,14 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// TODO: allow more viewports
 	// Draw the borders
-	if (bShouldRepaintInfo || tLX->bVideoModeChanged || bCurrentSettings)  {
-		// Fill the viewport area with black
-		DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
-			VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 
+	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
+	{
+		// Fill the viewport area with black, only if map will be smaller than viewport
+		if( (float)tLXOptions->tGameInfo.features[FT_SizeFactor] < 1.0f )
+			DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
+				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
+		
 		if (tLX->iGameType == GME_LOCAL)  {
 			if (bgImage.get())  // Doesn't have to exist (backward compatibility)
 				DrawImageAdv(bmpDest, bgImage, 0, 0, 0, 480 - bgImage.get()->h, 640, bgImage.get()->h);
@@ -526,8 +529,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if(cViewports[1].getUsed())
 		DrawRectFill(bmpDest,318,0,322, bgImage.get() ? (480-bgImage.get()->h) : (384), tLX->clViewportSplit);
 
-	// Top bar
-	if (tLXOptions->bTopBarVisible && !bGameMenu && (bShouldRepaintInfo || tLX->bVideoModeChanged))  {
+	// Top bar (do not draw for Gusanos)
+	if (tLXOptions->bTopBarVisible && !bGameMenu && 
+		(bShouldRepaintInfo || tLX->bVideoModeChanged) && 
+		!(game.gameScript() && game.gameScript()->gusEngineUsed()) )  {
 		SmartPointer<SDL_Surface> top_bar = tLX->iGameType == GME_LOCAL ? DeprecatedGUI::gfxGame.bmpGameLocalTopBar : DeprecatedGUI::gfxGame.bmpGameNetTopBar;
 		if (top_bar.get())
 			DrawImage( bmpDest, top_bar, 0, 0);
@@ -564,13 +569,20 @@ void CClient::Draw(SDL_Surface * bmpDest)
 			}
 		}
 
+		int MiniMapX = tInterfaceSettings.MiniMapX;
+		int MiniMapY = tInterfaceSettings.MiniMapY;
+		if(game.gameScript() && game.gameScript()->gusEngineUsed()) {
+			MiniMapX = 640 - tInterfaceSettings.MiniMapW;
+			MiniMapY = 480 - tInterfaceSettings.MiniMapH;
+		}
+
 		// Mini-Map
 		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY, dt, cRemoteWorms );
+				cMap->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
 			else {
 				if(cMap->GetMiniMap().get())
-					DrawImage( bmpDest, cMap->GetMiniMap(), tInterfaceSettings.MiniMapX, tInterfaceSettings.MiniMapY);
+					DrawImage( bmpDest, cMap->GetMiniMap(), MiniMapX, MiniMapY);
 			}
 		}
 
@@ -1064,8 +1076,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
         return;
 
 
-	// Draw the details only when current settings is not displayed
-	if (!bCurrentSettings)  {
+	// Draw the details only when current settings is not displayed, and don't draw for Gus
+	if (!bCurrentSettings && !(game.gameScript() && game.gameScript()->gusEngineUsed()) ) {
 		// Health
 		tLX->cFont.Draw(bmpDest, *HealthLabelX, *HealthLabelY, tLX->clHealthLabel, "Health:");
 		if (HealthBar)  {
@@ -1284,6 +1296,11 @@ void CClient::SimulateHud()
 		if (!tLXOptions->bTopBarVisible)  {
 			toph = -toph;
 			top = 0;
+		}
+		if( game.gameScript() && game.gameScript()->gusEngineUsed() )
+		{
+			top = 0;
+			toph = 0;
 		}
 
 		// TODO: allow more viewports
@@ -2013,7 +2030,6 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 	// the mouse image when the user moves cursor away
 	int inbox = MouseInRect(lv->getX(),lv->getY() - GetCursorWidth(CURSOR_ARROW), lv->getWidth() + GetCursorWidth(CURSOR_ARROW), lv->getHeight()+GetCursorHeight(CURSOR_ARROW)) ||
 				MouseInRect(tInterfaceSettings.ChatboxScrollbarX, tInterfaceSettings.ChatboxScrollbarY, 14 + GetCursorWidth(CURSOR_ARROW), tInterfaceSettings.ChatboxScrollbarH);
-	bool painted = false;
 
 	// Repainting when new messages/scrolling,
 	if (lv->NeedsRepaint() || tLX->bVideoModeChanged || bGameMenu || 
@@ -2021,15 +2037,13 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		bRepaintChatbox = true;
 
 	// TODO: ... (Issue about double buffering; see comment about it in CClient::Draw)
-	if( true /*bRepaintChatbox*/ )
+	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{	
 																		// or when user is moving the mouse over the chat
 		// Local and net play use different backgrounds
 		SmartPointer<SDL_Surface> bgImage = DeprecatedGUI::gfxGame.bmpGameNetBackground;
 		if (tLX->iGameType == GME_LOCAL)
 			bgImage = DeprecatedGUI::gfxGame.bmpGameLocalBackground;
-
-		painted = true;
 
 		// TODO: Move that to CBrowser. Then we could also use the internal CBrowser draw cache.
 		if (bgImage.get())  // Due to backward compatibility, this doesn't have to exist
@@ -2048,6 +2062,8 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 
 		bRepaintChatbox = false;
 	}
+	else
+		lv->Draw(bmpDest); // Chatbox in Gus has transparent background
 
 	lv->setFocused(true);
 	// Events
@@ -2061,8 +2077,7 @@ void CClient::DrawRemoteChat(SDL_Surface * bmpDest)
 		SetGameCursor(CURSOR_ARROW);
 
 		// Draw the mouse
-		if (Mouse->deltaX || Mouse->deltaY || painted)
-			DrawCursor(bmpDest);
+		DrawCursor(bmpDest);
 		lv->MouseOver(Mouse);
 		if (Mouse->Down)
 			lv->MouseDown(Mouse,true);

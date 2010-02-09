@@ -1,0 +1,5 @@
+#!/usr/bin/python -u
+
+setvar( "GameOptions.GameInfo.ModName", "MSF II" )
+
+setvar( "GameOptions.GameInfo.LoadingTime", "100" )

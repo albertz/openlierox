@@ -1412,9 +1412,10 @@ void Menu_GameSettings_Default()
 */
 
 
-CGuiLayout		cWeaponsRest;
-CWpnRest        cWpnRestList;
-CGameScript     *cWpnGameScript = NULL;
+static CGuiLayout		cWeaponsRest;
+static CWpnRest			cWpnRestList;
+static std::vector<std::string>	cWeaponList;
+static std::string		sModDirectory;
 
 // Weapons Restrictions
 enum {
@@ -1429,20 +1430,19 @@ enum {
 };
 
 
-std::list<wpnrest_t *> tWeaponList;
+std::list< std::list<wpnrest_t> :: iterator > tWeaponList;
 
 /////////////////
 // Updates the weapon list that is shown in the dialog
 static void UpdateWeaponList()
 {
 	tWeaponList.clear();
-	wpnrest_t *psWpn = cWpnRestList.getList();
-	if (!psWpn)
-		return;
 	
-	for(int i=0; i < cWpnRestList.getNumWeapons(); i++) {
-        if(cWpnGameScript->weaponExists(psWpn[i].psLink->szName))
-			tWeaponList.push_back(&psWpn[i]);
+	for(std::list<wpnrest_t> :: iterator it = cWpnRestList.getList().begin(); 
+			it != cWpnRestList.getList().end(); it++) 
+	{
+		if(cWpnRestList.weaponExists(it->szName, cWeaponList))
+			tWeaponList.push_back(it);
     }
 }
 
@@ -1450,7 +1450,7 @@ static void UpdateWeaponList()
 // Initialize the weapons restrictions
 void Menu_WeaponsRestrictions(const std::string& szMod)
 {
-
+	sModDirectory = szMod;
 	// Setup the buffer
 	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 120,150,120,150, 400,330);
 	Menu_DrawBox(tMenu->bmpBuffer.get(), 120,150, 520,470);
@@ -1474,15 +1474,10 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
     // Update the list with the currently selected mod
     //
 
-    cWpnGameScript = new CGameScript;
-    if( cWpnGameScript ) {
-        if( cWpnGameScript->Load(szMod) ) {
-			// Load the weapons
-			cWpnRestList.loadList(tLXOptions->tGameInfo.sWeaponRestFile, cWpnGameScript->directory());
-
-            cWpnRestList.updateList( cWpnGameScript );
-		}
-    }
+	cWeaponList = CGameScript::LoadWeaponList(sModDirectory);
+	// Load the weapons
+	cWpnRestList.loadList(tLXOptions->tGameInfo.sWeaponRestFile, sModDirectory);
+	cWpnRestList.updateList( cWeaponList );
 
     // Get the weapons for the list
 	UpdateWeaponList();
@@ -1497,11 +1492,7 @@ void Menu_WeaponsRestrictionsShutdown()
     cWpnRestList.saveList("cfg/wpnrest.dat");
     cWpnRestList.Shutdown();
 
-	if (cWpnGameScript)  {
-		// HINT: the gamescript is shut down by the cache
-		delete cWpnGameScript;
-		cWpnGameScript = NULL;
-	}
+	cWeaponList.clear();
 }
 
 
@@ -1514,8 +1505,6 @@ bool Menu_WeaponsRestrictions_Frame()
 	mouse_t *Mouse = GetMouse();
     //Uint32 blue = MakeColour(0,138,251);
 
-    assert(cWpnGameScript);
-
     // State strings
     static const std::string    szStates[] = {"Enabled", "Bonus", "Banned"};
 
@@ -1526,7 +1515,7 @@ bool Menu_WeaponsRestrictions_Frame()
 
 	int w, j;
 	w = j = 0;
-	for (std::list<wpnrest_t *>::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
+	for (std::list< std::list<wpnrest_t> :: iterator >::iterator it = tWeaponList.begin(); it != tWeaponList.end(); it++)  {
         if( w++ < count )
             continue;
         if( j > 10 )
@@ -1536,9 +1525,9 @@ bool Menu_WeaponsRestrictions_Frame()
         int y = 190 + (j++)*20;
         Color Colour = tLX->clNormalLabel;
 		Color StateColour = Colour;
-		if( (*it)->psLink->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
+		if( (*it)->nState == wpr_bonus ) // Different color will make it more comfortable for eyes
 			StateColour = tLX->clSubHeading;
-		if( (*it)->psLink->nState == wpr_banned )
+		if( (*it)->nState == wpr_banned )
 			StateColour = tLX->clDisabled;
 
         // If a mouse is over the line, highlight it
@@ -1549,18 +1538,18 @@ bool Menu_WeaponsRestrictions_Frame()
 
                 // If the mouse has been clicked, cycle through the states
                 if( Mouse->Up & SDL_BUTTON(1) ) {
-                    (*it)->psLink->nState++;
-                    (*it)->psLink->nState %= 3;
+                    (*it)->nState++;
+                    (*it)->nState %= 3;
     
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
 				}
             }
         }
 
-		std::string buf = (*it)->psLink->szName;
+		std::string buf = (*it)->szName;
 		stripdot(buf,245);
         tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 150, y, Colour, buf );
-        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it)->psLink->nState] );
+        tLX->cFont.Draw( VideoPostProcessor::videoSurface(), 400, y, StateColour, szStates[(*it)->nState] );
 	}
 
     // Adjust the scrollbar
@@ -1604,7 +1593,7 @@ bool Menu_WeaponsRestrictions_Frame()
             case wr_Reset:
                 if( ev->iEventMsg == BTN_CLICKED ) {
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
-                    cWpnRestList.cycleVisible(cWpnGameScript);
+                    cWpnRestList.cycleVisible(cWeaponList);
                 }
                 break;
 
@@ -1612,7 +1601,7 @@ bool Menu_WeaponsRestrictions_Frame()
             case wr_Random:
                 if(ev->iEventMsg == BTN_CLICKED) {
 					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
-                    cWpnRestList.randomizeVisible(cWpnGameScript);
+                    cWpnRestList.randomizeVisible(cWeaponList);
                 }
                 break;
 
@@ -1705,7 +1694,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	lv->AddColumn("Weapon presets",60);
 
 	WeaponPresetsAdder adder(lv);
-	FindFiles(adder, "cfg/presets/" + cWpnGameScript->directory(), false, FM_REG);
+	FindFiles(adder, "cfg/presets/" + sModDirectory, false, FM_REG);
 	FindFiles(adder, "cfg/presets", false, FM_REG);
 	
 	lv->SortBy( 0, true );
@@ -1715,7 +1704,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 		if(fn.find(".wps") == std::string::npos )
 			fn += ".wps";
 		
-		lv_item_t* it = lv->getItem(cWpnGameScript->directory() + "/" + fn);
+		lv_item_t* it = lv->getItem(sModDirectory + "/" + fn);
 		if(!it) it = lv->getItem(fn);;
 		if(it) {
 			lv->setSelectedID(it->_iID);
@@ -1775,7 +1764,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 						if(save) {
 
 							// Save
-							std::string fn = "cfg/presets/" + cWpnGameScript->directory() + "/" + t->getText(); // + ".wps";
+							std::string fn = "cfg/presets/" + sModDirectory + "/" + t->getText(); // + ".wps";
 							if(fn.find(".wps") == std::string::npos )
 								fn += ".wps";
 
@@ -1790,7 +1779,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							// Load
 							std::string fn = "cfg/presets/" + t->getText();
 							wpnrest->loadList(fn, "");
-							wpnrest->updateList(cWpnGameScript);
+							wpnrest->updateList( cWeaponList );
 							UpdateWeaponList();
 							tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(t->getText());
 						}

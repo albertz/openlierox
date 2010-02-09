@@ -252,6 +252,11 @@ namespace DeprecatedGUI {
 // Draw the widgets
 void CGuiLayout::Draw(SDL_Surface * bmpDest)
 {
+	if(bmpDest == NULL) {
+		errors << "CGuiLayout::Draw: bmpDest == NULL" << endl;
+		return;
+	}
+	
 	// Draw the widgets in reverse order
 	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)  {
 		if((*w)->getEnabled())

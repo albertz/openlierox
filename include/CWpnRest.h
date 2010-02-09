@@ -17,6 +17,9 @@
 #ifndef __CWPNREST_H__
 #define __CWPNREST_H__
 
+#include <vector>
+#include <list>
+
 class CGameScript;
 class CBytestream;
 
@@ -30,13 +33,17 @@ enum {
 
 
 // Weapon Restriction structure
-class wpnrest_t { public:
+class wpnrest_t { 
+
+public:
+
+	wpnrest_t( const std::string & _name, int _state ):
+		szName(_name), nState(_state) { };
 
 	std::string    szName;
     int     nState;
 
-    wpnrest_t   *psNext;
-    wpnrest_t   *psLink;        // For sorted array
+	bool operator < ( const wpnrest_t & rest ) const;
 
 };
 
@@ -46,13 +53,8 @@ class CWpnRest {
 private:
     // Attributes
 
-    wpnrest_t   *m_psWeaponList;
-    wpnrest_t   *m_psSortedList;
-    int         m_nCount;
+    std::list<wpnrest_t> m_psWeaponList;
 	int			iCycleState;
-
-
-
 
 public:
     // Methods
@@ -64,31 +66,31 @@ public:
     void        saveList(const std::string& szFilename);
     void        Shutdown();
 
-    void        updateList(CGameScript *pcGameS);
+    void        updateList(const std::vector<std::string> & weaponList);
     void        reset();
-    void        resetVisible(CGameScript *pcGameS);
-    void        randomizeVisible(CGameScript *pcGameS);
-	void		cycleVisible(CGameScript *pcGameS);
+    void        resetVisible(const std::vector<std::string> & weaponList);
+    void        randomizeVisible(const std::vector<std::string> & weaponList);
+	void		cycleVisible(const std::vector<std::string> & weaponList);
 
-    void        sendList(CBytestream *psByteS, CGameScript *pcGameS);
+    void        sendList(CBytestream *psByteS, const std::vector<std::string> & weaponList);
     void        readList(CBytestream *psByteS);
 
     bool        isEnabled(const std::string& szName);
 	bool        isBonus(const std::string& szName);
-	std::string findEnabledWeapon(CGameScript *pcGameS);
+	std::string findEnabledWeapon(const std::vector<std::string> & weaponList);
 
     int         getWeaponState(const std::string& szName);
 
     void        sortList();
 
-    wpnrest_t   *getList();
-    int         getNumWeapons();
-
+    std::list<wpnrest_t> & getList();
+    wpnrest_t   *findWeapon(const std::string& szName);
+    int         getNumWeapons() const;
+    static bool weaponExists(const std::string & weapon, const std::vector<std::string> & weaponList);
 
 private:
     // Internal methods
 
-    wpnrest_t   *findWeapon(const std::string& szName);
     void        addWeapon(const std::string& szName, int nState);
 };
 
