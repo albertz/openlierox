@@ -281,7 +281,10 @@ struct GameOptions {
 	bool	bTopBarVisible;
 	bool	bDamagePopups;
 	bool	bColorizeDamageByWorm;
-	
+	float	fAimAcceleration;
+	float	fAimMaxSpeed;
+	float	fAimFriction;
+	bool	bAimFrictionLikeLX56;
 
     // Advanced
     int     nMaxFPS;
