@@ -944,7 +944,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	CVec forw;
 	GetVecsFromAngle((float)a, &forw, NULL);
-	forw *= 32.0f;
+	forw *= tLXOptions->fCrosshairDistance;
 
 	VectorD2<int> cp = p;
 	cp.x += (int)forw.x;
