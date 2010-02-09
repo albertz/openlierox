@@ -92,12 +92,22 @@ inline Version OLXBetaVersion(int num, int subnum, int betaversion) {
 	return v;
 }
 
-inline Version OLXVersion(int num, int subnum) {
+inline Version OLXRcVersion(int num, int subnum, int rcversion) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = num;
 	v.subnum = subnum;
-	v.subsubnum = 0;
+	v.subsubnum = rcversion;
+	v.releasetype = Version::RT_RC;
+	return v;
+}
+
+inline Version OLXVersion(int num, int subnum, int subsubnum = 0) {
+	Version v;
+	v.gamename = fullGameName;
+	v.num = num;
+	v.subnum = subnum;
+	v.subsubnum = subsubnum;
 	v.releasetype = Version::RT_NORMAL;
 	return v;	
 }
