@@ -378,7 +378,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 
 	if(!isReconnect) {
-		client->bHostAllowsStrafing = false;
+		// We always allow it on servers < 0.57 beta5 because 0.57b5 is the first version
+		// which has a setting for allowing/disallowing it.
+		client->bHostAllowsStrafing = client->getServerVersion() < OLXBetaVersion(0,57,5);
 	}
 	
 	// Log the connecting
