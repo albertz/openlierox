@@ -1658,6 +1658,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// TODO: why is this still done here and not via feature array or similar?
+	// we do this since rev1897, i.e. since 0.57beta5
 	if (tLXOptions->tGameInfo.bAllowStrafing) {
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);

@@ -112,37 +112,45 @@ void CWormHumanInputHandler::getInput() {
 			m_worm->fAngle = CLAMP((float)cUp.getJoystickValue() * joystickCoeff - joystickShift, -90.0f, 60.0f);
 		}
 
-		// Up
-		if(cUp.isDown() && !cUp.isJoystickThrottle()) {
-			// HINT: 500 is the original value here (rev 1)
-			m_worm->fAngleSpeed -= 500 * dt.seconds();
+		// Note: 100 was LX56 max aimspeed
+		const float aimMaxSpeed = MAX((float)fabs(tLXOptions->fAimMaxSpeed), 20.0f);
+		// HINT: 500 is the LX56 value here (rev 1)
+		const float aimAccel = MAX((float)fabs(tLXOptions->fAimAcceleration), 100.0f);
+		if(cUp.isDown() && !cUp.isJoystickThrottle()) { // Up
+			m_worm->fAngleSpeed -= aimAccel * dt.seconds();
+			if(!tLXOptions->bAimLikeLX56) CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
 		} else if(cDown.isDown() && !cDown.isJoystickThrottle()) { // Down
-			// HINT: 500 is the original value here (rev 1)
-			m_worm->fAngleSpeed += 500 * dt.seconds();
+			m_worm->fAngleSpeed += aimAccel * dt.seconds();
+			if(!tLXOptions->bAimLikeLX56) CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
 		} else {
+			// we didn't had that in LX56; it behaves more natural
+			const float aimFriction = CLAMP(tLXOptions->fAimFriction, 0.0f, 1.0f);
+			
 			if(!mouseControl) {
 				// HINT: this is the original order and code (before mouse patch - rev 1007)
-				CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
-				REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+				CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
+				if(tLXOptions->bAimLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+				else m_worm->fAngleSpeed *= powf(aimFriction, dt.seconds() * 100.0f);
 				RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 
 			} else { // mouseControl for angle
-				// HINT: to behave more like keyboard, we should use CLAMP(..500) here
+				// HINT: to behave more like keyboard, we use CLAMP(..aimAccel) here
 				float diff = mouse_dy * mouseSensity;
-				CLAMP_DIRECT(diff, -500.0f, 500.0f); // same limit as keyboard
+				CLAMP_DIRECT(diff, -aimAccel, aimAccel); // same limit as keyboard
 				m_worm->fAngleSpeed += diff * dt.seconds();
 
 				// this tries to be like keyboard where this code is only applied if up/down is not pressed
 				if(abs(mouse_dy) < 5) {
-					CLAMP_DIRECT(m_worm->fAngleSpeed, -100.0f, 100.0f);
-					REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+					CLAMP_DIRECT(m_worm->fAngleSpeed, -aimMaxSpeed, aimMaxSpeed);
+					if(tLXOptions->bAimLikeLX56) REDUCE_CONST(m_worm->fAngleSpeed, 200*dt.seconds());
+					else m_worm->fAngleSpeed *= powf(aimFriction, dt.seconds() * 100.0f);
 					RESET_SMALL(m_worm->fAngleSpeed, 5.0f);
 				}
 			}
 		}
 
 		m_worm->fAngle += m_worm->fAngleSpeed * dt.seconds();
-		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, 60.0f) != 0)
+		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, cClient->getGameLobby()->features[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
 	} // end angle section

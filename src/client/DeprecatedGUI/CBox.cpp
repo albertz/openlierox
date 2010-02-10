@@ -256,6 +256,11 @@ int	CBox::CheckEvent()
 	// If the mouse is over transparent area, don't fire any event
 	// CGuiLayout will then continue processing events for other widgets
 
+	if(bmpBuffer.get() == NULL) {
+		errors << "CBox::CheckEvent: bmpBuffer == NULL" << endl;
+		return BOX_NONE;
+	}
+	
 	// Get the mouse pos
 	mouse_t *Mouse = GetMouse();
 	if (!Mouse)
