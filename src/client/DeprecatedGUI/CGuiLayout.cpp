@@ -256,6 +256,11 @@ void CGuiLayout::Draw(SDL_Surface * bmpDest)
 		errors << "CGuiLayout::Draw: bmpDest == NULL" << endl;
 		return;
 	}
+
+	if(bmpDest->format == NULL) {
+		errors << "CGuiLayout::Draw: bmpDest->format == NULL" << endl;
+		return;
+	}
 	
 	// Draw the widgets in reverse order
 	for( std::list<CWidget *>::reverse_iterator w = cWidgets.rbegin() ; w != cWidgets.rend() ; w++)  {
