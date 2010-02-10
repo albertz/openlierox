@@ -1062,7 +1062,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		client->StartLogging(num_worms);
 	
-	if(!isReconnect)
+	if(!isReconnect && !bDedicated)
 	{
 		client->SetupViewports();
 		// Init viewports once if we're playing with bot
