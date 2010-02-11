@@ -38,6 +38,10 @@
 #include "gusanos/player_input.h"
 #include "sound/SoundsBase.h"
 
+#ifdef __MINGW32_VERSION
+// TODO: ugly hack, fix it - mingw stdlib seems to be broken
+#define powf(x,y) ((float)pow((double)x,(double)y))
+#endif
 
 ///////////////////
 // Get the input from a human worm
