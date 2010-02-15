@@ -45,6 +45,8 @@ LuaReference CWorm::metaTable;
 
 void CWorm::gusInit()
 {
+	m_isAuthority = false;
+	
 	skin = NULL;
 	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
 #ifndef DEDICATED_ONLY
