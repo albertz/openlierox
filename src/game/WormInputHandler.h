@@ -164,7 +164,7 @@ public:
 	
 	Net_NodeID getNodeID();
 	Net_ConnID getConnectionID();
-	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
+	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
 	shared_ptr<PlayerOptions> getOptions();
 	CWorm* getWorm() { return m_worm; }
 	
@@ -189,9 +189,9 @@ public:
 	Net_Node* getNode() { return m_node; }
 	
 protected:
-	void addEvent(Net_BitStream* data, NetEvents event);
-	void addActionStart(Net_BitStream* data, BaseActions action);
-	void addActionStop(Net_BitStream* data, BaseActions action);
+	void addEvent(BitStream* data, NetEvents event);
+	void addActionStart(BitStream* data, BaseActions action);
+	void addActionStop(BitStream* data, BaseActions action);
 		
 	shared_ptr<PlayerOptions> m_options;
 	

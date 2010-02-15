@@ -36,7 +36,7 @@ bool PosSpdReplicator::checkState()
 	return s;
 }
 
-void PosSpdReplicator::packData(Net_BitStream *_stream)
+void PosSpdReplicator::packData(BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 /*
@@ -65,7 +65,7 @@ void PosSpdReplicator::packData(Net_BitStream *_stream)
 
 }
 
-void PosSpdReplicator::unpackData(Net_BitStream *_stream, bool _store)
+void PosSpdReplicator::unpackData(BitStream *_stream, bool _store)
 {
 	if (_store)
 	{

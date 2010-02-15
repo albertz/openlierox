@@ -203,6 +203,7 @@
 		23AAE5AA1088D73B00E9F05F /* md5.c in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5971088D73B00E9F05F /* md5.c */; };
 		23AAE5AB1088D73B00E9F05F /* string_conversion.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE5991088D73B00E9F05F /* string_conversion.cc */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
+		23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BA8EE41129A79700963F72 /* Bitstream.cpp */; };
 		23C17092108B7E420083A2BF /* ExtractInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17091108B7E420083A2BF /* ExtractInfo.cpp */; };
 		23C170DC108B824B0083A2BF /* call_stack.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C170D0108B824B0083A2BF /* call_stack.cc */; };
 		23C170DD108B824B0083A2BF /* minidump.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C170D1108B824B0083A2BF /* minidump.cc */; };
@@ -932,6 +933,8 @@
 		23AFF03C0F70175F005B964D /* Functors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functors.h; sourceTree = "<group>"; };
 		23AFF05A0F701804005B964D /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		23BA8C1110F3918400053EF0 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
+		23BA8EE31129A79700963F72 /* Bitstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bitstream.h; sourceTree = "<group>"; };
+		23BA8EE41129A79700963F72 /* Bitstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bitstream.cpp; sourceTree = "<group>"; };
 		23C17090108B7E420083A2BF /* ExtractInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ExtractInfo.h; path = breakpad/ExtractInfo.h; sourceTree = "<group>"; };
 		23C17091108B7E420083A2BF /* ExtractInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExtractInfo.cpp; path = breakpad/ExtractInfo.cpp; sourceTree = "<group>"; };
 		23C170D0108B824B0083A2BF /* call_stack.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = call_stack.cc; path = breakpad/external/src/processor/call_stack.cc; sourceTree = "<group>"; };
@@ -1125,7 +1128,6 @@
 		23C34EF810CC51DB00DABBD6 /* bindings-network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "bindings-network.h"; sourceTree = "<group>"; };
 		23C34F1F10CC546200DABBD6 /* angle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = angle.cpp; sourceTree = "<group>"; };
 		23C34F2010CC546200DABBD6 /* angle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = angle.h; sourceTree = "<group>"; };
-		23C34F2110CC546200DABBD6 /* bitarray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bitarray.h; sourceTree = "<group>"; };
 		23C34F2210CC546200DABBD6 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
 		23C34F2310CC546200DABBD6 /* compare.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = compare.h; sourceTree = "<group>"; };
 		23C34F2410CC546200DABBD6 /* GusCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GusCache.h; sourceTree = "<group>"; };
@@ -2224,7 +2226,6 @@
 			children = (
 				23C34F1F10CC546200DABBD6 /* angle.cpp */,
 				23C34F2010CC546200DABBD6 /* angle.h */,
-				23C34F2110CC546200DABBD6 /* bitarray.h */,
 				23C34F2210CC546200DABBD6 /* common.h */,
 				23C34F2310CC546200DABBD6 /* compare.h */,
 				23C34F2410CC546200DABBD6 /* GusCache.h */,
@@ -2241,6 +2242,8 @@
 				23C34F2F10CC546200DABBD6 /* vec.cpp */,
 				23C34F3010CC546200DABBD6 /* vec.h */,
 				23939B8810E7A10B0052FF1B /* FixedPointNumber.h */,
+				23BA8EE31129A79700963F72 /* Bitstream.h */,
+				23BA8EE41129A79700963F72 /* Bitstream.cpp */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3392,6 +3395,7 @@
 				2370F6A7110617C70097F7BA /* context.cpp in Sources */,
 				2370F7601106432C0097F7BA /* Sounds.cpp in Sources */,
 				2370F763110644320097F7BA /* Sounds.cpp in Sources */,
+				23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

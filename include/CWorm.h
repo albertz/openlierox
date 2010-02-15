@@ -743,12 +743,12 @@ public:
 	AngleDiff aimSpeed; // Useless to add setters and getters for this
 	Angle aimAngle;
 	
-	void sendWeaponMessage( int index, Net_BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
+	void sendWeaponMessage( int index, BitStream* data, Net_U8 repRules = Net_REPRULE_AUTH_2_ALL );
 	
 	virtual void makeReference();
 	virtual void finalize();
 	
-	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
+	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
 		
 protected:
 	//LuaReference luaReference;
@@ -857,7 +857,7 @@ public:
 	
 private:
 	
-	void addEvent(Net_BitStream* data, NetEvents event);
+	void addEvent(BitStream* data, NetEvents event);
 	
 	bool m_isAuthority;
 	Net_Node *m_node;

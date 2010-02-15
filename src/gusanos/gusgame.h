@@ -25,7 +25,7 @@ class WeaponType;
 class Particle;
 class PartType;
 class Explosion;
-class Net_BitStream;
+class BitStream;
 struct LuaEventDef;
 #ifndef DEDICATED_ONLY
 class Sound;
@@ -188,7 +188,7 @@ public:
 	CWormInputHandler* addPlayer( PLAYER_TYPE type, CWorm* worm );
 	CWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
 	//static Net_Node* getNode();
-	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* data, Net_ConnID connID);
+	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* data, Net_ConnID connID);
 	
 	void assignNetworkRole( bool authority );
 	void removeNode();
@@ -233,8 +233,8 @@ public:
 	
 	std::string const& getModName();
 	
-	static void addCRCs(Net_BitStream* req);
-	static bool checkCRCs(Net_BitStream& data);
+	static void addCRCs(BitStream* req);
+	static bool checkCRCs(BitStream& data);
 	
 	MessageQueue msg;
 	

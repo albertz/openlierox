@@ -43,14 +43,14 @@ Client::~Client()
 
 void Client::sendConsistencyInfo()
 {
-	std::auto_ptr<Net_BitStream> req(new Net_BitStream);
+	std::auto_ptr<BitStream> req(new BitStream);
 	req->addInt(Network::ConsistencyInfo, 8);
 	req->addInt(Network::protocolVersion, 32);
 	gusGame.addCRCs(req.get());
 	Net_sendData( network.getServerID(), req.release(), eNet_ReliableOrdered );
 }
 
-void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
+void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata)
 {
 	network.decConnCount();
 	switch( _reason )
@@ -119,7 +119,7 @@ void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Ne
 	DLOG("A connection was closed");
 }
 
-void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data) 
+void Client::Net_cbDataReceived( Net_ConnID id, BitStream& data) 
 {
 	int event = Encoding::decode(data, Network::ClientEvents::Max);
 	switch(event)
@@ -142,7 +142,7 @@ void Client::Net_cbDataReceived( Net_ConnID id, Net_BitStream& data)
 }
 
 
-void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id )
+void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id )
 {
 	// check the requested class
 	if ( _requested_class == CWorm::classID )

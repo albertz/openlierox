@@ -1006,7 +1006,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	//
 	CVec forw;
 	GetVecsFromAngle((float)a, &forw, NULL);
-	forw *= 32.0f;
+	forw *= tLXOptions->fCrosshairDistance;
 
 	VectorD2<int> cp = p;
 	cp.x += (int)forw.x;
@@ -1030,7 +1030,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 
 	// Find the right pic
 	int f = ((int)fFrame*7);
-	int ang = (int)( (fAngle+90)/151 * 7 );
+	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 	f += ang;
 
 
@@ -1144,7 +1144,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Copied from ::Draw
 		// TODO: a separate function for this
 		int f = ((int)fFrame*7);
-		int ang = (int)( (fAngle+90)/151 * 7 );
+		int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
 		f += ang;
 
 		// Draw the shadow

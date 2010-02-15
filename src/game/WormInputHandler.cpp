@@ -142,7 +142,7 @@ void CWormInputHandler::removeWorm()
 	}
 }
 
-void CWormInputHandler::addEvent(Net_BitStream* data, CWormInputHandler::NetEvents event)
+void CWormInputHandler::addEvent(BitStream* data, CWormInputHandler::NetEvents event)
 {
 #ifdef COMPACT_EVENTS
 	//	data->addInt(event, Encoding::bitsOf(CWormInputHandler::EVENT_COUNT - 1));
@@ -172,7 +172,7 @@ void CWormInputHandler::think()
 			eNet_NodeRole    remote_role;
 			Net_ConnID       conn_id;
 			
-			Net_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+			BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 			switch ( type ) {
 				case eNet_EventUser:
 					if ( data ) {
@@ -276,11 +276,11 @@ void CWormInputHandler::think()
 	}
 }
 
-void CWormInputHandler::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void CWormInputHandler::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node)
 		return;
-	Net_BitStream* data = new Net_BitStream;
+	BitStream* data = new BitStream;
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata) {
@@ -292,7 +292,7 @@ void CWormInputHandler::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net
 		m_node->sendEventDirect(mode, data, connID);
 }
 
-void CWormInputHandler::addActionStart(Net_BitStream* data, CWormInputHandler::BaseActions action)
+void CWormInputHandler::addActionStart(BitStream* data, CWormInputHandler::BaseActions action)
 {
 	addEvent(data, CWormInputHandler::ACTION_START);
 #ifdef COMPACT_ACTIONS
@@ -304,7 +304,7 @@ void CWormInputHandler::addActionStart(Net_BitStream* data, CWormInputHandler::B
 #endif
 }
 
-void CWormInputHandler::addActionStop(Net_BitStream* data, CWormInputHandler::BaseActions action)
+void CWormInputHandler::addActionStop(BitStream* data, CWormInputHandler::BaseActions action)
 {
 	addEvent(data, CWormInputHandler::ACTION_STOP);
 #ifdef COMPACT_ACTIONS
@@ -327,7 +327,7 @@ void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
 			return;
 		}
 		
-		Net_BitStream *data = new Net_BitStream;
+		BitStream *data = new BitStream;
 		addEvent(data, SELECT_WEAPONS );
 		
 		Encoding::encode(*data, weaps.size(), gusGame.options.maxWeapons+1 );
@@ -372,7 +372,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 	
 	if(authority) {
 		if(m_worm) {
-			Net_BitStream* announceData = new Net_BitStream();
+			BitStream* announceData = new BitStream();
 			announceData->addInt(m_worm->getID(), 8);
 			m_node->setAnnounceData(announceData);
 						
@@ -410,7 +410,7 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 
 void CWormInputHandler::sendSyncMessage( Net_ConnID id )
 {
-	Net_BitStream *data = new Net_BitStream;
+	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
 	data->addInt(stats->kills, 32);
 	data->addInt(stats->deaths, 32);
@@ -485,7 +485,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm -> actionStart(Worm::MOVELEFT);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, LEFT);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -497,7 +497,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm -> actionStart(Worm::MOVERIGHT);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, RIGHT);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -508,7 +508,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 			if ( m_worm ) {
 				m_worm -> actionStart(Worm::FIRE);
 				if ( m_node ) {
-					Net_BitStream *data = new Net_BitStream;
+					BitStream *data = new BitStream;
 					addActionStart(data, FIRE);
 					data->addInt(int(m_worm->getPointingAngle()), Angle::prec);
 					m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
@@ -522,7 +522,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm -> actionStart(Worm::JUMP);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, JUMP);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -534,7 +534,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm->actionStart(Worm::NINJAROPE);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, NINJAROPE);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -546,7 +546,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm->dig();
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, DIG);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -558,7 +558,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 				m_worm->respawn();
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStart(data, RESPAWN);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 				// I am sending the event to both the auth and the proxies, but I
@@ -583,7 +583,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 				m_worm -> actionStop(Worm::MOVELEFT);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStop(data, LEFT);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -595,7 +595,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 				m_worm -> actionStop(Worm::MOVERIGHT);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStop(data, RIGHT);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -607,7 +607,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 				m_worm -> actionStop(Worm::FIRE);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStop(data, FIRE);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -619,7 +619,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 				m_worm -> actionStop(Worm::JUMP);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStop(data, JUMP);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}
@@ -631,7 +631,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 				m_worm->actionStop(Worm::NINJAROPE);
 			}
 			if ( m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addActionStop(data, NINJAROPE);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH, data);
 			}

@@ -100,6 +100,7 @@ enum FeatureIndex {
 	FT_GameSpeed = 0,
 	FT_GameSpeedOnlyForProjs,
 	FT_ScreenShaking,
+	FT_FullAimAngle,
 	FT_MiniMap,
 	FT_SuicideDecreasesScore,
 	FT_TeamkillDecreasesScore,

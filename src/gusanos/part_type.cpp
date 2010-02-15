@@ -44,7 +44,10 @@ LuaReference PartType::metaTable;
 
 CGameObject* newParticle_requested( PartType* type, Vec pos_, Vec spd_, int dir, CWormInputHandler* owner, Angle angle )
 {
-	assert(type->needsNode);
+	if(!type->needsNode) {
+		errors << "newParticle_requested: type->needsNode = false" << endl;
+		// proceed anyway, I have no idea what I should do here otherwise
+	}
 	
 	Particle* particle = new Particle(type, pos_, spd_, dir, owner, angle);
 	particle->assignNetworkRole( false );

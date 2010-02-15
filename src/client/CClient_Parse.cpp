@@ -383,7 +383,9 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	DeprecatedGUI::bHost_Update = true;
 
 	if(!isReconnect) {
-		client->bHostAllowsStrafing = false;
+		// We always allow it on servers < 0.57 beta5 because 0.57b5 is the first version
+		// which has a setting for allowing/disallowing it.
+		client->bHostAllowsStrafing = client->getServerVersion() < OLXBetaVersion(0,57,5);
 	}
 	
 	if(tLX->iGameType == GME_JOIN)
@@ -1060,7 +1062,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if(!isReconnect)
 		client->StartLogging(num_worms);
 	
-	if(!isReconnect)
+	if(!isReconnect && !bDedicated)
 	{
 		client->SetupViewports();
 		// Init viewports once if we're playing with bot

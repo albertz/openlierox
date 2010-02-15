@@ -26,6 +26,8 @@ Feature featureArray[] = {
 			false, false,			OLXBetaVersion(0,58,1),	GIG_Advanced,	ALT_Advanced,				false),
 	Feature("ScreenShaking",		"Screen shaking", 		"Screen shaking when something explodes", 
 			true, 	false, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	true ),
+	Feature("FullAimAngle",			"Full aim angle", 		"Enables full aim angle, i.e. also allows to aim straight down", 
+			false, 	false, 			OLXRcVersion(0,58,3),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	false ),
 	Feature("MiniMap",				"Mini map", 		"Show mini map", 
 			true, 	true, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_Advanced,					false,	false ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The score descreases after a suicide.", 

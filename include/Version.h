@@ -102,4 +102,14 @@ inline Version OLXVersionBranchStart(int num, int subnum) {
 	return v;	
 }
 
+inline Version OLXRcVersion(int num, int subnum, int rcversion) {
+	Version v;
+	v.gamename = fullGameName;
+	v.num = num;
+	v.subnum = subnum;
+	v.subsubnum = rcversion;
+	v.releasetype = Version::RT_RC;
+	return v;
+}
+
 #endif

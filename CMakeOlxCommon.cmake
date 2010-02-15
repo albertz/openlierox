@@ -411,7 +411,7 @@ IF (NOT DEDICATED_ONLY)
 ENDIF (NOT DEDICATED_ONLY)
 
 IF(MINGW_CROSS_COMPILE)
-	SET(LIBS ${LIBS} SDLmain boost_system jpeg png vorbisenc vorbis ogg dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
+	SET(LIBS ${LIBS} SDLmain SDL boost_system jpeg png vorbisenc vorbis ogg dbghelp dsound dxguid wsock32 wininet wldap32 user32 gdi32 winmm version kernel32)
 ENDIF(MINGW_CROSS_COMPILE)
 
 ADD_DEFINITIONS('-D SYSTEM_DATA_DIR=\"${SYSTEM_DATA_DIR}\"')
