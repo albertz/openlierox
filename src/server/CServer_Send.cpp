@@ -378,10 +378,9 @@ bool GameServer::SendUpdate()
 	// Get the update packets for each worm that needs it and save them
 	//
 	std::list<CWorm *> worms_to_update;
-	CWorm *w = cWorms;
 	{
-		int i, j;
-		for (i = j = 0; j < iNumPlayers && i < MAX_WORMS; i++, w++)  {
+		CWorm *w = cWorms;
+		for (int i = 0; i < MAX_WORMS; i++, w++)  {
 			if (!w->isUsed())
 				continue;
 
@@ -389,8 +388,6 @@ bool GameServer::SendUpdate()
 			if (w->getClient())
 				if (!w->getClient()->getGameReady())
 					continue;
-
-			++j;
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
