@@ -74,6 +74,11 @@ struct NetControlIntern {
 	Packages packetsToSend;
 	Packages packetsReceived;
 	
+	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
+
+	typedef std::pair< SmartPointer<NetNodeIntern>, Net_ConnID > NewNodeInfo;
+	std::list<NewNodeInfo> newNodesInfo;
+	
 	struct Class {
 		std::string name;
 		Net_ClassID id;
@@ -91,8 +96,6 @@ struct NetControlIntern {
 	typedef std::map<Net_ClassID, Net_Node*> LocalNodes;
 	LocalNodes localNodes;
 		
-	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
-	
 	Net_NodeID getUnusedNodeId() {
 		if(nodes.size() == 0) return 2;
 		return nodes.rbegin()->first + 1;
@@ -126,12 +129,13 @@ struct NetControlIntern {
 
 struct NetNodeIntern {
 	NetNodeIntern() :
-	control(NULL), classId(INVALID_CLASS_ID), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
+	publicOwner(NULL), control(NULL), classId(INVALID_CLASS_ID), nodeId(INVALID_NODE_ID), role(eNet_RoleUndefined),
 	eventForInit(false), eventForRemove(false),
 	ownerConn(NetConnID_server()),
 	forthcomingReplicatorInterceptID(0), interceptor(NULL) {}
 	~NetNodeIntern() { clearReplicationSetup(); }
 
+	Net_Node* publicOwner;
 	SmartPointer<NetControlIntern> control;	
 	Net_ClassID classId;
 	Net_NodeID nodeId;
@@ -175,6 +179,7 @@ struct NetNodeIntern {
 		return "Node(" + itoa(nodeId) + "," + control->debugClassName(classId) + ")";
 	}
 	
+	bool isRegistered() { return nodeId != INVALID_NODE_ID; }
 };
 
 
@@ -456,7 +461,50 @@ static void handleNodeForUpdate(Net_Node* node, bool forceUpdate) {
 	}	
 }
 
+static void pushNodeInit(const NetControlIntern::NewNodeInfo& info) {
+	const SmartPointer<NetNodeIntern>& node = info.first;
+	const Net_ConnID connid = info.second;
+	
+	if(node->publicOwner == NULL || !node->isRegistered())
+		// Node was already deleted again in the meanwhile.
+		// This can happen, nothing wrong then. Just ignore.
+		return;
+	
+	if(node->interceptor)
+		node->interceptor->outPreReplicateNode(node->publicOwner, (connid == node->ownerConn) ? eNet_RoleOwner : eNet_RoleProxy);
+	
+	NetControlIntern::DataPackage& p = node->control->pushPackageToSend();
+	p.connID = connid;
+	p.sendMode = eNet_ReliableOrdered;
+	p.repRules = Net_REPRULE_AUTH_2_ALL;
+	p.type = NetControlIntern::DataPackage::GPT_NodeInit;
+	p.node = node;
+	p.data.addInt(node->classId, 32);
+	p.data.addInt(node->ownerConn, 32);
+	
+	bool announce = node->control->classes[node->classId].flags & Net_CLASSFLAG_ANNOUNCEDATA;
+	if(node->announceData.get() && !announce)
+		warnings << "node " << node->debugStr() << " has announce data but class doesnt have flag set" << endl;
+	else if(!node->announceData.get() && announce)
+		warnings << "node " << node->debugStr() << " has no announce data but class requests it" << endl;
+	else if(node->announceData.get() && announce)
+		p.data.addBitStream(*node->announceData.get());
+	
+	if(node->eventForInit) {
+		std::vector<CServerConnection*> conns = getConnsForId(p.connID);
+		for(size_t i = 0; i < conns.size(); ++i)
+			node->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(NetConnID_conn(conns[i])) );
+	}
+	
+	handleNodeForUpdate(node->publicOwner, true);	
+}
+
 void Net_Control::Net_processOutput() {
+	// send info about new nodes
+	for(std::list<NetControlIntern::NewNodeInfo>::iterator i = intern->newNodesInfo.begin(); i != intern->newNodesInfo.end(); ++i)
+		pushNodeInit(*i);
+	intern->newNodesInfo.clear();
+	
 	// goes through the nodes and push Node-updates as needed
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
 		Net_Node* node = i->second;
@@ -493,33 +541,7 @@ static void doNodeUpdate(Net_Node* node, BitStream& bs, Net_ConnID cid) {
 
 
 static void tellClientAboutNode(Net_Node* node, Net_ConnID connid) {
-	if(node->intern->interceptor)
-		node->intern->interceptor->outPreReplicateNode(node, (connid == node->intern->ownerConn) ? eNet_RoleOwner : eNet_RoleProxy);
-	
-	NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
-	p.connID = connid;
-	p.sendMode = eNet_ReliableOrdered;
-	p.repRules = Net_REPRULE_AUTH_2_ALL;
-	p.type = NetControlIntern::DataPackage::GPT_NodeInit;
-	p.node = node->intern;
-	p.data.addInt(node->intern->classId, 32);
-	p.data.addInt(node->intern->ownerConn, 32);
-	
-	bool announce = node->intern->control->classes[node->intern->classId].flags & Net_CLASSFLAG_ANNOUNCEDATA;
-	if(node->intern->announceData.get() && !announce)
-		warnings << "node " << node->intern->debugStr() << " has announce data but class doesnt have flag set" << endl;
-	else if(!node->intern->announceData.get() && announce)
-		warnings << "node " << node->intern->debugStr() << " has no announce data but class requests it" << endl;
-	else if(node->intern->announceData.get() && announce)
-		p.data.addBitStream(*node->intern->announceData.get());
-	
-	if(node->intern->eventForInit) {
-		std::vector<CServerConnection*> conns = getConnsForId(p.connID);
-		for(size_t i = 0; i < conns.size(); ++i)
-			node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeInit(NetConnID_conn(conns[i])) );
-	}
-	
-	handleNodeForUpdate(node, true);
+	node->intern->control->newNodesInfo.push_back( std::make_pair(node->intern, connid) );
 }
 
 static bool unregisterNode(Net_Node* node);
@@ -798,10 +820,12 @@ template <> void SmartPointer_ObjectDeinit<NetNodeIntern> ( NetNodeIntern * obj 
 
 Net_Node::Net_Node() {
 	intern = new NetNodeIntern();
+	intern->publicOwner = this;
 }
 
 Net_Node::~Net_Node() {
 	unregisterNode(this);
+	intern->publicOwner = NULL;
 	intern = NULL;
 }
 
@@ -883,7 +907,7 @@ void Net_Node::applyForNetLevel(int something) {}
 void Net_Node::removeFromNetLevel(int something) {}
 
 bool Net_Node::isNodeRegistered() {
-	return intern->nodeId != INVALID_NODE_ID;
+	return intern->isRegistered();
 }
 
 Net_ConnID Net_Node::getOwner() {
