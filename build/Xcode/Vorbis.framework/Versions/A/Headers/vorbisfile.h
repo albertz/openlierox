@@ -43,6 +43,9 @@ typedef struct {
   long   (*tell_func)  (void *datasource);
 } ov_callbacks;
 
+// These callbacks are not used. And why are they static anyway?
+#if 0
+	
 /* a few sets of convenient callbacks, especially for use under
  * Windows where ov_open_callbacks() should always be used instead of
  * ov_open() to avoid problems with incompatable crt.o version linking
@@ -81,6 +84,8 @@ static ov_callbacks OV_CALLBACKS_STREAMONLY_NOCLOSE = {
   (long (*)(void *))                            NULL
 };
 
+#endif
+	
 #define  NOTOPEN   0
 #define  PARTOPEN  1
 #define  OPENED    2
