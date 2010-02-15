@@ -56,46 +56,28 @@ void CClientNetEngine::SendWormDetails()
 		return;
 
 	if(!game.gameScript()->gusEngineUsed()) {		
-		CBytestream bs;
-		uint i;
-
-		// If all my worms are dead, don't send
-		bool Alive = false;
-		for(i=0;i<client->iNumWorms;i++) {
-			if(client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive()) {
-				Alive = true;
-				break;
-			}
-		}
-
-		if(!Alive)
-			return;
-
-
 		// Check if we need to write the state update
 		bool update = false;
-		for(i = 0; i < client->iNumWorms; i++)
-			if (client->cLocalWorms[i] && client->cLocalWorms[i]->checkPacketNeeded())  {
+		for(uint i = 0; i < client->iNumWorms; i++)
+			if (client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive() && client->cLocalWorms[i]->checkPacketNeeded())  {
 				update = true;
 				break;
 			}
 
-		// No update, just quit
-		if (!update)
-			return;
+		if(update) {
+			// Write the update
+			CBytestream bs;
+			bs.writeByte(C2S_UPDATE);
 
+			for(uint i = 0; i < client->iNumWorms; i++)
+				if(client->cLocalWorms[i])
+					client->cLocalWorms[i]->writePacket(&bs, false, NULL);
 
-		// Write the update
-		bs.writeByte(C2S_UPDATE);
+			client->bsUnreliable.Append(&bs);
 
-		for(i = 0; i < client->iNumWorms; i++)
-			if(client->cLocalWorms[i])
-				client->cLocalWorms[i]->writePacket(&bs, false, NULL);
-
-		client->bsUnreliable.Append(&bs);
+			client->fLastUpdateSent = tLX->currentTime;
+		}
 	}
-
-	client->fLastUpdateSent = tLX->currentTime;
 }
 
 
