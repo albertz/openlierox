@@ -30,6 +30,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
 #include "OLXConsole.h"
+#include "game/Game.h"
 
 
 
@@ -54,46 +55,47 @@ void CClientNetEngine::SendWormDetails()
 	   && !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
-	
-	CBytestream bs;
-	uint i;
+	if(!game.gameScript()->gusEngineUsed()) {		
+		CBytestream bs;
+		uint i;
 
-	// If all my worms are dead, don't send
-	bool Alive = false;
-	for(i=0;i<client->iNumWorms;i++) {
-		if(client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive()) {
-			Alive = true;
-			break;
+		// If all my worms are dead, don't send
+		bool Alive = false;
+		for(i=0;i<client->iNumWorms;i++) {
+			if(client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive()) {
+				Alive = true;
+				break;
+			}
 		}
+
+		if(!Alive)
+			return;
+
+
+		// Check if we need to write the state update
+		bool update = false;
+		for(i = 0; i < client->iNumWorms; i++)
+			if (client->cLocalWorms[i] && client->cLocalWorms[i]->checkPacketNeeded())  {
+				update = true;
+				break;
+			}
+
+		// No update, just quit
+		if (!update)
+			return;
+
+
+		// Write the update
+		bs.writeByte(C2S_UPDATE);
+
+		for(i = 0; i < client->iNumWorms; i++)
+			if(client->cLocalWorms[i])
+				client->cLocalWorms[i]->writePacket(&bs, false, NULL);
+
+		client->bsUnreliable.Append(&bs);
 	}
 
-	if(!Alive)
-		return;
-
-
-	// Check if we need to write the state update
-	bool update = false;
-	for(i = 0; i < client->iNumWorms; i++)
-		if (client->cLocalWorms[i] && client->cLocalWorms[i]->checkPacketNeeded())  {
-			update = true;
-			break;
-		}
-
-	// No update, just quit
-	if (!update)
-		return;
-
-
 	client->fLastUpdateSent = tLX->currentTime;
-
-	// Write the update
-	bs.writeByte(C2S_UPDATE);
-
-	for(i = 0; i < client->iNumWorms; i++)
-		if(client->cLocalWorms[i])
-			client->cLocalWorms[i]->writePacket(&bs, false, NULL);
-
-	client->bsUnreliable.Append(&bs);
 }
 
 
