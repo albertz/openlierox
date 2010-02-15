@@ -86,21 +86,9 @@ void LuaContext::log(std::ostream& str)
 	str << info.source << ":" << info.currentline << ": ";
 }
 
-LuaContext::LuaContext()
-{
-	init();
-}
-
-LuaContext::LuaContext(LuaContext const& b)
-: m_State(b.m_State)
-{
-}
-
-LuaContext::LuaContext(lua_State* state_)
-: m_State(state_)
-{
-
-}
+LuaContext::LuaContext() : m_State(NULL) {}
+LuaContext::LuaContext(LuaContext const& b) : m_State(b.m_State) {}
+LuaContext::LuaContext(lua_State* state_) : m_State(state_) {}
 
 namespace
 {
@@ -817,6 +805,7 @@ void LuaContext::close()
 {
 	if(m_State)
 		lua_close(m_State);
+	m_State = NULL;
 }
 
 LuaContext::~LuaContext()

@@ -362,6 +362,7 @@ bool GusGame::init()
 	
 	scriptLocator.registerLoader(&LuaLoader::instance);
 	
+	lua.init();
 	LuaBindings::init();
 
 	m_defaultPath = "Gusanos";
