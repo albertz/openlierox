@@ -1755,6 +1755,11 @@ int CMap::PlaceGreenDirt(CVec pos)
 		return 0;
 	}
 	
+	if(gusIsLoaded()) {
+		// TODO: ...
+		return 0;
+	}
+	
  	int dx,dy, sx,sy;
 	int x,y;
 	int w,h;
