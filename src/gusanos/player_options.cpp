@@ -11,7 +11,7 @@ using namespace std;
 PlayerOptions::PlayerOptions(std::string const& name_)
 		: name(name_),
 		uniqueID(0),
-		team(-1),
+		team((unsigned int)-1),
 		m_nameChanged(false),
 		m_colorChanged(false)
 {
