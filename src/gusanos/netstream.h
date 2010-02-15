@@ -94,58 +94,15 @@ enum eNet_NetResult {
 	eNet_NetEnabled
 };
 
-
-class Net_BitStream {
-private:
-	std::vector<bool> m_data;
-	size_t m_readPos;  // in bits
-
-	void growIfNeeded(size_t addBits);
-	void writeBits(const std::vector<bool>& bits);
-	std::vector<bool> readBits(size_t bitCount);
-	void reset();
-
-	bool testBool();
-	bool testInt();
-	bool testFloat();
-	bool testStream();
-	bool testString();
-	bool testSafety();
-public:
-	Net_BitStream() : m_readPos(0) {}
-	Net_BitStream(const std::string& rawdata);
-
-	void addBool(bool);
-	void addInt(int n, int bits);
-	void addSignedInt(int n, int bits);
-	void addFloat(float f, int bits);
-	void addBitStream(const Net_BitStream& str);
-	void addString(const std::string&);
-	
-	bool getBool();
-	int getInt(int bits);
-	int getSignedInt(int bits);
-	float getFloat(int bits);
-	std::string getString();
-	
-	Net_BitStream* Duplicate();
-	bool runTests();
-	
-	const std::vector<bool>& data() const { return m_data; }
-	void resetPos() { m_readPos = 0; }
-	void setBitPos(size_t p) { m_readPos = p; }
-	void skipBits(size_t b) { m_readPos += b; }
-	size_t bitPos() const { return m_readPos; }
-	size_t bitSize() const { return m_data.size(); }
-	size_t restBitSize() const { return m_data.size() - m_readPos; }
-};
-
 struct Net_FileTransInfo {
 	std::string path;
 	int bps;
 	size_t transferred;
 	size_t size;
 };
+
+class Net_BitStream;
+class CBytestream;
 
 class CServerConnection;
 Net_ConnID NetConnID_server();
@@ -202,7 +159,6 @@ struct Net_Node : DontCopyTag {
 	std::string debugName();
 };
 
-class CBytestream;
 struct NetControlIntern;
 template <> void SmartPointer_ObjectDeinit<NetControlIntern> ( NetControlIntern * obj );
 

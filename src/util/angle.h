@@ -6,6 +6,7 @@
 #include <iostream>
 #include "gusanos/netstream.h"
 #include <stdexcept>
+#include "util/Bitstream.h"
 
 template<class T>
 class BasicAngle

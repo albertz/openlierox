@@ -1,6 +1,7 @@
 #include "stl_str_replicator.h"
 
 #include "netstream.h"
+#include "util/Bitstream.h"
 #include <string>
 #include <cassert>
 

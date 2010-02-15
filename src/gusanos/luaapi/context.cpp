@@ -11,6 +11,7 @@ using std::cerr;
 using std::endl;
 
 #include "gusanos/netstream.h"
+#include "util/Bitstream.h"
 #include <cmath>
 #include <map>
 #include <set>
