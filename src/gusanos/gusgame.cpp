@@ -690,19 +690,21 @@ bool GusGame::loadMod(bool doLoadWeapons)
 
 void GusGame::runInitScripts()
 {
-	Script* modScript = scriptLocator.load(m_modName);
-	if(!modScript) {
-		notes << "init script " << m_modName << ".lua not found, trying common.lua" << endl;
-		modScript = scriptLocator.load("common");
-		if(!modScript) notes << "common.lua also not found" << endl;
-	}
-	if(modScript)
 	{
-		notes << "running " << modScript->table << ".init" << endl;
-		LuaReference ref = modScript->createFunctionRef("init");
-		(lua.call(ref))();
+		Script* modScript = scriptLocator.load(m_modName);
+		if(!modScript) {
+			notes << "init script " << m_modName << ".lua not found, trying common.lua" << endl;
+			modScript = scriptLocator.load("common");
+			if(!modScript) notes << "common.lua also not found" << endl;
+		}
+		if(modScript)
+		{
+			notes << "running " << modScript->table << ".init" << endl;
+			LuaReference ref = modScript->createFunctionRef("init");
+			(lua.call(ref))();
+		}
 	}
-
+	
 	if(isLevelLoaded()) {
 		const std::string mapscript = "map_" + level().getName();
 		Script* levelScript = scriptLocator.load(mapscript);
