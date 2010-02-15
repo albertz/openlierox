@@ -60,6 +60,10 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 
 		void outPreReplicateNode(Net_Node *_node, eNet_NodeRole _remote_role)
 		{
+			if(partTypeList.size() == 0) {
+				errors << "ParticleInterceptor:outPreReplicateNode for " << _node->debugName() << ": partTypeList is empty" << endl;
+				return;
+			}
 			Net_BitStream *type = new Net_BitStream;
 			Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
 			if(parent->m_owner)
