@@ -449,7 +449,7 @@ bool GameServer::SendUpdate()
 				byte num_worms = 0;
 
 				// Send all the _other_ worms details
-				if(!game.gameScript()->gusEngineUsed()) {
+				{
 					std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
 					for(; w_it != worms_to_update.end(); w_it++) {
 						CWorm* w = *w_it;
