@@ -23,9 +23,6 @@ inline unsigned int bitsOf(unsigned long n)
 	return bits;
 }
 
-/*
-inline void encode(Net_BitStream& stream, int i, int count)
-*/
 inline void encode(Net_BitStream& stream, int i, int count)
 {
 	if(count <= 0) {
