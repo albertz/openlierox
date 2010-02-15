@@ -1458,7 +1458,6 @@ void DrawImageScaleHalfAdv(SDL_Surface* bmpDest, SDL_Surface* bmpSrc, int sx, in
 	Uint8 *srcrow_1 = GetPixelAddr(bmpSrc, sx, sy);
 	Uint8 *srcrow_2 = GetPixelAddr(bmpSrc, sx, sy + 1);
 	Uint8 *dstrow = GetPixelAddr(bmpDest, dx, dy);
-	const Uint32 key = bmpDest->format->colorkey;
 	PixelPutAlpha& put = getPixelAlphaPutFunc(bmpDest);
 	const bool usekey = (bmpSrc->flags & SDL_SRCCOLORKEY) == SDL_SRCCOLORKEY;
 
