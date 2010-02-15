@@ -37,9 +37,9 @@ public:
 	
 	bool checkState();
 	
-	void packData(Net_BitStream *_stream);
+	void packData(BitStream *_stream);
 	
-	void unpackData(Net_BitStream *_stream, bool _store);
+	void unpackData(BitStream *_stream, bool _store);
 		
 	void* peekData();
 	

@@ -13,7 +13,7 @@
 #include <vector>
 #include <string>
 
-class Net_BitStream {
+class BitStream {
 private:
 	std::vector<bool> m_data;
 	size_t m_readPos;  // in bits
@@ -30,14 +30,14 @@ private:
 	bool testString();
 	bool testSafety();
 public:
-	Net_BitStream() : m_readPos(0) {}
-	Net_BitStream(const std::string& rawdata);
+	BitStream() : m_readPos(0) {}
+	BitStream(const std::string& rawdata);
 	
 	void addBool(bool);
 	void addInt(int n, int bits);
 	void addSignedInt(int n, int bits);
 	void addFloat(float f, int bits);
-	void addBitStream(const Net_BitStream& str);
+	void addBitStream(const BitStream& str);
 	void addString(const std::string&);
 	
 	bool getBool();
@@ -46,7 +46,7 @@ public:
 	float getFloat(int bits);
 	std::string getString();
 	
-	Net_BitStream* Duplicate();
+	BitStream* Duplicate();
 	bool runTests();
 	
 	const std::vector<bool>& data() const { return m_data; }
@@ -58,7 +58,7 @@ public:
 	size_t restBitSize() const { return m_data.size() - m_readPos; }
 };
 
-inline char getCharFromBits(Net_BitStream& bs) {
+inline char getCharFromBits(BitStream& bs) {
 	return (char) (unsigned char) bs.getInt(8);
 }
 

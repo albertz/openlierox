@@ -32,7 +32,7 @@ bool VectorReplicator::checkState()
 #endif
 }
 
-void VectorReplicator::packData(Net_BitStream *_stream)
+void VectorReplicator::packData(BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 	/*
@@ -48,7 +48,7 @@ void VectorReplicator::packData(Net_BitStream *_stream)
 #endif
 }
 
-void VectorReplicator::unpackData(Net_BitStream *_stream, bool _store)
+void VectorReplicator::unpackData(BitStream *_stream, bool _store)
 {
 	if (_store) {
 #ifdef COMPACT_FLOATS

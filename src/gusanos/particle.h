@@ -50,7 +50,7 @@ public:
 	void setAlphaFade(int frames, int dest);
 #endif
 	void customEvent( size_t index );
-	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID);
+	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
 	//virtual LuaReference getLuaReference();
 	//virtual void pushLuaReference();
 	void damage(float amount, CWormInputHandler* damager );

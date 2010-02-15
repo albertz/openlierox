@@ -76,7 +76,7 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	m_interceptor = new NetWormInterceptor( this );
 	m_node->setReplicationInterceptor(m_interceptor);
 
-	Net_BitStream* announceData = new Net_BitStream();
+	BitStream* announceData = new BitStream();
 	announceData->addInt(getID(), 8);
 	m_node->setAnnounceData(announceData);
 	
@@ -113,7 +113,7 @@ void CWorm::NetWorm_Shutdown()
 	if(m_interceptor) delete m_interceptor; m_interceptor = NULL;
 }
 
-void CWorm::addEvent(Net_BitStream* data, CWorm::NetEvents event)
+void CWorm::addEvent(BitStream* data, CWorm::NetEvents event)
 {
 #ifdef COMPACT_EVENTS
 	//data->addInt(event, Encoding::bitsOf(NetWorm::EVENT_COUNT - 1));
@@ -142,7 +142,7 @@ void CWorm::NetWorm_think()
 		eNet_NodeRole    remote_role;
 		Net_ConnID       conn_id;
 		
-		Net_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+		BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 		switch(type)
 		{
 		case eNet_EventUser:
@@ -272,10 +272,10 @@ void CWorm::NetWorm_think()
 	}
 }
 
-void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) return;
-	Net_BitStream* data = new Net_BitStream;
+	BitStream* data = new BitStream;
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata)
@@ -290,7 +290,7 @@ void CWorm::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, N
 
 void CWorm::correctOwnerPosition()
 {
-	Net_BitStream *data = new Net_BitStream;
+	BitStream *data = new BitStream;
 	addEvent(data, PosCorrection);
 	/*
 	data->addFloat(pos.x,32); // Maybe this packet is too heavy...
@@ -306,7 +306,7 @@ void CWorm::correctOwnerPosition()
 
 void CWorm::sendSyncMessage( Net_ConnID id )
 {
-	Net_BitStream *data = new Net_BitStream;
+	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
 	data->addBool(getAlive());
 	data->addBool(m_ninjaRope->active);
@@ -327,9 +327,9 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }
 
-void CWorm::sendWeaponMessage( int index, Net_BitStream* weaponData, Net_U8 repRules )
+void CWorm::sendWeaponMessage( int index, BitStream* weaponData, Net_U8 repRules )
 {
-	Net_BitStream *data = new Net_BitStream;
+	BitStream *data = new BitStream;
 	addEvent(data, WeaponMessage);
 	//data->addInt(index, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, index, m_weapons.size());

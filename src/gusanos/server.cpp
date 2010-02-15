@@ -32,7 +32,7 @@ Server::Server()
 Server::~Server()
 {}
 
-void Server::Net_cbDataReceived( Net_ConnID  _id, Net_BitStream &_data)
+void Server::Net_cbDataReceived( Net_ConnID  _id, BitStream &_data)
 {
 	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
 	switch( event ) {
@@ -67,7 +67,7 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 	network.sendEncodedLuaEvents(_id);
 }
 
-void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata)
+void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
 	for ( std::vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {

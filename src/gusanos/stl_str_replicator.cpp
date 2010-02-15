@@ -21,12 +21,12 @@ bool STLStringReplicator::checkState()
 	return s;
 }
 
-void STLStringReplicator::packData(Net_BitStream *_stream)
+void STLStringReplicator::packData(BitStream *_stream)
 {
 	_stream->addString( m_ptr->c_str() );
 }
 
-void STLStringReplicator::unpackData(Net_BitStream *_stream, bool _store)
+void STLStringReplicator::unpackData(BitStream *_stream, bool _store)
 {
 	if (_store) {
 		*m_ptr = _stream->getString();

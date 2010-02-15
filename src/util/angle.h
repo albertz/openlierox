@@ -225,12 +225,12 @@ class BasicAngleReplicator : public Net_ReplicatorBasic
 			return res;
 		}
 
-		void packData(Net_BitStream *stream)
+		void packData(BitStream *stream)
 		{
 			stream->addInt(*m_ptr, Type::prec);
 		}
 
-		void unpackData(Net_BitStream* stream, bool store)
+		void unpackData(BitStream* stream, bool store)
 		{
 			Type angle(T(stream->getInt(Type::prec)));
 			if(store)
@@ -239,7 +239,7 @@ class BasicAngleReplicator : public Net_ReplicatorBasic
 
 		void* peekData()
 		{
-			Net_BitStream* stream = getPeekStream();
+			BitStream* stream = getPeekStream();
 			assert(stream);
 
 			Type* ret = new Type(T(stream->getInt(Type::prec)));

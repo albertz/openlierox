@@ -95,7 +95,7 @@ void Weapon::think( bool isFocused, size_t index )
 				if ( m_owner->getRole() != eNet_RoleProxy || !m_type->syncHax ) {
 					m_type->primaryShoot->run(m_owner, NULL, NULL, this );
 					if ( m_owner->getRole() == eNet_RoleAuthority && m_type->syncHax ) {
-						Net_BitStream data;
+						BitStream data;
 						Encoding::encode(data, SHOOT, GameEventsCount);
 						m_owner->sendWeaponMessage( index, &data, Net_REPRULE_AUTH_2_PROXY );
 					}
@@ -111,14 +111,14 @@ void Weapon::think( bool isFocused, size_t index )
 				outOfAmmo();
 
 				if ( network.isHost() && m_type->syncReload ) {
-					Net_BitStream data;
+					BitStream data;
 					//data->addInt( OUTOFAMMO , 8);
 					Encoding::encode(data, OUTOFAMMO, GameEventsCount);
 					m_owner->sendWeaponMessage( index, &data );
 					sentOutOfAmmo = true;
 				}
 			} else {
-				Net_BitStream data;
+				BitStream data;
 				Encoding::encode(data, OutOfAmmoCheck, GameEventsCount);
 				m_owner->sendWeaponMessage( index, &data, Net_REPRULE_OWNER_2_AUTH );
 				//std::cout << "sent check plz message" << endl;
@@ -135,7 +135,7 @@ void Weapon::think( bool isFocused, size_t index )
 				reload();
 
 				if ( network.isHost() && m_type->syncReload ) {
-					Net_BitStream data;
+					BitStream data;
 					//data->addInt( RELOADED , 8);
 					Encoding::encode(data, RELOADED, GameEventsCount);
 					m_owner->sendWeaponMessage( index, &data );
@@ -149,7 +149,7 @@ void Weapon::think( bool isFocused, size_t index )
 		outOfAmmoCheck = false;
 		if ( ammo > 0 ) {
 			//std::cout << "Sending correction" << endl;
-			Net_BitStream data;
+			BitStream data;
 			Encoding::encode(data, AmmoCorrection, GameEventsCount);
 			Encoding::encode(data, ammo, m_type->ammo+1);
 			m_owner->sendWeaponMessage(index, &data, Net_REPRULE_AUTH_2_OWNER );
@@ -199,7 +199,7 @@ void Weapon::drawTop(ALLEGRO_BITMAP* where,int x, int y)
 }
 #endif
 
-void Weapon::recieveMessage( Net_BitStream* data )
+void Weapon::recieveMessage( BitStream* data )
 {
 	GameEvents event = static_cast<GameEvents>(Encoding::decode(*data, GameEventsCount));
 	switch ( event ) {

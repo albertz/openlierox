@@ -60,7 +60,7 @@ struct NetControlIntern {
 		Net_ConnID connID; // target or source
 		SmartPointer<NetNodeIntern> node; // node this is about; this is used for sending
 		Net_NodeID nodeId; // node this is about; this is used for receiving; NULL iff !nodeMustBeSet()
-		Net_BitStream data;
+		BitStream data;
 		eNet_SendMode sendMode;
 		Net_RepRules repRules; // if node is set, while sending, these are checked
 		
@@ -137,7 +137,7 @@ struct NetNodeIntern {
 	Net_NodeID nodeId;
 	eNet_NodeRole role;
 	bool eventForInit, eventForRemove;
-	std::auto_ptr<Net_BitStream> announceData;
+	std::auto_ptr<BitStream> announceData;
 	Net_ConnID ownerConn;
 	
 	typedef std::list< std::pair<Net_Replicator*,bool> > ReplicationSetup;
@@ -156,12 +156,12 @@ struct NetNodeIntern {
 		eNet_Event ev;
 		eNet_NodeRole role;
 		Net_ConnID cid;
-		Net_BitStream stream;
+		BitStream stream;
 		Event() : ev(eNet_Event(-1)), role(eNet_RoleUndefined), cid(INVALID_CONN_ID) {}
-		Event(eNet_Event _ev, eNet_NodeRole _r, Net_ConnID _cid, const Net_BitStream& _s) : ev(_ev), role(_r), cid(_cid), stream(_s) {}
-		static Event NodeInit(Net_ConnID c) { return Event(eNet_EventInit, eNet_RoleAuthority /* TODO? */, c, Net_BitStream()); }
-		static Event NodeRemoved(Net_ConnID c) { return Event(eNet_EventRemoved, eNet_RoleAuthority /* TODO? */, c, Net_BitStream()); }
-		static Event User(const Net_BitStream& s, Net_ConnID c) { return Event(eNet_EventUser, eNet_RoleAuthority /* TODO? */, c, s); }
+		Event(eNet_Event _ev, eNet_NodeRole _r, Net_ConnID _cid, const BitStream& _s) : ev(_ev), role(_r), cid(_cid), stream(_s) {}
+		static Event NodeInit(Net_ConnID c) { return Event(eNet_EventInit, eNet_RoleAuthority /* TODO? */, c, BitStream()); }
+		static Event NodeRemoved(Net_ConnID c) { return Event(eNet_EventRemoved, eNet_RoleAuthority /* TODO? */, c, BitStream()); }
+		static Event User(const BitStream& s, Net_ConnID c) { return Event(eNet_EventUser, eNet_RoleAuthority /* TODO? */, c, s); }
 	};
 	
 	typedef std::list<Event> Events;
@@ -194,11 +194,11 @@ Net_Control::~Net_Control() {
 }
 
 void Net_Control::Shutdown() {}
-void Net_Control::Net_disconnectAll(Net_BitStream*) {}
-void Net_Control::Net_Disconnect(Net_ConnID id, Net_BitStream*) {}
+void Net_Control::Net_disconnectAll(BitStream*) {}
+void Net_Control::Net_Disconnect(Net_ConnID id, BitStream*) {}
 
 
-static std::string rawFromBits(Net_BitStream& bits) {
+static std::string rawFromBits(BitStream& bits) {
 	size_t oldPos = bits.bitPos();
 	bits.resetPos();
 	std::string ret;
@@ -211,11 +211,11 @@ static std::string rawFromBits(Net_BitStream& bits) {
 	return ret;
 }
 
-static void writeEliasGammaNr(Net_BitStream& bits, size_t n) {
+static void writeEliasGammaNr(BitStream& bits, size_t n) {
 	Encoding::encodeEliasGamma(bits, n + 1);
 }
 
-static size_t readEliasGammaNr(Net_BitStream& bits) {
+static size_t readEliasGammaNr(BitStream& bits) {
 	size_t n = Encoding::decodeEliasGamma(bits) - 1;
 	if(n == size_t(-1)) {
 		errors << "readEliasGammaNr: stream reached end" << endl;
@@ -225,13 +225,13 @@ static size_t readEliasGammaNr(Net_BitStream& bits) {
 }
 
 static void writeEliasGammaNr(CBytestream& bs, size_t n) {
-	Net_BitStream bits;
+	BitStream bits;
 	writeEliasGammaNr(bits, n);
 	bs.writeData(rawFromBits(bits));
 }
 
 static size_t readEliasGammaNr(CBytestream& bs) {
-	Net_BitStream bits(bs.data().substr(bs.GetPos()));
+	BitStream bits(bs.data().substr(bs.GetPos()));
 	size_t n = readEliasGammaNr(bits);
 	bs.Skip( (bits.bitPos() + 7) / 8 );
 	return n;
@@ -256,7 +256,7 @@ void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& c
 	nodeId = nodeMustBeSet() ? readEliasGammaNr(bs) : INVALID_NODE_ID;
 	node = NULL;
 	size_t len = readEliasGammaNr(bs);
-	data = Net_BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
+	data = BitStream( bs.getRawData( bs.GetPos(), bs.GetPos() + len ) );
 	bs.Skip(len);
 }
 
@@ -386,7 +386,7 @@ void Net_Control::olxHandleClientDisconnect(Net_ConnID cl) {
 	}
 }
 
-static void pushNodeUpdate(Net_Node* node, const std::vector<Net_BitStream>& replData, Net_RepRules rule) {
+static void pushNodeUpdate(Net_Node* node, const std::vector<BitStream>& replData, Net_RepRules rule) {
 	NetControlIntern::DataPackage p;
 	p.connID = INVALID_CONN_ID;
 	p.sendMode = eNet_ReliableOrdered; // TODO ?
@@ -419,7 +419,7 @@ static void handleNodeForUpdate(Net_Node* node, bool forceUpdate) {
 		if(!node->intern->interceptor->outPreUpdate(node, eNet_RoleProxy))
 			return;
 
-	std::vector<Net_BitStream> replData;
+	std::vector<BitStream> replData;
 	replData.resize(node->intern->replicationSetup.size());
 	
 	size_t count = 0;
@@ -464,7 +464,7 @@ void Net_Control::Net_processOutput() {
 	}
 }
 
-static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
+static void doNodeUpdate(Net_Node* node, BitStream& bs, Net_ConnID cid) {
 	size_t i = 0;
 	for(NetNodeIntern::ReplicationSetup::iterator j = node->intern->replicationSetup.begin(); j != node->intern->replicationSetup.end(); ++j, ++i) {
 		if( /* skip mark */ !bs.getBool()) continue;
@@ -477,7 +477,7 @@ static void doNodeUpdate(Net_Node* node, Net_BitStream& bs, Net_ConnID cid) {
 				
 		bool store = true;
 		if(node->intern->interceptor) {
-			Net_BitStream peekStream(bs);
+			BitStream peekStream(bs);
 			replicator->peekStream = &peekStream;
 
 			store = node->intern->interceptor->inPreUpdateItem(node, cid, eNet_RoleAuthority, replicator);
@@ -712,7 +712,7 @@ void Net_Control::Net_ConnectToServer() {
 	p.repRules = Net_REPRULE_NONE; // this is anyway ignored here
 }
 
-void Net_Control::Net_sendData(Net_ConnID id, Net_BitStream* s, eNet_SendMode m) {
+void Net_Control::Net_sendData(Net_ConnID id, BitStream* s, eNet_SendMode m) {
 	NetControlIntern::DataPackage& p = intern->pushPackageToSend();
 	p.connID = id;
 	p.sendMode = m;
@@ -808,7 +808,7 @@ Net_Node::~Net_Node() {
 
 eNet_NodeRole Net_Node::getRole() { return intern->role; }
 void Net_Node::setOwner(Net_ConnID cid) { intern->ownerConn = cid; }
-void Net_Node::setAnnounceData(Net_BitStream* s) { intern->announceData = std::auto_ptr<Net_BitStream>(s); }
+void Net_Node::setAnnounceData(BitStream* s) { intern->announceData = std::auto_ptr<BitStream>(s); }
 Net_NodeID Net_Node::getNetworkID() { return intern->nodeId; }
 
 static void tellAllClientsAboutNode(Net_Node* node) {
@@ -909,7 +909,7 @@ void Net_Node::setEventNotification(bool eventForInit /* eNet_EventInit */, bool
 	intern->eventForRemove = eventForRemove;
 }
 
-static void __sendNodeEvent(Net_ConnID connId, eNet_SendMode m, Net_RepRules rules, Net_Node* node, Net_BitStream& s) {
+static void __sendNodeEvent(Net_ConnID connId, eNet_SendMode m, Net_RepRules rules, Net_Node* node, BitStream& s) {
 	NetControlIntern::DataPackage& p = node->intern->control->pushPackageToSend();
 	p.connID = connId;
 	p.sendMode = m;
@@ -923,12 +923,12 @@ static void __sendNodeEvent(Net_ConnID connId, eNet_SendMode m, Net_RepRules rul
 	p.data.addBitStream(s);	
 }
 
-void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, Net_BitStream* s) {
+void Net_Node::sendEvent(eNet_SendMode m, Net_RepRules rules, BitStream* s) {
 	__sendNodeEvent(INVALID_CONN_ID, m, rules, this, *s);
 	delete s;
 }
 
-void Net_Node::sendEventDirect(eNet_SendMode m, Net_BitStream* s, Net_ConnID cid) {
+void Net_Node::sendEventDirect(eNet_SendMode m, BitStream* s, Net_ConnID cid) {
 	if(!intern->control->isServer) {
 		errors << "Net_Node::sendEventDirect (node " << intern->nodeId << ") only works as server" << endl;
 		return;
@@ -940,7 +940,7 @@ void Net_Node::sendEventDirect(eNet_SendMode m, Net_BitStream* s, Net_ConnID cid
 
 bool Net_Node::checkEventWaiting() { return intern->incomingEvents.size() > 0; }
 
-Net_BitStream* Net_Node::getNextEvent(eNet_Event* e, eNet_NodeRole* r, Net_ConnID* cid) {
+BitStream* Net_Node::getNextEvent(eNet_Event* e, eNet_NodeRole* r, Net_ConnID* cid) {
 	if(intern->incomingEvents.size() == 0) return NULL;
 	
 	NetNodeIntern::Event& ev = intern->curIncomingEvent = intern->incomingEvents.front();
@@ -980,8 +980,8 @@ void Net_Node::addReplicationInt(Net_S32* n, int bits, bool, Net_RepFlags f, Net
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { bool diff = *n != old; old = *n; return diff;  }
-		void packData(Net_BitStream *_stream) { _stream->addInt(*n, bits); }
-		void unpackData(Net_BitStream *_stream, bool _store) {
+		void packData(BitStream *_stream) { _stream->addInt(*n, bits); }
+		void unpackData(BitStream *_stream, bool _store) {
 			Num i = _stream->getInt(bits);
 			if(_store) *n = i;
 		}
@@ -1014,8 +1014,8 @@ void Net_Node::addReplicationFloat(Net_Float* n, int bits, Net_RepFlags f, Net_R
 		void clearPeekData() { Num* p = (Num*)peekDataRetrieve(); if(p) delete p; }
 		
 		bool checkState() { bool diff = *n != old; old = *n; return diff;  }
-		void packData(Net_BitStream *_stream) { _stream->addFloat(*n, bits); }
-		void unpackData(Net_BitStream *_stream, bool _store) {
+		void packData(BitStream *_stream) { _stream->addFloat(*n, bits); }
+		void unpackData(BitStream *_stream, bool _store) {
 			Num i = _stream->getFloat(bits);
 			if(_store) *n = i;
 		}

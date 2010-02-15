@@ -101,7 +101,7 @@ struct Net_FileTransInfo {
 	size_t size;
 };
 
-class Net_BitStream;
+class BitStream;
 class CBytestream;
 
 class CServerConnection;
@@ -124,7 +124,7 @@ struct Net_Node : DontCopyTag {
 	
 	eNet_NodeRole getRole();
 	void setOwner(Net_ConnID);
-	void setAnnounceData(Net_BitStream*);	
+	void setAnnounceData(BitStream*);	
 	Net_NodeID getNetworkID();
 	
 	bool isNodeRegistered();
@@ -140,10 +140,10 @@ struct Net_Node : DontCopyTag {
 	
 	
 	void setEventNotification(bool,bool); // TODO: true,false -> enables eEvent_Init
-	void sendEvent(eNet_SendMode, Net_RepRules rules, Net_BitStream*);
-	void sendEventDirect(eNet_SendMode, Net_BitStream*, Net_ConnID);
+	void sendEvent(eNet_SendMode, Net_RepRules rules, BitStream*);
+	void sendEventDirect(eNet_SendMode, BitStream*, Net_ConnID);
 	bool checkEventWaiting();
-	Net_BitStream* getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*);
+	BitStream* getNextEvent(eNet_Event*, eNet_NodeRole*, Net_ConnID*);
 	
 
 	void beginReplicationSetup();
@@ -171,8 +171,8 @@ struct Net_Control : DontCopyTag {
 
 	void Shutdown();
 	void Net_ConnectToServer();
-	void Net_disconnectAll(Net_BitStream*);
-	void Net_Disconnect(Net_ConnID id, Net_BitStream*);
+	void Net_disconnectAll(BitStream*);
+	void Net_Disconnect(Net_ConnID id, BitStream*);
 			
 	void Net_setControlID(int);
 	void Net_setDebugName(const std::string&);
@@ -185,21 +185,21 @@ struct Net_Control : DontCopyTag {
 	void Net_processOutput();
 	void Net_processInput();
 	
-	void Net_sendData(Net_ConnID, Net_BitStream*, eNet_SendMode);
+	void Net_sendData(Net_ConnID, BitStream*, eNet_SendMode);
 	Net_ClassID Net_registerClass(const std::string& classname, Net_ClassFlags);
 		
 	// ------- virtual callbacks -----------
 		
-	virtual void Net_cbDataReceived( Net_ConnID id, Net_BitStream &data) = 0;
+	virtual void Net_cbDataReceived( Net_ConnID id, BitStream &data) = 0;
 	
 	
 	// server wants to tell us about new node
-	virtual void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, Net_BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id ) = 0;
+	virtual void Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_class, BitStream *_announcedata, eNet_NodeRole _role, Net_NodeID _net_id ) = 0;
 	
 	// called when incoming connection has been established
 	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) = 0;
 	// called when a connection closed
-	virtual void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, Net_BitStream &_reasondata ) = 0;
+	virtual void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata ) = 0;
 	// called when we got connected to server
 	virtual void Net_cbConnectResult( eNet_ConnectResult res ) = 0;
 	
@@ -209,7 +209,7 @@ struct Net_Replicator {
 	uint8_t m_flags;
 	Net_ReplicatorSetup* setup;
 	void* ptr;
-	Net_BitStream* peekStream;
+	BitStream* peekStream;
 	
 	virtual ~Net_Replicator() {}
 	virtual Net_Replicator* Duplicate(Net_Replicator *_dest) = 0;
@@ -217,7 +217,7 @@ struct Net_Replicator {
 	Net_Replicator(Net_ReplicatorSetup* s) : m_flags(0), setup(s), ptr(NULL), peekStream(NULL) {}
 	Net_ReplicatorSetup* getSetup() const { return setup; }
 	
-	Net_BitStream* getPeekStream() { return peekStream; }
+	BitStream* getPeekStream() { return peekStream; }
 	void* peekDataRetrieve() { return ptr; }
 	void peekDataStore(void* p) { if(ptr) clearPeekData(); ptr = p; }
 	
@@ -229,8 +229,8 @@ struct Net_ReplicatorBasic : Net_Replicator {
 	Net_ReplicatorBasic(Net_ReplicatorSetup* s) : Net_Replicator(s) {}
 	
 	virtual bool checkState() = 0; // true if update is needed
-	virtual void packData(Net_BitStream *_stream) = 0;
-	virtual void unpackData(Net_BitStream *_stream, bool _store) = 0;	
+	virtual void packData(BitStream *_stream) = 0;
+	virtual void unpackData(BitStream *_stream, bool _store) = 0;	
 };
 
 

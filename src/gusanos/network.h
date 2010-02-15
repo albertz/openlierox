@@ -20,9 +20,9 @@ struct LuaEventDef
 	
 	~LuaEventDef();
 	
-	void call(Net_BitStream*);
+	void call(BitStream*);
 	
-	void call(LuaReference, Net_BitStream*);
+	void call(LuaReference, BitStream*);
 	
 	void* operator new(size_t count);
 	
@@ -131,7 +131,7 @@ public:
 	static LuaEventDef* addLuaEvent(LuaEventGroup::type, const std::string& name, LuaEventDef* event);
 	static void indexLuaEvent(LuaEventGroup::type, const std::string& name);
 	static LuaEventDef* indexToLuaEvent(LuaEventGroup::type type, int idx);
-	static void encodeLuaEvents(Net_BitStream* data);
+	static void encodeLuaEvents(BitStream* data);
 	
 	static void sendEncodedLuaEvents(Net_ConnID cid);
 	

@@ -110,7 +110,7 @@ namespace
 			events.clear();
 		}
 
-		void encode(Net_BitStream* data)
+		void encode(BitStream* data)
 		{
 			data->addInt(events.size(), 8);
 			foreach(i, events) {
@@ -147,16 +147,16 @@ namespace
 
 Network network;
 
-void LuaEventDef::call(Net_BitStream* s)
+void LuaEventDef::call(BitStream* s)
 {
-	Net_BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, lua.fullReference(*n, LuaBindings::Net_BitStreamMetaTable))();
+	BitStream* n = s->Duplicate();
+	(lua.call(callb), luaReference, lua.fullReference(*n, LuaBindings::BitStreamMetaTable))();
 }
 
-void LuaEventDef::call(LuaReference obj, Net_BitStream* s)
+void LuaEventDef::call(LuaReference obj, BitStream* s)
 {
-	Net_BitStream* n = s->Duplicate();
-	(lua.call(callb), luaReference, obj, lua.fullReference(*n, LuaBindings::Net_BitStreamMetaTable))();
+	BitStream* n = s->Duplicate();
+	(lua.call(callb), luaReference, obj, lua.fullReference(*n, LuaBindings::BitStreamMetaTable))();
 }
 
 LuaEventDef::~LuaEventDef()
@@ -311,7 +311,7 @@ void Network::disconnect( DConnEvents event )
 		SET_STATE(Disconnecting);
 		stateTimeOut = 1000;
 
-		Net_BitStream *eventData = new Net_BitStream;
+		BitStream *eventData = new BitStream;
 		eventData->addInt( static_cast<int>( event ), 8 );
 
 		LOG("Disconnecting...");
@@ -324,7 +324,7 @@ void Network::disconnect( Net_ConnID id, DConnEvents event )
 	if(!m_control)
 		return;
 
-	std::auto_ptr<Net_BitStream> eventData(new Net_BitStream);
+	std::auto_ptr<BitStream> eventData(new BitStream);
 	eventData->addInt( static_cast<int>( event ), 8 );
 	m_control->Net_Disconnect( id, eventData.release());
 }
@@ -373,7 +373,7 @@ void Network::indexLuaEvent(LuaEventGroup::type type, const std::string& name)
 		luaEvents[type].index(name);
 }
 
-void Network::encodeLuaEvents(Net_BitStream* data)
+void Network::encodeLuaEvents(BitStream* data)
 {
 	for(int t = LuaEventGroup::GusGame; t < LuaEventGroup::Max; ++t) {
 		luaEvents[t].encode(data);
@@ -434,7 +434,7 @@ void Network::sendEncodedLuaEvents(Net_ConnID cid) {
 		return;
 	}
 	
-	std::auto_ptr<Net_BitStream> data(new Net_BitStream);
+	std::auto_ptr<BitStream> data(new BitStream);
 	Encoding::encode(*data, Network::ClientEvents::LuaEvents, Network::ClientEvents::Max);
 	network.encodeLuaEvents(data.get());
 	m_control->Net_sendData(cid, data.release(), eNet_ReliableOrdered);		

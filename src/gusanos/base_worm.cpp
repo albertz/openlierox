@@ -193,7 +193,7 @@ void CWorm::setWeapon( size_t index, WeaponType* type )
 		
 		// NetWorm code
 		if( m_node && !network.isClient() ) {
-			Net_BitStream *data = new Net_BitStream;
+			BitStream *data = new BitStream;
 			addEvent(data, SetWeapon);
 			Encoding::encode(*data, index, gusGame.options.maxWeapons);
 			if ( type )
@@ -234,7 +234,7 @@ void CWorm::clearWeapons()
 		
 		// NetWorm code
 		if( m_node && !network.isClient() ) {
-			Net_BitStream *data = new Net_BitStream;
+			BitStream *data = new BitStream;
 			addEvent(data, ClearWeapons);
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);			
 		}
@@ -766,7 +766,7 @@ void CWorm::respawn( const Vec& newPos)
 	// NetWorm code
 	if ( m_isAuthority && m_node && getAlive() )
 	{
-		Net_BitStream *data = new Net_BitStream;
+		BitStream *data = new BitStream;
 		addEvent(data, Respawn);
 		/*
 		 data->addFloat(pos.x,32);
@@ -784,7 +784,7 @@ void CWorm::dig()
 		
 			// NetWorm code
 			if( m_isAuthority && m_node ) {
-				Net_BitStream *data = new Net_BitStream;
+				BitStream *data = new BitStream;
 				addEvent(data, Dig);
 				gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
 				data->addInt(int(getPointingAngle()), Angle::prec);
@@ -804,7 +804,7 @@ void CWorm::base_die() {
 	if(game.gameScript()->gusEngineUsed()) {
 		// NetWorm code
 		if( m_isAuthority && m_node ) {
-			Net_BitStream *data = new Net_BitStream;
+			BitStream *data = new BitStream;
 			addEvent(data, Die);
 			if ( m_lastHurt )
 			{
@@ -847,7 +847,7 @@ void CWorm::die()
 void CWorm::changeWeaponTo( unsigned int weapIndex )
 {
 	if( m_node ) {
-		Net_BitStream *data = new Net_BitStream;
+		BitStream *data = new BitStream;
 		addEvent(data, ChangeWeapon);
 		Encoding::encode(*data, weapIndex, m_weapons.size());
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_OWNER_2_AUTH | Net_REPRULE_AUTH_2_PROXY, data);		

@@ -64,7 +64,7 @@ class ParticleInterceptor : public Net_NodeReplicationInterceptor
 				errors << "ParticleInterceptor:outPreReplicateNode for " << _node->debugName() << ": partTypeList is empty" << endl;
 				return;
 			}
-			Net_BitStream *type = new Net_BitStream;
+			BitStream *type = new BitStream;
 			Encoding::encode(*type, parent->m_type->getIndex(), partTypeList.size());
 			if(parent->m_owner)
 				type->addInt(parent->m_owner->getNodeID(), 32);
@@ -258,7 +258,7 @@ void Particle::think()
 			eNet_NodeRole    remote_role;
 			Net_ConnID       conn_id;
 
-			Net_BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+			BitStream *data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 			switch ( type ) {
 					case eNet_EventUser:
 					if ( data ) {
@@ -509,11 +509,11 @@ void Particle::draw(CViewport* viewport)
 }
 #endif
 
-void Particle::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void Particle::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node)
 		return;
-	Net_BitStream* data = new Net_BitStream;
+	BitStream* data = new BitStream;
 	//addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata) {

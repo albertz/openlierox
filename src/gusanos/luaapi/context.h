@@ -20,7 +20,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-class Net_BitStream;
+class BitStream;
 
 class LuaContext
 {
@@ -449,8 +449,8 @@ public:
 	void deserialize(std::istream& s);
 	void serializeT(std::ostream& s, int i, int indent = 0);
 	
-	void serialize(Net_BitStream& s, int i);
-	bool deserialize(Net_BitStream& s);
+	void serialize(BitStream& s, int i);
+	bool deserialize(BitStream& s);
 	
 	void regObject(char const* name)
 	{

@@ -75,7 +75,7 @@ namespace
 		NetEventsCount,
 	};
 	
-	void addEvent(Net_BitStream* data, NetEvents event)
+	void addEvent(BitStream* data, NetEvents event)
 	{
 		Encoding::encode( *data, static_cast<int>(event), NetEventsCount );
 	}
@@ -414,14 +414,14 @@ bool GusGame::init()
 	return true;
 }
 
-void GusGame::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, Net_BitStream* userdata, Net_ConnID connID)
+void GusGame::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID)
 {
 	if(!m_node) {
 		errors << "GusGame::sendLuaEvent: we dont have network node" << endl;
 		return;
 	}
 	
-	Net_BitStream* data = new Net_BitStream;
+	BitStream* data = new BitStream;
 	addEvent(data, LuaEvent);
 	data->addInt(event->idx, 8);
 	if(userdata)
@@ -515,7 +515,7 @@ void GusGame::think()
 		eNet_NodeRole    remote_role;
 		Net_ConnID       conn_id;
 		
-		Net_BitStream* data = m_node->getNextEvent(&type, &remote_role, &conn_id);
+		BitStream* data = m_node->getNextEvent(&type, &remote_role, &conn_id);
 		switch(type)
 		{
 			case eNet_EventUser:
@@ -578,7 +578,7 @@ void GusGame::think()
 				list<LevelEffectEvent>::iterator iter = appliedLevelEffects.begin();
 				for( ; iter != appliedLevelEffects.end() ; ++iter )
 				{
-					Net_BitStream *data = new Net_BitStream;
+					BitStream *data = new BitStream;
 					addEvent(data, eHole);
 					Encoding::encode(*data, iter->index, levelEffectList.size());
 					level().intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
@@ -602,7 +602,7 @@ void GusGame::applyLevelEffect( LevelEffect* effect, int x, int y )
 	{
 		if ( level().applyEffect( effect, x, y ) && m_node && network.isHost() )
 		{
-			Net_BitStream *data = new Net_BitStream;
+			BitStream *data = new BitStream;
 
 			addEvent(data, eHole);
 			Encoding::encode(*data, effect->getIndex(), levelEffectList.size());
@@ -1023,7 +1023,7 @@ void GusGame::assignNetworkRole( bool authority )
 
 void GusGame::sendRConMsg( string const& message )
 {
-	Net_BitStream *req = new Net_BitStream;
+	BitStream *req = new BitStream;
 	req->addInt(Network::RConMsg, 8);
 	req->addString( options.rConPassword.c_str() );
 	req->addString( message.c_str() );
@@ -1200,7 +1200,7 @@ std::string const& GusGame::getModName()
 	return m_modName;
 }
 
-void GusGame::addCRCs(Net_BitStream* req)
+void GusGame::addCRCs(BitStream* req)
 {
 	req->addInt(partTypeList.crc(), 32);
 	req->addInt(expTypeList.crc(), 32);
@@ -1208,7 +1208,7 @@ void GusGame::addCRCs(Net_BitStream* req)
 	req->addInt(levelEffectList.crc(), 32);
 }
 
-bool GusGame::checkCRCs(Net_BitStream& data)
+bool GusGame::checkCRCs(BitStream& data)
 {
 	uint32_t particleCRC = data.getInt(32);
 	uint32_t expCRC = data.getInt(32);
