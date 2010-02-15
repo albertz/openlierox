@@ -698,6 +698,7 @@ void GusGame::runInitScripts()
 	}
 	if(modScript)
 	{
+		notes << "running " << modScript->table << ".init" << endl;
 		LuaReference ref = modScript->createFunctionRef("init");
 		(lua.call(ref))();
 	}
@@ -712,10 +713,12 @@ void GusGame::runInitScripts()
 		}
 		if(levelScript)
 		{
+			notes << "running " << levelScript->table << ".init" << endl;
 			LuaReference ref = levelScript->createFunctionRef("init");
 			(lua.call(ref))();
 		}
 	}
+	
 	levelEffectList.indexate();
 	partTypeList.indexate();
 }
