@@ -47,7 +47,14 @@ void CClientNetEngine::SendWormDetails()
 	/*if ((tLX->currentTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
 			return; */
-			
+
+	// TODO: Have we always used the limitcheck from GameServer here?
+	// We should perhaps move it out from GameServer. Looks a bit strange here to use something from GameServer.
+	if(	tLX->iGameType == GME_JOIN // we are a client in a netgame
+	   && !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
+		return;
+
+	
 	CBytestream bs;
 	uint i;
 
@@ -76,11 +83,6 @@ void CClientNetEngine::SendWormDetails()
 	if (!update)
 		return;
 
-	// TODO: Have we always used the limitcheck from GameServer here?
-	// We should perhaps move it out from GameServer. Looks a bit strange here to use something from GameServer.
-	if(	tLX->iGameType == GME_JOIN // we are a client in a netgame
-	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
-		return;
 
 	client->fLastUpdateSent = tLX->currentTime;
 
