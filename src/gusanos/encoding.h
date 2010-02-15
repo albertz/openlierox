@@ -2,11 +2,11 @@
 #define VERMES_ENCODING_H
 
 #include <utility>
-#include <cassert>
 #include "gui/omfggui.h" // For Rect
 #include "netstream.h"
 #include <iostream>
 #include <stdexcept>
+#include "Debug.h"
 
 using std::cerr;
 using std::endl;
@@ -28,14 +28,23 @@ inline void encode(Net_BitStream& stream, int i, int count)
 */
 inline void encode(Net_BitStream& stream, int i, int count)
 {
-	assert(count > 0);
-	assert(i >= 0 && i < count);
+	if(count <= 0) {
+		errors << "encode: count =" << count << endl;
+		return;
+	}
+	if(i < 0 || i >= count) {
+		errors << "encode: i = " << i << ", count = " << count << endl;
+		return;
+	}
 	stream.addInt(i, bitsOf(count - 1));
 }
 
 inline int decode(Net_BitStream& stream, int count)
 {
-	assert(count > 0);
+	if(count <= 0) {
+		errors << "decode: count = " << count << endl;
+		return 0;
+	}
 	return stream.getInt(bitsOf(count - 1));
 }
 
@@ -96,7 +105,10 @@ inline unsigned int decodeEliasGamma(Net_BitStream& stream)
 
 inline void encodeEliasDelta(Net_BitStream& stream, unsigned int n)
 {
-	assert(n >= 1);
+	if(n < 1) {
+		errors << "encodeEliasDelta: n = " << n << endl;
+		return;
+	}
 	int prefix = bitsOf(n);
 	encodeEliasGamma(stream, prefix);
 	stream.addInt(n, prefix - 1);
