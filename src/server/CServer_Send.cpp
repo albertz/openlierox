@@ -443,68 +443,70 @@ bool GameServer::SendUpdate()
 				}
 			}
 
-			CBytestream update_packets;  // Contains all the update packets except the one from this client
-
-			byte num_worms = 0;
-
-			// Send all the _other_ worms details
 			if(!game.gameScript()->gusEngineUsed()) {
-				std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
-				for(; w_it != worms_to_update.end(); w_it++) {
-					CWorm* w = *w_it;
+				CBytestream update_packets;  // Contains all the update packets except the one from this client
 
-					// Check if this client owns the worm
-					if(cl->OwnsWorm(w->getID()))
-						continue;
-						
-					// Give the game mode a chance to override sending a packet (might reduce data sent)
-					if(!getGameMode()->NeedUpdate(cl, w))
-						continue;
+				byte num_worms = 0;
 
-					++num_worms;
+				// Send all the _other_ worms details
+				if(!game.gameScript()->gusEngineUsed()) {
+					std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
+					for(; w_it != worms_to_update.end(); w_it++) {
+						CWorm* w = *w_it;
 
-					CBytestream bytes;
-					bytes.writeByte(w->getID());
-					w->writePacket(&bytes, true, cl);
+						// Check if this client owns the worm
+						if(cl->OwnsWorm(w->getID()))
+							continue;
+							
+						// Give the game mode a chance to override sending a packet (might reduce data sent)
+						if(!getGameMode()->NeedUpdate(cl, w))
+							continue;
 
-					// Send out the update
-					update_packets.Append(&bytes);
+						++num_worms;
+
+						CBytestream bytes;
+						bytes.writeByte(w->getID());
+						w->writePacket(&bytes, true, cl);
+
+						// Send out the update
+						update_packets.Append(&bytes);
+					}
 				}
-			}
 
-			CBytestream *bs = cl->getUnreliable();
-			size_t oldBsPos = bs->GetPos();
+				CBytestream *bs = cl->getUnreliable();
+				size_t oldBsPos = bs->GetPos();
 
-			if(num_worms > 0) {
-				// Write the packets to the unreliable bytestream
-				bs->writeByte(S2C_UPDATEWORMS);
-				bs->writeByte(num_worms);
-				bs->Append(&update_packets);
-			}
-			
-			// Write out a stat packet
-			if(!game.gameScript()->gusEngineUsed()) {
-				bool need_send = false;
+				if(num_worms > 0) {
+					// Write the packets to the unreliable bytestream
+					bs->writeByte(S2C_UPDATEWORMS);
+					bs->writeByte(num_worms);
+					bs->Append(&update_packets);
+				}
+				
+				// Write out a stat packet
 				{
-					for (short j=0; j < cl->getNumWorms(); j++)
-						if (cl->getWorm(j)->checkStatePacketNeeded())  {
-							cl->getWorm(j)->updateStatCheckVariables();
-							need_send = true;
-							break;
-						}
+					bool need_send = false;
+					{
+						for (short j=0; j < cl->getNumWorms(); j++)
+							if (cl->getWorm(j)->checkStatePacketNeeded())  {
+								cl->getWorm(j)->updateStatCheckVariables();
+								need_send = true;
+								break;
+							}
+					}
+
+					// Only if necessary
+					if (need_send)  {
+						bs->writeByte( S2C_UPDATESTATS );
+						bs->writeByte( cl->getNumWorms() );
+						for(short j = 0; j < cl->getNumWorms(); j++)
+							cl->getWorm(j)->writeStatUpdate(bs);
+					}
 				}
 
-				// Only if necessary
-				if (need_send)  {
-					bs->writeByte( S2C_UPDATESTATS );
-					bs->writeByte( cl->getNumWorms() );
-					for(short j = 0; j < cl->getNumWorms(); j++)
-						cl->getWorm(j)->writeStatUpdate(bs);
-				}
+				if(!cl->isLocalClient())
+					uploadAmount += (bs->GetPos() - oldBsPos);
 			}
-
-			if(!cl->isLocalClient())
-				uploadAmount += (bs->GetPos() - oldBsPos);
 			
 			// Send the shootlist (reliable)
 			CShootList *sh = cl->getShootList();
