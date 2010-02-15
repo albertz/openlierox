@@ -703,7 +703,13 @@ void GusGame::runInitScripts()
 	}
 
 	if(isLevelLoaded()) {
-		Script* levelScript = scriptLocator.load("map_" + level().getName());
+		const std::string mapscript = "map_" + level().getName();
+		Script* levelScript = scriptLocator.load(mapscript);
+		if(!levelScript) {
+			notes << "init script " << mapscript << ".lua not found, trying map_common.lua" << endl;
+			levelScript = scriptLocator.load("map_common.lua");
+			if(!levelScript) notes << "map_common.lua also not found" << endl;
+		}
 		if(levelScript)
 		{
 			LuaReference ref = levelScript->createFunctionRef("init");
