@@ -1312,6 +1312,9 @@ void Net_Node::setInterceptID(Net_InterceptID id) { intern->forthcomingReplicato
 
 void Net_Node::setReplicationInterceptor(Net_NodeReplicationInterceptor* inter) { intern->interceptor = inter; }
 
+std::string Net_Node::debugName() {
+	return intern->debugStr();
+}
 
 
 

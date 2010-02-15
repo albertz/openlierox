@@ -198,6 +198,8 @@ struct Net_Node : DontCopyTag {
 	void setInterceptID(Net_InterceptID);
 	void setReplicationInterceptor(Net_NodeReplicationInterceptor*);
 
+	
+	std::string debugName();
 };
 
 class CBytestream;
