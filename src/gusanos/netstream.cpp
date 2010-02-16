@@ -92,9 +92,14 @@ struct NetControlIntern {
 		NodeMap nodeMap;
 		
 		void pushUpdate(const DataPackage& p) {
-			updates.push_back(p);
-			remove(p.node.get());
-			Updates::iterator& last = nodeMap[p.node.get()] = updates.end(); --last;
+			NodeMap::iterator f = nodeMap.find(p.node.get());
+			if(f != nodeMap.end()) {
+				*f->second = p;
+			}
+			else {
+				updates.push_back(p);
+				Updates::iterator& last = nodeMap[p.node.get()] = updates.end(); --last;
+			}
 		}
 		
 		void remove(NetNodeIntern* node) {
