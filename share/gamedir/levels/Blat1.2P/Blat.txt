@@ -1,0 +1,26 @@
+Blat
+----------------
+v1.1  2006-02-15
+
+Orginally made by basara. Updated by Uthar.
+
+
+History:
+--------
+1.1  2006-02-15 (211kb)
+  Chanced a few rock to empty space.
+  Enhanced level image.
+  Added acid sprite that is semitransparent.
+  Added bubbles in acid.
+  Added corosion damaging players.
+  Added acid dropping damaging players or echoes on ground.
+
+1.0 - 2005-12-24 (109kb)
+  Created by basara.
+
+Links:
+------
+Gusanos:
+  http://gusanos.sourceforge.net/
+Liero chat:
+  irc://irc.quakenet.org/Liero

@@ -1,0 +1,7 @@
+col_layer = 0
+invisible = 1
+damping = 0
+
+on timer(150,400)
+shoot_particles(acid_droplet2.obj, 1, speed=0.01, speed_var=0.01, distribution=5, angle_offs=180)
+ 

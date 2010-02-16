@@ -1,0 +1,18 @@
+colour = [42, 104, 8]
+wu_pixels = 1
+render_layer = 6
+
+gravity = 0.01
+max_speed = 0.1
+col_layer = 5
+
+on detect_range(1)
+damage(5)
+play_sound([Corode.ogg],15, 1, 0.1)
+#shoot_particles(acid_dropletend.obj, 1, speed=0.1, speed_var=0.2, distribution=60, angle_offs=180)
+remove()
+
+on ground_collision()
+play_sound([Drip1.ogg,Drip2.ogg,Drip3.ogg,Drip4.ogg,Drip5.ogg,Drip6.ogg,Drip7.ogg,Drip8.ogg,Drip9.ogg,Drip10.ogg,Drip11.ogg],20, 1, 0.05)
+shoot_particles(acid_dropletend.obj, 1, speed=0.1, speed_var=0.2, distribution=60, angle_offs=180)
+remove()
