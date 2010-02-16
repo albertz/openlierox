@@ -426,9 +426,9 @@ bool NetControlIntern::NodeUpdateManager::send(const SmartPointer<NetControlInte
 	bs.Append(&tmpbs);
 
 	if(con->isServer)
-		cClient->getChannel()->AddReliablePacketToSend(bs);
-	else
 		serverConnFromNetConnID(target)->getNetEngine()->SendPacket(&bs);
+	else
+		cClient->getChannel()->AddReliablePacketToSend(bs);
 	
 	return true;
 }
