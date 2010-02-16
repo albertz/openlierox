@@ -1442,7 +1442,7 @@ void Menu_HostShowMinimap()
 	// Draw a background over the old minimap
 	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,32,463,32,128,96);
 
-	DrawImage(tMenu->bmpMiniMapBuffer.get(), minimapForLevel(buf), 0, 0);
+	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,32);
 
 	// Update the screen
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);
