@@ -95,6 +95,10 @@ size_t CChannel::currentReliableOutSize() {
 	return s;
 }
 
+size_t CChannel::maxPossibleAdditionalReliableOutPackages() {
+	return size_t(-1);
+}
+
 void CChannel::UpdateTransmitStatistics( int sentDataSize )
 {
 	// Update statistics
@@ -159,6 +163,8 @@ bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend, bool doU
 }
 
 float CChannel::MaxDataPossibleToSendInstantly() {
+	if(maxPossibleAdditionalReliableOutPackages() == 0) return 0;
+	
 	if( ReliableStreamBandwidthLimit <= 0 ) // No bandwidth limit
 		return GameServer::getMaxUploadBandwidth();
 	
@@ -1372,6 +1378,9 @@ size_t CChannel3::currentReliableOutSize() {
 	return s;
 }
 
+size_t CChannel3::maxPossibleAdditionalReliableOutPackages() {
+	return MAX(MaxNonAcknowledgedPackets - (int)ReliableOut.size(), 0);
+}
 
 
 

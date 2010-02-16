@@ -183,8 +183,9 @@ public:
 	bool			ReliableStreamBandwidthLimitHit(); // Should we wait and accumulate packets instead of sending many small packets immediately
 	bool			CheckReliableStreamBandwidthLimit( float dataSizeToSend, bool doUpdate = true ); // Returns true if data is allowed to send, and decreases counter value if doUpdate
 	float			MaxDataPossibleToSendInstantly();
-
+	
 	virtual size_t	currentReliableOutSize();
+	virtual size_t	maxPossibleAdditionalReliableOutPackages();
 	
 	SmartPointer<NetworkSocket>	getSocket()			{ return Socket; }
 	
@@ -370,6 +371,7 @@ public:
 	bool		getBufferEmpty()	{ return ReliableOut.empty(); };
 	bool		getBufferFull()		{ return (int)ReliableOut.size() >= MaxNonAcknowledgedPackets; };
 	size_t	currentReliableOutSize();
+	size_t	maxPossibleAdditionalReliableOutPackages();
 
 	void		AddReliablePacketToSend(CBytestream& bs); // The same as in CChannel but without error msg
 
