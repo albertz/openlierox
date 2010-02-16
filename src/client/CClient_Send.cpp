@@ -31,6 +31,7 @@
 #include "IRC.h"
 #include "OLXConsole.h"
 #include "game/Game.h"
+#include "gusanos/network.h"
 
 
 
@@ -77,6 +78,15 @@ void CClientNetEngine::SendWormDetails()
 
 			client->fLastUpdateSent = tLX->currentTime;
 		}
+	}
+	
+	// handle Gusanos updates
+	// only for join-mode because otherwise, we would handle it in CServer
+	if(tLX->iGameType == GME_JOIN && network.getNetControl()) {
+		const float restUpload = GameServer::getMaxUploadBandwidth() - client->getChannel()->getOutgoingRate();
+		const size_t maxBytes = (size_t) (restUpload * tLX->fDeltaTime.seconds());
+		if(network.getNetControl()->olxSendNodeUpdates(NetConnID_server(), maxBytes))
+			client->fLastUpdateSent = tLX->currentTime;
 	}
 }
 

@@ -34,6 +34,7 @@
 #include "CGameMode.h"
 #include "game/Mod.h"
 #include "game/Game.h"
+#include "gusanos/network.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -363,6 +364,14 @@ void GameServer::SendWormsOut(const std::list<byte>& ids)
 	}
 }
 
+static float maxRateForClient(CServerConnection* cl) {
+	// Modem, ISDN, LAN, local
+	// (Bytes per second)
+	const float	Rates[4] = {2500, 7500, 10000, 50000};
+	
+	return Rates[cl->getNetSpeed()];
+}
+
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update
@@ -507,7 +516,7 @@ bool GameServer::SendUpdate()
 				if(!cl->isLocalClient())
 					uploadAmount += (bs->GetPos() - oldBsPos);
 			}
-			
+						
 			// Send the shootlist (reliable)
 			CShootList *sh = cl->getShootList();
 			float delay = shootDelay[cl->getNetSpeed()];
@@ -525,9 +534,15 @@ bool GameServer::SendUpdate()
 				cl->getChannel()->AddReliablePacketToSend(shootBs);
 			}
 			
-			// TODO: that doesn't update uploadAmount
+			// TODO: that doesn't update uploadAmount (but it also doesnt in CClient, to be fair :P)
 			cl->getNetEngine()->SendReportDamage();
 
+			if(network.getNetControl()) {
+				const float restUpload = maxRateForClient(cl) - cl->getChannel()->getOutgoingRate();
+				const size_t maxBytes = (size_t) (restUpload * tLX->fDeltaTime.seconds());
+				network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
+			}
+			
 			if(!cl->isLocalClient())
 				last = i;
 		}
@@ -598,17 +613,10 @@ bool GameServer::checkBandwidth(CServerConnection *cl)
 	if(cl->getNetSpeed() == 3) // local
 		return true;
 
-
-	// Modem, ISDN, LAN, local
-	// (Bytes per second)
-	const float	Rates[4] = {2500, 7500, 10000, 50000};
-
 	// Are we over the clients bandwidth rate?
-	if(cl->getChannel()->getOutgoingRate() > Rates[cl->getNetSpeed()]) {
-
+	if(cl->getChannel()->getOutgoingRate() > maxRateForClient(cl))
 		// Don't send the packet
 		return false;
-	}
 
 	// All ok
 	return true;

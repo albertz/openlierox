@@ -179,6 +179,7 @@ struct Net_Control : DontCopyTag {
 	void Net_requestNetMode(Net_ConnID, int);
 
 	void olxSend(bool sendPendingOnly);
+	bool olxSendNodeUpdates(Net_ConnID target, size_t maxBytes);
 	void olxParse(Net_ConnID src, CBytestream& bs);
 	void olxHandleClientDisconnect(Net_ConnID cl);
 	

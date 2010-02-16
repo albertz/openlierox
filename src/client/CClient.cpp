@@ -1203,6 +1203,9 @@ bool CClient::ReadPackets()
 // Send the packets
 void CClient::SendPackets(bool sendPendingOnly)
 {
+	if(tLX->iGameType == GME_JOIN) // in server mode, we call this from CServer::SendPackets
+		network.olxSend(sendPendingOnly);
+
 	if(!sendPendingOnly) {
 		// Playing packets
 		if(iNetStatus == NET_PLAYING || bGameReady)
@@ -1238,9 +1241,6 @@ void CClient::SendPackets(bool sendPendingOnly)
 			cNetEngine->SendRandomPacket();
 #endif
 	}
-
-	if(tLX->iGameType == GME_JOIN) // in server mode, we call this from CServer::SendPackets
-		network.olxSend(sendPendingOnly);
 	
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
