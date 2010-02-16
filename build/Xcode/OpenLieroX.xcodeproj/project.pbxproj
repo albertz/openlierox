@@ -33,7 +33,6 @@
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
 		231BE12510CE5C390023780D /* sfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC710CC1CAE00DABBD6 /* sfx.cpp */; };
 		231BE12910CE5CFD0023780D /* sfxdriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */; };
-		231BE12F10CE5D1F0023780D /* sound_sample.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */; };
 		231BE13B10CE5D5B0023780D /* sfxdriver_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */; };
 		231BE13C10CE5D5B0023780D /* sound_sample_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */; };
 		231BE13D10CE5D770023780D /* Options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C1D0BEFCEB400C6547E /* Options.cpp */; };
@@ -981,7 +980,6 @@
 		23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver.h; sourceTree = "<group>"; };
 		23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sfxdriver_openal.cpp; sourceTree = "<group>"; };
 		23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sfxdriver_openal.h; sourceTree = "<group>"; };
-		23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample.cpp; sourceTree = "<group>"; };
 		23C34BD010CC1CAE00DABBD6 /* sound_sample.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample.h; sourceTree = "<group>"; };
 		23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sound_sample_openal.cpp; sourceTree = "<group>"; };
 		23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sound_sample_openal.h; sourceTree = "<group>"; };
@@ -1988,7 +1986,6 @@
 				23C34BCA10CC1CAE00DABBD6 /* sfxdriver.h */,
 				23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */,
 				23C34BCC10CC1CAE00DABBD6 /* sfxdriver_openal.h */,
-				23C34BCF10CC1CAE00DABBD6 /* sound_sample.cpp */,
 				23C34BD010CC1CAE00DABBD6 /* sound_sample.h */,
 				23C34BD110CC1CAE00DABBD6 /* sound_sample_openal.cpp */,
 				23C34BD210CC1CAE00DABBD6 /* sound_sample_openal.h */,
@@ -3351,7 +3348,6 @@
 				23C3500510CC590A00DABBD6 /* menu.cpp in Sources */,
 				231BE12510CE5C390023780D /* sfx.cpp in Sources */,
 				231BE12910CE5CFD0023780D /* sfxdriver.cpp in Sources */,
-				231BE12F10CE5D1F0023780D /* sound_sample.cpp in Sources */,
 				231BE16310CE68BD0023780D /* Mod.cpp in Sources */,
 				231BE16610CE6B670023780D /* Level.cpp in Sources */,
 				2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */,
