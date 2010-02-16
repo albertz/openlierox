@@ -1,0 +1,11 @@
+sprite = light_big_green.png
+blender = add
+alpha = 250
+anim_duration = 20
+occluded = 1
+col_layer = -1 
+render_layer=8
+light_radius=128
+
+on timer( 19 )
+remove()

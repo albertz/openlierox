@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+damping = 100
+
+on timer(100)
+ shoot_particles ( light_blue.obj , 1 , 2, 0, 0, 0, 0, 0)
+
+on timer(1)
+ shoot_particles ( lift.obj , 1 , 2, 0, 0, 0, 0, 0)

@@ -1,0 +1,6 @@
+invisible = 1
+col_layer = -1
+damping = 100
+
+on timer(20)
+ shoot_particles ( light_medium.obj , 1 ,  0, 0, 0, 0)

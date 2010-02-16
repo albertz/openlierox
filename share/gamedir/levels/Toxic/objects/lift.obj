@@ -1,0 +1,11 @@
+invisible = 1
+col_layer = -1
+
+on ground_collision()
+ remove()
+
+on timer( 80 )
+ remove()
+
+on detect_range(12)
+ push ( 0.003 )
