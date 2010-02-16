@@ -1193,7 +1193,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	}
 	
 	if(sound) {
-		PlaySoundSample(sound);
+		StartSound(sound, prj->pos());
 	}
 	
 	// HINT: delete "junk projectiles" - projectiles that have no action assigned and are therefore never destroyed
