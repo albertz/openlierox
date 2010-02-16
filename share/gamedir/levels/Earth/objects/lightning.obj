@@ -1,0 +1,9 @@
+col_layer=-1
+invisible = 1
+
+on creation()
+ play_global_sound( [lighting_1.ogg,lighting_2.ogg,lighting_3.ogg,lighting_4.ogg],200)
+put_particle( lightning_flash.obj, 500,100 )
+put_particle( lightning_flash.obj, 300,500 )
+put_particle( lightning_flash.obj, 640,500 )
+remove()

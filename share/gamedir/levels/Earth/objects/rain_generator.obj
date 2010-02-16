@@ -1,0 +1,6 @@
+invisible = 1
+col_layer=-1
+bounce_factor = -1
+
+on timer(0,30)
+shoot_particles ( rain_generator_move.obj, 1 , 1, 0,0,0, 0, 90, 0 )

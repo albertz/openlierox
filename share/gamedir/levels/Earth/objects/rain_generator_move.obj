@@ -1,0 +1,9 @@
+invisible = 1
+col_layer=-1
+repeat = 1000
+
+on ground_collision()
+ remove()
+
+on timer(0,150)
+shoot_particles ( raindrop.obj, 1 , 0, 0,0.01,0, 0, 0, 0 )

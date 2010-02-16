@@ -1,0 +1,23 @@
+col_layer=-1
+light_radius = 300
+blender = add
+invisible = 1
+alpha = 255
+
+on creation()
+set_alpha_fade(150,255)
+
+on timer(0,20)
+set_alpha_fade(50,255)
+
+on timer(0,20)
+set_alpha_fade(255)
+
+on timer(0,20)
+set_alpha_fade(15,25)
+
+on timer(0,20)
+set_alpha_fade(50,175)
+
+on timer(60) 
+remove()

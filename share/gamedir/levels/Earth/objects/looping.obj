@@ -1,0 +1,16 @@
+invisible = 1
+col_layer=-1
+bounce_factor = -1
+
+on creation()
+play_global_sound( rain.ogg,100)
+put_particle( rain_generator.obj, 100,1 )
+
+on timer(650)
+play_global_sound( rain.ogg, 100)
+
+on timer(0,1600)
+put_particle( lightning.obj, 500,5 )
+
+
+
