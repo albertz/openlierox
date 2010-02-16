@@ -421,7 +421,7 @@ bool NetControlIntern::NodeUpdateManager::send(const SmartPointer<NetControlInte
 	while(updates.size() > 0) {
 		CBytestream tmpbs2;
 		updates.front().send(tmpbs2);
-		if(tmpbs.GetLength() + tmpbs2.GetLength() >= maxBytes)
+		if(tmpbs.GetLength() + tmpbs2.GetLength() > maxBytes)
 			break;
 		
 		tmpbs.Append(&tmpbs2);
