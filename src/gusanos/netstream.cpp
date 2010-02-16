@@ -421,6 +421,7 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 }
 
 bool NetControlIntern::NodeUpdateManager::send(const SmartPointer<NetControlIntern>& con, Net_ConnID target, size_t maxBytes) {
+	if(updates.size() == 0) return false;
 	CBytestream tmpbs;
 
 	size_t count = 0;
