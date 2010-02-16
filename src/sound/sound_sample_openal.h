@@ -18,7 +18,7 @@ public:
 	void play( float pitch,float volume);
 	void play2D(const Vec& pos, float loudness, float pitch);
 	void play2D( CGameObject* obj, float loudness, float pitch);
-	bool isValid();
+	bool isPlaying();
 	void updateObjSound(Vec& vec);
 	bool avail();
 	
