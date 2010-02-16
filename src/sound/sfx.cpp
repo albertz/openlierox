@@ -135,12 +135,16 @@ Sfx::operator bool()
 }
 
 void Sfx::playSimpleGlobal(SoundSample* s) {
+	if(s->currentSimulatiousPlays() >= s->maxSimultaniousPlays) return;
+	
 	SmartPointer<SoundSample> snd = s->copy();
 	simpleChanSounds.push_back(snd);
 	snd->play(1.0f, 1.0f);
 }
 
 void Sfx::playSimple2D(SoundSample* s, CVec pos) {
+	if(s->currentSimulatiousPlays() >= s->maxSimultaniousPlays) return;
+
 	SmartPointer<SoundSample> snd = s->copy();
 	simpleChanSounds.push_back(snd);
 	snd->play2D(Vec(pos), 100, 1);

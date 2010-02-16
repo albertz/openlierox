@@ -26,6 +26,8 @@ public:
 	bool avail();
 	SmartPointer<SoundSample> copy() { return new SoundSampleOpenAL(*this); }
 	
+	size_t currentSimulatiousPlays();
+
 	size_t GetMemorySize();
 	
 private:

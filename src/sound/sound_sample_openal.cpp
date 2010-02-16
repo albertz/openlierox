@@ -208,6 +208,13 @@ void SoundSampleOpenAL::initSound() {
 	m_sound=sourceID;	
 }
 
+size_t SoundSampleOpenAL::currentSimulatiousPlays() {
+	// WARNING: This pretty much depends on the behaviour of Sfx::playSimple*
+	// and the way we are doing this right now!
+	return MAX(buffer.getRefCount() - 1, 0);
+}
+
+
 
 bool SoundSampleOpenAL::avail()
 {

@@ -15,9 +15,10 @@ class CGameObject;
 class SoundSample 
 {
 public:
-		
-	SoundSample();
-	virtual ~SoundSample();
+	size_t maxSimultaniousPlays; // only for LX sounds
+	
+	SoundSample() : maxSimultaniousPlays(0) {}
+	virtual ~SoundSample() {}
 	
 	virtual void play( float pitch,float volume)=0;
 	virtual void play2D(const Vec& pos, float loudness, float pitch)=0;
@@ -26,6 +27,7 @@ public:
 	virtual void updateObjSound(Vec& vec)=0;
 	virtual bool avail()=0;
 
+	virtual size_t currentSimulatiousPlays() = 0; // only for LX
 	virtual SmartPointer<SoundSample> copy() = 0;
 	
 	virtual size_t GetMemorySize() = 0;
