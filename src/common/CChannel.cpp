@@ -1349,7 +1349,7 @@ void CChannel3::Transmit(CBytestream *unreliableData)
 	// Add CRC16 
 	
 	CBytestream bs1;
-	bs1.writeInt( crc16( bs.peekData( bs.GetLength() ).c_str(), bs.GetLength() ), 2);
+	bs1.writeInt( crc16( bs.data().c_str(), bs.GetLength() ), 2);
 	bs1.Append(&bs);
 	
 	// Send the packet
