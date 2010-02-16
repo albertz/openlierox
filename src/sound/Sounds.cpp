@@ -194,7 +194,7 @@ bool PlaySoundSample(SoundSample* sample) {
 	if(sample == NULL)
 		return false;
 	
-	sample->play(1.0f, 1.0f);
+	sfx.playSimpleGlobal(sample);
 	return true;
 }
 
@@ -245,14 +245,13 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 			return;*/
 	}
 	
-	smp->play2D(Vec(pos), 100, 1);
-	
+	sfx.playSimple2D(smp, pos);
 	// this was the old call (using BASS_SamplePlayEx):
 	//PlayExSampleSoundEx(smp,0,-1,volume,pan,-1);
 }
 
 void StartSound(SoundSample* smp, CVec pos) {
-	smp->play2D(Vec(pos), 100, 1);
+	sfx.playSimple2D(smp, pos);
 }
 
 

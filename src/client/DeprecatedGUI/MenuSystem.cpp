@@ -45,6 +45,8 @@
 #include "Version.h"
 #include "CrashHandler.h"
 #include "game/Level.h"
+#include "sound/sfx.h"
+
 
 // TODO: move this out here
 // declare them only locally here as nobody really should use them explicitly
@@ -256,6 +258,8 @@ void Menu_SetSkipStart(int s)
 
 void Menu_Frame() {
 	HandlePendingCommands();
+	
+	sfx.think();
 	
 	if(bDedicated) {
 		DedicatedControl::Get()->Menu_Frame();
