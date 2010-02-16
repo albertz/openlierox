@@ -79,6 +79,7 @@ SmartPointer<SoundSample> LoadSoundSample(const std::string& filename, int maxsi
 bool FreeSoundSample(SoundSample* sample) { return false; }
 bool PlaySoundSample(SoundSample* sample) { return false; }
 void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me) {}
+void StartSound(SoundSample* smp, CVec pos) {}
 
 #else // not DEDICATED_ONLY
 
@@ -249,6 +250,11 @@ void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
 	// this was the old call (using BASS_SamplePlayEx):
 	//PlayExSampleSoundEx(smp,0,-1,volume,pan,-1);
 }
+
+void StartSound(SoundSample* smp, CVec pos) {
+	smp->play2D(Vec(pos), 100, 1);
+}
+
 
 
 
