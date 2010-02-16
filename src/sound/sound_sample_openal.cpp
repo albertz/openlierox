@@ -121,9 +121,33 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
 }
 
 
-SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(filename)
+struct OpenALBuffer {
+	ALuint bufferID;
+	size_t size;
+
+	OpenALBuffer(ALuint bufid) : bufferID(bufid), size(0) {
+		ALint s = 0;
+		alGetBufferi(bufferID, AL_SIZE, &s);
+		if(s >= 0) size = s;		
+	}
+
+	~OpenALBuffer() {
+		if(bufferID != AL_NONE)
+			alDeleteBuffers(1,&bufferID);
+	}
+};
+
+size_t SoundSampleOpenAL::GetMemorySize() { return buffer.get() ? buffer->size : 0; }
+
+template <> void SmartPointer_ObjectDeinit<OpenALBuffer> ( OpenALBuffer * obj )
+{
+	delete obj;
+}
+
+
+
+SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename)
 {	
-	size = 0;
 	m_sound = 0;
 
 	if(!IsFileAvailable(filename))
@@ -149,36 +173,47 @@ SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename):SoundSample(fi
 		}
 	}
 	
-    ALuint sourceID = 0;                        // The OpenAL sound source
-    alGenSources(1, &sourceID);
-    // Attach sound buffer to source
-    alSourcei(sourceID, AL_BUFFER, bufferID);
-	alSourcef(sourceID,AL_ROLLOFF_FACTOR,2);
-	alSourcef(sourceID,AL_GAIN,0.7f);
-	//alSourcef(	 mALSource,AL_REFERENCE_DISTANCE,20);
-    /*alSource3f(mALSource, AL_POSITION,        0.0, 0.0, 0.0);
-    alSource3f(mALSource, AL_VELOCITY,        0.0, 0.0, 0.0);
-    alSource3f(mALSource, AL_DIRECTION,       0.0, 0.0, 0.0);
-    alSourcef (mALSource, AL_ROLLOFF_FACTOR,  0.0          );
-    alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_TRUE      );*/
-	m_sound=sourceID ;
-
-	ALint s = 0;
-	alGetBufferi(bufferID, AL_SIZE, &s);
-	if(s >= 0) size = s;
+	buffer = new OpenALBuffer(bufferID);
+	initSound();
 }
 
 SoundSampleOpenAL::~SoundSampleOpenAL()
 {
 	if ( m_sound)  
-	{
-		ALint mALBufferi;
-		alGetSourcei(m_sound, AL_BUFFER ,&mALBufferi);
-		ALuint mALBufferu = (ALuint )mALBufferi;
 		alDeleteSources(1,&m_sound);
-		alDeleteBuffers(1,&mALBufferu);
-	}
 }
+
+SoundSampleOpenAL::SoundSampleOpenAL(const SoundSampleOpenAL& s) {
+	m_sound = 0;
+
+	buffer = s.buffer;
+	if(buffer.get())
+		initSound();
+}
+
+void SoundSampleOpenAL::initSound() {
+    ALuint sourceID = 0;                        // The OpenAL sound source
+    alGenSources(1, &sourceID);
+	
+    // Attach sound buffer to source
+    alSourcei(sourceID, AL_BUFFER, buffer->bufferID);
+	alSourcef(sourceID,AL_ROLLOFF_FACTOR,2);
+	alSourcef(sourceID,AL_GAIN,0.7f);
+	//alSourcef(	 mALSource,AL_REFERENCE_DISTANCE,20);
+    /*alSource3f(mALSource, AL_POSITION,        0.0, 0.0, 0.0);
+	 alSource3f(mALSource, AL_VELOCITY,        0.0, 0.0, 0.0);
+	 alSource3f(mALSource, AL_DIRECTION,       0.0, 0.0, 0.0);
+	 alSourcef (mALSource, AL_ROLLOFF_FACTOR,  0.0          );
+	 alSourcei (mALSource, AL_SOURCE_RELATIVE, AL_TRUE      );*/
+	m_sound=sourceID;	
+}
+
+size_t SoundSampleOpenAL::currentSimulatiousPlays() {
+	// WARNING: This pretty much depends on the behaviour of Sfx::playSimple*
+	// and the way we are doing this right now!
+	return MAX(buffer.getRefCount() - 1, 0);
+}
+
 
 
 bool SoundSampleOpenAL::avail()
@@ -230,8 +265,10 @@ void SoundSampleOpenAL::play2D(CGameObject* obj, float loudness, float pitch)
 	
 }
 
-bool SoundSampleOpenAL::isValid()
+bool SoundSampleOpenAL::isPlaying()
 {
+	if(!m_sound) return false;
+	
 	ALint state;
 	alGetSourcei(m_sound,AL_SOURCE_STATE,&state);
 	if (state==AL_PLAYING) 

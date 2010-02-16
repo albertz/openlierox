@@ -14,6 +14,7 @@ using namespace boost::assign;
 #include "gusanos/gconsole.h"
 #include "CGameObject.h"
 #include "util/macros.h"
+#include "sound_sample.h"
 
 #include "Debug.h"
 
@@ -27,6 +28,9 @@ namespace
 	bool m_initialized = false;
 	
 	std::vector<Listener*> listeners;
+	
+	typedef std::list< SmartPointer<SoundSample> > ChanSounds;
+	ChanSounds simpleChanSounds;
 }
 
 void update_volume( int oldValue )
@@ -43,6 +47,7 @@ Sfx::Sfx():driver(0)
 
 Sfx::~Sfx()
 {
+	simpleChanSounds.clear();
 	if (driver) {
 		delete driver;
 		driver = NULL;
@@ -60,6 +65,7 @@ bool Sfx::init()
 
 void Sfx::shutDown()
 {
+	simpleChanSounds.clear();
 	if(driver)
 		driver->shutDown();
 	m_initialized = false;
@@ -78,6 +84,13 @@ void Sfx::think()
 	if(driver) {
 		driver->setListeners(listeners);
 		driver->think();
+	}
+	
+	for(ChanSounds::iterator i = simpleChanSounds.begin(); i != simpleChanSounds.end(); ) {
+		if(!(*i)->isPlaying())
+			i = simpleChanSounds.erase(i);
+		else
+			++i;
 	}
 }
 
@@ -119,6 +132,23 @@ void Sfx::volumeChange()
 Sfx::operator bool()
 {
 	return m_initialized;
-} 
+}
+
+void Sfx::playSimpleGlobal(SoundSample* s) {
+	if(s->currentSimulatiousPlays() >= s->maxSimultaniousPlays) return;
+	
+	SmartPointer<SoundSample> snd = s->copy();
+	simpleChanSounds.push_back(snd);
+	snd->play(1.0f, 1.0f);
+}
+
+void Sfx::playSimple2D(SoundSample* s, CVec pos) {
+	if(s->currentSimulatiousPlays() >= s->maxSimultaniousPlays) return;
+
+	SmartPointer<SoundSample> snd = s->copy();
+	simpleChanSounds.push_back(snd);
+	snd->play2D(Vec(pos), 100, 1);
+}
+
 
 #endif

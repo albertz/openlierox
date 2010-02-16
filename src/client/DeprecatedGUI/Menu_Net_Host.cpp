@@ -46,6 +46,7 @@
 #include "CGameMode.h"
 #include "DeprecatedGUI/CChatWidget.h"
 #include "sound/SoundsBase.h"
+#include "game/Level.h"
 
 
 /*
@@ -1434,7 +1435,6 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 // Show the minimap
 void Menu_HostShowMinimap()
 {
-	CMap map;
 	std::string buf;
 
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
@@ -1442,18 +1442,7 @@ void Menu_HostShowMinimap()
 	// Draw a background over the old minimap
 	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,32,463,32,128,96);
 
-	// Load the map
-	map.SetMinimapDimensions(128, 96);
-	if(map.Load("levels/"+buf)) {
-
-		// Draw the minimap
-		if(map.GetMiniMap().get())
-			DrawImage(tMenu->bmpBuffer.get(), map.GetMiniMap(), 463,32);
-		else
-			DrawRectFill(tMenu->bmpMiniMapBuffer.get(), 0, 0, tMenu->bmpMiniMapBuffer->w, tMenu->bmpMiniMapBuffer->h, Color());
-	} else {
-		errors << "Cannot load minimap for level " << buf << endl;
-	}
+	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,32);
 
 	// Update the screen
 	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);

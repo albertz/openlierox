@@ -693,8 +693,6 @@ void Menu_LocalAddProfiles()
 // Show the minimap
 void Menu_LocalShowMinimap(bool bReload)
 {
-	// TODO: optimize or recode this!
-	CMap map;
 	std::string buf;
 
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
@@ -739,15 +737,8 @@ void Menu_LocalShowMinimap(bool bReload)
 
         } else {
         */
-
-		// Load the file
-		if(map.Load("levels/" + buf)) {
-			// Draw the minimap
-			if(map.GetMiniMap().get())
-				DrawImage(tMenu->bmpMiniMapBuffer.get(), map.GetMiniMap(), 0,0);
-			else
-				DrawRectFill(tMenu->bmpMiniMapBuffer.get(), 0, 0, tMenu->bmpMiniMapBuffer->w, tMenu->bmpMiniMapBuffer->h, Color());
-        }
+		
+		DrawImage(tMenu->bmpMiniMapBuffer.get(), minimapForLevel(buf), 0, 0);
     }
 
 	// Update the screen

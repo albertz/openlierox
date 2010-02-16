@@ -81,7 +81,7 @@ bool Sound::isValid()
 {
 	if (m_obj && !m_obj->deleteMe)
 	{
-		return m_sound ->isValid();
+		return m_sound ->isPlaying();
 	}
 	return false;
 }

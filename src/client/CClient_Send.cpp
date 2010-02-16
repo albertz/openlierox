@@ -30,6 +30,8 @@
 #include "DeprecatedGUI/Menu.h"
 #include "IRC.h"
 #include "OLXConsole.h"
+#include "game/Game.h"
+#include "gusanos/network.h"
 
 
 
@@ -47,51 +49,44 @@ void CClientNetEngine::SendWormDetails()
 	/*if ((tLX->currentTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
 		if (tGameInfo.iGameType != GME_LOCAL)
 			return; */
-			
-	CBytestream bs;
-	uint i;
-
-	// If all my worms are dead, don't send
-	bool Alive = false;
-	for(i=0;i<client->iNumWorms;i++) {
-		if(client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive()) {
-			Alive = true;
-			break;
-		}
-	}
-
-	if(!Alive)
-		return;
-
-
-	// Check if we need to write the state update
-	bool update = false;
-	for(i = 0; i < client->iNumWorms; i++)
-		if (client->cLocalWorms[i] && client->cLocalWorms[i]->checkPacketNeeded())  {
-			update = true;
-			break;
-		}
-
-	// No update, just quit
-	if (!update)
-		return;
 
 	// TODO: Have we always used the limitcheck from GameServer here?
 	// We should perhaps move it out from GameServer. Looks a bit strange here to use something from GameServer.
 	if(	tLX->iGameType == GME_JOIN // we are a client in a netgame
-	&& !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
+	   && !GameServer::checkUploadBandwidth(client->getChannel()->getOutgoingRate()) )
 		return;
 
-	client->fLastUpdateSent = tLX->currentTime;
+	if(!game.gameScript()->gusEngineUsed()) {		
+		// Check if we need to write the state update
+		bool update = false;
+		for(uint i = 0; i < client->iNumWorms; i++)
+			if (client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive() && client->cLocalWorms[i]->checkPacketNeeded())  {
+				update = true;
+				break;
+			}
 
-	// Write the update
-	bs.writeByte(C2S_UPDATE);
+		if(update) {
+			// Write the update
+			CBytestream bs;
+			bs.writeByte(C2S_UPDATE);
 
-	for(i = 0; i < client->iNumWorms; i++)
-		if(client->cLocalWorms[i])
-			client->cLocalWorms[i]->writePacket(&bs, false, NULL);
+			for(uint i = 0; i < client->iNumWorms; i++)
+				if(client->cLocalWorms[i])
+					client->cLocalWorms[i]->writePacket(&bs, false, NULL);
 
-	client->bsUnreliable.Append(&bs);
+			client->bsUnreliable.Append(&bs);
+
+			client->fLastUpdateSent = tLX->currentTime;
+		}
+	}
+	
+	// handle Gusanos updates
+	// only for join-mode because otherwise, we would handle it in CServer
+	if(tLX->iGameType == GME_JOIN && network.getNetControl() && !client->getChannel()->ReliableStreamBandwidthLimitHit()) {
+		const size_t maxBytes = (size_t) client->getChannel()->MaxDataPossibleToSendInstantly();
+		if(maxBytes > 0 && network.getNetControl()->olxSendNodeUpdates(NetConnID_server(), maxBytes))
+			client->fLastUpdateSent = tLX->currentTime;
+	}
 }
 
 

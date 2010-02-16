@@ -1096,7 +1096,9 @@ void GameServer::SendPackets(bool sendPendingOnly)
 		errors << "GameServer::SendPackets: clients not initialised" << endl;
 		return;
 	}
-	
+
+	network.olxSend(sendPendingOnly);
+
 	if(!sendPendingOnly) {
 		// If we are playing, send update to the clients
 		if (iState == SVS_PLAYING)
@@ -1108,8 +1110,6 @@ void GameServer::SendPackets(bool sendPendingOnly)
 			SendRandomPacket();
 #endif
 	}
-
-	network.olxSend(sendPendingOnly);
 	
 	// Go through each client and send them a message
 	CServerConnection *cl = cClients;

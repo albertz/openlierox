@@ -22,7 +22,6 @@
 #include "CChannel.h"
 
 
-
 struct NetControlIntern {
 	NetControlIntern() {
 		isServer = false;
@@ -40,14 +39,15 @@ struct NetControlIntern {
 	bool cbNodeRequest_Dynamic;
 	Net_NodeID cbNodeRequest_nodeId;
 	
+	// A raw data package structure. All Gusanos packages are of this kind.
 	struct DataPackage {
 		DataPackage() : type(Type(-1)), sendMode(eNet_ReliableOrdered), repRules(Net_REPRULE_NONE) {}
 
 		enum Type {
-			GPT_NodeUpdate, // very first because the most often -> less bits to sends
 			GPT_NodeInit,
 			GPT_NodeRemove,
 			GPT_NodeEvent, /* eNet_EventUser */
+			GPT_NodeUpdate,
 			
 			// here start all types where we dont send the nodeID
 			GPT_Direct,
@@ -66,19 +66,61 @@ struct NetControlIntern {
 		
 		bool nodeMustBeSet() { return type < GPT_Direct; }
 		
-		void send(CBytestream& bs);
-		void read(const SmartPointer<NetControlIntern>& con, CBytestream& bs);
+		void send(CBytestream& bs, bool withTypeInfo = true);
+		void read(const SmartPointer<NetControlIntern>& con, CBytestream& bs, bool withTypeInfo = true); // if withTypeInfo=false, set type before calling this!
 	};
-		
+	
 	typedef std::list<DataPackage> Packages;
-	Packages packetsToSend;
-	Packages packetsReceived;
+	Packages packetsToSend; // These are the packages we have to send. They are processed in olxSend.
+	Packages packetsReceived; // These are parsed via olxParse. They are handled in Net_processInput.
 	
 	DataPackage& pushPackageToSend() { packetsToSend.push_back(DataPackage()); return packetsToSend.back(); }
 
+	// We handle new node registering in Net_processOutput. This is the queue for all new nodes.
 	typedef std::pair< SmartPointer<NetNodeIntern>, Net_ConnID > NewNodeInfo;
 	std::list<NewNodeInfo> newNodesInfo;
 	
+	
+	// Gusanos node updates aren't handled pushed directly from packetsReceived.
+	// They will be pushed into this structure and handled specially here -
+	// the main addition is a bandwidth check.
+	// Every connection/Net_ConnID has its own manager.
+	struct NodeUpdateManager {		
+		typedef std::list<DataPackage> Updates;
+		Updates updates;
+		typedef std::map<NetNodeIntern*,Updates::iterator> NodeMap;
+		NodeMap nodeMap;
+		
+		void pushUpdate(const DataPackage& p) {
+			NodeMap::iterator f = nodeMap.find(p.node.get());
+			if(f != nodeMap.end()) {
+				*f->second = p;
+			}
+			else {
+				updates.push_back(p);
+				Updates::iterator& last = nodeMap[p.node.get()] = updates.end(); --last;
+			}
+		}
+		
+		void remove(NetNodeIntern* node) {
+			NodeMap::iterator f = nodeMap.find(node);
+			if(f != nodeMap.end()) {
+				updates.erase(f->second);
+				nodeMap.erase(f);
+			}
+		}
+		
+		void clear() {
+			updates.clear();
+			nodeMap.clear();
+		}
+		
+		bool send(const SmartPointer<NetControlIntern>& con, Net_ConnID target, size_t maxBytes);
+	};
+	std::map<Net_ConnID,NodeUpdateManager> nodeUpdateManager;
+
+	
+	// Every node has a specific class it is type of.
 	struct Class {
 		std::string name;
 		Net_ClassID id;
@@ -242,8 +284,15 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 	return n;
 }
 
-void NetControlIntern::DataPackage::send(CBytestream& bs) {
-	bs.writeByte(type);
+static size_t eliasGammaEncodedByteLen(size_t num) {
+	const size_t bits =
+		Encoding::bitsOf(num + 1) + // Encoding::encodeEliasGamma, bits
+		Encoding::bitsOf(num + 1) - 1; // Encoding::encodeEliasGamma, num
+	return (bits + 7) / 8;
+}
+
+void NetControlIntern::DataPackage::send(CBytestream& bs, bool withTypeInfo) {
+	if(withTypeInfo) bs.writeByte(type);
 	if(nodeMustBeSet()) {
 		if(node.get() == NULL) {
 			errors << "NetControlIntern::DataPackage::send: node was not set" << endl;
@@ -256,8 +305,8 @@ void NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeData(rawFromBits(data));
 }
 
-void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& con, CBytestream& bs) {
-	type = (NetControlIntern::DataPackage::Type) bs.readByte();
+void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& con, CBytestream& bs, bool withTypeInfo) {
+	if(withTypeInfo) type = (NetControlIntern::DataPackage::Type) bs.readByte();
 	nodeId = nodeMustBeSet() ? readEliasGammaNr(bs) : INVALID_NODE_ID;
 	node = NULL;
 	size_t len = readEliasGammaNr(bs);
@@ -267,6 +316,8 @@ void NetControlIntern::DataPackage::read(const SmartPointer<NetControlIntern>& c
 
 
 static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetControlIntern>& con, Net_ConnID connid) {
+	assert(connid != INVALID_CONN_ID);
+	
 	typedef std::list<NetControlIntern::DataPackage*> Packages;
 	Packages packages;
 	
@@ -308,15 +359,17 @@ static bool composePackagesForConn(CBytestream& bs, const SmartPointer<NetContro
 				if(i->repRules != Net_REPRULE_NONE)
 					warnings << "reprules should be none for gus package of type " << i->type << endl;
 			}
-					   
-			packages.push_back(&*i);
+			
+			if(i->type == NetControlIntern::DataPackage::GPT_NodeUpdate)
+				con->nodeUpdateManager[connid].pushUpdate(*i);
+			else
+				packages.push_back(&*i);
 		}
 	
 	if(packages.size() == 0) return false;
 	
 	bs.writeByte(con->isServer ? (uchar)S2C_GUSANOS : (uchar)C2S_GUSANOS);
-
-	writeEliasGammaNr(bs, packages.size());
+	writeEliasGammaNr(bs, packages.size() - 1);
 	for(Packages::iterator i = packages.begin(); i != packages.end(); ++i)
 		(*i)->send(bs);
 	
@@ -367,9 +420,43 @@ void Net_Control::olxSend(bool /* sendPendingOnly */) {
 	intern->packetsToSend.clear();
 }
 
+bool NetControlIntern::NodeUpdateManager::send(const SmartPointer<NetControlIntern>& con, Net_ConnID target, size_t maxBytes) {
+	if(updates.size() == 0) return false;
+	CBytestream tmpbs;
+
+	size_t count = 0;
+	while(updates.size() > 0) {
+		CBytestream tmpbs2;
+		updates.front().send(tmpbs2, false);
+		if(tmpbs.GetLength() + tmpbs2.GetLength() + eliasGammaEncodedByteLen(count) + 1 > maxBytes)
+			break;
+		
+		tmpbs.Append(&tmpbs2);
+		remove(updates.front().node.get());
+		count++;
+	}
+	if(count == 0) return false;
+	
+	CBytestream bs;
+	bs.writeByte(con->isServer ? (uchar)S2C_GUSANOSUPDATE : (uchar)C2S_GUSANOSUPDATE);
+	writeEliasGammaNr(bs, count - 1);
+	bs.Append(&tmpbs);
+
+	if(con->isServer)
+		serverConnFromNetConnID(target)->getNetEngine()->SendPacket(&bs);
+	else
+		cClient->getChannel()->AddReliablePacketToSend(bs);
+	
+	return true;
+}
+
+bool Net_Control::olxSendNodeUpdates(Net_ConnID target, size_t maxBytes) {
+	return intern->nodeUpdateManager[target].send(intern, target, maxBytes);
+}
+
 void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	//size_t bsStart = bs.GetPos();
-	size_t len = readEliasGammaNr(bs);
+	size_t len = readEliasGammaNr(bs) + 1;
 
 	for(size_t i = 0; i < len; ++i) {
 		intern->packetsReceived.push_back(NetControlIntern::DataPackage());
@@ -381,6 +468,22 @@ void Net_Control::olxParse(Net_ConnID src, CBytestream& bs) {
 	//bs.Dump(PrintOnLogger(notes), std::set<size_t>(), bsStart, bs.GetPos() - bsStart);
 }
 
+static void olxParseWithFixedType(Net_Control* con, Net_ConnID src, CBytestream& bs, NetControlIntern::DataPackage::Type type) {
+	size_t len = readEliasGammaNr(bs) + 1;
+	
+	for(size_t i = 0; i < len; ++i) {
+		con->intern->packetsReceived.push_back(NetControlIntern::DataPackage());
+		NetControlIntern::DataPackage& p = con->intern->packetsReceived.back();
+		p.type = type;
+		p.read(con->intern, bs, false);
+		p.connID = src;
+	}		
+}
+
+void Net_Control::olxParseUpdate(Net_ConnID src, CBytestream& bs) {
+	olxParseWithFixedType(this, src, bs, NetControlIntern::DataPackage::GPT_NodeUpdate);
+}
+
 void Net_Control::olxHandleClientDisconnect(Net_ConnID cl) {
 	// push node remove events for those nodes where we requested it
 	for(NetControlIntern::Nodes::iterator i = intern->nodes.begin(); i != intern->nodes.end(); ++i) {
@@ -389,6 +492,8 @@ void Net_Control::olxHandleClientDisconnect(Net_ConnID cl) {
 		if(node->intern->eventForRemove)
 			node->intern->incomingEvents.push_back( NetNodeIntern::Event::NodeRemoved(cl) );
 	}
+	
+	intern->nodeUpdateManager[cl].clear();
 }
 
 static void pushNodeUpdate(Net_Node* node, const std::vector<BitStream>& replData, Net_RepRules rule) {

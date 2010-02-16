@@ -201,7 +201,7 @@ private:
 
 	bool		NewFrom(CMap *map);
 	void		SaveToCache();
-	bool		LoadFromCache();
+	bool		LoadFromCache(const std::string& filename);
 
 public:
 	// Methods

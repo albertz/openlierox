@@ -7,6 +7,7 @@
 
 #include "util/vec.h"
 #include "gusanos/sound.h"
+#include "CVec.h"
 
 void update_volume( int oldValue );
 
@@ -17,7 +18,7 @@ struct Listener
 	Vec spd;
 };
 
-
+class SoundSample;
 class SfxDriver;
 class Sound;
 
@@ -37,6 +38,9 @@ public:
 	void removeListener(Listener* listener);
 	void volumeChange();
 	SfxDriver* getDriver();
+	
+	void playSimpleGlobal(SoundSample* snd);
+	void playSimple2D(SoundSample* snd, CVec pos);
 	
 	operator bool(); // Returns true if it's safe to use this object
 private:

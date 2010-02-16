@@ -71,6 +71,9 @@ inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int loca
 	StartSound(smp.get(), pos, local, volume, me);
 }
 
+void StartSound(SoundSample* smp, CVec pos);
+
+
 // TODO: don't make them global
 extern AbsTime fCurSongStart;
 extern AbsTime fTimePaused;

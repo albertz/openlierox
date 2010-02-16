@@ -121,6 +121,7 @@ public:
 	static void olxShutdown();
 	
 	void olxParse(Net_ConnID src, CBytestream& bs);
+	void olxParseUpdate(Net_ConnID src, CBytestream& bs);
 	void olxSend(bool sendPendingOnly);
 	
 	static Net_ConnID getServerID();

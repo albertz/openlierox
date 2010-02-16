@@ -10,6 +10,7 @@
 #include "Level.h"
 #include "MapLoader.h"
 #include "StringUtils.h"
+#include "GfxPrimitives.h"
 
 LevelInfo infoForLevel(const std::string& f, bool absolute) {
 	MapLoad* loader = MapLoad::open(absolute ? f : ("levels/" + f), absolute, false);
@@ -25,4 +26,17 @@ LevelInfo infoForLevel(const std::string& f, bool absolute) {
 	delete loader;
 	
 	return info;
+}
+
+SmartPointer<SDL_Surface> minimapForLevel(const std::string& f, bool absolute) {
+	LevelInfo info = infoForLevel(f, absolute);
+	
+	std::auto_ptr<MapLoad> loader( MapLoad::open(absolute ? f : ("levels/" + f), absolute, false) );
+	if(!loader.get()) {
+		SmartPointer<SDL_Surface> minimap = gfxCreateSurface(128,96);
+		DrawCross(minimap.get(), 0, 0, 128, 96, Color(0,0,255));
+		return minimap;
+	}
+	
+	return loader->getMinimap();
 }

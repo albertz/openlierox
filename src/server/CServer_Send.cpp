@@ -34,6 +34,7 @@
 #include "CGameMode.h"
 #include "game/Mod.h"
 #include "game/Game.h"
+#include "gusanos/network.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -363,6 +364,14 @@ void GameServer::SendWormsOut(const std::list<byte>& ids)
 	}
 }
 
+static float maxRateForClient(CServerConnection* cl) {
+	// Modem, ISDN, LAN, local
+	// (Bytes per second)
+	const float	Rates[4] = {2500, 7500, 10000, 50000};
+	
+	return Rates[cl->getNetSpeed()];
+}
+
 ///////////////////
 // Update all the client about the playing worms
 // Returns true if we sent an update
@@ -378,10 +387,9 @@ bool GameServer::SendUpdate()
 	// Get the update packets for each worm that needs it and save them
 	//
 	std::list<CWorm *> worms_to_update;
-	CWorm *w = cWorms;
 	{
-		int i, j;
-		for (i = j = 0; j < iNumPlayers && i < MAX_WORMS; i++, w++)  {
+		CWorm *w = cWorms;
+		for (int i = 0; i < MAX_WORMS; i++, w++)  {
 			if (!w->isUsed())
 				continue;
 
@@ -389,8 +397,6 @@ bool GameServer::SendUpdate()
 			if (w->getClient())
 				if (!w->getClient()->getGameReady())
 					continue;
-
-			++j;
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
@@ -446,69 +452,71 @@ bool GameServer::SendUpdate()
 				}
 			}
 
-			CBytestream update_packets;  // Contains all the update packets except the one from this client
-
-			byte num_worms = 0;
-
-			// Send all the _other_ worms details
 			if(!game.gameScript()->gusEngineUsed()) {
-				std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
-				for(; w_it != worms_to_update.end(); w_it++) {
-					CWorm* w = *w_it;
+				CBytestream update_packets;  // Contains all the update packets except the one from this client
 
-					// Check if this client owns the worm
-					if(cl->OwnsWorm(w->getID()))
-						continue;
-						
-					// Give the game mode a chance to override sending a packet (might reduce data sent)
-					if(!getGameMode()->NeedUpdate(cl, w))
-						continue;
+				byte num_worms = 0;
 
-					++num_worms;
-
-					CBytestream bytes;
-					bytes.writeByte(w->getID());
-					w->writePacket(&bytes, true, cl);
-
-					// Send out the update
-					update_packets.Append(&bytes);
-				}
-			}
-
-			CBytestream *bs = cl->getUnreliable();
-			size_t oldBsPos = bs->GetPos();
-
-			if(num_worms > 0) {
-				// Write the packets to the unreliable bytestream
-				bs->writeByte(S2C_UPDATEWORMS);
-				bs->writeByte(num_worms);
-				bs->Append(&update_packets);
-			}
-			
-			// Write out a stat packet
-			if(!game.gameScript()->gusEngineUsed()) {
-				bool need_send = false;
+				// Send all the _other_ worms details
 				{
-					for (short j=0; j < cl->getNumWorms(); j++)
-						if (cl->getWorm(j)->checkStatePacketNeeded())  {
-							cl->getWorm(j)->updateStatCheckVariables();
-							need_send = true;
-							break;
-						}
+					std::list<CWorm*>::const_iterator w_it = worms_to_update.begin();
+					for(; w_it != worms_to_update.end(); w_it++) {
+						CWorm* w = *w_it;
+
+						// Check if this client owns the worm
+						if(cl->OwnsWorm(w->getID()))
+							continue;
+							
+						// Give the game mode a chance to override sending a packet (might reduce data sent)
+						if(!getGameMode()->NeedUpdate(cl, w))
+							continue;
+
+						++num_worms;
+
+						CBytestream bytes;
+						bytes.writeByte(w->getID());
+						w->writePacket(&bytes, true, cl);
+
+						// Send out the update
+						update_packets.Append(&bytes);
+					}
 				}
 
-				// Only if necessary
-				if (need_send)  {
-					bs->writeByte( S2C_UPDATESTATS );
-					bs->writeByte( cl->getNumWorms() );
-					for(short j = 0; j < cl->getNumWorms(); j++)
-						cl->getWorm(j)->writeStatUpdate(bs);
+				CBytestream *bs = cl->getUnreliable();
+				size_t oldBsPos = bs->GetPos();
+
+				if(num_worms > 0) {
+					// Write the packets to the unreliable bytestream
+					bs->writeByte(S2C_UPDATEWORMS);
+					bs->writeByte(num_worms);
+					bs->Append(&update_packets);
 				}
+				
+				// Write out a stat packet
+				{
+					bool need_send = false;
+					{
+						for (short j=0; j < cl->getNumWorms(); j++)
+							if (cl->getWorm(j)->checkStatePacketNeeded())  {
+								cl->getWorm(j)->updateStatCheckVariables();
+								need_send = true;
+								break;
+							}
+					}
+
+					// Only if necessary
+					if (need_send)  {
+						bs->writeByte( S2C_UPDATESTATS );
+						bs->writeByte( cl->getNumWorms() );
+						for(short j = 0; j < cl->getNumWorms(); j++)
+							cl->getWorm(j)->writeStatUpdate(bs);
+					}
+				}
+
+				if(!cl->isLocalClient())
+					uploadAmount += (bs->GetPos() - oldBsPos);
 			}
-
-			if(!cl->isLocalClient())
-				uploadAmount += (bs->GetPos() - oldBsPos);
-			
+						
 			// Send the shootlist (reliable)
 			CShootList *sh = cl->getShootList();
 			float delay = shootDelay[cl->getNetSpeed()];
@@ -526,9 +534,15 @@ bool GameServer::SendUpdate()
 				cl->getChannel()->AddReliablePacketToSend(shootBs);
 			}
 			
-			// TODO: that doesn't update uploadAmount
+			// TODO: that doesn't update uploadAmount (but it also doesnt in CClient, to be fair :P)
 			cl->getNetEngine()->SendReportDamage();
 
+			if(network.getNetControl() && !cl->getChannel()->ReliableStreamBandwidthLimitHit()) {
+				const size_t maxBytes = (size_t) cl->getChannel()->MaxDataPossibleToSendInstantly();
+				if(maxBytes > 0)
+					network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
+			}
+			
 			if(!cl->isLocalClient())
 				last = i;
 		}
@@ -599,17 +613,10 @@ bool GameServer::checkBandwidth(CServerConnection *cl)
 	if(cl->getNetSpeed() == 3) // local
 		return true;
 
-
-	// Modem, ISDN, LAN, local
-	// (Bytes per second)
-	const float	Rates[4] = {2500, 7500, 10000, 50000};
-
 	// Are we over the clients bandwidth rate?
-	if(cl->getChannel()->getOutgoingRate() > Rates[cl->getNetSpeed()]) {
-
+	if(cl->getChannel()->getOutgoingRate() > maxRateForClient(cl))
 		// Don't send the packet
 		return false;
-	}
 
 	// All ok
 	return true;
