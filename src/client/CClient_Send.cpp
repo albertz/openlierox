@@ -84,7 +84,7 @@ void CClientNetEngine::SendWormDetails()
 	// only for join-mode because otherwise, we would handle it in CServer
 	if(tLX->iGameType == GME_JOIN && network.getNetControl()) {
 		const float restUpload = GameServer::getMaxUploadBandwidth() - client->getChannel()->getOutgoingRate();
-		const size_t maxBytes = (size_t) (restUpload * tLX->fDeltaTime.seconds());
+		const size_t maxBytes = (size_t) (MAX(restUpload,0.0f) * tLX->fDeltaTime.seconds());
 		if(network.getNetControl()->olxSendNodeUpdates(NetConnID_server(), maxBytes))
 			client->fLastUpdateSent = tLX->currentTime;
 	}
