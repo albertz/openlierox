@@ -237,6 +237,8 @@ bool VermesLevelLoader::load(CMap* level, std::string const& path)
 			swapTeam_1_2(level->config()->spawnPoints);		
 		}
 		
+		level->Width = level->material->w;
+		level->Height = level->material->h;
 		level->loaderSucceeded();
 		level->m_gusLoaded = true;
 		return true;
