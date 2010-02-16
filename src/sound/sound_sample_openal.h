@@ -8,11 +8,14 @@
 #include <AL/al.h>
 
 class CGameObject;
+struct OpenALBuffer;
+template <> void SmartPointer_ObjectDeinit<OpenALBuffer> ( OpenALBuffer * obj );
 
 class SoundSampleOpenAL : public SoundSample 
 {
 public:		
 	SoundSampleOpenAL(std::string const& filename);
+	SoundSampleOpenAL(const SoundSampleOpenAL& s);
 	~SoundSampleOpenAL();
 	
 	void play( float pitch,float volume);
@@ -21,13 +24,15 @@ public:
 	bool isPlaying();
 	void updateObjSound(Vec& vec);
 	bool avail();
+	SmartPointer<SoundSample> copy() { return new SoundSampleOpenAL(*this); }
 	
-	size_t GetMemorySize() { return size; }
+	size_t GetMemorySize();
 	
 private:
 	
+	void initSound();
+	SmartPointer<OpenALBuffer> buffer;
 	ALuint m_sound;
-	size_t size;
 	
 };
 

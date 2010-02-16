@@ -2,7 +2,7 @@
 
 #include "sound_sample.h"
 
-SoundSample::SoundSample(std::string const& filename)
+SoundSample::SoundSample()
 {
 }
 

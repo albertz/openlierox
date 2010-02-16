@@ -5,6 +5,7 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
+#include "SmartPointer.h"
 #include "gusanos/resource_list.h"
 #include "util/vec.h"
 #include "gusanos/glua.h"
@@ -15,7 +16,7 @@ class SoundSample
 {
 public:
 		
-	SoundSample(std::string const& filename);
+	SoundSample();
 	virtual ~SoundSample();
 	
 	virtual void play( float pitch,float volume)=0;
@@ -25,7 +26,8 @@ public:
 	virtual void updateObjSound(Vec& vec)=0;
 	virtual bool avail()=0;
 
-
+	virtual SmartPointer<SoundSample> copy() = 0;
+	
 	virtual size_t GetMemorySize() = 0;
 };
 
