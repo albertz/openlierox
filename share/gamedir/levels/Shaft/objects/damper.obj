@@ -1,0 +1,5 @@
+col_layer = 7
+invisible = 1
+
+on detect_range (8, 1, [7])
+ repel(0.017, 8, 0.017)

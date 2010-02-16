@@ -1,0 +1,7 @@
+sprite = lamp2.png
+occluded = 1
+blender = add
+alpha = 255
+col_layer = 7
+line_to_origin = true
+colour = [255,255,255]
