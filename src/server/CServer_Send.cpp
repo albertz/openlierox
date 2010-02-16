@@ -538,8 +538,8 @@ bool GameServer::SendUpdate()
 			cl->getNetEngine()->SendReportDamage();
 
 			if(network.getNetControl()) {
-				const float restUpload = maxRateForClient(cl) - cl->getChannel()->getOutgoingRate();
-				const size_t maxBytes = (size_t) (restUpload * tLX->fDeltaTime.seconds());
+				const float restUpload = getMaxUploadBandwidth() - GetUpload();
+				const size_t maxBytes = (size_t) (MAX(restUpload,0.0f) * tLX->fDeltaTime.seconds());
 				network.getNetControl()->olxSendNodeUpdates(NetConnID_conn(cl), maxBytes);
 			}
 			
