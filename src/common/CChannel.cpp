@@ -23,6 +23,7 @@
 #include "StringUtils.h"
 #include "Timer.h"
 #include "MathLib.h"
+#include "CServer.h"
 
 
 
@@ -87,6 +88,13 @@ void CChannel::AddReliablePacketToSend(CBytestream& bs)
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
 
+size_t CChannel::currentReliableOutSize() {
+	size_t s = 0;
+	for(std::list<CBytestream>::iterator i = Messages.begin(); i != Messages.end(); ++i)
+		s += i->GetLength();
+	return s;
+}
+
 void CChannel::UpdateTransmitStatistics( int sentDataSize )
 {
 	// Update statistics
@@ -131,7 +139,7 @@ void CChannel::UpdateReliableStreamBandwidthCounter()
 		ReliableStreamBandwidthCounter = ReliableStreamBandwidthCounterMaxValue;
 }
 
-bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend )
+bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend, bool doUpdate )
 {
 	if( ReliableStreamBandwidthLimit <= 0 ) // No bandwidth limit
 		return true;
@@ -140,13 +148,32 @@ bool CChannel::CheckReliableStreamBandwidthLimit( float dataSizeToSend )
 		// Allow sending packets that exceed MaxValue, if Counter == MaxValue, then Counter will become negative
 		ReliableStreamBandwidthCounter >= ReliableStreamBandwidthCounterMaxValue ) 
 	{
-		ReliableStreamBandwidthCounter -= dataSizeToSend;
-		ReliableStreamLastSentTime = tLX->currentTime;
+		if(doUpdate) {
+			ReliableStreamBandwidthCounter -= dataSizeToSend;
+			ReliableStreamLastSentTime = tLX->currentTime;
+		}
 		return true;
 	}
 
 	return false;
 }
+
+float CChannel::MaxDataPossibleToSendInstantly() {
+	if( ReliableStreamBandwidthLimit <= 0 ) // No bandwidth limit
+		return GameServer::getMaxUploadBandwidth();
+	
+	float tmpReliableStreamBandwidthCounter = ReliableStreamBandwidthCounter +
+		( tLX->currentTime - ReliableStreamBandwidthCounterLastUpdate ).seconds() *
+		ReliableStreamBandwidthLimit;
+
+	tmpReliableStreamBandwidthCounter = MAX(tmpReliableStreamBandwidthCounter, ReliableStreamBandwidthCounterMaxValue);	
+	tmpReliableStreamBandwidthCounter -= currentReliableOutSize();
+	
+	tmpReliableStreamBandwidthCounter -= 4; // all kind of header stuff
+	
+	return MAX(0.0f, tmpReliableStreamBandwidthCounter);
+}
+
 
 bool CChannel::ReliableStreamBandwidthLimitHit()
 {
@@ -1337,6 +1364,15 @@ void CChannel3::AddReliablePacketToSend(CBytestream& bs) // The same as in CChan
 	Messages.push_back(bs);
 	// The messages are joined in Transmit() in one bigger packet, until it will hit bandwidth limit
 }
+
+size_t CChannel3::currentReliableOutSize() {
+	size_t s = 0;
+	for(std::list<CBytestream>::iterator i = Messages.begin(); i != Messages.end(); ++i)
+		s += i->GetLength() + 4;
+	return s;
+}
+
+
 
 
 // CRC16 stolen from Linux kernel sources
