@@ -13,6 +13,7 @@
 #include <string>
 #include <cstdio>
 #include <SDL.h>
+#include "SmartPointer.h"
 class CMap;
 
 struct MapHeader {
@@ -27,6 +28,7 @@ protected:
 	bool abs_filename;
 	FILE* fp;
 	MapHeader head;
+	SmartPointer<SDL_Surface> minimap;
 	
 public:
 	// determines level format and creates the specific maploader
@@ -41,6 +43,7 @@ public:
 	
 	virtual bool parseHeader(bool printErrors = true) = 0;
 	virtual bool parseData(CMap* m) = 0;
+	virtual SmartPointer<SDL_Surface> getMinimap(); // in some cases, this can be done independent from data parseData and much faster
 	
 	MapLoad* parseHeaderAndCheck(bool printErrors = true) {
 		if(parseHeader(printErrors)) return this;
@@ -48,6 +51,7 @@ public:
 		return NULL;
 	}
 	
+	void parseDataFinalize(CMap* m);
 };
 
 #endif

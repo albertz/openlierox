@@ -48,6 +48,30 @@ static void lxflagsToGusflags(CMap* m) {
 	m->loaderSucceeded();
 }
 
+static void setMinimap(CMap* m, SmartPointer<SDL_Surface>& minimap) {
+	if(m->GetMiniMap().get()) {
+		minimap = m->GetMiniMap();
+	} else {
+		minimap = gfxCreateSurface(128,96);
+		DrawCross(minimap.get(), 0, 0, 128, 96, Color(255,0,0));
+	}	
+}
+
+void MapLoad::parseDataFinalize(CMap* m) {
+	if(m->GetMiniMap().get()) m->UpdateMiniMap(true);
+	setMinimap(m, minimap);
+}
+
+struct ParseFinalizer {
+	MapLoad* mapLoad;
+	CMap* map;
+	ParseFinalizer(MapLoad* _load, CMap* _map) : mapLoad(_load), map(_map) {}
+	~ParseFinalizer() {
+		mapLoad->parseDataFinalize(map);
+	}
+};
+
+
 class ML_OrigLiero : public MapLoad {
 public:
 	static const long Width = 504, Height = 350;
@@ -80,6 +104,8 @@ public:
 	}
 	
 	bool parseData(CMap* m) {
+		ParseFinalizer finalizer(this, m);
+		
 		fseek(fp,0,SEEK_SET);
 		
 		// Default is a dirt theme for the background & dirtballs
@@ -579,6 +605,8 @@ class ML_LieroX : public MapLoad {
 	
 	
 	bool parseData(CMap* m) {
+		ParseFinalizer finalizer(this, m);
+
 		m->Name = head.name;
 		m->Width = (int)head.width;
 		m->Height = (int)head.height;
@@ -1594,6 +1622,8 @@ public:
 	
 	
 	bool parseData(CMap* m) {
+		ParseFinalizer finalizer(this, m);
+
 		int episode = 0;
 		if(filename != "") {
 			episode = (int)filename[filename.size() - 1] - (int)'0';
@@ -1929,6 +1959,8 @@ public:
 	}
 	
 	virtual bool parseData(CMap* m) {
+		ParseFinalizer finalizer(this, m);
+
 		curMap = m;
 		m->Shutdown();
 		
@@ -2008,5 +2040,32 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 	
 	if(printErrors) errors << "level format of file " << filename << " unknown" << endl;
 	return NULL;
+}
+
+SmartPointer<SDL_Surface> MapLoad::getMinimap() {
+	if(minimap.get()) return minimap;
+
+	// Stupid and dumb way but we cannot do better in general.
+	// parseData should set the minimap.
+	
+	// In special cases (for example for Gusanos) where it is possible to do easier,
+	// we have overloaded this getMinimap function.
+	// In case for LieroX for example, it doesn't really make sense. We could add
+	// lazyness behaviour to shadows+addition stuff so that not needed stuff
+	// is not calculated. That would be a much cleaner way instead of coding
+	// a special handler for LieroX maps.
+
+	CMap map;
+	if(map.LoadFromCache(filename)) {
+		setMinimap(&map, minimap);
+		
+	} else {
+		// TODO: remove that as soon as we do the map loading in a seperate thread
+		ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+
+		parseData(&map);
+	}
+	
+	return minimap;
 }
 

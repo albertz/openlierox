@@ -154,9 +154,9 @@ void CMap::SaveToCache()
 
 ///////////////
 // Try to load the map from cache
-bool CMap::LoadFromCache()
+bool CMap::LoadFromCache(const std::string& filename)
 {
-	SmartPointer<CMap> cached = cCache.GetMap(FileName);
+	SmartPointer<CMap> cached = cCache.GetMap(filename);
 	if (!cached.get())
 		return false;
 
@@ -2653,7 +2653,7 @@ bool CMap::Load(const std::string& filename)
 	FileName = filename;
 	
 	// try loading a previously cached map
-	if(LoadFromCache()) {
+	if(LoadFromCache(FileName)) {
 		// everything is ok
 		notes << "reusing cached map for " << filename << endl;
 		return true;
@@ -2694,9 +2694,6 @@ bool CMap::Load(const std::string& filename)
 		UpdateDrawImage(0, 0, bmpImage->w, bmpImage->h);
 	}
 	
-	// Update the minimap
-	UpdateMiniMap(true);
-
     // Calculate the total dirt count
     CalculateDirtCount();
 
