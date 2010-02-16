@@ -48,13 +48,16 @@ static void lxflagsToGusflags(CMap* m) {
 	m->loaderSucceeded();
 }
 
+static void setMinimapErrorGraphic(SmartPointer<SDL_Surface>& minimap) {
+	minimap = gfxCreateSurface(128,96);
+	DrawCross(minimap.get(), 0, 0, 128, 96, Color(255,0,0));	
+}
+
 static void setMinimap(CMap* m, SmartPointer<SDL_Surface>& minimap) {
 	if(m->GetMiniMap().get()) {
 		minimap = m->GetMiniMap();
-	} else {
-		minimap = gfxCreateSurface(128,96);
-		DrawCross(minimap.get(), 0, 0, 128, 96, Color(255,0,0));
-	}	
+	} else
+		setMinimapErrorGraphic(minimap);
 }
 
 void MapLoad::parseDataFinalize(CMap* m) {
@@ -1957,6 +1960,58 @@ public:
 	virtual bool parseHeader(bool printErrors) {
 		return true;
 	}
+	
+	SmartPointer<SDL_Surface> getMinimap() {
+		if(minimap.get()) return minimap;
+		
+		SmartPointer<SDL_Surface> image = LoadGameImage(filename + "/level.png");
+		if(!image.get()) {
+			setMinimapErrorGraphic(minimap);
+			return minimap;
+		}		
+		SetColorKey(image.get());
+		SmartPointer<SDL_Surface> paralax = LoadGameImage(filename + "/paralax.png");
+		
+		SmartPointer<SDL_Surface>& bmpMiniMap = minimap;
+		const int x = 0, y = 0, w = image->w, h = image->h;
+		minimap = gfxCreateSurface(128, 96);
+		
+		// copied code from CMap::gusUpdateMinimap
+		{
+			void (*blitFct) ( SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, int sy, int dx, int dy, int sw, int sh, float xratio, float yratio);
+			
+			if (tLXOptions->bAntiAliasing)
+				blitFct = &DrawImageResampledAdv;
+			else
+				blitFct = &DrawImageResizedAdv;
+			
+			// Calculate ratios
+			const float xratio = (float)bmpMiniMap.get()->w / (float)image->w;
+			const float yratio = (float)bmpMiniMap.get()->h / (float)image->h;
+			
+			const int dx = (int)((float)x * xratio);
+			const int dy = (int)((float)y * yratio);
+			
+			if (paralax.get()) {
+				// Calculate ratios
+				const float parxratio = (float)paralax->w / (float)image->w;
+				const float paryratio = (float)paralax->h / (float)image->h;
+				
+				const int parx = (int)((float)x * parxratio);
+				const int pary = (int)((float)y * paryratio);
+				const int parw = (int)((float)w * parxratio);
+				const int parh = (int)((float)h * paryratio);
+				
+				(*blitFct) (bmpMiniMap.get(), paralax.get(), parx, pary, dx, dy, parw, parh, xratio / parxratio, yratio / paryratio);
+			} else {
+				DrawRectFill(bmpMiniMap.get(), x - 1, y - 1, x + w + 1, y + h + 1, Color());
+			}
+			
+			(*blitFct) (bmpMiniMap.get(), image.get(), x - 1, y - 1, dx, dy, w + 1, h + 1, xratio, yratio);
+		}
+		
+		return minimap;
+	}	
 	
 	virtual bool parseData(CMap* m) {
 		ParseFinalizer finalizer(this, m);
