@@ -672,6 +672,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_PLAYSOUND:
 				ParsePlaySound(bs);
 				break;
+
+			case S2C_GUSANOSUPDATE:
+				network.olxParseUpdate(NetConnID_server(), *bs);
+				break;
 				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)

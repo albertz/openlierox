@@ -414,6 +414,15 @@ void Network::olxParse(Net_ConnID src, CBytestream& bs) {
 	}
 }
 
+void Network::olxParseUpdate(Net_ConnID src, CBytestream& bs) {
+	if(m_control)
+		m_control->olxParseUpdate(src, bs);
+	else {
+		errors << "GusNetwork::olxParseUpdate: net control not initialised" << endl;
+		bs.SkipAll();
+	}
+}
+
 void Network::olxSend(bool sendPendingOnly) {
 	// we can ignore Gusanos network in local play
 	if(tLX->iGameType == GME_LOCAL) return;

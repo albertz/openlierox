@@ -176,6 +176,10 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 			network.olxParse(NetConnID_conn(cl), *bs);
 			break;
 
+		case C2S_GUSANOSUPDATE:
+			network.olxParseUpdate(NetConnID_conn(cl), *bs);
+			break;
+				
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings

@@ -176,7 +176,10 @@ const Version& GetGameVersion() {
 
 
 bool Version::isBanned() const {
-	return *this == OLXBetaVersion(9) || *this == OLXBetaVersion(0,58,1);
+	return
+	*this == OLXBetaVersion(9) || // too much different games with this branding around
+	*this == OLXBetaVersion(0,58,1) || // TODO: ehm, what was it again?
+	(*this >= OLXBetaVersion(0,59,1) && *this <= OLXBetaVersion(0,59,4)); // Gusanos protocol has changed
 }
 
 
