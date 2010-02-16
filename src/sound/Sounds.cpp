@@ -20,7 +20,7 @@
 #endif
 
 #include <SDL.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "sound/SoundsBase.h"
 #include "LieroX.h"
