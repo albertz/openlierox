@@ -260,6 +260,8 @@ void SoundSampleOpenAL::play2D(CGameObject* obj, float loudness, float pitch)
 
 bool SoundSampleOpenAL::isPlaying()
 {
+	if(!m_sound) return false;
+	
 	ALint state;
 	alGetSourcei(m_sound,AL_SOURCE_STATE,&state);
 	if (state==AL_PLAYING) 
