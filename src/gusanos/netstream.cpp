@@ -284,6 +284,13 @@ static size_t readEliasGammaNr(CBytestream& bs) {
 	return n;
 }
 
+static size_t eliasGammaEncodedByteLen(size_t num) {
+	const size_t bits =
+		Encoding::bitsOf(num + 1) + // Encoding::encodeEliasGamma, bits
+		Encoding::bitsOf(num + 1) - 1; // Encoding::encodeEliasGamma, num
+	return (bits + 7) / 8;
+}
+
 void NetControlIntern::DataPackage::send(CBytestream& bs) {
 	bs.writeByte(type);
 	if(nodeMustBeSet()) {
@@ -421,7 +428,7 @@ bool NetControlIntern::NodeUpdateManager::send(const SmartPointer<NetControlInte
 	while(updates.size() > 0) {
 		CBytestream tmpbs2;
 		updates.front().send(tmpbs2);
-		if(tmpbs.GetLength() + tmpbs2.GetLength() > maxBytes)
+		if(tmpbs.GetLength() + tmpbs2.GetLength() + eliasGammaEncodedByteLen(count + 1) + 1 > maxBytes)
 			break;
 		
 		tmpbs.Append(&tmpbs2);
