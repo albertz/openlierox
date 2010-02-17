@@ -281,7 +281,7 @@ ELSE(WIN32)
 					${OLXROOTDIR}/libs/lua
 					${OLXROOTDIR}/libs/boost_process)
 		# as long as we dont have breakpad, this doesnt make sense
-		#ADD_DEFINITIONS(-g2) # limit debug info somewhat, or it will produce huge .EXE
+		ADD_DEFINITIONS(-gdwarf-2 -g1) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
 	ELSE(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS("-pthread")
 	ENDIF(MINGW_CROSS_COMPILE)
