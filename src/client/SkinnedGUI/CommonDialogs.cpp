@@ -685,7 +685,7 @@ void CWeaponOptionsDialog::ItemClick(CListview *sender, CListviewItem *item, int
 	if (!sub)
 		return;
 	// Get the list
-	if( ! cRestrictionList->findWeapon(sub->getName()) );
+	if( ! cRestrictionList->findWeapon(sub->getName()) )
 		return;
 
 	// Change the state

@@ -431,8 +431,8 @@ public:
 		uchar getArea_Or(long x, long y, long w, long h, bool wrapAround = false) { return getArea<Or>(x,y,w,h,wrapAround); }
 		
 		typedef bool (*CheckFunc) (uchar);
-		template<uchar flags> static bool Have(uchar a) { return (bool)(a & flags); }
-		template<uchar flags> static bool HaveNot(uchar a) { return !(bool)(a & flags); }
+		template<uchar flags> static bool Have(uchar a) { return (a & flags) == flags; }
+		template<uchar flags> static bool HaveNot(uchar a) { return (a & flags) != flags; }
 		
 		template<CheckFunc func>
 		bool checkLineHoriz_All(long x, long y, long x2, bool wrapAround = false) {

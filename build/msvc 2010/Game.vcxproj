@@ -92,7 +92,7 @@
       <AdditionalIncludeDirectories>../../include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\zlib.lib;$(ProjectDir)\..\msvc\libs\curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)\DIA SDK\lib\diaguids.lib;openal32.lib;alut.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg_static.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>wsock32.lib;wininet.lib;$(ProjectDir)\..\msvc\libs\NLstatic.lib;$(ProjectDir)\..\msvc\libs\libzip.lib;$(ProjectDir)\..\msvc\libs\zlib.lib;$(ProjectDir)\..\msvc\libs\curllib.lib;$(ProjectDir)\$(Configuration)\BreakPad.lib;$(VSInstallDir)\DIA SDK\lib\diaguids.lib;openal32.lib;alut.lib;libvorbis_static.lib;libvorbisfile_static.lib;libogg_static.lib;SDLmain.lib;SDL.lib;SDL_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>.\../../bin/OpenLieroX_debug.exe</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <IgnoreSpecificDefaultLibraries>LIBC;msvcrt.lib;LIBCMT;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
@@ -231,7 +231,6 @@
     <ClInclude Include="..\..\include\Unicode.h" />
     <ClInclude Include="..\..\include\win32memleakdebug.h" />
     <ClInclude Include="..\..\include\XMLutils.h" />
-    <ClInclude Include="..\..\src\game\GameSounds.h" />
     <ClInclude Include="..\..\src\game\Sounds.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\classes.h" />
     <ClInclude Include="..\..\src\gusanos\luaapi\context.h" />
@@ -240,10 +239,12 @@
     <ClInclude Include="..\..\src\sound\sfx.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver.h" />
     <ClInclude Include="..\..\src\sound\sfxdriver_openal.h" />
+    <ClInclude Include="..\..\src\sound\SoundsBase.h" />
     <ClInclude Include="..\..\src\sound\sound_sample.h" />
     <ClInclude Include="..\..\src\sound\sound_sample_openal.h" />
     <ClInclude Include="..\..\src\util\angle.h" />
     <ClInclude Include="..\..\src\util\bitarray.h" />
+    <ClInclude Include="..\..\src\util\Bitstream.h" />
     <ClInclude Include="..\..\src\util\common.h" />
     <ClInclude Include="..\..\src\util\compare.h" />
     <ClInclude Include="..\..\src\util\GusCache.h" />
@@ -611,15 +612,17 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\..\src\common\XMLutils.cpp" />
-    <ClCompile Include="..\..\src\game\GameSounds.cpp" />
+    <ClCompile Include="..\..\src\game\Sounds.cpp" />
     <ClCompile Include="..\..\src\gusanos\luaapi\context.cpp" />
     <ClCompile Include="..\..\src\sound\sfx.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver.cpp" />
     <ClCompile Include="..\..\src\sound\sfxdriver_openal.cpp" />
-    <ClCompile Include="..\..\src\sound\Sounds.cpp" />
-    <ClCompile Include="..\..\src\sound\sound_sample.cpp" />
+    <ClCompile Include="..\..\src\sound\Sounds.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/Sounds_src.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp" />
     <ClCompile Include="..\..\src\util\angle.cpp" />
+    <ClCompile Include="..\..\src\util\Bitstream.cpp" />
     <ClCompile Include="..\..\src\util\log.cpp" />
     <ClCompile Include="..\..\src\util\math_func.cpp" />
     <ClCompile Include="..\..\src\util\text.cpp" />
@@ -1219,11 +1222,7 @@
     <Library Include="..\msvc\libs\dbghelp.lib" />
     <Library Include="..\msvc\libs\libxml2.lib" />
     <Library Include="..\msvc\libs\pthreadVCE.lib" />
-    <Library Include="..\msvc\libs\SDL.lib" />
-    <Library Include="..\msvc\libs\SDL_image.lib" />
-    <Library Include="..\msvc\libs\SDL_mixer.lib" />
     <Library Include="..\msvc\libs\sdlgfx.lib" />
-    <Library Include="..\msvc\libs\SDLmain.lib" />
     <Library Include="..\msvc\libs\zlib.lib" />
   </ItemGroup>
   <ItemGroup>

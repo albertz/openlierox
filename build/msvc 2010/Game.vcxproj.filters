@@ -545,9 +545,6 @@
     <ClInclude Include="..\..\src\game\Game.h">
       <Filter>Game files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\game\GameSounds.h">
-      <Filter>Game files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\game\Level.h">
       <Filter>Game files</Filter>
     </ClInclude>
@@ -887,6 +884,9 @@
     <ClInclude Include="..\..\src\sound\sfxdriver_openal.h">
       <Filter>System Files\Sound</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\sound\SoundsBase.h">
+      <Filter>System Files\Sound</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\src\sound\sound_sample.h">
       <Filter>System Files\Sound</Filter>
     </ClInclude>
@@ -898,6 +898,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\util\bitarray.h">
       <Filter>System Files\GusanosUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\util\Bitstream.h">
+      <Filter>System Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\util\common.h">
       <Filter>System Files\GusanosUtil</Filter>
@@ -1423,9 +1426,6 @@
     <ClCompile Include="..\..\src\game\Game.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\game\GameSounds.cpp">
-      <Filter>Game files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\game\Level.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
@@ -1792,14 +1792,14 @@
     <ClCompile Include="..\..\src\sound\Sounds.cpp">
       <Filter>System Files\Sound</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\sound\sound_sample.cpp">
-      <Filter>System Files\Sound</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\sound\sound_sample_openal.cpp">
       <Filter>System Files\Sound</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\util\angle.cpp">
       <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\util\Bitstream.cpp">
+      <Filter>System Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\util\log.cpp">
       <Filter>System Files\GusanosUtil</Filter>
@@ -1812,6 +1812,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\util\vec.cpp">
       <Filter>System Files\GusanosUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Sounds.cpp">
+      <Filter>Game files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1827,19 +1830,7 @@
     <Library Include="..\msvc\libs\pthreadVCE.lib">
       <Filter>Libraries</Filter>
     </Library>
-    <Library Include="..\msvc\libs\SDL.lib">
-      <Filter>Libraries</Filter>
-    </Library>
     <Library Include="..\msvc\libs\sdlgfx.lib">
-      <Filter>Libraries</Filter>
-    </Library>
-    <Library Include="..\msvc\libs\SDLmain.lib">
-      <Filter>Libraries</Filter>
-    </Library>
-    <Library Include="..\msvc\libs\SDL_image.lib">
-      <Filter>Libraries</Filter>
-    </Library>
-    <Library Include="..\msvc\libs\SDL_mixer.lib">
       <Filter>Libraries</Filter>
     </Library>
     <Library Include="..\msvc\libs\zlib.lib">
