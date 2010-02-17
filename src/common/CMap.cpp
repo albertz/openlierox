@@ -1427,9 +1427,11 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 				// Set the flag to empty
 				if(!IsTransparent(hole.get(), pixel) && !(flag & PX_ROCK)) {
-                    if( flag & PX_EMPTY )
+                    if( flag & PX_EMPTY ) {
                         nDirtCount++;
-
+						putpixel(background, dx, dy, getpixel(image, dx, dy));
+					}
+					
 					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
 
 					// Place the dirt image
@@ -1437,7 +1439,7 @@ int CMap::PlaceDirt(int size, CVec pos)
 				}
 
 				// Put pixels that are not black/pink (eg, brown)
-                if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
+				if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
 					PutPixelToAddr(p2, pixel, screenbpp);
 					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
                     nDirtCount++;
@@ -1584,6 +1586,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 				// Set the flag to dirt
 				if(pixel == green && (flag & PX_EMPTY)) {
+					putpixel(background, dx, dy, getpixel(image, dx, dy));
 					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
                     nGreenCount++;
 
@@ -1596,6 +1599,7 @@ int CMap::PlaceGreenDirt(CVec pos)
 
 				// Put pixels that are not green/pink (eg, dark green)
                 if(pixel != green && pixel != pink && (flag & PX_EMPTY)) {
+					putpixel(background, dx, dy, getpixel(image, dx, dy));
 					PutPixelToAddr(p2, pixel, screenbpp);
 					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
                     nGreenCount++;
