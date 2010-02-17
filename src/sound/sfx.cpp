@@ -41,19 +41,8 @@ void update_volume( int oldValue )
 }
 
 
-Sfx::Sfx():driver(0)
-{
-}
-
-Sfx::~Sfx()
-{
-	simpleChanSounds.clear();
-	if (driver) {
-		delete driver;
-		driver = NULL;
-		m_initialized = false;
-	}
-}
+Sfx::Sfx() : driver(NULL) {}
+Sfx::~Sfx() {}
 
 bool Sfx::init()
 {
@@ -66,8 +55,11 @@ bool Sfx::init()
 void Sfx::shutDown()
 {
 	simpleChanSounds.clear();
-	if(driver)
+	if(driver) {
 		driver->shutDown();
+		delete driver;
+		driver = NULL;
+	}
 	m_initialized = false;
 }
 
