@@ -370,12 +370,12 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					putMaterial( 1, drawX+x, drawY+y );
 					checkWBorders( drawX+x, drawY+y );
 #ifndef DEDICATED_ONLY
-
 					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
-
 				}
 			}
+		
+		UpdateArea(drawX, drawY, tmpMask->m_bitmap->w, tmpMask->m_bitmap->h, true);
 	}
 	return returnValue;
 }
