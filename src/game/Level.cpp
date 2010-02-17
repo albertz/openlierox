@@ -7,6 +7,7 @@
  *
  */
 
+#include <memory>
 #include "Level.h"
 #include "MapLoader.h"
 #include "StringUtils.h"
