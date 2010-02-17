@@ -442,6 +442,11 @@ void initNetwork(LuaContext& context)
 	notes << "Lua: Registering as " << (game.isServer() ? "AUTH" : "non-AUTH") << endl;
 	lua_pushboolean(context, game.isServer());
 	lua_setfield(context, LUA_GLOBALSINDEX, "AUTH");
+
+	// TODO: this was missing. where was it set before?
+	lua_pushboolean(context, false);
+	lua_setfield(context, LUA_GLOBALSINDEX, "DEDSERV");
+
 }
 
 }
