@@ -1441,8 +1441,9 @@ int CMap::PlaceDirt(int size, CVec pos)
 				// Put pixels that are not black/pink (eg, brown)
 				if(!IsTransparent(hole.get(), pixel) && pixel != pink && (flag & PX_EMPTY)) {
 					PutPixelToAddr(p2, pixel, screenbpp);
-					*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
-                    nDirtCount++;
+					// TODO: this should be obsolete & wrong, shoudln't it?
+					//*(uchar*)px = Material::indexFromLxFlag(PX_DIRT);
+                    //nDirtCount++;
                 }
 
 				p += screenbpp;
