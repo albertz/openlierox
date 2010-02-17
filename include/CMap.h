@@ -96,7 +96,6 @@ public:
 		bmpBackImage = NULL;
 		bmpBackImageHiRes = NULL;
 		bmpMiniMap = NULL;
-		PixelFlags = NULL;
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
 		
@@ -142,7 +141,6 @@ private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
 	SmartPointer<SDL_Surface> bmpMiniMapTransparent; // Half-transparent minimap for Gusanos
     SmartPointer<SDL_Surface> bmpGreenMask;
-	uchar		*PixelFlags;
     SmartPointer<SDL_Surface> bmpShadowMap;
 #ifdef _AI_DEBUG
 	SmartPointer<SDL_Surface> bmpDebugImage;
@@ -205,7 +203,7 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return PixelFlags && (bmpImage.get() || gusIsLoaded()); }
+	bool		isLoaded()	{ return material && (bmpImage.get() || gusIsLoaded()); }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
@@ -217,7 +215,6 @@ public:
 
 	bool		LoadTheme(const std::string& _theme);
 	bool		CreateSurface();
-	bool		CreatePixelFlags();
 
 	void		TileMap();
     
@@ -252,13 +249,19 @@ public:
 	
 private:
 	// not thread-safe, therefore private	
-	inline void	SetPixelFlag(uint x, uint y, uchar flag)	
-	{
-		// Check edges
-		if(x >= Width || y >= Height)
-			return;
+	inline void	unsafeSetPixelFlag(long x, long y, uchar flag) {
+		material->line[y][x] = (char) Material::indexFromLxFlag(flag);
+	}
 	
-		PixelFlags[y * Width + x] = flag;
+	inline void	SetPixelFlag(long x, long y, uchar flag, bool wrapAround = false) {
+		if(!wrapAround) {
+			if(x < 0 || y < 0 || (size_t)x >= Width || (size_t)y >= Height) return;
+		}
+		else {
+			x = WrapAroundX(x);
+			y = WrapAroundY(y);			
+		}
+		unsafeSetPixelFlag(x, y, flag);
 	}
 	
 	// Saves region of map to savebuffer for RestoreFromMemory() - called from CarveHole()/PlaceDirt()/PlaceGreenDirt()
@@ -284,7 +287,11 @@ public:
 	VectorD2<int> WrapAround(VectorD2<int> p) {
 		return VectorD2<int>(WrapAroundX(p.x), WrapAroundY(p.y));
 	}
-	
+
+	uchar unsafeGetPixelFlag(long x, long y, bool wrapAround = false) const {
+		return unsafeGetMaterial(x, y).toLxFlags();
+	}
+
 	uchar GetPixelFlag(long x, long y, bool wrapAround = false) const {
 		if(!wrapAround) {
 			// Checking edges
@@ -295,14 +302,12 @@ public:
 			x = WrapAroundX(x);
 			y = WrapAroundY(y);
 		}
-		return PixelFlags[y * Width + x];
+		return unsafeGetMaterial(x, y).toLxFlags();
 	}
 	uchar GetPixelFlag(const CVec& pos) const { return GetPixelFlag((long)pos.x, (long)pos.y); }
 
 	bool CheckAreaFree(int x, int y, int w, int h);
 	
-	uchar	*GetPixelFlags() const	{ return PixelFlags; }
-
 	Color	getColorAt(long x, long y);
 	void	putColorTo(long x, long y, Color c);
 	void	putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh);
@@ -580,6 +585,9 @@ public:
 	LevelConfig* config()
 	{ return m_config; }
 	
+	Material& materialForIndex(uchar index) { return m_materialList[index]; }
+	array<Material,256>& materialArray() { return m_materialList; }
+	
 private:
 	
 	void checkWBorders( int x, int y );
@@ -678,16 +686,14 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 	//SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
 #endif
 	
-	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
-	if (!pxflags)  // map has been probably shut down in the meantime
-		return;
+	CMap* map = cClient->getMap();
+	if(!map->isLoaded()) return;
 
-	int map_w = cClient->getMap()->GetWidth();
-	int map_h = cClient->getMap()->GetHeight();	
+	int map_w = map->GetWidth();
+	int map_h = map->GetHeight();	
 	
 	int start_x = (int)start.x;
 	int start_y = (int)start.y;
-	int pos_x, pos_y;
 	register int x = 0;
 	register int y = 0;
 	while(true) {
@@ -704,8 +710,8 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 		}
 		
 		// this is my current pos
-		pos_x = start_x + x;
-		pos_y = start_y + y;
+		int pos_x = start_x + x;
+		int pos_y = start_y + y;
 			
 		// clipping?
 		if(pos_x < 0 || pos_x >= map_w
@@ -720,7 +726,7 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 #endif
 					
 		// is the checkflag fitting to our current flag?
-		if(pxflags[pos_y*map_w + pos_x] & checkflag)
+		if(map->unsafeGetMaterial(pos_x,pos_y).toLxFlags() & checkflag)
 			// do the given action; break if false
 			if(!checkflag_action(pos_x, pos_y))
 				break;

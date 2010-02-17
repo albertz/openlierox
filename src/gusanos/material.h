@@ -28,6 +28,13 @@ struct Material
 		if(destroyable) return PX_DIRT;
 		return PX_ROCK;
 	}
+	
+	static unsigned char indexFromLxFlag(unsigned char lxflag) {
+		unsigned char f = 1; // background
+		if(lxflag & PX_DIRT) f = 2;
+		if(lxflag & PX_ROCK) f = 0;
+		return f;
+	}
 };
 
 #endif // _MATERIAL_H_

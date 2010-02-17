@@ -133,7 +133,6 @@ public:
 	bool		AI_CheckFreeCells(int Num);
 	bool		AI_IsInAir(CVec pos, int area_a=3);
 	CVec		AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction);
-	CVec		AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
 	int			AI_CreatePath(bool force_break = false);
 	void		AI_MoveToTarget();
 	void		AI_Carve();

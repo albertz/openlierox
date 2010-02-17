@@ -276,12 +276,10 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	bool    gotDirt = false;
 	Color	DirtEntityColour;
 	
-	if(cMap->gusIsLoaded()) {
-		// TODO ... 
-	}
-	else {
+	{
 		int		x,y,px;
-		DirtEntityColour = cMap->GetTheme()->iDefaultColour;
+		if(cMap->GetTheme())
+			DirtEntityColour = cMap->GetTheme()->iDefaultColour;
 
 		// Go through until we find dirt to throw around
 		y = MIN((uint)pos.y,cMap->GetHeight()-1);

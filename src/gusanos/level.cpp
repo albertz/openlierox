@@ -482,6 +482,8 @@ void CMap::loaderSucceeded()
 
 	if(!m_config)
 		m_config = new LevelConfig(); // Default config
+	
+	bmpImage = image->surf;
 }
 
 

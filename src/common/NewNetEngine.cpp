@@ -201,10 +201,9 @@ static unsigned getMapChecksum()
 {
 	unsigned checksum = 0;
 	cClient->getMap()->lockFlags();
-	uchar * flags = cClient->getMap()->GetPixelFlags();
-	int dimension = cClient->getMap()->GetWidth() * cClient->getMap()->GetHeight();
-	for( int i = 0; i < dimension; i++ )
-		checksum += ( ( flags[i] & PX_EMPTY ) + ( flags[i] & PX_DIRT ) * 2 ) * ( i % 0x1000000 + 1 );
+	for(size_t y = 0; y < cClient->getMap()->GetHeight(); ++y)
+		for(size_t x = 0; x < cClient->getMap()->GetWidth(); ++x)
+			checksum += ( ( cClient->getMap()->GetPixelFlag(x,y) & PX_EMPTY ) + ( cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT ) * 2 ) * ( (y*cClient->getMap()->GetWidth()+x) % 0x1000000 + 1 );
 	cClient->getMap()->unlockFlags();
 	return checksum;
 }

@@ -774,13 +774,11 @@ public:
 			}
 			
 			// TODO: do we need to lock pixel flags here?
-			const uchar *pf = cClient->getMap()->GetPixelFlags() + y*mw + px-2;
 
 			for(x=px-2; x<=px+2; x++) {
 
 				// Clipping
 				if(x<0) {
-					pf++;
 					continue;
 				}
 				if(x>=mw) {
@@ -788,12 +786,10 @@ public:
 					return;
 				}
 
-				if(*pf & PX_DIRT || *pf & PX_ROCK) {
+				if(cClient->getMap()->GetPixelFlag(x,y) & (PX_DIRT|PX_ROCK)) {
 					colideBonus(bonus, x,y);
 					return;
 				}
-
-				pf++;
 			}
 		}
 

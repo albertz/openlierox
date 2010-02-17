@@ -193,9 +193,9 @@ inline bool CProjectile::MapBoundsCollision(int px, int py)
 }
 
 
-inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar* pf, int x, int y, int cx, int cy) {
+inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar pf, int x, int y, int cx, int cy) {
 	// Solid pixel
-	if(*pf & (PX_DIRT|PX_ROCK)) {
+	if(pf & (PX_DIRT|PX_ROCK)) {
 		if (y < cy)
 			++res.top;
 		else if (y > cy)
@@ -205,7 +205,7 @@ inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar* pf, int x, 
 		else if (x > cx)
 			++res.right;
 		
-		if (*pf & PX_ROCK)
+		if (pf & PX_ROCK)
 			res.onlyDirt = false;
 		res.collided = true;
 	}	
@@ -227,10 +227,10 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 		// Check for the collision
 		for(int y = py - radius.y; y <= py + radius.y; ++y) {
 			// this is safe because in SimulateFrame, we do map bound checks
-			uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - radius.x;
+			uchar *pf = &map->material->line[y][px - radius.x];
 			
 			for(int x = px - radius.x; x <= px + radius.x; ++x, ++pf) {				
-				handlePixelFlag(res, pf, x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
 			}
 		}
 	}
@@ -243,7 +243,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 		// Check for the collision
 		for(int _y = - radius.y; _y <= radius.y; ++_y) {
 			int y = (map->GetHeight() + _y + py) % (long)map->GetHeight();
-			uchar *_pf = map->GetPixelFlags() + y * map->GetWidth();
+			uchar *_pf = map->material->line[y];
 			
 			for(int _x = - radius.x; _x <= radius.x; ++_x) {
 				if(tProjInfo->Type == PRJ_CIRCLE && VectorD2<int>(_x,_y).GetLength2() > radius.GetLength2())
@@ -253,7 +253,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 				int x = (map->GetWidth() + _x + px) % (long)map->GetWidth();
 				uchar* pf = _pf + x;
 				
-				handlePixelFlag(res, pf, x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
 			}
 		}
 	}
@@ -261,14 +261,14 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 		// Check for the collision
 		for(int y = py - radius.y; y <= py + radius.y; ++y) {
 			// this is safe because in SimulateFrame, we do map bound checks
-			uchar *pf = map->GetPixelFlags() + y * map->GetWidth() + px - radius.x;
+			uchar *pf = &map->material->line[y][px - radius.x];
 			
 			for(int x = px - radius.x; x <= px + radius.x; ++x, ++pf) {				
 				if(VectorD2<int>(x - px,y - py).GetLength2() > radius.GetLength2())
 					// outside the range, skip this
 					continue;
 
-				handlePixelFlag(res, pf, x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
 			}
 		}		
 	}

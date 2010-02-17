@@ -71,7 +71,8 @@ static const unsigned short wormsize = 7;
 SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 	uint map_w = cClient->getMap()->GetWidth();
 	uint map_h = cClient->getMap()->GetHeight();
-	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
+	uchar** pxflags = cClient->getMap()->material->line;
+	boost::array<Material,256>& materials = cClient->getMap()->materialArray();
 
 	SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
@@ -121,7 +122,7 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 				if(x > ret.v2.x) break;
 
 			// is there some obstacle?
-			if(pxflags[y*map_w + x] & checkflag) {
+			if(materials[pxflags[y][x]].toLxFlags() & checkflag) {
 				col |= dir;
 				break;
 			}
@@ -181,7 +182,8 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 // (depends on which of them is the absolute greatest)
 // HINT: don't lock the flags here (it's done in the caller)
 inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
-	register const uchar* pxflags = cClient->getMap()->GetPixelFlags();
+	boost::array<Material,256>& materials = cClient->getMap()->materialArray();
+	register unsigned char** pxflags = cClient->getMap()->material->line;
 	if (!pxflags)  {  // The map has been probably shut down
 		warnings << "simpleTraceLine with pxflags==NULL" << endl;
 		return false;
@@ -197,7 +199,7 @@ inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		if(start.x < 0 || (uint)(start.x + dist.x) >= map_w || start.y < 0 || (uint)start.y >= map_h)
 			return false;
 		for(register int x = 0; x <= dist.x; x++) {
-			if(pxflags[start.y*map_w + start.x + x] & checkflag)
+			if(materials[pxflags[start.y][start.x + x]].toLxFlags() & checkflag)
 				return false;
 		}
 	} else { // y is greater
@@ -208,7 +210,7 @@ inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar check
 		if(start.y < 0 || (uint)(start.y + dist.y) >= map_h || start.x < 0 || (uint)start.x >= map_w)
 			return false;
 		for(register int y = 0; y <= dist.y; y++) {
-			if(pxflags[(start.y+y)*map_w + start.x] & checkflag)
+			if(materials[pxflags[start.y+y][start.x]].toLxFlags() & checkflag)
 				return false;
 		}
 	}
@@ -3025,99 +3027,6 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 	return result;
 }*/
 
-
-CVec CWormBotInputHandler::AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint) {
-
-	/*
-		TODO: the algo can made a bit more general, which would increase the finding
-	*/
-
-#ifdef _AI_DEBUG
-	//SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
-#endif
-
-	unsigned short i = 0;
-	int map_w = cClient->getMap()->GetWidth();
-	int map_h = cClient->getMap()->GetHeight();
-	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
-	CVec pos = vStart;
-	CVec best = vStart;
-	CVec end = pos;
-	CVec possible_end;
-	CVec backdir = vStart - vTarget;
-	backdir = backdir / backdir.GetLength();
-	end -= backdir*6;
-	float best_length = -1; // the higher it is, the better it is
-	vDirection = vDirection / vDirection.GetLength();
-	bool lastWasObstacle = false;
-	bool lastWasMissingCon = false;
-	while(true) {
-#ifdef _AI_DEBUG
-		//PutPixel(bmpDest,(int)pos.x*2,(int)pos.y*2,Color(255,255,0));
-#endif
-
-		if(!lastWasObstacle && !lastWasMissingCon) pos += vDirection;
-		i++;
-
-		// make the search-dist greater, if we are far away
-		if(i >= 32 && i % 16 == 0) {
-			backdir = backdir * 2;
-			vDirection = vDirection * 2;
-		}
-
-		// don't search to wide
-		if(i > 100)
-			break;
-
-		// Clipping
-		if( (int)pos.x < 0 || (int)pos.x >= map_w
-		|| (int)pos.y < 0 || (int)pos.y >= map_h )
-			break;
-
-		// obstacle...
-		if(PX_ROCK & pxflags[(int)pos.x + map_w*(int)pos.y]) {
-			pos += backdir;
-			lastWasObstacle = true;
-			continue;
-		} else
-			lastWasObstacle = false;
-
-
-		if(i % 4 == 0 || lastWasMissingCon) {
-			// do we still have a direct connection to the point?
-			if(!traceWormLine(vPoint,pos)) {
-				// perhaps we are behind an edge (because auf backdir)
-				// then go a little more to backdir
-				pos += backdir;
-				lastWasMissingCon = true;
-				continue;
-			} else
-				lastWasMissingCon = false;
-		}
-
-		// don't check to often
-		if(i % 4 == 0) {
-			// this is the parallel to backdir
-			traceWormLine(pos-backdir*1000,pos,&possible_end);
-			possible_end += backdir*5/backdir.GetLength();
-#ifdef _AI_DEBUG
-			//PutPixel(bmpDest,(int)possible_end.x*2,(int)possible_end.y*2,tLX->clPink);
-#endif
-			// 'best' is, if we have much free way infront of pos
-			// and if we are not so far away from the start
-			if((possible_end-pos).GetLength2()/(pos-vPoint).GetLength2() > best_length) {
-				end = possible_end;
-				best = pos;
-				best_length = (possible_end-pos).GetLength2()/(pos-vPoint).GetLength2();
-			}
-		}
-	}
-
-	if(vEndPoint)
-		*vEndPoint = end;
-
-	return best;
-}
 
 //////////////////
 // Finds the closest free spot, looking only in one direction

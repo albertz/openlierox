@@ -24,20 +24,7 @@
 #include "gusanos/gusgame.h"
 
 
-static void lxflagsToGusflags(CMap* m) {
-	m->material = create_bitmap_ex(8, m->GetWidth(), m->GetHeight());
-	
-	m->lockFlags();
-	for(Uint32 y = 0; y < m->GetHeight(); ++y)
-		for(Uint32 x = 0; x < m->GetWidth(); ++x) {
-			int f = 1; // background
-			if(m->GetPixelFlag(x, y) & PX_DIRT) f = 2;
-			if(m->GetPixelFlag(x, y) & PX_ROCK) f = 0;
-			
-			putpixel(m->material, x, y, f);
-		}
-	m->unlockFlags();
-	
+static void lxflagsToGusflags(CMap* m) {	
 	m->image = create_bitmap(m->GetWidth(), m->GetHeight());
 	m->image->surf = m->GetImage(); // that's actually a hack but fits perfictly here :)
 	//CopySurface(level->image->surf.get(), m->bmpImage, 0, 0, 0, 0, m->GetWidth(), m->GetHeight());
@@ -363,10 +350,11 @@ class ML_LieroX : public MapLoad {
 			curpixel = PixelRow;
 			backpixel = BackPixelRow;
 			for(Sint64 x=0; x<head.width; x++, curpixel+=bpp, backpixel+=bpp) {
-				m->PixelFlags[n] = pDest[p++];
-				if(m->PixelFlags[n] & PX_EMPTY)
+				uchar lxflag = pDest[p++];
+				m->material->line[y][x] = Material::indexFromLxFlag(lxflag);
+				if(lxflag & PX_EMPTY)
 					memcpy(curpixel, backpixel, bpp);
-				if(m->PixelFlags[n] & PX_DIRT)
+				if(lxflag & PX_DIRT)
 					m->nTotalDirtCount++;
 				n++;
 			}
@@ -588,7 +576,7 @@ class ML_LieroX : public MapLoad {
 			backpixel = BackPixelRow;
 			for(Sint64 x=0; x<head.width; x++, curpixel+=bppX2, backpixel+=bppX2)
 			{
-				if(m->PixelFlags[n] & PX_EMPTY)
+				if(m->unsafeGetPixelFlag(x,y) & PX_EMPTY)
 				{
 					memcpy(curpixel, backpixel, bppX2);
 					memcpy(curpixel+pitch, backpixel+pitch, bppX2);
@@ -708,7 +696,7 @@ class ML_LieroX : public MapLoad {
 				p2 += m->bmpBackImage.get()->format->BytesPerPixel) {
 				
 				if(bitmask[i] & mask[j])  {
-					m->PixelFlags[n] = PX_EMPTY;
+					m->unsafeSetPixelFlag(n % Width, n / Width, PX_EMPTY);
 					m->nTotalDirtCount--;
 					memcpy(p1, p2, m->bmpImage.get()->format->BytesPerPixel);
 				}
@@ -1863,7 +1851,7 @@ private:
 				}
 				Uint32 realx = x * TILE_W, realy = y * TILE_H;
 				if(!withKeenBorders) { realx -= 2*TILE_W; realy -= 2*TILE_H; }				
-				fillpixelflags(m->PixelFlags, m->Width, realx, realy, pixelflag);
+				fillpixelflags(m->material->line, m->Width, realx, realy, Material::indexFromLxFlag(pixelflag));
 				sb_drawtile(m->bmpImage.get(), realx, realy, tile);
 				sb_drawtile(m->bmpBackImage.get(), realx, realy, backtile);
 			}
@@ -1939,9 +1927,9 @@ private:
 		return flag;
 	}
 	
-	void fillpixelflags(uchar* PixelFlags, Uint32 mapwidth, Uint32 x, Uint32 y, char flag) {
+	void fillpixelflags(uchar** PixelFlags, Uint32 mapwidth, Uint32 x, Uint32 y, unsigned char flag) {
 		for(Uint8 h = 0; h < TILE_H; h++) {
-			memset((char*)&PixelFlags[(y + h) * mapwidth + x], flag, TILE_W);
+			memset((char*)&PixelFlags[y+h][x], (char)flag, TILE_W);
 		}
 	}
 	
@@ -2045,21 +2033,8 @@ public:
 		
 		SetColorKey(m->image->surf.get());
 
-		gusflagsToLxflags();
 		curMap = NULL;
 		return true;
-	}
-
-	void gusflagsToLxflags() {
-		curMap->lockFlags();
-		for(Uint32 y = 0; y < curMap->Height; ++y)
-			for(Uint32 x = 0; x < curMap->Width; ++x)
-				setpixelflags(x, y, curMap->getMaterial(x,y).toLxFlags());
-		curMap->unlockFlags();		
-	}
-	
-	void setpixelflags(Uint32 x, Uint32 y, unsigned char flag) {
-		curMap->PixelFlags[y * curMap->Width + x] = flag;
 	}
 	
 };

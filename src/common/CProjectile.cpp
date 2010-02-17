@@ -203,12 +203,11 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 	
 	for(int y=py-h;y<=py+h;y++) {
 
-		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
+		uchar *pf = &map->material->line[y][px-w];
 
 		for(int x=px-w;x<=px+w;x++) {
 
-
-			if(!(*pf & PX_EMPTY))
+			if(!(map->materialForIndex(*pf).toLxFlags() & PX_EMPTY))
 				return PJC_TERRAIN;
 
 			pf++;
