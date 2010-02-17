@@ -242,6 +242,10 @@ function promode.init()
 		end
 	end
 	
+	cecho("dedserv: " .. tostring(DEDSERV))
+	cecho("auth: " .. tostring(AUTH))
+	cecho("gameMode: " .. tostring(gameMode))
+	
 	if DEDSERV then
 		dedserv.init()
 	end
