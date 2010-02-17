@@ -11,6 +11,8 @@
 #ifndef __OLX_GAME_SOUNDS_H__
 #define __OLX_GAME_SOUNDS_H__
 
+#include <string>
+#include <map>
 #include "SmartPointer.h"
 
 class SoundSample;
