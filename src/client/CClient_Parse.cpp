@@ -56,6 +56,7 @@
 #include "game/Mod.h"
 #include "game/SinglePlayer.h"
 #include "sound/SoundsBase.h"
+#include "gusanos/gusgame.h"
 
 
 #ifdef _MSC_VER
@@ -964,6 +965,24 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 
 	}
+
+	// NOTE: This was moved from Game:prepareGameLoop to here because it is needed *before* we prepare the worms
+	
+	// always also load Gusanos engine
+	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
+	if( !gusGame.level().gusIsLoaded() && (game.isServer() || client->getServerVersion() >= OLXBetaVersion(0,59,1) ) ) {
+		// WARNING: This may be temporary
+		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
+		// Thus, when we don't load a gus level, we must load the mod manually.
+		
+		if(!game.gameScript()->gusEngineUsed())
+			gusGame.setMod(gusGame.getDefaultPath());
+		gusGame.loadModWithoutMap();
+	}
+	
+	if(gusGame.isEngineNeeded()) {
+		gusGame.runInitScripts();
+	}	
 	
     // Read the weapon restrictions
     client->cWeaponRestrictions.updateList(client->cGameScript.get()->GetWeaponList());
