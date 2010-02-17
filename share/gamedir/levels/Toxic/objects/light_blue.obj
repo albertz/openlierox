@@ -1,0 +1,17 @@
+sprite = light_big_blue.png
+blender = add
+alpha = 150
+anim_duration = 100
+occluded = 1
+col_layer = -1 
+render_layer=8
+light_radius=128
+
+on ground_collision()
+ remove()
+
+on timer( 80 )
+set_alpha_fade(30,0)
+
+on timer( 110 )
+remove()

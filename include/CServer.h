@@ -184,14 +184,6 @@ public:
 
 	void		SpawnWorm(CWorm *Worm, CVec * _pos = NULL, CServerConnection * client = NULL);
 	void		SimulateGame();
-	CVec		FindSpot();
-	CVec		FindSpotCloseToTeam(int t, CWorm* exceptionWorm = NULL, bool keepDistanceToEnemy = true);
-	CVec		FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad);
-	CVec FindSpotCloseToPos(const CVec& goodPos) {
-		std::list<CVec> good; good.push_back(goodPos);
-		std::list<CVec> bad;
-		return FindSpotCloseToPos(good, bad, true);
-	}
 	
 	void		SpawnBonus();
 	void		WormShoot(CWorm *w);

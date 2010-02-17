@@ -14,6 +14,7 @@
 #include "FlagInfo.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
+#include "game/Game.h"
 
 struct Race : public CGameMode {
 	
@@ -64,7 +65,7 @@ struct Race : public CGameMode {
 								  (cServer->getMap()->GetWidth() * 0.2f * x + cServer->getMap()->GetWidth() * 0.8f),
 								  (cServer->getMap()->GetHeight() * 0.2f * y + cServer->getMap()->GetHeight() * 0.8f)));
 				int t = (y == 0) ? x : (3 - x);
-				wayPoints[t] = cServer->FindSpotCloseToPos(goodPos, badPos, false);
+				wayPoints[t] = game.gameMap()->FindSpotCloseToPos(goodPos, badPos, false);
 				
 				if(!tLXOptions->tGameInfo.features[FT_InstantAirJump])
 					// set the place to the ground

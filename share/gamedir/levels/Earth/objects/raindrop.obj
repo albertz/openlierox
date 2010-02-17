@@ -1,0 +1,21 @@
+gravity = 0.0045
+repeat = 3
+col_layer = 4
+blender = alpha
+wu_pixels = 1
+alpha = 255
+color = [0,0,255]
+
+on custom_event(1)
+remove()
+
+on timer(0)
+ create_explosion(raindrop_splash.exp)
+
+on ground_collision()
+ shoot_particles ( raindrop_splash.obj , 2, 0.6, 0.6,0,0, 360, 360, 1 )
+ remove()
+
+on detect_range(1,1)
+shoot_particles ( raindrop_splash.obj , 2, 0.6, 0.6,0,0, 360, 360, 1 )
+remove()

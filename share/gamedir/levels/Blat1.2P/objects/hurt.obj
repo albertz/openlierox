@@ -1,0 +1,9 @@
+invisible = 1
+col_layer = -1
+
+on detect_range(1)
+damage(0.25)
+#shoot_particles(smoke.obj,1)
+
+on ground_collision()
+remove()

@@ -1,0 +1,15 @@
+invisible = 1
+col_layer = -1
+timeout = 0
+
+on detect_range (16, 1, [1])
+ damp( 0.92 )
+ damage( 0.1 )
+ repel( 0.03 , 16, 0.03 )
+
+on detect_range (16)
+ damp( 0.96 )
+ damage( 0.1 )
+ repel( 0.04 , 16, 0.04 )
+
+

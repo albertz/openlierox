@@ -96,11 +96,8 @@ public:
 		bmpBackImage = NULL;
 		bmpBackImageHiRes = NULL;
 		bmpMiniMap = NULL;
-		PixelFlags = NULL;
         bmpGreenMask = NULL;
         bmpShadowMap = NULL;
-        GridFlags = NULL;
-		AbsoluteGridFlags = NULL;
 		
 		NumObjects = 0;
 		Objects = NULL;
@@ -144,18 +141,10 @@ private:
 	SmartPointer<SDL_Surface> bmpMiniMap;
 	SmartPointer<SDL_Surface> bmpMiniMapTransparent; // Half-transparent minimap for Gusanos
     SmartPointer<SDL_Surface> bmpGreenMask;
-	uchar		*PixelFlags;
     SmartPointer<SDL_Surface> bmpShadowMap;
 #ifdef _AI_DEBUG
 	SmartPointer<SDL_Surface> bmpDebugImage;
 #endif
-
-    // AI Grid
-    int         nGridWidth, nGridHeight;
-    int         nGridCols, nGridRows;
-	uchar		*GridFlags;
-	uchar		*AbsoluteGridFlags;
-	uchar		*CollisionGrid;
 
 	// Minimap
 	TimeDiff	fBlinkTime;
@@ -214,7 +203,7 @@ public:
 	bool		SaveImageFormat(FILE *fp);
 
 	void		Clear();
-	bool		isLoaded()	{ return PixelFlags && ((bmpImage.get() && GridFlags && AbsoluteGridFlags) || gusIsLoaded()); }
+	bool		isLoaded()	{ return material && (bmpImage.get() || gusIsLoaded()); }
 	
 	std::string getName()			{ return Name; }
 	std::string getFilename()		{ return FileName; }
@@ -226,18 +215,7 @@ public:
 
 	bool		LoadTheme(const std::string& _theme);
 	bool		CreateSurface();
-	bool		CreatePixelFlags();
-    bool        createGrid();
-    void        calculateGrid();
-	bool		createCollisionGrid();
-	void		calculateCollisionGridArea(int x, int y, int w, int h);
 
-	int	getCollGridCellW() const;
-	int	getCollGridCellH() const;
-private:
-	// not thread-safe    
-    void        calculateGridCell(int x, int y, bool bSkipEmpty);
-public:	
 	void		TileMap();
     
     void        CalculateDirtCount();
@@ -271,13 +249,19 @@ public:
 	
 private:
 	// not thread-safe, therefore private	
-	inline void	SetPixelFlag(uint x, uint y, uchar flag)	
-	{
-		// Check edges
-		if(x >= Width || y >= Height)
-			return;
+	inline void	unsafeSetPixelFlag(long x, long y, uchar flag) {
+		material->line[y][x] = (char) Material::indexFromLxFlag(flag);
+	}
 	
-		PixelFlags[y * Width + x] = flag;
+	inline void	SetPixelFlag(long x, long y, uchar flag, bool wrapAround = false) {
+		if(!wrapAround) {
+			if(x < 0 || y < 0 || (size_t)x >= Width || (size_t)y >= Height) return;
+		}
+		else {
+			x = WrapAroundX(x);
+			y = WrapAroundY(y);			
+		}
+		unsafeSetPixelFlag(x, y, flag);
 	}
 	
 	// Saves region of map to savebuffer for RestoreFromMemory() - called from CarveHole()/PlaceDirt()/PlaceGreenDirt()
@@ -303,7 +287,11 @@ public:
 	VectorD2<int> WrapAround(VectorD2<int> p) {
 		return VectorD2<int>(WrapAroundX(p.x), WrapAroundY(p.y));
 	}
-	
+
+	uchar unsafeGetPixelFlag(long x, long y, bool wrapAround = false) const {
+		return unsafeGetMaterial(x, y).toLxFlags();
+	}
+
 	uchar GetPixelFlag(long x, long y, bool wrapAround = false) const {
 		if(!wrapAround) {
 			// Checking edges
@@ -314,27 +302,12 @@ public:
 			x = WrapAroundX(x);
 			y = WrapAroundY(y);
 		}
-		return PixelFlags[y * Width + x];
+		return unsafeGetMaterial(x, y).toLxFlags();
 	}
 	uchar GetPixelFlag(const CVec& pos) const { return GetPixelFlag((long)pos.x, (long)pos.y); }
 
-	uchar GetCollisionFlag(long x, long y, bool wrapAround = false) const {
-		if(!wrapAround) {
-			// Checking edges
-			if(x < 0 || y < 0 || (unsigned long)x >= Width || (unsigned long)y >= Height)
-				return 1;
-		}
-		else {
-			x = WrapAroundX(x);
-			y = WrapAroundY(y);
-		}
-		return CollisionGrid[y * Width + x];
-	}
-	uchar GetCollisionFlag(const CVec& pos, bool wrapAround = false) const { return GetCollisionFlag((long)pos.x, (long)pos.y, wrapAround); }
 	bool CheckAreaFree(int x, int y, int w, int h);
 	
-	uchar	*GetPixelFlags() const	{ return PixelFlags; }
-
 	Color	getColorAt(long x, long y);
 	void	putColorTo(long x, long y, Color c);
 	void	putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int sw, int sh);
@@ -393,14 +366,6 @@ public:
 	void				SetMinimapDimensions(uint _w, uint _h);
     uint         GetDirtCount() const { return nTotalDirtCount; }
 
-    int         getGridCols() const  { return nGridCols; }
-    int         getGridRows() const  { return nGridRows; }
-    int         getGridWidth() const { return nGridWidth; }
-    int         getGridHeight() const { return nGridHeight; }
-    const uchar *getGridFlags() const { 
-		return GridFlags; 
-	}
-	const uchar	*getAbsoluteGridFlags() const { return AbsoluteGridFlags; }
 	bool			getCreated()	{ return Created; }
 	
 	
@@ -419,6 +384,98 @@ public:
 	}
 	
 	
+	
+	CVec FindSpot();
+	CVec FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad);	
+	CVec FindSpotCloseToPos(const CVec& goodPos) {
+		std::list<CVec> good; good.push_back(goodPos);
+		std::list<CVec> bad;
+		return FindSpotCloseToPos(good, bad, true);
+	}
+	CVec FindSpotCloseToTeam(int t, CWorm* exceptionWorm = NULL, bool keepDistanceToEnemy = true);
+	CVec FindNearestSpot(CGameObject *o) { return FindSpotCloseToPos(o->pos()); }
+	
+	
+	struct __PixelFlagAccessBase {
+		CMap* map;
+		__PixelFlagAccessBase(CMap* m) : map(m) {} 
+	};
+	
+	struct __PixelFlagReaders : __PixelFlagAccessBase {
+		__PixelFlagReaders(CMap* m) : __PixelFlagAccessBase(m) {}
+
+		uchar get(long x, long y, bool wrapAround = false) { return map->GetPixelFlag(x,y,wrapAround); }
+		
+		typedef uchar (*CombiFunc) (uchar, uchar);
+		static uchar Or(uchar a, uchar b) { return a | b; }
+		static uchar And(uchar a, uchar b) { return a & b; }
+		
+		template<CombiFunc func>
+		uchar getLineHoriz(long x, long y, long x2, bool wrapAround = false) {
+			uchar ret = 0;
+			for(; x < x2; ++x)
+				ret = (*func)(ret, get(x,y,wrapAround));
+			return ret;
+		}
+		
+		uchar getLineHoriz_Or(long x, long y, long x2, bool wrapAround = false) { return getLineHoriz<Or>(x,y,x2,wrapAround); }
+		
+		template<CombiFunc func>
+		uchar getArea(long x, long y, long x2, long y2, bool wrapAround = false) {
+			uchar ret = 0;
+			for(; y < y2; ++y)
+				ret = (*func)(ret, getLineHoriz<func>(x,y,x2,wrapAround));
+			return ret;
+		}
+		
+		uchar getArea_Or(long x, long y, long w, long h, bool wrapAround = false) { return getArea<Or>(x,y,w,h,wrapAround); }
+		
+		typedef bool (*CheckFunc) (uchar);
+		template<uchar flags> static bool Have(uchar a) { return (bool)(a & flags); }
+		template<uchar flags> static bool HaveNot(uchar a) { return !(bool)(a & flags); }
+		
+		template<CheckFunc func>
+		bool checkLineHoriz_All(long x, long y, long x2, bool wrapAround = false) {
+			for(; x < x2; ++x)
+				if(!(*func)(get(x,y,wrapAround))) return false;
+			return true;
+		}
+		
+		template<CheckFunc func>
+		bool checkArea_All(long x, long y, long x2, long y2, bool wrapAround = false) {
+			for(; y < y2; ++y)
+				if(!checkLineHoriz_All<func>(x,y,x2,wrapAround)) return false;
+			return true;
+		}
+		
+		template<uchar flags>
+		bool checkArea_AllHaveNot(long x, long y, long x2, long y2, bool wrapAround = false) {
+			return checkArea_All< HaveNot<flags> >(x,y,x2,y2,wrapAround);
+		}
+	};
+	
+	struct __PixelFlagWriters : __PixelFlagReaders {
+		__PixelFlagWriters(CMap* m) : __PixelFlagReaders(m) {}
+		
+		void set(long x, long y, uchar flag) { map->SetPixelFlag((uint)x, (uint)y, flag); }
+	};
+	
+	struct PixelFlagAccess : __PixelFlagReaders {
+		PixelFlagAccess(CMap* m) : __PixelFlagReaders(m) { map->lockFlags(false); }
+		~PixelFlagAccess() { map->unlockFlags(false); }
+	};
+
+	struct PixelFlagWriteAccess : __PixelFlagWriters {
+		PixelFlagWriteAccess(CMap* m) : __PixelFlagWriters(m) { map->lockFlags(true); }
+		~PixelFlagWriteAccess() { map->unlockFlags(true); }
+	};
+	
+	static bool IsGoodSpawnPoint(PixelFlagAccess& flags, long x, long y) { return flags.checkArea_AllHaveNot<PX_ROCK>(x-3, y-3, x+3, y+3); }
+	static bool IsGoodSpawnPoint(PixelFlagAccess& flags, CVec pos) { return IsGoodSpawnPoint(flags, (long)pos.x, (long)pos.y); }
+	static bool IsEmptyForWorm(PixelFlagAccess& flags, long x, long y) { return flags.checkArea_AllHaveNot<PX_ROCK|PX_DIRT>(x-3, y-3, x+3, y+3); }
+	static bool IsEmptyForWorm(PixelFlagAccess& flags, CVec pos) { return IsEmptyForWorm(flags, (long)pos.x, (long)pos.y); }
+	bool IsEmptyForWorm(CVec pos) { PixelFlagAccess flags(this); return IsEmptyForWorm(flags, pos); }
+
 	
 	
 	// ------------------------------------------------------------------------------
@@ -528,6 +585,9 @@ public:
 	LevelConfig* config()
 	{ return m_config; }
 	
+	Material& materialForIndex(uchar index) { return m_materialList[index]; }
+	array<Material,256>& materialArray() { return m_materialList; }
+	
 private:
 	
 	void checkWBorders( int x, int y );
@@ -626,23 +686,14 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 	//SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
 #endif
 	
-	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
-	const uchar* gridflags = cClient->getMap()->getAbsoluteGridFlags();
-	if (!pxflags || !gridflags)  // map has been probably shut down in the meantime
-		return;
+	CMap* map = cClient->getMap();
+	if(!map->isLoaded()) return;
 
-	int map_w = cClient->getMap()->GetWidth();
-	int map_h = cClient->getMap()->GetHeight();	
-    int grid_w = cClient->getMap()->getGridWidth();
-    int grid_h = cClient->getMap()->getGridHeight();
-	int grid_cols = cClient->getMap()->getGridCols();
+	int map_w = map->GetWidth();
+	int map_h = map->GetHeight();	
 	
 	int start_x = (int)start.x;
 	int start_y = (int)start.y;
-	int last_gridflag_i = -1;
-	int gridflag_i;
-	int pos_x, pos_y;
-	int grid_x, grid_y;
 	register int x = 0;
 	register int y = 0;
 	while(true) {
@@ -659,8 +710,8 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 		}
 		
 		// this is my current pos
-		pos_x = start_x + x;
-		pos_y = start_y + y;
+		int pos_x = start_x + x;
+		int pos_y = start_y + y;
 			
 		// clipping?
 		if(pos_x < 0 || pos_x >= map_w
@@ -673,90 +724,9 @@ void fastTraceLine(CVec target, CVec start, uchar checkflag, _action& checkflag_
 #ifdef _AI_DEBUG
 		//PutPixel(bmpDest,pos_x*2,pos_y*2,Color(255,255,0));
 #endif
-			
-		// inside the grid
-		grid_x = pos_x / grid_w;
-		grid_y = pos_y / grid_h;
-
-		// got we some usefull info from our grid?
-		gridflag_i = grid_y*grid_cols + grid_x;
-		if(last_gridflag_i != gridflag_i) {
-			last_gridflag_i = gridflag_i;
-			if(!(gridflags[gridflag_i] & checkflag)) {				
-				// yes, we did, no checkflag inside
-#ifdef _AI_DEBUG
-				//DrawRectFill(bmpDest,grid_x*grid_w*2,grid_y*grid_h*2,(grid_x+1)*grid_w*2+4,(grid_y+1)*grid_h*2,Color(150,150,0));	
-#endif
-				// go behind this grid-cell
-				// the following checks works, because |quot| <= 1
-				// make some pictures, then you will belive me :)
-				if(dom != Y_DOM) { // X_DOM
-					if(s_x > 0) {
-						if(s_y > 0) {
-							if( pos_x != (grid_x+1)*grid_w &&
-							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - (grid_x+1)*grid_w) <= quot )
-								x += int(float((grid_y+1)*grid_h - pos_y)/quot) + 1; // down
-							else
-								x = (grid_x+1)*grid_w - start_x; // right
-						} else { // s_y < 0
-							if( pos_x != (grid_x+1)*grid_w &&
-							(float(pos_y - grid_y*grid_h))/float(pos_x - (grid_x+1)*grid_w) >= quot )
-								x += int(float(grid_y*grid_h - pos_y)/quot) + 1; // up
-							else
-								x = (grid_x+1)*grid_w - start_x; // right
-						}
-					} else { // s_x < 0
-						if(s_y > 0) {
-							if( pos_x != grid_x*grid_w &&
-							(float(pos_y - (grid_y+1)*grid_h))/float(pos_x - grid_x*grid_w) >= quot )
-								x += int(float((grid_y+1)*grid_h - pos_y)/quot) - 1; // down
-							else
-								x = grid_x*grid_w - start_x - 1; // left
-						} else { // s_y < 0
-							if( pos_x != grid_x*grid_w &&
-							(float(pos_y - grid_y*grid_h))/float(pos_x - grid_x*grid_w) <= quot )
-								x += int(float(grid_y*grid_h - pos_y)/quot) - 1; // up
-							else
-								x = grid_x*grid_w - start_x - 1; // left
-						}
-					}
-				} else { // Y_DOM
-					if(s_y > 0) {
-						if(s_x > 0) {
-							if( pos_y != (grid_y+1)*grid_h &&
-							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - (grid_y+1)*grid_h) <= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot) + 1; // right
-							else
-								y = (grid_y+1)*grid_h - start_y; // down
-						} else { // s_y < 0
-							if( pos_y != (grid_y+1)*grid_h &&
-							(float(pos_x - grid_x*grid_w))/float(pos_y - (grid_y+1)*grid_h) >= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot) + 1; // left
-							else
-								y = (grid_y+1)*grid_h - start_y; // down
-						}
-					} else { // s_y < 0
-						if(s_x > 0) {
-							if( pos_y != grid_y*grid_h &&
-							(float(pos_x - (grid_x+1)*grid_w))/float(pos_y - grid_y*grid_h) >= quot )
-								y += int(float((grid_x+1)*grid_w - pos_x)/quot) - 1; // right
-							else
-								y = grid_y*grid_h - start_y - 1; // up
-						} else { // s_y < 0
-							if( pos_y != grid_y*grid_h &&
-							(float(pos_x - grid_x*grid_w))/float(pos_y - grid_y*grid_h) <= quot )
-								y += int(float(grid_x*grid_w - pos_x)/quot) - 1; // left
-							else
-								y = grid_y*grid_h - start_y - 1; // up
-						}
-					}
-				}	
-			}
-			continue;		
-		} 
-		
+					
 		// is the checkflag fitting to our current flag?
-		if(pxflags[pos_y*map_w + pos_x] & checkflag)
+		if(map->unsafeGetMaterial(pos_x,pos_y).toLxFlags() & checkflag)
 			// do the given action; break if false
 			if(!checkflag_action(pos_x, pos_y))
 				break;

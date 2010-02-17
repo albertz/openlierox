@@ -1,0 +1,6 @@
+blender = add
+light_radius = 500
+occluded = 1
+alpha = 100
+col_layer = 7
+sprite = yellowlight.png

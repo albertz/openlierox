@@ -370,12 +370,12 @@ bool CMap::applyEffect(LevelEffect* effect, int drawX, int drawY )
 					putMaterial( 1, drawX+x, drawY+y );
 					checkWBorders( drawX+x, drawY+y );
 #ifndef DEDICATED_ONLY
-
 					putpixel(image, drawX+x, drawY+y, getpixel( background, drawX+x, drawY+y ) );
 #endif
-
 				}
 			}
+		
+		UpdateArea(drawX, drawY, tmpMask->m_bitmap->w, tmpMask->m_bitmap->h, true);
 	}
 	return returnValue;
 }
@@ -422,8 +422,6 @@ Vec CMap::getSpawnLocation(CWormInputHandler* player)
 	}
 	
 	Vec pos;
-
-	//pos = Vec(rnd() * material->w, rnd()*material->h);
 
 	do {
 		pos = Vec((float)rnd() * material->w, (float)rnd()*material->h);
@@ -484,6 +482,8 @@ void CMap::loaderSucceeded()
 
 	if(!m_config)
 		m_config = new LevelConfig(); // Default config
+	
+	bmpImage = image->surf;
 }
 
 

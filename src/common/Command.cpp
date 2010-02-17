@@ -681,7 +681,7 @@ void Cmd_unstuck::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 
 	if (w->isUsed() && w->getAlive())
-		w->setPos(cClient->FindNearestSpot(w));
+		w->setPos(game.gameMap()->FindNearestSpot(w));
 }
 
 COMMAND(wantsJoin, "enable/disable wants to join messages", "true/false", 1, 1);
@@ -2179,7 +2179,7 @@ void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	
 	VectorD2<int> v;
 	if(params.size() == 0)
-		v = cServer->FindSpot();
+		v = game.gameMap()->FindSpot();
 	else {
 		bool fail = false;
 		VectorD2<int> closev = from_string< VectorD2<int> >(params[0], fail);
@@ -2187,7 +2187,7 @@ void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 			printUsage(caller);
 			return;
 		}
-		v = cServer->FindSpotCloseToPos(closev);
+		v = game.gameMap()->FindSpotCloseToPos(closev);
 	}
 	
 	caller->pushReturnArg(itoa(v.x));

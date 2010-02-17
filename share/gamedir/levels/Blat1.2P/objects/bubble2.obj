@@ -1,0 +1,11 @@
+gravity = -0.01
+
+#invisible = 1
+col_layer = -1
+
+
+on timer(35)
+remove()
+
+on ground_collision()
+remove()

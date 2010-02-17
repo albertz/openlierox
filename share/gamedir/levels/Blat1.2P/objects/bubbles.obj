@@ -1,0 +1,5 @@
+col_layer = -1
+
+on timer(1)
+shoot_particles(bubble.obj, 1, 2.5, 5, 0, 0, 0, 270, 0)
+remove()

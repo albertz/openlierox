@@ -79,23 +79,7 @@ void Game::prepareGameloop() {
 		SDL_Delay(10);
 		SyncServerAndClient();
 	}
-
-	// always also load Gusanos engine
-	// even with LX-stuff-only, we may access/need it (for network stuff and later probably more)
-	if( !gusGame.level().gusIsLoaded() && (isServer() || cClient->getServerVersion() >= OLXBetaVersion(0,59,1) ) ) {
-		// WARNING: This may be temporary
-		// Right now, we load the gus mod in the map loader (gusGame.changeLevel).
-		// Thus, when we don't load a gus level, we must load the mod manually.
 		
-		if(!gameScript()->gusEngineUsed())
-			gusGame.setMod(gusGame.getDefaultPath());
-		gusGame.loadModWithoutMap();
-	}
-	
-	if(gusGame.isEngineNeeded()) {
-		gusGame.runInitScripts();
-	}
-	
 	if(isServer()) {
 		// resend lua event index to everyone
 		network.sendEncodedLuaEvents(INVALID_CONN_ID);		
@@ -358,6 +342,8 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 
 
 void Game::reset() {
+	notes << "Game::reset" << endl;
+	
 	// Delete all players
 	for ( std::vector<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
 	{
@@ -383,6 +369,9 @@ void Game::reset() {
 #endif	
 }
 
+CMap* Game::gameMap() {
+	return &gusGame.level();
+}
 
 CGameScript* Game::gameScript() {
 	if(tLX) {

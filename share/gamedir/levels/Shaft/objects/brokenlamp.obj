@@ -1,0 +1,8 @@
+blender = add
+occluded = 1
+alpha = 100
+col_layer = -1
+invisible = 1
+
+on timer(15,30)
+ shoot_particles (light.obj, 1)

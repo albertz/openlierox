@@ -1,0 +1,10 @@
+invisible = true
+bounce_factor = 0
+col_layer = -1
+
+on detect_range( 65 )
+ damp( 0 )
+ repel( 1.8, 100, 1.8 )
+ play_sound( poo_kicker.ogg )
+ put_particle(poo_kicker_sparker.obj, 594, 343, 1, 0, 0 )
+ put_particle(poo_kicker_sparker.obj, 594, 343, -1, 0, 0 )

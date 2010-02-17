@@ -1,0 +1,17 @@
+invisible = 1
+col_layer = -1
+
+#on detect_range(1)
+#damage(0.1)
+#shoot_particles(smoke.obj,1)
+
+on timer(100)
+shoot_particles(bubble2.obj, 1, 0, 0, 0, 0, 0, 270, 0)
+remove()
+
+on detect_range(1)
+shoot_particles(bubble2.obj, 1, 0, 0, 0, 0, 0, 270, 0)
+play_sound([Corode.ogg],10, 1, 0.1)
+
+on ground_collision()
+remove()

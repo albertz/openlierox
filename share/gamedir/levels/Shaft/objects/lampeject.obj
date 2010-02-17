@@ -1,0 +1,5 @@
+invisible = 1
+
+on creation()
+ put_particle(swinglamp.obj, 151, 59, 0, 0, 0)
+ put_particle(lamp.obj, 151, 59, 0, 0, 0)

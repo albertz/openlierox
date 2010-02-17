@@ -1,0 +1,12 @@
+color = [167,1,5]
+blender = add
+alpha = 170
+col_layer = -1
+
+repeat = 2
+
+on ground_collision()
+ remove()
+
+on timer(0,25)
+ remove()

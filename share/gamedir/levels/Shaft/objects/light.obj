@@ -1,0 +1,12 @@
+sprite = yellowlight.png
+blender = add
+light_radius = 200
+occluded = 1
+alpha = 50
+col_layer = -1
+
+on creation()
+  set_alpha_fade(15,0)
+
+on timer (15)
+  remove()

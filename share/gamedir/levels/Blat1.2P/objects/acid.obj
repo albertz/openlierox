@@ -1,0 +1,9 @@
+sprite = acid.png
+blender = alpha
+alpha = 224
+col_layer = -1
+render_layer = 6
+
+on timer(10)
+shoot_particles(hurt.obj, 1, 1, 0, 0, 0, 0, 90, 219)
+shoot_particles(bubbles.obj, 1, 0, 0, 0, 0, 0, 180, 5)
