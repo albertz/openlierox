@@ -181,6 +181,7 @@ struct ALLEGRO_BITMAP            /* a bitmap structure */
 
 
 ALLEGRO_BITMAP *load_bitmap(const char *filename, RGB *pal);
+ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf);
 ALLEGRO_BITMAP *create_bitmap(int width, int height);
 ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height);
 ALLEGRO_BITMAP *create_sub_bitmap(ALLEGRO_BITMAP *parent, int x, int y, int width, int height);

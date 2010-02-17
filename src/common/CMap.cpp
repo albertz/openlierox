@@ -74,6 +74,8 @@ bool CMap::NewFrom(CMap* map)
 		// Create the map (and bmpImage and friends)
 		if (!Create(Width, Height, Theme.name, MinimapWidth, MinimapHeight))
 			return false;
+		
+		destroy_bitmap(material);
 	}
 	
 	m_gusLoaded = map->m_gusLoaded;
@@ -96,7 +98,7 @@ bool CMap::NewFrom(CMap* map)
 	m_water = map->m_water;	
 	
 	// Copy the data
-	bmpImage = GetCopiedImage(map->bmpImage);
+	bmpImage = image ? image->surf : GetCopiedImage(map->bmpImage);
 	bmpDrawImage = map->bmpDrawImage.get() ? GetCopiedImage(map->bmpDrawImage) : NULL;
 	bmpBackImage = GetCopiedImage(map->bmpBackImage);
 	bmpShadowMap = map->bmpShadowMap.get() ? GetCopiedImage(map->bmpShadowMap) : NULL;

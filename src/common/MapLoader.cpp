@@ -25,13 +25,9 @@
 
 
 static void lxflagsToGusflags(CMap* m) {	
-	m->image = create_bitmap(m->GetWidth(), m->GetHeight());
-	m->image->surf = m->GetImage(); // that's actually a hack but fits perfictly here :)
-	//CopySurface(level->image->surf.get(), m->bmpImage, 0, 0, 0, 0, m->GetWidth(), m->GetHeight());
-	m->background = create_bitmap(m->GetWidth(), m->GetHeight());
-	m->background->surf = m->GetBackImage(); // same thing
-	//CopySurface(level->background->surf.get(), m->bmpBackImage, 0, 0, 0, 0, m->GetWidth(), m->GetHeight());
-	
+	m->image = create_bitmap_from_sdl(m->GetImage());
+	m->background = create_bitmap_from_sdl(m->GetBackImage());
+
 	m->loaderSucceeded();
 }
 
