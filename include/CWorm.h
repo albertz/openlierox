@@ -95,20 +95,6 @@ enum GAM_AI_TYPE
 	GAM_OTHER	= 3
 };
 
-// Cells
-enum CELL_TYPE
-{
-	CELL_CURRENT		= 0,
-	CELL_LEFT			= 1,
-	CELL_DOWN			= 2,
-	CELL_RIGHT			= 3,
-	CELL_UP				= 4,
-	CELL_LEFTDOWN		= 5,
-	CELL_RIGHTDOWN		= 6,
-	CELL_LEFTUP			= 7,
-	CELL_RIGHTUP		= 8
-};
-
 struct WormType;
 class CWpnRest;
 struct weapon_t;
@@ -438,7 +424,6 @@ public:
     int         traceLine(CVec target, float *fDist, int *nType, int divs = 5);
 	int			traceLine(CVec target, CVec start, int *nType, int divs = 5, uchar checkflag = PX_EMPTY);
 	
-	bool		IsEmpty(int Cell);
     bool		CheckOnGround();
 	
 

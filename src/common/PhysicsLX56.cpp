@@ -99,9 +99,8 @@ public:
 		int y = (int)pos.y;
 		short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
 		bool coll = false;
-		bool check_needed = cClient->getMap()->GetCollisionFlag(x, y, wrapAround) != 0;
 
-		if(check_needed && y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
+		if(y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
 			for(x=-3;x<4;x++) {
 				// Optimize: pixelflag++
 				
@@ -154,7 +153,7 @@ public:
 		}
 
 		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
-		if(check_needed && wrapAround) {
+		if(wrapAround) {
 			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
 		}
 		
@@ -163,7 +162,7 @@ public:
 		bool hit = false;
 		x = (int)pos.x;
 
-		if(check_needed && x >= 0 && (uint)x < cClient->getMap()->GetWidth()) {
+		if(x >= 0 && (uint)x < cClient->getMap()->GetWidth()) {
 			for(y=5;y>-5;y--) {
 				// Optimize: pixelflag + Width
 
@@ -229,7 +228,7 @@ public:
 		}
 		
 		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
-		if(check_needed && wrapAround) {
+		if(wrapAround) {
 			FMOD(pos.y, (float)cClient->getMap()->GetHeight());			
 		}
 		

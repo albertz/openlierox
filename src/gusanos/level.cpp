@@ -423,8 +423,6 @@ Vec CMap::getSpawnLocation(CWormInputHandler* player)
 	
 	Vec pos;
 
-	//pos = Vec(rnd() * material->w, rnd()*material->h);
-
 	do {
 		pos = Vec((float)rnd() * material->w, (float)rnd()*material->h);
 	} while ( !getMaterial( static_cast<int>(pos.x), static_cast<int>(pos.y) ).worm_pass );

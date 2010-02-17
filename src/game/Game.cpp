@@ -383,6 +383,9 @@ void Game::reset() {
 #endif	
 }
 
+CMap* Game::gameMap() {
+	return &gusGame.level();
+}
 
 CGameScript* Game::gameScript() {
 	if(tLX) {

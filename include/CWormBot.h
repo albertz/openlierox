@@ -76,7 +76,6 @@ protected:
 	TimeDiff		fRopeHookFallingTime;
 	
     // Path Finding
-    int         nGridCols, nGridRows;
 	AbsTime       fLastPathUpdate;
 	bool		bPathFinished;
 	AbsTime		fSearchStartTime;
@@ -137,7 +136,6 @@ public:
 	CVec		AI_FindBestFreeSpot(CVec vPoint, CVec vStart, CVec vDirection, CVec vTarget, CVec* vEndPoint);
 	int			AI_CreatePath(bool force_break = false);
 	void		AI_MoveToTarget();
-	CVec		AI_GetNearestRopeSpot(CVec trg);
 	void		AI_Carve();
 	bool		AI_Jump();
 	CVec		AI_FindShootingSpot();

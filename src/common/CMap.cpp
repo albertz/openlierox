@@ -62,10 +62,6 @@ bool CMap::NewFrom(CMap* map)
 	MinimapHeight = map->MinimapHeight;
 	Theme = map->Theme;
 	nTotalDirtCount = map->nTotalDirtCount;
-	nGridWidth = map->nGridWidth;
-	nGridHeight = map->nGridHeight;
-	nGridCols = map->nGridCols;
-	nGridRows = map->nGridRows;
 	bMiniMapDirty = map->bMiniMapDirty;
 	NumObjects = map->NumObjects;
 	
@@ -111,9 +107,6 @@ bool CMap::NewFrom(CMap* map)
 	CopySurface(bmpMiniMap.get(), map->bmpMiniMap, 0, 0, 0, 0, bmpMiniMap->w, bmpMiniMap->h);
 
 	memcpy(PixelFlags, map->PixelFlags, Width * Height);
-	memcpy(CollisionGrid, map->CollisionGrid, Width * Height);
-	memcpy(GridFlags, map->GridFlags, nGridCols * nGridRows);
-	memcpy(AbsoluteGridFlags, map->AbsoluteGridFlags, nGridCols * nGridRows);
 	if(Objects && map->Objects)
 		memcpy(Objects, map->Objects, MAX_OBJECTS * sizeof(object_t));
 	bmpBackImageHiRes = NULL;
@@ -172,8 +165,7 @@ size_t CMap::GetMemorySize()
 		GetSurfaceMemorySize(bmpDrawImage.get()) + GetSurfaceMemorySize(bmpGreenMask.get()) +
 		GetSurfaceMemorySize(bmpShadowMap.get()) + GetSurfaceMemorySize(bmpMiniMap.get()) +
 		GetSurfaceMemorySize(bmpMiniMapTransparent.get()) +
-		2 * Width * Height + // Pixel flags + Collision grid
-		2 * nGridCols * nGridRows + // Grids
+		Width * Height + // Pixel flags
 		Name.size() + FileName.size() +
 		Theme.name.size();
 #ifdef _AI_DEBUG
@@ -240,20 +232,7 @@ bool CMap::MiniCreate(uint _width, uint _height, uint _minimap_w, uint _minimap_
 		errors("CMap::New:: ERROR: cannot create pixel flags\n");
 		return false;
 	}
-	
-    // Create the AI Grid
-    if(!createGrid())
-	{
-		errors("CMap::New: ERROR: cannot create AI grid\n");
-		return false;
-	}
-	
-	// Create collision grid
-	if (!createCollisionGrid())  {
-		errors("CMap::New: ERROR: cannot create collision grid\n");
-		return false;
-	}
-	
+		
 	bmpMiniMap = gfxCreateSurface(MinimapWidth, MinimapHeight);
 	if(bmpMiniMap.get() == NULL) {
 		SetError("CMap::MiniCreate(): bmpMiniMap creation failed, perhaps out of memory");
@@ -620,9 +599,6 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 	unlockFlags();
 
-	// Update collision grid
-	calculateCollisionGridArea(x, y, w, h);
-
 	// Apply shadow
 	ApplyShadow(x - shadow_update, y - shadow_update, w + 2 * shadow_update, h + 2 * shadow_update);
 
@@ -758,213 +734,6 @@ bool CMap::CreatePixelFlags()
 }
 
 
-///////////////////
-// Create the AI Grid
-bool CMap::createGrid() {
-    nGridWidth = 15;
-    nGridHeight = 15;
-
-    nGridCols = Width/nGridWidth + 1;
-    nGridRows = Height/nGridHeight + 1;
-
-    lockFlags();
-    GridFlags = new uchar[nGridCols * nGridRows];
-    AbsoluteGridFlags = new uchar[nGridCols * nGridRows];
-    if(GridFlags == NULL || AbsoluteGridFlags == NULL) {
-		if(GridFlags) delete[] GridFlags; GridFlags = NULL;
-		if(AbsoluteGridFlags) delete[] AbsoluteGridFlags; AbsoluteGridFlags = NULL;
-		unlockFlags();
-        SetError("CMap::CreateGrid(): Out of memory");
-        return false;
-    }
-	memset(GridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));
-	memset(AbsoluteGridFlags,PX_EMPTY,nGridCols*nGridRows*sizeof(uchar));
-	unlockFlags();
-
-    return true;
-}
-
-
-///////////////////
-// Calculate the grid
-void CMap::calculateGrid()
-{
-	lockFlags();
-    for(uint y=0; y<Height; y+=nGridHeight)  {
-        for(uint x=0; x<Width; x+=nGridWidth) {
-            calculateGridCell(x,y, false);
-        }
-    }
-    unlockFlags();
-}
-
-
-///////////////////
-// Calculate a single grid cell
-// x & y are pixel locations, not grid cell locations
-// WARNING: not thread-safe (the caller has to ensure the threadsafty!)
-void CMap::calculateGridCell(int x, int y, bool bSkipEmpty)
-{
-    int i = x / nGridWidth;
-    int j = y / nGridHeight;
-
-    if(i < 0 || j < 0 || i >= nGridCols || j >= nGridRows) return;
-
-    x = i * nGridWidth;
-    y = j * nGridHeight;
-
-    uchar *cell = GridFlags + j*nGridCols + i;
-    uchar *abs_cell = AbsoluteGridFlags + j*nGridCols + i;
-
-    // Skip empty cells?
-    if(bSkipEmpty && *cell == PX_EMPTY)
-        return;
-
-    int dirtCount = 0;
-    int rockCount = 0;
-
-	int clip_h = MIN(y + nGridHeight, Height);
-	int clip_w = MIN(x + nGridWidth, Width);
-	uchar *pf;
-
-    // Go through every pixel in the cell and get a solid flag count
-    for(int b = y; b < clip_h; b++) {
-
-        pf = PixelFlags + b*Width + x;
-        for(int a = x; a < clip_w; a++, pf++) {
-
-            if(*pf & PX_DIRT)
-                dirtCount++;
-            if(*pf & PX_ROCK)
-                rockCount++;
-        }
-    }
-
-    *abs_cell = PX_EMPTY;
-    if(dirtCount > 0)
-    	*abs_cell |= PX_DIRT;
-    if(rockCount > 0)
-    	*abs_cell |= PX_ROCK;
-
-    int size = nGridWidth*nGridHeight / 10;
-
-    // If the dirt or rock count is greater than a 10th, the cell is flagged
-    *cell = PX_EMPTY;
-    if(dirtCount > size)
-        *cell = PX_DIRT;
-    if(rockCount > size)    // Rock overrides dirt
-        *cell = PX_ROCK;
-}
-
-/////////////////////
-// Create the grid used for fast collision checks
-bool CMap::createCollisionGrid()
-{
-	CollisionGrid = new uchar[Width * Height];
-	return true;
-}
-
-int CMap::getCollGridCellH() const {
-	return 10;
-}
-
-int CMap::getCollGridCellW() const {
-	return 10;
-}
-
-void CMap::calculateCollisionGridArea(int x, int y, int w, int h)
-{
-	const int cw = getCollGridCellW();
-	const int ch = getCollGridCellH();
-
-	AbsTime time = GetTime();
-
-#define GRID_CELL(X, Y)  (CollisionGrid + (Y) * Width + (X))
-#define PIXEL_FLAG(X, Y)  (PixelFlags + (Y) * Width + (X))
-#define CHECK(X, Y)  if ((X) >= (int)Width || (X) < 0 || (Y) >= (int)Height || (Y) < 0)  { errors << "CMap::calculateCollisionGridArea(): Calculating over map borders" << endl; RaiseDebugger(); }
-
-	// Top part
-	for (int j = y; j < ch; j++)
-		for (int i = x; i < x + w; i++)  {
-			CHECK(i, j);
-			*GRID_CELL(i, j) = 1;
-		}
-
-	// Bottom part
-	for (int j = Height - ch - 1; j < y + h; j++)
-		for (int i = x; i < x + w; i++)  {
-			CHECK(i ,j);
-			*GRID_CELL(i, j) = 1;
-		}
-
-	// Left part
-	const int tb = MIN(y + h, Height - ch - 1);
-	for (int j = MAX(ch, y); j < tb; j++)
-		for (int i = x; i < cw; i++)  {
-			CHECK(i, j);
-			*GRID_CELL(i, j) = 1;
-		}
-
-	// Right part
-	for (int j = MAX(ch, y); j < tb; j++)
-		for (int i = Width - cw - 1; i < x + w; i++)  {
-			CHECK(i, j);
-			*GRID_CELL(i, j) = 1;
-		}
-
-	// The rest
-	SDL_Rect clip = { cw, ch, Width - 2 * cw - 1, Height - 2 * ch - 1 };
-	if (!ClipRefRectWith(x, y, w, h, (SDLRect&)clip))
-		return;
-
-#define PX_SOLID (PX_DIRT|PX_ROCK)
-
-	const int cwh = cw/2;
-	const int chh = ch/2;
-	for (int j = y; j < y + h; ++j)
-		for (int i = x; i < x + w; ++i)  {
-			
-			// If this pixel is solid, great, we can just move on
-			if ((*PIXEL_FLAG(i, j) & PX_SOLID))  {
-				// Also set & skip few following pixels, because they would become solid because of this one anyway
-				CHECK(i + cwh - 1, j);
-				memset(GRID_CELL(i, j), 1, cwh);  // HINT: this is always safe because we never get to the real bounds here
-				i += cwh - 1;
-				continue;
-			}
-
-			// First try some special pixels to speed this up a bit in case the cell is solid
-			if ((*PIXEL_FLAG(i - cwh, j - chh) & PX_SOLID) ||
-				(*PIXEL_FLAG(i + cwh, j - chh) & PX_SOLID) || 
-				(*PIXEL_FLAG(i - cwh, j + chh) & PX_SOLID) ||
-				(*PIXEL_FLAG(i + cwh, j + chh) & PX_SOLID))  {
-				CHECK(i, j);
-				*GRID_CELL(i, j) = 1;
-				continue;
-			}
-
-			// Check the whole cell
-			*GRID_CELL(i, j) = 0;
-			for (int cy = j - chh; cy < j + chh; cy++)
-				for (int cx = i - cwh; cx < i + cwh; cx++)  {
-					CHECK(cx, cy);
-					if (*PIXEL_FLAG(cx, cy) & PX_SOLID)  {
-						CHECK(i, j);
-						*GRID_CELL(i, j) = 1;
-						break;
-					}
-				}
-		}
-
-	TimeDiff df = GetTime() - time;
-	//notes << "Calculating collision grid took " << df.seconds() << " seconds." << endl;
-
-#undef PIXEL_FLAG
-#undef CHECK
-#undef PX_SOLID
-#undef GRID_CELL
-}
-
 
 ///////////////////
 // Tile the map
@@ -1005,9 +774,6 @@ void CMap::TileMap()
 	lockFlags();
 	memset(PixelFlags,PX_DIRT,Width*Height*sizeof(uchar));
 	unlockFlags();
-
-	// Update collision grid
-	memset(CollisionGrid, 1, Width * Height * sizeof(uchar));
 
     // Calculate the shadowmap
     CalculateShadowMap();
@@ -1167,12 +933,9 @@ bool CMap::CheckAreaFree(int x, int y, int w, int h)
 	if (x < 0 || x + w >= (int)Width || y < 0 || y + h >= (int)Height)
 		return false;
 
-	// Go through the area collision grid cells and check if they are free
-	int xr = x + getCollGridCellW() / 2;
-	int yr = y + getCollGridCellH() / 2;
-	for (int j = yr; j < y + h; j += getCollGridCellH())
-		for (int i = xr; i < x + w; i += getCollGridCellW())
-			if (CollisionGrid[j * Width + i])
+	for(int dy = 0; dy < h; ++dy)
+		for(int dx = 0; dx < w; ++dx)
+			if(GetPixelFlag(x + dx, y + dy) & (PX_ROCK|PX_DIRT))
 				return false;
 
 	return true;
@@ -1209,16 +972,6 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Sur
 	const ShadowClipInfo i = ClipShadow(bmpDest, bmpObj, bmpShadowMap.get(), sx, sy, w, h, view, wx, wy);
 	if (!i.h || !i.w)
 		return;
-
-	// If we are small and the area around is empty, just use the shadow image instead
-	// HINT: this is not really exact, it can happen that two shadows overlap
-	// This case is however *very* rare and it would be too difficult/slow to check for it here
-	if (w <= getCollGridCellW() && h <= getCollGridCellH() && 
-		GetCollisionFlag(i.map_x, i.map_y, false) == 0 && bmpObjShadow)  {
-
-		DrawImageAdv(bmpDest, bmpObjShadow, i.obj_x, i.obj_y, i.dest_x, i.dest_y, i.w, i.h);
-		return;
-	}
 
 	// If we are bigger, we have to check the whole area of the shadow
 	if (CheckAreaFree(i.map_x, i.map_y, i.w, i.h) && bmpObjShadow)  {
@@ -1451,12 +1204,6 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 
 	if(nNumDirt)  { // Update only when something has been carved
 		UpdateArea(map_x, map_y, w, h, true);
-
-		// Grid
-		int i, j;
-		for(j = map_y; j < map_y + h; j += nGridHeight)
-			for(i = map_x; i < map_x + w; i += nGridWidth)
-				calculateGridCell(i, j, true);
 	}
 
     return nNumDirt;
@@ -1734,12 +1481,6 @@ int CMap::PlaceDirt(int size, CVec pos)
 
 	UpdateArea(sx, sy, w, h);
 
-	// Grid
-	int i, j;
-	for(j = sy; j < sy + h + nGridHeight; j += nGridHeight)
-		for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
-			calculateGridCell(i, j, false);
-
     return nDirtCount;
 }
 
@@ -1907,12 +1648,6 @@ int CMap::PlaceGreenDirt(CVec pos)
 	// Nothing placed, no need to update
 	if (nGreenCount)  {
 		UpdateArea(sx, sy, w, h);
-
-		// Grid
-		int i, j;
-		for(j = sy; j < sy + h + nGridHeight; j += nGridHeight)
-			for(i = sx; i < sx + w + nGridWidth; i += nGridWidth)
-				calculateGridCell(i, j, false);
 	}
 
     return nGreenCount;
@@ -1957,14 +1692,6 @@ void CMap::StaticCollisionCheckFinite(const CVec &objpos, int objw, int objh, CM
 	if (objpos.y + objh / 2 >= Height)  {
 		result.moveToY = Height - objh / 2 - 1;
 		result.occured = result.bottom = result.hitBounds = true;
-	}
-
-	// Use collision grid to check if the check is necessary
-	if (objw <= getCollGridCellW() && objh <= getCollGridCellH())  {
-		int x = CLAMP<int>((int)objpos.x, 0, Width - 1);
-		int y = CLAMP<int>((int)objpos.y, 0, Height - 1);
-		if (CollisionGrid[y * Width + x] == 0)  // If there's no dirt/rock around, no need to check any further
-			return;
 	}
 
 	// Cross check, taken from worm collision
@@ -2019,15 +1746,6 @@ void CMap::StaticCollisionCheckFinite(const CVec &objpos, int objw, int objh, CM
 // Collision check for infinite map
 void CMap::StaticCollisionCheckInfinite(const CVec &objpos, int objw, int objh, CMap::CollisionInfo &result) const
 {
-	// Use collision grid to check if the check is necessary
-	if (objw <= getCollGridCellW() && objh <= getCollGridCellH())  {
-		// HINT: if we are at the bounds, this check will work, because the flags are set to 1 around all borders
-		int x = WrapAroundX((int)objpos.x - objw / 2);
-		int y = WrapAroundY((int)objpos.y + objh / 2);
-		if (CollisionGrid[y * Width + x] == 0)  // If there's no dirt/rock around, no need to check any further
-			return;
-	}
-
 	// Cross check, taken from worm collision
 	SDL_Rect coll_r = { (int)objpos.x - objw / 2, (int)objpos.y - objh / 2, objw, objh };
 	result.x = coll_r.x + coll_r.w / 2;
@@ -2284,11 +2002,6 @@ void CMap::PlaceStone(int size, CVec pos)
 			px++;
 		}
 	}
-
-	// Recalculate the grid
-	for (y = sy; y < sy + stone->h + nGridHeight; y += nGridHeight)
-		for (x = sx; x < sx + stone->w + nGridWidth; x += nGridWidth)
-			calculateGridCell(x, y, false);
 
 	unlockFlags();
 
@@ -2697,12 +2410,6 @@ bool CMap::Load(const std::string& filename)
     // Calculate the total dirt count
     CalculateDirtCount();
 
-    // Calculate the grid
-    calculateGrid();
-
-	// Calculate collision grid
-	calculateCollisionGridArea(0, 0, Width, Height);
-
 	// Save the map to cache
 	SaveToCache();
 
@@ -2893,32 +2600,6 @@ void CMap::DEBUG_DrawPixelFlags(int x, int y, int w, int h)
 	/*SDL_Rect oldrect = bmpDrawImage->clip_rect;
 	SDL_Rect newrect = { x * 2, y * 2, w * 2, h * 2 };
 	SDL_SetClipRect(bmpDrawImage.get(), &newrect);*/
-#ifdef _AI_DEBUG
-
-	int xstart = MAX(0, x / nGridWidth);
-	int ystart = MAX(0, y / nGridHeight);
-	int xend = MIN((x + w) / nGridWidth, nGridCols - 1);
-	int yend = MIN((y + h) / nGridHeight, nGridRows - 1);
-
-
-    for(int py = ystart; py <= yend; py++) {
-        for(int px = xstart; px <= xend; px++) {
-			uchar pf = GridFlags[py * nGridCols + px];
-
-            if(pf & PX_ROCK)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(128,128,128));
-            else if(pf & PX_DIRT)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(255,0,0));
-            else if(pf & PX_EMPTY)
-                DrawRectFill(bmpDebugImage.get(),px*nGridWidth*2,py*nGridHeight*2,(px*nGridWidth+nGridWidth)*2,(py*nGridHeight+nGridHeight)*2, Color(0,0,128));
-            //DrawRect(bmpDrawImage,x*nGridWidth*2,y*nGridHeight*2,(x*nGridWidth+nGridWidth)*2,(y*nGridHeight+nGridHeight)*2, 0);
-			//DrawImageStretch2(bmpDrawImage,bmpImage,0,0,0,0,bmpImage->w,bmpImage->h);
-        }
-    }
-
-	SDL_SetAlpha(bmpDebugImage.get(), SDL_SRCALPHA, 128);
-
-#endif
 
 	//SDL_SetClipRect(bmpDrawImage.get(), &oldrect);
 }
@@ -3094,18 +2775,6 @@ void CMap::Shutdown()
 			delete[] PixelFlags;
 		PixelFlags = NULL;
 
-        if(GridFlags)
-            delete[] GridFlags;
-        GridFlags = NULL;
-
-        if(AbsoluteGridFlags)
-            delete[] AbsoluteGridFlags;
-        AbsoluteGridFlags = NULL;
-
-		if(CollisionGrid)
-			delete[] CollisionGrid;
-		CollisionGrid = NULL;
-
 		if(Objects)
 			delete[] Objects;
 		Objects = NULL;
@@ -3131,8 +2800,6 @@ void CMap::Shutdown()
 		bmpShadowMap = NULL;
 		bmpMiniMap = NULL;
 		PixelFlags = NULL;
-		GridFlags = NULL;
-		AbsoluteGridFlags = NULL;
 		Objects = NULL;
 		AdditionalData.clear();
 		bMapSavingToMemory = false;
@@ -3378,6 +3045,88 @@ void CMap::putSurfaceTo(long x, long y, SDL_Surface* surf, int sx, int sy, int s
 		DrawImageAdv(GetImage().get(), surf, sx, sy, x, y, sw, sh);
 		DrawImageStretch2(GetDrawImage().get(), GetImage(), x, y, x*2, y*2, sw, sh);
 	}
+}
+
+
+
+
+
+///////////////////
+// Find a spot with no rock
+CVec CMap::FindSpot()
+{
+	CVec pos;
+	PixelFlagAccess flags(this);
+	
+	size_t tries = 1000;
+	do {
+		pos.x = (float)rnd() * Width;
+		pos.y = (float)rnd() * Height;
+		tries--;
+	} while ( tries > 0 && !IsGoodSpawnPoint(flags, pos) );
+	
+	if(tries == 0) errors << "FindSpot(): strange error!" << endl;
+	return pos;
+}
+
+
+
+CVec CMap::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad) {
+	// TODO: optimise this!
+	
+	float team_dist = -9999999.0f;
+	CVec pos = FindSpot();
+	CVec pos1;
+	
+	for( int k=0; k<100; k++ )
+	{
+		float team_dist1 = 0;
+		pos1 = FindSpot();
+		for(std::list<CVec>::const_iterator i = goodPos.begin(); i != goodPos.end(); ++i)
+			team_dist1 -= ( pos1 - *i ).GetLength() / (goodPos.size() * 10.0f);
+		for(std::list<CVec>::const_iterator i = badPos.begin(); i != badPos.end(); ++i) {
+			if(keepDistanceToBad)
+				team_dist1 += 2.0f * ( ( pos1 - *i ).GetLength() ) / badPos.size();
+			else
+				// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
+				// The sum will get considerably smaller if any two teams are on short dist
+				team_dist1 += sqrt( ( pos1 - *i ).GetLength() ) / badPos.size();			
+		}
+		
+		if( team_dist1 > team_dist )
+		{
+			team_dist = team_dist1;
+			pos = pos1;
+		}
+	}
+	
+	return pos;	
+}
+
+CVec CMap::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToEnemy) {
+	std::list<CVec> goodPos;
+	std::list<CVec> badPos;
+	std::vector<bool> coveredTeam(4, false);
+	
+	CWorm * w = cClient->getRemoteWorms();
+	for(int i = 0; i < MAX_WORMS; i++, w++) {
+		if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || !w->getAlive())
+			continue;
+		if(exceptionWorm && exceptionWorm->getID() == w->getID())
+			continue;
+		if(w->getTeam() < 0 || (size_t)w->getTeam() >= coveredTeam.size())
+			continue;
+		if(coveredTeam[w->getTeam()])
+			continue;
+		
+		coveredTeam[w->getTeam()] = true;
+		if(w->getTeam() == t)
+			goodPos.push_back(w->getPos());
+		else
+			badPos.push_back(w->getPos());
+	}
+	
+	return FindSpotCloseToPos(goodPos, badPos, keepDistanceToEnemy);
 }
 
 

@@ -22,6 +22,7 @@
 #include "Consts.h"
 #include "types.h"
 #include "Cache.h"
+#include "game/Game.h"
 
 class CHideAndSeek : public CGameMode {
 public:
@@ -96,7 +97,7 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 {
-	pos = cServer->FindSpot();
+	pos = game.gameMap()->FindSpot();
 	worm->Spawn(pos);
 	bVisible[worm->getID()] = false;
 	// Worms only spawn visible to their own team

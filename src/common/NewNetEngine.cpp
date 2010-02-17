@@ -54,36 +54,26 @@ void RestoreState()
 static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::FindSpot
 {
 	// This should use net synced Worm->NewNet_random for now, later I'll use respawn routines from CServer
-	CMap * cMap = cClient->getMap();
-	int	 x, y;
-	int	 px, py;
-	int	 cols = cMap->getGridCols() - 1;	   // Note: -1 because the grid is slightly larger than the
-	int	 rows = cMap->getGridRows() - 1;	   // level size
-	int	 gw = cMap->getGridWidth();
-	int	 gh = cMap->getGridHeight();
 
-	uchar pf, pf1, pf2, pf3, pf4;
-	cMap->lockFlags();
+	float w = cClient->getMap()->GetWidth();
+	float h = cClient->getMap()->GetHeight();
+	CMap::PixelFlagAccess flags(cClient->getMap());
 	
 	// Find a random cell to start in - retry if failed
-	while(true) {
-		px = (int)(Worm->NewNet_random.getFloatPositive() * (float)cols);
-		py = (int)(Worm->NewNet_random.getFloatPositive() * (float)rows);
-		x = px; y = py;
+	size_t tries = 1000;
+	while(tries-- > 0) {
+		CVec pos;
+		pos.x = Worm->NewNet_random.getFloatPositive() * w;
+		pos.y = Worm->NewNet_random.getFloatPositive() * h;
 
-		if( x + y < 6 )	// Do not spawn in top left corner
+		if(!cClient->getMap()->IsGoodSpawnPoint(flags, pos))
 			continue;
-
-		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
-		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
-		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
-		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
-		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
-			cMap->unlockFlags();
-			return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
-		}
+		
+		return pos;
 	}
+	
+	errors << "NewNet_FindSpot: cannot find spot" << endl;
+	return CVec();
 }
 
 

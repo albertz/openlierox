@@ -71,11 +71,7 @@ static const unsigned short wormsize = 7;
 SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 	uint map_w = cClient->getMap()->GetWidth();
 	uint map_h = cClient->getMap()->GetHeight();
-    uint grid_w = cClient->getMap()->getGridWidth();
-    uint grid_h = cClient->getMap()->getGridHeight();
-	uint grid_cols = cClient->getMap()->getGridCols();
 	const uchar* pxflags = cClient->getMap()->GetPixelFlags();
-	const uchar* gridflags = cClient->getMap()->getAbsoluteGridFlags();
 
 	SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
@@ -88,8 +84,6 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 	enum { GO_RIGHT=1, GO_DOWN=2, GO_LEFT=4, GO_UP=8 }; short dir;
 	unsigned short col;
 	register int x=0, y=0;
-	int grid_x=0, grid_y=0;
-	bool avoided_all_grids;
 
 	// loop over all directions until there is some obstacle
 	col = 0; dir = 1;
@@ -119,25 +113,12 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 		}
 
 		// loop over all pxflags of the aligned line and check for an obstacle
-		avoided_all_grids = true;
 		while(true) {
 			// break if ready
 			if(dir == GO_RIGHT || dir == GO_LEFT) {
 				if(y > ret.v2.y) break;
 			} else // GO_UP / GO_DOWN
 				if(x > ret.v2.x) break;
-
-			// check if we can avoid this gridcell
-			grid_x = x / grid_w; grid_y = y / grid_h;
-			if(!(gridflags[grid_y*grid_cols + grid_x] & checkflag)) {
-				// yes we can and do now
-				switch(dir) {
-				case GO_RIGHT: case GO_LEFT: y=(grid_y+1)*grid_h; break;
-				case GO_DOWN: case GO_UP: x=(grid_x+1)*grid_w; break;
-				}
-				continue;
-			} else
-				avoided_all_grids = false;
 
 			// is there some obstacle?
 			if(pxflags[y*map_w + x] & checkflag) {
@@ -153,23 +134,12 @@ SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
 		}
 
 		if(!(col & dir)) {
-			if(avoided_all_grids) {
-				// we can jump to the end of the grids in this case
-				// grid_x/grid_y was already set here by the last loop
-				switch(dir) {
-				case GO_RIGHT: ret.v2.x=MIN((grid_x+1)*grid_w-1,map_w-1); break;
-				case GO_DOWN: ret.v2.y=MIN((grid_y+1)*grid_h-1,map_h-1); break;
-				case GO_LEFT: ret.v1.x=grid_x*grid_w; break;
-				case GO_UP: ret.v1.y=grid_y*grid_h; break;
-				}
-			} else { // not avoided_all_grids
-				// simple inc 1 pixel in the checked direction
-				switch(dir) {
-				case GO_RIGHT: ret.v2.x++; break;
-				case GO_DOWN: ret.v2.y++; break;
-				case GO_LEFT: ret.v1.x--; break;
-				case GO_UP: ret.v1.y--; break;
-				}
+			// simple inc 1 pixel in the checked direction
+			switch(dir) {
+			case GO_RIGHT: ret.v2.x++; break;
+			case GO_DOWN: ret.v2.y++; break;
+			case GO_LEFT: ret.v1.x--; break;
+			case GO_UP: ret.v1.y--; break;
 			}
 		}
 
@@ -872,10 +842,6 @@ bool CWormBotInputHandler::AI_Initialize() {
 		return false;
 	}
 
-    // Allocate the Open/Close grid
-    nGridCols = cClient->getMap()->getGridCols();
-    nGridRows = cClient->getMap()->getGridRows();
-
     m_worm->fLastCarve = AbsTime();
     cStuckPos = CVec(-999,-999);
     fStuckTime = 0;
@@ -1516,7 +1482,7 @@ void CWormBotInputHandler::AI_Think()
     //
 
     // Our target already on high ground?
-    if(cPosTarget.y < cClient->getMap()->getGridHeight()*5 && nAIState == AI_MOVINGTOTARGET)  {
+    if(cPosTarget.y < 75 && nAIState == AI_MOVINGTOTARGET)  {
 
 		// Nothing todo, so go find some health if we even slightly need it
 		if(m_worm->health < 100) {
@@ -1531,26 +1497,24 @@ void CWormBotInputHandler::AI_Think()
  }
 
 bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
-	float cols = (float)(cClient->getMap()->getGridCols()-1);   // Note: -1 because the grid is slightly larger than the
-	float rows = (float)(cClient->getMap()->getGridRows()-1);   // level size
-
+	float w = game.gameMap()->GetWidth();
+	float h = game.gameMap()->GetHeight();
 	if(highSpot)
-		rows /= 5.0f; // little hack to go higher
+		h /= 5.0f; // little hack to go higher
+	
+	CMap::PixelFlagAccess flags(game.gameMap());
 	
     // Find a random spot to go to high in the level
     //printf("I don't find any target, so let's get somewhere (high)\n");
-	int x, y, c;
-	for(c=0; c<10; c++) {
-		x = (int)(fabs(GetRandomNum()) * cols);
-		y = (int)(fabs(GetRandomNum()) * rows);
+	for(int c=0; c<10; c++) {
+		long x = (long)(fabs(GetRandomNum()) * w);
+		long y = (long)(fabs(GetRandomNum()) * h);
 
-		uchar pf = *(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() + x);
-
-		if(pf & PX_ROCK)
+		if(!game.gameMap()->IsGoodSpawnPoint(flags, x, y))
 			continue;
 
 		// Set the target
-		cPosTarget = CVec((float)(x*cClient->getMap()->getGridWidth()+(cClient->getMap()->getGridWidth()/2)), (float)(y*cClient->getMap()->getGridHeight()+(cClient->getMap()->getGridHeight()/2)));
+		cPosTarget = CVec(x,y);
 		nAITargetType = AIT_POSITION;
 		nAIState = AI_MOVINGTOTARGET;
 		return true;
@@ -2325,7 +2289,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		// TODO: do we need this?
 		fBadAimTime += tLX->fDeltaTime;
 		if((fBadAimTime) > 4) {
-			if(m_worm->IsEmpty(CELL_UP))
+			if(game.gameMap()->IsEmptyForWorm(m_worm->pos() + CVec(0,-5)))
 				m_worm->tState.bJump = true;
 			fBadAimTime = 0;
 		}
@@ -2722,106 +2686,10 @@ int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkf
     return nTotalLength;
 }
 
-///////////////////
-// Returns true, if the cell is empty
-// Cell can be: CELL_CURRENT, CELL_LEFT,CELL_DOWN,CELL_RIGHT,CELL_UP,CELL_LEFTDOWN,CELL_RIGHTDOWN,CELL_LEFTUP,CELL_RIGHTUP
-bool CWorm::IsEmpty(int Cell)
-{
-  bool bEmpty = false;
-  int cx = (int)(vPos.x / cClient->getMap()->getGridWidth());
-  int cy = (int)(vPos.y / cClient->getMap()->getGridHeight());
-
-  switch (Cell)  {
-  case CELL_LEFT:
-	  cx--;
-	  break;
-  case CELL_DOWN:
-	  cy++;
-	  break;
-  case CELL_RIGHT:
-	  cx++;
-	  break;
-  case CELL_UP:
-	  cy--;
-	  break;
-  case CELL_LEFTDOWN:
-	  cx--;
-	  cy++;
-	  break;
-  case CELL_RIGHTDOWN:
-	  cx++;
-	  cy++;
-	  break;
-  case CELL_LEFTUP:
-	  cx--;
-	  cy--;
-	  break;
-  case CELL_RIGHTUP:
-	  cx++;
-	  cy--;
-	  break;
-  }
-
-  if ((cx < 0 || cx > cClient->getMap()->getGridCols()))
-	  return false;
-
-  if ((cy < 0 || cy > cClient->getMap()->getGridRows()))
-	  return false;
-
-  const uchar   *f = cClient->getMap()->getGridFlags() + cy*cClient->getMap()->getGridWidth()+cx;
-  bEmpty = *f == PX_EMPTY;
-
-  return bEmpty;
-}
-
-/////////////////////////////
-// TEST TEST TEST
-//////////////////
 // Finds the nearest free cell in the map and returns coordinates of its midpoint
 CVec CWormBotInputHandler::AI_FindClosestFreeCell(CVec vPoint)
 {
-	// NOTE: highly unoptimized, looks many times to the same cells
-
-	// Get the cell
-	int cellX = (int) fabs((vPoint.x)/cClient->getMap()->getGridWidth());
-	int cellY = (int) fabs((vPoint.y)/cClient->getMap()->getGridHeight());
-
-	int cellsSearched = 1;
-	const int numCells = cClient->getMap()->getGridCols() * cClient->getMap()->getGridRows();
-	int i=1;
-	int x,y;
-	uchar tmp_pf = PX_ROCK;
-	while (cellsSearched < numCells) {
-		for (y=cellY-i;y<=cellY+i;y++)  {
-
-			// Clipping
-			if (y > cClient->getMap()->getGridRows())
-				break;
-			if (y < 0)
-				continue;
-
-			for (x=cellX-i;x<=cellX+i;x++)  {
-				// Don't check the entry cell
-				if (x == cellX && y == cellY)
-					continue;
-
-				// Clipping
-				if (x > cClient->getMap()->getGridCols())
-					break;
-				if (x < 0)
-					continue;
-
-				tmp_pf = *(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() +x);
-				if (!(tmp_pf & PX_ROCK))
-					return CVec((float)x*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2, (float)y*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2);
-			}
-		}
-		i++;
-		cellsSearched++;
-	}
-
-	// Can't get here
-	return CVec(0,0);
+	return game.gameMap()->FindSpotCloseToPos(vPoint);
 }
 
 /////////////////////
@@ -2995,92 +2863,11 @@ int traceWormLine(CVec target, CVec start, CVec* collision)
 // Checks if there is enough free cells around us to shoot
 bool CWormBotInputHandler::AI_CheckFreeCells(int Num)
 {
-	// Get the cell
-	int cellX = (int) fabs((m_worm->vPos.x)/cClient->getMap()->getGridWidth());
-	int cellY = (int) fabs((m_worm->vPos.y)/cClient->getMap()->getGridHeight());
-
-	// First of all, check our current cell
-	if (*(cClient->getMap()->getGridFlags() + cellY*cClient->getMap()->getGridCols() +cellX) & PX_ROCK)
-		return false;
-
-
-	// Direction to left
-	if (m_worm->iFaceDirectionSide == DIR_LEFT)  {
-		int dir = 0;
-		if (m_worm->fAngle > 210)
-			dir = 1;
-		if (m_worm->fAngle < 210 && m_worm->fAngle > 160)
-			dir = -Num/2;
-		if (m_worm->fAngle < 160)
-			dir = -1*Num;
-
-/*#ifdef _AI_DEBUG
-		int dX = (cellX-Num-1)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
-		int dY = (cellY+dir)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		int dX2 = (cellX-1)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
-		int dY2 = (cellY+dir+Num)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,Color(255,0,0));
-#endif*/
-
-		// Check the Num*Num square
-		int x,y;
-		for (x = cellX - Num - 1; x < cellX; x++)  {
-			// Clipping means rock
-			if ((x < 0 || x > cClient->getMap()->getGridCols()))
-				return false;
-			for (y = cellY + dir; y < cellY + dir + Num; y++)  {
-				// Clipping means rock
-				if ((y < 0 || y > cClient->getMap()->getGridRows()))
-					return false;
-
-				// Clipping means rock
-				if (*(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() +x) & PX_ROCK)
-					return false;
-			}
-		}
-
-		return true;
-	// Direction to right
-	}  else  {
-		int dir = 0;
-		if (m_worm->fAngle > 20)
-			dir = 1;
-		else if (m_worm->fAngle < 20 && m_worm->fAngle > -20)
-			dir = -Num/2;
-		else if (m_worm->fAngle < -20)
-			dir = -1*Num;
-
-/*#ifdef _AI_DEBUG
-		int dX = (cellX)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
-		int dY = (cellY+dir)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		int dX2 = (cellX+Num)*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2;
-		int dY2 = (cellY+dir+Num)*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2;
-		DrawRect(bmpDest,dX*2,dY*2,dX2*2,dY2*2,Color(255,0,0));
-#endif*/
-
-		// Check the square Num*Num
-		int x,y;
-		for (x=cellX;x<=cellX+Num;x++)  {
-			// Clipping means rock
-			if((x< 0 || x > cClient->getMap()->getGridCols()))
-				return false;
-			for(y=cellY+dir;y<cellY+dir+Num;y++)  {
-				// Clipping means rock
-				if((y < 0 || y > cClient->getMap()->getGridRows()))
-					return false;
-
-				// Rock cell
-				if(*(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() +x) & PX_ROCK)
-					return false;
-			}
-		}
-
-		return true;
-	}
-
-	// Weird, shouldn't happen
-	errors << "bot: ouh, what???" << endl;
-	return false;
+	// TODO: it seems this function is used much too radical and I am not exactly sure what it should calculate
+	// So this is a bad hack for now
+	return true;
+	// TODO: is there any difference?
+	return AI_IsInAir(m_worm->pos(), Num);
 }
 
 
@@ -3587,86 +3374,6 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 		return action.best;
 }
 
-////////////////////
-// Finds the nearest spot to the target, where the rope can be hooked
-CVec CWormBotInputHandler::AI_GetNearestRopeSpot(CVec trg)
-{
-	CVec dir = trg-m_worm->vPos;
-	NormalizeVector(&dir);
-	dir = dir*10;
-	float restlen2 = m_worm->cNinjaRope.getRestLength();
-	restlen2 *= restlen2;
-	while ((m_worm->vPos-trg).GetLength2() >= restlen2)
-		trg = trg-dir;
-
-	//
-	// Find the nearest cell with rock or dirt
-	//
-
-	// Get the current cell
-	uchar tmp_pf = PX_ROCK;
-	int cellX = (int) (trg.x)/cClient->getMap()->getGridWidth();
-	int cellY = (int) (trg.y)/cClient->getMap()->getGridHeight();
-
-	// Clipping means rock
-	if (cellX > cClient->getMap()->getGridCols() || cellX < 0)
-		return trg;
-	if (cellY > cClient->getMap()->getGridRows() || cellY < 0)
-		return trg;
-
-	// Check the current cell first
-	tmp_pf = *(cClient->getMap()->getGridFlags() + cellY*cClient->getMap()->getGridCols() +cellX);
-	if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))
-		return trg;
-
-	// TODO: Note: unoptimized
-
-	int i=1;
-	int x=0,y=0;
-	bool bFound = false;
-	while (!bFound) {
-		for (y=cellY-i;y<=cellY+i;y++)  {
-
-			// Clipping means rock
-			if (y > cClient->getMap()->getGridRows())  {
-				bFound = true;
-				break;
-			}
-			if (y < 0)  {
-				bFound = true;
-				break;
-			}
-
-
-			for (x=cellX-i;x<=cellX+i;x++)  {
-				// Don't check the entry cell
-				if (x == cellX && y == cellY)
-					continue;
-
-				// Clipping means rock
-				if (x > cClient->getMap()->getGridCols())  {
-					bFound = true;
-					break;
-				}
-				if (x < 0)  {
-					bFound = true;
-					break;
-				}
-
-				// Get the pixel flag of the cell
-				tmp_pf = *(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() +x);
-				if ((tmp_pf & PX_ROCK) || (tmp_pf & PX_DIRT))  {
-					bFound = true;
-					break;
-				}
-			}
-		}
-		i++;
-	}
-
-	return CVec((float)x*cClient->getMap()->getGridWidth()+cClient->getMap()->getGridWidth()/2, (float)y*cClient->getMap()->getGridHeight()+cClient->getMap()->getGridHeight()/2);
-
-}
 
 ///////////////
 // Returns true if the point has the specified amount of air around itself
@@ -3677,52 +3384,13 @@ bool CWormBotInputHandler::AI_IsInAir(CVec pos, int area_a)
 	if(pos.x < 0 || pos.y < 0 || pos.x >= cClient->getMap()->GetWidth() || pos.y >= cClient->getMap()->GetHeight())
 		return false;
 
-	// Get the current cell
-	uchar tmp_pf = PX_ROCK;
-	int startX = (int) (pos.x)/cClient->getMap()->getGridWidth()-(int)floor((double)area_a/2);
-	int startY = (int) (pos.y)/cClient->getMap()->getGridHeight()-(int)floor((double)area_a/2);
-
-	// Clipping means rock
-	if (startX < 0 || startY < 0)
-		return false;
-
-	int x,y,i;
-	x=startX;
-	y=startY;
-
-	cClient->getMap()->lockFlags();
-	for (i=0;i<area_a*area_a;i++) {
-
-		// Clipping means rock
-		if (x >= cClient->getMap()->getGridCols())  {
-			cClient->getMap()->unlockFlags();
-			return false;
-		}
-
-		if (x > area_a)  {
-			x = startX;
-			y++;
-
-			// Clipping means rock
-			if (y >= cClient->getMap()->getGridRows())  {
-				cClient->getMap()->unlockFlags();
-				return false;
-			}
-		}
-
-		// Rock or dirt - not in air
-		tmp_pf = *(cClient->getMap()->getGridFlags() + y*cClient->getMap()->getGridCols() +x);
-		if(tmp_pf & (PX_ROCK|PX_DIRT))  {
-			cClient->getMap()->unlockFlags();
-			return false;
-		}
-
-		x++;
-	}
-	cClient->getMap()->unlockFlags();
-
-	return true;
-
+	const long w = area_a * 15;
+	const long h = w;
+	const long x = (long)pos.x - w/2;
+	const long y = (long)pos.y - h/2;
+	
+	CMap::PixelFlagAccess flags(game.gameMap());
+	return flags.checkArea_AllHaveNot<PX_ROCK|PX_DIRT>(x,y,x+w,y+h);
 }
 
 

@@ -473,8 +473,6 @@ public:
 
 	void		DestroyBonus(int id, bool local, int wormid);
 
-	CVec		FindNearestSpot(CWorm *w);
-
 	// Main
 	void		Frame();
 	void		NewNet_Frame();

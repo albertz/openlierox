@@ -31,69 +31,6 @@
 #include "game/Game.h"
 
 
-CVec GameServer::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CVec>& badPos, bool keepDistanceToBad) {
-	// TODO: optimise this!
-	
-	float team_dist = -9999999.0f;
-	CVec pos = FindSpot();
-	CVec pos1;
-	
-	for( int k=0; k<100; k++ )
-	{
-		float team_dist1 = 0;
-		pos1 = FindSpot();
-		for(std::list<CVec>::const_iterator i = goodPos.begin(); i != goodPos.end(); ++i)
-			team_dist1 -= ( pos1 - *i ).GetLength() / (goodPos.size() * 10.0f);
-		for(std::list<CVec>::const_iterator i = badPos.begin(); i != badPos.end(); ++i) {
-			if(keepDistanceToBad)
-				team_dist1 += 2.0f * ( ( pos1 - *i ).GetLength() ) / badPos.size();
-			else
-				// sqrt will make sure there's no large dist between team1 and 2 and short dist between 2 and 3
-				// The sum will get considerably smaller if any two teams are on short dist
-				team_dist1 += sqrt( ( pos1 - *i ).GetLength() ) / badPos.size();			
-		}
-		
-		if( team_dist1 > team_dist )
-		{
-			team_dist = team_dist1;
-			pos = pos1;
-		}
-	}
-	
-	return pos;	
-}
-
-CVec GameServer::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToEnemy) {
-	std::list<CVec> goodPos;
-	std::list<CVec> badPos;
-	bool *coveredTeam = new bool[getGameMode()->GameTeams()];
-	for(int i = 0; i < getGameMode()->GameTeams(); ++i)
-		coveredTeam[i] = false;
-	
-	CWorm * w = cWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || !w->getAlive())
-			continue;
-		if(exceptionWorm && exceptionWorm->getID() == w->getID())
-			continue;
-		if(w->getTeam() < 0 || w->getTeam() >= getGameMode()->GameTeams())
-			continue;
-		if(coveredTeam[w->getTeam()])
-			continue;
-		
-		coveredTeam[w->getTeam()] = true;
-		if(w->getTeam() == t)
-			goodPos.push_back(w->getPos());
-		else
-			badPos.push_back(w->getPos());
-	}
-	
-	CVec ret = FindSpotCloseToPos(goodPos, badPos, keepDistanceToEnemy);
-
-	delete[] coveredTeam;
-	
-	return ret;
-}
 
 ///////////////////
 // Spawn a worm
@@ -118,21 +55,21 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		else if( getGameMode() == GameMode(GM_CTF) ) {
 			Flag* flag = m_flagInfo->getFlag(Worm->getTeam());
 			if(!flag) // no flag yet, choose like in respawngroupteams
-				pos = FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
+				pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
 			else
-				pos = FindSpotCloseToPos(flag->spawnPoint.pos);
+				pos = cMap->FindSpotCloseToPos(flag->spawnPoint.pos);
 		}
 		// Spawn worm closer to it's own team and away from other teams
 		else if( tLXOptions->tGameInfo.bRespawnGroupTeams && ( getGameMode()->GameTeams() > 1 ) )
 		{
-			pos = FindSpotCloseToTeam(Worm->getTeam(), Worm);
+			pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm);
 		}
 		else
-			pos = FindSpot();			
+			pos = cMap->FindSpot();			
 	}
 
 	if(pos.x == -1 && pos.y == -1)
-		pos = FindSpot();
+		pos = cMap->FindSpot();
 
 	// Allow the game mode to override spawns
 	if(!getGameMode()->Spawn(Worm, pos))
@@ -165,91 +102,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 	}
 }
 
-///////////////////
-// Find a spot with no rock
-CVec GameServer::FindSpot()
-{
-	int	 x, y;
-	int	 px, py;
-	bool	first = true;
-	int	 cols = cMap->getGridCols() - 1;	   // Note: -1 because the grid is slightly larger than the
-	int	 rows = cMap->getGridRows() - 1;	   // level size
-	int	 gw = cMap->getGridWidth();
-	int	 gh = cMap->getGridHeight();
 
-	uchar pf, pf1, pf2, pf3, pf4;
-	cMap->lockFlags();
-	
-	// Find a random cell to start in - retry if failed
-	for( int tries = 0; tries < 40; tries++ ) {
-		px = (int)(fabs(GetRandomNum()) * (float)cols);
-		py = (int)(fabs(GetRandomNum()) * (float)rows);
-		x = px; y = py;
-
-		if( x + y < 6 )	// Do not spawn in top left corner
-			continue;
-
-		pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-		pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
-		pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
-		pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
-		pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
-		if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) ) {
-			cMap->unlockFlags();
-			return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
-		}
-	}
-
-	int smallx = -1, smally = -1;
-	
-	// Start from the cell and go through until we get to an empty cell
-	while(true) {
-		while(true) {
-			// If we're on the original starting cell, and it's not the first move we have checked all cells
-			// and should leave
-			if(!first) {
-				if(px == x && py == y) {
-					cMap->unlockFlags();
-					
-					if(smallx >= 0 && smally >= 0) { x = smallx; y = smally; }
-					else errors << "FindSpot(): didn't found anything!" << endl;
-					return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
-				}
-			}
-			first = false;
-
-			pf = *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + x);
-			pf1 = (x>0) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x-1)) : PX_ROCK;
-			pf2 = (x<cols-1) ? *(cMap->getAbsoluteGridFlags() + y * cMap->getGridCols() + (x+1)) : PX_ROCK;
-			pf3 = (y>0) ? *(cMap->getAbsoluteGridFlags() + (y-1) * cMap->getGridCols() + x) : PX_ROCK;
-			pf4 = (y<rows-1) ? *(cMap->getAbsoluteGridFlags() + (y+1) * cMap->getGridCols() + x) : PX_ROCK;
-			if( !(pf & PX_ROCK) && !(pf1 & PX_ROCK) && !(pf2 & PX_ROCK) && !(pf3 & PX_ROCK) && !(pf4 & PX_ROCK) )  {
-				cMap->unlockFlags();
-				return CVec((float)x * gw + gw / 2, (float)y * gh + gh / 2);
-			}
-
-			if( !(pf & PX_ROCK) ) {
-				// at least at this grid, we have some space, so save it as fallback
-				if(smallx < 0) { smallx = x; smally = y; }
-			}
-			
-			if(++y >= rows) {
-				y = 0;
-				break;
-			}
-		}
-
-		if(++x >= cols) {
-			x = 0;
-			y = 0;
-		}
-	}
-	cMap->unlockFlags();
-
-	// Can't get here
-	errors << "FindSpot(): strange error!" << endl;
-	return CVec((float)x, (float)y);
-}
 
 void GameServer::killWorm( int victim, int killer, int suicidesCount )
 {
@@ -409,7 +262,7 @@ void GameServer::SimulateGame()
 void GameServer::SpawnBonus()
 {
 	// Find an empty spot for the bonus
-	CVec pos = FindSpot();
+	CVec pos = game.gameMap()->FindSpot();
 
 	// Carve a hole for it
 	//cMap->CarveHole(SPAWN_HOLESIZE,pos);

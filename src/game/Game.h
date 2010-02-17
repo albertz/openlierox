@@ -19,6 +19,7 @@
 class CWormHumanInputHandler;
 class CWormInputHandler;
 class CWorm;
+class CMap;
 class CGameScript;
 class CGameMode;
 class CWpnRest;
@@ -57,6 +58,7 @@ public:
 	ObjectsList objects;
 #endif
 
+	CMap* gameMap();
 	CGameScript* gameScript();
 	CGameMode* gameMode();
 	CWpnRest* weaponRestrictions();

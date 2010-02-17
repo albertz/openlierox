@@ -200,16 +200,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 	// Hit edges
 	if(px-w<0 || py-h<0 || px+w>=mw || py+h>=mh)
 		return PJC_TERRAIN|PJC_MAPBORDER;
-
-	const uchar* gridflags = map->getAbsoluteGridFlags();
-	int grid_w = map->getGridWidth();
-	int grid_h = map->getGridHeight();
-	int grid_cols = map->getGridCols();
-	if(grid_w < 2*w+1 || grid_h < 2*h+1 // this ensures, that this check is safe
-	|| gridflags[((py-h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py+h)/grid_h)*grid_cols + (px-w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py-h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT)
-	|| gridflags[((py+h)/grid_h)*grid_cols + (px+w)/grid_w] & (PX_ROCK|PX_DIRT))
+	
 	for(int y=py-h;y<=py+h;y++) {
 
 		uchar *pf = map->GetPixelFlags() + y*mw + px-w;
