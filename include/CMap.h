@@ -390,14 +390,17 @@ public:
 	CVec FindSpotCloseToTeam(int t, CWorm* exceptionWorm = NULL, bool keepDistanceToEnemy = true);
 	CVec FindNearestSpot(CGameObject *o) { return FindSpotCloseToPos(o->pos()); }
 	
-
-	struct PixelFlagAccess {
+	
+	struct __PixelFlagAccessBase {
 		CMap* map;
-		PixelFlagAccess(CMap* m) : map(m) { map->lockFlags(false); }
-		~PixelFlagAccess() { map->unlockFlags(false); }
-		
-		uchar get(long x, long y, bool wrapAround = false) { return map->GetPixelFlag(x,y,wrapAround); }
+		__PixelFlagAccessBase(CMap* m) : map(m) {} 
+	};
+	
+	struct __PixelFlagReaders : __PixelFlagAccessBase {
+		__PixelFlagReaders(CMap* m) : __PixelFlagAccessBase(m) {}
 
+		uchar get(long x, long y, bool wrapAround = false) { return map->GetPixelFlag(x,y,wrapAround); }
+		
 		typedef uchar (*CombiFunc) (uchar, uchar);
 		static uchar Or(uchar a, uchar b) { return a | b; }
 		static uchar And(uchar a, uchar b) { return a & b; }
@@ -419,9 +422,9 @@ public:
 				ret = (*func)(ret, getLineHoriz<func>(x,y,x2,wrapAround));
 			return ret;
 		}
-
+		
 		uchar getArea_Or(long x, long y, long w, long h, bool wrapAround = false) { return getArea<Or>(x,y,w,h,wrapAround); }
-
+		
 		typedef bool (*CheckFunc) (uchar);
 		template<uchar flags> static bool Have(uchar a) { return (bool)(a & flags); }
 		template<uchar flags> static bool HaveNot(uchar a) { return !(bool)(a & flags); }
@@ -432,7 +435,7 @@ public:
 				if(!(*func)(get(x,y,wrapAround))) return false;
 			return true;
 		}
-
+		
 		template<CheckFunc func>
 		bool checkArea_All(long x, long y, long x2, long y2, bool wrapAround = false) {
 			for(; y < y2; ++y)
@@ -444,6 +447,22 @@ public:
 		bool checkArea_AllHaveNot(long x, long y, long x2, long y2, bool wrapAround = false) {
 			return checkArea_All< HaveNot<flags> >(x,y,x2,y2,wrapAround);
 		}
+	};
+	
+	struct __PixelFlagWriters : __PixelFlagReaders {
+		__PixelFlagWriters(CMap* m) : __PixelFlagReaders(m) {}
+		
+		void set(long x, long y, uchar flag) { map->SetPixelFlag((uint)x, (uint)y, flag); }
+	};
+	
+	struct PixelFlagAccess : __PixelFlagReaders {
+		PixelFlagAccess(CMap* m) : __PixelFlagReaders(m) { map->lockFlags(false); }
+		~PixelFlagAccess() { map->unlockFlags(false); }
+	};
+
+	struct PixelFlagWriteAccess : __PixelFlagWriters {
+		PixelFlagWriteAccess(CMap* m) : __PixelFlagWriters(m) { map->lockFlags(true); }
+		~PixelFlagWriteAccess() { map->unlockFlags(true); }
 	};
 	
 	static bool IsGoodSpawnPoint(PixelFlagAccess& flags, long x, long y) { return flags.checkArea_AllHaveNot<PX_ROCK>(x-3, y-3, x+3, y+3); }
