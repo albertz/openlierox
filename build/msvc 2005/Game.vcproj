@@ -83,7 +83,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot;"
+				AdditionalDependencies="wsock32.lib wininet.lib &quot;$(ProjectDir)\..\msvc\libs\NLstatic.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\libzip.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\zlib.lib&quot; &quot;$(ProjectDir)\..\msvc\libs\curllib.lib&quot; &quot;$(ProjectDir)\$(ConfigurationName)\BreakPad.lib&quot; &quot;$(VSInstallDir)\DIA SDK\lib\diaguids.lib&quot; SDLmain.lib SDL.lib SDL_image.lib"
 				OutputFile=".\../../bin/OpenLieroX_debug.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
