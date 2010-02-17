@@ -1265,7 +1265,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 					notes << "CClient::SendPackets: Server thinks that ";
 					for(unsigned int i=0;i<iNumWorms;i++) {
 						if(!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady())
-							notes << "; " << i << ":" << cLocalWorms[i]->getName();
+							notes << " (local " << i << ") " << cLocalWorms[i]->getID() << ":" << cLocalWorms[i]->getName();
 					}
 					notes << " is not ready" << endl;
 					
