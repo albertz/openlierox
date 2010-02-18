@@ -1816,6 +1816,9 @@
     <ClCompile Include="..\..\src\game\Sounds.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
+    <ClCompile Include="..\msvc\openal_initializer_finalizer.cpp">
+      <Filter>Libraries</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\msvc\libs\bgd.lib">
@@ -1836,10 +1839,16 @@
     <Library Include="..\msvc\libs\zlib.lib">
       <Filter>Libraries</Filter>
     </Library>
+    <Library Include="..\msvc\libs\OpenAL32.lib">
+      <Filter>Libraries</Filter>
+    </Library>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\share\OpenLieroX.ico">
       <Filter>Resources</Filter>
+    </None>
+    <None Include="..\msvc\libs\openal32.pdb">
+      <Filter>Libraries</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
