@@ -1948,13 +1948,14 @@ public:
 	SmartPointer<SDL_Surface> getMinimap() {
 		if(minimap.get()) return minimap;
 		
-		SmartPointer<SDL_Surface> image = LoadGameImage(filename + "/level.png");
+		// We use the allegro loader function because that assures that we don't have alpha - because alpha makes problem for the blitting functions.
+		SmartPointer<SDL_Surface> image = load_bitmap__allegroformat(filename + "/level.png");
 		if(!image.get()) {
 			setMinimapErrorGraphic(minimap);
 			return minimap;
 		}		
 		SetColorKey(image.get());
-		SmartPointer<SDL_Surface> paralax = LoadGameImage(filename + "/paralax.png");
+		SmartPointer<SDL_Surface> paralax = load_bitmap__allegroformat(filename + "/paralax.png");
 		
 		SmartPointer<SDL_Surface>& bmpMiniMap = minimap;
 		const int x = 0, y = 0, w = image->w, h = image->h;
