@@ -280,7 +280,7 @@ bool VermesFontLoader::load(Font* font, std::string const& path)
 		LocalSetColorDepth cd(8);
 		LocalSetColorConversion cc( /*COLORCONV_REDUCE_TO_256 | COLORCONV_KEEP_TRANS*/ 0);
 	
-		font->m_bitmap = load_bitmap(path.c_str(), 0);
+		font->m_bitmap = load_bitmap(path);
 		if(!font->m_bitmap)
 			return false;
 		

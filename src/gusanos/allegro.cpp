@@ -59,8 +59,11 @@ static ALLEGRO_BITMAP* create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& s
 	return bmp;
 }
 
-ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {	
-	return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
+ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
+	if(surf.get())
+		return create_bitmap_from_sdl(surf, 0, 0, surf->w, surf->h);
+	else
+		return NULL;
 }
 
 static void
@@ -79,7 +82,7 @@ static void dumpUsedColors(SDL_Surface* surf);
 
 ALLEGRO_BITMAP* screen = NULL;
 
-static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
+SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff, amask = 0xff000000;
 	if(screen != NULL) {
 		rmask = screen->surf->format->Rmask;
@@ -98,39 +101,43 @@ static SDL_Surface* create_32bpp_sdlsurface(int w, int h) {
 	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,0);
 }
 
-ALLEGRO_BITMAP *load_bitmap(const char *filename, RGB *pal) {
+SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename) {
 	std::string fullfilename = GetFullFileName(filename);	
 	SDL_Surface* img = IMG_Load(Utf8ToSystemNative(fullfilename).c_str());
 	if(!img) return NULL;
 	
 	if( img->format->BitsPerPixel == 8 )
-		return create_bitmap_from_sdl(img);
+		return img;
 	
-	SDL_Surface* converted = create_32bpp_sdlsurface(img->w, img->h);
-	CopySurface(converted, img, 0, 0, 0, 0, img->w, img->h);
+	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(img->w, img->h);
+	CopySurface(converted.get(), img, 0, 0, 0, 0, img->w, img->h);
 	
 	//SDL_Surface* converted = SDL_DisplayFormat(img);
-	//SDL_FreeSurface(img);
-
-	if(!converted) {
+	SDL_FreeSurface(img);
+	
+	if(!converted.get()) {
 		errors << "Failed: Converting of bitmap " << filename << /*" to " << bpp <<*/ " bit" << endl;
 		return NULL;
 	}
-	
-	return create_bitmap_from_sdl(converted);
+
+	return converted;
+}
+
+ALLEGRO_BITMAP *load_bitmap(const std::string& filename) {
+	return create_bitmap_from_sdl(load_bitmap__allegroformat(filename));
 }
 
 ALLEGRO_BITMAP *create_bitmap_ex(int color_depth, int width, int height) {	
-	SDL_Surface* surf = NULL;
+	SmartPointer<SDL_Surface> surf;
 	if(color_depth == 8)
 		surf = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0,0,0,0);
 	else
-		surf = create_32bpp_sdlsurface(width, height);
-	if(!surf) {
+		surf = create_32bpp_sdlsurface__allegroformat(width, height);
+	if(!surf.get()) {
 		errors << "create_bitmap_ex: cannot create surface with " << width << "x" << height << "x" << color_depth << endl;
 		return NULL;
 	}
-	FillSurface(surf, Color());
+	FillSurface(surf.get(), Color());
 	
 	if(surf->format->BitsPerPixel != color_depth)
 		warnings << "create_bitmap_ex: couldn't create surface with " << color_depth << " bpp" << endl;

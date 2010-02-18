@@ -737,23 +737,23 @@ ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 	
 	if ( gusExists( filename.c_str() ) )
 	{
-		returnValue = load_bitmap(filename.c_str(), 0);
+		returnValue = load_bitmap(filename);
 	}
 	else
 	{
 		string tmp = filename;
 		tmp += ".png";
-		if ( gusExists( tmp.c_str() ) )
+		if ( gusExists( tmp ) )
 		{
-			returnValue = load_bitmap( tmp.c_str() , 0 );
+			returnValue = load_bitmap( tmp );
 		}
 		else
 		{
 			tmp = filename;
 			tmp += ".bmp";
-			if ( gusExists( tmp.c_str() ))
+			if ( gusExists( tmp ))
 			{
-				returnValue = load_bitmap( tmp.c_str() , 0 );
+				returnValue = load_bitmap( tmp );
 			}
 		}
 	}
