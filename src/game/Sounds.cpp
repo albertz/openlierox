@@ -40,6 +40,10 @@ void LoadSounds_Game() {
 		loadGameSound(GetBaseFilename(f->get()));
 }
 
+void ShutdownSounds_Game() {
+	sfxGame = sfxgame_t();
+}
+
 void PlayGameSound(const std::string& name) {
 	std::map<std::string, SmartPointer<SoundSample> >::iterator f = sfxGame.gameSounds.find(name);
 	if(f != sfxGame.gameSounds.end())

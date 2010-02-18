@@ -57,6 +57,11 @@ bool LoadSounds()
 	return true;
 }
 
+void ShutdownSounds() {
+	ShutdownSounds_Game();
+
+	sfxGeneral = sfxgen_t();
+}
 
 sfxgen_t	sfxGeneral;
 

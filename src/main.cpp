@@ -1100,6 +1100,8 @@ void ShutdownLieroX()
 	if( ! bDedicated )
 		ShutdownBackgroundMusic();
 
+	ShutdownSounds();
+
     Con_Shutdown();
 
 	ShutdownLoading();  // In case we're called when an error occured
