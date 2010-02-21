@@ -2,6 +2,9 @@
 #define LUA_TYPES_H
 
 #include <cstring> //size_t
+extern "C" {
+#include "lua.h"
+}
 
 struct LuaReference
 {
