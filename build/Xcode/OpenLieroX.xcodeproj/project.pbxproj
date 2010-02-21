@@ -219,7 +219,6 @@
 		23C170F7108B82CC0083A2BF /* basic_code_modules.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C170F6108B82CC0083A2BF /* basic_code_modules.cc */; };
 		23C17102108B83E80083A2BF /* basic_source_line_resolver.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C17101108B83E80083A2BF /* basic_source_line_resolver.cc */; };
 		23C17124108B87F40083A2BF /* on_demand_symbol_supplier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17122108B87F40083A2BF /* on_demand_symbol_supplier.cpp */; };
-		23C1714F108B8CDA0083A2BF /* DumpSyms.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23C1714E108B8CDA0083A2BF /* DumpSyms.mm */; };
 		23C17243108BA8960083A2BF /* bytereader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C17231108BA8960083A2BF /* bytereader.cc */; };
 		23C17246108BA8960083A2BF /* dwarf2diehandler.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C17235108BA8960083A2BF /* dwarf2diehandler.cc */; };
 		23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23C1723A108BA8960083A2BF /* dwarf2reader.cc */; };
@@ -349,6 +348,7 @@
 		23C5B0490FB67693005A36AE /* CRace.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5B0480FB67692005A36AE /* CRace.cpp */; };
 		23C5D6E90F3EF71B000A5D99 /* ThreadPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C5D6E80F3EF71B000A5D99 /* ThreadPool.cpp */; };
 		23CB83BA0F6D62C2006FE300 /* ConversationLogger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */; };
+		23CC964C1131EAC400185479 /* DumpSyms_mac.mm in Sources */ = {isa = PBXBuildFile; fileRef = 23CC964B1131EAC400185479 /* DumpSyms_mac.mm */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */; };
@@ -953,7 +953,6 @@
 		23C17122108B87F40083A2BF /* on_demand_symbol_supplier.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = on_demand_symbol_supplier.cpp; path = breakpad/on_demand_symbol_supplier.cpp; sourceTree = "<group>"; };
 		23C17123108B87F40083A2BF /* on_demand_symbol_supplier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = on_demand_symbol_supplier.h; path = breakpad/on_demand_symbol_supplier.h; sourceTree = "<group>"; };
 		23C1714B108B8C1C0083A2BF /* DumpSyms.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DumpSyms.h; path = breakpad/DumpSyms.h; sourceTree = "<group>"; };
-		23C1714E108B8CDA0083A2BF /* DumpSyms.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DumpSyms.mm; path = breakpad/DumpSyms.mm; sourceTree = "<group>"; };
 		23C1722F108BA8960083A2BF /* bytereader-inl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "bytereader-inl.h"; sourceTree = "<group>"; };
 		23C17231108BA8960083A2BF /* bytereader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bytereader.cc; sourceTree = "<group>"; };
 		23C17234108BA8960083A2BF /* bytereader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bytereader.h; sourceTree = "<group>"; };
@@ -1224,6 +1223,7 @@
 		23C5D6EB0F3EF765000A5D99 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
 		23CB83B80F6D6275006FE300 /* ConversationLogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConversationLogger.h; sourceTree = "<group>"; };
 		23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConversationLogger.cpp; sourceTree = "<group>"; };
+		23CC964B1131EAC400185479 /* DumpSyms_mac.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = DumpSyms_mac.mm; path = breakpad/DumpSyms_mac.mm; sourceTree = "<group>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
 		23CDBF900D0B06FD00920A5F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -1842,7 +1842,7 @@
 		23AAE4851088CC2F00E9F05F /* breakpad */ = {
 			isa = PBXGroup;
 			children = (
-				23C1714E108B8CDA0083A2BF /* DumpSyms.mm */,
+				23CC964B1131EAC400185479 /* DumpSyms_mac.mm */,
 				23C17122108B87F40083A2BF /* on_demand_symbol_supplier.cpp */,
 				23C17123108B87F40083A2BF /* on_demand_symbol_supplier.h */,
 				23AAE5E81088DD7100E9F05F /* external */,
@@ -3235,7 +3235,6 @@
 				23C170F7108B82CC0083A2BF /* basic_code_modules.cc in Sources */,
 				23C17102108B83E80083A2BF /* basic_source_line_resolver.cc in Sources */,
 				23C17124108B87F40083A2BF /* on_demand_symbol_supplier.cpp in Sources */,
-				23C1714F108B8CDA0083A2BF /* DumpSyms.mm in Sources */,
 				23C17243108BA8960083A2BF /* bytereader.cc in Sources */,
 				23C17246108BA8960083A2BF /* dwarf2diehandler.cc in Sources */,
 				23C17249108BA8960083A2BF /* dwarf2reader.cc in Sources */,
@@ -3392,6 +3391,7 @@
 				2370F7601106432C0097F7BA /* Sounds.cpp in Sources */,
 				2370F763110644320097F7BA /* Sounds.cpp in Sources */,
 				23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */,
+				23CC964C1131EAC400185479 /* DumpSyms_mac.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
