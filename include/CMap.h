@@ -375,7 +375,7 @@ public:
 	//   bool operator()(int x, int y, int adr_offset); // handle one point; if returns false, break
 	template<typename _T, typename _F>
 	void walkPixels(OLXRect<_T> r, _F walker) {
-		if(!r.clipWith(SDLRect(0, 0, Width, Height)))
+		if(!r.clipWith(MakeRect(0, 0, Width, Height)))
 			return;
 		
 		for(int y = r.y(); y < r.y2(); y++)
