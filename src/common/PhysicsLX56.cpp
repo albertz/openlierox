@@ -433,11 +433,11 @@ public:
 			const float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 			if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 				// Right
-				if(worm->velocity().x < 30)
+				if(worm->velocity().x < (float)cClient->getGameLobby()->features[FT_WormMaxMoveSpeed])
 					worm->velocity().x += speed * dt * 90.0f;
 			} else {
 				// Left
-				if(worm->velocity().x > -30)
+				if(worm->velocity().x > -(float)cClient->getGameLobby()->features[FT_WormMaxMoveSpeed])
 					worm->velocity().x -= speed * dt * 90.0f;
 			}
 		}
