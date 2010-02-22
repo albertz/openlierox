@@ -135,6 +135,7 @@ enum FeatureIndex {
 	FT_WormFriction,
 	FT_WormGroundFriction,
 	FT_ProjFriction,
+	FT_ProjRelativeVel,
 	FT_TeamScoreLimit,
 	FT_SizeFactor,
 	FT_CollideProjectiles,
