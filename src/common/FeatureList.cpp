@@ -95,7 +95,7 @@ Feature featureArray[] = {
 	Feature("WormGroundFriction",	"Worm Ground Friction",		"Air friction coefficient when worms are on ground (0.1 = default; 1 = stucked; 0 = no friction)",
 			0.1f, 0.1f,				OLXBetaVersion(0,58,9),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 1.0f,	false),
 	Feature("ProjFriction",			"Projectile Friction",		"Air friction coefficient for projectiles (0 = disabled)",
-			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
+			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Weapons,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("ProjRelativeVel",		"Relative projectile velocity",	"Worm velocity is added to projectile velocity when you shoot",
 			true, true,				Version(),					GIG_Weapons,	ALT_VeryAdvanced,	true, true),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
