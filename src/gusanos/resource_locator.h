@@ -141,7 +141,7 @@ private:
 
 template<class T, bool Cache, bool ReturnResource>
 void ResourceLocator<T, Cache, ReturnResource>::addResource(const std::string& name, const std::string& path, BaseLoader* loader) {
-	std::pair<typename NamedResourceMap::iterator, bool> r = m_namedResources.insert(std::make_pair(name, ResourceInfo(path, loader)));
+	/*std::pair<typename NamedResourceMap::iterator, bool> r =*/ m_namedResources.insert(std::make_pair(name, ResourceInfo(path, loader)));
 	/*
 	 if(r.second)
 	 {
