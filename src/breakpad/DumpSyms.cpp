@@ -9,7 +9,7 @@
 
 #include "DumpSyms.h"
 
-#ifdef WIN32
+#if defined(WIN32)
 
 #include <stdio.h>
 #include <string>
@@ -46,7 +46,8 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	return true;
 }
 
-#else
+// not Windows -> all other cases (Unix/Linux), except Mac (which has its own implementation in DumpSyms_mac.mm)
+#elif !defined(__APPLE__)
 
 #include <string>
 #include <cstdio>
@@ -72,4 +73,4 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	return res;
 }
 
-#endif
+#endif // Win, Linux/Unix
