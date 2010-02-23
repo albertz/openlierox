@@ -24,7 +24,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends},
  libgd2-xpm (>= 2.0.33) | libgd2-noxpm (>= 2.0.33),
  zlib1g (>= 1.2.3), libxml2 (>= 2.6.26),
  libcurl3-dbg | libcurl3-gnutls | libcurl3,
- libalut0, libopenal0a
+ libalut0, libopenal0a | libopenal1a
 Description: A real-time excessive Worms-clone with network support
  Remake of original Liero game with network support,
  better graphics and a lot of maps and mods.
