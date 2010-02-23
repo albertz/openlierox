@@ -74,7 +74,7 @@ struct cb_item_t : GuiListItem {
 	virtual std::string index() { return sIndex; }
 	virtual int tag() { return iTag; }
 	
-	virtual void setImage(SmartPointer<DynDrawIntf> img) { tImage = img; }
+	virtual void setImage(const SmartPointer<DynDrawIntf>& img) { tImage = img; }
 };
 
 

@@ -10,7 +10,7 @@
 #include "List.h"
 #include "Debug.h"
 
-void GuiListItem::setImage(SmartPointer<DynDrawIntf>) {
+void GuiListItem::setImage(const SmartPointer<DynDrawIntf>&) {
 	warnings << "GuiListItem::setImage not implemented" << endl;
 }
 

@@ -33,7 +33,7 @@ public:
 	virtual std::string index() { return ""; }
 	virtual int tag() { return 0; }
 	
-	virtual void setImage(SmartPointer<DynDrawIntf>);
+	virtual void setImage(const SmartPointer<DynDrawIntf>&);
 };
 
 class GuiList {
