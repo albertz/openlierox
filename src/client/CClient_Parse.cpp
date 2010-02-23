@@ -2746,7 +2746,7 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 				game.onNewHumanPlayer_Lua(player);
 			else
 				//notes << "SelectWeapons in Gusanos for bots not supported yet" << endl;
-				game.onNewPlayer_Lua(player);
+				game.onNewPlayer_Lua(w->inputHandler());
 		} else {	
 			client->setStatus(NET_CONNECTED); // well, that means that we are in weapon selection...
 			client->bReadySent = false;
