@@ -27,6 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#ifndef NBREAKPAD
+
 #include <map>
 #include <string>
 #include <iostream>
@@ -142,3 +144,5 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
 	
 	return result;
 }
+
+#endif

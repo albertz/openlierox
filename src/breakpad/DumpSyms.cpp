@@ -9,6 +9,14 @@
 
 #include "DumpSyms.h"
 
+#ifdef NBREAKPAD
+#include "Debug.h"
+bool DumpSyms(const std::string& bin, const std::string& symfile) {
+	errors << "DumpSyms: breakpad support not available in this build" << endl;
+	return false;
+}
+#else // Breakpad support
+
 #if defined(WIN32)
 
 #include <stdio.h>
@@ -16,16 +24,13 @@
 
 #include "BreakPad.h"
 #include "FindFile.h"
-#ifndef NBREAKPAD
 #include "common/windows/pdb_source_line_writer.h"
 
 using google_breakpad::PDBSourceLineWriter;
-#endif
 
 using std::wstring;
 
 bool DumpSyms(const std::string& bin, const std::string& symfile) {
-#ifndef NBREAKPAD
 	FILE* out = fopen(Utf8ToSystemNative(symfile).c_str(), "wb");
 	if(!out) return false;
 	
@@ -42,7 +47,6 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	
 	writer.Close();
 	fclose(out);
-#endif
 	return true;
 }
 
@@ -74,3 +78,4 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 }
 
 #endif // Win, Linux/Unix
+#endif // Breakpad

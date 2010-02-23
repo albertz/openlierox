@@ -30,6 +30,8 @@
 // dump_syms_tool.m: Command line tool that uses the DumpSymbols class.
 // TODO(waylonis): accept stdin
 
+#ifndef NBREAKPAD
+
 #include <unistd.h>
 #include <mach-o/arch.h>
 
@@ -70,3 +72,5 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	[pool release];
 	return true;
 }
+
+#endif
