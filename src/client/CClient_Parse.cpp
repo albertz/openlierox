@@ -2129,27 +2129,26 @@ void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
 }
 
 
+template<typename T>
+static bool onlyUpdateInLobby(CClient* client, T& var, const T& update) {
+	if(client->getStatus() != NET_CONNECTED) {
+		if(var != update)
+			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update '" << var << "' -> '" << update << "'" << endl;
+		return false;
+	}
+
+	var = update;
+	return true;	
+}
+
 ///////////////////
 // Parse an 'update game lobby' packet
 void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 {
-	if (client->iNetStatus != NET_CONNECTED)  {
-		notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring" << endl;
-
-		// Skip to get the right position
-		bs->Skip(1);
-		bs->SkipString();
-		bs->SkipString();
-		bs->SkipString();
-		bs->Skip(8); // All other info
-
-		return;
-	}
-
 	client->tGameInfo.iMaxPlayers = bs->readByte();
-	client->tGameInfo.sMapFile = bs->readString();
-    client->tGameInfo.sModName = bs->readString();
-    client->tGameInfo.sModDir = bs->readString();
+	const bool recheckMap = onlyUpdateInLobby(client, client->tGameInfo.sMapFile, bs->readString());
+	onlyUpdateInLobby(client, client->tGameInfo.sModName, bs->readString());
+    const bool recheckMod = onlyUpdateInLobby(client, client->tGameInfo.sModDir, bs->readString());
 	client->tGameInfo.iGeneralGameType = bs->readByte();
 	if( client->tGameInfo.iGeneralGameType > GMT_MAX || client->tGameInfo.iGeneralGameType < 0 )
 		client->tGameInfo.iGeneralGameType = GMT_NORMAL;
@@ -2165,22 +2164,26 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->tGameInfo.bForceRandomWeapons = false;
 	client->tGameInfo.bSameWeaponsAsHostWorm = false;
 
-    // Check if we have the level & mod
-    client->bHaveMod = true;
-
-    // Does the level file exist
-	std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
-    client->bHaveMap = MapName != "";
-	
-	// Convert the map filename to map name
-	if (client->bHaveMap)  {
-		client->tGameInfo.sMapName = MapName;
+	if(recheckMap) {
+		// Does the level file exist
+		std::string MapName = CMap::GetLevelName(client->tGameInfo.sMapFile);
+		client->bHaveMap = MapName != "";
+		
+		// Convert the map filename to map name
+		if (client->bHaveMap)  {
+			client->tGameInfo.sMapName = MapName;
+		}
 	}
+	
+	if(recheckMod) {
+		// Check if we have the level & mod
+		client->bHaveMod = true;
 
-    // Does the 'script.lgs' file exist in the mod dir?
-	if(!infoForMod(client->tGameInfo.sModDir).valid)
-        client->bHaveMod = false;
-
+		// Does the 'script.lgs' file exist in the mod dir?
+		if(!infoForMod(client->tGameInfo.sModDir).valid)
+			client->bHaveMod = false;
+	}
+	
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		client->tGameInfo.features[f->get()] = f->get()->unsetValue;
 	}
