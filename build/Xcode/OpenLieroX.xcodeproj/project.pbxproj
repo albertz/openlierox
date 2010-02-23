@@ -350,6 +350,7 @@
 		23CC9B5B1133FB8600185479 /* stackwalker_sparc.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23CC98A61133FB8300185479 /* stackwalker_sparc.cc */; };
 		23CC9B5C1133FB8600185479 /* stackwalker_x86.cc in Sources */ = {isa = PBXBuildFile; fileRef = 23CC98A81133FB8300185479 /* stackwalker_x86.cc */; };
 		23CC9E221134008200185479 /* DumpSyms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CC9E211134008200185479 /* DumpSyms.cpp */; };
+		23CC9E7511340BF900185479 /* List.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CC9E7411340BF900185479 /* List.cpp */; };
 		23CDBF6A0D0B038700920A5F /* Clipboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23CDBF680D0B038700920A5F /* Clipboard.cpp */; };
 		23CDBF910D0B06FD00920A5F /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 23CDBF900D0B06FD00920A5F /* Carbon.framework */; };
 		23D07AB00D36E0F000313749 /* DedicatedControl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23D07AAF0D36E0F000313749 /* DedicatedControl.cpp */; };
@@ -1238,6 +1239,8 @@
 		23CC98A81133FB8300185479 /* stackwalker_x86.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stackwalker_x86.cc; sourceTree = "<group>"; };
 		23CC98A91133FB8300185479 /* stackwalker_x86.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stackwalker_x86.h; sourceTree = "<group>"; };
 		23CC9E211134008200185479 /* DumpSyms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DumpSyms.cpp; path = breakpad/DumpSyms.cpp; sourceTree = "<group>"; };
+		23CC9E7311340BF900185479 /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
+		23CC9E7411340BF900185479 /* List.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = List.cpp; sourceTree = "<group>"; };
 		23CDBF680D0B038700920A5F /* Clipboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cpp; sourceTree = "<group>"; };
 		23CDBF6C0D0B039C00920A5F /* Clipboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Clipboard.h; sourceTree = "<group>"; };
 		23CDBF900D0B06FD00920A5F /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -2345,6 +2348,15 @@
 			path = processor;
 			sourceTree = "<group>";
 		};
+		23CC9E7211340BA000185479 /* gui */ = {
+			isa = PBXGroup;
+			children = (
+				23CC9E7311340BF900185479 /* List.h */,
+				23CC9E7411340BF900185479 /* List.cpp */,
+			);
+			path = gui;
+			sourceTree = "<group>";
+		};
 		23ECBDFB0E894CC5007B8D55 /* LibZip source */ = {
 			isa = PBXGroup;
 			children = (
@@ -2421,6 +2433,7 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				23CC9E7211340BA000185479 /* gui */,
 				2326B68010CFB33200D3F035 /* level */,
 				231BE16010CE68AD0023780D /* game */,
 				23C34F1E10CC546200DABBD6 /* util */,
@@ -3426,6 +3439,7 @@
 				23CC9B5B1133FB8600185479 /* stackwalker_sparc.cc in Sources */,
 				23CC9B5C1133FB8600185479 /* stackwalker_x86.cc in Sources */,
 				23CC9E221134008200185479 /* DumpSyms.cpp in Sources */,
+				23CC9E7511340BF900185479 /* List.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
