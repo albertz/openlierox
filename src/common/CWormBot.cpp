@@ -1285,26 +1285,7 @@ CWorm *CWormBotInputHandler::findTarget()
 		if(cClient->isTagGame() && !w->getTagIT() && !m_worm->bTagIT)
 			continue;
 
-/*		
-		// If this is a VIP game target:
-		// Red worms if Blue
-		// Green & Blue worms if Red
-		// Blue worms if green
-		if(iAiVIP && m_worm->iTeam == 0 && w->getTeam() != 1)
-			continue;
-		if(iAiVIP && m_worm->iTeam == 1 && w->getTeam() == 1)
-			continue;
-		if(iAiVIP && m_worm->iTeam == 2 && w->getTeam() != 0)
-			continue;
 
-		// If this is a capture the flag game just aim to get the flag
-		if(iAiCTF && !w->getFlag())
-			continue;
-
-		// If this is a teams capture the flag game just aim to get the flag
-		if(iAiTeamCTF && !w->getFlag())
-			continue;
-*/
 		// Calculate distance between us two
 		float l = (w->getPos() - m_worm->vPos).GetLength2();
 

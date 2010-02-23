@@ -1669,7 +1669,6 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 	// Teams
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
-	static const std::string VIPteamnames[] = {"VIP Defenders", "VIP Attackers", "VIPs"};
 
 	// Normal scoreboard
 	switch(getGeneralGameType()) {
