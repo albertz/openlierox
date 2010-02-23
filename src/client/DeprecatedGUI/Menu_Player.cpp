@@ -624,7 +624,7 @@ void Menu_Player_ViewPlayers(int mouse)
 
 						// Reload the graphics
 						std::string buf;
-						buf = ((CCombobox *)cViewPlayers.getWidget(vp_PlySkin))->getSelectedItem()->sIndex;
+						buf = ((CCombobox *)cViewPlayers.getWidget(vp_PlySkin))->getSelectedItem()->index();
 						p->cSkin.Change(buf);
 
                         // Update the item

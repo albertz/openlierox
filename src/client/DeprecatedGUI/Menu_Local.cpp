@@ -140,13 +140,13 @@ static int selectedGameIndex() {
 		return -1;
 	}
 	
-	const cb_item_t* item = cb->getSelectedItem();
-	if(item == NULL) {
+	GuiListItem::Pt item = cb->getSelectedItem();
+	if(item.get() == NULL) {
 		errors << "Local menu: selectedGameIndex: game combobox has not selected anything" << endl;
 		return -1;		
 	}
 	
-	return from_string<int>(item->sIndex);
+	return from_string<int>(item->index());
 }
 
 static std::string selectedGameName() {
@@ -156,13 +156,13 @@ static std::string selectedGameName() {
 		return "";
 	}
 	
-	const cb_item_t* item = cb->getSelectedItem();
-	if(item == NULL) {
+	const GuiListItem::Pt item = cb->getSelectedItem();
+	if(item.get() == NULL) {
 		errors << "Local menu: selectedGameName: game combobox has not selected anything" << endl;
 		return "";		
 	}
 	
-	return item->sName;
+	return item->caption();
 }
 	
 static void newGameListEntry(const std::string& game, int index) {
@@ -379,8 +379,8 @@ void Menu_LocalFrame()
 	if (tLXOptions->iLocalPlayGame < 0 && tLXOptions->bAutoFileCacheRefresh && bActivated)  {
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
-		const cb_item_t *it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it) tLXOptions->tGameInfo.sModDir = it->sIndex;
+		const GuiListItem::Pt it = cbMod->getItem(cbMod->getSelectedIndex());
+		if(it.get()) tLXOptions->tGameInfo.sModDir = it->index();
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
@@ -388,9 +388,9 @@ void Menu_LocalFrame()
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
-		const cb_item_t *item = cbLevel->getItem( cbLevel->getSelectedIndex() );
-		if (item)
-			tLXOptions->tGameInfo.sMapFile = item->sIndex;
+		const GuiListItem::Pt item = cbLevel->getItem( cbLevel->getSelectedIndex() );
+		if (item.get())
+			tLXOptions->tGameInfo.sMapFile = item->index();
 		Menu_FillLevelList( cbLevel, true);
 		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
 
@@ -553,11 +553,11 @@ void Menu_LocalFrame()
 					cLocalMenu.Draw( tMenu->bmpBuffer.get() );
 
                     // Get the current mod
-					cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-                    if(it) {
+					GuiListItem::Pt it = ((CCombobox*)cLocalMenu.getWidget(ml_ModName))->getSelectedItem();
+                    if(it.get()) {
 
 					    bWeaponRest = true;
-					    Menu_WeaponsRestrictions(it->sIndex);
+					    Menu_WeaponsRestrictions(it->index());
                     }
                 }
                 break;
@@ -822,10 +822,10 @@ static bool Menu_LocalStartGame_CustomGame() {
 	
 	
     // Get the mod name
-	cb_item_t *it = (cb_item_t *)cLocalMenu.SendMessage(ml_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-    if(it) {
-        tLXOptions->tGameInfo.sModName = it->sName;
-		tLXOptions->tGameInfo.sModDir = it->sIndex;
+	GuiListItem::Pt it = ((CCombobox*)cLocalMenu.getWidget(ml_ModName))->getSelectedItem();
+    if(it.get()) {
+        tLXOptions->tGameInfo.sModName = it->caption();
+		tLXOptions->tGameInfo.sModDir = it->index();
     } else {
 		
 		// Couldn't find a mod to load

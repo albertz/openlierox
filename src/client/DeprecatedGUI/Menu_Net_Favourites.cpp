@@ -133,9 +133,9 @@ void Menu_Net_FavouritesShutdown()
 		CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
 		if( combo )
 		{
-			const cb_item_t* item = combo->getSelectedItem();
-			if (item)
-				tLXOptions->sLastSelectedPlayer = item->sIndex;
+			const GuiListItem::Pt item = combo->getSelectedItem();
+			if (item.get())
+				tLXOptions->sLastSelectedPlayer = item->index();
 		}
 
 		// Save the list
@@ -185,9 +185,9 @@ void Menu_Net_FavouritesFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 
 					CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
-					const cb_item_t* item = combo->getSelectedItem();
-					if (item)
-						tLXOptions->sLastSelectedPlayer = item->sIndex;
+					const GuiListItem::Pt item = combo->getSelectedItem();
+					if (item.get())
+						tLXOptions->sLastSelectedPlayer = item->index();
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -433,15 +433,15 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 {
 	// Fill in the game structure
 	CCombobox* combo = (CCombobox *) cFavourites.getWidget(mf_PlayerSelection);
-	const cb_item_t* item = combo->getSelectedItem();
-	if(!item) {
+	const GuiListItem::Pt item = combo->getSelectedItem();
+	if(!item.get()) {
 		errors << "no player selected" << endl;
 		return;
 	}
 	
-	tLXOptions->sLastSelectedPlayer = item->sIndex;
+	tLXOptions->sLastSelectedPlayer = item->index();
 	
-	if(!JoinServer(sAddress, sName, item->sIndex))
+	if(!JoinServer(sAddress, sName, item->index()))
 		return;
 	
 	// Shutdown

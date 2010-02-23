@@ -23,6 +23,7 @@
 #include "InputEvents.h"
 #include "DeprecatedGUI/CScrollbar.h"
 #include "DynDraw.h"
+#include "gui/List.h"
 
 namespace DeprecatedGUI {
 
@@ -39,7 +40,6 @@ enum {
 	CBM_GETCOUNT,
 	CBM_GETCURINDEX,
 	CBS_GETCURSINDEX,
-	CBM_GETCURITEM,
     CBS_GETCURNAME,
 	CBM_CLEAR,
 	CBM_SETCURSEL,
@@ -59,11 +59,22 @@ enum  {
 
 
 // Item structure
-struct cb_item_t {
+struct cb_item_t : GuiListItem {
+	cb_item_t() : iTag(0) {}
+	cb_item_t(const std::string& name) : sName(name), iTag(0) {}
+	
 	std::string	sIndex;
 	std::string	sName;
 	SmartPointer<DynDrawIntf> tImage;
 	int iTag;
+	
+	virtual std::string caption() { return sName; }
+	virtual SmartPointer<DynDrawIntf> image() { return tImage; }
+	
+	virtual std::string index() { return sIndex; }
+	virtual int tag() { return iTag; }
+	
+	virtual void setImage(SmartPointer<DynDrawIntf> img) { tImage = img; }
 };
 
 
@@ -93,7 +104,7 @@ private:
 	// Attributes
 
 	// Items
-	std::list<cb_item_t> tItems;
+	std::list<GuiListItem::Pt> tItems;
 	int 			iSelected;
 	bool			bGotScrollbar;
 	bool			bDropped;
@@ -116,11 +127,11 @@ private:
 	CGuiSkin::CallbackHandler cClick;
 
 private:
-	cb_item_t* getItemRW(int index);
+	GuiListItem::Pt getItemRW(int index);
 	void	Sort(bool ascending);
 	void	Unique();
-	std::list<cb_item_t>::iterator lowerBound(const cb_item_t& item, int *index, bool *equal);
-	std::list<cb_item_t>::iterator upperBound(const cb_item_t& item, int *index, bool *equal);
+	std::list<GuiListItem::Pt>::iterator lowerBound(const GuiListItem::Pt& item, int *index, bool *equal);
+	std::list<GuiListItem::Pt>::iterator upperBound(const GuiListItem::Pt& item, int *index, bool *equal);
 
 public:
 	// Methods
@@ -147,16 +158,16 @@ public:
     void    clear();
 	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
 	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
-	const std::list<cb_item_t>& getItems()	{ return tItems; }
-	const cb_item_t* getItem(int index) const;
-	int getItemIndex(const cb_item_t* item);	
+	const std::list<GuiListItem::Pt>& getItems()	{ return tItems; }
+	const GuiListItem::Pt getItem(int index) const;
+	int getItemIndex(const GuiListItem::Pt& item);	
 	int		getItemsCount();
-	const cb_item_t* getItem(const std::string& name) const;
-	const cb_item_t* getSIndexItem(const std::string& sIndex) const;
+	const GuiListItem::Pt getItem(const std::string& name) const;
+	const GuiListItem::Pt getSIndexItem(const std::string& sIndex) const;
 	int getIndexBySIndex(const std::string& szName);
 	int getIndexByName(const std::string& szName);
 	void	setCurItem(int index);
-	void	setCurItem(const cb_item_t* item);
+	void	setCurItem(const GuiListItem::Pt& item);
     void    setCurSIndexItem(const std::string& szString);
     void    setCurItemByName(const std::string& szString);
     bool	selectNext();
@@ -164,7 +175,7 @@ public:
     int		findItem(UnicodeChar startLetter);
 	void	setImage(const SmartPointer<DynDrawIntf>& img, int ItemIndex);
 	int		getSelectedIndex();
-	const cb_item_t* getSelectedItem();
+	const GuiListItem::Pt getSelectedItem();
 	bool	getDropped() { return bDropped; }
 	void	setSorted(int sort_direction);
 	int		getSorted();
@@ -172,7 +183,7 @@ public:
 	bool	getUnique();
 	int getItemHeight();
 	
-	const cb_item_t* getLastItem();
+	const GuiListItem::Pt getLastItem();
 
 	void	setAttachedVar(std::string* var)	{ sVar = var; }
 	void	setAttachedVar(int* var)			{ iVar = var; }

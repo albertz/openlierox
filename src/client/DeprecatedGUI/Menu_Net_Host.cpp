@@ -908,9 +908,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
-		const cb_item_t *it = cbMod->getSelectedItem();
-		if(it) 
-			tLXOptions->tGameInfo.sModDir = it->sIndex;
+		GuiListItem::Pt it = cbMod->getSelectedItem();
+		if(it.get()) 
+			tLXOptions->tGameInfo.sModDir = it->index();
 		else
 			errors << "No mod is selected, cannot save it to options" << endl;
 
@@ -920,8 +920,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
 		it = cbLevel->getSelectedItem();
-		if(it) 
-			tLXOptions->tGameInfo.sMapFile = it->sIndex;
+		if(it.get()) 
+			tLXOptions->tGameInfo.sMapFile = it->index();
 		else
 			errors << "No level is selected, cannot save it to options" << endl;
 
@@ -1124,10 +1124,10 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
 					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
-                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-                    if(it) {
+                    GuiListItem::Pt it = ((CCombobox*)cHostLobby.getWidget(hl_ModName))->getSelectedItem();
+                    if(it.get()) {
 		                bHostWeaponRest = true;
-					    Menu_WeaponsRestrictions(it->sIndex);
+					    Menu_WeaponsRestrictions(it->index());
                     }
                 }
                 break;
@@ -1268,10 +1268,10 @@ bool Menu_Net_HostStartGame()
 	cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 	// Get the mod
-	cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-	if(it) {
-		tLXOptions->tGameInfo.sModName = it->sName;
-		tLXOptions->tGameInfo.sModDir = it->sIndex;
+	GuiListItem::Pt it = ((CCombobox*)cHostLobby.getWidget(hl_ModName))->getSelectedItem();
+	if(it.get()) {
+		tLXOptions->tGameInfo.sModName = it->caption();
+		tLXOptions->tGameInfo.sModDir = it->index();
 	} else {
 		errors << "Could not get the selected mod" << endl;
 		return false;

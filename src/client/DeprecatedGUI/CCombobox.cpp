@@ -58,12 +58,12 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 	if(bDropped) {
 		// Dropped down
-		if(getItemRW(iSelected))  {
-			buf = getItemRW(iSelected)->sName;
-			if (getItemRW(iSelected)->tImage.get())  {
-				getItemRW(iSelected)->tImage->draw(bmpDest,iX+3,iY+1);
-				stripdot(buf, iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + (bGotScrollbar ? 15 : 0)));
-				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight - tLX->cFont.GetHeight()) / 2, tLX->clDisabled, buf);
+		if(getItemRW(iSelected).get())  {
+			buf = getItemRW(iSelected)->caption();
+			if (getItemRW(iSelected)->image().get())  {
+				getItemRW(iSelected)->image()->draw(bmpDest,iX+3,iY+1);
+				stripdot(buf, iWidth - (8 + getItemRW(iSelected)->image()->w + (bGotScrollbar ? 15 : 0)));
+				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->image()->w, iY+2+(ItemHeight - tLX->cFont.GetHeight()) / 2, tLX->clDisabled, buf);
 			}
 			else  {
 				stripdot(buf,iWidth-(3 + bGotScrollbar ? 15 : 0));
@@ -101,10 +101,11 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 		}
 
 		int index = 0;
-		for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, count++, index++) {
+		for(std::list<GuiListItem::Pt>::const_iterator it = tItems.begin(); it != tItems.end(); it++, count++, index++) {
 			if(count < cScrollbar.getValue())
 				continue;
 
+			const GuiListItem::Pt& item = *it;
             bool selected = false;
 
 			if(tMouse->X > iX && tMouse->X < w)
@@ -119,19 +120,19 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
             if(selected)
                 DrawRectFill(bmpDest, iX+2, y, w, y+ItemHeight-1, tLX->clComboboxSelected);
 
-			buf = item->sName;
+			buf = item->caption();
 
 			bool stripped = false;
 
-			if (item->tImage.get())  {
+			if (item->image().get())  {
 				// Draw the image
-				item->tImage->draw(bmpDest,iX+3,y);
-				stripped = stripdot(buf,iWidth - (8 + item->tImage.get()->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+8+item->tImage.get()->w, y + (ItemHeight-tLX->cFont.GetHeight())/2, tLX->clDropDownText,buf);
+				item->image()->draw(bmpDest,iX+3,y);
+				stripped = stripdot(buf,iWidth - (8 + item->image()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+8+item->image()->w, y + (ItemHeight-tLX->cFont.GetHeight())/2, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
-					int x1 = iX+4+item->tImage.get()->w;
+					int x1 = iX+4+item->image()->w;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
-					int x2 = iX+4+item->tImage.get()->w+tLX->cFont.GetWidth(item->sName)+4;
+					int x2 = iX+4+item->image()->w+tLX->cFont.GetWidth(item->caption())+4;
 					if (x2 > bmpDest->w)  {
 						x1 = bmpDest->w-x2-5;
 						x2 = bmpDest->w-5;
@@ -140,7 +141,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 					DrawRect(bmpDest,x1-1,y1-1,x2,y2, tLX->clComboboxShowAllBorder);
 					DrawRectFill(bmpDest,x1,y1,x2,y2, tLX->clComboboxShowAllMain);
-					tLX->cFont.Draw(bmpDest, x1+2, y1-1 + (ItemHeight - tLX->cFont.GetHeight())/2, tLX->clDropDownText,item->sName);
+					tLX->cFont.Draw(bmpDest, x1+2, y1-1 + (ItemHeight - tLX->cFont.GetHeight())/2, tLX->clDropDownText,item->caption());
 				}
 			}
 			else  {
@@ -149,7 +150,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 				if (stripped && selected)  {
 					int x1 = iX+4;
 					int y1 = y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2);
-					int x2 = iX+4+tLX->cFont.GetWidth(item->sName)+1;
+					int x2 = iX+4+tLX->cFont.GetWidth(item->caption())+1;
 					if (x2 > bmpDest->w)  {
 						x1 = bmpDest->w-x2-5;
 						x2 = bmpDest->w-5;
@@ -158,7 +159,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 					DrawRect(bmpDest,x1-1,y1-1,x2,y2, tLX->clComboboxShowAllBorder);
 					DrawRectFill(bmpDest,x1,y1,x2,y2, tLX->clComboboxShowAllMain);
-					tLX->cFont.Draw(bmpDest, x1-1, y1, tLX->clDropDownText, item->sName);
+					tLX->cFont.Draw(bmpDest, x1-1, y1, tLX->clDropDownText, item->caption());
 				}
 			}
 
@@ -169,12 +170,12 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 	} else {
 		// Normal
-		if (getItemRW(iSelected))  {
-			buf = getItemRW(iSelected)->sName;
-			if (getItemRW(iSelected)->tImage.get())  {
-				getItemRW(iSelected)->tImage->draw(bmpDest,iX+3,iY+1);
-				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->tImage.get()->w + bGotScrollbar ? 15 : 0));
-				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->tImage.get()->w, iY+2+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
+		if (getItemRW(iSelected).get())  {
+			buf = getItemRW(iSelected)->caption();
+			if (getItemRW(iSelected)->image().get())  {
+				getItemRW(iSelected)->image()->draw(bmpDest,iX+3,iY+1);
+				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->image()->w + bGotScrollbar ? 15 : 0));
+				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->image()->w, iY+2+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
 			else  {
 				stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
@@ -208,40 +209,40 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 
 
-static inline int compare_items(const cb_item_t& item1, const cb_item_t& item2) {
+static inline int compare_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
 	// Swap the two items?
 	bool failed1,failed2;
-	int nat_cmp1 = from_string<int>(item1.sName, failed1);
-	int nat_cmp2 = from_string<int>(item2.sName, failed2);
+	int nat_cmp1 = from_string<int>(item1->caption(), failed1);
+	int nat_cmp2 = from_string<int>(item2->caption(), failed2);
 	
 	// First try, if we compare numbers
 	if (!failed1 && !failed2)  {
 		if(nat_cmp1 == nat_cmp2)
-			return item1.sName.size() - item2.sName.size(); // because from_string("123456") == from_string("123456abcd")
+			return item1->caption().size() - item2->caption().size(); // because from_string("123456") == from_string("123456abcd")
 		else
 			return nat_cmp1 - nat_cmp2;
 	// String comparison
 	} else {
-		return stringcasecmp(item1.sName, item2.sName);
+		return stringcasecmp(item1->caption(), item2->caption());
 	}
 }
 
 
-static inline bool less_items(const cb_item_t& item1, const cb_item_t& item2)  {
+static inline bool less_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
 	return compare_items(item1, item2) < 0;
 }
 
 
-static inline bool greater_items(const cb_item_t& item1, const cb_item_t& item2)  {
+static inline bool greater_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
 	return compare_items(item1, item2) > 0;
 }
 
-static inline bool equal_items(const cb_item_t& item1, const cb_item_t& item2) {
+static inline bool equal_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
 	return compare_items(item1, item2) == 0;
 }
 
-bool operator<(const cb_item_t& item1, const cb_item_t& item2) { return less_items(item1, item2); }
-bool operator>(const cb_item_t& item1, const cb_item_t& item2) { return greater_items(item1, item2); };
+bool operator<(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) { return less_items(item1, item2); }
+bool operator>(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) { return greater_items(item1, item2); };
 
 //////////////////////
 // Sorts te items in the combobox
@@ -269,11 +270,11 @@ void CCombobox::Unique() {
 	if (tItems.size() < 2)
 		return;
 
-	std::list<cb_item_t>::iterator new_end;
+	std::list<GuiListItem::Pt>::iterator new_end;
 	if (iSortDirection == SORT_NONE)  {
 		new_end = std::unique(tItems.begin(), tItems.end(), equal_items);
 	} else {
-		std::list<cb_item_t>::iterator cur, next;
+		std::list<GuiListItem::Pt>::iterator cur, next;
 		next = new_end = cur = tItems.begin();
 		next++;
 		while (next != tItems.end())  {
@@ -409,9 +410,9 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 int CCombobox::getItemHeight() {
 	int ItemHeight = tLX->cFont.GetHeight() + 1;
 	if(!tItems.empty())
-		if(tItems.begin()->tImage.get())
-			if ((tItems.begin()->tImage.get()->h + 1) > ItemHeight)
-				ItemHeight = MAX(ItemHeight, tItems.begin()->tImage.get()->h + 1);
+		if((*tItems.begin())->image().get())
+			if (((*tItems.begin())->image()->h + 1) > ItemHeight)
+				ItemHeight = MAX(ItemHeight, (*tItems.begin())->image()->h + 1);
 	return ItemHeight;
 }
 
@@ -437,7 +438,7 @@ int CCombobox::MouseUp(mouse_t *tMouse, int nDown)
 
 	int index = 0;
 	// TODO: this loop is just unneeded here, remove it
-	for(std::list<cb_item_t>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
+	for(std::list<GuiListItem::Pt>::const_iterator item = tItems.begin(); item != tItems.end(); item++, index++) {
 		if(index < cScrollbar.getValue())
 			continue;
 
@@ -513,8 +514,8 @@ int CCombobox::findItem(UnicodeChar startLetter) {
 	int first = -1; // save first found index here
 	int index = 0; // current index for loop
 	startLetter = UnicodeToLower(startLetter);
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
-		UnicodeChar c = GetUnicodeFromUtf8(it->sName, 0);
+	for(std::list<GuiListItem::Pt>::const_iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+		UnicodeChar c = GetUnicodeFromUtf8((*it)->caption(), 0);
 		c = UnicodeToLower(c);
 		if(c == startLetter) {
 			if(first < 0) first = index;
@@ -591,10 +592,6 @@ DWORD CCombobox::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 			return iSelected;
 			break;
 
-		// Get the current item
-		case CBM_GETCURITEM:
-			return (DWORD)getItemRW(iSelected); // TODO: 64bit unsafe
-
 		// Set the current item
 		case CBM_SETCURSEL:
 			setCurItem(Param1);
@@ -650,8 +647,8 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 	switch (iMsg)  {
 	// Get the current item's string index
 	case CBS_GETCURSINDEX:
-		if (getItemRW(iSelected))  {
-			*sStr = getItemRW(iSelected)->sIndex;
+		if (getItemRW(iSelected).get())  {
+			*sStr = getItemRW(iSelected)->index();
 			return 1;
 		}
 		else  {
@@ -662,8 +659,8 @@ DWORD CCombobox::SendMessage(int iMsg, std::string *sStr, DWORD Param)
 
 	// Get the current item's name
 	case CBS_GETCURNAME:
-		if (getItemRW(iSelected))  {
-			*sStr = getItemRW(iSelected)->sName;
+		if (getItemRW(iSelected).get())  {
+			*sStr = getItemRW(iSelected)->caption();
 			return 1;
 		} else {
 			*sStr = "";
@@ -683,12 +680,12 @@ int CCombobox::addItem(const std::string& sindex, const std::string& name, const
 
 ////////////////////////
 // Returns the lower bound iterator for the item
-std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int *index, bool *equal)
+std::list<GuiListItem::Pt>::iterator CCombobox::lowerBound(const GuiListItem::Pt& item, int *index, bool *equal)
 {
 	if (tItems.size() == 0) return tItems.end();
 
 	size_t n = tItems.size();
-	std::list<cb_item_t>::iterator result = tItems.begin();
+	std::list<GuiListItem::Pt>::iterator result = tItems.begin();
 	*equal = false;
 	*index = 0;
 
@@ -706,7 +703,7 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 	// Binary search
 	while (n)  {
 		size_t mid = n / 2;
-		std::list<cb_item_t>::iterator mid_value = result;
+		std::list<GuiListItem::Pt>::iterator mid_value = result;
 		std::advance(mid_value, mid);
 		const int res = compare_items(*mid_value, item);
 		if (res < 0)  {
@@ -728,12 +725,12 @@ std::list<cb_item_t>::iterator CCombobox::lowerBound(const cb_item_t& item, int 
 
 ////////////////////////
 // Returns the upper bound iterator for the item
-std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int *index, bool *equal)
+std::list<GuiListItem::Pt>::iterator CCombobox::upperBound(const GuiListItem::Pt& item, int *index, bool *equal)
 { 
 	if (tItems.size() == 0) return tItems.end();
 
 	size_t n = tItems.size();
-	std::list<cb_item_t>::iterator result = tItems.begin();
+	std::list<GuiListItem::Pt>::iterator result = tItems.begin();
 	*equal = false;
 	*index = 0;
 
@@ -751,7 +748,7 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 	// Binary search
 	while (n)  {
 		size_t mid = n / 2;
-		std::list<cb_item_t>::iterator mid_value = result;
+		std::list<GuiListItem::Pt>::iterator mid_value = result;
 		std::advance(mid_value, mid);
 		const int res = compare_items(*mid_value, item);
 		if (res > 0)  {
@@ -775,13 +772,18 @@ std::list<cb_item_t>::iterator CCombobox::upperBound(const cb_item_t& item, int 
 // Add an item to the combo box
 int CCombobox::addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img, int tag)
 {
-	cb_item_t item;
+	GuiListItem::Pt item;
+	{
+		cb_item_t _item;
 
-	// Fill in the info
-	item.sIndex = sindex;
-	item.sName = name;
-	item.tImage = img;
-	item.iTag = tag;
+		// Fill in the info
+		_item.sIndex = sindex;
+		_item.sName = name;
+		_item.tImage = img;
+		_item.iTag = tag;
+		
+		item = new cb_item_t(_item);
+	}
 
 	//
 	// Add it to the list
@@ -798,7 +800,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	// Ascending sorting
 	case SORT_ASC:  {
 		bool equal;
-		std::list<cb_item_t>::iterator it = lowerBound(item, &index, &equal);
+		std::list<GuiListItem::Pt>::iterator it = lowerBound(item, &index, &equal);
 
 		if (!bUnique || !equal)
 			tItems.insert(it, item);
@@ -807,7 +809,7 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	// Descending sorting
 	case SORT_DESC:  {
 		bool equal;
-		std::list<cb_item_t>::iterator it = upperBound(item, &index, &equal);
+		std::list<GuiListItem::Pt>::iterator it = upperBound(item, &index, &equal);
 
 		if (!bUnique || !equal)  {
 			tItems.insert(it, item);
@@ -818,11 +820,11 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	// Not sorted
 	default:
 		if (bUnique)
-			if (getItem(item.sName))
+			if (getItem(item->caption()).get())
 				return 0;
 	
 		if(index >= 0 && (size_t)index < tItems.size()) {
-			std::list<cb_item_t>::iterator it = tItems.begin();
+			std::list<GuiListItem::Pt>::iterator it = tItems.begin();
 			std::advance(it, index);
 			tItems.insert(it, item);
 		} else {
@@ -853,9 +855,9 @@ void CCombobox::setCurItem(int index)
 
 ///////////////////
 // Set the current item based on item pointer
-void CCombobox::setCurItem(const cb_item_t *it)
+void CCombobox::setCurItem(const GuiListItem::Pt& it)
 {
-	if (it == NULL)
+	if (it.get() == NULL)
 		return;
 
 	setCurItem( getItemIndex(it) );
@@ -885,16 +887,16 @@ void CCombobox::setCurItemByName(const std::string& szString)
 int CCombobox::getIndexByName(const std::string& szString) {
 	if (iSortDirection == SORT_NONE)  {
 		int index = 0;
-		for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-			if( stringcasecmp(i->sName, szString) == 0 ) {
+		for(std::list<GuiListItem::Pt>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+			if( stringcasecmp((*i)->caption(), szString) == 0 ) {
 				return index;
 			}
 		}
 	} else {
-		cb_item_t tmp; tmp.sName = szString; tmp.tImage = NULL;
+		GuiListItem::Pt tmp = new cb_item_t(szString);
 		int index = -1;
 		bool found = false;
-		std::list<cb_item_t>::const_iterator i = lowerBound(tmp, &index, &found);
+		std::list<GuiListItem::Pt>::const_iterator i = lowerBound(tmp, &index, &found);
 		return found ? index : -1;
 	}
     return -1;
@@ -902,8 +904,8 @@ int CCombobox::getIndexByName(const std::string& szString) {
 
 int CCombobox::getIndexBySIndex(const std::string& szString) {
 	int index = 0;
-	for(std::list<cb_item_t>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
-        if( stringcasecmp(i->sIndex, szString) == 0 ) {
+	for(std::list<GuiListItem::Pt>::const_iterator i = tItems.begin(); i != tItems.end(); i++, index++) {
+        if( stringcasecmp((*i)->index(), szString) == 0 ) {
             return index;
         }
     }
@@ -915,8 +917,9 @@ int CCombobox::getIndexBySIndex(const std::string& szString) {
 // Set the image for the specified item
 void CCombobox::setImage(const SmartPointer<DynDrawIntf>& img, int ItemIndex)
 {
-	cb_item_t* item = getItemRW(ItemIndex);
-	if(item) item->tImage = img;
+	GuiListItem::Pt item = getItemRW(ItemIndex);
+	if(item.get())
+		item->setImage(img);
 }
 
 
@@ -931,20 +934,20 @@ void CCombobox::clear()
 
 ///////////////
 // Get the item based on its index property
-const cb_item_t* CCombobox::getItem(int index) const
+const GuiListItem::Pt CCombobox::getItem(int index) const
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::list<cb_item_t>::const_iterator it = tItems.begin();
+	std::list<GuiListItem::Pt>::const_iterator it = tItems.begin();
 	std::advance(it, index);
-	return &*it;
+	return *it;
 }
 
-cb_item_t* CCombobox::getItemRW(int index)
+GuiListItem::Pt CCombobox::getItemRW(int index)
 {
 	if(index < 0 || (size_t)index >= tItems.size()) return NULL;
-	std::list<cb_item_t>::iterator it = tItems.begin();
+	std::list<GuiListItem::Pt>::iterator it = tItems.begin();
 	std::advance(it, index);
-	return &*it;
+	return *it;
 }
 
 /////////////
@@ -955,10 +958,10 @@ int	CCombobox::getItemsCount() {
 
 /////////////
 // Get the item based on its displayed name
-const cb_item_t* CCombobox::getItem(const std::string& name) const {
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
-		if(stringcasecmp(it->sName, name) == 0)
-			return &*it;
+const GuiListItem::Pt CCombobox::getItem(const std::string& name) const {
+	for(std::list<GuiListItem::Pt>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+		if(stringcasecmp((*it)->caption(), name) == 0)
+			return *it;
 	}
 
 	return NULL;
@@ -966,11 +969,11 @@ const cb_item_t* CCombobox::getItem(const std::string& name) const {
 
 /////////////
 // Get the item based on its string index
-const cb_item_t* CCombobox::getSIndexItem(const std::string& sIndex) const {
+const GuiListItem::Pt CCombobox::getSIndexItem(const std::string& sIndex) const {
 	// TODO: make it faster by using a sorted list (or map)
-	for(std::list<cb_item_t>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
-		if(stringcasecmp(it->sIndex, sIndex) == 0)
-			return &*it;
+	for(std::list<GuiListItem::Pt>::const_iterator it = tItems.begin(); it != tItems.end(); it++) {
+		if(stringcasecmp((*it)->index(), sIndex) == 0)
+			return *it;
 	}
 	return NULL;
 }
@@ -1039,26 +1042,26 @@ void CCombobox::ProcessGuiSkinEvent(int iEvent)
 		if( iVar )
 			*iVar = iSelected;
 		if( sVar )
-			*sVar = getItem( iSelected )->sIndex;
+			*sVar = getItem( iSelected )->index();
 		cClick.Call();	// If this is "Select Skin" combobox the *this ptr may be destroyed here, so just return after this line
 	}
 }
 
-const cb_item_t* CCombobox::getLastItem() {
+const GuiListItem::Pt CCombobox::getLastItem() {
 	if(tItems.empty())
 		return NULL;
 	else
-		return &*tItems.rbegin();
+		return *tItems.rbegin();
 }
 
-const cb_item_t* CCombobox::getSelectedItem() {
+const GuiListItem::Pt CCombobox::getSelectedItem() {
 	return getItem(iSelected);
 }
 
-int CCombobox::getItemIndex(const cb_item_t* item) {
+int CCombobox::getItemIndex(const GuiListItem::Pt& item) {
 	int index = 0;
-	for(std::list<cb_item_t>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
-		if(&*it == item)
+	for(std::list<GuiListItem::Pt>::iterator it = tItems.begin(); it != tItems.end(); it++, index++) {
+		if(it->get() == item.get())
 			return index;
 	}
 	

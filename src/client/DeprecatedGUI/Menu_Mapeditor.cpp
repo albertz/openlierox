@@ -494,7 +494,7 @@ enum {
 				return true;
 			size_t p = findLastPathSep(dir);
 			std::string f = dir.substr(p+1);
-			if (((CCombobox *)gui->getWidget(comboindex))->getItem(f) != NULL)
+			if (((CCombobox *)gui->getWidget(comboindex))->getItem(f).get() != NULL)
 				return true;
 
 			gui->SendMessage(comboindex,CBS_ADDITEM,f,i);
@@ -593,9 +593,9 @@ void Menu_MapEd_New()
 						int h = from_string<int>(t2->getText());
 						std::string theme;
 						theme = "dirt";
-						cb_item_t *it = (cb_item_t *)cg.SendMessage(4,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-						if(it)
-							theme = it->sName;
+						GuiListItem::Pt it = ((CCombobox*)cg.getWidget(4))->getSelectedItem();
+						if(it.get())
+							theme = it->caption();
 
 
 						// Check for min & max sizes
