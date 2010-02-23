@@ -16,6 +16,9 @@
 #define __OLX_GUI_LIST_H__
 
 #include <string>
+#include <list>
+#include <boost/function.hpp>
+
 #include "Iterator.h"
 #include "Ref.h"
 #include "SmartPointer.h"
@@ -42,6 +45,8 @@ public:
 	virtual ~GuiList() {}
 	virtual Iterator<GuiListItem::Pt>::Ref iterator() = 0;
 };
+
+GuiList::Pt dynamicGuiList(boost::function< std::list<GuiListItem::Pt>() >);
 
 #endif
 

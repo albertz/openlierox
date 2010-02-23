@@ -18,6 +18,7 @@
 #define __CCOMBOBOX_H__DEPRECATED_GUI__
 
 #include <list>
+#include <boost/signal.hpp>
 
 #include "StringUtils.h"
 #include "InputEvents.h"
@@ -104,6 +105,7 @@ private:
 	// Attributes
 
 	// Items
+	GuiList::Pt listBackend;
 	std::list<GuiListItem::Pt> tItems;
 	int 			iSelected;
 	bool			bGotScrollbar;
@@ -155,6 +157,16 @@ public:
 	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
+	void	setListBackend(const GuiList::Pt& l) { listBackend = l; }
+	/*
+	 In a perfect world, we would not need this function and it all should
+	 be done automatically (the GuiList automatically pushes the update).
+	 Though, this is easier for now - so now, when you use a list backend
+	 and when it needs an update, you must call this. This will then
+	 clear the current list and just copy everything over from the GuiList.
+	 */
+	void	updateFromListBackend();
+
     void    clear();
 	int		addItem(const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
 	int		addItem(int index, const std::string& sindex, const std::string& name, const SmartPointer<DynDrawIntf>& img = NULL, int tag = 0);
@@ -190,6 +202,9 @@ public:
 	
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);
+	
+	boost::signal<void (const GuiListItem::Pt&)> OnChangeSelection;
+
 };
 
 } // namespace DeprecatedGUI

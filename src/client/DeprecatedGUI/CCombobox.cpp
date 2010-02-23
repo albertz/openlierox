@@ -1043,6 +1043,9 @@ void CCombobox::ProcessGuiSkinEvent(int iEvent)
 			*iVar = iSelected;
 		if( sVar )
 			*sVar = getItem( iSelected )->index();
+		
+		OnChangeSelection(getItem(iSelected));
+		
 		cClick.Call();	// If this is "Select Skin" combobox the *this ptr may be destroyed here, so just return after this line
 	}
 }
@@ -1067,5 +1070,16 @@ int CCombobox::getItemIndex(const GuiListItem::Pt& item) {
 	
 	return -1;
 }
+	
+void CCombobox::updateFromListBackend() {
+	clear();
+	if(listBackend.get()) {
+		for(Iterator<GuiListItem::Pt>::Ref it = listBackend->iterator(); it->isValid(); it->next())
+			tItems.push_back(it->get());
+	}
+	else
+		errors << "CCombobox::updateFromListBackend: list backend is not set" << endl;
+}
+
 
 }; // namespace DeprecatedGUI

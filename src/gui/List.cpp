@@ -7,10 +7,13 @@
  *
  */
 
-#include "List.h"
+#include "gui/List.h"
 #include "Debug.h"
 
 void GuiListItem::setImage(const SmartPointer<DynDrawIntf>&) {
 	warnings << "GuiListItem::setImage not implemented" << endl;
 }
 
+GuiList::Pt dynamicGuiList(boost::function< std::list<GuiListItem::Pt>() > f) {
+	
+}
