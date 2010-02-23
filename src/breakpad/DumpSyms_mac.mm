@@ -33,8 +33,8 @@
 #include <unistd.h>
 #include <mach-o/arch.h>
 
-#include "external/src/common/mac/dump_syms.h"
-#include "external/src/common/mac/macho_utilities.h"
+#include "common/mac/dump_syms.h"
+#include "common/mac/macho_utilities.h"
 
 bool DumpSyms(const std::string& bin, const std::string& symfile) {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

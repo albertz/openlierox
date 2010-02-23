@@ -25,11 +25,11 @@
 #include <string>
 
 #ifdef __APPLE__
-#   include "external/src/client/mac/handler/exception_handler.h"
+#   include "client/mac/handler/exception_handler.h"
 #elif defined WIN32
-#   include "external/src/client/windows/handler/exception_handler.h"
+#   include "client/windows/handler/exception_handler.h"
 #elif defined __linux__
-#   include "external/src/client/linux/handler/exception_handler.h"
+#   include "client/linux/handler/exception_handler.h"
 #else
 #   define NBREAKPAD
 #endif
