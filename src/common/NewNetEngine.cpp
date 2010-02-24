@@ -55,8 +55,8 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 {
 	// This should use net synced Worm->NewNet_random for now, later I'll use respawn routines from CServer
 
-	float w = cClient->getMap()->GetWidth();
-	float h = cClient->getMap()->GetHeight();
+	float w = (float)cClient->getMap()->GetWidth();
+	float h = (float)cClient->getMap()->GetHeight();
 	CMap::PixelFlagAccess flags(cClient->getMap());
 	
 	// Find a random cell to start in - retry if failed

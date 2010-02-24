@@ -572,7 +572,7 @@ class ML_LieroX : public MapLoad {
 			backpixel = BackPixelRow;
 			for(Sint64 x=0; x<head.width; x++, curpixel+=bppX2, backpixel+=bppX2)
 			{
-				if(m->unsafeGetPixelFlag(x,y) & PX_EMPTY)
+				if(m->unsafeGetPixelFlag((long)x, (long)y) & PX_EMPTY)
 				{
 					memcpy(curpixel, backpixel, bppX2);
 					memcpy(curpixel+pitch, backpixel+pitch, bppX2);

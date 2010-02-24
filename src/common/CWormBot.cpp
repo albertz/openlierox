@@ -1499,8 +1499,8 @@ void CWormBotInputHandler::AI_Think()
  }
 
 bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
-	float w = game.gameMap()->GetWidth();
-	float h = game.gameMap()->GetHeight();
+	float w = (float)game.gameMap()->GetWidth();
+	float h = (float)game.gameMap()->GetHeight();
 	if(highSpot)
 		h /= 5.0f; // little hack to go higher
 	
@@ -1516,7 +1516,7 @@ bool CWormBotInputHandler::findRandomSpot(bool highSpot) {
 			continue;
 
 		// Set the target
-		cPosTarget = CVec(x,y);
+		cPosTarget = CVec((float)x, (float)y);
 		nAITargetType = AIT_POSITION;
 		nAIState = AI_MOVINGTOTARGET;
 		return true;
