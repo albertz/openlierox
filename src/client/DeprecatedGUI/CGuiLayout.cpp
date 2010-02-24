@@ -144,6 +144,21 @@ void CGuiLayout::Add(CWidget *widget, int id, int x, int y, int w, int h)
 	cWidgets.push_front(widget);
 }
 
+void CGuiLayout::AddBack(CWidget *widget, int id, int x, int y, int w, int h)
+{
+	if(!widget) {
+		errors << "CGuiLayout::Add: widget is unset" << endl;
+		return;
+	}
+	
+	widget->Setup(id, x, y, w, h);
+	widget->Create();
+	widget->setParent(this);
+	
+	// Link the widget in
+	cWidgets.push_back(widget);
+}
+	
 
 ///////////////////
 // Remove a widget

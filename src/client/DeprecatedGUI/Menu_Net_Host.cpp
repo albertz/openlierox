@@ -640,6 +640,8 @@ bool Menu_Net_HostLobbyInitialize()
 }
 
 
+const static int minimapy = 30;
+	
 ///////////////////
 // Draw the lobby screen
 void Menu_Net_HostLobbyDraw()
@@ -648,7 +650,7 @@ void Menu_Net_HostLobbyDraw()
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 5,5, 635, 475);
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 460,29, 593, 130);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 460,minimapy-1, 593, minimapy+100);
     DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
 
     tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
@@ -674,15 +676,24 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
     cHostLobby.Add( new CBrowser(),                          hl_ChatList, 15,  268, 610, 150);
 
-	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
-    cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
+	
+	int y = minimapy + 105;
+    cHostLobby.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+    cHostLobby.AddBack( new CCombobox(),				hl_LevelList,  440, y, 170, 17);
+	y += 22;
+	cHostLobby.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( new CCombobox(),				hl_Gamemode,   440, y, 170, 17);
+	y += 22;
+	cHostLobby.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( new CCombobox(),				hl_ModName,    440, y, 170, 17);
 
-	cHostLobby.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, 180, 0,   0);
-	cHostLobby.Add( new CCombobox(),				hl_ModName,    440, 179, 170, 17);
-	cHostLobby.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, 158, 0,   0);
-	cHostLobby.Add( new CCombobox(),				hl_Gamemode,   440, 157, 170, 17);
-    cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
-    cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
+	
+	
+	y += 31;
+	cHostLobby.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
+	y += 25;
+    cHostLobby.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
+
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
 	cHostLobby.Add( new CCheckbox(bStartDedicated),	hl_StartDedicated,			15,  244, 17, 17);
 	cHostLobby.Add( new CLabel("Auto-start in",tLX->clNormalLabel),	-1,			40,  245, 0,   0);
@@ -690,7 +701,7 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.Add( new CLabel("seconds with min",tLX->clNormalLabel),	-1,		155, 245, 0,   0);
 	cHostLobby.Add( new CTextbox(),					hl_StartDedicatedMinPlayers,263, 245, 25, tLX->cFont.GetHeight());
 	cHostLobby.Add( new CLabel("players",tLX->clNormalLabel),	-1,				295, 245, 0,   0);
-
+	
 	// HINT: must be last, when player presses a key in lobby, this will be the first textbox found
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
 
@@ -1440,12 +1451,12 @@ void Menu_HostShowMinimap()
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
 	// Draw a background over the old minimap
-	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,32,463,32,128,96);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,minimapy+2,463,minimapy+2,128,96);
 
-	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,32);
+	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,minimapy+2);
 
 	// Update the screen
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,minimapy,457,minimapy,140,110);
 }
 
 
