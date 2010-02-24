@@ -69,6 +69,7 @@ enum {
 	ml_LevelList,
 	ml_Gametype,
 	ml_ModName,
+	ml_SettingPreset,
 	ml_GameSettings,
     ml_WeaponOptions,
 	
@@ -83,6 +84,12 @@ enum {
 
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
+
+static CCombobox* ComboboxWithVar(std::string& var) {
+	CCombobox* c = new CCombobox();
+	c->setAttachedVar(&var);
+	return c;
+}
 	
 static void Menu_Local_InitCustomLevel() {
 	// Minimap box
@@ -91,16 +98,28 @@ static void Menu_Local_InitCustomLevel() {
 	cLocalMenu.Add( new CListview(), ml_PlayerList,  410,115, 200, 126);
 	cLocalMenu.Add( new CListview(), ml_Playing,     310,250, 300, 185);
 	
-	cLocalMenu.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, 310, 170,15);
-    cLocalMenu.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,27, 335, 185,15);
+	int y = 235;
+    cLocalMenu.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
+	cLocalMenu.AddBack( ComboboxWithVar(tLXOptions->tGameInfo.sMapFile),	ml_LevelList,  120, y, 170, 17);
+	y += 24;
+	cLocalMenu.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  y+1, 0,   0);
+	cLocalMenu.AddBack( new CCombobox(),				ml_Gametype,   120, y, 170, 17);
+	y += 24;
+	CCombobox* modList = NULL;
+	cLocalMenu.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
+	cLocalMenu.AddBack( modList = ComboboxWithVar(tLXOptions->tGameInfo.sModDir),		ml_ModName,    120, y, 170, 17);
+	y += 24;
+	CCombobox* presetList = NULL;
+	cLocalMenu.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
+	cLocalMenu.AddBack( presetList = ComboboxWithVar(tLXOptions->tGameInfo.sSettingsFile),		ml_SettingPreset,    120, y, 170, 17);	
 	
-	cLocalMenu.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  284, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_ModName,    120, 283, 170, 17);
-	cLocalMenu.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  260, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_Gametype,   120, 259, 170, 17);
-    cLocalMenu.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  236, 0,   0);
-	cLocalMenu.Add( new CCombobox(),				ml_LevelList,  120, 235, 170, 17);
+	setupModGameSettingsPresetComboboxes(modList, presetList);
 	
+	y += 27;
+	cLocalMenu.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), ml_GameSettings, 27, y, 170,15);
+	y += 25;
+    cLocalMenu.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), ml_WeaponOptions,27, y, 185,15);
+
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "Playing", 24);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", 300 - gfxGame.bmpTeamColours[0].get()->w - 50);
 	cLocalMenu.SendMessage(ml_Playing,		LVS_ADDCOLUMN, "", (DWORD)-1);
