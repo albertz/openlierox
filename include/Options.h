@@ -343,6 +343,8 @@ struct GameOptions {
         std::string sGameMode;	// Game mode name from server (only for client)
         std::string sModDir;
         std::string sModName;	// Decoded mod name from script.lgs
+		std::string	sSettingsName;
+		std::string	sSettingsFile;
 		float	fBonusFreq;
 		float	fBonusLife;
 		float	fRespawnTime;
