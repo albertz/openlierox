@@ -62,6 +62,8 @@ class SmartObject;*/
 
 template < typename _Type, typename _SpecificInitFunctor = NopFunctor<void*> >
 class SmartPointer { //friend class SmartObject<_Type>;
+public:
+	typedef _Type value_type;
 private:
 	_Type* obj;
 	int* refCount;

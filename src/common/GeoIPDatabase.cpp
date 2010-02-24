@@ -558,8 +558,7 @@ GeoRecord GeoIPDatabase::lookup(const std::string& ip) const
 		return extractRecordCity(record);
 	else if (m_dbType == GEOIP_COUNTRY_EDITION)
 		return extractRecordCtry(record);
-	else  {
-		errors << "The Geo IP database has an unsupported format" << endl;
-		return res;
-	}
+
+	errors << "The Geo IP database has an unsupported format" << endl;
+	return res;
 }

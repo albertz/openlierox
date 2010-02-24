@@ -163,9 +163,9 @@ void Menu_Net_NETShutdown()
 		}
 
 		// Save the selected player
-		cb_item_t *item = (cb_item_t *)cInternet.SendMessage(mi_PlayerSelection,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-		if (item)
-			tLXOptions->sLastSelectedPlayer = item->sIndex;
+		GuiListItem::Pt item = ((CCombobox*)cInternet.getWidget(mi_PlayerSelection))->getSelectedItem();
+		if (item.get())
+			tLXOptions->sLastSelectedPlayer = item->index();
 	}
 
 	cInternet.Shutdown();
@@ -433,15 +433,15 @@ void Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sNam
 {
 	// Fill in the game structure
 	CCombobox* combo = (CCombobox *) cInternet.getWidget(mi_PlayerSelection);
-	const cb_item_t* item = combo->getSelectedItem();
-	if(!item) {
+	const GuiListItem::Pt item = combo->getSelectedItem();
+	if(!item.get()) {
 		errors << "no player selected" << endl;
 		return;
 	}
 		
-	tLXOptions->sLastSelectedPlayer = item->sIndex;
+	tLXOptions->sLastSelectedPlayer = item->index();
 
-	if(!JoinServer(sAddress, sName, item->sIndex))
+	if(!JoinServer(sAddress, sName, item->index()))
 		return;
 
 	// Shutdown

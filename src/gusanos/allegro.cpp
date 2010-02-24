@@ -256,9 +256,8 @@ FILE* gusOpenGameFile(const std::string& path, const char *mode) {
 Iterator<std::string>::Ref gusFileListIter(
 										   const std::string& dir,
 										   bool absolutePath,
-										   const filemodes_t modefilter,
-										   const std::string& namefilter) {
-	return FileListIter(dir, absolutePath, modefilter, namefilter);
+										   const filemodes_t modefilter) {
+	return FileListIter(dir, absolutePath, modefilter);
 }
 
 extern "C" {

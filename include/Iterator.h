@@ -16,6 +16,7 @@
 #include <list>
 #include <string>
 #include "Ref.h"
+#include "Functors.h"
 
 
 template < typename _Obj >
@@ -60,6 +61,25 @@ public:
 	virtual bool operator==(const Iterator<_T>& other) const { const STLIterator* ot = dynamic_cast< const STLIterator* > (&other); return ot != NULL && STLIteratorBase<_STLT, _T> :: operator == ( other ); }
 	virtual _T get() { return * STLIteratorBase<_STLT, _T> :: i; }
 };
+
+
+
+template < typename _Type, typename _SpecificInitFunctor >
+class SmartPointer;
+
+template<typename _STLT, typename _T>
+struct STLIteratorToPtr : Iterator<_T> {
+	typename _STLT::value_type::iterator i;
+	_STLT obj;
+	STLIteratorToPtr(const _STLT& o) : i(o->begin()), obj(o) {}
+	virtual ~STLIteratorToPtr() {}
+	virtual Iterator<_T>* copy() const { return new STLIteratorToPtr(*this); }
+	virtual bool isValid() { return i != obj->end(); }
+	virtual void next() { ++i; }
+	virtual bool operator==(const Iterator<_T>& other) const { const STLIteratorToPtr* ot = dynamic_cast< const STLIteratorToPtr* > (&other); return (ot != NULL) && (i == ot->i) && (obj.get() == ot->obj.get()); }
+	virtual _T get() { return * i; }
+};
+
 
 template<typename _STLT, typename _T>
 class STL_MapIterator : public STLIteratorBase<_STLT, _T> {
@@ -146,6 +166,9 @@ typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIter
 
 template< typename _T, typename _KT >
 typename Iterator<_T&>::Ref GetIterator(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
+
+template< typename _T, typename _I >
+typename Iterator< typename _T::value_type >::Ref GetIterator(const SmartPointer<_T,_I>& s) { return new STLIteratorToPtr<SmartPointer<_T,_I>,typename _T::value_type>(s); }
 
 inline
 Iterator<char&>::Ref GetIterator(std::string& s) { return new StringIterator(s); }

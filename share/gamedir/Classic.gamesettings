@@ -1,0 +1,7 @@
+# This is the game settings preset file for the Classic settings
+
+[GameSettings]
+Name = Classic
+Description = The LieroX classic settings.
+
+# We don't need to set anything else because that are exactly the classic settings.

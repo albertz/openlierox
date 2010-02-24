@@ -1669,7 +1669,6 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 
 	// Teams
 	static const std::string teamnames[] = {"Blue", "Red", "Green", "Yellow"};
-	static const std::string VIPteamnames[] = {"VIP Defenders", "VIP Attackers", "VIPs"};
 
 	// Normal scoreboard
 	switch(getGeneralGameType()) {
@@ -2267,11 +2266,11 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
                 int a_type = ViewportMgr.SendMessage(v1_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
                 int b_on = ViewportMgr.SendMessage(v2_On, DeprecatedGUI::CKM_GETCHECK, (DWORD)0,0);
                 int b_type = ViewportMgr.SendMessage(v2_Type, DeprecatedGUI::CBM_GETCURINDEX, (DWORD)0,0);
-				if (!v1Target->getSelectedItem() || !v2Target->getSelectedItem())
+				if (!v1Target->getSelectedItem().get() || !v2Target->getSelectedItem().get())
 					return;
 
-				int v1_target = v1Target->getSelectedItem()->iTag;
-				int v2_target = v2Target->getSelectedItem()->iTag;
+				int v1_target = v1Target->getSelectedItem()->tag();
+				int v2_target = v2Target->getSelectedItem()->tag();
 
                 for( int i=0; i<NUM_VIEWPORTS; i++ ) {
 					cViewports[i].shutdown();

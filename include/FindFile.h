@@ -284,17 +284,14 @@ template<typename _filehandler>
 class FindFilesHandler {
 public:
 	const std::string& dir;
-	const std::string& namefilter;
 	const filemodes_t modefilter;
 	_filehandler& filehandler;
 
 	FindFilesHandler(
 			const std::string& dir_,
-			const std::string& namefilter_,
 			const filemodes_t modefilter_,
 			_filehandler& filehandler_) :
 		dir(dir_),
-		namefilter(namefilter_),
 		modefilter(modefilter_),
 		filehandler(filehandler_) {}
 
@@ -350,27 +347,62 @@ public:
 	}
 };
 
+
+template <typename _handler>
+struct NameFilterHandler {
+	_handler& handler;
+	const std::string& namefilter;
+	NameFilterHandler(_handler& h, const std::string& pattern) : handler(h), namefilter(pattern) {}
+	bool operator()(const std::string& filename) {
+		if(!FilenameSimplePatternMatch(GetBaseFilename(filename), namefilter))
+			return true; // true because we want to continue the filesearch
+		return handler(filename);
+	}
+};
+
+
 // FindFiles searches for files
 // _handler has to be a functor with
 // bool op()( const std::string& abs_filename )
 // if it returns false, it will break
 template<typename _handler>
 void FindFiles(
-	_handler& handler,
-	const std::string& dir,
-	bool absolutePath = false,
-	const filemodes_t modefilter = -1,
-	const std::string& namefilter = ""
+			   _handler& handler,
+			   const std::string& dir,
+			   bool absolutePath = false,
+			   const filemodes_t modefilter = -1
 ) {
-	if(namefilter != "*" && namefilter != "")
-		warnings << "FindFiles: filter " << namefilter <<" isn't handled yet" << endl;
 	if(absolutePath)
-		FindFilesHandler<_handler>(dir, namefilter, modefilter, handler) ("");
+		FindFilesHandler<_handler>(dir, modefilter, handler) ("");
 	else {
-		FindFilesHandler<_handler> searchpathHandler(dir, namefilter, modefilter, handler);
+		FindFilesHandler<_handler> searchpathHandler(dir, modefilter, handler);
 		ForEachSearchpath(searchpathHandler);
 	}
 }
+
+template<typename _handler>
+void FindFiles(
+	_handler& handler,
+	const std::string& dir,
+	bool absolutePath,
+	const filemodes_t modefilter,
+	const std::string& namefilter
+) {
+	if(namefilter == "") {
+		errors << "FindFiles " << dir << " with empty namefilter doesn't make sense" << endl;
+		return;
+	}
+	
+	if(namefilter == "*") {
+		// we don't need a special namefilter handler
+		FindFiles(handler, dir, absolutePath, modefilter);
+	}
+	else {
+		NameFilterHandler<_handler> nameFilterHandler(handler, namefilter);
+		FindFiles(nameFilterHandler, dir, absolutePath, modefilter);
+	}
+}
+
 
 template <typename _List, typename _CheckFct>
 struct GetFileList_FileListAdder {
@@ -402,7 +434,7 @@ Iterator<std::string>::Ref FileListIter(
 	const std::string& dir,
 	bool absolutePath = false,
 	const filemodes_t modefilter = -1,
-	const std::string& namefilter = "");
+	const std::string& namefilter = "*");
 
 
 class Command;
@@ -471,7 +503,7 @@ public:
 				  const std::string& _dir,
 				  bool _absPath = false,
 				  const filemodes_t _modefilter = FM_REG,
-				  const std::string& _namefilter = "")
+				  const std::string& _namefilter = "*")
 	: FileListCacheIntf(_name), dir(_dir), absolutePath(_absPath), modefilter(_modefilter), namefilter(_namefilter) {}
 
 	virtual void update() {

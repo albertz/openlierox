@@ -47,6 +47,7 @@
 #include "DeprecatedGUI/CChatWidget.h"
 #include "sound/SoundsBase.h"
 #include "game/Level.h"
+#include "game/Mod.h"
 
 
 /*
@@ -550,6 +551,7 @@ enum {
 	hl_Lives,
 	hl_MaxKills,
 	hl_ModName,
+	hl_SettingPreset,
 	hl_Gamemode,
 	hl_GameSettings,
     hl_WeaponOptions,
@@ -640,6 +642,8 @@ bool Menu_Net_HostLobbyInitialize()
 }
 
 
+const static int minimapy = 25;
+	
 ///////////////////
 // Draw the lobby screen
 void Menu_Net_HostLobbyDraw()
@@ -648,7 +652,7 @@ void Menu_Net_HostLobbyDraw()
 	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
 	if (tMenu->tFrontendInfo.bPageBoxes)
 		Menu_DrawBox(tMenu->bmpBuffer.get(), 5,5, 635, 475);
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 460,29, 593, 130);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 460,minimapy-1, 593, minimapy+100);
     DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 281,0, 281,0, 79,20);
 
     tLX->cFont.DrawCentre(tMenu->bmpBuffer.get(), 320, -1, tLX->clNormalLabel, "[  Lobby  ]");
@@ -660,6 +664,12 @@ void Menu_Net_HostLobbyDraw()
 }
 
 
+static CCombobox* ComboboxWithVar(std::string& var) {
+	CCombobox* c = new CCombobox();
+	c->setAttachedVar(&var);
+	return c;
+}
+	
 ///////////////////
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui()
@@ -674,15 +684,29 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
     cHostLobby.Add( new CBrowser(),                          hl_ChatList, 15,  268, 610, 150);
 
-	cHostLobby.Add( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
-    cHostLobby.Add( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
+	
+	int y = minimapy + 105;
+    cHostLobby.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+    cHostLobby.AddBack( ComboboxWithVar(tLXOptions->tGameInfo.sMapFile),			hl_LevelList,  440, y, 170, 17);
+	y += 22;
+	cHostLobby.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( new CCombobox(),				hl_Gamemode,   440, y, 170, 17);
+	y += 22;
+	CCombobox* modList = NULL;
+	cHostLobby.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( modList = ComboboxWithVar(tLXOptions->tGameInfo.sModDir),			hl_ModName,    440, y, 170, 17);
+	y += 22;
+	CCombobox* presetList = NULL;
+	cHostLobby.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( presetList = ComboboxWithVar(tLXOptions->tGameInfo.sSettingsFile),			hl_SettingPreset,    440, y, 170, 17);	
+	
+	setupModGameSettingsPresetComboboxes(modList, presetList);
+	
+	y += 28;
+	cHostLobby.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, y, 170,15);
+	y += 22;
+    cHostLobby.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, y, 185,15);
 
-	cHostLobby.Add( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, 180, 0,   0);
-	cHostLobby.Add( new CCombobox(),				hl_ModName,    440, 179, 170, 17);
-	cHostLobby.Add( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, 158, 0,   0);
-	cHostLobby.Add( new CCombobox(),				hl_Gamemode,   440, 157, 170, 17);
-    cHostLobby.Add( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, 136, 0,   0);
-    cHostLobby.Add( new CCombobox(),				hl_LevelList,  440, 135, 170, 17);
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
 	cHostLobby.Add( new CCheckbox(bStartDedicated),	hl_StartDedicated,			15,  244, 17, 17);
 	cHostLobby.Add( new CLabel("Auto-start in",tLX->clNormalLabel),	-1,			40,  245, 0,   0);
@@ -690,7 +714,7 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.Add( new CLabel("seconds with min",tLX->clNormalLabel),	-1,		155, 245, 0,   0);
 	cHostLobby.Add( new CTextbox(),					hl_StartDedicatedMinPlayers,263, 245, 25, tLX->cFont.GetHeight());
 	cHostLobby.Add( new CLabel("players",tLX->clNormalLabel),	-1,				295, 245, 0,   0);
-
+	
 	// HINT: must be last, when player presses a key in lobby, this will be the first textbox found
 	cHostLobby.Add( new CTextbox(),							  hl_ChatText, 15,  421, 610, tLX->cFont.GetHeight());
 
@@ -908,9 +932,9 @@ void Menu_Net_HostLobbyFrame(int mouse)
 
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cHostLobby.getWidget(hl_ModName);
-		const cb_item_t *it = cbMod->getSelectedItem();
-		if(it) 
-			tLXOptions->tGameInfo.sModDir = it->sIndex;
+		GuiListItem::Pt it = cbMod->getSelectedItem();
+		if(it.get()) 
+			tLXOptions->tGameInfo.sModDir = it->index();
 		else
 			errors << "No mod is selected, cannot save it to options" << endl;
 
@@ -920,8 +944,8 @@ void Menu_Net_HostLobbyFrame(int mouse)
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *) cHostLobby.getWidget(hl_LevelList);
 		it = cbLevel->getSelectedItem();
-		if(it) 
-			tLXOptions->tGameInfo.sMapFile = it->sIndex;
+		if(it.get()) 
+			tLXOptions->tGameInfo.sMapFile = it->index();
 		else
 			errors << "No level is selected, cannot save it to options" << endl;
 
@@ -1124,10 +1148,10 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.Draw(tMenu->bmpBuffer.get());
 					Menu_HostDrawLobby(tMenu->bmpBuffer.get());
 
-                    cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0); // TODO: 64bit unsafe (pointer cast)
-                    if(it) {
+                    GuiListItem::Pt it = ((CCombobox*)cHostLobby.getWidget(hl_ModName))->getSelectedItem();
+                    if(it.get()) {
 		                bHostWeaponRest = true;
-					    Menu_WeaponsRestrictions(it->sIndex);
+					    Menu_WeaponsRestrictions(it->index());
                     }
                 }
                 break;
@@ -1268,10 +1292,10 @@ bool Menu_Net_HostStartGame()
 	cHostLobby.SendMessage(hl_ChatText, TXS_GETTEXT, &tMenu->sSavedChatText, 256);
 
 	// Get the mod
-	cb_item_t *it = (cb_item_t *)cHostLobby.SendMessage(hl_ModName,CBM_GETCURITEM,(DWORD)0,0);
-	if(it) {
-		tLXOptions->tGameInfo.sModName = it->sName;
-		tLXOptions->tGameInfo.sModDir = it->sIndex;
+	GuiListItem::Pt it = ((CCombobox*)cHostLobby.getWidget(hl_ModName))->getSelectedItem();
+	if(it.get()) {
+		tLXOptions->tGameInfo.sModName = it->caption();
+		tLXOptions->tGameInfo.sModDir = it->index();
 	} else {
 		errors << "Could not get the selected mod" << endl;
 		return false;
@@ -1440,12 +1464,12 @@ void Menu_HostShowMinimap()
 	cHostLobby.SendMessage(hl_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
 	// Draw a background over the old minimap
-	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,32,463,32,128,96);
+	DrawImageAdv(tMenu->bmpBuffer.get(), tMenu->bmpMainBack_common, 463,minimapy+2,463,minimapy+2,128,96);
 
-	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,32);
+	DrawImage(tMenu->bmpBuffer.get(), minimapForLevel(buf), 463,minimapy+2);
 
 	// Update the screen
-	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,30,457,30,140,110);
+	DrawImageAdv(VideoPostProcessor::videoSurface(), tMenu->bmpBuffer, 457,minimapy,457,minimapy,140,110);
 }
 
 

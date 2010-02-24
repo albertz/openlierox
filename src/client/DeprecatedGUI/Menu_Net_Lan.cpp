@@ -127,9 +127,9 @@ void Menu_Net_LANShutdown()
 		CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
 		if( combo )
 		{
-			const cb_item_t* item = combo->getSelectedItem();
-			if (item)
-				tLXOptions->sLastSelectedPlayer = item->sIndex;
+			const GuiListItem::Pt item = combo->getSelectedItem();
+			if (item.get())
+				tLXOptions->sLastSelectedPlayer = item->index();
 		}
 
 		if (iNetMode == net_lan)  {
@@ -177,9 +177,9 @@ void Menu_Net_LANFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 
 					CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
-					const cb_item_t* item = combo->getSelectedItem();
-					if (item)
-						tLXOptions->sLastSelectedPlayer = item->sIndex;
+					const GuiListItem::Pt item = combo->getSelectedItem();
+					if (item.get())
+						tLXOptions->sLastSelectedPlayer = item->index();
 
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
@@ -379,15 +379,15 @@ void Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sNam
 {
 	// Fill in the game structure
 	CCombobox* combo = (CCombobox *) cLan.getWidget(nl_PlayerSelection);
-	const cb_item_t* item = combo->getSelectedItem();
-	if(!item) {
+	const GuiListItem::Pt item = combo->getSelectedItem();
+	if(!item.get()) {
 		errors << "no player selected" << endl;
 		return;
 	}
 	
-	tLXOptions->sLastSelectedPlayer = item->sIndex;
+	tLXOptions->sLastSelectedPlayer = item->index();
 	
-	if(!JoinServer(sAddress, sName, item->sIndex))
+	if(!JoinServer(sAddress, sName, item->index()))
 		return;
 
 	// Shutdown

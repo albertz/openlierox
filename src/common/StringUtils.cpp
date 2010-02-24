@@ -1307,3 +1307,36 @@ template<> VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool
 	if(fail) return VectorD2<int>();
 	return v;
 }
+
+
+static bool FilenameSimplePatternMatch(
+	std::string::const_iterator fn_it, const std::string::const_iterator& fn_end,
+	std::string::const_iterator pt_it, const std::string::const_iterator& pt_end
+) {	
+	while(fn_it != fn_end && pt_it != pt_end) {
+		std::string::const_iterator fn_oldit = fn_it;
+		std::string::const_iterator pt_oldit = pt_it;
+		UnicodeChar fn_c = GetNextUnicodeFromUtf8(fn_it, fn_end);
+		UnicodeChar pt_c = GetNextUnicodeFromUtf8(pt_it, pt_end);
+		
+		if(pt_c == (uchar)'?') continue;
+		if(pt_c == (uchar)'*') {
+			if(pt_it == pt_end) return true;
+			if(FilenameSimplePatternMatch(fn_it, fn_end, pt_oldit, pt_end)) return true;
+			if(FilenameSimplePatternMatch(fn_oldit, fn_end, pt_it, pt_end)) return true;
+			continue;
+		}
+		
+		if(UnicodeToLower(fn_c) != UnicodeToLower(pt_c)) return false;
+	}
+	
+	return (fn_it == fn_end) && (pt_it == pt_end);
+}
+
+bool FilenameSimplePatternMatch(const std::string& filename, const std::string& pattern) {
+	std::string::const_iterator fn_it = filename.begin();
+	std::string::const_iterator pt_it = pattern.begin();
+	const std::string::const_iterator fn_end = filename.end();
+	const std::string::const_iterator pt_end = pattern.end();
+	return FilenameSimplePatternMatch(fn_it, fn_end, pt_it, pt_end);
+}
