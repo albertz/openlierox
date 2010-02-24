@@ -16,7 +16,7 @@ void GuiListItem::setImage(const SmartPointer<DynDrawIntf>&) {
 }
 
 typedef boost::function< Iterator<GuiListItem::Pt>::Ref() > DynamicListFct;
-GuiList::Pt dynamicGuiList(DynamicListFct f) {
+static GuiList::Pt dynamicGuiList(DynamicListFct f) {
 	struct DynamicList : GuiList {
 		DynamicListFct f;
 		DynamicList(DynamicListFct _f) : f(_f) {}

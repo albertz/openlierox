@@ -14,6 +14,8 @@
 #include "Options.h"
 #include "util/macros.h"
 #include "ConfigHandler.h"
+#include "DeprecatedGUI/CCombobox.h"
+#include "gui/List.h"
 
 ModInfo infoForMod(const std::string& f, bool absolute) {	
 	std::string name;
@@ -74,3 +76,11 @@ static std::list<GuiListItem::Pt> getCurrentSettingsPresetList() {
 GuiList::Pt dynamicPresetListForCurrentMod() {
 	return dynamicGuiList(boost::bind(&getCurrentSettingsPresetList));
 }
+
+void setupModGameSettingsPresetComboboxes(DeprecatedGUI::CCombobox* modList, DeprecatedGUI::CCombobox* presetList) {
+	presetList->setListBackend( dynamicPresetListForCurrentMod() );
+	modList->OnChangeSelection.connect( boost::bind(&DeprecatedGUI::CCombobox::updateFromListBackend, presetList) );
+	presetList->updateFromListBackend(); // also update right now
+}
+
+

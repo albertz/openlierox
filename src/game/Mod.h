@@ -42,6 +42,8 @@ std::set<GameSettingsPresetInfo> presetsForMod(const std::string& modDir);
 GuiListItem::Pt infoForSettingsPreset(const GameSettingsPresetInfo& preset);
 GuiList::Pt dynamicPresetListForCurrentMod();
 
+namespace DeprecatedGUI { class CCombobox; }
+void setupModGameSettingsPresetComboboxes(DeprecatedGUI::CCombobox* modList, DeprecatedGUI::CCombobox* presetList);
 
 #endif
 
