@@ -78,7 +78,6 @@ GuiList::Pt dynamicPresetListForCurrentMod() {
 }
 
 void setupModGameSettingsPresetComboboxes(DeprecatedGUI::CCombobox* modList, DeprecatedGUI::CCombobox* presetList) {
-	return; // TODO: ???
 	presetList->setListBackend( dynamicPresetListForCurrentMod() );
 	modList->OnChangeSelection.connect( boost::bind(&DeprecatedGUI::CCombobox::updateFromListBackend, presetList) );
 	presetList->updateFromListBackend(); // also update right now
