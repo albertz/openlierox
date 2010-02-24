@@ -46,6 +46,7 @@ public:
 	virtual Iterator<GuiListItem::Pt>::Ref iterator() = 0;
 };
 
+GuiList::Pt dynamicGuiList(boost::function< Iterator<GuiListItem::Pt>::Ref() >);
 GuiList::Pt dynamicGuiList(boost::function< std::list<GuiListItem::Pt>() >);
 
 #endif
