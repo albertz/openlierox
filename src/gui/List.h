@@ -46,7 +46,8 @@ public:
 	virtual Iterator<GuiListItem::Pt>::Ref iterator() = 0;
 };
 
-GuiList::Pt dynamicGuiList(boost::function< std::list<GuiListItem::Pt>() >);
+typedef SmartPointer< std::list<GuiListItem::Pt> > GuiItemList;
+GuiList::Pt dynamicGuiList(boost::function< GuiItemList() >);
 
 #endif
 

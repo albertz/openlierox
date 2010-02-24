@@ -25,11 +25,10 @@ static GuiList::Pt dynamicGuiList(DynamicListFct f) {
 	return new DynamicList(f);
 }
 
-static Iterator<GuiListItem::Pt>::Ref iteratorForGuiList(std::list<GuiListItem::Pt> l) {
-	typedef GuiListItem::Pt I;
-	return new STLIterator<std::list<I>,I>(l);
+static Iterator<GuiListItem::Pt>::Ref iteratorForGuiList(const GuiItemList& l) {
+	return GetIterator(l);
 }
 
-GuiList::Pt dynamicGuiList(boost::function< std::list<GuiListItem::Pt>() > f) {
+GuiList::Pt dynamicGuiList(boost::function< GuiItemList() > f) {
 	return dynamicGuiList((DynamicListFct) boost::bind(&iteratorForGuiList, boost::bind(f)));
 }

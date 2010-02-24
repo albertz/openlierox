@@ -65,11 +65,11 @@ GuiListItem::Pt infoForSettingsPreset(const GameSettingsPresetInfo& preset) {
 	return new Item(preset);
 }
 
-static std::list<GuiListItem::Pt> getCurrentSettingsPresetList() {
+static GuiItemList getCurrentSettingsPresetList() {
 	std::set<GameSettingsPresetInfo> presets = presetsForMod(tLXOptions->tGameInfo.sModDir);
-	std::list<GuiListItem::Pt> presetList;
+	GuiItemList presetList = new GuiItemList::value_type();
 	foreach(i, presets)
-		presetList.push_back(infoForSettingsPreset(*i));
+		presetList->push_back(infoForSettingsPreset(*i));
 	return presetList;
 }
 
