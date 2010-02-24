@@ -503,7 +503,7 @@ public:
 				  const std::string& _dir,
 				  bool _absPath = false,
 				  const filemodes_t _modefilter = FM_REG,
-				  const std::string& _namefilter = "")
+				  const std::string& _namefilter = "*")
 	: FileListCacheIntf(_name), dir(_dir), absolutePath(_absPath), modefilter(_modefilter), namefilter(_namefilter) {}
 
 	virtual void update() {
