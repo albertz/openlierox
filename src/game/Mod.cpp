@@ -47,7 +47,7 @@ std::set<GameSettingsPresetInfo> presetsForMod(const std::string& modDir) {
 		presets.insert(settingsInfo("./" + GetBaseFilename(it->get()), true));
 	
 	for(Iterator<std::string>::Ref it = FileListIter(modDir, false, FM_REG, "*.gamesettings"); it->isValid(); it->next())
-		presets.insert(settingsInfo(GetBaseFilename(modDir + "/" + it->get()), false));
+		presets.insert(settingsInfo(modDir + "/" + GetBaseFilename(it->get()), false));
 
 	return presets;
 }
