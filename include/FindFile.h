@@ -384,7 +384,7 @@ template<typename _handler>
 void FindFiles(
 	_handler& handler,
 	const std::string& dir,
-	bool absolutePath = false,
+	bool absolutePath,
 	const filemodes_t modefilter,
 	const std::string& namefilter
 ) {
