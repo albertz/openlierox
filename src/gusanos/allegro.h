@@ -104,8 +104,7 @@ FILE* gusOpenGameFile(const std::string& path, const char *mode);
 Iterator<std::string>::Ref gusFileListIter(
 										const std::string& dir,
 										bool absolutePath = false,
-										const filemodes_t modefilter = -1,
-										const std::string& namefilter = "");
+										const filemodes_t modefilter = -1);
 
 
 int makecol(int r, int g, int b);

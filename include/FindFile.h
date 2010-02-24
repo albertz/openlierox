@@ -434,7 +434,7 @@ Iterator<std::string>::Ref FileListIter(
 	const std::string& dir,
 	bool absolutePath = false,
 	const filemodes_t modefilter = -1,
-	const std::string& namefilter = "");
+	const std::string& namefilter = "*");
 
 
 class Command;
