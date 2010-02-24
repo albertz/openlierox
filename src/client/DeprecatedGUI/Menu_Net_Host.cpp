@@ -47,6 +47,7 @@
 #include "DeprecatedGUI/CChatWidget.h"
 #include "sound/SoundsBase.h"
 #include "game/Level.h"
+#include "game/Mod.h"
 
 
 /*
@@ -550,6 +551,7 @@ enum {
 	hl_Lives,
 	hl_MaxKills,
 	hl_ModName,
+	hl_SettingPreset,
 	hl_Gamemode,
 	hl_GameSettings,
     hl_WeaponOptions,
@@ -640,7 +642,7 @@ bool Menu_Net_HostLobbyInitialize()
 }
 
 
-const static int minimapy = 30;
+const static int minimapy = 25;
 	
 ///////////////////
 // Draw the lobby screen
@@ -662,6 +664,12 @@ void Menu_Net_HostLobbyDraw()
 }
 
 
+static CCombobox* ComboboxWithVar(std::string& var) {
+	CCombobox* c = new CCombobox();
+	c->setAttachedVar(&var);
+	return c;
+}
+	
 ///////////////////
 // Create the lobby gui
 void Menu_Net_HostLobbyCreateGui()
@@ -679,20 +687,25 @@ void Menu_Net_HostLobbyCreateGui()
 	
 	int y = minimapy + 105;
     cHostLobby.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
-    cHostLobby.AddBack( new CCombobox(),				hl_LevelList,  440, y, 170, 17);
+    cHostLobby.AddBack( ComboboxWithVar(tLXOptions->tGameInfo.sMapFile),			hl_LevelList,  440, y, 170, 17);
 	y += 22;
 	cHostLobby.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, y+1, 0,   0);
 	cHostLobby.AddBack( new CCombobox(),				hl_Gamemode,   440, y, 170, 17);
 	y += 22;
+	CCombobox* modList = NULL;
 	cHostLobby.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
-	cHostLobby.AddBack( new CCombobox(),				hl_ModName,    440, y, 170, 17);
-
+	cHostLobby.AddBack( modList = ComboboxWithVar(tLXOptions->tGameInfo.sModDir),			hl_ModName,    440, y, 170, 17);
+	y += 22;
+	CCombobox* presetList = NULL;
+	cHostLobby.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
+	cHostLobby.AddBack( presetList = ComboboxWithVar(tLXOptions->tGameInfo.sSettingsFile),			hl_SettingPreset,    440, y, 170, 17);	
 	
+	setupModGameSettingsPresetComboboxes(modList, presetList);
 	
-	y += 31;
-	cHostLobby.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, 210, 170,15);
-	y += 25;
-    cHostLobby.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, 235, 185,15);
+	y += 28;
+	cHostLobby.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, y, 170,15);
+	y += 22;
+    cHostLobby.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, y, 185,15);
 
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
 	cHostLobby.Add( new CCheckbox(bStartDedicated),	hl_StartDedicated,			15,  244, 17, 17);
