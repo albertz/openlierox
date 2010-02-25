@@ -730,7 +730,7 @@ void Menu_Net_HostLobbyCreateGui()
 	//cHostLobby.SendMessage(hl_ChatList,		LVM_SETOLDSTYLE, 0, 0);
 
 	// Fill in the game details
-	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
+	for(Iterator<CGameMode*>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
 		cHostLobby.SendMessage(hl_Gamemode,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
 	}		
     cHostLobby.SendMessage(hl_Gamemode,    CBM_SETCURSEL, GetGameModeIndex(gameSettings[FT_GameMode].as<GameModeInfo>()->mode), 0);
