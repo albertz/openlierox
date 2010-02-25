@@ -29,6 +29,9 @@
     <ClCompile Include="..\..\libs\breakpad\src\common\windows\http_upload.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\common\windows\pdb_source_line_writer.cc">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath);..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath);..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <ClCompile Include="..\..\libs\breakpad\src\common\windows\string_utils.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\processor\basic_code_modules.cc" />
@@ -127,7 +130,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
