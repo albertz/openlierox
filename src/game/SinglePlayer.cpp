@@ -235,7 +235,7 @@ bool SinglePlayerGame::startGame() {
 		ReadString("games/games.cfg", currentGame, "Config" + itoa(currentLevel), extraConfig, ""); TrimSpaces(extraConfig);
 		if(extraConfig != "") {
 			notes << "SinglePlayerGame: config: " << extraConfig << endl;
-			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig);
+			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig, false);
 		}
 	}
 	
