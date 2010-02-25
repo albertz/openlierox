@@ -113,7 +113,6 @@ struct PODForClass {
 	void init() { new (data) T; }
 	void init(const T& v) { new (data) T(v); }
 	void uninit() { get().~T(); }
-	PODForClass& operator=(const T& v) { get() = v; return *this; }
 	bool operator==(const T& o) const { return get() == o; }
 	bool operator<(const T& o) const { return get() < o; }
 };
@@ -144,12 +143,22 @@ struct ScriptVar_t
 
 	ScriptVar_t( const ScriptVar_t& v ) : type(v.type), isUnsigned(v.isUnsigned) {
 		switch(v.type) {
-			case SVT_STRING: str.init(); str = v.str; break;
-			case SVT_COLOR: col.init(); col = v.col; break;
-			case SVT_CUSTOM: custom.init(); custom = v.custom; break;
-			default: break;
-		}		
+			case SVT_BOOL: b = v.b; break;
+			case SVT_INT: i = v.i; break;
+			case SVT_FLOAT: f = v.f; break;
+			case SVT_STRING: str.init(v.str.get()); break;
+			case SVT_COLOR: col.init(v.col.get()); break;
+			case SVT_CUSTOM: custom.init(v.custom.get()); break;
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
 	}	
+
+	ScriptVar_t& operator=(const ScriptVar_t& v) {
+		this -> ~ScriptVar_t(); // uninit
+		new (this) ScriptVar_t(v); // init again
+		return *this;
+	}
 
 	~ScriptVar_t() {
 		switch(type) {
@@ -210,9 +219,9 @@ struct ScriptVar_t
 			case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
 			case SVT_INT: assert(v.type == SVT_INT); i = v.i; break;
 			case SVT_FLOAT: assert(v.isNumeric()); f = v.getNumber(); break;
-			case SVT_STRING: str = v.toString(); break;
-			case SVT_COLOR: assert(v.type == SVT_COLOR); col = v.col; break;
-			case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom = v.custom; break;
+			case SVT_STRING: str.get() = v.toString(); break;
+			case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
+			case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom.get() = v.custom.get(); break;
 			default: assert(false);
 		}
 	}
@@ -279,7 +288,7 @@ struct ScriptVarPtr_t
 	template<typename T>
 	ScriptVarPtr_t( T * v, const T& def = DefaultValue<T>::value() )
 	: type(GetType<T>::value), isUnsigned(false), defaultValue(def)
-	{ __ScriptVarPtrRaw_ptr<typename GetType<T>::type>(ptr) = v; }
+	{ __ScriptVarPtrRaw_ptr<T>(ptr) = v; }
 	
 	ScriptVarPtr_t( ScriptCallback_t v ) : type(SVT_CALLBACK), isUnsigned(false) { ptr.cb = v; }
 	ScriptVarPtr_t( _DynamicVar* v, const ScriptVar_t& def ) : type(SVT_DYNAMIC), isUnsigned(false), defaultValue(def) { ptr.dynVar = v; }
@@ -447,7 +456,7 @@ public:
 										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic,
 										bool unsig = false, const T& minval = DefaultValue<T>::value(), const T& maxval = DefaultValue<T>::value() )
 		{
-			m_vars[Name(c)] = RegisteredVar(v, c, T(def), descr, descrLong, group, level, unsig, minval, maxval);
+			m_vars[Name(c)] = RegisteredVar(v, std::string(c), T(def), descr, descrLong, group, level, unsig, minval, maxval);
 			return *this; 
 		}
 
