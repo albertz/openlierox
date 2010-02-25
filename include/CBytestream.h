@@ -27,7 +27,7 @@
 #include "Networking.h"
 #include "SmartPointer.h"
 
-struct ScriptVar_t;
+class ScriptVar_t;
 struct Logger;
 struct PrintOutFct;
 struct CustomVar;
