@@ -10,6 +10,11 @@
 #ifndef __OLX_GAME_SETTINGS_H__
 #define __OLX_GAME_SETTINGS_H__
 
+// stupid MSVC
+#ifdef _MSVC
+#pragma warning(disable: 4355)  // Warning: this used in base member initializer list
+#endif
+
 #include <cassert>
 #include <string>
 #include <vector>
@@ -25,8 +30,6 @@ struct FeatureSettingsLayer : FeatureSettings {
 };
 
 struct Settings {
-#pragma warning(push)
-#pragma warning(disable: 4355)  // Warning: this used in base member initializer list
 
 	Settings() : overwrite(*this) {
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
@@ -34,7 +37,6 @@ struct Settings {
 			wrappers[i].s = this;
 		}
 	}
-#pragma warning(pop)
 	
 	typedef std::vector<FeatureSettingsLayer*> Layers;
 	Layers layers;

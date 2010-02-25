@@ -226,7 +226,7 @@ bool SinglePlayerGame::startGame() {
 	gameSettings.overwrite[FT_NewNetEngine] = false;
 	gameSettings.overwrite[FT_Lives] = -2;
 	gameSettings.overwrite[FT_KillLimit] = -1;
-	gameSettings.overwrite[FT_TimeLimit] = -1;
+	gameSettings.overwrite[FT_TimeLimit] = -1.0f;
 	
 	gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = this;
 	
@@ -235,7 +235,7 @@ bool SinglePlayerGame::startGame() {
 		ReadString("games/games.cfg", currentGame, "Config" + itoa(currentLevel), extraConfig, ""); TrimSpaces(extraConfig);
 		if(extraConfig != "") {
 			notes << "SinglePlayerGame: config: " << extraConfig << endl;
-			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig);
+			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig, false);
 		}
 	}
 	

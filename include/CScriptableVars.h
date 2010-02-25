@@ -178,6 +178,9 @@ public:
 	operator std::string() const { assert(type == SVT_STRING); return str.get(); }
 	operator Color() const { assert(type == SVT_COLOR); return col.get(); }
 
+	template<typename T>
+	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
+
 	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
 	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
 
@@ -427,8 +430,8 @@ struct RegisteredVar {
 		group = g;
 		advancedLevel = l;
 		var.isUnsigned = unsig;
-		min = minval;
-		max = maxval;
+		min = ScriptVar_t(minval);
+		max = ScriptVar_t(maxval);
 	}
 
 	RegisteredVar( _DynamicVar* v, const std::string & c, const ScriptVar_t& def, 
