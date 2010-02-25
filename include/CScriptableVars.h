@@ -446,7 +446,14 @@ struct RegisteredVar {
 		max = maxval;
 	}
 		
-	
+	RegisteredVar( ScriptCallback_t v, const std::string & c)
+	{
+		var = ScriptVarPtr_t( v );
+		group = GIG_Invalid;
+		advancedLevel = ALT_Basic;
+	}
+
+
 };
 
 
@@ -529,7 +536,7 @@ public:
 		}
 		
 		VarRegisterHelper& operator() (ScriptCallback_t cb, const std::string& c) {
-			// TODO...
+			m_vars[Name(c)] = RegisteredVar(cb, c);
 			return *this;
 		}
 		
