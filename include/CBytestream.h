@@ -30,6 +30,7 @@
 struct ScriptVar_t;
 struct Logger;
 struct PrintOutFct;
+struct CustomVar;
 
 class CBytestream {
 public:
@@ -105,7 +106,7 @@ public:
 	void		read2Int4(short& x, short& y);
 	bool		readBit();
 	std::string	readData( size_t size = (size_t)(-1) );
-	bool		readVar(ScriptVar_t& var);
+	bool		readVar(ScriptVar_t& var, CustomVar* customType = NULL);
 
 	// Peeks
 	uchar		peekByte() const;

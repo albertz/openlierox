@@ -29,6 +29,7 @@
 #include "Debug.h"
 #include "Iterator.h"
 #include "Utils.h"
+#include "util/CustomVar.h"
 
 
 void CBytestream::Test()
@@ -566,33 +567,44 @@ std::string CBytestream::readData( size_t size )
 	return Data.substr( oldpos, size );
 }
 
-bool CBytestream::readVar(ScriptVar_t& var) {
-	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
+bool CBytestream::readVar(ScriptVar_t& var, CustomVar* customType) {
 	ScriptVarType_t type = (ScriptVarType_t)readByte();
-	if(type != var.type) {
-		// TODO: the old behaviour is that we dont want that
-		// the assert also wouldn't make sense otherwise
-		// maybe this should be optional?
-		// Note that we must fix the below code in that case
-		warnings << "CBytestream::readVar: old type = " << var.type << ", read type = " << type << endl;
-		return false;
-	}
+
 	switch( type ) {
 		case SVT_BOOL: var = ScriptVar_t(readBool()); break;
 		case SVT_INT: var = ScriptVar_t(readInt(4)); break;
 		case SVT_FLOAT: var = ScriptVar_t(readFloat()); break;
 		case SVT_STRING: var = ScriptVar_t(readString()); break;
-		case SVT_CUSTOM: var.ptrCustom()->fromString(readString()); break;
-		case SVT_COLOR:
-			var.ptrColor()->r = readInt(1);
-			var.ptrColor()->g = readInt(1);
-			var.ptrColor()->b = readInt(1);
-			var.ptrColor()->a = readInt(1);
+		case SVT_CUSTOM: {
+			std::string str = readString();
+			if(customType) {
+				CustomVar::Ref custom = customType->copy();
+				custom->fromString(str);
+				var = ScriptVar_t(custom.get());
+			}
+			else
+				// Note: This is not quite correct (different type) but we need the customtype info
+				// to do it correct.
+				// I don't put a warning here because I want to have this behaviour here.
+				// If you want to skip such cases, please add another parameter and be sure
+				// that you use it correct everywhere.
+				var = ScriptVar_t(str);
 			break;
+		}
+		case SVT_COLOR: {
+			Color c;
+			c.r = readInt(1);
+			c.g = readInt(1);
+			c.b = readInt(1);
+			c.a = readInt(1);
+			var = ScriptVar_t(c);
+			break;
+		}
 		default:
 			warnings << "read var has invalid type" << endl;
 			return false;
 	}
+
 	return true;
 }
 
