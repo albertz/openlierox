@@ -226,7 +226,7 @@ bool SinglePlayerGame::startGame() {
 	gameSettings.overwrite[FT_NewNetEngine] = false;
 	gameSettings.overwrite[FT_Lives] = -2;
 	gameSettings.overwrite[FT_KillLimit] = -1;
-	gameSettings.overwrite[FT_TimeLimit] = -1;
+	gameSettings.overwrite[FT_TimeLimit] = -1.0f;
 	
 	gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = this;
 	
