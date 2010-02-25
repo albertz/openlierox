@@ -95,13 +95,14 @@ public:
 
 	static KeywordList DefaultKeywords;
 protected:
-	typedef std::map<std::string, std::string> Section;
-	typedef std::map<std::string, Section> SectionMap;
-
 	std::string m_filename;
-	SectionMap m_sections;
 	KeywordList& m_keywords;
 
+public:
+	typedef std::map<std::string, std::string> Section;
+	typedef std::map<std::string, Section> SectionMap;
+	SectionMap m_sections;
+	
 private:
 	Section *m_curSection;
 
@@ -109,6 +110,7 @@ private:
 	bool GetString(const std::string& section, const std::string& key, std::string& string) const;
 	void NewSection(const std::string& name);
 	void NewEntryInSection(const std::string& name, const std::string& value);
+	
 };
 
 #endif

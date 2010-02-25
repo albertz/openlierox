@@ -97,7 +97,8 @@ struct Color {
 	Color(SDL_PixelFormat *f, Uint32 cl) { SDL_GetRGBA(cl, f, &r, &g, &b, &a); }
 	explicit Color(Uint32 cl)	{ set(getMainPixelFormat(), cl); }
 	Color(const SDL_Color& cl) : r(cl.r), g(cl.g), b(cl.b), a(SDL_ALPHA_OPAQUE) {}
-
+	static Color fromDefault(Uint32 cl) { return Color(Uint8(cl >> 24), Uint8(cl >> 16), Uint8(cl >> 8), Uint8(cl)); }
+	
 	Uint8 r;
 	Uint8 g;
 	Uint8 b;

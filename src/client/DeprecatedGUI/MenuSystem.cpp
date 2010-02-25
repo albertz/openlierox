@@ -1043,7 +1043,7 @@ void Menu_FillLevelList(CCombobox *cmb, int random)
 	//if(random) // If random is true, we add the 'random' level to the list
 	//	cmb->addItem(0, "_random_", "- Random level -");
 
-	cmb->setCurSIndexItem(tLXOptions->tGameInfo.sMapFile);
+	cmb->setCurSIndexItem(gameSettings[FT_Map].as<LevelInfo>()->path);
 }
 
 

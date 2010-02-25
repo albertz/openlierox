@@ -7,6 +7,12 @@
  *
  */
 
+/*
+ Note: Since 0.59 beta6, all gameplay related settings where moved to here.
+ Maybe we should rename this file because it is not just about advanced
+ feature settings but about just every gameplay related settings.
+ */
+
 #ifndef __FEATURELIST_H__
 #define __FEATURELIST_H__
 
@@ -16,6 +22,7 @@
 #include "Iterator.h"
 #include "CScriptableVars.h"
 #include "Version.h"
+#include "util/CustomVar.h"
 
 class GameServer;
 
@@ -45,50 +52,55 @@ struct Feature {
 	bool serverSideOnly; // if true, all the following is just ignored
 	bool optionalForClient; // Optional client-sided feature, like vision cone drawn for seekers, or SuicideDecreasesScore which required for precise damage calculation in scoreboard
 	
-	bool unsetIfOlderClients; // This flag will reset feature to unset value if an older client is connected
-
 	typedef Var (GameServer::*GetValueFunction)( const Var& preset );
 	GetValueFunction getValueFct; // if set, it uses the return value for hostGet
 	
-	bool SET; // Flag that marks end of global features list
 	
-	Feature() : SET(false) {}
-	static Feature Unset() { return Feature(); }
-
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
-				bool u = false, GetValueFunction f = NULL)
+				GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
-		unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+		getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
-				bool u = false, bool unsig = false, GetValueFunction f = NULL)
+				bool unsig = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
-		optionalForClient(opt), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+		optionalForClient(opt), getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
-				bool u = false, bool unsig = false, GetValueFunction f = NULL)
+				bool unsig = false, GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
-		optionalForClient(opt), unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+		optionalForClient(opt), getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char * unset, const char * def, 
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
-				bool u = false, GetValueFunction f = NULL)
+				GetValueFunction f = NULL)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
-		unsetIfOlderClients(u), getValueFct(f), SET(true) {}
+		getValueFct(f) {}
 
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char* unset, const char* def,
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false,
+				GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(std::string(unset))), defaultValue(Var(std::string(def))),
+		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt),
+		getValueFct(f) {}
+
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def,
+			Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)), 
+	minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
+	getValueFct(NULL) {}
+	
 };
 
-extern Feature featureArray[];
-inline int featureArrayLen() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) ++l; return l; }
-inline int clientSideFeatureCount() { int l = 0; for(Feature* f = featureArray; f->SET; ++f) if(!f->serverSideOnly) ++l; return l; }
-Feature* featureByName(const std::string& name);
+
+// Put everything that impacts gameplay here, both server and client-sided
 
 // Indexes of features in featureArray
 // These indexes are only for local game use, not for network! (name is used there)
@@ -97,7 +109,32 @@ Feature* featureByName(const std::string& name);
 //  in the header file.)
 // WARNING: Keep this always synchronised with featureArray!
 enum FeatureIndex {
-	FT_GameSpeed = 0,
+	FT_Lives,
+	FT_KillLimit,
+	FT_TimeLimit, // Time limit in minutes
+	FT_TagLimit,
+	FT_LoadingTime,
+
+	FT_Map,
+	FT_GameMode,
+	FT_Mod,
+	FT_SettingsPreset,
+	FT_WeaponRest,
+	
+	FT_Bonuses,
+	FT_ShowBonusName,
+	FT_BonusFreq,
+	FT_BonusLife,
+	FT_BonusHealthToWeaponChance, // if 0.0f only health will be generated, if 1.0f - only weapons
+	
+	FT_RespawnTime,
+	FT_RespawnGroupTeams, // respawn all team in single spot
+	FT_EmptyWeaponsOnRespawn, // When worm respawns it should wait until all weapons are reloaded
+	
+	FT_ForceRandomWeapons, // only for server; implies bServerChoosesWeapons=true
+	FT_SameWeaponsAsHostWorm, // implies bServerChoosesWeapons=true
+	
+	FT_GameSpeed,
 	FT_GameSpeedOnlyForProjs,
 	FT_ScreenShaking,
 	FT_FullAimAngle,
@@ -149,6 +186,14 @@ enum FeatureIndex {
  	__FTI_BOTTOM
 };
 
+static const size_t FeatureArrayLen = __FTI_BOTTOM;
+
+extern Feature featureArray[];
+inline size_t featureArrayLen() { return FeatureArrayLen; }
+inline FeatureIndex featureArrayIndex(Feature* f) { assert(f >= &featureArray[0] && f < &featureArray[FeatureArrayLen]); return FeatureIndex(f - &featureArray[0]); }
+Feature* featureByName(const std::string& name);
+
+
 class FeatureCompatibleSettingList {
 public:
 	struct Feature {
@@ -178,13 +223,15 @@ public:
 	void clear() { list.clear(); }
 };
 
+/*
+ Class for specific game settings. For the layered version, look at class Settings (game/Settings.h).
+ It initialises with all unset values. It is used in CClient for all client side settings.
+ */
 class FeatureSettings {
 private:
-	ScriptVar_t* settings;
+	ScriptVar_t settings[FeatureArrayLen];
 public:
 	FeatureSettings(); ~FeatureSettings();
-	FeatureSettings(const FeatureSettings& r) : settings(NULL) { (*this) = r; }
-	FeatureSettings& operator=(const FeatureSettings& r);
 	
 	ScriptVar_t& operator[](FeatureIndex i) { return settings[i]; }
 	ScriptVar_t& operator[](Feature* f) { return settings[f - &featureArray[0]]; }

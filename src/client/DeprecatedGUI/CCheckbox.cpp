@@ -54,10 +54,10 @@ static bool CCheckBox_WidgetRegistered =
 	
 CCheckbox::CCheckbox(ScriptVar_t& var) {
 	assert(var.type == SVT_BOOL);
-	bValue = var.b;
+	bValue = var.toBool();
 	bmpImage = NULL;
 	iType = wid_Checkbox;
-	bVar = &var.b;
+	bVar = var.ptrBool();
 	iVar = NULL;
 }
 

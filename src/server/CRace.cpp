@@ -67,7 +67,7 @@ struct Race : public CGameMode {
 				int t = (y == 0) ? x : (3 - x);
 				wayPoints[t] = game.gameMap()->FindSpotCloseToPos(goodPos, badPos, false);
 				
-				if(!tLXOptions->tGameInfo.features[FT_InstantAirJump])
+				if(!gameSettings[FT_InstantAirJump])
 					// set the place to the ground
 					wayPoints[t] = cServer->getMap()->groundPos(wayPoints[t]) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
 			}
@@ -153,20 +153,20 @@ struct Race : public CGameMode {
 		}
 	}
 	
-	virtual float FlagPointRadius() { return tLXOptions->tGameInfo.features[FT_Race_CheckPointRadius]; }
-	virtual float FlagRadius() { return tLXOptions->tGameInfo.features[FT_Race_CheckPointRadius]; }
+	virtual float FlagPointRadius() { return gameSettings[FT_Race_CheckPointRadius]; }
+	virtual float FlagRadius() { return gameSettings[FT_Race_CheckPointRadius]; }
 	
 	virtual bool Shoot(CWorm* worm) {
 		// get that information from client because both client&server can check this
-		return cClient->getGameLobby()->features[FT_Race_AllowWeapons];
+		return cClient->getGameLobby()[FT_Race_AllowWeapons];
 	}
 	
 	virtual bool CheckGameOver() {
-		if(int(tLXOptions->tGameInfo.features[FT_Race_Rounds]) > 0) {
+		if(int(gameSettings[FT_Race_Rounds]) > 0) {
 			for(int i = 0; i < MAX_WORMS; ++i) {
 				CWorm* w = &cServer->getWorms()[i];
 				if(!w->isUsed()) continue;
-				if(w->getKills() >= int(tLXOptions->tGameInfo.features[FT_Race_Rounds])) {
+				if(w->getKills() >= int(gameSettings[FT_Race_Rounds])) {
 					return true;
 				}
 			}
@@ -187,7 +187,7 @@ struct Race : public CGameMode {
 			if (cServer->getServerTime() > TimeLimit()) {
 				if(networkTexts->sTimeLimit != "<none>")
 					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-				notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
 				notes << " -> game over" << endl;
 				return true;
 			}
@@ -338,9 +338,9 @@ struct TeamRace : public Race {
 	}
 	
 	virtual bool CheckGameOver() {
-		if(int(tLXOptions->tGameInfo.features[FT_Race_Rounds]) > 0) {
+		if(int(gameSettings[FT_Race_Rounds]) > 0) {
 			for(int i = 0; i < MAXTEAMS; ++i) {
-				if(teamScore[i] >= int(tLXOptions->tGameInfo.features[FT_Race_Rounds])) {
+				if(teamScore[i] >= int(gameSettings[FT_Race_Rounds])) {
 					return true;
 				}
 			}
@@ -361,7 +361,7 @@ struct TeamRace : public Race {
 			if (cServer->getServerTime() > TimeLimit()) {
 				if(networkTexts->sTimeLimit != "<none>")
 					cServer->SendGlobalText(networkTexts->sTimeLimit, TXT_NORMAL);
-				notes << "time limit (" << (tLXOptions->tGameInfo.fTimeLimit*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
+				notes << "time limit (" << ((float)gameSettings[FT_TimeLimit]*60.0f) << ") reached with current time " << cServer->getServerTime().seconds();
 				notes << " -> game over" << endl;
 				return true;
 			}

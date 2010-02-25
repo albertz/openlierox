@@ -7,6 +7,7 @@
  *
  */
 
+#include <boost/bind.hpp>
 #include "SinglePlayer.h"
 #include "Options.h"
 #include "ConfigHandler.h"
@@ -20,6 +21,8 @@
 #include "CWormHuman.h"
 #include "OLXCommand.h"
 #include "util/macros.h"
+#include "game/Settings.h"
+#include "game/Game.h"
 
 
 SinglePlayerGame singlePlayerGame;
@@ -157,7 +160,22 @@ static bool addPlayerToClient() {
 	return true;
 }
 
-static SmartPointer<GameOptions::GameInfo> oldSettings;
+struct SinglePlayerSettingsScope : FeatureSettingsLayer {
+	Settings::Layers oldLayers;
+	
+	SinglePlayerSettingsScope() {
+		oldLayers.swap(gameSettings.layers);
+		gameSettings.layers.push_back(&gamePresetSettings);
+		gameSettings.layers.push_back(this);
+	}
+	~SinglePlayerSettingsScope() { oldLayers.swap(gameSettings.layers); }
+};
+
+static SmartPointer<SinglePlayerSettingsScope> singlePlayerSettings;
+
+static void SinglePlayer_CleanupAfterGameloopEnd() {
+	singlePlayerSettings = NULL;
+}
 
 bool SinglePlayerGame::startGame() {
 	if(!currentGameValid) {
@@ -171,7 +189,7 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
-	oldSettings = new GameOptions::GameInfo(tLXOptions->tGameInfo);
+	singlePlayerSettings = new SinglePlayerSettingsScope();
 	
 	tLX->iGameType = GME_LOCAL;
 	
@@ -191,35 +209,33 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	// standardGameMode is the lower level game mode - can be set by custom config file
 	standardGameMode = NULL;
 	
 	// don't have any wpn restrictions
 	cServer->setWeaponRestFile("");
-	
-	// first set the standards
-	for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++) {
-		if( strStartsWith(it->first, "GameOptions.GameInfo.") )
-			it->second.var.setDefault();
-	}
-	
-	tLXOptions->tGameInfo.sMapFile = levelInfo.path;
-	tLXOptions->tGameInfo.sMapName = levelInfo.name;
-	tLXOptions->tGameInfo.sModDir = modInfo.path;
-	tLXOptions->tGameInfo.sModName = modInfo.name;
 
-	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false;
-	tLXOptions->tGameInfo.iLives = -2;
-	tLXOptions->tGameInfo.iKillLimit = -1;
-	tLXOptions->tGameInfo.fTimeLimit = -1;
+	// first set the standards
+	gamePresetSettings.makeSet(false);
 	
-	tLXOptions->tGameInfo.gameMode = this;
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = levelInfo.path;
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->name = levelInfo.name;
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = modInfo.path;
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->name = modInfo.name;
+
+	gameSettings.overwrite[FT_NewNetEngine] = false;
+	gameSettings.overwrite[FT_Lives] = -2;
+	gameSettings.overwrite[FT_KillLimit] = -1;
+	gameSettings.overwrite[FT_TimeLimit] = -1.0f;
+	
+	gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = this;
 	
 	{
 		std::string extraConfig;
 		ReadString("games/games.cfg", currentGame, "Config" + itoa(currentLevel), extraConfig, ""); TrimSpaces(extraConfig);
 		if(extraConfig != "") {
 			notes << "SinglePlayerGame: config: " << extraConfig << endl;
-			tLXOptions->LoadFromDisc("games/" + currentGame + "/" + extraConfig);
+			singlePlayerSettings->loadFromConfig("games/" + currentGame + "/" + extraConfig, false);
 		}
 	}
 	
@@ -235,11 +251,13 @@ bool SinglePlayerGame::startGame() {
 	}
 	
 	// this can happen if the config has overwritten it
-	if(tLXOptions->tGameInfo.gameMode != this) {
+	if(gameSettings[FT_GameMode].as<GameModeInfo>()->mode != this) {
 		// we set the fallback gamemode
-		standardGameMode = tLXOptions->tGameInfo.gameMode;
-		tLXOptions->tGameInfo.gameMode = this;
+		standardGameMode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = this;
 	}
+	
+	game.cleanupCallbacks.connect(boost::bind(&SinglePlayer_CleanupAfterGameloopEnd));
 	
 	levelSucceeded = false;
 	return true;
@@ -299,14 +317,5 @@ int SinglePlayerGame::Winner() {
 
 void SinglePlayerGame::GameOver() {
 	if(standardGameMode) standardGameMode->GameOver();
-	
-	if(oldSettings.get()) {
-		tLXOptions->tGameInfo = *oldSettings.get();
-		oldSettings = NULL;
-	}
-
-	// this is kind of a hack; we need it because in CClient::Draw for example,
-	// we check for it to draw the congratulation msg
-	tLXOptions->tGameInfo.gameMode = this;
 }
 

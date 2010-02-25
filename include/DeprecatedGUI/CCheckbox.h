@@ -20,7 +20,7 @@
 
 #include "InputEvents.h"
 
-struct ScriptVar_t;
+class ScriptVar_t;
 
 namespace DeprecatedGUI {
 
@@ -116,13 +116,13 @@ public:
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CCheckbox * w = new CCheckbox(false);
-		w->bVar = CScriptableVars::GetVarP<bool>( p[0].s );
-		w->iVar = CScriptableVars::GetVarP<int>( p[0].s );
+		w->bVar = CScriptableVars::GetVarP<bool>( p[0].toString() );
+		w->iVar = CScriptableVars::GetVarP<int>( p[0].toString() );
 		if( w->bVar )
 			w->bValue = *w->bVar != 0;
 		if( w->iVar )
 			w->bValue = *w->iVar != 0;
-		w->cClick.Init( p[1].s, w );
+		w->cClick.Init( p[1].toString(), w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

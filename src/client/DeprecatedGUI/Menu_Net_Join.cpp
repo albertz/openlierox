@@ -38,6 +38,8 @@
 #include "Debug.h"
 #include "OLXConsole.h"
 #include "DeprecatedGUI/CChatWidget.h"
+#include "game/Level.h"
+#include "game/Mod.h"
 
 
 namespace DeprecatedGUI {
@@ -372,11 +374,11 @@ static void updateDetailsList(CListview* l) {
 	SETI; si->sText = cClient->getServerName(); // servername
 	SETI;
 	if(cClient->getHaveMap()) {
-		si->sText = cClient->getGameLobby()->sMapName;
+		si->sText = cClient->getGameLobby()[FT_Map].as<LevelInfo>()->name;
 		if (si->tNext)
 			si->tNext->bVisible = false;  // Hide the download button
 	} else {  // Don't have the map
-		si->sText = cClient->getGameLobby()->sMapFile;
+		si->sText = cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
 		si->iColour = tLX->clError;
 		if (si->tNext)  {
 			// not downloading the map, display an option for doing so
@@ -386,43 +388,43 @@ static void updateDetailsList(CListview* l) {
 
 	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
 	SETI;
-	if(cClient->getGameLobby()->sGameMode == "") {
-		int generalType = cClient->getGameLobby()->iGeneralGameType;
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name == "") {
+		int generalType = cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType;
 		si->sText = (generalType < 0 || (uint)generalType >= sizeof(gamemodes)/sizeof(std::string)) ? "Invalid" : gamemodes[generalType];
 	} else
-		si->sText = cClient->getGameLobby()->sGameMode;
+		si->sText = cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name;
 	SETI;
 	if(cClient->getHaveMod()) {
-		si->sText = cClient->getGameLobby()->sModName;
+		si->sText = cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name;
 		if (si->tNext)
 			si->tNext->bVisible = false;  // Hide the download button
 	} else {
-		si->sText = cClient->getGameLobby()->sModName;
+		si->sText = cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name;
 		si->iColour = tLX->clError;
 		if (si->tNext)
 			si->tNext->bVisible = !cClient->getDownloadingMod();
 	}
 	
 	SETI;
-	if(cClient->getGameLobby()->iLives >= 0) {
-		si->sText = itoa(cClient->getGameLobby()->iLives);
+	if((int)cClient->getGameLobby()[FT_Lives] >= 0) {
+		si->sText = itoa((int)cClient->getGameLobby()[FT_Lives]);
 	} else {
 		si->sText = "infinity";
 		si->iColour = tLX->clDisabled;
 	}
 	
 	SETI;
-	if(cClient->getGameLobby()->iKillLimit >= 0) {
-		si->sText = itoa(cClient->getGameLobby()->iKillLimit);
+	if((int)cClient->getGameLobby()[FT_KillLimit] >= 0) {
+		si->sText = itoa((int)cClient->getGameLobby()[FT_KillLimit]);
 	} else {
 		si->sText = "infinity";
 		si->iColour = tLX->clDisabled;
 	}
 
 	SETI;
-	if(cClient->getGameLobby()->fTimeLimit >= 0) {
-		si->sText = ftoa(cClient->getGameLobby()->fTimeLimit) + " min";		
-	} else if(cClient->getGameLobby()->fTimeLimit <= -100) {
+	if((float)cClient->getGameLobby()[FT_TimeLimit] >= 0) {
+		si->sText = ftoa(cClient->getGameLobby()[FT_TimeLimit]) + " min";		
+	} else if((float)cClient->getGameLobby()[FT_TimeLimit] <= -100) {
 		si->sText = "unknown";
 		si->iColour = tLX->clDisabled;
 	} else {
@@ -430,8 +432,8 @@ static void updateDetailsList(CListview* l) {
 		si->iColour = tLX->clDisabled;		
 	}
 	
-	SETI; si->sText = itoa(cClient->getGameLobby()->iLoadingTime) + "%";
-	SETI; si->sText = cClient->getGameLobby()->bBonusesOn ? "On" : "Off";
+	SETI; si->sText = itoa((int)cClient->getGameLobby()[FT_LoadingTime]) + "%";
+	SETI; si->sText = cClient->getGameLobby()[FT_Bonuses] ? "On" : "Off";
 
 	// Advanced info
 	if (tLXOptions->bAdvancedLobby)  {
@@ -442,7 +444,7 @@ static void updateDetailsList(CListview* l) {
 			l->RemoveItem(rm);
 		
 		for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-			if( cClient->getGameLobby()->features[f->get()] == f->get()->unsetValue )
+			if( cClient->getGameLobby()[f->get()] == f->get()->unsetValue )
 				continue;
 			i = l->AddItem("feature:" + f->get()->name, index++, tLX->clNormalLabel);
 			l->AddSubitem(LVS_TEXT, f->get()->humanReadableName + ":", (DynDrawIntf*)NULL, NULL); 
@@ -450,7 +452,7 @@ static void updateDetailsList(CListview* l) {
 			si = i->tSubitems->tNext;
 			
 			si->iColour = defaultColor;
-			si->sText = cClient->getGameLobby()->features[f->get()].toString();
+			si->sText = cClient->getGameLobby()[f->get()].toString();
 		}
 
 		for_each_iterator( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
@@ -738,7 +740,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			if (!w->isUsed())  // Don't bother with unused worms
 				continue;
 
-			w->ChangeGraphics(cClient->getGameLobby()->iGeneralGameType);
+			w->ChangeGraphics(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType);
 
 			// Add the item
 			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
@@ -750,7 +752,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			player_list->AddSubitem(LVS_TEXT, "#"+itoa(w->getID())+" "+w->getName(), (DynDrawIntf*)NULL, NULL);  // Name
 
 			// Display the team mark if TDM
-			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
+			if (cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 				team_img = new CImage(gfxGame.bmpTeamColours[w->getTeam()]);
 				if (!team_img)
 					continue;
@@ -896,14 +898,14 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 						switch (ev2->iControlID)  {
 						case jl_DownloadMap:
 							if (ev2->iEventMsg == IMG_CLICK)  {
-								cClient->DownloadMap(cClient->getGameLobby()->sMapFile);  // Download the map
+								cClient->DownloadMap(cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path);  // Download the map
 								Menu_Net_JoinStartDownload();
 								updateDetailsList(details);
 							}
 						break;
 						case jl_DownloadMod:
 							if (ev2->iEventMsg == IMG_CLICK)  {
-								cClient->DownloadMod(cClient->getGameLobby()->sModDir); // Download the mod
+								cClient->DownloadMod(cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path); // Download the mod
 								Menu_Net_JoinStartDownload();
 								updateDetailsList(details);
 							}

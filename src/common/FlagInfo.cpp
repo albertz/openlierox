@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 #define FLAG_FRAME_WIDTH 32
 #define FLAG_FRAME_HEIGHT 18
@@ -134,7 +135,7 @@ static void drawFlagSpawnPoint(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 		bmp = DeprecatedGUI::gfxGame.bmpFlagSpawnpointDefault.get();
 	
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = v->physicToReal(flag->spawnPoint.pos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = v->physicToReal(flag->spawnPoint.pos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	DrawImage(bmpDest, bmp, p.x - bmp->w/2, p.y - bmp->h/2);
 }
@@ -143,7 +144,7 @@ static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	if(flag->skin == NULL) return;
 	
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
 	if (flag->skin->getFrameCount() != 0)
@@ -173,7 +174,7 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	// see CWorm::Draw() for all these calculations
 	
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = v->physicToReal(worm->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = v->physicToReal(worm->getPos(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	int f = ((int) worm->frame()*7);
 	int ang = (int)( (worm->getAngle()+90)/151 * 7 );
@@ -219,25 +220,25 @@ void FlagInfo::checkWorm(CWorm* worm) {
 	
 	if(!worm->getAlive()) return;
 	
-	if(!cServer || !cServer->isServerRunning() || !cServer->getGameMode()) {
+	if(!cServer || !cServer->isServerRunning() || !game.gameMode()) {
 		errors << "FlagInfo::checkWorm: server is corrupt" << endl;
 		return;
 	}
 	
-	float flagPointRadius = cServer->getGameMode()->FlagPointRadius(); flagPointRadius *= flagPointRadius;
-	float flagRadius = cServer->getGameMode()->FlagRadius(); flagRadius *= flagRadius;
+	float flagPointRadius = game.gameMode()->FlagPointRadius(); flagPointRadius = flagPointRadius*flagPointRadius;
+	float flagRadius = game.gameMode()->FlagRadius(); flagRadius *= flagRadius;
 	
 	for(Flags::iterator i = data->flags.begin(); i != data->flags.end(); ++i) {
 		if( (worm->getPos() - i->second.spawnPoint.pos).GetLength2() < flagPointRadius ) {
-			cServer->getGameMode()->hitFlagSpawnPoint(worm, &i->second);
+			game.gameMode()->hitFlagSpawnPoint(worm, &i->second);
 			
 			if(i->second.atSpawnPoint)
-				cServer->getGameMode()->hitFlag(worm, &i->second);
+				game.gameMode()->hitFlag(worm, &i->second);
 		}
 		
 		if(!i->second.atSpawnPoint && i->second.holderWorm < 0) {
 			if( (worm->getPos() - i->second.pos).GetLength2() < flagRadius ) {
-				cServer->getGameMode()->hitFlag(worm, &i->second);			
+				game.gameMode()->hitFlag(worm, &i->second);			
 			}
 		}
 	}

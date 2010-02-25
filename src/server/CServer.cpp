@@ -48,6 +48,9 @@
 #include "gusanos/network.h"
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
+#include "game/Mod.h"
+#include "game/Level.h"
+
 
 GameServer	*cServer = NULL;
 
@@ -67,8 +70,8 @@ GameServer::GameServer() {
 GameServer::~GameServer()  {
 }
 
-void GameServer::setWeaponRestFile(const std::string& fn) { tLXOptions->tGameInfo.sWeaponRestFile = fn; }
-void GameServer::setDefaultWeaponRestFile() { tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat"; }
+void GameServer::setWeaponRestFile(const std::string& fn) { gameSettings.overwrite[FT_WeaponRest] = fn; }
+void GameServer::setDefaultWeaponRestFile() { gameSettings.overwrite[FT_WeaponRest] = "cfg/wpnrest.dat"; }
 
 
 ///////////////////
@@ -141,7 +144,7 @@ int GameServer::StartServer()
 
 	// Disable SSH for non-dedicated servers as it is cheaty
 	if (!bDedicated)
-		tLXOptions->tGameInfo.bServerSideHealth = false;
+		tLXOptions->bServerSideHealth = false;
 
 
 	// Open the socket
@@ -326,8 +329,8 @@ bool GameServer::serverChoosesWeapons() {
 	// - bSameWeaponsAsHostWorm
 	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
 	return
-		tLXOptions->tGameInfo.bForceRandomWeapons ||
-		(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0); // only makes sense if we have at least one worm	
+		gameSettings[FT_ForceRandomWeapons] ||
+		(gameSettings[FT_SameWeaponsAsHostWorm] && cClient->getNumWorms() > 0); // only makes sense if we have at least one worm	
 }
 
 
@@ -348,9 +351,9 @@ int GameServer::StartGame(std::string* errMsg)
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
 	// Check that gamespeed != 0
-	if (-0.05f <= (float)tLXOptions->tGameInfo.features[FT_GameSpeed] && (float)tLXOptions->tGameInfo.features[FT_GameSpeed] <= 0.05f) {
-		warnings << "WARNING: gamespeed was set to " << tLXOptions->tGameInfo.features[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
-		tLXOptions->tGameInfo.features[FT_GameSpeed] = 1;
+	if (-0.05f <= (float)gameSettings[FT_GameSpeed] && (float)gameSettings[FT_GameSpeed] <= 0.05f) {
+		warnings << "WARNING: gamespeed was set to " << gameSettings[FT_GameSpeed].toString() << "; resetting it to 1" << endl;
+		gameSettings.overwrite[FT_GameSpeed] = 1;
 	}
 	
 
@@ -358,7 +361,7 @@ int GameServer::StartGame(std::string* errMsg)
 	CBytestream bs;
 	float timer;
 	
-	notes << "GameServer::StartGame(), mod: " << tLXOptions->tGameInfo.sModName << ", time: " << GetDateTimeText() << endl;
+	notes << "GameServer::StartGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
 
 	// Check
 	if (!cWorms) { errors << "StartGame(): Worms not initialized" << endl; return false; }
@@ -378,11 +381,11 @@ int GameServer::StartGame(std::string* errMsg)
 	timer = SDL_GetTicks()/1000.0f;
 
 	// Send Startgame packet to clients first, then load gamescript, because it will take some time and clients will think server lags
-	std::vector<std::string> weaponList = CGameScript::LoadWeaponList(tLXOptions->tGameInfo.sModDir);
+	std::vector<std::string> weaponList = CGameScript::LoadWeaponList(gameSettings[FT_Mod].as<ModInfo>()->path);
 	
 	// Load & update the weapon restrictions
-	notes << "Weapon restriction: " << tLXOptions->tGameInfo.sWeaponRestFile << endl;
-	cWeaponRestrictions.loadList(tLXOptions->tGameInfo.sWeaponRestFile, tLXOptions->tGameInfo.sModDir);
+	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
+	cWeaponRestrictions.loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
 	cWeaponRestrictions.updateList(weaponList);
 
 	for( int i = 0; i < MAX_CLIENTS; i++ )
@@ -395,7 +398,7 @@ int GameServer::StartGame(std::string* errMsg)
 	// But in most cases clients will load the gamescript with server and game start time will speed up somewhat
 	SendPackets();
 	
-	cGameScript = cCache.GetMod( tLXOptions->tGameInfo.sModDir );
+	cGameScript = cCache.GetMod( gameSettings[FT_Mod].as<ModInfo>()->path );
 	if( cGameScript.get() == NULL )
 	{
 	gameScriptCreate:
@@ -410,15 +413,15 @@ int GameServer::StartGame(std::string* errMsg)
 			if(errMsg) *errMsg = "Out of memory while loading mod";
 			return false;
 		}
-		int result = cGameScript.get()->Load( tLXOptions->tGameInfo.sModDir );
+		int result = cGameScript.get()->Load( gameSettings[FT_Mod].as<ModInfo>()->path );
 
 		if(result != GSE_OK) {
-			errors << "Server StartGame: Could not load the game script \"" << tLXOptions->tGameInfo.sModDir << "\"" << endl;
-			if(errMsg) *errMsg = "Could not load the game script \"" + tLXOptions->tGameInfo.sModDir + "\"";
+			errors << "Server StartGame: Could not load the game script \"" << gameSettings[FT_Mod].as<ModInfo>()->path << "\"" << endl;
+			if(errMsg) *errMsg = "Could not load the game script \"" + gameSettings[FT_Mod].as<ModInfo>()->path + "\"";
 			return false;
 		}
 		
-		cCache.SaveMod( tLXOptions->tGameInfo.sModDir, cGameScript );
+		cCache.SaveMod( gameSettings[FT_Mod].as<ModInfo>()->path, cGameScript );
 	}
 	else
 		notes << "used cached version of mod, ";
@@ -453,10 +456,10 @@ mapCreate:
 	bRandomMap = false;
 	{
 		timer = SDL_GetTicks()/1000.0f;
-		std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+		std::string sMapFilename = "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path;
 		if(!cMap->Load(sMapFilename)) {
-			errors << "Server StartGame: Could not load the level " << tLXOptions->tGameInfo.sMapFile << endl;
-			if(errMsg) *errMsg = "Could not load level " + tLXOptions->tGameInfo.sMapFile;
+			errors << "Server StartGame: Could not load the level " << gameSettings[FT_Map].as<LevelInfo>()->path << endl;
+			if(errMsg) *errMsg = "Could not load level " + gameSettings[FT_Map].as<LevelInfo>()->path;
 			return false;
 		}
 		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
@@ -475,7 +478,7 @@ mapCreate:
 	// Set some info on the worms
 	for(int i=0;i<MAX_WORMS;i++) {
 		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
+			cWorms[i].setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
 			cWorms[i].setKills(0);
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
@@ -509,18 +512,18 @@ mapCreate:
 	// If this is the host, and we have a team game: Send all the worm info back so the worms know what
 	// teams they are on
 	if( tLX->iGameType == GME_HOST ) {
-		if( getGameMode()->GameTeams() > 1 )
+		if( game.gameMode()->GameTeams() > 1 )
 			UpdateWorms();
 	}
 	
-	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	if( gameSettings[FT_NewNetEngine] )
 	{
 		warnings << "New net engine enabled, we are disabling some features" << endl;
 		NewNet::DisableAdvancedFeatures();
 	}
 
-	notes << "preparing game mode " << getGameMode()->Name() << endl;
-	getGameMode()->PrepareGame();
+	notes << "preparing game mode " << game.gameMode()->Name() << endl;
+	game.gameMode()->PrepareGame();
 	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
@@ -566,14 +569,14 @@ mapCreate:
 
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
-	if(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && cClient->getNumWorms() > 0) {
+	if(gameSettings[FT_SameWeaponsAsHostWorm] && cClient->getNumWorms() > 0) {
 		if(cClient->getGameReady() && cClient->getWorm(0) != NULL && cClient->getWorm(0)->getWeaponsReady()) {
 			worm->CloneWeaponsFrom(cClient->getWorm(0));
 			worm->setWeaponsReady(true);
 		}
 		// in the case that the host worm is not ready, we will get the weapons later
 	}
-	else if(tLXOptions->tGameInfo.bForceRandomWeapons) {
+	else if(gameSettings[FT_ForceRandomWeapons]) {
 		worm->GetRandomWeapons();
 		worm->setWeaponsReady(true);
 	}
@@ -586,7 +589,7 @@ void GameServer::PrepareWorm(CWorm* worm) {
 		SendGlobalPacket(&bs);
 	}
 	
-	getGameMode()->PrepareWorm(worm);	
+	game.gameMode()->PrepareWorm(worm);	
 }
 
 
@@ -621,14 +624,14 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// getting spawned. Thus, this should only be sent if we got ParseImReady from client.
 	CBytestream bs;
 	bs.writeInt(S2C_STARTGAME,1);
-	if (tLXOptions->tGameInfo.features[FT_NewNetEngine])
+	if (gameSettings[FT_NewNetEngine])
 		bs.writeInt(NewNet::netRandom.getSeed(), 4);
 	if(receiver)
 		receiver->getNetEngine()->SendPacket(&bs);
 	else
 		SendGlobalPacket(&bs);
 	
-	if(!tLXOptions->tGameInfo.features[FT_ImmediateStart] && !game.gameScript()->gusEngineUsed()) {
+	if(!gameSettings[FT_ImmediateStart] && !game.gameScript()->gusEngineUsed()) {
 		if(receiver)
 			receiver->getNetEngine()->SendPlaySound("begin");
 		else
@@ -671,7 +674,7 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	
 	if(firstStart) {
 		// Prepare the gamemode
-		getGameMode()->BeginMatch();
+		game.gameMode()->BeginMatch();
 		
 		for(int i=0;i<MAX_WORMS;i++) {
 			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
@@ -724,7 +727,7 @@ void GameServer::GameOver()
 
 	hints << "Server: gameover"; 
 
-	int winner = getGameMode()->Winner();
+	int winner = game.gameMode()->Winner();
 	if(winner >= 0) {
 		if (networkTexts->sPlayerHasWon != "<none>")
 			SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
@@ -732,11 +735,11 @@ void GameServer::GameOver()
 		hints << ", worm " << winner << " has won the match";
 	}
 	
-	int winnerTeam = getGameMode()->WinnerTeam();
+	int winnerTeam = game.gameMode()->WinnerTeam();
 	if(winnerTeam >= 0) {
 		if(networkTexts->sTeamHasWon != "<none>")
 			SendGlobalText((replacemax(networkTexts->sTeamHasWon,
-									 "<team>", getGameMode()->TeamName(winnerTeam), 1)), TXT_NORMAL);
+									 "<team>", game.gameMode()->TeamName(winnerTeam), 1)), TXT_NORMAL);
 		hints << ", team " << winnerTeam << " has won the match";
 	}
 	
@@ -752,7 +755,7 @@ void GameServer::GameOver()
 		bs.writeByte(S2C_GAMEOVER);
 		if(cl->getClientVersion() < OLXBetaVersion(0,58,1)) {
 			int winLX = winner;
-			if(getGameMode()->isTeamGame()) {
+			if(game.gameMode()->isTeamGame()) {
 				// we have to send always the worm-id (that's the LX56 protocol...)
 				if(winLX < 0)
 					for(int i = 0; i < getNumPlayers(); ++i) {
@@ -767,11 +770,11 @@ void GameServer::GameOver()
 		}
 		else { // >= Beta9
 			bs.writeByte(winner);
-			if(getGameMode()->GeneralGameType() == GMT_TEAMS) {
+			if(game.gameMode()->GeneralGameType() == GMT_TEAMS) {
 				bs.writeByte(winnerTeam);
-				bs.writeByte(getGameMode()->GameTeams());
-				for(int i = 0; i < getGameMode()->GameTeams(); ++i) {
-					bs.writeInt16(getGameMode()->TeamScores(i));
+				bs.writeByte(game.gameMode()->GameTeams());
+				for(int i = 0; i < game.gameMode()->GameTeams(); ++i) {
+					bs.writeInt16(game.gameMode()->TeamScores(i));
 				}
 			}
 		}
@@ -789,7 +792,7 @@ void GameServer::GameOver()
 
 		w->clearInput();
 		
-		if( !getGameMode()->isTeamGame() )
+		if( !game.gameMode()->isTeamGame() )
 		{
 			if( w->getID() == winner )
 				w->addTotalWins();
@@ -822,7 +825,7 @@ bool GameServer::isTeamEmpty(int t) const {
 
 int GameServer::getFirstEmptyTeam() const {
 	int team = 0;
-	while(team < getGameMode()->GameTeams()) {
+	while(team < game.gameMode()->GameTeams()) {
 		if(isTeamEmpty(team)) return team;
 		team++;
 	}
@@ -1260,7 +1263,7 @@ void GameServer::RegisterServerUdp()
 		bs.writeString("lx::register");
 		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 		bs.writeByte(iNumPlayers);
-		bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
+		bs.writeByte(tLXOptions->iMaxPlayers);
 		bs.writeByte(iState);
 		// Beta8+
 		bs.writeString(GetGameVersion().asString());
@@ -1436,9 +1439,9 @@ void GameServer::CheckWeaponSelectionTime()
 {
 	if( iState != SVS_GAME || tLX->iGameType != GME_HOST ) return;
 	if( serverChoosesWeapons() ) return;
-	if( tLXOptions->tGameInfo.features[FT_ImmediateStart] ) return;
+	if( gameSettings[FT_ImmediateStart] ) return;
 	
-	float timeLeft = float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
+	float timeLeft = float(tLXOptions->iWeaponSelectionMaxTime) - ( tLX->currentTime - fWeaponSelectionTime ).seconds();
 	
 	int warnIndex = 100;
 #define CHECKTIME(time) { \
@@ -1467,7 +1470,7 @@ void GameServer::CheckWeaponSelectionTime()
 			continue;
 
 		AbsTime weapTime = MAX(fWeaponSelectionTime, cl->getConnectTime());
-		if( tLX->currentTime < weapTime + TimeDiff(float(tLXOptions->tGameInfo.iWeaponSelectionMaxTime)) )
+		if( tLX->currentTime < weapTime + TimeDiff(float(tLXOptions->iWeaponSelectionMaxTime)) )
 			continue;
 		
 		if( cl->isLocalClient() ) {
@@ -1493,12 +1496,12 @@ void GameServer::CheckWeaponSelectionTime()
 }
 
 void GameServer::CheckForFillWithBots() {
-	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] <= 0) return; // feature not activated
+	if((int)gameSettings[FT_FillWithBotsTo] <= 0) return; // feature not activated
 	if(!cClient->canAddWorm()) return; // probably means we have disabled projectile simulation or so
 	
 	// check if already too much players
-	if(getNumPlayers() > (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] && getNumBots() > 0) {
-		int kickAmount = MIN(getNumPlayers() - (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo], getNumBots());
+	if(getNumPlayers() > (int)gameSettings[FT_FillWithBotsTo] && getNumBots() > 0) {
+		int kickAmount = MIN(getNumPlayers() - (int)gameSettings[FT_FillWithBotsTo], getNumBots());
 		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
 		if(kickAmount > 0)
 			kickWorm(getLastBot(), "there are too many players, bot not needed anymore");
@@ -1506,7 +1509,7 @@ void GameServer::CheckForFillWithBots() {
 		return;
 	}
 	
-	if(iState != SVS_LOBBY && !tLXOptions->tGameInfo.bAllowConnectDuringGame) {
+	if(iState != SVS_LOBBY && !tLXOptions->bAllowConnectDuringGame) {
 		notes << "CheckForFillWithBots: not in lobby and connectduringgame not allowed" << endl;
 		return;
 	}
@@ -1516,8 +1519,8 @@ void GameServer::CheckForFillWithBots() {
 		return;
 	}
 	
-	if((int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo] > getNumPlayers()) {
-		int fillUpTo = MIN(tLXOptions->tGameInfo.iMaxPlayers, (int)tLXOptions->tGameInfo.features[FT_FillWithBotsTo]);
+	if((int)gameSettings[FT_FillWithBotsTo] > getNumPlayers()) {
+		int fillUpTo = MIN(tLXOptions->iMaxPlayers, (int)gameSettings[FT_FillWithBotsTo]);
 		int fillNr = fillUpTo - getNumPlayers();
 		SendGlobalText("Too few players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
@@ -1653,7 +1656,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 			DedicatedControl::Get()->WormLeft_Signal( (*w) );
 
 		// Notify the game mode that the worm has been dropped
-		getGameMode()->Drop((*w));
+		game.gameMode()->Drop((*w));
 				
 		wormsOutList.push_back((*w)->getID());
 		
@@ -1754,7 +1757,7 @@ int GameServer::getLastBot() const {
 
 
 bool GameServer::serverAllowsConnectDuringGame() {
-	return tLXOptions->tGameInfo.bAllowConnectDuringGame;
+	return tLXOptions->bAllowConnectDuringGame;
 }
 
 void GameServer::checkVersionCompatibilities(bool dropOut) {
@@ -1802,8 +1805,8 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		return false;
 	}
 	
-	if(getGameMode() && ver < getGameMode()->MinNeededVersion()) {
-		if(incompReason) *incompReason = getGameMode()->Name() + " gamemode";
+	if(game.gameMode() && ver < game.gameMode()->MinNeededVersion()) {
+		if(incompReason) *incompReason = game.gameMode()->Name() + " gamemode";
 		return false;
 	}
 	
@@ -1818,10 +1821,10 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
 	
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		if(!tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get())) {
+		if(!gameSettings.olderClientsSupportSetting(f->get())) {
 			if(ver < f->get()->minVersion) {
 				if(incompReason)
-					*incompReason = f->get()->humanReadableName + " is set to " + tLXOptions->tGameInfo.features.hostGet(f->get()).toString();
+					*incompReason = f->get()->humanReadableName + " is set to " + gameSettings.hostGet(f->get()).toString();
 				return false;
 			}
 		}
@@ -1856,14 +1859,6 @@ bool GameServer::clientsConnected_less(const Version& ver) {
 
 
 
-ScriptVar_t GameServer::isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset) {
-	if(!(bool)preset) return ScriptVar_t(false);
-	if(!tLXOptions->tGameInfo.features[FT_TeamInjure] || !tLXOptions->tGameInfo.features[FT_SelfInjure])
-		return preset;
-	else
-		return ScriptVar_t(false);
-}
-
 
 CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	CWorm* w = cWorms;
@@ -1890,8 +1885,8 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		}
 		
 		// If the game has limited lives all new worms are spectators
-		if( tLXOptions->tGameInfo.iLives == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-			w->setLives((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
+		if( (int)gameSettings[FT_Lives] == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
+			w->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : gameSettings[FT_Lives]);
 		else {
 			w->setLives(WRM_OUT);
 		}
@@ -1905,7 +1900,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		if( DedicatedControl::Get() )
 			DedicatedControl::Get()->NewWorm_Signal(w);
 				
-		if(tLX->iGameType == GME_HOST && tLXOptions->iRandomTeamForNewWorm > 0 && getGameMode()->GameTeams() > 1) {
+		if(tLX->iGameType == GME_HOST && tLXOptions->iRandomTeamForNewWorm > 0 && game.gameMode()->GameTeams() > 1) {
 			w->setTeam(-1); // set it invalid to not count it
 			
 			typedef int WormCount;
@@ -1913,7 +1908,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 			typedef std::vector<TeamIndex> Teams;
 			typedef std::map<WormCount, Teams> TeamMap;
 			TeamMap teams;
-			for(int t = 0; t <= tLXOptions->iRandomTeamForNewWorm && t < getGameMode()->GameTeams(); t++) {
+			for(int t = 0; t <= tLXOptions->iRandomTeamForNewWorm && t < game.gameMode()->GameTeams(); t++) {
 				teams[getTeamWormNum(t)].push_back(t);
 			}
 			TeamMap::iterator first = teams.begin(); // get the list of the teams with lowest worm count
@@ -2365,7 +2360,7 @@ bool GameServer::allWormsHaveFullLives() const {
 	CWorm *w = cWorms;
 	for (int i = 0; i < MAX_WORMS; i++, w++) {
 		if(w->isUsed()) {
-			if(w->getLives() < tLXOptions->tGameInfo.iLives) return false;
+			if(w->getLives() < (int)gameSettings[FT_Lives]) return false;
 		}
 	}
 	return true;
@@ -2375,7 +2370,7 @@ bool GameServer::allWormsHaveFullLives() const {
 CMap* GameServer::getPreloadedMap() {
 	if(cMap) return cMap;
 	
-	std::string sMapFilename = "levels/" + tLXOptions->tGameInfo.sMapFile;
+	std::string sMapFilename = "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path;
 	
 	// Try to get the map from cache.
 	CMap* cachedMap = cCache.GetMap(sMapFilename).get();
@@ -2390,7 +2385,7 @@ CMap* GameServer::getPreloadedMap() {
 		return NULL;
 	}
 	if(!cMap->Load(sMapFilename)) {
-		warnings << "GameServer::getPreloadedMap(): cannot load map " << tLXOptions->tGameInfo.sMapFile << endl;
+		warnings << "GameServer::getPreloadedMap(): cannot load map " << gameSettings[FT_Map].as<LevelInfo>()->path << endl;
 		delete cMap;
 		cMap = NULL;
 		return NULL; // nothing we can do anymore
@@ -2539,7 +2534,7 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	std::ostringstream msg;
 	if(tLX->iGameType == GME_JOIN) msg << "INVALID ";
 	else if(tLX->iGameType == GME_LOCAL) msg << "local ";
-	msg << "Server '" << this->getName() << "' game state:";
+	msg << "Server '" << tLXOptions->sServerName << "' game state:";
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
@@ -2551,9 +2546,9 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	}
 	if(iState != SVS_LOBBY && bGameOver) msg << ", game is over";
 	bool teamGame = true;
-	if(getGameMode()) {
-		teamGame = getGameMode()->GameTeams() > 1;
-		msg << ", " << getGameMode()->Name();
+	if(game.gameMode()) {
+		teamGame = game.gameMode()->GameTeams() > 1;
+		msg << ", " << game.gameMode()->Name();
 	} else
 		msg << ", GAMEMODE UNSET";
 	caller->writeMsg(msg.str());
@@ -2570,9 +2565,9 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
-	msg << " * maxkills=" << tLXOptions->tGameInfo.iKillLimit;
-	msg << ", lives=" << tLXOptions->tGameInfo.iLives;
-	msg << ", timelimit=" << (tLXOptions->tGameInfo.fTimeLimit * 60.0f);
+	msg << " * maxkills=" << gameSettings[FT_KillLimit];
+	msg << ", lives=" << gameSettings[FT_Lives];
+	msg << ", timelimit=" << ((float)gameSettings[FT_TimeLimit] * 60.0f);
 	msg << " (curtime=" << fServertime.seconds() << ")";
 	caller->writeMsg(msg.str());
 	msg.str("");	

@@ -29,6 +29,7 @@
 #include "Debug.h"
 #include "Iterator.h"
 #include "Utils.h"
+#include "util/CustomVar.h"
 
 
 void CBytestream::Test()
@@ -383,21 +384,20 @@ bool CBytestream::writeData(const std::string& value)
 }
 
 bool CBytestream::writeVar(const ScriptVar_t& var) {
-	assert( var.type >= 0 && var.type <= 4 );
+	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
-		case SVT_BOOL: return writeBool(var.b);
-		case SVT_INT: return writeInt(var.i, 4);
-		case SVT_FLOAT: return writeFloat(var.f);
-		case SVT_STRING: return writeString(var.s);
+		case SVT_BOOL: return writeBool(var.toBool());
+		case SVT_INT: return writeInt(var.toInt(), 4);
+		case SVT_FLOAT: return writeFloat(var.toFloat());
 		case SVT_COLOR: {
-			writeByte(var.c.r);
-			writeByte(var.c.g);
-			writeByte(var.c.b);
-			writeByte(var.c.a);
+			writeByte(var.toColor().r);
+			writeByte(var.toColor().g);
+			writeByte(var.toColor().b);
+			writeByte(var.toColor().a);
 			return true;
-		}
-		default: assert(false); return false;
+		}		
+		default: return writeString(var.toString());
 	}
 }
 
@@ -567,19 +567,44 @@ std::string CBytestream::readData( size_t size )
 	return Data.substr( oldpos, size );
 }
 
-bool CBytestream::readVar(ScriptVar_t& var) {
-	assert( var.type >= 0 && var.type <= 4 );
-	var.type = (ScriptVarType_t)readByte();
-	switch( var.type ) {
-		case SVT_BOOL: var.b = readBool(); break;
-		case SVT_INT: var.i = readInt(4); break;
-		case SVT_FLOAT: var.f = readFloat(); break;
-		case SVT_STRING: var.s = readString(); break;
-		case SVT_COLOR: var.c.r = readInt(1); var.c.g = readInt(1); var.c.b = readInt(1); var.c.a = readInt(1); break;
+bool CBytestream::readVar(ScriptVar_t& var, CustomVar* customType) {
+	ScriptVarType_t type = (ScriptVarType_t)readByte();
+
+	switch( type ) {
+		case SVT_BOOL: var = ScriptVar_t(readBool()); break;
+		case SVT_INT: var = ScriptVar_t(readInt(4)); break;
+		case SVT_FLOAT: var = ScriptVar_t(readFloat()); break;
+		case SVT_STRING: var = ScriptVar_t(readString()); break;
+		case SVT_CUSTOM: {
+			std::string str = readString();
+			if(customType) {
+				CustomVar::Ref custom = customType->copy();
+				custom->fromString(str);
+				var = ScriptVar_t(custom.get());
+			}
+			else
+				// Note: This is not quite correct (different type) but we need the customtype info
+				// to do it correct.
+				// I don't put a warning here because I want to have this behaviour here.
+				// If you want to skip such cases, please add another parameter and be sure
+				// that you use it correct everywhere.
+				var = ScriptVar_t(str);
+			break;
+		}
+		case SVT_COLOR: {
+			Color c;
+			c.r = readInt(1);
+			c.g = readInt(1);
+			c.b = readInt(1);
+			c.a = readInt(1);
+			var = ScriptVar_t(c);
+			break;
+		}
 		default:
 			warnings << "read var has invalid type" << endl;
-			var = ScriptVar_t();
+			return false;
 	}
+
 	return true;
 }
 

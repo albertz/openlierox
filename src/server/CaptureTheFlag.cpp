@@ -73,15 +73,15 @@ struct CaptureTheFlag : public CGameMode {
 	}
 	
 	void wormCatchFlag_Handler(CWorm* worm, Flag* flag) {
-		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
+		if(!(bool)gameSettings[FT_CTF_AllowRopeForCarrier])
 			cServer->SetWormCanUseNinja(worm->getID(), false);
-		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_CTF_SpeedFactorForCarrier]);
+		cServer->SetWormSpeedFactor(worm->getID(), gameSettings[FT_CTF_SpeedFactorForCarrier]);
 	}
 	
 	void wormLooseFlag_Handler(CWorm* worm, Flag* flag) {
-		if(!(bool)tLXOptions->tGameInfo.features[FT_CTF_AllowRopeForCarrier])
+		if(!(bool)gameSettings[FT_CTF_AllowRopeForCarrier])
 			cServer->SetWormCanUseNinja(worm->getID(), true);
-		cServer->SetWormSpeedFactor(worm->getID(), tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);		
+		cServer->SetWormSpeedFactor(worm->getID(), gameSettings[FT_WormSpeedFactor]);		
 	}
 	
 	void wormDropFlag(CWorm* worm) {

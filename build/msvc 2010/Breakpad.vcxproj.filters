@@ -12,74 +12,100 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_client.cc">
+    <ClCompile Include="..\..\libs\breakpad\src\common\convert_UTF.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\md5.c">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\string_conversion.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\guid_string.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\http_upload.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\pdb_source_line_writer.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\string_utils.cc">
+      <Filter>common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\basic_code_modules.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\basic_source_line_resolver.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\call_stack.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\logging.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\minidump.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\minidump_processor.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\pathname_stripper.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\process_state.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\simple_symbol_supplier.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_amd64.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_ppc.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_sparc.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_x86.cc">
+      <Filter>processor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\minidump_generator.cc">
       <Filter>client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\minidump_generator.cc">
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\crash_generation_client.cc">
       <Filter>client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\handler\exception_handler.cc">
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\handler\exception_handler.cc">
       <Filter>client</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\convert_UTF.c">
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\breakpad\src\common\convert_UTF.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\md5.c">
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\md5.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\string_conversion.cc">
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\string_conversion.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\guid_string.cc">
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\guid_string.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc">
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\http_upload.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\string_utils.cc">
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\pdb_source_line_writer.h">
       <Filter>common</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_code_modules.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_source_line_resolver.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\call_stack.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\logging.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_processor.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\pathname_stripper.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\process_state.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\simple_symbol_supplier.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_amd64.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_ppc.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_sparc.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_x86.cc">
-      <Filter>processor</Filter>
-    </ClCompile>
+    </ClInclude>
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\string_utils-inl.h">
+      <Filter>common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

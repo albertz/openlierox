@@ -66,7 +66,7 @@ void PhysicsEngine::skipProjectiles(Iterator<CProjectile*>::Ref projs) {
 }
 
 void PhysicsEngine::skipBonuses(CBonus* bonuses, size_t count) {
-	if(!cClient->getGameLobby()->bBonusesOn) return;
+	if(!cClient->getGameLobby()[FT_Bonuses]) return;
 	CBonus *b = bonuses;
 	for(size_t i=0; i < count; i++,b++) {
 		if(!b->getUsed()) continue;

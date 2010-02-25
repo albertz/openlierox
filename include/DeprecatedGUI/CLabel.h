@@ -126,11 +126,11 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CLabel * w = new CLabel( p[0].s, p[1].c, p[2].b );
-		w->bVar = CScriptableVars::GetVarP<bool>( p[3].s );
-		w->iVar = CScriptableVars::GetVarP<int>( p[3].s );
-		w->fVar = CScriptableVars::GetVarP<float>( p[3].s );
-		w->sVar = CScriptableVars::GetVarP<std::string>( p[3].s );
+		CLabel * w = new CLabel( p[0].toString(), p[1].toColor(), p[2].toBool() );
+		w->bVar = CScriptableVars::GetVarP<bool>( p[3].toString() );
+		w->iVar = CScriptableVars::GetVarP<int>( p[3].toString() );
+		w->fVar = CScriptableVars::GetVarP<float>( p[3].toString() );
+		w->sVar = CScriptableVars::GetVarP<std::string>( p[3].toString() );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	}

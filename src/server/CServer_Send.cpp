@@ -35,6 +35,7 @@
 #include "game/Mod.h"
 #include "game/Game.h"
 #include "gusanos/network.h"
+#include "game/Level.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -138,21 +139,21 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 	// TODO: if that is always false, why do we have a variable for it?
 	bs->writeBool(server->bRandomMap);	// Always false as of now
 	if(!server->bRandomMap)
-		bs->writeString("levels/" + tLXOptions->tGameInfo.sMapFile);
+		bs->writeString("levels/" + gameSettings[FT_Map].as<LevelInfo>()->path);
 	
 	// Game info
-	bs->writeInt(server->getGameMode()->GeneralGameType(),1);
-	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
-	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs->writeInt16((int)(server->getGameMode()->TimeLimit() / 60.0f));
-	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
-	bs->writeBool(tLXOptions->tGameInfo.bBonusesOn);
-	bs->writeBool(tLXOptions->tGameInfo.bShowBonusName);
-	if(server->getGameMode()->GeneralGameType() == GMT_TIME)
-		bs->writeInt16(tLXOptions->tGameInfo.iTagLimit);
-	bs->writeString(tLXOptions->tGameInfo.sModDir);
+	bs->writeInt(game.gameMode()->GeneralGameType(),1);
+	bs->writeInt16(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
+	bs->writeInt16((int)gameSettings[FT_KillLimit]);
+	bs->writeInt16((int)(game.gameMode()->TimeLimit() / 60.0f));
+	bs->writeInt16((int)gameSettings[FT_LoadingTime]);
+	bs->writeBool(gameSettings[FT_Bonuses]);
+	bs->writeBool(gameSettings[FT_ShowBonusName]);
+	if(game.gameMode()->GeneralGameType() == GMT_TIME)
+		bs->writeInt16((int)(float)gameSettings[FT_TagLimit]);
+	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->path);
 	
-	server->cWeaponRestrictions.sendList(bs, CGameScript::LoadWeaponList(tLXOptions->tGameInfo.sModDir));
+	server->cWeaponRestrictions.sendList(bs, CGameScript::LoadWeaponList(gameSettings[FT_Mod].as<ModInfo>()->path));
 }
 
 void CServerNetEngine::SendPrepareGame()
@@ -212,7 +213,7 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngine::WritePrepareGame(bs);
 
-	bs->writeFloat( tLXOptions->tGameInfo.features[FT_GameSpeed] );
+	bs->writeFloat( gameSettings[FT_GameSpeed] );
 
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// Never do this for local client, local client must know correct state of serverChoosesWeapons!
@@ -235,9 +236,9 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
-	bs->writeFloat(server->getGameMode()->TimeLimit() / 60.0f);
+	bs->writeFloat(game.gameMode()->TimeLimit() / 60.0f);
 	WriteFeatureSettings(bs);
-	bs->writeString(server->getGameMode()->Name());
+	bs->writeString(game.gameMode()->Name());
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	cDamageReport.clear(); // In case something left from prev game
@@ -468,7 +469,7 @@ bool GameServer::SendUpdate()
 							continue;
 							
 						// Give the game mode a chance to override sending a packet (might reduce data sent)
-						if(!getGameMode()->NeedUpdate(cl, w))
+						if(!game.gameMode()->NeedUpdate(cl, w))
 							continue;
 
 						++num_worms;
@@ -647,15 +648,15 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 	for_each_iterator( Feature*, f, Array(featureArray,ftC) )
 	{
 		if( f->get()->group < GIG_GameModeSpecific_Start ||
-			f->get()->group == cServer->getGameMode()->getGameInfoGroupInOptions() )
+			f->get()->group == game.gameMode()->getGameInfoGroupInOptions() )
 		{
-			if( tLXOptions->tGameInfo.features.hostGet(f->get()) == f->get()->unsetValue ) // Do not send a feature if it has default value = LX56 behavior
+			if( gameSettings.hostGet(f->get()) == f->get()->unsetValue ) // Do not send a feature if it has default value = LX56 behavior
 				continue;
 			sendCount ++;
 			bs1.writeString( f->get()->name );
 			bs1.writeString( f->get()->humanReadableName );
-			bs1.writeVar( tLXOptions->tGameInfo.features.hostGet(f->get()) );
-			bs1.writeBool( tLXOptions->tGameInfo.features.olderClientsSupportSetting(f->get()) );
+			bs1.writeVar( gameSettings.hostGet(f->get()) );
+			bs1.writeBool( gameSettings.olderClientsSupportSetting(f->get()) );
 		}
 	}
 	bs->writeInt(sendCount, 2);
@@ -672,31 +673,31 @@ void CServerNetEngine::SendUpdateLobbyGame()
 void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	bs->writeByte(S2C_UPDATELOBBYGAME);
-	bs->writeByte(MAX(tLXOptions->tGameInfo.iMaxPlayers,server->getNumPlayers()));  // This fixes the player disappearing in lobby
-	bs->writeString(tLXOptions->tGameInfo.sMapFile);
-	bs->writeString(tLXOptions->tGameInfo.sModName);
-	bs->writeString(tLXOptions->tGameInfo.sModDir);
-	bs->writeByte(server->getGameMode()->GeneralGameType());
-	bs->writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
-	bs->writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs->writeInt16(tLXOptions->tGameInfo.iLoadingTime);
-	bs->writeByte(tLXOptions->tGameInfo.bBonusesOn);
+	bs->writeByte(MAX(tLXOptions->iMaxPlayers,server->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs->writeString(gameSettings[FT_Map].as<LevelInfo>()->path);
+	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->name);
+	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->path);
+	bs->writeByte(game.gameMode()->GeneralGameType());
+	bs->writeInt16(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
+	bs->writeInt16((int)gameSettings[FT_KillLimit]);
+	bs->writeInt16((int)gameSettings[FT_LoadingTime]);
+	bs->writeByte((bool)gameSettings[FT_Bonuses]);
 }
 
 void CServerNetEngineBeta7::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	CServerNetEngine::WriteUpdateLobbyGame(bs);
-	bs->writeFloat(tLXOptions->tGameInfo.features[FT_GameSpeed]);
-	bs->writeBool(tLXOptions->tGameInfo.bForceRandomWeapons);
-	bs->writeBool(tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
+	bs->writeFloat(gameSettings[FT_GameSpeed]);
+	bs->writeBool(gameSettings[FT_ForceRandomWeapons]);
+	bs->writeBool(gameSettings[FT_SameWeaponsAsHostWorm]);
 }
 
 void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WriteUpdateLobbyGame(bs);
-	bs->writeFloat(server->getGameMode()->TimeLimit() / 60.0f);
+	bs->writeFloat(game.gameMode()->TimeLimit() / 60.0f);
 	CServerNetEngineBeta9::WriteFeatureSettings(bs);
-	bs->writeString(server->getGameMode()->Name());
+	bs->writeString(game.gameMode()->Name());
 }
 
 
@@ -704,14 +705,14 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 // Send an update of the game details in the lobby
 void GameServer::UpdateGameLobby()
 {
-	if(getGameMode() == NULL) {
+	if(game.gameMode() == NULL) {
 		errors << "Trying to play a non-existant gamemode" << endl;
-		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+		gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = GameMode(GM_DEATHMATCH);
 	}
 	
 	// Read map/mod name from map/mod file
-	tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
-	tLXOptions->tGameInfo.sModName = modName(tLXOptions->tGameInfo.sModDir);
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->name = CMap::GetLevelName(gameSettings[FT_Map].as<LevelInfo>()->path);
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->name = modName(gameSettings[FT_Mod].as<ModInfo>()->path);
 	
 	m_clientsNeedLobbyUpdate = true;
 	m_clientsNeedLobbyUpdateTime = tLX->currentTime;
@@ -1068,13 +1069,13 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 
 void CServerNetEngineBeta9::SendTeamScoreUpdate() {
 	// only do this in a team game
-	if(server->getGameMode()->GeneralGameType() != GMT_TEAMS) return;
+	if(game.gameMode()->GeneralGameType() != GMT_TEAMS) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_TEAMSCOREUPDATE);
-	bs.writeByte(server->getGameMode()->GameTeams());
-	for(int i = 0; i < server->getGameMode()->GameTeams(); ++i) {
-		bs.writeInt16(server->getGameMode()->TeamScores(i));
+	bs.writeByte(game.gameMode()->GameTeams());
+	for(int i = 0; i < game.gameMode()->GameTeams(); ++i) {
+		bs.writeInt16(game.gameMode()->TeamScores(i));
 	}	
 	SendPacket(&bs);
 }

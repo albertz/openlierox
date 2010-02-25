@@ -116,7 +116,6 @@ parseCleanup:
 
 void IniReader::NewSection(const std::string& name)
 {
-	m_sections[name] = Section();
 	m_curSection = &m_sections[name];
 }
 

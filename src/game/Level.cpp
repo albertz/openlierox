@@ -41,3 +41,23 @@ SmartPointer<SDL_Surface> minimapForLevel(const std::string& f, bool absolute) {
 	
 	return loader->getMinimap();
 }
+
+bool LevelInfo::operator==(const CustomVar& o) const {
+	const LevelInfo* oi = dynamic_cast<const LevelInfo*> (&o);
+	return oi && stringcaseequal(path, oi->path);
+}
+
+bool LevelInfo::operator<(const CustomVar& o) const {
+	const LevelInfo* oi = dynamic_cast<const LevelInfo*> (&o);
+	if(oi) return stringcasecmp(path, oi->path) < 0;
+	return this < &o;		
+}
+
+std::string LevelInfo::toString() const {
+	return path;
+}
+
+bool LevelInfo::fromString( const std::string & str) {
+	*this = infoForLevel(str, false);
+	return true;
+}

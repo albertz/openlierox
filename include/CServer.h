@@ -27,7 +27,7 @@
 #include "Timer.h"
 #include "CBanList.h"
 #include "CWpnRest.h"
-#include "LieroX.h" // for game_lobby_t
+#include "game/GameMode.h"
 
 class CWorm;
 class CServerConnection;
@@ -243,7 +243,6 @@ public:
 	bool		isVersionCompatible(const Version& ver, std::string* incompReason = NULL);
 	bool		clientsConnected_less(const Version& ver); // true if clients < ver are connected
 	
-	ScriptVar_t isNonDamProjGoesThroughNeeded(const ScriptVar_t& preset);
 	
 	// Sending
 	void		SendGlobalPacket(CBytestream *bs); // TODO: move this to CServerNetEngine
@@ -288,7 +287,6 @@ public:
 
 	// Variables
 	const SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
-	CGameMode		*getGameMode() const	{ return tLXOptions->tGameInfo.gameMode; }
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
@@ -296,8 +294,6 @@ public:
 	CMap*			getPreloadedMap(); // IMPORTANT: never ever keep this pointer! it's only temporarly! also don't modify the map!
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
-	std::string		getName()			{ return tLXOptions->sServerName; }
-	void			setName(const std::string& _name){ tLXOptions->sServerName = _name; }
 	bool			getGameOver()		{ return bGameOver; }
 	AbsTime			getGameOverTime()	{ return fGameOverTime; }
 	CHttp *getHttp()  { return &tHttp; }

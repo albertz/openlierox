@@ -253,9 +253,9 @@ void Game::cleanupAfterGameloopEnd() {
 		DedicatedControl::Get()->GameLoopEnd_Signal();		
 	
 	cCache.ClearExtraEntries(); // Game ended - clear cache	
-	
-	if(tLXOptions->tGameInfo.gameMode == &singlePlayerGame)
-		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+
+	cleanupCallbacks();
+	cleanupCallbacks.disconnect_all_slots();
 }
 
 
@@ -383,8 +383,8 @@ CGameScript* Game::gameScript() {
 
 CGameMode* Game::gameMode() {
 	if(tLX) {
-		if(tLX->iGameType != GME_JOIN) return cServer->getGameMode();
-		return cClient->getGameLobby()->gameMode;
+		if(tLX->iGameType != GME_JOIN) return gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		return cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode;
 	}
 	return NULL;
 }

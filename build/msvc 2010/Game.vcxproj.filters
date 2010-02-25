@@ -938,6 +938,18 @@
     <ClInclude Include="resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\Settings.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\SettingsPreset.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\gui\List.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\game\GameMode.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
@@ -1818,6 +1830,18 @@
     </ClCompile>
     <ClCompile Include="..\msvc\openal_initializer_finalizer.cpp">
       <Filter>Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\Settings.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\SettingsPreset.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\gui\List.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\GameMode.cpp">
+      <Filter>Game files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

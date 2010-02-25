@@ -116,9 +116,9 @@ void CTag::Simulate()
 		TagRandomWorm();
 
 	// Check if any of the worms reached the maximum tag time
-	if (tLXOptions->tGameInfo.iTagLimit > 0)
+	if ((float)gameSettings[FT_TagLimit] > 0)
 		for (int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTagTime() >= tLXOptions->tGameInfo.iTagLimit * 60.0f)
+			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTagTime() >= (float)gameSettings[FT_TagLimit] * 60.0f)
 				cServer->RecheckGame();
 }
 
@@ -127,11 +127,11 @@ bool CTag::CheckGameOver()
 	if(CGameMode::CheckGameOver()) return true;
 	
 
-	if (tLXOptions->tGameInfo.iTagLimit > 0)  {
+	if ((float)gameSettings[FT_TagLimit] > 0)  {
 		int wormid = HighestScoredWorm();
 
 		// Check if any of the worms reached the maximum tag time
-		if(wormid >= 0 && cServer->getWorms()[wormid].getTagTime() >= tLXOptions->tGameInfo.iTagLimit * 60.0f) {
+		if(wormid >= 0 && cServer->getWorms()[wormid].getTagTime() >= (float)gameSettings[FT_TagLimit] * 60.0f) {
 			// TODO: make configureable
 			cServer->SendGlobalText(cServer->getWorms()[wormid].getName() + " has reached the maximum tag time", TXT_NORMAL);
 			notes << cServer->getWorms()[wormid].getName() << " has reached the maximum tag time" << endl;

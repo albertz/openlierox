@@ -76,10 +76,10 @@ inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 		if(preventSelfShooting && w == ownerWorm)
 			continue;
 
-		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()->features[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
+		if(ownerWorm && cClient->isTeamGame() && !cClient->getGameLobby()[FT_TeamHit] && w != ownerWorm && w->getTeam() == ownerWorm->getTeam())
 			continue;
 		
-		if(ownerWorm && !cClient->getGameLobby()->features[FT_SelfHit] && w == ownerWorm)
+		if(ownerWorm && !cClient->getGameLobby()[FT_SelfHit] && w == ownerWorm)
 			continue;
 		
 		const static int wsize = 4;
@@ -145,7 +145,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 					proj->setVelocity( vFrameOldVel ); // don't get faster
 				}
 
-				if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
+				if(cClient->getGameLobby()[FT_InfiniteMap]) {
 					FMOD(proj->vPos.x, (float)map->GetWidth());
 					FMOD(proj->vPos.y, (float)map->GetHeight());		
 					FMOD(proj->vOldPos.x, (float)map->GetWidth());
@@ -157,7 +157,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 		}
 	}
 	
-	if(cClient->getGameLobby()->features[FT_InfiniteMap]) {
+	if(cClient->getGameLobby()[FT_InfiniteMap]) {
 		FMOD(proj->vPos.x, (float)map->GetWidth());
 		FMOD(proj->vPos.y, (float)map->GetHeight());		
 		FMOD(proj->vOldPos.x, (float)map->GetWidth());
@@ -173,7 +173,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 inline bool CProjectile::MapBoundsCollision(int px, int py)
 {
 	CollisionSide = 0;
-	if(cClient->getGameLobby()->features[FT_InfiniteMap]) return false;
+	if(cClient->getGameLobby()[FT_InfiniteMap]) return false;
 	
 	CMap* map = cClient->getMap();
 	
@@ -220,7 +220,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 	
 	ColInfo res = { 0, 0, 0, 0, false, true };
 
-	const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+	const bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 
 	// check for most common case - we do this because compiler can probably optimise this case very good
 	if(!wrapAround && tProjInfo->Type != PRJ_CIRCLE) {	
@@ -370,7 +370,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	prj->vVelocity.y += fGravity * dt.seconds();
 
 	{
-		const float friction = cClient->getGameLobby()->features[FT_ProjFriction];
+		const float friction = cClient->getGameLobby()[FT_ProjFriction];
 		if(friction > 0) {
 			const float projSize = (prj->getRadius().x + prj->getRadius().y) * 0.5f;
 			const float projMass = prj->getRadius().GetLength();
@@ -769,7 +769,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		// Carve
 		case PJ_CARVE:
 			if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
-				int d = cClient->getMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()->features[FT_InfiniteMap]);
+				int d = cClient->getMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()[FT_InfiniteMap]);
 				info->deleteAfter = true;
 				
 					// Increment the dirt count
@@ -941,7 +941,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 	if(state.c > 0 && !Repeat) return PermanentMode == 1;
 	
 	if(UseGlobalTime) {
-		float cur = eventInfo.serverTime.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		float cur = eventInfo.serverTime.seconds() * (float)cClient->getGameLobby()[FT_GameSpeed];
 		if(state.c == 0) {
 			float startTime = cur - prj->getLife();
 			float mstart = startTime; FMOD(mstart, Delay);
@@ -1289,7 +1289,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 		break;
 	case TRL_PROJECTILE: // Projectile trail
 		if(currentTime > proj->lastTrailProj()) {
-			proj->lastTrailProj() = currentTime + pi->Trail.Delay / (float)cClient->getGameLobby()->features[FT_GameSpeed];
+			proj->lastTrailProj() = currentTime + pi->Trail.Delay / (float)cClient->getGameLobby()[FT_GameSpeed];
 			
 			*projspawn = true;
 		}
@@ -1350,7 +1350,7 @@ static inline bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
 	static const TimeDiff orig_dt = LX56PhysicsDT;
-	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed];
 	
 	VectorD2<int> oldPos(prj->getPos());
 	VectorD2<int> oldRadius(prj->getRadius());

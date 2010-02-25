@@ -126,10 +126,10 @@ void Weapon::think( bool isFocused, size_t index )
 		}
 		if ( reloading ) {
 			if ( reloadTime > 0 ) {
-				if(cClient->getGameLobby() == NULL || cClient->getGameLobby()->iLoadingTime == 0)
+				if((int)cClient->getGameLobby()[FT_LoadingTime] == 0)
 					reloadTime = 0;
 				else
-					reloadTime -= 100.0 / cClient->getGameLobby()->iLoadingTime;
+					reloadTime -= 100.0 / (int)cClient->getGameLobby()[FT_LoadingTime];
 				if(reloadTime < 0) reloadTime = 0;
 			} else if ( !network.isClient() || !m_type->syncReload ) {
 				reload();

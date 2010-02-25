@@ -167,16 +167,16 @@ static int l_olx_getVar(lua_State* L) {
 		return 0;
 	}
 	
-	if( varptr->var.s == &tLXOptions->sServerPassword ) {
+	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
 		LUA_ELOG("GetVar: this variable is restricted");
 		// If you want to check if a worm is authorized, use another function for that.
 		return 0;
 	}
 	
 	switch(varptr->var.type) {
-		case SVT_BOOL:	lua_pushnumber(L, *varptr->var.b); break;
-		case SVT_INT:	lua_pushnumber(L, *varptr->var.i); break;
-		case SVT_FLOAT:	lua_pushnumber(L, *varptr->var.f); break;
+		case SVT_BOOL:	lua_pushnumber(L, *varptr->var.ptr.b); break;
+		case SVT_INT:	lua_pushnumber(L, *varptr->var.ptr.i); break;
+		case SVT_FLOAT:	lua_pushnumber(L, *varptr->var.ptr.f); break;
 		default:		lua_pushstring(L, varptr->var.toString().c_str());
 	}
 

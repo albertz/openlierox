@@ -49,7 +49,7 @@ void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
 {
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = v->physicToReal(vPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = v->physicToReal(vPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	// If we are in a flashing mode, don't show it on an 'off' flash mode
 	if(fLife > BONUS_LIFETIME-3) {

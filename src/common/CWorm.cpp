@@ -36,6 +36,7 @@
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
 #include "gusanos/player_options.h"
+#include "game/GameMode.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -316,10 +317,10 @@ void CWorm::Prepare(bool serverSide)
 	}
 	
 	if(serverSide) {
-		setSpeedFactor(tLXOptions->tGameInfo.features[FT_WormSpeedFactor]);
-		setDamageFactor(tLXOptions->tGameInfo.features[FT_WormDamageFactor]);
-		setShieldFactor(tLXOptions->tGameInfo.features[FT_WormShieldFactor]);
-		setCanAirJump(tLXOptions->tGameInfo.features[FT_InstantAirJump]);
+		setSpeedFactor(gameSettings[FT_WormSpeedFactor]);
+		setDamageFactor(gameSettings[FT_WormDamageFactor]);
+		setShieldFactor(gameSettings[FT_WormShieldFactor]);
+		setCanAirJump(gameSettings[FT_InstantAirJump]);
 	}
 
 	if(!serverSide && game.gameScript()->gusEngineUsed()) {
@@ -415,13 +416,13 @@ void CWorm::initWeaponSelection() {
 	if(this->shouldDoOwnWeaponSelection())
 		m_inputHandler->initWeaponSelection();
 
-	if(this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
+	if(this->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm] && gameSettings[FT_ForceRandomWeapons]) {
 		this->GetRandomWeapons();
 		this->bWeaponsReady = true;
 	}
 
 	// bWeaponsReady could be true already for multiple reasons, e.g. in initWeaponSelection()
-	if(this->isFirstLocalHostWorm() && this->bWeaponsReady && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm)
+	if(this->isFirstLocalHostWorm() && this->bWeaponsReady && gameSettings[FT_SameWeaponsAsHostWorm])
 		cServer->cloneWeaponsToAllWorms(this);
 }
 
@@ -458,7 +459,7 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 	
 	m_inputHandler->doWeaponSelectionFrame(bmpDest, v);	
 		   
-	if(this->bWeaponsReady && this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
+	if(this->bWeaponsReady && this->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]) {
 		cServer->cloneWeaponsToAllWorms(this);
 	}
 
@@ -753,7 +754,7 @@ bool CWorm::isLocalHostWorm() {
 
 
 bool CWorm::shouldDoOwnWeaponSelection() {
-	return !cClient->serverChoosesWeapons() || (this->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm);
+	return !cClient->serverChoosesWeapons() || (this->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]);
 }
 
 void CWorm::CloneWeaponsFrom(CWorm* w) {
@@ -858,7 +859,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	int t = v->GetTop();
 
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = v->physicToReal(vDrawPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = v->physicToReal(vDrawPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	int x = p.x - l;
 	int y = p.y - t;
@@ -1123,7 +1124,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 		if( sAFKMessage != "" )
 			WormName += " " + sAFKMessage;
 		if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
-			if (cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)
+			if (cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clTeamColors[iTeam],WormName);
 			else
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
@@ -1164,7 +1165,7 @@ bool CWorm::CheckOnGround()
 {
 	int px = (int)vPos.x;
 	int py = (int)vPos.y;
-	bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+	bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 
 	for(short y = 6; y > 0; y--) {
 
@@ -1183,7 +1184,7 @@ void CWorm::incrementDirtCount(int d) {
 		iDirtCount += d;
 		
 		if( tLX->iGameType != GME_JOIN ) {
-			cServer->getGameMode()->Carve(this, d);
+			game.gameMode()->Carve(this, d);
 		}
 	}
 }
@@ -1215,13 +1216,13 @@ bool CWorm::Kill()
 int CWorm::getScore() const
 {
 	int score = getKills();
-	if( (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] > 0.0f )
-		score -= (int)( getDeaths() * (float)tLXOptions->tGameInfo.features[FT_DeathDecreasesScore] + 0.01f ); // + 0.01f to counter possible inprecise truncation
-	if( tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] )
+	if( (float)gameSettings[FT_DeathDecreasesScore] > 0.0f )
+		score -= (int)( getDeaths() * (float)gameSettings[FT_DeathDecreasesScore] + 0.01f ); // + 0.01f to counter possible inprecise truncation
+	if( gameSettings[FT_SuicideDecreasesScore] )
 		score -= getSuicides();
-	if( tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] )
+	if( gameSettings[FT_TeamkillDecreasesScore] )
 		score -= getTeamkills();
-	if( tLXOptions->tGameInfo.features[FT_CountTeamkills] )
+	if( gameSettings[FT_CountTeamkills] )
 		score += getTeamkills();
 
 	return score; // May be negative
@@ -1229,21 +1230,21 @@ int CWorm::getScore() const
 
 void CWorm::addDeath()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iDeaths++;
 }
 
 void CWorm::addSuicide()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iSuicides++;
 }
 
 void CWorm::addTeamkill()
 {
-	if( !tLXOptions->tGameInfo.features[FT_AllowNegativeScore] && getScore() <= 0 )
+	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
 		return;
 	iTeamkills++;
 }
@@ -1397,34 +1398,43 @@ void CWorm::setTagIT(bool _t)
 
 Color CWorm::getGameColour()
 {
-	switch(cClient->getGameLobby()->iGeneralGameType) {
+	switch(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType) {
 		case GMT_TEAMS:
 			return tLX->clTeamColors[iTeam];
 		default:
 			return cSkin.getDefaultColor();
 	}
+	return Color();
 }
-
-void CWorm::addDamage(float damage, CWorm* victim, const GameOptions::GameInfo & settings)
+template<typename SettingsType>
+static void CWorm_addDamage(CWorm* This, float damage, CWorm* victim, const SettingsType& settings, const GameModeInfo* gameModeInfo)
 {
 	if( damage < 0 )	// Do not count when we heal ourselves or someone else, only damage counts
 		return;
 
-	if( getID() == victim->getID() )
+	if( This->getID() == victim->getID() )
 	{
-		if( settings.features[FT_SuicideDecreasesScore] )
-			setDamage( getDamage() - damage );	// Decrease damage from score if injured yourself
+		if( settings[FT_SuicideDecreasesScore] )
+			This->setDamage( This->getDamage() - damage );	// Decrease damage from score if injured yourself
 	}
-	else if( settings.iGeneralGameType == GMT_TEAMS && getTeam() == victim->getTeam() ) 
+	else if( gameModeInfo->generalGameType == GMT_TEAMS && This->getTeam() == victim->getTeam() ) 
 	{
-		if( settings.features[FT_TeamkillDecreasesScore] )
-			setDamage( getDamage() - damage );	// Decrease damage from score if injured teammate
-		if( settings.features[FT_CountTeamkills] )
-			setDamage( getDamage() + damage );	// Count team damage along with teamkills
+		if( settings[FT_TeamkillDecreasesScore] )
+			This->setDamage( This->getDamage() - damage );	// Decrease damage from score if injured teammate
+		if( settings[FT_CountTeamkills] )
+			This->setDamage( This->getDamage() + damage );	// Count team damage along with teamkills
 	}
 	else
-		setDamage( getDamage() + damage );
+		This->setDamage( This->getDamage() + damage );
 }
+
+void CWorm::addDamage(float damage, CWorm* victim, bool serverside) {
+	if(serverside)
+		CWorm_addDamage(this, damage, victim, gameSettings, gameSettings[FT_GameMode].as<GameModeInfo>());
+	else
+		CWorm_addDamage(this, damage, victim, cClient->getGameLobby(), cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>());		
+}
+
 
 void CWorm::reinitInputHandler() {
 	warnings << "CWorm::reinitInputHandler not implemented right now" << endl;

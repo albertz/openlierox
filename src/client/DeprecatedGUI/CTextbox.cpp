@@ -847,17 +847,17 @@ CWidget * CTextbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLay
 	CTextbox * w = new CTextbox();
 	layout->Add( w, id, x, y, dx, dy );
 	// Text should be set in textbox AFTER the textbox is added to CGuiSkinnedLayout
-	w->cClick.Init( p[1].s, w );
-	w->bVar = CScriptableVars::GetVarP<bool>( p[0].s );
+	w->cClick.Init( p[1].toString(), w );
+	w->bVar = CScriptableVars::GetVarP<bool>( p[0].toString() );
 	if( w->bVar )
 		w->setText( itoa( *w->bVar ) );
-	w->iVar = CScriptableVars::GetVarP<int>( p[0].s );
+	w->iVar = CScriptableVars::GetVarP<int>( p[0].toString() );
 	if( w->iVar )
 		w->setText( itoa( *w->iVar ) );
-	w->fVar = CScriptableVars::GetVarP<float>( p[0].s );
+	w->fVar = CScriptableVars::GetVarP<float>( p[0].toString() );
 	if( w->fVar )
 		w->setText( ftoa( *w->fVar ) );
-	w->sVar = CScriptableVars::GetVarP<std::string>( p[0].s );
+	w->sVar = CScriptableVars::GetVarP<std::string>( p[0].toString() );
 	if( w->sVar )
 		w->setText( *w->sVar );
 	return w;

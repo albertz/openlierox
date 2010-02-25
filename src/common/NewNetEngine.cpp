@@ -81,16 +81,11 @@ void DisableAdvancedFeatures()
 {
 	 // Disables bonuses and connect-during-game for now, 
 	 // I can add bonuses but connect-during-game is complicated
-	 tLXOptions->tGameInfo.bBonusesOn = false;
-	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
-	 tLXOptions->tGameInfo.bAllowConnectDuringGame = false;
-	 tLXOptions->tGameInfo.features[FT_ImmediateStart] = false;
-	 tLXOptions->tGameInfo.features[FT_AllowWeaponsChange] = false;
-	 //tLXOptions->tGameInfo.fRespawnTime = 2.5f; // We just ignore it now
-	 //tLXOptions->tGameInfo.bRespawnGroupTeams = false;
-	 //tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = false;
-	 //*cClient->getGameLobby() = tLXOptions->tGameInfo;
-};
+	 gameSettings.overwrite[FT_Bonuses] = false;
+	 tLXOptions->bAllowConnectDuringGame = false;
+	 gameSettings.overwrite[FT_ImmediateStart] = false;
+	 gameSettings.overwrite[FT_AllowWeaponsChange] = false;
+}
 
 void CalculateCurrentState( AbsTime localTime );
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs );
@@ -164,7 +159,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				if( gameTime > w->getTimeofDeath() + 2.5f )
 				{
 					CVec spot = NewNet_FindSpot(w);
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()->features[FT_InfiniteMap]);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
 					w->Spawn( spot );
 					// Show a spawn entity
 					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),Color(),NULL);
@@ -272,7 +267,7 @@ void StartRound( unsigned randomSeed )
 					NumPlayers ++;
 					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
 					CVec spot = NewNet_FindSpot( &cClient->getRemoteWorms()[i] );
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()->features[FT_InfiniteMap]);
+					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
 					cClient->getRemoteWorms()[i].Spawn( spot );
 				};
 			}

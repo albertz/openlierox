@@ -53,6 +53,7 @@
 #include "game/Mod.h"
 #include "gusanos/gusgame.h"
 #include "game/Game.h"
+#include "game/Level.h"
 #include <zip.h> // For unzipping downloaded mod
 
 
@@ -71,8 +72,8 @@ void CClient::Clear()
 	}
 #endif
 
-	tGameInfo = tLXOptions->tGameInfo; // TODO: is it ok to copy the serverside features? shouldn't we perhaps set some initial GameInfo?
-	tGameInfo.fTimeLimit = -100;
+	tGameInfo = FeatureSettings();
+	tGameInfo[FT_TimeLimit] = -100;
 	otherGameInfo.clear();
 	iNumWorms = 0;
 	for(int i=0;i<MAX_PLAYERS;i++)
@@ -238,11 +239,11 @@ void CClient::MinorClear()
 /*
 void CClient::ReinitLocalWorms() {
 	// Initialize the local worms
-	iNumWorms = tGameInfo.iNumPlayers;
+	iNumWorms = getGameLobby()->iNumPlayers;
 
 	for(uint i=0;i<iNumWorms;i++) {
 		cLocalWorms[i] = NULL;
-		tProfiles[i] = tGameInfo.cPlayers[i];
+		tProfiles[i] = getGameLobby()->cPlayers[i];
 	}
 }
 */
@@ -459,12 +460,12 @@ void CClient::StartLogging(int num_players)
 			tGameLog->tWorms[j].sName = cRemoteWorms[i].getName();
 			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin().getFileName();
 			tGameLog->tWorms[j].iKills = 0;
-			tGameLog->tWorms[j].iLives = tGameInfo.iLives;
+			tGameLog->tWorms[j].iLives = getGameLobby()[FT_Lives];
 			tGameLog->tWorms[j].iSuicides = 0;
 			tGameLog->tWorms[j].iTeamKills = 0;
 			tGameLog->tWorms[j].iTeamDeaths = 0;
 			tGameLog->tWorms[j].bTagIT = false;
-			if (tGameInfo.iGeneralGameType == GMT_TEAMS)
+			if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
 				tGameLog->tWorms[j].iTeam = cRemoteWorms[i].getTeam();
 			else
 				tGameLog->tWorms[j].iTeam = -1;
@@ -640,9 +641,9 @@ void CClient::FinishMapDownloads()
 	// Check that the file exists and is ok
 	std::string levelname = CMap::GetLevelName(sMapDownloadName);
 	if (levelname != "")  {
-		if (tGameInfo.sMapFile == sMapDownloadName)  {
+		if (getGameLobby()[FT_Map].as<LevelInfo>()->path == sMapDownloadName)  {
 			bHaveMap = true;
-			tGameInfo.sMapName = levelname;
+			getGameLobby()[FT_Map].as<LevelInfo>()->name = levelname;
 			if (tMapDlCallback)
 				tMapDlCallback();
 		}
@@ -745,7 +746,7 @@ void CClient::FinishModDownloads()
 	}
 
 	// Update the lobby
-	if (tGameInfo.sModDir == sModDownloadName)  {
+	if (getGameLobby()[FT_Mod].as<ModInfo>()->path == sModDownloadName)  {
 		bDownloadingMod = false;
 		bHaveMod = true;
 		if (tModDlCallback)
@@ -761,7 +762,7 @@ void CClient::FinishModDownloads()
 			return;
 		}
 
-		if (stringcaseequal(tGameInfo.sModName, sModDownloadName))  {
+		if (stringcaseequal(getGameLobby()[FT_Mod].as<ModInfo>()->name, sModDownloadName))  {
 			if (cGameScript->Load(sModDownloadName) != GSE_OK)  {
 				errors("Could not load the downloaded mod.\n");
 				Disconnect();
@@ -895,7 +896,7 @@ void CClient::ProcessMapDownloads()
 			}
 		}
 		
-		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()->sMapFile ) {
+		if( getUdpFileDownloader()->getFilename() == "levels/" + getGameLobby()[FT_Map].as<LevelInfo>()->path ) {
 			bDownloadingMap = true;
 			iDownloadMethod = DL_UDP;
 		}
@@ -1281,7 +1282,7 @@ void CClient::SendPackets(bool sendPendingOnly)
 
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player) {
 	hints << "JoinServer " << addr << " (" << name << ") with player '" << player << "'" << endl;
-	//tGameInfo.iNumPlayers = 1;
+	//getGameLobby()->iNumPlayers = 1;
 		
 	tLX->iGameType = GME_JOIN;
 	if(!cClient->Initialize()) {
@@ -1781,7 +1782,9 @@ static bool setWormAdd(profile_t* p) {
 		return false;
 	}
 
-	if(cClient->getNumWorms() + 1 >= MIN((int)MAX_WORMS, cClient->getGameLobby()->iMaxPlayers)) {
+	int maxWorms = MAX_WORMS;
+	if(game.isServer()) maxWorms = MIN(maxWorms, tLXOptions->iMaxPlayers);
+	if(cClient->getNumWorms() + 1 >= maxWorms) {
 		warnings << "addWorm(): too many worms" << endl;
 		return false;
 	}
@@ -2120,8 +2123,8 @@ void CClient::GetLogData(std::string& data)
 	std::string levelfile, modfile, level, mod, player, skin;
 
 	// Fill in the details
-	levelfile = tGameInfo.sMapFile;
-	modfile = tGameInfo.sModDir;
+	levelfile = getGameLobby()[FT_Map].as<LevelInfo>()->path;
+	modfile = getGameLobby()[FT_Mod].as<ModInfo>()->path;
 	level = cMap->getName();
 	mod = cGameScript.get()->GetHeader()->ModName;
 	xmlEntityText(levelfile);
@@ -2132,18 +2135,18 @@ void CClient::GetLogData(std::string& data)
 	// Save the game info
 	data =	"<game datetime=\"" + tGameLog->sGameStart + "\" " +
 			"length=\"" + ftoa((fGameOverTime - tGameLog->fGameStart).seconds()) + "\" " +
-			"loading=\"" + itoa(tGameInfo.iLoadingTime) + "\" " +
-			"gamespeed=\"" + ftoa(tGameInfo.features[FT_GameSpeed]) + "\" " +
-			"lives=\"" + itoa(tGameInfo.iLives) + "\" " +
-			"maxkills=\"" + itoa(tGameInfo.iKillLimit) + "\" " +
-			"bonuses=\"" + (tGameInfo.bBonusesOn ? "1" : "0") + "\" " +
-			"bonusnames=\"" + (tGameInfo.bShowBonusName ? "1" : "0") + "\" " +
+			"loading=\"" + itoa((int)getGameLobby()[FT_LoadingTime]) + "\" " +
+			"gamespeed=\"" + ftoa(gameSettings[FT_GameSpeed]) + "\" " +
+			"lives=\"" + itoa((int)getGameLobby()[FT_Lives]) + "\" " +
+			"maxkills=\"" + itoa((int)getGameLobby()[FT_KillLimit]) + "\" " +
+			"bonuses=\"" + (getGameLobby()[FT_Bonuses] ? "1" : "0") + "\" " +
+			"bonusnames=\"" + (getGameLobby()[FT_ShowBonusName] ? "1" : "0") + "\" " +
 			"levelfile=\"" + levelfile + "\" " +
 			"modfile=\"" + modfile + "\" " +
 			"level=\"" + level + "\" " +
 			"mod=\"" + mod + "\" " +
 			"winner=\"" + itoa(tGameLog->iWinner) + "\" " +
-			"gamemode=\"" + tGameInfo.sGameMode + "\">";
+			"gamemode=\"" + getGameLobby()[FT_GameMode].as<GameModeInfo>()->name + "\">";
 
 	// Count the number of players
 	int num_players = 0;

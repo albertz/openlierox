@@ -122,7 +122,6 @@ namespace
 
 	std::string serverName;
 	std::string serverDesc;
-	int logNetstream = 0; //TODO: Netstream
 	std::set<Net_U32> bannedIPs;
 
 	int reconnectTimer = 0;

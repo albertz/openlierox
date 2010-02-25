@@ -52,7 +52,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		if( cMap->getPredefinedSpawnLocation(Worm, &pos) ) {
 			// ok
 		}
-		else if( getGameMode() == GameMode(GM_CTF) ) {
+		else if( game.gameMode() == GameMode(GM_CTF) ) {
 			Flag* flag = m_flagInfo->getFlag(Worm->getTeam());
 			if(!flag) // no flag yet, choose like in respawngroupteams
 				pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
@@ -60,7 +60,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 				pos = cMap->FindSpotCloseToPos(flag->spawnPoint.pos);
 		}
 		// Spawn worm closer to it's own team and away from other teams
-		else if( tLXOptions->tGameInfo.bRespawnGroupTeams && ( getGameMode()->GameTeams() > 1 ) )
+		else if( gameSettings[FT_RespawnGroupTeams] && ( game.gameMode()->GameTeams() > 1 ) )
 		{
 			pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm);
 		}
@@ -72,13 +72,13 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		pos = cMap->FindSpot();
 
 	// Allow the game mode to override spawns
-	if(!getGameMode()->Spawn(Worm, pos))
+	if(!game.gameMode()->Spawn(Worm, pos))
 		return;
 
 	Worm->Spawn(pos);
 	bool sendWormUpdate = true;
 	if(Worm->getLives() == WRM_OUT) {
-		if(tLXOptions->tGameInfo.iLives < 0)
+		if((int)gameSettings[FT_Lives] < 0)
 			Worm->setLives(WRM_UNLIM);
 		else
 			Worm->setLives(0);
@@ -97,7 +97,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 			if(sendWormUpdate) cClients[i].getNetEngine()->SendWormScore(Worm);
 		}
 
-		if( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn )
+		if( gameSettings[FT_EmptyWeaponsOnRespawn] )
 			cServer->SendEmptyWeaponsOnRespawn( Worm );
 	}
 }
@@ -128,7 +128,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 		kill = &cWorms[killer];
 	
 	// Cheat prevention, game behaves weird if this happens
-	if (vict->getLives() < 0 && tLXOptions->tGameInfo.iLives >= 0)  {
+	if (vict->getLives() < 0 && (int)gameSettings[FT_Lives] >= 0)  {
 		vict->setLives(WRM_OUT);  // Safety
 		warnings("GameServer::killWorm: victim is already out of the game.\n");
 		return;
@@ -136,11 +136,11 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 
 	// Adjust the score if there were multiple suicides
 	if (suicidesCount > 1)  {
-		if (tLXOptions->tGameInfo.iLives != WRM_UNLIM) // Substracting from infinite makes no sense
+		if ((int)gameSettings[FT_Lives] != WRM_UNLIM) // Substracting from infinite makes no sense
 			vict->setLives(MAX<int>(WRM_OUT, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
 	}
 
-	getGameMode()->Kill(vict, kill);
+	game.gameMode()->Kill(vict, kill);
 	for(int i = 0; i < MAX_CLIENTS; i++) {
 		if(!cClients[i].isConnected()) continue;		
 		cClients[i].getNetEngine()->SendWormScore(vict);
@@ -170,7 +170,7 @@ void GameServer::SimulateGame()
 	if(iState != SVS_PLAYING)
 		return;
 
-	if( tLXOptions->tGameInfo.features[FT_NewNetEngine] )
+	if( gameSettings[FT_NewNetEngine] )
 		return;
 
 	// If this is a remote game, and game over,
@@ -203,7 +203,7 @@ void GameServer::SimulateGame()
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
 
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
-			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff(tLXOptions->tGameInfo.fRespawnTime) )
+			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime]) )
 			{
 				SpawnWorm(w);
 			}
@@ -217,13 +217,13 @@ void GameServer::SimulateGame()
 	}
 
 	// Check if any bonuses have been in for too long and need to be destroyed
-	if (tLXOptions->tGameInfo.bBonusesOn)  {
+	if (gameSettings[FT_Bonuses])  {
 		for(short i=0; i<MAX_BONUSES; i++) {
 			if(!cBonuses[i].getUsed())
 				continue;
 
 			// If it's been here too long, destroy it
-			if( tLX->currentTime - cBonuses[i].getSpawnTime() > tLXOptions->tGameInfo.fBonusLife ) {
+			if( tLX->currentTime - cBonuses[i].getSpawnTime() > gameSettings[FT_BonusLife] ) {
 				cBonuses[i].setUsed(false);
 
 				// TODO: move this out here
@@ -236,7 +236,7 @@ void GameServer::SimulateGame()
 	}
 
 	// Check if we need to spawn a bonus
-	if(tLX->currentTime - fLastBonusTime > tLXOptions->tGameInfo.fBonusFreq && tLXOptions->tGameInfo.bBonusesOn && !bGameOver) {
+	if(tLX->currentTime - fLastBonusTime > gameSettings[FT_BonusFreq] && gameSettings[FT_Bonuses] && !bGameOver) {
 		SpawnBonus();
 		fLastBonusTime = tLX->currentTime;
 	}
@@ -250,9 +250,9 @@ void GameServer::SimulateGame()
 	}
 	
 	// Simulate anything needed by the game mode
-	getGameMode()->Simulate();
+	game.gameMode()->Simulate();
 
-	if( getGameMode()->TimeLimit() > 0 && fServertime > getGameMode()->TimeLimit() )
+	if( game.gameMode()->TimeLimit() > 0 && fServertime > game.gameMode()->TimeLimit() )
 		RecheckGame();
 }
 
@@ -268,7 +268,7 @@ void GameServer::SpawnBonus()
 	//cMap->CarveHole(SPAWN_HOLESIZE,pos);
 
 	// NOTE: Increase to 2 when we want to use the fullcharge bonus
-	int type = (GetRandomInt(999) >= tLXOptions->tGameInfo.fBonusHealthToWeaponChance * 1000.0f) ? BNS_HEALTH : BNS_WEAPON;
+	int type = (GetRandomInt(999) >= (float)gameSettings[FT_BonusHealthToWeaponChance] * 1000.0f) ? BNS_HEALTH : BNS_WEAPON;
 
 	// Find a free bonus spot
 	CBonus *b = cBonuses;
@@ -317,7 +317,7 @@ void GameServer::WormShootEnd(CWorm* w, const weapon_t* wpn) {
 	if (cClient->isGameOver())
 		return;
 	
-	if(!getGameMode()->Shoot(w))
+	if(!game.gameMode()->Shoot(w))
 		return;
 	
 	if(!wpn) {
@@ -367,7 +367,7 @@ void GameServer::WormShoot(CWorm *w)
 	if (cClient->isGameOver())
 		return;
 
-	if(!getGameMode()->Shoot(w))
+	if(!game.gameMode()->Shoot(w))
 		return;
 
 	wpnslot_t *Slot = w->getCurWeapon();
@@ -403,7 +403,7 @@ void GameServer::WormShoot(CWorm *w)
 		if(Slot->Charge <= 0) {
 			Slot->Charge = 0;
 			
-			if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
+			if(gameSettings[FT_DisableWpnsWhenEmpty]) {
 				Slot->Enabled = false;
 				Slot->Weapon = NULL;
 				// TODO: move that out here
@@ -463,7 +463,7 @@ void GameServer::WormShoot(CWorm *w)
 	if(Slot->Charge <= 0) {
 		Slot->Charge = 0;
 		
-		if(tLXOptions->tGameInfo.features[FT_DisableWpnsWhenEmpty]) {
+		if(gameSettings[FT_DisableWpnsWhenEmpty]) {
 			Slot->Enabled = false;
 			Slot->Weapon = NULL;
 			// TODO: move that out here
@@ -570,7 +570,7 @@ void GameServer::RecheckGame()
 		CheckReadyClient();
 	
 	if(!bGameOver && iState == SVS_PLAYING)
-		if(getGameMode()->CheckGameOver())
+		if(game.gameMode()->CheckGameOver())
 			GameOver();
 }
 

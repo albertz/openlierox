@@ -119,6 +119,23 @@ public:
 	virtual _T* get() { return &array[i]; }
 };
 
+template<typename _T>
+class CArrayConstIterator : public Iterator<_T> {
+private:
+	unsigned long i, len;
+	_T* array;
+public:
+	CArrayConstIterator(_T* _arr, size_t _len) : i(0), len(_len), array(_arr) {}
+	CArrayConstIterator(const CArray<_T>& a) : i(0), len(a.len), array(a.array) {}
+	CArrayConstIterator(const CArrayConstIterator& it) : i(it.i), array(it.array) {}
+	virtual Iterator<_T>* copy() const { return new CArrayConstIterator(*this); }
+	virtual bool isValid() { return i < len; }
+	virtual void next() { ++i; }
+	virtual void nextn(size_t n) { i += n; }
+	virtual bool operator==(const Iterator<_T>& other) const { const CArrayConstIterator* ot = dynamic_cast< const CArrayConstIterator* > (&other); return ot && ot->array == array && ot->i == i; }
+	virtual _T get() { return array[i]; }
+};
+
 class StringIterator : public Iterator<char&> {
 private:
 	std::string& str;
@@ -184,6 +201,9 @@ typename Iterator<_T const&>::Ref GetConstIterator(std::vector<_T>& s) { return 
 
 template< typename _T >
 typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArrayIterator<_T>(s); }
+
+template< typename _T >
+typename Iterator<_T>::Ref GetConstIterator(const CArray<_T>& s) { return new CArrayConstIterator<_T>(s); }
 
 #define for_each_iterator( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
 
