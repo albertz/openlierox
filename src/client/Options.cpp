@@ -251,7 +251,7 @@ bool GameOptions::Init() {
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
 		( &gameSettings.wrappers[featureArrayIndex(f->get())], f->get()->name, f->get()->defaultValue, 
-				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->minValue, f->get()->maxValue, f->get()->unsignedValue );
+			f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->unsignedValue, f->get()->minValue, f->get()->maxValue );
 	}
 	
 	
