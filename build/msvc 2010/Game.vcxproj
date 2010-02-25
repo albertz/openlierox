@@ -130,7 +130,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/include;../../libs/hawknl/src;../../libs/boost_process;../../libs/libzip;../../libs/lua;../../src/breakpad/external/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/include;../../libs/hawknl/src;../../libs/boost_process;../../libs/libzip;../../libs/lua;../../libs/breakpad/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -1211,6 +1211,8 @@
     <ClCompile Include="..\..\src\gusanos\gui\detail\list.cpp">
       <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/list_gus.asm</AssemblerListingLocation>
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/list_gus.obj</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/list_gus.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/list_gus.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\gui\detail\renderer.cpp" />
     <ClCompile Include="..\..\src\gusanos\gui\detail\wnd.cpp" />
