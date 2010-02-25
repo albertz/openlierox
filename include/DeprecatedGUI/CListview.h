@@ -316,9 +316,9 @@ public:
 	{
 		CListview * w = new CListview();
 		layout->Add( w, id, x, y, dx, dy );
-		w->setOldStyle( p[0].b );
-		w->setShowSelect( ! p[1].b );
-		w->setDrawBorder( ! p[2].b );
+		w->setOldStyle( p[0].toBool() );
+		w->setShowSelect( ! p[1].toBool() );
+		w->setDrawBorder( ! p[2].toBool() );
 		return w;
 	}
 

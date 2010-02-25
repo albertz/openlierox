@@ -42,8 +42,8 @@ std::string CInputbox::InputBoxLabel;
 
 CWidget * CInputbox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
-	CInputbox * w = new CInputbox( 0, "", tMenu->bmpInputbox, p[0].str.get() );
-	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].str.get() );
+	CInputbox * w = new CInputbox( 0, "", tMenu->bmpInputbox, p[0].toString() );
+	w->sVar = CScriptableVars::GetVarP<std::string>( p[1].toString() );
 	if( w->sVar )
 		w->setText( *w->sVar );
 	layout->Add( w, id, x, y, dx, dy );

@@ -386,14 +386,14 @@ bool CBytestream::writeVar(const ScriptVar_t& var) {
 	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
-		case SVT_BOOL: return writeBool(var.b);
-		case SVT_INT: return writeInt(var.i, 4);
-		case SVT_FLOAT: return writeFloat(var.f);
+		case SVT_BOOL: return writeBool(var.toBool());
+		case SVT_INT: return writeInt(var.toInt(), 4);
+		case SVT_FLOAT: return writeFloat(var.toFloat());
 		case SVT_COLOR: {
-			writeByte(var.col.get().r);
-			writeByte(var.col.get().g);
-			writeByte(var.col.get().b);
-			writeByte(var.col.get().a);
+			writeByte(var.toColor().r);
+			writeByte(var.toColor().g);
+			writeByte(var.toColor().b);
+			writeByte(var.toColor().a);
 			return true;
 		}		
 		default: return writeString(var.toString());
@@ -568,22 +568,30 @@ std::string CBytestream::readData( size_t size )
 
 bool CBytestream::readVar(ScriptVar_t& var) {
 	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
-	var.type = (ScriptVarType_t)readByte();
-	switch( var.type ) {
-		case SVT_BOOL: var.b = readBool(); break;
-		case SVT_INT: var.i = readInt(4); break;
-		case SVT_FLOAT: var.f = readFloat(); break;
-		case SVT_STRING: var.str.get() = readString(); break;
-		case SVT_CUSTOM: var.custom.get()->fromString(readString()); break;
+	ScriptVarType_t type = (ScriptVarType_t)readByte();
+	if(type != var.type) {
+		// TODO: the old behaviour is that we dont want that
+		// the assert also wouldn't make sense otherwise
+		// maybe this should be optional?
+		// Note that we must fix the below code in that case
+		warnings << "CBytestream::readVar: old type = " << var.type << ", read type = " << type << endl;
+		return false;
+	}
+	switch( type ) {
+		case SVT_BOOL: var = ScriptVar_t(readBool()); break;
+		case SVT_INT: var = ScriptVar_t(readInt(4)); break;
+		case SVT_FLOAT: var = ScriptVar_t(readFloat()); break;
+		case SVT_STRING: var = ScriptVar_t(readString()); break;
+		case SVT_CUSTOM: var.ptrCustom()->fromString(readString()); break;
 		case SVT_COLOR:
-			var.col.get().r = readInt(1);
-			var.col.get().g = readInt(1);
-			var.col.get().b = readInt(1);
-			var.col.get().a = readInt(1);
+			var.ptrColor()->r = readInt(1);
+			var.ptrColor()->g = readInt(1);
+			var.ptrColor()->b = readInt(1);
+			var.ptrColor()->a = readInt(1);
 			break;
 		default:
 			warnings << "read var has invalid type" << endl;
-			var = ScriptVar_t();
+			return false;
 	}
 	return true;
 }
