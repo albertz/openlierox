@@ -31,6 +31,10 @@
 		23099CCE0F60715A008E6C7F /* StackWalker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23099CCB0F60715A008E6C7F /* StackWalker.cpp */; };
 		230D02240F0D80C000AFFFFF /* Debug.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230D02230F0D80C000AFFFFF /* Debug.cpp */; };
 		230E9C510D8C407B00BFB500 /* Version.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 230E9C500D8C407B00BFB500 /* Version.cpp */; };
+		231B8E5C11357FB500B572C0 /* GameMode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5B11357FB500B572C0 /* GameMode.cpp */; };
+		231B8E5F1135804300B572C0 /* Settings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E5E1135804300B572C0 /* Settings.cpp */; };
+		231B8E67113581C000B572C0 /* SettingsPreset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8E66113581C000B572C0 /* SettingsPreset.cpp */; };
+		231B8F341135BC9100B572C0 /* CustomVar.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 231B8F331135BC9100B572C0 /* CustomVar.cpp */; };
 		231BE12510CE5C390023780D /* sfx.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC710CC1CAE00DABBD6 /* sfx.cpp */; };
 		231BE12910CE5CFD0023780D /* sfxdriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BC910CC1CAE00DABBD6 /* sfxdriver.cpp */; };
 		231BE13B10CE5D5B0023780D /* sfxdriver_openal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34BCB10CC1CAE00DABBD6 /* sfxdriver_openal.cpp */; };
@@ -679,6 +683,14 @@
 		230E9C4F0D8C406F00BFB500 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		230E9C500D8C407B00BFB500 /* Version.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Version.cpp; sourceTree = "<group>"; };
 		2313EEF40E928521007AB88B /* CServerNetEngine.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CServerNetEngine.h; sourceTree = "<group>"; };
+		231B8E5A11357FB500B572C0 /* GameMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameMode.h; sourceTree = "<group>"; };
+		231B8E5B11357FB500B572C0 /* GameMode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameMode.cpp; sourceTree = "<group>"; };
+		231B8E5D1135804300B572C0 /* Settings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Settings.h; sourceTree = "<group>"; };
+		231B8E5E1135804300B572C0 /* Settings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Settings.cpp; sourceTree = "<group>"; };
+		231B8E65113581C000B572C0 /* SettingsPreset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SettingsPreset.h; sourceTree = "<group>"; };
+		231B8E66113581C000B572C0 /* SettingsPreset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SettingsPreset.cpp; sourceTree = "<group>"; };
+		231B8F321135BC9100B572C0 /* CustomVar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomVar.h; sourceTree = "<group>"; };
+		231B8F331135BC9100B572C0 /* CustomVar.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CustomVar.cpp; sourceTree = "<group>"; };
 		231BE15110CE60480023780D /* Ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Ogg.framework; sourceTree = "<group>"; };
 		231BE15210CE60480023780D /* Vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Vorbis.framework; sourceTree = "<group>"; };
 		231BE16110CE68BD0023780D /* Mod.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mod.h; sourceTree = "<group>"; };
@@ -1681,6 +1693,12 @@
 				2370EE141100D0C80097F7BA /* SinglePlayer.cpp */,
 				2370F75E1106432C0097F7BA /* Sounds.h */,
 				2370F75F1106432C0097F7BA /* Sounds.cpp */,
+				231B8E5A11357FB500B572C0 /* GameMode.h */,
+				231B8E5B11357FB500B572C0 /* GameMode.cpp */,
+				231B8E5D1135804300B572C0 /* Settings.h */,
+				231B8E5E1135804300B572C0 /* Settings.cpp */,
+				231B8E65113581C000B572C0 /* SettingsPreset.h */,
+				231B8E66113581C000B572C0 /* SettingsPreset.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -2139,6 +2157,8 @@
 				23939B8810E7A10B0052FF1B /* FixedPointNumber.h */,
 				23BA8EE31129A79700963F72 /* Bitstream.h */,
 				23BA8EE41129A79700963F72 /* Bitstream.cpp */,
+				231B8F321135BC9100B572C0 /* CustomVar.h */,
+				231B8F331135BC9100B572C0 /* CustomVar.cpp */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3440,6 +3460,10 @@
 				23CC9B5C1133FB8600185479 /* stackwalker_x86.cc in Sources */,
 				23CC9E221134008200185479 /* DumpSyms.cpp in Sources */,
 				23CC9E7511340BF900185479 /* List.cpp in Sources */,
+				231B8E5C11357FB500B572C0 /* GameMode.cpp in Sources */,
+				231B8E5F1135804300B572C0 /* Settings.cpp in Sources */,
+				231B8E67113581C000B572C0 /* SettingsPreset.cpp in Sources */,
+				231B8F341135BC9100B572C0 /* CustomVar.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3625,6 +3649,7 @@
 				GCC_MODEL_TUNING = "";
 				GCC_ONE_BYTE_BOOL = YES;
 				GCC_OPTIMIZATION_LEVEL = s;
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
@@ -3767,6 +3792,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = "";
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
@@ -3911,6 +3937,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = "";
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
@@ -4174,6 +4201,7 @@
 				GCC_MODEL_PPC64 = YES;
 				GCC_MODEL_TUNING = "";
 				GCC_ONE_BYTE_BOOL = YES;
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
@@ -4247,6 +4275,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = "";
+				GCC_TREAT_NONCONFORMANT_CODE_ERRORS_AS_WARNINGS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
 				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
 				GCC_WARN_MISSING_PARENTHESES = YES;
