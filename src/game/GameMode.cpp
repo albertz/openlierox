@@ -11,9 +11,9 @@
 #include "GameMode.h"
 
 GameModeInfo::GameModeInfo() {
-	mode = NULL;
-	generalGameType = 0;
-	name = "";
+	mode = GameMode(GM_DEATHMATCH);
+	generalGameType = mode->GeneralGameType();
+	name = mode->Name();
 }
 
 bool GameModeInfo::operator==(const CustomVar& o) const {

@@ -113,17 +113,18 @@ struct PODForClass {
 	void init() { new (data) T; }
 	void init(const T& v) { new (data) T(v); }
 	void uninit() { get().~T(); }
-	PODForClass& operator=(const T& v) { get() = v; return *this; }
 	bool operator==(const T& o) const { return get() == o; }
 	bool operator<(const T& o) const { return get() < o; }
 };
 
 // Helper wrapper for common var types (used in GUI skinning)
-struct ScriptVar_t
+class ScriptVar_t
 {
-	ScriptVarType_t type;
+public:
+	const ScriptVarType_t type;
 	PIVar(bool,false) isUnsigned;  // True for values that are unsigned and where negative values mean infinity
-	
+
+private:
 	union {
 		bool b;
 		int i;
@@ -133,6 +134,7 @@ struct ScriptVar_t
 		PODForClass<CustomVar::Ref> custom;
 	};
 
+public:
 	// No callback here - we cannot assign callbacks to each other
 	ScriptVar_t(): type(SVT_BOOL), b(false) {}
 	ScriptVar_t( bool v ): type(SVT_BOOL), b(v) {}
@@ -144,12 +146,22 @@ struct ScriptVar_t
 
 	ScriptVar_t( const ScriptVar_t& v ) : type(v.type), isUnsigned(v.isUnsigned) {
 		switch(v.type) {
-			case SVT_STRING: str.init(); str = v.str; break;
-			case SVT_COLOR: col.init(); col = v.col; break;
-			case SVT_CUSTOM: custom.init(); custom = v.custom; break;
-			default: break;
-		}		
+			case SVT_BOOL: b = v.b; break;
+			case SVT_INT: i = v.i; break;
+			case SVT_FLOAT: f = v.f; break;
+			case SVT_STRING: str.init(v.str.get()); break;
+			case SVT_COLOR: col.init(v.col.get()); break;
+			case SVT_CUSTOM: custom.init(v.custom.get()); break;
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
 	}	
+
+	ScriptVar_t& operator=(const ScriptVar_t& v) {
+		this -> ~ScriptVar_t(); // uninit
+		new (this) ScriptVar_t(v); // init again
+		return *this;
+	}
 
 	~ScriptVar_t() {
 		switch(type) {
@@ -159,14 +171,29 @@ struct ScriptVar_t
 			default: break;
 		}		
 	}
-		
-	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
-	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
+
 	operator bool() const { assert(type == SVT_BOOL); return b; }
 	operator int() const { assert(type == SVT_INT); return i; }
 	operator float() const { assert(type == SVT_FLOAT); return f; }
 	operator std::string() const { assert(type == SVT_STRING); return str.get(); }
 	operator Color() const { assert(type == SVT_COLOR); return col.get(); }
+
+	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
+	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
+
+	bool* ptrBool() { assert(type == SVT_BOOL); return &b; }
+	int* ptrInt() { assert(type == SVT_INT); return &i; }
+	float* ptrFloat() { assert(type == SVT_FLOAT); return &f; }
+	std::string* ptrString() { assert(type == SVT_STRING); return &str.get(); }
+	Color* ptrColor() { assert(type == SVT_COLOR); return &col.get(); }
+	CustomVar::Ref& ptrCustom() { assert(type == SVT_CUSTOM); return custom.get(); }
+
+	const bool* ptrBool() const { assert(type == SVT_BOOL); return &b; }
+	const int* ptrInt() const { assert(type == SVT_INT); return &i; }
+	const float* ptrFloat() const { assert(type == SVT_FLOAT); return &f; }
+	const std::string* ptrString() const { assert(type == SVT_STRING); return &str.get(); }
+	const Color* ptrColor() const { assert(type == SVT_COLOR); return &col.get(); }
+	const CustomVar::Ref& ptrCustom() const { assert(type == SVT_CUSTOM); return custom.get(); }
 
 	bool operator==(const ScriptVar_t& var) const {
 		if(var.type != type) return false;
@@ -177,7 +204,8 @@ struct ScriptVar_t
 			case SVT_STRING: return var.str == str;
 			case SVT_COLOR: return var.col == col;
 			case SVT_CUSTOM: return var.custom.get().get() == custom.get().get();
-			default: assert(false);
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
 		}
 		return false;
 	}
@@ -191,7 +219,8 @@ struct ScriptVar_t
 			case SVT_STRING: return str < var.str;
 			case SVT_COLOR: return col < var.col;
 			case SVT_CUSTOM: return custom.get().get() < var.custom.get().get();
-			default: assert(false);
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
 		}
 		return false;
 	}
@@ -204,16 +233,58 @@ struct ScriptVar_t
 	bool fromString( const std::string & str);
 	friend std::ostream& operator<< (std::ostream& o, const ScriptVar_t& svt);
 
+	bool toBool() const { return toInt() != 0; }
+	int toInt() const {
+		switch(type) {
+			case SVT_BOOL: return b ? 1 : 0;
+			case SVT_INT: return i;
+			case SVT_FLOAT: return (int)f;
+			case SVT_STRING: return from_string<int>(str.get());
+			case SVT_COLOR: return (int)col.get().getDefault();
+			case SVT_CUSTOM: return from_string<int>(toString());
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
+		assert(false); return 0;
+	}
+	float toFloat() const {
+		switch(type) {
+			case SVT_BOOL: return b ? 1.0f : 0.0f;
+			case SVT_INT: return (float)i;
+			case SVT_FLOAT: return f;
+			case SVT_STRING: return from_string<float>(str.get());
+			case SVT_COLOR: return (float)col.get().getDefault();
+			case SVT_CUSTOM: return from_string<float>(toString());
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
+		assert(false); return 0.0f;
+	}
+	Color toColor() const {
+		switch(type) {
+			case SVT_BOOL: return b ? Color(255,255,255) : Color();
+			case SVT_INT: return Color::fromDefault((Uint32)i);
+			case SVT_FLOAT: return Color::fromDefault((Uint32)f);
+			case SVT_STRING: return StrToCol(str.get());
+			case SVT_COLOR: return col.get();
+			case SVT_CUSTOM: return StrToCol(toString());
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
+		}
+		assert(false); return Color();
+	}
+
 	// Note: the difference to op= is that we keep the same type here
 	void fromScriptVar(const ScriptVar_t& v) {
 		switch(type) {
 			case SVT_BOOL: assert(v.type == SVT_BOOL); b = v.b; break;
 			case SVT_INT: assert(v.type == SVT_INT); i = v.i; break;
 			case SVT_FLOAT: assert(v.isNumeric()); f = v.getNumber(); break;
-			case SVT_STRING: str = v.toString(); break;
-			case SVT_COLOR: assert(v.type == SVT_COLOR); col = v.col; break;
-			case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom = v.custom; break;
-			default: assert(false);
+			case SVT_STRING: str.get() = v.toString(); break;
+			case SVT_COLOR: assert(v.type == SVT_COLOR); col.get() = v.col.get(); break;
+			case SVT_CUSTOM: assert(v.type == SVT_CUSTOM); custom.get() = v.custom.get(); break;
+			case SVT_CALLBACK:
+			case SVT_DYNAMIC: assert(false);
 		}
 	}
 };
@@ -279,7 +350,7 @@ struct ScriptVarPtr_t
 	template<typename T>
 	ScriptVarPtr_t( T * v, const T& def = DefaultValue<T>::value() )
 	: type(GetType<T>::value), isUnsigned(false), defaultValue(def)
-	{ __ScriptVarPtrRaw_ptr<typename GetType<T>::type>(ptr) = v; }
+	{ __ScriptVarPtrRaw_ptr<T>(ptr) = v; }
 	
 	ScriptVarPtr_t( ScriptCallback_t v ) : type(SVT_CALLBACK), isUnsigned(false) { ptr.cb = v; }
 	ScriptVarPtr_t( _DynamicVar* v, const ScriptVar_t& def ) : type(SVT_DYNAMIC), isUnsigned(false), defaultValue(def) { ptr.dynVar = v; }
@@ -287,12 +358,12 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( ScriptVar_t * v, const ScriptVar_t& def ) : type(v->type), isUnsigned(v->isUnsigned), defaultValue(def) {
 		assert(v->type == def.type);
 		switch(type) {
-			case SVT_BOOL: ptr.b = &v->b; break;
-			case SVT_INT: ptr.i = &v->i; break;
-			case SVT_FLOAT: ptr.f = &v->f; break;
-			case SVT_STRING: ptr.s = &v->str.get(); break;
-			case SVT_COLOR: ptr.cl = &v->col.get(); break;
-			case SVT_CUSTOM: ptr.custom = &v->custom.get(); break;
+			case SVT_BOOL: ptr.b = v->ptrBool(); break;
+			case SVT_INT: ptr.i = v->ptrInt(); break;
+			case SVT_FLOAT: ptr.f = v->ptrFloat(); break;
+			case SVT_STRING: ptr.s = v->ptrString(); break;
+			case SVT_COLOR: ptr.cl = v->ptrColor(); break;
+			case SVT_CUSTOM: ptr.custom = &v->ptrCustom(); break;
 			default: assert(false);
 		}
 	}
@@ -301,12 +372,12 @@ struct ScriptVarPtr_t
 		if(var == NULL) return ptr.b == NULL;
 		if(var->type != type) return false;
 		switch(type) {
-			case SVT_BOOL: return ptr.b == &var->b;
-			case SVT_INT: return ptr.i == &var->i;
-			case SVT_FLOAT: return ptr.f == &var->f;
-			case SVT_STRING: return ptr.s == &var->str.get();
-			case SVT_COLOR: return ptr.cl == &var->col.get();
-			case SVT_CUSTOM: return ptr.custom == &var->custom.get();
+			case SVT_BOOL: return ptr.b == var->ptrBool();
+			case SVT_INT: return ptr.i == var->ptrInt();
+			case SVT_FLOAT: return ptr.f == var->ptrFloat();
+			case SVT_STRING: return ptr.s == var->ptrString();
+			case SVT_COLOR: return ptr.cl == var->ptrColor();
+			case SVT_CUSTOM: return ptr.custom == &var->ptrCustom();
 			default: assert(false);
 		}
 		return false;
@@ -375,7 +446,14 @@ struct RegisteredVar {
 		max = maxval;
 	}
 		
-	
+	RegisteredVar( ScriptCallback_t v, const std::string & c)
+	{
+		var = ScriptVarPtr_t( v );
+		group = GIG_Invalid;
+		advancedLevel = ALT_Basic;
+	}
+
+
 };
 
 
@@ -447,7 +525,7 @@ public:
 										const std::string & descr = "", const std::string & descrLong = "", GameInfoGroup group = GIG_Invalid, AdvancedLevel level = ALT_Basic,
 										bool unsig = false, const T& minval = DefaultValue<T>::value(), const T& maxval = DefaultValue<T>::value() )
 		{
-			m_vars[Name(c)] = RegisteredVar(v, c, T(def), descr, descrLong, group, level, unsig, minval, maxval);
+			m_vars[Name(c)] = RegisteredVar(v, std::string(c), T(def), descr, descrLong, group, level, unsig, minval, maxval);
 			return *this; 
 		}
 
@@ -458,7 +536,7 @@ public:
 		}
 		
 		VarRegisterHelper& operator() (ScriptCallback_t cb, const std::string& c) {
-			// TODO...
+			m_vars[Name(c)] = RegisteredVar(cb, c);
 			return *this;
 		}
 		

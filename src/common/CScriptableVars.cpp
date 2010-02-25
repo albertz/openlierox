@@ -83,8 +83,8 @@ bool ScriptVar_t::fromString( const std::string & s )
 		case SVT_BOOL: b = from_string<bool>(s); break;
 		case SVT_INT: i = from_string<int>(s); break;
 		case SVT_FLOAT: f = from_string<float>(s); break;
-		case SVT_STRING: str = str; break;
-		case SVT_COLOR: col = StrToCol(s); break;
+		case SVT_STRING: str.get() = s; break;
+		case SVT_COLOR: col.get() = StrToCol(s); break;
 		case SVT_CUSTOM: custom.get().get().fromString(s); break;
 		default: assert(false); return false;
 	}

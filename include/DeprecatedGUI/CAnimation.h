@@ -91,7 +91,7 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CWidget * w = new CAnimation( p[0].str.get(), p[1].f );
+		CWidget * w = new CAnimation( p[0].toString(), p[1].toFloat() );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

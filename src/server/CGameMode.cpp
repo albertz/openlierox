@@ -508,22 +508,23 @@ extern CGameMode* gameMode_Race;
 extern CGameMode* gameMode_TeamRace;
 
 
-static std::vector<CGameMode*> gameModes;
+static CGameMode* gameModes[] = {
+	gameMode_DeathMatch,
+	gameMode_TeamDeathMatch,
+	gameMode_Tag,
+	gameMode_Demolitions,
+	gameMode_HideAndSeek,
+	gameMode_CaptureTheFlag,
+	gameMode_Race,
+	gameMode_TeamRace
+};
 
-void InitGameModes() {
-	gameModes.resize(8);
-	gameModes[0] = gameMode_DeathMatch;
-	gameModes[1] = gameMode_TeamDeathMatch;
-	gameModes[2] = gameMode_Tag;
-	gameModes[3] = gameMode_Demolitions;
-	gameModes[4] = gameMode_HideAndSeek;
-	gameModes[5] = gameMode_CaptureTheFlag;
-	gameModes[6] = gameMode_Race;
-	gameModes[7] = gameMode_TeamRace;
-}
+static size_t gameModesSize = sizeof(gameModes) / sizeof(CGameMode*);
+
+void InitGameModes() {}
 
 CGameMode* GameMode(GameModeIndex i) {
-	if(i < 0 || (uint)i >= gameModes.size()) {
+	if(i < 0 || (uint)i >= gameModesSize) {
 		errors << "gamemode " << i << " requested, we don't have such one" << endl;
 		return NULL;
 	}
@@ -532,9 +533,9 @@ CGameMode* GameMode(GameModeIndex i) {
 }
 
 CGameMode* GameMode(const std::string& name) {
-	for(std::vector<CGameMode*>::iterator i = gameModes.begin(); i != gameModes.end(); ++i) {
-		if(name == (*i)->Name())
-			return *i;
+	for(size_t i = 0; i < gameModesSize; ++i) {
+		if(name == gameModes[i]->Name())
+			return gameModes[i];
 	}
 	warnings << "gamemode " << name << " requested, we don't have such one" << endl;
 	return NULL;
@@ -542,18 +543,17 @@ CGameMode* GameMode(const std::string& name) {
 
 GameModeIndex GetGameModeIndex(CGameMode* gameMode) {
 	if(gameMode == NULL) return GM_DEATHMATCH;
-	int index = 0;
-	for(std::vector<CGameMode*>::iterator i = gameModes.begin(); i != gameModes.end(); ++i, ++index) {
-		if(gameMode == *i)
-			return (GameModeIndex)index;
+	for(size_t i = 0; i < gameModesSize; ++i) {
+		if(gameMode == gameModes[i])
+			return (GameModeIndex)i;
 	}
 	return GM_DEATHMATCH;
 }
 
 
 
-Iterator<CGameMode* const&>::Ref GameModeIterator() {
-	return GetConstIterator(gameModes);
+Iterator<CGameMode*>::Ref GameModeIterator() {
+	return GetConstIterator(Array(gameModes, gameModesSize));
 }
 
 std::string guessGeneralGameTypeName(int iGeneralGameType)

@@ -383,7 +383,7 @@ CGameScript* Game::gameScript() {
 
 CGameMode* Game::gameMode() {
 	if(tLX) {
-		if(tLX->iGameType != GME_JOIN) return game.gameMode();
+		if(tLX->iGameType != GME_JOIN) return gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		return cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode;
 	}
 	return NULL;

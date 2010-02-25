@@ -116,11 +116,11 @@ public:
 		CScrollbar * w = new CScrollbar();
 		layout->Add( w, id, x, y, dx, dy );
 		// Should be set after scrollbar is added to layout
-		w->cClick.Init( p[4].str.get(), w );
-		w->setMin( p[0].i );
-		w->setMax( p[1].i );
-		w->setItemsperbox( p[2].i );
-		w->iVar = CScriptableVars::GetVarP<int>( p[3].str.get() );
+		w->cClick.Init( p[4].toString(), w );
+		w->setMin( p[0].toInt() );
+		w->setMax( p[1].toInt() );
+		w->setItemsperbox( p[2].toInt() );
+		w->iVar = CScriptableVars::GetVarP<int>( p[3].toString() );
 		if( w->iVar )
 			w->setValue( *w->iVar );
 		return w;

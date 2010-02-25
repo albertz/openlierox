@@ -55,7 +55,7 @@ struct Settings {
 		ScriptVar_t& operator[](FeatureIndex i) {
 			assert(!s.layers.empty());
 			if(!s.layers.back()->isSet[i]) {
-				(*s.layers.back())[i] = (*this)[i];
+				(*s.layers.back())[i] = s[i];
 				s.layers.back()->isSet[i] = true;
 			}
 			return (*s.layers.back())[i];	

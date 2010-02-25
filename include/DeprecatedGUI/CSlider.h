@@ -105,12 +105,12 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CSlider * w = new CSlider( p[1].i, p[0].i );
+		CSlider * w = new CSlider( p[1].toInt(), p[0].toInt() );
 		layout->Add( w, id, x, y, dx, dy );
-		w->iVar = CScriptableVars::GetVarP<int>( p[2].str );
+		w->iVar = CScriptableVars::GetVarP<int>( p[2].toString() );
 		if( w->iVar )
 			w->setValue( *w->iVar );
-		w->cClick.Init( p[3].str, w );
+		w->cClick.Init( p[3].toString(), w );
 		return w;
 	}
 	
