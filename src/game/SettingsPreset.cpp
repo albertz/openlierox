@@ -73,7 +73,11 @@ void setupModGameSettingsPresetComboboxes(DeprecatedGUI::CCombobox* modList, Dep
 
 
 GameSettingsPresetInfo GameSettingsPresetInfo::Default() {
-	return settingsInfo("Classic.gamesettings", true);
+	GameSettingsPresetInfo i;
+	i.name = "Classic";
+	i.path = "./Classic.gamesettings";
+	i.global = true;
+	return i;
 }
 
 
