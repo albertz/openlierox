@@ -141,6 +141,8 @@ void RaiseDebugger() {
 #include "StringUtils.h"
 #include "ConversationLogger.h"
 #include "CGameMode.h"
+#include "game/Mod.h"
+#include "game/Level.h"
 
 #define itoa _itoa
 
@@ -264,7 +266,7 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Time limit
-		itoa((int)(gameSettings[FT_TimeLimit] * 10), tmp, 10);
+		itoa((int)((float)gameSettings[FT_TimeLimit] * 10), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "fTimeLimit = ", bufsize);
 		strncat(buffer, tmp, bufsize);
