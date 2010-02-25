@@ -50,6 +50,7 @@
 #include "gusanos/gusgame.h"
 #include "game/WormInputHandler.h"
 #include "sound/SoundsBase.h"
+#include "game/Level.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -633,8 +634,8 @@ void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		if (fail)
 			number = 1;
 		
-		if (number > cClient->getGameLobby()->iLives+1)  // Safety, not needed really (should be covered in next condition)
-			number = cClient->getGameLobby()->iLives+1;
+		if (number > (int)cClient->getGameLobby()[FT_Lives]+1)  // Safety, not needed really (should be covered in next condition)
+			number = (int)cClient->getGameLobby()[FT_Lives]+1;
 		if (number > w->getLives()+1)
 			number = w->getLives()+1;
 		if (number < 1)
@@ -713,7 +714,7 @@ void Cmd_serverName::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		return;
 	}
 	
-	cServer->setName(params[0]);
+	tLXOptions->sServerName = params[0];
 }
 
 COMMAND_EXTRA(help, "list available commands or shows desription/usage of specific command", "[command]", 0, 1, paramCompleters[0] = &autoCompleteCommand);
@@ -866,9 +867,9 @@ void Cmd_serverSideHealth::exec(CmdLineIntf* caller, const std::vector<std::stri
 	const std::string arg = params[0];
 	 
 	// Set the ssh
-	tLXOptions->tGameInfo.bServerSideHealth = stringcaseequal(arg,"on") || stringcaseequal(arg,"true") || stringcaseequal(arg,"1") || stringcaseequal(arg,"yes");
+	tLXOptions->bServerSideHealth = stringcaseequal(arg,"on") || stringcaseequal(arg,"true") || stringcaseequal(arg,"1") || stringcaseequal(arg,"yes");
 	 
-	caller->writeMsg(std::string("Server-side health is now ") + (tLXOptions->tGameInfo.bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
+	caller->writeMsg(std::string("Server-side health is now ") + (tLXOptions->bServerSideHealth ? std::string("enabled.") : std::string("disabled.")));
 	
 }
 
@@ -1628,18 +1629,7 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		for( CScriptableVars::const_iterator it = CScriptableVars::begin(); it != CScriptableVars::end(); it++ )
 		{
 			notes << "setvar( \"" << it->first << "\", ";
-			if( it->second.var.type == SVT_BOOL )
-				notes << (int) * it->second.var.b;
-			else if( it->second.var.type == SVT_INT )
-				notes << * it->second.var.i;
-			else if( it->second.var.type == SVT_FLOAT )
-				notes << * it->second.var.f;
-			else if( it->second.var.type == SVT_STRING )
-				notes << "\"" << * it->second.var.s << "\"";
-			else if( it->second.var.type == SVT_COLOR )
-				notes << ColToHex(*it->second.var.cl);
-			else
-				notes << "\"\"";
+			notes << it->second.var.toString();
 			notes << ")" << endl;
 		}
 		return;
@@ -1652,17 +1642,17 @@ void Cmd_setVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	}
 
 	if(cServer && cServer->isServerRunning() && cServer->getState() != SVS_LOBBY) {
-		if( varptr->var.s == &tLXOptions->tGameInfo.sMapFile ) {
+		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ) {
 			caller->writeMsg("SetVar: You cannot change the map in game");
 			return;
 		}
 		
-		if( varptr->var.s == &tLXOptions->tGameInfo.sMapName ) {
+		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->name ) {
 			caller->writeMsg("SetVar: You cannot change the map-name in game");
 			return;
 		}
 		
-		if( varptr->var.s == &tLXOptions->tGameInfo.sModDir ) {
+		if( varptr->var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path ) {
 			caller->writeMsg("SetVar: You cannot change the mod in game");
 			return;
 		}
@@ -1695,7 +1685,7 @@ void Cmd_getVar::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		return;
 	}
 	
-	if( varptr->var.s == &tLXOptions->sServerPassword ) {
+	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
 		caller->writeMsg("GetVar: this variable is restricted");
 		// If you want to check if a worm is authorized, use another function for that.
 		return;
@@ -1737,7 +1727,7 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		if( port ) tLXOptions->iNetworkPort = port;
 	}
 
-	tLXOptions->tGameInfo.iMaxPlayers = CLAMP(tLXOptions->tGameInfo.iMaxPlayers, 2, (int)MAX_PLAYERS);
+	tLXOptions->iMaxPlayers = CLAMP(tLXOptions->iMaxPlayers, 2, (int)MAX_PLAYERS);
 
 	tLX->iGameType = GME_HOST;
 
@@ -1759,25 +1749,25 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 	}
 	cClient->Connect("127.0.0.1:" + itoa(cServer->getPort()));
 
-	if(tLXOptions->tGameInfo.sModDir == "")
-		tLXOptions->tGameInfo.sModDir = "MW 1.0";
+	if(gameSettings[FT_Mod].as<ModInfo>()->path == "")
+		gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = "MW 1.0";
 	{
-		ModInfo modInfo = infoForMod(tLXOptions->tGameInfo.sModDir);
+		ModInfo modInfo = infoForMod(gameSettings[FT_Mod].as<ModInfo>()->path);
 		if(!modInfo.valid) {
-			caller->writeMsg("no mod for dedicated, " + tLXOptions->tGameInfo.sModDir + " not found");
+			caller->writeMsg("no mod for dedicated, " + gameSettings[FT_Mod].as<ModInfo>()->path + " not found");
 			// TODO..			
 		}
 		else
-			tLXOptions->tGameInfo.sModName = modInfo.name;
+			gameSettings.overwrite[FT_Mod].as<ModInfo>()->name = modInfo.name;
 	}
 
 	// Get the game type
-	if(tLXOptions->tGameInfo.gameMode == NULL)
-		tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
+	if(gameSettings[FT_GameMode].as<GameModeInfo>()->mode == NULL)
+		gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = GameMode(GM_DEATHMATCH);
 
-	if(tLXOptions->tGameInfo.sMapFile == "")
-		tLXOptions->tGameInfo.sMapFile = "CastleStrike.lxl";
-	tLXOptions->tGameInfo.sMapName = CMap::GetLevelName(tLXOptions->tGameInfo.sMapFile);
+	if(gameSettings[FT_Map].as<LevelInfo>()->path == "")
+		gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = "CastleStrike.lxl";
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->name = CMap::GetLevelName(gameSettings[FT_Map].as<LevelInfo>()->path);
 
 	if(DedicatedControl::Get())
 		DedicatedControl::Get()->LobbyStarted_Signal();
@@ -1803,7 +1793,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		return;
 	}
 	
-	if(cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames]) {
+	if(cServer->getNumPlayers() <= 1 && !gameSettings[FT_AllowEmptyGames]) {
 		caller->writeMsg("cannot start game, too few players");
 		return;
 	}
@@ -1861,7 +1851,7 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		return;
 	}
 		
-	tLXOptions->tGameInfo.sMapFile = filename;
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = filename;
 	if(!bDedicated)
 		DeprecatedGUI::Menu_Net_HostLobbySetLevel(filename);
 	cServer->UpdateGameLobby();
@@ -1890,7 +1880,7 @@ void Cmd_mod::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		return;
 	}
 	
-	tLXOptions->tGameInfo.sModDir = filename;
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = filename;
 	if(!bDedicated)
 		DeprecatedGUI::Menu_Net_HostLobbySetMod(filename);
 	cServer->UpdateGameLobby();
@@ -2099,7 +2089,7 @@ void Cmd_selectWeapons::exec(CmdLineIntf* caller, const std::vector<std::string>
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;
 	
 	// NOTE: random weapons for host worms (in case bSameWeaponsAsHostWorm) are handled in local client
-	if(!tLXOptions->tGameInfo.bSameWeaponsAsHostWorm && tLXOptions->tGameInfo.bForceRandomWeapons) {
+	if(!gameSettings[FT_SameWeaponsAsHostWorm] && gameSettings[FT_ForceRandomWeapons]) {
 		w->GetRandomWeapons();
 		// TODO: move that out here
 		CBytestream bs;
@@ -2128,7 +2118,7 @@ COMMAND(whoIs, "get some info about a connection", "worm-id", 1, 1);
 void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	CWorm* w = getWorm(caller, params[0]); if(!w) return;	
 	caller->pushReturnArg("ID/Name: " + itoa(w->getID()) + ":" + w->getName());
-	if(cClient && cClient->getGameLobby() && cClient->getGameLobby()->gameMode && cClient->getGameLobby()->gameMode->GameTeams() > 1)
+	if(cClient && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() > 1)
 		caller->pushReturnArg("Team: " + itoa(w->getTeam()));
 	if(w->getClient()) {
 		caller->pushReturnArg("Address: " + w->getClient()->getAddrAsString() + " (" + w->getClient()->ipInfo().countryName + ")");

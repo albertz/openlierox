@@ -86,7 +86,7 @@ public:
 			return moveAndCheckWormCollision(currentTime, dt,worm,worm->getPos(),vel,vOldPos,jump);
 		}
 
-		bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
 			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
@@ -276,7 +276,7 @@ public:
 		}
 
 		// Handle infinite map
-		const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		const bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
 			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
@@ -341,8 +341,8 @@ public:
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
 		static const TimeDiff orig_dt = LX56PhysicsDT;
-		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
-		const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]; // wpnDT could be different from dt
+		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()[FT_GameSpeed]);
+		const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]; // wpnDT could be different from dt
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 
 		// TODO: Later, we should have a message bus for input-events which is filled
@@ -433,11 +433,11 @@ public:
 			const float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
 			if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 				// Right
-				if(worm->velocity().x < (float)cClient->getGameLobby()->features[FT_WormMaxMoveSpeed])
+				if(worm->velocity().x < (float)cClient->getGameLobby()[FT_WormMaxMoveSpeed])
 					worm->velocity().x += speed * dt * 90.0f;
 			} else {
 				// Left
-				if(worm->velocity().x > -(float)cClient->getGameLobby()->features[FT_WormMaxMoveSpeed])
+				if(worm->velocity().x > -(float)cClient->getGameLobby()[FT_WormMaxMoveSpeed])
 					worm->velocity().x -= speed * dt * 90.0f;
 			}
 		}
@@ -450,8 +450,8 @@ public:
 			if( onGround )
 				worm->setLastAirJumpTime(AbsTime());
 			if(ws->bJump && ( onGround || worm->canAirJump() ||
-				( bool(cClient->getGameLobby()->features[FT_RelativeAirJump]) && GetPhysicsTime() > 
-					worm->getLastAirJumpTime() + float( cClient->getGameLobby()->features[FT_RelativeAirJumpDelay] ) ) )) 
+				( bool(cClient->getGameLobby()[FT_RelativeAirJump]) && GetPhysicsTime() > 
+					worm->getLastAirJumpTime() + float( cClient->getGameLobby()[FT_RelativeAirJumpDelay] ) ) )) 
 			{
 				if( onGround )
 					worm->velocity().y = wd->JumpForce;
@@ -486,7 +486,7 @@ public:
 		worm->velocity().y += wd->Gravity*dt;
 
 		{
-			float friction = cClient->getGameLobby()->features[FT_WormFriction];
+			float friction = cClient->getGameLobby()[FT_WormFriction];
 			if(friction > 0) {
 				static const float wormSize = 5.0f;
 				static const float wormMass = (wormSize/2) * (wormSize/2) * (float)PI;
@@ -503,7 +503,7 @@ public:
 
 		// Ultimate in friction
 		if(worm->isOnGround()) {
-			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()->features[FT_WormGroundFriction]);
+			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()[FT_WormGroundFriction]);
 
 			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
 
@@ -528,7 +528,7 @@ public:
 
 	virtual void simulateWormWeapon(CWorm* worm) {
 		// we use deltatime here and not realdeltatime because we want to have it the same way as the call from simulateWorm
-		TimeDiff dt = tLX->fDeltaTime * (float)cClient->getGameLobby()->features[FT_GameSpeed];
+		TimeDiff dt = tLX->fDeltaTime * (float)cClient->getGameLobby()[FT_GameSpeed];
 		simulateWormWeapon(dt, worm);
 	}
 
@@ -550,10 +550,10 @@ public:
 			Slot->LastFire -= dt.seconds();
 		
 		if(Slot->Reloading) {
-			if(cClient->getGameLobby()->iLoadingTime == 0)
+			if((int)cClient->getGameLobby()[FT_LoadingTime] == 0)
 				Slot->Charge = 1;
 			else
-				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/(cClient->getGameLobby()->iLoadingTime * 0.01f)));
+				Slot->Charge += fabs((float)dt.seconds()) * (Slot->Weapon->Recharge * (1.0f/((int)cClient->getGameLobby()[FT_LoadingTime] * 0.01f)));
 
 			if(Slot->Charge >= 1) {
 				Slot->Charge = 1;
@@ -570,7 +570,7 @@ public:
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();
 
-		const bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+		const bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 
 		rope->updateOldHookPos();
 
@@ -718,7 +718,7 @@ public:
 		AbsTime simulationTime = GetPhysicsTime();	
 		warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
 		static const float orig_dt = LX56PhysicsDT.seconds();
-		const float dt = (bool)cClient->getGameLobby()->features[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()->features[FT_GameSpeed]);
+		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]);
 
 	simulateBonusStart:
 		if(bonus->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -766,7 +766,7 @@ public:
 			if(y<0)
 				continue;
 			if(y>=mh) {
-				if( cClient->getGameLobby()->features[FT_InfiniteMap] )
+				if( cClient->getGameLobby()[FT_InfiniteMap] )
 					bonus->pos().y =- (float)mh;
 				else
 					colideBonus(bonus, x,y);
@@ -797,7 +797,7 @@ public:
 	}
 
 	virtual void simulateBonuses(CBonus* bonuses, size_t count) {
-		if(!cClient->getGameLobby()->bBonusesOn)
+		if(!cClient->getGameLobby()[FT_Bonuses])
 			return;
 
 		if(!cClient->getMap()) return;

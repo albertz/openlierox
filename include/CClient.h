@@ -34,9 +34,9 @@
 #include "CProjectile.h"
 #include "CWpnRest.h"
 #include "Consts.h"
-#include "LieroX.h"
 #include "CViewport.h"
 #include "SafeVector.h"
+#include "game/GameMode.h"
 
 
 namespace DeprecatedGUI {
@@ -249,7 +249,7 @@ private:
 	// Game
 	SmartPointer<CGameScript> cGameScript;
     CWpnRest    cWeaponRestrictions;
-	GameOptions::GameInfo tGameInfo;	// Also game lobby
+	FeatureSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 	FlagInfo*	m_flagInfo;
@@ -573,7 +573,7 @@ public:
     CChatBox    *getChatbox()           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
-	GameOptions::GameInfo *getGameLobby()		{ return &tGameInfo; }
+	FeatureSettings& getGameLobby()		{ return tGameInfo; }
 
 	bool		getBadConnection()		{ return bBadConnection; }
 	std::string	getBadConnectionMsg()	{ return strBadConnectMsg; }
@@ -622,8 +622,9 @@ public:
 	void setServerName(const std::string& _n)		{ szServerName = _n; }
 	const std::string& getServerName()			{ return szServerName; }
 
-	int getGeneralGameType() const				{ return tGameInfo.iGeneralGameType; }
-	bool isTeamGame() const						{ return tGameInfo.iGeneralGameType == GMT_TEAMS; }
+	int getGeneralGameType() const				{ return tGameInfo[FT_GameMode].as<GameModeInfo>()->generalGameType; }
+	bool isTeamGame() const						{ return getGeneralGameType() == GMT_TEAMS; }
+	bool isTagGame() const						{ return getGeneralGameType() == GMT_TIME; }
 
 	const Version& getClientVersion()				{ return cClientVersion; }
 	void setClientVersion(const Version& v);
@@ -673,9 +674,6 @@ public:
 	int			getNumRemoteWorms();
 	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 	FlagInfo*	flagInfo()			{ return m_flagInfo; }
-
-	bool		isTeamGame() { return getGameLobby()->iGeneralGameType == GMT_TEAMS; }
-	bool		isTagGame() { return getGameLobby()->iGeneralGameType == GMT_TIME; }
 	
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }
 	void		setOnModDlFinished(DownloadFinishedCB f)  { tModDlCallback = f; }

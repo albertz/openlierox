@@ -383,21 +383,20 @@ bool CBytestream::writeData(const std::string& value)
 }
 
 bool CBytestream::writeVar(const ScriptVar_t& var) {
-	assert( var.type >= 0 && var.type <= 4 );
+	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
 	if(!writeByte( var.type )) return false;
 	switch( var.type ) {
 		case SVT_BOOL: return writeBool(var.b);
 		case SVT_INT: return writeInt(var.i, 4);
 		case SVT_FLOAT: return writeFloat(var.f);
-		case SVT_STRING: return writeString(var.s);
 		case SVT_COLOR: {
-			writeByte(var.c.r);
-			writeByte(var.c.g);
-			writeByte(var.c.b);
-			writeByte(var.c.a);
+			writeByte(var.col.get().r);
+			writeByte(var.col.get().g);
+			writeByte(var.col.get().b);
+			writeByte(var.col.get().a);
 			return true;
-		}
-		default: assert(false); return false;
+		}		
+		default: return writeString(var.toString());
 	}
 }
 
@@ -568,14 +567,20 @@ std::string CBytestream::readData( size_t size )
 }
 
 bool CBytestream::readVar(ScriptVar_t& var) {
-	assert( var.type >= 0 && var.type <= 4 );
+	assert( var.type >= SVT_BOOL && var.type <= SVT_CUSTOM );
 	var.type = (ScriptVarType_t)readByte();
 	switch( var.type ) {
 		case SVT_BOOL: var.b = readBool(); break;
 		case SVT_INT: var.i = readInt(4); break;
 		case SVT_FLOAT: var.f = readFloat(); break;
-		case SVT_STRING: var.s = readString(); break;
-		case SVT_COLOR: var.c.r = readInt(1); var.c.g = readInt(1); var.c.b = readInt(1); var.c.a = readInt(1); break;
+		case SVT_STRING: var.str.get() = readString(); break;
+		case SVT_CUSTOM: var.custom.get()->fromString(readString()); break;
+		case SVT_COLOR:
+			var.col.get().r = readInt(1);
+			var.col.get().g = readInt(1);
+			var.col.get().b = readInt(1);
+			var.col.get().a = readInt(1);
+			break;
 		default:
 			warnings << "read var has invalid type" << endl;
 			var = ScriptVar_t();

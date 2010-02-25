@@ -29,6 +29,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "DedicatedControl.h"
 #include "game/Mod.h"
+#include "game/Level.h"
 
 
 //////////////////
@@ -461,7 +462,7 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 		return "Name could not be changed";
 
 	// Check if we can change the name
-	if (!sender->getRights()->NameChange && !tLXOptions->tGameInfo.bAllowNickChange && !sender->getRights()->Override)
+	if (!sender->getRights()->NameChange && !tLXOptions->bAllowNickChange && !sender->getRights()->Override)
 		return "You don't have sufficient privileges to change your nick";
 
 	if(sender->getNumWorms() == 0)
@@ -569,7 +570,7 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 		return "Cannot change the skin";
 
 	// Changing others skin can only authorized users
-	if (!sender->getRights()->NameChange && !tLXOptions->tGameInfo.bAllowNickChange && !sender->getRights()->Override)
+	if (!sender->getRights()->NameChange && !tLXOptions->bAllowNickChange && !sender->getRights()->Override)
 		return "You do not have sufficient rights to change your skin";
 
 	// Get the worm
@@ -626,7 +627,7 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 		return "Cannot change the skin";
 
 	// Changing others colour can only authorized users
-	if (!sender->getRights()->NameChange && !tLXOptions->tGameInfo.bAllowNickChange && !sender->getRights()->Override)
+	if (!sender->getRights()->NameChange && !tLXOptions->bAllowNickChange && !sender->getRights()->Override)
 		return "You do not have sufficient rights to change your skin";
 
 	// The profile graphics are only loaded once
@@ -789,7 +790,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		return "You do not have sufficient privileges to start the game";
 
 	// Check the number of players
-	if (cServer->getNumPlayers() <= 1 && !tLXOptions->tGameInfo.features[FT_AllowEmptyGames])  {
+	if (cServer->getNumPlayers() <= 1 && !gameSettings[FT_AllowEmptyGames])  {
 		warnings << "Cannot start the game, too few players" << endl;
 		return "Too few players to start the game";
 	}
@@ -866,8 +867,8 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 		return "Mod \"" + mod + "\" not available";
 
 	// Set the mod
-	tLXOptions->tGameInfo.sModDir = mod;
-	tLXOptions->tGameInfo.sModName = info.name;
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = mod;
+	gameSettings.overwrite[FT_Mod].as<ModInfo>()->name = info.name;
 	if (!bDedicated)
 		DeprecatedGUI::Menu_Net_HostLobbySetMod(mod);
 	cServer->UpdateGameLobby();
@@ -911,8 +912,8 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 		return "The level file is corrupted";
 
 	// Set the level
-	tLXOptions->tGameInfo.sMapFile = level;
-	tLXOptions->tGameInfo.sMapName = name;
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = level;
+	gameSettings.overwrite[FT_Map].as<LevelInfo>()->name = name;
 	if (!bDedicated)
 		DeprecatedGUI::Menu_Net_HostLobbySetLevel(level);
 	cServer->UpdateGameLobby();
@@ -947,7 +948,7 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 		return "Please specify a loading time in the range from 0 to 500";
 	
 	// Set the loading time
-	tLXOptions->tGameInfo.iLoadingTime = lt;
+	gameSettings.overwrite[FT_LoadingTime] = lt;
 	if (cServer->getState() == SVS_LOBBY)
 		cServer->UpdateGameLobby();
 	else  {
@@ -1070,20 +1071,20 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 	if(varptr->var.type == SVT_CALLBACK)
 		return "Callbacks are not allowed";
 	
-	if( varptr->var.s == &tLXOptions->sServerPassword ) {
+	if( varptr->var.ptr.s == &tLXOptions->sServerPassword ) {
 		if(params.size() == 1) return "The password cannot be shown";
 		if(!cl->getRights()->Dedicated)
 			return "You can only set the password with Dedicated priviliges";
 	}
 
 	if(cServer->getState() != SVS_LOBBY && params.size() == 2) {
-		if( varptr->var.s == &tLXOptions->tGameInfo.sMapFile )
+		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path )
 			return "You cannot change the map in game";
 
-		if( varptr->var.s == &tLXOptions->tGameInfo.sMapName )
+		if( varptr->var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->name )
 			return "You cannot change the map-name in game";
 
-		if( varptr->var.s == &tLXOptions->tGameInfo.sModDir )
+		if( varptr->var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path )
 			return "You cannot change the mod in game";
 
 		if( stringcaseequal(var, "GameOptions.GameInfo.GameType") )
@@ -1141,7 +1142,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 			return "You don't have the permissions to init a weapon change for other worms";
 		}
 	} else {
-		if(!(bool)tLXOptions->tGameInfo.features[FT_AllowWeaponsChange]) {
+		if(!(bool)gameSettings[FT_AllowWeaponsChange]) {
 			return "Weapons changes are not allowed";
 		}
 	}
@@ -1156,7 +1157,7 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 		return "Client is too old to support this";
 	}
 		
-	if(!w->isFirstLocalHostWorm() && tLXOptions->tGameInfo.bSameWeaponsAsHostWorm) {
+	if(!w->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]) {
 		return "same weapons as host worm are forced";
 	}
 	

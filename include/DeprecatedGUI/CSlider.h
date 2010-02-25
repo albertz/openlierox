@@ -107,10 +107,10 @@ public:
 	{
 		CSlider * w = new CSlider( p[1].i, p[0].i );
 		layout->Add( w, id, x, y, dx, dy );
-		w->iVar = CScriptableVars::GetVarP<int>( p[2].s );
+		w->iVar = CScriptableVars::GetVarP<int>( p[2].str );
 		if( w->iVar )
 			w->setValue( *w->iVar );
-		w->cClick.Init( p[3].s, w );
+		w->cClick.Init( p[3].str, w );
 		return w;
 	}
 	

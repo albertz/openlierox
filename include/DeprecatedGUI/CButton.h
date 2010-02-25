@@ -131,15 +131,15 @@ public:
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CButton * w = new CButton( p[0].i, tMenu->bmpButtons );
-		w->cClick.Init( p[1].s, w );
+		w->cClick.Init( p[1].str.get(), w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};
 
 	static CWidget * WidgetCreator_Image( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CButton * w = new CButton( p[0].s );
-		w->cClick.Init( p[1].s, w );
+		CButton * w = new CButton( p[0].str.get() );
+		w->cClick.Init( p[1].str.get(), w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

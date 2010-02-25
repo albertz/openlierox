@@ -80,7 +80,7 @@ public:
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
 		CTitleButton * w = new CTitleButton( p[0].i, tMenu->bmpMainTitles );
-		w->cClick.Init( p[1].s, w );
+		w->cClick.Init( p[1].str, w );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

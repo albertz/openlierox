@@ -48,6 +48,7 @@
 #include "game/Mod.h"
 #include "IniReader.h"
 #include "game/SinglePlayer.h"
+#include "game/SettingsPreset.h"
 
 
 namespace DeprecatedGUI {
@@ -100,18 +101,18 @@ static void Menu_Local_InitCustomLevel() {
 	
 	int y = 235;
     cLocalMenu.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( ComboboxWithVar(tLXOptions->tGameInfo.sMapFile),	ml_LevelList,  120, y, 170, 17);
+	cLocalMenu.AddBack( ComboboxWithVar(gameSettings.overwrite[FT_Map].as<LevelInfo>()->path),	ml_LevelList,  120, y, 170, 17);
 	y += 24;
 	cLocalMenu.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  y+1, 0,   0);
 	cLocalMenu.AddBack( new CCombobox(),				ml_Gametype,   120, y, 170, 17);
 	y += 24;
 	CCombobox* modList = NULL;
 	cLocalMenu.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( modList = ComboboxWithVar(tLXOptions->tGameInfo.sModDir),		ml_ModName,    120, y, 170, 17);
+	cLocalMenu.AddBack( modList = ComboboxWithVar(gameSettings.overwrite[FT_Mod].as<ModInfo>()->path),		ml_ModName,    120, y, 170, 17);
 	y += 24;
 	CCombobox* presetList = NULL;
 	cLocalMenu.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( presetList = ComboboxWithVar(tLXOptions->tGameInfo.sSettingsFile),		ml_SettingPreset,    120, y, 170, 17);	
+	cLocalMenu.AddBack( presetList = ComboboxWithVar((std::string&)gameSettings.overwrite[FT_SettingsPreset]),		ml_SettingPreset,    120, y, 170, 17);	
 	
 	setupModGameSettingsPresetComboboxes(modList, presetList);
 	
@@ -134,7 +135,7 @@ static void Menu_Local_InitCustomLevel() {
 	for(Iterator<CGameMode* const&>::Ref i = GameModeIterator(); i->isValid(); i->next()) {
 		cLocalMenu.SendMessage(ml_Gametype,    CBS_ADDITEM, i->get()->Name(), GetGameModeIndex(i->get()));
 	}		
-    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(tLXOptions->tGameInfo.gameMode), 0);
+    cLocalMenu.SendMessage(ml_Gametype,    CBM_SETCURSEL, GetGameModeIndex(gameSettings[FT_GameMode].as<GameModeInfo>()->mode), 0);
 	
 	// Add players to player/playing lists
 	Menu_LocalAddProfiles();
@@ -142,13 +143,13 @@ static void Menu_Local_InitCustomLevel() {
 	// Fill the level list
 	CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
 	Menu_FillLevelList( cbLevel, true);
-	cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
+	cbLevel->setCurItem(cbLevel->getSIndexItem(gameSettings[FT_Map].as<LevelInfo>()->path));
 	Menu_LocalShowMinimap(true);
 	
 	// Fill in the mod list
 	CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 	Menu_Local_FillModList( cbMod );
-	cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
+	cbMod->setCurItem(cbMod->getSIndexItem(gameSettings[FT_Mod].as<ModInfo>()->path));
 		
 }
 	
@@ -340,8 +341,8 @@ void Menu_LocalShutdown()
 
 	// Save the level and mod
 	if (tLXOptions)  {
-		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
-		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sModDir, 0);
+		cLocalMenu.SendMessage(ml_LevelList,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
+		cLocalMenu.SendMessage(ml_ModName,CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Mod].as<ModInfo>()->path, 0);
 	}
 
 	cLocalMenu.Shutdown();
@@ -399,22 +400,22 @@ void Menu_LocalFrame()
 		// Get the mod name
 		CCombobox* cbMod = (CCombobox *)cLocalMenu.getWidget(ml_ModName);
 		const GuiListItem::Pt it = cbMod->getItem(cbMod->getSelectedIndex());
-		if(it.get()) tLXOptions->tGameInfo.sModDir = it->index();
+		if(it.get()) gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = it->index();
 
 		// Fill in the mod list
 		Menu_Local_FillModList( cbMod );
-		cbMod->setCurItem(cbMod->getSIndexItem(tLXOptions->tGameInfo.sModDir));
+		cbMod->setCurItem(cbMod->getSIndexItem(gameSettings.overwrite[FT_Mod].as<ModInfo>()->path));
 
 		// Fill in the levels list
 		CCombobox* cbLevel = (CCombobox *)cLocalMenu.getWidget(ml_LevelList);
 		const GuiListItem::Pt item = cbLevel->getItem( cbLevel->getSelectedIndex() );
 		if (item.get())
-			tLXOptions->tGameInfo.sMapFile = item->index();
+			gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = item->index();
 		Menu_FillLevelList( cbLevel, true);
-		cbLevel->setCurItem(cbLevel->getSIndexItem(tLXOptions->tGameInfo.sMapFile));
+		cbLevel->setCurItem(cbLevel->getSIndexItem(gameSettings[FT_Map].as<LevelInfo>()->path));
 
 		// Reload the minimap
-		//if (tLXOptions->tGameInfo.sMapFile != "_random_")
+		//if (gameSettings[FT_Map].as<LevelInfo>()->path != "_random_")
 		Menu_LocalShowMinimap(true);
 	}
 
@@ -486,7 +487,7 @@ void Menu_LocalFrame()
 				}
 
 
-				if(ev->iEventMsg == LV_WIDGETEVENT && tLXOptions->tGameInfo.gameMode->GameTeams() > 1) {
+				if(ev->iEventMsg == LV_WIDGETEVENT && gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() > 1) {
 
 					// If the team colour item was clicked on, change it
 					lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
@@ -506,7 +507,7 @@ void Menu_LocalFrame()
 
 						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
 						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
+						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
 
 						// Reload the skin
 						sub = lv->getSubItem(it, 0);
@@ -521,10 +522,10 @@ void Menu_LocalFrame()
 			// Game type
 			case ml_Gametype:
 				if(ev->iEventMsg == CMB_CHANGED) {
-					tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
+					gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 
 					// Go through the items and enable/disable the team flags and update worm graphics
-					bool teams_on = tLXOptions->tGameInfo.gameMode->GameTeams() > 1;
+					bool teams_on = gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() > 1;
 					CListview *lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
 					lv_item_t *it = lv->getItems();
 					lv_subitem_t *sub = NULL;
@@ -536,7 +537,7 @@ void Menu_LocalFrame()
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
+							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
 							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
 						}
 
@@ -626,7 +627,7 @@ void Menu_LocalAddPlaying(int index)
 	// Reload the graphics in case the gametype has changed
 	tMenu->sLocalPlayers[index].setProfile(ply);
 	tMenu->sLocalPlayers[index].setSkin(ply->cSkin);
-	tMenu->sLocalPlayers[index].ChangeGraphics(tLXOptions->tGameInfo.gameMode->GeneralGameType());
+	tMenu->sLocalPlayers[index].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
 
 
 	// Add the item
@@ -645,7 +646,7 @@ void Menu_LocalAddPlaying(int index)
 	// If we're in deathmatch, make the team colour invisible
 	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
 	if(sub) {
-		if(tLXOptions->tGameInfo.gameMode->GameTeams() <= 1)
+		if(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() <= 1)
 			sub->bVisible = false;
 		sub->iExtra = 0;
 	} else
@@ -716,7 +717,7 @@ void Menu_LocalShowMinimap(bool bReload)
 
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &buf, 0);
 
-    //tGameInfo.sMapRandom.bUsed = false;
+    //getGameLobby()->sMapRandom.bUsed = false;
 
 	// Draw a background over the old minimap
 	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 126,132,126,132,128,96);
@@ -731,21 +732,21 @@ void Menu_LocalShowMinimap(bool bReload)
 			    map.ApplyRandom();
 
                 // Free any old random map object list
-                if( tGameInfo.sMapRandom.psObjects ) {
-                    delete[] tGameInfo.sMapRandom.psObjects;
-                    tGameInfo.sMapRandom.psObjects = NULL;
+                if( getGameLobby()->sMapRandom.psObjects ) {
+                    delete[] getGameLobby()->sMapRandom.psObjects;
+                    getGameLobby()->sMapRandom.psObjects = NULL;
                 }
 
                 // Copy the layout
                 maprandom_t *psRand = map.getRandomLayout();
-                tGameInfo.sMapRandom = *psRand;
-                tGameInfo.sMapRandom.bUsed = true;
+                getGameLobby()->sMapRandom = *psRand;
+                getGameLobby()->sMapRandom.bUsed = true;
 
                 // Copy the objects, not link
-                tGameInfo.sMapRandom.psObjects = new object_t[tGameInfo.sMapRandom.nNumObjects];
-                if( tGameInfo.sMapRandom.psObjects ) {
-                    for( int i=0; i<tGameInfo.sMapRandom.nNumObjects; i++ ) {
-                        tGameInfo.sMapRandom.psObjects[i] = psRand->psObjects[i];
+                getGameLobby()->sMapRandom.psObjects = new object_t[getGameLobby()->sMapRandom.nNumObjects];
+                if( getGameLobby()->sMapRandom.psObjects ) {
+                    for( int i=0; i<getGameLobby()->sMapRandom.nNumObjects; i++ ) {
+                        getGameLobby()->sMapRandom.psObjects[i] = psRand->psObjects[i];
                     }
                 }
 
@@ -768,8 +769,8 @@ void Menu_LocalShowMinimap(bool bReload)
 static bool Menu_LocalStartGame_CustomGame() {
 	
 	// Level
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &tLXOptions->tGameInfo.sMapName, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURNAME, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->name, 0);
 	
 	
 	//
@@ -829,22 +830,21 @@ static bool Menu_LocalStartGame_CustomGame() {
 		return false;
 	
 	// Save the current level in the options
-	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &tLXOptions->tGameInfo.sMapFile, 0);
+	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
 	
 	//
 	// Game Info
 	//
-	tLXOptions->tGameInfo.gameMode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
+	gameSettings.overwrite[FT_GameMode].as<GameModeInfo>()->mode = GameMode((GameModeIndex)cLocalMenu.SendMessage(ml_Gametype, CBM_GETCURINDEX, (DWORD)0, 0));
 	
-    //tLXOptions->sServerPassword = ""; // TODO: we have set this, why? it overwrites the password which is very annoying
-	tLXOptions->tGameInfo.features[FT_NewNetEngine] = false; // May become buggy otherwise, new net engine doesn't support any kind of pause
+	gameSettings.overwrite[FT_NewNetEngine] = false; // May become buggy otherwise, new net engine doesn't support any kind of pause
 	
 	
     // Get the mod name
 	GuiListItem::Pt it = ((CCombobox*)cLocalMenu.getWidget(ml_ModName))->getSelectedItem();
     if(it.get()) {
-        tLXOptions->tGameInfo.sModName = it->caption();
-		tLXOptions->tGameInfo.sModDir = it->index();
+        gameSettings.overwrite[FT_Mod].as<ModInfo>()->name = it->caption();
+		gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = it->index();
     } else {
 		
 		// Couldn't find a mod to load
@@ -947,7 +947,7 @@ void Menu_Local_FillModList( CCombobox *cb )
 	ModAdder adder(cb);
 	FindFiles(adder,"",false,FM_DIR);
 	
-	cb->setCurSIndexItem(tLXOptions->tGameInfo.sModDir);
+	cb->setCurSIndexItem(gameSettings[FT_Mod].as<ModInfo>()->path);
 }
 
 
@@ -1083,7 +1083,7 @@ static void initFeaturesList(CListview* l)
 		if( group == GIG_GameModeSpecific_Start )
 			continue;
 		if( group > GIG_GameModeSpecific_Start && 
-			tLXOptions->tGameInfo.gameMode->getGameInfoGroupInOptions() != group )
+			gameSettings[FT_GameMode].as<GameModeInfo>()->mode->getGameInfoGroupInOptions() != group )
 			continue;
 
 		size_t countGroupOpts = 0;
@@ -1093,23 +1093,23 @@ static void initFeaturesList(CListview* l)
 			if( it->second.group != group ) continue;
 			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
-			if( it->second.var.s == &tLXOptions->tGameInfo.sModDir || 
-				it->second.var.s == &tLXOptions->tGameInfo.sMapFile ||
+			if( it->second.var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path || 
+				it->second.var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ||
 				it->first == "GameOptions.GameInfo.GameType" ||
-				it->second.var.i == &tLXOptions->tGameInfo.iMaxPlayers )
+				it->second.var.ptr.i == &tLXOptions->iMaxPlayers )
 				continue;	// We have nice comboboxes for them, skip them in the list
 			
 			if( tMenu && tMenu->iMenuType == MNU_LOCAL )
-				if( it->second.var.b == &tLXOptions->tGameInfo.bAllowConnectDuringGame )
+				if( it->second.var.ptr.b == &tLXOptions->bAllowConnectDuringGame )
 					continue;
 			
-			if( !tLXOptions->tGameInfo.gameMode || !tLXOptions->tGameInfo.gameMode->isTeamGame() ) {
-				if( it->second.var.i == &tLXOptions->iRandomTeamForNewWorm ) continue;
-				if( it->second.var.b == &tLXOptions->tGameInfo.bRespawnGroupTeams ) continue;
-				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamScoreLimit] ) continue;
-				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamkillDecreasesScore] ) continue;
-				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamInjure] ) continue;				
-				if( it->second.var == &tLXOptions->tGameInfo.features[FT_TeamHit] ) continue;				
+			if( !gameSettings[FT_GameMode].as<GameModeInfo>()->mode || !gameSettings[FT_GameMode].as<GameModeInfo>()->mode->isTeamGame() ) {
+				if( it->second.var.ptr.i == &tLXOptions->iRandomTeamForNewWorm ) continue;
+				if( it->second.var == &gameSettings[FT_RespawnGroupTeams] ) continue;
+				if( it->second.var == &gameSettings[FT_TeamScoreLimit] ) continue;
+				if( it->second.var == &gameSettings[FT_TeamkillDecreasesScore] ) continue;
+				if( it->second.var == &gameSettings[FT_TeamInjure] ) continue;				
+				if( it->second.var == &gameSettings[FT_TeamHit] ) continue;				
 			}
 			
 			if(countGroupOpts == 0)
@@ -1126,7 +1126,7 @@ static void initFeaturesList(CListview* l)
 
 			if( it->second.var.type == SVT_BOOL )
 			{
-				CCheckbox * cb = new CCheckbox( * it->second.var.b );
+				CCheckbox * cb = new CCheckbox( * it->second.var.ptr.b );
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
 				cb->Create();
 				cb->Setup(-1, 0, 0, 20, 20);
@@ -1144,12 +1144,12 @@ static void initFeaturesList(CListview* l)
 						// Adding some small number to round it up correctly
 						imin = int( float(it->second.min) *10.0f + 0.00001f );	// Scale them up
 						imax = int( float(it->second.max) *10.0f + 0.00001f );
-						iVal = int( (*it->second.var.f) * 10.0f + 0.00001f );
+						iVal = int( (*it->second.var.ptr.f) * 10.0f + 0.00001f );
 						fScale = 0.1f;
 					} else {
 						imin = it->second.min;
 						imax = it->second.max;
-						iVal = * it->second.var.i;
+						iVal = * it->second.var.ptr.i;
 					}
 					CSlider * sld = new CSlider( imax, imin, imin, false, 190, 0, tLX->clNormalLabel, fScale );
 					CLAMP_DIRECT(iVal, sld->getMin(), sld->getMax() );
@@ -1163,8 +1163,8 @@ static void initFeaturesList(CListview* l)
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
 				txt->Create();
 				txt->Setup(-1, 0, 0, textboxSize, tLX->cFont.GetHeight());
-				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.i < 0) ||
-					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.f < 0))
+				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.ptr.i < 0) ||
+					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.ptr.f < 0))
 					txt->setText("");  // Leave blank for infinite values
 				else
 					txt->setText( it->second.var.toString() );
@@ -1196,7 +1196,7 @@ static void updateFeaturesList(CListview* l)
 		{
 			if( w->getType() == wid_Checkbox )
 			{
-				* it->second.var.b = ((CCheckbox *)w)->getValue();
+				* it->second.var.ptr.b = ((CCheckbox *)w)->getValue();
 			}
 		}
 		else
@@ -1217,14 +1217,14 @@ static void updateFeaturesList(CListview* l)
 					int iVal = slider->getValue();
 					if( it->second.var.type == SVT_INT )
 					{
-						* it->second.var.i = iVal;
+						* it->second.var.ptr.i = iVal;
 						textBox->setText(itoa(iVal));
 						if( it->second.var.isUnsigned && iVal < 0 )
 							textBox->setText("");
 					}
 					if( it->second.var.type == SVT_FLOAT )
 					{
-						* it->second.var.f = iVal / 10.0f;
+						* it->second.var.ptr.f = iVal / 10.0f;
 						textBox->setText(to_string<float>(iVal / 10.0f));
 						if( it->second.var.isUnsigned && iVal < 0 )
 							textBox->setText("");
@@ -1238,13 +1238,13 @@ static void updateFeaturesList(CListview* l)
 					{
 						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
 						//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
-						iVal = * it->second.var.i;
+						iVal = * it->second.var.ptr.i;
 					}
 					if( it->second.var.type == SVT_FLOAT )
 					{
 						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
 						//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
-						iVal = int(* it->second.var.f * 10.0f);
+						iVal = int(* it->second.var.ptr.f * 10.0f);
 					}
 					CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
 					slider->setValue(iVal);
@@ -1252,8 +1252,8 @@ static void updateFeaturesList(CListview* l)
 			}
 		}
 	}
-	if( tLXOptions->tGameInfo.iLives < 0 )
-		tLXOptions->tGameInfo.iLives = WRM_UNLIM;
+	if( (int)gameSettings[FT_Lives] < 0 )
+		gameSettings.overwrite[FT_Lives] = WRM_UNLIM;
 }
 
 /////////////
@@ -1486,7 +1486,7 @@ void Menu_WeaponsRestrictions(const std::string& szMod)
 
 	cWeaponList = CGameScript::LoadWeaponList(sModDirectory);
 	// Load the weapons
-	cWpnRestList.loadList(tLXOptions->tGameInfo.sWeaponRestFile, sModDirectory);
+	cWpnRestList.loadList(gameSettings[FT_WeaponRest], sModDirectory);
 	cWpnRestList.updateList( cWeaponList );
 
     // Get the weapons for the list
@@ -1551,7 +1551,7 @@ bool Menu_WeaponsRestrictions_Frame()
                     (*it)->nState++;
                     (*it)->nState %= 3;
     
-					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
+					gameSettings.overwrite[FT_WeaponRest] = "cfg/wpnrest.dat";
 				}
             }
         }
@@ -1602,7 +1602,7 @@ bool Menu_WeaponsRestrictions_Frame()
             // Reset the list
             case wr_Reset:
                 if( ev->iEventMsg == BTN_CLICKED ) {
-					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
+					gameSettings.overwrite[FT_WeaponRest] = "cfg/wpnrest.dat";
                     cWpnRestList.cycleVisible(cWeaponList);
                 }
                 break;
@@ -1610,7 +1610,7 @@ bool Menu_WeaponsRestrictions_Frame()
             // Randomize the list
             case wr_Random:
                 if(ev->iEventMsg == BTN_CLICKED) {
-					tLXOptions->tGameInfo.sWeaponRestFile = "cfg/wpnrest.dat";
+					gameSettings.overwrite[FT_WeaponRest] = "cfg/wpnrest.dat";
                     cWpnRestList.randomizeVisible(cWeaponList);
                 }
                 break;
@@ -1709,8 +1709,8 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 	
 	lv->SortBy( 0, true );
 	
-	if(tLXOptions->tGameInfo.sWeaponRestFile != "cfg/wpnrest.dat") {
-		std::string fn = tLXOptions->tGameInfo.sWeaponRestFile;
+	if((std::string)gameSettings[FT_WeaponRest] != "cfg/wpnrest.dat") {
+		std::string fn = gameSettings[FT_WeaponRest];
 		if(fn.find(".wps") == std::string::npos )
 			fn += ".wps";
 		
@@ -1781,7 +1781,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							// Check if it exists already. If so, ask user if they wanna overwrite
 							if(Menu_WeaponPresetsOkSave(fn)) {
 								wpnrest->saveList(fn);
-								tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(fn);
+								gameSettings.overwrite[FT_WeaponRest] = GetBaseFilename(fn);
 							} else
 								quitloop = false;
 						} else {
@@ -1791,7 +1791,7 @@ void Menu_WeaponPresets(bool save, CWpnRest *wpnrest)
 							wpnrest->loadList(fn, "");
 							wpnrest->updateList( cWeaponList );
 							UpdateWeaponList();
-							tLXOptions->tGameInfo.sWeaponRestFile = GetBaseFilename(t->getText());
+							gameSettings.overwrite[FT_WeaponRest] = GetBaseFilename(t->getText());
 						}
 					}
 				}

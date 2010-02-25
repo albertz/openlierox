@@ -154,7 +154,7 @@ void CWormHumanInputHandler::getInput() {
 		}
 
 		m_worm->fAngle += m_worm->fAngleSpeed * dt.seconds();
-		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, cClient->getGameLobby()->features[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
+		if(CLAMP_DIRECT(m_worm->fAngle, -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f) != 0)
 			m_worm->fAngleSpeed = 0;
 
 	} // end angle section
@@ -254,7 +254,7 @@ void CWormHumanInputHandler::getInput() {
 	}
 
 	
-	bool allocombo = cClient->getGameLobby()->features[FT_WeaponCombos];
+	bool allocombo = cClient->getGameLobby()[FT_WeaponCombos];
 	
 	ws->bShoot = cShoot.isDown();
 
@@ -803,7 +803,7 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 	// do that check here instead of initWeaponSelection() because at that time,
 	// not all params of the gamemode are set
-	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode && !cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->Shoot(m_worm)) {
 		// just skip weapon selection in game modes where shooting is not possible (e.g. hidenseek)
 		m_worm->bWeaponsReady = true;
 		return;

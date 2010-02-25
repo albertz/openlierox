@@ -79,8 +79,8 @@ DWORD CImage::SendMessage(int iMsg, DWORD Param1, DWORD Param2)
 
 CWidget * CImage::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 {
-	CImage * w = new CImage( p[0].s );
-	w->cClick.Init( p[1].s, w );
+	CImage * w = new CImage( p[0].str.get() );
+	w->cClick.Init( p[1].str.get(), w );
 	if( dx == 0 )
 		dx = w->iWidth;
 	if( dy == 0 )

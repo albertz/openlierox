@@ -70,20 +70,22 @@ std::string ScriptVar_t::toString() const {
 		case SVT_BOOL: return to_string(b);
 		case SVT_INT: return to_string(i);
 		case SVT_FLOAT: return to_string(f);
-		case SVT_STRING: return s;
-		case SVT_COLOR: return ColToHex(c);
+		case SVT_STRING: return str.get();
+		case SVT_COLOR: return ColToHex(col.get());
+		case SVT_CUSTOM: return custom.get().get().toString();
 		default: assert(false); return "";
 	}
 }
 
-bool ScriptVar_t::fromString( const std::string & str )
+bool ScriptVar_t::fromString( const std::string & s )
 {
 	switch(type) {
-		case SVT_BOOL: b = from_string<bool>(str); break;
-		case SVT_INT: i = from_string<int>(str); break;
-		case SVT_FLOAT: f = from_string<float>(str); break;
-		case SVT_STRING: s = str; break;
-		case SVT_COLOR: c = StrToCol(str); break;
+		case SVT_BOOL: b = from_string<bool>(s); break;
+		case SVT_INT: i = from_string<int>(s); break;
+		case SVT_FLOAT: f = from_string<float>(s); break;
+		case SVT_STRING: str = str; break;
+		case SVT_COLOR: col = StrToCol(s); break;
+		case SVT_CUSTOM: custom.get().get().fromString(s); break;
 		default: assert(false); return false;
 	}
 	return true;
@@ -92,13 +94,14 @@ bool ScriptVar_t::fromString( const std::string & str )
 std::string ScriptVarPtr_t::toString() const
 {
 	switch(type) {
-		case SVT_BOOL: return to_string(*b);
-		case SVT_INT: return to_string(*i);
-		case SVT_FLOAT: return to_string(*f);
-		case SVT_STRING: return *s;
-		case SVT_COLOR: return ColToHex(*cl);
-		case SVT_DYNAMIC: return dynVar->asScriptVar().toString();
-		case SVT_CALLBACK: return "callback(0x" + hex((long)cb) + ")";
+		case SVT_BOOL: return to_string(*ptr.b);
+		case SVT_INT: return to_string(*ptr.i);
+		case SVT_FLOAT: return to_string(*ptr.f);
+		case SVT_STRING: return *ptr.s;
+		case SVT_COLOR: return ColToHex(*ptr.cl);
+		case SVT_CUSTOM: return ptr.custom->get().toString();
+		case SVT_DYNAMIC: return ptr.dynVar->asScriptVar().toString();
+		case SVT_CALLBACK: return "callback(0x" + hex((long)ptr.cb) + ")";
 		default: assert(false); return "";
 	}
 }
@@ -107,27 +110,28 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 	std::string str = _str; TrimSpaces(str);
 	
 	switch(type) {
-		case SVT_BOOL: *b = from_string<bool>(str); break;
+		case SVT_BOOL: *ptr.b = from_string<bool>(str); break;
 		case SVT_INT:
 			// TODO: why is that here and not in ScriptVar_t::fromString ?
 			if (isUnsigned && str.size() == 0)
-				*i = -1; // Infinite
+				*ptr.i = -1; // Infinite
 			else
-				*i = from_string<int>(str); 
+				*ptr.i = from_string<int>(str); 
 		break;
 		case SVT_FLOAT: 
 			// TODO: why is that here and not in ScriptVar_t::fromString ?
 			if (isUnsigned && str.size() == 0)
-				*f = -1;
+				*ptr.f = -1;
 			else
-				*f = from_string<float>(str); 
+				*ptr.f = from_string<float>(str); 
 		break;
-		case SVT_STRING: *s = str; break;
-		case SVT_COLOR: *cl = StrToCol(str); break;
+		case SVT_STRING: *ptr.s = str; break;
+		case SVT_COLOR: *ptr.cl = StrToCol(str); break;
+		case SVT_CUSTOM: return ptr.custom->get().fromString(_str);
 		case SVT_DYNAMIC: {
-			ScriptVar_t var = dynVar->asScriptVar();
+			ScriptVar_t var = ptr.dynVar->asScriptVar();
 			if(!var.fromString(str)) return false;
-			dynVar->fromScriptVar(var);
+			ptr.dynVar->fromScriptVar(var);
 			return true;
 		}
 		default: assert(false); return false;
@@ -135,28 +139,31 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 	return true;
 }
 
-void ScriptVarPtr_t::setDefault() const {
+ScriptVar_t ScriptVarPtr_t::asScriptVar() const {
 	switch(type) {
-		case SVT_BOOL: *b = bdef; break;
-		case SVT_INT: *i = idef; break;
-		case SVT_FLOAT: *f = fdef; break;
-		case SVT_STRING: *s = sdef; break;
-		case SVT_COLOR: *cl = Color(cldef); break;
-		case SVT_DYNAMIC: {
-			// TODO: this could be simpler if the default values would be just a ScriptVar_t
-			switch(dynVar->type()) {
-				case SVT_BOOL: ((DynamicVar<bool>*)dynVar)->set(bdef); break;
-				case SVT_INT: ((DynamicVar<int>*)dynVar)->set(idef); break;
-				case SVT_FLOAT: ((DynamicVar<float>*)dynVar)->set(fdef); break;
-				case SVT_STRING: ((DynamicVar<std::string>*)dynVar)->set(sdef); break;
-				case SVT_COLOR: ((DynamicVar<Color>*)dynVar)->set(cldef); break;
-				default: assert(false);
-			}
-			break;
-		}
-		default: assert(false);
+		case SVT_BOOL: return ScriptVar_t(*ptr.b);
+		case SVT_INT: return ScriptVar_t(*ptr.i);
+		case SVT_FLOAT: return ScriptVar_t(*ptr.f);
+		case SVT_STRING: return ScriptVar_t(*ptr.s);
+		case SVT_COLOR: return ScriptVar_t(*ptr.cl);
+		case SVT_CUSTOM: return ScriptVar_t(ptr.custom->get());
+		case SVT_DYNAMIC: return ptr.dynVar->asScriptVar();
+		case SVT_CALLBACK: assert(false);
 	}
-	
+	return ScriptVar_t();
+}
+
+void ScriptVarPtr_t::fromScriptVar(const ScriptVar_t& v) const {
+	switch(type) {
+		case SVT_BOOL: *ptr.b = v; break;
+		case SVT_INT: *ptr.i = v; break;
+		case SVT_FLOAT: *ptr.f = v; break;
+		case SVT_STRING: *ptr.s = v.toString(); break;
+		case SVT_COLOR: *ptr.cl = v; break;
+		case SVT_CUSTOM: ptr.custom->get().fromString(v.toString()); break;
+		case SVT_DYNAMIC: ptr.dynVar->fromScriptVar(v); break;
+		case SVT_CALLBACK: assert(false);
+	}
 }
 
 
@@ -227,13 +234,14 @@ std::string CScriptableVars::DumpVars()
 			i != m_instance->m_vars.end(); i++ )
 	{
 		ret << i->first + ": ";
-		switch( i->second.var.type == SVT_DYNAMIC ? i->second.var.dynVar->type() : i->second.var.type )
+		switch( i->second.var.type == SVT_DYNAMIC ? i->second.var.ptr.dynVar->type() : i->second.var.type )
 		{
 			case SVT_BOOL: ret << "bool: "; break;
 			case SVT_INT: ret << "int: "; break;
 			case SVT_FLOAT: ret << "float: "; break;
 			case SVT_STRING: ret << "string: "; break;
 			case SVT_COLOR: ret << "color: "; break;
+			case SVT_CUSTOM: ret << "custom: "; break;
 			case SVT_CALLBACK: ret << "callback: "; break;
 			default: assert(false);
 		}

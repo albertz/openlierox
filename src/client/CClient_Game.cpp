@@ -116,13 +116,13 @@ void CClient::Simulation()
 			// Check if this worm picked up a bonus
 
 			CBonus *b = cBonuses;
-			if (tGameInfo.bBonusesOn)  {
+			if (getGameLobby()[FT_Bonuses])  {
 				for(short n = 0; n < MAX_BONUSES; n++, b++) {
 					if(!b->getUsed())
 						continue;
 
 					if(w->CheckBonusCollision(b)) {
-						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth)) {
+						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
 
 							if( w->GiveBonus(b) ) {
 
@@ -163,10 +163,10 @@ void CClient::Simulation()
 					LaserSight(w, w->getAngle());
 			
 			// Show vision cone of seeker worm
-			if( getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) &&
+			if( getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_HIDEANDSEEK) &&
 				w->getTeam() == HIDEANDSEEK_SEEKER  )
 			{
-				int Angle = tGameInfo.features[FT_HS_SeekerVisionAngle];
+				int Angle = gameSettings[FT_HS_SeekerVisionAngle];
 				if( Angle < 360 )
 				{
 					LaserSight(w, w->getAngle() + Angle/2, false );
@@ -302,7 +302,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	}
 	
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
-	if (tGameInfo.bBonusesOn)  {
+	if (getGameLobby()[FT_Bonuses])  {
 		CBonus *b = cBonuses;
 		for(int i=0; i < MAX_BONUSES; i++,b++) {
 			if(!b->getUsed())
@@ -348,7 +348,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 	// Explosion
 	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),Color(),NULL);
 
-	int d = cMap->CarveHole((int)damage,pos, getGameLobby()->features[FT_InfiniteMap]);
+	int d = cMap->CarveHole((int)damage,pos, getGameLobby()[FT_InfiniteMap]);
 
     // Increment the dirt count
 	if(owner >= 0 && owner < MAX_WORMS)
@@ -411,10 +411,10 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	
 	ushort i;
 	
-	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()->features[FT_TeamInjure] && !me && w->getTeam() == ownerWorm->getTeam())
+	if(damage > 0 && ownerWorm && this->isTeamGame() && !this->getGameLobby()[FT_TeamInjure] && !me && w->getTeam() == ownerWorm->getTeam())
 		return;
 	
-	if(damage > 0 && ownerWorm && !this->getGameLobby()->features[FT_SelfInjure] && me)
+	if(damage > 0 && ownerWorm && !this->getGameLobby()[FT_SelfInjure] && me)
 		return;
 	
 	if (w->getLocal())  // Health change
@@ -460,12 +460,12 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(0,58,1) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
 		// TODO: fix this
 		if(ownerWorm)
-			getRemoteWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update client scoreboard
+			getRemoteWorms()[owner].addDamage( realdamage, w, false ); // Update client scoreboard
 	
 	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
 		// TODO: fix this
 		if(ownerWorm)
-			cServer->getWorms()[owner].addDamage( realdamage, w, tGameInfo ); // Update server scoreboard
+			cServer->getWorms()[owner].addDamage( realdamage, w, false ); // Update server scoreboard
 
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
@@ -481,7 +481,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			// Kill someOwnWorm
 			// TODO: why is localworm[0] == 0 checked here?
 			if(someOwnWorm || NewNet::Active() ||
-				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->tGameInfo.bServerSideHealth) ) {
+				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth) ) {
 
 				w->Kill();
 				if( !NewNet::Active() )
@@ -567,7 +567,7 @@ void CClient::SendCarve(CVec pos)
 		SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour);*/
 
 	// Just carve a hole for the moment
-	cMap->CarveHole(4,pos, (bool)getGameLobby()->features[FT_InfiniteMap]);
+	cMap->CarveHole(4,pos, (bool)getGameLobby()[FT_InfiniteMap]);
 }
 
 
@@ -747,7 +747,7 @@ void CClient::DrawBeam(CWorm *w)
 						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), Color(), NULL);
 						int damage = Slot->Weapon->Bm.Damage;
 						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p, getGameLobby()->features[FT_InfiniteMap]);
+						int d = cMap->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						w->incrementDirtCount(d);
 					}
 					
@@ -816,7 +816,7 @@ struct ScoreCompare {
 	ScoreCompare(CClient* c) : cl(c) {}
 	bool operator()(int i, int j) const {
 		CWorm *w1 = &cl->getRemoteWorms()[i], *w2 = &cl->getRemoteWorms()[j];
-		if(cl->getGameLobby()->gameMode) return cl->getGameLobby()->gameMode->CompareWormsScore(w1, w2) > 0;
+		if(cl->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode) return cl->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->CompareWormsScore(w1, w2) > 0;
 		return GameMode(GM_DEATHMATCH)->CompareWormsScore(w1, w2) > 0;
 	}
 };
@@ -1287,7 +1287,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 						//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 						int damage = wpn->Bm.Damage;
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p, getGameLobby()->features[FT_InfiniteMap]);
+						int d = cMap->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
 							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
 					}

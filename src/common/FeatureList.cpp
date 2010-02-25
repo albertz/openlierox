@@ -11,23 +11,52 @@
 #include "FeatureList.h"
 #include "Version.h"
 #include "CServer.h"
-
+#include "game/Level.h"
+#include "game/Mod.h"
+#include "game/SettingsPreset.h"
+#include "game/GameMode.h"
 
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 // Legend:	Name in options,		Human-readable-name,			Long description,	
-//			Unset,	Default,		Min client Version,	Group,						[Min,]	[Max,]	[server-side only] [optional for client] [switch to unset value on older clients] [is value unsigned] (Min and Max are only for Int and Float)
+//			Unset,	Default,		Min client Version,	Group,	advancedlevel,		[Min,]	[Max,]	[server-side only] [optional for client] [is value unsigned] (Min and Max are only for Int and Float)
 // Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or safe to ignore
 
 Feature featureArray[] = {
+
+Feature( "Lives", "Lives", "Lives",-1,-1, Version(), GIG_General, ALT_Basic, -1, 150, true, false/*not exactly sure*/, true ),
+Feature( "KillLimit", "Max kills", "Game ends when a player reaches the specified number of kills", 15,15, Version(), GIG_General, ALT_Basic, -1, 150, true, true, true ),
+Feature( "TimeLimit", "Time limit", "Time limit, in minutes", 6.0f,6.0f, Version(), GIG_General, ALT_Basic, -0.15f, 20.0f, true,true, true ),
+Feature( "TagLimit", "Tag limit", "Tag limit, for Tag game mode. It's the time how long a player must be tagged until the game ends", 5.0f,5.0f, Version(), GIG_Tag, ALT_Basic,1.0f, 150.0f,true,true, true ),
+Feature( "LoadingTime", "Loading time", "Loading time of weapons, in percent",100,100, Version(), GIG_General, ALT_Basic, 0, 500, false,false, true),
+
+Feature( "Map", "Map", "Map", LevelInfo(), LevelInfo("Dirt Level.lxl"), Version(), GIG_General, ALT_Basic, false, false ),
+Feature( "GameMode", "Game mode", "Game mode is the type of game you want to play (DM, TDM, CTF, etc.)", GameModeInfo(), GameModeInfo(), Version(), GIG_General, ALT_Basic, false, false ),
+Feature( "Mod", "Mod", "Mod", ModInfo(), ModInfo("Classic"), Version(), GIG_General, ALT_Basic, false, false ),
+Feature( "Settings", "Settings", "Game settings", GameSettingsPresetInfo(), GameSettingsPresetInfo::Default(), Version(), GIG_General, ALT_Basic, true, true ),
+Feature( "WeaponRestrictionsFile", "Weapon restrictions", "Weapon restrictions set which defines which weapons are allowed/banned/bonus", "", "Standard 100lt", Version(), GIG_Weapons, ALT_OnlyViaConfig, true,true ),
+
+Feature( "Bonuses", "Bonuses", "Bonuses enabled",false, false, Version(), GIG_Bonus, ALT_Basic, true,true ),
+Feature( "BonusNames", "Show Bonus names", "Show bonus name above its image",true,true, Version(), GIG_Bonus, ALT_VeryAdvanced, false,false ),
+Feature( "BonusFrequency", "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)",30.0f,30.0f,Version(), GIG_Bonus, ALT_Advanced, 1.0f, 150.0f, true,true ),
+Feature( "BonusLife", "Bonus life time", "Bonus life time, in seconds",60.0f,60.0f,Version(), GIG_Bonus, ALT_VeryAdvanced, 1.0f, 150.0f,true,true,true),
+Feature( "BonusHealthToWeaponChance", "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus",0.5f,0.5f,Version(), GIG_Bonus, ALT_Advanced, 0.0f, 1.0f, true,true,true ),
+
+Feature( "RespawnTime", "Respawn time", "Player respawn time, in seconds",2.5f,2.5f,Version(), GIG_Advanced, ALT_Advanced, 0.0f, 20.0f, true,true, true ),
+Feature( "RespawnGroupTeams", "Group teams", "Respawn player closer to its team, and farther from enemy",true,true,Version(), GIG_Advanced, ALT_Advanced, true,true ),
+Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn",false,false,Version(), GIG_Weapons, ALT_VeryAdvanced, true,true ),
+
+Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
+Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
+
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, ALT_Advanced,		0.1f, 	10.0f ),
 	Feature("GameSpeedOnlyForProjs", "Speed multiplier only for projs",	"Game-speed multiplicator applies only for projectiles and weapons, everything else will be normal speed",
 			false, false,			OLXBetaVersion(0,58,1),	GIG_Advanced,	ALT_Advanced,				false),
 	Feature("ScreenShaking",		"Screen shaking", 		"Screen shaking when something explodes", 
-			true, 	false, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	true ),
+			true, 	false, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_VeryAdvanced,				false,	true ),
 	Feature("FullAimAngle",			"Full aim angle", 		"Enables full aim angle, i.e. also allows to aim straight down", 
-			false, 	false, 			OLXRcVersion(0,58,3),	GIG_Other, 	ALT_VeryAdvanced,				false,	true,	false ),
+			false, 	false, 			OLXRcVersion(0,58,3),	GIG_Other, 	ALT_VeryAdvanced,				false,	true ),
 	Feature("MiniMap",				"Mini map", 		"Show mini map", 
 			true, 	true, 			OLXBetaVersion(0,58,1),	GIG_Other, 	ALT_Advanced,					false,	false ),
 	Feature("SuicideDecreasesScore", "Suicide decreases score", "The score descreases after a suicide.", 
@@ -101,7 +130,7 @@ Feature featureArray[] = {
 	Feature("ProjRelativeVel",		"Relative projectile velocity",	"Worm velocity is added to projectile velocity when you shoot",
 			true, true,				Version(),					GIG_Weapons,	ALT_VeryAdvanced,	true, true),
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
-			-1, -1,					OLXBetaVersion(0,58,1),		GIG_General, ALT_Basic,	-1, 100,	true, true, false, true),
+			-1, -1,					OLXBetaVersion(0,58,1),		GIG_General, ALT_Basic,	-1, 100,	true, true, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",
 			1.0f, 1.0f,				OLXBetaVersion(0,58,1),		GIG_Advanced, ALT_Advanced,	0.5f, 4.0f, false),
 	Feature("CollideProjectiles",	"Collide projectiles",		"You'll be able to shoot down enemy rockets and grenades",
@@ -116,11 +145,9 @@ Feature featureArray[] = {
 			false,	false,			Version(),				GIG_Race,	ALT_Advanced,	false),
 	Feature("Race_CheckPointRadius", "Checkpoint radius", "The radius of the checkpoints (bigger value makes race easier)",
 			15.0f, 15.0f,			Version(),				GIG_Race,	ALT_VeryAdvanced, 5.0f, 100.f, true, true),
-
-	Feature::Unset()
 };
 
-static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature) - 1, featureArray__sizecheck);
+static_assert(__FTI_BOTTOM == sizeof(featureArray)/sizeof(Feature), featureArray__sizecheck);
 
 
 
@@ -133,34 +160,19 @@ Feature* featureByName(const std::string& name) {
 }
 
 FeatureSettings::FeatureSettings() {
-	settings = new ScriptVar_t[featureArrayLen()];
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		(*this)[f->get()] = f->get()->defaultValue;
+		(*this)[f->get()] = f->get()->unsetValue;
 	}
 }
 
-FeatureSettings::~FeatureSettings() {
-	if(settings) delete[] settings;
-}
+FeatureSettings::~FeatureSettings() {}
 
-FeatureSettings& FeatureSettings::operator=(const FeatureSettings& r) {
-	if(!settings) settings = new ScriptVar_t[featureArrayLen()];
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		(*this)[f->get()] = r[f->get()];		
-	}
-	
-	return *this;
-}
 
 ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
 	ScriptVar_t var = (*this)[i];
 	Feature* f = &featureArray[i];
 	if(f->getValueFct)
 		var = (cServer->*(f->getValueFct))( var );
-	else if(f->unsetIfOlderClients) {
-		if(cServer->clientsConnected_less(f->minVersion))
-			var = f->unsetValue;
-	}
 			
 	return var;
 }

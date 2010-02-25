@@ -497,7 +497,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	if( !(game.gameScript() && game.gameScript()->gusEngineUsed()) )
 	{
 		// Fill the viewport area with black, only if map will be smaller than viewport
-		if( (float)tLXOptions->tGameInfo.features[FT_SizeFactor] < 1.0f )
+		if( (float)getGameLobby()[FT_SizeFactor] < 1.0f )
 			DrawRectFill(bmpDest, 0, tLXOptions->bTopBarVisible ? getTopBarBottom() : 0,
 				VideoPostProcessor::videoSurface()->w, getBottomBarTop(), tLX->clBlack);
 		
@@ -577,7 +577,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		// Mini-Map
-		if (cMap != NULL && (bool)getGameLobby()->features[FT_MiniMap])  {
+		if (cMap != NULL && (bool)getGameLobby()[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
 				cMap->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
 			else {
@@ -668,10 +668,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 
 	// Draw time left
-	if(tGameInfo.fTimeLimit > 0 && tLXOptions->bTopBarVisible)
+	if((float)tGameInfo[FT_TimeLimit] > 0 && tLXOptions->bTopBarVisible)
 	{
 		// time left in minutes
-		float fTimeLeft = tGameInfo.fTimeLimit - (serverTime().seconds()/60.0f);
+		float fTimeLeft = (float)tGameInfo[FT_TimeLimit] - (serverTime().seconds()/60.0f);
 		//sanity check
 		if(fTimeLeft < 0.0f)
 			fTimeLeft = 0.0f;
@@ -769,7 +769,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 			was_gameovermenu = true;
 		} else {
-			if(cServer->getGameMode() == &singlePlayerGame && singlePlayerGame.levelSucceeded) {
+			if(game.gameMode() == &singlePlayerGame && singlePlayerGame.levelSucceeded) {
 				std::string s = "Congratulations, you have done it!";
 				tLX->cOutlineFont.DrawCentre(bmpDest, 320, 200, tLX->clWhite, s);
 				tLX->cOutlineFont.DrawCentre(bmpDest, 321, 201, tLX->clBlack, s);
@@ -943,7 +943,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		return;
 	
 	{
-		float sizeFactor = cClient->getGameLobby()->features[FT_SizeFactor];
+		float sizeFactor = cClient->getGameLobby()[FT_SizeFactor];
 		if(sizeFactor == 1.0f)
 			DrawViewport_Game(bmpDest, v);
 		else {
@@ -966,7 +966,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			/* {
 				int oldWorldXCenter = v->GetWorldX() + v->GetWidth() / 2;
 				int oldWorldYCenter = v->GetWorldY() + v->GetHeight() / 2;
-				bool wrapAround = cClient->getGameLobby()->features[FT_InfiniteMap];
+				bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 				if((uint)sizedViewport.GetWidth() >= cMap->GetWidth()) {
 					// Note: We do this viewport clamping also for wrapAround because it
 					// doesn't work correct yet if the map is smaller than the viewport.
@@ -1359,7 +1359,7 @@ inline void AddColumns(DeprecatedGUI::CListview *lv)
 	lv->AddColumn("", 25); // Skin
 	lv->AddColumn("", tLX->iGameType == GME_HOST ? 160 - 35 : 160); // Player name
 	lv->AddColumn("", 30); // Lives
-	if (cClient->getGameLobby()->gameMode == GameMode(GM_DEMOLITIONS))
+	if (cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_DEMOLITIONS))
 		lv->AddColumn("", 40); // Dirt count
 	else
 		lv->AddColumn("", 30);  // Kills
@@ -1425,7 +1425,7 @@ void CClient::InitializeGameMenu()
 
 	cGameMenuLayout.Add(new DeprecatedGUI::CLabel("", tLX->clNormalLabel), gm_TopMessage, 440, 5, 0, 0);
 	if (bGameOver)  {
-		if (tGameInfo.iGeneralGameType == GMT_TEAMS)  {
+		if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			std::string teamName = "noone";
 			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4)
@@ -1508,7 +1508,7 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	}
 
 	// Update the top message (winner/dirt count)
-	if (tGameInfo.gameMode == GameMode(GM_DEMOLITIONS))  {
+	if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_DEMOLITIONS))  {
 		// Get the dirt count
 		int dirtcount = 0, i = 0;
 		for (CWorm *w = cRemoteWorms; i < MAX_WORMS; i++, w++)  { if (w->isUsed()) dirtcount += w->getDirtCount(); }
@@ -1939,7 +1939,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 // Draw the bonuses
 void CClient::DrawBonuses(SDL_Surface * bmpDest, CViewport *v)
 {
-	if(!tGameInfo.bBonusesOn)
+	if(!getGameLobby()[FT_Bonuses])
 		return;
 
 	CBonus *b = cBonuses;
@@ -1948,7 +1948,7 @@ void CClient::DrawBonuses(SDL_Surface * bmpDest, CViewport *v)
 		if(!b->getUsed())
 			continue;
 
-		b->Draw(bmpDest, v, tGameInfo.bShowBonusName);
+		b->Draw(bmpDest, v, getGameLobby()[FT_ShowBonusName]);
 	}
 }
 
@@ -2570,7 +2570,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
         CWorm *p = &cRemoteWorms[iScoreboard[i]];
 
 		// Get colour
-		if (tLXOptions->bColorizeNicks && tGameInfo.iGeneralGameType == GMT_TEAMS)
+		if (tLXOptions->bColorizeNicks && getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
 			iColor = tLX->clTeamColors[p->getTeam()];
 		else
 			iColor = tLX->clNormalLabel;
@@ -2765,47 +2765,47 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 
 	int cur_y = y;
 	/*tLX->cFont.Draw(bmpDest, x+5, y+25, tLX->clNormalLabel,"%s","Level:");
-	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",tGameInfo.sMapname.c_str());*/
+	tLX->cFont.Draw(bmpDest, x+105, y+25, tLX->clNormalLabel,"%s",getGameLobby()->sMapname.c_str());*/
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel, "Mod:");
-	std::string mod = tGameInfo.sModName;
+	std::string mod = getGameLobby()[FT_Mod].as<ModInfo>()->name;
 	stripdot(mod, tInterfaceSettings.ChatBoxX - 105); // 10 - leave some space
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
 	static const std::string gmt_names[] = {"Death Match", "Team DM", "Tag", "Demolition"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
-	if(tGameInfo.sGameMode == "")
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(tGameInfo.iGeneralGameType, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
+	if(getGameLobby()[FT_GameMode].as<GameModeInfo>()->name == "")
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
 	else
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, tGameInfo.sGameMode); // TODO: Limit the name length?
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, getGameLobby()[FT_GameMode].as<GameModeInfo>()->name); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");
-	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLoadingTime) + "%");
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa((int)getGameLobby()[FT_LoadingTime]) + "%");
 	cur_y += tLX->cFont.GetHeight();
 
 	// TODO: this takes too much place in the small info
 /*	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Speed:");
-	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,ftoa(tGameInfo.fGameSpeed));
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,ftoa(getGameLobby()->fGameSpeed));
 	cur_y += tLX->cFont.GetHeight();
 */
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Lives:");
-	if (tGameInfo.iLives < 0)
+	if ((int)getGameLobby()[FT_Lives] < 0)
 		DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpInfinite, x+95, cur_y + (tLX->cFont.GetHeight() - DeprecatedGUI::gfxGame.bmpInfinite.get()->h)/2);
 	else
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iLives));
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa((int)getGameLobby()[FT_Lives]));
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Max Kills:");
-	if (tGameInfo.iKillLimit < 0)
+	if ((int)getGameLobby()[FT_KillLimit] < 0)
 		DrawImage(bmpDest,DeprecatedGUI::gfxGame.bmpInfinite,x+95,cur_y + (tLX->cFont.GetHeight() - DeprecatedGUI::gfxGame.bmpInfinite.get()->h)/2);
 	else
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa(tGameInfo.iKillLimit));
+		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,itoa((int)getGameLobby()[FT_KillLimit]));
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Bonuses:");
-	if (tGameInfo.bBonusesOn)
+	if (getGameLobby()[FT_Bonuses])
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"On");
 	else
 		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel,"Off");

@@ -31,7 +31,7 @@
 #include "StaticAssert.h"
 #include "AuxLib.h"
 #include "CInput.h"
-
+#include "game/Settings.h"
 
 
 GameOptions	*tLXOptions = NULL;
@@ -130,6 +130,9 @@ bool GameOptions::Init() {
 		return false;
 	}
 
+	// gamesettings depends on GameOptions (tLXOptions), thus here is the right place to init the standard settings layers
+	gameSettings.layersInitStandard();
+	
 	CScriptableVars::RegisterVars("GameOptions")
 		( tLXOptions->bFullscreen, "Video.Fullscreen", true )
 		( tLXOptions->bShowFPS, "Video.ShowFPS", false )
@@ -143,8 +146,8 @@ bool GameOptions::Init() {
 		( tLXOptions->sResolution, "Video.Resolution", "" )
 		( tLXOptions->sVideoPostProcessor, "Video.PostProcessor", "" )
 
-		( tLXOptions->iNetworkPort, "Network.Port", LX_PORT )
-		( tLXOptions->iNetworkSpeed, "Network.Speed", NST_LAN )
+		( tLXOptions->iNetworkPort, "Network.Port", (int)LX_PORT )
+		( tLXOptions->iNetworkSpeed, "Network.Speed", (int)NST_LAN )
 		( tLXOptions->bUseIpToCountry, "Network.UseIpToCountry", true )
 		( tLXOptions->iMaxUploadBandwidth, "Network.MaxUploadBandwidth", 50000 )
 		( tLXOptions->bCheckBandwidthSanity, "Network.CheckBandwidthSanity", true )
@@ -155,13 +158,13 @@ bool GameOptions::Init() {
 		( tLXOptions->bEnableMiniChat, "Network.EnableMiniChat", true )
 		( tLXOptions->sServerName, "Network.ServerName", "OpenLieroX Server" )
 		( tLXOptions->sWelcomeMessage, "Network.WelcomeMessage", "Welcome to <server>, <player>" )
-		( tLXOptions->sServerPassword, "Network.Password" )
+		( tLXOptions->sServerPassword, "Network.Password", "" )
 		( tLXOptions->bRegServer, "Network.RegisterServer", true )
 		( tLXOptions->bAllowWantsJoinMsg, "Network.AllowWantsJoinMsg", true )
 		( tLXOptions->bWantsJoinBanned, "Network.WantsToJoinFromBanned", true )
 		( tLXOptions->bAllowRemoteBots, "Network.AllowRemoteBots", true )
 		( tLXOptions->bForceCompatibleConnect, "Network.ForceCompatibleConnect", true, "Force Compatible", "Don't allow incompatible clients to connect" )
-		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString().c_str(), "Force Min Version", "Minimal version needed to play on this server" )
+		( tLXOptions->sForceMinVersion, "Network.ForceMinVersion", defaultMinVersion.asString(), "Force Min Version", "Minimal version needed to play on this server" )
 
 		( tLXOptions->bFirstHosting, "State.FirstHosting", true )
 		( tLXOptions->sNewestVersion, "State.NewestVersion", "" )
@@ -191,10 +194,10 @@ bool GameOptions::Init() {
 		( tLXOptions->bDamagePopups, "Game.DamagePopups", true )
 		( tLXOptions->bColorizeDamageByWorm, "Game.ColorizeDamageByWorm", false )
 		( tLXOptions->iRandomTeamForNewWorm, "Game.RandomTeamForNewWorm", 1, "Random team for new worm", "Joining worms will be randomly in a team of [0,value]", GIG_Other, ALT_Advanced, true, 0, 3 )
-		( tLXOptions->fCrosshairDistance, "Game.CrosshairDistance", 32.0, "Crosshair distance", "", GIG_Other, ALT_OnlyViaConfig, true, 5, 100 )
-		( tLXOptions->fAimAcceleration, "Game.AimAcceleration", /* Gusanos promode default */ 1299.91, "Aim speed acceleration", "aim speed acceleration - kind of the sensibility of up/down keys for aiming", GIG_Other, ALT_VeryAdvanced, true, 100, 2000 )
-		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20, 1000 )
-		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0, 1 )
+		( tLXOptions->fCrosshairDistance, "Game.CrosshairDistance", 32.0f, "Crosshair distance", "", GIG_Other, ALT_OnlyViaConfig, true, 5.0f, 100.0f )
+		( tLXOptions->fAimAcceleration, "Game.AimAcceleration", /* Gusanos promode default */ 1299.91f, "Aim speed acceleration", "aim speed acceleration - kind of the sensibility of up/down keys for aiming", GIG_Other, ALT_VeryAdvanced, true, 100.0f, 2000.0f )
+		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996f, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20.0f, 1000.0f )
+		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0.0f, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0.0f, 1.0f )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
 	
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
@@ -208,7 +211,7 @@ bool GameOptions::Init() {
 		( tLXOptions->bShowPing, "Misc.ShowPing", true )
 		( tLXOptions->bShowNetRates, "Misc.ShowNetRate", false )
 		( tLXOptions->bShowProjectileUsage, "Misc.ShowProjectileUsage", false )
-		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", FMT_PNG )
+		( tLXOptions->iScreenshotFormat, "Misc.ScreenshotFormat", (int)FMT_PNG )
 		( tLXOptions->sDedicatedScript, "Misc.DedicatedScript", "dedicated_control" )
 		( tLXOptions->sDedicatedScriptArgs, "Misc.DedicatedScriptArgs", "cfg/dedicated_config" )
 		( tLXOptions->iVerbosity, "Misc.Verbosity", 0 )	
@@ -228,66 +231,26 @@ bool GameOptions::Init() {
 
 	for( uint i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )
 	{
-		CScriptableVars::RegisterVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i].c_str() );
-		CScriptableVars::RegisterVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i].c_str() );
+		CScriptableVars::RegisterVars("GameOptions.Ply1Controls") ( tLXOptions->sPlayerControls[0][i], ply_keys[i], ply_def1[i] );
+		CScriptableVars::RegisterVars("GameOptions.Ply2Controls") ( tLXOptions->sPlayerControls[1][i], ply_keys[i], ply_def2[i] );
 	}
 	for( uint i = 0; i < sizeof(gen_keys) / sizeof(gen_keys[0]) ; i ++ )
 	{
-		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i].c_str() );
+		CScriptableVars::RegisterVars("GameOptions.GeneralControls") ( tLXOptions->sGeneralControls[i], gen_keys[i], gen_def[i] );
 	}
 	
-	struct GameModeIndexWrapper : DynamicVar<int> {
-		int get() {
-			if(tLXOptions) return GetGameModeIndex(tLXOptions->tGameInfo.gameMode);
-			else errors << "GameModeIndexWrapper:get: options not inited" << endl; return 0; 
-		}
-		void set(const int& i) {
-			if(tLXOptions) {
-				tLXOptions->tGameInfo.gameMode = GameMode(GameModeIndex(i));
-				if(tLXOptions->tGameInfo.gameMode == NULL) {
-					errors << "GameModeIndexWrapper:set: gamemodeindex " << i << " is invalid" << endl;
-					tLXOptions->tGameInfo.gameMode = GameMode(GM_DEATHMATCH);
-				}
-			}
-			else errors << "GameModeIndexWrapper:set: options not inited" << endl;
-		}
-	};
-	static GameModeIndexWrapper gameModeIndexWrapper;
+	CScriptableVars::RegisterVars("GameOptions.Server")
+	( tLXOptions->iMaxPlayers, "MaxPlayers", 14, "Max players", "Max amount of players allowed on server", GIG_General, ALT_Basic, true, 1, 32 )
+	( tLXOptions->bAllowConnectDuringGame, "AllowConnectDuringGame", true, "Connect during game", "Allow new players to connect during game", GIG_Advanced, ALT_Basic )
+	( tLXOptions->bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other, ALT_VeryAdvanced )
+	( tLXOptions->bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other, ALT_VeryAdvanced )
+	( tLXOptions->bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other, ALT_OnlyViaConfig )
+	( tLXOptions->iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
+	;
 	
-	// Legend:	Name in options, Default value, Human-readable-name, Long description, Group in options, If value unsigned (ints and floats), Min value (ints and floats), Max value (ints and floats)
-	// If you want to add another in-gmae option, do not add it here, add it to FeatureList.cpp
-	// TODO: move all options to FeatureList, except for LevelName, ModName and GameType which are comboboxes
-	CScriptableVars::RegisterVars("GameOptions.GameInfo")
-		( tLXOptions->tGameInfo.iLives, "Lives", -1, "Lives", "Lives", GIG_General, ALT_Basic, true, -1, 150 )
-		( tLXOptions->tGameInfo.iKillLimit, "KillLimit", 15, "Max kills", "Game ends when a player reaches the specified number of kills", GIG_General, ALT_Basic, true, -1, 150 )
-		( tLXOptions->tGameInfo.fTimeLimit, "TimeLimit", 6.0f, "Time limit", "Time limit, in minutes", GIG_General, ALT_Basic, true, -0.15f, 20.0f )
-		( tLXOptions->tGameInfo.iTagLimit, "TagLimit", 5, "Tag limit", "Tag limit, for Tag game mode. It's the time how long a player must be tagged until the game ends", GIG_Tag, ALT_Basic, true, 1, 150 )
-		( tLXOptions->tGameInfo.iLoadingTime, "LoadingTime", 100, "Loading time", "Loading time of weapons, in percent", GIG_General, ALT_Basic, true, 0, 500 )
-		( tLXOptions->tGameInfo.bBonusesOn, "Bonuses", false, "Bonuses", "Bonuses enabled", GIG_Bonus, ALT_Basic )
-		( tLXOptions->tGameInfo.bShowBonusName, "BonusNames", true, "Show Bonus names", "Show bonus name above its image", GIG_Bonus, ALT_VeryAdvanced )
-		( tLXOptions->tGameInfo.iMaxPlayers, "MaxPlayers", 14, "Max players", "Max amount of players allowed on server", GIG_General, ALT_Basic, true, 1, 32 )
-		( tLXOptions->tGameInfo.sMapFile, "LevelName", "Dirt Level.lxl" ) // WARNING: confusing, it is handled like the filename
-		( &gameModeIndexWrapper, "GameType", (int)GM_DEATHMATCH )
-		( tLXOptions->tGameInfo.sModDir, "ModName", "Classic" ) // WARNING: confusing, it is handled like the dirname
-		( tLXOptions->tGameInfo.fBonusFreq, "BonusFrequency", 30.0f, "Bonus spawn time", "How often a new bonus will be spawned (every N seconds)", GIG_Bonus, ALT_Advanced, 1.0f, 150.0f )
-		( tLXOptions->tGameInfo.fBonusLife, "BonusLife", 60.0f, "Bonus life time", "Bonus life time, in seconds", GIG_Bonus, ALT_VeryAdvanced, 1.0f, 150.0f )
-		( tLXOptions->tGameInfo.fRespawnTime, "RespawnTime", 2.5, "Respawn time", "Player respawn time, in seconds", GIG_Advanced, ALT_Advanced, true, 0.0f, 20.0f )
-		( tLXOptions->tGameInfo.bRespawnGroupTeams, "RespawnGroupTeams", true, "Group teams", "Respawn player closer to its team, and farther from enemy", GIG_Advanced, ALT_Advanced )
-		( tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn, "EmptyWeaponsOnRespawn", false, "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn", GIG_Weapons, ALT_VeryAdvanced )
-		( tLXOptions->tGameInfo.fBonusHealthToWeaponChance, "BonusHealthToWeaponChance", 0.5f, "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus", GIG_Bonus, ALT_Advanced, true, 0.0f, 1.0f )
-		( tLXOptions->tGameInfo.bForceRandomWeapons, "ForceRandomWeapons", false, "Force random weapons", "Force all players to select random weapons", GIG_Weapons, ALT_Basic )
-		( tLXOptions->tGameInfo.bSameWeaponsAsHostWorm, "SameWeaponsAsHostWorm", false, "Same weapons as host worm", "Force all players to select the same weapons as host worm", GIG_Weapons, ALT_Advanced )
-		( tLXOptions->tGameInfo.bAllowConnectDuringGame, "AllowConnectDuringGame", true, "Connect during game", "Allow new players to connect during game", GIG_Advanced, ALT_Basic )
-		( tLXOptions->tGameInfo.bAllowNickChange, "AllowNickChange", true, "Allow name change", "Allow players to change name with /setmyname command", GIG_Other, ALT_VeryAdvanced )
-		( tLXOptions->tGameInfo.bAllowStrafing, "AllowStrafing", true, "Allow strafing", "Allow players to use the Strafe key", GIG_Other, ALT_VeryAdvanced )
-		( tLXOptions->tGameInfo.bServerSideHealth, "ServerSideHealth", false, "Server sided health", "Health is calculated on server, to prevent cheating", GIG_Other, ALT_OnlyViaConfig )
-		( tLXOptions->tGameInfo.iWeaponSelectionMaxTime, "WeaponSelectionMaxTime", 120, "Weapon selection max time", "Max time to allow players to select weapons, in seconds", GIG_Weapons, ALT_VeryAdvanced, true, 10, 500 )
-		( tLXOptions->tGameInfo.sWeaponRestFile, "WeaponRestrictionsFile", "Standard 100lt"  )
-		;
-
 	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
 		CScriptableVars::RegisterVars("GameOptions.GameInfo")
-		( tLXOptions->tGameInfo.features[f->get()], f->get()->name, f->get()->defaultValue, 
+		( &gameSettings.wrappers[featureArrayIndex(f->get())], f->get()->name, f->get()->defaultValue, 
 				f->get()->humanReadableName, f->get()->description, f->get()->group, f->get()->advancedLevel, f->get()->minValue, f->get()->maxValue, f->get()->unsignedValue );
 	}
 	
@@ -431,6 +394,9 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 // Save & shutdown the options
 void ShutdownOptions()
 {
+	// just to be sure that we don't have any reference on it anymore
+	gameSettings.layersClear();
+	
 	CScriptableVars::DeRegisterVars("GameOptions");
 	if(tLXOptions) {
 		delete tLXOptions;
@@ -720,16 +686,6 @@ bool NetworkTexts::LoadFromDisc()
 	return true;
 }
 
-GameOptions::GameInfo::GameInfo() {
-	// For most of the values, it doesn't matter if they are uninited.
-	// In PrepareGame/UpdateGameLobby, we will get all the values (for cClient).
-	// Anyway, we set some values because it could crash if these are invalid.
-	fTimeLimit = -1;
-	iLives = iKillLimit = iTagLimit = -1;
-	iLoadingTime = iGeneralGameType = 0;
-	iMaxPlayers = 8;
-	gameMode = NULL;
-}
 
 GameOptions::GameOptions() {
 	// we need to set some initial values for these
@@ -738,7 +694,7 @@ GameOptions::GameOptions() {
 	cfgFilename = DefaultCfgFilename;
 	
 	// TODO: don't hardcode the size here
-	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes	
+	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes		
 }
 
 bool Taunts::Init() {

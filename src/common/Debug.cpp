@@ -201,37 +201,37 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		// Game mode
 		strncat(buffer, "GameMode = ", bufsize);
 		//char tmp[16];
-		itoa(tLXOptions->tGameInfo.gameMode->GeneralGameType(), tmp, 10);
+		itoa(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType(), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Mod name
 		strncat(buffer, "sModName = ", bufsize);
-		if (tLXOptions->tGameInfo.sModName.size())
-			strncat(buffer, tLXOptions->tGameInfo.sModName.c_str(), bufsize);
+		if (gameSettings[FT_Mod].as<ModInfo>()->name.size())
+			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->name.c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Map file
 		strncat(buffer, "sMapFile = ", bufsize);
-		if (tLXOptions->tGameInfo.sMapFile.size())
-			strncat(buffer, tLXOptions->tGameInfo.sMapFile.c_str(), bufsize);
+		if (gameSettings[FT_Map].as<LevelInfo>()->path.size())
+			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->path.c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Map name
 		strncat(buffer, "sMapName = ", bufsize);
-		if (tLXOptions->tGameInfo.sMapName.size())
-			strncat(buffer, tLXOptions->tGameInfo.sMapName.c_str(), bufsize);
+		if (gameSettings[FT_Map].as<LevelInfo>()->name.size())
+			strncat(buffer, gameSettings[FT_Map].as<LevelInfo>()->name.c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Mod dir
 		strncat(buffer, "sModDir = ", bufsize);
-		if (tLXOptions->tGameInfo.sModDir.size())
-			strncat(buffer, tLXOptions->tGameInfo.sModDir.c_str(), bufsize);
+		if (gameSettings[FT_Mod].as<ModInfo>()->path.size())
+			strncat(buffer, gameSettings[FT_Mod].as<ModInfo>()->path.c_str(), bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Loading time
-		itoa(tLXOptions->tGameInfo.iLoadingTime, tmp, 10);
+		itoa(gameSettings[FT_LoadingTime], tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "iLoadingTimes = ", bufsize);
 		strncat(buffer, tmp, bufsize);
@@ -250,21 +250,21 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 		strncat(buffer, "\n", bufsize);
 
 		// Lives
-		itoa(tLXOptions->tGameInfo.iLives, tmp, 10);
+		itoa(gameSettings[FT_Lives], tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "iLives = ", bufsize);
 		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Max kills
-		itoa(tLXOptions->tGameInfo.iKillLimit, tmp, 10);
+		itoa(gameSettings[FT_KillLimit], tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "iKillLimit = ", bufsize);
 		strncat(buffer, tmp, bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Time limit
-		itoa((int)(tLXOptions->tGameInfo.fTimeLimit * 10), tmp, 10);
+		itoa((int)(gameSettings[FT_TimeLimit] * 10), tmp, 10);
 		fix_markend(tmp);
 		strncat(buffer, "fTimeLimit = ", bufsize);
 		strncat(buffer, tmp, bufsize);
@@ -272,12 +272,12 @@ void *ReadGameInfoForReport(char *buffer, size_t bufsize)
 
 		// Bonuses on
 		strncat(buffer, "bBonusesOn = ", bufsize);
-		strncat(buffer, tLXOptions->tGameInfo.bBonusesOn ? "true" : "false", bufsize);
+		strncat(buffer, gameSettings[FT_Bonuses] ? "true" : "false", bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Bonus names
 		strncat(buffer, "bShowBonusName = ", bufsize);
-		strncat(buffer, tLXOptions->tGameInfo.bShowBonusName ? "true" : "false", bufsize);
+		strncat(buffer, gameSettings[FT_ShowBonusName] ? "true" : "false", bufsize);
 		strncat(buffer, "\n", bufsize);
 
 		// Number of players

@@ -29,7 +29,7 @@ int CGameMode::GameTeams() {
 }
 
 float CGameMode::TimeLimit() {
-	return tLXOptions->tGameInfo.fTimeLimit * 60.0f;
+	return (float)gameSettings[FT_TimeLimit] * 60.0f;
 }
 
 std::string CGameMode::TeamName(int t) {
@@ -225,17 +225,17 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 		cServer->SendPlaySound(TeamName(newLeadTeam) + "teamtakeslead");
 	}
 	
-	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+	if((int)gameSettings[FT_KillLimit] > 0) {
 		CWorm* w = (newLeadWorm >= 0) ? &cServer->getWorms()[newLeadWorm] : NULL;
-		int rest = w ? (tLXOptions->tGameInfo.iKillLimit - w->getScore()) : 0;
+		int rest = w ? ((int)gameSettings[FT_KillLimit] - w->getScore()) : 0;
 		if(lastFragsLeftReport < 0 || lastFragsLeftReport > rest) {
 			if(rest >= 1 && rest <= 3)
 				cServer->SendPlaySound(itoa(rest) + "fragsleft");
 			lastFragsLeftReport = rest;
 		}
 	}
-	else if(isTeamGame() && (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] > 0) {
-		int rest = (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] - TeamScores(newLeadTeam);
+	else if(isTeamGame() && (int)gameSettings[FT_TeamScoreLimit] > 0) {
+		int rest = (int)gameSettings[FT_TeamScoreLimit] - TeamScores(newLeadTeam);
 		if(lastFragsLeftReport < 0 || lastFragsLeftReport > rest) {
 			if(rest >= 1 && rest <= 3)
 				cServer->SendPlaySound(itoa(rest) + "fragsleft");
@@ -256,12 +256,12 @@ void CGameMode::Drop(CWorm* worm)
 }
 
 static int getWormHitKillLimit() {
-	if(tLXOptions->tGameInfo.iKillLimit <= 0) return -1;
+	if((int)gameSettings[FT_KillLimit] <= 0) return -1;
 	
 	for(int i = 0; i < MAX_WORMS; ++i) {
 		CWorm* w = &cServer->getWorms()[i];
 		if(!w->isUsed()) continue;
-		if(w->getScore() >= tLXOptions->tGameInfo.iKillLimit)
+		if(w->getScore() >= (int)gameSettings[FT_KillLimit])
 			return i;
 	}
 	
@@ -274,11 +274,11 @@ bool CGameMode::CheckGameOver() {
 		return true;
 
 	// check for teamscorelimit
-	if(GameTeams() > 1 && (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit] > 0) {
+	if(GameTeams() > 1 && (int)gameSettings[FT_TeamScoreLimit] > 0) {
 		for(int i = 0; i < GameTeams(); ++i) {
-			if(TeamScores(i) >= (int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit]) {
+			if(TeamScores(i) >= (int)gameSettings[FT_TeamScoreLimit]) {
 				// TODO: make configureable
-				cServer->SendGlobalText("Team score limit " + itoa((int)tLXOptions->tGameInfo.features[FT_TeamScoreLimit]) + " hit by " + TeamName(i), TXT_NORMAL);
+				cServer->SendGlobalText("Team score limit " + itoa((int)gameSettings[FT_TeamScoreLimit]) + " hit by " + TeamName(i), TXT_NORMAL);
 				notes << "team score limit hit by team " << i << endl;
 				return true;
 			}
@@ -286,11 +286,11 @@ bool CGameMode::CheckGameOver() {
 	}
 
 	// check for maxkills
-	if(tLXOptions->tGameInfo.iKillLimit > 0) {
+	if((int)gameSettings[FT_KillLimit] > 0) {
 		int w = getWormHitKillLimit();
 		if(w >= 0) {
 			// TODO: make configureable
-			cServer->SendGlobalText("Kill limit " + itoa(tLXOptions->tGameInfo.iKillLimit) + " hit by worm " + cServer->getWorms()[w].getName(), TXT_NORMAL);
+			cServer->SendGlobalText("Kill limit " + itoa((int)gameSettings[FT_KillLimit]) + " hit by worm " + cServer->getWorms()[w].getName(), TXT_NORMAL);
 			notes << "worm " << w << " hit the kill limit" << endl;
 			return true;
 		}
@@ -309,10 +309,10 @@ bool CGameMode::CheckGameOver() {
 	}
 	
 	bool allowEmptyGames =
-		tLXOptions->tGameInfo.features[FT_AllowEmptyGames] &&
-		tLXOptions->tGameInfo.bAllowConnectDuringGame &&
+		gameSettings[FT_AllowEmptyGames] &&
+		tLXOptions->bAllowConnectDuringGame &&
 		tLX->iGameType != GME_LOCAL &&
-		tLXOptions->tGameInfo.iLives < 0;
+		(int)gameSettings[FT_Lives] < 0;
 	
 	if(!allowEmptyGames) {
 		// TODO: move that worms-num calculation to GameServer
@@ -407,7 +407,7 @@ int CGameMode::HighestScoredWorm() {
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 
 	// Lives first
-	if(cClient->getGameLobby()->iLives >= 0) {
+	if((int)cClient->getGameLobby()[FT_Lives] >= 0) {
 		if (w1->getLives() > w2->getLives()) return 1;
 		if (w1->getLives() < w2->getLives()) return -1;		
 	}
@@ -423,7 +423,7 @@ int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 int CGameMode::WinnerTeam() {
 	if(GameTeams() > 1)  {
 		// Only one team left, that one must be the winner
-		if (cServer->getAliveTeamCount() < 2 && tLXOptions->tGameInfo.iLives >= 0)  {
+		if (cServer->getAliveTeamCount() < 2 && (int)gameSettings[FT_Lives] >= 0)  {
 			CWorm *w = cServer->getWorms();
 			for (int i = 0; i < MAX_WORMS; i++, w++)
 				if (w->isUsed() && w->getLives() != WRM_OUT && w->getTeam() >= 0 && w->getTeam() < 4)
@@ -476,7 +476,7 @@ float CGameMode::TeamDamage(int t) {
 
 int CGameMode::CompareTeamsScore(int t1, int t2) {
 	// Lives first
-	if(tLXOptions->tGameInfo.iLives >= 0) {
+	if((int)gameSettings[FT_Lives] >= 0) {
 		int d = WormsAliveInTeam(t1) - WormsAliveInTeam(t2);
 		if(d != 0) return d;
 	}

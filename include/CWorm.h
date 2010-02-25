@@ -452,7 +452,7 @@ public:
 
 	float		getDamage()				{ return fDamage; }
 	void		setDamage(float l)		{ fDamage = l; }
-	void		addDamage(float damage, CWorm* victim, const GameOptions::GameInfo & settings);
+	void		addDamage(float damage, CWorm* victim, bool serverside);
 
 	int			getKills() const		{ return iKills; }
     void        setKills(int k)			{ iKills = k; }

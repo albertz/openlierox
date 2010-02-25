@@ -86,7 +86,7 @@ public:
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
 	{
-		CWidget * w = new CBox( p[0].i, p[1].i, p[2].c, p[3].c, p[4].c );
+		CWidget * w = new CBox( p[0].i, p[1].i, p[2].col.get(), p[3].col.get(), p[4].col.get() );
 		layout->Add( w, id, x, y, dx, dy );
 		return w;
 	};

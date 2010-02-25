@@ -44,6 +44,9 @@
 #include "OLXCommand.h"
 #include "TaskManager.h"
 #include "gusanos/network.h"
+#include "game/Level.h"
+#include "game/Mod.h"
+#include "game/Game.h"
 
 
 #ifdef _MSC_VER
@@ -308,7 +311,7 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 	
 	if(server->iState == SVS_PLAYING)
 		server->BeginMatch(cl);
-	else if(tLXOptions->tGameInfo.features[FT_ImmediateStart])
+	else if(gameSettings[FT_ImmediateStart])
 		server->BeginMatch(cl);
 	else
 		// Check if all the clients are ready
@@ -376,7 +379,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		return;
 	}
 
-	if (tLXOptions->tGameInfo.bServerSideHealth)  {
+	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (!cl->isLocalClient())  {
 			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
@@ -951,7 +954,7 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	if( ! cl->OwnsWorm(id) && ! cl->isLocalClient() )	// Allow local client to send damage for pre-Beta9 clients
 		return;
 	
-	offender->addDamage( damage, w, tLXOptions->tGameInfo );
+	offender->addDamage( damage, w, true );
 
 	//notes << "CServerNetEngineBeta9::ParseReportDamage() offender " << offender->getID() << " dmg " << damage << " victim " << id << endl;
 	// Re-send the packet to all clients, except the sender
@@ -1373,7 +1376,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	int max_players = (tLX->iGameType == GME_HOST ? tLXOptions->tGameInfo.iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
+	int max_players = (tLX->iGameType == GME_HOST ? tLXOptions->iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
 	if (!newcl->isLocalClient() && numplayers + numworms > max_players) {
 		notes << "I am full, so the new client cannot join" << endl;
 		CBytestream bytestr;
@@ -1663,7 +1666,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 
 	// TODO: why is this still done here and not via feature array or similar?
 	// we do this since rev1897, i.e. since 0.57beta5
-	if (tLXOptions->tGameInfo.bAllowStrafing) {
+	if (tLXOptions->bAllowStrafing) {
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
 		bytestr.writeString("lx:strafingAllowed");
@@ -1912,7 +1915,7 @@ void GameServer::ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestr
 	//else
 	bytestr.writeString(OldLxCompatibleString(tLXOptions->sServerName));
 	bytestr.writeByte(iNumPlayers);
-	bytestr.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
+	bytestr.writeByte(tLXOptions->iMaxPlayers);
 	bytestr.writeByte(iState);
 	bytestr.writeByte(num);
 	// Beta8+ info - old clients will just skip it
@@ -1942,17 +1945,17 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeString("lx::serverinfo");
 
 	bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
-	bs.writeByte(tLXOptions->tGameInfo.iMaxPlayers);
+	bs.writeByte(tLXOptions->iMaxPlayers);
 	bs.writeByte(iState);
 
 	// TODO: check if we should append "levels/" string here, it was like this in old code
-	bs.writeString( iState == SVS_PLAYING ? "levels/" + tLXOptions->tGameInfo.sMapFile : tLXOptions->tGameInfo.sMapFile );
-	bs.writeString(tLXOptions->tGameInfo.sModName);
-	bs.writeByte(getGameMode()->GeneralGameType());
-	bs.writeInt16((tLXOptions->tGameInfo.iLives < 0) ? WRM_UNLIM : tLXOptions->tGameInfo.iLives);
-	bs.writeInt16(tLXOptions->tGameInfo.iKillLimit);
-	bs.writeInt16(tLXOptions->tGameInfo.iLoadingTime);
-	bs.writeBool(tLXOptions->tGameInfo.bBonusesOn);
+	bs.writeString( iState == SVS_PLAYING ? "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path : gameSettings[FT_Map].as<LevelInfo>()->path );
+	bs.writeString(gameSettings[FT_Mod].as<ModInfo>()->name);
+	bs.writeByte(game.gameMode()->GeneralGameType());
+	bs.writeInt16(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
+	bs.writeInt16((int)gameSettings[FT_KillLimit]);
+	bs.writeInt16((int)gameSettings[FT_LoadingTime]);
+	bs.writeBool(gameSettings[FT_Bonuses]);
 
 
 	// Players
@@ -2003,13 +2006,13 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeString(GetFullGameName());
 
 	// since Beta7
-	bs.writeFloat(tLXOptions->tGameInfo.features[FT_GameSpeed]);
+	bs.writeFloat(gameSettings[FT_GameSpeed]);
 	
 	// since Beta9
 	CServerNetEngineBeta9::WriteFeatureSettings(&bs);
 
 	// Game mode name
-	bs.writeString(getGameMode()->Name());
+	bs.writeString(game.gameMode()->Name());
 
 	bs.Send(tSocket);
 }

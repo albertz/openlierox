@@ -362,7 +362,7 @@ void CGuiSkin::CallbackHandler::Init( const std::string & s1, CWidget * source )
 		{
 			if( !stringcasecmp( it->first, func ) && it->second.var.type == SVT_CALLBACK )
 			{
-				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.var.cb, param ) );
+				m_callbacks.push_back( std::pair< ScriptCallback_t, std::string > ( it->second.var.ptr.cb, param ) );
 				//notes << it->first << "(\"" << param << "\") ";
 				break;
 			}

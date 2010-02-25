@@ -10,6 +10,7 @@
 #ifndef __OLX_GAME_H__
 #define __OLX_GAME_H__
 
+#include <boost/signal.hpp>
 #include <vector>
 #include <list>
 
@@ -62,6 +63,9 @@ public:
 	CGameScript* gameScript();
 	CGameMode* gameMode();
 	CWpnRest* weaponRestrictions();
+	
+	// they will be called in cleanupAfterGameloopEnd and the slot will be cleaned after that
+	boost::signal<void()> cleanupCallbacks;
 	
 private:
 	AbsTime oldtime;

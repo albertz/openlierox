@@ -48,6 +48,7 @@
 #include "gusanos/player_options.h"
 #include "gusanos/weapon.h"
 #include "gusanos/ninjarope.h"
+#include "game/Mod.h"
 
 
 // used by searchpath algo
@@ -953,20 +954,20 @@ void CWormBotInputHandler::AI_Respawn() {
 
 // called when the game starts (after weapon selection)
 void CWormBotInputHandler::startGame() {
-	if(	cClient->getGameLobby()->gameMode == GameMode(GM_DEATHMATCH) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_TEAMDEATH) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_TAG) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK) ||
-		cClient->getGameLobby()->gameMode == GameMode(GM_CTF) ||
-	    cClient->getGameLobby()->gameMode == GameMode(GM_RACE) ||
-	    cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE))
+	if(	cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_DEATHMATCH) ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMDEATH) ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TAG) ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_HIDEANDSEEK) ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF) ||
+	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) ||
+	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE))
 	{
 		// it's fine, we support that game mode
 	}
-	else if(cClient->getGameLobby()->gameMode == NULL) {
-		warnings << "bot: gamemode " << cClient->getGameLobby()->sGameMode << " is unknown" << endl;
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == NULL) {
+		warnings << "bot: gamemode " << cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name << " is unknown" << endl;
 	} else {
-		warnings << "bot: support for gamemode " << cClient->getGameLobby()->gameMode->Name()
+		warnings << "bot: support for gamemode " << cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->Name()
 				<< " is currently not implemented" << endl;
 	}
 }
@@ -999,7 +1000,7 @@ void CWormBotInputHandler::getInput() {
 
     // Every 3 seconds we run the think function
 	float thinkInterval = 3.0f;
-	if(cClient->getGameLobby()->gameMode == GameMode(GM_CTF))
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF))
 		thinkInterval = 0.5f; // recheck more often
     if(tLX->currentTime - fLastThink > thinkInterval && nAIState != AI_THINK)
         nAIState = AI_THINK;
@@ -1131,7 +1132,7 @@ static Flag* teamHasEnemyFlag(int t) {
 }
 
 bool CWormBotInputHandler::findNewTarget() {
-	if(	(cClient->getGameLobby()->gameMode == GameMode(GM_TAG) && m_worm->getTagIT()) ) {
+	if(	(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TAG) && m_worm->getTagIT()) ) {
 		CWorm* w = nearestEnemyWorm();
 		if(!w) return findRandomSpot();
 		
@@ -1141,7 +1142,7 @@ bool CWormBotInputHandler::findNewTarget() {
 		else
 			return true;
 	}
-	else if(cClient->getGameLobby()->gameMode == GameMode(GM_HIDEANDSEEK))
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_HIDEANDSEEK))
 	{
 		if(m_worm->getTeam() == (int)HIDEANDSEEK_HIDER) {
 			CWorm* w = nearestEnemyWorm();
@@ -1165,7 +1166,7 @@ bool CWormBotInputHandler::findNewTarget() {
 			return true;
 		}
 	}
-	else if(cClient->getGameLobby()->gameMode == GameMode(GM_CTF)) {
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF)) {
 		Flag* wormFlag = cClient->flagInfo()->getFlagOfWorm(m_worm->getID());
 		bool success = false;
 		if(wormFlag != NULL) { // we have an enemy flag
@@ -1210,7 +1211,7 @@ bool CWormBotInputHandler::findNewTarget() {
 			return true;
 		}
 	}
-	else if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE)) {		
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE)) {		
 		int t = m_worm->getID();
 		if(cClient->isTeamGame()) t = m_worm->getTeam();
 
@@ -1516,7 +1517,7 @@ bool CWormBotInputHandler::AI_FindHealth() {
 // Returns true if we found one
 bool CWormBotInputHandler::AI_FindBonus(int bonustype)
 {
-	if (!cClient->getGameLobby()->bBonusesOn)
+	if (!cClient->getGameLobby()[FT_Bonuses])
 		return false;
 
     CBonus  *pcBonusList = cClient->getBonusList();
@@ -1970,12 +1971,12 @@ static bool canShootRightNowWithCurWeapon(CWorm* w) {
 // returns true if we want to do it or already doing it (also in the progress of aiming)
 bool CWormBotInputHandler::AI_Shoot()
 {
-	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm)) {
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode && !cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->Shoot(m_worm)) {
 		// there is no shooting in this gamemode
 		return false;
 	}
 	
-	if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE))
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE))
 		// dont care about shooting in this mod, just try to be fast
 		return false;
 	
@@ -2032,7 +2033,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 	// Don't shoot teammates
 	// TODO: why do we catch only teammates here and not the enemy worm?
-	if(cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS && (nType & PX_WORM)) {
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS && (nType & PX_WORM)) {
 		//notes << "bot: we don't want shoot teammates" << endl;
 		return false;
 	}
@@ -2745,7 +2746,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 	CVec WormsPos[MAX_WORMS];
 	int	WormCount = 0;
 	int i;
-	if (cClient && cClient->getGameLobby()->iGeneralGameType == GMT_TEAMS)  {
+	if (cClient && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 		CWorm *w = cClient->getRemoteWorms();
 		for (i=0;i<MAX_WORMS;i++,w++)  {
 			if (w) {
@@ -3366,7 +3367,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		return;
 	}
 
-	if(cClient->getGameLobby()->gameMode == GameMode(GM_RACE) || cClient->getGameLobby()->gameMode == GameMode(GM_TEAMRACE)) {		
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE)) {		
 		int t = m_worm->getID();
 		if(cClient->isTeamGame()) t = m_worm->getTeam();
 		
@@ -3416,7 +3417,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		cPosTarget = AI_FindShootingSpot();
 
 	bool canShoot = true;
-	if(cClient->getGameLobby()->gameMode && !cClient->getGameLobby()->gameMode->Shoot(m_worm))
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode && !cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->Shoot(m_worm))
 		canShoot = false;
 	
 	// If we just shot some mortars, release the rope if it pushes us in the direction of the shots
@@ -4126,9 +4127,9 @@ void CWormBotInputHandler::initWeaponSelection() {
 	// TODO: move this to CWorm_AI
 	bool bRandomWeaps = true;
 	// Combo (rifle)
-	if ((cClient->getGameLobby()->iLoadingTime > 15 && cClient->getGameLobby()->iLoadingTime < 26) && 
-		(cClient->getGameLobby()->sModName.find("Classic") != std::string::npos || 
-		 cClient->getGameLobby()->sModName.find("Liero v1.0") != std::string::npos ))  {
+	if (((int)cClient->getGameLobby()[FT_LoadingTime] > 15 && (int)cClient->getGameLobby()[FT_LoadingTime] < 26) && 
+		(cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Classic") != std::string::npos || 
+		 cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Liero v1.0") != std::string::npos ))  {
 		if (game.weaponRestrictions()->isEnabled("Rifle"))  {
 			for (short i=0; i<5; i++)
 				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Rifle");  // set all weapons to Rifle
@@ -4137,9 +4138,9 @@ void CWormBotInputHandler::initWeaponSelection() {
 		}
 	}
 	// 100 lt
-	else if ((cClient->getGameLobby()->sModName.find("Liero") != std::string::npos || 
-			  cClient->getGameLobby()->sModName.find("Classic") != std::string::npos) && 
-			 cClient->getGameLobby()->iLoadingTime == 100)  {
+	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Liero") != std::string::npos || 
+			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Classic") != std::string::npos) && 
+			 (int)cClient->getGameLobby()[FT_LoadingTime] == 100)  {
 		int MyWeaps = game.weaponRestrictions()->isEnabled("Super Shotgun") + game.weaponRestrictions()->isEnabled("Napalm") +  game.weaponRestrictions()->isEnabled("Cannon") + game.weaponRestrictions()->isEnabled("Doomsday") + game.weaponRestrictions()->isEnabled("Chaingun");
 		if (MyWeaps == 5)  {
 			// Set our weapons
@@ -4153,9 +4154,9 @@ void CWormBotInputHandler::initWeaponSelection() {
 		}
 	}
 	// Mortar game
-	else if ((cClient->getGameLobby()->sModName.find("MW 1.0") != std::string::npos || 
-			  cClient->getGameLobby()->sModName.find("Modern Warfare1.0") != std::string::npos) && 
-			 cClient->getGameLobby()->iLoadingTime < 50)  {
+	else if ((cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("MW 1.0") != std::string::npos || 
+			  cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name.find("Modern Warfare1.0") != std::string::npos) && 
+			 (int)cClient->getGameLobby()[FT_LoadingTime] < 50)  {
 		if (game.weaponRestrictions()->isEnabled("Mortar Launcher"))  {
 			for (short i=0; i<5; i++)
 				m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon("Mortar Launcher");  // set all weapons to Mortar

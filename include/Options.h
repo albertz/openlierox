@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 #include <cassert>
-#include "FeatureList.h"
+#include "game/Settings.h"
 #include "StaticAssert.h"
 
 // Setup input id's
@@ -240,6 +240,13 @@ struct GameOptions {
 	bool	bAllowRemoteBots;
 	bool	bForceCompatibleConnect;
 	std::string	sForceMinVersion;
+	int		iMaxPlayers;
+
+	bool	bAllowConnectDuringGame; // >=Beta8
+	bool	bAllowStrafing;
+	bool	bAllowNickChange;
+	bool	bServerSideHealth;
+	int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
 	
 	// IRC chat
 	bool	bEnableChat;
@@ -322,46 +329,9 @@ struct GameOptions {
 	int		iAdvancedLevelLimit;
 	int		iLocalPlayGame;
 	
-	// Last used game details - used as game lobby structure in client
-	// Put everything that impacts gameplay here, both server and client-sided
-	class GameInfo {
-	public:
-		GameInfo();
-		
-		int		iLives;
-		int		iKillLimit;
-		float	fTimeLimit; // Time limit in minutes
-		int		iTagLimit;
-		int		iLoadingTime;
-		bool	bBonusesOn;
-		bool	bShowBonusName;
-		int		iMaxPlayers;
-		std::string	sMapFile;
-		std::string	sMapName;	 // Decoded map name from map file
-		CGameMode* gameMode;
-		int		iGeneralGameType;
-        std::string sGameMode;	// Game mode name from server (only for client)
-        std::string sModDir;
-        std::string sModName;	// Decoded mod name from script.lgs
-		std::string	sSettingsName;
-		std::string	sSettingsFile;
-		float	fBonusFreq;
-		float	fBonusLife;
-		float	fRespawnTime;
-		bool	bRespawnGroupTeams;	// respawn all team in single spot
-		bool	bEmptyWeaponsOnRespawn;	// When worm respawns it should wait until all weapons are reloaded
-		float	fBonusHealthToWeaponChance;	// if 0.0f only health will be generated, if 1.0f - only weapons
-		bool	bForceRandomWeapons; // only for server; implies bServerChoosesWeapons=true
-		bool	bSameWeaponsAsHostWorm; // implies bServerChoosesWeapons=true
-		bool	bAllowConnectDuringGame; // >=Beta8
-		bool	bAllowStrafing;
-		bool	bAllowNickChange;
-		bool	bServerSideHealth;
-		int		iWeaponSelectionMaxTime;	// Auto-kick worms who select their weapons too long
-		std::string sWeaponRestFile;
-		
-		FeatureSettings features;
-	} tGameInfo;
+	// Last used custom game details
+	// Server-side game settings are now in gameSettings (see game/Settings.h)
+	FeatureSettingsLayer customSettings;
 
 	std::map<std::string,int> localplayLevels;
 	

@@ -845,7 +845,7 @@ void CMap::Draw(SDL_Surface *bmpDest, const SDL_Rect& rect, int worldX, int worl
 	if(gusIsLoaded())		
 		return;
 	
-	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+	if(!cClient->getGameLobby()[FT_InfiniteMap]) {
 		DrawImageAdv(bmpDest, bmpDrawImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
 #ifdef _AI_DEBUG
 		DrawImageAdv(bmpDest, bmpDebugImage, worldX*2, worldY*2,rect.x,rect.y,rect.w,rect.h);
@@ -1030,11 +1030,11 @@ void CMap::DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int w
 
 	// Get real coordinates
 	// TODO: DrawObjectShadow also doesn't do correct shadow for infinite maps, so let's ignore it here too atm
-	//VectorD2<int> p = view->physicToReal(VectorD2<int>(wx,wy), cClient->getGameLobby()->features[FT_InfiniteMap], GetWidth(), GetHeight());
+	//VectorD2<int> p = view->physicToReal(VectorD2<int>(wx,wy), cClient->getGameLobby()[FT_InfiniteMap], GetWidth(), GetHeight());
 	VectorD2<int> p = view->physicToReal(VectorD2<int>(wx,wy));
 	
 	// NOTE: if we fix shadow for infinite maps here, we cannot use GetPixel this way!
-	if( GetPixelFlag(wx, wy /*, cClient->getGameLobby()->features[FT_InfiniteMap]*/) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
+	if( GetPixelFlag(wx, wy /*, cClient->getGameLobby()[FT_InfiniteMap]*/) & PX_EMPTY )  {  // We should check all the 4 pixels, but no one will ever notice it
 		LOCK_OR_QUIT(bmpShadowMap);
 		Color color = Color(bmpShadowMap->format, GetPixel(bmpShadowMap.get(), wx, wy));
 		UnlockSurface(bmpShadowMap);
@@ -2805,7 +2805,7 @@ int CarveHole(CVec pos)
 	}
 
 	// Just carve a hole for the moment
-	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()->features[FT_InfiniteMap]);
+	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()[FT_InfiniteMap]);
 }
 
 

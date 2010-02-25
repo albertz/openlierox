@@ -224,7 +224,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
 	CMap* map = cClient->getMap();
-	VectorD2<int> p = view->physicToReal(vPos, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
+	VectorD2<int> p = view->physicToReal(vPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
     switch (tProjInfo->Type) {
 		case PRJ_PIXEL:
@@ -327,7 +327,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 	CMap* map = cClient->getMap();
 
 	// TODO: DrawObjectShadow is a bit complicated to fix for shadows&tiling, so I just leave all shadows away for now...
-	if(!view->physicsInside(vPos /*, cClient->getGameLobby()->features[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
+	if(!view->physicsInside(vPos /*, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
 		return;
 	   
 	switch (tProjInfo->Type)  {
@@ -450,7 +450,7 @@ static void updateMap(CProjectile* prj, const VectorD2<int>& p, const VectorD2<i
 
 void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<int>* oldRadius) {
 	if( !cClient->getGameScript()->getNeedCollisionInfo() && 
-		!bool(cClient->getGameLobby()->features[FT_CollideProjectiles]) ) 
+		!bool(cClient->getGameLobby()[FT_CollideProjectiles]) ) 
 		return;
 	
 	if(!isUsed()) { // not used anymore

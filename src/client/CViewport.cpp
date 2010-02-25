@@ -299,7 +299,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
             // Don't shake the action/freelook cam
             if( nType != VW_ACTIONCAM && nType != VW_FREELOOK && 
-            	( cClient->getGameLobby()->features[FT_ScreenShaking] ) ) {
+            	( cClient->getGameLobby()[FT_ScreenShaking] ) ) {
 
                 // Clamp it to the edges, then shake. So we can still see shaking near edges
                 Clamp(MWidth, MHeight);
@@ -374,7 +374,7 @@ void CViewport::Clamp(int MWidth, int MHeight)
 {
 	// If we have FT_InfiniteMap set, we don't want to clamp the viewport.
 	// We are drawing the map (and everything) tiled together then.
-	if(!cClient->getGameLobby()->features[FT_InfiniteMap]) {
+	if(!cClient->getGameLobby()[FT_InfiniteMap]) {
 		if(MWidth >= Width)
 			WorldX = CLAMP(WorldX, 0, MWidth-Width);
 		else

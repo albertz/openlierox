@@ -72,7 +72,7 @@ void CHideAndSeek::PrepareGame()
 		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
 		bVisible[i] = true; // So we can hide
 		Hide(&cServer->getWorms()[i], false);
-		fWarmupTime[i] = cServer->getServerTime() + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_HideTime]);
+		fWarmupTime[i] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
 		/*
 		// Set all the lives to 0
 		cWorms[i].setLives(0);
@@ -107,7 +107,7 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 		else if(cServer->getWorms()[i].isUsed())
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
 	}
-	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_HideTime]);
+	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
 	return false;
 }
 
@@ -148,7 +148,7 @@ void CHideAndSeek::Simulate()
 		return;
 	}
 	// Hiders have some time free from being caught and seen
-	if(GameTime < (float)tLXOptions->tGameInfo.features[FT_HS_HideTime])
+	if(GameTime < (float)gameSettings[FT_HS_HideTime])
 		return;
 	// Check if any of the worms can see eachother
 	int i, j;
@@ -157,7 +157,7 @@ void CHideAndSeek::Simulate()
 		if( !cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getLives() == WRM_OUT || !cServer->getWorms()[i].getAlive() )
 			continue;
 		// Hide the worm if the alert time is up
-		if(fLastAlert[i] + TimeDiff((float)tLXOptions->tGameInfo.features[FT_HS_AlertTime]) < GameTime)
+		if(fLastAlert[i] + TimeDiff((float)gameSettings[FT_HS_AlertTime]) < GameTime)
 			Hide(&cServer->getWorms()[i]);
 		for(j = 0; j < MAX_WORMS; j++) 
 		{
@@ -293,9 +293,9 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 	dist = worm1->getPos() - worm2->getPos();
 	if(worm1->getTeam() == HIDEANDSEEK_SEEKER)
 	{
-		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRangeThroughWalls] )
+		if( dist.GetLength() < (int)gameSettings[FT_HS_SeekerVisionRangeThroughWalls] )
 			return true;
-		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionRange] )
+		if( dist.GetLength() < (int)gameSettings[FT_HS_SeekerVisionRange] )
 		{
 			int type;
 			float length;
@@ -319,15 +319,15 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 			while( angleDiff < -180.0f )
 				angleDiff += 360.0f;
 			
-			return (int)fabs(angleDiff*2.0f) < (int)tLXOptions->tGameInfo.features[FT_HS_SeekerVisionAngle];
+			return (int)fabs(angleDiff*2.0f) < (int)gameSettings[FT_HS_SeekerVisionAngle];
 		}
 		return false;
 	}
 	else 
 	{
-		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRangeThroughWalls] )
+		if( dist.GetLength() < (int)gameSettings[FT_HS_HiderVisionRangeThroughWalls] )
 			return true;
-		if( dist.GetLength() < (int)tLXOptions->tGameInfo.features[FT_HS_HiderVisionRange] )
+		if( dist.GetLength() < (int)gameSettings[FT_HS_HiderVisionRange] )
 		{
 			int type;
 			float length;
@@ -341,8 +341,8 @@ bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
 
 void CHideAndSeek::GenerateTimes()
 {
-	if(tLXOptions->tGameInfo.fTimeLimit > 0) {
-		fGameLength = tLXOptions->tGameInfo.fTimeLimit * 60.0f;
+	if((float)gameSettings[FT_TimeLimit] > 0) {
+		fGameLength = (float)gameSettings[FT_TimeLimit] * 60.0f;
 		return;
 	}
 

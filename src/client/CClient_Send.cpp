@@ -47,7 +47,7 @@ void CClientNetEngine::SendWormDetails()
 	// we are checking in w->checkPacketNeeded() if we need to send an update
 	// we are checking with bandwidth if we should add an update
 	/*if ((tLX->currentTime - fLastUpdateSent) <= tLXOptions->fUpdatePeriod)
-		if (tGameInfo.iGameType != GME_LOCAL)
+		if (getGameLobby()->iGameType != GME_LOCAL)
 			return; */
 
 	// TODO: Have we always used the limitcheck from GameServer here?
@@ -275,7 +275,7 @@ void CClientNetEngine::SendTextInternal(const std::string& sText, const std::str
 void CClientNetEngine::SendRandomPacket()
 {
 	// don't send random packets from the local client to our own server
-	if( tGameInfo.iGameType != GME_JOIN ) return;
+	if( getGameLobby()->iGameType != GME_JOIN ) return;
 
 	CBytestream bs;
 

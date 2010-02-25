@@ -374,47 +374,47 @@ void CGameSettingsDialog::LoadFromOptions()
 	// TODO: Hey, there should be some way without putting here all vars from options, it's just lame
 	// Options system uses for() on CScriptableVars::Vars() array for that, that's the whole point of the scriptable vars
 	// Lives
-	if (tLXOptions->tGameInfo.iLives >= 0)
-		txtLives->setText(itoa(tLXOptions->tGameInfo.iLives));
+	if ((int)gameSettings[FT_Lives] >= 0)
+		txtLives->setText(itoa((int)gameSettings[FT_Lives]));
 
 	// Kills
-	if (tLXOptions->tGameInfo.iKillLimit >= 0)
-		txtLives->setText(itoa(tLXOptions->tGameInfo.iKillLimit));
+	if ((int)gameSettings[FT_KillLimit] >= 0)
+		txtLives->setText(itoa((int)gameSettings[FT_KillLimit]));
 
 	// Loading time
-	sldLoadingTime->setValue(tLXOptions->tGameInfo.iLoadingTime);
-	lblLoadingTime->setText(itoa(tLXOptions->tGameInfo.iLoadingTime));
+	sldLoadingTime->setValue((int)gameSettings[FT_LoadingTime]);
+	lblLoadingTime->setText(itoa((int)gameSettings[FT_LoadingTime]));
 
 	// Time limit
-	if (tLXOptions->tGameInfo.fTimeLimit > 0)
-		txtTimeLimit->setText(ftoa(tLXOptions->tGameInfo.fTimeLimit));
+	if ((float)gameSettings[FT_TimeLimit] > 0)
+		txtTimeLimit->setText(ftoa(gameSettings[FT_TimeLimit]));
 
 	// Respawn time
-	txtRespawnTime->setText(ftoa(tLXOptions->tGameInfo.fRespawnTime));
+	txtRespawnTime->setText(ftoa(gameSettings[FT_RespawnTime]));
 
 	// Empty weapons when respawning
-	chkEmptyWeapons->setValue(tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn);
+	chkEmptyWeapons->setValue(gameSettings[FT_EmptyWeaponsOnRespawn]);
 
 	// Group teams
-	chkGroupTeams->setValue(tLXOptions->tGameInfo.bRespawnGroupTeams);
+	chkGroupTeams->setValue(gameSettings[FT_RespawnGroupTeams]);
 
 	// Suicide or teamkill decreases score
-	chkDecreaseScore->setValue(tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore]);
+	chkDecreaseScore->setValue(gameSettings[FT_SuicideDecreasesScore]);
 
 	// Bonuses on
-	chkBonusesOn->setValue(tLXOptions->tGameInfo.bBonusesOn);
+	chkBonusesOn->setValue(gameSettings[FT_Bonuses]);
 
 	// Bonus spawn time
-	txtBonusSpawnTime->setText(ftoa(tLXOptions->tGameInfo.fBonusFreq));
+	txtBonusSpawnTime->setText(ftoa(gameSettings[FT_BonusFreq]));
 
 	// Show bonus names
-	chkShowBonusNames->setValue(tLXOptions->tGameInfo.bShowBonusName);
+	chkShowBonusNames->setValue(gameSettings[FT_ShowBonusName]);
 
 	// Bonus life time
-	txtBonusLifeTime->setText(ftoa(tLXOptions->tGameInfo.fBonusLife));
+	txtBonusLifeTime->setText(ftoa(gameSettings[FT_BonusLife]));
 
 	// Health to weapon chance
-	sldWeaponToHealthChance->setValue((int)(tLXOptions->tGameInfo.fBonusHealthToWeaponChance*100.0f));
+	sldWeaponToHealthChance->setValue((int)((float)gameSettings[FT_BonusHealthToWeaponChance]*100.0f));
 	lblHealthChance->setText(itoa(100 - sldWeaponToHealthChance->getValue()) + " %");
 	lblWeaponChance->setText(itoa(sldWeaponToHealthChance->getValue()) + " %");
 }
@@ -424,13 +424,13 @@ void CGameSettingsDialog::LoadFromOptions()
 void CGameSettingsDialog::Save()
 {
 	// Default to no setting
-	tLXOptions->tGameInfo.iLives = -2;
-	tLXOptions->tGameInfo.iKillLimit = -1;
-	tLXOptions->tGameInfo.fTimeLimit = -1;
-	tLXOptions->tGameInfo.iTagLimit = -1;
-	tLXOptions->tGameInfo.fRespawnTime = 2.5;
-	tLXOptions->tGameInfo.bBonusesOn = true;
-	tLXOptions->tGameInfo.bShowBonusName = true;
+	gameSettings.overwrite[FT_Lives] = -2;
+	gameSettings.overwrite[FT_KillLimit] = -1;
+	gameSettings.overwrite[FT_TimeLimit] = -1.0f;
+	gameSettings.overwrite[FT_TagLimit] = -1.0f;
+	gameSettings.overwrite[FT_RespawnTime] = 2.5f;
+	gameSettings.overwrite[FT_Bonuses] = true;
+	gameSettings.overwrite[FT_ShowBonusName] = true;
 
 	//
 	// General
@@ -438,52 +438,52 @@ void CGameSettingsDialog::Save()
 
 	// Lives
 	if(txtLives->getText().size())
-		tLXOptions->tGameInfo.iLives = atoi(txtLives->getText());
+		gameSettings.overwrite[FT_Lives] = atoi(txtLives->getText());
 
 	// Max kills
 	if(txtMaxKills->getText().size())
-		tLXOptions->tGameInfo.iKillLimit = atoi(txtMaxKills->getText());
+		gameSettings.overwrite[FT_KillLimit] = atoi(txtMaxKills->getText());
 
 	// Loading time
-	tLXOptions->tGameInfo.iLoadingTime = sldLoadingTime->getValue();
+	gameSettings.overwrite[FT_LoadingTime] = sldLoadingTime->getValue();
 
 	// Time limit
 	if(txtTimeLimit->getText().size())
-		tLXOptions->tGameInfo.fTimeLimit = atof(txtTimeLimit->getText());
+		gameSettings.overwrite[FT_TimeLimit] = atof(txtTimeLimit->getText());
 
 	// Respawn time
 	if(txtRespawnTime->getText().size())
-		tLXOptions->tGameInfo.fRespawnTime = atof(txtRespawnTime->getText());
+		gameSettings.overwrite[FT_RespawnTime] = atof(txtRespawnTime->getText());
 
 	// Group teams
-	tLXOptions->tGameInfo.bRespawnGroupTeams = chkGroupTeams->getValue();
+	gameSettings.overwrite[FT_RespawnGroupTeams] = chkGroupTeams->getValue();
 
 	// Suicide and teamkill decrease score
-	tLXOptions->tGameInfo.features[FT_SuicideDecreasesScore] = chkDecreaseScore->getValue();
+	gameSettings.overwrite[FT_SuicideDecreasesScore] = chkDecreaseScore->getValue();
 
 	// Empty weapons on respawn
-	tLXOptions->tGameInfo.bEmptyWeaponsOnRespawn = chkEmptyWeapons->getValue();
+	gameSettings.overwrite[FT_EmptyWeaponsOnRespawn] = chkEmptyWeapons->getValue();
 
 	//
 	// Bonuses
 	//
 
 	// Bonuses on
-	tLXOptions->tGameInfo.bBonusesOn = chkBonusesOn->getValue();	
+	gameSettings.overwrite[FT_Bonuses] = chkBonusesOn->getValue();	
 
 	// Bonus spawn time
 	if(txtBonusSpawnTime->getText().size())
-		tLXOptions->tGameInfo.fBonusFreq = atof(txtBonusSpawnTime->getText());
+		gameSettings.overwrite[FT_BonusFreq] = atof(txtBonusSpawnTime->getText());
 
 	// Show bonus names
-	tLXOptions->tGameInfo.bShowBonusName = chkShowBonusNames->getValue();
+	gameSettings.overwrite[FT_ShowBonusName] = chkShowBonusNames->getValue();
 
 	// Bonus life time
 	if(txtBonusLifeTime->getText().size())
-		tLXOptions->tGameInfo.fBonusLife = atof(txtBonusLifeTime->getText());
+		gameSettings.overwrite[FT_BonusLife] = atof(txtBonusLifeTime->getText());
 
 	// Health to weapon chance
-	tLXOptions->tGameInfo.fBonusHealthToWeaponChance = (float)sldWeaponToHealthChance->getValue() / 100.0f;
+	gameSettings.overwrite[FT_BonusHealthToWeaponChance] = (float)sldWeaponToHealthChance->getValue() / 100.0f;
 }
 
 ////////////////////////

@@ -518,7 +518,7 @@ CWidget * CGuiSkinnedLayout::WidgetCreator( const std::vector< ScriptVar_t > & p
 	// Create new CGuiSkinnedLayout and put it's cChildLayout to actual layout from XML
 	// so when it's destroyed the layout from XML not destroyed.
 	CGuiSkinnedLayout * w = new CGuiSkinnedLayout();
-	w->cChildLayout = CGuiSkin::GetLayout( p[0].s );
+	w->cChildLayout = CGuiSkin::GetLayout( p[0].str );
 	if( w->cChildLayout )
 	{
 		w->cChildLayout->SetOffset( p[1].i, p[2].i );

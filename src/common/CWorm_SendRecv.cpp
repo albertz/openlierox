@@ -390,7 +390,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// When you call Spawn() on a worm, it will get a full health
 	// It means that people with old LX could limit their FPS and whenever they would need to
 	// recover their health they would simply find some thinner wall and try to fly through it
-	/*if (tGameInfo.iGameType == GME_HOST && cServer->getMap() && cOwner)  {
+	/*if (getGameLobby()->iGameType == GME_HOST && cServer->getMap() && cOwner)  {
 
 		// Out of map
 		if(x >= (short)cServer->getMap()->GetWidth() || y >= (short)cServer->getMap()->GetHeight())
