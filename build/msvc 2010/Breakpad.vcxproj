@@ -18,6 +18,43 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\crash_generation_client.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\minidump_generator.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\handler\exception_handler.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\convert_UTF.c" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\md5.c" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\string_conversion.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\guid_string.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\http_upload.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\pdb_source_line_writer.cc">
+      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath);..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <ClCompile Include="..\..\libs\breakpad\src\common\windows\string_utils.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\basic_code_modules.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\basic_source_line_resolver.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\call_stack.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\logging.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\minidump.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\minidump_processor.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\pathname_stripper.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\process_state.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\simple_symbol_supplier.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_amd64.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_ppc.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_sparc.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\processor\stackwalker_x86.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\libs\breakpad\src\common\convert_UTF.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\md5.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\string_conversion.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\guid_string.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\http_upload.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\pdb_source_line_writer.h" />
+    <ClInclude Include="..\..\libs\breakpad\src\common\windows\string_utils-inl.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B55CA863-B374-4BAF-95AC-539E4FA4C90C}</ProjectGuid>
     <RootNamespace>exception_handler</RootNamespace>
@@ -72,7 +109,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -133,38 +170,6 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_client.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\handler\exception_handler.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\minidump_generator.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\convert_UTF.c" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\guid_string.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\md5.c" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='ReleaseStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='DebugStaticCRT|Win32'">$(IncludePath);..\..\src\breakpad\external\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\common\string_conversion.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\string_utils.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_code_modules.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_source_line_resolver.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\call_stack.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\logging.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_processor.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\pathname_stripper.cc">
-      <DebugInformationFormat Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ProgramDatabase</DebugInformationFormat>
-    </ClCompile>
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\process_state.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\simple_symbol_supplier.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_amd64.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_ppc.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_sparc.cc" />
-    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_x86.cc" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

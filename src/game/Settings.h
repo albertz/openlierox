@@ -25,12 +25,16 @@ struct FeatureSettingsLayer : FeatureSettings {
 };
 
 struct Settings {
+#pragma warning(push)
+#pragma warning(disable: 4355)  // Warning: this used in base member initializer list
+
 	Settings() : overwrite(*this) {
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
 			wrappers[i].i = (FeatureIndex)i;
 			wrappers[i].s = this;
 		}
 	}
+#pragma warning(pop)
 	
 	typedef std::vector<FeatureSettingsLayer*> Layers;
 	Layers layers;

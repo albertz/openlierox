@@ -20,7 +20,7 @@
 
 #include "InputEvents.h"
 
-struct ScriptVar_t;
+class ScriptVar_t;
 
 namespace DeprecatedGUI {
 

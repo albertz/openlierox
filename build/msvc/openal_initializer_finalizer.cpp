@@ -1,3 +1,5 @@
+#include <AL/alc.h>
+
 extern "C" {
 	void alc_init(void);
 	void alc_deinit(void);

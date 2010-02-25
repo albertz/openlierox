@@ -308,7 +308,7 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 		// GUI theme combobox
 
 		CScriptableVars::RegisterVars("GUI")
-			( & ThemeCombobox_OnChange, "ThemeCombobox_OnChange" );
+			( (ScriptCallback_t)& ThemeCombobox_OnChange, "ThemeCombobox_OnChange" );
 
 		std::vector< ScriptVar_t > GuiThemeInit;
 		GuiThemeInit.push_back( ScriptVar_t ( "None#" ) );	// List of items
