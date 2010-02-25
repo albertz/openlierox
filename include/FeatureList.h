@@ -84,7 +84,14 @@ struct Feature {
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		getValueFct(f) {}
 
-	Feature(const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def, 
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char* unset, const char* def,
+				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false,
+				GetValueFunction f = NULL)
+	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(std::string(unset))), defaultValue(Var(std::string(def))),
+		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt),
+		getValueFct(f) {}
+
+	Feature(const std::string& n, const std::string& hn, const std::string& desc, const CustomVar& unset, const CustomVar& def,
 			Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)), 
 	minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
