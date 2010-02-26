@@ -271,9 +271,12 @@ bool GameOptions::Init() {
 	for( CScriptableVars::const_iterator it = CScriptableVars::begin();
 		it != CScriptableVars::end(); it++ )
 	{
-		if( it->first.find("GameOptions.") == 0 )
+		if( strStartsWith(it->first, "GameOptions.") )
 		{
-			it->second.var.setDefault();
+			// but not from GameInfo - that is all handled automatically via the settings layers
+			// setting it would be bad because we would have all customsettings set
+			if( !strStartsWith(it->first, "GameOptions.GameInfo.") )
+				it->second.var.setDefault();
 		}
 	}
 	
