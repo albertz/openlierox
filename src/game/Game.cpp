@@ -86,19 +86,7 @@ void Game::prepareGameloop() {
 		// to earlier versions. Thus we overwrite it this way.
 		gameScript()->customSettingsLayer.copyTo( cClient->getGameLobby() );
 	}
-	
-	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
-	if(isServer()) {
-		// First, clean up the old settings.
-		gamePresetSettings.makeSet(false);
-		// We keep all mod specific options in gamePresetSettings.
-		gameScript()->customSettingsLayer.copyTo( gamePresetSettings );
-		// Now, after this, load the settings specified by the game settings preset.
-		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
-		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
-			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
-	}
-	
+		
 	if(isServer()) {
 		// resend lua event index to everyone
 		network.sendEncodedLuaEvents(INVALID_CONN_ID);		

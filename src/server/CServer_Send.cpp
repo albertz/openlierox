@@ -237,7 +237,11 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 	CServerNetEngineBeta7::WritePrepareGame(bs);
 
 	bs->writeFloat(game.gameMode()->TimeLimit() / 60.0f);
-	WriteFeatureSettings(bs);
+
+	// We have send the full feature array here. We do this now with an UpdateGameLobby packet seperately.
+	// To keep compatibility, just send an empty list.
+	bs->writeInt(0, 2);
+	
 	bs->writeString(game.gameMode()->Name());
 	
 	// TODO: shouldn't this be somewhere in the clear function?

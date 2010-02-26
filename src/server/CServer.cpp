@@ -50,6 +50,7 @@
 #include "gusanos/gusgame.h"
 #include "game/Mod.h"
 #include "game/Level.h"
+#include "game/SettingsPreset.h"
 
 
 GameServer	*cServer = NULL;
@@ -564,6 +565,20 @@ mapCreate:
 		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
 	}
 	
+	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
+	{
+		// First, clean up the old settings.
+		gamePresetSettings.makeSet(false);
+		// We keep all mod specific options in gamePresetSettings.
+		game.gameScript()->customSettingsLayer.copyTo( gamePresetSettings );
+		// Now, after this, load the settings specified by the game settings preset.
+		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
+		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
+			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
+	}
+	
+	// update about all other vars
+	UpdateGameLobby();
 	return true;
 }
 

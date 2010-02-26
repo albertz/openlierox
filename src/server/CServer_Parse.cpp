@@ -1726,6 +1726,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			// HINT: this is necessary because of beta8 which doesn't update all its state variables from preparegame
 			newcl->getNetEngine()->SendUpdateLobbyGame();
 		newcl->getNetEngine()->SendPrepareGame();
+		
+		// We have not sent the whole feature array in SendPrepareGame - we do this now seperately here
+		newcl->getNetEngine()->SendUpdateLobbyGame();
 	}	
 
 	if (tLX->iGameType != GME_LOCAL) {
