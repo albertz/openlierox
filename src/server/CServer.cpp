@@ -575,6 +575,8 @@ mapCreate:
 		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
 		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
 			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
+		
+		gameSettings.dumpAllLayers();
 	}
 	
 	// update about all other vars
