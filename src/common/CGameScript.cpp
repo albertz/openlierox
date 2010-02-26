@@ -2536,7 +2536,7 @@ std::vector<std::string> CGameScript::LoadWeaponList(const std::string dir)
 	if( info.typeShort == "LX" )
 	{
 		// Too complicated to parse here
-		static CGameScript loader;
+		CGameScript loader;
 		if( loader.Load(dir, false) != GSE_OK )
 			return ret;
 		for( int i = 0; i < loader.NumWeapons; i++ )
