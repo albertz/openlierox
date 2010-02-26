@@ -505,8 +505,6 @@ public:
 		if(worm->isOnGround()) {
 			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()[FT_WormGroundFriction]);
 
-			//vVelocity = vVelocity * CVec(/*wd->GroundFriction*/ 0.9f,1);        // Hack until new game script is done
-
 			// Too slow, just stop
 			if(fabs(worm->velocity().x) < 5 && !ws->bMove)
 				worm->velocity().x = 0;
