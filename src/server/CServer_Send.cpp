@@ -153,7 +153,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 		bs->writeInt16((int)(float)gameSettings[FT_TagLimit]);
 	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->path);
 	
-	server->cWeaponRestrictions.sendList(bs, CGameScript::LoadWeaponList(gameSettings[FT_Mod].as<ModInfo>()->path));
+	server->cWeaponRestrictions.sendList(bs, game.gameScript()->GetWeaponList());
 }
 
 void CServerNetEngine::SendPrepareGame()
