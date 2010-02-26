@@ -217,12 +217,6 @@ public:
 						clip |= 0x08;
 						worm->pos().y = pos.y + y - 5;
 					}
-
-					//if(y>3 && !jump) {
-						//vVelocity.y=(-10);
-						//Velocity.y=(0);
-					//	break;
-					//}
 				}
 			}
 		}
