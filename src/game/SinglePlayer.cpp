@@ -215,9 +215,6 @@ bool SinglePlayerGame::startGame() {
 	// don't have any wpn restrictions
 	cServer->setWeaponRestFile("");
 
-	// first set the standards
-	gamePresetSettings.makeSet(false);
-	
 	gameSettings.overwrite[FT_Map].as<LevelInfo>()->path = levelInfo.path;
 	gameSettings.overwrite[FT_Map].as<LevelInfo>()->name = levelInfo.name;
 	gameSettings.overwrite[FT_Mod].as<ModInfo>()->path = modInfo.path;
