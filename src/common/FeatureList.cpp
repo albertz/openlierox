@@ -49,6 +49,19 @@ Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo 
 Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
 Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
 
+// all these are moved from CGameScript::Worm
+Feature( "WormGroundSpeed", "Worm ground speed", "Worm ground speed", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+Feature( "WormAirSpeed", "Worm air speed", "Worm air speed", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+Feature( "WormAirFriction", "Worm air friction", "Worm air friction", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+Feature( "WormGravity", "Worm gravity", "Worm gravity", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+Feature( "WormJumpForce", "Worm jump force", "Worm jump force", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+
+// these are moved from CGameScript::Rope*
+Feature( "RopeMaxLength", "Rope max length", "Rope max length", 150, 150, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 0, false, false),
+Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 20, 20, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 0, false, false),
+Feature( "RopeStrength", "Rope strength", "Rope strength", 0.5f, 0.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 0.0f, false, false),
+
+
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
 			1.0f, 	1.0f,			OLXBetaVersion(7), 	GIG_Advanced, ALT_Advanced,		0.1f, 	10.0f ),
 	Feature("GameSpeedOnlyForProjs", "Speed multiplier only for projs",	"Game-speed multiplicator applies only for projectiles and weapons, everything else will be normal speed",

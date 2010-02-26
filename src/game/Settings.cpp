@@ -16,6 +16,12 @@ Settings gameSettings;
 FeatureSettingsLayer gamePresetSettings;
 
 
+void FeatureSettingsLayer::copyTo(FeatureSettings& s) const {
+	for(size_t i = 0; i < FeatureArrayLen; ++i)
+		if(isSet[i])
+			s[(FeatureIndex)i] = (*this)[(FeatureIndex)i];
+}
+
 void Settings::layersInitStandard() {
 	layersClear();
 	layers.push_back(&gamePresetSettings);

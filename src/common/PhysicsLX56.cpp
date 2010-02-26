@@ -290,7 +290,6 @@ public:
 				cClient->shouldRepaintInfo() = true;
 		}
 
-		const gs_worm_t *wd = game.gameScript()->getWorm();
 		worm_state_t *ws = worm->getWormState();
 
 
@@ -342,7 +341,7 @@ public:
 
 		// Process the moving
 		if(ws->bMove) {
-			const float speed = worm->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
+			const float speed = worm->isOnGround() ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
 			if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 				// Right
 				if(worm->velocity().x < (float)cClient->getGameLobby()[FT_WormMaxMoveSpeed])
@@ -359,6 +358,8 @@ public:
 		bool jumped = false;
 		{
 			const bool onGround = worm->CheckOnGround();
+			const float jumpForce = cClient->getGameLobby()[FT_WormJumpForce];
+			
 			if( onGround )
 				worm->setLastAirJumpTime(AbsTime());
 			if(ws->bJump && ( onGround || worm->canAirJump() ||
@@ -366,17 +367,17 @@ public:
 					worm->getLastAirJumpTime() + float( cClient->getGameLobby()[FT_RelativeAirJumpDelay] ) ) )) 
 			{
 				if( onGround )
-					worm->velocity().y = wd->JumpForce;
+					worm->velocity().y = jumpForce;
 				else {
 					// GFX effect, as in TeeWorlds (we'll change velocity after that)
 					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 0, 4 ), worm->velocity() + CVec( 0, 40 ), Color(), NULL );
 					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
 					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
-					if( worm->canAirJump() && worm->velocity().y > wd->JumpForce ) // Negative Y coord = moving up
-						worm->velocity().y = wd->JumpForce; // Absolute velocity - instant air jump
+					if( worm->canAirJump() && worm->velocity().y > jumpForce ) // Negative Y coord = moving up
+						worm->velocity().y = jumpForce; // Absolute velocity - instant air jump
 					else
-						worm->velocity().y += wd->JumpForce; // Relative velocity - relative air jump
+						worm->velocity().y += jumpForce; // Relative velocity - relative air jump
 				}
 				worm->setLastAirJumpTime(GetPhysicsTime());
 				worm->setOnGround( false );
@@ -386,7 +387,7 @@ public:
 
 		{
 			// Air drag (Mainly to dampen the ninja rope)
-			const float Drag = wd->AirFriction;
+			const float Drag = cClient->getGameLobby()[FT_WormAirFriction];
 
 			if(!worm->isOnGround())	{
 				worm->velocity().x -= SQR(worm->velocity().x) * SIGN(worm->velocity().x) * Drag * dt;
@@ -395,10 +396,10 @@ public:
 		}
 				
 		// Gravity
-		worm->velocity().y += wd->Gravity*dt;
+		worm->velocity().y += (float)cClient->getGameLobby()[FT_WormGravity] * dt;
 
 		{
-			float friction = cClient->getGameLobby()[FT_WormFriction];
+			const float friction = cClient->getGameLobby()[FT_WormFriction];
 			if(friction > 0) {
 				static const float wormSize = 5.0f;
 				static const float wormMass = (wormSize/2) * (wormSize/2) * (float)PI;
@@ -510,7 +511,8 @@ public:
 			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
 
 			// Check if it's too long
-			if(length2 > rope->getMaxLength() * rope->getMaxLength()) {
+			const float ropeMaxLength = cClient->getGameLobby()[FT_RopeLength];
+			if(length2 > ropeMaxLength * ropeMaxLength) {
 				rope->hookVelocity() = CVec(0,0);
 				rope->setShooting( false );
 			}
@@ -520,7 +522,8 @@ public:
 
 			// Going towards the player
 			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
-			if(length2 > rope->getRestLength() * rope->getRestLength()) {
+			const float ropeRestLength = cClient->getGameLobby()[FT_RopeRestLength];
+			if(length2 > ropeRestLength * ropeRestLength) {
 
 				// Pull the hook back towards the player
 				CVec d = playerpos - rope->hookPos();

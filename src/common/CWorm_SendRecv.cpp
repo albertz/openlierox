@@ -266,9 +266,8 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			// Approximate with velocity and acceleration (including gravity)
 			CVec a(0, 0);
 
-			const gs_worm_t *wd = game.gameScript()->getWorm();
 			// Air drag (Mainly to dampen the ninja rope)
-			float Drag = wd->AirFriction;
+			const float Drag = cClient->getGameLobby()[FT_WormAirFriction];
 
 
 			if(!bOnGround)	{
@@ -283,7 +282,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			}
 
 			// Gravity
-			a.y += wd->Gravity;
+			a.y += (float)cClient->getGameLobby()[FT_WormGravity];
 
 			// this estimates the vel of fLastPosUpdate
 			// it do a better estimation as we had last time, so believe this more

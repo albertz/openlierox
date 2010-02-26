@@ -134,6 +134,16 @@ enum FeatureIndex {
 	FT_ForceRandomWeapons, // only for server; implies bServerChoosesWeapons=true
 	FT_SameWeaponsAsHostWorm, // implies bServerChoosesWeapons=true
 	
+	FT_WormGroundSpeed, // float
+	FT_WormAirSpeed, // float
+	FT_WormAirFriction, // float
+	FT_WormGravity, // float
+	FT_WormJumpForce, // float
+	
+	FT_RopeLength, // int
+	FT_RopeRestLength, // int
+	FT_RopeStrength, // float
+	
 	FT_GameSpeed,
 	FT_GameSpeedOnlyForProjs,
 	FT_ScreenShaking,

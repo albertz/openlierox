@@ -23,7 +23,6 @@
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"
-#include "CGameScript.h"
 #include "game/Game.h"
 
 
@@ -81,15 +80,7 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 ///////////////////
 // Setup the details from the gamescript
 void CNinjaRope::Setup()
-{
-	if(game.gameScript() && game.gameScript()->isLoaded()) {
-		RopeLength = (float)game.gameScript()->getRopeLength();
-		RestLength = (float)game.gameScript()->getRestLength();
-		Strength = game.gameScript()->getStrength();
-	}
-	else
-		errors << "CNinjaRope::Setup: gamescript not loaded" << endl;
-}
+{}
 
 
 
@@ -189,10 +180,12 @@ CVec CNinjaRope::CalculateForce(CVec playerpos)
 	CVec dir = playerpos-HookPos;
 	dir = dir.Normalize();
 
+	const float RestLength = cClient->getGameLobby()[FT_RopeRestLength];
 	if((playerpos-HookPos).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 
 	// Make sure the pull isn't huge
+	const float Strength = cClient->getGameLobby()[FT_RopeStrength];
 	float l = -Strength;
 
 	dir *= l*100;

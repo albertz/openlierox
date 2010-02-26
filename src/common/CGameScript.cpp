@@ -37,6 +37,24 @@
 
 
 
+
+// Worm structure
+// WARNING: never change this!
+// it's used in CGameScript.cpp and it represents
+// the original file format
+struct gs_worm_t {
+	float	AngleSpeed; // was always ignored
+	
+	float	GroundSpeed;  // -> FT_WormGroundSpeed
+	float	AirSpeed;  // -> FT_WormAirSpeed
+	float	Gravity; // -> FT_WormGravity
+	float	JumpForce; // -> FT_WormJumpForce
+	float	AirFriction; // -> FT_WormAirFriction
+	
+	float	GroundFriction; // was always ignored
+};
+
+
 void CGameScript::initNewWeapons(int num) {
 	if(Weapons) delete[] Weapons;
 	SetNumWeapons(num);
@@ -179,12 +197,19 @@ int CGameScript::Save(const std::string& filename)
 
 
 	// Ninja Rope
-	fwrite_endian_compat((RopeLength),sizeof(int),1,fp);
-	fwrite_endian_compat((RestLength),sizeof(int),1,fp);
-	fwrite_endian_compat((Strength),sizeof(float),1,fp);
+	fwrite_endian_compat((int)gameSettings[FT_RopeLength],sizeof(int),1,fp);
+	fwrite_endian_compat((int)gameSettings[FT_RopeRestLength],sizeof(int),1,fp);
+	fwrite_endian_compat((int)gameSettings[FT_RopeStrength],sizeof(float),1,fp);
 
 	// Worm
-	gs_worm_t tmpworm = Worm;
+	gs_worm_t tmpworm;
+	tmpworm.AngleSpeed = 100;
+	tmpworm.GroundSpeed = gameSettings[FT_WormGroundSpeed];
+	tmpworm.AirSpeed = gameSettings[FT_WormAirSpeed];
+	tmpworm.Gravity = gameSettings[FT_WormGravity];
+	tmpworm.JumpForce = gameSettings[FT_WormJumpForce];
+	tmpworm.AirFriction = gameSettings[FT_WormAirFriction];
+	tmpworm.GroundFriction = 0;
 	EndianSwap(tmpworm.AngleSpeed);
 	EndianSwap(tmpworm.GroundSpeed);
 	EndianSwap(tmpworm.AirSpeed);
@@ -595,17 +620,7 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 			if(gusInit(info.path)) {
 				m_gusEngineUsed = true;
 				loaded = true;
-				modname = info.name;
-
-				// they are not really used but the AI code or other stuff may access them
-				Worm.AngleSpeed = 100;  //m_options->aimMaxSpeed.toDeg() * 100.f;
-				Worm.GroundSpeed = 1;
-				Worm.AirSpeed = 1;
-				Worm.Gravity = 1;
-				Worm.JumpForce = 1;
-				Worm.AirFriction = 1;
-				Worm.GroundFriction = 1;
-				
+				modname = info.name;				
 				return GSE_OK;
 			}
 			
@@ -762,14 +777,22 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 
 
 	// Ninja Rope
+	float RopeLength = 0;
 	fread_compat(RopeLength,sizeof(int),1,fp);
 	EndianSwap(RopeLength);
+	float RestLength = 0;
 	fread_compat(RestLength,sizeof(int),1,fp);
 	EndianSwap(RestLength);
+	float Strength = 0;
 	fread_compat(Strength,sizeof(float),1,fp);
 	EndianSwap(Strength);
 
+	customSettingsLayer.set(FT_RopeLength) = RopeLength;
+	customSettingsLayer.set(FT_RopeRestLength) = RestLength;
+	customSettingsLayer.set(FT_RopeStrength) = Strength;
+	
 	// Worm
+	gs_worm_t Worm;
 	fread_compat(Worm, sizeof(gs_worm_t), 1, fp);
 	EndianSwap(Worm.AngleSpeed);
 	EndianSwap(Worm.GroundSpeed);
@@ -779,6 +802,11 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	EndianSwap(Worm.AirFriction);
 	EndianSwap(Worm.GroundFriction);
 
+	customSettingsLayer.set(FT_WormGroundSpeed) = Worm.GroundSpeed;
+	customSettingsLayer.set(FT_WormAirSpeed) = Worm.AirSpeed;
+	customSettingsLayer.set(FT_WormGravity) = Worm.Gravity;
+	customSettingsLayer.set(FT_WormJumpForce) = Worm.JumpForce;
+	customSettingsLayer.set(FT_WormAirFriction) = Worm.AirFriction;
 
 	fclose(fp);
 
@@ -1902,26 +1930,28 @@ bool CGameScript::CompileExtra(const IniReader& ini)
 	ini.ReadInteger("NinjaRope","RestLength",&restl,0);
 	ini.ReadFloat("NinjaRope","Strength",&strength,0);
 
-	Game->SetRopeLength(ropel);
-	Game->SetRestLength(restl);
-	Game->SetStrength(strength);
+	Game->customSettingsLayer.set(FT_RopeLength) = ropel;
+	Game->customSettingsLayer.set(FT_RopeRestLength) = restl;
+	Game->customSettingsLayer.set(FT_RopeStrength) = strength;
 
 
 	// Worm
 	notes << "  Compiling Worm" << endl;
-	gs_worm_t *wrm = &Game->Worm;
+	gs_worm_t wrm;
 
-	ini.ReadFloat( "Worm", "AngleSpeed",		&wrm->AngleSpeed, 150);
-	ini.ReadFloat( "Worm", "GroundSpeed",		&wrm->GroundSpeed, 8);
-	ini.ReadFloat( "Worm", "AirSpeed",		&wrm->AirSpeed, 1);
-	ini.ReadFloat( "Worm", "Gravity",			&wrm->Gravity, 175);
-	ini.ReadFloat( "Worm", "JumpForce",		&wrm->JumpForce, -140);
-	ini.ReadFloat( "Worm", "AirFriction",		&wrm->AirFriction, 0);
-	ini.ReadFloat( "Worm", "GroundFriction",	&wrm->GroundFriction, 0.6f);
+	ini.ReadFloat( "Worm", "AngleSpeed",		&wrm.AngleSpeed, 150);
+	ini.ReadFloat( "Worm", "GroundSpeed",		&wrm.GroundSpeed, 8);
+	ini.ReadFloat( "Worm", "AirSpeed",		&wrm.AirSpeed, 1);
+	ini.ReadFloat( "Worm", "Gravity",			&wrm.Gravity, 175);
+	ini.ReadFloat( "Worm", "JumpForce",		&wrm.JumpForce, -140);
+	ini.ReadFloat( "Worm", "AirFriction",		&wrm.AirFriction, 0);
+	ini.ReadFloat( "Worm", "GroundFriction",	&wrm.GroundFriction, 0.6f);
 
-
-
-
+	Game->customSettingsLayer.set(FT_WormGroundSpeed) = wrm.GroundSpeed;
+	Game->customSettingsLayer.set(FT_WormAirSpeed) = wrm.AirSpeed;
+	Game->customSettingsLayer.set(FT_WormGravity) = wrm.Gravity;
+	Game->customSettingsLayer.set(FT_WormJumpForce) = wrm.JumpForce;
+	Game->customSettingsLayer.set(FT_WormAirFriction) = wrm.AirFriction;
 
 	return true;
 }

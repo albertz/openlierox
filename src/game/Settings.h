@@ -26,6 +26,9 @@ struct FeatureSettingsLayer : FeatureSettings {
 	FeatureSettingsLayer() { makeSet(false); }
 	void makeSet(bool v = true) { for(size_t i = 0; i < FeatureArrayLen; ++i) isSet[i] = v; }
 	
+	ScriptVar_t& set(FeatureIndex i) { isSet[i] = true;	return (*this)[i]; }
+	void copyTo(FeatureSettings& s) const;
+	
 	bool loadFromConfig(const std::string& cfgfile, bool reset = true, std::map<std::string, std::string>* unknown = NULL);
 };
 

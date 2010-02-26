@@ -26,6 +26,7 @@
 #include "Color.h"
 #include "StaticAssert.h"
 #include "StringUtils.h"
+#include "game/Settings.h"
 
 class IniReader;
 
@@ -65,23 +66,6 @@ struct gs_header_t {
 
 
 
-// Worm structure
-// WARNING: never change this!
-// it's used in CGameScript.cpp and it represents
-// the original file format
-struct gs_worm_t {
-	float	AngleSpeed;
-
-	float	GroundSpeed;
-	float	AirSpeed;
-	float	Gravity;
-	float	JumpForce;
-	float	AirFriction;
-	float	GroundFriction;
-
-};
-
-
 struct weapon_t;
 struct proj_t;
 struct Proj_SpawnInfo;
@@ -102,10 +86,6 @@ public:
 		NumWeapons = 0;
 		Weapons = NULL;
         pModLog = NULL;
-
-		RopeLength = 150;
-		RestLength = 20;
-		Strength = 0.5f;
 	}
 
 	~CGameScript() {
@@ -127,9 +107,6 @@ private:
 	int			NumWeapons;
 	weapon_t	*Weapons;
 
-	// Worm
-	gs_worm_t	Worm;
-
 	typedef std::map<int, proj_t*> Projectiles;
 	typedef std::map<std::string, int, stringcaseless> ProjFileMap;
 	ProjFileMap projFileIndexes; // only for compiling
@@ -137,11 +114,6 @@ private:
 	
 	Projectiles projectiles;
 	bool		needCollisionInfo;
-	
-	// Ninja Rope
-	int			RopeLength;
-	int			RestLength;
-	float		Strength;
 
     // Mod log file
     FILE        *pModLog;
@@ -198,23 +170,13 @@ private:
 	void	SetNumWeapons(int _w)			{ NumWeapons = _w; }
 	void	SetWeapons(weapon_t *_w)		{ Weapons = _w; }
 
-	
-	// Ninja Rope settings
-	void	SetRopeLength(int _l)			{ RopeLength = _l; }
-	void	SetRestLength(int _l)			{ RestLength = _l; }
-	void	SetStrength(float _s)			{ Strength = _s; }
-
 public:
+	// If you play on a <=0.59beta5 server, this will overwrite cClient->getGameLobby().
+	// Since 0.59beta6, the server just sets everything, so it is only handled serverside.
+	FeatureSettingsLayer customSettingsLayer;
 	
-	
-	int		getRopeLength()				{ return RopeLength; }
-	int		getRestLength()				{ return RestLength; }
-	float	getStrength()				{ return Strength; }
-
 	bool	getNeedCollisionInfo()		{ return needCollisionInfo; }
 	
-	const gs_worm_t	*getWorm()	const	{ return &Worm; }
-
 	size_t	getProjectileCount() const	{ return projectiles.size(); }
 	
 	bool	Compile(const std::string& dir);

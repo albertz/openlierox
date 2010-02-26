@@ -32,7 +32,6 @@ public:
 
 		LastWrite = AbsTime();
 		LastPosUpdate = AbsTime();
-		Strength = 0.4f;
 	}
 
 
@@ -44,13 +43,9 @@ private:
 	bool		HookAttached;
 	bool		PlayerAttached;
 	CWorm		*Worm;
-	float		RopeLength;
-	float		RestLength;
 
 	float		MinLength;
 
-	float		Strength;
-	
 	CVec		HookVelocity;
 
 	CVec		HookPos;
@@ -93,8 +88,6 @@ public:
     bool   isShooting()  const      { return HookShooting; }
 	void	setShooting(bool s)			{ HookShooting = s; }
 	void	setAttached(bool a)			{ HookAttached = a; }
-    float getRestLength() const    { return RestLength; }
-	float getMaxLength()	const	{ return RopeLength; }
 
 	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 

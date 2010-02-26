@@ -1612,6 +1612,7 @@ CVec CWormBotInputHandler::AI_GetTargetPos()
     return CVec(0,0);
 }
 
+static const float BotAngleSpeed = 100;
 
 ///////////////////
 // Aim at a spot
@@ -1623,7 +1624,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 	CVec	tgDir = tgPos - m_worm->vPos;
     bool    goodAim = false;
 
-	float angleSpeed = game.gameScript()->getWorm()->AngleSpeed * dt.seconds();
+	float angleSpeed = BotAngleSpeed * dt.seconds();
 	
 	NormalizeVector(&tgDir);
 
@@ -2088,10 +2089,6 @@ bool CWormBotInputHandler::AI_Shoot()
     bool bAim = false;
 
 	float alpha = 0;
-
-	const gs_worm_t *wd = game.gameScript()->getWorm();
-	if (!wd)
-		return false;
 
 	bool bShoot = false;
 
@@ -3245,7 +3242,8 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 	
 	// Get the direction angle
 	CVec dir = trg - m_worm->vPos;
-	dir *= m_worm->cNinjaRope.getMaxLength() / dir.GetLength();
+	const float ropeMaxLength = cClient->getGameLobby()[FT_RopeLength];
+	dir *= ropeMaxLength / dir.GetLength();
 	dir = CVec(-dir.y, dir.x); // rotate reverse-clockwise by 90 deg
 
 	// Variables
@@ -3301,9 +3299,9 @@ void CWormBotInputHandler::AI_Carve()
 
 
 static float estimateYDiffAfterJump(float dt) {
-	const float jumpForce = game.gameScript()->getWorm()->JumpForce;
+	const float jumpForce = cClient->getGameLobby()[FT_WormJumpForce];
 	//const float drag = w->getGameScript()->getWorm()->AirFriction; // ignoring for now
-	const float grav = game.gameScript()->getWorm()->Gravity;
+	const float grav = cClient->getGameLobby()[FT_WormJumpForce];
 
 	return grav*dt*dt*0.5f + jumpForce*dt;
 }
@@ -3319,9 +3317,8 @@ static bool isJumpingGivingDisadvantage(NEW_ai_node_t* node, CWorm* w) {
 }
 
 static float estimateXDiffAfterMove(CWorm* w, float dt) {
-	const gs_worm_t *wd = game.gameScript()->getWorm();
 	worm_state_t *ws = w->getWormState();
-	float speed = w->isOnGround() ? wd->GroundSpeed : wd->AirSpeed;
+	float speed = w->isOnGround() ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
 	if(ws->iFaceDirectionSide == DIR_LEFT) speed = -speed;
 	
 	return CLAMP(w->getVelocity().x + speed * 90.0f, -30.0f, 30.0f) * dt;
@@ -3848,7 +3845,7 @@ find_one_visible_node:
 		float dist = (CVec(NEW_psCurrentNode->fX, NEW_psCurrentNode->fY) - m_worm->vPos).GetLength();
 		float time = sqrt(2*dist/(force.GetLength()));
 		//float time2 = dist/vVelocity.GetLength();*/
-		float diff = m_worm->vVelocity.y - (game.gameScript()->getWorm()->Gravity * time);
+		float diff = m_worm->vVelocity.y - ((float)cClient->getGameLobby()[FT_WormGravity] * time);
 		if (diff < 0)
 			m_worm->cNinjaRope.Release();
 	}
@@ -3870,7 +3867,7 @@ find_one_visible_node:
             bStuck = true;
             fStuckPause = tLX->currentTime;
 
-            m_worm->fAngle -= game.gameScript()->getWorm()->AngleSpeed * tLX->fDeltaTime.seconds();
+            m_worm->fAngle -= BotAngleSpeed * tLX->fDeltaTime.seconds();
             // Clamp the angle
 	        m_worm->fAngle = MIN((float)60,m_worm->fAngle);
 	        m_worm->fAngle = MAX((float)-90,m_worm->fAngle);
