@@ -1297,6 +1297,8 @@ void CGameScript::Shutdown()
 	if(Weapons)
 		delete[] Weapons;
 	Weapons = NULL;
+	
+	customSettingsLayer.makeSet(false);
 }
 
 
