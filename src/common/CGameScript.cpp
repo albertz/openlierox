@@ -598,6 +598,16 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	*/
 	Shutdown();
 
+	struct LoadCustomSettingsIfSuccess {
+		CGameScript& g;
+		LoadCustomSettingsIfSuccess(CGameScript& _g) : g(_g) {}
+		~LoadCustomSettingsIfSuccess() {
+			if(g.loaded)
+				g.customSettingsLayer.loadFromConfig(g.sDirectory + "/gamesettings.cfg");
+		}
+	}
+	loadCustomSettingsIfSuccess(*this);
+	
 	int n;
 	std::string filename = dir + "/script.lgs";
 	sDirectory = dir;
