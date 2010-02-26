@@ -374,10 +374,12 @@ public:
 					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( 2, 4 ), worm->velocity() + CVec( 20, 40 ), Color(), NULL );
 					SpawnEntity(ENT_SPARKLE, 10, worm->getPos() + CVec( -2, 4 ), worm->velocity() + CVec( -20, 40 ), Color(), NULL );
 
-					if( worm->canAirJump() && worm->velocity().y > jumpForce ) // Negative Y coord = moving up
+					if( !(bool)cClient->getGameLobby()[FT_JumpToAimDir] && worm->canAirJump() && worm->velocity().y > jumpForce ) // Negative Y coord = moving up
 						worm->velocity().y = jumpForce; // Absolute velocity - instant air jump
-					else
-						worm->velocity().y += jumpForce; // Relative velocity - relative air jump
+					else {
+						CVec dir = (bool)cClient->getGameLobby()[FT_JumpToAimDir] ? -worm->getFaceDirection() : CVec(0.0f,1.0f);
+						worm->velocity() += dir * jumpForce; // Relative velocity - relative air jump
+					}
 				}
 				worm->setLastAirJumpTime(GetPhysicsTime());
 				worm->setOnGround( false );

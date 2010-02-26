@@ -175,6 +175,7 @@ enum FeatureIndex {
 	FT_InstantAirJump,
 	FT_RelativeAirJump,
 	FT_RelativeAirJumpDelay,
+	FT_JumpToAimDir,
 	FT_AllowWeaponsChange,
 	FT_ImmediateStart,
 	FT_DisableWpnsWhenEmpty,

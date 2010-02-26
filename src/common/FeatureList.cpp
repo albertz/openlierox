@@ -123,6 +123,8 @@ Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(
 			false,	false,			OLXBetaVersion(0,58,1),		GIG_Other, ALT_Advanced),				// Client-side
 	Feature("RelativeAirJumpDelay",	"Delay for relative air jumps",	"How fast can you do air-jumps",
 			0.7f,	0.7f,			Version(),				GIG_Other,	ALT_VeryAdvanced,	0.0f, 	5.0f),
+	Feature("JumpToAimDir",			"Jump into aim direction",	"When you jump, you don't get right up but into your aim direction with this setting",
+			false,	false,			OLXBetaVersion(0,59,6),				GIG_Other,	ALT_VeryAdvanced,	false, false),
 	Feature("AllowWeaponsChange",	"Allow weapons change",	"Everybody can change its weapons at any time",
 			true,	true,			OLXBetaVersion(0,58,1),		GIG_Weapons, ALT_Advanced,	true, true),
 	Feature("ImmediateStart",		"Immediate start",		"Immediate start of game, don't wait for other players weapon selection",
