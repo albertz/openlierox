@@ -511,7 +511,7 @@ public:
 			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
 
 			// Check if it's too long
-			const float ropeMaxLength = cClient->getGameLobby()[FT_RopeLength];
+			const int ropeMaxLength = cClient->getGameLobby()[FT_RopeLength];
 			if(length2 > ropeMaxLength * ropeMaxLength) {
 				rope->hookVelocity() = CVec(0,0);
 				rope->setShooting( false );
@@ -522,7 +522,7 @@ public:
 
 			// Going towards the player
 			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
-			const float ropeRestLength = cClient->getGameLobby()[FT_RopeRestLength];
+			const int ropeRestLength = cClient->getGameLobby()[FT_RopeRestLength];
 			if(length2 > ropeRestLength * ropeRestLength) {
 
 				// Pull the hook back towards the player

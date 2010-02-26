@@ -180,7 +180,7 @@ CVec CNinjaRope::CalculateForce(CVec playerpos)
 	CVec dir = playerpos-HookPos;
 	dir = dir.Normalize();
 
-	const float RestLength = cClient->getGameLobby()[FT_RopeRestLength];
+	const int RestLength = cClient->getGameLobby()[FT_RopeRestLength];
 	if((playerpos-HookPos).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 

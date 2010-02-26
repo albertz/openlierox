@@ -199,7 +199,7 @@ int CGameScript::Save(const std::string& filename)
 	// Ninja Rope
 	fwrite_endian_compat((int)gameSettings[FT_RopeLength],sizeof(int),1,fp);
 	fwrite_endian_compat((int)gameSettings[FT_RopeRestLength],sizeof(int),1,fp);
-	fwrite_endian_compat((int)gameSettings[FT_RopeStrength],sizeof(float),1,fp);
+	fwrite_endian_compat((float)gameSettings[FT_RopeStrength],sizeof(float),1,fp);
 
 	// Worm
 	gs_worm_t tmpworm;
