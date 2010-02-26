@@ -603,7 +603,7 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 		LoadCustomSettingsIfSuccess(CGameScript& _g) : g(_g) {}
 		~LoadCustomSettingsIfSuccess() {
 			if(g.loaded)
-				g.customSettingsLayer.loadFromConfig(g.sDirectory + "/gamesettings.cfg");
+				g.customSettingsLayer.loadFromConfig(g.sDirectory + "/gamesettings.cfg", false);
 		}
 	}
 	loadCustomSettingsIfSuccess(*this);
