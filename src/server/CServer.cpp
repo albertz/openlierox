@@ -381,24 +381,6 @@ int GameServer::StartGame(std::string* errMsg)
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
-	// Send Startgame packet to clients first, then load gamescript, because it will take some time and clients will think server lags
-	std::vector<std::string> weaponList = CGameScript::LoadWeaponList(gameSettings[FT_Mod].as<ModInfo>()->path);
-	
-	// Load & update the weapon restrictions
-	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
-	cWeaponRestrictions.loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
-	cWeaponRestrictions.updateList(weaponList);
-
-	for( int i = 0; i < MAX_CLIENTS; i++ )
-	{
-		if( !cClients[i].isConnected() )
-			continue;
-		cClients[i].getNetEngine()->SendPrepareGame();
-	}
-	// It will send just one packet, which may be lost across net, if that will happen the packet will be resent later anyway
-	// But in most cases clients will load the gamescript with server and game start time will speed up somewhat
-	SendPackets();
-	
 	cGameScript = cCache.GetMod( gameSettings[FT_Mod].as<ModInfo>()->path );
 	if( cGameScript.get() == NULL )
 	{
@@ -470,10 +452,40 @@ mapCreate:
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
 	bGameOver = false;
-	
+
+	// Note: this code must be after we loaded the mod!
+	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
+	{
+		// First, clean up the old settings.
+		gamePresetSettings.makeSet(false);
+		// We keep all mod specific options in gamePresetSettings.
+		game.gameScript()->customSettingsLayer.copyTo( gamePresetSettings );
+		// Now, after this, load the settings specified by the game settings preset.
+		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
+		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
+			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
+
+		gameSettings.dumpAllLayers();
+	}
+
 	// do after loading of mod/map because this also checks map/mod compatibility
 	// but do it anyway as early as possible
 	checkVersionCompatibilities(true);
+
+	// Note: This must be after we have setup the gamePresetSettings because it may change the WeaponRest!
+	// (@pelya: your hack to make it faster cannot work because of this.)
+
+	// Load & update the weapon restrictions
+	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
+	cWeaponRestrictions.loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
+	cWeaponRestrictions.updateList(cGameScript->GetWeaponList());
+
+	for( int i = 0; i < MAX_CLIENTS; i++ )
+	{
+		if( !cClients[i].isConnected() )
+			continue;
+		cClients[i].getNetEngine()->SendPrepareGame();
+	}
 
 	
 	// Set some info on the worms
@@ -563,20 +575,6 @@ mapCreate:
 		if( !cClients[i].isConnected() )
 			continue;
 		cClients[i].getNetEngine()->SendWormProperties(true); // if we have changed them in prepare or so
-	}
-	
-	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
-	{
-		// First, clean up the old settings.
-		gamePresetSettings.makeSet(false);
-		// We keep all mod specific options in gamePresetSettings.
-		game.gameScript()->customSettingsLayer.copyTo( gamePresetSettings );
-		// Now, after this, load the settings specified by the game settings preset.
-		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
-		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
-			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
-		
-		gameSettings.dumpAllLayers();
 	}
 	
 	// update about all other vars
