@@ -31,7 +31,7 @@ struct FeatureSettingsLayer : FeatureSettings {
 	void copyTo(FeatureSettings& s) const;
 	void dump() const; // to notes
 	
-	bool loadFromConfig(const std::string& cfgfile, bool reset = true, std::map<std::string, std::string>* unknown = NULL);
+	bool loadFromConfig(const std::string& cfgfile, bool reset, std::map<std::string, std::string>* unknown = NULL);
 };
 
 struct Settings {
