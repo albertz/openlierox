@@ -51,15 +51,15 @@ Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all player
 
 // all these are moved from CGameScript::Worm
 Feature( "WormGroundSpeed", "Worm ground speed", "Worm ground speed", 8.0f, 8.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 100.0f, false, false),
-Feature( "WormAirSpeed", "Worm air speed", "Worm air speed", 1.0f, 1.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 30.0f, false, false),
+Feature( "WormAirSpeed", "Worm air speed", "Worm air speed", 4.0f, 4.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 30.0f, false, false),
 Feature( "WormAirFriction", "Worm air friction", "Worm air friction", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
-Feature( "WormGravity", "Worm gravity", "Worm gravity", 175.0f, 175.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -200.0f, 1000.0f, false, false),
-Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -140.0f, -140.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -500.0f, 100.0f, false, false),
+Feature( "WormGravity", "Worm gravity", "Worm gravity", 50.0f, 50.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -200.0f, 1000.0f, false, false),
+Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -500.0f, 100.0f, false, false),
 
 // these are moved from CGameScript::Rope*
-Feature( "RopeMaxLength", "Rope max length", "Rope max length", 150, 150, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 1000, false, false, true),
-Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 20, 20, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 200, false, false, true),
-Feature( "RopeStrength", "Rope strength", "Rope strength", 0.5f, 0.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature( "RopeMaxLength", "Rope max length", "Rope max length", 300, 300, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 1000, false, false, true),
+Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 30, 30, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 200, false, false, true),
+Feature( "RopeStrength", "Rope strength", "Rope strength", 3.5f, 3.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
 
 
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
