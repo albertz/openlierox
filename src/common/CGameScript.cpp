@@ -777,10 +777,10 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 
 
 	// Ninja Rope
-	float RopeLength = 0;
+	int RopeLength = 0;
 	fread_compat(RopeLength,sizeof(int),1,fp);
 	EndianSwap(RopeLength);
-	float RestLength = 0;
+	int RestLength = 0;
 	fread_compat(RestLength,sizeof(int),1,fp);
 	EndianSwap(RestLength);
 	float Strength = 0;
