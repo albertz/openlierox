@@ -60,7 +60,7 @@ Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, 
 Feature( "RopeMaxLength", "Rope max length", "Rope max length", 300, 300, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 1000, false, false, true),
 Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 30, 30, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 200, false, false, true),
 Feature( "RopeStrength", "Rope strength", "Rope strength", 3.5f, 3.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
-Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.ff, OLXBetaVersion(0,59,6), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
+Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(0,59,6), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
 
 
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
