@@ -30,9 +30,9 @@ Feature( "TimeLimit", "Time limit", "Time limit, in minutes", 6.0f,6.0f, Version
 Feature( "TagLimit", "Tag limit", "Tag limit, for Tag game mode. It's the time how long a player must be tagged until the game ends", 5.0f,5.0f, Version(), GIG_Tag, ALT_Basic,1.0f, 150.0f,true,true, true ),
 Feature( "LoadingTime", "Loading time", "Loading time of weapons, in percent",100,100, Version(), GIG_General, ALT_Basic, 0, 500, false,false, true),
 
-Feature( "Map", "Map", "Map", LevelInfo(), LevelInfo("Dirt Level.lxl"), Version(), GIG_General, ALT_Basic, false, false ),
+Feature( "LevelName", "Map", "Map", LevelInfo(), LevelInfo("Dirt Level.lxl"), Version(), GIG_General, ALT_Basic, false, false ),
 Feature( "GameType", "Game mode", "Game mode is the type of game you want to play (DM, TDM, CTF, etc.)", GameModeInfo(), GameModeInfo(), Version(), GIG_General, ALT_Basic, false, false ),
-Feature( "Mod", "Mod", "Mod", ModInfo(), ModInfo("Classic"), Version(), GIG_General, ALT_Basic, false, false ),
+Feature( "ModName", "Mod", "Mod", ModInfo(), ModInfo("Classic"), Version(), GIG_General, ALT_Basic, false, false ),
 Feature( "Settings", "Settings", "Game settings", GameSettingsPresetInfo(), GameSettingsPresetInfo::Default(), Version(), GIG_General, ALT_Basic, true, true ),
 Feature( "WeaponRestrictionsFile", "Weapon restrictions", "Weapon restrictions set which defines which weapons are allowed/banned/bonus", "", "Standard 100lt", Version(), GIG_Weapons, ALT_OnlyViaConfig, true,true ),
 
