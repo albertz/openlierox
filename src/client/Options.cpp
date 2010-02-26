@@ -488,6 +488,10 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 	{
 		if( strStartsWith(it->first, "GameOptions.") )
 		{
+			if(strStartsWith(it->first, "GameOptions.GameInfo."))
+				// skip those - we handle them in a special way
+				continue;
+			
 			size_t dot1 = it->first.find(".");
 			size_t dot2 = it->first.find( ".", dot1 + 1 );
 			if(dot2 == std::string::npos) {
@@ -507,6 +511,12 @@ void GameOptions::SaveToDisc(const std::string& cfgfilename)
 			break;
 	}
 
+	fprintf(fp, "\n[GameInfo]\n");
+	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
+		if(customSettings.isSet[featureArrayIndex(f->get())])
+			fprintf(fp, "%s = %s\n", f->get()->name.c_str(), customSettings[f->get()].toString().c_str());
+	}
+	
 	fprintf(fp, "\n[Games_Levels]\n");
 	for(std::map<std::string,int>::iterator i = localplayLevels.begin(); i != localplayLevels.end(); ++i)
 		fprintf(fp, "%s = %i\n", i->first.c_str(), i->second);
