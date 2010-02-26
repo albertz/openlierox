@@ -26,6 +26,9 @@
 #include "DynDraw.h"
 #include "gui/List.h"
 
+class ScriptVar_t;
+struct ScriptVarPtr_t;
+
 namespace DeprecatedGUI {
 
 // Combo box events
@@ -96,8 +99,8 @@ public:
 		iSortDirection = SORT_NONE;
 		bUnique = false;
 		iType = wid_Combobox;
-		iVar = NULL;
-		sVar = NULL;
+		var = NULL;
+		varPtr = NULL;
 	}
 
 
@@ -124,8 +127,8 @@ private:
 	// Scrollbar
 	CScrollbar		cScrollbar;
 
-	int				*iVar;
-	std::string		*sVar;
+	ScriptVar_t		*var;
+	ScriptVarPtr_t	*varPtr;
 	CGuiSkin::CallbackHandler cClick;
 
 private:
@@ -197,8 +200,8 @@ public:
 	
 	const GuiListItem::Pt getLastItem();
 
-	void	setAttachedVar(std::string* var)	{ sVar = var; }
-	void	setAttachedVar(int* var)			{ iVar = var; }
+	void	setAttachedVar(ScriptVar_t* v)	{ var = v; }
+	void	setAttachedVar(ScriptVarPtr_t* v)	{ varPtr = v; }
 	
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);

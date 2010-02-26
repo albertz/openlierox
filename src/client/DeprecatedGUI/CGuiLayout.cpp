@@ -709,6 +709,7 @@ gui_event_t *CGuiLayout::Process()
 				tEvent->iEventMsg = ev;
 				tEvent->iControlID = cFocused->getID();
 				tEvent->cWidget = cFocused;
+				tEvent->cWidget->ProcessGuiSkinEvent(ev);
 				return tEvent;
 			}
 		}
@@ -727,6 +728,7 @@ gui_event_t *CGuiLayout::Process()
 				tEvent->iEventMsg = ev;
 				tEvent->iControlID = cFocused->getID();
 				tEvent->cWidget = cFocused;
+				tEvent->cWidget->ProcessGuiSkinEvent(ev);
 				return tEvent;
 			}
 		}
@@ -743,6 +745,7 @@ gui_event_t *CGuiLayout::Process()
 					tEvent->iEventMsg = ev;
 					tEvent->iControlID = cFocused->getID();
 					tEvent->cWidget = cFocused;
+					tEvent->cWidget->ProcessGuiSkinEvent(ev);
 					return tEvent;
 				}
 
@@ -750,6 +753,7 @@ gui_event_t *CGuiLayout::Process()
 				tEvent->iEventMsg = ev;
 				tEvent->iControlID = cFocused->getID();
 				tEvent->cWidget = cFocused;
+				tEvent->cWidget->ProcessGuiSkinEvent(ev);
 				return tEvent;
 			}
 			
@@ -781,6 +785,7 @@ gui_event_t *CGuiLayout::Process()
 
 				if( (ev = (*w)->MouseWheelUp(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
+					tEvent->cWidget->ProcessGuiSkinEvent(ev);
 					return tEvent;
 				}
 			}
@@ -795,6 +800,7 @@ gui_event_t *CGuiLayout::Process()
 
 				if( (ev = (*w)->MouseWheelDown(tMouse)) >= 0) {
 					tEvent->iEventMsg = ev;
+					tEvent->cWidget->ProcessGuiSkinEvent(ev);
 					return tEvent;
 				}
 			}
@@ -825,6 +831,7 @@ gui_event_t *CGuiLayout::Process()
 
 				if( (ev = (*w)->MouseDown(tMouse, tMouse->Down)) >= 0) {
 					tEvent->iEventMsg = ev;
+					tEvent->cWidget->ProcessGuiSkinEvent(ev);
 					return tEvent;
 				}
 			}
@@ -871,6 +878,7 @@ gui_event_t *CGuiLayout::Process()
 			if( (ev = (*w)->MouseOver(tMouse)) >= 0) {
 				widget = true;
 				tEvent->iEventMsg = ev;
+				tEvent->cWidget->ProcessGuiSkinEvent(ev);
 				return tEvent;
 			}
 

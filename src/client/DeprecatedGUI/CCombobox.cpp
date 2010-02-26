@@ -997,41 +997,29 @@ CWidget * CCombobox::WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLa
 	layout->Add( w, id, x, y, dx, dy );
 	// Items should be added to combobox AFTER the combobox is added to CGuiSkinnedLayout
 	std::vector<std::string> items = explode( p[0].toString(), "," );
-	w->iVar = CScriptableVars::GetVarP<int>( p[1].toString() );	// If combobox is int or string determined by attached var type
-	if( w->iVar )
-	{
-		for( unsigned i = 0; i < items.size(); i++ )
-		{
-			std::string item = items[i];
-			int index = i;
-			if( item.find("#") != std::string::npos )
+	
+	if(p[1].toString() != "") {
+		RegisteredVar* rvar = CScriptableVars::GetVar( p[1].toString() );
+		if(rvar) {
+			w->varPtr = &rvar->var;
+
+			for( unsigned i = 0; i < items.size(); i++ )
 			{
-				index = atoi( item.substr( item.find("#") + 1 ) );
-				item = item.substr( 0, item.find("#") );
+				std::string item = items[i];
+				std::string index = item;
+				if( item.find("#") != std::string::npos )
+				{
+					index = item.substr( item.find("#") + 1 );
+					TrimSpaces( index );
+					item = item.substr( 0, item.find("#") );
+				}
+				TrimSpaces(item);
+				w->addItem( i, index, item );
 			}
-			TrimSpaces(item);
-			w->addItem( index, "", item );
+			w->setCurSIndexItem( w->varPtr->toString() );
 		}
-		w->setCurItem( *w->iVar );
 	}
-	if(p[1].toString() != "") w->sVar = CScriptableVars::GetVarP<std::string>( p[1].toString() );
-	if( w->sVar )
-	{
-		for( unsigned i = 0; i < items.size(); i++ )
-		{
-			std::string item = items[i];
-			std::string index = item;
-			if( item.find("#") != std::string::npos )
-			{
-				index = item.substr( item.find("#") + 1 );
-				TrimSpaces( index );
-				item = item.substr( 0, item.find("#") );
-			}
-			TrimSpaces(item);
-			w->addItem( i, index, item );
-		}
-		w->setCurSIndexItem( *w->sVar );
-	}
+
 	return w;
 }
 
@@ -1039,10 +1027,10 @@ void CCombobox::ProcessGuiSkinEvent(int iEvent)
 {
 	if( iEvent == CMB_CHANGED )
 	{
-		if( iVar )
-			*iVar = iSelected;
-		if( sVar )
-			*sVar = getItem( iSelected )->index();
+		if( var )
+			var->fromString( getItem( iSelected )->index() );
+		if( varPtr )
+			varPtr->fromString( getItem( iSelected )->index() );
 		
 		OnChangeSelection(getItem(iSelected));
 		

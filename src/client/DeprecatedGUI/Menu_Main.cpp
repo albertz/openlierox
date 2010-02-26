@@ -210,14 +210,6 @@ void Menu_MainFrame()
 					OpenLinkInExternBrowser("http://www.openlierox.net/forum");
 				}
 				break;
-
-			default:
-                if( ev->iEventMsg == CMB_CHANGED )
-				{
-					ev->cWidget->ProcessGuiSkinEvent(ev->iEventMsg);
-				    return;
-				};
-                break;
 		}
 	}
 
@@ -300,10 +292,11 @@ void Menu_MainShutdown()
 	cMainMenu.Shutdown();
 }
 
+static ScriptVarPtr_t themeVar;
 
 struct Menu_Main_GuiThemeComboboxCreate__Executer {
 	CCombobox* combobox;
-
+	
 	void execute() {
 		// GUI theme combobox
 
@@ -326,9 +319,10 @@ struct Menu_Main_GuiThemeComboboxCreate__Executer {
 
 		combobox->addItem("", "- Default -");
 		FindFiles(*this, "themes", false, FM_DIR);
-		combobox->setAttachedVar( &tLXOptions->sTheme );
-		combobox->setCurSIndexItem(tLXOptions->sTheme);
 
+		themeVar = ScriptVarPtr_t(&tLXOptions->sTheme);
+		combobox->setAttachedVar( &themeVar );
+		combobox->setCurSIndexItem(tLXOptions->sTheme);
 		
 		combobox->ProcessGuiSkinEvent( CGuiSkin::SHOW_WIDGET );
 	}

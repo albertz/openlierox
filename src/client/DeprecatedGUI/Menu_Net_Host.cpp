@@ -666,7 +666,7 @@ void Menu_Net_HostLobbyDraw()
 }
 
 
-static CCombobox* ComboboxWithVar(std::string& var) {
+static CCombobox* ComboboxWithVar(ScriptVar_t& var) {
 	CCombobox* c = new CCombobox();
 	c->setAttachedVar(&var);
 	return c;
@@ -689,18 +689,18 @@ void Menu_Net_HostLobbyCreateGui()
 	
 	int y = minimapy + 105;
     cHostLobby.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
-    cHostLobby.AddBack( ComboboxWithVar(gameSettings.overwrite[FT_Map].as<LevelInfo>()->path),			hl_LevelList,  440, y, 170, 17);
+    cHostLobby.AddBack( ComboboxWithVar(gameSettings.overwrite[FT_Map]),			hl_LevelList,  440, y, 170, 17);
 	y += 22;
 	cHostLobby.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         360, y+1, 0,   0);
 	cHostLobby.AddBack( new CCombobox(),				hl_Gamemode,   440, y, 170, 17);
 	y += 22;
 	CCombobox* modList = NULL;
 	cHostLobby.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
-	cHostLobby.AddBack( modList = ComboboxWithVar(gameSettings.overwrite[FT_Mod].as<ModInfo>()->path),			hl_ModName,    440, y, 170, 17);
+	cHostLobby.AddBack( modList = ComboboxWithVar(gameSettings.overwrite[FT_Mod]),			hl_ModName,    440, y, 170, 17);
 	y += 22;
 	CCombobox* presetList = NULL;
 	cHostLobby.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         360, y+1, 0,   0);
-	cHostLobby.AddBack( presetList = ComboboxWithVar((std::string&)gameSettings.overwrite[FT_SettingsPreset]),			hl_SettingPreset,    440, y, 170, 17);	
+	cHostLobby.AddBack( presetList = ComboboxWithVar(gameSettings.overwrite[FT_SettingsPreset]),			hl_SettingPreset,    440, y, 170, 17);
 	
 	setupModGameSettingsPresetComboboxes(modList, presetList);
 	

@@ -86,7 +86,7 @@ enum {
 bool	bGameSettings = false;
 bool    bWeaponRest = false;
 
-static CCombobox* ComboboxWithVar(std::string& var) {
+static CCombobox* ComboboxWithVar(ScriptVar_t& var) {
 	CCombobox* c = new CCombobox();
 	c->setAttachedVar(&var);
 	return c;
@@ -101,18 +101,18 @@ static void Menu_Local_InitCustomLevel() {
 	
 	int y = 235;
     cLocalMenu.AddBack( new CLabel("Level",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( ComboboxWithVar(gameSettings.overwrite[FT_Map].as<LevelInfo>()->path),	ml_LevelList,  120, y, 170, 17);
+	cLocalMenu.AddBack( ComboboxWithVar(gameSettings.overwrite[FT_Map]),	ml_LevelList,  120, y, 170, 17);
 	y += 24;
 	cLocalMenu.AddBack( new CLabel("Game type",tLX->clNormalLabel),	-1,         30,  y+1, 0,   0);
 	cLocalMenu.AddBack( new CCombobox(),				ml_Gametype,   120, y, 170, 17);
 	y += 24;
 	CCombobox* modList = NULL;
 	cLocalMenu.AddBack( new CLabel("Mod",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( modList = ComboboxWithVar(gameSettings.overwrite[FT_Mod].as<ModInfo>()->path),		ml_ModName,    120, y, 170, 17);
+	cLocalMenu.AddBack( modList = ComboboxWithVar(gameSettings.overwrite[FT_Mod]),		ml_ModName,    120, y, 170, 17);
 	y += 24;
 	CCombobox* presetList = NULL;
 	cLocalMenu.AddBack( new CLabel("Settings",tLX->clNormalLabel),	    -1,         30,  y+1, 0,   0);
-	cLocalMenu.AddBack( presetList = ComboboxWithVar((std::string&)gameSettings.overwrite[FT_SettingsPreset]),		ml_SettingPreset,    120, y, 170, 17);	
+	cLocalMenu.AddBack( presetList = ComboboxWithVar(gameSettings.overwrite[FT_SettingsPreset]),		ml_SettingPreset,    120, y, 170, 17);
 	
 	setupModGameSettingsPresetComboboxes(modList, presetList);
 	
