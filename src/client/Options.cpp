@@ -308,14 +308,20 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 	// define parser handler
 	struct MyIniReader : public IniReader {
 		GameOptions* opts;
-		typedef std::list< std::pair<std::string,std::string> > LX56FallbackList;
-		LX56FallbackList lx56_LastGameFallback;
+		typedef std::list< std::pair<std::string,std::string> > GameInfoData;
+		GameInfoData lx56_LastGameFallback;
+		GameInfoData gameInfoSection;
 		bool haveGameInfo;
+		Version savedBy;
 		MyIniReader(const std::string& fn, GameOptions* o) : IniReader(fn), opts(o), haveGameInfo(false) {}
 
 		bool OnEntry(const std::string& section, const std::string& propname, const std::string& value) {
 			// ConfigFileInfo is additional data about the config file itself - we ignore it atm at this place
-			if(stringcaseequal(section, "ConfigFileInfo")) return true;
+			if(stringcaseequal(section, "ConfigFileInfo")) {
+				if(stringcaseequal(propname, "SavedBy"))
+					savedBy = Version(value);
+				return true;
+			}
 			if(stringcaseequal(section, "GameInfo")) haveGameInfo = true;
 			
 			if(stringcaseequal(section, "Games_Levels")) {
@@ -325,7 +331,10 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 						
 			RegisteredVar* var = CScriptableVars::GetVar("GameOptions." + section + "." + propname);
 			if( var !=  NULL ) { // found entry
-				CScriptableVars::SetVarByString(var->var, value);
+				if(stringcaseequal(section, "GameInfo"))
+					gameInfoSection.push_back(make_pair(propname, value));
+				else
+					CScriptableVars::SetVarByString(var->var, value);
 			} else {
 				if( (stringcaseequal(section, "FileHandling") && stringcasefind(propname, "SearchPath") == 0)
 				|| stringcaseequal(section, "Widgets") ) {
@@ -350,19 +359,48 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 		hints << cfgfilename << " not found, will use standards" << endl;
 	}
 	else {
+		MyIniReader::GameInfoData* gameInfoData = NULL;
+
 		// Fallback: this is old LX56 config file
 		if(!iniReader.haveGameInfo && iniReader.lx56_LastGameFallback.size() > 0) {
 			notes << "Old LX56 config file" << endl;
-			for(MyIniReader::LX56FallbackList::iterator i = iniReader.lx56_LastGameFallback.begin(); i != iniReader.lx56_LastGameFallback.end(); ++i) {
-				const std::string& propname = i->first;
-				const std::string& value = i->second;
-				RegisteredVar* var = CScriptableVars::GetVar("GameOptions.GameInfo." + propname);
-				if( var !=  NULL ) // found entry
-					CScriptableVars::SetVarByString(var->var, value);
-				else
-					notes << "the LX56 gameoption " << propname << " is unknown" << endl;
-			}
+			gameInfoData = &iniReader.lx56_LastGameFallback;
 		}
+
+		// load custom settings from GameInfo section
+		else {
+			if(iniReader.savedBy < OLXBetaVersion(0,59,6))
+				notes << "config was saved with " << iniReader.savedBy.asHumanString() << ", so we ignore quite a lot of game settings from GameInfo" << endl;
+			
+			gameInfoData = &iniReader.gameInfoSection;
+		}
+
+		for(MyIniReader::GameInfoData::iterator i = gameInfoData->begin(); i != gameInfoData->end(); ++i) {
+			const std::string& propname = i->first;
+			const std::string& value = i->second;
+
+			// Version <0.59beta6 just always save everything.
+			// We don't want to have all custom settings set because that would overwrite all other settings in the settings layers.
+			// So in that case, we skip all
+			if(iniReader.savedBy < OLXBetaVersion(0,59,6)) {
+				// check for settings we still want to overtake, otherwise ignore
+				if(
+					!stringcaseequal(propname, featureArray[FT_Map].name) &&
+					!stringcaseequal(propname, featureArray[FT_Mod].name) &&
+					!stringcaseequal(propname, featureArray[FT_SettingsPreset].name) &&
+					!stringcaseequal(propname, featureArray[FT_Lives].name) &&
+					!stringcaseequal(propname, featureArray[FT_KillLimit].name) &&
+					!stringcaseequal(propname, featureArray[FT_TimeLimit].name))
+					continue;
+			}
+
+			RegisteredVar* var = CScriptableVars::GetVar("GameOptions.GameInfo." + propname);
+			if( var !=  NULL ) // found entry
+				CScriptableVars::SetVarByString(var->var, value);
+			else
+				notes << "the gameoption " << propname << " is unknown" << endl;
+		}
+
 	}
 
 	initSpecialSearchPathForTheme();
