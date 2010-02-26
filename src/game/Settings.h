@@ -28,6 +28,7 @@ struct FeatureSettingsLayer : FeatureSettings {
 	
 	ScriptVar_t& set(FeatureIndex i) { isSet[i] = true;	return (*this)[i]; }
 	void copyTo(FeatureSettings& s) const;
+	void dump() const; // to notes
 	
 	bool loadFromConfig(const std::string& cfgfile, bool reset = true, std::map<std::string, std::string>* unknown = NULL);
 };
@@ -74,7 +75,8 @@ struct Settings {
 		virtual void fromScriptVar(const ScriptVar_t& v) { s->overwrite[i].fromScriptVar(v); }
 	};
 	ScriptVarWrapper wrappers[FeatureArrayLen];
-		
+	
+	void dumpAllLayers() const; // to notes
 	ScriptVar_t hostGet(FeatureIndex i);
 	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }
 	bool olderClientsSupportSetting(Feature* f);	

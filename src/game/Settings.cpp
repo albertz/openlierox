@@ -11,6 +11,7 @@
 #include "Options.h"
 #include "CServer.h"
 #include "IniReader.h"
+#include "Debug.h"
 
 Settings gameSettings;
 FeatureSettingsLayer gamePresetSettings;
@@ -21,6 +22,16 @@ void FeatureSettingsLayer::copyTo(FeatureSettings& s) const {
 		if(isSet[i])
 			s[(FeatureIndex)i] = (*this)[(FeatureIndex)i];
 }
+
+void FeatureSettingsLayer::dump() const {
+	notes << "Settings layer {" << endl;
+	for(size_t i = 0; i < FeatureArrayLen; ++i)
+		if(isSet[i])
+			notes << " " << featureArray[i].name << " : " << (*this)[(FeatureIndex)i] << endl;
+	notes << "}" << endl;
+}
+
+
 
 void Settings::layersInitStandard() {
 	layersClear();
@@ -67,4 +78,14 @@ bool FeatureSettingsLayer::loadFromConfig(const std::string& cfgfile, bool reset
 	}
 	
 	return true;
+}
+
+void Settings::dumpAllLayers() const {
+	notes << "Settings (" << layers.size() << " layers) {" << endl;
+	size_t num = 1;
+	for(Layers::const_iterator i = layers.begin(); i != layers.end(); ++i, ++num) {
+		notes << "Layer " << num << " ";
+		(*i)->dump();
+	}
+	notes << "}" << endl;
 }
