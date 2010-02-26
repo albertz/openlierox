@@ -33,8 +33,21 @@ std::string GameModeInfo::toString() const {
 
 bool GameModeInfo::fromString( const std::string & str) {
 	generalGameType = 0;
-	name = str;
-	mode = GameMode(name);
+	name = "";
+	
+	bool fail = false;
+	int num = from_string<int>(str, fail);
+	if(!fail) {
+		// interpret num as gamemode index
+		mode = GameMode((GameModeIndex)num);
+		if(mode) name = mode->Name();
+	}
+	else {
+		// interpret str as name
+		name = str;
+		mode = GameMode(name);
+	}
+	
 	if(mode) generalGameType = mode->GeneralGameType();
 	return true;
 }
