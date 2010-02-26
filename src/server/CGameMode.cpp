@@ -507,30 +507,35 @@ extern CGameMode* gameMode_CaptureTheFlag;
 extern CGameMode* gameMode_Race;
 extern CGameMode* gameMode_TeamRace;
 
+
+static CGameMode* gameModes[] = {
+	gameMode_DeathMatch,
+	gameMode_TeamDeathMatch,
+	gameMode_Tag,
+	gameMode_Demolitions,
+	gameMode_HideAndSeek,
+	gameMode_CaptureTheFlag,
+	gameMode_Race,
+	gameMode_TeamRace
+};
+
+static size_t gameModesSize = sizeof(gameModes) / sizeof(CGameMode*);
+
 void InitGameModes() {}
 
 CGameMode* GameMode(GameModeIndex i) {
-	switch(i) {
-		case 0: return gameMode_DeathMatch;
-		case 1: return gameMode_TeamDeathMatch;
-		case 2: return gameMode_Tag;
-		case 3: return gameMode_Demolitions;
-		case 4: return gameMode_HideAndSeek;
-		case 5: return gameMode_CaptureTheFlag;
-		case 6: return gameMode_Race;
-		case 7: return gameMode_TeamRace;
+	if(i < 0 || (uint)i >= gameModesSize) {
+		errors << "gamemode " << i << " requested, we don't have such one" << endl;
+		return NULL;
 	}
 	
-	errors << "gamemode " << i << " requested, we don't have such one" << endl;
-	return NULL;
+	return gameModes[i];
 }
-
-static const size_t gameModesSize = 8;
 
 CGameMode* GameMode(const std::string& name) {
 	for(size_t i = 0; i < gameModesSize; ++i) {
-		if(name == GameMode((GameModeIndex)i)->Name())
-			return GameMode((GameModeIndex)i);
+		if(name == gameModes[i]->Name())
+			return gameModes[i];
 	}
 	warnings << "gamemode " << name << " requested, we don't have such one" << endl;
 	return NULL;
@@ -539,7 +544,7 @@ CGameMode* GameMode(const std::string& name) {
 GameModeIndex GetGameModeIndex(CGameMode* gameMode) {
 	if(gameMode == NULL) return GM_DEATHMATCH;
 	for(size_t i = 0; i < gameModesSize; ++i) {
-		if(gameMode == GameMode((GameModeIndex)i))
+		if(gameMode == gameModes[i])
 			return (GameModeIndex)i;
 	}
 	return GM_DEATHMATCH;
@@ -548,26 +553,7 @@ GameModeIndex GetGameModeIndex(CGameMode* gameMode) {
 
 
 Iterator<CGameMode*>::Ref GameModeIterator() {
-	struct GMIter : Iterator<CGameMode*> {
-		int i;
-		GMIter() : i(0) {}
-		
-		virtual Iterator<CGameMode*>* copy() const { return new GMIter(*this); }
-		virtual bool isValid() { return i >= 0 && (size_t)i < gameModesSize; }
-		virtual void next() { ++i; }
-		virtual void nextn(size_t num) { i += num; }
-		
-		virtual bool operator==(const Iterator<CGameMode*>& other) const {
-			const GMIter* o = dynamic_cast<const GMIter*> (&other);
-			return o && o->i == i;
-		}
-		
-		virtual CGameMode* get() {
-			return GameMode((GameModeIndex)i);
-		}
-		
-	};
-	return new GMIter();
+	return GetConstIterator(Array(gameModes, gameModesSize));
 }
 
 std::string guessGeneralGameTypeName(int iGeneralGameType)
@@ -581,4 +567,4 @@ std::string guessGeneralGameTypeName(int iGeneralGameType)
 	if( iGeneralGameType == GMT_DIRT )
 		return "Demolitions";
 	return "";
-}
+};
