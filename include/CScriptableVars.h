@@ -141,6 +141,7 @@ public:
 	ScriptVar_t( int v ): type(SVT_INT), i(v) {}
 	ScriptVar_t( float v ): type(SVT_FLOAT), f(v) {}
 	ScriptVar_t( const std::string & v ): type(SVT_STRING) { str.init(v); }
+	ScriptVar_t( const char* v ): type(SVT_STRING) { str.init(v); }
 	ScriptVar_t( Color v ): type(SVT_COLOR) { col.init(v); }
 	ScriptVar_t( const CustomVar& c ): type(SVT_CUSTOM) { custom.init(c.copy()); }
 
