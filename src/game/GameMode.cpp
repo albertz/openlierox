@@ -12,8 +12,8 @@
 
 GameModeInfo::GameModeInfo() {
 	mode = GameMode(GM_DEATHMATCH);
-	generalGameType = mode->GeneralGameType();
-	name = mode->Name();
+	generalGameType = 0;
+	name = "Death Match";
 }
 
 bool GameModeInfo::operator==(const CustomVar& o) const {
