@@ -49,17 +49,18 @@ Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo 
 Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
 Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
 
-// all these are moved from CGameScript::Worm
+// most of these are moved from CGameScript::Worm
 Feature( "WormGroundSpeed", "Worm ground speed", "Worm ground speed", 8.0f, 8.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 100.0f, false, false),
 Feature( "WormAirSpeed", "Worm air speed", "Worm air speed", 4.0f, 4.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 30.0f, false, false),
 Feature( "WormAirFriction", "Worm air friction", "Worm air friction", 0.0f, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
 Feature( "WormGravity", "Worm gravity", "Worm gravity", 50.0f, 50.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -200.0f, 1000.0f, false, false),
 Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -500.0f, 100.0f, false, false),
 
-// these are moved from CGameScript::Rope*
+// most of these are moved from CGameScript::Rope*
 Feature( "RopeMaxLength", "Rope max length", "Rope max length", 300, 300, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 1000, false, false, true),
 Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 30, 30, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 200, false, false, true),
 Feature( "RopeStrength", "Rope strength", "Rope strength", 3.5f, 3.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.ff, OLXBetaVersion(0,59,6), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
 
 
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 

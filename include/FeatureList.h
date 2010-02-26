@@ -143,6 +143,7 @@ enum FeatureIndex {
 	FT_RopeLength, // int
 	FT_RopeRestLength, // int
 	FT_RopeStrength, // float
+	FT_RopeSpeed, // float
 	
 	FT_GameSpeed,
 	FT_GameSpeedOnlyForProjs,

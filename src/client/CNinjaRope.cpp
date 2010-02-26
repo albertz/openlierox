@@ -73,7 +73,7 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 
 	HookPos = pos;
 	HookDir = dir;
-	HookVelocity = dir*250;
+	HookVelocity = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 }
 
 
