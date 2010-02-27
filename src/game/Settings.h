@@ -65,15 +65,21 @@ struct Settings {
 	void layersClear() { layers.clear(); }
 	void layersInitStandard(bool withCustom); // settingpreset + customsettings
 
-	const ScriptVar_t& operator[](FeatureIndex i) const {
+	FeatureSettingsLayer* layerFor(FeatureIndex i) const {
 		for(Layers::const_reverse_iterator it = layers.rbegin(); it != layers.rend(); ++it)
 			if((*it)->isSet[i])
-				return (**it)[i];
+				return *it;
+		return NULL;
+	}
+
+	const ScriptVar_t& operator[](FeatureIndex i) const {
+		if(FeatureSettingsLayer* s = layerFor(i))
+			return (*s)[i];
 		return featureArray[i].defaultValue;
 	}
 
 	const ScriptVar_t& operator[](Feature* f) const { return (*this)[FeatureIndex(f - &featureArray[0])]; }
-
+	
 	struct OverwriteWrapper {
 		Settings& s; OverwriteWrapper(Settings& _s) : s(_s) {}
 		ScriptVar_t& operator[](FeatureIndex i) {

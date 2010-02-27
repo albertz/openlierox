@@ -49,6 +49,11 @@ Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo 
 Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
 Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
 
+/*
+ Note that for these LX56 mod specific settings (which were earlier in CGameScript),
+ we set minVersion to LX56 and do some special version check in GameServer::isVersionCompatible.
+ See there for further details.
+ */
 // most of these are moved from CGameScript::Worm
 Feature( "WormGroundSpeed", "Worm ground speed", "Worm ground speed", 8.0f, 8.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 100.0f, false, false),
 Feature( "WormAirSpeed", "Worm air speed", "Worm air speed", 4.0f, 4.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 30.0f, false, false),

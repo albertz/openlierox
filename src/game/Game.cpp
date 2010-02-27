@@ -261,6 +261,13 @@ void Game::cleanupAfterGameloopEnd() {
 	
 	cCache.ClearExtraEntries(); // Game ended - clear cache	
 
+	// Cleanup settings layer so that while being in lobby,
+	// no outdated settings are used for GameServer::isVersionCompatible.
+	// This can (and should) be removed once we have the settings already loaded
+	// immediately in lobby.
+	lx56modSettings.makeSet(false);
+	gamePresetSettings.makeSet(false);
+	
 	cleanupCallbacks();
 	cleanupCallbacks.disconnect_all_slots();
 }

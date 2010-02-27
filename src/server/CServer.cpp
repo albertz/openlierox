@@ -1834,6 +1834,17 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		return false;
 	}
 	
+	// check LX56 mod settings
+	if(ver < OLXBetaVersion(0,59,6))
+		for(size_t i = 0; i < FeatureArrayLen; ++i) {
+			if(lx56modSettings.isSet[(FeatureIndex)i])
+				// check if we have overwritten this LX56 gamescript setting
+				if(gameSettings.layerFor((FeatureIndex)i) != &lx56modSettings) {
+					if(incompReason) *incompReason = "LX56 gamescript setting " + featureArray[i].name + " was customized";
+					return false;
+				}
+		}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
