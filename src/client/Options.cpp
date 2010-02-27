@@ -385,18 +385,12 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 				// We don't want to have all custom settings set because that would overwrite all other settings in the settings layers.
 				// So in that case, we skip all
 				if(iniReader.savedBy < OLXBetaVersion(0,59,6)) {
-					// This is a kind of hacky way to get the FeatureIndex.
-					const Settings::ScriptVarWrapper* wrapperAddr = dynamic_cast<Settings::ScriptVarWrapper*> (var->var.ptr.dynVar);
-					if(wrapperAddr == NULL) {
-						errors << "options::loadfromdisc: var " << propname << " seems invalid" << endl;
-						continue;
-					}					
-					const size_t relAddr = wrapperAddr - &gameSettings.wrappers[0];
-					if(relAddr >= FeatureArrayLen) {
-						errors << "options::loadfromdisc: var " << propname << " index seems invalid" << endl;
+					Feature* f = featureByVar(var->var);
+					if(f == NULL) {
+						errors << "Options::LoadFromDisc " << cfgfilename << ": var " << propname << " seems invalid" << endl;
 						continue;
 					}
-					const FeatureIndex i = FeatureIndex(relAddr);
+					const FeatureIndex i = featureArrayIndex(f);
 					
 					// check for settings we still want to overtake, otherwise ignore
 					if(
