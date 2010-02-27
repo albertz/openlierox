@@ -379,25 +379,39 @@ bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
 			const std::string& propname = i->first;
 			const std::string& value = i->second;
 
-			// Version <0.59beta6 just always save everything.
-			// We don't want to have all custom settings set because that would overwrite all other settings in the settings layers.
-			// So in that case, we skip all
-			if(iniReader.savedBy < OLXBetaVersion(0,59,6)) {
-				// check for settings we still want to overtake, otherwise ignore
-				if(
-					!stringcaseequal(propname, featureArray[FT_Map].name) &&
-					!stringcaseequal(propname, featureArray[FT_Mod].name) &&
-					!stringcaseequal(propname, featureArray[FT_SettingsPreset].name) &&
-					!stringcaseequal(propname, featureArray[FT_Lives].name) &&
-					!stringcaseequal(propname, featureArray[FT_KillLimit].name) &&
-					!stringcaseequal(propname, featureArray[FT_TimeLimit].name))
-					continue;
-			}
-
 			RegisteredVar* var = CScriptableVars::GetVar("GameOptions.GameInfo." + propname);
-			if( var !=  NULL ) // found entry
+			if( var !=  NULL ) { // found entry
+				// Version <0.59beta6 just always save everything.
+				// We don't want to have all custom settings set because that would overwrite all other settings in the settings layers.
+				// So in that case, we skip all
+				if(iniReader.savedBy < OLXBetaVersion(0,59,6)) {
+					// This is a kind of hacky way to get the FeatureIndex.
+					const Settings::ScriptVarWrapper* wrapperAddr = dynamic_cast<Settings::ScriptVarWrapper*> (var->var.ptr.dynVar);
+					if(wrapperAddr == NULL) {
+						errors << "options::loadfromdisc: var " << propname << " seems invalid" << endl;
+						continue;
+					}					
+					const size_t relAddr = wrapperAddr - &gameSettings.wrappers[0];
+					if(relAddr >= FeatureArrayLen) {
+						errors << "options::loadfromdisc: var " << propname << " index seems invalid" << endl;
+						continue;
+					}
+					const FeatureIndex i = FeatureIndex(relAddr);
+					
+					// check for settings we still want to overtake, otherwise ignore
+					if(
+					   i != FT_Map &&
+					   i != FT_Mod &&
+					   i != FT_SettingsPreset &&
+					   i != FT_Lives &&
+					   i != FT_KillLimit &&
+					   i != FT_TimeLimit &&
+					   featureArray[i].minVersion < OLXBetaVersion(0,59,6)) // all options since 0.59beta6 are also ok
+						continue;
+				}				
+				
 				CScriptableVars::SetVarByString(var->var, value);
-			else
+			} else
 				notes << "the gameoption " << propname << " is unknown" << endl;
 		}
 
