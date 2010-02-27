@@ -1,0 +1,7 @@
+# This is the game settings preset file for the Standard settings (i.e. all the internal default values)
+
+[GameSettings]
+Name = Standard
+Description = OpenLieroX standard settings
+
+# We don't set anything because we want to have the OLX defaults
