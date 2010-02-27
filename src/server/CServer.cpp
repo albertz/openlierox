@@ -1838,6 +1838,7 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	if(ver < OLXBetaVersion(0,59,6))
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
 			if(lx56modSettings.isSet[(FeatureIndex)i])
+				// Note: We assume here that lx56modSettings is one of the layers of gameSettings.
 				// check if we have overwritten this LX56 gamescript setting
 				if(gameSettings.layerFor((FeatureIndex)i) != &lx56modSettings) {
 					if(incompReason) *incompReason = "LX56 gamescript setting " + featureArray[i].name + " was customized";
