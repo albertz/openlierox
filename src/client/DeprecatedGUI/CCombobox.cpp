@@ -1060,10 +1060,24 @@ int CCombobox::getItemIndex(const GuiListItem::Pt& item) {
 }
 	
 void CCombobox::updateFromListBackend() {
+	std::string sindex;
+	if(varPtr)
+		sindex = varPtr->toString();
+	else if(var)
+		sindex = var->toString();
+	else {
+		GuiListItem::Pt selected = getSelectedItem();
+		sindex = selected.get() ? selected->index() : "";
+	}
+	
 	clear();
 	if(listBackend.get()) {
 		for(Iterator<GuiListItem::Pt>::Ref it = listBackend->iterator(); it->isValid(); it->next())
 			tItems.push_back(it->get());
+
+		// restore old selection if possible
+		if(sindex != "")
+			setCurSIndexItem(sindex);
 	}
 	else
 		errors << "CCombobox::updateFromListBackend: list backend is not set" << endl;
