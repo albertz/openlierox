@@ -14,8 +14,8 @@
 #include "Debug.h"
 
 Settings gameSettings;
+FeatureSettingsLayer lx56modSettings;
 FeatureSettingsLayer gamePresetSettings;
-
 
 void FeatureSettingsLayer::copyTo(FeatureSettingsLayer& s) const {
 	for(size_t i = 0; i < FeatureArrayLen; ++i)
@@ -39,11 +39,16 @@ void FeatureSettingsLayer::dump() const {
 
 
 
-void Settings::layersInitStandard() {
+void Settings::layersInitStandard(bool withCustom) {
 	layersClear();
+	layers.push_back(&lx56modSettings);
 	layers.push_back(&gamePresetSettings);
-	if(tLXOptions)
-		layers.push_back(&tLXOptions->customSettings);
+	if(withCustom) {
+		if(tLXOptions)
+			layers.push_back(&tLXOptions->customSettings);
+		else
+			errors << "Settings::layersInitStandard: tLXOptions == NULL" << endl;
+	}
 }
 
 

@@ -456,10 +456,13 @@ mapCreate:
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
 	{
+		// Copy over LX56 mod settings. This is an independent layer, so it is also independent from gamePresetSettings.
+		lx56modSettings = game.gameScript()->lx56modSettings;
+
 		// First, clean up the old settings.
 		gamePresetSettings.makeSet(false);
-		// We keep all mod specific options in gamePresetSettings.
-		game.gameScript()->customSettingsLayer.copyTo( gamePresetSettings );
+		// Now, load further mod custom settings.
+		gamePresetSettings.loadFromConfig(game.gameScript()->directory() + "/gamesettings.cfg", false);
 		// Now, after this, load the settings specified by the game settings preset.
 		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
 		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )

@@ -165,7 +165,7 @@ struct SinglePlayerSettingsScope : FeatureSettingsLayer {
 	
 	SinglePlayerSettingsScope() {
 		oldLayers.swap(gameSettings.layers);
-		gameSettings.layers.push_back(&gamePresetSettings);
+		gameSettings.layersInitStandard(false);
 		gameSettings.layers.push_back(this);
 	}
 	~SinglePlayerSettingsScope() { oldLayers.swap(gameSettings.layers); }

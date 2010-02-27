@@ -84,7 +84,7 @@ void Game::prepareGameloop() {
 	if(isClient() && cClient->getServerVersion() < OLXBetaVersion(0,59,6)) {
 		// All the custom settings we may set in the game mod were unknown (as feature array settings)
 		// to earlier versions. Thus we overwrite it this way.
-		gameScript()->customSettingsLayer.copyTo( cClient->getGameLobby() );
+		gameScript()->lx56modSettings.copyTo( cClient->getGameLobby() );
 	}
 		
 	if(isServer()) {

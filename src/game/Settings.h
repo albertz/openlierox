@@ -7,6 +7,24 @@
  *
  */
 
+/*
+ These settings classes are about the game specific settings - esp. everything from the FeatureList.
+ All available game settings are exactly (and only) those in the FeatureList.
+ 
+ The OLX game settings system is layer-based. The Settings class searches from the top layer to the bottom,
+ until it finds a layer with the specific setting set. If it doesn't find any, it returns the default.
+ 
+ In a standard game, these are the layers (from bottom to top):
+   * lx56modSettings (cover everything what is read from LX56 gamescripts)
+   * gamePresetSettings (mod/gamesettings.cfg + F[FT_SettingsPreset] (*.gamesettings))
+   * tLXOptions->customSettings
+ 
+ The server tells the client about these settings as usual.
+ (Some special handling is done about lx56modSettings for old clients but that doesn't matter.)
+ 
+ The client doesn't use layers. It only uses cClient->getGameLobby().
+ */
+
 #ifndef __OLX_GAME_SETTINGS_H__
 #define __OLX_GAME_SETTINGS_H__
 
@@ -45,7 +63,7 @@ struct Settings {
 	typedef std::vector<FeatureSettingsLayer*> Layers;
 	Layers layers;
 	void layersClear() { layers.clear(); }
-	void layersInitStandard(); // settingpreset + customsettings
+	void layersInitStandard(bool withCustom); // settingpreset + customsettings
 
 	const ScriptVar_t& operator[](FeatureIndex i) const {
 		for(Layers::const_reverse_iterator it = layers.rbegin(); it != layers.rend(); ++it)
@@ -84,6 +102,7 @@ struct Settings {
 };
 
 extern Settings gameSettings;
+extern FeatureSettingsLayer lx56modSettings; // for LX56 mod settings (WormGravity, etc)
 extern FeatureSettingsLayer gamePresetSettings; // for game settings preset
 
 inline Feature* featureOfDynamicVar(_DynamicVar* var) {

@@ -132,7 +132,7 @@ bool GameOptions::Init() {
 	}
 
 	// gamesettings depends on GameOptions (tLXOptions), thus here is the right place to init the standard settings layers
-	gameSettings.layersInitStandard();
+	gameSettings.layersInitStandard(true);
 	
 	CScriptableVars::RegisterVars("GameOptions")
 		( tLXOptions->bFullscreen, "Video.Fullscreen", true )

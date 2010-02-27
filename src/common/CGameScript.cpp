@@ -598,16 +598,6 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	*/
 	Shutdown();
 
-	struct LoadCustomSettingsIfSuccess {
-		CGameScript& g;
-		LoadCustomSettingsIfSuccess(CGameScript& _g) : g(_g) {}
-		~LoadCustomSettingsIfSuccess() {
-			if(g.loaded)
-				g.customSettingsLayer.loadFromConfig(g.sDirectory + "/gamesettings.cfg", false);
-		}
-	}
-	loadCustomSettingsIfSuccess(*this);
-	
 	int n;
 	std::string filename = dir + "/script.lgs";
 	sDirectory = dir;
@@ -797,9 +787,9 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	fread_compat(Strength,sizeof(float),1,fp);
 	EndianSwap(Strength);
 
-	customSettingsLayer.set(FT_RopeLength) = RopeLength;
-	customSettingsLayer.set(FT_RopeRestLength) = RestLength;
-	customSettingsLayer.set(FT_RopeStrength) = Strength;
+	lx56modSettings.set(FT_RopeLength) = RopeLength;
+	lx56modSettings.set(FT_RopeRestLength) = RestLength;
+	lx56modSettings.set(FT_RopeStrength) = Strength;
 	
 	// Worm
 	gs_worm_t Worm;
@@ -812,11 +802,11 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	EndianSwap(Worm.AirFriction);
 	EndianSwap(Worm.GroundFriction);
 
-	customSettingsLayer.set(FT_WormGroundSpeed) = Worm.GroundSpeed;
-	customSettingsLayer.set(FT_WormAirSpeed) = Worm.AirSpeed;
-	customSettingsLayer.set(FT_WormGravity) = Worm.Gravity;
-	customSettingsLayer.set(FT_WormJumpForce) = Worm.JumpForce;
-	customSettingsLayer.set(FT_WormAirFriction) = Worm.AirFriction;
+	lx56modSettings.set(FT_WormGroundSpeed) = Worm.GroundSpeed;
+	lx56modSettings.set(FT_WormAirSpeed) = Worm.AirSpeed;
+	lx56modSettings.set(FT_WormGravity) = Worm.Gravity;
+	lx56modSettings.set(FT_WormJumpForce) = Worm.JumpForce;
+	lx56modSettings.set(FT_WormAirFriction) = Worm.AirFriction;
 
 	fclose(fp);
 
@@ -1308,7 +1298,7 @@ void CGameScript::Shutdown()
 		delete[] Weapons;
 	Weapons = NULL;
 	
-	customSettingsLayer.makeSet(false);
+	lx56modSettings.makeSet(false);
 }
 
 
@@ -1942,9 +1932,9 @@ bool CGameScript::CompileExtra(const IniReader& ini)
 	ini.ReadInteger("NinjaRope","RestLength",&restl,0);
 	ini.ReadFloat("NinjaRope","Strength",&strength,0);
 
-	Game->customSettingsLayer.set(FT_RopeLength) = ropel;
-	Game->customSettingsLayer.set(FT_RopeRestLength) = restl;
-	Game->customSettingsLayer.set(FT_RopeStrength) = strength;
+	Game->lx56modSettings.set(FT_RopeLength) = ropel;
+	Game->lx56modSettings.set(FT_RopeRestLength) = restl;
+	Game->lx56modSettings.set(FT_RopeStrength) = strength;
 
 
 	// Worm
@@ -1959,11 +1949,11 @@ bool CGameScript::CompileExtra(const IniReader& ini)
 	ini.ReadFloat( "Worm", "AirFriction",		&wrm.AirFriction, 0);
 	ini.ReadFloat( "Worm", "GroundFriction",	&wrm.GroundFriction, 0.6f);
 
-	Game->customSettingsLayer.set(FT_WormGroundSpeed) = wrm.GroundSpeed;
-	Game->customSettingsLayer.set(FT_WormAirSpeed) = wrm.AirSpeed;
-	Game->customSettingsLayer.set(FT_WormGravity) = wrm.Gravity;
-	Game->customSettingsLayer.set(FT_WormJumpForce) = wrm.JumpForce;
-	Game->customSettingsLayer.set(FT_WormAirFriction) = wrm.AirFriction;
+	Game->lx56modSettings.set(FT_WormGroundSpeed) = wrm.GroundSpeed;
+	Game->lx56modSettings.set(FT_WormAirSpeed) = wrm.AirSpeed;
+	Game->lx56modSettings.set(FT_WormGravity) = wrm.Gravity;
+	Game->lx56modSettings.set(FT_WormJumpForce) = wrm.JumpForce;
+	Game->lx56modSettings.set(FT_WormAirFriction) = wrm.AirFriction;
 
 	return true;
 }

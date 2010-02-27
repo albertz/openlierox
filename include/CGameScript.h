@@ -173,7 +173,7 @@ private:
 public:
 	// If you play on a <=0.59beta5 server, this will overwrite cClient->getGameLobby().
 	// Since 0.59beta6, the server just sets everything, so it is only handled serverside.
-	FeatureSettingsLayer customSettingsLayer;
+	FeatureSettingsLayer lx56modSettings;
 	
 	bool	getNeedCollisionInfo()		{ return needCollisionInfo; }
 	
