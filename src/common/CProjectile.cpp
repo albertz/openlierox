@@ -97,8 +97,10 @@ void CProjectile::Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owne
 		case __PRJ_LBOUND: case __PRJ_UBOUND: errors << "CProjectile::DrawShadow: hit __PRJ_BOUND" << endl;
 	}
 
-
-	fWallshootTime = 0.011f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
+	if((bool)cClient->getGameLobby()[FT_LX56WallShooting])
+		fWallshootTime = 0.011f + getRandomFloat() / 1000; // Support wallshooting - ignore collisions before this time
+	else
+		fWallshootTime = 0.0f;
 
 	// TODO: the check was tProjInfo->Type != PJ_BOUNCE before, which didn't make sense. is it correct now?
 	// TODO: fGravity != 0 => bChangesSpeed=false was here before. why?
