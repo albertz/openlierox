@@ -1,0 +1,14 @@
+# This is the game settings preset file for the Classic settings
+
+[GameSettings]
+Name = LieroX 0.56
+Description = The LieroX 0.56 classic settings.
+
+[GameInfo]
+# at the time of writing, these are all the same as the default values but we may change that
+LX56WallShooting = true
+ShootSpawnDistance = 8
+WeaponCombos = true
+ProjRelativeVel = true
+
+# We don't need to set anything else because that are exactly the classic settings.
