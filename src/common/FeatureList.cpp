@@ -154,7 +154,7 @@ Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(
 			true, true,				Version(),					GIG_Weapons,	ALT_VeryAdvanced,	true, true),
 	Feature("ProjGravityFactor",	"Projectile gravity factor",	"Projectile gravity factor",
 			1.0f, 1.0f,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	-10.0f, 10.0f, false, false),
-	Feature("LX56WallShooting",		"LX56 wall shooting",		"LX56-like wall shooting enabled",
+	Feature("LX56WallShooting",		"LX56 wall shooting",		"LX56-like wall shooting enabled. To disable this, check also the option ShootSpawnDistance",
 			true, true,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	false, false),
 	Feature("ShootSpawnDistance",	"Shoot spawn distance",		"Projectile shoot spawn distance",
 			8.0f, 8.0f,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	0.0f, 20.0f, false, false),
