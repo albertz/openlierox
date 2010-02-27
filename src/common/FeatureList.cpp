@@ -21,6 +21,7 @@
 // Legend:	Name in options,		Human-readable-name,			Long description,	
 //			Unset,	Default,		Min client Version,	Group,	advancedlevel,		[Min,]	[Max,]	[server-side only] [optional for client] [is value unsigned] (Min and Max are only for Int and Float)
 // Old clients are kicked if feature version is greater that client version, no matter if feature is server-sided or safe to ignore
+// Min/Max is only for GUI and we aren't really strict about it. All other values not in that range should also be handled correctly!
 
 Feature featureArray[] = {
 
@@ -146,12 +147,18 @@ Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(
 			0.1f, 0.1f,				OLXBetaVersion(0,58,9),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 1.0f,	false),
 	Feature("WormMaxMoveSpeed",		"Worm max move speed",		"When moving the worm via left/right, this is the maximum (default: 30)",
 			30.0f, 30.0f,			OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	0.1f, 200.0f,	false, false),
+
 	Feature("ProjFriction",			"Projectile Friction",		"Air friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Weapons,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("ProjRelativeVel",		"Relative projectile velocity",	"Worm velocity is added to projectile velocity when you shoot",
 			true, true,				Version(),					GIG_Weapons,	ALT_VeryAdvanced,	true, true),
 	Feature("ProjGravityFactor",	"Projectile gravity factor",	"Projectile gravity factor",
 			1.0f, 1.0f,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	-10.0f, 10.0f, false, false),
+	Feature("LX56WallShooting",		"LX56 wall shooting",		"LX56-like wall shooting enabled",
+			true, true,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	false, false),
+	Feature("ShootSpawnDistance",	"Shoot spawn distance",		"Projectile shoot spawn distance",
+			8.0f, 8.0f,				OLXBetaVersion(0,59,6),		GIG_Weapons,	ALT_VeryAdvanced,	0.0f, 20.0f, false, false),
+
 	Feature("TeamScoreLimit",		"Team Score limit",		"Team score limit",
 			-1, -1,					OLXBetaVersion(0,58,1),		GIG_General, ALT_Basic,	-1, 100,	true, true, true),
 	Feature("SizeFactor",			"Size factor",			"The size of everything in game will be changed by this factor (i.e. made bigger or smaller)",

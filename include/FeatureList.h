@@ -184,9 +184,13 @@ enum FeatureIndex {
 	FT_WormFriction,
 	FT_WormGroundFriction,
 	FT_WormMaxMoveSpeed,
+	
 	FT_ProjFriction,
 	FT_ProjRelativeVel,
 	FT_ProjGravityFactor,
+	FT_LX56WallShooting,
+	FT_ShootSpawnDistance,
+	
 	FT_TeamScoreLimit,
 	FT_SizeFactor,
 	FT_CollideProjectiles,
