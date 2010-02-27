@@ -367,7 +367,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	float fGravity = 100.0f; // Default
 	if (prj->getProjInfo()->UseCustomGravity)
 		fGravity = (float)prj->getProjInfo()->Gravity;
-	prj->vVelocity.y += fGravity * dt.seconds();
+	prj->vVelocity.y += (float)cClient->getGameLobby()[FT_ProjGravityFactor] * fGravity * dt.seconds();
 
 	{
 		const float friction = cClient->getGameLobby()[FT_ProjFriction];

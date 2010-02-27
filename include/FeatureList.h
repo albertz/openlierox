@@ -186,6 +186,7 @@ enum FeatureIndex {
 	FT_WormMaxMoveSpeed,
 	FT_ProjFriction,
 	FT_ProjRelativeVel,
+	FT_ProjGravityFactor,
 	FT_TeamScoreLimit,
 	FT_SizeFactor,
 	FT_CollideProjectiles,
