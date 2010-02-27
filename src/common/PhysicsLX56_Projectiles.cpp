@@ -519,7 +519,7 @@ float Proj_SpawnParent::fixedRandomFloat() const {
 CVec Proj_SpawnParent::position() const {
 	switch(type) {
 		case PSPT_NOTHING: return CVec(0,0);
-		case PSPT_SHOT: return shot->cPos + GetVecFromAngle((float)shot->nAngle) * cClient->getGameLobby()[FT_ShootSpawnDistance];
+		case PSPT_SHOT: return shot->cPos + GetVecFromAngle((float)shot->nAngle) * (float)cClient->getGameLobby()[FT_ShootSpawnDistance];
 		case PSPT_PROJ: return proj->getPos();
 	}
 	return CVec(0,0);
