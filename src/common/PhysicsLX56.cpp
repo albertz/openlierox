@@ -421,7 +421,7 @@ public:
 			worm->velocity().x *= 1.0f - float(cClient->getGameLobby()[FT_WormGroundFriction]);
 
 			// Too slow, just stop
-			if(fabs(worm->velocity().x) < cClient->getGameLobby()[FT_WormGroundStopSpeed] && !ws->bMove)
+			if(fabs(worm->velocity().x) < (float)cClient->getGameLobby()[FT_WormGroundStopSpeed] && !ws->bMove)
 				worm->velocity().x = 0;
 		}
 
