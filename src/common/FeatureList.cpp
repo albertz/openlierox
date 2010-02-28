@@ -145,6 +145,8 @@ Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
 	Feature("WormGroundFriction",	"Worm Ground Friction",		"Air friction coefficient when worms are on ground (0.1 = default; 1 = stucked; 0 = no friction)",
 			0.1f, 0.1f,				OLXBetaVersion(0,58,9),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 1.0f,	false),
+	Feature("WormGroundStopSpeed",	"Worm Ground Stop Speed",	"Once the worms has this velocity or less (in x-direction), the x-velocity is set to 0",
+			5.0f, 5.0f,				OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	0.0f, 10.0f,	false),
 	Feature("WormMaxMoveSpeed",		"Worm max move speed",		"When moving the worm via left/right, this is the maximum (default: 30)",
 			30.0f, 30.0f,			OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	0.1f, 200.0f,	false, false),
 

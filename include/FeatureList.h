@@ -183,6 +183,7 @@ enum FeatureIndex {
 	FT_InfiniteMap,
 	FT_WormFriction,
 	FT_WormGroundFriction,
+	FT_WormGroundStopSpeed,
 	FT_WormMaxMoveSpeed,
 	
 	FT_ProjFriction,
