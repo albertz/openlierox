@@ -341,7 +341,7 @@ public:
 
 		// Process the moving
 		if(ws->bMove) {
-			const bool onGround = worm->isGround();
+			const bool onGround = worm->isOnGround();
 			const float speed = onGround ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
 			const float maxspeed = onGround ? (float)cClient->getGameLobby()[FT_WormMaxGroundMoveSpeed] : (float)cClient->getGameLobby()[FT_WormMaxAirMoveSpeed];
 
