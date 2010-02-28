@@ -14,7 +14,7 @@
 #include "Debug.h"
 
 Settings gameSettings;
-FeatureSettingsLayer lx56modSettings;
+FeatureSettingsLayer modSettings;
 FeatureSettingsLayer gamePresetSettings;
 
 void FeatureSettingsLayer::copyTo(FeatureSettingsLayer& s) const {
@@ -41,7 +41,7 @@ void FeatureSettingsLayer::dump() const {
 
 void Settings::layersInitStandard(bool withCustom) {
 	layersClear();
-	layers.push_back(&lx56modSettings);
+	layers.push_back(&modSettings);
 	layers.push_back(&gamePresetSettings);
 	if(withCustom) {
 		if(tLXOptions)

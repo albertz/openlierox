@@ -15,7 +15,7 @@
  until it finds a layer with the specific setting set. If it doesn't find any, it returns the default.
  
  In a standard game, these are the layers (from bottom to top):
-   * lx56modSettings (cover everything what is read from LX56 gamescripts)
+   * modSettings (covers everything what is read from LX56 gamescripts or what is set by Gusanos mod)
    * gamePresetSettings (mod/gamesettings.cfg + F[FT_SettingsPreset] (*.gamesettings))
    * tLXOptions->customSettings
  
@@ -108,7 +108,7 @@ struct Settings {
 };
 
 extern Settings gameSettings;
-extern FeatureSettingsLayer lx56modSettings; // for LX56 mod settings (WormGravity, etc)
+extern FeatureSettingsLayer modSettings; // in case of LX56 mod: for LX56 mod settings (WormGravity, etc); otherwise Gusanos settings
 extern FeatureSettingsLayer gamePresetSettings; // for game settings preset
 
 inline Feature* featureOfDynamicVar(_DynamicVar* var) {

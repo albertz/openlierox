@@ -265,7 +265,7 @@ void Game::cleanupAfterGameloopEnd() {
 	// no outdated settings are used for GameServer::isVersionCompatible.
 	// This can (and should) be removed once we have the settings already loaded
 	// immediately in lobby.
-	lx56modSettings.makeSet(false);
+	modSettings.makeSet(false);
 	gamePresetSettings.makeSet(false);
 	
 	cleanupCallbacks();

@@ -378,6 +378,9 @@ int GameServer::StartGame(std::string* errMsg)
 	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
 	cClient->SetPermanentText("");
 	
+	// reset all mod settings - *before* we load the mod because Gusanos mods may already customize it
+	modSettings.makeSet(false);
+	
 	// Load the game script
 	timer = SDL_GetTicks()/1000.0f;
 
@@ -456,8 +459,10 @@ mapCreate:
 	// Note: this code must be after we loaded the mod!
 	// TODO: this must be moved to the menu so that we can see it also there while editing custom settings
 	{
-		// Copy over LX56 mod settings. This is an independent layer, so it is also independent from gamePresetSettings.
-		lx56modSettings = game.gameScript()->lx56modSettings;
+		if(!game.gameScript()->gusEngineUsed() /*LX56*/) {
+			// Copy over LX56 mod settings. This is an independent layer, so it is also independent from gamePresetSettings.
+			modSettings = game.gameScript()->lx56modSettings;
+		}
 
 		// First, clean up the old settings.
 		gamePresetSettings.makeSet(false);
@@ -1835,12 +1840,12 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 	}
 	
 	// check LX56 mod settings
-	if(ver < OLXBetaVersion(0,59,6))
+	if(ver < OLXBetaVersion(0,59,6) && game.gameScript() && /*LX56*/ !game.gameScript()->gusEngineUsed())
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
-			if(lx56modSettings.isSet[(FeatureIndex)i])
+			if(modSettings.isSet[(FeatureIndex)i])
 				// Note: We assume here that lx56modSettings is one of the layers of gameSettings.
 				// check if we have overwritten this LX56 gamescript setting
-				if(gameSettings.layerFor((FeatureIndex)i) != &lx56modSettings) {
+				if(gameSettings.layerFor((FeatureIndex)i) != &modSettings) {
 					if(incompReason) *incompReason = "LX56 gamescript setting " + featureArray[i].name + " was customized";
 					return false;
 				}
