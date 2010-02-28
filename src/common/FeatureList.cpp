@@ -151,6 +151,8 @@ Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(
 			30.0f, 30.0f,			OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	0.1f, 200.0f,	false, false),
 	Feature("WormMaxAirMoveSpeed",		"Worm max air move speed",		"When moving the worm via left/right, this is the maximum in air (default: 30)",
 			30.0f, 30.0f,			OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	0.1f, 200.0f,	false, false),
+	Feature("GusanosWormPhysics",	"Gusanos worm physics",		"Worm moving is done with Gusanos worm physics",
+			false, false,			OLXBetaVersion(0,59,6),		GIG_Other,	ALT_VeryAdvanced,	false, false),
 
 	Feature("ProjFriction",			"Projectile Friction",		"Air friction coefficient for projectiles (0 = disabled)",
 			0.0f, 0.0f,				OLXBetaVersion(0,58,1),		GIG_Weapons,	ALT_VeryAdvanced,	0.0f, 2.0f,	false),
