@@ -184,7 +184,8 @@ enum FeatureIndex {
 	FT_WormFriction,
 	FT_WormGroundFriction,
 	FT_WormGroundStopSpeed,
-	FT_WormMaxMoveSpeed,
+	FT_WormMaxGroundMoveSpeed,
+	FT_WormMaxAirMoveSpeed,
 	
 	FT_ProjFriction,
 	FT_ProjRelativeVel,

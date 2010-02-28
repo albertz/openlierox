@@ -341,16 +341,19 @@ public:
 
 		// Process the moving
 		if(ws->bMove) {
-			const float speed = worm->isOnGround() ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
+			const bool onGround = worm->isGround();
+			const float speed = onGround ? (float)cClient->getGameLobby()[FT_WormGroundSpeed] : (float)cClient->getGameLobby()[FT_WormAirSpeed];
+			const float maxspeed = onGround ? (float)cClient->getGameLobby()[FT_WormMaxGroundMoveSpeed] : (float)cClient->getGameLobby()[FT_WormMaxAirMoveSpeed];
+
 			if(worm->getMoveDirectionSide() == DIR_RIGHT) {
 				// Right
-				if(worm->velocity().x < (float)cClient->getGameLobby()[FT_WormMaxMoveSpeed])
+				if(worm->velocity().x < maxspeed)
 					worm->velocity().x += speed * dt * 90.0f;
 			} else {
 				// Left
-				if(worm->velocity().x > -(float)cClient->getGameLobby()[FT_WormMaxMoveSpeed])
+				if(worm->velocity().x > -maxspeed)
 					worm->velocity().x -= speed * dt * 90.0f;
-			}
+			}				
 		}
 
 
