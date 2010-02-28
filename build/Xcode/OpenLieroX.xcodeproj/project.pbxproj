@@ -802,6 +802,7 @@
 		237885221050237B00195629 /* memstats_test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = memstats_test.cpp; path = "../../optional-includes/memdebug/memstats_test.cpp"; sourceTree = SOURCE_ROOT; };
 		237885401050248500195629 /* memstats_test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = memstats_test; sourceTree = BUILT_PRODUCTS_DIR; };
 		237885741050369300195629 /* memstats.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = memstats.cpp; sourceTree = "<group>"; };
+		237A305F113B177A00483627 /* OlxVariable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OlxVariable.h; sourceTree = "<group>"; };
 		238800E20E8B14F600B94DC0 /* NotifyUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NotifyUser.h; sourceTree = "<group>"; };
 		238800E30E8B150100B94DC0 /* NotifyUser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotifyUser.cpp; sourceTree = "<group>"; };
 		2389445F0FC73598008F031D /* PhysicsLX56_Projectiles.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsLX56_Projectiles.cpp; sourceTree = "<group>"; };
@@ -2057,6 +2058,7 @@
 				23C34D2210CC3B0A00DABBD6 /* sound.cpp */,
 				23C34D2310CC3B0A00DABBD6 /* sound.h */,
 				23C34D0B10CC3ACE00DABBD6 /* console */,
+				237A305F113B177A00483627 /* OlxVariable.h */,
 			);
 			path = gusanos;
 			sourceTree = "<group>";
