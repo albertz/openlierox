@@ -506,6 +506,11 @@ public:
 		else
 			return m_materialList[0];
 	}
+
+	Material const& getMaterialWrapped(int x, int y) const
+	{
+		return unsafeGetMaterial((unsigned int)WrapAroundX(x), (unsigned int)WrapAroundY(y));
+	}
 	
 	Material const& unsafeGetMaterial(unsigned int x, unsigned int y) const
 	{
