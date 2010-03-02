@@ -43,7 +43,8 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 	Mutex mutex;
 	CWorm* worm;
 	SkinDynDrawer(CWorm* w) : DynDrawIntf(WORM_SKIN_WIDTH,WORM_SKIN_HEIGHT), worm(w) {}
-
+	~SkinDynDrawer() {}
+	
 	virtual void draw(SDL_Surface* bmpDest, int x, int y) {
 		Mutex::ScopedLock lock(mutex);
 		if(worm) {
