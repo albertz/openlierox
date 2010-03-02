@@ -948,11 +948,10 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 	int stopbeam = false;
 
 	short i;
-	uchar px;
 	for(i=0; i<9999; i+=divisions) {
-		px = cMap->GetPixelFlag( (int)pos.x, (int)pos.y );
+		const Material& px = cMap->getMaterialWrapped( (int)pos.x, (int)pos.y );
 
-		if((px & (PX_DIRT|PX_ROCK)))
+		if(!px.particle_pass)
 			break;
 
 		// Check if it has hit any of the worms
