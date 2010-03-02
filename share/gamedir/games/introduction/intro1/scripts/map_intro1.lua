@@ -2,7 +2,7 @@ function getKey(k)
 	return getVar("GameOptions.Ply1Controls." .. k)
 end
 
-function init_intro1()
+function map_intro1.init()
 	exec("chatMsg", "Hello from the introduction level")
 
 	message("Welcome to OpenLieroX\n"
