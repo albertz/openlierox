@@ -51,11 +51,6 @@ public:
 		_T& get() { return tvar.data; }
 		const _T& get() const { return tvar.data; }
 	};
-
-	friend class ThreadVar<_T>::Reader;
-	friend class ThreadVar<_T>::Writer;
-
-
 	
 };
 
