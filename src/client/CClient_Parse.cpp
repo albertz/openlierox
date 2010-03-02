@@ -707,6 +707,28 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 }
 
 
+
+// Cannot think of a better function name. :P
+// Before 0.59 beta6, there were many settings which were not in the feature array.
+static bool wasNotAFeatureSettingBefore(FeatureIndex i) {
+	if(i == FT_TimeLimit ||
+	   i == FT_Map ||
+	   i == FT_GameMode ||
+	   i == FT_Mod ||
+	   i == FT_SettingsPreset ||
+	   i == FT_WormGroundSpeed ||
+	   i == FT_WormAirSpeed ||
+	   i == FT_WormAirFriction ||
+	   i == FT_WormGravity ||
+	   i == FT_WormJumpForce ||
+	   i == FT_RopeLength ||
+	   i == FT_RopeRestLength ||
+	   i == FT_RopeStrength)
+		return true;
+	return false;
+}
+
+
 ///////////////////
 // Parse a prepare game packet
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
@@ -1120,10 +1142,18 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 	}
 	
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		client->getGameLobby()[f->get()] = f->get()->unsetValue;
+	for(size_t i = 0; i < FeatureArrayLen; ++i) {
+		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
+			// Before 0.59b6, many settings have been outside of the FT array.
+			// So, on those old servers, we handle them seperately and we don't want to reset them here!
+			if(wasNotAFeatureSettingBefore((FeatureIndex)i))
+				continue;
+		}
+		
+		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
-
+	client->otherGameInfo.clear();
+	
     return true;
 }
 
@@ -1139,10 +1169,18 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
     return true;
 }
 
+
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	// FeatureSettings() constructor initializes with default values, and we want here an unset values
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		client->getGameLobby()[f->get()] = f->get()->unsetValue;  // Clean it up
+	for(size_t i = 0; i < FeatureArrayLen; ++i) {
+		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
+			// Before 0.59b6, many settings have been outside of the FT array.
+			// So, on those old servers, we handle them seperately and we don't want to reset them here!
+			if(wasNotAFeatureSettingBefore((FeatureIndex)i))
+				continue;
+		}
+	
+		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
 	int ftC = bs->readInt(2);
@@ -1162,21 +1200,18 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		bool olderClientsSupported = bs->readBool(); // to be understand as: if feature is unknown to us, it's save to ignore
 
 		// f != NULL -> we know about the feature -> we support it
-		if(f && !f->serverSideOnly) {
+		if(f) {
 			// we support the feature
 			if(value.type == f->valueType) {
 				client->getGameLobby()[f] = value;
 			} else {
 				client->getGameLobby()[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
-				if( !olderClientsSupported ) {
+				if( !olderClientsSupported && !f->serverSideOnly ) {
 					errors << "server setting for feature " << name << " has wrong type " << value.type << endl;
 				} else {
 					warnings << "server setting for feature " << name << " has wrong type " << value.type << " but it's safe to ignore" << endl;
 				}
 			}
-		} else if(f && f->serverSideOnly) {
-			// we support it && serversideonly -> just store it for convenience
-			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_SUPPORTED);
 		} else if(olderClientsSupported) {
 			// unknown for us but we support it
 			client->otherGameInfo.set(name, humanName, value, FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN);
@@ -2160,7 +2195,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode = NULL;
 	client->getGameLobby()[FT_Lives] = bs->readInt16();
 	client->getGameLobby()[FT_KillLimit] = bs->readInt16();
-	client->tGameInfo[FT_TimeLimit] = -100;
+	client->tGameInfo[FT_TimeLimit] = -100.0f;
 	client->getGameLobby()[FT_LoadingTime] = bs->readInt16();
     client->getGameLobby()[FT_Bonuses] = bs->readBool();
 
@@ -2187,10 +2222,18 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 		if(!infoForMod(client->getGameLobby()[FT_Mod].as<ModInfo>()->path).valid)
 			client->bHaveMod = false;
 	}
-	
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		client->getGameLobby()[f->get()] = f->get()->unsetValue;
+
+	for(size_t i = 0; i < FeatureArrayLen; ++i) {
+		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
+			// Before 0.59b6, many settings have been outside of the FT array.
+			// So, on those old servers, we handle them seperately and we don't want to reset them here!
+			if(wasNotAFeatureSettingBefore((FeatureIndex)i))
+				continue;
+		}
+		
+		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
+	client->otherGameInfo.clear();
 	
 	DeprecatedGUI::bJoin_Update = true;
 	DeprecatedGUI::bHost_Update = true;
