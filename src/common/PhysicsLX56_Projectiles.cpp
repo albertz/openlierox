@@ -193,9 +193,9 @@ inline bool CProjectile::MapBoundsCollision(int px, int py)
 }
 
 
-inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar pf, int x, int y, int cx, int cy) {
+inline static void handlePixelFlag(CProjectile::ColInfo& res, const Material& m, int x, int y, int cx, int cy) {
 	// Solid pixel
-	if(pf & (PX_DIRT|PX_ROCK)) {
+	if(!m.particle_pass) {
 		if (y < cy)
 			++res.top;
 		else if (y > cy)
@@ -205,7 +205,7 @@ inline static void handlePixelFlag(CProjectile::ColInfo& res, uchar pf, int x, i
 		else if (x > cx)
 			++res.right;
 		
-		if (pf & PX_ROCK)
+		if (!m.destroyable)
 			res.onlyDirt = false;
 		res.collided = true;
 	}	
@@ -230,7 +230,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 			uchar *pf = &map->material->line[y][px - radius.x];
 			
 			for(int x = px - radius.x; x <= px + radius.x; ++x, ++pf) {				
-				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf), x, y, px, py);
 			}
 		}
 	}
@@ -253,7 +253,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 				int x = (map->GetWidth() + _x + px) % (long)map->GetWidth();
 				uchar* pf = _pf + x;
 				
-				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf), x, y, px, py);
 			}
 		}
 	}
@@ -268,7 +268,7 @@ inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 					// outside the range, skip this
 					continue;
 
-				handlePixelFlag(res, map->materialForIndex(*pf).toLxFlags(), x, y, px, py);
+				handlePixelFlag(res, map->materialForIndex(*pf), x, y, px, py);
 			}
 		}		
 	}
