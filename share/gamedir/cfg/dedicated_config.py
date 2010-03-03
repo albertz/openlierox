@@ -26,7 +26,7 @@ import dedicated_control_io as io # control handler
 GAME_LIVES = -2
 GAME_MAX_KILLS = int(io.getVar("GameOptions.GameInfo.KillLimit"))
 GAME_MAX_TIME = float(io.getVar("GameOptions.GameInfo.TimeLimit"))
-WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.GameInfo.WeaponSelectionMaxTime"))
+WEAPON_SELECTION_TIME = int(io.getVar("GameOptions.Server.WeaponSelectionMaxTime"))
 
 # Note: This is unfair and I don't thing it is such a good idea. (At least for the average player, only 
 # pro-gamers perhaps want that.)
@@ -111,14 +111,14 @@ PRESETS = [ "Mortars", "Random" ]
 
 GLOBAL_SETTINGS = {
 	"GameOptions.Network.ServerName":               "Games nonstop + voting",
-	"GameOptions.GameInfo.AllowConnectDuringGame":  1,
+	"GameOptions.Server.AllowConnectDuringGame":    1,
 	"GameOptions.GameInfo.AllowEmptyGames":         1,
 	"GameOptions.GameInfo.ImmediateStart":          1,
 	"GameOptions.GameInfo.SelfHit":                 0,
 	"GameOptions.GameInfo.SelfInjure":              0,
 	"GameOptions.GameInfo.TeamHit":                 0,
 	"GameOptions.GameInfo.TeamInjure":              0,
-	"GameOptions.GameInfo.WeaponSelectionMaxTime":  60,
+	"GameOptions.Server.WeaponSelectionMaxTime":    60,
 	"GameOptions.GameInfo.CTF_AllowRopeForCarrier": 0,
 	"GameOptions.GameInfo.RelativeAirJump":         0, # SorZ said it's lame
 	"GameOptions.GameInfo.InfiniteMap":             0, # Infinite map is still broken and the rope is warping

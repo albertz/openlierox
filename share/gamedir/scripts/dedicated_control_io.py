@@ -168,7 +168,7 @@ def getVar(var):
 	return ret[0]
 	
 def getGameType():
-	return int(getVar("GameOptions.GameInfo.GameType"))
+	return str(getVar("GameOptions.GameInfo.GameType"))
 
 def getFullFileName(fn):
 	return SendCommand( "getfullfilename \"%s\"" % fn )[0]

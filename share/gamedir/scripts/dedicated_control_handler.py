@@ -223,7 +223,7 @@ def parseNewWorm(wormID, name):
 
 	worms[wormID] = worm
 
-	if io.getGameType() == 4: # Hide and Seek
+	if io.getGameType() == "Hide and Seek": # TODO, Verify --> "Hide and Seek" <--  is correct! It said --> 4 <-- before!
 		minSeekers = 1
 		if len(worms.values()) >= 4: minSeekers = 2
 		if io.getNumberWormsInTeam(1) < minSeekers:
@@ -682,9 +682,9 @@ def controlHandlerDefault():
 
 				if lobbyWaitBeforeGame <= curTime and canStart: # Start the game
 
-					if io.getGameType() <= 1:
+					if io.getGameType() in ["Death Match","Team Death Match"]:
 						if len(worms) >= cfg.MIN_PLAYERS_TEAMS: # Split in teams
-							setvar("GameOptions.GameInfo.GameType", 1)
+							setvar("GameOptions.GameInfo.GameType", "Team Death Match")
 							if not cfg.ALLOW_TEAM_CHANGE:
 								counter = 0
 								for w in worms.values():
@@ -692,7 +692,7 @@ def controlHandlerDefault():
 										io.setWormTeam( w.iID, counter % cfg.MAX_TEAMS )
 										counter += 1
 						else:
-							io.setvar("GameOptions.GameInfo.GameType", 0)
+							io.setvar("GameOptions.GameInfo.GameType", "Death Match")
 
 					if io.startGame():
 						if cfg.ALLOW_TEAM_CHANGE and len(worms) >= cfg.MIN_PLAYERS_TEAMS:
