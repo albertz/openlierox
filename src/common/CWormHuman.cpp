@@ -1006,19 +1006,22 @@ void CWormHumanInputHandler::subThink()
 				m_worm->addRopeLength(m_options->ropeAdjustSpeed);
 			}
 		} else {
-
-			if (aimingUp && m_worm->aimSpeed > -m_options->aimMaxSpeed) {
-				m_worm->addAimSpeed(-m_options->aimAcceleration);
+			const double aimMaxSpeed = MAX((float)fabs(tLXOptions->fAimMaxSpeed), 20.0f) * 0.01;
+			const double aimAccel = MAX((float)fabs(tLXOptions->fAimAcceleration), 100.0f) * 0.0001;
+			
+			if (aimingUp && m_worm->aimSpeed > -AngleDiff(aimMaxSpeed)) {
+				m_worm->addAimSpeed(-AngleDiff(aimAccel));
 			}
 			// No "else if" since we want to support precision aiming
-			if (aimingDown && m_worm->aimSpeed < m_options->aimMaxSpeed) {
-				m_worm->addAimSpeed(m_options->aimAcceleration);
+			if (aimingDown && m_worm->aimSpeed < AngleDiff(aimMaxSpeed)) {
+				m_worm->addAimSpeed(AngleDiff(aimAccel));
 			}
 		}
 
 		if(!aimingDown && !aimingUp) {
 			// I placed this here since CWorm doesn't have access to aiming flags
-			m_worm->aimSpeed *= m_options->aimFriction;
+			const double aimFriction = CLAMP((double)tLXOptions->fAimFriction, 0.0, 1.0);
+			m_worm->aimSpeed *= aimFriction;
 		}
 	}
 }
