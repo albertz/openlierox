@@ -139,3 +139,10 @@ CGameObject::ScopedGusCompatibleSpeed::~ScopedGusCompatibleSpeed() {
 	obj.velocity() *= 1.0f / LX56PhysicsDT.seconds();
 }
 
+float convertSpeed_LXToGus(float v) {
+	return v * LX56PhysicsDT.seconds();
+}
+
+float convertSpeed_GusToLX(float v) {
+	return v / LX56PhysicsDT.seconds();
+}

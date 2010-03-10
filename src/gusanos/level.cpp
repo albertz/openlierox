@@ -384,7 +384,7 @@ namespace
 {
 	bool canPlayerRespawn(CWorm* worm, SpawnPoint const& point)
 	{
-		bool teamplay = /* gusGame.options.teamPlay || */ game.isTeamPlay();
+		bool teamplay = game.isTeamPlay();
 		// point.team - 1 because OLX team numbers start at 0, Gus team numbers at 1
 		if(teamplay && (point.team != -1) && (point.team - 1 != worm->getTeam()))
 			return false;

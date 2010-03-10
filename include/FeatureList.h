@@ -139,6 +139,19 @@ enum FeatureIndex {
 	FT_WormAirFriction, // float
 	FT_WormGravity, // float
 	FT_WormJumpForce, // float
+	FT_WormSimpleFriction,
+	FT_WormAcceleration,
+	FT_WormAirAccelerationFactor,
+	FT_WormBounceQuotient,
+	FT_WormBounceLimit,
+	FT_WormWallHugging,
+	FT_WormWeaponHeight,
+	FT_WormHeight,
+	FT_WormWidth,
+	FT_WormMaxClimb,
+	FT_WormBoxRadius,
+	FT_WormBoxTop,
+	FT_WormBoxBottom,
 	
 	FT_RopeLength, // int
 	FT_RopeRestLength, // int

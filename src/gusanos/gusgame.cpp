@@ -253,7 +253,7 @@ string kickCompleter(Console* con, int idx, std::string const& beginning)
 void Options::registerInConsole()
 {
 	console.registerVariables()
-		("SV_NINJAROPE_SHOOT_SPEED", &ninja_rope_shootSpeed, 2)
+		(ninja_rope_shootSpeed.gusVar("SV_NINJAROPE_SHOOT_SPEED", 2))
 		("SV_NINJAROPE_PULL_FORCE", &ninja_rope_pullForce, 0.031)
 		//("SV_NINJAROPE_PULL_FORCE", &ninja_rope_pullForce, (4.0f / 3.0f) * (70.0f * 70.0f / (100.0f * 100.0f * 16.0f)))
 		
@@ -261,31 +261,30 @@ void Options::registerInConsole()
 		("SV_NINJAROPE_START_DISTANCE", &ninja_rope_startDistance, 4000.0f / 16.f - 1.f)
 		("SV_NINJAROPE_MAX_LENGTH", &ninja_rope_maxLength, 2000.f)
 
-		("SV_WORM_MAX_SPEED", &worm_maxSpeed, 0.45)
-		("SV_WORM_ACCELERATION", &worm_acceleration, 0.03)
-		("SV_WORM_AIR_ACCELERATION_FACTOR", &worm_airAccelerationFactor, 1.f)
+		(worm_maxSpeed.gusVar("SV_WORM_MAX_SPEED", 0.45))
+		(worm_acceleration.gusVar("SV_WORM_ACCELERATION", 0.03))
+		(worm_airAccelerationFactor.gusVar("SV_WORM_AIR_ACCELERATION_FACTOR", 1.f))
 		//("SV_WORM_FRICTION", &worm_friction, 0.02)
-		("SV_WORM_FRICTION", &worm_friction, pow(0.89, 0.7))
-		("SV_WORM_AIR_FRICTION", &worm_airFriction, 1.f)
-		("SV_WORM_GRAVITY", &worm_gravity, 0.009)
-		("SV_WORM_DISABLE_WALL_HUGGING", &worm_disableWallHugging, 0)
+		(worm_friction.gusVar("SV_WORM_FRICTION", pow(0.89, 0.7)))
+		(worm_airFriction.gusVar("SV_WORM_AIR_FRICTION", 1.f))
+		(worm_gravity.gusVar("SV_WORM_GRAVITY", 0.009))
+		(worm_disableWallHugging.gusVar("SV_WORM_DISABLE_WALL_HUGGING", 0))
 		//("SV_WORM_BOUNCE_QUOTIENT", &worm_bounceQuotient, 0.3)
-		("SV_WORM_BOUNCE_QUOTIENT", &worm_bounceQuotient, 0.333)
-		("SV_WORM_BOUNCE_LIMIT", &worm_bounceLimit, 2)
+		(worm_bounceQuotient.gusVar("SV_WORM_BOUNCE_QUOTIENT", 0.333))
+		(worm_bounceLimit.gusVar("SV_WORM_BOUNCE_LIMIT", 2))
 		//("SV_WORM_BOUNCE_LIMIT", &worm_bounceLimit, 0.56875f)
 		
-		("SV_WORM_JUMP_FORCE", &worm_jumpForce, 0.6)
-		("SV_WORM_WEAPON_HEIGHT", &worm_weaponHeight, 5)
-		("SV_WORM_HEIGHT", &worm_height, 9)
-		("SV_WORM_WIDTH", &worm_width, 3)
-		("SV_WORM_MAX_CLIMB", &worm_maxClimb, 4)
- 		("SV_WORM_BOX_RADIUS", &worm_boxRadius, 2)
-		("SV_WORM_BOX_TOP", &worm_boxTop, 3)
-		("SV_WORM_BOX_BOTTOM", &worm_boxBottom, 4)
+		(worm_jumpForce.gusVar("SV_WORM_JUMP_FORCE", 0.6))
+		(worm_weaponHeight.gusVar("SV_WORM_WEAPON_HEIGHT", 5))
+		(worm_height.gusVar("SV_WORM_HEIGHT", 9))
+		(worm_width.gusVar("SV_WORM_WIDTH", 3))
+		(worm_maxClimb.gusVar("SV_WORM_MAX_CLIMB", 4))
+ 		(worm_boxRadius.gusVar("SV_WORM_BOX_RADIUS", 2))
+		(worm_boxTop.gusVar("SV_WORM_BOX_TOP", 3))
+		(worm_boxBottom.gusVar("SV_WORM_BOX_BOTTOM", 4))
 
 		("SV_MAX_RESPAWN_TIME", &maxRespawnTime, -1 )
 		("SV_MIN_RESPAWN_TIME", &minRespawnTime, 100 )
-		("SV_TEAM_PLAY", &teamPlay, 0)
 
 		
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
@@ -1000,13 +999,6 @@ void GusGame::assignNetworkRole( bool authority )
 {
 	m_node = new Net_Node;
 	
-	m_node->beginReplicationSetup();
-		//m_node->addReplicationInt( (Net_S32*)&deaths, 32, false, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_ALL , 0);
-	m_node->addReplicationInt( (Net_S32*)&options.worm_gravity, 32, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
-	m_node->addReplicationInt( (Net_S32*)&options.teamPlay, 1, false, Net_REPFLAG_MOSTRECENT | Net_REPFLAG_RARELYCHANGED, Net_REPRULE_AUTH_2_ALL );
-	
-	m_node->endReplicationSetup();
-
 	m_isAuthority = authority;
 	if( authority)
 	{
