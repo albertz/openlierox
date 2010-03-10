@@ -59,7 +59,7 @@ struct __OlxVariable {
 	}
 	
 	Variable* gusVar(const std::string& name, T gusDefault) {
-		put(gusDefault);
+		/* put(gusDefault); // NOTE: we ignore it because we want to use the OLX default values */
 		return gusVar(name);
 	}
 	
