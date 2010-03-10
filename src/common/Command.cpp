@@ -2213,6 +2213,11 @@ void Cmd_dumpConnections::exec(CmdLineIntf* caller, const std::vector<std::strin
 	else caller->writeMsg("server not initialised");
 }
 
+COMMAND(dumpGameSettings, "dump game settings (all layers)", "", 0, 0);
+void Cmd_dumpGameSettings::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	gameSettings.dumpAllLayers();
+}
+
 #ifdef MEMSTATS
 COMMAND(printMemStats, "print memory stats", "", 0, 0);
 void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
