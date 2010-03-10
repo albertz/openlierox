@@ -13,7 +13,7 @@
 #include <string>
 #include "CVec.h"
 #include "Iterator.h"
-#include "types.h"
+#include "olx-types.h"
 
 
 class CClient;

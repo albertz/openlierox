@@ -19,7 +19,7 @@
 
 #include <list>
 #include "CBytestream.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Networking.h"
 
 template< int AMOUNT, int TIMERANGEMS, typename _Amount = size_t >

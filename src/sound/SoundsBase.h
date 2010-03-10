@@ -19,7 +19,7 @@
 
 #include "CVec.h"
 #include "SmartPointer.h"
-#include "types.h"
+#include "olx-types.h"
 #include "sound/sound_sample.h"
 
 

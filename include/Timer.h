@@ -24,7 +24,7 @@
 #include <SDL.h>
 #include <cassert>
 #include "Event.h"
-#include "types.h"
+#include "olx-types.h"
 
 
 

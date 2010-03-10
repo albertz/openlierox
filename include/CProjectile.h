@@ -21,7 +21,7 @@
 #include <vector>
 #include <map>
 #include "Event.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Color.h"
 #include "Consts.h"
 #include "CGameObject.h"

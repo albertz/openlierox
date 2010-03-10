@@ -18,7 +18,7 @@
 #define __CWIDGET_H__DEPRECATED_GUI__
 
 #include "InputEvents.h"
-#include "types.h"
+#include "olx-types.h"
 #ifdef WIN32
 #include "windows.h"
 #endif //WIN32

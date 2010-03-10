@@ -20,7 +20,7 @@
 #include "InputEvents.h"
 #include "Cursor.h"
 #include "DeprecatedGUI/CWidget.h"
-#include "types.h"
+#include "olx-types.h"
 #include "DeprecatedGUI/CGuiLayout.h"
 
 namespace DeprecatedGUI {

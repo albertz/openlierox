@@ -20,7 +20,7 @@
 #include <list>
 #include <limits.h>
 #include <set>
-#include "types.h"
+#include "olx-types.h"
 #include "Color.h" // for StrToCol
 #include "Iterator.h"
 

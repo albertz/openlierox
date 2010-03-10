@@ -71,7 +71,7 @@
 #include "sound/SoundsBase.h"
 #include "Version.h"
 #include "Timer.h"
-#include "types.h"
+#include "olx-types.h"
 #include "CClient.h"
 #include "CServer.h"
 #include "Geometry.h"

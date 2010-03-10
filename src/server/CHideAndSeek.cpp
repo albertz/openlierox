@@ -20,7 +20,7 @@
 #include "LieroX.h"
 #include "CGameMode.h"
 #include "Consts.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Cache.h"
 #include "game/Game.h"
 

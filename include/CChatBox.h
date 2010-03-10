@@ -20,7 +20,7 @@
 #include <SDL.h>
 #include <list>
 #include "Protocol.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Color.h"
 
 #define MAX_LLENGTH		128
