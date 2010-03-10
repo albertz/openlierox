@@ -12,6 +12,7 @@ WeaponCombos = false
 ProjRelativeVel = false
 SelfHit = false
 FullAimAngle = true
+RespawnTime = 1
 
 WormGravity = 74.3801
 WormJumpForce = -54.5455
