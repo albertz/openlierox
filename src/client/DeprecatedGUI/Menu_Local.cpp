@@ -1067,10 +1067,18 @@ static void updateFeatureListItemColor(lv_item_t* item) {
 	int group = getListItemGroupInfoNr(item->sIndex);
 	if(group >= 0) sub->iColour = tLX->clHeading;
 	else {
+		RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
+		/*
 		// Note: commented out because I am not sure if it is that nice
-		//RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
 		float warningCoeff = 0.0f; //CLAMP((float)var->advancedLevel / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
 		sub->iColour = tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff;
+		 */
+		
+		Feature* f = var ? featureByVar(var->var, false) : NULL;
+		const bool isSet = f ? tLXOptions->customSettings.isSet[featureArrayIndex(f)] : false;
+		
+		// now with the settings layer, we show it normal if unset and mark it, if it is set
+		sub->iColour = isSet ? tLX->clSubHeading : tLX->clNormalLabel;
 	}
 }
 
@@ -1257,6 +1265,8 @@ static void updateFeaturesList(CListview* l)
 				// ignore all others (should anyway not happen)
 				break;
 		}
+		
+		updateFeatureListItemColor(item);
 	}
 	if( tLXOptions->customSettings.isSet[FT_Lives] && (int)tLXOptions->customSettings[FT_Lives] < 0 )
 		tLXOptions->customSettings[FT_Lives] = WRM_UNLIM;
