@@ -92,6 +92,12 @@ float convertSpeed_GusToLX(float v);
 template<FeatureIndex index>
 struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
 
+inline float convertSpeedNeg_LXToGus(float v) { return -convertSpeed_LXToGus(v); }
+inline float convertSpeedNeg_GusToLX(float v) { return convertSpeed_GusToLX(-v); }
+
+template<FeatureIndex index>
+struct OlxNegatedSpeedVar : _OlxVariable<float, index, &convertSpeedNeg_LXToGus, &convertSpeedNeg_GusToLX> {};
+
 /* those are defined in CGameObject.cpp */
 float convertAccel_LXToGus(float v);
 float convertAccel_GusToLX(float v);

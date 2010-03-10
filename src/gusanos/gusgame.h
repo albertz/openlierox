@@ -53,7 +53,7 @@ struct Options
 	OlxAccelVar<FT_WormGravity> worm_gravity;
 	OlxVar<float,FT_WormBounceQuotient> worm_bounceQuotient;
 	OlxVar<float,FT_WormBounceLimit> worm_bounceLimit;
-	OlxVar<float,FT_WormJumpForce> worm_jumpForce;
+	OlxNegatedSpeedVar<FT_WormJumpForce> worm_jumpForce;
 	OlxBoolNegatedVar<FT_WormWallHugging> worm_disableWallHugging;
 	OlxVar<int,FT_WormWeaponHeight> worm_weaponHeight;
 	OlxVar<int,FT_WormHeight> worm_height;

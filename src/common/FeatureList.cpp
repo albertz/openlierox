@@ -16,6 +16,10 @@
 #include "game/SettingsPreset.h"
 #include "game/GameMode.h"
 
+/* those are defined in CGameObject.cpp */
+float convertSpeed_GusToLX(float v);
+float convertAccel_GusToLX(float v);
+
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 // Legend:	Name in options,		Human-readable-name,			Long description,	
@@ -64,7 +68,7 @@ Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, 
 
 // these are moved from Gusanos
 Feature("WormSimpleFriction", "Worm simple friction", "Worm simple friction (atm only used for Gusanos engine)", 0.0, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false, true),
-Feature("WormAcceleration", "Worm acceleration", "Worm acceleration; Gusanos only", 0.03f, 0.03f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false),
+Feature("WormAcceleration", "Worm acceleration", "Worm acceleration; Gusanos only", convertAccel_GusToLX(0.03f), convertAccel_GusToLX(0.03f), Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
 Feature("WormAirAccelerationFactor", "WOrmAirAccelerationFactor", "Worm air acc factor; Gus only", 1.0f, 1.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 2.0f, false, false),
 Feature("WormBounceQuotient", "WormBounceQuotient", "WormBounceQuotient; Gus only", 0.333f, 0.333f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false),
 Feature("WormBounceLimit", "WormBounceLimit", "WormBounceLimit; Gus only", 2.0f, 2.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
