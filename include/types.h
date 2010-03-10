@@ -19,8 +19,8 @@
 // changed by US
 
 
-#ifndef __TYPES_H__
-#define __TYPES_H__
+#ifndef __OLX_TYPES_H__
+#define __OLX_TYPES_H__
 
 #include <SDL.h>
 #include <cassert>
