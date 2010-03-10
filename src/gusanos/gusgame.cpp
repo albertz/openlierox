@@ -250,6 +250,14 @@ string kickCompleter(Console* con, int idx, std::string const& beginning)
 	);
 }
 
+string wrapper__sv_team_play(const list<string> &args)
+{
+	if(args.size() >= 1)
+		return ""; // just ignore
+	
+	return game.isTeamPlay() ? "1" : "0";
+}
+
 void Options::registerInConsole()
 {
 	console.registerVariables()
@@ -297,6 +305,9 @@ void Options::registerInConsole()
 	;
 	maxWeapons = 5;
 	splitScreen = false;
+	
+	console.registerCommands()
+	("SV_TEAM_PLAY", wrapper__sv_team_play);
 	
 	console.registerCommands()
 		("MAP", mapCmd, mapCompleter)
