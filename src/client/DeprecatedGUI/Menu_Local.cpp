@@ -1126,7 +1126,7 @@ static void initFeaturesList(CListview* l)
 
 			if( it->second.var.type == SVT_BOOL )
 			{
-				CCheckbox * cb = new CCheckbox( * it->second.var.ptr.b );
+				CCheckbox * cb = new CCheckbox( it->second.var.asScriptVar().toBool() );
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
 				cb->Create();
 				cb->Setup(-1, 0, 0, 20, 20);
@@ -1139,17 +1139,17 @@ static void initFeaturesList(CListview* l)
 					int imin=0, imax=0;
 					float fScale = 1.0f;
 					int iVal = 0;
-					if( it->second.var.type == SVT_FLOAT )
+					if( it->second.var.valueType() == SVT_FLOAT )
 					{
 						// Adding some small number to round it up correctly
 						imin = int( float(it->second.min) *10.0f + 0.00001f );	// Scale them up
 						imax = int( float(it->second.max) *10.0f + 0.00001f );
-						iVal = int( (*it->second.var.ptr.f) * 10.0f + 0.00001f );
+						iVal = int( it->second.var.asScriptVar().toFloat() * 10.0f + 0.00001f );
 						fScale = 0.1f;
 					} else {
 						imin = it->second.min;
 						imax = it->second.max;
-						iVal = * it->second.var.ptr.i;
+						iVal = it->second.var.asScriptVar().toInt();
 					}
 					CSlider * sld = new CSlider( imax, imin, imin, false, 190, 0, tLX->clNormalLabel, fScale );
 					CLAMP_DIRECT(iVal, sld->getMin(), sld->getMax() );
@@ -1163,8 +1163,7 @@ static void initFeaturesList(CListview* l)
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
 				txt->Create();
 				txt->Setup(-1, 0, 0, textboxSize, tLX->cFont.GetHeight());
-				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.ptr.i < 0) ||
-					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.ptr.f < 0))
+				if (it->second.var.asScriptVar().isNumeric() && it->second.var.isUnsigned && it->second.var.asScriptVar().getNumber() < 0)
 					txt->setText("");  // Leave blank for infinite values
 				else
 					txt->setText( it->second.var.toString() );

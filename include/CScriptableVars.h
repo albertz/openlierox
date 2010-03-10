@@ -387,6 +387,11 @@ struct ScriptVarPtr_t
 		return false;
 	}
 	
+	ScriptVarType_t valueType() const {
+		if(type != SVT_DYNAMIC) return type;
+		else return ptr.dynVar->type();
+	}
+	
 	// These funcs will assert() if you try to call them on Callback varptr
 	std::string toString() const;
 	bool fromString( const std::string & str) const;	// const 'cause we don't change pointer itself, only data it points to
