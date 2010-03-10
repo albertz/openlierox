@@ -1388,6 +1388,15 @@ void Menu_GameSettings_GrabInfo()
 }
 
 
+static void unsetVar(const std::string& varname, const ScriptVarPtr_t& var) {
+	Feature* f = featureByVar(var);
+	if(f) { // should always be !=NULL but check anyway
+		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
+	}
+	else
+		errors << "unsetVar: feature for " << varname << " not found" << endl;
+}
+	
 ///////////////////
 // Set the default game settings info
 void Menu_GameSettings_Default()
@@ -1402,7 +1411,7 @@ void Menu_GameSettings_Default()
 			it->first == "GameOptions.GameInfo.GameType" )
 			continue;	// We have nice comboboxes for them, skip them in the list
 
-		it->second.var.setDefault();
+		unsetVar(it->first, it->second.var);
     }
 
     CListview * features = (CListview *)cGameSettings.getWidget(gs_FeaturesList);
