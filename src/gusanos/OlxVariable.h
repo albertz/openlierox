@@ -12,7 +12,7 @@
 
 #include <list>
 #include <string>
-#include "variables.h"
+#include "gusanos/console/variables.h"
 #include "game/Settings.h"
 #include "StringUtils.h"
 #include "FeatureList.h"
