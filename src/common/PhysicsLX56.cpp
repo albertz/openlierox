@@ -446,7 +446,9 @@ public:
 			
 			worm->processJumpingAndNinjaropeControls();
 			worm->processPhysics();
-			worm->processMoveAndDig();			
+			worm->processMoveAndDig();
+			
+			ws->bJump = worm->jumping; // we may have overwritten this
 		}
 		
 		simulateWormWeapon(wpnDT, worm);

@@ -64,7 +64,8 @@ void CWormHumanInputHandler::getInput() {
 	ws->bCarve = false;
 	ws->bMove = false;
 	ws->bShoot = false;
-	ws->bJump = false;
+	if(!(bool)cClient->getGameLobby()[FT_GusanosWormPhysics]) // Gusanos worm physics behaves slightly different for jumping input
+		ws->bJump = false;
 
 	const bool mouseControl = 
 			tLXOptions->bMouseAiming &&
@@ -336,20 +337,18 @@ void CWormHumanInputHandler::getInput() {
 	}
 
 
-	bool oldskool = tLXOptions->bOldSkoolRope;
+	const bool oldskool = tLXOptions->bOldSkoolRope;
 
-	bool jumpdownonce = cJump.isDownOnce();
+	const bool jump = cJump.isDownOnce();
 
 	// Jump
-	if(jumpdownonce) {
-		if( !(oldskool && cSelWeapon.isDown()) )  {
-			ws->bJump = true;
+	if( !(oldskool && cSelWeapon.isDown()) )  {
+		ws->bJump |= jump;
 
-			if(m_worm->cNinjaRope.isReleased())
-				m_worm->cNinjaRope.Release();
-		}
+		if(jump && m_worm->cNinjaRope.isReleased())
+			m_worm->cNinjaRope.Release();
 	}
-
+	
 	// Ninja Rope
 	if(oldskool) {
 		// Old skool style rope throwing
