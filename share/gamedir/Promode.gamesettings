@@ -10,6 +10,8 @@ LX56WallShooting = false
 ShootSpawnDistance = 2
 WeaponCombos = false
 ProjRelativeVel = false
+SelfHit = false
+FullAimAngle = true
 
 WormGravity = 92.562
 WormJumpForce = -54.5455
