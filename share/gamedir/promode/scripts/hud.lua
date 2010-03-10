@@ -700,7 +700,7 @@ function hud.init()
 						end
 					end
 					
-					if w:is_reloading(player, w:type():name()) then			
+					if is_reloading(player, w:type():name()) then			
 						hudFont:render(bitmap,floor(reload_time(player, w:type():name())/30),x+1,y-17,color(255,255,255),Font.Formatting +Font.CenterH + Font.CenterV )
 						for i=1,36 do
 							tx,ty = angle_vector(i*10,5)
