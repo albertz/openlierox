@@ -988,8 +988,8 @@ void Menu_GameSettings()
 {
 	//GameTabPane = 0;
 	// Setup the buffer
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 80,120, 560,460);
-	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 245);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 80 -35,120, 560+35,460);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 82 -35,122, 558+35,458, tLX->clDialogBackground, 245);
 
 	Menu_RedrawMouse(true);
 
@@ -1008,13 +1008,13 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
-	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365, 155, 80,15);
-	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285, 155, 70, 15);
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365+70, 155, 80,15);
+	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285+70, 155, 70, 15);
 	float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
-	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450, 155, 70, 15);
+	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450+70, 155, 70, 15);
 
 	CListview* features = new CListview();
-	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
+	cGameSettings.Add( features, gs_FeaturesList, 95 - 35, 170, 450 + 70, 205);
 
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
@@ -1031,12 +1031,13 @@ void Menu_GameSettings()
 			maxWidth = tLX->cFont.GetWidth(it->second.shortDesc);
 	}
 	
+	features->AddColumn("", 60 + 10); 
 	features->AddColumn("", maxWidth + 10); 
 	features->AddColumn("", 190); 
 	
 	initFeaturesList(features);
 
-	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95, 390, 450, 40);
+	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95 - 35, 390, 450 + 70, 40);
 }
 
 // Features listview
@@ -1056,9 +1057,22 @@ static int getListItemGroupInfoNr(const std::string& sindex) {
 	return -1;
 }
 	
-	
+static bool varIsSet(const ScriptVarPtr_t& var) {
+	Feature* f = featureByVar(var, false);
+	return f ? tLXOptions->customSettings.isSet[featureArrayIndex(f)] : false;
+}
+
 static void updateFeatureListItemColor(lv_item_t* item) {
 	lv_subitem_t* sub = item->tSubitems; if(!sub) return;
+	RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
+	const bool isSet = var && varIsSet(var->var);
+	
+	if(CButton* resetBtn = dynamic_cast<CButton*> (sub->tWidget))
+		resetBtn->bVisible = isSet;
+	
+	sub = sub->tNext; // first one is reset button
+	if(!sub) return;
+	
 	if(((CListview*)cGameSettings.getWidget(gs_FeaturesList))->getMouseOverSIndex() == item->sIndex) {
 		sub->iColour = tLX->clMouseOver;
 		return;
@@ -1067,18 +1081,17 @@ static void updateFeatureListItemColor(lv_item_t* item) {
 	int group = getListItemGroupInfoNr(item->sIndex);
 	if(group >= 0) sub->iColour = tLX->clHeading;
 	else {
-		RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
 		/*
 		// Note: commented out because I am not sure if it is that nice
 		float warningCoeff = 0.0f; //CLAMP((float)var->advancedLevel / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
 		sub->iColour = tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff;
 		 */
 		
-		Feature* f = var ? featureByVar(var->var, false) : NULL;
-		const bool isSet = f ? tLXOptions->customSettings.isSet[featureArrayIndex(f)] : false;
-		
 		// now with the settings layer, we show it normal if unset and mark it, if it is set
-		sub->iColour = isSet ? tLX->clSubHeading : tLX->clNormalLabel;
+		//sub->iColour = isSet ? tLX->clSubHeading : tLX->clNormalLabel;
+		
+		// ok, still just use std color; resetbtn already shows that it was set
+		sub->iColour = tLX->clNormalLabel;
 	}
 }
 
@@ -1129,7 +1142,13 @@ static void initFeaturesList(CListview* l)
 				continue;
 			
 			lv_item_t * item = l->AddItem(it->first, l->getNumItems(), tLX->clNormalLabel);
-			updateFeatureListItemColor(item);
+
+			CButton* resetBtn = new CButton(BUT_RESET, tMenu->bmpButtons);
+			l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, resetBtn);
+			resetBtn->Create();
+			resetBtn->Setup(-1, 0, 0, 60, 15);			
+			resetBtn->bVisible = varIsSet(it->second.var);
+			
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
@@ -1175,13 +1194,74 @@ static void initFeaturesList(CListview* l)
 				if (it->second.var.asScriptVar().isNumeric() && it->second.var.isUnsigned && it->second.var.asScriptVar().getNumber() < 0)
 					txt->setText("");  // Leave blank for infinite values
 				else
-					txt->setText( it->second.var.toString() );
+					txt->setText( it->second.var.toString() );				
 			}
+			
+			updateFeatureListItemColor(item);
 		}
 	}
 }
 
+	
+static void unsetVar(const std::string& varname, const ScriptVarPtr_t& var) {
+	Feature* f = featureByVar(var);
+	if(f) { // should always be !=NULL but check anyway
+		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
+	}
+	else
+		errors << "unsetVar: feature for " << varname << " not found" << endl;
+}
+	
+	
+static void resetItemFromVar(lv_item_t* item, const ScriptVarPtr_t& var) {
+	if( ! item || !item->tSubitems || !item->tSubitems->tNext )
+		return;
+	lv_subitem_t * si = item->tSubitems->tNext->tNext;
+	if( ! si )
+		return;
+	CWidget * w = si->tWidget;
+	if( ! w )
+		return;
 
+	switch(w->getType()) {
+		case wid_Checkbox:
+			((CCheckbox*)w)->setValue(var.asScriptVar().toBool());
+			break;
+		case wid_Textbox:
+			((CTextbox*)w)->setText(var.toString());
+			break;
+		case wid_Slider:
+			if( si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox )
+			{
+				CSlider *slider = (CSlider *)w;
+				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
+				int iVal = 0;
+				
+				if( var.valueType() == SVT_INT )
+				{
+					iVal = var.asScriptVar().toInt();
+					textBox->setText(itoa(iVal));
+					if( var.isUnsigned && iVal < 0 )
+						textBox->setText("");
+				}
+				else if( var.valueType() == SVT_FLOAT )
+				{
+					iVal = int(var.asScriptVar().toFloat() * 10.0f);
+					textBox->setText(to_string<float>(iVal / 10.0f));
+					if( var.isUnsigned && iVal < 0 )
+						textBox->setText("");
+				}
+				
+				CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
+				slider->setValue(iVal);
+			}
+			break;
+		default:
+			// ignore all others (should anyway not happen)
+			break;
+	}
+}
+	
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
@@ -1194,15 +1274,23 @@ static void updateFeaturesList(CListview* l)
 		if( it->second.group == GIG_Invalid ) continue;
 
 		lv_item_t * item = l->getItem(it->first);
-		if( ! item )
+		if( ! item || !item->tSubitems || !item->tSubitems->tNext )
 			continue;
-		lv_subitem_t * si = item->tSubitems->tNext;
+		lv_subitem_t * si = item->tSubitems->tNext->tNext;
 		if( ! si )
 			continue;
 		CWidget * w = si->tWidget;
 		if( ! w )
 			continue;
 		
+		
+		CButton* resetBtn = dynamic_cast<CButton*>(item->tSubitems->tWidget);
+		if(resetBtn == l->getWidgetEvent()->cWidget) {
+			unsetVar(it->first, it->second.var);
+			updateFeatureListItemColor(item);
+			resetItemFromVar(item, it->second.var);
+			return; // no continue because there wont be another event
+		}						
 		
 		switch(w->getType()) {
 			case wid_Checkbox:
@@ -1403,15 +1491,6 @@ void Menu_GameSettings_GrabInfo()
 	// Stub
 }
 
-
-static void unsetVar(const std::string& varname, const ScriptVarPtr_t& var) {
-	Feature* f = featureByVar(var);
-	if(f) { // should always be !=NULL but check anyway
-		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
-	}
-	else
-		errors << "unsetVar: feature for " << varname << " not found" << endl;
-}
 	
 ///////////////////
 // Set the default game settings info

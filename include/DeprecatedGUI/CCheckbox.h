@@ -88,6 +88,7 @@ public:
 				switch(iMsg) {
 					case CKM_SETCHECK:
 						bValue = Param1 != 0;
+						updatePointers();
 						return 0;
 					case CKM_GETCHECK:
 						return (int)bValue;
@@ -105,6 +106,7 @@ public:
 	void	LoadStyle() {}
 
 	bool	getValue()						{ return bValue; }
+	void	setValue(bool v)				{ bValue = v; updatePointers(); }
 
 	void	updatePointers()	{
 		if( bVar )

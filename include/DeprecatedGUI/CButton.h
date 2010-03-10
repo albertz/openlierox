@@ -52,6 +52,7 @@ public:
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
 		iHeight = 18;
+		bVisible = true;
 	}
 
 	CButton(int imgid, SmartPointer<SDL_Surface> image) {
@@ -64,6 +65,7 @@ public:
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_MENU;
 		iHeight = image.get()->h;
+		bVisible = true;
 	}
 
 	CButton(const std::string& path) {
@@ -76,8 +78,10 @@ public:
         iGoodWidth = iWidth = 250;
 		iButtonType = BUT_TWOSTATES;
 		iHeight = bmpImage.get()->h;
+		bVisible = true;
 	}
 
+	bool		bVisible;
 
 private:
 	// Attributes
