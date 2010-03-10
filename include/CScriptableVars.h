@@ -386,6 +386,17 @@ struct ScriptVarPtr_t
 		}
 		return false;
 	}
+
+	bool operator==(const ScriptVarPtr_t& var) const {
+		if(var.type != type) return false;
+		return ptr.b == var.ptr.b; // asumes that all ptrs have same sizeof; should work because of union
+	}
+
+	bool operator==(const _DynamicVar* var) const {
+		if(type != SVT_DYNAMIC) return false;
+		return ptr.dynVar == var;
+	}
+	
 	
 	ScriptVarType_t valueType() const {
 		if(type != SVT_DYNAMIC) return type;

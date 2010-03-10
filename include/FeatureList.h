@@ -225,7 +225,7 @@ extern Feature featureArray[];
 inline size_t featureArrayLen() { return FeatureArrayLen; }
 inline FeatureIndex featureArrayIndex(Feature* f) { assert(f >= &featureArray[0] && f < &featureArray[FeatureArrayLen]); return FeatureIndex(f - &featureArray[0]); }
 Feature* featureByName(const std::string& name);
-Feature* featureByVar(const ScriptVarPtr_t& var); // assumes that var is from gameSettings.wrappers array
+Feature* featureByVar(const ScriptVarPtr_t& var, bool printErrors = true); // assumes that var is from gameSettings.wrappers array
 
 class FeatureCompatibleSettingList {
 public:

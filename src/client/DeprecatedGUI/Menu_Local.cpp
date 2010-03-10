@@ -1093,9 +1093,10 @@ static void initFeaturesList(CListview* l)
 			if( it->second.group != group ) continue;
 			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
-			if( it->second.var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path || 
-				it->second.var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ||
-				it->first == "GameOptions.GameInfo.GameType" ||
+			if( it->second.var == &gameSettings.wrappers[FT_Mod] || 
+				it->second.var == &gameSettings.wrappers[FT_Map] ||
+				it->second.var == &gameSettings.wrappers[FT_GameMode] ||
+			    it->second.var == &gameSettings.wrappers[FT_SettingsPreset] ||
 				it->second.var.ptr.i == &tLXOptions->iMaxPlayers )
 				continue;	// We have nice comboboxes for them, skip them in the list
 			
@@ -1105,11 +1106,11 @@ static void initFeaturesList(CListview* l)
 			
 			if( !gameSettings[FT_GameMode].as<GameModeInfo>()->mode || !gameSettings[FT_GameMode].as<GameModeInfo>()->mode->isTeamGame() ) {
 				if( it->second.var.ptr.i == &tLXOptions->iRandomTeamForNewWorm ) continue;
-				if( it->second.var == &gameSettings[FT_RespawnGroupTeams] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamScoreLimit] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamkillDecreasesScore] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamInjure] ) continue;				
-				if( it->second.var == &gameSettings[FT_TeamHit] ) continue;				
+				if( it->second.var == &gameSettings.wrappers[FT_RespawnGroupTeams] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamScoreLimit] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamkillDecreasesScore] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamInjure] ) continue;				
+				if( it->second.var == &gameSettings.wrappers[FT_TeamHit] ) continue;				
 			}
 			
 			if(countGroupOpts == 0)
@@ -1124,7 +1125,7 @@ static void initFeaturesList(CListview* l)
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
-			if( it->second.var.type == SVT_BOOL )
+			if( it->second.var.valueType() == SVT_BOOL )
 			{
 				CCheckbox * cb = new CCheckbox( it->second.var.asScriptVar().toBool() );
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
@@ -1176,6 +1177,9 @@ static void initFeaturesList(CListview* l)
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
+	// we only update the changed widget
+	if(!l->getWidgetEvent() || !l->getWidgetEvent()->cWidget) return;
+
 	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
@@ -1190,69 +1194,72 @@ static void updateFeaturesList(CListview* l)
 		CWidget * w = si->tWidget;
 		if( ! w )
 			continue;
-			
-		if( it->second.var.type == SVT_BOOL )
-		{
-			if( w->getType() == wid_Checkbox )
-			{
-				* it->second.var.ptr.b = ((CCheckbox *)w)->getValue();
-			}
-		}
-		else
-		{
-			if( w->getType() == wid_Textbox )
-			{
-				it->second.var.fromString( ((CTextbox *)w)->getText() );
-			}
-			if( w->getType() == wid_Slider && 
-				si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox &&
-				l->getWidgetEvent() && l->getWidgetEvent()->cWidget )
-			{
-				CSlider *slider = (CSlider *)w;
-				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
+		
+		
+		switch(w->getType()) {
+			case wid_Checkbox:
+				if(l->getWidgetEvent()->cWidget == w)
+					it->second.var.fromScriptVar( ScriptVar_t(((CCheckbox *)w)->getValue()) );
+				break;
+			case wid_Textbox:
+				if(l->getWidgetEvent()->cWidget == w)
+					it->second.var.fromString( ((CTextbox *)w)->getText() );
+				break;
+			case wid_Slider:
+				if( 
+				   si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox &&
+				   l->getWidgetEvent() && l->getWidgetEvent()->cWidget )
+				{
+					CSlider *slider = (CSlider *)w;
+					CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
 					
-				if( l->getWidgetEvent()->cWidget->getType() == wid_Slider ) // User moved slider - update textbox
-				{
-					int iVal = slider->getValue();
-					if( it->second.var.type == SVT_INT )
+					if( l->getWidgetEvent()->cWidget == slider ) // User moved slider - update textbox
 					{
-						* it->second.var.ptr.i = iVal;
-						textBox->setText(itoa(iVal));
-						if( it->second.var.isUnsigned && iVal < 0 )
-							textBox->setText("");
+						int iVal = slider->getValue();
+						if( it->second.var.valueType() == SVT_INT )
+						{
+							it->second.var.fromScriptVar( ScriptVar_t(iVal) );
+							textBox->setText(itoa(iVal));
+							if( it->second.var.isUnsigned && iVal < 0 )
+								textBox->setText("");
+						}
+						if( it->second.var.valueType() == SVT_FLOAT )
+						{
+							it->second.var.fromScriptVar( ScriptVar_t(float(iVal / 10.0f)) );
+							textBox->setText(to_string<float>(iVal / 10.0f));
+							if( it->second.var.isUnsigned && iVal < 0 )
+								textBox->setText("");
+						}
 					}
-					if( it->second.var.type == SVT_FLOAT )
+					
+					else if( l->getWidgetEvent()->cWidget == textBox ) // User typed in textbox - update slider
 					{
-						* it->second.var.ptr.f = iVal / 10.0f;
-						textBox->setText(to_string<float>(iVal / 10.0f));
-						if( it->second.var.isUnsigned && iVal < 0 )
-							textBox->setText("");
+						it->second.var.fromString(textBox->getText());
+						int iVal = 0;
+						if( it->second.var.valueType() == SVT_INT )
+						{
+							// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+							//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
+							iVal = it->second.var.asScriptVar().toInt();
+						}
+						if( it->second.var.valueType() == SVT_FLOAT )
+						{
+							// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+							//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
+							iVal = int(it->second.var.asScriptVar().toFloat() * 10.0f);
+						}
+						CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
+						slider->setValue(iVal);
 					}
 				}
-				if( l->getWidgetEvent()->cWidget->getType() == wid_Textbox ) // User typed in textbox - update slider
-				{
-					it->second.var.fromString(textBox->getText());
-					int iVal = 0;
-					if( it->second.var.type == SVT_INT )
-					{
-						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
-						//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
-						iVal = * it->second.var.ptr.i;
-					}
-					if( it->second.var.type == SVT_FLOAT )
-					{
-						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
-						//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
-						iVal = int(* it->second.var.ptr.f * 10.0f);
-					}
-					CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
-					slider->setValue(iVal);
-				}
-			}
+				break;
+			default:
+				// ignore all others (should anyway not happen)
+				break;
 		}
 	}
-	if( (int)gameSettings[FT_Lives] < 0 )
-		gameSettings.overwrite[FT_Lives] = WRM_UNLIM;
+	if( tLXOptions->customSettings.isSet[FT_Lives] && (int)tLXOptions->customSettings[FT_Lives] < 0 )
+		tLXOptions->customSettings[FT_Lives] = WRM_UNLIM;
 }
 
 /////////////

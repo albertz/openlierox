@@ -233,26 +233,26 @@ bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
 	return hostGet(f) == f->unsetValue;
 }
 
-Feature* featureByVar(const ScriptVarPtr_t& var) {
+Feature* featureByVar(const ScriptVarPtr_t& var, bool printErrors) {
 	if(var.type != SVT_DYNAMIC) {
-		errors << "featureByVar: var is not a dynamic var" << endl;
+		if(printErrors) errors << "featureByVar: var is not a dynamic var" << endl;
 		return NULL;
 	}
 
 	if(var.ptr.dynVar == NULL) {
-		errors << "featureByVar: var is NULL" << endl;
+		if(printErrors) errors << "featureByVar: var is NULL" << endl;
 		return NULL;
 	}
 	
 	const Settings::ScriptVarWrapper* wrapperAddr = dynamic_cast<Settings::ScriptVarWrapper*> (var.ptr.dynVar);
 	if(wrapperAddr == NULL) {
-		errors << "featureByVar: var is not a Settings::ScriptVarWrapper" << endl;
+		if(printErrors) errors << "featureByVar: var is not a Settings::ScriptVarWrapper" << endl;
 		return NULL;
 	}
 	
 	const size_t relAddr = wrapperAddr - &gameSettings.wrappers[0];
 	if(relAddr >= FeatureArrayLen) {
-		errors << "options::loadfromdisc: var is not from gameSettings.wrappers" << endl;
+		if(printErrors) errors << "options::loadfromdisc: var is not from gameSettings.wrappers" << endl;
 		return NULL;
 	}
 	
