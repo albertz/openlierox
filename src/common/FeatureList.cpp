@@ -68,10 +68,10 @@ Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, 
 
 // these are moved from Gusanos
 Feature("WormSimpleFriction", "Worm simple friction", "Worm simple friction (atm only used for Gusanos engine)", 0.0, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false, true),
-Feature("WormAcceleration", "Worm acceleration", "Worm acceleration; Gusanos only", convertAccel_GusToLX(0.03f), convertAccel_GusToLX(0.03f), Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
-Feature("WormAirAccelerationFactor", "WOrmAirAccelerationFactor", "Worm air acc factor; Gus only", 1.0f, 1.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 2.0f, false, false),
+Feature("WormAcceleration", "Worm acceleration", "Worm acceleration; Gusanos only", 396.694f, 396.694f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
+Feature("WormAirAccelerationFactor", "WormAirAccelerationFactor", "Worm air acc factor; Gus only", 0.7f, 0.7f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 2.0f, false, false),
 Feature("WormBounceQuotient", "WormBounceQuotient", "WormBounceQuotient; Gus only", 0.333f, 0.333f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false),
-Feature("WormBounceLimit", "WormBounceLimit", "WormBounceLimit; Gus only", 2.0f, 2.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature("WormBounceLimit", "WormBounceLimit", "WormBounceLimit; Gus only", 0.5f, 0.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
 Feature("WormWallHugging", "WormWallHugging", "WormWallHugging; Gus only", false, false, Version(), GIG_Advanced, ALT_VeryAdvanced, false, false),
 Feature("WormWeaponHeight", "WormWeaponHeight", "WormWeaponHeight; Gus only", 5, 5, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
 Feature("WormHeight", "WormHeight", "WormHeight; Gus only", 9, 9, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
