@@ -90,13 +90,20 @@ float convertSpeed_LXToGus(float v);
 float convertSpeed_GusToLX(float v);
 
 template<FeatureIndex index>
-struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_GusToLX, &convertSpeed_LXToGus> {};
+struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
+
+/* those are defined in CGameObject.cpp */
+float convertAccel_LXToGus(float v);
+float convertAccel_GusToLX(float v);
+
+template<FeatureIndex index>
+struct OlxAccelVar : _OlxVariable<float, index, &convertAccel_LXToGus, &convertAccel_GusToLX> {};
 
 inline float convertWormFriction_LXToGus(float v) { return 1.0f - v; }
 inline float convertWormFriction_GusToLX(float v) { return 1.0f - v; }
 
 template<FeatureIndex index>
-struct OlxWormFrictionVar : _OlxVariable<float, index, &convertWormFriction_GusToLX, &convertWormFriction_LXToGus> {};
+struct OlxWormFrictionVar : _OlxVariable<float, index, &convertWormFriction_LXToGus, &convertWormFriction_GusToLX> {};
 
 inline bool negateBool(bool v) { return !v; }
 
