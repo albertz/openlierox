@@ -1095,7 +1095,17 @@ static void updateFeatureListItemColor(lv_item_t* item) {
 	}
 }
 
-
+static bool isSettingForGameSettingsDialog(const ScriptVarPtr_t& var) {
+	if( var == &gameSettings.wrappers[FT_Mod] || 
+	   var == &gameSettings.wrappers[FT_Map] ||
+	   var == &gameSettings.wrappers[FT_GameMode] ||
+	   var == &gameSettings.wrappers[FT_SettingsPreset] ||
+	   var.ptr.i == &tLXOptions->iMaxPlayers )
+		return false;	// We have nice comboboxes for them, skip them in the list	
+	
+	return true;
+}
+	
 static void initFeaturesList(CListview* l)
 {
 	l->Clear();
@@ -1114,12 +1124,8 @@ static void initFeaturesList(CListview* l)
 			if( it->second.group != group ) continue;
 			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
-			if( it->second.var == &gameSettings.wrappers[FT_Mod] || 
-				it->second.var == &gameSettings.wrappers[FT_Map] ||
-				it->second.var == &gameSettings.wrappers[FT_GameMode] ||
-			    it->second.var == &gameSettings.wrappers[FT_SettingsPreset] ||
-				it->second.var.ptr.i == &tLXOptions->iMaxPlayers )
-				continue;	// We have nice comboboxes for them, skip them in the list
+			if(!isSettingForGameSettingsDialog(it->second.var))
+				continue;
 			
 			if( tMenu && tMenu->iMenuType == MNU_LOCAL )
 				if( it->second.var.ptr.b == &tLXOptions->bAllowConnectDuringGame )
@@ -1132,7 +1138,7 @@ static void initFeaturesList(CListview* l)
 				if( it->second.var == &gameSettings.wrappers[FT_TeamkillDecreasesScore] ) continue;
 				if( it->second.var == &gameSettings.wrappers[FT_TeamInjure] ) continue;				
 				if( it->second.var == &gameSettings.wrappers[FT_TeamHit] ) continue;				
-			}
+			}	
 			
 			if(countGroupOpts == 0)
 				addFeautureListGroupHeading(l, group);
@@ -1203,14 +1209,12 @@ static void initFeaturesList(CListview* l)
 }
 
 	
-static void unsetVar(const std::string& varname, const ScriptVarPtr_t& var) {
+static void unsetGameSettingsVar(const std::string& varname, const ScriptVarPtr_t& var) {
 	Feature* f = featureByVar(var, false);
 	if(f)
 		// we have a game setting
 		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
-	else
-		// other setting
-		var.setDefault();
+	// NOTE: Don't reset other settings, this is anyway the wrong dialog for it.
 }
 	
 	
@@ -1287,7 +1291,7 @@ static void updateFeaturesList(CListview* l)
 		
 		CButton* resetBtn = dynamic_cast<CButton*>(item->tSubitems->tWidget);
 		if(resetBtn == l->getWidgetEvent()->cWidget) {
-			unsetVar(it->first, it->second.var);
+			unsetGameSettingsVar(it->first, it->second.var);
 			updateFeatureListItemColor(item);
 			resetItemFromVar(item, it->second.var);
 			return; // no continue because there wont be another event
@@ -1501,19 +1505,16 @@ void Menu_GameSettings_Default()
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
 		if( it->second.group == GIG_Invalid ) continue;
-		
-		if( it->first == "GameOptions.GameInfo.ModName" || 
-			it->first == "GameOptions.GameInfo.LevelName" ||
-			it->first == "GameOptions.GameInfo.GameType" )
-			continue;	// We have nice comboboxes for them, skip them in the list
 
-		unsetVar(it->first, it->second.var);
+		if(!isSettingForGameSettingsDialog(it->second.var))
+			continue;
+		
+		unsetGameSettingsVar(it->first, it->second.var);
     }
 
     CListview * features = (CListview *)cGameSettings.getWidget(gs_FeaturesList);
     features->Clear();
 	initFeaturesList(features);
-    
 }
 
 /*
