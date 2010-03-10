@@ -16,10 +16,6 @@
 #include "game/SettingsPreset.h"
 #include "game/GameMode.h"
 
-/* those are defined in CGameObject.cpp */
-float convertSpeed_GusToLX(float v);
-float convertAccel_GusToLX(float v);
-
 
 // WARNING: Keep this always synchronised with FeatureIndex!
 // Legend:	Name in options,		Human-readable-name,			Long description,	
