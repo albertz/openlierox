@@ -1204,12 +1204,13 @@ static void initFeaturesList(CListview* l)
 
 	
 static void unsetVar(const std::string& varname, const ScriptVarPtr_t& var) {
-	Feature* f = featureByVar(var);
-	if(f) { // should always be !=NULL but check anyway
+	Feature* f = featureByVar(var, false);
+	if(f)
+		// we have a game setting
 		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
-	}
 	else
-		errors << "unsetVar: feature for " << varname << " not found" << endl;
+		// other setting
+		var.setDefault();
 }
 	
 	
