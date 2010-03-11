@@ -15,13 +15,16 @@ convertfile() {
 	f="$1"
 	o="${f:0:$(expr $(lenofstr "$f") - 4)}.ogg"
 	echo -n "$(basename "$f") ..."
-	if ffmpeg -i "$f" -acodec vorbis -ac 2 "$o" >/dev/null 2>/dev/null; then
+	[ -e "$o" ] && rm "$o"
+	if ffmpeg -i "$f" -acodec vorbis -aq 60 -ac 2 "$o" >/dev/null 2>/dev/null; then
 		echo " ok"
 		rm "$f"
 	else
 		echo " failed"
 	fi
 }
+
+echo "** $1"
 
 for f in "$1"/*; do
 	if [ -d "$f" ]; then
