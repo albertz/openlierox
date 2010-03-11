@@ -1150,6 +1150,18 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				continue;
 		}
 		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
+		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -1222,7 +1234,8 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	}
 }
 
-static void setClientGameMode(CGameMode*& mode, const std::string& modeName) {
+template<typename CGameModeWrapperType>
+static void setClientGameMode(CGameModeWrapperType& mode, const std::string& modeName) {
 	if(game.isServer()) {
 		// grab from server
 		mode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
@@ -2230,6 +2243,18 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 			if(wasNotAFeatureSettingBefore((FeatureIndex)i))
 				continue;
 		}
+		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
 		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
