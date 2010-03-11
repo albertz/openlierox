@@ -266,22 +266,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
-	
-	// small cleanup (needed for example for reconnecting)
-	/*for(int i = 0; i < MAX_WORMS; i++) {
-		client->cRemoteWorms[i].setUsed(false);
-		client->cRemoteWorms[i].setAlive(false);
-		client->cRemoteWorms[i].setKills(0);
-		client->cRemoteWorms[i].setDeaths(0);
-		client->cRemoteWorms[i].setTeamkills(0);
-		client->cRemoteWorms[i].setLives(WRM_OUT);
-		client->cRemoteWorms[i].setProfile(NULL);
-		client->cRemoteWorms[i].setType(PRF_HUMAN);
-		client->cRemoteWorms[i].setLocal(false);
-		client->cRemoteWorms[i].setTagIT(false);
-		client->cRemoteWorms[i].setTagTime(TimeDiff(0));
-		client->cRemoteWorms[i].setClientVersion(Version());
-	}*/
 
 	if( client->iNumWorms < 0 ) {
 		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
