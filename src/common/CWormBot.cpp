@@ -965,7 +965,7 @@ void CWormBotInputHandler::startGame() {
 		// it's fine, we support that game mode
 	}
 	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == NULL) {
-		warnings << "bot: gamemode " << cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name << " is unknown" << endl;
+		warnings << "bot: gamemode " << (std::string)cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name << " is unknown" << endl;
 	} else {
 		warnings << "bot: support for gamemode " << cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->Name()
 				<< " is currently not implemented" << endl;

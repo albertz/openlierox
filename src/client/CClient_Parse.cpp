@@ -1238,7 +1238,7 @@ template<typename CGameModeWrapperType>
 static void setClientGameMode(CGameModeWrapperType& mode, const std::string& modeName) {
 	if(game.isServer()) {
 		// grab from server
-		mode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		mode = (CGameMode*)gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		
 		// overwrite in case of single player mode
 		// we do this so in case we have a standard mode, the bots can act normal

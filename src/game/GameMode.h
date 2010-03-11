@@ -15,12 +15,32 @@
 
 class CGameMode;
 
-struct GameModeInfo : CustomVar {
+class GameModeInfo : public CustomVar {
+private:
+	CGameMode* m_mode;
+	int m_generalGameType;
+	std::string m_name;
+	
+public:	
 	GameModeInfo();
-	CGameMode* mode;
-	int generalGameType;
-	std::string name;
 
+	struct ModeWrapper {
+		ModeWrapper& operator=(CGameMode* m);
+		operator CGameMode*() const;
+		CGameMode* operator->() const { return (CGameMode*)(*this); }
+	} mode;
+	
+	struct GenTypeWrapper {
+		GenTypeWrapper& operator=(int t);
+		operator int() const;
+	} generalGameType;
+	
+	struct NameWrapper {
+		NameWrapper& operator=(const std::string& n);
+		operator std::string() const;
+	} name;
+	
+// CustomVar interface	
 	virtual CustomVar* copy() const { return new GameModeInfo(*this); }
 	virtual bool operator==(const CustomVar&) const;
 	virtual bool operator<(const CustomVar&) const;
