@@ -525,7 +525,7 @@ void InitGameModes() {}
 
 CGameMode* GameMode(GameModeIndex i) {
 	if(i < 0 || (uint)i >= gameModesSize) {
-		errors << "gamemode " << i << " requested, we don't have such one" << endl;
+		errors << "GameMode(): gamemode index " << i << " requested, we don't have such one" << endl;
 		return NULL;
 	}
 	
@@ -537,7 +537,7 @@ CGameMode* GameMode(const std::string& name) {
 		if(name == gameModes[i]->Name())
 			return gameModes[i];
 	}
-	warnings << "gamemode " << name << " requested, we don't have such one" << endl;
+	warnings << "GameMode(): gamemode name " << name << " requested, we don't have such one" << endl;
 	return NULL;
 }
 
