@@ -119,7 +119,7 @@ T* pointer_cast_and_align(const char* p) {
 // You must call init/uninit here yourself!
 template<typename T>
 struct PODForClass {
-	char data[sizeof(T) + __alignof__(T)];
+	char data[sizeof(T) + boost::alignment_of<T>::value];
 	T& get() { return *pointer_cast_and_align<T>(data); }
 	operator T&() { return get(); }
 	const T& get() const { return *pointer_cast_and_align<T>(data); }
