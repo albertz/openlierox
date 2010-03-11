@@ -99,16 +99,22 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 	if(!SoundSystemAvailable) return NULL;
 	
 	if(_filename.size() == 0) return NULL;
+	std::string filenameWithoutExt = GetFilenameWithoutExt(_filename);
 	
 	// Try cache first
-	SmartPointer<SoundSample> SampleCached = cCache.GetSound(_filename);
+	SmartPointer<SoundSample> SampleCached = cCache.GetSound(filenameWithoutExt);
 	if (SampleCached.get())
 		return SampleCached;
 
 	SmartPointer<SoundSample> Sample = sfx.getDriver()->load(_filename);
+	
+	// in case we failed and it was not an ogg file, try again the same filename with ogg instead
+	if((!Sample.get() || !Sample->avail()) && !stringcaseequal( GetFileExtensionWithDot(_filename), ".ogg" ))
+		Sample = sfx.getDriver()->load(filenameWithoutExt + ".ogg");
+	
 	if(Sample.get() && Sample->avail()) {
 		Sample->maxSimultaniousPlays = maxplaying;
-		cCache.SaveSound(_filename, Sample); // Save to cache
+		cCache.SaveSound(filenameWithoutExt, Sample); // Save to cache
 		return Sample;
 	}
 
