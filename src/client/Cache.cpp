@@ -270,6 +270,12 @@ void CCache::Clear()
 	SoundCache.clear();
 }
 
+void CCache::ClearSounds() {
+	ScopedLock lock(mutex);
+	SoundCache.clear();
+}
+
+
 ///////////////////////
 // Get the number of memory occupied (in bytes)
 size_t CCache::GetCacheSize()

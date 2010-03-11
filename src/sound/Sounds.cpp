@@ -182,6 +182,7 @@ bool QuitSoundSystem() {
 	if(!SoundSystemAvailable) return false;
 	SoundSystemAvailable = false;
 
+	cCache.ClearSounds();
 	sfx.shutDown();
 	return true;
 }
