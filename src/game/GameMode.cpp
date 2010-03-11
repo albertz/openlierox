@@ -36,6 +36,11 @@ bool GameModeInfo::fromString( const std::string & str) {
 	m_generalGameType = 0;
 	m_name = "";
 	
+	if(str == "") {
+		m_mode = NULL;
+		return true;
+	}
+	
 	bool fail = false;
 	int num = from_string<int>(str, fail);
 	if(!fail) {
@@ -88,9 +93,10 @@ GameModeInfo::NameWrapper& GameModeInfo::NameWrapper::operator=(const std::strin
 	GameModeInfo* info = __OLX_BASETHIS(GameModeInfo, name);
 	
 	// NOTE: The difference to fromString is that we don't reset generalgametype/name in case we fail here.
+	// Also, we interpret an empty string as the request to reset (gamemodeindex=0).
 	
 	bool fail = false;
-	int num = from_string<int>(str, fail);
+	int num = (str == "") ? 0 : from_string<int>(str, fail);
 	if(!fail) {
 		// interpret num as gamemode index
 		info->m_mode = GameMode((GameModeIndex)num);
