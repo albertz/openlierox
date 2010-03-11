@@ -684,7 +684,6 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.Add( new CButton(BUT_START, tMenu->bmpButtons),hl_Start,	560, 450, 60,  15);
 	cHostLobby.Add( new CButton(BUT_BANNED, tMenu->bmpButtons),hl_Banned,	450, 450, 90,  15);
 	cHostLobby.Add( new CButton(BUT_SERVERSETTINGS, tMenu->bmpButtons),hl_ServerSettings,	250, 450, 190, 15);
-    cHostLobby.Add( new CBrowser(),                          hl_ChatList, 15,  268, 610, 150);
 
 	
 	int y = minimapy + 105;
@@ -708,6 +707,8 @@ void Menu_Net_HostLobbyCreateGui()
 	cHostLobby.AddBack( new CButton(BUT_GAMESETTINGS, tMenu->bmpButtons), hl_GameSettings, 360, y, 170,15);
 	y += 22;
     cHostLobby.AddBack( new CButton(BUT_WEAPONOPTIONS,tMenu->bmpButtons), hl_WeaponOptions,360, y, 185,15);
+
+	cHostLobby.AddBack( new CBrowser(),                          hl_ChatList, 15,  268, 610, 150);
 
 	cHostLobby.Add( new CListview(),				hl_PlayerList, 15, 15, 325, 220);
 	cHostLobby.Add( new CCheckbox(bStartDedicated),	hl_StartDedicated,			15,  244, 17, 17);
