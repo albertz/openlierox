@@ -1008,10 +1008,10 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
-	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365+70, 155, 80,15);
-	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285+70, 155, 70, 15);
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365+40, 155, 80,15);
+	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285+40, 155, 70, 15);
 	float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
-	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450+70, 155, 70, 15);
+	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450+40, 155, 70, 15);
 
 	CListview* features = new CListview();
 	cGameSettings.Add( features, gs_FeaturesList, 95 - 35, 170, 450 + 70, 205);

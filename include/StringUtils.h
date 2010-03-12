@@ -151,6 +151,7 @@ std::string		GetFileExtension(const std::string& filename);
 std::string		GetFileExtensionWithDot(const std::string& filename);
 std::string		GetBaseFilename(const std::string& filename);
 std::string		GetBaseFilenameWithoutExt(const std::string& filename);
+std::string		GetFilenameWithoutExt(const std::string& filename);
 std::list<std::string> SplitFilename(const std::string& filename, size_t numPartsFromRight = (size_t)-1); // splits fn by PathSep
 std::string		GetDirName(const std::string& filename);
 bool			FilenameSimplePatternMatch(const std::string& filename, const std::string& pattern);

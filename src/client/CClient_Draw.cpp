@@ -2772,12 +2772,8 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
-	static const std::string gmt_names[] = {"Death Match", "Team DM", "Tag", "Demolition"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
-	if(getGameLobby()[FT_GameMode].as<GameModeInfo>()->name == "")
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
-	else
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, getGameLobby()[FT_GameMode].as<GameModeInfo>()->name); // TODO: Limit the name length?
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, getGameLobby()[FT_GameMode].as<GameModeInfo>()->toString()); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");

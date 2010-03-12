@@ -42,6 +42,7 @@ public:
 	CCache(const CCache&) { assert(false); }
 	CCache& operator=(const CCache&) { assert(false); return *this; }
 	void Clear();
+	void ClearSounds();
 	void ClearExtraEntries(); // Clears cache partially - should be called from time to time
 
 	SmartPointer<SDL_Surface>	GetImage__unsafe(const std::string& file);

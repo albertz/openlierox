@@ -266,22 +266,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
-	
-	// small cleanup (needed for example for reconnecting)
-	/*for(int i = 0; i < MAX_WORMS; i++) {
-		client->cRemoteWorms[i].setUsed(false);
-		client->cRemoteWorms[i].setAlive(false);
-		client->cRemoteWorms[i].setKills(0);
-		client->cRemoteWorms[i].setDeaths(0);
-		client->cRemoteWorms[i].setTeamkills(0);
-		client->cRemoteWorms[i].setLives(WRM_OUT);
-		client->cRemoteWorms[i].setProfile(NULL);
-		client->cRemoteWorms[i].setType(PRF_HUMAN);
-		client->cRemoteWorms[i].setLocal(false);
-		client->cRemoteWorms[i].setTagIT(false);
-		client->cRemoteWorms[i].setTagTime(TimeDiff(0));
-		client->cRemoteWorms[i].setClientVersion(Version());
-	}*/
 
 	if( client->iNumWorms < 0 ) {
 		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
@@ -1150,6 +1134,18 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				continue;
 		}
 		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
+		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -1222,10 +1218,11 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	}
 }
 
-static void setClientGameMode(CGameMode*& mode, const std::string& modeName) {
+template<typename CGameModeWrapperType>
+static void setClientGameMode(CGameModeWrapperType& mode, const std::string& modeName) {
 	if(game.isServer()) {
 		// grab from server
-		mode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		mode = (CGameMode*)gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		
 		// overwrite in case of single player mode
 		// we do this so in case we have a standard mode, the bots can act normal
@@ -2231,6 +2228,18 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 				continue;
 		}
 		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
+		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -2282,8 +2291,8 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		if (client->cRemoteWorms[id].getHookedWorm())
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		
-		client->cRemoteWorms[id].Kill();
+		if(!client->cRemoteWorms[id].getLocal()) // local worms killed itself already in CClient::InjureWorm
+			client->cRemoteWorms[id].Kill();
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 

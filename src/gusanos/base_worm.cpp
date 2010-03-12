@@ -825,6 +825,8 @@ void CWorm::base_die() {
 	}
 	
 	bAlive = false;
+	fTimeofDeath = tLX->currentTime;
+
 	if (m_owner) {
 		gusGame.displayKillMsg(m_owner, m_lastHurt); //TODO: Record what weapon it was?
 	}
