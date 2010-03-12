@@ -46,7 +46,9 @@ BaseAction* newAction(vector<OmfgScript::TokenBase*> const& params )
 
 void registerGameActions()
 {
-	namespace af = OmfgScript::ActionParamFlags;
+	namespace af {
+		typedef OmfgScript::ActionParamFlags::Object Object;
+	};
 	
 	gameActions.add("shoot_particles", newAction<ShootParticles>, af::Object)
 		("type", false)
