@@ -2185,6 +2185,12 @@ void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 }
 
 
+COMMAND(getGameState, "get game state", "", 0, 0);
+void Cmd_getGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	GameState state = currentGameState();
+	caller->pushReturnArg(GameStateAsString(state));
+}
+
 
 COMMAND(dumpGameState, "dump game state", "", 0, 0);
 void Cmd_dumpGameState::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
