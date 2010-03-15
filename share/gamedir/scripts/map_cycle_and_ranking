@@ -43,7 +43,7 @@ def parseWormDied(sig):
 	except IOError:
 		io.msg("ERROR: Unable to open pwn0meter.txt")
 
-	if not killerID in io.getComputerWormList():
+	if not killerID in io.getComputerWormList() and killerName != "OpenLieroXor":
 		if deaderID == killerID:
 			try:
 				ranking.rank[killerName][2] += 1
@@ -54,6 +54,7 @@ def parseWormDied(sig):
 				ranking.rank[killerName][0] += 1
 			except KeyError:
 				ranking.rank[killerName] = [1,0,0,len(ranking.rank)+1]
+
 	if not deaderID in io.getComputerWormList():
 		try:
 			ranking.rank[deaderName][1] += 1

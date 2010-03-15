@@ -17,11 +17,13 @@ def ParseRank(useRatios = True):
                         l = f.readline()
                         continue
                 ( date, deader, killer ) = l.split("\t")
-                if not killer in killers.keys():
+
+		killerOk = killer != "OpenLieroXor"
+                if not killer in killers.keys() and killerOk:
                         killers[killer] = []
                 if not deader in deaders.keys():
                         deaders[deader] = []
-                killers[killer].append(deader)
+		if killerOk: killers[killer].append(deader)
                 deaders[deader].append(killer)
                 l = f.readline()
         f.close()
