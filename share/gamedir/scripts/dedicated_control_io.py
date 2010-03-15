@@ -176,6 +176,9 @@ def getFullFileName(fn):
 def getWriteFullFileName(fn):
 	return SendCommand( "getwritefullfilename \"%s\"" % fn )[0]
 
+def getGameState():
+	return SendCommand("getGameState")[0]
+
 def listMaps():
 	return SendCommand("listmaps")
 
