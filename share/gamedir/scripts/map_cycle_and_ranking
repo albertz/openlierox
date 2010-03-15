@@ -14,9 +14,12 @@ while len(levels) == 0:
 	levels = io.listMaps()
 	time.sleep(1)
 
-# Filter out LX levels. (This probably can be removed once 0.59 becomes stable.)
-levels = [ x for x in levels if x.endswith(".lxl") ]
-# We could also filter out further maps here.
+if float(re.match("([A-Za-z]+/)?(?P<num>[0-9]+\.[0-9]+).*", io.getVar("GameOptions.Network.ForceMinVersion")).group("num")) + 0.001 < 0.59:
+	io.msg("LX levels only")
+	levels = [ x for x in levels if x.endswith(".lxl") ]
+else:
+	io.msg("all levels")
+
 
 def wormName(id):
 	if id < 0: return None
