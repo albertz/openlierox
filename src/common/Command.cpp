@@ -1843,9 +1843,6 @@ void Cmd_map::exec(CmdLineIntf* caller, const std::vector<std::string>& params) 
 		return;
 	}
 	
-	if(filename.find(".") == std::string::npos)
-		filename += ".lxl";
-	
 	if(!mapList->includes(filename)) {
 		caller->writeMsg("map '" + filename + "' not found", CNC_WARNING);
 		return;
