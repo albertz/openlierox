@@ -473,6 +473,10 @@ mapCreate:
 		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
 			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
 
+		/* fix some broken settings */
+		if((int)gameSettings[FT_Lives] < 0 && (int)gameSettings[FT_Lives] != WRM_UNLIM)
+			(*gameSettings.layerFor(FT_Lives))[FT_Lives] = (int)WRM_UNLIM;
+
 		gameSettings.dumpAllLayers();
 	}
 
@@ -713,15 +717,14 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// For spectators: set their lives to out and tell clients about it
 	for (int i = 0; i < MAX_WORMS; i++)  {
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
+			notes << "BeginMatch: worm " << i << ":" << cWorms[i].getName() << " is spectating" << endl;
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
-			if(receiver)
-				receiver->getNetEngine()->SendWormScore( & cWorms[i] );
-			else
-				for(int ii = 0; ii < MAX_CLIENTS; ii++)
+			for(int ii = 0; ii < MAX_CLIENTS; ii++)
+				if(cClients[ii].isConnected())
 					cClients[ii].getNetEngine()->SendWormScore( & cWorms[i] );
 		}
 	}
