@@ -1789,12 +1789,12 @@ void Cmd_startLobby::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 COMMAND(startGame, "start game", "", 0, 0);
 void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
-		caller->writeMsg("cannot start game as client");
+		caller->pushReturnArg("cannot start game as client");
 		return;
 	}
 	
 	if(cServer->getNumPlayers() <= 1 && !gameSettings[FT_AllowEmptyGames]) {
-		caller->writeMsg("cannot start game, too few players");
+		caller->pushReturnArg("cannot start game, too few players");
 		return;
 	}
 
@@ -1815,7 +1815,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	// Start the game
 	std::string errMsg;
 	if(!cServer->StartGame(&errMsg)) {
-		caller->writeMsg("cannot start game, got error: " + errMsg);
+		caller->pushReturnArg("cannot start game, got error: " + errMsg);
 		cCache.ClearExtraEntries(); // just to be sure
 		return;
 	}
