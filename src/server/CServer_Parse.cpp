@@ -2012,7 +2012,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	bs.writeFloat(gameSettings[FT_GameSpeed]);
 	
 	// since Beta9
-	CServerNetEngineBeta9::WriteFeatureSettings(&bs);
+	CServerNetEngineBeta9::WriteFeatureSettings(&bs, Version());
 
 	// Game mode name
 	bs.writeString(game.gameMode()->Name());

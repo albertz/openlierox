@@ -238,9 +238,13 @@ void CServerNetEngineBeta9::WritePrepareGame(CBytestream *bs)
 
 	bs->writeFloat(game.gameMode()->TimeLimit() / 60.0f);
 
-	// We have send the full feature array here. We do this now with an UpdateGameLobby packet seperately.
-	// To keep compatibility, just send an empty list.
-	bs->writeInt(0, 2);
+	if(cl->getClientVersion() < OLXBetaVersion(0,59,7))
+		// older clients are buggy and depend on this
+		WriteFeatureSettings(bs, cl->getClientVersion());
+	else
+		// We have send the full feature array here. We do this now with an UpdateGameLobby packet seperately.
+		// To keep compatibility, just send an empty list.
+		bs->writeInt(0, 2);
 	
 	bs->writeString(game.gameMode()->Name());
 	
@@ -644,7 +648,7 @@ bool GameServer::checkUploadBandwidth(float fCurUploadRate) {
 	return fCurUploadRate < fMaxRate;
 }
 
-void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
+void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs, const Version& compatVer) {
 	int ftC = featureArrayLen();
 	assert(ftC < 256*256);
 	CBytestream bs1;
@@ -656,6 +660,11 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs) {
 		{
 			if( gameSettings.hostGet(f->get()) == f->get()->unsetValue ) // Do not send a feature if it has default value = LX56 behavior
 				continue;
+
+			if(compatVer < OLXBetaVersion(0,59,7))
+				if(f->get()->valueType == SVT_CUSTOM) // unsupported on old clients
+					continue;
+
 			sendCount ++;
 			bs1.writeString( f->get()->name );
 			bs1.writeString( f->get()->humanReadableName );
@@ -700,7 +709,7 @@ void CServerNetEngineBeta9::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	CServerNetEngineBeta7::WriteUpdateLobbyGame(bs);
 	bs->writeFloat(game.gameMode()->TimeLimit() / 60.0f);
-	CServerNetEngineBeta9::WriteFeatureSettings(bs);
+	CServerNetEngineBeta9::WriteFeatureSettings(bs, cl->getClientVersion());
 	bs->writeString(game.gameMode()->Name());
 }
 
