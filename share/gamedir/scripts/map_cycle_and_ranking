@@ -32,7 +32,7 @@ def parseWormDied(sig):
 
 	try:
 		f = open(io.getWriteFullFileName("pwn0meter.txt"),"a")
-		if not killerID in io.getComputerWormList():
+		if killerName and deaderName and not killerID in io.getComputerWormList():
 			try:
 				portalocker.lock(f, portalocker.LOCK_EX)
 			except:
