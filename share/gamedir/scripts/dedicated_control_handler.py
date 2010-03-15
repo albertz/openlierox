@@ -223,7 +223,7 @@ def parseNewWorm(wormID, name):
 
 	worms[wormID] = worm
 
-	if io.getGameType() == "Hide and Seek": # TODO, Verify --> "Hide and Seek" <--  is correct! It said --> 4 <-- before!
+	if io.getGameType() == "Hide and Seek":
 		minSeekers = 1
 		if len(worms.values()) >= 4: minSeekers = 2
 		if io.getNumberWormsInTeam(1) < minSeekers:
