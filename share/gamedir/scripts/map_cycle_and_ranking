@@ -19,13 +19,12 @@ levels = [ x for x in levels if x.endswith(".lxl") ]
 # We could also filter out further maps here.
 
 def wormName(id):
+	if id < 0: return None
 	name = io.getWormName(id)
 	name = name.replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
 	return name
 
 def parseWormDied(sig):
-	global worms
-
 	deaderID = int(sig[1])
 	killerID = int(sig[2])
 	deaderName = wormName(deaderID)
@@ -43,7 +42,7 @@ def parseWormDied(sig):
 	except IOError:
 		io.msg("ERROR: Unable to open pwn0meter.txt")
 
-	if not killerID in io.getComputerWormList() and killerName != "OpenLieroXor":
+	if killerID >= 0 and not killerID in io.getComputerWormList() and killerName != "OpenLieroXor":
 		if deaderID == killerID:
 			try:
 				ranking.rank[killerName][2] += 1
