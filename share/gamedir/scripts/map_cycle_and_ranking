@@ -1,0 +1,107 @@
+#!/usr/bin/python -u
+
+import sys, os, time, random, re
+sys.path.append( os.path.dirname(sys.argv[0]) )
+import dedicated_control_io as io
+import dedicated_control_ranking as ranking
+import portalocker
+
+
+# Repeat until we got the map list.
+# We repeat this because right at OLX startup, it may return an empty list.
+levels = []
+while len(levels) == 0:
+	levels = io.listMaps()
+	time.sleep(1)
+
+# Filter out LX levels. (This probably can be removed once 0.59 becomes stable.)
+levels = [ x for x in levels if x.endswith(".lxl") ]
+# We could also filter out further maps here.
+
+def wormName(id):
+	name = io.getWormName(id)
+	name = name.replace("\t", " ").strip() # Do not allow tab in names, it will screw up our ranking tab-separated text-file database
+	return name
+
+def parseWormDied(sig):
+	global worms
+
+	deaderID = int(sig[1])
+	killerID = int(sig[2])
+	deaderName = wormName(deaderID)
+	killerName = wormName(killerID)
+
+	try:
+		f = open(io.getWriteFullFileName("pwn0meter.txt"),"a")
+		if not killerID in io.getComputerWormList():
+			try:
+				portalocker.lock(f, portalocker.LOCK_EX)
+			except:
+				pass
+			f.write( time.strftime("%Y-%m-%d %H:%M:%S") + "\t" + deaderName + "\t" + killerName + "\n" )
+		f.close()
+	except IOError:
+		io.msg("ERROR: Unable to open pwn0meter.txt")
+
+	if not killerID in io.getComputerWormList():
+		if deaderID == killerID:
+			try:
+				ranking.rank[killerName][2] += 1
+			except KeyError:
+				ranking.rank[killerName] = [0,0,1,len(ranking.rank)+1]
+		else:
+			try:
+				ranking.rank[killerName][0] += 1
+			except KeyError:
+				ranking.rank[killerName] = [1,0,0,len(ranking.rank)+1]
+	if not deaderID in io.getComputerWormList():
+		try:
+			ranking.rank[deaderName][1] += 1
+		except KeyError:
+			ranking.rank[deaderName] = [0,1,0,len(ranking.rank)+1]
+
+
+def signalHandler(sig):
+	signame = sig[0]
+
+	if signame == "quit":
+		exit()
+	
+	if signame == "backtolobby" or signame == "lobbystarted":
+		ranking.refreshRank()
+		io.SendCommand("map \"%s\"" % random.choice(levels))
+
+	if signame in [ "backtolobby", "lobbystarted", "newworm" ] and not io.getGameState() in [ "S_SVRPLAYING", "S_SVRWEAPONS" ]:
+		ret = io.SendCommand("startGame")
+		if len(ret) > 0: # this means an error
+			io.chatMsg(ret[0])
+
+	if signame == "chatmessage":
+		wormID = int(sig[1])
+		message = sig[2]
+		
+		cmd = re.match("!(?P<cmd>[A-Za-z]+)(?P<params>( .*)?)", message)
+		if cmd:
+			params = cmd.group("params").strip()
+			cmd = cmd.group("cmd").lower()
+			if cmd == "rank":
+				name = wormName(wormID)
+				if len(params) > 0:
+					name = params
+				ranking.myRank(name, wormID)
+
+			elif cmd == "toprank":
+				ranking.firstRank(wormID)
+			
+			else:
+				io.privateMsg(wormID, "sorry, that command is not supported")
+
+	if signame == "wormdied":
+		parseWormDied(sig)
+
+
+# This will start the server.
+io.startLobby(0)
+
+while True:
+	signalHandler(io.getSignal())
