@@ -43,9 +43,8 @@ GLOBAL_SETTINGS = {
 
 	# Various options that should be set, you don't need to touch them in most cases
 
-	"GameOptions.GameInfo.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
-	"GameOptions.GameInfo.AllowNickChange":         1,
-	"GameOptions.GameInfo.AllowStrafing":           1,
+	"GameOptions.Server.ServerSideHealth":        0, # Turn this on if ppl hack and don't die on your server
+	"GameOptions.Server.AllowNickChange":         1,
 	"GameOptions.Network.AllowRemoteBots":          1,
 	"GameOptions.Network.AllowWantsJoinMsg":        1,
 	"GameOptions.Network.WantsToJoinFromBanned":    0,
