@@ -18,21 +18,20 @@ levels = [ x for x in levels if x.endswith(".lxl") ]
 
 
 def signalHandler(sig):
-	header = sig[0]
+	signame = sig[0]
 
-	if header == "quit":
+	if signame == "quit":
 		exit()
 	
-	elif header == "backtolobby" or header == "lobbystarted":
+	if signame == "backtolobby" or signame == "lobbystarted":
 		# select next map
 		io.SendCommand("map \"%s\"" % random.choice(levels))
 
-	elif header == "timer":
-		# ignore
-		return
+	if signame in [ "backtolobby", "lobbystarted", "newworm" ] and not io.getGameState() in [ "S_SVRPLAYING", "S_SVRWEAPONS" ]:
+		ret = io.SendCommand("startGame")
+		if len(ret) > 0: # this means an error
+			io.chatMsg(ret[0])
 
-	if io.getGameState() != "S_SVRPLAYING":
-		io.startGame()
 
 
 # This will start the server.
