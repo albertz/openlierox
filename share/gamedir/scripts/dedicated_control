@@ -3,10 +3,6 @@
 # Dedicated Control handler script for OpenLieroX
 # (http://openlierox.sourceforge.net)
 
-# We're expecting this file to be run from "scripts" dir - that's from rev. 3260 or so
-# TODO: NO, we are not expecting this!
-# It was only done because this script is buggy and does not work otherwise.
-
 import os, sys, time
 
 # Print Python script errors to external file -
@@ -36,17 +32,15 @@ __builtins__.cfg = cfg # Make it accessible from all modules
 
 import dedicated_control_handler as hnd # control handler
 
+
 ## The game loop ##
 
 hnd.init()
 
 io.messageLog("Dedicated_control started",io.LOG_INFO)
 
-def MainLoop():
-	hnd.signalHandler(io.getSignal())
-
-
+# main loop
 while hnd.gameState != hnd.GAME_QUIT:
-	MainLoop()
+	hnd.signalHandler(io.getSignal())
 
 io.messageLog("Dedicated_control stopped",io.LOG_INFO)

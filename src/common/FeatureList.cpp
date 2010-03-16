@@ -25,7 +25,7 @@
 
 Feature featureArray[] = {
 
-Feature( "Lives", "Lives", "Lives",-1,-1, Version(), GIG_General, ALT_Basic, -1, 150, true, false/*not exactly sure*/, true ),
+Feature( "Lives", "Lives", "Lives",-2,-2, Version(), GIG_General, ALT_Basic, -1, 150, true, false/*not exactly sure*/, true ),
 Feature( "KillLimit", "Max kills", "Game ends when a player reaches the specified number of kills", 15,15, Version(), GIG_General, ALT_Basic, -1, 150, true, true, true ),
 Feature( "TimeLimit", "Time limit", "Time limit, in minutes", 6.0f,6.0f, Version(), GIG_General, ALT_Basic, -0.15f, 20.0f, true,true, true ),
 Feature( "TagLimit", "Tag limit", "Tag limit, for Tag game mode. It's the time how long a player must be tagged until the game ends", 5.0f,5.0f, Version(), GIG_Tag, ALT_Basic,1.0f, 150.0f,true,true, true ),
