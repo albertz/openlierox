@@ -717,6 +717,9 @@ static bool wasNotAFeatureSettingBefore(FeatureIndex i) {
 // Parse a prepare game packet
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
+	// TODO: remove that as soon as we do the map loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+
 	notes << "Client: Got ParsePrepareGame" << endl;
 
 	bool isReconnect = false;

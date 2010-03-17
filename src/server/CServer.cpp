@@ -349,6 +349,9 @@ void GameServer::SetSocketWithEvents(bool v) {
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::StartGame(std::string* errMsg)
 {	
+	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
 	// Check that gamespeed != 0

@@ -2306,10 +2306,7 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 ///////////////////
 // Load the map
 bool CMap::Load(const std::string& filename)
-{
-	// TODO: remove that as soon as we do the map loading in a seperate thread
-	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
-	
+{	
 	// Weird
 	if (filename == "") {
 		warnings("WARNING: loading unnamed map, ignoring ...\n");
