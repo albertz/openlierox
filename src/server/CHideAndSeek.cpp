@@ -271,8 +271,8 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 	}*/
 
 	for(int i = 0; i < MAX_WORMS; i++) {
-		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
-			continue;
+		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam()) continue;
+		if(cServer->getWorms()[i].getType() == PRF_COMPUTER) continue;
 		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
@@ -291,8 +291,8 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 
 	for(int i = 0; i < MAX_WORMS; i++) {
-		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
-			continue;
+		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam()) continue;
+		if(cServer->getWorms()[i].getType() == PRF_COMPUTER) continue;
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
