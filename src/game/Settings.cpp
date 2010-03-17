@@ -79,7 +79,7 @@ bool FeatureSettingsLayer::loadFromConfig(const std::string& cfgfile, bool reset
 		if(f) {
 			FeatureIndex fi = featureArrayIndex(f);
 			isSet[fi] = true;
-			if(!(*this)[fi].fromString(i->second))
+			if(!set(fi).fromString(i->second))
 				notes << "loadFromConfig " << cfgfile << ": cannot understand: " << i->first << " = " << i->second << endl;
 		}
 		else {
