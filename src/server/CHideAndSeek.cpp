@@ -23,6 +23,7 @@
 #include "olx-types.h"
 #include "Cache.h"
 #include "game/Game.h"
+#include "ProfileSystem.h"
 
 class CHideAndSeek : public CGameMode {
 public:
@@ -109,7 +110,8 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 		replace(networkTexts->sSeekerMessage, "<time>", itoa((int)fGameLength), teamhint[1]);
 
 	// Gameplay hints
-	worm->getClient()->getNetEngine()->SendText(teamhint[CLAMP(worm->getTeam(),0,1)], TXT_NORMAL);
+	if(worm->getType() != PRF_COMPUTER)
+		worm->getClient()->getNetEngine()->SendText(teamhint[CLAMP(worm->getTeam(),0,1)], TXT_NORMAL);
 }
 
 bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
@@ -258,7 +260,7 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 	if(visible[worm->getID()]) return;
 	makeVisible(worm, true);
 
-	if(worm->getTeam() == HIDEANDSEEK_HIDER && message)  {
+	if(worm->getType() != PRF_COMPUTER && worm->getTeam() == HIDEANDSEEK_HIDER && message)  {
 		if (networkTexts->sHiderVisible != "<none>")
 			worm->getClient()->getNetEngine()->SendText(networkTexts->sHiderVisible, TXT_NORMAL);
 	}
@@ -285,7 +287,7 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 	makeVisible(worm, false);
 
 	// Removed message for seekers because it is confusing since they don't get the "you are visible" one
-	if(networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDEANDSEEK_HIDER)
+	if(worm->getType() != PRF_COMPUTER && networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDEANDSEEK_HIDER)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 
 	for(int i = 0; i < MAX_WORMS; i++) {
