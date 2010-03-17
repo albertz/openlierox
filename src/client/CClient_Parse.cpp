@@ -735,13 +735,15 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			int handle() {
 				int c = 0;
 				while(true) {
-					ThreadVar<bool>::Reader s(*scope.get());
-					if(!s.get()) break;
-					
-					if(c == 1) {
-						// This will kind of keep us alive.
-						CBytestream emptyUnreliable;
-						chan->Transmit(&emptyUnreliable);
+					{
+						ThreadVar<bool>::Reader s(*scope.get());
+						if(!s.get()) break;
+						
+						if(c == 1) {
+							// This will kind of keep us alive.
+							CBytestream emptyUnreliable;
+							chan->Transmit(&emptyUnreliable);
+						}
 					}
 					c++; c %= 10;
 					SDL_Delay(100);
