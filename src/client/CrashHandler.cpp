@@ -30,12 +30,14 @@
 // WIN 32
 //
 
+#if defined(WIN32)
+
 #if defined(_MSC_VER)
-
 #define itoa _itoa
+#endif
 
-#include <DbgHelp.h>
-#include <ShlObj.h>
+#include <dbghelp.h>
+#include <shlobj.h>
 #include "FindFile.h" // for IsFileAvailable and mkdir
 #include "Cache.h"  // For freeing the cache
 #include "CGameMode.h"
@@ -67,7 +69,7 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 {
 	// Get the path
 	char buf[1024];
-	if (!SHGetSpecialFolderPath(NULL, buf, CSIDL_PERSONAL, false))  {
+	if (!SHGetSpecialFolderPathA(NULL, buf, CSIDL_PERSONAL, false))  {
 		buf[0] = '\0';
 		strcpy(buf, "bug_reports");
 	} else  {
@@ -81,6 +83,9 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 		fix_markend(buf);
 	}
 	CreateDirectory(buf, NULL);
+	char dirname[1024];
+	strcpy(dirname, buf);
+	
 	strncat(buf, "\\", sizeof(buf));
 
 	// Get the file name
@@ -102,7 +107,10 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	}
 
 	OlxWriteCoreDump_Win32(checkname, pExInfo);
-
+	
+	BreakPad::LaunchUploader(dirname, checkname + strlen(dirname) + 1, NULL, true);
+	/*
+	#ifdef _MSC_VER
 	// Try to free the cache, it eats a lot of memory
 	__try {
 		cCache.Clear();
@@ -121,11 +129,14 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 			delete convoLogger;
 	}
 	__except(EXCEPTION_EXECUTE_HANDLER) {}
-
+	#endif
+	
 	// Close all opened files
 	fcloseall();
+	*/
+	
 
-
+	/*
 	strncpy(&buf[1], checkname, sizeof(buf) - 1);
 	buf[0] = '\"';
 	strncat(buf, "\"", sizeof(buf));
@@ -134,7 +145,8 @@ LONG WINAPI CustomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExInfo)
 	// If ded server is running as service user won't see any dialog anyway
 	if (!bDedicated)
 		ShellExecute(NULL,"open","BugReport.exe",buf,NULL,SW_SHOWNORMAL);
-
+	*/
+	
 	// If running as a dedicated server, restart the application (there usually isn't any person sitting
 	// at the computer to fix this problem)
 	// If ded server is running as service it's restarted automatically

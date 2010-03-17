@@ -410,8 +410,61 @@ void OlxWriteCoreDump(const char* file_postfix) {
 // MingW case for coredump, maybe later also others
 #else
 
-void OlxWriteCoreDump(const char*) {
-	errors << "Coredumping not supported in this version" << endl;
+static void GdbWriteCoreDump(const char* fname) {
+	// WARNING: this is terribly slow like this
+	char olxExe[1024];
+	GetModuleFileName(NULL, olxExe, sizeof(olxExe));
+	char tmp[1024];
+	GetModuleFileName(NULL, tmp, sizeof(tmp));
+	char * gdbExe = strrchr(tmp, '\\');
+	
+	if( gdbExe == NULL )
+	{
+		strcpy(tmp, ".");
+		gdbExe = tmp+1;
+	}
+	strcpy(gdbExe, "\\gdb.exe");
+	
+	char gdbparam[4096];
+	sprintf(gdbparam,
+			"\"%s\" --batch --quiet "
+			"-ex \"set width 0\" "
+			"-ex \"set height 0\" "
+			"-ex \"thread apply all bt full\" "
+			"-ex detach -ex quit "
+			"\"%s\" %u", 
+			tmp, olxExe, (unsigned)GetCurrentProcessId() );
+
+	STARTUPINFO st;
+	PROCESS_INFORMATION pi;
+	memset(&st, 0, sizeof(st));
+	memset(&pi, 0, sizeof(pi));
+	st.cb = sizeof(st);
+	st.dwFlags |= STARTF_USESTDHANDLES;
+    st.hStdInput = INVALID_HANDLE_VALUE;
+	st.hStdOutput = ::CreateFileA(fname, GENERIC_WRITE,
+                                0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+    st.hStdError = INVALID_HANDLE_VALUE;
+
+	if( CreateProcessA(NULL, gdbparam, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &st, &pi) )
+	{
+		DWORD exitCode = STILL_ACTIVE;
+		while( GetExitCodeProcess(pi.hProcess, &exitCode) && exitCode == STILL_ACTIVE )
+			Sleep(500);
+		CloseHandle(pi.hProcess);
+		CloseHandle(pi.hThread);
+		if( st.hStdOutput != INVALID_HANDLE_VALUE )
+			CloseHandle( st.hStdOutput );
+		CloseHandle(pi.hThread);
+	}
+}
+
+void OlxWriteCoreDump(const char* fname) {
+	GdbWriteCoreDump(fname);
+}
+
+void OlxWriteCoreDump_Win32(const char* fileName, PEXCEPTION_POINTERS pExInfo) {
+	GdbWriteCoreDump(fileName);
 }
 
 #endif
