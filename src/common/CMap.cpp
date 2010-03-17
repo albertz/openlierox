@@ -1142,8 +1142,21 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 	}
 	else // Low-res image
 	{
-		if (!LockSurface(bmpImage))
+		if(bmpImage.get() == NULL || background == NULL || background->surf.get() == NULL) {
+			unlockFlags();
+			UnlockSurface(hole);
+			// this should not happen. i think it does right now in editor but i dont care
+			errors << "CMap::CarveHole: something is NULL, something went wrong, whoot?" << endl;
 			return 0;
+		}
+		
+		if (!LockSurface(bmpImage)) {
+			unlockFlags();
+			UnlockSurface(hole);
+			errors << "CMap::CarveHole: cannot lock surface bmpImage" << endl;
+			return 0;
+		}
+		
 		Uint8* mapimage_px = (Uint8 *)bmpImage.get()->pixels + map_y * bmpImage.get()->pitch + map_x * bpp;
 		Uint8* back_px = (Uint8 *)background->surf->pixels + map_y * background->surf->pitch + map_x * bpp;
 		int MapImageRowStep = bmpImage.get()->pitch - (w * bpp);
