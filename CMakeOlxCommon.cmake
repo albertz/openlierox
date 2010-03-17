@@ -295,7 +295,7 @@ ELSE(WIN32)
 					${OLXROOTDIR}/libs/lua
 					${OLXROOTDIR}/libs/boost_process)
 		# as long as we dont have breakpad, this doesnt make sense
-		ADD_DEFINITIONS(-gdwarf-2 -g1) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
+		ADD_DEFINITIONS(-gdwarf-2 -g2) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
 		# We using one file from breakpad
 		INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/breakpad/src)
 		SET(ALL_SRCS ${OLXROOTDIR}/libs/breakpad/src/common/convert_UTF.c ${ALL_SRCS})

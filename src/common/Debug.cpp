@@ -433,7 +433,7 @@ static void GdbWriteCoreDump(const char* fname) {
 			"-ex \"thread apply all bt full\" "
 			"-ex detach -ex quit "
 			"\"%s\" %u", 
-			tmp, olxExe, (unsigned)GetCurrentProcessId() );
+			tmp, olxExe, GetCurrentProcessId() );
 
 	STARTUPINFO st;
 	PROCESS_INFORMATION pi;
@@ -441,10 +441,10 @@ static void GdbWriteCoreDump(const char* fname) {
 	memset(&pi, 0, sizeof(pi));
 	st.cb = sizeof(st);
 	st.dwFlags |= STARTF_USESTDHANDLES;
-    st.hStdInput = INVALID_HANDLE_VALUE;
-	st.hStdOutput = ::CreateFileA(fname, GENERIC_WRITE,
+    si->hStdInput = INVALID_HANDLE_VALUE;
+	si->hStdOutput = ::CreateFileA(fname, GENERIC_WRITE,
                                 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
-    st.hStdError = INVALID_HANDLE_VALUE;
+    si->hStdError = INVALID_HANDLE_VALUE;
 
 	if( CreateProcessA(NULL, gdbparam, NULL, NULL, FALSE, NORMAL_PRIORITY_CLASS, NULL, NULL, &st, &pi) )
 	{
@@ -453,8 +453,8 @@ static void GdbWriteCoreDump(const char* fname) {
 			Sleep(500);
 		CloseHandle(pi.hProcess);
 		CloseHandle(pi.hThread);
-		if( st.hStdOutput != INVALID_HANDLE_VALUE )
-			CloseHandle( st.hStdOutput );
+		if( si->hStdOutput != INVALID_HANDLE_VALUE )
+			CloseHandle( si->hStdOutput );
 		CloseHandle(pi.hThread);
 	}
 }
