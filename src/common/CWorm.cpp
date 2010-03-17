@@ -1197,20 +1197,18 @@ void CWorm::incrementDirtCount(int d) {
 ///////////////////
 // Kill me
 // Returns true if we are out of the game
-bool CWorm::Kill()
+void CWorm::Kill(bool serverside)
 {
-//	notes << "our worm " << iID << " died" << endl;
-
 	bAlive = false;
 	fTimeofDeath = GetPhysicsTime();
-	addDeath();
 
-	// -2 means there is no lives starting value
-	if(iLives == WRM_UNLIM)
-		return false;
+	// score handling only serverside - client will get update via scoreupdate package
+	if(serverside) {
+		addDeath();
 
-	iLives--;
-	return iLives == WRM_OUT;
+		if(iLives != WRM_UNLIM)
+			iLives--;
+	}
 }
 
 int CWorm::getScore() const

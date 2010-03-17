@@ -395,7 +395,7 @@ public:
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
-	bool		Kill();
+	void		Kill(bool serverside);
 	bool		CheckBonusCollision(CBonus *b);
 	bool		GiveBonus(CBonus *b);
 	void		Hide(int forworm, bool immediate);

@@ -2339,8 +2339,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		if (client->cRemoteWorms[id].getHookedWorm())
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		if(!client->cRemoteWorms[id].getLocal()) // local worms killed itself already in CClient::InjureWorm
-			client->cRemoteWorms[id].Kill();
+		client->cRemoteWorms[id].Kill(false);
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 

@@ -122,7 +122,7 @@ void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 		}
 		killer->addKill();
 	}
-	victim->Kill();
+	victim->Kill(true);
 	bVisible[victim->getID()] = false;
 }
 

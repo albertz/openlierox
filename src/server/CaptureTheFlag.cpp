@@ -120,7 +120,8 @@ struct CaptureTheFlag : public CGameMode {
 			killer->addKill();
 		
 		// Victim is out of the game
-		if(victim->Kill() && networkTexts->sPlayerOut != "<none>")
+		victim->Kill(true);
+		if(victim->getLives() == WRM_OUT && networkTexts->sPlayerOut != "<none>")
 			cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 											   victim->getName(), 1), TXT_NORMAL);
 	}
