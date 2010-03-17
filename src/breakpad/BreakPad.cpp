@@ -20,6 +20,8 @@
 
 #include "BreakPad.h"
 
+#ifndef NBREAKPAD
+
 #include "Debug.h"
 #include "Unicode.h"
 #include "FindFile.h"
@@ -47,8 +49,8 @@ static void dorestart() {
 	// unless it failed. If it failed, then we should return false.
 }
 
-bool
-BreakPad::LaunchUploader( const char* dump_dir,
+static bool
+LaunchUploader( const char* dump_dir,
                const char* minidump_id,
                void* that, 
                bool succeeded )
@@ -121,7 +123,6 @@ BreakPad::LaunchUploader( const char* dump_dir,
 
 #else
 
-#include <windows.h>
 #include "common/convert_UTF.h"
 
 wchar_t* utf16fromutf8(const char* in, wchar_t* buf) {
@@ -142,8 +143,8 @@ static bool
 LaunchUploader( const wchar_t* dump_dir,
                const wchar_t* minidump_id,
                void* that,
-               EXCEPTION_POINTERS* exinfo,
-               MDRawAssertionInfo* assertion,
+               EXCEPTION_POINTERS *exinfo,
+               MDRawAssertionInfo *assertion,
                bool succeeded )
 {
     if (!succeeded)
@@ -215,20 +216,7 @@ LaunchUploader( const wchar_t* dump_dir,
     return false;
 }
 
-bool BreakPad::LaunchUploader( const char* dump_dir,
-               const char* minidump_id,
-               void* that,
-               bool succeeded )
-{
-	wchar_t w_dump_dir[1024], w_minidump_id[1024];
-	utf16fromutf8(dump_dir, w_dump_dir);
-	utf16fromutf8(minidump_id, w_minidump_id);
-	return ::LaunchUploader(w_dump_dir, w_minidump_id, that, NULL, NULL, succeeded);
-};
-
 #endif // WIN32
-
-#ifndef NBREAKPAD
 
 BreakPad::BreakPad( const std::string& path )
 : google_breakpad::ExceptionHandler(

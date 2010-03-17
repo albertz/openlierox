@@ -286,7 +286,7 @@ ELSE(WIN32)
 
 	IF(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS(-DHAVE_BOOST -DZLIB_WIN32_NODLL -DLIBXML_STATIC -DNONDLL -DCURL_STATICLIB -D_XBOX # _XBOX to link OpenAL statically
-							-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500 -D_WIN32_IE=0x0400)
+							-D_WIN32_WINNT=0x0500 -D_WIN32_WINDOWS=0x0500 -DWINVER=0x0500)
 		INCLUDE_DIRECTORIES(
 					${OLXROOTDIR}/build/mingw/include
 					${OLXROOTDIR}/libs/hawknl/include
@@ -295,10 +295,7 @@ ELSE(WIN32)
 					${OLXROOTDIR}/libs/lua
 					${OLXROOTDIR}/libs/boost_process)
 		# as long as we dont have breakpad, this doesnt make sense
-		ADD_DEFINITIONS(-gdwarf-2 -g2) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
-		# We using one file from breakpad
-		INCLUDE_DIRECTORIES(${OLXROOTDIR}/libs/breakpad/src)
-		SET(ALL_SRCS ${OLXROOTDIR}/libs/breakpad/src/common/convert_UTF.c ${ALL_SRCS})
+		ADD_DEFINITIONS(-gdwarf-2 -g1) # By default GDB uses STABS and produces 300Mb exe - DWARF will produce 40Mb and no line numbers, -g2 will give 170Mb
 	ELSE(MINGW_CROSS_COMPILE)
 		ADD_DEFINITIONS("-pthread")
 	ENDIF(MINGW_CROSS_COMPILE)

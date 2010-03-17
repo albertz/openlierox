@@ -44,23 +44,9 @@ struct BreakPad : public google_breakpad::ExceptionHandler
 {
     BreakPad( const std::string &dump_write_dirpath );
     ~BreakPad();
-    static bool LaunchUploader( const char* dump_dir,
-               const char* minidump_id,
-               void* that, 
-               bool succeeded );
-};
-
-#else
-
-struct MDRawAssertionInfo;
-struct BreakPad
-{
-    static bool LaunchUploader( const char* dump_dir,
-               const char* minidump_id,
-               void* that, 
-               bool succeeded );
 };
 
 #endif
+
 
 #undef char
