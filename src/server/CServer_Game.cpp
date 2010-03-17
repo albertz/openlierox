@@ -137,7 +137,7 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	// Adjust the score if there were multiple suicides
 	if (suicidesCount > 1)  {
 		if ((int)gameSettings[FT_Lives] != WRM_UNLIM) // Substracting from infinite makes no sense
-			vict->setLives(MAX<int>(WRM_OUT, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
+			vict->setLives(MAX<int>(0, vict->getLives() - suicidesCount + 1)); // HINT: +1 because one life is substracted in vict->Kill()
 	}
 
 	game.gameMode()->Kill(vict, kill);
