@@ -102,9 +102,10 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 	bVisible[worm->getID()] = false;
 	// Worms only spawn visible to their own team
 	for(int i = 0; i < MAX_WORMS; i++)  {
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == worm->getTeam())
+		if(!cServer->getWorms()[i].isUsed()) continue;
+		if(cServer->getWorms()[i].getTeam() == worm->getTeam())
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
-		else if(cServer->getWorms()[i].isUsed())
+		else
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
 	}
 	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
