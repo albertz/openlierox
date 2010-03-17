@@ -57,6 +57,7 @@
 #include "game/SinglePlayer.h"
 #include "sound/SoundsBase.h"
 #include "gusanos/gusgame.h"
+#include "ThreadVar.h"
 
 
 #ifdef _MSC_VER
@@ -719,7 +720,49 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
 	// TODO: remove that as soon as we do the map loading in a seperate thread
 	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
-
+	
+	// Note: This is probably the most hacky way of doing this but it should work fine.
+	// In the future, it probably will be exactly the other way around:
+	// Map/mod loading will be in an extra thread and the main game thread will keep us alive in the meanwhile.
+	// WARNING: This code assumes that we don't access cl->cNetChan in the meanwhile. Even when doing this
+	// in a clean way, we would need that. In case we need this at some time, the only solution is to make CChannel
+	// threadsafe or to add another way to keep us alive (maybe a connection-less ping package with the same effect or so).
+	struct TimeoutAvoider {
+		struct TimeoutAvoiderAction : Action {
+			CChannel* chan;
+			SmartPointer< ThreadVar<bool> > scope;
+			
+			int handle() {
+				int c = 0;
+				while(true) {
+					ThreadVar<bool>::Reader s(*scope.get());
+					if(!s.get()) break;
+					
+					if(c == 1) {
+						// This will kind of keep us alive.
+						CBytestream emptyUnreliable;
+						chan->Transmit(&emptyUnreliable);
+					}
+					c++; c %= 10;
+					SDL_Delay(100);
+				}
+				return 0;
+			}
+		};
+		
+		SmartPointer< ThreadVar<bool> > scope;
+		TimeoutAvoider(CChannel* c) {
+			scope = new ThreadVar<bool>(true);
+			TimeoutAvoiderAction* a = new TimeoutAvoiderAction();
+			a->chan = c;
+			a->scope = scope;
+			threadPool->start(a, "ParsePrepareGame timeout avoider keep-me-alive", true);
+		}
+		~TimeoutAvoider() { scope->write() = false; }
+	};
+	TimeoutAvoider timeoutAvoider(client->cNetChan);
+	
+	
 	notes << "Client: Got ParsePrepareGame" << endl;
 
 	bool isReconnect = false;
