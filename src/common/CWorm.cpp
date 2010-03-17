@@ -433,10 +433,9 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 		return;
 	}
 	
-	if(!m_inputHandler) {
-		warnings << "CWorm::doWeaponSelectionFrame: input handler not set for worm " << getName() << ", cannot do weapon selection" << endl;
+	if(!m_inputHandler)
+		// Note: no warning here because this can happen since the merge with Gusanos net engine
 		return;
-	}
 	
 	if(bWeaponsReady) {
 		warnings << "CWorm::doWeaponSelectionFrame: weapons already selected" << endl;
