@@ -1440,9 +1440,11 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
-	// Show a spawn entity
-	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
-
+	if(client->isWormVisibleOnAnyViewport(id)) {
+		// Show a spawn entity but only if worm is not hidden on any of our local viewports
+		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
+	}
+	
 	client->UpdateScoreboard();
 	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
 	client->bShouldRepaintInfo = true;
@@ -2780,10 +2782,13 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 		return;
 	}
 
-	w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
-	if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
-		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
-
+	// old clients were so stupid to mix up functionality of hideworm/spawning
+	if(client->getServerVersion() <= OLXBetaVersion(0,59,7)) {
+		w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
+		if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
+			SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
+	}
+	
 	// Hide or show the worm
 	if (hide)
 		w->Hide(forworm, immediate);

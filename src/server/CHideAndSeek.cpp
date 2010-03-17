@@ -54,7 +54,9 @@ protected:
 	float fGameLength;           // The length of the game
 	TimeDiff fWarmupTime[MAX_WORMS]; // The time for which worm should be invisible and untouchable
 	TimeDiff fLastAlert[MAX_WORMS]; // The last time the worms were seen by other worms
-	bool  bVisible[MAX_WORMS];   // The visibility of the woms
+	bool visible[MAX_WORMS];   // The visibility of the woms
+	
+	void makeVisible(CWorm* worm, bool vis);
 };
 
 
@@ -64,27 +66,42 @@ std::string CHideAndSeek::TeamName(int t) {
 	return itoa(t);
 }
 
+
+void CHideAndSeek::makeVisible(CWorm* worm, bool vis) {
+	visible[worm->getID()] = vis;
+	
+	for(int ii = 0; ii < MAX_CLIENTS; ii++) {
+		CServerConnection* cl = &cServer->getClients()[ii];
+		if(!cl->isConnected()) continue;
+		
+		// make worm (in)visible to all non-teammates
+		for(int i = 0; i < MAX_WORMS; i++)  {
+			if(!cServer->getWorms()[i].isUsed()) continue;
+			if(cServer->getWorms()[i].getTeam() != worm->getTeam())
+				cl->getNetEngine()->SendHideWorm(worm, i, vis, false);
+		}
+	}	
+}
+
 void CHideAndSeek::PrepareGame()
 {
 	GenerateTimes();
 	for(int i = 0; i < MAX_WORMS; i++) {
 		fLastAlert[i] = 0;
-		// TODO: Maybe we need bVisible[i] = false and no hiding because it is done in CHideAndSeek::Spawn
-		bVisible[i] = true; // So we can hide
-		Hide(&cServer->getWorms()[i], false);
-		fWarmupTime[i] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
-		/*
-		// Set all the lives to 0
-		cWorms[i].setLives(0);
-		for(int j = 0; j < MAX_WORMS; j++)
-			if(i != j && cWorms[j].isUsed())
-				cWorms[j].getClient()->getNetEngine()->SendWormScore(&cWorms[i]);
-		*/
+		visible[i] = false;
 	}
 }
 
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
+	// in case this client connected later, update the visibility for all worms
+	for(int i = 0; i < MAX_WORMS; ++i) {
+		CWorm* otherw = &cServer->getWorms()[i];
+		if(!otherw->isUsed()) continue;
+		if(!visible[i] && otherw->getTeam() != worm->getTeam())
+			worm->getClient()->getNetEngine()->SendHideWorm(otherw, worm->getID(), visible[i], true);		
+	}
+	
 	std::string teamhint[2];
 	if (networkTexts->sHiderMessage != "<none>")
 		replace(networkTexts->sHiderMessage, "<time>", itoa((int)fGameLength), teamhint[0]);
@@ -99,17 +116,14 @@ bool CHideAndSeek::Spawn(CWorm* worm, CVec pos)
 {
 	pos = game.gameMap()->FindSpot();
 	worm->Spawn(pos);
-	bVisible[worm->getID()] = false;
-	// Worms only spawn visible to their own team
-	for(int i = 0; i < MAX_WORMS; i++)  {
-		if(!cServer->getWorms()[i].isUsed()) continue;
-		if(cServer->getWorms()[i].getTeam() == worm->getTeam())
-			cServer->getWorms()[i].getClient()->getNetEngine()->SendSpawnWorm(worm, pos);
-		else
-			cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
-	}
+	visible[worm->getID()] = true; // So that Hide() doesn't ignore our request.
+	Hide(worm, false);
 	fWarmupTime[worm->getID()] = cServer->getServerTime() + TimeDiff((float)gameSettings[FT_HS_HideTime]);
-	return false;
+
+	// Note: Earlier, we spawned only for the same team. This was a hacky workaround to avoid some sparkles to show up.
+	// We have solved this in a clean way now. Of course, we want spawning here. Where the worm is invisible,
+	// a spawn also will be invisible.
+	return true;
 }
 
 void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
@@ -124,7 +138,7 @@ void CHideAndSeek::Kill(CWorm* victim, CWorm* killer)
 		killer->addKill();
 	}
 	victim->Kill(true);
-	bVisible[victim->getID()] = false;
+	makeVisible(victim, false);
 }
 
 bool CHideAndSeek::Shoot(CWorm* worm)
@@ -232,7 +246,7 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 		return true;
 
 	// Different teams, and invisible so no need I think
-	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !bVisible[worm->getID()] && !worm->getWormState()->bCarve)
+	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !visible[worm->getID()] && !worm->getWormState()->bCarve)
 		return false;
 
 	return true;
@@ -241,9 +255,8 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 void CHideAndSeek::Show(CWorm* worm, bool message)
 {
 	fLastAlert[worm->getID()] = cServer->getServerTime();
-	if(bVisible[worm->getID()])
-		return;
-	bVisible[worm->getID()] = true;
+	if(visible[worm->getID()]) return;
+	makeVisible(worm, true);
 
 	if(worm->getTeam() == HIDEANDSEEK_HIDER && message)  {
 		if (networkTexts->sHiderVisible != "<none>")
@@ -258,7 +271,6 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
 			continue;
-		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i, true);
 		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
@@ -269,23 +281,22 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 
 void CHideAndSeek::Hide(CWorm* worm, bool message)
 {
-	if(!bVisible[worm->getID()])
-		return;
-	bVisible[worm->getID()] = false;
+	if(!visible[worm->getID()]) return;
+	makeVisible(worm, false);
 
 	// Removed message for seekers because it is confusing since they don't get the "you are visible" one
 	if(networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDEANDSEEK_HIDER)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
+
 	for(int i = 0; i < MAX_WORMS; i++) {
 		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam())
 			continue;
-		cServer->getWorms()[i].getClient()->getNetEngine()->SendHideWorm(worm, i);
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
 			cServer->getWorms()[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
 		}
-	}
+	}	
 }
 
 bool CHideAndSeek::CanSee(CWorm* worm1, CWorm* worm2)
