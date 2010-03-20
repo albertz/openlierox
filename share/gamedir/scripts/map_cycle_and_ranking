@@ -64,6 +64,19 @@ def parseWormDied(sig):
 			ranking.rank[deaderName] = [0,1,0,len(ranking.rank)+1]
 
 
+def rankAll(wormID):
+	worms = dict()
+	for w in io.getWormList():
+		try:
+			name = wormName(w)
+			worms[int(ranking.rank[name][3])] = name
+		except KeyError:
+			pass
+
+	for w in sorted(worms.keys()):
+		ranking.rankSingle(worms[w], wormID)
+
+
 def signalHandler(sig):
 	signame = sig[0]
 
@@ -83,7 +96,8 @@ def signalHandler(sig):
 		wormID = int(sig[1])
 		message = sig[2]
 		
-		if message.lower() in [ "rank", "toprank" ]: message = "!" + message
+		cmds = [ "help", "rank", "toprank", "rankall" ]
+		if message.lower() in cmds: message = "!" + message
 		cmd = re.match("!(?P<cmd>[A-Za-z]+)(?P<params>( .*)?)", message)
 		if cmd:
 			params = cmd.group("params").strip()
@@ -97,6 +111,12 @@ def signalHandler(sig):
 			elif cmd == "toprank":
 				ranking.firstRank(wormID)
 			
+			elif cmd == "rankall":
+				rankAll(wormID)
+
+			elif cmd == "help":
+				io.privateMsg(wormID, "available commands: " + str(cmds))
+
 			else:
 				io.privateMsg(wormID, "sorry, that command is not supported")
 
