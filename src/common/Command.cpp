@@ -1300,8 +1300,7 @@ void Cmd_kickWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	if (params.size() >= 2)
 		reason = params[1];
 
-	if(!CheckWorm(caller, id, "kickWorm"))
-		return;
+	if(!CheckWorm(caller, id, name)) return;
 
 	cServer->kickWorm(id,reason);
 }
@@ -1325,8 +1324,7 @@ void Cmd_banWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	if (params.size() >= 2)
 		reason = params[1];
 	
-	if(!CheckWorm(caller, id, "banWorm"))
-		return;
+	if(!CheckWorm(caller, id, name)) return;
 
 	cServer->banWorm(id,reason);
 }
@@ -1347,8 +1345,7 @@ void Cmd_muteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "muteWorm"))
-		return;
+	if(!CheckWorm(caller, id, name)) return;
 
 	cServer->muteWorm(id);
 }
@@ -1369,8 +1366,7 @@ void Cmd_unmuteWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& p
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "unmuteWorm"))
-		return;
+	if(!CheckWorm(caller, id, name)) return;
 	
 	cServer->unmuteWorm(id);
 }
@@ -1392,7 +1388,7 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	bool fail = true;
 	int id = from_string<int>(params[0], fail);
 	if(fail) { printUsage(caller); return; }
-	CWorm* w = CheckWorm(caller, id, "spawnWorm");
+	CWorm* w = CheckWorm(caller, id, name);
 	if(!w) return;
 	
 	CVec pos;
@@ -1406,6 +1402,114 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	cServer->SpawnWorm(w, havePos ? &pos : NULL);
 }
 
+COMMAND(setWormName, "Rename a worm", "id [new name] [notify:*true/false]", 2, 3);
+// Note that duplicate names ARE allowed here as opposed to the chat command setmyname.
+// Why? We could for example want to have many bots with the same name.
+void Cmd_setWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmyname instead", CNC_WARNING);
+		return;
+	}
+	
+	// Get the worm id and verify it
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) {
+		printUsage(caller);
+		return;
+	}
+	CWorm* w = CheckWorm(caller, id, name);
+	if(!w) return;
+	
+	// What's the new name?
+	std::string name = params[1];
+	name = RemoveSpecialChars(name); // Strip unicode characters
+	if (name.size() > 32)  // Check if not too long
+		name.erase(32, std::string::npos);
+	
+	// Should we notify?
+	bool notify = true;
+	if(params.size() == 3) {
+		notify = from_string<bool>(params[2], fail);
+		if(fail) {
+			printUsage(caller);
+			return;
+		}
+	}
+	
+	// Set the name
+	std::string oldname = w->getName();
+	w->setName(name);
+
+	// Send the update
+	cServer->UpdateWorm(w);
+
+	// Send the notification (eventually)
+	if(notify) cServer->SendGlobalText(oldname + " is now known as " + name, TXT_NORMAL);
+	notes << "worm rename: " << w->getID() << " : " << oldname << " renamed to " << w->getName() << endl;
+}
+
+COMMAND(setWormSkin, "Change the skin of a worm", "id [new skin]", 2, 2);
+void Cmd_setWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmyskin instead", CNC_WARNING);
+		return;
+	}
+	
+	// Get the worm id and verify it
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) {
+		printUsage(caller);
+		return;
+	}
+	CWorm* w = CheckWorm(caller, id, name);
+	if(!w) return;
+	
+	// Set the skin	
+	w->setSkin(params[1]);
+	
+	// Send the update
+	cServer->UpdateWorm(w);
+
+	notes << "worm skin change: " << w->getID() << " : " << params[1] << endl;
+}
+
+COMMAND(setWormColor, "Change the color of a worm", "id [r] [g] [b]", 4, 4);
+void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
+{
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client. Use chat command /setmycolor instead", CNC_WARNING);
+		return;
+	}
+	
+	// Get the worm id and verify it
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) {
+		printUsage(caller);
+		return;
+	}
+	CWorm* w = CheckWorm(caller, id, name);
+	if(!w) return;
+	
+	// What's the new color?
+	Uint8 r, g, b;
+	r = (Uint8) atoi(params[1]);
+	g = (Uint8) atoi(params[2]);
+	b = (Uint8) atoi(params[3]);
+	
+	// Set the colour
+	w->getSkin().setDefaultColor(Color(r, g, b));
+	w->setColour(r, g, b);
+	
+	// Send the update
+	cServer->UpdateWorm(w);
+
+	notes << "worm color change: " << w->getID() << " : " << params[1] << " " << params[2] << " " << params[3] << endl;
+}
 
 COMMAND(setWormLives, "set worm lives", "id (-2: unlimited, -1: outofgame, >=0: lives)", 2, 2);
 void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
@@ -1417,7 +1521,7 @@ void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	bool fail = true;
 	int id = from_string<int>(params[0], fail);
 	if(fail) { printUsage(caller); return; }
-	CWorm* w = CheckWorm(caller, id, "setWormLives");
+	CWorm* w = CheckWorm(caller, id, name);
 	if(!w) return;
 	
 	Sint16 lives = from_string<Sint16>(params[1], fail);
@@ -1448,7 +1552,7 @@ void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 		return;
 	}
 	
-	CWorm *w = CheckWorm(caller, id,"setWormTeam");
+	CWorm *w = CheckWorm(caller, id, name);
 	if (!w) return;
 	
 	int team = from_string<int>(params[1], fail);
@@ -1485,7 +1589,7 @@ void Cmd_setWormSpeedFactor::exec(CmdLineIntf* caller, const std::vector<std::st
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "setWormSpeedFactor")) return;
+	if(!CheckWorm(caller, id, name)) return;
 	
 	float factor = from_string<float>(params[1], fail);
 	if(fail) {
@@ -1510,7 +1614,7 @@ void Cmd_setWormDamageFactor::exec(CmdLineIntf* caller, const std::vector<std::s
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "setWormDamageFactor")) return;
+	if(!CheckWorm(caller, id, name)) return;
 	
 	float factor = from_string<float>(params[1], fail);
 	if(fail) {
@@ -1535,7 +1639,7 @@ void Cmd_setWormShieldFactor::exec(CmdLineIntf* caller, const std::vector<std::s
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "setWormShieldFactor")) return;
+	if(!CheckWorm(caller, id, name)) return;
 	
 	float factor = from_string<float>(params[1], fail);
 	if(fail) {
@@ -1560,7 +1664,7 @@ void Cmd_setWormCanUseNinja::exec(CmdLineIntf* caller, const std::vector<std::st
 		return;
 	}
 	
-	if(!CheckWorm(caller, id, "setWormCanUseNinja")) return;
+	if(!CheckWorm(caller, id, name)) return;
 	
 	bool canUse = from_string<bool>(params[1], fail);
 	if(fail) {
