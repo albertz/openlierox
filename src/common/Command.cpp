@@ -1402,7 +1402,7 @@ void Cmd_spawnWorm::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	cServer->SpawnWorm(w, havePos ? &pos : NULL);
 }
 
-COMMAND(setWormName, "Rename a worm", "id [new name] [notify:*true/false]", 2, 3);
+COMMAND(setWormName, "Rename a worm", "id name [notify:*true/false]", 2, 3);
 // Note that duplicate names ARE allowed here as opposed to the chat command setmyname.
 // Why? We could for example want to have many bots with the same name.
 void Cmd_setWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
@@ -1450,7 +1450,7 @@ void Cmd_setWormName::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 	notes << "worm rename: " << w->getID() << " : " << oldname << " renamed to " << w->getName() << endl;
 }
 
-COMMAND(setWormSkin, "Change the skin of a worm", "id [new skin]", 2, 2);
+COMMAND(setWormSkin, "Change the skin of a worm", "id skin", 2, 2);
 void Cmd_setWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
@@ -1477,7 +1477,7 @@ void Cmd_setWormSkin::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 	notes << "worm skin change: " << w->getID() << " : " << params[1] << endl;
 }
 
-COMMAND(setWormColor, "Change the color of a worm", "id [r] [g] [b]", 4, 4);
+COMMAND(setWormColor, "Change the color of a worm", "id r g b", 4, 4);
 void Cmd_setWormColor::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
