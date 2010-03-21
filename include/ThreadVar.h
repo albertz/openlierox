@@ -32,6 +32,8 @@ private:
 	ReadWriteLock locker;
 
 public:
+	ThreadVar() : data() {}
+	ThreadVar(const _T& v) : data(v) {}
 	
 	class Reader {
 	private:
@@ -51,6 +53,17 @@ public:
 		_T& get() { return tvar.data; }
 		const _T& get() const { return tvar.data; }
 	};
+	
+	struct WriteWrapper {
+		ThreadVar& var;
+		WriteWrapper(ThreadVar& v) : var(v) {}
+		WriteWrapper& operator=(const _T& v) {
+			Writer w(var);
+			w.get() = v;
+			return *this;
+		}
+	};	
+	WriteWrapper write() { return WriteWrapper(*this); }
 	
 };
 

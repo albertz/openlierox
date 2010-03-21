@@ -1537,6 +1537,23 @@ void Cmd_setWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>&
 }
 
 
+COMMAND(getWormLives, "get worm lives", "id", 1, 1);
+void Cmd_getWormLives::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) {
+		caller->writeMsg(name + ": cannot do that as client", CNC_WARNING);
+		return;
+	}
+	
+	bool fail = true;
+	int id = from_string<int>(params[0], fail);
+	if(fail) { printUsage(caller); return; }
+	CWorm* w = CheckWorm(caller, id, "getWormLives");
+	if(!w) return;
+	
+	caller->pushReturnArg(itoa(w->getLives()));
+}
+
+
 COMMAND(setWormTeam, "set worm team", "id team", 2, 2);
 void Cmd_setWormTeam::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 {

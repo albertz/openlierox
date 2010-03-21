@@ -1341,7 +1341,7 @@ void CClient::SimulateHud()
 		AFK_TYPE curState = AFK_BACK_ONLINE;
 		if(iNetStatus == NET_CONNECTED && bGameRunning) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
-		if(bGameMenu) curState = AFK_MENU;
+		if(bGameMenu && !bGameOver) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
 		if( curState != cLocalWorms[0]->getAFK() ) {
