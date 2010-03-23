@@ -44,10 +44,10 @@ BaseAction* newAction(vector<OmfgScript::TokenBase*> const& params )
 	return new T(params);
 }
 
+namespace af { using namespace OmfgScript::ActionParamFlags; };
+
 void registerGameActions()
-{
-	namespace af = OmfgScript::ActionParamFlags;
-	
+{	
 	gameActions.add("shoot_particles", newAction<ShootParticles>, af::Object)
 		("type", false)
 		("amount")

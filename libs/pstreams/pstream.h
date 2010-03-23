@@ -110,6 +110,8 @@ namespace redi
       typedef typename traits_type::pos_type    pos_type;
       /** @deprecated use pstreams::fd_type instead. */
       typedef fd_type                           fd_t;
+      /* to have basic_pstreambuf::fd_type well-defined also out-of-scope */
+      typedef pstreams::fd_type                 fd_type;
 
       /// Default constructor.
       basic_pstreambuf();

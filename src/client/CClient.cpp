@@ -2146,7 +2146,7 @@ void CClient::GetLogData(std::string& data)
 			"level=\"" + level + "\" " +
 			"mod=\"" + mod + "\" " +
 			"winner=\"" + itoa(tGameLog->iWinner) + "\" " +
-			"gamemode=\"" + getGameLobby()[FT_GameMode].as<GameModeInfo>()->name + "\">";
+			"gamemode=\"" + getGameLobby()[FT_GameMode].as<GameModeInfo>()->toString() + "\">";
 
 	// Count the number of players
 	int num_players = 0;

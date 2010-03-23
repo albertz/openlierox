@@ -1,0 +1,34 @@
+# This is the game settings preset file for the Gusanos settings
+
+[GameSettings]
+Name = Gusanos
+Description = Gusanos default settings
+
+[GameInfo]
+GusanosWormPhysics = true
+LX56WallShooting = false
+ShootSpawnDistance = 2
+WeaponCombos = false
+ProjRelativeVel = false
+SelfHit = false
+FullAimAngle = true
+RespawnTime = 1
+
+WormGravity = 74.3801
+WormJumpForce = -54.5455
+WormSimpleFriction = 0
+WormAcceleration = 247.934
+WormAirAccelerationFactor = 1
+WormBounceQuotient = 0.333
+WormBounceLimit = 2
+WormWallHugging = true
+WormWeaponHeight = 5
+WormHeight = 9
+WormWidth = 3
+WormMaxClimb = 4
+WormBoxRadius = 2
+WormBoxTop = 3
+WormBoxBottom = 4
+RopeSpeed = 181.818
+WormGroundFriction = 0.0783352
+WormMaxGroundMoveSpeed = 40.9091

@@ -25,7 +25,7 @@
 
 Feature featureArray[] = {
 
-Feature( "Lives", "Lives", "Lives",-1,-1, Version(), GIG_General, ALT_Basic, -1, 150, true, false/*not exactly sure*/, true ),
+Feature( "Lives", "Lives", "Lives",-2,-2, Version(), GIG_General, ALT_Basic, -1, 150, true, false/*not exactly sure*/, true ),
 Feature( "KillLimit", "Max kills", "Game ends when a player reaches the specified number of kills", 15,15, Version(), GIG_General, ALT_Basic, -1, 150, true, true, true ),
 Feature( "TimeLimit", "Time limit", "Time limit, in minutes", 6.0f,6.0f, Version(), GIG_General, ALT_Basic, -0.15f, 20.0f, true,true, true ),
 Feature( "TagLimit", "Tag limit", "Tag limit, for Tag game mode. It's the time how long a player must be tagged until the game ends", 5.0f,5.0f, Version(), GIG_Tag, ALT_Basic,1.0f, 150.0f,true,true, true ),
@@ -62,11 +62,30 @@ Feature( "WormAirFriction", "Worm air friction", "Worm air friction", 0.0f, 0.0f
 Feature( "WormGravity", "Worm gravity", "Worm gravity", 50.0f, 50.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -200.0f, 1000.0f, false, false),
 Feature( "WormJumpForce", "Worm jump force", "Worm jump force", -75.0f, -75.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, -500.0f, 100.0f, false, false),
 
+// these are moved from Gusanos
+Feature("WormSimpleFriction", "Worm simple friction", "Worm simple friction (atm only used for Gusanos engine)", 0.0, 0.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false, true),
+Feature("WormAcceleration", "Worm acceleration", "Worm acceleration; Gusanos only", 396.694f, 396.694f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
+Feature("WormAirAccelerationFactor", "WormAirAccelerationFactor", "Worm air acc factor; Gus only", 0.7f, 0.7f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 2.0f, false, false),
+Feature("WormBounceQuotient", "WormBounceQuotient", "WormBounceQuotient; Gus only", 0.333f, 0.333f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1.0f, false, false),
+Feature("WormBounceLimit", "WormBounceLimit", "WormBounceLimit; Gus only", 0.5f, 0.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature("WormWallHugging", "WormWallHugging", "WormWallHugging; Gus only", false, false, Version(), GIG_Advanced, ALT_VeryAdvanced, false, false),
+Feature("WormWeaponHeight", "WormWeaponHeight", "WormWeaponHeight; Gus only", 5, 5, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
+Feature("WormHeight", "WormHeight", "WormHeight; Gus only", 9, 9, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
+Feature("WormWidth", "WormWidth", "WormWidth; Gus only", 3, 3, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
+Feature("WormMaxClimb", "WormMaxClimb", "WormMaxClimb; Gus only", 4, 4, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 20, false, false),
+Feature("WormBoxRadius", "WormBoxRadius", "WormBoxRadius; Gus only", 2.0f, 2.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature("WormBoxTop", "WormBoxTop", "WormBoxTop; Gus only", 3.0f, 3.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+Feature("WormBoxBottom", "WormBoxBottom", "WormBoxBottom; Gus only", 4.0f, 4.0f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
+
 // most of these are moved from CGameScript::Rope*
 Feature( "RopeMaxLength", "Rope max length", "Rope max length", 300, 300, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 1000, false, false, true),
 Feature( "RopeRestLength", "Rope rest length", "Rope rest length", 30, 30, Version(), GIG_Advanced, ALT_VeryAdvanced, 0, 200, false, false, true),
 Feature( "RopeStrength", "Rope strength", "Rope strength", 3.5f, 3.5f, Version(), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, false),
 Feature( "RopeSpeed", "Rope speed", "Rope speed", 250.0f, 250.f, OLXBetaVersion(0,59,6), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 1000.0f, false, false),
+
+Feature( "RopeAddParentSpeed", "Rope add parent speed", "worm speed is added to rope speed when you shoot the rope", false, false, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, false),
+Feature( "RopeGravity", "Rope gravity", "rope gravity when shooting", 100.0f, 100.0f, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 200.0f, false, false),
+Feature( "RopeFallingGravity", "Rope falling gravity", "rope gravity after rope has get its max length and when it is falling", 150.0f, 150.0f, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 200.0f, false, false),
 
 
 	Feature("GameSpeed", 			"Game-speed multiplicator", 	"Game simulation speed is multiplicated by the given value.", 
@@ -218,26 +237,26 @@ bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
 	return hostGet(f) == f->unsetValue;
 }
 
-Feature* featureByVar(const ScriptVarPtr_t& var) {
+Feature* featureByVar(const ScriptVarPtr_t& var, bool printErrors) {
 	if(var.type != SVT_DYNAMIC) {
-		errors << "featureByVar: var is not a dynamic var" << endl;
+		if(printErrors) errors << "featureByVar: var is not a dynamic var" << endl;
 		return NULL;
 	}
 
 	if(var.ptr.dynVar == NULL) {
-		errors << "featureByVar: var is NULL" << endl;
+		if(printErrors) errors << "featureByVar: var is NULL" << endl;
 		return NULL;
 	}
 	
 	const Settings::ScriptVarWrapper* wrapperAddr = dynamic_cast<Settings::ScriptVarWrapper*> (var.ptr.dynVar);
 	if(wrapperAddr == NULL) {
-		errors << "featureByVar: var is not a Settings::ScriptVarWrapper" << endl;
+		if(printErrors) errors << "featureByVar: var is not a Settings::ScriptVarWrapper" << endl;
 		return NULL;
 	}
 	
 	const size_t relAddr = wrapperAddr - &gameSettings.wrappers[0];
 	if(relAddr >= FeatureArrayLen) {
-		errors << "options::loadfromdisc: var is not from gameSettings.wrappers" << endl;
+		if(printErrors) errors << "options::loadfromdisc: var is not from gameSettings.wrappers" << endl;
 		return NULL;
 	}
 	

@@ -44,7 +44,13 @@ struct FeatureSettingsLayer : FeatureSettings {
 	FeatureSettingsLayer() { makeSet(false); }
 	void makeSet(bool v = true) { for(size_t i = 0; i < FeatureArrayLen; ++i) isSet[i] = v; }
 	
-	ScriptVar_t& set(FeatureIndex i) { isSet[i] = true;	return (*this)[i]; }
+	ScriptVar_t& set(FeatureIndex i) {
+		if(!isSet[i]) {
+			(*this)[i] = featureArray[i].unsetValue; // just to be sure; in case modSettings is init before featureArray, also important
+			isSet[i] = true;
+		}
+		return (*this)[i];
+	}
 	void copyTo(FeatureSettingsLayer& s) const;
 	void copyTo(FeatureSettings& s) const;
 	void dump() const; // to notes

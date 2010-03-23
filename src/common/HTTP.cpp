@@ -34,7 +34,7 @@
 #include "HTTP.h"
 #include "Timer.h"
 #include "StringUtils.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Version.h"
 #include "MathLib.h"
 #include "InputEvents.h"

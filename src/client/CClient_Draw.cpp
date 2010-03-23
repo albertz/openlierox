@@ -1341,7 +1341,7 @@ void CClient::SimulateHud()
 		AFK_TYPE curState = AFK_BACK_ONLINE;
 		if(iNetStatus == NET_CONNECTED && bGameRunning) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
-		if(bGameMenu) curState = AFK_MENU;
+		if(bGameMenu && !bGameOver) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
 		if( curState != cLocalWorms[0]->getAFK() ) {
@@ -2772,12 +2772,8 @@ void CClient::DrawCurrentSettings(SDL_Surface * bmpDest)
 	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, mod);
 	cur_y += tLX->cFont.GetHeight();
 
-	static const std::string gmt_names[] = {"Death Match", "Team DM", "Tag", "Demolition"};
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Game Type:");
-	if(getGameLobby()[FT_GameMode].as<GameModeInfo>()->name == "")
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, gmt_names[CLAMP(getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType, (int)0, (int)(sizeof(gmt_names)/sizeof(std::string)))]);
-	else
-		tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, getGameLobby()[FT_GameMode].as<GameModeInfo>()->name); // TODO: Limit the name length?
+	tLX->cFont.Draw(bmpDest, x+95, cur_y, tLX->clNormalLabel, getGameLobby()[FT_GameMode].as<GameModeInfo>()->toString()); // TODO: Limit the name length?
 	cur_y += tLX->cFont.GetHeight();
 
 	tLX->cFont.Draw(bmpDest, x+5, cur_y, tLX->clNormalLabel,"Loading Time:");

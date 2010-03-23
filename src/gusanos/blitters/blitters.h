@@ -7,7 +7,7 @@
 
 #include <SDL.h>
 #include "gusanos/allegro.h"
-#include "types.h"
+#include "gusanos/blitters/types.h"
 #include "mmx.h"
 
 // TODO: correct check if we should include MMX/SSE code

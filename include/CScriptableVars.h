@@ -18,6 +18,8 @@
 #include <list>
 #include <cassert>
 #include <iostream>
+#include <boost/type_traits/alignment_of.hpp>
+
 #include "Color.h"
 #include "StringUtils.h"
 #include "Ref.h"
@@ -101,17 +103,29 @@ template<> struct DefaultValue<float> { static float value() { return 0.0f; } };
 template<> struct DefaultValue<std::string> { static std::string value() { return ""; } };
 template<> struct DefaultValue<Color> { static Color value() { return Color(255,0,255); } };
 
+
+
+
+// workaround to warning: dereferencing type-punned pointer will break strict-aliasing rules
+// also get the correctly aligned ptr
+template<typename T>
+T* pointer_cast_and_align(const char* p) {
+	size_t p2 = (size_t)p + boost::alignment_of<T>::value;
+	p2 -= p2 % boost::alignment_of<T>::value;
+	return (T*)p2;
+}
+
 // Plain-old-data struct for non-POD classes/struct
 // You must call init/uninit here yourself!
 template<typename T>
 struct PODForClass {
-	char data[sizeof(T)];
-	T& get() { return *(T*)data; }
+	char data[sizeof(T) + boost::alignment_of<T>::value];
+	T& get() { return *pointer_cast_and_align<T>(data); }
 	operator T&() { return get(); }
-	const T& get() const { return *(T*)data; }
+	const T& get() const { return *pointer_cast_and_align<T>(data); }
 	operator const T&() const { return get(); }
-	void init() { new (data) T; }
-	void init(const T& v) { new (data) T(v); }
+	void init() { new (&get()) T; }
+	void init(const T& v) { new (&get()) T(v); }
 	void uninit() { get().~T(); }
 	bool operator==(const T& o) const { return get() == o; }
 	bool operator<(const T& o) const { return get() < o; }
@@ -385,6 +399,22 @@ struct ScriptVarPtr_t
 			default: assert(false);
 		}
 		return false;
+	}
+
+	bool operator==(const ScriptVarPtr_t& var) const {
+		if(var.type != type) return false;
+		return ptr.b == var.ptr.b; // asumes that all ptrs have same sizeof; should work because of union
+	}
+
+	bool operator==(const _DynamicVar* var) const {
+		if(type != SVT_DYNAMIC) return false;
+		return ptr.dynVar == var;
+	}
+	
+	
+	ScriptVarType_t valueType() const {
+		if(type != SVT_DYNAMIC) return type;
+		else return ptr.dynVar->type();
 	}
 	
 	// These funcs will assert() if you try to call them on Callback varptr

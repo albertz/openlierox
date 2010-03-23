@@ -14,7 +14,7 @@
 #include <vector>
 #include <list>
 
-#include "types.h"
+#include "olx-types.h"
 #include "gusanos/object_grid.h"
 
 class CWormHumanInputHandler;

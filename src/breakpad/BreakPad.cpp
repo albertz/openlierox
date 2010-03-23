@@ -236,13 +236,7 @@ BreakPad::BreakPad( const std::string& path )
 #endif
 #ifdef WIN32
 	// Register DIA DLL required by Breakpad
-	char tmp[1024];
-	GetModuleFileName(NULL, tmp, sizeof(tmp));
-	std::string curDir(tmp);
-	if( curDir.rfind("\\") != std::string::npos )
-		curDir = curDir.substr(0, curDir.rfind("\\"));
-	std::string diaLibPath = curDir + "\\msdia80.dll";
-	
+	std::string diaLibPath = "msdia100";	
 	HMODULE diaLib = LoadLibrary(diaLibPath.c_str());
 	if( diaLib == NULL )
 	{

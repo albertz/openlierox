@@ -22,6 +22,7 @@
 #include "ConfigHandler.h"
 #include "gusanos/level.h"
 #include "gusanos/gusgame.h"
+#include "gusanos/loaders/vermes.h"
 
 
 static void lxflagsToGusflags(CMap* m) {	
@@ -2041,10 +2042,9 @@ MapLoad* MapLoad::open(const std::string& filename, bool abs_filename, bool prin
 	
 	if(IsDirectory(filename, abs_filename)) {
 		// TODO: abs filename
-		ResourceLocator<CMap>::BaseLoader* loader = NULL;
 		std::string name;
-		if(levelLocator.canLoad(filename, name, loader))
-			return (new ML_Gusanos(loader, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;			
+		if(VermesLevelLoader::instance.canLoad(filename, name))
+			return (new ML_Gusanos(&VermesLevelLoader::instance, name)) -> Set(filename, abs_filename, NULL) -> parseHeaderAndCheck(printErrors);;			
 	}
 	else { // regular file
 		FILE *fp = abs_filename ? OpenAbsFile(filename, "rb") : OpenGameFile(filename, "rb");

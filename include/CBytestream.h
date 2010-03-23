@@ -23,7 +23,7 @@
 #include <SDL.h> // for SInt16
 #include <string>
 #include <set>
-#include "types.h"
+#include "olx-types.h"
 #include "Networking.h"
 #include "SmartPointer.h"
 

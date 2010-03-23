@@ -20,7 +20,7 @@
 #include <string>
 #include <cassert>
 #include <SDL.h>
-#include "types.h"
+#include "olx-types.h"
 #include "InternDataClass.h"
 #include "Event.h"
 

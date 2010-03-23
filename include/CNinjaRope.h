@@ -91,7 +91,6 @@ public:
 
 	void		updateOldHookPos()		{ OldHookPos = HookPos; }
 
-	const CVec&	getHookVel() const		{ return HookVelocity; }
 	CVec&		hookVelocity()			{ return HookVelocity; }
 	CVec&		hookPos()				{ return HookPos; }
 	

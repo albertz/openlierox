@@ -12,11 +12,10 @@
 
 #include <list>
 #include <string>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include "variables.h"
+#include "gusanos/console/variables.h"
 #include "game/Settings.h"
 #include "StringUtils.h"
+#include "FeatureList.h"
 
 // TODO: move this? or is there sth like this in boost/stdlib?
 template<typename T>
@@ -36,29 +35,85 @@ T identity(T v) { return v; }
  The FeatureSettingsLayer we link to is modSettings. This is to give a nice way via the layer system
  to overwrite the setting.
  */
-template<typename T>
-struct OlxVariable : public /* Gusanos */ Variable {
-	FeatureIndex index;
-	typedef boost::function<T (T)> GetConvertFct; GetConvertFct getConvert;
-	typedef boost::function<T (T)> PutConvertFct; PutConvertFct putConvert;
+template<typename T, T (*getFct) (), void (*putFct) (T)>
+struct __OlxVariable {
 	
-	OlxVariable() : index(FeatureIndex(-1)) {} // dummy constr; don't forget to correctly assign it!
-	OlxVariable(const std::string& name, FeatureIndex i, GetConvertFct gC = boost::bind(&identity), PutConvertFct pC = boost::bind(&identity))
-	: Variable(name), index(i), getConvert(gC), putConvert(pC) {}
-	
-	// Gusanos console system callback
-	virtual std::string invoke(const std::list<std::string> &args) {
-		if(args.size() >= 1) {
-			put( from_string<T>(*args.begin()) );
-			return "";
-		}
+	// WARNING: as long as Variable exists, this object must exist too
+	Variable* gusVar(const std::string& name) {
+		struct GusVarWrapper : /* Gusanos */ Variable {
+			__OlxVariable* lxvar;
+			GusVarWrapper(const std::string& name, __OlxVariable* v) : Variable(name), lxvar(v) {}
+
+			// Gusanos console system callback
+			virtual std::string invoke(const std::list<std::string> &args) {
+				if(args.size() >= 1) {
+					lxvar->put( from_string<T>(*args.begin()) );
+					return "";
+				}
+				
+				return to_string( lxvar->get() );
+			}
+		};
 		
-		return to_string(get());
+		return new GusVarWrapper(name, this);
 	}
 	
-	ScriptVar_t& writeVar() { return modSettings.set(index); }
-	T get() const { return getConvert( (T)gameSettings[index] ); }
-	void put(T v) { writeVar() = putConvert(v); }
+	Variable* gusVar(const std::string& name, T gusDefault) {
+		/* put(gusDefault); // NOTE: we ignore it because we want to use the OLX default values */
+		return gusVar(name);
+	}
+	
+	T get() const { return (*getFct)(); }
+	void put(T v) { (*putFct)(v); }
+	
+	operator T() const { return get(); }
 };
+
+
+template<typename T, FeatureIndex index, T (*getConvert) (T), T (*putConvert) (T)>
+struct _OlxVariable_Helpers {
+	static ScriptVar_t& writeVar() { return modSettings.set(index); }
+	static T getFct() { return (*getConvert)( (T)gameSettings[index] ); }
+	static void putFct(T v) { writeVar() = (*putConvert)(v); }
+};
+
+template<typename T, FeatureIndex index, T (*getConvert) (T), T (*putConvert) (T)>
+struct _OlxVariable : __OlxVariable<T,
+	&_OlxVariable_Helpers<T,index,getConvert,putConvert>::getFct,
+	&_OlxVariable_Helpers<T,index,getConvert,putConvert>::putFct> {};
+
+template<typename T, FeatureIndex index>
+struct OlxVar : _OlxVariable<T, index, &identity<T>, &identity<T> > {};
+
+/* those are defined in CGameObject.cpp */
+float convertSpeed_LXToGus(float v);
+float convertSpeed_GusToLX(float v);
+
+template<FeatureIndex index>
+struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
+
+inline float convertSpeedNeg_LXToGus(float v) { return -convertSpeed_LXToGus(v); }
+inline float convertSpeedNeg_GusToLX(float v) { return convertSpeed_GusToLX(-v); }
+
+template<FeatureIndex index>
+struct OlxNegatedSpeedVar : _OlxVariable<float, index, &convertSpeedNeg_LXToGus, &convertSpeedNeg_GusToLX> {};
+
+/* those are defined in CGameObject.cpp */
+float convertAccel_LXToGus(float v);
+float convertAccel_GusToLX(float v);
+
+template<FeatureIndex index>
+struct OlxAccelVar : _OlxVariable<float, index, &convertAccel_LXToGus, &convertAccel_GusToLX> {};
+
+inline float convertWormFriction_LXToGus(float v) { return 1.0f - v; }
+inline float convertWormFriction_GusToLX(float v) { return 1.0f - v; }
+
+template<FeatureIndex index>
+struct OlxWormFrictionVar : _OlxVariable<float, index, &convertWormFriction_LXToGus, &convertWormFriction_GusToLX> {};
+
+inline bool negateBool(bool v) { return !v; }
+
+template<FeatureIndex index>
+struct OlxBoolNegatedVar : _OlxVariable<bool, index, &negateBool, &negateBool> {};
 
 #endif

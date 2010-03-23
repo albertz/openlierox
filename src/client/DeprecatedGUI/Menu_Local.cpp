@@ -988,8 +988,8 @@ void Menu_GameSettings()
 {
 	//GameTabPane = 0;
 	// Setup the buffer
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 80,120, 560,460);
-	DrawRectFillA(tMenu->bmpBuffer.get(), 82,122, 558,458, tLX->clDialogBackground, 245);
+	Menu_DrawBox(tMenu->bmpBuffer.get(), 80 -35,120, 560+35,460);
+	DrawRectFillA(tMenu->bmpBuffer.get(), 82 -35,122, 558+35,458, tLX->clDialogBackground, 245);
 
 	Menu_RedrawMouse(true);
 
@@ -1008,13 +1008,13 @@ void Menu_GameSettings()
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
 
-	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365, 155, 80,15);
-	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285, 155, 70, 15);
+	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365+40, 155, 80,15);
+	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285+40, 155, 70, 15);
 	float warningCoeff = CLAMP((float)tLXOptions->iAdvancedLevelLimit / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
-	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450, 155, 70, 15);
+	cGameSettings.Add( new CLabel(AdvancedLevelShortDescription((AdvancedLevel)tLXOptions->iAdvancedLevelLimit), tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff), gs_AdvancedLevelLabel, 450+40, 155, 70, 15);
 
 	CListview* features = new CListview();
-	cGameSettings.Add( features, gs_FeaturesList, 95, 170, 450, 205);
+	cGameSettings.Add( features, gs_FeaturesList, 95 - 35, 170, 450 + 70, 205);
 
 	features->setDrawBorder(true);
 	features->setRedrawMenu(false);
@@ -1031,12 +1031,13 @@ void Menu_GameSettings()
 			maxWidth = tLX->cFont.GetWidth(it->second.shortDesc);
 	}
 	
+	features->AddColumn("", 60 + 10); 
 	features->AddColumn("", maxWidth + 10); 
 	features->AddColumn("", 190); 
 	
 	initFeaturesList(features);
 
-	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95, 390, 450, 40);
+	cGameSettings.Add( new CLabel("", tLX->clNormalLabel), gs_FeaturesListLabel, 95 - 35, 390, 450 + 70, 40);
 }
 
 // Features listview
@@ -1056,9 +1057,22 @@ static int getListItemGroupInfoNr(const std::string& sindex) {
 	return -1;
 }
 	
-	
+static bool varIsSet(const ScriptVarPtr_t& var) {
+	Feature* f = featureByVar(var, false);
+	return f ? tLXOptions->customSettings.isSet[featureArrayIndex(f)] : false;
+}
+
 static void updateFeatureListItemColor(lv_item_t* item) {
 	lv_subitem_t* sub = item->tSubitems; if(!sub) return;
+	RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
+	const bool isSet = var && varIsSet(var->var);
+	
+	if(CButton* resetBtn = dynamic_cast<CButton*> (sub->tWidget))
+		resetBtn->bVisible = isSet;
+	
+	sub = sub->tNext; // first one is reset button
+	if(!sub) return;
+	
 	if(((CListview*)cGameSettings.getWidget(gs_FeaturesList))->getMouseOverSIndex() == item->sIndex) {
 		sub->iColour = tLX->clMouseOver;
 		return;
@@ -1067,14 +1081,31 @@ static void updateFeatureListItemColor(lv_item_t* item) {
 	int group = getListItemGroupInfoNr(item->sIndex);
 	if(group >= 0) sub->iColour = tLX->clHeading;
 	else {
+		/*
 		// Note: commented out because I am not sure if it is that nice
-		//RegisteredVar* var = CScriptableVars::GetVar(item->sIndex);
 		float warningCoeff = 0.0f; //CLAMP((float)var->advancedLevel / (__AdvancedLevelType_Count - 1), 0.0f, 1.0f);
 		sub->iColour = tLX->clNormalLabel * (1.0f - warningCoeff) + tLX->clError * warningCoeff;
+		 */
+		
+		// now with the settings layer, we show it normal if unset and mark it, if it is set
+		//sub->iColour = isSet ? tLX->clSubHeading : tLX->clNormalLabel;
+		
+		// ok, still just use std color; resetbtn already shows that it was set
+		sub->iColour = tLX->clNormalLabel;
 	}
 }
 
-
+static bool isSettingForGameSettingsDialog(const ScriptVarPtr_t& var) {
+	if( var == &gameSettings.wrappers[FT_Mod] || 
+	   var == &gameSettings.wrappers[FT_Map] ||
+	   var == &gameSettings.wrappers[FT_GameMode] ||
+	   var == &gameSettings.wrappers[FT_SettingsPreset] ||
+	   var.ptr.i == &tLXOptions->iMaxPlayers )
+		return false;	// We have nice comboboxes for them, skip them in the list	
+	
+	return true;
+}
+	
 static void initFeaturesList(CListview* l)
 {
 	l->Clear();
@@ -1093,11 +1124,8 @@ static void initFeaturesList(CListview* l)
 			if( it->second.group != group ) continue;
 			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
 			
-			if( it->second.var.ptr.s == &gameSettings[FT_Mod].as<ModInfo>()->path || 
-				it->second.var.ptr.s == &gameSettings[FT_Map].as<LevelInfo>()->path ||
-				it->first == "GameOptions.GameInfo.GameType" ||
-				it->second.var.ptr.i == &tLXOptions->iMaxPlayers )
-				continue;	// We have nice comboboxes for them, skip them in the list
+			if(!isSettingForGameSettingsDialog(it->second.var))
+				continue;
 			
 			if( tMenu && tMenu->iMenuType == MNU_LOCAL )
 				if( it->second.var.ptr.b == &tLXOptions->bAllowConnectDuringGame )
@@ -1105,12 +1133,12 @@ static void initFeaturesList(CListview* l)
 			
 			if( !gameSettings[FT_GameMode].as<GameModeInfo>()->mode || !gameSettings[FT_GameMode].as<GameModeInfo>()->mode->isTeamGame() ) {
 				if( it->second.var.ptr.i == &tLXOptions->iRandomTeamForNewWorm ) continue;
-				if( it->second.var == &gameSettings[FT_RespawnGroupTeams] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamScoreLimit] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamkillDecreasesScore] ) continue;
-				if( it->second.var == &gameSettings[FT_TeamInjure] ) continue;				
-				if( it->second.var == &gameSettings[FT_TeamHit] ) continue;				
-			}
+				if( it->second.var == &gameSettings.wrappers[FT_RespawnGroupTeams] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamScoreLimit] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamkillDecreasesScore] ) continue;
+				if( it->second.var == &gameSettings.wrappers[FT_TeamInjure] ) continue;				
+				if( it->second.var == &gameSettings.wrappers[FT_TeamHit] ) continue;				
+			}	
 			
 			if(countGroupOpts == 0)
 				addFeautureListGroupHeading(l, group);
@@ -1120,13 +1148,19 @@ static void initFeaturesList(CListview* l)
 				continue;
 			
 			lv_item_t * item = l->AddItem(it->first, l->getNumItems(), tLX->clNormalLabel);
-			updateFeatureListItemColor(item);
+
+			CButton* resetBtn = new CButton(BUT_RESET, tMenu->bmpButtons);
+			l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, resetBtn);
+			resetBtn->Create();
+			resetBtn->Setup(-1, 0, 0, 60, 15);			
+			resetBtn->bVisible = varIsSet(it->second.var);
+			
 			l->AddSubitem(LVS_TEXT, it->second.shortDesc, (DynDrawIntf*)NULL, NULL); 
 			item->iHeight = 24; // So checkbox / textbox will fit okay
 
-			if( it->second.var.type == SVT_BOOL )
+			if( it->second.var.valueType() == SVT_BOOL )
 			{
-				CCheckbox * cb = new CCheckbox( * it->second.var.ptr.b );
+				CCheckbox * cb = new CCheckbox( it->second.var.asScriptVar().toBool() );
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cb);
 				cb->Create();
 				cb->Setup(-1, 0, 0, 20, 20);
@@ -1139,17 +1173,17 @@ static void initFeaturesList(CListview* l)
 					int imin=0, imax=0;
 					float fScale = 1.0f;
 					int iVal = 0;
-					if( it->second.var.type == SVT_FLOAT )
+					if( it->second.var.valueType() == SVT_FLOAT )
 					{
 						// Adding some small number to round it up correctly
 						imin = int( float(it->second.min) *10.0f + 0.00001f );	// Scale them up
 						imax = int( float(it->second.max) *10.0f + 0.00001f );
-						iVal = int( (*it->second.var.ptr.f) * 10.0f + 0.00001f );
+						iVal = int( it->second.var.asScriptVar().toFloat() * 10.0f + 0.00001f );
 						fScale = 0.1f;
 					} else {
 						imin = it->second.min;
 						imax = it->second.max;
-						iVal = * it->second.var.ptr.i;
+						iVal = it->second.var.asScriptVar().toInt();
 					}
 					CSlider * sld = new CSlider( imax, imin, imin, false, 190, 0, tLX->clNormalLabel, fScale );
 					CLAMP_DIRECT(iVal, sld->getMin(), sld->getMax() );
@@ -1163,97 +1197,172 @@ static void initFeaturesList(CListview* l)
 				l->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, txt);
 				txt->Create();
 				txt->Setup(-1, 0, 0, textboxSize, tLX->cFont.GetHeight());
-				if ((it->second.var.type == SVT_INT && it->second.var.isUnsigned && *it->second.var.ptr.i < 0) ||
-					(it->second.var.type == SVT_FLOAT && it->second.var.isUnsigned && *it->second.var.ptr.f < 0))
+				if (it->second.var.asScriptVar().isNumeric() && it->second.var.isUnsigned && it->second.var.asScriptVar().getNumber() < 0)
 					txt->setText("");  // Leave blank for infinite values
 				else
-					txt->setText( it->second.var.toString() );
+					txt->setText( it->second.var.toString() );				
 			}
+			
+			updateFeatureListItemColor(item);
 		}
 	}
 }
 
+	
+static void unsetGameSettingsVar(const std::string& varname, const ScriptVarPtr_t& var) {
+	Feature* f = featureByVar(var, false);
+	if(f)
+		// we have a game setting
+		tLXOptions->customSettings.isSet[featureArrayIndex(f)] = false;
+	// NOTE: Don't reset other settings, this is anyway the wrong dialog for it.
+}
+	
+	
+static void resetItemFromVar(lv_item_t* item, const ScriptVarPtr_t& var) {
+	if( ! item || !item->tSubitems || !item->tSubitems->tNext )
+		return;
+	lv_subitem_t * si = item->tSubitems->tNext->tNext;
+	if( ! si )
+		return;
+	CWidget * w = si->tWidget;
+	if( ! w )
+		return;
 
+	switch(w->getType()) {
+		case wid_Checkbox:
+			((CCheckbox*)w)->setValue(var.asScriptVar().toBool());
+			break;
+		case wid_Textbox:
+			((CTextbox*)w)->setText(var.toString());
+			break;
+		case wid_Slider:
+			if( si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox )
+			{
+				CSlider *slider = (CSlider *)w;
+				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
+				int iVal = 0;
+				
+				if( var.valueType() == SVT_INT )
+				{
+					iVal = var.asScriptVar().toInt();
+					textBox->setText(itoa(iVal));
+					if( var.isUnsigned && iVal < 0 )
+						textBox->setText("");
+				}
+				else if( var.valueType() == SVT_FLOAT )
+				{
+					iVal = int(var.asScriptVar().toFloat() * 10.0f);
+					textBox->setText(to_string<float>(iVal / 10.0f));
+					if( var.isUnsigned && iVal < 0 )
+						textBox->setText("");
+				}
+				
+				CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
+				slider->setValue(iVal);
+			}
+			break;
+		default:
+			// ignore all others (should anyway not happen)
+			break;
+	}
+}
+	
 // Copy values from listview to features list
 static void updateFeaturesList(CListview* l) 
 {
+	// we only update the changed widget
+	if(!l->getWidgetEvent() || !l->getWidgetEvent()->cWidget) return;
+
 	CScriptableVars::const_iterator upper_bound = CScriptableVars::upper_bound("GameOptions.");
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
 		if( it->second.group == GIG_Invalid ) continue;
 
 		lv_item_t * item = l->getItem(it->first);
-		if( ! item )
+		if( ! item || !item->tSubitems || !item->tSubitems->tNext )
 			continue;
-		lv_subitem_t * si = item->tSubitems->tNext;
+		lv_subitem_t * si = item->tSubitems->tNext->tNext;
 		if( ! si )
 			continue;
 		CWidget * w = si->tWidget;
 		if( ! w )
 			continue;
-			
-		if( it->second.var.type == SVT_BOOL )
-		{
-			if( w->getType() == wid_Checkbox )
-			{
-				* it->second.var.ptr.b = ((CCheckbox *)w)->getValue();
-			}
-		}
-		else
-		{
-			if( w->getType() == wid_Textbox )
-			{
-				it->second.var.fromString( ((CTextbox *)w)->getText() );
-			}
-			if( w->getType() == wid_Slider && 
-				si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox &&
-				l->getWidgetEvent() && l->getWidgetEvent()->cWidget )
-			{
-				CSlider *slider = (CSlider *)w;
-				CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
+		
+		
+		CButton* resetBtn = dynamic_cast<CButton*>(item->tSubitems->tWidget);
+		if(resetBtn == l->getWidgetEvent()->cWidget) {
+			unsetGameSettingsVar(it->first, it->second.var);
+			updateFeatureListItemColor(item);
+			resetItemFromVar(item, it->second.var);
+			return; // no continue because there wont be another event
+		}						
+		
+		switch(w->getType()) {
+			case wid_Checkbox:
+				if(l->getWidgetEvent()->cWidget == w)
+					it->second.var.fromScriptVar( ScriptVar_t(((CCheckbox *)w)->getValue()) );
+				break;
+			case wid_Textbox:
+				if(l->getWidgetEvent()->cWidget == w)
+					it->second.var.fromString( ((CTextbox *)w)->getText() );
+				break;
+			case wid_Slider:
+				if( 
+				   si->tNext && si->tNext->tWidget && si->tNext->tWidget->getType() == wid_Textbox &&
+				   l->getWidgetEvent() && l->getWidgetEvent()->cWidget )
+				{
+					CSlider *slider = (CSlider *)w;
+					CTextbox *textBox = (CTextbox *)si->tNext->tWidget;
 					
-				if( l->getWidgetEvent()->cWidget->getType() == wid_Slider ) // User moved slider - update textbox
-				{
-					int iVal = slider->getValue();
-					if( it->second.var.type == SVT_INT )
+					if( l->getWidgetEvent()->cWidget == slider ) // User moved slider - update textbox
 					{
-						* it->second.var.ptr.i = iVal;
-						textBox->setText(itoa(iVal));
-						if( it->second.var.isUnsigned && iVal < 0 )
-							textBox->setText("");
+						int iVal = slider->getValue();
+						if( it->second.var.valueType() == SVT_INT )
+						{
+							it->second.var.fromScriptVar( ScriptVar_t(iVal) );
+							textBox->setText(itoa(iVal));
+							if( it->second.var.isUnsigned && iVal < 0 )
+								textBox->setText("");
+						}
+						if( it->second.var.valueType() == SVT_FLOAT )
+						{
+							it->second.var.fromScriptVar( ScriptVar_t(float(iVal / 10.0f)) );
+							textBox->setText(to_string<float>(iVal / 10.0f));
+							if( it->second.var.isUnsigned && iVal < 0 )
+								textBox->setText("");
+						}
 					}
-					if( it->second.var.type == SVT_FLOAT )
+					
+					else if( l->getWidgetEvent()->cWidget == textBox ) // User typed in textbox - update slider
 					{
-						* it->second.var.ptr.f = iVal / 10.0f;
-						textBox->setText(to_string<float>(iVal / 10.0f));
-						if( it->second.var.isUnsigned && iVal < 0 )
-							textBox->setText("");
+						it->second.var.fromString(textBox->getText());
+						int iVal = 0;
+						if( it->second.var.valueType() == SVT_INT )
+						{
+							// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+							//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
+							iVal = it->second.var.asScriptVar().toInt();
+						}
+						if( it->second.var.valueType() == SVT_FLOAT )
+						{
+							// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
+							//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
+							iVal = int(it->second.var.asScriptVar().toFloat() * 10.0f);
+						}
+						CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
+						slider->setValue(iVal);
 					}
 				}
-				if( l->getWidgetEvent()->cWidget->getType() == wid_Textbox ) // User typed in textbox - update slider
-				{
-					it->second.var.fromString(textBox->getText());
-					int iVal = 0;
-					if( it->second.var.type == SVT_INT )
-					{
-						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
-						//CLAMP_DIRECT(* it->second.var.i, it->second.min.i, it->second.max.i );
-						iVal = * it->second.var.ptr.i;
-					}
-					if( it->second.var.type == SVT_FLOAT )
-					{
-						// Do not do min/max check on typed value, it's sole user responsibility if game crashes (though it should not)
-						//CLAMP_DIRECT(*it->second.var.f, it->second.min.f, it->second.max.f );
-						iVal = int(* it->second.var.ptr.f * 10.0f);
-					}
-					CLAMP_DIRECT(iVal, slider->getMin(), slider->getMax() );
-					slider->setValue(iVal);
-				}
-			}
+				break;
+			default:
+				// ignore all others (should anyway not happen)
+				break;
 		}
+		
+		updateFeatureListItemColor(item);
 	}
-	if( (int)gameSettings[FT_Lives] < 0 )
-		gameSettings.overwrite[FT_Lives] = WRM_UNLIM;
+	if( tLXOptions->customSettings.isSet[FT_Lives] && (int)tLXOptions->customSettings[FT_Lives] < 0 )
+		tLXOptions->customSettings[FT_Lives] = WRM_UNLIM;
 }
 
 /////////////
@@ -1387,7 +1496,7 @@ void Menu_GameSettings_GrabInfo()
 	// Stub
 }
 
-
+	
 ///////////////////
 // Set the default game settings info
 void Menu_GameSettings_Default()
@@ -1396,19 +1505,16 @@ void Menu_GameSettings_Default()
 	for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 	{
 		if( it->second.group == GIG_Invalid ) continue;
-		
-		if( it->first == "GameOptions.GameInfo.ModName" || 
-			it->first == "GameOptions.GameInfo.LevelName" ||
-			it->first == "GameOptions.GameInfo.GameType" )
-			continue;	// We have nice comboboxes for them, skip them in the list
 
-		it->second.var.setDefault();
+		if(!isSettingForGameSettingsDialog(it->second.var))
+			continue;
+		
+		unsetGameSettingsVar(it->first, it->second.var);
     }
 
     CListview * features = (CListview *)cGameSettings.getWidget(gs_FeaturesList);
     features->Clear();
 	initFeaturesList(features);
-    
 }
 
 /*

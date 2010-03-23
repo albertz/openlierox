@@ -349,6 +349,9 @@ void GameServer::SetSocketWithEvents(bool v) {
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
 int GameServer::StartGame(std::string* errMsg)
 {	
+	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+
 	if(errMsg) *errMsg = "Unknown problem, please ask in forum";
 
 	// Check that gamespeed != 0
@@ -472,6 +475,10 @@ mapCreate:
 		const std::string& presetCfg = gameSettings[FT_SettingsPreset].as<GameSettingsPresetInfo>()->path;
 		if( !gamePresetSettings.loadFromConfig( presetCfg, false ) )
 			warnings << "Game: failed to load settings preset from " << presetCfg << endl;
+
+		/* fix some broken settings */
+		if((int)gameSettings[FT_Lives] < 0 && (int)gameSettings[FT_Lives] != WRM_UNLIM)
+			(*gameSettings.layerFor(FT_Lives))[FT_Lives] = (int)WRM_UNLIM;
 
 		gameSettings.dumpAllLayers();
 	}
@@ -713,15 +720,14 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 	// For spectators: set their lives to out and tell clients about it
 	for (int i = 0; i < MAX_WORMS; i++)  {
 		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
+			notes << "BeginMatch: worm " << i << ":" << cWorms[i].getName() << " is spectating" << endl;
 			cWorms[i].setLives(WRM_OUT);
 			cWorms[i].setKills(0);
 			cWorms[i].setDeaths(0);
 			cWorms[i].setTeamkills(0);
 			cWorms[i].setDamage(0);
-			if(receiver)
-				receiver->getNetEngine()->SendWormScore( & cWorms[i] );
-			else
-				for(int ii = 0; ii < MAX_CLIENTS; ii++)
+			for(int ii = 0; ii < MAX_CLIENTS; ii++)
+				if(cClients[ii].isConnected())
 					cClients[ii].getNetEngine()->SendWormScore( & cWorms[i] );
 		}
 	}
@@ -1839,18 +1845,19 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		return false;
 	}
 	
-	// check LX56 mod settings
-	if(ver < OLXBetaVersion(0,59,6) && game.gameScript() && /*LX56*/ !game.gameScript()->gusEngineUsed())
+	// check mod settings
+	// this is both for LX56 and customized Gus settings
+	if(ver < OLXBetaVersion(0,59,6) && game.gameScript())
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
 			if(modSettings.isSet[(FeatureIndex)i])
 				// Note: We assume here that lx56modSettings is one of the layers of gameSettings.
 				// check if we have overwritten this LX56 gamescript setting
 				if(gameSettings.layerFor((FeatureIndex)i) != &modSettings) {
-					if(incompReason) *incompReason = "LX56 gamescript setting " + featureArray[i].name + " was customized";
+					if(incompReason) *incompReason = "gamescript setting " + featureArray[i].name + " was customized";
 					return false;
 				}
 		}
-	
+
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.

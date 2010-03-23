@@ -386,13 +386,8 @@ static void updateDetailsList(CListview* l) {
 		} 
 	}
 
-	const std::string gamemodes[] = {"Death Match","Team Death Match", "Tag", "Demolitions"};
 	SETI;
-	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name == "") {
-		int generalType = cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType;
-		si->sText = (generalType < 0 || (uint)generalType >= sizeof(gamemodes)/sizeof(std::string)) ? "Invalid" : gamemodes[generalType];
-	} else
-		si->sText = cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name;
+	si->sText = cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->toString();
 	SETI;
 	if(cClient->getHaveMod()) {
 		si->sText = cClient->getGameLobby()[FT_Mod].as<ModInfo>()->name;

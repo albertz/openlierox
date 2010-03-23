@@ -382,31 +382,6 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	if (tLX->iGameType == GME_HOST && cServer->getMap())
 		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.bCarve = true;
-
-
-	// Prevent a wall hack
-	// HINT: commented out because it could lead to another cheating
-	// When you call Spawn() on a worm, it will get a full health
-	// It means that people with old LX could limit their FPS and whenever they would need to
-	// recover their health they would simply find some thinner wall and try to fly through it
-	/*if (getGameLobby()->iGameType == GME_HOST && cServer->getMap() && cOwner)  {
-
-		// Out of map
-		if(x >= (short)cServer->getMap()->GetWidth() || y >= (short)cServer->getMap()->GetHeight())
-		{
-			vPos=vLastPos;
-			cServer->SpawnWorm(this, vPos, cOwner);
-		}
-
-		// In rock
-		if(cServer->getMap()->GetPixelFlag(x, y) & PX_ROCK)
-		{
-			vPos=vLastPos;
-			cServer->SpawnWorm(this, vPos, cOwner);
-		}
-
-		vLastPos = vPos;
-	}*/
 }
 
 ////////////////

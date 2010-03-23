@@ -21,7 +21,7 @@
 #include <libxml/parser.h>
 
 #include "InputEvents.h"
-#include "types.h"
+#include "olx-types.h"
 #include "SkinnedGUI/CGuiSkin.h"
 #include "SkinnedGUI/CWidgetEffect.h"
 #include "CssParser.h"

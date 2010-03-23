@@ -28,6 +28,8 @@ namespace DeprecatedGUI {
 // Draw the button
 void CButton::Draw(SDL_Surface * bmpDest)
 {
+	if(!bVisible) return;
+	
 	// Don't draw empty image
 	if (!bmpImage.get())
 		return;

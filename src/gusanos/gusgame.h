@@ -4,6 +4,8 @@
 #include "level.h"
 #include "message_queue.h"
 #include "object_grid.h"
+#include "FeatureList.h"
+#include "OlxVariable.h"
 
 #ifndef DEDICATED_ONLY
 #include "gusanos/allegro.h"
@@ -39,27 +41,27 @@ struct Options
 {
 	void registerInConsole();
 	
-	float ninja_rope_shootSpeed;
+	OlxSpeedVar<FT_RopeSpeed> ninja_rope_shootSpeed;
 	float ninja_rope_pullForce;
 	float ninja_rope_startDistance;
 	float ninja_rope_maxLength;
-	float worm_maxSpeed;
-	float worm_acceleration;
-	float worm_airAccelerationFactor;
-	float worm_friction;
-	float worm_airFriction;
-	float worm_gravity;
-	float worm_bounceQuotient;
-	float worm_bounceLimit;
-	float worm_jumpForce;
-	int worm_disableWallHugging;
-	int worm_weaponHeight;
-	int worm_height;
-	int worm_width;
-	int worm_maxClimb;
-	float worm_boxRadius;
-	float worm_boxTop;
-	float worm_boxBottom;
+	OlxSpeedVar<FT_WormMaxGroundMoveSpeed> worm_maxSpeed;
+	OlxAccelVar<FT_WormAcceleration> worm_acceleration;
+	OlxVar<float,FT_WormAirAccelerationFactor> worm_airAccelerationFactor;
+	OlxWormFrictionVar<FT_WormGroundFriction> worm_friction;
+	OlxWormFrictionVar<FT_WormSimpleFriction> worm_airFriction;
+	OlxAccelVar<FT_WormGravity> worm_gravity;
+	OlxVar<float,FT_WormBounceQuotient> worm_bounceQuotient;
+	OlxVar<float,FT_WormBounceLimit> worm_bounceLimit;
+	OlxNegatedSpeedVar<FT_WormJumpForce> worm_jumpForce;
+	OlxBoolNegatedVar<FT_WormWallHugging> worm_disableWallHugging;
+	OlxVar<int,FT_WormWeaponHeight> worm_weaponHeight;
+	OlxVar<int,FT_WormHeight> worm_height;
+	OlxVar<int,FT_WormWidth> worm_width;
+	OlxVar<int,FT_WormMaxClimb> worm_maxClimb;
+	OlxVar<float,FT_WormBoxRadius> worm_boxRadius;
+	OlxVar<float,FT_WormBoxTop> worm_boxTop;
+	OlxVar<float,FT_WormBoxBottom> worm_boxBottom;
 	int maxRespawnTime;
 	int minRespawnTime;
 	int maxWeaponsVar;
@@ -67,7 +69,6 @@ struct Options
 	int splitScreenVar;
 	bool splitScreen;
 	std::string rConPassword;
-	int teamPlay;
 	bool showDeathMessages;
 	bool logDeathMessages;
 	

@@ -1,0 +1,34 @@
+# This is the game settings preset file for the Promode settings
+
+[GameSettings]
+Name = Promode
+Description = Promode default settings
+
+[GameInfo]
+GusanosWormPhysics = true
+LX56WallShooting = false
+ShootSpawnDistance = 2
+WeaponCombos = false
+ProjRelativeVel = false
+SelfHit = false
+FullAimAngle = true
+RespawnTime = 0.5
+
+WormGravity = 92.562
+WormJumpForce = -54.5455
+WormSimpleFriction = 0
+WormAcceleration = 396.694
+WormAirAccelerationFactor = 0.7
+WormBounceQuotient = 0.33
+WormBounceLimit = 0.5
+WormWallHugging = false
+WormWeaponHeight = 5
+WormHeight = 9
+WormWidth = 3
+WormMaxClimb = 4
+WormBoxRadius = 2
+WormBoxTop = 3
+WormBoxBottom = 4
+RopeSpeed = 436.364
+WormGroundFriction = 0.11
+WormMaxGroundMoveSpeed = 57.2727

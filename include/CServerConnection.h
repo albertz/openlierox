@@ -23,7 +23,7 @@
 #include "CBytestream.h"
 #include "CShootList.h"
 #include "Consts.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Version.h"
 #include "FileDownload.h"
 #include "IpToCountryDB.h"

@@ -20,7 +20,7 @@
 #include "GfxPrimitives.h"
 #include "ConfigHandler.h"
 #include "Cursor.h"
-#include "types.h"
+#include "olx-types.h"
 #include "Timer.h"
 
 

@@ -28,7 +28,7 @@
 #include "ThreadPool.h"
 #include <SDL_mutex.h>
 #include "HTTP.h"
-#include "types.h"
+#include "olx-types.h"
 #include "CBytestream.h"
 
 

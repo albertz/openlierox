@@ -17,11 +17,13 @@ def ParseRank(useRatios = True):
                         l = f.readline()
                         continue
                 ( date, deader, killer ) = l.split("\t")
-                if not killer in killers.keys():
+
+		killerOk = killer != "OpenLieroXor"
+                if not killer in killers.keys() and killerOk:
                         killers[killer] = []
                 if not deader in deaders.keys():
                         deaders[deader] = []
-                killers[killer].append(deader)
+		if killerOk: killers[killer].append(deader)
                 deaders[deader].append(killer)
                 l = f.readline()
         f.close()
@@ -83,6 +85,10 @@ def firstRank(wormid):
         except Exception:
             pass
 
+def rankSingle(wormName, wormid):
+	k = wormName
+	io.privateMsg(wormid, str(rank[k][3]) + ") " + k + " (" + str(rank[k][0]) + " kills, " + str(rank[k][1]) + " deaths, " + str(rank[k][2]) + " suicides)")
+
 def myRank(wormName, wormid):
         global rank
         try:
@@ -93,7 +99,7 @@ def myRank(wormName, wormid):
                         rankNames[ rank[k][3] - rankPos + 2 ] = k
                 for k in rankNames:
                     if k:
-                        io.privateMsg(wormid, str(rank[k][3]) + ") " + k + " (" + str(rank[k][0]) + " kills, " + str(rank[k][1]) + " deaths, " + str(rank[k][2]) + " suicides)")
+			rankSingle(k, wormid)
         except KeyError:
                 io.privateMsg(wormid, wormName + " has not played yet")
 

@@ -60,7 +60,7 @@ def startLobby(port):
 def startGame():
 	msgs = SendCommand( "startgame" )
 	if len(msgs) > 0:
-		for m in msgs():
+		for m in msgs:
 			messageLog(m, LOG_ERROR)
 		return False
 	else:
@@ -176,6 +176,9 @@ def getFullFileName(fn):
 def getWriteFullFileName(fn):
 	return SendCommand( "getwritefullfilename \"%s\"" % fn )[0]
 
+def getGameState():
+	return SendCommand("getGameState")[0]
+
 def listMaps():
 	return SendCommand("listmaps")
 
@@ -232,6 +235,8 @@ def messageLog(message,severity = LOG_INFO):
 		f.close()
 	except IOError:
 		msg("ERROR: Unable to open logfile.")
+	except NameError: # can happen if cfg is not defined - we accept that
+		pass
 
 	#It's possible that we get a broken pipe here, but we can't exit clearly and also display it,
 	# so let python send out the ugly warning.

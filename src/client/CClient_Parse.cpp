@@ -57,6 +57,7 @@
 #include "game/SinglePlayer.h"
 #include "sound/SoundsBase.h"
 #include "gusanos/gusgame.h"
+#include "ThreadVar.h"
 
 
 #ifdef _MSC_VER
@@ -266,22 +267,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
-	
-	// small cleanup (needed for example for reconnecting)
-	/*for(int i = 0; i < MAX_WORMS; i++) {
-		client->cRemoteWorms[i].setUsed(false);
-		client->cRemoteWorms[i].setAlive(false);
-		client->cRemoteWorms[i].setKills(0);
-		client->cRemoteWorms[i].setDeaths(0);
-		client->cRemoteWorms[i].setTeamkills(0);
-		client->cRemoteWorms[i].setLives(WRM_OUT);
-		client->cRemoteWorms[i].setProfile(NULL);
-		client->cRemoteWorms[i].setType(PRF_HUMAN);
-		client->cRemoteWorms[i].setLocal(false);
-		client->cRemoteWorms[i].setTagIT(false);
-		client->cRemoteWorms[i].setTagTime(TimeDiff(0));
-		client->cRemoteWorms[i].setClientVersion(Version());
-	}*/
 
 	if( client->iNumWorms < 0 ) {
 		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
@@ -733,6 +718,53 @@ static bool wasNotAFeatureSettingBefore(FeatureIndex i) {
 // Parse a prepare game packet
 bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 {
+	// TODO: remove that as soon as we do the map loading in a seperate thread
+	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
+	
+	// Note: This is probably the most hacky way of doing this but it should work fine.
+	// In the future, it probably will be exactly the other way around:
+	// Map/mod loading will be in an extra thread and the main game thread will keep us alive in the meanwhile.
+	// WARNING: This code assumes that we don't access cl->cNetChan in the meanwhile. Even when doing this
+	// in a clean way, we would need that. In case we need this at some time, the only solution is to make CChannel
+	// threadsafe or to add another way to keep us alive (maybe a connection-less ping package with the same effect or so).
+	struct TimeoutAvoider {
+		struct TimeoutAvoiderAction : Action {
+			CChannel* chan;
+			SmartPointer< ThreadVar<bool> > scope;
+			
+			int handle() {
+				int c = 0;
+				while(true) {
+					{
+						ThreadVar<bool>::Reader s(*scope.get());
+						if(!s.get()) break;
+						
+						if(c == 1) {
+							// This will kind of keep us alive.
+							CBytestream emptyUnreliable;
+							chan->Transmit(&emptyUnreliable);
+						}
+					}
+					c++; c %= 10;
+					SDL_Delay(100);
+				}
+				return 0;
+			}
+		};
+		
+		SmartPointer< ThreadVar<bool> > scope;
+		TimeoutAvoider(CChannel* c) {
+			scope = new ThreadVar<bool>(true);
+			TimeoutAvoiderAction* a = new TimeoutAvoiderAction();
+			a->chan = c;
+			a->scope = scope;
+			threadPool->start(a, "ParsePrepareGame timeout avoider keep-me-alive", true);
+		}
+		~TimeoutAvoider() { scope->write() = false; }
+	};
+	TimeoutAvoider timeoutAvoider(client->cNetChan);
+	
+	
 	notes << "Client: Got ParsePrepareGame" << endl;
 
 	bool isReconnect = false;
@@ -1150,6 +1182,18 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 				continue;
 		}
 		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
+		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -1222,10 +1266,11 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	}
 }
 
-static void setClientGameMode(CGameMode*& mode, const std::string& modeName) {
+template<typename CGameModeWrapperType>
+static void setClientGameMode(CGameModeWrapperType& mode, const std::string& modeName) {
 	if(game.isServer()) {
 		// grab from server
-		mode = gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
+		mode = (CGameMode*)gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
 		
 		// overwrite in case of single player mode
 		// we do this so in case we have a standard mode, the bots can act normal
@@ -1395,9 +1440,11 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
-	// Show a spawn entity
-	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
-
+	if(client->isWormVisibleOnAnyViewport(id)) {
+		// Show a spawn entity but only if worm is not hidden on any of our local viewports
+		SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
+	}
+	
 	client->UpdateScoreboard();
 	//if (client->cRemoteWorms[id].getLocal()) // We may spectate and watch other worm, so redraw always
 	client->bShouldRepaintInfo = true;
@@ -2231,6 +2278,18 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 				continue;
 		}
 		
+		// certain settings were updated anyway, so don't reset them
+		if(i == FT_Map ||
+		   i == FT_Mod ||
+		   i == FT_GameMode ||
+		   i == FT_Lives ||
+		   i == FT_KillLimit ||
+		   i == FT_TimeLimit ||
+		   i == FT_LoadingTime ||
+		   i == FT_Bonuses ||
+		   i == FT_ShowBonusName)
+			continue;
+		
 		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
@@ -2282,8 +2341,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		if (client->cRemoteWorms[id].getHookedWorm())
 			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		
-		client->cRemoteWorms[id].Kill();
+		client->cRemoteWorms[id].Kill(false);
 		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
 			client->cRemoteWorms[id].clearInput();
 
@@ -2724,10 +2782,13 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 		return;
 	}
 
-	w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
-	if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
-		SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
-
+	// old clients were so stupid to mix up functionality of hideworm/spawning
+	if(client->getServerVersion() <= OLXBetaVersion(0,59,7)) {
+		w->Spawn(w->getPos());	// We won't get SpawnWorm packet from H&S server
+		if (!hide && !immediate)	// Show sparkles only when worm is discovered, or else we'll know where it has been respawned
+			SpawnEntity(ENT_SPAWN,0,w->getPos(),CVec(0,0),Color(),NULL); // Spawn some sparkles, looks good
+	}
+	
 	// Hide or show the worm
 	if (hide)
 		w->Hide(forworm, immediate);

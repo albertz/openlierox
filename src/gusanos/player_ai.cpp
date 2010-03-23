@@ -129,7 +129,7 @@ void PlayerAI::getTarget()
 	{
 		if ( worm->getOwner() != this )
 		if ( CWorm * tmpWorm = dynamic_cast<CWorm*>(&*worm) )
-		if ( !gusGame.options.teamPlay || (tmpWorm->getTeam() != m_worm->getTeam()) )
+		if ( !game.isTeamPlay() || (tmpWorm->getTeam() != m_worm->getTeam()) )
 		if ( tmpWorm->isActive() )
 		{
 			bool blocked = checkMaterialsTo( worm->pos() );

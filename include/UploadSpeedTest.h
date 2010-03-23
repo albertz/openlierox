@@ -10,7 +10,7 @@
 #ifndef __UPLOADSPEEDTEST_H__
 #define __UPLOADSPEEDTEST_H__
 
-#include "types.h"
+#include "olx-types.h"
 #include "HTTP.h"
 
 #define UPLOAD_TEST_SERVERS "speedtestservers.txt"

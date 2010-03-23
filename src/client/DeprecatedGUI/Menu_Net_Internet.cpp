@@ -163,7 +163,7 @@ void Menu_Net_NETShutdown()
 		}
 
 		// Save the selected player
-		GuiListItem::Pt item = ((CCombobox*)cInternet.getWidget(mi_PlayerSelection))->getSelectedItem();
+		GuiListItem::Pt item = ((CCombobox*)cInternet.getWidget(mi_PlayerSelection)) ? ((CCombobox*)cInternet.getWidget(mi_PlayerSelection))->getSelectedItem() : NULL;
 		if (item.get())
 			tLXOptions->sLastSelectedPlayer = item->index();
 	}

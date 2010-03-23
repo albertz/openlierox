@@ -446,7 +446,9 @@ public:
 			
 			worm->processJumpingAndNinjaropeControls();
 			worm->processPhysics();
-			worm->processMoveAndDig();			
+			worm->processMoveAndDig();
+			
+			ws->bJump = worm->jumping; // we may have overwritten this
 		}
 		
 		simulateWormWeapon(wpnDT, worm);
@@ -515,13 +517,15 @@ public:
 			return;
 
 		const bool firsthit = !rope->isAttached();
-		CVec force = rope->isShooting() ? CVec(0,100) : CVec(0,150);
+		CVec force = rope->isShooting() ?
+			CVec(0.0f, (float)cClient->getGameLobby()[FT_RopeGravity]) :
+			CVec(0.0f, (float)cClient->getGameLobby()[FT_RopeFallingGravity]);
 
 		// dt is fixed, but for very high speed, this could be inaccurate.
 		// We use the limit 5 here to have it very unpropable to shoot through a wall.
 		// In most cases, dt his halfed once, so this simulateNinjarope is
 		// like in LX56 with 200FPS.
-		if((rope->getHookVel() + force*dt).GetLength2() * dt * dt > 5) {
+		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt > 5) {
 			simulateNinjarope( dt/2, owner, worms );
 			simulateNinjarope( dt/2, owner, worms );
 			return;

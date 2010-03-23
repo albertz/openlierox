@@ -85,11 +85,9 @@ bool ExpType::load(std::string const& filename)
 	
 	OmfgScript::Parser parser(fileStream, gameActions, filename);
 	
-	namespace af = OmfgScript::ActionParamFlags;
-		
-	parser.addEvent("creation", GameEventID::Creation, af::Object);
+	parser.addEvent("creation", GameEventID::Creation, OmfgScript::ActionParamFlags::Object);
 	
-	parser.addEvent("detect_range", GameEventID::DetectRange, af::Object | af::Object2)
+	parser.addEvent("detect_range", GameEventID::DetectRange, OmfgScript::ActionParamFlags::Object | OmfgScript::ActionParamFlags::Object2)
 		("range")
 		("detect_owner")
 		("layers")

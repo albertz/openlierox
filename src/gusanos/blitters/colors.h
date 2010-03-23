@@ -6,7 +6,7 @@
 #endif //DEDICATED_ONLY
 
 #include "gusanos/allegro.h"
-#include "types.h"
+#include "gusanos/blitters/types.h"
 
 namespace Blitters
 {

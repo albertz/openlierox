@@ -636,6 +636,23 @@ std::string GetBaseFilenameWithoutExt(const std::string& filename) {
 	return f.substr(0,p);	
 }
 
+std::string GetFilenameWithoutExt(const std::string& f) {
+	size_t pathSep = findLastPathSep(f);
+	if(pathSep == std::string::npos) {
+		size_t p = f.rfind('.');
+		if(p == std::string::npos) return f;
+		return f.substr(0,p);	
+	}
+
+	size_t p = f.rfind('.');
+	if(p == std::string::npos || p < pathSep)
+		// filename has no extension
+		return f;
+	
+	return f.substr(0,p);	
+}
+
+
 std::list<std::string> SplitFilename(const std::string& filename, size_t numPartsFromRight) {
 	std::list<std::string> ret;
 	std::string restFn = filename;

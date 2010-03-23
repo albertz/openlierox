@@ -28,7 +28,7 @@
 #include "CVec.h"
 #include "Consts.h"
 #include "CInput.h"
-#include "types.h"
+#include "olx-types.h"
 
 class profile_t;
 class IpToCountryDB;

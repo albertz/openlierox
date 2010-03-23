@@ -732,6 +732,7 @@
 		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
 		2367B2E50F7AFC9000F7B302 /* CChatWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CChatWidget.h; sourceTree = "<group>"; };
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
+		2370BEA411483D9300C6E277 /* olx-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "olx-types.h"; sourceTree = "<group>"; };
 		2370EE131100D0C80097F7BA /* SinglePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePlayer.h; sourceTree = "<group>"; };
 		2370EE141100D0C80097F7BA /* SinglePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SinglePlayer.cpp; sourceTree = "<group>"; };
 		2370F64E110617990097F7BA /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
@@ -1423,7 +1424,6 @@
 		EA430C840BEFCEDE00C6547E /* sex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sex.h; path = ../../include/sex.h; sourceTree = SOURCE_ROOT; };
 		EA430C860BEFCEDE00C6547E /* StringUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = StringUtils.h; path = ../../include/StringUtils.h; sourceTree = SOURCE_ROOT; };
 		EA430C870BEFCEDE00C6547E /* Timer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Timer.h; path = ../../include/Timer.h; sourceTree = SOURCE_ROOT; };
-		EA430C880BEFCEDE00C6547E /* types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = types.h; path = ../../include/types.h; sourceTree = SOURCE_ROOT; };
 		EA430C890BEFCEDE00C6547E /* UCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UCString.h; path = ../../include/UCString.h; sourceTree = SOURCE_ROOT; };
 		EA430C8A0BEFCEDE00C6547E /* Unicode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Unicode.h; path = ../../include/Unicode.h; sourceTree = SOURCE_ROOT; };
 		EA430C8F0BEFCF7F00C6547E /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = ../../CMakeLists.txt; sourceTree = SOURCE_ROOT; };
@@ -2606,6 +2606,7 @@
 		EA430C440BEFCEDE00C6547E /* include */ = {
 			isa = PBXGroup;
 			children = (
+				2370BEA411483D9300C6E277 /* olx-types.h */,
 				2326BAC710D29BB200D3F035 /* PhysicsDummy.h */,
 				23C182B210C4A8B3003DBB09 /* OLXConsole.h */,
 				23C1816A10C49602003DBB09 /* OLXCommand.h */,
@@ -2714,7 +2715,6 @@
 				EA430C840BEFCEDE00C6547E /* sex.h */,
 				EA430C860BEFCEDE00C6547E /* StringUtils.h */,
 				EA430C870BEFCEDE00C6547E /* Timer.h */,
-				EA430C880BEFCEDE00C6547E /* types.h */,
 				EA430C890BEFCEDE00C6547E /* UCString.h */,
 				EA430C8A0BEFCEDE00C6547E /* Unicode.h */,
 				231FE01D0F0019A7007F4CC8 /* FeatureList.h */,
@@ -3658,6 +3658,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../include",
 					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/lua",
 					"$(SRCROOT)/../../libs/hawknl/include",
@@ -3702,7 +3703,6 @@
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Debug for ppc";
@@ -3800,6 +3800,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../include",
 					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/lua",
 					"$(SRCROOT)/../../libs/hawknl/include",
@@ -3847,7 +3848,6 @@
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Debug with Fuzzy S2C";
@@ -3945,6 +3945,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../include",
 					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/lua",
 					"$(SRCROOT)/../../libs/hawknl/include",
@@ -3992,7 +3993,6 @@
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
 				WRAPPER_EXTENSION = app;
 			};
 			name = "Debug with Fuzzy C2S";
@@ -4210,6 +4210,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../include",
 					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/lua",
 					"$(SRCROOT)/../../libs/hawknl/include",
@@ -4255,7 +4256,6 @@
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -4283,6 +4283,7 @@
 				GCC_WARN_MISSING_PARENTHESES = YES;
 				GENERATE_PROFILING_CODE = NO;
 				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../include",
 					"$(SRCROOT)/../../src",
 					"$(SRCROOT)/../../libs/lua",
 					"$(SRCROOT)/../../libs/hawknl/include",
@@ -4322,7 +4323,6 @@
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				STRIP_INSTALLED_PRODUCT = NO;
-				USER_HEADER_SEARCH_PATHS = "$(SRCROOT)/../../include";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

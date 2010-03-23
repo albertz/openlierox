@@ -173,7 +173,7 @@ public:
 	virtual void SendSelectWeapons(CWorm* worm);
 	virtual void SendUpdateWorm(CWorm* w);
 	
-	static void WriteFeatureSettings(CBytestream* bs);
+	static void WriteFeatureSettings(CBytestream* bs, const Version& compatVer);
 
 	virtual void ParseNewNetKeys(CBytestream *bs);
 	virtual void ParseNewNetChecksum(CBytestream *bs);

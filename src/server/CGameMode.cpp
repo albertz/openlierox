@@ -192,7 +192,8 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	}
 
 	// Victim is out of the game
-	if(victim->Kill() && networkTexts->sPlayerOut != "<none>") {
+	victim->Kill(true);
+	if(victim->getLives() == WRM_OUT && networkTexts->sPlayerOut != "<none>") {
 		playSoundForWorm(victim, "terminated");
 		cServer->SendGlobalText(replacemax(networkTexts->sPlayerOut, "<player>",
 								victim->getName(), 1), TXT_NORMAL);
@@ -525,7 +526,7 @@ void InitGameModes() {}
 
 CGameMode* GameMode(GameModeIndex i) {
 	if(i < 0 || (uint)i >= gameModesSize) {
-		errors << "gamemode " << i << " requested, we don't have such one" << endl;
+		errors << "GameMode(): gamemode index " << i << " requested, we don't have such one" << endl;
 		return NULL;
 	}
 	
@@ -537,7 +538,7 @@ CGameMode* GameMode(const std::string& name) {
 		if(name == gameModes[i]->Name())
 			return gameModes[i];
 	}
-	warnings << "gamemode " << name << " requested, we don't have such one" << endl;
+	warnings << "GameMode(): gamemode name " << name << " requested, we don't have such one" << endl;
 	return NULL;
 }
 

@@ -1,0 +1,44 @@
+#!/usr/bin/python -u
+
+# We reuse the control handler as a simple wrapper.
+import sys, os, time, random, re
+sys.path.append( os.path.dirname(sys.argv[0]) )
+import dedicated_control_io as io
+
+# Repeat until we got the map list.
+# We repeat this because right at OLX startup, it may return an empty list.
+levels = []
+while len(levels) == 0:
+	levels = io.listMaps()
+	time.sleep(1)
+
+
+if float(re.match("([A-Za-z]+/)?(?P<num>[0-9]+\.[0-9]+).*", io.getVar("GameOptions.Network.ForceMinVersion")).group("num")) + 0.001 < 0.59:
+	io.msg("LX levels only")
+	levels = [ x for x in levels if x.endswith(".lxl") ]
+else:
+	io.msg("all levels")
+
+
+def signalHandler(sig):
+	signame = sig[0]
+
+	if signame == "quit":
+		exit()
+	
+	if signame == "backtolobby" or signame == "lobbystarted":
+		# select next map
+		io.SendCommand("map \"%s\"" % random.choice(levels))
+
+	if signame in [ "backtolobby", "lobbystarted", "newworm" ] and not io.getGameState() in [ "S_SVRPLAYING", "S_SVRWEAPONS" ]:
+		ret = io.SendCommand("startGame")
+		if len(ret) > 0: # this means an error
+			io.chatMsg(ret[0])
+
+
+
+# This will start the server.
+io.startLobby(0)
+
+while True:
+	signalHandler(io.getSignal())

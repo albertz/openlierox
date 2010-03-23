@@ -20,7 +20,7 @@
 #define __CONSOLE_H__
 
 #include <SDL.h>
-#include "types.h"
+#include "olx-types.h"
 
 
 // Routines
