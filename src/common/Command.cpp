@@ -762,7 +762,7 @@ void Cmd_longhelp::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	caller->writeMsg("Available commands:");
 	for(CommandMap::iterator it = commands.begin(); it != commands.end(); ++it) {
 		if(!it->second->hidden && it->first == it->second->name) {
-			caller->writeMsg(it->first + " - " + it->second->desc);
+			caller->pushReturnArg(it->first + " - " + it->second->desc);
 		}
 	}
 }
