@@ -1358,7 +1358,6 @@ static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* cons
 simulateProjectileStart:
 	if(prj->fLastSimulationTime + orig_dt > currentTime) goto finalMapPosIndexUpdate;
 	prj->fLastSimulationTime += orig_dt;
-	// It is ensured that prj->lx56handler != NULL, because we cannot get here otherwise.
 	if(LX56ProjectileHandler_doFrame(currentTime, dt, prj))
 		goto simulateProjectileStart;
 
