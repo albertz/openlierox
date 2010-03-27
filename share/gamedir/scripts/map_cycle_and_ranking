@@ -1,6 +1,6 @@
 #!/usr/bin/python -u
 
-import sys, os, time, random, re
+import sys, os, time, random, re, traceback
 sys.path.append( os.path.dirname(sys.argv[0]) )
 import dedicated_control_io as io
 import dedicated_control_ranking as ranking
@@ -128,4 +128,9 @@ def signalHandler(sig):
 io.startLobby(0)
 
 while True:
-	signalHandler(io.getSignal())
+	try:
+		signalHandler(io.getSignal())
+	except SystemExit:
+		break
+	except:
+		io.msg( "Unexpected error in signal handler main loop:\n" + traceback.format_exc() )
