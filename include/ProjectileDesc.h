@@ -91,12 +91,6 @@ struct proj_t {
 		Animating = false;
 		AnimRate = 0.0f;
 		AnimType = ANI_ONCE;
-		AttractiveForce = 0;
-		AttractiveForceObjects = ATO_NONE;
-		AttractiveForceClasses = ATC_NONE;
-		AttractiveForceRadius = 0;
-		AttractiveForceThroughWalls = 0;
-		AttractiveForceType = ATT_GRAVITY;
 		UseCustomGravity = false;
 		Gravity = 0;
 		Dampening = 0.0f;
@@ -119,12 +113,6 @@ struct proj_t {
 	bool	Animating;
 	float	AnimRate;
 	Proj_AnimType AnimType;
-	int		AttractiveForce;  // How much will players/projectiles be attracted to this projectile
-	int AttractiveForceObjects;
-	int AttractiveForceClasses;
-	int		AttractiveForceRadius;  // Radius where the gravity is applied
-	bool	AttractiveForceThroughWalls;  // Should the gravity "go through" walls?
-	Proj_AttractiveType	AttractiveForceType;  // How the attractive force should behave
 	
 	// physical behaviour
 	bool	UseCustomGravity;
