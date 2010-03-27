@@ -1370,7 +1370,6 @@ finalMapPosIndexUpdate:
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
 	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
-	cClient->fLastSimulationTime += warpTime;
 	static const TimeDiff orig_dt = LX56PhysicsDT;
 	AbsTime realSimulationTime = GetTime();
 	
