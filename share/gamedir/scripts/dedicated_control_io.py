@@ -188,7 +188,8 @@ def listMods():
 
 # Use this to write to stdout (standard output)
 def msg(string):
-	SendCommand( "msg \"%s\"" % str(string) )
+	for l in str(string).splitlines():
+		SendCommand( "msg \"%s\"" % l )
 
 # Send a chat message
 def chatMsg(string):
