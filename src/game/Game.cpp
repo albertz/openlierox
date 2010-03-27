@@ -46,6 +46,12 @@ Game game;
 static bool inMainGameLoop = false;
 static std::string quitEngineFlagReason;
 
+static bool DbgSimulateSlow = false;
+
+static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
+( DbgSimulateSlow, "SimulateSlow" );
+
+
 void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
@@ -135,7 +141,8 @@ void Game::frameOuter() {
 	frameInner();
 	
 	doVideoFrameInMainThread();
-	CapFPS();
+	if(DbgSimulateSlow) SDL_Delay(200);
+	CapFPS();	
 }
 
 
