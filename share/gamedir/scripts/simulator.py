@@ -9,6 +9,29 @@ if len(sys.argv) < 2:
 script = sys.argv[1]
 sin, sout = os.popen2(script)
 
+
+def olxdir():
+	try:
+		from win32com.shell import shellcon, shell            
+		homedir = shell.SHGetFolderPath(0, shellcon.CSIDL_MYDOCUMENTS, 0, 0)
+ 
+	except ImportError:
+		homedir = os.path.expanduser("~")
+
+	if os.name == "nt":
+		p = "OpenLieroX"
+	elif os.name == "mac":
+		p = "Library/Application Support/OpenLieroX"
+	else:
+		p = ".OpenLieroX"
+	
+	return homedir + "/" + p
+
+
+def getwritefullfilename(fn):
+	return olxdir() + "/" + fn		
+
+
 def getvar(var):
 	var = var.lower()
 
@@ -21,7 +44,7 @@ def getvar(var):
 
 def handle(cmd, params):
 	if cmd == "getwritefullfilename" or cmd == "getfullfilename":
-		return params # no translation
+		return getwritefullfilename(params[0])
 
 	if cmd == "listmaps":
 		# some scripts need some output here
