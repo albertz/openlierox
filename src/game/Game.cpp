@@ -141,7 +141,7 @@ void Game::frameOuter() {
 	frameInner();
 	
 	doVideoFrameInMainThread();
-	if(DbgSimulateSlow) SDL_Delay(200);
+	if(DbgSimulateSlow) SDL_Delay(700);
 	CapFPS();	
 }
 
