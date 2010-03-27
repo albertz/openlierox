@@ -1371,18 +1371,9 @@ void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
 	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
 	static const TimeDiff orig_dt = LX56PhysicsDT;
-	AbsTime realSimulationTime = GetTime();
 	
 simulateProjectilesStart:
 	if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
-
-	// HINT: if the computer is too slow and doesn't manage to simulate everything, just skip few frames
-	// Better an incorrect simulation than a game that is not controllable
-	if (GetTime() - realSimulationTime > orig_dt)  {
-		cClient->fLastSimulationTime = currentTime;
-		return;
-	}
-	realSimulationTime = GetTime();
 	
 	for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 		CProjectile* p = i->get();
