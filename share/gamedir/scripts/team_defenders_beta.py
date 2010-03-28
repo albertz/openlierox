@@ -16,6 +16,7 @@ sys.path.append( os.path.dirname(sys.argv[0]) ) # Add the the folder this file i
 import time
 import random
 import re
+import traceback
 import tools.commands as cmd
 import tools.army_factory.main as army_factory
 
@@ -119,10 +120,10 @@ def get_command_safe_string(string):
 
 def worm_is_local(id):
 	"""Uses whois to find out if the worm is a local one or not"""
-	cmd_resp = cmd.whoIs(id)
+	cmd_resp = parse_olx_dict_format(cmd.whoIs(id))
 	if len(cmd_resp) == 0:
 		return False #Ugly error handling
-	if cmd_resp[5] == "NetSpeed: local":
+	if cmd_resp["NetSpeed"] == "local":
 		return True
 	return False
 
@@ -135,8 +136,17 @@ def get_num_foreign_worms():
 		if not worm_is_local(id):
 			ret += 1	
 	return ret
+	
+def parse_olx_dict_format(list):
+	return dict([ re.match("([^:]+): (.*)", item).groups() for item in list ])
+	
 
 #========= Action! ========================================
 init_server()
 while True:
-	signal_handler(cmd.nextSignal())
+	try:
+		signal_handler(cmd.nextSignal())
+	except SystemExit:
+		break
+	except:
+		cmd.msg( "Unexpected error in signal handler main loop:\n" + traceback.format_exc() )	
