@@ -24,6 +24,9 @@ def produce(army_pattern, challenge_amount, lives = 0, team = 0):
 	
 class Army:
 	"""The army class contains id's of the bots in the army. It also contains some useful methods to handle the army as a whole."""
+	name = "Untitled"
+	description = "*No description*"
+	
 	def __init__(self, bot_ids=[]):
 		self.ids = bot_ids
 	

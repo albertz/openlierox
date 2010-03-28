@@ -25,7 +25,7 @@ import tools.army_factory.main as army_factory
 GAME_OPTIONS = {	
 	"GameOptions.GameInfo.GameType":                "Team Death Match",
 	"GameOptions.GameInfo.FullAimAngle":            1,
-	"GameOptions.GameInfo.LoadingTime":             15,
+	"GameOptions.GameInfo.LoadingTime":             0,
 	"GameOptions.GameInfo.ModName":                 "Liero v2.0",
 	"GameOptions.Network.ServerName":               "Experimental Server",
 	"GameOptions.Server.MaxPlayers":                32,
@@ -108,12 +108,17 @@ def signal_handler(signal):
 		cmd.map(random.choice(all_available_maps)) 
 
 	if signal_name in [ "backtolobby", "lobbystarted", "newworm" ] and not cmd.getGameState()[0] in [ "S_SVRPLAYING", "S_SVRWEAPONS" ]:
-		ret = cmd.startGame()
+		start_game_ret = cmd.startGame()
+		if len(start_game_ret) > 0: # this means an error
+			cmd.chatMsg(start_game_ret[0])
+		
 		# Add new bots:
-		army_factory.produce(random.choice(['hungry_zombie_kittens', 'the_seven_dwarfs', 'aho_dojo_ninjas', 'bunny_invasion']), get_num_foreign_worms()+0.5, 0, ENEMY_TEAM)
-		#
-		if len(ret) > 0: # this means an error
-			cmd.chatMsg(ret[0])
+		the_army = army_factory.produce(random.choice(['alien_robots_inc', 'hungry_zombie_kittens', 'the_seven_dwarfs', 'aho_dojo_ninjas', 'bunny_invasion', 'the_grandpa_association', 'the_wizard_and_his_evil_stickmen']), get_num_foreign_worms()+0.5, 0, ENEMY_TEAM)
+		#'alien_robots_inc', 'hungry_zombie_kittens', 'the_seven_dwarfs', 'aho_dojo_ninjas', 'bunny_invasion', 'the_grandpa_association', 'the_wizard_and_his_evil_stickmen'
+		cmd.chatMsg("Now fighting...")
+		cmd.chatMsg("<b>"+get_command_safe_string(the_army.name)+"</b>")
+		cmd.chatMsg("<em>"+get_command_safe_string(the_army.description)+"</em>")
+
 			
 def get_command_safe_string(string):
 	return string.replace('"', "''")
@@ -149,4 +154,6 @@ while True:
 	except SystemExit:
 		break
 	except:
-		cmd.msg( "Unexpected error in signal handler main loop:\n" + traceback.format_exc() )	
+		cmd.msg( "Unexpected error in signal handler main loop:" )
+		for line in traceback.format_exc().splitlines():
+			cmd.msg( get_command_safe_string(line) )	
