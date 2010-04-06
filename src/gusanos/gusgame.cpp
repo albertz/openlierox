@@ -970,10 +970,8 @@ void GusGame::prepareLoad(const std::string& path) {
 }
 
 void GusGame::finishLoad() {
-#ifdef USE_GRID
 	if(isLevelLoaded())
 		game.objects.resize(0, 0, level().GetWidth(), level().GetHeight());
-#endif
 	
 	//cerr << "Loading mod" << endl;
 	loadMod();
@@ -1125,11 +1123,7 @@ CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
 
 void GusGame::insertExplosion( Explosion* explosion )
 {
-#ifdef USE_GRID
 	game.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
-#else
-	game.objects.insert( NO_COLLISION_LAYER, explosion->getType()->renderLayer, explosion );
-#endif
 }
 
 CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, CWorm* worm )

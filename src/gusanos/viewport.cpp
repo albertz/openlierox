@@ -167,21 +167,10 @@ void CViewport::gusRender()
 	if ( gusGame.level().config()->darkMode && gusGame.level().lightmap )
 		blit( gusGame.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
-#ifdef USE_GRID
-
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
 		//iter->draw(dest, offX, offY);
 		iter->draw(this);
 	}
-#else
-	for ( int i = 0; i < RENDER_LAYERS_AMMOUNT ; ++i) {
-		ObjectsList::RenderLayerIterator iter;
-		for ( iter = game.objects.renderLayerBegin(i); (bool)iter; ++iter) {
-			//(*iter)->draw(dest, offX, offY);
-			(*iter)->draw(this);
-		}
-	}
-#endif
 
 	/*
 		static double a = 0.0;

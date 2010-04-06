@@ -445,7 +445,6 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 		case CWormInputHandler::WormID: {
 			/*
 			Net_NodeID recievedID = *static_cast<Net_U32*>(_replicator->peekData());
-#ifdef USE_GRID
 			
 			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
 				if ( CWorm* worm = dynamic_cast<CWorm*>(&*iter)) {
@@ -454,16 +453,6 @@ bool BasePlayerInterceptor::inPreUpdateItem (Net_Node *_node, Net_ConnID _from, 
 					}
 				}
 			}
-#else
-			ObjectsList::Iterator objIter;
-			for ( objIter = game.objects.begin(); objIter; ++objIter) {
-				if ( NetWorm* worm = dynamic_cast<NetWorm*>(*objIter) ) {
-					if ( worm->getNodeID() == recievedID ) {
-						m_parent->assignWorm(worm);
-					}
-				}
-			}
-#endif
 			 */
 			return true;
 		}

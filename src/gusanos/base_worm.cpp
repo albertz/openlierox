@@ -124,7 +124,6 @@ void CWorm::gusShutdown()
 	// is not called from Gusanos but from CClient.
 	// NOTE: Not really the best way but I don't know a better way
 	// TODO: move this out here
-#ifdef USE_GRID
 	for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 	{
 		if( &*iter == this )
@@ -132,20 +131,6 @@ void CWorm::gusShutdown()
 		else
 			++iter;
 	}
-#else
-	for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
-	{
-		if ( &*iter == this )
-		{
-			ObjectsList::Iterator tmp = iter;
-			++iter;
-			tmp->deleteThis();
-			game.objects.erase(tmp);
-		}
-		else
-			++iter;
-	}
-#endif
 	
 	NetWorm_Shutdown();
 }
