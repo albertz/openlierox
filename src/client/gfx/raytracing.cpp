@@ -21,14 +21,17 @@ static GamePixelInfo getGamePixelInfo_MapOnly(int x, int y) {
 	{
 		SDL_Surface* image = game.gameMap()->image->surf.get();
 		if(LockSurface(image)) {
-			info.color = Color(image->format, GetPixel(image, x, y));
+			Uint32 col = GetPixel(image, x, y);
+			info.color = Color(image->format, col);
 			UnlockSurface(image);
+			if(IsTransparent(image, col)) info.color.a = SDL_ALPHA_TRANSPARENT;
 		}
 	}
 	
 	if(info.color.a != SDL_ALPHA_OPAQUE) {
 		SDL_Surface* paralax = game.gameMap()->paralax->surf.get();
 		if(LockSurface(paralax)) {
+			// TODO: real alpha blending
 			info.color = Color(paralax->format, GetPixel(paralax, x, y));
 			UnlockSurface(paralax);
 		}	
@@ -42,7 +45,8 @@ GamePixelInfo getGamePixelInfo(int x, int y) {
 	CVec p(x, y);
 	
 	forrange_bool(object, game.objects.beginArea(x, y, x+1, y+1, /* layer */ 0)) {
-		if( (object->pos() - p).GetLength2() < 1 ) {
+		IVec size = object->size();
+		if( abs((int)object->pos().x - x) + 1 <= size.x && abs((int)object->pos().y - y) + 1 <= size.y ) {
 			GamePixelInfo info;
 			info.type = GamePixelInfo::GPI_Object;
 			info.object.obj = &*object;

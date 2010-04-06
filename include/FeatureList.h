@@ -262,11 +262,12 @@ public:
  Class for specific game settings. For the layered version, look at class Settings (game/Settings.h).
  It initialises with all unset values. It is used in CClient for all client side settings.
  */
-template<Feature* __FeatureArray, size_t __FeatureArrayLen>
+template<typename __IndexType, Feature* __FeatureArray, size_t __FeatureArrayLen>
 class _FeatureSettings {
 public:
 //	static const Feature* FeatureArray = __FeatureArray;
 	static const size_t FeatureArrayLen = __FeatureArrayLen;
+	typedef __IndexType Index;
 private:
 	ScriptVar_t settings[FeatureArrayLen];
 public:
@@ -275,13 +276,13 @@ public:
 			(*this)[(FeatureIndex)i] = __FeatureArray[i].unsetValue;		
 	}
 	
-	ScriptVar_t& operator[](FeatureIndex i) { return settings[i]; }
+	ScriptVar_t& operator[](Index i) { return settings[i]; }
 	ScriptVar_t& operator[](Feature* f) { return settings[f - &__FeatureArray[0]]; }
-	const ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
+	const ScriptVar_t& operator[](Index i) const { return settings[i]; }
 	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &__FeatureArray[0]]; }
 	
-	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &__FeatureArray[0])); }
-	ScriptVar_t hostGet(FeatureIndex i) {
+	ScriptVar_t hostGet(Feature* f) { return hostGet(Index(f - &__FeatureArray[0])); }
+	ScriptVar_t hostGet(Index i) {
 		ScriptVar_t var = (*this)[i];
 		Feature* f = &__FeatureArray[i];
 		if(f->getValueFct)
@@ -296,6 +297,6 @@ public:
 	}
 };
 
-typedef _FeatureSettings<featureArray, FeatureArrayLen> FeatureSettings;
+typedef _FeatureSettings<FeatureIndex, featureArray, FeatureArrayLen> FeatureSettings;
 	
 #endif

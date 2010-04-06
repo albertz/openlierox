@@ -28,7 +28,7 @@ enum ClientSettingIndex {
 static const size_t ClientSettingsArrayLen = __CS_BOTTOM;
 extern Feature ClientSettingsArray[ClientSettingsArrayLen];
 
-typedef _FeatureSettings<ClientSettingsArray, ClientSettingsArrayLen> ClientSettings;
+typedef _FeatureSettings<size_t, ClientSettingsArray, ClientSettingsArrayLen> ClientSettings;
 extern ClientSettings clientSettings;
 
 #endif
