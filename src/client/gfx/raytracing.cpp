@@ -9,8 +9,12 @@
 
 #include "raytracing.h"
 
+// basically, this is CClient::DrawViewport_Game backwards
 GamePixelInfo getGamePixelInfo(int x, int y) {
+	GamePixelInfo info;
 	
+	
+	return info;
 }
 
 Color getGamePixelColor(int x, int y) {
