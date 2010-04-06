@@ -26,12 +26,12 @@ struct GamePixelInfo {
 		int relX, relY;
 	};
 	
-	typedef size_t MaterialIndex;
+	typedef unsigned char MaterialIndex;
 	
 	union {
 		ObjectInfo object;
 		MaterialIndex material;
-	} data;
+	};
 	
 	Color color;
 };

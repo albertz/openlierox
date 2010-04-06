@@ -387,6 +387,8 @@ public:
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
 	void		UpdateDrawPos();
 
+	Color renderColorAt(/* relative coordinates */ int x, int y);
+	
 	//
 	// Game
 	//

@@ -848,6 +848,21 @@ static inline bool isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
 }
 
+Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) {
+	// Find the right pic
+	int f = ((int)fFrame*7);
+	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
+	f += ang;
+			
+	// Draw the worm
+	// BAD HACK: visibility depends on first local worm
+	if(isVisible( (cClient->getNumWorms() > 0) ? cClient->getWorm(0) : NULL ))
+		// multiplied by 2 because skin have double res
+		return cSkin.renderColorAt(x*2 + cSkin.getSkinWidth()/2, y*2 + cSkin.getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);
+	
+	return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+}
+
 ///////////////////
 // Draw the worm
 void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
