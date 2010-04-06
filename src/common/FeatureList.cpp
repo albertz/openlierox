@@ -214,28 +214,6 @@ Feature* featureByName(const std::string& name) {
 	return NULL;
 }
 
-FeatureSettings::FeatureSettings() {
-	for_each_iterator( Feature*, f, Array(featureArray,featureArrayLen()) ) {
-		(*this)[f->get()] = f->get()->unsetValue;
-	}
-}
-
-FeatureSettings::~FeatureSettings() {}
-
-
-ScriptVar_t FeatureSettings::hostGet(FeatureIndex i) {
-	ScriptVar_t var = (*this)[i];
-	Feature* f = &featureArray[i];
-	if(f->getValueFct)
-		var = (cServer->*(f->getValueFct))( var );
-			
-	return var;
-}
-
-bool FeatureSettings::olderClientsSupportSetting(Feature* f) {
-	if( f->optionalForClient ) return true;
-	return hostGet(f) == f->unsetValue;
-}
 
 Feature* featureByVar(const ScriptVarPtr_t& var, bool printErrors) {
 	if(var.type != SVT_DYNAMIC) {
