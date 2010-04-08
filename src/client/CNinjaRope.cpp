@@ -24,12 +24,15 @@
 #include "Entity.h"
 #include "CClient.h"
 #include "game/Game.h"
+#include "Geometry.h"
 
 
 ///////////////////
 // Clear the ninja rope vars
 void CNinjaRope::Clear()
 {
+	owner = NULL;
+	
 	Released = false;
 	HookShooting = false;
 	HookAttached = false;
@@ -65,13 +68,15 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 
 	if(!owner->canUseNinja()) return;
 	
+	this->owner = owner;
+	
 	Released = true;
 	HookShooting = true;
 	HookAttached = false;
 	PlayerAttached = false;
 	Worm = NULL;
 
-	HookPos = pos;
+	this->pos() = pos;
 	HookDir = dir;
 	HookVelocity = dir * (float)cClient->getGameLobby()[FT_RopeSpeed];
 	
@@ -99,8 +104,8 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	int wx = view->GetWorldX();
 	int wy = view->GetWorldY();
 
-	int hx = (int)HookPos.x;
-	int hy = (int)HookPos.y;
+	int hx = (int)pos().x;
+	int hy = (int)pos().y;
 
 	// HINT: the hooked worm position could change since the Simulate procedure was called,
 	// because the worms are being processed in a "random" order -> we simulate and then the hook worm
@@ -138,6 +143,20 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 	}
 
 	// The clipping on the viewport is done in the line function
+}
+
+bool CNinjaRope::isInside(int x, int y) {
+	if(!Released) return false;
+	if(!owner) return false;
+	Line l(owner->pos(), pos());
+	return l.distFromPoint2(VectorD2<int>(x, y)) < 2.0f;
+}
+
+Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) {
+	x += (int)pos().x;
+	y += (int)pos().y;
+	if(isInside(x, y)) return Color(159,79,0);
+	return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 }
 
 ////////////////////
@@ -180,11 +199,11 @@ CVec CNinjaRope::GetForce(CVec playerpos)
 // Calculate the pulling force
 CVec CNinjaRope::CalculateForce(CVec playerpos)
 {
-	CVec dir = playerpos-HookPos;
+	CVec dir = playerpos-pos();
 	dir = dir.Normalize();
 
 	const int RestLength = cClient->getGameLobby()[FT_RopeRestLength];
-	if((playerpos-HookPos).GetLength2() < RestLength*RestLength)
+	if((playerpos-pos()).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 
 	// Make sure the pull isn't huge
@@ -219,7 +238,7 @@ bool CNinjaRope::writeNeeded()
 			(LastWorm != Worm))
 				return true;
 
-	return HookPos != OldHookPos;
+	return pos() != OldHookPos;
 }
 
 ///////////////////
@@ -242,8 +261,8 @@ void CNinjaRope::write(CBytestream *bs)
 	bs->writeByte( type );
 
 	// Position
-	short x = (short)HookPos.x;
-	short y = (short)HookPos.y;
+	short x = (short)pos().x;
+	short y = (short)pos().y;
 
 	// Write out position of the hook
 	bs->write2Int12( x, y );
@@ -281,7 +300,8 @@ void CNinjaRope::write(CBytestream *bs)
 // Read rope details from a bytestream
 void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 {
-	OldHookPos = HookPos;
+	this->owner = &worms[owner];
+	OldHookPos = pos();
 	int type = bs->readByte();
 	Released = true;
 	Worm = NULL;
@@ -312,8 +332,7 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	// Position
 	short x, y;
 	bs->read2Int12( x, y );
-	HookPos.x=( (float)x );
-	HookPos.y=( (float)y );
+	pos() = CVec( float(x), float(y) );
 
 	// Angle
 	if(type == ROP_SHOOTING) {
@@ -330,7 +349,7 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 			Worm->setHooked(true, &worms[owner]);
 
             // Set the hook pos on the worm
-            HookPos = Worm->getPos();
+            pos() = Worm->getPos();
 		}
 	}
 }

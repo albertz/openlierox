@@ -7,19 +7,31 @@
  *
  */
 
+#include <boost/lambda/lambda.hpp>
 #include "GfxPrimitives.h"
 #include "raytracing.h"
 #include "util/macros.h"
 #include "game/Game.h"
 #include "CMap.h"
 #include "SafeVector.h"
+#include "CWorm.h"
+#include "Geometry.h"
+
 
 /* some hacky code for projectiles and other LX only objects */
 struct ObjectMap {
 	SafeVector<CGameObject*> objects;
 	AbsTime lastUpdate;
 	
+	void set(int x, int y, CGameObject* obj) {
+		int width = game.gameMap()->GetWidth();
+		if(x >= 0 && x < width && y >= 0 && (unsigned int)y < game.gameMap()->GetHeight())
+			*objects[y * width + x] = obj;
+	}
+	
 	void update() {
+		using namespace boost::lambda;
+		
 		lastUpdate = tLX->currentTime;
 		int width = game.gameMap()->GetWidth();
 		size_t size = width * game.gameMap()->GetHeight();
@@ -34,7 +46,15 @@ struct ObjectMap {
 			for(int dy = 0; dy < i->get()->size().y; ++dy)
 				for(int dx = 0; dx < i->get()->size().x; ++dx)
 					*objects[y * width + dy * width + x + dx] = i->get();
-		}		
+		}
+		
+		for(int i = 0; i < MAX_WORMS; ++i) {
+			CWorm* const w = &cClient->getRemoteWorms()[i];
+			if(w->isUsed() && w->getNinjaRope()->isReleased()) {
+				Line l(w->pos(), w->getNinjaRope()->pos());
+				l.forEachPoint( *(_2 * width + _1 + objects[0]) = w->getNinjaRope() );
+			}
+		}
 	}
 	
 	void updateIfNeccessary() {
@@ -119,8 +139,7 @@ GamePixelInfo getGamePixelInfo(int x, int y) {
 		return infoForObject(object, x, y);
 	
 	forrange_bool(object, game.objects.beginArea(x, y, x+1, y+1, /* layer */ 0)) {
-		IVec size = object->size();
-		if( abs((int)object->pos().x - x) + 1 <= size.x && abs((int)object->pos().y - y) + 1 <= size.y )
+		if(object->isInside(x, y))
 			return infoForObject(&*object, x, y);
 	}
 
