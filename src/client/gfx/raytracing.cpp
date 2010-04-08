@@ -12,6 +12,50 @@
 #include "util/macros.h"
 #include "game/Game.h"
 #include "CMap.h"
+#include "SafeVector.h"
+
+/* some hacky code for projectiles and other LX only objects */
+struct ObjectMap {
+	SafeVector<CGameObject*> objects;
+	AbsTime lastUpdate;
+	
+	void update() {
+		lastUpdate = tLX->currentTime;
+		int width = game.gameMap()->GetWidth();
+		size_t size = width * game.gameMap()->GetHeight();
+		if(objects.size() != size)
+			objects.resize(size);
+		else
+			memset(objects[0], 0, objects.size() * sizeof(void*));
+		
+		for(Iterator<CProjectile*>::Ref i = cClient->getProjectiles().begin(); i->isValid(); i->next()) {
+			const int y = (int)i->get()->pos().y - i->get()->size().y / 2;
+			const int x = (int)i->get()->pos().x - i->get()->size().x / 2;
+			for(int dy = 0; dy < i->get()->size().y; ++dy)
+				for(int dx = 0; dx < i->get()->size().x; ++dx)
+					*objects[y * width + dy * width + x + dx] = i->get();
+		}		
+	}
+	
+	void updateIfNeccessary() {
+		if(tLX->currentTime > lastUpdate)
+			update();		
+	}
+	
+	CGameObject* at(int x, int y) {
+		const int width = game.gameMap()->GetWidth();
+		const int height = game.gameMap()->GetHeight();
+		if(x < 0 || x >= width || y < 0 || y >= height) return NULL;
+		const size_t size = width * height;
+		if(objects.size() == size)
+			return *objects[y * width + x];
+		return NULL;
+	}
+	
+};
+
+static ObjectMap objectMap;
+
 
 static GamePixelInfo getGamePixelInfo_MapOnly(int x, int y) {
 	GamePixelInfo info;
@@ -31,8 +75,19 @@ static GamePixelInfo getGamePixelInfo_MapOnly(int x, int y) {
 	if(info.color.a != SDL_ALPHA_OPAQUE) {
 		SDL_Surface* paralax = game.gameMap()->paralax->surf.get();
 		if(LockSurface(paralax)) {
+			// hardcoded w/h because we have no other option here
+			const int w = 320;
+			const int h = 240;
+			int px = int(x * (paralax->w - w) / float( game.gameMap()->material->w - w ));
+			int py = int(y * (paralax->h - h) / float( game.gameMap()->material->h - h ));
+			// we cannot be sure that we have them valid, so do these extra checks
+			if(px < 0) px = 0;
+			else if(px >= paralax->w) px = paralax->w - 1;
+			if(py < 0) py = 0;
+			else if(py >= paralax->h) py = paralax->h - 1;
+			
 			// TODO: real alpha blending
-			info.color = Color(paralax->format, GetPixel(paralax, x, y));
+			info.color = Color(paralax->format, GetPixel(paralax, px, py));
 			UnlockSurface(paralax);
 		}	
 	}
@@ -40,26 +95,33 @@ static GamePixelInfo getGamePixelInfo_MapOnly(int x, int y) {
 	return info;
 }
 
+static GamePixelInfo infoForObject(CGameObject* object, int x, int y) {
+	GamePixelInfo info;
+	info.type = GamePixelInfo::GPI_Object;
+	info.object.obj = &*object;
+	info.object.relX = x - (int)object->pos().x;
+	info.object.relY = y - (int)object->pos().y;
+	
+	info.color = info.object.obj->renderColorAt(info.object.relX, info.object.relY);
+	if(info.color.a != SDL_ALPHA_OPAQUE)
+		// TODO: real alpha blending
+		info.color = getGamePixelInfo_MapOnly(x, y).color;
+	
+	return info;	
+}
+
 // basically, this is CClient::DrawViewport_Game backwards
 GamePixelInfo getGamePixelInfo(int x, int y) {
+	objectMap.updateIfNeccessary();
 	CVec p(x, y);
+	
+	if(CGameObject* object = objectMap.at(x, y))
+		return infoForObject(object, x, y);
 	
 	forrange_bool(object, game.objects.beginArea(x, y, x+1, y+1, /* layer */ 0)) {
 		IVec size = object->size();
-		if( abs((int)object->pos().x - x) + 1 <= size.x && abs((int)object->pos().y - y) + 1 <= size.y ) {
-			GamePixelInfo info;
-			info.type = GamePixelInfo::GPI_Object;
-			info.object.obj = &*object;
-			info.object.relX = x - (int)object->pos().x;
-			info.object.relY = y - (int)object->pos().y;
-			
-			info.color = info.object.obj->renderColorAt(info.object.relX, info.object.relY);
-			if(info.color.a != SDL_ALPHA_OPAQUE)
-				// TODO: real alpha blending
-				info.color = getGamePixelInfo_MapOnly(x, y).color;
-			
-			return info;
-		}
+		if( abs((int)object->pos().x - x) + 1 <= size.x && abs((int)object->pos().y - y) + 1 <= size.y )
+			return infoForObject(&*object, x, y);
 	}
 
 	return getGamePixelInfo_MapOnly(x, y);
