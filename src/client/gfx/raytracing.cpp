@@ -7,7 +7,7 @@
  *
  */
 
-#include <boost/lambda/lambda.hpp>
+#include <boost/bind.hpp>
 #include "GfxPrimitives.h"
 #include "raytracing.h"
 #include "util/macros.h"
@@ -30,8 +30,6 @@ struct ObjectMap {
 	}
 	
 	void update() {
-		using namespace boost::lambda;
-		
 		lastUpdate = tLX->currentTime;
 		int width = game.gameMap()->GetWidth();
 		size_t size = width * game.gameMap()->GetHeight();
@@ -45,14 +43,14 @@ struct ObjectMap {
 			const int x = (int)i->get()->pos().x - i->get()->size().x / 2;
 			for(int dy = 0; dy < i->get()->size().y; ++dy)
 				for(int dx = 0; dx < i->get()->size().x; ++dx)
-					*objects[y * width + dy * width + x + dx] = i->get();
+					set(x + dx, y + dy, i->get());
 		}
 		
 		for(int i = 0; i < MAX_WORMS; ++i) {
 			CWorm* const w = &cClient->getRemoteWorms()[i];
 			if(w->isUsed() && w->getNinjaRope()->isReleased()) {
 				Line l(w->pos(), w->getNinjaRope()->pos());
-				l.forEachPoint( *(_2 * width + _1 + objects[0]) = w->getNinjaRope() );
+				l.forEachPoint( boost::bind(&ObjectMap::set, this, _1, _2, w->getNinjaRope()) );
 			}
 		}
 	}
