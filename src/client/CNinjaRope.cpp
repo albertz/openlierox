@@ -148,6 +148,8 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 bool CNinjaRope::isInside(int x, int y) {
 	if(!Released) return false;
 	if(!owner) return false;
+	if(!owner->getAlive()) return false;
+	
 	Line l(owner->pos(), pos());
 	return l.distFromPoint2(VectorD2<int>(x, y)) < 2.0f;
 }
