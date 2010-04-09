@@ -1,11 +1,12 @@
 #!/usr/bin/python -u
 
-import sys
+import sys, time
 
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
 #w = sys.stdout
-w.write("<HEAD><TITLE>Pwn0meter</TITLE></HEAD><BODY><H2>Pwn0meter</H2><BR>\n")
+w.write("<HEAD><TITLE>Pwn0meter</TITLE></HEAD><BODY><H2>Pwn0meter</H2>\n")
+w.write("<p>updated on %s</p>\n" % time.asctime())
 
 killers = {}
 deaders = {}
