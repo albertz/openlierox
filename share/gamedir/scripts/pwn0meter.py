@@ -1,6 +1,6 @@
 #!/usr/bin/python -u
 
-import sys, time, cgi, os, random
+import sys, time, cgi, os, random, traceback
 
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
@@ -16,14 +16,15 @@ try:
 	chatlogmark = "n: CHAT: "
 	chatlines = os.popen("tail -n 10000 \"" + lastlogfile + "\" | grep \"" + chatlogmark + "\"").read().splitlines()
 
-	chatstr = "<h3>Random chat quotes</h3>"
+	chatstr = "<h3>Random chat quotes</h3><p>"
 	rndstart = random.randint(0, len(chatlines) - 5)
 	for i in xrange(rndstart, rndstart + 5):
 		chatstr += cgi.escape(chatlines[i].replace(chatlogmark, "")) + "<br>"
+	chatstr += "</p>"
 	w.write(chatstr)
 	
 except:
-	print "Unexpected error:", repr(sys.exc_info())
+	print "Unexpected error:", traceback.format_exc()
 	pass
 
 killers = {}
