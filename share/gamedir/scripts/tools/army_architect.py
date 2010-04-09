@@ -1,17 +1,51 @@
 #!/usr/bin/python3 -u
-#  _____        __            _ _     _____       _   _                     _______          _     
-# |  __ \      / _|          | | |   |  __ \     | | | |                   |__   __|        | |    
-# | |  | | ___| |_ __ _ _   _| | |_  | |__) |__ _| |_| |_  ___ _ __ _ __      | | ___   ___ | |___ 
-# | |  | |/ _ \  _/ _` | | | | | __| |  ___// _` | __| __|/ _ \ '__| '_ \     | |/ _ \ / _ \| / __|
-# | |__| |  __/ || (_| | |_| | | |_  | |   | (_| | |_| |_|  __/ |  | | | |    | | (_) | (_) | \__ \
-# |_____/ \___|_| \__,_|\__,_|_|\__| |_|    \__,_|\__|\__|\___|_|  |_| |_|    |_|\___/ \___/|_|___/
-#                                                                                                  
-# This is the default tools used to create an army pattern.
+#                                                    _     _ _             _   
+#     /\                              /\            | |   (_) |           | |  
+#    /  \   _ __ _ __ ___  _   _     /  \   _ __ ___| |__  _| |_  ___  ___| |_ 
+#   / /\ \ | '__| '_ ` _ \| | | |   / /\ \ | '__/ __| '_ \| | __|/ _ \/ __| __|
+#  / ____ \| |  | | | | | | |_| |  / ____ \| | | (__| | | | | |_|  __/ (__| |_ 
+# /_/    \_\_|  |_| |_| |_|\__, | /_/    \_\_|  \___|_| |_|_|\__|\___|\___|\__|
+#                           __/ |                                              
+#                          |___/                                               
+#
+# Army Architect is a python module for generating armies of bots for you dedicated server.
+# You can either use the generate_blueprint function in this module or use the function directly in the army_pattern of your choise.
 # The main idea is that an enemy's "challange amount" is calculated by a function, and that this function is used to balance gameplay.
-# Most important is the class Bot_blueprint.
 
 #========= Imports ========================================
-from .. import commands as cmd
+from . import commands as cmd
+import random
+import os
+
+
+#========= Highlevel Functions ============================
+def get_army_patterns():
+	directory = os.path.dirname(__file__)+"/army_patterns"
+	return [file[0:-3] for file in os.listdir(directory) if (file != '__init__.py' and file[-3:] == '.py')]
+	
+def generate_blueprint(challenge_amount, army_pattern = None, lives = 0, team = 0):
+	"""This function returns an army blueprint. If no army pattern is specified a random one will be chosen."""
+	if army_pattern == None:
+		army_pattern = random.choice(get_army_patterns())
+	
+	_temp = __import__('army_patterns.'+army_pattern, globals(), locals(), ['generate_blueprint'], -1)
+	return _temp.generate_blueprint(challenge_amount, lives, team)
+
+#========= "Lowlevel Stuff" ===============================
+# This material is used by the army patterns
+
+class Army_blueprint:
+	"""The Army_blueprint class describes an army. It will be used to produce the army."""
+	def __init__(self, name, description, bot_blueprints):
+		self.name = name # A descriptive name of the army
+		self.description = description # A description of the army
+		self.bot_blueprints = bot_blueprints # A list of bot blueprints
+		self.ids = [] # After the army is produced; this list will contain the ids of the bots.
+	
+	def produce(self):
+		"""This method creates all bots in the army from their blueprints throws them it into the game. Note that an army can NOT be successfully created in lobby."""
+		for bot_blueprint in self.bot_blueprints:
+			self.ids.append(bot_blueprint.produce())
 
 class Bot_blueprint:
 	"""The Bot_blueprint class describes a bot. It will be used to create the bot."""
