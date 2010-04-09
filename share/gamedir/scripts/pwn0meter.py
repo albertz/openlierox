@@ -1,12 +1,30 @@
 #!/usr/bin/python -u
 
-import sys, time, cgi
+import sys, time, cgi, os, random
 
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
 #w = sys.stdout
 w.write("<HEAD><TITLE>Pwn0meter</TITLE></HEAD><BODY><H2>Pwn0meter</H2>\n")
 w.write("<p>updated on %s</p>\n" % time.asctime())
+
+# make random chat quotes
+# doesn't matter if it fails, so surround by try/catch
+try:
+	# really hacky way to get latest logfile (assume that ls sorts by name)
+	lastlogfile = "logs/" + os.popen("ls logs").read().splitlines()[-1]
+	chatlogmark = "n: CHAT: "
+	chatlines = os.popen("tail -n 10000 \"" + lastlogfile + "\" | grep \"" + chatlogmark + "\"").read().splitlines()
+
+	chatstr = "<h3>Random chat quotes</h3>"
+	rndstart = random.randint(0, len(chatlines) - 5)
+	for i in xrange(rndstart, rndstart + 5):
+		chatstr += cgi.escape(chatlines[i].replace(chatlogmark, "")) + "<br>"
+	w.write(chatstr)
+	
+except:
+	print "Unexpected error:", repr(sys.exc_info())
+	pass
 
 killers = {}
 deaders = {}
