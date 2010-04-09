@@ -124,7 +124,6 @@ void PlayerAI::getTarget()
 	m_target = NULL;
 	m_targetBlocked = true;
 	float tmpDist = -1;
-#ifdef USE_GRID
 	for ( Grid::iterator worm = game.objects.beginColLayer(Grid::WormColLayer); worm; ++worm)
 	{
 		if ( worm->getOwner() != this )
@@ -143,25 +142,6 @@ void PlayerAI::getTarget()
 			}
 		}
 	}
-#else
-	ObjectsList::ColLayerIterator worm;
-	for ( worm = game.objects.colLayerBegin(GusGame::WORMS_COLLISION_LAYER); worm; ++worm)
-	{
-		CWorm *tmpWorm;
-		if ( (*worm)->getOwner() != this )
-		if ( ( tmpWorm = dynamic_cast<CWorm*>(*worm) ) && tmpWorm->isActive() )
-		{
-			bool blocked = checkMaterialsTo( (*worm)->pos );
-			bool distIsShorter = ( m_worm->pos - (*worm)->pos ).length() < tmpDist;
-			if ( ( !blocked && ( m_targetBlocked || distIsShorter ) ) || ( blocked && m_targetBlocked && distIsShorter ) || tmpDist < 0 )
-			{
-				m_targetBlocked = blocked;
-				m_target = *worm;
-				tmpDist = ( m_worm->pos - (*worm)->pos ).length();
-			}
-		}
-	}
-#endif
 }
 
 void PlayerAI::getPath()

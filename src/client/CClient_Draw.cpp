@@ -59,6 +59,8 @@
 #include "gusanos/luaapi/context.h"
 #include "game/SinglePlayer.h"
 #include "gusanos/network.h"
+#include "cfg/client.h"
+#include "client/gfx/raytracing.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -853,11 +855,21 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 }
 
 void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
+	if(!cMap || !cMap->isLoaded()) return;
+
 	// Set the clipping
 	SDL_Rect rect = v->getRect();
 	ScopedSurfaceClip clip(bmpDest, rect);
-
-	if(!cMap || !cMap->isLoaded()) return;
+	
+	if(clientSettings[CS_Raytracing]) {
+		for(int y = 0; y < v->GetHeight(); ++y)
+			for(int x = 0; x < v->GetWidth(); ++x)
+				PutPixelToAddr((Uint8*)gfx.buffer->line[y] + x * gfx.buffer->surf->format->BytesPerPixel, getGamePixelColor(v->GetWorldX() + x, v->GetWorldY() + y).get(gfx.buffer->surf->format), gfx.buffer->surf->format->BytesPerPixel);
+		
+		DrawImageStretch2(bmpDest, gfx.buffer->surf.get(), 0, 0, v->GetLeft(), v->GetTop(), v->GetWidth(), v->GetHeight());
+		return;
+	}
+	
 	const bool gusanosDrawing = gusGame.isEngineNeeded();
 	if(gusanosDrawing) {
 		v->gusRender();

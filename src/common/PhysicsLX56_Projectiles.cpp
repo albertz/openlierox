@@ -1370,8 +1370,8 @@ void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
 	static const TimeDiff orig_dt = LX56PhysicsDT;
 	
-	{
-		const TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
+	const TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
+	if(warpTime > TimeDiff(0)) {
 		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
 			CProjectile* const p = i->get();
 			p->fLastSimulationTime += warpTime;
