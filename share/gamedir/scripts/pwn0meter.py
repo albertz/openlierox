@@ -1,6 +1,6 @@
 #!/usr/bin/python -u
 
-import sys, time
+import sys, time, cgi
 
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
@@ -66,7 +66,7 @@ for k in sorted:
 	kills -= suicides
 	deaths -= suicides
 	w.write("%i. <B>%s</B>: %i kills %i deaths %i suicides, killed:" % 
-		( i, k, kills, deaths, suicides ))
+		( i, cgi.escape(k), kills, deaths, suicides ))
 	# Ugly killer sorting
 	killedMax = {}
 	for f in killers[k]:
@@ -86,7 +86,7 @@ for k in sorted:
 				break
 			if count != 1:
 				w.write(",")
-			w.write(" %s - %i" % ( f1, f ) )
+			w.write(" %s - %i" % ( cgi.escape(f1), f ) )
 	w.write("<BR>\n")
 	i += 1
 
