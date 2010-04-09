@@ -22,6 +22,8 @@ for l in f.readlines():
 		continue
 	if killer.find("The Third") >= 0:
 		continue
+	if killer.find("OpenLieroXor") >= 0:
+		continue
 	if not killer in killers.keys():
 		killers[killer] = []
 	if not deader in deaders.keys():
@@ -52,6 +54,7 @@ def sortFunc(s1, s2):
 	
 sorted.sort(cmp=sortFunc)
 
+i = 1
 for k in sorted:
 	kills = len(killers[k])
 	try:
@@ -61,7 +64,8 @@ for k in sorted:
 	suicides = killers[k].count(k)
 	kills -= suicides
 	deaths -= suicides
-	w.write("<B>[B]%s[/B]</B>: %i kills %i deaths %i suicides, killed:" % ( k, kills, deaths, suicides ))
+	w.write("%i. <B>%s</B>: %i kills %i deaths %i suicides, killed:" % 
+		( i, k, kills, deaths, suicides ))
 	# Ugly killer sorting
 	killedMax = {}
 	for f in killers[k]:
@@ -83,6 +87,7 @@ for k in sorted:
 				w.write(",")
 			w.write(" %s - %i" % ( f1, f ) )
 	w.write("<BR>\n")
+	i += 1
 
 w.write("</BODY>\n")
 w.close()
