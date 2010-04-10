@@ -34,16 +34,20 @@ clan_deaders = {}
 clans = {}
 
 re_clans = (
-	re.compile("^\[(?P<clan>.*)\].*$"),
-	re.compile("^.*\[(?P<clan>.*)\]$"),
-	re.compile("^\((?P<clan>.*)\).*$"),
-	re.compile("^.*\((?P<clan>.*)\)$"),
-	re.compile("^-(?P<clan>.*)-.*$"),
-	re.compile("^\<(?P<clan>.*)\>.*$"),
-	re.compile("^\{(?P<clan>.*)\}.*$"),
-	re.compile("^.*\{(?P<clan>.*)\}$"),
-	re.compile("^\|(?P<clan>.*)\|.*$"),
-	re.compile("^.*\[(?P<clan>.*)\]$"),
+	re.compile("^\[\[\[(?P<clan>.+)\]\]\].+$"),
+	re.compile("^\[(?P<clan>.+)\].+$"),
+	re.compile("^.+\[(?P<clan>.+)\]$"),
+	re.compile("^\((?P<clan>.+)\).+$"),
+	re.compile("^.+\((?P<clan>.+)\)$"),
+	re.compile("^-=(?P<clan>.+)=-.+$"),
+	re.compile("^-(?P<clan>.+)-.+$"),
+	re.compile("^\<(?P<clan>.+)\>.+$"),
+	re.compile("^\{(?P<clan>.+)\}.+$"),
+	re.compile("^.+\{(?P<clan>.+)\}$"),
+	re.compile("^\|(?P<clan>.+)\|.+$"),
+	re.compile("^.+\[(?P<clan>.+)\]$"),
+	re.compile("^\|(?P<clan>.+)\|.+$"),
+	re.compile("^.+\[(?P<clan>.+)\]$"),
 	)
 
 def clan_of(name):
@@ -67,25 +71,25 @@ for l in f.readlines():
 	if killer.find("OpenLieroXor") >= 0:
 		continue
 
-	if not killer in killers.keys():
-		killers[killer] = []
-	if not deader in deaders.keys():
-		deaders[deader] = []
-	killers[killer].append(deader)
-	deaders[deader].append(killer)
+	if not killer in killers:
+		killers[killer] = {}
+	if not deader in deaders:
+		deaders[deader] = {}
+	killers[killer][deader] = killers[killer].get(deader,0) + 1
+	deaders[deader][killer] = deaders[deader].get(killer,0) + 1
 
 	clankiller = clan_of(killer)
 	clandeader = clan_of(deader)
-	if clankiller == clandeader: continue # ignore that
+	#if clankiller == clandeader: continue # ignore that
 
-	if not clankiller in clan_killers.keys():
-		clan_killers[clankiller] = []
-	if not clandeader in clan_deaders.keys():
-		clan_deaders[clandeader] = []
-	clan_killers[clankiller].append(clandeader)
-	clan_deaders[clandeader].append(clankiller)
+	if not clankiller in clan_killers:
+		clan_killers[clankiller] = {}
+	if not clandeader in clan_deaders:
+		clan_deaders[clandeader] = {}
+	clan_killers[clankiller][clandeader] = clan_killers[clankiller].get(clandeader,0) + 1
+	clan_deaders[clandeader][clankiller] = clan_deaders[clandeader].get(clankiller,0) + 1
 
-	if not clankiller in clans.keys():
+	if not clankiller in clans:
 		clans[clankiller] = set()
 	clans[clankiller].add(killer)
 
@@ -97,16 +101,16 @@ f.close()
 def printRanks(killers, deaders):
 	sorted = killers.keys()
 	def sortFunc(s1, s2):
-		kills1 = len(killers[s1]) - killers[s1].count(s1)
-		kills2 = len(killers[s2]) - killers[s2].count(s2)
+		kills1 = sum(killers[s1].itervalues()) - killers[s1].get(s1,0)
+		kills2 = sum(killers[s2].itervalues()) - killers[s2].get(s2,0)
 		if kills1 < kills2: return 1
 		if kills1 > kills2: return -1
 		try:
-			deaths1 = len(deaders[s1])
+			deaths1 = sum(deaders[s1].itervalues())
 		except:
 			deaths1 = 0
 		try:
-			deaths2 = len(deaders[s2])
+			deaths2 = sum(deaders[s2].itervalues())
 		except:
 			deaths2 = 0
 		if deaths1 < deaths2: return -1
@@ -118,12 +122,12 @@ def printRanks(killers, deaders):
 
 	i = 1
 	for k in sorted:
-		kills = len(killers[k])
+		kills = sum(killers[k].itervalues())
 		try:
-			deaths = len(deaders[k])
+			deaths = sum(deaders[k].itervalues())
 		except:
 			deatsh = 0
-		suicides = killers[k].count(k)
+		suicides = killers[k].get(k,0)
 		kills -= suicides
 		deaths -= suicides
 		w.write("%i. <B>%s</B>: %i kills %i deaths %i suicides, killed:" % 
@@ -131,10 +135,10 @@ def printRanks(killers, deaders):
 		# Ugly killer sorting
 		killedMax = {}
 		for f in killers[k]:
-			if not killers[k].count(f) in killedMax.keys():
-				killedMax[killers[k].count(f)] = []
-			if killedMax[killers[k].count(f)].count(f) == 0:
-				killedMax[killers[k].count(f)].append(f)
+			if not killers[k][f] in killedMax:
+				killedMax[killers[k][f]] = []
+			if killedMax[killers[k][f]].count(f) == 0:
+				killedMax[killers[k][f]].append(f)
 		killedMax1 = killedMax.keys()
 		killedMax1.sort(reverse=True)
 		count = 0
