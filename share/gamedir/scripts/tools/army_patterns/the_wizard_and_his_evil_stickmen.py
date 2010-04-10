@@ -1,7 +1,6 @@
 #!/usr/bin/python3 -u
 #---- Includes ----#
-from ..default_pattern_tools_v1_0 import Bot_blueprint
-from ..main import Army
+from ..army_architect import Bot_blueprint, Army_blueprint
 
 #---- General Settings ----#
 army_name = "The Wizard and his Evil Stickmen"
@@ -65,7 +64,7 @@ class Massive_stick_man(Bot_blueprint):
 	speed_factor_dynamic = True
 
 
-def create_and_return(challenge_amount, lives, team):
+def generate_blueprint(challenge_amount, lives, team):
 	global army_name, army_description
 	#---- Generate a list of of bot blueprints ----#
 	blueprints = [The_wizard(lives, team)]
@@ -92,14 +91,8 @@ def create_and_return(challenge_amount, lives, team):
 	for blueprint in blueprints:
 		blueprint.scale_challenge_amount_with(scale_factor)
 	
-	#---- Produce the army----#
-	army = Army()
-	army.name = army_name
-	army.description = army_description
-	for blueprint in blueprints:
-		army.ids.append(blueprint.produce())
-		
-	return army
+	#---- Return the army ----#	
+	return Army_blueprint(army_name, army_description, blueprints)
 	
 	
 	
