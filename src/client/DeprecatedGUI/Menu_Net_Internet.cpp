@@ -93,8 +93,8 @@ bool Menu_Net_NETInitialize()
 	profile_t *p = GetProfiles();
 	bool validName = false;
 	for(;p;p=p->tNext) {
-		/*if(p->iType == PRF_COMPUTER)
-			continue;*/
+		if(p->iType == PRF_COMPUTER->toInt())
+			continue;
 
 		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
 		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->cSkin.getPreview(), i);
