@@ -26,6 +26,19 @@
 
 profile_t	*tProfiles = NULL;
 
+profile_t* FindFirstHumanProfile() {
+	for(profile_t *p = tProfiles; p; p = p->tNext) {
+		if(p->iType == PRF_HUMAN->toInt())
+			return p;
+	}
+	return NULL;
+}
+
+std::string FindFirstHumanProfileName() {
+	profile_t* p = FindFirstHumanProfile();
+	if(p) return p->sName;
+	return "";
+}
 
 ///////////////////
 // Load the profiles
@@ -94,6 +107,10 @@ int LoadProfiles()
 		LoadProfile(fp, i);
 
 	fclose(fp);
+
+	if(FindFirstHumanProfile())
+		// we must do this because most code which access the profile system expects that there is at least one human profile
+		AddDefaultPlayers();
 
 	return true;
 }
