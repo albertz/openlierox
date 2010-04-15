@@ -108,7 +108,7 @@ int LoadProfiles()
 
 	fclose(fp);
 
-	if(FindFirstHumanProfile())
+	if(!FindFirstHumanProfile())
 		// we must do this because most code which access the profile system expects that there is at least one human profile
 		AddDefaultPlayers();
 
