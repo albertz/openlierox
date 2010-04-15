@@ -5,6 +5,7 @@
 #error "Can't use this in dedicated server"
 #endif //DEDICATED_ONLY
 
+#include <string>
 #include "SmartPointer.h"
 #include "gusanos/resource_list.h"
 #include "util/vec.h"
@@ -29,7 +30,8 @@ public:
 
 	virtual size_t currentSimulatiousPlays() = 0; // only for LX
 	virtual SmartPointer<SoundSample> copy() = 0;
-	
+
+	virtual std::string name() { return "<unnamed>"; }
 	virtual size_t GetMemorySize() = 0;
 };
 

@@ -122,13 +122,14 @@ ALuint  LoadSoundFromFile( const char* inSoundFile )
 
 
 struct OpenALBuffer {
+	std::string name;
 	ALuint bufferID;
 	size_t size;
 
-	OpenALBuffer(ALuint bufid) : bufferID(bufid), size(0) {
+	OpenALBuffer(ALuint bufid, const std::string& n) : name(n), bufferID(bufid), size(0) {
 		ALint s = 0;
 		alGetBufferi(bufferID, AL_SIZE, &s);
-		if(s >= 0) size = s;		
+		if(s >= 0) size = s;
 	}
 
 	~OpenALBuffer() {
@@ -137,6 +138,7 @@ struct OpenALBuffer {
 	}
 };
 
+std::string SoundSampleOpenAL::name() { return buffer.get() ? buffer->name : "<notloaded>"; }
 size_t SoundSampleOpenAL::GetMemorySize() { return buffer.get() ? buffer->size : 0; }
 
 template <> void SmartPointer_ObjectDeinit<OpenALBuffer> ( OpenALBuffer * obj )
@@ -155,25 +157,24 @@ SoundSampleOpenAL::SoundSampleOpenAL(std::string const& filename)
 		return;
 
     ALuint bufferID = 0;           // The OpenAL sound buffer ID
-	string name = filename;
 	
-	if (boost::iends_with(name, ".ogg"))
+	if (boost::iends_with(filename, ".ogg"))
 	{
-		bufferID=LoadSoundFromFile( name.c_str());
+		bufferID=LoadSoundFromFile( filename.c_str());
 		if (bufferID==0)
 			return;
 	}
 	else
 	{
-		bufferID=alutCreateBufferFromFile (Utf8ToSystemNative(GetFullFileName(name)).c_str());
+		bufferID=alutCreateBufferFromFile (Utf8ToSystemNative(GetFullFileName(filename)).c_str());
 		if (bufferID==AL_NONE)
 		{
-			notes << "SoundSampleOpenAL: cannot load " << name << ": " << alutGetErrorString(alutGetError()) << endl;
+			notes << "SoundSampleOpenAL: cannot load " << filename << ": " << alutGetErrorString(alutGetError()) << endl;
 			return;
 		}
 	}
 	
-	buffer = new OpenALBuffer(bufferID);
+	buffer = new OpenALBuffer(bufferID, filename);
 	initSound();
 }
 
