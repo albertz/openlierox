@@ -144,7 +144,6 @@ static bool SoundSystemStarted = false;
 bool StartSoundSystem() {
 	if(!SoundSystemAvailable) return false;
 
-	// TODO: this is only a workaround
 	SoundSystemStarted = true;
 	SetSoundVolume( tLXOptions->iSoundVolume );
 	return true;
@@ -153,7 +152,6 @@ bool StartSoundSystem() {
 bool StopSoundSystem() {
 	if(!SoundSystemAvailable) return false;
 
-	// TODO: this is only a workaround
 	SoundSystemStarted = false;
 	if(SoundSystemAvailable)
 		sfx.getDriver()->setVolume(0);
@@ -173,9 +171,7 @@ bool SetSoundVolume(int vol) {
 }
 
 int GetSoundVolume()  {
-	if(!SoundSystemAvailable) return 0;
-
-	return Round(sfx.getDriver()->volume() * 100);
+	return tLXOptions->iSoundVolume;
 }
 
 bool QuitSoundSystem() {	

@@ -703,7 +703,6 @@ void ParseArguments(int argc, char *argv[])
         // Turns off the sound
         if( stricmp(a, "-nosound") == 0 ) {
             bDisableSound = true;
-            tLXOptions->bSoundOn = false;
         } else
 
         // -dedicated
@@ -711,8 +710,6 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-dedicated") == 0 ) {
             bDedicated = true;
 			bDisableSound = true;
-			// this setting will be temporarly because we don't save options at end in dedicated mode
-            tLXOptions->bSoundOn = false;
         } else
 
 		// -dedscript
@@ -722,7 +719,6 @@ void ParseArguments(int argc, char *argv[])
 				bDedicated = true;
 				bDisableSound = true;
 				// these settings will be temporarly because we don't save options at end in dedicated mode
-				tLXOptions->bSoundOn = false;
 				tLXOptions->sDedicatedScript = argv[++i];
 			}
 			else
