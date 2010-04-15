@@ -2491,7 +2491,17 @@ std::vector<std::string> CGameScript::LoadWeaponList(const std::string dir)
 			std::string weap;
 			ini.ReadString("Weapons", wpn, weap, "");
 			if( weap != "" )
-				ret.push_back( weap );
+			{
+				IniReader ini2(dir + "/" + weap, compilerKeywords);
+				if (!ini2.Parse())
+				{
+					errors << "Error while parsing the gamescript " << dir << endl;
+					return ret;
+				}
+				ini2.ReadString("General", "Name", weap, "");
+				if( weap != "" )
+					ret.push_back( weap );
+			}
 		}
 		return ret;
 	}
