@@ -1116,6 +1116,7 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 
 ///////////////////
 // Process a shot
+// this is called by CClient::ProcessServerShotList
 void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 {
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
