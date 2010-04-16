@@ -373,7 +373,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 		if( !w->isUsed() || !w->getAlive())
 			continue;
 
-		CVec wPos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - this->fLastSimulationTime).milliseconds());		
+		CVec wPos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - time).milliseconds());		
 		if((pos - wPos).GetLength2() <= 25) {
 			// Injure him
 			InjureWorm(w, damage,owner);
