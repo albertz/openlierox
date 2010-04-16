@@ -83,7 +83,9 @@ inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 			continue;
 		
 		const static int wsize = 4;
-		Shape<int> worm; worm.pos = w->getPos(); worm.radius = VectorD2<int>(wsize, wsize);
+		Shape<int> worm;
+		worm.pos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - this->fLastSimulationTime).milliseconds());
+		worm.radius = VectorD2<int>(wsize, wsize);
 		
 		if(s.CollisionWith(worm)) {
 			
@@ -763,7 +765,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 				// Do we do a bounce-explosion (bouncy larpa uses this)
 			if(BounceExplode > 0)
-				cClient->Explosion(prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
+				cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
 			break;
 			
 		// Carve
@@ -1094,7 +1096,7 @@ bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile*
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -1105,7 +1107,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		damage = pi->PlyHit.Damage;
 	
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doMakeDirt(CProjectile* const prj) {

@@ -332,6 +332,7 @@ void CWorm::Prepare(bool serverSide)
 	
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
+	posRecordings.clear();
 	bIsPrepared = true;
 }
 

@@ -65,6 +65,8 @@ struct shoot_t {
 
 	int		devID;
 	bool	release;
+	
+	AbsTime spawnTime();
 };
 
 

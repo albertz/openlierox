@@ -461,6 +461,8 @@ public:
 			ws->iX = (int)worm->getPos().x;
 			ws->iY = (int)worm->getPos().y;
 		}
+		
+		worm->posRecordings.push_back(worm->getPos());
 
 		goto simulateWormStart;
 	}

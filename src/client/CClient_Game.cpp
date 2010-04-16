@@ -271,7 +271,7 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
 
 ///////////////////
 // Explosion
-void CClient::Explosion(CVec pos, float damage, int shake, int owner)
+void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int owner)
 {	
 	bool    gotDirt = false;
 	Color	DirtEntityColour;
@@ -314,7 +314,7 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 				continue;
 
 			b->setUsed(false);
-			Explosion(pos,15,5,owner);
+			Explosion(time, pos,15,5,owner);
 		}
 	}
 
@@ -373,8 +373,8 @@ void CClient::Explosion(CVec pos, float damage, int shake, int owner)
 		if( !w->isUsed() || !w->getAlive())
 			continue;
 
-		if((pos - w->getPos()).GetLength2() <= 25) {
-
+		CVec wPos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - this->fLastSimulationTime).milliseconds());		
+		if((pos - wPos).GetLength2() <= 25) {
 			// Injure him
 			InjureWorm(w, damage,owner);
 		}
@@ -995,26 +995,12 @@ void CClient::ProcessServerShotList()
 {
 	int num = cShootList.getNumShots();
 
-	// fServerTime is the time we calculated for the server,
-	// shot->fTime was the fServerTime of the server when it added the shot
-	// HINT: Though we are not using these because these times are not synchronised and sometimes
-	// shot->fTime > fServerTime.
-	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
-	// the time of both ways (ping+pong).
-	AbsTime fSpawnTime = tLX->currentTime - TimeDiff(((float)iMyPing / 1000.0f) / 2.0f);
-
 	for(int i=0; i<num; i++) {
 		shoot_t *sh = cShootList.getShot(i);
-
-		AbsTime time = fSpawnTime;
-		// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
-		if(cServerVersion >= OLXBetaVersion(8))
-			if(sh->fTime <= fServertime) // just a security check
-				time = tLX->currentTime - (fServertime - sh->fTime);
 		
 		// handle all shots not given by me
 		if(sh)
-			ProcessShot(sh, time);
+			ProcessShot(sh, sh->spawnTime());
 	}
 }
 
@@ -1271,7 +1257,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 						const float bonussize = 3;
 						if((p - b->getPosition()).GetLength() < bonussize) {
-							Explosion(p,0,5,shot->nWormID); // Destroy the bonus by an explosion
+							Explosion(shot->spawnTime(), p,0,5,shot->nWormID); // Destroy the bonus by an explosion
 							goodWidthParts[j] = false;
 							break;
 						}

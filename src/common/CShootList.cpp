@@ -723,3 +723,21 @@ bool CShootList::skipSmallShot(CBytestream *bs, const Version& senderVer)
 	
 	return bs->isPosAtEnd();
 }
+
+AbsTime shoot_t::spawnTime() {
+	// fServerTime is the time we calculated for the server,
+	// shot->fTime was the fServerTime of the server when it added the shot
+	// HINT: Though we are not using these because these times are not synchronised and sometimes
+	// shot->fTime > fServerTime.
+	// We are estimating the time with iMyPing. We divide it by 2 as iMyPing represents
+	// the time of both ways (ping+pong).
+	AbsTime fSpawnTime = tLX->currentTime - TimeDiff(((float)cClient->getMyPing() / 1000.0f) / 2.0f);
+
+	AbsTime time = fSpawnTime;
+	// HINT: Since Beta8 though, we have a good synchronisation of fServertime and we can actually use the provided sh->fTime
+	if(cClient->getServerVersion() >= OLXBetaVersion(8))
+		if(this->fTime <= cClient->serverTime()) // just a security check
+			time = tLX->currentTime - (cClient->serverTime() - this->fTime);	
+	
+	return time;
+}

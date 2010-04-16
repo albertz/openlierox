@@ -33,6 +33,7 @@
 #include "NewNetEngine.h"
 #include "DynDraw.h"
 #include "CGameObject.h"
+#include "util/VecTimeRecorder.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -625,6 +626,9 @@ public:
 
 	NewNet::NetSyncedRandom NewNet_random;
 	
+	/* Keeps track over the positions over time.
+	 This is used for LX56 physics to have better damage calculation. */
+	VecTimeRecorder posRecordings;
 	
 	// --------------------------------------------------
 	// --------------------- Gusanos --------------------
