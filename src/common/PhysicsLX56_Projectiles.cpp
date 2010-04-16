@@ -1170,15 +1170,17 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
-		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
-		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		pi->GeneralSpawnInfo.apply(prj, currentTime);
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// we use the last simulation time to have it more accurate.
+		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
+		pi->GeneralSpawnInfo.apply(prj, prj->fLastSimulationTime);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
-		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
-		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		(*i)->apply(prj, currentTime);
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// we use the last simulation time to have it more accurate.
+		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
+		(*i)->apply(prj, prj->fLastSimulationTime);
 	}
 	
 	if(sound) {
