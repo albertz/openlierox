@@ -188,6 +188,7 @@
 		239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACAE40E6AD46900C4216A /* XMLutils.cpp */; };
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23A44552108C958E0015918B /* SMTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A44551108C958E0015918B /* SMTP.cpp */; };
+		23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */; };
 		23AAE4881088CC5A00E9F05F /* BreakPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE4861088CC5A00E9F05F /* BreakPad.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
 		23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BA8EE41129A79700963F72 /* Bitstream.cpp */; };
@@ -909,6 +910,8 @@
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
 		23A44550108C94B70015918B /* SMTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMTP.h; sourceTree = "<group>"; };
 		23A44551108C958E0015918B /* SMTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SMTP.cpp; sourceTree = "<group>"; };
+		23A4B3EA1178CB2500D4FF96 /* VecTimeRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VecTimeRecorder.h; sourceTree = "<group>"; };
+		23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTimeRecorder.cpp; sourceTree = "<group>"; };
 		23AAE4861088CC5A00E9F05F /* BreakPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BreakPad.cpp; path = breakpad/BreakPad.cpp; sourceTree = "<group>"; };
 		23AAE4871088CC5A00E9F05F /* BreakPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BreakPad.h; path = breakpad/BreakPad.h; sourceTree = "<group>"; };
 		23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenExternBrowser.cpp; sourceTree = "<group>"; };
@@ -2185,6 +2188,8 @@
 				23BA8EE41129A79700963F72 /* Bitstream.cpp */,
 				231B8F321135BC9100B572C0 /* CustomVar.h */,
 				231B8F331135BC9100B572C0 /* CustomVar.cpp */,
+				23A4B3EA1178CB2500D4FF96 /* VecTimeRecorder.h */,
+				23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3494,6 +3499,7 @@
 				231B8F341135BC9100B572C0 /* CustomVar.cpp in Sources */,
 				2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */,
 				2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */,
+				23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
