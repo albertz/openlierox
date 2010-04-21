@@ -42,7 +42,10 @@
 // defined in PhysicsLX56_Projectiles
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs);
 
-// TODO: clean up this code!
+
+int getCurrentLX56PhysicsFPS() {
+	return 84;
+}
 
 
 
