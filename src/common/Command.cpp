@@ -2331,6 +2331,34 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	hints << "Current time: " << GetDateTimeText() << endl;
 }
 
+#ifdef DEBUG
+COMMAND(createDummyTask, "create dummy task", "[global queue]", 0, 1);
+void Cmd_createDummyTask::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	TaskManager::QueueType queue = TaskManager::QT_QueueToSameTypeAndBreakCurrent;
+	if(params.size() > 0 && from_string<bool>(params[0]))
+		queue = TaskManager::QT_GlobalQueue;
+	
+	struct DummyTask : Task {
+		int counter;
+		DummyTask() : counter(30) { name = "dummy task"; }
+		int handle() {
+			while(counter > 0) {
+				SDL_Delay(1000);
+				if(breakSignal) return -1;
+				Mutex::ScopedLock lock(*mutex);
+				counter--;
+			}
+			return 0;
+		}
+		std::string statusText() {
+			Mutex::ScopedLock lock(*mutex);
+			return "Dummy task, " + itoa(counter) + " ...";
+		}
+	};
+	taskManager->start(new DummyTask(), queue);
+}
+#endif
+
 COMMAND(dumpConnections, "dump connections of server", "", 0, 0);
 void Cmd_dumpConnections::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(cServer) cServer->DumpConnections();
