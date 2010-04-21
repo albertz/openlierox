@@ -10,5 +10,8 @@ LX56WallShooting = true
 ShootSpawnDistance = 8
 WeaponCombos = true
 ProjRelativeVel = true
+ForceSameLX56PhysicsFPS = false
+NinjaropePrecision = 0
+ForceLX56Aim = true
 
 # We don't need to set anything else because that are exactly the classic settings.
