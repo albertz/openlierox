@@ -1868,6 +1868,15 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		}
 	}
 	
+	if(gameSettings[FT_ForceLX56Aim]) {
+		// Note that we ignore some of the 0.59 betas but that doesn't really matter.
+		if(ver >= OLXRcVersion(0,58,3) /* we can have custom aim since then */ &&
+		   ver < OLXBetaVersion(0,59,9) /* we can force it since then */) {
+			if(incompReason) *incompReason = "LX56 aim speed/acceleration settings are forced";
+			return false;			
+		}
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
