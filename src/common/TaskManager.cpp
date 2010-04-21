@@ -106,15 +106,15 @@ void TaskManager::start(Task* t, QueueType queue) {
 	struct TaskHandler : Action {
 		Task* task;
 		int handle() {
+			if(task->manager == NULL) {
+				errors << "TaskManager::TaskHandler: invalid task with unset manager" << endl;
+				return -1;
+			}
 			{
 				Mutex::ScopedLock lock(*task->mutex);
 				task->state = Task::TS_QUEUED ? Task::TS_RUNNINGQUEUED : Task::TS_RUNNING;
 			}
-			int ret = task->handle();
-			if(task->manager == NULL) {
-				errors << "TaskManager::TaskHandler: invalid task with unset manager" << endl;
-				return ret;
-			}
+			int ret = task->breakSignal ? -1 : task->handle();
 			{
 				SDL_mutexP(task->manager->mutex);
 				boost::shared_ptr<Mutex> m = task->mutex;
