@@ -940,7 +940,7 @@ void NetworkSocket::Close() {
 	CloseSocketWorker* worker = new CloseSocketWorker();
 	worker->name = "close socket";
 	worker->sock = m_socket->sock;
-	taskManager->start(worker);
+	taskManager->start(worker, TaskManager::QT_GlobalQueue);
 	
 	m_socket->sock = NL_INVALID;
 	m_type = NST_INVALID;
