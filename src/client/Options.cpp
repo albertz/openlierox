@@ -228,6 +228,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iLANSortColumn, "Widgets.LANSortColumn", 4 )
 		( tLXOptions->iFavouritesSortColumn, "Widgets.FavouritesSortColumn", 4 )
 		( tLXOptions->iAdvancedLevelLimit, "Widgets.AdvancedLevelLimit", 0 )
+		( tLXOptions->bShowModifiedGameSettingsOnly, "Widgets.ShowModifiedGameSettingsOnly", false )
 		( tLXOptions->iLocalPlayGame, "Widgets.LocalPlayGame", 0 )
 		;
 

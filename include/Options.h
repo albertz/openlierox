@@ -327,6 +327,7 @@ struct GameOptions {
 	int		iLANSortColumn;
 	int		iFavouritesSortColumn;
 	int		iAdvancedLevelLimit;
+	bool	bShowModifiedGameSettingsOnly;
 	int		iLocalPlayGame;
 	
 	// Last used custom game details
