@@ -1267,6 +1267,9 @@ void updateFileListCaches() {
 			settingsPresetList->update();
 			return 0;
 		}
+		std::string statusText() {
+			return "Updating file list cache ...";
+		}
 	};
 	taskManager->start(new Updater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
