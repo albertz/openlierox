@@ -120,6 +120,10 @@ enum FeatureIndex {
 	FT_SettingsPreset,
 	FT_WeaponRest,
 	
+	FT_LX56PhysicsFPS,
+	FT_ForceSameLX56PhysicsFPS,
+	FT_ForceLX56Aim,
+	
 	FT_Bonuses,
 	FT_ShowBonusName,
 	FT_BonusFreq,
