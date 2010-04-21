@@ -92,6 +92,10 @@ void TaskManager::start(Task* t, QueueType queue) {
 	if(queue == QT_QueueToSameTypeAndBreakCurrent) {
 		ScopedTask oldTask = haveTaskOfType__unsafe(typeid(*t));
 		if(oldTask) {
+			if(t->manager != NULL)
+				errors << "Task->manager must be NULL" << endl;
+			t->manager = this;
+
 			oldTask.task->breakSignal = true;
 			oldTask.task->queuedTask = t;
 			return;
