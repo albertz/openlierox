@@ -43,8 +43,18 @@
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs);
 
 
-int getCurrentLX56PhysicsFPS() {
+static int _getCurrentLX56PhysicsFPS() {
+	if(game.isServer())
+		return gameSettings[FT_LX56PhysicsFPS];
+	else if(cClient->getGameLobby()[FT_ForceSameLX56PhysicsFPS])
+		return cClient->getGameLobby()[FT_LX56PhysicsFPS];
+	else // each client can have its own custom FPS
+		return gameSettings[FT_LX56PhysicsFPS]; // this is the client side config
 	return 84;
+}
+
+int getCurrentLX56PhysicsFPS() {
+	return MAX(_getCurrentLX56PhysicsFPS(), 1);
 }
 
 
