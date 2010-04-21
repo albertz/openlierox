@@ -1257,14 +1257,18 @@ void updateFileListCaches() {
 	struct Updater : Task {
 		Updater() { name = "updateFileListCaches"; }
 		int handle() {
+			if(breakSignal) return -1;
 			mapList->update();
+			if(breakSignal) return -1;
 			modList->update();
+			if(breakSignal) return -1;
 			skinList->update();
+			if(breakSignal) return -1;
 			settingsPresetList->update();
 			return 0;
 		}
 	};
-	taskManager->start(new Updater(), TaskManager::QT_NoQueue);
+	taskManager->start(new Updater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
 
