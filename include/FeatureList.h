@@ -122,6 +122,7 @@ enum FeatureIndex {
 	
 	FT_LX56PhysicsFPS,
 	FT_ForceSameLX56PhysicsFPS,
+	FT_NinjaropePrecision,
 	FT_ForceLX56Aim,
 	
 	FT_Bonuses,

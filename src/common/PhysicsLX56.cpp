@@ -59,6 +59,12 @@ int getCurrentLX56PhysicsFPS() {
 	return MAX(_getCurrentLX56PhysicsFPS(), 1);
 }
 
+static float getNinjaropePrecision() {
+	if(cClient->getServerVersion() >= OLXBetaVersion(0,57,4))
+		return (float)cClient->getGameLobby()[FT_NinjaropePrecision];
+	else
+		return 0; // like LX56
+}
 
 
 class PhysicsLX56 : public PhysicsEngine {
@@ -542,7 +548,7 @@ public:
 		// We use the limit 5 here to have it very unpropable to shoot through a wall.
 		// In most cases, dt his halfed once, so this simulateNinjarope is
 		// like in LX56 with 200FPS.
-		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt > 5) {
+		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt * getNinjaropePrecision() > 5) {
 			simulateNinjarope( dt/2, owner, worms );
 			simulateNinjarope( dt/2, owner, worms );
 			return;

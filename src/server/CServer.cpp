@@ -1877,6 +1877,26 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 		}
 	}
 	
+	if(fabs((float)gameSettings[FT_NinjaropePrecision] - 1.0f) < 0.01f) {
+		if(ver < OLXBetaVersion(0,57,4) /* we have the better accuracy since there */) {
+			if(incompReason) *incompReason = "higher ninjarope precision (1) is used";
+			return false;			
+		}
+	}
+	else if(fabs((float)gameSettings[FT_NinjaropePrecision]) < 0.01f) {
+		if(ver >= OLXBetaVersion(0,57,4) /* we have the better accuracy since there */ &&
+		   ver < OLXBetaVersion(0,59,9) /* we have it configureable since then */) {
+			if(incompReason) *incompReason = "LX56 ninjarope precision (0) is used";
+			return false;
+		}
+	}
+	else { // custom ninjarope precision
+		if(ver < OLXBetaVersion(0,59,9)) {
+			if(incompReason) *incompReason = "custom ninjarope precision (" + gameSettings[FT_NinjaropePrecision].toString() + ") is used";
+			return false;
+		}		
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
