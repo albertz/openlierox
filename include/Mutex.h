@@ -11,13 +11,14 @@
 #define __MUTEX_H__
 
 #include <SDL_mutex.h>
+#include "Utils.h"
 
 #define INVALID_THREAD_ID (Uint32)-1
 
 class Condition;
 
 // Mutex wrapper class with some extra debugging checks
-class Mutex  {
+class Mutex : DontCopyTag {
 	friend class Condition;
 private:
 	SDL_mutex *m_mutex;
@@ -36,7 +37,7 @@ public:
 	static void test();
 #else */
 	Mutex()			{ m_mutex = SDL_CreateMutex(); }
-	~Mutex()		{ SDL_DestroyMutex(m_mutex); }
+	~Mutex()		{ if(m_mutex) SDL_DestroyMutex(m_mutex); }
 	void lock()		{ SDL_LockMutex(m_mutex); }
 	void unlock()	{ SDL_UnlockMutex(m_mutex); }
 //#endif
