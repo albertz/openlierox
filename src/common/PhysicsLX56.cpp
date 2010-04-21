@@ -13,6 +13,8 @@
  LX56 projectile simulation:
  http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/client/CClient_Game.cpp?revision=1&view=markup&pathrev=1
  
+ LX56 Ninjarope simulation:
+ http://openlierox.svn.sf.net/viewvc/openlierox/src/client/CNinjaRope.cpp?revision=1&view=markup&pathrev=1
  
  */
 
