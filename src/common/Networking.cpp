@@ -1431,7 +1431,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
     data->addr_name = name;
     data->address = NetworkAddrData(addr).getPtr();
 
-	taskManager->start(data, false);
+	taskManager->start(data, TaskManager::QT_NoQueue);
     return true;
 }
 

@@ -79,8 +79,8 @@ TaskManager::~TaskManager() {
 }
 
 
-void TaskManager::start(Task* t, bool queued) {
-	Mutex::ScopedLock tlock(t->mutex);
+void TaskManager::start(Task* t, QueueType queue) {
+	Mutex::ScopedLock tlock(*t->mutex);
 
 	{
 		ScopedLock lock(mutex);
@@ -91,7 +91,7 @@ void TaskManager::start(Task* t, bool queued) {
 		Task* task;
 		int handle() {
 			{
-				Mutex::ScopedLock lock(task->mutex);
+				Mutex::ScopedLock lock(*task->mutex);
 				task->state = Task::TS_QUEUED ? Task::TS_RUNNINGQUEUED : Task::TS_RUNNING;
 			}
 			int ret = task->handle();
@@ -99,11 +99,15 @@ void TaskManager::start(Task* t, bool queued) {
 				errors << "TaskManager::TaskHandler: invalid task with unset manager" << endl;
 				return ret;
 			}
-			SDL_mutexP(task->manager->mutex);
-			task->manager->runningTasks.erase(task);
-			SDL_CondSignal(task->manager->taskFinished);
-			SDL_mutexV(task->manager->mutex);
-			delete task;
+			{
+				SDL_mutexP(task->manager->mutex);
+				boost::shared_ptr<Mutex> m = task->mutex;
+				Mutex::ScopedLock lock(*m);
+				task->manager->runningTasks.erase(task);
+				SDL_CondSignal(task->manager->taskFinished);
+				SDL_mutexV(task->manager->mutex);
+				delete task;
+			}			
 			return ret;
 		}
 	};
@@ -113,7 +117,7 @@ void TaskManager::start(Task* t, bool queued) {
 		errors << "Task->manager must be NULL" << endl;
 	t->manager = this;
 	
-	if(!queued) {
+	if(queue == QT_NoQueue) {
 		t->state = Task::TS_WAITFORIMMSTART;
 		threadPool->start(handler, t->name + " handler", true);
 	} else {
@@ -126,6 +130,17 @@ void TaskManager::start(Task* t, bool queued) {
 		queuedTasks.push_back(handler);
 		SDL_CondSignal(queueThreadWakeup);
 	}
+}
+
+ScopedTask TaskManager::haveTaskOfType(const std::type_info& taskType) {
+	ScopedLock lock(mutex);
+	for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
+		if(typeid(**i) == taskType) {
+			ScopedTask t(*i, true); // this will also do the lock on the tasks mutex
+			return t;
+		}
+	}
+	return ScopedTask();
 }
 
 void TaskManager::finishQueuedTasks() {
@@ -147,7 +162,7 @@ void TaskManager::dumpState(CmdLineIntf& cli) const {
 	for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
 		Task::State state;
 		{
-			Mutex::ScopedLock lock((*i)->mutex);
+			Mutex::ScopedLock lock(*(*i)->mutex);
 			state = (*i)->state;
 		}
 		switch(state) {

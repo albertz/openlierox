@@ -674,7 +674,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 			int connectionIndex = getConnectionArrayIndex();
 			if(connectionIndex < 0) return;
 			
-			taskManager->start(new AutoCompleter(startStr, cmdToBeCompleted, connectionIndex, this), true);
+			taskManager->start(new AutoCompleter(startStr, cmdToBeCompleted, connectionIndex, this), TaskManager::QT_GlobalQueue);
 			return;
 		} // end autocomplete for ded
 		   

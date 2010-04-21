@@ -1264,7 +1264,7 @@ void updateFileListCaches() {
 			return 0;
 		}
 	};
-	taskManager->start(new Updater(), false);
+	taskManager->start(new Updater(), TaskManager::QT_NoQueue);
 }
 
 
