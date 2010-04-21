@@ -46,6 +46,7 @@
 #include "CrashHandler.h"
 #include "game/Level.h"
 #include "sound/sfx.h"
+#include "TaskManager.h"
 
 
 // TODO: move this out here
@@ -255,7 +256,7 @@ void Menu_SetSkipStart(int s)
 {
     iSkipStart = s;
 }
-
+	
 void Menu_Frame() {
 	HandlePendingCommands();
 	
@@ -325,6 +326,8 @@ void Menu_Frame() {
 	}
 #endif
 
+	taskManager->renderTasksStatus(VideoPostProcessor::videoSurface());
+	
 	if (!tMenu->bForbidConsole)  {
 		Con_Process(tLX->fDeltaTime);
 		Con_Draw(VideoPostProcessor::videoSurface());
@@ -2644,3 +2647,43 @@ void Menu_Current_Shutdown() {
 }
 	
 } // namespace DeprecatedGUI
+
+
+
+void TaskManager::renderTasksStatus(SDL_Surface* s) {
+	std::list<std::string> statusTxts;
+	
+	static const unsigned int MaxEntries = 4;
+	{
+		ScopedLock lock(mutex);
+		for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
+			std::string statusTxt;
+			{
+				Mutex::ScopedLock lock(*(*i)->mutex);
+				statusTxt = (*i)->statusText();
+			}
+			if(statusTxt != "") {
+				statusTxts.push_back(statusTxt);
+				if(statusTxts.size() >= MaxEntries)
+					break;
+			}
+		}
+	}
+	
+	if(!statusTxts.empty()) {
+		static const int StatusLoadingLeft = 5;
+		static const int StatusLeft = 30;
+		static const int StatusTop = 5;
+		const int StatusHeight = tLX->cFont.GetHeight() + 5;
+		DrawRectFill(s, 0, 0, s->w, StatusTop + StatusHeight * statusTxts.size(), Color(42,73,145,180));
+		
+		int y = StatusTop;
+		for(std::list<std::string>::iterator i = statusTxts.begin(); i != statusTxts.end(); ++i) {
+			tLX->cFont.Draw(s, StatusLeft, y, Color(255,255,255), *i);
+			y += StatusHeight;
+		}
+	
+		static const int StatusLoadingSize = 9;
+		DrawLoadingAni(s, StatusLoadingLeft + StatusLoadingSize, StatusHeight * statusTxts.size() - StatusLoadingSize, StatusLoadingSize, StatusLoadingSize, Color(255,255,255), Color(128,128,128), LAT_CIRCLES);
+	}
+}

@@ -22,6 +22,7 @@
 
 class TaskManager;
 struct CmdLineIntf;
+struct SDL_Surface;
 
 struct Task : Action {
 	Task() : manager(NULL), state(TS_INVALID), mutex(new Mutex()), breakSignal(false), queuedTask(NULL) {}
@@ -79,7 +80,11 @@ public:
 	void start(Task* t, QueueType queue = QT_NoQueue);
 	ScopedTask haveTaskOfType(const std::type_info& taskType); // call with typeid(TaskClass)
 	void finishQueuedTasks();
-	void dumpState(CmdLineIntf& cli) const;	
+	void dumpState(CmdLineIntf& cli) const;
+	
+	// Prints all tasks with a status text on the surface.
+	// We do this in the menu. This function is implemented in MenuSystem.cpp.
+	void renderTasksStatus(SDL_Surface* s);
 };
 
 extern TaskManager* taskManager;
