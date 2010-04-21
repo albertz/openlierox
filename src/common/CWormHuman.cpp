@@ -121,7 +121,7 @@ void CWormHumanInputHandler::getInput() {
 		float aimAccel = MAX((float)fabs(tLXOptions->fAimAcceleration), 100.0f); // HINT: 500 is the LX56 value here (rev 1)
 		float aimFriction = CLAMP(tLXOptions->fAimFriction, 0.0f, 1.0f); // we didn't had that in LX56; it behaves more natural
 		bool aimLikeLX56 = tLXOptions->bAimLikeLX56;
-		if(cClient->getGameLobby()[FT_ForceLX56Aim]) {
+		if(cClient->getGameLobby()[FT_ForceLX56Aim] || cClient->getServerVersion() < OLXRcVersion(0,58,3)) {
 			aimMaxSpeed = 100;
 			aimAccel = 500;
 			aimLikeLX56 = true;
