@@ -61,18 +61,19 @@ TaskManager::TaskManager() {
 }
 
 TaskManager::~TaskManager() {
+	finishQueuedTasks();
+
 	SDL_mutexP(mutex);
 	while(runningTasks.size() > 0) {
 		notes << "waiting for " << runningTasks.size() << " task(s) to finish:" << endl;
 		for(std::set<Task*>::iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
 			notes << "  " << (*i)->name << endl;
+			(*i)->breakSignal = true;
 		}
 		SDL_CondWait(taskFinished, mutex);
 	}
 	SDL_mutexV(mutex);
-	
-	finishQueuedTasks();
-	
+		
 	SDL_DestroyMutex(mutex);
 	SDL_DestroyCond(taskFinished);
 	SDL_DestroyCond(queueThreadWakeup);
@@ -81,11 +82,26 @@ TaskManager::~TaskManager() {
 
 void TaskManager::start(Task* t, QueueType queue) {
 	Mutex::ScopedLock tlock(*t->mutex);
+	ScopedLock lock(mutex);
 
-	{
-		ScopedLock lock(mutex);
-		runningTasks.insert(t);		
+	if(quitSignal) {
+		warnings << "tried to start queued task " << t->name << " when queued task manager was already shutdown" << endl;
+		return;
 	}
+	
+	if(queue == QT_QueueToSameTypeAndBreakCurrent) {
+		ScopedTask oldTask = haveTaskOfType__unsafe(typeid(*t));
+		if(oldTask) {
+			oldTask.task->breakSignal = true;
+			oldTask.task->queuedTask = t;
+			return;
+		}
+		
+		// we don't have such a task right now, so start a new one unqeued
+		queue = QT_NoQueue;
+	}
+	
+	runningTasks.insert(t);
 	
 	struct TaskHandler : Action {
 		Task* task;
@@ -103,6 +119,21 @@ void TaskManager::start(Task* t, QueueType queue) {
 				SDL_mutexP(task->manager->mutex);
 				boost::shared_ptr<Mutex> m = task->mutex;
 				Mutex::ScopedLock lock(*m);
+				
+				if(task->queuedTask) {
+					if(!task->manager->quitSignal) {
+						Mutex::ScopedLock lock(*task->queuedTask->mutex);
+						task->manager->runningTasks.insert(task->queuedTask);
+						TaskHandler* handler = new TaskHandler();
+						handler->task = task->queuedTask;
+						task->queuedTask->state = Task::TS_WAITFORIMMSTART;
+						threadPool->start(handler, task->queuedTask->name + " handler", true);
+					}
+					else
+						// We were requested to quit, i.e. we should not start this queued task anymore.
+						delete task->queuedTask;
+				}
+				
 				task->manager->runningTasks.erase(task);
 				SDL_CondSignal(task->manager->taskFinished);
 				SDL_mutexV(task->manager->mutex);
@@ -121,19 +152,13 @@ void TaskManager::start(Task* t, QueueType queue) {
 		t->state = Task::TS_WAITFORIMMSTART;
 		threadPool->start(handler, t->name + " handler", true);
 	} else {
-		ScopedLock lock(mutex);
-		if(quitSignal) {
-			warnings << "tried to start queued task " << t->name << " when queued task manager was already shutdown" << endl;
-			return;
-		}
 		t->state = Task::TS_QUEUED;
 		queuedTasks.push_back(handler);
 		SDL_CondSignal(queueThreadWakeup);
 	}
 }
 
-ScopedTask TaskManager::haveTaskOfType(const std::type_info& taskType) {
-	ScopedLock lock(mutex);
+ScopedTask TaskManager::haveTaskOfType__unsafe(const std::type_info& taskType) {
 	for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i) {
 		if(typeid(**i) == taskType) {
 			ScopedTask t(*i, true); // this will also do the lock on the tasks mutex
@@ -143,9 +168,17 @@ ScopedTask TaskManager::haveTaskOfType(const std::type_info& taskType) {
 	return ScopedTask();
 }
 
+ScopedTask TaskManager::haveTaskOfType(const std::type_info& taskType) {
+	ScopedLock lock(mutex);
+	ScopedTask t(haveTaskOfType__unsafe(taskType));
+	return t;
+}
+
 void TaskManager::finishQueuedTasks() {
 	{
 		ScopedLock lock(mutex);
+		for(std::set<Task*>::const_iterator i = runningTasks.begin(); i != runningTasks.end(); ++i)
+			(*i)->breakSignal = true;
 		if(quitSignal) // means that we have already finished
 			return;
 		quitSignal = true;
