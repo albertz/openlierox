@@ -37,10 +37,10 @@ Feature( "ModName", "Mod", "Mod", ModInfo(), ModInfo("Classic"), Version(), GIG_
 Feature( "Settings", "Settings", "Game settings", GameSettingsPresetInfo(), GameSettingsPresetInfo::Default(), Version(), GIG_General, ALT_Basic, true, true ),
 Feature( "WeaponRestrictionsFile", "Weapon restrictions", "Weapon restrictions set which defines which weapons are allowed/banned/bonus", "", "Standard 100lt", Version(), GIG_Weapons, ALT_OnlyViaConfig, true,true ),
 
-Feature( "LX56PhysicsFPS", "LX56PhysicsFPS", "Simulation frames per second for LX56 physics", 84, 84, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 1, 200, false, true /* we do a custom check for compatibility */ ),
-Feature( "ForceSameLX56PhysicsFPS", "ForceSameLX56PhysicsFPS", "If enabled (default), the physics simulation will be everywhere the same by using the same FPS. If disabled, it can be different everywhere, like it was in original LX56.", true, true, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, true ),
+Feature( "LX56PhysicsFPS", "LX56 physics FPS", "Simulation frames per second for LX56 physics", 84, 84, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 1, 200, false, true /* we do a custom check for compatibility */ ),
+Feature( "ForceSameLX56PhysicsFPS", "Force same LX56 physics FPS", "If enabled (default), the physics simulation will be everywhere the same by using the same FPS. If disabled, it can be different everywhere, like it was in original LX56.", true, true, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, true ),
 Feature( "NinjaropePrecision", "Ninjarope precision", "Defines the accuracy of the ninja rope simulation. 0 is like LX56 (no extra precision, just FPS dependent), 1 is like modern OLX. The higher the value, the higher the accuracy.", 1.0f, 1.0f, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, 0.0f, 10.0f, false, true /* we do a custom check for compatibility */ ),
-Feature( "ForceLX56Aim", "ForceLX56Aim", "Force the aim speed/acceleration to be everywhere like LX56", false, false, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, true /* we do a custom check for compatibility */ ),
+Feature( "ForceLX56Aim", "Force LX56 aim", "Force the aim speed/acceleration to be everywhere like LX56", false, false, OLXBetaVersion(0,59,9), GIG_Advanced, ALT_VeryAdvanced, false, true /* we do a custom check for compatibility */ ),
 
 Feature( "Bonuses", "Bonuses", "Bonuses enabled",false, false, Version(), GIG_Bonus, ALT_Basic, true,true ),
 Feature( "BonusNames", "Show Bonus names", "Show bonus name above its image",true,true, Version(), GIG_Bonus, ALT_VeryAdvanced, false,false ),
