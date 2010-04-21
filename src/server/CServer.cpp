@@ -1858,6 +1858,16 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 				}
 		}
 
+	if(gameSettings[FT_ForceSameLX56PhysicsFPS]) {
+		if((int)gameSettings[FT_LX56PhysicsFPS] != 84) {
+			if(ver >= OLXBetaVersion(0,57,4) /* first version where game physics FPS was independent and fixed */ &&
+			   ver < OLXBetaVersion(0,59,9) /* we have it configureable since then */) {
+				if(incompReason) *incompReason = "same LX56 physics FPS is forced and we are using custom " + gameSettings[FT_LX56PhysicsFPS].toString() + " FPS";
+				return false;				
+			}
+		}
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.
