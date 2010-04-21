@@ -44,6 +44,7 @@ struct ScopedTask : RefCounter {
 	ScopedTask() : task(NULL) {}
 	ScopedTask(Task* t, bool doLock) : task(t) { if(task && doLock) task->mutex->lock(); }
 	ScopedTask(const ScopedTask& t) : RefCounter(t), task(t.task) {}
+	~ScopedTask() { RefCounter::uninit(); }
 	void onLastRefRemoved() { if(task) task->mutex->unlock(); }
 	operator bool() { return task != NULL; }
 };
