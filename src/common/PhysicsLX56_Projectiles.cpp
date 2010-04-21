@@ -1353,7 +1353,7 @@ static inline bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
-	static const TimeDiff orig_dt = LX56PhysicsDT;
+	const TimeDiff orig_dt = LX56PhysicsDT;
 	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed];
 	
 	VectorD2<int> oldPos(prj->getPos());
@@ -1372,7 +1372,7 @@ finalMapPosIndexUpdate:
 
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
-	static const TimeDiff orig_dt = LX56PhysicsDT;
+	const TimeDiff orig_dt = LX56PhysicsDT;
 	
 	const TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
 	if(warpTime > TimeDiff(0)) {

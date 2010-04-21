@@ -265,7 +265,7 @@ public:
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		static const TimeDiff orig_dt = LX56PhysicsDT;
+		const TimeDiff orig_dt = LX56PhysicsDT;
 		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()[FT_GameSpeed]);
 		const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]; // wpnDT could be different from dt
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -675,7 +675,7 @@ public:
 	void simulateBonus(CBonus* bonus) {
 		AbsTime simulationTime = GetPhysicsTime();	
 		warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		static const float orig_dt = LX56PhysicsDT.seconds();
+		const float orig_dt = LX56PhysicsDT.seconds();
 		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]);
 
 	simulateBonusStart:
