@@ -301,7 +301,7 @@ void Menu_Net_LANFrame(int mouse)
                     // Refresh the server
                     case MNU_USER+1:
                         {
-                            server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szLanCurServer);
                             if(sv)
                                 Menu_SvrList_RefreshServer(sv);
                         }
@@ -319,7 +319,7 @@ void Menu_Net_LANFrame(int mouse)
                     // Add server to favourites
                     case MNU_USER+3:
 						{
-							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szLanCurServer);
 							if (sv)
 								Menu_SvrList_AddFavourite(sv->szName,sv->szAddress);
 						}
@@ -328,7 +328,7 @@ void Menu_Net_LANFrame(int mouse)
                     // Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t *sv = Menu_SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szLanCurServer);
 							std::string Nick;
 							cLan.SendMessage(nl_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)

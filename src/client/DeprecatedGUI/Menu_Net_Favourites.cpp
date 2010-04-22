@@ -302,7 +302,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					//DrawImage(tMenu->bmpBuffer,VideoPostProcessor::videoSurface(),0,0);
 					addr = "";
 					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
-					server_t *sv = Menu_SvrList_FindServerStr(addr);
+					server_t::Ptr sv = Menu_SvrList_FindServerStr(addr);
 					std::string buf;
 					if (sv)  {
 						if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
@@ -338,7 +338,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                 switch( ev->iEventMsg ) {
                      // Remove server from favourites
 				case MNU_USER+0:  {
-						server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
+						server_t::Ptr sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
 						std::string buf;
 						if (sv)  {
 							if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
@@ -357,7 +357,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 							cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
 							cFavourites.removeWidget(mf_PopupMenu);
 
-							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
 							Menu_Net_RenameServer(sv->szName);
 							Menu_SvrList_SaveList("cfg/favourites.dat");  // Save changes
 						}
@@ -366,7 +366,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                     // Refresh the server
                     case MNU_USER+2:
                         {
-                            server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
                             if(sv)
                                 Menu_SvrList_RefreshServer(sv);
                         }
@@ -384,7 +384,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t *sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szFavouritesCurServer);
 							std::string Nick;
 							cFavourites.SendMessage(mf_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)

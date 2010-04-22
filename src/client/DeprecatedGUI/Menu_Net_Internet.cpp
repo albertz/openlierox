@@ -345,7 +345,7 @@ void Menu_Net_NETFrame(int mouse)
                     // Refresh the server
                     case MNU_USER+1:
                         {
-                            server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
                             if(sv)
                                 Menu_SvrList_RefreshServer(sv);
                         }
@@ -364,7 +364,7 @@ void Menu_Net_NETFrame(int mouse)
                     // Add server to favourites
                     case MNU_USER+3:
 						{
-							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
 							if (sv)
 								Menu_SvrList_AddFavourite(sv->szName,sv->szAddress);
 						}
@@ -373,7 +373,7 @@ void Menu_Net_NETFrame(int mouse)
 					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t *sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
 							std::string Nick;
 							cInternet.SendMessage(mi_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
@@ -424,7 +424,6 @@ void Menu_Net_NETFrame(int mouse)
 	DrawCursor(VideoPostProcessor::videoSurface());
 
 }
-
 
 
 ///////////////////
@@ -558,197 +557,29 @@ void Menu_Net_NETAddServer()
 	Menu_RedrawMouse(true);
 }
 
-
-
+	
+		
 ///////////////////
 // Update the server list
 void Menu_Net_NETUpdateList()
 {
-	CGuiLayout	cListUpdate;
-	gui_event_t *ev = NULL;
-	bool		updateList = true;
-	int			http_result = 0;
-	std::string szLine;
-
-    // Clear the server list
-    Menu_SvrList_ClearAuto();
-
-	// UDP list
-	Menu_SvrList_UpdateUDPList();
-
-    //
-    // Get the number of master servers for a progress bar
-    //
-    int SvrCount = 0;
-    int CurServer = 0;
-    bool SentRequest = false;
-    FILE *fp = OpenGameFile("cfg/masterservers.txt","rt");
-	if( !fp )  {
-		errors << "Cannot update list because there is no masterservers.txt file available\n" << endl;
-        return;
-	}
-
-	// TODO: i don't understand it, why are we doing it so complicated here, why not just save it in a list?
-    while( !feof(fp) ) {
-        szLine = ReadUntil(fp);
-		TrimSpaces(szLine);
-
-        if( szLine.length() > 0 && szLine[0] != '#' )
-            SvrCount++;
-    }
-
-    // Back to the start
-    fseek(fp, 0, SEEK_SET);
-
-	// Create the background
-	cInternet.Draw( tMenu->bmpBuffer.get() );
-	Menu_DrawBox(tMenu->bmpBuffer.get(), 200, 220, 440, 340);
-	//DrawImageAdv(tMenu->bmpBuffer, tMenu->bmpMainBack, 202,222, 202,222, 237,117);
-    DrawRectFill(tMenu->bmpBuffer.get(), 202, 222, 439, 339, tLX->clDialogBackground);
-    Menu_DrawBox(tMenu->bmpBuffer.get(), 220, 280, 420, 300);
-	for(ushort i=0;i<6;i++)
-		cNetButtons[i].Draw(tMenu->bmpBuffer.get());
-	Menu_RedrawMouse(true);
-
-
-	cListUpdate.Initialize();
-	cListUpdate.Add( new CButton(BUT_CANCEL, tMenu->bmpButtons),0, 285, 320, 70,15);
-	cListUpdate.Add( new CLabel("Getting server list", tLX->clNormalLabel),	-1,260, 227, 0, 0);
-
-
-	CHttp http;
-
-	while(!WasKeyboardEventHappening(SDLK_ESCAPE,false) && updateList && tMenu->bMenuRunning) {
-		tLX->currentTime = GetTime();
-
-		Menu_RedrawMouse(true);
-		ProcessEvents();
-		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
-
-        if( SvrCount > 0 ) {
-            DrawRectFill(VideoPostProcessor::videoSurface(), 222,282, (int) (222+((float)CurServer/(float)SvrCount)*200.0f), 299, tLX->clProgress);
-            tLX->cOutlineFont.DrawCentre(VideoPostProcessor::videoSurface(), 320,283,tLX->clWhite, itoa(CurServer) + "/" + itoa(SvrCount));
-        }
-
-        // Do the HTTP requests of the master servers
-        if( !SentRequest ) {
-
-            // Have we gone through all the servers?
-            if( CurServer >= SvrCount )
-                break;
-
-            // Get the next server in the list
-            while( !feof(fp) ) {
-				szLine = ReadUntil(fp);
-				TrimSpaces(szLine);
-
-                if( szLine.length() > 0 && szLine[0] != '#' ) {
-
-                    // Send the request
-					//notes << "Getting serverlist from " + szLine + "..." << endl;
-					http.RequestData(szLine + LX_SVRLIST, tLXOptions->sHttpProxy);
-					SentRequest = true;
-
-                    break;
-                }
-            }
-        } else { // Process the http request
-            http_result = http.ProcessRequest();
-
-            // Parse the list if the request was successful
-            if (http_result == HTTP_PROC_FINISHED) {
-		        Menu_Net_NETParseList(http);
-
-				// Other master servers could have more server so we process them anyway
-				SentRequest = false;
-				CurServer++;
-			} else if (http_result == HTTP_PROC_ERROR)  {
-				if (http.GetError().iError != HTTP_NO_ERROR)
-            		errors << "HTTP ERROR: " << http.GetError().sErrorMsg << endl;
-				// Jump to next server
-				SentRequest = false;
-				CurServer++;
-				http.CancelProcessing();
-			}
-        }
-
-		cListUpdate.Draw( VideoPostProcessor::videoSurface() );
-		ev = cListUpdate.Process();
-
-		// Process any events
-		if(ev) {
-			if (ev->iControlID == 0 && ev->iEventMsg == BTN_CLICKED)  {  // Cancel
-				// Click!
-				PlaySoundSample(sfxGeneral.smpClick);
-
-				http_result = 0;
-				updateList = false;
-				break;
-			}
-		}
-
-
-		DrawCursor(VideoPostProcessor::videoSurface());
-		doVideoFrameInMainThread();
-		CapFPS();
-	}
-
-	cListUpdate.Shutdown();
-	fclose(fp);
-
-	Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
-
-
-	// Re-draw the background
-	DrawImage(tMenu->bmpBuffer.get(),tMenu->bmpMainBack_common,0,0);
-	if (tMenu->tFrontendInfo.bPageBoxes)
-		Menu_DrawBox(tMenu->bmpBuffer.get(), 15,130, 625, 465);
-	Menu_DrawSubTitle(tMenu->bmpBuffer.get(),SUB_NETWORK);
-	Menu_RedrawMouse(true);
+	Menu_SvrList_UpdateList();
 }
-
-
-///////////////////
-// Parse the downloaded server list
-void Menu_Net_NETParseList(CHttp &http)
-{
-	const std::string& content = http.GetData();
-
-	std::string addr, ptr;
 	
-	std::string::const_iterator it = content.begin();
-	size_t i = 0;
-	size_t startpos = 0;	
-	for(; it != content.end(); it++, i++) {	
-		if(*it != '\n') continue;
-		std::vector<std::string> tokens = explode(content.substr(startpos, i-startpos), ",");
-		startpos = i+1;
-		
-		// we need at least 2 items
-		if(tokens.size() < 2) continue;
-		
-		addr = tokens[0];
-		ptr = tokens[1];
-		
-		TrimSpaces(addr);
-		TrimSpaces(ptr);
-
-		// If the address, or port does NOT have quotes around it, the line must be mangled and cannot be used		
-		if(addr.size() <= 2 || ptr.size() <= 2) continue;
-		if(addr[0] != '\"' || ptr[0] != '\"') continue;
-		if(addr[addr.size()-1] != '\"' || ptr[ptr.size()-1] != '\"') continue;
-
-		StripQuotes(addr);
-		StripQuotes(ptr);
-
-		// Create the server address
-		Menu_SvrList_AddServer(addr + ":" + ptr, false);
-	}
-
-	// Update the GUI
-	Timer("Menu_Net_NETParseList ping waiter", null, NULL, PingWait, true).startHeadless();
+// refresh the list in the menu
+void Menu_Net_NETUpdateList_Refresher()
+{
+	if(bDedicated) return; // not needed to do that
+	
+	struct Refresher : Action {
+		int handle() {
+			Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+			return 0;
+		}
+	};
+	doActionInMainThread(new Refresher());
 }
-
+	
 enum  {
 	nd_Ok=0,
 	nd_Refresh,
