@@ -1910,6 +1910,7 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
+			if(breakSignal) return -1;
 			SDL_Delay(40);
 			if(IsNetAddrValid(addr)) 
 				break;
@@ -1926,11 +1927,11 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 		sock.setRemoteAddress(addr);
 
 		// Send the getserverlist packet
-		CBytestream *bs = new CBytestream();
-		bs->writeInt(-1, 4);
-		bs->writeString("lx::getserverlist2");
-		if(!bs->Send(&sock)) { delete bs; warnings << "error while sending data to " << server << ", ignoring"; continue; }
-		bs->Clear();
+		CBytestream bs;
+		bs.writeInt(-1, 4);
+		bs.writeString("lx::getserverlist2");
+		if(!bs.Send(&sock)) { warnings << "error while sending data to " << server << ", ignoring"; continue; }
+		bs.Clear();
 
 		//notes << "Sent getserverlist to " << server << endl;
 
@@ -1938,30 +1939,27 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 		AbsTime timeoutTime = GetTime() + 5.0f;
 		bool firstPacket = true;
 		while( true ) {
-			if(breakSignal) return -1;
-
 			while (GetTime() <= timeoutTime)  {
+				if(breakSignal) return -1;
+
 				SDL_Delay(40); // TODO: do it event based
 
 				// Got a reply?
-				if (bs->Read(&sock))  {
+				if (bs.Read(&sock))  {
 					//notes << "Got a reply from " << server << endl;
 					break;
 				}
-				
-				
 			}
 
 			// Parse the reply
-			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
+			if (bs.GetLength() && bs.readInt(4) == -1 && bs.readString() == "lx::serverlist2") {
 				if (iNetMode == net_internet) // Only add them if the Internet tab is active
-					Menu_SvrList_ParseUdpServerlist(bs, UdpServerIndex);
+					Menu_SvrList_ParseUdpServerlist(&bs, UdpServerIndex);
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
 				firstPacket = false;
 			} else  {
 				if( firstPacket )
 					warnings << "Error getting serverlist from " << server << endl;
-				delete bs;
 				break;
 			}
 		}
