@@ -2196,7 +2196,7 @@ void ServerListUpdater::updateServerList() {
 	
 	while(true) {
 		if( SvrCount > 0 ) {
-			setStatusText("Updating server list: " + itoa(CurServer) + "/" + itoa(SvrCount));
+			setStatusText("Updating server list: " + itoa(CurServer + 1) + "/" + itoa(SvrCount));
 		}
 		
 		// Do the HTTP requests of the master servers
