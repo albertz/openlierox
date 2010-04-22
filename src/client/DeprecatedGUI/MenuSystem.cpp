@@ -259,13 +259,14 @@ void Menu_SetSkipStart(int s)
 	
 void Menu_Frame() {
 	HandlePendingCommands();
-	
-	sfx.think();
-	
+		
 	if(bDedicated) {
+		Menu_SvrList_Process();
 		DedicatedControl::Get()->Menu_Frame();
 		return;
 	}
+
+	sfx.think();
 
 	if(!tMenu->bMenuRunning) return; // could be already quitted
 	
@@ -293,7 +294,7 @@ void Menu_Frame() {
 			Menu_LocalFrame();
 			break;
 
-		// News
+		// Network
 		case MNU_NETWORK:
 			Menu_NetFrame();
 			break;
@@ -318,6 +319,11 @@ void Menu_Frame() {
 			break;
 	}
 
+	// In network menu, we do the update anyway.
+	// But we also want to have it everywhere else.
+	if(tMenu->iMenuType != MNU_NETWORK)
+		Menu_SvrList_Process();
+	
 	// DEBUG: show FPS
 #ifdef DEBUG
 	if(tLX->fDeltaTime != TimeDiff()) {
@@ -1953,7 +1959,7 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 
 			// Parse the reply
 			if (bs.GetLength() && bs.readInt(4) == -1 && bs.readString() == "lx::serverlist2") {
-				if (iNetMode == net_internet) // Only add them if the Internet tab is active
+				if (tMenu->iMenuType != MNU_NETWORK || iNetMode == net_internet) // Only add them if the Internet tab is active
 					Menu_SvrList_ParseUdpServerlist(&bs, UdpServerIndex);
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
 				firstPacket = false;
@@ -1965,7 +1971,7 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 		}
 	}
 
-	if (iNetMode == net_internet) // Only add them if the Internet tab is active
+	if (tMenu->iMenuType != MNU_NETWORK || iNetMode == net_internet) // Only add them if the Internet tab is active
 		Menu_Net_NETUpdateList_Refresher();
 	return 0;
 }
@@ -2005,7 +2011,7 @@ void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		}
 
 		// In favourites/LAN only the user should add servers
-		if (iNetMode == net_internet)  {
+		if (tMenu->iMenuType != MNU_NETWORK || iNetMode == net_internet)  {
 			svr = Menu_SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
 			svr->nNumPlayers = players;
 			svr->nMaxPlayers = maxplayers;
@@ -2288,7 +2294,19 @@ void Menu_Net_NETParseList(CHttp &http)
 }
 	
 bool Menu_SvrList_IsProcessing() {
-	return taskManager->haveTaskOfType(typeid(ServerListUpdater));
+	if(taskManager->haveTaskOfType(typeid(ServerListUpdater)))
+		return true;
+	
+	SvrList::Reader l(psServerList);
+	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); i++)
+	{
+		const SvrList::type::value_type& s = *i;		
+		bool processing = s->bProcessing && Menu_SvrList_GetUdpMasterserverForServer( s->szAddress ) == "";
+		if(processing) return true;
+	}
+	
+	// seems that we have them all ready
+	return false;
 }
 
 SvrList& Menu_SvrList_currentServerList() {
