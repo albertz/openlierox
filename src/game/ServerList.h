@@ -135,7 +135,7 @@ struct UdpMasterserverInfo {
 	std::string name; int index;
 	UdpMasterserverInfo() : index(-1) {}
 	UdpMasterserverInfo(const std::string& n, int i) : name(n), index(i) {}
-	operator bool() { return index < 0; }
+	operator bool() { return index >= 0; }
 };
 UdpMasterserverInfo	SvrList_GetUdpMasterserverForServer(const std::string& szAddress);
 
