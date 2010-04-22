@@ -58,6 +58,7 @@
 		2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B58910CF9E2A00D3F035 /* gusgame.cpp */; };
 		2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
+		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -719,6 +720,8 @@
 		2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsDummy.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
+		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
@@ -1709,6 +1712,8 @@
 				231B8E5E1135804300B572C0 /* Settings.cpp */,
 				231B8E65113581C000B572C0 /* SettingsPreset.h */,
 				231B8E66113581C000B572C0 /* SettingsPreset.cpp */,
+				2348933711806DA000FA821B /* ServerList.h */,
+				2348933811806DA000FA821B /* ServerList.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -3500,6 +3505,7 @@
 				2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */,
 				2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */,
 				23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */,
+				2348933911806DA000FA821B /* ServerList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
