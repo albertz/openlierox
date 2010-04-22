@@ -360,7 +360,7 @@ void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
 	s->nPings = 0;
 	s->fInitTime = tLX->currentTime;
 	s->nQueries = 0;
-	s->nPing = 0;
+	s->nPing = -3; // unknown yet
 	s->bAddrReady = false;
 	s->lastPingedPort = 0;
 	
