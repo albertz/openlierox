@@ -359,7 +359,7 @@ void Menu_Net_ServerList_Refresher() {
 			return 0;
 		}
 	};
-	doActionInMainThread(new Refresher());
+	mainQueue->push(new Refresher());
 }
 	
 }; // namespace DeprecatedGUI
