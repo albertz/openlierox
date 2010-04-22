@@ -1965,6 +1965,8 @@ int UdpUpdater::Menu_SvrList_UpdaterFunc()
 		}
 	}
 
+	if (iNetMode == net_internet) // Only add them if the Internet tab is active
+		Menu_Net_NETUpdateList_Refresher();
 	return 0;
 }
 
