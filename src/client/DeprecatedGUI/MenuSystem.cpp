@@ -1848,45 +1848,48 @@ void Menu_SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs)
 * UDP server list
 *
 ************************/
+	
+static std::list<std::string> getUdpMasterServerList() {
+	// Open the masterservers file
+	FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
+	if(!fp1)  {
+		warnings << "could not open udpmasterservers.txt file, NAT traversal will be inaccessible" << endl;
+		return std::list<std::string>();
+	}
+	
+	std::list<std::string> tUdpMasterServers;
+	
+	// Get the list of servers
+	while( !feof(fp1) ) {
+		std::string szLine = ReadUntil(fp1);
+		TrimSpaces(szLine);
+		
+		if( szLine.length() == 0 )
+			continue;
+		
+		tUdpMasterServers.push_back(szLine);
+	}
+	fclose(fp1);
+	
+	return tUdpMasterServers;
+}
+	
 
-std::list<std::string> tUdpMasterServers;
-std::map<size_t, ThreadPoolItem *> tUpdateThreads;
-size_t threadId = 0;
-
-struct UdpServerlistData  {
-	CBytestream *bs;
-	int UdpServerIndex;
-	UdpServerlistData(CBytestream *b, int _UdpServerIndex) : bs(b), UdpServerIndex(_UdpServerIndex) {}
+struct UdpUpdater : Task {
+	UdpUpdater() { name = "udp serverlist updater"; }
+	int handle() { return Menu_SvrList_UpdaterFunc(); }
+	int Menu_SvrList_UpdaterFunc();
 };
-
-void Menu_UpdateUDPListEventHandler(UdpServerlistData data)
+	
+int UdpUpdater::Menu_SvrList_UpdaterFunc()
 {
-	if (iNetMode == net_internet) // Only add them if the Internet tab is active
-		Menu_SvrList_ParseUdpServerlist(data.bs, data.UdpServerIndex);
-	delete data.bs;
-}
-
-void Menu_UpdateUDPListEnd(size_t thread)
-{
-	std::map<size_t, ThreadPoolItem *>::iterator it = tUpdateThreads.find(thread);
-	if (it != tUpdateThreads.end())
-		threadPool->wait(it->second, NULL);
-}
-
-Event<UdpServerlistData> serverlistEvent;
-Event<size_t> updateEndEvent;
-int Menu_SvrList_UpdaterThread(void *id)
-{
-	// Setup event handlers
-	updateEndEvent.handler() = getEventHandler(&Menu_UpdateUDPListEnd);
-	serverlistEvent.handler() = getEventHandler(&Menu_UpdateUDPListEventHandler);
-
+	std::list<std::string> tUdpMasterServers = getUdpMasterServerList();
+	if(breakSignal) return -1;
+	
 	// Open socket for networking
 	NetworkSocket sock;
-	if (!sock.OpenUnreliable(0))  {
-		updateEndEvent.pushToMainQueue((size_t)id);
+	if (!sock.OpenUnreliable(0)) 
 		return -1;
-	}
 
 	// Get serverlist from all the servers in the file
 	int UdpServerIndex = 0;
@@ -1935,6 +1938,7 @@ int Menu_SvrList_UpdaterThread(void *id)
 		AbsTime timeoutTime = GetTime() + 5.0f;
 		bool firstPacket = true;
 		while( true ) {
+			if(breakSignal) return -1;
 
 			while (GetTime() <= timeoutTime)  {
 				SDL_Delay(40); // TODO: do it event based
@@ -1950,9 +1954,9 @@ int Menu_SvrList_UpdaterThread(void *id)
 
 			// Parse the reply
 			if (bs->GetLength() && bs->readInt(4) == -1 && bs->readString() == "lx::serverlist2") {
-				serverlistEvent.pushToMainQueue(UdpServerlistData(bs, UdpServerIndex));
+				if (iNetMode == net_internet) // Only add them if the Internet tab is active
+					Menu_SvrList_ParseUdpServerlist(bs, UdpServerIndex);
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
-				bs = new CBytestream(); // old bs pointer is in mainqueue now
 				firstPacket = false;
 			} else  {
 				if( firstPacket )
@@ -1963,39 +1967,12 @@ int Menu_SvrList_UpdaterThread(void *id)
 		}
 	}
 
-	// Cleanup
-	sock.Close();
-
-	updateEndEvent.pushToMainQueue((size_t)id);
 	return 0;
 }
 
 void Menu_SvrList_UpdateUDPList()
 {
-	if (tUdpMasterServers.size() == 0)  {  // Load the list of servers only if not already loaded
-		// Open the masterservers file
-		FILE *fp1 = OpenGameFile("cfg/udpmasterservers.txt", "rt");
-		if(!fp1)  {
-			warnings << "could not open udpmasterservers.txt file, NAT traversal will be inaccessible" << endl;
-			return;
-		}
-
-		// Get the list of servers
-		while( !feof(fp1) ) {
-			std::string szLine = ReadUntil(fp1);
-			TrimSpaces(szLine);
-
-			if( szLine.length() == 0 )
-				continue;
-
-			tUdpMasterServers.push_back(szLine);
-		}
-		fclose(fp1);
-	}
-
-	// Run the update	
-	ThreadPoolItem *thread = threadPool->start(Menu_SvrList_UpdaterThread, (void *)(++threadId), "udp serverlist updater");
-	tUpdateThreads[threadId] = thread;
+	taskManager->start(new UdpUpdater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
 void Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
@@ -2138,6 +2115,7 @@ std::string Menu_SvrList_GetUdpMasterserverForServer(const std::string & addr)
 	if( !svr->bBehindNat )
 		return "";
 
+	std::list<std::string> tUdpMasterServers = getUdpMasterServerList();
 	for( size_t port = 0; port < svr->ports.size(); port++ )
 	{
 		if( svr->ports[port].second < 0 )
