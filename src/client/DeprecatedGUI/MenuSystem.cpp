@@ -2242,6 +2242,9 @@ void ServerListUpdater::updateServerList() {
 				http.CancelProcessing();
 			}
 		}
+		
+		SDL_Delay(10);
+		if(breakSignal) break;
 	}
 	
 	fclose(fp);
