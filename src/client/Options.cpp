@@ -230,6 +230,7 @@ bool GameOptions::Init() {
 		( tLXOptions->iAdvancedLevelLimit, "Widgets.AdvancedLevelLimit", 0 )
 		( tLXOptions->bShowModifiedGameSettingsOnly, "Widgets.ShowModifiedGameSettingsOnly", false )
 		( tLXOptions->iLocalPlayGame, "Widgets.LocalPlayGame", 0 )
+		( tLXOptions->sSvrListSettingsFilterCfg, "Widgets.SvrListSettingsFilterCfg", "" )
 		;
 
 	for( uint i = 0; i < sizeof(ply_keys) / sizeof(ply_keys[0]) ; i ++ )

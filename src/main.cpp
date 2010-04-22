@@ -52,6 +52,7 @@
 #include "gusanos/gusanos.h"
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
+#include "game/ServerList.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -424,6 +425,8 @@ startpoint:
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
 	
+	SvrList_Init();
+
 	// Initialize chat logging
 	convoLogger = new ConversationLogger();
 	if (tLXOptions->bLogConvos)
@@ -1085,9 +1088,8 @@ void ShutdownLieroX()
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
-	
-	DeprecatedGUI::CChatWidget::GlobalDestroy();
-	
+		
+	DeprecatedGUI::CChatWidget::GlobalDestroy();	
 	ShutdownIRC(); // Disconnect from IRC
 
 	if(bDedicated)
@@ -1106,6 +1108,8 @@ void ShutdownLieroX()
 	SkinnedGUI::ShutdownGuiSkinning();
 
 	ShutdownFontCache();
+
+	SvrList_Shutdown();
 
 	DeprecatedGUI::Menu_Shutdown();
 	// Only do the deregistration for widgets if we are not restarting.

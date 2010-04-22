@@ -40,6 +40,7 @@
 #include "DeprecatedGUI/CChatWidget.h"
 #include "game/Level.h"
 #include "game/Mod.h"
+#include "game/ServerList.h"
 
 
 namespace DeprecatedGUI {
@@ -830,7 +831,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			// Add to favourites
 			case jl_Favourites:
 				if (ev->iEventMsg == BTN_CLICKED) {
-					Menu_SvrList_AddFavourite(cClient->getServerName(),cClient->getServerAddress());
+					SvrList_AddFavourite(cClient->getServerName(),cClient->getServerAddress());
 				}
 				break;
 

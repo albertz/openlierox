@@ -35,6 +35,7 @@
 #include "ProfileSystem.h"
 #include "IpToCountryDB.h"
 #include "Debug.h"
+#include "game/ServerList.h"
 
 
 
@@ -56,6 +57,11 @@ enum {
 	mi_PlayerSelection,
 };
 
+void Menu_Net_NET_ServerList_Refresher() {
+	Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ), SLFT_CustomSettings, SvrListSettingsFilter::Load(tLXOptions->sSvrListSettingsFilterCfg) );
+}
+	
+	
 ///////////////////
 // Initialize the Internet menu
 bool Menu_Net_NETInitialize()
@@ -127,13 +133,9 @@ bool Menu_Net_NETInitialize()
 
 	((CListview*) cInternet.getWidget( mi_ServerList ))->SetSortColumn( tLXOptions->iInternetSortColumn, true ); // Sorting
 
-	// Clear the server list & grab an update
-	Menu_SvrList_Clear();
-
     // Load the list
-    Menu_SvrList_LoadList("cfg/svrlist.dat");
-    Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
-	Menu_SvrList_UpdateUDPList();
+	Menu_Net_NET_ServerList_Refresher();
+	SvrList_UpdateUDPList();
 	
 	Timer("Menu_Net_NETInitialize serverlist timeout", null, NULL, SVRLIST_TIMEOUT, true).startHeadless();
 	
@@ -149,7 +151,7 @@ void Menu_Net_NETShutdown()
 
 		// Save the list
 		if( iNetMode == net_internet )  {
-			Menu_SvrList_SaveList("cfg/svrlist.dat");
+			SvrList_Save();
 
 			CListview* l = (CListview *)cInternet.getWidget(mi_ServerList);
 			if(l) {
@@ -187,9 +189,9 @@ void Menu_Net_NETFrame(int mouse)
 
 	// Process the server list
 	static bool wasLoadedBefore = false;
-	if( Menu_SvrList_Process() || (tIpToCountryDB->Loaded() && !wasLoadedBefore) ) {
+	if( SvrList_Process() || (tIpToCountryDB->Loaded() && !wasLoadedBefore) ) {
 		// Add the servers to the listview
-		Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+		Menu_Net_NET_ServerList_Refresher();
 		wasLoadedBefore = tIpToCountryDB->Loaded();
 	}
 
@@ -233,8 +235,8 @@ void Menu_Net_NETFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Refresh the currently visible servers
-					Menu_SvrList_RefreshList();
-					Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+					SvrList_RefreshList();
+					Menu_Net_NET_ServerList_Refresher();
 				}
 				break;
 
@@ -247,7 +249,7 @@ void Menu_Net_NETFrame(int mouse)
 					if(result != -1 && addr != "") {
 
                         // Save the list
-                        Menu_SvrList_SaveList("cfg/svrlist.dat");
+                        SvrList_Save();
 
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
@@ -279,7 +281,7 @@ void Menu_Net_NETFrame(int mouse)
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
                         // Save the list
-                        Menu_SvrList_SaveList("cfg/svrlist.dat");
+                        SvrList_Save();
 
 						Menu_Net_NETJoinServer(addr,sub->sText);
 						return;
@@ -315,7 +317,7 @@ void Menu_Net_NETFrame(int mouse)
 					lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 					if(result != -1 && addr != "" && sub) {
                         // Save the list
-                        Menu_SvrList_SaveList("cfg/svrlist.dat");
+                        SvrList_Save();
 
 						Menu_Net_NETJoinServer(addr,sub->sText);
 						return;
@@ -327,9 +329,9 @@ void Menu_Net_NETFrame(int mouse)
 					addr = "";
 					int result = cInternet.SendMessage(mi_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
-						Menu_SvrList_RemoveServer(addr);
+						SvrList_RemoveServer(addr);
 						// Re-Fill the server list
-						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+						Menu_Net_NET_ServerList_Refresher();
 					}
 				}
 				break;
@@ -339,22 +341,22 @@ void Menu_Net_NETFrame(int mouse)
                 switch( ev->iEventMsg ) {
                     // Delete the server
                     case MNU_USER+0:
-                        Menu_SvrList_RemoveServer(szNetCurServer);
+                        SvrList_RemoveServer(szNetCurServer);
                         break;
 
                     // Refresh the server
                     case MNU_USER+1:
                         {
-							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = SvrList_FindServerStr(szNetCurServer);
                             if(sv)
-                                Menu_SvrList_RefreshServer(sv);
+                                SvrList_RefreshServer(sv);
                         }
                         break;
 
                     // Join a server
                     case MNU_USER+2:  {
                         // Save the list
-                        Menu_SvrList_SaveList("cfg/svrlist.dat");
+                        SvrList_Save();
 						lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 						if (sub)
 							Menu_Net_NETJoinServer(szNetCurServer,sub->sText);
@@ -364,20 +366,20 @@ void Menu_Net_NETFrame(int mouse)
                     // Add server to favourites
                     case MNU_USER+3:
 						{
-							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = SvrList_FindServerStr(szNetCurServer);
 							if (sv)
-								Menu_SvrList_AddFavourite(sv->szName,sv->szAddress);
+								SvrList_AddFavourite(sv->szName,sv->szAddress);
 						}
                         break;
 
 					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t::Ptr sv = Menu_SvrList_FindServerStr(szNetCurServer);
+							server_t::Ptr sv = SvrList_FindServerStr(szNetCurServer);
 							std::string Nick;
 							cInternet.SendMessage(mi_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
-								Menu_SvrList_WantsJoin(Nick, sv);
+								SvrList_WantsJoin(Nick, sv);
 						}
                         break;
 
@@ -396,7 +398,7 @@ void Menu_Net_NETFrame(int mouse)
                 }
 
                 // Re-Fill the server list
-                Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+				Menu_Net_NET_ServerList_Refresher();
 
                 // Remove the menu widget
                 cInternet.SendMessage( mi_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
@@ -498,9 +500,9 @@ void Menu_Net_NETAddServer()
 		ProcessEvents();
 
 		// Process the server list
-		if( Menu_SvrList_Process() ) {
+		if( SvrList_Process() ) {
 			// Add the servers to the listview
-			Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+			Menu_Net_NET_ServerList_Refresher();
 		}
 
 		cAddSvr.Draw( VideoPostProcessor::videoSurface() );
@@ -518,8 +520,8 @@ void Menu_Net_NETAddServer()
 						std::string addr;
 						cAddSvr.SendMessage(na_Address, TXS_GETTEXT, &addr, 0);
 
-						Menu_SvrList_AddServer(addr, true);
-						Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
+						SvrList_AddServer(addr, true);
+						Menu_Net_NET_ServerList_Refresher();
 
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
@@ -563,22 +565,9 @@ void Menu_Net_NETAddServer()
 // Update the server list
 void Menu_Net_NETUpdateList()
 {
-	Menu_SvrList_UpdateList();
+	SvrList_UpdateList();
 }
 	
-// refresh the list in the menu
-void Menu_Net_NETUpdateList_Refresher()
-{
-	if(bDedicated) return; // not needed to do that
-	
-	struct Refresher : Action {
-		int handle() {
-			Menu_SvrList_FillList( (CListview *)cInternet.getWidget( mi_ServerList ) );
-			return 0;
-		}
-	};
-	doActionInMainThread(new Refresher());
-}
 	
 enum  {
 	nd_Ok=0,
@@ -645,7 +634,7 @@ void Menu_Net_NETShowServer(const std::string& szAddress)
 				nTries = 0;
 			} else if (ev->iControlID == nd_Join && ev->iEventMsg == BTN_CLICKED)  {
                 // Save the list
-                Menu_SvrList_SaveList("cfg/svrlist.dat");
+                SvrList_Save();
 
 				lv_subitem_t *sub = ((CListview *)cInternet.getWidget(mi_ServerList))->getCurSubitem(1);
 

@@ -54,6 +54,7 @@
 #include "gusanos/gusgame.h"
 #include "game/Game.h"
 #include "game/Level.h"
+#include "game/ServerList.h"
 #include <zip.h> // For unzipping downloaded mod
 
 
@@ -1357,9 +1358,9 @@ void CClient::Connect(const std::string& address)
 	}
 
 	// Connecting to a server behind a NAT?
-	if(DeprecatedGUI::Menu_SvrList_GetUdpMasterserverForServer(strServerAddr) != "")  {
+	if(SvrList_GetUdpMasterserverForServer(strServerAddr))  {
 		bConnectingBehindNat = true;
-		sUdpMasterserverAddress = DeprecatedGUI::Menu_SvrList_GetUdpMasterserverForServer(strServerAddr);
+		sUdpMasterserverAddress = SvrList_GetUdpMasterserverForServer(strServerAddr).name;
 
 		// Start UDP NAT traversal immediately - we know for sure that
 		// the host is registered on UDP masterserver and won't respond on ping

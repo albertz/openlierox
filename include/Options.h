@@ -329,6 +329,7 @@ struct GameOptions {
 	int		iAdvancedLevelLimit;
 	bool	bShowModifiedGameSettingsOnly;
 	int		iLocalPlayGame;
+	std::string sSvrListSettingsFilterCfg;
 	
 	// Last used custom game details
 	// Server-side game settings are now in gameSettings (see game/Settings.h)

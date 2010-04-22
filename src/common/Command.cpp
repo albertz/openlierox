@@ -51,6 +51,7 @@
 #include "game/WormInputHandler.h"
 #include "sound/SoundsBase.h"
 #include "game/Level.h"
+#include "game/ServerList.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -2379,19 +2380,19 @@ void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>
 
 COMMAND(updateServerList, "update server list", "", 0, 0);
 void Cmd_updateServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	DeprecatedGUI::Menu_SvrList_UpdateList();
+	SvrList_UpdateList();
 }
 
 COMMAND(isUpdatingServerList, "is server list still updating", "", 0, 0);
 void Cmd_isUpdatingServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	caller->pushReturnArg(to_string(DeprecatedGUI::Menu_SvrList_IsProcessing()));
+	caller->pushReturnArg(to_string(SvrList_IsProcessing()));
 }
 
 COMMAND(getServerList, "get server list", "", 0, 0);
 void Cmd_getServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	DeprecatedGUI::SvrList::Reader l( DeprecatedGUI::Menu_SvrList_currentServerList() );
-	for(DeprecatedGUI::SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); ++i) {
-		const DeprecatedGUI::SvrList::type::value_type& s = *i;
+	SvrList::Reader l( SvrList_currentServerList() );
+	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); ++i) {
+		const SvrList::type::value_type& s = *i;
 		std::string addr = Replace(s->szAddress, ",", "");
 		caller->pushReturnArg(addr + "," + s->szName);		
 	}
