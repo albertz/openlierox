@@ -499,8 +499,12 @@ void Menu_SvrList_FillList(DeprecatedGUI::CListview *lv, SvrListFilterType filte
 	lv->SaveScrollbarPos();
 	lv->Clear();
 	
-	SvrList::Reader l(psServerList);
-	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); i++)
+	SvrList::type serverList;
+	{
+		SvrList::Reader l(psServerList);
+		serverList = l.get();
+	}
+	for(SvrList::type::const_iterator i = serverList.begin(); i != serverList.end(); i++)
 	{
 		const SvrList::type::value_type& s = *i;
 		if(!s->matches(filterType, settingsFilter)) continue;
@@ -1295,8 +1299,12 @@ bool SvrList_IsProcessing() {
 	if(taskManager->haveTaskOfType(typeid(ServerListUpdater)))
 		return true;
 	
-	SvrList::Reader l(psServerList);
-	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); i++)
+	SvrList::type serverList;
+	{
+		SvrList::Reader l(psServerList);
+		serverList = l.get();
+	}
+	for(SvrList::type::const_iterator i = serverList.begin(); i != serverList.end(); i++)
 	{
 		const SvrList::type::value_type& s = *i;		
 		bool processing = s->bProcessing && !SvrList_GetUdpMasterserverForServer( s->szAddress );
