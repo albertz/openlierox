@@ -33,6 +33,7 @@ public:
 	DataTimeRecorder() : m_curIndex(0), m_entryCount(0) {}
 	
 	void clear() { m_entryCount = 0; }
+	void clear(const Data& d) { clear(); push_back(d); }
 	void push_back(const Data& d) {
 		m_data[m_curIndex] = d;
 		m_curIndex++; m_curIndex %= FramesCount;

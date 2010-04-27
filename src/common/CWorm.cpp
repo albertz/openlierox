@@ -505,6 +505,7 @@ void CWorm::Spawn(CVec position) {
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
+	posRecordings.clear(vPos);
 	cNinjaRope.Clear();
 	
 
