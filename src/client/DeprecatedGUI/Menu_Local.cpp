@@ -927,7 +927,7 @@ bool Menu_LocalCheckPlaying(int index)
 		bool operator() (const std::string& abs_filename) {
 			ModInfo info = infoForMod(abs_filename, true);
 			if(info.valid)
-				combobox->addItem(info.path, "[" + info.typeShort + "] " + info.name);
+				combobox->addItem(info.path, info.name + " [" + info.typeShort + "]");
 
 			return true;
 		}
