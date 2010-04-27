@@ -167,7 +167,7 @@ void CWormInputHandler::think()
 	}
 	
 	if ( m_node ) {
-		while ( m_node->checkEventWaiting() ) {
+		while ( m_node && m_node->checkEventWaiting() ) {
 			eNet_Event type;
 			eNet_NodeRole    remote_role;
 			Net_ConnID       conn_id;

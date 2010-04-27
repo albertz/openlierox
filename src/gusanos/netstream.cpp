@@ -1067,7 +1067,7 @@ void Net_Node::sendEventDirect(eNet_SendMode m, BitStream* s, Net_ConnID cid) {
 	delete s;
 }
 
-bool Net_Node::checkEventWaiting() { return intern->incomingEvents.size() > 0; }
+bool Net_Node::checkEventWaiting() { return intern.get() && intern->incomingEvents.size() > 0; }
 
 BitStream* Net_Node::getNextEvent(eNet_Event* e, eNet_NodeRole* r, Net_ConnID* cid) {
 	if(intern->incomingEvents.size() == 0) return NULL;
