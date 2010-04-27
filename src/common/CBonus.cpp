@@ -46,7 +46,7 @@ void CBonus::Spawn(CVec ppos, int type, int weapon, CGameScript *gs)
 
 ///////////////////
 // Draw the bonus
-void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, int showname)
+void CBonus::Draw(SDL_Surface * bmpDest, CViewport *v, bool showname)
 {
 	CMap* map = cClient->getMap();
 	VectorD2<int> p = v->physicToReal(vPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
