@@ -991,8 +991,10 @@ int UdpUpdater::SvrList_UpdaterFunc()
 		int port = atoi(server.substr(server.find(':') + 1));
 		
 		// Resolve the address
-		if (!GetNetAddrFromNameAsync(domain, addr))
+		if (!GetNetAddrFromNameAsync(domain, addr)) {
+			errors << "update from UDP masterserver: domain '" << domain << "' invalid" << endl;
 			continue;
+		}
 		
 		AbsTime start = GetTime();
 		while (GetTime() - start <= 5.0f) {
