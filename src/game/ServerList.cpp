@@ -33,7 +33,7 @@ static void SvrList_LoadList(const std::string& szFilename, SvrListFilterType fi
 
 static bool		SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock, bool isLan);
 static void		SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs);
-static void		SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
+static std::string		SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
 
 
 static void SvrList_MergeWithNewInfo(server_t::Ptr svr, const std::string& address, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
@@ -1041,10 +1041,12 @@ int UdpUpdater::SvrList_UpdaterFunc()
 					break;
 				}				
 			}
-			
+
 			// Parse the reply
 			if (bs.GetLength() && bs.readInt(4) == -1 && bs.readString() == "lx::serverlist2") {
-				SvrList_ParseUdpServerlist(&bs, UdpServerIndex);
+				std::string errStr = SvrList_ParseUdpServerlist(&bs, UdpServerIndex);
+				if(errStr != "")
+					errors << "Error reading data from UDP masterserver " << server << ": " << errStr << endl;
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
 				firstPacket = false;
 			} else  {
@@ -1064,23 +1066,29 @@ void SvrList_UpdateUDPList()
 	taskManager->start(new UdpUpdater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
-void SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
+std::string SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
 	//notes << "Menu_SvrList_ParseUdpServerlist " << amount << endl;
 	for( int f=0; f<amount; f++ )
 	{
+		if(bs->isPosAtEnd())
+			return "Package crippled";
+
+		bUpdateFromUdpThread = true;
+
 		std::string addr = bs->readString();
 		std::string name = bs->readString();
 		TrimSpaces(name);
 		TrimSpaces(addr);
-		//hints << "Menu_SvrList_ParseUdpServerlist(): " << name << " " << addr << endl;
+		//notes << "Menu_SvrList_ParseUdpServerlist(): " << name << " " << addr << endl;
 		int players = bs->readByte();
 		int maxplayers = bs->readByte();
 		int state = bs->readByte();
 		Version version = bs->readString(64);
 		bool allowConnectDuringGame = bs->readBool();
+		
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
 		server_t::Ptr svr = SvrList_FindServerStr(addr, name);
 		if( svr )
@@ -1088,10 +1096,10 @@ void SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
 			if( !svr->bgotPong )
 				SvrList_MergeWithNewInfo(svr, addr, name, UdpMasterserverIndex);
-			continue;
 		}
+		else
+			svr = SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
 		
-		svr = SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
 		svr->nNumPlayers = players;
 		svr->nMaxPlayers = maxplayers;
 		svr->nState = state;
@@ -1103,12 +1111,10 @@ void SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		svr->tVersion = version;
 		svr->bAllowConnectDuringGame = allowConnectDuringGame;
 		svr->bBehindNat = true;
-	};
+	}
 	
-	bUpdateFromUdpThread = true;
-	// Update the GUI when ping times out
-	Timer("Menu_SvrList_ParseUdpServerlist ping waiter", null, NULL, PingWait, true).startHeadless();
-};
+	return "";
+}
 
 
 ///////////////////
