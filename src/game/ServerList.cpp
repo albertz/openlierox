@@ -36,6 +36,9 @@ static void		SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs);
 static void		SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
 
 
+static void SvrList_MergeWithNewInfo(server_t::Ptr svr, const std::string& address, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
+
+
 SvrList psServerList;
 
 // Maximum number of pings/queries before we ignore the server
@@ -333,8 +336,7 @@ void SvrList_RefreshList()
 	SvrList::Reader l(psServerList);
 	for(SvrList::type::const_iterator it = l.get().begin(); it != l.get().end(); it++) 
 	{
-		if( ! (*it)->bBehindNat )
-			SvrList_RefreshServer(*it, false);
+		SvrList_RefreshServer(*it, false);
 	}
 	
 	// Update the GUI
@@ -348,10 +350,12 @@ void SvrList_RefreshList()
 // Refresh a single server
 void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
 {
-	if (!tLX)
-		return;
+	if (!tLX) return;
 	
-    s->bProcessing = true;
+	// no refresh for NAT servers right now
+	if(s->bBehindNat) return;
+	
+    s->bProcessing = s->bBehindNat ? false : true;
 	s->bgotPong = false;
 	s->bgotQuery = false;
 	s->bIgnore = false;
@@ -360,7 +364,7 @@ void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
 	s->nPings = 0;
 	s->fInitTime = tLX->currentTime;
 	s->nQueries = 0;
-	s->nPing = -3; // unknown yet
+	s->nPing = s->bBehindNat ? -2 : -3; // unknown yet
 	s->bAddrReady = false;
 	s->lastPingedPort = 0;
 	
@@ -393,6 +397,31 @@ void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
 }
 
 
+void SvrList_MergeWithNewInfo(server_t::Ptr found, const std::string& address, const std::string & name, int udpMasterserverIndex) {
+	NetworkAddr ad;
+	std::string tmp_address = address;
+    TrimSpaces(tmp_address);
+    int port = -1;
+    if(StringToNetAddr(tmp_address, ad)) 
+    {
+    	port = GetNetAddrPort(ad);
+    	if( port == 0 )
+    		port = LX_PORT;
+    }
+
+	if( found->szName == "Untitled" )
+		found->szName = name;
+	//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
+	
+	if(port != -1 && port != 0) {
+		for( size_t i = 0; i < found->ports.size(); i++ )
+			if( found->ports[i].first == port )
+				return;
+		
+		found->ports.push_back( std::make_pair( port, udpMasterserverIndex ) );	
+	}
+}
+
 ///////////////////
 // Add a server onto the list (for list and manually)
 server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex)
@@ -413,14 +442,7 @@ server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const 
 	server_t::Ptr found = SvrList_FindServerStr(tmp_address, name);
     if( found && port != -1 && port != 0 )
     {
-    	if( found->szName == "Untitled" )
-    		found->szName = name;
-    	//hints << "Menu_SvrList_AddServer(): merging duplicate " << found->szName << " " << found->szAddress << endl;
-		
-		for( size_t i = 0; i < found->ports.size(); i++ )
-			if( found->ports[i].first == port )
-				return found;
-		found->ports.push_back( std::make_pair( port, udpMasterserverIndex ) );
+		SvrList_MergeWithNewInfo(found, tmp_address, name, udpMasterserverIndex);
 		return found;
     }
 	
@@ -1059,10 +1081,8 @@ void SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 		if( svr )
 		{
 			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
-			if( svr->bgotPong )
-				continue;
-			// It will merge existing server with new info
-			SvrList_AddServer(addr, false, name, UdpMasterserverIndex);
+			if( !svr->bgotPong )
+				SvrList_MergeWithNewInfo(svr, addr, name, UdpMasterserverIndex);
 			continue;
 		}
 		
