@@ -991,7 +991,7 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 #ifdef DEBUG
 			std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 			errors << "ReadSocket " << debugString() << ": " << errStr << endl;
-#endif // DEBUG
+#endif
 			
 			// Is this perhaps the solution for the Bad file descriptor error?
 			//Close();
