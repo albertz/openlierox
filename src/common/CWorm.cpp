@@ -674,6 +674,12 @@ void CWorm::GetRandomWeapons()
 		// no break here, the function will anyway work and ignore the restrictions
 	}
 	
+	if(game.gameScript() == NULL) {
+		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
+		for(short i = 0; i < 5; ++i) tWeapons[i].Weapon = NULL; // not sure if needed but just to be sure
+		return;
+	}
+	
 	for(short i=0; i<5; i++) {
 		int num = MAX(1, GetRandomInt(game.gameScript()->GetNumWeapons()-1)); // HINT: num must be >= 1 or else we'll loop forever in the ongoing loop
 
