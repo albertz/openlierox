@@ -1018,7 +1018,10 @@ int UdpUpdater::SvrList_UpdaterFunc()
 		CBytestream bs;
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::getserverlist2");
-		if(!bs.Send(&sock)) { warnings << "error while sending data to " << server << ", ignoring"; continue; }
+		if(!bs.Send(&sock)) {
+			warnings << "error while sending data to UDP masterserver '" << server << "', ignoring" << endl;
+			continue;
+		}
 		bs.Clear();
 		
 		//notes << "Sent getserverlist to " << server << endl;
@@ -1036,7 +1039,7 @@ int UdpUpdater::SvrList_UpdaterFunc()
 				if (bs.Read(&sock))  {
 					//notes << "Got a reply from " << server << endl;
 					break;
-				}
+				}				
 			}
 			
 			// Parse the reply
