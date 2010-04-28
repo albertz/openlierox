@@ -2056,7 +2056,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	// But we can use a clearing weapon :)
 	if (nType & PX_DIRT)  {
 		bDirect = false;
-		if(diff.y < 0 && fabs(diff.y) > fabs(diff.x) && d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
+		if(diff.y < 0 && fabs(diff.y) > fabs(diff.x) && d-fDist > 40.0f)  {
 			int w = AI_FindClearingWeapon();
 			if (w >= 0 && AI_GetRockBetween(m_worm->vPos, cTrgPos) <= 3) {
 				m_worm->iCurrentWeapon = w;
