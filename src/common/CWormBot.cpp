@@ -2146,9 +2146,9 @@ bool CWormBotInputHandler::AI_Shoot()
 				}
 
 				// Gravity
-				int	g = 100;
+				float g = 100;
 				if(weap->Proj.Proj->UseCustomGravity)
-					g = weap->Proj.Proj->Gravity;
+					g = (float)weap->Proj.Proj->Gravity;
 
 				proj_t *tmp = weap->Proj.Proj;
 				while(tmp)  {
@@ -2156,8 +2156,8 @@ bool CWormBotInputHandler::AI_Shoot()
 						if (tmp->Gravity > g)
 							g = tmp->Gravity;
 					} else
-						if (g < 100)
-							g = 100;
+						if (g < 100.0f)
+							g = 100.0f;
 
 					// If there are any other projectiles, that are spawned with the main one, try their gravity
 					if (tmp->Timer.Projectiles)  {
@@ -2170,6 +2170,7 @@ bool CWormBotInputHandler::AI_Shoot()
 					// TODO: this is not correct anymore for newer gamescripts
 					tmp = tmp->GeneralSpawnInfo.Proj;
 				}
+				g *= (float)cClient->getGameLobby()[FT_ProjGravityFactor];
 
 				// Get the alpha
 				bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
@@ -3947,10 +3948,11 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	for (int i=0; i < 5; i++)  {
 		if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Proj.Proj)  {
 			// Get the gravity
-			int gravity = 100;  // Default
+			float gravity = 100.0f;  // Default
 			if (m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity)
-				gravity = m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
-
+				gravity = (float)m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
+			gravity *= (float)cClient->getGameLobby()[FT_ProjGravityFactor];
+			
 			// Change the flags according to the gravity
 			if (gravity >= 5)
 				have_falling = true;
