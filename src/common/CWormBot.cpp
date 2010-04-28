@@ -1676,7 +1676,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 		goodAim = true;
 	
 	// Clamp the angle
-	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, 60.0f);
+	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f);
 
     return goodAim;
 }
@@ -1913,8 +1913,9 @@ bool AI_GetAimingAngle(float v, float g, float x, float y, float *angle)
 	*angle *= R2D;
 
 	// Clamp the angle
-	if (*angle > 60)  {
-		*angle = 60;
+	const float upperAngle = cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f;
+	if (*angle > upperAngle)  {
+		*angle = upperAngle;
 		return false;
 	}
 	if (*angle < -90)  {
