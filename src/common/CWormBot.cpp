@@ -1744,7 +1744,9 @@ float fLastDirChange = 99999;
 // Returns -1 on failure
 int CWormBotInputHandler::AI_FindClearingWeapon()
 {
-	if(iAiGameType == GAM_MORTARS)
+	const bool canIgnoreSelfHit = !(bool)cClient->getGameLobby()[FT_SelfInjure];
+	
+	if(!canIgnoreSelfHit && iAiGameType == GAM_MORTARS)
 		return -1;
 	Proj_ActionType type = PJ_EXPLODE;
 
@@ -1756,7 +1758,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 			type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
 
 			// Nothing that could fall back onto us
-			if (m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
+			if (!canIgnoreSelfHit && m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
 				if (!m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity || m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity > 30)
 					continue;
 			}
