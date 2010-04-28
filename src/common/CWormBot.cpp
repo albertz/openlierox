@@ -1748,14 +1748,12 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 	
 	if(!canIgnoreSelfHit && iAiGameType == GAM_MORTARS)
 		return -1;
-	Proj_ActionType type = PJ_EXPLODE;
 
 	// search a good projectile weapon
-	int i = 0;
-    for (i=0; i<5; i++) {
+    for (short i=0; i<5; i++) {
     	if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
+			Proj_ActionType type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
 
 			// Nothing that could fall back onto us
 			if (!canIgnoreSelfHit && m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
@@ -1778,7 +1776,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 	}
 
 	// accept also beam-weapons as a second choice
-    for (i=0; i<5; i++)
+    for (short i=0; i<5; i++)
  		if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
