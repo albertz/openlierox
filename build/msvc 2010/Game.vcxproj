@@ -231,7 +231,10 @@
     <ClInclude Include="..\..\include\Unicode.h" />
     <ClInclude Include="..\..\include\win32memleakdebug.h" />
     <ClInclude Include="..\..\include\XMLutils.h" />
+    <ClInclude Include="..\..\src\cfg\client.h" />
+    <ClInclude Include="..\..\src\client\gfx\raytracing.h" />
     <ClInclude Include="..\..\src\game\GameMode.h" />
+    <ClInclude Include="..\..\src\game\ServerList.h" />
     <ClInclude Include="..\..\src\game\Settings.h" />
     <ClInclude Include="..\..\src\game\SettingsPreset.h" />
     <ClInclude Include="..\..\src\game\Sounds.h" />
@@ -476,6 +479,9 @@
     <ClInclude Include="..\..\src\gusanos\omfgscript\omfg_script_parser.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\src\cfg\client.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/cfg_client.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\src\client\AuxLib.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -488,6 +494,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="..\..\src\client\gfx\raytracing.cpp" />
     <ClCompile Include="..\..\src\common\CBytestream.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -617,6 +624,7 @@
     </ClCompile>
     <ClCompile Include="..\..\src\common\XMLutils.cpp" />
     <ClCompile Include="..\..\src\game\GameMode.cpp" />
+    <ClCompile Include="..\..\src\game\ServerList.cpp" />
     <ClCompile Include="..\..\src\game\Settings.cpp" />
     <ClCompile Include="..\..\src\game\SettingsPreset.cpp" />
     <ClCompile Include="..\..\src\game\Sounds.cpp" />
@@ -1123,7 +1131,9 @@
     <ClCompile Include="..\..\src\gusanos\base_action.cpp" />
     <ClCompile Include="..\..\src\gusanos\base_animator.cpp" />
     <ClCompile Include="..\..\src\gusanos\base_worm.cpp" />
-    <ClCompile Include="..\..\src\gusanos\client.cpp" />
+    <ClCompile Include="..\..\src\gusanos\client.cpp">
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/gus_client.obj</ObjectFileName>
+    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\culling.cpp" />
     <ClCompile Include="..\..\src\gusanos\detect_event.cpp" />
     <ClCompile Include="..\..\src\gusanos\distortion.cpp" />
