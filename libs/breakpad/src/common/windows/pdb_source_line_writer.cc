@@ -51,6 +51,30 @@ PDBSourceLineWriter::PDBSourceLineWriter() : output_(NULL) {
 PDBSourceLineWriter::~PDBSourceLineWriter() {
 }
 
+static HRESULT CoCreateDiaDataSource(CComPtr<IDiaDataSource>& data_source)
+{
+    HMODULE hmodule = LoadLibraryA("MSDIA100");
+    if (!hmodule)
+        return HRESULT_FROM_WIN32(GetLastError()); // library not found
+
+    BOOL (WINAPI*DllGetClassObject)(REFCLSID,REFIID,LPVOID) =
+        (BOOL(WINAPI*)(REFCLSID,REFIID,LPVOID))GetProcAddress(hmodule, "DllGetClassObject");
+
+    if (!DllGetClassObject) 
+        return HRESULT_FROM_WIN32(GetLastError());
+
+    CComPtr<IClassFactory> pClassFactory;
+    HRESULT hr = DllGetClassObject(CLSID_DiaSource, IID_IClassFactory, &pClassFactory);
+    if (FAILED(hr))
+        return hr;
+
+    hr = pClassFactory->CreateInstance(NULL, IID_IDiaDataSource, (void**)&data_source);
+    if (FAILED(hr))
+        return hr;
+
+    return S_OK;
+}
+
 bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
   Close();
 
@@ -60,9 +84,8 @@ bool PDBSourceLineWriter::Open(const wstring &file, FileFormat format) {
   }
 
   CComPtr<IDiaDataSource> data_source;
-  if (FAILED(data_source.CoCreateInstance(CLSID_DiaSource))) {
-    fprintf(stderr, "CoCreateInstance CLSID_DiaSource failed "
-            "(msdia80.dll unregistered?)\n");
+  if (FAILED(CoCreateDiaDataSource(data_source))) {
+    fprintf(stderr, "CoCreateInstance CLSID_DiaSource failed\n");
     return false;
   }
 
