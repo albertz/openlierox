@@ -124,7 +124,7 @@ public:
 	bool		findRandomSpot(bool highSpot = false);
     CWorm       *findTarget(); // for games where we have to kill other people
 	CWorm*		nearestEnemyWorm();
-	bool		weaponCanHit(int gravity,float speed, CVec cTrgPos);
+	bool		weaponCanHit(float gravity,float speed, CVec cTrgPos);
 	int			traceWeaponLine(CVec target, float *fDist, int *nType);
 	
 	

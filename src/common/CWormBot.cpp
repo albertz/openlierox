@@ -1789,7 +1789,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 ////////////////////
 // Returns true, if the weapon can hit the target
 // WARNING: works only when fAngle == AI_GetAimingAngle, which means the target has to be aimed
-bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
+bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
 	if(!psAITarget)
@@ -1812,7 +1812,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		}
 		
 		float f = float(AI_XTREME - iAiDiffLevel) / float(AI_XTREME);
-		gravity += int(randomNums[0] * f * 5);
+		gravity += randomNums[0] * f * 5;
 		speed += randomNums[1] * f * 20.0f;
 		cTrgPos.x += randomNums[2] * f * 50.0f;
 		cTrgPos.y += randomNums[3] * f * 50.0f;		
@@ -1862,14 +1862,14 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 }
 
 
-bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
+bool AI_GetAimingAngle(float v, float g, float x, float y, float *angle)
 {
 	// TODO: returns wron angles (too big) for mortars
 	// Is it a fault of wrong parameters or wrong calculations?
 
 	float v2 = v*v;
 	float x2 = x*x;
-	float g2 = (float)(g*g);
+	float g2 = g*g;
 	float y2 = y*y;
 
 	// Small hack - for small y-distance we want positive numbers
@@ -2217,7 +2217,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 				// Check if we can aim with this angle
 				// HINT: we have to do it here because weaponCanHit requires already finished aiming
-				if (bAim && g >= 10 && v <= 200)  {
+				if (bAim && g >= 10.0f && v <= 200)  {
 					bShoot = bAim = weaponCanHit(g,v,CVec(m_worm->vPos.x+x,m_worm->vPos.y-y));
 				}
 				
