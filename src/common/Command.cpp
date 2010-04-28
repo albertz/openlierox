@@ -52,6 +52,7 @@
 #include "sound/SoundsBase.h"
 #include "game/Level.h"
 #include "game/ServerList.h"
+#include "EventQueue.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -986,7 +987,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 					execCmd->cmd = cmd;
 					execCmd->params = params1;
 					//stdoutCLI().writeMsg("wait: executing cmd: " + cmdName + " " + params1);
-					doActionInMainThread( execCmd );
+					mainQueue->push( execCmd );
 				}
 			}
 			return 0;
