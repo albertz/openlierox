@@ -66,6 +66,35 @@ bool		*bGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
+static bool Menu_InitSockets() {
+	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
+		tMenu->tSocket[i] = new NetworkSocket();
+
+	// HACK: open an unreliable foo socket
+	// Some routers simply ignore first open socket and don't let any data through, this is a workaround
+	tMenu->tSocket[SCK_FOO]->OpenUnreliable(0);
+	// Open a socket for broadcasting over a LAN (UDP)
+	tMenu->tSocket[SCK_LAN]->OpenBroadcast(0);
+	// Open a socket for communicating over the net (UDP)
+	tMenu->tSocket[SCK_NET]->OpenUnreliable(0);	
+	
+	if(!tMenu->tSocket[SCK_LAN]->isOpen() || !tMenu->tSocket[SCK_NET]->isOpen()) {
+		SystemError("Error: Failed to open a socket for networking");
+		return false;
+	}
+
+	// Send some random data to some random IP
+	if (tMenu->tSocket[SCK_FOO]->isOpen())  {
+		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
+		// For example, if no network is connected, you likely only have 127.* in your routing table.
+		if(IsNetAddrAvailable(a)) {
+			tMenu->tSocket[SCK_FOO]->setRemoteAddress(a);
+			tMenu->tSocket[SCK_FOO]->Write("foo");
+		}
+	}
+
+	return true;
+}
 
 ///////////////////
 // Initialize the menu system
@@ -82,6 +111,8 @@ bool Menu_Initialize(bool *game)
         SystemError("Error: Out of memory in for menu");
 		return false;
     }
+
+	if(!Menu_InitSockets()) return false;
 
 	if(bDedicated) return true;
 	
@@ -157,32 +188,6 @@ bool Menu_Initialize(bool *game)
 	}
 	CopySurface(tMenu->bmpLobbyNotReady.get(), lobby_state, 0, 12, 0, 0, lobby_state.get()->w, 12);
 
-
-	for (size_t i = 0; i < sizeof(tMenu->tSocket)/sizeof(tMenu->tSocket[0]); ++i)
-		tMenu->tSocket[i] = new NetworkSocket();
-
-	// HACK: open an unreliable foo socket
-	// Some routers simply ignore first open socket and don't let any data through, this is a workaround
-	tMenu->tSocket[SCK_FOO]->OpenUnreliable(0);
-	// Open a socket for broadcasting over a LAN (UDP)
-	tMenu->tSocket[SCK_LAN]->OpenBroadcast(0);
-	// Open a socket for communicating over the net (UDP)
-	tMenu->tSocket[SCK_NET]->OpenUnreliable(0);	
-	
-	if(!tMenu->tSocket[SCK_LAN]->isOpen() || !tMenu->tSocket[SCK_NET]->isOpen()) {
-		SystemError("Error: Failed to open a socket for networking");
-		return false;
-	}
-
-	// Send some random data to some random IP
-	if (tMenu->tSocket[SCK_FOO]->isOpen())  {
-		NetworkAddr a; StringToNetAddr("1.2.3.4:5678", a);
-		// For example, if no network is connected, you likely only have 127.* in your routing table.
-		if(IsNetAddrAvailable(a)) {
-			tMenu->tSocket[SCK_FOO]->setRemoteAddress(a);
-			tMenu->tSocket[SCK_FOO]->Write("foo");
-		}
-	}
 
 	// Add default widget IDs to the widget list
 	//Menu_AddDefaultWidgets();
