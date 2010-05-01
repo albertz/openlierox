@@ -1244,7 +1244,7 @@ rule_leaf(b);
 bool set_1[26];
 bool set_3[26];
 bool set_17[26];
-TGrammar() : cur(-1), begin(0), marker(0), buffer(0), curp(0), limit(0), line(1), syncTokens(false), error(false), state(0) {
+TGrammar() : cur(-1), marker(0), begin(0), curp(0), buffer(0), limit(0), line(1), syncTokens(false), state(0), error(false) {
 memset(set_1, 0, sizeof(bool)*26);
 set_1[1] = true;
 set_1[2] = true;
