@@ -5,7 +5,10 @@ import sys, time, cgi, os, random, traceback, re
 f = open("pwn0meter.txt","r")
 w = open("pwn0meter.html","w")
 #w = sys.stdout
-w.write("<HEAD><TITLE>Pwn0meter</TITLE></HEAD><BODY><H2>Pwn0meter</H2>\n")
+w.write("<html><HEAD>\n")
+w.write("<META HTTP-EQUIV=\"content-type\" CONTENT=\"text/html; charset=utf-8\">\n")
+w.write("<TITLE>Pwn0meter</TITLE>\n")
+w.write("</HEAD>\n<BODY>\n<H2>Pwn0meter</H2>\n")
 w.write("<p>updated on %s</p>\n" % time.asctime())
 
 # make random chat quotes
@@ -169,5 +172,5 @@ for c in clans.iterkeys():
 	w.write("<b>%s</b>: " % cgi.escape(c))
 	w.write("%s<br>\n" % cgi.escape(", ".join(list(clans[c]))))
 
-w.write("</BODY>\n")
+w.write("</BODY>\n</html>\n")
 w.close()
