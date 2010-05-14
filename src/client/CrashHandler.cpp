@@ -24,6 +24,15 @@
 #include "../breakpad/BreakPad.h"
 
 
+
+class DummyCrashHandler : public CrashHandler {
+public:
+	DummyCrashHandler() {
+		notes << "Dummy CrashHandler implementation" << endl;
+	}
+};
+
+
 #ifdef NBREAKPAD
 
 //
@@ -499,12 +508,8 @@ public:
 
 
 #else
-class CrashHandlerImpl : public CrashHandler {
-public:
-	CrashHandlerImpl() {
-		notes << "Dummy CrashHandler implementation" << endl;
-	}
-};
+
+typedef DummyCrashHandler CrashHandlerImpl;
 
 #endif
 
@@ -529,7 +534,7 @@ struct CrashHandlerImpl : CrashHandler {
 #endif
 
 
-CrashHandlerImpl* crashHandlerInstance = NULL;
+CrashHandler* crashHandlerInstance = NULL;
 
 void CrashHandler::init() {
 	if(crashHandlerInstance) {
@@ -537,8 +542,14 @@ void CrashHandler::init() {
 		return;
 	}
 
-	notes << "Installing CrashHandler .. ";	
-	crashHandlerInstance = new CrashHandlerImpl();
+	if(AmIBeingDebugged()) {
+		notes << "Debugging .. ";
+		crashHandlerInstance = new DummyCrashHandler();
+	}
+	else {
+		notes << "Installing CrashHandler .. ";	
+		crashHandlerInstance = new CrashHandlerImpl();		
+	}
 }
 
 void CrashHandler::uninit() {
