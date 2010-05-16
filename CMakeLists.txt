@@ -3,16 +3,16 @@
 cmake_minimum_required(VERSION 2.4)
 
 # Note: This must be a relative path because AUX_SOURCE_DIRECTORY would not work otherwise with CMake 2.4
-SET(OLXROOTDIR .)
+SET(OLXROOTDIR ${Project_SOURCE_DIR})
 include(${OLXROOTDIR}/CMakeOlxCommon.cmake)
 
 ADD_EXECUTABLE(openlierox ${OLXROOTDIR}/src/main.cpp ${ALL_SRCS})
 
 IF(WIN32)
 	SET_TARGET_PROPERTIES(openlierox PROPERTIES OUTPUT_NAME "../../../bin/OpenLieroX")
-	
+
 	# Add debug info to release build in linker flags
-	SET_TARGET_PROPERTIES(openlierox PROPERTIES LINK_FLAGS "${LINK_FLAGS} 
+	SET_TARGET_PROPERTIES(openlierox PROPERTIES LINK_FLAGS "${LINK_FLAGS}
 		/LTCG
 		/DEBUG
 		/MAP:\"${CMAKE_SOURCE_DIR}/bin/OpenLieroX.map\"
