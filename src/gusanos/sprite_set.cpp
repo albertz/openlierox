@@ -31,7 +31,7 @@ SpriteSet::SpriteSet()
 #ifndef DEDICATED_ONLY
 // This does not copy the colored cache naturally
 SpriteSet::SpriteSet(SpriteSet const& b, SpriteSet const& mask, int color)
-		: 
+		:
 		frameCount(b.frameCount),
 		angleCount(b.angleCount),
 		m_frames(b.m_frames),
@@ -43,9 +43,9 @@ SpriteSet::SpriteSet(SpriteSet const& b, SpriteSet const& mask, int color)
 	std::vector<Sprite *>::const_iterator maski = mask.m_frames.begin();
 	std::vector<Sprite *>::iterator desti = m_frames.begin();
 	for (; desti != m_frames.end();
-	        ++srci, ++maski, ++desti) {
+			++srci, ++maski, ++desti) {
 		if((*srci)->m_bitmap->w != (*maski)->m_bitmap->w
-		        || (*srci)->m_bitmap->h != (*maski)->m_bitmap->h)
+				|| (*srci)->m_bitmap->h != (*maski)->m_bitmap->h)
 			throw std::runtime_error("Mask sprite is not the same size as source sprite");
 
 		*desti = new Sprite(**srci, **maski, color);
@@ -132,7 +132,7 @@ Sprite* SpriteSet::getSprite( size_t frame )
 }
 
 Sprite* SpriteSet::getSprite( size_t frame, Angle angle )
-{	
+{
 	//angle.clamp();
 	if ( frame > frameCount ) {
 		frame = 0;
@@ -146,7 +146,6 @@ Sprite* SpriteSet::getSprite( size_t frame, Angle angle )
 
 	angle.clamp();
 
-	//TODO: warning: left shift count >= width of type
 	size_t angleFrame = ((angle.adjust<16>() + m_halfAngleDivisonSize) * m_angleFactor) >> 16;
 
 	if ( angleFrame >= angleCount ) {
@@ -185,14 +184,14 @@ Sprite* SpriteSet::getColoredSprite( size_t frame, SpriteSet* mask, int color, A
 	}
 
 	if(mask->frameCount != frameCount
-	        || mask->angleCount != angleCount) {
+			|| mask->angleCount != angleCount) {
 		return 0;
 	}
 
 	//Disabled - cache wasn't returning anything
 	//SpriteSet* s = m_coloredCache[std::make_pair(mask, color)];
 	//return s->getSprite(frame, angle);
-	
+
 	return getSprite(frame, angle);
 }
 
