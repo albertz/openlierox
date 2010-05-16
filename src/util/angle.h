@@ -107,13 +107,17 @@ class BasicAngle
 			return *this;
 		}
 
+	private:
+		T adjust__left(int bits) { return data << (bits - prec); }
+		T adjust__right(int bits) { return data >> (prec - bits); }
+
+	public:
 		template<int bits>
-		T adjust()
-		{
-			if (bits > prec)
-				return data << (bits - prec);
+		T adjust() {
+			if(bits > prec)
+				return adjust__left(bits);
 			else
-				return data >> (prec - bits);
+				return adjust__right(bits);
 		}
 
 		BasicAngle muldiv(T mul, T div)
