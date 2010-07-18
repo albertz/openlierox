@@ -18,6 +18,7 @@ get_backtrace() {
 	echo "HINT: Please send the above output to openlierox@az2000.de."
 }
 
+cd "$(dirname "$0")"
 cd share/gamedir
 ulimit -c unlimited		# activate core-files
 rm core* 2>/dev/null	# remove old core-files
