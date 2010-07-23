@@ -64,7 +64,7 @@ private:
 
 public:
 	
-	Polygon2D() : addingPoints(false), convex(true), lastsign(0) {}
+        Polygon2D() : addingPoints(false), convex(true), lastsign(0) { memset(&overlay, 0, sizeof(SDL_Rect)); }
 	Polygon2D(const Points& pts);
 	void clear() { points.clear(); lines.clear(); horizLines.clear(); }
 	bool isInside(int x, int y) const;
