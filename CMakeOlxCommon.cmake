@@ -438,11 +438,9 @@ endif(UNIX)
 
 IF (NOT DEDICATED_ONLY)
 	if(APPLE)
-		FIND_PACKAGE(SDL_mixer REQUIRED)
-		SET(LIBS ${LIBS} ${SDLMIXER_LIBRARY})
 		SET(LIBS ${LIBS} "-framework UnixImageIO" "-framework GD")
 	elseif(UNIX)
-		SET(LIBS ${LIBS} SDL_mixer gd)
+                SET(LIBS ${LIBS} gd)
 	endif(APPLE)
 ENDIF (NOT DEDICATED_ONLY)
 
