@@ -57,6 +57,7 @@
 		2326B57210CF9D6500D3F035 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B57110CF9D6500D3F035 /* Game.cpp */; };
 		2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B58910CF9E2A00D3F035 /* gusgame.cpp */; };
 		2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */; };
+		23325A9112117E2200915252 /* SmartPointer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23325A9012117E2200915252 /* SmartPointer.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
@@ -719,6 +720,7 @@
 		2326BAC710D29BB200D3F035 /* PhysicsDummy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysicsDummy.h; sourceTree = "<group>"; };
 		2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsDummy.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
+		23325A9012117E2200915252 /* SmartPointer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SmartPointer.cpp; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
 		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
@@ -2611,6 +2613,7 @@
 				23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */,
 				23C181B910C49914003DBB09 /* MainGlobals.cpp */,
 				23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */,
+				23325A9012117E2200915252 /* SmartPointer.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -3506,6 +3509,7 @@
 				2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */,
 				23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */,
 				2348933911806DA000FA821B /* ServerList.cpp in Sources */,
+				23325A9112117E2200915252 /* SmartPointer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
