@@ -332,6 +332,7 @@ void CWorm::Prepare(bool serverSide)
 	
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
+	posRecordings.clear();
 	bIsPrepared = true;
 }
 
@@ -504,6 +505,7 @@ void CWorm::Spawn(CVec position) {
 	fLastInputTime = GetPhysicsTime();
 	vPos = vDrawPos = vLastPos = vPreOldPosOfLastPaket = vOldPosOfLastPaket = position;
 	vPreLastEstimatedVel = vLastEstimatedVel = vVelocity = CVec(0,0);
+	posRecordings.clear(vPos);
 	cNinjaRope.Clear();
 	
 
@@ -670,6 +672,12 @@ void CWorm::GetRandomWeapons()
 	if(game.weaponRestrictions() == NULL) {
 		errors << "CWorm::GetRandomWeapons: cWeaponRest == NULL" << endl;
 		// no break here, the function will anyway work and ignore the restrictions
+	}
+	
+	if(game.gameScript() == NULL) {
+		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
+		for(short i = 0; i < 5; ++i) tWeapons[i].Weapon = NULL; // not sure if needed but just to be sure
+		return;
 	}
 	
 	for(short i=0; i<5; i++) {
@@ -846,6 +854,23 @@ bool CWorm::isVisible(const CViewport* v) const {
 
 static inline bool isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
+}
+
+Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) {
+	if(!bAlive)
+		return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+		
+	// BAD HACK: visibility depends on first local worm
+	if(!isVisible( (cClient->getNumWorms() > 0) ? cClient->getWorm(0) : NULL ))
+		return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+	
+	// Find the right pic
+	int f = ((int)fFrame*7);
+	int ang = MIN( (int)( (fAngle+90)/151 * 7 ), 6 ); // clamp the value because LX skins don't have the very bottom aim
+	f += ang;
+			
+	// multiplied by 2 because skin have double res
+	return cSkin.renderColorAt(x*2 + cSkin.getSkinWidth()/2, y*2 + cSkin.getSkinHeight()/2, f, iFaceDirectionSide == DIR_LEFT);	
 }
 
 ///////////////////

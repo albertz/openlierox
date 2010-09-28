@@ -444,7 +444,7 @@ void initNetwork(LuaContext& context)
 	lua_setfield(context, LUA_GLOBALSINDEX, "AUTH");
 
 	// TODO: this was missing. where was it set before?
-	lua_pushboolean(context, false);
+	lua_pushboolean(context, bDedicated);
 	lua_setfield(context, LUA_GLOBALSINDEX, "DEDSERV");
 
 }

@@ -37,10 +37,8 @@ protected:
 	virtual SmartPointer<SoundSample> load(std::string const& filename)=0;
 
 	std::vector<Listener*> listeners;
-	int m_volume;
-	int m_listenerDistance;
-
-	const int MAX_VOLUME;
+	float m_volume;
+	float m_listenerDistance;
 
 private:
 

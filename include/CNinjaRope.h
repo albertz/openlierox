@@ -18,13 +18,14 @@
 #define __CNINJAROPE_H__
 
 #include "CVec.h"
+#include "CGameObject.h"
 
 class CWorm;
 struct SDL_Surface;
 class CBytestream;
 
 
-class CNinjaRope {
+class CNinjaRope : public CGameObject {
 public:
 	// Constructor
 	CNinjaRope() {
@@ -38,6 +39,8 @@ public:
 private:
 	// Attributes
 	
+	CWorm*		owner;
+	
 	bool		Released;
 	bool		HookShooting;
 	bool		HookAttached;
@@ -48,7 +51,6 @@ private:
 
 	CVec		HookVelocity;
 
-	CVec		HookPos;
 	CVec		HookDir;
 	CVec		OldHookPos;
 
@@ -83,22 +85,25 @@ public:
 	void		write(CBytestream *bs);
 	void		read(CBytestream *bs, CWorm *worms, int owner);
 
-    CVec getHookPos() const       { return HookPos; }
+    CVec getHookPos() const       { return getPos(); }
     bool   isAttached() const       { return HookAttached; }
     bool   isShooting()  const      { return HookShooting; }
 	void	setShooting(bool s)			{ HookShooting = s; }
 	void	setAttached(bool a)			{ HookAttached = a; }
 
-	void		updateOldHookPos()		{ OldHookPos = HookPos; }
+	void		updateOldHookPos()		{ OldHookPos = getPos(); }
 
 	CVec&		hookVelocity()			{ return HookVelocity; }
-	CVec&		hookPos()				{ return HookPos; }
+	CVec&		hookPos()				{ return pos(); }
 	
 	bool		isPlayerAttached()		{ return PlayerAttached; }
 	CWorm*		getAttachedPlayer()		{ return Worm; }
 
 	void		changeRestLength(float);
 
+	virtual bool isInside(int x, int y);	
+	virtual Color renderColorAt(/* relative coordinates */ int x, int y);
+	
 };
 
 

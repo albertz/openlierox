@@ -83,7 +83,9 @@ inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 			continue;
 		
 		const static int wsize = 4;
-		Shape<int> worm; worm.pos = w->getPos(); worm.radius = VectorD2<int>(wsize, wsize);
+		Shape<int> worm;
+		worm.pos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - this->fLastSimulationTime).milliseconds());
+		worm.radius = VectorD2<int>(wsize, wsize);
 		
 		if(s.CollisionWith(worm)) {
 			
@@ -763,7 +765,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 				// Do we do a bounce-explosion (bouncy larpa uses this)
 			if(BounceExplode > 0)
-				cClient->Explosion(prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
+				cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
 			break;
 			
 		// Carve
@@ -1094,7 +1096,7 @@ bool Proj_FallbackEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile*
 static void projectile_doExplode(CProjectile* const prj, int damage, int shake) {
 	// Explosion
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
@@ -1105,7 +1107,7 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 		damage = pi->PlyHit.Damage;
 	
 	if(damage != -1) // TODO: why only with -1?
-		cClient->Explosion(prj->getPos(), (float)damage, shake, prj->GetOwner());
+		cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)damage, shake, prj->GetOwner());
 }
 
 static void projectile_doMakeDirt(CProjectile* const prj) {
@@ -1168,15 +1170,17 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
-		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
-		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		pi->GeneralSpawnInfo.apply(prj, currentTime);
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// we use the last simulation time to have it more accurate.
+		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
+		pi->GeneralSpawnInfo.apply(prj, prj->fLastSimulationTime);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
-		// we use currentTime (= the simulation time of the cClient) to simulate the spawing at this time
-		// because the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap()
-		(*i)->apply(prj, currentTime);
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// we use the last simulation time to have it more accurate.
+		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
+		(*i)->apply(prj, prj->fLastSimulationTime);
 	}
 	
 	if(sound) {
@@ -1349,7 +1353,7 @@ static inline bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 
 
 static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* const prj) {
-	static const TimeDiff orig_dt = LX56PhysicsDT;
+	const TimeDiff orig_dt = LX56PhysicsDT;
 	const TimeDiff dt = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed];
 	
 	VectorD2<int> oldPos(prj->getPos());
@@ -1358,7 +1362,6 @@ static void LX56_simulateProjectile(const AbsTime currentTime, CProjectile* cons
 simulateProjectileStart:
 	if(prj->fLastSimulationTime + orig_dt > currentTime) goto finalMapPosIndexUpdate;
 	prj->fLastSimulationTime += orig_dt;
-	// It is ensured that prj->lx56handler != NULL, because we cannot get here otherwise.
 	if(LX56ProjectileHandler_doFrame(currentTime, dt, prj))
 		goto simulateProjectileStart;
 
@@ -1369,29 +1372,24 @@ finalMapPosIndexUpdate:
 
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs) {
 	AbsTime currentTime = GetPhysicsTime();
-	TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
-	cClient->fLastSimulationTime += warpTime;
-	static const TimeDiff orig_dt = LX56PhysicsDT;
-	AbsTime realSimulationTime = GetTime();
+	const TimeDiff orig_dt = LX56PhysicsDT;
+	
+	const TimeDiff warpTime = tLX->fRealDeltaTime - tLX->fDeltaTime;
+	if(warpTime > TimeDiff(0)) {
+		for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
+			CProjectile* const p = i->get();
+			p->fLastSimulationTime += warpTime;
+		}
+	}
 	
 simulateProjectilesStart:
 	if(cClient->fLastSimulationTime + orig_dt > currentTime) return;
-
-	// HINT: if the computer is too slow and doesn't manage to simulate everything, just skip few frames
-	// Better an incorrect simulation than a game that is not controllable
-	if (GetTime() - realSimulationTime > orig_dt)  {
-		cClient->fLastSimulationTime = currentTime;
-		return;
-	}
-	realSimulationTime = GetTime();
 	
 	for(Iterator<CProjectile*>::Ref i = projs; i->isValid(); i->next()) {
-		CProjectile* p = i->get();
-		p->fLastSimulationTime += warpTime;
+		CProjectile* const p = i->get();
 		LX56_simulateProjectile( cClient->fLastSimulationTime, p );
 	}
 	
-	warpTime = TimeDiff(0);
 	cClient->fLastSimulationTime += orig_dt;
 	goto simulateProjectilesStart;
 }

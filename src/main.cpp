@@ -52,6 +52,7 @@
 #include "gusanos/gusanos.h"
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
+#include "game/ServerList.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -424,6 +425,8 @@ startpoint:
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
 	
+	SvrList_Init();
+
 	// Initialize chat logging
 	convoLogger = new ConversationLogger();
 	if (tLXOptions->bLogConvos)
@@ -703,7 +706,6 @@ void ParseArguments(int argc, char *argv[])
         // Turns off the sound
         if( stricmp(a, "-nosound") == 0 ) {
             bDisableSound = true;
-            tLXOptions->bSoundOn = false;
         } else
 
         // -dedicated
@@ -711,8 +713,6 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-dedicated") == 0 ) {
             bDedicated = true;
 			bDisableSound = true;
-			// this setting will be temporarly because we don't save options at end in dedicated mode
-            tLXOptions->bSoundOn = false;
         } else
 
 		// -dedscript
@@ -722,7 +722,6 @@ void ParseArguments(int argc, char *argv[])
 				bDedicated = true;
 				bDisableSound = true;
 				// these settings will be temporarly because we don't save options at end in dedicated mode
-				tLXOptions->bSoundOn = false;
 				tLXOptions->sDedicatedScript = argv[++i];
 			}
 			else
@@ -1089,9 +1088,8 @@ void ShutdownLieroX()
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
-	
-	DeprecatedGUI::CChatWidget::GlobalDestroy();
-	
+		
+	DeprecatedGUI::CChatWidget::GlobalDestroy();	
 	ShutdownIRC(); // Disconnect from IRC
 
 	if(bDedicated)
@@ -1110,6 +1108,8 @@ void ShutdownLieroX()
 	SkinnedGUI::ShutdownGuiSkinning();
 
 	ShutdownFontCache();
+
+	SvrList_Shutdown();
 
 	DeprecatedGUI::Menu_Shutdown();
 	// Only do the deregistration for widgets if we are not restarting.
@@ -1261,14 +1261,21 @@ void updateFileListCaches() {
 	struct Updater : Task {
 		Updater() { name = "updateFileListCaches"; }
 		int handle() {
+			if(breakSignal) return -1;
 			mapList->update();
+			if(breakSignal) return -1;
 			modList->update();
+			if(breakSignal) return -1;
 			skinList->update();
+			if(breakSignal) return -1;
 			settingsPresetList->update();
 			return 0;
 		}
+		std::string statusText() {
+			return "Updating file list cache ...";
+		}
 	};
-	taskManager->start(new Updater(), false);
+	taskManager->start(new Updater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
 

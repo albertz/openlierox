@@ -56,7 +56,7 @@ ScriptVar_t Settings::hostGet(FeatureIndex i) {
 	ScriptVar_t var = (*this)[i];
 	Feature* f = &featureArray[i];
 	if(f->getValueFct)
-		var = (cServer->*(f->getValueFct))( var );
+		var = f->getValueFct( var );
 	
 	return var;
 }

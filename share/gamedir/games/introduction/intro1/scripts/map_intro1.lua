@@ -3,7 +3,6 @@ function getKey(k)
 end
 
 function map_intro1.init()
-	exec("chatMsg", "Hello from the introduction level")
 
 	message("Welcome to OpenLieroX\n"
 		.. "Go to the right top of this level!\n\n"

@@ -1676,7 +1676,7 @@ bool CWormBotInputHandler::AI_SetAim(CVec cPos)
 		goodAim = true;
 	
 	// Clamp the angle
-	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, 60.0f);
+	m_worm->fAngle = CLAMP(m_worm->fAngle, -90.0f, cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f);
 
     return goodAim;
 }
@@ -1744,19 +1744,19 @@ float fLastDirChange = 99999;
 // Returns -1 on failure
 int CWormBotInputHandler::AI_FindClearingWeapon()
 {
-	if(iAiGameType == GAM_MORTARS)
+	const bool canIgnoreSelfHit = !(bool)cClient->getGameLobby()[FT_SelfInjure];
+	
+	if(!canIgnoreSelfHit && iAiGameType == GAM_MORTARS)
 		return -1;
-	Proj_ActionType type = PJ_EXPLODE;
 
 	// search a good projectile weapon
-	int i = 0;
-    for (i=0; i<5; i++) {
+    for (short i=0; i<5; i++) {
     	if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE) {
 			// TODO: not really all cases...
-			type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
+			Proj_ActionType type = m_worm->tWeapons[i].Weapon->Proj.Proj->Hit.Type;
 
 			// Nothing that could fall back onto us
-			if (m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
+			if (!canIgnoreSelfHit && m_worm->tWeapons[i].Weapon->Proj.Speed < 100.0f) {
 				if (!m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity || m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity > 30)
 					continue;
 			}
@@ -1776,7 +1776,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 	}
 
 	// accept also beam-weapons as a second choice
-    for (i=0; i<5; i++)
+    for (short i=0; i<5; i++)
  		if(m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_BEAM)
 			return i;
 
@@ -1789,7 +1789,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 ////////////////////
 // Returns true, if the weapon can hit the target
 // WARNING: works only when fAngle == AI_GetAimingAngle, which means the target has to be aimed
-bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
+bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
 	if(!psAITarget)
@@ -1812,7 +1812,7 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 		}
 		
 		float f = float(AI_XTREME - iAiDiffLevel) / float(AI_XTREME);
-		gravity += int(randomNums[0] * f * 5);
+		gravity += randomNums[0] * f * 5;
 		speed += randomNums[1] * f * 20.0f;
 		cTrgPos.x += randomNums[2] * f * 50.0f;
 		cTrgPos.y += randomNums[3] * f * 50.0f;		
@@ -1862,14 +1862,14 @@ bool CWormBotInputHandler::weaponCanHit(int gravity, float speed, CVec cTrgPos)
 }
 
 
-bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
+bool AI_GetAimingAngle(float v, float g, float x, float y, float *angle)
 {
 	// TODO: returns wron angles (too big) for mortars
 	// Is it a fault of wrong parameters or wrong calculations?
 
 	float v2 = v*v;
 	float x2 = x*x;
-	float g2 = (float)(g*g);
+	float g2 = g*g;
 	float y2 = y*y;
 
 	// Small hack - for small y-distance we want positive numbers
@@ -1913,8 +1913,9 @@ bool AI_GetAimingAngle(float v, int g, float x, float y, float *angle)
 	*angle *= R2D;
 
 	// Clamp the angle
-	if (*angle > 60)  {
-		*angle = 60;
+	const float upperAngle = cClient->getGameLobby()[FT_FullAimAngle] ? 90.0f : 60.0f;
+	if (*angle > upperAngle)  {
+		*angle = upperAngle;
 		return false;
 	}
 	if (*angle < -90)  {
@@ -2056,7 +2057,7 @@ bool CWormBotInputHandler::AI_Shoot()
 	// But we can use a clearing weapon :)
 	if (nType & PX_DIRT)  {
 		bDirect = false;
-		if(diff.y < 0 && fabs(diff.y) > fabs(diff.x) && d-fDist > 40.0f && iAiGameType != GAM_MORTARS)  {
+		if(diff.y < 0 && fabs(diff.y) > fabs(diff.x) && d-fDist > 40.0f)  {
 			int w = AI_FindClearingWeapon();
 			if (w >= 0 && AI_GetRockBetween(m_worm->vPos, cTrgPos) <= 3) {
 				m_worm->iCurrentWeapon = w;
@@ -2146,9 +2147,9 @@ bool CWormBotInputHandler::AI_Shoot()
 				}
 
 				// Gravity
-				int	g = 100;
+				float g = 100;
 				if(weap->Proj.Proj->UseCustomGravity)
-					g = weap->Proj.Proj->Gravity;
+					g = (float)weap->Proj.Proj->Gravity;
 
 				proj_t *tmp = weap->Proj.Proj;
 				while(tmp)  {
@@ -2156,8 +2157,8 @@ bool CWormBotInputHandler::AI_Shoot()
 						if (tmp->Gravity > g)
 							g = tmp->Gravity;
 					} else
-						if (g < 100)
-							g = 100;
+						if (g < 100.0f)
+							g = 100.0f;
 
 					// If there are any other projectiles, that are spawned with the main one, try their gravity
 					if (tmp->Timer.Projectiles)  {
@@ -2170,6 +2171,7 @@ bool CWormBotInputHandler::AI_Shoot()
 					// TODO: this is not correct anymore for newer gamescripts
 					tmp = tmp->GeneralSpawnInfo.Proj;
 				}
+				g *= (float)cClient->getGameLobby()[FT_ProjGravityFactor];
 
 				// Get the alpha
 				bAim = AI_GetAimingAngle(v,g,x,y,&alpha);
@@ -2216,7 +2218,7 @@ bool CWormBotInputHandler::AI_Shoot()
 
 				// Check if we can aim with this angle
 				// HINT: we have to do it here because weaponCanHit requires already finished aiming
-				if (bAim && g >= 10 && v <= 200)  {
+				if (bAim && g >= 10.0f && v <= 200)  {
 					bShoot = bAim = weaponCanHit(g,v,CVec(m_worm->vPos.x+x,m_worm->vPos.y-y));
 				}
 				
@@ -3947,10 +3949,11 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	for (int i=0; i < 5; i++)  {
 		if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Proj.Proj)  {
 			// Get the gravity
-			int gravity = 100;  // Default
+			float gravity = 100.0f;  // Default
 			if (m_worm->tWeapons[i].Weapon->Proj.Proj->UseCustomGravity)
-				gravity = m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
-
+				gravity = (float)m_worm->tWeapons[i].Weapon->Proj.Proj->Gravity;
+			gravity *= (float)cClient->getGameLobby()[FT_ProjGravityFactor];
+			
 			// Change the flags according to the gravity
 			if (gravity >= 5)
 				have_falling = true;

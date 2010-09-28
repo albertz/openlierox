@@ -337,6 +337,31 @@ void Menu_NetShutdown()
 	Menu_DisableNetEvents();
 }
 
+void Menu_Net_ServerList_Refresher() {
+	if(bDedicated) return; // not needed to do that
+
+	struct Refresher : Action {
+		int handle() {
+			switch(iNetMode) {
+				case net_internet:
+					Menu_Net_NET_ServerList_Refresher();
+					break;
+				case net_lan:
+					Menu_Net_LAN_ServerList_Refresher();
+					break;
+				case net_favourites:
+					Menu_Net_Favourites_ServerList_Refresher();
+					break;
+				default:
+					// ignore
+					break;
+			}
+			return 0;
+		}
+	};
+	mainQueue->push(new Refresher());
+}
+	
 }; // namespace DeprecatedGUI
 
 

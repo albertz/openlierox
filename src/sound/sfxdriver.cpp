@@ -4,17 +4,19 @@
 #include "util/macros.h"
 #include "sfxdriver.h"
 #include "MathLib.h"
+#include "Options.h"
 
 #include <vector>
+#include <list>
 
 using namespace std;
 
+static const float SFX_LISTENER_DISTANCE = 20.0f;
 
-
-SfxDriver::SfxDriver():MAX_VOLUME(255)
+SfxDriver::SfxDriver()
 {
-	m_volume=MAX_VOLUME;
-	m_listenerDistance=0;
+	m_volume = 1.0f;
+	m_listenerDistance = SFX_LISTENER_DISTANCE;
 }
 
 SfxDriver::~SfxDriver()
@@ -23,30 +25,47 @@ SfxDriver::~SfxDriver()
 
 void SfxDriver::setListeners(std::vector<Listener*> &_listeners)
 {
-//aaaa
 	listeners=_listeners;
 }
 
+
+string wrapper__guscon_sfx_volume(const list<string> &args)
+{
+	if(args.size() >= 1)
+		return ""; // just ignore
+
+	// Gusanos volume range is 0-255
+	// LX volume range is 0-100
+	return itoa(Round(float(tLXOptions->iSoundVolume) * 0.01f * 255.0f));
+}
+
+string wrapper__guscon_sfx_listener_distance(const list<string> &args)
+{
+	if(args.size() >= 1)
+		return ""; // just ignore
+
+	return ftoa(SFX_LISTENER_DISTANCE);
+}
+
+
 void SfxDriver::registerInConsole()
 {
-//aaaaaaa
-	console.registerVariables()
-			("SFX_VOLUME", &m_volume, MAX_VOLUME , update_volume)
-			("SFX_LISTENER_DISTANCE", &m_listenerDistance, 20)
-		;
-		
-		// NOTE: When/if adding a callback to sfx variables, make it do nothing if
-		// sfx.operator bool() returns false.
+	console.registerCommands()
+			("SFX_VOLUME", wrapper__guscon_sfx_volume)
+			("SFX_LISTENER_DISTANCE", wrapper__guscon_sfx_listener_distance)
+			;
 
+	// NOTE: When/if adding a callback to sfx variables, make it do nothing if
+	// sfx.operator bool() returns false.
 }
 
 void SfxDriver::setVolume(float val) {
-	m_volume = Round(val * MAX_VOLUME);
+	m_volume = val;
 	volumeChange();
 }
 
 float SfxDriver::volume() const {
-	return float(m_volume) / MAX_VOLUME;
+	return m_volume;
 }
 
 #endif

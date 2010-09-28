@@ -53,11 +53,7 @@ public:
 	std::vector<CWormHumanInputHandler*> localPlayers;
 	std::vector<CWormInputHandler*> players;
 	
-#ifdef USE_GRID
 	Grid objects;
-#else
-	ObjectsList objects;
-#endif
 
 	CMap* gameMap();
 	CGameScript* gameScript();

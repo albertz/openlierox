@@ -473,6 +473,28 @@ bool CGameSkin::operator ==(const CGameSkin &oth)
 		return bmpSurface.get() == oth.bmpSurface.get();
 }
 
+Color CGameSkin::renderColorAt(int x, int y, int frame, bool mirrored) {
+	Mutex::ScopedLock lock(thread->mutex);
+	if(!thread->ready) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);	
+	if(x < 0 || y < 0 || x >= iSkinWidth || y >= iSkinHeight) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+	if(bmpMirrored.get() == NULL || bmpNormal.get() == NULL) return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
+	
+	if (frame < 0)
+		frame = 0;
+	else if (frame >= getFrameCount())
+		frame = getFrameCount() - 1;
+	
+	// Get the correct frame
+	const int sx = frame * iFrameWidth + iFrameSpacing;
+	const int sy = (iFrameHeight - iSkinHeight);
+		
+	// Draw the skin
+	if (mirrored)
+		return Color(bmpMirrored->format, GetPixel(bmpMirrored.get(), bmpMirrored->w - sx - iSkinWidth - 1 + x, sy + y));
+	else
+		return Color(bmpNormal->format, GetPixel(bmpNormal.get(), sx + x, sy + y));
+}
+
 ///////////////////////
 // Draw the worm skin at the specified coordinates
 void CGameSkin::DrawInternal(SDL_Surface *surf, int x, int y, int frame, bool draw_cpu, bool mirrored, bool blockUntilReady, bool half)

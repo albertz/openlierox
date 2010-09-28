@@ -13,8 +13,9 @@
 #include "Physics.h"
 
 PhysicsEngine* CreatePhysicsEngineLX56();
+int getCurrentLX56PhysicsFPS();
 
-#define	LX56PhysicsFixedFPS	84
+#define	LX56PhysicsFixedFPS	getCurrentLX56PhysicsFPS()
 #define	LX56PhysicsDT	TimeDiff(1000 / LX56PhysicsFixedFPS)
 
 #endif

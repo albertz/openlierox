@@ -28,6 +28,7 @@
 #include <mach/mach_init.h>
 #include <sys/sysctl.h>
 #include <mach/mach_traps.h>
+#include <pthread.h>
 #elif defined(WIN32) || defined(WIN64)
 #include <windows.h>
 #else
@@ -63,9 +64,6 @@ static void setCurThreadName__signalraiser(const char* name) {
 #endif
 #endif
 
-#ifdef __APPLE__
-extern "C" void setCurThreadName__macosx(const char* name);
-#endif
 
 //////////////////
 // Gives a name to the thread
@@ -103,7 +101,10 @@ void setCurThreadName(const std::string& name)
 #endif
 
 #ifdef __APPLE__
-	setCurThreadName__macosx(name.c_str());
+	// pthread_setname_np only available since SDK 10.6
+#if defined(MAC_OS_X_VERSION_10_6) && MAC_OS_X_VERSION_MIN_REQUIRED >= MAC_OS_X_VERSION_10_6
+	pthread_setname_np(name.c_str());
+#endif
 #endif
 	
 #endif

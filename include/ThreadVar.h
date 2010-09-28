@@ -26,7 +26,9 @@ usage sample:
 
 template< typename _T >
 class ThreadVar {
-
+public:
+	typedef _T type;
+	
 private:
 	_T data;
 	ReadWriteLock locker;

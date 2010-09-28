@@ -115,7 +115,6 @@ void gusLogicFrame() {
 	while ( logicLast + 1 <= timer )
 	{
 
-#ifdef USE_GRID
 		for ( Grid::iterator iter = game.objects.beginAll(); iter;)
 		{
 			if(iter->deleteMe)
@@ -123,26 +122,10 @@ void gusLogicFrame() {
 			else
 				++iter;
 		}
-#else
-		for ( ObjectsList::Iterator iter = game.objects.begin();  iter; )
-		{
-			if ( (*iter)->deleteMe )
-			{
-				ObjectsList::Iterator tmp = iter;
-				++iter;
-				delete *tmp;
-				game.objects.erase(tmp);
-			}
-			else
-				++iter;
-		}
-#endif
 		
 		if ( game.shouldDoPhysicsFrame() && gusGame.isLoaded() && gusGame.isLevelLoaded() )
 		{
-			
-#ifdef USE_GRID
-			
+						
 			for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 			{
 				iter->think();
@@ -150,12 +133,6 @@ void gusLogicFrame() {
 			}
 			
 			game.objects.flush(); // Insert all new objects
-#else
-			for ( ObjectsList::Iterator iter = game.objects.begin(); (bool)iter; ++iter)
-			{
-				(*iter)->think();
-			}
-#endif
 			
 			for ( vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++)
 			{

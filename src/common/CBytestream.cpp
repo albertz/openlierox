@@ -648,15 +648,9 @@ bool CBytestream::Skip(size_t num) {
 size_t CBytestream::Read(NetworkSocket* sock) {
 	Clear();
 	char buf[4096];
-	size_t len = 0;
-	int res; // MUST be signed, else an overflow can occur (ReadScoket can return -1!)
-	while(true) {
-		res = sock->Read(buf, sizeof(buf));
-		if(res <= 0) break;
+	int res = sock->Read(buf, sizeof(buf));
+	if(res > 0)
 		Data.append(buf, res);
-		len += res;
-		if((size_t)res < sizeof(buf)) break;
-	}
 
 #ifdef DEBUG
 	// DEBUG: randomly drop packets to test network stability
@@ -669,7 +663,7 @@ size_t CBytestream::Read(NetworkSocket* sock) {
 	}*/
 #endif
 
-	return len;
+	return Data.size();
 }
 
 bool CBytestream::Send(NetworkSocket* sock) {

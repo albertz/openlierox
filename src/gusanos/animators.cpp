@@ -67,7 +67,7 @@ void AnimPingPong::reset()
 ////////////////////////////////////////////////////////////////////////////////////
 
 AnimLoopRight::AnimLoopRight( SpriteSet* sprite, int duration )
-: BaseAnimator(0), m_totalFrames(sprite->getFramesWidth())
+: BaseAnimator(0), m_totalFrames(sprite ? sprite->getFramesWidth() : 0)
 , m_duration(duration), m_animPos(duration)
 {
 	
@@ -103,7 +103,7 @@ void AnimLoopRight::reset()
 ////////////////////////////////////////////////////////////////////////////////////
 
 AnimRightOnce::AnimRightOnce( SpriteSet* sprite, int duration )
-: BaseAnimator(0), m_totalFrames(sprite->getFramesWidth())
+: BaseAnimator(0), m_totalFrames(sprite ? sprite->getFramesWidth() : 0)
 , m_duration(duration), m_animPos(duration)
 {
 

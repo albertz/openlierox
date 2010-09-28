@@ -46,6 +46,12 @@ Game game;
 static bool inMainGameLoop = false;
 static std::string quitEngineFlagReason;
 
+static bool DbgSimulateSlow = false;
+
+static bool bRegisteredDebugVars = CScriptableVars::RegisterVars("Debug.Game")
+( DbgSimulateSlow, "SimulateSlow" );
+
+
 void Game::prepareGameloop() {
 	// Pre-game initialization
 	if(!bDedicated) FillSurface(VideoPostProcessor::videoSurface(), tLX->clBlack);
@@ -135,7 +141,8 @@ void Game::frameOuter() {
 	frameInner();
 	
 	doVideoFrameInMainThread();
-	CapFPS();
+	if(DbgSimulateSlow) SDL_Delay(700);
+	CapFPS();	
 }
 
 
@@ -308,23 +315,15 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 void Game::onNewWorm(CWorm* w) {
 	//if(!game.gameScript()->gusEngineUsed()) return;
 
-#ifdef USE_GRID
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
-#else
-	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, w);
-	if(w->getNinjaRopeObj()) objects.insert( 1,1, (CGameObject*)w->getNinjaRopeObj() );
-#endif	
 }
 
 void Game::onRemoveWorm(CWorm* w) {
-/*#ifdef USE_GRID
+/*
 	objects.(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
-#else
-	objects.insert(WORMS_COLLISION_LAYER,WORMS_RENDER_LAYER, w);
-	if(w->getNinjaRopeObj()) objects.insert( 1,1, (CGameObject*)w->getNinjaRopeObj() );
-#endif	*/
+*/
 }
 
 void Game::onNewPlayer(CWormInputHandler* player) {
@@ -372,15 +371,7 @@ void Game::reset() {
 			cClient->getRemoteWorms()[i].gusShutdown();
 	
 	// Delete all objects
-#ifdef USE_GRID
 	objects.clear();
-#else
-	for ( ObjectsList::Iterator iter = objects.begin(); (bool)iter; ++iter)
-	{
-		(*iter)->deleteThis();
-	}
-	objects.clear();
-#endif	
 }
 
 CMap* Game::gameMap() {

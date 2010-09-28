@@ -13,6 +13,8 @@
  LX56 projectile simulation:
  http://openlierox.svn.sourceforge.net/viewvc/openlierox/src/client/CClient_Game.cpp?revision=1&view=markup&pathrev=1
  
+ LX56 Ninjarope simulation:
+ http://openlierox.svn.sf.net/viewvc/openlierox/src/client/CNinjaRope.cpp?revision=1&view=markup&pathrev=1
  
  */
 
@@ -42,8 +44,27 @@
 // defined in PhysicsLX56_Projectiles
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs);
 
-// TODO: clean up this code!
 
+static int _getCurrentLX56PhysicsFPS() {
+	if(game.isServer())
+		return gameSettings[FT_LX56PhysicsFPS];
+	else if(cClient->getGameLobby()[FT_ForceSameLX56PhysicsFPS])
+		return cClient->getGameLobby()[FT_LX56PhysicsFPS];
+	else // each client can have its own custom FPS
+		return gameSettings[FT_LX56PhysicsFPS]; // this is the client side config
+	return 84;
+}
+
+int getCurrentLX56PhysicsFPS() {
+	return MAX(_getCurrentLX56PhysicsFPS(), 1);
+}
+
+static float getNinjaropePrecision() {
+	if(cClient->getServerVersion() >= OLXBetaVersion(0,57,4))
+		return (float)cClient->getGameLobby()[FT_NinjaropePrecision];
+	else
+		return 0; // like LX56
+}
 
 
 class PhysicsLX56 : public PhysicsEngine {
@@ -252,7 +273,7 @@ public:
 	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		static const TimeDiff orig_dt = LX56PhysicsDT;
+		const TimeDiff orig_dt = LX56PhysicsDT;
 		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt.seconds() : (orig_dt.seconds() * (float)cClient->getGameLobby()[FT_GameSpeed]);
 		const TimeDiff wpnDT = orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]; // wpnDT could be different from dt
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
@@ -461,6 +482,8 @@ public:
 			ws->iX = (int)worm->getPos().x;
 			ws->iY = (int)worm->getPos().y;
 		}
+		
+		worm->posRecordings.push_back(worm->getPos());
 
 		goto simulateWormStart;
 	}
@@ -525,7 +548,7 @@ public:
 		// We use the limit 5 here to have it very unpropable to shoot through a wall.
 		// In most cases, dt his halfed once, so this simulateNinjarope is
 		// like in LX56 with 200FPS.
-		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt > 5) {
+		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt * getNinjaropePrecision() > 5) {
 			simulateNinjarope( dt/2, owner, worms );
 			simulateNinjarope( dt/2, owner, worms );
 			return;
@@ -660,7 +683,7 @@ public:
 	void simulateBonus(CBonus* bonus) {
 		AbsTime simulationTime = GetPhysicsTime();	
 		warpSimulationTimeForDeltaTimeCap(bonus->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
-		static const float orig_dt = LX56PhysicsDT.seconds();
+		const float orig_dt = LX56PhysicsDT.seconds();
 		const float dt = (bool)cClient->getGameLobby()[FT_GameSpeedOnlyForProjs] ? orig_dt : (orig_dt * (float)cClient->getGameLobby()[FT_GameSpeed]);
 
 	simulateBonusStart:

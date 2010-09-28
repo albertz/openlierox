@@ -51,6 +51,8 @@
 #include "game/WormInputHandler.h"
 #include "sound/SoundsBase.h"
 #include "game/Level.h"
+#include "game/ServerList.h"
+#include "EventQueue.h"
 
 
 CmdLineIntf& stdoutCLI() {
@@ -762,7 +764,7 @@ void Cmd_longhelp::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	caller->writeMsg("Available commands:");
 	for(CommandMap::iterator it = commands.begin(); it != commands.end(); ++it) {
 		if(!it->second->hidden && it->first == it->second->name) {
-			caller->writeMsg(it->first + " - " + it->second->desc);
+			caller->pushReturnArg(it->first + " - " + it->second->desc);
 		}
 	}
 }
@@ -985,7 +987,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 					execCmd->cmd = cmd;
 					execCmd->params = params1;
 					//stdoutCLI().writeMsg("wait: executing cmd: " + cmdName + " " + params1);
-					doActionInMainThread( execCmd );
+					mainQueue->push( execCmd );
 				}
 			}
 			return 0;
@@ -2331,6 +2333,34 @@ void Cmd_dumpSysState::exec(CmdLineIntf* caller, const std::vector<std::string>&
 	hints << "Current time: " << GetDateTimeText() << endl;
 }
 
+#ifdef DEBUG
+COMMAND(createDummyTask, "create dummy task", "[global queue]", 0, 1);
+void Cmd_createDummyTask::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	TaskManager::QueueType queue = TaskManager::QT_QueueToSameTypeAndBreakCurrent;
+	if(params.size() > 0 && from_string<bool>(params[0]))
+		queue = TaskManager::QT_GlobalQueue;
+	
+	struct DummyTask : Task {
+		int counter;
+		DummyTask() : counter(30) { name = "dummy task"; }
+		int handle() {
+			while(counter > 0) {
+				SDL_Delay(1000);
+				if(breakSignal) return -1;
+				Mutex::ScopedLock lock(*mutex);
+				counter--;
+			}
+			return 0;
+		}
+		std::string statusText() {
+			Mutex::ScopedLock lock(*mutex);
+			return "Dummy task, " + itoa(counter) + " ...";
+		}
+	};
+	taskManager->start(new DummyTask(), queue);
+}
+#endif
+
 COMMAND(dumpConnections, "dump connections of server", "", 0, 0);
 void Cmd_dumpConnections::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(cServer) cServer->DumpConnections();
@@ -2348,6 +2378,26 @@ void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>
 	printMemStats();
 }
 #endif
+
+COMMAND(updateServerList, "update server list", "", 0, 0);
+void Cmd_updateServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	SvrList_UpdateList();
+}
+
+COMMAND(isUpdatingServerList, "is server list still updating", "", 0, 0);
+void Cmd_isUpdatingServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	caller->pushReturnArg(to_string(SvrList_IsProcessing()));
+}
+
+COMMAND(getServerList, "get server list", "", 0, 0);
+void Cmd_getServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
+	SvrList::Reader l( SvrList_currentServerList() );
+	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); ++i) {
+		const SvrList::type::value_type& s = *i;
+		std::string addr = Replace(s->szAddress, ",", "");
+		caller->pushReturnArg(addr + "," + s->szName);		
+	}
+}
 
 COMMAND(debugFindProblems, "do some system checks and print problems - no output means everything seems ok", "", 0, 0);
 void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {

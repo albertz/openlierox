@@ -7,11 +7,6 @@ Gentoo: media-libs/libsdl
 Debian: libsdl1.2-dev
 tested versions: 1.2.11, 1.2.6
 
--- SDL_mixer
-Gentoo: media-libs/sdl-mixer
-Debian: libsdl-mixer1.2-dev
-tested versions: 1.2.7
-
 -- SDL_image
 Debian: libsdl-image1.2-dev
 Gentoo: media-libs/sdl-image

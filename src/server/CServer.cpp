@@ -1858,6 +1858,45 @@ bool GameServer::isVersionCompatible(const Version& ver, std::string* incompReas
 				}
 		}
 
+	if(gameSettings[FT_ForceSameLX56PhysicsFPS]) {
+		if((int)gameSettings[FT_LX56PhysicsFPS] != 84) {
+			if(ver >= OLXBetaVersion(0,57,4) /* first version where game physics FPS was independent and fixed */ &&
+			   ver < OLXBetaVersion(0,59,9) /* we have it configureable since then */) {
+				if(incompReason) *incompReason = "same LX56 physics FPS is forced and we are using custom " + gameSettings[FT_LX56PhysicsFPS].toString() + " FPS";
+				return false;				
+			}
+		}
+	}
+	
+	if(gameSettings[FT_ForceLX56Aim]) {
+		// Note that we ignore some of the 0.59 betas but that doesn't really matter.
+		if(ver >= OLXRcVersion(0,58,3) /* we can have custom aim since then */ &&
+		   ver < OLXBetaVersion(0,59,9) /* we can force it since then */) {
+			if(incompReason) *incompReason = "LX56 aim speed/acceleration settings are forced";
+			return false;			
+		}
+	}
+	
+	if(fabs((float)gameSettings[FT_NinjaropePrecision] - 1.0f) < 0.01f) {
+		if(ver < OLXBetaVersion(0,57,4) /* we have the better accuracy since there */) {
+			if(incompReason) *incompReason = "higher ninjarope precision (1) is used";
+			return false;			
+		}
+	}
+	else if(fabs((float)gameSettings[FT_NinjaropePrecision]) < 0.01f) {
+		if(ver >= OLXBetaVersion(0,57,4) /* we have the better accuracy since there */ &&
+		   ver < OLXBetaVersion(0,59,9) /* we have it configureable since then */) {
+			if(incompReason) *incompReason = "LX56 ninjarope precision (0) is used";
+			return false;
+		}
+	}
+	else { // custom ninjarope precision
+		if(ver < OLXBetaVersion(0,59,9)) {
+			if(incompReason) *incompReason = "custom ninjarope precision (" + gameSettings[FT_NinjaropePrecision].toString() + ") is used";
+			return false;
+		}		
+	}
+	
 	// Additional check for server-side features like FT_WormSpeedFactor not needed,
 	// because now we strictly checking client version for compatibility,
 	// and only optionalForClient flag determines if older clients can play on server with enabled new features.

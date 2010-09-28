@@ -339,6 +339,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	short x, y;
 	bs->read2Int12( x, y );
 	vPos = CVec((float)x, (float)y);
+	posRecordings.clear(vPos);
 
 	// Angle
 	fAngle = (float)bs->readInt(1) - 90;
@@ -514,6 +515,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		net_updatePos( CVec(x, y) ); // estimation, sets also velocity
 	else
 		vPos = CVec(x, y);
+	posRecordings.clear(vPos);
 
 	// Velocity
 	if(gotVelocity) {

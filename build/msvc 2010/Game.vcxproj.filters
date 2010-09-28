@@ -950,6 +950,15 @@
     <ClInclude Include="..\..\src\game\GameMode.h">
       <Filter>Game files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\game\ServerList.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cfg\client.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\client\gfx\raytracing.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
@@ -1841,6 +1850,15 @@
       <Filter>Deprecated GUI</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\game\GameMode.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\game\ServerList.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cfg\client.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\gfx\raytracing.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
   </ItemGroup>

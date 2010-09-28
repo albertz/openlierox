@@ -171,7 +171,23 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
 	SDL_EnableUNICODE(1);
 	SDL_EnableKeyRepeat(200,20);
 
+	
+	/*
+	Note about the different sound vars:
+	  bDisableSound - if the sound system+driver is disabled permanentely
+	  tLXOptions->bSoundOn - if the sound is enabled temporarely (false -> volume=0, nothing else)
 
+	I.e., even with tLXOptions->bSoundOn=false (Audio.Enabled=false in config), the sound system
+	will be loaded. To start OLX without the sound system, use the -nosound parameter.
+
+	The console variable Audio.Enabled links to tLXOptions->bSoundOn.
+	The console command 'sound' also wraps around tLXOptions->bSoundOn.
+
+	tLXOptions->iSoundVolume will never be touched by OLX itself, only the user can modify it.
+	tLXOptions->bSoundOn will also not be touched by OLX itself, only user actions can modify it.
+	(Both points were somewhat broken earlier and kind of annoying.)
+	*/
+	
     if( !bDisableSound ) {
 	    // Initialize sound
 		//if(!InitSoundSystem(22050, 1, 512)) {
@@ -182,7 +198,7 @@ int InitializeAuxLib(const std::string& config, int bpp, int vidflags)
     }
 	if(bDisableSound) {
 		notes << "soundsystem completly disabled" << endl;
-		tLXOptions->bSoundOn = false;
+		// NOTE: Don't change tLXOptions->bSoundOn here!
 	}
 
 	if( tLXOptions->bSoundOn ) {

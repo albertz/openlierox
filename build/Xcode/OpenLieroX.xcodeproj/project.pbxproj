@@ -57,7 +57,9 @@
 		2326B57210CF9D6500D3F035 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B57110CF9D6500D3F035 /* Game.cpp */; };
 		2326B58B10CF9E2A00D3F035 /* gusgame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B58910CF9E2A00D3F035 /* gusgame.cpp */; };
 		2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */; };
+		23325A9112117E2200915252 /* SmartPointer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23325A9012117E2200915252 /* SmartPointer.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
+		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
 		23581F640F3102D700C64145 /* UploadSpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23581F630F3102D700C64145 /* UploadSpeedTest.cpp */; };
 		235D281D0CF7C13B0067BA4F /* FileDownload.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281A0CF7C13B0067BA4F /* FileDownload.cpp */; };
@@ -110,6 +112,8 @@
 		238F2E2D0F7418FF0016D617 /* FlagInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E2C0F7418FF0016D617 /* FlagInfo.cpp */; };
 		238F2E6A0F741B300016D617 /* CaptureTheFlag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F2E690F741B300016D617 /* CaptureTheFlag.cpp */; };
 		238F337C0F756F730016D617 /* CGameSkin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 238F337B0F756F730016D617 /* CGameSkin.cpp */; };
+		2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2390D9E6116B567D00E0CD3C /* raytracing.cpp */; };
+		2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2390D9EA116B5B7400E0CD3C /* client.cpp */; };
 		2395E4610ECB7F9600E8D04E /* Menu_Net_Chat.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */; };
 		2395E4650ECB7FA900E8D04E /* IRC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4630ECB7FA900E8D04E /* IRC.cpp */; };
 		2395E4660ECB7FA900E8D04E /* Music.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2395E4640ECB7FA900E8D04E /* Music.cpp */; };
@@ -186,6 +190,7 @@
 		239ACAE60E6AD46900C4216A /* XMLutils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 239ACAE40E6AD46900C4216A /* XMLutils.cpp */; };
 		23A0CDB70D5B0A5D002A33A4 /* CScriptableVars.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */; };
 		23A44552108C958E0015918B /* SMTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A44551108C958E0015918B /* SMTP.cpp */; };
+		23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */; };
 		23AAE4881088CC5A00E9F05F /* BreakPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE4861088CC5A00E9F05F /* BreakPad.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
 		23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BA8EE41129A79700963F72 /* Bitstream.cpp */; };
@@ -715,7 +720,10 @@
 		2326BAC710D29BB200D3F035 /* PhysicsDummy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PhysicsDummy.h; sourceTree = "<group>"; };
 		2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PhysicsDummy.cpp; sourceTree = "<group>"; };
 		232D50C40E96939C00366F81 /* Consts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Consts.h; sourceTree = "<group>"; };
+		23325A9012117E2200915252 /* SmartPointer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SmartPointer.cpp; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
+		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
+		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
 		2350DBEF0F84DC5900DFAD78 /* ProjAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProjAction.h; sourceTree = "<group>"; };
 		2350DBF00F84DC5900DFAD78 /* WeaponDesc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeaponDesc.h; sourceTree = "<group>"; };
 		2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_SpeedTest.cpp; sourceTree = "<group>"; };
@@ -820,6 +828,10 @@
 		238F2E690F741B300016D617 /* CaptureTheFlag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CaptureTheFlag.cpp; sourceTree = "<group>"; };
 		238F337A0F756F650016D617 /* CGameSkin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameSkin.h; sourceTree = "<group>"; };
 		238F337B0F756F730016D617 /* CGameSkin.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameSkin.cpp; sourceTree = "<group>"; };
+		2390D9E5116B567D00E0CD3C /* raytracing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = raytracing.h; sourceTree = "<group>"; };
+		2390D9E6116B567D00E0CD3C /* raytracing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = raytracing.cpp; sourceTree = "<group>"; };
+		2390D9E9116B5B7400E0CD3C /* client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
+		2390D9EA116B5B7400E0CD3C /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
 		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
@@ -903,6 +915,8 @@
 		23A0CDB60D5B0A5D002A33A4 /* CScriptableVars.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CScriptableVars.cpp; sourceTree = "<group>"; };
 		23A44550108C94B70015918B /* SMTP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SMTP.h; sourceTree = "<group>"; };
 		23A44551108C958E0015918B /* SMTP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SMTP.cpp; sourceTree = "<group>"; };
+		23A4B3EA1178CB2500D4FF96 /* VecTimeRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VecTimeRecorder.h; sourceTree = "<group>"; };
+		23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VecTimeRecorder.cpp; sourceTree = "<group>"; };
 		23AAE4861088CC5A00E9F05F /* BreakPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BreakPad.cpp; path = breakpad/BreakPad.cpp; sourceTree = "<group>"; };
 		23AAE4871088CC5A00E9F05F /* BreakPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BreakPad.h; path = breakpad/BreakPad.h; sourceTree = "<group>"; };
 		23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenExternBrowser.cpp; sourceTree = "<group>"; };
@@ -1700,6 +1714,8 @@
 				231B8E5E1135804300B572C0 /* Settings.cpp */,
 				231B8E65113581C000B572C0 /* SettingsPreset.h */,
 				231B8E66113581C000B572C0 /* SettingsPreset.cpp */,
+				2348933711806DA000FA821B /* ServerList.h */,
+				2348933811806DA000FA821B /* ServerList.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -1792,6 +1808,24 @@
 				2378851C1050117B00195629 /* memstats.h */,
 			);
 			name = optional;
+			sourceTree = "<group>";
+		};
+		2390D9E4116B564F00E0CD3C /* gfx */ = {
+			isa = PBXGroup;
+			children = (
+				2390D9E5116B567D00E0CD3C /* raytracing.h */,
+				2390D9E6116B567D00E0CD3C /* raytracing.cpp */,
+			);
+			path = gfx;
+			sourceTree = "<group>";
+		};
+		2390D9E8116B5B4900E0CD3C /* cfg */ = {
+			isa = PBXGroup;
+			children = (
+				2390D9E9116B5B7400E0CD3C /* client.h */,
+				2390D9EA116B5B7400E0CD3C /* client.cpp */,
+			);
+			path = cfg;
 			sourceTree = "<group>";
 		};
 		239ACA540E6AD44F00C4216A /* DeprecatedGUI */ = {
@@ -2161,6 +2195,8 @@
 				23BA8EE41129A79700963F72 /* Bitstream.cpp */,
 				231B8F321135BC9100B572C0 /* CustomVar.h */,
 				231B8F331135BC9100B572C0 /* CustomVar.cpp */,
+				23A4B3EA1178CB2500D4FF96 /* VecTimeRecorder.h */,
+				23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -2455,6 +2491,7 @@
 		EA430BEC0BEFCEB400C6547E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				2390D9E8116B5B4900E0CD3C /* cfg */,
 				23CC9E7211340BA000185479 /* gui */,
 				2326B68010CFB33200D3F035 /* level */,
 				231BE16010CE68AD0023780D /* game */,
@@ -2475,6 +2512,7 @@
 		EA430BED0BEFCEB400C6547E /* client */ = {
 			isa = PBXGroup;
 			children = (
+				2390D9E4116B564F00E0CD3C /* gfx */,
 				238F337B0F756F730016D617 /* CGameSkin.cpp */,
 				23CB83B90F6D62C2006FE300 /* ConversationLogger.cpp */,
 				2395E4630ECB7FA900E8D04E /* IRC.cpp */,
@@ -2575,6 +2613,7 @@
 				23C1819910C49728003DBB09 /* TeeStdoutHandler.cpp */,
 				23C181B910C49914003DBB09 /* MainGlobals.cpp */,
 				23C1826D10C49FD6003DBB09 /* SystemFunctions.cpp */,
+				23325A9012117E2200915252 /* SmartPointer.cpp */,
 			);
 			name = common;
 			path = ../../src/common;
@@ -3466,6 +3505,11 @@
 				231B8E5F1135804300B572C0 /* Settings.cpp in Sources */,
 				231B8E67113581C000B572C0 /* SettingsPreset.cpp in Sources */,
 				231B8F341135BC9100B572C0 /* CustomVar.cpp in Sources */,
+				2390D9E7116B567D00E0CD3C /* raytracing.cpp in Sources */,
+				2390D9EB116B5B7400E0CD3C /* client.cpp in Sources */,
+				23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */,
+				2348933911806DA000FA821B /* ServerList.cpp in Sources */,
+				23325A9112117E2200915252 /* SmartPointer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4255,6 +4299,7 @@
 				PREBINDING = NO;
 				PRODUCT_NAME = OpenLieroX;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
+				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
 				WRAPPER_EXTENSION = app;
 			};

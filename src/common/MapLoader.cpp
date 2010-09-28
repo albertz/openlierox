@@ -2090,6 +2090,7 @@ SmartPointer<SDL_Surface> MapLoad::getMinimap() {
 		// TODO: remove that as soon as we do the map loading in a seperate thread
 		ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
 
+		// parseData should set minimap
 		parseData(&map);
 	}
 	

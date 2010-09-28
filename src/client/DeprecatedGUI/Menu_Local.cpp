@@ -927,7 +927,7 @@ bool Menu_LocalCheckPlaying(int index)
 		bool operator() (const std::string& abs_filename) {
 			ModInfo info = infoForMod(abs_filename, true);
 			if(info.valid)
-				combobox->addItem(info.path, "[" + info.typeShort + "] " + info.name);
+				combobox->addItem(info.path, info.name + " [" + info.typeShort + "]");
 
 			return true;
 		}
@@ -972,6 +972,7 @@ CGuiLayout		cGameSettings;
 enum {
 	gs_Ok,
 	gs_Default,
+	gs_ShowModifiedOnly,
 	gs_AdvancedLevel,
 	gs_AdvancedLevelLabel,
 	
@@ -1007,6 +1008,9 @@ void Menu_GameSettings()
 
 	cGameSettings.Add( new CButton(BUT_OK, DeprecatedGUI::tMenu->bmpButtons),	    gs_Ok,      180,435, 40,15);
     cGameSettings.Add( new CButton(BUT_DEFAULT, DeprecatedGUI::tMenu->bmpButtons), gs_Default, 390,435, 80,15);
+
+	cGameSettings.Add( new CCheckbox(&tLXOptions->bShowModifiedGameSettingsOnly), gs_ShowModifiedOnly, 60, 155, 15,15);
+	cGameSettings.Add( new CLabel("Show modified settings only", tLX->clNormalLabel), -1, 60+20, 155, 70, 15);
 
 	cGameSettings.Add( new CSlider(__AdvancedLevelType_Count - 1, 0, tLXOptions->iAdvancedLevelLimit), gs_AdvancedLevel, 365+40, 155, 80,15);
 	cGameSettings.Add( new CLabel("Detail Level:", tLX->clNormalLabel), -1, 285+40, 155, 70, 15);
@@ -1122,10 +1126,25 @@ static void initFeaturesList(CListview* l)
 		for( CScriptableVars::const_iterator it = CScriptableVars::lower_bound("GameOptions."); it != upper_bound; it++ ) 
 		{
 			if( it->second.group != group ) continue;
-			if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit ) continue;
+			if( (int)it->second.advancedLevel >= ALT_OnlyViaConfig ) continue;
 			
 			if(!isSettingForGameSettingsDialog(it->second.var))
 				continue;
+
+			if(tLXOptions->bShowModifiedGameSettingsOnly) {
+				if(Feature* f = featureByVar(it->second.var, false)) {
+					if(!tLXOptions->customSettings.isSet[featureArrayIndex(f)])
+						continue;
+				}
+				else {
+					if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit )
+						continue;
+				}
+			}
+			else {
+				if( (int)it->second.advancedLevel > tLXOptions->iAdvancedLevelLimit )
+					continue;				
+			}
 			
 			if( tMenu && tMenu->iMenuType == MNU_LOCAL )
 				if( it->second.var.ptr.b == &tLXOptions->bAllowConnectDuringGame )
@@ -1407,6 +1426,14 @@ bool Menu_GameSettings_Frame()
                 }
                 break;
 
+			case gs_ShowModifiedOnly: {
+				CListview* features = (CListview*)cGameSettings.getWidget(gs_FeaturesList);
+				features->SaveScrollbarPos();
+				initFeaturesList(features);
+				features->RestoreScrollbarPos();
+				break;
+			}
+				
 			case gs_AdvancedLevel:
 				if( ev->iEventMsg == SLD_CHANGE ) {
 					tLXOptions->iAdvancedLevelLimit = ((CSlider*)cGameSettings.getWidget(gs_AdvancedLevel))->getValue();

@@ -164,6 +164,9 @@ public:
 	// Methods
 
 
+	IVec	size() { return IVec(radius.x,radius.y); }
+	Color renderColorAt(/* relative coordinates */ int x, int y) { return iColour; }
+	
 	void	Spawn(proj_t *_proj, CVec _pos, CVec _vel, int _rot, int _owner, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime);
 
     void	Draw(SDL_Surface * bmpDest, CViewport *view);

@@ -15,6 +15,7 @@
 #include <SDL.h>
 #include <cmath>
 #include <cstdlib>
+#include <boost/function.hpp>
 #include "CVec.h"
 #include "Color.h"
 
@@ -35,6 +36,8 @@ struct Line {
 	bool intersects(const Line& l) const;
 	float distFromPoint2(const VectorD2<int>& vec) const;
 	float distFromPoint(const VectorD2<int>& vec) const;
+
+	void forEachPoint(boost::function<void (int, int)> f);
 };
 
 class CViewport;
@@ -61,7 +64,7 @@ private:
 
 public:
 	
-	Polygon2D() : addingPoints(false), convex(true), lastsign(0) {}
+        Polygon2D() : addingPoints(false), convex(true), lastsign(0) { memset(&overlay, 0, sizeof(SDL_Rect)); }
 	Polygon2D(const Points& pts);
 	void clear() { points.clear(); lines.clear(); horizLines.clear(); }
 	bool isInside(int x, int y) const;

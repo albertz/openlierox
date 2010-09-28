@@ -88,6 +88,11 @@ void CGameObject::removeRefsToPlayer(CWormInputHandler* player)
 		m_owner = NULL;
 }
 
+bool CGameObject::isInside(int x, int y) {
+	IVec s = size();
+	return abs((int)pos().x - x) + 1 <= s.x && abs((int)pos().y - y) + 1 <= s.y;
+}
+
 /*
  LuaReference CGameObject::getLuaReference()
  {

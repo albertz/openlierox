@@ -396,11 +396,3 @@ int main (int argc, char **argv)
     return 0;
 }
 
-
-
-void setCurThreadName__macosx(const char* name) {
-	// TODO: this doesnt seem to work
-    //NSAutoreleasePool	*pool = [[NSAutoreleasePool alloc] init];
-	//[[NSThread currentThread] setName: [NSString stringWithUTF8String:name]];
-	
-}

@@ -28,6 +28,7 @@ public:
 	
 	size_t currentSimulatiousPlays();
 
+	std::string name();
 	size_t GetMemorySize();
 	
 private:

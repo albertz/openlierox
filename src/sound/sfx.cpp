@@ -33,14 +33,6 @@ namespace
 	ChanSounds simpleChanSounds;
 }
 
-void update_volume( int oldValue )
-{
-	notes<<"update_volume"<<endl;
-	if (sfx)
-		sfx.volumeChange();
-}
-
-
 Sfx::Sfx() : driver(NULL) {}
 Sfx::~Sfx() {}
 
@@ -139,7 +131,7 @@ void Sfx::playSimple2D(SoundSample* s, CVec pos) {
 
 	SmartPointer<SoundSample> snd = s->copy();
 	simpleChanSounds.push_back(snd);
-	snd->play2D(Vec(pos), 100, 1);
+	snd->play2D(Vec(pos), 100.0f, 1);
 }
 
 

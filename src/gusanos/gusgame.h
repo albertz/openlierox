@@ -106,23 +106,6 @@ struct ScreenMessage
 class GusGame
 {
 public:
-#ifndef USE_GRID
-	enum ColLayer
-	{
-		WORMS_COLLISION_LAYER = 0,
-		NO_COLLISION_LAYER = 1,
-		COLLISION_LAYER_COUNT = 10,
-	};
-	
-	enum RenderLayer
-	{
-		WORMS_RENDER_LAYER = 4,
-		RENDER_LAYER_COUNT = 10,
-	};
-	
-	static const int CUSTOM_COL_LAYER_START = 2;
-#endif
-
 	static const size_t MAX_LOCAL_PLAYERS = 2;
 	
 	

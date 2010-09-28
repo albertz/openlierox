@@ -148,6 +148,96 @@ float Line::distFromPoint(const VectorD2<int> &pt) const
 	return sqrtf(distFromPoint2(pt));
 }
 
+void Line::forEachPoint(boost::function<void (int, int)> f) {
+	const int x1 = start.x;
+	const int y1 = start.y;
+	const int x2 = end.x;
+	const int y2 = end.y;
+	
+	int dx = x2-x1;
+	int dy = y2-y1;
+	int i1, i2;
+	int x, y;
+	int dd;
+	
+   /* worker macro */
+   #define DO_LINE(pri_sign, pri_c, pri_cond, sec_sign, sec_c, sec_cond)     \
+   {                                                                         \
+      if (d##pri_c == 0) {                                                   \
+		 f(x1, y1);                                               \
+		 return;                                                             \
+      }                                                                      \
+									     \
+      i1 = 2 * d##sec_c;                                                     \
+      dd = i1 - (sec_sign (pri_sign d##pri_c));                              \
+      i2 = dd - (sec_sign (pri_sign d##pri_c));                              \
+									     \
+      x = x1;                                                                \
+      y = y1;                                                                \
+									     \
+      while (pri_c pri_cond pri_c##2) {                                      \
+		 f(x, y);                                                 \
+										 \
+		 if (dd sec_cond 0) {                                                \
+			sec_c sec_sign##= 1;                                             \
+			dd += i2;                                                        \
+		 }                                                                   \
+		 else                                                                \
+			dd += i1;                                                        \
+										 \
+		 pri_c pri_sign##= 1;                                                \
+      }                                                                      \
+   }
+
+   if (dx >= 0) {
+      if (dy >= 0) {
+	 if (dx >= dy) {
+	    /* (x1 <= x2) && (y1 <= y2) && (dx >= dy) */
+	    DO_LINE(+, x, <=, +, y, >=);
+	 }
+	 else {
+	    /* (x1 <= x2) && (y1 <= y2) && (dx < dy) */
+	    DO_LINE(+, y, <=, +, x, >=);
+	 }
+      }
+      else {
+	 if (dx >= -dy) {
+	    /* (x1 <= x2) && (y1 > y2) && (dx >= dy) */
+	    DO_LINE(+, x, <=, -, y, <=);
+	 }
+	 else {
+	    /* (x1 <= x2) && (y1 > y2) && (dx < dy) */
+	    DO_LINE(-, y, >=, +, x, >=);
+	 }
+      }
+   }
+   else {
+      if (dy >= 0) {
+	 if (-dx >= dy) {
+	    /* (x1 > x2) && (y1 <= y2) && (dx >= dy) */
+	    DO_LINE(-, x, >=, +, y, >=);
+	 }
+	 else {
+	    /* (x1 > x2) && (y1 <= y2) && (dx < dy) */
+	    DO_LINE(+, y, <=, -, x, <=);
+	 }
+      }
+      else {
+	 if (-dx >= -dy) {
+	    /* (x1 > x2) && (y1 > y2) && (dx >= dy) */
+	    DO_LINE(-, x, >=, -, y, <=);
+	 }
+	 else {
+	    /* (x1 > x2) && (y1 > y2) && (dx < dy) */
+	    DO_LINE(-, y, >=, -, x, <=);
+	 }
+      }
+   }
+
+#undef DO_LINE
+	
+}
+
 
 
 

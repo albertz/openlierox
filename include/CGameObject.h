@@ -22,6 +22,7 @@
 #include "util/vec.h"
 #include "gusanos/luaapi/types.h"
 #include "gusanos/glua.h"
+#include "Color.h"
 
 //#include "gusanos/allegro.h"
 struct ALLEGRO_BITMAP;
@@ -59,7 +60,11 @@ public:
 	float		getHealth() const			{ return health; }
 	bool		injure(float damage); // returns true if object has died
 	
-	
+
+	virtual bool isInside(int x, int y);
+	virtual IVec size() { return IVec(); }
+
+	virtual Color renderColorAt(/* relative coordinates */ int x, int y) { return Color(0,0,0,SDL_ALPHA_TRANSPARENT); }
 	
 	
 	// -------------------------------------------------------------

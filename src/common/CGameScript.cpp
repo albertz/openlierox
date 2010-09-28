@@ -262,12 +262,6 @@ bool CGameScript::SaveProjectile(proj_t *proj, FILE *fp)
 	fwrite_endian_compat((proj->Dampening),	sizeof(int), 1, fp);
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fwrite_endian<int>(fp, proj->AttractiveForce);
-		fwrite_endian<int>(fp, proj->AttractiveForceType);
-		fwrite_endian<int>(fp, proj->AttractiveForceObjects);
-		fwrite_endian<int>(fp, proj->AttractiveForceClasses);
-		fwrite_endian<int>(fp, proj->AttractiveForceRadius);
-		fwrite_endian<bool>(fp, proj->AttractiveForceThroughWalls);
 		fwrite_endian<int>(fp, proj->Width);
 		fwrite_endian<int>(fp, proj->Height);
 	}
@@ -854,24 +848,10 @@ proj_t *CGameScript::LoadProjectile(FILE *fp, bool loadImagesAndSounds)
 	EndianSwap(proj->Dampening);
 
 	if(Header.Version > GS_LX56_VERSION) {
-		fread_endian<int>(fp, proj->AttractiveForce);
-		fread_endian<int>(fp, proj->AttractiveForceType);
-		fread_endian<int>(fp, proj->AttractiveForceObjects);
-		fread_endian<int>(fp, proj->AttractiveForceClasses);
-		fread_endian<int>(fp, proj->AttractiveForceRadius);
-		fread_endian<bool>(fp, proj->AttractiveForceThroughWalls);
-
 		fread_endian<int>(fp, proj->Width);
 		fread_endian<int>(fp, proj->Height);
 	}
 	else {
-		proj->AttractiveForce = 0;
-		proj->AttractiveForceType = ATT_GRAVITY;
-		proj->AttractiveForceObjects = ATO_NONE;
-		proj->AttractiveForceClasses = 0;
-		proj->AttractiveForceRadius = 0;
-		proj->AttractiveForceThroughWalls = true;
-
 		if(proj->Type == PRJ_PIXEL)
 			proj->Width = proj->Height = 2;
 		else
@@ -1685,13 +1665,6 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	proj->Animating = false;
 	proj->UseCustomGravity = false;
 
-	proj->AttractiveForce = 0;
-	proj->AttractiveForceType = ATT_GRAVITY;
-	proj->AttractiveForceObjects = ATO_NONE;
-	proj->AttractiveForceClasses = 0;
-	proj->AttractiveForceRadius = 0;
-	proj->AttractiveForceThroughWalls = true;
-
 	if (!ini.Parse())  {
 		warnings << "projectile file " << pfile << " could not be parsed, using defaults..." << endl;
 		return proj;
@@ -1701,13 +1674,6 @@ proj_t *CGameScript::CompileProjectile(const std::string& dir, const std::string
 	ini.ReadFloat("General","Timer",&proj->Timer.Time,0);
 	ini.ReadFloat("General", "TimerVar", &proj->Timer.TimeVar, 0);
 	ini.ReadKeyword("General","Trail",(int*)&proj->Trail.Type,TRL_NONE);
-
-	ini.ReadInteger("General","AttractiveForce", &proj->AttractiveForce, 0);
-	ini.ReadInteger("General","AttractiveForceRadius", &proj->AttractiveForceRadius, 0);
-	ini.ReadKeyword("General","AttractiveForceType",(int*)&proj->AttractiveForceType,ATT_GRAVITY);
-	ini.ReadKeywordList("General","AttractiveForceObjects",&proj->AttractiveForceObjects,0);
-	ini.ReadKeywordList("General","AttractiveForceClasses",&proj->AttractiveForceClasses,0);
-	ini.ReadKeyword("General","AttractiveForceThroughWalls",&proj->AttractiveForceThroughWalls,true);
 	
 	if (ini.ReadInteger("General","Gravity",&proj->Gravity, 0))
 		proj->UseCustomGravity = true;
@@ -2525,7 +2491,17 @@ std::vector<std::string> CGameScript::LoadWeaponList(const std::string dir)
 			std::string weap;
 			ini.ReadString("Weapons", wpn, weap, "");
 			if( weap != "" )
-				ret.push_back( weap );
+			{
+				IniReader ini2(dir + "/" + weap, compilerKeywords);
+				if (!ini2.Parse())
+				{
+					errors << "Error while parsing the gamescript " << dir << endl;
+					return ret;
+				}
+				ini2.ReadString("General", "Name", weap, "");
+				if( weap != "" )
+					ret.push_back( weap );
+			}
 		}
 		return ret;
 	}

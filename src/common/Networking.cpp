@@ -940,7 +940,7 @@ void NetworkSocket::Close() {
 	CloseSocketWorker* worker = new CloseSocketWorker();
 	worker->name = "close socket";
 	worker->sock = m_socket->sock;
-	taskManager->start(worker);
+	taskManager->start(worker, TaskManager::QT_GlobalQueue);
 	
 	m_socket->sock = NL_INVALID;
 	m_type = NST_INVALID;
@@ -991,7 +991,7 @@ int NetworkSocket::Read(void* buffer, int nbytes) {
 #ifdef DEBUG
 			std::string errStr = GetLastErrorStr(); // cache errStr that debugString will not overwrite it
 			errors << "ReadSocket " << debugString() << ": " << errStr << endl;
-#endif // DEBUG
+#endif
 			
 			// Is this perhaps the solution for the Bad file descriptor error?
 			//Close();
@@ -1431,7 +1431,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
     data->addr_name = name;
     data->address = NetworkAddrData(addr).getPtr();
 
-	taskManager->start(data, false);
+	taskManager->start(data, TaskManager::QT_NoQueue);
     return true;
 }
 

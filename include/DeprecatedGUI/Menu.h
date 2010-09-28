@@ -32,24 +32,23 @@
 #include "CWorm.h"
 #include "Color.h"
 #include "HTTP.h"
+#include "ThreadVar.h"
 
 void GotoJoinLobby();
 
+enum {
+	// Menu sockets
+	SCK_LAN = 0,
+	SCK_NET = 1,
+	SCK_FOO = 2,	
+};
 
 namespace DeprecatedGUI {
 
 enum {
-// Menu sockets
-	SCK_LAN = 0,
-	SCK_NET = 1,
-	SCK_FOO = 2,
-// Serverlist timeout
-	SVRLIST_TIMEOUT =  7000, 
 // Server info dialog dimensions
 	INFO_W = 400,
 	INFO_H = 420,
-
-	MAX_QUERIES = 3
 };
 
 
@@ -344,50 +343,7 @@ enum {
 	net_join
 };
 
-
-// Server structure
-class server_t { public:
-	server_t() {
-		SetNetAddrValid(sAddress, false);
-		bAllowConnectDuringGame = false;
-		bBehindNat = false;
-		lastPingedPort = 0;
-	}
-
-	bool	bIgnore;
-	bool	bProcessing;
-    bool    bManual;
-	int		nPings;
-	int		nQueries;
-	bool	bgotPong;
-	bool	bgotQuery;
-	AbsTime	fInitTime;
-	bool	bAddrReady;
-	AbsTime	fLastPing;
-	AbsTime	fLastQuery;
-    AbsTime	fQueryTimes[MAX_QUERIES+1];
-
-	// Server address
-	std::string	szAddress;
-	NetworkAddr	sAddress; // Does not include port
-
-	// Server details
-	std::string	szName;
-	int		nState;
-	int		nNumPlayers;
-	int		nMaxPlayers;
-	int		nPing;
-	bool	bAllowConnectDuringGame;
-	Version tVersion;
-
-	// First int is port, second is UDP masterserver idx
-	// If server responds to ping the port which responded moved to the top of the list
-	std::vector< std::pair<int, int> > ports;
-	int		lastPingedPort;
-	bool	bBehindNat;	// Accessible only from UDP masterserver
-};
-
-
+	
 // Menu globals
 extern	menu_t		*tMenu;
 extern	bool		*bGame;
@@ -404,10 +360,6 @@ extern	bool		bOldLxBug;
 extern	int			nTries;
 extern	AbsTime		fStart;
 extern bool		bShowFloatingOptions;
-
-// AbsTime to wait before pinging/querying the server again (in milliseconds)
-#define	PingWait  1000
-#define	QueryWait  1000
 
 
 // Routines
@@ -432,37 +384,8 @@ void    Menu_redrawBufferRect(int x, int y, int w, int h);
 void	Menu_DisableNetEvents();
 void	Menu_EnableNetEvents();
 
-// Server list
-void		Menu_SvrList_Clear();
-void        Menu_SvrList_ClearAuto();
-void		Menu_SvrList_Shutdown();
-void		Menu_SvrList_PingLAN();
-server_t	*Menu_SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
-server_t    *Menu_SvrList_FindServerStr(const std::string& szAddress, const std::string & name = "");
-void        Menu_SvrList_RemoveServer(const std::string& szAddress);
-bool		Menu_SvrList_Process();
-bool		Menu_SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock);
-server_t	*Menu_SvrList_FindServer(const NetworkAddr& addr, const std::string & name = "");
-void		Menu_SvrList_PingServer(server_t *svr);
-bool		Menu_SvrList_RemoveDuplicateNATServers(server_t *defaultServer);
-bool		Menu_SvrList_RemoveDuplicateDownServers(server_t *defaultServer);
-void		Menu_SvrList_WantsJoin(const std::string& Nick, server_t *svr);
-void		Menu_SvrList_QueryServer(server_t *svr);
-void		Menu_SvrList_GetServerInfo(server_t *svr);
-void		Menu_SvrList_ParseQuery(server_t *svr, CBytestream *bs);
-void		Menu_SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
-void		Menu_SvrList_RefreshList();
-void        Menu_SvrList_RefreshServer(server_t *s, bool updategui = true);
-void		Menu_SvrList_UpdateList();
-void		Menu_SvrList_UpdateUDPList();
-void		Menu_SvrList_FillList(CListview *lv);
-void        Menu_SvrList_SaveList(const std::string& szFilename);
-void        Menu_SvrList_LoadList(const std::string& szFilename);
-void        Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h);
-void		Menu_SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
-// Returns non-empty UDP masterserver address if server is registered on this UDP masterserver and won't respond on pinging
-std::string	Menu_SvrList_GetUdpMasterserverForServer(const std::string& szAddress);
-
+void    Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h);
+	
 // Main menu
 void	Menu_MainInitialize();
 void	Menu_MainShutdown();
@@ -557,7 +480,7 @@ bool	Menu_NetInitialize(bool withSubMenu = true);
 void	Menu_Net_GotoHostLobby();
 void	Menu_NetFrame();
 void	Menu_NetShutdown();
-
+void	Menu_Net_ServerList_Refresher();
 
 // Net::Main menu
 bool	Menu_Net_MainInitialize();
@@ -591,7 +514,7 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid, int menuItem);
 void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu, int id_PopupPlayerInfo, int wormid, int menuItem);
 
-
+	
 // Net::LAN menu
 bool	Menu_Net_LANInitialize();
 void	Menu_Net_LANShutdown();
@@ -599,6 +522,7 @@ void	Menu_Net_LANFrame(int mouse);
 void	Menu_Net_LANSendPing();
 void	Menu_Net_LANJoinServer(const std::string& sAddress, const std::string& sName);
 void    Menu_Net_LanShowServer(const std::string& szAddress);
+void	Menu_Net_LAN_ServerList_Refresher();
 
 
 // Net::Joining menu
@@ -614,6 +538,7 @@ void	Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 void	Menu_Net_FavouritesShowServer(const std::string& szAddress);
 void	Menu_Net_RenameServer(std::string& szName);
 void	Menu_Net_FavouritesAddServer();
+void	Menu_Net_Favourites_ServerList_Refresher();
 
 // Net::News menu
 bool	Menu_Net_NewsInitialize();
@@ -646,9 +571,10 @@ void	Menu_Net_NETFrame(int mouse);
 void	Menu_Net_NETJoinServer(const std::string& sAddress, const std::string& sName);
 void	Menu_Net_NETAddServer();
 void	Menu_Net_NETUpdateList();
-void	Menu_Net_NETParseList(class CHttp& http);
 void    Menu_Net_NETShowServer(const std::string& szAddress);
+void	Menu_Net_NET_ServerList_Refresher();
 
+	
 // CGuiSkin menu - when GUI skinning system will be complete (hopefully) this will become the main menu
 bool	Menu_CGuiSkinInitialize();
 void	Menu_CGuiSkinFrame();

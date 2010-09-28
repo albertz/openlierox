@@ -9,7 +9,6 @@
 #include "gusanos/sound.h"
 #include "CVec.h"
 
-void update_volume( int oldValue );
 
 
 struct Listener

@@ -19,12 +19,11 @@
 #include <string>
 #include <set>
 #include <map>
+#include <boost/function.hpp>
 #include "Iterator.h"
 #include "CScriptableVars.h"
 #include "Version.h"
 #include "util/CustomVar.h"
-
-class GameServer;
 
 struct Feature {
 	std::string name; // for config, network and other identification
@@ -52,41 +51,41 @@ struct Feature {
 	bool serverSideOnly; // if true, all the following is just ignored
 	bool optionalForClient; // Optional client-sided feature, like vision cone drawn for seekers, or SuicideDecreasesScore which required for precise damage calculation in scoreboard
 	
-	typedef Var (GameServer::*GetValueFunction)( const Var& preset );
+	typedef boost::function<Var (const Var& preset)> GetValueFunction;
 	GetValueFunction getValueFct; // if set, it uses the return value for hostGet
 	
 	
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, bool unset, bool def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
-				GetValueFunction f = NULL)
+				GetValueFunction f = GetValueFunction())
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_BOOL), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, int unset, int def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, int minval = 0, int maxval = 0, bool ssdo = false, bool opt = false, 
-				bool unsig = false, GetValueFunction f = NULL)
+				bool unsig = false, GetValueFunction f = GetValueFunction())
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_INT), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, float unset, float def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, float minval = 0.0f, float maxval = 0.0f, bool ssdo = false, bool opt = false, 
-				bool unsig = false, GetValueFunction f = NULL)
+				bool unsig = false, GetValueFunction f = GetValueFunction())
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_FLOAT), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), minValue(minval), maxValue(maxval), unsignedValue(unsig), serverSideOnly(ssdo), 
 		optionalForClient(opt), getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, const std::string& unset, const std::string& def, 
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false, 
-				GetValueFunction f = NULL)
+				GetValueFunction f = GetValueFunction())
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(unset)), defaultValue(Var(def)), 
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
 		getValueFct(f) {}
 
 	Feature(const std::string& n, const std::string& hn, const std::string& desc, const char* unset, const char* def,
 				Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false,
-				GetValueFunction f = NULL)
+				GetValueFunction f = GetValueFunction())
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_STRING), unsetValue(Var(std::string(unset))), defaultValue(Var(std::string(def))),
 		minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt),
 		getValueFct(f) {}
@@ -95,7 +94,7 @@ struct Feature {
 			Version ver, GameInfoGroup g = GIG_Invalid, AdvancedLevel l = ALT_Basic, bool ssdo = false, bool opt = false)
 	: name(n), humanReadableName(hn), description(desc), valueType(SVT_CUSTOM), unsetValue(Var(unset)), defaultValue(Var(def)), 
 	minVersion(ver), group(g), advancedLevel(l), serverSideOnly(ssdo), optionalForClient(opt), 
-	getValueFct(NULL) {}
+	getValueFct(GetValueFunction()) {}
 	
 };
 
@@ -120,6 +119,11 @@ enum FeatureIndex {
 	FT_Mod,
 	FT_SettingsPreset,
 	FT_WeaponRest,
+	
+	FT_LX56PhysicsFPS,
+	FT_ForceSameLX56PhysicsFPS,
+	FT_NinjaropePrecision,
+	FT_ForceLX56Aim,
 	
 	FT_Bonuses,
 	FT_ShowBonusName,
@@ -263,20 +267,41 @@ public:
  Class for specific game settings. For the layered version, look at class Settings (game/Settings.h).
  It initialises with all unset values. It is used in CClient for all client side settings.
  */
-class FeatureSettings {
+template<typename __IndexType, Feature* __FeatureArray, size_t __FeatureArrayLen>
+class _FeatureSettings {
+public:
+//	static const Feature* FeatureArray = __FeatureArray;
+	static const size_t FeatureArrayLen = __FeatureArrayLen;
+	typedef __IndexType Index;
 private:
 	ScriptVar_t settings[FeatureArrayLen];
 public:
-	FeatureSettings(); ~FeatureSettings();
+	_FeatureSettings() {
+		for(size_t i = 0; i < FeatureArrayLen; ++i)
+			(*this)[(FeatureIndex)i] = __FeatureArray[i].unsetValue;		
+	}
 	
-	ScriptVar_t& operator[](FeatureIndex i) { return settings[i]; }
-	ScriptVar_t& operator[](Feature* f) { return settings[f - &featureArray[0]]; }
-	const ScriptVar_t& operator[](FeatureIndex i) const { return settings[i]; }
-	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &featureArray[0]]; }
+	ScriptVar_t& operator[](Index i) { return settings[i]; }
+	ScriptVar_t& operator[](Feature* f) { return settings[f - &__FeatureArray[0]]; }
+	const ScriptVar_t& operator[](Index i) const { return settings[i]; }
+	const ScriptVar_t& operator[](Feature* f) const { return settings[f - &__FeatureArray[0]]; }
 	
-	ScriptVar_t hostGet(FeatureIndex i);
-	ScriptVar_t hostGet(Feature* f) { return hostGet(FeatureIndex(f - &featureArray[0])); }
-	bool olderClientsSupportSetting(Feature* f);
+	ScriptVar_t hostGet(Feature* f) { return hostGet(Index(f - &__FeatureArray[0])); }
+	ScriptVar_t hostGet(Index i) {
+		ScriptVar_t var = (*this)[i];
+		Feature* f = &__FeatureArray[i];
+		if(f->getValueFct)
+			var = f->getValueFct( var );
+		
+		return var;		
+	}
+	
+	bool olderClientsSupportSetting(Feature* f) {
+		if( f->optionalForClient ) return true;
+		return hostGet(f) == f->unsetValue;		
+	}
 };
 
+typedef _FeatureSettings<FeatureIndex, featureArray, FeatureArrayLen> FeatureSettings;
+	
 #endif
