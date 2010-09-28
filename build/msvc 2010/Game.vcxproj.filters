@@ -1861,6 +1861,9 @@
     <ClCompile Include="..\..\src\client\gfx\raytracing.cpp">
       <Filter>Game files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\common\SmartPointer.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\msvc\libs\bgd.lib">

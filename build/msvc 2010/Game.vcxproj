@@ -481,6 +481,8 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\cfg\client.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\obj/Release/cfg_client.obj</ObjectFileName>
+      <AssemblerListingLocation Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/client1.asm</AssemblerListingLocation>
+      <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\obj/Debug/client1.obj</ObjectFileName>
     </ClCompile>
     <ClCompile Include="..\..\src\client\AuxLib.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -597,6 +599,7 @@
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="..\..\src\common\SmartPointer.cpp" />
     <ClCompile Include="..\..\src\common\SMTP.cpp" />
     <ClCompile Include="..\..\src\common\StackWalker.cpp" />
     <ClCompile Include="..\..\src\common\StringBuf.cpp" />
