@@ -10,7 +10,7 @@
 #ifndef __FASTVECTOR_H__
 #define __FASTVECTOR_H__
 
-#include "Iterator.h"
+#include "Iter.h"
 #include "Event.h"
 #include "MathLib.h"
 

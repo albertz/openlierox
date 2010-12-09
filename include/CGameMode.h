@@ -12,7 +12,7 @@
 
 #include <string>
 #include "CVec.h"
-#include "Iterator.h"
+#include "Iter.h"
 #include "Consts.h"
 #include "Options.h"
 #include "Version.h"

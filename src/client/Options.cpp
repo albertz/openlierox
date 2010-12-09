@@ -26,7 +26,7 @@
 #include "CScriptableVars.h"
 #include "IniReader.h"
 #include "Version.h"
-#include "Iterator.h"
+#include "Iter.h"
 #include "CGameMode.h"
 #include "StaticAssert.h"
 #include "AuxLib.h"

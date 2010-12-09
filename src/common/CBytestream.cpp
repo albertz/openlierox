@@ -27,7 +27,7 @@
 #include "MathLib.h"
 #include "CScriptableVars.h"
 #include "Debug.h"
-#include "Iterator.h"
+#include "Iter.h"
 #include "Utils.h"
 #include "util/CustomVar.h"
 

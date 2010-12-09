@@ -20,7 +20,7 @@
 #include <set>
 #include <map>
 #include <boost/function.hpp>
-#include "Iterator.h"
+#include "Iter.h"
 #include "CScriptableVars.h"
 #include "Version.h"
 #include "util/CustomVar.h"

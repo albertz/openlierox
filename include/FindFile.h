@@ -28,7 +28,7 @@
 #include "Unicode.h"
 #include "Debug.h"
 #include "Mutex.h"
-#include "Iterator.h"
+#include "Iter.h"
 #include "RefCounter.h"
 #include "Event.h"
 #include "StringUtils.h"

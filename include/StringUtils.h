@@ -22,7 +22,7 @@
 #include <set>
 #include "olx-types.h"
 #include "Color.h" // for StrToCol
-#include "Iterator.h"
+#include "Iter.h"
 
 //
 // C-string handling routines

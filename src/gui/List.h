@@ -19,7 +19,7 @@
 #include <list>
 #include <boost/function.hpp>
 
-#include "Iterator.h"
+#include "Iter.h"
 #include "Ref.h"
 #include "SmartPointer.h"
 #include "DynDraw.h"
