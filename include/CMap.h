@@ -418,7 +418,7 @@ public:
 			return ret;
 		}
 		
-		uchar getLineHoriz_Or(long x, long y, long x2, bool wrapAround = false) { return getLineHoriz<Or>(x,y,x2,wrapAround); }
+		uchar getLineHoriz_Or(long x, long y, long x2, bool wrapAround = false) { return getLineHoriz<&Or>(x,y,x2,wrapAround); }
 		
 		template<CombiFunc func>
 		uchar getArea(long x, long y, long x2, long y2, bool wrapAround = false) {
@@ -428,7 +428,7 @@ public:
 			return ret;
 		}
 		
-		uchar getArea_Or(long x, long y, long w, long h, bool wrapAround = false) { return getArea<Or>(x,y,w,h,wrapAround); }
+		uchar getArea_Or(long x, long y, long w, long h, bool wrapAround = false) { return getArea<&Or>(x,y,w,h,wrapAround); }
 		
 		typedef bool (*CheckFunc) (uchar);
 		template<uchar flags> static bool Have(uchar a) { return (a & flags) != 0; }
