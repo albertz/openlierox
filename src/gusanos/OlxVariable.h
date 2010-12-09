@@ -19,7 +19,7 @@
 
 // TODO: move this? or is there sth like this in boost/stdlib?
 template<typename T>
-T identity(T v) { return v; }
+T Identity(T v) { return v; }
 
 /*
  A wrapper to an OLX variable (a ref to <FeatureSettingsLayer,index>) which can be registered in the Gus console system.
@@ -83,7 +83,7 @@ struct _OlxVariable : __OlxVariable<T,
 	&_OlxVariable_Helpers<T,index,getConvert,putConvert>::putFct> {};
 
 template<typename T, FeatureIndex index>
-struct OlxVar : _OlxVariable<T, index, &identity<T>, &identity<T> > {};
+struct OlxVar : _OlxVariable<T, index, &Identity<T>, &Identity<T> > {};
 
 /* those are defined in CGameObject.cpp */
 float convertSpeed_LXToGus(float v);
