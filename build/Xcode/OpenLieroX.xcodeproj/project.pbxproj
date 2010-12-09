@@ -834,7 +834,7 @@
 		2390D9EA116B5B7400E0CD3C /* client.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = client.cpp; sourceTree = "<group>"; };
 		2393240A0DFB0D3500049723 /* Event.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Event.h; sourceTree = "<group>"; };
 		2393240B0DFB0D3500049723 /* FastVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FastVector.h; sourceTree = "<group>"; };
-		2393240C0DFB0D3500049723 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
+		2393240C0DFB0D3500049723 /* Iter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iter.h; sourceTree = "<group>"; };
 		23939B8810E7A10B0052FF1B /* FixedPointNumber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FixedPointNumber.h; sourceTree = "<group>"; };
 		2395E4600ECB7F9600E8D04E /* Menu_Net_Chat.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_Net_Chat.cpp; sourceTree = "<group>"; };
 		2395E4630ECB7FA900E8D04E /* IRC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IRC.cpp; sourceTree = "<group>"; };
@@ -2692,7 +2692,7 @@
 				2306CC290E6AC55E00132D3B /* XMLutils.h */,
 				2393240A0DFB0D3500049723 /* Event.h */,
 				2393240B0DFB0D3500049723 /* FastVector.h */,
-				2393240C0DFB0D3500049723 /* Iterator.h */,
+				2393240C0DFB0D3500049723 /* Iter.h */,
 				230E9C4F0D8C406F00BFB500 /* Version.h */,
 				23026E540D5D1CDD0021934B /* PhysicsLX56.h */,
 				23026E4F0D5D175E0021934B /* Physics.h */,
