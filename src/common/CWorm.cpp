@@ -674,7 +674,7 @@ void CWorm::GetRandomWeapons()
 		// no break here, the function will anyway work and ignore the restrictions
 	}
 	
-	if(game.gameScript() == NULL) {
+	if(game.gameScript() == NULL || game.gameScript()->GetNumWeapons() <= 0) {
 		errors << "CWorm::GetRandomWeapons: gamescript is not loaded" << endl;
 		for(short i = 0; i < 5; ++i) tWeapons[i].Weapon = NULL; // not sure if needed but just to be sure
 		return;

@@ -94,6 +94,11 @@ static bool LoadOGG(const char *fileName, vector<char> &buffer, ALenum &format, 
 	
     // Clean up!
     ov_clear(&oggFile);
+
+	if (buffer.empty()) {
+		errors << "Error decoding " << fileName << "..." << endl;
+		return false;
+	}
 	
 	return true;
 }
