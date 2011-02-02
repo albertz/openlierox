@@ -36,11 +36,28 @@ SmartPointer<NetworkSocket>	tSocket[3];
 
 ServerList::Ptr ServerList::m_instance = ServerList::Ptr((ServerList *)NULL);
 
+////////////////////
+// Return singleton instance
 ServerList::Ptr ServerList::get()
 {
 	if (!m_instance.get())
 		m_instance = Ptr(new ServerList());
 	return m_instance;
+}
+
+///////////////////
+// Initialize the list
+ServerList::ServerList() {
+    loadList("cfg/svrlist.dat", SLFT_CustomSettings);
+	loadList("cfg/favourites.dat", SLFT_Favourites);
+	
+	for(short i = 0; i < 3; ++i)
+		tSocket[i] = DeprecatedGUI::tMenu->tSocket[i];
+}
+
+ServerList::~ServerList()
+{
+	shutdown();
 }
 
 ///////////////////
@@ -152,16 +169,6 @@ void ServerList::loadList(const std::string& szFilename, SvrListFilterType filte
     }
 	
     fclose(fp);
-}
-
-
-
-void ServerList::init() {
-    loadList("cfg/svrlist.dat", SLFT_CustomSettings);
-	loadList("cfg/favourites.dat", SLFT_Favourites);
-	
-	for(short i = 0; i < 3; ++i)
-		tSocket[i] = DeprecatedGUI::tMenu->tSocket[i];
 }
 
 void ServerList::save() {

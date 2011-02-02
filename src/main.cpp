@@ -424,8 +424,6 @@ startpoint:
 	DeprecatedGUI::iSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
-	
-	ServerList::get()->init();
 
 	// Initialize chat logging
 	convoLogger = new ConversationLogger();

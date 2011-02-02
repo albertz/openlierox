@@ -140,8 +140,9 @@ private:
 	std::string parseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
 	void HTTPParseList(CHttp &http);
 public:
+	ServerList();
+	~ServerList();
 
-	void init();
 	void save();
 	bool process();
 
