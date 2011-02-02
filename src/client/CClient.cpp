@@ -1358,9 +1358,9 @@ void CClient::Connect(const std::string& address)
 	}
 
 	// Connecting to a server behind a NAT?
-	if(SvrList_GetUdpMasterserverForServer(strServerAddr))  {
+	if(ServerList::get()->getUdpMasterserverForServer(strServerAddr))  {
 		bConnectingBehindNat = true;
-		sUdpMasterserverAddress = SvrList_GetUdpMasterserverForServer(strServerAddr).name;
+		sUdpMasterserverAddress = ServerList::get()->getUdpMasterserverForServer(strServerAddr).name;
 		notes << "connecting behind NAT, using UDP masterserver " << sUdpMasterserverAddress << endl;
 
 		// Start UDP NAT traversal immediately - we know for sure that

@@ -265,7 +265,7 @@ void Menu_Frame() {
 	HandlePendingCommands();
 		
 	if(bDedicated) {
-		SvrList_Process();
+		ServerList::get()->process();
 		DedicatedControl::Get()->Menu_Frame();
 		return;
 	}
@@ -326,7 +326,7 @@ void Menu_Frame() {
 	// In network menu, we do the update anyway.
 	// But we also want to have it everywhere else.
 	if(tMenu->iMenuType != MNU_NETWORK)
-		SvrList_Process();
+		ServerList::get()->process();
 	
 	// DEBUG: show FPS
 #ifdef DEBUG
@@ -1106,7 +1106,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
     tLX->cFont.DrawCentre(VideoPostProcessor::videoSurface(), x+w/2, y+5, tLX->clNormalLabel, "Server Details");
 
 
-	server_t::Ptr svr = SvrList_FindServerStr(szAddress);
+	server_t::Ptr svr = ServerList::get()->findServerStr(szAddress);
 	NetworkAddr origAddr;
 	if(svr) {
 		if(IsNetAddrValid(svr->sAddress)) {
@@ -1288,7 +1288,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 			bOldLxBug = false;
 
 			if(svr)
-				SvrList_GetServerInfo(svr);
+				ServerList::get()->getServerInfo(svr);
         }
 
 		// Got details, fill in the listview

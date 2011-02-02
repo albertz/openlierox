@@ -52,7 +52,7 @@ enum {
 };
 
 void Menu_Net_Favourites_ServerList_Refresher() {
-	Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+	ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 }
 
 ///////////////////
@@ -117,8 +117,8 @@ bool Menu_Net_FavouritesInitialize()
 	((CListview*) cFavourites.getWidget( mf_ServerList ))->SetSortColumn( tLXOptions->iFavouritesSortColumn, true ); // Sorting
 
 	// Fill the server list
-	Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
-	SvrList_RefreshList();
+	ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+	ServerList::get()->refreshList();
 
 	return true;
 }
@@ -141,7 +141,7 @@ void Menu_Net_FavouritesShutdown()
 
 		// Save the list
 		if (iNetMode == net_favourites)  {
-			SvrList_Save();
+			ServerList::get()->save();
 
 			// Save the column widths
 			for (int i=0;i<6;i++)
@@ -170,9 +170,9 @@ void Menu_Net_FavouritesFrame(int mouse)
 	cFavourites.Draw( VideoPostProcessor::videoSurface() );
 
 	// Process the server list
-	if( SvrList_Process() ) {
+	if( ServerList::get()->process() ) {
 		// Add the servers to the listview
-		Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+		ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 	}
 
 
@@ -194,7 +194,7 @@ void Menu_Net_FavouritesFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Save the list
-					SvrList_Save();
+					ServerList::get()->save();
 
 					// Shutdown
 					cFavourites.Shutdown();
@@ -223,8 +223,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Send out a ping
-					SvrList_RefreshList();
-					Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+					ServerList::get()->refreshList();
+					ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 				}
 				break;
 
@@ -303,16 +303,16 @@ void Menu_Net_FavouritesFrame(int mouse)
 					//DrawImage(tMenu->bmpBuffer,VideoPostProcessor::videoSurface(),0,0);
 					addr = "";
 					int result = cFavourites.SendMessage(mf_ServerList, LVS_GETCURSINDEX, &addr, 0);
-					server_t::Ptr sv = SvrList_FindServerStr(addr);
+					server_t::Ptr sv = ServerList::get()->findServerStr(addr);
 					std::string buf;
 					if (sv)  {
 						if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
 							if(result && addr != "") {
-								SvrList_RemoveServer(addr);
+								ServerList::get()->removeServer(addr);
 								// Re-Fill the server list
-								Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+								ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 							}
-							SvrList_Save();
+							ServerList::get()->save();
 						}
 						Menu_redrawBufferRect(0,0,640,480);
 					}
@@ -325,8 +325,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 			case mf_Clear:
 				if (ev->iEventMsg == BTN_CLICKED)  {
 					if (Menu_MessageBox("Confirmation", "Do you really want to delete ALL your favourite servers?", LMB_YESNO) == MBR_YES)  {
-						SvrList_Clear(SLFT_Favourites);
-						SvrList_Save();
+						ServerList::get()->clear(SLFT_Favourites);
+						ServerList::get()->save();
 						CListview *lv = (CListview *)cFavourites.getWidget(mf_ServerList);
 						if (lv)
 							lv->Clear();
@@ -339,12 +339,12 @@ void Menu_Net_FavouritesFrame(int mouse)
                 switch( ev->iEventMsg ) {
                      // Remove server from favourites
 				case MNU_USER+0:  {
-						server_t::Ptr sv = SvrList_FindServerStr(szFavouritesCurServer);
+						server_t::Ptr sv = ServerList::get()->findServerStr(szFavouritesCurServer);
 						std::string buf;
 						if (sv)  {
 							if (Menu_MessageBox("Confirmation","Are you sure you want to remove "+sv->szName+" server from favourites?",LMB_YESNO) == MBR_YES)  {
-								SvrList_RemoveServer(szFavouritesCurServer);
-								SvrList_Save();  // Save changes
+								ServerList::get()->removeServer(szFavouritesCurServer);
+								ServerList::get()->save();  // Save changes
 							}
 							Menu_redrawBufferRect(0,0,640,480);
 						}
@@ -358,18 +358,18 @@ void Menu_Net_FavouritesFrame(int mouse)
 							cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
 							cFavourites.removeWidget(mf_PopupMenu);
 
-							server_t::Ptr sv = SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szFavouritesCurServer);
 							Menu_Net_RenameServer(sv->szName);
-							SvrList_Save();  // Save changes
+							ServerList::get()->save();  // Save changes
 						}
                         break;
 
                     // Refresh the server
                     case MNU_USER+2:
                         {
-							server_t::Ptr sv = SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szFavouritesCurServer);
                             if(sv)
-                                SvrList_RefreshServer(sv);
+                                ServerList::get()->refreshServer(sv);
                         }
                         break;
 
@@ -385,11 +385,11 @@ void Menu_Net_FavouritesFrame(int mouse)
 					// Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t::Ptr sv = SvrList_FindServerStr(szFavouritesCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szFavouritesCurServer);
 							std::string Nick;
 							cFavourites.SendMessage(mf_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
-								SvrList_WantsJoin(Nick, sv);
+								ServerList::get()->wantsToJoin(Nick, sv);
 						}
                         break;
 
@@ -408,7 +408,7 @@ void Menu_Net_FavouritesFrame(int mouse)
                 }
 
                 // Re-Fill the server list
-                Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+                ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 
                 // Remove the menu widget
                 cFavourites.SendMessage(mf_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
@@ -420,8 +420,8 @@ void Menu_Net_FavouritesFrame(int mouse)
 
 	// F5 updates the list
 	if (WasKeyboardEventHappening(SDLK_F5))  {
-		SvrList_RefreshList();
-		Menu_SvrList_FillList((CListview *) cFavourites.getWidget(mf_ServerList), SLFT_Favourites);
+		ServerList::get()->refreshList();
+		ServerList::get()->fillList((CListview *) cFavourites.getWidget(mf_ServerList), SLFT_Favourites);
 	}
 
 	// Draw the mouse
@@ -451,7 +451,7 @@ void Menu_Net_FavouritesJoinServer(const std::string& sAddress, const std::strin
 	iNetMode = net_join;
 
 	// Save the list
-	SvrList_Save();
+	ServerList::get()->save();
 
 	tMenu->iReturnTo = net_favourites;
 
@@ -595,9 +595,9 @@ void Menu_Net_RenameServer(std::string& szName)
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
-		if( SvrList_Process() ) {
+		if( ServerList::get()->process() ) {
 			// Add the servers to the listview
-			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+			ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 		}
 
 
@@ -615,7 +615,7 @@ void Menu_Net_RenameServer(std::string& szName)
 
 						cRename.SendMessage(2, TXS_GETTEXT, &szName, 0);
 
-						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+						ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
@@ -696,9 +696,9 @@ void Menu_Net_FavouritesAddServer()
 		DrawImageAdv(VideoPostProcessor::videoSurface(),tMenu->bmpBuffer, 200,220, 200,220, 240, 240);
 
 		// Process the server list
-		if( SvrList_Process() ) {
+		if( ServerList::get()->process() ) {
 			// Add the servers to the listview
-			Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+			ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 		}
 
 		cAddSvr.Draw( VideoPostProcessor::videoSurface() );
@@ -718,8 +718,8 @@ void Menu_Net_FavouritesAddServer()
 						cAddSvr.SendMessage(2, TXS_GETTEXT, &addr, 0);
 						cAddSvr.SendMessage(3, TXS_GETTEXT, &name, 0);
 
-						SvrList_AddFavourite(name, addr);
-						Menu_SvrList_FillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
+						ServerList::get()->addFavourite(name, addr);
+						ServerList::get()->fillList( (CListview *)cFavourites.getWidget( mf_ServerList ), SLFT_Favourites );
 
 						// Click!
 						PlaySoundSample(sfxGeneral.smpClick);
