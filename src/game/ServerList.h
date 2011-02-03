@@ -104,6 +104,47 @@ class CBytestream;
 #define	QueryWait  1000
 class CHttp;
 
+// Manages server list networking
+class ServerListNetwork  {
+public:
+	class ResponseListener  {
+	public:
+		// Returns true if the listener doesn't expect any more packets to arrive
+		virtual bool onResponse(const std::string& response) = 0;
+
+		typedef boost::shared_ptr<ResponseListener> Ptr;
+		static Ptr null;
+	};
+
+private:
+	NetworkSocket m_internet, m_lan, m_foo;
+	char *m_buffer;
+
+	class NetworkAddrComp  {
+	public:
+		bool operator() (const NetworkAddr& a1, const NetworkAddr& a2)
+		{
+			return stringcasecmp(NetAddrToString(a1), NetAddrToString(a2)) < 0;  // TODO: inefficient
+		}
+	};
+
+	typedef ThreadVar<std::map<NetworkAddr, ResponseListener::Ptr, NetworkAddrComp> > Listeners;
+	Listeners m_listeners;
+
+	typedef ThreadVar<ResponseListener::Ptr> BroadcastListener;
+	BroadcastListener m_broadcastListener;
+
+public:
+	ServerListNetwork();
+	~ServerListNetwork();
+
+	bool sendInternet(NetworkAddr& addr, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	bool sendLAN(NetworkAddr& addr, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	bool broadcastLAN(const std::list<unsigned short>& ports, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	
+	void process();
+};
+
 // Returns non-empty UDP masterserver address if server is registered on this UDP masterserver and won't respond on pinging
 struct UdpMasterserverInfo {
 	std::string name; int index;

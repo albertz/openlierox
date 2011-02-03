@@ -36,6 +36,154 @@ SmartPointer<NetworkSocket>	tSocket[3];
 
 ServerList::Ptr ServerList::m_instance = ServerList::Ptr((ServerList *)NULL);
 
+ServerListNetwork::ResponseListener::Ptr ServerListNetwork::ResponseListener::null = ServerListNetwork::ResponseListener::Ptr((ServerListNetwork::ResponseListener *)NULL);
+
+/////////////////////
+// Serverlist network
+//
+/////////////////////
+
+#define BUFFER_SIZE 4096
+
+ServerListNetwork::ServerListNetwork()
+{
+	m_buffer = new char[BUFFER_SIZE];
+	m_foo.OpenUnreliable(0);
+	m_internet.OpenUnreliable(0);
+	m_lan.OpenBroadcast(0);
+	m_broadcastListener = ResponseListener::null;
+
+	// Send some data to some random IP
+	// Some weird routers seem to drop packets sent from the first newly open socket
+	if (m_foo.isOpen())  {
+		NetworkAddr a; 
+		StringToNetAddr("1.2.3.4:5678", a);
+
+		// For example, if no network is connected, you likely only have 127.* in your routing table.
+		if(IsNetAddrAvailable(a)) {
+			m_foo.setRemoteAddress(a);
+			m_foo.Write("foo");
+		}
+	}
+}
+
+ServerListNetwork::~ServerListNetwork()
+{
+	Listeners::Writer l(m_listeners);
+	l.get().clear();
+	if (m_foo.isOpen())
+		m_foo.Close();
+	if (m_internet.isOpen())
+		m_internet.Close();
+	if (m_lan.isOpen())
+		m_lan.Close();
+	if (m_buffer)  {
+		delete[] m_buffer;
+		m_buffer = NULL;
+	}
+}
+
+///////////////////
+// Sends a packet to the Internet
+bool ServerListNetwork::sendInternet(NetworkAddr& addr, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_internet.isOpen())
+		return false;
+
+	m_internet.setRemoteAddress(addr);
+	if (m_internet.Write(data) == (int)data.size())  {
+		if (response.get())  {
+			Listeners::Writer l(m_listeners);
+			l.get()[addr] = response;
+		}
+		return true;
+	}
+	return false;
+}
+
+///////////////////
+// Sends a packet to Local Network
+bool ServerListNetwork::sendLAN(NetworkAddr& addr, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_lan.isOpen())
+		return false;
+
+	m_lan.setRemoteAddress(addr);
+	if (m_lan.Write(data) == (int)data.size())  {
+		if (response.get())  {
+			Listeners::Writer l(m_listeners);
+			l.get()[addr] = response;
+		}
+		return true;
+	}
+	return false;
+}
+
+///////////////////
+// Broadcasts a packet to Local Network
+bool ServerListNetwork::broadcastLAN(const std::list<unsigned short>& ports, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_lan.isOpen())
+		return false;
+
+	NetworkAddr broadcastAddr;
+	StringToNetAddr("255.255.255.255", broadcastAddr);
+	m_broadcastListener = response;
+	bool success = true;
+	for (std::list<unsigned short>::const_iterator it = ports.begin(); it != ports.end(); ++it)  {
+		SetNetAddrPort(broadcastAddr, *it);
+		success = success && sendLAN(broadcastAddr, data);
+	}
+	return success;
+}
+
+///////////////////
+// Processes the server list network
+void ServerListNetwork::process()
+{
+	NetworkSocket *socks[] = { &m_internet, &m_lan };
+	for (int i = 0; i < sizeof(socks)/sizeof(socks[0]); ++i)  {
+		// Read any responses
+		std::string response;
+		while (true) {
+			int ret = socks[i]->Read(m_buffer, BUFFER_SIZE);
+			if (ret > 0)
+				response.append(m_buffer, ret);
+			else
+				break;
+		}
+
+		if (!response.empty())  {
+			NetworkAddr fromAddr = socks[i]->remoteAddress();
+
+			// Fire the corresponding listener
+			Listeners::Writer l(m_listeners);
+			Listeners::type::iterator it = l.get().find(fromAddr);
+			if (it != l.get().end()) {
+				if (it->second.get())  {
+					if (it->second->onResponse(response))
+						l.get().erase(it);
+				}
+
+			// No unicast found, put it to broadcast listener if on LAN (and one is set)
+			} else if (socks[i] == &m_lan) {
+				BroadcastListener::Writer bl(m_broadcastListener);
+				if (bl.get().get())  {
+					if (bl.get()->onResponse(response))
+						bl.get() = ResponseListener::null;
+				}
+			} else {
+				warnings << "Got an unexpected packet from " << NetAddrToString(fromAddr) << ". The packet was dropped." << endl;
+			}
+		}
+	}
+}
+
+///////////////////
+// Serverlist
+//
+///////////////////
+
 ////////////////////
 // Return singleton instance
 ServerList::Ptr ServerList::get()
