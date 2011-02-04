@@ -2055,10 +2055,14 @@ bool Proj_Action::readFromIni(CGameScript* gs, const std::string& dir, const Ini
 		case PJ_HeadingToNextOtherWorm:
 		case PJ_HeadingToNextEnemyWorm:
 		case PJ_HeadingToNextTeamMate:
+		case PJ_HeadTargetToUs:
 			if(!ini.ReadMatrixD2(section, "SpeedMult", SpeedMult, SpeedMult)) {
 				warnings << "SpeedMult attribute missing in " << dir << "/" << ini.getFileName() << ":" << section << endl;
 			}
-		default: break;
+		default:
+			// Read it as well but don't complain when missing
+			ini.ReadMatrixD2(section, "SpeedMult", SpeedMult, SpeedMult);
+		break;
 	}
 	
 	if(Projectiles)
