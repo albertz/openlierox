@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+# Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenLieroX", "Game.vcproj", "{EA0C2715-65F3-4238-AA7E-B3A92D706334}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Breakpad", "Breakpad.vcproj", "{B55CA863-B374-4BAF-95AC-539E4FA4C90C}"
