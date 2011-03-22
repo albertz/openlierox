@@ -50,7 +50,7 @@ enum {
 };
 
 void Menu_Net_LAN_ServerList_Refresher() {
-	Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
+	ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
 }
 	
 
@@ -114,8 +114,8 @@ bool Menu_Net_LANInitialize()
 	((CListview*) cLan.getWidget( nl_ServerList ))->SetSortColumn( tLXOptions->iLANSortColumn, true ); // Sorting
 
 	// Clear the server list
-	SvrList_PingLAN();
-	Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
+	ServerList::get()->pingLAN();
+	ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
 
 	return true;
 }
@@ -164,9 +164,9 @@ void Menu_Net_LANFrame(int mouse)
 
 
 	// Process the server list
-	if( SvrList_Process() ) {
+	if( ServerList::get()->process() ) {
 		// Add the servers to the listview
-		Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
+		ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
 	}
 
 
@@ -203,9 +203,9 @@ void Menu_Net_LANFrame(int mouse)
 					// Click!
 					PlaySoundSample(sfxGeneral.smpClick);
 
-					SvrList_Clear(SLFT_Lan);
+					ServerList::get()->clear(SLFT_Lan);
 					// Send out a ping over the lan
-					SvrList_PingLAN();
+					ServerList::get()->pingLAN();
 				}
 				break;
 
@@ -286,9 +286,9 @@ void Menu_Net_LANFrame(int mouse)
 					addr = "";
 					int result = cLan.SendMessage(nl_ServerList, LVS_GETCURSINDEX, &addr, 0);
 					if(result && addr != "") {
-						SvrList_RemoveServer(addr);
+						ServerList::get()->removeServer(addr);
 						// Re-Fill the server list
-						Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
+						ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
 					}
 				}
 
@@ -299,17 +299,17 @@ void Menu_Net_LANFrame(int mouse)
                 switch( ev->iEventMsg ) {
                     // Delete the server
                     case MNU_USER+0:
-                        SvrList_RemoveServer(szLanCurServer);
+                        ServerList::get()->removeServer(szLanCurServer);
 						// Re-Fill the server list
-						Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );						
+						ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );						
                         break;
 
                     // Refresh the server
                     case MNU_USER+1:
                         {
-							server_t::Ptr sv = SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szLanCurServer);
                             if(sv)
-                                SvrList_RefreshServer(sv);
+                                ServerList::get()->refreshServer(sv);
                         }
                         break;
 
@@ -325,20 +325,20 @@ void Menu_Net_LANFrame(int mouse)
                     // Add server to favourites
                     case MNU_USER+3:
 						{
-							server_t::Ptr sv = SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szLanCurServer);
 							if (sv)
-								SvrList_AddFavourite(sv->szName,sv->szAddress);
+								ServerList::get()->addFavourite(sv->szName,sv->szAddress);
 						}
                         break;
 
                     // Send a "wants to join" message
                     case MNU_USER+4:
 						{
-							server_t::Ptr sv = SvrList_FindServerStr(szLanCurServer);
+							server_t::Ptr sv = ServerList::get()->findServerStr(szLanCurServer);
 							std::string Nick;
 							cLan.SendMessage(nl_PlayerSelection, CBS_GETCURNAME, &Nick, 0);
 							if (sv)
-								SvrList_WantsJoin(Nick, sv);
+								ServerList::get()->wantsToJoin(Nick, sv);
 						}
                         break;
 
@@ -357,7 +357,7 @@ void Menu_Net_LANFrame(int mouse)
                 }
 
                 // Re-Fill the server list
-                Menu_SvrList_FillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
+                ServerList::get()->fillList( (CListview *)cLan.getWidget( nl_ServerList ), SLFT_Lan );
 
                 // Remove the menu widget
                 cLan.SendMessage(nl_PopupMenu, MNM_REDRAWBUFFER, (DWORD)0, 0);
@@ -369,8 +369,8 @@ void Menu_Net_LANFrame(int mouse)
 
 	// F5 updates the list
 	if (WasKeyboardEventHappening(SDLK_F5))  {
-		SvrList_Clear(SLFT_Lan);
-		SvrList_PingLAN();
+		ServerList::get()->clear(SLFT_Lan);
+		ServerList::get()->pingLAN();
 	}
 
 

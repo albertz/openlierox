@@ -696,7 +696,13 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 // Cannot think of a better function name. :P
 // Before 0.59 beta6, there were many settings which were not in the feature array.
 static bool wasNotAFeatureSettingBefore(FeatureIndex i) {
-	if(i == FT_TimeLimit ||
+	if(i == FT_Lives ||
+	   i == FT_KillLimit ||
+	   i == FT_TagLimit ||
+	   i == FT_LoadingTime ||
+	   i == FT_Bonuses ||
+	   i == FT_ShowBonusName ||
+	   i == FT_TimeLimit ||
 	   i == FT_Map ||
 	   i == FT_GameMode ||
 	   i == FT_Mod ||

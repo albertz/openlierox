@@ -2381,22 +2381,31 @@ void Cmd_printMemStats::exec(CmdLineIntf* caller, const std::vector<std::string>
 
 COMMAND(updateServerList, "update server list", "", 0, 0);
 void Cmd_updateServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	SvrList_UpdateList();
+	ServerList::get()->updateList();
 }
 
 COMMAND(isUpdatingServerList, "is server list still updating", "", 0, 0);
 void Cmd_isUpdatingServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	caller->pushReturnArg(to_string(SvrList_IsProcessing()));
+	caller->pushReturnArg(to_string(ServerList::get()->isProcessing()));
 }
+
+struct PushArg : public ServerList::Action  {
+	CmdLineIntf *m_caller;
+
+	PushArg(CmdLineIntf *c) : m_caller(c) {}
+
+	bool handleConst(const server_t::Ptr& s)
+	{
+		std::string addr = Replace(s->szAddress, ",", "");
+		m_caller->pushReturnArg(addr + "," + s->szName);
+		return true;
+	}
+};
 
 COMMAND(getServerList, "get server list", "", 0, 0);
 void Cmd_getServerList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	SvrList::Reader l( SvrList_currentServerList() );
-	for(SvrList::type::const_iterator i = l.get().begin(); i != l.get().end(); ++i) {
-		const SvrList::type::value_type& s = *i;
-		std::string addr = Replace(s->szAddress, ",", "");
-		caller->pushReturnArg(addr + "," + s->szName);		
-	}
+	PushArg argPusher(caller);
+	ServerList::get()->eachConst(argPusher);
 }
 
 COMMAND(debugFindProblems, "do some system checks and print problems - no output means everything seems ok", "", 0, 0);

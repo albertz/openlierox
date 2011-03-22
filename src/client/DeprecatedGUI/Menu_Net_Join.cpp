@@ -831,7 +831,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 			// Add to favourites
 			case jl_Favourites:
 				if (ev->iEventMsg == BTN_CLICKED) {
-					SvrList_AddFavourite(cClient->getServerName(),cClient->getServerAddress());
+					ServerList::get()->addFavourite(cClient->getServerName(),cClient->getServerAddress());
 				}
 				break;
 

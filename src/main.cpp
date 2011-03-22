@@ -424,8 +424,6 @@ startpoint:
 	DeprecatedGUI::iSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
-	
-	SvrList_Init();
 
 	// Initialize chat logging
 	convoLogger = new ConversationLogger();
@@ -1109,7 +1107,7 @@ void ShutdownLieroX()
 
 	ShutdownFontCache();
 
-	SvrList_Shutdown();
+	ServerList::get()->shutdown();
 
 	DeprecatedGUI::Menu_Shutdown();
 	// Only do the deregistration for widgets if we are not restarting.

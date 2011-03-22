@@ -409,9 +409,20 @@ int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 
 	// Lives first
 	if((int)cClient->getGameLobby()[FT_Lives] >= 0) {
+		// Only exception is max kills - if there's a worm with max kills hit, that one is clearly the best
+		int killLimit = (int)cClient->getGameLobby()[FT_KillLimit];
+		if (killLimit > 0)  {
+			if (w1->getScore() >= killLimit) return 1;
+			if (w2->getScore() >= killLimit) return -1;
+		}
+
 		if (w1->getLives() > w2->getLives()) return 1;
 		if (w1->getLives() < w2->getLives()) return -1;		
 	}
+
+	// If one worm is out and another has infinite lives, the infinite lives win
+	if (w1->getLives() != WRM_OUT && w2->getLives() == WRM_OUT) return 1;
+	if (w2->getLives() != WRM_OUT && w1->getLives() == WRM_OUT) return -1;
 	
 	// Kills
 	if (w1->getScore() > w2->getScore()) return 1;

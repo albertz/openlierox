@@ -102,33 +102,48 @@ class CBytestream;
 // AbsTime to wait before pinging/querying the server again (in milliseconds)
 #define	PingWait  1000
 #define	QueryWait  1000
+class CHttp;
 
-// Server list
-void		SvrList_Init();
-void		SvrList_Save();
-bool		SvrList_Process();
+// Manages server list networking
+class ServerListNetwork  {
+public:
+	class ResponseListener  {
+	public:
+		// Returns true if the listener doesn't expect any more packets to arrive
+		virtual bool onResponse(const std::string& response) = 0;
 
-server_t::Ptr	SvrList_FindServer(const NetworkAddr& addr, const std::string & name = "");
-void        SvrList_RemoveServer(const std::string& szAddress);
-void		SvrList_Clear(SvrListFilterType filterType);
+		typedef boost::shared_ptr<ResponseListener> Ptr;
+		static Ptr null;
+	};
 
-void        SvrList_ClearAuto();
-void		SvrList_Shutdown();
-void		SvrList_PingLAN();
-server_t::Ptr	SvrList_AddServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
-void		SvrList_AddFavourite(const std::string& szName, const std::string& szAddress);
-server_t::Ptr	SvrList_FindServerStr(const std::string& szAddress, const std::string & name = "");
-void		SvrList_PingServer(server_t::Ptr svr);
-bool		SvrList_RemoveDuplicateNATServers(server_t::Ptr defaultServer);
-bool		SvrList_RemoveDuplicateDownServers(server_t::Ptr defaultServer);
-void		SvrList_WantsJoin(const std::string& Nick, server_t::Ptr svr);
-void		SvrList_QueryServer(server_t::Ptr svr);
-void		SvrList_GetServerInfo(server_t::Ptr svr);
+private:
+	NetworkSocket m_internet, m_lan, m_foo;
+	char *m_buffer;
 
-void		SvrList_UpdateList();
-void		SvrList_UpdateUDPList();
-void		SvrList_RefreshList();
-void        SvrList_RefreshServer(server_t::Ptr s, bool updategui = true);
+	class NetworkAddrComp  {
+	public:
+		bool operator() (const NetworkAddr& a1, const NetworkAddr& a2)
+		{
+			return stringcasecmp(NetAddrToString(a1), NetAddrToString(a2)) < 0;  // TODO: inefficient
+		}
+	};
+
+	typedef ThreadVar<std::map<NetworkAddr, ResponseListener::Ptr, NetworkAddrComp> > Listeners;
+	Listeners m_listeners;
+
+	typedef ThreadVar<ResponseListener::Ptr> BroadcastListener;
+	BroadcastListener m_broadcastListener;
+
+public:
+	ServerListNetwork();
+	~ServerListNetwork();
+
+	bool sendInternet(NetworkAddr& addr, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	bool sendLAN(NetworkAddr& addr, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	bool broadcastLAN(const std::list<unsigned short>& ports, const std::string& data, ResponseListener::Ptr& response = ResponseListener::null);
+	
+	void process();
+};
 
 // Returns non-empty UDP masterserver address if server is registered on this UDP masterserver and won't respond on pinging
 struct UdpMasterserverInfo {
@@ -137,16 +152,69 @@ struct UdpMasterserverInfo {
 	UdpMasterserverInfo(const std::string& n, int i) : name(n), index(i) {}
 	operator bool() { return index >= 0; }
 };
-UdpMasterserverInfo	SvrList_GetUdpMasterserverForServer(const std::string& szAddress);
 
 typedef ThreadVar< std::list<server_t::Ptr> > SvrList;
-bool		SvrList_IsProcessing();
-SvrList&	SvrList_currentServerList();
-
-
 namespace DeprecatedGUI { class CListview; }
 
-void Menu_SvrList_FillList(DeprecatedGUI::CListview *lv, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter = SvrListSettingsFilter::Ptr((SvrListSettingsFilter*)NULL));
+// Server list
+class ServerList  {
+public:
+	typedef boost::shared_ptr<ServerList> Ptr;
 
+	class Action  {
+	public:
+		virtual bool handle(server_t::Ptr& s) { return true; }
+		virtual bool handleConst(const server_t::Ptr& s) { return true; }
+	};
+private:
+	friend struct ServerListUpdater;
+	friend struct UdpUpdater;
+
+	SvrList psServerList;
+	static Ptr m_instance;
+
+	void saveList(const std::string& szFilename, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter = SvrListSettingsFilter::Ptr((SvrListSettingsFilter*)NULL));
+	void loadList(const std::string& szFilename, SvrListFilterType filterType);
+	void mergeWithNewInfo(server_t::Ptr found, const std::string& address, const std::string & name, int udpMasterserverIndex);
+	bool parsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock, bool isLan);
+	void parseQuery(server_t::Ptr svr, CBytestream *bs);
+	std::string parseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
+	void HTTPParseList(CHttp &http);
+public:
+	ServerList();
+	~ServerList();
+
+	void save();
+	bool process();
+
+	server_t::Ptr findServer(const NetworkAddr& addr, const std::string & name = "");
+	void removeServer(const std::string& szAddress);
+	void clear(SvrListFilterType filterType);
+
+	void clearAuto();
+	void shutdown();
+	void pingLAN();
+	server_t::Ptr addServer(const std::string& address, bool bManual, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
+	void addFavourite(const std::string& szName, const std::string& szAddress);
+	server_t::Ptr findServerStr(const std::string& szAddress, const std::string & name = "");
+	void pingServer(server_t::Ptr svr);
+	void wantsToJoin(const std::string& Nick, server_t::Ptr svr);
+	void queryServer(server_t::Ptr svr);
+	void getServerInfo(server_t::Ptr svr);
+	UdpMasterserverInfo	getUdpMasterserverForServer(const std::string& szAddress);
+
+	void updateList();
+	void updateUDPList();
+	void refreshList();
+	void refreshServer(server_t::Ptr s, bool updategui = true);
+	bool isProcessing();
+
+	void fillList(DeprecatedGUI::CListview *lv, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter = SvrListSettingsFilter::Ptr((SvrListSettingsFilter*)NULL));
+
+	void each(Action& act);
+	void eachConst(Action& act) const;
+
+	static Ptr get();
+};
 
 #endif

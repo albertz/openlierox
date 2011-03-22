@@ -26,21 +26,6 @@
 // declare them only locally here as nobody really should use them explicitly
 std::string Utf8String(const std::string &OldLxString);
 
-
-
-static void SvrList_SaveList(const std::string& szFilename, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter = SvrListSettingsFilter::Ptr((SvrListSettingsFilter*)NULL));
-static void SvrList_LoadList(const std::string& szFilename, SvrListFilterType filterType);
-
-static bool		SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock, bool isLan);
-static void		SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs);
-static std::string		SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex);
-
-
-static void SvrList_MergeWithNewInfo(server_t::Ptr svr, const std::string& address, const std::string & name = "Untitled", int udpMasterserverIndex = -1);
-
-
-SvrList psServerList;
-
 // Maximum number of pings/queries before we ignore the server
 static const int	MaxPings = 4;
 static const int	MaxQueries = MAX_QUERIES;
@@ -49,9 +34,183 @@ static const int	MaxQueries = MAX_QUERIES;
 SmartPointer<NetworkSocket>	tSocket[3];
 
 
+ServerList::Ptr ServerList::m_instance = ServerList::Ptr((ServerList *)NULL);
+
+ServerListNetwork::ResponseListener::Ptr ServerListNetwork::ResponseListener::null = ServerListNetwork::ResponseListener::Ptr((ServerListNetwork::ResponseListener *)NULL);
+
+/////////////////////
+// Serverlist network
+//
+/////////////////////
+
+#define BUFFER_SIZE 4096
+
+ServerListNetwork::ServerListNetwork()
+{
+	m_buffer = new char[BUFFER_SIZE];
+	m_foo.OpenUnreliable(0);
+	m_internet.OpenUnreliable(0);
+	m_lan.OpenBroadcast(0);
+	m_broadcastListener = ResponseListener::null;
+
+	// Send some data to some random IP
+	// Some weird routers seem to drop packets sent from the first newly open socket
+	if (m_foo.isOpen())  {
+		NetworkAddr a; 
+		StringToNetAddr("1.2.3.4:5678", a);
+
+		// For example, if no network is connected, you likely only have 127.* in your routing table.
+		if(IsNetAddrAvailable(a)) {
+			m_foo.setRemoteAddress(a);
+			m_foo.Write("foo");
+		}
+	}
+}
+
+ServerListNetwork::~ServerListNetwork()
+{
+	Listeners::Writer l(m_listeners);
+	l.get().clear();
+	if (m_foo.isOpen())
+		m_foo.Close();
+	if (m_internet.isOpen())
+		m_internet.Close();
+	if (m_lan.isOpen())
+		m_lan.Close();
+	if (m_buffer)  {
+		delete[] m_buffer;
+		m_buffer = NULL;
+	}
+}
+
+///////////////////
+// Sends a packet to the Internet
+bool ServerListNetwork::sendInternet(NetworkAddr& addr, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_internet.isOpen())
+		return false;
+
+	m_internet.setRemoteAddress(addr);
+	if (m_internet.Write(data) == (int)data.size())  {
+		if (response.get())  {
+			Listeners::Writer l(m_listeners);
+			l.get()[addr] = response;
+		}
+		return true;
+	}
+	return false;
+}
+
+///////////////////
+// Sends a packet to Local Network
+bool ServerListNetwork::sendLAN(NetworkAddr& addr, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_lan.isOpen())
+		return false;
+
+	m_lan.setRemoteAddress(addr);
+	if (m_lan.Write(data) == (int)data.size())  {
+		if (response.get())  {
+			Listeners::Writer l(m_listeners);
+			l.get()[addr] = response;
+		}
+		return true;
+	}
+	return false;
+}
+
+///////////////////
+// Broadcasts a packet to Local Network
+bool ServerListNetwork::broadcastLAN(const std::list<unsigned short>& ports, const std::string& data, ServerListNetwork::ResponseListener::Ptr& response)
+{
+	if (!m_lan.isOpen())
+		return false;
+
+	NetworkAddr broadcastAddr;
+	StringToNetAddr("255.255.255.255", broadcastAddr);
+	m_broadcastListener = response;
+	bool success = true;
+	for (std::list<unsigned short>::const_iterator it = ports.begin(); it != ports.end(); ++it)  {
+		SetNetAddrPort(broadcastAddr, *it);
+		success = success && sendLAN(broadcastAddr, data);
+	}
+	return success;
+}
+
+///////////////////
+// Processes the server list network
+void ServerListNetwork::process()
+{
+	NetworkSocket *socks[] = { &m_internet, &m_lan };
+	for (int i = 0; i < sizeof(socks)/sizeof(socks[0]); ++i)  {
+		// Read any responses
+		std::string response;
+		while (true) {
+			int ret = socks[i]->Read(m_buffer, BUFFER_SIZE);
+			if (ret > 0)
+				response.append(m_buffer, ret);
+			else
+				break;
+		}
+
+		if (!response.empty())  {
+			NetworkAddr fromAddr = socks[i]->remoteAddress();
+
+			// Fire the corresponding listener
+			Listeners::Writer l(m_listeners);
+			Listeners::type::iterator it = l.get().find(fromAddr);
+			if (it != l.get().end()) {
+				if (it->second.get())  {
+					if (it->second->onResponse(response))
+						l.get().erase(it);
+				}
+
+			// No unicast found, put it to broadcast listener if on LAN (and one is set)
+			} else if (socks[i] == &m_lan) {
+				BroadcastListener::Writer bl(m_broadcastListener);
+				if (bl.get().get())  {
+					if (bl.get()->onResponse(response))
+						bl.get() = ResponseListener::null;
+				}
+			} else {
+				warnings << "Got an unexpected packet from " << NetAddrToString(fromAddr) << ". The packet was dropped." << endl;
+			}
+		}
+	}
+}
+
+///////////////////
+// Serverlist
+//
+///////////////////
+
+////////////////////
+// Return singleton instance
+ServerList::Ptr ServerList::get()
+{
+	if (!m_instance.get())
+		m_instance = Ptr(new ServerList());
+	return m_instance;
+}
+
+///////////////////
+// Initialize the list
+ServerList::ServerList() {
+    loadList("cfg/svrlist.dat", SLFT_CustomSettings);
+	loadList("cfg/favourites.dat", SLFT_Favourites);
+	
+	for(short i = 0; i < 3; ++i)
+		tSocket[i] = DeprecatedGUI::tMenu->tSocket[i];
+}
+
+ServerList::~ServerList()
+{
+	shutdown();
+}
+
 ///////////////////
 // Clear the server list
-void SvrList_Clear(SvrListFilterType filterType)
+void ServerList::clear(SvrListFilterType filterType)
 {
 	SvrList::Writer l(psServerList);
     for(SvrList::type::iterator it = l.get().begin(); it != l.get().end();) {
@@ -65,7 +224,7 @@ void SvrList_Clear(SvrListFilterType filterType)
 
 ///////////////////
 // Clear any servers automatically added
-void SvrList_ClearAuto()
+void ServerList::clearAuto()
 {
 	SvrList::Writer l(psServerList);
     for(SvrList::type::iterator it = l.get().begin(); it != l.get().end();)
@@ -80,7 +239,7 @@ void SvrList_ClearAuto()
 
 ///////////////////
 // Shutdown the server list
-void SvrList_Shutdown()
+void ServerList::shutdown()
 {
 	SvrList::Writer l(psServerList);
 	l.get().clear();
@@ -92,7 +251,7 @@ void SvrList_Shutdown()
 
 ///////////////////
 // Save the server list
-void SvrList_SaveList(const std::string& szFilename, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter)
+void ServerList::saveList(const std::string& szFilename, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter)
 {
     FILE *fp = OpenGameFile(szFilename,"wt");
     if( !fp )
@@ -120,7 +279,7 @@ void SvrList_SaveList(const std::string& szFilename, SvrListFilterType filterTyp
 
 ///////////////////
 // Load the server list
-void SvrList_LoadList(const std::string& szFilename, SvrListFilterType filterType)
+void ServerList::loadList(const std::string& szFilename, SvrListFilterType filterType)
 {
     FILE *fp = OpenGameFile(szFilename,"rt");
     if( !fp )
@@ -144,7 +303,7 @@ void SvrList_LoadList(const std::string& szFilename, SvrListFilterType filterTyp
 			if( parsed.size() >= 4 )
 				UdpMasterServer = atoi(parsed[3]);
 			
-			server_t::Ptr svr = SvrList_AddServer(parsed[2], parsed[0] == "1", parsed[1], UdpMasterServer);
+			server_t::Ptr svr = addServer(parsed[2], parsed[0] == "1", parsed[1], UdpMasterServer);
 			switch(filterType) {
 				case SLFT_CustomSettings: break; // nothing
 				case SLFT_Favourites:
@@ -160,19 +319,9 @@ void SvrList_LoadList(const std::string& szFilename, SvrListFilterType filterTyp
     fclose(fp);
 }
 
-
-
-void SvrList_Init() {
-    SvrList_LoadList("cfg/svrlist.dat", SLFT_CustomSettings);
-	SvrList_LoadList("cfg/favourites.dat", SLFT_Favourites);
-	
-	for(short i = 0; i < 3; ++i)
-		tSocket[i] = DeprecatedGUI::tMenu->tSocket[i];
-}
-
-void SvrList_Save() {
-	SvrList_SaveList("cfg/svrlist.dat", SLFT_CustomSettings);
-	SvrList_SaveList("cfg/favourites.dat", SLFT_Favourites);
+void ServerList::save() {
+	saveList("cfg/svrlist.dat", SLFT_CustomSettings);
+	saveList("cfg/favourites.dat", SLFT_Favourites);
 }
 
 
@@ -193,7 +342,7 @@ static void SendBroadcastPing(int port) {
 
 ///////////////////
 // Send a ping out to the LAN (LAN menu)
-void SvrList_PingLAN()
+void ServerList::pingLAN()
 {
 	SendBroadcastPing(LX_PORT);
 	if(tLXOptions->iNetworkPort != LX_PORT)
@@ -203,7 +352,7 @@ void SvrList_PingLAN()
 
 ///////////////////
 // Ping a server
-void SvrList_PingServer(server_t::Ptr svr)
+void ServerList::pingServer(server_t::Ptr svr)
 {
 	// If not available, probably the network is not connected right now.
 	if(!IsNetAddrAvailable(svr->sAddress)) return;
@@ -235,7 +384,7 @@ void SvrList_PingServer(server_t::Ptr svr)
 
 ///////////////////
 // Send Wants To Join message
-void SvrList_WantsJoin(const std::string& Nick, server_t::Ptr svr)
+void ServerList::wantsToJoin(const std::string& Nick, server_t::Ptr svr)
 {
 	tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
 	
@@ -244,7 +393,7 @@ void SvrList_WantsJoin(const std::string& Nick, server_t::Ptr svr)
 	
 	if( svr->bBehindNat )
 	{
-		UdpMasterserverInfo udpmasterserver = SvrList_GetUdpMasterserverForServer(svr->szAddress);
+		UdpMasterserverInfo udpmasterserver = getUdpMasterserverForServer(svr->szAddress);
 		if(udpmasterserver) {
 			NetworkAddr masterserverAddr;
 			SetNetAddrValid(masterserverAddr, false);
@@ -273,7 +422,7 @@ void SvrList_WantsJoin(const std::string& Nick, server_t::Ptr svr)
 
 ///////////////////
 // Get server info
-void SvrList_GetServerInfo(server_t::Ptr svr)
+void ServerList::getServerInfo(server_t::Ptr svr)
 {
 	// Send a getinfo request
 	tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
@@ -283,7 +432,7 @@ void SvrList_GetServerInfo(server_t::Ptr svr)
 	
 	if( svr->bBehindNat )
 	{
-		UdpMasterserverInfo udpmasterserver = SvrList_GetUdpMasterserverForServer(svr->szAddress);
+		UdpMasterserverInfo udpmasterserver = getUdpMasterserverForServer(svr->szAddress);
 		if(udpmasterserver) {
 			NetworkAddr masterserverAddr;
 			SetNetAddrValid(masterserverAddr, false);
@@ -311,7 +460,7 @@ void SvrList_GetServerInfo(server_t::Ptr svr)
 
 ///////////////////
 // Query a server
-void SvrList_QueryServer(server_t::Ptr svr)
+void ServerList::queryServer(server_t::Ptr svr)
 {
 	tSocket[SCK_NET]->setRemoteAddress(svr->sAddress);
 	
@@ -330,13 +479,13 @@ void SvrList_QueryServer(server_t::Ptr svr)
 
 ///////////////////
 // Refresh the server list (Internet menu)
-void SvrList_RefreshList()
+void ServerList::refreshList()
 {
 	// Set all the servers to be pinged
 	SvrList::Reader l(psServerList);
 	for(SvrList::type::const_iterator it = l.get().begin(); it != l.get().end(); it++) 
 	{
-		SvrList_RefreshServer(*it, false);
+		refreshServer(*it, false);
 	}
 	
 	// Update the GUI
@@ -348,7 +497,7 @@ void SvrList_RefreshList()
 
 ///////////////////
 // Refresh a single server
-void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
+void ServerList::refreshServer(server_t::Ptr s, bool updategui)
 {
 	if (!tLX) return;
 	
@@ -397,7 +546,7 @@ void SvrList_RefreshServer(server_t::Ptr s, bool updategui)
 }
 
 
-void SvrList_MergeWithNewInfo(server_t::Ptr found, const std::string& address, const std::string & name, int udpMasterserverIndex) {
+void ServerList::mergeWithNewInfo(server_t::Ptr found, const std::string& address, const std::string & name, int udpMasterserverIndex) {
 	NetworkAddr ad;
 	std::string tmp_address = address;
     TrimSpaces(tmp_address);
@@ -424,7 +573,7 @@ void SvrList_MergeWithNewInfo(server_t::Ptr found, const std::string& address, c
 
 ///////////////////
 // Add a server onto the list (for list and manually)
-server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex)
+server_t::Ptr ServerList::addServer(const std::string& address, bool bManual, const std::string & name, int udpMasterserverIndex)
 {
     // Check if the server is already in the list
     // If it is, don't bother adding it
@@ -439,10 +588,10 @@ server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const 
     		port = LX_PORT;
     }
 	
-	server_t::Ptr found = SvrList_FindServerStr(tmp_address, name);
+	server_t::Ptr found = findServerStr(tmp_address, name);
     if( found && port != -1 && port != 0 )
     {
-		SvrList_MergeWithNewInfo(found, tmp_address, name, udpMasterserverIndex);
+		mergeWithNewInfo(found, tmp_address, name, udpMasterserverIndex);
 		return found;
     }
 	
@@ -454,7 +603,7 @@ server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const 
 	svr->szAddress = tmp_address;
 	ResetNetAddr(svr->sAddress);
 	
-	SvrList_RefreshServer(svr, bManual);
+	refreshServer(svr, bManual);
 	
 	if( svr->ports.size() > 0 )
 		svr->ports[0].second = udpMasterserverIndex;
@@ -482,7 +631,7 @@ server_t::Ptr SvrList_AddServer(const std::string& address, bool bManual, const 
 
 ///////////////////
 // Remove a server from the server list
-void SvrList_RemoveServer(const std::string& szAddress)
+void ServerList::removeServer(const std::string& szAddress)
 {
 	SvrList::Writer l(psServerList);
 	for(SvrList::type::iterator it = l.get().begin(); it != l.get().end(); )
@@ -495,19 +644,19 @@ void SvrList_RemoveServer(const std::string& szAddress)
 
 ///////////////////
 // Find a server based on a string address
-server_t::Ptr SvrList_FindServerStr(const std::string& szAddress, const std::string & name)
+server_t::Ptr ServerList::findServerStr(const std::string& szAddress, const std::string & name)
 {
 	NetworkAddr addr;
 	if( ! StringToNetAddr(szAddress, addr) )
 		return server_t::Ptr((server_t*)NULL);
     
-    return SvrList_FindServer(addr, name);
+    return findServer(addr, name);
 }
 
 
 ///////////////////
 // Fill a listview box with the server list
-void Menu_SvrList_FillList(DeprecatedGUI::CListview *lv, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter)
+void ServerList::fillList(DeprecatedGUI::CListview *lv, SvrListFilterType filterType, SvrListSettingsFilter::Ptr settingsFilter)
 {
 	if (!lv)
 		return;
@@ -531,7 +680,7 @@ void Menu_SvrList_FillList(DeprecatedGUI::CListview *lv, SvrListFilterType filte
 		const SvrList::type::value_type& s = *i;
 		if(!s->matches(filterType, settingsFilter)) continue;
 		
-		bool processing = s->bProcessing && !SvrList_GetUdpMasterserverForServer( s->szAddress );
+		bool processing = s->bProcessing && !getUdpMasterserverForServer( s->szAddress );
 		
 		// Ping Image
 		int num = 3;
@@ -586,7 +735,7 @@ void Menu_SvrList_FillList(DeprecatedGUI::CListview *lv, SvrListFilterType filte
 		    lv->AddSubitem(DeprecatedGUI::LVS_TEXT, states[state], (DynDrawIntf*)NULL, NULL);
 		
 		bool unknownData = ( s->bProcessing || num == 3 ) && 
-			!SvrList_GetUdpMasterserverForServer( s->szAddress );
+			!getUdpMasterserverForServer( s->szAddress );
 		
 		// Players
 		lv->AddSubitem(DeprecatedGUI::LVS_TEXT,
@@ -628,7 +777,7 @@ static bool bUpdateFromUdpThread = false;
 ///////////////////
 // Process the network connection
 // Returns true if a server in the list was added/modified
-bool SvrList_Process()
+bool ServerList::process()
 {
 	CBytestream		bs;
 	bool			update = false;
@@ -637,7 +786,7 @@ bool SvrList_Process()
 	// Process any packets on the net socket
 	while(bs.Read(tSocket[SCK_NET])) {
 		
-		if( SvrList_ParsePacket(&bs, tSocket[SCK_NET], false) )
+		if( parsePacket(&bs, tSocket[SCK_NET], false) )
 			update = true;
 		
 	}
@@ -645,7 +794,7 @@ bool SvrList_Process()
 	// Process any packets on the LAN socket
 	while(bs.Read(tSocket[SCK_LAN])) {
 		
-		if( SvrList_ParsePacket(&bs, tSocket[SCK_LAN], true) )
+		if( parsePacket(&bs, tSocket[SCK_LAN], true) )
 			update = true;
 	}
 	
@@ -699,7 +848,7 @@ bool SvrList_Process()
 				}
 				else  {
 					// Ping the server
-					SvrList_PingServer(s);
+					pingServer(s);
 					repaint = true;
 				}
 			}
@@ -716,7 +865,7 @@ bool SvrList_Process()
 				}
 				else  {
 					// Query the server
-					SvrList_QueryServer(s);
+					queryServer(s);
 					repaint = true;
 				}
 			}
@@ -741,7 +890,7 @@ bool SvrList_Process()
 ///////////////////
 // Parse a packet
 // Returns true if we should update the list
-bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock, bool isLan)
+bool ServerList::parsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& sock, bool isLan)
 {
 	NetworkAddr		adrFrom;
 	bool			update = false;
@@ -757,7 +906,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 		if(cmd == "lx::pong") {
 			
 			// Look the the list and find which server returned the ping
-			server_t::Ptr svr = SvrList_FindServer(adrFrom);
+			server_t::Ptr svr = findServer(adrFrom);
 			if( svr ) {
 				
 				// It pinged, so fill in the ping info so it will now be queried
@@ -774,7 +923,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 				
 				// If we didn't ping this server directly (eg, subnet), add the server to the list
 				NetAddrToString( adrFrom, buf );
-				svr = SvrList_AddServer(buf, false);
+				svr = addServer(buf, false);
 				
 				if( svr ) {
 					
@@ -796,7 +945,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 		else if(cmd == "lx::queryreturn") {
 			
 			// Look the the list and find which server returned the ping
-			server_t::Ptr svr = SvrList_FindServer(adrFrom);
+			server_t::Ptr svr = findServer(adrFrom);
 			if( svr ) {
 				
 				// Only update the list if this is the first query
@@ -805,7 +954,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 				
 				svr->bgotQuery = true;
 				svr->bBehindNat = false;
-				SvrList_ParseQuery(svr, bs);
+				parseQuery(svr, bs);
 				
 			}
 			
@@ -814,7 +963,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 		
 		else if(cmd == "lx::serverlist2") // This should not happen, we have another thread for polling UDP servers
 		{
-			SvrList_ParseUdpServerlist(bs, 0);
+			parseUdpServerlist(bs, 0);
 			update = true;
 		}
 		
@@ -826,7 +975,7 @@ bool SvrList_ParsePacket(CBytestream *bs, const SmartPointer<NetworkSocket>& soc
 
 ///////////////////
 // Find a server from the list by address
-server_t::Ptr SvrList_FindServer(const NetworkAddr& addr, const std::string & name)
+server_t::Ptr ServerList::findServer(const NetworkAddr& addr, const std::string & name)
 {
 	SvrList::Reader l(psServerList);
 	for(SvrList::type::const_iterator s = l.get().begin(); s != l.get().end(); s++)
@@ -875,7 +1024,7 @@ server_t::Ptr SvrList_FindServer(const NetworkAddr& addr, const std::string & na
 
 ///////////////////
 // Parse the server query return packet
-void SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs)
+void ServerList::parseQuery(server_t::Ptr svr, CBytestream *bs)
 {
 	// TODO: move this net protocol stuff out here
 	
@@ -929,6 +1078,29 @@ void SvrList_ParseQuery(server_t::Ptr svr, CBytestream *bs)
 	}
 }
 
+/////////////////
+// Performs a task on each server in the server list
+void ServerList::each(Action& act)
+{
+	SvrList::Writer l(psServerList);
+	for (SvrList::type::iterator svr = l.get().begin(); svr != l.get().end(); ++svr)  {
+		SvrList::type::value_type& s = *svr;
+		if (!act.handle(s))
+			break;
+	}
+}
+
+void ServerList::eachConst(Action& act) const
+{
+	SvrList::Reader l(const_cast<SvrList&>(psServerList));  // TODO: the const_cast here is ugly, Reader should take const reference
+	for (SvrList::type::const_iterator svr = l.get().begin(); svr != l.get().end(); ++svr)  {
+		const SvrList::type::value_type& s = *svr;
+		if (!act.handleConst(s))
+			break;
+	}
+}
+
+
 /*************************
  *
  * UDP server list
@@ -962,7 +1134,9 @@ static std::list<std::string> getUdpMasterServerList() {
 
 
 struct UdpUpdater : Task {
-	UdpUpdater() { name = "udp serverlist updater"; }
+	ServerList *m_list;
+
+	UdpUpdater(ServerList *l) : m_list(l) { name = "udp serverlist updater"; }
 	int handle() { return SvrList_UpdaterFunc(); }
 	int SvrList_UpdaterFunc();
 };
@@ -1044,7 +1218,7 @@ int UdpUpdater::SvrList_UpdaterFunc()
 
 			// Parse the reply
 			if (bs.GetLength() && bs.readInt(4) == -1 && bs.readString() == "lx::serverlist2") {
-				std::string errStr = SvrList_ParseUdpServerlist(&bs, UdpServerIndex);
+				std::string errStr = m_list->parseUdpServerlist(&bs, UdpServerIndex);
 				if(errStr != "")
 					errors << "Error reading data from UDP masterserver " << server << ": " << errStr << endl;
 				timeoutTime = GetTime() + 0.5f;	// Check for another packet
@@ -1061,12 +1235,12 @@ int UdpUpdater::SvrList_UpdaterFunc()
 	return 0;
 }
 
-void SvrList_UpdateUDPList()
+void ServerList::updateUDPList()
 {
-	taskManager->start(new UdpUpdater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
+	taskManager->start(new UdpUpdater(this), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
-std::string SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
+std::string ServerList::parseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex)
 {
 	// Look the the list and find which server returned the ping
 	int amount = bs->readByte();
@@ -1090,15 +1264,15 @@ std::string SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex
 		bool allowConnectDuringGame = bs->readBool();
 		
 		// UDP server info is updated once per 40 seconds, so if we have more recent entry ignore it
-		server_t::Ptr svr = SvrList_FindServerStr(addr, name);
+		server_t::Ptr svr = findServerStr(addr, name);
 		if( svr )
 		{
 			//hints << "Menu_SvrList_ParseUdpServerlist(): got duplicate " << name << " " << addr << " pong " << svr->bgotPong << " query " << svr->bgotQuery << endl;
 			if( !svr->bgotPong )
-				SvrList_MergeWithNewInfo(svr, addr, name, UdpMasterserverIndex);
+				mergeWithNewInfo(svr, addr, name, UdpMasterserverIndex);
 		}
 		else
-			svr = SvrList_AddServer( addr, false, name, UdpMasterserverIndex );
+			svr = addServer( addr, false, name, UdpMasterserverIndex );
 		
 		svr->nNumPlayers = players;
 		svr->nMaxPlayers = maxplayers;
@@ -1119,10 +1293,10 @@ std::string SvrList_ParseUdpServerlist(CBytestream *bs, int UdpMasterserverIndex
 
 ///////////////////
 // Add a favourite server
-void SvrList_AddFavourite(const std::string& szName, const std::string& szAddress)
+void ServerList::addFavourite(const std::string& szName, const std::string& szAddress)
 {
 	{
-		server_t::Ptr svr = SvrList_AddServer(szAddress, true, szName, SvrList_GetUdpMasterserverForServer(szAddress).index);
+		server_t::Ptr svr = addServer(szAddress, true, szName, getUdpMasterserverForServer(szAddress).index);
 		if(svr)
 			svr->isFavourite = true;
 	}
@@ -1141,9 +1315,9 @@ void SvrList_AddFavourite(const std::string& szName, const std::string& szAddres
 }
 
 
-UdpMasterserverInfo SvrList_GetUdpMasterserverForServer(const std::string & addr)
+UdpMasterserverInfo ServerList::getUdpMasterserverForServer(const std::string & addr)
 {
-	server_t::Ptr svr = SvrList_FindServerStr(addr);
+	server_t::Ptr svr = findServerStr(addr);
 	if( !svr )
 		return UdpMasterserverInfo();
 	if( !svr->bBehindNat )
@@ -1165,8 +1339,9 @@ UdpMasterserverInfo SvrList_GetUdpMasterserverForServer(const std::string & addr
 
 
 struct ServerListUpdater : Task {
-	std::string m_statusTxt;	
-	ServerListUpdater() : m_statusTxt("Updating server list ...") { name = "server list updater"; }
+	std::string m_statusTxt;
+	ServerList *m_list;
+	ServerListUpdater(ServerList *l) : m_statusTxt("Updating server list ..."), m_list(l) { name = "server list updater"; }
 	
 	int handle() {
 		updateServerList();
@@ -1184,17 +1359,15 @@ struct ServerListUpdater : Task {
 	void updateServerList();
 };
 
-static void	SvrList_HttpParseList(class CHttp& http);
-
 void ServerListUpdater::updateServerList() {
 	int			http_result = 0;
 	std::string szLine;
 	
 	// Clear the server list
-	SvrList_ClearAuto();
+	m_list->clearAuto();
 	
 	// UDP list
-	SvrList_UpdateUDPList();
+	m_list->updateUDPList();
 	
 	//
 	// Get the number of master servers for a progress bar
@@ -1256,7 +1429,7 @@ void ServerListUpdater::updateServerList() {
 			
 			// Parse the list if the request was successful
 			if (http_result == HTTP_PROC_FINISHED) {
-				SvrList_HttpParseList(http);
+				m_list->HTTPParseList(http);
 				
 				// Other master servers could have more server so we process them anyway
 				SentRequest = false;
@@ -1281,13 +1454,13 @@ void ServerListUpdater::updateServerList() {
 }
 
 
-void SvrList_UpdateList() {
-	taskManager->start(new ServerListUpdater(), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
+void ServerList::updateList() {
+	taskManager->start(new ServerListUpdater(this), TaskManager::QT_QueueToSameTypeAndBreakCurrent);
 }
 
 ///////////////////
 // Parse the downloaded server list
-void SvrList_HttpParseList(CHttp &http)
+void ServerList::HTTPParseList(CHttp &http)
 {
 	const std::string& content = http.GetData();
 	
@@ -1319,14 +1492,14 @@ void SvrList_HttpParseList(CHttp &http)
 		StripQuotes(ptr);
 		
 		// Create the server address
-		SvrList_AddServer(addr + ":" + ptr, false);
+		addServer(addr + ":" + ptr, false);
 	}
 	
 	// Update the GUI
 	Timer("Menu_Net_NETParseList ping waiter", null, NULL, PingWait, true).startHeadless();
 }
 
-bool SvrList_IsProcessing() {
+bool ServerList::isProcessing() {
 	if(taskManager->haveTaskOfType(typeid(ServerListUpdater)))
 		return true;
 	
@@ -1338,18 +1511,13 @@ bool SvrList_IsProcessing() {
 	for(SvrList::type::const_iterator i = serverList.begin(); i != serverList.end(); i++)
 	{
 		const SvrList::type::value_type& s = *i;		
-		bool processing = s->bProcessing && !SvrList_GetUdpMasterserverForServer( s->szAddress );
+		bool processing = s->bProcessing && !getUdpMasterserverForServer( s->szAddress );
 		if(processing) return true;
 	}
 	
 	// seems that we have them all ready
 	return false;
 }
-
-SvrList& SvrList_currentServerList() {
-	return psServerList;
-}
-
 
 
 bool SvrListSettingsFilter::loadFromFile(const std::string& cfgfile) {
