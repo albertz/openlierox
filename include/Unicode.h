@@ -15,7 +15,7 @@
 #include <string>
 
 typedef Uint32 UnicodeChar;
-typedef std::basic_string<UnicodeChar> UnicodeString;
+typedef std::basic_string<UnicodeChar> Unicode32String;
 #ifdef WIN32
 typedef wchar_t Utf16Char;
 typedef std::wstring Utf16String;
@@ -158,8 +158,8 @@ char UnicodeCharToAsciiChar(UnicodeChar c);
 std::string RemoveSpecialChars(const std::string &Utf8String);
 std::string Utf16ToUtf8(const Utf16String& str);
 Utf16String Utf8ToUtf16(const std::string& str);
-std::string UnicodeToUtf8(const UnicodeString& str);
-UnicodeString Utf8ToUnicode(const std::string& str);
+std::string UnicodeToUtf8(const Unicode32String& str);
+Unicode32String Utf8ToUnicode(const std::string& str);
 std::string UnicodeToAscii(const std::string& utf8str);
 std::string ISO88591ToUtf8(const std::string& isostr);
 #ifdef WIN32
