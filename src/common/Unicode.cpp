@@ -1055,10 +1055,10 @@ Utf16String Utf8ToUtf16(const std::string& str)
 
 //////////////////
 // Convert a Unicode string to UTF8
-std::string UnicodeToUtf8(const UnicodeString& str)
+std::string UnicodeToUtf8(const Unicode32String& str)
 {
 	std::string result;
-	for (UnicodeString::const_iterator i = str.begin(); i != str.end(); i++)  {
+	for (Unicode32String::const_iterator i = str.begin(); i != str.end(); i++)  {
 		result += GetUtf8FromUnicode(*i);
 	}
 
@@ -1067,9 +1067,9 @@ std::string UnicodeToUtf8(const UnicodeString& str)
 
 //////////////////
 // Convert a UTF8 string to Unicode
-UnicodeString Utf8ToUnicode(const std::string& str)
+Unicode32String Utf8ToUnicode(const std::string& str)
 {
-	UnicodeString result;
+	Unicode32String result;
 	for (std::string::const_iterator it = str.begin(); it != str.end();)
 		result += GetNextUnicodeFromUtf8(it, str.end());
 
