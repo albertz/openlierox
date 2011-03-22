@@ -1871,7 +1871,11 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "OpenLieroX" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* OpenLieroX */;
 			projectDirPath = "";
 			projectRoot = ../..;
@@ -2266,7 +2270,6 @@
 					"-DMACOSX",
 					"-pthread",
 				);
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2293,7 +2296,6 @@
 					"-DMACOSX",
 					"-pthread",
 				);
-				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Release;
@@ -2333,7 +2335,6 @@
 					"-DMACOSX",
 					"-pthread",
 				);
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 				WARNING_CFLAGS = "-Wall";
 			};
@@ -2460,7 +2461,6 @@
 					"-DMACOSX",
 					"-pthread",
 				);
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = "Debug with Fuzzy S2C";
@@ -2586,7 +2586,6 @@
 					"-DMACOSX",
 					"-pthread",
 				);
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = "Debug with Fuzzy C2S";
