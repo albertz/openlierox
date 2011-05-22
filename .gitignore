@@ -2,14 +2,13 @@ build/msvc*/obj
 build/msvc*/Debug
 build/msvc*/Release
 build/Xcode/build
-src/breakpad/external/src/*/*/*/build
-src/breakpad/external/src/*/*/build
 *.ncb
 *.suo
 *.vcproj.*.user
 *.mode1v3
 *.mode2v3
 *.pbxuser
+xcuserdata
 
 *.kdev*
 Doxyfile
@@ -18,11 +17,15 @@ CMakeFiles
 CMakeScripts
 Makefile
 cmake_install.cmake
+*.cmake.user
+
 bin
 *~
 *.build
 *.o
 libopenlierox_pch_dephelp.a
+*-build
+build-*
 
 # this one is automatically created by CMake
 gamedecompiler.xcodeproj
