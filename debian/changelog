@@ -1,5 +1,5 @@
-openlierox (0.59.beta10) unstable; urgency=low
+openlierox (0.59.beta9-1) unstable; urgency=low
 
   * Initial release (Closes: #445850)
 
- -- Albert Zeyer <albert.zeyer@rwth-aachen.de>  Wed, 05 May 2010 17:23:43 +0200
+ -- Arand Nash <ienorand@gmail.com>  Tue, 24 May 2011 03:22:35 +0100
