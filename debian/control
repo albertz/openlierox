@@ -18,7 +18,7 @@ Build-Depends: debhelper (>= 8),
 
 Package: openlierox
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends},
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  libsdl1.2debian (>= 1.2.6) | libsdl1.2 (>= 1.2.6),
  libsdl-mixer1.2 (>= 1.2.6),
  libsdl-image1.2 (>= 1.2.5),
