@@ -3,7 +3,7 @@
 export DH_VERBOSE=1
 
 %:
-	dh $@ --builddirecory=testdir
+	dh $@
 
 override_dh_auto_configure:
 	cmake . -DVERSION=$(shell cat VERSION) \
