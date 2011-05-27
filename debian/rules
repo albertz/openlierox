@@ -27,7 +27,9 @@ override_dh_auto_install:
 	BIN_DIR=usr/games \
 	SYSTEM_DATA_DIR=usr/share/games \
 		./install.sh
-	find debian/tmp/usr/share/ -type f -exec chmod 644 {} \;
+	find debian/tmp/usr/share/ \
+		-type f \
+		-exec chmod 644 {} \;
 	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
 		-type f \
 		-exec chmod 755 {} \;
@@ -39,7 +41,7 @@ override_dh_auto_install:
 		-o -name '__init__.py' \
 		-o -name 'available_commands.txt' \)\
 		-exec chmod 644 {} \;
-	find debian/tmp/usr/share/games/OpenLieroX/ \
+	find debian/tmp/usr/share/games/OpenLieroX/cfg/ \
 		-name 'dedicated_config*.py' \
 		-exec chmod 755 {} \;
 	dh_auto_install
