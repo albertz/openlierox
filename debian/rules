@@ -27,8 +27,16 @@ override_dh_auto_install:
 	BIN_DIR=usr/games \
 	SYSTEM_DATA_DIR=usr/share/games \
 		./install.sh
+#	find debian/tmp/usr/share/ -type f -exec chmod 644 {} \;
+#	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
+		-type f \
+		! name dedicated_control_ranking.py \
+		-o ! name portalocker.py \
+		-o ! -name simple_ded_control.php \
+		-o ! __init__.py \
+		-o ! available_commands.txt \
+		-exec chmod 755 {} \;
+#	find debian/tmp/openlierox/usr/share/games/OpenlieroX/ \
+		-name 'dedicated_config*.py' \
+		-exec chmod 755 {} \;
 	dh_auto_install
-	find debian/tmp/usr/share/ \
-		-type f ! -path '*scripts*' -exec chmod 644 {} \;
-	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
-		-type f -exec chmod 755 {} \;
