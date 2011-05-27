@@ -10,4 +10,4 @@ debian/tmp/usr/games/openlierox usr/games
 debian/tmp/usr/share/games/OpenLieroX usr/share/games
 
 # desktop file
-debain/openlierox.desktop usr/share/applications
+debian/openlierox.desktop usr/share/applications
