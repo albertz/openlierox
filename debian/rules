@@ -30,13 +30,16 @@ override_dh_auto_install:
 	find debian/tmp/usr/share/ -type f -exec chmod 644 {} \;
 	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
 		-type f \
-		! name dedicated_control_ranking.py \
-		-o ! name portalocker.py \
-		-o ! -name simple_ded_control.php \
-		-o ! __init__.py \
-		-o ! available_commands.txt \
 		-exec chmod 755 {} \;
-	find debian/tmp/openlierox/usr/share/games/OpenlieroX/ \
+	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
+		-type f \
+		-name 'dedicated_control_ranking.py' \
+		-o -name 'portalocker.py' \
+		-o -name 'simple_ded_control.php' \
+		-o -name '__init__.py' \
+		-o -name 'available_commands.txt' \
+		-exec chmod 644 {} \;
+	find debian/tmp/usr/share/games/OpenLieroX/ \
 		-name 'dedicated_config*.py' \
 		-exec chmod 755 {} \;
 	dh_auto_install
