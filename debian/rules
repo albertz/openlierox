@@ -29,6 +29,6 @@ override_dh_auto_install:
 		./install.sh
 	dh_auto_install
 	find debian/tmp/usr/share/ \
-		-type f ! -name '*.py' -exec chmod 644 {} \;
+		-type f ! -path '*scripts*' -exec chmod 644 {} \;
 	find debian/tmp/usr/share/games/OpenLieroX/scripts/ \
 		-type f -exec chmod 755 {} \;
