@@ -18,7 +18,7 @@ Build-Depends: debhelper (>= 8),
 
 Package: openlierox
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
+Depends: ${shlibs:Depends}, ${misc:Depends},
  libsdl1.2debian (>= 1.2.6) | libsdl1.2 (>= 1.2.6),
  libsdl-mixer1.2 (>= 1.2.6),
  libsdl-image1.2 (>= 1.2.5),
@@ -26,6 +26,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${python:Depends},
  zlib1g (>= 1.2.3), libxml2 (>= 2.6.26),
  libcurl3-dbg | libcurl3-gnutls | libcurl3,
  libalut0, libopenal0a | libopenal1
+Recommends: python, python3
 Description: a real-time excessive Worms-clone with network support
  Remake of original Liero game with network support,
  better graphics and a lot of maps and mods.
