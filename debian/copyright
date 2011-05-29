@@ -9,6 +9,11 @@ Copyright: 1998-2006 Jason Boettcher
                       Sergiy Pylypenko, Michal Futer, Daniel Sjoholm
 License: LGPL-2+
 
+Files: share/gamedir/Gusanos/* src/gusanos/*
+Copyright: Domster Liav/amosml (for Vermes)
+           Basara, Gliptic, AK47, Nym (for Gusanos)
+License: GPL-2
+
 Files: libs/hawknl/*
 Copyright: 2000-2002 Phil Frisbie, Jr. <phil@hawksoft.com>
 License: LGPL-2+
