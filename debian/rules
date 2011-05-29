@@ -9,9 +9,9 @@ override_dh_auto_configure:
 	cmake . -DVERSION=$(shell cat VERSION) \
 		-DCMAKE_C_FLAGS="-g" \
 		-DCMAKE_CXX_FLAGS="-g" \
-		-DHAWKNL_BUILTIN=1 \
-		-DLIBZIP_BUILTIN=1 \
-		-DLIBLUA_BUILTIN=1 \
+		-DHAWKNL_BUILTIN=0 \
+		-DLIBZIP_BUILTIN=0 \
+		-DLIBLUA_BUILTIN=0 \
 		-DBOOST_LINK_STATIC=1 \
 		-DDEBUG=0 \
 		-DSYSTEM_DATA_DIR=/usr/share/games
