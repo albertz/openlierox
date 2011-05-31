@@ -1,8 +1,8 @@
 Source: openlierox
 Section: games
 Priority: optional
-Maintainer: Arand Nash <ienorand@gmail.com>
-XSBC-Original-Maintainer: Albert Zeyer <albert.zeyer@rwth-aachen.de>
+Maintainer: Debian Games Team <pkg-games-devel@lists.alioth.debian.org>
+Uploaders: Arand Nash <ienorand@gmail.com>
 Standards-Version: 3.9.2
 Build-Depends: debhelper (>= 8),
  bash (>= 3.1dfsg-8), gzip (>= 1.3.5-15), g++ (>= 2.95),
