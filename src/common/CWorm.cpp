@@ -88,7 +88,7 @@ CWorm::~CWorm() {
 
 
 ///////////////////
-// Clear the worm details
+// Clear the worm details. Sets everything to default values.
 void CWorm::Clear()
 {
 	if(bUsed) game.onRemoveWorm(this);

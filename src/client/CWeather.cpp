@@ -84,6 +84,8 @@ void CWeather::Simulate(float dt)
         case wth_snow:
             SimulateSnow(dt);
             break;
+        default:    //Every switch should have a default case!
+            break;
     }
 }
 

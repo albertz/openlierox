@@ -28,9 +28,9 @@
 #include "Version.h"
 
 
-int		GotError = false;
+int		GotError = false; // Specifies whether any error occured.
 char	ErrorMsg[1024]; // HINT: if we change this to std::string, check other code here; sizeof(ErrorMsg) is used for example
-std::string	LastError;
+std::string	LastError; //Holds the description of the error that occured most recently
 
 FILE *ErrorFile = NULL;
 
@@ -133,11 +133,15 @@ void GuiSkinError(const std::string& text)
 
 }
 
+///////////////////
+// Sets the last error description that occured to its dedicated variable.
 void LxSetLastError(const std::string& desc)
 {
 	LastError = desc;
 }
 
+///////////////////
+// Returns the last occuring error.
 std::string LxGetLastError()
 {
 	return LastError;

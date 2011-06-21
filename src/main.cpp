@@ -120,6 +120,8 @@ void print_binary_string(const std::string& txt) {
 	notes << buf << endl;
 }
 
+///////////////////
+// Does system checks for data type sizes.
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
@@ -1125,8 +1127,8 @@ void ShutdownLieroX()
 
 	// Free the client & server
 	if(cClient) {
-		delete cClient;
-		cClient = NULL;
+                delete cClient; // Shouldn't you first set pointer to null and then delete it?
+		cClient = NULL; // Or arent' these two equivalent anyway?
 	}
 
 	if(cServer) {
@@ -1277,19 +1279,34 @@ void updateFileListCaches() {
 }
 
 
-
+///////////////////
+// Returns the state of the current game.
 GameState currentGameState() {
-	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) return S_INACTIVE;
+	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) 
+            return S_INACTIVE;
+
 	if(tLX->iGameType == GME_JOIN) {
-		if(cClient->getStatus() == NET_CONNECTING) return S_CLICONNECTING;
-		if(!cClient->getGameReady()) return S_CLILOBBY;
-		if(cClient->getStatus() == NET_PLAYING) return S_CLIPLAYING;
+		if(cClient->getStatus() == NET_CONNECTING) 
+                    return S_CLICONNECTING;
+
+		if(!cClient->getGameReady()) 
+                    return S_CLILOBBY;
+
+		if(cClient->getStatus() == NET_PLAYING) 
+                    return S_CLIPLAYING;
+
 		return S_CLIWEAPONS;
 	}
-	if(!cServer->isServerRunning()) return S_INACTIVE;
+
+	if(!cServer->isServerRunning())
+            return S_INACTIVE;
 	//if(!DeprecatedGUI::tMenu || DeprecatedGUI::tMenu->bMenuRunning);
-	if(cServer->getState() == SVS_LOBBY) return S_SVRLOBBY;
-	if(cServer->getState() == SVS_GAME) return S_SVRWEAPONS;
+	if(cServer->getState() == SVS_LOBBY) 
+            return S_SVRLOBBY;
+
+	if(cServer->getState() == SVS_GAME) 
+            return S_SVRWEAPONS;
+
 	return S_SVRPLAYING;
 }
 

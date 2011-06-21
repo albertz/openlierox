@@ -129,6 +129,8 @@ void CWormInputHandler::gusShutdown()
 	}
 }
 
+///////////////////
+// Used to remove current worm instance.
 void CWormInputHandler::removeWorm()
 {
 	if ( m_worm ) {

@@ -400,6 +400,9 @@ CWpnRest* Game::weaponRestrictions() {
 	return NULL;
 }
 
+/**
+ * Returns true if the game is a server or false otherwise.
+ */
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }

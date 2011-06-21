@@ -119,7 +119,7 @@ static void InitWidgetStates(GameOptions& opts) {
 
 
 
-
+// TODO: Try to split this method
 bool GameOptions::Init() {
 	if(tLXOptions) {
 		warnings << "it seems that the GameOptions are already inited" << endl;
@@ -660,8 +660,9 @@ void GameOptions::SaveSectionToDisc(const std::string& presection, const std::st
     fclose(fp);
 }
 
-
-
+////////////////////
+// Initializes the texts used by server.
+// Returns true if operation is successful and false otherwise.
 bool NetworkTexts::Init() {
 	if(networkTexts) {
 		warnings << "networktexts are already inited; ignoring ..." << endl;
@@ -769,6 +770,8 @@ GameOptions::GameOptions() {
 }
 
 bool Taunts::Init() {
+////////////////////
+// Initializes the taunts.
 	if(taunts) {
 		warnings << "taunts are already inited; ignoring ..." << endl;
 		return true;
@@ -780,6 +783,8 @@ bool Taunts::Init() {
 }
 
 bool Taunts::LoadFromDisc()
+////////////////////
+// Loads the taunts from file.
 {
 	notes << "Loading taunts... ";
 
@@ -802,6 +807,9 @@ bool Taunts::LoadFromDisc()
 }
 
 std::string Taunts::getTauntForKey(int keySym) const {
+////////////////////
+// Returns the taunt corresponding to the int passed as parameter or "" if no
+// correspoding one is found.
 	for( int f=0; f < Taunts::MAX_COUNT; f++ )
 		if( keySyms[f] == keySym )
 			return texts[f];
