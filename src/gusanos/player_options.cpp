@@ -1,3 +1,7 @@
+// PlayerOptions class.
+// This holds all options and changes associated with a player:
+// name, colour, team, ID etc.
+
 #include "player_options.h"
 #include "gconsole.h"
 #include <boost/bind.hpp>
@@ -71,18 +75,25 @@ string PlayerOptions::setTeam(list<string> const& args)
 	return "PX_TEAM <T> : SETS THE TEAM NUMBER OF THIS PLAYER";
 }
 
+///////////////////
+// Changes the name of the player to the one passed as argument.
+void PlayerOptions::changeName(std::string const& name_)
+{
+	if(name_ == name)
+		return;
+	name = name_;
+	nameChange();
+}
+
+///////////////////
+// Marks a change of name.
 void PlayerOptions::nameChange()
 {
 	m_nameChanged = true;
 }
 
-void PlayerOptions::clearChangeFlags()
-{
-	m_nameChanged = false;
-	m_colorChanged = false;
-	m_teamChanged = false;
-}
-
+///////////////////
+// Checks whether the player changed his name.
 bool PlayerOptions::nameChanged()
 {
 	bool res = m_nameChanged;
@@ -90,6 +101,8 @@ bool PlayerOptions::nameChanged()
 	return res;
 }
 
+///////////////////
+// Checks whether the player changed colour.
 bool PlayerOptions::colorChanged()
 {
 	bool res = m_colorChanged;
@@ -97,6 +110,8 @@ bool PlayerOptions::colorChanged()
 	return res;
 }
 
+///////////////////
+// Checks whether the player changed teams.
 bool PlayerOptions::teamChanged()
 {
 	bool res = m_teamChanged;
@@ -104,10 +119,11 @@ bool PlayerOptions::teamChanged()
 	return res;
 }
 
-void PlayerOptions::changeName(std::string const& name_)
+///////////////////
+// Sets change flags to default.
+void PlayerOptions::clearChangeFlags()
 {
-	if(name_ == name)
-		return;
-	name = name_;
-	nameChange();
+	m_nameChanged = false;
+	m_colorChanged = false;
+	m_teamChanged = false;
 }

@@ -340,6 +340,8 @@ void CWormInputHandler::selectWeapons( vector< WeaponType* > const& weaps )
 	}
 }
 
+///////////////////
+// Assigns a worm to this input handler.
 void CWormInputHandler::assignWorm(CWorm* worm)
 {
 	m_worm = worm;
@@ -644,7 +646,8 @@ void CWormInputHandler::OlxInputToGusEvents()
 	
 }
 
-
+///////////////////
+// Adds a new death to the worm that died and to game statistics.
 void CWormInputHandler::addDeath() {
 	if(m_worm) m_worm->addDeath();
 	stats->deaths++;
@@ -659,6 +662,8 @@ static void sendWormScoreUpdate(CWorm* w) {
 	}
 }
 
+///////////////////
+// Adds a new kill in the account of the corresponding worm and to the game stats.
 void CWormInputHandler::addKill() {
 	if(m_worm) m_worm->addKill();
 	stats->kills++;

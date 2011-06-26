@@ -241,8 +241,6 @@ void CWorm::FreeGraphics()
 }
 
 
-
-
 ///////////////////
 // Prepare the worm for the game
 void CWorm::Prepare(bool serverSide)
@@ -1236,6 +1234,8 @@ void CWorm::Kill(bool serverside)
 	}
 }
 
+///////////////////
+// Returns the score of the current worm.
 int CWorm::getScore() const
 {
 	int score = getKills();
@@ -1251,6 +1251,8 @@ int CWorm::getScore() const
 	return score; // May be negative
 }
 
+///////////////////
+// Adds a death for the current worm. Called whenever worm dies.
 void CWorm::addDeath()
 {
 	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )

@@ -447,6 +447,8 @@ int CGameMode::WinnerTeam() {
 		return -1;
 }
 
+///////////////////
+// Returns the team with the highest score.
 int CGameMode::HighestScoredTeam() {
 	int team = -1;
 	for(int i = 0; i < GameTeams(); i++)
@@ -485,7 +487,9 @@ float CGameMode::TeamDamage(int t) {
 	return c;
 }
 
-
+///////////////////
+// Returns the team with the highest score of the two teams passed as
+// arguments.
 int CGameMode::CompareTeamsScore(int t1, int t2) {
 	// Lives first
 	if((int)gameSettings[FT_Lives] >= 0) {

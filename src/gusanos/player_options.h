@@ -21,6 +21,9 @@ inline Uint32 universalToLocalColor(Uint32 c)
 		(c) & 0xFF);
 }
 
+///////////////////
+// This holds all options and changes associated with a player:
+// name, colour, team, ID etc.
 struct PlayerOptions
 {
 	PlayerOptions(std::string const& name_ = "GusPlayer");

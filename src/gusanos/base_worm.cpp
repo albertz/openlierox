@@ -150,12 +150,15 @@ void CWorm::deleteThis() {
 	// also dont set deleted=true because we may reuse this object
 }
 
-
+/////////////
+// Returns a reference to the ninja rope associated with this object.
 NinjaRope* CWorm::getNinjaRopeObj()
 {
 	return m_ninjaRope;
 }
 
+/////////////
+// Returns a reference to the current weapon associated with this object.
 Weapon* CWorm::getCurrentWeaponRef()
 {
 	return m_weapons[currentWeapon];
@@ -193,6 +196,7 @@ void CWorm::setWeapon( size_t index, WeaponType* type )
 		}
 	}
 }
+
 
 void CWorm::setWeapons( std::vector<WeaponType*> const& weaps )
 {

@@ -165,7 +165,7 @@ Color CNinjaRope::renderColorAt(/* relative coordinates */ int x, int y) {
 // Unattaches rope from a worm
 void CNinjaRope::UnAttachPlayer()
 {
-	if (!Worm)
+	if (!Worm) // checks whether it already isn't attached to a worm
 		return;
 
 	HookVelocity.x = HookVelocity.y = 0;
@@ -176,6 +176,8 @@ void CNinjaRope::UnAttachPlayer()
 	Worm = NULL;
 }
 
+///////////////////
+// Attaches this rope to a worm.
 void CNinjaRope::AttachToPlayer(CWorm *worm, CWorm *owner)
 {
 	HookShooting = false;
