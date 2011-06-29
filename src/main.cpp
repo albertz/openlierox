@@ -326,7 +326,7 @@ int main(int argc, char *argv[])
 	
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
-	
+
 	hints << GetFullGameName() << " is starting ..." << endl;
 #ifdef DEBUG
 	hints << "This is a DEBUG build." << endl;

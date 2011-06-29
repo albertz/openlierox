@@ -24,7 +24,7 @@ class CNinjaRope;
 class CMap;
 
 // HINT: I call this class PhysicsEngine, though it doesn't matches the meaning
-// of engine completely as I intented it for Hirudo. But it can probably easily be
+// of engine completely as I intended it for Hirudo. But it can probably easily be
 // reused later.
 
 class PhysicsEngine {

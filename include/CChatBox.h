@@ -23,7 +23,8 @@
 #include "olx-types.h"
 #include "Color.h"
 
-#define MAX_LLENGTH		128
+//what is this for? since there was no conflict, I renamed it to correct the typo
+#define MAX_LENGTH		128 
 
 
 // Line structure

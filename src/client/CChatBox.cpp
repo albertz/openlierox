@@ -52,7 +52,7 @@ void CChatBox::AddText(const std::string& txt, Color colour, TXT_TYPE TextType, 
 	Lines.push_back(newline);
 
 	while(Lines.size() > MAX_LINES)
-		Lines.pop_front();
+		Lines.pop_front(); //deletes the top lines of the chat box
 
 	// Add to new lines
 	NewLines.push_back(newline);
