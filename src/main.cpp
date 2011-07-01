@@ -53,6 +53,7 @@
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
 #include "game/ServerList.h"
+#include "StringUtils.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -107,18 +108,6 @@ static void InitializeLoading();
 static void DrawLoading(byte percentage, const std::string &text);
 static void ShutdownLoading();
 
-
-
-
-// TODO: move this out here
-void print_binary_string(const std::string& txt) {
-	std::string buf;
-	std::stringstream str(buf);
-	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
-		str << std::hex << (ushort)(uchar)(*it) << " ";
-	}
-	notes << buf << endl;
-}
 
 ///////////////////
 // Does system checks for data type sizes.

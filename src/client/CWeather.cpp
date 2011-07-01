@@ -84,8 +84,6 @@ void CWeather::Simulate(float dt)
         case wth_snow:
             SimulateSnow(dt);
             break;
-        default:    //Every switch should have a default case!
-            break;
     }
 }
 
@@ -196,6 +194,5 @@ void CWeather::Draw(SDL_Surface * psDest, CViewport *view)
         }
 
     }
-
 
 }

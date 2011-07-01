@@ -2,6 +2,9 @@
  *  MainGlobals.cpp
  *  OpenLieroX
  *
+ *  As the file name suggests, this file contains global variables / settings /
+ *  initializations that will be used throughout the project.
+ *
  *  Created by Albert Zeyer on 01.12.09.
  *  code under LGPL
  *

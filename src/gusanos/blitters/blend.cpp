@@ -215,8 +215,10 @@ bool linewu_blend(ALLEGRO_BITMAP* where, float x, float y, float destx, float de
 {
 	const long prec = 8;
 	const long one = (1 << prec);
-	const long half = one / 2;
-	const long fracmask = one - 1;
+//      TODO:
+//      Do these have any role? If not, delete them.
+//	const long half = one / 2;
+//	const long fracmask = one - 1;
 	long x1 = long(x * one);
 	long y1 = long(y * one);
 	long x2 = long(destx * one);

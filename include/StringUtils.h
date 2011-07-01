@@ -383,4 +383,6 @@ struct const_string_iterator {
 	char operator*() const { return str[pos]; }
 };
 
+void print_binary_string(const std::string& txt);
+
 #endif

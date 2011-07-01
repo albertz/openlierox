@@ -475,6 +475,8 @@ int CGameMode::HighestScoredTeam() {
 	return team;
 }
 
+///////////////////
+// Returns the number of worms in the team passed as parameter.
 int CGameMode::WormsAliveInTeam(int t) {
 	int c = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
