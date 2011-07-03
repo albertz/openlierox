@@ -326,6 +326,8 @@ void Game::onRemoveWorm(CWorm* w) {
 */
 }
 
+///////////////////
+// Adds a new player to vector of players.
 void Game::onNewPlayer(CWormInputHandler* player) {
 	players.push_back( player );	
 }
@@ -339,6 +341,8 @@ void Game::onNewPlayer_Lua(CWormInputHandler* p) {
 	}
 }
 
+///////////////////
+// Adds a new player to vector of human local players.
 void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 	localPlayers.push_back( player );	
 	player->local = true;
@@ -353,7 +357,8 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 	}
 }
 
-
+///////////////////
+// Removes players and clears all game objects.
 void Game::reset() {
 	notes << "Game::reset" << endl;
 	
@@ -400,9 +405,8 @@ CWpnRest* Game::weaponRestrictions() {
 	return NULL;
 }
 
-/**
- * Returns true if the game is a server or false otherwise.
- */
+///////////////////
+// Returns true if the game is a server or false otherwise.
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }
@@ -415,6 +419,8 @@ bool Game::needToCreateOwnWormInputHandlers() {
 	return isServer() || (cClient->getServerVersion() < OLXBetaVersion(0,59,1));
 }
 
+///////////////////
+// Returns true if game is team game or false otherwise.
 bool Game::isTeamPlay() {
 	return cClient->isTeamGame();
 }

@@ -664,7 +664,162 @@ void Con_Shutdown()
 	con_timer = NULL;
 }
 
+///////////////////
+// Parse the arguments
+void ParseArguments(int argc, char *argv[])
+{
+    // Parameters passed to OpenLieroX overwrite the loaded options
+    char *a;
+    for(int i=1; i<argc; i++) {
+        a = argv[i];
 
+        // -opengl
+        // Turns OpenGL on
+        if( stricmp(a, "-opengl") == 0 ) {
+            tLXOptions->bOpenGL = true;
+        } else
+
+        // -nojoystick
+        // Turns joystick off
+        if( stricmp(a, "-nojoystick") == 0 ) {
+            bJoystickSupport = false;
+        } else
+
+
+        // -noopengl
+        // Turns OpenGL off
+        if( stricmp(a, "-noopengl") == 0 ) {
+            tLXOptions->bOpenGL = false;
+        } else
+
+        // -nosound
+        // Turns off the sound
+        if( stricmp(a, "-nosound") == 0 ) {
+            bDisableSound = true;
+        } else
+
+        // -dedicated
+        // Turns on dedicated mode (no gfx, no sound)
+        if( stricmp(a, "-dedicated") == 0 ) {
+            bDedicated = true;
+			bDisableSound = true;
+        } else
+
+		// -dedscript
+		// set dedicated script (next param)
+		if( stricmp(a, "-script") == 0 ) {
+			if(argv[i + 1] != NULL) {
+				bDedicated = true;
+				bDisableSound = true;
+				// these settings will be temporarly because we don't save options at end in dedicated mode
+				tLXOptions->sDedicatedScript = argv[++i];
+			}
+			else
+				warnings << "-script needs an additinal parameter" << endl;
+		} else
+
+		// -connect
+		// connect to server (next param)
+		if( stricmp(a, "-connect") == 0 ) {
+			if(argv[i + 1] != NULL) {
+				startupCommands.push_back("connect \"" + std::string(argv[++i]) + "\"");
+			}
+			else
+				warnings << "-connect needs an additinal parameter" << endl;
+		} else
+
+		// -exec
+		// pushes a startup command
+		if( stricmp(a, "-exec") == 0 ) {
+			if(argv[i + 1] != NULL)
+				startupCommands.push_back(argv[++i]);
+			else
+				warnings << "-exec needs an additinal parameter" << endl;
+		} else
+
+        // -window
+        // Turns fullscreen off
+        if( stricmp(a, "-window") == 0 ) {
+            tLXOptions->bFullscreen = false;
+        } else
+
+        // -fullscreen
+        // Turns fullscreen on
+        if( stricmp(a, "-fullscreen") == 0 ) {
+            tLXOptions->bFullscreen = true;
+        } else
+
+        // -skin
+        // Turns new skinned GUI on
+        if( stricmp(a, "-skin") == 0 ) {
+            tLXOptions->bNewSkinnedGUI = true;
+        } else
+
+        // -noskin
+        // Turns new skinned GUI off
+        if( stricmp(a, "-noskin") == 0 ) {
+            tLXOptions->bNewSkinnedGUI = false;
+        } else
+
+		if( stricmp(a, "-aftercrash") == 0) {
+			afterCrash = true;
+		}
+
+#ifdef WIN32
+		// -console
+		// Attaches a console window to the main LX window
+		if (stricmp(a, "-console") == 0)  {
+			if (AllocConsole())  {
+			  FILE *con = freopen("CONOUT$", "w", stdout);
+			  if (con) {
+				*stdout = *con;
+				setvbuf(stdout, NULL, _IONBF, 0);
+			  }
+			  SetConsoleTitle("OpenLieroX Console");
+			}
+		} else
+#endif
+
+		// -help
+		// Displays help and quits
+        if( !stricmp(a, "-h") || !stricmp(a, "-help") || !stricmp(a, "--help") || !stricmp(a, "/?")) {
+        	printf("available parameters:\n");
+			printf("   -connect srv  Connects to the server\n");
+			printf("   -exec cmd     Executes the command in console\n");
+     		printf("   -opengl       OpenLieroX will use OpenGL for drawing\n");
+     		printf("   -noopengl     Explicitly disable using OpenGL\n");
+     		printf("   -dedicated    Dedicated mode\n");
+     		printf("   -nojoystick   Disable Joystick support\n");
+     		printf("   -nosound      Disable sound\n");
+     		printf("   -window       Run in window mode\n");
+     		printf("   -fullscreen   Run in fullscreen mode\n");
+			#ifdef WIN32
+			printf("   -console      Attach a console window to the main OpenLieroX window\n");
+			#endif
+			#ifdef DEBUG
+     		printf("   -nettest      Test CChannel reliability\n");
+			#endif
+     		printf("   -skin         Turns on new skinned GUI - it's unfinished yet\n");
+     		printf("   -noskin       Turns off new skinned GUI\n");
+
+			// Shutdown and quit
+			// ShutdownLieroX() works only correct when everything was inited because ProcessEvents() is used.
+			// Therefore we just ignore a good clean up and just quit here.
+			// This is not nice but still nicer than getting a segfault.
+			// It is not worth to fix this in a nicer way as it is fixed anyway when we use the new engine system.
+     		exit(0);
+        }
+		#ifdef DEBUG
+		if( !stricmp(a, "-nettest") )
+		{
+			InitializeLieroX();
+			TestCChannelRobustness();
+			ShutdownLieroX();
+     		exit(0);
+		}
+		#endif
+    }
+}
 
 void Con_Execute(const std::string& cmd) {
 	Execute(&ingameConsole, cmd);
