@@ -40,6 +40,7 @@ bool	Con_IsVisible();
 void	Con_Execute(const std::string& cmd);
 
 // Parse the arguments
+// TODO: Solve all missing variables problem.
 void    ParseArguments(int, char*[]);
 
 #endif  //  __CONSOLE_H__

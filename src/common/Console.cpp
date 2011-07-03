@@ -666,6 +666,7 @@ void Con_Shutdown()
 
 ///////////////////
 // Parse the arguments
+// TODO: Solve all missing variables problem.
 void ParseArguments(int argc, char *argv[])
 {
     // Parameters passed to OpenLieroX overwrite the loaded options

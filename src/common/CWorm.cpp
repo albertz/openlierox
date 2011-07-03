@@ -365,7 +365,8 @@ void CWorm::StartGame() {
 		m_inputHandler->startGame();
 }
 
-
+///////////////////
+// Returns the type of the worm corresponding to the int parameter.
 WormType* WormType::fromInt(int type) {
 	switch(type) {
 		case 0: return PRF_HUMAN;
