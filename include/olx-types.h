@@ -96,14 +96,15 @@ typedef unsigned char	uchar;
 typedef unsigned long	ulong;
 typedef unsigned char	uint24[3];
 
-typedef unsigned long DWORD;
-typedef uchar byte;
-typedef unsigned short ushort;
+typedef unsigned long   DWORD;
+typedef unsigned char   byte; //can be confusing here when using uchar instead of unsigned char
+typedef unsigned short  ushort;
 
 // Class for having a null point, to allow overwriting a function which takes null.
 // HINT: Don't ever use this class for something different. Every use of this function
 // interprets it to have this parameter null.
-class Null {}; extern Null null;
+class Null {};
+extern Null null;
 
 #endif  // __TYPES_H__
 

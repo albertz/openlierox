@@ -60,7 +60,7 @@ struct lierox_t {
 	bool	bQuitEngine;
 	bool	bQuitCtrlC;
 
-	int		debug_int;
+	int	debug_int;
 	float	debug_float;
 	CVec	debug_pos;
 	

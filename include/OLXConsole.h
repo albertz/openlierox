@@ -39,8 +39,5 @@ bool	Con_IsVisible();
 // if you want to execute something and get the output on the ingame console
 void	Con_Execute(const std::string& cmd);
 
-// Parse the arguments
-// TODO: Solve all missing variables problem.
-void    ParseArguments(int, char*[]);
 
 #endif  //  __CONSOLE_H__
