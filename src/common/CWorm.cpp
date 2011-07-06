@@ -232,15 +232,6 @@ void CWorm::Shutdown()
 	FreeGraphics();
 }
 
-
-///////////////////
-// Free the graphics
-void CWorm::FreeGraphics()
-{
-	bmpGibs = NULL;
-}
-
-
 ///////////////////
 // Prepare the worm for the game
 void CWorm::Prepare(bool serverSide)
@@ -820,6 +811,7 @@ void CWorm::UpdateDrawPos() {
 	}
 }
 
+// Below are all visibility related functions
 
 bool CWorm::isVisibleForWorm(int worm) const {
 	assert(worm >= 0);
@@ -1560,4 +1552,14 @@ void CWorm::NewNet_InitWormState(int seed)
 	iFaceDirectionSide = DIR_LEFT;
 	fSpawnTime = AbsTime();
 	fLastAirJumpTime = AbsTime();
+}
+
+CVec CWorm::getFaceDirection() const {
+		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+					sinf(getAngle() * ((float)PI/180)) );
+}
+
+CVec CWorm::getMoveDirection() const {
+		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+					sinf(getAngle() * ((float)PI/180)) );
 }

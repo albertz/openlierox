@@ -152,10 +152,10 @@ void CWorm::deleteThis() {
 
 /////////////
 // Returns a reference to the ninja rope associated with this object.
-NinjaRope* CWorm::getNinjaRopeObj()
-{
-	return m_ninjaRope;
-}
+//NinjaRope* CWorm::getNinjaRopeObj()
+//{
+//	return m_ninjaRope;
+//}
 
 /////////////
 // Returns a reference to the current weapon associated with this object.

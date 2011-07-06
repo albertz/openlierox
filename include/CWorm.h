@@ -9,7 +9,7 @@
 /////////////////////////////////////////
 
 
-// Worm class
+// Worm class. It holds all properties and methods for every worm of the game.
 // Created 28/6/02
 // Jason Boettcher
 
@@ -218,55 +218,58 @@ protected:
 	
 
 	
-	// Score
-	int			iKills;
-	int			iDeaths;
-	int			iSuicides;
-	int			iTeamkills;
+	// Score variables. Check the coresponding score methods below.
+	int		iKills;
+	int		iDeaths;
+	int		iSuicides;
+	int		iTeamkills;
 	float		fDamage;
 
-	int			iTotalWins;
-	int			iTotalLosses;
-	int			iTotalKills;
-	int			iTotalDeaths;
-	int			iTotalSuicides;
+	int		iTotalWins;
+	int		iTotalLosses;
+	int		iTotalKills;
+	int		iTotalDeaths;
+	int		iTotalSuicides;
 	Version		cClientVersion;
 
 	// Game
 	bool		bDrawMuzzle;
-	int			iLives;
+	int		iLives;
 	bool		bAlive;
 	AbsTime		fTimeofDeath;
 	DIR_TYPE	iFaceDirectionSide;
 	DIR_TYPE	iMoveDirectionSide;
 	bool		bGotTarget;
 	float		fAngle;
-    float       fAngleSpeed;
-    float		fMoveSpeedX;
+        float           fAngleSpeed;
+        float		fMoveSpeedX;
 	float		fSpeedFactor;
-	bool		bCanUseNinja;
 	float		fDamageFactor;
 	float		fShieldFactor;
 	bool		bCanAirJump; // For instant air jump
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
-	CNinjaRope	cNinjaRope;
+	
 	profile_t	*tProfile;
 	AbsTime		fRopeTime;
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
+        // Ninja rope variables.
+        NinjaRope*      m_ninjaRope;
+        CNinjaRope	cNinjaRope;
+        bool		bCanUseNinja;
 	bool		bHooked;
 	CWorm		*pcHookWorm;
-
 	bool		bRopeDown;
 	bool		bRopeDownOnce;
 
+        
 	bool		bTagIT;
 	TimeDiff	fTagTime;
-	EntityEffect cSparkles;
+	EntityEffect    cSparkles;
 
-    int         iDirtCount;
+        int             iDirtCount;
 
 	AbsTime		fLastBlood;
 
@@ -278,7 +281,7 @@ protected:
 	AbsTime		fFrameTimes[NUM_FRAMES];
 
 	// server
-	worm_state_t tLastState; // Used for checking if we need to send the packet
+	worm_state_t    tLastState; // Used for checking if we need to send the packet
 	float		fLastAngle;
 	AbsTime		fLastUpdateWritten;
 	CVec		vLastUpdatedPos; // last pos we have send to client
@@ -289,8 +292,8 @@ protected:
 	AbsTime		fPreLastPosUpdate;
 	CVec		vLastEstimatedVel;
 	CVec		vPreLastEstimatedVel;
-	int			iLastCharge;
-	int			iLastCurWeapon;
+	int		iLastCharge;
+	int		iLastCurWeapon;
 	
 	AbsTime		fSpawnTime;
 	bool		bLobbyReady; // Lobby Ready state
@@ -307,8 +310,8 @@ protected:
 	bool		bWeaponsReady;
 	bool		bIsPrepared;
 	bool		bGameReady;
-	int			iNumWeaponSlots;
-	int			iCurrentWeapon;
+	int		iNumWeaponSlots;
+	int		iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 	AFK_TYPE	iAFK;
 	std::string	sAFKMessage;
@@ -364,7 +367,7 @@ public:
 	bool		checkStatePacketNeeded();
 	void		readStatUpdate(CBytestream *bs);
 	static bool	skipStatUpdate(CBytestream *bs) { return bs->Skip(2); } // Current weapon and charge
-	int			GetMyPing();
+	int		GetMyPing();
 
 	
 	void		setupLobby();
@@ -382,7 +385,7 @@ public:
 	// Graphics
 	//
 	bool		ChangeGraphics(int generalgametype);
-	void		FreeGraphics();
+	void		FreeGraphics()                  { bmpGibs = NULL; }; // Free the graphics
 	SmartPointer<SDL_Surface> ChangeGraphics(const std::string& filename, bool team);
 	void		Draw(SDL_Surface * bmpDest, CViewport *v);
     void        DrawShadow(SDL_Surface * bmpDest, CViewport *v);
@@ -440,11 +443,11 @@ public:
 
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 
-	std::string getName()			{ return sName; }
-	void		setName(const std::string& val) { sName = val; }
+	std::string     getName()                               { return sName; }
+	void		setName(const std::string& val)         { sName = val; }
 	Color		getGameColour();
 	void		setColour(Color c)			{ cSkin.Colorize(c); }
-	void		setColour(Uint8 r, Uint8 g, Uint8 b) { cSkin.Colorize(Color(r,g,b)); }
+	void		setColour(Uint8 r, Uint8 g, Uint8 b)    { cSkin.Colorize(Color(r,g,b)); }
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal()				{ return bLocal; }
@@ -452,98 +455,123 @@ public:
 	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
 	
-	int			getLives()				{ return iLives; }
+	int             getLives()				{ return iLives; }
 	void		setLives(int l)				{ iLives = l; }
 
-	float		getDamage()				{ return fDamage; }
-	void		setDamage(float l)		{ fDamage = l; }
-	void		addDamage(float damage, CWorm* victim, bool serverside);
+        // Score handling methods. Check the coresponding score variables above.
+        int		getScore() const;	// Not same as getKills, takes 
+                                                // into account suicides and deaths
 
-	int			getKills() const		{ return iKills; }
-    void        setKills(int k)			{ iKills = k; }
-    void        addKill()				{ iKills++; }
+        int		getKills() const		{ return iKills; }
+        void            setKills(int k)			{ iKills = k; }
+        void            addKill()			{ iKills++; }
 
-	int			getScore() const;		// Not same as getKills, takes into account suicides and deaths
-
-	int			getDeaths() const		{ return iDeaths; }
+	int		getDeaths() const		{ return iDeaths; }
 	void		setDeaths(int d)		{ iDeaths = d; }
 	void		addDeath();
 
-	int			getSuicides() const		{ return iSuicides; }
+	int		getSuicides() const		{ return iSuicides; }
 	void		setSuicides(int d)		{ iSuicides = d; }
 	void		addSuicide();
 
-	int			getTeamkills() const	{ return iTeamkills; }
+	int		getTeamkills() const    	{ return iTeamkills; }
 	void		setTeamkills(int d)		{ iTeamkills = d; }
 	void		addTeamkill();
 
-	void		setID(int i)				{ iID = i; }
-	int			getID()	const			{ return iID; }
+        float		getDamage()			{ return fDamage; }
+	void		setDamage(float l)		{ fDamage = l; }
+	void		addDamage(float damage, CWorm* victim, bool serverside);
 
-	WormType*	getType()				{ return m_type; }
-    void        setType(WormType* t)        { m_type = t; }
+        void            addTotalWins(int _w = 1)	{ iTotalWins += _w; }
+	int		getTotalWins()			{ return iTotalWins; }
 
-	bool		getAlive()				{ return bAlive; }
+        void            addTotalLosses(int _l = 1)	{ iTotalLosses += _l; }
+	int		getTotalLosses()		{ return iTotalLosses; }
+
+        void            addTotalKills(int _k = 1)	{ iTotalKills += _k; }
+	int		getTotalKills()			{ return iTotalKills; }
+
+        void            addTotalDeaths(int _d = 1)	{ iTotalDeaths += _d; }
+	int		getTotalDeaths()		{ return iTotalDeaths; }
+
+        void            addTotalSuicides(int _d = 1)    { iTotalSuicides += _d; }
+	int		getTotalSuicides()		{ return iTotalSuicides; }
+
+
+
+	void		setID(int i)			{ iID = i; }
+	int		getID()	const			{ return iID; }
+
+	WormType*	getType()			{ return m_type; }
+        void            setType(WormType* t)            { m_type = t; }
+
+	bool		getAlive()			{ return bAlive; }
 
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
 	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
-	CWorm		*getHookedWorm()			{ return pcHookWorm; }
-	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
-    CServerConnection     *getClient()            { return cOwner; }
+	CWorm		*getHookedWorm()		{ return pcHookWorm; }
+	void		setClient(CServerConnection *cl)	{ cOwner = cl; }
+        CServerConnection     *getClient()              { return cOwner; }
 
 	CVec		getFollowPos()			{ return (bFollowOverride?vFollowPos:vPos); }
 	void		resetFollow()			{ bFollowOverride = false; }
 	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 
-	bool		isOnGround()				{ return bOnGround; }
-	void		setOnGround(bool g)			{ bOnGround = g; }
+	bool		isOnGround()			{ return bOnGround; }
+	void		setOnGround(bool g)		{ bOnGround = g; }
 
-	worm_state_t *getWormState()		{ return &tState; }
+	worm_state_t    *getWormState()                 { return &tState; }
 
 	bool		hasOwnServerTime();
-	TimeDiff	serverTime()				{ return fServertime; }
+	TimeDiff	serverTime()			{ return fServertime; }
 
+        // Visibility methods.
 	bool		isVisibleForWorm(int worm) const;
 	void		setVisibleForWorm(int worm, bool visibility);
 	bool		isVisibleForEverybody() const;
 	bool		isVisible(const CViewport* v) const;
 	bool		isVisible(CWorm* viewerWorm) const;
 	
-	float		getAngle()	const			{ return fAngle; }
-	void		setAngle(float a)			{ fAngle = a; }
+	float		getAngle()	const		{ return fAngle; }
+	void		setAngle(float a)		{ fAngle = a; }
 	void		resetAngleAndDir();
 	DIR_TYPE	getFaceDirectionSide() const		{ return iFaceDirectionSide; }
 	void		setFaceDirectionSide(DIR_TYPE d)	{ iFaceDirectionSide = d; }
-	CVec		getFaceDirection() const {
-		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
-					sinf(getAngle() * ((float)PI/180)) ); }
-	DIR_TYPE	getMoveDirectionSide()				{ return iMoveDirectionSide; }
-	CVec		getMoveDirection() const {
-		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
-					sinf(getAngle() * ((float)PI/180)) ); }
 
-	void		setCanUseNinja(bool b) { bCanUseNinja = b; }
-	bool		canUseNinja() const { return bCanUseNinja; }
-	void		setSpeedFactor(float f) { fSpeedFactor = f; }
-	float		speedFactor() const { return fSpeedFactor; }
-	void		setDamageFactor(float f) { fDamageFactor = f; }
-	float		damageFactor() const { return fDamageFactor; }
-	void		setShieldFactor(float f) { fShieldFactor = f; }
-	float		shieldFactor() const { return fShieldFactor; } 
-	void		setCanAirJump(bool b) { bCanAirJump = b; }
-	bool		canAirJump() const { return bCanAirJump; }
-	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
-	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
+	CVec		getFaceDirection() const;// {
+//		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+//					sinf(getAngle() * ((float)PI/180)) );
+//        }
+
+	DIR_TYPE	getMoveDirectionSide()		{ return iMoveDirectionSide; }
+	CVec		getMoveDirection() const;// {
+//		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+//					sinf(getAngle() * ((float)PI/180)) ); }
+
+        // Ninja rope methods
+	void		setCanUseNinja(bool b)          { bCanUseNinja = b; }
+	bool		canUseNinja() const             { return bCanUseNinja; }
+
+        void		setSpeedFactor(float f)         { fSpeedFactor = f; }
+	float		speedFactor() const             { return fSpeedFactor; }
+	void		setDamageFactor(float f)        { fDamageFactor = f; }
+	float		damageFactor() const            { return fDamageFactor; }
+	void		setShieldFactor(float f)        { fShieldFactor = f; }
+	float		shieldFactor() const            { return fShieldFactor; }
+	void		setCanAirJump(bool b)           { bCanAirJump = b; }
+	bool		canAirJump() const              { return bCanAirJump; }
+	void		setLastAirJumpTime(AbsTime t)   { fLastAirJumpTime = t; }
+	AbsTime		getLastAirJumpTime()            { return fLastAirJumpTime; }
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
 	bool		getWeaponsReady()		{ return bWeaponsReady; }
 	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
 	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
-	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
+	int		getCurrentWeapon()      	{ return MIN(4, iCurrentWeapon); }
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
-	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
+	wpnslot_t	*getWeapon(int id)		{ return &tWeapons[id]; }
 
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
 	bool		getGameReady()			{ return bGameReady; }
@@ -552,57 +580,47 @@ public:
 	bool		getLobbyReady() const		{ return bLobbyReady; }
 
 	void		setProfile(profile_t *p)	{ tProfile = p; }
-	profile_t	*getProfile()				{ return tProfile; }
+	profile_t	*getProfile()			{ return tProfile; }
 
-	void		setTeam(int _t)				{ iTeam = _t; }
-	int			getTeam() const				{ return iTeam; }
+	void		setTeam(int _t)			{ iTeam = _t; }
+	int		getTeam() const			{ return iTeam; }
 
-	SmartPointer<SDL_Surface> getGibimg()			{ return bmpGibs; }
-	SmartPointer<DynDrawIntf> getPicimg()			{ return skinPreviewDrawer; }
+	SmartPointer<SDL_Surface> getGibimg()		{ return bmpGibs; }
+	SmartPointer<DynDrawIntf> getPicimg()		{ return skinPreviewDrawer; }
 
-	bool		getTagIT()				{ return bTagIT; }
+	bool		getTagIT()			{ return bTagIT; }
 	void		setTagIT(bool _t);
 
-	AbsTime		getLastBlood()				{ return fLastBlood; }
-	void		setLastBlood(const AbsTime& b)		{ fLastBlood = b; }
-	EntityEffect * getSparklesEffect()		{ return &cSparkles; }
+	AbsTime		getLastBlood()			{ return fLastBlood; }
+	void		setLastBlood(const AbsTime& b)	{ fLastBlood = b; }
+	EntityEffect *  getSparklesEffect()		{ return &cSparkles; }
 
-    void        incrementDirtCount(int d);
-    int         getDirtCount()          { return iDirtCount; }
+        void            incrementDirtCount(int d);
+        int             getDirtCount()                  { return iDirtCount; }
 
-	void		setTarget(bool _t)			{ bGotTarget = _t; }
+	void		setTarget(bool _t)		{ bGotTarget = _t; }
 
 	TimeDiff	getTagTime()			{ return fTagTime; }
-	void		setTagTime(const TimeDiff& _t)		{ fTagTime = _t; }
+	void		setTagTime(const TimeDiff& _t)          { fTagTime = _t; }
 	void		incrementTagTime(const TimeDiff& dt)	{ fTagTime+=dt; }
 
-	CWormSkin&	getSkin()				{ return cSkin; }
+	CWormSkin&	getSkin()			{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
 
-	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
+	bool		getAlreadyKilled()		{ return bAlreadyKilled; }
 	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
 
-	bool		isShooting()				{ return tState.bShoot; }
-	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
+	bool		isShooting()			{ return tState.bShoot; }
+	bool		isWeaponReloading()		{ return getCurWeapon()->Reloading; }
 
-	bool		isSpectating()				{ return bSpectating; }
+	bool		isSpectating()			{ return bSpectating; }
 	void		setSpectating(bool _s)		{ bSpectating = _s; }
 
-	AFK_TYPE	getAFK()				{ return iAFK; }
+	AFK_TYPE	getAFK()			{ return iAFK; }
 	const std::string & getAFKMessage()		{ return sAFKMessage; }
 	void		setAFK(AFK_TYPE _f, const std::string & msg);
 
-	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
-	int		getTotalWins()				{ return iTotalWins; }
-	void	addTotalLosses(int _l = 1)		{ iTotalLosses += _l; }
-	int		getTotalLosses()			{ return iTotalLosses; }
-	void	addTotalKills(int _k = 1)		{ iTotalKills += _k; }
-	int		getTotalKills()				{ return iTotalKills; }
-	void	addTotalDeaths(int _d = 1)		{ iTotalDeaths += _d; }
-	int		getTotalDeaths()			{ return iTotalDeaths; }
-	void	addTotalSuicides(int _d = 1)	{ iTotalSuicides += _d; }
-	int		getTotalSuicides()			{ return iTotalSuicides; }
 	
 	const Version & getClientVersion()				{ return cClientVersion; }
 	void	setClientVersion(const Version & v)		{ cClientVersion = v; }
@@ -730,8 +748,9 @@ public:
 #ifndef DEDICATED_ONLY
 	void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
-	
-	NinjaRope* getNinjaRopeObj();
+
+        // Returns a reference to the ninja rope associated with this object.
+	NinjaRope* getNinjaRopeObj()                    { return m_ninjaRope; }
 	
 	AngleDiff aimSpeed; // Useless to add setters and getters for this
 	Angle aimAngle;
@@ -769,7 +788,6 @@ protected:
 	int m_weaponCount;
 	
 	CWormInputHandler* m_lastHurt;
-	NinjaRope* m_ninjaRope;
 	
 #ifndef DEDICATED_ONLY
 	

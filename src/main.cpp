@@ -302,10 +302,6 @@ struct VideoHandler {
 static VideoHandler videoHandler;
 
 
-// ParseArguments will set this eventually to true
-//static bool afterCrash = false;
-//static bool afterCrashInformedUser = false;
-
 void setBinaryDirAndName(char* argv0);
 
 ///////////////////
@@ -665,9 +661,9 @@ static int MainLoopThread(void*) {
 }
 
 
-///////////////////
-// Parses the arguments
-// TODO: Move from here.
+/////////////////////
+//// Parses the arguments
+//// TODO: Move from here.
 void ParseArguments(int argc, char *argv[])
 {
     // Parameters passed to OpenLieroX overwrite the loaded options
