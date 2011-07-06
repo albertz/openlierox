@@ -255,6 +255,7 @@ protected:
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
+        
         // Ninja rope variables.
         NinjaRope*      m_ninjaRope;
         CNinjaRope	cNinjaRope;
@@ -340,10 +341,10 @@ public:
 	//
 	// General
 	//
-	void		Clear();
-	void		Init();
+	void		Clear(); //Sets everything to default values.
+	void		Init();  //Initializes the worm
 	//void		CopyProfile(plyprofile_t *profile);
-	void		Shutdown();
+	void		Shutdown(); // Shutdown the worm
 
 
 	// TODO: move this out here (to network engine)

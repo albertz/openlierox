@@ -281,37 +281,6 @@ void Game::cleanupAfterGameloopEnd() {
 
 
 
-
-void ResetQuitEngineFlag() {
-	tLX->bQuitEngine = false;
-}
-
-void SetQuitEngineFlag(const std::string& reason) {
-	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
-	quitEngineFlagReason = reason;
-	tLX->bQuitEngine = true;
-	// If we call this from within the menu, the menu should shutdown.
-	// It will be restarted then in the next frame.
-	// If we are not in the menu (i.e. in maingameloop), this has no
-	// effect as we set it to true in Menu_Start().
-	if(DeprecatedGUI::tMenu)
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-	// If we were in menu, because we forced the menu restart above,
-	// we must set this, otherwise OLX would quit (because of current maingamelogic).
-	if(DeprecatedGUI::bGame)
-		*DeprecatedGUI::bGame = true;
-}
-
-bool Warning_QuitEngineFlagSet(const std::string& preText) {
-	if(tLX->bQuitEngine) {
-		hints << preText << endl;
-		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
-		return true;
-	}
-	return false;
-}
-
-
 void Game::onNewWorm(CWorm* w) {
 	//if(!game.gameScript()->gusEngineUsed()) return;
 
@@ -439,5 +408,39 @@ bool Game::shouldDoPhysicsFrame() {
 	return !isGamePaused() && cClient->canSimulate() &&
     // We stop a few seconds after the actual game over
 	!(cClient->bGameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
+}
+
+
+
+void ResetQuitEngineFlag() {
+	tLX->bQuitEngine = false;
+}
+
+
+void SetQuitEngineFlag(const std::string& reason) {
+	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
+	quitEngineFlagReason = reason;
+	tLX->bQuitEngine = true;
+	// If we call this from within the menu, the menu should shutdown.
+	// It will be restarted then in the next frame.
+	// If we are not in the menu (i.e. in maingameloop), this has no
+	// effect as we set it to true in Menu_Start().
+	if(DeprecatedGUI::tMenu)
+		DeprecatedGUI::tMenu->bMenuRunning = false;
+	// If we were in menu, because we forced the menu restart above,
+	// we must set this, otherwise OLX would quit (because of current maingamelogic).
+	if(DeprecatedGUI::bGame)
+		*DeprecatedGUI::bGame = true;
+}
+
+
+
+bool Warning_QuitEngineFlagSet(const std::string& preText) {
+	if(tLX->bQuitEngine) {
+		hints << preText << endl;
+		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
+		return true;
+	}
+	return false;
 }
 
