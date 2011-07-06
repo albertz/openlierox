@@ -457,15 +457,8 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 }
 
 
-
 ///////////////////
-// Setup the lobby details
-void CWorm::setupLobby()
-{
-	bLobbyReady = false;
-}
-
-
+// Resets angle variables and sets direction to default (DIR_RIGHT).
 void CWorm::resetAngleAndDir() {
 	fAngle = 0;
 	fAngleSpeed = 0;

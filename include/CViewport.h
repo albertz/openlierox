@@ -50,7 +50,7 @@ public:
 	CViewport() {
 
 		bUsed = false;
-        nID = 0;
+                nID = 0;
 		Left = Top = 0;
 		Width = 320;
 		Height = 280;
@@ -61,9 +61,9 @@ public:
 		bShaking = false;
 		iShakeAmount = 0;
 
-        pcTargetWorm = NULL;
-        nType = VW_FOLLOW;
-        fTimer = AbsTime();
+                pcTargetWorm = NULL;
+                nType = VW_FOLLOW;
+                fTimer = AbsTime();
 		bSmooth = false;
 		m_listener = NULL;
 		

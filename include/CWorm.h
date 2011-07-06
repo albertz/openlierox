@@ -370,7 +370,7 @@ public:
 	int		GetMyPing();
 
 	
-	void		setupLobby();
+	void		setupLobby()                    { bLobbyReady = false; } // Setup the lobby details
 	void		loadDetails();
 	void		saveDetails();
 
@@ -442,6 +442,8 @@ public:
 	void		setUsed(bool _u);
 
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
+        // Returns a reference to the ninja rope associated with this object.
+	NinjaRope* getNinjaRopeObj()                    { return m_ninjaRope; }
 
 	std::string     getName()                               { return sName; }
 	void		setName(const std::string& val)         { sName = val; }
@@ -458,6 +460,7 @@ public:
 	int             getLives()				{ return iLives; }
 	void		setLives(int l)				{ iLives = l; }
 
+        
         // Score handling methods. Check the coresponding score variables above.
         int		getScore() const;	// Not same as getKills, takes 
                                                 // into account suicides and deaths
@@ -526,13 +529,16 @@ public:
 	bool		hasOwnServerTime();
 	TimeDiff	serverTime()			{ return fServertime; }
 
+
         // Visibility methods.
 	bool		isVisibleForWorm(int worm) const;
 	void		setVisibleForWorm(int worm, bool visibility);
 	bool		isVisibleForEverybody() const;
 	bool		isVisible(const CViewport* v) const;
 	bool		isVisible(CWorm* viewerWorm) const;
-	
+
+        
+
 	float		getAngle()	const		{ return fAngle; }
 	void		setAngle(float a)		{ fAngle = a; }
 	void		resetAngleAndDir();
@@ -552,6 +558,8 @@ public:
         // Ninja rope methods
 	void		setCanUseNinja(bool b)          { bCanUseNinja = b; }
 	bool		canUseNinja() const             { return bCanUseNinja; }
+
+
 
         void		setSpeedFactor(float f)         { fSpeedFactor = f; }
 	float		speedFactor() const             { return fSpeedFactor; }
@@ -748,9 +756,6 @@ public:
 #ifndef DEDICATED_ONLY
 	void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
-
-        // Returns a reference to the ninja rope associated with this object.
-	NinjaRope* getNinjaRopeObj()                    { return m_ninjaRope; }
 	
 	AngleDiff aimSpeed; // Useless to add setters and getters for this
 	Angle aimAngle;
