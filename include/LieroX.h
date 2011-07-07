@@ -212,13 +212,6 @@ extern FileListCacheIntf* settingsPresetList;
 void updateFileListCaches();
 
 
-
-extern bool afterCrash;
-extern bool afterCrashInformedUser;
-
-extern std::list<std::string> startupCommands;
-
-
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);
 int	InitializeLieroX();

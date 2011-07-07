@@ -80,10 +80,10 @@
 keyboard_t	*kb = NULL;
 
 // ParseArguments will set this eventually to true
-//bool afterCrash = false;
-//bool afterCrashInformedUser = false;
-//
-//static std::list<std::string> startupCommands;
+bool afterCrash = false;
+bool afterCrashInformedUser = false;
+
+static std::list<std::string> startupCommands;
 
 //
 // Loading screen info and functions
@@ -840,7 +840,7 @@ int InitializeLieroX()
         //TODO: Remove duplicate code (See LieroX.h)
 //	tLX->bVideoModeChanged = false;
 //	tLX->bQuitGame = false;
-//	tLX->bQuitCtrlC = false;
+//	tLX->bQuitCtrlC = false;a   
 	tLX->debug_string = "";
 	tLX->currentTime = 0;
 	tLX->fDeltaTime = 0;
