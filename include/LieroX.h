@@ -149,8 +149,6 @@ struct lierox_t {
 	Color			clLaserSightColors[2];
 	Color			clTimeLeftLabel;
 	Color			clTimeLeftWarnLabel;
-
-
 	Color			clPink;
 	Color			clWhite;
 	Color			clBlack;
@@ -213,9 +211,17 @@ extern FileListCacheIntf* skinList;
 extern FileListCacheIntf* settingsPresetList;
 void updateFileListCaches();
 
+
+
+extern bool afterCrash;
+extern bool afterCrashInformedUser;
+
+extern std::list<std::string> startupCommands;
+
+
 // Main Routines
 void    ParseArguments(int argc, char *argv[]);
-int		InitializeLieroX();
+int	InitializeLieroX();
 void	ShutdownLieroX();
 void	GameLoopFrame();
 void	QuittoMenu();

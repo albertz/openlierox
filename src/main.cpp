@@ -80,10 +80,10 @@
 keyboard_t	*kb = NULL;
 
 // ParseArguments will set this eventually to true
-bool afterCrash = false;
-bool afterCrashInformedUser = false;
-
-static std::list<std::string> startupCommands;
+//bool afterCrash = false;
+//bool afterCrashInformedUser = false;
+//
+//static std::list<std::string> startupCommands;
 
 //
 // Loading screen info and functions
@@ -880,11 +880,11 @@ int InitializeLieroX()
 		return false;
 	}
 
-	
+
 	DrawLoading(10, "Loading Gusanos engine");
 	gusInitBase();
 
-	
+
 	DrawLoading(15, "Initializing game entities");
 
 	// Initialize the entities
@@ -927,7 +927,7 @@ int InitializeLieroX()
 		}
 
 	updateFileListCaches();
-	
+
 	notes << "Initializing ready" << endl;
 
 	return true;
@@ -956,7 +956,7 @@ void GotoLocalMenu()
 		warnings << "called GotoLocalMenu as client, ignoring..." << endl;
 		return;
 	}
-	
+
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
 	cServer->Shutdown();
@@ -1072,13 +1072,13 @@ static void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
-	
+
 	// Options
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
-		
-	DeprecatedGUI::CChatWidget::GlobalDestroy();	
+
+	DeprecatedGUI::CChatWidget::GlobalDestroy();
 	ShutdownIRC(); // Disconnect from IRC
 
 	if(bDedicated)
@@ -1156,7 +1156,7 @@ void ShutdownLieroX()
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
-	
+
 	// Save and clear options
 
 	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
