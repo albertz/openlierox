@@ -34,7 +34,7 @@ public:
 	Angle getPointingAngle();
 	void addAngleSpeed(AngleDiff);
 
-        ///////////////////
+        
         // Increments the length of the rope by the value of length_.
 	void addLength(float length_)
 	{

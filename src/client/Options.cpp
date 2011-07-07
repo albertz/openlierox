@@ -119,7 +119,7 @@ static void InitWidgetStates(GameOptions& opts) {
 
 
 
-// TODO: Try to split this method
+// TODO: Try to split this method somehow. It's huge
 bool GameOptions::Init() {
 	if(tLXOptions) {
 		warnings << "it seems that the GameOptions are already inited" << endl;
@@ -306,8 +306,8 @@ bool GameOptions::Init() {
 
 ///////////////////
 // Load the options
-bool GameOptions::LoadFromDisc(const std::string& cfgfilename)
-{
+// TODO: Split this too.
+bool GameOptions::LoadFromDisc(const std::string& cfgfilename) {
 	additionalOptions.clear();
 
 	// TODO: these use arrays which are not handled by scriptablevars
@@ -478,6 +478,7 @@ void ShutdownOptions()
 
 ///////////////////
 // Save the options
+// TODO: Try to split this one too, it's huge
 void GameOptions::SaveToDisc(const std::string& cfgfilename)
 {
     FILE *fp = OpenGameFile(cfgfilename, "wt");
@@ -680,8 +681,7 @@ bool NetworkTexts::Init() {
 
 ////////////////////
 // Loads the texts used by server
-bool NetworkTexts::LoadFromDisc()
-{
+bool NetworkTexts::LoadFromDisc() {
 	notes << "Loading network texts... ";
 
 	// TODO: use the general INI-parser here
@@ -769,9 +769,10 @@ GameOptions::GameOptions() {
 	sPlayerControls.resize(2);	// Don't change array size or we'll get segfault when vector memory allocation changes		
 }
 
-bool Taunts::Init() {
+
 ////////////////////
 // Initializes the taunts.
+bool Taunts::Init() {
 	if(taunts) {
 		warnings << "taunts are already inited; ignoring ..." << endl;
 		return true;
@@ -782,10 +783,10 @@ bool Taunts::Init() {
 	return taunts->LoadFromDisc();
 }
 
-bool Taunts::LoadFromDisc()
+
 ////////////////////
 // Loads the taunts from file.
-{
+bool Taunts::LoadFromDisc() {
 	notes << "Loading taunts... ";
 
 	// TODO: use the general INI-parser here
@@ -806,10 +807,11 @@ bool Taunts::LoadFromDisc()
 	return true;
 }
 
-std::string Taunts::getTauntForKey(int keySym) const {
+
 ////////////////////
 // Returns the taunt corresponding to the int passed as parameter or "" if no
 // correspoding one is found.
+std::string Taunts::getTauntForKey(int keySym) const {
 	for( int f=0; f < Taunts::MAX_COUNT; f++ )
 		if( keySyms[f] == keySym )
 			return texts[f];

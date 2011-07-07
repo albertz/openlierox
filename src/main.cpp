@@ -663,7 +663,6 @@ static int MainLoopThread(void*) {
 
 /////////////////////
 //// Parses the arguments
-//// TODO: Move from here.
 void ParseArguments(int argc, char *argv[])
 {
     // Parameters passed to OpenLieroX overwrite the loaded options
@@ -824,7 +823,7 @@ void ParseArguments(int argc, char *argv[])
 // Initialize the game
 int InitializeLieroX()
 {
-	notes << "Hello there, I am initializing myself now..." << endl;
+	notes << "Hello there, I am initializing me now..." << endl;
 
 	LIBXML_TEST_VERSION;
 
@@ -1116,8 +1115,8 @@ void ShutdownLieroX()
 
 	// Free the client & server
 	if(cClient) {
-                delete cClient; // Shouldn't you first set pointer to null and then delete it?
-		cClient = NULL; // Or arent' these two equivalent anyway?
+                delete cClient;
+		cClient = NULL;
 	}
 
 	if(cServer) {

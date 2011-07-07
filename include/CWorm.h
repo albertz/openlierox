@@ -546,15 +546,10 @@ public:
 	DIR_TYPE	getFaceDirectionSide() const		{ return iFaceDirectionSide; }
 	void		setFaceDirectionSide(DIR_TYPE d)	{ iFaceDirectionSide = d; }
 
-	CVec		getFaceDirection() const;// {
-//		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
-//					sinf(getAngle() * ((float)PI/180)) );
-//        }
+	CVec		getFaceDirection() const;
 
 	DIR_TYPE	getMoveDirectionSide()		{ return iMoveDirectionSide; }
-	CVec		getMoveDirection() const;// {
-//		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
-//					sinf(getAngle() * ((float)PI/180)) ); }
+	CVec		getMoveDirection() const;
 
         // Ninja rope methods
 	void		setCanUseNinja(bool b)          { bCanUseNinja = b; }

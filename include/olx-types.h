@@ -97,7 +97,7 @@ typedef unsigned long	ulong;
 typedef unsigned char	uint24[3];
 
 typedef unsigned long   DWORD;
-typedef unsigned char   byte; //can be confusing here when using uchar instead of unsigned char
+typedef uchar           byte; 
 typedef unsigned short  ushort;
 
 // Class for having a null point, to allow overwriting a function which takes null.
