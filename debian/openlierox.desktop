@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.1
+Name=OpenLieroX
+Type=Application
+Comment=A real-time excessive Worms-clone
+Exec=openlierox
+TryExec=openlierox
+Icon=OpenLieroX
+Categories=Game;

@@ -1,0 +1,13 @@
+# icons
+share/OpenLieroX.xpm usr/share/pixmaps
+share/OpenLieroX.svg usr/share/icons/hicolor/scalable/apps
+share/OpenLieroX.128.png usr/share/icons/hicolor/128x128
+share/OpenLieroX.32.png usr/share/icons/hicolor/32x32
+share/OpenLieroX.16.png usr/share/icons/hicolor/16x16
+
+# game binary and data
+debian/tmp/usr/games/openlierox usr/games
+debian/tmp/usr/share/games/OpenLieroX usr/share/games
+
+# desktop file
+debian/openlierox.desktop usr/share/applications
