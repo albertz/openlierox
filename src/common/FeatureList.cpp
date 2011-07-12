@@ -52,8 +52,8 @@ Feature( "RespawnTime", "Respawn time", "Player respawn time, in seconds",2.5f,2
 Feature( "RespawnGroupTeams", "Group teams", "Respawn player closer to its team, and farther from enemy",true,true,Version(), GIG_Advanced, ALT_Advanced, true,true ),
 Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn",false,false,Version(), GIG_Weapons, ALT_VeryAdvanced, true,true ),
 
-Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
-Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
+Feature( "ForceRandomWeapons", "Force random weapons", "Force all players to select random weapons. You might also want to disable 'AllowWeaponsChange'.",false,false,Version(), GIG_Weapons, ALT_Basic, true,true ),
+Feature( "SameWeaponsAsHostWorm", "Same weapons as host worm", "Force all players to select the same weapons as host worm. You might also want to disable 'AllowWeaponsChange'.",false,false,Version(), GIG_Weapons, ALT_Advanced, true,true ),
 
 /*
  Note that for these LX56 mod specific settings (which were earlier in CGameScript),
