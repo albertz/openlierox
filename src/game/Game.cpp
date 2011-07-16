@@ -281,37 +281,6 @@ void Game::cleanupAfterGameloopEnd() {
 
 
 
-
-void ResetQuitEngineFlag() {
-	tLX->bQuitEngine = false;
-}
-
-void SetQuitEngineFlag(const std::string& reason) {
-	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
-	quitEngineFlagReason = reason;
-	tLX->bQuitEngine = true;
-	// If we call this from within the menu, the menu should shutdown.
-	// It will be restarted then in the next frame.
-	// If we are not in the menu (i.e. in maingameloop), this has no
-	// effect as we set it to true in Menu_Start().
-	if(DeprecatedGUI::tMenu)
-		DeprecatedGUI::tMenu->bMenuRunning = false;
-	// If we were in menu, because we forced the menu restart above,
-	// we must set this, otherwise OLX would quit (because of current maingamelogic).
-	if(DeprecatedGUI::bGame)
-		*DeprecatedGUI::bGame = true;
-}
-
-bool Warning_QuitEngineFlagSet(const std::string& preText) {
-	if(tLX->bQuitEngine) {
-		hints << preText << endl;
-		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
-		return true;
-	}
-	return false;
-}
-
-
 void Game::onNewWorm(CWorm* w) {
 	//if(!game.gameScript()->gusEngineUsed()) return;
 
@@ -326,6 +295,8 @@ void Game::onRemoveWorm(CWorm* w) {
 */
 }
 
+///////////////////
+// Adds a new player to vector of players.
 void Game::onNewPlayer(CWormInputHandler* player) {
 	players.push_back( player );	
 }
@@ -339,6 +310,8 @@ void Game::onNewPlayer_Lua(CWormInputHandler* p) {
 	}
 }
 
+///////////////////
+// Adds a new player to vector of human local players.
 void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 	localPlayers.push_back( player );	
 	player->local = true;
@@ -353,7 +326,8 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 	}
 }
 
-
+///////////////////
+// Removes players and clears all game objects.
 void Game::reset() {
 	notes << "Game::reset" << endl;
 	
@@ -400,6 +374,8 @@ CWpnRest* Game::weaponRestrictions() {
 	return NULL;
 }
 
+///////////////////
+// Returns true if the game is a server or false otherwise.
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;
 }
@@ -412,6 +388,8 @@ bool Game::needToCreateOwnWormInputHandlers() {
 	return isServer() || (cClient->getServerVersion() < OLXBetaVersion(0,59,1));
 }
 
+///////////////////
+// Returns true if game is team game or false otherwise.
 bool Game::isTeamPlay() {
 	return cClient->isTeamGame();
 }
@@ -430,5 +408,39 @@ bool Game::shouldDoPhysicsFrame() {
 	return !isGamePaused() && cClient->canSimulate() &&
     // We stop a few seconds after the actual game over
 	!(cClient->bGameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
+}
+
+
+
+void ResetQuitEngineFlag() {
+	tLX->bQuitEngine = false;
+}
+
+
+void SetQuitEngineFlag(const std::string& reason) {
+	Warning_QuitEngineFlagSet("SetQuitEngineFlag(" + reason + "): ");
+	quitEngineFlagReason = reason;
+	tLX->bQuitEngine = true;
+	// If we call this from within the menu, the menu should shutdown.
+	// It will be restarted then in the next frame.
+	// If we are not in the menu (i.e. in maingameloop), this has no
+	// effect as we set it to true in Menu_Start().
+	if(DeprecatedGUI::tMenu)
+		DeprecatedGUI::tMenu->bMenuRunning = false;
+	// If we were in menu, because we forced the menu restart above,
+	// we must set this, otherwise OLX would quit (because of current maingamelogic).
+	if(DeprecatedGUI::bGame)
+		*DeprecatedGUI::bGame = true;
+}
+
+
+
+bool Warning_QuitEngineFlagSet(const std::string& preText) {
+	if(tLX->bQuitEngine) {
+		hints << preText << endl;
+		warnings << "bQuitEngine is set because: " << quitEngineFlagReason << endl;
+		return true;
+	}
+	return false;
 }
 

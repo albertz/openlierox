@@ -33,7 +33,9 @@ public:
 
 	Angle getPointingAngle();
 	void addAngleSpeed(AngleDiff);
-	
+
+        
+        // Increments the length of the rope by the value of length_.
 	void addLength(float length_)
 	{
 		m_length += length_;
@@ -57,8 +59,8 @@ private:
 	PartType* m_type;
 	Angle m_angle;
 	AngleDiff m_angleSpeed;
-	float m_length;
-	CGameObject* m_worm;
+	float m_length; // the length of the rope
+	CGameObject* m_worm; 
 #ifndef DEDICATED_ONLY
 	SpriteSet* m_sprite;
 	BaseAnimator* m_animator;

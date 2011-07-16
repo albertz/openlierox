@@ -88,7 +88,7 @@ CWorm::~CWorm() {
 
 
 ///////////////////
-// Clear the worm details
+// Clears the worm details. Sets everything to default values.
 void CWorm::Clear()
 {
 	if(bUsed) game.onRemoveWorm(this);
@@ -232,17 +232,6 @@ void CWorm::Shutdown()
 	FreeGraphics();
 }
 
-
-///////////////////
-// Free the graphics
-void CWorm::FreeGraphics()
-{
-	bmpGibs = NULL;
-}
-
-
-
-
 ///////////////////
 // Prepare the worm for the game
 void CWorm::Prepare(bool serverSide)
@@ -367,7 +356,8 @@ void CWorm::StartGame() {
 		m_inputHandler->startGame();
 }
 
-
+///////////////////
+// Returns the type of the worm corresponding to the int parameter.
 WormType* WormType::fromInt(int type) {
 	switch(type) {
 		case 0: return PRF_HUMAN;
@@ -467,15 +457,8 @@ void CWorm::doWeaponSelectionFrame(SDL_Surface * bmpDest, CViewport *v) {
 }
 
 
-
 ///////////////////
-// Setup the lobby details
-void CWorm::setupLobby()
-{
-	bLobbyReady = false;
-}
-
-
+// Resets angle variables and sets direction to default (DIR_RIGHT).
 void CWorm::resetAngleAndDir() {
 	fAngle = 0;
 	fAngleSpeed = 0;
@@ -821,6 +804,7 @@ void CWorm::UpdateDrawPos() {
 	}
 }
 
+// Below are all visibility related functions
 
 bool CWorm::isVisibleForWorm(int worm) const {
 	assert(worm >= 0);
@@ -1236,6 +1220,8 @@ void CWorm::Kill(bool serverside)
 	}
 }
 
+///////////////////
+// Returns the score of the current worm.
 int CWorm::getScore() const
 {
 	int score = getKills();
@@ -1251,6 +1237,8 @@ int CWorm::getScore() const
 	return score; // May be negative
 }
 
+///////////////////
+// Adds a death for the current worm. Called whenever worm dies.
 void CWorm::addDeath()
 {
 	if( !gameSettings[FT_AllowNegativeScore] && getScore() <= 0 )
@@ -1557,4 +1545,14 @@ void CWorm::NewNet_InitWormState(int seed)
 	iFaceDirectionSide = DIR_LEFT;
 	fSpawnTime = AbsTime();
 	fLastAirJumpTime = AbsTime();
+}
+
+CVec CWorm::getFaceDirection() const {
+		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iFaceDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+					sinf(getAngle() * ((float)PI/180)) );
+}
+
+CVec CWorm::getMoveDirection() const {
+		return CVec(cosf(getAngle() * ((float)PI/180)) * ((iMoveDirectionSide == DIR_LEFT) ? -1.0f : 1.0f),
+					sinf(getAngle() * ((float)PI/180)) );
 }

@@ -656,6 +656,7 @@ public:
 		}
 
 		// Put the hook where the worm is
+                // What's the point if checking isAttached() ?
 		else if(rope->isAttached() && rope->isPlayerAttached()) {
 
 			// If the worm has been killed, or dropped, or became invisible in H&S - drop the hook

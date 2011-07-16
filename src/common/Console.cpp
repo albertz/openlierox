@@ -48,13 +48,15 @@
 #define		MAX_CONLINES	15
 #define		MAX_CONHISTORY	10
 
-
+///////////////////
+// Represents a line in the console.
 struct conline_t {
 	int			Colour;
 	std::string	strText;
 };
 
-
+///////////////////
+// Represents a console.
 struct console_t {
 		
 	int			iState;
@@ -661,8 +663,6 @@ void Con_Shutdown()
 		delete con_timer;
 	con_timer = NULL;
 }
-
-
 
 void Con_Execute(const std::string& cmd) {
 	Execute(&ingameConsole, cmd);

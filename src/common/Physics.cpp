@@ -22,9 +22,12 @@
 
 
 static PhysicsEngine* engine = NULL;
+
+//Getters and setters for the PhysicsEngine
 PhysicsEngine* PhysicsEngine::Get() { return engine; }
 void PhysicsEngine::Set(PhysicsEngine* e) { engine = e; }
 
+// init general stuff and set default engine
 void PhysicsEngine::Init() {
 	if(game.gameScript()->gusEngineUsed())
 		engine = CreatePhysicsEngineDummy("Gusanos physics");
@@ -35,6 +38,7 @@ void PhysicsEngine::Init() {
 	engine->initGame();
 }
 
+// deletes standard engine and unitializes stuff
 void PhysicsEngine::UnInit() {
 	if(engine) {
 		engine->uninitGame();

@@ -40,5 +40,4 @@ bool	Con_IsVisible();
 void	Con_Execute(const std::string& cmd);
 
 
-
 #endif  //  __CONSOLE_H__

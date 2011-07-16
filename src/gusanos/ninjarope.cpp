@@ -1,10 +1,10 @@
 #include "ninjarope.h"
-
 #include "util/vec.h"
 #include "util/macros.h"
 #include "gusgame.h"
 #include "CGameObject.h"
 #include "part_type.h"
+
 #ifndef DEDICATED_ONLY
 #include "sprite_set.h"
 #include "sprite.h"
@@ -12,6 +12,7 @@
 #include "animators.h"
 #include "CViewport.h"
 #endif
+
 #include "part_type.h"
 #include "CMap.h"
 

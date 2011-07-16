@@ -36,7 +36,7 @@ public:
 	bool isTeamGame() { return GameTeams() > 1; }
 	virtual std::string TeamName(int t);
 	
-	virtual void PrepareGame();
+	virtual void PrepareGame(); //used for initializations
 	virtual void BeginMatch() {}
 	virtual void PrepareWorm(CWorm* worm) {}
 	// If Spawn returns false then no spawn packet will be sent

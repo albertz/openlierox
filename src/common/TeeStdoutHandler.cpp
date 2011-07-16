@@ -184,6 +184,7 @@ void teeStdoutQuit(bool wait) {
 	}
 }
 
+
 #else
 
 #include "Unicode.h"

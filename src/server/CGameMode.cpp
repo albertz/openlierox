@@ -38,6 +38,8 @@ std::string CGameMode::TeamName(int t) {
 	return itoa(t);
 }
 
+///////////////////
+// Initializations take place here.
 void CGameMode::PrepareGame()
 {
 	lastTimeLimitReport = int(TimeLimit());
@@ -154,8 +156,11 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 											killer->getName(), 1), TXT_NORMAL);
 				break;
 			case 15:
+                                break;
 			case 20:
+                                break;
 			case 25:
+                                break;
 			case 30:
 				playSoundForWorm(killer, itoa(iKillsInRow[killer->getID()]) + "kills");
 				break;
@@ -269,6 +274,9 @@ static int getWormHitKillLimit() {
 	return -1;
 }
 
+///////////////////
+// Checks whether some conditions for ending a game have been reached. Returns
+// true if this is the case or false otherwise.
 bool CGameMode::CheckGameOver() {
 	// In game?
 	if (!cServer || cServer->getState() == SVS_LOBBY || cServer->getGameOver())
@@ -383,6 +391,9 @@ void CGameMode::Simulate() {
 	}	
 }
 
+///////////////////
+// Returns the id of the winning worm - either the only one alive or the one
+// with the highest score.
 int CGameMode::Winner() {
 	// In case of last man standing, that one must win
 	CWorm *alive = cServer->getFirstAliveWorm();
@@ -393,6 +404,8 @@ int CGameMode::Winner() {
 	return HighestScoredWorm(); // For other cases (max kills etc.)
 }
 
+///////////////////
+// Finds and returns the id of the worm with the highest score.
 int CGameMode::HighestScoredWorm() {
 	int wormid = -1;
 	for(int i = 0; i < MAX_WORMS; i++)
@@ -405,6 +418,9 @@ int CGameMode::HighestScoredWorm() {
 	return wormid;
 }
 
+///////////////////
+// Compares the scores of the two worms passed as function arguments.
+// Returns 1 if first worm was bigger score or 2 if second worm has bigger score.
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
 
 	// Lives first
@@ -447,6 +463,8 @@ int CGameMode::WinnerTeam() {
 		return -1;
 }
 
+///////////////////
+// Returns the team with the highest score.
 int CGameMode::HighestScoredTeam() {
 	int team = -1;
 	for(int i = 0; i < GameTeams(); i++)
@@ -457,6 +475,8 @@ int CGameMode::HighestScoredTeam() {
 	return team;
 }
 
+///////////////////
+// Returns the number of worms in the team passed as parameter.
 int CGameMode::WormsAliveInTeam(int t) {
 	int c = 0;
 	for(int i = 0; i < MAX_WORMS; i++)
@@ -485,7 +505,9 @@ float CGameMode::TeamDamage(int t) {
 	return c;
 }
 
-
+///////////////////
+// Returns the team with the highest score of the two teams passed as
+// arguments.
 int CGameMode::CompareTeamsScore(int t1, int t2) {
 	// Lives first
 	if((int)gameSettings[FT_Lives] >= 0) {

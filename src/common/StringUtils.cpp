@@ -20,6 +20,7 @@
 #include "FindFile.h"
 #include "MathLib.h"
 #include "StringBuf.h"
+#include "Debug.h"
 
 
 #include <sstream>
@@ -1356,4 +1357,13 @@ bool FilenameSimplePatternMatch(const std::string& filename, const std::string& 
 	const std::string::const_iterator fn_end = filename.end();
 	const std::string::const_iterator pt_end = pattern.end();
 	return FilenameSimplePatternMatch(fn_it, fn_end, pt_it, pt_end);
+}
+
+void print_binary_string(const std::string& txt) {
+	std::string buf;
+	std::stringstream str(buf);
+	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
+		str << std::hex << (ushort)(uchar)(*it) << " ";
+	}
+	notes << buf << endl;
 }

@@ -195,5 +195,4 @@ void CWeather::Draw(SDL_Surface * psDest, CViewport *view)
 
     }
 
-
 }

@@ -53,6 +53,7 @@
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
 #include "game/ServerList.h"
+#include "StringUtils.h"
 
 #include "DeprecatedGUI/CBar.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -78,8 +79,11 @@
 // we have to create a basic class Game or something
 keyboard_t	*kb = NULL;
 
-static std::list<std::string> startupCommands;
+// ParseArguments will set this eventually to true
+bool afterCrash = false;
+bool afterCrashInformedUser = false;
 
+static std::list<std::string> startupCommands;
 
 //
 // Loading screen info and functions
@@ -108,18 +112,8 @@ static void DrawLoading(byte percentage, const std::string &text);
 static void ShutdownLoading();
 
 
-
-
-// TODO: move this out here
-void print_binary_string(const std::string& txt) {
-	std::string buf;
-	std::stringstream str(buf);
-	for(std::string::const_iterator it = txt.begin(); it != txt.end(); it++) {
-		str << std::hex << (ushort)(uchar)(*it) << " ";
-	}
-	notes << buf << endl;
-}
-
+///////////////////
+// Does system checks for data type sizes.
 static void DoSystemChecks() {
 	// sadly, these sizeof are directly used in CGameScript.cpp/CMap.cpp
 	// TODO: fix this issue
@@ -308,10 +302,6 @@ struct VideoHandler {
 static VideoHandler videoHandler;
 
 
-// ParseArguments will set this eventually to true
-static bool afterCrash = false;
-static bool afterCrashInformedUser = false;
-
 void setBinaryDirAndName(char* argv0);
 
 ///////////////////
@@ -324,7 +314,7 @@ int main(int argc, char *argv[])
 	
 	setCurThreadName("Main Thread");
 	setCurThreadPriority(0.5f);
-	
+
 	hints << GetFullGameName() << " is starting ..." << endl;
 #ifdef DEBUG
 	hints << "This is a DEBUG build." << endl;
@@ -671,9 +661,8 @@ static int MainLoopThread(void*) {
 }
 
 
-
-///////////////////
-// Parse the arguments
+/////////////////////
+//// Parses the arguments
 void ParseArguments(int argc, char *argv[])
 {
     // Parameters passed to OpenLieroX overwrite the loaded options
@@ -725,7 +714,7 @@ void ParseArguments(int argc, char *argv[])
 			else
 				warnings << "-script needs an additinal parameter" << endl;
 		} else
-				
+
 		// -connect
 		// connect to server (next param)
 		if( stricmp(a, "-connect") == 0 ) {
@@ -744,7 +733,7 @@ void ParseArguments(int argc, char *argv[])
 			else
 				warnings << "-exec needs an additinal parameter" << endl;
 		} else
-				
+
         // -window
         // Turns fullscreen off
         if( stricmp(a, "-window") == 0 ) {
@@ -768,7 +757,7 @@ void ParseArguments(int argc, char *argv[])
         if( stricmp(a, "-noskin") == 0 ) {
             tLXOptions->bNewSkinnedGUI = false;
         } else
-		
+
 		if( stricmp(a, "-aftercrash") == 0) {
 			afterCrash = true;
 		}
@@ -847,13 +836,14 @@ int InitializeLieroX()
 	// Setup the HTTP proxy
 	AutoSetupHTTPProxy();
 
-	tLX->bVideoModeChanged = false;
-	tLX->bQuitGame = false;
-	tLX->bQuitCtrlC = false;
+        //TODO: Remove duplicate code (See LieroX.h)
+//	tLX->bVideoModeChanged = false;
+//	tLX->bQuitGame = false;
+//	tLX->bQuitCtrlC = false;a   
 	tLX->debug_string = "";
 	tLX->currentTime = 0;
 	tLX->fDeltaTime = 0;
-	tLX->bHosted = false;
+//	tLX->bHosted = false;
 
 	if (!SkinnedGUI::InitializeGuiSkinning())
 		return false;
@@ -889,11 +879,11 @@ int InitializeLieroX()
 		return false;
 	}
 
-	
+
 	DrawLoading(10, "Loading Gusanos engine");
 	gusInitBase();
 
-	
+
 	DrawLoading(15, "Initializing game entities");
 
 	// Initialize the entities
@@ -936,7 +926,7 @@ int InitializeLieroX()
 		}
 
 	updateFileListCaches();
-	
+
 	notes << "Initializing ready" << endl;
 
 	return true;
@@ -965,7 +955,7 @@ void GotoLocalMenu()
 		warnings << "called GotoLocalMenu as client, ignoring..." << endl;
 		return;
 	}
-	
+
 	SetQuitEngineFlag("GotoLocalMenu");
 	cClient->Disconnect();
 	cServer->Shutdown();
@@ -1081,13 +1071,13 @@ static void ShutdownLoading()  {
 void ShutdownLieroX()
 {
 	notes << "Shutting me down..." << endl;
-	
+
 	// Options
 	// Save already here in case some other method crashes
 	if(!bDedicated) // only save if not in dedicated mode
 		tLXOptions->SaveToDisc();
-		
-	DeprecatedGUI::CChatWidget::GlobalDestroy();	
+
+	DeprecatedGUI::CChatWidget::GlobalDestroy();
 	ShutdownIRC(); // Disconnect from IRC
 
 	if(bDedicated)
@@ -1125,7 +1115,7 @@ void ShutdownLieroX()
 
 	// Free the client & server
 	if(cClient) {
-		delete cClient;
+                delete cClient;
 		cClient = NULL;
 	}
 
@@ -1165,7 +1155,7 @@ void ShutdownLieroX()
 #ifdef DEBUG
 	ShutdownCacheDebug();
 #endif
-	
+
 	// Save and clear options
 
 	// HINT: save the options again because some could get changed in CServer/CClient destructors and shutdown functions
@@ -1277,19 +1267,33 @@ void updateFileListCaches() {
 }
 
 
-
+///////////////////
+// Returns the state of the current game.
 GameState currentGameState() {
-	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) return S_INACTIVE;
+	if(!cClient || cClient->getStatus() == NET_DISCONNECTED) 
+            return S_INACTIVE;
+
 	if(tLX->iGameType == GME_JOIN) {
-		if(cClient->getStatus() == NET_CONNECTING) return S_CLICONNECTING;
-		if(!cClient->getGameReady()) return S_CLILOBBY;
-		if(cClient->getStatus() == NET_PLAYING) return S_CLIPLAYING;
+		if(cClient->getStatus() == NET_CONNECTING) 
+                    return S_CLICONNECTING;
+
+		if(!cClient->getGameReady()) 
+                    return S_CLILOBBY;
+
+		if(cClient->getStatus() == NET_PLAYING) 
+                    return S_CLIPLAYING;
+
 		return S_CLIWEAPONS;
 	}
-	if(!cServer->isServerRunning()) return S_INACTIVE;
+
+	if(!cServer->isServerRunning())
+            return S_INACTIVE;
 	//if(!DeprecatedGUI::tMenu || DeprecatedGUI::tMenu->bMenuRunning);
-	if(cServer->getState() == SVS_LOBBY) return S_SVRLOBBY;
-	if(cServer->getState() == SVS_GAME) return S_SVRWEAPONS;
+	if(cServer->getState() == SVS_LOBBY) 
+            return S_SVRLOBBY;
+
+	if(cServer->getState() == SVS_GAME) 
+            return S_SVRWEAPONS;
+
 	return S_SVRPLAYING;
 }
-
