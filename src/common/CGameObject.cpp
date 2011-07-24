@@ -12,21 +12,6 @@
 #include "CGameScript.h"
 #include "CWorm.h"
 #include "PhysicsLX56.h"
-
-
-bool CGameObject::injure(float damage) {
-	health -= damage;
-	
-	if(health < 0.0f) {
-		health = 0.0f;
-		return true;
-	}
-	
-	return false;
-}
-
-
-
 #include "util/vec.h"
 #include "util/angle.h"
 #include "game/WormInputHandler.h"
@@ -35,6 +20,17 @@ bool CGameObject::injure(float damage) {
 #include "gusanos/lua/bindings-objects.h"
 
 LuaReference CGameObject::metaTable;
+
+bool CGameObject::injure(float damage) {
+	health -= damage;
+
+	if(health < 0.0f) {
+		health = 0.0f;
+		return true;
+	}
+
+	return false;
+}
 
 void CGameObject::gusInit( CWormInputHandler* owner, Vec pos_, Vec spd_ )
 {
