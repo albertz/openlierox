@@ -77,6 +77,7 @@ enum {
 	vp_PlySkin
 };
 
+static void ReportInvalidPlayerName();
 
 ///////////////////
 // Initialize the player menu
@@ -267,7 +268,6 @@ void Menu_PlayerFrame()
 		Menu_Player_ViewPlayers(mouse);
 }
 
-
 ///////////////////
 // Initialize the newplayer settings
 void Menu_Player_NewPlayerInit()
@@ -382,10 +382,21 @@ void Menu_Player_NewPlayer(int mouse)
 			// Create
 			case np_Create:
 				if(ev->iEventMsg == BTN_CLICKED) {
-					PlaySoundSample(sfxGeneral.smpClick);
 
 					// Get the details
 					std::string name = ((CTextbox *)cNewPlayer.getWidget(np_Name))->getText();
+
+                                        TrimSpaces(name);
+
+                                        // Does not allow worm to have empty name
+                                        if(name == "") {
+                                            ReportInvalidPlayerName();
+
+                                            return;
+                                        }
+
+                                        PlaySoundSample(sfxGeneral.smpClick);
+
 					name = RemoveSpecialChars(name);  // Remove any special characters (backward compatibility)
 					std::string skin;
                     cNewPlayer.SendMessage(np_PlySkin, CBS_GETCURSINDEX, &skin, 0);
@@ -615,7 +626,24 @@ void Menu_Player_ViewPlayers(int mouse)
                     int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, (DWORD)0,0);
 	                profile_t *p = FindProfile(sel);
 	                if(p) {
-                        cViewPlayers.SendMessage(vp_Name, TXS_GETTEXT, &p->sName, 0);
+
+                        std::string name;
+                        cViewPlayers.SendMessage(vp_Name, TXS_GETTEXT, &name, 0);
+
+                        TrimSpaces(name);
+                        
+                        // Does not allow empty name
+                        if(name == "") {
+                            
+                            ReportInvalidPlayerName();
+                            cViewPlayers.SendMessage(vp_Name, TXS_SETTEXT, p->sName, 0);
+                            
+                            return;
+                        }
+
+                        p->sName = name;
+                        cViewPlayers.SendMessage(vp_Name, TXS_SETTEXT, p->sName, 0);
+
                         p->R = (Uint8)cViewPlayers.SendMessage(vp_Red,SLM_GETVALUE,(DWORD)0,0);
                         p->G = (Uint8)cViewPlayers.SendMessage(vp_Green,SLM_GETVALUE,(DWORD)0,0);
                         p->B = (Uint8)cViewPlayers.SendMessage(vp_Blue,SLM_GETVALUE,(DWORD)0,0);
@@ -771,6 +799,15 @@ void Menu_Player_ViewPlayers(int mouse)
 	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
+// Report an invalid name
+static void ReportInvalidPlayerName()
+{
+    PlaySoundSample(sfxGeneral.smpNotify);
+
+    if(!Menu_MessageBox("Invalid name", "Name cannot be empty!", LMB_OK)) {
+        PlaySoundSample(sfxGeneral.smpClick);
+    }
+}
 
 ///////////////////
 // Draw the worm image
