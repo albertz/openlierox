@@ -1,9 +1,9 @@
 [Desktop Entry]
-Version=1.1
+Version=1.0
 Name=OpenLieroX
 Type=Application
 Comment=A real-time excessive Worms-clone
-Exec=openlierox
-TryExec=openlierox
+Exec=/usr/games/openlierox
+TryExec=/usr/games/openlierox
 Icon=OpenLieroX
 Categories=Game;
