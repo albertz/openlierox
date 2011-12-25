@@ -207,12 +207,4 @@ union mmx_reg
 #error "MMX capability only available on GCC!"
 #endif
 
-#ifndef always_inline
-#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
-#    define always_inline __attribute__((always_inline)) inline
-#else
-#    define always_inline inline
-#endif
-#endif
-
 #endif //MMX_H
