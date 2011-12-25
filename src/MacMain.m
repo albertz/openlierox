@@ -408,4 +408,10 @@ const char* mac__copy_from_clipboard() {
 }
 
 
+void mac__NotifyUserOnEvent() {
+	[NSApp requestUserAttention:NSCriticalRequest];
+}
+
+void mac__ClearUserNotify() {	
+}
 

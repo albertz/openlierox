@@ -18,7 +18,8 @@ void ClearUserNotify() {}
 #else
 
 #if defined(__APPLE__)
-	#include <Carbon/Carbon.h>
+	extern "C" void mac__NotifyUserOnEvent();
+	extern "C" void mac__ClearUserNotify();
 #elif defined(WIN32)
 	#include <windows.h>
 	#include <SDL.h>
@@ -75,10 +76,6 @@ void x11_SetDemandsAttention( bool v ) {
 #include <windows.h>
 #endif
 
-#ifdef __APPLE__
-static NMRec notifyData;
-static NMRecPtr notePtr = &notifyData;
-#endif
 
 // Make the sound, and blink the game window (platform-dependent)
 void NotifyUserOnEvent()
@@ -92,17 +89,7 @@ void NotifyUserOnEvent()
 
 #if defined(__APPLE__)
 	
-	OSErr		err;
-
-	notePtr->qType = nmType; // standard queue type for NM
-	notePtr->nmMark = 1;
-	notePtr->nmIcon = NULL;
-	notePtr->nmSound = NULL;  //(Handle) -1L; // use system alert snd
-	notePtr->nmStr = NULL; // (StringPtr) NewPtr ( sizeof ( Str255 ) ); BlockMoveData( notice, notePtr->nmStr, notice[0] + 1 );
-	notePtr->nmResp = NULL; // NewNMProc( MyResponse );
-	notePtr->nmRefCon = 0; // fFatal;
-
-	err = NMInstall( notePtr );
+	mac__NotifyUserOnEvent();
 	
 #elif defined(WIN32) || defined(__MINGW32_VERSION)
 	FLASHWINFO flash;
@@ -139,7 +126,7 @@ void NotifyUserOnEvent()
 void ClearUserNotify() {
 	if(bDedicated) return;
 #if defined(__APPLE__)
-	NMRemove( notePtr );	
+	mac__ClearUserNotify();
 #elif defined(WIN32)
 #elif defined(X11)
 	struct ClearDemandsAttentionAction: public Action
