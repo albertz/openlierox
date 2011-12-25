@@ -25,6 +25,7 @@
 #include <cassert>
 #include <set>
 
+#include "CodeAttributes.h"
 #include "LieroX.h"
 #include "CGameScript.h"
 #include "MathLib.h"
@@ -182,7 +183,7 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 // these function will either go parallel to the x-axe or parallel to the y-axe
 // (depends on which of them is the absolute greatest)
 // HINT: don't lock the flags here (it's done in the caller)
-inline bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
+INLINE bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
 	boost::array<Material,256>& materials = cClient->getMap()->materialArray();
 	register unsigned char** pxflags = cClient->getMap()->material->line;
 	if (!pxflags)  {  // The map has been probably shut down

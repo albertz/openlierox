@@ -7,6 +7,7 @@
 
 #include "gusanos/allegro.h"
 #include "gusanos/blitters/types.h"
+#include "CodeAttributes.h"
 
 namespace Blitters
 {
@@ -26,7 +27,7 @@ const Pixel maskcolor_16 = 0xF81F;
 		parallelism = 1
 */
 
-inline Pixel scaleColor_32(Pixel color, int fact)
+INLINE Pixel scaleColor_32(Pixel color, int fact)
 {
 	Pixel temp1 = color & maskcolor_32;
 	Pixel temp2 = color & 0x00FF00;
@@ -37,12 +38,12 @@ inline Pixel scaleColor_32(Pixel color, int fact)
 	return temp1 | temp2;
 }
 
-inline Pixel scaleColorHalf_32(Pixel color)
+INLINE Pixel scaleColorHalf_32(Pixel color)
 {
 	return (color & 0xFEFEFE) >> 1;
 }
 
-inline Pixel scaleColor_8_4(Pixel color, int fact)
+INLINE Pixel scaleColor_8_4(Pixel color, int fact)
 {
 	Pixel temp1 = (color & 0x00FF00FF);
 	Pixel temp2 = (color & 0xFF00FF00) >> 8;
@@ -53,7 +54,7 @@ inline Pixel scaleColor_8_4(Pixel color, int fact)
 	return temp1 | temp2;
 }
 
-inline Pixel scaleColor_16(Pixel color, int fact)
+INLINE Pixel scaleColor_16(Pixel color, int fact)
 {
 	color = ((color << 16) | color) & 0x7E0F81F;
 
@@ -62,7 +63,7 @@ inline Pixel scaleColor_16(Pixel color, int fact)
 	return (color | (color >> 16)) & 0xFFFF;
 }
 
-inline Pixel scaleColor_16_2(Pixel color, int fact)
+INLINE Pixel scaleColor_16_2(Pixel color, int fact)
 {
 	Pixel color1 = color & 0x7E0F81F;
 	color1 = ((color1 * fact + 0x2008010) >> 5) & 0x7E0F81F;
@@ -73,7 +74,7 @@ inline Pixel scaleColor_16_2(Pixel color, int fact)
 	return color1 | color2;
 }
 
-inline Pixel convertColor_32_to_16(Pixel color)
+INLINE Pixel convertColor_32_to_16(Pixel color)
 {
 	Pixel r = color & 0xF80000;
 	Pixel g = color & 0x00FC00;
@@ -82,17 +83,17 @@ inline Pixel convertColor_32_to_16(Pixel color)
 }
 
 // color must contain only one pixel
-inline Pixel duplicateColor_16(Pixel color)
+INLINE Pixel duplicateColor_16(Pixel color)
 {
 	return color | (color << 16);
 }
 
-inline Pixel packColors_16(Pixel color1, Pixel color2)
+INLINE Pixel packColors_16(Pixel color1, Pixel color2)
 {
 	return color1 | (color2 << 16);
 }
 
-inline Pixel32 addColorsCrude_32(Pixel color1, Pixel color2)
+INLINE Pixel32 addColorsCrude_32(Pixel color1, Pixel color2)
 {
 	color1 = (color1 & 0xFEFEFF) + (color2 & 0xFEFEFF);
 	Pixel32 temp1 = (color1 & 0x01010100) >> 7;
@@ -100,7 +101,7 @@ inline Pixel32 addColorsCrude_32(Pixel color1, Pixel color2)
 	return color1 & 0xFFFFFF;
 }
 
-inline Pixel addColorsCrude_8_4(Pixel color1, Pixel color2)
+INLINE Pixel addColorsCrude_8_4(Pixel color1, Pixel color2)
 {
 	color1 = ((color1 >> 1) & 0x7F7F7F7F) + ((color2 >> 1) & 0x7F7F7F7F);
 	Pixel temp1 = (color1 & 0x80808080) >> 6;
@@ -109,7 +110,7 @@ inline Pixel addColorsCrude_8_4(Pixel color1, Pixel color2)
 }
 
 /* Not recommended to use
-inline Pixel16 addColorsCrude_16(Pixel color1, Pixel color2)
+INLINE Pixel16 addColorsCrude_16(Pixel color1, Pixel color2)
 {
 	color1 = (color1 & 0xF7DF) + (color2 & 0xF7DF);
 	Pixel32 temp1 = (color1 & 0x10820);
@@ -117,7 +118,7 @@ inline Pixel16 addColorsCrude_16(Pixel color1, Pixel color2)
 	return color1 & 0xFFFF;
 }*/
 
-inline Pixel addColors_16_2(Pixel color1, Pixel color2)
+INLINE Pixel addColors_16_2(Pixel color1, Pixel color2)
 {
 	const Pixel msb = 0x84108410;
 	
@@ -137,7 +138,7 @@ inline Pixel addColors_16_2(Pixel color1, Pixel color2)
 
 // Does precomputation for a color in preparation for
 // the three parameter version of addColors_16_2.
-inline void prepareAddColors_16_2(Pixel color2, Pixel& msb_y, Pixel& color2rest)
+INLINE void prepareAddColors_16_2(Pixel color2, Pixel& msb_y, Pixel& color2rest)
 {
 	const Pixel msb = 0x84108410;
 	msb_y = color2 & msb;
@@ -145,7 +146,7 @@ inline void prepareAddColors_16_2(Pixel color2, Pixel& msb_y, Pixel& color2rest)
 }
 
 // This function can add two pixels at a time
-inline Pixel addColors_16_2(Pixel color1, Pixel msb_y, Pixel color2rest)
+INLINE Pixel addColors_16_2(Pixel color1, Pixel msb_y, Pixel color2rest)
 {
 	const Pixel msb = 0x84108410;
 	
@@ -162,7 +163,7 @@ inline Pixel addColors_16_2(Pixel color1, Pixel msb_y, Pixel color2rest)
 	return ((msb - overflow) ^ msb) | sum | p;
 }
 
-inline Pixel addColorsAllegro_16(Pixel x, Pixel y, int n)
+INLINE Pixel addColorsAllegro_16(Pixel x, Pixel y, int n)
 {
    int r = getr16(y) + getr16(x) * n / 256;
    int g = getg16(y) + getg16(x) * n / 256;
@@ -175,29 +176,29 @@ inline Pixel addColorsAllegro_16(Pixel x, Pixel y, int n)
    return makecol16(r, g, b);
 }
 
-inline Pixel32 blendColorsHalf_32(Pixel color1, Pixel color2)
+INLINE Pixel32 blendColorsHalf_32(Pixel color1, Pixel color2)
 {
 	return ((color1 & 0xFEFEFE) >> 1)
 	     + ((color2 & 0xFEFEFE) >> 1)
 	     + (color1 & color2 & 0x010101);
 }
 
-inline Pixel32 blendColorsHalfCrude_32(Pixel color1, Pixel color2)
+INLINE Pixel32 blendColorsHalfCrude_32(Pixel color1, Pixel color2)
 {
 	return ((color1 & 0xFEFEFE) >> 1) + ((color2 & 0xFEFEFE) >> 1);
 }
 
-inline void prepareBlendColorsHalfCrude_32(Pixel color2, Pixel& color2halved)
+INLINE void prepareBlendColorsHalfCrude_32(Pixel color2, Pixel& color2halved)
 {
 	color2halved = ((color2 & 0xFEFEFE) >> 1);
 }
 
-inline Pixel32 blendColorsHalfCrude_32_prepared(Pixel color1, Pixel color2halved)
+INLINE Pixel32 blendColorsHalfCrude_32_prepared(Pixel color1, Pixel color2halved)
 {
 	return ((color1 & 0xFEFEFE) >> 1) + color2halved;
 }
 
-inline Pixel blendColorsFact_32(Pixel color1, Pixel color2, int fact)
+INLINE Pixel blendColorsFact_32(Pixel color1, Pixel color2, int fact)
 {
 	Pixel res = (((color2 & maskcolor_32) - (color1 & maskcolor_32)) * fact >> 8) + color1;
 	color1 &= 0xFF00;
@@ -212,14 +213,14 @@ inline Pixel blendColorsFact_32(Pixel color1, Pixel color2, int fact)
 
 // Does precomputation for a color in preparation for
 // the four parameter version of blendColorsFact_32.
-inline void prepareBlendColorsFact_32(Pixel color2, Pixel& color2rb, Pixel& color2g)
+INLINE void prepareBlendColorsFact_32(Pixel color2, Pixel& color2rb, Pixel& color2g)
 {
 	color2rb = color2 & maskcolor_32;
 	color2g  = color2 & 0x00FF00;
 }
 
 /*
-inline Pixel32 blendColorsFact_32(Pixel32 color1, Pixel32 color2rb, Pixel32 color2g, int fact)
+INLINE Pixel32 blendColorsFact_32(Pixel32 color1, Pixel32 color2rb, Pixel32 color2g, int fact)
 {
 	Pixel32 temp2 = color1 & maskcolor_32;
 	Pixel32 temp1;
@@ -238,27 +239,27 @@ inline Pixel32 blendColorsFact_32(Pixel32 color1, Pixel32 color2rb, Pixel32 colo
 	return res | g;
 }*/
 
-inline Pixel32 blendColorsHalf_16_2(Pixel color1, Pixel color2)
+INLINE Pixel32 blendColorsHalf_16_2(Pixel color1, Pixel color2)
 {
 	return (((color1 & 0xF7DEF7DE) >> 1)
 	     + ((color2 & 0xF7DEF7DE) >> 1)
 	     + (color1 & color2 & 0x08210821));
 }
 
-inline void prepareBlendColorsHalf_16_2(Pixel color2, Pixel& color2mask, Pixel& color2halved)
+INLINE void prepareBlendColorsHalf_16_2(Pixel color2, Pixel& color2mask, Pixel& color2halved)
 {
 	color2mask = color2 & 0x08210821;
 	color2halved = ((color2 & 0xF7DEF7DE) >> 1);
 }
 
-inline Pixel32 blendColorsHalf_16_2_prepared(Pixel color1, Pixel color2mask, Pixel color2halved)
+INLINE Pixel32 blendColorsHalf_16_2_prepared(Pixel color1, Pixel color2mask, Pixel color2halved)
 {
 	return (((color1 & 0xF7DEF7DE) >> 1)
 	     + color2halved
 	     + (color1 & color2mask));
 }
 
-inline Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2, int fact)
+INLINE Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2, int fact)
 {
 	Pixel temp1, temp2;
 	temp2 = color2 & 0x7E0F81F;
@@ -272,19 +273,19 @@ inline Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2, int fact)
 	return color1 | color2;
 }
 
-inline Pixel32 blendColorsFact_16(Pixel color1, Pixel color2, int fact)
+INLINE Pixel32 blendColorsFact_16(Pixel color1, Pixel color2, int fact)
 {
 	// TODO: Improve this?
 	return blendColorsFact_16_2(color1, color2, fact);
 }
 
-inline void prepareBlendColorsFact_16_2(Pixel color2, Pixel& color2a, Pixel& color2b)
+INLINE void prepareBlendColorsFact_16_2(Pixel color2, Pixel& color2a, Pixel& color2b)
 {
 	color2a = color2 & 0x7E0F81F;
 	color2b = color2 & 0xF81F07E0;
 }
 
-inline Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2a, Pixel color2b, int fact)
+INLINE Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2a, Pixel color2b, int fact)
 {
 	Pixel temp1;
 	temp1 = color1 & 0x7E0F81F;
@@ -296,7 +297,7 @@ inline Pixel32 blendColorsFact_16_2(Pixel color1, Pixel color2a, Pixel color2b, 
 	return color1 | color2b;
 }
 
-inline Pixel blendColorsFact_16(Pixel colors, int fact)
+INLINE Pixel blendColorsFact_16(Pixel colors, int fact)
 {
 	Pixel x = ((colors & 0xFFFF) | (colors << 16)) & 0x7E0F81F;
 	Pixel y = ((colors >> 16)    | (colors & 0xFFFF0000)) & 0x7E0F81F;
@@ -306,7 +307,7 @@ inline Pixel blendColorsFact_16(Pixel colors, int fact)
 	return ((result & 0xFFFF) | (result >> 16));
 }
 
-inline Pixel blendColorsAllegro_16(Pixel x, Pixel y, int n)
+INLINE Pixel blendColorsAllegro_16(Pixel x, Pixel y, int n)
 {
    unsigned long result;
 
@@ -321,7 +322,7 @@ inline Pixel blendColorsAllegro_16(Pixel x, Pixel y, int n)
    return ((result & 0xFFFF) | (result >> 16));
 }
 
-inline Pixel blend_mask_16_2(Pixel dest, Pixel src)
+INLINE Pixel blend_mask_16_2(Pixel dest, Pixel src)
 {
 	if((src & 0xFFFF) == maskcolor_16)
 		src = (src & 0xFFFF0000) | (dest & 0xFFFF);
@@ -332,7 +333,7 @@ inline Pixel blend_mask_16_2(Pixel dest, Pixel src)
 	return src;
 }
 
-inline Pixel add_mask_16_2(Pixel src)
+INLINE Pixel add_mask_16_2(Pixel src)
 {
 	if((src & 0xFFFF) == maskcolor_16)
 		src = (src & 0xFFFF0000);

@@ -5,6 +5,7 @@
 #include <vector>
 //#include "luaapi/context.h"
 #include "luaapi/types.h"
+#include "CodeAttributes.h"
 
 #define EACH_CALLBACK(i_, type_) for(std::vector<LuaReference>::iterator i_ = luaCallbacks.callbacks[LuaCallbacks::type_].begin(); \
 			i_ != luaCallbacks.callbacks[LuaCallbacks::type_].end(); ++i_)
@@ -111,7 +112,7 @@ struct LuaObject
 };
 
 template<class T>
-inline void luaDelete(T* p)
+INLINE void luaDelete(T* p)
 {
 	if(p)
 		p->deleteThis();

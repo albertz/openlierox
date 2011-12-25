@@ -41,6 +41,7 @@
 #include "Condition.h"
 #include "CVec.h"
 #include "Cache.h"
+#include "CodeAttributes.h"
 
 int iSurfaceFormat = SDL_SWSURFACE;
 
@@ -317,7 +318,7 @@ void ResetAlpha(SDL_Surface * dst)
 #define CLIP_REJECT(a,b) (a&b)
 #define CLIP_ACCEPT(a,b) (!(a|b))
 
-static inline int clipEncode(int x, int y, int left, int top, int right, int bottom)
+static INLINE int clipEncode(int x, int y, int left, int top, int right, int bottom)
 {
     int code = 0;
 
@@ -416,7 +417,7 @@ bool ClipLine(SDL_Surface * dst, int * x1, int * y1, int * x2, int * y2)
 
 
 // TODO: not used, remove?
-inline void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h) {
+INLINE void CopySurfaceFast(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, int dy, int w, int h) {
 	LOCK_OR_QUIT(dst);
 	LOCK_OR_QUIT(src);
 
@@ -467,7 +468,7 @@ void CopySurface(SDL_Surface * dst, SDL_Surface * src, int sx, int sy, int dx, i
 	// Remove alpha and colorkey
 	SDL_SetAlpha(src, 0, 0);
 	SDL_SetColorKey(src, 0, 0);
-
+	
 	// Blit
 	DrawImageAdv(dst, src, sx, sy, dx, dy, w, h);
 
@@ -499,14 +500,19 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 	return result;
 }
 
-
-/////////////////////
-// Performs a "correct" blit of RGBA surfaces to RGB or RGBA surfaces
-static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+// eg __Z18_OperateOnSurfacesILb1ELi4ELi4EP15SDL_PixelFormatS1_XadL_Z9_GetPixelILb1ELi4EE5ColorS1_PhEEXadL_Z9_PutPixelILb1ELb1ELi4EEvS1_S4_S3_EEEvT2_T3_P11SDL_SurfaceS9_R8SDL_RectSB_
+template <
+	bool src_alpha,
+	int sbpp, int dbpp,
+	typename T1, typename T2,
+	Color (*getFunc)(T1 data, Uint8* addr),
+	void (*putFunc)(T2 data, Uint8* addr, Color c)
+>
+void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
-	// RGBA surfaces are only 32bit
-	assert(bmpSrc->format->BytesPerPixel == 4);
-
+	assert(bmpSrc->format->BytesPerPixel == sbpp);
+	assert(bmpDest->format->BytesPerPixel == dbpp);
+	
 	// Clip
 	{
 		int old_x = rDest.x;
@@ -515,7 +521,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 		rDest.h = rSrc.h;
 		if (!ClipRefRectWith(rDest, (SDLRect&)bmpDest->clip_rect))
 			return;
-
+		
 		rSrc.x += rDest.x - old_x;
 		rSrc.y += rDest.y - old_y;
 		if (!ClipRefRectWith(rSrc, (SDLRect&)bmpSrc->clip_rect))
@@ -523,46 +529,143 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 		rDest.w = MIN(rSrc.w, rDest.w);
 		rDest.h = MIN(rSrc.h, rDest.h);
 	}
-
+	
 	LOCK_OR_QUIT(bmpDest);
 	LOCK_OR_QUIT(bmpSrc);
-
-	static const int sbpp = 4;
-	const int dbpp = bmpDest->format->BytesPerPixel;
+	
 	Uint8 *src = ((Uint8 *)bmpSrc->pixels + rSrc.y * bmpSrc->pitch + rSrc.x * sbpp);
 	Uint8 *dst = ((Uint8 *)bmpDest->pixels + rDest.y * bmpDest->pitch + rDest.x * dbpp);
 	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
 	int dstgap = bmpDest->pitch - rDest.w * dbpp;
-
-	PixelPutAlpha& putter = getPixelAlphaPutFunc(bmpDest);
-
-	if (bmpSrc->flags & SDL_SRCCOLORKEY)  {
-	// We have to check for the colorkey as well
+	
+#define _OP_LOOP_BODY \
+	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap) \
+		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)
+			
+	if(bmpSrc->flags & SDL_SRCCOLORKEY)  {
+		// We have to check for the colorkey as well
 		Color key = Unpack_alpha(bmpSrc->format->colorkey, bmpSrc->format);
-		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
-			for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
-				Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
-				if (c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
-					continue;
-				c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-				putter.put(dst, bmpDest->format, c);
-			}
-	} else {
-	// No colorkey, less inner-loop checks needed
-		for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
-			for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)  {
-				Color c = Unpack_alpha(GetPixel_32(src), bmpSrc->format);
-				c.a = (c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-				putter.put(dst, bmpDest->format, c);
-			}
+		_OP_LOOP_BODY {
+			Color c = getFunc(data1, src);
+			if(c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
+				continue;
+			if(src_alpha)
+				c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+			putFunc(data2, dst, c);
+		}
+	}
+	else {
+		// No colorkey, less inner-loop checks needed
+		_OP_LOOP_BODY {
+			Color c = getFunc(data1, src);
+			if(src_alpha)
+				c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+			putFunc(data2, dst, c);
+		}
 	}
 
+#undef _OP_LOOP_BODY
+	
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
 }
 
+template<bool alpha, int bpp>
+INLINE Color _GetPixel(SDL_PixelFormat* format, Uint8* addr) {
+	if(alpha) {
+		if(bpp == 4) return Unpack_alpha(GetPixel_32(addr), format);
+		if(bpp == 3) return Unpack_alpha(GetPixel_24(addr), format);
+		if(bpp == 2) return Unpack_alpha(GetPixel_16(addr), format);
+		if(bpp == 1) return Unpack_alpha(GetPixel_8(addr), format);
+	}
+	else {
+		if(bpp == 4) return Unpack_solid(GetPixel_32(addr), format);
+		if(bpp == 3) return Unpack_solid(GetPixel_24(addr), format);
+		if(bpp == 2) return Unpack_solid(GetPixel_16(addr), format);
+		if(bpp == 1) return Unpack_solid(GetPixel_8(addr), format);
+	}
+	assert(false);
+}
+
+template<bool alpha, bool alphablend, int bpp>
+INLINE void _PutPixel(SDL_PixelFormat* format, Uint8* addr, Color col) {
+	assert(bpp >= 1 && bpp <= 4);
+	Color dest_cl;
+	if(alphablend) {
+		if(alpha && !col.a) return; // Prevent div by zero error
+		dest_cl = _GetPixel<alpha,bpp>(format, addr);
+		if(alpha) {
+			dest_cl.a = 255 - (((255 - col.a) * (255 - dest_cl.a)) >> 8); // Same as MIN(255, dest_cl.a + col.a) but faster (no condition)
+			dest_cl.r = BLEND_CHANN_ALPHA(r, dest_cl, col, dest_cl.a);
+			dest_cl.g = BLEND_CHANN_ALPHA(g, dest_cl, col, dest_cl.a);
+			dest_cl.b = BLEND_CHANN_ALPHA(b, dest_cl, col, dest_cl.a);
+		}
+		else {
+			dest_cl.r = BLEND_CHANN_SOLID(r, dest_cl, col);
+			dest_cl.g = BLEND_CHANN_SOLID(g, dest_cl, col);
+			dest_cl.b = BLEND_CHANN_SOLID(b, dest_cl, col);
+		}
+	}
+	else { // no alpha-blending
+		dest_cl = col;
+	}
+
+	if(bpp == 4) PutPixel_32(addr, Pack(dest_cl, format));
+	if(bpp == 3) PutPixel_24(addr, Pack(dest_cl, format));
+	if(bpp == 2) PutPixel_16(addr, Pack(dest_cl, format));
+	if(bpp == 1) PutPixel_8(addr, Pack(dest_cl, format));
+}
+
+
+/////////////////////
+// Performs a "correct" blit of RGBA surfaces to RGB or RGBA surfaces
+template<bool alphablend>
+static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+{
+	const int sbpp = bmpSrc->format->BytesPerPixel;
+	const int dbpp = bmpDest->format->BytesPerPixel;
+	const bool src_hasalpha = bmpSrc->format->Amask != 0;
+	const bool dst_hasalpha = bmpDest->format->Amask != 0;
+
+#define __DO_OP(_sbpp, _dbpp, _salpha, _dalpha) \
+	_OperateOnSurfaces< \
+		_salpha, \
+		_sbpp, _dbpp, \
+		SDL_PixelFormat*, SDL_PixelFormat*, \
+		_GetPixel<_salpha,_sbpp>, _PutPixel<_dalpha, alphablend, _dbpp> >( \
+		bmpSrc->format, bmpDest->format, \
+		bmpDest, bmpSrc, rDest, rSrc)
+
+#define _DO_OP(_sbpp, _dbpp) \
+	if(sbpp == _sbpp && dbpp == _dbpp) { \
+		if(src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, true); \
+		else if(src_hasalpha && !dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, false); \
+		else if(!src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, false, true); \
+		else __DO_OP(_sbpp, _dbpp, false, false); \
+	}
+	
+	_DO_OP(4,4) else
+	_DO_OP(4,3) else
+	_DO_OP(3,4) else
+	_DO_OP(3,3) else
+	_DO_OP(2,4) else
+	_DO_OP(2,3) else
+	_DO_OP(2,2) else
+	_DO_OP(4,2) else
+	_DO_OP(3,2) else
+	_DO_OP(1,4) else
+	_DO_OP(1,3) else
+	_DO_OP(1,2) else
+	_DO_OP(1,1) else
+	_DO_OP(4,1) else
+	_DO_OP(3,1) else
+	_DO_OP(2,1) else
+	assert(false);
+}
+
 /////////////////////
 // Draws the image
+// __Z12DrawImageAdvP11SDL_SurfaceS0_R8SDL_RectS2_
 void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
 	if(!bmpSrc) {
@@ -575,6 +678,14 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		return;
 	}
 	
+	if(bmpSrc->flags & SDL_SRCALPHA)
+		// __ZL8DrawRGBAILb1EEvP11SDL_SurfaceS1_R8SDL_RectS3_
+		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);
+	else
+		DrawRGBA<false>(bmpDest, bmpSrc, rDest, rSrc);
+
+	return; // TODO: for now. and if the above is fast enough anyway, we don't need the code below (which is buggy)
+	
 	bool src_isrgba = bmpSrc->format->Amask != 0 && (bmpSrc->flags & SDL_SRCALPHA);
 	bool dst_isrgba = bmpDest->format->Amask != 0 && (bmpDest->flags & SDL_SRCALPHA);
 
@@ -583,9 +694,11 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 	if (!src_isrgba)  {
 		if(bmpDest->format->BitsPerPixel == 8 && bmpSrc->format->BitsPerPixel == 8)
 			CopySurfaceFast(bmpDest, bmpSrc, rSrc.x, rSrc.y, rDest.x, rDest.y, rSrc.w, rSrc.h);
-		else
+		else if(dst_isrgba)
 			SDL_BlitSurface(bmpSrc, &rSrc, bmpDest, &rDest);
-
+		else
+			DrawRGBA<false>(bmpDest, bmpSrc, rDest, rSrc);
+		
 	// RGBA -> RGB
 	} else if (src_isrgba && !dst_isrgba)  {
 		switch (bmpSrc->format->alpha)  {
@@ -595,12 +708,12 @@ void DrawImageAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, 
 		case SDL_ALPHA_TRANSPARENT:
 		return;
 		default:
-			DrawRGBA(bmpDest, bmpSrc, rDest, rSrc); // To handle the per-surface alpha correctly
+			DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc); // To handle the per-surface alpha correctly
 		}
 
 	// RGBA -> RGBA
 	} else {
-		DrawRGBA(bmpDest, bmpSrc, rDest, rSrc);
+		DrawRGBA<true>(bmpDest, bmpSrc, rDest, rSrc);
 	}
 }
 
@@ -965,7 +1078,7 @@ void DrawImageResizedAdv(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, int sx, in
 // Copied over from SDL_stretch.c from SDL-1.2.9
 // This is a safe, esp multithreadingsafe version of SDL_SoftStretch without any ASM magic.
 
-static inline void copy_row(PixelCopy& copier, Uint8 *src, int src_w, int sbpp, Uint8 *dst, int dst_w, int dbpp)
+static INLINE void copy_row(PixelCopy& copier, Uint8 *src, int src_w, int sbpp, Uint8 *dst, int dst_w, int dbpp)
 {                                                                                                               
         int pos = 0x10000;                              
         int inc = (src_w << 16) / dst_w;                
@@ -1645,7 +1758,7 @@ void LaserSightPutPixel(SDL_Surface * bmpDest, int x, int y, Uint32 colour)
 ////////////////////
 // Perform a line draw using a put pixel callback
 // Grabbed from allegro
-inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32, Uint8))
+INLINE void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32, Uint8))
 {
 	int dx = x2-x1;
 	int dy = y2-y1;
@@ -1736,7 +1849,7 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Colo
    UnlockSurface(bmp);
 }
 
-inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32))
+INLINE void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Color col, void (*proc)(SDL_Surface * , int, int, Uint32))
 {
 	int dx = x2-x1;
 	int dy = y2-y1;
@@ -1829,14 +1942,14 @@ inline void perform_line(SDL_Surface * bmp, int x1, int y1, int x2, int y2, Colo
 
 
 
-inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8)) {
+INLINE void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32, Uint8)) {
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
 
 	perform_line(bmpDest, x1, y1, x2, y2, color, proc);
 }
 
-inline void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
+INLINE void secure_perform_line(SDL_Surface * bmpDest, int x1, int y1, int x2, int y2, Color color, void (*proc)(SDL_Surface *, int, int, Uint32)) {
 	if (!ClipLine(bmpDest, &x1, &y1, &x2, &y2)) // Clipping
 		return;
 	

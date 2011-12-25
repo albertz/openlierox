@@ -19,6 +19,7 @@
 
 #include "InputEvents.h"
 #include "DeprecatedGUI/CGuiSkinnedLayout.h"
+#include "CodeAttributes.h"
 
 namespace DeprecatedGUI {
 
@@ -79,7 +80,7 @@ public:
 
 
 	// Process a message sent
-	inline DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
+	INLINE DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2) {
 
 				if(iMsg == INM_GETVALUE) {
 						return iKeyvalue;
@@ -99,14 +100,14 @@ public:
 	// Draw the title button
 	void	Draw(SDL_Surface * bmpDest);
 
-	inline void	LoadStyle() {}
+	INLINE void	LoadStyle() {}
 
 
-	inline int		getValue()						{ return iKeyvalue; }
-	inline void	setValue(int _v)					{ iKeyvalue = _v; }
-	inline std::string	getText()				{ return sText; }
-	inline void	setText(const std::string& _t)		{ sText = _t; }
-	inline std::string	getName()				{ return sName; }
+	INLINE int		getValue()						{ return iKeyvalue; }
+	INLINE void	setValue(int _v)					{ iKeyvalue = _v; }
+	INLINE std::string	getText()				{ return sText; }
+	INLINE void	setText(const std::string& _t)		{ sText = _t; }
+	INLINE std::string	getName()				{ return sName; }
 
 	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	void	ProcessGuiSkinEvent(int iEvent);

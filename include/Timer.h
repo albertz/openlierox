@@ -25,6 +25,7 @@
 #include <cassert>
 #include "Event.h"
 #include "olx-types.h"
+#include "CodeAttributes.h"
 
 
 
@@ -54,7 +55,7 @@ struct TimeCounter {
 };
 extern TimeCounter timeCounter;
 
-inline AbsTime GetTime() { return timeCounter.update(); }
+INLINE AbsTime GetTime() { return timeCounter.update(); }
 
 
 int				GetFPS();

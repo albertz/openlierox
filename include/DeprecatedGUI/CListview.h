@@ -22,6 +22,7 @@
 #include "DeprecatedGUI/CScrollbar.h"
 #include "DynDraw.h"
 #include "Utils.h"
+#include "CodeAttributes.h"
 
 namespace DeprecatedGUI {
 
@@ -303,8 +304,8 @@ public:
 	void	SaveScrollbarPos()    { iSavedScrollbarPos = cScrollbar.getValue(); }
 	void	RestoreScrollbarPos() { cScrollbar.setValue(iSavedScrollbarPos); iSavedScrollbarPos = 0; }
 
-	inline bool	NeedsRepaint()  {return bNeedsRepaint; }
-	inline void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
+	INLINE bool	NeedsRepaint()  {return bNeedsRepaint; }
+	INLINE void	SetRepaint(bool _r)  { bNeedsRepaint = _r; }  // Explicitly set this listview needs to be repainted
 	
 	void	setMouseOverEventEnabled(bool b)	{ bMouseOverEventEnabled = b; }
 	int		getMouseOverIndex()		 { if(tMouseOver) return tMouseOver->iIndex; else return -1; }

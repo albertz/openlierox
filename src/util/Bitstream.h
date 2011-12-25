@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include "CodeAttributes.h"
 
 class BitStream {
 private:
@@ -58,7 +59,7 @@ public:
 	size_t restBitSize() const { return m_data.size() - m_readPos; }
 };
 
-inline char getCharFromBits(BitStream& bs) {
+static INLINE char getCharFromBits(BitStream& bs) {
 	return (char) (unsigned char) bs.getInt(8);
 }
 

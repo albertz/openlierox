@@ -14,6 +14,7 @@
 #include "CVec.h"
 #include "Iter.h"
 #include "olx-types.h"
+#include "CodeAttributes.h"
 
 
 class CClient;
@@ -61,11 +62,11 @@ public:
 AbsTime GetPhysicsTime(); // Returns tLX->currentTime, or NewNet::GetCurTime() if new net engine is active
 
 
-inline void warpSimulationTimeForDeltaTimeCap(AbsTime& simulationTime, TimeDiff deltaTime, TimeDiff realDeltaTime) {
+INLINE void warpSimulationTimeForDeltaTimeCap(AbsTime& simulationTime, TimeDiff deltaTime, TimeDiff realDeltaTime) {
 	simulationTime += realDeltaTime - deltaTime;
 }
 
-inline void applyFriction(CVec& vel, float dt, float area, float mass, float dragCoeff, float airCoeff, CVec airVel = CVec(0,0)) {
+INLINE void applyFriction(CVec& vel, float dt, float area, float mass, float dragCoeff, float airCoeff, CVec airVel = CVec(0,0)) {
 	const CVec relAirVel = airVel - vel;
 	vel += relAirVel * relAirVel.GetLength() * area * dragCoeff * airCoeff * 0.5f * dt / mass;
 }

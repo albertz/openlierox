@@ -7,6 +7,7 @@
 #include <iostream>
 #include <stdexcept>
 #include "Debug.h"
+#include "CodeAttributes.h"
 
 using std::cerr;
 using std::endl;
@@ -14,7 +15,7 @@ using std::endl;
 namespace Encoding
 {
 	
-inline unsigned int bitsOf(unsigned long n)
+INLINE unsigned int bitsOf(unsigned long n)
 {
 	unsigned int bits = 0;
 	for(; n; n >>= 1)
@@ -23,7 +24,7 @@ inline unsigned int bitsOf(unsigned long n)
 	return bits;
 }
 
-inline void encode(BitStream& stream, int i, int count)
+INLINE void encode(BitStream& stream, int i, int count)
 {
 	if(count <= 0) {
 		errors << "encode: count =" << count << endl;
@@ -36,7 +37,7 @@ inline void encode(BitStream& stream, int i, int count)
 	stream.addInt(i, bitsOf(count - 1));
 }
 
-inline int decode(BitStream& stream, int count)
+INLINE int decode(BitStream& stream, int count)
 {
 	if(count <= 0) {
 		errors << "decode: count = " << count << endl;
@@ -45,7 +46,7 @@ inline int decode(BitStream& stream, int count)
 	return stream.getInt(bitsOf(count - 1));
 }
 
-inline unsigned int signedToUnsigned(int n)
+INLINE unsigned int signedToUnsigned(int n)
 {
 	if(n < 0)
 		return ((-n) << 1) | 1;
@@ -53,7 +54,7 @@ inline unsigned int signedToUnsigned(int n)
 		return n << 1;
 }
 
-inline int unsignedToSigned(unsigned int n)
+INLINE int unsignedToSigned(unsigned int n)
 {
 	if(n & 1)
 		return -(int)(n >> 1);
@@ -61,17 +62,17 @@ inline int unsignedToSigned(unsigned int n)
 		return (n >> 1);
 }
 
-inline void encodeBit(BitStream& stream, int bit)
+INLINE void encodeBit(BitStream& stream, int bit)
 {
 	stream.addInt(bit, 1);
 }
 
-inline int decodeBit(BitStream& stream)
+INLINE int decodeBit(BitStream& stream)
 {
 	return stream.getInt(1);
 }
 
-inline void encodeEliasGamma(BitStream& stream, unsigned int n)
+INLINE void encodeEliasGamma(BitStream& stream, unsigned int n)
 {
 	if(n < 1)
 		throw std::runtime_error("encodeEliasGamma can't encode 0");
@@ -85,7 +86,7 @@ inline void encodeEliasGamma(BitStream& stream, unsigned int n)
 	stream.addInt(n, prefix - 1);
 }
 
-inline unsigned int decodeEliasGamma(BitStream& stream)
+INLINE unsigned int decodeEliasGamma(BitStream& stream)
 {
 	int prefix = 0;
 	for(; decodeBit(stream) == 0 && stream.bitPos() < stream.bitSize(); )
@@ -100,7 +101,7 @@ inline unsigned int decodeEliasGamma(BitStream& stream)
 	return stream.getInt(prefix) | (1 << prefix);
 }
 
-inline void encodeEliasDelta(BitStream& stream, unsigned int n)
+INLINE void encodeEliasDelta(BitStream& stream, unsigned int n)
 {
 	if(n < 1) {
 		errors << "encodeEliasDelta: n = " << n << endl;
@@ -111,7 +112,7 @@ inline void encodeEliasDelta(BitStream& stream, unsigned int n)
 	stream.addInt(n, prefix - 1);
 }
 
-inline unsigned int decodeEliasDelta(BitStream& stream)
+INLINE unsigned int decodeEliasDelta(BitStream& stream)
 {
 	int prefix = decodeEliasGamma(stream) - 1;
 	if(prefix < 0)

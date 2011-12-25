@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "CodeAttributes.h"
 
 template<class InputT>
 int xmlScan(InputT& in)
@@ -31,7 +32,7 @@ int xmlScanLexeme(InputT& in)
 	return c;
 }
 
-inline bool xmlIsStringChar(int b)
+INLINE bool xmlIsStringChar(int b)
 {
 	return ((b >= 'a' && b <= 'z')
 	     || (b >= 'A' && b <= 'Z')
@@ -232,7 +233,7 @@ struct Selector
 	std::string state;
 };
 
-inline bool gssIsStringChar(int b)
+INLINE bool gssIsStringChar(int b)
 {
 	return ((b >= 'a' && b <= 'z')
 	     || (b >= 'A' && b <= 'Z')
@@ -246,7 +247,7 @@ inline bool gssIsStringChar(int b)
 }
 
 
-inline bool gssIsSelectorStringChar(int b)
+INLINE bool gssIsSelectorStringChar(int b)
 {
 	return ((b >= 'a' && b <= 'z')
 	     || (b >= 'A' && b <= 'Z')

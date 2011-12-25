@@ -12,10 +12,11 @@
 
 #include <string>
 #include "StringUtils.h" // for itoa
+#include "CodeAttributes.h"
 
 struct Version;
 extern const char* const fullGameName;
-inline const char* GetFullGameName() { return fullGameName; }
+INLINE const char* GetFullGameName() { return fullGameName; }
 const char* GetGameName();
 const Version& GetGameVersion();
 
@@ -45,13 +46,13 @@ struct Version {
 };
 
 
-// The following functions are declared inline because they are used very often.
+// The following functions are declared INLINE because they are used very often.
 
 // For comparision, we ignore the following: revnum, gamename
 // That means, a special revision of a baseversion should not change the behaviour (and it's only for debugging).
 // And another game like Hirudo should keep the same version-counting. We can start Hirudo at version 1.0 or 0.99.
 
-inline bool operator<(const Version& ver1, const Version& ver2) {
+INLINE bool operator<(const Version& ver1, const Version& ver2) {
 	if(ver1.num != ver2.num) return ver1.num < ver2.num;
 	if(ver1.subnum != ver2.subnum) return ver1.subnum < ver2.subnum;
 	if(ver1.releasetype != ver2.releasetype) return ver1.releasetype < ver2.releasetype;
@@ -59,7 +60,7 @@ inline bool operator<(const Version& ver1, const Version& ver2) {
 	return false;
 }
 
-inline bool operator==(const Version& ver1, const Version& ver2) {
+INLINE bool operator==(const Version& ver1, const Version& ver2) {
 	return
 	ver1.num == ver2.num &&
 	ver1.subnum == ver2.subnum &&
@@ -67,12 +68,12 @@ inline bool operator==(const Version& ver1, const Version& ver2) {
 	ver1.subsubnum == ver2.subsubnum;
 }
 
-inline bool operator>(const Version& ver1, const Version& ver2) { return ver2 < ver1; }
-inline bool operator<=(const Version& ver1, const Version& ver2) { return ver1 < ver2 || ver1 == ver2; }
-inline bool operator>=(const Version& ver1, const Version& ver2) { return ver2 < ver1 || ver1 == ver2; }
-inline bool operator!=(const Version& ver1, const Version& ver2) { return ! (ver1 == ver2); }
+INLINE bool operator>(const Version& ver1, const Version& ver2) { return ver2 < ver1; }
+INLINE bool operator<=(const Version& ver1, const Version& ver2) { return ver1 < ver2 || ver1 == ver2; }
+INLINE bool operator>=(const Version& ver1, const Version& ver2) { return ver2 < ver1 || ver1 == ver2; }
+INLINE bool operator!=(const Version& ver1, const Version& ver2) { return ! (ver1 == ver2); }
 
-inline Version OLXBetaVersion(int betaversion) {
+INLINE Version OLXBetaVersion(int betaversion) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = 0;
@@ -82,7 +83,7 @@ inline Version OLXBetaVersion(int betaversion) {
 	return v;
 }
 
-inline Version OLXBetaVersion(int num, int subnum, int betaversion) {
+INLINE Version OLXBetaVersion(int num, int subnum, int betaversion) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = num;
@@ -92,7 +93,7 @@ inline Version OLXBetaVersion(int num, int subnum, int betaversion) {
 	return v;
 }
 
-inline Version OLXVersionBranchStart(int num, int subnum) {
+INLINE Version OLXVersionBranchStart(int num, int subnum) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = num;
@@ -102,7 +103,7 @@ inline Version OLXVersionBranchStart(int num, int subnum) {
 	return v;	
 }
 
-inline Version OLXRcVersion(int num, int subnum, int rcversion) {
+INLINE Version OLXRcVersion(int num, int subnum, int rcversion) {
 	Version v;
 	v.gamename = fullGameName;
 	v.num = num;

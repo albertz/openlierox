@@ -21,6 +21,7 @@
 #include <fstream>
 #include "SmartPointer.h"
 #include "FindFile.h"
+#include "CodeAttributes.h"
 
 extern int allegro_error;
 extern int cpu_capabilities;
@@ -120,7 +121,7 @@ extern int _rgb_r_shift_15, _rgb_g_shift_15, _rgb_b_shift_15,
 
 extern int _rgb_scale_5[32], _rgb_scale_6[64];
 
-#define __INLINE__  static inline
+#define __INLINE__  static INLINE
 
 __INLINE__ int getr16(int c)
 {
@@ -287,7 +288,7 @@ void clear_bitmap(ALLEGRO_BITMAP*);
 
 #ifndef AL_INLINE
 //#define AL_INLINE(type, name, args, code)       type name args;
-#define AL_INLINE(type, name, args, code)       static inline type name args code
+#define AL_INLINE(type, name, args, code)       static INLINE type name args code
 #endif
 
 

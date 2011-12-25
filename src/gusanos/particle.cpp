@@ -32,6 +32,7 @@
 #include <iostream>
 #define BOOST_NO_MT
 #include <boost/pool/pool.hpp>
+#include "CodeAttributes.h"
 
 using namespace std;
 
@@ -208,7 +209,7 @@ void Particle::assignNetworkRole( bool authority )
 	//DLOG("Applied for zoidlevel");
 }
 
-inline Vec getCorrection( const Vec& objPos, const Vec& pointPos, float radius )
+INLINE Vec getCorrection( const Vec& objPos, const Vec& pointPos, float radius )
 {
 	Vec diff = pointPos - objPos;
 	if ( diff.lengthSqr() < radius*radius ) {

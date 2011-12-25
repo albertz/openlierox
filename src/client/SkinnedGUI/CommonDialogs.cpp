@@ -16,6 +16,7 @@
 #include "CWpnRest.h"
 #include "AuxLib.h"
 #include "Options.h"
+#include "CodeAttributes.h"
 
 
 namespace SkinnedGUI {
@@ -112,7 +113,7 @@ void CMessageBox::DoRepaint()
 		CListview* listview;
 		std::string extension;
 		FileDialogAdder(CListview* lv_, const std::string& ext) : listview(lv_), extension(ext) {}
-		inline bool operator() (const std::string& f) {
+		INLINE bool operator() (const std::string& f) {
 			if(stringcaseequal(GetFileExtension(f), extension)) {
 				std::string fname = GetBaseFilename(f);
 				std::string name = fname.substr(0, fname.size() - 4); // remove the extension, the size calcing is safe here

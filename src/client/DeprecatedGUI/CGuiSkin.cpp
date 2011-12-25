@@ -29,6 +29,7 @@
 #include "Color.h"
 #include "sound/SoundsBase.h"
 #include "game/Sounds.h"
+#include "CodeAttributes.h"
 
 
 namespace DeprecatedGUI {
@@ -486,13 +487,12 @@ void MakeSound( const std::string & param, CWidget * source )
 		PlaySoundSample(sfxGame.smpDeath[2]);
 }
 
-	class GUISkinAdder
+	struct GUISkinAdder
 	{
-		public:
 	   	CCombobox* cb;
 	   	int index;
 		GUISkinAdder(CCombobox* cb_) : cb(cb_), index(1) {}
-		inline bool operator() (std::string dir)
+		INLINE bool operator() (std::string dir)
 		{
 			size_t slash = findLastPathSep(dir);
 			if(slash != std::string::npos)

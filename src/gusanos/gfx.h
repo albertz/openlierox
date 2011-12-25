@@ -36,7 +36,7 @@ public:
 	
 	static int getScalingFactor();
 
-	inline void setBlender( Blenders blender, int alpha )
+	INLINE void setBlender( Blenders blender, int alpha )
 	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);
 		switch ( blender )
@@ -63,7 +63,7 @@ public:
 	int m_haxWormLight; //TEMP HAX
 #endif
 
-	inline bool compareRGB( int c1, int c2 )
+	INLINE bool compareRGB( int c1, int c2 )
 	{
 		return ( getr(c1) == getr(c2) && getg(c1) == getg(c2) && getb(c1) == getb(c2) );
 	}

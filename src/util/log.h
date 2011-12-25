@@ -9,6 +9,7 @@
 #include <map>
 #include "macros.h"
 #include <boost/preprocessor/cat.hpp>
+#include "CodeAttributes.h"
 
 struct Location
 {
@@ -44,7 +45,7 @@ struct LogOptions
 	int level;
 };
 
-inline bool cstrComp(char const* a, char const* b)
+INLINE bool cstrComp(char const* a, char const* b)
 {
 	return strcmp(a, b) < 0;
 }

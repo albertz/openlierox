@@ -3,6 +3,7 @@
 
 #include "context.h"
 #include "util/log.h"
+#include "CodeAttributes.h"
 
 template<class T>
 struct LuaID
@@ -69,7 +70,7 @@ CLASSID(OmfgGUI::Label, 24);
 #undef CLASSID
 
 template<class T>
-inline T* getObject(LuaContext& context, int idx)
+INLINE T* getObject(LuaContext& context, int idx)
 {
 	void* p = lua_touserdata(context, idx);
 	if(!p)
@@ -85,7 +86,7 @@ inline T* getObject(LuaContext& context, int idx)
 }
 
 template<class T>
-inline T* getLObject(LuaContext& context, int idx)
+INLINE T* getLObject(LuaContext& context, int idx)
 {
 	void* p = lua_touserdata(context, idx);
 	if(!p)
@@ -101,7 +102,7 @@ inline T* getLObject(LuaContext& context, int idx)
 }
 
 template<class T>
-inline T* assertObject(LuaContext& context, int idx, char const* errstr)
+INLINE T* assertObject(LuaContext& context, int idx, char const* errstr)
 {
 	if(T* p = getObject<T>(context, idx))
 		return p;
@@ -112,7 +113,7 @@ inline T* assertObject(LuaContext& context, int idx, char const* errstr)
 }
 
 template<class T>
-inline T* assertLObject(LuaContext& context, int idx, char const* errstr)
+INLINE T* assertLObject(LuaContext& context, int idx, char const* errstr)
 {
 	if(T* p = getLObject<T>(context, idx))
 		return p;

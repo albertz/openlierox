@@ -32,6 +32,7 @@
 #include "RefCounter.h"
 #include "Event.h"
 #include "StringUtils.h"
+#include "CodeAttributes.h"
 
 #ifndef WIN32
 #	include <dirent.h>
@@ -46,13 +47,13 @@
 #	include <io.h>
 #	include <direct.h>
 	// wrappers to provide the standards
-	inline int mkdir(const char *path, int mode) { return _mkdir(Utf8ToSystemNative(path).c_str()); }
+	INLINE int mkdir(const char *path, int mode) { return _mkdir(Utf8ToSystemNative(path).c_str()); }
 #	define stat _stat
 #ifndef S_ISREG
 #	define S_IFLNK 0120000
-inline bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
-inline bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
-inline bool S_ISLNK(unsigned short d)  { return (d & S_IFLNK) != 0; }
+INLINE bool S_ISREG(unsigned short s)  { return (s & S_IFREG) != 0; }
+INLINE bool S_ISDIR(unsigned short d)  { return (d & S_IFDIR) != 0; }
+INLINE bool S_ISLNK(unsigned short d)  { return (d & S_IFLNK) != 0; }
 #endif
 #endif
 
@@ -129,7 +130,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename);
 // but we still need to replace ${var} in the searchname
 // returns true, if file/dir is existing and accessable, false else
 
-inline bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
+INLINE bool GetExactFileName(const std::string& abs_searchname, std::string& filename) {
 	filename = abs_searchname;
 
 	if(abs_searchname.size() == 0) {
@@ -525,7 +526,7 @@ public:
 SDL_RWops *RWopsFromFP(FILE *fp, bool autoclose);
 
 // Platform-independent stat() - use S_ISREG( st.st_mode ) and S_ISDIR( st.st_mode ) on stat struct
-inline bool StatFile( const std::string & file, struct stat * st )
+INLINE bool StatFile( const std::string & file, struct stat * st )
 {
 	std::string fname = GetFullFileName( file );
 	std::string exactfname;

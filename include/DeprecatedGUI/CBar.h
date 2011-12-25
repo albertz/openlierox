@@ -59,31 +59,31 @@ public:
 	void		Draw(SDL_Surface * dst);
 	int			GetWidth();
 	int			GetHeight();
-	inline int	GetPosition()  { return Position; }
-	inline void SetPosition(int _p) { Position = _p; }
-	inline int	GetX() { return X; }
-	inline void SetX(int _x) { X = _x; }
-	inline int	GetY() { return Y; }
-	inline void SetY(int _y) { Y = _y; }
-	inline int	GetLabelX() { return LabelX; }
-	inline void SetLabelX(int _x) { LabelX = _x; }
-	inline int	GetLabelY() { return LabelY; }
-	inline void SetLabelY(int _y) { LabelY = _y; }
-	inline int	GetNumForeStates()  { return NumForeStates; }
-	inline void SetNumForeStates(int _s) { NumForeStates = _s; }  // NOTE: number of states is one state less than count of images
-	inline int	GetCurrentForeState()  { return CurrentForeState; }  //
-	inline void SetCurrentForeState(int _s) { CurrentForeState = MIN(NumForeStates-1, _s); } // NOTE: the first state is 0
-	inline int	GetNumBgStates()  { return NumBgStates; }
-	inline void SetNumBgStates(int _s) { NumBgStates = _s; }  // NOTE: number of states is one state less than count of images
-	inline int	GetCurrentBgState()  { return CurrentBgState; }  //
-	inline void SetCurrentBgState(int _s) { CurrentBgState = MIN(NumBgStates-1, _s); } // NOTE: the first state is 0
-	inline bool IsLabelVisible()  { return LabelVisible; }
-	inline void SetLabelVisible(bool _v)  { LabelVisible = _v; }
-	inline Color GetBgColor()  { return bgColor; }
-	inline void SetBgColor(Color _cl)  { bgColor = _cl; }
-	inline Color GetForeColor()  { return foreColor; }
-	inline void SetForeColor(Color _cl)  { foreColor = _cl; }
-	inline bool IsProperlyLoaded()  { return bmpBar.get() != NULL; }
+	INLINE int	GetPosition()  { return Position; }
+	INLINE void SetPosition(int _p) { Position = _p; }
+	INLINE int	GetX() { return X; }
+	INLINE void SetX(int _x) { X = _x; }
+	INLINE int	GetY() { return Y; }
+	INLINE void SetY(int _y) { Y = _y; }
+	INLINE int	GetLabelX() { return LabelX; }
+	INLINE void SetLabelX(int _x) { LabelX = _x; }
+	INLINE int	GetLabelY() { return LabelY; }
+	INLINE void SetLabelY(int _y) { LabelY = _y; }
+	INLINE int	GetNumForeStates()  { return NumForeStates; }
+	INLINE void SetNumForeStates(int _s) { NumForeStates = _s; }  // NOTE: number of states is one state less than count of images
+	INLINE int	GetCurrentForeState()  { return CurrentForeState; }  //
+	INLINE void SetCurrentForeState(int _s) { CurrentForeState = MIN(NumForeStates-1, _s); } // NOTE: the first state is 0
+	INLINE int	GetNumBgStates()  { return NumBgStates; }
+	INLINE void SetNumBgStates(int _s) { NumBgStates = _s; }  // NOTE: number of states is one state less than count of images
+	INLINE int	GetCurrentBgState()  { return CurrentBgState; }  //
+	INLINE void SetCurrentBgState(int _s) { CurrentBgState = MIN(NumBgStates-1, _s); } // NOTE: the first state is 0
+	INLINE bool IsLabelVisible()  { return LabelVisible; }
+	INLINE void SetLabelVisible(bool _v)  { LabelVisible = _v; }
+	INLINE Color GetBgColor()  { return bgColor; }
+	INLINE void SetBgColor(Color _cl)  { bgColor = _cl; }
+	INLINE Color GetForeColor()  { return foreColor; }
+	INLINE void SetForeColor(Color _cl)  { foreColor = _cl; }
+	INLINE bool IsProperlyLoaded()  { return bmpBar.get() != NULL; }
 };
 
 } // namespace DeprecatedGUI

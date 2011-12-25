@@ -24,6 +24,7 @@
 #include "Timer.h"
 #include "MathLib.h"
 #include "CServer.h"
+#include "CodeAttributes.h"
 
 
 
@@ -1421,7 +1422,7 @@ Uint16 const crc16_table[256] = {
         0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-inline Uint16 crc16_byte(Uint16 crc, const Uint8 data)
+INLINE Uint16 crc16_byte(Uint16 crc, const Uint8 data)
 {
 	return (crc >> 8) ^ crc16_table[(crc ^ data) & 0xff];
 }

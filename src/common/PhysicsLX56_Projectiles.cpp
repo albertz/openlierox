@@ -23,6 +23,7 @@
 
 #include <typeinfo>
 
+#include "CodeAttributes.h"
 #include "ProjAction.h"
 #include "CGameScript.h"
 #include "CWorm.h"
@@ -46,7 +47,7 @@
 
 ///////////////////
 // Lower level projectile-worm collision test
-inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
+INLINE int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 {
 	Shape<int> s; s.pos = pos; s.radius = radius;
 	if(getProjInfo()->Type == PRJ_CIRCLE)
@@ -110,7 +111,7 @@ inline int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 }
 
 
-static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, int src_rx, int src_ry) {
+static INLINE bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target, int src_rx, int src_ry) {
 	Shape<int> s1; s1.pos = src->getPos(); s1.radius.x = src_rx; s1.radius.y = src_ry;
 	Shape<int> s2; s2.pos = target->getPos(); s2.radius = target->getRadius();
 	if(src->getProjInfo()->Type == PRJ_CIRCLE) s1.type = Shape<int>::ST_CIRCLE;
@@ -119,14 +120,14 @@ static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProj
 	return s1.CollisionWith(s2);
 }
 
-static inline bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target) {
+static INLINE bool CProjectile_CollisionWith(const CProjectile* src, const CProjectile* target) {
 	return CProjectile_CollisionWith(src, target, src->getRadius().x, src->getRadius().y);
 }
 
 
 
 
-inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
+INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
 	CMap* map = cClient->getMap();
 	
 	// do we get any worm?
@@ -172,7 +173,7 @@ inline ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 
 ///////////////////////
 // Checks for collision with the level border
-inline bool CProjectile::MapBoundsCollision(int px, int py)
+INLINE bool CProjectile::MapBoundsCollision(int px, int py)
 {
 	CollisionSide = 0;
 	if(cClient->getGameLobby()[FT_InfiniteMap]) return false;
@@ -195,7 +196,7 @@ inline bool CProjectile::MapBoundsCollision(int px, int py)
 }
 
 
-inline static void handlePixelFlag(CProjectile::ColInfo& res, const Material& m, int x, int y, int cx, int cy) {
+INLINE static void handlePixelFlag(CProjectile::ColInfo& res, const Material& m, int x, int y, int cx, int cy) {
 	// Solid pixel
 	if(!m.particle_pass) {
 		if (y < cy)
@@ -216,7 +217,7 @@ inline static void handlePixelFlag(CProjectile::ColInfo& res, const Material& m,
 ////////////////////////////
 // Checks for collision with the terrain
 // WARNING: assumed to be called only from SimulateFrame
-inline CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
+INLINE CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 {
 	CMap* map = cClient->getMap();
 	
@@ -363,7 +364,7 @@ bool CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms)
+INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms)
 {
 	// Gravity
 	float fGravity = 100.0f; // Default
@@ -429,7 +430,7 @@ inline ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 }
 
 
-inline ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms) {
+INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
 		const int len = (int)prj->vVelocity.GetLength2();
@@ -980,7 +981,7 @@ bool Proj_TimerEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* pr
 }
 
 
-static inline bool checkProjHit(const Proj_ProjHitEvent& info, std::set<CGameObject*>& projs, CProjectile* prj, CProjectile* p) {
+static INLINE bool checkProjHit(const Proj_ProjHitEvent& info, std::set<CGameObject*>& projs, CProjectile* prj, CProjectile* p) {
 	if(p == prj) return true;
 	if(info.Target && p->getProjInfo() != info.Target) return true;
 	if(!info.ownerWorm.match(prj->GetOwner(), p)) return true;
@@ -1208,7 +1209,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 
 
 
-static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, TimeDiff dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+static INLINE ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, TimeDiff dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
 	// If this is a remote projectile, we have already set the correct fLastSimulationTime
 	//proj->setRemote( false );
 
@@ -1304,7 +1305,7 @@ static inline ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 }
 
 
-static inline bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
+static INLINE bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, TimeDiff dt, CProjectile* const prj) {
 	const proj_t& projInfo = *prj->GetProjInfo();
 	
 	Proj_DoActionInfo doActionInfo;

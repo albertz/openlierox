@@ -58,7 +58,7 @@ std::string	GetDateTimeFilename(); // Returns time for use in filename, so newer
 #ifdef DEBUG
 bool		HandleDebugCommand(const std::string& cmd);
 #else
-inline bool	HandleDebugCommand(const std::string& cmd) { return false; }
+static bool	HandleDebugCommand(const std::string& cmd) { return false; }
 #endif
 
 

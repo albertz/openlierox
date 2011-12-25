@@ -20,6 +20,7 @@
 #include <signal.h>
 #endif
 
+#include "CodeAttributes.h"
 #include "LieroX.h"
 #include "Debug.h"
 #include "Options.h"
@@ -47,14 +48,14 @@
 // macros are bad, esp the names (reserved/used by CBytestream)
 // TODO: they seem to not work correctly!
 // all use of it in CBytestream was removed
-inline void nl_writeShort(char* x, int& y, NLushort z)		{ writeShort(x, y, z); }
-inline void nl_writeLong(char* x, int& y, NLulong z)		{ writeLong(x, y, z); }
-inline void nl_writeFloat(char* x, int& y, NLfloat z)		{ writeFloat(x, y, z); }
-inline void nl_writeDouble(char* x, int& y, NLdouble z)		{ writeDouble(x, y, z); }
-inline void nl_readShort(char* x, int& y, NLushort z)		{ readShort(x, y, z); }
-inline void nl_readLong(char* x, int& y, NLulong z)			{ readLong(x, y, z); }
-inline void nl_readFloat(char* x, int& y, NLfloat z)		{ readFloat(x, y, z); }
-inline void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
+INLINE void nl_writeShort(char* x, int& y, NLushort z)		{ writeShort(x, y, z); }
+INLINE void nl_writeLong(char* x, int& y, NLulong z)		{ writeLong(x, y, z); }
+INLINE void nl_writeFloat(char* x, int& y, NLfloat z)		{ writeFloat(x, y, z); }
+INLINE void nl_writeDouble(char* x, int& y, NLdouble z)		{ writeDouble(x, y, z); }
+INLINE void nl_readShort(char* x, int& y, NLushort z)		{ readShort(x, y, z); }
+INLINE void nl_readLong(char* x, int& y, NLulong z)			{ readLong(x, y, z); }
+INLINE void nl_readFloat(char* x, int& y, NLfloat z)		{ readFloat(x, y, z); }
+INLINE void nl_readDouble(char* x, int& y, NLdouble z)		{ readDouble(x, y, z); }
 #undef writeByte
 #undef writeShort
 #undef writeFloat

@@ -403,12 +403,12 @@ void safeAlloc_free(void* p) {
     };
 
   template<typename _Tp>
-    inline bool
+    INLINE bool
     operator==(const safe_allocator<_Tp>&, const safe_allocator<_Tp>&)
     { return true; }
 
   template<typename _Tp>
-    inline bool
+    INLINE bool
     operator!=(const safe_allocator<_Tp>&, const safe_allocator<_Tp>&)
     { return false; }
 

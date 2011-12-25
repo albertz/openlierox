@@ -21,6 +21,7 @@
 #include <g15daemon_client.h>
 //#include <libg15.h>
 #include <libg15render.h>
+#include "CodeAttributes.h"
 
 const float G15FRAMETIME = 0.25f; // 4 frames/second, we shouldn't need more
 const float G15SPLASHTIME = 5.0f;
@@ -94,7 +95,7 @@ public:
 	// Small can take up to 40 characters. 3 pix wide 1 pix spacing 6 pix high (4x6)
 	// Medium can take up to 32 characters. 4 pix wide 1 pix spacing 7 pix high (5x7)
 	// Large can take up to 20 characters. 7 pix wide 1 pix spacing 8 pix high (8x8)
-	inline int getCharWidth(const int size)
+	INLINE int getCharWidth(const int size)
 	{
 		switch (size)
 		{
@@ -106,7 +107,7 @@ public:
 					return 4;
 		}
 	}
-	inline int getCharHeight(const int size)
+	INLINE int getCharHeight(const int size)
 	{
 		switch (size)
 		{
@@ -121,21 +122,21 @@ public:
 
 
 	// Returns what X pixel to start on to get the specified effect
-	inline int centerAlign(const std::string& txt, const int size)
+	INLINE int centerAlign(const std::string& txt, const int size)
 	{
 		return (G15_LCD_WIDTH/2) - (txt.length()*getCharWidth(size))/2;
 	}
 	// Last pixel is actually #159 (starts on 0), but this removes the spacing (1pix).
 	// For some unknown reason it's 161 instead of 160 to remove spacing?? (new: most likely front spacing)
 	// Returns what X pixel to start on to get the specified effect
-	inline int rightAlign(const std::string& txt, const int size)
+	INLINE int rightAlign(const std::string& txt, const int size)
 	{
 		return (G15_LCD_WIDTH+1) - (txt.length()*getCharWidth(size));
 	}
 	// Returns what Y pixel to start on to center text at pixel y, will place them all on the same line
 	// if bottom, returns pixel for getting the bottom of the text at pixel y;
 	// This description sucks, just try it out, ok?
-	inline int yAlign(const int y,const int size, const bool bottom = false)
+	INLINE int yAlign(const int y,const int size, const bool bottom = false)
 	{
 		int height = getCharHeight(size);
 		switch (size)
@@ -146,7 +147,7 @@ public:
 					return bottom?(y - height):(y - height/2); //4
 		}
 	}
-	inline void drawXBM(g15canvas* canvas, unsigned char* data, const int width, const int height ,const int pos_x, const int pos_y)
+	INLINE void drawXBM(g15canvas* canvas, unsigned char* data, const int width, const int height ,const int pos_x, const int pos_y)
 	{
 		int y = 0;
 		int z = 0;

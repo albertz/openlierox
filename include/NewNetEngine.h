@@ -18,6 +18,7 @@
 #include <string>
 #include "CBytestream.h"
 #include "Consts.h"
+#include "CodeAttributes.h"
 
 namespace NewNet {
 
@@ -63,9 +64,9 @@ struct __taus113_state_t
 {
   unsigned z1, z2, z3, z4;
 };
-static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state );
-static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state );
-static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state );
+static INLINE unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state );
+static INLINE double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state );
+static INLINE float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state );
 void ___Random_Seed__(unsigned s, __taus113_state_t & NetSyncedRandom_state);
 
 class NetSyncedRandom
@@ -221,7 +222,7 @@ void NetSyncedRandom_Restore();
 #define LCG(n) ((69069UL * n) & 0xffffffffUL)
 #define NSRMASK 0xffffffffUL
 
-static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state )
+static INLINE unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state )
 {
   unsigned b1, b2, b3, b4;
 
@@ -240,11 +241,11 @@ static inline unsigned ___Random__( __taus113_state_t & NetSyncedRandom_state )
   return (NetSyncedRandom_state.z1 ^ NetSyncedRandom_state.z2 ^ NetSyncedRandom_state.z3 ^ NetSyncedRandom_state.z4);
 
 };
-static inline double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state )
+static INLINE double ___RandomDouble__( __taus113_state_t & NetSyncedRandom_state )
 {
   return ___Random__( NetSyncedRandom_state ) / 4294967295.0;
 };
-static inline float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state )
+static INLINE float ___RandomFloat__( __taus113_state_t & NetSyncedRandom_state )
 {
   return ___Random__( NetSyncedRandom_state ) / 4294967295.0f;
 };

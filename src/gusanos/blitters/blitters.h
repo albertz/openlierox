@@ -9,6 +9,7 @@
 #include "gusanos/allegro.h"
 #include "gusanos/blitters/types.h"
 #include "mmx.h"
+#include "CodeAttributes.h"
 
 // TODO: correct check if we should include MMX/SSE code
 #if !defined(WIN32) && (SDL_BYTEORDER == SDL_LIL_ENDIAN)
@@ -47,12 +48,12 @@ namespace Blitters
 		variant = C
 */
 
-inline Pixel getpixel_32(ALLEGRO_BITMAP* where, int x, int y)
+INLINE Pixel getpixel_32(ALLEGRO_BITMAP* where, int x, int y)
 {
 	return ((Pixel32 *)where->line[y])[x];
 }
 
-inline void putpixel_solid_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_solid_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	((Pixel32 *)where->line[y])[x] = color1;
 }
@@ -64,7 +65,7 @@ void putpixel_blendHalf_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1);
 void putpixel_blend_32(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact);
 void putpixelwu_blend_32(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact);
 
-inline void putpixel_solid_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_solid_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	((Pixel16 *)where->line[y])[x] = (Pixel16)color1;
 }
@@ -76,7 +77,7 @@ void putpixel_blendHalf_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1);
 void putpixel_blend_16(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact);
 void putpixelwu_blend_16(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact);
 
-inline void putpixel_solid_8(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_solid_8(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	((Pixel8 *)where->line[y])[x] = (Pixel8)color1;
 }
@@ -217,179 +218,179 @@ using Blitters::line_add;
 	|| (unsigned int)y >= (unsigned int)where->h) \
 		return
 		
-inline void putpixel_add(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
+INLINE void putpixel_add(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
 {
 	CHECK_RANGE();
 	SELECT2(putpixel_addFact, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixel_addFull(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_addFull(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	CHECK_RANGE();
 	SELECT(putpixel_add, (where, x, y, color1));
 }
 
-inline void putpixelwu_add(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
+INLINE void putpixelwu_add(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
 {
 	//blendwu blender checks range
 	SELECT2(putpixelwu_add, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixel_blendHalf(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_blendHalf(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	CHECK_RANGE();
 	SELECT(putpixel_blendHalf, (where, x, y, color1));
 }
 
-inline void putpixel_blend(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
+INLINE void putpixel_blend(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
 {
 	CHECK_RANGE();
 	SELECT2(putpixel_blend, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixel_blendalpha(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
+INLINE void putpixel_blendalpha(ALLEGRO_BITMAP* where, int x, int y, Pixel color1, int fact)
 {
 	CHECK_RANGE();
 	SELECT2(putpixel_blend, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixelwu_blend(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
+INLINE void putpixelwu_blend(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
 {
 	//blendwu blender checks range
 	SELECT2(putpixelwu_blend, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixelwu_blendalpha(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
+INLINE void putpixelwu_blendalpha(ALLEGRO_BITMAP* where, float x, float y, Pixel color1, int fact)
 {
 	//blendwu blender checks range
 	SELECT2(putpixelwu_blend, (where, x, y, color1, fact), (where, x, y, color1, (fact + 4) / 8));
 }
 
-inline void putpixel_solid(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
+INLINE void putpixel_solid(ALLEGRO_BITMAP* where, int x, int y, Pixel color1)
 {
 	CHECK_RANGE();
 	SELECT_ALL(putpixel_solid, (where, x, y, color1));
 }
 
-inline void putpixelwu_solid(ALLEGRO_BITMAP* where, float x, float y, Pixel color1)
+INLINE void putpixelwu_solid(ALLEGRO_BITMAP* where, float x, float y, Pixel color1)
 {
 	//blendwu blender checks range
 	SELECT2(putpixelwu_blend, (where, x, y, color1, 256), (where, x, y, color1, 32));
 }
 
-inline void rectfill_add(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+INLINE void rectfill_add(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	SELECT_MMX32(rectfill_add, (where, x1, y1, x2, y2, colour, fact));
 }
 
-inline void rectfill_blend(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+INLINE void rectfill_blend(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	SELECT(rectfill_blend, (where, x1, y1, x2, y2, colour, fact));
 }
 
-inline void rectfill_blendalpha(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
+INLINE void rectfill_blendalpha(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour, int fact)
 {
 	SELECT(rectfill_blend, (where, x1, y1, x2, y2, colour, fact));
 }
 
-inline void rectfill_solid(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour)
+INLINE void rectfill_solid(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, Pixel colour)
 {
 	rectfill(where, x1, y1, x2, y2, colour); //TODO: Make own
 }
 
-inline void hline_add(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+INLINE void hline_add(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	SELECT_MMX32(hline_add, (where, x1, y1, x2, colour, fact));
 }
 
-inline void hline_blend(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+INLINE void hline_blend(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	SELECT(hline_blend, (where, x1, y1, x2, colour, fact));
 }
 
-inline void hline_blendalpha(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
+INLINE void hline_blendalpha(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour, int fact)
 {
 	SELECT(hline_blend, (where, x1, y1, x2, colour, fact));
 }
 
-inline void hline_solid(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour)
+INLINE void hline_solid(ALLEGRO_BITMAP* where, int x1, int y1, int x2, Pixel colour)
 {
 	hline(where, x1, y1, x2, colour);
 }
 
-inline void linewu_blendalpha(ALLEGRO_BITMAP* where, float x, float y, float destx, float desty, Pixel colour, int fact)
+INLINE void linewu_blendalpha(ALLEGRO_BITMAP* where, float x, float y, float destx, float desty, Pixel colour, int fact)
 {
 	Blitters::linewu_blend(where, x, y, destx, desty, colour, fact);
 }
 
-inline void linewu_solid(ALLEGRO_BITMAP* where, float x, float y, float destx, float desty, Pixel colour)
+INLINE void linewu_solid(ALLEGRO_BITMAP* where, float x, float y, float destx, float desty, Pixel colour)
 {
 	Blitters::linewu_blend(where, x, y, destx, desty, colour, 256);
 }
 
-inline void line_solid(ALLEGRO_BITMAP* where, int x, int y, int destx, int desty, Pixel colour)
+INLINE void line_solid(ALLEGRO_BITMAP* where, int x, int y, int destx, int desty, Pixel colour)
 {
 	line(where, x, y, destx, desty, colour);
 }
 
-inline void line_blendalpha(ALLEGRO_BITMAP* where, int x, int y, int destx, int desty, Pixel colour, int fact)
+INLINE void line_blendalpha(ALLEGRO_BITMAP* where, int x, int y, int destx, int desty, Pixel colour, int fact)
 {
 	Blitters::line_blend(where, x, y, destx, desty, colour, fact);
 }
 
-inline void drawSprite_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
+INLINE void drawSprite_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
 {
 	SELECT_MMX_SSE(drawSprite_add, (where, from, x, y, 0, 0, 0, 0, fact));
 }
 
-inline void drawSprite_blend(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
+INLINE void drawSprite_blend(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
 {
 	SELECT_MMX_SSE(drawSprite_blend, (where, from, x, y, 0, 0, 0, 0, fact));
 }
 
-inline void drawSprite_blendalpha(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
+INLINE void drawSprite_blendalpha(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact)
 {
 	SELECT_MMX_SSE_32(drawSprite_blendalpha_32_to, (where, from, x, y, 0, 0, 0, 0, fact));
 }
 
-inline void drawSprite_blendtint(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact, int color)
+INLINE void drawSprite_blendtint(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int fact, int color)
 {
 	SELECT(drawSprite_blendtint_8_to, (where, from, x, y, 0, 0, 0, 0, fact, color));
 }
 
-inline void drawSprite_solid(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y)
+INLINE void drawSprite_solid(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y)
 {
 	draw_sprite(where, from, x, y);
 }
 
-inline void drawSprite_mult_8(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y)
+INLINE void drawSprite_mult_8(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y)
 {
 	SELECT_MMX_SSE_32(drawSprite_mult_8_to, (where, from, x, y, 0, 0, 0, 0));
 }
 
-inline void drawSpriteCut_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+INLINE void drawSpriteCut_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	SELECT_MMX_SSE(drawSprite_add, (where, from, x, y, cutl, cutt, cutr, cutb, fact));
 }
 
-inline void drawSpriteCut_blend(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+INLINE void drawSpriteCut_blend(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	SELECT_MMX_SSE(drawSprite_blend, (where, from, x, y, cutl, cutt, cutr, cutb, fact));
 }
 
-inline void drawSpriteCut_blendalpha(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
+INLINE void drawSpriteCut_blendalpha(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb, int fact)
 {
 	SELECT_MMX_SSE_32(drawSprite_blendalpha_32_to, (where, from, x, y, cutl, cutt, cutr, cutb, fact));
 }
 
-inline void drawSpriteCut_solid(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
+INLINE void drawSpriteCut_solid(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int cutl, int cutt, int cutr, int cutb)
 {
 	masked_blit(from, where, cutl, cutt, x+cutl, y+cutt
 		, from->w - (cutl + cutr)
 		, from->h - (cutt + cutb));
 }
 
-inline void drawSpriteLine_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
+INLINE void drawSpriteLine_add(ALLEGRO_BITMAP* where, ALLEGRO_BITMAP* from, int x, int y, int x1, int y1, int x2, int fact)
 {
 	SELECT_ALL_MMX_SSE8(drawSpriteLine_add, (where, from, x, y, x1, y1, x2, fact));
 }

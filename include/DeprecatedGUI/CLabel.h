@@ -22,6 +22,7 @@
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "Color.h"
+#include "CodeAttributes.h"
 
 
 namespace DeprecatedGUI {
@@ -99,7 +100,7 @@ public:
 	std::string getText() const { return sText; }
 	
 	// Draw the label
-	inline void	Draw(SDL_Surface * bmpDest) {
+	INLINE void	Draw(SDL_Surface * bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
 		if( bVar )

@@ -44,6 +44,7 @@
 #include "game/Level.h"
 #include "gusanos/gusgame.h"
 #include "game/Game.h"
+#include "CodeAttributes.h"
 
 
 ////////////////////
@@ -385,7 +386,7 @@ bool CMap::LoadTheme(const std::string& _theme)
 	class ThemesCounter { public:
 		themelist* themes;
 		ThemesCounter(themelist* t) : themes(t) {}
-		inline bool operator() (const std::string& dir) {
+		INLINE bool operator() (const std::string& dir) {
 			size_t pos = findLastPathSep(dir);
 			std::string theme = dir.substr(pos+1);
 			if(CMap::validateTheme(theme))
@@ -614,12 +615,12 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 
 
-inline Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
+INLINE Color Resample2_getColor(SDL_Surface* bmpSrc, int sx, int sy) {
 	if(sx < 0 || sx >= bmpSrc->w || sy < 0 || sy >= bmpSrc->h) return Color(0,0,0);
 	return Color( bmpSrc->format, GetPixel(bmpSrc, sx, sy) );
 }
 
-inline bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
+INLINE bool Resample2_isDominantColor(SDL_Surface* bmpSrc, int dx, int dy) {
 	Color baseC = Resample2_getColor(bmpSrc, dx, dy);
 	Color otherC;
 	int count = 0, otherColCount = 0;
@@ -1210,7 +1211,7 @@ int CMap::CarveHole(int size, CVec pos, bool wrapAround)
 }
 
 
-/*inline void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
+/*INLINE void CarveHole_handlePixel(CMap* map, int& nNumDirt, int map_x, int map_y, Uint32 hole_pixel) {
 	uchar* px = map->GetPixelFlags() + map_y * map->GetWidth() + map_x;
 
 	if(*px & PX_DIRT) {
@@ -1243,7 +1244,7 @@ public:
 	CarveHole_PixelWalker(CMap* map_, const SmartPointer<SDL_Surface> & hole_, int& nNumDirt_, int map_left_, int map_top_) :
 		map(map_), hole(hole_), nNumDirt(nNumDirt_), map_left(map_left_), map_top(map_top_) {}
 
-	inline bool operator()(int map_x, int map_y) {
+	INLINE bool operator()(int map_x, int map_y) {
 		CarveHole_handlePixel(map, nNumDirt, map_x, map_y, GetPixel(hole, map_x - map_left, map_y - map_top));
 		return true;
 	}

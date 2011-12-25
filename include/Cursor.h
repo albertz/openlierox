@@ -19,6 +19,7 @@
 #include <string>
 #include <SDL.h>
 #include "SmartPointer.h"
+#include "CodeAttributes.h"
 
 
 // Cursor indexes
@@ -62,11 +63,11 @@ private:
 	void			Init(int type);
 public:
 	void			Draw(SDL_Surface *dst);
-	inline bool		IsAnimated()  { return bAnimated; }
-	inline int		GetType()  { return iType; }
-	inline void		SetType(int _t)  { iType = _t; }
-	inline int		GetHeight()  { return bmpCursor.get() ? bmpCursor->h : 0; }
-	inline int		GetWidth()  { return bmpCursor.get() ? bmpCursor->w : 0; }
+	INLINE bool		IsAnimated()  { return bAnimated; }
+	INLINE int		GetType()  { return iType; }
+	INLINE void		SetType(int _t)  { iType = _t; }
+	INLINE int		GetHeight()  { return bmpCursor.get() ? bmpCursor->h : 0; }
+	INLINE int		GetWidth()  { return bmpCursor.get() ? bmpCursor->w : 0; }
 };
 
 // Game cursors handling
@@ -78,7 +79,7 @@ void SetGameCursor(CCursor *c);
 void DrawCursor(SDL_Surface *dst);
 int GetCursorHeight(int c);
 int GetCursorWidth(int c);
-inline int GetMaxCursorHeight()  { return iMaxCursorHeight; }
-inline int GetMaxCursorWidth()  { return iMaxCursorWidth; }
+INLINE int GetMaxCursorHeight()  { return iMaxCursorHeight; }
+INLINE int GetMaxCursorWidth()  { return iMaxCursorWidth; }
 
 #endif // __CURSOR_H_

@@ -18,6 +18,7 @@
 #define __CWORM_H__
 
 #include <cassert>
+#include "CodeAttributes.h"
 #include "LieroX.h" // for MAX_WORMS, _AI_DEBUG
 #include "CProjectile.h"
 #include "CNinjaRope.h"
@@ -73,7 +74,7 @@ enum DIR_TYPE
 	DIR_RIGHT = 1 
 };
 
-inline DIR_TYPE OppositeDir(DIR_TYPE d) {
+INLINE DIR_TYPE OppositeDir(DIR_TYPE d) {
 	switch(d) {
 		case DIR_LEFT: return DIR_RIGHT;
 		case DIR_RIGHT: return DIR_LEFT;

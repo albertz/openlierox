@@ -61,6 +61,7 @@
 #include "gusanos/network.h"
 #include "cfg/client.h"
 #include "client/gfx/raytracing.h"
+#include "CodeAttributes.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -1365,7 +1366,7 @@ void CClient::SimulateHud()
 
 /////////////
 // Adds default columns to a scoreboard listview, used internally by InitializeGameMenu
-inline void AddColumns(DeprecatedGUI::CListview *lv)
+INLINE void AddColumns(DeprecatedGUI::CListview *lv)
 {
 	lv->AddColumn("", 15); // Command button
 	lv->AddColumn("", 25); // Skin

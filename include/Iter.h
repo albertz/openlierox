@@ -17,6 +17,7 @@
 #include <string>
 #include "Ref.h"
 #include "Functors.h"
+#include "CodeAttributes.h"
 
 
 template < typename _Obj >
@@ -187,10 +188,10 @@ typename Iterator<_T&>::Ref GetIterator(std::map<_KT, _T>& s) { return new STL_M
 template< typename _T, typename _I >
 typename Iterator< typename _T::value_type >::Ref GetIterator(const SmartPointer<_T,_I>& s) { return new STLIteratorToPtr<SmartPointer<_T,_I>,typename _T::value_type>(s); }
 
-inline
+INLINE
 Iterator<char&>::Ref GetIterator(std::string& s) { return new StringIterator(s); }
 
-inline
+INLINE
 Iterator<char>::Ref GetConstIterator(const std::string& s) { return new ConstStringIterator(s); }
 
 template< typename _T >

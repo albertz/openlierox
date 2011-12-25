@@ -85,7 +85,7 @@ public:
     void			Create()		{ iType = wid_Image; }
 	void			Destroy()		{  }
 
-	inline std::string	getPath()		{ return sPath; }
+	std::string	getPath()		{ return sPath; }
 	SmartPointer<DynDrawIntf> getSurface()	{ return tImage; }
 	void			Change(const std::string& Path);
 	void			Change(const SmartPointer<DynDrawIntf>& bmpImg);

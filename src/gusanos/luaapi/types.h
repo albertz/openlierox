@@ -2,6 +2,7 @@
 #define LUA_TYPES_H
 
 #include <cstring> //size_t
+#include "CodeAttributes.h"
 extern "C" {
 #include "lua.h"
 }
@@ -33,25 +34,25 @@ struct LuaReference
 
 
 template<typename T, typename _Lua>
-inline void* __lua_alloc(_Lua& lua_) {
+INLINE void* __lua_alloc(_Lua& lua_) {
 	lua_.push(T::metaTable);
 	return lua_.pushObject(sizeof(T));
 }
 
 template<typename T, typename _Lua, typename Meta>
-inline void* __lua_alloc_meta(_Lua& lua_, Meta& metaTable) {
+INLINE void* __lua_alloc_meta(_Lua& lua_, Meta& metaTable) {
 	lua_.push(metaTable);
 	return lua_.pushObject(sizeof(T));
 }
 
 template<typename T, typename _Lua>
-inline T* __lua_new_finalize(T* p, _Lua& lua_) {
+INLINE T* __lua_new_finalize(T* p, _Lua& lua_) {
 	p->luaReference = lua_.createReference();
 	return p;
 }
 
 template<typename T, typename _Lua>
-inline T* __lua_new_finalize_keep(T* p, _Lua& lua_) {
+INLINE T* __lua_new_finalize_keep(T* p, _Lua& lua_) {
 	lua_pushvalue(lua_, -1);
 	p->luaReference = lua_.createReference();
 	return p;

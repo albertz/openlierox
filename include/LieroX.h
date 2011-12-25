@@ -29,6 +29,7 @@
 #include "Consts.h"
 #include "CInput.h"
 #include "olx-types.h"
+#include "CodeAttributes.h"
 
 class profile_t;
 class IpToCountryDB;
@@ -246,7 +247,7 @@ enum GameState {
 	S_CLIPLAYING
 };
 
-inline std::string GameStateAsString(GameState s) {
+INLINE std::string GameStateAsString(GameState s) {
 	switch(s) {
 		case S_INACTIVE: return "S_INACTIVE";
 		case S_SVRLOBBY: return "S_SVRLOBBY";

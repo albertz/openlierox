@@ -13,6 +13,7 @@
 #include <string>
 #include <cassert>
 #include "StringUtils.h"
+#include "CodeAttributes.h"
 
 // { these function should be safe to be called from everywhere, also from signalhandlers
 bool AmIBeingDebugged();
@@ -66,8 +67,8 @@ struct Logger {
 	void operator()(const std::string& str) { (*this) << str; flush(); }
 };
 
-inline Logger& endl(Logger& __os) { return (__os << "\n").flush(); }
-inline Logger& flush(Logger& __os) { return __os.flush(); }
+INLINE Logger& endl(Logger& __os) { return (__os << "\n").flush(); }
+INLINE Logger& flush(Logger& __os) { return __os.flush(); }
 
 struct PrintOnLogger : PrintOutFct {
 	Logger& l;

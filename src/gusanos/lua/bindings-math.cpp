@@ -8,6 +8,7 @@
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/math_func.h"
+#include "CodeAttributes.h"
 
 #include <cmath>
 #include <cstdio>
@@ -23,7 +24,7 @@ using boost::lexical_cast;
 namespace LuaBindings
 {
 
-inline lua_Number luaL_checknumber(lua_State *L, int narg)
+INLINE lua_Number luaL_checknumber(lua_State *L, int narg)
 {
 	lua_Number d = lua_tonumber(L, narg);
 	//if(d == 0 && !lua_isnumber(L, narg))

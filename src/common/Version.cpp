@@ -11,6 +11,7 @@
 #include "LieroX.h"
 #include "Debug.h"
 #include "AuxLib.h"
+#include "CodeAttributes.h"
 
 
 #include "Version_generated.h"
@@ -30,7 +31,7 @@ const char* GetGameName() {
 	return GAMENAME;
 }
 
-inline void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {
+INLINE void setByString__optionalPostCheck(const Version* version, const std::string& versionStr) {
 #ifdef DEBUG
 	if(version->asString() != versionStr) {
 		notes << "WARNING: Version::setByString: '" << versionStr << "' get parsed as '" << version->asString() << "'" << endl;

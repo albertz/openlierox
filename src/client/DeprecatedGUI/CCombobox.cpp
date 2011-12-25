@@ -26,6 +26,7 @@
 #include "StringUtils.h"
 #include "Timer.h"
 #include "Debug.h"
+#include "CodeAttributes.h"
 
 
 namespace DeprecatedGUI {
@@ -209,7 +210,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 
 
 
-static inline int compare_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
+static INLINE int compare_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
 	// Swap the two items?
 	bool failed1,failed2;
 	int nat_cmp1 = from_string<int>(item1->caption(), failed1);
@@ -228,16 +229,16 @@ static inline int compare_items(const GuiListItem::Pt& item1, const GuiListItem:
 }
 
 
-static inline bool less_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
+static INLINE bool less_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
 	return compare_items(item1, item2) < 0;
 }
 
 
-static inline bool greater_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
+static INLINE bool greater_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2)  {
 	return compare_items(item1, item2) > 0;
 }
 
-static inline bool equal_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
+static INLINE bool equal_items(const GuiListItem::Pt& item1, const GuiListItem::Pt& item2) {
 	return compare_items(item1, item2) == 0;
 }
 

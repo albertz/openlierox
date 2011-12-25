@@ -16,10 +16,11 @@
 #include "game/Settings.h"
 #include "StringUtils.h"
 #include "FeatureList.h"
+#include "CodeAttributes.h"
 
 // TODO: move this? or is there sth like this in boost/stdlib?
 template<typename T>
-T Identity(T v) { return v; }
+INLINE T Identity(T v) { return v; }
 
 /*
  A wrapper to an OLX variable (a ref to <FeatureSettingsLayer,index>) which can be registered in the Gus console system.
@@ -92,8 +93,8 @@ float convertSpeed_GusToLX(float v);
 template<FeatureIndex index>
 struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
 
-inline float convertSpeedNeg_LXToGus(float v) { return -convertSpeed_LXToGus(v); }
-inline float convertSpeedNeg_GusToLX(float v) { return convertSpeed_GusToLX(-v); }
+INLINE float convertSpeedNeg_LXToGus(float v) { return -convertSpeed_LXToGus(v); }
+INLINE float convertSpeedNeg_GusToLX(float v) { return convertSpeed_GusToLX(-v); }
 
 template<FeatureIndex index>
 struct OlxNegatedSpeedVar : _OlxVariable<float, index, &convertSpeedNeg_LXToGus, &convertSpeedNeg_GusToLX> {};
@@ -105,13 +106,13 @@ float convertAccel_GusToLX(float v);
 template<FeatureIndex index>
 struct OlxAccelVar : _OlxVariable<float, index, &convertAccel_LXToGus, &convertAccel_GusToLX> {};
 
-inline float convertWormFriction_LXToGus(float v) { return 1.0f - v; }
-inline float convertWormFriction_GusToLX(float v) { return 1.0f - v; }
+INLINE float convertWormFriction_LXToGus(float v) { return 1.0f - v; }
+INLINE float convertWormFriction_GusToLX(float v) { return 1.0f - v; }
 
 template<FeatureIndex index>
 struct OlxWormFrictionVar : _OlxVariable<float, index, &convertWormFriction_LXToGus, &convertWormFriction_GusToLX> {};
 
-inline bool negateBool(bool v) { return !v; }
+INLINE bool negateBool(bool v) { return !v; }
 
 template<FeatureIndex index>
 struct OlxBoolNegatedVar : _OlxVariable<bool, index, &negateBool, &negateBool> {};

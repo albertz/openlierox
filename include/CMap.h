@@ -29,6 +29,7 @@
 #include "MathLib.h" // for SIGN
 #include "gusanos/level.h"
 #include "level/LXMapFlags.h"
+#include "CodeAttributes.h"
 
 class CViewport;
 class CCache;
@@ -221,13 +222,13 @@ public:
     void        CalculateDirtCount();
     void        CalculateShadowMap();
 
-	inline void	lockFlags(bool writeAccess = true) {
+	INLINE void	lockFlags(bool writeAccess = true) {
 		if(writeAccess)
 			flagsLock.startWriteAccess();
 		else
 			flagsLock.startReadAccess();
 	}
-	inline void unlockFlags(bool writeAccess = true) {
+	INLINE void unlockFlags(bool writeAccess = true) {
 		if(writeAccess)
 			flagsLock.endWriteAccess();
 		else
@@ -249,11 +250,11 @@ public:
 	
 private:
 	// not thread-safe, therefore private	
-	inline void	unsafeSetPixelFlag(long x, long y, uchar flag) {
+	INLINE void	unsafeSetPixelFlag(long x, long y, uchar flag) {
 		material->line[y][x] = (char) Material::indexFromLxFlag(flag);
 	}
 	
-	inline void	SetPixelFlag(long x, long y, uchar flag, bool wrapAround = false) {
+	INLINE void	SetPixelFlag(long x, long y, uchar flag, bool wrapAround = false) {
 		if(!wrapAround) {
 			if(x < 0 || y < 0 || (size_t)x >= Width || (size_t)y >= Height) return;
 		}
@@ -751,7 +752,7 @@ struct SimpleTracelineCheck {
 	bool operator() (int, int) { result = true; return false; }
 };
 
-inline bool fastTraceLine_hasAnyCollision(CVec target, CVec start, uchar checkflag) {
+INLINE bool fastTraceLine_hasAnyCollision(CVec target, CVec start, uchar checkflag) {
 	SimpleTracelineCheck ret;
 	fastTraceLine(target, start, checkflag, ret);
 	return ret.result;

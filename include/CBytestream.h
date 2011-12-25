@@ -26,6 +26,7 @@
 #include "olx-types.h"
 #include "Networking.h"
 #include "SmartPointer.h"
+#include "CodeAttributes.h"
 
 class ScriptVar_t;
 struct Logger;
@@ -212,11 +213,11 @@ class CBytestreamBitIterator
 
 
 template< bool (*fct1) (CBytestream*), bool (*fct2) (CBytestream*) >
-bool SkipMult(CBytestream* bs) { return (*fct1)(bs) && (*fct2)(bs); }
+INLINE bool SkipMult(CBytestream* bs) { return (*fct1)(bs) && (*fct2)(bs); }
 
 template< size_t NUM >
-bool Skip(CBytestream* bs) { return bs->Skip(NUM); }
+INLINE bool Skip(CBytestream* bs) { return bs->Skip(NUM); }
 
-inline bool SkipString(CBytestream* bs) { return bs->SkipString(); }
+INLINE bool SkipString(CBytestream* bs) { return bs->SkipString(); }
 
 #endif  //  __CBITSTREAM_H__

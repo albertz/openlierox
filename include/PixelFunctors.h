@@ -23,18 +23,20 @@
 #include <cassert>
 #include <SDL.h>
 #include "Color.h"
+#include "CodeAttributes.h"
 
 //
 // Color packing and unpacking (mainly grabbed from SDL)
 //
 
-inline Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  { 
+INLINE Color Unpack_8(Uint8 px, const SDL_PixelFormat *fmt)  { 
 	return Color(fmt->palette->colors[px].r, fmt->palette->colors[px].g, fmt->palette->colors[px].b); 
 }
 
 // Unpacks the color, the surface contains alpha information
-inline Color Unpack_alpha(Uint32 px, const SDL_PixelFormat *fmt)  {
-	unsigned int v = (px & fmt->Rmask) >> fmt->Rshift;
+INLINE Color Unpack_alpha(Uint32 px, const SDL_PixelFormat *fmt)  {
+	Uint8 v;
+	v = (px & fmt->Rmask) >> fmt->Rshift;
 	const Uint8 r = (v << fmt->Rloss) + (v >> (8 - (fmt->Rloss << 1)));
 	v = (px & fmt->Gmask) >> fmt->Gshift;
 	const Uint8 g = (v << fmt->Gloss) + (v >> (8 - (fmt->Gloss << 1)));
@@ -46,8 +48,9 @@ inline Color Unpack_alpha(Uint32 px, const SDL_PixelFormat *fmt)  {
 }
 
 // Unpack the color, the surface has no alpha information
-inline Color Unpack_solid(Uint32 px, const SDL_PixelFormat *fmt)  {
-	unsigned int v = (px & fmt->Rmask) >> fmt->Rshift;
+INLINE Color Unpack_solid(Uint32 px, const SDL_PixelFormat *fmt)  {
+	Uint8 v;
+	v = (px & fmt->Rmask) >> fmt->Rshift;
 	const Uint8 r = (v << fmt->Rloss) + (v >> (8 - (fmt->Rloss << 1)));
 	v = (px & fmt->Gmask) >> fmt->Gshift;
 	const Uint8 g = (v << fmt->Gloss) + (v >> (8 - (fmt->Gloss << 1)));
@@ -57,17 +60,17 @@ inline Color Unpack_solid(Uint32 px, const SDL_PixelFormat *fmt)  {
 }
 
 // Unpack the color
-inline Color Unpack(Uint32 px, const SDL_PixelFormat *fmt)  {
+INLINE Color Unpack(Uint32 px, const SDL_PixelFormat *fmt)  {
 	if (fmt->Amask)
 		return Unpack_alpha(px, fmt);
 	else
 		return Unpack_solid(px, fmt);
 }
 
-inline Uint8 Pack_8(const Color& c, SDL_PixelFormat *fmt)  { return SDL_MapRGB(fmt, c.r, c.g, c.b); }
+INLINE Uint8 Pack_8(const Color& c, SDL_PixelFormat *fmt)  { return SDL_MapRGB(fmt, c.r, c.g, c.b); }
 
 // Pack the color, for 16, 24 and 32bit modes
-inline Uint32 Pack(const Color& c, const SDL_PixelFormat *fmt)	{
+INLINE Uint32 Pack(const Color& c, const SDL_PixelFormat *fmt)	{
 	// Grabbed from SDL_MapRGBA
     return (c.r >> fmt->Rloss) << fmt->Rshift
     | (c.g >> fmt->Gloss) << fmt->Gshift
@@ -116,19 +119,19 @@ struct PixelGet  {
 //
 
 // 8-bit PutPixel, currently unused
-inline void PutPixel_8(Uint8 *addr, Uint32 color)  { *addr = (Uint8)color; }
+INLINE void PutPixel_8(Uint8 *addr, Uint32 color)  { *addr = (Uint8)color; }
 class PixelPut_8 : public PixelPut  {
 	void put(Uint8 *addr, Uint32 color)  { PutPixel_8(addr, color); }
 };
 
 // 16-bit PutPixel
-inline void PutPixel_16(Uint8 *addr, Uint32 color)  { *(Uint16 *)addr = (Uint16)color; }
+INLINE void PutPixel_16(Uint8 *addr, Uint32 color)  { *(Uint16 *)addr = (Uint16)color; }
 class PixelPut_16 : public PixelPut {
 	void put(Uint8 *addr, Uint32 color)	{ PutPixel_16(addr, color); }
 };
 
 // 24-bit PutPixel
-inline void PutPixel_24(Uint8 *addr, Uint32 color)  {
+INLINE void PutPixel_24(Uint8 *addr, Uint32 color)  {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		addr[0] = ((Uint8 *)&color)[1];
 		addr[1] = ((Uint8 *)&color)[2];
@@ -145,7 +148,7 @@ class PixelPut_24 : public PixelPut {
 };
 
 // 32-bit PutPixel
-inline void PutPixel_32(Uint8 *addr, Uint32 color) {
+INLINE void PutPixel_32(Uint8 *addr, Uint32 color) {
 	*(Uint32 *)addr = color;
 }
 
@@ -159,19 +162,19 @@ class PixelPut_32 : public PixelPut {
 //
 
 // 8-bit getpixel, returns palette index, not the color; currently unused
-inline Uint32 GetPixel_8(const Uint8 *addr)  { return *addr; }
+INLINE Uint32 GetPixel_8(const Uint8 *addr)  { return *addr; }
 class PixelGet_8 : public PixelGet {
 	Uint32 get(Uint8 *addr)  { return GetPixel_8(addr); }
 };
 
 // 16-bit getpixel
-inline Uint32 GetPixel_16(const Uint8 *addr)  { return *(Uint16 *)addr; }
+INLINE Uint32 GetPixel_16(const Uint8 *addr)  { return *(Uint16 *)addr; }
 class PixelGet_16 : public PixelGet {
 	Uint32 get(Uint8 *addr)	{ return GetPixel_16(addr); }
 };
 
 // 24-bit getpixel
-inline Uint32 GetPixel_24(const Uint8 *addr) {
+INLINE Uint32 GetPixel_24(const Uint8 *addr) {
 		union { Uint8 u8[4]; Uint32 u32; } col;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		col.u8[0] = 255;
@@ -192,7 +195,7 @@ class PixelGet_24 : public PixelGet  {
 };
 
 // 32-bit getpixel
-inline Uint32 GetPixel_32(const Uint8 *addr)  {
+INLINE Uint32 GetPixel_32(const Uint8 *addr)  {
 	return *(Uint32 *)addr;
 }
 
@@ -383,7 +386,7 @@ class PixelPutAlpha_AlphaBg_32 : public PixelPutAlpha  {
 
 //////////////////////////
 // Get the alpha pixel putter for the surface
-inline PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
+INLINE PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 	static PixelPutAlpha_SolidBg_16 px16;
 	static PixelPutAlpha_SolidBg_24 px24;
 	static PixelPutAlpha_SolidBg_32 px32;
@@ -414,7 +417,7 @@ inline PixelPutAlpha& getPixelAlphaPutFunc(const SDL_Surface *surf)  {
 
 ////////////////////////
 // Get the "put pixel" functor for the given surface
-inline PixelPut& getPixelPutFunc(const SDL_Surface *surf)  {
+INLINE PixelPut& getPixelPutFunc(const SDL_Surface *surf)  {
 	static PixelPut_8 px8;
 	static PixelPut_16 px16;
 	static PixelPut_24 px24;
@@ -427,7 +430,7 @@ inline PixelPut& getPixelPutFunc(const SDL_Surface *surf)  {
 
 ////////////////////////
 // Get the "get pixel" functor for the given surface
-inline PixelGet& getPixelGetFunc(const SDL_Surface *surf)  {
+INLINE PixelGet& getPixelGetFunc(const SDL_Surface *surf)  {
 	static PixelGet_8 px8;
 	static PixelGet_16 px16;
 	static PixelGet_24 px24;
@@ -453,7 +456,7 @@ inline PixelGet& getPixelGetFunc(const SDL_Surface *surf)  {
 
 /////////////////////
 // Returns a pixel copy functor for the given surface
-inline PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *dest_surf)
+INLINE PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *dest_surf)
 {
 	static PixelCopy_8_8	copy_8_8;	copy_8_8.setformats(source_surf->format, dest_surf->format);
 	static PixelCopy_8_16	copy_8_16;	copy_8_16.setformats(source_surf->format, dest_surf->format);

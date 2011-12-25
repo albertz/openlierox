@@ -19,6 +19,7 @@
 
 #include "CVec.h"
 #include "SmartPointer.h"
+#include "CodeAttributes.h"
 #include "olx-types.h"
 #include "sound/sound_sample.h"
 
@@ -57,7 +58,7 @@ bool	QuitSoundSystem();
 //SoundSample * LoadSoundSample(const std::string& filename, int maxsimulplays); // Not cached - used internally only
 //bool	FreeSoundSample(SoundSample* sample);	// Should be avoided with cache system
 bool	PlaySoundSample(SoundSample* sample);
-inline bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
+INLINE bool	PlaySoundSample(const SmartPointer<SoundSample> & sample) {
 	return PlaySoundSample(sample.get());
 }
 
@@ -67,7 +68,7 @@ class CWorm;
 bool	LoadSounds();
 void	ShutdownSounds();
 void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
-inline void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
+INLINE void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
 	StartSound(smp.get(), pos, local, volume, me);
 }
 

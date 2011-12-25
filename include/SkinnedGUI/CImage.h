@@ -43,7 +43,7 @@ public:
 
     // Methods
 
-	inline std::string	getPath()		{ return sPath; }
+	std::string	getPath()		{ return sPath; }
 	SDL_Surface		*getSurface()	{ return tImage; }
 	void			Change(const std::string& Path);
 	void			Change(SDL_Surface *bmpImg);

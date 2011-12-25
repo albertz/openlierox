@@ -30,6 +30,7 @@
 #include "DedicatedControl.h"
 #include "game/Mod.h"
 #include "game/Level.h"
+#include "CodeAttributes.h"
 
 
 //////////////////
@@ -90,7 +91,7 @@ ChatCommand *GetCommand(ChatCommand::tProcFunc_t func)
 	return NULL;
 }
 
-static inline std::string ReadQuotedParam(const std::string& str, int *param_size)  {
+static INLINE std::string ReadQuotedParam(const std::string& str, int *param_size)  {
 	*param_size = 0;
 	if (str.size() == 0)
 		return "";

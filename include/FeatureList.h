@@ -24,6 +24,7 @@
 #include "CScriptableVars.h"
 #include "Version.h"
 #include "util/CustomVar.h"
+#include "CodeAttributes.h"
 
 struct Feature {
 	std::string name; // for config, network and other identification
@@ -229,8 +230,8 @@ enum FeatureIndex {
 static const size_t FeatureArrayLen = __FTI_BOTTOM;
 
 extern Feature featureArray[];
-inline size_t featureArrayLen() { return FeatureArrayLen; }
-inline FeatureIndex featureArrayIndex(Feature* f) { assert(f >= &featureArray[0] && f < &featureArray[FeatureArrayLen]); return FeatureIndex(f - &featureArray[0]); }
+INLINE size_t featureArrayLen() { return FeatureArrayLen; }
+INLINE FeatureIndex featureArrayIndex(Feature* f) { assert(f >= &featureArray[0] && f < &featureArray[FeatureArrayLen]); return FeatureIndex(f - &featureArray[0]); }
 Feature* featureByName(const std::string& name);
 Feature* featureByVar(const ScriptVarPtr_t& var, bool printErrors = true); // assumes that var is from gameSettings.wrappers array
 

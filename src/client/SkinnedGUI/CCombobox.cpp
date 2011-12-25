@@ -27,6 +27,7 @@
 #include "MathLib.h"
 #include "FindFile.h"
 #include "XMLutils.h"
+#include "CodeAttributes.h"
 
 
 namespace SkinnedGUI {
@@ -595,7 +596,7 @@ void CCombobox::ApplyTag(xmlNodePtr node)
 
 
 
-static inline int compare_items(const CComboItem& item1, const CComboItem& item2) {
+static INLINE int compare_items(const CComboItem& item1, const CComboItem& item2) {
 	// Swap the two items?
 	bool failed1,failed2;
 	int nat_cmp1 = from_string<int>(item1.getName(), failed1);
@@ -614,16 +615,16 @@ static inline int compare_items(const CComboItem& item1, const CComboItem& item2
 }
 
 
-static inline bool less_items(const CComboItem& item1, const CComboItem& item2)  {
+static INLINE bool less_items(const CComboItem& item1, const CComboItem& item2)  {
 	return compare_items(item1, item2) < 0;
 }
 
 
-static inline bool greater_items(const CComboItem& item1, const CComboItem& item2)  {
+static INLINE bool greater_items(const CComboItem& item1, const CComboItem& item2)  {
 	return compare_items(item1, item2) > 0;
 }
 
-static inline bool equal_items(const CComboItem& item1, const CComboItem& item2) {
+static INLINE bool equal_items(const CComboItem& item1, const CComboItem& item2) {
 	return compare_items(item1, item2) == 0;
 }
 

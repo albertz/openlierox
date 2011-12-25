@@ -25,6 +25,7 @@
 #include "Ref.h"
 #include "PreInitVar.h"
 #include "util/CustomVar.h"
+#include "CodeAttributes.h"
 
 
 // Groups for options ( I came up with six groups, and named them pretty lame, TODO: fix that )
@@ -348,12 +349,12 @@ struct __ScriptVarPtrRaw {
 };
 
 template<typename T> T*& __ScriptVarPtrRaw_ptr(__ScriptVarPtrRaw&);
-template<> inline bool*& __ScriptVarPtrRaw_ptr<bool>(__ScriptVarPtrRaw& v) { return v.b; }
-template<> inline int*& __ScriptVarPtrRaw_ptr<int>(__ScriptVarPtrRaw& v) { return v.i; }
-template<> inline float*& __ScriptVarPtrRaw_ptr<float>(__ScriptVarPtrRaw& v) { return v.f; }
-template<> inline std::string*& __ScriptVarPtrRaw_ptr<std::string>(__ScriptVarPtrRaw& v) { return v.s; }
-template<> inline Color*& __ScriptVarPtrRaw_ptr<Color>(__ScriptVarPtrRaw& v) { return v.cl; }
-template<> inline CustomVar::Ref*& __ScriptVarPtrRaw_ptr<CustomVar::Ref>(__ScriptVarPtrRaw& v) { return v.custom; }
+template<> INLINE bool*& __ScriptVarPtrRaw_ptr<bool>(__ScriptVarPtrRaw& v) { return v.b; }
+template<> INLINE int*& __ScriptVarPtrRaw_ptr<int>(__ScriptVarPtrRaw& v) { return v.i; }
+template<> INLINE float*& __ScriptVarPtrRaw_ptr<float>(__ScriptVarPtrRaw& v) { return v.f; }
+template<> INLINE std::string*& __ScriptVarPtrRaw_ptr<std::string>(__ScriptVarPtrRaw& v) { return v.s; }
+template<> INLINE Color*& __ScriptVarPtrRaw_ptr<Color>(__ScriptVarPtrRaw& v) { return v.cl; }
+template<> INLINE CustomVar::Ref*& __ScriptVarPtrRaw_ptr<CustomVar::Ref>(__ScriptVarPtrRaw& v) { return v.custom; }
 
 // Pointer to any in-game var - var should be global or static
 struct ScriptVarPtr_t

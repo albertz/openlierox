@@ -38,6 +38,7 @@
 #include <vector>
 #include <map>
 #include "FeatureList.h"
+#include "CodeAttributes.h"
 
 struct FeatureSettingsLayer : FeatureSettings {
 	bool isSet[FeatureArrayLen];
@@ -117,13 +118,13 @@ extern Settings gameSettings;
 extern FeatureSettingsLayer modSettings; // in case of LX56 mod: for LX56 mod settings (WormGravity, etc); otherwise Gusanos settings
 extern FeatureSettingsLayer gamePresetSettings; // for game settings preset
 
-inline Feature* featureOfDynamicVar(_DynamicVar* var) {
+INLINE Feature* featureOfDynamicVar(_DynamicVar* var) {
 	Settings::ScriptVarWrapper* wrapper = dynamic_cast<Settings::ScriptVarWrapper*> (var);
 	if(wrapper) return &featureArray[wrapper->i];
 	return NULL;
 }
 
-inline bool dynamicVarIsFeature(_DynamicVar* var, FeatureIndex i) {
+INLINE bool dynamicVarIsFeature(_DynamicVar* var, FeatureIndex i) {
 	Settings::ScriptVarWrapper* wrapper = dynamic_cast<Settings::ScriptVarWrapper*> (var);
 	if(wrapper) return wrapper->i == i;
 	return false;

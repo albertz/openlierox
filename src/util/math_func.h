@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <boost/random.hpp>
+#include "CodeAttributes.h"
 
 /**
  * Magic number goodness!
@@ -14,17 +15,17 @@ extern boost::variate_generator<boost::mt19937, boost::uniform_real<> > midrnd;
 
 float const Pi = 3.14159265358979323846f;
 
-inline float deg2rad( float Degrees )
+INLINE float deg2rad( float Degrees )
 {
 	return (Degrees * Pi) / 180;
 }
 
-inline float rad2deg( float Radians )
+INLINE float rad2deg( float Radians )
 {
 	return (Radians * 180) / Pi;
 }
 
-inline unsigned long rndInt(unsigned long max)
+INLINE unsigned long rndInt(unsigned long max)
 {
 	return static_cast<unsigned long>(
 		(static_cast<unsigned long long>(rndgen()) * max) >> (CHAR_BIT * sizeof(boost::mt19937::result_type))
@@ -40,7 +41,7 @@ struct ctpow<B, 0> { static unsigned int const value = 1; };
 
 // MSVC lrintf implementation, taken from http://www.dpvreony.co.uk/blog/post/63
 #ifdef _MSC_VER
-inline long lrintf(float f){
+INLINE long lrintf(float f){
 
 #ifdef _M_X64
 	//x64 fix
@@ -60,7 +61,7 @@ inline long lrintf(float f){
 }
 #endif
 
-inline long roundAny(float v)
+INLINE long roundAny(float v)
 {
 	return lrintf(v);
 }

@@ -25,6 +25,7 @@
 #include "Unicode.h"
 #include "SmartPointer.h"
 #include "Color.h"
+#include "CodeAttributes.h"
 
 struct PixelPutAlpha;
 struct PixelGet;
@@ -69,7 +70,7 @@ public:
 
 	int					Load(const std::string& fontname, bool _colour);
 
-	inline void			Draw(SDL_Surface * dst, int x, int y, Color col, const std::string& txt)  {
+	INLINE void			Draw(SDL_Surface * dst, int x, int y, Color col, const std::string& txt)  {
 		DrawAdv(dst, x, y, 99999, col, txt);
 	}
 	void				DrawAdv(SDL_Surface * dst, int x, int y, int max_w, Color col, const std::string& txt);
@@ -80,42 +81,42 @@ public:
 
 	void				Shutdown();
 
-	inline void			SetOutline(bool _o)  {
+	INLINE void			SetOutline(bool _o)  {
 		OutlineFont = _o;
 	}
-	inline bool			IsOutline()  {
+	INLINE bool			IsOutline()  {
 		return OutlineFont;
 	}
 
 	int					GetWidth(const std::string& buf);
 	int					GetCharacterWidth(UnicodeChar c);
-	inline int			GetHeight() { return bmpFont.get()->h + VSpacing; }
+	INLINE int			GetHeight() { return bmpFont.get()->h + VSpacing; }
 	int					GetHeight(const std::string& buf);
 
 	// Translates the character to the position in Fontstr array, returns -1 if impossible
-	inline int			TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)  {
+	INLINE int			TranslateCharacter(std::string::const_iterator &it, const std::string::const_iterator& last)  {
 		UnicodeChar ch = GetNextUnicodeFromUtf8(it, last);
 		if (ch > FIRST_CHARACTER + NumCharacters - 1 || ch < FIRST_CHARACTER) return -1;
 		return ch - FIRST_CHARACTER;
 	}
 
-	inline int			TranslateCharacter(UnicodeChar ch)  {
+	INLINE int			TranslateCharacter(UnicodeChar ch)  {
 		if (ch > FIRST_CHARACTER + NumCharacters - 1 || ch < FIRST_CHARACTER) return -1;
 		return ch - FIRST_CHARACTER;
 	}
 
-	inline bool			CanDisplayCharacter (UnicodeChar c)  { return (c < FIRST_CHARACTER + NumCharacters) && (c >= FIRST_CHARACTER); }
+	INLINE bool			CanDisplayCharacter (UnicodeChar c)  { return (c < FIRST_CHARACTER + NumCharacters) && (c >= FIRST_CHARACTER); }
 
-	inline void			SetSpacing(int _s)  {
+	INLINE void			SetSpacing(int _s)  {
 		Spacing = _s;
 	}
-	inline int			GetSpacing()		 {
+	INLINE int			GetSpacing()		 {
 		return Spacing;
 	}
-	inline void			SetVSpacing(int _v) {
+	INLINE void			SetVSpacing(int _v) {
 		VSpacing = _v;
 	}
-	inline int			GetVSpacing()	{
+	INLINE int			GetVSpacing()	{
 		return VSpacing;
 	}
 private:

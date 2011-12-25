@@ -6,6 +6,7 @@
 #include <set>
 #include <string>
 #include <iostream>
+#include "CodeAttributes.h"
 
 using std::cerr;
 using std::endl;
@@ -56,7 +57,7 @@ void separate_str_by(char ch, const std::string &src, std::string &left, std::st
 
 std::list< std::list<std::string> > text2Tree(const std::string &text);
 
-inline bool istrCmp( const std::string &a, const std::string &b )
+INLINE bool istrCmp( const std::string &a, const std::string &b )
 {
 	std::string::const_iterator itA, itB;
 	
@@ -73,7 +74,7 @@ inline bool istrCmp( const std::string &a, const std::string &b )
 	return (itA == a.end() && itB == b.end());
 }
 
-inline bool iisPrefixOfOther(
+INLINE bool iisPrefixOfOther(
 	std::string::const_iterator a,
 	std::string::const_iterator ae,
 	std::string::const_iterator b,
@@ -92,7 +93,7 @@ inline bool iisPrefixOfOther(
 }
 
 template<class IterA, class IterB>
-inline bool istrCmp(
+INLINE bool istrCmp(
 	IterA a,
 	IterA ae,
 	IterB b,
@@ -111,7 +112,7 @@ inline bool istrCmp(
 }
 
 template<class IterB>
-inline bool istrCmp(
+INLINE bool istrCmp(
 	char const* a,
 	IterB b,
 	IterB be

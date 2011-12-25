@@ -7,6 +7,7 @@ extern "C"
 }
 
 #include "gusanos/luaapi/types.h"
+#include "CodeAttributes.h"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -373,14 +374,14 @@ public:
 	}
 	
 	template<class T>
-	inline T get(int idx)
+	INLINE T get(int idx)
 	{
 		return T();
 	}
 
 	/*
 	template<class T>
-	inline T* getObject(int idx)
+	INLINE T* getObject(int idx)
 	{
 		void* p = lua_touserdata(m_State, idx);
 		if(!p)
@@ -483,7 +484,7 @@ private:
 };
 
 template<>
-inline bool LuaContext::get<bool>(int idx)
+INLINE bool LuaContext::get<bool>(int idx)
 {
 	return lua_toboolean(m_State, idx) != 0;
 }

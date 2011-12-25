@@ -11,6 +11,7 @@
 #define __CPROGRESSBAR_H__DEPRECATED_GUI__
 
 #include "DeprecatedGUI/CBar.h"
+#include "CodeAttributes.h"
 
 
 namespace DeprecatedGUI {
@@ -63,7 +64,7 @@ public:
 	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
 
 	// Draw the line
-	inline void	Draw(SDL_Surface * bmpDest) {
+	INLINE void	Draw(SDL_Surface * bmpDest) {
 		if (bRedrawMenu)
 			redrawBuffer();
 		if( iVar )
@@ -71,7 +72,7 @@ public:
 		cProgressBar.Draw( bmpDest );
 	}
 
-	inline void SetPosition(int _pos)  { cProgressBar.SetPosition(_pos); }
+	INLINE void SetPosition(int _pos)  { cProgressBar.SetPosition(_pos); }
 
 	void	LoadStyle() {}
 

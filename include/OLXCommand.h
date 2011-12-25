@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "CodeAttributes.h"
 
 typedef std::map<size_t,size_t> ParamSeps;
 
@@ -46,7 +47,7 @@ enum CmdLineMsgType {
 	CNC_CHAT = 5, //Color(100,255,100)
 };
 
-inline std::string CmdLineMsgTypeAsString(CmdLineMsgType type) {
+INLINE std::string CmdLineMsgTypeAsString(CmdLineMsgType type) {
 	switch (type) {
 		case CNC_NORMAL: return "";
 		case CNC_NOTIFY: return "NOTIFY";
@@ -91,7 +92,7 @@ struct CmdLineIntf {
 // Pushs a command into the command queue. This will not do any parsing nor executing.
 // All that is done when you call HandlePendingCommands().
 void Execute(const CmdLineIntf::Command& cmd);
-inline void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
+INLINE void Execute(CmdLineIntf* sender, const std::string& cmd) { Execute(CmdLineIntf::Command(sender, cmd)); }
 
 // Executes all commands in the queue. This is called from the gameloopthread.
 void HandlePendingCommands();

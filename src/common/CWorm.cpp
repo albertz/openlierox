@@ -37,6 +37,7 @@
 #include "gusanos/gusgame.h"
 #include "gusanos/player_options.h"
 #include "game/GameMode.h"
+#include "CodeAttributes.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -852,7 +853,7 @@ bool CWorm::isVisible(const CViewport* v) const {
 	return isVisible(v->getTarget());
 }
 
-static inline bool isWormVisible(CWorm* w, CViewport* v) {
+static INLINE bool isWormVisible(CWorm* w, CViewport* v) {
 	return w->isVisible(v);
 }
 

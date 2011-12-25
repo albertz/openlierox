@@ -20,7 +20,7 @@ enum ClientNetState {
 	NET_ZOMBIE				// Server side only state - server won't accept any client packets and will send disconnect packets to client
 };
 
-inline const char* NetStateString(ClientNetState state) {
+static const char* NetStateString(ClientNetState state) {
 	switch (state) {
 		case NET_DISCONNECTED: return "NET_DISCONNECTED";
 		case NET_CONNECTING: return "NET_CONNECTING";

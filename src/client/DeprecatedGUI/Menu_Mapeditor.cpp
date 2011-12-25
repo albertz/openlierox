@@ -14,6 +14,7 @@
 // Jason Boettcher
 
 
+#include "CodeAttributes.h"
 #include "LieroX.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/Graphics.h"
@@ -489,7 +490,7 @@ enum {
 		int i;
 		int* dirtindex;
 		ComboboxFiller(CGuiLayout* g, int c, int* d) : gui(g), comboindex(c), i(0), dirtindex(d) {}
-		inline bool operator() (const std::string& dir) {
+		INLINE bool operator() (const std::string& dir) {
 			if (!IsFileAvailable(dir+"/theme.txt"))
 				return true;
 			size_t p = findLastPathSep(dir);

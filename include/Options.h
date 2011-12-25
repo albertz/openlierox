@@ -23,6 +23,7 @@
 #include <cassert>
 #include "game/Settings.h"
 #include "StaticAssert.h"
+#include "CodeAttributes.h"
 
 // Setup input id's
 enum {
@@ -74,7 +75,7 @@ enum NetworkSpeed {
 	NST_LOCAL			// Hidden speed, only for local games
 };
 
-inline std::string NetworkSpeedString(NetworkSpeed s) {
+INLINE std::string NetworkSpeedString(NetworkSpeed s) {
 	switch(s) {
 		case NST_MODEM: return "Modem";
 		case NST_ISDN: return "ISDN";

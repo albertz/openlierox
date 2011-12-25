@@ -1,6 +1,7 @@
 #include "sprite.h"
 
 #include "gfx.h"
+#include "CodeAttributes.h"
 #ifndef DEDICATED_ONLY
 #include "blitters/context.h"
 #endif
@@ -44,7 +45,7 @@ Sprite::Sprite( ALLEGRO_BITMAP* bitmap, int xPivot, int yPivot)
 		m_yPivot = yPivot;
 }
 
-inline int scaleColor(int a, int b, int bmax)
+INLINE int scaleColor(int a, int b, int bmax)
 {
 	return makecol(
 	           getr(a) * b / bmax,
@@ -52,7 +53,7 @@ inline int scaleColor(int a, int b, int bmax)
 	           getb(a) * b / bmax);
 }
 
-inline int brightenColor(int a, int b)
+INLINE int brightenColor(int a, int b)
 {
 	return makecol(
 	           std::min(getr(a) + b, 255),

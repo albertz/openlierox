@@ -5,6 +5,7 @@
 
 #include <utility>
 #include <iostream>
+#include "CodeAttributes.h"
 using std::cerr;
 using std::endl;
 
@@ -159,18 +160,18 @@ public:
 	
 	//typedef iterator reverse_iterator;
 	
-	inline T*		insertSorted(T* a_Item);
-	inline T*		insert(T* a_Item, T* a_insertAfter);
-	inline T*		insert(T* a_Item);			//inserts existing item in list
-	inline T*		insert(T const& a_Src);			//inserts copy of existing item in list
-	inline T*		insert(void);				//inserts an empty item in the list
-	inline void		unlink(T* a_Item);			//Removes the item from the list but doesn't free it's memory
-	inline void		erase(T* a_Item);			//Removes the item from the list and frees it's memory
-	inline void		clear(void);				//clear the whole lists (frees the memory)
-	inline void		unlinkAll(void);			//unlinks all members from the list (this practically sets the first and last pointers to NULL)
+	INLINE T*		insertSorted(T* a_Item);
+	INLINE T*		insert(T* a_Item, T* a_insertAfter);
+	INLINE T*		insert(T* a_Item);			//inserts existing item in list
+	INLINE T*		insert(T const& a_Src);			//inserts copy of existing item in list
+	INLINE T*		insert(void);				//inserts an empty item in the list
+	INLINE void		unlink(T* a_Item);			//Removes the item from the list but doesn't free it's memory
+	INLINE void		erase(T* a_Item);			//Removes the item from the list and frees it's memory
+	INLINE void		clear(void);				//clear the whole lists (frees the memory)
+	INLINE void		unlinkAll(void);			//unlinks all members from the list (this practically sets the first and last pointers to NULL)
 
 	template<class Op>
-	inline void		sort(Op&);
+	INLINE void		sort(Op&);
 
 	iterator begin()
 	{
@@ -198,20 +199,20 @@ public:
 		return iterator(0);
 	}*/
 
-	inline T*		getFirst(void);
-	inline T*		getLast(void);
-	inline long		getCount(void);
+	INLINE T*		getFirst(void);
+	INLINE T*		getLast(void);
+	INLINE long		getCount(void);
 	
-	inline static bool	isEnd(T* a_Item);
-	inline static T*	getEnd(void);
+	INLINE static bool	isEnd(T* a_Item);
+	INLINE static T*	getEnd(void);
 
-	inline LList();
-	inline ~LList();
+	INLINE LList();
+	INLINE ~LList();
 
 };
 
 template<class T>
-inline T* LList<T>::insertSorted(T* a_Item)
+INLINE T* LList<T>::insertSorted(T* a_Item)
 {
 	if(m_First == NULL)
 	{
@@ -238,7 +239,7 @@ inline T* LList<T>::insertSorted(T* a_Item)
 }
 
 template<class T>
-inline T* LList<T>::insert(T* a_Item, T* a_InsertAfter)
+INLINE T* LList<T>::insert(T* a_Item, T* a_InsertAfter)
 {
 	if(!m_First)
 	{
@@ -279,7 +280,7 @@ inline T* LList<T>::insert(T* a_Item, T* a_InsertAfter)
 }
 
 template<class T>
-inline T* LList<T>::insert(T* a_Item)
+INLINE T* LList<T>::insert(T* a_Item)
 {
 	if(!m_First)
 	{
@@ -302,7 +303,7 @@ inline T* LList<T>::insert(T* a_Item)
 }
 
 template<class T>
-inline T* LList<T>::insert(void)
+INLINE T* LList<T>::insert(void)
 {
 	T *n = new T;
 	return insert(n);
@@ -310,7 +311,7 @@ inline T* LList<T>::insert(void)
 
 
 template<class T>
-inline T* LList<T>::insert(T const& a_Src)
+INLINE T* LList<T>::insert(T const& a_Src)
 {
 	T *item = insert();
 	
@@ -326,7 +327,7 @@ inline T* LList<T>::insert(T const& a_Src)
 }
 
 template<class T>
-inline void LList<T>::unlink(T* a_Item)
+INLINE void LList<T>::unlink(T* a_Item)
 {
 	if(a_Item->getPrev())
 	{
@@ -347,14 +348,14 @@ inline void LList<T>::unlink(T* a_Item)
 }
 
 template<class T>
-inline void	LList<T>::erase(T* a_Item)
+INLINE void	LList<T>::erase(T* a_Item)
 {
 	unlink(a_Item);
 	delete a_Item;
 }
 
 template<class T>
-inline void LList<T>::clear(void)
+INLINE void LList<T>::clear(void)
 {
 	T* pIter = getFirst();
 
@@ -369,7 +370,7 @@ inline void LList<T>::clear(void)
 }
 
 template<class T>
-inline void LList<T>::unlinkAll(void)
+INLINE void LList<T>::unlinkAll(void)
 {
 	m_First = m_Last = 0;
 	m_Count = 0;
@@ -378,7 +379,7 @@ inline void LList<T>::unlinkAll(void)
 
 template<class T>
 template<class Op>
-inline void LList<T>::sort(Op& op)
+INLINE void LList<T>::sort(Op& op)
 {
 	if(!m_First)
 		return;
@@ -454,44 +455,44 @@ std::pair<T*, T*> LList<T>::sort_private(T* section, Op& op)
 }
 
 template<class T>
-inline T* LList<T>::getFirst(void)
+INLINE T* LList<T>::getFirst(void)
 {
 	return m_First;
 }
 
 template<class T>
-inline T* LList<T>::getLast(void)
+INLINE T* LList<T>::getLast(void)
 {
 	return m_Last;
 }
 
 template<class T>
-inline long LList<T>::getCount(void)
+INLINE long LList<T>::getCount(void)
 {
 	return m_Count;
 }
 
 template<class T>
-inline /*static*/ bool LList<T>::isEnd(T* a_Item)
+INLINE /*static*/ bool LList<T>::isEnd(T* a_Item)
 {
 	return !a_Item;
 }
 
 template<class T>
-inline /*static*/ T* LList<T>::getEnd(void)
+INLINE /*static*/ T* LList<T>::getEnd(void)
 {
 	return 0;
 }
 
 template<class T>
-inline LList<T>::LList()
+INLINE LList<T>::LList()
 {
 	m_First = m_Last = 0;
 	m_Count = 0;
 }
 
 template<class T>
-inline LList<T>::~LList()
+INLINE LList<T>::~LList()
 {
 	clear();
 }
