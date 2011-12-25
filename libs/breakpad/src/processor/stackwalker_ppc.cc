@@ -1,4 +1,4 @@
-// Copyright (c) 2006, Google Inc.
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -75,15 +75,14 @@ StackFrame* StackwalkerPPC::GetContextFrame() {
   // straight out of the CPU context structure.
   frame->context = *context_;
   frame->context_validity = StackFramePPC::CONTEXT_VALID_ALL;
+  frame->trust = StackFrame::FRAME_TRUST_CONTEXT;
   frame->instruction = frame->context.srr0;
 
   return frame;
 }
 
 
-StackFrame* StackwalkerPPC::GetCallerFrame(
-    const CallStack *stack,
-    const vector< linked_ptr<StackFrameInfo> > &stack_frame_info) {
+StackFrame* StackwalkerPPC::GetCallerFrame(const CallStack *stack) {
   if (!memory_ || !stack) {
     BPLOG(ERROR) << "Can't get caller frame without memory or stack";
     return NULL;
@@ -129,6 +128,7 @@ StackFrame* StackwalkerPPC::GetCallerFrame(
   frame->context.gpr[1] = stack_pointer;
   frame->context_validity = StackFramePPC::CONTEXT_VALID_SRR0 |
                             StackFramePPC::CONTEXT_VALID_GPR1;
+  frame->trust = StackFrame::FRAME_TRUST_FP;
 
   // frame->context.srr0 is the return address, which is one instruction
   // past the branch that caused us to arrive at the callee.  Set

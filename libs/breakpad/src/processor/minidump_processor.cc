@@ -27,13 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <cassert>
-#include <cstdio>
-
 #include "google_breakpad/processor/minidump_processor.h"
+
+#include <assert.h>
+#include <stdio.h>
+
 #include "google_breakpad/processor/call_stack.h"
 #include "google_breakpad/processor/minidump.h"
 #include "google_breakpad/processor/process_state.h"
+#include "google_breakpad/processor/exploitability.h"
 #include "processor/logging.h"
 #include "processor/scoped_ptr.h"
 #include "processor/stackwalker_x86.h"
@@ -46,7 +48,15 @@ namespace google_breakpad {
 
 MinidumpProcessor::MinidumpProcessor(SymbolSupplier *supplier,
                                      SourceLineResolverInterface *resolver)
-    : supplier_(supplier), resolver_(resolver) {
+    : supplier_(supplier), resolver_(resolver),
+      enable_exploitability_(false) {
+}
+
+MinidumpProcessor::MinidumpProcessor(SymbolSupplier *supplier,
+                                     SourceLineResolverInterface *resolver,
+                                     bool enable_exploitability)
+    : supplier_(supplier), resolver_(resolver),
+      enable_exploitability_(enable_exploitability) {
 }
 
 MinidumpProcessor::~MinidumpProcessor() {
@@ -89,6 +99,9 @@ ProcessResult MinidumpProcessor::Process(
     process_state->crash_reason_ = GetCrashReason(
         dump, &process_state->crash_address_);
   }
+
+  // This will just return an empty string if it doesn't exist.
+  process_state->assertion_ = GetAssertion(dump);
 
   MinidumpModuleList *module_list = dump->GetModuleList();
 
@@ -173,8 +186,10 @@ ProcessResult MinidumpProcessor::Process(
         // of the thread's own context.  For the crashed thread, the thread's
         // own context is the state inside the exception handler.  Using it
         // would not result in the expected stack trace from the time of the
-        // crash.
-        context = exception->GetContext();
+        // crash. If the exception context is invalid, however, we fall back
+        // on the thread context.
+        MinidumpContext *ctx = exception->GetContext();
+        context = ctx ? ctx : thread->GetContext();
       }
     }
 
@@ -228,6 +243,22 @@ ProcessResult MinidumpProcessor::Process(
     process_state->requesting_thread_ = -1;
   }
 
+  // Exploitability defaults to EXPLOITABILITY_NOT_ANALYZED
+  process_state->exploitability_ = EXPLOITABILITY_NOT_ANALYZED;
+
+  // If an exploitability run was requested we perform the platform specific
+  // rating.
+  if (enable_exploitability_) {
+    scoped_ptr<Exploitability> exploitability(
+        Exploitability::ExploitabilityForPlatform(dump, process_state));
+    // The engine will be null if the platform is not supported
+    if (exploitability != NULL) {
+      process_state->exploitability_ = exploitability->CheckExploitability();
+    } else {
+      process_state->exploitability_ = EXPLOITABILITY_ERR_NOENGINE;
+    }
+  }
+
   BPLOG(INFO) << "Processed " << dump->path();
   return PROCESS_OK;
 }
@@ -240,7 +271,7 @@ ProcessResult MinidumpProcessor::Process(
   if (!dump.Read()) {
      BPLOG(ERROR) << "Minidump " << dump.path() << " could not be read";
      return PROCESS_ERROR_MINIDUMP_NOT_FOUND;
-   }
+  }
 
   return Process(&dump, process_state);
 }
@@ -304,6 +335,11 @@ bool MinidumpProcessor::GetCPUInfo(Minidump *dump, SystemInfo *info) {
 
     case MD_CPU_ARCHITECTURE_SPARC: {
       info->cpu = "sparc";
+      break;
+    }
+
+    case MD_CPU_ARCHITECTURE_ARM: {
+      info->cpu = "arm";
       break;
     }
 
@@ -697,7 +733,27 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
           // data.
           // This information is useful in addition to the code address, which
           // will be present in the crash thread's instruction field anyway.
-          reason = "EXCEPTION_ACCESS_VIOLATION";
+          if (raw_exception->exception_record.number_parameters >= 1) {
+            MDAccessViolationTypeWin av_type =
+                static_cast<MDAccessViolationTypeWin>
+                (raw_exception->exception_record.exception_information[0]);
+            switch (av_type) {
+              case MD_ACCESS_VIOLATION_WIN_READ:
+                reason = "EXCEPTION_ACCESS_VIOLATION_READ";
+                break;
+              case MD_ACCESS_VIOLATION_WIN_WRITE:
+                reason = "EXCEPTION_ACCESS_VIOLATION_WRITE";
+                break;
+              case MD_ACCESS_VIOLATION_WIN_EXEC:
+                reason = "EXCEPTION_ACCESS_VIOLATION_EXEC";
+                break;
+              default:
+                reason = "EXCEPTION_ACCESS_VIOLATION";
+                break;
+            }
+          } else {
+            reason = "EXCEPTION_ACCESS_VIOLATION";
+          }
           if (address &&
               raw_exception->exception_record.number_parameters >= 2) {
             *address =
@@ -758,9 +814,15 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
         case MD_EXCEPTION_CODE_WIN_POSSIBLE_DEADLOCK:
           reason = "EXCEPTION_POSSIBLE_DEADLOCK";
           break;
+        case MD_EXCEPTION_CODE_WIN_STACK_BUFFER_OVERRUN:
+          reason = "EXCEPTION_STACK_BUFFER_OVERRUN";
+          break;
+        case MD_EXCEPTION_CODE_WIN_HEAP_CORRUPTION:
+          reason = "EXCEPTION_HEAP_CORRUPTION";
+          break;
         case MD_EXCEPTION_CODE_WIN_UNHANDLED_CPP_EXCEPTION:
-	  reason = "Unhandled C++ Exception";
-	  break;
+          reason = "Unhandled C++ Exception";
+          break;
         default:
           BPLOG(INFO) << "Unknown exception reason " << reason;
           break;
@@ -1006,6 +1068,58 @@ string MinidumpProcessor::GetCrashReason(Minidump *dump, u_int64_t *address) {
   }
 
   return reason;
+}
+
+// static
+string MinidumpProcessor::GetAssertion(Minidump *dump) {
+  MinidumpAssertion *assertion = dump->GetAssertion();
+  if (!assertion)
+    return "";
+
+  const MDRawAssertionInfo *raw_assertion = assertion->assertion();
+  if (!raw_assertion)
+    return "";
+
+  string assertion_string;
+  switch (raw_assertion->type) {
+  case MD_ASSERTION_INFO_TYPE_INVALID_PARAMETER:
+    assertion_string = "Invalid parameter passed to library function";
+    break;
+  case MD_ASSERTION_INFO_TYPE_PURE_VIRTUAL_CALL:
+    assertion_string = "Pure virtual function called";
+    break;
+  default: {
+    char assertion_type[32];
+    sprintf(assertion_type, "0x%08x", raw_assertion->type);
+    assertion_string = "Unknown assertion type ";
+    assertion_string += assertion_type;
+    break;
+  }
+  }
+
+  string expression = assertion->expression();
+  if (!expression.empty()) {
+    assertion_string.append(" " + expression);
+  }
+
+  string function = assertion->function();
+  if (!function.empty()) {
+    assertion_string.append(" in function " + function);
+  }
+
+  string file = assertion->file();
+  if (!file.empty()) {
+    assertion_string.append(", in file " + file);
+  }
+
+  if (raw_assertion->line != 0) {
+    char assertion_line[32];
+    sprintf(assertion_line, "%u", raw_assertion->line);
+    assertion_string.append(" at line ");
+    assertion_string.append(assertion_line);
+  }
+
+  return assertion_string;
 }
 
 }  // namespace google_breakpad

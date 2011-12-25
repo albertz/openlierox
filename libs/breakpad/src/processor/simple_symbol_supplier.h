@@ -76,6 +76,7 @@
 #ifndef PROCESSOR_SIMPLE_SYMBOL_SUPPLIER_H__
 #define PROCESSOR_SIMPLE_SYMBOL_SUPPLIER_H__
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -83,6 +84,7 @@
 
 namespace google_breakpad {
 
+using std::map;
 using std::string;
 using std::vector;
 
@@ -110,6 +112,17 @@ class SimpleSymbolSupplier : public SymbolSupplier {
                                      const SystemInfo *system_info,
                                      string *symbol_file,
                                      string *symbol_data);
+
+  // Allocates data buffer on heap and writes symbol data into buffer.
+  // Symbol supplier ALWAYS takes ownership of the data buffer.
+  virtual SymbolResult GetCStringSymbolData(const CodeModule *module,
+                                            const SystemInfo *system_info,
+                                            string *symbol_file,
+                                            char **symbol_data);
+
+  // Free the data buffer allocated in the above GetCStringSymbolData();
+  virtual void FreeSymbolData(const CodeModule *module);
+
  protected:
   SymbolResult GetSymbolFileAtPathFromRoot(const CodeModule *module,
                                            const SystemInfo *system_info,
@@ -117,6 +130,7 @@ class SimpleSymbolSupplier : public SymbolSupplier {
                                            string *symbol_file);
 
  private:
+  map<string, char *> memory_buffers_;
   vector<string> paths_;
 };
 

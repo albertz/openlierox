@@ -1,4 +1,4 @@
-// Copyright (c) 2009, Google Inc.
+// Copyright (c) 2010, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,25 +34,32 @@
 
 #include "client/linux/minidump_writer/linux_dumper.h"
 
+#include <asm/ptrace.h>
 #include <assert.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
+#if !defined(__ANDROID__)
+#include <link.h>
+#endif
 #include <stddef.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
-#include <unistd.h>
-#include <errno.h>
-#include <fcntl.h>
-
-#include <sys/types.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
+#include <unistd.h>
+
+#include <algorithm>
 
 #include "client/linux/minidump_writer/directory_reader.h"
 #include "client/linux/minidump_writer/line_reader.h"
+#include "common/linux/file_id.h"
 #include "common/linux/linux_libc_support.h"
-#include "common/linux/linux_syscall_support.h"
+#include "third_party/lss/linux_syscall_support.h"
+
+static const char kMappedFileUnsafePrefix[] = "/dev/";
+static const char kDeletedSuffix[] = " (deleted)";
 
 // Suspend a thread by attaching to it.
 static bool SuspendThread(pid_t pid) {
@@ -68,6 +75,26 @@ static bool SuspendThread(pid_t pid) {
       return false;
     }
   }
+#if defined(__i386) || defined(__x86_64)
+  // On x86, the stack pointer is NULL or -1, when executing trusted code in
+  // the seccomp sandbox. Not only does this cause difficulties down the line
+  // when trying to dump the thread's stack, it also results in the minidumps
+  // containing information about the trusted threads. This information is
+  // generally completely meaningless and just pollutes the minidumps.
+  // We thus test the stack pointer and exclude any threads that are part of
+  // the seccomp sandbox's trusted code.
+  user_regs_struct regs;
+  if (sys_ptrace(PTRACE_GETREGS, pid, NULL, &regs) == -1 ||
+#if defined(__i386)
+      !regs.esp
+#elif defined(__x86_64)
+      !regs.rsp
+#endif
+      ) {
+    sys_ptrace(PTRACE_DETACH, pid, NULL, NULL);
+    return false;
+  }
+#endif
   return true;
 }
 
@@ -76,11 +103,22 @@ static bool ResumeThread(pid_t pid) {
   return sys_ptrace(PTRACE_DETACH, pid, NULL, NULL) >= 0;
 }
 
+inline static bool IsMappedFileOpenUnsafe(
+    const google_breakpad::MappingInfo& mapping) {
+  // It is unsafe to attempt to open a mapped file that lives under /dev,
+  // because the semantics of the open may be driver-specific so we'd risk
+  // hanging the crash dumper. And a file in /dev/ almost certainly has no
+  // ELF file identifier anyways.
+  return my_strncmp(mapping.name,
+                    kMappedFileUnsafePrefix,
+                    sizeof(kMappedFileUnsafePrefix) - 1) == 0;
+}
+
 namespace google_breakpad {
 
 LinuxDumper::LinuxDumper(int pid)
     : pid_(pid),
-      threads_suspened_(false),
+      threads_suspended_(false),
       threads_(&allocator_, 8),
       mappings_(&allocator_) {
 }
@@ -91,22 +129,30 @@ bool LinuxDumper::Init() {
 }
 
 bool LinuxDumper::ThreadsSuspend() {
-  if (threads_suspened_)
+  if (threads_suspended_)
     return true;
-  bool good = true;
-  for (size_t i = 0; i < threads_.size(); ++i)
-    good &= SuspendThread(threads_[i]);
-  threads_suspened_ = true;
-  return good;
+  for (size_t i = 0; i < threads_.size(); ++i) {
+    if (!SuspendThread(threads_[i])) {
+      // If the thread either disappeared before we could attach to it, or if
+      // it was part of the seccomp sandbox's trusted code, it is OK to
+      // silently drop it from the minidump.
+      memmove(&threads_[i], &threads_[i+1],
+              (threads_.size() - i - 1) * sizeof(threads_[i]));
+      threads_.resize(threads_.size() - 1);
+      --i;
+    }
+  }
+  threads_suspended_ = true;
+  return threads_.size() > 0;
 }
 
 bool LinuxDumper::ThreadsResume() {
-  if (!threads_suspened_)
+  if (!threads_suspended_)
     return false;
   bool good = true;
   for (size_t i = 0; i < threads_.size(); ++i)
     good &= ResumeThread(threads_[i]);
-  threads_suspened_ = false;
+  threads_suspended_ = false;
   return good;
 }
 
@@ -153,12 +199,73 @@ LinuxDumper::BuildProcPath(char* path, pid_t pid, const char* node) const {
   my_itos(path + 6, pid, pid_len);
   memcpy(path + 6 + pid_len, "/", 1);
   memcpy(path + 6 + pid_len + 1, node, node_len);
-  memcpy(path + total_length, "\0", 1);
+  path[total_length] = '\0';
+}
+
+bool
+LinuxDumper::ElfFileIdentifierForMapping(const MappingInfo& mapping,
+                                         bool member,
+                                         unsigned int mapping_id,
+                                         uint8_t identifier[sizeof(MDGUID)])
+{
+  assert(!member || mapping_id < mappings_.size());
+  my_memset(identifier, 0, sizeof(MDGUID));
+  if (IsMappedFileOpenUnsafe(mapping))
+    return false;
+
+  // Special-case linux-gate because it's not a real file.
+  if (my_strcmp(mapping.name, kLinuxGateLibraryName) == 0) {
+    const uintptr_t kPageSize = getpagesize();
+    void* linux_gate = NULL;
+    if (pid_ == sys_getpid()) {
+      linux_gate = reinterpret_cast<void*>(mapping.start_addr);
+    } else {
+      linux_gate = allocator_.Alloc(kPageSize);
+      CopyFromProcess(linux_gate, pid_,
+                      reinterpret_cast<const void*>(mapping.start_addr),
+                      kPageSize);
+    }
+    return FileID::ElfFileIdentifierFromMappedFile(linux_gate, identifier);
+  }
+
+  char filename[NAME_MAX];
+  size_t filename_len = my_strlen(mapping.name);
+  assert(filename_len < NAME_MAX);
+  if (filename_len >= NAME_MAX)
+    return false;
+  memcpy(filename, mapping.name, filename_len);
+  filename[filename_len] = '\0';
+  bool filename_modified = HandleDeletedFileInMapping(filename);
+
+  int fd = sys_open(filename, O_RDONLY, 0);
+  if (fd < 0)
+    return false;
+  struct kernel_stat st;
+  if (sys_fstat(fd, &st) != 0) {
+    sys_close(fd);
+    return false;
+  }
+#if defined(__x86_64)
+#define sys_mmap2 sys_mmap
+#endif
+  void* base = sys_mmap2(NULL, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+  sys_close(fd);
+  if (base == MAP_FAILED)
+    return false;
+
+  bool success = FileID::ElfFileIdentifierFromMappedFile(base, identifier);
+  sys_munmap(base, st.st_size);
+  if (success && member && filename_modified) {
+    mappings_[mapping_id]->name[filename_len -
+                                sizeof(kDeletedSuffix) + 1] = '\0';
+  }
+
+  return success;
 }
 
 void*
 LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(const pid_t pid) const {
-  char auxv_path[80];
+  char auxv_path[NAME_MAX];
   BuildProcPath(auxv_path, pid, "auxv");
 
   // If BuildProcPath errors out due to invalid input, we'll handle it when
@@ -188,7 +295,7 @@ LinuxDumper::FindBeginningOfLinuxGateSharedLibrary(const pid_t pid) const {
 
 bool
 LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*>* result) const {
-  char maps_path[80];
+  char maps_path[NAME_MAX];
   BuildProcPath(maps_path, pid_, "maps");
 
   // linux_gate_loc is the beginning of the kernel's mapping of
@@ -215,25 +322,36 @@ LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*>* result) const {
       if (*i2 == ' ') {
         const char* i3 = my_read_hex_ptr(&offset, i2 + 6 /* skip ' rwxp ' */);
         if (*i3 == ' ') {
+          const char* name = NULL;
+          // Only copy name if the name is a valid path name, or if
+          // it's the VDSO image.
+          if (((name = my_strchr(line, '/')) == NULL) &&
+              linux_gate_loc &&
+              reinterpret_cast<void*>(start_addr) == linux_gate_loc) {
+            name = kLinuxGateLibraryName;
+            offset = 0;
+          }
+          // Merge adjacent mappings with the same name into one module,
+          // assuming they're a single library mapped by the dynamic linker
+          if (name && result->size()) {
+            MappingInfo* module = (*result)[result->size() - 1];
+            if ((start_addr == module->start_addr + module->size) &&
+                (my_strlen(name) == my_strlen(module->name)) &&
+                (my_strncmp(name, module->name, my_strlen(name)) == 0)) {
+              module->size = end_addr - module->start_addr;
+              line_reader->PopLine(line_len);
+              continue;
+            }
+          }
           MappingInfo* const module = new(allocator_) MappingInfo;
           memset(module, 0, sizeof(MappingInfo));
           module->start_addr = start_addr;
           module->size = end_addr - start_addr;
           module->offset = offset;
-          const char* name = NULL;
-          // Only copy name if the name is a valid path name, or if
-          // we've found the VDSO image
-          if ((name = my_strchr(line, '/')) != NULL) {
+          if (name != NULL) {
             const unsigned l = my_strlen(name);
             if (l < sizeof(module->name))
               memcpy(module->name, name, l);
-          } else if (linux_gate_loc &&
-                     reinterpret_cast<void*>(module->start_addr) ==
-                     linux_gate_loc) {
-            memcpy(module->name,
-                   kLinuxGateLibraryName,
-                   my_strlen(kLinuxGateLibraryName));
-            module->offset = 0;
           }
           result->push_back(module);
         }
@@ -250,7 +368,7 @@ LinuxDumper::EnumerateMappings(wasteful_vector<MappingInfo*>* result) const {
 // Parse /proc/$pid/task to list all the threads of the process identified by
 // pid.
 bool LinuxDumper::EnumerateThreads(wasteful_vector<pid_t>* result) const {
-  char task_path[80];
+  char task_path[NAME_MAX];
   BuildProcPath(task_path, pid_, "task");
 
   const int fd = sys_open(task_path, O_RDONLY | O_DIRECTORY, 0);
@@ -280,12 +398,12 @@ bool LinuxDumper::EnumerateThreads(wasteful_vector<pid_t>* result) const {
 }
 
 // Read thread info from /proc/$pid/status.
-// Fill out the |tgid|, |ppid| and |pid| members of |info|. If unavailible,
+// Fill out the |tgid|, |ppid| and |pid| members of |info|. If unavailable,
 // these members are set to -1. Returns true iff all three members are
-// availible.
+// available.
 bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo* info) {
   assert(info != NULL);
-  char status_path[80];
+  char status_path[NAME_MAX];
   BuildProcPath(status_path, tid, "status");
 
   const int fd = open(status_path, O_RDONLY);
@@ -311,15 +429,22 @@ bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo* info) {
   if (info->ppid == -1 || info->tgid == -1)
     return false;
 
-  if (sys_ptrace(PTRACE_GETREGS, tid, NULL, &info->regs) == -1 ||
-      sys_ptrace(PTRACE_GETFPREGS, tid, NULL, &info->fpregs) == -1) {
+  if (sys_ptrace(PTRACE_GETREGS, tid, NULL, &info->regs) == -1) {
     return false;
   }
 
-#if defined(__i386) || defined(__x86_64)
+#if !defined(__ANDROID__)
+  if (sys_ptrace(PTRACE_GETFPREGS, tid, NULL, &info->fpregs) == -1) {
+    return false;
+  }
+#endif
+
+#if defined(__i386)
   if (sys_ptrace(PTRACE_GETFPXREGS, tid, NULL, &info->fpxregs) == -1)
     return false;
+#endif
 
+#if defined(__i386) || defined(__x86_64)
   for (unsigned i = 0; i < ThreadInfo::kNumDebugRegisters; ++i) {
     if (sys_ptrace(
         PTRACE_PEEKUSER, tid,
@@ -337,15 +462,14 @@ bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo* info) {
   memcpy(&stack_pointer, &info->regs.esp, sizeof(info->regs.esp));
 #elif defined(__x86_64)
   memcpy(&stack_pointer, &info->regs.rsp, sizeof(info->regs.rsp));
+#elif defined(__ARM_EABI__)
+  memcpy(&stack_pointer, &info->regs.ARM_sp, sizeof(info->regs.ARM_sp));
 #else
 #error "This code hasn't been ported to your platform yet."
 #endif
 
-  if (!GetStackInfo(&info->stack, &info->stack_len,
-                    (uintptr_t) stack_pointer))
-    return false;
-
-  return true;
+  return GetStackInfo(&info->stack, &info->stack_len,
+                      (uintptr_t) stack_pointer);
 }
 
 // Get information about the stack, given the stack pointer. We don't try to
@@ -353,42 +477,31 @@ bool LinuxDumper::ThreadInfoGet(pid_t tid, ThreadInfo* info) {
 // unwind. So we just grab, up to, 32k of stack.
 bool LinuxDumper::GetStackInfo(const void** stack, size_t* stack_len,
                                uintptr_t int_stack_pointer) {
-#if defined(__i386) || defined(__x86_64)
-  static const bool stack_grows_down = true;
-  static const uintptr_t page_size = 4096;
-#else
-#error "This code has not been ported to your platform yet."
-#endif
   // Move the stack pointer to the bottom of the page that it's in.
+  const uintptr_t page_size = getpagesize();
+
   uint8_t* const stack_pointer =
       reinterpret_cast<uint8_t*>(int_stack_pointer & ~(page_size - 1));
 
   // The number of bytes of stack which we try to capture.
-  static unsigned kStackToCapture = 32 * 1024;
+  static const ptrdiff_t kStackToCapture = 32 * 1024;
 
   const MappingInfo* mapping = FindMapping(stack_pointer);
   if (!mapping)
     return false;
-  if (stack_grows_down) {
-    const ptrdiff_t offset = stack_pointer - (uint8_t*) mapping->start_addr;
-    const ptrdiff_t distance_to_end =
-        static_cast<ptrdiff_t>(mapping->size) - offset;
-    *stack_len = distance_to_end > kStackToCapture ?
-                 kStackToCapture : distance_to_end;
-    *stack = stack_pointer;
-  } else {
-    const ptrdiff_t offset = stack_pointer - (uint8_t*) mapping->start_addr;
-    *stack_len = offset > kStackToCapture ? kStackToCapture : offset;
-    *stack = stack_pointer - *stack_len;
-  }
-
+  const ptrdiff_t offset = stack_pointer - (uint8_t*) mapping->start_addr;
+  const ptrdiff_t distance_to_end =
+      static_cast<ptrdiff_t>(mapping->size) - offset;
+  *stack_len = distance_to_end > kStackToCapture ?
+      kStackToCapture : distance_to_end;
+  *stack = stack_pointer;
   return true;
 }
 
 // static
 void LinuxDumper::CopyFromProcess(void* dest, pid_t child, const void* src,
                                   size_t length) {
-  unsigned long tmp;
+  unsigned long tmp = 55;
   size_t done = 0;
   static const size_t word_size = sizeof(tmp);
   uint8_t* const local = (uint8_t*) dest;
@@ -396,8 +509,9 @@ void LinuxDumper::CopyFromProcess(void* dest, pid_t child, const void* src,
 
   while (done < length) {
     const size_t l = length - done > word_size ? word_size : length - done;
-    if (sys_ptrace(PTRACE_PEEKDATA, child, remote + done, &tmp) == -1)
+    if (sys_ptrace(PTRACE_PEEKDATA, child, remote + done, &tmp) == -1) {
       tmp = 0;
+    }
     memcpy(local + done, &tmp, l);
     done += l;
   }
@@ -414,6 +528,44 @@ const MappingInfo* LinuxDumper::FindMapping(const void* address) const {
   }
 
   return NULL;
+}
+
+bool LinuxDumper::HandleDeletedFileInMapping(char* path) const {
+  static const size_t kDeletedSuffixLen = sizeof(kDeletedSuffix) - 1;
+
+  // Check for ' (deleted)' in |path|.
+  // |path| has to be at least as long as "/x (deleted)".
+  const size_t path_len = my_strlen(path);
+  if (path_len < kDeletedSuffixLen + 2)
+    return false;
+  if (my_strncmp(path + path_len - kDeletedSuffixLen, kDeletedSuffix,
+                 kDeletedSuffixLen) != 0) {
+    return false;
+  }
+
+  // Check |path| against the /proc/pid/exe 'symlink'.
+  char exe_link[NAME_MAX];
+  char new_path[NAME_MAX];
+  BuildProcPath(exe_link, pid_, "exe");
+  ssize_t new_path_len = sys_readlink(exe_link, new_path, NAME_MAX);
+  if (new_path_len <= 0 || new_path_len == NAME_MAX)
+    return false;
+  new_path[new_path_len] = '\0';
+  if (my_strcmp(path, new_path) != 0)
+    return false;
+
+  // Check to see if someone actually named their executable 'foo (deleted)'.
+  struct kernel_stat exe_stat;
+  struct kernel_stat new_path_stat;
+  if (sys_stat(exe_link, &exe_stat) == 0 &&
+      sys_stat(new_path, &new_path_stat) == 0 &&
+      exe_stat.st_dev == new_path_stat.st_dev &&
+      exe_stat.st_ino == new_path_stat.st_ino) {
+    return false;
+  }
+
+  memcpy(path, exe_link, NAME_MAX);
+  return true;
 }
 
 }  // namespace google_breakpad

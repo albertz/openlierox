@@ -1,4 +1,4 @@
-// Copyright (c) 2006, Google Inc.
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -32,9 +32,10 @@
 //
 // Author: Mark Mentovai
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include <string>
 #include <vector>
 
@@ -70,24 +71,44 @@ using google_breakpad::StackFramePPC;
 using google_breakpad::StackFrameSPARC;
 using google_breakpad::StackFrameX86;
 using google_breakpad::StackFrameAMD64;
+using google_breakpad::StackFrameARM;
 
 // Separator character for machine readable output.
 static const char kOutputSeparator = '|';
 
 // PrintRegister prints a register's name and value to stdout.  It will
 // print four registers on a line.  For the first register in a set,
-// pass 0 for |sequence|.  For registers in a set, pass the most recent
-// return value of PrintRegister.  Note that PrintRegister will print a
-// newline before the first register (with |sequence| set to 0) is printed.
+// pass 0 for |start_col|.  For registers in a set, pass the most recent
+// return value of PrintRegister.
 // The caller is responsible for printing the final newline after a set
 // of registers is completely printed, regardless of the number of calls
 // to PrintRegister.
-static int PrintRegister(const char *name, u_int32_t value, int sequence) {
-  if (sequence % 4 == 0) {
+static const int kMaxWidth = 80;  // optimize for an 80-column terminal
+static int PrintRegister(const char *name, u_int32_t value, int start_col) {
+  char buffer[64];
+  snprintf(buffer, sizeof(buffer), " %5s = 0x%08x", name, value);
+
+  if (start_col + strlen(buffer) > kMaxWidth) {
+    start_col = 0;
     printf("\n ");
   }
-  printf(" %5s = 0x%08x", name, value);
-  return ++sequence;
+  fputs(buffer, stdout);
+
+  return start_col + strlen(buffer);
+}
+
+// PrintRegister64 does the same thing, but for 64-bit registers.
+static int PrintRegister64(const char *name, u_int64_t value, int start_col) {
+  char buffer[64];
+  snprintf(buffer, sizeof(buffer), " %5s = 0x%016" PRIx64 , name, value);
+
+  if (start_col + strlen(buffer) > kMaxWidth) {
+    start_col = 0;
+    printf("\n ");
+  }
+  fputs(buffer, stdout);
+
+  return start_col + strlen(buffer);
 }
 
 // StripSeparator takes a string |original| and returns a copy
@@ -96,6 +117,10 @@ static string StripSeparator(const string &original) {
   string result = original;
   string::size_type position = 0;
   while ((position = result.find(kOutputSeparator, position)) != string::npos) {
+    result.erase(position, 1);
+  }
+  position = 0;
+  while ((position = result.find('\n', position)) != string::npos) {
     result.erase(position, 1);
   }
   return result;
@@ -136,11 +161,12 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
     } else {
       printf("0x%" PRIx64, frame->instruction);
     }
+    printf("\n ");
 
     int sequence = 0;
     if (cpu == "x86") {
       const StackFrameX86 *frame_x86 =
-          reinterpret_cast<const StackFrameX86*>(frame);
+        reinterpret_cast<const StackFrameX86*>(frame);
 
       if (frame_x86->context_validity & StackFrameX86::CONTEXT_VALID_EIP)
         sequence = PrintRegister("eip", frame_x86->context.eip, sequence);
@@ -160,31 +186,9 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
         sequence = PrintRegister("edx", frame_x86->context.edx, sequence);
         sequence = PrintRegister("efl", frame_x86->context.eflags, sequence);
       }
-      const char *trust_name;
-      switch (frame_x86->trust) {
-        case StackFrameX86::FRAME_TRUST_NONE:
-          trust_name = "unknown";
-          break;
-        case StackFrameX86::FRAME_TRUST_CONTEXT:
-          trust_name = "given as instruction pointer in context";
-          break;
-        case StackFrameX86::FRAME_TRUST_CFI:
-          trust_name = "call frame info";
-          break;
-        case StackFrameX86::FRAME_TRUST_CFI_SCAN:
-          trust_name = "call frame info with scanning";
-          break;
-        case StackFrameX86::FRAME_TRUST_FP:
-          trust_name = "previous frame's frame pointer";
-          break;
-        case StackFrameX86::FRAME_TRUST_SCAN:
-          trust_name = "stack scanning";
-          break;
-      }
-      printf("\n    Found by: %s", trust_name);
     } else if (cpu == "ppc") {
       const StackFramePPC *frame_ppc =
-          reinterpret_cast<const StackFramePPC*>(frame);
+        reinterpret_cast<const StackFramePPC*>(frame);
 
       if (frame_ppc->context_validity & StackFramePPC::CONTEXT_VALID_SRR0)
         sequence = PrintRegister("srr0", frame_ppc->context.srr0, sequence);
@@ -194,15 +198,25 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
       const StackFrameAMD64 *frame_amd64 =
         reinterpret_cast<const StackFrameAMD64*>(frame);
 
+      if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_RBX)
+        sequence = PrintRegister64("rbx", frame_amd64->context.rbx, sequence);
+      if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_R12)
+        sequence = PrintRegister64("r12", frame_amd64->context.r12, sequence);
+      if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_R13)
+        sequence = PrintRegister64("r13", frame_amd64->context.r13, sequence);
+      if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_R14)
+        sequence = PrintRegister64("r14", frame_amd64->context.r14, sequence);
+      if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_R15)
+        sequence = PrintRegister64("r15", frame_amd64->context.r15, sequence);
       if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_RIP)
-        sequence = PrintRegister("rip", frame_amd64->context.rip, sequence);
+        sequence = PrintRegister64("rip", frame_amd64->context.rip, sequence);
       if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_RSP)
-        sequence = PrintRegister("rsp", frame_amd64->context.rsp, sequence);
+        sequence = PrintRegister64("rsp", frame_amd64->context.rsp, sequence);
       if (frame_amd64->context_validity & StackFrameAMD64::CONTEXT_VALID_RBP)
-        sequence = PrintRegister("rbp", frame_amd64->context.rbp, sequence);
+        sequence = PrintRegister64("rbp", frame_amd64->context.rbp, sequence);
     } else if (cpu == "sparc") {
       const StackFrameSPARC *frame_sparc =
-          reinterpret_cast<const StackFrameSPARC*>(frame);
+        reinterpret_cast<const StackFrameSPARC*>(frame);
 
       if (frame_sparc->context_validity & StackFrameSPARC::CONTEXT_VALID_SP)
         sequence = PrintRegister("sp", frame_sparc->context.g_r[14], sequence);
@@ -210,8 +224,37 @@ static void PrintStack(const CallStack *stack, const string &cpu) {
         sequence = PrintRegister("fp", frame_sparc->context.g_r[30], sequence);
       if (frame_sparc->context_validity & StackFrameSPARC::CONTEXT_VALID_PC)
         sequence = PrintRegister("pc", frame_sparc->context.pc, sequence);
+    } else if (cpu == "arm") {
+      const StackFrameARM *frame_arm =
+        reinterpret_cast<const StackFrameARM*>(frame);
+
+      // General-purpose callee-saves registers.
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R4)
+        sequence = PrintRegister("r4", frame_arm->context.iregs[4], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R5)
+        sequence = PrintRegister("r5", frame_arm->context.iregs[5], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R6)
+        sequence = PrintRegister("r6", frame_arm->context.iregs[6], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R7)
+        sequence = PrintRegister("r7", frame_arm->context.iregs[7], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R8)
+        sequence = PrintRegister("r8", frame_arm->context.iregs[8], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R9)
+        sequence = PrintRegister("r9", frame_arm->context.iregs[9], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_R10)
+        sequence = PrintRegister("r10", frame_arm->context.iregs[10], sequence);
+
+      // Registers with a dedicated or conventional purpose.
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_FP)
+        sequence = PrintRegister("fp", frame_arm->context.iregs[11], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_SP)
+        sequence = PrintRegister("sp", frame_arm->context.iregs[13], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_LR)
+        sequence = PrintRegister("lr", frame_arm->context.iregs[14], sequence);
+      if (frame_arm->context_validity & StackFrameARM::CONTEXT_VALID_PC)
+        sequence = PrintRegister("pc", frame_arm->context.iregs[15], sequence);
     }
-    printf("\n");
+    printf("\n    Found by: %s\n", frame->trust_description().c_str());
   }
 }
 
@@ -361,6 +404,11 @@ static void PrintProcessState(const ProcessState& process_state) {
     printf("No crash\n");
   }
 
+  string assertion = process_state.assertion();
+  if (!assertion.empty()) {
+    printf("Assertion: %s\n", assertion.c_str());
+  }
+
   // If the thread that requested the dump is known, print it first.
   int requesting_thread = process_state.requesting_thread();
   if (requesting_thread != -1) {
@@ -413,7 +461,15 @@ static void PrintProcessStateMachineReadable(const ProcessState& process_state)
            StripSeparator(process_state.crash_reason()).c_str(),
            kOutputSeparator, process_state.crash_address(), kOutputSeparator);
   } else {
-    printf("No crash%c%c", kOutputSeparator, kOutputSeparator);
+    // print assertion info, if available, in place of crash reason,
+    // instead of the unhelpful "No crash"
+    string assertion = process_state.assertion();
+    if (!assertion.empty()) {
+      printf("%s%c%c", StripSeparator(assertion).c_str(),
+             kOutputSeparator, kOutputSeparator);
+    } else {
+      printf("No crash%c%c", kOutputSeparator, kOutputSeparator);
+    }
   }
 
   if (requesting_thread != -1) {

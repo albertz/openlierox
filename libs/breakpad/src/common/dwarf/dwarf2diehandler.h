@@ -1,4 +1,6 @@
-// Copyright 2009 Google Inc. All Rights Reserved.  -*- mode: c++ -*-
+// -*- mode: c++ -*-
+
+// Copyright (c) 2010 Google Inc. All Rights Reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -26,6 +28,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+// Original author: Jim Blandy <jimb@mozilla.com> <jimb@red-bean.com>
+
 // dwarf2reader::CompilationUnit is a simple and direct parser for
 // DWARF data, but its handler interface is not convenient to use.  In
 // particular:
@@ -50,49 +54,58 @@
 //   like this.
 //
 // - Processing different kinds of DIEs requires different sets of
-//   data.  It would be nice to be able to have separate classes for
-//   separate kinds of DIEs, each with the members appropriate to its
-//   role, instead of having one handler class that needs to hold data
-//   for all every DIE type.
+//   data: lexical block DIEs have start and end addresses, but struct
+//   type DIEs don't.  It would be nice to be able to have separate
+//   handler classes for separate kinds of DIEs, each with the members
+//   appropriate to its role, instead of having one handler class that
+//   needs to hold data for every DIE type.
 //
-// - It would be nice to have separate handler objects for separate
-//   DIEs, instead of a single handler instance required to keep track
-//   of everything.
+// - There should be a separate instance of the appropriate handler
+//   class for each DIE, instead of a single object with tables
+//   tracking all the dies in the compilation unit.
 //
-// - It's not convenient to take some action after all attributes have
-//   been seen, but before visiting any children.  The only indication
-//   you have that a DIE's attribute list is complete is that you get
-//   either a StartDIE or an EndDIE call.
+// - It's not convenient to take some action after all a DIE's
+//   attributes have been seen, but before visiting any of its
+//   children.  The only indication you have that a DIE's attribute
+//   list is complete is that you get either a StartDIE or an EndDIE
+//   call.
 //
 // - It's not convenient to make use of the tree structure of the
 //   DIEs.  Skipping all the children of a given die requires
 //   maintaining state and returning false from StartDIE until we get
-//   an EndDIE call with the appropriate offset.  And it's not
-//   convenient to maintain the stack of contexts for the DIEs we have
-//   decided to enter.
+//   an EndDIE call with the appropriate offset.
 //
-// This interface tries to take care of all that.  (How'd you guess?)
+// This interface tries to take care of all that.  (You're shocked, I'm sure.)
 //
 // Using the classes here, you provide an initial handler for the root
 // DIE of the compilation unit.  Each handler receives its DIE's
 // attributes, and provides fresh handler objects for children of
-// interest, if any.
+// interest, if any.  The three classes are:
 //
-// You use them as follows:
+// - DIEHandler: the base class for your DIE-type-specific handler
+//   classes.
 //
-// - Define handler classes specialized to particular DIE types of
-//   interest.  These handler classes must inherit from the DIEHandler
-//   class, defined below.  Thus:
+// - RootDIEHandler: derived from DIEHandler, the base class for your
+//   root DIE handler class.
+//
+// - DIEDispatcher: derived from Dwarf2Handler, an instance of this
+//   invokes your DIE-type-specific handler objects.
+//
+// In detail:
+//
+// - Define handler classes specialized for the DIE types you're
+//   interested in.  These handler classes must inherit from
+//   DIEHandler.  Thus:
 //
 //     class My_DW_TAG_X_Handler: public DIEHandler { ... };
 //     class My_DW_TAG_Y_Handler: public DIEHandler { ... };
 //
 //   DIEHandler subclasses needn't correspond exactly to single DIE
-//   types, as shown here; the point is that you can write different
-//   classes for different kinds of DIEs.
+//   types, as shown here; the point is that you can have several
+//   different classes appropriate to different kinds of DIEs.
 //
-// - In particular, define a DIE handler class for the compilation
-//   unit's root DIE, that inherits from the RootDIEHandler class
+// - In particular, define a handler class for the compilation
+//   unit's root DIE, that inherits from RootDIEHandler:
 //
 //     class My_DW_TAG_compile_unit_Handler: public RootDIEHandler { ... };
 //
@@ -101,7 +114,7 @@
 //   and other quirks of rootness.
 //
 // - Then, create a DIEDispatcher instance, passing it an instance of
-//   your root DIE handler, and use that as the
+//   your root DIE handler class, and use that DIEDispatcher as the
 //   dwarf2reader::CompilationUnit's handler:
 //
 //     My_DW_TAG_compile_unit_Handler root_die_handler(...);
@@ -109,7 +122,7 @@
 //     CompilationUnit reader(sections, offset, bytereader, &die_dispatcher);
 //
 //   Here, 'die_dispatcher' acts as a shim between 'reader' and the
-//   various DIE-specific handlers.
+//   various DIE-specific handlers you have defined.
 //
 // - When you call reader.Start(), die_dispatcher behaves as follows,
 //   starting with your root die handler and the compilation unit's
@@ -122,12 +135,13 @@
 //     should return true if any of the DIE's children should be
 //     visited, in which case:
 //
-//     - die_dispatcher calls the handler's FindChildHandler member
-//       function.  If that returns NULL, die_dispatcher ignores that
-//       child and its descendants.  Otherwise, FindChildHandler
-//       returns a pointer to a DIEHandler instance; die_dispatcher
-//       uses that handler to process the child, using this procedure
-//       recursively.
+//     - For each of the DIE's children, die_dispatcher calls the
+//       DIE's handler's FindChildHandler member function.  If that
+//       returns a pointer to a DIEHandler instance, then
+//       die_dispatcher uses that handler to process the child, using
+//       this procedure recursively.  Alternatively, if
+//       FindChildHandler returns NULL, die_dispatcher ignores that
+//       child and its descendants.
 // 
 //   - When die_dispatcher has finished processing all the DIE's
 //     children, it invokes the handler's Finish() member function,
@@ -150,18 +164,18 @@
 
 namespace dwarf2reader {
 
-// A parent class for handlers for specific DIE types.
-// The series of calls made on a DIE handler is as follows:
+// A base class for handlers for specific DIE types.  The series of
+// calls made on a DIE handler is as follows:
 //
-// - construction, by the parent DIE's handler
 // - for each attribute of the DIE:
 //   - ProcessAttributeX()
 // - EndAttributes()
 // - if that returned true, then for each child:
 //   - FindChildHandler()
-//   - if that returns non-NULL:
-//     - this sequence inserted recursively
+//   - if that returns a non-NULL pointer to a new handler:
+//     - recurse, with the new handler and the child die
 // - Finish()
+// - destruction
 class DIEHandler {
  public:
   DIEHandler() { }
@@ -172,6 +186,12 @@ class DIEHandler {
   // same restrictions as the corresponding member functions of
   // dwarf2reader::Dwarf2Handler.
   //
+  // Since DWARF does not specify in what order attributes must
+  // appear, avoid making decisions in these functions that would be
+  // affected by the presence of other attributes. The EndAttributes
+  // function is a more appropriate place for such work, as all the
+  // DIE's attributes have been seen at that point.
+  //
   // The default definitions ignore the values they are passed.
   virtual void ProcessAttributeUnsigned(enum DwarfAttribute attr,
                                         enum DwarfForm form,
@@ -179,6 +199,9 @@ class DIEHandler {
   virtual void ProcessAttributeSigned(enum DwarfAttribute attr,
                                       enum DwarfForm form,
                                       int64 data) { }
+  virtual void ProcessAttributeReference(enum DwarfAttribute attr,
+                                         enum DwarfForm form,
+                                         uint64 data) { }
   virtual void ProcessAttributeBuffer(enum DwarfAttribute attr,
                                       enum DwarfForm form,
                                       const char* data,
@@ -191,22 +214,30 @@ class DIEHandler {
   // this member function.  If it returns false, we skip all the DIE's
   // children.  If it returns true, we call FindChildHandler on each
   // child.  If that returns a handler object, we use that to visit
-  // the child; otherwise, we skip it.
+  // the child; otherwise, we skip the child.
   //
-  // The default definition applies FindChildHandler to all children.
-  virtual bool EndAttributes() { return true; }
+  // This is a good place to make decisions that depend on more than
+  // one attribute. DWARF does not specify in what order attributes
+  // must appear, so only when the EndAttributes function is called
+  // does the handler have a complete picture of the DIE's attributes.
+  //
+  // The default definition elects to ignore the DIE's children.
+  // You'll need to override this if you override FindChildHandler,
+  // but at least the default behavior isn't to pass the children to
+  // FindChildHandler, which then ignores them all.
+  virtual bool EndAttributes() { return false; }
 
   // If EndAttributes returns true to indicate that some of the DIE's
   // children might be of interest, then we apply this function to
   // each of the DIE's children.  If it returns a handler object, then
-  // we use that to visit the child.  If it returns NULL, we skip that
-  // child (and its children).
+  // we use that to visit the child DIE.  If it returns NULL, we skip
+  // that child DIE (and all its descendants).
   //
   // OFFSET is the offset of the child; TAG indicates what kind of DIE
   // it is; and ATTRS is the list of attributes the DIE will have, and
   // their forms (their values are not provided).
   //
-  // The default definition doesn't handle any children.
+  // The default definition skips all children.
   virtual DIEHandler *FindChildHandler(uint64 offset, enum DwarfTag tag,
                                        const AttributeList &attrs) {
     return NULL;
@@ -215,7 +246,8 @@ class DIEHandler {
   // When we are done processing a DIE, we call this member function.
   // This happens after the EndAttributes call, all FindChildHandler
   // calls (if any), and all operations on the children themselves (if
-  // any).
+  // any). We call Finish on every handler --- even if EndAttributes
+  // returns false.
   virtual void Finish() { };
 };
 
@@ -226,11 +258,11 @@ class RootDIEHandler: public DIEHandler {
   RootDIEHandler() { }
   virtual ~RootDIEHandler() { }
 
-  // We pass the values reported via StartCompilationUnit to this
-  // member function, and skip the entire compilation unit if it
-  // returns false.  So the root DIE handler is actually also a
-  // compilation unit handler.  The default definition always visits
-  // the compilation unit.
+  // We pass the values reported via Dwarf2Handler::StartCompilationUnit
+  // to this member function, and skip the entire compilation unit if it
+  // returns false.  So the root DIE handler is actually also
+  // responsible for handling the compilation unit metadata.
+  // The default definition always visits the compilation unit.
   virtual bool StartCompilationUnit(uint64 offset, uint8 address_size,
                                     uint8 offset_size, uint64 cu_length,
                                     uint8 dwarf_version) { return true; }
@@ -252,8 +284,7 @@ class DIEDispatcher: public Dwarf2Handler {
   // Create a Dwarf2Handler which uses ROOT_HANDLER as the handler for
   // the compilation unit's root die, as described for the DIEHandler
   // class.
-  DIEDispatcher(RootDIEHandler *root_handler) :
-      root_handler_(root_handler) { }
+  DIEDispatcher(RootDIEHandler *root_handler) : root_handler_(root_handler) { }
   // Destroying a DIEDispatcher destroys all active handler objects
   // except the root handler.
   ~DIEDispatcher();
@@ -270,6 +301,10 @@ class DIEDispatcher: public Dwarf2Handler {
                               enum DwarfAttribute attr,
                               enum DwarfForm form,
                               int64 data);
+  void ProcessAttributeReference(uint64 offset,
+                                 enum DwarfAttribute attr,
+                                 enum DwarfForm form,
+                                 uint64 data);
   void ProcessAttributeBuffer(uint64 offset,
                               enum DwarfAttribute attr,
                               enum DwarfForm form,
@@ -286,13 +321,13 @@ class DIEDispatcher: public Dwarf2Handler {
   // The type of a handler stack entry.  This includes some fields
   // which don't really need to be on the stack --- they could just be
   // single data members of DIEDispatcher --- but putting them here
-  // makes it easy to see that the code is correct.
+  // makes it easier to see that the code is correct.
   struct HandlerStack {
     // The offset of the DIE for this handler stack entry.
     uint64 offset_;
 
-    // The object interested in this DIE's attributes and children.
-    // If NULL, we're not interested in either.
+    // The handler object interested in this DIE's attributes and
+    // children.  If NULL, we're not interested in either.
     DIEHandler *handler_;
 
     // Have we reported the end of this DIE's attributes to the handler?
@@ -311,7 +346,7 @@ class DIEDispatcher: public Dwarf2Handler {
   //
   // - When we decide to ignore a subtree, we only push an entry on
   //   the stack for the root of the tree being ignored, rather than
-  //   pushing lots of stack entries with ignore_children_ set.
+  //   pushing lots of stack entries with handler_ set to NULL.
   stack<HandlerStack> die_handlers_;
 
   // The root handler.  We don't push it on die_handlers_ until we

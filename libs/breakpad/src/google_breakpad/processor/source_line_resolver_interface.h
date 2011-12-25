@@ -1,4 +1,6 @@
-// Copyright (c) 2006, Google Inc.
+// -*- mode: C++ -*-
+
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -34,13 +36,15 @@
 
 #include <string>
 #include "google_breakpad/common/breakpad_types.h"
+#include "google_breakpad/processor/code_module.h"
 
 namespace google_breakpad {
 
 using std::string;
 
 struct StackFrame;
-struct StackFrameInfo;
+struct WindowsFrameInfo;
+struct CFIFrameInfo;
 
 class SourceLineResolverInterface {
  public:
@@ -50,27 +54,52 @@ class SourceLineResolverInterface {
 
   // Adds a module to this resolver, returning true on success.
   //
-  // module_name may be an arbitrary string.  Typically, it will be the
-  // filename of the module, optionally with version identifiers.
+  // module should have at least the code_file, debug_file,
+  // and debug_identifier members populated.
   //
   // map_file should contain line/address mappings for this module.
-  virtual bool LoadModule(const string &module_name,
+  virtual bool LoadModule(const CodeModule *module,
                           const string &map_file) = 0;
   // Same as above, but takes the contents of a pre-read map buffer
-  virtual bool LoadModuleUsingMapBuffer(const string &module_name,
+  virtual bool LoadModuleUsingMapBuffer(const CodeModule *module,
                                         const string &map_buffer) = 0;
 
-  // Returns true if a module with the given name has been loaded.
-  virtual bool HasModule(const string &module_name) const = 0;
+  // Add an interface to load symbol using C-String data insteading string.
+  // This is useful in the optimization design for avoiding unnecessary copying
+  // of symbol data, in order to improve memory efficiency.
+  // LoadModuleUsingMemoryBuffer() does NOT take ownership of memory_buffer.
+  virtual bool LoadModuleUsingMemoryBuffer(const CodeModule *module,
+                                           char *memory_buffer) = 0;
+
+  // Return true if the memory buffer should be deleted immediately after
+  // LoadModuleUsingMemoryBuffer(). Return false if the memory buffer has to be
+  // alive during the lifetime of the corresponding Module.
+  virtual bool ShouldDeleteMemoryBufferAfterLoadModule() = 0;
+
+  // Request that the specified module be unloaded from this resolver.
+  // A resolver may choose to ignore such a request.
+  virtual void UnloadModule(const CodeModule *module) = 0;
+
+  // Returns true if the module has been loaded.
+  virtual bool HasModule(const CodeModule *module) = 0;
 
   // Fills in the function_base, function_name, source_file_name,
   // and source_line fields of the StackFrame.  The instruction and
-  // module_name fields must already be filled in.  Additional debugging
-  // information, if available, is returned.  If the information is not
-  // available, returns NULL.  A NULL return value does not indicate an
-  // error.  The caller takes ownership of any returned StackFrameInfo
-  // object.
-  virtual StackFrameInfo* FillSourceLineInfo(StackFrame *frame) const = 0;
+  // module_name fields must already be filled in.
+  virtual void FillSourceLineInfo(StackFrame *frame) = 0;
+
+  // If Windows stack walking information is available covering
+  // FRAME's instruction address, return a WindowsFrameInfo structure
+  // describing it. If the information is not available, returns NULL.
+  // A NULL return value does not indicate an error. The caller takes
+  // ownership of any returned WindowsFrameInfo object.
+  virtual WindowsFrameInfo *FindWindowsFrameInfo(const StackFrame *frame) = 0;
+
+  // If CFI stack walking information is available covering ADDRESS,
+  // return a CFIFrameInfo structure describing it. If the information
+  // is not available, return NULL. The caller takes ownership of any
+  // returned CFIFrameInfo object.
+  virtual CFIFrameInfo *FindCFIFrameInfo(const StackFrame *frame) = 0;
 
  protected:
   // SourceLineResolverInterface cannot be instantiated except by subclasses

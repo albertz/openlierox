@@ -30,7 +30,7 @@
 #ifndef GOOGLE_BREAKPAD_PROCESSOR_MINIDUMP_PROCESSOR_H__
 #define GOOGLE_BREAKPAD_PROCESSOR_MINIDUMP_PROCESSOR_H__
 
-#include <cassert>
+#include <assert.h>
 #include <string>
 #include "google_breakpad/common/breakpad_types.h"
 
@@ -94,6 +94,14 @@ class MinidumpProcessor {
   // implementation of the SymbolSupplier abstract base class.
   MinidumpProcessor(SymbolSupplier *supplier,
                     SourceLineResolverInterface *resolver);
+
+  // Initializes the MinidumpProcessor with the option of
+  // enabling the exploitability framework to analyze dumps
+  // for probable security relevance.
+  MinidumpProcessor(SymbolSupplier *supplier,
+                    SourceLineResolverInterface *resolver,
+                    bool enable_exploitability);
+
   ~MinidumpProcessor();
 
   // Processes the minidump file and fills process_state with the result.
@@ -141,9 +149,19 @@ class MinidumpProcessor {
     return (p != PROCESS_SYMBOL_SUPPLIER_INTERRUPTED);
   }
 
+  // Returns a textual representation of an assertion included
+  // in the minidump.  Returns an empty string if this information
+  // does not exist or cannot be determined.
+  static string GetAssertion(Minidump *dump);
+
  private:
   SymbolSupplier *supplier_;
   SourceLineResolverInterface *resolver_;
+
+  // This flag enables the exploitability scanner which attempts to
+  // guess how likely it is that the crash represents an exploitable
+  // memory corruption issue.
+  bool enable_exploitability_;
 };
 
 }  // namespace google_breakpad

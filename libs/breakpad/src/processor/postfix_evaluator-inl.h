@@ -1,4 +1,6 @@
-// Copyright (c) 2006, Google Inc.
+// -*- mode: c++ -*-
+
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -37,11 +39,12 @@
 #ifndef PROCESSOR_POSTFIX_EVALUATOR_INL_H__
 #define PROCESSOR_POSTFIX_EVALUATOR_INL_H__
 
+#include "processor/postfix_evaluator.h"
 
-#include <cstdio>
+#include <stdio.h>
+
 #include <sstream>
 
-#include "processor/postfix_evaluator.h"
 #include "google_breakpad/processor/memory_region.h"
 #include "processor/logging.h"
 
@@ -64,11 +67,9 @@ class AutoStackClearer {
 
 
 template<typename ValueType>
-bool PostfixEvaluator<ValueType>::Evaluate(const string &expression,
-                                           DictionaryValidityType *assigned) {
-  // Ensure that the stack is cleared before returning.
-  AutoStackClearer clearer(&stack_);
-
+bool PostfixEvaluator<ValueType>::EvaluateInternal(
+    const string &expression,
+    DictionaryValidityType *assigned) {
   // Tokenize, splitting on whitespace.
   istringstream stream(expression);
   string token;
@@ -99,7 +100,8 @@ bool PostfixEvaluator<ValueType>::Evaluate(const string &expression,
 
     if (operation != BINARY_OP_NONE) {
       // Get the operands.
-      ValueType operand1, operand2;
+      ValueType operand1 = ValueType();
+      ValueType operand2 = ValueType();
       if (!PopValues(&operand1, &operand2)) {
         BPLOG(ERROR) << "Could not PopValues to get two values for binary "
                         "operation " << token << ": " << expression;
@@ -161,8 +163,8 @@ bool PostfixEvaluator<ValueType>::Evaluate(const string &expression,
       // = for assignment.
       ValueType value;
       if (!PopValue(&value)) {
-        BPLOG(ERROR) << "Could not PopValue to get value to assign: " <<
-                        expression;
+        BPLOG(INFO) << "Could not PopValue to get value to assign: " <<
+                       expression;
         return false;
       }
 
@@ -194,13 +196,46 @@ bool PostfixEvaluator<ValueType>::Evaluate(const string &expression,
     }
   }
 
+  return true;
+}
+
+template<typename ValueType>
+bool PostfixEvaluator<ValueType>::Evaluate(const string &expression,
+                                           DictionaryValidityType *assigned) {
+  // Ensure that the stack is cleared before returning.
+  AutoStackClearer clearer(&stack_);
+
+  if (!EvaluateInternal(expression, assigned))
+    return false;
+
   // If there's anything left on the stack, it indicates incomplete execution.
   // This is a failure case.  If the stack is empty, evalution was complete
   // and successful.
-  BPLOG_IF(ERROR, !stack_.empty()) << "Incomplete execution: " << expression;
-  return stack_.empty();
+  if (stack_.empty())
+    return true;
+
+  BPLOG(ERROR) << "Incomplete execution: " << expression;
+  return false;
 }
 
+template<typename ValueType>
+bool PostfixEvaluator<ValueType>::EvaluateForValue(const string &expression,
+                                                   ValueType *result) {
+  // Ensure that the stack is cleared before returning.
+  AutoStackClearer clearer(&stack_);
+
+  if (!EvaluateInternal(expression, NULL))
+    return false;
+
+  // A successful execution should leave exactly one value on the stack.
+  if (stack_.size() != 1) {
+    BPLOG(ERROR) << "Expression yielded bad number of results: "
+                 << "'" << expression << "'";
+    return false;
+  }
+
+  return PopValue(result);
+}
 
 template<typename ValueType>
 typename PostfixEvaluator<ValueType>::PopResult
@@ -213,16 +248,30 @@ PostfixEvaluator<ValueType>::PopValueOrIdentifier(
   string token = stack_.back();
   stack_.pop_back();
 
-  // First, try to treat the value as a literal.  In order for this to
-  // succed, the entire string must be parseable as ValueType.  If this
-  // isn't possible, it can't be a literal, so treat it as an identifier
-  // instead.
+  // First, try to treat the value as a literal. Literals may have leading
+  // '-' sign, and the entire remaining string must be parseable as
+  // ValueType. If this isn't possible, it can't be a literal, so treat it
+  // as an identifier instead.
+  //
+  // Some versions of the libstdc++, the GNU standard C++ library, have
+  // stream extractors for unsigned integer values that permit a leading
+  // '-' sign (6.0.13); others do not (6.0.9). Since we require it, we
+  // handle it explicitly here.
   istringstream token_stream(token);
-  ValueType literal;
+  ValueType literal = ValueType();
+  bool negative;
+  if (token_stream.peek() == '-') {
+    negative = true;
+    token_stream.get();
+  } else {
+    negative = false;
+  }
   if (token_stream >> literal && token_stream.peek() == EOF) {
     if (value) {
       *value = literal;
     }
+    if (negative)
+      *value = -*value;
     return POP_RESULT_VALUE;
   } else {
     if (identifier) {
@@ -235,7 +284,7 @@ PostfixEvaluator<ValueType>::PopValueOrIdentifier(
 
 template<typename ValueType>
 bool PostfixEvaluator<ValueType>::PopValue(ValueType *value) {
-  ValueType literal;
+  ValueType literal = ValueType();
   string token;
   PopResult result;
   if ((result = PopValueOrIdentifier(&literal, &token)) == POP_RESULT_FAIL) {
@@ -251,7 +300,7 @@ bool PostfixEvaluator<ValueType>::PopValue(ValueType *value) {
     if (iterator == dictionary_->end()) {
       // The identifier wasn't found in the dictionary.  Don't imply any
       // default value, just fail.
-      BPLOG(ERROR) << "Identifier " << token << " not in dictionary";
+      BPLOG(INFO) << "Identifier " << token << " not in dictionary";
       return false;
     }
 

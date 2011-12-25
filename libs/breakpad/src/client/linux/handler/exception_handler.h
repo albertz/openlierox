@@ -1,4 +1,4 @@
-// Copyright (c) 2009, Google Inc.
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -30,12 +30,27 @@
 #ifndef CLIENT_LINUX_HANDLER_EXCEPTION_HANDLER_H_
 #define CLIENT_LINUX_HANDLER_EXCEPTION_HANDLER_H_
 
-#include <vector>
 #include <string>
+#include <vector>
 
+#include <pthread.h>
 #include <signal.h>
+#include <stdint.h>
+#include <stdio.h>
+
+#if defined(__ANDROID__)
+#include "client/linux/android_ucontext.h"
+#endif
+#include "client/linux/crash_generation/crash_generation_client.h"
+#include "client/linux/minidump_writer/minidump_writer.h"
+#include "google_breakpad/common/minidump_format.h"
+#include "processor/scoped_ptr.h"
+
+struct sigaction;
 
 namespace google_breakpad {
+
+class ExceptionHandler;
 
 // ExceptionHandler
 //
@@ -97,7 +112,7 @@ class ExceptionHandler {
 
   // In certain cases, a user may wish to handle the generation of the minidump
   // themselves. In this case, they can install a handler callback which is
-  // called when a crash has occured. If this function returns true, no other
+  // called when a crash has occurred. If this function returns true, no other
   // processing of occurs and the process will shortly be crashed. If this
   // returns false, the normal processing continues.
   typedef bool (*HandlerCallback)(const void* crash_context,
@@ -116,6 +131,18 @@ class ExceptionHandler {
                    FilterCallback filter, MinidumpCallback callback,
                    void *callback_context,
                    bool install_handler);
+
+  // Creates a new ExceptionHandler instance that can attempt to
+  // perform out-of-process dump generation if server_fd is valid. If
+  // server_fd is invalid, in-process dump generation will be
+  // used. See the above ctor for a description of the other
+  // parameters.
+  ExceptionHandler(const std::string& dump_path,
+                   FilterCallback filter, MinidumpCallback callback,
+                   void* callback_context,
+                   bool install_handler,
+                   const int server_fd);
+
   ~ExceptionHandler();
 
   // Get and set the minidump path.
@@ -146,13 +173,35 @@ class ExceptionHandler {
     siginfo_t siginfo;
     pid_t tid;  // the crashing thread.
     struct ucontext context;
+#if !defined(__ARM_EABI__)
+    // #ifdef this out because FP state is not part of user ABI for Linux ARM.
     struct _libc_fpstate float_state;
+#endif
   };
 
+  // Returns whether out-of-process dump generation is used or not.
+  bool IsOutOfProcess() const {
+      return crash_generation_client_.get() != NULL;
+  }
+
+  // Add information about a memory mapping. This can be used if
+  // a custom library loader is used that maps things in a way
+  // that the linux dumper can't handle by reading the maps file.
+  void AddMappingInfo(const std::string& name,
+                      const u_int8_t identifier[sizeof(MDGUID)],
+                      uintptr_t start_address,
+                      size_t mapping_size,
+                      size_t file_offset);
+
  private:
+  void Init(const std::string &dump_path,
+            const int server_fd);
   bool InstallHandlers();
   void UninstallHandlers();
   void PreresolveSymbols();
+  bool GenerateDump(CrashContext *context);
+  void SendContinueSignalToChild();
+  void WaitForContinueSignal();
 
   void UpdateNextID();
   static void SignalHandler(int sig, siginfo_t* info, void* uc);
@@ -164,6 +213,8 @@ class ExceptionHandler {
   const FilterCallback filter_;
   const MinidumpCallback callback_;
   void* const callback_context_;
+
+  scoped_ptr<CrashGenerationClient> crash_generation_client_;
 
   std::string dump_path_;
   std::string next_minidump_path_;
@@ -188,9 +239,19 @@ class ExceptionHandler {
   static unsigned handler_stack_index_;
   static pthread_mutex_t handler_stack_mutex_;
 
-  // A vector of the old signal handlers. The void* is a pointer to a newly
-  // allocated sigaction structure to avoid pulling in too many includes.
-  std::vector<std::pair<int, void *> > old_handlers_;
+  // A vector of the old signal handlers.
+  std::vector<std::pair<int, struct sigaction *> > old_handlers_;
+
+  // We need to explicitly enable ptrace of parent processes on some
+  // kernels, but we need to know the PID of the cloned process before we
+  // can do this. We create a pipe which we can use to block the
+  // cloned process after creating it, until we have explicitly enabled 
+  // ptrace. This is used to store the file descriptors for the pipe
+  int fdes[2];
+
+  // Callers can add extra info about mappings for cases where the
+  // dumper code cannot extract enough information from /proc/<pid>/maps.
+  MappingList mapping_list_;
 };
 
 }  // namespace google_breakpad

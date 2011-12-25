@@ -68,10 +68,11 @@
 
 namespace google_breakpad {
 
-// MSVC bullshit
+// These are defined in Microsoft headers.
 #ifdef SEVERITY_ERROR
 #undef SEVERITY_ERROR
 #endif
+
 #ifdef ERROR
 #undef ERROR
 #endif

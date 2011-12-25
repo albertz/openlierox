@@ -32,6 +32,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 #include "google_breakpad/processor/basic_source_line_resolver.h"
 #include "google_breakpad/processor/minidump.h"
@@ -49,11 +50,11 @@ using google_breakpad::PathnameStripper;
 using google_breakpad::SymbolSupplier;
 using google_breakpad::SystemInfo;
 
-OnDemandSymbolSupplier::OnDemandSymbolSupplier(const string &search_dir, 
+OnDemandSymbolSupplier::OnDemandSymbolSupplier(const string &search_dir,
                                                const string &symbol_search_dir)
   : search_dir_(search_dir) {
   NSFileManager *mgr = [NSFileManager defaultManager];
-  int length = symbol_search_dir.length();
+  size_t length = symbol_search_dir.length();
   if (length) {
     // Load all sym files in symbol_search_dir into our module_file_map
     // A symbol file always starts with a line like this:
@@ -87,6 +88,7 @@ OnDemandSymbolSupplier::OnDemandSymbolSupplier(const string &search_dir,
           BOOL goodScan = [scanner scanString:@"MODULE mac " intoString:nil];
           if (goodScan) {
             goodScan = ([scanner scanString:@"x86 " intoString:nil] ||
+                        [scanner scanString:@"x86_64 " intoString:nil] ||
                         [scanner scanString:@"ppc " intoString:nil]);
             if (goodScan) {
               NSString *moduleID;
@@ -149,13 +151,43 @@ OnDemandSymbolSupplier::GetSymbolFile(const CodeModule *module,
 
 
   if (s == FOUND) {
-    ifstream in(symbol_file->c_str());
+    std::ifstream in(symbol_file->c_str());
     getline(in, *symbol_data, std::string::traits_type::to_char_type(
                 std::string::traits_type::eof()));
     in.close();
   }
 
   return s;
+}
+
+SymbolSupplier::SymbolResult
+OnDemandSymbolSupplier::GetCStringSymbolData(const CodeModule *module,
+                                             const SystemInfo *system_info,
+                                             string *symbol_file,
+                                             char **symbol_data) {
+  std::string symbol_data_string;
+  SymbolSupplier::SymbolResult result = GetSymbolFile(module,
+                                                      system_info,
+                                                      symbol_file,
+                                                      &symbol_data_string);
+  if (result == FOUND) {
+    *symbol_data = new char[symbol_data_string.size() + 1];
+    if (*symbol_data == NULL) {
+      // Should return INTERRUPT on memory allocation failure.
+      return INTERRUPT;
+    }
+    strcpy(*symbol_data, symbol_data_string.c_str());
+    memory_buffers_.insert(make_pair(module->code_file(), *symbol_data));
+  }
+  return result;
+}
+
+void OnDemandSymbolSupplier::FreeSymbolData(const CodeModule *module) {
+  map<string, char *>::iterator it = memory_buffers_.find(module->code_file());
+  if (it != memory_buffers_.end()) {
+    delete [] it->second;
+    memory_buffers_.erase(it);
+  }
 }
 
 string OnDemandSymbolSupplier::GetLocalModulePath(const CodeModule *module) {
@@ -174,14 +206,14 @@ string OnDemandSymbolSupplier::GetLocalModulePath(const CodeModule *module) {
   // search string and stop if a file (not dir) is found or all components
   // have been appended
   NSArray *pathComponents = [modulePath componentsSeparatedByString:@"/"];
-  int count = [pathComponents count];
+  size_t count = [pathComponents count];
   NSMutableString *path = [NSMutableString string];
 
-  for (int i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i) {
     [path setString:searchDir];
 
-    for (int j = 0; j < i + 1; ++j) {
-      int idx = count - 1 - i + j;
+    for (size_t j = 0; j < i + 1; ++j) {
+      size_t idx = count - 1 - i + j;
       [path appendFormat:@"/%@", [pathComponents objectAtIndex:idx]];
     }
 
@@ -214,7 +246,7 @@ static float GetFileModificationTime(const char *path) {
   struct stat file_stat;
   if (stat(path, &file_stat) == 0)
     result = (float)file_stat.st_mtimespec.tv_sec +
-      (float)file_stat.st_mtimespec.tv_nsec / 1.0e9;
+      (float)file_stat.st_mtimespec.tv_nsec / 1.0e9f;
 
   return result;
 }
@@ -236,7 +268,7 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
   if ([[NSFileManager defaultManager] fileExistsAtPath:symbol_path]) {
     // Check if the module file is newer than the saved symbols
     float cache_time =
-    GetFileModificationTime([symbol_path fileSystemRepresentation]);
+      GetFileModificationTime([symbol_path fileSystemRepresentation]);
     float module_time =
       GetFileModificationTime(module_path.c_str());
 
@@ -248,15 +280,34 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
     NSString *module_str = [[NSFileManager defaultManager]
       stringWithFileSystemRepresentation:module_path.c_str()
                                   length:module_path.length()];
-    DumpSymbols *dump = [[DumpSymbols alloc] initWithContentsOfFile:module_str];
-    const char *archStr = system_info->cpu.c_str();
-    if ([dump setArchitecture:[NSString stringWithUTF8String:archStr]]) {
-      [dump writeSymbolFile:symbol_path];
+    DumpSymbols dump;
+    if (dump.Read(module_str)) {
+      // What Breakpad calls "x86" should be given to the system as "i386".
+      std::string architecture;
+      if (system_info->cpu.compare("x86") == 0) {
+        architecture = "i386";
+      } else {
+        architecture = system_info->cpu;
+      }
+
+      if (dump.SetArchitecture(architecture)) {
+        FILE *file = fopen([symbol_path fileSystemRepresentation],"w");
+        if (file) {
+          dump.WriteSymbolFile(file);
+          fclose(file);
+        } else {
+          printf("Unable to open %s (%d)\n", name.c_str(), errno);
+          result = false;
+        }
+      } else {
+        printf("Architecture %s not available for %s\n",
+               system_info->cpu.c_str(), name.c_str());
+        result = false;
+      }
     } else {
-      printf("Architecture %s not available for %s\n", archStr, name.c_str());
+      printf("Unable to open %s\n", [module_str UTF8String]);
       result = false;
     }
-    [dump release];
   }
 
   // Add the mapping

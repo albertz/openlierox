@@ -32,7 +32,8 @@
 
 #include <string>
 #include <map>
-#include <curl/curl.h>
+
+#include "third_party/curl/curl.h"
 
 namespace google_breakpad {
 class LibcurlWrapper {

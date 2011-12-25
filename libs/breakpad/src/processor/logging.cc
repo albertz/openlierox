@@ -42,7 +42,7 @@
 #include "processor/logging.h"
 #include "processor/pathname_stripper.h"
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #define snprintf _snprintf
 #define localtime_r(d, res) { struct tm* _t = localtime(d); memcpy(res, _t, sizeof(tm)); }
 #endif
@@ -55,7 +55,11 @@ LogStream::LogStream(std::ostream &stream, Severity severity,
   time_t clock;
   time(&clock);
   struct tm tm_struct;
+#ifdef _WIN32
+  localtime_s(&tm_struct, &clock);
+#else
   localtime_r(&clock, &tm_struct);
+#endif
   char time_string[20];
   strftime(time_string, sizeof(time_string), "%Y-%m-%d %H:%M:%S", &tm_struct);
 

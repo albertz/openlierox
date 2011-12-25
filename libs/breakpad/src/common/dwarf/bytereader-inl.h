@@ -29,9 +29,9 @@
 #ifndef UTIL_DEBUGINFO_BYTEREADER_INL_H__
 #define UTIL_DEBUGINFO_BYTEREADER_INL_H__
 
-#include <cassert>
-
 #include "common/dwarf/bytereader.h"
+
+#include <assert.h>
 
 namespace dwarf2reader {
 
@@ -142,6 +142,32 @@ inline uint64 ByteReader::ReadOffset(const char* buffer) const {
 inline uint64 ByteReader::ReadAddress(const char* buffer) const {
   assert(this->address_reader_);
   return (this->*address_reader_)(buffer);
+}
+
+inline void ByteReader::SetCFIDataBase(uint64 section_base,
+                                       const char *buffer_base) {
+  section_base_ = section_base;
+  buffer_base_ = buffer_base;
+  have_section_base_ = true;
+}
+
+inline void ByteReader::SetTextBase(uint64 text_base) {
+  text_base_ = text_base;
+  have_text_base_ = true;
+}
+
+inline void ByteReader::SetDataBase(uint64 data_base) {
+  data_base_ = data_base;
+  have_data_base_ = true;
+}
+
+inline void ByteReader::SetFunctionBase(uint64 function_base) {
+  function_base_ = function_base;
+  have_function_base_ = true;
+}
+
+inline void ByteReader::ClearFunctionBase() {
+  have_function_base_ = false;
 }
 
 }  // namespace dwarf2reader

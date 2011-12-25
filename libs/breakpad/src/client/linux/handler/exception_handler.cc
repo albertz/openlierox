@@ -1,4 +1,4 @@
-// Copyright (c) 2009, Google Inc.
+// Copyright (c) 2010 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -72,22 +72,40 @@
 #include <signal.h>
 #include <stdio.h>
 #include <sys/mman.h>
+#include <sys/prctl.h>
+#if !defined(__ANDROID__)
 #include <sys/signal.h>
+#endif
 #include <sys/syscall.h>
+#if !defined(__ANDROID__)
 #include <sys/ucontext.h>
 #include <sys/user.h>
+#endif
 #include <sys/wait.h>
+#if !defined(__ANDROID__)
+#include <ucontext.h>
+#endif
 #include <unistd.h>
 
+#include <algorithm>
+#include <utility>
+#include <vector>
+
 #include "common/linux/linux_libc_support.h"
-#include "common/linux/linux_syscall_support.h"
-#include "common/linux/memory.h"
-#include "client/linux/minidump_writer//minidump_writer.h"
+#include "common/memory.h"
+#include "client/linux/minidump_writer/linux_dumper.h"
+#include "client/linux/minidump_writer/minidump_writer.h"
 #include "common/linux/guid_creator.h"
+#include "common/linux/eintr_wrapper.h"
+#include "third_party/lss/linux_syscall_support.h"
+
+#ifndef PR_SET_PTRACER
+#define PR_SET_PTRACER 0x59616d61
+#endif
 
 // A wrapper for the tgkill syscall: send a signal to a specific thread.
 static int tgkill(pid_t tgid, pid_t tid, int sig) {
-  syscall(__NR_tgkill, tgid, tid, sig);
+  return syscall(__NR_tgkill, tgid, tid, sig);
   return 0;
 }
 
@@ -113,28 +131,52 @@ ExceptionHandler::ExceptionHandler(const std::string &dump_path,
                                    MinidumpCallback callback,
                                    void *callback_context,
                                    bool install_handler)
-    : filter_(filter),
-      callback_(callback),
-      callback_context_(callback_context),
-      dump_path_(),
-      handler_installed_(install_handler),
-      crash_handler_(NULL) {
-  set_dump_path(dump_path);
+  : filter_(filter),
+    callback_(callback),
+    callback_context_(callback_context),
+    handler_installed_(install_handler)
+{
+  Init(dump_path, -1);
+}
 
-  if (install_handler) {
-    InstallHandlers();
-
-    pthread_mutex_lock(&handler_stack_mutex_);
-      if (handler_stack_ == NULL)
-        handler_stack_ = new std::vector<ExceptionHandler *>;
-      handler_stack_->push_back(this);
-    pthread_mutex_unlock(&handler_stack_mutex_);
-  }
+ExceptionHandler::ExceptionHandler(const std::string &dump_path,
+                                   FilterCallback filter,
+                                   MinidumpCallback callback,
+                                   void* callback_context,
+                                   bool install_handler,
+                                   const int server_fd)
+  : filter_(filter),
+    callback_(callback),
+    callback_context_(callback_context),
+    handler_installed_(install_handler)
+{
+  Init(dump_path, server_fd);
 }
 
 // Runs before crashing: normal context.
 ExceptionHandler::~ExceptionHandler() {
   UninstallHandlers();
+}
+
+void ExceptionHandler::Init(const std::string &dump_path,
+                            const int server_fd)
+{
+  crash_handler_ = NULL;
+  if (0 <= server_fd)
+    crash_generation_client_
+      .reset(CrashGenerationClient::TryCreate(server_fd));
+
+  if (handler_installed_)
+    InstallHandlers();
+
+  if (!IsOutOfProcess())
+    set_dump_path(dump_path);
+
+  pthread_mutex_lock(&handler_stack_mutex_);
+  if (handler_stack_ == NULL)
+    handler_stack_ = new std::vector<ExceptionHandler *>;
+  handler_stack_->push_back(this);
+  pthread_mutex_unlock(&handler_stack_mutex_);
 }
 
 // Runs before crashing: normal context.
@@ -152,7 +194,7 @@ bool ExceptionHandler::InstallHandlers() {
   stack.ss_sp = signal_stack;
   stack.ss_size = kSigStackSize;
 
-  if (sigaltstack(&stack, NULL) == -1)
+  if (sys_sigaltstack(&stack, NULL) == -1)
     return false;
 
   struct sigaction sa;
@@ -183,7 +225,11 @@ void ExceptionHandler::UninstallHandlers() {
     sigaction(old_handlers_[i].first, action, NULL);
     delete action;
   }
-
+  pthread_mutex_lock(&handler_stack_mutex_);
+  std::vector<ExceptionHandler*>::iterator handler =
+      std::find(handler_stack_->begin(), handler_stack_->end(), this);
+  handler_stack_->erase(handler);
+  pthread_mutex_unlock(&handler_stack_mutex_);
   old_handlers_.clear();
 }
 
@@ -205,12 +251,15 @@ void ExceptionHandler::UpdateNextID() {
   }
 }
 
+// void ExceptionHandler::set_crash_handler(HandlerCallback callback) {
+//   crash_handler_ = callback;
+// }
+
 // This function runs in a compromised context: see the top of the file.
 // Runs on the crashing thread.
 // static
 void ExceptionHandler::SignalHandler(int sig, siginfo_t* info, void* uc) {
   // All the exception signals are blocked at this point.
-
   pthread_mutex_lock(&handler_stack_mutex_);
 
   if (!handler_stack_->size()) {
@@ -229,13 +278,28 @@ void ExceptionHandler::SignalHandler(int sig, siginfo_t* info, void* uc) {
 
   pthread_mutex_unlock(&handler_stack_mutex_);
 
-  // Terminate ourselves with the same signal so that our parent knows that we
-  // crashed. The default action for all the signals which we catch is Core, so
+  if (info->si_pid) {
+    // This signal was triggered by somebody sending us the signal with kill().
+    // In order to retrigger it, we have to queue a new signal by calling
+    // kill() ourselves.
+    if (tgkill(getpid(), syscall(__NR_gettid), sig) < 0) {
+      // If we failed to kill ourselves (e.g. because a sandbox disallows us
+      // to do so), we instead resort to terminating our process. This will
+      // result in an incorrect exit code.
+      _exit(1);
+    }
+  } else {
+    // This was a synchronous signal triggered by a hard fault (e.g. SIGSEGV).
+    // No need to reissue the signal. It will automatically trigger again,
+    // when we return from the signal handler.
+  }
+
+  // As soon as we return from the signal handler, our signal will become
+  // unmasked. At that time, we will  get terminated with the same signal that
+  // was triggered originally. This allows our parent to know that we crashed.
+  // The default action for all the signals which we catch is Core, so
   // this is the end of us.
   signal(sig, SIG_DFL);
-  tgkill(getpid(), sys_gettid(), sig);
-
-  // not reached.
 }
 
 struct ThreadArgument {
@@ -250,6 +314,11 @@ struct ThreadArgument {
 // static
 int ExceptionHandler::ThreadEntry(void *arg) {
   const ThreadArgument *thread_arg = reinterpret_cast<ThreadArgument*>(arg);
+
+  // Block here until the crashing process unblocks us when
+  // we're allowed to use ptrace
+  thread_arg->handler->WaitForContinueSignal();
+
   return thread_arg->handler->DoDump(thread_arg->pid, thread_arg->context,
                                      thread_arg->context_size) == false;
 }
@@ -260,19 +329,39 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
   if (filter_ && !filter_(callback_context_))
     return false;
 
-  // Allow ourselves to be dumped.
-  sys_prctl(PR_SET_DUMPABLE, 1);
-
+  // Allow ourselves to be dumped if the signal is trusted.
+  bool signal_trusted = info->si_code > 0;
+  bool signal_pid_trusted = info->si_code == SI_USER ||
+      info->si_code == SI_TKILL;
+  if (signal_trusted || (signal_pid_trusted && info->si_pid == getpid())) {
+    sys_prctl(PR_SET_DUMPABLE, 1);
+  }
   CrashContext context;
   memcpy(&context.siginfo, info, sizeof(siginfo_t));
   memcpy(&context.context, uc, sizeof(struct ucontext));
-  memcpy(&context.float_state, ((struct ucontext *)uc)->uc_mcontext.fpregs,
-         sizeof(context.float_state));
-  context.tid = sys_gettid();
+#if !defined(__ARM_EABI__)
+  // FP state is not part of user ABI on ARM Linux.
+  struct ucontext *uc_ptr = (struct ucontext*)uc;
+  if (uc_ptr->uc_mcontext.fpregs) {
+    memcpy(&context.float_state,
+           uc_ptr->uc_mcontext.fpregs,
+           sizeof(context.float_state));
+  }
+#endif
+  context.tid = syscall(__NR_gettid);
+  if (crash_handler_ != NULL) {
+    if (crash_handler_(&context, sizeof(context),
+                       callback_context_)) {
+      return true;
+    }
+  }
+  return GenerateDump(&context);
+}
 
-  if (crash_handler_ && crash_handler_(&context, sizeof(context),
-                                       callback_context_))
-    return true;
+// This function may run in a compromised context: see the top of the file.
+bool ExceptionHandler::GenerateDump(CrashContext *context) {
+  if (IsOutOfProcess())
+    return crash_generation_client_->RequestDump(context, sizeof(*context));
 
   static const unsigned kChildStackSize = 8000;
   PageAllocator allocator;
@@ -286,19 +375,40 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
   ThreadArgument thread_arg;
   thread_arg.handler = this;
   thread_arg.pid = getpid();
-  thread_arg.context = &context;
-  thread_arg.context_size = sizeof(context);
+  thread_arg.context = context;
+  thread_arg.context_size = sizeof(*context);
+
+  // We need to explicitly enable ptrace of parent processes on some
+  // kernels, but we need to know the PID of the cloned process before we
+  // can do this. Create a pipe here which we can use to block the
+  // cloned process after creating it, until we have explicitly enabled ptrace
+  if(sys_pipe(fdes) == -1) {
+    // Creating the pipe failed. We'll log an error but carry on anyway,
+    // as we'll probably still get a useful crash report. All that will happen
+    // is the write() and read() calls will fail with EBADF
+    static const char no_pipe_msg[] = "ExceptionHandler::GenerateDump \
+                                       sys_pipe failed:";
+    sys_write(2, no_pipe_msg, sizeof(no_pipe_msg) - 1);
+    sys_write(2, strerror(errno), strlen(strerror(errno)));
+    sys_write(2, "\n", 1);
+  }
 
   const pid_t child = sys_clone(
       ThreadEntry, stack, CLONE_FILES | CLONE_FS | CLONE_UNTRACED,
       &thread_arg, NULL, NULL, NULL);
   int r, status;
+  // Allow the child to ptrace us
+  prctl(PR_SET_PTRACER, child, 0, 0, 0);
+  SendContinueSignalToChild();
   do {
     r = sys_waitpid(child, &status, __WALL);
   } while (r == -1 && errno == EINTR);
 
+  sys_close(fdes[0]);
+  sys_close(fdes[1]);
+
   if (r == -1) {
-    static const char msg[] = "ExceptionHandler::HandleSignal: waitpid failed:";
+    static const char msg[] = "ExceptionHandler::GenerateDump waitpid failed:";
     sys_write(2, msg, sizeof(msg) - 1);
     sys_write(2, strerror(errno), strlen(strerror(errno)));
     sys_write(2, "\n", 1);
@@ -314,11 +424,89 @@ bool ExceptionHandler::HandleSignal(int sig, siginfo_t* info, void* uc) {
 }
 
 // This function runs in a compromised context: see the top of the file.
+void ExceptionHandler::SendContinueSignalToChild() {
+  static const char okToContinueMessage = 'a';
+  int r;
+  r = HANDLE_EINTR(sys_write(fdes[1], &okToContinueMessage, sizeof(char)));
+  if(r == -1) {
+    static const char msg[] = "ExceptionHandler::SendContinueSignalToChild \
+                               sys_write failed:";
+    sys_write(2, msg, sizeof(msg) - 1);
+    sys_write(2, strerror(errno), strlen(strerror(errno)));
+    sys_write(2, "\n", 1);
+  }
+}
+
+// This function runs in a compromised context: see the top of the file.
+// Runs on the cloned process.
+void ExceptionHandler::WaitForContinueSignal() {
+  int r;
+  char receivedMessage;
+  r = HANDLE_EINTR(sys_read(fdes[0], &receivedMessage, sizeof(char)));
+  if(r == -1) {
+    static const char msg[] = "ExceptionHandler::WaitForContinueSignal \
+                               sys_read failed:";
+    sys_write(2, msg, sizeof(msg) - 1);
+    sys_write(2, strerror(errno), strlen(strerror(errno)));
+    sys_write(2, "\n", 1);
+  }
+}
+
+// This function runs in a compromised context: see the top of the file.
 // Runs on the cloned process.
 bool ExceptionHandler::DoDump(pid_t crashing_process, const void* context,
                               size_t context_size) {
-  return google_breakpad::WriteMinidump(
-      next_minidump_path_c_, crashing_process, context, context_size);
+  return google_breakpad::WriteMinidump(next_minidump_path_c_,
+                                        crashing_process,
+                                        context,
+                                        context_size,
+                                        mapping_list_);
+}
+
+// static
+bool ExceptionHandler::WriteMinidump(const std::string &dump_path,
+                                     MinidumpCallback callback,
+                                     void* callback_context) {
+  ExceptionHandler eh(dump_path, NULL, callback, callback_context, false);
+  return eh.WriteMinidump();
+}
+
+bool ExceptionHandler::WriteMinidump() {
+#if !defined(__ARM_EABI__)
+  // Allow ourselves to be dumped.
+  sys_prctl(PR_SET_DUMPABLE, 1);
+
+  CrashContext context;
+  int getcontext_result = getcontext(&context.context);
+  if (getcontext_result)
+    return false;
+  memcpy(&context.float_state, context.context.uc_mcontext.fpregs,
+         sizeof(context.float_state));
+  context.tid = sys_gettid();
+
+  bool success = GenerateDump(&context);
+  UpdateNextID();
+  return success;
+#else
+  return false;
+#endif  // !defined(__ARM_EABI__)
+}
+
+void ExceptionHandler::AddMappingInfo(const std::string& name,
+                                      const u_int8_t identifier[sizeof(MDGUID)],
+                                      uintptr_t start_address,
+                                      size_t mapping_size,
+                                      size_t file_offset) {
+  MappingInfo info;
+  info.start_addr = start_address;
+  info.size = mapping_size;
+  info.offset = file_offset;
+  strncpy(info.name, name.c_str(), std::min(name.size(), sizeof(info)));
+
+  MappingEntry mapping;
+  mapping.first = info;
+  memcpy(mapping.second, identifier, sizeof(MDGUID));
+  mapping_list_.push_back(mapping);
 }
 
 }  // namespace google_breakpad

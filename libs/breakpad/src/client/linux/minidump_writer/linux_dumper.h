@@ -1,4 +1,4 @@
-// Copyright (c) 2009, Google Inc.
+// Copyright (c) 2010, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -31,19 +31,41 @@
 #define CLIENT_LINUX_MINIDUMP_WRITER_LINUX_DUMPER_H_
 
 #include <elf.h>
-#include <stdint.h>
-#include <sys/user.h>
 #include <linux/limits.h>
+#include <stdint.h>
+#include <sys/types.h>
+#if !defined(__ANDROID__)
+#include <sys/user.h>
+#endif
 
-#include "common/linux/memory.h"
+#include "common/memory.h"
+#include "google_breakpad/common/minidump_format.h"
 
 namespace google_breakpad {
 
+#if defined(__i386) || defined(__x86_64)
 typedef typeof(((struct user*) 0)->u_debugreg[0]) debugreg_t;
+#endif
 
 // Typedef for our parsing of the auxv variables in /proc/pid/auxv.
-#if defined(__i386)
+#if defined(__i386) || defined(__ARM_EABI__)
+#if !defined(__ANDROID__)
 typedef Elf32_auxv_t elf_aux_entry;
+#else
+// Android is missing this structure definition
+typedef struct
+{
+  uint32_t a_type;              /* Entry type */
+  union
+    {
+      uint32_t a_val;           /* Integer value */
+    } a_un;
+} elf_aux_entry;
+
+#if !defined(AT_SYSINFO_EHDR)
+#define AT_SYSINFO_EHDR 33
+#endif
+#endif  // __ANDROID__
 #elif defined(__x86_64__)
 typedef Elf64_auxv_t elf_aux_entry;
 #endif
@@ -62,13 +84,24 @@ struct ThreadInfo {
   const void* stack;  // pointer to the stack area
   size_t stack_len;  // length of the stack to copy
 
+
+#if defined(__i386) || defined(__x86_64)
   user_regs_struct regs;
   user_fpregs_struct fpregs;
-#if defined(__i386) || defined(__x86_64)
-  user_fpxregs_struct fpxregs;
-
   static const unsigned kNumDebugRegisters = 8;
   debugreg_t dregs[8];
+#if defined(__i386)
+  user_fpxregs_struct fpxregs;
+#endif  // defined(__i386)
+
+#elif defined(__ARM_EABI__)
+  // Mimicking how strace does this(see syscall.c, search for GETREGS)
+#if defined(__ANDROID__)
+  struct pt_regs regs;
+#else
+  struct user_regs regs;
+  struct user_fpregs fpregs;
+#endif  // __ANDROID__
 #endif
 };
 
@@ -118,6 +151,13 @@ class LinuxDumper {
   // without any slashes.
   void BuildProcPath(char* path, pid_t pid, const char* node) const;
 
+  // Generate a File ID from the .text section of a mapped entry.
+  // If not a member, mapping_id is ignored.
+  bool ElfFileIdentifierForMapping(const MappingInfo& mapping,
+                                   bool member,
+                                   unsigned int mapping_id,
+                                   uint8_t identifier[sizeof(MDGUID)]);
+
   // Utility method to find the location of where the kernel has
   // mapped linux-gate.so in memory(shows up in /proc/pid/maps as
   // [vdso], but we can't guarantee that it's the only virtual dynamic
@@ -128,11 +168,22 @@ class LinuxDumper {
   bool EnumerateMappings(wasteful_vector<MappingInfo*>* result) const;
   bool EnumerateThreads(wasteful_vector<pid_t>* result) const;
 
+  // For the case where a running program has been deleted, it'll show up in
+  // /proc/pid/maps as "/path/to/program (deleted)". If this is the case, then
+  // see if '/path/to/program (deleted)' matches /proc/pid/exe and return
+  // /proc/pid/exe in |path| so ELF identifier generation works correctly. This
+  // also checks to see if '/path/to/program (deleted)' exists, so it does not
+  // get fooled by a poorly named binary.
+  // For programs that don't end with ' (deleted)', this is a no-op.
+  // This assumes |path| is a buffer with length NAME_MAX.
+  // Returns true if |path| is modified.
+  bool HandleDeletedFileInMapping(char* path) const;
+
   const pid_t pid_;
 
   mutable PageAllocator allocator_;
 
-  bool threads_suspened_;
+  bool threads_suspended_;
   wasteful_vector<pid_t> threads_;  // the ids of all the threads
   wasteful_vector<MappingInfo*> mappings_;  // info from /proc/<pid>/maps
 };

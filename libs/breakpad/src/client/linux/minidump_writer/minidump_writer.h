@@ -33,7 +33,16 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include <list>
+#include <utility>
+
+#include "google_breakpad/common/minidump_format.h"
+
 namespace google_breakpad {
+
+// A list of <MappingInfo, GUID>
+typedef std::pair<struct MappingInfo, u_int8_t[sizeof(MDGUID)]> MappingEntry;
+typedef std::list<MappingEntry> MappingList;
 
 // Write a minidump to the filesystem. This function does not malloc nor use
 // libc functions which may. Thus, it can be used in contexts where the state
@@ -47,6 +56,11 @@ namespace google_breakpad {
 // Returns true iff successful.
 bool WriteMinidump(const char* filename, pid_t crashing_process,
                    const void* blob, size_t blob_size);
+
+// This overload also allows passing a list of known mappings.
+bool WriteMinidump(const char* filename, pid_t crashing_process,
+                   const void* blob, size_t blob_size,
+                   const MappingList& mappings);
 
 }  // namespace google_breakpad
 

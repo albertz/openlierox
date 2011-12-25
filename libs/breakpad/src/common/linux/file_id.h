@@ -49,9 +49,15 @@ class FileID {
   // Load the identifier for the elf file path specified in the constructor into
   // |identifier|.  Return false if the identifier could not be created for the
   // file.
-  // The current implementation will XOR the first page of data to generate an
-  // identifier.
+  // The current implementation will XOR the first 4096 bytes of the
+  // .text section to generate an identifier.
   bool ElfFileIdentifier(uint8_t identifier[kMDGUIDSize]);
+
+  // Load the identifier for the elf file mapped into memory at |base| into
+  // |identifier|.  Return false if the identifier could not be created for the
+  // file.
+  static bool ElfFileIdentifierFromMappedFile(void* base,
+                                              uint8_t identifier[kMDGUIDSize]);
 
   // Convert the |identifier| data to a NULL terminated string.  The string will
   // be formatted as a UUID (e.g., 22F065BB-FC9C-49F7-80FE-26A7CEBD7BCE).

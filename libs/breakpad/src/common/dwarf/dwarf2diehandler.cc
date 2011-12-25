@@ -1,4 +1,4 @@
-// Copyright 2009 Google Inc. All Rights Reserved.
+// Copyright (c) 2010 Google Inc. All Rights Reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -26,16 +26,19 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Implementation of dwarf2reader::DieDispatcher class.
+// Original author: Jim Blandy <jimb@mozilla.com> <jimb@red-bean.com>
 
-#include <cassert>
+// dwarf2diehandler.cc: Implement the dwarf2reader::DieDispatcher class.
+// See dwarf2diehandler.h for details.
 
 #include "common/dwarf/dwarf2diehandler.h"
+
+#include <assert.h>
 
 namespace dwarf2reader {
 
 DIEDispatcher::~DIEDispatcher() {
-  while (! die_handlers_.empty()) {
+  while (!die_handlers_.empty()) {
     HandlerStack &entry = die_handlers_.top();
     if (entry.handler_ != root_handler_)
       delete entry.handler_;
@@ -58,13 +61,14 @@ bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag,
 
   // Does this call indicate that we're done receiving the parent's
   // attributes' values?  If so, call its EndAttributes member function.
-  if (parent && parent->handler_ && ! parent->reported_attributes_end_) {
+  if (parent && parent->handler_ && !parent->reported_attributes_end_) {
     parent->reported_attributes_end_ = true;
-    if (! parent->handler_->EndAttributes()) {
+    if (!parent->handler_->EndAttributes()) {
       // Finish off this handler now. and edit *PARENT to indicate that
       // we don't want to visit any of the children.
       parent->handler_->Finish();
-      if (parent->handler_ != root_handler_) delete parent->handler_;
+      if (parent->handler_ != root_handler_)
+        delete parent->handler_;
       parent->handler_ = NULL;
       return false;
     }
@@ -91,11 +95,11 @@ bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag,
       handler = NULL;
   }
 
-  // Push a handler stack entry for this new handler.  As an
+  // Push a handler stack entry for this new handler. As an
   // optimization, we don't push NULL-handler entries on top of other
   // NULL-handler entries; we just let the oldest such entry stand for
   // the whole subtree.
-  if (handler || (parent && parent->handler_)) {
+  if (handler || !parent || parent->handler_) {
     HandlerStack entry;
     entry.offset_ = offset;
     entry.handler_ = handler;
@@ -107,17 +111,18 @@ bool DIEDispatcher::StartDIE(uint64 offset, enum DwarfTag tag,
 }
 
 void DIEDispatcher::EndDIE(uint64 offset) {
-  assert(! die_handlers_.empty());
+  assert(!die_handlers_.empty());
   HandlerStack *entry = &die_handlers_.top();
   if (entry->handler_) {
     // This entry had better be the handler for this DIE.
     assert(entry->offset_ == offset);
     // If a DIE has no children, this EndDIE call indicates that we're
     // done receiving its attributes' values.
-    if (! entry->reported_attributes_end_)
+    if (!entry->reported_attributes_end_)
       entry->handler_->EndAttributes(); // Ignore return value: no children.
     entry->handler_->Finish();
-    if (entry->handler_ != root_handler_) delete entry->handler_;
+    if (entry->handler_ != root_handler_)
+      delete entry->handler_;
   } else {
     // If this DIE is within a tree we're ignoring, then don't pop the
     // handler stack: that entry stands for the whole tree.
@@ -145,6 +150,16 @@ void DIEDispatcher::ProcessAttributeSigned(uint64 offset,
   // This had better be an attribute of the DIE we were meant to handle.
   assert(offset == current.offset_);
   current.handler_->ProcessAttributeSigned(attr, form, data);
+}
+
+void DIEDispatcher::ProcessAttributeReference(uint64 offset,
+                                              enum DwarfAttribute attr,
+                                              enum DwarfForm form,
+                                              uint64 data) {
+  HandlerStack &current = die_handlers_.top();
+  // This had better be an attribute of the DIE we were meant to handle.
+  assert(offset == current.offset_);
+  current.handler_->ProcessAttributeReference(attr, form, data);
 }
 
 void DIEDispatcher::ProcessAttributeBuffer(uint64 offset,
