@@ -517,7 +517,7 @@
 		EAD99F9C0C063ECA003BE563 /* Entity.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0A0BEFCEB400C6547E /* Entity.cpp */; };
 		EAD99F9D0C063ECA003BE563 /* Error.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0B0BEFCEB400C6547E /* Error.cpp */; };
 		EAD99F9E0C063ECA003BE563 /* FindFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C350BEFCEB400C6547E /* FindFile.cpp */; };
-		EAD99F9F0C063ECA003BE563 /* GfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */; };
+		EAD99F9F0C063ECA003BE563 /* GfxPrimitives.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0C0BEFCEB400C6547E /* GfxPrimitives.cpp */; settings = {COMPILER_FLAGS = "-O2"; }; };
 		EAD99FA10C063ECA003BE563 /* InputEvents.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C0E0BEFCEB400C6547E /* InputEvents.cpp */; };
 		EAD99FA20C063ECA003BE563 /* IpToCountryDB.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430FF00BF8BA0800C6547E /* IpToCountryDB.cpp */; };
 		EAD99FA30C063ECA003BE563 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = EA430C3D0BEFCEB400C6547E /* main.cpp */; };
