@@ -732,6 +732,7 @@
 		231FE01F0F001B7A007F4CC8 /* FeatureList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FeatureList.cpp; sourceTree = "<group>"; };
 		2321012C101DF88A00510514 /* CGameObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGameObject.h; sourceTree = "<group>"; };
 		23210160101DFAF900510514 /* CGameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CGameObject.cpp; sourceTree = "<group>"; };
+		232153D014A77609000C9104 /* CodeAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CodeAttributes.h; sourceTree = "<group>"; };
 		23224FDB14A6C9FA00757A40 /* libboost_filesystem-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_filesystem-mt.dylib"; path = "usr/local/lib/libboost_filesystem-mt.dylib"; sourceTree = SDKROOT; };
 		23224FDC14A6C9FA00757A40 /* libboost_signals-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_signals-mt.dylib"; path = "usr/local/lib/libboost_signals-mt.dylib"; sourceTree = SDKROOT; };
 		23224FDD14A6C9FB00757A40 /* libboost_system-mt.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libboost_system-mt.dylib"; path = "usr/local/lib/libboost_system-mt.dylib"; sourceTree = SDKROOT; };
@@ -2976,6 +2977,7 @@
 				23F6A3300FD6D86A00793B24 /* DynDraw.h */,
 				23A44550108C94B70015918B /* SMTP.h */,
 				23C1819B10C4977D003DBB09 /* TeeStdoutHandler.h */,
+				232153D014A77609000C9104 /* CodeAttributes.h */,
 			);
 			name = include;
 			path = ../../include;
@@ -3796,7 +3798,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = stabs;
 				GCC_ENABLE_CPP_RTTI = YES;
