@@ -34,6 +34,7 @@
 
 #include <unistd.h>
 #include <mach-o/arch.h>
+#include <string>
 
 #include "common/mac/dump_syms.h"
 #include "common/mac/macho_utilities.h"
@@ -45,30 +46,32 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 							stringWithFileSystemRepresentation:bin.c_str()
 							length:bin.length()];
 	NSString* nssymfile = [NSString stringWithUTF8String:symfile.c_str()];
-	DumpSymbols *dump = [[DumpSymbols alloc] initWithContentsOfFile:module_str];
+	google_breakpad::DumpSymbols dump;
+	dump.Read(module_str);
 
 	const NXArchInfo *localArchInfo = NXGetLocalArchInfo();
 	if (localArchInfo) {
-		NSString* arch;
+		std::string arch;
 		if (localArchInfo->cputype & CPU_ARCH_ABI64)
-			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC64) ? @"ppc64":
-			@"x86_64";
+			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC64) ? "ppc64":
+			"x86_64";
 		else
-			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC) ? @"ppc" :
-			@"x86";
+			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC) ? "ppc" :
+			"x86";
 		
-		if (![dump setArchitecture:arch]) {
-			[dump release];
-			return false;			
+		if (!dump.SetArchitecture(arch)) {
+			return false;
 		}
 	}
 	
-	if(![dump writeSymbolFile:nssymfile]) {
-		[dump release];
+	FILE* f = fopen([nssymfile UTF8String], "w");
+	if(f == NULL) return false;
+	if(!dump.WriteSymbolFile(f)) {
+		fclose(f);
 		return false;
 	}
+	fclose(f);
 	
-    [dump release];
 	[pool release];
 	return true;
 }
