@@ -396,3 +396,16 @@ int main (int argc, char **argv)
     return 0;
 }
 
+
+void mac__copy_to_clipboard(const char* s) {
+	[[NSPasteboard generalPasteboard] declareTypes: [NSArray arrayWithObject: NSStringPboardType] owner: nil];
+	[[NSPasteboard generalPasteboard] setString: [NSString stringWithUTF8String: s] forType: NSStringPboardType];
+}
+
+const char* mac__copy_from_clipboard() {
+	NSString *paste = [[NSPasteboard generalPasteboard] stringForType: NSStringPboardType];
+	return [paste UTF8String];
+}
+
+
+

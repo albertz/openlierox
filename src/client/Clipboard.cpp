@@ -503,49 +503,18 @@ std::string copy_from_clipboard()
 #if !defined(DEDICATED_ONLY) && defined(__APPLE__)
 #define CLIPBOARD_FUNCS_DEFINED
 
-#include <Carbon/Carbon.h>
+
+extern "C" void mac__copy_to_clipboard(const char*);
+extern "C" const char* mac__copy_from_clipboard();
 
 void copy_to_clipboard(const std::string& text)
 {
-	std::string new_str;
-	new_str.reserve(text.size());
-	for (size_t i = 0; i < text.size(); ++i)
-	{
-		if (text[i] == '\n')
-		{
-			new_str.push_back('\r');
-		} else {
-			new_str.push_back(text[i]);
-		}
-	}
-	OSStatus err = noErr;
-	ScrapRef scrap = kScrapRefNone;
-	err = ClearCurrentScrap();
-	if (err != noErr) return;
-	err = GetCurrentScrap(&scrap);
-	if (err != noErr) return;
-	PutScrapFlavor(scrap, kScrapFlavorTypeText, kScrapFlavorMaskNone, text.size(), new_str.c_str());
+	mac__copy_to_clipboard(text.c_str());
 }
 
 std::string copy_from_clipboard()
 {
-	ScrapRef curscrap = kScrapRefNone;
-	Size scrapsize = 0;
-	OSStatus err = noErr;
-	err = GetCurrentScrap(&curscrap);
-	if (err != noErr) return "";
-	err = GetScrapFlavorSize(curscrap, kScrapFlavorTypeText, &scrapsize);
-	if (err != noErr) return "";
-	std::string str;
-	str.reserve(scrapsize);
-	str.resize(scrapsize);
-	err = GetScrapFlavorData(curscrap, kScrapFlavorTypeText, &scrapsize, const_cast<char*>(str.data()));
-	if (err != noErr) return "";
-	for (size_t i = 0; i < str.size(); ++i)
-	{
-		if (str[i] == '\r') str[i] = '\n';
-	}
-	return str;
+	return mac__copy_from_clipboard();
 }
 
 void handle_system_event(const SDL_Event& event)
