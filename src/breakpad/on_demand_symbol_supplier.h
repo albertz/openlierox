@@ -61,7 +61,16 @@ class OnDemandSymbolSupplier : public SymbolSupplier {
                                      const SystemInfo *system_info,
                                      string *symbol_file,
                                      string *symbol_data);
- protected:
+
+	virtual SymbolResult GetCStringSymbolData(const CodeModule *module,
+											  const SystemInfo *system_info,
+											  string *symbol_file,
+											  char **symbol_data);
+	
+	// Frees the data buffer allocated for the module in GetCStringSymbolData.
+	virtual void FreeSymbolData(const CodeModule *module);
+
+protected:
   // Search directory
   string search_dir_;
   string symbol_search_dir_;
@@ -69,6 +78,9 @@ class OnDemandSymbolSupplier : public SymbolSupplier {
   // When we create a symbol file for a module, save the name of the module
   // and the path to that module's symbol file.
   map<string, string> module_file_map_;
+
+	// Map of allocated data buffers, keyed by module->code_file().
+	map<string, char *> memory_buffers_;
 
   // Return the name for |module|  This will be the value used as the key
   // to the |module_file_map_|.
@@ -90,6 +102,7 @@ class OnDemandSymbolSupplier : public SymbolSupplier {
   // File is generated in /tmp.
   bool GenerateSymbolFile(const CodeModule *module,
                           const SystemInfo *system_info);
+
 };
 
 }  // namespace google_breakpad

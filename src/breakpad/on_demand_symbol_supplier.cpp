@@ -98,6 +98,36 @@ OnDemandSymbolSupplier::GetSymbolFile(const CodeModule *module,
 	return s;
 }
 
+SymbolSupplier::SymbolResult
+OnDemandSymbolSupplier::GetCStringSymbolData(const CodeModule *module,
+                                             const SystemInfo *system_info,
+                                             string *symbol_file,
+                                             char **symbol_data) {
+	std::string symbol_data_string;
+	SymbolSupplier::SymbolResult result = GetSymbolFile(module,
+														system_info,
+														symbol_file,
+														&symbol_data_string);
+	if (result == FOUND) {
+		*symbol_data = new char[symbol_data_string.size() + 1];
+		if (*symbol_data == NULL) {
+			// Should return INTERRUPT on memory allocation failure.
+			return INTERRUPT;
+		}
+		strcpy(*symbol_data, symbol_data_string.c_str());
+		memory_buffers_.insert(make_pair(module->code_file(), *symbol_data));
+	}
+	return result;
+}
+
+void OnDemandSymbolSupplier::FreeSymbolData(const CodeModule *module) {
+	std::map<std::string, char *>::iterator it = memory_buffers_.find(module->code_file());
+	if (it != memory_buffers_.end()) {
+		delete [] it->second;
+		memory_buffers_.erase(it);
+	}
+}
+
 string OnDemandSymbolSupplier::GetLocalModulePath(const CodeModule *module) {
 	return module->code_file();
 }
