@@ -189,10 +189,10 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
 
   struct exec buf;
   if (read(fd, (char *)&buf, sizeof(buf)) != sizeof(buf) ||
-      (N_BADMAG(buf) && *((long *)&buf) != magic &&
+      (N_BADMAG(buf) && *((uint32_t *)&buf) != magic &&
        NXSwapBigLongToHost(*((long *)&buf)) != FAT_MAGIC) &&
       /* The following is the big-endian ppc64 check */
-      (*((long*)&buf)) != FAT_MAGIC) {
+      (*((uint32_t*)&buf)) != FAT_MAGIC) {
     return -1;
   }
 
@@ -232,7 +232,7 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
     }
     if (read(fd, (char *)fat_archs,
              sizeof(struct fat_arch) * fh.nfat_arch) !=
-        (ssize_t)sizeof(struct fat_arch) * fh.nfat_arch) {
+        (ssize_t)(sizeof(struct fat_arch) * fh.nfat_arch)) {
       free(fat_archs);
       return -1;
     }
@@ -296,7 +296,7 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
       return -1;
     }
     if (read(fd, (char *)load_commands, mh.sizeofcmds) !=
-        mh.sizeofcmds) {
+        (ssize_t)mh.sizeofcmds) {
       free(load_commands);
       return -1;
     }
@@ -304,7 +304,7 @@ int __breakpad_fdnlist(int fd, nlist_type *list, const char **symbolNames,
     struct load_command *lcp = load_commands;
     // iterate through all load commands, looking for
     // LC_SYMTAB load command
-    for (long i = 0; i < mh.ncmds; i++) {
+    for (uint32_t i = 0; i < mh.ncmds; i++) {
       if (lcp->cmdsize % sizeof(word_type) != 0 ||
           lcp->cmdsize <= 0 ||
           (char *)lcp + lcp->cmdsize >

@@ -1,4 +1,4 @@
-// Copyright (c) 2010, Google Inc.
+// Copyright (c) 2011 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,46 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// Utility class for creating a temporary directory for unit tests
-// that is deleted in the destructor.
-#ifndef GOOGLE_BREAKPAD_CLIENT_MAC_TESTS_AUTO_TEMPDIR
-#define GOOGLE_BREAKPAD_CLIENT_MAC_TESTS_AUTO_TEMPDIR
+#ifndef COMMON_BASICTYPES_H_
+#define COMMON_BASICTYPES_H_
 
-#include <dirent.h>
-#include <sys/types.h>
+// A macro to disallow the copy constructor and operator= functions
+// This should be used in the private: declarations for a class
+#define DISALLOW_COPY_AND_ASSIGN(TypeName) \
+  TypeName(const TypeName&);               \
+  void operator=(const TypeName&)
 
-#include <string>
-
-namespace google_breakpad {
-
-class AutoTempDir {
- public:
-  AutoTempDir() {
-    char tempDir[16] = "/tmp/XXXXXXXXXX";
-    mkdtemp(tempDir);
-    path = tempDir;
-  }
-
-  ~AutoTempDir() {
-    // First remove any files in the dir
-    DIR* dir = opendir(path.c_str());
-    if (!dir)
-      return;
-
-    dirent* entry;
-    while ((entry = readdir(dir)) != NULL) {
-      if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-	continue;
-      std::string entryPath = path + "/" + entry->d_name;
-      unlink(entryPath.c_str());
-    }
-    closedir(dir);
-    rmdir(path.c_str());
-  }
-
-  std::string path;
-};
-
-}  // namespace google_breakpad
-
-#endif  // GOOGLE_BREAKPAD_CLIENT_MAC_TESTS_AUTO_TEMPDIR
+#endif  // COMMON_BASICTYPES_H_

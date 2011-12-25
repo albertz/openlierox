@@ -40,6 +40,7 @@
 
 #include <assert.h>
 #include <inttypes.h>
+#include <stdio.h>
 
 #include <algorithm>
 #include <set>

@@ -46,6 +46,7 @@ namespace {
 
 using google_breakpad::Minidump;
 using google_breakpad::MinidumpContext;
+using google_breakpad::MinidumpException;
 using google_breakpad::MinidumpMemoryInfo;
 using google_breakpad::MinidumpMemoryInfoList;
 using google_breakpad::MinidumpMemoryList;
@@ -57,6 +58,7 @@ using google_breakpad::MinidumpThread;
 using google_breakpad::MinidumpThreadList;
 using google_breakpad::SynthMinidump::Context;
 using google_breakpad::SynthMinidump::Dump;
+using google_breakpad::SynthMinidump::Exception;
 using google_breakpad::SynthMinidump::Memory;
 using google_breakpad::SynthMinidump::Module;
 using google_breakpad::SynthMinidump::Stream;
@@ -586,6 +588,320 @@ TEST(Dump, OneMemoryInfo) {
       info_list->GetMemoryInfoForAddress(kBaseAddress + kRegionSize / 2);
   ASSERT_EQ(kBaseAddress, info2->GetBase());
   ASSERT_EQ(kRegionSize, info2->GetSize());
+}
+
+TEST(Dump, OneExceptionX86) {
+  Dump dump(0, kLittleEndian);
+
+  MDRawContextX86 raw_context;
+  raw_context.context_flags = MD_CONTEXT_X86_INTEGER | MD_CONTEXT_X86_CONTROL;
+  raw_context.edi = 0x3ecba80d;
+  raw_context.esi = 0x382583b9;
+  raw_context.ebx = 0x7fccc03f;
+  raw_context.edx = 0xf62f8ec2;
+  raw_context.ecx = 0x46a6a6a8;
+  raw_context.eax = 0x6a5025e2;
+  raw_context.ebp = 0xd9fabb4a;
+  raw_context.eip = 0x6913f540;
+  raw_context.cs = 0xbffe6eda;
+  raw_context.eflags = 0xb2ce1e2d;
+  raw_context.esp = 0x659caaa4;
+  raw_context.ss = 0x2e951ef7;
+  Context context(dump, raw_context);
+
+  Exception exception(dump, context,
+                      0x1234abcd, // thread id
+                      0xdcba4321, // exception code
+                      0xf0e0d0c0, // exception flags
+                      0x0919a9b9c9d9e9f9ULL); // exception address
+  
+  dump.Add(&context);
+  dump.Add(&exception);
+  dump.Finish();
+
+  string contents;
+  ASSERT_TRUE(dump.GetContents(&contents));
+
+  istringstream minidump_stream(contents);
+  Minidump minidump(minidump_stream);
+  ASSERT_TRUE(minidump.Read());
+  ASSERT_EQ(1U, minidump.GetDirectoryEntryCount());
+
+  MinidumpException *md_exception = minidump.GetException();
+  ASSERT_TRUE(md_exception != NULL);
+
+  u_int32_t thread_id;
+  ASSERT_TRUE(md_exception->GetThreadID(&thread_id));
+  ASSERT_EQ(0x1234abcd, thread_id);
+
+  const MDRawExceptionStream* raw_exception = md_exception->exception();
+  ASSERT_TRUE(raw_exception != NULL);
+  EXPECT_EQ(0xdcba4321, raw_exception->exception_record.exception_code);
+  EXPECT_EQ(0xf0e0d0c0, raw_exception->exception_record.exception_flags);
+  EXPECT_EQ(0x0919a9b9c9d9e9f9ULL,
+            raw_exception->exception_record.exception_address);
+
+  MinidumpContext *md_context = md_exception->GetContext();
+  ASSERT_TRUE(md_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_X86, md_context->GetContextCPU());
+  const MDRawContextX86 *md_raw_context = md_context->GetContextX86();
+  ASSERT_TRUE(md_raw_context != NULL);
+  ASSERT_EQ((u_int32_t) (MD_CONTEXT_X86_INTEGER | MD_CONTEXT_X86_CONTROL),
+            (md_raw_context->context_flags
+             & (MD_CONTEXT_X86_INTEGER | MD_CONTEXT_X86_CONTROL)));
+  EXPECT_EQ(0x3ecba80dU, raw_context.edi);
+  EXPECT_EQ(0x382583b9U, raw_context.esi);
+  EXPECT_EQ(0x7fccc03fU, raw_context.ebx);
+  EXPECT_EQ(0xf62f8ec2U, raw_context.edx);
+  EXPECT_EQ(0x46a6a6a8U, raw_context.ecx);
+  EXPECT_EQ(0x6a5025e2U, raw_context.eax);
+  EXPECT_EQ(0xd9fabb4aU, raw_context.ebp);
+  EXPECT_EQ(0x6913f540U, raw_context.eip);
+  EXPECT_EQ(0xbffe6edaU, raw_context.cs);
+  EXPECT_EQ(0xb2ce1e2dU, raw_context.eflags);
+  EXPECT_EQ(0x659caaa4U, raw_context.esp);
+  EXPECT_EQ(0x2e951ef7U, raw_context.ss);
+}
+
+TEST(Dump, OneExceptionX86XState) {
+  Dump dump(0, kLittleEndian);
+
+  MDRawContextX86 raw_context;
+  raw_context.context_flags = MD_CONTEXT_X86_INTEGER |
+    MD_CONTEXT_X86_CONTROL | MD_CONTEXT_X86_XSTATE;
+  raw_context.edi = 0x3ecba80d;
+  raw_context.esi = 0x382583b9;
+  raw_context.ebx = 0x7fccc03f;
+  raw_context.edx = 0xf62f8ec2;
+  raw_context.ecx = 0x46a6a6a8;
+  raw_context.eax = 0x6a5025e2;
+  raw_context.ebp = 0xd9fabb4a;
+  raw_context.eip = 0x6913f540;
+  raw_context.cs = 0xbffe6eda;
+  raw_context.eflags = 0xb2ce1e2d;
+  raw_context.esp = 0x659caaa4;
+  raw_context.ss = 0x2e951ef7;
+  Context context(dump, raw_context);
+
+  Exception exception(dump, context,
+                      0x1234abcd, // thread id
+                      0xdcba4321, // exception code
+                      0xf0e0d0c0, // exception flags
+                      0x0919a9b9c9d9e9f9ULL); // exception address
+  
+  dump.Add(&context);
+  dump.Add(&exception);
+  dump.Finish();
+
+  string contents;
+  ASSERT_TRUE(dump.GetContents(&contents));
+
+  istringstream minidump_stream(contents);
+  Minidump minidump(minidump_stream);
+  ASSERT_TRUE(minidump.Read());
+  ASSERT_EQ(1U, minidump.GetDirectoryEntryCount());
+
+  MinidumpException *md_exception = minidump.GetException();
+  ASSERT_TRUE(md_exception != NULL);
+
+  u_int32_t thread_id;
+  ASSERT_TRUE(md_exception->GetThreadID(&thread_id));
+  ASSERT_EQ(0x1234abcd, thread_id);
+
+  const MDRawExceptionStream* raw_exception = md_exception->exception();
+  ASSERT_TRUE(raw_exception != NULL);
+  EXPECT_EQ(0xdcba4321, raw_exception->exception_record.exception_code);
+  EXPECT_EQ(0xf0e0d0c0, raw_exception->exception_record.exception_flags);
+  EXPECT_EQ(0x0919a9b9c9d9e9f9ULL,
+            raw_exception->exception_record.exception_address);
+
+  MinidumpContext *md_context = md_exception->GetContext();
+  ASSERT_TRUE(md_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_X86, md_context->GetContextCPU());
+  const MDRawContextX86 *md_raw_context = md_context->GetContextX86();
+  ASSERT_TRUE(md_raw_context != NULL);
+  ASSERT_EQ((u_int32_t) (MD_CONTEXT_X86_INTEGER | MD_CONTEXT_X86_CONTROL),
+            (md_raw_context->context_flags
+             & (MD_CONTEXT_X86_INTEGER | MD_CONTEXT_X86_CONTROL)));
+  EXPECT_EQ(0x3ecba80dU, raw_context.edi);
+  EXPECT_EQ(0x382583b9U, raw_context.esi);
+  EXPECT_EQ(0x7fccc03fU, raw_context.ebx);
+  EXPECT_EQ(0xf62f8ec2U, raw_context.edx);
+  EXPECT_EQ(0x46a6a6a8U, raw_context.ecx);
+  EXPECT_EQ(0x6a5025e2U, raw_context.eax);
+  EXPECT_EQ(0xd9fabb4aU, raw_context.ebp);
+  EXPECT_EQ(0x6913f540U, raw_context.eip);
+  EXPECT_EQ(0xbffe6edaU, raw_context.cs);
+  EXPECT_EQ(0xb2ce1e2dU, raw_context.eflags);
+  EXPECT_EQ(0x659caaa4U, raw_context.esp);
+  EXPECT_EQ(0x2e951ef7U, raw_context.ss);
+}
+
+TEST(Dump, OneExceptionARM) {
+  Dump dump(0, kLittleEndian);
+
+  MDRawContextARM raw_context;
+  raw_context.context_flags = MD_CONTEXT_ARM_INTEGER;
+  raw_context.iregs[0] = 0x3ecba80d;
+  raw_context.iregs[1] = 0x382583b9;
+  raw_context.iregs[2] = 0x7fccc03f;
+  raw_context.iregs[3] = 0xf62f8ec2;
+  raw_context.iregs[4] = 0x46a6a6a8;
+  raw_context.iregs[5] = 0x6a5025e2;
+  raw_context.iregs[6] = 0xd9fabb4a;
+  raw_context.iregs[7] = 0x6913f540;
+  raw_context.iregs[8] = 0xbffe6eda;
+  raw_context.iregs[9] = 0xb2ce1e2d;
+  raw_context.iregs[10] = 0x659caaa4;
+  raw_context.iregs[11] = 0xf0e0d0c0;
+  raw_context.iregs[12] = 0xa9b8c7d6;
+  raw_context.iregs[13] = 0x12345678;
+  raw_context.iregs[14] = 0xabcd1234;
+  raw_context.iregs[15] = 0x10203040;
+  raw_context.cpsr = 0x2e951ef7;
+  Context context(dump, raw_context);
+
+  Exception exception(dump, context,
+                      0x1234abcd, // thread id
+                      0xdcba4321, // exception code
+                      0xf0e0d0c0, // exception flags
+                      0x0919a9b9c9d9e9f9ULL); // exception address
+  
+  dump.Add(&context);
+  dump.Add(&exception);
+  dump.Finish();
+
+  string contents;
+  ASSERT_TRUE(dump.GetContents(&contents));
+
+  istringstream minidump_stream(contents);
+  Minidump minidump(minidump_stream);
+  ASSERT_TRUE(minidump.Read());
+  ASSERT_EQ(1U, minidump.GetDirectoryEntryCount());
+
+  MinidumpException *md_exception = minidump.GetException();
+  ASSERT_TRUE(md_exception != NULL);
+
+  u_int32_t thread_id;
+  ASSERT_TRUE(md_exception->GetThreadID(&thread_id));
+  ASSERT_EQ(0x1234abcd, thread_id);
+
+  const MDRawExceptionStream* raw_exception = md_exception->exception();
+  ASSERT_TRUE(raw_exception != NULL);
+  EXPECT_EQ(0xdcba4321, raw_exception->exception_record.exception_code);
+  EXPECT_EQ(0xf0e0d0c0, raw_exception->exception_record.exception_flags);
+  EXPECT_EQ(0x0919a9b9c9d9e9f9ULL,
+            raw_exception->exception_record.exception_address);
+
+  MinidumpContext *md_context = md_exception->GetContext();
+  ASSERT_TRUE(md_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_ARM, md_context->GetContextCPU());
+  const MDRawContextARM *md_raw_context = md_context->GetContextARM();
+  ASSERT_TRUE(md_raw_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_ARM_INTEGER,
+            (md_raw_context->context_flags
+             & MD_CONTEXT_ARM_INTEGER));
+  EXPECT_EQ(0x3ecba80dU, raw_context.iregs[0]);
+  EXPECT_EQ(0x382583b9U, raw_context.iregs[1]);
+  EXPECT_EQ(0x7fccc03fU, raw_context.iregs[2]);
+  EXPECT_EQ(0xf62f8ec2U, raw_context.iregs[3]);
+  EXPECT_EQ(0x46a6a6a8U, raw_context.iregs[4]);
+  EXPECT_EQ(0x6a5025e2U, raw_context.iregs[5]);
+  EXPECT_EQ(0xd9fabb4aU, raw_context.iregs[6]);
+  EXPECT_EQ(0x6913f540U, raw_context.iregs[7]);
+  EXPECT_EQ(0xbffe6edaU, raw_context.iregs[8]);
+  EXPECT_EQ(0xb2ce1e2dU, raw_context.iregs[9]);
+  EXPECT_EQ(0x659caaa4U, raw_context.iregs[10]);
+  EXPECT_EQ(0xf0e0d0c0U, raw_context.iregs[11]);
+  EXPECT_EQ(0xa9b8c7d6U, raw_context.iregs[12]);
+  EXPECT_EQ(0x12345678U, raw_context.iregs[13]);
+  EXPECT_EQ(0xabcd1234U, raw_context.iregs[14]);
+  EXPECT_EQ(0x10203040U, raw_context.iregs[15]);
+  EXPECT_EQ(0x2e951ef7U, raw_context.cpsr);
+}
+
+TEST(Dump, OneExceptionARMOldFlags) {
+  Dump dump(0, kLittleEndian);
+
+  MDRawContextARM raw_context;
+  // MD_CONTEXT_ARM_INTEGER, but with _OLD
+  raw_context.context_flags = MD_CONTEXT_ARM_OLD | 0x00000002;
+  raw_context.iregs[0] = 0x3ecba80d;
+  raw_context.iregs[1] = 0x382583b9;
+  raw_context.iregs[2] = 0x7fccc03f;
+  raw_context.iregs[3] = 0xf62f8ec2;
+  raw_context.iregs[4] = 0x46a6a6a8;
+  raw_context.iregs[5] = 0x6a5025e2;
+  raw_context.iregs[6] = 0xd9fabb4a;
+  raw_context.iregs[7] = 0x6913f540;
+  raw_context.iregs[8] = 0xbffe6eda;
+  raw_context.iregs[9] = 0xb2ce1e2d;
+  raw_context.iregs[10] = 0x659caaa4;
+  raw_context.iregs[11] = 0xf0e0d0c0;
+  raw_context.iregs[12] = 0xa9b8c7d6;
+  raw_context.iregs[13] = 0x12345678;
+  raw_context.iregs[14] = 0xabcd1234;
+  raw_context.iregs[15] = 0x10203040;
+  raw_context.cpsr = 0x2e951ef7;
+  Context context(dump, raw_context);
+
+  Exception exception(dump, context,
+                      0x1234abcd, // thread id
+                      0xdcba4321, // exception code
+                      0xf0e0d0c0, // exception flags
+                      0x0919a9b9c9d9e9f9ULL); // exception address
+  
+  dump.Add(&context);
+  dump.Add(&exception);
+  dump.Finish();
+
+  string contents;
+  ASSERT_TRUE(dump.GetContents(&contents));
+
+  istringstream minidump_stream(contents);
+  Minidump minidump(minidump_stream);
+  ASSERT_TRUE(minidump.Read());
+  ASSERT_EQ(1U, minidump.GetDirectoryEntryCount());
+
+  MinidumpException *md_exception = minidump.GetException();
+  ASSERT_TRUE(md_exception != NULL);
+
+  u_int32_t thread_id;
+  ASSERT_TRUE(md_exception->GetThreadID(&thread_id));
+  ASSERT_EQ(0x1234abcd, thread_id);
+
+  const MDRawExceptionStream* raw_exception = md_exception->exception();
+  ASSERT_TRUE(raw_exception != NULL);
+  EXPECT_EQ(0xdcba4321, raw_exception->exception_record.exception_code);
+  EXPECT_EQ(0xf0e0d0c0, raw_exception->exception_record.exception_flags);
+  EXPECT_EQ(0x0919a9b9c9d9e9f9ULL,
+            raw_exception->exception_record.exception_address);
+
+  MinidumpContext *md_context = md_exception->GetContext();
+  ASSERT_TRUE(md_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_ARM, md_context->GetContextCPU());
+  const MDRawContextARM *md_raw_context = md_context->GetContextARM();
+  ASSERT_TRUE(md_raw_context != NULL);
+  ASSERT_EQ((u_int32_t) MD_CONTEXT_ARM_INTEGER,
+            (md_raw_context->context_flags
+             & MD_CONTEXT_ARM_INTEGER));
+  EXPECT_EQ(0x3ecba80dU, raw_context.iregs[0]);
+  EXPECT_EQ(0x382583b9U, raw_context.iregs[1]);
+  EXPECT_EQ(0x7fccc03fU, raw_context.iregs[2]);
+  EXPECT_EQ(0xf62f8ec2U, raw_context.iregs[3]);
+  EXPECT_EQ(0x46a6a6a8U, raw_context.iregs[4]);
+  EXPECT_EQ(0x6a5025e2U, raw_context.iregs[5]);
+  EXPECT_EQ(0xd9fabb4aU, raw_context.iregs[6]);
+  EXPECT_EQ(0x6913f540U, raw_context.iregs[7]);
+  EXPECT_EQ(0xbffe6edaU, raw_context.iregs[8]);
+  EXPECT_EQ(0xb2ce1e2dU, raw_context.iregs[9]);
+  EXPECT_EQ(0x659caaa4U, raw_context.iregs[10]);
+  EXPECT_EQ(0xf0e0d0c0U, raw_context.iregs[11]);
+  EXPECT_EQ(0xa9b8c7d6U, raw_context.iregs[12]);
+  EXPECT_EQ(0x12345678U, raw_context.iregs[13]);
+  EXPECT_EQ(0xabcd1234U, raw_context.iregs[14]);
+  EXPECT_EQ(0x10203040U, raw_context.iregs[15]);
+  EXPECT_EQ(0x2e951ef7U, raw_context.cpsr);
 }
 
 }  // namespace

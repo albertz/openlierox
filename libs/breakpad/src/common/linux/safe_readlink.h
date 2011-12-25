@@ -1,4 +1,4 @@
-// Copyright (c) 2010, Google Inc.
+// Copyright (c) 2011, Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -27,47 +27,39 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// UDPNetwork implements NetworkInterface using UDP sockets.
+// safe_readlink.h: Define the google_breakpad::SafeReadLink function,
+// which wraps sys_readlink and gurantees the result is NULL-terminated.
 
-#ifndef _GOOGLE_BREAKPAD_PROCESSOR_UDP_NETWORK_H_
-#define _GOOGLE_BREAKPAD_PROCESSOR_UDP_NETWORK_H_
+#ifndef COMMON_LINUX_SAFE_READLINK_H_
+#define COMMON_LINUX_SAFE_READLINK_H_
 
-#include <sys/socket.h>
-
-#include <string>
-
-#include "processor/network_interface.h"
+#include <stddef.h>
 
 namespace google_breakpad {
 
-class UDPNetwork : public NetworkInterface {
- public:
-  // Initialize a UDP Network socket at this address and port.
-  // address can be empty to indicate that any local address is acceptable.
-  UDPNetwork(const std::string address,
-             unsigned short port,
-             bool ip4only = false)
-    : server_(address),
-      port_(port),
-      ip4only_(ip4only),
-      socket_(-1) {};
+// This function wraps sys_readlink() and performs the same functionalty,
+// but guarantees |buffer| is NULL-terminated if sys_readlink() returns
+// no error. It takes the same arguments as sys_readlink(), but unlike
+// sys_readlink(), it returns true on success.
+//
+// |buffer_size| specifies the size of |buffer| in bytes. As this function
+// always NULL-terminates |buffer| on success, |buffer_size| should be
+// at least one byte longer than the expected path length (e.g. PATH_MAX,
+// which is typically defined as the maximum length of a path name
+// including the NULL byte).
+//
+// The implementation of this function calls sys_readlink() instead of
+// readlink(), it can thus be used in the context where calling to libc
+// functions is discouraged.
+bool SafeReadLink(const char* path, char* buffer, size_t buffer_size);
 
-  ~UDPNetwork();
-
-  virtual bool Init(bool listen);
-  virtual bool Send(const char *data, size_t length);
-  virtual bool WaitToReceive(int timeout);
-  virtual bool Receive(char *buffer, size_t buffer_size, ssize_t &received);
-
-  unsigned short port() { return port_; }
-
- private:
-  std::string server_;
-  unsigned short port_;
-  bool ip4only_;
-  struct sockaddr_storage address_;
-  int socket_;
-};
+// Same as the three-argument version of SafeReadLink() but deduces the
+// size of |buffer| if it is a char array of known size.
+template <size_t N>
+bool SafeReadLink(const char* path, char (&buffer)[N]) {
+  return SafeReadLink(path, buffer, sizeof(buffer));
+}
 
 }  // namespace google_breakpad
-#endif  // GOOGLE_BREAKPAD_PROCESSOR_UDP_NETWORK_H_
+
+#endif  // COMMON_LINUX_SAFE_READLINK_H_

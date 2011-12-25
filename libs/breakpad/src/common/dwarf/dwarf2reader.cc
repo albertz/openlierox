@@ -75,7 +75,7 @@ void CompilationUnit::ReadAbbrevs() {
     iter = sections_.find("__debug_abbrev");
   assert(iter != sections_.end());
 
-  abbrevs_ = new vector<Abbrev>;
+  abbrevs_ = new std::vector<Abbrev>;
   abbrevs_->resize(1);
 
   // The only way to check whether we are reading over the end of the
@@ -122,7 +122,7 @@ void CompilationUnit::ReadAbbrevs() {
       const enum DwarfAttribute name =
         static_cast<enum DwarfAttribute>(nametemp);
       const enum DwarfForm form = static_cast<enum DwarfForm>(formtemp);
-      abbrev.attributes.push_back(make_pair(name, form));
+      abbrev.attributes.push_back(std::make_pair(name, form));
     }
     assert(abbrev.number == abbrevs_->size());
     abbrevs_->push_back(abbrev);
@@ -494,7 +494,7 @@ void CompilationUnit::ProcessDIEs() {
   else
     lengthstart += 4;
 
-  stack<uint64> die_stack;
+  std::stack<uint64> die_stack;
   
   while (dieptr < (lengthstart + header_.length)) {
     // We give the user the absolute offset from the beginning of
@@ -584,7 +584,7 @@ void LineInfo::ReadHeader() {
   header_.opcode_base = reader_->ReadOneByte(lineptr);
   lineptr += 1;
 
-  header_.std_opcode_lengths = new vector<unsigned char>;
+  header_.std_opcode_lengths = new std::vector<unsigned char>;
   header_.std_opcode_lengths->resize(header_.opcode_base + 1);
   (*header_.std_opcode_lengths)[0] = 0;
   for (int i = 1; i < header_.opcode_base; i++) {
@@ -1025,7 +1025,7 @@ class CallFrameInfo::RegisterRule: public CallFrameInfo::Rule {
 // Rule: EXPRESSION evaluates to the address at which the register is saved.
 class CallFrameInfo::ExpressionRule: public CallFrameInfo::Rule {
  public:
-  explicit ExpressionRule(const string &expression)
+  explicit ExpressionRule(const std::string &expression)
       : expression_(expression) { }
   ~ExpressionRule() { }
   bool Handle(Handler *handler, uint64 address, int reg) const {
@@ -1039,13 +1039,13 @@ class CallFrameInfo::ExpressionRule: public CallFrameInfo::Rule {
   }
   Rule *Copy() const { return new ExpressionRule(*this); }
  private:
-  string expression_;
+  std::string expression_;
 };
 
 // Rule: EXPRESSION evaluates to the address at which the register is saved.
 class CallFrameInfo::ValExpressionRule: public CallFrameInfo::Rule {
  public:
-  explicit ValExpressionRule(const string &expression)
+  explicit ValExpressionRule(const std::string &expression)
       : expression_(expression) { }
   ~ValExpressionRule() { }
   bool Handle(Handler *handler, uint64 address, int reg) const {
@@ -1060,7 +1060,7 @@ class CallFrameInfo::ValExpressionRule: public CallFrameInfo::Rule {
   }
   Rule *Copy() const { return new ValExpressionRule(*this); }
  private:
-  string expression_;
+  std::string expression_;
 };
 
 // A map from register numbers to rules.
@@ -1097,7 +1097,7 @@ class CallFrameInfo::RuleMap {
 
  private:
   // A map from register numbers to Rules.
-  typedef map<int, Rule *> RuleByNumber;
+  typedef std::map<int, Rule *> RuleByNumber;
 
   // Remove all register rules and clear cfa_rule_.
   void Clear();
@@ -1241,7 +1241,7 @@ class CallFrameInfo::State {
     unsigned register_number;  // A register number.
     uint64 offset;             // An offset or address.
     long signed_offset;        // A signed offset.
-    string expression;         // A DWARF expression.
+    std::string expression;    // A DWARF expression.
   };
 
   // Parse CFI instruction operands from STATE's instruction stream as
@@ -1342,7 +1342,7 @@ class CallFrameInfo::State {
 
   // A stack of saved states, for DW_CFA_remember_state and
   // DW_CFA_restore_state.
-  stack<RuleMap> saved_rules_;
+  std::stack<RuleMap> saved_rules_;
 };
 
 bool CallFrameInfo::State::InterpretCIE(const CIE &cie) {
@@ -1428,7 +1428,7 @@ bool CallFrameInfo::State::ParseOperands(const char *format,
         if (len > bytes_left || expression_length > bytes_left - len)
           return ReportIncomplete();
         cursor_ += len;
-        operands->expression = string(cursor_, expression_length);
+        operands->expression = std::string(cursor_, expression_length);
         cursor_ += expression_length;
         break;
       }
@@ -1899,7 +1899,8 @@ bool CallFrameInfo::ReadCIEFields(CIE *cie) {
       memchr(augmentation_start, '\0', cie->end - augmentation_start);
   if (! augmentation_end) return ReportIncomplete(cie);
   cursor = static_cast<const char *>(augmentation_end);
-  cie->augmentation = string(augmentation_start, cursor - augmentation_start);
+  cie->augmentation = std::string(augmentation_start,
+                                  cursor - augmentation_start);
   // Skip the terminating '\0'.
   cursor++;
 
@@ -2286,7 +2287,7 @@ void CallFrameInfo::Reporter::UnrecognizedVersion(uint64 offset, int version) {
 }
 
 void CallFrameInfo::Reporter::UnrecognizedAugmentation(uint64 offset,
-                                                       const string &aug) {
+                                                       const std::string &aug) {
   fprintf(stderr,
           "%s: CFI frame description entry at offset 0x%llx in '%s':"
           " CIE specifies unrecognized augmentation: '%s'\n",

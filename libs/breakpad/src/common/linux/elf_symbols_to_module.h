@@ -1,5 +1,6 @@
-// Copyright (c) 2010, Google Inc.
-// All rights reserved.
+// -*- mode: c++ -*-
+
+// Copyright (c) 2011 Google Inc. All Rights Reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -27,36 +28,31 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-// NetworkInterface is an abstract interface for network connections.
-// Its purpose is to make the network portion of certain classes
-// easier to mock for testing. A concrete implementation of this
-// interface can be found in udp_network.h.
+// Original author: Ted Mielczarek <ted.mielczarek@gmail.com>
 
-#ifndef GOOGLE_BREAKPAD_PROCESSOR_NETWORK_INTERFACE_H_
-#define GOOGLE_BREAKPAD_PROCESSOR_NETWORK_INTERFACE_H_
+// elf_symbols_to_module.h: Exposes ELFSymbolsToModule, a function
+// for reading ELF symbol tables and inserting exported symbol names
+// into a google_breakpad::Module as Extern definitions.
+
+#ifndef BREAKPAD_COMMON_LINUX_ELF_SYMBOLS_TO_MODULE_H_
+#define BREAKPAD_COMMON_LINUX_ELF_SYMBOLS_TO_MODULE_H_
+
+#include <stddef.h>
+#include <stdint.h>
+
 namespace google_breakpad {
 
-class NetworkInterface {
- public:
-  // Prepare a network connection.
-  // If listen is true, prepare the socket to listen for incoming
-  // connections.
-  // Returns true for success, false for failure.
-  virtual bool Init(bool listen) = 0;
+class Module;
 
-  // Send length bytes of data to the current address.
-  // Returns true for success, false for failure.
-  virtual bool Send(const char *data, size_t length) = 0;
-
-  // Wait at most timeout milliseconds, returning when data is available or
-  // time has expired.
-  // Returns true if data is available, false if a timeout or error occurred.
-  virtual bool WaitToReceive(int timeout) = 0;
-
-  // Read data into buffer. received will contain the number of bytes received.
-  // Returns true for success, false for failure.
-  virtual bool Receive(char *buffer, size_t buffer_size, ssize_t &received) = 0;
-};
+bool ELFSymbolsToModule(const uint8_t *symtab_section,
+                        size_t symtab_size,
+                        const uint8_t *string_section,
+                        size_t string_size,
+                        const bool big_endian,
+                        size_t value_size,
+                        Module *module);
 
 }  // namespace google_breakpad
-#endif  // GOOGLE_BREAKPAD_PROCESSOR_NETWORK_INTERFACE_H_
+
+
+#endif  // BREAKPAD_COMMON_LINUX_ELF_SYMBOLS_TO_MODULE_H_

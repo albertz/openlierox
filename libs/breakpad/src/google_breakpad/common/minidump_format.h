@@ -90,19 +90,20 @@ typedef struct {
  * WinNT.h
  */
 
-/* Non-x86 CPU identifiers found in the high 26 bits of
+/* Non-x86 CPU identifiers found in the high 24 bits of
  * (MDRawContext*).context_flags.  These aren't used by Breakpad, but are
  * defined here for reference, to avoid assigning values that conflict
  * (although some values already conflict). */
 #define MD_CONTEXT_IA64  0x00080000  /* CONTEXT_IA64 */
-#define MD_CONTEXT_AMD64 0x00100000  /* CONTEXT_AMD64 */
 /* Additional values from winnt.h in the Windows CE 5.0 SDK: */
 #define MD_CONTEXT_SHX   0x000000c0  /* CONTEXT_SH4 (Super-H, includes SH3) */
-#define MD_CONTEXT_ARM   0x00000040  /* CONTEXT_ARM (0x40 bit set in SHx?) */
 #define MD_CONTEXT_MIPS  0x00010000  /* CONTEXT_R4000 (same value as x86?) */
 #define MD_CONTEXT_ALPHA 0x00020000  /* CONTEXT_ALPHA */
 
-#define MD_CONTEXT_CPU_MASK 0xffffffc0
+/* As of Windows 7 SP1, the number of flag bits has increased to
+ * include 0x40 (CONTEXT_XSTATE):
+ * http://msdn.microsoft.com/en-us/library/hh134238%28v=vs.85%29.aspx */
+#define MD_CONTEXT_CPU_MASK 0xffffff00
 
 
 /* This is a base type for MDRawContextX86 and MDRawContextPPC.  This
@@ -608,6 +609,7 @@ typedef enum {
   /* The following values are Breakpad-defined. */
   MD_OS_UNIX          = 0x8000,  /* Generic Unix-ish */
   MD_OS_MAC_OS_X      = 0x8101,  /* Mac OS X/Darwin */
+  MD_OS_IOS           = 0x8102,  /* iOS */
   MD_OS_LINUX         = 0x8201,  /* Linux */
   MD_OS_SOLARIS       = 0x8202   /* Solaris */
 } MDOSPlatform;

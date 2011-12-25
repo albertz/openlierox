@@ -53,6 +53,7 @@
 #endif
 #include <stdio.h>
 #include <unistd.h>
+#include <ctype.h>
 #if !defined(__ANDROID__)
 #include <sys/ucontext.h>
 #include <sys/user.h>
@@ -670,8 +671,8 @@ class MinidumpWriter {
         // don't bother trying to write it.
         bool ip_is_mapped = false;
         MDMemoryDescriptor ip_memory_d;
-        for (unsigned i = 0; i < dumper_.mappings().size(); ++i) {
-          const MappingInfo& mapping = *dumper_.mappings()[i];
+        for (unsigned j = 0; j < dumper_.mappings().size(); ++j) {
+          const MappingInfo& mapping = *dumper_.mappings()[j];
           if (ip >= mapping.start_addr &&
               ip < mapping.start_addr + mapping.size) {
             ip_is_mapped = true;
@@ -1211,6 +1212,15 @@ class MinidumpWriter {
     if (!memory.Allocate(total))
       return false;
     for (MDRVA pos = memory.position(); buffers; buffers = buffers->next) {
+      // Check for special case of a zero-length buffer.  This should only
+      // occur if a file's size happens to be a multiple of the buffer's
+      // size, in which case the final sys_read() will have resulted in
+      // zero bytes being read after the final buffer was just allocated.
+      if (buffers->len == 0) {
+        // This can only occur with final buffer.
+        assert(buffers->next == NULL);
+        continue;
+      }
       memory.Copy(pos, &buffers->data, buffers->len);
       pos += buffers->len;
     }

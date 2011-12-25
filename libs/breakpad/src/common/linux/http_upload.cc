@@ -31,9 +31,7 @@
 
 #include <assert.h>
 #include <dlfcn.h>
-#include <curl/curl.h>
-#include <curl/easy.h>
-#include <curl/types.h>
+#include "third_party/curl/curl.h"
 
 namespace {
 

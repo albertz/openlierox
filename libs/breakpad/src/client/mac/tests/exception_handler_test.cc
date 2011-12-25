@@ -36,8 +36,8 @@
 
 #include "breakpad_googletest_includes.h"
 #include "client/mac/handler/exception_handler.h"
-#include "client/mac/tests/auto_tempdir.h"
 #include "common/mac/MachIPC.h"
+#include "common/tests/auto_tempdir.h"
 #include "google_breakpad/processor/minidump.h"
 
 namespace google_breakpad {
@@ -103,7 +103,7 @@ TEST_F(ExceptionHandlerTest, InProcess) {
   if (pid == 0) {
     // In the child process.
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
     // crash
     SoonToCrash();
     // not reached
@@ -141,7 +141,8 @@ static bool DumpNameMDCallback(const char *dump_dir, const char *file_name,
 }
 
 TEST_F(ExceptionHandlerTest, WriteMinidump) {
-  ExceptionHandler eh(tempDir.path, NULL, DumpNameMDCallback, this, true, NULL);
+  ExceptionHandler eh(tempDir.path(), NULL, DumpNameMDCallback, this, true,
+                      NULL);
   ASSERT_TRUE(eh.WriteMinidump());
 
   // Ensure that minidump file exists and is > 0 bytes.
@@ -159,7 +160,8 @@ TEST_F(ExceptionHandlerTest, WriteMinidump) {
 }
 
 TEST_F(ExceptionHandlerTest, WriteMinidumpWithException) {
-  ExceptionHandler eh(tempDir.path, NULL, DumpNameMDCallback, this, true, NULL);
+  ExceptionHandler eh(tempDir.path(), NULL, DumpNameMDCallback, this, true,
+                      NULL);
   ASSERT_TRUE(eh.WriteMinidump(true));
 
   // Ensure that minidump file exists and is > 0 bytes.
@@ -227,10 +229,10 @@ TEST_F(ExceptionHandlerTest, DumpChildProcess) {
 
   // Write a minidump of the child process.
   bool result = ExceptionHandler::WriteMinidumpForChild(child_task,
-							child_thread,
-							tempDir.path,
-							DumpNameMDCallback,
-							this);
+                                                        child_thread,
+                                                        tempDir.path(),
+                                                        DumpNameMDCallback,
+                                                        this);
   ASSERT_EQ(true, result);
 
   // Ensure that minidump file exists and is > 0 bytes.
@@ -267,7 +269,7 @@ TEST_F(ExceptionHandlerTest, InstructionPointerMemory) {
   pid_t pid = fork();
   if (pid == 0) {
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
     // Get some executable memory.
     char* memory =
       reinterpret_cast<char*>(mmap(NULL,
@@ -379,7 +381,7 @@ TEST_F(ExceptionHandlerTest, InstructionPointerMemoryMinBound) {
   pid_t pid = fork();
   if (pid == 0) {
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
     // Get some executable memory.
     char* memory =
       reinterpret_cast<char*>(mmap(NULL,
@@ -491,7 +493,7 @@ TEST_F(ExceptionHandlerTest, InstructionPointerMemoryMaxBound) {
   pid_t pid = fork();
   if (pid == 0) {
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
     // Get some executable memory.
     char* memory =
       reinterpret_cast<char*>(mmap(NULL,
@@ -594,7 +596,7 @@ TEST_F(ExceptionHandlerTest, InstructionPointerMemoryNullPointer) {
   pid_t pid = fork();
   if (pid == 0) {
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
     // Try calling a NULL pointer.
     typedef void (*void_function)(void);
     void_function memory_function =
@@ -651,7 +653,7 @@ TEST_F(ExceptionHandlerTest, MemoryListMultipleThreads) {
   pid_t pid = fork();
   if (pid == 0) {
     close(fds[0]);
-    ExceptionHandler eh(tempDir.path, NULL, MDCallback, &fds[1], true, NULL);
+    ExceptionHandler eh(tempDir.path(), NULL, MDCallback, &fds[1], true, NULL);
 
     // Run an extra thread so >2 memory regions will be written.
     pthread_t junk_thread;

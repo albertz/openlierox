@@ -29,6 +29,7 @@
 
 #include <map>
 #include <pthread.h>
+#include <TargetConditionals.h>
 
 #include "client/mac/handler/exception_handler.h"
 #include "client/mac/handler/minidump_generator.h"
@@ -36,7 +37,11 @@
 #include "common/mac/scoped_task_suspend-inl.h"
 
 #ifndef USE_PROTECTED_ALLOCATIONS
+#if TARGET_OS_IPHONE
+#define USE_PROTECTED_ALLOCATIONS 1
+#else
 #define USE_PROTECTED_ALLOCATIONS 0
+#endif
 #endif
 
 // If USE_PROTECTED_ALLOCATIONS is activated then the
@@ -239,8 +244,10 @@ ExceptionHandler::ExceptionHandler(const string &dump_path,
   // This will update to the ID and C-string pointers
   set_dump_path(dump_path);
   MinidumpGenerator::GatherSystemInformation();
+#if !TARGET_OS_IPHONE
   if (port_name)
     crash_generation_client_.reset(new CrashGenerationClient(port_name));
+#endif
   Setup(install_handler);
 }
 
@@ -322,6 +329,8 @@ bool ExceptionHandler::WriteMinidumpForChild(mach_port_t child,
 				    EXC_I386_BPT,
 #elif defined (__ppc__) || defined (__ppc64__)
 				    EXC_PPC_BREAKPOINT,
+#elif defined (__arm__)
+				    EXC_ARM_BREAKPOINT,
 #else
 #error architecture not supported
 #endif
@@ -352,6 +361,7 @@ bool ExceptionHandler::WriteMinidumpWithException(int exception_type,
       if (exit_after_write)
         _exit(exception_type);
     }
+#if !TARGET_OS_IPHONE
   } else if (IsOutOfProcess()) {
     if (exception_type && exception_code) {
       // If this is a real exception, give the filter (if any) a chance to
@@ -364,6 +374,7 @@ bool ExceptionHandler::WriteMinidumpWithException(int exception_type,
 		 exception_subcode,
 		 thread_name);
     }
+#endif
   } else {
     string minidump_id;
 
@@ -548,6 +559,8 @@ void *ExceptionHandler::WaitForMessage(void *exception_handler_class) {
           exception_code = EXC_I386_BPT;
 #elif defined (__ppc__) || defined (__ppc64__)
           exception_code = EXC_PPC_BREAKPOINT;
+#elif defined (__arm__)
+          exception_code = EXC_ARM_BREAKPOINT;
 #else
 #error architecture not supported
 #endif
@@ -592,6 +605,14 @@ void *ExceptionHandler::WaitForMessage(void *exception_handler_class) {
         // Generate the minidump with the exception data.
         self->WriteMinidumpWithException(receive.exception, receive.code[0],
                                          subcode, receive.thread.name, true);
+
+#if USE_PROTECTED_ALLOCATIONS
+        // This may have become protected again within
+        // WriteMinidumpWithException, but it needs to be unprotected for
+        // UninstallHandler.
+        if(gBreakpadAllocator)
+          gBreakpadAllocator->Unprotect();
+#endif
 
         self->UninstallHandler(true);
 

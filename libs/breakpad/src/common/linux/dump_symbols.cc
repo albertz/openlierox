@@ -1,4 +1,4 @@
-// Copyright (c) 2010 Google Inc.
+// Copyright (c) 2011 Google Inc.
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -46,6 +46,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <iostream>
 #include <set>
 #include <string>
 #include <utility>
@@ -56,6 +57,7 @@
 #include "common/dwarf_cfi_to_module.h"
 #include "common/dwarf_cu_to_module.h"
 #include "common/dwarf_line_to_module.h"
+#include "common/linux/elf_symbols_to_module.h"
 #include "common/linux/file_id.h"
 #include "common/module.h"
 #include "common/stabs_reader.h"
@@ -224,7 +226,7 @@ class DumperLineToModule: public DwarfCUToModule::LineToModuleFunctor {
   explicit DumperLineToModule(dwarf2reader::ByteReader *byte_reader)
       : byte_reader_(byte_reader) { }
   void operator()(const char *program, uint64 length,
-                  Module *module, vector<Module::Line> *lines) {
+                  Module *module, std::vector<Module::Line> *lines) {
     DwarfLineToModule handler(module, lines);
     dwarf2reader::LineInfo parser(program, length, byte_reader_, &handler);
     parser.Start();
@@ -233,7 +235,7 @@ class DumperLineToModule: public DwarfCUToModule::LineToModuleFunctor {
   dwarf2reader::ByteReader *byte_reader_;
 };
 
-static bool LoadDwarf(const string &dwarf_filename,
+static bool LoadDwarf(const std::string &dwarf_filename,
                       const ElfW(Ehdr) *elf_header,
                       const bool big_endian,
                       Module *module) {
@@ -251,8 +253,8 @@ static bool LoadDwarf(const string &dwarf_filename,
   const ElfW(Shdr) *section_names = sections + elf_header->e_shstrndx;
   for (int i = 0; i < num_sections; i++) {
     const ElfW(Shdr) *section = &sections[i];
-    string name = reinterpret_cast<const char *>(section_names->sh_offset
-                                                 + section->sh_name);
+    std::string name = reinterpret_cast<const char *>(section_names->sh_offset +
+                                                      section->sh_name);
     const char *contents = reinterpret_cast<const char *>(section->sh_offset);
     uint64 length = section->sh_size;
     file_context.section_map[name] = std::make_pair(contents, length);
@@ -290,7 +292,7 @@ static bool LoadDwarf(const string &dwarf_filename,
 // success, or false if we don't recognize HEADER's machine
 // architecture.
 static bool DwarfCFIRegisterNames(const ElfW(Ehdr) *elf_header,
-                                  vector<string> *register_names) {
+                                  std::vector<std::string> *register_names) {
   switch (elf_header->e_machine) {
     case EM_386:
       *register_names = DwarfCFIToModule::RegisterNames::I386();
@@ -306,7 +308,7 @@ static bool DwarfCFIRegisterNames(const ElfW(Ehdr) *elf_header,
   }
 }
 
-static bool LoadDwarfCFI(const string &dwarf_filename,
+static bool LoadDwarfCFI(const std::string &dwarf_filename,
                          const ElfW(Ehdr) *elf_header,
                          const char *section_name,
                          const ElfW(Shdr) *section,
@@ -317,7 +319,7 @@ static bool LoadDwarfCFI(const string &dwarf_filename,
                          Module *module) {
   // Find the appropriate set of register names for this file's
   // architecture.
-  vector<string> register_names;
+  std::vector<std::string> register_names;
   if (!DwarfCFIRegisterNames(elf_header, &register_names)) {
     fprintf(stderr, "%s: unrecognized ELF machine architecture '%d';"
             " cannot convert DWARF call frame information\n",
@@ -531,6 +533,7 @@ static bool LoadSymbols(const std::string &obj_file,
       reinterpret_cast<ElfW(Shdr) *>(elf_header->e_shoff);
   const ElfW(Shdr) *section_names = sections + elf_header->e_shstrndx;
   bool found_debug_info_section = false;
+  bool found_usable_info = false;
 
   // Look for STABS debugging information, and load it if present.
   const ElfW(Shdr) *stab_section
@@ -540,6 +543,7 @@ static bool LoadSymbols(const std::string &obj_file,
     const ElfW(Shdr) *stabstr_section = stab_section->sh_link + sections;
     if (stabstr_section) {
       found_debug_info_section = true;
+      found_usable_info = true;
       info->LoadedSection(".stab");
       if (!LoadStabs(elf_header, stab_section, stabstr_section, big_endian,
                      module)) {
@@ -555,6 +559,7 @@ static bool LoadSymbols(const std::string &obj_file,
                           elf_header->e_shnum);
   if (dwarf_section) {
     found_debug_info_section = true;
+    found_usable_info = true;
     info->LoadedSection(".debug_info");
     if (!LoadDwarf(obj_file, elf_header, big_endian, module))
       fprintf(stderr, "%s: \".debug_info\" section found, but failed to load "
@@ -571,8 +576,10 @@ static bool LoadSymbols(const std::string &obj_file,
     // information, the other debugging information could be perfectly
     // useful.
     info->LoadedSection(".debug_frame");
-    LoadDwarfCFI(obj_file, elf_header, ".debug_frame",
-                 dwarf_cfi_section, false, 0, 0, big_endian, module);
+    bool result =
+      LoadDwarfCFI(obj_file, elf_header, ".debug_frame",
+                   dwarf_cfi_section, false, 0, 0, big_endian, module);
+    found_usable_info = found_usable_info || result;
   }
 
   // Linux C++ exception handling information can also provide
@@ -590,8 +597,10 @@ static bool LoadSymbols(const std::string &obj_file,
                         elf_header->e_shnum);
     info->LoadedSection(".eh_frame");
     // As above, ignore the return value of this function.
-    LoadDwarfCFI(obj_file, elf_header, ".eh_frame", eh_frame_section, true,
-                 got_section, text_section, big_endian, module);
+    bool result =
+      LoadDwarfCFI(obj_file, elf_header, ".eh_frame", eh_frame_section, true,
+                   got_section, text_section, big_endian, module);
+    found_usable_info = found_usable_info || result;
   }
 
   if (!found_debug_info_section) {
@@ -617,7 +626,44 @@ static bool LoadSymbols(const std::string &obj_file,
         fprintf(stderr, "%s does not contain a .gnu_debuglink section.\n",
                 obj_file.c_str());
       }
+    } else {
+      // The caller doesn't want to consult .gnu_debuglink.
+      // See if there are export symbols available.
+      const ElfW(Shdr) *dynsym_section =
+        FindSectionByName(".dynsym", sections, section_names,
+                          elf_header->e_shnum);
+      const ElfW(Shdr) *dynstr_section =
+        FindSectionByName(".dynstr", sections, section_names,
+                          elf_header->e_shnum);
+      if (dynsym_section && dynstr_section) {
+        info->LoadedSection(".dynsym");
+        fprintf(stderr, "Have .dynsym + .dynstr\n");
+
+        uint8_t* dynsyms =
+          reinterpret_cast<uint8_t*>(dynsym_section->sh_offset);
+        uint8_t* dynstrs =
+          reinterpret_cast<uint8_t*>(dynstr_section->sh_offset);
+        bool result =
+          ELFSymbolsToModule(dynsyms,
+                             dynsym_section->sh_size,
+                             dynstrs,
+                             dynstr_section->sh_size,
+                             big_endian,
+                             // This could change to something more useful
+                             // when support for dumping cross-architecture
+                             // symbols is finished.
+                             sizeof(ElfW(Addr)),
+                             module);
+        found_usable_info = found_usable_info || result;
+      }
+
+      // Return true if some usable information was found, since
+      // the caller doesn't want to use .gnu_debuglink.
+      return found_usable_info;
     }
+
+    // No debug info was found, let the user try again with .gnu_debuglink
+    // if present.
     return false;
   }
 
@@ -676,25 +722,33 @@ std::string BaseFileName(const std::string &filename) {
 
 namespace google_breakpad {
 
-bool WriteSymbolFile(const std::string &obj_file,
-                     const std::string &debug_dir, FILE *sym_file) {
-  MmapWrapper map_wrapper;
-  ElfW(Ehdr) *elf_header = NULL;
-  if (!LoadELF(obj_file, &map_wrapper, &elf_header))
+// Not explicitly exported, but not static so it can be used in unit tests.
+// Ideally obj_file would be const, but internally this code does write
+// to some ELF header fields to make its work simpler.
+bool WriteSymbolFileInternal(uint8_t* obj_file,
+                             const std::string &obj_filename,
+                             const std::string &debug_dir,
+                             bool cfi,
+                             std::ostream &sym_stream) {
+  ElfW(Ehdr) *elf_header = reinterpret_cast<ElfW(Ehdr) *>(obj_file);
+
+  if (!IsValidElf(elf_header)) {
+    fprintf(stderr, "Not a valid ELF file: %s\n", obj_filename.c_str());
     return false;
+  }
 
   unsigned char identifier[16];
-  google_breakpad::FileID file_id(obj_file.c_str());
-  if (!file_id.ElfFileIdentifierFromMappedFile(elf_header, identifier)) {
+  if (!google_breakpad::FileID::ElfFileIdentifierFromMappedFile(elf_header,
+                                                                identifier)) {
     fprintf(stderr, "%s: unable to generate file identifier\n",
-            obj_file.c_str());
+            obj_filename.c_str());
     return false;
   }
 
   const char *architecture = ElfArchitecture(elf_header);
   if (!architecture) {
     fprintf(stderr, "%s: unrecognized ELF machine architecture: %d\n",
-            obj_file.c_str(), elf_header->e_machine);
+            obj_filename.c_str(), elf_header->e_machine);
     return false;
   }
 
@@ -703,13 +757,14 @@ bool WriteSymbolFile(const std::string &obj_file,
   if (!ElfEndianness(elf_header, &big_endian))
     return false;
 
-  std::string name = BaseFileName(obj_file);
+  std::string name = BaseFileName(obj_filename);
   std::string os = "Linux";
   std::string id = FormatIdentifier(identifier);
 
   LoadSymbolsInfo info(debug_dir);
   Module module(name, os, architecture, id);
-  if (!LoadSymbols(obj_file, big_endian, elf_header, true, &info, &module)) {
+  if (!LoadSymbols(obj_filename, big_endian, elf_header, !debug_dir.empty(),
+                   &info, &module)) {
     const std::string debuglink_file = info.debuglink_file();
     if (debuglink_file.empty())
       return false;
@@ -731,7 +786,7 @@ bool WriteSymbolFile(const std::string &obj_file,
       fprintf(stderr, "%s with ELF machine architecture %s does not match "
               "%s with ELF architecture %s\n",
               debuglink_file.c_str(), debug_architecture,
-              obj_file.c_str(), architecture);
+              obj_filename.c_str(), architecture);
       return false;
     }
 
@@ -740,7 +795,7 @@ bool WriteSymbolFile(const std::string &obj_file,
       return false;
     if (debug_big_endian != big_endian) {
       fprintf(stderr, "%s and %s does not match in endianness\n",
-              obj_file.c_str(), debuglink_file.c_str());
+              obj_filename.c_str(), debuglink_file.c_str());
       return false;
     }
 
@@ -749,10 +804,23 @@ bool WriteSymbolFile(const std::string &obj_file,
       return false;
     }
   }
-  if (!module.Write(sym_file))
+  if (!module.Write(sym_stream, cfi))
     return false;
 
   return true;
+}
+
+bool WriteSymbolFile(const std::string &obj_file,
+                     const std::string &debug_dir,
+                     bool cfi,
+                     std::ostream &sym_stream) {
+  MmapWrapper map_wrapper;
+  ElfW(Ehdr) *elf_header = NULL;
+  if (!LoadELF(obj_file, &map_wrapper, &elf_header))
+    return false;
+
+  return WriteSymbolFileInternal(reinterpret_cast<uint8_t*>(elf_header),
+                                 obj_file, debug_dir, cfi, sym_stream);
 }
 
 }  // namespace google_breakpad

@@ -193,7 +193,8 @@
                                            error:error];
 
   [response_ retain];
-  
+  [req release];
+
   return data;
 }
 

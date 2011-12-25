@@ -32,9 +32,15 @@
 
 // dwarf2diehander_unittest.cc: Unit tests for google_breakpad::DIEDispatcher.
 
+#include <string>
+#include <utility>
+
 #include "breakpad_googletest_includes.h"
 
 #include "common/dwarf/dwarf2diehandler.h"
+
+using std::make_pair;
+using std::string;
 
 using ::testing::_;
 using ::testing::ContainerEq;

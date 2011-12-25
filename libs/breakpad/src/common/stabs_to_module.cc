@@ -34,6 +34,7 @@
 #include <assert.h>
 #include <cxxabi.h>
 #include <stdarg.h>
+#include <stdio.h>
 
 #include <algorithm>
 
