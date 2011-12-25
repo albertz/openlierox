@@ -10,6 +10,7 @@
 #ifndef __OLX_CONSTS_H__
 #define __OLX_CONSTS_H__
 
+#include "CodeAttributes.h"
 
 // Net status
 enum ClientNetState {
@@ -20,7 +21,7 @@ enum ClientNetState {
 	NET_ZOMBIE				// Server side only state - server won't accept any client packets and will send disconnect packets to client
 };
 
-static const char* NetStateString(ClientNetState state) {
+INLINE const char* NetStateString(ClientNetState state) {
 	switch (state) {
 		case NET_DISCONNECTED: return "NET_DISCONNECTED";
 		case NET_CONNECTING: return "NET_CONNECTING";
