@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <mach-o/arch.h>
 #include <string>
+#include <fstream>
 
 #include "common/mac/dump_syms.h"
 #include "common/mac/macho_utilities.h"
@@ -64,13 +65,16 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 		}
 	}
 	
-	FILE* f = fopen([nssymfile UTF8String], "w");
-	if(f == NULL) return false;
-	if(!dump.WriteSymbolFile(f)) {
-		fclose(f);
+	std::ofstream f;
+	try {
+		f.open([nssymfile UTF8String]);
+	}
+	catch(...) {
 		return false;
 	}
-	fclose(f);
+	if(!dump.WriteSymbolFile(f, true)) {
+		return false;
+	}
 	
 	[pool release];
 	return true;
