@@ -86,19 +86,30 @@ bool CFont::IsColumnFree(int x) {
 	return true;
 }
 
+template<int N>
+static bool isSepColor(Uint32 sepColors[], Uint32 c) {
+	for(int i = 0; i < N; ++i)
+		if(c == sepColors[i]) return true;
+	return false;
+}
+
 ///////////////////
 // Calculate character widths, number of characters and offsets
 void CFont::Parse() {
 	int x;
 	UnicodeChar CurChar = FIRST_CHARACTER;
 	int cur_w;
+	DumpPixelFormat(bmpFont->format);
 
 	// Lock the surface
 	LOCK_OR_QUIT(bmpFont);
-
-	Uint32 blue = SDL_MapRGB(bmpFont.get()->format, 0, 0, 255);
-
-	// a blue pixel always indicates a new char exept for the first
+	
+	const static int NUM_SEP_COLORS = 2;
+	Uint32 sepColors[NUM_SEP_COLORS] = {
+		// a blue pixel always indicates a new char exept for the first
+		SDL_MapRGB(bmpFont.get()->format, 0, 0, 255),
+		SDL_MapRGB(bmpFont.get()->format, 21, 20, 244)
+	};
 
 	uint char_start = 0;
 	for (x = 0; x < bmpFont.get()->w; x++) {
@@ -111,7 +122,7 @@ void CFont::Parse() {
 		if(x >= bmpFont.get()->w) break;
 		
 		// If we stopped at next blue line/end, this must be a kind of space
-		if (GetPixel(bmpFont.get(), x, 0) == blue || x == bmpFont.get()->w)  {
+		if (isSepColor<NUM_SEP_COLORS>(sepColors, GetPixel(bmpFont.get(), x, 0)) || x == bmpFont.get()->w)  {
 			cur_w = x - char_start;
 
 		// Non-blank character
@@ -121,7 +132,7 @@ void CFont::Parse() {
 
 			// Read until a blue pixel or end of the image
 			cur_w = 1;
-			while (GetPixel(bmpFont.get(), x, 0) != blue && x < bmpFont.get()->w) {
+			while (!isSepColor<NUM_SEP_COLORS>(sepColors, GetPixel(bmpFont.get(), x, 0)) && x < bmpFont.get()->w) {
 				++x;
 				++cur_w;
 			}
@@ -144,10 +155,11 @@ void CFont::Parse() {
 		CurChar++;
 	}
 
-
-
 	// Unlock the surface
 	UnlockSurface(bmpFont);
+	
+	if(NumCharacters <= 10)
+		warnings << "CFont num chars = " << NumCharacters << " is much too low" << endl;
 }
 
 ///////////////////
