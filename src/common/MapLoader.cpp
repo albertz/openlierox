@@ -375,8 +375,8 @@ class ML_LieroX : public MapLoad {
 		}
 		
 		//SDL_SaveBMP(pxf, "mat.bmp");
-		//SDL_SaveBMP(bmpImage, "front.bmp");
-		//SDL_SaveBMP(bmpBackImage, "back.bmp");
+		//SDL_SaveBMP(m->bmpImage.get(), GetWriteFullFileName("debug-front.bmp",true).c_str());
+		//SDL_SaveBMP(m->bmpBackImage.get(), GetWriteFullFileName("debug-back.bmp",true).c_str());
 		
 		// Delete the data
 		delete[] pDest;
