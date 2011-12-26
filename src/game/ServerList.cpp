@@ -31,7 +31,21 @@ static const int	MaxPings = 4;
 static const int	MaxQueries = MAX_QUERIES;
 
 
-SmartPointer<NetworkSocket>	tSocket[3];
+// tSocket is an array and just has the sockets copied from tMenu->tSocket.
+// Because there were some bugs where tMenu->tSocket was changed but our tSocket
+// was not updated, I wrapped this to just use tMenu->tSocket.
+// In the long term, it might make sense to move the socket ownage here.
+struct SocketAccessWrapper {
+	SmartPointer<NetworkSocket> operator[](int i) {
+		assert(i >= 0 && i <= 2);
+		assert(DeprecatedGUI::tMenu != NULL);
+		SmartPointer<NetworkSocket>& sock = DeprecatedGUI::tMenu->tSocket[i];
+		assert(sock.get() != NULL);
+		return sock;
+	}
+};
+SocketAccessWrapper tSocket;
+
 
 
 ServerList::Ptr ServerList::m_instance = ServerList::Ptr((ServerList *)NULL);
@@ -142,7 +156,7 @@ bool ServerListNetwork::broadcastLAN(const std::list<unsigned short>& ports, con
 void ServerListNetwork::process()
 {
 	NetworkSocket *socks[] = { &m_internet, &m_lan };
-	for (int i = 0; i < sizeof(socks)/sizeof(socks[0]); ++i)  {
+	for (uint i = 0; i < sizeof(socks)/sizeof(socks[0]); ++i)  {
 		// Read any responses
 		std::string response;
 		while (true) {
@@ -197,10 +211,7 @@ ServerList::Ptr ServerList::get()
 // Initialize the list
 ServerList::ServerList() {
     loadList("cfg/svrlist.dat", SLFT_CustomSettings);
-	loadList("cfg/favourites.dat", SLFT_Favourites);
-	
-	for(short i = 0; i < 3; ++i)
-		tSocket[i] = DeprecatedGUI::tMenu->tSocket[i];
+	loadList("cfg/favourites.dat", SLFT_Favourites);	
 }
 
 ServerList::~ServerList()
@@ -243,9 +254,6 @@ void ServerList::shutdown()
 {
 	SvrList::Writer l(psServerList);
 	l.get().clear();
-
-	for(short i = 0; i < 3; ++i)
-		tSocket[i] = NULL;
 }
 
 
