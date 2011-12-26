@@ -130,7 +130,7 @@ yy0:
 yy2:
 {  cur = 9; curData.reset(new STRING(*self, begin, YYCURSOR)); return; }
 yy3:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '%':	case '(':
 	case ')':	case '-':
 	case '.':
@@ -529,35 +529,35 @@ bool full() { return cur == 0 && !error; }
 void rule_clause() {
  Context::GSSselector& sel = self->addSelector(); 
 while(set_1[cur]) {
-if((cur == 1)) {
+if(cur == 1) {
 next();
 if(!matchToken(9)) return;
 std::auto_ptr<STRING> class_(static_cast<STRING*>(curData.release()));
 next();
  sel.addClass(class_->str); 
 }
-else if((cur == 2)) {
+else if(cur == 2) {
 next();
 if(!matchToken(9)) return;
 std::auto_ptr<STRING> id(static_cast<STRING*>(curData.release()));
 next();
  sel.addID(id->str); 
 }
-else if((cur == 3)) {
+else if(cur == 3) {
 next();
 if(!matchToken(9)) return;
 std::auto_ptr<STRING> state(static_cast<STRING*>(curData.release()));
 next();
  sel.addState(state->str); 
 }
-else if((cur == 8)) {
+else if(cur == 8) {
 next();
 if(!matchToken(9)) return;
 std::auto_ptr<STRING> group(static_cast<STRING*>(curData.release()));
 next();
  sel.addGroup(group->str); 
 }
-else if((cur == 9)) {
+else if(cur == 9) {
 std::auto_ptr<STRING> tag(static_cast<STRING*>(curData.release()));
 next();
  sel.addTag(tag->str); 
@@ -567,9 +567,9 @@ else { syntaxError(); return; }
 if(!matchToken(5)) return;
 next();
 rule_property(sel);
-while((cur == 4)) {
+while(cur == 4) {
 next();
-if((cur == 9)) {
+if(cur == 9) {
 rule_property(sel);
 }
 }
@@ -588,12 +588,12 @@ if(!matchToken(3)) return;
 next();
  std::list<std::string>& v = sel.addProperty(name->str); 
 while(set_8[cur]) {
-if((cur == 9)) {
+if(cur == 9) {
 std::auto_ptr<STRING> value(static_cast<STRING*>(curData.release()));
 next();
  v.push_back(value->str); 
 }
-else if((cur == 2)) {
+else if(cur == 2) {
 next();
 if(!matchToken(9)) return;
 std::auto_ptr<STRING> value(static_cast<STRING*>(curData.release()));

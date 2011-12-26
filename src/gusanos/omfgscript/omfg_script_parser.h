@@ -243,7 +243,7 @@ yy0:
 	default:	goto yy44;
 	}
 yy2:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case 'r':	goto yy69;
 	default:	goto yy61;
 	}
@@ -296,7 +296,7 @@ yy22:	++YYCURSOR;
 yy23:
 {  cur = 12; return; }
 yy24:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '0':
 	case '1':
 	case '2':
@@ -322,7 +322,7 @@ yy29:
 yy30:	yych = *++YYCURSOR;
 	goto yy61;
 yy31:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '.':	goto yy55;
 	case '0':
 	case '1':
@@ -558,7 +558,7 @@ yy61:	switch(yych){
 	default:	goto yy3;
 	}
 yy62:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '-':
 	case '.':
 	case '/':
@@ -642,7 +642,7 @@ yy66:	yych = *++YYCURSOR;
 	default:	goto yy61;
 	}
 yy67:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '-':
 	case '.':
 	case '/':
@@ -721,7 +721,7 @@ yy70:	yych = *++YYCURSOR;
 	default:	goto yy61;
 	}
 yy71:	++YYCURSOR;
-	switch((yych = *YYCURSOR)) {
+	switch(yych = *YYCURSOR) {
 	case '-':
 	case '.':
 	case '/':
@@ -1000,7 +1000,7 @@ rule_parameters(*param);
 if(!matchToken(6)) return;
 next();
  std::vector< boost::shared_ptr<BaseAction> > actions; 
-while((cur == 16)) {
+while(cur == 16) {
 rule_action(event, actions);
 }
 
@@ -1017,11 +1017,11 @@ void rule_expr(TokenBase::ptr& a) {
 Location exprLoc(self->getLoc());
 rule_term(a);
 while(set_3[cur]) {
-if((cur == 12)) {
+if(cur == 12) {
 next();
  t = 0; 
 }
-else if((cur == 13)) {
+else if(cur == 13) {
 next();
  t = 1; 
 }
@@ -1037,23 +1037,23 @@ rule_term(b);
 }
 }
 void rule_leaf(TokenBase::ptr& a) {
-if((cur == 1)) {
+if(cur == 1) {
 next();
  a.reset(new INTEGER(*self, 1)); 
 }
-else if((cur == 2)) {
+else if(cur == 2) {
 next();
  a.reset(new INTEGER(*self, 0)); 
 }
-else if((cur == 16)) {
+else if(cur == 16) {
 std::auto_ptr<STRING> x(static_cast<STRING*>(curData.release()));
 next();
-if((cur == 5)) {
+if(cur == 5) {
  auto_ptr<Func> l(new Func(self->getLoc(), x->str)); TokenBase::ptr el; 
 next();
 rule_leaf(el);
  l->add(el); 
-while((cur == 11)) {
+while(cur == 11) {
 next();
 rule_leaf(el);
  l->add(el); 
@@ -1067,20 +1067,20 @@ else if(true) {
 }
 else { syntaxError(); return; }
 }
-else if((cur == 17)) {
+else if(cur == 17) {
 a.reset(curData.release());
 next();
 }
-else if((cur == 18)) {
+else if(cur == 18) {
 a.reset(curData.release());
 next();
 }
-else if((cur == 7)) {
+else if(cur == 7) {
  auto_ptr<List> l(new List(self->getLoc())); TokenBase::ptr el; 
 next();
 rule_expr(el);
  l->add(el); 
-while((cur == 11)) {
+while(cur == 11) {
 next();
 rule_expr(el);
  l->add(el); 
@@ -1089,7 +1089,7 @@ if(!matchToken(8)) return;
 next();
  a = l; 
 }
-else if((cur == 5)) {
+else if(cur == 5) {
 next();
 rule_expr(a);
 if(!matchToken(6)) return;
@@ -1098,20 +1098,20 @@ next();
 else { syntaxError(); return; }
 }
 void rule_lines() {
-while((cur == 16)) {
+while(cur == 16) {
 rule_prop();
 }
-while((cur == 3)) {
+while(cur == 3) {
 rule_event();
 }
 }
 void rule_parameter(Parameters& params) {
  TokenBase::ptr v; 
 Location paramLoc(self->getLoc());
-if((cur == 16)) {
+if(cur == 16) {
 std::auto_ptr<STRING> name(static_cast<STRING*>(curData.release()));
 next();
-if((cur == 4)) {
+if(cur == 4) {
 next();
 rule_expr(v);
  params.addParam(name->str, v, paramLoc); 
@@ -1129,7 +1129,7 @@ else { syntaxError(); return; }
 }
 void rule_parameters(Parameters& params) {
 rule_parameter(params);
-while((cur == 11)) {
+while(cur == 11) {
 next();
 rule_parameter(params);
 }
@@ -1140,14 +1140,14 @@ Location propLoc(self->getLoc());
 if(!matchToken(16)) return;
 std::auto_ptr<STRING> name(static_cast<STRING*>(curData.release()));
 next();
-if((cur == 4)) {
+if(cur == 4) {
 next();
 rule_expr(v);
  self->property(prefix + name->str, v.release(), propLoc); 
 }
-else if((cur == 9)) {
+else if(cur == 9) {
 next();
-while((cur == 16)) {
+while(cur == 16) {
 rule_prop((*name).str + "_");
 }
 if(!matchToken(10)) return;
@@ -1160,11 +1160,11 @@ void rule_term(TokenBase::ptr& a) {
 Location termLoc(self->getLoc());
 rule_leaf(a);
 while(set_17[cur]) {
-if((cur == 14)) {
+if(cur == 14) {
 next();
  t = 0; 
 }
-else if((cur == 15)) {
+else if(cur == 15) {
 next();
  t = 1; 
 }
