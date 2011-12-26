@@ -12,6 +12,7 @@
 #include "Cache.h"
 #include "CMap.h"
 #include "EndianSwap.h"
+#include "PixelFunctors.h"
 #ifndef DEDICATED_ONLY
 #include <gd.h>
 #endif
@@ -193,9 +194,9 @@ public:
 						p==104)
 					type = PX_ROCK;
 				
-				PutPixel(m->bmpImage.get(),x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
+				PutPixel(m->bmpImage.get(),x,y, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpImage->format));
 				if(type == PX_EMPTY)
-					PutPixel(m->bmpBackImage.get(),x,y, MakeColour(palette[p*3], palette[p*3+1], palette[p*3+2]));
+					PutPixel(m->bmpBackImage.get(),x,y, Pack(Color(palette[p*3], palette[p*3+1], palette[p*3+2]), m->bmpBackImage->format));
 				m->SetPixelFlag(x,y,type);
 				//}
 				n++;
@@ -229,7 +230,7 @@ class ML_LieroX : public MapLoad {
 		// Header
 		id = freadfixedcstr(fp, 32);
 		int	version = 0;
-		fread_endian<int>(fp, version);
+		fread_endian<Sint32>(fp, version);
 		
 		// Check to make sure it's a valid level file
 		if((id != "LieroX Level" && id != "LieroX CTF Level") || version != MAP_VERSION) {
@@ -241,11 +242,11 @@ class ML_LieroX : public MapLoad {
 		ctf = (id == "LieroX CTF Level"); // TODO: there's no CTF maps around, and it was a hack, remove it
 		
 		head.name = freadfixedcstr(fp, 64);		
-		fread_endian<int>(fp, head.width);
-		fread_endian<int>(fp, head.height);
-		fread_endian<int>(fp, (int&)Type);
+		fread_endian<Sint32>(fp, head.width);
+		fread_endian<Sint32>(fp, head.height);
+		fread_endian<Sint32>(fp, (int&)Type);
 		Theme_Name = freadfixedcstr(fp, 32);
-		fread_endian<int>(fp, (int&)numobj);
+		fread_endian<Sint32>(fp, (int&)numobj);
 		
 		return true;
 	}
@@ -304,7 +305,6 @@ class ML_LieroX : public MapLoad {
 		LOCK_OR_FAIL(m->bmpImage);
 		
 		Uint64 p=0;
-		Uint32 curcolor=0;
 		Uint8* curpixel = (Uint8*)m->bmpBackImage.get()->pixels;
 		Uint8* PixelRow = curpixel;
 		
@@ -313,7 +313,7 @@ class ML_LieroX : public MapLoad {
 		for (Sint64 y = 0; y < head.height; y++, PixelRow += m->bmpBackImage.get()->pitch)  {
 			curpixel = PixelRow;
 			for (Sint64 x = 0; x < head.width; x++, curpixel += bpp)  {
-				curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+				Uint32 curcolor = Pack(Color(pDest[p], pDest[p+1], pDest[p+2]), m->bmpBackImage->format);
 				p += 3;
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
@@ -325,7 +325,7 @@ class ML_LieroX : public MapLoad {
 		for (Sint64 y = 0; y < head.height; y++, PixelRow += m->bmpImage.get()->pitch)  {
 			curpixel = PixelRow;
 			for (Sint64 x = 0;x < head.width; x++, curpixel += bpp)  {
-				curcolor = MakeColour(pDest[p], pDest[p+1], pDest[p+2]);
+				Uint32 curcolor = Pack(Color(pDest[p], pDest[p+1], pDest[p+2]), m->bmpImage->format);
 				p += 3;
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
@@ -365,13 +365,13 @@ class ML_LieroX : public MapLoad {
 		// Load the CTF gametype variables
 		if (ctf)  {
 			warnings << "CMap::LoadImageFormat(): trying to load old-format CTF map, we do not support this anymore" << endl;
-			short dummy;
-			fread_endian<short>(fp, dummy);
-			fread_endian<short>(fp, dummy);
-			fread_endian<short>(fp, dummy);
-			fread_endian<short>(fp, dummy);
-			fread_endian<short>(fp, dummy);
-			fread_endian<short>(fp, dummy);
+			Uint16 dummy;
+			fread_endian<Uint16>(fp, dummy);
+			fread_endian<Uint16>(fp, dummy);
+			fread_endian<Uint16>(fp, dummy);
+			fread_endian<Uint16>(fp, dummy);
+			fread_endian<Uint16>(fp, dummy);
+			fread_endian<Uint16>(fp, dummy);
 		}
 		
 		//SDL_SaveBMP(pxf, "mat.bmp");
@@ -538,7 +538,7 @@ class ML_LieroX : public MapLoad {
 			curpixel = PixelRow;
 			for (Sint64 x = 0; x < head.width*2; x++, curpixel += bpp)  {
 				curcolor = gdImageGetTrueColorPixel( gdImage, (int)x, (int)y ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
-				curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
+				curcolor = Pack(Color(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor)), m->bmpDrawImage->format);
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
 		}
@@ -551,7 +551,7 @@ class ML_LieroX : public MapLoad {
 			curpixel = PixelRow;
 			for (Sint64 x = 0; x < head.width*2; x++, curpixel += bpp)  {
 				curcolor = gdImageGetTrueColorPixel( gdImage, (int)x, (int)y + (int)HeightX2 ); // Maybe we can make direct memory access, but PNG may be palette-based, and I'm too lazy
-				curcolor = MakeColour(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor));
+				curcolor = Pack(Color(gdTrueColorGetRed(curcolor), gdTrueColorGetGreen(curcolor), gdTrueColorGetBlue(curcolor)), m->bmpBackImageHiRes->format);
 				PutPixelToAddr(curpixel, curcolor, bpp);
 			}
 		}
@@ -712,13 +712,13 @@ class ML_LieroX : public MapLoad {
 		object_t o;
 		m->NumObjects = 0;
 		for(int i = 0; i < numobj; i++) {
-			fread_compat(o.Type,	sizeof(int),	1,	fp);
+			fread_compat(o.Type,	sizeof(Sint32),	1,	fp);
 			EndianSwap(o.Type);
-			fread_compat(o.Size,	sizeof(int),	1,	fp);
+			fread_compat(o.Size,	sizeof(Sint32),	1,	fp);
 			EndianSwap(o.Size);
-			fread_compat(o.X,	    sizeof(int),	1,	fp);
+			fread_compat(o.X,	    sizeof(Sint32),	1,	fp);
 			EndianSwap(o.X);
-			fread_compat(o.Y,	    sizeof(int),	1,	fp);
+			fread_compat(o.Y,	    sizeof(Sint32),	1,	fp);
 			EndianSwap(o.Y);
 			
 			// Place the object
