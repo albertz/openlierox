@@ -108,8 +108,8 @@ Iterator<std::string>::Ref gusFileListIter(
 										const filemodes_t modefilter = -1);
 
 
-int makecol(int r, int g, int b);
-int makecol_depth(int color_depth, int r, int g, int b);
+Uint32 makecol(int r, int g, int b);
+Uint32 makecol_depth(int color_depth, int r, int g, int b);
 
 #define TRACE printf
 #define allegro_message(str) notes("Allegro: " str "\n")

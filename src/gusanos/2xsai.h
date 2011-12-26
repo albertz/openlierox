@@ -1,19 +1,13 @@
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif
+#ifndef __OLX__2XSAI_H__
+#define __OLX__2XSAI_H__
 
-#define uint32 unsigned long
-#define uint16 unsigned short
-#define uint8 unsigned char
+#include <stdint.h>
 
 int Init_2xSaI(int depth);
 void Super2xSaI(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h);
-void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height);
+void Super2xSaI_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BITMAP *dest, uint32_t width, uint32_t height);
 
 void SuperEagle(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, int d_x, int d_y, int w, int h);
-void SuperEagle_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height);
+void SuperEagle_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BITMAP *dest, uint32_t width, uint32_t height);
 
-//#ifdef __cplusplus
-//}
-//#endif
+#endif

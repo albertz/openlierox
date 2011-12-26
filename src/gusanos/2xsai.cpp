@@ -1,18 +1,15 @@
 #include <string.h>
+#include <stdint.h>
 #include "gusanos/allegro.h"
 #include "2xsai.h"
 
-#define uint32 unsigned long
-#define uint16 unsigned short
-#define uint8 unsigned char
 
-
-static uint32 colorMask = 0xF7DEF7DE;
-static uint32 lowPixelMask = 0x08210821;
-static uint32 qcolorMask = 0xE79CE79C;
-static uint32 qlowpixelMask = 0x18631863;
-static uint32 redblueMask = 0xF81F;
-static uint32 greenMask = 0x7E0;
+static uint32_t colorMask = 0xF7DEF7DE;
+static uint32_t lowPixelMask = 0x08210821;
+static uint32_t qcolorMask = 0xE79CE79C;
+static uint32_t qlowpixelMask = 0x18631863;
+static uint32_t redblueMask = 0xF81F;
+static uint32_t greenMask = 0x7E0;
 static int PixelsPerMask = 2;
 static int xsai_depth = 0;
 
@@ -21,14 +18,13 @@ static int xsai_depth = 0;
 int Init_2xSaI(int d)
 {
 
-	int minr = 0, ming = 0, minb = 0;
-	int i;
+	Uint32 minr = 0, ming = 0, minb = 0;
 	
 	if (d != 15 && d != 16 && d != 24 && d != 32)
 		return -1;
 
 	/* Get lowest color bit */	
-	for (i = 0; i < 255; i++) {
+	for (int i = 0; i < 255; i++) {
 		if (!minr)
 			minr = makecol(i, 0, 0);
 		if (!ming)
@@ -53,10 +49,10 @@ int Init_2xSaI(int d)
 		qlowpixelMask |= (qlowpixelMask << 16);
 	}
 
-	TRACE("Color Mask:       0x%lX\n", colorMask);
-	TRACE("Low Pixel Mask:   0x%lX\n", lowPixelMask);
-	TRACE("QColor Mask:      0x%lX\n", qcolorMask);
-	TRACE("QLow Pixel Mask:  0x%lX\n", qlowpixelMask);
+	TRACE("Color Mask:       0x%X\n", colorMask);
+	TRACE("Low Pixel Mask:   0x%X\n", lowPixelMask);
+	TRACE("QColor Mask:      0x%X\n", qcolorMask);
+	TRACE("QLow Pixel Mask:  0x%X\n", qlowpixelMask);
 	
 	xsai_depth = d;
 
@@ -64,7 +60,7 @@ int Init_2xSaI(int d)
 }
 
 /* Not used
-static int GetResult1(uint32 A, uint32 B, uint32 C, uint32 D)
+static int GetResult1(uint32_t A, uint32_t B, uint32_t C, uint32_t D)
 {
 	int x = 0;
 	int y = 0;
@@ -85,7 +81,7 @@ static int GetResult1(uint32 A, uint32 B, uint32 C, uint32 D)
 }*/
 
 /* Not used
-static int GetResult2(uint32 A, uint32 B, uint32 C, uint32 D, uint32 E)
+static int GetResult2(uint32_t A, uint32_t B, uint32_t C, uint32_t D, uint32_t E)
 {
 	int x = 0;
 	int y = 0;
@@ -217,7 +213,7 @@ void Super2xSaI(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, i
 	return;
 }
 
-void Super2xSaI_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height) {
+void Super2xSaI_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BITMAP *dest, uint32_t width, uint32_t height) {
 
 	int j, v;
 	unsigned int x, y;
@@ -478,7 +474,7 @@ void SuperEagle(ALLEGRO_BITMAP * src, ALLEGRO_BITMAP * dest, int s_x, int s_y, i
 	return;
 }
 
-void SuperEagle_ex(uint8 *src, uint32 src_pitch, uint8 *unused, ALLEGRO_BITMAP *dest, uint32 width, uint32 height) {
+void SuperEagle_ex(uint8_t *src, uint32_t src_pitch, uint8_t *unused, ALLEGRO_BITMAP *dest, uint32_t width, uint32_t height) {
 
 	int j, v;
 	unsigned int x, y;

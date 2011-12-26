@@ -491,8 +491,8 @@ static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {
 		;
 }
 
-int makecol(int r, int g, int b) { return makecol_intern(r,g,b); }
-int makecol_depth(int color_depth, int r, int g, int b) {
+Uint32 makecol(int r, int g, int b) { return makecol_intern(r,g,b); }
+Uint32 makecol_depth(int color_depth, int r, int g, int b) {
 	return makecol(r,g,b);
 	//return SDL_MapRGB(&pixelformat[color_depth/8],r,g,b);
 }
