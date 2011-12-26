@@ -67,7 +67,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->image()->w, iY+2+(ItemHeight - tLX->cFont.GetHeight()) / 2, tLX->clDisabled, buf);
 			}
 			else  {
-				stripdot(buf,iWidth-(3 + bGotScrollbar ? 15 : 0));
+				stripdot(buf,iWidth-(3 + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDisabled,buf);
 			}
 		}
@@ -128,7 +128,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			if (item->image().get())  {
 				// Draw the image
 				item->image()->draw(bmpDest,iX+3,y);
-				stripped = stripdot(buf,iWidth - (8 + item->image()->w + bGotScrollbar ? 15 : 0));
+				stripped = stripdot(buf,iWidth - (8 + item->image()->w + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+8+item->image()->w, y + (ItemHeight-tLX->cFont.GetHeight())/2, tLX->clDropDownText,buf);
 				if (stripped && selected)  {
 					int x1 = iX+4+item->image()->w;
@@ -146,7 +146,7 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 				}
 			}
 			else  {
-				stripped = stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
+				stripped = stripdot(buf,iWidth - (3 + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+3, y+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 				if (stripped && selected)  {
 					int x1 = iX+4;
@@ -175,11 +175,11 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 			buf = getItemRW(iSelected)->caption();
 			if (getItemRW(iSelected)->image().get())  {
 				getItemRW(iSelected)->image()->draw(bmpDest,iX+3,iY+1);
-				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->image()->w + bGotScrollbar ? 15 : 0));
+				stripdot(buf,iWidth - (8 + getItemRW(iSelected)->image()->w + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+8+getItemRW(iSelected)->image()->w, iY+2+(ItemHeight/2)-(tLX->cFont.GetHeight() / 2), tLX->clDropDownText, buf);
 			}
 			else  {
-				stripdot(buf,iWidth - (3 + bGotScrollbar ? 15 : 0));
+				stripdot(buf,iWidth - (3 + (bGotScrollbar ? 15 : 0)));
 				tLX->cFont.Draw(bmpDest, iX+3, iY+2, tLX->clDropDownText, buf);
 			}
 		}
