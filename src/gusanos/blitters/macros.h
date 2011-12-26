@@ -183,7 +183,7 @@
 			long a##end1 = a##1 & ~fracmask; \
 			long b##end1 = b##1 + (grad*(one - (a##1 - a##end1) + half) >> prec); \
 			long a##end2 = a##2 & ~fracmask; \
-			long b##end2 = b##2 - (grad*(a##2 - a##end2) >> prec); \
+			/* not used (?) long b##end2 = b##2 - (grad*(a##2 - a##end2) >> prec); */ \
 			long b##f = b##end1 - half; \
 			long draw##a = (a##end1 + one + half) >> prec; /* TODO: Draw endpoints */  \
 			long c = (a##end2 - a##end1) >> prec; \
