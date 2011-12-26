@@ -16,11 +16,14 @@
 // Created 12/11/01
 // By Jason Boettcher
 
-
+#define USE_GD_FOR_IMAGE_LOADING 1
 
 #include <cassert>
 #include <SDL.h>
 #include <algorithm>
+#if USE_GD_FOR_IMAGE_LOADING
+#include <gd.h>
+#endif
 
 #include "LieroX.h"
 #include "Options.h"
@@ -2592,6 +2595,14 @@ void DumpPixelFormat(const SDL_PixelFormat* format) {
 	notes << str.str() << endl;
 }
 
+void DumpSurface(SDL_Surface* s) {
+	DumpPixelFormat(s->format);
+	for(int y = 0; y < MIN(10, s->h); ++y) {
+		for(int x = 0; x < MIN(10, s->w); ++x)
+			printf(" %.8X", GetPixel(s, x, y));
+		printf("\n");
+	}
+}
 
 bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2) {
 	return
@@ -2607,6 +2618,38 @@ bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format) {
 	return PixelFormatEqual(getMainPixelFormat(), format);
 }
 
+
+#if USE_GD_FOR_IMAGE_LOADING
+///////////////////////
+// Converts the gdImagePtr to SDL_surface
+static SmartPointer<SDL_Surface> GDImage2SDLSurface(gdImagePtr src) {
+	SmartPointer<SDL_Surface> dst;
+	if(gdImageGetTransparent(src))
+		dst = gfxCreateSurfaceAlpha(gdImageSX(src), gdImageSY(src));
+	else
+		dst = gfxCreateSurface(gdImageSX(src), gdImageSY(src));
+	if(!dst.get()) return NULL;
+		
+	if (!LockSurface(dst)) return NULL;
+	
+	for(int y = 0; y < dst->h; y++) 
+		for(int x = 0; x < dst->w; ++x) {
+			Uint32 px = gdImageGetTrueColorPixel(src, x, y);
+			Color c;
+			c.r = px >> 16;
+			c.g = px >> 8;
+			c.b = px;
+			c.a = 0x7f - (px >> 24);
+			c.a *= 2;
+			if(c.a > 0x7f && c.a <= 0xfe) c.a++;
+			PutPixel(dst.get(), x, y, Pack(c, dst->format));
+		}
+	
+	UnlockSurface(dst);
+	
+	return dst;
+}
+#endif
 
 
 ////////////////////////
@@ -2628,6 +2671,34 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 			return ImageCache;
 	}
 	
+#if USE_GD_FOR_IMAGE_LOADING
+	FILE* f = OpenGameFile(_filename, "r");
+	if(f == NULL) return NULL;
+	
+	std::string ext = GetFileExtensionWithDot(_filename);
+	stringlwr(ext);
+	gdImagePtr src = NULL;
+	if(ext == ".bmp")
+		src = gdImageCreateFromWBMP(f);
+	else if(ext == ".jpg" || ext == ".jpeg")
+		src = gdImageCreateFromJpeg(f);
+	else if(ext == ".png")
+		src = gdImageCreateFromPng(f);
+	else if(ext == ".gif")
+		src = gdImageCreateFromGif(f);
+	else {
+		errors << "LoadGameImage: file extension unknown: " << _filename << endl;
+		return NULL;
+	}
+	
+	if(src == NULL) {
+		errors << "LoadGameImage: cannot load: " << _filename << endl;
+		return NULL;
+	}	
+	SmartPointer<SDL_Surface> Image = GDImage2SDLSurface(src);
+	gdImageDestroy(src);
+	
+#else // load via SDL_Image, i.e. IMG_Load
 	// Load the image
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
@@ -2664,7 +2735,8 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
 	}
-
+#endif
+	
 	if(!Image.get()) {
 		errors << "LoadGameImage: cannot create new surface" << endl;
 		return NULL;
