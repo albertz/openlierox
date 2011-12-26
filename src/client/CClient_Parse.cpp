@@ -267,13 +267,6 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 
 	// Setup the client
 	client->iNetStatus = NET_CONNECTED;
-
-	if( client->iNumWorms < 0 ) {
-		errors << "client->iNumWorms = " << client->iNumWorms << " is less than zero" << endl;
-		client->Disconnect();
-		return;
-	}
-	
 	
 	
 	// Get the id's
