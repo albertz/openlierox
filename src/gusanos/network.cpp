@@ -137,11 +137,6 @@ namespace
 		GusGame::classID = m_control->Net_registerClass("gusGame",0);
 		Particle::classID = m_control->Net_registerClass("particle",Net_CLASSFLAG_ANNOUNCEDATA);
 	}
-
-	std::string disconnectCmd(std::list<std::string> const& args)
-	{
-		return "Gusanos disconnect command not available";
-	}
 }
 
 Network network;
