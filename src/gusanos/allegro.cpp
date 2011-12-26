@@ -66,7 +66,7 @@ ALLEGRO_BITMAP *create_bitmap_from_sdl(const SmartPointer<SDL_Surface>& surf) {
 		return NULL;
 }
 
-static void
+void
 graphics_dump_palette(SDL_Surface* p_bitmap)
 {
     for(int l_i = 0; l_i < p_bitmap->format->palette->ncolors; l_i++) {
