@@ -10,8 +10,8 @@ namespace Parser
 	
 	const vector<string> tokenize(const string &text)
 	{
-		unsigned int left = 0;
-		unsigned int right = 0;
+		size_t left = 0;
+		size_t right = 0;
 	
 		string lastChar = " ";
 		
