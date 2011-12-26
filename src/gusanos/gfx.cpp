@@ -50,7 +50,6 @@ namespace
 	int m_clearBuffer = 0;
 	int m_filter = NO_FILTER;
 	int m_driver = GFX_AUTODETECT;
-	int m_bitdepth = 32;
 
 	ALLEGRO_BITMAP* m_doubleResBuffer = 0;
 	SpriteSet* mouseCursor = 0;
@@ -155,11 +154,9 @@ Gfx::~Gfx()
 void Gfx::init()
 {	
 #ifndef DEDICATED_ONLY
-	set_color_depth(m_bitdepth); //Ugh
-
 	doubleResChange(); // This calls fullscreenChange() that sets the gfx mode
 	
-	Init_2xSaI(m_bitdepth); // needed for SUPER2XSAI and SUPEREAGLE filters
+	Init_2xSaI(32); // needed for SUPER2XSAI and SUPEREAGLE filters
 	
 	buffer = create_bitmap(640,480); // this is because we may need up to this size for the sizefactor
 	//buffer = create_bitmap(320,240);
@@ -191,7 +188,7 @@ void Gfx::registerInConsole()
 		("VID_DOUBLERES", &m_doubleRes, 0, doubleRes)
 		("VID_VSYNC", &m_vsync, 0)
 		("VID_CLEAR_BUFFER", &m_clearBuffer, 0)
-		("VID_BITDEPTH", &m_bitdepth, 32)
+		//("VID_BITDEPTH", &m_bitdepth, 32)
 		("VID_DISTORTION_AA", &m_distortionAA, 1)
 		("VID_HAX_WORMLIGHT", &m_haxWormLight, 1)
 		//("VID_DARK_MODE", &darkMode, 0)
@@ -660,7 +657,6 @@ int Gfx::getGraphicsDriver()
 
 void Gfx::fullscreenChange()
 {
-	set_color_depth(m_bitdepth);
 	//destroy_bitmap( videobuffer );
 	
 	// TODO: I suppose that changing graphics driver will clear out bitmaps and such

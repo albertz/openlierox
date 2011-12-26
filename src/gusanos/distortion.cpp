@@ -144,9 +144,7 @@ DistortionMap* randomMap(int radius)
 
 DistortionMap* bitmapMap(const string &filename)
 {
-	int currVdepth = get_color_depth();
-	
-	set_color_depth(32);
+	LocalSetColorDepth localDepth(32);
 	
 	DistortionMap* lens = new DistortionMap;
 	
@@ -180,9 +178,7 @@ DistortionMap* bitmapMap(const string &filename)
 	{
 		lens->width = 0;
 	}
-	
-	set_color_depth(currVdepth);
-	
+		
 	return lens;
 }
 
