@@ -84,7 +84,7 @@ namespace{
 		OpenGameFileR(fileStream, filename, std::ios::binary | std::ios::in);
 
 		if (!fileStream )
-			return false;
+			return NULL;
 		
 		OmfgScript::Parser parser(fileStream, gameActions, filename);
 		
@@ -94,7 +94,7 @@ namespace{
 		if(!parser.run())
 		{
 			parser.error("Trailing garbage");
-			return false;
+			return NULL;
 		}
 		
 		LevelConfig* returnConf = new LevelConfig;
