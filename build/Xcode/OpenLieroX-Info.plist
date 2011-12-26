@@ -18,6 +18,8 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>0.59</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.action-games</string>
 	<key>NSMainNibFile</key>
 	<string>SDLMain</string>
 	<key>NSPrincipalClass</key>
