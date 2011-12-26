@@ -77,7 +77,7 @@ graphics_dump_palette(SDL_Surface* p_bitmap)
     }
 }
 
-static void dumpUsedColors(SDL_Surface* surf);
+void dumpUsedColors(SDL_Surface* surf);
 
 
 ALLEGRO_BITMAP* screen = NULL;
@@ -410,7 +410,7 @@ static int getpixel__nocheck(SDL_Surface *surf, int x, int y) {
 	return 0;
 }
 
-static void dumpUsedColors(SDL_Surface* surf) {
+void dumpUsedColors(SDL_Surface* surf) {
 	std::set<Uint32> cols;
 	for(int y = surf->h - 1; y >= 0; --y) {
 		for(int x = surf->w - 1; x >= 0; --x) {
