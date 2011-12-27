@@ -281,8 +281,6 @@
 		23C34E0A10CC40CD00DABBD6 /* resource_locator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E0610CC40CD00DABBD6 /* resource_locator.cpp */; };
 		23C34E4510CC448F00DABBD6 /* allegro.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E3D10CC448F00DABBD6 /* allegro.cpp */; };
 		23C34E4610CC448F00DABBD6 /* hash_table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E3F10CC448F00DABBD6 /* hash_table.cpp */; };
-		23C34E4710CC448F00DABBD6 /* keyboard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E4110CC448F00DABBD6 /* keyboard.cpp */; };
-		23C34E4810CC448F00DABBD6 /* keys.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E4310CC448F00DABBD6 /* keys.cpp */; };
 		23C34E9610CC4AC400DABBD6 /* animators.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E6710CC4AC400DABBD6 /* animators.cpp */; };
 		23C34E9710CC4AC400DABBD6 /* culling.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E6910CC4AC400DABBD6 /* culling.cpp */; };
 		23C34E9810CC4AC400DABBD6 /* detect_event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34E6B10CC4AC400DABBD6 /* detect_event.cpp */; };
@@ -1145,10 +1143,6 @@
 		23C34E3E10CC448F00DABBD6 /* allegro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = allegro.h; sourceTree = "<group>"; };
 		23C34E3F10CC448F00DABBD6 /* hash_table.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = hash_table.cpp; sourceTree = "<group>"; };
 		23C34E4010CC448F00DABBD6 /* hash_table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hash_table.h; sourceTree = "<group>"; };
-		23C34E4110CC448F00DABBD6 /* keyboard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = keyboard.cpp; sourceTree = "<group>"; };
-		23C34E4210CC448F00DABBD6 /* keyboard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keyboard.h; sourceTree = "<group>"; };
-		23C34E4310CC448F00DABBD6 /* keys.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = keys.cpp; sourceTree = "<group>"; };
-		23C34E4410CC448F00DABBD6 /* keys.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keys.h; sourceTree = "<group>"; };
 		23C34E6710CC4AC400DABBD6 /* animators.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = animators.cpp; sourceTree = "<group>"; };
 		23C34E6810CC4AC400DABBD6 /* animators.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = animators.h; sourceTree = "<group>"; };
 		23C34E6910CC4AC400DABBD6 /* culling.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = culling.cpp; sourceTree = "<group>"; };
@@ -2217,10 +2211,6 @@
 				23C34E3E10CC448F00DABBD6 /* allegro.h */,
 				23C34E3F10CC448F00DABBD6 /* hash_table.cpp */,
 				23C34E4010CC448F00DABBD6 /* hash_table.h */,
-				23C34E4110CC448F00DABBD6 /* keyboard.cpp */,
-				23C34E4210CC448F00DABBD6 /* keyboard.h */,
-				23C34E4310CC448F00DABBD6 /* keys.cpp */,
-				23C34E4410CC448F00DABBD6 /* keys.h */,
 				23C34E0210CC40CD00DABBD6 /* resource_base.cpp */,
 				23C34E0310CC40CD00DABBD6 /* resource_base.h */,
 				23C34E0410CC40CD00DABBD6 /* resource_list.cpp */,
@@ -3565,8 +3555,6 @@
 				23C34E0A10CC40CD00DABBD6 /* resource_locator.cpp in Sources */,
 				23C34E4510CC448F00DABBD6 /* allegro.cpp in Sources */,
 				23C34E4610CC448F00DABBD6 /* hash_table.cpp in Sources */,
-				23C34E4710CC448F00DABBD6 /* keyboard.cpp in Sources */,
-				23C34E4810CC448F00DABBD6 /* keys.cpp in Sources */,
 				23C34E9610CC4AC400DABBD6 /* animators.cpp in Sources */,
 				23C34E9710CC4AC400DABBD6 /* culling.cpp in Sources */,
 				23C34E9810CC4AC400DABBD6 /* detect_event.cpp in Sources */,
