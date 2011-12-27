@@ -215,13 +215,13 @@ __INLINE__ int is_video_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 int getpixel(ALLEGRO_BITMAP *bmp, int x, int y);
-void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, int color);
-void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, int color);
-void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, int color);
-void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color);
-void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, int color);
-void clear_to_color(struct ALLEGRO_BITMAP *bitmap, int color);
+void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color);
+void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, Uint32 color);
+void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, Uint32 color);
+void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color);
+void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, Uint32 color);
+void clear_to_color(struct ALLEGRO_BITMAP *bitmap, Uint32 color);
 void draw_sprite(ALLEGRO_BITMAP *bmp, ALLEGRO_BITMAP *sprite, int x, int y);
 void draw_sprite_h_flip(struct ALLEGRO_BITMAP *bmp, struct ALLEGRO_BITMAP *sprite, int x, int y);
 

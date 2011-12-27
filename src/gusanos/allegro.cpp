@@ -328,18 +328,18 @@ int getpixel(ALLEGRO_BITMAP *bmp, int x, int y) {
 	return getpixel__nocheck(bmp, x, y);
 }
 
-void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, int color) {
+void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color) {
 	if(!coord_in_bmp(bmp, x, y)) return;
 	putpixel__nocheck(bmp, x, y, color);
 }
 
 
 
-static Color allegcol_to_Col(int col) {
+static Color allegcol_to_Col(Uint32 col) {
 	return Color(getr(col), getg(col), getb(col), SDL_ALPHA_OPAQUE);
 }
 
-void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, int color) {
+void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x, y1);
 	sub_to_abs_coords_y(bmp, y2);
 	DrawVLine(bmp->surf.get(), y1, y2, x, allegcol_to_Col(color));
@@ -348,7 +348,7 @@ void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, int color) {
 			putpixel(bmp, x, y, color);*/
 }
 
-void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, int color) {
+void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y);
 	sub_to_abs_coords_x(bmp, x2);
 	DrawHLine(bmp->surf.get(), x1, x2, y, allegcol_to_Col(color));
@@ -357,26 +357,26 @@ void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, int color) {
 			putpixel(bmp, x, y, color);*/
 }
 
-void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
 	DrawLine(bmp->surf.get(), x1, y1, x2, y2, allegcol_to_Col(color));
 }
 
-void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, int color) {
+void rectfill(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y1);
 	sub_to_abs_coords(bmp, x2, y2);
 	SDL_Rect rect = { x1, y1, x2 - x1, y2 - y1 };
 	SDL_FillRect(bmp->surf.get(), &rect, color);
 }
 
-void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, int color) {
+void circle(ALLEGRO_BITMAP *bmp, int x, int y, int radius, Uint32 color) {
 	sub_to_abs_coords(bmp, x, y);
 	DrawCircleFilled(bmp->surf.get(), x, y, radius, radius, allegcol_to_Col(color));
 }
 
 
-void clear_to_color(ALLEGRO_BITMAP *bmp, int color) {
+void clear_to_color(ALLEGRO_BITMAP *bmp, Uint32 color) {
 	rectfill(bmp, 0,0, bmp->w, bmp->h, color);
 }
 
