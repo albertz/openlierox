@@ -42,50 +42,6 @@ void Check::process()
 {
 }
 
-//Sends a mouse button down event
-bool Check::mouseDown(ulong newX, ulong newY, Context::MouseKey::type button)
-{
-	if(button == Context::MouseKey::Left)
-	{
-		doSetActivation(true);
-		return false;
-	}
-	return true;
-}
-
-//Sends a mouse button up event
-bool Check::mouseUp(ulong newX, ulong newY, Context::MouseKey::type button)
-{
-	if(button == Context::MouseKey::Left)
-	{
-		if(m_rect.isInside(newX, newY))
-		{
-			toggleState();
-			if(!doAction())
-				doSetActivation(false);
-		}
-		else
-			doSetActivation(false);
-		
-		return false;
-	}
-	return true;
-}
-
-bool Check::keyDown(int key)
-{
-	switch(key)
-	{
-		case KEY_ENTER:
-			toggleState();
-			doAction();
-			return false;
-		break;
-	}
-	
-	return true;
-}
-
 void Check::toggleState()
 {
 	m_checked = !m_checked;

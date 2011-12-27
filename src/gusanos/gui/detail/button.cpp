@@ -48,47 +48,5 @@ void Button::process()
 {
 }
 
-//Sends a mouse button down event
-bool Button::mouseDown(ulong newX, ulong newY, Context::MouseKey::type button)
-{
-	if(button == Context::MouseKey::Left)
-	{
-		doSetActivation(true);
-		return false;
-	}
-	return true;
-}
-
-//Sends a mouse button up event
-bool Button::mouseUp(ulong newX, ulong newY, Context::MouseKey::type button)
-{
-	if(button == Context::MouseKey::Left)
-	{
-		if(m_rect.isInside(newX, newY))
-		{
-			if(!doAction())
-				doSetActivation(false);
-		}
-		else
-			doSetActivation(false);
-		
-		return false;
-	}
-	return true;
-}
-
-bool Button::keyDown(int key)
-{
-	switch(key)
-	{
-		case KEY_ENTER:
-			doAction();
-			return false;
-		break;
-	}
-	
-	return true;
-}
-
 
 }

@@ -52,18 +52,7 @@ public:
 	}
 	
 	virtual void setText(std::string const& aStr);
-	
-	virtual bool keyDown(int key);
-	//virtual bool keyUp(int key);
-	
-	virtual bool charPressed(char c, int key);
-	
-	virtual bool mouseDown(ulong x, ulong y, Context::MouseKey::type button);
-	
-	virtual bool mouseUp(ulong x, ulong y, Context::MouseKey::type button);
-	
-	virtual bool mouseMove(ulong x, ulong y);
-	
+		
 	void assertCaretVisibility(Renderer* renderer);
 	
 	/*

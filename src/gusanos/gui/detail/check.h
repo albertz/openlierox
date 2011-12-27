@@ -22,12 +22,6 @@ public:
 	virtual bool render();
 	
 	virtual void process();
-
-	virtual bool mouseDown(ulong newX, ulong newY, Context::MouseKey::type button);
-
-	virtual bool mouseUp(ulong newX, ulong newY, Context::MouseKey::type button);
-	
-	virtual bool keyDown(int key);
 	
 	virtual void toggleState();
 	virtual void applyGSS(Context::GSSselectors const& style);

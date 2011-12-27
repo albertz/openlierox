@@ -1,7 +1,6 @@
 #ifndef DEDICATED_ONLY
 
 #include "menu.h"
-#include "keyboard.h"
 #include "gfx.h"
 #include "blitters/blitters.h"
 #include "font.h"
@@ -162,186 +161,16 @@ ulong VermesSpriteSet::getFrameHeight(int frame, int angle) const
 
 GContext::GContext(Renderer* renderer)
 : Context(renderer)
-{
-	array<bool, 256>::iterator b = bindingLock.enable.begin();
-	std::fill(b + KEY_F1, b + KEY_F12 + 1, false);
-}
+{}
 
 void GContext::init()
 {
-	keyHandler.keyDown.connect(boost::bind(&GContext::eventKeyDown, this, _1));
-	keyHandler.keyUp.connect(boost::bind(&GContext::eventKeyUp, this, _1));
-	keyHandler.printableChar.connect(boost::bind(&GContext::eventPrintableChar, this, _1, _2));
-	
-	/*mouseHandler.buttonDown.connect(boost::bind(&GContext::eventMouseDown, this, _1));
-	mouseHandler.buttonUp.connect(boost::bind(&GContext::eventMouseUp, this, _1));
-	mouseHandler.move.connect(boost::bind(&GContext::eventMouseMove, this, _1, _2));
-	mouseHandler.scroll.connect(boost::bind(&GContext::eventMouseScroll, this, _1));
-	*/
 	console.registerCommands()
 		("GUI_LOADXML", cmdLoadXML)
 		("GUI_LOADGSS", cmdLoadGSS)
 		("GUI_GSS", cmdGSS)
 		("GUI_FOCUS", cmdFocus)
 	;
-}
-
-bool GContext::eventMouseDown(int b)
-{
-	//Context::mouseDown(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
-	return true;
-}
-
-bool GContext::eventMouseUp(int b)
-{
-	//Context::mouseUp(mouseHandler.getX(), mouseHandler.getY(), MouseKey::type(b));
-	return true;
-}
-
-bool GContext::eventMouseMove(int x, int y)
-{
-	Context::mouseMove(x, y);
-	return true;
-}
-
-bool GContext::eventMouseScroll(int offs)
-{
-	//Context::mouseScroll(mouseHandler.getX(), mouseHandler.getY(), offs);
-	return true;
-}
-
-bool GContext::eventKeyDown(int k)
-{
-	Wnd* focus = getFocus();
-	if(focus && focus->isVisibile() && focus->doKeyDown(k))
-	{
-		Wnd* parent = focus->getParent();
-		if(parent && parent->isVisibile())
-		{
-			switch(k)
-			{
-				case KEY_UP:
-				{
-					if(Wnd* next = parent->findClosestChild(
-						focus,
-						Wnd::Up))
-					{
-						setFocus(next);
-					}
-						
-				}
-				break;
-				
-				case KEY_DOWN:
-				{
-					if(Wnd* next = parent->findClosestChild(
-						focus,
-						Wnd::Down))
-					{
-						setFocus(next);
-					}
-						
-				}
-				break;
-				
-				case KEY_LEFT:
-				{
-					if(Wnd* next = parent->findClosestChild(
-						focus,
-						Wnd::Left))
-					{
-						setFocus(next);
-					}
-						
-				}
-				break;
-				
-				case KEY_RIGHT:
-				{
-					if(Wnd* next = parent->findClosestChild(
-						focus,
-						Wnd::Right))
-					{
-						setFocus(next);
-					}
-						
-				}
-				break;
-				
-				
-			}
-		}
-		
-		
-	}
-
-	return true;
-}
-
-bool GContext::eventKeyUp(int k)
-{
-	Wnd* focus = getFocus();
-	if(focus && focus->isVisibile())
-	{
-		focus->doKeyUp(k);
-		
-		/*
-		// Do sth?
-		switch(k)
-		{
-			case KEY_ENTER:
-			{
-				std::string cmd;
-				if(focus && focus->getAttrib("command", cmd))
-				{
-					std::string::size_type p = cmd.find('.');
-					if(p != std::string::npos)
-					{
-						Script* s = scriptLocator.load(cmd.substr(0, p));
-						if(s)
-						{
-							s->pushFunction(cmd.substr(p + 1, cmd.size() - p - 1));
-							s->lua->call();
-						}
-					}
-				}
-			}
-			break;
-		}*/
-	}
-	
-	return true;
-}
-
-bool GContext::eventPrintableChar(char c, int k)
-{
-	Wnd* focus = getFocus();
-	if(focus && focus->charPressed(c, k))
-	{
-		// Do sth?
-	}
-	
-	return true;
-}
-
-void GContext::setFocus(Wnd* wnd)
-{
-	if(!wnd)
-		console.releaseBindings(bindingLock);
-	else
-		console.lockBindings(bindingLock);
-		
-	Context::setFocus(wnd);
-}
-
-void GContext::hiddenFocus()
-{
-	console.releaseBindings(bindingLock);
-}
-
-void GContext::shownFocus()
-{
-	console.lockBindings(bindingLock);
 }
 
 LuaContext& GContext::luaContext()
@@ -408,11 +237,6 @@ Wnd* GContext::loadXMLFile(std::string const& name, Wnd* loadTo)
 	}
 	
 	return 0;
-}
-
-bool GContext::keyState(int key)
-{
-	return keyHandler.getKey(key);
 }
 
 int allegroColor(RGB const& rgb)

@@ -1,7 +1,5 @@
 #include "gconsole.h"
 #ifndef DEDICATED_ONLY
-#include "keyboard.h"
-#include "keys.h"
 #include "font.h"
 #include "sprite_set.h"
 #include "sprite.h"
@@ -29,24 +27,9 @@ using namespace std;
 // Bind console command
 string bindCmd(const list<string> &args)
 {
-	// <GLIP> Simplified a little, removed unused vars
-	// and made it print out the help text when too
-	// few arguments are passed.
-
-	if (args.size() >= 2) 
-	{
-		std::list<string>::const_iterator arguments = args.begin();
-		
-		std::string const& keyName = *arguments++;
-		int key = kName2Int(keyName);
-		TEST_KEY(key, keyName);
-
-		console.bind(key, *arguments++);
-	
-		return "";
-	}
-	
-	return "BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
+	return "BIND not available";
+	//old:
+	//return "BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
 }
 
 struct IdentityGetText
@@ -57,20 +40,6 @@ struct IdentityGetText
 		return *i;
 	}
 };
-
-string bindCompleter(Console* con, int idx, std::string const& beginning)
-{
-	if(idx != 0)
-		return beginning;
-		
-	return shellComplete(
-		keyNames,
-		beginning.begin(),
-		beginning.end(),
-		IdentityGetText(),
-		ConsoleAddLines(*con)
-	);
-}
 #endif
 
 string echoCmd(list<string> const& args)
@@ -95,18 +64,9 @@ string echoCmd(list<string> const& args)
 
 string GConsole::setConsoleKey(list<string> const& args)
 {
-	if (args.size() >= 1)
-	{
-		std::list<string>::const_iterator arguments = args.begin();
-		
-		std::string const& keyName = *arguments++;
-		int key = kName2Int(keyName);
-		TEST_KEY(key, keyName);
-
-		m_consoleKey = key;
-		return "";
-	}
-	return "SETCONSOLEKEY <KEY> : SETS THE KEY TO SHOW/HIDE THE CONSOLE";
+	return "SETCONSOLEKEY not available";
+	//old:
+	//return "SETCONSOLEKEY <KEY> : SETS THE KEY TO SHOW/HIDE THE CONSOLE";
 }
 #endif
 
@@ -146,7 +106,7 @@ string aliasCmd(const list<string> &args)
 
 		return "";
 	}
-	return "BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
+	return "XXX BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
 }
 
 /*
@@ -215,12 +175,9 @@ string restCmd(list<string> const& args)
 GConsole::GConsole()
 : Console(256)
 #ifndef DEDICATED_ONLY
-, m_consoleKey(KEY_TILDE), background(NULL)
+, background(NULL)
 #endif
 {
-#ifndef DEDICATED_ONLY
-	m_lockRefCount.assign(0);
-#endif
 	scrolling = false;
 }
 
@@ -241,16 +198,6 @@ void GConsole::varCbFont( std::string oldValue )
 #endif
 void GConsole::init()
 {
-#ifndef DEDICATED_ONLY
-	keyHandler.init();
-	
-	//Connect the handlers as group 0 so they are called first
-
-	keyHandler.printableChar.connect(0, boost::bind(&GConsole::eventPrintableChar, this, _1, _2));
-	keyHandler.keyDown.connect(0, boost::bind(&GConsole::eventKeyDown, this, _1));
-	keyHandler.keyUp.connect(0, boost::bind(&GConsole::eventKeyUp, this, _1));
-#endif
-
 	m_mode = CONSOLE_MODE_BINDINGS;
 	//m_mode = CONSOLE_MODE_INPUT;
 
@@ -264,7 +211,7 @@ void GConsole::init()
 
 	console.registerCommands()
 #ifndef DEDICATED_ONLY
-		(string("BIND"), bindCmd, bindCompleter)
+		(string("BIND"), bindCmd)
 /*
 		(string("SWAPKEYS"), swapKeysCmd)
 		(string("SETSHIFTCHAR"), setShiftChar)
@@ -289,8 +236,6 @@ void GConsole::init()
 void GConsole::shutDown()
 {
 #ifndef DEDICATED_ONLY
-	keyHandler.shutDown();
-	
 	//m_font must be deleted here!!!! hmm not sure now
 #endif
 }
@@ -391,164 +336,6 @@ void GConsole::render(ALLEGRO_BITMAP* where, bool fullScreen)
 
 void GConsole::checkInput()
 {
-	keyHandler.pollKeyboard();
-}
-
-bool GConsole::eventKeyDown(int k)
-{
-	if(k == m_consoleKey)
-	{
-		if ( m_mode == CONSOLE_MODE_INPUT )	// If the console is in input mode toogle to Binding mode
-		{
-			clear_keybuf();
-			m_mode = CONSOLE_MODE_BINDINGS;
-			return false;
-		}
-		else											// If not toogle to input
-		{
-			m_mode = CONSOLE_MODE_INPUT;
-			clear_keybuf();						// Clear allegro buffer so that old keys dont bother
-			m_inputBuff.clear();
-			currentCommand = commandsLog.end();
-		}
-	}
-	else if ( m_mode == CONSOLE_MODE_BINDINGS )		// Only if in bindings mode
-	{
-		if(m_lockRefCount.at(k) <= 0)
-		{
-			analizeKeyEvent(true, k);
-			clear_keybuf();
-			return false;
-		}
-	}
-	else if ( m_mode == CONSOLE_MODE_INPUT )
-	{
-		if ( k == KEY_UP )
-		{
-			clear_keybuf();
-			if (currentCommand != commandsLog.begin() )
-				currentCommand--;
-			if ( currentCommand == commandsLog.end() )
-			{
-				m_inputBuff.clear();
-			}else
-			{
-				m_inputBuff = *currentCommand;
-			}
-		}
-		else if ( k == KEY_DOWN )
-		{
-			clear_keybuf();
-			if (currentCommand != commandsLog.end() )
-				currentCommand++;
-			if ( currentCommand == commandsLog.end() )
-			{
-				m_inputBuff.clear();
-			}
-			else
-			{
-				m_inputBuff = *currentCommand;
-			}
-		}
-		else if ( k == KEY_PGUP )
-		{
-			clear_keybuf();
-			if ( !scrolling )
-			{
-				logRenderPos = log.rbegin();
-				scrolling = true;
-			}
-			
-			for ( int i = 0; logRenderPos != log.rend() && i < 3; ++i, ++logRenderPos )
-			{
-				
-			}
-		}
-		else if ( k == KEY_PGDN )
-		{
-			clear_keybuf();
-			if ( scrolling )
-			{
-				for ( int i = 0; logRenderPos != log.rbegin() && i < 3; ++i, --logRenderPos )
-				{
-					
-				}
-				if ( logRenderPos == log.rbegin() )
-				{
-					scrolling = false;
-				}
-			}
-		}
-		else if ( k == KEY_END )
-		{
-			clear_keybuf();
-			scrolling = false;
-		}
-		
-		return false;
-	}
-	
-	return true;
-}
-
-bool GConsole::eventKeyUp(int k)
-{
-	if ( m_mode == CONSOLE_MODE_BINDINGS )		// Only if in bindings mode
-	{
-		if(m_lockRefCount.at(k) <= 0)
-		{
-			analizeKeyEvent(false, k);
-			clear_keybuf();
-			return false;
-		}
-	}
-	else
-		return false;
-	
-	return true;
-}
-
-bool GConsole::eventPrintableChar(char c, int k)
-{
-
-	if ( m_mode == CONSOLE_MODE_INPUT ) // console is in input read mode so..
-	{
-		if (c == 8)//Backspace
-		{
-			if (!m_inputBuff.empty()) //if the string is not already empty...
-				m_inputBuff.erase(m_inputBuff.length()-1); //delete last char
-		}
-		else if (c == 13) //Enter
-		{
-			addLogMsg(']'+m_inputBuff); //add the text to the console log
-			console.parseLine(m_inputBuff); //parse the text
-			commandsLog.push_back(m_inputBuff); //add the text to the commands log too
-			currentCommand = commandsLog.end(); //reset the command log position
-			m_inputBuff.clear(); // and then clear the buffer
-		}
-		else if (c == '\t') //Tab
-		{
-			/*
-			string autoCompText = autoComplete( m_inputBuff );
-			if (m_inputBuff == autoCompText)
-			{
-				listItems(m_inputBuff);
-			}else
-			{
-				m_inputBuff = autoCompText;
-			}
-			*/
-			
-			m_inputBuff = autoComplete( m_inputBuff );
-		}
-		else // No special keys where detected so the char gets added to the string
-		{
-			//m_inputBuff += toupper(c);
-			m_inputBuff += c;
-		}
-		return false;
-	}
-	return true;
 }
 #endif
 

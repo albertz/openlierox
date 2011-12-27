@@ -23,12 +23,6 @@ public:
 	
 	virtual void process();
 
-	virtual bool mouseDown(ulong newX, ulong newY, Context::MouseKey::type button);
-
-	virtual bool mouseUp(ulong newX, ulong newY, Context::MouseKey::type button);
-	
-	virtual bool keyDown(int key);
-	
 	//virtual int classID();
 	
 private:

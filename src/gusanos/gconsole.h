@@ -52,39 +52,8 @@ public:
 #endif
 	
 #ifndef DEDICATED_ONLY
-	bool eventPrintableChar(char c, int k);
-	bool eventKeyDown(int k);
-	bool eventKeyUp(int k);
-	
 	std::string setConsoleKey(std::list<std::string> const& args);
-	
-	void lockBindings(BindingLock const& lock)
-	{
-		if(m_locks.insert(&lock).second)
-		{
-			for(size_t i = 0; i < m_lockRefCount.size(); ++i)
-			{
-				if(lock.enable[i])
-					++m_lockRefCount[i];
-			}
-		}
-	}
-	
-	void releaseBindings(BindingLock const& lock)
-	{
-		std::set<BindingLock const*>::iterator l = m_locks.find(&lock);
-		if(l != m_locks.end())
-		{
-			m_locks.erase(l);
-			
-			for(size_t i = 0; i < m_lockRefCount.size(); ++i)
-			{
-				if(lock.enable[i])
-					--m_lockRefCount[i];
-			}
-		}
-	}
-	
+		
 	void varCbFont( std::string oldValue );
 #endif
 
@@ -102,12 +71,9 @@ private:
 #ifndef DEDICATED_ONLY
 	Font* m_font;
 	std::string m_fontName;
-	int m_consoleKey;
 	
 	std::string m_inputBuff;
 	SpriteSet *background;
-	std::set<BindingLock const*> m_locks;
-	array<int, 256> m_lockRefCount;
 #endif
 
 	std::list< std::string >::reverse_iterator logRenderPos; //For scrolling

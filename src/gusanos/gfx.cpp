@@ -89,7 +89,6 @@ namespace
 		if(gfx)
 		{
 			gfx.fullscreenChange();
-			clear_keybuf();
 		}
 	}
 	
@@ -101,7 +100,6 @@ namespace
 		if(gfx)
 		{
 			gfx.doubleResChange();
-			clear_keybuf();
 		}
 	}
 #endif

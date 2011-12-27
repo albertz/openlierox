@@ -19,7 +19,6 @@
 #include "sound/sfx.h"
 #include "menu.h"
 #include "distortion.h"
-#include "keyboard.h"
 #endif
 #include "sprite_set.h"
 #include "player_ai.h"

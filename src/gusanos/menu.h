@@ -106,21 +106,8 @@ public:
 	GContext(Renderer* renderer);
 	
 	void init();
-	
-	bool eventKeyDown(int k);
-	bool eventKeyUp(int k);
-	bool eventPrintableChar(char c, int k);
-	
-	bool eventMouseDown(int b);
-	bool eventMouseUp(int b);
-	bool eventMouseMove(int x, int y);
-	bool eventMouseScroll(int offs);
-	
 	void clear();
 	
-	virtual void setFocus(Wnd* wnd);
-	virtual void hiddenFocus();
-	virtual void shownFocus();
 	virtual LuaContext& luaContext();
 	
 	virtual BaseFont* loadFont(std::string const& name);
@@ -128,11 +115,6 @@ public:
 	
 	virtual void loadGSSFile(std::string const& name, bool passive);
 	virtual Wnd* loadXMLFile(std::string const& name, Wnd* loadTo);
-	
-	virtual bool keyState(int key);
-	
-private:
-	GConsole::BindingLock bindingLock;
 };
 
 extern GContext menu;

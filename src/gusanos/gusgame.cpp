@@ -26,7 +26,6 @@
 #include "sound.h"
 #include "font.h"
 #include "menu.h"
-#include "keyboard.h"
 #include "player_input.h"
 #include "CViewport.h"
 #endif //DEDICATED_ONLY
@@ -410,12 +409,6 @@ bool GusGame::init()
 	//parseCommandLine(argc, argv);
 	
 	gfx.init();
-#ifndef DEDICATED_ONLY
-	
-	keyHandler.init();
-	//mouseHandler.init();
-#endif
-	
 	network.init();
 	registerGameActions();
 #ifndef DEDICATED_ONLY

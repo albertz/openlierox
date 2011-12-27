@@ -23,7 +23,6 @@
 
 #include "../gconsole.h"
 #ifndef DEDICATED_ONLY
-#include "../keys.h"
 #include "../menu.h"
 #include "../blitters/context.h"
 #include "CViewport.h"
@@ -247,22 +246,6 @@ int l_quit(lua_State* L)
 	// I would vote for no
 	return 0;
 }
-
-#ifndef DEDICATED_ONLY
-int l_clear_keybuf(lua_State* L)
-{
-	clear_keybuf();
-	return 0;
-}
-
-int l_key_name(lua_State* L)
-{
-	int k = lua_tointeger(L, 1);
-	lua_pushstring(L, keyNames[k].c_str());
-	return 1;
-}
-#endif
-
 
 /*! connect(address)
 
@@ -498,11 +481,6 @@ void init()
 		("console_action_for_key", l_console_action_for_key)
 		//("dump", l_dump)
 		//("undump", l_undump)
-#ifndef DEDICATED_ONLY
-		("clear_keybuf", l_clear_keybuf)
-		("key_name", l_key_name)
-#endif
-
 		("quit", l_quit)
 		("bind", l_bind)
 		("connect", l_connect)
@@ -549,16 +527,6 @@ void init()
 #endif
 	lua_rawset(context, LUA_GLOBALSINDEX);
 	
-#ifndef DEDICATED_ONLY
-	lua_newtable(context); // Key table
-	for(size_t i = 0; i < keyNames.size(); ++i)
-	{
-		lua_pushinteger(context, i);
-		lua_setfield(context, -2, keyNames[i].c_str());
-	}
-	lua_setfield(context, LUA_GLOBALSINDEX, "Keys");
-#endif
-
 	SHADOW_TABLE("persistence", l_undump, l_dump);
 }
 

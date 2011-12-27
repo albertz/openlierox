@@ -590,8 +590,6 @@ bool ProcessEvents()
 #endif
 	HandleCInputs_UpdateUpForNonKeyboard();
 	HandleCInputs_UpdateDownOnceForNonKeyboard();
-
-	pushAllegroEvents();
 	
 	return ret;
 }

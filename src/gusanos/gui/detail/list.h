@@ -337,11 +337,6 @@ namespace OmfgGUI
 			}
 
 			virtual bool render();
-			virtual bool mouseDown(ulong newX, ulong newY, Context::MouseKey::type button);
-
-			virtual bool mouseScroll(ulong newX, ulong newY, int offs);
-
-			virtual bool keyDown(int key);
 
 			virtual void applyFormatting(Context::GSSpropertyMap const&);
 

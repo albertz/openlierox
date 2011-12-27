@@ -157,38 +157,6 @@ namespace OmfgGUI
 
 			void doUpdateGSS();
 
-			//Sends a cursor relocation event
-			bool doMouseMove(ulong aNewX, ulong aNewY);
-
-			//Sends a mouse button down event
-			bool doMouseDown(ulong aNewX, ulong aNewY, Context::MouseKey::type aButton);
-
-			//Sends a mouse button up event
-			bool doMouseUp(ulong aNewX, ulong aNewY, Context::MouseKey::type aButton);
-
-			bool doMouseScroll(ulong newX, ulong newY, int offs);
-
-			//Sends a cursor relocation event
-			virtual bool mouseMove(ulong aNewX, ulong aNewY);
-
-			//Sends a mouse button down event
-			virtual bool mouseDown(ulong aNewX, ulong aNewY, Context::MouseKey::type aButton);
-
-			//Sends a mouse button up event
-			virtual bool mouseUp(ulong aNewX, ulong aNewY, Context::MouseKey::type aButton);
-
-			virtual bool mouseScroll(ulong newX, ulong newY, int offs);
-
-			bool doKeyDown(int key);
-
-			bool doKeyUp(int key);
-
-			virtual bool keyDown(int key);
-
-			virtual bool keyUp(int key);
-
-			virtual bool charPressed(char c, int key);
-
 			virtual int classID();
 
 			void pushReference();

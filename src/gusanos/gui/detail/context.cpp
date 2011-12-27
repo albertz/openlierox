@@ -22,6 +22,24 @@ void Context::destroy()
 	delete m_rootWnd; m_rootWnd = 0;
 }
 
+void Context::render()
+{
+	if(m_rootWnd)
+	{
+		Rect oldClip(renderer()->getClip());
+		m_rootWnd->doRender(renderer()->getViewportRect());
+		renderer()->setClip(oldClip);
+		renderer()->resetBlending();
+	}       
+}
+
+void Context::process()
+{
+	if(m_rootWnd)
+		m_rootWnd->doProcess();
+}
+	
+
 void Context::setRoot_(Wnd* wnd)
 {
 	m_rootWnd = wnd;
@@ -33,95 +51,6 @@ void Context::updateGSS()
 {
 	if(m_rootWnd)
 		m_rootWnd->doUpdateGSS();
-}
-
-//Sends a cursor relocation event
-void Context::mouseMove(ulong newX, ulong newY)
-{
-	m_cursorX = newX;
-	m_cursorY = newY;
-	
-	if(m_mouseCaptureWnd)
-		m_mouseCaptureWnd->mouseMove(newX, newY);
-	else if(m_rootWnd)
-		m_rootWnd->doMouseMove(newX, newY);
-}
-
-//Sends a mouse button down event
-void Context::mouseDown(ulong newX, ulong newY, MouseKey::type button)
-{
-	if(m_mouseCaptureWnd)
-		m_mouseCaptureWnd->mouseDown(newX, newY, button);
-	else if(m_rootWnd)
-		m_rootWnd->doMouseDown(newX, newY, button);
-}
-
-//Sends a mouse button up event
-void Context::mouseUp(ulong newX, ulong newY, MouseKey::type button)
-{
-	if(m_mouseCaptureWnd)
-		m_mouseCaptureWnd->mouseUp(newX, newY, button);
-	else if(m_rootWnd)
-		m_rootWnd->doMouseUp(newX, newY, button);
-}
-
-//Sends a printable character
-void Context::charPressed(char c)
-{
-}
-
-//Sends a keydown event
-void Context::keyDown(KeyType k, bool shift, bool alt, bool ctrl)
-{
-}
-
-//Sends a keyup event
-void Context::keyUp(KeyType k, bool shift, bool alt, bool ctrl)
-{
-}
-
-void Context::render()
-{
-	if(m_rootWnd)
-	{
-		Rect oldClip(renderer()->getClip());
-		m_rootWnd->doRender(renderer()->getViewportRect());
-		renderer()->setClip(oldClip);
-		renderer()->resetBlending();
-	}	
-}
-
-void Context::process()
-{
-	if(m_rootWnd)
-		m_rootWnd->doProcess();
-}
-
-void Context::mouseDown(int x, int y, MouseKey::type button)
-{
-	m_rootWnd->doMouseDown(x, y, button);
-}
-
-void Context::mouseUp(int x, int y, MouseKey::type button)
-{
-	if(m_mouseFocusWnd)
-	{
-		m_mouseFocusWnd->mouseUp(x, y, button);
-		m_mouseFocusWnd = 0;
-	}
-}
-
-void Context::mouseMove(int x, int y)
-{
-	if(m_mouseFocusWnd)
-		m_mouseFocusWnd->mouseMove(x, y);
-	else
-		m_rootWnd->doMouseMove(x, y);
-}
-
-void Context::mouseScroll(int x, int y, int offs)
-{
-	m_rootWnd->doMouseScroll(x, y, offs);
 }
 
 void Context::setFocus(Wnd* aWnd)
