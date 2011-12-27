@@ -309,10 +309,6 @@ void rgb_to_hsv(int r, int g, int b, float *h, float *s, float *v) {
 }
 
 
-static bool abscoord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
-	return x >= bmp->sub_x && x < bmp->sub_x + bmp->w && y >= bmp->sub_y && y < bmp->sub_y + bmp->h;
-}
-
 static bool coord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
 	return x >= 0 && x < bmp->w && y >= 0 && y < bmp->h;
 }
@@ -359,18 +355,12 @@ void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, Uint32 color) {
 	sub_to_abs_coords(bmp, x, y1);
 	sub_to_abs_coords_y(bmp, y2);
 	DrawVLine(bmp->surf.get(), y1, y2, x, allegcol_to_Col(color));
-/*	for(int y = y1; y < y2; ++y)
-		if(abscoord_in_bmp(bmp, x, y))
-			putpixel(bmp, x, y, color);*/
 }
 
 void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, Uint32 color) {
 	sub_to_abs_coords(bmp, x1, y);
 	sub_to_abs_coords_x(bmp, x2);
 	DrawHLine(bmp->surf.get(), x1, x2, y, allegcol_to_Col(color));
-/*	for(int x = x1; x < x2; ++x)
-		if(abscoord_in_bmp(bmp, x, y))
-			putpixel(bmp, x, y, color);*/
 }
 
 void line(ALLEGRO_BITMAP *bmp, int x1, int y1, int x2, int y2, Uint32 color) {
