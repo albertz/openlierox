@@ -81,38 +81,4 @@ public:
 
 extern Gfx gfx;
 
-struct LocalSetColorConversion
-{
-	LocalSetColorConversion(int flags)
-	: old(get_color_conversion())
-	{
-		set_color_conversion(flags);
-	}
-	
-	~LocalSetColorConversion()
-	{
-		set_color_conversion(old);
-	}
-	
-private:
-	int old;
-};
-
-struct LocalSetColorDepth
-{
-	LocalSetColorDepth(int depth)
-	: old(get_color_depth())
-	{
-		set_color_depth(depth);
-	}
-	
-	~LocalSetColorDepth()
-	{
-		set_color_depth(old);
-	}
-	
-private:
-	int old;
-};
-
 #endif // _GFX_H_

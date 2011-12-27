@@ -333,10 +333,23 @@ int getg(Uint32 c);
 int getb(Uint32 c);
 
 int get_color_conversion();
-void set_color_conversion(int mode);
-
 int get_color_depth();
-void set_color_depth(int depth);
+
+struct LocalSetColorConversion
+{
+	LocalSetColorConversion(int flags);
+	~LocalSetColorConversion();
+private:
+	int old;
+};
+
+struct LocalSetColorDepth
+{
+	LocalSetColorDepth(int depth);
+	~LocalSetColorDepth();
+private:
+	int old;
+};
 
 
 void set_clip_rect(ALLEGRO_BITMAP *bitmap, int x1, int y_1, int x2, int y2);

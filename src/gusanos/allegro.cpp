@@ -25,11 +25,25 @@
 
 static int color_conversion = 0;
 int get_color_conversion() { return color_conversion; }
-void set_color_conversion(int mode) { color_conversion = mode; }
+
+LocalSetColorConversion::LocalSetColorConversion(int f) : old(color_conversion) {
+	color_conversion = f;
+}
+
+LocalSetColorConversion::~LocalSetColorConversion() {
+	color_conversion = old;
+}
 
 static int color_depth = 32;
 int get_color_depth() { return color_depth; }
-void set_color_depth(int depth) { color_depth = depth; }
+
+LocalSetColorDepth::LocalSetColorDepth(int d) : old(color_depth) {
+	color_depth = d;
+}
+
+LocalSetColorDepth::~LocalSetColorDepth() {
+	color_depth = old;
+}
 
 
 static void sub_to_abs_coords_x(ALLEGRO_BITMAP* bmp, int& x) { x += bmp->sub_x; }

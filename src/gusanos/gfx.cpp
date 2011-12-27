@@ -160,8 +160,6 @@ void Gfx::init()
 	
 	buffer = create_bitmap(640,480); // this is because we may need up to this size for the sizefactor
 	//buffer = create_bitmap(320,240);
-#else
-	set_color_depth(32);
 #endif
 
 	m_initialized = true; // Tell console commands it's safe to manipulate gfx
