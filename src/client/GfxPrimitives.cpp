@@ -508,7 +508,7 @@ template <
 	bool src_alpha,
 	int sbpp, int dbpp,
 	typename T1, typename T2,
-	Color (*getFunc)(T1 data, Uint8* addr),
+	Color (*getFunc)(T1 data, const Uint8* addr),
 	void (*putFunc)(T2 data, Uint8* addr, Color c)
 >
 void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
@@ -547,7 +547,7 @@ void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface *
 			
 	if(bmpSrc->flags & SDL_SRCCOLORKEY)  {
 		// We have to check for the colorkey as well
-		Color key = Unpack_alpha(bmpSrc->format->colorkey, bmpSrc->format);
+		Color key = Unpack_<src_alpha>(bmpSrc->format->colorkey, bmpSrc->format);
 		_OP_LOOP_BODY {
 			Color c = getFunc(data1, src);
 			if(c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
@@ -571,52 +571,6 @@ void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface *
 	
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
-}
-
-template<bool alpha, int bpp>
-INLINE Color _GetPixel(SDL_PixelFormat* format, Uint8* addr) {
-	if(alpha) {
-		if(bpp == 4) return Unpack_alpha(GetPixel_32(addr), format);
-		if(bpp == 3) return Unpack_alpha(GetPixel_24(addr), format);
-		if(bpp == 2) return Unpack_alpha(GetPixel_16(addr), format);
-		if(bpp == 1) return Unpack_alpha(GetPixel_8(addr), format);
-	}
-	else {
-		if(bpp == 4) return Unpack_solid(GetPixel_32(addr), format);
-		if(bpp == 3) return Unpack_solid(GetPixel_24(addr), format);
-		if(bpp == 2) return Unpack_solid(GetPixel_16(addr), format);
-		if(bpp == 1) return Unpack_solid(GetPixel_8(addr), format);
-	}
-	assert(false);
-}
-
-template<bool alpha, bool alphablend, int bpp>
-INLINE void _PutPixel(SDL_PixelFormat* format, Uint8* addr, Color col) {
-	assert(bpp >= 1 && bpp <= 4);
-	Color dest_cl;
-	if(alphablend) {
-		if(alpha && !col.a) return; // Prevent div by zero error
-		dest_cl = _GetPixel<alpha,bpp>(format, addr);
-		if(alpha) {
-			dest_cl.a = 255 - (((255 - col.a) * (255 - dest_cl.a)) >> 8); // Same as MIN(255, dest_cl.a + col.a) but faster (no condition)
-			dest_cl.r = BLEND_CHANN_ALPHA(r, dest_cl, col, dest_cl.a);
-			dest_cl.g = BLEND_CHANN_ALPHA(g, dest_cl, col, dest_cl.a);
-			dest_cl.b = BLEND_CHANN_ALPHA(b, dest_cl, col, dest_cl.a);
-		}
-		else {
-			dest_cl.r = BLEND_CHANN_SOLID(r, dest_cl, col);
-			dest_cl.g = BLEND_CHANN_SOLID(g, dest_cl, col);
-			dest_cl.b = BLEND_CHANN_SOLID(b, dest_cl, col);
-		}
-	}
-	else { // no alpha-blending
-		dest_cl = col;
-	}
-
-	if(bpp == 4) PutPixel_32(addr, Pack(dest_cl, format));
-	if(bpp == 3) PutPixel_24(addr, Pack(dest_cl, format));
-	if(bpp == 2) PutPixel_16(addr, Pack(dest_cl, format));
-	if(bpp == 1) PutPixel_8(addr, Pack(dest_cl, format));
 }
 
 
@@ -2793,8 +2747,6 @@ template <> void SmartPointer_ObjectDeinit<SDL_Surface> ( SDL_Surface * obj )
 
 	SDL_FreeSurface(obj);
 }
-
-
 
 
 
