@@ -205,7 +205,7 @@ class PixelGet_32 : public PixelGet {
 
 class PixelGet_32_nonalpha : public PixelGet {
 	Uint32 get(Uint8 *addr)	{
-		return Uint32(0xff000000) | GetPixel_32(addr);
+		return GetPixel_32(addr);
 	}
 };
 
@@ -230,13 +230,13 @@ class PixelCopy_32_32 : public PixelCopy  { public:
 };
 
 class PixelCopy_32na_32 : public PixelCopy  { public:
-	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *(Uint32 *)dstaddr = Uint32(0xff000000) | *(Uint32 *)srcaddr; }
+	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  { *(Uint32 *)dstaddr = *(Uint32 *)srcaddr; }
 };
 
 class PixelCopy_32key_32 : public PixelCopy  { public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr)  {
 		if(*(Uint32 *)srcaddr != sfmt->colorkey)
-			*(Uint32 *)dstaddr = Uint32(0xff000000) | *(Uint32 *)srcaddr;
+			*(Uint32 *)dstaddr = *(Uint32 *)srcaddr;
 	}
 };
 
