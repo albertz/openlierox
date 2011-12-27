@@ -52,7 +52,7 @@ enum GradientDirection  {
 };
 
 
-
+void DumpSurface(SDL_Surface* s);
 void DumpPixelFormat(const SDL_PixelFormat* format);
 bool PixelFormatEqual(const SDL_PixelFormat* fm1, const SDL_PixelFormat* fm2);
 bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format);
@@ -301,6 +301,9 @@ INLINE bool ContainsRect(const SDL_Rect& rect1, const SDL_Rect& rect2)
 //////////////////
 // Load an image
 SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha = false);
+
+// WARNING: You shouldn't use this because it doesn't ensure that the surface is in a proper format.
+SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, bool withalpha, bool keep8bit);
 
 /////////////////
 // Loads an image and quits with error if could not load

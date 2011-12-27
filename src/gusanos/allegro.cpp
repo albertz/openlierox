@@ -96,24 +96,19 @@ SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 		bmask = SDL_GetVideoSurface()->format->Bmask;		
 		amask = SDL_GetVideoSurface()->format->Amask;
 	}
-	if(amask == 0) amask = 0xff000000;
+	if(amask == 0) amask = ~(rmask + gmask + bmask);
 	
 	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,0);
 }
 
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename) {
 	std::string fullfilename = GetFullFileName(filename);	
-	SDL_Surface* img = IMG_Load(Utf8ToSystemNative(fullfilename).c_str());
-	if(!img) return NULL;
-	
+	SmartPointer<SDL_Surface> img = LoadGameImage_unaltered(filename, false, true);
 	if( img->format->BitsPerPixel == 8 )
 		return img;
 	
 	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(img->w, img->h);
 	CopySurface(converted.get(), img, 0, 0, 0, 0, img->w, img->h);
-	
-	//SDL_Surface* converted = SDL_DisplayFormat(img);
-	SDL_FreeSurface(img);
 	
 	if(!converted.get()) {
 		errors << "Failed: Converting of bitmap " << filename << /*" to " << bpp <<*/ " bit" << endl;
@@ -477,9 +472,9 @@ int getr(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); retur
 int getg(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return g; }
 int getb(int c) { Uint8 r,g,b; SDL_GetRGB(c, mainPixelFormat, &r, &g, &b); return b; }
 */
-int getr(int c) { return Uint8(Uint32(c) >> screen->surf->format->Rshift); }
-int getg(int c) { return Uint8(Uint32(c) >> screen->surf->format->Gshift); }
-int getb(int c) { return Uint8(Uint32(c) >> screen->surf->format->Bshift); }
+int getr(Uint32 c) { return Uint8(c >> screen->surf->format->Rshift); }
+int getg(Uint32 c) { return Uint8(c >> screen->surf->format->Gshift); }
+int getb(Uint32 c) { return Uint8(c >> screen->surf->format->Bshift); }
 
 
 static Uint32 makecol_intern(Uint32 r, Uint32 g, Uint32 b) {

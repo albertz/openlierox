@@ -63,7 +63,7 @@ public:
 	int m_haxWormLight; //TEMP HAX
 #endif
 
-	INLINE bool compareRGB( int c1, int c2 )
+	INLINE bool compareRGB( Uint32 c1, Uint32 c2 )
 	{
 		return ( getr(c1) == getr(c2) && getg(c1) == getg(c2) && getb(c1) == getb(c2) );
 	}

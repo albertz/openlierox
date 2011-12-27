@@ -328,9 +328,9 @@ void set_trans_blender(int r, int g, int b, int a);
 void set_add_blender (int r, int g, int b, int a);
 void solid_mode();
 
-int getr(int c);
-int getg(int c);
-int getb(int c);
+int getr(Uint32 c);
+int getg(Uint32 c);
+int getb(Uint32 c);
 
 int get_color_conversion();
 void set_color_conversion(int mode);

@@ -2622,56 +2622,44 @@ bool IsCorrectSurfaceFormat(const SDL_PixelFormat* format) {
 #if USE_GD_FOR_IMAGE_LOADING
 ///////////////////////
 // Converts the gdImagePtr to SDL_surface
-static SmartPointer<SDL_Surface> GDImage2SDLSurface(gdImagePtr src) {
+SmartPointer<SDL_Surface> GDImage2SDLSurface(gdImagePtr src, bool withalpha, bool keep8bit) {
 	SmartPointer<SDL_Surface> dst;
-	if(gdImageGetTransparent(src))
+	if(withalpha)
 		dst = gfxCreateSurfaceAlpha(gdImageSX(src), gdImageSY(src));
-	else
+	else if(!keep8bit || gdImageTrueColor(src))
 		dst = gfxCreateSurface(gdImageSX(src), gdImageSY(src));
+	else // keep8bit && gd img is 8bit
+		dst = SDL_CreateRGBSurface(SDL_SWSURFACE, gdImageSX(src), gdImageSY(src), 8, 0,0,0,0);	
 	if(!dst.get()) return NULL;
-		
+	
 	if (!LockSurface(dst)) return NULL;
 	
-	for(int y = 0; y < dst->h; y++) 
-		for(int x = 0; x < dst->w; ++x) {
-			Uint32 px = gdImageGetTrueColorPixel(src, x, y);
-			Color c;
-			c.r = px >> 16;
-			c.g = px >> 8;
-			c.b = px;
-			c.a = 0x7f - (px >> 24);
-			c.a *= 2;
-			if(c.a > 0x7f && c.a <= 0xfe) c.a++;
-			PutPixel(dst.get(), x, y, Pack(c, dst->format));
-		}
-	
+	if(dst->format->BytesPerPixel > 1)
+		for(int y = 0; y < dst->h; y++) 
+			for(int x = 0; x < dst->w; ++x) {
+				Uint32 px = gdImageGetTrueColorPixel(src, x, y);
+				Color c;
+				c.r = px >> 16;
+				c.g = px >> 8;
+				c.b = px;
+				c.a = 0x7f - (px >> 24);
+				c.a *= 2;
+				if(c.a > 0x7f && c.a <= 0xfe) c.a++;
+				PutPixel(dst.get(), x, y, Pack(c, dst->format));
+			}
+	else
+		for(int y = 0; y < dst->h; y++) 
+			for(int x = 0; x < dst->w; ++x) {
+				Uint8 px = gdImageGetPixel(src, x, y);
+				PutPixel(dst.get(), x, y, px);
+			}
+
 	UnlockSurface(dst);
 	
 	return dst;
 }
-#endif
 
-
-////////////////////////
-//
-//  Image loading/saving routines
-//
-////////////////////////
-
-///////////////////
-// Loads an image, and converts it to the same colour depth as the screen (speed)
-SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha)
-{
-	ScopedLock lock(cCache.mutex);
-	
-	{
-		// Try cache first
-		SmartPointer<SDL_Surface> ImageCache = cCache.GetImage__unsafe(_filename);
-		if( ImageCache.get() )
-			return ImageCache;
-	}
-	
-#if USE_GD_FOR_IMAGE_LOADING
+SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool withalpha, bool keep8bit) {
 	FILE* f = OpenGameFile(_filename, "r");
 	if(f == NULL) return NULL;
 	
@@ -2695,27 +2683,65 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 		errors << "LoadGameImage: cannot load: " << _filename << endl;
 		return NULL;
 	}	
-	SmartPointer<SDL_Surface> Image = GDImage2SDLSurface(src);
+	SmartPointer<SDL_Surface> Image = GDImage2SDLSurface(src, withalpha, keep8bit);
 	gdImageDestroy(src);
 	
-#else // load via SDL_Image, i.e. IMG_Load
+	if(Image.get() == NULL)
+		errors << "LoadGameImage: error in GDImage2SDLSurface for: " << _filename << endl;
+	return Image;	
+}
+#endif
+
+SmartPointer<SDL_Surface> LoadGameImage_viaSdlImage(const std::string& _filename, bool withalpha, bool keep8bit) {
 	// Load the image
 	std::string fullfname = GetFullFileName(_filename);
 	if(fullfname.size() == 0)
 		return NULL;
+	
+	return IMG_Load(Utf8ToSystemNative(fullfname).c_str());	
+}
 
-	SmartPointer<SDL_Surface> img = IMG_Load(Utf8ToSystemNative(fullfname).c_str());
 
-	if(!img.get())  {
-		return NULL;
+////////////////////////
+//
+//  Image loading/saving routines
+//
+////////////////////////
+
+SmartPointer<SDL_Surface> LoadGameImage_unaltered(const std::string& _filename, bool withalpha, bool keep8bit) {
+#if USE_GD_FOR_IMAGE_LOADING
+	return LoadGameImage_viaGd(_filename, withalpha, keep8bit);
+#else
+	return LoadGameImage_viaSdlImage(_filename, withalpha, keep8bit);
+#endif
+}
+
+///////////////////
+// Loads an image, and converts it to the same colour depth as the screen (speed)
+SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool withalpha)
+{
+	ScopedLock lock(cCache.mutex);
+	
+	{
+		// Try cache first
+		SmartPointer<SDL_Surface> ImageCache = cCache.GetImage__unsafe(_filename);
+		if( ImageCache.get() )
+			return ImageCache;
 	}
-
+	
+#if USE_GD_FOR_IMAGE_LOADING
+	SmartPointer<SDL_Surface> Image = LoadGameImage_viaGd(_filename, withalpha, false);	
+	if(!Image.get()) return NULL;
+#else
+	SmartPointer<SDL_Surface> img = LoadGameImage_viaSdlImage(_filename, withalpha, false);		
+	if(!img.get()) return NULL;
+	
 	SmartPointer<SDL_Surface> Image;
 	if(bDedicated || !VideoPostProcessor::videoSurface()) {
 		if(!bDedicated)
 			// we haven't initialized the screen yet
 			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;	
-
+		
 		if (withalpha)
 			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
 		else
@@ -2735,12 +2761,12 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
 		}
 	}
-#endif
 	
 	if(!Image.get()) {
 		errors << "LoadGameImage: cannot create new surface" << endl;
 		return NULL;
-	}
+	}	
+#endif
 
 	// Save to cache
 	#ifdef DEBUG
