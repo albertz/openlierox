@@ -82,7 +82,7 @@ public:
 	float distortMagnitude;
 #endif
 	int renderLayer;
-	int colour;
+	uint32_t colour;
 	int alpha;
 #ifndef DEDICATED_ONLY
 	SpriteSet* sprite;

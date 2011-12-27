@@ -40,7 +40,7 @@ public:
 	bool rockHidden;
 #endif //DEDICATED_ONLY
 	int renderLayer;
-	int colour;
+	uint32_t colour;
 	int alpha;
 	int destAlpha;
 	uint32_t crc;

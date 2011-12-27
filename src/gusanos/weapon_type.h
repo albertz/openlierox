@@ -34,7 +34,7 @@ public:
 	bool syncHax;
 	bool syncReload;
 	
-	int laserSightColour;
+	uint32_t laserSightColour;
 	int laserSightRange;
 	float laserSightIntensity;
 	int laserSightAlpha;

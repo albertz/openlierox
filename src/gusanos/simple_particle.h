@@ -29,7 +29,7 @@ public:
 protected:
 	
 	int timeout;
-	int colour;
+	uint32_t colour;
 	//int gravity;
 	float gravity;
 /*
