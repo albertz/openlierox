@@ -1288,10 +1288,10 @@ static void Scale2xPixel(SDL_Surface *bmpDest, SDL_Surface *bmpSrc, int dx, int 
 	// Get the four colors to put on the dest surface
 	Uint32 dstE[4];
 	if (colors[B] != colors[H] && colors[D] != colors[F]) {
-		dstE[0] = colors[D] == colors[B] ? colors[D] : colors[E];
-		dstE[1] = colors[B] == colors[F] ? colors[F] : colors[E];
-		dstE[2] = colors[D] == colors[H] ? colors[D] : colors[E];
-		dstE[3] = colors[H] == colors[F] ? colors[F] : colors[E];
+		dstE[0] = (colors[D] == colors[B]) ? colors[D] : colors[E];
+		dstE[1] = (colors[B] == colors[F]) ? colors[F] : colors[E];
+		dstE[2] = (colors[D] == colors[H]) ? colors[D] : colors[E];
+		dstE[3] = (colors[H] == colors[F]) ? colors[F] : colors[E];
 
 		// Put the four pixels
 		putter.put(pixel, dstE[0]);
