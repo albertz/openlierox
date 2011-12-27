@@ -397,19 +397,6 @@ void clear_to_color(ALLEGRO_BITMAP *bmp, Uint32 color) {
 }
 
 
-static void blit_8to8__abscoord(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
-	int& sy = source_y;
-	int& dy = dest_y;
-	for(int Cy = height; Cy >= 0; --Cy, ++sy, ++dy) {
-		int sx = source_x;
-		int dx = dest_x;
-		for(int Cx = width; Cx >= 0; --Cx, ++sx, ++dx) {
-			if(abscoord_in_bmp(dest, dx, dy) && abscoord_in_bmp(source, sx, sy))
-				putpixel__nocheck(dest, dx, dy, getpixel__nocheck(source, sx, sy));
-		}
-	}
-}
-
 static int getpixel__nocheck(SDL_Surface *surf, int x, int y) {
 	unsigned long addr = (unsigned long) surf->pixels + y * surf->pitch + x * surf->format->BytesPerPixel;
 	switch(surf->format->BytesPerPixel) {
@@ -433,16 +420,9 @@ void dumpUsedColors(SDL_Surface* surf) {
 }
 
 void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
-	sub_to_abs_coords(source, source_x, source_y);
-	sub_to_abs_coords(dest, dest_x, dest_y);
-/*	if(source->surf->format->BitsPerPixel == 8 && dest->surf->format->BitsPerPixel == 8) {
-		blit_8to8__abscoord(source, dest, source_x, source_y, dest_x, dest_y, width, height);
-	}
-	else {*/
-		SDL_Rect srcrect = { source_x, source_y, width, height };
-		SDL_Rect dstrect = { dest_x, dest_y, width, height };
-		SDL_BlitSurface(source->surf.get(), &srcrect, dest->surf.get(), &dstrect);
-//	}
+	SDL_Rect srcrect = { source_x, source_y, width, height };
+	SDL_Rect dstrect = { dest_x, dest_y, width, height };
+	DrawImageAdv(dest->surf.get(), source->surf.get(), dstrect, srcrect);
 }
 
 void stretch_blit(ALLEGRO_BITMAP *s, ALLEGRO_BITMAP *d, int s_x, int s_y, int s_w, int s_h, int d_x, int d_y, int d_w, int d_h) {
