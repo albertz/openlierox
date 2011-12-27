@@ -68,9 +68,6 @@ struct ALLEGRO_BITMAP;
 extern ALLEGRO_BITMAP* screen;
 
 
-void acquire_screen();
-void release_screen();
-
 enum GfxType {
 	GFX_AUTODETECT,
 	GFX_AUTODETECT_WINDOWED,

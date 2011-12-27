@@ -292,8 +292,6 @@ void gusRenderFrameMenu() {
 		//lua.callReference(*i);
 		(lua.call(*i))();
 	}
-	
-	//gfx.updateScreen();
 #endif
 }
 

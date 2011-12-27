@@ -221,12 +221,6 @@ void vsync() {  }
 
 static void handle_sdlevents();
 
-void acquire_screen() {}
-void release_screen() {
-	SDL_Flip(SDL_GetVideoSurface());
-}
-
-
 
 
 

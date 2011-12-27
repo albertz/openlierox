@@ -32,8 +32,6 @@ public:
 	//void fullscreen( int oldValue );
 	//void doubleRes( int oldValue );
 	
-	void updateScreen();
-	
 	static int getScalingFactor();
 
 	INLINE void setBlender( Blenders blender, int alpha )
