@@ -410,6 +410,8 @@ void dumpUsedColors(SDL_Surface* surf) {
 }
 
 void blit(ALLEGRO_BITMAP *source, ALLEGRO_BITMAP *dest, int source_x, int source_y, int dest_x, int dest_y, int width, int height) {
+	sub_to_abs_coords(source, source_x, source_y);
+	sub_to_abs_coords(dest, dest_x, dest_y);
 	SDL_Rect srcrect = { source_x, source_y, width, height };
 	SDL_Rect dstrect = { dest_x, dest_y, width, height };
 	DrawImageAdv(dest->surf.get(), source->surf.get(), dstrect, srcrect);
