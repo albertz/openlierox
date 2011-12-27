@@ -97,22 +97,15 @@ void dumpUsedColors(SDL_Surface* surf);
 ALLEGRO_BITMAP* screen = NULL;
 
 SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
-	int rmask = 0xff0000, gmask = 0xff00, bmask = 0xff, amask = 0xff000000;
-	if(screen != NULL) {
-		rmask = screen->surf->format->Rmask;
-		gmask = screen->surf->format->Gmask;
-		bmask = screen->surf->format->Bmask;
-		amask = screen->surf->format->Amask;
-	}
-	else if(SDL_GetVideoSurface() && SDL_GetVideoSurface()->format->BitsPerPixel == 32) {
-		rmask = SDL_GetVideoSurface()->format->Rmask;
-		gmask = SDL_GetVideoSurface()->format->Gmask;
-		bmask = SDL_GetVideoSurface()->format->Bmask;		
-		amask = SDL_GetVideoSurface()->format->Amask;
-	}
-	if(amask == 0) amask = ~(rmask + gmask + bmask);
+	// some Gusanos functions, esp. the blitters code, assume that we use only the 0xffffff bits.
+	// So, to keep things simple, just use this fixed format.
+	const static int
+	rmask = 0xff0000,
+	gmask = 0xff00,
+	bmask = 0xff,
+	amask = 0 /*0xff000000*/;
 	
-	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,0);
+	return SDL_CreateRGBSurface(SDL_SWSURFACE /*| SDL_SRCALPHA*/, w, h, 32, rmask,gmask,bmask,amask);
 }
 
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename) {
