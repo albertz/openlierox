@@ -130,7 +130,7 @@ struct TokenBase
 		return toInt(def ? 1 : 0) != 0;
 	}
 	
-	int toColor(int r, int g, int b);
+	uint32_t toColor(int r, int g, int b);
 	
 	std::string const& toString(std::string const& def)
 	{

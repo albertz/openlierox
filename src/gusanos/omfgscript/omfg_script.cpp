@@ -202,7 +202,7 @@ struct GameEventDef
 	int provideMask;
 };
 
-int TokenBase::toColor(int r, int g, int b)
+uint32_t TokenBase::toColor(int r, int g, int b)
 {
 	if(isDefault())
 		return makecol(r, g, b);
