@@ -118,7 +118,9 @@ SmartPointer<SDL_Surface> create_32bpp_sdlsurface__allegroformat(int w, int h) {
 SmartPointer<SDL_Surface> load_bitmap__allegroformat(const std::string& filename) {
 	std::string fullfilename = GetFullFileName(filename);	
 	SmartPointer<SDL_Surface> img = LoadGameImage_unaltered(filename, false, true);
-	if( img->format->BitsPerPixel == 8 )
+	if(img.get() == NULL)
+		return NULL;
+	if(img->format->BitsPerPixel == 8)
 		return img;
 	
 	SmartPointer<SDL_Surface> converted = create_32bpp_sdlsurface__allegroformat(img->w, img->h);
