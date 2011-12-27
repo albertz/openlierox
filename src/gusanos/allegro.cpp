@@ -206,8 +206,6 @@ bool allegro_init() {
 	notes << endl;
 	
 	screen = create_bitmap_ex(32, SCREEN_W, SCREEN_H);
-	notes << "Allegro screen format:" << endl;
-	DumpPixelFormat(screen->surf->format);
 	
 	return true;
 }
