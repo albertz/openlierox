@@ -81,7 +81,7 @@ public:
 	// WARNING 2: the first object always points to this object, so don't free it!
 	std::pair<CTextObject *, CTextObject *> Split(int maxwidth)
 	{
-		std::pair<CTextObject *, CTextObject *> result(NULL, NULL);
+		std::pair<CTextObject *, CTextObject *> result(nullptr, nullptr);
 
 		if (tRect.w <= maxwidth)  {
 			result.first = this;

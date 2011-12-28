@@ -1,0 +1,1384 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="System Files">
+      <UniqueIdentifier>{d87abaf3-3206-48f5-bdbb-989f9e8eed9c}</UniqueIdentifier>
+      <Extensions>cpp, h</Extensions>
+    </Filter>
+    <Filter Include="Game files">
+      <UniqueIdentifier>{07a88d88-499a-47ba-975a-a19cde9f29c7}</UniqueIdentifier>
+      <Extensions>cpp; h</Extensions>
+    </Filter>
+    <Filter Include="Game files\Game Modes">
+      <UniqueIdentifier>{fd9c131e-4df9-47ff-be37-328b8f92c39b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Deprecated GUI">
+      <UniqueIdentifier>{06a005b0-910e-427b-880b-e136904c59f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Libraries">
+      <UniqueIdentifier>{4b01037b-7e2e-4457-bbc7-e5e352df8f5c}</UniqueIdentifier>
+      <Extensions>lib</Extensions>
+    </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{7037d5c9-212d-434c-83ef-77475dbeb58c}</UniqueIdentifier>
+      <Extensions>*</Extensions>
+    </Filter>
+    <Filter Include="Game Core">
+      <UniqueIdentifier>{1aad8cf9-f5c2-4157-a610-580a5893374c}</UniqueIdentifier>
+      <Extensions>cpp, h</Extensions>
+    </Filter>
+    <Filter Include="New GUI">
+      <UniqueIdentifier>{4ec847e9-5296-482b-a4e2-9d0ecba8b954}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Breakpad">
+      <UniqueIdentifier>{32dd9865-d8d0-459e-9066-258d8b367f60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Breakpad\external">
+      <UniqueIdentifier>{483407ad-6014-45d8-b66b-1b00b2d38104}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\include\Autocompletion.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\AuxLib.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Cache.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBytestream.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CChannel.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CFont.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CInput.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Clipboard.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Color.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Condition.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ConversationLogger.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CssParser.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CsvReader.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Cursor.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CVec.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Debug.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DynDraw.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Error.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\EventQueue.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FastVector.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FindFile.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GeoIPDatabase.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Geometry.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GfxPrimitives.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IniReader.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\InputEvents.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IpToCountryDB.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\IRC.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\MathLib.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Music.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Mutex.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\NewNetEngine.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\PixelFunctors.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Process.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\RandomNumberList.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ReadWriteLock.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\sex.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SmartPointer.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StackWalker.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StringBuf.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StringUtils.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\StyleVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\TaskManager.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ThreadPool.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ThreadVar.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Timer.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\types.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\UCString.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Unicode.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\win32memleakdebug.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\XMLutils.h">
+      <Filter>System Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBanList.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CBonus.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CChatBox.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CClient.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameScript.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameSkin.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ChatCommand.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CMap.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CNinjaRope.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CProjectile.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CServer.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CShootList.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CViewport.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWeather.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWorm.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWormBot.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CWpnRest.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DedicatedControl.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Entity.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FlagInfo.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Physics.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\PhysicsLX56.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ProfileSystem.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\ProjAction.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Protocol.h">
+      <Filter>Game files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CGameMode.h">
+      <Filter>Game files\Game Modes</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CAnimation.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CBrowser.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CChatWidget.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCheckbox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CCombobox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiLayout.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkin.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CGuiSkinnedLayout.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CImage.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CInputBox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLabel.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CLine.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CListview.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CMenu.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CProgressbar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CScrollbar.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CSlider.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextbox.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTextButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CTitleButton.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidget.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\CWidgetList.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\Graphics.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\DeprecatedGUI\Menu.h">
+      <Filter>Deprecated GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\con_cmd.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Console.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\CScriptableVars.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FeatureList.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FileDownload.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\HTTP.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\LieroX.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Networking.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Options.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Sounds.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\UploadSpeedTest.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Utils.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\Version.h">
+      <Filter>Game Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CAnimation.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBackground.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBorder.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CBrowser.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CCheckbox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CCombobox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CDialog.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkin.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CGuiSkinnedLayout.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CImage.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CImageButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CInputBox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CItem.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CLabel.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CLine.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CListview.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMapEditor.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMarquee.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMenu.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CMinimap.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CommonDialogs.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CProgressbar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CScrollbar.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CSlider.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTabControl.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextbox.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTextButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CTitleButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CToggleButton.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidget.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\SkinnedGUI\CWidgetEffect.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\FontHandling.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\include\GuiPrimitives.h">
+      <Filter>New GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\BreakPad.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\BreakpadDllExportMacro.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\config.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\DumpSyms.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\ExtractInfo.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\breakpad\on_demand_symbol_supplier.h">
+      <Filter>Breakpad</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\client\AuxLib.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cache.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBytestream.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CChannel.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CFont.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CInput.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Clipboard.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\ConfigHandler.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ConversationLogger.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CssParser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Cursor.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Debug.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DynDraw.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Error.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\EventQueue.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FindFile.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\GeoIPDatabase.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Geometry.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GfxPrimitives.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\IniReader.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\InputEvents.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\IpToCountryDB.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\IRC.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MathLib.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Music.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Mutex.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\NewNetEngine.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\NotifyUser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\OpenExternBrowser.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Process.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\sex.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\SMTP.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StackWalker.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StringBuf.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\StringUtils.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\TaskManager.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\ThreadPool.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Timer.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Unicode.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\XMLutils.cpp">
+      <Filter>System Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CBanList.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CBonus.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CChatBox.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Draw.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Parse.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CClient_Send.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CGameObject.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CGameScript.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CGameSkin.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\ChatCommand.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CMap.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CNinjaRope.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CProjectile.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Game.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Parse.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServer_Send.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CServerConnection.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CShootList.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CViewport.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CWeather.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm_AI.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm_SendRecv.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWorm_Simulate.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CWpnRest.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\DedicatedControl.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Entity.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FlagInfo.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\MapLoader.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Physics.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\PhysicsLX56.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\PhysicsLX56_Projectiles.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\ProfileSystem.cpp">
+      <Filter>Game files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CaptureTheFlag.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CDeathMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CDemolitionsMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CGameMode.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CHideAndSeek.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CRace.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CTag.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\server\CTeamDeathMatch.cpp">
+      <Filter>Game files\Game Modes</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CAnimation.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBar.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CBrowser.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CChatWidget.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCheckbox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CCombobox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiLayout.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkin.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CGuiSkinnedLayout.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CImage.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CInputBox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CListview.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CMenu.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CScrollbar.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CSlider.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextbox.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTextButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CTitleButton.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidget.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\CWidgetList.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Graphics.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_FloatingOptions.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Local.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Main.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Mapeditor.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Chat.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Favourites.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Host.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Internet.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Join.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Lan.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_Main.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Net_News.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Options.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_Player.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\Menu_SpeedTest.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\DeprecatedGUI\MenuSystem.cpp">
+      <Filter>Deprecated GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Command.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Console.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\CrashHandler.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\CScriptableVars.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FeatureList.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\FileDownload.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\HTTP.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\main.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Misc.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Networking.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Options.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\Sounds.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\UploadSpeedTest.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\common\Version.cpp">
+      <Filter>Game Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CAnimation.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBackground.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CBorder.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCheckbox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CCombobox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CDialog.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkin.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CGuiSkinnedLayout.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImage.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CImageButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CInputBox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CItem.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLabel.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CLine.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CListview.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMapEditor.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMarquee.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMenu.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CMinimap.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CommonDialogs.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CProgressbar.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CScrollbar.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CSlider.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTabControl.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CTextbox.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CToggleButton.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\SkinnedGUI\CWidget.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\FontHandling.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\client\GuiPrimitives.cpp">
+      <Filter>New GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\BreakPad.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\DumpSyms.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\ExtractInfo.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\on_demand_symbol_supplier.cpp">
+      <Filter>Breakpad</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\address_map_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_code_modules.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_source_line_resolver.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\basic_source_line_resolver_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\call_stack.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\client_info.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\contained_range_map_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\convert_UTF.c">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_client.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_server.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\sender\crash_report_sender.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\handler\exception_handler.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\guid_string.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\http_upload.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\logging.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\md5.c">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_dump.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\minidump_file_writer.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\minidump_file_writer_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\client\windows\crash_generation\minidump_generator.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_processor.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_processor_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\minidump_stackwalk.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\pathname_stripper.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\pathname_stripper_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\postfix_evaluator_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\process_state.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\range_map_unittest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\simple_symbol_supplier.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_amd64.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_ppc.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_selftest.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_sparc.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\processor\stackwalker_x86.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\string_conversion.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\breakpad\external\src\common\windows\string_utils.cc">
+      <Filter>Breakpad\external</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\msvc\libs\bgd.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\dbghelp.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\libxml2.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\lua5.1.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\pthreadVCE.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\sdlgfx.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+    <Library Include="..\msvc\libs\zlib.lib">
+      <Filter>Libraries</Filter>
+    </Library>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\share\OpenLieroX.ico">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resource.rc">
+      <Filter>Resources</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\address_map-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\address_map.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\common\auto_critical_section.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\basic_code_module.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\basic_code_modules.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\basic_source_line_resolver.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\breakpad_googletest_includes.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\breakpad_types.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\call_stack.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\crash_generation\client_info.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\code_module.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\code_modules.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\contained_range_map-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\contained_range_map.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\convert_UTF.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_client.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\crash_generation\crash_generation_server.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\sender\crash_report_sender.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\handler\exception_handler.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\windows\guid_string.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\windows\http_upload.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\common\ipc_protocol.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\linked_ptr.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\logging.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\md5.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\memory_region.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\minidump.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_cpu_amd64.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_cpu_ppc.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_cpu_ppc64.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_cpu_sparc.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_cpu_x86.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_exception_linux.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_exception_mac.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_exception_solaris.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_exception_win32.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\minidump_file_writer-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\minidump_file_writer.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_format.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\client\windows\crash_generation\minidump_generator.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\minidump_processor.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\common\minidump_size.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\pathname_stripper.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\windows\pdb_source_line_writer.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\postfix_evaluator-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\postfix_evaluator.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\process_state.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\range_map-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\range_map.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\scoped_ptr.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\simple_symbol_supplier.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\source_line_resolver_interface.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\stack_frame.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\stack_frame_cpu.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\stack_frame_info.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\stackwalker.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\stackwalker_amd64.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\stackwalker_ppc.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\stackwalker_sparc.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\processor\stackwalker_x86.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\string_conversion.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\common\windows\string_utils-inl.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\symbol_supplier.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+    <CustomBuildStep Include="..\..\src\breakpad\external\src\google_breakpad\processor\system_info.h">
+      <Filter>Breakpad\external</Filter>
+    </CustomBuildStep>
+  </ItemGroup>
+</Project>
