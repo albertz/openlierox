@@ -2579,9 +2579,10 @@ void DumpPixelFormat(const SDL_PixelFormat* format) {
 
 void DumpSurface(SDL_Surface* s) {
 	DumpPixelFormat(s->format);
+	std::string pfmt = " %." + itoa(s->format->BytesPerPixel*2) + "X";
 	for(int y = 0; y < MIN(10, s->h); ++y) {
 		for(int x = 0; x < MIN(10, s->w); ++x)
-			printf(" %.8X", GetPixel(s, x, y));
+			printf(pfmt.c_str(), GetPixel(s, x, y));
 		printf("\n");
 	}
 }
