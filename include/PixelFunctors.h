@@ -451,6 +451,9 @@ INLINE PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Sur
 	const int srcbytespp = source_surf->format->BytesPerPixel;
 	const int dstbytespp = dest_surf->format->BytesPerPixel;
 
+#define _FAIL_RETURN  \
+	assert(false); return PixelCopy_Class<false,false,false,false,false,1,1>::getInstance(source_surf->format, dest_surf->format)
+
 #define _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, av7) \
 	return PixelCopy_Class<av1,av2,av3,av4,av5,av6,av7>::getInstance(source_surf->format, dest_surf->format);
 
@@ -460,7 +463,7 @@ INLINE PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Sur
 		else if(dstbytespp == 3) _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, 3) \
 		else if(dstbytespp == 2) _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, 2) \
 		else if(dstbytespp == 1) _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, 1) \
-		else assert(false); \
+		else _FAIL_RETURN; \
 	}
 
 #define _BRANCH6(av1,av2,av3,av4,av5) \
@@ -469,7 +472,7 @@ INLINE PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Sur
 		else if(srcbytespp == 3) _BRANCH7(av1,av2,av3,av4,av5, 3) \
 		else if(srcbytespp == 2) _BRANCH7(av1,av2,av3,av4,av5, 2) \
 		else if(srcbytespp == 1) _BRANCH7(av1,av2,av3,av4,av5, 1) \
-		else assert(false); \
+		else _FAIL_RETURN; \
 	}
 
 #define _BRANCH5(av1,av2,av3,av4) \

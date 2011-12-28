@@ -201,7 +201,7 @@ void Console::parseLine(const string &text, bool parseRelease)
 		std::streamoff pos = handler.str.tellg();
 		if(pos > 0)
 		{
-			addLogMsg(std::string(pos - 1, '-') + '^');
+			addLogMsg(std::string((unsigned int)pos - 1, '-') + '^');
 			addLogMsg(error.what());
 		}
 		else
