@@ -116,7 +116,6 @@ public:
 	{
 		OWNER = 0,
 		PROXY,
-		AI,
 	};
 	
 	enum ResetReason

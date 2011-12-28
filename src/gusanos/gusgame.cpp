@@ -1086,9 +1086,6 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, CWorm* worm )
 				
 		case PROXY:
 			return new ProxyPlayer(worm);
-		
-		case AI:
-			return new PlayerAI(worm);
 	}
 		
 	return NULL;
