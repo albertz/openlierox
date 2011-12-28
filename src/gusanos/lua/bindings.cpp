@@ -199,62 +199,6 @@ int l_console_get(lua_State* L)
 }
 
 
-int l_quit(lua_State* L)
-{
-	// TODO: quit from Lua?
-	// I would vote for no
-	return 0;
-}
-
-/*! connect(address)
-
-	Connects to the address passed.
-*/
-int l_connect(lua_State* L)
-{
-	char const* s = lua_tostring(L, 1);
-	if(!s)
-		return 0;
-	//network.connect(s);
-	console.addQueueCommand(std::string("connect ") + s);
-	return 0;
-}
-
-/*! host(map)
-
-	Hosts a networked game with the current mod and map //map//.
-*/
-int l_host(lua_State* L)
-{
-	char const* map = lua_tostring(L, 1);
-	if(!map)
-		return 0;
-	
-	// TODO: Lua host
-	// or should we also ignore this (as well as map)?
-	//gusGame.options.host = 1;
-	//gusGame.changeLevelCmd( map );
-	return 0;
-}
-
-/*! map(map)
-
-	Loads the map //map// with the current mod.
-*/
-int l_map(lua_State* L)
-{
-	char const* map = lua_tostring(L, 1);
-	if(!map)
-		return 0;
-
-	// TODO: Lua map command
-	// or should we ignore this?
-//	gusGame.options.host = 0;
-//	gusGame.changeLevelCmd( map );
-	return 0;
-}
-
-
 LUA_CALLBACK(luaConsoleCommand(LuaReference ref, std::list<std::string> const& args))
 	for(std::list<std::string>::const_iterator i = args.begin();
 		i != args.end();
@@ -417,7 +361,14 @@ std::string runLua(LuaReference ref, std::list<std::string> const& args)
 	return "";
 }*/
 
+#define IMPL_OLD_LUAFUNC(name) \
+	int name(lua_State* L) \
+	{ warnings << #name << " not implemented" << endl; return 0; }
 
+	IMPL_OLD_LUAFUNC(l_console_key_for_action);
+	IMPL_OLD_LUAFUNC(l_console_bind);
+	IMPL_OLD_LUAFUNC(l_console_action_for_key);
+	
 void init()
 {
 	LuaContext& context = lua;
@@ -435,13 +386,11 @@ void init()
 	context.functions()
 		("print", print)
 		("console_register_command", l_console_register_command)
+		("console_key_for_action", l_console_key_for_action)
+		("console_bind", l_console_bind)
+		("console_action_for_key", l_console_action_for_key)
 		//("dump", l_dump)
 		//("undump", l_undump)
-		("quit", l_quit)
-		("bind", l_bind)
-		("connect", l_connect)
-		("host", l_host)
-		("map", l_map)
 	;
 
 	// Bindings table and metatable
