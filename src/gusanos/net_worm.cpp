@@ -35,7 +35,13 @@ void CWorm::NetWorm_Init(bool isAuthority)
 {
 	if(m_ninjaRope == NULL) {
 		errors << "CWorm::NetWorm_Init: ninja rope is NULL, should not have happend here" << endl;
+		if(!gusGame.isLoaded())
+			errors << "  and gusGame is not loaded" << endl;
 		gusInit(); // hack, try to make it initialised
+		if(m_ninjaRope == NULL) {
+			errors << "  ninjarope is still NULL, we have to break Gusanos networking, we would crash otherwise" << endl;
+			return;
+		}
 	}
 	
 	if(m_node || m_interceptor) {
