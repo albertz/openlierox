@@ -166,7 +166,6 @@ public:
 	bool hasMod(std::string const& mod);
 	void runInitScripts();
 	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
-	CWormInputHandler* addPlayer( PLAYER_TYPE type, CWorm* worm );
 	//static Net_Node* getNode();
 	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* data, Net_ConnID connID);
 	

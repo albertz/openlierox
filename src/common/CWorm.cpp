@@ -36,6 +36,7 @@
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
 #include "gusanos/player_options.h"
+#include "gusanos/proxy_player.h"
 #include "game/GameMode.h"
 #include "CodeAttributes.h"
 
@@ -302,7 +303,7 @@ void CWorm::Prepare(bool serverSide)
 			m_inputHandler = m_type->createInputHandler(this);
 			m_inputHandler->assignNetworkRole(true);
 		} else if(game.needProxyWormInputHandler()) {
-			m_inputHandler = gusGame.addPlayer ( GusGame::PROXY, this );
+			m_inputHandler = new ProxyPlayer(this);
 		
 			unsigned int uniqueID = 0;
 			do {

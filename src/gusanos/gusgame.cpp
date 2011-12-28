@@ -1076,20 +1076,6 @@ void GusGame::insertExplosion( Explosion* explosion )
 	game.objects.insert( explosion, Grid::NoColLayer, explosion->getType()->renderLayer);
 }
 
-CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, CWorm* worm )
-{
-	switch(type)
-	{
-		case OWNER:
-			return new CWormHumanInputHandler( worm );
-				
-		case PROXY:
-			return new ProxyPlayer(worm);
-	}
-		
-	return NULL;
-}
-
 unsigned long GusGame::stringToIndex(std::string const& str)
 {
 	HashTable<std::string, unsigned long>::iterator i = stringToIndexMap.find(str);
