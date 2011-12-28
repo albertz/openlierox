@@ -180,14 +180,7 @@ bool ExpType::load(std::string const& filename)
 			break;
 		}
 	}
-			
-/*
-#ifndef DEDICATED_ONLY
-					else if ( var == "light_radius" ) lightHax = genLight( cast<int>(val) );
-#else
-					else if ( var == "light_radius" ) ;
-#endif
-*/
+
 	return true;
 }
 

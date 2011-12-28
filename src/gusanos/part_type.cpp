@@ -359,7 +359,9 @@ bool PartType::load(std::string const& filename)
 			sprite = spriteList.load(v->toString());
 	}
 	{
-		OmfgScript::TokenBase* v = parser.getDeprProperty("light_radius");
+		// NOTE: this was deprecated in Gusanos. We don't mark it this way because it is used
+		// quite often and the warning is annoying.
+		OmfgScript::TokenBase* v = parser.getProperty("light_radius");
 		if(!v->isDefault())
 			lightHax = genLight(v->toInt(0));
 	}
@@ -449,16 +451,7 @@ bool PartType::load(std::string const& filename)
 	if(animtypestr == "ping_pong") animType = ANIM_PINGPONG;
 	else if(animtypestr == "loop_right") animType = ANIM_LOOPRIGHT;
 	else if(animtypestr == "right_once") animType = ANIM_RIGHTONCE;
-	
-	
-/*
-#ifndef DEDICATED_ONLY
-	else if ( var == "light_radius" ) lightHax = genLight(cast<int>(val));
-#else
-	else if ( var == "light_radius" ) ;
-#endif
-*/
-		
+			
 	alpha = parser.getInt("alpha", 255);
 	wupixels = parser.getBool("wu_pixels", false);
 	
