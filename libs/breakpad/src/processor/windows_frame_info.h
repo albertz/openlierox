@@ -47,6 +47,7 @@
 #include "google_breakpad/common/breakpad_types.h"
 #include "processor/logging.h"
 #include "processor/tokenize.h"
+#define strtoull _strtoui64
 
 namespace google_breakpad {
 

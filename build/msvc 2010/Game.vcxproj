@@ -68,7 +68,7 @@
       <Optimization>Disabled</Optimization>
       <WholeProgramOptimization>false</WholeProgramOptimization>
       <AdditionalIncludeDirectories>..\..\optional-includes\generated;..\..\include;../../libs/hawknl/src/;..\..\libs\boost_process;..\..\libs\libzip;..\..\src\breakpad\external\src;../../src/;..\..\libs\lua;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;USE_DEFAULT_MSC_DELEAKER;HAVE_BOOST;ZLIB_WIN32_NODLL;NBREAKPAD;BOOST_NO_STATIC_ASSERT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <ExceptionHandling>Sync</ExceptionHandling>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -131,7 +131,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>true</WholeProgramOptimization>
       <AdditionalIncludeDirectories>../../optional-includes/generated;../../include;../../libs/hawknl/include;../../libs/hawknl/src;../../libs/boost_process;../../libs/libzip;../../libs/lua;../../libs/breakpad/src;../../src/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;HAVE_BOOST;ZLIB_WIN32_NODLL;BOOST_NO_STATIC_ASSERT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -397,8 +397,6 @@
     <ClInclude Include="..\..\src\gusanos\gusanos.h" />
     <ClInclude Include="..\..\src\gusanos\gusgame.h" />
     <ClInclude Include="..\..\src\gusanos\hash_table.h" />
-    <ClInclude Include="..\..\src\gusanos\keyboard.h" />
-    <ClInclude Include="..\..\src\gusanos\keys.h" />
     <ClInclude Include="..\..\src\gusanos\level.h" />
     <ClInclude Include="..\..\src\gusanos\level_effect.h" />
     <ClInclude Include="..\..\src\gusanos\material.h" />
@@ -414,7 +412,6 @@
     <ClInclude Include="..\..\src\gusanos\parser.h" />
     <ClInclude Include="..\..\src\gusanos\part_type.h" />
     <ClInclude Include="..\..\src\gusanos\particle.h" />
-    <ClInclude Include="..\..\src\gusanos\player_ai.h" />
     <ClInclude Include="..\..\src\gusanos\player_input.h" />
     <ClInclude Include="..\..\src\gusanos\player_options.h" />
     <ClInclude Include="..\..\src\gusanos\posspd_replicator.h" />
@@ -441,7 +438,6 @@
     <ClInclude Include="..\..\src\gusanos\blitters\mmx.h" />
     <ClInclude Include="..\..\src\gusanos\blitters\types.h" />
     <ClInclude Include="..\..\src\gusanos\console\alias.h" />
-    <ClInclude Include="..\..\src\gusanos\console\bindings.h" />
     <ClInclude Include="..\..\src\gusanos\console\command.h" />
     <ClInclude Include="..\..\src\gusanos\console\console-grammar.h" />
     <ClInclude Include="..\..\src\gusanos\console\console.h" />
@@ -1152,8 +1148,6 @@
     <ClCompile Include="..\..\src\gusanos\gusanos.cpp" />
     <ClCompile Include="..\..\src\gusanos\gusgame.cpp" />
     <ClCompile Include="..\..\src\gusanos\hash_table.cpp" />
-    <ClCompile Include="..\..\src\gusanos\keyboard.cpp" />
-    <ClCompile Include="..\..\src\gusanos\keys.cpp" />
     <ClCompile Include="..\..\src\gusanos\level.cpp" />
     <ClCompile Include="..\..\src\gusanos\level_effect.cpp" />
     <ClCompile Include="..\..\src\gusanos\material.cpp" />
@@ -1168,7 +1162,6 @@
     <ClCompile Include="..\..\src\gusanos\parser.cpp" />
     <ClCompile Include="..\..\src\gusanos\part_type.cpp" />
     <ClCompile Include="..\..\src\gusanos\particle.cpp" />
-    <ClCompile Include="..\..\src\gusanos\player_ai.cpp" />
     <ClCompile Include="..\..\src\gusanos\player_input.cpp" />
     <ClCompile Include="..\..\src\gusanos\player_options.cpp" />
     <ClCompile Include="..\..\src\gusanos\posspd_replicator.cpp" />
@@ -1196,7 +1189,6 @@
     <ClCompile Include="..\..\src\gusanos\blitters\mult.cpp" />
     <ClCompile Include="..\..\src\gusanos\blitters\mult_simd.cpp" />
     <ClCompile Include="..\..\src\gusanos\console\alias.cpp" />
-    <ClCompile Include="..\..\src\gusanos\console\bindings.cpp" />
     <ClCompile Include="..\..\src\gusanos\console\command.cpp">
       <ObjectFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.obj</ObjectFileName>
       <XMLDocumentationFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IntDir)%(FileName)1.xdc</XMLDocumentationFileName>

@@ -599,9 +599,6 @@
     <ClInclude Include="..\..\src\gusanos\console\alias.h">
       <Filter>Gusanos\console</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\console\bindings.h">
-      <Filter>Gusanos\console</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\gusanos\console\command.h">
       <Filter>Gusanos\console</Filter>
     </ClInclude>
@@ -713,12 +710,6 @@
     <ClInclude Include="..\..\src\gusanos\hash_table.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\keyboard.h">
-      <Filter>Gusanos</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\keys.h">
-      <Filter>Gusanos</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\gusanos\level.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
@@ -813,9 +804,6 @@
       <Filter>Gusanos</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\gusanos\part_type.h">
-      <Filter>Gusanos</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\gusanos\player_ai.h">
       <Filter>Gusanos</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\gusanos\player_input.h">
@@ -1501,9 +1489,6 @@
     <ClCompile Include="..\..\src\gusanos\console\alias.cpp">
       <Filter>Gusanos\console</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\console\bindings.cpp">
-      <Filter>Gusanos\console</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\console\command.cpp">
       <Filter>Gusanos\console</Filter>
     </ClCompile>
@@ -1600,12 +1585,6 @@
     <ClCompile Include="..\..\src\gusanos\hash_table.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\keyboard.cpp">
-      <Filter>Gusanos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\keys.cpp">
-      <Filter>Gusanos</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\gusanos\level.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
@@ -1685,9 +1664,6 @@
       <Filter>Gusanos</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\part_type.cpp">
-      <Filter>Gusanos</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\gusanos\player_ai.cpp">
       <Filter>Gusanos</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\gusanos\player_input.cpp">
