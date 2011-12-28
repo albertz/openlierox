@@ -163,6 +163,38 @@ void SetColorKey(SDL_Surface * dst, Uint8 r, Uint8 g, Uint8 b) {
 	SDL_SetColorKey(dst, SDL_SRCCOLORKEY, SDL_MapRGB(dst->format, r, g, b));
 }
 
+struct VideoFormat {
+	Uint32 bpp;
+	Uint32 amask;
+	Uint32 rmask;
+	Uint32 gmask;
+	Uint32 bmask;
+
+	VideoFormat() {}
+	VideoFormat(const SDL_PixelFormat* fmt) {
+		bpp = fmt->BitsPerPixel;
+		rmask = fmt->Rmask;
+		gmask = fmt->Gmask;
+		bmask = fmt->Bmask;
+		amask = fmt->Amask;
+	}
+	
+	bool operator==(const VideoFormat& f) const {
+		return
+		bpp == f.bpp &&
+		amask == f.amask &&
+		rmask == f.rmask &&
+		gmask == f.gmask &&
+		bmask == f.bmask;
+	}
+	bool operator!=(const VideoFormat& f) const { return !(*this == f); }
+};
+
+INLINE VideoFormat getMainVideoFormat() {
+	return VideoFormat(getMainPixelFormat());
+}
+
+
 //////////////////////////////
 // Create a surface without any alpha channel
 SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoftware)
@@ -170,12 +202,12 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SDL_PixelFormat* fmt = getMainPixelFormat();
+	const VideoFormat fmt = getMainVideoFormat();
 
 	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 			forceSoftware ? SDL_SWSURFACE : iSurfaceFormat,
 			width, height,
-			fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
+			fmt.bpp, fmt.rmask, fmt.gmask, fmt.bmask, fmt.amask);
 
 	if (result.get() != NULL)  {
 		// OpenGL strictly requires the surface to be cleared
@@ -190,14 +222,6 @@ SmartPointer<SDL_Surface> gfxCreateSurface(int width, int height, bool forceSoft
 	return result;
 }
 
-
-struct VideoFormat {
-	Uint32 bpp;
-	Uint32 amask;
-	Uint32 rmask;
-	Uint32 gmask;
-	Uint32 bmask;
-};
 
 static VideoFormat bestSoftwareAlphaFormat() {
 	VideoFormat f;
@@ -244,6 +268,21 @@ static VideoFormat bestSoftwareAlphaFormat() {
 	return f;
 }
 
+INLINE VideoFormat getMainAlphaVideoFormat() {
+	SDL_PixelFormat* fmt = getMainPixelFormat();
+	
+	if(fmt->Amask != 0) // the main pixel format supports alpha blending
+		return VideoFormat(fmt);
+	
+	// no native alpha blending, so create a software alpha blended surface
+	return bestSoftwareAlphaFormat();
+}
+
+INLINE VideoFormat getMainVideoFormat(bool withalpha) {
+	if(withalpha) return getMainAlphaVideoFormat();
+	else return getMainVideoFormat();
+}
+
 /////////////////////////
 // Create a surface with an alpha channel
 SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forceSoftware)
@@ -251,22 +290,11 @@ SmartPointer<SDL_Surface> gfxCreateSurfaceAlpha(int width, int height, bool forc
 	if (width <= 0 || height <= 0) // Nonsense, can cause trouble
 		return NULL;
 
-	SmartPointer<SDL_Surface> result;
-	SDL_PixelFormat* fmt = getMainPixelFormat();
-
-	if(fmt->Amask != 0) // the main pixel format supports alpha blending
-		result = SDL_CreateRGBSurface(
-				(forceSoftware ? SDL_SWSURFACE : iSurfaceFormat) | SDL_SRCALPHA,
-				width, height,
-				fmt->BitsPerPixel, fmt->Rmask, fmt->Gmask, fmt->Bmask, fmt->Amask);
-
-	else { // no native alpha blending, so create a software alpha blended surface
-		const VideoFormat f = bestSoftwareAlphaFormat();
-		result = SDL_CreateRGBSurface(
+	const VideoFormat f = getMainAlphaVideoFormat();
+	SmartPointer<SDL_Surface> result = SDL_CreateRGBSurface(
 				SDL_SWSURFACE | SDL_SRCALPHA,
 				width, height,
 				f.bpp, f.rmask, f.gmask, f.bmask, f.amask);
-	}
 	
 	if (result.get() != NULL)
 		// OpenGL strictly requires the surface to be cleared
@@ -2620,8 +2648,15 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 	std::string ext = GetFileExtensionWithDot(_filename);
 	stringlwr(ext);
 	gdImagePtr src = NULL;
-	if(ext == ".bmp")
-		src = gdImageCreateFromWBMP(f);
+	if(ext == ".bmp") {
+		SDL_Surface* s = SDL_LoadBMP_RW(SDL_RWFromFP(f, false), false);
+		fclose(f);
+		if(s == NULL) {
+			errors << "LoadGameImage: cannot load bmp: " << _filename << endl;
+			return NULL;
+		}
+		return s;
+	}
 	else if(ext == ".jpg" || ext == ".jpeg")
 		src = gdImageCreateFromJpeg(f);
 	else if(ext == ".png")
@@ -2630,8 +2665,10 @@ SmartPointer<SDL_Surface> LoadGameImage_viaGd(const std::string& _filename, bool
 		src = gdImageCreateFromGif(f);
 	else {
 		errors << "LoadGameImage: file extension unknown: " << _filename << endl;
+		fclose(f);
 		return NULL;
 	}
+	fclose(f);
 	
 	if(src == NULL) {
 		errors << "LoadGameImage: cannot load: " << _filename << endl;
@@ -2684,50 +2721,54 @@ SmartPointer<SDL_Surface> LoadGameImage(const std::string& _filename, bool witha
 	}
 	
 #if USE_GD_FOR_IMAGE_LOADING
-	SmartPointer<SDL_Surface> Image = LoadGameImage_viaGd(_filename, withalpha, false);	
-	if(!Image.get()) return NULL;
+	SmartPointer<SDL_Surface> img = LoadGameImage_viaGd(_filename, withalpha, false);	
 #else
-	SmartPointer<SDL_Surface> img = LoadGameImage_viaSdlImage(_filename, withalpha, false);		
+	SmartPointer<SDL_Surface> img = LoadGameImage_viaSdlImage(_filename, withalpha, false);
+#endif
 	if(!img.get()) return NULL;
 	
-	SmartPointer<SDL_Surface> Image;
-	if(bDedicated || !VideoPostProcessor::videoSurface()) {
-		if(!bDedicated)
-			// we haven't initialized the screen yet
-			warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;	
-		
-		if (withalpha)
-			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
-		else
-			Image = gfxCreateSurface(img.get()->w, img.get()->h);			
-		CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
-	}
-	else {
-		// Convert the image to the screen's colour depth
-		if (withalpha)  {
-			Image = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
-			CopySurface(Image.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
-		} else {
-			SDL_PixelFormat fmt = *(getMainPixelFormat());
-			img.get()->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
-			img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
-			Image = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
-			Image.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
+	const VideoFormat wantedFormat = getMainVideoFormat(withalpha);
+	const Uint32 wantedFlags = (withalpha ? SDL_SRCALPHA : 0) | SDL_SWSURFACE;
+	if(wantedFormat != VideoFormat(img->format) || img->flags != wantedFlags) {
+		SmartPointer<SDL_Surface> converted;
+		if(bDedicated || !VideoPostProcessor::videoSurface()) {
+			if(!bDedicated)
+				// we haven't initialized the screen yet
+				warnings << "LoadGameImage: screen not initialized yet while loading image" << endl;	
+			
+			if (withalpha)
+				converted = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
+			else
+				converted = gfxCreateSurface(img.get()->w, img.get()->h);			
+			CopySurface(converted.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
 		}
+		else {
+			// Convert the image to the screen's colour depth
+			if (withalpha)  {
+				converted = gfxCreateSurfaceAlpha(img.get()->w, img.get()->h);
+				CopySurface(converted.get(), img, 0, 0, 0, 0, img.get()->w, img.get()->h);
+			} else {
+				SDL_PixelFormat fmt = *(getMainPixelFormat());
+				img.get()->flags &= ~SDL_SRCALPHA; // Remove the alpha flag here, ConvertSurface will remove the alpha completely later
+				img.get()->flags &= ~SDL_SRCCOLORKEY; // Remove the colorkey here, we don't want it (normally it shouldn't be activated here, so only for safty)
+				converted = SDL_ConvertSurface(img.get(), &fmt, iSurfaceFormat);
+				converted.get()->flags &= ~SDL_SRCALPHA; // we explicitly said that we don't want alpha, so remove it
+			}
+		}
+		
+		if(!converted.get()) {
+			errors << "LoadGameImage: cannot create new surface" << endl;
+			return NULL;
+		}
+		img = converted;
 	}
 	
-	if(!Image.get()) {
-		errors << "LoadGameImage: cannot create new surface" << endl;
-		return NULL;
-	}	
-#endif
-
 	// Save to cache
 	#ifdef DEBUG
 	//printf("LoadImage() %p %s\n", Image.get(), _filename.c_str() );
 	#endif
-	cCache.SaveImage__unsafe(_filename, Image);
-	return Image;
+	cCache.SaveImage__unsafe(_filename, img);
+	return img;
 }
 
 void test_Clipper() {
