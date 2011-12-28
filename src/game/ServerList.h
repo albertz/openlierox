@@ -109,6 +109,7 @@ class ServerListNetwork  {
 public:
 	class ResponseListener  {
 	public:
+		virtual ~ResponseListener() {}
 		// Returns true if the listener doesn't expect any more packets to arrive
 		virtual bool onResponse(const std::string& response) = 0;
 
@@ -163,6 +164,7 @@ public:
 
 	class Action  {
 	public:
+		virtual ~Action() {}
 		virtual bool handle(server_t::Ptr& s) { return true; }
 		virtual bool handleConst(const server_t::Ptr& s) { return true; }
 	};

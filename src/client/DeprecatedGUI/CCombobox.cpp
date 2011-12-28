@@ -387,7 +387,7 @@ int CCombobox::MouseDown(mouse_t *tMouse, int nDown)
 				if (!bDropped)  {  // Not dropped, drop it
 					bArrowDown = true;
 					bDropped = true;
-					iKeySelectedItem = -1;
+					iKeySelectedItem = iSelected;
 					iDropTime = iNow;
 				} else {
 					// If clicked the arrow or body again, close the combobox
