@@ -159,7 +159,6 @@ public:
 	void refreshLevels();
 	void refreshMods();
 	bool reloadModWithoutMap();
-	void createNetworkPlayers();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
 	bool changeLevel(const std::string& levelName, bool refresh = true);
@@ -167,10 +166,8 @@ public:
 	bool hasLevel(std::string const& level);
 	bool hasMod(std::string const& mod);
 	void runInitScripts();
-	void addBot();
 	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
 	CWormInputHandler* addPlayer( PLAYER_TYPE type, CWorm* worm );
-	CWorm* addWorm(bool isAuthority); // Creates a worm class depending on the network condition.
 	//static Net_Node* getNode();
 	static void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* data, Net_ConnID connID);
 	

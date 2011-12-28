@@ -470,30 +470,6 @@ void GusGame::think()
 			}
 			
 			runInitScripts();
-				
-			// All this is temporal, dont be scared ;D
-			if ( loaded && level().gusIsLoaded() ) 
-			{
-				if ( network.isHost() )
-				{
-					createNetworkPlayers();
-				}
-				else if ( !network.isClient() )
-				{
-					if(true)
-					{
-						CWorm* worm = addWorm(true);
-						addPlayer ( OWNER, worm );
-						//player->assignWorm(worm);
-					}
-					if(options.splitScreen)
-					{
-						CWorm* worm = addWorm(true);
-						addPlayer ( OWNER, worm );
-						//player->assignWorm(worm);
-					}
-				}
-			}
 		mq_end_case()
 	mq_end_process_messages()
 
@@ -878,24 +854,6 @@ void GusGame::refreshMods()
 	}
 }
 
-void GusGame::createNetworkPlayers()
-{
-	CWorm* worm = addWorm(true);
-	CWormInputHandler* player = addPlayer ( OWNER, worm );
-	player->assignNetworkRole(true);
-	//player->assignWorm(worm);
-
-	if(options.splitScreen)
-	{
-		// TODO: Factorize all this out, its being duplicated on client.cpp also :O
-		CWorm* worm = addWorm(true); 
-		CWormInputHandler* player = addPlayer ( OWNER, worm );
-		player->assignNetworkRole(true);
-		//player->assignWorm(worm);
-	}
-}
-
-
 bool GusGame::changeLevelCmd(const std::string& levelName )
 {
 	warnings << "GusGame::changeLevelCmd not supported anymore" << endl;
@@ -1134,39 +1092,6 @@ CWormInputHandler* GusGame::addPlayer( PLAYER_TYPE type, CWorm* worm )
 	}
 		
 	return NULL;
-}
-
-CWorm* GusGame::addWorm(bool isAuthority)
-{
-	CWorm* returnWorm = NULL;
-/*
- // commented out for OLX
-	if ( network.isHost() || network.isClient() )
-	{
-		NetWorm* netWorm = new NetWorm(isAuthority);
-		returnWorm = netWorm;
-	}else
-	{
-		Worm* worm = new Worm();
-		returnWorm = worm;
-	}
- */
-	if ( !returnWorm ) allegro_message("moo");
-
-	game.onNewWorm(returnWorm);
-	
-	return returnWorm;
-}
-
-void GusGame::addBot()
-{
-	if ( loaded && level().gusIsLoaded() )
-	{
-		CWorm* worm = addWorm(true); 
-		CWormInputHandler* player = addPlayer(AI, worm);
-		if ( network.isHost() ) player->assignNetworkRole(true);
-		//player->assignWorm(worm);
-	}
 }
 
 unsigned long GusGame::stringToIndex(std::string const& str)
