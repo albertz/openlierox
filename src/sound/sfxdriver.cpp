@@ -28,8 +28,33 @@ void SfxDriver::setListeners(std::vector<Listener*> &_listeners)
 	listeners=_listeners;
 }
 
+
+string wrapper__guscon_sfx_volume(const list<string> &args)
+{
+	if(args.size() >= 1)
+		return ""; // just ignore
+
+	// Gusanos volume range is 0-255
+	// LX volume range is 0-100
+	return itoa(Round(float(tLXOptions->iSoundVolume) * 0.01f * 255.0f));
+}
+
+string wrapper__guscon_sfx_listener_distance(const list<string> &args)
+{
+	if(args.size() >= 1)
+		return ""; // just ignore
+
+	return ftoa(SFX_LISTENER_DISTANCE);
+}
+
+
 void SfxDriver::registerInConsole()
 {
+	console.registerCommands()
+			("SFX_VOLUME", wrapper__guscon_sfx_volume)
+			("SFX_LISTENER_DISTANCE", wrapper__guscon_sfx_listener_distance)
+			;
+
 	// NOTE: When/if adding a callback to sfx variables, make it do nothing if
 	// sfx.operator bool() returns false.
 }
