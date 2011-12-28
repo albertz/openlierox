@@ -647,11 +647,19 @@ void CWorm::readWeapons(CBytestream *bs)
 	notes << endl;
 
 	// Reset the weapons
-	for(ushort i=0; i<5; i++) {
-		tWeapons[i].Charge = 1;
-		tWeapons[i].Reloading = false;
-		tWeapons[i].SlotNum = i;
-		tWeapons[i].LastFire = 0;
+	if (cServer->getState() == SVS_PLAYING)  {
+		// Do not recharge weapons when already playing
+		// This prevents cheating by re-selecting the same weapons
+		for(ushort i=0; i<5; i++) {
+			tWeapons[i].SlotNum = i;
+		}
+	} else {
+		for(ushort i=0; i<5; i++) {
+			tWeapons[i].Charge = 1;
+			tWeapons[i].Reloading = false;
+			tWeapons[i].SlotNum = i;
+			tWeapons[i].LastFire = 0;
+		}
 	}
 	
 	bWeaponsReady = true;
