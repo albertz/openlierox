@@ -255,7 +255,6 @@
 		23C34C2910CC208200DABBD6 /* alutVersion.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1A10CC208200DABBD6 /* alutVersion.c */; };
 		23C34C2A10CC208200DABBD6 /* alutWaveform.c in Sources */ = {isa = PBXBuildFile; fileRef = 23C34C1B10CC208200DABBD6 /* alutWaveform.c */; };
 		23C34D1B10CC3ACE00DABBD6 /* alias.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34D0C10CC3ACE00DABBD6 /* alias.cpp */; };
-		23C34D1C10CC3ACE00DABBD6 /* bindings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34D0E10CC3ACE00DABBD6 /* bindings.cpp */; };
 		23C34D1D10CC3ACE00DABBD6 /* command.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34D1010CC3ACE00DABBD6 /* command.cpp */; };
 		23C34D1E10CC3ACE00DABBD6 /* console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34D1310CC3ACE00DABBD6 /* console.cpp */; };
 		23C34D1F10CC3ACE00DABBD6 /* consoleitem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34D1510CC3ACE00DABBD6 /* consoleitem.cpp */; };
@@ -1091,8 +1090,6 @@
 		23C34CC410CC392100DABBD6 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = System/Library/Frameworks/OpenAL.framework; sourceTree = SDKROOT; };
 		23C34D0C10CC3ACE00DABBD6 /* alias.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = alias.cpp; sourceTree = "<group>"; };
 		23C34D0D10CC3ACE00DABBD6 /* alias.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = alias.h; sourceTree = "<group>"; };
-		23C34D0E10CC3ACE00DABBD6 /* bindings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bindings.cpp; sourceTree = "<group>"; };
-		23C34D0F10CC3ACE00DABBD6 /* bindings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = bindings.h; sourceTree = "<group>"; };
 		23C34D1010CC3ACE00DABBD6 /* command.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = command.cpp; sourceTree = "<group>"; };
 		23C34D1110CC3ACE00DABBD6 /* command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = command.h; sourceTree = "<group>"; };
 		23C34D1210CC3ACE00DABBD6 /* console-grammar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "console-grammar.h"; sourceTree = "<group>"; };
@@ -2236,8 +2233,6 @@
 			children = (
 				23C34D0C10CC3ACE00DABBD6 /* alias.cpp */,
 				23C34D0D10CC3ACE00DABBD6 /* alias.h */,
-				23C34D0E10CC3ACE00DABBD6 /* bindings.cpp */,
-				23C34D0F10CC3ACE00DABBD6 /* bindings.h */,
 				23C34D1010CC3ACE00DABBD6 /* command.cpp */,
 				23C34D1110CC3ACE00DABBD6 /* command.h */,
 				23C34D1210CC3ACE00DABBD6 /* console-grammar.h */,
@@ -3529,7 +3524,6 @@
 				23C3436010C825A300DABBD6 /* GfxSaveSurface.cpp in Sources */,
 				23C3439E10C8278700DABBD6 /* GfxUtils.cpp in Sources */,
 				23C34D1B10CC3ACE00DABBD6 /* alias.cpp in Sources */,
-				23C34D1C10CC3ACE00DABBD6 /* bindings.cpp in Sources */,
 				23C34D1D10CC3ACE00DABBD6 /* command.cpp in Sources */,
 				23C34D1E10CC3ACE00DABBD6 /* console.cpp in Sources */,
 				23C34D1F10CC3ACE00DABBD6 /* consoleitem.cpp in Sources */,
