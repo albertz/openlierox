@@ -48,14 +48,8 @@ static int fpsCount = 0;
 static int fps = 0;
 static Uint32 logicLast = 0;
 
-static bool debug_onlyOneLogicFrame = false;
-
 
 bool gusInitBase() {
-	console.registerVariables()
-			("SV_DEBUG_onlyOneLogicFrame", &debug_onlyOneLogicFrame, false)
-			;
-	
 	if(!gusGame.init())
 		return false;
 	
@@ -152,7 +146,7 @@ void gusLogicFrame() {
 		++logicLast;
 		++logicFrameCount;
 		
-		if(debug_onlyOneLogicFrame || logicFrameCount > 10) { // don't be too slow
+		if(logicFrameCount > 10) { // don't be too slow
 			logicLast = timer; // skip left frames
 			break;
 		}
