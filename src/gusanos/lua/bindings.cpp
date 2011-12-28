@@ -361,9 +361,46 @@ std::string runLua(LuaReference ref, std::list<std::string> const& args)
 	return "";
 }*/
 
+	static void print_Lua_debug(lua_State* context, const std::string& msg, bool withbacktrace) {
+		lua_Debug info;
+		char const* lastname;
+		for(int i = 1; lua_getstack(context, i, &info); ++i)
+		{
+			lua_getinfo (context, "Snl", &info);
+			
+			char const* name = info.name ? info.name : "N/A";
+			
+			if(i == 1)
+				cerr << info.source << ":" << info.currentline << ": " << msg << endl;
+			else
+				cerr << info.source << ":" << info.currentline << ": " << lastname << " called from here" << endl;
+			
+			lastname = name;
+			if(!withbacktrace) break;
+		}
+	}
+	
+	static std::string getLuaFuncName(lua_State* context) {
+		lua_Debug info;
+		if(lua_getstack(context, 0, &info)) {
+			lua_getinfo(context, "Snl", &info);
+			if(info.name) return info.name;
+			return "UNKNOWN-LUA-FUNC";
+		}
+		return "NO-LUA-STACK";
+	}
+	
 #define IMPL_OLD_LUAFUNC(name) \
 	int name(lua_State* L) \
-	{ warnings << #name << " not implemented" << endl; return 0; }
+	{ \
+		static bool printedWarning = false; \
+		if(!printedWarning) { \
+			std::string my_func_name = getLuaFuncName(L); \
+			print_Lua_debug(L, my_func_name + " not implemented (further warnings omitted)", false); \
+			printedWarning = true; \
+		} \
+		return 0; \
+	}
 
 	IMPL_OLD_LUAFUNC(l_console_key_for_action);
 	IMPL_OLD_LUAFUNC(l_console_bind);
