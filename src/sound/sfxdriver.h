@@ -13,6 +13,7 @@
 
 class SoundSample;
 
+static const float SFX_LISTENER_DISTANCE = 20.0f;
 
 class SfxDriver
 {
@@ -36,7 +37,6 @@ protected:
 	virtual SmartPointer<SoundSample> load(std::string const& filename)=0;
 
 	std::vector<Listener*> listeners;
-	float m_listenerDistance;
 
 private:
 

@@ -12,11 +12,8 @@
 
 using namespace std;
 
-static const float SFX_LISTENER_DISTANCE = 20.0f;
-
 SfxDriver::SfxDriver()
 {
-	m_listenerDistance = SFX_LISTENER_DISTANCE;
 }
 
 SfxDriver::~SfxDriver()
