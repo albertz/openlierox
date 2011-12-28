@@ -31,9 +31,11 @@ void SfxDriver::setListeners(std::vector<Listener*> &_listeners)
 
 string wrapper__guscon_sfx_volume(const list<string> &args)
 {
-	if(args.size() >= 1)
+	if(args.size() >= 1) {
+		warnings << "Gus con sfx_volume: ignored overwrite with " << *args.begin() << endl;
 		return ""; // just ignore
-
+	}
+	
 	// Gusanos volume range is 0-255
 	// LX volume range is 0-100
 	return itoa(Round(float(tLXOptions->iSoundVolume) * 0.01f * 255.0f));
@@ -41,9 +43,11 @@ string wrapper__guscon_sfx_volume(const list<string> &args)
 
 string wrapper__guscon_sfx_listener_distance(const list<string> &args)
 {
-	if(args.size() >= 1)
+	if(args.size() >= 1) {
+		warnings << "Gus con sfx_listener_distance: ignored overwrite with " << *args.begin() << endl;
 		return ""; // just ignore
-
+	}
+	
 	return ftoa(SFX_LISTENER_DISTANCE);
 }
 
