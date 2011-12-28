@@ -132,8 +132,8 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 		}
 
 		// Copy the map to the cache (not just the pointer because map changes during the game)
-		CMap *cached_map = new CMap;
-		if (cached_map == NULL)
+		SmartPointer<CMap> cached_map = new CMap;
+		if (cached_map.get() == NULL)
 			return;
 
 		if (!cached_map->NewFrom(map))
@@ -141,7 +141,7 @@ void CCache::SaveMap(const std::string& file1, CMap *map)
 
 		struct stat st;
 		StatFile(file1, &st);
-		MapCache[file] = MapItem_t( SmartPointer<CMap>(cached_map), getCurrentTime(), st.st_mtime );
+		MapCache[file] = MapItem_t( cached_map, getCurrentTime(), st.st_mtime );
 	}
 	ClearExtraEntries(); // Cache can get very big when browsing through levels - clear it here
 }
