@@ -324,7 +324,7 @@ public:
 		issameformat,alphablend,colorkeycheck,srchasalpha,dsthasalpha,srcbytespp,dstbytespp
 		>(dfmt, sfmt, dstaddr, srcaddr);
 	}
-	INLINE static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt) {
+	static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt) {
 		static PixelCopy_Class copier;
 		copier.setformats(sfmt, dfmt);
 		return copier;

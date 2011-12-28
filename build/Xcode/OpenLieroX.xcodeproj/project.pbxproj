@@ -109,6 +109,7 @@
 		235D281E0CF7C13B0067BA4F /* HTTP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 235D281B0CF7C13B0067BA4F /* HTTP.cpp */; };
 		23606B2D0FEBEA22000A6439 /* Geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23606B2C0FEBEA22000A6439 /* Geometry.cpp */; };
 		2367B2E80F7AFCA500F7B302 /* CChatWidget.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */; };
+		236C181B14ABD1B700251191 /* PixelFunctors.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 236C181A14ABD1B700251191 /* PixelFunctors.cpp */; };
 		2370EE151100D0C80097F7BA /* SinglePlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2370EE141100D0C80097F7BA /* SinglePlayer.cpp */; };
 		2370F6831106179A0097F7BA /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 2370F64E110617990097F7BA /* lapi.c */; };
 		2370F6841106179A0097F7BA /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 2370F650110617990097F7BA /* lauxlib.c */; };
@@ -861,6 +862,7 @@
 		23671C760F80D6D000416803 /* StaticAssert.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticAssert.h; sourceTree = "<group>"; };
 		2367B2E50F7AFC9000F7B302 /* CChatWidget.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CChatWidget.h; sourceTree = "<group>"; };
 		2367B2E70F7AFCA500F7B302 /* CChatWidget.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CChatWidget.cpp; sourceTree = "<group>"; };
+		236C181A14ABD1B700251191 /* PixelFunctors.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PixelFunctors.cpp; sourceTree = "<group>"; };
 		2370BEA411483D9300C6E277 /* olx-types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "olx-types.h"; sourceTree = "<group>"; };
 		2370EE131100D0C80097F7BA /* SinglePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SinglePlayer.h; sourceTree = "<group>"; };
 		2370EE141100D0C80097F7BA /* SinglePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SinglePlayer.cpp; sourceTree = "<group>"; };
@@ -2739,6 +2741,7 @@
 				23F6A3420FD6DF0300793B24 /* DynDraw.cpp */,
 				23C3435F10C825A300DABBD6 /* GfxSaveSurface.cpp */,
 				23C3439D10C8278700DABBD6 /* GfxUtils.cpp */,
+				236C181A14ABD1B700251191 /* PixelFunctors.cpp */,
 			);
 			name = client;
 			path = ../../src/client;
@@ -3748,6 +3751,7 @@
 				232250D414A6D93A00757A40 /* x86_operand_list.c in Sources */,
 				232250D714A6D98000757A40 /* crash_generation_client.cc in Sources */,
 				232250DA14A6DB5500757A40 /* stabs_reader.cc in Sources */,
+				236C181B14ABD1B700251191 /* PixelFunctors.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
