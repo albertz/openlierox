@@ -185,6 +185,9 @@ struct TestHandler : public ConsoleGrammarBase
 
 void Console::parseLine(const string &text, bool parseRelease)
 {
+	if(text == "") return;
+	if(text[0] == '#') return; // comment
+	
 	std::istringstream ss(text);
 	ConsoleGrammar<TestHandler> handler((TestHandler(ss, *this, parseRelease)));
 
