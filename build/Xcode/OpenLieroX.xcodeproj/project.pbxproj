@@ -328,7 +328,6 @@
 		23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5510CC557D00DABBD6 /* vermes.cpp */; };
 		23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5810CC557D00DABBD6 /* net_worm.cpp */; };
 		23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */; };
-		23C34F7D10CC557D00DABBD6 /* player_ai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5E10CC557D00DABBD6 /* player_ai.cpp */; };
 		23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6010CC557D00DABBD6 /* player_input.cpp */; };
 		23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6210CC557D00DABBD6 /* player_options.cpp */; };
 		23C34F8010CC557D00DABBD6 /* posspd_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6310CC557D00DABBD6 /* posspd_replicator.cpp */; };
@@ -1243,8 +1242,6 @@
 		23C34F5910CC557D00DABBD6 /* net_worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_worm.h; sourceTree = "<group>"; };
 		23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ninjarope.cpp; sourceTree = "<group>"; };
 		23C34F5B10CC557D00DABBD6 /* ninjarope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ninjarope.h; sourceTree = "<group>"; };
-		23C34F5E10CC557D00DABBD6 /* player_ai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_ai.cpp; sourceTree = "<group>"; };
-		23C34F5F10CC557D00DABBD6 /* player_ai.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player_ai.h; sourceTree = "<group>"; };
 		23C34F6010CC557D00DABBD6 /* player_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_input.cpp; sourceTree = "<group>"; };
 		23C34F6110CC557D00DABBD6 /* player_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player_input.h; sourceTree = "<group>"; };
 		23C34F6210CC557D00DABBD6 /* player_options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_options.cpp; sourceTree = "<group>"; };
@@ -2126,8 +2123,6 @@
 				23C34F5910CC557D00DABBD6 /* net_worm.h */,
 				23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */,
 				23C34F5B10CC557D00DABBD6 /* ninjarope.h */,
-				23C34F5E10CC557D00DABBD6 /* player_ai.cpp */,
-				23C34F5F10CC557D00DABBD6 /* player_ai.h */,
 				23C34F6010CC557D00DABBD6 /* player_input.cpp */,
 				23C34F6110CC557D00DABBD6 /* player_input.h */,
 				23C34F6210CC557D00DABBD6 /* player_options.cpp */,
@@ -3598,7 +3593,6 @@
 				23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */,
 				23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */,
 				23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */,
-				23C34F7D10CC557D00DABBD6 /* player_ai.cpp in Sources */,
 				23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */,
 				23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */,
 				23C34F8010CC557D00DABBD6 /* posspd_replicator.cpp in Sources */,
