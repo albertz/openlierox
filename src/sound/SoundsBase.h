@@ -52,6 +52,7 @@ SmartPointer<SoundSample> LoadSample(const std::string& _filename, int maxplayin
 bool	InitSoundSystem(int rate, int channels, int buffers);
 bool	StartSoundSystem();
 bool	StopSoundSystem();
+bool	IsSoundSystemStarted();
 bool	SetSoundVolume(int vol);
 int		GetSoundVolume();
 bool	QuitSoundSystem();

@@ -5,6 +5,7 @@
 #include "sfxdriver.h"
 #include "MathLib.h"
 #include "Options.h"
+#include "SoundsBase.h"
 
 #include <vector>
 #include <list>
@@ -15,7 +16,6 @@ static const float SFX_LISTENER_DISTANCE = 20.0f;
 
 SfxDriver::SfxDriver()
 {
-	m_volume = 1.0f;
 	m_listenerDistance = SFX_LISTENER_DISTANCE;
 }
 
@@ -63,13 +63,10 @@ void SfxDriver::registerInConsole()
 	// sfx.operator bool() returns false.
 }
 
-void SfxDriver::setVolume(float val) {
-	m_volume = val;
-	volumeChange();
-}
-
 float SfxDriver::volume() const {
-	return m_volume;
+	if(IsSoundSystemStarted())
+		return float(GetSoundVolume()) / 100;
+	return 0;
 }
 
 #endif

@@ -30,14 +30,12 @@ public:
 	virtual void volumeChange()=0;
 	void setListeners(std::vector<Listener*> &_listeners);
 
-	void setVolume(float val); // val is between 0 and 1
 	float volume() const;
 	
 protected:
 	virtual SmartPointer<SoundSample> load(std::string const& filename)=0;
 
 	std::vector<Listener*> listeners;
-	float m_volume;
 	float m_listenerDistance;
 
 private:

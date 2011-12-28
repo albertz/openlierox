@@ -85,9 +85,9 @@ void SfxDriverOpenAL::clear()
 
 void SfxDriverOpenAL::volumeChange()
 {
-	notes << "sfx volume: " << m_volume << endl;
+	float v = volume();
 	//multi listeners are not supported in OpenAL
-	alListenerf(AL_GAIN,(float)m_volume);
+	alListenerf(AL_GAIN,(float)v);
 }
 
 SmartPointer<SoundSample> SfxDriverOpenAL::load(std::string const& filename)

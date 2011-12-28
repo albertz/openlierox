@@ -154,16 +154,18 @@ bool StopSoundSystem() {
 
 	SoundSystemStarted = false;
 	if(SoundSystemAvailable)
-		sfx.getDriver()->setVolume(0);
+		sfx.volumeChange();
 	return true;
 }
+
+bool IsSoundSystemStarted() { return SoundSystemStarted; }
 
 bool SetSoundVolume(int vol) {
 	tLXOptions->iSoundVolume = vol;
 	if(!SoundSystemAvailable) return false;
 
 	if(SoundSystemStarted) {
-		sfx.getDriver()->setVolume(float(vol) / 100.0f);
+		sfx.volumeChange();
 		return true;
 	}
 
