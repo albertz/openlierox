@@ -318,10 +318,16 @@ int srcbytespp,
 int dstbytespp
 >
 class PixelCopy_Class : public PixelCopy {
+public:
 	void copy(Uint8 *dstaddr, const Uint8 *srcaddr) {
 		PixelCopy_<
 		issameformat,alphablend,colorkeycheck,srchasalpha,dsthasalpha,srcbytespp,dstbytespp
 		>(dfmt, sfmt, dstaddr, srcaddr);
+	}
+	INLINE static PixelCopy& getInstance(SDL_PixelFormat* sfmt, SDL_PixelFormat* dfmt) {
+		static PixelCopy_Class copier;
+		copier.setformats(sfmt, dfmt);
+		return copier;
 	}
 };
 
@@ -446,11 +452,7 @@ INLINE PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Sur
 	const int dstbytespp = dest_surf->format->BytesPerPixel;
 
 #define _RET_PIXELCOPY(av1, av2, av3, av4, av5, av6, av7) \
-	{ \
-		static PixelCopy_Class<av1,av2,av3,av4,av5,av6,av7> copier; \
-		copier.setformats(source_surf->format, dest_surf->format); \
-		return copier; \
-	}
+	return PixelCopy_Class<av1,av2,av3,av4,av5,av6,av7>::getInstance(source_surf->format, dest_surf->format);
 
 #define _BRANCH7(av1, av2, av3, av4, av5, av6) \
 	{ \
