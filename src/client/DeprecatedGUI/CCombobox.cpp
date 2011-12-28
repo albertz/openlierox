@@ -57,6 +57,9 @@ void CCombobox::Draw(SDL_Surface * bmpDest)
 	// Draw the background bit
 	Menu_DrawBoxInset(bmpDest, iX, iY, iX+iWidth, iY+mainbitheight+1);
 
+	cScrollbar.setMax( (int)tItems.size() );	
+	bGotScrollbar = tItems.size() > 6;
+
 	if(bDropped) {
 		// Dropped down
 		if(getItemRW(iSelected).get())  {
@@ -289,9 +292,6 @@ void CCombobox::Unique() {
 		}
 	}
 	tItems.erase(new_end, tItems.end());
-
-    cScrollbar.setMax( (int)tItems.size() );	
-	bGotScrollbar = tItems.size() > 6;
 }
 
 ////////////////////////
@@ -841,7 +841,6 @@ int CCombobox::addItem(int index, const std::string& sindex, const std::string& 
 	}
 
     cScrollbar.setMax( (int)tItems.size() );	
-	bGotScrollbar = tItems.size() > 6;
 
 	return index;
 }
