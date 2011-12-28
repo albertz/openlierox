@@ -24,14 +24,6 @@ using namespace std;
 
 #define TEST_KEY(k_, keyname_) if(k_ < 0) return "UNKNOWN KEY \"" + keyname_ + '"'
 
-// Bind console command
-string bindCmd(const list<string> &args)
-{
-	return "BIND not available";
-	//old:
-	//return "BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
-}
-
 struct IdentityGetText
 {
 	template<class IteratorT>
@@ -59,17 +51,6 @@ string echoCmd(list<string> const& args)
 	
 	return "ECHO <ARGS> ... : PRINTS OUT ARGS TO THE CONSOLE";
 }
-
-#ifndef DEDICATED_ONLY
-
-string GConsole::setConsoleKey(list<string> const& args)
-{
-	return "SETCONSOLEKEY not available";
-	//old:
-	//return "SETCONSOLEKEY <KEY> : SETS THE KEY TO SHOW/HIDE THE CONSOLE";
-}
-#endif
-
 
 string execCmd(const list<string> &args)
 {
@@ -211,14 +192,12 @@ void GConsole::init()
 
 	console.registerCommands()
 #ifndef DEDICATED_ONLY
-		(string("BIND"), bindCmd)
 /*
 		(string("SWAPKEYS"), swapKeysCmd)
 		(string("SETSHIFTCHAR"), setShiftChar)
 		(string("SETALTGRCHAR"), setAltGrChar)
 		(string("SETCHAR"), setChar)
 */
-		(string("SETCONSOLEKEY"), boost::bind(&GConsole::setConsoleKey, this, _1))
 #endif
 		(string("EXEC"), execCmd)
 		//(string("EXECSCRIPT"), execScript)

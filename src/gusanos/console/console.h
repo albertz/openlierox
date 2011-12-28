@@ -6,7 +6,6 @@
 
 // PROJECT INCLUDES
 //
-#include "bindings.h"
 #include "util/text.h"
 #include "variables.h"
 #include "command.h"
@@ -116,13 +115,8 @@ public:
 	void clearTemporaries();
 	
 	void parseLine(const std::string &text, bool parseRelease = false);
-	//void parse(std::list<std::string> &args, bool parseRelease);
 	std::string invoke(std::string const& name, std::list<std::string> const& args, bool parseRelease);
-	void bind(char key, const std::string &action);
-	char getKeyForBinding(std::string const& action);
-	std::string getActionForBinding(char key);
 	virtual void addLogMsg(const std::string &msg);
-	void analizeKeyEvent(bool state, char key);
 	virtual int executeConfig(const std::string &filename);
 	std::string autoComplete(std::string const& text);
 	void listItems(const std::string &text);
@@ -131,7 +125,6 @@ public:
 	
 protected:
 	
-	BindTable bindTable;
 	ItemMap items;
 	std::list<std::string> log;
 	

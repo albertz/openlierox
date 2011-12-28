@@ -198,47 +198,6 @@ int l_console_get(lua_State* L)
 	return 1;
 }
 
-int l_console_bind(lua_State* L)
-{
-	int k = lua_tointeger(L, 1);
-	char const* action = lua_tostring(L, 2);
-	if(!action)
-	{
-		if(lua_isnil(L, 2))
-			action = "";
-		else
-			return 0;
-	}
-	
-	console.bind(static_cast<char>(k), action);
-	return 0;
-}
-
-int l_console_key_for_action(lua_State* L)
-{
-	char const* s = lua_tostring(L, 1);
-	if(!s)
-		return 0;
-	
-	char k = console.getKeyForBinding(s);
-	if(k == -1)
-		return 0;
-	
-	lua_pushinteger(L, static_cast<unsigned char>(k));
-	return 1;
-}
-
-int l_console_action_for_key(lua_State* L)
-{
-	char k = static_cast<char>(lua_tointeger(L, 1));
-	
-	std::string action = console.getActionForBinding(k);
-	if(action.empty())
-		return 0;
-	
-	lua_pushlstring(L, action.data(), action.size());
-	return 1;
-}
 
 int l_quit(lua_State* L)
 {
@@ -476,9 +435,6 @@ void init()
 	context.functions()
 		("print", print)
 		("console_register_command", l_console_register_command)
-		("console_key_for_action", l_console_key_for_action)
-		("console_bind", l_console_bind)
-		("console_action_for_key", l_console_action_for_key)
 		//("dump", l_dump)
 		//("undump", l_undump)
 		("quit", l_quit)

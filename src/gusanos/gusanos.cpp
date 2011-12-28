@@ -66,8 +66,6 @@ bool gusInitBase() {
 	if(!gusGame.init())
 		return false;
 	
-	console.parseLine("BIND F12 SCREENSHOT");
-	
 	//gusGame.refreshLevels();
 
 	

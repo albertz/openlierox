@@ -52,8 +52,6 @@ public:
 #endif
 	
 #ifndef DEDICATED_ONLY
-	std::string setConsoleKey(std::list<std::string> const& args);
-		
 	void varCbFont( std::string oldValue );
 #endif
 
@@ -90,8 +88,6 @@ private:
 		CONSOLE_MODE_BINDINGS
 	};
 };
-
-std::string bindCmd(const std::list<std::string> &args);
 
 extern GConsole console;
 

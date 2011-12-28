@@ -271,29 +271,6 @@ void Console::addLogMsg(const string &msg)
 	}
 }
 
-void Console::analizeKeyEvent(bool state, char key)
-{
-	if (state == true)
-		parseLine(bindTable.getBindingAction(key));
-	else
-		parseLine(bindTable.getBindingAction(key), true);
-}
-
-void Console::bind(char key, const string &action)
-{
-	bindTable.bind(key , action);
-}
-
-char Console::getKeyForBinding(std::string const& action)
-{
-	return bindTable.getKeyForAction(action);
-}
-
-std::string Console::getActionForBinding(char key)
-{
-	return bindTable.getBindingAction(key);
-}
-
 int Console::executeConfig(const string &filename)
 {
 	ifstream file;
