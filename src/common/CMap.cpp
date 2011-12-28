@@ -196,22 +196,27 @@ bool CMap::Create(uint _width, uint _height, const std::string& _theme, uint _mi
 	Objects = new object_t[MAX_OBJECTS];
 	if(Objects == NULL)
 	{
-		errors << "CMap::New:: cannot create object array" << endl;
+		errors << "CMap::Create:: cannot create object array" << endl;
 		return false;
 	}
 
 	// Load the tiles
 	if(!LoadTheme(_theme))
 	{
-		errors("CMap::New:: ERROR: cannot create titles/theme\n");
+		errors("CMap::Create:: ERROR: cannot create titles/theme\n");
 		return false;
 	}
 
 	// Create the pixel flags
+	if(material) {
+		errors << "CMap::Create: material already existing" << endl;
+		destroy_bitmap(material);
+		material = NULL;
+	}
 	material = create_bitmap_ex(8, Width, Height);
 	if(!material)
 	{
-		errors("CMap::New:: ERROR: cannot create pixel flags\n");
+		errors("CMap::Create:: ERROR: cannot create pixel flags\n");
 		return false;
 	}
 	
@@ -2361,7 +2366,7 @@ bool CMap::Load(const std::string& filename)
 		}
 		
 		if(!material) {
-			errors << "level loader for " << filename << " is behaving wrong" << endl;
+			errors << "level loader for " << filename << " is behaving wrong, no material flags" << endl;
 			return false;
 		}
 	}
@@ -3030,7 +3035,7 @@ CVec CMap::FindSpot()
 		tries--;
 	} while ( tries > 0 && !IsGoodSpawnPoint(flags, pos) );
 	
-	if(tries == 0) errors << "FindSpot(): strange error!" << endl;
+	if(tries == 0) errors << "FindSpot(): didn't found any free spot" << endl;
 	return pos;
 }
 
