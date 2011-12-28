@@ -429,6 +429,10 @@ int l_load_particle(lua_State* L)
 */
 int l_weapon_random(lua_State* L)
 {
+	if(gusGame.weaponList.size() == 0) {
+		errors << "Lua: l_weapon_random: no weapons available" << endl;
+		return 0;
+	}
 	LuaContext context(L);
 	WeaponType* p = gusGame.weaponList[rndInt(gusGame.weaponList.size())];
 	//context.pushFullReference(*p, WeaponTypeMetaTable);
