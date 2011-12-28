@@ -296,8 +296,8 @@ static bool coord_in_bmp(ALLEGRO_BITMAP* bmp, int x, int y) {
 }
 
 
-static int getpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y) {
-	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
+static Uint32 getpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y) {
+	unsigned char* addr = bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: return bmp_read8(addr);
 		case 2: return bmp_read16(addr);
@@ -308,7 +308,7 @@ static int getpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y) {
 }
 
 static void putpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y, int color) {
-	unsigned long addr = (unsigned long) bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
+	unsigned char* addr = bmp->line[y] + x * bmp->surf->format->BytesPerPixel;
 	switch(bmp->surf->format->BytesPerPixel) {
 		case 1: bmp_write8(addr, color); break;
 		case 2: bmp_write16(addr, color); break;
@@ -317,7 +317,7 @@ static void putpixel__nocheck(ALLEGRO_BITMAP *bmp, int x, int y, int color) {
 	}
 }
 
-int getpixel(ALLEGRO_BITMAP *bmp, int x, int y) {
+Uint32 getpixel(ALLEGRO_BITMAP *bmp, int x, int y) {
 	if(!coord_in_bmp(bmp, x, y)) return 0;
 	return getpixel__nocheck(bmp, x, y);
 }
@@ -370,7 +370,7 @@ void clear_to_color(ALLEGRO_BITMAP *bmp, Uint32 color) {
 
 
 static int getpixel__nocheck(SDL_Surface *surf, int x, int y) {
-	unsigned long addr = (unsigned long) surf->pixels + y * surf->pitch + x * surf->format->BytesPerPixel;
+	unsigned char* addr = (unsigned char*)surf->pixels + y * surf->pitch + x * surf->format->BytesPerPixel;
 	switch(surf->format->BytesPerPixel) {
 		case 1: return bmp_read8(addr);
 		case 2: return bmp_read16(addr);

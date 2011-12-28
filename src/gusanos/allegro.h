@@ -210,7 +210,7 @@ __INLINE__ int is_video_bitmap(ALLEGRO_BITMAP *bmp)
 
 
 
-int getpixel(ALLEGRO_BITMAP *bmp, int x, int y);
+Uint32 getpixel(ALLEGRO_BITMAP *bmp, int x, int y);
 void putpixel(ALLEGRO_BITMAP *bmp, int x, int y, Uint32 color);
 void vline(ALLEGRO_BITMAP *bmp, int x, int y1, int y2, Uint32 color);
 void hline(ALLEGRO_BITMAP *bmp, int x1, int y, int x2, Uint32 color);
@@ -288,21 +288,14 @@ void clear_bitmap(ALLEGRO_BITMAP*);
 #endif
 
 
-AL_INLINE(int, bmp_read24, (unsigned long addr),
+AL_INLINE(int, bmp_read24, (unsigned char* addr),
 {
-	unsigned char *p = (unsigned char *)addr;
-	int c;
-	
-	c = READ3BYTES(p);
-	
-	return c;
+	return READ3BYTES(addr);
 })
 
-AL_INLINE(void, bmp_write24, (unsigned long addr, int c),
+AL_INLINE(void, bmp_write24, (unsigned char* addr, int c),
 {
-	unsigned char *p = (unsigned char *)addr;
-	
-	WRITE3BYTES(p, c);
+	WRITE3BYTES(addr, c);
 })
 
 #endif
