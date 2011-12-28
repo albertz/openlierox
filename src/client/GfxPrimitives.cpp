@@ -588,10 +588,15 @@ void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface *
 	else {
 		// No colorkey, less inner-loop checks needed
 		_OP_LOOP_BODY {
-			Color c = getFunc(data1, src);
-			if(src_alpha)
-				c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-			putFunc(data2, dst, c);
+			if(sbpp == dbpp && sbpp == 1 && !src_alpha) {
+				// for 8-bit non-alpha surface, we esp. want just to copy the flags
+				*dst = *src;
+			} else {
+				Color c = getFunc(data1, src);
+				if(src_alpha)
+					c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
+				putFunc(data2, dst, c);
+			}
 		}
 	}
 
