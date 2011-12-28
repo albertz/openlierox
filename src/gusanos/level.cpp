@@ -422,11 +422,13 @@ Vec CMap::getSpawnLocation(CWormInputHandler* player)
 	}
 	
 	Vec pos;
-
+	int tries = 1000;
 	do {
 		pos = Vec((float)rnd() * material->w, (float)rnd()*material->h);
-	} while ( !getMaterial( static_cast<int>(pos.x), static_cast<int>(pos.y) ).worm_pass );
+	} while ( --tries >= 0 && !getMaterial( static_cast<int>(pos.x), static_cast<int>(pos.y) ).worm_pass );
 
+	if(tries < 0)
+		errors << "CMap::getSpawnLocation: couldn't find any spawn location" << endl;
 	return pos;
 }
 
