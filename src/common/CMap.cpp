@@ -77,6 +77,7 @@ bool CMap::NewFrom(CMap* map)
 			return false;
 		
 		destroy_bitmap(material);
+		material = NULL;
 	}
 	
 	m_gusLoaded = map->m_gusLoaded;
@@ -87,6 +88,8 @@ bool CMap::NewFrom(CMap* map)
 	lightmap = create_copy_bitmap(map->lightmap);
 	watermap = create_copy_bitmap(map->watermap);
 	material = create_copy_bitmap(map->material);
+	if(material)
+		assert(material->surf->format->BitsPerPixel == 8);
 	
 	vectorEncoding = map->vectorEncoding;
 	intVectorEncoding = map->intVectorEncoding;
@@ -536,8 +539,8 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 
 			img_pixel = (Uint8 *)bmpDrawImage.get()->pixels + y * 2 * bmpDrawImage.get()->pitch + x * 2 * bpp;
 			back_pixel = (Uint8 *)bmpBackImageHiRes.get()->pixels + y * 2 * bmpBackImageHiRes.get()->pitch + x * 2 * bpp;
-			uchar** pfline = &material->line[y];
-			uchar* pf = &(*pfline)[x];
+			uchar*const* pfline = &material->line[y];
+			const uchar* pf = &(*pfline)[x];
 
 			ImgRowSize = bmpDrawImage.get()->pitch;
 			ImgRowStep = ImgRowSize * 2 - (w * bpp * 2);
@@ -976,14 +979,14 @@ void CMap::DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Sur
 	Uint8 *dest_row = (Uint8 *)bmpDest->pixels + (i.dest_y * bmpDest->pitch) + (i.dest_x * bmpDest->format->BytesPerPixel);
 	Uint8 *obj_row  = (Uint8 *)bmpObj->pixels + (i.obj_y * bmpObj->pitch) + (i.obj_x * bmpObj->format->BytesPerPixel);
 	Uint8 *shadow_row = (Uint8 *)bmpShadowMap->pixels + (i.map_y * bmpShadowMap->pitch) + (i.map_x * bmpShadowMap->format->BytesPerPixel);
-	uchar** pfline = &material->line[i.map_y];
+	uchar*const* pfline = &material->line[i.map_y];
 
 	PixelGet& getter = getPixelGetFunc(bmpObj);
 	PixelCopy& copier = getPixelCopyFunc(bmpShadowMap.get(), bmpDest);
 
 	// Draw the shadow
 	for (int loop_y = i.h; loop_y; --loop_y)  {
-		uchar* pf = &(*pfline)[i.map_x];
+		const uchar* pf = &(*pfline)[i.map_x];
 		Uint8 *shadowmap_px = shadow_row;
 		Uint8 *obj_px = obj_row;
 		Uint8 *dest_px = dest_row;
