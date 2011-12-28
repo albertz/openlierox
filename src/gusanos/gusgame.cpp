@@ -29,7 +29,6 @@
 #include "player_input.h"
 #include "CViewport.h"
 #endif //DEDICATED_ONLY
-#include "player_ai.h"
 #include "net_worm.h"
 #include "network.h"
 #include "script.h"

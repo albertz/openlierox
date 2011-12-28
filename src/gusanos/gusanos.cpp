@@ -21,7 +21,6 @@
 #include "distortion.h"
 #endif
 #include "sprite_set.h"
-#include "player_ai.h"
 #include "network.h"
 #include "CMap.h"
 
