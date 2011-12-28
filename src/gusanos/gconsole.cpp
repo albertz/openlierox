@@ -87,7 +87,7 @@ string aliasCmd(const list<string> &args)
 
 		return "";
 	}
-	return "XXX BIND <KEY> [COMMAND] : ATTACH A COMMAND TO A KEY";
+	return "ALIAS <NAME> <ACTION> : REGISTER ALIAS TO ACTION";
 }
 
 /*
