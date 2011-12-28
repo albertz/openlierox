@@ -368,6 +368,7 @@ std::string runLua(LuaReference ref, std::list<std::string> const& args)
 	IMPL_OLD_LUAFUNC(l_console_key_for_action);
 	IMPL_OLD_LUAFUNC(l_console_bind);
 	IMPL_OLD_LUAFUNC(l_console_action_for_key);
+	IMPL_OLD_LUAFUNC(l_key_name);
 	
 void init()
 {
@@ -389,6 +390,7 @@ void init()
 		("console_key_for_action", l_console_key_for_action)
 		("console_bind", l_console_bind)
 		("console_action_for_key", l_console_action_for_key)
+		("key_name", l_key_name)
 		//("dump", l_dump)
 		//("undump", l_undump)
 	;
