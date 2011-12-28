@@ -42,8 +42,6 @@
 using namespace std;
 
 bool quit = false;
-int showFps = 1;
-int showDebug = 0;
 
 static unsigned int fpsLast = 0;
 static int fpsCount = 0;
@@ -54,11 +52,6 @@ static bool debug_onlyOneLogicFrame = false;
 
 
 bool gusInitBase() {
-	console.registerVariables()
-	("CL_SHOWFPS", &showFps, 1) 
-	("CL_SHOWDEBUG", &showDebug, 0)
-	;
-	
 	console.registerVariables()
 			("SV_DEBUG_onlyOneLogicFrame", &debug_onlyOneLogicFrame, false)
 			;
@@ -187,14 +180,6 @@ void gusRenderFrameMenu() {
 		{
 			//(*iter)->render();
 		}
-
-		//debug info
-		if (showDebug)
-		{
-			gusGame.infoFont->draw(gfx.buffer, "OBJECTS: \01303" + cast<string>(game.objects.size()), 5, 10, 0, 255, 255, 255, 255, Font::Formatting);
-			gusGame.infoFont->draw(gfx.buffer, "PLAYERS: \01303" + cast<string>(game.players.size()), 5, 15, 0, 255, 255, 255, 255, Font::Formatting);
-			gusGame.infoFont->draw(gfx.buffer, "LUA MEM: \01303" + cast<string>(lua_gc(lua, LUA_GCCOUNT, 0)), 5, 20, 0, 255, 255, 255, 255, Font::Formatting);
-		}
 					
 		int miny = 150;
 		int maxw = 160;
@@ -271,11 +256,6 @@ void gusRenderFrameMenu() {
 		clear_bitmap(gfx.buffer);
 	}
 
-	//show fps
-	if (showFps)
-	{
-		gusGame.infoFont->draw(gfx.buffer, "FPS: \01303" + cast<string>(fps), 5, 5, 0, 255, 255, 255, 255, Font::Formatting);
-	}
 	fpsCount++;
 	
 	if(quit)
