@@ -25,15 +25,6 @@ public:
 	void registerInConsole();
 	void loadResources();
 #ifndef DEDICATED_ONLY
-	void fullscreenChange();
-	void doubleResChange();
-	int  getGraphicsDriver(); // Selects and returns graphics driver
-	
-	//void fullscreen( int oldValue );
-	//void doubleRes( int oldValue );
-	
-	static int getScalingFactor();
-
 	INLINE void setBlender( Blenders blender, int alpha )
 	{
 		drawing_mode(DRAW_MODE_TRANS, NULL, 0, 0);

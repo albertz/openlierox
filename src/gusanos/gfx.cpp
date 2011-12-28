@@ -30,27 +30,6 @@ namespace
 	bool m_initialized = false;
 
 #ifndef DEDICATED_ONLY
-	enum Filters
-	{
-		NO_FILTER,
-		NO_FILTER2,
-		SCANLINES,
-		SCANLINES2,
-		BILINEAR,
-		SUPER2XSAI,
-		SUPEREAGLE,
-		PIXELATE
-	};
-	
-	int m_fullscreen = 1;
-	int m_doubleRes = 1;
-	int m_vwidth = 320;
-	int m_vheight = 240;
-	int m_vsync = 0;
-	int m_clearBuffer = 0;
-	int m_filter = NO_FILTER;
-	int m_driver = GFX_AUTODETECT;
-
 	ALLEGRO_BITMAP* m_doubleResBuffer = 0;
 	SpriteSet* mouseCursor = 0;
 	
@@ -79,60 +58,10 @@ namespace
 			return "SCREENSHOT SAVED AS: " + filename;
 		else 
 			return "UNABLE TO SAVE SCREENSHOT";
-	}
-	
-	void fullscreen( int oldValue )
-	{
-		if(m_fullscreen == oldValue)
-			return;
-			
-		if(gfx)
-		{
-			gfx.fullscreenChange();
-		}
-	}
-	
-	void doubleRes( int oldValue )
-	{
-		if(m_doubleRes == oldValue)
-			return;
-			
-		if(gfx)
-		{
-			gfx.doubleResChange();
-		}
-	}
+	}	
 #endif
 }
 
-#ifndef DEDICATED_ONLY
-
-/*
-void Gfx::fullscreen( int oldValue )
-{
-	if(m_fullscreen == oldValue)
-		return;
-		
-	if(*this)
-	{
-		fullscreenChange();
-		clear_keybuf();
-	}
-}
-
-void Gfx::doubleRes( int oldValue )
-{
-	if(m_doubleRes == oldValue)
-		return;
-		
-	if(*this)
-	{
-		doubleResChange();
-		clear_keybuf();
-	}
-}
-*/
-#endif
 Gfx::Gfx()
 #ifndef DEDICATED_ONLY
 : buffer(NULL)
@@ -151,9 +80,7 @@ Gfx::~Gfx()
 
 void Gfx::init()
 {	
-#ifndef DEDICATED_ONLY
-	doubleResChange(); // This calls fullscreenChange() that sets the gfx mode
-	
+#ifndef DEDICATED_ONLY	
 	Init_2xSaI(32); // needed for SUPER2XSAI and SUPEREAGLE filters
 	
 	buffer = create_bitmap(640,480); // this is because we may need up to this size for the sizefactor
@@ -178,54 +105,10 @@ void Gfx::registerInConsole()
 	;
 	
 	console.registerVariables()
-		//("VID_FULLSCREEN", &m_fullscreen, 0, boost::bind(&Gfx::fullscreen, this, _1))
-		("VID_FULLSCREEN", &m_fullscreen, 0, fullscreen)
-		//("VID_DOUBLERES", &m_doubleRes, 0, boost::bind(&Gfx::doubleRes, this, _1))
-		("VID_DOUBLERES", &m_doubleRes, 0, doubleRes)
-		("VID_VSYNC", &m_vsync, 0)
-		("VID_CLEAR_BUFFER", &m_clearBuffer, 0)
-		//("VID_BITDEPTH", &m_bitdepth, 32)
 		("VID_DISTORTION_AA", &m_distortionAA, 1)
 		("VID_HAX_WORMLIGHT", &m_haxWormLight, 1)
 		//("VID_DARK_MODE", &darkMode, 0)
 	;
-	
-	// NOTE: When/if adding a callback to gfx variables, make it do nothing if
-	// gfx.operator bool() returns false.
-	
-	{
-		EnumVariable::MapType videoFilters;
-
-		insert(videoFilters) // These neat boost::assign functions actually make it smaller than!
-			("NOFILTER", NO_FILTER)
-			("NOFILTER2", NO_FILTER2)
-			("SCANLINES", SCANLINES)
-			("SCANLINES2", SCANLINES2)
-			("BILINEAR", BILINEAR)
-			("SUPER2XSAI",SUPER2XSAI)
-			("SUPEREAGLE", SUPEREAGLE)
-			("PIXELATE", PIXELATE)
-		;
-
-		console.registerVariable(new EnumVariable("VID_FILTER", &m_filter, NO_FILTER, videoFilters));
-	}
-	
-	{
-		EnumVariable::MapType videoDrivers;
-		
-		insert(videoDrivers)
-			("AUTO", GFX_AUTODETECT)
-#ifdef WINDOWS
-			("DIRECTX", GFX_DIRECTX)
-#else //def LINUX
-			("XDGA", GFX_XDGA)
-			("XDGA2", GFX_XDGA2)
-			("XWINDOWS", GFX_XWINDOWS)
-#endif
-		;
-
-		console.registerVariable(new EnumVariable("VID_DRIVER", &m_driver, GFX_AUTODETECT, videoDrivers));
-	}
 #endif
 }
 
@@ -235,107 +118,6 @@ void Gfx::loadResources()
 	mouseCursor = spriteList.load("cursor");
 #endif
 }
-#ifndef DEDICATED_ONLY
-
-int Gfx::getGraphicsDriver()
-{
-	int driverSelected = GFX_AUTODETECT;
-	if ( m_fullscreen )
-	{
-		driverSelected = GFX_AUTODETECT_FULLSCREEN;
-		switch ( m_driver )
-		{
-			case GFX_AUTODETECT: driverSelected = GFX_AUTODETECT_FULLSCREEN; break;
-#ifdef WINDOWS
-			case GFX_DIRECTX: driverSelected = GFX_DIRECTX; break;
-#else //def LINUX   ..or?
-			case GFX_XDGA: driverSelected = GFX_XDGA_FULLSCREEN; break;
-			case GFX_XDGA2: driverSelected = GFX_XDGA2; break;
-			case GFX_XWINDOWS: driverSelected = GFX_XWINDOWS_FULLSCREEN; break;
-#endif
-
-		}
-	}
-	else
-	{
-		driverSelected = GFX_AUTODETECT_WINDOWED;
-		switch ( m_driver )
-		{
-			case GFX_AUTODETECT: driverSelected = GFX_AUTODETECT_WINDOWED; break;
-#ifdef WINDOWS
-			case GFX_DIRECTX: driverSelected = GFX_DIRECTX_WIN; break;
-#else //ifdef LINUX   ..or?
-			case GFX_XDGA: driverSelected = GFX_XDGA; break;
-			case GFX_XDGA2: driverSelected = GFX_AUTODETECT_WINDOWED; break; //XDGA2 only works in fullscreen
-			case GFX_XWINDOWS: driverSelected = GFX_XWINDOWS; break;
-#endif
-			// TODO: DirectX overlay support (GFX_DIRECTX_OVL)?
-		}
-	}
-	
-	return driverSelected;
-}
-
-void Gfx::fullscreenChange()
-{
-	//destroy_bitmap( videobuffer );
-	
-	// TODO: I suppose that changing graphics driver will clear out bitmaps and such
-	
-	int driver = getGraphicsDriver();
-
-	int result = set_gfx_mode(driver, m_vwidth, m_vheight, 0, 0);
-	if(result < 0)
-	{
-		cerr << "set_gfx_mode("
-		<< driver << ", " << m_vwidth << ", " << m_vheight << ", 0, 0): " << allegro_error << endl;
-		// We hit some error
-		if(m_driver != GFX_AUTODETECT)
-		{
-			// If the driver wasn't at autodetect, revert to it and try again
-			m_driver = GFX_AUTODETECT;
-			result = set_gfx_mode(getGraphicsDriver(), m_vwidth, m_vheight, 0, 0);
-		}
-	}
-	
-	// Check if we still haven't got a graphics mode working
-	if(result < 0)
-		throw std::runtime_error("Couldn't set graphics mode");
-	
-	if(set_display_switch_mode(SWITCH_BACKAMNESIA) == -1)
-		set_display_switch_mode(SWITCH_BACKGROUND);
-			
-	
-	//videobuffer = create_video_bitmap(320, 240);
-	//if(!videobuffer)
-	//	cerr << ">:O" << endl;
-}
-
-void Gfx::doubleResChange()
-{
-	if( m_doubleResBuffer ) destroy_bitmap( m_doubleResBuffer );
-	
-	if ( m_doubleRes )
-	{
-		m_vwidth = 640;
-		m_vheight = 480;
-		m_doubleResBuffer = create_bitmap(m_vwidth, m_vheight );
-		
-	}else
-	{
-		m_vwidth = 320;
-		m_vheight = 240;
-		m_doubleResBuffer = NULL;
-	}
-	fullscreenChange();
-}
-
-int Gfx::getScalingFactor()
-{
-	return m_doubleRes ? 2 : 1;
-}
-
-#endif
 
 ALLEGRO_BITMAP* Gfx::loadBitmap( const string& filename, bool keepAlpha )
 {

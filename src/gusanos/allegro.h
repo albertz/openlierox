@@ -81,7 +81,6 @@ enum GfxType {
 	GFX_XWINDOWS_FULLSCREEN
 };
 
-int set_gfx_mode(int card, int w, int h, int v_w, int v_h);
 extern int SCREEN_W, SCREEN_H;
 
 enum {

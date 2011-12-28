@@ -174,7 +174,6 @@ void destroy_bitmap(ALLEGRO_BITMAP *bmp) {
 
 
 
-int set_gfx_mode(int card, int w, int h, int v_w, int v_h) { return 0; }
 int SCREEN_W = 640, SCREEN_H = 480;
 
 int allegro_error = 0;
