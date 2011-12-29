@@ -49,13 +49,13 @@ void BitStream::addBool(bool b) {
 	m_data.push_back(b);
 }
 
-void BitStream::addInt(int n, int bits) {
+void BitStream::addInt(uint32_t n, int bits) {
 	growIfNeeded(bits);
 	for(int i = 0; i < bits; ++i)
-		m_data.push_back( (((unsigned long)n >> i) & 1) != 0 );
+		m_data.push_back( ((n >> i) & 1) != 0 );
 }
 
-void BitStream::addSignedInt(int n, int bits) {
+void BitStream::addSignedInt(int32_t n, int bits) {
 	growIfNeeded(bits);
 	addBool( n < 0 );
 	if( n >= 0)
@@ -103,14 +103,14 @@ bool BitStream::getBool() {
 	return false;
 }
 
-int BitStream::getInt(int bits) {
-	unsigned long ret = 0;
+uint32_t BitStream::getInt(int bits) {
+	uint32_t ret = 0;
 	for(int i = 0; i < bits; ++i)
 		if(getBool()) ret |= 1 << i;
 	return ret;
 }
 
-int BitStream::getSignedInt(int bits) {
+int32_t BitStream::getSignedInt(int bits) {
 	bool sign = getBool();
 	
 	if( !sign /*n >= 0*/ )

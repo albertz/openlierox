@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <string>
+#include <stdint.h>
 #include "CodeAttributes.h"
 
 class BitStream {
@@ -35,15 +36,15 @@ public:
 	BitStream(const std::string& rawdata);
 	
 	void addBool(bool);
-	void addInt(int n, int bits);
-	void addSignedInt(int n, int bits);
+	void addInt(uint32_t n, int bits);
+	void addSignedInt(int32_t n, int bits);
 	void addFloat(float f, int bits);
 	void addBitStream(const BitStream& str);
 	void addString(const std::string&);
 	
 	bool getBool();
-	int getInt(int bits);
-	int getSignedInt(int bits);
+	uint32_t getInt(int bits);
+	int32_t getSignedInt(int bits);
 	float getFloat(int bits);
 	std::string getString();
 	
