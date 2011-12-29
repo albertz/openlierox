@@ -7,8 +7,6 @@
 #include <boost/function.hpp>
 #include "luaapi/types.h"
 
-#include "message_queue.h"
-
 struct LuaEventDef
 {
 	static LuaReference metaTable;

@@ -32,10 +32,6 @@ LuaReference LuaEventDef::metaTable;
 
 namespace
 {
-
-	mq_define_message(Connect, 0, ()) {}
-	mq_end_define_message()
-
 	Network::State state = Network::StateDisconnected;
 	int stateTimeOut = 0;
 
@@ -52,8 +48,6 @@ namespace
 	}
 
 #define SET_STATE(s_) DLOG("Network state: " #s_); setState(State##s_)
-
-	MessageQueue msg;
 
 	struct LuaEventList
 	{
