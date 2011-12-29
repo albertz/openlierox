@@ -122,7 +122,6 @@ void CViewport::setDestination(ALLEGRO_BITMAP* where, int x, int y, int width, i
 
 		
 	lua.pushFullReference(*this, LuaBindings::CViewportMetaTable);
-	//lua.pushLightReference(this, LuaBindings::viewportMetaTable);
 	luaReference = lua.createReference();
 }
 
@@ -167,16 +166,8 @@ void CViewport::gusRender()
 	if ( gusGame.level().config()->darkMode && gusGame.level().lightmap )
 		blit( gusGame.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
-	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter) {
-		//iter->draw(dest, offX, offY);
+	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
-	}
-
-	/*
-		static double a = 0.0;
-		a += 0.003;
-		*/
-
 
 #if 0
 	if(gfx.m_haxWormLight) {
@@ -207,13 +198,11 @@ void CViewport::gusRender()
 					IVec renderPos( worm->getRenderPos() );
 					int x = renderPos.x - offX;
 					int y = renderPos.y - offY;
-					//bool ownViewport = (*playerIter == player);
 					LuaReference ownerRef;
 
 					if ( player )
 						ownerRef = player->getLuaReference();
 
-					//lua.callReference(0, *i, (lua_Number)x, (lua_Number)y, worm->luaReference, luaReference, ownViewport);
 					(lua.call(*i), (lua_Number)x, (lua_Number)y, worm->getLuaReference(), luaReference, ownerRef)();
 				}
 			}
@@ -222,15 +211,9 @@ void CViewport::gusRender()
 		// draw viewport specific stuff only for human worms
 		if(pcTargetWorm && dynamic_cast<CWormHumanInputHandler*>(pcTargetWorm->inputHandler()) != NULL) {
 			EACH_CALLBACK(i, viewportRender) {
-				//lua.callReference(0, *i, luaReference, worm->luaReference);
 				(lua.call(*i), luaReference, pcTargetWorm->getLuaReference())();
 			}
 		}
-	}
-	
-	// no gus mod
-	else {
-		
 	}
 }
 
