@@ -324,7 +324,6 @@
 		23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4A10CC557D00DABBD6 /* base_worm.cpp */; };
 		23C34F7510CC557D00DABBD6 /* client.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4C10CC557D00DABBD6 /* client.cpp */; };
 		23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F4F10CC557D00DABBD6 /* liero.cpp */; };
-		23C34F7710CC557D00DABBD6 /* LieroXLevelLoader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5110CC557D00DABBD6 /* LieroXLevelLoader.cpp */; };
 		23C34F7810CC557D00DABBD6 /* losp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5310CC557D00DABBD6 /* losp.cpp */; };
 		23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5510CC557D00DABBD6 /* vermes.cpp */; };
 		23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5810CC557D00DABBD6 /* net_worm.cpp */; };
@@ -1233,8 +1232,6 @@
 		23C34F4D10CC557D00DABBD6 /* client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = client.h; sourceTree = "<group>"; };
 		23C34F4F10CC557D00DABBD6 /* liero.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = liero.cpp; sourceTree = "<group>"; };
 		23C34F5010CC557D00DABBD6 /* liero.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liero.h; sourceTree = "<group>"; };
-		23C34F5110CC557D00DABBD6 /* LieroXLevelLoader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LieroXLevelLoader.cpp; sourceTree = "<group>"; };
-		23C34F5210CC557D00DABBD6 /* LieroXLevelLoader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LieroXLevelLoader.h; sourceTree = "<group>"; };
 		23C34F5310CC557D00DABBD6 /* losp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = losp.cpp; sourceTree = "<group>"; };
 		23C34F5410CC557D00DABBD6 /* losp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = losp.h; sourceTree = "<group>"; };
 		23C34F5510CC557D00DABBD6 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
@@ -2334,8 +2331,6 @@
 			children = (
 				23C34F4F10CC557D00DABBD6 /* liero.cpp */,
 				23C34F5010CC557D00DABBD6 /* liero.h */,
-				23C34F5110CC557D00DABBD6 /* LieroXLevelLoader.cpp */,
-				23C34F5210CC557D00DABBD6 /* LieroXLevelLoader.h */,
 				23C34F5310CC557D00DABBD6 /* losp.cpp */,
 				23C34F5410CC557D00DABBD6 /* losp.h */,
 				23C34F5510CC557D00DABBD6 /* vermes.cpp */,
@@ -3591,7 +3586,6 @@
 				23C34F7410CC557D00DABBD6 /* base_worm.cpp in Sources */,
 				23C34F7510CC557D00DABBD6 /* client.cpp in Sources */,
 				23C34F7610CC557D00DABBD6 /* liero.cpp in Sources */,
-				23C34F7710CC557D00DABBD6 /* LieroXLevelLoader.cpp in Sources */,
 				23C34F7810CC557D00DABBD6 /* losp.cpp in Sources */,
 				23C34F7910CC557D00DABBD6 /* vermes.cpp in Sources */,
 				23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */,
