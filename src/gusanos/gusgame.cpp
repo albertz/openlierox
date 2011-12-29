@@ -1,7 +1,6 @@
 #include "gusgame.h"
 
 #include "CWorm.h"
-#include "worm.h"
 #include "part_type.h"
 #include "exp_type.h"
 #include "weapon_type.h"

@@ -956,7 +956,6 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 
 
-#include "gusanos/worm.h"
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
 #endif
@@ -1109,17 +1108,17 @@ void CWormHumanInputHandler::actionStart ( Actions action )
 
 			case CHANGE: {
 				if ( m_worm ) {
-					m_worm->actionStart(Worm::CHANGEWEAPON);
+					m_worm->actionStart(CWorm::CHANGEWEAPON);
 
 					if (tLXOptions->bOldSkoolRope && jumping) {
 						CWormInputHandler::baseActionStart(CWormInputHandler::NINJAROPE);
 						jumping = false;
 					} else {
-						m_worm->actionStop(Worm::FIRE); //TODO: Stop secondary fire also
+						m_worm->actionStop(CWorm::FIRE); //TODO: Stop secondary fire also
 
 						// Stop any movement
-						m_worm->actionStop(Worm::MOVELEFT);
-						m_worm->actionStop(Worm::MOVERIGHT);
+						m_worm->actionStop(CWorm::MOVELEFT);
+						m_worm->actionStop(CWorm::MOVERIGHT);
 
 					}
 
@@ -1187,7 +1186,7 @@ void CWormHumanInputHandler::actionStop ( Actions action )
 
 			case CHANGE: {
 				if ( m_worm ) {
-					m_worm->actionStop(Worm::CHANGEWEAPON);
+					m_worm->actionStop(CWorm::CHANGEWEAPON);
 
 					changing = false;
 				}

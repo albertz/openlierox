@@ -9,7 +9,6 @@
 
 #include "WormInputHandler.h"
 
-#include "gusanos/worm.h"
 #include "gusanos/ninjarope.h"
 #include "gusanos/net_worm.h"
 #include "gusanos/objects_list.h"
@@ -457,7 +456,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 	switch (action) {
 		case LEFT: {
 			if ( m_worm ) {
-				m_worm -> actionStart(Worm::MOVELEFT);
+				m_worm -> actionStart(CWorm::MOVELEFT);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -469,7 +468,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 			
 		case RIGHT: {
 			if ( m_worm ) {
-				m_worm -> actionStart(Worm::MOVERIGHT);
+				m_worm -> actionStart(CWorm::MOVERIGHT);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -481,7 +480,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 			
 		case FIRE: {
 			if ( m_worm ) {
-				m_worm -> actionStart(Worm::FIRE);
+				m_worm -> actionStart(CWorm::FIRE);
 				if ( m_node ) {
 					BitStream *data = new BitStream;
 					addActionStart(data, FIRE);
@@ -494,7 +493,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 			
 		case JUMP: {
 			if ( m_worm ) {
-				m_worm -> actionStart(Worm::JUMP);
+				m_worm -> actionStart(CWorm::JUMP);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -506,7 +505,7 @@ void CWormInputHandler::baseActionStart ( BaseActions action )
 			
 		case NINJAROPE: {
 			if ( m_worm ) {
-				m_worm->actionStart(Worm::NINJAROPE);
+				m_worm->actionStart(CWorm::NINJAROPE);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -555,7 +554,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 	switch (action) {
 		case LEFT: {
 			if ( m_worm ) {
-				m_worm -> actionStop(Worm::MOVELEFT);
+				m_worm -> actionStop(CWorm::MOVELEFT);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -567,7 +566,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 			
 		case RIGHT: {
 			if ( m_worm ) {
-				m_worm -> actionStop(Worm::MOVERIGHT);
+				m_worm -> actionStop(CWorm::MOVERIGHT);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -579,7 +578,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 			
 		case FIRE: {
 			if ( m_worm ) {
-				m_worm -> actionStop(Worm::FIRE);
+				m_worm -> actionStop(CWorm::FIRE);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -591,7 +590,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 			
 		case JUMP: {
 			if ( m_worm ) {
-				m_worm -> actionStop(Worm::JUMP);
+				m_worm -> actionStop(CWorm::JUMP);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;
@@ -603,7 +602,7 @@ void CWormInputHandler::baseActionStop ( BaseActions action )
 			
 		case NINJAROPE: {
 			if ( m_worm ) {
-				m_worm->actionStop(Worm::NINJAROPE);
+				m_worm->actionStop(CWorm::NINJAROPE);
 			}
 			if ( m_node ) {
 				BitStream *data = new BitStream;

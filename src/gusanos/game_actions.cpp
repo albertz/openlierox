@@ -22,8 +22,8 @@
 #include "util/macros.h"
 #include "util/log.h"
 #include "CGameObject.h"
+#include "CWorm.h"
 #include "weapon.h"
-#include "worm.h"
 #include "level_effect.h"
 
 #include "glua.h"

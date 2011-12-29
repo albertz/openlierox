@@ -8,7 +8,6 @@
 #include "gusgame.h"
 #include "part_type.h"
 #include "particle.h"
-#include "worm.h"
 #include "CWormHuman.h"
 #include "util/macros.h"
 
