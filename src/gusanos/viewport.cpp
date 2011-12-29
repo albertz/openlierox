@@ -169,18 +169,6 @@ void CViewport::gusRender()
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
 
-#if 0
-	if(gfx.m_haxWormLight) {
-		CWormInputHandler* player = game.localPlayers[0];
-
-		CWorm* worm = player->getWorm();
-		if(worm->isActive()) {
-			IVec v(worm->pos);
-			drawLight(v);
-		}
-	}
-#endif
-
 	if(gusGame.level().config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 

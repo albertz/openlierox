@@ -48,8 +48,6 @@ public:
 
 	int m_distortionAA;
 	//int darkMode;
-	
-	int m_haxWormLight; //TEMP HAX
 #endif
 
 	INLINE bool compareRGB( Uint32 c1, Uint32 c2 )
