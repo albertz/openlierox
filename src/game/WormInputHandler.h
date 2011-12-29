@@ -49,9 +49,10 @@ class CViewport;
 class CWormInputHandler {
 protected:
 	CWorm* m_worm;
-public: 
-	CWormInputHandler(CWorm* w) : m_worm(w) { gusInit(w); }
-	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm) { gusInit(options, worm); }
+public:
+	Uint32 uniqueID;
+	CWormInputHandler(CWorm* w) : m_worm(w), uniqueID(0) { gusInit(w); }
+	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm), uniqueID(0) { gusInit(options, worm); }
 	virtual ~CWormInputHandler() { gusShutdown(); }
 	
 	CWorm* worm() const { return m_worm; }

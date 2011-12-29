@@ -305,12 +305,12 @@ void CWorm::Prepare(bool serverSide)
 		} else if(game.needProxyWormInputHandler()) {
 			m_inputHandler = new ProxyPlayer(this);
 		
-			unsigned int uniqueID = 0;
+			Uint32 uniqueID = 0;
 			do {
 				uniqueID = rndgen();
 			} while(!uniqueID);
 			
-			m_inputHandler->getOptions()->uniqueID = uniqueID;
+			m_inputHandler->uniqueID = uniqueID;
 			//savedScores[uniqueID] = player->stats; // TODO: merge this somehow with OLX? savedScores is from gus Server
 			
 			//console.addLogMsg( "* " + worm->getName() + " HAS JOINED THE GAME");

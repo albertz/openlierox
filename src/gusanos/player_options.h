@@ -23,36 +23,8 @@ inline Uint32 universalToLocalColor(Uint32 c)
 
 struct PlayerOptions
 {
-	PlayerOptions(std::string const& name_ = "GusPlayer");
-	void registerInConsole(int index);
-	
-	AngleDiff aimAcceleration;
-	float aimFriction;
-	AngleDiff aimMaxSpeed;
-	float viewportFollowFactor;
+	PlayerOptions();	
 	float ropeAdjustSpeed;
-	int colour;
-	std::string name;
-	unsigned int uniqueID;
-	unsigned int team;
-	
-	std::string setColour(std::list<std::string> const& args);
-	std::string setTeam(std::list<std::string> const& args);
-	
-	void clearChangeFlags();
-	
-	bool nameChanged(); // Returns true when the name option has been changed
-	bool colorChanged();
-	bool teamChanged();
-	
-	void changeName(std::string const& name_);
-	
-private:
-	void nameChange(); // for internal use only
-
-	bool m_nameChanged;
-	bool m_colorChanged;
-	bool m_teamChanged;
 };
 
 #endif  // _PLAYER_OPTIONS_H_

@@ -250,14 +250,7 @@ bool GusGame::init()
 	gfx.registerInConsole();
 	options.registerInConsole();
 	network.registerInConsole();
-	
-	for ( size_t i = 0; i< MAX_LOCAL_PLAYERS; ++i)
-	{
-		shared_ptr<PlayerOptions> options(new PlayerOptions);
-		options->registerInConsole(i);
-		playerOptions.push_back(options);
-	}
-	
+		
 #ifndef DEDICATED_ONLY
 	console.executeConfig("config.cfg");
 #else

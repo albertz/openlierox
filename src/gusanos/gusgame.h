@@ -173,7 +173,6 @@ public:
 	
 	std::vector<WeaponType*> weaponList;
 	Options options;
-	std::vector<shared_ptr<PlayerOptions> > playerOptions;
 	
 	void insertExplosion( Explosion* explosion );
 	

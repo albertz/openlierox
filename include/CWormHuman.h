@@ -18,7 +18,6 @@
 
 
 struct ALLEGRO_BITMAP;
-struct PlayerOptions;
 class CViewport;
 
 

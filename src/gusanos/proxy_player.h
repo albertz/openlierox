@@ -5,7 +5,6 @@
 #include <string>
 
 class Worm;
-struct PlayerOptions;
 
 class ProxyPlayer : public CWormInputHandler
 {

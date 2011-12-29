@@ -2,10 +2,6 @@
 #define CLIENT_H
 
 #include "netstream.h"
-//#include <string>
-
-struct PlayerOptions;
-class CWorm;
 
 class Client : public Net_Control
 {

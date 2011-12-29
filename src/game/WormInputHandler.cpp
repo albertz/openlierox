@@ -45,7 +45,7 @@ CWormInputHandler::Stats::~Stats()
 
 
 void CWormInputHandler::gusInit(CWorm* w) {
-	gusInit(gusGame.playerOptions[0], w);
+	gusInit(boost::shared_ptr<PlayerOptions>(new PlayerOptions), w);
 }
 
 void CWormInputHandler::gusInit(boost::shared_ptr<PlayerOptions> options, CWorm* worm)
@@ -59,8 +59,6 @@ void CWormInputHandler::gusInit(boost::shared_ptr<PlayerOptions> options, CWorm*
 	m_node=(0);
 	m_interceptor=(0);
 	deleted=(false);
-	
-	m_options->clearChangeFlags();
 	
 	worm->m_owner = this;
 }
@@ -222,7 +220,7 @@ void CWormInputHandler::think()
 							case SYNC: {
 								stats->kills = data->getInt(32);
 								stats->deaths = data->getInt(32);
-								m_options->uniqueID = static_cast<unsigned int>(data->getInt(32));
+								uniqueID = data->getInt(32);
 							}
 								break;
 																								
@@ -414,7 +412,7 @@ void CWormInputHandler::sendSyncMessage( Net_ConnID id )
 	addEvent(data, SYNC);
 	data->addInt(stats->kills, 32);
 	data->addInt(stats->deaths, 32);
-	data->addInt(static_cast<int>(m_options->uniqueID), 32);
+	data->addInt(uniqueID, 32);
 	m_node->sendEventDirect(eNet_ReliableOrdered, data, id);
 }
 
