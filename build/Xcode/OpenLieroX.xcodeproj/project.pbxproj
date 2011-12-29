@@ -335,7 +335,6 @@
 		23C34F8310CC557D00DABBD6 /* stl_str_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6910CC557D00DABBD6 /* stl_str_replicator.cpp */; };
 		23C34F8410CC557D00DABBD6 /* vector_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */; };
 		23C34F8510CC557D00DABBD6 /* viewport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6D10CC557D00DABBD6 /* viewport.cpp */; };
-		23C34F8610CC557D00DABBD6 /* worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6F10CC557D00DABBD6 /* worm.cpp */; };
 		23C34FD610CC57FB00DABBD6 /* button.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FB810CC57FB00DABBD6 /* button.cpp */; };
 		23C34FD710CC57FB00DABBD6 /* check.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBA10CC57FB00DABBD6 /* check.cpp */; };
 		23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34FBC10CC57FB00DABBD6 /* context.cpp */; };
@@ -1252,8 +1251,6 @@
 		23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vector_replicator.cpp; sourceTree = "<group>"; };
 		23C34F6C10CC557D00DABBD6 /* vector_replicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vector_replicator.h; sourceTree = "<group>"; };
 		23C34F6D10CC557D00DABBD6 /* viewport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = viewport.cpp; sourceTree = "<group>"; };
-		23C34F6F10CC557D00DABBD6 /* worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = worm.cpp; sourceTree = "<group>"; };
-		23C34F7010CC557D00DABBD6 /* worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = worm.h; sourceTree = "<group>"; };
 		23C34FB810CC57FB00DABBD6 /* button.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = button.cpp; sourceTree = "<group>"; };
 		23C34FB910CC57FB00DABBD6 /* button.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = button.h; sourceTree = "<group>"; };
 		23C34FBA10CC57FB00DABBD6 /* check.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = check.cpp; sourceTree = "<group>"; };
@@ -2131,8 +2128,6 @@
 				23C34F6B10CC557D00DABBD6 /* vector_replicator.cpp */,
 				23C34F6C10CC557D00DABBD6 /* vector_replicator.h */,
 				23C34F6D10CC557D00DABBD6 /* viewport.cpp */,
-				23C34F6F10CC557D00DABBD6 /* worm.cpp */,
-				23C34F7010CC557D00DABBD6 /* worm.h */,
 				23C34F3E10CC54C800DABBD6 /* level.cpp */,
 				23C34F3F10CC54C800DABBD6 /* level.h */,
 				23C34F3710CC549C00DABBD6 /* level_effect.cpp */,
@@ -3592,7 +3587,6 @@
 				23C34F8310CC557D00DABBD6 /* stl_str_replicator.cpp in Sources */,
 				23C34F8410CC557D00DABBD6 /* vector_replicator.cpp in Sources */,
 				23C34F8510CC557D00DABBD6 /* viewport.cpp in Sources */,
-				23C34F8610CC557D00DABBD6 /* worm.cpp in Sources */,
 				23C34FD610CC57FB00DABBD6 /* button.cpp in Sources */,
 				23C34FD710CC57FB00DABBD6 /* check.cpp in Sources */,
 				23C34FD810CC57FB00DABBD6 /* context.cpp in Sources */,
