@@ -40,7 +40,9 @@
 #ifndef WIN32
 #include <unistd.h>
 #else
+#ifdef _MSC_VER
 #define strtoull _strtoui64
+#endif
 
 /*
  * Copyright (c) 1988 Regents of the University of California.
