@@ -8,19 +8,6 @@
 #endif
 #include "CMap.h"
 
-struct LieroLevelLoader : ResourceLocator<CMap>::BaseLoader
-{
-	virtual bool canLoad(std::string const& path, std::string& name);
-	
-	virtual bool load(CMap*, std::string const& path);
-	
-	virtual const char* getName();
-	virtual std::string format();
-	virtual std::string formatShort();
-	
-	static LieroLevelLoader instance;
-};
-
 #ifndef DEDICATED_ONLY
 
 struct LieroFontLoader : ResourceLocator<Font>::BaseLoader
