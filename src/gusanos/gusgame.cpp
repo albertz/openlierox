@@ -36,7 +36,6 @@
 #include "hash_table.h"
 
 #include "loaders/vermes.h"
-#include "loaders/LieroXLevelLoader.h"
 #include "loaders/liero.h"
 #include "loaders/losp.h"
 #include "glua.h"
@@ -356,7 +355,6 @@ bool GusGame::init()
 	if(!allegro_init()) return false;
 	
 	levelLocator.registerLoader(&VermesLevelLoader::instance);
-	levelLocator.registerLoader(&LieroXLevelLoader::instance);
 	levelLocator.registerLoader(&LieroLevelLoader::instance);
 	
 #ifndef DEDICATED_ONLY
