@@ -65,25 +65,6 @@ switch(m->getID()) {
 	
 #define mq_end_process_messages() } delete m; q.messages.erase(i); goto mq_delay_message; mq_delay_message: (void)0; } }
 
-/*
-mq_define_message(ChangeLevel, 0, (std::string level_))
-	: level(level_)
-	{
-		
-	}
-	
-	std::string level;
-mq_end_define_message()
-
-mq_process_messages(messages)
-	mq_case(ChangeLevel)
-		gusGame.changeLevel(data.level);
-	mq_end_case()
-mq_end_process_messages()
-
-mq_queue(messages, ChangeLevel, "foo");
-*/
-
 
 
 #endif //VERMES_MESSAGE_QUEUE_H
