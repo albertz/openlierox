@@ -106,42 +106,6 @@ Net_ClassID GusGame::classID = INVALID_CLASS_ID;
 
 GusGame gusGame;
 
-string mapCmd(const list<string> &args)
-{
-	return "Gusanos MAP not available";
-	/*if (!args.empty())
-	{
-		string tmp = *args.begin();
-		std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) tolower);
-		gusGame.changeLevelCmd( tmp );
-		return "";
-	}*/
-	return "MAP <MAPNAME> : LOAD A MAP";
-}
-
-struct MapIterGetText
-{
-	template<class IteratorT>
-	std::string const& operator()(IteratorT i) const
-	{
-		return i->first;
-	}
-};
-
-string mapCompleter(Console* con, int idx, std::string const& beginning)
-{
-	if(idx != 0)
-		return beginning;
-		
-	return shellComplete(
-		levelLocator.getMap(),
-		beginning.begin(),
-		beginning.end(),
-		MapIterGetText(),
-		ConsoleAddLines(*con)
-	);
-}
-
 string gameCmd(const list<string> &args)
 {
 	if (!args.empty())
@@ -307,7 +271,6 @@ void Options::registerInConsole()
 	("SV_TEAM_PLAY", wrapper__sv_team_play);
 	
 	console.registerCommands()
-		("MAP", mapCmd, mapCompleter)
 		("GAME", gameCmd, gameCompleter)
 		("ADDBOT", addbotCmd)
 		("CONNECT", connectCmd)
