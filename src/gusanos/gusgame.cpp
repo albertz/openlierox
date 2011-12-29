@@ -82,7 +82,7 @@ namespace
 	std::string nextMod;
 	std::string    m_modPath;
 	std::string m_modName;
-	std::string    m_defaultPath;
+	static const std::string C_DefaultModPath = "Gusanos";
 	bool loaded;
 	Net_Node *m_node;
 	bool m_isAuthority;
@@ -233,7 +233,6 @@ bool GusGame::init()
 	lua.init();
 	LuaBindings::init();
 
-	m_defaultPath = "Gusanos";
 	m_modPath = "Gusanos";
 	m_modName = "Gusanos";
 	if(!setMod("Gusanos")) {
@@ -607,21 +606,21 @@ void GusGame::refreshResources(std::string const& levelPath)
 {
 #ifndef DEDICATED_ONLY
 	fontLocator.addPath(levelPath + "/fonts");
-	fontLocator.addPath(m_defaultPath + "/fonts");
+	fontLocator.addPath(C_DefaultModPath + "/fonts");
 	fontLocator.addPath(std::string(nextMod) + "/fonts");
 	fontLocator.refresh();
 
-	xmlLocator.addPath(m_defaultPath + "/gui");
+	xmlLocator.addPath(C_DefaultModPath + "/gui");
 	xmlLocator.addPath(std::string(nextMod) + "/gui");
 	xmlLocator.refresh();
 	
-	gssLocator.addPath(m_defaultPath + "/gui");
+	gssLocator.addPath(C_DefaultModPath + "/gui");
 	gssLocator.addPath(std::string(nextMod) + "/gui");
 	gssLocator.refresh();
 #endif
 	
 	scriptLocator.addPath(levelPath + "/scripts");
-	scriptLocator.addPath(m_defaultPath + "/scripts");
+	scriptLocator.addPath(C_DefaultModPath + "/scripts");
 	scriptLocator.addPath(std::string(nextMod) + "/scripts");
 	scriptLocator.refresh();
 	
@@ -629,29 +628,29 @@ void GusGame::refreshResources(std::string const& levelPath)
 	// the resource locator paths! Fix maybe?
 	partTypeList.addPath(levelPath + "/objects");
 	partTypeList.addPath(std::string(nextMod) + "/objects");
-	partTypeList.addPath(m_defaultPath + "/objects");
+	partTypeList.addPath(C_DefaultModPath + "/objects");
 	
 	expTypeList.addPath(levelPath + "/objects");
 	expTypeList.addPath(std::string(nextMod) + "/objects");
-	expTypeList.addPath(m_defaultPath + "/objects");
+	expTypeList.addPath(C_DefaultModPath + "/objects");
 	
 #ifndef DEDICATED_ONLY
 	soundList.addPath(levelPath + "/sounds");
 	soundList.addPath(std::string(nextMod) + "/sounds");
-	soundList.addPath(m_defaultPath + "/sounds");
+	soundList.addPath(C_DefaultModPath + "/sounds");
 	
 	sound1DList.addPath(levelPath + "/sounds");
 	sound1DList.addPath(std::string(nextMod) + "/sounds");
-	sound1DList.addPath(m_defaultPath + "/sounds");
+	sound1DList.addPath(C_DefaultModPath + "/sounds");
 #endif
 	
 	spriteList.addPath(levelPath + "/sprites");
 	spriteList.addPath(std::string(nextMod) + "/sprites");
-	spriteList.addPath(m_defaultPath + "/sprites");
+	spriteList.addPath(C_DefaultModPath + "/sprites");
 	
 	levelEffectList.addPath(levelPath + "/mapeffects");
 	levelEffectList.addPath(std::string(nextMod) + "/mapeffects");
-	levelEffectList.addPath(m_defaultPath + "/mapeffects");
+	levelEffectList.addPath(C_DefaultModPath + "/mapeffects");
 }
 
 bool GusGame::reloadModWithoutMap()
@@ -701,7 +700,7 @@ void GusGame::finishLoad() {
 
 bool GusGame::loadModWithoutMap() {
 	notes << "GusGame::loadModWithoutMap: " << nextMod << endl;
-	prepareLoad( /* dummy path */ m_defaultPath );
+	prepareLoad( /* dummy path */ C_DefaultModPath );
 	finishLoad();
 	return true;
 }
@@ -816,7 +815,7 @@ std::string const& GusGame::getModPath()
 
 std::string const& GusGame::getDefaultPath()
 {
-	return m_defaultPath;
+	return C_DefaultModPath;
 }
 
 CWormInputHandler* GusGame::findPlayerWithID( Net_NodeID ID )
