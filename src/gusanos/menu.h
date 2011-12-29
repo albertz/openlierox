@@ -21,8 +21,7 @@ struct VermesFont : public BaseFont
 {
 	VermesFont(Font* font_)
 	: font(font_)
-	{
-	}
+	{}
 	
 	Font *font;
 };
@@ -31,8 +30,7 @@ struct VermesSpriteSet : public BaseSpriteSet
 {
 	VermesSpriteSet(SpriteSet* spriteSet_)
 	: spriteSet(spriteSet_)
-	{
-	}
+	{}
 	
 	virtual int getFrameCount() const;
 	
@@ -40,8 +38,6 @@ struct VermesSpriteSet : public BaseSpriteSet
 	virtual ulong getFrameHeight(int frame, int angle = 0) const;
 	
 	SpriteSet *spriteSet;
-	
-	
 };
 
 struct AllegroRenderer : public Renderer
@@ -88,17 +84,11 @@ struct AllegroRenderer : public Renderer
 	
 	void drawSkinnedBox(BaseSpriteSet const& skin, Rect const& rect, RGB const& backgroundColor);
 	
-/*
-	void rectfill32(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, int colour);
-	void rectfill16(ALLEGRO_BITMAP* where, int x1, int y1, int x2, int y2, int colour);*/
-	
 private:
 	Rect clipRect;
 	Rect screenRect;
 	BlitterContext blitter;
 };
-
-//extern VermesFont defaultMenuFont;
 
 class GContext : public Context
 {
@@ -139,8 +129,7 @@ class GSSFile
 public:
 	GSSFile()
 	: loaded(false)
-	{
-	}
+	{}
 	
 	operator bool()
 	{
