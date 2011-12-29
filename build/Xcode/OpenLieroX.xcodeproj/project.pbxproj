@@ -329,7 +329,6 @@
 		23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5810CC557D00DABBD6 /* net_worm.cpp */; };
 		23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */; };
 		23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6010CC557D00DABBD6 /* player_input.cpp */; };
-		23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6210CC557D00DABBD6 /* player_options.cpp */; };
 		23C34F8010CC557D00DABBD6 /* posspd_replicator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6310CC557D00DABBD6 /* posspd_replicator.cpp */; };
 		23C34F8110CC557D00DABBD6 /* proxy_player.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6510CC557D00DABBD6 /* proxy_player.cpp */; };
 		23C34F8210CC557D00DABBD6 /* server.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C34F6710CC557D00DABBD6 /* server.cpp */; };
@@ -1242,7 +1241,6 @@
 		23C34F5B10CC557D00DABBD6 /* ninjarope.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ninjarope.h; sourceTree = "<group>"; };
 		23C34F6010CC557D00DABBD6 /* player_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_input.cpp; sourceTree = "<group>"; };
 		23C34F6110CC557D00DABBD6 /* player_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = player_input.h; sourceTree = "<group>"; };
-		23C34F6210CC557D00DABBD6 /* player_options.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = player_options.cpp; sourceTree = "<group>"; };
 		23C34F6310CC557D00DABBD6 /* posspd_replicator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = posspd_replicator.cpp; sourceTree = "<group>"; };
 		23C34F6410CC557D00DABBD6 /* posspd_replicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = posspd_replicator.h; sourceTree = "<group>"; };
 		23C34F6510CC557D00DABBD6 /* proxy_player.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = proxy_player.cpp; sourceTree = "<group>"; };
@@ -2122,7 +2120,6 @@
 				23C34F5B10CC557D00DABBD6 /* ninjarope.h */,
 				23C34F6010CC557D00DABBD6 /* player_input.cpp */,
 				23C34F6110CC557D00DABBD6 /* player_input.h */,
-				23C34F6210CC557D00DABBD6 /* player_options.cpp */,
 				23C34F6310CC557D00DABBD6 /* posspd_replicator.cpp */,
 				23C34F6410CC557D00DABBD6 /* posspd_replicator.h */,
 				23C34F6510CC557D00DABBD6 /* proxy_player.cpp */,
@@ -3589,7 +3586,6 @@
 				23C34F7A10CC557D00DABBD6 /* net_worm.cpp in Sources */,
 				23C34F7B10CC557D00DABBD6 /* ninjarope.cpp in Sources */,
 				23C34F7E10CC557D00DABBD6 /* player_input.cpp in Sources */,
-				23C34F7F10CC557D00DABBD6 /* player_options.cpp in Sources */,
 				23C34F8010CC557D00DABBD6 /* posspd_replicator.cpp in Sources */,
 				23C34F8110CC557D00DABBD6 /* proxy_player.cpp in Sources */,
 				23C34F8210CC557D00DABBD6 /* server.cpp in Sources */,
