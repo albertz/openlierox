@@ -1236,7 +1236,6 @@
 		23C34F5410CC557D00DABBD6 /* losp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = losp.h; sourceTree = "<group>"; };
 		23C34F5510CC557D00DABBD6 /* vermes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vermes.cpp; sourceTree = "<group>"; };
 		23C34F5610CC557D00DABBD6 /* vermes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vermes.h; sourceTree = "<group>"; };
-		23C34F5710CC557D00DABBD6 /* message_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = message_queue.h; sourceTree = "<group>"; };
 		23C34F5810CC557D00DABBD6 /* net_worm.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = net_worm.cpp; sourceTree = "<group>"; };
 		23C34F5910CC557D00DABBD6 /* net_worm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = net_worm.h; sourceTree = "<group>"; };
 		23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ninjarope.cpp; sourceTree = "<group>"; };
@@ -2117,7 +2116,6 @@
 				23C34F4C10CC557D00DABBD6 /* client.cpp */,
 				23C34F4D10CC557D00DABBD6 /* client.h */,
 				23C34F4E10CC557D00DABBD6 /* loaders */,
-				23C34F5710CC557D00DABBD6 /* message_queue.h */,
 				23C34F5810CC557D00DABBD6 /* net_worm.cpp */,
 				23C34F5910CC557D00DABBD6 /* net_worm.h */,
 				23C34F5A10CC557D00DABBD6 /* ninjarope.cpp */,
