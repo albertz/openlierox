@@ -160,7 +160,6 @@ public:
 	bool reloadModWithoutMap();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
-	bool changeLevel(const std::string& levelName, bool refresh = true);
 	bool changeLevelCmd(const std::string& level);
 	bool hasLevel(std::string const& level);
 	bool hasMod(std::string const& mod);
@@ -216,24 +215,6 @@ public:
 	static bool checkCRCs(BitStream& data);
 	
 	MessageQueue msg;
-	
-	mq_define_message(ChangeLevel, 0, (std::string level_))
-		: level(level_)
-		{
-			
-		}
-		
-		std::string level;
-	mq_end_define_message()
-	
-	mq_define_message(ChangeLevelReal, 1, (std::string level_))
-		: level(level_)
-		{
-			
-		}
-		
-		std::string level;
-	mq_end_define_message()
 	
 private:
 	void prepareLoad(const std::string& path);

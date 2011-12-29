@@ -437,39 +437,6 @@ void GusGame::sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules,
 
 void GusGame::think()
 {
-	mq_process_messages(msg)
-		mq_case(ChangeLevel)
-			
-			if(!network.isDisconnected())
-			{
-				if(!network.isDisconnecting())
-				{
-					if( network.isHost() )
-						network.disconnect( Network::ServerMapChange );
-					else
-						network.disconnect();
-				}
-				
-				mq_delay(); // Wait until network is disconnected
-			}
-
-			// Network is disconnected
-
-			refreshLevels();
-			if(!levelLocator.exists(data.level))
-				break;
-			if(!changeLevel( data.level, false ))
-				break;
-			
-			if ( !network.isClient() )
-			{
-				network.olxHost();
-			}
-			
-			runInitScripts();
-		mq_end_case()
-	mq_end_process_messages()
-
 #ifndef DEDICATED_ONLY
 	if(!messages.empty())
 	{
@@ -884,18 +851,6 @@ bool GusGame::hasLevel(std::string const& level)
 bool GusGame::hasMod(std::string const& mod)
 {
 	return modList.find(mod) != modList.end();
-}
-
-bool GusGame::changeLevel(const std::string& levelName, bool refresh)
-{
-	if(refresh)
-		refreshLevels();
-	
-	ResourceLocator<CMap>::NamedResourceMap::const_iterator i = levelLocator.getMap().find(levelName);
-	if(i == levelLocator.getMap().end())
-		return false;
-	
-	return changeLevel(i->second.loader, i->second.path);
 }
 
 void GusGame::reinit() {
