@@ -106,12 +106,20 @@ Net_ClassID GusGame::classID = INVALID_CLASS_ID;
 
 GusGame gusGame;
 
-string wrapper__sv_team_play(const list<string> &args)
+static string wrapper__sv_team_play(const list<string> &args)
 {
 	if(args.size() >= 1)
 		return ""; // just ignore
 	
 	return game.isTeamPlay() ? "1" : "0";
+}
+
+static string dummy_rcon_varcmd(const list<string> &args)
+{
+	warnings << "Gus RCON_PASSWORD obsolete/unused" << endl;
+	if(args.size() >= 1)
+		return "";
+	return "";
 }
 
 void Options::registerInConsole()
@@ -154,7 +162,6 @@ void Options::registerInConsole()
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
 		("CL_SPLITSCREEN", &splitScreenVar, 0)
 			
-		("RCON_PASSWORD", &rConPassword, "" )
 		("CL_SHOW_MAP_DEBUG", &showMapDebug, 0 )
 		("CL_SHOW_DEATH_MESSAGES", &showDeathMessages, true )
 		("CL_LOG_DEATH_MESSAGES", &logDeathMessages, false )
@@ -163,7 +170,9 @@ void Options::registerInConsole()
 	splitScreen = false;
 	
 	console.registerCommands()
-	("SV_TEAM_PLAY", wrapper__sv_team_play);
+	("SV_TEAM_PLAY", wrapper__sv_team_play)
+	("RCON_PASSWORD", dummy_rcon_varcmd )
+	;
 }
 
 GusGame::GusGame()
