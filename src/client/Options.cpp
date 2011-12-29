@@ -758,7 +758,7 @@ bool NetworkTexts::LoadFromDisc()
 }
 
 
-GameOptions::GameOptions() {
+GameOptions::GameOptions() : customSettings("custom user settings") {
 	// we need to set some initial values for these
 	bLogTimestamps = false;
 	iVerbosity = 0;

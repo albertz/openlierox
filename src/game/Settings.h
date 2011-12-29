@@ -41,8 +41,9 @@
 #include "CodeAttributes.h"
 
 struct FeatureSettingsLayer : FeatureSettings {
+	std::string debug_name;
 	bool isSet[FeatureArrayLen];
-	FeatureSettingsLayer() { makeSet(false); }
+	FeatureSettingsLayer(const std::string& debug_name_) : debug_name(debug_name_) { makeSet(false); }
 	void makeSet(bool v = true) { for(size_t i = 0; i < FeatureArrayLen; ++i) isSet[i] = v; }
 	
 	ScriptVar_t& set(FeatureIndex i) {

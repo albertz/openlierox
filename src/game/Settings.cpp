@@ -14,8 +14,8 @@
 #include "Debug.h"
 
 Settings gameSettings;
-FeatureSettingsLayer modSettings;
-FeatureSettingsLayer gamePresetSettings;
+FeatureSettingsLayer modSettings("Mod properties");
+FeatureSettingsLayer gamePresetSettings("Settings preset");
 
 void FeatureSettingsLayer::copyTo(FeatureSettingsLayer& s) const {
 	for(size_t i = 0; i < FeatureArrayLen; ++i)
@@ -30,7 +30,7 @@ void FeatureSettingsLayer::copyTo(FeatureSettings& s) const {
 }
 
 void FeatureSettingsLayer::dump() const {
-	notes << "Settings layer {" << endl;
+	notes << debug_name << " {" << endl;
 	for(size_t i = 0; i < FeatureArrayLen; ++i)
 		if(isSet[i])
 			notes << " " << featureArray[i].name << " : " << (*this)[(FeatureIndex)i] << endl;
@@ -94,7 +94,7 @@ void Settings::dumpAllLayers() const {
 	notes << "Settings (" << layers.size() << " layers) {" << endl;
 	size_t num = 1;
 	for(Layers::const_iterator i = layers.begin(); i != layers.end(); ++i, ++num) {
-		notes << "Layer " << num << " ";
+		notes << "Layer " << num << ": ";
 		(*i)->dump();
 	}
 	notes << "}" << endl;

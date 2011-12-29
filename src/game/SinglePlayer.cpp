@@ -163,7 +163,7 @@ static bool addPlayerToClient() {
 struct SinglePlayerSettingsScope : FeatureSettingsLayer {
 	Settings::Layers oldLayers;
 	
-	SinglePlayerSettingsScope() {
+	SinglePlayerSettingsScope() : FeatureSettingsLayer("Single player game settings") {
 		oldLayers.swap(gameSettings.layers);
 		gameSettings.layersInitStandard(false);
 		gameSettings.layers.push_back(this);
@@ -189,6 +189,7 @@ bool SinglePlayerGame::startGame() {
 		return false;
 	}
 	
+	if(singlePlayerSettings.get()) singlePlayerSettings = NULL; // just to be sure
 	singlePlayerSettings = new SinglePlayerSettingsScope();
 	
 	tLX->iGameType = GME_LOCAL;

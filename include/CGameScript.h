@@ -79,7 +79,7 @@ class CGameScript {
 	friend struct Proj_ProjHitEvent;
 public:
 	// Constructor
-	CGameScript() {
+	CGameScript() : lx56modSettings("LX56 mod settings") {
 		loaded = false;
 		m_gusEngineUsed = false;
 		needCollisionInfo = false;
