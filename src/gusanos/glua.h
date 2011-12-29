@@ -3,7 +3,6 @@
 
 #include <string>
 #include <vector>
-//#include "luaapi/context.h"
 #include "luaapi/types.h"
 #include "CodeAttributes.h"
 
@@ -37,32 +36,11 @@ struct LuaCallbacks
 		max
 	};
 	void bind(std::string callback, LuaReference ref);
-	/*
-	std::vector<LuaReference> atGameStart;
-	std::vector<LuaReference> afterRender;
-	std::vector<LuaReference> afterUpdate;
-	std::vector<LuaReference> wormRender;
-	std::vector<LuaReference> viewportRender;
-	std::vector<LuaReference> wormDeath;
-	std::vector<LuaReference> wormRemoved;
-	std::vector<LuaReference> playerUpdate;
-	std::vector<LuaReference> playerInit;
-	std::vector<LuaReference> playerRemoved;
-	std::vector<LuaReference> playerNetworkInit;
-	std::vector<LuaReference> gameNetworkInit;
-	std::vector<LuaReference> gameEnded;
-	//TODO: std::vector<LuaReference> connectionRequest;
-	
-	std::vector<LuaReference> localplayerEvent[C_LocalPlayer_ActionCount];
-	std::vector<LuaReference> localplayerEventAny;
-	std::vector<LuaReference> localplayerInit;
-	*/
 	std::vector<LuaReference> callbacks[max];
 };
 
-//extern LuaContext lua;
-
 extern LuaCallbacks luaCallbacks;
+
 /*
 // This is GCC specific, because I can't find a way to do it in standard C++ :/
 #define LUA_NEW(t_, param_) \
