@@ -2,7 +2,6 @@
 #define GAME_H
 
 #include "level.h"
-#include "message_queue.h"
 #include "object_grid.h"
 #include "FeatureList.h"
 #include "OlxVariable.h"
@@ -213,9 +212,7 @@ public:
 	
 	static void addCRCs(BitStream* req);
 	static bool checkCRCs(BitStream& data);
-	
-	MessageQueue msg;
-	
+		
 private:
 	void prepareLoad(const std::string& path);
 	void finishLoad();
