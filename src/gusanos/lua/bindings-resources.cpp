@@ -46,7 +46,6 @@ LuaReference SoundMetaTable;
 #endif
 //LuaReference PartTypeMetaTable;
 //LuaReference WeaponTypeMetaTable;
-LuaReference mapIterator;
 
 enum FontFlags
 {
@@ -551,44 +550,6 @@ int l_mods(lua_State* L)
 	return 3;
 }
 
-/*! maps()
-
-	Returns an iterator that iterates through all maps.
-*/
-int l_maps(lua_State* L)
-{
-	LuaContext context(L);
-	
-	context.pushReference(mapIterator);
-	
-	typedef ResourceLocator<CMap>::NamedResourceMap::const_iterator iter;
-	
-	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
-	i = levelLocator.getMap().begin();
-	lua_pushnil(L);
-	
-	return 3;
-}
-
-int l_mapIterator(lua_State* L)
-{
-	LuaContext context(L);
-	
-	typedef ResourceLocator<CMap>::NamedResourceMap::const_iterator iter;
-	
-	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == levelLocator.getMap().end())
-		lua_pushnil(L);
-	else
-	{
-		//lua.pushReference((*i)->luaReference);
-		context.push(i->first);
-		++i;
-	}
-	
-	return 1;
-}
-
 
 METHODC(PartType, parttype_put,  {
 	float x = 0.f;
@@ -629,10 +590,7 @@ void initResources()
 	LuaContext& context = lua;
 	
 	AssertStack as(context);
-	
-	lua_pushcfunction(context, l_mapIterator);
-	mapIterator = context.createReference();
-	
+		
 	context.functions()
 		("load_particle", l_load_particle)
 		("weapon_random", l_weapon_random)
@@ -642,7 +600,6 @@ void initResources()
 		("font_load", l_font_load)
 #endif
 		("map_is_loaded", l_map_is_loaded)
-		("maps", l_maps)
 		("mods", l_mods)
 	;
 	

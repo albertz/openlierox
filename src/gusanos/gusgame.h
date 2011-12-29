@@ -151,14 +151,11 @@ public:
 	bool isLoaded();
 	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
-	void refreshLevels();
 	void refreshMods();
 	bool reloadModWithoutMap();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
 	bool changeLevelCmd(const std::string& level);
-	bool hasLevel(std::string const& level);
-	bool hasMod(std::string const& mod);
 	void runInitScripts();
 	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
 	//static Net_Node* getNode();

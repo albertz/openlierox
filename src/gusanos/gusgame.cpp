@@ -219,9 +219,6 @@ bool GusGame::init()
 {
 	if(!allegro_init()) return false;
 	
-	levelLocator.registerLoader(&VermesLevelLoader::instance);
-	levelLocator.registerLoader(&LieroLevelLoader::instance);
-	
 #ifndef DEDICATED_ONLY
 	fontLocator.registerLoader(&VermesFontLoader::instance);
 	fontLocator.registerLoader(&LOSPFontLoader::instance);
@@ -659,14 +656,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	refreshMods();
 }
 
-void GusGame::refreshLevels()
-{
-	levelLocator.clear();
-	levelLocator.addPath("levels");
-	//levelLocator.addPath(std::string(nextMod) + "/maps");
-	levelLocator.refresh();
-}
-
 void GusGame::refreshMods()
 {
 	modList.clear();
@@ -707,21 +696,10 @@ void GusGame::error(Error err)
 	}
 }
 
-bool GusGame::hasLevel(std::string const& level)
-{
-	return levelLocator.exists(level);
-}
-
-bool GusGame::hasMod(std::string const& mod)
-{
-	return modList.find(mod) != modList.end();
-}
-
 void GusGame::reinit() {
 	unload();
 	
 	options.registerInConsole();
-	
 }
 
 void GusGame::prepareLoad(const std::string& path) {	
@@ -809,8 +787,6 @@ bool GusGame::setMod( const string& modname )
 		nextMod = m_modName;
 		return false;
 	}
-	
-	refreshLevels();
 	
 	return true;
 }

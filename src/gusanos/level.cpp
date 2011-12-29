@@ -25,8 +25,6 @@
 
 using namespace std;
 
-ResourceLocator<CMap> levelLocator;
-
 #ifndef DEDICATED_ONLY
 struct AddCuller : Culler<AddCuller>
 {

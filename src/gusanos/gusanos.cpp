@@ -52,9 +52,6 @@ bool gusInitBase() {
 	if(!gusGame.init())
 		return false;
 	
-	//gusGame.refreshLevels();
-
-	
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif

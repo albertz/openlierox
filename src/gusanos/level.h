@@ -64,7 +64,4 @@ struct LevelConfig
 	bool darkMode;
 };
 
-class CMap;
-extern ResourceLocator<CMap> levelLocator;
-
 #endif // _LEVEL_H_
