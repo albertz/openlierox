@@ -67,7 +67,6 @@ struct Options
 	size_t maxWeapons;
 	int splitScreenVar;
 	bool splitScreen;
-	std::string rConPassword;
 	bool showDeathMessages;
 	bool logDeathMessages;
 	
