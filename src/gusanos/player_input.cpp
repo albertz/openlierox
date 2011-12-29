@@ -16,11 +16,17 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <assert.h>
+#include "StaticAssert.h"
+
+static_assert( C_LocalPlayer_ActionCount == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
 
 using namespace std;
 
 std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
 {
+	assert((int)action >= 0 && (int)action < CWormHumanInputHandler::ACTION_COUNT);
+	
 	if ( index < game.localPlayers.size() )
 	{
 		CWormHumanInputHandler& player = *game.localPlayers[index];
@@ -51,6 +57,8 @@ std::string eventStart(size_t index, CWormHumanInputHandler::Actions action, std
 
 std::string eventStop(size_t index, CWormHumanInputHandler::Actions action, std::list<std::string> const&)
 {
+	assert((int)action >= 0 && (int)action < CWormHumanInputHandler::ACTION_COUNT);
+
 	if ( index < game.localPlayers.size() )
 	{
 		CWormHumanInputHandler& player = *game.localPlayers[index];
@@ -87,6 +95,7 @@ void registerPlayerInput()
 		{
 			"_LEFT", "_RIGHT", "_UP", "_DOWN", "_FIRE", "_JUMP", "_CHANGE", "_NINJAROPE"
 		};
+		static_assert( sizeof(actionNames)/sizeof(char*) == CWormHumanInputHandler::ACTION_COUNT, actioncount_mismatch );
 		
 		for(int action = CWormHumanInputHandler::LEFT; action < CWormHumanInputHandler::ACTION_COUNT; ++action)
 		{

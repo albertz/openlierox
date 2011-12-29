@@ -7,6 +7,8 @@
 #include "luaapi/types.h"
 #include "CodeAttributes.h"
 
+#define C_LocalPlayer_ActionCount 8
+
 #define EACH_CALLBACK(i_, type_) for(std::vector<LuaReference>::iterator i_ = luaCallbacks.callbacks[LuaCallbacks::type_].begin(); \
 			i_ != luaCallbacks.callbacks[LuaCallbacks::type_].end(); ++i_)
 
@@ -30,7 +32,7 @@ struct LuaCallbacks
 		localplayerEventAny = 13,
 		localplayerInit = 14,
 		localplayerEvent = 15,
-		transferUpdate = localplayerEvent+7,
+		transferUpdate = localplayerEvent+C_LocalPlayer_ActionCount,
 		transferFinished = transferUpdate+1,
 		networkStateChange = transferFinished+1,
 		gameError = networkStateChange+1,
@@ -53,7 +55,7 @@ struct LuaCallbacks
 	std::vector<LuaReference> gameEnded;
 	//TODO: std::vector<LuaReference> connectionRequest;
 	
-	std::vector<LuaReference> localplayerEvent[7];
+	std::vector<LuaReference> localplayerEvent[C_LocalPlayer_ActionCount];
 	std::vector<LuaReference> localplayerEventAny;
 	std::vector<LuaReference> localplayerInit;
 	*/
