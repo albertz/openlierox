@@ -262,9 +262,9 @@ int l_game_localPlayer(lua_State* L)
 int l_game_localPlayerName(lua_State* L)
 {
 	size_t i = (int)lua_tointeger(L, 1);
-	if(i < gusGame.playerOptions.size())
+	if(i < game.localPlayers.size())
 	{
-		lua.push(gusGame.playerOptions[i]->name);
+		lua.push(game.localPlayers[i]->name());
 		return 1;
 	}
 	else
