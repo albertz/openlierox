@@ -551,6 +551,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			ImgRowStep = ImgRowSize * 2 - (w * bpp * 2);
 
 			for (i = h; i; --i)  {
+				pf = &(*pfline)[x];
 				for (j = w; j; --j)  {
 					if (m_materialList[*pf].toLxFlags() & PX_EMPTY) // Empty pixel - copy from the background image
 					{
@@ -566,7 +567,6 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 				img_pixel += ImgRowStep;
 				back_pixel += ImgRowStep;
 				pfline++;
-				pf = &(*pfline)[x];
 			}
 			UnlockSurface(bmpDrawImage);
 			UnlockSurface(bmpBackImageHiRes);
@@ -590,6 +590,7 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
 
 			for (i = h; i; --i)  {
+				pf = &(*pfline)[x];
 				for (j = w; j; --j)  {
 					if (m_materialList[*pf].toLxFlags() & PX_EMPTY) // Empty pixel - copy from the background image
 						memcpy(img_pixel, back_pixel, bpp);
@@ -602,7 +603,6 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 				img_pixel += ImgRowStep;
 				back_pixel += BackRowStep;
 				pfline++;
-				pf = &(*pfline)[x];
 			}
 			UnlockSurface(bmpImage);
 			UnlockSurface(bmpBackImage);
