@@ -122,6 +122,14 @@ static string dummy_rcon_varcmd(const list<string> &args)
 	return "";
 }
 
+static string dummy_splitscreen_varcmd(const list<string> &args)
+{
+	warnings << "Gus CL_SPLITSCREEN ignored" << endl;
+	if(args.size() >= 1)
+		return "";
+	return "0";
+}
+
 void Options::registerInConsole()
 {
 	console.registerVariables()
@@ -160,18 +168,17 @@ void Options::registerInConsole()
 
 		
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
-		("CL_SPLITSCREEN", &splitScreenVar, 0)
 			
 		("CL_SHOW_MAP_DEBUG", &showMapDebug, 0 )
 		("CL_SHOW_DEATH_MESSAGES", &showDeathMessages, true )
 		("CL_LOG_DEATH_MESSAGES", &logDeathMessages, false )
 	;
 	maxWeapons = 5;
-	splitScreen = false;
 	
 	console.registerCommands()
 	("SV_TEAM_PLAY", wrapper__sv_team_play)
 	("RCON_PASSWORD", dummy_rcon_varcmd )
+	("CL_SPLITSCREEN", dummy_splitscreen_varcmd)
 	;
 }
 
@@ -449,7 +456,6 @@ void GusGame::loadWeapons()
 bool GusGame::loadMod(bool doLoadWeapons)
 {
 	options.maxWeapons = options.maxWeaponsVar;
-	options.splitScreen = ( options.splitScreenVar != 0 );
 	console.loadResources();
 	gfx.loadResources();
 	

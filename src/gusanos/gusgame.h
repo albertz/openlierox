@@ -65,8 +65,6 @@ struct Options
 	int minRespawnTime;
 	int maxWeaponsVar;
 	size_t maxWeapons;
-	int splitScreenVar;
-	bool splitScreen;
 	bool showDeathMessages;
 	bool logDeathMessages;
 	
