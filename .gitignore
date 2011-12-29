@@ -22,6 +22,7 @@ cmake_install.cmake
 
 bin
 *~
+.*.swp
 *.build
 *.o
 libopenlierox_pch_dephelp.a
