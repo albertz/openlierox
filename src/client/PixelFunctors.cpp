@@ -71,4 +71,7 @@ PixelCopy& getPixelCopyFunc(const SDL_Surface *source_surf, const SDL_Surface *d
 	}
 	
 	_BRANCH1()
+	
+	// for stupid compilers
+	return PixelCopy_Class<false,false,false,false,false,1,1>::getInstance(source_surf->format, dest_surf->format);
 }
