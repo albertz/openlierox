@@ -106,52 +106,6 @@ Net_ClassID GusGame::classID = INVALID_CLASS_ID;
 
 GusGame gusGame;
 
-string gameCmd(const list<string> &args)
-{
-	if (!args.empty())
-	{
-		string tmp = *args.begin();
-		std::transform(tmp.begin(), tmp.end(), tmp.begin(), (int(*)(int)) tolower);
-		if(!gusGame.setMod( tmp ))
-			return "MOD " + tmp + " NOT FOUND";
-		return "THE GAME WILL CHANGE THE NEXT TIME YOU CHANGE MAP";
-	}
-	return "GAME <MODNAME> : SET THE MOD TO LOAD THE NEXT MAP CHANGE";
-}
-
-struct GameIterGetText
-{
-	template<class IteratorT>
-	std::string const& operator()(IteratorT i) const
-	{
-		return *i;
-	}
-};
-
-string gameCompleter(Console* con, int idx, std::string const& beginning)
-{
-	if(idx != 0)
-		return beginning;
-		
-	return shellComplete(
-		gusGame.modList,
-		beginning.begin(),
-		beginning.end(),
-		GameIterGetText(),
-		ConsoleAddLines(*con)
-	);
-}
-
-string addbotCmd(const list<string> &args)
-{
-	return "Gusanos addbot command not supported - use OLX interface";
-}
-
-string connectCmd(const list<string> &args)
-{
-	return "Error: Gusanos connect command not supported";
-}
-
 string rConCmd(const list<string> &args)
 {
 	if ( !args.empty() && network.isClient() )
@@ -177,39 +131,6 @@ string rConCompleter(Console* con, int idx, std::string const& beginning)
 	return con->completeCommand(beginning);
 }
 
-
-string banCmd(list<string> const& args)
-{
-	return "Gusanos ban command not available";
-}
-
-string kickCmd(const list<string> &args)
-{
-	return "Gusanos kick command not available";
-}
-
-struct BasePlayerIterGetText
-{
-	template<class IteratorT>
-	std::string operator()(IteratorT i) const
-	{
-		return (*i)->worm()->getName();
-	}
-};
-
-string kickCompleter(Console* con, int idx, std::string const& beginning)
-{
-	if(idx != 0)
-		return beginning;
-		
-	return shellComplete(
-		game.players,
-		beginning.begin(),
-		beginning.end(),
-		BasePlayerIterGetText(),
-		ConsoleAddLines(*con)
-	);
-}
 
 string wrapper__sv_team_play(const list<string> &args)
 {
@@ -271,12 +192,7 @@ void Options::registerInConsole()
 	("SV_TEAM_PLAY", wrapper__sv_team_play);
 	
 	console.registerCommands()
-		("GAME", gameCmd, gameCompleter)
-		("ADDBOT", addbotCmd)
-		("CONNECT", connectCmd)
 		("RCON", rConCmd, rConCompleter)
-		("KICK", kickCmd, kickCompleter)
-		("BAN", banCmd, kickCompleter)
 	;
 }
 
