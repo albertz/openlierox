@@ -654,12 +654,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	levelEffectList.addPath(m_defaultPath + "/mapeffects");
 }
 
-bool GusGame::changeLevelCmd(const std::string& levelName )
-{
-	warnings << "GusGame::changeLevelCmd not supported anymore" << endl;
-	return false;
-}
-
 bool GusGame::reloadModWithoutMap()
 {
 	unload();

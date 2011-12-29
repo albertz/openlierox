@@ -154,7 +154,6 @@ public:
 	bool reloadModWithoutMap();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
-	bool changeLevelCmd(const std::string& level);
 	void runInitScripts();
 	CWormInputHandler* findPlayerWithID( Net_NodeID ID );
 	//static Net_Node* getNode();
