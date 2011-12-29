@@ -511,8 +511,6 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 {
 	if(bDedicated) return;
 
-	int i, j;
-
 	// When drawing shadows, we have to update a bigger area
 	int shadow_update = tLXOptions->bShadows ? SHADOW_DROP : 0;
 
@@ -537,22 +535,19 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 		{
 			LOCK_OR_QUIT(bmpDrawImage);
 			LOCK_OR_QUIT(bmpBackImageHiRes);
-			Uint8 *img_pixel, *back_pixel;
-			Uint16 ImgRowStep, ImgRowSize;
+
 			byte bpp = bmpDrawImage.get()->format->BytesPerPixel;
 			byte bppX2 = bpp * 2;
-
-			img_pixel = (Uint8 *)bmpDrawImage.get()->pixels + y * 2 * bmpDrawImage.get()->pitch + x * 2 * bpp;
-			back_pixel = (Uint8 *)bmpBackImageHiRes.get()->pixels + y * 2 * bmpBackImageHiRes.get()->pitch + x * 2 * bpp;
+			Uint8* img_pixel = (Uint8 *)bmpDrawImage.get()->pixels + y * 2 * bmpDrawImage.get()->pitch + x * 2 * bpp;
+			Uint8* back_pixel = (Uint8 *)bmpBackImageHiRes.get()->pixels + y * 2 * bmpBackImageHiRes.get()->pitch + x * 2 * bpp;
 			uchar*const* pfline = &material->line[y];
 			const uchar* pf = &(*pfline)[x];
+			Uint16 ImgRowSize = bmpDrawImage.get()->pitch;
+			Uint16 ImgRowStep = ImgRowSize * 2 - (w * bpp * 2);
 
-			ImgRowSize = bmpDrawImage.get()->pitch;
-			ImgRowStep = ImgRowSize * 2 - (w * bpp * 2);
-
-			for (i = h; i; --i)  {
+			for (int i = h; i; --i)  {
 				pf = &(*pfline)[x];
-				for (j = w; j; --j)  {
+				for (int j = w; j; --j)  {
 					if (m_materialList[*pf].toLxFlags() & PX_EMPTY) // Empty pixel - copy from the background image
 					{
 						memcpy(img_pixel, back_pixel, bppX2);
@@ -577,21 +572,17 @@ void CMap::UpdateArea(int x, int y, int w, int h, bool update_image)
 			LOCK_OR_QUIT(bmpBackImage);
 
 			// Init the variables
-			Uint8 *img_pixel, *back_pixel;
-			Uint16 ImgRowStep, BackRowStep;
 			byte bpp = bmpImage.get()->format->BytesPerPixel;
+			Uint8* img_pixel = (Uint8 *)bmpImage.get()->pixels + y * bmpImage.get()->pitch + x * bpp;
+			Uint8* back_pixel = (Uint8 *)bmpBackImage.get()->pixels + y * bmpBackImage.get()->pitch + x * bpp;
+			uchar*const* pfline = &material->line[y];
+			const uchar* pf = &(*pfline)[x];
+			Uint16 ImgRowStep = bmpImage.get()->pitch - (w * bpp);
+			Uint16 BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
 
-			img_pixel = (Uint8 *)bmpImage.get()->pixels + y * bmpImage.get()->pitch + x * bpp;
-			back_pixel = (Uint8 *)bmpBackImage.get()->pixels + y * bmpBackImage.get()->pitch + x * bpp;
-			uchar** pfline = &material->line[y];
-			uchar* pf = &(*pfline)[x];
-
-			ImgRowStep = bmpImage.get()->pitch - (w * bpp);
-			BackRowStep = bmpBackImage.get()->pitch - (w * bpp);
-
-			for (i = h; i; --i)  {
+			for (int i = h; i; --i)  {
 				pf = &(*pfline)[x];
-				for (j = w; j; --j)  {
+				for (int j = w; j; --j)  {
 					if (m_materialList[*pf].toLxFlags() & PX_EMPTY) // Empty pixel - copy from the background image
 						memcpy(img_pixel, back_pixel, bpp);
 
