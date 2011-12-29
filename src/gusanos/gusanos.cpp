@@ -41,9 +41,6 @@ using namespace std;
 
 bool quit = false;
 
-static unsigned int fpsLast = 0;
-static int fpsCount = 0;
-static int fps = 0;
 static Uint32 logicLast = 0;
 
 
@@ -75,9 +72,6 @@ bool gusInit(const std::string& mod) {
 	gusGame.setMod(mod);
 	
 	quit = false;
-	fpsLast = 0;
-	fpsCount = 0;
-	fps = 0;
 	logicLast = SDL_GetTicks() / 10;
 	
 	return true;
@@ -148,16 +142,6 @@ void gusLogicFrame() {
 	}
 	
 	network.update();
-	
-#ifndef DEDICATED_ONLY
-	//Update FPS
-	if (fpsLast + 100 <= timer)
-	{
-		fps = fpsCount;
-		fpsCount = 0;
-		fpsLast = timer;
-	}
-#endif	
 }
 
 void gusQuit() {
