@@ -151,7 +151,6 @@ public:
 	bool isLoaded();
 	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
-	void refreshMods();
 	bool reloadModWithoutMap();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
@@ -176,7 +175,6 @@ public:
 	std::vector<WeaponType*> weaponList;
 	Options options;
 	std::vector<shared_ptr<PlayerOptions> > playerOptions;
-	std::set<std::string> modList;
 	
 	void insertExplosion( Explosion* explosion );
 	

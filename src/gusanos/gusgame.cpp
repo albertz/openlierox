@@ -652,23 +652,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	levelEffectList.addPath(levelPath + "/mapeffects");
 	levelEffectList.addPath(std::string(nextMod) + "/mapeffects");
 	levelEffectList.addPath(m_defaultPath + "/mapeffects");
-	
-	refreshMods();
-}
-
-void GusGame::refreshMods()
-{
-	modList.clear();
-	for( Iterator<std::string>::Ref i = gusFileListIter("."); i->isValid(); i->next())
-	{
-		if( gusIsDirectory(i->get()) )
-		{
-			if ( gusExists(i->get() + "/weapons"))
-			{
-				modList.insert(i->get());
-			}
-		}
-	}
 }
 
 bool GusGame::changeLevelCmd(const std::string& levelName )

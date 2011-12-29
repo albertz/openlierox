@@ -513,43 +513,6 @@ BINOP(WeaponType, weapon_eq,  {
 	return 1;
 })*/
 
-int l_modIterator(lua_State* L)
-{
-	LuaContext context(L);
-	
-	typedef std::set<std::string>::const_iterator iter;
-	
-	iter& i = *(iter *)lua_touserdata(L, 1);
-	if(i == gusGame.modList.end())
-		lua_pushnil(L);
-	else
-	{
-		context.push(*i);
-		++i;
-	}
-	
-	return 1;
-}
-
-/*! mods()
-
-	Returns an iterator that iterates through all mods.
-*/
-int l_mods(lua_State* L)
-{
-	LuaContext context(L);
-	
-	context.push(l_modIterator);
-	
-	typedef std::set<std::string>::const_iterator iter;
-	
-	iter& i = *(iter *)lua_newuserdata_init (L, sizeof(iter));
-	i = gusGame.modList.begin();
-	lua_pushnil(L);
-	
-	return 3;
-}
-
 
 METHODC(PartType, parttype_put,  {
 	float x = 0.f;
@@ -600,7 +563,6 @@ void initResources()
 		("font_load", l_font_load)
 #endif
 		("map_is_loaded", l_map_is_loaded)
-		("mods", l_mods)
 	;
 	
 	CLASSM_(PartType,  
