@@ -2156,7 +2156,7 @@ bool CWormBotInputHandler::AI_Shoot()
 				while(tmp)  {
 					if (tmp->UseCustomGravity)  {
 						if (tmp->Gravity > g)
-							g = tmp->Gravity;
+							g = (float)tmp->Gravity;
 					} else
 						if (g < 100.0f)
 							g = 100.0f;

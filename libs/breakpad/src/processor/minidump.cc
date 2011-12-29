@@ -65,7 +65,7 @@ typedef SSIZE_T ssize_t;
 #define PRIx64 "llx"
 #define PRIx32 "lx"
 #define open _open
-#define read _read
+inline int read(int fh, void * db, unsigned int mcc)  { _read(fh, db, mcc); }
 #define lseek _lseek
 #define snprintf _snprintf
 #define gmtime_r(d, res) { struct tm* _t = gmtime(d); memcpy(res, _t, sizeof(tm)); }

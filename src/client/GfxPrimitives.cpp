@@ -535,9 +535,9 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 template <
 	bool src_alpha,
 	int sbpp, int dbpp,
-	typename T1, typename T2,
+	typename T1, typename T2, typename _Color,
 	Color (*getFunc)(T1 data, const Uint8* addr),
-	void (*putFunc)(T2 data, Uint8* addr, Color c)
+	void (*putFunc)(T2 data, Uint8* addr, _Color c)
 >
 void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
@@ -621,7 +621,7 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	_OperateOnSurfaces< \
 		_salpha, \
 		_sbpp, _dbpp, \
-		SDL_PixelFormat*, SDL_PixelFormat*, \
+		SDL_PixelFormat*, SDL_PixelFormat*, Color, \
 		_GetPixel<_salpha,_sbpp>, _PutPixel<_dalpha, alphablend, _dbpp> >( \
 		bmpSrc->format, bmpDest->format, \
 		bmpDest, bmpSrc, rDest, rSrc)

@@ -28,7 +28,7 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <Windows.h>
-#include <DbgHelp.h>
+//#include <DbgHelp.h>
 #include <dia2.h>
 #include <ImageHlp.h>
 #include <stdio.h>

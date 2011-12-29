@@ -131,7 +131,7 @@ static GamePixelInfo infoForObject(CGameObject* object, int x, int y) {
 // basically, this is CClient::DrawViewport_Game backwards
 GamePixelInfo getGamePixelInfo(int x, int y) {
 	objectMap.updateIfNeccessary();
-	CVec p(x, y);
+	CVec p((float)x, (float)y);
 	
 	if(CGameObject* object = objectMap.at(x, y))
 		return infoForObject(object, x, y);

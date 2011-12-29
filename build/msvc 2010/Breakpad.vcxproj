@@ -19,11 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\client_info.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\crash_generation_client.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\crash_generation_server.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\client\windows\crash_generation\minidump_generator.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\client\windows\handler\exception_handler.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\client\windows\sender\crash_report_sender.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\common\convert_UTF.c" />
-    <ClCompile Include="..\..\libs\breakpad\src\common\md5.c" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\language.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\md5.cc" />
+    <ClCompile Include="..\..\libs\breakpad\src\common\module.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\common\string_conversion.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\common\windows\guid_string.cc" />
     <ClCompile Include="..\..\libs\breakpad\src\common\windows\http_upload.cc" />
@@ -113,7 +118,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -131,7 +136,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..\libs\breakpad\src;$(VSInstallDir)\DIA SDK\include;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;WIN32_LEAN_AND_MEAN;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>
       </PrecompiledHeader>

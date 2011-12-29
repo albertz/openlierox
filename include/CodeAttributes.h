@@ -10,6 +10,10 @@
 #ifndef OpenLieroX_CodeAttributes_h
 #define OpenLieroX_CodeAttributes_h
 
+#ifdef _MSC_VER
+#define INLINE __forceinline
+#else
 #define INLINE __attribute__((always_inline)) inline
+#endif
 
 #endif
