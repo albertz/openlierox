@@ -36,15 +36,6 @@ void Server::Net_cbDataReceived( Net_ConnID  _id, BitStream &_data)
 {
 	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
 	switch( event ) {
-			case Network::RConMsg: {
-				std::string passwordSent = _data.getString();
-				if ( !gusGame.options.rConPassword.empty() && gusGame.options.rConPassword == passwordSent ) {
-					//console.addQueueCommand(_data.getStringStatic());
-					console.parseLine(_data.getString());
-				}
-			}
-			break;
-
 			case Network::ConsistencyInfo: {
 				int clientProtocol = _data.getInt(32);
 				if(clientProtocol != Network::protocolVersion) {

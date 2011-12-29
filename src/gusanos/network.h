@@ -57,7 +57,6 @@ public:
 		
 	enum NetEvents
 	{
-		RConMsg,
 		ConsistencyInfo,
 	};
 	

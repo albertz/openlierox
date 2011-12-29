@@ -172,7 +172,6 @@ public:
 	
 	void applyLevelEffect( LevelEffect* effect, int x, int y );
 	
-	void sendRConMsg( std::string const & message );
 	void displayChatMsg( std::string const& owner, std::string const& message);
 	void displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer );
 	void displayMessage( ScreenMessage const& msg );

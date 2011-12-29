@@ -106,32 +106,6 @@ Net_ClassID GusGame::classID = INVALID_CLASS_ID;
 
 GusGame gusGame;
 
-string rConCmd(const list<string> &args)
-{
-	if ( !args.empty() && network.isClient() )
-	{
-		
-		list<string>::const_iterator iter = args.begin();
-		string tmp = *iter++;
-		for (; iter != args.end(); ++iter )
-		{
-			tmp += " \"" + *iter + '"';
-		}
-		gusGame.sendRConMsg( tmp );
-		return "";
-	}
-	return "";
-}
-
-string rConCompleter(Console* con, int idx, std::string const& beginning)
-{
-	if(idx != 0)
-		return beginning;
-		
-	return con->completeCommand(beginning);
-}
-
-
 string wrapper__sv_team_play(const list<string> &args)
 {
 	if(args.size() >= 1)
@@ -190,10 +164,6 @@ void Options::registerInConsole()
 	
 	console.registerCommands()
 	("SV_TEAM_PLAY", wrapper__sv_team_play);
-	
-	console.registerCommands()
-		("RCON", rConCmd, rConCompleter)
-	;
 }
 
 GusGame::GusGame()
@@ -803,15 +773,6 @@ void GusGame::assignNetworkRole( bool authority )
 	}
 
 	m_node->applyForNetLevel(1);
-}
-
-void GusGame::sendRConMsg( string const& message )
-{
-	BitStream *req = new BitStream;
-	req->addInt(Network::RConMsg, 8);
-	req->addString( options.rConPassword.c_str() );
-	req->addString( message.c_str() );
-	network.getNetControl()->Net_sendData( network.getServerID(), req, eNet_ReliableOrdered );
 }
 
 void GusGame::removeNode()
