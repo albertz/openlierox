@@ -47,7 +47,6 @@ public:
 	ALLEGRO_BITMAP* buffer;
 
 	int m_distortionAA;
-	//int darkMode;
 #endif
 
 	INLINE bool compareRGB( Uint32 c1, Uint32 c2 )

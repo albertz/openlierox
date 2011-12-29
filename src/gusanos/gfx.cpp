@@ -106,7 +106,6 @@ void Gfx::registerInConsole()
 	
 	console.registerVariables()
 		("VID_DISTORTION_AA", &m_distortionAA, 1)
-		//("VID_DARK_MODE", &darkMode, 0)
 	;
 #endif
 }
