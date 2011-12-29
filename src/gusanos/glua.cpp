@@ -48,8 +48,6 @@ void LuaCallbacks::bind(std::string callback, LuaReference ref)
 	CB(playerRemoved);
 	CB(gameNetworkInit);
 	CB(gameEnded);
-	CB(transferUpdate);
-	CB(transferFinished);
 	CB(networkStateChange);
 	CB(gameError);
 	

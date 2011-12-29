@@ -32,10 +32,8 @@ struct LuaCallbacks
 		localplayerEventAny = 13,
 		localplayerInit = 14,
 		localplayerEvent = 15,
-		transferUpdate = localplayerEvent+C_LocalPlayer_ActionCount,
-		transferFinished = transferUpdate+1,
-		networkStateChange = transferFinished+1,
-		gameError = networkStateChange+1,
+		networkStateChange = localplayerEvent+C_LocalPlayer_ActionCount,
+		gameError,
 		max
 	};
 	void bind(std::string callback, LuaReference ref);
