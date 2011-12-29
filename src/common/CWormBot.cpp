@@ -46,7 +46,6 @@
 #include "WeaponDesc.h"
 #include "Mutex.h"
 #include "game/Game.h"
-#include "gusanos/player_options.h"
 #include "gusanos/weapon.h"
 #include "gusanos/ninjarope.h"
 #include "game/Mod.h"

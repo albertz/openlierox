@@ -956,7 +956,6 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 
 
 
-#include "gusanos/player_options.h"
 #include "gusanos/worm.h"
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
@@ -1002,10 +1001,10 @@ void CWormHumanInputHandler::subThink()
 
 		if(changing && m_worm->getNinjaRopeObj()->active) {
 			if(aimingUp) {
-				m_worm->addRopeLength(-m_options->ropeAdjustSpeed);
+				m_worm->addRopeLength(-tLXOptions->fRopeAdjustSpeed);
 			}
 			if(aimingDown) {
-				m_worm->addRopeLength(m_options->ropeAdjustSpeed);
+				m_worm->addRopeLength(tLXOptions->fRopeAdjustSpeed);
 			}
 		} else {
 			const double aimMaxSpeed = MAX((float)fabs(tLXOptions->fAimMaxSpeed), 20.0f) * 0.01;

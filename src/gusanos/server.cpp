@@ -5,7 +5,6 @@
 #include "CWorm.h"
 #include "game/WormInputHandler.h"
 #include "part_type.h"
-#include "player_options.h"
 #include "network.h"
 #include "util/math_func.h"
 #include "util/macros.h"

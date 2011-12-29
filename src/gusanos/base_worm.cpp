@@ -8,7 +8,6 @@
 #include "game/WormInputHandler.h"
 #include "weapon_type.h"
 #include "particle.h"
-#include "player_options.h"
 #include "CWormHuman.h"
 #ifndef DEDICATED_ONLY
 #include "base_animator.h"

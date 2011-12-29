@@ -35,7 +35,6 @@
 #include "Mutex.h"
 #include "game/Game.h"
 #include "gusanos/gusgame.h"
-#include "gusanos/player_options.h"
 #include "gusanos/proxy_player.h"
 #include "game/GameMode.h"
 #include "CodeAttributes.h"

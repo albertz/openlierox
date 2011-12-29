@@ -201,6 +201,7 @@ bool GameOptions::Init() {
 		( tLXOptions->fAimMaxSpeed, "Game.AimMaxSpeed", /* Gusanos promode default */ 232.996f, "Aim max speed", "maximum possible aim speed for worm", GIG_Other, ALT_VeryAdvanced, true, 20.0f, 1000.0f )
 		( tLXOptions->fAimFriction, "Game.AimFriction", /* Gusanos promode default */ 0.0f, "Aim friction", "aim speed friction for worm", GIG_Other, ALT_VeryAdvanced, true, 0.0f, 1.0f )
 		( tLXOptions->bAimLikeLX56, "Game.AimLikeLX56", false, "Aim friction like LX56", "aim speed friction behaves like LX56", GIG_Other, ALT_OnlyViaConfig )
+		( tLXOptions->fRopeAdjustSpeed, "Game.RopeAdjustSpeed", /* Gusanos default */ 0.5f, "Rope adjust speed", "rope length adjust speed", GIG_Other, ALT_VeryAdvanced, true, 0.1f, 2.0f )
 	
 		( tLXOptions->nMaxFPS, "Advanced.MaxFPS", 95 )
 		( tLXOptions->iJpegQuality, "Advanced.JpegQuality", 80 )

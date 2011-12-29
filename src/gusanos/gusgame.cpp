@@ -7,7 +7,6 @@
 #include "weapon_type.h"
 #include "CGameObject.h"
 #include "CWormHuman.h"
-#include "player_options.h"
 #include "particle.h"
 #include "explosion.h"
 #include "exp_type.h"

@@ -9,7 +9,6 @@
 #include "CWorm.h"
 #include "CGameObject.h"
 #include "game/WormInputHandler.h"
-#include "player_options.h"
 #include "ninjarope.h"
 #include "network.h"
 #include "vector_replicator.h"

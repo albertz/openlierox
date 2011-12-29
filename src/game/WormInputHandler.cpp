@@ -12,7 +12,6 @@
 #include "gusanos/worm.h"
 #include "gusanos/ninjarope.h"
 #include "gusanos/net_worm.h"
-#include "gusanos/player_options.h"
 #include "gusanos/objects_list.h"
 #include "gusanos/gconsole.h"
 #include "gusanos/encoding.h"
@@ -43,18 +42,12 @@ CWormInputHandler::Stats::~Stats()
 		lua.destroyReference(luaData);
 }
 
-
-void CWormInputHandler::gusInit(CWorm* w) {
-	gusInit(boost::shared_ptr<PlayerOptions>(new PlayerOptions), w);
-}
-
-void CWormInputHandler::gusInit(boost::shared_ptr<PlayerOptions> options, CWorm* worm)
+void CWormInputHandler::gusInit(CWorm* worm)
 {
 	stats = boost::shared_ptr<Stats>(new Stats());
 	deleteMe=(false);
 	
 	local=(false);
-	m_options=(options);
 	m_isAuthority=(false);
 	m_node=(0);
 	m_interceptor=(0);
@@ -340,11 +333,6 @@ void CWormInputHandler::assignWorm(CWorm* worm)
 {
 	m_worm = worm;
 	m_worm->m_owner = this;
-}
-
-boost::shared_ptr<PlayerOptions> CWormInputHandler::getOptions()
-{
-	return m_options;
 }
 
 void CWormInputHandler::assignNetworkRole( bool authority )

@@ -9,7 +9,6 @@
 #include "../gconsole.h"
 #include "../gusgame.h"
 #include "game/WormInputHandler.h"
-#include "../player_options.h"
 #include "CWormHuman.h"
 #include "CWorm.h"
 #include "../level.h"

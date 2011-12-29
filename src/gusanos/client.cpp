@@ -8,7 +8,6 @@
 #include "game/WormInputHandler.h"
 #include "gusgame.h"
 #include "network.h"
-#include "player_options.h"
 #include "encoding.h"
 #include <memory>
 #include "util/log.h"

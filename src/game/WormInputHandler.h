@@ -52,7 +52,6 @@ protected:
 public:
 	Uint32 uniqueID;
 	CWormInputHandler(CWorm* w) : m_worm(w), uniqueID(0) { gusInit(w); }
-	CWormInputHandler(shared_ptr<PlayerOptions> options, CWorm* worm) : m_worm(worm), uniqueID(0) { gusInit(options, worm); }
 	virtual ~CWormInputHandler() { gusShutdown(); }
 	
 	CWorm* worm() const { return m_worm; }
@@ -136,7 +135,6 @@ protected:
 	
 private:
 	void gusInit(CWorm* w);
-	void gusInit(shared_ptr<PlayerOptions> options, CWorm* worm);
 	void gusShutdown();
 	
 public:
@@ -166,7 +164,6 @@ public:
 	Net_NodeID getNodeID();
 	Net_ConnID getConnectionID();
 	void sendLuaEvent(LuaEventDef* event, eNet_SendMode mode, Net_U8 rules, BitStream* userdata, Net_ConnID connID);
-	shared_ptr<PlayerOptions> getOptions();
 	CWorm* getWorm() { return m_worm; }
 	
 	LuaReference getLuaReference();
@@ -193,8 +190,6 @@ protected:
 	void addEvent(BitStream* data, NetEvents event);
 	void addActionStart(BitStream* data, BaseActions action);
 	void addActionStop(BitStream* data, BaseActions action);
-		
-	shared_ptr<PlayerOptions> m_options;
 	
 	bool m_isAuthority;
 	Net_Node *m_node;
