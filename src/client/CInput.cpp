@@ -493,6 +493,12 @@ int CInput::Setup(const std::string& string)
 		Data = atoi(string.substr(2).c_str());
 		if( Data == 3 ) Data = 2;
 		else if( Data == 2 ) Data = 3;
+		if(Data < 1 || Data > MAX_MOUSEBUTTONS) {
+			warnings << "CInput::Setup " << string << ": mouse button index must be between 1 and " << MAX_MOUSEBUTTONS << endl;
+			// those might be good fallbacks
+			if(Data == 0) Data = 1;
+			else Data = MAX_MOUSEBUTTONS;
+		}
 		return true;
 	}
 
