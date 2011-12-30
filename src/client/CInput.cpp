@@ -416,7 +416,7 @@ int CInput::Wait(std::string& strText)
 	keyboard_t *kb = GetKeyboard();
 
 	// First check the mouse
-	for(uint n = 0; n < MAX_MOUSEBUTTONS; n++) {
+	for(uint n = 1; n <= MAX_MOUSEBUTTONS; n++) {
 		uint i = n;
 		if(Mouse->Up & SDL_BUTTON(n)) {
 			// Swap rmb id wih mmb (mouse buttons)
