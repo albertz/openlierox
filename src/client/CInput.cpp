@@ -630,8 +630,7 @@ bool CInput::isUp()
 
 		// Mouse
 		case INP_MOUSE:
-			// TODO: fix: this calculates mouse_up for ALL the buttons
-			if(GetMouse()->Up)
+			if(GetMouse()->Up & SDL_BUTTON(Data))
 				return true;
 			break;
 
