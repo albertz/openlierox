@@ -153,7 +153,6 @@ void CTextbox::DoRepaint()
 
 	CWidget::DoRepaint();
 
-	std::string buf = "";
 	std::string text = sText;
 
 	cBackground.Draw(bmpBuffer, 0, 0, getWidth(), getHeight());
@@ -195,9 +194,7 @@ void CTextbox::DoRepaint()
 
 	// Draw selection
 	if (iSelLength)  {
-		buf = ""; // Delete the buffer
-		int x1,x2;  // Positions of the selection
-		x1=x2=0;
+		int x1=0,x2=0;  // Positions of the selection
 
 		if (iSelLength > 0)  
 			iSelStart = iCurpos;
