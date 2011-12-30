@@ -46,22 +46,16 @@ void CWorm::gusInit()
 {
 	m_isAuthority = false;
 	
-	skin = NULL;
+	skin = skinMask = NULL;
 	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
-#ifndef DEDICATED_ONLY
-	m_animator=(0);
-#endif
 	animate=(false); movable=(false); changing=(false);
 	m_dir=(1);
+	m_animator = m_fireconeAnimator = NULL;
+	m_currentFirecone = NULL;
+	m_ninjaRope = NULL;
 	
-	if(!gusGame.isLoaded()) {
-		skin = skinMask = NULL;
-		m_animator = m_fireconeAnimator = NULL;
-		m_currentFirecone = NULL;
-		m_ninjaRope = NULL;
+	if(!gusGame.isLoaded())
 		return;
-	}
-	
 	
 #ifndef DEDICATED_ONLY
 	skin = spriteList.load("skin");
