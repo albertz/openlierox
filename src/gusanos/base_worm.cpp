@@ -48,7 +48,7 @@ void CWorm::gusInit()
 	
 	skin = skinMask = NULL;
 	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
-	animate=(false); movable=(false); changing=(false);
+	animate=(false); changing=(false);
 	m_dir=(1);
 	m_animator = m_fireconeAnimator = NULL;
 	m_currentFirecone = NULL;
@@ -422,46 +422,39 @@ void CWorm::processJumpingAndNinjaropeControls()
 
 void CWorm::processMoveAndDig(void)
 {
-	// ????????????? wtf is this for?
-	//if(!movable && !movingLeft && !movingRight)
-	//	movable = true;
+	float acc = gusGame.options.worm_acceleration;
 
-	//if(movable)
-	if( true ) {
-		float acc = gusGame.options.worm_acceleration;
-
-		if(reacts[Up] <= 0)
-			acc *= gusGame.options.worm_airAccelerationFactor;
-		if(movingLeft && !movingRight) {
-			//TODO: Air acceleration
-			if(velocity().x > -gusGame.options.worm_maxSpeed) {
-				velocity().x -= acc;
-			}
-
-			if(m_dir > 0) {
-				aimSpeed = 0;
-				m_dir = -1;
-			}
-
-			animate = true;
-		} else if(movingRight && !movingLeft) {
-			//TODO: Air acceleration
-			if(velocity().x < gusGame.options.worm_maxSpeed) {
-				velocity().x += acc;
-			}
-
-			if(m_dir < 0) {
-				aimSpeed = 0;
-				m_dir = 1;
-			}
-
-			animate = true;
-		} else if(movingRight && movingLeft) {
-			// TODO: Digging
-			animate = false;
-		} else {
-			animate = false;
+	if(reacts[Up] <= 0)
+		acc *= gusGame.options.worm_airAccelerationFactor;
+	if(movingLeft && !movingRight) {
+		//TODO: Air acceleration
+		if(velocity().x > -gusGame.options.worm_maxSpeed) {
+			velocity().x -= acc;
 		}
+
+		if(m_dir > 0) {
+			aimSpeed = 0;
+			m_dir = -1;
+		}
+
+		animate = true;
+	} else if(movingRight && !movingLeft) {
+		//TODO: Air acceleration
+		if(velocity().x < gusGame.options.worm_maxSpeed) {
+			velocity().x += acc;
+		}
+
+		if(m_dir < 0) {
+			aimSpeed = 0;
+			m_dir = 1;
+		}
+
+		animate = true;
+	} else if(movingRight && movingLeft) {
+		// TODO: Digging
+		animate = false;
+	} else {
+		animate = false;
 	}
 }
 
