@@ -44,6 +44,10 @@ protected:
 	cStrafe, cWeapons[5];
 	//bool		bUsesMouse;
 	
+	// for oldschool rope handling
+	bool		bRopeDown;
+	bool		bRopeDownOnce;
+
 public:
 
 	

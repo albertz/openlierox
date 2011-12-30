@@ -258,8 +258,6 @@ protected:
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
-	bool		bRopeDown;
-	bool		bRopeDownOnce;
 
 	bool		bTagIT;
 	TimeDiff	fTagTime;

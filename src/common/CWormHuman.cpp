@@ -358,18 +358,17 @@ void CWormHumanInputHandler::getInput() {
 		// Change-weapon & jump
 
 		if(!cSelWeapon.isDown() || !cJump.isDown())  {
-			m_worm->bRopeDown = false;
+			bRopeDown = false;
 		}
 
-		if(cSelWeapon.isDown() && cJump.isDown() && !m_worm->bRopeDown) {
-
-			m_worm->bRopeDownOnce = true;
-			m_worm->bRopeDown = true;
+		if(cSelWeapon.isDown() && cJump.isDown() && !bRopeDown) {
+			bRopeDownOnce = true;
+			bRopeDown = true;
 		}
 
 		// Down
-		if(m_worm->bRopeDownOnce) {
-			m_worm->bRopeDownOnce = false;
+		if(bRopeDownOnce) {
+			bRopeDownOnce = false;
 
 			m_worm->cNinjaRope.Shoot(m_worm, m_worm->vPos, ninjaShootDir);
 
@@ -632,6 +631,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 // Clear the input
 void CWormHumanInputHandler::clearInput() {
 	// clear inputs
+	bRopeDown = bRopeDownOnce = false;
 	cUp.reset();
 	cDown.reset();
 	cLeft.reset();
@@ -653,10 +653,11 @@ struct HumanWormType : WormType {
 } PRF_HUMAN_instance;
 WormType* PRF_HUMAN = &PRF_HUMAN_instance;
 
-CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) {	
+CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) {		
 	// we use the normal init system first after the weapons are selected and we are ready
 	stopInputSystem();
 
+	bRopeDown = bRopeDownOnce = false;
 	gusInit();
 	
 	game.onNewPlayer( this );
