@@ -10,7 +10,7 @@
 #define FUNC(name_, params_, none_, sendfact_) \
 	void name_ params_ const { \
 	switch(m_type) { \
-		case None: name_##_solid none_; break; \
+		case TNone: name_##_solid none_; break; \
 		case Add: name_##_add sendfact_; break; \
 		case Alpha: name_##_blend sendfact_; break; \
 		case AlphaChannel: name_##_blendalpha sendfact_; break; } }
@@ -49,14 +49,14 @@ struct BlitterContext
 	
 	enum Type
 	{
-		None = 0,
+		TNone = 0,
 		Add,
 		Alpha,
 		AlphaChannel,
 	};
 	
 	BlitterContext()
-	: m_type(None)
+	: m_type(TNone)
 	{
 	}
 	
@@ -66,7 +66,7 @@ struct BlitterContext
 	}
 	
 	BlitterContext(none)
-	: m_type(None)
+	: m_type(TNone)
 	{
 	}
 	
@@ -88,7 +88,7 @@ struct BlitterContext
 	
 	void set(none)
 	{
-		m_type = None;
+		m_type = TNone;
 	}
 	
 	void set(add, int fact_)

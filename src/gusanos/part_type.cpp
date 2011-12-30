@@ -137,7 +137,7 @@ PartType::PartType()
 	distortion = NULL;
 	distortMagnitude = 0.8f;
 
-	blender = BlitterContext::None;
+	blender = BlitterContext::TNone;
 	
 	lightHax = NULL;
 #endif
@@ -420,7 +420,7 @@ bool PartType::load(std::string const& filename)
 	if(blenderstr == "add") blender = BlitterContext::Add;
 	else if(blenderstr == "alpha") blender = BlitterContext::Alpha;
 	else if(blenderstr == "alphach") blender = BlitterContext::AlphaChannel;
-	else blender = BlitterContext::None;
+	else blender = BlitterContext::TNone;
 #endif
 	invisible = parser.getBool("invisible", false);
 	culled = parser.getBool("occluded", false);

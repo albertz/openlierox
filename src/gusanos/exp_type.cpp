@@ -47,7 +47,7 @@ ExpType::ExpType()
 	distortMagnitude = 0.8f;
 	
 	rockHidden = true;
-	blender = BlitterContext::None;
+	blender = BlitterContext::TNone;
 #endif
 	
 	creation = NULL;
@@ -137,7 +137,7 @@ bool ExpType::load(std::string const& filename)
 	if(blenderstr == "add") blender = BlitterContext::Add;
 	else if(blenderstr == "alpha") blender = BlitterContext::Alpha;
 	else if(blenderstr == "alphach") blender = BlitterContext::AlphaChannel;
-	else blender = BlitterContext::None;
+	else blender = BlitterContext::TNone;
 #endif
 
 	alpha = parser.getInt("alpha", 255);
