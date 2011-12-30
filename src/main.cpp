@@ -1037,12 +1037,11 @@ static void InitializeLoading()  {
 /////////////////////
 // Draw the loading
 static void DrawLoading(byte percentage, const std::string &text)  {
-	if(bDedicated) {
-		notes << "Loading: " << text << endl;
-		return;
-	}
+	notes << "Loading (" << (int)percentage << "%): " << text << endl;
 
-	if (cLoading.bmpBackground.get() == NULL)
+	if(bDedicated)
+		return;
+	if(cLoading.bmpBackground.get() == NULL)
 		return;
 
 	// Update the repainted area
