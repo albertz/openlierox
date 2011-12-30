@@ -51,17 +51,12 @@ bool gusInitBase() {
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
-	//gusGame.loadMod();
 	gusGame.reloadModWithoutMap();
-	//gusGame.runInitScripts();
 	
-	// TODO: check bDedicated instead
-#ifndef DEDICATED_ONLY
-	console.executeConfig("autoexec.cfg");
-#else
-	console.executeConfig("autoexec-ded.cfg");
-#endif
-	
+	if(!bDedicated)
+		console.executeConfig("autoexec.cfg");
+	else
+		console.executeConfig("autoexec-ded.cfg");
 
 	return true;
 }
