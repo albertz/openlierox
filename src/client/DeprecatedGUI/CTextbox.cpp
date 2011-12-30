@@ -100,7 +100,6 @@ void CTextbox::OnTimerEvent(Timer::EventData ev)
 // Draw the text box
 void CTextbox::Draw(SDL_Surface * bmpDest)
 {
-	std::string buf = "";
 	std::string text = sText;
 
 	if (bRedrawMenu)
@@ -144,9 +143,7 @@ void CTextbox::Draw(SDL_Surface * bmpDest)
 
 	// Draw selection
 	if (iSelLength)  {
-		buf = ""; // Delete the buffer
-		int x1,x2;  // Positions of the selection
-		x1=x2=0;
+		int x1=0,x2=0;  // Positions of the selection
 
 		if (iSelLength > 0)  
 			iSelStart = iCurpos;
