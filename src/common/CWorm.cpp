@@ -267,9 +267,6 @@ void CWorm::Prepare(bool serverSide)
 	setDamageFactor(1);
 	setShieldFactor(1);
 	setCanAirJump(false);
-	
-	// Setup the rope
-	cNinjaRope.Setup();
 
 	iCurrentWeapon = 0;
 

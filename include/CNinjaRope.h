@@ -66,7 +66,6 @@ private:
 
 public:
 	// Methods
-	void		Setup();
 	void		Clear();
 
 	void		Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos);

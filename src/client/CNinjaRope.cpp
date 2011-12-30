@@ -85,12 +85,6 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 }
 
 
-///////////////////
-// Setup the details from the gamescript
-void CNinjaRope::Setup()
-{}
-
-
 
 ///////////////////
 // Draw the thing
