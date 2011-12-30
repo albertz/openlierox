@@ -467,7 +467,7 @@ static void HandleMouseState() {
 	return;*/
 #endif
 
-    for( int i=0; i<MAX_MOUSEBUTTONS; i++ ) {
+    for( int i=1; i<=MAX_MOUSEBUTTONS; i++ ) {
 		if(!(Mouse.Button & SDL_BUTTON(i)) && Mouse.Down & SDL_BUTTON(i))
 			Mouse.Up |= SDL_BUTTON(i);
         if( !(Mouse.Down & SDL_BUTTON(i)) && (Mouse.Button & SDL_BUTTON(i)) )
