@@ -21,7 +21,7 @@ class NinjaRope : public CGameObject
 {
 public:
 
-	NinjaRope(PartType* type, CGameObject* worm);
+	NinjaRope(CGameObject* worm);
 	
 	void shoot(Vec _pos, Vec _spd);
 	void remove();
@@ -54,7 +54,6 @@ public:
 private:
 	
 	std::vector< TimerEvent::State > timer;
-	PartType* m_type;
 	Angle m_angle;
 	AngleDiff m_angleSpeed;
 	float m_length;

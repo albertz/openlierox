@@ -19,13 +19,12 @@
 
 using namespace std;
 
-NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
+NinjaRope::NinjaRope(CGameObject* worm)
 : m_worm(worm)
 {
 	justCreated = false;
 	active = false;
 	attached = false;
-	m_type = type;
 
 	m_length = 0;
 	m_angle = 0;
@@ -33,14 +32,14 @@ NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 	m_animator = NULL;
 	m_sprite = NULL;
 		
-	if(m_type != NULL) {
+	if(gusGame.NRPartType != NULL) {
 #ifndef DEDICATED_ONLY
-		m_sprite = m_type->sprite;	
-		m_animator = m_type->allocateAnimator();
+		m_sprite = gusGame.NRPartType->sprite;	
+		m_animator = gusGame.NRPartType->allocateAnimator();
 #endif
 		
 		// Why this?? :OO // Re: Modders may want to make the rope leave trails or sth :o
-		foreach(i, m_type->timer)
+		foreach(i, gusGame.NRPartType->timer)
 		{
 			timer.push_back( (*i)->createState() );
 		}
@@ -52,7 +51,7 @@ NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 
 void NinjaRope::shoot(Vec _pos, Vec _spd)
 {
-	if(m_type == NULL) return;
+	if(gusGame.NRPartType == NULL) return;
 	
 	pos() = CVec(_pos);
 	velocity() = CVec(_spd);
@@ -86,16 +85,16 @@ void NinjaRope::think()
 	if (!active)
 		return;
 	
-	if(m_type == NULL)
+	if(gusGame.NRPartType == NULL)
 		return;
 		
-	if ( justCreated && m_type->creation )
+	if ( justCreated && gusGame.NRPartType->creation )
 	{
-		m_type->creation->run(this);
+		gusGame.NRPartType->creation->run(this);
 		justCreated = false;
 	}
 	
-	for ( int i = 0; !deleteMe && i < m_type->repeat; ++i)
+	for ( int i = 0; !deleteMe && i < gusGame.NRPartType->repeat; ++i)
 	{
 		pos() += velocity();
 		
@@ -121,8 +120,8 @@ void NinjaRope::think()
 				m_length = 450.f / 16.f - 1.0f;
 				attached = true;
 				velocity() = CVec();
-				if ( m_type->groundCollision  )
-					m_type->groundCollision->run(this);
+				if ( gusGame.NRPartType->groundCollision  )
+					gusGame.NRPartType->groundCollision->run(this);
 			}
 		}
 		else
@@ -137,7 +136,7 @@ void NinjaRope::think()
 		}
 		else
 		{
-			velocity().y += m_type->gravity;
+			velocity().y += gusGame.NRPartType->gravity;
 			
 			if(curLen > m_length)
 			{
@@ -164,8 +163,8 @@ void NinjaRope::addAngleSpeed( AngleDiff speed )
 
 int NinjaRope::getColour()
 {
-	if(m_type)
-		return m_type->colour;
+	if(gusGame.NRPartType)
+		return gusGame.NRPartType->colour;
 	else
 		return 0;
 }
@@ -178,21 +177,21 @@ CVec& NinjaRope::getPosReference()
 #ifndef DEDICATED_ONLY
 void NinjaRope::draw(CViewport *viewport)
 {
-	if(m_type == NULL) return;
+	if(gusGame.NRPartType == NULL) return;
 	
 	ALLEGRO_BITMAP* where = viewport->dest;
 	IVec rPos = viewport->convertCoords( IVec(Vec(pos())) );
 	if (active)
 	{
 		if (!m_sprite)
-			putpixel(where,rPos.x,rPos.y,m_type->colour);
+			putpixel(where,rPos.x,rPos.y,gusGame.NRPartType->colour);
 		else
 		{
 			m_sprite->getSprite(m_animator->getFrame(), m_angle)->draw(where,rPos.x,rPos.y);
 		}
-		if (m_type->distortion)
+		if (gusGame.NRPartType->distortion)
 		{
-			m_type->distortion->apply( where, rPos.x,rPos.y, m_type->distortMagnitude );
+			gusGame.NRPartType->distortion->apply( where, rPos.x,rPos.y, gusGame.NRPartType->distortMagnitude );
 		}
 	}
 }

@@ -83,7 +83,7 @@ void CWorm::gusInit()
 			m_weaponCount++;
 		}
 
-	m_ninjaRope = new NinjaRope(gusGame.NRPartType, this);
+	m_ninjaRope = new NinjaRope(this);
 	movingLeft = false;
 	movingRight = false;
 	jumping = false;
