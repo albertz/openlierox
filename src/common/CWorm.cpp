@@ -138,7 +138,6 @@ void CWorm::Clear()
 	iLastCurWeapon = 255;
 
 	cNinjaRope.Clear();
-	fRopeTime = AbsTime();
 	bRopeDownOnce = false;
 	bRopeDown = false;
 	setSpeedFactor(1);
@@ -1525,7 +1524,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( fMoveSpeedX );
 	COPY( fFrame );
 	COPY( cNinjaRope );
-	COPY( fRopeTime );
 	COPY( bVisibleForWorm );
 	COPY( fVisibilityChangeTime );
 	COPY( bHooked );

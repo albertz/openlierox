@@ -253,13 +253,11 @@ protected:
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	profile_t	*tProfile;
-	AbsTime		fRopeTime;
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
 	bool		bHooked;
 	CWorm		*pcHookWorm;
-
 	bool		bRopeDown;
 	bool		bRopeDownOnce;
 
