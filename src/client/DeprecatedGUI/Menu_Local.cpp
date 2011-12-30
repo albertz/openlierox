@@ -503,11 +503,11 @@ void Menu_LocalFrame()
 
 							// Change the image
 							((CImage *)ev->cWidget)->Change(DynDrawFromSurface(gfxGame.bmpTeamColours[sub->iExtra]));
-						}
 
-						tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
-						tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
-						tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
+							tMenu->sLocalPlayers[ev->iControlID].setTeam(sub->iExtra);
+							tMenu->sLocalPlayers[ev->iControlID].getProfile()->iTeam = sub->iExtra;
+							tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
+						}
 
 						// Reload the skin
 						sub = lv->getSubItem(it, 0);
