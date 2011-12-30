@@ -39,8 +39,6 @@
 
 using namespace std;
 
-bool quit = false;
-
 static Uint32 logicLast = 0;
 
 
@@ -66,14 +64,9 @@ bool gusInit(const std::string& mod) {
 	
 	gusGame.setMod(mod);
 	
-	quit = false;
 	logicLast = SDL_GetTicks() / 10;
 	
 	return true;
-}
-
-bool gusCanRunFrame() {
-	return !quit || !network.isDisconnected();
 }
 
 void gusLogicFrame() {

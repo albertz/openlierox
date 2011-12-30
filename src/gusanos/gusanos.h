@@ -3,7 +3,6 @@
 
 bool gusInitBase();
 bool gusInit(const std::string& mod);
-bool gusCanRunFrame();
 void gusLogicFrame(); // always called
 void gusQuit();
 
