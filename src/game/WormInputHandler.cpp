@@ -9,7 +9,6 @@
 
 #include "WormInputHandler.h"
 
-#include "gusanos/ninjarope.h"
 #include "gusanos/net_worm.h"
 #include "gusanos/objects_list.h"
 #include "gusanos/gconsole.h"

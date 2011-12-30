@@ -48,7 +48,6 @@
 
 
 class CWormInputHandler;
-class NinjaRope;
 class Weapon;
 class WeaponType;
 struct LuaEventDef;
@@ -176,7 +175,7 @@ public:
 
 private:
 	// disallow these!
-	CWorm(const CWorm&): cSparkles(this) { assert(false); }
+	CWorm(const CWorm&): cNinjaRope(this), cSparkles(this) { assert(false); }
 	CWorm& operator=(const CWorm&) { assert(false); return *this; }
 	
 protected:
@@ -727,9 +726,7 @@ public:
 #ifndef DEDICATED_ONLY
 	void showFirecone( SpriteSet* sprite, int frames, float distance );
 #endif
-	
-	NinjaRope* getNinjaRopeObj();
-	
+		
 	AngleDiff aimSpeed; // Useless to add setters and getters for this
 	Angle aimAngle;
 	
@@ -766,7 +763,6 @@ protected:
 	int m_weaponCount;
 	
 	CWormInputHandler* m_lastHurt;
-	NinjaRope* m_ninjaRope;
 	
 #ifndef DEDICATED_ONLY
 	

@@ -61,7 +61,7 @@ struct CWorm::SkinDynDrawer : DynDrawIntf {
 	}
 };
 
-CWorm::CWorm() : cSparkles(this), m_ninjaRope(NULL), m_fireconeAnimator(NULL), m_animator(NULL)
+CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_animator(NULL)
 {
 	// set all pointers to NULL
 	m_inputHandler = NULL;

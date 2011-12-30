@@ -30,7 +30,6 @@
 #include "net_worm.h"
 #include "network.h"
 #include "script.h"
-#include "ninjarope.h"
 #include "hash_table.h"
 
 #include "loaders/vermes.h"

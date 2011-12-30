@@ -1,9 +1,10 @@
-#include "ninjarope.h"
+#include "CNinjaRope.h"
 
 #include "util/vec.h"
 #include "util/macros.h"
 #include "gusgame.h"
 #include "CGameObject.h"
+#include "CWorm.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
 #include "sprite_set.h"
@@ -19,8 +20,7 @@
 
 using namespace std;
 
-NinjaRope::NinjaRope(CGameObject* worm)
-: m_worm(worm)
+void CNinjaRope::gusInit()
 {
 	justCreated = false;
 	active = false;
@@ -49,7 +49,7 @@ NinjaRope::NinjaRope(CGameObject* worm)
 		errors << "NinjaRope::NinjaRope: particle type is NULL" << endl;
 }
 
-void NinjaRope::shoot(Vec _pos, Vec _spd)
+void CNinjaRope::shoot(Vec _pos, Vec _spd)
 {
 	if(gusGame.NRPartType == NULL) return;
 	
@@ -70,14 +70,14 @@ void NinjaRope::shoot(Vec _pos, Vec _spd)
 	}
 }
 
-void NinjaRope::remove()
+void CNinjaRope::remove()
 {
 	active = false;
 	justCreated = false;
 	attached = false;
 }
 
-void NinjaRope::think()
+void CNinjaRope::think()
 {
 	if ( m_length > gusGame.options.ninja_rope_maxLength )
 		m_length = gusGame.options.ninja_rope_maxLength;
@@ -102,7 +102,7 @@ void NinjaRope::think()
 		
 		// TODO: Try to attach to worms/objects
 				
-		Vec diff(m_worm->pos(), pos());
+		Vec diff(owner->pos(), pos());
 		float curLen = (float)diff.length();
 		Vec force(diff * gusGame.options.ninja_rope_pullForce);
 		
@@ -131,7 +131,7 @@ void NinjaRope::think()
 		{
 			if(curLen > m_length)
 			{
-				m_worm->addSpeed(force / curLen);
+				owner->addSpeed(force / curLen);
 			}
 		}
 		else
@@ -151,17 +151,17 @@ void NinjaRope::think()
 	}
 }
 
-Angle NinjaRope::getPointingAngle()
+Angle CNinjaRope::getPointingAngle()
 {
 	return m_angle;
 }
 
-void NinjaRope::addAngleSpeed( AngleDiff speed )
+void CNinjaRope::addAngleSpeed( AngleDiff speed )
 {
 	m_angleSpeed += speed;
 }
 
-int NinjaRope::getColour()
+int CNinjaRope::getColour()
 {
 	if(gusGame.NRPartType)
 		return gusGame.NRPartType->colour;
@@ -169,13 +169,13 @@ int NinjaRope::getColour()
 		return 0;
 }
 
-CVec& NinjaRope::getPosReference()
+CVec& CNinjaRope::getPosReference()
 {
 	return pos();
 }
 
 #ifndef DEDICATED_ONLY
-void NinjaRope::draw(CViewport *viewport)
+void CNinjaRope::draw(CViewport *viewport)
 {
 	if(gusGame.NRPartType == NULL) return;
 	

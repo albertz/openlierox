@@ -960,7 +960,6 @@ void CWormHumanInputHandler::doWeaponSelectionFrame(SDL_Surface * bmpDest, CView
 #ifndef DEDICATED_ONLY
 #include "CViewport.h"
 #endif
-#include "gusanos/ninjarope.h"
 
 //#include "gusanos/allegro.h"
 
@@ -999,7 +998,7 @@ void CWormHumanInputHandler::subThink()
 	//		m_viewport->interpolateTo(m_worm->getRenderPos(), m_options->viewportFollowFactor);
 #endif
 
-		if(changing && m_worm->getNinjaRopeObj()->active) {
+		if(changing && m_worm->getNinjaRope()->active) {
 			if(aimingUp) {
 				m_worm->addRopeLength(-tLXOptions->fRopeAdjustSpeed);
 			}

@@ -166,7 +166,7 @@ void CNinjaRope::UnAttachPlayer()
 	Worm = NULL;
 }
 
-void CNinjaRope::AttachToPlayer(CWorm *worm, CWorm *owner)
+void CNinjaRope::AttachToPlayer(CWorm *worm)
 {
 	HookShooting = false;
 	HookAttached = true;
@@ -292,7 +292,10 @@ void CNinjaRope::write(CBytestream *bs)
 // Read rope details from a bytestream
 void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 {
-	this->owner = &worms[owner];
+	if(this->owner != &worms[owner]) {
+		errors << "CNinjaRope::read: owner (" << this->owner->getID() << ") differs from param " << owner << endl;
+	}
+	
 	OldHookPos = pos();
 	int type = bs->readByte();
 	Released = true;

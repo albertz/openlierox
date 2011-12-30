@@ -649,7 +649,7 @@ public:
 					continue;
 
 				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
-					rope->AttachToPlayer(&worms[i], owner);
+					rope->AttachToPlayer(&worms[i]);
 					break;
 				}
 			}

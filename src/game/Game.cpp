@@ -28,7 +28,6 @@
 #include "Cache.h"
 #include "gusanos/gusanos.h"
 #include "gusanos/gusgame.h"
-#include "gusanos/ninjarope.h"
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "gusanos/glua.h"
@@ -316,7 +315,7 @@ void Game::onNewWorm(CWorm* w) {
 	//if(!game.gameScript()->gusEngineUsed()) return;
 
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
-	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
+	objects.insertImmediately(w->getNinjaRope(), 1, 1);
 }
 
 void Game::onRemoveWorm(CWorm* w) {

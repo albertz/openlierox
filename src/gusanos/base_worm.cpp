@@ -20,7 +20,6 @@
 #include "blitters/blitters.h"
 #endif
 #include "weapon.h"
-#include "ninjarope.h"
 #include "CMap.h"
 #include "CGameScript.h"
 #include "CGameMode.h"
@@ -52,7 +51,6 @@ void CWorm::gusInit()
 	m_dir=(1);
 	m_animator = m_fireconeAnimator = NULL;
 	m_currentFirecone = NULL;
-	m_ninjaRope = NULL;
 	
 	if(!gusGame.isLoaded())
 		return;
@@ -83,7 +81,6 @@ void CWorm::gusInit()
 			m_weaponCount++;
 		}
 
-	m_ninjaRope = new NinjaRope(this);
 	movingLeft = false;
 	movingRight = false;
 	jumping = false;
@@ -101,10 +98,6 @@ void CWorm::gusShutdown()
 		m_fireconeAnimator = 0;
 	}
 #endif
-	if(m_ninjaRope) {
-		m_ninjaRope->deleteMe = true;
-		m_ninjaRope = NULL;
-	}
 
 	for ( size_t i = 0; i < m_weapons.size(); ++i) {
 		luaDelete(m_weapons[i]);
@@ -143,11 +136,6 @@ void CWorm::deleteThis() {
 	// also dont set deleted=true because we may reuse this object
 }
 
-
-NinjaRope* CWorm::getNinjaRopeObj()
-{
-	return m_ninjaRope;
-}
 
 Weapon* CWorm::getCurrentWeaponRef()
 {
@@ -653,9 +641,9 @@ void CWorm::draw(CViewport* viewport)
 			int renderX = x;
 			int renderY = y;
 
-			if (m_ninjaRope->active) {
-				IVec nrPos = viewport->convertCoords( IVec(Vec(m_ninjaRope->pos())) );
-				line(where, x, y, nrPos.x, nrPos.y, m_ninjaRope->getColour());
+			if (cNinjaRope.active) {
+				IVec nrPos = viewport->convertCoords( IVec(Vec(cNinjaRope.pos())) );
+				line(where, x, y, nrPos.x, nrPos.y, cNinjaRope.getColour());
 			}
 
 			if ( m_weapons[currentWeapon] )
@@ -806,7 +794,7 @@ void CWorm::base_die() {
 		cServer->killWorm(getID(), m_lastHurt ? m_lastHurt->getWorm()->getID() : -1, 0);
 	}
 	
-	m_ninjaRope->remove();
+	cNinjaRope.remove();
 	m_timeSinceDeath = 0;
 	if ( gusGame.deathObject ) {
 		gusGame.deathObject->newParticle( gusGame.deathObject, pos(), velocity(), m_dir, m_owner, Vec(velocity()).getAngle() );
@@ -855,7 +843,7 @@ void CWorm::addAimSpeed( AngleDiff speed )
 
 void CWorm::addRopeLength( float distance )
 {
-	m_ninjaRope->addLength(distance);
+	cNinjaRope.addLength(distance);
 }
 
 #ifndef DEDICATED_ONLY
@@ -893,7 +881,7 @@ void CWorm::actionStart( Actions action )
 
 			case NINJAROPE:
 			if ( getAlive() )
-				m_ninjaRope->shoot(getWeaponPos(), Vec(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed));
+				cNinjaRope.shoot(getWeaponPos(), Vec(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed));
 			break;
 
 			case CHANGEWEAPON:
@@ -930,7 +918,7 @@ void CWorm::actionStop( Actions action )
 			break;
 
 			case NINJAROPE:
-			m_ninjaRope->remove();
+			cNinjaRope.remove();
 			break;
 
 			case CHANGEWEAPON:

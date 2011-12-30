@@ -9,7 +9,6 @@
 #include "CWorm.h"
 #include "CGameObject.h"
 #include "game/WormInputHandler.h"
-#include "ninjarope.h"
 #include "network.h"
 #include "vector_replicator.h"
 #include "posspd_replicator.h"
@@ -32,17 +31,6 @@ const float CWorm::MAX_ERROR_RADIUS = 10.0f;
 
 void CWorm::NetWorm_Init(bool isAuthority)
 {
-	if(m_ninjaRope == NULL) {
-		errors << "CWorm::NetWorm_Init: ninja rope is NULL, should not have happend here" << endl;
-		if(!gusGame.isLoaded())
-			errors << "  and gusGame is not loaded" << endl;
-		gusInit(); // hack, try to make it initialised
-		if(m_ninjaRope == NULL) {
-			errors << "  ninjarope is still NULL, we have to break Gusanos networking, we would crash otherwise" << endl;
-			return;
-		}
-	}
-	
 	if(m_node || m_interceptor) {
 		errors << "CWorm::NetWorm_Init(" << getID() << "," << isAuthority << "): earlier node was not correctly uninitialised" << endl;
 		return; // we return here because the chance is high that the old node is really in use and it was incorrect to call NetWorm_Init here again
@@ -66,9 +54,9 @@ void CWorm::NetWorm_Init(bool isAuthority)
 		
 		static Net_ReplicatorSetup nrSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 		
-		m_node->addReplicator(new VectorReplicator( &nrSetup, &m_ninjaRope->getPosReference() ), true);
+		m_node->addReplicator(new VectorReplicator( &nrSetup, &cNinjaRope.getPosReference() ), true);
 		
-		m_node->addReplicationFloat ((Net_Float*)&m_ninjaRope->getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
+		m_node->addReplicationFloat ((Net_Float*)&cNinjaRope.getLengthReference(), 16, Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH);
 		
 		static Net_ReplicatorSetup angleSetup( Net_REPFLAG_MOSTRECENT, Net_REPRULE_AUTH_2_PROXY | Net_REPRULE_OWNER_2_AUTH );
 				
@@ -234,7 +222,7 @@ void CWorm::NetWorm_think()
 					case SYNC:
 					{
 						bAlive = data->getBool();
-						m_ninjaRope->active = data->getBool();
+						cNinjaRope.active = data->getBool();
 						//currentWeapon = data->getInt(Encoding::bitsOf(gusGame.weaponList.size() - 1));
 						currentWeapon = Encoding::decode(*data, m_weapons.size());
 						CWorm::base_clearWeapons();
@@ -314,7 +302,7 @@ void CWorm::sendSyncMessage( Net_ConnID id )
 	BitStream *data = new BitStream;
 	addEvent(data, SYNC);
 	data->addBool(getAlive());
-	data->addBool(m_ninjaRope->active);
+	data->addBool(cNinjaRope.active);
 	//data->addInt(currentWeapon, Encoding::bitsOf(gusGame.weaponList.size() - 1));
 	Encoding::encode(*data, currentWeapon, m_weapons.size());
 	

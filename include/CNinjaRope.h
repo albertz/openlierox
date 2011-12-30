@@ -17,8 +17,20 @@
 #ifndef __CNINJAROPE_H__
 #define __CNINJAROPE_H__
 
-#include "CVec.h"
 #include "CGameObject.h"
+#include "gusanos/events.h"
+#include "util/vec.h"
+#include "util/angle.h"
+#include "gusanos/timer_event.h"
+#include "gusanos/particle.h"
+#include <vector>
+
+#ifndef DEDICATED_ONLY
+class SpriteSet;
+class BaseAnimator;
+#endif
+
+#include "CVec.h"
 
 class CWorm;
 struct SDL_Surface;
@@ -28,11 +40,12 @@ class CBytestream;
 class CNinjaRope : public CGameObject {
 public:
 	// Constructor
-	CNinjaRope() {
+	CNinjaRope(CWorm* _owner) : owner(_owner) {
 		Clear();
 
 		LastWrite = AbsTime();
 		LastPosUpdate = AbsTime();
+		gusInit();
 	}
 
 
@@ -77,7 +90,7 @@ public:
 	bool		isReleased()		{ return Released; }
 	void		Release();
 	void		UnAttachPlayer();
-	void		AttachToPlayer(CWorm *worm, CWorm *owner);
+	void		AttachToPlayer(CWorm *worm);
 
 	void		updateCheckVariables();
 	bool		writeNeeded();
@@ -102,6 +115,54 @@ public:
 
 	virtual bool isInside(int x, int y);	
 	virtual Color renderColorAt(/* relative coordinates */ int x, int y);
+	
+	
+	// ----------------------
+	// --------- Gusanos
+	// ----------------------
+	
+public:
+	void gusInit();
+	void shoot(Vec _pos, Vec _spd);
+	void remove();
+	
+#ifndef DEDICATED_ONLY
+	void draw(CViewport *viewport);
+#endif
+	void think();
+	
+	Angle getPointingAngle();
+	void addAngleSpeed(AngleDiff);
+	
+	void addLength(float length_)
+	{
+		m_length += length_;
+		if ( m_length < 0.f )
+			m_length = 0.f;
+	}
+	
+	int getColour();
+	CVec& getPosReference();
+	float& getLengthReference()
+	{
+		return m_length;
+	}
+	
+	bool active;
+	bool attached;
+	
+private:
+	
+	std::vector< TimerEvent::State > timer;
+	Angle m_angle;
+	AngleDiff m_angleSpeed;
+	float m_length;
+#ifndef DEDICATED_ONLY
+	SpriteSet* m_sprite;
+	BaseAnimator* m_animator;
+#endif
+	
+	bool justCreated;
 	
 };
 
