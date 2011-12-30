@@ -162,14 +162,14 @@ int CScrollbar::MouseDown(mouse_t *tMouse, int nDown)
 	for(int i=0; i<3; i++) {
 		if(tMouse->Down) {
 
-			if( nButtonsDown & SDL_BUTTON(i) ) {
+			if( nButtonsDown & SDL_BUTTON(i+1) ) {
 				if( fMouseNext[i] < tLX->currentTime ) {
 					Down = true;
 					fMouseNext[i] = tLX->currentTime + 0.05f;
 				}
 			} else {
 				Down = true;
-				nButtonsDown |= SDL_BUTTON(i);
+				nButtonsDown |= SDL_BUTTON(i+1);
 				fMouseNext[i] = tLX->currentTime + 0.25f;
 			}
 		}
