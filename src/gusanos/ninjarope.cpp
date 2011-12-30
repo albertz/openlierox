@@ -40,7 +40,6 @@ NinjaRope::NinjaRope(PartType *type, CGameObject* worm)
 #endif
 		
 		// Why this?? :OO // Re: Modders may want to make the rope leave trails or sth :o
-		//for ( vector< TimerEvent* >::iterator i = m_type->timer.begin(); i != m_type->timer.end(); i++)
 		foreach(i, m_type->timer)
 		{
 			timer.push_back( (*i)->createState() );
@@ -66,7 +65,6 @@ void NinjaRope::shoot(Vec _pos, Vec _spd)
 	m_angle = Vec(velocity()).getAngle();
 	m_angleSpeed = 0;
 	
-	//for ( vector< TimerEvent::State >::iterator t = timer.begin(); t != timer.end(); t++)
 	foreach(t, timer)
 	{
 		t->reset();
@@ -150,63 +148,7 @@ void NinjaRope::think()
 #ifndef DEDICATED_ONLY
 		if ( m_animator )
 			m_animator->tick();
-#endif
-		
-		/* OLD CODE
-		if ( justCreated && m_type->creation )
-		{
-			m_type->creation->run(this);
-			justCreated = false;
-		}
-		
-		if( !gusGame.level().getMaterial( (int)(pos+spd).x, (int)(pos+spd).y ).particle_pass )
-		{
-			if (!attached)
-			{
-				attached = true;
-				pos = pos + spd;
-				spd *= 0;
-				if ( m_type->groundCollision != NULL )
-						m_type->groundCollision->run(this);
-			}
-		}else attached = false;
-		
-		if (!attached)
-		{
-			spd.y+=m_type->gravity;
-			
-			for ( vector< NRTimer >::iterator t = timer.begin(); t != timer.end(); t++)
-			{
-				(*t).count--;
-				if ( (*t).count < 0 )
-				{
-					(*t).m_tEvent->event->run(this);
-					(*t).reset();
-				}
-			}
-			
-			if ( m_type->acceleration )
-			{
-				if ( spd.dotProduct(angleVec(m_angle,1)) < m_type->maxSpeed || m_type->maxSpeed < 0)
-				spd+= angleVec(m_angle,m_type->acceleration);
-			}
-			
-			spd*=m_type->damping;
-			
-			if ( abs(m_angleSpeed) < m_type->angularFriction ) m_angleSpeed = 0;
-			else if ( m_angleSpeed < 0 ) m_angleSpeed += m_type->angularFriction;
-			else m_angleSpeed -= m_type->angularFriction;
-			
-			m_angle += m_angleSpeed;
-			while ( m_angle > 360 ) m_angle -= 360;
-			while ( m_angle < 0 ) m_angle += 360;
-			
-			
-			if ( !deleteMe ) pos = pos + spd;
-			else break;
-			if ( m_animator ) m_animator->tick();
-		}
-		*/
+#endif		
 	}
 }
 
