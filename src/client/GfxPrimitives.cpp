@@ -531,18 +531,19 @@ SmartPointer<SDL_Surface> GetCopiedImage(SDL_Surface* bmpSrc) {
 	return result;
 }
 
-// eg __Z18_OperateOnSurfacesILb1ELi4ELi4EP15SDL_PixelFormatS1_XadL_Z9_GetPixelILb1ELi4EE5ColorS1_PhEEXadL_Z9_PutPixelILb1ELb1ELi4EEvS1_S4_S3_EEEvT2_T3_P11SDL_SurfaceS9_R8SDL_RectSB_
 template <
-	bool src_alpha,
+	bool colorkeycheck,
+	bool alphablend,
+	bool src_persurfacealpha,
+	bool src_hasalpha, bool dst_hasalpha,
 	int sbpp, int dbpp,
-	typename T1, typename T2, typename _Color,
-	Color (*getFunc)(T1 data, const Uint8* addr),
-	void (*putFunc)(T2 data, Uint8* addr, _Color c)
+	bool sameformat
 >
-void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
+void _OperateOnSurfaces(SDL_PixelFormat* dstformat, SDL_PixelFormat* srcformat, SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDest, SDL_Rect& rSrc)
 {
 	assert(bmpSrc->format->BytesPerPixel == sbpp);
 	assert(bmpDest->format->BytesPerPixel == dbpp);
+	assert(!sameformat || sbpp == dbpp);
 	
 	// Clip
 	{
@@ -569,39 +570,25 @@ void _OperateOnSurfaces(T1 data1, T2 data2, SDL_Surface * bmpDest, SDL_Surface *
 	int srcgap = bmpSrc->pitch - rDest.w * sbpp;
 	int dstgap = bmpDest->pitch - rDest.w * dbpp;
 	
-#define _OP_LOOP_BODY \
-	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap) \
-		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp)
-			
-	if(bmpSrc->flags & SDL_SRCCOLORKEY)  {
-		// We have to check for the colorkey as well
-		Color key = Unpack_<src_alpha>(bmpSrc->format->colorkey, bmpSrc->format);
-		_OP_LOOP_BODY {
-			Color c = getFunc(data1, src);
-			if(c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
-				continue;
-			if(src_alpha)
-				c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-			putFunc(data2, dst, c);
-		}
-	}
-	else {
-		// No colorkey, less inner-loop checks needed
-		_OP_LOOP_BODY {
-			if(sbpp == dbpp && sbpp == 1 && !src_alpha) {
-				// for 8-bit non-alpha surface, we esp. want just to copy the flags
-				*dst = *src;
+	Color key = Unpack_<src_hasalpha>(bmpSrc->format->colorkey, bmpSrc->format);
+	for (int y = rDest.h; y; --y, dst += dstgap, src += srcgap)
+		for (int x = rDest.w; x; --x, dst += dbpp, src += sbpp) {
+			if(sameformat && !alphablend && !colorkeycheck) {
+				if(sbpp == 4) *(Uint32*)dst = *(Uint32*)src;
+				else if(sbpp == 3) { *dst = *src; *(dst+1) = *(src+1); *(dst+2) = *(src+2); }
+				else if(sbpp == 2) *(Uint16*)dst = *(Uint16*)src;
+				else if(sbpp == 1) *dst = *src;
+				else assert(false);
 			} else {
-				Color c = getFunc(data1, src);
-				if(src_alpha)
+				Color c = _GetPixel<src_hasalpha,sbpp>(srcformat, src);
+				if(colorkeycheck && c.r == key.r && c.g == key.g && c.b == key.b)  // Colorkey check
+					continue;
+				if(src_persurfacealpha)
 					c.a = ((int)c.a * bmpSrc->format->alpha) / 255;  // Add the per-surface alpha to the source pixel alpha
-				putFunc(data2, dst, c);
+				_PutPixel<dst_hasalpha, alphablend, dbpp>(dstformat, dst, c);
 			}
 		}
-	}
 
-#undef _OP_LOOP_BODY
-	
 	UnlockSurface(bmpDest);
 	UnlockSurface(bmpSrc);
 }
@@ -616,22 +603,48 @@ static void DrawRGBA(SDL_Surface * bmpDest, SDL_Surface * bmpSrc, SDL_Rect& rDes
 	const int dbpp = bmpDest->format->BytesPerPixel;
 	const bool src_hasalpha = bmpSrc->format->Amask != 0;
 	const bool dst_hasalpha = bmpDest->format->Amask != 0;
-
-#define __DO_OP(_sbpp, _dbpp, _salpha, _dalpha) \
+	const bool src_persurfacealpha = alphablend && (bmpSrc->format->alpha != 255);
+	const bool colorkeycheck = bmpSrc->flags & SDL_SRCCOLORKEY;
+	const bool sameformat = PixelFormatEqual(bmpSrc->format, bmpDest->format);
+	
+#define ____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, _sameformat) \
 	_OperateOnSurfaces< \
-		_salpha, \
+		_colkeycheck, \
+		alphablend, \
+		_spersurfalpha, \
+		_salpha, _dalpha, \
 		_sbpp, _dbpp, \
-		SDL_PixelFormat*, SDL_PixelFormat*, Color, \
-		_GetPixel<_salpha,_sbpp>, _PutPixel<_dalpha, alphablend, _dbpp> >( \
-		bmpSrc->format, bmpDest->format, \
+		_sameformat \
+		>( \
+		bmpDest->format, bmpSrc->format, \
 		bmpDest, bmpSrc, rDest, rSrc)
 
+#define ___DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck) \
+	{ \
+		if(/* this is an extra static(!) check for sameformat */ _sbpp == _dbpp && sameformat) \
+			____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, true); \
+		else /* !sameformat */ \
+			____DO_OP(_sbpp, _dbpp, _salpha, _dalpha, _spersurfalpha, _colkeycheck, false); \
+	}
+
+#define __DO_OP(_sbpp, _dbpp, _salpha, _dalpha) \
+	{ \
+		if(src_persurfacealpha) { \
+			if(colorkeycheck) ___DO_OP(_sbpp, _dbpp, _salpha, _dalpha, true, true) \
+			else ___DO_OP(_sbpp, _dbpp, _salpha, _dalpha, true, false) \
+		} \
+		else /* !src_persurfacealpha */ { \
+			if(colorkeycheck) ___DO_OP(_sbpp, _dbpp, _salpha, _dalpha, false, true) \
+			else ___DO_OP(_sbpp, _dbpp, _salpha, _dalpha, false, false) \
+		} \
+	}
+	
 #define _DO_OP(_sbpp, _dbpp) \
 	if(sbpp == _sbpp && dbpp == _dbpp) { \
-		if(src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, true); \
-		else if(src_hasalpha && !dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, false); \
-		else if(!src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, false, true); \
-		else __DO_OP(_sbpp, _dbpp, false, false); \
+		if(src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, true) \
+		else if(src_hasalpha && !dst_hasalpha) __DO_OP(_sbpp, _dbpp, true, false) \
+		else if(!src_hasalpha && dst_hasalpha) __DO_OP(_sbpp, _dbpp, false, true) \
+		else __DO_OP(_sbpp, _dbpp, false, false) \
 	}
 	
 	_DO_OP(4,4) else
