@@ -116,15 +116,11 @@ void CNinjaRope::Draw(SDL_Surface * bmpDest, CViewport *view, CVec ppos)
 		// HINT: don't change HookPos directly here, this should only be done by the simulation-function
 	}
 
-	int px = (int)ppos.x;
-	int py = (int)ppos.y;
-
-	px = ((int)ppos.x-wx)*2+l;
-	py = ((int)ppos.y-wy)*2+t;
-
 	hx = (hx-wx)*2+l;
 	hy = (hy-wy)*2+t;
 
+	int px = ((int)ppos.x-wx)*2+l;
+	int py = ((int)ppos.y-wy)*2+t;
 
 	// Rope
 	px -= px % 2;
