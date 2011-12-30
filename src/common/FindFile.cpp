@@ -28,6 +28,7 @@
 #include "StringUtils.h"
 #include "Options.h"
 #include "Debug.h"
+#include <zlib.h> // for crc32
 
 
 #ifdef WIN32
@@ -271,36 +272,48 @@ size_t GetLastName(const std::string& fullname, const char** seperators)
 
 
 
-struct strcasecomparer {
-	bool operator()(const std::string& str1, const std::string& str2) const {
-		return stringcaseequal(str1, str2);
-	}
-};
-
-typedef hash_set<std::string, simple_reversestring_hasher, strcasecomparer> exactfilenamecache_t;
 struct ExactFilenameCache {
+	struct simple_crc32_hasher {
+		size_t operator() (const std::string& str) const {			
+			Uint32 crc = crc32(0L, Z_NULL, 0);
+			for(std::string::const_iterator pos = str.begin(); pos != str.end(); pos++) {
+				uchar c = (uchar)tolower((uchar)*pos) & 0xf;
+				++pos;
+				if(pos == str.end()) break;
+				c += ((uchar)tolower((uchar)*pos) & 0xf) << 4;
+				crc = crc32(crc, (Byte*)&c, 1);
+			}
+			return crc;
+		}
+	};
+	struct strcasecomparer {
+		bool operator()(const std::string& str1, const std::string& str2) const {
+			return stringcaseequal(str1, str2);
+		}
+	};
+	typedef hash_set<std::string, simple_crc32_hasher, strcasecomparer> exactfilenamecache_t;
 	exactfilenamecache_t cache;
 	Mutex mutex;
+
+	bool has_searchname(
+		 const std::string& searchname,
+		 std::string& exactname
+		 ) {
+		Mutex::ScopedLock lock(mutex);
+		exactfilenamecache_t::iterator it = cache.find(searchname);
+		if(it != cache.end()) {
+			exactname = *it;
+			return true;
+		} else
+			return false;
+	}
+
+	void add_searchname(const std::string& exactname) {
+		Mutex::ScopedLock lock(mutex);
+		cache.insert(exactname);
+	}
 }
 exactfilenamecache;
-
-bool is_searchname_in_exactfilenamecache(
-										 const std::string& searchname,
-										 std::string& exactname
-) {
-	Mutex::ScopedLock lock(exactfilenamecache.mutex);
-	exactfilenamecache_t::iterator it = exactfilenamecache.cache.find(searchname);
-	if(it != exactfilenamecache.cache.end()) {
-		exactname = *it;
-		return true;
-	} else
-		return false;
-}
-
-void add_searchname_to_exactfilenamecache(const std::string& exactname) {
-	Mutex::ScopedLock lock(exactfilenamecache.mutex);
-	exactfilenamecache.cache.insert(exactname);
-}
 
 
 // used by unix-GetExactFileName
@@ -335,7 +348,7 @@ bool CaseInsFindFile(const std::string& dir, const std::string& searchname, std:
 #endif
 			return true;
 		}
-		add_searchname_to_exactfilenamecache((dir == "") ? direntry->d_name : (dir + "/" + direntry->d_name));
+		exactfilenamecache.add_searchname((dir == "") ? direntry->d_name : (dir + "/" + direntry->d_name));
 	}
 
 	closedir(dirhandle);
@@ -368,7 +381,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 	std::string rest;
 	while(true) {
 		rest = sname.substr(0,pos);
-		if(is_searchname_in_exactfilenamecache(rest, filename)) {
+		if(exactfilenamecache.has_searchname(rest, filename)) {
 			if(IsPathStatable(filename)) {
 				if(pos == sname.size()) // do we got the whole filename?
 					return true;
@@ -431,7 +444,7 @@ bool GetExactFileName(const std::string& abs_searchname, std::string& filename) 
 		if(!first_iter) filename += "/";
 		filename += nextexactname;
 		if(nextexactname != "")
-			add_searchname_to_exactfilenamecache(filename);
+			exactfilenamecache.add_searchname(filename);
 
 		if(pos == 0) break;
 		first_iter = false;
