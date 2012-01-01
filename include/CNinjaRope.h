@@ -40,19 +40,21 @@ class CBytestream;
 class CNinjaRope : public CGameObject {
 public:
 	// Constructor
-	CNinjaRope(CWorm* _owner) : owner(_owner) {
+	CNinjaRope(CWorm* _owner)
+	: owner(_owner), m_sprite(NULL), m_animator(NULL) {
+		assert(owner != NULL);
 		Clear();
 
 		LastWrite = AbsTime();
 		LastPosUpdate = AbsTime();
-		gusInit();
 	}
+	~CNinjaRope();
+	CNinjaRope& operator=(const CNinjaRope&);
 
-
-private:
+private:	
 	// Attributes
 	
-	CWorm*		owner;
+	CWorm* const owner;
 	
 	bool		Released;
 	bool		HookShooting;
@@ -150,6 +152,8 @@ public:
 	
 	bool active;
 	bool attached;
+
+	void deleteThis();
 	
 private:
 	

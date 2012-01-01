@@ -27,12 +27,41 @@
 #include "Geometry.h"
 
 
+CNinjaRope::~CNinjaRope() {
+	// We must delete the object now out of the list because this destructor
+	// is not called from Gusanos but from CClient.
+	// NOTE: Not really the best way but I don't know a better way
+	// TODO: move this out here
+	for ( Grid::iterator iter = game.objects.beginAll(); iter;)
+	{
+		if( &*iter == this )
+			iter.erase();
+		else
+			++iter;
+	}
+}
+
+CNinjaRope& CNinjaRope::operator=(const CNinjaRope& n) {
+	assert(owner == n.owner);
+#define COPY(a) a = n.a
+	COPY(Released);
+	COPY(HookShooting);
+	COPY(HookAttached);
+	COPY(PlayerAttached);
+	COPY(Worm);
+	COPY(LastReleased);
+	COPY(LastHookShooting);
+	COPY(LastHookAttached);
+	COPY(LastPlayerAttached);
+	COPY(LastWorm);
+#undef COPY
+	return *this;
+}
+
 ///////////////////
 // Clear the ninja rope vars
 void CNinjaRope::Clear()
-{
-	owner = NULL;
-	
+{	
 	Released = false;
 	HookShooting = false;
 	HookAttached = false;
@@ -68,7 +97,9 @@ void CNinjaRope::Shoot(CWorm* owner, CVec pos, CVec dir)
 
 	if(!owner->canUseNinja()) return;
 	
-	this->owner = owner;
+	if(this->owner != owner) {
+		errors << "CNinjaRope::Shoot: this->owner (" << this->owner->getID() << ") is different from new owner (" << owner->getID() << ")" << endl;
+	}
 	
 	Released = true;
 	HookShooting = true;

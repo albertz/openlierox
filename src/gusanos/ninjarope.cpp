@@ -15,6 +15,7 @@
 #endif
 #include "part_type.h"
 #include "CMap.h"
+#include "context.h"
 
 #include <vector>
 
@@ -196,3 +197,18 @@ void CNinjaRope::draw(CViewport *viewport)
 	}
 }
 #endif
+
+void CNinjaRope::deleteThis() {
+	notes << "CNinjaRope:deleteThis: " << owner->getName() << endl;
+	
+	finalize();
+	
+	if(luaReference)
+	{
+		lua.destroyReference(luaReference);
+		luaReference.reset();
+	}
+	
+	// dont delete the object itself because we store it in CClient.cWorms atm
+	// also dont set deleted=true because we may reuse this object
+}

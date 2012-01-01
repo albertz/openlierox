@@ -81,6 +81,7 @@ void CWorm::gusInit()
 			m_weaponCount++;
 		}
 
+	cNinjaRope.gusInit();
 	movingLeft = false;
 	movingRight = false;
 	jumping = false;
