@@ -134,7 +134,7 @@ static void drawFlagSpawnPoint(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	else
 		bmp = DeprecatedGUI::gfxGame.bmpFlagSpawnpointDefault.get();
 	
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	VectorD2<int> p = v->physicToReal(flag->spawnPoint.pos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	DrawImage(bmpDest, bmp, p.x - bmp->w/2, p.y - bmp->h/2);
@@ -143,7 +143,7 @@ static void drawFlagSpawnPoint(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 static void drawUnattachedFlag(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	if(flag->skin == NULL) return;
 	
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	VectorD2<int> p = v->physicToReal(flag->getPos(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
 	int f = ((int) cClient->serverTime().seconds() *7);
@@ -173,7 +173,7 @@ void FlagInfo::drawWormAttachedFlag(CWorm* worm, SDL_Surface* bmpDest, CViewport
 	
 	// see CWorm::Draw() for all these calculations
 	
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	VectorD2<int> p = v->physicToReal(worm->getPos(), cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	int f = ((int) worm->frame()*7);

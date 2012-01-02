@@ -2259,16 +2259,9 @@ void Cmd_whoIs::exec(CmdLineIntf* caller, const std::vector<std::string>& params
 }
 
 
-
-static CMap* getCurrentMap() {
-	CMap* m = cServer ? cServer->getMap() : NULL;
-	if(!m && cClient) m = cClient->getMap();
-	return m;
-}
-
 COMMAND(mapInfo, "get map info", "", 0, 0);
 void Cmd_mapInfo::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
-	CMap* m = getCurrentMap();
+	CMap* m = game.gameMap();
 	if(!m)
 		caller->writeMsg("map not loaded", CNC_ERROR);
 	else {
@@ -2282,7 +2275,7 @@ void Cmd_mapInfo::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 COMMAND(findSpot, "find randm free spot in map (close to pos)", "[(x,y)]", 0, 1);
 void Cmd_findSpot::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
-	if(cServer->getMap() == NULL) {
+	if(game.gameMap() == NULL) {
 		caller->writeMsg("map not loaded", CNC_ERROR);
 		return;
 	}

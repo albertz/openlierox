@@ -800,7 +800,7 @@ void CWorm::UpdateDrawPos() {
 
 
 #ifdef _AI_DEBUG
-/*		SmartPointer<SDL_Surface> bmpDestDebug = cClient->getMap()->GetDebugImage();
+/*		SmartPointer<SDL_Surface> bmpDestDebug = game.gameMap()->GetDebugImage();
 		if (bmpDestDebug) {
 			int node_x = (int)vPos.x*2, node_y = (int)vPos.y*2;
 
@@ -879,7 +879,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	int l = v->GetLeft();
 	int t = v->GetTop();
 
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	VectorD2<int> p = v->physicToReal(vDrawPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 
 	int x = p.x - l;
@@ -1175,7 +1175,7 @@ void CWorm::DrawShadow(SDL_Surface * bmpDest, CViewport *v)
 		// Later we should render the world layer by layer so this trouble will be gone
 		// The CMap::DrawObjectShadow function is slow and also logically incorrect - why should a map know about other
 		// objects?
-		cSkin.DrawShadowOnMap(cClient->getMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iFaceDirectionSide == DIR_LEFT);
+		cSkin.DrawShadowOnMap(game.gameMap(), v, bmpDest, (int)vPos.x, (int)vPos.y, f, iFaceDirectionSide == DIR_LEFT);
 	}
 }
 
@@ -1191,9 +1191,9 @@ bool CWorm::CheckOnGround()
 	for(short y = 6; y > 0; y--) {
 
 		// Optimize: pixelflag + Width
-		if(!(cClient->getMap()->GetPixelFlag(px - 2, py + y, wrapAround) & PX_EMPTY))
+		if(!(game.gameMap()->GetPixelFlag(px - 2, py + y, wrapAround) & PX_EMPTY))
 			return true;
-		if(!(cClient->getMap()->GetPixelFlag(px + 2, py + y, wrapAround) & PX_EMPTY))
+		if(!(game.gameMap()->GetPixelFlag(px + 2, py + y, wrapAround) & PX_EMPTY))
 			return true;
 	}
 

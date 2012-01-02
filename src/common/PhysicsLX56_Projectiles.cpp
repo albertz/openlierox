@@ -38,6 +38,7 @@
 #include "ThreadPool.h" // for struct Action
 #include "Timer.h"
 #include "sound/SoundsBase.h"
+#include "game/Game.h"
 
 #ifdef __MINGW32_VERSION
 // TODO: ugly hack, fix it - mingw stdlib seems to be broken
@@ -128,13 +129,13 @@ static INLINE bool CProjectile_CollisionWith(const CProjectile* src, const CProj
 
 
 INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	
 	// do we get any worm?
 	if(proj->GetProjInfo()->PlyHit.Type != PJ_NOTHING) {
 		CVec dif = proj->getPos() - vFrameOldPos;
 		float len = NormalizeVector( &dif );
-		len = MIN(len, float(cClient->getMap()->GetWidth()) + float(cClient->getMap()->GetHeight()));
+		len = MIN(len, float(game.gameMap()->GetWidth()) + float(game.gameMap()->GetHeight()));
 		
 		// the worm has a size of 4*4 in ProjWormColl, so it's save to check every second pixel here
 		for (float p = 0.0f; p <= len; p += 2.0f) {
@@ -178,7 +179,7 @@ INLINE bool CProjectile::MapBoundsCollision(int px, int py)
 	CollisionSide = 0;
 	if(cClient->getGameLobby()[FT_InfiniteMap]) return false;
 	
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	
 	if (px < 0 || px - radius.x < 0)
 		CollisionSide |= COL_LEFT;
@@ -219,7 +220,7 @@ INLINE static void handlePixelFlag(CProjectile::ColInfo& res, const Material& m,
 // WARNING: assumed to be called only from SimulateFrame
 INLINE CProjectile::ColInfo CProjectile::TerrainCollision(int px, int py)
 {
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	
 	ColInfo res = { 0, 0, 0, 0, false, true };
 
@@ -772,7 +773,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		// Carve
 		case PJ_CARVE:
 			if(eventInfo.timerHit || (eventInfo.colType && !eventInfo.colType->withWorm)) {
-				int d = cClient->getMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()[FT_InfiniteMap]);
+				int d = game.gameMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()[FT_InfiniteMap]);
 				info->deleteAfter = true;
 				
 					// Increment the dirt count
@@ -1011,7 +1012,7 @@ bool Proj_ProjHitEvent::checkEvent(Proj_EventOccurInfo& ev, CProjectile* prj, Pr
 	const VectorD2<int> radius = prj->getRadius();
 	for(int x = MPI<true,true>(vPos,radius).x; x <= MPI<true,false>(vPos,radius).x; ++x)
 		for(int y = MPI<true,true>(vPos,radius).y; y <= MPI<false,true>(vPos,radius).y; ++y) {
-			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
+			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(game.gameMap())];
 			if(projs == NULL) continue;
 			for(CClient::ProjectileSet::const_iterator p = projs->begin(); p != projs->end(); ++p)
 				if(!checkProjHit(*this, ev.targets, prj, *p)) goto finalChecks;
@@ -1114,9 +1115,9 @@ static void projectile_doTimerExplode(CProjectile* const prj, int shake) {
 static void projectile_doMakeDirt(CProjectile* const prj) {
 	const int damage = 5;
 	int d = 0;
-	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()-CVec(6,6));
-	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()+CVec(6,-6));
-	d += cClient->getMap()->PlaceDirt(damage,prj->getPos()+CVec(0,6));
+	d += game.gameMap()->PlaceDirt(damage,prj->getPos()-CVec(6,6));
+	d += game.gameMap()->PlaceDirt(damage,prj->getPos()+CVec(6,-6));
+	d += game.gameMap()->PlaceDirt(damage,prj->getPos()+CVec(0,6));
 	
 	// Remove the dirt count on the worm
 	if(prj->hasOwner())
@@ -1124,7 +1125,7 @@ static void projectile_doMakeDirt(CProjectile* const prj) {
 }
 
 static void projectile_doMakeGreenDirt(CProjectile* const prj) {
-	int d = cClient->getMap()->PlaceGreenDirt(prj->getPos());
+	int d = game.gameMap()->PlaceGreenDirt(prj->getPos());
 	
 	// Remove the dirt count on the worm
 	if(prj->hasOwner())
@@ -1171,14 +1172,14 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 	
 	// Spawn any projectiles?
 	if(spawnprojectiles) {
-		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/game.gameMap(),
 		// we use the last simulation time to have it more accurate.
 		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
 		pi->GeneralSpawnInfo.apply(prj, prj->fLastSimulationTime);
 	}
 	
 	for(std::list<const Proj_SpawnInfo*>::iterator i = otherSpawns.begin(); i != otherSpawns.end(); ++i) {
-		// Even the spawing is caused probably by conditions of the environment like collision with worm/cClient->getMap(),
+		// Even the spawing is caused probably by conditions of the environment like collision with worm/game.gameMap(),
 		// we use the last simulation time to have it more accurate.
 		// Also, in case of worms, we have fixed the physics in a way that it also uses the old position from the past.
 		(*i)->apply(prj, prj->fLastSimulationTime);
@@ -1214,7 +1215,7 @@ static INLINE ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	//proj->setRemote( false );
 
 	// Check for collisions and move
-	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, dt, cClient->getMap(), worms);
+	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, dt, game.gameMap(), worms);
 	
 	proj->life() += dt.seconds();
 	proj->extra() += dt.seconds();

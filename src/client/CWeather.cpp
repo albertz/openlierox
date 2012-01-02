@@ -21,6 +21,7 @@
 #include "CWeather.h"
 #include "MathLib.h"
 #include "CMap.h"
+#include "game/Game.h"
 
 
 ///////////////////
@@ -97,7 +98,7 @@ void CWeather::SimulateSnow(float dt)
 
     if( tLX->currentTime > m_fNextSnow ) {
         for( int n=0; n<5; n++) {
-            float x = (float)GetRandomInt(cClient->getMap()->GetWidth());
+            float x = (float)GetRandomInt(game.gameMap()->GetWidth());
             SpawnParticle(wpt_snowpart, 0, CVec(GetRandomNum()*10,(float)GetRandomInt(10)+15),CVec(x,2));
         }
         m_fNextSnow = tLX->currentTime+0.1f;
@@ -128,10 +129,10 @@ void CWeather::SimulateSnow(float dt)
             // Snow particle
             case wpt_snowpart:
                 // Have we hit some dirt/rock?
-                byte flag = cClient->getMap()->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
+                byte flag = game.gameMap()->GetPixelFlag( (int)psPart->cPos.x, (int)psPart->cPos.y );
                 if( flag & PX_DIRT || flag & PX_ROCK ) {
                     // Leave a white dot
-                    cClient->getMap()->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, tLX->clWhite );
+                    game.gameMap()->PutImagePixel( (int)psPart->cPos.x, (int)psPart->cPos.y, tLX->clWhite );
                     psPart->bUsed = false;
                 }
                 break;

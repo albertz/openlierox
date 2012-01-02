@@ -374,9 +374,7 @@ void Game::reset() {
 	objects.clear();
 }
 
-CMap* Game::gameMap() {
-	return &gusGame.level();
-}
+CMap* Game::gameMap() { return m_gameMap.get(); }
 
 CGameScript* Game::gameScript() { return m_gameMod.get(); }
 

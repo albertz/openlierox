@@ -217,7 +217,6 @@ private:
 
 
 	// Map
-	CMap		*cMap;
 	bool		bMapGrabbed;
 
 	// Projectiles
@@ -378,7 +377,7 @@ private:
 	AbsTime		fGameOverTime;
 
 	bool		bLobbyReady;
-	bool		bGameReady; // bGameReady says if the game (including cMap) has been initialized
+	bool		bGameReady; // bGameReady says if the game (including map) has been initialized
 	bool		bGameRunning; // game was started and is running (implies bGameReady, but our own worm could be in weapon selection)
 	bool		bHaveMap;
 	bool		bHaveMod;
@@ -544,11 +543,7 @@ public:
 	CBytestream	*getUnreliable()		{ return &bsUnreliable; }
 	bool		RebindSocket();	// If client has taken the port on which server should start - free it
 
-	CMap*		getMap() const				{ return cMap; }
-	bool		isMapReady() const;
-	void		resetMap()					{ cMap = NULL; }
-
-	bool		canSimulate() const			{ return bGameReady && !bGameOver && isMapReady(); }
+	bool		canSimulate() const;
 	
 	int			OwnsWorm(int id);
 	int			getNumWorms()			{ return iNumWorms; }

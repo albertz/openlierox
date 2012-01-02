@@ -48,6 +48,7 @@
 #include "game/Game.h"
 #include "gusanos/weapon.h"
 #include "game/Mod.h"
+#include "level/FastTraceLine.h"
 
 
 // used by searchpath algo
@@ -69,10 +70,10 @@ static const unsigned short wormsize = 7;
 // WARNING: if the given point is not in the map, the returned
 // area is also not in the map (but it will handle it correctly)
 SquareMatrix<int> getMaxFreeArea(VectorD2<int> p, uchar checkflag) {
-	uint map_w = cClient->getMap()->GetWidth();
-	uint map_h = cClient->getMap()->GetHeight();
-	uchar** pxflags = cClient->getMap()->material->line;
-	boost::array<Material,256>& materials = cClient->getMap()->materialArray();
+	uint map_w = game.gameMap()->GetWidth();
+	uint map_h = game.gameMap()->GetHeight();
+	uchar** pxflags = game.gameMap()->material->line;
+	boost::array<Material,256>& materials = game.gameMap()->materialArray();
 
 	SquareMatrix<int> ret;
 	ret.v1 = p; ret.v2 = p;
@@ -182,14 +183,14 @@ NEW_ai_node_t* createNewAiNode(const VectorD2<int>& p) {
 // (depends on which of them is the absolute greatest)
 // HINT: don't lock the flags here (it's done in the caller)
 INLINE bool simpleTraceLine(VectorD2<int> start, VectorD2<int> dist, uchar checkflag) {
-	boost::array<Material,256>& materials = cClient->getMap()->materialArray();
-	register unsigned char** pxflags = cClient->getMap()->material->line;
+	boost::array<Material,256>& materials = game.gameMap()->materialArray();
+	register unsigned char** pxflags = game.gameMap()->material->line;
 	if (!pxflags)  {  // The map has been probably shut down
 		warnings << "simpleTraceLine with pxflags==NULL" << endl;
 		return false;
 	}
-	uint map_w = cClient->getMap()->GetWidth();
-	uint map_h = cClient->getMap()->GetHeight();
+	uint map_w = game.gameMap()->GetWidth();
+	uint map_h = game.gameMap()->GetHeight();
 
 	if(abs(dist.x) >= abs(dist.y)) {
 		if(dist.x < 0) { // avoid anoying checks
@@ -424,7 +425,7 @@ public:
 				pt += dir;
 
 				// ensure, that the way has at least the width of wormsize
-				cClient->getMap()->lockFlags(false);
+				game.gameMap()->lockFlags(false);
 				trace = simpleTraceLine(pt, dist, PX_ROCK);
 				for(left = 0; trace && left < wormsize; pt += dir) {
 					trace = simpleTraceLine(pt, dist, PX_ROCK);
@@ -435,7 +436,7 @@ public:
 					trace = simpleTraceLine(pt, dist, PX_ROCK);
 					if(trace) right++;
 				}
-				cClient->getMap()->unlockFlags(false);
+				game.gameMap()->unlockFlags(false);
 
 				// is there enough space?
 				if(left+right >= wormsize) {
@@ -577,19 +578,19 @@ private:
 
 		while(areas_stack.size() > 0) {
 			SDL_Delay(1); // lower priority to this thread
-			if(shouldBreakThread() || shouldRestartThread() || !cClient->getMap()->getCreated()) return NULL;
+			if(shouldBreakThread() || shouldRestartThread() || !game.gameMap()->getCreated()) return NULL;
 
 			area_item* a = getBestArea();
 			areas_stack.erase(a);
 
 			// can we just finish with the search?
-			cClient->getMap()->lockFlags(false);
+			game.gameMap()->lockFlags(false);
 			if(traceWormLine(target, a->area.getCenter())) {
-				cClient->getMap()->unlockFlags(false);
+				game.gameMap()->unlockFlags(false);
 				// yippieh!
 				return buildPath(a);
 			}
-			cClient->getMap()->unlockFlags(false);
+			game.gameMap()->unlockFlags(false);
 
 			a->process();
 		}
@@ -604,8 +605,8 @@ public:
 	void addAreaNode(VectorD2<int> start, area_item* lastArea) {
 
 		// is the start inside of the map?
-		if(start.x < 0 || (uint)start.x >= cClient->getMap()->GetWidth()
-		|| start.y < 0 || (uint)start.y >= cClient->getMap()->GetHeight())
+		if(start.x < 0 || (uint)start.x >= game.gameMap()->GetWidth()
+		|| start.y < 0 || (uint)start.y >= game.gameMap()->GetHeight())
 			return;
 
 		// look around for an existing area here
@@ -620,9 +621,9 @@ public:
 		}
 
 		// get the max area (rectangle) around us
-		cClient->getMap()->lockFlags(false);
+		game.gameMap()->lockFlags(false);
 		SquareMatrix<int> area = getMaxFreeArea(start, PX_ROCK);
-		cClient->getMap()->unlockFlags(false);
+		game.gameMap()->unlockFlags(false);
 		// add only if area is big enough
 		if(area.v2.x-area.v1.x >= wormsize && area.v2.y-area.v1.y >= wormsize) {
 			a = new area_item(this, area);
@@ -839,7 +840,7 @@ bool CWormBotInputHandler::AI_Initialize() {
     // Because this can be called multiple times, shutdown any previous allocated data
     AI_Shutdown();
 
-	if(cClient->getMap() == NULL) {
+	if(game.gameMap() == NULL) {
 		errors << "CWormBotInputHandler::AI_Initialize(): map not set" << endl;
 		return false;
 	}
@@ -933,12 +934,12 @@ public:
 
 void do_some_tests_with_fastTraceLine() {
 	CVec start, target;
-	start.x = (float)(rand() % cClient->getMap()->GetWidth());
-	start.y = (float)(rand() % cClient->getMap()->GetHeight());
-	target.x = (float)(rand() % cClient->getMap()->GetWidth());
-	target.y = (float)(rand() % cClient->getMap()->GetHeight());
+	start.x = (float)(rand() % game.gameMap()->GetWidth());
+	start.y = (float)(rand() % game.gameMap()->GetHeight());
+	target.x = (float)(rand() % game.gameMap()->GetWidth());
+	target.y = (float)(rand() % game.gameMap()->GetHeight());
 
-	debug_print_col printer(cClient->getMap()->GetDebugImage());
+	debug_print_col printer(game.gameMap()->GetDebugImage());
 	fastTraceLine(target, start, PX_ROCK, printer);
 }
 #endif
@@ -1838,7 +1839,7 @@ bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos
 		return false;
 
 #ifdef DEBUG
-	//cClient->getMap()->ClearDebugImage();
+	//game.gameMap()->ClearDebugImage();
 #endif
 
 	// Check
@@ -1853,7 +1854,7 @@ bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos
 		last_y = y;
 
 #ifdef DEBUG
-		//PutPixel(cClient->getMap()->GetDebugImage(), CLAMP((int)x, 0, (int)cClient->getMap()->GetWidth()-1)*2, CLAMP((int)y, 0, (int)cClient->getMap()->GetHeight()-1)*2, Color(0, 255, 0));
+		//PutPixel(game.gameMap()->GetDebugImage(), CLAMP((int)x, 0, (int)game.gameMap()->GetWidth()-1)*2, CLAMP((int)y, 0, (int)game.gameMap()->GetHeight()-1)*2, Color(0, 255, 0));
 #endif
 	}
 
@@ -2465,7 +2466,7 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
     //
     // Case 1: The target is on the bottom of the level, a perfect spot to lob an indirect weapon
     //
-    if(cTrgPos.y > cClient->getMap()->GetHeight()-50 && fDistance < 200) {
+    if(cTrgPos.y > game.gameMap()->GetHeight()-50 && fDistance < 200) {
 		for (int i=0; i<5; i++)
 			if (!m_worm->tWeapons[i].Reloading && m_worm->tWeapons[i].Enabled)
 				if (m_worm->tWeapons[i].Weapon && m_worm->tWeapons[i].Weapon->Type == WPN_PROJECTILE)
@@ -2630,7 +2631,7 @@ int CWorm::traceLine(CVec target, float *fDist, int *nType, int divs)  {
 
 int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkflag)
 {
-    if( cClient->getMap() == NULL ) {
+    if( game.gameMap() == NULL ) {
 		errors << "CWorm::traceLine: map unset" << endl;
 		return 0;
 	}
@@ -2653,8 +2654,8 @@ int CWorm::traceLine(CVec target, CVec start, int *nType, int divs, uchar checkf
 
 	int i;
 	for(i=0; i<nTotalLength; i+=divisions) {
-		uchar px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
-		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
+		uchar px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
+		//game.gameMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
 
         if(!(px & checkflag)) {
 			if (nType)
@@ -2678,7 +2679,7 @@ CVec CWormBotInputHandler::AI_FindClosestFreeCell(CVec vPoint)
 // Trace the line for the current weapon
 int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 {
-	if( cClient->getMap() == NULL) {
+	if( game.gameMap() == NULL) {
 		errors << "AI:traceWeaponLine: map == NULL" << endl;
 		return 0;
 	}
@@ -2759,7 +2760,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 	int divs = first_division;
 	int j;
 	for(i=0; i<nTotalLength; i+=divs) {
-		uchar px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		if (i>first_division)  // we aren't close to a wall, so we can shoot through only thin wall
 			divs = divisions;
@@ -2946,7 +2947,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 
 int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 {
-    assert( cClient->getMap() != NULL );
+    assert( game.gameMap() != NULL );
 
 	int result = 0;
 
@@ -2959,8 +2960,8 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 	int i;
 	uchar px = PX_EMPTY;
 	for(i=0; i<nTotalLength; i+=divisions) {
-		px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
-		//cClient->getMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
+		px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
+		//game.gameMap()->PutImagePixel((int)pos.x, (int)pos.y, Color(255,0,0));
 
         if (px & PX_ROCK)
 			result++;
@@ -2990,10 +2991,10 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 			x = a*sinf(2*PI*i)+middle.x;
 			y = b*cosf(2*PI*i)+middle.y;
 			CVec point = CVec(x,y);
-			if (cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y ) & PX_ROCK)
+			if (game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y ) & PX_ROCK)
 				continue;
 
-			int rock_pixels = GetRockBetween(point,pos,cClient->getMap())+GetRockBetween(point,trg,cClient->getMap());
+			int rock_pixels = GetRockBetween(point,pos,game.gameMap())+GetRockBetween(point,trg,game.gameMap());
 			if (rock_pixels < min)  {
 				min = rock_pixels;
 				result.x=(point.x);
@@ -3013,7 +3014,7 @@ int CWormBotInputHandler::AI_GetRockBetween(CVec pos, CVec trg)
 CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirection, int Direction = -1)
 {
 #ifdef _AI_DEBUG
-//	SmartPointer<SDL_Surface> & bmpDest = cClient->getMap()->GetDebugImage();
+//	SmartPointer<SDL_Surface> & bmpDest = game.gameMap()->GetDebugImage();
 #endif
 
 	NormalizeVector(&vDirection);
@@ -3029,7 +3030,7 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 	CVec rememberPos2 = CVec(0,0);
 
 	for(i=0; 1; i++) {
-		uchar px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
@@ -3066,9 +3067,9 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.x > cClient->getMap()->GetWidth() || pos.x < 0)
+		if (pos.x > game.gameMap()->GetWidth() || pos.x < 0)
 			break;
-		if (pos.y > cClient->getMap()->GetHeight() || pos.y < 0)
+		if (pos.y > game.gameMap()->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3083,7 +3084,7 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 	pos = vPoint+vDev;
 
 	for(i=0; 1; i++) {
-		uchar px = cClient->getMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
+		uchar px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
 
 		// Empty pixel? Add it to the count
 		if(!(px & PX_ROCK)) {
@@ -3122,9 +3123,9 @@ CVec CWormBotInputHandler::AI_FindClosestFreeSpotDir(CVec vPoint, CVec vDirectio
 
 		pos = pos + vDirection;
 		// Clipping
-		if (pos.x > cClient->getMap()->GetWidth() || pos.x < 0)
+		if (pos.x > game.gameMap()->GetWidth() || pos.x < 0)
 			break;
-		if (pos.y > cClient->getMap()->GetHeight() || pos.y < 0)
+		if (pos.y > game.gameMap()->GetHeight() || pos.y < 0)
 			break;
 	}
 
@@ -3147,7 +3148,7 @@ void CWormBotInputHandler::AI_DrawPath()
 	if (!NEW_psPath)
 		return;
 
-	SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
+	SmartPointer<SDL_Surface> bmpDest = game.gameMap()->GetDebugImage();
 	if (!bmpDest.get())
 		return;
 
@@ -3271,7 +3272,7 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 // At least area_a cells around have to be free for this function to return true
 bool CWormBotInputHandler::AI_IsInAir(CVec pos, int area_a)
 {
-	if(pos.x < 0 || pos.y < 0 || pos.x >= cClient->getMap()->GetWidth() || pos.y >= cClient->getMap()->GetHeight())
+	if(pos.x < 0 || pos.y < 0 || pos.x >= game.gameMap()->GetWidth() || pos.y >= game.gameMap()->GetHeight())
 		return false;
 
 	const long w = area_a * 15;
@@ -3696,7 +3697,7 @@ find_one_visible_node:
 					fireNinja = true; // we have no other option
 				}
 				/* else
-					AI_SimpleMove(cClient->getMap(),psAITarget != NULL); */ // no weapon found, so move around
+					AI_SimpleMove(game.gameMap(),psAITarget != NULL); */ // no weapon found, so move around
 			}
 
 		// HINT: atm, fireNinja is always false here
@@ -3988,10 +3989,10 @@ CVec CWormBotInputHandler::AI_FindShootingSpot()
 	for (float j=lower_bound; j <= upper_bound; j += 0.3f)  {
 		possible_pos.x = 40.0f * sinf(j) + psAITarget->getPos().x;
 		possible_pos.y = 40.0f * cosf(j) + psAITarget->getPos().y;
-		//PutPixel(cClient->getMap()->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, Color(255, 0, 0));
+		//PutPixel(game.gameMap()->GetDebugImage(), possible_pos.x * 2, possible_pos.y * 2, Color(255, 0, 0));
 
 		if (AI_IsInAir(possible_pos, 1) && m_worm->traceLine(possible_pos, psAITarget->getPos(), NULL) >= 40)  {
-			//drawpoint(cClient->getMap()->GetDebugImage(), possible_pos);
+			//drawpoint(game.gameMap()->GetDebugImage(), possible_pos);
 			return possible_pos;
 		}
 	}

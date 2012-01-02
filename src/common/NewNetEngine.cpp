@@ -14,6 +14,7 @@
 #include "CWormHuman.h"
 #include "Entity.h"
 #include "CServer.h"
+#include "game/Game.h"
 
 namespace NewNet
 {
@@ -28,7 +29,7 @@ void SaveState()
 {
 	netRandom_Saved = netRandom;
 	cClientLastSimulationTime = cClient->fLastSimulationTime;
-	cClient->getMap()->NewNet_SaveToMemory();
+	game.gameMap()->NewNet_SaveToMemory();
 
 	cClient->NewNet_SaveProjectiles();
 	NewNet_SaveEntities();
@@ -41,7 +42,7 @@ void RestoreState()
 {
 	netRandom = netRandom_Saved;
 	cClient->fLastSimulationTime = cClientLastSimulationTime;
-	cClient->getMap()->NewNet_RestoreFromMemory();
+	game.gameMap()->NewNet_RestoreFromMemory();
 
 	cClient->NewNet_LoadProjectiles();
 	NewNet_LoadEntities();
@@ -55,9 +56,9 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 {
 	// This should use net synced Worm->NewNet_random for now, later I'll use respawn routines from CServer
 
-	float w = (float)cClient->getMap()->GetWidth();
-	float h = (float)cClient->getMap()->GetHeight();
-	CMap::PixelFlagAccess flags(cClient->getMap());
+	float w = (float)game.gameMap()->GetWidth();
+	float h = (float)game.gameMap()->GetHeight();
+	CMap::PixelFlagAccess flags(game.gameMap());
 	
 	// Find a random cell to start in - retry if failed
 	size_t tries = 1000;
@@ -66,7 +67,7 @@ static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::Fi
 		pos.x = Worm->NewNet_random.getFloatPositive() * w;
 		pos.y = Worm->NewNet_random.getFloatPositive() * h;
 
-		if(!cClient->getMap()->IsGoodSpawnPoint(flags, pos))
+		if(!game.gameMap()->IsGoodSpawnPoint(flags, pos))
 			continue;
 		
 		return pos;
@@ -159,7 +160,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				if( gameTime > w->getTimeofDeath() + 2.5f )
 				{
 					CVec spot = NewNet_FindSpot(w);
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
+					game.gameMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
 					w->Spawn( spot );
 					// Show a spawn entity
 					SpawnEntity(ENT_SPAWN,0,spot,CVec(0,0),Color(),NULL);
@@ -195,11 +196,11 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 static unsigned getMapChecksum()
 {
 	unsigned checksum = 0;
-	cClient->getMap()->lockFlags();
-	for(size_t y = 0; y < cClient->getMap()->GetHeight(); ++y)
-		for(size_t x = 0; x < cClient->getMap()->GetWidth(); ++x)
-			checksum += ( ( cClient->getMap()->GetPixelFlag(x,y) & PX_EMPTY ) + ( cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT ) * 2 ) * ( (y*cClient->getMap()->GetWidth()+x) % 0x1000000 + 1 );
-	cClient->getMap()->unlockFlags();
+	game.gameMap()->lockFlags();
+	for(size_t y = 0; y < game.gameMap()->GetHeight(); ++y)
+		for(size_t x = 0; x < game.gameMap()->GetWidth(); ++x)
+			checksum += ( ( game.gameMap()->GetPixelFlag(x,y) & PX_EMPTY ) + ( game.gameMap()->GetPixelFlag(x,y) & PX_DIRT ) * 2 ) * ( (y*game.gameMap()->GetWidth()+x) % 0x1000000 + 1 );
+	game.gameMap()->unlockFlags();
 	return checksum;
 }
 #endif
@@ -267,7 +268,7 @@ void StartRound( unsigned randomSeed )
 					NumPlayers ++;
 					cClient->getRemoteWorms()[i].NewNet_InitWormState(randomSeed + i);
 					CVec spot = NewNet_FindSpot( &cClient->getRemoteWorms()[i] );
-					cClient->getMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
+					game.gameMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
 					cClient->getRemoteWorms()[i].Spawn( spot );
 				};
 			}
@@ -281,7 +282,7 @@ void StartRound( unsigned randomSeed )
 void EndRound()
 {
 	RestoreState();
-	cClient->getMap()->NewNet_Deinit();
+	game.gameMap()->NewNet_Deinit();
 	delete [] SavedWormState;
 	SavedWormState = NULL;
 	NewNetActive = false;

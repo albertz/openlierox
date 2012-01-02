@@ -196,7 +196,7 @@ void CClient::Simulation()
 
 	// Weather
 	// TODO: if this will be implemented once, this should be moved to the PhysicsEngine
-	//cWeather.Simulate(tLX->fDeltaTime, cMap);
+	//cWeather.Simulate(tLX->fDeltaTime, game.gameMap());
 
 	// Projectiles
 	if(shouldDoProjectileSimulation())
@@ -280,27 +280,27 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 	
 	{
 		int		x,y,px;
-		if(cMap->GetTheme())
-			DirtEntityColour = cMap->GetTheme()->iDefaultColour;
+		if(game.gameMap()->GetTheme())
+			DirtEntityColour = game.gameMap()->GetTheme()->iDefaultColour;
 
 		// Go through until we find dirt to throw around
-		y = MIN((uint)pos.y,cMap->GetHeight()-1);
+		y = MIN((uint)pos.y,game.gameMap()->GetHeight()-1);
 
 		px = (uint)pos.x;
 
-		LOCK_OR_QUIT(cMap->GetImage());
+		LOCK_OR_QUIT(game.gameMap()->GetImage());
 		for(x=px-2; x<px+2; x++) {
 			// Clipping
 			if(x < 0)	continue;
-			if(x >= (int)cMap->GetWidth())	break;
+			if(x >= (int)game.gameMap()->GetWidth())	break;
 
-			if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-				DirtEntityColour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
+			if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
+				DirtEntityColour = Color(game.gameMap()->GetImage()->format, GetPixel(game.gameMap()->GetImage().get(),x,y));
 				gotDirt = true;
 				break;
 			}
 		}
-		UnlockSurface(cMap->GetImage());
+		UnlockSurface(game.gameMap()->GetImage());
 	}
 	
 	// Go through bonuses. If any were next to an explosion, destroy the bonus explosivly
@@ -350,7 +350,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 	// Explosion
 	SpawnEntity(ENT_EXPLOSION, expsize, pos, CVec(0,0),Color(),NULL);
 
-	int d = cMap->CarveHole((int)damage,pos, getGameLobby()[FT_InfiniteMap]);
+	int d = game.gameMap()->CarveHole((int)damage,pos, getGameLobby()[FT_InfiniteMap]);
 
     // Increment the dirt count
 	if(owner >= 0 && owner < MAX_WORMS)
@@ -543,33 +543,33 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 void CClient::SendCarve(CVec pos)
 {
 	int x,y,n,px;
-	Color Colour = cMap->GetTheme()->iDefaultColour;
+	Color Colour = game.gameMap()->GetTheme()->iDefaultColour;
 
 	// Go through until we find dirt to throw around
-	y = MIN((int)pos.y,cMap->GetHeight()-1);
+	y = MIN((int)pos.y,game.gameMap()->GetHeight()-1);
 	y = MAX(y,0);
 	px = (int)pos.x;
 
-	LOCK_OR_QUIT(cMap->GetImage());
+	LOCK_OR_QUIT(game.gameMap()->GetImage());
 	for(x=px-2; x<=px+2; x++) {
 		// Clipping
 		if(x<0)	continue;
-		if((uint)x>=cMap->GetWidth())	break;
+		if((uint)x>=game.gameMap()->GetWidth())	break;
 
-		if(cMap->GetPixelFlag(x,y) & PX_DIRT) {
-			Colour = Color(cMap->GetImage()->format, GetPixel(cMap->GetImage().get(),x,y));
+		if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
+			Colour = Color(game.gameMap()->GetImage()->format, GetPixel(game.gameMap()->GetImage().get(),x,y));
 			for(n=0;n<3;n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
 			break;
 		}
 	}
-	UnlockSurface(cMap->GetImage());
+	UnlockSurface(game.gameMap()->GetImage());
 
 	/*for(x=0;x<3;x++)
 		SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour);*/
 
 	// Just carve a hole for the moment
-	cMap->CarveHole(4,pos, (bool)getGameLobby()[FT_InfiniteMap]);
+	game.gameMap()->CarveHole(4,pos, (bool)getGameLobby()[FT_InfiniteMap]);
 }
 
 
@@ -721,7 +721,7 @@ void CClient::DrawBeam(CWorm *w)
 	for(int i=0; i<Slot->Weapon->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(Slot->Weapon->Bm.InitWidth) + Slot->Weapon->Bm.WidthIncrease * i);
-			newWidth = MIN( newWidth, MIN( cMap->GetWidth(), cMap->GetHeight() ) );
+			newWidth = MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
@@ -740,7 +740,7 @@ void CClient::DrawBeam(CWorm *w)
 
 				int o = (j % 2 == 0) ? int(j/2) : - int((j + 1)/2);
 				CVec p = pos + orth_dir * o;
-				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
+				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : game.gameMap()->GetPixelFlag( (int)p.x, (int)p.y );
 
 				if((px & PX_DIRT) || (px & PX_ROCK)) {
 					// Don't draw explosion when damage is -1
@@ -748,7 +748,7 @@ void CClient::DrawBeam(CWorm *w)
 						if(width <= 2) SpawnEntity(ENT_EXPLOSION, 5, p, CVec(0,0), Color(), NULL);
 						int damage = Slot->Weapon->Bm.Damage;
 						if(Slot->Weapon->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(Slot->Weapon->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
+						int d = game.gameMap()->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						w->incrementDirtCount(d);
 					}
 					
@@ -950,7 +950,7 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 
 	short i;
 	for(i=0; i<9999; i+=divisions) {
-		const Material& px = cMap->getMaterialWrapped( (int)pos.x, (int)pos.y );
+		const Material& px = game.gameMap()->getMaterialWrapped( (int)pos.x, (int)pos.y );
 
 		if(!px.particle_pass)
 			break;
@@ -1229,7 +1229,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	for(int i=0; i<wpn->Bm.Length; ++i) {
 		{
 			int newWidth = int(float(wpn->Bm.InitWidth) + wpn->Bm.WidthIncrease * i);
-			newWidth = MIN( newWidth, MIN( cMap->GetWidth(), cMap->GetHeight() ) );
+			newWidth = MIN( newWidth, MIN( game.gameMap()->GetWidth(), game.gameMap()->GetHeight() ) );
 			if(newWidth != width) {
 				goodWidthParts.resize(newWidth);
 				for(int j = width; j < newWidth; ++j) {
@@ -1248,7 +1248,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 				
 				int o = (j % 2 == 0) ? int(j/2) : - int((j + 1)/2);
 				CVec p = pos + orth_dir * o;
-				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : cMap->GetPixelFlag( (int)p.x, (int)p.y );
+				uchar px = (p.x <= 0 || p.y <= 0) ? PX_ROCK : game.gameMap()->GetPixelFlag( (int)p.x, (int)p.y );
 			
 				// Check bonus colision and destroy the bonus, if damage isn't -1
 				if (wpn->Bm.Damage != -1)  {
@@ -1274,7 +1274,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 						//SpawnEntity(ENT_EXPLOSION, 5, pos, CVec(0,0), 0, NULL);
 						int damage = wpn->Bm.Damage;
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.Damage); }
-						int d = cMap->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
+						int d = game.gameMap()->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
 							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
 					}

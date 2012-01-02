@@ -88,14 +88,14 @@ public:
 	// Check collisions with the level
 	// HINT: it directly manipulates vPos!
 	bool moveAndCheckWormCollision(AbsTime currentTime, float dt, CWorm* worm, CVec pos, CVec *vel, CVec vOldPos, bool jump ) {
-		static const int maxspeed2 = 10; // this should not be too high as we could run out of the cClient->getMap() without checking else
+		static const int maxspeed2 = 10; // this should not be too high as we could run out of the game.gameMap() without checking else
 
 		// Can happen when starting a game
-		if (!cClient->getMap())
+		if (!game.gameMap())
 			return false;
 
 		// check if the vel is really too high (or infinity), in this case just ignore
-		if( (*vel*dt*worm->speedFactor()).GetLength2() > (float)cClient->getMap()->GetWidth() * (float)cClient->getMap()->GetHeight() )
+		if( (*vel*dt*worm->speedFactor()).GetLength2() > (float)game.gameMap()->GetWidth() * (float)game.gameMap()->GetHeight() )
 			return true;		
 		
 		// If the worm is going too fast, divide the speed by 2 and perform 2 collision checks
@@ -110,8 +110,8 @@ public:
 		bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
 		pos += *vel * dt * worm->speedFactor();
 		if(wrapAround) {
-			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
-			FMOD(pos.y, (float)cClient->getMap()->GetHeight());
+			FMOD(pos.x, (float)game.gameMap()->GetWidth());
+			FMOD(pos.y, (float)game.gameMap()->GetHeight());
 		}
 		worm->pos() = pos;
 		
@@ -121,7 +121,7 @@ public:
 		short clip = 0; // 0x1=left, 0x2=right, 0x4=top, 0x8=bottom
 		bool coll = false;
 
-		if(y >= 0 && (uint)y < cClient->getMap()->GetHeight()) {
+		if(y >= 0 && (uint)y < game.gameMap()->GetHeight()) {
 			for(x=-3;x<4;x++) {
 				// Optimize: pixelflag++
 				
@@ -138,8 +138,8 @@ public:
 				}
 
 				// Right side clipping
-				if(!wrapAround && (pos.x+x >= cClient->getMap()->GetWidth())) {
-					worm->pos().x=( (float)cClient->getMap()->GetWidth() - 5 );
+				if(!wrapAround && (pos.x+x >= game.gameMap()->GetWidth())) {
+					worm->pos().x=( (float)game.gameMap()->GetWidth() - 5 );
 					coll = true;
 					clip |= 0x02;
 					if(fabs(vel->x) > 40)
@@ -149,8 +149,8 @@ public:
 					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
-				int posx = (int)pos.x + x; if(wrapAround) { posx %= (int)cClient->getMap()->GetWidth(); if(posx < 0) posx += cClient->getMap()->GetWidth(); }
-				if(!(cClient->getMap()->GetPixelFlag(posx,y) & PX_EMPTY)) {
+				int posx = (int)pos.x + x; if(wrapAround) { posx %= (int)game.gameMap()->GetWidth(); if(posx < 0) posx += game.gameMap()->GetWidth(); }
+				if(!(game.gameMap()->GetPixelFlag(posx,y) & PX_EMPTY)) {
 					coll = true;
 
 					// NOTE: Be carefull that you don't do any float->int->float conversions here.
@@ -175,7 +175,7 @@ public:
 
 		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
 		if(wrapAround) {
-			FMOD(pos.x, (float)cClient->getMap()->GetWidth());
+			FMOD(pos.x, (float)game.gameMap()->GetWidth());
 		}
 		
 		worm->setOnGround( false );
@@ -183,7 +183,7 @@ public:
 		bool hit = false;
 		x = (int)pos.x;
 
-		if(x >= 0 && (uint)x < cClient->getMap()->GetWidth()) {
+		if(x >= 0 && (uint)x < game.gameMap()->GetWidth()) {
 			for(y=5;y>-5;y--) {
 				// Optimize: pixelflag + Width
 
@@ -202,8 +202,8 @@ public:
 				}
 
 				// Bottom side clipping
-				if(!wrapAround && (pos.y+y >= cClient->getMap()->GetHeight())) {
-					worm->pos().y=( (float)cClient->getMap()->GetHeight() - 5 );
+				if(!wrapAround && (pos.y+y >= game.gameMap()->GetHeight())) {
+					worm->pos().y=( (float)game.gameMap()->GetHeight() - 5 );
 					clip |= 0x08;
 					coll = true;
 					worm->setOnGround( true );
@@ -214,8 +214,8 @@ public:
 					continue; // Note: This was break in LX56, but continue is really better here
 				}
 
-				int posy = (int)pos.y + y; if(wrapAround) { posy %= (int)cClient->getMap()->GetHeight(); if(posy < 0) posy += cClient->getMap()->GetHeight(); }
-				if(!(cClient->getMap()->GetPixelFlag(x,posy) & PX_EMPTY)) {
+				int posy = (int)pos.y + y; if(wrapAround) { posy %= (int)game.gameMap()->GetHeight(); if(posy < 0) posy += game.gameMap()->GetHeight(); }
+				if(!(game.gameMap()->GetPixelFlag(x,posy) & PX_EMPTY)) {
 					coll = true;
 
 					if(!hit && !jump) {
@@ -244,7 +244,7 @@ public:
 		
 		// In case of this, it could be that we need to do a FMOD. Just do it to be sure.
 		if(wrapAround) {
-			FMOD(pos.y, (float)cClient->getMap()->GetHeight());			
+			FMOD(pos.y, (float)game.gameMap()->GetHeight());			
 		}
 		
 		// If we are stuck in left & right or top & bottom, just don't move in that direction
@@ -592,12 +592,12 @@ public:
 		
 		bool outsideMap = false;
 
-		// Hack to see if the hook went out of the cClient->getMap()
+		// Hack to see if the hook went out of the game.gameMap()
 		if(!rope->isPlayerAttached() && !wrapAround)
 			if(
 				rope->hookPos().x <= 0 || rope->hookPos().y <= 0 ||
-				rope->hookPos().x >= cClient->getMap()->GetWidth()-1 ||
-				rope->hookPos().y >= cClient->getMap()->GetHeight()-1) {
+				rope->hookPos().x >= game.gameMap()->GetWidth()-1 ||
+				rope->hookPos().y >= game.gameMap()->GetHeight()-1) {
 			rope->setShooting( false );
 			rope->setAttached( true );
 
@@ -605,29 +605,29 @@ public:
 			rope->hookPos().x = ( MAX((float)0, rope->hookPos().x) );
 			rope->hookPos().y = ( MAX((float)0, rope->hookPos().y) );
 
-			rope->hookPos().x = ( MIN(cClient->getMap()->GetWidth()-(float)1, rope->hookPos().x) );
-			rope->hookPos().y = ( MIN(cClient->getMap()->GetHeight()-(float)1, rope->hookPos().y) );
+			rope->hookPos().x = ( MIN(game.gameMap()->GetWidth()-(float)1, rope->hookPos().x) );
+			rope->hookPos().y = ( MIN(game.gameMap()->GetHeight()-(float)1, rope->hookPos().y) );
 
 			outsideMap = true;
 		}
 
 
-		// Check if the hook has hit anything on the cClient->getMap()
+		// Check if the hook has hit anything on the game.gameMap()
 		if(!rope->isPlayerAttached()) {
 			rope->setAttached( false );
 
 			VectorD2<long> wrappedHookPos = rope->hookPos();
-			MOD(wrappedHookPos.x, (long)cClient->getMap()->GetWidth());
-			MOD(wrappedHookPos.y, (long)cClient->getMap()->GetHeight());
+			MOD(wrappedHookPos.x, (long)game.gameMap()->GetWidth());
+			MOD(wrappedHookPos.y, (long)game.gameMap()->GetHeight());
 			
-			const Material& px = cClient->getMap()->getMaterial(wrappedHookPos.x, wrappedHookPos.y);
+			const Material& px = game.gameMap()->getMaterial(wrappedHookPos.x, wrappedHookPos.y);
 			if(!px.particle_pass || outsideMap) {
 				rope->setShooting( false );
 				rope->setAttached( true );
 				rope->hookVelocity() = CVec(0,0);
 
 				if(px.destroyable && firsthit) {
-					Color col = cClient->getMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
+					Color col = game.gameMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
 					for( short i=0; i<5; i++ )
 						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
 				}
@@ -723,8 +723,8 @@ public:
 		y = py-2;
 
 
-		mw = cClient->getMap()->GetWidth();
-		mh = cClient->getMap()->GetHeight();
+		mw = game.gameMap()->GetWidth();
+		mh = game.gameMap()->GetHeight();
 
 		for(y=py-2; y<=py+2; y++) {
 
@@ -752,7 +752,7 @@ public:
 					return;
 				}
 
-				if(cClient->getMap()->GetPixelFlag(x,y) & (PX_DIRT|PX_ROCK)) {
+				if(game.gameMap()->GetPixelFlag(x,y) & (PX_DIRT|PX_ROCK)) {
 					colideBonus(bonus, x,y);
 					return;
 				}
@@ -766,7 +766,7 @@ public:
 		if(!cClient->getGameLobby()[FT_Bonuses])
 			return;
 
-		if(!cClient->getMap()) return;
+		if(!game.gameMap()) return;
 
 		CBonus *b = bonuses;
 

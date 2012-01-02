@@ -207,7 +207,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 	// atm we only have the debugimage available if _AI_DEBUG is set
 	// this should be changed to DEBUG
 #ifdef _AI_DEBUG
-/*	SmartPointer<SDL_Surface> bmpDest = cClient->getMap()->GetDebugImage();
+/*	SmartPointer<SDL_Surface> bmpDest = game.gameMap()->GetDebugImage();
 	if (bmpDest) {
 		int node_x = (int)newpos.x*2, node_y = (int)newpos.y*2;
 		int onode_x = (int)vPos.x*2, onode_y = (int)vPos.y*2;
@@ -381,8 +381,8 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	}
 	
 	// If the worm is inside dirt then it is probably carving
-	if (tLX->iGameType == GME_HOST && cServer->getMap())
-		if(cServer->getMap()->GetPixelFlag(x, y) & PX_DIRT)
+	if (tLX->iGameType == GME_HOST && game.gameMap())
+		if(game.gameMap()->GetPixelFlag(x, y) & PX_DIRT)
 			tState.bCarve = true;
 }
 
@@ -529,7 +529,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 
 	// do carving also here as the simulation is only done in next frame and with an updated position
 	
-	if(cClient->isMapReady()) {
+	if(game.isMapReady()) {
 		/* Earlier, we had calculated from the whole way from vOldPos to vPos (just the direct linear way).
 		 * That had several issues:
 		 *   - vOldPos could be wrong or very inaccurate for several reasons (big lag or hideandseek or something)
@@ -540,7 +540,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 		incrementDirtCount( CarveHole(vPos) );
 	}
 	
-	if(tState.bCarve && cClient->isMapReady()) {
+	if(tState.bCarve && game.isMapReady()) {
 		/* If we get the updates too infrequently, it could be that we don't have carved everything.
 		 * Thus, if the len is not too big, we still carve the whole way.
 		 */
@@ -554,7 +554,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	}
 	
 	// carve a bit further were we are heading to (same as in simulation)
-	if(tState.bCarve && cClient->isMapReady()) {
+	if(tState.bCarve && game.isMapReady()) {
 
 		// Calculate dir
 		const CVec dir = getFaceDirection();

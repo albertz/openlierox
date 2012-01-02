@@ -50,27 +50,27 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		pos = *_pos;
 	else
 	{
-		if( cMap->getPredefinedSpawnLocation(Worm, &pos) ) {
+		if( game.gameMap()->getPredefinedSpawnLocation(Worm, &pos) ) {
 			// ok
 		}
 		else if( game.gameMode() == GameMode(GM_CTF) ) {
 			Flag* flag = m_flagInfo->getFlag(Worm->getTeam());
 			if(!flag) // no flag yet, choose like in respawngroupteams
-				pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
+				pos = game.gameMap()->FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
 			else
-				pos = cMap->FindSpotCloseToPos(flag->spawnPoint.pos);
+				pos = game.gameMap()->FindSpotCloseToPos(flag->spawnPoint.pos);
 		}
 		// Spawn worm closer to it's own team and away from other teams
 		else if( gameSettings[FT_RespawnGroupTeams] && ( game.gameMode()->GameTeams() > 1 ) )
 		{
-			pos = cMap->FindSpotCloseToTeam(Worm->getTeam(), Worm);
+			pos = game.gameMap()->FindSpotCloseToTeam(Worm->getTeam(), Worm);
 		}
 		else
-			pos = cMap->FindSpot();			
+			pos = game.gameMap()->FindSpot();			
 	}
 
 	if(pos.x == -1 && pos.y == -1)
-		pos = cMap->FindSpot();
+		pos = game.gameMap()->FindSpot();
 
 	// Allow the game mode to override spawns
 	if(!game.gameMode()->Spawn(Worm, pos))
@@ -266,7 +266,7 @@ void GameServer::SpawnBonus()
 	CVec pos = game.gameMap()->FindSpot();
 
 	// Carve a hole for it
-	//cMap->CarveHole(SPAWN_HOLESIZE,pos);
+	//game.gameMap()->CarveHole(SPAWN_HOLESIZE,pos);
 
 	// NOTE: Increase to 2 when we want to use the fullcharge bonus
 	int type = (GetRandomInt(999) >= (float)gameSettings[FT_BonusHealthToWeaponChance] * 1000.0f) ? BNS_HEALTH : BNS_WEAPON;

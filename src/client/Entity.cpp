@@ -26,6 +26,7 @@
 #include "CWorm.h"
 #include "Consts.h"
 #include "Geometry.h"
+#include "game/Game.h"
 
 typedef FastVector<entity_t,MAX_ENTITIES> Entities;
 Entities tEntities;
@@ -313,7 +314,7 @@ void DrawEntities(SDL_Surface * bmpDest, CViewport *v)
 // Simulate the entities
 void SimulateEntities(TimeDiff dt)
 {
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	if (!map) { // Weird
 		hints << "SimulateEntities gots no map" << endl;
 		return;

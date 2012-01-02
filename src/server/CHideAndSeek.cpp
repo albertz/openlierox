@@ -362,7 +362,7 @@ void CHideAndSeek::GenerateTimes()
 
 	// E.g. in writelobbyupdate by server, we don't have the map loaded yet.
 	// Thus try a preloaded version.
-	CMap* cMap = cServer->getPreloadedMap();
+	CMap* cMap = game.gameMap();
 	if(!cMap) {
 		warnings << "CHideAndSeek::GenerateTimes(): cannot get map" << endl;
 		fGameLength = 160;

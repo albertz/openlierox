@@ -30,6 +30,7 @@
 #include "DeprecatedGUI/CSlider.h"
 #include "Music.h"
 #include "ConversationLogger.h"
+#include "game/Game.h"
 
 
 namespace DeprecatedGUI {
@@ -361,8 +362,8 @@ void Menu_FloatingOptionsOkClose()
 	if (bChangedAntiAliasing)  {
 		// HINT: options are already updated here
 
-		if (cClient->getMap())
-			cClient->getMap()->UpdateDrawImage(0, 0, cClient->getMap()->GetWidth(), cClient->getMap()->GetHeight());
+		if (game.gameMap())
+			game.gameMap()->UpdateDrawImage(0, 0, game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
 	}
 
 	Menu_FloatingOptionsShutdown();	

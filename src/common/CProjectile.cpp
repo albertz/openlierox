@@ -173,7 +173,7 @@ void CProjectile::CalculateCheckSteps()
 int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 {
 	// Check if it hit the terrain
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	int mw = map->GetWidth();
 	int mh = map->GetHeight();
 	int w,h;
@@ -226,7 +226,7 @@ int CProjectile::CheckCollision(proj_t* tProjInfo, float dt, CVec pos, CVec vel)
 // Draw the projectile
 void CProjectile::Draw(SDL_Surface * bmpDest, CViewport *view)
 {
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 	VectorD2<int> p = view->physicToReal(vPos, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight());
 	
     switch (tProjInfo->Type) {
@@ -327,7 +327,7 @@ void CProjectile::DrawShadow(SDL_Surface * bmpDest, CViewport *view)
 	if (tLX->fDeltaTime >= 0.1f) // Don't draw projectile shadows with FPS <= 10 to get a little better performance
 		return;
 
-	CMap* map = cClient->getMap();
+	CMap* map = game.gameMap();
 
 	// TODO: DrawObjectShadow is a bit complicated to fix for shadows&tiling, so I just leave all shadows away for now...
 	if(!view->physicsInside(vPos /*, cClient->getGameLobby()[FT_InfiniteMap], map->GetWidth(), map->GetHeight() */))
@@ -442,7 +442,7 @@ template<bool INSERT>
 static void updateMap(CProjectile* prj, const VectorD2<int>& p, const VectorD2<int>& r) {
 	for(int x = MPI<true,true>(p,r).x; x <= MPI<true,false>(p,r).x; ++x)
 		for(int y = MPI<true,true>(p,r).y; y <= MPI<false,true>(p,r).y; ++y) {
-			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(cClient->getMap())];
+			CClient::ProjectileSet* projs = cClient->projPosMap[CClient::MapPosIndex(x,y).index(game.gameMap())];
 			if(projs == NULL) continue;
 			if(INSERT)
 				projs->insert(prj);

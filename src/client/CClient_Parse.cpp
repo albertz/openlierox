@@ -820,8 +820,10 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	
 	int random = bs->readInt(1);
 	std::string sMapFilename;
-	if(!random)
+	if(!random) {
 		sMapFilename = bs->readString();
+		client->getGameLobby()[FT_Map].as<LevelInfo>()->path = GetBaseFilename(sMapFilename);
+	}
 	
 	// Other game details
 	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType = bs->readInt(1);
@@ -853,16 +855,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
 		client->bGameReady = false;
 		return false;
-	}
-
-	// Clear any previous instances of the map
-	if(tLX->iGameType == GME_JOIN) {
-		if(client->cMap) {
-			client->cMap->Shutdown();
-			delete client->cMap;
-			client->cMap = NULL;
-			cServer->resetMap();
-		}
 	}
 
 	client->m_flagInfo->reset();
@@ -904,24 +896,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 	
-
-	if(tLX->iGameType == GME_JOIN) {
-		client->cMap = new CMap;
-		if(client->cMap == NULL) {
-
-			// Disconnect
-			client->Disconnect();
-
-			DeprecatedGUI::Menu_MessageBox("Out of memory", "Out of memory when allocating the map.", DeprecatedGUI::LMB_OK);
-
-			client->bGameReady = false;
-
-			errors << "CClientNetEngine::ParsePrepareGame: out of memory when allocating map" << endl;
-
-			return false;
-		}
-	}
-
 	if(random) 
 	{
 		// TODO: why don't we support that anymore? and since when?
@@ -952,8 +926,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			if (!client->bDownloadingMap)  {
 				client->bWaitingForMap = false;
 
-				client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
-				if(!client->cMap->Load(sMapFilename)) {
+				if(NegResult r = game.loadMap()) {
 					notes << "CClientNetEngine::ParsePrepareGame: could not load map " << sMapFilename << endl;
 
 					// Show a cannot load level error message
@@ -963,7 +936,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 					DeprecatedGUI::Menu_MessageBox(
 						"Loading Error",
-						std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError(),
+						std::string("Could not load the level '") + sMapFilename + "'.\n" + LxGetLastError() + "\n" + r.res.humanErrorMsg,
 						DeprecatedGUI::LMB_OK);
 					client->bClientError = true;
 
@@ -974,26 +947,19 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 					return false;
 				}
+				
+				game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
 			} else {
 				client->bWaitingForMap = true;
 				notes << "Client: we got PrepareGame but we have to wait first until the download of the map finishes" << endl;
 			}
 		} else { // GME_HOST
-			assert(cServer);
-
-            // Grab the server's copy of the map
-			client->cMap = cServer->getMap();
-			if (!client->cMap)  {  // Bad packet
-				errors << "our server has map unset" << endl;
-				client->bGameReady = false;
-				return false;
-			}
 			
-			client->cMap->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
+			game.gameMap()->SetMinimapDimensions(client->tInterfaceSettings.MiniMapW, client->tInterfaceSettings.MiniMapH);
 			client->bMapGrabbed = true;
 		
-			if(client->cMap->getFilename() != sMapFilename) {
-				errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << client->cMap->getFilename() << endl;
+			if(game.gameMap()->getFilename() != sMapFilename) {
+				errors << "Client (in host mode): we got PrepareGame for map " << sMapFilename << " but server has loaded map " << game.gameMap()->getFilename() << endl;
 				client->bGameReady = false;
 				return false;
 			}
@@ -1025,7 +991,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
     game.weaponRestrictions()->readList(bs);
 	
 	client->projPosMap.clear();
-	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(client->cMap->GetWidth(), client->cMap->GetHeight())).index(client->cMap) );
+	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
 	client->cProjectiles.clear();
 
 	client->getGameLobby()[FT_GameSpeed] = 1.0f;
@@ -1392,17 +1358,17 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 		return;
 	}
 
-	if (!client->cMap) {
-		warnings << "CClientNetEngine::ParseSpawnWorm: cMap not set (packet ignored)" << endl;
+	if (!game.gameMap()) {
+		warnings << "CClientNetEngine::ParseSpawnWorm: game.gameMap() not set (packet ignored)" << endl;
 		return;
 	}
 
 	// Is the spawnpoint in the map?
-	if (x > (int)client->cMap->GetWidth() || x < 0)  {
+	if (x > (int)game.gameMap()->GetWidth() || x < 0)  {
 		warnings << "CClientNetEngine::ParseSpawnWorm: X-coordinate not in map (" << x << ")" << endl;
 		return;
 	}
-	if (y > (int)client->cMap->GetHeight() || y < 0)  {
+	if (y > (int)game.gameMap()->GetHeight() || y < 0)  {
 		warnings << "CClientNetEngine::ParseSpawnWorm: Y-coordinate not in map (" << y << ")" << endl;
 		return;
 	}
@@ -1420,7 +1386,7 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 
 	client->cRemoteWorms[id].Spawn(p);
 
-	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
+	game.gameMap()->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
 	if(client->isWormVisibleOnAnyViewport(id)) {
 		// Show a spawn entity but only if worm is not hidden on any of our local viewports
@@ -1918,17 +1884,17 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 		return;
 	}
 
-	if (!client->cMap) { // Weird
-		warnings << "CClientNetEngine::ParseSpawnBonus: cMap not set" << endl;
+	if (!game.gameMap()) { // Weird
+		warnings << "CClientNetEngine::ParseSpawnBonus: game.gameMap() not set" << endl;
 		return;
 	}
 
-	if (x > (int)client->cMap->GetWidth() || x < 0)  {
+	if (x > (int)game.gameMap()->GetWidth() || x < 0)  {
 		warnings << "CClientNetEngine::ParseSpawnBonus: X-coordinate not in map (" << x << ")" << endl;
 		return;
 	}
 
-	if (y > (int)client->cMap->GetHeight() || y < 0)  {
+	if (y > (int)game.gameMap()->GetHeight() || y < 0)  {
 		warnings << "CClientNetEngine::ParseSpawnBonus: Y-coordinate not in map (" << y << ")" << endl;
 		return;
 	}
@@ -1936,7 +1902,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 	CVec p = CVec( (float)x, (float)y );
 
 	client->cBonuses[id].Spawn(p, type, wpn, game.gameScript());
-	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
+	game.gameMap()->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
 }
@@ -2146,7 +2112,7 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 		return;
 	}
 	
-	if(!client->bGameReady || !client->cMap || !client->cMap->isLoaded()) {
+	if(!client->bGameReady || !game.gameMap() || !game.gameMap()->isLoaded()) {
 		// We could receive an update if we didn't got the preparegame package yet.
 		// This is because all the data about the preparegame could be sent in multiple packages
 		// and each reliable package can contain a worm update.

@@ -63,7 +63,6 @@ GameServer::GameServer() {
 	iState = SVS_LOBBY;
 	m_flagInfo = NULL;
 	cClients = NULL;
-	cMap = NULL;
 	cWorms = NULL;
 	iNumPlayers = 0;
 	Clear();
@@ -81,7 +80,6 @@ void GameServer::setDefaultWeaponRestFile() { gameSettings.overwrite[FT_WeaponRe
 void GameServer::Clear()
 {
 	cClients = NULL;
-	cMap = NULL;
 	//cProjectiles = NULL;
 	cWorms = NULL;
 	iState = SVS_LOBBY;
@@ -383,51 +381,18 @@ int GameServer::StartGame(std::string* errMsg)
 	cClient->SetPermanentText("");
 	
 	
-	// Load the game script
 	if(NegResult r = game.loadMod()) {
 		errors << "Error while loading mod: " << r.res.humanErrorMsg << endl;
 		if(errMsg) *errMsg = "Error while loading mod: " + r.res.humanErrorMsg;
 		return false;
 	}
 	
-	// TODO: why delete + create new map instead of simply shutdown/clear map?
-	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
-	
-	// Shutdown any previous map instances
-	if(cMap) {
-		cMap->Shutdown();
-		delete cMap;
-		cMap = NULL;
-		cClient->resetMap();
-	}
-	
-	// Create the map
-mapCreate:
-	cMap = new CMap;
-	if(cMap == NULL) {
-		SetError("Error: Out of memory!\nsv::Startgame() " + itoa(__LINE__));
-		if(cCache.GetEntryCount() > 0) {
-			hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-			cCache.Clear();
-			goto mapCreate;
-		}
-		if(errMsg) *errMsg = "Out of memory while loading map";
+	if(NegResult r = game.loadMap()) {
+		errors << "Error while loading map: " << r.res.humanErrorMsg << endl;
+		if(errMsg) *errMsg = "Error while loading map: " + r.res.humanErrorMsg;
 		return false;
 	}
-	
-	
 	bRandomMap = false;
-	{
-		timer = SDL_GetTicks()/1000.0f;
-		std::string sMapFilename = "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path;
-		if(!cMap->Load(sMapFilename)) {
-			errors << "Server StartGame: Could not load the level " << gameSettings[FT_Map].as<LevelInfo>()->path << endl;
-			if(errMsg) *errMsg = "Could not load level " + gameSettings[FT_Map].as<LevelInfo>()->path;
-			return false;
-		}
-		notes << "Server Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
-	}
-	
 	
 	iState = SVS_GAME;		// In-game, waiting for players to load
 	iServerFrame = 0;
@@ -2420,34 +2385,6 @@ bool GameServer::allWormsHaveFullLives() const {
 }
 
 
-CMap* GameServer::getPreloadedMap() {
-	if(cMap) return cMap;
-	
-	std::string sMapFilename = "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path;
-	
-	// Try to get the map from cache.
-	CMap* cachedMap = cCache.GetMap(sMapFilename).get();
-	if(cachedMap) return cachedMap;
-	
-	// Ok, the map was not in the cache.
-	// Just load the map in that case. (It'll go into the cache,
-	// so GS::StartGame() or the next access to it is fast.)
-	cMap = new CMap;
-	if(cMap == NULL) {
-		errors << "GameServer::getPreloadedMap(): out of mem while init map" << endl;
-		return NULL;
-	}
-	if(!cMap->Load(sMapFilename)) {
-		warnings << "GameServer::getPreloadedMap(): cannot load map " << gameSettings[FT_Map].as<LevelInfo>()->path << endl;
-		delete cMap;
-		cMap = NULL;
-		return NULL; // nothing we can do anymore
-	}
-	
-	return cMap;
-}
-
-
 ///////////////////
 // Notify the host about stuff
 void GameServer::notifyLog(const std::string& msg)
@@ -2542,12 +2479,6 @@ void GameServer::Shutdown()
 		cWorms = NULL;
 	}
 
-	if(cMap) {
-		cMap->Shutdown();
-		delete cMap;
-		cMap = NULL;
-	}
-
 	if(m_flagInfo) {
 		delete m_flagInfo;
 		m_flagInfo = NULL;
@@ -2605,8 +2536,8 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
-	if(cMap && cMap->getCreated())
-		msg << " * level=" << cMap->getName();
+	if(game.gameMap() && game.gameMap()->getCreated())
+		msg << " * level=" << game.gameMap()->getName();
 	else
 		msg << " * no level loaded";
 	if(game.gameScript() && game.gameScript()->isLoaded())

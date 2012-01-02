@@ -12,6 +12,7 @@
 #include "CWorm.h"
 #include "FlagInfo.h"
 #include "gusanos/gusgame.h"
+#include "game/Game.h"
 
 struct CaptureTheFlag : public CGameMode {
 	
@@ -59,7 +60,7 @@ struct CaptureTheFlag : public CGameMode {
 	
 	void initFlag(int t, const CVec& pos) {
 		// currently, just use this easy method to find a spot for the flag
-		CVec spawnPoint = cServer->getMap()->groundPos(pos) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
+		CVec spawnPoint = game.gameMap()->groundPos(pos) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
 		cServer->flagInfo()->applyInitFlag(t, spawnPoint);
 	}
 	
@@ -88,7 +89,7 @@ struct CaptureTheFlag : public CGameMode {
 		Flag* flag = cServer->flagInfo()->getFlagOfWorm(worm->getID());
 		if(flag) {
 			wormLooseFlag_Handler(worm, flag);
-			CVec pos = cServer->getMap()->groundPos(worm->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
+			CVec pos = game.gameMap()->groundPos(worm->getPos()) - CVec(0,(float)(cServer->flagInfo()->getHeight()/4));
 			cServer->flagInfo()->applyCustomPos(flag, pos);
 			cServer->SendGlobalText(worm->getName() + " lost " + flagName(flag->id), TXT_NORMAL);			
 		}		

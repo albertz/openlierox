@@ -58,18 +58,18 @@ struct Race : public CGameMode {
 			for(int y = 0; y <= 1; y++) {
 				std::list<CVec> goodPos;
 				goodPos.push_back(CVec(
-								  (cServer->getMap()->GetWidth() * 0.8f * x + cServer->getMap()->GetWidth() * 0.2f),
-								  (cServer->getMap()->GetHeight() * 0.8f * y + cServer->getMap()->GetHeight() * 0.2f)));
+								  (game.gameMap()->GetWidth() * 0.8f * x + game.gameMap()->GetWidth() * 0.2f),
+								  (game.gameMap()->GetHeight() * 0.8f * y + game.gameMap()->GetHeight() * 0.2f)));
 				std::list<CVec> badPos;
 				badPos.push_back(CVec(
-								  (cServer->getMap()->GetWidth() * 0.2f * x + cServer->getMap()->GetWidth() * 0.8f),
-								  (cServer->getMap()->GetHeight() * 0.2f * y + cServer->getMap()->GetHeight() * 0.8f)));
+								  (game.gameMap()->GetWidth() * 0.2f * x + game.gameMap()->GetWidth() * 0.8f),
+								  (game.gameMap()->GetHeight() * 0.2f * y + game.gameMap()->GetHeight() * 0.8f)));
 				int t = (y == 0) ? x : (3 - x);
 				wayPoints[t] = game.gameMap()->FindSpotCloseToPos(goodPos, badPos, false);
 				
 				if(!gameSettings[FT_InstantAirJump])
 					// set the place to the ground
-					wayPoints[t] = cServer->getMap()->groundPos(wayPoints[t]) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
+					wayPoints[t] = game.gameMap()->groundPos(wayPoints[t]) - CVec(0, (float)(cServer->flagInfo()->getHeight()/4));
 			}
 	}
 	

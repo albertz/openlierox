@@ -86,12 +86,11 @@ void CClient::Clear()
 	cRemoteWorms = NULL;
 	cProjectiles.clear();
 	projPosMap.clear();
-	cMap = NULL;
 	bMapGrabbed = false;
 	if( cNetChan )
 		delete cNetChan;
-		cNetChan = NULL;
-		iNetStatus 	 = NET_DISCONNECTED;	
+	cNetChan = NULL;
+	iNetStatus 	 = NET_DISCONNECTED;	
 	reconnectingAmount = 0;
 	bsUnreliable.Clear();
 	iChat_Numlines = 0;
@@ -252,7 +251,6 @@ CClient::CClient() {
 	// TODO: merge this with Clear()
 	//notes << "cl:Constructor" << endl;
 	cRemoteWorms = NULL;
-	cMap = NULL;
 	m_flagInfo = NULL;
 	cBonuses = NULL;
 	bmpBoxBuffer = NULL;
@@ -658,20 +656,15 @@ void CClient::FinishMapDownloads()
 
 		// If playing, load the map
 		if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMap))  {
-			if (cMap && cMap->getCreated())  {
+			if (game.gameMap() && game.gameMap()->getCreated())  {
 				hints << "Finished map downloading but another map is already loaded." << endl;
 				return;
 			}
 
-			if (!cMap)  {
-				warnings << "In game and cMap is not allocated." << endl;
-				cMap = new CMap;
-			}
-
 			notes << "Loading just downloaded map " << sMapDownloadName << endl;
-			if (!cMap->Load("levels/" + sMapDownloadName))  {  // Load the map
+			if (NegResult r = game.loadMap())  {  // Load the map
 				// Weird
-				errors << "Could not load the downloaded map!" << endl;
+				errors << "Could not load the downloaded map! " << r.res.humanErrorMsg << endl;
 				Disconnect();
 				GotoNetMenu();
 			}
@@ -1098,8 +1091,8 @@ void CClient::Frame()
 		(bGameRunning || iNetStatus == NET_PLAYING) &&
 		!bWaitingForMap &&
 		!bWaitingForMod &&
-		cMap &&
-		cMap->isLoaded() &&
+		game.gameMap() &&
+		game.gameMap()->isLoaded() &&
 		game.gameScript())
 	{
 		if( NewNet::Active() )
@@ -2129,7 +2122,7 @@ void CClient::GetLogData(std::string& data)
 	// Fill in the details
 	levelfile = getGameLobby()[FT_Map].as<LevelInfo>()->path;
 	modfile = getGameLobby()[FT_Mod].as<ModInfo>()->path;
-	level = cMap->getName();
+	level = game.gameMap()->getName();
 	mod = game.gameScript()->GetHeader()->ModName;
 	xmlEntityText(levelfile);
 	xmlEntityText(modfile);
@@ -2289,16 +2282,6 @@ void CClient::Shutdown() {
 	// Projectiles
 	cProjectiles.clear();
 	projPosMap.clear();
-
-	// Map
-	if(tLX->iGameType == GME_JOIN) {
-		if(cMap && !bMapGrabbed) {
-			cMap->Shutdown();
-			delete cMap;
-		}
-		bMapGrabbed = false;
-		cMap = NULL;
-	}
 
 	// Box buffer
 	bmpBoxBuffer = NULL;
@@ -2535,11 +2518,9 @@ void CClient::DumpGameState(CmdLineIntf* caller) {
 		caller->writeMsg("Worms not initialised");
 }
 
-bool CClient::isMapReady() const {
-	return cMap && cMap->isLoaded();
-}
-
 void CClient::SetSocketWithEvents(bool v) {
 	tSocket->setWithEvents(v);
 }
+
+bool CClient::canSimulate() const { return bGameReady && !bGameOver && game.isMapReady(); }
 

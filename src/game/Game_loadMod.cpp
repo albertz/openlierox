@@ -28,7 +28,7 @@ Result Game::loadMod() {
 	gameScriptCreate:
 		cGameScript = new CGameScript();
 		if(cGameScript.get() == NULL) {
-			errors << "Game::loadMod: cannot allocate gamescript" << endl;
+			errors << "Game::game.gameMap: cannot allocate gamescript" << endl;
 			if(cCache.GetEntryCount() > 0) {
 				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
 				cCache.Clear();
@@ -39,7 +39,7 @@ Result Game::loadMod() {
 		
 		int result = cGameScript->Load( gameSettings[FT_Mod].as<ModInfo>()->path );
 		if(result != GSE_OK) {
-			errors << "Game::loadMod: Could not load the game script \"" << gameSettings[FT_Mod].as<ModInfo>()->path << "\"" << endl;
+			errors << "Game::game.gameMap: Could not load the game script \"" << gameSettings[FT_Mod].as<ModInfo>()->path << "\"" << endl;
 			return "Could not load the game script \"" + gameSettings[FT_Mod].as<ModInfo>()->path + "\"";
 		}
 		

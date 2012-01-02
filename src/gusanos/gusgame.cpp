@@ -880,23 +880,15 @@ Net_Node* GusGame::getNode()
 	return m_node;
 }*/
 
-static CMap* getMap() {
-	if(tLX) {
-		if(tLX->iGameType == GME_JOIN) return cClient->getMap();
-		return cServer->getMap();
-	}
-	return NULL;
-}
-
 CMap& GusGame::level() {
-	return *getMap();
+	return *game.gameMap();
 }
 
 bool GusGame::isLevelLoaded() {
-	return getMap() && getMap()->isLoaded();
+	return game.gameMap() && game.gameMap()->isLoaded();
 }
 
 bool GusGame::isEngineNeeded() {
-	return (game.gameScript() && game.gameScript()->gusEngineUsed()) || (getMap() && getMap()->gusIsLoaded());
+	return (game.gameScript() && game.gameScript()->gusEngineUsed()) || (game.gameMap() && game.gameMap()->gusIsLoaded());
 }
 

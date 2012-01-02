@@ -68,6 +68,8 @@ public:
 	Result loadMod();
 	Result loadWeaponRestrictions();
 	
+	bool		isMapReady() const;	
+	
 private:
 	AbsTime oldtime;
 	SmartPointer<CMap> m_gameMap;

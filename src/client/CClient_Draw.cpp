@@ -546,10 +546,10 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 	// DEBUG: draw the AI paths
 #ifdef _AI_DEBUG
-	if (iNetStatus == NET_PLAYING && cMap)  {
+	if (iNetStatus == NET_PLAYING && game.gameMap())  {
 		static AbsTime last = tLX->currentTime;
 		if ((tLX->currentTime - last).seconds() >= 0.5f)  {
-			cMap->ClearDebugImage();
+			game.gameMap()->ClearDebugImage();
 			for (int i = 0; i < (int)iNumWorms; i++)  {
 				if (cLocalWorms[i]->getType() == PRF_COMPUTER)
 					((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
@@ -560,15 +560,15 @@ void CClient::Draw(SDL_Surface * bmpDest)
 #endif
 
 	// Draw the viewports
-	// HINT: before we get packet with map info and load the map, cMap is undefined
-	// bGameReady says if the game (including cMap) has been initialized
+	// HINT: before we get packet with map info and load the map, game.gameMap() is undefined
+	// bGameReady says if the game (including map) has been initialized
 	if(((iNetStatus == NET_CONNECTED  && bGameReady ) || (iNetStatus == NET_PLAYING)) && !bWaitingForMap) {
 
 		// Draw the viewports
 		for( i=0; i<NUM_VIEWPORTS; i++ ) {
 			if( cViewports[i].getUsed() )  {
-				if (cMap != NULL)
-					cViewports[i].Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), getGeneralGameType());
+				if (game.gameMap() != NULL)
+					cViewports[i].Process(cRemoteWorms, cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
 				DrawViewport(bmpDest, (byte)i);
 			}
 		}
@@ -581,12 +581,12 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		}
 
 		// Mini-Map
-		if (cMap != NULL && (bool)getGameLobby()[FT_MiniMap])  {
+		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				cMap->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
+				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
 			else {
-				if(cMap->GetMiniMap().get())
-					DrawImage( bmpDest, cMap->GetMiniMap(), MiniMapX, MiniMapY);
+				if(game.gameMap()->GetMiniMap().get())
+					DrawImage( bmpDest, game.gameMap()->GetMiniMap(), MiniMapX, MiniMapY);
 			}
 		}
 
@@ -857,7 +857,7 @@ void CClient::DrawChatter(SDL_Surface * bmpDest)
 }
 
 void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
-	if(!cMap || !cMap->isLoaded()) return;
+	if(!game.gameMap() || !game.gameMap()->isLoaded()) return;
 
 	// Set the clipping
 	SDL_Rect rect = v->getRect();
@@ -885,7 +885,7 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	// Earlier: When game menu is visible (bGameMenu), it covers all this anyway, so we won't bother to draw it.
 	// We draw it anyway now because we could use some nice alpha blending or so
 	if (!gusanosDrawing)
-		cMap->Draw(bmpDest, v);
+		game.gameMap()->Draw(bmpDest, v);
 		
 	// The following will be drawn only when playing
 	if (bGameReady || iNetStatus == NET_PLAYING)  {
@@ -980,26 +980,26 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				int oldWorldXCenter = v->GetWorldX() + v->GetWidth() / 2;
 				int oldWorldYCenter = v->GetWorldY() + v->GetHeight() / 2;
 				bool wrapAround = cClient->getGameLobby()[FT_InfiniteMap];
-				if((uint)sizedViewport.GetWidth() >= cMap->GetWidth()) {
+				if((uint)sizedViewport.GetWidth() >= game.gameMap()->GetWidth()) {
 					// Note: We do this viewport clamping also for wrapAround because it
 					// doesn't work correct yet if the map is smaller than the viewport.
-					if(!wrapAround) oldWorldXCenter = cMap->GetWidth() / 2;
+					if(!wrapAround) oldWorldXCenter = game.gameMap()->GetWidth() / 2;
 					// to avoid some drawing problems
-					sizedViewport.SetLeft(sizedViewport.GetWidth() - cMap->GetWidth());
-					sizedViewport.SetVirtWidth(cMap->GetWidth() * 2);
+					sizedViewport.SetLeft(sizedViewport.GetWidth() - game.gameMap()->GetWidth());
+					sizedViewport.SetVirtWidth(game.gameMap()->GetWidth() * 2);
 				}
 				// same for height/y
-				if((uint)sizedViewport.GetHeight() >= cMap->GetHeight()) {
-					if(!wrapAround) oldWorldYCenter = cMap->GetHeight() / 2;
-					sizedViewport.SetTop(sizedViewport.GetHeight() - cMap->GetHeight());
-					sizedViewport.SetVirtHeight(cMap->GetHeight() * 2);
+				if((uint)sizedViewport.GetHeight() >= game.gameMap()->GetHeight()) {
+					if(!wrapAround) oldWorldYCenter = game.gameMap()->GetHeight() / 2;
+					sizedViewport.SetTop(sizedViewport.GetHeight() - game.gameMap()->GetHeight());
+					sizedViewport.SetVirtHeight(game.gameMap()->GetHeight() * 2);
 				}
 				sizedViewport.SetWorldX( oldWorldXCenter - sizedViewport.GetWidth() / 2 );
 				sizedViewport.SetWorldY( oldWorldYCenter - sizedViewport.GetHeight() / 2 );
-				sizedViewport.Clamp(cMap->GetWidth(), cMap->GetHeight());
+				sizedViewport.Clamp(game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
 			} */
 			
-			sizedViewport.Process(cRemoteWorms, cViewports, cMap->GetWidth(), cMap->GetHeight(), getGeneralGameType());
+			sizedViewport.Process(cRemoteWorms, cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
 			
 			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
 			static SmartPointer<SDL_Surface> tmpSurf = NULL;

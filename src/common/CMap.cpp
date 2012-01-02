@@ -2790,7 +2790,7 @@ void CMap::ClearDebugImage() {
 // TODO: why do we have this function? why not CMap::CarveHole?
 int CarveHole(CVec pos)
 {
-	if(!cClient->getMap()) {
+	if(!game.gameMap()) {
 		errors << "CarveHole: client map not loaded" << endl;
 		return 0;
 	}
@@ -2798,15 +2798,15 @@ int CarveHole(CVec pos)
 	int x,y;
 
 	// Go through until we find dirt to throw around
-	y = MAX(MIN((int)pos.y, (int)cClient->getMap()->GetHeight() - 1), 0);
+	y = MAX(MIN((int)pos.y, (int)game.gameMap()->GetHeight() - 1), 0);
 
 	for(x=(int)pos.x-2; x<=(int)pos.x+2; x++) {
 		// Clipping
 		if(x < 0) continue;
-		if((uint)x >= cClient->getMap()->GetWidth())	break;
+		if((uint)x >= game.gameMap()->GetWidth())	break;
 
-		if(cClient->getMap()->GetPixelFlag(x,y) & PX_DIRT) {
-			Color col = cClient->getMap()->getColorAt(x, y);
+		if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
+			Color col = game.gameMap()->getColorAt(x, y);
 			for(short n=0; n<3; n++)
 				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),col,NULL);
 			break;
@@ -2814,7 +2814,7 @@ int CarveHole(CVec pos)
 	}
 
 	// Just carve a hole for the moment
-	return cClient->getMap()->CarveHole(3,pos,cClient->getGameLobby()[FT_InfiniteMap]);
+	return game.gameMap()->CarveHole(3,pos,cClient->getGameLobby()[FT_InfiniteMap]);
 }
 
 

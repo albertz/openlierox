@@ -10,6 +10,7 @@
 #include "CGameMode.h"
 #include "CServer.h"
 #include "CWorm.h"
+#include "game/Game.h"
 
 class CDemolitionsMatch : public CGameMode {
 
@@ -40,7 +41,7 @@ public:
 			nDirtCount += w->getDirtCount();
 		}
 		
-		if( nDirtCount > (float)cServer->getMap()->GetDirtCount()*0.8f ) {
+		if( nDirtCount > (float)game.gameMap()->GetDirtCount()*0.8f ) {
 			// TODO: make configureable
 			cServer->SendGlobalText("Demolition limit hit", TXT_NORMAL);
 			// Make the server trigger a game over

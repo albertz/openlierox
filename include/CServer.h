@@ -104,7 +104,6 @@ private:
 
 	// Map
 	bool		bRandomMap;		// TODO: what is this good for
-	CMap		*cMap;
 
 	FlagInfo*	m_flagInfo;
 	
@@ -278,9 +277,6 @@ public:
 	// Variables
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	CWorm			*getWorms()			{ return cWorms; }
-	CMap			*getMap()			{ return cMap; }
-	void			resetMap()			{ cMap = NULL; }
-	CMap*			getPreloadedMap(); // IMPORTANT: never ever keep this pointer! it's only temporarly! also don't modify the map!
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
 	bool			getGameOver()		{ return bGameOver; }
