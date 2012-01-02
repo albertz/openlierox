@@ -16,6 +16,7 @@
 #include "gusanos/weapon_type.h"
 #include "util/log.h"
 #include "game/Game.h"
+#include "CGameScript.h"
 
 #include "gusanos/glua.h"
 #include "gusanos/lua/bindings-game.h"

@@ -32,6 +32,7 @@
 #include "OLXConsole.h"
 #include "game/Game.h"
 #include "gusanos/network.h"
+#include "CGameScript.h"
 
 
 

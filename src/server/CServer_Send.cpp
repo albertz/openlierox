@@ -36,6 +36,7 @@
 #include "game/Game.h"
 #include "gusanos/network.h"
 #include "game/Level.h"
+#include "CGameScript.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -153,7 +154,7 @@ void CServerNetEngine::WritePrepareGame(CBytestream *bs)
 		bs->writeInt16((int)(float)gameSettings[FT_TagLimit]);
 	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->path);
 	
-	server->cWeaponRestrictions.sendList(bs, game.gameScript()->GetWeaponList());
+	game.weaponRestrictions()->sendList(bs, game.gameScript()->GetWeaponList());
 }
 
 void CServerNetEngine::SendPrepareGame()

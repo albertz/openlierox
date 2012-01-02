@@ -62,6 +62,7 @@
 #include "cfg/client.h"
 #include "client/gfx/raytracing.h"
 #include "CodeAttributes.h"
+#include "CGameScript.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;

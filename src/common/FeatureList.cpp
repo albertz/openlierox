@@ -11,10 +11,13 @@
 #include "FeatureList.h"
 #include "Version.h"
 #include "CServer.h"
+#include "Settings.h"
 #include "game/Level.h"
 #include "game/Mod.h"
 #include "game/SettingsPreset.h"
 #include "game/GameMode.h"
+#include "Consts.h"
+#include "StaticAssert.h"
 
 
 // WARNING: Keep this always synchronised with FeatureIndex!

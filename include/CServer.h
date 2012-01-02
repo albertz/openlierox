@@ -20,13 +20,11 @@
 #include <string>
 #include "Networking.h"
 #include "SmartPointer.h"
-#include "CGameScript.h"
 #include "CBonus.h"
 #include "CShootList.h"
 #include "HTTP.h"
 #include "Timer.h"
 #include "CBanList.h"
-#include "CWpnRest.h"
 #include "game/GameMode.h"
 
 class CWorm;
@@ -93,10 +91,7 @@ private:
 	// Game rules
 	bool		bGameOver;
 	AbsTime		fGameOverTime;
-	
-	SmartPointer<CGameScript> cGameScript;
-    CWpnRest    cWeaponRestrictions;
-    
+	    
 	// Clients
 	CServerConnection *cClients;		// TODO: use std::list or vector
 
@@ -281,7 +276,6 @@ public:
 
 
 	// Variables
-	const SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
 	CWorm			*getWorms()			{ return cWorms; }
 	CMap			*getMap()			{ return cMap; }
@@ -310,7 +304,6 @@ public:
 	
 	void	setWeaponRestFile(const std::string& fn);
 	void	setDefaultWeaponRestFile();
-	CWpnRest* getWeaponRestrictions() { return &cWeaponRestrictions; }
 	
 	bool	serverChoosesWeapons();
 	bool	serverAllowsConnectDuringGame();

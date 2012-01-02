@@ -27,6 +27,7 @@
 #include "WeaponDesc.h"
 #include "ProfileSystem.h"
 #include "game/Game.h"
+#include "CGameScript.h"
 
 
 

@@ -42,6 +42,8 @@
 #include "WeaponDesc.h"
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
+#include "Sounds.h"
+#include "CGameScript.h"
 
 
 CClient		*cClient = NULL;
@@ -1134,18 +1136,18 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 	}
 
 	// Weird
-	if (!cGameScript.get()->GetWeapons()) {
+	if (!game.gameScript()->GetWeapons()) {
 		warnings << "ProcessShot: weapons not loaded while a client was shooting" << endl;
 		return;
 	}
 
 	// Safety check
-	if (shot->nWeapon < 0 || shot->nWeapon >= cGameScript.get()->GetNumWeapons())  {
+	if (shot->nWeapon < 0 || shot->nWeapon >= game.gameScript()->GetNumWeapons())  {
 		warnings << "ProcessShot: weapon ID invalid. Guilty worm: " << shot->nWormID << endl;
 		return;
 	}
 	
-	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = game.gameScript()->GetWeapons() + shot->nWeapon;
 
 	if(shot->release) { // the shot key was released
 		wpn->FinalProj.apply(shot, fSpawnTime);
@@ -1198,7 +1200,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 		CWorm *w = &cRemoteWorms[shot->nWormID];
 		if(!w->isUsed()) return;
 	}
-	const weapon_t *wpn = cGameScript.get()->GetWeapons() + shot->nWeapon;
+	const weapon_t *wpn = game.gameScript()->GetWeapons() + shot->nWeapon;
 
 	// Trace a line from the worm to length or until it hits something
 	CVec dir;

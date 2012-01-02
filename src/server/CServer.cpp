@@ -51,6 +51,7 @@
 #include "game/Mod.h"
 #include "game/Level.h"
 #include "game/SettingsPreset.h"
+#include "CGameScript.h"
 
 
 GameServer	*cServer = NULL;
@@ -381,40 +382,13 @@ int GameServer::StartGame(std::string* errMsg)
 	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
 	cClient->SetPermanentText("");
 	
-	// reset all mod settings - *before* we load the mod because Gusanos mods may already customize it
-	modSettings.makeSet(false);
 	
 	// Load the game script
-	timer = SDL_GetTicks()/1000.0f;
-
-	cGameScript = cCache.GetMod( gameSettings[FT_Mod].as<ModInfo>()->path );
-	if( cGameScript.get() == NULL )
-	{
-	gameScriptCreate:
-		cGameScript = new CGameScript();
-		if(cGameScript.get() == NULL) {
-			errors << "Server StartGame: cannot allocate gamescript" << endl;
-			if(cCache.GetEntryCount() > 0) {
-				hints << "current cache size is " << cCache.GetCacheSize() << ", we are clearing it now" << endl;
-				cCache.Clear();
-				goto gameScriptCreate;
-			}
-			if(errMsg) *errMsg = "Out of memory while loading mod";
-			return false;
-		}
-		int result = cGameScript.get()->Load( gameSettings[FT_Mod].as<ModInfo>()->path );
-
-		if(result != GSE_OK) {
-			errors << "Server StartGame: Could not load the game script \"" << gameSettings[FT_Mod].as<ModInfo>()->path << "\"" << endl;
-			if(errMsg) *errMsg = "Could not load the game script \"" + gameSettings[FT_Mod].as<ModInfo>()->path + "\"";
-			return false;
-		}
-		
-		cCache.SaveMod( gameSettings[FT_Mod].as<ModInfo>()->path, cGameScript );
+	if(NegResult r = game.loadMod()) {
+		errors << "Error while loading mod: " << r.res.humanErrorMsg << endl;
+		if(errMsg) *errMsg = "Error while loading mod: " + r.res.humanErrorMsg;
+		return false;
 	}
-	else
-		notes << "used cached version of mod, ";
-	notes << "Server Mod loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	
 	// TODO: why delete + create new map instead of simply shutdown/clear map?
 	// WARNING: This can lead to segfaults if there are already prepared AI worms with running AI thread (therefore we unprepared them above)
@@ -491,10 +465,8 @@ mapCreate:
 	// (@pelya: your hack to make it faster cannot work because of this.)
 
 	// Load & update the weapon restrictions
-	notes << "Weapon restriction: " << gameSettings[FT_WeaponRest] << endl;
-	cWeaponRestrictions.loadList(gameSettings[FT_WeaponRest], gameSettings[FT_Mod].as<ModInfo>()->path);
-	cWeaponRestrictions.updateList(cGameScript->GetWeaponList());
-
+	game.loadWeaponRestrictions();
+	
 	for( int i = 0; i < MAX_CLIENTS; i++ )
 	{
 		if( !cClients[i].isConnected() )
@@ -2583,8 +2555,6 @@ void GameServer::Shutdown()
 	
 	cShootList.Shutdown();
 
-	cWeaponRestrictions.Shutdown();
-
 	cBanList.Shutdown();
 	
 	tUdpMasterServers.clear();
@@ -2639,8 +2609,8 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 		msg << " * level=" << cMap->getName();
 	else
 		msg << " * no level loaded";
-	if(cGameScript.get() && cGameScript->isLoaded())
-		msg << ", mod=" << cGameScript->modName();
+	if(game.gameScript() && game.gameScript()->isLoaded())
+		msg << ", mod=" << game.gameScript()->modName();
 	else
 		msg << ", no mod loaded";
 	caller->writeMsg(msg.str());

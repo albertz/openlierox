@@ -47,6 +47,7 @@
 #include "game/Level.h"
 #include "game/Mod.h"
 #include "game/Game.h"
+#include "CGameScript.h"
 
 
 #ifdef _MSC_VER
@@ -292,8 +293,8 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 			for (j = 0; j < 5; j++) {
 				if(server->cWorms[id].getWeapon(j)->Weapon)
 					server->cWorms[id].getWeapon(j)->Enabled =
-						server->cWeaponRestrictions.isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
-						server->cWeaponRestrictions.isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
+						game.weaponRestrictions()->isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
+						game.weaponRestrictions()->isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
 			}
 			
 		} else { // wrong id -> Skip to get the right position
@@ -839,8 +840,8 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 					if (curwpn >= 0 && curwpn < 5) {
 						wpnslot_t *wpn = w->getWeapon(curwpn);
 						const weapon_t* oldWeapon = wpn->Weapon;
-						if(b->getWeapon() >= 0 && b->getWeapon() < server->cGameScript->GetNumWeapons()) {
-							wpn->Weapon = server->cGameScript.get()->GetWeapons() + b->getWeapon();
+						if(b->getWeapon() >= 0 && b->getWeapon() < game.gameScript()->GetNumWeapons()) {
+							wpn->Weapon = game.gameScript()->GetWeapons() + b->getWeapon();
 							wpn->Enabled = true;
 							wpn->Charge = 1;
 							wpn->Reloading = false;

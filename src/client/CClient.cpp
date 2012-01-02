@@ -55,6 +55,7 @@
 #include "game/Game.h"
 #include "game/Level.h"
 #include "game/ServerList.h"
+#include "CGameScript.h"
 #include <zip.h> // For unzipping downloaded mod
 
 
@@ -139,7 +140,6 @@ void CClient::Clear()
 	// HINT: gamescript is shut down by the cache
 
 	cShootList.Shutdown();
-	cWeaponRestrictions.Shutdown();
 
     for(int i=0; i<NUM_VIEWPORTS; i++) {
         cViewports[i].shutdown();
@@ -755,17 +755,18 @@ void CClient::FinishModDownloads()
 	}
 
 	// Load the mod if playing
-	if (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod))  {
+	if (game.isClient() && (iNetStatus == NET_PLAYING || (iNetStatus == NET_CONNECTED && bWaitingForMod)))  {
 		bWaitingForMod = false;
 
-		if (cGameScript->GetNumWeapons() > 0)  {
+		if (game.gameScript() && game.gameScript()->GetNumWeapons() > 0)  {
 			hints("Finished downloading the mod but another mod is already loaded.\n");
 			return;
 		}
 
 		if (stringcaseequal(getGameLobby()[FT_Mod].as<ModInfo>()->name, sModDownloadName))  {
-			if (cGameScript->Load(sModDownloadName) != GSE_OK)  {
-				errors("Could not load the downloaded mod.\n");
+			if(NegResult r = game.loadMod()) {
+				errors << "Could not load the downloaded mod: " << r.res.humanErrorMsg << endl;
+				Menu_MessageBox("Error", "Could not load the downloaded mod: " + r.res.humanErrorMsg, DeprecatedGUI::LMB_OK);
 				Disconnect();
 				GotoNetMenu();
 				return;
@@ -776,7 +777,8 @@ void CClient::FinishModDownloads()
 			for (size_t i = 0; i < iNumWorms; i++)
 				cLocalWorms[i]->initWeaponSelection();
 		} else {
-			warnings("The downloaded mod is not the one we are waiting for.\n");
+			warnings("The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +").\n");
+			Menu_MessageBox("Error", "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +")", DeprecatedGUI::LMB_OK);
 			Disconnect();
 			GotoNetMenu();
 			return;
@@ -1098,7 +1100,7 @@ void CClient::Frame()
 		!bWaitingForMod &&
 		cMap &&
 		cMap->isLoaded() &&
-		cGameScript.get())
+		game.gameScript())
 	{
 		if( NewNet::Active() )
 			NewNet_Frame();
@@ -2128,7 +2130,7 @@ void CClient::GetLogData(std::string& data)
 	levelfile = getGameLobby()[FT_Map].as<LevelInfo>()->path;
 	modfile = getGameLobby()[FT_Mod].as<ModInfo>()->path;
 	level = cMap->getName();
-	mod = cGameScript.get()->GetHeader()->ModName;
+	mod = game.gameScript()->GetHeader()->ModName;
 	xmlEntityText(levelfile);
 	xmlEntityText(modfile);
 	xmlEntityText(level);
@@ -2345,11 +2347,6 @@ void CClient::Shutdown() {
 		delete m_flagInfo;
 		m_flagInfo = NULL;
 	}
-	
-	// HINT: GameScript is shut down by the cache
-
-	// Weapon restrictions
-	cWeaponRestrictions.Shutdown();
 
 	// Close the socket
 	tSocket->Clear();

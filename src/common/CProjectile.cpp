@@ -28,6 +28,7 @@
 #include "ProjectileDesc.h"
 #include "Physics.h"
 #include "Geometry.h"
+#include "game/Game.h"
 
 
 void CProjectile::setUnused() {
@@ -451,7 +452,7 @@ static void updateMap(CProjectile* prj, const VectorD2<int>& p, const VectorD2<i
 }
 
 void CProjectile::updateCollMapInfo(const VectorD2<int>* oldPos, const VectorD2<int>* oldRadius) {
-	if( !cClient->getGameScript()->getNeedCollisionInfo() && 
+	if( !game.gameScript()->getNeedCollisionInfo() && 
 		!bool(cClient->getGameLobby()[FT_CollideProjectiles]) ) 
 		return;
 	

@@ -217,7 +217,7 @@ public:
 	// (which would lead to collisions!)
 	// This operator is safe though.
 	_Type * operator -> () const { return obj; };
-
+	
 	// refcount may be changed from another thread, though if refcount==1 or 0 it won't change
 	int getRefCount() {
 		int ret = 0;

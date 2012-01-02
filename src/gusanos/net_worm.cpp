@@ -17,6 +17,7 @@
 #include "CMap.h"
 #include "game/Game.h"
 #include "CServer.h"
+#include "CGameScript.h"
 
 #include <math.h>
 #include <vector>

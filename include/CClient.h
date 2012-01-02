@@ -247,8 +247,6 @@ private:
 	frame_t		tFrames[NUM_FRAMES];
 
 	// Game
-	SmartPointer<CGameScript> cGameScript;
-    CWpnRest    cWeaponRestrictions;
 	FeatureSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
@@ -591,8 +589,6 @@ public:
 
 	CShootList	*getShootList()			{ return &cShootList; }
     CBonus      *getBonusList()         { return cBonuses; }
-	CWpnRest*	getWeaponRestrictions()		{ return &cWeaponRestrictions; }
-	SmartPointer<CGameScript>& getGameScript() { return cGameScript; }
 	
     void        setZombieTime(const AbsTime& z)      { fZombieTime = z; }
     AbsTime       getZombieTime()         { return fZombieTime; }

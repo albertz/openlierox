@@ -42,6 +42,7 @@
 #include "CClient.h"
 #include "CServer.h"
 #include "game/Game.h"
+#include "CGameScript.h"
 
 #include "gusanos/allegro.h"
 #include <string>

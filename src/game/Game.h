@@ -13,9 +13,10 @@
 #include <boost/signal.hpp>
 #include <vector>
 #include <list>
-
+#include "SmartPointer.h"
 #include "olx-types.h"
 #include "gusanos/object_grid.h"
+#include "util/Result.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -63,8 +64,16 @@ public:
 	// they will be called in cleanupAfterGameloopEnd and the slot will be cleaned after that
 	boost::signal<void()> cleanupCallbacks;
 	
+	Result loadMap();
+	Result loadMod();
+	Result loadWeaponRestrictions();
+	
 private:
 	AbsTime oldtime;
+	SmartPointer<CMap> m_gameMap;
+	SmartPointer<CGameScript> m_gameMod;
+	SmartPointer<CGameMode> m_gameMode;
+	SmartPointer<CWpnRest> m_wpnRest;
 };
 
 extern Game game;

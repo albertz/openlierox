@@ -29,6 +29,7 @@
 #include "FlagInfo.h"
 #include "WeaponDesc.h"
 #include "game/Game.h"
+#include "CGameScript.h"
 
 
 
@@ -286,14 +287,14 @@ void GameServer::SpawnBonus()
 		return;
 
 	std::vector<int> goodWpns;
-	for(int i = 0; i < cGameScript.get()->GetNumWeapons(); ++i)
-		if(cWeaponRestrictions.getWeaponState( (cGameScript.get()->GetWeapons()+i)->Name ) != wpr_banned)
+	for(int i = 0; i < game.gameScript()->GetNumWeapons(); ++i)
+		if(game.weaponRestrictions()->getWeaponState( (game.gameScript()->GetWeapons()+i)->Name ) != wpr_banned)
 			goodWpns.push_back(i);
 	
 	int wpn = (goodWpns.size() > 0) ? randomChoiceFrom(goodWpns) : -1;
 	if(type == BNS_WEAPON && wpn < 0) return; // no weapon found
 	
-	b->Spawn(pos, type, wpn, cGameScript.get());
+	b->Spawn(pos, type, wpn, game.gameScript());
 
 
 	// Send the spawn the everyone

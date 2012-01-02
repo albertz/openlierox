@@ -58,6 +58,7 @@
 #include "sound/SoundsBase.h"
 #include "gusanos/gusgame.h"
 #include "ThreadVar.h"
+#include "CGameScript.h"
 
 
 #ifdef _MSC_VER
@@ -874,50 +875,31 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		PhysicsEngine::Get()->initGame();*/
 	
 	if(!isReconnect) {
-		if(tLX->iGameType == GME_JOIN) {
-			client->cGameScript = cCache.GetMod( client->getGameLobby()[FT_Mod].as<ModInfo>()->name );
-			if( client->cGameScript.get() == NULL )
-			{
-				client->cGameScript = new CGameScript();
+		if(game.isClient()) {
+			if (client->bDownloadingMod)
+				client->bWaitingForMod = true;
+			else {
+				client->bWaitingForMod = false;
 				
-				if (client->bDownloadingMod)
-					client->bWaitingForMod = true;
-				else {
-					client->bWaitingForMod = false;
+				Result result = game.loadMod();
+				if(!result) {
 					
-					int result = client->cGameScript.get()->Load(client->getGameLobby()[FT_Mod].as<ModInfo>()->name);
-					cCache.SaveMod( client->getGameLobby()[FT_Mod].as<ModInfo>()->name, client->cGameScript );
-					if(result != GSE_OK) {
-						
-						// Show any error messages
-						if (tLX->iGameType == GME_JOIN)  {
-							FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
-							std::string err("Error load game mod: ");
-							err += client->getGameLobby()[FT_Mod].as<ModInfo>()->name + "\r\nError code: " + itoa(result);
-							DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
-							client->bClientError = true;
-							
-							// Go back to the menu
-							GotoNetMenu();
-						} else {
-							errors << "ParsePrepareGame: load mod error for a local game!" << endl;
-						}
-						client->bGameReady = false;
-						
-						errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->getGameLobby()[FT_Mod].as<ModInfo>()->name << endl;
-						return false;
-					}
+					// Show any error messages
+					FillSurface(DeprecatedGUI::tMenu->bmpBuffer.get(), tLX->clBlack);
+					std::string err = "Error load game mod ";
+					err += client->getGameLobby()[FT_Mod].as<ModInfo>()->name;
+					err += "\r\n" + result.humanErrorMsg;
+					DeprecatedGUI::Menu_MessageBox("Loading Error", err, DeprecatedGUI::LMB_OK);
+					client->bClientError = true;
+					
+					// Go back to the menu
+					GotoNetMenu();
+
+					client->bGameReady = false;
+					
+					errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->getGameLobby()[FT_Mod].as<ModInfo>()->name << endl;
+					return false;
 				}
-			}
-		}
-		else { // hosting
-			client->cGameScript = cServer->getGameScript();
-			if(client->cGameScript.get() == NULL) {
-				errors << "ParsePrepareGame: server has mod unset" << endl;
-				client->bGameReady = false;
-				
-				errors << "CClientNetEngine::ParsePrepareGame: error loading mod " << client->getGameLobby()[FT_Mod].as<ModInfo>()->name << endl;
-				return false;
 			}
 		}
 	}
@@ -1038,8 +1020,9 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	}	
 	
     // Read the weapon restrictions
-    client->cWeaponRestrictions.updateList(client->cGameScript.get()->GetWeaponList());
-    client->cWeaponRestrictions.readList(bs);
+	if(game.isClient())
+		game.loadWeaponRestrictions();
+    game.weaponRestrictions()->readList(bs);
 	
 	client->projPosMap.clear();
 	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(client->cMap->GetWidth(), client->cMap->GetHeight())).index(client->cMap) );
@@ -1145,7 +1128,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		if(client->cLocalWorms[0] && client->cLocalWorms[0]->getType() == PRF_COMPUTER)
 			client->SetupViewports(client->cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
 		
-		if( ! ( client->cGameScript.get() && client->cGameScript->gusEngineUsed() ) )
+		if( ! ( game.gameScript() && game.gameScript()->gusEngineUsed() ) )
 		{
 			client->cChatList->Setup(0,	client->tInterfaceSettings.ChatBoxX,
 										client->tInterfaceSettings.ChatBoxY,
@@ -1952,7 +1935,7 @@ void CClientNetEngine::ParseSpawnBonus(CBytestream *bs)
 
 	CVec p = CVec( (float)x, (float)y );
 
-	client->cBonuses[id].Spawn(p, type, wpn, client->cGameScript.get());
+	client->cBonuses[id].Spawn(p, type, wpn, game.gameScript());
 	client->cMap->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
 	SpawnEntity(ENT_SPAWN,0,p,CVec(0,0),Color(),NULL);
@@ -2433,7 +2416,7 @@ void CClientNetEngine::ParseSingleShot(CBytestream *bs)
 		return;
 	}
 
-	client->cShootList.readSingle(bs, client->getServerVersion(), client->cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readSingle(bs, client->getServerVersion(), game.gameScript()->GetNumWeapons() - 1);
 
 	// Process the shots
 	client->ProcessServerShotList();
@@ -2452,7 +2435,7 @@ void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 		return;
 	}
 
-	client->cShootList.readMulti(bs, client->getServerVersion(), client->cGameScript.get()->GetNumWeapons() - 1);
+	client->cShootList.readMulti(bs, client->getServerVersion(), game.gameScript()->GetNumWeapons() - 1);
 
 	// Process the shots
 	client->ProcessServerShotList();

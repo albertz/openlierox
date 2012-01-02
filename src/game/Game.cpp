@@ -37,6 +37,7 @@
 #include "OLXConsole.h"
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
+#include "CGameScript.h"
 
 #include <boost/shared_ptr.hpp>
 
@@ -377,13 +378,7 @@ CMap* Game::gameMap() {
 	return &gusGame.level();
 }
 
-CGameScript* Game::gameScript() {
-	if(tLX) {
-		if(tLX->iGameType == GME_JOIN) return cClient->getGameScript().get();
-		return cServer->getGameScript().get();
-	}
-	return NULL;
-}
+CGameScript* Game::gameScript() { return m_gameMod.get(); }
 
 CGameMode* Game::gameMode() {
 	if(tLX) {
@@ -393,11 +388,7 @@ CGameMode* Game::gameMode() {
 	return NULL;
 }
 
-CWpnRest* Game::weaponRestrictions() {
-	if(isServer() && cServer) return cServer->getWeaponRestrictions();
-	if(isClient() && cClient) return cClient->getWeaponRestrictions();
-	return NULL;
-}
+CWpnRest* Game::weaponRestrictions() { return m_wpnRest.get(); }
 
 bool Game::isServer() {
 	return tLX->iGameType != GME_JOIN;

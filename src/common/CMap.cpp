@@ -45,6 +45,7 @@
 #include "gusanos/gusgame.h"
 #include "game/Game.h"
 #include "CodeAttributes.h"
+#include "CGameScript.h"
 
 
 ////////////////////

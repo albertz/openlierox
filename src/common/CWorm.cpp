@@ -38,6 +38,7 @@
 #include "gusanos/proxy_player.h"
 #include "game/GameMode.h"
 #include "CodeAttributes.h"
+#include "CGameScript.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
