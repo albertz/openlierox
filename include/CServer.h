@@ -69,9 +69,7 @@ enum {
 
 class GameServer {
 public:
-	// Constructor
 	GameServer();
-
 	~GameServer();
 
 public:
@@ -105,9 +103,6 @@ private:
 	// Worms
 	int			iNumPlayers;
 	CWorm		*cWorms;		// TODO: use std::list or vector
-
-	// Projectiles
-	//CProjectile	*cProjectiles;
 
 	// Bonuses
 	CBonus		cBonuses[MAX_BONUSES];  // TODO: use std::list or vector
