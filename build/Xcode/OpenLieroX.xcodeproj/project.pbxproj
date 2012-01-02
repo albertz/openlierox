@@ -235,6 +235,8 @@
 		23A4B3EC1178CB2500D4FF96 /* VecTimeRecorder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */; };
 		23AAE4881088CC5A00E9F05F /* BreakPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23AAE4861088CC5A00E9F05F /* BreakPad.cpp */; };
 		23ADC8240E9164EE001A3DC9 /* OpenExternBrowser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23ADC8230E9164EE001A3DC9 /* OpenExternBrowser.cpp */; };
+		23B7BC3714B1570A00B5E8EC /* Game_loadMod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */; };
+		23B7BC3A14B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */; };
 		23BA8EE51129A79700963F72 /* Bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23BA8EE41129A79700963F72 /* Bitstream.cpp */; };
 		23C17092108B7E420083A2BF /* ExtractInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17091108B7E420083A2BF /* ExtractInfo.cpp */; };
 		23C17124108B87F40083A2BF /* on_demand_symbol_supplier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23C17122108B87F40083A2BF /* on_demand_symbol_supplier.cpp */; };
@@ -1044,6 +1046,9 @@
 		23AFF03B0F701755005B964D /* Ref.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Ref.h; sourceTree = "<group>"; };
 		23AFF03C0F70175F005B964D /* Functors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Functors.h; sourceTree = "<group>"; };
 		23AFF05A0F701804005B964D /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game_loadMod.cpp; sourceTree = "<group>"; };
+		23B7BC3814B15CC400B5E8EC /* Result.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Result.h; sourceTree = "<group>"; };
+		23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game_loadWeaponRestrictions.cpp; sourceTree = "<group>"; };
 		23BA8C1110F3918400053EF0 /* netstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = netstream.h; sourceTree = "<group>"; };
 		23BA8EE31129A79700963F72 /* Bitstream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Bitstream.h; sourceTree = "<group>"; };
 		23BA8EE41129A79700963F72 /* Bitstream.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Bitstream.cpp; sourceTree = "<group>"; };
@@ -1807,6 +1812,8 @@
 				231B8E66113581C000B572C0 /* SettingsPreset.cpp */,
 				2348933711806DA000FA821B /* ServerList.h */,
 				2348933811806DA000FA821B /* ServerList.cpp */,
+				23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */,
+				23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -2310,6 +2317,7 @@
 				231B8F331135BC9100B572C0 /* CustomVar.cpp */,
 				23A4B3EA1178CB2500D4FF96 /* VecTimeRecorder.h */,
 				23A4B3EB1178CB2500D4FF96 /* VecTimeRecorder.cpp */,
+				23B7BC3814B15CC400B5E8EC /* Result.h */,
 			);
 			path = util;
 			sourceTree = "<group>";
@@ -3732,6 +3740,8 @@
 				232250D714A6D98000757A40 /* crash_generation_client.cc in Sources */,
 				232250DA14A6DB5500757A40 /* stabs_reader.cc in Sources */,
 				236C181B14ABD1B700251191 /* PixelFunctors.cpp in Sources */,
+				23B7BC3714B1570A00B5E8EC /* Game_loadMod.cpp in Sources */,
+				23B7BC3A14B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
