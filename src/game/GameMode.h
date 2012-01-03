@@ -12,6 +12,7 @@
 
 #include <string>
 #include "util/CustomVar.h"
+#include "Consts.h"
 
 class CGameMode;
 
@@ -23,7 +24,8 @@ private:
 	
 public:	
 	GameModeInfo();
-
+	static GameModeInfo fromNetworkModeInt(int m);
+	
 	struct ModeWrapper {
 		ModeWrapper& operator=(CGameMode* m);
 		operator CGameMode*() const;
@@ -39,6 +41,9 @@ public:
 		NameWrapper& operator=(const std::string& n);
 		operator std::string() const;
 	} name;
+	
+	GameModeInfo withNewName(const std::string& n) const;
+	GameModeIndex actualIndex(GameModeIndex fallback = (GameModeIndex)-1 /*undefined*/) const; // GameMode(actualIndex) can differ from m_mode. use this for bots or so
 	
 // CustomVar interface	
 	virtual CustomVar* copy() const { return new GameModeInfo(*this); }

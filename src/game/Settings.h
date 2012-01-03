@@ -39,6 +39,7 @@
 #include <map>
 #include "FeatureList.h"
 #include "CodeAttributes.h"
+#include "util/macros.h"
 
 struct FeatureSettingsLayer : FeatureSettings {
 	std::string debug_name;
@@ -53,15 +54,19 @@ struct FeatureSettingsLayer : FeatureSettings {
 		}
 		return (*this)[i];
 	}
-	void copyTo(FeatureSettingsLayer& s) const;
-	void copyTo(FeatureSettings& s) const;
+	template<typename T>
+	void copyTo(T& s) const {
+		for(size_t i = 0; i < FeatureArrayLen; ++i)
+			if(isSet[i])
+				s[(FeatureIndex)i] = (ScriptVar_t)(*this)[(FeatureIndex)i];
+	}
 	void dump() const; // to notes
 	
 	bool loadFromConfig(const std::string& cfgfile, bool reset, std::map<std::string, std::string>* unknown = NULL);
 };
 
 struct Settings {
-	Settings() : overwrite(*this) {
+	Settings() {
 		for(size_t i = 0; i < FeatureArrayLen; ++i) {
 			wrappers[i].i = (FeatureIndex)i;
 			wrappers[i].s = this;
@@ -89,8 +94,8 @@ struct Settings {
 	const ScriptVar_t& operator[](Feature* f) const { return (*this)[FeatureIndex(f - &featureArray[0])]; }
 	
 	struct OverwriteWrapper {
-		Settings& s; OverwriteWrapper(Settings& _s) : s(_s) {}
 		ScriptVar_t& operator[](FeatureIndex i) {
+			Settings& s = *__OLX_BASETHIS(Settings, overwrite);
 			assert(!s.layers.empty());
 			if(!s.layers.back()->isSet[i]) {
 				(*s.layers.back())[i] = s[i];

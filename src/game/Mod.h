@@ -15,7 +15,7 @@
 
 struct ModInfo : CustomVar {
 	ModInfo() : valid(false) {}
-	ModInfo(const std::string& _path) : valid(true), path(_path) {}
+	static ModInfo ByPath(const std::string& _p) { ModInfo info; info.valid = true; info.path = _p; return info; }
 	bool valid;
 	std::string name;
 	std::string path;

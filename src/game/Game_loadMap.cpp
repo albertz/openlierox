@@ -11,6 +11,7 @@
 #include "Cache.h"
 #include "Level.h"
 #include "Settings.h"
+#include "CClient.h" // cClient->getGameLobby()
 
 Result Game::loadMap() {
 	m_gameMap = NULL;
@@ -30,10 +31,10 @@ mapCreate:
 		
 	{
 		float timer = SDL_GetTicks()/1000.0f;
-		std::string sMapFilename = "levels/" + gameSettings[FT_Map].as<LevelInfo>()->path;
+		std::string sMapFilename = "levels/" + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
 		if(!m_gameMap->Load(sMapFilename)) {
-			errors << "Game::loadMap: Could not load the level " << gameSettings[FT_Map].as<LevelInfo>()->path << endl;
-			return "Could not load level " + gameSettings[FT_Map].as<LevelInfo>()->path;
+			errors << "Game::loadMap: Could not load the level " << cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path << endl;
+			return "Could not load level " + cClient->getGameLobby()[FT_Map].as<LevelInfo>()->path;
 		}
 		notes << "Map loadtime: " << (float)((SDL_GetTicks()/1000.0f) - timer) << " seconds" << endl;
 	}

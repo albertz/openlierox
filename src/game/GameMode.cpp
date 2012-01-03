@@ -9,6 +9,8 @@
 
 #include "CGameMode.h"
 #include "GameMode.h"
+#include "SinglePlayer.h"
+#include "util/macros.h"
 
 GameModeInfo::GameModeInfo() {
 	m_mode = GameMode(GM_DEATHMATCH);
@@ -57,13 +59,6 @@ bool GameModeInfo::fromString( const std::string & str) {
 	if(m_mode) m_generalGameType = m_mode->GeneralGameType();
 	return true;
 }
-
-/* Note:
- We cannot use the std offsetof macro because it is not a POD.
- We do the hack +sizeof(type) ... -sizeof(type) to avoid warnings for accessing a NULL ptr.
- */
-#define __OLX_OFFSETOF(type, member) ( (char*) ( & ( (type*)( (char*)0 + sizeof(type) ) )->member ) - sizeof(type) )
-#define __OLX_BASETHIS(type, member) (type*) ( (char*)this - __OLX_OFFSETOF(type,member) )
 
 GameModeInfo::ModeWrapper& GameModeInfo::ModeWrapper::operator=(CGameMode* m) {
 	GameModeInfo* info = __OLX_BASETHIS(GameModeInfo, mode);	
@@ -116,4 +111,26 @@ GameModeInfo::NameWrapper& GameModeInfo::NameWrapper::operator=(const std::strin
 GameModeInfo::NameWrapper::operator std::string() const {
 	GameModeInfo* info = __OLX_BASETHIS(GameModeInfo, name);
 	return info->toString();
+}
+
+GameModeInfo GameModeInfo::fromNetworkModeInt(int m) {
+	GameModeInfo info;
+	info.generalGameType = m;
+	if( info.generalGameType > GMT_MAX || info.generalGameType < 0 )
+		info.generalGameType = GMT_NORMAL;
+	info.mode = NULL;
+	info.name = guessGeneralGameTypeName(info.generalGameType);
+	return info;
+}
+
+GameModeInfo GameModeInfo::withNewName(const std::string& n) const {
+	GameModeInfo info;
+	info.name = n;
+	return info;
+}
+
+GameModeIndex GameModeInfo::actualIndex(GameModeIndex fallback) const {
+	if(m_mode == &singlePlayerGame)
+		return GetGameModeIndex(singlePlayerGame.standardGameMode, fallback);
+	return GetGameModeIndex(m_mode, fallback);
 }

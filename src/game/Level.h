@@ -17,7 +17,7 @@ struct SDL_Surface;
 
 struct LevelInfo : CustomVar {
 	LevelInfo() : valid(false) {}
-	LevelInfo(const std::string& _path) : valid(true), path(_path) {}
+	static LevelInfo ByPath(const std::string& _p) { LevelInfo info; info.valid = true; info.path = _p; return info; }
 	bool valid;
 	std::string name;
 	std::string path;

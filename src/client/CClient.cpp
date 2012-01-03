@@ -74,8 +74,8 @@ void CClient::Clear()
 	}
 #endif
 
-	tGameInfo = FeatureSettings();
-	tGameInfo[FT_TimeLimit] = -100;
+	tGameInfo = EngineSettings();
+	tGameInfo.overwrite[FT_TimeLimit] = -100;
 	otherGameInfo.clear();
 	iNumWorms = 0;
 	for(int i=0;i<MAX_PLAYERS;i++)
@@ -642,7 +642,7 @@ void CClient::FinishMapDownloads()
 	if (levelname != "")  {
 		if (getGameLobby()[FT_Map].as<LevelInfo>()->path == sMapDownloadName)  {
 			bHaveMap = true;
-			getGameLobby()[FT_Map].as<LevelInfo>()->name = levelname;
+			getGameLobby().overwrite[FT_Map] = infoForLevel(sMapDownloadName); // reset to add levelname if possible
 			if (tMapDlCallback)
 				tMapDlCallback();
 		}

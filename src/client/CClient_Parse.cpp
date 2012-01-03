@@ -822,22 +822,17 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	std::string sMapFilename;
 	if(!random) {
 		sMapFilename = bs->readString();
-		client->getGameLobby()[FT_Map].as<LevelInfo>()->path = GetBaseFilename(sMapFilename);
+		client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
 	}
 	
 	// Other game details
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType = bs->readInt(1);
-	if( client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType > GMT_MAX || client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType < 0 )
-		client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType = GMT_NORMAL;
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode = NULL;
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name = guessGeneralGameTypeName(client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType);
-
-	client->getGameLobby()[FT_Lives] = bs->readInt16();
-	client->getGameLobby()[FT_KillLimit] = bs->readInt16();
-	client->getGameLobby()[FT_TimeLimit] = (float)bs->readInt16();
-	client->getGameLobby()[FT_LoadingTime] = bs->readInt16();
-	client->getGameLobby()[FT_Bonuses] = bs->readBool();
-	client->getGameLobby()[FT_ShowBonusName] = bs->readBool();
+	client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
+	client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_TimeLimit] = (float)bs->readInt16();
+	client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
+	client->getGameLobby().overwrite[FT_ShowBonusName] = bs->readBool();
 	client->fServertime = 0;
 	
 	// in server mode, server would reset this
@@ -845,11 +840,11 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		client->permanentText = "";
 	
 	if(client->getGeneralGameType() == GMT_TIME)
-		client->getGameLobby()[FT_TagLimit] = (float)bs->readInt16();
+		client->getGameLobby().overwrite[FT_TagLimit] = (float)bs->readInt16();
 
-	// Load the gamescript
-	client->getGameLobby()[FT_Mod].as<ModInfo>()->name = bs->readString();
-
+	// Set the gamescript
+	client->getGameLobby().overwrite[FT_Mod] = infoForMod(bs->readString());
+	
 	// Bad packet
 	if (client->getGameLobby()[FT_Mod].as<ModInfo>()->name == "")  {
 		hints << "CClientNetEngine::ParsePrepareGame: invalid mod name (none)" << endl;
@@ -994,7 +989,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
 	client->cProjectiles.clear();
 
-	client->getGameLobby()[FT_GameSpeed] = 1.0f;
+	client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
@@ -1142,7 +1137,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		   i == FT_ShowBonusName)
 			continue;
 		
-		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
+		client->getGameLobby().overwrite[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
 	
@@ -1155,7 +1150,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 		return false;
 
 	// >=Beta7 is sending this
-	client->getGameLobby()[FT_GameSpeed] = bs->readFloat();
+	client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
 	client->bServerChoosesWeapons = bs->readBool();
 
     return true;
@@ -1172,7 +1167,7 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 				continue;
 		}
 	
-		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
+		client->getGameLobby().overwrite[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
 	int ftC = bs->readInt(2);
@@ -1195,9 +1190,9 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		if(f) {
 			// we support the feature
 			if(value.type == f->valueType) {
-				client->getGameLobby()[f] = value;
+				client->getGameLobby().overwrite[f] = value;
 			} else {
-				client->getGameLobby()[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
+				client->getGameLobby().overwrite[f] = f->unsetValue; // fallback, the game is anyway somehow screwed
 				if( !olderClientsSupported && !f->serverSideOnly ) {
 					errors << "server setting for feature " << name << " has wrong type " << value.type << endl;
 				} else {
@@ -1214,26 +1209,6 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	}
 }
 
-template<typename CGameModeWrapperType>
-static void setClientGameMode(CGameModeWrapperType& mode, const std::string& modeName) {
-	if(game.isServer()) {
-		// grab from server
-		mode = (CGameMode*)gameSettings[FT_GameMode].as<GameModeInfo>()->mode;
-		
-		// overwrite in case of single player mode
-		// we do this so in case we have a standard mode, the bots can act normal
-		if(mode == &singlePlayerGame) {
-			mode = singlePlayerGame.standardGameMode;
-			if(mode)
-				notes << "Playing " << gameSettings[FT_GameMode].as<GameModeInfo>()->mode->Name() << " with gamemode " << mode->Name() << endl;
-		}
-	}
-	else
-		mode = GameMode( modeName );	
-	
-	// NOTE: NULL is valid here
-}
-
 bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 {
 	bool isReconnect = client->bGameReady || client->iNetStatus == NET_PLAYING;
@@ -1241,13 +1216,12 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	client->tGameInfo[FT_TimeLimit] = bs->readFloat();
-	if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo[FT_TimeLimit] = -1.0f;
+	client->tGameInfo.overwrite[FT_TimeLimit] = bs->readFloat();
+	if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo.overwrite[FT_TimeLimit] = -1.0f;
 	
 	ParseFeatureSettings(bs);
 
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name = bs->readString();
-	setClientGameMode(client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode, client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name);
+	client->getGameLobby().overwrite[FT_GameMode] = client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->withNewName(bs->readString());
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	if(!isReconnect)
@@ -2164,14 +2138,14 @@ void CClientNetEngineBeta9NewNet::ParseUpdateWorms(CBytestream *bs)
 
 
 template<typename T>
-static bool onlyUpdateInLobby(CClient* client, T& var, const T& update) {
+static bool onlyUpdateInLobby(CClient* client, FeatureIndex i, const T& update) {
 	if(client->getStatus() != NET_CONNECTED) {
-		if(var != update)
-			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update '" << var << "' -> '" << update << "'" << endl;
+		if(client->getGameLobby()[i] != ScriptVar_t(update))
+			notes << "CClientNetEngine::ParseUpdateLobbyGame: not in lobby - ignoring update " << featureArray[i].name << " '" << client->getGameLobby()[i].toString() << "' -> '" << ScriptVar_t(update).toString() << "'" << endl;
 		return false;
 	}
 
-	var = update;
+	client->getGameLobby().overwrite[i] = update;
 	return true;	
 }
 
@@ -2180,43 +2154,27 @@ static bool onlyUpdateInLobby(CClient* client, T& var, const T& update) {
 void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	/*client->getGameLobby()->iMaxPlayers =*/ bs->readByte();
-	const bool recheckMap = onlyUpdateInLobby(client, client->getGameLobby()[FT_Map].as<LevelInfo>()->path, bs->readString());
-	onlyUpdateInLobby(client, client->getGameLobby()[FT_Mod].as<ModInfo>()->name, bs->readString());
-    const bool recheckMod = onlyUpdateInLobby(client, client->getGameLobby()[FT_Mod].as<ModInfo>()->path, bs->readString());
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType = bs->readByte();
-	if( client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType > GMT_MAX || client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType < 0 )
-		client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType = GMT_NORMAL;
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name = "";
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode = NULL;
-	client->getGameLobby()[FT_Lives] = bs->readInt16();
-	client->getGameLobby()[FT_KillLimit] = bs->readInt16();
-	client->tGameInfo[FT_TimeLimit] = -100.0f;
-	client->getGameLobby()[FT_LoadingTime] = bs->readInt16();
-    client->getGameLobby()[FT_Bonuses] = bs->readBool();
+	const bool recheckMap = onlyUpdateInLobby(client, FT_Map, infoForLevel(bs->readString()));
+	ModInfo modInfo;
+	modInfo.name = bs->readString();
+	modInfo.path = bs->readString();
+	const bool recheckMod = onlyUpdateInLobby(client, FT_Mod, modInfo);
+	client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readByte());
+	client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
+	client->getGameLobby().overwrite[FT_TimeLimit] = -100.0f;
+	client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
+    client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
 
-	client->getGameLobby()[FT_GameSpeed] = 1.0f;
-	client->getGameLobby()[FT_ForceRandomWeapons] = false;
-	client->getGameLobby()[FT_SameWeaponsAsHostWorm] = false;
-
-	if(recheckMap) {
-		// Does the level file exist
-		std::string MapName = CMap::GetLevelName(client->getGameLobby()[FT_Map].as<LevelInfo>()->path);
-		client->bHaveMap = MapName != "";
-		
-		// Convert the map filename to map name
-		if (client->bHaveMap)  {
-			client->getGameLobby()[FT_Map].as<LevelInfo>()->name = MapName;
-		}
-	}
+	client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
+	client->getGameLobby().overwrite[FT_ForceRandomWeapons] = false;
+	client->getGameLobby().overwrite[FT_SameWeaponsAsHostWorm] = false;
 	
-	if(recheckMod) {
-		// Check if we have the level & mod
-		client->bHaveMod = true;
-
-		// Does the 'script.lgs' file exist in the mod dir?
-		if(!infoForMod(client->getGameLobby()[FT_Mod].as<ModInfo>()->path).valid)
-			client->bHaveMod = false;
-	}
+	if(recheckMap)
+		client->bHaveMap = infoForLevel(client->getGameLobby()[FT_Map].as<LevelInfo>()->path).valid;
+	
+	if(recheckMod)
+		client->bHaveMod = infoForMod(client->getGameLobby()[FT_Mod].as<ModInfo>()->path).valid;
 
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
@@ -2238,7 +2196,7 @@ void CClientNetEngine::ParseUpdateLobbyGame(CBytestream *bs)
 		   i == FT_ShowBonusName)
 			continue;
 		
-		client->getGameLobby()[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
+		client->getGameLobby().overwrite[(FeatureIndex)i] = featureArray[i].unsetValue;  // Clean it up
 	}
 	client->otherGameInfo.clear();
 	
@@ -2250,22 +2208,21 @@ void CClientNetEngineBeta7::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngine::ParseUpdateLobbyGame(bs);
 
-	client->getGameLobby()[FT_GameSpeed] = bs->readFloat();
-	client->getGameLobby()[FT_ForceRandomWeapons] = bs->readBool();
-	client->getGameLobby()[FT_SameWeaponsAsHostWorm] = bs->readBool();
+	client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
+	client->getGameLobby().overwrite[FT_ForceRandomWeapons] = bs->readBool();
+	client->getGameLobby().overwrite[FT_SameWeaponsAsHostWorm] = bs->readBool();
 }
 
 void CClientNetEngineBeta9::ParseUpdateLobbyGame(CBytestream *bs)
 {
 	CClientNetEngineBeta7::ParseUpdateLobbyGame(bs);
 
-	client->tGameInfo[FT_TimeLimit] = bs->readFloat();
-	if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo[FT_TimeLimit] = -1.0f;
+	client->tGameInfo.overwrite[FT_TimeLimit] = bs->readFloat();
+	if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo.overwrite[FT_TimeLimit] = -1.0f;
 
 	ParseFeatureSettings(bs);
 	
-	client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name = bs->readString();
-	setClientGameMode(client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode, client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->name);
+	client->getGameLobby().overwrite[FT_GameMode] = client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->withNewName(bs->readString());
 }
 
 

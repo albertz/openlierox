@@ -37,6 +37,7 @@
 #include "CViewport.h"
 #include "SafeVector.h"
 #include "game/GameMode.h"
+#include "game/EngineSettings.h"
 
 
 namespace DeprecatedGUI {
@@ -246,7 +247,7 @@ private:
 	frame_t		tFrames[NUM_FRAMES];
 
 	// Game
-	FeatureSettings tGameInfo;	// Also game lobby
+	EngineSettings tGameInfo;	// Also game lobby
 	FeatureCompatibleSettingList otherGameInfo;	
 	bool	bServerChoosesWeapons; // the clients will not get the weapon selection screen and the server sets it; if true, only >=Beta7 is supported
 	FlagInfo*	m_flagInfo;
@@ -566,7 +567,7 @@ public:
     CChatBox    *getChatbox()           { return &cChatbox; }
 	void		setRepaintChatbox(bool _r)  { bRepaintChatbox = true; }
 
-	FeatureSettings& getGameLobby()		{ return tGameInfo; }
+	EngineSettings& getGameLobby()		{ return tGameInfo; }
 
 	bool		getBadConnection()		{ return bBadConnection; }
 	std::string	getBadConnectionMsg()	{ return strBadConnectMsg; }

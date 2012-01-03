@@ -83,7 +83,7 @@ protected:
 void InitGameModes();
 CGameMode* GameMode(GameModeIndex i); // GM_* is parameter
 CGameMode* GameMode(const std::string& name);
-GameModeIndex GetGameModeIndex(CGameMode* gameMode);
+GameModeIndex GetGameModeIndex(CGameMode* gameMode, GameModeIndex fallback = GM_DEATHMATCH);
 Iterator<CGameMode*>::Ref GameModeIterator();
 std::string guessGeneralGameTypeName(int iGeneralGameType);
 

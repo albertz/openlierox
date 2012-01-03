@@ -553,13 +553,13 @@ CGameMode* GameMode(const std::string& name) {
 	return NULL;
 }
 
-GameModeIndex GetGameModeIndex(CGameMode* gameMode) {
-	if(gameMode == NULL) return GM_DEATHMATCH;
+GameModeIndex GetGameModeIndex(CGameMode* gameMode, GameModeIndex fallback) {
+	if(gameMode == NULL) return fallback;
 	for(size_t i = 0; i < gameModesSize; ++i) {
 		if(gameMode == gameModes[i])
 			return (GameModeIndex)i;
 	}
-	return GM_DEATHMATCH;
+	return fallback;
 }
 
 

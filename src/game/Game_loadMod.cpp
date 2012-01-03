@@ -10,8 +10,8 @@
 #include "Game.h"
 #include "CGameScript.h"
 #include "Cache.h"
-#include "game/Settings.h"
 #include "game/Mod.h"
+#include "CClient.h" // cClient->getGameLobby()
 
 Result Game::loadMod() {
 	m_gameMod = NULL;
@@ -22,7 +22,7 @@ Result Game::loadMod() {
 	float timer = SDL_GetTicks()/1000.0f;
 	
 	// for client (tLX->iGameType == GME_JOIN): client->getGameLobby()[FT_Mod].as<ModInfo>()->name
-	SmartPointer<CGameScript> cGameScript = cCache.GetMod( gameSettings[FT_Mod].as<ModInfo>()->path );
+	SmartPointer<CGameScript> cGameScript = cCache.GetMod( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path );
 	if( cGameScript.get() == NULL )
 	{
 	gameScriptCreate:
@@ -37,13 +37,13 @@ Result Game::loadMod() {
 			return "Out of memory while loading mod";
 		}
 		
-		int result = cGameScript->Load( gameSettings[FT_Mod].as<ModInfo>()->path );
+		int result = cGameScript->Load( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path );
 		if(result != GSE_OK) {
-			errors << "Game::game.gameMap: Could not load the game script \"" << gameSettings[FT_Mod].as<ModInfo>()->path << "\"" << endl;
-			return "Could not load the game script \"" + gameSettings[FT_Mod].as<ModInfo>()->path + "\"";
+			errors << "Game::game.gameMap: Could not load the game script \"" << cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path << "\"" << endl;
+			return "Could not load the game script \"" + cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path + "\"";
 		}
 		
-		cCache.SaveMod( gameSettings[FT_Mod].as<ModInfo>()->path, cGameScript );
+		cCache.SaveMod( cClient->getGameLobby()[FT_Mod].as<ModInfo>()->path, cGameScript );
 	}
 	else
 		notes << "used cached version of mod, ";

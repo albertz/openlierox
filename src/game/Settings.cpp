@@ -17,18 +17,6 @@ Settings gameSettings;
 FeatureSettingsLayer modSettings("Mod properties");
 FeatureSettingsLayer gamePresetSettings("Settings preset");
 
-void FeatureSettingsLayer::copyTo(FeatureSettingsLayer& s) const {
-	for(size_t i = 0; i < FeatureArrayLen; ++i)
-		if(isSet[i])
-			s.set((FeatureIndex)i) = (*this)[(FeatureIndex)i];
-}
-
-void FeatureSettingsLayer::copyTo(FeatureSettings& s) const {
-	for(size_t i = 0; i < FeatureArrayLen; ++i)
-		if(isSet[i])
-			s[(FeatureIndex)i] = (*this)[(FeatureIndex)i];
-}
-
 void FeatureSettingsLayer::dump() const {
 	notes << debug_name << " {" << endl;
 	for(size_t i = 0; i < FeatureArrayLen; ++i)

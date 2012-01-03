@@ -362,7 +362,6 @@ int GameServer::StartGame(std::string* errMsg)
 
 
 	CBytestream bs;
-	float timer;
 	
 	notes << "GameServer::StartGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
 

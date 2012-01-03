@@ -23,6 +23,7 @@ struct CustomVar {
 	virtual bool operator<(const CustomVar&) const = 0;
 	virtual std::string toString() const = 0;
 	virtual bool fromString( const std::string & str) = 0;
+	bool operator!=(const CustomVar& o) const { return !(*this == o); }
 };
 
 #endif

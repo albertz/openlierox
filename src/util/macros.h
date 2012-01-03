@@ -1,5 +1,5 @@
-#ifndef OMFGUTIL_DETAIL_MACROS_H
-#define OMFGUTIL_DETAIL_MACROS_H
+#ifndef OLX_UTILS_MACROS_H
+#define OLX_UTILS_MACROS_H
 
 #include <boost/preprocessor/cat.hpp>
 
@@ -44,4 +44,11 @@
 
 #define let_(i, v) __typeof__(v) i = v
 
-#endif //OMFGUTIL_DETAIL_MACROS_H
+/* Note:
+ We cannot use the std offsetof macro because it is not a POD.
+ We do the hack +sizeof(type) ... -sizeof(type) to avoid warnings for accessing a NULL ptr.
+ */
+#define __OLX_OFFSETOF(type, member) ( (char*) ( & ( (type*)( (char*)0 + sizeof(type) ) )->member ) - sizeof(type) )
+#define __OLX_BASETHIS(type, member) (type*) ( (char*)this - __OLX_OFFSETOF(type,member) )
+
+#endif //OLX_UTILS_MACROS_H

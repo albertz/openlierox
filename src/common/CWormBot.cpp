@@ -954,13 +954,13 @@ void CWormBotInputHandler::AI_Respawn() {
 
 // called when the game starts (after weapon selection)
 void CWormBotInputHandler::startGame() {
-	if(	cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_DEATHMATCH) ||
-		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMDEATH) ||
-		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TAG) ||
-		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_HIDEANDSEEK) ||
-		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF) ||
-	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) ||
-	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE))
+	if(	cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_DEATHMATCH ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TEAMDEATH ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TAG ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_HIDEANDSEEK ||
+		cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_CTF ||
+	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_RACE ||
+	    cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TEAMRACE)
 	{
 		// it's fine, we support that game mode
 	}
@@ -1000,7 +1000,7 @@ void CWormBotInputHandler::getInput() {
 
     // Every 3 seconds we run the think function
 	float thinkInterval = 3.0f;
-	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF))
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_CTF)
 		thinkInterval = 0.5f; // recheck more often
     if(tLX->currentTime - fLastThink > thinkInterval && nAIState != AI_THINK)
         nAIState = AI_THINK;
@@ -1132,7 +1132,7 @@ static Flag* teamHasEnemyFlag(int t) {
 }
 
 bool CWormBotInputHandler::findNewTarget() {
-	if(	(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TAG) && m_worm->getTagIT()) ) {
+	if(	(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TAG && m_worm->getTagIT()) ) {
 		CWorm* w = nearestEnemyWorm();
 		if(!w) return findRandomSpot();
 		
@@ -1142,7 +1142,7 @@ bool CWormBotInputHandler::findNewTarget() {
 		else
 			return true;
 	}
-	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_HIDEANDSEEK))
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_HIDEANDSEEK)
 	{
 		if(m_worm->getTeam() == (int)HIDEANDSEEK_HIDER) {
 			CWorm* w = nearestEnemyWorm();
@@ -1166,7 +1166,7 @@ bool CWormBotInputHandler::findNewTarget() {
 			return true;
 		}
 	}
-	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_CTF)) {
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_CTF) {
 		Flag* wormFlag = cClient->flagInfo()->getFlagOfWorm(m_worm->getID());
 		bool success = false;
 		if(wormFlag != NULL) { // we have an enemy flag
@@ -1211,7 +1211,7 @@ bool CWormBotInputHandler::findNewTarget() {
 			return true;
 		}
 	}
-	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE)) {		
+	else if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_RACE || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TEAMRACE) {		
 		int t = m_worm->getID();
 		if(cClient->isTeamGame()) t = m_worm->getTeam();
 
@@ -1978,7 +1978,7 @@ bool CWormBotInputHandler::AI_Shoot()
 		return false;
 	}
 	
-	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE))
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_RACE || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TEAMRACE)
 		// dont care about shooting in this mod, just try to be fast
 		return false;
 	
@@ -3366,7 +3366,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		return;
 	}
 
-	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_RACE) || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_TEAMRACE)) {		
+	if(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_RACE || cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_TEAMRACE) {		
 		int t = m_worm->getID();
 		if(cClient->isTeamGame()) t = m_worm->getTeam();
 		

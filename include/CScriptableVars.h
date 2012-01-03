@@ -167,7 +167,7 @@ public:
 			case SVT_FLOAT: f = v.f; break;
 			case SVT_STRING: str.init(v.str.get()); break;
 			case SVT_COLOR: col.init(v.col.get()); break;
-			case SVT_CUSTOM: custom.init(v.custom.get()); break;
+			case SVT_CUSTOM: custom.init(v.custom); break;
 			case SVT_CALLBACK:
 			case SVT_DYNAMIC: assert(false);
 		}
@@ -196,7 +196,7 @@ public:
 
 	template<typename T>
 	ScriptVar_t& operator=(const T& v) { fromScriptVar(ScriptVar_t(v)); return *this; }
-
+	
 	template<typename T> T* as() { assert(type == SVT_CUSTOM); return dynamic_cast<T*> (&custom.get().get()); }
 	template<typename T> const T* as() const { assert(type == SVT_CUSTOM); return dynamic_cast<const T*> (&custom.get().get()); }
 
@@ -228,6 +228,7 @@ public:
 		}
 		return false;
 	}
+	bool operator!=(const ScriptVar_t& var) const { return !(*this == var); }
 	bool operator<(const ScriptVar_t& var) const {
 		if(isNumeric() && var.isNumeric()) return getNumber() < var.getNumber();
 		if(var.type != type) return type < var.type;
