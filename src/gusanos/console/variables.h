@@ -4,9 +4,6 @@
 #include "consoleitem.h"
 #include "util/text.h"
 #include <boost/function.hpp>
-//#include <boost/lexical_cast.hpp>
-//using boost::lexical_cast;
-
 #include <string>
 #include <map>
 
@@ -15,50 +12,33 @@
 
 class Variable : public ConsoleItem
 {
-	public:
-	
-	Variable(std::string const& name)
-	: m_name(name)
-	{
-	}
-	
-	Variable()
-	{
-	}
-	
-	virtual ~Variable()
-	{
-	}
+public:	
+	Variable(std::string const& name) : m_name(name) {}
+	Variable() {}	
+	virtual ~Variable() {}
 
-	std::string const& getName()
-	{ return m_name; }
+	std::string const& getName() { return m_name; }
+	virtual void reset() {}
 	
-	protected:
-
+protected:
 	std::string m_name;
 };
 
 template<class T>
 class TVariable : public Variable
 {
-	public:
+public:
 	
 	typedef boost::function<void (T const&)> CallbackT;
 	
 	TVariable(std::string name, T* src, T defaultValue, CallbackT const& callback = CallbackT() )
-	: Variable(name), m_src(src), m_callback(callback)
-	{
-		*src = defaultValue;
-	}
+	: Variable(name), m_src(src), m_defaultValue(defaultValue), m_callback(callback)
+	{ reset(); }
 	
 	TVariable()
-	: Variable(), m_src(NULL), m_defaultValue(T()), m_callback(NULL)
-	{
-	}
+	: Variable(), m_src(NULL), m_defaultValue(T()), m_callback(NULL) {}
 	
-	virtual ~TVariable()
-	{
-	}
+	void reset() { *m_src = m_defaultValue; }
 	
 	std::string invoke(std::list<std::string> const& args)
 	{
@@ -76,8 +56,7 @@ class TVariable : public Variable
 		}
 	}
 	
-	private:
-
+private:
 	T* m_src;
 	T m_defaultValue;
 	CallbackT m_callback;
