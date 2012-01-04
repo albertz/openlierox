@@ -214,25 +214,18 @@ CVec CNinjaRope::GetForce()
 	if(!HookAttached)
 		return CVec(0,0);
 
-	return CalculateForce();
-}
-
-
-///////////////////
-// Calculate the pulling force
-CVec CNinjaRope::CalculateForce()
-{
 	CVec dir = owner->pos() - pos();
 	dir = dir.Normalize();
-
+	
 	const int RestLength = cClient->getGameLobby()[FT_RopeRestLength];
 	if((owner->pos() - pos()).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
-
+	
 	dir *= (float)cClient->getGameLobby()[FT_RopeStrength] * -100;
-
+	
 	return dir;
 }
+
 
 //////////////
 // Synchronizes the variables used for check below

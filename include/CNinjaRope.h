@@ -87,7 +87,6 @@ public:
 	void		Shoot(CWorm* owner, CVec pos, CVec dir);
 
 	CVec		GetForce();
-	CVec		CalculateForce();
     
 	bool		isReleased()		{ return Released; }
 	void		Release();
