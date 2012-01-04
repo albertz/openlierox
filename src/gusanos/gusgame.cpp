@@ -106,8 +106,10 @@ GusGame gusGame;
 
 static string wrapper__sv_team_play(const list<string> &args)
 {
-	if(args.size() >= 1)
+	if(args.size() >= 1) {
+		warnings << "Gus SV_TEAM_PLAY overwrite ignored" << endl;
 		return ""; // just ignore
+	}
 	
 	return game.isTeamPlay() ? "1" : "0";
 }
