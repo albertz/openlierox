@@ -53,7 +53,7 @@ public:
 		}
 	}
 	
-private:
+protected:
 	T* m_src;
 	T m_defaultValue;
 	CallbackT m_callback;
@@ -63,15 +63,12 @@ typedef TVariable<int> IntVariable;
 typedef TVariable<float> FloatVariable;
 typedef TVariable<std::string> StringVariable;
 
-class EnumVariable : public Variable
+class EnumVariable : public IntVariable
 {
 public:
-	
 	typedef std::map<std::string, int, IStrCompare> MapType;
 	typedef std::map<int, std::string> ReverseMapType;
-	
-	typedef boost::function<void (int)> CallbackT;
-	
+		
 	EnumVariable(std::string name, int* src, int defaultValue, MapType const& mapping, CallbackT const& func = CallbackT());
 	EnumVariable();
 	virtual ~EnumVariable();
@@ -80,13 +77,9 @@ public:
 	
 	virtual std::string completeArgument(int idx, std::string const& beginning);
 	
-private:
-	
-	int* m_src;
-	int m_defaultValue;	
+protected:
 	ReverseMapType m_reverseMapping;
 	MapType m_mapping;
-	CallbackT m_callback;
 };
 
 #endif  // _VARIABLES_H_
