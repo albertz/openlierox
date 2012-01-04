@@ -881,8 +881,12 @@ void CWorm::actionStart( Actions action )
 			break;
 
 			case NINJAROPE:
-			if ( getAlive() )
-				cNinjaRope.shoot(getWeaponPos(), Vec(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed));
+			if ( getAlive() ) {
+				Vec v(getPointingAngle(), (double)gusGame.options.ninja_rope_shootSpeed);
+				if(cClient->getGameLobby()[FT_RopeAddParentSpeed])
+					v += velocity();
+				cNinjaRope.shoot(getWeaponPos(), v);
+			}
 			break;
 
 			case CHANGEWEAPON:
