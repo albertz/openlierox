@@ -2,8 +2,6 @@
 
 using namespace std;
 
-///////////////////////////////IntVariable////////////////////////////////
-
 //============================= LIFECYCLE ================================
 
 SpecialCommand::SpecialCommand()

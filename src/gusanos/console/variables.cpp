@@ -10,14 +10,10 @@
 
 EnumVariable::EnumVariable()
 : m_src(0), m_defaultValue(0)
-{
-
-}
+{}
 
 EnumVariable::~EnumVariable()
-{
-	
-}
+{}
 
 EnumVariable::EnumVariable(std::string name, int* src, int defaultValue, MapType const& mapping, CallbackT const& func)
 : Variable(name), m_src(src), m_defaultValue(defaultValue), m_mapping(mapping), m_callback(func)
