@@ -8,20 +8,14 @@ using namespace std;
 //============================= LIFECYCLE ================================
 
 Alias::Alias()
-{
-
-}
+{}
 
 Alias::~Alias()
-{
-	
-}
+{}
 
-Alias::Alias(/*Console *parent, */const std::string &name, const std::string &action) :
-ConsoleItem(false), m_name(name), m_action(action)/*, m_parent(parent)*/
-{
-
-}
+Alias::Alias(const std::string &name, const std::string &action) :
+ConsoleItem(false), m_name(name), m_action(action)
+{}
 
 //============================= INTERFACE ================================
 
