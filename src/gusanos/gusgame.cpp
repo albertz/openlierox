@@ -135,25 +135,17 @@ void Options::registerInConsole()
 	console.registerVariables()
 		(ninja_rope_shootSpeed.gusVar("SV_NINJAROPE_SHOOT_SPEED", 2))
 		("SV_NINJAROPE_PULL_FORCE", &ninja_rope_pullForce, 0.031)
-		//("SV_NINJAROPE_PULL_FORCE", &ninja_rope_pullForce, (4.0f / 3.0f) * (70.0f * 70.0f / (100.0f * 100.0f * 16.0f)))
-		
-		//("SV_NINJAROPE_START_DISTANCE", &ninja_rope_startDistance, 20)
 		("SV_NINJAROPE_START_DISTANCE", &ninja_rope_startDistance, 4000.0f / 16.f - 1.f)
 		("SV_NINJAROPE_MAX_LENGTH", &ninja_rope_maxLength, 2000.f)
-
 		(worm_maxSpeed.gusVar("SV_WORM_MAX_SPEED", 0.45f))
 		(worm_acceleration.gusVar("SV_WORM_ACCELERATION", 0.03f))
 		(worm_airAccelerationFactor.gusVar("SV_WORM_AIR_ACCELERATION_FACTOR", 1.f))
-		//("SV_WORM_FRICTION", &worm_friction, 0.02)
 		(worm_friction.gusVar("SV_WORM_FRICTION", pow(0.89f, 0.7f)))
 		(worm_airFriction.gusVar("SV_WORM_AIR_FRICTION", 1.f))
 		(worm_gravity.gusVar("SV_WORM_GRAVITY", 0.009f))
 		(worm_disableWallHugging.gusVar("SV_WORM_DISABLE_WALL_HUGGING", 0))
-		//("SV_WORM_BOUNCE_QUOTIENT", &worm_bounceQuotient, 0.3)
 		(worm_bounceQuotient.gusVar("SV_WORM_BOUNCE_QUOTIENT", 0.333f))
 		(worm_bounceLimit.gusVar("SV_WORM_BOUNCE_LIMIT", 2))
-		//("SV_WORM_BOUNCE_LIMIT", &worm_bounceLimit, 0.56875f)
-		
 		(worm_jumpForce.gusVar("SV_WORM_JUMP_FORCE", 0.6f))
 		(worm_weaponHeight.gusVar("SV_WORM_WEAPON_HEIGHT", 5))
 		(worm_height.gusVar("SV_WORM_HEIGHT", 9))
@@ -165,7 +157,6 @@ void Options::registerInConsole()
 
 		("SV_MAX_RESPAWN_TIME", &maxRespawnTime, -1 )
 		("SV_MIN_RESPAWN_TIME", &minRespawnTime, 100 )
-
 		
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
 			
