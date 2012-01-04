@@ -3,11 +3,7 @@
 
 #include "console.h"
 #include "consoleitem.h"
-
 #include <string>
-
-#define VAR_TYPE_INVALID 0
-#define VAR_TYPE_INT 1
 
 class Alias : public ConsoleItem
 {

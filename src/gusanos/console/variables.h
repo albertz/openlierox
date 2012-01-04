@@ -7,9 +7,6 @@
 #include <string>
 #include <map>
 
-#define VAR_TYPE_INVALID 0
-#define VAR_TYPE_INT 1
-
 class Variable : public ConsoleItem
 {
 public:	
