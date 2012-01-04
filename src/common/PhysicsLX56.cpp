@@ -356,8 +356,7 @@ public:
 		// Process the ninja rope
 		if(worm->getNinjaRope()->isReleased() && worms) {
 			simulateNinjarope( dt, worm, worms );
-			// TODO: move 'getForce' here?
-			worm->velocity() += worm->getNinjaRope()->GetForce(worm->getPos()) * dt;
+			worm->velocity() += worm->getNinjaRope()->GetForce() * dt;
 		}
 
 		if(!(bool)cClient->getGameLobby()[FT_GusanosWormPhysics]) {

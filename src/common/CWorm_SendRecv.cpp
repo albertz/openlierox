@@ -279,7 +279,7 @@ void CWorm::net_updatePos(const CVec& newpos) {
 			}
 
 			if (cNinjaRope.isAttached())  {
-				a += cNinjaRope.GetForce(newpos);
+				a += cNinjaRope.GetForce();
 			}
 
 			// Gravity

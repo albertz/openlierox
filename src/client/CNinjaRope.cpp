@@ -209,31 +209,27 @@ void CNinjaRope::AttachToPlayer(CWorm *worm)
 
 ///////////////////
 // Return the pulling force
-CVec CNinjaRope::GetForce(CVec playerpos)
+CVec CNinjaRope::GetForce()
 {
 	if(!HookAttached)
 		return CVec(0,0);
 
-	return CalculateForce(playerpos);//,HookPos);
+	return CalculateForce();
 }
 
 
 ///////////////////
 // Calculate the pulling force
-CVec CNinjaRope::CalculateForce(CVec playerpos)
+CVec CNinjaRope::CalculateForce()
 {
-	CVec dir = playerpos-pos();
+	CVec dir = owner->pos() - pos();
 	dir = dir.Normalize();
 
 	const int RestLength = cClient->getGameLobby()[FT_RopeRestLength];
-	if((playerpos-pos()).GetLength2() < RestLength*RestLength)
+	if((owner->pos() - pos()).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 
-	// Make sure the pull isn't huge
-	const float Strength = cClient->getGameLobby()[FT_RopeStrength];
-	float l = -Strength;
-
-	dir *= l*100;
+	dir *= (float)cClient->getGameLobby()[FT_RopeStrength] * -100;
 
 	return dir;
 }

@@ -1030,7 +1030,7 @@ void CWormBotInputHandler::getInput() {
 
 		// Don't move in the direction of projectiles when shooting
 		if (m_worm->cNinjaRope.isAttached())  {
-			CVec force = m_worm->cNinjaRope.GetForce(m_worm->vPos);
+			CVec force = m_worm->cNinjaRope.GetForce();
 			float rope_angle = (float)atan(force.x / force.y);
 			if (force.x < 0 || force.y > 0)
 				rope_angle = -rope_angle;
@@ -3423,7 +3423,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	// and move away!
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
-			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce(m_worm->vPos).x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
+			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
 				m_worm->cNinjaRope.Release();
 
 			m_worm->iFaceDirectionSide = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
@@ -3616,7 +3616,7 @@ find_one_visible_node:
 
 
 	// release rope, if it forces us to the wrong direction
-	if(m_worm->cNinjaRope.isAttached() && (m_worm->cNinjaRope.GetForce(m_worm->vPos).Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
+	if(m_worm->cNinjaRope.isAttached() && (m_worm->cNinjaRope.GetForce().Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
 		m_worm->cNinjaRope.Release();
 		fRopeAttachedTime = 0;
 	}
