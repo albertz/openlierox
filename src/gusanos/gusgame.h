@@ -133,13 +133,11 @@ public:
 	
 	bool setMod(const std::string& mod);
 	void loadWeapons();
-	void reinit();
 	void error(Error err);
 	void unload();
 	bool isLoaded();
 	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
-	bool reloadModWithoutMap();
 	bool loadModWithoutMap();
 	bool changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::string& path, CMap* m = NULL);
 	void runInitScripts();
@@ -188,6 +186,8 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
+	bool _reloadModWithoutMap();
+	void _reinit();
 	bool _loadMod(bool doLoadWeapons = true);
 	void _prepareLoad(const std::string& path);
 	void _finishLoad();

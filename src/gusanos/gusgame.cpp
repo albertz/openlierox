@@ -620,7 +620,7 @@ void GusGame::refreshResources(std::string const& levelPath)
 	levelEffectList.addPath(C_DefaultModPath + "/mapeffects");
 }
 
-bool GusGame::reloadModWithoutMap()
+bool GusGame::_reloadModWithoutMap()
 {
 	unload();
 	//level.gusUnload();
@@ -639,14 +639,14 @@ void GusGame::error(Error err)
 	}
 }
 
-void GusGame::reinit() {
+void GusGame::_reinit() {
 	unload();
 	
 	options.registerInConsole();
 }
 
 void GusGame::_prepareLoad(const std::string& path) {	
-	reinit();
+	_reinit();
 	
 	m_modPath = nextMod;
 	
@@ -690,7 +690,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	if(!loader->load(m, levelPath))
 	{
 		warnings << "GusGame::changeLevel: error while loading map" << endl;
-		reloadModWithoutMap();
+		_reloadModWithoutMap();
 		error(ErrorMapLoading);
 		return false;
 	}
