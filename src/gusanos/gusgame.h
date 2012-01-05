@@ -61,8 +61,9 @@ struct Options
 	OlxVar<float,FT_WormBoxRadius> worm_boxRadius;
 	OlxVar<float,FT_WormBoxTop> worm_boxTop;
 	OlxVar<float,FT_WormBoxBottom> worm_boxBottom;
-	int maxRespawnTime;
-	int minRespawnTime;
+	
+	OlxTimeVar<FT_RespawnTime> minRespawnTime;
+	OlxTimeVar<FT_MaxRespawnTime> maxRespawnTime;
 	int maxWeaponsVar;
 	size_t maxWeapons;
 	bool showDeathMessages;

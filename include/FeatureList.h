@@ -133,6 +133,7 @@ enum FeatureIndex {
 	FT_BonusHealthToWeaponChance, // if 0.0f only health will be generated, if 1.0f - only weapons
 	
 	FT_RespawnTime,
+	FT_MaxRespawnTime,
 	FT_RespawnGroupTeams, // respawn all team in single spot
 	FT_EmptyWeaponsOnRespawn, // When worm respawns it should wait until all weapons are reloaded
 	

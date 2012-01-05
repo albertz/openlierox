@@ -52,6 +52,7 @@ Feature( "BonusLife", "Bonus life time", "Bonus life time, in seconds",60.0f,60.
 Feature( "BonusHealthToWeaponChance", "Bonus weapon chance", "Chance of spawning a weapon bonus instead of a health bonus",0.5f,0.5f,Version(), GIG_Bonus, ALT_Advanced, 0.0f, 1.0f, true,true,true ),
 
 Feature( "RespawnTime", "Respawn time", "Player respawn time, in seconds",2.5f,2.5f,Version(), GIG_Advanced, ALT_Advanced, 0.0f, 20.0f, true,true, true ),
+Feature( "MaxRespawnTime", "Max respawn time", "Max player respawn time, in seconds. If enabled (>=0) and if both this time and RespawnTime went by, the worm is automatically spawned.",0.f,0.f,Version(), GIG_Advanced, ALT_Advanced, -1.0f, 20.0f, true,true ),
 Feature( "RespawnGroupTeams", "Group teams", "Respawn player closer to its team, and farther from enemy",true,true,Version(), GIG_Advanced, ALT_Advanced, true,true ),
 Feature( "EmptyWeaponsOnRespawn", "Empty weapons on respawn", "Your weapon ammo is emptied when you respawn",false,false,Version(), GIG_Weapons, ALT_VeryAdvanced, true,true ),
 

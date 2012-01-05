@@ -70,56 +70,62 @@ struct __OlxVariable {
 };
 
 
-template<typename T, FeatureIndex index, T (*getConvert) (T), T (*putConvert) (T)>
+template<typename T1, typename T2, FeatureIndex index, T1 (*getConvert) (T2), T2 (*putConvert) (T1)>
 struct _OlxVariable_Helpers {
 	static ScriptVar_t& writeVar() { return modSettings.set(index); }
-	static T getFct() { return (*getConvert)( (T)gameSettings[index] ); }
-	static void putFct(T v) { writeVar() = (*putConvert)(v); }
+	static T1 getFct() { return (*getConvert)( (T2)gameSettings[index] ); }
+	static void putFct(T1 v) { writeVar() = (*putConvert)(v); }
 };
 
-template<typename T, FeatureIndex index, T (*getConvert) (T), T (*putConvert) (T)>
-struct _OlxVariable : __OlxVariable<T,
-	&_OlxVariable_Helpers<T,index,getConvert,putConvert>::getFct,
-	&_OlxVariable_Helpers<T,index,getConvert,putConvert>::putFct> {};
+template<typename T1, typename T2, FeatureIndex index, T1 (*getConvert) (T2), T2 (*putConvert) (T1)>
+struct _OlxVariable : __OlxVariable<T1,
+	&_OlxVariable_Helpers<T1,T2,index,getConvert,putConvert>::getFct,
+	&_OlxVariable_Helpers<T1,T2,index,getConvert,putConvert>::putFct> {};
 
 template<typename T, FeatureIndex index>
-struct OlxVar : _OlxVariable<T, index, &Identity<T>, &Identity<T> > {};
+struct OlxVar : _OlxVariable<T, T, index, &Identity<T>, &Identity<T> > {};
 
 /* those are defined in CGameObject.cpp */
 float convertSpeed_LXToGus(float v);
 float convertSpeed_GusToLX(float v);
 
 template<FeatureIndex index>
-struct OlxSpeedVar : _OlxVariable<float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
+struct OlxSpeedVar : _OlxVariable<float, float, index, &convertSpeed_LXToGus, &convertSpeed_GusToLX> {};
 
 INLINE float convertSpeedNeg_LXToGus(float v) { return -convertSpeed_LXToGus(v); }
 INLINE float convertSpeedNeg_GusToLX(float v) { return convertSpeed_GusToLX(-v); }
 
 template<FeatureIndex index>
-struct OlxNegatedSpeedVar : _OlxVariable<float, index, &convertSpeedNeg_LXToGus, &convertSpeedNeg_GusToLX> {};
+struct OlxNegatedSpeedVar : _OlxVariable<float, float, index, &convertSpeedNeg_LXToGus, &convertSpeedNeg_GusToLX> {};
 
 /* those are defined in CGameObject.cpp */
 float convertAccel_LXToGus(float v);
 float convertAccel_GusToLX(float v);
 
 template<FeatureIndex index>
-struct OlxAccelVar : _OlxVariable<float, index, &convertAccel_LXToGus, &convertAccel_GusToLX> {};
+struct OlxAccelVar : _OlxVariable<float, float, index, &convertAccel_LXToGus, &convertAccel_GusToLX> {};
 
 INLINE float convertWormFriction_LXToGus(float v) { return 1.0f - v; }
 INLINE float convertWormFriction_GusToLX(float v) { return 1.0f - v; }
 
 template<FeatureIndex index>
-struct OlxWormFrictionVar : _OlxVariable<float, index, &convertWormFriction_LXToGus, &convertWormFriction_GusToLX> {};
+struct OlxWormFrictionVar : _OlxVariable<float, float, index, &convertWormFriction_LXToGus, &convertWormFriction_GusToLX> {};
 
 INLINE bool negateBool(bool v) { return !v; }
 
 template<FeatureIndex index>
-struct OlxBoolNegatedVar : _OlxVariable<bool, index, &negateBool, &negateBool> {};
+struct OlxBoolNegatedVar : _OlxVariable<bool, bool, index, &negateBool, &negateBool> {};
 
 INLINE float convertRopeStrength_LXToGus(float v) { return convertAccel_LXToGus(v * 100.f); }
 INLINE float convertRopeStrength_GusToLX(float v) { return convertAccel_GusToLX(v) / 100.f; }
 
-typedef _OlxVariable<float, FT_RopeStrength, &convertRopeStrength_LXToGus, &convertRopeStrength_GusToLX>
+typedef _OlxVariable<float, float, FT_RopeStrength, &convertRopeStrength_LXToGus, &convertRopeStrength_GusToLX>
 OlxRopeStrengthVar;
+
+INLINE int convertTime_LXToGus(float v) { return int(v * 100.f) /* 100FPS */; }
+INLINE float convertTime_GusToLX(int v) { return float(v) / 100.f; }
+
+template<FeatureIndex index>
+struct OlxTimeVar : _OlxVariable<int, float, index, &convertTime_LXToGus, &convertTime_GusToLX> {};
 
 #endif

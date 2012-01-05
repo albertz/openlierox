@@ -159,8 +159,8 @@ void Options::registerInConsole()
 		(worm_boxTop.gusVar("SV_WORM_BOX_TOP", 3))
 		(worm_boxBottom.gusVar("SV_WORM_BOX_BOTTOM", 4))
 
-		("SV_MAX_RESPAWN_TIME", &maxRespawnTime, -1 )
-		("SV_MIN_RESPAWN_TIME", &minRespawnTime, 100 )
+		(minRespawnTime.gusVar("SV_MIN_RESPAWN_TIME", 100))
+		(maxRespawnTime.gusVar("SV_MAX_RESPAWN_TIME", -1))
 		
 		("SV_MAX_WEAPONS", &maxWeaponsVar, 5)
 			
