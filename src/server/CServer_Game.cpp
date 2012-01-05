@@ -53,7 +53,7 @@ void GameServer::SpawnWorm(CWorm *Worm, CVec * _pos, CServerConnection * client)
 		if( game.gameMap()->getPredefinedSpawnLocation(Worm, &pos) ) {
 			// ok
 		}
-		else if( game.gameMode() == GameMode(GM_CTF) ) {
+		else if( gameSettings[FT_GameMode].as<GameModeInfo>()->actualIndex() == GM_CTF ) {
 			Flag* flag = m_flagInfo->getFlag(Worm->getTeam());
 			if(!flag) // no flag yet, choose like in respawngroupteams
 				pos = game.gameMap()->FindSpotCloseToTeam(Worm->getTeam(), Worm, true);
