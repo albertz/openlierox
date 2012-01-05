@@ -80,8 +80,8 @@ void CNinjaRope::remove()
 
 void CNinjaRope::think()
 {
-	if ( m_length > gusGame.options.ninja_rope_maxLength )
-		m_length = gusGame.options.ninja_rope_maxLength;
+	if ( m_length > (float)(int)gusGame.options.ninja_rope_maxLength )
+		m_length = (float)(int)gusGame.options.ninja_rope_maxLength;
 
 	if (!active)
 		return;
