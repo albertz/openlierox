@@ -513,6 +513,8 @@ void GusGame::runInitScripts()
 
 void GusGame::unload()
 {
+	// TODO: we must also remove the added console bindings (from Lua or custom `alias`)
+	
 	//cerr << "Unloading..." << endl;
 	loaded = false;
 #ifndef DEDICATED_ONLY
