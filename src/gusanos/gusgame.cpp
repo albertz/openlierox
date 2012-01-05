@@ -78,8 +78,7 @@ namespace
 	std::list<LevelEffectEvent> appliedLevelEffects;
 
 	std::string nextMod;
-	std::string    m_modPath;
-	std::string m_modName;
+	std::string m_modPath;
 	static const std::string C_DefaultModPath = "Gusanos";
 	bool loaded;
 	Net_Node *m_node;
@@ -225,7 +224,6 @@ bool GusGame::init()
 	LuaBindings::init();
 
 	m_modPath = "Gusanos";
-	m_modName = "Gusanos";
 	if(!setMod("Gusanos")) {
 		errors << "default Gusanos mod not found" << endl;
 		return false;
@@ -484,9 +482,9 @@ bool GusGame::_loadMod(bool doLoadWeapons)
 void GusGame::runInitScripts()
 {
 	{
-		Script* modScript = scriptLocator.load(m_modName);
+		Script* modScript = scriptLocator.load(m_modPath);
 		if(!modScript) {
-			notes << "init script " << m_modName << ".lua not found, trying common.lua" << endl;
+			notes << "init script " << m_modPath << ".lua not found, trying common.lua" << endl;
 			modScript = scriptLocator.load("common");
 			if(!modScript) notes << "common.lua also not found" << endl;
 		}
@@ -650,7 +648,6 @@ void GusGame::reinit() {
 void GusGame::_prepareLoad(const std::string& path) {	
 	reinit();
 	
-	m_modName = nextMod;
 	m_modPath = nextMod;
 	
 	//level.setName(levelName);
@@ -732,12 +729,11 @@ bool GusGame::setMod( const string& modname )
 	if( gusExists(modname) )
 	{
 		nextMod = modname;
-		m_modName = nextMod;
 		m_modPath = nextMod;		
 	}
 	else
 	{
-		nextMod = m_modName;
+		nextMod = m_modPath;
 		return false;
 	}
 	
@@ -778,11 +774,6 @@ void GusGame::displayKillMsg( CWormInputHandler* killed, CWormInputHandler* kill
 void GusGame::displayMessage( ScreenMessage const& msg )
 {
 	messages.push_back(msg);
-}
-
-const string& GusGame::getMod()
-{
-	return m_modName;
 }
 
 std::string const& GusGame::getModPath()
@@ -828,11 +819,6 @@ unsigned long GusGame::stringToIndex(std::string const& str)
 std::string const& GusGame::indexToString(unsigned long idx)
 {
 	return indexToStringMap.at(idx);
-}
-
-std::string const& GusGame::getModName()
-{
-	return m_modName;
 }
 
 void GusGame::addCRCs(BitStream* req)

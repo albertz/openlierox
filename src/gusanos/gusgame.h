@@ -171,7 +171,6 @@ public:
 	PartType* deathObject;
 	PartType* digObject;
 		
-	const std::string& getMod();
 	std::string const& getModPath();
 	std::string const& getDefaultPath();
 
@@ -184,9 +183,7 @@ public:
 	unsigned long stringToIndex(std::string const& str);
 	
 	std::string const& indexToString(unsigned long idx);
-	
-	std::string const& getModName();
-	
+		
 	static void addCRCs(BitStream* req);
 	static bool checkCRCs(BitStream& data);
 		
