@@ -121,7 +121,7 @@ void CNinjaRope::think()
 		{
 			if(!attached)
 			{
-				m_length = 450.f / 16.f - 1.0f;
+				m_length = (float)(int)gusGame.options.ninja_rope_restLength;
 				attached = true;
 				velocity() = CVec();
 				if ( gusGame.NRPartType->groundCollision  )
