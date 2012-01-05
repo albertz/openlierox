@@ -706,7 +706,7 @@ static bool wasNotAFeatureSettingBefore(FeatureIndex i) {
 	   i == FT_WormAirFriction ||
 	   i == FT_WormGravity ||
 	   i == FT_WormJumpForce ||
-	   i == FT_RopeLength ||
+	   i == FT_RopeMaxLength ||
 	   i == FT_RopeRestLength ||
 	   i == FT_RopeStrength)
 		return true;

@@ -158,7 +158,7 @@ enum FeatureIndex {
 	FT_WormBoxTop,
 	FT_WormBoxBottom,
 	
-	FT_RopeLength, // int
+	FT_RopeMaxLength, // int
 	FT_RopeRestLength, // int
 	FT_RopeStrength, // float
 	FT_RopeSpeed, // float

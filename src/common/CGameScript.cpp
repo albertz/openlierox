@@ -197,7 +197,7 @@ int CGameScript::Save(const std::string& filename)
 
 
 	// Ninja Rope
-	fwrite_endian_compat((int)gameSettings[FT_RopeLength],sizeof(int),1,fp);
+	fwrite_endian_compat((int)gameSettings[FT_RopeMaxLength],sizeof(int),1,fp);
 	fwrite_endian_compat((int)gameSettings[FT_RopeRestLength],sizeof(int),1,fp);
 	fwrite_endian_compat((float)gameSettings[FT_RopeStrength],sizeof(float),1,fp);
 
@@ -778,7 +778,7 @@ int CGameScript::Load(const std::string& dir, bool loadImagesAndSounds)
 	fread_compat(Strength,sizeof(float),1,fp);
 	EndianSwap(Strength);
 
-	lx56modSettings.set(FT_RopeLength) = RopeLength;
+	lx56modSettings.set(FT_RopeMaxLength) = RopeLength;
 	lx56modSettings.set(FT_RopeRestLength) = RestLength;
 	lx56modSettings.set(FT_RopeStrength) = Strength;
 	
@@ -1895,7 +1895,7 @@ bool CGameScript::CompileExtra(const IniReader& ini)
 	ini.ReadInteger("NinjaRope","RestLength",&restl,0);
 	ini.ReadFloat("NinjaRope","Strength",&strength,0);
 
-	Game->lx56modSettings.set(FT_RopeLength) = ropel;
+	Game->lx56modSettings.set(FT_RopeMaxLength) = ropel;
 	Game->lx56modSettings.set(FT_RopeRestLength) = restl;
 	Game->lx56modSettings.set(FT_RopeStrength) = strength;
 
