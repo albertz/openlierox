@@ -1263,3 +1263,37 @@ void GameServer::SendPlaySound(const std::string& name) {
 		cl->getNetEngine()->SendPlaySound(name);
 	}
 }
+
+
+void CServerNetEngine::SendCanRespawnNow(CWorm* w) {
+	if(cl->getClientVersion() < OLXBetaVersion(0,59,10)) return;
+
+	CBytestream bs;
+	bs.writeByte(S2C_CANRESPAWNNOW);
+	bs.writeByte(w->getID());
+	SendPacket(&bs);		
+}
+
+bool GameServer::CanWormHandleClientSideRespawn(CWorm* w) {
+	CServerConnection* cl = w->getClient();
+	if(cl == NULL) { // shouldn't happen
+		errors << "GS::CanWormHandleClientSideRespawn: client of worm " << w->getID() << ":" << w->getName() << " is unset" << endl;
+		return false;
+	}
+	return cl->getClientVersion() >= OLXBetaVersion(0,59,10);
+}
+
+void GameServer::SendWormCanRespawnNow(CWorm* w) {
+	CServerConnection* cl = w->getClient();
+	if(cl == NULL) { // shouldn't happen
+		errors << "GS::SendWormCanRespawnNow: client of worm " << w->getID() << ":" << w->getName() << " is unset" << endl;
+		return;
+	}
+	CServerNetEngine* n = cl->getNetEngine();
+	if(n == NULL) { // shouldn't happen
+		errors << "GS::SendWormCanRespawnNow: client->engine of worm " << w->getID() << ":" << w->getName() << " is unset" << endl;
+		return;
+	}
+	n->SendCanRespawnNow(w);
+}
+

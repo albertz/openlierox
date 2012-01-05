@@ -86,6 +86,8 @@ public:
 	virtual void SendUpdateWorm(CWorm* w);
 	void SendPlaySound(const std::string& name);
 	
+	void SendCanRespawnNow(CWorm* w);
+	
 	int getConnectionArrayIndex();
 	
 protected:

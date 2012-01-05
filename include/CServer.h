@@ -259,6 +259,9 @@ public:
 	void		SetWormDamageFactor(int wormID, float f);
 	void		SetWormShieldFactor(int wormID, float f);
 	void		SetWormCanAirJump(int wormID, bool b);
+	
+	bool		CanWormHandleClientSideRespawn(CWorm* w);
+	void		SendWormCanRespawnNow(CWorm* w);
 
 	
 	// Connectionless packets only here
