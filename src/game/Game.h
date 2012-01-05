@@ -32,9 +32,7 @@ public:
 	void frameOuter();
 	void frameInner();
 	void cleanupAfterGameloopEnd();
-	
-	void reset();
-	
+		
 	void onNewWorm(CWorm* w);
 	void onRemoveWorm(CWorm* w);
 	void onNewPlayer(CWormInputHandler*);
@@ -71,6 +69,8 @@ public:
 	bool		isMapReady() const;	
 	
 private:
+	void reset();
+
 	AbsTime oldtime;
 	SmartPointer<CMap> m_gameMap;
 	SmartPointer<CGameScript> m_gameMod;

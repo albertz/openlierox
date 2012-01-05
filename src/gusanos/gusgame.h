@@ -114,16 +114,6 @@ public:
 		PROXY,
 	};
 	
-	enum ResetReason
-	{
-		ServerQuit,
-		ServerChangeMap,
-		Kicked,
-		LoadingLevel,
-		IncompatibleProtocol,
-		IncompatibleData,
-	};
-	
 	enum Error
 	{
 		ErrorNone = 0,
@@ -143,10 +133,9 @@ public:
 	
 	bool setMod(const std::string& mod);
 	void loadWeapons();
-	void reset(ResetReason reason);
-	void unload();
 	void reinit();
 	void error(Error err);
+	void unload();
 	bool isLoaded();
 	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);

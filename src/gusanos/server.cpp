@@ -31,23 +31,8 @@ Server::Server()
 Server::~Server()
 {}
 
-void Server::Net_cbDataReceived( Net_ConnID  _id, BitStream &_data)
-{
-	Network::NetEvents event = (Network::NetEvents) _data.getInt(8);
-	switch( event ) {
-			case Network::ConsistencyInfo: {
-				int clientProtocol = _data.getInt(32);
-				if(clientProtocol != Network::protocolVersion) {
-					network.disconnect(_id, Network::IncompatibleProtocol);
-				}
-
-				if(!gusGame.checkCRCs(_data) && network.checkCRC) // We call checkCRC anyway so that the stream is advanced
-					network.disconnect(_id, Network::IncompatibleData);
-
-			}
-			break;
-	}
-}
+void Server::Net_cbDataReceived(Net_ConnID _id, BitStream &_data)
+{}
 
 void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 {
@@ -57,7 +42,7 @@ void Server::Net_cbConnectionSpawned( Net_ConnID _id )
 	network.sendEncodedLuaEvents(_id);
 }
 
-void Server::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata)
+void Server::Net_cbConnectionClosed(Net_ConnID _id)
 {
 	console.addLogMsg("* A CONNECTION WAS CLOSED");
 	for ( std::vector<CWormInputHandler*>::iterator iter = game.players.begin(); iter != game.players.end(); iter++) {

@@ -34,7 +34,6 @@ void Client::Net_cbConnectResult(eNet_ConnectResult res) {
 	
 	// earlier, we did the mod/level loading here
 	// _reply contained two strings, containing level/mod name
-	sendConsistencyInfo();
 	Net_requestNetMode(NetConnID_server(), 1);
 }
 
@@ -42,81 +41,9 @@ Client::~Client()
 {
 }
 
-void Client::sendConsistencyInfo()
+void Client::Net_cbConnectionClosed(Net_ConnID _id)
 {
-	std::auto_ptr<BitStream> req(new BitStream);
-	req->addInt(Network::ConsistencyInfo, 8);
-	req->addInt(Network::protocolVersion, 32);
-	gusGame.addCRCs(req.get());
-	Net_sendData( network.getServerID(), req.release(), eNet_ReliableOrdered );
-}
-
-void Client::Net_cbConnectionClosed(Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata)
-{
-	network.decConnCount();
-	switch( _reason )
-	{
-		case eNet_ClosedDisconnect:
-		{
-			Network::DConnEvents dcEvent = static_cast<Network::DConnEvents>( _reasondata.getInt(8) );
-			switch( dcEvent )
-			{
-				case Network::ServerMapChange:
-				{
-					console.addLogMsg("* SERVER CHANGED MAP");
-					network.olxReconnect(150);
-					gusGame.reset(GusGame::ServerChangeMap);
-				}
-				break;
-				case Network::Quit:
-				{
-					console.addLogMsg("* CONNECTION CLOSED BY SERVER");
-					gusGame.reset(GusGame::ServerQuit);
-				}
-				break;
-				case Network::Kick:
-				{
-					console.addLogMsg("* YOU WERE KICKED");
-					gusGame.reset(GusGame::Kicked);
-				}
-				break;
-				case Network::IncompatibleData:
-				{
-					console.addLogMsg("* YOU HAVE INCOMPATIBLE DATA");
-					gusGame.reset(GusGame::IncompatibleData);
-				}
-				break;
-				
-				case Network::IncompatibleProtocol:
-				{
-					console.addLogMsg("* THE HOST RUNS AN INCOMPATIBLE VERSION OF VERMES");
-					gusGame.reset(GusGame::IncompatibleProtocol);
-				}
-				break;
-				
-				default:
-				{
-					console.addLogMsg("* CONNECTION CLOSED BY DUNNO WHAT :O");
-					gusGame.reset(GusGame::ServerQuit);
-				}
-				break;
-			}
-		}
-		break;
-		
-		case eNet_ClosedTimeout:
-			console.addLogMsg("* CONNECTION TIMEDOUT");
-			gusGame.reset(GusGame::ServerQuit);
-		break;
-		
-		case eNet_ClosedReconnect:
-			console.addLogMsg("* CONNECTION RECONNECTED");
-		break;
-		
-		default:
-		break;
-	}
-	
+	network.decConnCount();	
 	DLOG("A connection was closed");
 }
 

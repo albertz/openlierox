@@ -25,7 +25,7 @@ protected:
 	// called when incoming connection has been established
 	void Net_cbConnectionSpawned( Net_ConnID _id );
 	// called when a connection closed
-	void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata );
+	void Net_cbConnectionClosed( Net_ConnID _id );
 		
 	void Net_cbDataReceived( Net_ConnID _id, BitStream &_data );
 	

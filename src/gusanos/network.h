@@ -53,20 +53,6 @@ public:
 	
 	static int const protocolVersion;
 		
-	enum NetEvents
-	{
-		ConsistencyInfo,
-	};
-	
-	enum DConnEvents
-	{
-		Kick,
-		ServerMapChange,
-		Quit,
-		IncompatibleData,
-		IncompatibleProtocol
-	};
-	
 	enum State
 	{
 		StateIdle,	// Not doing anything
@@ -111,8 +97,7 @@ public:
 	
 	static void olxHost();
 	static void olxConnect();
-	static void disconnect( DConnEvents event = Quit );
-	static void disconnect( Net_ConnID id, DConnEvents event );
+	static void disconnect();
 	static void olxReconnect(int delay = 1);
 	static void clear();
 	static void olxShutdown();

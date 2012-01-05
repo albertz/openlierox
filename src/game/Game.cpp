@@ -257,7 +257,8 @@ void Game::cleanupAfterGameloopEnd() {
 		// call gameover because we may do some important cleanup there
 		game.gameMode()->GameOver();
 	
-	gusGame.reset(GusGame::ServerQuit);
+	reset();
+	gusGame.unload();
 	
 	PhysicsEngine::UnInit();
 	

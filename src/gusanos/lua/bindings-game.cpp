@@ -540,15 +540,6 @@ void initGame()
 		("is_local", l_player_isLocal)
 	)
 	
-	ENUM(EndReason,  
-		("ServerQuit", GusGame::ServerQuit)
-		("ServerChangeMap", GusGame::ServerChangeMap)
-		("Kicked", GusGame::Kicked)
-		//("LoadingLevel", GusGame::LoadingLevel)
-		("IncompatibleProtocol", GusGame::IncompatibleProtocol)
-		("IncompatibleData", GusGame::IncompatibleData)
-	)
-	
 	ENUM(Error,  
 		("None", GusGame::ErrorNone)
 		("MapNotFound", GusGame::ErrorMapNotFound)

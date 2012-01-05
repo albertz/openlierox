@@ -171,8 +171,6 @@ struct Net_Control : DontCopyTag {
 
 	void Shutdown();
 	void Net_ConnectToServer();
-	void Net_disconnectAll(BitStream*);
-	void Net_Disconnect(Net_ConnID id, BitStream*);
 			
 	void Net_setControlID(int);
 	void Net_setDebugName(const std::string&);
@@ -201,7 +199,7 @@ struct Net_Control : DontCopyTag {
 	// called when incoming connection has been established
 	virtual void Net_cbConnectionSpawned( Net_ConnID _id ) = 0;
 	// called when a connection closed
-	virtual void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata ) = 0;
+	virtual void Net_cbConnectionClosed( Net_ConnID _id ) = 0;
 	// called when we got connected to server
 	virtual void Net_cbConnectResult( eNet_ConnectResult res ) = 0;
 	

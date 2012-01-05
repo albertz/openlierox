@@ -292,29 +292,14 @@ void Network::olxConnect()
 	gusGame.assignNetworkRole( false );
 }
 
-void Network::disconnect( DConnEvents event )
+void Network::disconnect()
 {
 	if(state == StateIdle && m_control) {
 		setLuaState(StateDisconnecting);
 		SET_STATE(Disconnecting);
 		stateTimeOut = 1000;
-
-		BitStream *eventData = new BitStream;
-		eventData->addInt( static_cast<int>( event ), 8 );
-
 		LOG("Disconnecting...");
-		m_control->Net_disconnectAll(eventData);
 	}
-}
-
-void Network::disconnect( Net_ConnID id, DConnEvents event )
-{
-	if(!m_control)
-		return;
-
-	std::auto_ptr<BitStream> eventData(new BitStream);
-	eventData->addInt( static_cast<int>( event ), 8 );
-	m_control->Net_Disconnect( id, eventData.release());
 }
 
 void Network::clear()

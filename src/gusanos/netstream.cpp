@@ -241,8 +241,6 @@ Net_Control::~Net_Control() {
 }
 
 void Net_Control::Shutdown() {}
-void Net_Control::Net_disconnectAll(BitStream*) {}
-void Net_Control::Net_Disconnect(Net_ConnID id, BitStream*) {}
 
 
 static std::string rawFromBits(BitStream& bits) {

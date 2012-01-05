@@ -11,10 +11,8 @@ public:
 	~Client();
 			
 protected:	
-	void sendConsistencyInfo();
-	
 	// connection has closed
-	void Net_cbConnectionClosed( Net_ConnID _id, eNet_CloseReason _reason, BitStream &_reasondata );
+	void Net_cbConnectionClosed( Net_ConnID _id );
 	
 	void Net_cbDataReceived( Net_ConnID id, BitStream &data);
 	

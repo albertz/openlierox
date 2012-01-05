@@ -518,24 +518,6 @@ void GusGame::runInitScripts()
 	partTypeList.indexate();
 }
 
-void GusGame::reset(ResetReason reason)
-{
-	game.reset();
-	
-	appliedLevelEffects.clear();
-	
-	// OLX manages this
-	//level().gusUnload();
-	
-	if(reason != LoadingLevel)
-	{
-		EACH_CALLBACK(i, gameEnded)
-		{
-			(lua.call(*i), static_cast<int>(reason))();
-		}
-	}
-}
-
 void GusGame::unload()
 {
 	//cerr << "Unloading..." << endl;
@@ -547,8 +529,6 @@ void GusGame::unload()
 	
 	console.clearTemporaries();
 	
-	reset(LoadingLevel);
-
 	appliedLevelEffects.clear();
 	
 	
