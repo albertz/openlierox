@@ -425,13 +425,15 @@ void CGameSettingsDialog::LoadFromOptions()
 void CGameSettingsDialog::Save()
 {
 	// Default to no setting
-	gameSettings.overwrite[FT_Lives] = -2;
-	gameSettings.overwrite[FT_KillLimit] = -1;
-	gameSettings.overwrite[FT_TimeLimit] = -1.0f;
-	gameSettings.overwrite[FT_TagLimit] = -1.0f;
-	gameSettings.overwrite[FT_RespawnTime] = 2.5f;
-	gameSettings.overwrite[FT_Bonuses] = true;
-	gameSettings.overwrite[FT_ShowBonusName] = true;
+#define _RESET_TO_DEF(i) tLXOptions->customSettings.isSet[i] = false
+	_RESET_TO_DEF(FT_Lives);
+	_RESET_TO_DEF(FT_KillLimit);
+	_RESET_TO_DEF(FT_TimeLimit);
+	_RESET_TO_DEF(FT_TagLimit);
+	_RESET_TO_DEF(FT_RespawnTime);
+	_RESET_TO_DEF(FT_Bonuses);
+	_RESET_TO_DEF(FT_ShowBonusName);
+#undef _RESET_TO_DEF
 
 	//
 	// General
