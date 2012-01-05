@@ -540,14 +540,6 @@ void initGame()
 		("is_local", l_player_isLocal)
 	)
 	
-	ENUM(Error,  
-		("None", GusGame::ErrorNone)
-		("MapNotFound", GusGame::ErrorMapNotFound)
-		("MapLoading", GusGame::ErrorMapLoading)
-		("ModNotFound", GusGame::ErrorModNotFound)
-		("ModLoading", GusGame::ErrorModLoading)
-	)
-	
 	ENUM(Player,  
 		("Left", CWormHumanInputHandler::LEFT)
 		("Right", CWormHumanInputHandler::RIGHT)

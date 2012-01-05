@@ -113,16 +113,7 @@ public:
 		OWNER = 0,
 		PROXY,
 	};
-	
-	enum Error
-	{
-		ErrorNone = 0,
-		ErrorMapNotFound,
-		ErrorMapLoading,
-		ErrorModNotFound,
-		ErrorModLoading
-	};
-		
+			
 	GusGame();
 	~GusGame();
 	
@@ -185,7 +176,6 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
-	void _error(Error err);
 	bool _loadMod(bool doLoadWeapons = true);
 	void _prepareLoad(const std::string& path);
 	void _finishLoad();

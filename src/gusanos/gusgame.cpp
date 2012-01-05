@@ -468,10 +468,7 @@ bool GusGame::_loadMod(bool doLoadWeapons)
 	}
 	console.executeConfig("mod.cfg");
 	
-	if(!loaded)
-		_error(ErrorModLoading);
-	
-	return true;
+	return loaded;
 }
 
 void GusGame::runInitScripts()
@@ -617,14 +614,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	levelEffectList.addPath(C_DefaultModPath + "/mapeffects");
 }
 
-void GusGame::_error(Error err)
-{
-	EACH_CALLBACK(i, gameError)
-	{
-		(lua.call(*i), static_cast<int>(err))();
-	}
-}
-
 void GusGame::_prepareLoad(const std::string& path) {	
 	unload();
 
@@ -676,7 +665,6 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	{
 		warnings << "GusGame::changeLevel: error while loading map" << endl;
 		unload(); // not necessarily needed but useful to just free some memory/resources
-		_error(ErrorMapLoading);
 		return false;
 	}
 	
