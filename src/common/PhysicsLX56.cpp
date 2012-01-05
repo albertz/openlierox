@@ -574,7 +574,7 @@ public:
 
 			// Going towards the player
 			const float length2 = (playerpos - rope->hookPos()) . GetLength2();
-			const int ropeRestLength = cClient->getGameLobby()[FT_RopeRestLength];
+			const float ropeRestLength = (int)cClient->getGameLobby()[FT_RopeRestLength];
 			if(length2 > ropeRestLength * ropeRestLength) {
 
 				// Pull the hook back towards the player
