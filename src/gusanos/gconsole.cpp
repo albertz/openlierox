@@ -90,39 +90,6 @@ string aliasCmd(const list<string> &args)
 	return "ALIAS <NAME> <ACTION> : REGISTER ALIAS TO ACTION";
 }
 
-/*
-string execScript(list<string> const& args)
-{
-	if (args.size() >= 2)
-	{
-		list<string>::const_iterator i = args.begin();
-		string const& file = *i++;
-		string const& function = *i++;
-		Script* s = scriptLocator.load(file);
-		if(!s)
-			return "SCRIPT FILE \"" + file + "\" COULDN'T BE LOADED";
-			
-		s->pushFunction(function);
-		int params = 0;
-		for(; i != args.end(); ++i)
-		{
-			lua_pushstring(*s->lua, i->c_str());
-			++params;
-		}
-		
-		int result = s->lua->call(params);
-		
-		if(result < 0)
-		{
-			return ( "COULDN'T EXECUTE " + file + " " + function );
-		}
-		else
-			return "";
-	}
-	return "EXECSCRIPT <FILE> <FUNCTION> : EXECUTE A SCRIPT FILE";
-}
-*/
-
 string rndSeedCmd(list<string> const& args)
 {
 	if(args.size() > 0)
@@ -191,16 +158,7 @@ void GConsole::init()
 	;
 
 	console.registerCommands()
-#ifndef DEDICATED_ONLY
-/*
-		(string("SWAPKEYS"), swapKeysCmd)
-		(string("SETSHIFTCHAR"), setShiftChar)
-		(string("SETALTGRCHAR"), setAltGrChar)
-		(string("SETCHAR"), setChar)
-*/
-#endif
 		(string("EXEC"), execCmd)
-		//(string("EXECSCRIPT"), execScript)
 		(string("ALIAS"), aliasCmd)
 		(string("ECHO"), echoCmd)
 		(string("RND_SEED"), rndSeedCmd)
