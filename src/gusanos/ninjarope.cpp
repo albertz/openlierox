@@ -80,12 +80,6 @@ void CNinjaRope::remove()
 
 void CNinjaRope::think()
 {
-	// TODO: ninja_rope_maxLength is not really implemented/used correctly here, is it?
-	// But is this original Gusanos code? Has this ever worked correctly?
-	// It seems it was added in the latest Gus0.9c release but might not be used at all.
-	if ( m_length > (float)(int)gusGame.options.ninja_rope_maxLength )
-		m_length = (float)(int)gusGame.options.ninja_rope_maxLength;
-
 	if (!active)
 		return;
 	

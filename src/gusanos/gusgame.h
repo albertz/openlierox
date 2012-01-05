@@ -42,9 +42,8 @@ struct Options
 	
 	OlxSpeedVar<FT_RopeSpeed> ninja_rope_shootSpeed;
 	OlxRopeStrengthVar ninja_rope_pullForce;
-	float ninja_rope_startDistance;
+	OlxVar<int,FT_RopeMaxLength> ninja_rope_startDistance;
 	OlxVar<int,FT_RopeRestLength> ninja_rope_restLength;
-	OlxVar<int,FT_RopeMaxLength> ninja_rope_maxLength;
 	OlxSpeedVar<FT_WormMaxGroundMoveSpeed> worm_maxSpeed;
 	OlxAccelVar<FT_WormAcceleration> worm_acceleration;
 	OlxVar<float,FT_WormAirAccelerationFactor> worm_airAccelerationFactor;
