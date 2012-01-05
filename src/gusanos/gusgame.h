@@ -41,7 +41,7 @@ struct Options
 	void registerInConsole();
 	
 	OlxSpeedVar<FT_RopeSpeed> ninja_rope_shootSpeed;
-	float ninja_rope_pullForce;
+	OlxRopeStrengthVar ninja_rope_pullForce;
 	float ninja_rope_startDistance;
 	float ninja_rope_maxLength;
 	OlxSpeedVar<FT_WormMaxGroundMoveSpeed> worm_maxSpeed;
@@ -147,7 +147,6 @@ public:
 	void unload();
 	void reinit();
 	void error(Error err);
-	bool loadMod(bool doLoadWeapons = true);
 	bool isLoaded();
 	bool isLevelLoaded();
 	void refreshResources(std::string const& levelPath);
@@ -203,8 +202,9 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
-	void prepareLoad(const std::string& path);
-	void finishLoad();
+	bool _loadMod(bool doLoadWeapons = true);
+	void _prepareLoad(const std::string& path);
+	void _finishLoad();
 };
 
 extern GusGame gusGame;

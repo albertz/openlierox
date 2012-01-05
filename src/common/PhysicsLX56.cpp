@@ -44,7 +44,7 @@
 // defined in PhysicsLX56_Projectiles
 void LX56_simulateProjectiles(Iterator<CProjectile*>::Ref projs);
 
-
+// Default LX56PhysicsFPS is 84.
 static int _getCurrentLX56PhysicsFPS() {
 	if(game.isServer())
 		return gameSettings[FT_LX56PhysicsFPS];

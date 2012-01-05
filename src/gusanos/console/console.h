@@ -123,6 +123,8 @@ public:
 	
 	std::string completeCommand(std::string const& b);
 	
+	ItemMap const& getItems() const { return items; }
+	
 protected:
 	
 	ItemMap items;

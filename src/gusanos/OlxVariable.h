@@ -39,11 +39,13 @@ INLINE T Identity(T v) { return v; }
 template<typename T, T (*getFct) (), void (*putFct) (T)>
 struct __OlxVariable {
 	
-	// WARNING: as long as Variable exists, this object must exist too
-	Variable* gusVar(const std::string& name) {
+	// WARNING: as long as the returned Variable exists, the __OlxVariable must exist too
+	Variable* gusVar(const std::string& name, T gusDefault = T()) {
 		struct GusVarWrapper : /* Gusanos */ Variable {
 			__OlxVariable* lxvar;
-			GusVarWrapper(const std::string& name, __OlxVariable* v) : Variable(name), lxvar(v) {}
+			T gusDefault;
+			GusVarWrapper(__OlxVariable* v, const std::string& name, T _default)
+			: Variable(name), lxvar(v), gusDefault(_default) {}
 
 			// Gusanos console system callback
 			virtual std::string invoke(const std::list<std::string> &args) {
@@ -54,14 +56,11 @@ struct __OlxVariable {
 				
 				return to_string( lxvar->get() );
 			}
+			
+			virtual void reset() { lxvar->put(gusDefault); }
 		};
 		
-		return new GusVarWrapper(name, this);
-	}
-	
-	Variable* gusVar(const std::string& name, T gusDefault) {
-		/* put(gusDefault); // NOTE: we ignore it because we want to use the OLX default values */
-		return gusVar(name);
+		return new GusVarWrapper(this, name, gusDefault);
 	}
 	
 	T get() const { return (*getFct)(); }
@@ -116,5 +115,11 @@ INLINE bool negateBool(bool v) { return !v; }
 
 template<FeatureIndex index>
 struct OlxBoolNegatedVar : _OlxVariable<bool, index, &negateBool, &negateBool> {};
+
+INLINE float convertRopeStrength_LXToGus(float v) { return convertAccel_LXToGus(v * 100.f); }
+INLINE float convertRopeStrength_GusToLX(float v) { return convertAccel_GusToLX(v) / 100.f; }
+
+typedef _OlxVariable<float, FT_RopeStrength, &convertRopeStrength_LXToGus, &convertRopeStrength_GusToLX>
+OlxRopeStrengthVar;
 
 #endif

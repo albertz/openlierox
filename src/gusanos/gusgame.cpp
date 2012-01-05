@@ -134,7 +134,7 @@ void Options::registerInConsole()
 {
 	console.registerVariables()
 		(ninja_rope_shootSpeed.gusVar("SV_NINJAROPE_SHOOT_SPEED", 2))
-		("SV_NINJAROPE_PULL_FORCE", &ninja_rope_pullForce, 0.031)
+		(ninja_rope_pullForce.gusVar("SV_NINJAROPE_PULL_FORCE", 0.031))
 		("SV_NINJAROPE_START_DISTANCE", &ninja_rope_startDistance, 4000.0f / 16.f - 1.f)
 		("SV_NINJAROPE_MAX_LENGTH", &ninja_rope_maxLength, 2000.f)
 		(worm_maxSpeed.gusVar("SV_WORM_MAX_SPEED", 0.45f))
@@ -433,8 +433,13 @@ void GusGame::loadWeapons()
 	}
 };
 
-bool GusGame::loadMod(bool doLoadWeapons)
+bool GusGame::_loadMod(bool doLoadWeapons)
 {
+	foreach( i, console.getItems() )
+		if(Variable* v = dynamic_cast<Variable*>(i->second))
+			// reset variable to Gusanos default
+			v->reset();
+	
 	options.maxWeapons = options.maxWeaponsVar;
 	console.loadResources();
 	gfx.loadResources();
@@ -642,7 +647,7 @@ bool GusGame::reloadModWithoutMap()
 	unload();
 	//level.gusUnload();
 	refreshResources("Gusanos");
-	loadMod(false);
+	_loadMod(false);
 	runInitScripts();
 	
 	return true;
@@ -662,7 +667,7 @@ void GusGame::reinit() {
 	options.registerInConsole();
 }
 
-void GusGame::prepareLoad(const std::string& path) {	
+void GusGame::_prepareLoad(const std::string& path) {	
 	reinit();
 	
 	m_modName = nextMod;
@@ -674,18 +679,26 @@ void GusGame::prepareLoad(const std::string& path) {
 	nextMod = "Gusanos"; // we must explicitly set the mod each time we load a new level	
 }
 
-void GusGame::finishLoad() {
+void GusGame::_finishLoad() {
 	if(isLevelLoaded())
 		game.objects.resize(0, 0, level().GetWidth(), level().GetHeight());
 	
 	//cerr << "Loading mod" << endl;
-	loadMod();
+	_loadMod();
 }
 
+// NOTE: From OLX; this is called when we have a LX-level.
+// In case we have a Gus mod, we have called setMod(<GUS-mod>).
+// Otherwise, we have called setMod(C_DefaultModPath /* == "Gusanos" */).
+// In case we have a Gus level, we don't need to call this because we
+// loaded the Gus-mod already in changeLevel, which is called from the level
+// loading code.
+// WARNING: This is all hacky and might be temporarely, so this might
+// need some update.
 bool GusGame::loadModWithoutMap() {
 	notes << "GusGame::loadModWithoutMap: " << nextMod << endl;
-	prepareLoad( /* dummy path */ C_DefaultModPath );
-	finishLoad();
+	_prepareLoad( /* dummy path */ C_DefaultModPath );
+	_finishLoad();
 	return true;
 }
 
@@ -693,7 +706,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 {
 	notes << "GusGame::changeLevel: " << levelPath << " with mod " << nextMod << endl;
 	
-	prepareLoad(levelPath);
+	_prepareLoad(levelPath);
 	
 	if(!m) m = &level();
 	
@@ -705,7 +718,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 		return false;
 	}
 	
-	finishLoad();
+	_finishLoad();
 	return true;
 }
 
@@ -867,11 +880,6 @@ bool GusGame::checkCRCs(BitStream& data)
 	
 	return true;
 }
-/*
-Net_Node* GusGame::getNode()
-{
-	return m_node;
-}*/
 
 CMap& GusGame::level() {
 	return *game.gameMap();
