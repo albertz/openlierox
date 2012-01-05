@@ -186,8 +186,6 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
-	bool _reloadModWithoutMap();
-	void _reinit();
 	bool _loadMod(bool doLoadWeapons = true);
 	void _prepareLoad(const std::string& path);
 	void _finishLoad();

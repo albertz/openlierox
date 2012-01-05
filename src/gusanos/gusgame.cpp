@@ -433,11 +433,6 @@ void GusGame::loadWeapons()
 
 bool GusGame::_loadMod(bool doLoadWeapons)
 {
-	foreach( i, console.getItems() )
-		if(Variable* v = dynamic_cast<Variable*>(i->second))
-			// reset variable to Gusanos default
-			v->reset();
-	
 	options.maxWeapons = options.maxWeaponsVar;
 	console.loadResources();
 	gfx.loadResources();
@@ -620,17 +615,6 @@ void GusGame::refreshResources(std::string const& levelPath)
 	levelEffectList.addPath(C_DefaultModPath + "/mapeffects");
 }
 
-bool GusGame::_reloadModWithoutMap()
-{
-	unload();
-	//level.gusUnload();
-	refreshResources("Gusanos");
-	_loadMod(false);
-	runInitScripts();
-	
-	return true;
-}
-
 void GusGame::error(Error err)
 {
 	EACH_CALLBACK(i, gameError)
@@ -639,14 +623,13 @@ void GusGame::error(Error err)
 	}
 }
 
-void GusGame::_reinit() {
-	unload();
-	
-	options.registerInConsole();
-}
-
 void GusGame::_prepareLoad(const std::string& path) {	
-	_reinit();
+	unload();
+
+	foreach( i, console.getItems() )
+		if(Variable* v = dynamic_cast<Variable*>(i->second))
+			// reset variable to Gusanos default
+			v->reset();	
 	
 	m_modPath = nextMod;
 	
@@ -690,7 +673,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	if(!loader->load(m, levelPath))
 	{
 		warnings << "GusGame::changeLevel: error while loading map" << endl;
-		_reloadModWithoutMap();
+		unload(); // not necessarily needed but useful to just free some memory/resources
 		error(ErrorMapLoading);
 		return false;
 	}
