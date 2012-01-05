@@ -103,19 +103,6 @@ string rndSeedCmd(list<string> const& args)
 	return "RND_SEED <SEED> : SEEDS THE RANDOM GENERATOR WITH <SEED>";
 }
 
-string restCmd(list<string> const& args)
-{
-	if(args.size() > 0)
-	{
-		std::list<string>::const_iterator i = args.begin();
-		
-		int t = cast<int>(*i);
-		rest(t);		
-		return "DONE";
-	}
-	
-	return "REST <MS> : RESTS FOR A NUMBER OF MILLISECONDS";
-}
 /////////////////////////////// Console //////////////////////////////////////
 
 //============================= LIFECYCLE ====================================
@@ -162,7 +149,6 @@ void GConsole::init()
 		(string("ALIAS"), aliasCmd)
 		(string("ECHO"), echoCmd)
 		(string("RND_SEED"), rndSeedCmd)
-		(string("REST"), restCmd)
 	;
 	
 	currentCommand = commandsLog.end(); //To workaround a crashbug with uninitialized iterator
