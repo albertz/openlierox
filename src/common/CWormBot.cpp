@@ -3244,7 +3244,11 @@ CVec CWormBotInputHandler::AI_GetBestRopeSpot(CVec trg)
 	
 	// Get the direction angle
 	CVec dir = trg - m_worm->vPos;
-	const int ropeMaxLength = cClient->getGameLobby()[FT_RopeMaxLength];
+	if(dir.GetLength2() < 0.001)
+		// we are too close
+		return trg;
+
+	const float ropeMaxLength = (int)cClient->getGameLobby()[FT_RopeMaxLength];
 	dir *= ropeMaxLength / dir.GetLength();
 	dir = CVec(-dir.y, dir.x); // rotate reverse-clockwise by 90 deg
 
