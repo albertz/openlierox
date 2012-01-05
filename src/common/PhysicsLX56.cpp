@@ -569,7 +569,7 @@ public:
 				rope->setShooting( false );
 			}
 		}
-		// Failing
+		// Falling
 		else if(!rope->isShooting() && !rope->isAttached()) {
 
 			// Going towards the player
