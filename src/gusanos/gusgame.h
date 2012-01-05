@@ -133,7 +133,6 @@ public:
 	
 	bool setMod(const std::string& mod);
 	void loadWeapons();
-	void error(Error err);
 	void unload();
 	bool isLoaded();
 	bool isLevelLoaded();
@@ -186,6 +185,7 @@ public:
 	static bool checkCRCs(BitStream& data);
 		
 private:
+	void _error(Error err);
 	bool _loadMod(bool doLoadWeapons = true);
 	void _prepareLoad(const std::string& path);
 	void _finishLoad();
