@@ -83,69 +83,6 @@ int l_console_register_control(lua_State* L)
 	return 0;
 }
 
-		
-
-static int l_olx_exec(lua_State* L) {
-	LuaContext context(L);
-
-	/* get number of arguments */
-	int n = lua_gettop(L);
-
-	if(n == 0) {
-		LUA_ELOG("l_olx_exec: needs at least one parameter");
-		return 0;
-	}
-	
-	/* loop through each argument */
-	if(!lua_isstring(L,1)) {
-		LUA_ELOG("l_olx_exec: first param must be a string");
-		return 0;
-	}
-	std::string cmd = lua_tostring(L,1);
-		
-	int error = -1;
-	for (int i = 2; i <= n; i++) {
-		std::string p;
-		if( lua_isnumber(L,i) )
-			p = ftoa( (float)lua_tonumber(L,i) );
-		else if( lua_isstring(L,i) )
-			p = "\"" + Replace(lua_tostring(L,i), "\"", "") + "\"";
-		else {
-			if(error < 0) error = i;
-			p = "???";
-		}
-		cmd += " " + p;
-	}
-	
-	if(error > 0) {
-		LUA_ELOG("l_olx_exec: parameter " + itoa(error) + " cannot be handled in: " + cmd);
-		return 0;
-	}
-	
-	/*
-	std::vector<std::string> returns = Execute_Here(cmd);
-	
-	for(size_t i = 0; i < returns.size(); ++i)
-		lua.push(returns[i]);
-	
-	return returns.size();
-	 */
-	
-	// It's too unsafe to use Execute_Here, thus I am using this now.
-	// If there is any need in the future to get the return parameter,
-	// we could implement a special Lua CLI and the lua interface can just check there.
-	// Maybe we could even return this CLI here as a Lua object?
-	struct DummyCli : CmdLineIntf {
-		virtual void pushReturnArg(const std::string& str) {}
-		virtual void finalizeReturn() {}
-		virtual void writeMsg(const std::string& msg, CmdLineMsgType type = CNC_NORMAL) {
-			stdoutCLI().writeMsg("Lua exec: " + msg, type);
-		}
-	};
-	static DummyCli dummyCli;
-	Execute( CmdLineIntf::Command(&dummyCli, cmd) );
-	return 0;
-}
 
 
 static int l_olx_getVar(lua_State* L) {
@@ -182,25 +119,6 @@ static int l_olx_getVar(lua_State* L) {
 	return 1;
 }
 
-static int l_olx_setVar(lua_State* L) {
-	std::string var = Replace(lua_tostring(L,1), "\"", "");
-	
-	std::string value;
-	if( lua_isnumber(L,2) )
-		value = ftoa( (float)lua_tonumber(L,2) );
-	else if( lua_isstring(L,2) )
-		value = "\"" + Replace(lua_tostring(L,2), "\"", "") + "\"";
-	else {
-		LuaContext context(L);
-		LUA_ELOG("l_olx_setVar: unknown value type");
-		return 0;
-	}
-	
-	// hacky, but I don't care now
-	Execute_Here("setVar \"" + var + "\" " + value);
-	return 0;
-}
-		
 static int l_olx_setLevelSucceeded(lua_State* L) {
 	singlePlayerGame.setLevelSucceeded();
 	return 0;
@@ -516,9 +434,12 @@ void initGame()
 		("game_get_closest_worm", l_game_getClosestWorm)
 		("map_is_blocked", l_map_isBlocked)
 		("map_is_particle_pass", l_map_isParticlePass)
-		("exec", l_olx_exec)
-		("getVar", l_olx_getVar)
-		("setVar", l_olx_setVar)
+	// NOTE: Too much access (like executing any random command or setting any random setting)
+	// is not what Lua mod code is supposed to be able to do.
+	// It might be that we use Lua also for other stuff later but that should be a separate
+	// Lua context then.
+	// Here we have some restricted subset.
+		("getVar", l_olx_getVar) // This is e.g. used in SinglePlayer to print some message about the key setup.
 		("setLevelSucceeded", l_olx_setLevelSucceeded)
 		("message", l_olx_message)
 	;
