@@ -217,7 +217,7 @@ CVec CNinjaRope::GetForce()
 	CVec dir = owner->pos() - pos();
 	dir = dir.Normalize();
 	
-	const int RestLength = cClient->getGameLobby()[FT_RopeRestLength];
+	const float RestLength = (float)(int)cClient->getGameLobby()[FT_RopeRestLength];
 	if((owner->pos() - pos()).GetLength2() < RestLength*RestLength)
 		return CVec(0,0);
 	
