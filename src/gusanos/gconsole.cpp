@@ -90,19 +90,6 @@ string aliasCmd(const list<string> &args)
 	return "ALIAS <NAME> <ACTION> : REGISTER ALIAS TO ACTION";
 }
 
-string rndSeedCmd(list<string> const& args)
-{
-	if(args.size() > 0)
-	{
-		std::list<string>::const_iterator i = args.begin();
-
-		rndgen.seed(cast<boost::mt19937::result_type>(*i));
-		return "";
-	}
-	
-	return "RND_SEED <SEED> : SEEDS THE RANDOM GENERATOR WITH <SEED>";
-}
-
 /////////////////////////////// Console //////////////////////////////////////
 
 //============================= LIFECYCLE ====================================
@@ -148,7 +135,6 @@ void GConsole::init()
 		(string("EXEC"), execCmd)
 		(string("ALIAS"), aliasCmd)
 		(string("ECHO"), echoCmd)
-		(string("RND_SEED"), rndSeedCmd)
 	;
 	
 	currentCommand = commandsLog.end(); //To workaround a crashbug with uninitialized iterator
