@@ -192,6 +192,7 @@ protected:
 	bool		bAlreadyKilled;
 	bool		bSpectating;
 	bool		bSpawnedOnce;
+	bool		bCanRespawnNow; // this is only a hint for the client. the server has its own handling independent of this
 	
 	// Client info
 	int			iClientID;
@@ -531,6 +532,8 @@ public:
 	bool		canAirJump() const { return bCanAirJump; }
 	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
 	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
+	void		setCanRespawnNow(bool v) { bCanRespawnNow = v; }
+	bool		canRespawnNow() { return bCanRespawnNow; }
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 

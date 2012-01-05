@@ -656,6 +656,10 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 			case S2C_GUSANOSUPDATE:
 				network.olxParseUpdate(NetConnID_server(), *bs);
 				break;
+
+			case S2C_CANRESPAWNNOW:
+				ParseWormCanRespawnNow(bs);
+				break;
 				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
@@ -2777,5 +2781,11 @@ void CClientNetEngineBeta9::ParsePlaySound(CBytestream* bs) {
 	}
 	
 	PlayGameSound(fn);
+}
+
+void CClientNetEngine::ParseWormCanRespawnNow(CBytestream* bs) {
+	CWorm* w = getWorm(client, bs, "ParseWormCanRespawnNow");
+	if(!w) return;
+	w->setCanRespawnNow(true);
 }
 

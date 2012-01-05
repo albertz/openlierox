@@ -97,6 +97,7 @@ void CWorm::Clear()
 	
 	bIsPrepared = false;
 	bSpawnedOnce = false;
+	bCanRespawnNow = false;
 	iID = 0;
 	iTeam = 0;
 	bLocal = false;
@@ -258,6 +259,7 @@ void CWorm::Prepare(bool serverSide)
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	gusSkinVisble = true;
+	bCanRespawnNow = true;
 	
 	setTeamkills(0);
 	setSuicides(0);
