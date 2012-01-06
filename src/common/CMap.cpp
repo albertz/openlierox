@@ -2974,7 +2974,7 @@ std::string CMap::GetLevelName(const std::string& filename, bool abs_filename)
 
 Color CMap::getColorAt(long x, long y) {
 	if(gusIsLoaded()) {
-		return Color(getpixel(image, x, y));
+		return Color(image->surf->format, getpixel(image, x, y));
 	}
 	else if(bmpImage.get()) {
 		if(!LockSurface(bmpImage)) return Color();
@@ -2986,7 +2986,7 @@ Color CMap::getColorAt(long x, long y) {
 
 void CMap::putColorTo(long x, long y, Color c) {
 	if(gusIsLoaded()) {
-		return putpixel(image, x, y, c.get());
+		return putpixel(image, x, y, c.get(image->surf->format));
 	}
 	else if(bmpImage.get()) {
 		if(!LockSurface(bmpImage)) return;
