@@ -61,7 +61,7 @@ public:
 		bShaking = false;
 		iShakeAmount = 0;
 
-        pcTargetWorm = NULL;
+        m_origTargetWorm = pcTargetWorm = NULL;
         nType = VW_FOLLOW;
         fTimer = AbsTime();
 		bSmooth = false;
@@ -95,6 +95,8 @@ private:
     int     nType;
     CWorm   *pcTargetWorm;
 
+	CWorm*	m_origTargetWorm;
+	
     AbsTime   fTimer;
 
 	// HINT: we have to use pointers here as we have CViewport in a global variable
@@ -147,6 +149,8 @@ public:
 	bool	getUsed() const	{ return bUsed; }
 	void	shutdown();
 
+	void	setOrigTarget(CWorm* w) { m_origTargetWorm = w; }
+	CWorm	*getOrigTarget() { return m_origTargetWorm; }
     void    setTarget(CWorm *w) { pcTargetWorm = w; }
     CWorm   *getTarget() const { return pcTargetWorm; }
 

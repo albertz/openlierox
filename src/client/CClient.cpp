@@ -1675,7 +1675,19 @@ void CClient::SetupViewports() {
 			humanWorms.push_back(cLocalWorms[i]);
 	}
 
-	SetupViewports((humanWorms.size() > 0) ? humanWorms[0] : NULL, (humanWorms.size() > 1) ? humanWorms[1] : NULL, VW_FOLLOW, VW_FOLLOW);
+	if(humanWorms.size() > 0)
+		SetupViewports(humanWorms[0], (humanWorms.size() > 1) ? humanWorms[1] : NULL, VW_FOLLOW, VW_FOLLOW);
+	else if(iNumWorms > 0)
+		SetupViewports(cLocalWorms[0], NULL, VW_FOLLOW, VW_FOLLOW);
+	else {
+		CWorm* w = &cRemoteWorms[0];
+		for(int i = 0; i < MAX_WORMS; ++i, ++w)
+			if(w->isUsed()) {
+				SetupViewports(w, NULL, VW_FOLLOW, VW_FOLLOW);
+				return;
+			}
+		warnings << "CClient::SetupViewports: didn't found any worms" << endl;
+	}
 }
 
 
@@ -1724,13 +1736,11 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 	
 	// One worm
 	if(w2 == NULL) {
-        // HACK HACK: FOR AI TESTING
-        //cViewports[0].Setup(0,0,640,382,VW_FREELOOK);
-
 		cViewports[0].Setup(0, top, 640, h, type1);
 		if(w1)
 			cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
+		cViewports[0].setOrigTarget(w1);
 	}
 
 	// Two wormsize
@@ -1739,11 +1749,13 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 		if(w1)
 			cViewports[0].setSmooth( !OwnsWorm(w1->getID()) );
 		cViewports[0].setTarget(w1);
-
+		cViewports[0].setOrigTarget(w1);
+		
 		cViewports[1].Setup(322, top, 318, h, type2);
 		if(w2)
 			cViewports[1].setSmooth( !OwnsWorm(w2->getID()) );
 		cViewports[1].setTarget(w2);
+		cViewports[1].setOrigTarget(w2);
 	}
 	
 	bShouldRepaintInfo = true;

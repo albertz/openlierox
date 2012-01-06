@@ -63,6 +63,7 @@
 #include "client/gfx/raytracing.h"
 #include "CodeAttributes.h"
 #include "CGameScript.h"
+#include "CWormHuman.h"
 
 
 SmartPointer<SDL_Surface> bmpMenuButtons = NULL;
@@ -1032,8 +1033,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	DeprecatedGUI::CBar *HealthBar, *WeaponBar;
 
 	// Do we need to draw this?
-	if ( !( bShouldRepaintInfo || tLX->bVideoModeChanged ) )
-		return;
+	if ( bShouldRepaintInfo || tLX->bVideoModeChanged ) {
 
     CWorm *worm = v->getTarget();	
 	
@@ -1085,9 +1085,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	}
 
 	// The following is only drawn for viewports with a worm target
-    if( v->getType() > VW_CYCLE )
-        return;
-
+	if( v->getType() <= VW_CYCLE ) {
 
 	// Draw the details only when current settings is not displayed, and don't draw for Gus
 	if (!bCurrentSettings && !(game.gameScript() && game.gameScript()->gusEngineUsed()) ) {
@@ -1133,9 +1131,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 
 
 	// The following are items on top bar, so don't draw them when we shouldn't
-	if (!tLXOptions->bTopBarVisible)
-		return;
-
+	if (tLXOptions->bTopBarVisible) {
 
 	// Lives
 	DrawBox(bmpDest, *LivesX, *LivesY, *LivesW); // Box first
@@ -1227,6 +1223,10 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 		}
 	}
 
+	} // top bar visible
+	} // only with worm target
+	} // should repaint
+	
 	// Debug
 	/*CViewport *view = worm->getViewport();
 	int wx = view->GetWorldX();
@@ -1239,6 +1239,28 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	y=((int)vPosition.y-wy)*2+t;
 
 	DrawRectFill(bmpDest, x-2,y-2,x+2,y+2,tLX->clWhite);*/
+	
+	// draw messages like "press space for respawn"
+	{
+		CWorm* w = v->getOrigTarget();
+		CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(w ? w->inputHandler() : NULL);
+		if(w && wInput && !w->getAlive() && w->canRespawnNow()) {
+			SDL_Rect rect = v->getRect();
+			ScopedSurfaceClip clip(bmpDest, rect);
+			float x = v->GetLeft();
+			float y = v->GetTop();
+			float w = v->GetVirtW();
+			float h = v->GetVirtH();
+			y += h * 0.7;
+			h *= 0.3;
+			h -= 2;
+			x += 2;
+			w -= 4;
+			DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
+			tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
+								  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
+		}
+	}
 }
 
 ///////////////////
@@ -2501,10 +2523,12 @@ void CClient::ProcessSpectatorViewportKeys()
 
 	if( Changed )
 	{
-		if( !v2_on )
-			SetupViewports(&cRemoteWorms[v1_target], NULL, v1_type, v2_type);
-		else
-			SetupViewports(&cRemoteWorms[v1_target], &cRemoteWorms[v2_target], v1_type, v2_type);
+		cViewports[0].setTarget(&cRemoteWorms[v1_target]);
+		cViewports[0].setType(v1_type);
+		if(v2_on) {
+			cViewports[1].setTarget(&cRemoteWorms[v2_target]);
+			cViewports[1].setType(v2_type);
+		}
 	}
 }
 
