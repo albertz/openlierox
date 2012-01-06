@@ -57,6 +57,7 @@ void CWormHumanInputHandler::getInput() {
 	if(!m_worm->getAlive()) {
 		if(m_worm->canRespawnNow() && jump)
 			cClient->getNetEngine()->SendRequestWormRespawn(m_worm->getID());
+		clearInput();
 		return;
 	}
 	
