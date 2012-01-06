@@ -1284,6 +1284,7 @@ bool GameServer::CanWormHandleClientSideRespawn(CWorm* w) {
 }
 
 void GameServer::SendWormCanRespawnNow(CWorm* w) {
+	if(w->canRespawnNow()) return;
 	CServerConnection* cl = w->getClient();
 	if(cl == NULL) { // shouldn't happen
 		errors << "GS::SendWormCanRespawnNow: client of worm " << w->getID() << ":" << w->getName() << " is unset" << endl;
@@ -1295,5 +1296,6 @@ void GameServer::SendWormCanRespawnNow(CWorm* w) {
 		return;
 	}
 	n->SendCanRespawnNow(w);
+	w->setCanRespawnNow(true);
 }
 

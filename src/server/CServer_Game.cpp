@@ -206,13 +206,19 @@ void GameServer::SimulateGame()
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
 			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime]) )
 			{
-				if((float)gameSettings[FT_MaxRespawnTime] >= 0.f) {
-					// with MaxRespawnTime set, we automatically spawn if that time has been hit
-					if(tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_MaxRespawnTime]))
-						SpawnWorm(w);						
+				// with MaxRespawnTime set, we automatically spawn if that time has been hit
+				if((float)gameSettings[FT_MaxRespawnTime] >= 0.f &&
+				   (tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_MaxRespawnTime]))) {
+					SpawnWorm(w);						
 				}
-				else // MaxRespawnTime disabled, so just spawn now
-					SpawnWorm(w);
+				else { // MaxRespawnTime disabled or not yet reached
+					// only spawn if the client cannot. otherwise wait for clientside respawn request
+					if(!CanWormHandleClientSideRespawn(w))
+						SpawnWorm(w);
+					else {
+						SendWormCanRespawnNow(w);
+					}
+				}
 			}
 		}
 

@@ -1947,8 +1947,11 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 					}						
 
 					if(cServer->getState() == SVS_PLAYING && !outOfGame) {
-						// spawn worm
-						cServer->SpawnWorm( serverWorm );
+						if(!cServer->CanWormHandleClientSideRespawn(serverWorm))
+							// spawn worm
+							cServer->SpawnWorm( serverWorm );
+						else
+							cServer->SendWormCanRespawnNow( serverWorm );
 					}						
 				}
 				

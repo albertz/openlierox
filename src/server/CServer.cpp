@@ -633,7 +633,10 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 				cClients[ii].getNetEngine()->SendWormScore( cl->getWorm(i) );
 					
 			if(cl->getWorm(i)->getAlive() && !cl->getWorm(i)->haveSpawnedOnce()) {
-				SpawnWorm( cl->getWorm(i) );
+				if(!CanWormHandleClientSideRespawn(cl->getWorm(i)))
+					SpawnWorm( cl->getWorm(i) );
+				else
+					SendWormCanRespawnNow( cl->getWorm(i) );
 			}
 		}
 	}
@@ -643,8 +646,12 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		game.gameMode()->BeginMatch();
 		
 		for(int i=0;i<MAX_WORMS;i++) {
-			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT )
-				SpawnWorm( & cWorms[i] );
+			if( cWorms[i].isUsed() && cWorms[i].getWeaponsReady() && cWorms[i].getLives() != WRM_OUT ) {
+				if(!CanWormHandleClientSideRespawn(&cWorms[i]))
+					SpawnWorm( &cWorms[i] );
+				else
+					SendWormCanRespawnNow( &cWorms[i] );
+			}
 		}
 
 		DumpGameState(&stdoutCLI());

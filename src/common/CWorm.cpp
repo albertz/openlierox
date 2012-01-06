@@ -259,7 +259,7 @@ void CWorm::Prepare(bool serverSide)
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	gusSkinVisble = true;
-	bCanRespawnNow = true;
+	bCanRespawnNow = false;
 	
 	setTeamkills(0);
 	setSuicides(0);
