@@ -215,9 +215,8 @@ void GameServer::SimulateGame()
 					// only spawn if the client cannot. otherwise wait for clientside respawn request
 					if(!CanWormHandleClientSideRespawn(w))
 						SpawnWorm(w);
-					else {
+					else
 						SendWormCanRespawnNow(w);
-					}
 				}
 			}
 		}
