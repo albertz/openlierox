@@ -49,6 +49,7 @@
 #include "gusanos/weapon.h"
 #include "game/Mod.h"
 #include "level/FastTraceLine.h"
+#include "CClientNetEngine.h"
 
 
 // used by searchpath algo
@@ -975,6 +976,12 @@ void CWormBotInputHandler::startGame() {
 ///////////////////
 // Simulate the AI
 void CWormBotInputHandler::getInput() {
+	if(!m_worm->getAlive()) {
+		if(m_worm->canRespawnNow()) {
+			cClient->getNetEngine()->SendRequestWormRespawn(m_worm->getID());
+		}
+		return;
+	}
 	
 	worm_state_t *ws = &m_worm->tState;
 	
@@ -988,7 +995,7 @@ void CWormBotInputHandler::getInput() {
 	// Behave like humans and don't play immediatelly after spawn
 	if ((tLX->currentTime - m_worm->fSpawnTime) < 0.4f)
 		return;
-
+	
 	// Update bOnGround, so we don't have to use CheckOnGround every time we need it
 	m_worm->bOnGround = m_worm->CheckOnGround();
 

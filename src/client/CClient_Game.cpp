@@ -104,11 +104,12 @@ void CClient::Simulation()
 		if(!w->isUsed())
 			continue;
 		
-		if(w->getAlive()) {
+		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
+		// request for respawn or so.
+		// TODO: move this to a simulateWorms() in PhysicsEngine
+		PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
 
-			// Simulate the worm
-			// TODO: move this to a simulateWorms() in PhysicsEngine
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
+		if(w->getAlive()) {
 
 			if(bGameOver)
 				// TODO: why continue and not break?

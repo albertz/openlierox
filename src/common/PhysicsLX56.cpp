@@ -312,10 +312,10 @@ public:
 		}
 
 		worm_state_t *ws = worm->getWormState();
-
-
+		
 	simulateWormStart:
 	
+		if(!worm->getAlive()) return;
 		if(worm->fLastSimulationTime + orig_dt > simulationTime) return;
 		worm->fLastSimulationTime += TimeDiff(orig_dt);
 

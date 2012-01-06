@@ -37,6 +37,7 @@
 #include "game/Game.h"
 #include "gusanos/player_input.h"
 #include "sound/SoundsBase.h"
+#include "CClientNetEngine.h"
 
 #ifdef __MINGW32_VERSION
 // TODO: ugly hack, fix it - mingw stdlib seems to be broken
@@ -47,16 +48,24 @@
 // Get the input from a human worm
 void CWormHumanInputHandler::getInput() {		
 	// HINT: we are calling this from simulateWorm
+
+	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
+	const bool jump = cJump.isDownOnce();
+	const bool leftOnce = cLeft.isDownOnce();
+	const bool rightOnce = cRight.isDownOnce();
+
+	if(!m_worm->getAlive()) {
+		if(m_worm->canRespawnNow() && jump)
+			cClient->getNetEngine()->SendRequestWormRespawn(m_worm->getID());
+		return;
+	}
+	
 	TimeDiff dt = GetPhysicsTime() - m_worm->fLastInputTime;
 	m_worm->fLastInputTime = GetPhysicsTime();
 
 	int		weap = false;
 
 	mouse_t *ms = GetMouse();
-
-	// do it here to ensure that it is called exactly once in a frame (needed because of intern handling)
-	bool leftOnce = cLeft.isDownOnce();
-	bool rightOnce = cRight.isDownOnce();
 
 	worm_state_t *ws = &m_worm->tState;
 
@@ -341,8 +350,6 @@ void CWormHumanInputHandler::getInput() {
 
 
 	const bool oldskool = tLXOptions->bOldSkoolRope;
-
-	const bool jump = cJump.isDownOnce();
 
 	// Jump
 	if( !(oldskool && cSelWeapon.isDown()) )  {
