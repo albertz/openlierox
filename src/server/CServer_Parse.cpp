@@ -183,7 +183,11 @@ void CServerNetEngine::ParsePacket(CBytestream *bs) {
 		case C2S_GUSANOSUPDATE:
 			network.olxParseUpdate(NetConnID_conn(cl), *bs);
 			break;
-				
+		
+		case C2S_REQWORMRESPAWN:
+			ParseRequestWormRespawn(bs);
+			break;
+			
 		default:
 			// HACK, HACK: old olx/lxp clients send the ping twice, once normally once per channel
 			// which leads to warnings here - we simply parse it here and avoid warnings
@@ -2117,5 +2121,33 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 		
 	if( tSocket->remoteAddress() == addr )
 		iFirstUdpMasterServerNotRespondingCount = 0;
+}
+
+
+void CServerNetEngine::ParseRequestWormRespawn(CBytestream* bs) {
+	byte wormId = bs->readByte();
+	if( wormId < 0 || wormId >= MAX_WORMS || !cl->OwnsWorm(wormId) ) {
+		warnings << "ParseRequestWormRespawn: worm id " << wormId << " invalid" << endl;
+		return;
+	}
+	
+	CWorm* w = server->getWorms() + wormId;
+	if(w->getAlive()) {
+		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " is already alive/spawned" << endl;
+		return;
+	}
+	if(w->getLives() == WRM_OUT) {
+		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " cannot spawn: no lives left" << endl;
+		return;
+	}
+	if(!w->getWeaponsReady()) {
+		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " cannot spawn: weapons not ready" << endl;
+		return;
+	}
+	if(w->haveSpawnedOnce() && (tLX->currentTime < w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime]))) {
+		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " cannot spawn: time since death = " << (tLX->currentTime - w->getTimeofDeath()).seconds() << ", RespawnTime = " << (float)gameSettings[FT_RespawnTime] << endl;
+		return;		
+	}
+	server->SpawnWorm(w);						
 }
 

@@ -387,3 +387,11 @@ void CClientNetEngineBeta9NewNet::SendNewNetChecksum()
 	bs.writeInt((unsigned)time.milliseconds(), 4);
 	client->cNetChan->AddReliablePacketToSend(bs);
 }
+
+void CClientNetEngine::SendRequestWormRespawn(int wormId) {
+	if( client->getServerVersion() < OLXBetaVersion(0,59,10) ) return;
+	CBytestream bs;
+	bs.writeByte(C2S_REQWORMRESPAWN);
+	bs.writeByte(wormId);
+	client->cNetChan->AddReliablePacketToSend(bs);
+}

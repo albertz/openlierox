@@ -55,7 +55,8 @@ public:
 	void		 ParseSendFile(CBytestream *bs);
 
 	bool		 ParseChatCommand(const std::string& message);
-
+	void		ParseRequestWormRespawn(CBytestream* bs);
+	
 	// Sending
 	
 	void		SendPacket(CBytestream *bs);
