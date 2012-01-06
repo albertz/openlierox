@@ -1242,9 +1242,8 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 	
 	// draw messages like "press space for respawn"
 	{
-		CWorm* w = v->getOrigTarget();
-		CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(w ? w->inputHandler() : NULL);
-		if(w && wInput && !w->getAlive() && w->canRespawnNow()) {
+		CWorm* worm = v->getOrigTarget();
+		if(worm && !worm->getAlive() && worm->getLives() != WRM_OUT) {
 			SDL_Rect rect = v->getRect();
 			ScopedSurfaceClip clip(bmpDest, rect);
 			float x = v->GetLeft();
@@ -1256,9 +1255,17 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			h -= 2;
 			x += 2;
 			w -= 4;
-			DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
-			tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
-								  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
+			CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(worm->inputHandler());
+			if(wInput && worm->canRespawnNow()) {
+				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
+				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
+									  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
+			}
+			else {
+				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(50,0,0,100));
+				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
+									  "Waiting for respawn ...");				
+			}
 		}
 	}
 }
