@@ -611,7 +611,6 @@
 		2306CBC50E6AB42A00132D3B /* thread.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = thread.c; path = ../../libs/hawknl/src/thread.c; sourceTree = SOURCE_ROOT; };
 		2306CBD10E6AB45500132D3B /* nl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = nl.h; path = ../../libs/hawknl/include/nl.h; sourceTree = SOURCE_ROOT; };
 		2306CBDE0E6AC55E00132D3B /* CrashHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CrashHandler.h; sourceTree = "<group>"; };
-		2306CBDF0E6AC55E00132D3B /* CWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CWorld.h; sourceTree = "<group>"; };
 		2306CBE20E6AC55E00132D3B /* CAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CAnimation.h; sourceTree = "<group>"; };
 		2306CBE30E6AC55E00132D3B /* CBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBar.h; sourceTree = "<group>"; };
 		2306CBE40E6AC55E00132D3B /* CBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CBox.h; sourceTree = "<group>"; };
@@ -2872,7 +2871,6 @@
 				2306CC040E6AC55E00132D3B /* SkinnedGUI */,
 				2306CBE10E6AC55E00132D3B /* DeprecatedGUI */,
 				2306CBDE0E6AC55E00132D3B /* CrashHandler.h */,
-				2306CBDF0E6AC55E00132D3B /* CWorld.h */,
 				2306CBFD0E6AC55E00132D3B /* FontEffects.h */,
 				2306CBFE0E6AC55E00132D3B /* FontHandling.h */,
 				2306CBFF0E6AC55E00132D3B /* GuiPrimitives.h */,
