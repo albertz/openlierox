@@ -204,7 +204,7 @@ void GameServer::SimulateGame()
 		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
 
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
-			if(tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime]) )
+			if(!w->haveSpawnedOnce() || (tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime])) )
 			{
 				// with MaxRespawnTime set, we automatically spawn if that time has been hit
 				if((float)gameSettings[FT_MaxRespawnTime] >= 0.f &&
