@@ -463,7 +463,7 @@ public:
 		FileList::iterator it;
 		FileListCacheIntf& filelist;
 	public:
-		Iterator(FileList::iterator _it, FileListCacheIntf& f) : it(_it), filelist(f) {
+		Iterator(FileListCacheIntf& f) : it(f.filelist.begin()), filelist(f) {
 			filelist.mutex.lock();
 		}
 		~Iterator() { RefCounter::uninit(); }
@@ -473,7 +473,9 @@ public:
 		Iterator(const Iterator& it) : RefCounter(it), it(it.it), filelist(it.filelist) {}
 		virtual ::Iterator<FileList::value_type>* copy() const { return new Iterator(*this); }
 		virtual bool isValid() { return it != filelist.filelist.end(); }
+		virtual void reset() { it = filelist.filelist.begin(); }
 		virtual void next() { ++it; }
+		virtual size_t size() { return filelist.filelist.size(); }
 		virtual bool operator==(const ::Iterator<FileList::value_type>& other) const {
 			const Iterator* o = dynamic_cast<const Iterator*> (&other);
 			return o && it == o->it;
@@ -483,7 +485,7 @@ public:
 		typedef ::Iterator<FileList::value_type>::Ref Ref;
 	};
 	
-	Iterator::Ref begin() { return new Iterator(filelist.begin(), *this); }
+	Iterator::Ref begin() { return new Iterator(*this); }
 	void add(const FileList::value_type& o) { Mutex::ScopedLock lock(mutex); filelist.insert(o); }
 	bool includes(const Filename& fn) { Mutex::ScopedLock lock(mutex); return filelist.find(fn) != filelist.end(); }
 	bool autoComplete(AutocompleteRequest& request);

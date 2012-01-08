@@ -27,8 +27,17 @@ public:
 	virtual ~Iterator() {}
 	virtual Iterator* copy() const = 0;
 	virtual bool isValid() = 0;
+	virtual void reset() = 0;
 	virtual void next() = 0;
 	virtual void nextn(size_t num) { while(num > 0) { next(); if(!isValid()) return; --num; } }
+	virtual size_t size() {
+		Ref i(copy());
+		i->reset();
+		size_t c = 0;
+		for(; i->isValid(); i->next())
+			++c;
+		return c;
+	}
 	
 	virtual bool operator==(const Iterator& other) const = 0;
 	bool operator!=(const Iterator& other) const { return ! ((*this) == other); }
@@ -49,7 +58,9 @@ public:
 	STLIteratorBase(_STLT& o) : i(o.begin()), obj(o) {}
 	STLIteratorBase(const STLIteratorBase& it) : i(it.i), obj(it.obj) {}	
 	virtual bool isValid() { return i != obj.end(); }
+	virtual void reset() { i = obj.begin(); }
 	virtual void next() { ++i; }
+	virtual size_t size() { return obj.size(); }
 	virtual bool operator==(const Iterator<_T>& other) const { const STLIteratorBase* ot = dynamic_cast< const STLIteratorBase* > (&other); return ot && &ot->obj == &obj && ot->i == i; }
 };
 
@@ -77,7 +88,9 @@ struct STLIteratorToPtr : Iterator<_T> {
 	virtual ~STLIteratorToPtr() {}
 	virtual Iterator<_T>* copy() const { return new STLIteratorToPtr(*this); }
 	virtual bool isValid() { return i != obj->end(); }
+	virtual void reset() { i = obj->begin(); }
 	virtual void next() { ++i; }
+	virtual size_t size() { return obj->size(); }
 	virtual bool operator==(const Iterator<_T>& other) const { const STLIteratorToPtr* ot = dynamic_cast< const STLIteratorToPtr* > (&other); return (ot != NULL) && (i == ot->i) && (obj.get() == ot->obj.get()); }
 	virtual _T get() { return * i; }
 };
@@ -115,8 +128,10 @@ public:
 	CArrayIterator(const CArrayIterator& it) : i(it.i), array(it.array) {}	
 	virtual Iterator<_T*>* copy() const { return new CArrayIterator(*this); }
 	virtual bool isValid() { return i < len; }
+	virtual void reset() { i = 0; }
 	virtual void next() { ++i; }
 	virtual void nextn(size_t n) { i += n; }
+	virtual size_t size() { return len; }
 	virtual bool operator==(const Iterator<_T*>& other) const { const CArrayIterator* ot = dynamic_cast< const CArrayIterator* > (&other); return ot && ot->array == array && ot->i == i; }
 	virtual _T* get() { return &array[i]; }
 };
@@ -132,8 +147,10 @@ public:
 	CArrayConstIterator(const CArrayConstIterator& it) : i(it.i), array(it.array) {}
 	virtual Iterator<_T>* copy() const { return new CArrayConstIterator(*this); }
 	virtual bool isValid() { return i < len; }
+	virtual void reset() { i = 0; }
 	virtual void next() { ++i; }
 	virtual void nextn(size_t n) { i += n; }
+	virtual size_t size() { return len; }
 	virtual bool operator==(const Iterator<_T>& other) const { const CArrayConstIterator* ot = dynamic_cast< const CArrayConstIterator* > (&other); return ot && ot->array == array && ot->i == i; }
 	virtual _T get() { return array[i]; }
 };
@@ -148,8 +165,10 @@ public:
 	StringIterator(std::string& s) : str(s), i(0) {}
 	virtual Iterator<_T>* copy() const { return new This(*this); }
 	virtual bool isValid() { return i < str.size(); }
+	virtual void reset() { i = 0; }
 	virtual void next() { ++i; }
 	virtual void nextn(size_t n) { i += n; }
+	virtual size_t size() { return str.size(); }
 	virtual bool operator==(const Iterator<_T>& other) const { const This* ot = dynamic_cast< const This* > (&other); return ot && &ot->str == &str && ot->i == i; }
 	virtual _T get() { return str[i]; }
 };
@@ -164,8 +183,10 @@ public:
 	ConstStringIterator(const std::string& s) : str(s), i(0) {}
 	virtual Iterator<_T>* copy() const { return new This(*this); }
 	virtual bool isValid() { return i < str.size(); }
+	virtual void reset() { i = 0; }
 	virtual void next() { ++i; }
 	virtual void nextn(size_t n) { i += n; }
+	virtual size_t size() { return str.size(); }
 	virtual bool operator==(const Iterator<_T>& other) const { const This* ot = dynamic_cast< const This* > (&other); return ot && &ot->str == &str && ot->i == i; }
 	virtual _T get() { return str[i]; }
 };
@@ -214,6 +235,7 @@ struct FilterIterator : public Iterator<T> {
 	FilterIterator(typename Iterator<T>::Ref _i, boost::function<bool(T)> _pred) : baseIter(_i), predicate(_pred) {}
 	virtual Iterator<T>* copy() const { return new FilterIterator(*this); }
 	virtual bool isValid() { return baseIter->isValid(); }
+	virtual void reset() { baseIter->reset(); }
 	virtual void next() {
 		if(!isValid()) return;
 		while(true) {
@@ -236,6 +258,5 @@ typename Iterator<T>::Ref GetFilterIterator(typename Iterator<T>::Ref i, boost::
 }
 
 #define for_each_iterator( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
-
 
 #endif
