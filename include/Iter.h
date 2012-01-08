@@ -15,6 +15,7 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <boost/function.hpp>
 #include "Ref.h"
 #include "Functors.h"
 #include "CodeAttributes.h"
@@ -183,7 +184,7 @@ template< typename _T >
 typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
 
 template< typename _T, typename _KT >
-typename Iterator<_T&>::Ref GetIterator(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
+typename Iterator<_T&>::Ref GetIterator_second(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
 
 template< typename _T, typename _I >
 typename Iterator< typename _T::value_type >::Ref GetIterator(const SmartPointer<_T,_I>& s) { return new STLIteratorToPtr<SmartPointer<_T,_I>,typename _T::value_type>(s); }
@@ -205,6 +206,34 @@ typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArray
 
 template< typename _T >
 typename Iterator<_T>::Ref GetConstIterator(const CArray<_T>& s) { return new CArrayConstIterator<_T>(s); }
+
+template < typename T >
+struct FilterIterator : public Iterator<T> {
+	typename Iterator<T>::Ref baseIter;
+	boost::function<bool(T)> predicate;
+	FilterIterator(typename Iterator<T>::Ref _i, boost::function<bool(T)> _pred) : baseIter(_i), predicate(_pred) {}
+	virtual Iterator<T>* copy() const { return new FilterIterator(*this); }
+	virtual bool isValid() { return baseIter->isValid(); }
+	virtual void next() {
+		if(!isValid()) return;
+		while(true) {
+			baseIter->next();
+			if(!isValid()) return;
+			if(predicate(get())) return;
+		}
+	}
+	virtual bool operator==(const Iterator<T>& other) const {
+		if(FilterIterator* o2 = dynamic_cast<FilterIterator*>(&other))
+			return baseIter.get() == o2->baseIter.get();
+		return baseIter.get() == other;
+	}
+	virtual T get() { return baseIter->get(); }
+};
+
+template<typename T>
+typename Iterator<T>::Ref GetFilterIterator(typename Iterator<T>::Ref i, boost::function<bool(T)> pred) {
+	return new FilterIterator<T>(i, pred);
+}
 
 #define for_each_iterator( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
 
