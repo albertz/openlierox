@@ -246,7 +246,7 @@ public:
 		Type type;
 	};
 	std::map< std::string, Feature > list;
-	Iterator< Feature & >::Ref iterator() { return GetIterator_second(list); }
+	Iterator< Feature & >::Ref iterator() { return GetIteratorRef_second(list); }
 	void set(const Feature& f) { list[ f.name ] = f; }
 	void set(const std::string& name, const std::string& humanName, const ScriptVar_t& var, Feature::Type type) {
 		Feature f;

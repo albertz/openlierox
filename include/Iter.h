@@ -44,6 +44,7 @@ public:
 	
 	virtual _Obj get() = 0; // this has to return a valid obj if valid == true
 	//_Obj* operator->() { return &get(); }
+	_Obj tryGet(_Obj zero = _Obj()) { if(isValid()) return get(); return zero; }
 
 	typedef ::Ref< Iterator > Ref;
 	typedef _Obj value_type;	
@@ -205,7 +206,10 @@ template< typename _T >
 typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
 
 template< typename _T, typename _KT >
-typename Iterator<_T&>::Ref GetIterator_second(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
+typename Iterator<_T&>::Ref GetIteratorRef_second(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
+
+template< typename _T, typename _KT >
+typename Iterator<_T>::Ref GetIterator_second(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T >(s); }
 
 template< typename _T, typename _I >
 typename Iterator< typename _T::value_type >::Ref GetIterator(const SmartPointer<_T,_I>& s) { return new STLIteratorToPtr<SmartPointer<_T,_I>,typename _T::value_type>(s); }
@@ -227,6 +231,9 @@ typename Iterator<_T*>::Ref GetIterator(const CArray<_T>& s) { return new CArray
 
 template< typename _T >
 typename Iterator<_T>::Ref GetConstIterator(const CArray<_T>& s) { return new CArrayConstIterator<_T>(s); }
+
+template< typename T >
+typename Iterator<T>::Ref GetIterator(::Ref< Iterator<T> > i) { return i; }
 
 template < typename T >
 struct FilterIterator : public Iterator<T> {

@@ -112,6 +112,7 @@ public:
 		}
 		Iterator* copy() const { return new Iterator(m_parent, m_index); }
 
+		virtual void reset() { m_index = -1; next(); }
 		void next() {
 			++m_index;
 			while (m_index < SIZE) {
@@ -130,7 +131,7 @@ public:
 		_Obj* get() { return &m_parent[m_index]; }
 	};
 
-	typename ::Iterator<_Obj*>::Ref begin() { return new Iterator(*this, 0); }
+	typename ::Iterator<_Obj*>::Ref begin() { return new Iterator(*this); }
 
 	FastVector & operator = ( const FastVector & v ) {
 		// Fast copy routine ( _Obj should provide sane operator= )
