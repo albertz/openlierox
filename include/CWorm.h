@@ -350,7 +350,7 @@ public:
 	void		readPacket(CBytestream *bs);
 	void		net_updatePos(const CVec& newpos);
 	bool		skipPacket(CBytestream *bs);
-	void		readPacketState(CBytestream *bs, CWorm *worms);
+	void		readPacketState(CBytestream *bs);
 	static bool	skipPacketState(CBytestream *bs);
 	void		writeWeapons(CBytestream *bs);
 	void		readWeapons(CBytestream *bs);

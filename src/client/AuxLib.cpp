@@ -59,6 +59,7 @@
 #include <unistd.h>
 #endif
 
+#include "LieroX.h"
 #include "Cache.h"
 #include "Debug.h"
 #include "AuxLib.h"

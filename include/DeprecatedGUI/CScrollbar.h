@@ -21,6 +21,7 @@
 #include "InputEvents.h"
 #include "DeprecatedGUI/CWidget.h"
 #include "DeprecatedGUI/CGuiLayout.h"
+#include "DeprecatedGUI/CGuiSkin.h"
 
 namespace DeprecatedGUI {
 

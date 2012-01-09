@@ -31,6 +31,8 @@
 #include "Music.h"
 #include "ConversationLogger.h"
 #include "game/Game.h"
+#include "LieroX.h"
+#include "CMap.h"
 
 
 namespace DeprecatedGUI {

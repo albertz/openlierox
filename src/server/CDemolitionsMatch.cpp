@@ -31,15 +31,9 @@ public:
 		// And the worm with the highest dirt count wins
 		
 		// Add up all the worm's dirt counts
-		int nDirtCount = 0;
-		
-		CWorm *w = cServer->getWorms();
-		for( short i=0; i<MAX_WORMS; i++,w++ ) {
-			if( !w->isUsed() )
-				continue;
-			
-			nDirtCount += w->getDirtCount();
-		}
+		int nDirtCount = 0;		
+		for_each_iterator(CWorm*, w, game.worms())
+			nDirtCount += w->get()->getDirtCount();
 		
 		if( nDirtCount > (float)game.gameMap()->GetDirtCount()*0.8f ) {
 			// TODO: make configureable

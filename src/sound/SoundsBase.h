@@ -68,9 +68,9 @@ class CWorm;
 
 bool	LoadSounds();
 void	ShutdownSounds();
-void	StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me);
-INLINE void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, int local, int volume, CWorm *me) {
-	StartSound(smp.get(), pos, local, volume, me);
+void	StartSound(SoundSample* smp, CVec pos, bool local, int volume);
+INLINE void StartSound(const SmartPointer<SoundSample> & smp, CVec pos, bool local, int volume) {
+	StartSound(smp.get(), pos, local, volume);
 }
 
 void StartSound(SoundSample* smp, CVec pos);

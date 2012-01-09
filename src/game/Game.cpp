@@ -357,9 +357,8 @@ void Game::reset() {
 	localPlayers.clear();
 	
 	// we must call this first because the references to weapons, ninjarope and what may be deleted
-	if(cClient && cClient->getRemoteWorms())
-		for(int i = 0; i < MAX_WORMS; ++i)
-			cClient->getRemoteWorms()[i].gusShutdown();
+	for_each_iterator(CWorm*, w, worms())
+		w->get()->gusShutdown();
 	
 	// Delete all objects
 	objects.clear();
@@ -460,7 +459,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const profile_t& profile, con
 	w->setType(WormType::fromInt(profile.iType));
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
-
+	return w;
 }
 
 int Game::getNewUniqueWormId() {
@@ -485,6 +484,6 @@ void Game::removeWorm(CWorm* w) {
 static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getName(); }
 
 std::string Game::wormName(int wormId) {
-	return ifWorm(wormid, _wormName, itoa(wormId) + ":<unknown-worm>");
+	return ifWorm<std::string>(wormId, _wormName, itoa(wormId) + ":<unknown-worm>");
 }
 

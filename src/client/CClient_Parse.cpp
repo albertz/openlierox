@@ -1766,7 +1766,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 	// Game over
 	hints << "Client: the game is over";
 	if(client->iMatchWinner >= 0 && client->iMatchWinner < MAX_WORMS) {
-		hints << ", the winner is worm " << client->iMatchWinner << ":" << client->cRemoteWorms[client->iMatchWinner].getName();
+		hints << ", the winner is worm " << game.wormName(client->iMatchWinner);
 	}
 	if(client->iMatchWinnerTeam >= 0) {
 		hints << ", the winning team is team " << client->iMatchWinnerTeam;
@@ -1858,11 +1858,8 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 	}
 
 	// Set all the worms 'tag' property to false
-	CWorm *w = client->cRemoteWorms;
-	for(int i=0;i<MAX_WORMS;i++,w++) {
-		if(w->isUsed())
-			w->setTagIT(false);
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		w->get()->setTagIT(false);
 
 	// Tag the worm
 	target->setTagIT(true);
@@ -1871,8 +1868,8 @@ void CClientNetEngine::ParseTagUpdate(CBytestream *bs)
 	// Log it
 	log_worm_t *l = client->GetLogWorm(target->getID());
 	if (l)  {
-		for (int i=0; i < client->tGameLog->iNumWorms; i++)
-			client->tGameLog->tWorms[i].bTagIT = false;
+		foreach(otherw, client->tGameLog->tWorms)
+			otherw->second.bTagIT = false;
 
 		l->fTagTime = time;
 		l->bTagIT = true;
@@ -1900,22 +1897,15 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 			return;
 		}
 		
-		byte id = bs->readByte();
-
-		if(id >= MAX_WORMS) {
-			hints << "CClientNetEngine::ParseCLReady: bad worm ID (" << int(id) << ")" << endl;
-			bs->SkipAll();
-			return;
-		}
-
-		if(!client->cRemoteWorms) {
-			warnings << "Client: got CLReady with uninit worms" << endl;
+		int id = bs->readByte();
+		
+		CWorm* w = game.wormById(id, false);
+		if(!w) {
+			warnings << "Client: got CLReady with bad worm " << id << endl;
 			// Skip the info and if end of packet, just end
 			if (CWorm::skipWeapons(bs))	break;
-			continue;
+			continue;			
 		}
-		
-		CWorm* w = &client->cRemoteWorms[id];
 
 		w->setGameReady(true);
 
@@ -1946,19 +1936,17 @@ void CClientNetEngine::ParseUpdateLobby(CBytestream *bs)
 	}
 
 	for(short i=0;i<numworms;i++) {
-		byte id = bs->readByte();
+		int id = bs->readByte();
         int team = MAX(0,MIN(3,(int)bs->readByte()));
 
-		if( id >= MAX_WORMS) {
+		CWorm* w = game.wormById(id, false);
+        if(!w) {
 			warnings << "CClientNetEngine::ParseUpdateLobby: invalid worm ID (" << id << ")" << endl;
-			continue;
+			continue;			
 		}
-
-		CWorm* w = &client->cRemoteWorms[id];
-        if(w) {
-			w->setLobbyReady(ready);
-			w->setTeam(team);
-        }
+			
+		w->setLobbyReady(ready);
+		w->setTeam(team);
 	}
 
 	// Update lobby
@@ -1984,38 +1972,33 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 
 
 	for(int i=0;i<numworms;i++) {
-		byte id = bs->readByte();
+		int id = bs->readByte();
 
-		if( id >= MAX_WORMS) {
-			hints << "CClientNetEngine::ParseWormsOut: invalid worm ID (" << int(id) << ")" << endl;
-			continue;
-		}
-
-		CWorm *w = &client->cRemoteWorms[id];
-		if(!w->isUsed()) {
-			warnings << "ParseWormsOut: worm " << int(id) << " is not used anymore" << endl;
+		CWorm *w = game.wormById(id, false);
+		if(!w) {
+			warnings << "ParseWormsOut: worm " << id << " invalid" << endl;
 			continue;
 		}
 		
-		if(!w->getLocal()) { // Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
-
-			// Log this
-			if (client->tGameLog)  {
-				log_worm_t *l = client->GetLogWorm(id);
-				if (l)  {
-					l->bLeft = true;
-					l->fTimeLeft = client->serverTime();
-				}
-			}
-			
-			if( NewNet::Active() )
-				NewNet::PlayerLeft(id);
-
-			client->RemoveWorm(id);
-			
-		} else {
-			hints << "Warning: server says we've left but that is not true" << endl;
+		if(w->getLocal()) {
+			// Server kicks local worms using S2C_DROPPED, this packet cannot be used for it
+			hints << "Warning: server says we (" << game.wormName(id) << ") have left but that is not true" << endl;
+			continue;
 		}
+
+		// Log this
+		if (client->tGameLog)  {
+			log_worm_t *l = client->GetLogWorm(id);
+			if (l)  {
+				l->bLeft = true;
+				l->fTimeLeft = client->serverTime();
+			}
+		}
+		
+		if( NewNet::Active() )
+			NewNet::PlayerLeft(id);
+
+		client->RemoveWorm(id);			
 	}
 
 	DeprecatedGUI::bJoin_Update = true;
@@ -2057,24 +2040,16 @@ void CClientNetEngine::ParseUpdateWorms(CBytestream *bs)
 	}
 
 	for(byte i=0;i<count;i++) {
-		byte id = bs->readByte();
+		int id = bs->readByte();
 
-		if (id >= MAX_WORMS)  {
-			hints << "CClientNetEngine::ParseUpdateWorms: invalid worm ID (" << id << ")" << endl;
-			if (CWorm::skipPacketState(bs))  {  // Skip not to lose the right position
-				break;
-			}
+		CWorm* w = game.wormById(id, false);
+		if (!w)  {
+			hints << "CClientNetEngine::ParseUpdateWorms: invalid worm " << id << endl;
+			if (CWorm::skipPacketState(bs)) break; // Skip not to lose the right position
 			continue;
 		}
 
-		// TODO: what is with that check? remove if outdated
-		/*if (!cRemoteWorms[id].isUsed())  {
-			i--;
-			continue;
-		}*/
-
-		client->cRemoteWorms[id].readPacketState(bs,client->cRemoteWorms);
-
+		w->readPacketState(bs);
 	}
 
 	DeprecatedGUI::bJoin_Update = true;
@@ -2193,26 +2168,27 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		return;
 	}
 
-	byte id = bs->readByte();
-
-	if(id < MAX_WORMS) {
+	int id = bs->readByte();
+	CWorm* w = game.wormById(id, false);
+	
+	if(!w)
+		warnings << "CClientNetEngine::ParseWormDown: invalid worm ID (" << id << ")" << endl;
+	else {
 		// If the respawn time is 0, the worm can be spawned even before the simulation is done
 		// Therefore the check for isAlive in the simulation does not work in all cases
 		// Because of that, we unattach the rope here, just to be sure
-		if (client->cRemoteWorms[id].getHookedWorm())
-			client->cRemoteWorms[id].getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
+		if (w->getHookedWorm())
+			w->getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
 
-		client->cRemoteWorms[id].Kill(false);
-		if (client->cRemoteWorms[id].getLocal() && client->cRemoteWorms[id].getType() == PRF_HUMAN)
-			client->cRemoteWorms[id].clearInput();
+		w->Kill(false);
+		if (w->getLocal() && w->getType() == PRF_HUMAN)
+			w->clearInput();
 
 		// Make a death sound
 		int s = GetRandomInt(2);
-		StartSound( sfxGame.smpDeath[s], client->cRemoteWorms[id].getPos(), client->cRemoteWorms[id].getLocal(), -1, client->cLocalWorms[0]);
+		StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1 );
 
 		// Spawn some giblets
-		CWorm* w = &client->cRemoteWorms[id];
-
 		for(short n=0;n<7;n++)
 			SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
 
@@ -2224,8 +2200,6 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
 		}
-	} else {
-		warnings << "CClientNetEngine::ParseWormDown: invalid worm ID (" << id << ")" << endl;
 	}
 
 	// Someone has been killed, log it
@@ -2239,15 +2213,16 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 
 		if (l_kill && l_vict)  {
 			// HINT: lives and kills are updated in ParseScoreUpdate
-
+			CWorm* killerW = game.wormById(client->iLastKiller, false);
+			CWorm* victimW = game.wormById(client->iLastVictim, false);
+			
 			// Suicide
 			if (l_kill == l_vict)  {
 				l_vict->iSuicides++;
 			}
 
 			// Teamkill
-			else if (client->cRemoteWorms[client->iLastKiller].getTeam() ==
-						client->cRemoteWorms[client->iLastVictim].getTeam())  {
+			else if (killerW && victimW && killerW->getTeam() == victimW->getTeam())  {
 				l_kill->iTeamKills++;
 				l_vict->iTeamDeaths++;
 			}
@@ -2325,24 +2300,23 @@ void CClientNetEngine::ParseMultiShot(CBytestream *bs)
 // Update the worms stats
 void CClientNetEngine::ParseUpdateStats(CBytestream *bs)
 {
+	client->bShouldRepaintInfo = true;
+
 	byte num = bs->readByte();
 	if (num > MAX_PLAYERS)
 		warnings << "CClientNetEngine::ParseUpdateStats: invalid worm count (" << num << ") - clamping" << endl;
 
-	short oldnum = num;
-	num = (byte)MIN(num,MAX_PLAYERS);
-
-	short i;
-	for(i=0; i<num; i++)
-		if (client->getWorm(i))  {
-			if (client->getWorm(i)->getLocal())
-				client->bShouldRepaintInfo = true;
-
-			client->getWorm(i)->readStatUpdate(bs);
-		}
+	short c = 0;
+	for_each_iterator(CWorm*, w, game.localWorms()) {
+		c++;
+		if(c > num) break;
+		w->get()->readStatUpdate(bs);
+	}
+	if(c != num)
+		warnings << "CClientNetEngine::ParseUpdateStats: local worms num = " << game.localWorms()->size() << ", but we got " << num << " updates" << endl;
 
 	// Skip if there were some clamped worms
-	for (i=0;i<oldnum-num;i++)
+	for (short i=0;i<num-c;i++)
 		if (CWorm::skipStatUpdate(bs))
 			break;
 }
@@ -2545,12 +2519,9 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 
 	if( !client->bGameReady )
 		return;
-	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
-		return;
-	CWorm *w = & client->getRemoteWorms()[id];
-	CWorm *offender = & client->getRemoteWorms()[offenderId];
-	
-	if( ! w->isUsed() || ! offender->isUsed() )
+	CWorm *w = game.wormById(id, false);
+	CWorm *offender = game.wormById(offenderId, false);	
+	if( !w || !offender )
 		return;
 	
 	w->getDamageReport()[offender->getID()].damage += damage;
@@ -2564,37 +2535,41 @@ void CClientNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 {
 	short id = bs->readInt(1);
-
-	if(id >= 0 && id < MAX_WORMS)  {
+	CWorm* w = game.wormById(id, false);
+	
+	if(!w)
+		// do this to get the right position in net stream
+		bs->Skip(6);
+	else {
 		log_worm_t *l = client->GetLogWorm(id);
 
-		client->cRemoteWorms[id].setLives( MAX<int>((int)bs->readInt16(), WRM_UNLIM) );
+		w->setLives( MAX<int>((int)bs->readInt16(), WRM_UNLIM) );
 	
-		client->cRemoteWorms[id].setKills( bs->readInt(4) );
+		w->setKills( bs->readInt(4) );
 		float damage = bs->readFloat();
-		if( client->cRemoteWorms[id].getDamage() != damage )
+		if( w->getDamage() != damage )
 		{
 			// Occurs pretty often, don't spam console, still it should be the same on client and server
 			//warnings << "CClientNetEngineBeta9::ParseScoreUpdate(): damage for worm " << client->cRemoteWorms[id].getName() << " is " << client->cRemoteWorms[id].getDamage() << " server sent us " << damage << endl;
 		}
-		client->cRemoteWorms[id].setDamage( damage );
+		w->setDamage( damage );
 
 		
-		if (client->cRemoteWorms[id].getLocal())
+		if (w->getLocal())
 			client->bShouldRepaintInfo = true;
 
 		// Logging
 		if (l)  {
 			// Check if the stats changed
 			bool stats_changed = false;
-			if (l->iLives != client->cRemoteWorms[id].getLives())  {
-				l->iLives = client->cRemoteWorms[id].getLives();
+			if (l->iLives != w->getLives())  {
+				l->iLives = w->getLives();
 				client->iLastVictim = id;
 				stats_changed = true;
 			}
 
-			if (l->iKills != client->cRemoteWorms[id].getScore())  {
-				l->iKills = client->cRemoteWorms[id].getScore();
+			if (l->iKills != w->getScore())  {
+				l->iKills = w->getScore();
 				client->iLastKiller = id;
 				stats_changed = true;
 			}
@@ -2604,11 +2579,6 @@ void CClientNetEngineBeta9::ParseScoreUpdate(CBytestream *bs)
 			if (!stats_changed)
 				client->iLastKiller = id;
 		}
-	}
-	else
-	{
-		// do this to get the right position in net stream
-		bs->Skip(6);
 	}
 
 	client->UpdateScoreboard();
@@ -2625,20 +2595,14 @@ void CClientNetEngineBeta9::ParseHideWorm(CBytestream *bs)
 	bool immediate = bs->readBool();  // Immediate hiding (no animation)
 
 	// Check
-	if (id < 0 || id >= MAX_WORMS)  {
-		errors << "ParseHideWorm: invalid worm ID " << id << endl;
-		return;
-	}
-
-	// Check
-	if (forworm < 0 || forworm >= MAX_WORMS)  {
+	if (game.wormById(forworm, false) == NULL)  {
 		errors << "ParseHideWorm: invalid forworm ID " << forworm << endl;
 		return;
 	}
 
 	// Get the worm
-	CWorm *w = client->getRemoteWorms() + id;
-	if (!client->getRemoteWorms() || !w->isUsed())  {
+	CWorm *w = game.wormById(id, false);
+	if (!w)  {
 		errors << "ParseHideWorm: the worm " << id << " does not exist" << endl;
 		return;
 	}

@@ -19,10 +19,14 @@
 
 
 
+#include "DeprecatedGUI/CWidget.h"
 #include "InputEvents.h"
 #include "StringUtils.h"
 #include "Color.h"
 #include "CodeAttributes.h"
+
+class ScriptVar_t;
+class CGuiLayoutBase;
 
 
 namespace DeprecatedGUI {
@@ -69,13 +73,7 @@ private:
 public:
 	// Methods
 
-	void	Create() 
-	{ 
-		iWidth = tLX->cFont.GetWidth(sText); 
-		iHeight = tLX->cFont.GetHeight(sText);
-		if( bCenter ) 
-			iX -= iWidth / 2;
-	}
+	void	Create(); 
 	void	Destroy() { }
 
 	//These events return an event id, otherwise they return -1
@@ -87,56 +85,21 @@ public:
 	int		KeyDown(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return LBL_NONE; }
 	int		KeyUp(UnicodeChar c, int keysym, const ModifiersState& modstate)	{ return LBL_NONE; }
 
-	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2)	{ return 0; }
-	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param) { 
-			if (iMsg == LBS_SETTEXT) 
-				{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);} 
-			return 0; 	}
+	DWORD SendMessage(int iMsg, DWORD Param1, DWORD Param2);
+	DWORD SendMessage(int iMsg, const std::string& sStr, DWORD Param);
+	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param);
 
-	DWORD SendMessage(int iMsg, std::string *sStr, DWORD Param)  { return 0; }
-
-	void	ChangeColour(Color col)			{ iColour = col; }
-	void	setText(const std::string& sStr)	{sText = sStr; iWidth = tLX->cFont.GetWidth(sText); iHeight = tLX->cFont.GetHeight(sText);};
-	std::string getText() const { return sText; }
+	void	ChangeColour(Color col);
+	void	setText(const std::string& sStr);
+	std::string getText() const;
 	
 	// Draw the label
-	INLINE void	Draw(SDL_Surface * bmpDest) {
-		if (bRedrawMenu)
-			redrawBuffer();
-		if( bVar )
-			if( *bVar )
-				sText = "yes";
-			else
-				sText = "no";
-		else if( iVar )
-			sText = itoa( *iVar );
-		else if( fVar )
-			sText = ftoa( *fVar );
-		else if( sVar )
-			sText = *sVar;
-		if( bCenter )
-		{
-			int width = tLX->cFont.GetWidth(sText);
-			iX += ( iWidth - width ) / 2;
-			iWidth = width;
-		}
-		tLX->cFont.Draw(bmpDest, iX, iY, iColour,sText); 
-	}
-
+	void	Draw(SDL_Surface * bmpDest);
 	void	LoadStyle() {}
 
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CLabel * w = new CLabel( p[0].toString(), p[1].toColor(), p[2].toBool() );
-		w->bVar = CScriptableVars::GetVarP<bool>( p[3].toString() );
-		w->iVar = CScriptableVars::GetVarP<int>( p[3].toString() );
-		w->fVar = CScriptableVars::GetVarP<float>( p[3].toString() );
-		w->sVar = CScriptableVars::GetVarP<std::string>( p[3].toString() );
-		layout->Add( w, id, x, y, dx, dy );
-		return w;
-	}
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 	
-	void	ProcessGuiSkinEvent(int iEvent) {};
+	void	ProcessGuiSkinEvent(int iEvent) {}
 };
 
 }; // namespace DeprecatedGUI

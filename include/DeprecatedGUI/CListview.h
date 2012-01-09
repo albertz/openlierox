@@ -313,15 +313,7 @@ public:
 
 
 	// Read-only listview for skinning (typically text list), more variants to come.
-	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy )
-	{
-		CListview * w = new CListview();
-		layout->Add( w, id, x, y, dx, dy );
-		w->setOldStyle( p[0].toBool() );
-		w->setShowSelect( ! p[1].toBool() );
-		w->setDrawBorder( ! p[2].toBool() );
-		return w;
-	}
+	static CWidget * WidgetCreator( const std::vector< ScriptVar_t > & p, CGuiLayoutBase * layout, int id, int x, int y, int dx, int dy );
 
 	void	ProcessGuiSkinEvent(int iEvent)
 	{

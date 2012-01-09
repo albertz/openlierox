@@ -20,6 +20,7 @@
 #include "Unicode.h"
 #include "IpToCountryDB.h"
 #include "FeatureList.h"
+#include "FindFile.h"
 
 
 // TODO: move this out here

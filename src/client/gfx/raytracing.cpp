@@ -46,11 +46,10 @@ struct ObjectMap {
 					set(x + dx, y + dy, i->get());
 		}
 		
-		for(int i = 0; i < MAX_WORMS; ++i) {
-			CWorm* const w = &cClient->getRemoteWorms()[i];
-			if(w->isUsed() && w->getNinjaRope()->isReleased()) {
-				Line l(w->pos(), w->getNinjaRope()->pos());
-				l.forEachPoint( boost::bind(&ObjectMap::set, this, _1, _2, w->getNinjaRope()) );
+		for_each_iterator(CWorm*, w, game.worms()) {
+			if(w->get()->getNinjaRope()->isReleased()) {
+				Line l(w->get()->pos(), w->get()->getNinjaRope()->pos());
+				l.forEachPoint( boost::bind(&ObjectMap::set, this, _1, _2, w->get()->getNinjaRope()) );
 			}
 		}
 	}

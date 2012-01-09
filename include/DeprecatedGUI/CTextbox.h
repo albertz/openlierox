@@ -17,7 +17,8 @@
 #ifndef __CTEXTBOX_H__DEPRECATED_GUI__
 #define __CTEXTBOX_H__DEPRECATED_GUI__
 
-
+#include "DeprecatedGUI/CWidget.h"
+#include "DeprecatedGUI/CGuiSkin.h"
 #include "InputEvents.h"
 #include "Cursor.h"
 #include "Timer.h"

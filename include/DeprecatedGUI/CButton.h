@@ -21,6 +21,9 @@
 #include "GfxPrimitives.h"
 #include "Cursor.h"
 #include "Menu.h"
+#include "DeprecatedGUI/CGuiSkin.h"
+#include "DeprecatedGUI/CWidget.h"
+
 
 namespace DeprecatedGUI {
 

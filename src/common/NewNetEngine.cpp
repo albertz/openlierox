@@ -21,7 +21,7 @@ namespace NewNet
 
 // -------- The stuff that interacts with OLX: save/restore game state and calculate physics ---------
 
-static std::vector<CWorm> SavedWormState;
+static std::vector<boost::shared_ptr<CWorm> > SavedWormState;
 NetSyncedRandom netRandom, netRandom_Saved;
 AbsTime cClientLastSimulationTime;
 
@@ -35,10 +35,12 @@ void SaveState()
 	NewNet_SaveEntities();
 
 	SavedWormState.clear();
-	SavedWormState.reserve(game.worms()->size());
+	SavedWormState.resize(game.worms()->size());
+	size_t i = 0;
 	for_each_iterator(CWorm*, w, game.worms()) {
-		SavedWormState.push_back(CWorm());
-		SavedWormState.back().NewNet_CopyWormState( *w->get() );
+		SavedWormState[i] = boost::shared_ptr<CWorm>(new CWorm);
+		SavedWormState[i]->setID( w->get()->getID() );
+		SavedWormState[i]->NewNet_CopyWormState( *w->get() );
 	}
 };
 
@@ -56,16 +58,16 @@ void RestoreState()
 	
 	foreach(savedWorm, SavedWormState) {
 		profile_t profile;
-		profile.iTeam = savedWorm->getTeam();
-		profile.iType = savedWorm->getType()->asInt();
+		profile.iTeam = (**savedWorm).getTeam();
+		profile.iType = (**savedWorm).getType()->toInt();
 		CWorm* w = game.createNewWorm
 		(
-		 savedWorm->getID(),
-		 savedWorm->getLocal(),
+		 (**savedWorm).getID(),
+		 (**savedWorm).getLocal(),
 		 profile,
-		 savedWorm->getClientVersion()
+		 (**savedWorm).getClientVersion()
 		 );
-		w->NewNet_CopyWormState( *savedWorm );
+		w->NewNet_CopyWormState( **savedWorm );
 	}
 };
 

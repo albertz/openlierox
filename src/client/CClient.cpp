@@ -198,20 +198,19 @@ void CClient::MinorClear()
 	iChat_Numlines = 0;
 	if(!bDedicated)
 		cChatList->InitializeChatBox();
-
-	int i;
-	for(i=0; i<MAX_WORMS; i++)  {
-		cRemoteWorms[i].resetAngleAndDir();
-		cRemoteWorms[i].Unprepare();
+	
+	for_each_iterator(CWorm*, w, game.worms()) {
+		w->get()->resetAngleAndDir();
+		w->get()->Unprepare();
 	}
 
 	cProjectiles.clear();
 	projPosMap.clear();
 
-	for(i=0; i<MAX_BONUSES; i++)
+	for(int i=0; i<MAX_BONUSES; i++)
 		cBonuses[i].setUsed(false);
 
-    for(i=0; i<NUM_VIEWPORTS; i++)  {
+    for(int i=0; i<NUM_VIEWPORTS; i++)  {
 		cViewports[i].shutdown();
 		cViewports[i].setTarget(NULL);
 		cViewports[i].SetWorldX(0);
@@ -325,8 +324,6 @@ void CClient::setPing(int _p) { cNetChan->setPing(_p); }
 // Initialize the client
 int CClient::Initialize()
 {
-	uint i;
-
 	// Shutdown & clear any old client data
 	Shutdown();
 	Clear();
@@ -336,28 +333,7 @@ int CClient::Initialize()
 	// Local/host games use instant speed
 	if(tLX->iGameType != GME_JOIN)
 		iNetSpeed = NST_LOCAL;
-
-
-	//ReinitLocalWorms();
 	
-	// Initialize the remote worms
-	cRemoteWorms = new CWorm[MAX_WORMS];
-	if(cRemoteWorms == NULL) {
-		SetError("Error: Out of memory!\ncl::Initialize() " + itoa(__LINE__));
-		return false;
-	}
-
-	// Set id's
-	for(i=0;i<MAX_WORMS;i++) {
-		cRemoteWorms[i].Init();
-		cRemoteWorms[i].setID(i);
-		cRemoteWorms[i].setTagIT(false);
-		cRemoteWorms[i].setTagTime(TimeDiff(0));
-		cRemoteWorms[i].setTeam(0);
-		cRemoteWorms[i].setUsed(false);
-		cRemoteWorms[i].setClient(NULL); // Local worms won't get server connection owner
-	}
-
 	// Set our version to the current game version
 	// HINT: this function is called only for the local client, not for server's client
 	setClientVersion(GetGameVersion());
@@ -415,6 +391,28 @@ int CClient::Initialize()
 	return true;
 }
 
+static log_worm_t logFromWorm(CWorm* w) {
+	log_worm_t l;
+	l.bLeft = false;
+	l.iID = w->getID();
+	l.sName = w->getName();
+	l.sSkin = w->getSkin().getFileName();
+	l.iKills = 0;
+	l.iLives = cClient->getGameLobby()[FT_Lives];
+	l.iSuicides = 0;
+	l.iTeamKills = 0;
+	l.iTeamDeaths = 0;
+	l.bTagIT = false;
+	if (cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
+		l.iTeam = w->getTeam();
+	else
+		l.iTeam = -1;
+	l.fTagTime = 0.0f;
+	l.fTimeLeft = 0.0f;
+	l.iType = w->getType()->toInt();
+	return l;
+}
+
 ///////////////////
 // Initialize the logging
 void CClient::StartLogging(int num_players)
@@ -428,47 +426,16 @@ void CClient::StartLogging(int num_players)
 		errors("Out of memory while allocating log\n");
 		return;
 	}
-	tGameLog->tWorms = NULL;
 	tGameLog->fGameStart = tLX->currentTime;
-	tGameLog->iNumWorms = num_players;
 	tGameLog->iWinner = -1;
 	tGameLog->sGameStart = GetDateTime();
 	tGameLog->sServerName = szServerName;
 	NetAddrToString(cNetChan->getAddress(), tGameLog->sServerIP);
 
-	// Allocate log worms
-	int i;
-	tGameLog->tWorms = new log_worm_t[num_players];
-	if (!tGameLog->tWorms)
-		return;
 
 	// Initialize the log worms
-	int j = 0;
-	for (i=0; i < MAX_WORMS; i++)  {
-		if (cRemoteWorms[i].isUsed())  {
-			tGameLog->tWorms[j].bLeft = false;
-			tGameLog->tWorms[j].iID = cRemoteWorms[i].getID();
-			tGameLog->tWorms[j].sName = cRemoteWorms[i].getName();
-			tGameLog->tWorms[j].sSkin = cRemoteWorms[i].getSkin().getFileName();
-			tGameLog->tWorms[j].iKills = 0;
-			tGameLog->tWorms[j].iLives = getGameLobby()[FT_Lives];
-			tGameLog->tWorms[j].iSuicides = 0;
-			tGameLog->tWorms[j].iTeamKills = 0;
-			tGameLog->tWorms[j].iTeamDeaths = 0;
-			tGameLog->tWorms[j].bTagIT = false;
-			if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
-				tGameLog->tWorms[j].iTeam = cRemoteWorms[i].getTeam();
-			else
-				tGameLog->tWorms[j].iTeam = -1;
-			tGameLog->tWorms[j].fTagTime = 0.0f;
-			tGameLog->tWorms[j].fTimeLeft = 0.0f;
-			tGameLog->tWorms[j].iType = cRemoteWorms[i].getType()->toInt();
-			j++;
-
-			if (j >= num_players)
-				break;
-		}
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		tGameLog->tWorms[w->get()->getID()] = logFromWorm(w->get());
 }
 
 
@@ -759,8 +726,8 @@ void CClient::FinishModDownloads()
 			bWaitingForMod = false;
 			
 			// Initialize the weapon selection
-			for (size_t i = 0; i < iNumWorms; i++)
-				cLocalWorms[i]->initWeaponSelection();
+			for_each_iterator(CWorm*, w, game.localWorms())
+				w->get()->initWeaponSelection();
 		} else {
 			warnings("The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +").\n");
 			Menu_MessageBox("Error", "The downloaded mod (" + sModDownloadName + ") is not the one we are waiting for (" + getGameLobby()[FT_Mod].as<ModInfo>()->name +")", DeprecatedGUI::LMB_OK);
@@ -1105,16 +1072,16 @@ void CClient::Frame()
 void CClient::NewNet_Frame()
 {
 	CBytestream out, packet;
-	if( getNumWorms() <= 0 )
+	if( game.localWorms()->size() <= 0 )
 		return;
 	out.writeByte( C2S_NEWNET_KEYS );
-	out.writeByte( getWorm(0)->getID() );
+	out.writeByte( game.localWorms()->get()->getID() );
 	while( NewNet::Frame(&out) )
 	{
 		packet.Append(&out);
 		out.Clear();
 		out.writeByte( C2S_NEWNET_KEYS );
-		out.writeByte( getWorm(0)->getID() );
+		out.writeByte( game.localWorms()->get()->getID() );
 	}
 	
 	if( NewNet::ChecksumRecalculated() )
@@ -1239,10 +1206,9 @@ void CClient::SendPackets(bool sendPendingOnly)
 		if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
 		{
 			bool serverThinksWeAreNotReadyWhenWeAre = false;
-			for(unsigned int i=0;i<iNumWorms;i++)
-			{
+			for_each_iterator(CWorm*, w, game.localWorms()) {
 				// getGameReady = what server thinks. getWeaponsReady = what we know.
-				serverThinksWeAreNotReadyWhenWeAre |= !cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady();
+				serverThinksWeAreNotReadyWhenWeAre |= !w->get()->getGameReady() && w->get()->getWeaponsReady();
 			}
 
 
@@ -1252,9 +1218,9 @@ void CClient::SendPackets(bool sendPendingOnly)
 				fSendWait += tLX->fDeltaTime;
 				if (fSendWait.seconds() > 1.0) {
 					notes << "CClient::SendPackets: Server thinks that ";
-					for(unsigned int i=0;i<iNumWorms;i++) {
-						if(!cLocalWorms[i]->getGameReady() && cLocalWorms[i]->getWeaponsReady())
-							notes << " (local " << i << ") " << cLocalWorms[i]->getID() << ":" << cLocalWorms[i]->getName();
+					for_each_iterator(CWorm*, w, game.localWorms()) {
+						if(!w->get()->getGameReady() && w->get()->getWeaponsReady())
+							notes << " (local) " << w->get()->getID() << ":" << w->get()->getName();
 					}
 					notes << " is not ready" << endl;
 					
@@ -2250,13 +2216,9 @@ void CClient::ShutdownLog()
 	if (!tGameLog)
 		return;
 
-	// Free the worms
-	if (tGameLog->tWorms)
-		delete[] tGameLog->tWorms;
-
 	// Free the log structure
 	delete tGameLog;
-
+	
 	tGameLog = NULL;
 }
 

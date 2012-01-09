@@ -19,10 +19,6 @@
 
 #include "InputEvents.h"
 #include "olx-types.h"
-#ifdef WIN32
-#include "windows.h"
-#endif //WIN32
-#include "DeprecatedGUI/CGuiSkin.h"
 #include "SmartPointer.h"
 
 namespace DeprecatedGUI {
@@ -83,11 +79,7 @@ public:
 	}
 
 	CWidget(const CWidget&) { assert(false); }
-	
-    virtual ~CWidget() 
-	{
-		CGuiSkin::DeRegisterUpdateCallback( this );	// Remove any possible callbacks 'cause widget not exists anymore
-	}
+	virtual ~CWidget(); 
 
 protected:
 	// Attributes

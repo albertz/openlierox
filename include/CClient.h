@@ -87,8 +87,7 @@ struct log_worm_t {
 
 // Game log structure
 struct game_log_t {
-	log_worm_t	*tWorms;
-	int			iNumWorms;
+	std::map<int,log_worm_t> tWorms;
 	int			iWinner;
 	AbsTime		fGameStart;
 	std::string	sGameStart;

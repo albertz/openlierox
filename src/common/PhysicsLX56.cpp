@@ -261,9 +261,9 @@ public:
 		// If we collided with the ground and we were going pretty fast, make a bump sound
 		if(coll) {
 			if( fabs(vel->x) > 30 && (clip & 0x01 || clip & 0x02) )
-				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
+				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1 );
 			else if( fabs(vel->y) > 30 && (clip & 0x04 || clip & 0x08) )
-				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1, worm );
+				StartSound( sfxGame.smpBump, worm->pos(), worm->getLocal(), -1 );
 		}
 		
 		return coll;
@@ -636,19 +636,14 @@ public:
 		// Check if the hook has hit another worm
 		if(!rope->isAttached() && !rope->isPlayerAttached()) {
 
-			for(short i=0; i<MAX_WORMS; i++) {
-				// Don't check against the worm if they aren't used, dead, a flag or the ninja rope was shot by the worm
-				if(!worms[i].isUsed())
+			for_each_iterator(CWorm*, w, game.aliveWorms()) {
+				if(w->get()->getID() == owner->getID())
 					continue;
-				if(!worms[i].getAlive())
-					continue;
-				if(worms[i].getID() == owner->getID())
-					continue;
-				if(!worms[i].isVisible(owner))
+				if(!w->get()->isVisible(owner))
 					continue;
 
-				if( ( worms[i].getPos() - rope->hookPos() ).GetLength2() < 25 ) {
-					rope->AttachToPlayer(&worms[i]);
+				if( ( w->get()->getPos() - rope->hookPos() ).GetLength2() < 25 ) {
+					rope->AttachToPlayer(w->get());
 					break;
 				}
 			}

@@ -1847,9 +1847,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	w->setDeaths(0);
 	w->setTeamkills(0);
 	w->setWeaponsReady(false);
-	
-	iNumPlayers++;
-	
+		
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->NewWorm_Signal(w);
 			

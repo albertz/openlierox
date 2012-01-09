@@ -164,22 +164,18 @@ struct Race : public CGameMode {
 	
 	virtual bool CheckGameOver() {
 		if(int(gameSettings[FT_Race_Rounds]) > 0) {
-			for(int i = 0; i < MAX_WORMS; ++i) {
-				CWorm* w = &cServer->getWorms()[i];
-				if(!w->isUsed()) continue;
-				if(w->getKills() >= int(gameSettings[FT_Race_Rounds])) {
+			for_each_iterator(CWorm*, w, game.worms()) {
+				if(w->get()->getKills() >= int(gameSettings[FT_Race_Rounds])) {
 					return true;
 				}
 			}
 		}
 
 		bool allOut = true;
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed()) {
-				if(cServer->getWorms()[i].getLives() != WRM_OUT || cServer->getWorms()[i].getAlive()) {
-					allOut = false;
-					break;
-				}
+		for_each_iterator(CWorm*, w, game.worms())
+			if(w->get()->getLives() != WRM_OUT || w->get()->getAlive()) {
+				allOut = false;
+				break;
 			}
 		if(allOut) return true;
 		
@@ -303,11 +299,9 @@ struct TeamRace : public Race {
 	
 	std::vector<CWorm*> getTeamWorms(int t) {
 		std::vector<CWorm*> worms;
-		if(cServer->getWorms() == NULL) return worms;
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed())
-				if(cServer->getWorms()[i].getTeam() != t)
-					worms.push_back(&cServer->getWorms()[i]);
+		for_each_iterator(CWorm*, w, game.worms())
+			if(w->get()->getTeam() != t)
+				worms.push_back(w->get());
 		return worms;
 	}
 	
@@ -348,12 +342,10 @@ struct TeamRace : public Race {
 		}
 		
 		bool allOut = true;
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed()) {
-				if(cServer->getWorms()[i].getLives() != WRM_OUT || cServer->getWorms()[i].getAlive()) {
-					allOut = false;
-					break;
-				}
+		for_each_iterator(CWorm*, w, game.worms())
+			if(w->get()->getLives() != WRM_OUT || w->get()->getAlive()) {
+				allOut = false;
+				break;
 			}
 		if(allOut) return true;
 		

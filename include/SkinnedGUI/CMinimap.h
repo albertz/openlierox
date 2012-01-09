@@ -31,13 +31,11 @@ public:
 	CMinimap(COMMON_PARAMS) : CALL_DEFAULT_CONSTRUCTOR {
 		cMap = new CMap;
 		bFreeMap = true;
-		tWorms = NULL;
 	}
 
-	CMinimap(COMMON_PARAMS, CWorm *worms, CMap *map) : CALL_DEFAULT_CONSTRUCTOR {
+	CMinimap(COMMON_PARAMS, CMap *map) : CALL_DEFAULT_CONSTRUCTOR {
 		cMap = map;
 		bFreeMap = false;
-		tWorms = worms;
 	}
 
 	~CMinimap()  {
@@ -49,7 +47,6 @@ public:
 private:
 	// Attributes
 	CMap *cMap;
-	CWorm *tWorms;
 	std::string sFileName;
 	bool bFreeMap;
 
@@ -67,7 +64,7 @@ public:
 	// Methods
 	void Load(const std::string& level);
 
-	bool	needsRepaint()	{ if (tWorms) return true; else return CWidget::needsRepaint(); }
+	bool	needsRepaint()	{ return CWidget::needsRepaint(); }
 
 	static const std::string tagName()		{ return "minimap"; }
 	const std::string getTagName()			{ return CMinimap::tagName(); }

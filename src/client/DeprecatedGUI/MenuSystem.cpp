@@ -1470,7 +1470,7 @@ void Menu_SvrList_DrawInfo(const std::string& szAddress, int w, int h)
 				lvInfo.AddSubitem(LVS_TEXT, ftoa(fGameSpeed), (DynDrawIntf*)NULL, NULL);
 			}
 			
-			for_each_iterator( FeatureCompatibleSettingList::Feature&, it, features.list ){
+			for_each_iterator( FeatureCompatibleSettingList::Feature&, it, GetIteratorRef_second(features.list) ){
 				Color col;
 				switch(it->get().type) {
 					case FeatureCompatibleSettingList::Feature::FCSL_JUSTUNKNOWN: col = tLX->clDisabled; break;

@@ -658,60 +658,48 @@ static VectorD2<float> objectAngleDiff(CGameObject* w, CGameObject* prj) {
 
 static CWorm* nearestWorm(CVec pos) {
 	CWorm* best = NULL;
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cClient->getRemoteWorms()[i];
-		if(!w->isUsed()) continue;
-		if(!w->getAlive()) continue;
-		if(best == NULL) { best = w; continue; }
-		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
-			best = w;
+	for_each_iterator(CWorm*, w, game.aliveWorms()) {
+		if(best == NULL) { best = w->get(); continue; }
+		if((best->getPos() - pos).GetLength2() > (w->get()->getPos() - pos).GetLength2())
+			best = w->get();
 	}
 	return best;
 }
 
 static CWorm* nearestOtherWorm(CVec pos, int worm) {
 	CWorm* best = NULL;
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cClient->getRemoteWorms()[i];
-		if(i == worm) continue;
-		if(!w->isUsed()) continue;
-		if(!w->getAlive()) continue;
-		if(best == NULL) { best = w; continue; }
-		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
-			best = w;
+	for_each_iterator(CWorm*, w, game.aliveWorms()) {
+		if(w->get()->getID() == worm) continue;
+		if(best == NULL) { best = w->get(); continue; }
+		if((best->getPos() - pos).GetLength2() > (w->get()->getPos() - pos).GetLength2())
+			best = w->get();
 	}
 	return best;
 }
 
 static CWorm* nearestEnemyWorm(CVec pos, int worm) {
-	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
+	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
 	CWorm* best = NULL;
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cClient->getRemoteWorms()[i];
-		if(i == worm) continue;
-		if(!w->isUsed()) continue;
-		if(!w->getAlive()) continue;
-		if(cClient->isTeamGame() && team == w->getTeam()) continue;
-		if(best == NULL) { best = w; continue; }
-		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
-			best = w;
+	for_each_iterator(CWorm*, w, game.aliveWorms()) {
+		if(w->get()->getID() == worm) continue;
+		if(cClient->isTeamGame() && team == w->get()->getTeam()) continue;
+		if(best == NULL) { best = w->get(); continue; }
+		if((best->getPos() - pos).GetLength2() > (w->get()->getPos() - pos).GetLength2())
+			best = w->get();
 	}
 	return best;
 }
 
 static CWorm* nearestTeamMate(CVec pos, int worm) {
 	if(!cClient->isTeamGame()) return NULL;
-	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
+	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
 	CWorm* best = NULL;
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cClient->getRemoteWorms()[i];
-		if(i == worm) continue;
-		if(!w->isUsed()) continue;
-		if(!w->getAlive()) continue;
-		if(team != w->getTeam()) continue;
-		if(best == NULL) { best = w; continue; }
-		if((best->getPos() - pos).GetLength2() > (w->getPos() - pos).GetLength2())
-			best = w;
+	for_each_iterator(CWorm*, w, game.aliveWorms()) {
+		if(w->get()->getID() == worm) continue;
+		if(team != w->get()->getTeam()) continue;
+		if(best == NULL) { best = w->get(); continue; }
+		if((best->getPos() - pos).GetLength2() > (w->get()->getPos() - pos).GetLength2())
+			best = w->get();
 	}
 	return best;
 }
@@ -754,7 +742,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			if(Shake > info->shake)
 				info->shake = Shake;
 			
-				// Play the hit sound
+			// Play the hit sound
 			if(UseSound && Sound)
 				info->sound = Sound;
 			break;
@@ -765,7 +753,7 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			push_worm = false;
 			prj->Bounce(BounceCoeff);
 			
-				// Do we do a bounce-explosion (bouncy larpa uses this)
+			// Do we do a bounce-explosion (bouncy larpa uses this)
 			if(BounceExplode > 0)
 				cClient->Explosion(prj->fLastSimulationTime, prj->getPos(), (float)BounceExplode, false, prj->GetOwner());
 			break;
@@ -776,9 +764,11 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 				int d = game.gameMap()->CarveHole(Damage, prj->getPos(), cClient->getGameLobby()[FT_InfiniteMap]);
 				info->deleteAfter = true;
 				
-					// Increment the dirt count
-				if(prj->hasOwner())
-					cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( d );
+				// Increment the dirt count
+				if(prj->hasOwner()) {
+					CWorm* w = game.wormById(prj->GetOwner(), false);
+					if(w) w->incrementDirtCount( d );
+				}
 			}
 			break;
 			
@@ -802,14 +792,16 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 		
 		case PJ_INJUREWORM:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
-				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], (float)Damage, prj->GetOwner());
+				CWorm* w = game.wormById(eventInfo.colType->wormId, false);
+				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner());
 			}			
 			break;
 				
 		case PJ_INJURE:
 			if(eventInfo.colType && eventInfo.colType->withWorm) {
 				info->deleteAfter = true;
-				cClient->InjureWorm(&cClient->getRemoteWorms()[eventInfo.colType->wormId], (float)Damage, prj->GetOwner());
+				CWorm* w = game.wormById(eventInfo.colType->wormId, false);
+				if(w) cClient->InjureWorm(w, (float)Damage, prj->GetOwner());
 				break;
 			}
 			
@@ -884,7 +876,9 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 			
 		case PJ_HeadingToOwner:
 			if(prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) {
-				prj->velocity() += SpeedMult * getHeadingVelTo(&cClient->getRemoteWorms()[prj->GetOwner()], prj);
+				CWorm* w = game.wormById(prj->GetOwner(), false);
+				if(w)
+					prj->velocity() += SpeedMult * getHeadingVelTo(w, prj);
 			}
 			break;
 			
@@ -915,7 +909,9 @@ void Proj_Action::applyTo(const Proj_EventOccurInfo& eventInfo, CProjectile* prj
 	if(push_worm && eventInfo.colType && eventInfo.colType->withWorm) {
 		CVec d = prj->getVelocity();
 		NormalizeVector(&d);
-		cClient->getRemoteWorms()[eventInfo.colType->wormId].velocity() += (d * 100) * eventInfo.dt.seconds();
+		CWorm* w = game.wormById(eventInfo.colType->wormId, false);
+		if(w)
+			w->velocity() += (d * 100) * eventInfo.dt.seconds();
 	}
 	
 	if(spawnprojs) {
@@ -1047,8 +1043,8 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
 	
-	const int team = (worm >= 0 && worm < MAX_WORMS) ? cClient->getRemoteWorms()[worm].getTeam() : -1;
-	const int projTeam = (prj->GetOwner() >= 0 && prj->GetOwner() < MAX_WORMS) ? cClient->getRemoteWorms()[prj->GetOwner()].getTeam() : -1;
+	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
+	const int projTeam = game.ifWorm(prj->GetOwner(), CWorm::getTeam, -1);
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
 	
@@ -1063,7 +1059,9 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 bool Proj_WormHitEvent::checkEvent(Proj_EventOccurInfo& eventInfo, CProjectile* prj, Proj_DoActionInfo*) const {
 	if(eventInfo.colType == NULL || !eventInfo.colType->withWorm) return false;
 	if(match(eventInfo.colType->wormId, prj)) {
-		eventInfo.targets.insert(&cClient->getRemoteWorms()[eventInfo.colType->wormId]);
+		CWorm* w = game.wormById(eventInfo.colType->wormId, false);
+		if(w)
+			eventInfo.targets.insert(w);
 		return true;
 	}
 	return false;
@@ -1120,16 +1118,20 @@ static void projectile_doMakeDirt(CProjectile* const prj) {
 	d += game.gameMap()->PlaceDirt(damage,prj->getPos()+CVec(0,6));
 	
 	// Remove the dirt count on the worm
-	if(prj->hasOwner())
-		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+	if(prj->hasOwner()) {
+		CWorm* w = game.wormById(prj->GetOwner(), false);
+		if(w) w->incrementDirtCount( -d );
+	}
 }
 
 static void projectile_doMakeGreenDirt(CProjectile* const prj) {
 	int d = game.gameMap()->PlaceGreenDirt(prj->getPos());
 	
 	// Remove the dirt count on the worm
-	if(prj->hasOwner())
-		cClient->getRemoteWorms()[prj->GetOwner()].incrementDirtCount( -d );
+	if(prj->hasOwner()) {
+		CWorm* w = game.wormById(prj->GetOwner(), false);
+		if(w) w->incrementDirtCount( -d );
+	}
 }
 
 
@@ -1210,7 +1212,7 @@ void Proj_DoActionInfo::execute(CProjectile* const prj, const AbsTime currentTim
 
 
 
-static INLINE ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, TimeDiff dt, CProjectile* proj, CWorm *worms, bool* projspawn, bool* deleteAfter) {
+static INLINE ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime currentTime, TimeDiff dt, CProjectile* proj, bool* projspawn, bool* deleteAfter) {
 	// If this is a remote projectile, we have already set the correct fLastSimulationTime
 	//proj->setRemote( false );
 
@@ -1323,7 +1325,7 @@ static INLINE bool LX56ProjectileHandler_doFrame(const AbsTime currentTime, Time
 	projInfo.Timer.checkAndApply(Proj_EventOccurInfo::Unspec(serverTime, dt), prj, &doActionInfo);
 	
 	// Simulate the projectile
-	ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, cClient->getRemoteWorms(), &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
+	ProjCollisionType result = LX56_simulateProjectile_LowLevel( prj->fLastSimulationTime, dt, prj, &doActionInfo.trailprojspawn, &doActionInfo.deleteAfter );
 	
 	const Proj_EventOccurInfo eventInfo = Proj_EventOccurInfo::Col(serverTime, dt, &result);
 	

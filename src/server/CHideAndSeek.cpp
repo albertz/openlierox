@@ -76,10 +76,9 @@ void CHideAndSeek::makeVisible(CWorm* worm, bool vis) {
 		if(!cl->isConnected()) continue;
 		
 		// make worm (in)visible to all non-teammates
-		for(int i = 0; i < MAX_WORMS; i++)  {
-			if(!cServer->getWorms()[i].isUsed()) continue;
-			if(cServer->getWorms()[i].getTeam() != worm->getTeam())
-				cl->getNetEngine()->SendHideWorm(worm, i, vis, false);
+		for_each_iterator(CWorm*, w, game.worms()) {
+			if(w->get()->getTeam() != worm->getTeam())
+				cl->getNetEngine()->SendHideWorm(worm, w->get()->getID(), vis, false);
 		}
 	}	
 }
@@ -96,11 +95,9 @@ void CHideAndSeek::PrepareGame()
 void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
 	// in case this client connected later, update the visibility for all worms
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* otherw = &cServer->getWorms()[i];
-		if(!otherw->isUsed()) continue;
-		if(!visible[i] && otherw->getTeam() != worm->getTeam())
-			worm->getClient()->getNetEngine()->SendHideWorm(otherw, worm->getID(), visible[i], true);		
+	for_each_iterator(CWorm*, otherw, game.worms()) {
+		if(!visible[w->get()->getID()] && otherw->get()->getTeam() != worm->getTeam())
+			worm->getClient()->getNetEngine()->SendHideWorm(otherw->get(), worm->getID(), visible[w->get()->getID()], true);		
 	}
 	
 	std::string teamhint[2];
@@ -153,14 +150,14 @@ void CHideAndSeek::Simulate()
 	TimeDiff GameTime = cServer->getServerTime();
 	// Game time up
 	if(GameTime > fGameLength) {
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT) {
-				if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER)  {
-					if (cServer->getWorms()[i].getLives() == WRM_UNLIM)
-						cServer->getWorms()[i].setLives(0);  // Kill also worms with unlimited lives
-					cServer->killWorm(i, i, cServer->getWorms()[i].getLives() + 1);
+		for_each_iterator(CWorm*, w, game.worms())
+			if(w->get()->getLives() != WRM_OUT) {
+				if(w->get()->getTeam() == HIDEANDSEEK_SEEKER)  {
+					if (w->get()->getLives() == WRM_UNLIM)
+						w->get()->setLives(0);  // Kill also worms with unlimited lives
+					cServer->killWorm(w->get()->getID(), w->get()->getID(), w->get()->getLives() + 1);
 				} else
-					Show(&cServer->getWorms()[i], false); // People often want to see where the hiders were
+					Show(w->get(), false); // People often want to see where the hiders were
 			}
 		return;
 	}
@@ -168,34 +165,33 @@ void CHideAndSeek::Simulate()
 	if(GameTime < (float)gameSettings[FT_HS_HideTime])
 		return;
 	// Check if any of the worms can see eachother
-	int i, j;
-	for(i = 0; i < MAX_WORMS; i++) 
+	for_each_iterator(CWorm*, w1, game.aliveWorms())
 	{
-		if( !cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getLives() == WRM_OUT || !cServer->getWorms()[i].getAlive() )
+		if( w1->get()->getLives() == WRM_OUT )
 			continue;
 		// Hide the worm if the alert time is up
-		if(fLastAlert[i] + TimeDiff((float)gameSettings[FT_HS_AlertTime]) < GameTime)
-			Hide(&cServer->getWorms()[i]);
-		for(j = 0; j < MAX_WORMS; j++) 
+		if(fLastAlert[w1->get()->getID()] + TimeDiff((float)gameSettings[FT_HS_AlertTime]) < GameTime)
+			Hide(w1->get());
+		for_each_iterator(CWorm*, w2, game.aliveWorms())
 		{
-			if( !cServer->getWorms()[j].isUsed() || cServer->getWorms()[j].getLives() == WRM_OUT || !cServer->getWorms()[j].getAlive() )
+			if( w2->get()->getLives() == WRM_OUT )
 				continue;
-			if(cServer->getWorms()[j].getTeam() == cServer->getWorms()[i].getTeam())
+			if( w1->get()->getTeam() == w2->get()->getTeam() )
 				continue;
-			if( fWarmupTime[j] > GameTime )
+			if( fWarmupTime[w2->get()->getID()] > GameTime )
 				continue;
 
-			if(CanSee(&cServer->getWorms()[i], &cServer->getWorms()[j]))
-				Show(&cServer->getWorms()[j]);
+			if(CanSee(w1->get(), w2->get()))
+				Show(w2->get());
 			// Catch the hiders if they are within 10 pixels
-			if(cServer->getWorms()[i].getTeam() == HIDEANDSEEK_SEEKER && cServer->getWorms()[j].getTeam() == HIDEANDSEEK_HIDER)
-				if((cServer->getWorms()[i].getPos() - cServer->getWorms()[j].getPos()).GetLength() < 10)
+			if(w1->get()->getTeam() == HIDEANDSEEK_SEEKER && w2->get()->getTeam() == HIDEANDSEEK_HIDER)
+				if((w1->get()->getPos() - w2->get()->getPos()).GetLength() < 10)
 				{
 					int type;
 					float length;
-					cServer->getWorms()[i].traceLine(cServer->getWorms()[j].getPos(), &length, &type, 1);
+					w1->get()->traceLine(w2->get()->getPos(), &length, &type, 1);
 					if( type & PX_EMPTY )	// Do not touch through thin wall
-						cServer->killWorm(j, i, 0);
+						cServer->killWorm(w2->get()->getID(), w1->get()->getID(), 0);
 				}
 		}
 	}
@@ -210,9 +206,9 @@ bool CHideAndSeek::CheckGameOver()
 	int winners = -1;
 
 	// TODO: move out here
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT && cServer->getWorms()[i].getTeam() < 2)
-			worms[cServer->getWorms()[i].getTeam()]++;
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getLives() != WRM_OUT && w->get()->getTeam() < 2)
+			worms[w->get()->getTeam()]++;
 	if(worms[0] == 0)
 		winners = HIDEANDSEEK_SEEKER;
 	else if(worms[1] == 0)
@@ -270,13 +266,14 @@ void CHideAndSeek::Show(CWorm* worm, bool message)
 			worm->getClient()->getNetEngine()->SendText(networkTexts->sSeekerVisible, TXT_NORMAL);
 	}*/
 
-	for(int i = 0; i < MAX_WORMS; i++) {
-		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam()) continue;
-		if(cServer->getWorms()[i].getType() == PRF_COMPUTER) continue;
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getTeam() == worm->getTeam()) continue;
+		if(w->get()->getType() == PRF_COMPUTER) continue;
 		if (networkTexts->sVisibleMessage != "<none>" && message)  {
 			std::string msg;
 			replace(networkTexts->sVisibleMessage, "<player>", worm->getName(), msg);
-			cServer->getWorms()[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
+			if(w->get()->getClient() && w->get()->getClient()->getNetEngine())
+				w->get()->getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
 		}
 	}
 }
@@ -290,13 +287,14 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 	if(worm->getType() != PRF_COMPUTER && networkTexts->sYouAreHidden != "<none>" && message && worm->getTeam() == HIDEANDSEEK_HIDER)
 		worm->getClient()->getNetEngine()->SendText(networkTexts->sYouAreHidden, TXT_NORMAL);
 
-	for(int i = 0; i < MAX_WORMS; i++) {
-		if(!cServer->getWorms()[i].isUsed() || cServer->getWorms()[i].getTeam() == worm->getTeam()) continue;
-		if(cServer->getWorms()[i].getType() == PRF_COMPUTER) continue;
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getTeam() == worm->getTeam()) continue;
+		if(w->getType() == PRF_COMPUTER) continue;
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
-			cServer->getWorms()[i].getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
+			if(w->get()->getClient() && w->get()->getClient()->getNetEngine())
+				w->get()->getClient()->getNetEngine()->SendText(msg, TXT_NORMAL);
 		}
 	}	
 }
@@ -384,9 +382,9 @@ void CHideAndSeek::GenerateTimes()
 	float ratio = 1.0f;
 	// TODO: move that out here (to GameServer)
 	int worms[2] = { 0, 0 };
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() < 2)
-			worms[cServer->getWorms()[i].getTeam()]++;
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getTeam() < 2)
+			worms[w->get()->getTeam()]++;
 	if(worms[0] != 0 && worms[1] != 0)
 		ratio = (float)worms[0] / worms[1];
 

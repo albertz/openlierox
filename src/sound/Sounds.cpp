@@ -212,7 +212,7 @@ bool PlaySoundSample(SoundSample* sample) {
 
 ///////////////////
 // Play a sound in the viewport
-void StartSound(SoundSample* smp, CVec pos, int local, int volume, CWorm *me)
+void StartSound(SoundSample* smp, CVec pos, bool local, int volume)
 {
 	if(!SoundSystemAvailable || !SoundSystemStarted) return;
 

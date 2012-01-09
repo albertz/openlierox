@@ -29,7 +29,7 @@
 #include "CWpnRest.h"
 #include "CClient.h" // for MAX_PLAYERS
 #include "CGameSkin.h"
-#include "CWorm.h"
+#include "ProfileSystem.h"
 #include "Color.h"
 #include "HTTP.h"
 #include "ThreadVar.h"
@@ -311,7 +311,7 @@ class menu_t { public:
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
-	CWorm			sLocalPlayers[MAX_PLAYERS];
+	profile_t		sLocalPlayers[MAX_PLAYERS];
 	bool			bForbidConsole;  // Don't show console
 
 	// Map Editor

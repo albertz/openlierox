@@ -449,7 +449,7 @@ bool CWorm::skipPacket(CBytestream *bs)
 
 ///////////////////
 // Read a packet (client side)
-void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
+void CWorm::readPacketState(CBytestream *bs)
 {
 	if( NewNet::Active() )
 	{
@@ -698,10 +698,11 @@ void CWorm::readStatUpdate(CBytestream *bs)
 		return;
 	}
 
+	iCurrentWeapon = cur;
+
 	// If this is a special weapon, and the charge is processed client side, don't set the charge
 	if( tWeapons[cur].Weapon->Type == WPN_SPECIAL )
 		return;
-
 
 
 	tWeapons[cur].Reloading = (charge & 0x80) != 0;

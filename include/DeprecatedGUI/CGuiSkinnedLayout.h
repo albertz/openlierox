@@ -16,6 +16,9 @@
 #include "DeprecatedGUI/CWidgetList.h"
 #include <string>
 #include <map>
+#include <vector>
+
+class ScriptVar_t;
 
 namespace DeprecatedGUI {
 

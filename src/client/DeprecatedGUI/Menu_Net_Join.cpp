@@ -451,7 +451,7 @@ static void updateDetailsList(CListview* l) {
 			si->sText = cClient->getGameLobby()[f->get()].toString();
 		}
 
-		for_each_iterator( FeatureCompatibleSettingList::Feature&, f, cClient->getUnknownFeatures().list ) {
+		for_each_iterator( FeatureCompatibleSettingList::Feature&, f, GetIteratorRef_second(cClient->getUnknownFeatures().list) ) {
 			i = l->AddItem("feature:" + f->get().name, index++, tLX->clNormalLabel);
 			l->AddSubitem(LVS_TEXT, f->get().humanName + ":", (DynDrawIntf*)NULL, NULL);
 			l->AddSubitem(LVS_TEXT, "", (DynDrawIntf*)NULL, NULL);

@@ -16,6 +16,7 @@
 #include "DeprecatedGUI/CLabel.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "Debug.h"
+#include "LieroX.h"
 
 namespace DeprecatedGUI  {
 

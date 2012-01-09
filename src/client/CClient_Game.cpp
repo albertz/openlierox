@@ -479,7 +479,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 					// Make a death sound
 					int s = GetRandomInt(2);
 					if( NewNet::CanPlaySound(w->getID()) )
-						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1, cViewports[0].getTarget());
+						StartSound( sfxGame.smpDeath[s], w->getPos(), w->getLocal(), -1 );
 
 					// Spawn some giblets
 					for(int n=0;n<7;n++)
@@ -1114,12 +1114,11 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 
 	// Play the weapon's sound
 	if(wpn->UseSound) {
-		CWorm* me = cViewports[0].getTarget();
 		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
 			if(NewNet::CanPlaySound(shot->nWormID))
-				StartSound(wpn->smpSample, shot->cPos, game.wormById(shot->nWormID)->getLocal(), 100, me);
+				StartSound(wpn->smpSample, shot->cPos, game.wormById(shot->nWormID)->getLocal(), 100);
 		} else
-			StartSound(wpn->smpSample, shot->cPos, false, 100, me);
+			StartSound(wpn->smpSample, shot->cPos, false, 100);
 	}
 	
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {

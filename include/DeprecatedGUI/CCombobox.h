@@ -25,6 +25,7 @@
 #include "DeprecatedGUI/CScrollbar.h"
 #include "DynDraw.h"
 #include "gui/List.h"
+#include "DeprecatedGUI/CGuiSkin.h"
 
 class ScriptVar_t;
 struct ScriptVarPtr_t;

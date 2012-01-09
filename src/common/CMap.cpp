@@ -3091,3 +3091,14 @@ CVec CMap::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToE
 }
 
 
+struct CheckFileForMap {
+	typedef FileListCacheIntf::FileList List;
+	void operator()(List& filelist, const std::string& abs_filename) {
+		std::string mapName = CMap::GetLevelName(abs_filename, true);
+		if(mapName != "") filelist.insert( List::value_type(GetBaseFilename(abs_filename), mapName) );
+	}
+};
+static FileListCache<CheckFileForMap> mapListInstance("map", "levels", false, FM_REG | FM_DIR);
+FileListCacheIntf* mapList = &mapListInstance;
+
+
