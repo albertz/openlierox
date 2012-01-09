@@ -283,7 +283,7 @@ struct ProxyIterator : public Iterator<T> {
 };
 
 template<typename T>
-typename Iterator<T>::Ref FullCopyIterator(typename Iterator<T>::Ref i) {
+typename Iterator<T>::Ref FullCopyIterator(::Ref<Iterator<T> > i) {
 	boost::shared_ptr< std::vector<T> > copy( new std::vector<T>() );
 	copy->reserve(i->size());
 	for_each_iterator(T, x, i)
