@@ -348,7 +348,7 @@ public:
 	void		updateCheckVariables();
 	bool		checkPacketNeeded();
 	void		writePacket(CBytestream *bs, bool fromServer, CServerConnection* receiver);
-	void		readPacket(CBytestream *bs, CWorm *worms);
+	void		readPacket(CBytestream *bs);
 	void		net_updatePos(const CVec& newpos);
 	bool		skipPacket(CBytestream *bs);
 	void		readPacketState(CBytestream *bs, CWorm *worms);

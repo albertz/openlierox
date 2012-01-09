@@ -61,6 +61,7 @@ public:
 	Iterator<CWorm*>::Ref aliveWorms();
 	CWorm* wormById(int wormId, bool assertExisting = true);
 	CWorm* firstLocalHumanWorm();
+	CWorm* findWormByName(const std::string& name);
 	
 	CMap* gameMap();
 	CGameScript* gameScript();

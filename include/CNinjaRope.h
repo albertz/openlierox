@@ -96,7 +96,7 @@ public:
 	void		updateCheckVariables();
 	bool		writeNeeded();
 	void		write(CBytestream *bs);
-	void		read(CBytestream *bs, CWorm *worms, int owner);
+	void		read(CBytestream *bs, int owner);
 
     CVec getHookPos() const       { return getPos(); }
     bool   isAttached() const       { return HookAttached; }

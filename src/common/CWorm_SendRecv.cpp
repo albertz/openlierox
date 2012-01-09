@@ -334,7 +334,7 @@ bool CWorm::hasOwnServerTime() {
 
 ///////////////////
 // Read a packet (server side)
-void CWorm::readPacket(CBytestream *bs, CWorm *worms)
+void CWorm::readPacket(CBytestream *bs)
 {
 	// Position and velocity
 	short x, y;
@@ -361,7 +361,7 @@ void CWorm::readPacket(CBytestream *bs, CWorm *worms)
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
 	if(rope)
-		cNinjaRope.read(bs, worms, iID);
+		cNinjaRope.read(bs, iID);
 	else
 		cNinjaRope.Release();
 

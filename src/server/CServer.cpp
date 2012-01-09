@@ -1997,23 +1997,12 @@ void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReaso
 // Kick a worm out of the server (by name)
 void GameServer::kickWorm(const std::string& szWormName, const std::string& sReason, bool showReason)
 {
-	if (!cWorms)
-		return;
-
 	// Find the worm name
-	CWorm *w = cWorms;
-	for(int i=0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			kickWorm(i, sReason, showReason);
-			return;
-		}
-	}
-
-	// Didn't find the worm
-	hints << "Could not find worm '" << szWormName << "'" << endl;
+	if(CWorm* w = game.findWormByName(szWormName))
+		kickWorm(w->getID(), sReason, showReason);
+	else
+		// Didn't find the worm
+		hints << "Could not find worm '" << szWormName << "'" << endl;
 }
 
 
@@ -2021,11 +2010,6 @@ void GameServer::kickWorm(const std::string& szWormName, const std::string& sRea
 // Ban and kick the worm out of the server
 void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason)
 {
-	if (!cWorms) {
-		errors << "banWorm: worms not initialised" << endl;
-		return;
-	}
-	
 	if(sReason == "")
 		warnings << "banWorm: no reason given to ban worm " << wormID << endl;
 	
@@ -2035,27 +2019,25 @@ void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason
 		return;
 	}
 
-	if (!wormID && !bDedicated)  {
+	// Get the worm
+	CWorm *w = game.wormById(wormID, false);
+	if (!w) {
+		warnings << "banWorm: worm " << wormID << " does not exist" << endl;
+		return;
+	}
+
+	if (w->getLocal() && !bDedicated)  {
 		Con_AddText(CNC_NOTIFY, "You can't ban yourself!");
 		return;  // Don't ban ourself
 	}
 
-	// Get the worm
-	CWorm *w = cWorms + wormID;
-	if (!w)
-		return;
-
-	if( !w->isUsed() )  {
-		if (Con_IsVisible())
-			Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
-		return;
-	}
-
 	// Get the client
 	CServerConnection *cl = w->getClient();
-	if( !cl )
+	if( !cl ) {
+		errors << "banWorm: worm " << wormID << " doesn't have client set" << endl;
 		return;
-
+	}
+	
 	// Local worms are handled another way
 	// We just kick the worm, banning makes no sense
 	if (cl->isLocalClient())  {
@@ -2105,23 +2087,11 @@ void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason
 
 void GameServer::banWorm(const std::string& szWormName, const std::string& sReason, bool showReason)
 {
-	// Find the worm name
-	CWorm *w = cWorms;
-	if (!w)
-		return;
-
-	for(int i=0; i<MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			banWorm(i, sReason, showReason);
-			return;
-		}
-	}
-
-	// Didn't find the worm
-	Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
+	if(CWorm* w = game.findWormByName(szWormName))
+		banWorm(w->getID(), sReason, showReason);
+	else
+		// Didn't find the worm
+		Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 ///////////////////
@@ -2136,11 +2106,8 @@ void GameServer::muteWorm(int wormID)
 	}
 
 	// Get the worm
-	CWorm *w = cWorms + wormID;
-	if (!cWorms)
-		return;
-
-	if( !w->isUsed() )  {
+	CWorm *w = game.wormById(wormID, false);
+	if( !w )  {
 		if (Con_IsVisible())
 			Con_AddText(CNC_NOTIFY,"Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
@@ -2178,22 +2145,11 @@ void GameServer::muteWorm(int wormID)
 void GameServer::muteWorm(const std::string& szWormName)
 {
 	// Find the worm name
-	CWorm *w = cWorms;
-	if (!w)
-		return;
-
-	for(int i=0; i<MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			muteWorm(i);
-			return;
-		}
-	}
-
-	// Didn't find the worm
-	Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
+	if(CWorm* w = game.findWormByName(szWormName))
+		muteWorm(w->getID());
+	else
+		// Didn't find the worm
+		Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 ///////////////////
@@ -2208,11 +2164,8 @@ void GameServer::unmuteWorm(int wormID)
 	}
 
 	// Get the worm
-	CWorm *w = cWorms + wormID;
-	if (!cWorms)
-		return;
-
-	if( !w->isUsed() )  {
+	CWorm *w = game.wormById(wormID, false);
+	if( !w )  {
 		if (Con_IsVisible())
 			Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
@@ -2236,23 +2189,11 @@ void GameServer::unmuteWorm(int wormID)
 
 void GameServer::unmuteWorm(const std::string& szWormName)
 {
-	// Find the worm name
-	CWorm *w = cWorms;
-	if (!w)
-		return;
-
-	for(int i=0; i<MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if(stringcasecmp(w->getName(), szWormName) == 0) {
-			unmuteWorm(i);
-			return;
-		}
-	}
-
-	// Didn't find the worm
-	Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
+	if(CWorm* w = game.findWormByName(szWormName))
+		unmuteWorm(w->getID());
+	else
+		// Didn't find the worm
+		Con_AddText(CNC_NOTIFY, "Could not find worm '" + szWormName + "'");
 }
 
 void GameServer::authorizeWorm(int wormID)
@@ -2264,11 +2205,8 @@ void GameServer::authorizeWorm(int wormID)
 	}
 
 	// Get the worm
-	CWorm *w = cWorms + wormID;
-	if (!cWorms)
-		return;
-
-	if( !w->isUsed() )  {
+	CWorm *w = game.wormById(wormID, false);
+	if( !w )  {
 		if (Con_IsVisible())
 			Con_AddText(CNC_NOTIFY, "Could not find worm with ID '" + itoa(wormID) + "'");
 		return;
@@ -2280,33 +2218,23 @@ void GameServer::authorizeWorm(int wormID)
 		return;
 
 	cl->getRights()->Everything();
-	cServer->SendGlobalText((getWorms() + wormID)->getName() + " has been authorised", TXT_NORMAL);
+	cServer->SendGlobalText(w->getName() + " has been authorised", TXT_NORMAL);
 }
 
 
 void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
-	if (!cWorms)  {
-		errors << "cloneWeaponsToAllWorms called when the server is not running" << endl;
-		return;
-	}
-
-	CWorm *w = cWorms;
-	for (int i = 0; i < MAX_WORMS; i++, w++) {
-		if(w->isUsed()) {
-			w->CloneWeaponsFrom(worm);
-			w->setWeaponsReady(true);
-		}
+	for_each_iterator(CWorm*, w, game.worms()) {
+		w->get()->CloneWeaponsFrom(worm);
+		w->get()->setWeaponsReady(true);
 	}
 
 	SendWeapons();
 }
 
 bool GameServer::allWormsHaveFullLives() const {
-	CWorm *w = cWorms;
-	for (int i = 0; i < MAX_WORMS; i++, w++) {
-		if(w->isUsed()) {
-			if(w->getLives() < (int)gameSettings[FT_Lives]) return false;
-		}
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getLives() < (int)gameSettings[FT_Lives])
+			return false;
 	}
 	return true;
 }
@@ -2330,16 +2258,11 @@ void GameServer::notifyLog(const std::string& msg)
 // Get the client owning this worm
 CServerConnection *GameServer::getClient(int iWormID)
 {
-	if (iWormID < 0 || iWormID >= MAX_WORMS || !cWorms)
+	if (iWormID < 0 || iWormID >= MAX_WORMS)
 		return NULL;
 
-	CWorm *w = cWorms;
-
-	for(int p=0;p<MAX_WORMS;p++,w++) {
-		if(w->isUsed())
-			if (w->getID() == iWormID)
-				return w->getClient();
-	}
+	if(CWorm* w = game.wormById(iWormID, false))
+		return w->getClient();
 
 	return NULL;
 }
@@ -2400,11 +2323,6 @@ void GameServer::Shutdown()
 	}
 
 	ResetSockets();
-
-	if(cWorms) {
-		delete[] cWorms;
-		cWorms = NULL;
-	}
 
 	if(m_flagInfo) {
 		delete m_flagInfo;
@@ -2481,32 +2399,26 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 	caller->writeMsg(msg.str());
 	msg.str("");	
 	
-	if(cWorms) {
-		for(int i = 0; i < MAX_WORMS; ++i) {
-			CWorm* w = &cWorms[i];
-			if(w->isUsed()) {
-				msg << " + " << i;
-				if(i != w->getID()) msg << "(WRONG ID:" << w->getID() << ")";
-				msg << ":'" << w->getName() << "'";
-				if(w->getType() == PRF_COMPUTER) msg << "(bot)";
-				if(teamGame) msg << ", team " << w->getTeam();
-				if(w->getAlive())
-					msg << ", alive";
-				else
-					msg << ", dead";
-				if(!w->getWeaponsReady()) msg << ", still weapons selecting";
-				msg << ", lives=" << w->getLives();
-				msg << ", kills=" << w->getKills();
-				if(w->getClient())
-					msg << " on " << w->getClient()->debugName(false);
-				else
-					msg << " WITH UNSET CLIENT";
-				caller->writeMsg(msg.str());
-				msg.str("");	
-			}
-		}
-	} else
-		caller->writeMsg(" - worms not initialised");
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
+		msg << " + " << w->getID();
+		msg << ":'" << w->getName() << "'";
+		if(w->getType() == PRF_COMPUTER) msg << "(bot)";
+		if(teamGame) msg << ", team " << w->getTeam();
+		if(w->getAlive())
+			msg << ", alive";
+		else
+			msg << ", dead";
+		if(!w->getWeaponsReady()) msg << ", still weapons selecting";
+		msg << ", lives=" << w->getLives();
+		msg << ", kills=" << w->getKills();
+		if(w->getClient())
+			msg << " on " << w->getClient()->debugName(false);
+		else
+			msg << " WITH UNSET CLIENT";
+		caller->writeMsg(msg.str());
+		msg.str("");	
+	}
 }
 
 void GameServer::DumpConnections() {

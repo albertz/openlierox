@@ -194,7 +194,7 @@ void Game::frameInner()
 		std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
 		scopedSpeeds.reserve( game.worms()->size() );
 		for_each_iterator(CWorm*, w, game.worms())
-			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(w->get()) );
+			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(*w->get()) );
 		
 		gusLogicFrame();		
 	}
@@ -439,3 +439,11 @@ CWorm* Game::firstLocalHumanWorm() {
 		return w->get();
 	return NULL;
 }
+
+CWorm* Game::findWormByName(const std::string& name) {
+	for_each_iterator(CWorm*, w, worms())
+		if(stringcasecmp(w->get()->getName(), name) == 0)
+			return w->get();
+	return NULL;
+}
+

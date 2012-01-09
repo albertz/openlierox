@@ -277,8 +277,9 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 		}
 		int id = bs->readByte();
 		if (id >= 0 && id < MAX_WORMS)  {
-			if(!server->cWorms[id].isUsed()) {
-				warnings << "ParseImReady: got unused worm-ID!" << endl;
+			CWorm* w = game.wormById(id, false);
+			if(!w) {
+				warnings << "ParseImReady: got unused worm-ID " << id << endl;
 				CWorm::skipWeapons(bs);
 				continue;
 			}
@@ -293,12 +294,12 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 				continue;
 			}
 			//notes << "Server:ParseImReady: ";
-			server->cWorms[id].readWeapons(bs);
+			w->readWeapons(bs);
 			for (j = 0; j < 5; j++) {
-				if(server->cWorms[id].getWeapon(j)->Weapon)
-					server->cWorms[id].getWeapon(j)->Enabled =
-						game.weaponRestrictions()->isEnabled(server->cWorms[id].getWeapon(j)->Weapon->Name) ||
-						game.weaponRestrictions()->isBonus(server->cWorms[id].getWeapon(j)->Weapon->Name);
+				if(w->getWeapon(j)->Weapon)
+					w->getWeapon(j)->Enabled =
+						game.weaponRestrictions()->isEnabled(w->getWeapon(j)->Weapon->Name) ||
+						game.weaponRestrictions()->isBonus(w->getWeapon(j)->Weapon->Name);
 			}
 			
 		} else { // wrong id -> Skip to get the right position
@@ -332,7 +333,7 @@ void CServerNetEngine::ParseUpdate(CBytestream *bs) {
 
 		bool wasShootingBefore = w->getWormState()->bShoot;
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
-		w->readPacket(bs, server->cWorms);
+		w->readPacket(bs);
 
 		if(server->iState == SVS_PLAYING) {
 			// If the worm is shooting, handle it
@@ -388,7 +389,7 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (!cl->isLocalClient())  {
 			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
-				CWorm *w = cClient->getRemoteWorms() + victim;
+				CWorm *w = game.wormById(victim);
 				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
 					cClient->getNetEngine()->SendDeath(victim, killer);
 			} else {
@@ -734,8 +735,8 @@ void CServerNetEngineBeta7::ParseAFK(CBytestream *bs) {
 	if (wormid < 0 || wormid >= MAX_WORMS)
 		return;
 	
-	CWorm *w = &server->cWorms[wormid];
-	if( ! w->isUsed() || w->getClient() != cl )
+	CWorm *w = game.wormById(wormid, false);
+	if( !w || w->getClient() != cl )
 		return;
 	
 	w->setAFK( (AFK_TYPE)afkType, message );
@@ -829,8 +830,8 @@ void CServerNetEngine::ParseGrabBonus(CBytestream *bs) {
 
 
 	// Worm ID ok?
-	if (wormid >= 0 && wormid < MAX_WORMS) {
-		CWorm *w = &server->cWorms[wormid];
+	CWorm *w = game.wormById(wormid, false);
+	if (w) {
 
 		// Bonus id ok?
 		if (id >= 0 && id < MAX_BONUSES) {
@@ -950,10 +951,10 @@ void CServerNetEngineBeta9::ParseReportDamage(CBytestream *bs)
 	if( id < 0 || id >= MAX_WORMS || offenderId < 0 || offenderId >= MAX_WORMS )
 		return;
 
-	CWorm *w = & server->getWorms()[id];
-	CWorm *offender = & server->getWorms()[offenderId];
+	CWorm *w = game.wormById(id, false);
+	CWorm *offender = game.wormById(offenderId, false);
 	
-	if( ! w->isUsed() || ! offender->isUsed() )
+	if( !w || !offender )
 		return;
 	
 	if( ! cl->OwnsWorm(id) && ! cl->isLocalClient() )	// Allow local client to send damage for pre-Beta9 clients
@@ -1355,15 +1356,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			}
 		}
 
-	
-	// Calculate number of current players on this server
-	numplayers = 0;
-	for (p = 0; p < MAX_WORMS; p++) {
-		if (cWorms[p].isUsed())
-			numplayers++;
-	}
-	if(numplayers != iNumPlayers)
-		warnings << "WARNING: stored player count " << iNumPlayers << " is different from recalculated player count " << numplayers << endl;
 
 	// Ran out of slots
 	if (!newcl) {
@@ -1475,11 +1467,11 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	if(strWelcomeMessage == "<none>") strWelcomeMessage = "";
 	if(strWelcomeMessage != "")  {
 		
-		// Server name3
+		// Server name
 		replacemax(strWelcomeMessage, "<server>", tLXOptions->sServerName, strWelcomeMessage, 1);
 		
 		// Host name
-		replacemax(strWelcomeMessage, "<me>", cWorms[0].getName(), strWelcomeMessage, 1);
+		replacemax(strWelcomeMessage, "<me>", game.firstLocalHumanWorm() ? game.firstLocalHumanWorm()->getName() : "no-local-human-worm", strWelcomeMessage, 1);
 		
 		// Version
 		replacemax(strWelcomeMessage, "<version>", clientVersion.asHumanString(), strWelcomeMessage, 1);

@@ -1477,8 +1477,8 @@ void CClient::InitializeGameMenu()
 		} else {
 			std::string winnerName = "noone";
 			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
-				if(cRemoteWorms[iMatchWinner].isUsed())
-					winnerName = cRemoteWorms[iMatchWinner].getName();
+				if(CWorm* w = game.wormById(iMatchWinner, false))
+					winnerName = w->getName();
 				else
 					winnerName = "unknown worm";
 			}
@@ -1487,7 +1487,8 @@ void CClient::InitializeGameMenu()
 			
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(winnerName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
 			if(iMatchWinner >= 0 && iMatchWinner < MAX_WORMS) {
-				SmartPointer<DynDrawIntf> pic = cRemoteWorms[iMatchWinner].getPicimg();
+				CWorm* w = game.wormById(iMatchWinner, false);
+				SmartPointer<DynDrawIntf> pic = w ? w->getPicimg() : NULL;
 				if (pic.get())
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(pic), gm_TopSkin, 490, 5, WORM_SKIN_WIDTH, WORM_SKIN_HEIGHT);
 			}
@@ -1545,8 +1546,9 @@ void CClient::DrawGameMenu(SDL_Surface * bmpDest)
 	// Update the top message (winner/dirt count)
 	if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode == GameMode(GM_DEMOLITIONS))  {
 		// Get the dirt count
-		int dirtcount = 0, i = 0;
-		for (CWorm *w = cRemoteWorms; i < MAX_WORMS; i++, w++)  { if (w->isUsed()) dirtcount += w->getDirtCount(); }
+		int dirtcount = 0;
+		for_each_iterator(CWorm*, w, game.worms())
+			dirtcount += w->get()->getDirtCount();
 
 		cGameMenuLayout.SendMessage(gm_TopMessage, DeprecatedGUI::LBS_SETTEXT, "Total: " + itoa(dirtcount), 0);
 	}
@@ -1775,7 +1777,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			CWorm *p = game.wormById(iScoreboard[i]);
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1824,7 +1826,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			CWorm *p = game.wormById(iScoreboard[i]);
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);
@@ -1910,13 +1912,12 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 				lv->AddSubitem(DeprecatedGUI::LVS_TEXT, "P", (DynDrawIntf*)NULL, NULL);
 
 			// Draw the players
-			CWorm *p;
 			for(i = 0; i < iScorePlayers; i++) {
 				// If the left listview overflowed, fill the right one
 				if (lv->getItemCount() >= 16)
 					lv = Right;
 
-				p = &cRemoteWorms[iScoreboard[i]];
+				CWorm* p = game.wormById(iScoreboard[i]);
 
 				if(p->getTeam() != team)
 					continue;
@@ -2152,14 +2153,7 @@ void CClient::InitializeViewportManager()
 
     bool v2On = true;
     // If there is only 1 player total, turn the second viewport off
-    short count = 0;
-	short i;
-    for(i=0; i<MAX_WORMS; i++ ) {
-        if(cRemoteWorms[i].isUsed())
-            count++;
-    }
-
-    if( count <= 1 )
+    if( game.worms()->size() <= 1 )
         v2On = false;
 
 	DeprecatedGUI::CCombobox *v1Target = new DeprecatedGUI::CCombobox();
@@ -2178,26 +2172,15 @@ void CClient::InitializeViewportManager()
 
     // Fill in the combo boxes
 
-    // If the first player is a human, and is still playing: Only show the follow option
     ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Follow", VW_FOLLOW );
-    if( cLocalWorms[0]->getLives() == WRM_OUT || cLocalWorms[0]->getType() == PRF_COMPUTER ) {
-        ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Cycle", VW_CYCLE);
-        ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Free Look", VW_FREELOOK);
-        ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Action Cam", VW_ACTIONCAM);
-    }
-
-    // If the second player is a human and is still playing: Only show the follow option
-    bool show = true;
-    if( iNumWorms > 1 )
-        if( cLocalWorms[1]->getLives() != WRM_OUT && cLocalWorms[1]->getType() == PRF_HUMAN )
-            show = false;
+    ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Cycle", VW_CYCLE);
+    ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Free Look", VW_FREELOOK);
+    ViewportMgr.SendMessage( v1_Type, DeprecatedGUI::CBS_ADDITEM, "Action Cam", VW_ACTIONCAM);
 
     ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Follow", VW_FOLLOW );
-    if( show ) {
-        ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Cycle", VW_CYCLE);
-        ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Free Look",VW_FREELOOK);
-        ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Action Cam",VW_ACTIONCAM);
-    }
+    ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Cycle", VW_CYCLE);
+    ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Free Look",VW_FREELOOK);
+    ViewportMgr.SendMessage( v2_Type, DeprecatedGUI::CBS_ADDITEM, "Action Cam",VW_ACTIONCAM);
 
 	// Get the targets
 	int v1trg = 0, v2trg = 0;
@@ -2213,17 +2196,17 @@ void CClient::InitializeViewportManager()
 	}
 
 	// Fill in the target worms boxes
-    for(i=0; i<MAX_WORMS; i++ ) {
-        if(!cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT)
+	for_each_iterator(CWorm*, w, game.worms()) {
+        if(w->get()->getLives() == WRM_OUT)
             continue;
 
-		v1Target->addItem(cRemoteWorms[i].getName(), cRemoteWorms[i].getName(), cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID());
-		v2Target->addItem(cRemoteWorms[i].getName(), cRemoteWorms[i].getName(), cRemoteWorms[i].getPicimg(), cRemoteWorms[i].getID());
+		v1Target->addItem(w->get()->getName(), w->get()->getName(), w->get()->getPicimg(), w->get()->getID());
+		v2Target->addItem(w->get()->getName(), w->get()->getName(), w->get()->getPicimg(), w->get()->getID());
 
-		if (cRemoteWorms[i].getID() == v1trg)
+		if (w->get()->getID() == v1trg)
 			v1Target->setCurItem(v1Target->getLastItem());
 
-		if (cRemoteWorms[i].getID() == v2trg)
+		if (w->get()->getID() == v2trg)
 			v2Target->setCurItem(v2Target->getLastItem());
     }
 
@@ -2268,20 +2251,13 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
         return;
 
 
-    // Get the worm count
-    short Wormcount = 0;
-    for(short i=0; i<MAX_WORMS; i++ ) {
-        if(cRemoteWorms[i].isUsed())
-            Wormcount++;
-    }
-
     switch(ev->iControlID) {
 
         // V2 On
         case v2_On:
             if(ev->iEventMsg == DeprecatedGUI::CHK_CHANGED) {
                 // If there is only one worm, disable the 2nd viewport
-                if( Wormcount <= 1 )
+                if( game.worms()->size() <= 1 )
                     ViewportMgr.SendMessage(v2_On, DeprecatedGUI::CKM_SETCHECK,(DWORD)0,0);
             }
             break;
@@ -2291,7 +2267,7 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
             if(ev->iEventMsg == DeprecatedGUI::BTN_CLICKED) {
 
                 // If there is only one worm, disable the 2nd viewport
-                if( Wormcount <= 1 )
+                if( game.worms()->size() <= 1 )
                     ViewportMgr.SendMessage(v2_On, DeprecatedGUI::CKM_SETCHECK,(DWORD)0,0);
 
 				DeprecatedGUI::CCombobox *v1Target = (DeprecatedGUI::CCombobox *)ViewportMgr.getWidget(v1_Target);
@@ -2315,21 +2291,10 @@ void CClient::DrawViewportManager(SDL_Surface * bmpDest)
 
                 // Re-setup the viewports
                 if( !b_on) {
-                    SetupViewports(&cRemoteWorms[v1_target], NULL, a_type, VW_FOLLOW);
+                    SetupViewports(game.wormById(v1_target, false), NULL, a_type, VW_FOLLOW);
                 } else {
-                    SetupViewports(&cRemoteWorms[v1_target], &cRemoteWorms[v2_target], a_type, b_type);
+                    SetupViewports(game.wormById(v1_target, false), game.wormById(v2_target, false), a_type, b_type);
                 }
-
-				// Set the worms to follow
-				CWorm *trg_v1 = &cRemoteWorms[v1_target];
-				if (trg_v1)
-					if (trg_v1->isUsed() && trg_v1->getAlive())
-						cViewports[0].setTarget(trg_v1);
-
-				CWorm *trg_v2 = &cRemoteWorms[v2_target];
-				if (trg_v2)
-					if (trg_v2->isUsed() && trg_v2->getAlive())
-						cViewports[1].setTarget(trg_v2);
 
                 // Shutdown & leave
                 ViewportMgr.Shutdown();
@@ -2353,9 +2318,7 @@ void CClient::InitializeSpectatorViewportKeys()
 }
 
 void CClient::ProcessSpectatorViewportKeys()
-{
-	if(!cLocalWorms) return;
-	
+{	
 	if( iNetStatus != NET_PLAYING )
 		return;
 
@@ -2366,11 +2329,11 @@ void CClient::ProcessSpectatorViewportKeys()
 
 	// don't proceed if any of the local human worms is not out of the game
 	// (also don't proceed when waiting for respawn)
-	for(uint i = 0; i < iNumWorms; ++i) {
-		if(cLocalWorms[i] && cLocalWorms[i]->isUsed() && cLocalWorms[i]->getType() == PRF_HUMAN) {
-			if(cLocalWorms[i]->getAlive())
+	for_each_iterator(CWorm*, w, game.localWorms()) {
+		if(w->get()->getType() == PRF_HUMAN) {
+			if(w->get()->getAlive())
 				return;
-			if(tLX->currentTime <= cLocalWorms[i]->getTimeofDeath() + 3.0f)
+			if(tLX->currentTime <= w->get()->getTimeofDeath() + 3.0f)
 				return;
 		}
 	}
@@ -2387,26 +2350,25 @@ void CClient::ProcessSpectatorViewportKeys()
 	CWorm * v2_targetPtr = cViewports[1].getTarget();
 	int v1_target = -1, v2_target = -1, v1_prev = -1, v2_prev = -1, v1_next = -1, v2_next = -1, fallbackWorm = -1;
 
-    for(int i=0; i<MAX_WORMS; i++ )
-	{
-		if( cRemoteWorms[i].isUsed() && fallbackWorm == -1 )
-			fallbackWorm = i;
-		if( cRemoteWorms[i].isUsed() && cRemoteWorms[i].getAlive() )
-			fallbackWorm = i;
-        if( ! cRemoteWorms[i].isUsed() || cRemoteWorms[i].getLives() == WRM_OUT )
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if( fallbackWorm == -1 )
+			fallbackWorm = w->get()->getID();
+		if( w->get()->getAlive() )
+			fallbackWorm = w->get()->getID();
+        if( w->get()->getLives() == WRM_OUT )
 			continue;
 		if( v1_target != -1 && v1_next == -1 )
-				v1_next = i;
+				v1_next = w->get()->getID();
 		if( v2_target != -1 && v2_next == -1 )
-				v2_next = i;
-		if( v1_targetPtr == &cRemoteWorms[i] )
-			v1_target = i;
-		if( v2_targetPtr == &cRemoteWorms[i] )
-			v2_target = i;
+				v2_next = w->get()->getID();
+		if( v1_targetPtr == w->get() )
+			v1_target = w->get()->getID();
+		if( v2_targetPtr == w->get() )
+			v2_target = w->get()->getID();
 		if( v1_target == -1 )
-			v1_prev = i;
+			v1_prev = w->get()->getID();
 		if( v2_target == -1 )
-			v2_prev = i;
+			v2_prev = w->get()->getID();
     }
 
 	if( v1_target == -1 )
@@ -2450,7 +2412,7 @@ void CClient::ProcessSpectatorViewportKeys()
 			Changed = true;
 		}
 		// Spectate timeout just passed - move to another worm without user keypresses
-		if( v1_targetPtr == cLocalWorms[0] )
+		if( v1_targetPtr && v1_targetPtr->getLocal() )
 		{
 			v1_target = fallbackWorm;
 			Changed = true;
@@ -2509,11 +2471,11 @@ void CClient::ProcessSpectatorViewportKeys()
 		sSpectatorViewportMsg = "";
 
 	// Print message that we are in spectator mode for 3 seconds
-	if( cLocalWorms[0] && cLocalWorms[0]->getType() == PRF_HUMAN )
+	if( CWorm* w = game.firstLocalHumanWorm() )
 	{
-		if( tLX->currentTime <= cLocalWorms[0]->getTimeofDeath() + 6.0f )
+		if( tLX->currentTime <= w->getTimeofDeath() + 6.0f )
 		{
-			if( cLocalWorms[0]->getLives() != WRM_OUT )
+			if( w->getLives() != WRM_OUT )
 				sSpectatorViewportMsg = "Spectator mode - waiting for respawn";
 			else
 				sSpectatorViewportMsg = "Spectator mode";
@@ -2523,10 +2485,12 @@ void CClient::ProcessSpectatorViewportKeys()
 
 	if( Changed )
 	{
-		cViewports[0].setTarget(&cRemoteWorms[v1_target]);
+		if(CWorm* w = game.wormById(v1_target, false))
+			cViewports[0].setTarget(w);
 		cViewports[0].setType(v1_type);
 		if(v2_on) {
-			cViewports[1].setTarget(&cRemoteWorms[v2_target]);
+			if(CWorm* w = game.wormById(v2_target, false))
+				cViewports[1].setTarget(w);
 			cViewports[1].setType(v2_type);
 		}
 	}
@@ -2604,7 +2568,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		if (i >= 16)  // Left listview overflowed, fill in the right one
 			lv = Right;
 
-        CWorm *p = &cRemoteWorms[iScoreboard[i]];
+        CWorm *p = game.wormById(iScoreboard[i]);
 
 		// Get colour
 		if (tLXOptions->bColorizeNicks && getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)
@@ -2717,11 +2681,8 @@ void CClient::DrawPlayerWaiting(SDL_Surface * bmpDest)
 
 	// Get the number of players
 	std::list<CWorm *> worms;
-	CWorm *w = cRemoteWorms;
-	for (int i=0; i < MAX_WORMS; i++, w++)  {
-		if (w->isUsed())
-			worms.push_back(w);
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		worms.push_back(w->get());
 
 	std::list<CWorm *>::iterator it = worms.begin();
 
@@ -2765,7 +2726,7 @@ void CClient::DrawScoreboard(SDL_Surface * bmpDest)
 		UpdateIngameScore(((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Left)), ((DeprecatedGUI::CListview *)cScoreLayout.getWidget(sb_Right)), bShowReady);
 
 	// Hide the second list if there are no players
-	cScoreLayout.getWidget(sb_Right)->setEnabled(iNumWorms > 16);
+	cScoreLayout.getWidget(sb_Right)->setEnabled(game.worms()->size() > 16);
 
 	// Draw it!
 	cScoreLayout.Draw(bmpDest);

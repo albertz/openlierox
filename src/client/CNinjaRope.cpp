@@ -310,9 +310,9 @@ void CNinjaRope::write(CBytestream *bs)
 
 ///////////////////
 // Read rope details from a bytestream
-void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
+void CNinjaRope::read(CBytestream *bs, int owner)
 {
-	if(this->owner != &worms[owner]) {
+	if(this->owner != game.wormById(owner, false)) {
 		errors << "CNinjaRope::read: owner (" << this->owner->getID() << ") differs from param " << owner << endl;
 	}
 	
@@ -360,11 +360,13 @@ void CNinjaRope::read(CBytestream *bs, CWorm *worms, int owner)
 	if(type == ROP_PLYHOOKED) {
 		int id = bs->readByte();
 		if(id >= 0 && id < MAX_WORMS) {
-			Worm = &worms[id];
-			Worm->setHooked(true, &worms[owner]);
+			Worm = game.wormById(id, false);
+			if(Worm) {
+				Worm->setHooked(true, this->owner);
 
-            // Set the hook pos on the worm
-            pos() = Worm->getPos();
+				// Set the hook pos on the worm
+				pos() = Worm->getPos();
+			}
 		}
 	}
 }
