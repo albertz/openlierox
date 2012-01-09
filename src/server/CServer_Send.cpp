@@ -398,20 +398,16 @@ bool GameServer::SendUpdate()
 	//
 	std::list<CWorm *> worms_to_update;
 	{
-		CWorm *w = cWorms;
-		for (int i = 0; i < MAX_WORMS; i++, w++)  {
-			if (!w->isUsed())
-				continue;
-
+		for_each_iterator(CWorm*, w, game.worms()) {
 			// HINT: this can happen when a new client joins during game and has not selected weapons yet
-			if (w->getClient())
-				if (!w->getClient()->getGameReady())
+			if (w->get()->getClient())
+				if (!w->get()->getClient()->getGameReady())
 					continue;
 
 			// w is an own server-side copy of the worm-structure,
 			// therefore we don't get problems by using the same checkPacketNeeded as client is also using
-			if (w->checkPacketNeeded())  {
-				worms_to_update.push_back(w);
+			if (w->get()->checkPacketNeeded())  {
+				worms_to_update.push_back(w->get());
 			}
 		}
 	}
@@ -568,14 +564,11 @@ void CServerNetEngine::SendWeapons()
 {
 	CBytestream bs;
 	
-	CWorm* w = server->cWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-		if(!w->getWeaponsReady())
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(!w->get()->getWeaponsReady())
 			continue;
 		bs.writeByte(S2C_WORMWEAPONINFO);
-		w->writeWeapons(&bs);
+		w->get()->writeWeapons(&bs);
 	}
 	
 	SendPacket(&bs);
@@ -687,7 +680,7 @@ void CServerNetEngine::SendUpdateLobbyGame()
 void CServerNetEngine::WriteUpdateLobbyGame(CBytestream *bs)
 {
 	bs->writeByte(S2C_UPDATELOBBYGAME);
-	bs->writeByte(MAX(tLXOptions->iMaxPlayers,server->getNumPlayers()));  // This fixes the player disappearing in lobby
+	bs->writeByte(MAX(tLXOptions->iMaxPlayers,(int)game.worms()->size()));  // This fixes the player disappearing in lobby
 	bs->writeString(gameSettings[FT_Map].as<LevelInfo>()->path);
 	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->name);
 	bs->writeString(gameSettings[FT_Mod].as<ModInfo>()->path);
@@ -870,12 +863,8 @@ void GameServer::UpdateWorm(CWorm* w)
 // Update the worm names, skins, colours etc
 void GameServer::UpdateWorms()
 {
-	CWorm* w = cWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-		UpdateWorm(w);
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		UpdateWorm(w->get());
 }
 
 #ifdef FUZZY_ERROR_TESTING
@@ -990,7 +979,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 
 void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
-	server->getWorms()[Worm->getID()].setSpawnedOnce();
+	Worm->setSpawnedOnce();
 	
 	CBytestream bs;
 	bs.writeByte(S2C_SPAWNWORM);
@@ -1102,12 +1091,9 @@ void GameServer::SendTeamScoreUpdate() {
 }
 
 void CServerNetEngine::SendWormProperties(bool onlyIfNotDef) {
-	CWorm* w = server->getWorms();
-	for(int i = 0; i < MAX_WORMS; ++i, ++w) {
-		if(!w->isUsed()) continue;
-		if(onlyIfNotDef && isWormPropertyDefault(w)) continue;
-		
-		SendWormProperties(w);
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(onlyIfNotDef && isWormPropertyDefault(w->get())) continue;		
+		SendWormProperties(w->get());
 	}
 }
 
@@ -1166,82 +1152,87 @@ void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
 }
 
 void GameServer::SetWormSpeedFactor(int wormID, float f) {
-	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+	CWorm* w = game.wormById(wormID, false);
+	if(!w) {
 		warnings << "SetWormSpeedFactor: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
-	if(cWorms[wormID].speedFactor() == f) return; // nothing need to be changed
+	if(w->speedFactor() == f) return; // nothing need to be changed
 	
-	cWorms[wormID].setSpeedFactor(f);
+	w->setSpeedFactor(f);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
-			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+			cClients[c].getNetEngine()->SendWormProperties(w);
 	}	
 }
 
 void GameServer::SetWormCanUseNinja(int wormID, bool b) {
-	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+	CWorm* w = game.wormById(wormID, false);
+	if(!w) {
 		warnings << "SetWormCanUseNinja: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
-	if(cWorms[wormID].canUseNinja() == b) return; // nothing need to be changed
+	if(w->canUseNinja() == b) return; // nothing need to be changed
 	
-	cWorms[wormID].setCanUseNinja(b);
+	w->setCanUseNinja(b);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
-			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+			cClients[c].getNetEngine()->SendWormProperties(w);
 	}		
 }
 
 void GameServer::SetWormDamageFactor(int wormID, float f) {
-	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+	CWorm* w = game.wormById(wormID, false);
+	if(!w) {
 		warnings << "SetWormDamageFactor: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
-	if(cWorms[wormID].damageFactor() == f) return; // nothing need to be changed
+	if(w->damageFactor() == f) return; // nothing need to be changed
 	
-	cWorms[wormID].setDamageFactor(f);
+	w->setDamageFactor(f);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
-			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+			cClients[c].getNetEngine()->SendWormProperties(w);
 	}
 }
 
 void GameServer::SetWormShieldFactor(int wormID, float f) {
-	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+	CWorm* w = game.wormById(wormID, false);
+	if(!w) {
 		warnings << "SetWormDamageFactor: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
-	if(cWorms[wormID].shieldFactor() == f) return; // nothing need to be changed
+	if(w->shieldFactor() == f) return; // nothing need to be changed
 	
-	cWorms[wormID].setShieldFactor(f);
+	w->setShieldFactor(f);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
-			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+			cClients[c].getNetEngine()->SendWormProperties(w);
 	}
 }
 
 void GameServer::SetWormCanAirJump(int wormID, bool b) {
-	if(wormID < 0 || wormID >= MAX_WORMS || !cWorms[wormID].isUsed()) {
+	CWorm* w = game.wormById(wormID, false);
+	if(!w) {
 		warnings << "SetWormCanAirJump: worm " << wormID << " is invalid" << endl;
 		return;
 	}
 	
-	if(cWorms[wormID].canAirJump() == b) return; // nothing need to be changed
+	if(w->canAirJump() == b) return; // nothing need to be changed
 	
-	cWorms[wormID].setCanAirJump(b);
+	w->setCanAirJump(b);
 	
 	for(int c = 0; c < MAX_CLIENTS; c++) {
 		if(cClients[c].getStatus() == NET_CONNECTED)
-			cClients[c].getNetEngine()->SendWormProperties(&cWorms[wormID]);
+			cClients[c].getNetEngine()->SendWormProperties(w);
 	}		
 }
 

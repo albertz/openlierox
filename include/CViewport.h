@@ -111,7 +111,7 @@ public:
 
 	void	Setup(int l, int t, int vw, int vh, int type);
 
-	void	Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode);
+	void	Process(CViewport *pcViewList, int MWidth, int MHeight, int iGameMode);
 	void	Clamp(int MWidth, int MHeight);
 
 	bool	inView(CVec pos);	
@@ -121,7 +121,7 @@ public:
 
     void    reset();
 
-    CWorm   *findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive);
+    CWorm   *findTarget(CViewport *pcViewList, bool bAlive);
 
 	SDL_Rect getRect();
 	

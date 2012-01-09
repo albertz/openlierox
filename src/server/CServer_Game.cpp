@@ -123,10 +123,8 @@ void GameServer::killWorm( int victim, int killer, int suicidesCount )
 	if(victim == killer && suicidesCount == 0 )
 		suicidesCount = 1;
 
-	CWorm *vict = &cWorms[victim];
-	CWorm *kill = NULL;
-	if(killer >= 0 && killer < MAX_WORMS && cWorms[killer].isUsed())
-		kill = &cWorms[killer];
+	CWorm *vict = game.wormById(victim);
+	CWorm *kill = game.wormById(killer, false);
 	
 	// Cheat prevention, game behaves weird if this happens
 	if (vict->getLives() < 0 && (int)gameSettings[FT_Lives] >= 0)  {
@@ -177,7 +175,7 @@ void GameServer::SimulateGame()
 	// If this is a remote game, and game over,
 	// and we've seen the scoreboard for a certain amount of time, go back to the lobby
 	if(bGameOver
-	&& (tLX->currentTime - fGameOverTime > LX_ENDWAIT || (bDedicated && iNumPlayers <= 1)) // dedicated server should go to lobby immediatly if alone
+	&& (tLX->currentTime - fGameOverTime > LX_ENDWAIT || (bDedicated && game.localWorms()->size() <= 1)) // dedicated server should go to lobby immediatly if alone
 	&& iState != SVS_LOBBY
 	&& tLX->iGameType == GME_HOST) {
 		gotoLobby(true, "timeout for gameover scoreboard");
@@ -189,10 +187,8 @@ void GameServer::SimulateGame()
 		return;
 
 	// Process worms
-	CWorm *w = cWorms;
-	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed())
-			continue;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 
 		// HINT: this can happen when a new client connects during game and has not selected weapons yet
 		// We just skip him
@@ -254,12 +250,8 @@ void GameServer::SimulateGame()
 	}
 
 	// check for flag
-	w = cWorms;
-	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed())
-			continue;
-		flagInfo()->checkWorm(w);
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		flagInfo()->checkWorm(w->get());
 	
 	// Simulate anything needed by the game mode
 	game.gameMode()->Simulate();
@@ -502,8 +494,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 		return;
 	}
 	
-	short i;
-
 	// Tell all the clients
 	CBytestream bs;
 	bs.writeByte(S2C_GOTOLOBBY);
@@ -512,33 +502,31 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	// Clear the info
 	iState = SVS_LOBBY;
 	bool bUpdateWorms = false;
-	for(i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed()) {
-			cWorms[i].Unprepare();
-			cWorms[i].setLobbyReady( false );
-			cWorms[i].setGameReady(false);
-			cWorms[i].setTagIT(false);
-			cWorms[i].setTagTime(TimeDiff(0));
-			if( cWorms[i].getAFK() == AFK_TYPING_CHAT )
-			{
-				cWorms[i].setAFK(AFK_BACK_ONLINE, "");
-				CBytestream bs;
-				bs.writeByte( S2C_AFK );
-				bs.writeByte( (uchar)i );
-				bs.writeByte( AFK_BACK_ONLINE );
-				bs.writeString( "" );
-	
-				CServerConnection *cl;
-				int i;
-				for( i=0, cl=cClients; i < MAX_CLIENTS; i++, cl++ )
-					if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
-						cl->getNetEngine()->SendPacket(&bs);
-			}
+	for_each_iterator(CWorm*, w, game.worms()) {
+		w->get()->Unprepare();
+		w->get()->setLobbyReady( false );
+		w->get()->setGameReady(false);
+		w->get()->setTagIT(false);
+		w->get()->setTagTime(TimeDiff(0));
+		if( w->get()->getAFK() == AFK_TYPING_CHAT )
+		{
+			w->get()->setAFK(AFK_BACK_ONLINE, "");
+			CBytestream bs;
+			bs.writeByte( S2C_AFK );
+			bs.writeByte( (uchar)w->get()->getID() );
+			bs.writeByte( AFK_BACK_ONLINE );
+			bs.writeString( "" );
+
+			CServerConnection *cl;
+			int i;
+			for( i=0, cl=cClients; i < MAX_CLIENTS; i++, cl++ )
+				if( cl->getStatus() == NET_CONNECTED && cl->getClientVersion() >= OLXBetaVersion(7) )
+					cl->getNetEngine()->SendPacket(&bs);
 		}
 	}
 	UpdateGameLobby();
 
-	for(i=0; i<MAX_CLIENTS; i++) {
+	for(short i=0; i<MAX_CLIENTS; i++) {
 		cClients[i].setGameReady(false);
 	}
 
@@ -557,7 +545,7 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	if(alsoWithMenu)
 		DeprecatedGUI::Menu_Net_GotoHostLobby();
 
-	for( i=0; i<MAX_CLIENTS; i++ )
+	for( short i=0; i<MAX_CLIENTS; i++ )
 		cClients[i].getUdpFileDownloader()->allowFileRequest(true);
 
 	// Re-register the server to reflect the state change

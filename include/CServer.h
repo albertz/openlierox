@@ -95,10 +95,6 @@ private:
 	// Clients
 	CServerConnection *cClients;		// TODO: use std::list or vector
 
-	// Worms
-	int			iNumPlayers;
-	CWorm		*cWorms;		// TODO: use std::list or vector
-
 	// Bonuses
 	CBonus		cBonuses[MAX_BONUSES];  // TODO: use std::list or vector
 
@@ -278,7 +274,6 @@ public:
 
 	// Variables
 	FlagInfo*		flagInfo() const	{ return m_flagInfo; }
-	CWorm			*getWorms()			{ return cWorms; }
 	CBanList		*getBanList()		{ return &cBanList; }
 	CServerConnection *getClient(int iWormID);
 	bool			getGameOver()		{ return bGameOver; }
@@ -287,9 +282,8 @@ public:
 	CServerConnection* getClients() { return cClients; }
 	CServerConnection* localClientConnection();
 	TimeDiff	getServerTime() { return fServertime; }
-	bool		isServerRunning() const { return cWorms && cClients; }
+	bool		isServerRunning() const { return cClients; }
 	int		getState() const { return iState; }
-	int		getNumPlayers() const		{ return iNumPlayers; }
 	int		getNumBots() const;
 	int		getLastBot() const;
 	int		getFirstEmptyTeam() const; // -1 if there is no empty team; only possible teams by gamemode

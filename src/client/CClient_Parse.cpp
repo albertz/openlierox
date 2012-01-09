@@ -59,6 +59,8 @@
 #include "gusanos/gusgame.h"
 #include "ThreadVar.h"
 #include "CGameScript.h"
+#include "ClientConnectionRequestInfo.h"
+#include "util/macros.h"
 
 
 #ifdef _MSC_VER
@@ -81,6 +83,8 @@ static bool bRegisteredNetDebugVars = CScriptableVars::RegisterVars("Debug.Net")
 ( Debug_Net_ClConnLess, "ClConnLess" )
 ( Debug_Net_ClConn, "ClConn" );
 
+
+CClientNetEngine::~CClientNetEngine() {}
 
 ///////////////////
 // Parse a connectionless packet
@@ -180,6 +184,11 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 		return;
 	}
 
+	if(connectInfo.get() == NULL) {
+		errors << "CClientNetEngine::ParseChallenge: connectInfo is NULL" << endl;
+		return;
+	}
+	
 #ifdef DEBUG
 	if (client->bConnectingBehindNat)
 		notes << "Got a challenge from the server." << endl;
@@ -201,22 +210,22 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	bytestr.writeInt(PROTOCOL_VERSION,1);
 	bytestr.writeInt(client->iChallenge,4);
 	bytestr.writeInt(client->iNetSpeed,1);
-	bytestr.writeInt(client->iNumWorms, 1);
+	bytestr.writeInt(connectInfo->worms.size(), 1);
 
 	// Send my worms info
     //
     // __MUST__ match the layout in CWorm::writeInfo() !!!
     //
 
-	for(uint i=0;i<client->iNumWorms;i++) {
+	foreach(w, connectInfo->worms) {
 		// TODO: move this out here
-		bytestr.writeString(RemoveSpecialChars(client->tProfiles[i]->sName));
-		bytestr.writeInt(client->tProfiles[i]->iType,1);
-		bytestr.writeInt(client->tProfiles[i]->iTeam,1);
-		bytestr.writeString(client->tProfiles[i]->cSkin.getFileName());
-		bytestr.writeInt(client->tProfiles[i]->R,1);
-		bytestr.writeInt(client->tProfiles[i]->G,1);
-		bytestr.writeInt(client->tProfiles[i]->B,1);
+		bytestr.writeString(RemoveSpecialChars(w->sName));
+		bytestr.writeInt(w->iType,1);
+		bytestr.writeInt(w->iTeam,1);
+		bytestr.writeString(w->cSkin.getFileName());
+		bytestr.writeInt(w->R,1);
+		bytestr.writeInt(w->G,1);
+		bytestr.writeInt(w->B,1);
 	}
 
 	client->tSocket->reapplyRemoteAddress();

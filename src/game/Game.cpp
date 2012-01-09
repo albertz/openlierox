@@ -40,6 +40,7 @@
 #include "CGameScript.h"
 
 #include <boost/shared_ptr.hpp>
+#include <boost/lambda/lambda.hpp>
 
 Game game;
 
@@ -190,24 +191,12 @@ void Game::frameInner()
 	// do lua frames in all cases
 	{
 		// convert speed to lua if needed
-		boost::shared_ptr<CGameObject::ScopedGusCompatibleSpeed> scopedSpeeds[MAX_WORMS];
-		for(int i = 0; i < MAX_WORMS; ++i)
-			if(cClient->getRemoteWorms()[i].isUsed())
-				scopedSpeeds[i].reset( new CGameObject::ScopedGusCompatibleSpeed(cClient->getRemoteWorms()[i]) );
+		std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
+		scopedSpeeds.reserve( game.worms()->size() );
+		for_each_iterator(CWorm*, w, game.worms())
+			scopedSpeeds.push_back( new CGameObject::ScopedGusCompatibleSpeed(w->get()) );
 		
-		gusLogicFrame();
-		
-		if(gameScript()->gusEngineUsed() && game.isServer()) {
-			// copy worm states to CServer worms because they are never updated in this mode
-			for(int i = 0; i < MAX_WORMS; ++i) {
-				if(cServer->getWorms()[i].isUsed() && cClient->getRemoteWorms()[i].isUsed()) {
-					cServer->getWorms()[i].health = cClient->getRemoteWorms()[i].health;
-					cServer->getWorms()[i].vPos = cClient->getRemoteWorms()[i].vPos;
-					cServer->getWorms()[i].vVelocity = cClient->getRemoteWorms()[i].vVelocity;
-					cServer->getWorms()[i].bAlive = cClient->getRemoteWorms()[i].bAlive;					
-				}
-			}
-		}
+		gusLogicFrame();		
 	}
 	/*} else {
 		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case
@@ -421,3 +410,32 @@ bool Game::shouldDoPhysicsFrame() {
 	!(cClient->bGameOver && (tLX->currentTime - cClient->fGameOverTime).seconds() > GAMEOVER_WAIT);
 }
 
+
+Iterator<CWorm*>::Ref Game::worms() {
+	return GetIterator_second(m_worms);
+}
+
+Iterator<CWorm*>::Ref Game::localWorms() {
+	return GetFilterIterator(worms(), cClient->OwnsWorm(boost::lambda::_1 -> getID()));
+}
+
+Iterator<CWorm*>::Ref Game::aliveWorms() {
+	return GetFilterIterator(worms(), boost::lambda::_1 -> isAlive());
+}
+
+CWorm* Game::wormById(int wormId, bool assertExisting) {
+	std::map<int,CWorm*>::iterator i = m_worms.find(wormId);
+	if(i == m_worms.end()) {
+		if(assertExisting)
+			assert(false);
+		return NULL;
+	}
+	return i->second;
+}
+
+CWorm* Game::firstLocalHumanWorm() {
+	for_each_iterator(CWorm*, w, localWorms())
+	if( w->get()->getType() == PRF_HUMAN )
+		return w->get();
+	return NULL;
+}

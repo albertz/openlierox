@@ -13,10 +13,12 @@
 #include <boost/signal.hpp>
 #include <vector>
 #include <list>
+#include <map>
 #include "SmartPointer.h"
 #include "olx-types.h"
 #include "gusanos/object_grid.h"
 #include "util/Result.h"
+#include "Iter.h"
 
 class CWormHumanInputHandler;
 class CWormInputHandler;
@@ -54,6 +56,12 @@ public:
 	
 	Grid objects;
 
+	Iterator<CWorm*>::Ref worms();
+	Iterator<CWorm*>::Ref localWorms();
+	Iterator<CWorm*>::Ref aliveWorms();
+	CWorm* wormById(int wormId, bool assertExisting = true);
+	CWorm* firstLocalHumanWorm();
+	
 	CMap* gameMap();
 	CGameScript* gameScript();
 	CGameMode* gameMode();
@@ -76,6 +84,7 @@ private:
 	SmartPointer<CGameScript> m_gameMod;
 	SmartPointer<CGameMode> m_gameMode;
 	SmartPointer<CWpnRest> m_wpnRest;
+	std::map<int,CWorm*> m_worms; // ID -> worm
 };
 
 extern Game game;

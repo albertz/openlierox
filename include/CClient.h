@@ -200,16 +200,10 @@ public:
 private:
 	// Attributes
 
-	// Local Worms (pointers to the remote worms)
-	uint		iNumWorms;
-	CWorm		*cLocalWorms[MAX_PLAYERS];
 	//int			iDrawingViews[2];
     CViewport   cViewports[NUM_VIEWPORTS];
 
 	profile_t	*tProfiles[MAX_PLAYERS];
-
-	// Remote worms
-	CWorm		*cRemoteWorms;
 
 	// Logging
 	game_log_t	*tGameLog;
@@ -547,19 +541,13 @@ public:
 	bool		canSimulate() const;
 	
 	int			OwnsWorm(int id);
-	int			getNumWorms()			{ return iNumWorms; }
-	void		setNumWorms(int _w)			{ iNumWorms = _w; }
 	bool		canAddWorm(std::string* noReason = NULL);
 	
-	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
-	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
-
 	bool		serverChoosesWeapons()		{ return bServerChoosesWeapons; }
 	
 	void		clearHumanWormInputs();
 	void		clearLocalWormInputs();
 
-	CWorm		*getRemoteWorms()		{ return cRemoteWorms; }
 	int			getTeamWormCount(int t) const;
 	bool		getGameReady()			{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }

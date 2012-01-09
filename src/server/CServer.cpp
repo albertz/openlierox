@@ -63,8 +63,6 @@ GameServer::GameServer() {
 	iState = SVS_LOBBY;
 	m_flagInfo = NULL;
 	cClients = NULL;
-	cWorms = NULL;
-	iNumPlayers = 0;
 	Clear();
 }
 
@@ -81,10 +79,8 @@ void GameServer::Clear()
 {
 	cClients = NULL;
 	//cProjectiles = NULL;
-	cWorms = NULL;
 	iState = SVS_LOBBY;
 	iServerFrame=0; lastClientSendData = 0;
-	iNumPlayers = 0;
 	bRandomMap = false;
 	//iMaxWorms = MAX_PLAYERS;
 	bGameOver = false;
@@ -196,13 +192,6 @@ int GameServer::StartServer()
 	// Initialize the clients
 	cClients = new CServerConnection[MAX_CLIENTS];
 	if(cClients==NULL) {
-		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
-		return false;
-	}
-
-	// Allocate the worms
-	cWorms = new CWorm[MAX_WORMS];
-	if(cWorms == NULL) {
 		SetError("Error: Out of memory!\nsv::Startserver() " + itoa(__LINE__));
 		return false;
 	}
@@ -330,7 +319,7 @@ bool GameServer::serverChoosesWeapons() {
 	// If we make this controllable via mods later on, there are other cases where we have to enable bServerChoosesWeapons.
 	return
 		gameSettings[FT_ForceRandomWeapons] ||
-		(gameSettings[FT_SameWeaponsAsHostWorm] && cClient->getNumWorms() > 0); // only makes sense if we have at least one worm	
+		(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->size() > 0); // only makes sense if we have at least one worm	
 }
 
 
@@ -364,15 +353,11 @@ int GameServer::StartGame(std::string* errMsg)
 	CBytestream bs;
 	
 	notes << "GameServer::StartGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
-
-	// Check
-	if (!cWorms) { errors << "StartGame(): Worms not initialized" << endl; return false; }
 	
-	CWorm *w = cWorms;
-	for (int p = 0; p < MAX_WORMS; p++, w++) {
-		if(w->isUsed() && w->isPrepared()) {
-			warnings << "WARNING: StartGame(): worm " << p << " was already prepared!" << endl;
-			w->Unprepare();
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->isPrepared()) {
+			warnings << "WARNING: StartGame(): worm " << w->get()->getID() << " was already prepared!" << endl;
+			w->get()->Unprepare();
 		}
 	}
 	
@@ -440,16 +425,14 @@ int GameServer::StartGame(std::string* errMsg)
 
 	
 	// Set some info on the worms
-	for(int i=0;i<MAX_WORMS;i++) {
-		if(cWorms[i].isUsed()) {
-			cWorms[i].setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
-			cWorms[i].setKills(0);
-			cWorms[i].setDeaths(0);
-			cWorms[i].setTeamkills(0);
-			cWorms[i].setDamage(0);
-			cWorms[i].setWeaponsReady(false);
-			cWorms[i].Prepare(true);
-		}
+	for_each_iterator(CWorm*, w, game.worms()) {
+		w->get()->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : (int)gameSettings[FT_Lives]);
+		w->get()->setKills(0);
+		w->get()->setDeaths(0);
+		w->get()->setTeamkills(0);
+		w->get()->setDamage(0);
+		w->get()->setWeaponsReady(false);
+		w->get()->Prepare(true);
 	}
 
 	// Clear bonuses
@@ -516,11 +499,8 @@ int GameServer::StartGame(std::string* errMsg)
 	if( tLXOptions->bRegServer && tLX->iGameType == GME_HOST )
 		RegisterServerUdp();
 	
-	for(int i = 0; i < MAX_WORMS; i++) {
-		if(!cWorms[i].isUsed())
-			continue;
-		PrepareWorm(&cWorms[i]);
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		PrepareWorm(w->get());
 
 	for( int i = 0; i < MAX_CLIENTS; i++ ) {
 		if( !cClients[i].isConnected() )
@@ -535,9 +515,9 @@ int GameServer::StartGame(std::string* errMsg)
 
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
-	if(gameSettings[FT_SameWeaponsAsHostWorm] && cClient->getNumWorms() > 0) {
-		if(cClient->getGameReady() && cClient->getWorm(0) != NULL && cClient->getWorm(0)->getWeaponsReady()) {
-			worm->CloneWeaponsFrom(cClient->getWorm(0));
+	if(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->tryGet()) {
+		if(cClient->getGameReady() && game.localWorms()->tryGet()->getWeaponsReady()) {
+			worm->CloneWeaponsFrom(game.localWorms()->tryGet());
 			worm->setWeaponsReady(true);
 		}
 		// in the case that the host worm is not ready, we will get the weapons later
@@ -638,17 +618,17 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 		iLastVictim = -1;
 	
 	// For spectators: set their lives to out and tell clients about it
-	for (int i = 0; i < MAX_WORMS; i++)  {
-		if (cWorms[i].isUsed() && cWorms[i].isSpectating() && cWorms[i].getLives() != WRM_OUT)  {
-			notes << "BeginMatch: worm " << i << ":" << cWorms[i].getName() << " is spectating" << endl;
-			cWorms[i].setLives(WRM_OUT);
-			cWorms[i].setKills(0);
-			cWorms[i].setDeaths(0);
-			cWorms[i].setTeamkills(0);
-			cWorms[i].setDamage(0);
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if (w->get()->isSpectating() && w->get()->getLives() != WRM_OUT)  {
+			notes << "BeginMatch: worm " << w->get()->getID() << ":" << w->get()->getName() << " is spectating" << endl;
+			w->get()->setLives(WRM_OUT);
+			w->get()->setKills(0);
+			w->get()->setDeaths(0);
+			w->get()->setTeamkills(0);
+			w->get()->setDamage(0);
 			for(int ii = 0; ii < MAX_CLIENTS; ii++)
 				if(cClients[ii].isConnected())
-					cClients[ii].getNetEngine()->SendWormScore( & cWorms[i] );
+					cClients[ii].getNetEngine()->SendWormScore( w->get() );
 		}
 	}
 
@@ -680,7 +660,7 @@ void GameServer::GameOver()
 	if(winner >= 0) {
 		if (networkTexts->sPlayerHasWon != "<none>")
 			SendGlobalText((replacemax(networkTexts->sPlayerHasWon, "<player>",
-												cWorms[winner].getName(), 1)), TXT_NORMAL);
+												game.wormById(winner)->getName(), 1)), TXT_NORMAL);
 		hints << ", worm " << winner << " has won the match";
 	}
 	
@@ -707,9 +687,9 @@ void GameServer::GameOver()
 			if(game.gameMode()->isTeamGame()) {
 				// we have to send always the worm-id (that's the LX56 protocol...)
 				if(winLX < 0)
-					for(int i = 0; i < getNumPlayers(); ++i) {
-						if(cWorms[i].getTeam() == winnerTeam) {
-							winLX = i;
+					for_each_iterator(CWorm*, w, game.worms()) {
+						if(w->get()->getTeam() == winnerTeam) {
+							winLX = w->get()->getID();
 							break;
 						}
 					}
@@ -733,11 +713,8 @@ void GameServer::GameOver()
 
 	// Reset the state of all the worms so they don't keep shooting/moving after the game is over
 	// HINT: next frame will send the update to all worms
-	CWorm *w = cWorms;
-	int i;
-	for ( i=0; i < MAX_WORMS; i++, w++ )  {
-		if (!w->isUsed())
-			continue;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 
 		w->clearInput();
 		
@@ -764,11 +741,9 @@ void GameServer::GameOver()
 
 
 bool GameServer::isTeamEmpty(int t) const {
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		if(cWorms[i].isUsed() && cWorms[i].getTeam() == t) {
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getTeam() == t)
 			return false;
-		}
-	}
 	return true;
 }
 
@@ -783,10 +758,9 @@ int GameServer::getFirstEmptyTeam() const {
 
 int GameServer::getTeamWormNum(int t) const {
 	int c = 0;
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		if(cWorms[i].isUsed() && cWorms[i].getTeam() == t)
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getTeam() == t)
 			c++;
-	}
 	return c;
 }
 
@@ -794,13 +768,10 @@ int GameServer::getTeamWormNum(int t) const {
 // Returns number of teams that are not out of the game
 int GameServer::getAliveTeamCount() const
 {
-	if (!cWorms)
-		return 0;
-
 	int teams[] = {0, 0, 0, 0};
-	for (int i = 0; i < MAX_WORMS; ++i)
-		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT && cWorms[i].getTeam() >= 0 && cWorms[i].getTeam() < 4)
-			teams[cWorms[i].getTeam()]++;
+	for_each_iterator(CWorm*, w, game.worms())
+		if (w->get()->getLives() != WRM_OUT && w->get()->getTeam() >= 0 && w->get()->getTeam() < 4)
+			teams[w->get()->getTeam()]++;
 
 	int res = 0;
 	for (int i = 0; i < 4; i++)
@@ -814,12 +785,9 @@ int GameServer::getAliveTeamCount() const
 // Returns number of worms that are not out of the game
 int GameServer::getAliveWormCount() const
 {
-	if (!cWorms)
-		return 0;
-
 	int res = 0;
-	for (int i = 0; i < MAX_WORMS; ++i)
-		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
+	for_each_iterator(CWorm*, w, game.worms())
+		if (w->get()->getLives() != WRM_OUT)
 			++res;
 
 	return res;
@@ -829,12 +797,9 @@ int GameServer::getAliveWormCount() const
 // Returns first worm in the list that is not out
 CWorm *GameServer::getFirstAliveWorm() const
 {
-	if (!cWorms)
-		return NULL;
-
-	for (int i = 0; i < MAX_WORMS; ++i)
-		if (cWorms[i].isUsed() && cWorms[i].getLives() != WRM_OUT)
-			return &cWorms[i];
+	for_each_iterator(CWorm*, w, game.worms())
+		if (w->get()->getLives() != WRM_OUT)
+			return w->get();
 
 	return NULL;
 }
@@ -1211,7 +1176,7 @@ void GameServer::RegisterServerUdp()
 		bs.writeInt(-1, 4);
 		bs.writeString("lx::register");
 		bs.writeString(OldLxCompatibleString(tLXOptions->sServerName));
-		bs.writeByte(iNumPlayers);
+		bs.writeByte(game.worms()->size());
 		bs.writeByte(tLXOptions->iMaxPlayers);
 		bs.writeByte(iState);
 		// Beta8+
@@ -1427,13 +1392,13 @@ void GameServer::CheckWeaponSelectionTime()
 				warnings << "CheckWeaponSelectionTime: local client is not ready but doesn't have any worms" << endl;
 				cl->getNetEngine()->SendClientReady(NULL);
 			}
-			for(int i = 0; i < cClient->getNumWorms(); i++) {
-				if(!cClient->getWorm(i)->getWeaponsReady()) {
-					warnings << "CheckWeaponSelectionTime: own worm " <<  cl->getWorm(i)->getID() << ":" << cl->getWorm(i)->getName() << " is selecting weapons too long, forcing random weapons" << endl;
-					cClient->getWorm(i)->setWeaponsReady(true);
+			for_each_iterator(CWorm*, w, game.localWorms()) {
+				if(!w->get()->getWeaponsReady()) {
+					warnings << "CheckWeaponSelectionTime: own worm " << w->get()->getID() << ":" << w->get()->getName() << " is selecting weapons too long, forcing random weapons" << endl;
+					w->get()->setWeaponsReady(true);
 				}
 			}
-			if(cClient->getNumWorms() == 0) {
+			if(game.localWorms()->size() == 0) {
 				warnings << "CheckWeaponSelectionTime: local client (cClient) is not ready but doesn't have any worms" << endl;
 				cl->getNetEngine()->SendClientReady(NULL);
 			}
@@ -1449,8 +1414,8 @@ void GameServer::CheckForFillWithBots() {
 	if(!cClient->canAddWorm()) return; // probably means we have disabled projectile simulation or so
 	
 	// check if already too much players
-	if(getNumPlayers() > (int)gameSettings[FT_FillWithBotsTo] && getNumBots() > 0) {
-		int kickAmount = MIN(getNumPlayers() - (int)gameSettings[FT_FillWithBotsTo], getNumBots());
+	if((int)game.worms()->size() > (int)gameSettings[FT_FillWithBotsTo] && getNumBots() > 0) {
+		int kickAmount = MIN(game.worms()->size() - (int)gameSettings[FT_FillWithBotsTo], getNumBots());
 		notes << "CheckForFillWithBots: removing " << kickAmount << " bots" << endl;
 		if(kickAmount > 0)
 			kickWorm(getLastBot(), "there are too many players, bot not needed anymore");
@@ -1468,9 +1433,9 @@ void GameServer::CheckForFillWithBots() {
 		return;
 	}
 	
-	if((int)gameSettings[FT_FillWithBotsTo] > getNumPlayers()) {
+	if((int)gameSettings[FT_FillWithBotsTo] > (int)game.worms()->size()) {
 		int fillUpTo = MIN(tLXOptions->iMaxPlayers, (int)gameSettings[FT_FillWithBotsTo]);
-		int fillNr = fillUpTo - getNumPlayers();
+		int fillNr = fillUpTo - game.worms()->size();
 		SendGlobalText("Too few players: Adding " + itoa(fillNr) + " bot" + (fillNr > 1 ? "s" : "") + " to the server.", TXT_NETWORK);
 		notes << "CheckForFillWithBots: adding " << fillNr << " bots" << endl;
 		cClient->AddRandomBots(fillNr);
@@ -1584,7 +1549,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 	if(!cl) warnings << "RemoveClientWorms: called with undefined client" << endl;
 	std::list<byte> wormsOutList;
 	
-	int i;
 	for(std::set<CWorm*>::const_iterator w = worms.begin(); w != worms.end(); ++w) {
 		if(!*w) {
 			errors << "RemoveClientWorms: worm unset" << endl;
@@ -1621,14 +1585,6 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 		if(con->getStatus() != NET_CONNECTED) continue;
 		if(cl == con) continue;
 		con->getNetEngine()->SendWormsOut(wormsOutList);
-	}
-	
-	// Re-Calculate number of players
-	iNumPlayers=0;
-	CWorm *w = cWorms;
-	for(i=0;i<MAX_WORMS;i++,w++) {
-		if(w->isUsed())
-			iNumPlayers++;
 	}
 	
 	// Now that a player has left, re-check the game status
@@ -1686,22 +1642,21 @@ void GameServer::RemoveClient(CServerConnection* cl, const std::string& reason) 
 
 int GameServer::getNumBots() const {
 	int num = 0;
-	CWorm *w = cWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(w->isUsed() && w->getType() == PRF_COMPUTER)
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getType() == PRF_COMPUTER)
 			num++;
-	}
 	return num;
 }
 
 int GameServer::getLastBot() const {
-	if(!cWorms) return -1;
-	CWorm *w = cWorms + MAX_WORMS - 1;
-	for(int i = MAX_WORMS - 1; i >= 0; i--, w--) {
-		if(w->isUsed() && w->getType() == PRF_COMPUTER && w->getClient() && w->getClient()->isLocalClient())
-			return i;
+	int lastBot = -1;
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getType() == PRF_COMPUTER &&
+		   w->get()->getClient() &&
+		   w->get()->getClient()->isLocalClient())
+			lastBot = w->get()->getID();
 	}
-	return -1;
+	return lastBot;
 }
 
 
@@ -1932,11 +1887,7 @@ extern bool bHost_Update;
 
 ///////////////////
 // Kick a worm out of the server
-void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReason){		if (!cWorms) {
-		errors << "kickWorm: worms not initialised" << endl;
-		return;
-	}
-
+void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReason) {
 	if(sReason == "")
 		warnings << "kickWorm: no reason given to kick worm " << wormID << endl;
 	
@@ -1945,16 +1896,9 @@ void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReaso
 		return;
 	}
 
-	// This check is obsolete now. We can add human players ingame.
-	/*
-	if ( !bDedicated && cClient && cClient->getNumWorms() > 0 && cClient->getWorm(0) && cClient->getWorm(0)->getID() == wormID )  {
-		hints << "You can't kick yourself!" << endl;
-		return;  // Don't kick ourself
-	}*/
-
 	// Get the worm
-	CWorm *w = cWorms + wormID;
-	if( !w->isUsed() )  {
+	CWorm *w = game.wormById(wormID, false);
+	if( !w )  {
 		hints << "Could not find worm with ID " << itoa(wormID) << endl;
 		return;
 	}

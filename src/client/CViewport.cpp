@@ -78,7 +78,7 @@ void CViewport::setupInputs(const PlyControls& Inputs)
 
 ///////////////////
 // Process a viewport
-void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
+void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGameMode)
 {    
 	if(!bUsed) {
 		errors << "Unused CViewport process" << endl;
@@ -99,11 +99,11 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 			//notes << "find new worm for viewport because we have currently none" << endl;
             
             // Try and find a living worm first
-            CWorm *t = findTarget(pcWormList, pcViewList, true);
+            CWorm *t = findTarget(pcViewList, true);
 
             // If no living worms, try a dead worm (but still in the game)
             if(!t)
-                t = findTarget(pcWormList, pcViewList, false);
+                t = findTarget(pcViewList, false);
 
             if(t) {
                 pcTargetWorm = t;
@@ -157,11 +157,11 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
                 if( tLX->currentTime > fTimer ) {
 
                     // Try and find a living worm first
-                    CWorm *t = findTarget(pcWormList, pcViewList, true);
+                    CWorm *t = findTarget(pcViewList, true);
 
                     // If no living worms, try a dead worm (but still in the game)
                     if(!t)
-                        t = findTarget(pcWormList, pcViewList, false);
+                        t = findTarget(pcViewList, false);
 
                     if(t) {
                         pcTargetWorm = t;
@@ -320,7 +320,7 @@ void CViewport::Process(CWorm *pcWormList, CViewport *pcViewList, int MWidth, in
 
 ///////////////////
 // Find a target worm
-CWorm *CViewport::findTarget(CWorm *pcWormList, CViewport *pcViewList, bool bAlive)
+CWorm *CViewport::findTarget(CViewport *pcViewList, bool bAlive)
 {
     // Find a worm that isn't already a target by another viewport
     for( short w=0; w<MAX_WORMS; w++ ) {

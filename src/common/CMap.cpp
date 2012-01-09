@@ -2267,9 +2267,9 @@ void CMap::drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVe
 
 ///////////////////
 // Draw & Simulate the minimap
-void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms)
+void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt)
 {
-	if(worms == NULL || bmpMiniMap.get() == NULL)
+	if(bmpMiniMap.get() == NULL)
 		return;
 
 	// Update the minimap (only if dirty)
@@ -2290,9 +2290,10 @@ void CMap::DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm
 	
 
 	// Show worms
-	CWorm *w = worms;
-	for(int n=0;n<MAX_WORMS;n++,w++) {
-		if(!w->getAlive() || !w->isUsed() || !cClient->isWormVisibleOnAnyViewport(n))
+	for_each_iterator(CWorm*, w_, game.aliveWorms()) {
+		CWorm* w = w_->get();
+		
+		if(!cClient->isWormVisibleOnAnyViewport(w->getID()))
 			continue;
 
 		Color gameCol = w->getGameColour();
@@ -3068,8 +3069,8 @@ CVec CMap::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToE
 	std::list<CVec> badPos;
 	std::vector<bool> coveredTeam(4, false);
 	
-	CWorm * w = cClient->getRemoteWorms();
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 		if( !w->isUsed() || w->getLives() == WRM_OUT || !w->getWeaponsReady() || !w->getAlive())
 			continue;
 		if(exceptionWorm && exceptionWorm->getID() == w->getID())

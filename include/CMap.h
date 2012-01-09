@@ -245,7 +245,7 @@ public:
 	
 	void        DrawObjectShadow(SDL_Surface * bmpDest, SDL_Surface * bmpObj, SDL_Surface * bmpObjShadow, int sx, int sy, int w, int h, CViewport *view, int wx, int wy);
 	void        DrawPixelShadow(SDL_Surface * bmpDest, CViewport *view, int wx, int wy);
-	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt, CWorm *worms);
+	void		DrawMiniMap(SDL_Surface * bmpDest, uint x, uint y, TimeDiff dt);
 	void		drawOnMiniMap(SDL_Surface* bmpDest, uint miniX, uint miniY, const CVec& pos, Uint8 r, Uint8 g, Uint8 b, bool big, bool special);
 	
 private:

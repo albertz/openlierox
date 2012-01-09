@@ -270,7 +270,7 @@ public:
 	}
 
 
-	virtual void simulateWorm(CWorm* worm, CWorm* worms, bool local) {
+	virtual void simulateWorm(CWorm* worm, bool local) {
 		AbsTime simulationTime = GetPhysicsTime();
 		warpSimulationTimeForDeltaTimeCap(worm->fLastSimulationTime, tLX->fDeltaTime, tLX->fRealDeltaTime);
 		const TimeDiff orig_dt = LX56PhysicsDT;

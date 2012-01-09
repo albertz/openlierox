@@ -428,7 +428,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	TimeDiff dt = tLX->fDeltaTime;
 
 	// TODO: allow more worms
-	num = (ushort)MIN(2,iNumWorms);
+	num = (ushort)MIN(2,game.localWorms()->size());
 
 
 	// Check for any communication errors
@@ -468,8 +468,8 @@ void CClient::Draw(SDL_Surface * bmpDest)
 
 		// Go through and draw the first two worms select menus
 		if (!bWaitingForMod) {
-			for(i=0;i<num;i++)
-				ready = ready && cLocalWorms[i]->getWeaponsReady();
+			for_each_iterator(CWorm*, w, game.localWorms())
+				ready = ready && w->get()->getWeaponsReady();
 		} else // Waiting for a mod to download
 			ready = false;
 
@@ -551,9 +551,9 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		static AbsTime last = tLX->currentTime;
 		if ((tLX->currentTime - last).seconds() >= 0.5f)  {
 			game.gameMap()->ClearDebugImage();
-			for (int i = 0; i < (int)iNumWorms; i++)  {
-				if (cLocalWorms[i]->getType() == PRF_COMPUTER)
-					((CWormBotInputHandler*) cLocalWorms[i]->inputHandler() )->AI_DrawPath();
+			for_each_iterator(CWorm*, w, game.localWorms()) {
+				if (w->get()->getType() == PRF_COMPUTER)
+					((CWormBotInputHandler*) w->get()->inputHandler() )->AI_DrawPath();
 			}
 			last = tLX->currentTime;
 		}
@@ -569,7 +569,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		for( i=0; i<NUM_VIEWPORTS; i++ ) {
 			if( cViewports[i].getUsed() )  {
 				if (game.gameMap() != NULL)
-					cViewports[i].Process(cRemoteWorms, cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
+					cViewports[i].Process(cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
 				DrawViewport(bmpDest, (byte)i);
 			}
 		}
@@ -584,7 +584,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Mini-Map
 		if (game.gameMap() != NULL && (bool)getGameLobby()[FT_MiniMap])  {
 			if (bGameReady || iNetStatus == NET_PLAYING)
-				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt, cRemoteWorms );
+				game.gameMap()->DrawMiniMap( bmpDest, MiniMapX, MiniMapY, dt );
 			else {
 				if(game.gameMap()->GetMiniMap().get())
 					DrawImage( bmpDest, game.gameMap()->GetMiniMap(), MiniMapX, MiniMapY);
@@ -733,11 +733,15 @@ void CClient::Draw(SDL_Surface * bmpDest)
 	}
 	
 	// Go through and draw the first two worms select menus
-	if (iNetStatus == NET_CONNECTED && bGameReady && !bWaitingForMod)
-		for(i=0;i<num;i++)
-			if(!cLocalWorms[i]->getWeaponsReady())
-				cLocalWorms[i]->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
-
+	if (iNetStatus == NET_CONNECTED && bGameReady && !bWaitingForMod) {
+		short i = 0;
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			++i;
+			if(i >= num) break;
+			if(!w->get()->getWeaponsReady())
+				w->get()->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
+		}
+	}
 
 /*#ifdef DEBUG
 	// Client and server velocity
@@ -892,22 +896,16 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 	if (bGameReady || iNetStatus == NET_PLAYING)  {
 		if(!game.gameScript()->gusEngineUsed()) {
 			// update the drawing position
-			CWorm *w = cRemoteWorms;
-			for(short i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed() && w->getAlive())
-					w->UpdateDrawPos();
-			}
+			for_each_iterator(CWorm*, w, game.aliveWorms())
+				w->get()->UpdateDrawPos();
 			
 			if( tLXOptions->bShadows ) {
 				// Draw the projectile shadows
 				DrawProjectileShadows(bmpDest, v);
 				
 				// Draw the worm shadows
-				w = cRemoteWorms;
-				for(short i=0;i<MAX_WORMS;i++,w++) {
-					if(w->isUsed() && w->getAlive())
-						w->DrawShadow(bmpDest, v);
-				}
+				for_each_iterator(CWorm*, w, game.aliveWorms())
+					w->get()->DrawShadow(bmpDest, v);
 			}
 			
 			// Draw the entities
@@ -926,18 +924,14 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		// Draw all the worms in the game
 		if(game.gameScript()->gusEngineUsed()) {
 			// draw attached flag
-			CWorm* w = cRemoteWorms;
-			for(short i=0;i<MAX_WORMS;i++,w++)
-				if(w->isUsed() && w->isVisible(v))
-					cClient->flagInfo()->drawWormAttachedFlag(w, bmpDest, v);
+			for_each_iterator(CWorm*, w, game.worms())
+				if(w->get()->isVisible(v))
+					cClient->flagInfo()->drawWormAttachedFlag(w->get(), bmpDest, v);
 			
 		} else {
 			// no gus worm drawing, draw them now
-			CWorm* w = cRemoteWorms;
-			for(short i=0;i<MAX_WORMS;i++,w++) {
-				if(w->isUsed())
-					w->Draw(bmpDest, v);
-			}
+			for_each_iterator(CWorm*, w, game.worms())
+				w->get()->Draw(bmpDest, v);
 		}
 	}
 	
@@ -1000,7 +994,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 				sizedViewport.Clamp(game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
 			} */
 			
-			sizedViewport.Process(cRemoteWorms, cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
+			sizedViewport.Process(cViewports, game.gameMap()->GetWidth(), game.gameMap()->GetHeight(), getGeneralGameType());
 			
 			// Ok, even more hacky now. But again, would be too annoying to add this at all other places in CClient.
 			static SmartPointer<SDL_Surface> tmpSurf = NULL;
@@ -1378,16 +1372,15 @@ void CClient::SimulateHud()
 			processChatter();
 	}
 	
-
-	if( iNumWorms > 0 && cLocalWorms[0] && cLocalWorms[0]->getType() != PRF_COMPUTER) {
+	if( CWorm* w = game.firstLocalHumanWorm() ) {
 		AFK_TYPE curState = AFK_BACK_ONLINE;
 		if(iNetStatus == NET_CONNECTED && bGameRunning) curState = AFK_SELECTING_WPNS;
 		if(bChat_Typing) curState = AFK_TYPING_CHAT;
 		if(bGameMenu && !bGameOver) curState = AFK_MENU;
 		if(Con_IsVisible()) curState = AFK_CONSOLE;
 		if(!ApplicationHasFocus()) curState = AFK_AWAY;
-		if( curState != cLocalWorms[0]->getAFK() ) {
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), curState );
+		if( curState != w->getAFK() ) {
+			cNetEngine->SendAFK( w->getID(), curState );
 		}
 	}
 }
@@ -1723,7 +1716,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 			if (i >= 14)	// With 16 players we'll have ugly scrollbar in left menu, it will be in right one anyway with 29+ players
 				lv = Right;
 
-			CWorm *p = &cRemoteWorms[iScoreboard[i]];
+			CWorm *p = game.wormById(iScoreboard[i]);
 			DeprecatedGUI::CButton *cmd_button = new DeprecatedGUI::CButton(0, DeprecatedGUI::gfxGUI.bmpCommandBtn);
 			cmd_button->setRedrawMenu(false);
 			cmd_button->setType(DeprecatedGUI::BUT_TWOSTATES);

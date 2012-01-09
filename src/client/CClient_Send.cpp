@@ -60,8 +60,8 @@ void CClientNetEngine::SendWormDetails()
 	if(!game.gameScript()->gusEngineUsed()) {		
 		// Check if we need to write the state update
 		bool update = false;
-		for(uint i = 0; i < client->iNumWorms; i++)
-			if (client->cLocalWorms[i] && client->cLocalWorms[i]->getAlive() && client->cLocalWorms[i]->checkPacketNeeded())  {
+		for_each_iterator(CWorm*, w, game.localWorms())
+			if (w->get()->getAlive() && w->get()->checkPacketNeeded())  {
 				update = true;
 				break;
 			}
@@ -71,9 +71,8 @@ void CClientNetEngine::SendWormDetails()
 			CBytestream bs;
 			bs.writeByte(C2S_UPDATE);
 
-			for(uint i = 0; i < client->iNumWorms; i++)
-				if(client->cLocalWorms[i])
-					client->cLocalWorms[i]->writePacket(&bs, false, NULL);
+			for_each_iterator(CWorm*, w, game.localWorms())
+				w->get()->writePacket(&bs, false, NULL);
 
 			client->bsUnreliable.Append(&bs);
 
@@ -98,15 +97,11 @@ void CClientNetEngine::SendGameReady()
 	
 	if(client->serverChoosesWeapons()) {
 		bs.writeByte(0);
-	} else {
-		std::list<CWorm*> worms;
-		for(unsigned int i=0;i<client->iNumWorms;i++)
-			if(client->cLocalWorms[i]) worms.push_back(client->cLocalWorms[i]);
-		
+	} else {		
 		// Send my worm's weapon details
-		bs.writeByte(worms.size());
-		for(std::list<CWorm*>::iterator i = worms.begin(); i != worms.end(); ++i)
-			(*i)->writeWeapons( &bs );
+		bs.writeByte(game.localWorms()->size());
+		for_each_iterator(CWorm*, w, game.localWorms())
+			w->get()->writeWeapons( &bs );
 	}
 	
 	client->cNetChan->AddReliablePacketToSend(bs);
@@ -229,9 +224,10 @@ void CClientNetEngineBeta7::SendAFK(int wormid, AFK_TYPE afkType, const std::str
 	}
 
 
-	for( int i=0; i < client->getNumWorms(); i++ )
-		if(	client->getWorm(i)->getID() == wormid )
-			client->getWorm(i)->setAFK(afkType, msg);
+	{
+		CWorm* w = game.wormById(wormid, false);
+		if(w) w->setAFK(afkType, msg);
+	}
 	
 	CBytestream bs;
 	bs.writeByte(C2S_AFK);
@@ -308,7 +304,7 @@ void CClientNetEngine::SendGrabBonus(int id, int wormid)
 	bs.writeByte(C2S_GRABBONUS);
 	bs.writeByte(id);
 	bs.writeByte(wormid);
-	bs.writeByte(client->cRemoteWorms[wormid].getCurrentWeapon());
+	bs.writeByte(game.wormById(wormid)->getCurrentWeapon());
 
 	client->cNetChan->AddReliablePacketToSend(bs);
 }

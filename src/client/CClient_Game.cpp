@@ -59,9 +59,6 @@ bool CClient::shouldDoProjectileSimulation() {
 // Simulation
 void CClient::Simulation()
 {
-	short i;
-    CWorm *w;
-
 	// Don't simulate if the physics engine is not ready
 	if (!PhysicsEngine::Get() || !PhysicsEngine::Get()->isInitialised())  {
 		errors << "WARNING: trying to simulate with non-initialized physics engine!" << endl;
@@ -75,11 +72,9 @@ void CClient::Simulation()
 		// gameover case will be checked below
 		if(!bGameOver) {
 			// skip simulations for this frame
-			for(int i = 0; i < MAX_WORMS; i++) {
-				CWorm* w = &cRemoteWorms[i];
-				if(!w->isUsed()) continue;
-				if(!w->getAlive()) continue;
-				PhysicsEngine::Get()->skipWorm(w);
+			for_each_iterator(CWorm*, w, game.worms()) {
+				if(!w->get()->getAlive()) continue;
+				PhysicsEngine::Get()->skipWorm(w->get());
 			}
 			PhysicsEngine::Get()->skipProjectiles(cProjectiles.begin());
 			PhysicsEngine::Get()->skipBonuses(cBonuses, MAX_BONUSES);				
@@ -99,15 +94,13 @@ void CClient::Simulation()
 	// TODO: create a function simulateWorms() in PhysicsEngine which does all worms-simulation
 
 	// Player simulation
-	w = cRemoteWorms;
-	for(i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
+	for_each_iterator(CWorm*, _w, game.worms()) {
+		CWorm* w = _w->get();
 		
 		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
 		// request for respawn or so.
 		// TODO: move this to a simulateWorms() in PhysicsEngine
-		PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, w->getLocal() );
+		PhysicsEngine::Get()->simulateWorm( w, w->getLocal() );
 
 		if(w->getAlive()) {
 
@@ -125,7 +118,7 @@ void CClient::Simulation()
 						continue;
 
 					if(w->CheckBonusCollision(b)) {
-						if(w->getLocal() || (iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth)) {
+						if(w->getLocal() || (game.isServer() && tLXOptions->bServerSideHealth)) {
 
 							if( w->GiveBonus(b) ) {
 
@@ -229,17 +222,14 @@ void CClient::NewNet_Simulation() // Simulates one frame, delta time always set 
         return;
 
 
-    CWorm *w;
 	// Player simulation
-	w = cRemoteWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 
 		if(w->getAlive()) 
 		{
 			// Remote worm -> do not get input for worm - worm input is simulated beforew this function called
-			PhysicsEngine::Get()->simulateWorm( w, cRemoteWorms, false ); 
+			PhysicsEngine::Get()->simulateWorm( w, false ); 
 		}
 
 		if(w->getAlive()) 
@@ -355,7 +345,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 
     // Increment the dirt count
 	if(owner >= 0 && owner < MAX_WORMS)
-		cRemoteWorms[owner].incrementDirtCount( d );
+		game.wormById(owner)->incrementDirtCount( d );
 
 	// If this is within a viewport, shake the viewport
 	for(int i=0; i<NUM_VIEWPORTS; i++) {
@@ -370,11 +360,8 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 
 
 	// Check if any worm is near the explosion, for both my worms and remote worms
-	for(int i=0;i<MAX_WORMS;i++) {
-		CWorm* w = & cRemoteWorms[i];
-
-		if( !w->isUsed() || !w->getAlive())
-			continue;
+	for_each_iterator(CWorm*, w_, game.aliveWorms()) {
+		CWorm* w = w_->get();
 
 		CVec wPos = w->posRecordings.getBest((size_t)LX56PhysicsDT.milliseconds(), (size_t)(tLX->currentTime - time).milliseconds());		
 		if((pos - wPos).GetLength2() <= 25) {
@@ -393,11 +380,8 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 		return;
 
 	CWorm* ownerWorm = NULL;
-	if(owner >= 0 && owner < MAX_WORMS) {
-		ownerWorm = &this->getRemoteWorms()[owner];
-		if(!ownerWorm->isUsed())
-			ownerWorm = NULL;
-	}
+	if(owner >= 0 && owner < MAX_WORMS)
+		ownerWorm = game.wormById(owner, false);
 
 	bool me = ownerWorm && ownerWorm->getID() == w->getID();
 	if(ownerWorm)
@@ -423,13 +407,7 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	if (w->getLocal())  // Health change
 		bShouldRepaintInfo = true;
 
-	bool someOwnWorm = false;
-	for(i=0; i < iNumWorms; i++) {
-		if(cLocalWorms[i]->getID() == w->getID()) {
-			someOwnWorm = true;
-			break;
-		}
-	}
+	bool someOwnWorm = w->getLocal();
 
 	CServerConnection *client = NULL;
 	if(game.isServer())
@@ -460,16 +438,17 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	}
 
 	// Update our scoreboard for local worms
-	if( ! (	tLX->iGameType == GME_JOIN && getServerVersion() < OLXBetaVersion(0,58,1) ) || NewNet::Active() ) // Do not update scoreboard for pre-Beta9 servers
+	if( game.isServer() || getServerVersion() >= OLXBetaVersion(0,58,1) || NewNet::Active() ) { // Do not update scoreboard for pre-Beta9 servers
 		// TODO: fix this
 		if(ownerWorm)
-			getRemoteWorms()[owner].addDamage( realdamage, w, false ); // Update client scoreboard
+			ownerWorm->addDamage( realdamage, w, false ); // Update client scoreboard
+	}
+	else if( game.isServer() && NewNet::Active() && NewNet::CanUpdateGameState() ) {
+		// TODO: fix this
+		if(ownerWorm)
+			ownerWorm->addDamage( realdamage, w, false ); // Update server scoreboard
+	}
 	
-	if( tLX->iGameType == GME_HOST && cServer && NewNet::Active() && NewNet::CanUpdateGameState() )
-		// TODO: fix this
-		if(ownerWorm)
-			cServer->getWorms()[owner].addDamage( realdamage, w, false ); // Update server scoreboard
-
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
 		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
@@ -482,9 +461,8 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 			w->setAlreadyKilled(true);
 
 			// Kill someOwnWorm
-			// TODO: why is localworm[0] == 0 checked here?
 			if(someOwnWorm || NewNet::Active() ||
-				(iNumWorms > 0 && cLocalWorms[0]->getID() == 0 && tLXOptions->bServerSideHealth) ) {
+				(game.isServer() && tLXOptions->bServerSideHealth) ) {
 
 				w->Kill(false);
 				if( !NewNet::Active() )
@@ -518,11 +496,6 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
         	   	}
 			}
 		}
-	}
-	// If we are hosting then synchronise the serverside worms with the clientside ones
-	if(tLX->iGameType == GME_HOST && cServer && ! NewNet::Active() ) {
-		CWorm *sw = cServer->getWorms() + w->getID();
-		sw->setHealth(w->getHealth());
 	}
 
 	// Spawn some blood
@@ -705,18 +678,12 @@ void CClient::DrawBeam(CWorm *w)
 		drawBeam = true;
 
 	std::list<CWorm*> worms;
-	{
-		CWorm* w2 = cRemoteWorms;
-		for(short n=0;n<MAX_WORMS;n++,w2++) {
-			if(!w2->isUsed() || !w2->getAlive())
-				continue;
-			
-			// Don't check against someOwnWorm
-			if(w2->getID() == w->getID())
-				continue;
-			
-			worms.push_back(w2);
-		}
+	for_each_iterator(CWorm*, w2, game.aliveWorms()) {
+		// Don't check against someOwnWorm
+		if(w2->get()->getID() == w->getID())
+			continue;
+		
+		worms.push_back(w2->get());
 	}
 	
 	for(int i=0; i<Slot->Weapon->Bm.Length; ++i) {
@@ -817,7 +784,7 @@ struct ScoreCompare {
 	CClient* cl;
 	ScoreCompare(CClient* c) : cl(c) {}
 	bool operator()(int i, int j) const {
-		CWorm *w1 = &cl->getRemoteWorms()[i], *w2 = &cl->getRemoteWorms()[j];
+		CWorm *w1 = game.wormById(i), *w2 = game.wormById(j);
 		if(cl->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode) return cl->getGameLobby()[FT_GameMode].as<GameModeInfo>()->mode->CompareWormsScore(w1, w2) > 0;
 		return GameMode(GM_DEATHMATCH)->CompareWormsScore(w1, w2) > 0;
 	}
@@ -834,12 +801,8 @@ void CClient::UpdateScoreboard()
 	
 	bUpdateScore = true;
 
-	CWorm *w = cRemoteWorms;
-	int s;
-	short i,p,j;
-
 	// Clear the team scores
-	for(i=0;i<4;i++) {
+	for(short i=0;i<4;i++) {
 		iTeamList[i]=i;
 		if(getServerVersion() < OLXBetaVersion(0,58,1))
 			iTeamScores[i]=0;
@@ -847,11 +810,10 @@ void CClient::UpdateScoreboard()
 
 	// Add the worms to the list
 	iScorePlayers = 0;
-	for(p=0; p<MAX_WORMS; p++,w++) {
-		if(!w->isUsed())
-			continue;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 		
-		iScoreboard[iScorePlayers++] = p;
+		iScoreboard[iScorePlayers++] = w->getID();
 		
 		// in other cases, we got the scores from the server
 		if(getServerVersion() < OLXBetaVersion(0,58,1)) {
@@ -874,12 +836,12 @@ void CClient::UpdateScoreboard()
 	
 	// Sort the team lists
 	if(getGeneralGameType() == GMT_TEAMS) {
-		for(i=0;i<4;i++) {
-			for(j=0;j<3-i;j++) {
+		for(short i=0;i<4;i++) {
+			for(short j=0;j<3-i;j++) {
 				if(iTeamScores[iTeamList[j]] < iTeamScores[iTeamList[j+1]]) {
 
 					// Swap the team list entries
-					s = iTeamList[j];
+					int s = iTeamList[j];
 					iTeamList[j] = iTeamList[j+1];
 					iTeamList[j+1] = s;
 				}
@@ -887,24 +849,9 @@ void CClient::UpdateScoreboard()
 		}
 	}
 
-
 	if(iScorePlayers < 2)
 		return;
 
-	/*
-	 // Just some test code for correct ordering. Should be removed later.
-	for(int i = 0; i < iScorePlayers; ++i)
-		for(int j = i; j < iScorePlayers; ++j) {
-			ScoreCompare comp(this);
-			if(comp(iScoreboard[i],iScoreboard[j]) && comp(iScoreboard[j],iScoreboard[i])) {
-				errors << "1: worm " << iScoreboard[i] << " and " << iScoreboard[j] << " dont have correct order" << endl;
-				return;
-			}
-			if(comp(iScoreboard[i],iScoreboard[j]) && cRemoteWorms[iScoreboard[i]].getKills() < cRemoteWorms[iScoreboard[j]].getKills()) {
-				errors << "2: worm " << iScoreboard[i] << " and " << iScoreboard[j] << " dont have correct order" << endl;
-				return;
-			}
-		} */
 	std::sort(&iScoreboard[0], &iScoreboard[iScorePlayers], ScoreCompare(this));
 
 	bUpdateScore = true;
@@ -957,10 +904,8 @@ void CClient::LaserSight(CWorm *w, float Angle, bool highlightCrosshair)
 			break;
 
 		// Check if it has hit any of the worms
-		CWorm *w2 = cRemoteWorms;
-		for(short n=0;n<MAX_WORMS;n++,w2++) {
-			if(!w2->isUsed() || !w2->getAlive())
-				continue;
+		for_each_iterator(CWorm*, w2_, game.aliveWorms()) {
+			CWorm* w2 = w2_->get();
 
 			// Don't check against me
 			if(w2->getID() == w->getID())
@@ -1122,9 +1067,9 @@ void CClient::NewNet_DoLocalShot( CWorm *w )
 void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 {
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
-		CWorm *w = &cRemoteWorms[shot->nWormID];
+		CWorm *w = game.wormById(shot->nWormID, false);
 
-		if(!w->isUsed())  {
+		if(!w)  {
 			notes << "ProcessShot: unused worm was shooting" << endl;
 			return;
 		}
@@ -1172,13 +1117,13 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 		CWorm* me = cViewports[0].getTarget();
 		if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
 			if(NewNet::CanPlaySound(shot->nWormID))
-				StartSound(wpn->smpSample, shot->cPos, cRemoteWorms[shot->nWormID].getLocal(), 100, me);
+				StartSound(wpn->smpSample, shot->cPos, game.wormById(shot->nWormID)->getLocal(), 100, me);
 		} else
 			StartSound(wpn->smpSample, shot->cPos, false, 100, me);
 	}
 	
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
-		CWorm *w = &cRemoteWorms[shot->nWormID];
+		CWorm *w = game.wormById(shot->nWormID);
 
 		// Add the recoil
 		const CVec dir = GetVecFromAngle(float(shot->nAngle));
@@ -1198,8 +1143,8 @@ void CClient::ProcessShot(shoot_t *shot, AbsTime fSpawnTime)
 void CClient::ProcessShot_Beam(shoot_t *shot)
 {
 	if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS) {
-		CWorm *w = &cRemoteWorms[shot->nWormID];
-		if(!w->isUsed()) return;
+		CWorm *w = game.wormById(shot->nWormID, false);
+		if(!w) return;
 	}
 	const weapon_t *wpn = game.gameScript()->GetWeapons() + shot->nWeapon;
 
@@ -1213,18 +1158,12 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 	int width = 0;
 
 	std::list<CWorm*> worms;
-	{
-		CWorm* w2 = cRemoteWorms;
-		for(short n=0;n<MAX_WORMS;n++,w2++) {
-			if(!w2->isUsed() || !w2->getAlive())
-				continue;
-			
-			// Don't check against someOwnWorm
-			if(w2->getID() == shot->nWormID)
-				continue;
-			
-			worms.push_back(w2);
-		}
+	for_each_iterator(CWorm*, w2, game.aliveWorms()) {
+		// Don't check against someOwnWorm
+		if(w2->get()->getID() == shot->nWormID)
+			continue;
+		
+		worms.push_back(w2->get());
 	}
 	
 	for(int i=0; i<wpn->Bm.Length; ++i) {
@@ -1277,7 +1216,7 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 						if(wpn->Bm.DistributeDamageOverWidth) { damage /= width; if(damage == 0) damage = SIGN(wpn->Bm.Damage); }
 						int d = game.gameMap()->CarveHole(damage, p, getGameLobby()[FT_InfiniteMap]);
 						if(shot->nWormID >= 0 && shot->nWormID < MAX_WORMS)
-							cRemoteWorms[shot->nWormID].incrementDirtCount(d);						
+							game.wormById(shot->nWormID)->incrementDirtCount(d);						
 					}
 
 					// Stop the beam regardless of explosion being shown
@@ -1319,20 +1258,14 @@ void CClient::ProcessShot_Beam(shoot_t *shot)
 
 
 void CClient::clearLocalWormInputs() {
-	CWorm* w = cRemoteWorms;
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-
-		if( w->getLocal() )
-			w->clearInput();
-	}
+	for_each_iterator(CWorm*, w, game.localWorms())
+		w->get()->clearInput();
 }
 
 void CClient::clearHumanWormInputs() {
-	for (uint j=0;j<iNumWorms;j++)
-		if (cLocalWorms[j]->getType() == PRF_HUMAN)
-			cLocalWorms[j]->clearInput();
+	for_each_iterator(CWorm*, w, game.localWorms())
+		if (w->get()->getType() == PRF_HUMAN)
+			w->get()->clearInput();
 }
 
 
@@ -1350,16 +1283,21 @@ void CClient::processChatter()
     	const KeyboardEvent& input = kb->keyQueue[i];
 
 		if( input.down && input.state.bCtrl && taunts->getTauntForKey( input.sym ) != "" ) {
+			CWorm* firstLocalWorm = game.localWorms()->tryGet();
+			if(!firstLocalWorm) {
+				warnings << "processChatter: cannot send text: no local worms" << endl;
+				return;
+			}
 			sChat_Text += taunts->getTauntForKey( input.sym );
 			if( bChat_Typing && bTeamChat )
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", firstLocalWorm->getName() );
 			else
-				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
+				cNetEngine->SendText(sChat_Text, firstLocalWorm->getName() );
 			sChat_Text = "";
 			bChat_Typing = false;
 			clearHumanWormInputs();
-			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+			if(firstLocalWorm->getType() != PRF_COMPUTER)
+				cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
 			return; // TODO: we may lose some chat keys if user typing very fast ;)
 		}
 	}
@@ -1387,8 +1325,9 @@ void CClient::processChatter()
 				kb->KeyDown[SDLK_ESCAPE] = false;
 				kb->KeyUp[SDLK_ESCAPE] = false;
 
-				if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-					cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+				CWorm* firstLocalWorm = game.localWorms()->tryGet();
+				if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
+					cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
 
 				break;
 			}
@@ -1420,8 +1359,9 @@ void CClient::processChatter()
 		// Clear the input
 		clearHumanWormInputs();
 		
-		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+		CWorm* firstLocalWorm = game.localWorms()->tryGet();
+		if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
+			cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_TYPING_CHAT );
 
 		return;
 	}
@@ -1454,11 +1394,11 @@ void CClient::processChatter()
 
 			if(controls) continue;
 
-			for(ushort j=0; j < iNumWorms; j++)  {
-				if (cLocalWorms[j]->getType() == PRF_HUMAN)  {
+			for_each_iterator(CWorm*, w, game.localWorms()) {
+				if (w->get()->getType() == PRF_HUMAN)  {
 
 					// Can we type?
-					if (cLocalWorms[j]->getLives() == WRM_OUT && !cLocalWorms[j]->getAlive())  { // We're spectating
+					if (w->get()->getLives() == WRM_OUT && !w->get()->getAlive())  { // We're spectating
 						if (cSpectatorViewportKeys.Down.isDown() ||
 							cSpectatorViewportKeys.Left.isDown() ||
 							cSpectatorViewportKeys.Right.isDown() ||
@@ -1467,7 +1407,7 @@ void CClient::processChatter()
 							cSpectatorViewportKeys.V2Toggle.isDown() ||
 							cSpectatorViewportKeys.V2Type.isDown())
 							return;
-					} else if (!cLocalWorms[j]->CanType() && cLocalWorms[j]->isUsed()) // Playing
+					} else if (!w->get()->CanType()) // Playing
 						return;
 				}
 			}
@@ -1485,8 +1425,9 @@ void CClient::processChatter()
 			bChat_Holding = false;
 			fChat_TimePushed = AbsTime();
 
-			if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-				cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+			CWorm* firstLocalWorm = game.localWorms()->tryGet();
+			if(firstLocalWorm && firstLocalWorm->getType() != PRF_COMPUTER)
+				cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_TYPING_CHAT );
 
 		}
 
@@ -1584,15 +1525,18 @@ void CClient::processChatCharacter(const KeyboardEvent& input)
         bChat_Typing = false;
 		clearHumanWormInputs();
 
-		if(iNumWorms > 0 && cLocalWorms[0]->getType() != PRF_COMPUTER)
-			cNetEngine->SendAFK( cLocalWorms[0]->getID(), AFK_BACK_ONLINE );
+		CWorm* firstLocalWorm = game.localWorms()->tryGet();
+		if(!firstLocalWorm) return;
+		
+		if(firstLocalWorm->getType() != PRF_COMPUTER)
+			cNetEngine->SendAFK( firstLocalWorm->getID(), AFK_BACK_ONLINE );
 
         // Send chat message to the server
 		if(sChat_Text != "") {
 			if( bTeamChat )	// No "/me" macro in teamchat - server won't recognize such command
-				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", cLocalWorms[0]->getName() );
+				cNetEngine->SendText("/teamchat \"" + sChat_Text + "\"", firstLocalWorm->getName() );
 			else
-				cNetEngine->SendText(sChat_Text, cLocalWorms[0]->getName() );
+				cNetEngine->SendText(sChat_Text, firstLocalWorm->getName() );
 		}
 		sChat_Text = "";
         return;

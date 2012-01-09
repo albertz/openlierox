@@ -16,22 +16,24 @@
 
 #include <string>
 #include "Consts.h"
+#include "SmartPointer.h"
 
 
 class CClient;
 class CBytestream;
+struct ClientConnectionRequestInfo;
 
 class CClientNetEngine {
 
 protected:
 
 	CClient * client;
-
+	SmartPointer<ClientConnectionRequestInfo> connectInfo;
+	
 public:
 	// Constructor
 	CClientNetEngine(CClient * _client): client(_client) { }
-
-	virtual ~CClientNetEngine() { }
+	virtual ~CClientNetEngine();
 
 	// Parsing
 	void				ParseConnectionlessPacket(CBytestream *bs);

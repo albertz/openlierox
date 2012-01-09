@@ -275,8 +275,8 @@ static CWorm* CheckWorm(CmdLineIntf* caller, int id, const std::string& request)
 		caller->writeMsg(request + " : Faulty ID " + itoa(id));
 		return NULL;
 	}
-	CWorm *w = cServer->getWorms() + id;
-	if(!w->isUsed()) {
+	CWorm *w = game.wormById(id, false);
+	if(!w) {
 		caller->writeMsg(request + " : ID " + itoa(id) + " not in use");
 		return NULL;
 	}
@@ -611,13 +611,7 @@ void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		return;
 	}
 	
-	CWorm* w = NULL;
-	for(int i = 0; i < cClient->getNumWorms(); ++i) {
-		if( cClient->getWorm(i) && cClient->getWorm(i)->getType() == PRF_HUMAN ) {
-			w = cClient->getWorm(i);
-			break;
-		}
-	}
+	CWorm* w = game.firstLocalHumanWorm();
 	if(!w) {
 		caller->writeMsg("no local human worm found", CNC_WARNING);
 		return;
@@ -671,13 +665,7 @@ void Cmd_unstuck::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	}
 	
 	// Unstuck
-	CWorm* w = NULL;
-	for(int i = 0; i < cClient->getNumWorms(); ++i) {
-		if( cClient->getWorm(i) && cClient->getWorm(i)->getType() == PRF_HUMAN ) {
-			w = cClient->getWorm(i);
-			break;
-		}
-	}
+	CWorm* w = game.firstLocalHumanWorm();
 	if(!w) {
 		caller->writeMsg("no local human worm found", CNC_WARNING);
 		return;
@@ -1035,8 +1023,8 @@ void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 			caller->writeMsg("Faulty worm ID " + itoa(id));
 			return;
 		}
-		*w = cClient->getRemoteWorms() + id;
-		if(!(*w)->isUsed())
+		*w = game.wormById(id, false);
+		if(*w == NULL)
 		{
 			caller->writeMsg("Worm ID " + itoa(id) + " not used");
 			return;
@@ -1104,7 +1092,7 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 		return;
 	}
 	
-	if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
+	if( game.localWorms()->size() + 1 >= MAX_WORMS ) {
 		caller->writeMsg("Too many worms!");
 		return;
 	}
@@ -1139,7 +1127,7 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		return;
 	}
 
-	if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
+	if( game.localWorms()->size() + 1 >= MAX_WORMS ) {
 		caller->writeMsg("Too many worms!");
 		return;
 	}
@@ -1176,7 +1164,7 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 			}
 			int w = cClient->AddWorm(p, outOfGame);
 			if(w >= 0) {
-				if(wormAiDiff >= 0) cClient->getRemoteWorms()[w].setAiDiff(wormAiDiff);
+				if(wormAiDiff >= 0) game.wormById(w)->setAiDiff(wormAiDiff);
 				caller->pushReturnArg(itoa(w));
 			}
 			return;
@@ -1187,7 +1175,7 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 	
 	std::list<int> worms = cClient->AddRandomBots(1, outOfGame);
 	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i) {
-		if(wormAiDiff >= 0) cClient->getRemoteWorms()[*i].setAiDiff(wormAiDiff);
+		if(wormAiDiff >= 0) game.wormById(*i)->setAiDiff(wormAiDiff);
 		caller->pushReturnArg(itoa(*i));
 	}
 }
@@ -1201,7 +1189,7 @@ void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		return;
 	}
 	
-	if( cClient->getNumWorms() + 1 >= MAX_WORMS ) {
+	if( game.localWorms()->size() + 1 >= MAX_WORMS ) {
 		caller->writeMsg("Too many worms!");
 		return;
 	}
@@ -1225,7 +1213,7 @@ void Cmd_addBots::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	
 	std::list<int> worms = cClient->AddRandomBots(num);
 	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i) {
-		if(wormAiDiff >= 0) cClient->getRemoteWorms()[*i].setAiDiff(wormAiDiff);
+		if(wormAiDiff >= 0) game.wormById(*i)->setAiDiff(wormAiDiff);
 		caller->pushReturnArg(itoa(*i));
 	}
 }
@@ -1255,9 +1243,9 @@ void Cmd_kickBots::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	
 	std::string reason = (params.size() > 0) ? params[0] : "Dedicated command";
 	std::list<int> worms;
-	for( int f = 0; f < cClient->getNumWorms(); f++ )
-		if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
-			worms.push_back(cClient->getWorm(f)->getID());
+	for_each_iterator(CWorm*, w, game.localWorms())
+		if( w->get()->getType() == PRF_COMPUTER )
+			worms.push_back(w->get()->getID());
 	if(worms.size() == 0)
 		caller->writeMsg("there is no bot on the server");
 	for(std::list<int>::iterator i = worms.begin(); i != worms.end(); ++i)
@@ -1272,11 +1260,11 @@ void Cmd_killBots::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 		return;
 	}
 
-	for( int f=0; f<cClient->getNumWorms(); f++ )
-		if( cClient->getWorm(f)->getType() == PRF_COMPUTER )
+	for_each_iterator(CWorm*, w, game.localWorms())
+		if( w->get()->getType() == PRF_COMPUTER )
 	{
-		cServer->getWorms()[cClient->getWorm(f)->getID()].setLives(0);
-		cClient->getNetEngine()->SendDeath(cClient->getWorm(f)->getID(), cClient->getWorm(f)->getID());
+		w->get()->setLives(0);
+		cClient->getNetEngine()->SendDeath(w->get()->getID(), w->get()->getID());
 	}
 }
 
@@ -1916,7 +1904,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 		return;
 	}
 	
-	if(cServer->getNumPlayers() <= 1 && !gameSettings[FT_AllowEmptyGames]) {
+	if(game.worms()->size() <= 1 && !gameSettings[FT_AllowEmptyGames]) {
 		caller->pushReturnArg("cannot start game, too few players");
 		return;
 	}
@@ -1924,14 +1912,12 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	if(cServer->getState() != SVS_LOBBY) {
 		// we have already started the game -> goto lobby back first and then restart
 		cServer->gotoLobby(false, "Cmd_startGame and we were not in lobby before");
-		for(int i = 0; i < cClient->getNumWorms(); ++i) {
-			if(cClient->getWorm(i) != NULL) {
-				/*
-				 If we have host-worm-does-wpn-selection activated, we would skip the new
-				 wpn selection if we don't force it by this way.
-				 */
-				cClient->getWorm(i)->setWeaponsReady(false);
-			}
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			/*
+			 If we have host-worm-does-wpn-selection activated, we would skip the new
+			 wpn selection if we don't force it by this way.
+			 */
+			w->get()->setWeaponsReady(false);
 		}
 	}
 	
@@ -2041,7 +2027,7 @@ void Cmd_chatMsg::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) 
 	{
 		if( cClient && (cClient->getStatus() == NET_CONNECTED || cClient->getStatus() == NET_PLAYING) )
-			cClient->getNetEngine()->SendText( params[0], (cClient->getNumWorms() > 0) ? cClient->getWorm(0)->getName() : "" );
+			cClient->getNetEngine()->SendText( params[0], game.localWorms()->tryGet() ? game.localWorms()->tryGet()->getName() : "" );
 		else
 		{
 			caller->writeMsg("We are not running server and not connected to a server, cannot send msg");
@@ -2073,26 +2059,17 @@ void Cmd_getWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
-	CWorm *w = cServer->getWorms();
-	if(w == NULL) return; // just to be sure but should be handled already
-	for(int i=0; i < MAX_WORMS; i++, w++)
-	{
-		if(!w->isUsed())
-			continue;
-
-		caller->pushReturnArg(itoa(w->getID()));
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		caller->pushReturnArg(itoa(w->get()->getID()));
 }
 
 COMMAND(getComputerWormList, "get computer worm list", "", 0, 0);
 void Cmd_getComputerWormList::exec(CmdLineIntf* caller, const std::vector<std::string>& params) {
 	if(tLX->iGameType == GME_JOIN || !cServer || !cServer->isServerRunning()) { caller->writeMsg(name + " works only as server"); return; }
 	
-	CWorm *w = cServer->getWorms();
-	for(int i = 0; i < MAX_WORMS; i++, w++) {
-		if(w->isUsed() && w->getType() == PRF_COMPUTER)
-			caller->pushReturnArg(itoa(w->getID()));
-	}
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getType() == PRF_COMPUTER)
+			caller->pushReturnArg(itoa(w->get()->getID()));
 }
 
 COMMAND(getWormName, "get worm name", "id", 1, 1);
@@ -2406,34 +2383,28 @@ void Cmd_debugFindProblems::exec(CmdLineIntf* caller, const std::vector<std::str
 	if(!tLX->bQuitEngine) { // game is running
 		if(cClient == NULL)
 			warnings << "game is running but cClient == NULL" << endl;
-		else if(cClient->getRemoteWorms() == NULL)
-			warnings << "game is running but cClient remoteworms == NULL" << endl;
 		else {
-			for(int i = 0; i < MAX_WORMS; ++i) {
-				if(cClient->getRemoteWorms()[i].isUsed()) {
-					CWorm& w = cClient->getRemoteWorms()[i];
-					std::string name = itoa(i) + ":" + w.getName();
-					if(gusGame.isEngineNeeded() && !w.luaReference)
-						warnings << "worm " << name << " has no Lua reference" << endl;
-					if(w.getID() != i)
-						warnings << "worm " << name << " has bad id " << w.getID() << endl;
+			for_each_iterator(CWorm*, w_, game.worms()) {
+				CWorm& w = *w_->get();
+				std::string name = itoa(w.getID()) + ":" + w.getName();
+				if(gusGame.isEngineNeeded() && !w.luaReference)
+					warnings << "worm " << name << " has no Lua reference" << endl;
 
-					if(w.getLocal() && w.inputHandler() == NULL)
-						warnings << "local worm " << name << " does not have input handler set" << endl;
+				if(w.getLocal() && w.inputHandler() == NULL)
+					warnings << "local worm " << name << " does not have input handler set" << endl;
+				
+				if(gusGame.isEngineNeeded()) {
+					if(w.getOwner() == NULL)
+						warnings << "worm " << name << " has no owner player set" << endl;
 					
-					if(gusGame.isEngineNeeded()) {
-						if(w.getOwner() == NULL)
-							warnings << "worm " << name << " has no owner player set" << endl;
-						
-						if(tLX->iGameType != GME_LOCAL) {
-							if(w.getNode() == NULL)
-								warnings << "worm " << name << " has no network node" << endl;
-							else {
-								if(w.getLocal() && !w.getNode()->areWeOwner())
-									warnings << "worm " << name << " is local but network node is not owner" << endl;
-								else if(!w.getLocal() && w.getNode()->areWeOwner())
-									warnings << "worm " << name << " is not local but network node is owner" << endl;
-							}
+					if(tLX->iGameType != GME_LOCAL) {
+						if(w.getNode() == NULL)
+							warnings << "worm " << name << " has no network node" << endl;
+						else {
+							if(w.getLocal() && !w.getNode()->areWeOwner())
+								warnings << "worm " << name << " is local but network node is not owner" << endl;
+							else if(!w.getLocal() && w.getNode()->areWeOwner())
+								warnings << "worm " << name << " is not local but network node is owner" << endl;
 						}
 					}
 				}
