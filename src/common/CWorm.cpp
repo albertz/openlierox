@@ -860,7 +860,7 @@ Color CWorm::renderColorAt(/* relative game coordinates */ int x, int y) {
 		return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 		
 	// BAD HACK: visibility depends on first local worm
-	if(!isVisible( (cClient->getNumWorms() > 0) ? cClient->getWorm(0) : NULL ))
+	if(!isVisible( game.localWorms()->tryGet() ))
 		return Color(0,0,0,SDL_ALPHA_TRANSPARENT);
 	
 	// Find the right pic
@@ -932,13 +932,11 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 			for( it = DamageReportDrawOrder.begin(); it != DamageReportDrawOrder.end(); it++ )
 			{
 				int id = it->second;
-				//if( !cClient->getRemoteWorms()[id].isUsed() )
-				//	continue;
 				if( tLXOptions->bColorizeDamageByWorm )
 				{
 					damageSum = cDamageReport[id].damage;
-					if( id >= 0 && id < MAX_WORMS )
-						damageColor = cClient->getRemoteWorms()[id].getGameColour();
+					if( CWorm* w = game.wormById(id, false) )
+						damageColor = w->getGameColour();
 				}
 				std::string damageStr = itoa( Round(damageSum) );
 				if( damageSum < 0 )
@@ -1481,13 +1479,13 @@ void CWorm::reinitInputHandler() {
 	// we need to reset the inputs
 	// code from CClient::SetupGameInputs()
 	int humanWormNum = 0;
-	for(int i = 0; i < cClient->getNumWorms(); i++) {
-		CWormHumanInputHandler* handler = dynamic_cast<CWormHumanInputHandler*> (cClient->getWorm(i)->inputHandler());
+	for_each_iterator(CWorm*, w, game.localWorms()) {
+		CWormHumanInputHandler* handler = dynamic_cast<CWormHumanInputHandler*> (w->get()->inputHandler());
 		if(handler) {
 			// TODO: Later, let the handler save a rev to his sPlayerControls. This would give
 			// more flexibility to the player and he can have multiple player control sets.
 			// Then, we would call a reloadInputs() here.
-			if(cClient->getWorm(i) == this)
+			if(w->get() == this)
 				handler->setupInputs( tLXOptions->sPlayerControls[humanWormNum] );
 			humanWormNum++;
 		}

@@ -1914,7 +1914,7 @@ void GameServer::ParseQuery(const SmartPointer<NetworkSocket>& tSocket, CBytestr
 	//	bytestr.writeString(OldLxCompatibleString(sName+" (private)")); // Not used anyway
 	//else
 	bytestr.writeString(OldLxCompatibleString(tLXOptions->sServerName));
-	bytestr.writeByte(iNumPlayers);
+	bytestr.writeByte(game.worms()->size());
 	bytestr.writeByte(tLXOptions->iMaxPlayers);
 	bytestr.writeByte(iState);
 	bytestr.writeByte(num);

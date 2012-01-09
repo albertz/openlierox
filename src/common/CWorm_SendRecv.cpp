@@ -497,7 +497,7 @@ void CWorm::readPacketState(CBytestream *bs, CWorm *worms)
 	// Ninja rope
 	bool rope = (bits & 0x10) != 0;
 	if(rope)
-		cNinjaRope.read(bs,worms,iID);
+		cNinjaRope.read(bs,iID);
 	else
 		cNinjaRope.Release();
 

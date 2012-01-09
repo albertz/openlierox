@@ -38,6 +38,7 @@
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
 #include "CGameScript.h"
+#include "ProfileSystem.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -416,11 +417,11 @@ Iterator<CWorm*>::Ref Game::worms() {
 }
 
 Iterator<CWorm*>::Ref Game::localWorms() {
-	return GetFilterIterator(worms(), cClient->OwnsWorm(boost::lambda::_1 -> getID()));
+	return GetFilterIterator(worms(), cClient->OwnsWorm(boost::lambda::_1 ->* &CWorm::getID));
 }
 
 Iterator<CWorm*>::Ref Game::aliveWorms() {
-	return GetFilterIterator(worms(), boost::lambda::_1 -> isAlive());
+	return GetFilterIterator(worms(), boost::lambda::_1 ->* &CWorm::getAlive);
 }
 
 CWorm* Game::wormById(int wormId, bool assertExisting) {
