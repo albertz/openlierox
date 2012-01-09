@@ -448,3 +448,20 @@ CWorm* Game::findWormByName(const std::string& name) {
 	return NULL;
 }
 
+CWorm* Game::createNewWorm(int wormId, bool local, const profile_t& profile, const Version& clientVersion) {
+	assert(wormById(wormId, false) == NULL);
+	CWorm* w = new CWorm();
+	w->setID(wormId);
+	w->setUsed(true);
+	w->setClient(NULL); // Local worms won't get CServerConnection owner
+	w->setProfile(profile);
+	if(profile) {
+		w->setTeam(profile->iTeam);
+		w->setType(WormType::fromInt(profile->iType));
+	} else
+		warnings << "ParseConnected: profile " << i << " for worm " << id << " is not set" << endl;
+	w->setLocal(local);
+	w->setClientVersion(clientVersion);
+
+}
+

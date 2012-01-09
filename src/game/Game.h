@@ -27,6 +27,8 @@ class CMap;
 class CGameScript;
 class CGameMode;
 class CWpnRest;
+struct Version;
+struct profile_t;
 
 class Game {
 public:
@@ -62,6 +64,7 @@ public:
 	CWorm* wormById(int wormId, bool assertExisting = true);
 	CWorm* firstLocalHumanWorm();
 	CWorm* findWormByName(const std::string& name);
+	CWorm* createNewWorm(int wormId, bool local, const profile_t& profile, const Version& clientVersion);
 	
 	CMap* gameMap();
 	CGameScript* gameScript();

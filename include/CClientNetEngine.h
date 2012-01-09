@@ -28,7 +28,6 @@ class CClientNetEngine {
 protected:
 
 	CClient * client;
-	SmartPointer<ClientConnectionRequestInfo> connectInfo;
 	
 public:
 	// Constructor

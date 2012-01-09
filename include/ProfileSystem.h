@@ -56,7 +56,7 @@ extern WormType* PRF_COMPUTER;
 
 
 // Player profile structure
-class profile_t { public:
+struct profile_t {
 	profile_t() : iID(0), iType(PRF_HUMAN->toInt()), nDifficulty(AI_EASY), R(0), G(0), B(0), iTeam(0), tNext(NULL) {}
 
 	int				iID;

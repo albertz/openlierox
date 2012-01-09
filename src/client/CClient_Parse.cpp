@@ -184,7 +184,7 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 		return;
 	}
 
-	if(connectInfo.get() == NULL) {
+	if(client->connectInfo.get() == NULL) {
 		errors << "CClientNetEngine::ParseChallenge: connectInfo is NULL" << endl;
 		return;
 	}
@@ -210,14 +210,14 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 	bytestr.writeInt(PROTOCOL_VERSION,1);
 	bytestr.writeInt(client->iChallenge,4);
 	bytestr.writeInt(client->iNetSpeed,1);
-	bytestr.writeInt(connectInfo->worms.size(), 1);
+	bytestr.writeInt(client->connectInfo->worms.size(), 1);
 
 	// Send my worms info
     //
     // __MUST__ match the layout in CWorm::writeInfo() !!!
     //
 
-	foreach(w, connectInfo->worms) {
+	foreach(w, client->connectInfo->worms) {
 		// TODO: move this out here
 		bytestr.writeString(RemoveSpecialChars(w->sName));
 		bytestr.writeInt(w->iType,1);
@@ -244,6 +244,12 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 		client->reconnectingAmount--;
 		notes << "ParseConnected: We are waiting for " << client->reconnectingAmount << " other reconnect, ignoring this one now" << endl;
 		bs->SkipAll(); // the next connect should be in a seperate UDP package
+		return;
+	}
+	
+	if(client->connectInfo.get() == NULL) {
+		errors << "ParseConnected: connectInfo is NULL" << endl;
+		bs->SkipAll();
 		return;
 	}
 	
@@ -280,57 +286,25 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	
 	
 	// Get the id's
-	int id=0;
-	for(ushort i=0;i<client->iNumWorms;i++) {
-		id = bs->readInt(1);
+	for(ushort i=0; i < client->connectInfo->worms.size(); i++) {
+		int id = bs->readInt(1);
 		if (id < 0 || id >= MAX_WORMS) {
 			warnings << "ParseConnected: parsed invalid id " << id << endl;
 			notes << "Something is screwed up -> reconnecting" << endl;
 			client->Reconnect();
 			return;
 		}
-		for(int j = 0; j < i; j++) {
-			if(client->cLocalWorms[j]->getID() == id) {
-				warnings << "ParseConnected: local worm nr " << j << " already has the id " << id;
-				warnings << ", cannot assign it twice to local worm nr " << i << endl;
-				notes << "Something is screwed up -> reconnecting" << endl;
-				client->Reconnect();
-				return;
-			}
-		}
-		if(client->cRemoteWorms[id].isUsed() && !client->cRemoteWorms[id].getLocal()) {
-			warnings << "ParseConnected: worm " << id << " is a remote worm";
-			warnings << ", cannot be used as our local worm " << i << endl;
+		if(CWorm* w = game.wormById(id, false)) {
+			warnings << "ParseConnected: worm ID " << id << " is already taken by worm " << w->getName() << endl;
 			notes << "Something is screwed up -> reconnecting" << endl;
 			client->Reconnect();
 			return;
 		}
-		client->cLocalWorms[i] = &client->cRemoteWorms[id];
-		if(!client->cLocalWorms[i]->isUsed()) {
-			client->cLocalWorms[i]->Clear();
-			client->cLocalWorms[i]->setID(id);
-			client->cLocalWorms[i]->setUsed(true);
-			client->cLocalWorms[i]->setClient(NULL); // Local worms won't get CServerConnection owner
-			client->cLocalWorms[i]->setProfile(client->tProfiles[i]);
-			if(client->tProfiles[i]) {
-				client->cLocalWorms[i]->setTeam(client->tProfiles[i]->iTeam);
-				client->cLocalWorms[i]->setType(WormType::fromInt(client->tProfiles[i]->iType));
-			} else
-				warnings << "ParseConnected: profile " << i << " for worm " << id << " is not set" << endl;
-			client->cLocalWorms[i]->setLocal(true);
-			client->cLocalWorms[i]->setClientVersion(client->getClientVersion());
-		}
-		if(!client->cLocalWorms[i]->getLocal()) {
-			warnings << "ParseConnected: already used local worm " << id << " was not set to local" << endl;
-			client->cLocalWorms[i]->setLocal(true);
-		}
+		game.createNewWorm(id, true, client->connectInfo->worms[i], client->getClientVersion());
 	}
 
-	// TODO: why do we setup the viewports only if we have at least one worm?
-	if(!isReconnect && !bDedicated && client->iNumWorms > 0) {
-		// Setup the viewports
+	if(!isReconnect && !bDedicated) {
 		client->SetupViewports();
-
 		client->SetupGameInputs();
 	}
 
@@ -1022,7 +996,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			client->bChat_Typing = true;
 			client->bChat_CursorVisible = true;
 			client->iChat_Pos = client->sChat_Text.size();
-			SendAFK( client->cLocalWorms[0]->getID(), AFK_TYPING_CHAT );
+			if(game.firstLocalHumanWorm())
+				SendAFK( game.firstLocalHumanWorm()->getID(), AFK_TYPING_CHAT );
 		}	
 
 		if(!bDedicated) {
@@ -1046,36 +1021,31 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
-	CWorm *w = client->cRemoteWorms;
-	int num_worms = 0;
-	ushort i;
-	for(i=0;i<MAX_WORMS;i++,w++) {
-		if(w->isUsed()) {
-			num_worms++;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
+		
+		// (If this is a local game?), we need to reload the worm graphics
+		// We do this again because we've only just found out what type of game it is
+		// Team games require changing worm colours to match the team colour
+		// Inefficient, but i'm not going to redesign stuff for a simple gametype
+		w->ChangeGraphics(client->getGeneralGameType());
 
-			// (If this is a local game?), we need to reload the worm graphics
-			// We do this again because we've only just found out what type of game it is
-			// Team games require changing worm colours to match the team colour
-			// Inefficient, but i'm not going to redesign stuff for a simple gametype
-			w->ChangeGraphics(client->getGeneralGameType());
+		if(isReconnect && w->isPrepared())
+			continue;
+		
+		notes << "Client: preparing worm " << w->getID() << ":" << w->getName() << " for battle" << endl;
 
-			if(isReconnect && w->isPrepared())
-				continue;
-			
-			notes << "Client: preparing worm " << i << ":" << w->getName() << " for battle" << endl;
+		// Also set some game details
+		w->setLives(client->getGameLobby()[FT_Lives]);
+		w->setKills(0);
+		w->setDeaths(0);
+		w->setTeamkills(0);
+		w->setDamage(0);
+		w->setHealth(100);
+		w->setWeaponsReady(false);
 
-			// Also set some game details
-			w->setLives(client->getGameLobby()[FT_Lives]);
-			w->setKills(0);
-			w->setDeaths(0);
-			w->setTeamkills(0);
-			w->setDamage(0);
-			w->setHealth(100);
-			w->setWeaponsReady(false);
-
-			// Prepare for battle!
-			w->Prepare(false);
-		}
+		// Prepare for battle!
+		w->Prepare(false);
 	}
 
 	// The worms are first prepared here in this function and thus the input handlers where not set before.
@@ -1085,15 +1055,15 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	// Initialize the worms weapon selection menu & other stuff
 	if (!client->bWaitingForMod)
-		for(i=0;i<client->iNumWorms;i++) {
+		for_each_iterator(CWorm*, w, game.localWorms()) {
 			// we already prepared all the worms (cRemoteWorms) above
-			if(!client->cLocalWorms[i]->getWeaponsReady())
-				client->cLocalWorms[i]->initWeaponSelection();
+			if(!w->get()->getWeaponsReady())
+				w->get()->initWeaponSelection();
 		}
 	
 	// Start the game logging
 	if(!isReconnect)
-		client->StartLogging(num_worms);
+		client->StartLogging(game.worms()->size());
 	
 	if(!isReconnect && !bDedicated)
 	{
@@ -1261,9 +1231,9 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 	if(client->bGameRunning) {
 		notes << ", back to game" << endl;
 		client->iNetStatus = NET_PLAYING;
-		for(uint i=0;i<client->iNumWorms;i++) {
-			if(client->cLocalWorms[i]->getWeaponsReady())
-				client->cLocalWorms[i]->StartGame();
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			if(w->get()->getWeaponsReady())
+				w->get()->StartGame();
 		}
 		return;
 	}
@@ -1286,9 +1256,8 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 
 
 	// let our worms know that the game starts know
-	for(uint i=0;i<client->iNumWorms;i++) {
-		client->cLocalWorms[i]->StartGame();
-	}
+	for_each_iterator(CWorm*, w, game.localWorms())
+		w->get()->StartGame();
 
 	NotifyUserOnEvent();
 	
@@ -1362,13 +1331,14 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	}
 	
 	CVec p = CVec( (float)x, (float)y );
-
-	if (id < 0 || id >= MAX_PLAYERS)  {
+	CWorm* w = game.wormById(id, false);
+	
+	if (!w)  {
 		warnings << "CClientNetEngine::ParseSpawnWorm: invalid ID (" << id << ")" << endl;
 		return;
 	}
 
-	client->cRemoteWorms[id].Spawn(p);
+	w->Spawn(p);
 
 	game.gameMap()->CarveHole(SPAWN_HOLESIZE,p,cClient->getGameLobby()[FT_InfiniteMap]);
 
@@ -1384,12 +1354,12 @@ void CClientNetEngine::ParseSpawnWorm(CBytestream *bs)
 	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
 		CViewport* v = &client->cViewports[i];
 		if(!v->getUsed()) continue;
-		if(v->getOrigTarget() != &client->cRemoteWorms[id]) continue;
+		if(v->getOrigTarget() != w) continue;
 		
 		// Lock viewport back on worm, if it was screwed when spectating after death
 		client->sSpectatorViewportMsg = "";
 		v->setType(VW_FOLLOW);
-		v->setTarget(&client->cRemoteWorms[id]);
+		v->setTarget(w);
 		v->setSmooth(!client->OwnsWorm(id));
 		break;
 	}
@@ -1431,36 +1401,33 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 
 	// A new worm?
 	bool newWorm = false;
-	if (!client->cRemoteWorms[id].isUsed())  {
-		client->cRemoteWorms[id].Clear();
-		client->cRemoteWorms[id].setID(id);
-		client->cRemoteWorms[id].setUsed(true);
+	CWorm* w = game.wormById(id, false);
+	if (w == NULL)  {
+		w = game.createNewWorm(id, false, profile_t(), Version());
 		newWorm = true;
 	}
 	
 	WormJoinInfo wormInfo;
 	wormInfo.readInfo(bs);
-	wormInfo.applyTo(&client->cRemoteWorms[id]);
+	wormInfo.applyTo(w);
 
 	if(newWorm) {
-		client->cRemoteWorms[id].setLives(((int)client->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : client->getGameLobby()[FT_Lives]);
-		client->cRemoteWorms[id].setClient(NULL); // Client-sided worms won't have CServerConnection
-		client->cRemoteWorms[id].setLocal(false);
-		if (client->iNetStatus == NET_PLAYING || client->bGameReady)  {
-			client->cRemoteWorms[id].Prepare(false);
-		}
+		w->setLives(((int)client->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : client->getGameLobby()[FT_Lives]);
+		w->setClient(NULL); // Client-sided worms won't have CServerConnection
+		if (client->iNetStatus == NET_PLAYING || client->bGameReady)
+			w->Prepare(false);
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
-			! client->cRemoteWorms[id].getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
-			client->cRemoteWorms[id].setClientVersion(Version());	// LX56 version
+			! w->getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
+			w->setClientVersion(Version());	// LX56 version
 	}
 
 	// Load the worm graphics
-	if(!client->cRemoteWorms[id].ChangeGraphics(client->getGeneralGameType())) {
+	if(!w->ChangeGraphics(client->getGeneralGameType())) {
         warnings << "CClientNetEngine::ParseWormInfo(): ChangeGraphics() failed" << endl;
 	}
 
 	client->UpdateScoreboard();
-	if (client->cRemoteWorms[id].getLocal())
+	if (w->getLocal())
 		client->bShouldRepaintInfo = true;
 
 	DeprecatedGUI::bJoin_Update = true;
@@ -1471,11 +1438,9 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 int CClientNetEngineBeta9::ParseWormInfo(CBytestream *bs)
 {
 	int id = CClientNetEngine::ParseWormInfo(bs);
-	if( id >= 0 && id < MAX_WORMS )
-	{
-		Version ver(bs->readString());
-		client->cRemoteWorms[id].setClientVersion(ver);
-	}
+	Version ver(bs->readString());
+	if(CWorm* w = game.wormById(id, false))
+		w->setClientVersion(ver);
 	return id;
 }
 
@@ -1491,15 +1456,9 @@ static CWorm* getWorm(CClient* cl, CBytestream* bs, const std::string& fct, bool
 		bs->SkipAll();
 		return NULL;
 	}
-	
-	if(cl->getRemoteWorms() == NULL) {
-		warnings << fct << ": worms are not initialised" << endl;
-		if(skipFct) (*skipFct)(bs);
-		return NULL;		
-	}
-	
-	CWorm* w = &cl->getRemoteWorms()[id];
-	if(!w->isUsed()) {
+		
+	CWorm* w = game.wormById(id, false);
+	if(!w) {
 		warnings << fct << ": worm ID " << id << " is unused" << endl;
 		if(skipFct) (*skipFct)(bs);
 		return NULL;

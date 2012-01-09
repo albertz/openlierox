@@ -354,8 +354,8 @@ public:
 			worm->frame() = 2.99f;
 
 		// Process the ninja rope
-		if(worm->getNinjaRope()->isReleased() && worms) {
-			simulateNinjarope( dt, worm, worms );
+		if(worm->getNinjaRope()->isReleased()) {
+			simulateNinjarope( dt, worm );
 			worm->velocity() += worm->getNinjaRope()->GetForce() * dt;
 		}
 
@@ -527,7 +527,7 @@ public:
 		LX56_simulateProjectiles(projs);
 	}
 
-	void simulateNinjarope(float dt, CWorm* owner, CWorm *worms) {
+	void simulateNinjarope(float dt, CWorm* owner) {
 		CNinjaRope* rope = owner->getNinjaRope();
 		CVec playerpos = owner->getPos();
 
@@ -548,8 +548,8 @@ public:
 		// In most cases, dt his halfed once, so this simulateNinjarope is
 		// like in LX56 with 200FPS.
 		if((rope->hookVelocity() + force*dt).GetLength2() * dt * dt * getNinjaropePrecision() > 5) {
-			simulateNinjarope( dt/2, owner, worms );
-			simulateNinjarope( dt/2, owner, worms );
+			simulateNinjarope( dt/2, owner );
+			simulateNinjarope( dt/2, owner );
 			return;
 		}
 

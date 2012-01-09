@@ -51,8 +51,9 @@ class CChannel;
 class CClientNetEngine;
 class CBonus;
 class CMap;
-class profile_t;
+struct profile_t;
 class FlagInfo;
+struct ClientConnectionRequestInfo;
 
 // TODO: this is just a small helper for now; some of these parts should just move into CClient::Connect
 bool JoinServer(const std::string& addr, const std::string& name, const std::string& player);
@@ -203,7 +204,7 @@ private:
 	//int			iDrawingViews[2];
     CViewport   cViewports[NUM_VIEWPORTS];
 
-	profile_t	*tProfiles[MAX_PLAYERS];
+	SmartPointer<ClientConnectionRequestInfo> connectInfo;
 
 	// Logging
 	game_log_t	*tGameLog;
@@ -652,7 +653,6 @@ public:
 	void		setHaveMap( bool _b )	{ bHaveMap = _b; }
 	void		setHaveMod( bool _b )	{ bHaveMod = _b; }
 	int			getNumRemoteWorms();
-	profile_t	**getLocalWormProfiles()	{ return tProfiles; }
 	FlagInfo*	flagInfo()			{ return m_flagInfo; }
 	
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }

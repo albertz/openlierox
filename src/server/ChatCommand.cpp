@@ -188,7 +188,9 @@ bool ConvertID(const std::string& str_id, /*out*/ int *id)
 	int p_id = from_string<int>(str_id, fail);
 	if (fail || p_id < 0 || p_id >= MAX_WORMS)
 		return false;
-
+	if(game.wormById(p_id, false) == NULL)
+		return false;
+	
 	*id = p_id;
 	return true;
 }
@@ -235,9 +237,9 @@ std::string ProcessAuthorise(const std::vector<std::string>& params, int sender_
 		bool hadDedBefore = remote_cl->getRights()->Dedicated;
 		remote_cl->getRights()->Everything();
 		remote_cl->getRights()->Dedicated = hadDedBefore; // don't give him dedicated
-		cServer->SendGlobalText((cServer->getWorms() + id)->getName() + " has been authorised", TXT_NORMAL);
+		cServer->SendGlobalText(game.wormById(id)->getName() + " has been authorised", TXT_NORMAL);
 		if(DedicatedControl::Get())
-			DedicatedControl::Get()->WormAuthorized_Signal(cServer->getWorms() + id);
+			DedicatedControl::Get()->WormAuthorized_Signal(game.wormById(id));
 		return "";
 	}
 
@@ -262,9 +264,6 @@ std::string ProcessKickOrBan(const std::vector<std::string>& params, int sender_
 	if (ch.size() != 0)
 		return ch;
 
-	if(!cServer->getWorms()[id].isUsed())
-		return "Worm " + itoa(id) + " is not used";
-	
 	CServerConnection *target = cServer->getClient(id);
 	if(target)
 		if (target->isLocalClient())
@@ -481,11 +480,8 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 		name.erase(32, std::string::npos);
 
 	// Check no other user has this name
-	CWorm *w = cServer->getWorms();
-	for(int i=0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-		if(!stringcasecmp(name, w->getName()) && w->getID() != sender_id)
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(!stringcasecmp(name, w->get()->getName()) && w->get()->getID() != sender_id)
 			return "Another player is already using this nick";
 	}
 
@@ -533,16 +529,11 @@ std::string ProcessSetName(const std::vector<std::string>& params, int sender_id
 		name.erase(32, std::string::npos);
 
 	// Get the target worm
-	CWorm *tw = cServer->getWorms() + p_id;
-	if (!tw->isUsed())
-		return "The worm with specified ID does not exist";
+	CWorm *tw = game.wormById(p_id);
 
 	// Check no other user has this name
-	CWorm *w = cServer->getWorms();
-	for(int i=0; i < MAX_WORMS; i++, w++) {
-		if(!w->isUsed())
-			continue;
-		if(!stringcasecmp(name, w->getName()) && w->getID() != p_id)
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(!stringcasecmp(name, w->get()->getName()) && w->get()->getID() != p_id)
 			return "Another player is already using this nick";
 	}
 
@@ -604,9 +595,7 @@ std::string ProcessSetSkin(const std::vector<std::string>& params, int sender_id
 		return "You do not have sufficient rights to change user skin";
 
 	// Get the worm
-	CWorm *worm = cServer->getWorms() + p_id; // HINT: this is safe because CheckIDParams makes a range check
-	if (!worm->isUsed())
-		return "Cannot change skin of a non-existing worm";
+	CWorm *worm = game.wormById(p_id); // HINT: this is safe because CheckIDParams makes a range check
 
 	// Set the skin
 	worm->setSkin(params[2]);
@@ -672,9 +661,7 @@ std::string ProcessSetColour(const std::vector<std::string>& params, int sender_
 	g = (Uint8) atoi(params[3]);
 	b = (Uint8) atoi(params[4]);
 
-	CWorm *worm = cServer->getWorms() + p_id;  // HINT: this is safe because CheckIDParams makes a range check
-	if (!worm->isUsed())
-		return "Cannot change colour of a non-existing worm";
+	CWorm *worm = game.wormById(p_id);  // HINT: this is safe because CheckIDParams makes a range check
 
 	// Set the colour
 	worm->setColour(r, g, b);
@@ -699,8 +686,8 @@ std::string ProcessSuicide(const std::vector<std::string>& params, int sender_id
 		return "Invalid worm for suicide";
 
 	// Get the "victim"
-	CWorm *w = cServer->getWorms() + sender_id;
-	if (!w->isUsed())
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "The worm does not exist";
 
 	// Get the number of suicides
@@ -731,8 +718,8 @@ std::string ProcessSpectate(const std::vector<std::string>& params, int sender_i
 		return "Invalid worm";
 
 	// Get the "victim"
-	CWorm *w = cServer->getWorms() + sender_id;
-	if (!w->isUsed())
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "The worm does not exist";
 
 	// Can't spectate if we're out, apparently it causes the player to be able to play while out
@@ -752,7 +739,8 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 		return "Invalid parameter count";
 
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm* w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Safety check for blank password (disallow these from security reasons)
@@ -765,11 +753,11 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 
 	// All OK, authorize the worm
 	cServer->authorizeWorm(sender_id);
-	notes << "worm " << sender_id << ":" << cServer->getWorms()[sender_id].getName() << " logged in" << endl;
+	notes << "worm " << sender_id << ":" << w->getName() << " logged in" << endl;
 	if(DedicatedControl::Get())
-		DedicatedControl::Get()->WormGotAdmin_Signal(cServer->getWorms() + sender_id);
+		DedicatedControl::Get()->WormGotAdmin_Signal(w);
 	if(DedicatedControl::Get())
-		DedicatedControl::Get()->WormAuthorized_Signal(cServer->getWorms() + sender_id);
+		DedicatedControl::Get()->WormAuthorized_Signal(w);
 
 	return "";
 }
@@ -777,7 +765,8 @@ std::string ProcessLogin(const std::vector<std::string>& params, int sender_id)
 std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);	
+	if (!w)
 		return "Invalid worm";
 
 	// Check that not playing already
@@ -785,13 +774,12 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		return "The game is already running";
 
 	// Check privileges
-	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->StartGame)
 		return "You do not have sufficient privileges to start the game";
 
 	// Check the number of players
-	if (cServer->getNumPlayers() <= 1 && !gameSettings[FT_AllowEmptyGames])  {
+	if (game.worms()->size() <= 1 && !gameSettings[FT_AllowEmptyGames])  {
 		warnings << "Cannot start the game, too few players" << endl;
 		return "Too few players to start the game";
 	}
@@ -818,7 +806,8 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Check that not playing already
@@ -826,7 +815,6 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 		return "Already in lobby";
 
 	// Check privileges
-	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->StartGame)
 		return "You do not have sufficient privileges to start the game (and thus also not to go to lobby)";
@@ -840,7 +828,8 @@ std::string ProcessLobby(const std::vector<std::string>& params, int sender_id)
 std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Param check
@@ -852,7 +841,6 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 		return "Cannot change the mod while playing";
 
 	// Check privileges
-	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->ChooseMod)
 		return "You do not have sufficient privileges to change the mod";
@@ -883,7 +871,8 @@ std::string ProcessMod(const std::vector<std::string>& params, int sender_id)
 std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Param check
@@ -895,7 +884,6 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 		return "Cannot change the level while playing";
 
 	// Check privileges
-	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->ChooseLevel)
 		return "You do not have sufficient privileges to change the level";
@@ -928,7 +916,8 @@ std::string ProcessLevel(const std::vector<std::string>& params, int sender_id)
 std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Param check
@@ -937,7 +926,6 @@ std::string ProcessLt(const std::vector<std::string>& params, int sender_id)
 		return "Invalid parameter count";
 
 	// Check privileges
-	CWorm *w = cServer->getWorms() + sender_id;
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->StartGame)
 		return "You do not have sufficient privileges to change the loading time";
@@ -973,8 +961,8 @@ struct ChatDedHandler : CmdLineIntf {
 	ChatDedHandler(int i) : sender_id(i) {}
 	
 	void msg(const std::string& str, CmdLineMsgType type = CNC_NOTIFY) {
-		CWorm *w = &cServer->getWorms()[sender_id];
-		if(!w->isUsed()) return;
+		CWorm *w = game.wormById(sender_id, false);
+		if(!w) return;
 		if(!w->getClient()) return;
 		// TODO: handle type
 		w->getClient()->getNetEngine()->SendText(str, TXT_PRIVATE);
@@ -999,7 +987,8 @@ struct ChatDedHandler : CmdLineIntf {
 
 std::string ProcessDedicated(const std::vector<std::string>& params, int sender_id) {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 
 	// Param check
@@ -1008,7 +997,6 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 		return "Invalid parameter count";
 
 	// Check privileges
-	CWorm *w = &cServer->getWorms()[sender_id];
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->Dedicated)
 		return "You do not have sufficient privileges for dedicated control";
@@ -1025,7 +1013,8 @@ std::string ProcessDedicated(const std::vector<std::string>& params, int sender_
 
 std::string ProcessScript(const std::vector<std::string>& params, int sender_id) {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 	
 	// Param check
@@ -1034,7 +1023,6 @@ std::string ProcessScript(const std::vector<std::string>& params, int sender_id)
 		return "Invalid parameter count";
 	
 	// Check privileges
-	CWorm *w = &cServer->getWorms()[sender_id];
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->Script)
 		return "You do not have sufficient privileges for changing the dedicated script";
@@ -1050,7 +1038,8 @@ std::string ProcessScript(const std::vector<std::string>& params, int sender_id)
 
 std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id) {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 	
 	// Param check
@@ -1059,7 +1048,6 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 		return "Invalid parameter count";
 	
 	// Check privileges
-	CWorm *w = &cServer->getWorms()[sender_id];
 	CServerConnection *cl = w->getClient();
 	if (!cl || !cl->getRights()->SetVar)
 		return "You do not have sufficient privileges to set a variable";
@@ -1116,7 +1104,8 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 
 std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id) {
 	// Check the sender
-	if (sender_id < 0 || sender_id >= MAX_WORMS)
+	CWorm *w = game.wormById(sender_id, false);
+	if (!w)
 		return "Invalid worm";
 	
 	// Param check
@@ -1128,39 +1117,32 @@ std::string ProcessWeapons(const std::vector<std::string>& params, int sender_id
 	if (cServer->getState() == SVS_LOBBY)
 		return "Cannot reselect weapons in lobby";
 	
-	int target = sender_id;
 	if(params.size() == 1) {
-		target = atoi(params[0]);
-		if(target < 0 || target >= MAX_WORMS || !cServer->getWorms()[target].isUsed()) {
+		CWorm *senderW = w;
+		int target = atoi(params[0]);
+		w = game.wormById(target, false);
+		if(!w)
 			return "worm ID " + itoa(target) + " is invalid";
-		}
 		
 		// TODO: Well, I don't want to have extra rights for every single bit, there
 		// should be some more general rights. For now, I just use StartGame for this.
-		CWorm *senderW = &cServer->getWorms()[sender_id];
 		CServerConnection *senderCl = senderW->getClient();
-		if(!senderCl || !senderCl->getRights()->StartGame) {
+		if(!senderCl || !senderCl->getRights()->StartGame)
 			return "You don't have the permissions to init a weapon change for other worms";
-		}
-	} else {
-		if(!(bool)gameSettings[FT_AllowWeaponsChange]) {
+	} else { // no param -> change sender worms weapons
+		if(!(bool)gameSettings[FT_AllowWeaponsChange])
 			return "Weapons changes are not allowed";
-		}
 	}
 
-	CWorm *w = &cServer->getWorms()[target];
 	CServerConnection *cl = w->getClient();
-	if(!cl) {
+	if(!cl)
 		return "Client not found";
-	}
 	
-	if(cl->getClientVersion() < OLXBetaVersion(0,58,1)) {
+	if(cl->getClientVersion() < OLXBetaVersion(0,58,1))
 		return "Client is too old to support this";
-	}
 		
-	if(!w->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm]) {
+	if(!w->isFirstLocalHostWorm() && gameSettings[FT_SameWeaponsAsHostWorm])
 		return "same weapons as host worm are forced";
-	}
 	
 	// a bit hacky, but well...
 	Execute( CmdLineIntf::Command(new ChatDedHandler(sender_id), "selectWeapons " + itoa(w->getID())) );	

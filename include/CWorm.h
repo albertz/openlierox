@@ -252,7 +252,6 @@ protected:
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
-	profile_t	*tProfile;
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
 
@@ -549,9 +548,6 @@ public:
 
 	void		setLobbyReady(bool _g)		{ bLobbyReady = _g; }
 	bool		getLobbyReady() const		{ return bLobbyReady; }
-
-	void		setProfile(profile_t *p)	{ tProfile = p; }
-	profile_t	*getProfile()				{ return tProfile; }
 
 	void		setTeam(int _t)				{ iTeam = _t; }
 	int			getTeam() const				{ return iTeam; }

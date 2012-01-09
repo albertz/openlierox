@@ -199,52 +199,39 @@ void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGam
 
     // Action
 	case VW_ACTIONCAM: {
-        short i,j;
         // Finds a group of worms and smoothly moves around to show the whole group of players in a fight
 
         pcTargetWorm = NULL;
         
         // Generate a score for each worm depending on closeness of other worms
         // The worm with the lowest score is used as a focus point        
-        float fScores[MAX_WORMS];
-        for(i=0; i<MAX_WORMS; i++)
-            fScores[i] = -1;
+		std::map<int,float> fScores;
         
         // Go through all permutations of the worms
-        for(i=0; i<MAX_WORMS; i++) {
-            if( !pcWormList[i].isUsed() || !pcWormList[i].getAlive() || pcWormList[i].getLives() == WRM_OUT )
-                continue;
-            
+		for_each_iterator(CWorm*, w1, game.aliveWorms()) {
             // Set a zero score because we are at least alive and well
-            fScores[i] = 0;
+            fScores[w1->get()->getID()] = 0;
             
-            for(j=0; j<MAX_WORMS; j++) {
-                if( !pcWormList[j].isUsed() || !pcWormList[j].getAlive() || pcWormList[j].getLives() == WRM_OUT )
-                    continue;
-                
-                fScores[i] += CalculateDistance(pcWormList[i].getPos(), pcWormList[j].getPos());
-            }
+			for_each_iterator(CWorm*, w2, game.aliveWorms())
+                fScores[w1->get()->getID()] += CalculateDistance(w1->get()->getPos(), w2->get()->getPos());
         }
         
-        CWorm *pcFocus = NULL;
+        int focusWormId = -1;
         float lowest = 99999;
         
-        for(i=0; i<MAX_WORMS; i++) {
-            if( !pcWormList[i].isUsed() || !pcWormList[i].getAlive() || pcWormList[i].getLives() == WRM_OUT )
-                continue;
-            
-            if( fScores[i] < lowest ) {
-                pcFocus = &pcWormList[i];
-                lowest = fScores[i];
+		foreach(s, fScores) {
+            if( focusWormId < 0 || s->second < lowest ) {
+                focusWormId = s->first;
+                lowest = s->second;
             }
         }
         
         // No focus point? Leave
-        if( !pcFocus )
+        if( focusWormId < 0 )
             return;
         
         // The focus worm is our target
-        tgtPos = pcFocus->getPos();
+        tgtPos = game.wormById(focusWormId)->getPos();
         
         CVec dir = tgtPos - curPos;
         float l = NormalizeVector(&dir);
@@ -323,14 +310,9 @@ void CViewport::Process(CViewport *pcViewList, int MWidth, int MHeight, int iGam
 CWorm *CViewport::findTarget(CViewport *pcViewList, bool bAlive)
 {
     // Find a worm that isn't already a target by another viewport
-    for( short w=0; w<MAX_WORMS; w++ ) {
-        if( !pcWormList[w].isUsed() )
-            continue;
-        if( pcWormList[w].getLives() == WRM_OUT )
-            continue;
-
+	for_each_iterator(CWorm*, w, game.worms()) {
         // If the worm isn't alive, and we want a living worm, skip the worm
-        if( !pcWormList[w].getAlive() && bAlive )
+        if( !w->get()->getAlive() && bAlive )
             continue;
 
         short viewcount = 0;
@@ -345,14 +327,14 @@ CWorm *CViewport::findTarget(CViewport *pcViewList, bool bAlive)
 
             CWorm *t = pcViewList[v].getTarget();
             if(t) {
-                if( pcWormList[w].getID() == t->getID() )
+                if( w->get()->getID() == t->getID() )
                     viewcount++;
             }
         }
 
         // If this worm was in none of the viewports, use the worm
         if( !viewcount )
-            return &pcWormList[w];
+            return w->get();
     }
 
     // No good target

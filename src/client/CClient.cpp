@@ -66,7 +66,7 @@ void CClient::Clear()
 {
 
 #ifdef DEBUG
-	if (cRemoteWorms || cBonuses)  {
+	if (cBonuses)  {
 #ifdef _MSC_VER
 		__asm int 3; // Breakpoint
 #endif
@@ -77,13 +77,6 @@ void CClient::Clear()
 	tGameInfo = EngineSettings();
 	tGameInfo.overwrite[FT_TimeLimit] = -100;
 	otherGameInfo.clear();
-	iNumWorms = 0;
-	for(int i=0;i<MAX_PLAYERS;i++)
-	{
-		cLocalWorms[i] = NULL;
-		tProfiles[i] = NULL;
-	}
-	cRemoteWorms = NULL;
 	cProjectiles.clear();
 	projPosMap.clear();
 	bMapGrabbed = false;
@@ -250,7 +243,6 @@ void CClient::ReinitLocalWorms() {
 CClient::CClient() {
 	// TODO: merge this with Clear()
 	//notes << "cl:Constructor" << endl;
-	cRemoteWorms = NULL;
 	m_flagInfo = NULL;
 	cBonuses = NULL;
 	bmpBoxBuffer = NULL;

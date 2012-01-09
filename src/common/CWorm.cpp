@@ -67,7 +67,6 @@ CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_
 	// set all pointers to NULL
 	m_inputHandler = NULL;
 	cOwner = NULL;
-	tProfile = NULL;
 	pcHookWorm = NULL;
 	m_type = NULL;
 	m_node = NULL;
@@ -166,9 +165,6 @@ void CWorm::Clear()
 
 	//bUsesMouse = false;
 	fLastInputTime = tLX->currentTime;
-
-	//pcViewport = NULL;//.Setup(0,0,640,480);
-	tProfile = NULL;
 
 	short i;
 	for(i=0;i<NUM_FRAMES;i++)

@@ -31,7 +31,7 @@
 #include "olx-types.h"
 #include "CodeAttributes.h"
 
-class profile_t;
+struct profile_t;
 class IpToCountryDB;
 
 
