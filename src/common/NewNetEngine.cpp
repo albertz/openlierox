@@ -21,7 +21,7 @@ namespace NewNet
 
 // -------- The stuff that interacts with OLX: save/restore game state and calculate physics ---------
 
-CWorm * SavedWormState = NULL;
+static std::vector<CWorm> SavedWormState;
 NetSyncedRandom netRandom, netRandom_Saved;
 AbsTime cClientLastSimulationTime;
 
@@ -34,8 +34,12 @@ void SaveState()
 	cClient->NewNet_SaveProjectiles();
 	NewNet_SaveEntities();
 
-	for( int i = 0; i < MAX_WORMS; i++ )
-		SavedWormState[i].NewNet_CopyWormState( cClient->getRemoteWorms()[i] );
+	SavedWormState.clear();
+	SavedWormState.reserve(game.worms()->size());
+	for_each_iterator(CWorm*, w, game.worms()) {
+		SavedWormState.push_back(CWorm());
+		SavedWormState.back().NewNet_CopyWormState( *w->get() );
+	}
 };
 
 void RestoreState()
@@ -47,8 +51,22 @@ void RestoreState()
 	cClient->NewNet_LoadProjectiles();
 	NewNet_LoadEntities();
 
-	for( int i = 0; i < MAX_WORMS; i++ )
-		cClient->getRemoteWorms()[i].NewNet_CopyWormState( SavedWormState[i] );
+	for_each_iterator(CWorm*, w, FullCopyIterator(game.worms()))
+		game.removeWorm(w->get());
+	
+	foreach(savedWorm, SavedWormState) {
+		profile_t profile;
+		profile.iTeam = savedWorm->getTeam();
+		profile.iType = savedWorm->getType()->asInt();
+		CWorm* w = game.createNewWorm
+		(
+		 savedWorm->getID(),
+		 savedWorm->getLocal(),
+		 profile,
+		 savedWorm->getClientVersion()
+		 );
+		w->NewNet_CopyWormState( *savedWorm );
+	}
 };
 
 // TODO: make respawning server-sided and remove this function

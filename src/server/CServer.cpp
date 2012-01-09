@@ -1816,69 +1816,63 @@ bool GameServer::clientsConnected_less(const Version& ver) {
 
 
 
-CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
-	CWorm* w = cWorms;
-	for (int j  = 0; j < MAX_WORMS; j++, w++) {
-		if (w->isUsed())
-			continue;
-		
-		w->Clear();
-		w->setUsed(true);
-		w->setID(j);
-		wormInfo.applyTo(w);
-		w->setupLobby();
-		w->setDamage(0);
-		if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
-			w->setTeam(0);
-		else
-			w->setTeam(wormInfo.iTeam);
-		
-		if(w->isPrepared()) {
-			warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! ";
-			if(!w->isUsed()) warnings << "AND it is even not used!";
-			warnings << endl;
-			w->Unprepare();
-		}
-		
-		// If the game has limited lives all new worms are spectators
-		if( (int)gameSettings[FT_Lives] == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
-			w->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : gameSettings[FT_Lives]);
-		else {
-			w->setLives(WRM_OUT);
-		}
-		w->setKills(0);
-		w->setDeaths(0);
-		w->setTeamkills(0);
-		w->setWeaponsReady(false);
-		
-		iNumPlayers++;
-		
-		if( DedicatedControl::Get() )
-			DedicatedControl::Get()->NewWorm_Signal(w);
-				
-		if(tLX->iGameType == GME_HOST && tLXOptions->iRandomTeamForNewWorm > 0 && game.gameMode()->GameTeams() > 1) {
-			w->setTeam(-1); // set it invalid to not count it
-			
-			typedef int WormCount;
-			typedef int TeamIndex;
-			typedef std::vector<TeamIndex> Teams;
-			typedef std::map<WormCount, Teams> TeamMap;
-			TeamMap teams;
-			for(int t = 0; t <= tLXOptions->iRandomTeamForNewWorm && t < game.gameMode()->GameTeams(); t++) {
-				teams[getTeamWormNum(t)].push_back(t);
-			}
-			TeamMap::iterator first = teams.begin(); // get the list of the teams with lowest worm count
-			int team = *first->second.begin();
-			if(first->first > 0) // means that there is no empy team (0-randomteamfornewform)
-				team = randomChoiceFrom(first->second);
-			w->setTeam(team);
-			// we will send a WormLobbyUpdate later anyway
-		}
-		
-		return w;
+CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {	
+	int wormId = game.getNewUniqueWormId();
+	if(wormId >= MAX_WORMS) return NULL;
+	
+	CWorm* w = game.createNewWorm(wormId, false, profile_t(), Version());
+	w->setUsed(true);
+	wormInfo.applyTo(w);
+	w->setupLobby();
+	w->setDamage(0);
+	if( tLX->iGameType == GME_HOST ) // in local play, we use the team-nr from the WormJoinInfo
+		w->setTeam(0);
+	else
+		w->setTeam(wormInfo.iTeam);
+	
+	if(w->isPrepared()) {
+		warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! ";
+		if(!w->isUsed()) warnings << "AND it is even not used!";
+		warnings << endl;
+		w->Unprepare();
 	}
 	
-	return NULL;
+	// If the game has limited lives all new worms are spectators
+	if( (int)gameSettings[FT_Lives] == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
+		w->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : gameSettings[FT_Lives]);
+	else {
+		w->setLives(WRM_OUT);
+	}
+	w->setKills(0);
+	w->setDeaths(0);
+	w->setTeamkills(0);
+	w->setWeaponsReady(false);
+	
+	iNumPlayers++;
+	
+	if( DedicatedControl::Get() )
+		DedicatedControl::Get()->NewWorm_Signal(w);
+			
+	if(game.isServer() && tLXOptions->iRandomTeamForNewWorm > 0 && game.gameMode()->GameTeams() > 1) {
+		w->setTeam(-1); // set it invalid to not count it
+		
+		typedef int WormCount;
+		typedef int TeamIndex;
+		typedef std::vector<TeamIndex> Teams;
+		typedef std::map<WormCount, Teams> TeamMap;
+		TeamMap teams;
+		for(int t = 0; t <= tLXOptions->iRandomTeamForNewWorm && t < game.gameMode()->GameTeams(); t++) {
+			teams[getTeamWormNum(t)].push_back(t);
+		}
+		TeamMap::iterator first = teams.begin(); // get the list of the teams with lowest worm count
+		int team = *first->second.begin();
+		if(first->first > 0) // means that there is no empy team (0-randomteamfornewform)
+			team = randomChoiceFrom(first->second);
+		w->setTeam(team);
+		// we will send a WormLobbyUpdate later anyway
+	}
+	
+	return w;
 }
 
 namespace DeprecatedGUI {

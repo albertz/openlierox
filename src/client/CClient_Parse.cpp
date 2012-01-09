@@ -1496,7 +1496,7 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 		type = TXT_TEAMPM;
 
 	Color col = tLX->clWhite;
-	int	t = client->getNumWorms() == 0 ? 0 : client->cLocalWorms[0]->getTeam();
+	int	t = game.firstLocalHumanWorm() ? game.firstLocalHumanWorm()->getTeam() : 0;
 	switch(type) {
 		// Chat
 		case TXT_CHAT:		col = tLX->clChatText;		break;
@@ -1525,12 +1525,8 @@ void CClientNetEngine::ParseText(CBytestream *bs)
 	buf = Utf8String(buf);  // Convert any possible pseudo-UTF8 (old LX compatible) to normal UTF8 string
 
 	// Htmlentity nicks in the message
-	CWorm *w = client->getRemoteWorms();
-	if (w)  {
-		for (int i = 0; i < MAX_WORMS; i++, w++)  {
-			if (w->isUsed())
-				replace(buf, w->getName(), xmlEntities(w->getName()), buf);
-		}
+	for_each_iterator(CWorm*, w, game.worms()) {
+		replace(buf, w->get()->getName(), xmlEntities(w->get()->getName()), buf);
 	}
 
 	client->cChatbox.AddText(buf, col, (TXT_TYPE)type, tLX->currentTime);
@@ -1709,18 +1705,19 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 {
 	if(client->getServerVersion() < OLXBetaVersion(0,58,1)) {
 		client->iMatchWinner = CLAMP(bs->readInt(1), 0, MAX_PLAYERS - 1);
-			
 		client->iMatchWinnerTeam = -1;
 
 		// Get the winner team if TDM (old servers send wrong info here, better when we find it out)
 		if (client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 
 			if ((int)client->getGameLobby()[FT_KillLimit] != -1)  {
-				client->iMatchWinnerTeam = client->cRemoteWorms[client->iMatchWinner].getTeam();
+				CWorm* w = game.wormById(client->iMatchWinner, false);
+				if(w)
+					client->iMatchWinnerTeam = w->getTeam();
 			} else if ((int)client->getGameLobby()[FT_Lives] != -2)  {
-				for (int i=0; i < MAX_WORMS; i++)  {
-					if (client->cRemoteWorms[i].getLives() >= 0)  {
-						client->iMatchWinnerTeam = client->cRemoteWorms[i].getTeam();
+				for_each_iterator(CWorm*, w, game.worms()) {
+					if (w->get()->getLives() >= 0)  {
+						client->iMatchWinnerTeam = w->get()->getTeam();
 						break;
 					}
 				}
@@ -1731,10 +1728,10 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 		if (client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TIME)  {
 			TimeDiff max = TimeDiff(0);
 
-			for (int i=0; i < MAX_WORMS; i++)  {
-				if (client->cRemoteWorms[i].isUsed() && client->cRemoteWorms[i].getTagTime() > max)  {
-					max = client->cRemoteWorms[i].getTagTime();
-					client->iMatchWinner = i;
+			for_each_iterator(CWorm*, w, game.worms()) {
+				if (w->get()->getTagTime() > max)  {
+					max = w->get()->getTagTime();
+					client->iMatchWinner = w->get()->getID();
 				}
 			}
 		}

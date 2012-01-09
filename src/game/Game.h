@@ -11,6 +11,7 @@
 #define __OLX_GAME_H__
 
 #include <boost/signal.hpp>
+#include <boost/function.hpp>
 #include <vector>
 #include <list>
 #include <map>
@@ -65,6 +66,17 @@ public:
 	CWorm* firstLocalHumanWorm();
 	CWorm* findWormByName(const std::string& name);
 	CWorm* createNewWorm(int wormId, bool local, const profile_t& profile, const Version& clientVersion);
+	int getNewUniqueWormId();
+	void removeWorm(CWorm* w);
+	
+	template<typename T>
+	T ifWorm(int wormId, boost::function<T (CWorm*)> f, T fallback = T()) {
+		CWorm* w = wormById(wormId, false);
+		if(w) return f(w);
+		return fallback;
+	}
+	
+	std::string wormName(int wormId);
 	
 	CMap* gameMap();
 	CGameScript* gameScript();

@@ -416,12 +416,14 @@ Iterator<CWorm*>::Ref Game::worms() {
 	return GetIterator_second(m_worms);
 }
 
+using namespace boost::lambda;
+
 Iterator<CWorm*>::Ref Game::localWorms() {
-	return GetFilterIterator(worms(), cClient->OwnsWorm(boost::lambda::_1 ->* &CWorm::getID));
+	return GetFilterIterator(worms(), cClient->OwnsWorm(_1 ->* &CWorm::getID));
 }
 
 Iterator<CWorm*>::Ref Game::aliveWorms() {
-	return GetFilterIterator(worms(), boost::lambda::_1 ->* &CWorm::getAlive);
+	return GetFilterIterator(worms(), _1 ->* &CWorm::getAlive);
 }
 
 CWorm* Game::wormById(int wormId, bool assertExisting) {
@@ -454,14 +456,35 @@ CWorm* Game::createNewWorm(int wormId, bool local, const profile_t& profile, con
 	w->setID(wormId);
 	w->setUsed(true);
 	w->setClient(NULL); // Local worms won't get CServerConnection owner
-	w->setProfile(profile);
-	if(profile) {
-		w->setTeam(profile->iTeam);
-		w->setType(WormType::fromInt(profile->iType));
-	} else
-		warnings << "ParseConnected: profile " << i << " for worm " << id << " is not set" << endl;
+	w->setTeam(profile.iTeam);
+	w->setType(WormType::fromInt(profile.iType));
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
 
+}
+
+int Game::getNewUniqueWormId() {
+	int lastId = -1;
+	foreach(w, m_worms) {
+		if(w->first > lastId + 1) // there is at least one ID free
+			return lastId + 1;
+		lastId = w->first;
+	}
+	return lastId + 1;
+}
+
+void Game::removeWorm(CWorm* w) {
+	assert(w != NULL);
+	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
+	assert(i != m_worms.end());
+	assert(i->second == w);
+	m_worms.erase(i);
+	w->deleteMe = true;
+}
+
+static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getName(); }
+
+std::string Game::wormName(int wormId) {
+	return ifWorm(wormid, _wormName, itoa(wormId) + ":<unknown-worm>");
 }
 
