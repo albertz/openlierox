@@ -16,6 +16,7 @@
 #include <list>
 #include <string>
 #include <boost/function.hpp>
+#include <boost/shared_ptr.hpp>
 #include "Ref.h"
 #include "Functors.h"
 #include "CodeAttributes.h"
@@ -49,6 +50,8 @@ public:
 	typedef ::Ref< Iterator > Ref;
 	typedef _Obj value_type;	
 };
+
+#define for_each_iterator( t, el, s )	for( ::Ref< Iterator<t> > el = GetIterator(s); el->isValid(); el->next() )
 
 template<typename _STLT, typename _T>
 class STLIteratorBase : public Iterator<_T> {
@@ -264,6 +267,28 @@ typename Iterator<T>::Ref GetFilterIterator(typename Iterator<T>::Ref i, boost::
 	return new FilterIterator<T>(i, pred);
 }
 
-#define for_each_iterator( t, el, s )	for( Iterator<t>::Ref el = GetIterator(s); el->isValid(); el->next() )
+template < typename T, typename DataT >
+struct ProxyIterator : public Iterator<T> {
+	typename Iterator<T>::Ref baseIter;
+	DataT data;
+	ProxyIterator(typename Iterator<T>::Ref _i, const DataT& _data) : baseIter(_i), data(_data) {}
+	virtual Iterator<T>* copy() const { return new ProxyIterator(*this); }
+	virtual bool isValid() { return baseIter->isValid(); }
+	virtual void reset() { baseIter->reset(); }
+	virtual void next() { baseIter->next(); }
+	virtual void nextn(size_t num) { baseIter->nextn(num); }
+	virtual size_t size() { return baseIter->size(); }
+	virtual bool operator==(const Iterator<T>& other) const { return baseIter.get() == other; }
+	virtual T get() { return baseIter->get(); }
+};
+
+template<typename T>
+typename Iterator<T>::Ref FullCopyIterator(typename Iterator<T>::Ref i) {
+	boost::shared_ptr< std::vector<T> > copy( new std::vector<T>() );
+	copy->reserve(i->size());
+	for_each_iterator(T, x, i)
+		copy->push_back(x->get());
+	return ProxyIterator<T, boost::shared_ptr< std::vector<T> > >(GetIterator(*copy), copy);
+}
 
 #endif
