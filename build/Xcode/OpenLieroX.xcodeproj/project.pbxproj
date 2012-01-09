@@ -102,6 +102,7 @@
 		2326BAC910D29BCF00D3F035 /* PhysicsDummy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326BAC810D29BCF00D3F035 /* PhysicsDummy.cpp */; };
 		232F590E14BA4BBD003D2E95 /* ClientConnectionRequestInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */; };
 		23325A9112117E2200915252 /* SmartPointer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23325A9012117E2200915252 /* SmartPointer.cpp */; };
+		2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2334DB1514BB7D52003F21D4 /* CLabel.cpp */; };
 		233E2ABA0D0DB10E00991914 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 233E2AB90D0DB10E00991914 /* OpenGL.framework */; };
 		2348933911806DA000FA821B /* ServerList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2348933811806DA000FA821B /* ServerList.cpp */; };
 		2357C2520F322E1700B09D87 /* Menu_SpeedTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2357C2510F322E1700B09D87 /* Menu_SpeedTest.cpp */; };
@@ -845,6 +846,7 @@
 		232F590C14BA4BA4003D2E95 /* ClientConnectionRequestInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientConnectionRequestInfo.h; sourceTree = "<group>"; };
 		232F590D14BA4BBC003D2E95 /* ClientConnectionRequestInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientConnectionRequestInfo.cpp; sourceTree = "<group>"; };
 		23325A9012117E2200915252 /* SmartPointer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SmartPointer.cpp; sourceTree = "<group>"; };
+		2334DB1514BB7D52003F21D4 /* CLabel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CLabel.cpp; sourceTree = "<group>"; };
 		233E2AB90D0DB10E00991914 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		2348933711806DA000FA821B /* ServerList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ServerList.h; sourceTree = "<group>"; };
 		2348933811806DA000FA821B /* ServerList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ServerList.cpp; sourceTree = "<group>"; };
@@ -2012,6 +2014,7 @@
 				239ACA780E6AD44F00C4216A /* Menu_Options.cpp */,
 				239ACA790E6AD44F00C4216A /* Menu_Player.cpp */,
 				239ACA7A0E6AD44F00C4216A /* MenuSystem.cpp */,
+				2334DB1514BB7D52003F21D4 /* CLabel.cpp */,
 			);
 			path = DeprecatedGUI;
 			sourceTree = "<group>";
@@ -3754,6 +3757,7 @@
 				23B7BC3A14B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp in Sources */,
 				2365B0DA14B22965002D5BF9 /* Game_loadMap.cpp in Sources */,
 				232F590E14BA4BBD003D2E95 /* ClientConnectionRequestInfo.cpp in Sources */,
+				2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
