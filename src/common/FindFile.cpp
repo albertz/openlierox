@@ -1098,11 +1098,10 @@ struct FileIter : Iterator<std::string> {
 		files.insert( GetBaseFilename(path) );
 		return true;
 	}
-	
-	void setBegin() { it = files.begin(); }
-	
+		
 	Iterator<std::string>* copy() const { return new FileIter(*this); }
 	bool isValid() { return it != files.end(); }
+	void reset() { it = files.begin(); }
 	void next() { ++it; }
 	bool operator==(const Iterator<std::string>& _oth) const {
 		if( const FileIter* oth = dynamic_cast<const FileIter*> (&_oth) )
@@ -1119,7 +1118,7 @@ Iterator<std::string>::Ref FileListIter(
 										const std::string& namefilter) {
 	FileIter* iter = new FileIter();
 	FindFiles(*iter, dir, absolutePath, modefilter, namefilter);
-	iter->setBegin();
+	iter->reset();
 	return iter;
 }
 
