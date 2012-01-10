@@ -203,10 +203,16 @@ template< typename _T >
 typename Iterator<_T>::Ref GetIterator(std::set<_T>& s) { return new STLIterator<std::set<_T>,_T>(s); }
 
 template< typename _T >
-typename Iterator<_T&>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T&>(s); }
+typename Iterator<_T>::Ref GetIterator(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T>(s); }
 
 template< typename _T >
-typename Iterator<_T&>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
+typename Iterator<_T&>::Ref GetIteratorRef(std::list<_T>& s) { return new STLIterator<std::list<_T>,_T&>(s); }
+
+template< typename _T >
+typename Iterator<_T>::Ref GetIterator(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T>(s); }
+
+template< typename _T >
+typename Iterator<_T&>::Ref GetIteratorRef(std::vector<_T>& s) { return new STLIterator<std::vector<_T>,_T&>(s); }
 
 template< typename _T, typename _KT >
 typename Iterator<_T&>::Ref GetIteratorRef_second(std::map<_KT, _T>& s) { return new STL_MapIterator<std::map< _KT, _T >, _T& >(s); }
@@ -263,7 +269,7 @@ struct FilterIterator : public Iterator<T> {
 };
 
 template<typename T>
-typename Iterator<T>::Ref GetFilterIterator(typename Iterator<T>::Ref i, boost::function<bool(T)> pred) {
+typename Iterator<T>::Ref GetFilterIterator(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
 	return new FilterIterator<T>(i, pred);
 }
 
@@ -288,7 +294,7 @@ typename Iterator<T>::Ref FullCopyIterator(::Ref<Iterator<T> > i) {
 	copy->reserve(i->size());
 	for_each_iterator(T, x, i)
 		copy->push_back(x->get());
-	return ProxyIterator<T, boost::shared_ptr< std::vector<T> > >(GetIterator(*copy), copy);
+	return new ProxyIterator<T, boost::shared_ptr< std::vector<T> > >(GetIterator(*copy), copy);
 }
 
 #endif
