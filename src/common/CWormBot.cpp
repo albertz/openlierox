@@ -1017,10 +1017,12 @@ void CWormBotInputHandler::getInput() {
 		nAIState = AI_THINK;
 
     // Make sure the worm is good
-    if(nAITargetType == AIT_WORM)
-		if(!psAITarget || !psAITarget->isUsed() || !psAITarget->getAlive() || psAITarget->getAFK() != AFK_BACK_ONLINE) {
+    if(nAITargetType == AIT_WORM) {
+		CWorm* w = game.wormById(nAITargetWormId, false);
+		if(!w || !w->getAlive() || w->getAFK() != AFK_BACK_ONLINE) {
 			nAIState = AI_THINK;
 		}
+	}
 	
 	// Carve always; makes no problems and can only help
 	AI_Carve();
@@ -1166,7 +1168,7 @@ bool CWormBotInputHandler::findNewTarget() {
 				// just move randomly
 				return findRandomSpot();
 			
-			psAITarget = w;
+			nAITargetWormId = w->getID();
 			nAITargetType = AIT_WORM;
 			nAIState = AI_MOVINGTOTARGET;
 			return true;
@@ -1180,7 +1182,7 @@ bool CWormBotInputHandler::findNewTarget() {
 				Flag* ownFlag = cClient->flagInfo()->getFlag(m_worm->getTeam());
 				if(ownFlag) {
 					if(ownFlag->holderWorm >= 0) {
-						psAITarget = &cClient->getRemoteWorms()[ownFlag->holderWorm];
+						nAITargetWormId = ownFlag->holderWorm;
 						nAITargetType = AIT_WORM;
 						nAIState = AI_MOVINGTOTARGET;					
 					}
@@ -1199,7 +1201,7 @@ bool CWormBotInputHandler::findNewTarget() {
 				Flag* ownFlag = cClient->flagInfo()->getFlag(m_worm->getTeam());
 				if(ownFlag) {
 					if(ownFlag->holderWorm >= 0) {
-						psAITarget = &cClient->getRemoteWorms()[ownFlag->holderWorm];
+						nAITargetWormId = ownFlag->holderWorm;
 						nAITargetType = AIT_WORM;
 						nAIState = AI_MOVINGTOTARGET;					
 					}
@@ -1235,11 +1237,12 @@ bool CWormBotInputHandler::findNewTarget() {
 		// find new target and reset the path
 	
     	// Search for an unfriendly worm
-		psAITarget = findTarget();
+		CWorm* targetWorm = findTarget();
 
     	// Any unfriendlies?
-		if(psAITarget) {
+		if(targetWorm) {
         	// We have an unfriendly target, so change to a 'move-to-target' state
+			nAITargetWormId = targetWorm->getID();
 			nAITargetType = AIT_WORM;
 			nAIState = AI_MOVINGTOTARGET;
 			return true;
@@ -1255,24 +1258,17 @@ bool CWormBotInputHandler::findNewTarget() {
 // Find a target worm
 CWorm *CWormBotInputHandler::findTarget()
 {
-	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
 	CWorm	*nonsight_trg = NULL;
 	float	fDistance = -1;
 	float	fSightDistance = -1;
 	
-	if(w == NULL) return NULL;
-
     //
 	// Just find the closest worm
 	//
 
-	for(int i=0; i<MAX_WORMS; i++, w++) {
-		if(w == NULL) break;
-
-		// Don't bother about unused or dead worms
-		if(!w->isUsed() || !w->getAlive())
-			continue;
+	for_each_iterator(CWorm*, w_, game.aliveWorms()) {
+		CWorm* w = w_->get();
 
 		if(!w->isVisible(m_worm)) continue;
 
@@ -1331,23 +1327,17 @@ CWorm *CWormBotInputHandler::findTarget()
 
 
 CWorm* CWormBotInputHandler::nearestEnemyWorm() {
-	CWorm	*w = cClient->getRemoteWorms();
 	CWorm	*trg = NULL;
 	CWorm	*nonsight_trg = NULL;
 	float	fDistance = -1;
 	float	fSightDistance = -1;
 
-	if(w == NULL) return NULL;
-
 	//
 	// Just find the closest worm
 	//
-
-	for(int i=0; i<MAX_WORMS; i++, w++) {
-
-		// Don't bother about unused or dead worms
-		if(!w->isUsed() || !w->getAlive())
-			continue;
+	
+	for_each_iterator(CWorm*, w_, game.aliveWorms()) {
+		CWorm* w = w_->get();
 
 		if(!w->isVisible(m_worm)) continue;
 		
@@ -1412,7 +1402,7 @@ void CWormBotInputHandler::AI_Think()
     */
 
     // Clear the state
-    psAITarget = NULL;
+    nAITargetWormId = -1;
     psBonusTarget = NULL;
     nAITargetType = AIT_NONE;
     fLastThink = tLX->currentTime;
@@ -1604,10 +1594,11 @@ CVec CWormBotInputHandler::AI_GetTargetPos()
         default:
         	if(nAITargetType != AIT_WORM)
         		nAIState = AI_THINK;
-            if(psAITarget) {
-                if(!psAITarget->getAlive() || !psAITarget->isUsed())
+            if(nAITargetWormId) {
+				CWorm* w = game.wormById(nAITargetWormId, false);
+                if(!w || !w->getAlive() )
                     nAIState = AI_THINK;
-                return psAITarget->getPos();
+                return w->getPos();
             }
             break;
 
@@ -1703,7 +1694,7 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
     //strcpy(tLX->debug_string, "AI_SimpleMove invoked");
 
     cPosTarget = AI_GetTargetPos();
-	if (nAITargetType == AIT_WORM && psAITarget)
+	if (nAITargetType == AIT_WORM && nAITargetWormId >= 0)
 		cPosTarget = AI_FindShootingSpot();
 
     // Aim at the node
@@ -1798,7 +1789,7 @@ int CWormBotInputHandler::AI_FindClearingWeapon()
 bool CWormBotInputHandler::weaponCanHit(float gravity, float speed, CVec cTrgPos)
 {
 	// Get the target position
-	if(!psAITarget)
+	if(nAITargetWormId < 0)
 		return false;
 
 	// Get the projectile
@@ -2344,10 +2335,11 @@ int CWormBotInputHandler::AI_GetBestWeapon(int iGameMode, float fDistance, bool 
 
 		// If we are close enough, shoot the napalm
 		if (m_worm->vPos.y <= cTrgPos.y && (m_worm->vPos-cTrgPos).GetLength2() < 10000.0f)  {
-			if (traceWormLine(cTrgPos,m_worm->vPos) && !m_worm->tWeapons[1].Reloading)
-				if (psAITarget)
-					if (psAITarget->CheckOnGround())
-						return 1;
+			if (traceWormLine(cTrgPos,m_worm->vPos) && !m_worm->tWeapons[1].Reloading) {
+				CWorm* w = game.wormById(nAITargetWormId, false);
+				if (w && w->CheckOnGround())
+					return 1;
+			}
 		}
 
 
@@ -2748,23 +2740,18 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 	first_division = MAX(first_division,1);
 
 	// Check that we don't hit any teammate
-	CVec WormsPos[MAX_WORMS];
-	int	WormCount = 0;
-	int i;
+	std::vector<CVec> WormsPos;
 	if (cClient && cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
-		CWorm *w = cClient->getRemoteWorms();
-		for (i=0;i<MAX_WORMS;i++,w++)  {
-			if (w) {
-				if (w->isUsed() && w->getAlive() && w->getTeam() == m_worm->iTeam && w->getID() != m_worm->iID)
-					WormsPos[WormCount++] = w->getPos();
-			}
+		for_each_iterator(CWorm*, w, game.aliveWorms()) {
+			if (w->get()->getTeam() == m_worm->iTeam && w->get()->getID() != m_worm->iID)
+				WormsPos.push_back(w->get()->getPos());
 		}
 	}
 
 
 	// Trace the line
 	int divs = first_division;
-	int j;
+	int i;
 	for(i=0; i<nTotalLength; i+=divs) {
 		uchar px = game.gameMap()->GetPixelFlag( (int)pos.x, (int)pos.y );
 
@@ -2782,7 +2769,7 @@ int CWormBotInputHandler::traceWeaponLine(CVec target, float *fDist, int *nType)
 		}
 
 		// Friendly worm
-		for (j=0;j<WormCount;j++) {
+		for (size_t j=0;j<WormsPos.size();j++) {
 			if ((pos-WormsPos[j]).GetLength2() < 400.0f)  {
 				if(nTotalLength != 0)
 					*fDist = (float)i / (float)nTotalLength;
@@ -2866,7 +2853,7 @@ int CWormBotInputHandler::AI_CreatePath(bool force_break)
 {
 
 	CVec trg = AI_GetTargetPos();
-	if (psAITarget && nAITargetType == AIT_WORM)
+	if (nAITargetWormId >= 0 && nAITargetType == AIT_WORM)
 		trg = AI_FindShootingSpot();  // If our target is an enemy, go to the best spot for shooting
 
 	if(force_break) {
@@ -3371,7 +3358,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
     worm_state_t *ws = &m_worm->tState;
 
 	// No target?
-	if (nAITargetType == AIT_NONE || (nAITargetType == AIT_WORM && !psAITarget))  {
+	if (nAITargetType == AIT_NONE || (nAITargetType == AIT_WORM && game.wormById(nAITargetWormId, false) == NULL))  {
 		nAIState = AI_THINK;
 		return;
 	}
@@ -3422,7 +3409,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	}
 
     cPosTarget = AI_GetTargetPos();
-	if (nAITargetType == AIT_WORM && psAITarget)
+	if (nAITargetType == AIT_WORM && nAITargetWormId >= 0)
 		cPosTarget = AI_FindShootingSpot();
 
 	bool canShoot = true;
@@ -3444,13 +3431,12 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	if (canShoot && (iAiGameType == GAM_MORTARS || iAiGameType == GAM_100LT))  {
 		// If there's some worm in sight and we are on ground, jump!
 		if (m_worm->bOnGround)  {
-			for (int i = 0; i < MAX_WORMS; i++)  {
-				CWorm *w = &cClient->getRemoteWorms()[i];
-				if (w->isUsed() && w->getAlive() && w->getID() != m_worm->iID)  {
-					if ((m_worm->vPos - w->getPos()).GetLength2() <= 2500)  {
+			for_each_iterator(CWorm*, w, game.aliveWorms()) {
+				if (w->get()->getID() != m_worm->iID)  {
+					if ((m_worm->vPos - w->get()->getPos()).GetLength2() <= 2500)  {
 						float dist;
 						int type;
-						m_worm->traceLine(w->getPos(), &dist, &type);
+						m_worm->traceLine(w->get()->getPos(), &dist, &type);
 						if (type & PX_EMPTY)
 							AI_Jump();
 					}
@@ -3571,7 +3557,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
     if(NEW_psPath == NULL || NEW_psCurrentNode == NULL) {
 		nAIState = AI_THINK;
         // If we don't have a path, resort to simpler AI methods
-        AI_SimpleMove(psAITarget != NULL);
+        AI_SimpleMove(nAITargetWormId >= 0);
 		//printf("Pathfinding problem 2; ");
         return;
     }
@@ -3614,7 +3600,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 		if (!NEW_psCurrentNode)  {
 			//notes << "AI: no current node" << endl;
 			nAIState = AI_THINK;
-			AI_SimpleMove(psAITarget != NULL);
+			AI_SimpleMove(nAITargetWormId >= 0);
 			return;
 		}
 	}
@@ -3947,6 +3933,7 @@ void drawpoint(SDL_Surface * debug_surf, CVec point)
 // Returns coordinates of a point that is best for shooting the target
 CVec CWormBotInputHandler::AI_FindShootingSpot()
 {
+	CWorm* psAITarget = game.wormById(nAITargetWormId, false);
 	if (psAITarget == NULL)
 		return CVec(0,0);
 
@@ -4093,7 +4080,7 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	pathSearcher = NULL;	
 	fLastFace = 0;
 	fBadAimTime = 0;
-	psAITarget = NULL;
+	nAITargetWormId = -1;
 	fLastShoot = 0; // for AI
 	fLastJump = AbsTime();
 	fLastWeaponChange = 0;

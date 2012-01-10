@@ -333,7 +333,7 @@ struct TeamRace : public Race {
 	
 	virtual bool CheckGameOver() {
 		if(int(gameSettings[FT_Race_Rounds]) > 0) {
-			for(int i = 0; i < MAXTEAMS; ++i) {
+			for(int i = 0; i < MAX_TEAMS; ++i) {
 				if(teamScore[i] >= int(gameSettings[FT_Race_Rounds])) {
 					return true;
 				}

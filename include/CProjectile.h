@@ -75,10 +75,10 @@ class CProjectile: public CGameObject {
 	friend struct Proj_TimerEvent;
 	friend struct Proj_DoActionInfo;
 	friend struct Proj_Action;
-	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms);
-	friend ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms);
-	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult);
-	friend void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, TimeDiff dt, CWorm* worms);
+	friend ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map);
+	friend ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map);
+	friend ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, TimeDiff dt, ProjCollisionType curResult);
+	friend void Projectile_HandleAttractiveForceForProjectiles(CProjectile* const prj, TimeDiff dt);
 public:
 	// Constructor
 	CProjectile() {
@@ -155,7 +155,7 @@ private:
 	
 	
 	// used in LX56 physics
-	int ProjWormColl(CVec pos, CWorm *worms);
+	int ProjWormColl(CVec pos);
 	bool MapBoundsCollision(int px, int py);
 	ColInfo TerrainCollision(int px, int py);
 	bool HandleCollision(const CProjectile::ColInfo &c, const CVec& oldpos, const CVec& oldvel, TimeDiff dt);

@@ -75,15 +75,11 @@ void CWorm::NetWorm_Init(bool isAuthority)
 	m_node->setAnnounceData(announceData);
 	
 	if(isAuthority && !bLocal) {
-		if(cServer->getWorms()) {
-			CServerConnection* cl = cServer->getWorms()[getID()].getClient();
-			if(cl)
-				m_node->setOwner(NetConnID_conn(cl));
-			else
-				errors << "NetWorm_Init: connection of worm " << getName() << " not found" << endl;
-		}
+		CServerConnection* cl = getClient();
+		if(cl)
+			m_node->setOwner(NetConnID_conn(cl));
 		else
-			errors << "NetWorm_Init: server->worms == NULL" << endl;
+			errors << "NetWorm_Init: connection of worm " << getName() << " not found" << endl;
 	}
 	
 	m_isAuthority = isAuthority;

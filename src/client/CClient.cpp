@@ -1724,11 +1724,8 @@ void CClient::SetupViewports(CWorm *w1, CWorm *w2, int type1, int type2)
 // Return true if we own the worm
 int CClient::OwnsWorm(int id)
 {
-	for(uint i=0;i<iNumWorms;i++) {
-		if(cLocalWorms[i] && id == cLocalWorms[i]->getID())
-			return true;
-	}
-
+	CWorm* w = game.wormById(id, false);
+	if(w) return w->getLocal();
 	return false;
 }
 

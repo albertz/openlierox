@@ -328,8 +328,8 @@ void CServerNetEngine::ParseImReady(CBytestream *bs) {
 ///////////////////
 // Parse an update packet
 void CServerNetEngine::ParseUpdate(CBytestream *bs) {
-	for (short i = 0; i < cl->getNumWorms(); i++) {
-		CWorm *w = cl->getWorm(i);
+	for_each_iterator(CWorm*, w_, game.wormsOfClient(cl)) {
+		CWorm* w = w_->get();
 
 		bool wasShootingBefore = w->getWormState()->bShoot;
 		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
@@ -437,27 +437,28 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 void CServerNetEngine::ParseChatText(CBytestream *bs) {
 	std::string buf = Utf8String(bs->readString());
 
-	if(cl->getNumWorms() == 0 && !cl->isLocalClient()) {
-		warnings << cl->debugName() << " with no worms sends message '" << buf << "'" << endl;
-		return;
-	}
-
 	if (buf.empty()) { // Ignore empty messages
 		warnings << cl->debugName() << " sends empty message" << endl;
 		return;
 	}
 
-	// TODO: is it correct that we check here only for worm 0 ?
-	// TODO: should we perhaps also check, if the beginning of buf is really the correct name?
-
-	std::string command_buf = buf;
+	CWorm* senderWorm = NULL;
+	std::string msgWithoutName;
+	for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+		if( buf.find(w->get()->getName() + ": ") == 0 ) {
+			senderWorm = w->get();
+			msgWithoutName = buf.substr(senderWorm->getName().size() + 2);
+			break;
+		}
+	
+	if( !cl->isLocalClient() && senderWorm == NULL )
 	{
-		std::string startStr = (cl->getWorm(0) ? cl->getWorm(0)->getName() : "") + ": ";
-		if( strStartsWith(buf, startStr) )
-			command_buf = buf.substr(startStr.size());  // Special buffer used for parsing special commands (begin with /)
+		notes << "Client " << cl->debugName() << " probably tries to fake other player, or an old client uses /me cmd" << endl;
+		return;
 	}
 		
 	// Check for special commands
+	std::string command_buf = senderWorm ? msgWithoutName : buf;
 	if (command_buf.size() > 2)
 		if (command_buf[0] == '/' && command_buf[1] != '/')  {  // When two slashes at the beginning, parse as a normal message
 			ParseChatCommand(command_buf);
@@ -465,12 +466,17 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		}
 
 	// people could try wrong chat command
-	if(!strStartsWith(command_buf, "!login") && !strStartsWith(command_buf, "//login"))
-		notes << "CHAT: " << buf << endl;
+	if(strStartsWith(command_buf, "!login") || strStartsWith(command_buf, "//login")) {
+		SendText("Msg not send! This looked like a login-chat-command but it was not. Use /login", TXT_NETWORK);
+		return;
+	}
+	
+	notes << "CHAT: " << buf << endl;
 
 	// Check for Clx (a cheating version of lx)
 	if(buf[0] == 0x04) {
 		server->SendGlobalText(cl->debugName() + " seems to have CLX or some other hack", TXT_NORMAL);
+		return;
 	}
 
 	// Don't send text from muted players
@@ -478,24 +484,11 @@ void CServerNetEngine::ParseChatText(CBytestream *bs) {
 		notes << "ignored message from muted " << cl->debugName() << endl;
 		return;
 	}
-
-	if( !cl->isLocalClient() ) {
-		// Check if player tries to fake other player
-		bool nameMatch = false;
-		for( int i=0; i<cl->getNumWorms(); i++ )
-			if( buf.find(cl->getWorm(i)->getName() + ": ") == 0 )
-				nameMatch = true;
-		if( !nameMatch )
-		{
-			notes << "Client " << cl->debugName() << " probably tries to fake other player, or an old client uses /me cmd" << endl;
-			return;
-		}
-	}
 	
 	server->SendGlobalText(buf, TXT_CHAT);
 
-	if( DedicatedControl::Get() && buf.size() > cl->getWorm(0)->getName().size() + 2 )
-		DedicatedControl::Get()->ChatMessage_Signal(cl->getWorm(0),buf.substr(cl->getWorm(0)->getName().size() + 2));
+	if( DedicatedControl::Get() && senderWorm && msgWithoutName != "" )
+		DedicatedControl::Get()->ChatMessage_Signal(senderWorm, msgWithoutName);
 }
 
 void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
@@ -769,12 +762,10 @@ void CServerNetEngine::ParseUpdateLobby(CBytestream *bs) {
 	}
 
 	bool ready = bs->readBool();
-	int i;
 
 	// Set the client worms lobby ready state
-	for (i = 0; i < cl->getNumWorms(); i++) {
-		cl->getWorm(i)->setLobbyReady( ready );
-	}
+	for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+		w->get()->setLobbyReady( ready );
 	
 	// Let all the worms know about the new lobby state
 	for( int i=0; i<MAX_CLIENTS; i++ )
@@ -929,7 +920,7 @@ bool CServerNetEngine::ParseChatCommand(const std::string& message)
 	std::vector<std::string> parameters = std::vector<std::string>(parsed.begin() + 1, parsed.end());
 
 	// Process the command
-	std::string error = cmd->tProcFunc(parameters, (cl->getNumWorms() > 0) ? cl->getWorm(0)->getID() : -1);
+	std::string error = cmd->tProcFunc(parameters, game.wormsOfClient(cl)->isValid() ? game.wormsOfClient(cl)->get()->getID() : -1);
 	if (error.size() != 0)  {
 		SendText(error, TXT_NETWORK);
 		notes << "ChatCommand " << cmd->sName << " returned error: " << error << endl;
@@ -1009,8 +1000,8 @@ void CServerNetEngineBeta9::ParseNewNetChecksum(CBytestream *bs)
 	if( myChecksum != checksum && ! server->bGameOver )
 	{
 		std::string wormName = "unknown";
-		if( cl->getNumWorms() > 0 )
-			wormName = cl->getWorm(0)->getName();
+		if( game.wormsOfClient(cl)->isValid() )
+			wormName = game.wormsOfClient(cl)->get()->getName();
 		server->DropClient(cl, CLL_KICK, "Game state was de-synced in new net engine!");
 		server->SendGlobalText( "Game state was de-synced in new net engine for worm " + wormName, TXT_NETWORK );
 	}
@@ -1153,7 +1144,6 @@ void GameServer::ParseGetChallenge(const SmartPointer<NetworkSocket>& tSocket, C
 void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBytestream *bs) {
 	NetworkAddr		adrFrom;
 	int				p, player = -1;
-	int				numplayers;
 	CServerConnection	*newcl = NULL;
 
 	//hints << "Got Connect packet" << endl;
@@ -1361,7 +1351,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	if (!newcl) {
 		warnings << "I have no more open slots for the new client" << endl;
 		notes << GetDateTime() << " - Server Error report" << endl;
-		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << numplayers << endl;
+		notes << "currentTime is " << (tLX->currentTime - AbsTime()).seconds() << " Numplayers is " << game.worms()->size() << endl;
 		std::string msg;
 
 		CBytestream bytestr;
@@ -1373,8 +1363,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	}
 
 	// Server full (maxed already, or the number of extra worms wanting to join will go over the max)
-	int max_players = (tLX->iGameType == GME_HOST ? tLXOptions->iMaxPlayers : MAX_WORMS); // No limits (almost) for local play
-	if (!newcl->isLocalClient() && numplayers + numworms > max_players) {
+	size_t max_players = (tLX->iGameType == GME_HOST && tLXOptions->iMaxPlayers > 0) ? tLXOptions->iMaxPlayers : MAX_WORMS; // No limits (almost) for local play
+	if (!newcl->isLocalClient() && game.worms()->size() + numworms > max_players) {
 		notes << "I am full, so the new client cannot join" << endl;
 		CBytestream bytestr;
 		bytestr.writeInt(-1, 4);
@@ -1384,10 +1374,6 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		return;
 	}
 
-
-	// Connect
-	if (!newcl)
-		return;
 
 	if(!reconnectFrom)
 		newcl->Clear();
@@ -1537,24 +1523,14 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	std::set<CWorm*> removeWormList;
 	
 	if(reconnectFrom) {
-		for(int i = 0; i < reconnectFrom->getNumWorms(); ++i) {
-			CWorm* w = reconnectFrom->getWorm(i);
-			if(!w) {
-				warnings << "ParseConnect with reconnecting client: worm nr " << i << " from client is unset" << endl;
-				continue;
-			}
-			if(!w->isUsed()) {
-				warnings << "ParseConnect with reconnecting client: worm nr " << i << " from client is not used" << endl;
-				continue;
-			}
-			
+		for_each_iterator(CWorm*, w, game.wormsOfClient(reconnectFrom)) {			
 			bool found = false;
-			for(int j = 0; j < newWorms.size(); ++j) {
+			for(size_t j = 0; j < newWorms.size(); ++j) {
 				// compare by name, we have no possibility to do it more exact but it's also not that important
-				if(ids[j] < 0 && newWorms[j].sName == w->getName()) {
+				if(ids[j] < 0 && newWorms[j].sName == w->get()->getName()) {
 					// found one
 					found = true;
-					ids[j] = w->getID();
+					ids[j] = w->get()->getID();
 					// HINT: Don't apply the other information from WormJoinInfo,
 					// the worm should be up-to-date and we could screw it up (e.g. skin or team).
 					break;
@@ -1563,8 +1539,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			
 			if(!found) {
 				notes << "reconnecting client " << newcl->debugName(false) << " doesn't have worm ";
-				notes << w->getID() << ":" << w->getName() << " anymore, removing that worm globally" << endl;
-				removeWormList.insert(w);
+				notes << w->get()->getID() << ":" << w->get()->getName() << " anymore, removing that worm globally" << endl;
+				removeWormList.insert(w->get());
 			}
 		}
 	}
@@ -1576,7 +1552,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	std::set<CWorm*> newJoinedWorms;
 	
 	// search slots for new worms
-	for (int i = 0; i < newWorms.size(); ++i) {
+	for (size_t i = 0; i < newWorms.size(); ++i) {
 		if(ids[i] >= 0) continue; // this worm is already associated
 		
 		CWorm* w = AddWorm(newWorms[i]);
@@ -1616,8 +1592,8 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		bytestr.writeString("lx::goodconnection");
 
 		// Tell the client the id's of the worms
-		for (int i = 0;i < newcl->getNumWorms(); i++)
-			bytestr.writeInt(newcl->getWorm(i)->getID(), 1);
+		for_each_iterator(CWorm*, w, game.wormsOfClient(newcl))
+			bytestr.writeInt(w->get()->getID(), 1);
 
 		bytestr.Send(net_socket.get());
 	}
@@ -1736,7 +1712,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		CServerConnection *cl = cClients;
 		for(int c = 0; c < MAX_CLIENTS; c++, cl++) {
 			if(cl->getStatus() != NET_CONNECTED) continue;
-			if(cl->getNumWorms() == 0) continue;
+			if(!game.wormsOfClient(cl)->isValid()) continue;
 			if(!cl->getGameReady()) continue;
 			cl->getNetEngine()->SendClientReady(newcl);
 		}
@@ -1949,7 +1925,7 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 	
 	for_each_iterator(CWorm*, w, game.worms()) {
 		bs.writeString(RemoveSpecialChars(w->get()->getName()));
-		bs.writeInt(w->getScore(), 2);
+		bs.writeInt(w->get()->getScore(), 2);
 	}
 
 	// Write out lives
@@ -2094,7 +2070,7 @@ void CServerNetEngine::ParseRequestWormRespawn(CBytestream* bs) {
 		return;
 	}
 	
-	CWorm* w = game.wormsById(wormId);
+	CWorm* w = game.wormById(wormId);
 	if(w->getAlive()) {
 		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " is already alive/spawned" << endl;
 		return;

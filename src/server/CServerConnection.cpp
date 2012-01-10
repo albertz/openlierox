@@ -39,7 +39,6 @@
 
 CServerConnection::CServerConnection( GameServer * _server ) {
 	server = _server ? _server : cServer;
-	iNumWorms = 0;
 
 	cNetChan = NULL;
 	bsUnreliable.Clear();
@@ -69,10 +68,6 @@ void CServerConnection::resetChannel() {
 // Clear the client details
 void CServerConnection::Clear()
 {
-	iNumWorms = 0;
-	for(int i=0;i<MAX_PLAYERS;i++)
-		cLocalWorms[i] = NULL;
-
 	if( cNetChan )
 		delete cNetChan;
 	cNetChan = NULL;
@@ -205,18 +200,16 @@ std::string CServerConnection::debugName(bool withWorms) {
 	
 	if(withWorms) {
 		std::string worms = "no worms";
-		if(getNumWorms() > 0) {
+		if(game.wormsOfClient(this)->size() > 0) {
 			worms = "";
-			for(int i = 0; i < getNumWorms(); ++i) {
-				if(i > 0) worms += ", ";
-				if(getWorm(i)) {
-					worms += itoa(getWorm(i)->getID());
-					worms += " '";
-					worms += getWorm(i)->getName();
-					worms += "'";
-				} else {
-					worms += "BAD";
-				}
+			bool first = true;
+			for_each_iterator(CWorm*, w, game.wormsOfClient(this)) {
+				if(!first) worms += ", ";
+				worms += itoa(w->get()->getID());
+				worms += " '";
+				worms += w->get()->getName();
+				worms += "'";
+				first = false;
 			}
 		}
 		

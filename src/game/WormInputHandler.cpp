@@ -362,15 +362,11 @@ void CWormInputHandler::assignNetworkRole( bool authority )
 			m_node->setAnnounceData(announceData);
 						
 			if(!m_worm->getLocal()) {
-				if(cServer->getWorms()) {
-					CServerConnection* cl = cServer->getWorms()[m_worm->getID()].getClient();
-					if(cl)
-						m_node->setOwner(NetConnID_conn(cl));
-					else
-						errors << "CWormInputHandler::assignNetworkRole: connection of worm " << m_worm->getName() << " not found" << endl;
-				}
+				CServerConnection* cl = m_worm->getClient();
+				if(cl)
+					m_node->setOwner(NetConnID_conn(cl));
 				else
-					errors << "CWormInputHandler::assignNetworkRole: server->worms == NULL" << endl;
+					errors << "CWormInputHandler::assignNetworkRole: connection of worm " << m_worm->getName() << " not found" << endl;
 			}
 		}
 		else

@@ -44,7 +44,7 @@ protected:
 	 */
     int         nAIState;
     int         nAITargetType;
-    CWorm       *psAITarget;
+    int         nAITargetWormId;
     CBonus      *psBonusTarget;
     CVec        cPosTarget;
     int         nPathStart[2];

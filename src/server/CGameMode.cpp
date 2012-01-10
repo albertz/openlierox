@@ -55,9 +55,10 @@ static void playSoundForWorm(CWorm* worm, const std::string& s) {
 		worm->getClient()->getNetEngine()->SendPlaySound(s);	
 }
 
-static void playSoundForWorm(int w, const std::string& s) {
-	if(w >= 0 && w < MAX_WORMS && cServer->getWorms()[w].isUsed())
-		playSoundForWorm(&cServer->getWorms()[w], s);
+static void playSoundForWorm(int wormId, const std::string& s) {
+	CWorm* w = game.wormById(wormId, false);
+	if(w)
+		playSoundForWorm(w, s);
 }
 
 
@@ -261,7 +262,7 @@ static int getWormHitKillLimit() {
 	
 	for_each_iterator(CWorm*, w, game.worms()) {
 		if(w->get()->getScore() >= (int)gameSettings[FT_KillLimit])
-			return i;
+			return w->get()->getID();
 	}
 	
 	return -1;
@@ -453,7 +454,7 @@ int CGameMode::HighestScoredTeam() {
 
 int CGameMode::WormsAliveInTeam(int t) {
 	int c = 0;
-	for_each_iterator(CWorm*w, w, game.worms())
+	for_each_iterator(CWorm*, w, game.worms())
 		if(w->get()->getLives() != WRM_OUT && w->get()->getTeam() == t)
 			c++;
 	return c;

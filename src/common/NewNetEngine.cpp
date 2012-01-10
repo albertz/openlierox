@@ -72,7 +72,7 @@ void RestoreState()
 };
 
 // TODO: make respawning server-sided and remove this function
-static CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::FindSpot
+CVec NewNet_FindSpot(CWorm *Worm) // Avoid name conflict with CServer::FindSpot
 {
 	// This should use net synced Worm->NewNet_random for now, later I'll use respawn routines from CServer
 
@@ -141,15 +141,16 @@ struct KeysEvent_t
 
 // Sorted by player and time - time in milliseconds
 typedef std::map< AbsTime, KeysEvent_t > EventList_t;
-EventList_t Events [MAX_WORMS];
-KeyState_t OldKeys[MAX_WORMS];
-AbsTime LastPacketTime[MAX_WORMS];
-AbsTime LastSoundPlayedTime[MAX_WORMS];
+// TODO:...
+//EventList_t Events [MAX_WORMS];
+//KeyState_t OldKeys[MAX_WORMS];
+//AbsTime LastPacketTime[MAX_WORMS];
+//AbsTime LastSoundPlayedTime[MAX_WORMS];
 unsigned Checksum;
 AbsTime ChecksumTime; 
 AbsTime OldChecksumTime;
 //int InitialRandomSeed; // Used for LoadState()/SaveState()
-bool playersLeft[MAX_WORMS];
+//bool playersLeft[MAX_WORMS];
 
 
 // GameTime is started from 0, for calculating exact physics the Physics() is called consecutively in chunks of 10 Ms 
@@ -163,9 +164,9 @@ bool playersLeft[MAX_WORMS];
 unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyState_t keysChanged[MAX_WORMS], bool fastCalculation, bool calculateChecksum )
 {
 	unsigned checksum = 0;
-	for( int i = 0; i < MAX_WORMS; i++ )
-	{
-		CWorm * w = & cClient->getRemoteWorms()[i];
+	for_each_iterator(CWorm*, w_, game.worms()) {
+/*		CWorm* w = w_->get();
+		
 		if( playersLeft[i] && LastPacketTime[i] <= gameTime + TimeDiff(TICK_TIME) )
 		{
 			w->setUsed(false);
@@ -192,7 +193,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 				checksum += ( w->getID() % 4 + 1 ) * 
 					( (int)w->getPos().x + (int)w->getPos().y * 0x100 + (int)w->getHealth() * 0x100000 + 
 					w->NewNet_random.getChecksum() );
-		}
+		}*/
 	}
 
 	cClient->NewNet_Simulation();
@@ -213,7 +214,7 @@ unsigned CalculatePhysics( AbsTime gameTime, KeyState_t keys[MAX_WORMS], KeyStat
 };
 
 #ifdef DEBUG
-static unsigned getMapChecksum()
+unsigned getMapChecksum()
 {
 	unsigned checksum = 0;
 	game.gameMap()->lockFlags();
@@ -227,7 +228,7 @@ static unsigned getMapChecksum()
 
 void PlayerLeft(int id)
 {
-	playersLeft[id] = true;
+//	playersLeft[id] = true;
 };
 
 
@@ -235,7 +236,7 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 {
 	for( int i=0; i<MAX_WORMS; i++ )
 	{
-		EventList_t :: const_iterator it = Events[i].upper_bound(t);
+/*		EventList_t :: const_iterator it = Events[i].upper_bound(t);
 		if( it != Events[i].begin() )
 		{
 			--it;
@@ -249,7 +250,7 @@ void getKeysForTime( AbsTime t, KeyState_t keys[MAX_WORMS], KeyState_t keysChang
 		{
 			keys[i] = KeyState_t();
 			keysChanged[i] = KeyState_t();
-		}
+		} */
 	}
 };
 
@@ -271,11 +272,12 @@ void StartRound( unsigned randomSeed )
 			ReCalculationNeeded = false;
 			ReCalculationTimeMs = 0;
 			NewNetActive = true;
-			if( ! SavedWormState )
-				SavedWormState = new CWorm[MAX_WORMS];
+			SavedWormState.clear();
 
 			NumPlayers = 0;
 			netRandom.seed(randomSeed);
+			// TODO ...
+			/*
 			for( int i=0; i<MAX_WORMS; i++ )
 			{
 				playersLeft[i] = false;
@@ -291,10 +293,10 @@ void StartRound( unsigned randomSeed )
 					game.gameMap()->CarveHole(SPAWN_HOLESIZE, spot, (bool)cClient->getGameLobby()[FT_InfiniteMap]);
 					cClient->getRemoteWorms()[i].Spawn( spot );
 				};
-			}
+			}*/
 			LocalPlayer = -1;
-			if( cClient->getNumWorms() > 0 )
-				LocalPlayer = cClient->getWorm(0)->getID();
+			if( game.firstLocalHumanWorm() )
+				LocalPlayer = game.firstLocalHumanWorm()->getID();
 
 			SaveState();
 };
@@ -303,8 +305,7 @@ void EndRound()
 {
 	RestoreState();
 	game.gameMap()->NewNet_Deinit();
-	delete [] SavedWormState;
-	SavedWormState = NULL;
+	SavedWormState.clear();
 	NewNetActive = false;
 };
 
@@ -315,9 +316,9 @@ bool Frame( CBytestream * bs )
 	localTime.time -= localTime.time % TICK_TIME;
 
 	KeyState_t keys;
-	if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+	if( game.firstLocalHumanWorm() )
 	{
-		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) cClient->getWorm(0)->inputHandler();
+		CWormHumanInputHandler * hnd = (CWormHumanInputHandler *) game.firstLocalHumanWorm()->inputHandler();
 		keys.keys[K_UP] = hnd->getInputUp().isDown();
 		keys.keys[K_DOWN] = hnd->getInputDown().isDown();
 		keys.keys[K_LEFT] = hnd->getInputLeft().isDown();
@@ -334,8 +335,8 @@ bool Frame( CBytestream * bs )
 	bool ret = SendNetPacket( localTime, keys, bs );
 	if( !ret )
 	{
-		if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
-			cClient->getWorm(0)->inputHandler()->clearInput();
+//		if( cClient->getNumWorms() > 0 && cClient->getWorm(0)->getType() == PRF_HUMAN )
+//			cClient->getWorm(0)->inputHandler()->clearInput();
 		CalculateCurrentState( localTime );
 	}
 	return ret;
@@ -348,13 +349,12 @@ void ReCalculateSavedState()
 
 	ReCalculationTimeMs = CurrentTimeMs;
 	ReCalculationNeeded = false;
-
+/*
 	// Re-calculate physics if the packet received is from the most laggy client
 	AbsTime timeMin = LastPacketTime[LocalPlayer];
 	for( int f=0; f<MAX_WORMS; f++ )
 		if( LastPacketTime[f] < timeMin && cClient->getRemoteWorms()[f].isUsed() )
 			timeMin = LastPacketTime[f];
-
 	if( BackupTime + TimeDiff(TICK_TIME) + TimeDiff(TICK_TIME) >= timeMin ) // Safety hack
 		return;
 
@@ -389,6 +389,7 @@ void ReCalculateSavedState()
 			#endif
 		};
 	};
+ */
 
 	SaveState();
 	CurrentTimeMs = BackupTime;
@@ -434,7 +435,7 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 	int timeDiff = bs->readInt( 4 );	// TODO: 1-2 bytes are enough, I just screwed up with calculations
 
 	AbsTime fullTime(timeDiff);
-
+/*
 	KeyState_t keys = OldKeys[ player ];
 	int keyIdx = bs->readByte();
 	if( keyIdx != UCHAR_MAX )
@@ -445,7 +446,7 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 	if( keyIdx != UCHAR_MAX )
 		Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx] = ! Events[ player ] [ fullTime ] .keysChanged.keys[keyIdx];
 	LastPacketTime[ player ] = fullTime;
-
+*/
 	ReCalculationNeeded = true;
 	// We don't want to calculate with just 1 of 2 keys pressed - it will desync
 	// Net engine will send them in single packet anyway, so they are coupled together
@@ -456,6 +457,7 @@ void ReceiveNetPacket( CBytestream * bs, int player )
 // Draw() should be called after this func
 bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 {
+	/*
 	if( keys == OldKeys[ LocalPlayer ] &&
 		localTime < LastPacketTime[ LocalPlayer ] + PingTimeMs ) // Do not flood the net with non-changed keys
 		return false;
@@ -480,7 +482,7 @@ bool SendNetPacket( AbsTime localTime, KeyState_t keys, CBytestream * bs )
 
 	if( NumPlayers == 1 )
 		ReCalculationNeeded = true;
-
+*/
 	return true;
 };
 
@@ -515,11 +517,11 @@ bool CanPlaySound(int wormID)
 {
 	if( !NewNetActive )
 		return true;
-	if( LastSoundPlayedTime[wormID] < CurrentTimeMs )
+/*	if( LastSoundPlayedTime[wormID] < CurrentTimeMs )
 	{
 		LastSoundPlayedTime[wormID] = CurrentTimeMs;
 		return true;
-	}
+	}*/
 	return false;
 };
 

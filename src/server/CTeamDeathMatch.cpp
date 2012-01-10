@@ -22,7 +22,7 @@ public:
 	virtual void PrepareGame();
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual int  GameType() { return GMT_TEAMS; }
-	virtual int  GameTeams() { return MAXTEAMS; }
+	virtual int  GameTeams() { return MAX_TEAMS; }
 	virtual int  Winner() {
 		// There's no single winner so this will do for now
 		return -1;	

@@ -1683,7 +1683,7 @@ void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 			break;
 		}
 		
-		if(i == MAX_TEAMS) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first " << MAX_TEAMS << " teams" << endl;
+		if(i == MAX_TEAMS) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first " << (int)MAX_TEAMS << " teams" << endl;
 		int score = bs->readInt16();
 		if(i < MAX_TEAMS) {
 			if(score > client->iTeamScores[i]) someTeamScored = true;
@@ -1748,7 +1748,7 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 					break;
 				}
 				
-				if(i == MAX_TEAMS) warnings << "ParseGameOver: cannot handle teamscores for other than the first " << MAX_TEAMS << " teams" << endl;
+				if(i == MAX_TEAMS) warnings << "ParseGameOver: cannot handle teamscores for other than the first " << (int)MAX_TEAMS << " teams" << endl;
 				int score = bs->readInt16();
 				if(i < MAX_TEAMS) client->iTeamScores[i] = score;
 			}

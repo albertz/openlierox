@@ -415,14 +415,12 @@ Iterator<CWorm*>::Ref Game::worms() {
 	return GetIterator_second(m_worms);
 }
 
-using namespace boost::lambda;
-
 Iterator<CWorm*>::Ref Game::localWorms() {
-	return GetFilterIterator(worms(), cClient->OwnsWorm(_1 ->* &CWorm::getID));
+	return GetFilterIterator(worms(), &CWorm::getLocal);
 }
 
 Iterator<CWorm*>::Ref Game::aliveWorms() {
-	return GetFilterIterator(worms(), _1 ->* &CWorm::getAlive);
+	return GetFilterIterator(worms(), &CWorm::getAlive);
 }
 
 Iterator<CWorm*>::Ref Game::wormsOfClient(const CServerConnection* cl) {

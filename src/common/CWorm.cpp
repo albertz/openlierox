@@ -733,7 +733,7 @@ bool CWorm::isFirstLocalHostWorm() {
 		errors << "CWorm::isFirstLocalHostWorm: localClient not found" << endl;
 		return false;
 	}
-	return localConn->getNumWorms() > 0 && localConn->getWorm(0)->getID() == iID;
+	return game.wormsOfClient(localConn)->tryGet() == this;
 }
 
 bool CWorm::isLocalHostWorm() {
@@ -746,11 +746,9 @@ bool CWorm::isLocalHostWorm() {
 		return false;
 	}
 	
-	for(int i = 0; i < localConn->getNumWorms(); ++i) {
-		CWorm* w = localConn->getWorm(i);
-		if(w)
-			if(w->getID() == iID) return true;
-	}
+	for_each_iterator(CWorm*, w, game.wormsOfClient(localConn))
+		if(w->get() == this)
+			return true;
 	
 	return false;
 }

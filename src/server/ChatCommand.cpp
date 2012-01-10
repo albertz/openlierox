@@ -362,8 +362,15 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 	if (!sender || !recipient)
 		return "Message could not be sent";
 
+	CWorm* senderWorm = game.wormsOfClient(sender)->tryGet();
+	if(!senderWorm)
+		return "Message sent from client with no worms";
+	CWorm* recipientWorm = game.wormsOfClient(recipient)->tryGet();
+	if(!recipientWorm)
+		return "Recipient has no worms";
+
 	// Get the message
-	std::string msg = sender->getWorm(0)->getName() + ": ";
+	std::string msg = senderWorm->getName() + ": ";
 	std::vector<std::string>::const_iterator it = params.begin();
 	it += 2; // skip id <number>
 	for (; it != params.end(); it++)  {
@@ -377,7 +384,7 @@ std::string ProcessPrivate(const std::vector<std::string>& params, int sender_id
 		sender->getNetEngine()->SendText(msg, TXT_PRIVATE); // Send the message also back to the client
 
 	if( DedicatedControl::Get() )
-		DedicatedControl::Get()->PrivateMessage_Signal(sender->getWorm(0), recipient->getWorm(0), msg.substr(sender->getWorm(0)->getName().length()+2));
+		DedicatedControl::Get()->PrivateMessage_Signal(senderWorm, recipientWorm, msg.substr(senderWorm->getName().length()+2));
 
 	return "";
 }
@@ -393,14 +400,15 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 	if (!sender)
 		return "Message could not be sent";
 
-	if(sender->getNumWorms() == 0)
+	CWorm* senderWorm = game.wormsOfClient(sender)->tryGet();
+	if(!senderWorm)
 		return "Message sent from client with no worms";
 	
 	if(sender->getMuted())
 		return "Teamchats can not be sent when you are muted";
 	
 	// Get the message
-	std::string msg = sender->getWorm(0)->getName() + ": ";
+	std::string msg = senderWorm->getName() + ": ";
 	std::vector<std::string>::const_iterator it = params.begin();
 	for (; it != params.end(); it++)  {
 		msg += *it;
@@ -409,10 +417,9 @@ std::string ProcessTeamChat(const std::vector<std::string>& params, int sender_i
 
 	// Send the message to teammates
 	CServerConnection *client = cServer->getClients();
-	for (int i=0; i < MAX_CLIENTS; ++i, client++)  {
-		for (int j=0; j < client->getNumWorms(); ++j)  {
-			CWorm *w = client->getWorm(j);
-			if (w && w->isUsed() && w->getTeam() == sender->getWorm(0)->getTeam())  {
+	for (int i=0; i < MAX_CLIENTS; ++i, client++) {
+		for_each_iterator(CWorm*, w, game.wormsOfClient(client)) {
+			if (w->get()->getTeam() == senderWorm->getTeam())  {
 				client->getNetEngine()->SendText(msg, TXT_TEAMPM);
 				break;
 			}
@@ -436,8 +443,12 @@ std::string ProcessMe(const std::vector<std::string>& params, int sender_id)
 	if (sender->getMuted())
 		return "Message won't be sent when you are muted";
 
+	CWorm* w = game.wormsOfClient(sender)->tryGet();
+	if(!w)
+		return "Your client doesn't have any worms";
+	
 	// Get the message
-	std::string msg = "* " + sender->getWorm(0)->getName() + " "; // Add star so clients with empty name won't fake others
+	std::string msg = "* " + w->getName() + " "; // Add star so clients with empty name won't fake others
 	std::vector<std::string>::const_iterator it = params.begin();
 	for (; it != params.end(); it++)  {
 		msg += *it;
@@ -465,7 +476,8 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	if (!sender->getRights()->NameChange && !tLXOptions->bAllowNickChange && !sender->getRights()->Override)
 		return "You don't have sufficient privileges to change your nick";
 
-	if(sender->getNumWorms() == 0)
+	CWorm* w = game.wormsOfClient(sender)->tryGet();
+	if(!w)
 		return "Your client doesn't have any worms";
 	
 	// Get the name
@@ -486,15 +498,15 @@ std::string ProcessSetMyName(const std::vector<std::string>& params, int sender_
 	}
 
 	// Set the name
-	std::string oldname = sender->getWorm(0)->getName();
-	sender->getWorm(0)->setName(name);
+	std::string oldname = w->getName();
+	w->setName(name);
 
 	// Send the update
-	cServer->UpdateWorm(sender->getWorm(0));
+	cServer->UpdateWorm(w);
 
 	// Send the notification
 	cServer->SendGlobalText(oldname + " is now known as " + name, TXT_NORMAL);
-	notes << "worm rename: " << sender->getWorm(0)->getID() << ":" << oldname << " renamed to " << sender->getWorm(0)->getName() << endl;
+	notes << "worm rename: " << w->getID() << ":" << oldname << " renamed to " << w->getName() << endl;
 	
 	return "";
 }
@@ -566,8 +578,8 @@ std::string ProcessSetMySkin(const std::vector<std::string>& params, int sender_
 		return "You do not have sufficient rights to change your skin";
 
 	// Get the worm
-	CWorm *worm = sender->getWorm(0);
-	if (!worm->isUsed())
+	CWorm *worm = game.wormsOfClient(sender)->tryGet();
+	if (!worm)
 		return "Cannot change skin of a non-existing worm";
 
 	// Set the skin
@@ -626,8 +638,8 @@ std::string ProcessSetMyColour(const std::vector<std::string>& params, int sende
 	g = (Uint8) atoi(params[1]);
 	b = (Uint8) atoi(params[2]);
 
-	CWorm *worm = sender->getWorm(0);
-	if (!worm->isUsed())
+	CWorm *worm = game.wormsOfClient(sender)->tryGet();
+	if (!worm)
 		return "Cannot change colour of a non-existing worm";
 
 	// Set the colour

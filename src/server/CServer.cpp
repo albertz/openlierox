@@ -479,15 +479,17 @@ int GameServer::StartGame(std::string* errMsg)
 		//cClients[i].getNetEngine()->SendPrepareGame(); // Already sent
 
 		// Force random weapons for spectating clients
-		if( cClients[i].getNumWorms() > 0 && cClients[i].getWorm(0)->isSpectating() )
-		{
-			for( int i = 0; i < cClients[i].getNumWorms(); i++ )
-			{
-				cClients[i].getWorm(i)->GetRandomWeapons();
-				cClients[i].getWorm(i)->setWeaponsReady(true);
+		bool haveSpectating = false;
+		for_each_iterator(CWorm*, w, game.wormsOfClient(&cClients[i])) {
+			if(w->get()->isSpectating()) {
+				haveSpectating = true;
+				w->get()->GetRandomWeapons();
+				w->get()->setWeaponsReady(true);
 			}
-			SendWeapons();	// TODO: we're sending multiple weapons packets, but clients handle them okay
 		}
+
+		if(haveSpectating)	
+			SendWeapons();	// TODO: we're sending multiple weapons packets, but clients handle them okay
 	}
 	
 	//PhysicsEngine::Get()->initGame();
@@ -594,13 +596,11 @@ void GameServer::BeginMatch(CServerConnection* receiver)
 			
 			if(cl->getGameReady()) {				
 				// spawn all worms for the new client
-				for(int i = 0; i < cl->getNumWorms(); i++) {
-					if(!cl->getWorm(i)) continue;
+				for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
+					receiver->getNetEngine()->SendWormScore( w->get() );
 					
-					receiver->getNetEngine()->SendWormScore( cl->getWorm(i) );
-					
-					if(cl->getWorm(i)->getAlive()) {
-						receiver->getNetEngine()->SendSpawnWorm( cl->getWorm(i), cl->getWorm(i)->getPos() );
+					if(w->get()->getAlive()) {
+						receiver->getNetEngine()->SendSpawnWorm( w->get(), w->get()->getPos() );
 					}
 				}
 			}
@@ -1388,10 +1388,6 @@ void GameServer::CheckWeaponSelectionTime()
 			continue;
 		
 		if( cl->isLocalClient() ) {
-			if(cl->getNumWorms() == 0) {
-				warnings << "CheckWeaponSelectionTime: local client is not ready but doesn't have any worms" << endl;
-				cl->getNetEngine()->SendClientReady(NULL);
-			}
 			for_each_iterator(CWorm*, w, game.localWorms()) {
 				if(!w->get()->getWeaponsReady()) {
 					warnings << "CheckWeaponSelectionTime: own worm " << w->get()->getID() << ":" << w->get()->getName() << " is selecting weapons too long, forcing random weapons" << endl;
@@ -1464,29 +1460,28 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 	// send out messages
 	std::string cl_msg;
 	std::string buf;
-	int i;
-	for(i=0; i<cl->getNumWorms(); i++) {
+	for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
 		switch(reason) {
 
 			// Quit
 			case CLL_QUIT:
-				replacemax(networkTexts->sHasLeft,"<player>", cl->getWorm(i)->getName(), buf, 1);
+				replacemax(networkTexts->sHasLeft,"<player>", w->get()->getName(), buf, 1);
 				cl_msg = sReason.size() ? sReason : networkTexts->sYouQuit;
 				break;
 
 			// Timeout
 			case CLL_TIMEOUT:
-				replacemax(networkTexts->sHasTimedOut,"<player>", cl->getWorm(i)->getName(), buf, 1);
+				replacemax(networkTexts->sHasTimedOut,"<player>", w->get()->getName(), buf, 1);
 				cl_msg = sReason.size() ? sReason : networkTexts->sYouTimed;
 				break;
 
 			// Kicked
 			case CLL_KICK:
 				if (sReason.size() == 0 || !showReason)  { // No reason
-					replacemax(networkTexts->sHasBeenKicked,"<player>", cl->getWorm(i)->getName(), buf, 1);
+					replacemax(networkTexts->sHasBeenKicked,"<player>", w->get()->getName(), buf, 1);
 					cl_msg = networkTexts->sKickedYou;
 				} else {
-					replacemax(networkTexts->sHasBeenKickedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
+					replacemax(networkTexts->sHasBeenKickedReason,"<player>", w->get()->getName(), buf, 1);
 					replacemax(buf,"<reason>", sReason, buf, 5);
 					replacemax(buf,"your", "their", buf, 5); // TODO: dirty...
 					replacemax(buf,"you", "they", buf, 5);
@@ -1497,10 +1492,10 @@ void GameServer::DropClient(CServerConnection *cl, int reason, const std::string
 			// Banned
 			case CLL_BAN:
 				if (sReason.size() == 0 || !showReason)  { // No reason
-					replacemax(networkTexts->sHasBeenBanned,"<player>", cl->getWorm(i)->getName(), buf, 1);
+					replacemax(networkTexts->sHasBeenBanned,"<player>", w->get()->getName(), buf, 1);
 					cl_msg = networkTexts->sBannedYou;
 				} else {
-					replacemax(networkTexts->sHasBeenBannedReason,"<player>", cl->getWorm(i)->getName(), buf, 1);
+					replacemax(networkTexts->sHasBeenBannedReason,"<player>", w->get()->getName(), buf, 1);
 					replacemax(buf,"<reason>", sReason, buf, 5);
 					replacemax(buf,"your", "their", buf, 5); // TODO: dirty...
 					replacemax(buf,"you", "they", buf, 5);
@@ -1571,7 +1566,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 				
 		wormsOutList.push_back((*w)->getID());
 		
-		game.removeWorm(*w),
+		game.removeWorm(*w);
 	}
 	
 	// Tell everyone that the client's worms have left both through the net & text
@@ -1590,27 +1585,13 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 void GameServer::RemoveAllClientWorms(CServerConnection* cl, const std::string& reason) {
 	cl->setMuted(false);
 
-	int i;
 	std::set<CWorm*> worms;
-	for(i=0; i<cl->getNumWorms(); i++) {		
-		if(!cl->getWorm(i)) {
-			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not set" << endl;
-			continue;
-		}
-		
-		if(!cl->getWorm(i)->isUsed()) {
-			warnings << "WARNING: worm " << i << " of " << cl->debugName() << " is not used" << endl;
-			cl->setWorm(i, NULL);
-			continue;
-		}
-
-		worms.insert(cl->getWorm(i));
-	}
+	for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+		worms.insert(w->get());
 	RemoveClientWorms(cl, worms, reason);
 	
-	if( cl->getNumWorms() != 0 ) {
-		errors << "RemoveAllClientWorms: very strange, client " << cl->debugName() << " has " << cl->getNumWorms() << " left worms (but should not have any)" << endl;
-		cl->setNumWorms(0);
+	if( game.wormsOfClient(cl)->size() > 0 ) {
+		errors << "RemoveAllClientWorms: very strange, client " << cl->debugName() << " has " << game.wormsOfClient(cl)->size() << " left worms (but should not have any)" << endl;
 	}
 }
 
@@ -1790,7 +1771,7 @@ bool GameServer::checkVersionCompatibility(CServerConnection* cl, bool dropOut, 
 	if(!isVersionCompatible(cl->getClientVersion(), &incompReason)) {
 		std::string kickReason = "Your OpenLieroX version is too old, please update.\n" + incompReason;
 		if(msg) *msg = incompReason;
-		std::string playerName = (cl->getNumWorms() > 0) ? cl->getWorm(0)->getName() : cl->debugName();
+		std::string playerName = game.wormsOfClient(cl)->isValid() ? game.wormsOfClient(cl)->get()->getName() : cl->debugName();
 		if(dropOut)
 			DropClient(cl, CLL_KICK, kickReason);
 		if(makeMsg)

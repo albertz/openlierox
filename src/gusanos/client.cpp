@@ -88,8 +88,8 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		
 		notes << "Net_cbNodeRequest_Dynamic for worm " << wormid << ", nodeid " << _net_id << endl;
 		
-		CWorm* worm = &cClient->getRemoteWorms()[wormid];
-		if(!worm->isUsed()) {
+		CWorm* worm = game.wormById(wormid, false);
+		if(!worm) {
 			warnings << "Net_cbNodeRequest_Dynamic for CWorm: worm " << wormid << " is not used" << endl;
 			return;
 		}
@@ -108,8 +108,8 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 			return;
 		}
 		
-		CWorm* worm = &cClient->getRemoteWorms()[wormid];
-		if(!worm->isUsed()) {
+		CWorm* worm = game.wormById(wormid, false);
+		if(!worm) {
 			warnings << "Net_cbNodeRequest_Dynamic for CWormInputHandler: worm " << wormid << " is not used" << endl;
 			return;
 		}

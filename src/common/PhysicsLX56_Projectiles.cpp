@@ -20,7 +20,6 @@
  */
 
 #include <cmath>
-
 #include <typeinfo>
 
 #include "CodeAttributes.h"
@@ -48,7 +47,7 @@
 
 ///////////////////
 // Lower level projectile-worm collision test
-INLINE int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
+INLINE int CProjectile::ProjWormColl(CVec pos)
 {
 	Shape<int> s; s.pos = pos; s.radius = radius;
 	if(getProjInfo()->Type == PRJ_CIRCLE)
@@ -60,20 +59,15 @@ INLINE int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 	}
 	
 	CWorm* ownerWorm = NULL;
-	if(hasOwner()) {
-		ownerWorm = &worms[GetOwner()];
-		if(!ownerWorm->isUsed())
-			ownerWorm = NULL;
-	}
+	if(hasOwner())
+		ownerWorm = game.wormById(GetOwner(), false);
 	
 	bool preventSelfShooting =
 		!NewNet::Active() &&
 		(this->getIgnoreWormCollBeforeTime() > this->fLastSimulationTime); // if the simulation is too early, ignore this worm col
 
-	CWorm *w = worms;
-	for(short i=0;i<MAX_WORMS;i++,w++) {
-		if(!w->isUsed() || !w->getAlive())
-			continue;
+	for_each_iterator(CWorm*, w_, game.aliveWorms()) {
+		CWorm* w = w_->get();
 		
 		if(preventSelfShooting && w == ownerWorm)
 			continue;
@@ -103,7 +97,7 @@ INLINE int CProjectile::ProjWormColl(CVec pos, CWorm *worms)
 			else if(s.pos.y > worm.pos.y+2)
 				CollisionSide |= COL_BOTTOM;
 			
-			return i;
+			return w->getID();
 		}
 	}
 	
@@ -128,7 +122,7 @@ static INLINE bool CProjectile_CollisionWith(const CProjectile* src, const CProj
 
 
 
-INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, CWorm* worms, TimeDiff dt, ProjCollisionType curResult) {
+INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& vFrameOldPos, const CVec& vFrameOldVel, TimeDiff dt, ProjCollisionType curResult) {
 	CMap* map = game.gameMap();
 	
 	// do we get any worm?
@@ -141,7 +135,7 @@ INLINE ProjCollisionType FinalWormCollisionCheck(CProjectile* proj, const CVec& 
 		for (float p = 0.0f; p <= len; p += 2.0f) {
 			CVec curpos = vFrameOldPos + dif * p;
 			
-			int ret = proj->ProjWormColl(curpos, worms);
+			int ret = proj->ProjWormColl(curpos);
 			if (ret >= 0)  {
 				if(proj->GetProjInfo()->PlyHit.Type != PJ_GOTHROUGH) {
 					proj->setPos( curpos ); // save the new position at the first collision
@@ -365,7 +359,7 @@ bool CProjectile::HandleCollision(const CProjectile::ColInfo &c, const CVec& old
 // we should complete the function in CMap.cpp in a general way by using fastTraceLine
 // also dt shouldn't be a parameter, you should specify a start- and an endpoint
 // (for example CWorm_AI also uses this to check some possible cases)
-INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms)
+INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* const prj, TimeDiff dt, CMap *map)
 {
 	// Gravity
 	float fGravity = 100.0f; // Default
@@ -395,7 +389,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 		printf("len = %f , ", sqrt(len));
 		printf("vel = %f , ", vVelocity.GetLength());
 		printf("mincheckstep = %i\n", MIN_CHECKSTEP);	*/
-		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::NoCol());
 	}
 	
 	int px = (int)(prj->vPos.x);
@@ -406,13 +400,13 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 		prj->vPos = prj->vOldPos;
 		prj->vVelocity = vOldVel;
 		
-		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::Terrain(PJC_TERRAIN|PJC_MAPBORDER));
 	}
 	
 	// Make wallshooting possible
 	// NOTE: wallshooting is a bug in old LX physics that many players got used to
 	if (prj->fLastSimulationTime <= prj->fSpawnTime + TimeDiff(prj->fWallshootTime))
-		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::NoCol());
 	
 	// Check collision with the terrain
 	CProjectile::ColInfo c = prj->TerrainCollision(px, py);
@@ -421,17 +415,17 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove_Frame(CProjectile* cons
 	if(c.collided && prj->HandleCollision(c, vFrameOldPos, vOldVel, dt)) {
 		int colmask = PJC_TERRAIN;
 		if(c.onlyDirt) colmask |= PJC_DIRT;
-		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::Terrain(colmask));
+		return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::Terrain(colmask));
 	}
 	
 	// the move was safe, save the position
 	prj->vOldPos = prj->vPos;
 	
-	return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, worms, dt, ProjCollisionType::NoCol());
+	return FinalWormCollisionCheck(prj, vFrameOldPos, vOldVel, dt, ProjCollisionType::NoCol());
 }
 
 
-INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map, CWorm* worms) {
+INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj, TimeDiff dt, CMap *map) {
 	// Check if we need to recalculate the checksteps (projectile changed its velocity too much)
 	if (prj->bChangesSpeed)  {
 		const int len = (int)prj->vVelocity.GetLength2();
@@ -465,7 +459,7 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 		float checkstep = prj->vVelocity.GetLength2(); // |v|^2
 		
 		if((int)(checkstep * dt.seconds() * dt.seconds()) <= prj->MAX_CHECKSTEP2) // |dp|^2=|v*dt|^2
-			return LX56Projectile_checkCollAndMove_Frame(prj, dt, map, worms);
+			return LX56Projectile_checkCollAndMove_Frame(prj, dt, map);
 		
 		// calc new dt, so that we have |v*dt|=AVG_CHECKSTEP
 		// checkstep is new dt
@@ -481,14 +475,14 @@ INLINE ProjCollisionType LX56Projectile_checkCollAndMove(CProjectile* const prj,
 	// Therefore if this is the case, we don't do multiple checksteps.
 	if(cstep < dt) {
 		for(TimeDiff time; time < dt; time += cstep) {
-			ProjCollisionType ret = LX56Projectile_checkCollAndMove_Frame(prj, (time + cstep > dt) ? dt - time : cstep, map, worms);
+			ProjCollisionType ret = LX56Projectile_checkCollAndMove_Frame(prj, (time + cstep > dt) ? dt - time : cstep, map);
 			if(ret) return ret;
 		}
 		
 		return ProjCollisionType::NoCol();
 	}
 	
-	return LX56Projectile_checkCollAndMove_Frame(prj, dt, map, worms);
+	return LX56Projectile_checkCollAndMove_Frame(prj, dt, map);
 }
 
 
@@ -678,7 +672,7 @@ static CWorm* nearestOtherWorm(CVec pos, int worm) {
 }
 
 static CWorm* nearestEnemyWorm(CVec pos, int worm) {
-	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
+	const int team = game.ifWorm<int>(worm, &CWorm::getTeam, -1);
 	CWorm* best = NULL;
 	for_each_iterator(CWorm*, w, game.aliveWorms()) {
 		if(w->get()->getID() == worm) continue;
@@ -692,7 +686,7 @@ static CWorm* nearestEnemyWorm(CVec pos, int worm) {
 
 static CWorm* nearestTeamMate(CVec pos, int worm) {
 	if(!cClient->isTeamGame()) return NULL;
-	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
+	const int team = game.ifWorm<int>(worm, &CWorm::getTeam, -1);
 	CWorm* best = NULL;
 	for_each_iterator(CWorm*, w, game.aliveWorms()) {
 		if(w->get()->getID() == worm) continue;
@@ -1043,8 +1037,8 @@ bool Proj_WormHitEvent::match(int worm, CProjectile* prj) const {
 	if(SameWormAsProjOwner && prj->GetOwner() != worm) return false;
 	if(DiffWormAsProjOwner && prj->GetOwner() == worm) return false;
 	
-	const int team = game.ifWorm(worm, CWorm::getTeam, -1);
-	const int projTeam = game.ifWorm(prj->GetOwner(), CWorm::getTeam, -1);
+	const int team = game.ifWorm<int>(worm, &CWorm::getTeam, -1);
+	const int projTeam = game.ifWorm<int>(prj->GetOwner(), &CWorm::getTeam, -1);
 	if(SameTeamAsProjOwner && projTeam != team) return false;
 	if(DiffTeamAsProjOwner && projTeam == team) return false;
 	
@@ -1217,7 +1211,7 @@ static INLINE ProjCollisionType LX56_simulateProjectile_LowLevel(AbsTime current
 	//proj->setRemote( false );
 
 	// Check for collisions and move
-	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, dt, game.gameMap(), worms);
+	ProjCollisionType res = LX56Projectile_checkCollAndMove(proj, dt, game.gameMap());
 	
 	proj->life() += dt.seconds();
 	proj->extra() += dt.seconds();

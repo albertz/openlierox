@@ -96,8 +96,8 @@ void CHideAndSeek::PrepareWorm(CWorm* worm)
 {
 	// in case this client connected later, update the visibility for all worms
 	for_each_iterator(CWorm*, otherw, game.worms()) {
-		if(!visible[w->get()->getID()] && otherw->get()->getTeam() != worm->getTeam())
-			worm->getClient()->getNetEngine()->SendHideWorm(otherw->get(), worm->getID(), visible[w->get()->getID()], true);		
+		if(!visible[otherw->get()->getID()] && otherw->get()->getTeam() != worm->getTeam())
+			worm->getClient()->getNetEngine()->SendHideWorm(otherw->get(), worm->getID(), visible[otherw->get()->getID()], true);
 	}
 	
 	std::string teamhint[2];
@@ -240,11 +240,11 @@ bool CHideAndSeek::NeedUpdate(CServerConnection* cl, CWorm* worm)
 {
 	// Clients don't recieve dirt updates without getting a full update
 	// No worms, but we don't want the client to see nothing
-	if(cl->getNumWorms() == 0)
+	if(game.wormsOfClient(cl)->size() == 0)
 		return true;
 
 	// Different teams, and invisible so no need I think
-	if(cl->getWorm(0)->getTeam() != worm->getTeam() && !visible[worm->getID()] && !worm->getWormState()->bCarve)
+	if(game.wormsOfClient(cl)->get()->getTeam() != worm->getTeam() && !visible[worm->getID()] && !worm->getWormState()->bCarve)
 		return false;
 
 	return true;
@@ -289,7 +289,7 @@ void CHideAndSeek::Hide(CWorm* worm, bool message)
 
 	for_each_iterator(CWorm*, w, game.worms()) {
 		if(w->get()->getTeam() == worm->getTeam()) continue;
-		if(w->getType() == PRF_COMPUTER) continue;
+		if(w->get()->getType() == PRF_COMPUTER) continue;
 		if(networkTexts->sHiddenMessage != "<none>" && message) {
 			std::string msg;
 			replace(networkTexts->sHiddenMessage, "<player>", worm->getName(), msg);
