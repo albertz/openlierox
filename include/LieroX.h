@@ -132,7 +132,7 @@ struct lierox_t {
 	Color			clConsoleDev;
 	Color			clConsoleChat;
 	Color			clReturningToLobby;
-	Color			clTeamColors[4];
+	Color			clTeamColors[MAX_TEAMS];
 	Color			clTagHighlight;
 	Color			clHealthLabel;
 	Color			clWeaponLabel;

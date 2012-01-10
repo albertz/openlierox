@@ -3067,7 +3067,7 @@ CVec CMap::FindSpotCloseToPos(const std::list<CVec>& goodPos, const std::list<CV
 CVec CMap::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToEnemy) {
 	std::list<CVec> goodPos;
 	std::list<CVec> badPos;
-	std::vector<bool> coveredTeam(4, false);
+	std::vector<bool> coveredTeam(MAX_TEAMS, false);
 	
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();

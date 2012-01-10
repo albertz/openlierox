@@ -126,55 +126,16 @@ int CServerConnection::getConnectionArrayIndex() {
 // Return true if we own the worm
 int CServerConnection::OwnsWorm(int id)
 {
-	for(uint i=0;i<iNumWorms;i++) {
-		if(id == cLocalWorms[i]->getID())
-			return true;
-	}
-
-	return false;
+	CWorm* w = game.wormById(id, false);
+	if(!w) return false;
+	return w->getClient() == this;
 }
 
-//////////////////
-// Remove the worm
-void CServerConnection::RemoveWorm(int id)
-{
-	if(iNumWorms == 0) {
-		warnings << "WARNING: cannot remove worm because this client has no worms" << endl;
-		return;
-	}
-	
-	bool found = false;
-	for (uint i=0;i<iNumWorms;i++)  {
-		if (cLocalWorms[i])  {
-			if (cLocalWorms[i]->getID() == id)  {
-				cLocalWorms[i] = NULL;
-				for (uint j=i; j<MAX_PLAYERS-1; j++)  {
-					cLocalWorms[j] = cLocalWorms[j+1];
-				}
-				cLocalWorms[MAX_PLAYERS-1] = NULL;
-
-				found = true;
-				break;
-			}
-		} else
-			warnings << "WARNING: cLocalWorms[" << i << "/" << iNumWorms << "] == NULL" << endl;
-	}
-
-	if(found)
-		--iNumWorms;
-	else
-		warnings << "WARNING: cannot find worm " << id << " for removal" << endl;
-
-}
 
 ///////////////////
 // Shutdown the client
 void CServerConnection::Shutdown()
-{
-	iNumWorms = 0;
-	for(int i = 0; i < MAX_PLAYERS; ++i)
-		cLocalWorms[i] = NULL;
-	
+{	
 	// Shooting list
 	cShootList.Shutdown();
 

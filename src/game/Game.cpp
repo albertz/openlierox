@@ -425,6 +425,10 @@ Iterator<CWorm*>::Ref Game::aliveWorms() {
 	return GetFilterIterator(worms(), _1 ->* &CWorm::getAlive);
 }
 
+Iterator<CWorm*>::Ref Game::wormsOfClient(const CServerConnection* cl) {
+	
+}
+
 CWorm* Game::wormById(int wormId, bool assertExisting) {
 	std::map<int,CWorm*>::iterator i = m_worms.find(wormId);
 	if(i == m_worms.end()) {

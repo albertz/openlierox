@@ -250,16 +250,15 @@ struct TeamRace : public Race {
 	
 	virtual GameInfoGroup getGameInfoGroupInOptions() { return GIG_Race; }
 	
-	static const int MAXTEAMS = 4;
-	int teamScore[MAXTEAMS];
+	int teamScore[MAX_TEAMS];
 	
 	virtual int GameTeams() {
-		return MAXTEAMS;
+		return MAX_TEAMS;
 	}
 
 	void reset() {
 		Race::reset();
-		for(int i = 0; i < MAXTEAMS; ++i)
+		for(int i = 0; i < MAX_TEAMS; ++i)
 			teamScore[i] = 0;		
 	}
 
@@ -270,7 +269,7 @@ struct TeamRace : public Race {
 	}
 
 	virtual void addScore(CWorm* w) {
-		teamScore[CLAMP(w->getTeam(),0,MAXTEAMS-1)]++;
+		teamScore[CLAMP(w->getTeam(),0,MAX_TEAMS-1)]++;
 		cServer->SendTeamScoreUpdate();
 		// also add score for this specifc worm
 		Race::addScore(w);
@@ -293,7 +292,7 @@ struct TeamRace : public Race {
 	}
 	
 	virtual int TeamScores(int t) {
-		if(t >= 0 && t < MAXTEAMS) return teamScore[t];
+		if(t >= 0 && t < MAX_TEAMS) return teamScore[t];
 		return -1;
 	}
 	

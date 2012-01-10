@@ -254,8 +254,8 @@ private:
 	
 	int			iScoreboard[MAX_WORMS];
 	int			iScorePlayers;
-	int			iTeamScores[4];
-	int			iTeamList[4];
+	int			iTeamScores[MAX_TEAMS];
+	int			iTeamList[MAX_TEAMS];
 
 	// Interface
 	interface_sett tInterfaceSettings;
@@ -433,7 +433,6 @@ public:
 
 	std::list<int> AddRandomBots(int amount = 1, bool outOfGame = false); // returns list of added worms
 	int			AddWorm(profile_t* p, bool outOfGame = false); // returns -1 if failed, worm id otherwise
-	void		RemoveWorm(int id);
 
 	// Game
 	void		Simulation();
@@ -579,7 +578,7 @@ public:
 
 	frame_t		*getFrame(int FrameID)		{ return &tFrames[ FrameID ]; }
 
-	int			getTeamScore(int team)		{ if(team >= 0 && team < 4) return iTeamScores[team]; else return 0; }
+	int			getTeamScore(int team)		{ if(team >= 0 && team < MAX_TEAMS) return iTeamScores[team]; else return 0; }
 
 	bool		isTyping()				{ return bChat_Typing; }
 	void		setChatPos(size_t v)		{ iChat_Pos = v; }

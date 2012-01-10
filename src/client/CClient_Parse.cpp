@@ -801,7 +801,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 
 	client->bGameReady = true;
 	client->flagInfo()->reset();
-	for(int i = 0; i < 4; ++i) {
+	for(int i = 0; i < MAX_TEAMS; ++i) {
 		client->iTeamScores[i] = 0;
 	}
 	
@@ -1683,9 +1683,9 @@ void CClientNetEngineBeta9::ParseTeamScoreUpdate(CBytestream *bs) {
 			break;
 		}
 		
-		if(i == 4) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first 4 teams" << endl;
+		if(i == MAX_TEAMS) warnings << "ParseTeamScoreUpdate: cannot handle teamscores for other than the first " << MAX_TEAMS << " teams" << endl;
 		int score = bs->readInt16();
-		if(i < 4) {
+		if(i < MAX_TEAMS) {
 			if(score > client->iTeamScores[i]) someTeamScored = true;
 			client->iTeamScores[i] = score;
 		}
@@ -1748,9 +1748,9 @@ void CClientNetEngine::ParseGameOver(CBytestream *bs)
 					break;
 				}
 				
-				if(i == 4) warnings << "ParseGameOver: cannot handle teamscores for other than the first 4 teams" << endl;
+				if(i == MAX_TEAMS) warnings << "ParseGameOver: cannot handle teamscores for other than the first " << MAX_TEAMS << " teams" << endl;
 				int score = bs->readInt16();
-				if(i < 4) client->iTeamScores[i] = score;
+				if(i < MAX_TEAMS) client->iTeamScores[i] = score;
 			}
 		} else
 			client->iMatchWinnerTeam = -1;
@@ -1998,7 +1998,7 @@ void CClientNetEngine::ParseWormsOut(CBytestream *bs)
 		if( NewNet::Active() )
 			NewNet::PlayerLeft(id);
 
-		client->RemoveWorm(id);			
+		game.removeWorm(w);
 	}
 
 	DeprecatedGUI::bJoin_Update = true;

@@ -224,7 +224,7 @@ void CClient::MinorClear()
 	if(m_flagInfo)
 		m_flagInfo->reset();
 	
-	for(int i = 0; i < 4; ++i)
+	for(int i = 0; i < MAX_TEAMS; ++i)
 		iTeamScores[i] = 0;
 }
 
@@ -2016,53 +2016,12 @@ int CClient::AddWorm(profile_t* p, bool outOfGame) {
 }
 
 
-//////////////////
-// Remove the worm
-void CClient::RemoveWorm(int id)
-{
-	if(id < 0 || id >= MAX_WORMS) {
-		warnings << "CClient::RemoveWorm: worm id " << id << " is invalid" << endl;
-		return;
-	}
-	
-	bool found = false;
-	for (int i=0;i<MAX_PLAYERS;i++)  {
-		if (cLocalWorms[i])  {
-			if(i >= getNumWorms()) {
-				warnings << "Client:RemoveWorm: own worm " << cLocalWorms[i]->getID() << ":" << cLocalWorms[i]->getName() << " should not exist" << endl;
-			}
-			if (cLocalWorms[i]->getID() == id)  {
-				found = true;
-				iNumWorms--;
-				cLocalWorms[i] = NULL;
-				tProfiles[i] = NULL;
-				for (int j=i;j<MAX_PLAYERS-1;j++)  {
-					cLocalWorms[j] = cLocalWorms[j+1];
-					tProfiles[j] = tProfiles[j+1];
-				}
-				cLocalWorms[MAX_PLAYERS-1] = NULL;
-				tProfiles[MAX_PLAYERS-1] = NULL;				
-				break;
-			}
-		}
-	}
-	
-	if (cRemoteWorms)  {
-		if(cRemoteWorms[id].getLocal() && !found) {
-			warnings << "CClient::RemoveWorm: didn't found local worm with id " << id << endl;
-		}
-
-		cRemoteWorms[id].Unprepare();
-		cRemoteWorms[id].Clear();
-	}
-	else
-		errors << "CClient::RemoveWorm: cRemoteWorms not set" << endl;
-}
-
 bool CClient::isWormVisibleOnAnyViewport(int worm) const {
+	CWorm* w = game.wormById(worm, false);
+	if(!w) return false;
 	for(int i = 0; i < NUM_VIEWPORTS; ++i) {
 		if(!cViewports[i].getUsed()) continue;
-		if(cRemoteWorms[worm].isVisible(&cViewports[i])) return true;
+		if(w->isVisible(&cViewports[i])) return true;
 	}
 	return false;
 }

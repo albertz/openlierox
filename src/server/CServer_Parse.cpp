@@ -1514,11 +1514,9 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	
 	
 	// Find spots in our list for the worms
-	int ids[MAX_PLAYERS];
-	for(int i = 0; i < MAX_PLAYERS; ++i) ids[i] = -1;
-	
-	std::vector<WormJoinInfo> newWorms;
-	newWorms.resize(numworms);
+	std::vector<int> ids(numworms, -1);	
+
+	std::vector<WormJoinInfo> newWorms(numworms);
 	for (int i = 0; i < numworms; i++) {
 		newWorms[i].readInfo(bs);
 
@@ -1551,7 +1549,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 			}
 			
 			bool found = false;
-			for(int j = 0; j < numworms; ++j) {
+			for(int j = 0; j < newWorms.size(); ++j) {
 				// compare by name, we have no possibility to do it more exact but it's also not that important
 				if(ids[j] < 0 && newWorms[j].sName == w->getName()) {
 					// found one
@@ -1578,7 +1576,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 	std::set<CWorm*> newJoinedWorms;
 	
 	// search slots for new worms
-	for (int i = 0; i < numworms; ++i) {
+	for (int i = 0; i < newWorms.size(); ++i) {
 		if(ids[i] >= 0) continue; // this worm is already associated
 		
 		CWorm* w = AddWorm(newWorms[i]);
@@ -1604,23 +1602,11 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		if(strWelcomeMessage != "")
 			SendGlobalText(Replace(strWelcomeMessage, "<player>", w->getName()), TXT_NETWORK);		
 	}
-
 	
-	// Set the worm info
-	newcl->setNumWorms(numworms);
-	for (int i = 0;i < numworms;i++) {
-		if(ids[i] < 0) {
-			// Very strange, we should have catched this case earlier. This means that there were not enough open slots.
-			errors << "Server::ParseConnect: We didn't found a slot for " << newWorms[i].sName << " for " << newcl->debugName(false) << endl;
-			newcl->setWorm(i, NULL);
-			continue;
-		}
-		newcl->setWorm(i, &cWorms[ids[i]]);
-	}
 	
 	// remove bots if not wanted anymore
 	CheckForFillWithBots();
-	numworms = newcl->getNumWorms(); // it was earlier when also local client could reconnect - should have no effect anymore
+	numworms = game.wormsOfClient(newcl)->size(); // it was earlier when also local client could reconnect - should have no effect anymore
 	net_socket->setRemoteAddress(adrFrom); // it could have been changed
 
 	{
@@ -1959,47 +1945,32 @@ void GameServer::ParseGetInfo(const SmartPointer<NetworkSocket>& tSocket, CBytes
 
 
 	// Players
-	int     numplayers = 0;
-	int     p;
-	CWorm *w = cWorms;
-	for (p = 0;p < MAX_WORMS;p++, w++) {
-		if (w->isUsed())
-			numplayers++;
+	bs.writeByte(game.worms()->size());
+	
+	for_each_iterator(CWorm*, w, game.worms()) {
+		bs.writeString(RemoveSpecialChars(w->get()->getName()));
+		bs.writeInt(w->getScore(), 2);
 	}
 
-	bs.writeByte(numplayers);
-	w = cWorms;
-	for (p = 0;p < MAX_WORMS;p++, w++) {
-		if (w->isUsed()) {
-			bs.writeString(RemoveSpecialChars(w->getName()));
-			bs.writeInt(w->getScore(), 2);
-		}
-	}
-
-	w = cWorms;
 	// Write out lives
-	for (p = 0;p < MAX_WORMS;p++, w++) {
-		if (w->isUsed())
-			bs.writeInt(w->getLives(), 2);
+	for_each_iterator(CWorm*, w, game.worms()) {
+		bs.writeInt(w->get()->getLives(), 2);
 	}
 
 	// Write out IPs
-	w = cWorms;
-	for (p = 0; p < MAX_WORMS; p++, w++)  {
-		if (w->isUsed())  {
-			std::string addr;
-			if (NetAddrToString(w->getClient()->getChannel()->getAddress(), addr))  {
-				size_t pos = addr.find(':');
-				if (pos != std::string::npos)
-					addr.erase(pos, std::string::npos);
-			} else {
-				errors << "Cannot convert address for worm " << w->getName() << endl;
-			}
-
-			if (addr.size() == 0)
-				addr = "0.0.0.0";
-			bs.writeString(addr);
+	for_each_iterator(CWorm*, w, game.worms()) {
+		std::string addr;
+		if (NetAddrToString(w->get()->getClient()->getChannel()->getAddress(), addr))  {
+			size_t pos = addr.find(':');
+			if (pos != std::string::npos)
+				addr.erase(pos, std::string::npos);
+		} else {
+			errors << "Cannot convert address for worm " << w->get()->getName() << endl;
 		}
+
+		if (addr.size() == 0)
+			addr = "0.0.0.0";
+		bs.writeString(addr);
 	}
 
 	// Write out my version (we do this since Beta5)
@@ -2123,7 +2094,7 @@ void CServerNetEngine::ParseRequestWormRespawn(CBytestream* bs) {
 		return;
 	}
 	
-	CWorm* w = server->getWorms() + wormId;
+	CWorm* w = game.wormsById(wormId);
 	if(w->getAlive()) {
 		warnings << "ParseRequestWormRespawn: worm " << w->getName() << " is already alive/spawned" << endl;
 		return;

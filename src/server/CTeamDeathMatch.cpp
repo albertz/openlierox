@@ -18,9 +18,7 @@
 #include "Consts.h"
 
 class CTeamDeathMatch : public CGameMode {
-public:
-	enum { MAXTEAMS = 4 } ;
-	
+public:	
 	virtual void PrepareGame();
 	virtual void Kill(CWorm* victim, CWorm* killer);
 	virtual int  GameType() { return GMT_TEAMS; }
@@ -32,20 +30,20 @@ public:
 	virtual std::string Name() { return "Team Death Match"; }
 	virtual int TeamScores(int t)
 	{
-		if(t >= 0 && t < MAXTEAMS) return teamScore[t];
+		if(t >= 0 && t < MAX_TEAMS) return teamScore[t];
 		return -1;
 	};
 
 	void ChangeTeamScore(int t, int diff);
 	
 protected:
-	int teamScore[MAXTEAMS];
+	int teamScore[MAX_TEAMS];
 };
 
 void CTeamDeathMatch::PrepareGame()
 {
 	CGameMode::PrepareGame();
-	for( int i = 0; i < MAXTEAMS; i++ )
+	for( int i = 0; i < MAX_TEAMS; i++ )
 		teamScore[i] = 0;
 }
 
@@ -65,7 +63,7 @@ void CTeamDeathMatch::Kill(CWorm* victim, CWorm* killer)
 
 void CTeamDeathMatch::ChangeTeamScore(int t, int diff) 
 {
-	if( t >= 0 && t < MAXTEAMS )
+	if( t >= 0 && t < MAX_TEAMS )
 		teamScore[t] += diff;
 	else
 		errors << "CTeamDeathMatch::ChangeTeamScore: invalid team nr " << t << endl;

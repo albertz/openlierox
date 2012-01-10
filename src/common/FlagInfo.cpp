@@ -36,7 +36,7 @@
 Flag::Flag(int i) : id(i), holderWorm(-1), atSpawnPoint(true), skin(NULL) {
 	skin = new CGameSkin("../data/gfx/flags.png", FLAG_FRAME_WIDTH, FLAG_FRAME_HEIGHT, FLAG_SPACING, FLAG_WIDTH, FLAG_HEIGHT);
 	
-	if(i >= 0 && i < 4) {
+	if(i >= 0 && i < MAX_TEAMS) {
 		skin->Colorize(tLX->clTeamColors[i]);
 	}
 }
@@ -70,10 +70,8 @@ CVec Flag::getPos() {
 	if(atSpawnPoint)
 		return spawnPoint.pos;
 	if(holderWorm >= 0) {
-		if(tLX->iGameType == GME_JOIN)
-			return cClient->getRemoteWorms()[holderWorm].getPos();
-		else
-			return cServer->getWorms()[holderWorm].getPos();
+		CWorm* w = game.wormById(holderWorm, false);
+		if(w) return w->getPos();
 	}
 	return pos;
 }
@@ -129,7 +127,7 @@ bool FlagInfo::removeFlag(int id) {
 
 static void drawFlagSpawnPoint(Flag* flag, SDL_Surface* bmpDest, CViewport* v) {
 	SDL_Surface* bmp = NULL;
-	if(flag->id >= 0 && flag->id < 4)
+	if(flag->id >= 0 && flag->id < MAX_TEAMS)
 		bmp = DeprecatedGUI::gfxGame.bmpFlagSpawnpoint[flag->id].get();
 	else
 		bmp = DeprecatedGUI::gfxGame.bmpFlagSpawnpointDefault.get();
@@ -193,7 +191,7 @@ void FlagInfo::drawOnMiniMap(CMap* cMap, SDL_Surface* bmpDest, uint miniX, uint 
 		Flag& flag = i->second;
 
 		Uint8 r = 255,g=255,b=255;
-		if(flag.id >= 0 && flag.id < 4) {
+		if(flag.id >= 0 && flag.id < MAX_TEAMS) {
 			r = tLX->clTeamColors[flag.id].r;
 			g = tLX->clTeamColors[flag.id].g;
 			b = tLX->clTeamColors[flag.id].b;

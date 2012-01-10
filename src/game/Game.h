@@ -62,6 +62,7 @@ public:
 	Iterator<CWorm*>::Ref worms();
 	Iterator<CWorm*>::Ref localWorms();
 	Iterator<CWorm*>::Ref aliveWorms();
+	Iterator<CWorm*>::Ref wormsOfClient(const CServerConnection* cl);
 	CWorm* wormById(int wormId, bool assertExisting = true);
 	CWorm* firstLocalHumanWorm();
 	CWorm* findWormByName(const std::string& name);

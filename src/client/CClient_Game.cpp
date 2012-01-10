@@ -802,7 +802,7 @@ void CClient::UpdateScoreboard()
 	bUpdateScore = true;
 
 	// Clear the team scores
-	for(short i=0;i<4;i++) {
+	for(short i=0;i<MAX_TEAMS;i++) {
 		iTeamList[i]=i;
 		if(getServerVersion() < OLXBetaVersion(0,58,1))
 			iTeamScores[i]=0;
@@ -820,7 +820,7 @@ void CClient::UpdateScoreboard()
 			// Add to the team score
 			if(getGeneralGameType() == GMT_TEAMS) {
 				int team = w->getTeam();
-				if (team < 0 || team >= 4)  {  // prevents crashing sometimes
+				if (team < 0 || team >= MAX_TEAMS)  {  // prevents crashing sometimes
 					w->setTeam(0);
 					team = 0;
 				}
@@ -836,8 +836,8 @@ void CClient::UpdateScoreboard()
 	
 	// Sort the team lists
 	if(getGeneralGameType() == GMT_TEAMS) {
-		for(short i=0;i<4;i++) {
-			for(short j=0;j<3-i;j++) {
+		for(short i=0;i<MAX_TEAMS;i++) {
+			for(short j=0;j<MAX_TEAMS-i-1;j++) {
 				if(iTeamScores[iTeamList[j]] < iTeamScores[iTeamList[j+1]]) {
 
 					// Swap the team list entries

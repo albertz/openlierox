@@ -1463,13 +1463,13 @@ void CClient::InitializeGameMenu()
 		if (getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS)  {
 			static const std::string teamnames[] = {"Blue team", "Red team", "Green team", "Yellow team"};
 			std::string teamName = "noone";
-			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4)
+			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < MAX_TEAMS)
 				teamName = teamnames[iMatchWinnerTeam];
-			else if(iMatchWinnerTeam >= 4)
+			else if(iMatchWinnerTeam >= MAX_TEAMS)
 				teamName = "team " + itoa(iMatchWinnerTeam);
 			
 			cGameMenuLayout.Add(new DeprecatedGUI::CLabel(teamName, tLX->clNormalLabel), gm_Winner, 515, 5, 0, 0);
-			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < 4) {
+			if(iMatchWinnerTeam >= 0 && iMatchWinnerTeam < MAX_TEAMS) {
 				SmartPointer<SDL_Surface> pic = DeprecatedGUI::gfxGame.bmpTeamColours[iMatchWinnerTeam];
 				if (pic.get())
 					cGameMenuLayout.Add(new DeprecatedGUI::CImage(DynDrawFromSurface(pic)), gm_TopSkin, 490, 5, pic.get()->w, pic.get()->h);
@@ -1886,7 +1886,7 @@ void CClient::UpdateScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::CListvi
 		// Go through each team
 		DeprecatedGUI::CListview *lv = Left;
 
-		for(n = 0; n < 4; n++) {
+		for(n = 0; n < MAX_TEAMS; n++) {
 			int team = iTeamList[n];
 			int score = getTeamScore(team);
 

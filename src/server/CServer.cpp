@@ -1555,13 +1555,11 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 			continue;
 		}
 		
-		if(!(*w)->isUsed()) {
-			errors << "RemoveClientWorms: worm not used" << endl;
-			continue;			
+		if((*w)->getClient() != cl) {
+			errors << "RemoveClientWorms: worm " << (*w)->getID() << " is not from client " << cl->debugName() << endl;
+			continue;
 		}
-		
-		if(cl) cl->RemoveWorm((*w)->getID());
-		
+				
 		hints << "Worm left: " << (*w)->getName() << " (id " << (*w)->getID() << "): ";
 		hints << reason << endl;
 		
@@ -1573,9 +1571,7 @@ void GameServer::RemoveClientWorms(CServerConnection* cl, const std::set<CWorm*>
 				
 		wormsOutList.push_back((*w)->getID());
 		
-		// Reset variables
-		(*w)->setUsed(false);
-		(*w)->setSpectating(false);
+		game.removeWorm(*w),
 	}
 	
 	// Tell everyone that the client's worms have left both through the net & text
@@ -1952,7 +1948,6 @@ void GameServer::kickWorm(int wormID, const std::string& sReason, bool showReaso
 				bool isHumanWorm = w->getType() == PRF_HUMAN;
 				
 				// Delete the worm from client/server
-				cClient->RemoveWorm(wormID);			
 				std::set<CWorm*> wormList; wormList.insert(w);
 				RemoveClientWorms(cl, wormList, "kicked local worm (" + sReason + ")");
 
@@ -2051,7 +2046,6 @@ void GameServer::banWorm(int wormID, const std::string& sReason, bool showReason
 														  "<player>", w->getName(), 1), "<reason>", sReason, 1)),	TXT_NETWORK);
 								
 				// Delete the worm from client/server
-				cClient->RemoveWorm(wormID);			
 				std::set<CWorm*> wormList; wormList.insert(w);
 				RemoveClientWorms(cl, wormList, "banned local worm (" + sReason + ")");
 				

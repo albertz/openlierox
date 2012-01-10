@@ -1091,7 +1091,7 @@ static bool moveToOwnBase(int t, CVec& pos) {
 static bool findEnemyBase(CWorm* w, CVec& pos) {	
 	float lastDist = 999999999.0f;
 	bool success = false;
-	for(int t = 0; t < 4; ++t) {
+	for(int t = 0; t < MAX_TEAMS; ++t) {
 		if(t == w->getTeam()) continue;
 		Flag* flag = cClient->flagInfo()->getFlag(t);
 		if(!flag) continue;
@@ -1110,7 +1110,7 @@ static bool findEnemyBase(CWorm* w, CVec& pos) {
 static bool findEnemyFlag(CWorm* w, CVec& pos) {	
 	float lastDist = 999999999.0f;
 	bool success = false;
-	for(int t = 0; t < 4; ++t) {
+	for(int t = 0; t < MAX_TEAMS; ++t) {
 		if(t == w->getTeam()) continue;
 		Flag* flag = cClient->flagInfo()->getFlag(t);
 		if(!flag) continue;
@@ -1129,10 +1129,9 @@ static bool findEnemyFlag(CWorm* w, CVec& pos) {
 }
 
 static Flag* teamHasEnemyFlag(int t) {
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cClient->getRemoteWorms()[i];
-		if(!w->isUsed() || w->getTeam() != t) continue;
-		Flag* flag = cClient->flagInfo()->getFlagOfWorm(w->getID());
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getTeam() != t) continue;
+		Flag* flag = cClient->flagInfo()->getFlagOfWorm(w->get()->getID());
 		if(flag) return flag;
 	}
 	return NULL;

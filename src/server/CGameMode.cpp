@@ -201,11 +201,11 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	
 	if( GameTeams() > 1 )
 	{
-		int worms[4] = { 0, 0, 0, 0 };
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT)
-				if(cServer->getWorms()[i].getTeam() >= 0 && cServer->getWorms()[i].getTeam() < 4)
-					worms[cServer->getWorms()[i].getTeam()]++;
+		std::vector<int> worms(4, 0);
+		for_each_iterator(CWorm*, w, game.worms())
+			if(w->get()->getLives() != WRM_OUT)
+				if(w->get()->getTeam() >= 0 && w->get()->getTeam() < MAX_TEAMS)
+					worms[w->get()->getTeam()]++;
 	
 		// Victim's team is out of the game
 		if(worms[victim->getTeam()] == 0 && networkTexts->sTeamOut != "<none>")
@@ -227,7 +227,7 @@ void CGameMode::Kill(CWorm* victim, CWorm* killer)
 	}
 	
 	if((int)gameSettings[FT_KillLimit] > 0) {
-		CWorm* w = (newLeadWorm >= 0) ? &cServer->getWorms()[newLeadWorm] : NULL;
+		CWorm* w = (newLeadWorm >= 0) ? game.wormById(newLeadTeam, false) : NULL;
 		int rest = w ? ((int)gameSettings[FT_KillLimit] - w->getScore()) : 0;
 		if(lastFragsLeftReport < 0 || lastFragsLeftReport > rest) {
 			if(rest >= 1 && rest <= 3)
@@ -259,10 +259,8 @@ void CGameMode::Drop(CWorm* worm)
 static int getWormHitKillLimit() {
 	if((int)gameSettings[FT_KillLimit] <= 0) return -1;
 	
-	for(int i = 0; i < MAX_WORMS; ++i) {
-		CWorm* w = &cServer->getWorms()[i];
-		if(!w->isUsed()) continue;
-		if(w->getScore() >= (int)gameSettings[FT_KillLimit])
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(w->get()->getScore() >= (int)gameSettings[FT_KillLimit])
 			return i;
 	}
 	
@@ -291,7 +289,7 @@ bool CGameMode::CheckGameOver() {
 		int w = getWormHitKillLimit();
 		if(w >= 0) {
 			// TODO: make configureable
-			cServer->SendGlobalText("Kill limit " + itoa((int)gameSettings[FT_KillLimit]) + " hit by worm " + cServer->getWorms()[w].getName(), TXT_NORMAL);
+			cServer->SendGlobalText("Kill limit " + itoa((int)gameSettings[FT_KillLimit]) + " hit by worm " + game.wormName(w), TXT_NORMAL);
 			notes << "worm " << w << " hit the kill limit" << endl;
 			return true;
 		}
@@ -318,14 +316,12 @@ bool CGameMode::CheckGameOver() {
 	if(!allowEmptyGames) {
 		// TODO: move that worms-num calculation to GameServer
 		int worms = 0;
-		for(int i = 0; i < MAX_WORMS; i++)
-			if(cServer->getWorms()[i].isUsed()) {
-				if (cServer->getWorms()[i].getLives() != WRM_OUT)
-					worms++;
-			}
+		for_each_iterator(CWorm*, w, game.worms())
+			if (w->get()->getLives() != WRM_OUT)
+				worms++;
 
 		int minWormsNeeded = 2;
-		if(tLX->iGameType == GME_LOCAL && cServer->getNumPlayers() == 1) minWormsNeeded = 1;
+		if(tLX->iGameType == GME_LOCAL && game.worms()->size() == 1) minWormsNeeded = 1;
 		if(worms < minWormsNeeded) {
 			// TODO: make configureable
 			// HINT: thins is kinda spammy, because in this kind of games everybody knows why it ended
@@ -394,15 +390,14 @@ int CGameMode::Winner() {
 }
 
 int CGameMode::HighestScoredWorm() {
-	int wormid = -1;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed()) {
-			if(wormid < 0) wormid = i;
-			else
-				wormid = CompareWormsScore(&cServer->getWorms()[i], &cServer->getWorms()[wormid]) > 0 ? i : wormid; // Take the worm with the best score
-		}
+	CWorm* highest = NULL;
+	for_each_iterator(CWorm*, w, game.worms()) {
+		if(!highest) highest = w->get();
+		else
+			highest = (CompareWormsScore(w->get(), highest) > 0) ? w->get() : highest; // Take the worm with the best score
+	}
 	
-	return wormid;
+	return highest ? highest->getID() : -1;
 }
 
 int CGameMode::CompareWormsScore(CWorm* w1, CWorm* w2) {
@@ -436,10 +431,9 @@ int CGameMode::WinnerTeam() {
 	if(GameTeams() > 1)  {
 		// Only one team left, that one must be the winner
 		if (cServer->getAliveTeamCount() < 2 && (int)gameSettings[FT_Lives] >= 0)  {
-			CWorm *w = cServer->getWorms();
-			for (int i = 0; i < MAX_WORMS; i++, w++)
-				if (w->isUsed() && w->getLives() != WRM_OUT && w->getTeam() >= 0 && w->getTeam() < 4)
-					return w->getTeam();
+			for_each_iterator(CWorm*, w, game.worms())
+				if (w->get()->getLives() != WRM_OUT && w->get()->getTeam() >= 0 && w->get()->getTeam() < MAX_TEAMS)
+					return w->get()->getTeam();
 		}
 
 		return HighestScoredTeam();
@@ -459,8 +453,8 @@ int CGameMode::HighestScoredTeam() {
 
 int CGameMode::WormsAliveInTeam(int t) {
 	int c = 0;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getLives() != WRM_OUT && cServer->getWorms()[i].getTeam() == t)
+	for_each_iterator(CWorm*w, w, game.worms())
+		if(w->get()->getLives() != WRM_OUT && w->get()->getTeam() == t)
 			c++;
 	return c;
 }
@@ -471,17 +465,17 @@ int CGameMode::TeamScores(int t) {
 
 int CGameMode::TeamKills(int t) {
 	int c = 0;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == t)
-			c += cServer->getWorms()[i].getScore();
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getTeam() == t)
+			c += w->get()->getScore();
 	return c;
 }
 
 float CGameMode::TeamDamage(int t) {
 	float c = 0;
-	for(int i = 0; i < MAX_WORMS; i++)
-		if(cServer->getWorms()[i].isUsed() && cServer->getWorms()[i].getTeam() == t)
-			c += cServer->getWorms()[i].getDamage();
+	for_each_iterator(CWorm*, w, game.worms())
+		if(w->get()->getTeam() == t)
+			c += w->get()->getDamage();
 	return c;
 }
 

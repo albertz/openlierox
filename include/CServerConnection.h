@@ -69,10 +69,6 @@ private:
 	GameServer 	*server;
 	CServerNetEngine *cNetEngine;
 	
-	// Local Worms (pointers to specific CServer::cWorms)
-	uint		iNumWorms;
-	CWorm		*cLocalWorms[MAX_PLAYERS];
-
 	bool		bGameReady;
 	bool		bMuted;
 	bool		m_gusLoggedIn;
@@ -109,8 +105,6 @@ public:
 	void 		MinorClear();
 	void		Shutdown();
 
-	void		RemoveWorm(int id);
-
 	// Variables
 	CChannel	*getChannel()				{ return cNetChan; }
 	void		resetChannel();
@@ -141,11 +135,6 @@ public:
 	CBytestream	*getUnreliable()			{ return &bsUnreliable; }
 
 	int			OwnsWorm(int id);
-	int			getNumWorms()				{ return iNumWorms; }
-	void		setNumWorms(int _w)			{ iNumWorms = _w; }
-
-	CWorm		*getWorm(int w)				{ return cLocalWorms[w]; }
-	void		setWorm(int i, CWorm *w)	{ cLocalWorms[i] = w; }
 
 	bool		getGameReady()				{ return bGameReady; }
 	void		setGameReady(bool _g)		{ bGameReady = _g; }
