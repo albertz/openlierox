@@ -810,28 +810,40 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	std::string sMapFilename;
 	if(!random) {
 		sMapFilename = bs->readString();
-		client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
+		if(game.isClient())
+			client->getGameLobby().overwrite[FT_Map] = infoForLevel(GetBaseFilename(sMapFilename));
 	}
 	
 	// Other game details
-	client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
-	client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
-	client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
-	client->getGameLobby().overwrite[FT_TimeLimit] = (float)bs->readInt16();
-	client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
-	client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
-	client->getGameLobby().overwrite[FT_ShowBonusName] = bs->readBool();
+	if(game.isClient()) {
+		client->getGameLobby().overwrite[FT_GameMode] = GameModeInfo::fromNetworkModeInt(bs->readInt(1));
+		client->getGameLobby().overwrite[FT_Lives] = bs->readInt16();
+		client->getGameLobby().overwrite[FT_KillLimit] = bs->readInt16();
+		client->getGameLobby().overwrite[FT_TimeLimit] = (float)bs->readInt16();
+		client->getGameLobby().overwrite[FT_LoadingTime] = bs->readInt16();
+		client->getGameLobby().overwrite[FT_Bonuses] = bs->readBool();
+		client->getGameLobby().overwrite[FT_ShowBonusName] = bs->readBool();
+	}
+	else
+		bs->Skip(11);
 	client->fServertime = 0;
 	
 	// in server mode, server would reset this
 	if(game.isClient())
 		client->permanentText = "";
 	
-	if(client->getGeneralGameType() == GMT_TIME)
-		client->getGameLobby().overwrite[FT_TagLimit] = (float)bs->readInt16();
+	if(client->getGeneralGameType() == GMT_TIME) {
+		if(game.isClient())
+			client->getGameLobby().overwrite[FT_TagLimit] = (float)bs->readInt16();
+		else
+			bs->Skip(2);
+	}
 
 	// Set the gamescript
-	client->getGameLobby().overwrite[FT_Mod] = infoForMod(bs->readString());
+	if(game.isClient())
+		client->getGameLobby().overwrite[FT_Mod] = infoForMod(bs->readString());
+	else
+		bs->SkipString();
 	
 	// Bad packet
 	if (client->getGameLobby()[FT_Mod].as<ModInfo>()->name == "")  {
@@ -977,7 +989,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	client->projPosMap.resize(CClient::MapPosIndex( VectorD2<int>(game.gameMap()->GetWidth(), game.gameMap()->GetHeight())).index(game.gameMap()) );
 	client->cProjectiles.clear();
 
-	client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
+	if(game.isClient()) client->getGameLobby().overwrite[FT_GameSpeed] = 1.0f;
 	client->bServerChoosesWeapons = false;
 
 	// TODO: Load any other stuff
@@ -1022,6 +1034,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		}
 	}
 
+	if(game.isClient())
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
 		
@@ -1046,8 +1059,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		w->setWeaponsReady(false);
 
 		// Prepare for battle!
-		if(game.isClient())
-			w->Prepare();
+		w->Prepare();
 	}
 
 	// The worms are first prepared here in this function and thus the input handlers where not set before.
@@ -1099,6 +1111,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			GetGlobalIRC()->setAwayMessage("Playing: " + client->getServerName());
 	}
 	
+	if(game.isClient())
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
 			// Before 0.59b6, many settings have been outside of the FT array.
@@ -1131,10 +1144,14 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngine::ParsePrepareGame(bs) )
 		return false;
 
-	// >=Beta7 is sending this
-	client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
-	client->bServerChoosesWeapons = bs->readBool();
-
+	if(game.isClient()) {
+		// >=Beta7 is sending this
+		client->getGameLobby().overwrite[FT_GameSpeed] = bs->readFloat();
+		client->bServerChoosesWeapons = bs->readBool();
+	}
+	else
+		bs->Skip(5);
+	
     return true;
 }
 
@@ -1167,6 +1184,8 @@ void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 		if(!bs->readVar(value, (f && f->valueType == SVT_CUSTOM) ? &f->unsetValue.ptrCustom().get() : NULL))
 			errors << "ParseFeatureSettings: error while reading var " << name << " (" << humanName << ")" << endl;
 		bool olderClientsSupported = bs->readBool(); // to be understand as: if feature is unknown to us, it's save to ignore
+		
+		if(game.isServer()) continue; // ignore
 
 		// f != NULL -> we know about the feature -> we support it
 		if(f) {
@@ -1198,12 +1217,19 @@ bool CClientNetEngineBeta9::ParsePrepareGame(CBytestream *bs)
 	if( ! CClientNetEngineBeta7::ParsePrepareGame(bs) )
 		return false;
 
-	client->tGameInfo.overwrite[FT_TimeLimit] = bs->readFloat();
-	if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo.overwrite[FT_TimeLimit] = -1.0f;
+	if(game.isClient()) {
+		client->tGameInfo.overwrite[FT_TimeLimit] = bs->readFloat();
+		if((float)client->tGameInfo[FT_TimeLimit] < 0) client->tGameInfo.overwrite[FT_TimeLimit] = -1.0f;
+	}
+	else
+		bs->Skip(4);
 	
 	ParseFeatureSettings(bs);
 
-	client->getGameLobby().overwrite[FT_GameMode] = client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->withNewName(bs->readString());
+	if(game.isClient())
+		client->getGameLobby().overwrite[FT_GameMode] = client->getGameLobby()[FT_GameMode].as<GameModeInfo>()->withNewName(bs->readString());
+	else
+		bs->SkipString();
 	
 	// TODO: shouldn't this be somewhere in the clear function?
 	if(!isReconnect)
