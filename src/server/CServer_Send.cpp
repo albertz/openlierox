@@ -556,6 +556,8 @@ bool GameServer::SendUpdate()
 
 void CServerNetEngine::SendWeapons()
 {
+	if(cl->isLocalClient()) return;
+	
 	CBytestream bs;
 	
 	for_each_iterator(CWorm*, w, game.worms()) {
@@ -666,6 +668,7 @@ void CServerNetEngineBeta9::WriteFeatureSettings(CBytestream* bs, const Version&
 
 void CServerNetEngine::SendUpdateLobbyGame()
 {
+	if(cl->isLocalClient()) return;
 	CBytestream bs;
 	WriteUpdateLobbyGame(&bs);
 	SendPacket(&bs);
@@ -730,7 +733,9 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 			if( c != 0 )
 				break;
     	}
-			
+
+		if(cl->isLocalClient()) continue;
+
         if( cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE )
             continue;
 
@@ -751,6 +756,8 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 // Hide a worm at receiver's screen
 void CServerNetEngineBeta9::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
+	if(cl->isLocalClient()) return;
+
 	if (!worm)  {
 		errors << "Invalid worm or receiver in SendHideWorm" << endl;
 		return;
@@ -810,6 +817,7 @@ void GameServer::SendDisconnect()
 // Update the worm name, skin, colour etc
 void CServerNetEngine::SendUpdateWorm( CWorm* w )
 {
+	if(cl->isLocalClient()) return;
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
@@ -820,6 +828,7 @@ void CServerNetEngine::SendUpdateWorm( CWorm* w )
 // Version required to show question mark on damage popup number for older clients
 void CServerNetEngineBeta9::SendUpdateWorm( CWorm* w )
 {
+	if(cl->isLocalClient()) return;
 	CBytestream bytestr;
 	bytestr.writeByte(S2C_WORMINFO);
 	bytestr.writeInt(w->getID(), 1);
@@ -871,6 +880,7 @@ static const int minPingDefault = 200;
 
 int CServerNetEngineBeta5::SendFiles()
 {
+	if(cl->isLocalClient()) return 0;
 	if(cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 		return 0;
 	int ping = 0;
@@ -927,6 +937,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 		DumpConnections();
 		return;
 	}
+	if(cl->isLocalClient()) return;
 	int curWeapon = Worm->getCurrentWeapon();
 	for( int i = 0; i < 5; i++ )
 	{
@@ -955,6 +966,7 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 {
 	Worm->setSpawnedOnce();
+	if(cl->isLocalClient()) return;
 	
 	CBytestream bs;
 	bs.writeByte(S2C_SPAWNWORM);
@@ -967,6 +979,7 @@ void CServerNetEngine::SendSpawnWorm(CWorm *Worm, CVec pos)
 
 void CServerNetEngine::SendWormDied(CWorm *Worm)
 {
+	if(cl->isLocalClient()) return;
 	if(game.gameScript()->gusEngineUsed())
 		// we don't use this in Gusanos
 		return;
@@ -980,6 +993,7 @@ void CServerNetEngine::SendWormDied(CWorm *Worm)
 
 void CServerNetEngine::SendWormScore(CWorm *Worm)
 {
+	if(cl->isLocalClient()) return;
 	CBytestream bs;
 	bs.writeByte(S2C_SCOREUPDATE);
 	bs.writeInt(Worm->getID(), 1);
@@ -996,6 +1010,7 @@ void CServerNetEngine::SendWormScore(CWorm *Worm)
 
 void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 {
+	if(cl->isLocalClient()) return;
 	// If we have some damage reports in buffer send them first so clients won't sum up updated damage score and reported damage packet sent later
 	SendReportDamage(true);
 
@@ -1011,6 +1026,7 @@ void CServerNetEngineBeta9::SendWormScore(CWorm *Worm)
 
 void CServerNetEngineBeta9::QueueReportDamage(int victim, float damage, int offender)
 {
+	if(cl->isLocalClient()) return;
 	// Buffer up all damage and send it once per 0.1 second for LAN nettype, or once per 0.3 seconds for modem
 	std::pair< int, int > dmgPair = std::make_pair( victim, offender );
 	if( cDamageReport.count( dmgPair ) == 0 )
@@ -1022,6 +1038,10 @@ void CServerNetEngineBeta9::QueueReportDamage(int victim, float damage, int offe
 
 void CServerNetEngineBeta9::SendReportDamage(bool flush)
 {
+	if(cl->isLocalClient()) {
+		cDamageReport.clear();
+		return;
+	}
 	if( ! flush && tLX->currentTime - fLastDamageReportSent < 0.1f * ( NST_LOCAL - cl->getNetSpeed() ) )
 		return;
 
@@ -1046,6 +1066,7 @@ void CServerNetEngineBeta9::SendReportDamage(bool flush)
 }
 
 void CServerNetEngineBeta9::SendTeamScoreUpdate() {
+	if(cl->isLocalClient()) return;
 	// only do this in a team game
 	if(game.gameMode()->GeneralGameType() != GMT_TEAMS) return;
 
@@ -1066,6 +1087,7 @@ void GameServer::SendTeamScoreUpdate() {
 }
 
 void CServerNetEngine::SendWormProperties(bool onlyIfNotDef) {
+	if(cl->isLocalClient()) return;
 	for_each_iterator(CWorm*, w, game.worms()) {
 		if(onlyIfNotDef && isWormPropertyDefault(w->get())) continue;		
 		SendWormProperties(w->get());
@@ -1073,6 +1095,7 @@ void CServerNetEngine::SendWormProperties(bool onlyIfNotDef) {
 }
 
 void CServerNetEngine::SendWormProperties(CWorm* worm) {
+	if(cl->isLocalClient()) return;
 	if(!worm->isUsed()) {
 		warnings << "SendWormProperties called for unused worm" << endl;
 		return;
@@ -1084,6 +1107,7 @@ void CServerNetEngine::SendWormProperties(CWorm* worm) {
 }
 
 void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
+	if(cl->isLocalClient()) return;
 	if(!worm->isUsed()) {
 		warnings << "SendWormProperties called for unused worm" << endl;
 		return;
@@ -1115,6 +1139,7 @@ void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
 }
 
 void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
+	if(cl->isLocalClient()) return;
 	if(!worm->isUsed()) {
 		warnings << "SendSelectWeapons called for unused worm" << endl;
 		return;
@@ -1233,6 +1258,7 @@ void GameServer::SendPlaySound(const std::string& name) {
 
 void CServerNetEngine::SendCanRespawnNow(CWorm* w) {
 	if(cl->getClientVersion() < OLXBetaVersion(0,59,10)) return;
+	if(cl->isLocalClient()) return;
 
 	CBytestream bs;
 	bs.writeByte(S2C_CANRESPAWNNOW);
