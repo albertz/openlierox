@@ -45,43 +45,6 @@ void CWorm::writeInfo(CBytestream *bs)
 }
 
 
-void WormJoinInfo::loadFromProfile(profile_t* p) {
-	sName = RemoveSpecialChars(p->sName);
-	m_type = WormType::fromInt(p->iType);
-	if(m_type == NULL) {
-		warnings << "WormJoinInfo::loadFromProfile: profile has invalid WormType " << p->iType << endl;
-		m_type = PRF_HUMAN; // fallback
-	}
-	iTeam = CLAMP(p->iTeam, 0, 3);
-	skinFilename = p->cSkin.getFileName();
-	skinColor = Color(p->R, p->G, p->B);
-}
-
-///////////////////
-// Read info from a bytestream
-void WormJoinInfo::readInfo(CBytestream *bs)
-{
-	sName = bs->readString();
-
-	m_type = bs->readInt(1) ? PRF_COMPUTER : PRF_HUMAN;
-	iTeam = CLAMP(bs->readInt(1), 0, 3);
-	skinFilename = bs->readString();
-
-	Uint8 r = bs->readByte();
-	Uint8 g = bs->readByte();
-	Uint8 b = bs->readByte();
-	skinColor = Color(r, g, b);
-}
-
-
-void WormJoinInfo::applyTo(CWorm* worm) const {
-	worm->sName = sName;
-	worm->m_type = m_type;
-	worm->iTeam = iTeam;	
-	worm->cSkin.Change(skinFilename);
-	worm->cSkin.setDefaultColor(skinColor);
-	worm->cSkin.Colorize(skinColor);
-}
 
 // Note: We don't put charge into the update packet because we only send the update packet to
 //       _other_ worms, not to self

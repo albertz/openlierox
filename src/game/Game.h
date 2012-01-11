@@ -66,7 +66,7 @@ public:
 	CWorm* wormById(int wormId, bool assertExisting = true);
 	CWorm* firstLocalHumanWorm();
 	CWorm* findWormByName(const std::string& name);
-	CWorm* createNewWorm(int wormId, bool local, const profile_t& profile, const Version& clientVersion);
+	CWorm* createNewWorm(int wormId, bool local, const SmartPointer<profile_t>& profile, const Version& clientVersion);
 	int getNewUniqueWormId();
 	void removeWorm(CWorm* w);
 	

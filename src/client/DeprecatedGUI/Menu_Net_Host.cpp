@@ -50,6 +50,8 @@
 #include "game/Mod.h"
 #include "game/Game.h"
 #include "game/SettingsPreset.h"
+#include "client/ClientConnectionRequestInfo.h"
+#include "Utils.h"
 
 
 /*
@@ -162,19 +164,16 @@ bool Menu_Net_HostInitialize()
 	cHostPly.SendMessage( hs_PlayerList,   LVS_ADDCOLUMN, "",60);
 	cHostPly.SendMessage( hs_Playing,      LVS_ADDCOLUMN, "Playing",24);
 	cHostPly.SendMessage( hs_Playing,      LVS_ADDCOLUMN, "",60);
-
+	
 	// Add players to the list
-	profile_t *p = GetProfiles();
-	for(;p;p=p->tNext) {
-		/*if(p->iType == PRF_COMPUTER)
-			continue;*/
-
-		cHostPly.SendMessage( hs_PlayerList, LVS_ADDITEM, "", p->iID);
+	int i = 0;
+	for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
+		cHostPly.SendMessage( hs_PlayerList, LVS_ADDITEM, "", i++);
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE ); // TODO: 64bit unsafe (pointer cast)
 		//cHostPly.SendMessage( hs_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
 		CListview * w = (CListview *) cHostPly.getWidget(hs_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
-		w->AddSubitem( LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL );
+		w->AddSubitem( LVS_IMAGE, "", p->get()->cSkin.getPreview(), NULL );
+		w->AddSubitem( LVS_TEXT, p->get()->sName, (DynDrawIntf*)NULL, NULL );
 	}
 
 	iHumanPlayers = 0;
@@ -265,7 +264,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 {
 	gui_event_t *ev = NULL;
 	CListview	*lv, *lv2;
-	profile_t	*ply;
+	SmartPointer<profile_t> ply;
 
 	// Process & Draw the gui
 	ev = cHostPly.Process();
@@ -340,7 +339,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 						// Get the profile
 						ply = FindProfile(index);
 
-						if(ply) {
+						if(ply.get()) {
 							if (ply->iType == PRF_COMPUTER->toInt() || iHumanPlayers < 1)  {
 								lv2->AddItem("",index,tLX->clListView);
 								lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
@@ -375,7 +374,7 @@ void Menu_Net_HostPlyFrame(int mouse)
 
 					ply = FindProfile(index);
 
-					if(ply) {
+					if(ply.get()) {
 						lv2->AddItem("",index,tLX->clListView);
 						lv2->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
 						lv2->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
@@ -450,43 +449,30 @@ void Menu_Net_HostPlyFrame(int mouse)
 						break;
 					}
 
-					// Fill in the game structure
-					lv_item_t* item;
-					int count=0;
-
-					int i=0;
+					// Fill in the game structure					
+					cClient->connectInfo = new ClientConnectionRequestInfo;
 
 					// Add the human players to the list
-					for(item = lv->getItems(); item != NULL; item = item->tNext) {
+					for(lv_item_t* item = lv->getItems(); item != NULL; item = item->tNext) {
 						if(item->iIndex < 0)
 							continue;
 
-						profile_t *ply = FindProfile(item->iIndex);
+						SmartPointer<profile_t> ply = FindProfile(item->iIndex);
 
-						if(ply != NULL && ply->iType == PRF_HUMAN->toInt())  {
-							// Max two humans
-							// TODO: extend this
-							if(i > 2)
-								break;
-
-							cClient->getLocalWormProfiles()[count++] = ply;
-							i++;
-						}
-
+						if(ply.get() && ply->iType == PRF_HUMAN->toInt())
+							cClient->connectInfo->worms.push_back(ply);
 					}
 
 					// Add the unhuman players to the list
-					for(item = lv->getItems(); item != NULL; item = item->tNext) {
+					for(lv_item_t* item = lv->getItems(); item != NULL; item = item->tNext) {
 						if(item->iIndex < 0)
 							continue;
 
-						profile_t *ply = FindProfile(item->iIndex);
+						SmartPointer<profile_t> ply = FindProfile(item->iIndex);
 
-						if(ply != NULL && ply->iType != PRF_HUMAN->toInt())  {
-							cClient->getLocalWormProfiles()[count++] = ply;
-						}
+						if(ply.get() && ply->iType != PRF_HUMAN->toInt())
+							cClient->connectInfo->worms.push_back(ply);
 					}
-					cClient->setNumWorms(count);
 
 					// Get the server name
 					cHostPly.SendMessage( hs_Servername, TXS_GETTEXT, &tLXOptions->sServerName, 0);
@@ -1058,7 +1044,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					cHostLobby.SendMessage(hl_ChatText, TXS_SETTEXT, "", 0);
 
 					// Send
-					cClient->getNetEngine()->SendText(text, cClient->getWorm(0) ? cClient->getWorm(0)->getName() : "");
+					cClient->getNetEngine()->SendText(text, ifTrue<std::string,CWorm*>(game.firstLocalHumanWorm(), &CWorm::getName, ""));
 				}
 				else if(ev->iEventMsg == TXT_TAB) {
 					if(strSeemsLikeChatCommand(Menu_Net_HostLobbyGetText())) {
@@ -1202,12 +1188,10 @@ void Menu_Net_HostLobbyFrame(int mouse)
 					// Click on the team mark
 					} else if (ev->cWidget->getType() == wid_Image && ev->iEventMsg == IMG_CLICK)  {
 						int id = ev->cWidget->getID();
-						if (id >= MAX_WORMS || id < 0 || !cServer->getWorms()) // Safety
-							break;
-
 						// Set the team
-						CWorm *w = cServer->getWorms() + id;
-						w->setTeam((w->getTeam() + 1) % game.gameMode()->GameTeams());
+						CWorm *w = game.wormById(id, false);
+						if(w)
+							w->setTeam((w->getTeam() + 1) % game.gameMode()->GameTeams());
 
 						cServer->SendWormLobbyUpdate();  // Update
 						bHost_Update = true;
@@ -1257,7 +1241,7 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	DrawCursor(VideoPostProcessor::videoSurface());
 
 	int secondsTillGameStart = iStartDedicatedSeconds - Round( (tLX->currentTime - fStartDedicatedSecondsPassed).seconds() );
-	if( bStartDedicated && cServer->getNumPlayers() < iStartDedicatedMinPlayers )
+	if( bStartDedicated && (int)game.worms()->size() < iStartDedicatedMinPlayers )
 	{
 		if( tLX->currentTime - fStartDedicatedSecondsPassed > (float)iStartDedicatedServerSpamsSomeInfoTimeout )
 		{
@@ -1277,11 +1261,12 @@ void Menu_Net_HostLobbyFrame(int mouse)
 	}
 
 	if( bStartPressed ||
-		( bStartDedicated && cServer->getNumPlayers() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
+		( bStartDedicated && (int)game.worms()->size() >= iStartDedicatedMinPlayers && secondsTillGameStart <= 0 ) )
 	{
 		// Local client will spectate if this is an auto-start (auto-select weapons)
-		if (cClient->getWorm(0))  {
-			cServer->getWorms()[cClient->getWorm(0)->getID()].setSpectating(!bStartPressed);
+		for_each_iterator(CWorm*, w, game.localWorms()) {
+			if(w->get()->getType() == PRF_HUMAN)
+				w->get()->setSpectating(!bStartPressed);
 		}
 
 		Menu_Net_HostStartGame();
@@ -1372,19 +1357,13 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		return;
 	}
 
-	if(cClient->getRemoteWorms() == NULL) {
-		errors << "Menu_HostDrawLobby: remote worms are not initialised" << endl;
-		return;
-	}
-	
 	// Update the pings first
-	CWorm *w = cClient->getRemoteWorms();
-	for (int i=0; i < MAX_PLAYERS; i++, w++)  {
-		CServerConnection *client = cServer->getClient(w->getID());
+	for_each_iterator(CWorm*, w, game.worms()) {
+		CServerConnection *client = cServer->getClient(w->get()->getID());
 		if(!client) continue;
 		if(client->isLocalClient()) continue; // don't show ping for host worm
 
-		lv_subitem_t *subit = player_list->getSubItem(i, 5);
+		lv_subitem_t *subit = player_list->getSubItem(w->get()->getID(), 5);
 		if (subit)
 			subit->sText = itoa(client->getPing());
 	}
@@ -1396,13 +1375,11 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 	player_list->SaveScrollbarPos();
 	player_list->Clear();  // Clear any old info
 
-	w = cServer->getWorms();
 	CButton *cmd_button = NULL;
 	CImage *team_img = NULL;
 
-	for (int i=0; i < MAX_PLAYERS; i++, w++)  {
-		if (!w->isUsed())  // Don't bother with unused worms
-			continue;
+	for_each_iterator(CWorm*, w_, game.worms()) {
+		CWorm* w = w_->get();
 
 		w->ChangeGraphics(game.gameMode()->GeneralGameType());
 
@@ -1415,7 +1392,7 @@ void Menu_HostDrawLobby(SDL_Surface * bmpDest)
 		cmd_button->Setup(w->getID(), 0, 0, gfxGUI.bmpCommandBtn.get()->w, gfxGUI.bmpCommandBtn.get()->h);
 
 		// Add the item
-		player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
+		player_list->AddItem(w->getName(), w->getID(), tLX->clNormalLabel);
 		player_list->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, cmd_button);  // Command button
 		if (w->getLobbyReady())  // Ready control
 			player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
@@ -1824,8 +1801,8 @@ void Menu_HostActionsPopupMenuInitialize( CGuiLayout & layout, int id_PopupMenu,
 
 						if (wormid < 0 || wormid >= MAX_WORMS)
 							return;
-						CWorm *w = &cServer->getWorms()[wormid];
-						if (!w->isUsed())
+						CWorm *w = game.wormById(wormid, false);
+						if (!w)
 							return;
 
 						CServerConnection *remote_cl = cServer->getClient(wormid);
@@ -1928,7 +1905,8 @@ void Menu_HostActionsPopupMenuClick(CGuiLayout & layout, int id_PopupMenu, int i
 
 						if (mnu->getItem(4) && g_nLobbyWorm >= 0 && wormid < MAX_WORMS)  {
 							bool spec = mnu->getItem(4)->bChecked;
-							CWorm *w = &cServer->getWorms()[wormid];
+							CWorm *w = game.wormById(wormid, false);
+							if(!w) break;
 							w->setSpectating(spec);
 							std::string buf;
 							if (spec)  {
@@ -1953,8 +1931,8 @@ void Menu_HostActionsPopupPlayerInfoClick(CGuiLayout & layout, int id_PopupMenu,
 {
 				if (wormid < 0 || wormid >= MAX_WORMS)
 					return;
-				CWorm *w = &cServer->getWorms()[wormid];
-				if (!w->isUsed())
+				CWorm *w = game.wormById(wormid, false);
+				if (!w)
 					return;
 
 				NetworkAddr addr = w->getClient()->getChannel()->getSocket()->remoteAddress();

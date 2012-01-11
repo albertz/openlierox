@@ -890,7 +890,7 @@ void Cmd_connect::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		(params.size() >= 2) ? params[1] :
 		bDedicated ? FindFirstCPUProfileName() :
 		tLXOptions->sLastSelectedPlayer;
-	if(params.size() == 1 && player == "" && GetProfiles()) player = GetProfiles()->sName;
+	if(params.size() == 1 && player == "") player = MainHumanProfile()->sName;
 	if(!JoinServer(server, server, player)) return;
 	
 	if(!bDedicated) {
@@ -1101,10 +1101,10 @@ void Cmd_addHuman::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	std::string player = (params.size() > 0) ? params[0] : tLXOptions->sLastSelectedPlayer;
 	TrimSpaces(player);
 	StripQuotes(player);
-	if(player == "" && GetProfiles()) player = GetProfiles()->sName;
-			
-	profile_t *p = FindProfile(player);
-	if(p) {
+	if(player == "") player = MainHumanProfile()->sName;
+	
+	SmartPointer<profile_t> p = FindProfile(player);
+	if(p.get()) {
 		if(p->iType != PRF_HUMAN->toInt()) {
 			caller->writeMsg("worm " + player + " is not a human player", CNC_WARNING);
 			return;
@@ -1156,8 +1156,8 @@ void Cmd_addBot::exec(CmdLineIntf* caller, const std::vector<std::string>& param
 		TrimSpaces(localWorm);
 		StripQuotes(localWorm);
 		
-		profile_t *p = FindProfile(localWorm);
-		if(p) {
+		SmartPointer<profile_t> p = FindProfile(localWorm);
+		if(p.get()) {
 			if(p->iType != PRF_COMPUTER->toInt()) {
 				caller->writeMsg("worm " + localWorm + " is not a bot", CNC_WARNING);
 				return;

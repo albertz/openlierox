@@ -52,6 +52,7 @@
 #include "game/Level.h"
 #include "game/SettingsPreset.h"
 #include "CGameScript.h"
+#include "client/ClientConnectionRequestInfo.h" // for WormJoinInfo
 
 
 GameServer	*cServer = NULL;
@@ -432,7 +433,7 @@ int GameServer::StartGame(std::string* errMsg)
 		w->get()->setTeamkills(0);
 		w->get()->setDamage(0);
 		w->get()->setWeaponsReady(false);
-		w->get()->Prepare(true);
+		w->get()->Prepare();
 	}
 
 	// Clear bonuses
@@ -1797,7 +1798,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	int wormId = game.getNewUniqueWormId();
 	if(wormId >= MAX_WORMS) return NULL;
 	
-	CWorm* w = game.createNewWorm(wormId, false, profile_t(), Version());
+	CWorm* w = game.createNewWorm(wormId, false, new profile_t(), Version());
 	w->setUsed(true);
 	wormInfo.applyTo(w);
 	w->setupLobby();

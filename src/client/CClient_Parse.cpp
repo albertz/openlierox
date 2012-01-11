@@ -219,13 +219,13 @@ void CClientNetEngine::ParseChallenge(CBytestream *bs)
 
 	foreach(w, client->connectInfo->worms) {
 		// TODO: move this out here
-		bytestr.writeString(RemoveSpecialChars(w->sName));
-		bytestr.writeInt(w->iType,1);
-		bytestr.writeInt(w->iTeam,1);
-		bytestr.writeString(w->cSkin.getFileName());
-		bytestr.writeInt(w->R,1);
-		bytestr.writeInt(w->G,1);
-		bytestr.writeInt(w->B,1);
+		bytestr.writeString(RemoveSpecialChars((*w)->sName));
+		bytestr.writeInt((*w)->iType, 1);
+		bytestr.writeInt((*w)->iTeam,1);
+		bytestr.writeString((*w)->cSkin.getFileName());
+		bytestr.writeInt((*w)->R, 1);
+		bytestr.writeInt((*w)->G, 1);
+		bytestr.writeInt((*w)->B, 1);
 	}
 
 	client->tSocket->reapplyRemoteAddress();
@@ -1045,7 +1045,8 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		w->setWeaponsReady(false);
 
 		// Prepare for battle!
-		w->Prepare(false);
+		if(game.isClient())
+			w->Prepare();
 	}
 
 	// The worms are first prepared here in this function and thus the input handlers where not set before.
@@ -1403,7 +1404,7 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	bool newWorm = false;
 	CWorm* w = game.wormById(id, false);
 	if (w == NULL)  {
-		w = game.createNewWorm(id, false, profile_t(), Version());
+		w = game.createNewWorm(id, false, new profile_t(), Version());
 		newWorm = true;
 	}
 	
@@ -1414,8 +1415,10 @@ int CClientNetEngine::ParseWormInfo(CBytestream *bs)
 	if(newWorm) {
 		w->setLives(((int)client->getGameLobby()[FT_Lives] < 0) ? WRM_UNLIM : client->getGameLobby()[FT_Lives]);
 		w->setClient(NULL); // Client-sided worms won't have CServerConnection
-		if (client->iNetStatus == NET_PLAYING || client->bGameReady)
-			w->Prepare(false);
+		if (client->iNetStatus == NET_PLAYING || client->bGameReady) {
+			if(game.isClient())
+				w->Prepare();
+		}
 		if( client->getServerVersion() < OLXBetaVersion(0,58,1) &&
 			! w->getLocal() )	// Pre-Beta9 servers won't send us info on other clients version
 			w->setClientVersion(Version());	// LX56 version

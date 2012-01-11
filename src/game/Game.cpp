@@ -42,6 +42,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
+#include <boost/bind.hpp>
 
 Game game;
 
@@ -416,15 +417,19 @@ Iterator<CWorm*>::Ref Game::worms() {
 }
 
 Iterator<CWorm*>::Ref Game::localWorms() {
-	return GetFilterIterator(worms(), &CWorm::getLocal);
+	return GetFilterIterator<CWorm*>(worms(), &CWorm::getLocal);
 }
 
 Iterator<CWorm*>::Ref Game::aliveWorms() {
-	return GetFilterIterator(worms(), &CWorm::getAlive);
+	return GetFilterIterator<CWorm*>(worms(), &CWorm::getAlive);
+}
+
+static bool _wormClientEqual(CWorm* w, const CServerConnection* cl) {
+	return w->getClient() == cl;
 }
 
 Iterator<CWorm*>::Ref Game::wormsOfClient(const CServerConnection* cl) {
-	
+	return GetFilterIterator<CWorm*>(worms(), boost::bind(_wormClientEqual, _1, cl) );
 }
 
 CWorm* Game::wormById(int wormId, bool assertExisting) {
@@ -451,16 +456,23 @@ CWorm* Game::findWormByName(const std::string& name) {
 	return NULL;
 }
 
-CWorm* Game::createNewWorm(int wormId, bool local, const profile_t& profile, const Version& clientVersion) {
+CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>& profile, const Version& clientVersion) {
 	assert(wormById(wormId, false) == NULL);
 	CWorm* w = new CWorm();
 	w->setID(wormId);
 	w->setUsed(true);
 	w->setClient(NULL); // Local worms won't get CServerConnection owner
-	w->setTeam(profile.iTeam);
-	w->setType(WormType::fromInt(profile.iType));
+	w->setName(profile->sName);
+	w->setSkin(profile->cSkin);
+	w->setTeam(profile->iTeam);
+	w->setType(WormType::fromInt(profile->iType));
+	if(local && bDedicated && w->getType() == PRF_HUMAN) {
+		warnings << "createNewWorm: local human worm creation on dedicated server -> make it a bot instead" << endl;
+		w->setType(PRF_COMPUTER);
+	}
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
+	w->setProfile(profile);
 	return w;
 }
 

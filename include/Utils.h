@@ -16,6 +16,7 @@
 #include <list>
 #include <cassert>
 #include <set>
+#include <boost/function.hpp>
 #include "MathLib.h"
 
 template <typename _dst, typename _src>
@@ -66,6 +67,12 @@ std::vector<T> ListAsVector(const std::list<T>& l) {
 template<typename T> std::set<T> Set(T v1) { std::set<T> ret; ret.insert(v1); return ret; }
 template<typename T> std::set<T> Set(T v1, T v2) { std::set<T> ret; ret.insert(v1); ret.insert(v2); return ret; }
 template<typename T> std::set<T> Set(T v1, T v2, T v3) { std::set<T> ret; ret.insert(v1); ret.insert(v2); ret.insert(v3); return ret; }
+
+template<typename RetT, typename ArgT>
+RetT ifTrue(ArgT v, boost::function<RetT (ArgT)> f, RetT fallback = RetT()) {
+	if(v) return f(v);
+	return fallback;
+}
 
 #endif
 

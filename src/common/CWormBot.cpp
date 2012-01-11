@@ -4087,7 +4087,7 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 	fLastCompleting = AbsTime();
 	fLastGoBack = AbsTime();
 
-	if(w->tProfile)
+	if(w->tProfile.get())
 		iAiDiffLevel = CLAMP(w->tProfile->nDifficulty, 0, 3);
 	else
 		iAiDiffLevel = AI_MEDIUM;

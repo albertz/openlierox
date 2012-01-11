@@ -31,7 +31,6 @@
 #include "Entity.h"
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
-#include "NewNetEngine.h"
 #include "DynDraw.h"
 #include "CGameObject.h"
 #include "util/VecTimeRecorder.h"
@@ -57,6 +56,7 @@ class SpriteSet;
 class BaseAnimator;
 class CViewport;
 #endif
+struct profile_t;
 
 
 #ifdef _MSC_VER
@@ -175,8 +175,8 @@ public:
 
 private:
 	// disallow these!
-	CWorm(const CWorm&): cNinjaRope(this), cSparkles(this) { assert(false); }
-	CWorm& operator=(const CWorm&) { assert(false); return *this; }
+	CWorm(const CWorm&);
+	CWorm& operator=(const CWorm&);
 	
 protected:
 	// Attributes
@@ -193,6 +193,7 @@ protected:
 	bool		bSpectating;
 	bool		bSpawnedOnce;
 	bool		bCanRespawnNow; // this is only a hint for the client. the server has its own handling independent of this
+	SmartPointer<profile_t> tProfile; // used to read (AI)nDifficulty and read/write human player weapons
 	
 	// Client info
 	int			iClientID;
@@ -391,7 +392,7 @@ public:
 	// Game
 	//
 	bool		isPrepared() { return bIsPrepared; }
-	void		Prepare(bool serverSide); // weapon selection and so on
+	void		Prepare(); // weapon selection and so on
 	void		Unprepare(); // after a game
 	void		StartGame();
 	void		Spawn(CVec position);
@@ -479,6 +480,9 @@ public:
 	WormType*	getType()				{ return m_type; }
     void        setType(WormType* t)        { m_type = t; }
 
+	const SmartPointer<profile_t>& getProfile() const;
+	void setProfile(const SmartPointer<profile_t>& p);
+	
 	bool		getAlive()				{ return bAlive; }
 
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
@@ -851,19 +855,5 @@ private:
 
 
 int traceWormLine(CVec target, CVec start, CVec* collision = NULL);
-
-struct WormJoinInfo {
-	WormJoinInfo() : iTeam(0), m_type(NULL) {}
-	void loadFromProfile(profile_t* p);	
-	void readInfo(CBytestream *bs);
-	static bool	skipInfo(CBytestream *bs)  { bs->SkipString(); bs->Skip(2); bs->SkipString(); return bs->Skip(3); }
-	void applyTo(CWorm* worm) const;
-	
-	std::string sName;
-	int iTeam;
-	WormType* m_type;
-	std::string skinFilename;
-	Color skinColor;
-};
 
 #endif  //  __CWORM_H__

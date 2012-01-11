@@ -96,20 +96,19 @@ bool Menu_Net_NETInitialize()
     */
 
 	// Add players to the list
-	profile_t *p = GetProfiles();
 	bool validName = false;
-	for(;p;p=p->tNext) {
-		if(p->iType == PRF_COMPUTER->toInt())
+	for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
+		if(p->get()->iType == PRF_COMPUTER->toInt())
 			continue;
 
-		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->sName, p->sName);
-		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->cSkin.getPreview(), i);
-		if( p->sName == tLXOptions->sLastSelectedPlayer )
-			validName=true;
+		int i = ((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->addItem(p->get()->sName, p->get()->sName);
+		((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setImage(p->get()->cSkin.getPreview(), i);
+		if( p->get()->sName == tLXOptions->sLastSelectedPlayer )
+			validName = true;
 	}
 
 	if( ! validName )
-		tLXOptions->sLastSelectedPlayer = GetProfiles()->sName;
+		tLXOptions->sLastSelectedPlayer = MainHumanProfile()->sName;
 
 	((CCombobox*) cInternet.getWidget( mi_PlayerSelection ))->setCurSIndexItem( tLXOptions->sLastSelectedPlayer );
 

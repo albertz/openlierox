@@ -23,6 +23,7 @@
 #include "util/macros.h"
 #include "game/Settings.h"
 #include "game/Game.h"
+#include "client/ClientConnectionRequestInfo.h"
 
 
 SinglePlayerGame singlePlayerGame;
@@ -125,38 +126,10 @@ bool SinglePlayerGame::setLevel(int levelNr) {
 }
 
 static bool addPlayerToClient() {
-	// Initialize has cleaned up all worms, so this is not necessarily needed
-	cClient->setNumWorms(0);
-
-	std::string player = tLXOptions->sLastSelectedPlayer;
-	profile_t *ply = (player == "") ? FindProfile(player) : NULL;
-	if(ply == NULL) {
-		for(ply = GetProfiles(); ply; ply = ply->tNext) {
-			if(ply->iType == PRF_HUMAN->toInt())
-				// ok
-				break;
-		}
-	}
-	if(ply == NULL) {
-		// there is no single human player
-		AddDefaultPlayers();
-		// try again
-		for(ply = GetProfiles(); ply; ply = ply->tNext) {
-			if(ply->iType == PRF_HUMAN->toInt())
-				// ok
-				break;
-		}		
-	}
-	if(ply == NULL) {
-		errors << "addPlayerToClient: this really should never happen, something very messed up happend" << endl;
-		return false;
-	}
-
-	// this is the current (ugly) way to tell CClient to create a local worm later on with that profile
+	// this is the current way to tell CClient to create a local worm later on with that profile
 	// that is done in CClientNetEngine::ParseConnected or updateAddedWorms
-	cClient->getLocalWormProfiles()[0] = ply;
-	cClient->setNumWorms(1);
-	
+	cClient->connectInfo = new ClientConnectionRequestInfo;
+	cClient->connectInfo->worms.push_back(MainHumanProfile());	
 	return true;
 }
 
@@ -280,16 +253,9 @@ void SinglePlayerGame::Simulate() {
 		cServer->RecheckGame();
 }
 
-static CWorm* ourLocalHumanWorm() {
-	for(int i = 0; i < cClient->getNumWorms(); ++i)
-		if(dynamic_cast<CWormHumanInputHandler*>( cClient->getWorm(i)->getOwner() ) != NULL)
-			return cClient->getWorm(i);
-	return NULL;
-}
-
 bool SinglePlayerGame::CheckGameOver() {
 	if(standardGameMode && standardGameMode->CheckGameOver()) {
-		CWorm* w = ourLocalHumanWorm();
+		CWorm* w = game.firstLocalHumanWorm();
 		if(w && standardGameMode->Winner() == w->getID())
 			setLevelSucceeded();
 		else if(w && standardGameMode->isTeamGame() && standardGameMode->WinnerTeam() == w->getTeam())
@@ -307,7 +273,7 @@ int SinglePlayerGame::Winner() {
 		return -1;
 	}
 	
-	CWorm* w = ourLocalHumanWorm();
+	CWorm* w = game.firstLocalHumanWorm();
 	if(w) return w->getID();
 	
 	return -1;

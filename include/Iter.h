@@ -261,7 +261,7 @@ struct FilterIterator : public Iterator<T> {
 		}
 	}
 	virtual bool operator==(const Iterator<T>& other) const {
-		if(FilterIterator* o2 = dynamic_cast<FilterIterator*>(&other))
+		if(const FilterIterator* o2 = dynamic_cast<const FilterIterator*>(&other))
 			return baseIter.get() == o2->baseIter.get();
 		return baseIter.get() == other;
 	}
@@ -269,7 +269,7 @@ struct FilterIterator : public Iterator<T> {
 };
 
 template<typename T>
-typename Iterator<T>::Ref GetFilterIterator(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
+::Ref<Iterator<T> > GetFilterIterator(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
 	return new FilterIterator<T>(i, pred);
 }
 
@@ -295,6 +295,11 @@ typename Iterator<T>::Ref FullCopyIterator(::Ref<Iterator<T> > i) {
 	for_each_iterator(T, x, i)
 		copy->push_back(x->get());
 	return new ProxyIterator<T, boost::shared_ptr< std::vector<T> > >(GetIterator(*copy), copy);
+}
+
+template<typename T>
+bool any(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
+	return GetFilterIterator<T>(i, pred)->isValid();
 }
 
 #endif

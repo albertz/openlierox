@@ -108,7 +108,7 @@ void CWorm::Clear()
 	bSpectating = false;
 	iAFK = AFK_BACK_ONLINE;
 	sAFKMessage = "";
-
+	
 	iKills = 0;
 	iDeaths = 0;
 	iSuicides = 0;
@@ -241,10 +241,10 @@ void CWorm::FreeGraphics()
 
 ///////////////////
 // Prepare the worm for the game
-void CWorm::Prepare(bool serverSide)
+void CWorm::Prepare()
 {
 	if(game.gameScript() == NULL || !game.gameScript()->isLoaded()) {
-		errors << "CWorm::Prepare " << (serverSide ? "server" : "client") << " for worm " << getID() << ":" << getName() << ": gamescript not loaded" << endl;
+		errors << "CWorm::Prepare for worm " << getID() << ":" << getName() << ": gamescript not loaded" << endl;
 		return;
 	}
 
@@ -261,11 +261,11 @@ void CWorm::Prepare(bool serverSide)
 	setSuicides(0);
 	setDeaths(0);
 	
-	setSpeedFactor(1);
 	setCanUseNinja(true);
-	setDamageFactor(1);
-	setShieldFactor(1);
-	setCanAirJump(false);
+	setSpeedFactor(cClient->getGameLobby()[FT_WormSpeedFactor]);
+	setDamageFactor(cClient->getGameLobby()[FT_WormDamageFactor]);
+	setShieldFactor(cClient->getGameLobby()[FT_WormShieldFactor]);
+	setCanAirJump(cClient->getGameLobby()[FT_InstantAirJump]);
 
 	iCurrentWeapon = 0;
 
@@ -276,21 +276,19 @@ void CWorm::Prepare(bool serverSide)
 		m_inputHandler = NULL;
 	}
 
-	if(!serverSide) {
-		// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
-		// NOTE: this is only a workaround for now and not very elegant
-		gusShutdown();
-		gusInit();
-		game.onNewWorm(this);
-	}
+	// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
+	// NOTE: this is only a workaround for now and not very elegant
+	gusShutdown();
+	gusInit();
+	game.onNewWorm(this);
 	
-	if(!serverSide && game.isServer()) {
+	if(game.isServer()) {
 		// register network worm-node
 		// as client, we do that in Net_cbNodeRequest_Dynamic
 		NetWorm_Init(true);		
 	}
 		
-	if(!serverSide && game.needToCreateOwnWormInputHandlers()) {
+	if(game.needToCreateOwnWormInputHandlers()) {
 		if(bLocal) {
 			m_inputHandler = m_type->createInputHandler(this);
 			m_inputHandler->assignNetworkRole(true);
@@ -311,14 +309,7 @@ void CWorm::Prepare(bool serverSide)
 		}		
 	}
 	
-	if(serverSide) {
-		setSpeedFactor(gameSettings[FT_WormSpeedFactor]);
-		setDamageFactor(gameSettings[FT_WormDamageFactor]);
-		setShieldFactor(gameSettings[FT_WormShieldFactor]);
-		setCanAirJump(gameSettings[FT_InstantAirJump]);
-	}
-
-	if(!serverSide && game.gameScript()->gusEngineUsed()) {
+	if(game.gameScript()->gusEngineUsed()) {
 		// we set this so that the OLX part sees that wpn selection is ready and it sends the ImReady packet
 		// Gusanos has own weapon handling, this isn't merge yet (not sure if it even would make sense to merge)
 		bWeaponsReady = true;		
@@ -1485,6 +1476,15 @@ void CWorm::reinitInputHandler() {
 		}
 	}	
 }
+
+const SmartPointer<profile_t>& CWorm::getProfile() const {
+	return tProfile;
+}
+
+void CWorm::setProfile(const SmartPointer<profile_t>& p) {
+	tProfile = p;
+}
+
 
 void CWorm::NewNet_CopyWormState(const CWorm & w)
 {

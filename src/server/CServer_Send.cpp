@@ -14,7 +14,8 @@
 // Jason Boettcher
 
 #include <vector>
-
+#include <boost/lambda/lambda.hpp>
+#include <boost/bind.hpp>
 
 #include "LieroX.h"
 #include "CServer.h"
@@ -37,6 +38,7 @@
 #include "gusanos/network.h"
 #include "game/Level.h"
 #include "CGameScript.h"
+#include "Utils.h"
 
 
 // declare them only locally here as nobody really should use them explicitly
@@ -91,18 +93,13 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 		// have to send this.
 	//}
 
-	if ((receiver && receiver->getClientVersion() >= OLXBetaVersion(8)) || cl->getNumWorms() <= 2)  {
+	if ((receiver && receiver->getClientVersion() >= OLXBetaVersion(8)) || game.wormsOfClient(cl)->size() <= 2)  {
 		CBytestream bytes;
 		bytes.writeByte(S2C_CLREADY);
-		bytes.writeByte(cl->getNumWorms());
-		for (int i = 0;i < cl->getNumWorms();i++) {
-			if(!cl->getWorm(i) || !cl->getWorm(i)->isUsed()) {
-				errors << "SendClientReady: local worm nr " << i << " is wrong" << endl;
-				goto SendReadySeperatly; // we cannot send them together 
-			}
-
+		bytes.writeByte(game.wormsOfClient(cl)->size());
+		for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
 			// Send the weapon info here (also contains id)
-			cl->getWorm(i)->writeWeapons(&bytes);
+			w->get()->writeWeapons(&bytes);
 		}
 		
 		if(receiver)
@@ -113,19 +110,12 @@ void CServerNetEngine::SendClientReady(CServerConnection* receiver) {
 	} else { // old client && numworms > 2
 
 		// Note: LX56 assumes that a client can have only 2 worms.
-		
-	SendReadySeperatly:
-		
-		for (int i = 0; i < cl->getNumWorms(); i++) {
-			if(!cl->getWorm(i) || !cl->getWorm(i)->isUsed()) {
-				errors << "SendClientReady: local worm nr " << i << " is wrong" << endl;
-				continue;
-			}
-			
+				
+		for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
 			CBytestream bytes;
 			bytes.writeByte(S2C_CLREADY);
 			bytes.writeByte(1);
-			cl->getWorm(i)->writeWeapons(&bytes);
+			w->get()->writeWeapons(&bytes);
 			if(receiver)
 				receiver->getNetEngine()->SendPacket(&bytes);
 			else
@@ -164,11 +154,15 @@ void CServerNetEngine::SendPrepareGame()
 	SendPacket( &bs );
 }
 
-void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm,  bool show, bool immediate)
+static bool _wormIdEqual(CWorm* w, int wormId) {
+	return w->getID() == wormId;
+}
+
+void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
 	// For old clients we move the worm out of the map and kill it
-	
-	if(cl->getNumWorms() == 0 || cl->getWorm(0)->getID() != forworm)
+
+	if(!any<CWorm*>(game.wormsOfClient(cl), boost::bind(_wormIdEqual, _1, forworm)))
 		// ignore it
 		return;
 	
@@ -219,10 +213,10 @@ void CServerNetEngineBeta7::WritePrepareGame(CBytestream *bs)
 	// Set random weapons for spectating client, so it will skip weapon selection screen
 	// Never do this for local client, local client must know correct state of serverChoosesWeapons!
 	// TODO: it's hacky, don't have any ideas now how to make it nice
-	bool spectate = cl->getNumWorms() > 0 && !cl->isLocalClient();
+	bool spectate = !cl->isLocalClient() && game.wormsOfClient(cl)->size() > 0;
 	if(spectate)
-		for(int i = 0; i < cl->getNumWorms(); ++i)
-			if(cl->getWorm(i) && !cl->getWorm(i)->isSpectating()) {
+		for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+			if(!w->get()->isSpectating()) {
 				spectate = false;
 				break;
 			}
@@ -502,9 +496,9 @@ bool GameServer::SendUpdate()
 				{
 					bool need_send = false;
 					{
-						for (short j=0; j < cl->getNumWorms(); j++)
-							if (cl->getWorm(j)->checkStatePacketNeeded())  {
-								cl->getWorm(j)->updateStatCheckVariables();
+						for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+							if (w->get()->checkStatePacketNeeded())  {
+								w->get()->updateStatCheckVariables();
 								need_send = true;
 								break;
 							}
@@ -513,9 +507,9 @@ bool GameServer::SendUpdate()
 					// Only if necessary
 					if (need_send)  {
 						bs->writeByte( S2C_UPDATESTATS );
-						bs->writeByte( cl->getNumWorms() );
-						for(short j = 0; j < cl->getNumWorms(); j++)
-							cl->getWorm(j)->writeStatUpdate(bs);
+						bs->writeByte( game.wormsOfClient(cl)->size() );
+						for_each_iterator(CWorm*, w, game.wormsOfClient(cl))
+							w->get()->writeStatUpdate(bs);
 					}
 				}
 
@@ -727,8 +721,6 @@ void GameServer::UpdateGameLobby()
 
 void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
 {
-    CBytestream bytestr;
-
     CServerConnection *cl = server->cClients;
 	for(short c=0; c<MAX_CLIENTS; c++,cl++) 
 	{
@@ -743,33 +735,16 @@ void CServerNetEngine::SendUpdateLobby(CServerConnection *target)
             continue;
 
         // Set the client worms lobby ready state
-        bool ready = false;
-	    for(short i=0; i < cl->getNumWorms(); i++) {
-		    ready = cl->getWorm(i)->getLobbyReady();
-	    }
-
-	    // Let all the worms know about the new lobby state
-		if (cl->getNumWorms() <= 2)  { // Have to do this way because of bug in LX 0.56
+		for_each_iterator(CWorm*, w, game.wormsOfClient(cl)) {
+			CBytestream bytestr;
 			bytestr.writeByte(S2C_UPDATELOBBY);
-			bytestr.writeByte(cl->getNumWorms());
-			bytestr.writeByte(ready);
-			for(short i=0; i<cl->getNumWorms(); i++) {
-				bytestr.writeByte(cl->getWorm(i)->getID());
-				bytestr.writeByte(cl->getWorm(i)->getTeam());
-			}
-		} else {
-			int written = 0;
-			while (written < cl->getNumWorms())  {
-				bytestr.writeByte(S2C_UPDATELOBBY);
-				bytestr.writeByte(1);
-				bytestr.writeByte(ready);
-				bytestr.writeByte(cl->getWorm(written)->getID());
-				bytestr.writeByte(cl->getWorm(written)->getTeam());
-				written++;
-			}
-		}
+			bytestr.writeByte(1); // worm amount. but we just do it separately because LX56 has problems with it (with >2). it doesn't matter anyway that much
+			bytestr.writeByte(w->get()->getLobbyReady());
+			bytestr.writeByte(w->get()->getID());
+			bytestr.writeByte(w->get()->getTeam());
+			SendPacket(&bytestr);
+		}		
     }
-	SendPacket(&bytestr);
 }
 
 ////////////////////////
@@ -952,28 +927,28 @@ void GameServer::SendEmptyWeaponsOnRespawn( CWorm * Worm )
 		DumpConnections();
 		return;
 	}
-	int i, j, curWeapon = Worm->getCurrentWeapon();
-	for( i = 0; i < 5; i++ )
+	int curWeapon = Worm->getCurrentWeapon();
+	for( int i = 0; i < 5; i++ )
 	{
 		Worm->getWeapon(i)->Charge=0;
 		Worm->getWeapon(i)->Reloading=1;
 	}
-	for( i=0; i<5; i++ )
+	for( int i=0; i<5; i++ )
 	{
 		if( i != curWeapon )
 		{
 			Worm->setCurrentWeapon(i);
 			bs.writeByte( S2C_UPDATESTATS );
-			bs.writeByte( cl->getNumWorms() );
-			for( j = 0; j < cl->getNumWorms(); j++ )
-				cl->getWorm(j)->writeStatUpdate(&bs);
+			bs.writeByte( game.wormsOfClient(cl)->size() );
+			for_each_iterator(CWorm*, w, game.wormsOfClient(cl) )
+				w->get()->writeStatUpdate(&bs);
 		}
 	}
 	Worm->setCurrentWeapon(curWeapon);
 	bs.writeByte( S2C_UPDATESTATS );
-	bs.writeByte( cl->getNumWorms() );
-	for( j = 0; j < cl->getNumWorms(); j++ )
-		cl->getWorm(j)->writeStatUpdate(&bs);
+	bs.writeByte( game.wormsOfClient(cl)->size() );
+	for_each_iterator(CWorm*, w, game.wormsOfClient(cl) )
+		w->get()->writeStatUpdate(&bs);
 	cl->getNetEngine()->SendPacket(&bs);
 }
 

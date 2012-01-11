@@ -644,7 +644,7 @@ void Menu_Net_JoinLobbySetText(const std::string& str) {
 void Menu_Net_JoinLobbyFrame(int mouse)
 {
 	gui_event_t *ev = NULL;
-	int			i,y;
+	int			y;
 
 	// Process the client
 	cClient->Frame();
@@ -729,17 +729,15 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 		player_list->SaveScrollbarPos();
 		player_list->Clear();  // Clear first
 
-		CWorm *w = cClient->getRemoteWorms();
 		CImage *team_img = NULL;
 
-		for (i=0; i < MAX_PLAYERS; i++, w++)  {
-			if (!w->isUsed())  // Don't bother with unused worms
-				continue;
+		for_each_iterator(CWorm*, w_, game.worms()) {
+			CWorm* w = w_->get();
 
 			w->ChangeGraphics(cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType);
 
 			// Add the item
-			player_list->AddItem(w->getName(), i, tLX->clNormalLabel);
+			player_list->AddItem(w->getName(), w->getID(), tLX->clNormalLabel);
 			if (w->getLobbyReady())  // Ready control
 				player_list->AddSubitem(LVS_IMAGE, "", tMenu->bmpLobbyReady, NULL);
 			else
@@ -815,8 +813,9 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 				if(ev->iEventMsg == BTN_CLICKED) {
 					// Let the server know that my worms are now ready
 					bool ready = true;
-					if( cClient->getNumWorms() > 0 )
-						ready = ! cClient->getWorm(0)->getLobbyReady();
+					for_each_iterator(CWorm*, w, game.localWorms())
+						ready &= w->get()->getLobbyReady();
+					ready = !ready;
 					cClient->getNetEngine()->SendUpdateLobby(ready);
 
 					// Hide the ready button
@@ -876,7 +875,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
 					cJoinLobby.SendMessage(jl_ChatText, TXS_SETTEXT, "",0);
 
 					// Send
-					cClient->getNetEngine()->SendText(text, cClient->getWorm(0)->getName());
+					cClient->getNetEngine()->SendText(text, ifTrue<std::string,CWorm*>(game.firstLocalHumanWorm(), &CWorm::getName, ""));
 				} else
 				if(ev->iEventMsg == TXT_TAB) {
 					if(strSeemsLikeChatCommand(Menu_Net_JoinLobbyGetText())) {

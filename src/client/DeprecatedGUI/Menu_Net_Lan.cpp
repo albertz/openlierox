@@ -73,20 +73,16 @@ bool Menu_Net_LANInitialize()
 
 	// Fill the players box
 	CCombobox* PlayerSelection = (CCombobox*) cLan.getWidget( nl_PlayerSelection );
-	profile_t *p = GetProfiles();
 	bool validName = false;
-	for(;p;p=p->tNext) {
-		/*if(p->iType == PRF_COMPUTER)
-			continue;*/
-
-		int index = PlayerSelection->addItem( p->sName, p->sName );
-		PlayerSelection->setImage( p->cSkin.getPreview(), index );
-		if( p->sName == tLXOptions->sLastSelectedPlayer )
-			validName=true;
+	for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
+		int index = PlayerSelection->addItem( p->get()->sName, p->get()->sName );
+		PlayerSelection->setImage( p->get()->cSkin.getPreview(), index );
+		if( p->get()->sName == tLXOptions->sLastSelectedPlayer )
+			validName = true;
 	}
 
 	if( ! validName )
-		tLXOptions->sLastSelectedPlayer = GetProfiles()->sName;
+		tLXOptions->sLastSelectedPlayer = MainHumanProfile()->sName;
 
 	PlayerSelection->setCurSIndexItem( tLXOptions->sLastSelectedPlayer );
 

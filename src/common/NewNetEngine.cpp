@@ -57,9 +57,9 @@ void RestoreState()
 		game.removeWorm(w->get());
 	
 	foreach(savedWorm, SavedWormState) {
-		profile_t profile;
-		profile.iTeam = (**savedWorm).getTeam();
-		profile.iType = (**savedWorm).getType()->toInt();
+		SmartPointer<profile_t> profile(new profile_t);
+		profile->iTeam = (**savedWorm).getTeam();
+		profile->iType = (**savedWorm).getType()->toInt();
 		CWorm* w = game.createNewWorm
 		(
 		 (**savedWorm).getID(),

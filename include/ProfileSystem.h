@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include "SmartPointer.h"
 #include "CGameSkin.h"
+#include "Iter.h"
 
 #define		PROFILE_VERSION		5
 
@@ -57,11 +58,9 @@ extern WormType* PRF_COMPUTER;
 
 // Player profile structure
 struct profile_t {
-	profile_t() : iID(0), iType(PRF_HUMAN->toInt()), nDifficulty(AI_EASY), R(0), G(0), B(0), iTeam(0), tNext(NULL) {}
+	profile_t() : iType(PRF_HUMAN->toInt()), nDifficulty(AI_EASY), R(0), G(0), B(0), iTeam(0) {}
 
-	int				iID;
-
-	int		iType;
+	int				iType;
 	std::string		sName;
     int             nDifficulty;
 	std::string		sUsername;
@@ -70,8 +69,6 @@ struct profile_t {
 	std::string		sWeaponSlots[5];
 	int				iTeam;
 	CWormSkin		cSkin;
-
-	profile_t *tNext;
 };
 
 
@@ -80,20 +77,23 @@ int		LoadProfiles();
 void	SaveProfiles();
 void	ShutdownProfiles();
 
-void    AddDefaultPlayers();
-void	SaveProfile(FILE *fp, profile_t *p);
 void    AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
-void	LoadProfile(FILE *fp, int id);
-int		FindProfileID();
-void	DeleteProfile(int id);
+void	AddProfile(const SmartPointer<profile_t>& prof);
+void	DeleteProfile(const SmartPointer<profile_t>& prof);
 
-profile_t *GetProfiles();
-profile_t *FindProfile(int id);
-profile_t *FindProfile(const std::string& name);
 
-profile_t* FindFirstHumanProfile();
-std::string FindFirstHumanProfileName();
+Iterator<SmartPointer<profile_t> >::Ref GetProfiles();
+SmartPointer<profile_t> FindProfile(int id);
+SmartPointer<profile_t> FindProfile(const std::string& name);
+
 std::string FindFirstCPUProfileName();
+SmartPointer<profile_t> MainHumanProfile(); 
+
+class CWorm;
+SmartPointer<profile_t> profileFromWorm(CWorm* w);
+
+struct WormJoinInfo;
+SmartPointer<profile_t> profileFromWormJoinInfo(const WormJoinInfo& info);
 
 
 #endif  //  __PROFILESYSTEM_H__

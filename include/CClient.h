@@ -197,13 +197,13 @@ public:
 	
 	typedef void (*DownloadFinishedCB) ();
 
+	SmartPointer<ClientConnectionRequestInfo> connectInfo;
+
 private:
 	// Attributes
 
 	//int			iDrawingViews[2];
     CViewport   cViewports[NUM_VIEWPORTS];
-
-	SmartPointer<ClientConnectionRequestInfo> connectInfo;
 
 	// Logging
 	game_log_t	*tGameLog;
@@ -432,7 +432,7 @@ public:
 	void		GetLogData(std::string& data);
 
 	std::list<int> AddRandomBots(int amount = 1, bool outOfGame = false); // returns list of added worms
-	int			AddWorm(profile_t* p, bool outOfGame = false); // returns -1 if failed, worm id otherwise
+	int			AddWorm(const SmartPointer<profile_t>& p, bool outOfGame = false); // returns -1 if failed, worm id otherwise
 
 	// Game
 	void		Simulation();
@@ -449,8 +449,6 @@ public:
 	
 	void		NewNet_Simulation(); // Simulates one frame, delta time always set to 10 ms, ignores current time
 	void		NewNet_DoLocalShot( CWorm *w );
-
-	void		BotSelectWeapons();
 
 	void		SpawnProjectile(CVec pos, CVec vel, int rot, int owner, proj_t *_proj, int _random, AbsTime time, AbsTime ignoreWormCollBeforeTime);
     void        disableProjectile(CProjectile *prj);
@@ -650,7 +648,6 @@ public:
 	bool		getHaveMod()			{ return bHaveMod; }
 	void		setHaveMap( bool _b )	{ bHaveMap = _b; }
 	void		setHaveMod( bool _b )	{ bHaveMod = _b; }
-	int			getNumRemoteWorms();
 	FlagInfo*	flagInfo()			{ return m_flagInfo; }
 	
 	void		setOnMapDlFinished(DownloadFinishedCB f)  { tMapDlCallback = f; }

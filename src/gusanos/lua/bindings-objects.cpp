@@ -235,6 +235,7 @@ LBINOP(CWorm, worm_eq,  (
 ))*/
 
 METHOD(CWorm, worm_destroy,  {
+	notes << "Lua: ignored worm delete of " << p->getID() << ":" << p->getName() << endl;
 	// NOTE: worms are currently handled by CClient
 	//delete p;
 	return 0;

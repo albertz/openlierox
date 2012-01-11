@@ -48,6 +48,7 @@
 #include "game/Mod.h"
 #include "game/Game.h"
 #include "CGameScript.h"
+#include "client/ClientConnectionRequestInfo.h" // for WormJoinInfo
 
 
 #ifdef _MSC_VER
@@ -1678,7 +1679,7 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		newcl->setGameReady(false);
 
 		for(std::set<CWorm*>::iterator w = newJoinedWorms.begin(); w != newJoinedWorms.end(); ++w) {
-			(*w)->Prepare(true);
+			(*w)->Prepare();
 		}
 		
 		if(newcl->getClientVersion() <= OLXBetaVersion(0,57,8))

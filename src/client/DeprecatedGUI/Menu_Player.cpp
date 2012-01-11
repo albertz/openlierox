@@ -304,14 +304,14 @@ void Menu_Player_ViewPlayerInit()
 	CListview *lv = (CListview *)cViewPlayers.getWidget(vp_Players);
     lv->Clear();
 
-	profile_t *p = GetProfiles();
-	for(; p; p=p->tNext) {
-		lv->AddItem("",p->iID,tLX->clListView);
-		if (p->cSkin.getPreview().get())
-			lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
+	int i = 0;
+	for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
+		lv->AddItem("",i++,tLX->clListView);
+		if (p->get()->cSkin.getPreview().get())
+			lv->AddSubitem(LVS_IMAGE, "", p->get()->cSkin.getPreview(), NULL);
 		else
 			lv->AddSubitem(LVS_TEXT, " ", (DynDrawIntf*)NULL, NULL);
-		lv->AddSubitem(LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL);
+		lv->AddSubitem(LVS_TEXT, p->get()->sName, (DynDrawIntf*)NULL, NULL);
 	}
 
 
@@ -320,8 +320,8 @@ void Menu_Player_ViewPlayerInit()
 
     // Set the name of the first item in the list
     int sel = cViewPlayers.SendMessage( vp_Players, LVM_GETCURINDEX,(DWORD)0,0);
-	p = FindProfile(sel);
-    if(p) {
+	SmartPointer<profile_t> p = FindProfile(sel);
+    if(p.get()) {
         cViewPlayers.SendMessage( vp_Name,    TXS_SETTEXT, p->sName,0);
 
         cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE, p->R, 0);
@@ -545,8 +545,8 @@ void Menu_Player_ViewPlayers(int mouse)
 					}
 					
 					int sel = lv->getCurIndex();
-					profile_t *p = FindProfile(sel);
-					if(p) {
+					SmartPointer<profile_t> p = FindProfile(sel);
+					if(p.get()) {
 						/*if(p->iType == PRF_HUMAN)*/ {
 
 							//
@@ -567,22 +567,23 @@ void Menu_Player_ViewPlayers(int mouse)
 							if(Menu_MessageBox("Confirmation",buf,LMB_YESNO) == MBR_YES) {
 
 								// Delete the profile
-								DeleteProfile(p->iID);
+								DeleteProfile(p);
 
 								// Add the players to the list
 								lv->Create();
 								lv->AddColumn("Players",22);
 								lv->AddColumn("",60);
-								p = GetProfiles();
-								for(; p; p=p->tNext) {
+								
+								int i = 0;
+								for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
 									//if(p->iType == PRF_COMPUTER)
 									//	continue;
-									lv->AddItem("",p->iID,tLX->clListView);
-									if (p->cSkin.getPreview().get())
-										lv->AddSubitem(LVS_IMAGE, "", p->cSkin.getPreview(), NULL);
+									lv->AddItem("",i++,tLX->clListView);
+									if (p->get()->cSkin.getPreview().get())
+										lv->AddSubitem(LVS_IMAGE, "", p->get()->cSkin.getPreview(), NULL);
 									else
 										lv->AddSubitem(LVS_TEXT, " ", (DynDrawIntf*)NULL, NULL);
-									lv->AddSubitem(LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL);
+									lv->AddSubitem(LVS_TEXT, p->get()->sName, (DynDrawIntf*)NULL, NULL);
 								}
 							}
 						}
@@ -590,7 +591,7 @@ void Menu_Player_ViewPlayers(int mouse)
                         // Update the details
                         int sel = cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
 	                    p = FindProfile(sel);
-                        if(p) {
+                        if(p.get()) {
                             cViewPlayers.SendMessage( vp_Name,		TXS_SETTEXT,    p->sName,0);
                             cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE,   p->R, 0);
 	                        cViewPlayers.SendMessage( vp_Green,		SLM_SETVALUE,   p->G, 0);
@@ -624,8 +625,8 @@ void Menu_Player_ViewPlayers(int mouse)
             case vp_Apply:
                 if( ev->iEventMsg == BTN_CLICKED ) {
                     int sel = cViewPlayers.SendMessage(vp_Players, LVM_GETCURINDEX, (DWORD)0,0);
-	                profile_t *p = FindProfile(sel);
-	                if(p) {
+	                SmartPointer<profile_t> p = FindProfile(sel);
+	                if(p.get()) {
 
                         std::string name;
                         cViewPlayers.SendMessage(vp_Name, TXS_GETTEXT, &name, 0);
@@ -686,8 +687,8 @@ void Menu_Player_ViewPlayers(int mouse)
             case vp_Players:
                 if( ev->iEventMsg == LV_CHANGED ) {
                     int sel = cViewPlayers.SendMessage(vp_Players,LVM_GETCURINDEX,(DWORD)0,0);
-	                profile_t *p = FindProfile(sel);
-                    if(p) {
+	                SmartPointer<profile_t> p = FindProfile(sel);
+                    if(p.get()) {
                         cViewPlayers.SendMessage( vp_Name,		TXS_SETTEXT,    p->sName,0);
                         cViewPlayers.SendMessage( vp_Red,	    SLM_SETVALUE,   p->R, 0);
 	                    cViewPlayers.SendMessage( vp_Green,		SLM_SETVALUE,   p->G, 0);
@@ -740,8 +741,8 @@ void Menu_Player_ViewPlayers(int mouse)
 	}
 	
 	int sel = lv->getCurIndex();
-	profile_t *p = FindProfile(sel);
-	if(p) {
+	SmartPointer<profile_t> p = FindProfile(sel);
+	if(p.get()) {
 
         Uint8 r = ((CSlider *)cViewPlayers.getWidget(vp_Red))->getValue();
 	    Uint8 g = ((CSlider *)cViewPlayers.getWidget(vp_Green))->getValue();

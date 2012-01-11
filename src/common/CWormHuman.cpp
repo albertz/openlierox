@@ -760,14 +760,13 @@ void CWormHumanInputHandler::initWeaponSelection() {
 	m_worm->clearInput();
 	
 	// Safety
-	if (!m_worm->tProfile)  {
-		errors << "initWeaponSelection called and tProfile is not set" << endl;
-		return;
+	if (!m_worm->tProfile.get())  {
+		warnings << "initWeaponSelection called and tProfile is not set" << endl;
+		m_worm->tProfile = new profile_t(); // not really a problem, though...
 	}
 	
 	// Load previous settings from profile
-	short i;
-	for(i=0;i<m_worm->iNumWeaponSlots;i++) {
+	for(short i=0;i<m_worm->iNumWeaponSlots;i++) {
 		
 		m_worm->tWeapons[i].Weapon = game.gameScript()->FindWeapon( m_worm->tProfile->sWeaponSlots[i] );
 		
