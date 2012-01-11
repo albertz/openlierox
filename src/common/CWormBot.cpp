@@ -1598,8 +1598,9 @@ CVec CWormBotInputHandler::AI_GetTargetPos()
 				CWorm* w = game.wormById(nAITargetWormId, false);
                 if(!w || !w->getAlive() )
                     nAIState = AI_THINK;
-                return w->getPos();
-            }
+				else
+					return w->getPos();
+			}
             break;
 
     }
