@@ -681,6 +681,13 @@ void Menu_LocalRemovePlaying(int index)
 	// Remove the item from the list
 	lv->RemoveItem(index);
 
+	SmartPointer<profile_t> removedProf = FindProfile(index);
+	foreach(p, tMenu->sLocalPlayers)
+		if(p->get() == removedProf.get()) {
+			tMenu->sLocalPlayers.erase(p);
+			break;
+		}
+	
 	_refillPlayerList(); // refill the list
 }
 
