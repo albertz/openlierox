@@ -414,8 +414,6 @@ bool GameServer::SendUpdate()
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
 			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
 
-			if(cl->isLocalClient()) continue;
-
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
 

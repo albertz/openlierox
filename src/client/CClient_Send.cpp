@@ -44,6 +44,8 @@ std::string OldLxCompatibleString(const std::string &Utf8String);
 // Send the worm details
 void CClientNetEngine::SendWormDetails()
 {
+	if(game.isServer()) return;
+	
 	// Don't flood packets so often
 	// we are checking in w->checkPacketNeeded() if we need to send an update
 	// we are checking with bandwidth if we should add an update
