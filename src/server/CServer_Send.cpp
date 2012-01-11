@@ -342,6 +342,7 @@ void CServerNetEngineBeta7::SendChatCommandCompletionList(const std::string& sta
 
 // send S2C_WORMSOUT
 void CServerNetEngine::SendWormsOut(const std::list<byte>& ids) {
+	if(cl->isLocalClient()) return;
 	if(ids.size() == 0) return; // ignore
 	
 	CBytestream bs;
@@ -412,6 +413,8 @@ bool GameServer::SendUpdate()
 		int last = lastClientSendData;
 		for (int i = 0; i < MAX_CLIENTS; i++)  {
 			CServerConnection* cl = &cClients[ (i + lastClientSendData + 1) % MAX_CLIENTS ]; // fairly distribute the packets over the clients
+
+			if(cl->isLocalClient()) continue;
 
 			if (cl->getStatus() == NET_DISCONNECTED || cl->getStatus() == NET_ZOMBIE)
 				continue;
