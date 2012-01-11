@@ -288,6 +288,7 @@ void CClientNetEngine::ParseConnected(CBytestream *bs)
 	// Get the id's
 	for(ushort i=0; i < client->connectInfo->worms.size(); i++) {
 		int id = bs->readInt(1);
+		if(game.isServer()) continue; // we already initialized them server-side
 		if (id < 0 || id >= MAX_WORMS) {
 			warnings << "ParseConnected: parsed invalid id " << id << endl;
 			notes << "Something is screwed up -> reconnecting" << endl;
