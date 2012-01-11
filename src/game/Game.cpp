@@ -363,6 +363,11 @@ void Game::reset() {
 	
 	// Delete all objects
 	objects.clear();
+
+	// as long as we still manage worm deletion manually, we must do this now here
+	for_each_iterator(CWorm*, w, worms())
+		delete w->get();
+	m_worms.clear();
 }
 
 CMap* Game::gameMap() { return m_gameMap.get(); }
