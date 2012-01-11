@@ -1339,7 +1339,7 @@ void CClient::Reconnect() {
 		errors << "CClient::Reconnect: connectInfo is NULL" << endl;
 		return;
 	}
-	
+		
 	// HINT: Don't disconnect because we don't want to lose the connection
 	// and we also want to keep the client struct on the server.
 
@@ -1608,6 +1608,7 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect()
 {
+	game.reset();
 	network.olxShutdown();
 	cNetEngine->SendDisconnect();
 

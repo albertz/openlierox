@@ -59,6 +59,8 @@ public:
 	
 	Grid objects;
 
+	void reset();
+
 	Iterator<CWorm*>::Ref worms();
 	Iterator<CWorm*>::Ref localWorms();
 	Iterator<CWorm*>::Ref aliveWorms();
@@ -94,8 +96,6 @@ public:
 	bool		isMapReady() const;	
 	
 private:
-	void reset();
-
 	AbsTime oldtime;
 	SmartPointer<CMap> m_gameMap;
 	SmartPointer<CGameScript> m_gameMod;
