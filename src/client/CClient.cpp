@@ -76,7 +76,6 @@ void CClient::Clear()
 #endif
 
 	tGameInfo = EngineSettings();
-	tGameInfo.overwrite[FT_TimeLimit] = -100;
 	otherGameInfo.clear();
 	cProjectiles.clear();
 	projPosMap.clear();
