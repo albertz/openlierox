@@ -19,6 +19,7 @@
 
 #include <SDL.h>
 #include <string>
+#include <list>
 
 #include "DeprecatedGUI/CWidgetList.h"
 #include "DeprecatedGUI/CCombobox.h"
@@ -311,7 +312,7 @@ class menu_t { public:
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
-	profile_t		sLocalPlayers[MAX_PLAYERS];
+	std::list<SmartPointer<profile_t> >	sLocalPlayers;
 	bool			bForbidConsole;  // Don't show console
 
 	// Map Editor

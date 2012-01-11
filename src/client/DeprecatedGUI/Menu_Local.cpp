@@ -49,6 +49,8 @@
 #include "IniReader.h"
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
+#include "client/ClientConnectionRequestInfo.h"
+#include "CWorm.h"
 
 
 namespace DeprecatedGUI {
@@ -504,14 +506,11 @@ void Menu_LocalFrame()
 							// Change the image
 							((CImage *)ev->cWidget)->Change(DynDrawFromSurface(gfxGame.bmpTeamColours[sub->iExtra]));
 
-							tMenu->sLocalPlayers[ev->iControlID].iTeam = sub->iExtra;
-							tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
-						}
-
-						// Reload the skin
-						sub = lv->getSubItem(it, 0);
-						if (sub)  {
-							sub->bmpImage = tMenu->sLocalPlayers[ev->iControlID].getPicimg();
+							SmartPointer<profile_t> p = FindProfile(it->iIndex);
+							if(p.get()) {
+								p->iTeam = sub->iExtra;
+								//tMenu->sLocalPlayers[ev->iControlID].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
+							}
 						}
 					}
 				}
@@ -536,8 +535,8 @@ void Menu_LocalFrame()
 						// Update the skin
 						sub = lv->getSubItem(it, 0);
 						if (sub)  {
-							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
-							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
+//							tMenu->sLocalPlayers[it->iIndex].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
+//							sub->bmpImage = tMenu->sLocalPlayers[it->iIndex].getPicimg();
 						}
 
 					}
@@ -588,6 +587,35 @@ void Menu_LocalFrame()
 	DrawCursor(VideoPostProcessor::videoSurface());
 }
 
+static void _addPlaying(const SmartPointer<profile_t>& ply) {
+	int index = GetProfileId(ply);
+	assert(index >= 0);
+	
+	// Add the item
+	ply->iTeam = CLAMP(ply->iTeam, 0, MAX_TEAMS-1);
+	CImage *img = new CImage(gfxGame.bmpTeamColours[ply->iTeam]);
+	if (img)  {
+		img->setID(index);
+		img->setRedrawMenu(false);
+	} else
+		warnings << "Cannot load teamcolor image" << endl;
+
+	CListview* lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
+	lv->AddItem("",index,tLX->clListView);
+	lv->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
+	lv->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
+	lv->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, img);
+	
+	// If we're in deathmatch, make the team colour invisible
+	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
+	if(sub) {
+		if(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() <= 1)
+			sub->bVisible = false;
+		sub->iExtra = 0;
+	} else
+		warnings << "Strange: did not found teamcolor subitem" << endl;		
+}
+	
 //////////////////
 // Move a worm from player list to playing list
 void Menu_LocalAddPlaying(int index)
@@ -606,52 +634,41 @@ void Menu_LocalAddPlaying(int index)
 	if(!Menu_LocalCheckPlaying(index))
 		return;
 
-
 	// Remove the item from the list
 	lv->RemoveItem(index);
 
-	profile_t *ply = FindProfile(index);
-
-	if(!ply)
+	SmartPointer<profile_t> ply = FindProfile(index);
+	
+	if(!ply.get())
 		return;
 
 	// Add a player onto the local players list
-	if (!tMenu->sLocalPlayers[index].isUsed())  {  // If the players persists from previous game, don't reset its team
-											// and other game details
-		tMenu->sLocalPlayers[index].setUsed(true);
-		tMenu->sLocalPlayers[index].setHealth(0);
-		tMenu->sLocalPlayers[index].setTeam(0);
-	}
-
-	// Reload the graphics in case the gametype has changed
-	tMenu->sLocalPlayers[index].setProfile(ply);
-	tMenu->sLocalPlayers[index].setSkin(ply->cSkin);
-	tMenu->sLocalPlayers[index].ChangeGraphics(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GeneralGameType());
-
-
-	// Add the item
-	CImage *img = new CImage(gfxGame.bmpTeamColours[tMenu->sLocalPlayers[index].getTeam()]);
-	if (img)  {
-		img->setID(index);
-		img->setRedrawMenu(false);
-	} else
-		warnings << "Cannot load teamcolor image" << endl;
-	lv = (CListview *)cLocalMenu.getWidget(ml_Playing);
-	lv->AddItem("",index,tLX->clListView);
-	lv->AddSubitem(LVS_IMAGE, "", tMenu->sLocalPlayers[index].getPicimg(), NULL);
-	lv->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
-	lv->AddSubitem(LVS_WIDGET, "", (DynDrawIntf*)NULL, img);
-
-	// If we're in deathmatch, make the team colour invisible
-	lv_subitem_t *sub = lv->getSubItem(lv->getLastItem(), 2);
-	if(sub) {
-		if(gameSettings[FT_GameMode].as<GameModeInfo>()->mode->GameTeams() <= 1)
-			sub->bVisible = false;
-		sub->iExtra = 0;
-	} else
-		warnings << "Strange: did not found teamcolor subitem" << endl;
+	tMenu->sLocalPlayers.push_back(ply);
+	
+	_addPlaying(ply);
 }
 
+static void _refillPlayerList() {
+	CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
+	w->Clear();
+	
+	std::set<int> playingIds;
+	foreach(p, tMenu->sLocalPlayers)
+		playingIds.insert(GetProfileId(*p));
+	
+	int i = 0;
+	for_each_iterator(SmartPointer<profile_t>, p, GetProfiles()) {
+		if(playingIds.count(i) == 0) {
+			w->AddItem("", i, tLX->clListView);		
+			//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
+			//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
+			w->AddSubitem( LVS_IMAGE, "", p->get()->cSkin.getPreview(), NULL );
+			w->AddSubitem( LVS_TEXT, p->get()->sName, (DynDrawIntf*)NULL, NULL );
+		}
+		++i;
+	}	
+}
+	
 //////////////////
 // Move a player from playing list back to player list
 void Menu_LocalRemovePlaying(int index)
@@ -663,18 +680,8 @@ void Menu_LocalRemovePlaying(int index)
 
 	// Remove the item from the list
 	lv->RemoveItem(index);
-	tMenu->sLocalPlayers[index].setUsed(false);
 
-	profile_t *ply = FindProfile(index);
-
-	// Add the player into the players list
-	if(ply) {
-		ply->cSkin.RemoveColorization();
-		lv = (CListview *)cLocalMenu.getWidget(ml_PlayerList);
-		lv->AddItem("", index, tLX->clListView);
-		lv->AddSubitem(LVS_IMAGE, "", ply->cSkin.getPreview(), NULL);
-		lv->AddSubitem(LVS_TEXT, ply->sName, (DynDrawIntf*)NULL, NULL);
-	}
+	_refillPlayerList(); // refill the list
 }
 
 
@@ -682,29 +689,15 @@ void Menu_LocalRemovePlaying(int index)
 // Add the profiles to the players list
 void Menu_LocalAddProfiles()
 {
-	profile_t *p = GetProfiles();
-
-	for(; p; p=p->tNext) {
-		cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDITEM, "", p->iID);
-		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, (DWORD)p->bmpWorm, LVS_IMAGE); // TODO: 64bit unsafe (pointer cast)
-		//cLocalMenu.SendMessage( ml_PlayerList, LVS_ADDSUBITEM, p->sName, LVS_TEXT);
-		CListview * w = (CListview *) cLocalMenu.getWidget(ml_PlayerList);
-		w->AddSubitem( LVS_IMAGE, "", p->cSkin.getPreview(), NULL );
-		w->AddSubitem( LVS_TEXT, p->sName, (DynDrawIntf*)NULL, NULL );
+	foreach(p, tMenu->sLocalPlayers) {
+		if(GetProfileId(*p) < 0)
+			AddProfile(*p); // assure that the profile is registered
 	}
+	
+	_refillPlayerList();
 
-	// Add players from previous game to playing list
-	// TODO: add the players in the same order as last time
-	// it's a bit annoying if you add 2 human players and they switch always after a game the role
-	if (tMenu->sLocalPlayers != NULL)  {
-		for (int i=0; i < MAX_PLAYERS; i++)  {
-			if (tMenu->sLocalPlayers[i].isUsed())  {
-				Menu_LocalAddPlaying(i);
-			}
-		}
-	}
-
-
+	foreach(p, tMenu->sLocalPlayers)
+		_addPlaying(*p);	
 }
 
 
@@ -802,31 +795,28 @@ static bool Menu_LocalStartGame_CustomGame() {
 		return false;
 	}
 	
-    int count = 0;
+	cClient->connectInfo = new ClientConnectionRequestInfo;
 	
     // Add the human players onto the list
-    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
-    	int i = item->iIndex;
-		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN->toInt()) {
-			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
-			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
-        }
-    }
+	foreach(p, tMenu->sLocalPlayers) {
+		if((*p)->iType == PRF_HUMAN->toInt())
+			cClient->connectInfo->worms.push_back(*p);
+	}
 	
     // Add the unhuman players onto the list
-    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
-    	int i = item->iIndex;
-		if(tMenu->sLocalPlayers[i].isUsed() && tMenu->sLocalPlayers[i].getProfile() && tMenu->sLocalPlayers[i].getProfile()->iType != PRF_HUMAN->toInt()) {
-			tMenu->sLocalPlayers[i].getProfile()->iTeam = tMenu->sLocalPlayers[i].getTeam();
-			cClient->getLocalWormProfiles()[count++] = tMenu->sLocalPlayers[i].getProfile();
-        }
-    }
-    
-    cClient->setNumWorms(count);
+	foreach(p, tMenu->sLocalPlayers) {
+		if((*p)->iType != PRF_HUMAN->toInt())
+			cClient->connectInfo->worms.push_back(*p);
+	}
 	
 	// Can't start a game with no-one playing
-	if(count == 0)
+	if(cClient->connectInfo->worms.size() == 0) {
+		errors << "Menu_LocalStartGame_CustomGame: strange, tMenu->sLocalPlayers is empty but playing list is not" << endl;
+		// try to refill
+		lv_playing->Clear();
+		Menu_LocalAddProfiles();
 		return false;
+	}
 	
 	// Save the current level in the options
 	cLocalMenu.SendMessage(ml_LevelList, CBS_GETCURSINDEX, &gameSettings.overwrite[FT_Map].as<LevelInfo>()->path, 0);
@@ -885,36 +875,9 @@ void Menu_LocalStartGame()
 // Check if we can add another player to the list
 bool Menu_LocalCheckPlaying(int index)
 {
-	uint		plycount = 0;
-	uint		hmncount = 0;
-	profile_t	*p;
-	CListview *lv_playing = (CListview *)cLocalMenu.getWidget(ml_Playing);
-
-
-	// Go through the playing list
-    for(lv_item_t* item = lv_playing->getItems(); item != NULL; item = item->tNext) {
-    	int i = item->iIndex;
-        if(!tMenu->sLocalPlayers[i].isUsed())
-            continue;
-
-		if(tMenu->sLocalPlayers[i].getProfile()->iType == PRF_HUMAN->toInt())
-			hmncount++;
-		plycount++;
-	}
-
-	p = FindProfile(index);
-
-	// TODO: make it possible to use more than 2 local players
-
 	// Check if there is too many players
-	if(plycount >= MAX_PLAYERS)
+	if(tMenu->sLocalPlayers.size() >= MAX_PLAYERS)
 		return false;
-
-	// Check if there is too many human players (MAX: 2)
-	if(p) {
-		if(p->iType == PRF_HUMAN->toInt() && hmncount >= 2)
-			return false;
-	}
 
 	return true;
 }

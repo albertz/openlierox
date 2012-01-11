@@ -77,14 +77,15 @@ int		LoadProfiles();
 void	SaveProfiles();
 void	ShutdownProfiles();
 
-void    AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
-void	AddProfile(const SmartPointer<profile_t>& prof);
+int		AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty);
+int		AddProfile(const SmartPointer<profile_t>& prof);
 void	DeleteProfile(const SmartPointer<profile_t>& prof);
 
 
 Iterator<SmartPointer<profile_t> >::Ref GetProfiles();
 SmartPointer<profile_t> FindProfile(int id);
 SmartPointer<profile_t> FindProfile(const std::string& name);
+int GetProfileId(const SmartPointer<profile_t>& p);
 
 std::string FindFirstCPUProfileName();
 SmartPointer<profile_t> MainHumanProfile(); 

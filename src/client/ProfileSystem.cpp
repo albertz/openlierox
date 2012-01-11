@@ -92,12 +92,14 @@ SmartPointer<profile_t> MainHumanProfile() {
 	return p;
 }
 
-static ProfileList::iterator getFirstBotProf() {
+static std::pair<ProfileList::iterator,int> getFirstBotProf() {
+	int i = 0;
 	foreach(p, tProfiles) {
 		if((*p)->iType == PRF_COMPUTER->toInt())
-			return p;
+			return std::make_pair(p, i);
+		++i;
 	}
-	return tProfiles.end();
+	return std::make_pair(tProfiles.end(), -1);
 }
 
 ///////////////////
@@ -170,7 +172,7 @@ int LoadProfiles()
 
 	MainHumanProfile(); // this call will ensures that there is a human profile
 
-	if(getFirstBotProf() == tProfiles.end())
+	if(getFirstBotProf().second < 0)
 		AddDefaultBotPlayers();
 	
 	return true;
@@ -302,29 +304,32 @@ void DeleteProfile(const SmartPointer<profile_t>& prof)
 }
 
 
-void AddProfile(const SmartPointer<profile_t>& prof) {
+int AddProfile(const SmartPointer<profile_t>& prof) {
 	if(prof.get() == NULL) {
 		errors << "AddProfile with NULL" << endl;
-		return;
+		return -1;
 	}
 	if(prof->iType == PRF_HUMAN->toInt()) {
-		ProfileList::iterator i = getFirstBotProf();
-		tProfiles.insert(i, prof);
+		std::pair<ProfileList::iterator,int> i = getFirstBotProf();
+		tProfiles.insert(i.first, prof);
+		return i.second;
 	}
 	else if(prof->iType == PRF_COMPUTER->toInt()) {
 		tProfiles.push_back(prof);
+		return tProfiles.size() - 1;
 	}
 	else
 		errors << "AddProfile " << prof->sName << " with undefined type " << prof->iType << endl;
+	return -1;
 }
 
 ///////////////////
 // Add a profile to the list
-void AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty)
+int AddProfile(const std::string& name, const std::string& skin, const std::string& username, const std::string& password,  int R, int G, int B, int type, int difficulty)
 {
 	SmartPointer<profile_t>	p(new profile_t());
 	if(p.get() == NULL)
-		return;
+		return -1;
 
 	p->iType = type;
     p->nDifficulty = difficulty;
@@ -347,7 +352,7 @@ void AddProfile(const std::string& name, const std::string& skin, const std::str
 	p->sWeaponSlots[3] = "gauss gun";
 	p->sWeaponSlots[4] = "big nuke";
 
-	AddProfile(p);
+	return AddProfile(p);
 }
 
 
@@ -383,8 +388,18 @@ SmartPointer<profile_t> FindProfile(const std::string& name) {
 	return NULL;
 }
 
+int GetProfileId(const SmartPointer<profile_t>& prof) {
+	int i = 0;
+	foreach(p, tProfiles) {
+		if(p->get() == prof.get())
+			return i;
+		++i;
+	}
+	return -1;
+}
+
 std::string FindFirstCPUProfileName() {
-	ProfileList::iterator i = getFirstBotProf();
+	ProfileList::iterator i = getFirstBotProf().first;
 	if(i != tProfiles.end()) return (*i)->sName;
 	
 	AddDefaultBotPlayers();
