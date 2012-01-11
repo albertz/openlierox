@@ -2313,12 +2313,15 @@ void CClient::InitializeSpectatorViewportKeys()
 	cSpectatorViewportKeys.Left.Setup( tLXOptions->sPlayerControls[0][SIN_LEFT] );
 	cSpectatorViewportKeys.Right.Setup( tLXOptions->sPlayerControls[0][SIN_RIGHT] );
 	cSpectatorViewportKeys.V1Type.Setup( tLXOptions->sPlayerControls[0][SIN_SHOOT] );
-	cSpectatorViewportKeys.V2Type.Setup( tLXOptions->sPlayerControls[0][SIN_JUMP] );
+	cSpectatorViewportKeys.V2Type.Setup( tLXOptions->sPlayerControls[0][SIN_ROPE] );
 	cSpectatorViewportKeys.V2Toggle.Setup( tLXOptions->sPlayerControls[0][SIN_SELWEAP] );
 }
 
 void CClient::ProcessSpectatorViewportKeys()
 {	
+	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->currentTime )
+		sSpectatorViewportMsg = "";
+
 	if( iNetStatus != NET_PLAYING )
 		return;
 
@@ -2327,6 +2330,17 @@ void CClient::ProcessSpectatorViewportKeys()
 		// we should just update iNetStatus to NET_PLAYING, that would be nicer
 		return;
 
+	// reset viewports when spawned
+	for(int i = 0; i < 2; ++i) {
+		if(!cViewports[i].getUsed()) continue;
+		CWorm* w = cViewports[i].getOrigTarget();
+		if(!w) continue;
+		if(w->getLocal() && w->getType() == PRF_HUMAN && w->getAlive()) {
+			cViewports[i].setTarget(w);
+			cViewports[i].setType(VW_FOLLOW);
+		}
+	}
+	
 	// don't proceed if any of the local human worms is not out of the game
 	// (also don't proceed when waiting for respawn)
 	for_each_iterator(CWorm*, w, game.localWorms()) {
@@ -2443,7 +2457,7 @@ void CClient::ProcessSpectatorViewportKeys()
 		Changed = true;
 	}
 
-	if( cSpectatorViewportKeys.V2Type.isDownOnce() )
+	if( cSpectatorViewportKeys.V2Type.isDownOnce() && v2_on )
 	{
 		v2_type ++;
 		if( v2_type > VW_ACTIONCAM )
@@ -2466,9 +2480,6 @@ void CClient::ProcessSpectatorViewportKeys()
 			sSpectatorViewportMsg += "Action Cam";
 		fSpectatorViewportMsgTimeout = tLX->currentTime;
 	}
-
-	if( fSpectatorViewportMsgTimeout + 1.0 < tLX->currentTime )
-		sSpectatorViewportMsg = "";
 
 	// Print message that we are in spectator mode for 3 seconds
 	if( CWorm* w = game.firstLocalHumanWorm() )
