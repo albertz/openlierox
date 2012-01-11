@@ -96,7 +96,10 @@ void CClient::Simulation()
 	// Player simulation
 	for_each_iterator(CWorm*, _w, game.worms()) {
 		CWorm* w = _w->get();
-		
+
+		bool wasShootingBefore = w->getWormState()->bShoot;
+		const weapon_t* oldWeapon = (w->getCurWeapon() && w->getCurWeapon()->Enabled) ? w->getCurWeapon()->Weapon : NULL;
+
 		// Simulate the worm. In case the worm is dead, it (the inputhandler) might do some thinking or
 		// request for respawn or so.
 		// TODO: move this to a simulateWorms() in PhysicsEngine
@@ -138,7 +141,17 @@ void CClient::Simulation()
         if(bGameOver)
 			// TODO: why continue and not break?
             continue;
-
+		
+		// from CServerNetEngine::ParseUpdate. we don't send updates of local worms anymore, so we have to handle this here
+		if(game.isServer()) {
+			// If the worm is shooting, handle it
+			if (w->getWormState()->bShoot && w->getAlive())
+				cServer->WormShoot(w); // handle shot and add to shootlist to send it later to the clients
+			
+			// handle FinalProj for weapon
+			if(oldWeapon && ((wasShootingBefore && !w->getWormState()->bShoot) || (wasShootingBefore && oldWeapon != w->getCurWeapon()->Weapon)))
+				cServer->WormShootEnd(w, oldWeapon);
+		}
 
 		// TODO: move this to physics as it should also be FPS independent
 		// Is this worm shooting?

@@ -443,7 +443,7 @@ void GameServer::WormShoot(CWorm *w)
 	}
 	
 	TimeDiff time = getServerTime();
-	if( w->hasOwnServerTime() )
+	if( game.isClient() && w->hasOwnServerTime() )
 		time = w->serverTime();
 	
 	// Add the shot to ALL the connected clients shootlist
