@@ -2223,7 +2223,7 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 			SpawnEntity(ENT_GIB,0,w->getPos(),GetRandomVec()*80,Color(),w->getGibimg());
 
 		// Blood
-		float amount = 50.0f * ((float)tLXOptions->iBloodAmount / 100.0f);
+		float amount = CLAMP(w->getHealth(), 50.f, 100.f) * ((float)tLXOptions->iBloodAmount / 100.0f);
 		for(int i=0;i<amount;i++) {
 			float sp = GetRandomNum()*100+50;
 			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);

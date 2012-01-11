@@ -327,10 +327,10 @@ public:
 			if(simulationTime > worm->getLastBlood() + 2.0f) {
 				worm->setLastBlood( worm->fLastSimulationTime );
 
-				const float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
+				const float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 20;
 				for(short i=0;i<amount;i++) {
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*30,Color(200,0,0),NULL);
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*30,Color(180,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*100,Color(200,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*100,Color(180,0,0),NULL);
 				}
 			}
 		}

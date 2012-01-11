@@ -514,9 +514,9 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	// Spawn some blood
 	if( damage > 0 )	// Don't spawn blood if we hit with healing weapon (breaks old behavior)
 	{
-		float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
+		float amount = CLAMP(damage, 10.f, 100.f) * ((float)tLXOptions->iBloodAmount / 100.0f);
 		for(i=0;i<amount;i++) {
-			float sp = GetRandomNum()*50;
+			float sp = GetRandomNum() * (50 + damage * 2);
 			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),GetRandomVec().multPairwise(sp,sp*4),Color(128,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);
 			SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(200,0,0),NULL);
