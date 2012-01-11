@@ -248,18 +248,19 @@ template < typename T >
 struct FilterIterator : public Iterator<T> {
 	typename Iterator<T>::Ref baseIter;
 	boost::function<bool(T)> predicate;
-	FilterIterator(typename Iterator<T>::Ref _i, boost::function<bool(T)> _pred) : baseIter(_i), predicate(_pred) {}
-	virtual Iterator<T>* copy() const { return new FilterIterator(*this); }
-	virtual bool isValid() { return baseIter->isValid(); }
-	virtual void reset() { baseIter->reset(); }
-	virtual void next() {
-		if(!isValid()) return;
+	FilterIterator(typename Iterator<T>::Ref _i, boost::function<bool(T)> _pred)
+	: baseIter(_i), predicate(_pred) { advanceToFiltered(); }
+	void advanceToFiltered() {
 		while(true) {
-			baseIter->next();
 			if(!isValid()) return;
 			if(predicate(get())) return;
+			baseIter->next();
 		}
 	}
+	virtual Iterator<T>* copy() const { return new FilterIterator(*this); }
+	virtual bool isValid() { return baseIter->isValid(); }
+	virtual void reset() { baseIter->reset(); advanceToFiltered(); }
+	virtual void next() { baseIter->next(); advanceToFiltered(); }
 	virtual bool operator==(const Iterator<T>& other) const {
 		if(const FilterIterator* o2 = dynamic_cast<const FilterIterator*>(&other))
 			return baseIter.get() == o2->baseIter.get();
