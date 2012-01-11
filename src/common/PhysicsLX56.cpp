@@ -329,9 +329,8 @@ public:
 
 				const float amount = ((float)tLXOptions->iBloodAmount / 100.0f) * 10;
 				for(short i=0;i<amount;i++) {
-					const CVec v = CVec(GetRandomNum(), GetRandomNum()) * 30;
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(200,0,0),NULL);
-					SpawnEntity(ENT_BLOOD,0,worm->getPos(),v,Color(180,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*30,Color(200,0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,worm->getPos(),GetRandomVec()*30,Color(180,0,0),NULL);
 				}
 			}
 		}
@@ -628,7 +627,7 @@ public:
 				if(px.destroyable && firsthit) {
 					Color col = game.gameMap()->getColorAt(wrappedHookPos.x, wrappedHookPos.y);
 					for( short i=0; i<5; i++ )
-						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), CVec(GetRandomNum()*40,GetRandomNum()*40),col,NULL);
+						SpawnEntity(ENT_PARTICLE,0, rope->hookPos() + CVec(0,2), GetRandomVec()*40,col,NULL);
 				}
 			}
 		}

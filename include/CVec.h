@@ -59,14 +59,10 @@ struct VectorD2 {
 	}
 	VectorD2 operator*(const int scalar) const {		
 		return VectorD2(x*scalar,y*scalar);
+	}	
+	VectorD2 multPairwise(_T _x, _T _y) const {
+		return VectorD2(x*_x, y*_y);
 	}
-	/*
-	VectorD2 operator*(const VectorD2& vec) const {
-		// WARNING: this doesn't make any sense (in most 'mathematical' cases)
-		// TODO: why is it here? I would expect dot product or cross product...
-		return VectorD2(x*vec.x,y*vec.y);
-	}
-	*/
 	VectorD2 operator/(const float scalar) const {		
 		return VectorD2(x/scalar,y/scalar);
 	}

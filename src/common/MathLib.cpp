@@ -120,7 +120,8 @@ float NormalizeVector(CVec *vec)
 // Get a random normalized vector
 CVec GetRandomVec()
 {
-	return CVec(GetRandomNum(),GetRandomNum());
+	float angle = GetRandomPosNum() * 2.0f * (float)PI;
+	return CVec( cosf(angle), sinf(angle) ) * GetRandomNum();
 }
 
 

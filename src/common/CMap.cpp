@@ -2809,7 +2809,7 @@ int CarveHole(CVec pos)
 		if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
 			Color col = game.gameMap()->getColorAt(x, y);
 			for(short n=0; n<3; n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),col,NULL);
+				SpawnEntity(ENT_PARTICLE,0,pos,GetRandomVec().multPairwise(30,10),col,NULL);
 			break;
 		}
 	}

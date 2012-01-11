@@ -451,7 +451,7 @@ void SimulateEntities(TimeDiff dt)
 				if(ent->fExtra > 0.1f) {
 					int col = GetRandomInt(1);
 					static const int colour[] = {128,200};
-					SpawnEntity(ENT_BLOOD,0,ent->vPos,CVec(GetRandomNum(),GetRandomNum()),Color(colour[col],0,0),NULL);
+					SpawnEntity(ENT_BLOOD,0,ent->vPos,GetRandomVec(),Color(colour[col],0,0),NULL);
 					ent->fExtra = 0;
 				}
 				ent->fExtra += dt;
@@ -509,8 +509,7 @@ void EntityEffect::Process()
 		case ENTE_SPARKLE_DOT:
 			for( int i = 0; i < _amount; i++ )
 			{
-				float angle = GetRandomPosNum() / 180.0f * (float)PI;
-				CVec spread = CVec( sinf(angle), cosf(angle) ) * _speed;
+				CVec spread = GetRandomVec() * _speed;
 				// _radius here is gravitation
 				SpawnEntity(ENT_SPARKLE, _fade, pos, vel + spread + CVec(0, _radius), Color(), NULL);
 			}
@@ -519,10 +518,8 @@ void EntityEffect::Process()
 		case ENTE_SPARKLE_RANDOM:
 			for( int i = 0; i < _amount; i++ )
 			{
-				const float angle1 = GetRandomPosNum() / 180.0f * (float)PI;
-				const CVec spread = CVec( sinf(angle1), cosf(angle1) ) * _speed;
-				const float angle2 = GetRandomPosNum() / 180.0f * (float)PI;
-				const CVec randPos = CVec( sinf(angle2), cosf(angle2) ) * _radius;
+				const CVec spread = GetRandomVec() * _speed;
+				const CVec randPos = GetRandomVec() * _radius;
 				SpawnEntity(ENT_SPARKLE, _fade, pos + randPos, vel + spread, Color(), NULL);
 			}
 			break;

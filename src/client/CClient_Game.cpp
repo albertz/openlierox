@@ -343,7 +343,7 @@ void CClient::Explosion(AbsTime time, CVec pos, float damage, int shake, int own
 	// Particles
     if(gotDirt) {
 	    for(short x=0;x<2;x++)
-		    SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),DirtEntityColour,NULL);
+		    SpawnEntity(ENT_PARTICLE,0,pos,GetRandomVec().multPairwise(30,10),DirtEntityColour,NULL);
     }
 
 
@@ -496,15 +496,15 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 
 					// Spawn some giblets
 					for(int n=0;n<7;n++)
-						SpawnEntity(ENT_GIB,0,w->getPos(),CVec(GetRandomNum()*80,GetRandomNum()*80),Color(),w->getGibimg());
+						SpawnEntity(ENT_GIB,0,w->getPos(),GetRandomVec()*80,Color(),w->getGibimg());
 
 					// Blood
 					int amount = (int) (50.0f * ((float)tLXOptions->iBloodAmount / 100.0f));
 					for(int i=0;i<amount;i++) {
 						float sp = GetRandomNum()*100+50;
-						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
-						SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
+						SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(200,0,0),NULL);
+						SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);
 					}
         	   	}
 			}
@@ -515,12 +515,11 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	if( damage > 0 )	// Don't spawn blood if we hit with healing weapon (breaks old behavior)
 	{
 		float amount = ((float)tLXOptions->iBloodAmount / 100.0f);
-		float sp;
 		for(i=0;i<amount;i++) {
-			sp = GetRandomNum()*50;
-			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp*4),Color(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(128,0,0),NULL);
-			SpawnEntity(ENT_BLOOD,0,w->getPos(),CVec(GetRandomNum()*sp,GetRandomNum()*sp),Color(200,0,0),NULL);
+			float sp = GetRandomNum()*50;
+			SpawnEntity(ENT_BLOODDROPPER,0,w->getPos(),GetRandomVec().multPairwise(sp,sp*4),Color(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(128,0,0),NULL);
+			SpawnEntity(ENT_BLOOD,0,w->getPos(),GetRandomVec()*sp,Color(200,0,0),NULL);
 		}
 	}
 }
@@ -546,14 +545,12 @@ void CClient::SendCarve(CVec pos)
 		if(game.gameMap()->GetPixelFlag(x,y) & PX_DIRT) {
 			Colour = Color(game.gameMap()->GetImage()->format, GetPixel(game.gameMap()->GetImage().get(),x,y));
 			for(n=0;n<3;n++)
-				SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour,NULL);
+				SpawnEntity(ENT_PARTICLE,0,pos,GetRandomVec().multPairwise(30,10),Colour,NULL);
 			break;
 		}
 	}
 	UnlockSurface(game.gameMap()->GetImage());
 
-	/*for(x=0;x<3;x++)
-		SpawnEntity(ENT_PARTICLE,0,pos,CVec(GetRandomNum()*30,GetRandomNum()*10),Colour);*/
 
 	// Just carve a hole for the moment
 	game.gameMap()->CarveHole(4,pos, (bool)getGameLobby()[FT_InfiniteMap]);
