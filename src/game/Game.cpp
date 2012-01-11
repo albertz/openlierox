@@ -473,6 +473,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setLocal(local);
 	w->setClientVersion(clientVersion);
 	w->setProfile(profile);
+	m_worms[wormId] = w;
 	return w;
 }
 
