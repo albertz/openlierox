@@ -924,13 +924,13 @@ void CClient::DrawViewport_Game(SDL_Surface* bmpDest, CViewport* v) {
 		// Draw all the worms in the game
 		if(game.gameScript()->gusEngineUsed()) {
 			// draw attached flag
-			for_each_iterator(CWorm*, w, game.worms())
+			for_each_iterator(CWorm*, w, game.aliveWorms())
 				if(w->get()->isVisible(v))
 					cClient->flagInfo()->drawWormAttachedFlag(w->get(), bmpDest, v);
 			
 		} else {
 			// no gus worm drawing, draw them now
-			for_each_iterator(CWorm*, w, game.worms())
+			for_each_iterator(CWorm*, w, game.aliveWorms())
 				w->get()->Draw(bmpDest, v);
 		}
 	}
