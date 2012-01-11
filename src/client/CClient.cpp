@@ -1811,6 +1811,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			break;
 		}
 		w->setProfile(*newWormProf);
+		w->setLocal(true);
 		addedWorms.push_back(w->getID());
 		
 		w->setClient(localConn);
@@ -1854,7 +1855,6 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		
 		// (code from CClientNetEngine::ParseConnected) 
 		
-		w->setLocal(true);
 		w->setType(WormType::fromInt((*newWormProf)->iType));
 		w->setClientVersion(cClient->getClientVersion());
 		if(!w->ChangeGraphics(cClient->getGeneralGameType()))

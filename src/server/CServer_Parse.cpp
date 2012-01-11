@@ -1560,9 +1560,10 @@ void GameServer::ParseConnect(const SmartPointer<NetworkSocket>& net_socket, CBy
 		if(w == NULL) {
 			warnings << "Server:Connect: cannot add " << i << "th worm for " << newcl->debugName(false) << endl;
 			break;
-		}
-		
+		}		
 		w->setClient(newcl);
+		if(newcl->isLocalClient()) w->setLocal(true);
+		
 		ids[i] = w->getID();
 		newJoinedWorms.insert(w);
 
