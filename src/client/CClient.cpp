@@ -1607,7 +1607,7 @@ void CClient::Connecting(bool force)
 // Disconnect
 void CClient::Disconnect()
 {
-	game.reset();
+	game.resetWorms();
 	network.olxShutdown();
 	cNetEngine->SendDisconnect();
 

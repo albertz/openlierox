@@ -2303,7 +2303,7 @@ void GameServer::Shutdown()
 	
 	tUdpMasterServers.clear();
 
-	game.reset();
+	game.resetWorms();
 	// HINT: the gamescript is shut down by the cache
 }
 

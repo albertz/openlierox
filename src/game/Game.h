@@ -59,8 +59,6 @@ public:
 	
 	Grid objects;
 
-	void reset();
-
 	Iterator<CWorm*>::Ref worms();
 	Iterator<CWorm*>::Ref localWorms();
 	Iterator<CWorm*>::Ref aliveWorms();
@@ -71,6 +69,7 @@ public:
 	CWorm* createNewWorm(int wormId, bool local, const SmartPointer<profile_t>& profile, const Version& clientVersion);
 	int getNewUniqueWormId();
 	void removeWorm(CWorm* w);
+	void resetWorms();
 	
 	template<typename T>
 	T ifWorm(int wormId, boost::function<T (CWorm*)> f, T fallback = T()) {
@@ -96,6 +95,8 @@ public:
 	bool		isMapReady() const;	
 	
 private:
+	void reset();
+
 	AbsTime oldtime;
 	SmartPointer<CMap> m_gameMap;
 	SmartPointer<CGameScript> m_gameMod;
