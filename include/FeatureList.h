@@ -166,6 +166,7 @@ enum FeatureIndex {
 	FT_RopeAddParentSpeed,
 	FT_RopeGravity,
 	FT_RopeFallingGravity,
+	FT_RopeCanAttachWorm,
 	
 	FT_GameSpeed,
 	FT_GameSpeedOnlyForProjs,

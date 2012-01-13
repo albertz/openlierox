@@ -633,7 +633,7 @@ public:
 		}
 
 		// Check if the hook has hit another worm
-		if(!rope->isAttached() && !rope->isPlayerAttached()) {
+		if(cClient->getGameLobby()[FT_RopeCanAttachWorm] && !rope->isAttached() && !rope->isPlayerAttached()) {
 
 			for_each_iterator(CWorm*, w, game.aliveWorms()) {
 				if(w->get()->getID() == owner->getID())
