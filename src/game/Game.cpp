@@ -431,12 +431,8 @@ Iterator<CWorm*>::Ref Game::aliveWorms() {
 	return GetFilterIterator<CWorm*>(worms(), &CWorm::getAlive);
 }
 
-static bool _wormClientEqual(CWorm* w, const CServerConnection* cl) {
-	return w->getClient() == cl;
-}
-
 Iterator<CWorm*>::Ref Game::wormsOfClient(const CServerConnection* cl) {
-	return GetFilterIterator<CWorm*>(worms(), boost::bind(_wormClientEqual, _1, cl) );
+	return GetFilterIterator<CWorm*>(worms(), boost::bind(&CWorm::getClient, _1) == cl );
 }
 
 CWorm* Game::wormById(int wormId, bool assertExisting) {

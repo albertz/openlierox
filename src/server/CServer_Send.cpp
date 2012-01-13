@@ -154,15 +154,11 @@ void CServerNetEngine::SendPrepareGame()
 	SendPacket( &bs );
 }
 
-static bool _wormIdEqual(CWorm* w, int wormId) {
-	return w->getID() == wormId;
-}
-
 void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm, bool show, bool immediate)
 {
 	// For old clients we move the worm out of the map and kill it
 
-	if(!any<CWorm*>(game.wormsOfClient(cl), boost::bind(_wormIdEqual, _1, forworm)))
+	if(!any<CWorm*>(game.wormsOfClient(cl), boost::bind(&CWorm::getID, _1) == forworm))
 		// ignore it
 		return;
 	
