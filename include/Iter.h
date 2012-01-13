@@ -270,8 +270,17 @@ struct FilterIterator : public Iterator<T> {
 };
 
 template<typename T>
-::Ref<Iterator<T> > GetFilterIterator(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
-	return new FilterIterator<T>(i, pred);
+struct FilterIteratorBuilderHelper {
+	::Ref<Iterator<T> > i;
+	FilterIteratorBuilderHelper(::Ref<Iterator<T> > _i) : i(_i) {}
+	typename Iterator<T>::Ref operator()(boost::function<bool(T)> pred) {
+		return new FilterIterator<T>(i, pred);		
+	}
+};
+
+template<typename T>
+FilterIteratorBuilderHelper<T> GetFilterIterator(::Ref<Iterator<T> > i) {
+	return FilterIteratorBuilderHelper<T>(i);
 }
 
 template < typename T, typename DataT >
@@ -299,8 +308,17 @@ typename Iterator<T>::Ref FullCopyIterator(::Ref<Iterator<T> > i) {
 }
 
 template<typename T>
-bool any(::Ref<Iterator<T> > i, boost::function<bool(T)> pred) {
-	return GetFilterIterator<T>(i, pred)->isValid();
+struct AnyHelper {
+	::Ref<Iterator<T> > i;
+	AnyHelper(::Ref<Iterator<T> > _i) : i(_i) {}
+	bool operator()(boost::function<bool(T)> pred) {
+		return GetFilterIterator(i)(pred)->isValid();
+	}
+};
+
+template<typename T>
+AnyHelper<T> any(::Ref<Iterator<T> > i) {
+	return AnyHelper<T>(i);
 }
 
 #endif

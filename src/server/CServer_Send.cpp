@@ -158,7 +158,7 @@ void CServerNetEngine::SendHideWorm(CWorm *worm, int forworm, bool show, bool im
 {
 	// For old clients we move the worm out of the map and kill it
 
-	if(!any<CWorm*>(game.wormsOfClient(cl), boost::bind(&CWorm::getID, _1) == forworm))
+	if(!any(game.wormsOfClient(cl))(boost::bind(&CWorm::getID, _1) == forworm))
 		// ignore it
 		return;
 	

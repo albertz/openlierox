@@ -424,15 +424,15 @@ Iterator<CWorm*>::Ref Game::worms() {
 }
 
 Iterator<CWorm*>::Ref Game::localWorms() {
-	return GetFilterIterator<CWorm*>(worms(), &CWorm::getLocal);
+	return GetFilterIterator(worms())(&CWorm::getLocal);
 }
 
 Iterator<CWorm*>::Ref Game::aliveWorms() {
-	return GetFilterIterator<CWorm*>(worms(), &CWorm::getAlive);
+	return GetFilterIterator(worms())(&CWorm::getAlive);
 }
 
 Iterator<CWorm*>::Ref Game::wormsOfClient(const CServerConnection* cl) {
-	return GetFilterIterator<CWorm*>(worms(), boost::bind(&CWorm::getClient, _1) == cl );
+	return GetFilterIterator(worms())( boost::bind(&CWorm::getClient, _1) == cl );
 }
 
 CWorm* Game::wormById(int wormId, bool assertExisting) {
@@ -447,8 +447,8 @@ CWorm* Game::wormById(int wormId, bool assertExisting) {
 
 CWorm* Game::firstLocalHumanWorm() {
 	for_each_iterator(CWorm*, w, localWorms())
-	if( w->get()->getType() == PRF_HUMAN )
-		return w->get();
+		if( w->get()->getType() == PRF_HUMAN )
+			return w->get();
 	return NULL;
 }
 
