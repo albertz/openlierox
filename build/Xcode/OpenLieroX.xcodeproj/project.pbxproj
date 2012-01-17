@@ -829,6 +829,8 @@
 		232250D614A6D98000757A40 /* crash_generation_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = crash_generation_client.h; path = crash_generation/crash_generation_client.h; sourceTree = "<group>"; };
 		232250D814A6DB5400757A40 /* stabs_reader.cc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stabs_reader.cc; sourceTree = "<group>"; };
 		232250D914A6DB5500757A40 /* stabs_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stabs_reader.h; sourceTree = "<group>"; };
+		23240F0414C570C100EC859C /* WeakRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeakRef.h; sourceTree = "<group>"; };
+		23240F0514C570DE00EC859C /* Attr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Attr.h; sourceTree = "<group>"; };
 		2326B02710CE9F4300D3F035 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
 		2326B02810CE9F4300D3F035 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
 		2326B29A10CF090A00D3F035 /* WormInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WormInputHandler.h; sourceTree = "<group>"; };
@@ -1800,6 +1802,7 @@
 		231BE16010CE68AD0023780D /* game */ = {
 			isa = PBXGroup;
 			children = (
+				23240F0514C570DE00EC859C /* Attr.h */,
 				2365B0DE14B280B5002D5BF9 /* EngineSettings.h */,
 				2326B29A10CF090A00D3F035 /* WormInputHandler.h */,
 				2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */,
@@ -2305,6 +2308,7 @@
 		23C34F1E10CC546200DABBD6 /* util */ = {
 			isa = PBXGroup;
 			children = (
+				23240F0414C570C100EC859C /* WeakRef.h */,
 				23C34F1F10CC546200DABBD6 /* angle.cpp */,
 				23C34F2010CC546200DABBD6 /* angle.h */,
 				23C34F2210CC546200DABBD6 /* common.h */,
