@@ -11,7 +11,7 @@ struct LuaID
 };
 
 #define CLASSID(name_, id_) \
-template<> struct LuaID<name_> { static int const value = id_; }
+template<> struct LuaID<name_> { static uint32_t const value = id_; }
 
 class CGameObject;
 class CWorm;

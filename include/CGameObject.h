@@ -23,20 +23,18 @@
 #include "gusanos/luaapi/types.h"
 #include "gusanos/glua.h"
 #include "Color.h"
+#include "util/WeakRef.h"
+#include "CVec.h"
 
-//#include "gusanos/allegro.h"
 struct ALLEGRO_BITMAP;
 class CViewport;
-
 class CWormInputHandler;
-
-#include "CVec.h"
 
 class CGameObject : public LuaObject {
 public:
-	CGameObject() : health(100.0f) { gusInit(); }
-	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() ) : health(100.0f) { gusInit(owner, pos_, spd_); }
-	~CGameObject() { gusShutdown(); }
+	CGameObject();
+	CGameObject(CWormInputHandler* owner, Vec pos_ = Vec(), Vec spd_ = Vec() );
+	~CGameObject();
 
 protected:
 	// Gusanos comment:
@@ -158,6 +156,8 @@ public:
 	
 	// If this is true the object will be removed from the objects list in the next frame
 	bool deleteMe;
+	
+	WeakRef<CGameObject> thisWeakRef;
 	
 protected:
 	//LuaReference luaReference; //Defined in LuaObject
