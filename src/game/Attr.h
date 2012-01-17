@@ -11,6 +11,7 @@
 
 #include <stdint.h>
 #include <string>
+#include <boost/function.hpp>
 #include "util/WeakRef.h"
 #include "CScriptableVars.h"
 #include "gusanos/luaapi/classes.h"
@@ -22,6 +23,10 @@ struct AttrDesc {
 	intptr_t attrMemOffset;
 	std::string attrName;
 	uint32_t attrId;
+	
+	bool serverside;
+	boost::function<void(void* base, AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
+	boost::function<void(void* base, AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), attrMemOffset(0), attrId(0) {}
@@ -45,6 +50,7 @@ uint32_t attrId
 >
 struct Attr {
 	T value;
+	Attr() : value() {}
 	AttrDesc* attrDesc() {
 		static AttrDesc desc;
 		if(desc.attrId == 0) {
