@@ -158,6 +158,7 @@ public:
 	bool deleteMe;
 	
 	WeakRef<CGameObject> thisWeakRef;
+	uint32_t uniqueObjId;
 	
 protected:
 	//LuaReference luaReference; //Defined in LuaObject

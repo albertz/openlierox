@@ -25,7 +25,7 @@ struct AttrDesc {
 	uint32_t attrId;
 	
 	bool serverside;
-	boost::function<void(void* base, AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
+	boost::function<bool(void* base, AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
 	boost::function<void(void* base, AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
@@ -35,9 +35,12 @@ struct AttrDesc {
 	template<typename T> T& get(void* base) { return *(T*)getPtr(base); }
 };
 
+void registerAttrDesc(AttrDesc& attrDesc);
+
 struct AttrUpdateInfo {
 	WeakRef<CGameObject> parent;
 	AttrDesc* attrDesc;
+	ScriptVar_t oldValue;
 };
 
 void pushAttrUpdateInfo(const AttrUpdateInfo& info);
@@ -59,6 +62,7 @@ struct Attr {
 			desc.attrMemOffset = memOffsetF();
 			desc.attrName = nameF();
 			desc.attrId = attrId;
+			registerAttrDesc(desc);
 		}
 		return &desc;
 	}
@@ -68,13 +72,15 @@ struct Attr {
 		AttrUpdateInfo info;
 		info.parent = parent()->thisWeakRef;
 		info.attrDesc = attrDesc();
+		info.oldValue = ScriptVar_t(value);
 		pushAttrUpdateInfo(info);
+		value = v;
 	}
 };
 
 #define ATTR(parentType, type, name, attrId) \
 static const char* _ ## name ## _getAttrName() { return #name; } \
-static const char* _ ## name ## _getAttrMemOffset() { return __OLX_OFFSETOF(parentType, name); } \
+static intptr_t _ ## name ## _getAttrMemOffset() { return __OLX_OFFSETOF(parentType, name); } \
 Attr<parentType, type, \
 &_ ## name ## _getAttrMemOffset, \
 &_ ## name ## _getAttrName, \
