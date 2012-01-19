@@ -101,8 +101,6 @@ void CWorm::Clear()
 	bLocal = false;
 	m_type = PRF_HUMAN;
 	iRanking = 0;
-	iClientID = 0;
-	iClientWormID = 0;
 	cOwner = NULL;
 	bSpectating = false;
 	iAFK = AFK_BACK_ONLINE;

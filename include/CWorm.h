@@ -194,11 +194,6 @@ protected:
 	bool		bCanRespawnNow; // this is only a hint for the client. the server has its own handling independent of this
 	SmartPointer<profile_t> tProfile; // used to read (AI)nDifficulty and read/write human player weapons
 	
-	// Client info
-	int			iClientID;
-	int			iClientWormID;
-
-
 	// Simulation
 	worm_state_t tState;
 
