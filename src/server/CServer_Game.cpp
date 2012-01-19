@@ -504,10 +504,6 @@ void GameServer::gotoLobby(bool alsoWithMenu, const std::string& reason)
 	bool bUpdateWorms = false;
 	for_each_iterator(CWorm*, w, game.worms()) {
 		w->get()->Unprepare();
-		w->get()->setLobbyReady( false );
-		w->get()->setGameReady(false);
-		w->get()->setTagIT(false);
-		w->get()->setTagTime(TimeDiff(0));
 		if( w->get()->getAFK() == AFK_TYPING_CHAT )
 		{
 			w->get()->setAFK(AFK_BACK_ONLINE, "");

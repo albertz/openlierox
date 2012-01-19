@@ -333,7 +333,6 @@ private:
 	CBytestream	bsUnreliable;
 	CShootList	cShootList;
     AbsTime      fZombieTime;
-	TimeDiff	fSendWait;
 	AbsTime		fLastUpdateSent;
 	std::string	szServerName;
 	bool		bHostAllowsStrafing;

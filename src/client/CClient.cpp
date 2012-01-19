@@ -120,7 +120,6 @@ void CClient::Clear()
     bClientError = false;
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
-	fSendWait = 0;
 	fLastUpdateSent = AbsTime();
 
 
@@ -192,8 +191,6 @@ void CClient::MinorClear()
 	bChat_Typing = false;
 	fLastReceived = AbsTime::Max();
 	fServertime = TimeDiff();
-
-	fSendWait = 0;
 
 	iChat_Numlines = 0;
 	if(!bDedicated)
@@ -292,9 +289,7 @@ CClient::CClient() {
 	
 	//fProjDrawTime = 0;
 	//fProjSimulateTime = 0;
-	
-	fSendWait = 0;
-	
+		
 	bMuted = false;
 	bRepaintChatbox = true;
 		
@@ -1200,36 +1195,6 @@ void CClient::SendPackets(bool sendPendingOnly)
 	
 	if(iNetStatus == NET_PLAYING || iNetStatus == NET_CONNECTED)
 		cNetChan->Transmit(&bsUnreliable);
-
-
-	if(!sendPendingOnly) {
-		if (iNetStatus == NET_CONNECTED && bGameReady && bReadySent)
-		{
-			bool serverThinksWeAreNotReadyWhenWeAre = false;
-			for_each_iterator(CWorm*, w, game.localWorms()) {
-				// getGameReady = what server thinks. getWeaponsReady = what we know.
-				serverThinksWeAreNotReadyWhenWeAre |= !w->get()->getGameReady() && w->get()->getWeaponsReady();
-			}
-
-
-			// ready as in localclient == ready, server thinks we are not.
-			if (serverThinksWeAreNotReadyWhenWeAre)
-			{
-				fSendWait += tLX->fDeltaTime;
-				if (fSendWait.seconds() > 1.0) {
-					notes << "CClient::SendPackets: Server thinks that ";
-					for_each_iterator(CWorm*, w, game.localWorms()) {
-						if(!w->get()->getGameReady() && w->get()->getWeaponsReady())
-							notes << " (local) " << w->get()->getID() << ":" << w->get()->getName();
-					}
-					notes << " is not ready" << endl;
-					
-					fSendWait = 0.0f;
-					cNetEngine->SendGameReady();
-				}
-			}
-		}
-	}
 	
 	bsUnreliable.Clear();
 }

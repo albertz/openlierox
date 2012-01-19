@@ -145,7 +145,6 @@ void CWorm::Clear()
 	bWeaponsReady = false;
 	iNumWeaponSlots = 2;
 	iCurrentWeapon = 0;
-	bGameReady = false;
 
 	bGotTarget = false;
 	bHooked = false;
@@ -316,9 +315,12 @@ void CWorm::Unprepare() {
 
 	bAlive = false;
 	health = 0;
-	setGameReady(false);
+	bWeaponsReady = false;
+	setLobbyReady( false );
+	
 	setTagIT(false);
 	setTagTime(TimeDiff(0));
+
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	

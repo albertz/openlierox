@@ -296,7 +296,6 @@ protected:
 
 	// Arsenal
 	bool		bWeaponsReady;
-	bool		bGameReady;
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
@@ -536,9 +535,6 @@ public:
 	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }
 	wpnslot_t	*getWeapon(int id)			{ return &tWeapons[id]; }
-
-	void		setGameReady(bool _g)		{ bGameReady = _g; }
-	bool		getGameReady()			{ return bGameReady; }
 
 	void		setLobbyReady(bool _g)		{ bLobbyReady = _g; }
 	bool		getLobbyReady() const		{ return bLobbyReady; }

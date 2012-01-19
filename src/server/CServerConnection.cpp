@@ -46,8 +46,6 @@ CServerConnection::CServerConnection( GameServer * _server ) {
 	fLastUpdateSent = AbsTime();
 	bLocalClient = false;
 
-	fSendWait = 0;
-
 	bMuted = false;	
 	bGameReady = false;
 	m_gusLoggedIn = false;
@@ -77,7 +75,6 @@ void CServerConnection::Clear()
 	bGameReady = bMuted = m_gusLoggedIn = false;
 	
 	fLastReceived = AbsTime::Max();
-	fSendWait = 0;
 	fLastUpdateSent = AbsTime();
 
 	cShootList.Shutdown();
@@ -95,8 +92,6 @@ void CServerConnection::MinorClear()
 {
 	iNetStatus = NET_CONNECTED;
 	fLastReceived = AbsTime::Max();
-
-	fSendWait = 0;
 
 	fLastFileRequest = fLastFileRequestPacketReceived = tLX->currentTime;
 	getUdpFileDownloader()->reset();

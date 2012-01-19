@@ -634,13 +634,13 @@ void CWorm::writeStatUpdate(CBytestream *bs)
 
 
 ///////////////////
-// Read a worm stat update
+// Read a worm weapon stat update
 void CWorm::readStatUpdate(CBytestream *bs)
 {
 	uchar cur = bs->readByte();
 	uchar charge = bs->readByte();
 
-	if(!bGameReady) {
+	if(!bWeaponsReady) {
 		// Can happen at connect-during-game.
 		return;
 	}

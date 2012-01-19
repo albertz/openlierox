@@ -1933,13 +1933,13 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 			if (CWorm::skipWeapons(bs))	break;
 			continue;			
 		}
-
-		w->setGameReady(true);
+		
+		if(!w->getLocal())
+			w->setWeaponsReady(true);
 
 		// Read the weapon info
 		//notes << "Client:ParseCLReady: ";
 		w->readWeapons(bs);
-
 	}
 
 	client->bUpdateScore = true; // Change the ingame scoreboard

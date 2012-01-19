@@ -2605,7 +2605,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, iColor);
 
 		if (WaitForPlayers)
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getGameReady() ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getGameReady() ? tLX->clReady : tLX->clWaiting);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getWeaponsReady() ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getWeaponsReady() ? tLX->clReady : tLX->clWaiting);
 		else  {
 			// Lives
 			switch (p->getLives())  {
@@ -2663,7 +2663,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 		int cur_x = x + 5;
 
 		// Ready
-		if (wrm->getGameReady())
+		if (wrm->getWeaponsReady())
 			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyReady.get()->h) / 2);
 		else
 			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyNotReady.get()->h) / 2);
