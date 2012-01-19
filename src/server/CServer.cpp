@@ -355,13 +355,6 @@ int GameServer::StartGame(std::string* errMsg)
 	
 	notes << "GameServer::StartGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
 	
-	for_each_iterator(CWorm*, w, game.worms()) {
-		if(w->get()->isPrepared()) {
-			warnings << "WARNING: StartGame(): worm " << w->get()->getID() << " was already prepared!" << endl;
-			w->get()->Unprepare();
-		}
-	}
-	
 	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
 	cClient->SetPermanentText("");
 	
@@ -1806,12 +1799,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setTeam(0);
 	else
 		w->setTeam(wormInfo.iTeam);
-	
-	if(w->isPrepared()) {
-		warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! " << endl;
-		w->Unprepare();
-	}
-	
+		
 	// If the game has limited lives all new worms are spectators
 	if( (int)gameSettings[FT_Lives] == WRM_UNLIM || iState != SVS_PLAYING || allWormsHaveFullLives() ) // Do not set WRM_OUT if we're in weapon selection screen
 		w->setLives(((int)gameSettings[FT_Lives] < 0) ? WRM_UNLIM : gameSettings[FT_Lives]);

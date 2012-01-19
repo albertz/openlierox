@@ -1044,9 +1044,6 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		// Inefficient, but i'm not going to redesign stuff for a simple gametype
 		w->ChangeGraphics(client->getGeneralGameType());
 
-		if(isReconnect && w->isPrepared())
-			continue;
-		
 		notes << "Client: preparing worm " << w->getID() << ":" << w->getName() << " for battle" << endl;
 
 		// Also set some game details

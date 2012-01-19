@@ -296,7 +296,6 @@ protected:
 
 	// Arsenal
 	bool		bWeaponsReady;
-	bool		bIsPrepared;
 	bool		bGameReady;
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
@@ -385,7 +384,6 @@ public:
 	//
 	// Game
 	//
-	bool		isPrepared() { return bIsPrepared; }
 	void		Prepare(); // weapon selection and so on
 	void		Unprepare(); // after a game
 	void		StartGame();

@@ -93,7 +93,6 @@ void CWorm::Clear()
 {
 	game.onRemoveWorm(this);
 	
-	bIsPrepared = false;
 	bSpawnedOnce = false;
 	bCanRespawnNow = false;
 	iID = 0;
@@ -243,10 +242,6 @@ void CWorm::Prepare()
 		return;
 	}
 
-	if(bIsPrepared) {
-		warnings << "worm " << getID() << ":" << getName() << " was already prepared!" << endl;
-	}
-	
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
 	gusSkinVisble = true;
@@ -313,7 +308,6 @@ void CWorm::Prepare()
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
 	posRecordings.clear();
-	bIsPrepared = true;
 }
 
 void CWorm::Unprepare() {
@@ -334,7 +328,6 @@ void CWorm::Unprepare() {
 	}
 	
 	gusShutdown();
-	bIsPrepared = false;
 }
 
 void CWorm::StartGame() {
