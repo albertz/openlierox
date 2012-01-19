@@ -463,7 +463,8 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	assert(wormById(wormId, false) == NULL);
 	CWorm* w = new CWorm();
 	w->setID(wormId);
-	w->setUsed(true);
+	w->fLastSimulationTime = GetPhysicsTime(); 
+	w->iTotalWins = w->iTotalLosses = w->iTotalKills = w->iTotalDeaths = w->iTotalSuicides = 0;
 	w->setClient(NULL); // Local worms won't get CServerConnection owner
 	w->setName(profile->sName);
 	w->setSkin(profile->cSkin);

@@ -1092,12 +1092,7 @@ void CServerNetEngine::SendWormProperties(bool onlyIfNotDef) {
 }
 
 void CServerNetEngine::SendWormProperties(CWorm* worm) {
-	if(cl->isLocalClient()) return;
-	if(!worm->isUsed()) {
-		warnings << "SendWormProperties called for unused worm" << endl;
-		return;
-	}
-	
+	if(cl->isLocalClient()) return;	
 	if(isWormPropertyDefault(worm)) return; // ok, don't give a warning in that case
 	
 	warnings << "SendWormProperties cannot be used for clients with <Beta9 (" << cl->debugName() << ")" << endl;
@@ -1105,10 +1100,6 @@ void CServerNetEngine::SendWormProperties(CWorm* worm) {
 
 void CServerNetEngineBeta9::SendWormProperties(CWorm* worm) {
 	if(cl->isLocalClient()) return;
-	if(!worm->isUsed()) {
-		warnings << "SendWormProperties called for unused worm" << endl;
-		return;
-	}
 
 	CBytestream bs;
 	bs.writeByte(S2C_SETWORMPROPS);
@@ -1137,10 +1128,6 @@ void CServerNetEngine::SendSelectWeapons(CWorm* worm) {
 
 void CServerNetEngineBeta9::SendSelectWeapons(CWorm* worm) {
 	if(cl->isLocalClient()) return;
-	if(!worm->isUsed()) {
-		warnings << "SendSelectWeapons called for unused worm" << endl;
-		return;
-	}
 
 	CBytestream bs;
 	bs.writeByte(S2C_SELECTWEAPONS);

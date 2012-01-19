@@ -72,7 +72,6 @@ CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_
 	m_node = NULL;
 	m_interceptor = NULL;
 
-	bUsed = false;
 	Clear();
 	
 	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
@@ -92,7 +91,7 @@ CWorm::~CWorm() {
 // Clear the worm details
 void CWorm::Clear()
 {
-	if(bUsed) game.onRemoveWorm(this);
+	game.onRemoveWorm(this);
 	
 	bIsPrepared = false;
 	bSpawnedOnce = false;
@@ -198,10 +197,8 @@ void CWorm::Clear()
 	
 	cDamageReport.clear();
 
-	if(bUsed) gusShutdown();
+	gusShutdown();
 	gusInit();
-
-	bUsed = false;
 }
 
 
@@ -1381,15 +1378,6 @@ bool CWormHumanInputHandler::canType() {
 	return true;
 }
 	
-
-void CWorm::setUsed(bool _u)
-{ 
-	bUsed = _u; 
-	if( ! _u ) 
-		return;
-	fLastSimulationTime = GetPhysicsTime(); 
-	iTotalWins = iTotalLosses =	iTotalKills = iTotalDeaths = iTotalSuicides = 0;
-}
 
 void CWorm::setAFK(AFK_TYPE afkType, const std::string & msg)
 {

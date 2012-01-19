@@ -653,7 +653,6 @@ public:
 
 			// If the worm has been killed, or dropped, or became invisible in H&S - drop the hook
 			if(	!rope->getAttachedPlayer() || 
-				!rope->getAttachedPlayer()->isUsed() || 
 				!rope->getAttachedPlayer()->getAlive() ||
 				!rope->getAttachedPlayer()->isVisible(owner) ) 
 			{

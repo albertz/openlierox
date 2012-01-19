@@ -182,7 +182,6 @@ protected:
 	// Attributes
 
 	// General
-	bool		bUsed;
 	int			iID;
 	WormType*	m_type;
 	bool		bLocal;
@@ -432,8 +431,6 @@ public:
 	//
 	// Variables
 	//
-	bool		isUsed()				{ return bUsed; }
-	void		setUsed(bool _u);
 
 	CNinjaRope*	getNinjaRope()				{ return &cNinjaRope; }
 

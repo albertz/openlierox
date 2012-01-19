@@ -163,12 +163,6 @@ void CTag::TagWorm(CWorm *worm)
 	for_each_iterator(CWorm*, w, game.worms())
 		w->get()->setTagIT(false);
 
-	// Some safety warnings
-	if (!worm->isUsed())  {
-		errors << "Tagging an unused worm (ID " << worm->getID() << ")" << endl;
-	}
-
-
 	worm->setTagIT(true);
 
 	// Let everyone know this guy is tagged

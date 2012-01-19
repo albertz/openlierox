@@ -619,8 +619,7 @@ void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 	
 	// Without arguments, just commit one suicide
 	if (params.size() == 0)  {
-		if(w->isUsed())
-			cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
+		cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
 	}
 	// A number has been entered, suicide the specified number
 	else  {
@@ -638,9 +637,8 @@ void Cmd_suicide::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 			number = 1;
 		
 		// Suicide
-		if (w->isUsed())
-			for (int i = 0; i < number; i++)
-				cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
+		for (int i = 0; i < number; i++)
+			cClient->getNetEngine()->SendDeath(w->getID(), w->getID());
 	}
 }
 
@@ -671,7 +669,7 @@ void Cmd_unstuck::exec(CmdLineIntf* caller, const std::vector<std::string>& para
 		return;
 	}
 
-	if (w->isUsed() && w->getAlive())
+	if(w->getAlive())
 		w->setPos(game.gameMap()->FindNearestSpot(w));
 }
 

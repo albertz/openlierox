@@ -425,10 +425,8 @@ void CWorm::readPacketState(CBytestream *bs)
 		return;
 	}
 
-	if (!bUsed || !getAlive()) {
+	if (!getAlive()) {
 		// Note: This can happen also (even a lot of times) when a worm joins and we didn't received all information yet (because of limited reliable bandwidth).
-		if(!bUsed)
-			notes << "Client: readPacketState called on unused worm " << getID() << ":" << getName() << endl;
 		skipPacketState(bs);
 		return;
 	}

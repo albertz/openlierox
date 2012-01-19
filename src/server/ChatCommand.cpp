@@ -1092,7 +1092,6 @@ std::string ProcessSetVar(const std::vector<std::string>& params, int sender_id)
 			return "You cannot change the gametype in game";
 	}
 	
-	if(!w->isUsed()) return "Invalid worm";
 	if(!w->getClient()) return "Invalid worm with no client";
 
 	if(params.size() == 1) {

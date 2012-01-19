@@ -1799,7 +1799,6 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	if(wormId >= MAX_WORMS) return NULL;
 	
 	CWorm* w = game.createNewWorm(wormId, false, new profile_t(), Version());
-	w->setUsed(true);
 	wormInfo.applyTo(w);
 	w->setupLobby();
 	w->setDamage(0);
@@ -1809,9 +1808,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 		w->setTeam(wormInfo.iTeam);
 	
 	if(w->isPrepared()) {
-		warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! ";
-		if(!w->isUsed()) warnings << "AND it is even not used!";
-		warnings << endl;
+		warnings << "WARNING: connectduringgame: worm " << w->getID() << " was already prepared! " << endl;
 		w->Unprepare();
 	}
 	
