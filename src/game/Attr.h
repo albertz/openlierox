@@ -16,6 +16,7 @@
 #include "CScriptableVars.h"
 #include "gusanos/luaapi/classes.h"
 #include "util/macros.h"
+#include "util/BaseObject.h"
 
 struct AttrDesc {
 	uint32_t objTypeId;
@@ -38,7 +39,7 @@ struct AttrDesc {
 void registerAttrDesc(AttrDesc& attrDesc);
 
 struct AttrUpdateInfo {
-	WeakRef<CGameObject> parent;
+	WeakRef<BaseObject> parent;
 	AttrDesc* attrDesc;
 	ScriptVar_t oldValue;
 };

@@ -5,6 +5,7 @@
 #include <vector>
 #include "luaapi/types.h"
 #include "CodeAttributes.h"
+#include "util/BaseObject.h"
 
 #define C_LocalPlayer_ActionCount 8
 
@@ -58,7 +59,7 @@ extern LuaCallbacks luaCallbacks;
 	lua.destroyReference(p->luaReference); \
 }*/
 
-struct LuaObject 
+struct LuaObject : BaseObject
 {
 #ifndef NDEBUG
 	LuaObject()

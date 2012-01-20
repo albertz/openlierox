@@ -21,9 +21,13 @@ struct WeakRef {
 	: ref(_ref) {}
 	
 	T* get() { return *ref; }
+	const T* get() const { return *ref; }
 	void set(const SharedT& _ref) { ref = _ref; }
 	void set(T* _ref) { ref = SharedT(new T*(_ref)); }
 	void overwriteShared(T* _ref) { *ref = _ref; }
+	
+	bool operator==(const WeakRef& other) const { return ref == other.ref; }
+	bool operator<(const WeakRef& other) const { return ref < other.ref; }
 };
 
 #endif

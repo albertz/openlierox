@@ -157,7 +157,6 @@ public:
 	// If this is true the object will be removed from the objects list in the next frame
 	bool deleteMe;
 	
-	WeakRef<CGameObject> thisWeakRef;
 	uint32_t uniqueObjId;
 	
 protected:

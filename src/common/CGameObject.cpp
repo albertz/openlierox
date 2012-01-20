@@ -21,9 +21,9 @@
 
 LuaReference CGameObject::metaTable;
 
-CGameObject::CGameObject() : health(100.0f) { thisWeakRef.set(this); gusInit(); }
-CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) : health(100.0f) { thisWeakRef.set(this); gusInit(owner, pos_, spd_); }
-CGameObject::~CGameObject() { gusShutdown(); thisWeakRef.overwriteShared(NULL); }
+CGameObject::CGameObject() : health(100.0f) { gusInit(); }
+CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) : health(100.0f) { gusInit(owner, pos_, spd_); }
+CGameObject::~CGameObject() { gusShutdown(); }
 
 
 bool CGameObject::injure(float damage) {
