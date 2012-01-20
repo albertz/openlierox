@@ -57,7 +57,7 @@ CCheckbox::CCheckbox(ScriptVar_t& var) {
 	bValue = var.toBool();
 	bmpImage = NULL;
 	iType = wid_Checkbox;
-	bVar = var.ptrBool();
+	bVar = var.ptr<bool>();
 	iVar = NULL;
 }
 
