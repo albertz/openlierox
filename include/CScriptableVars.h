@@ -103,6 +103,7 @@ template<> struct GetType<float> { typedef float type; static const ScriptVarTyp
 template<> struct GetType<std::string> { typedef std::string type; static const ScriptVarType_t value = SVT_STRING; };
 template<> struct GetType<Color> { typedef Color type; static const ScriptVarType_t value = SVT_COLOR; };
 template<> struct GetType<CVec> { typedef CVec type; static const ScriptVarType_t value = SVT_VEC2; };
+template<> struct GetType<WeakRef<BaseObject> > { typedef WeakRef<BaseObject> type; static const ScriptVarType_t value = SVT_BASEOBJ; };
 template<> struct GetType<CustomVar::Ref> { typedef CustomVar::Ref type; static const ScriptVarType_t value = SVT_CUSTOM; };
 template<> struct GetType<const char*> : GetType<std::string> {};
 
