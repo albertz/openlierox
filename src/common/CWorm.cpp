@@ -532,7 +532,7 @@ bool CWorm::ChangeGraphics(int generalgametype)
 	// If we are in a team game, use the team colours
 	if(generalgametype == GMT_TEAMS) {
 		team = true;
-		colour = tLX->clTeamColors[CLAMP(iTeam,0,3)];
+		colour = tLX->clTeamColors[CLAMP(iTeam.get(),0,3)];
 	}
 
 	// Use the colours set on the network
@@ -1118,8 +1118,8 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 	// Draw the worm's name
 	if (isWormVisible(this, v))  {
 		std::string WormName = sName;
-		if( sAFKMessage != "" )
-			WormName += " " + sAFKMessage;
+		if( sAFKMessage.get() != "" )
+			WormName += " " + sAFKMessage.get();
 		if(!bLocal || (bLocal && m_type != PRF_HUMAN)) {
 			if (cClient->getGameLobby()[FT_GameMode].as<GameModeInfo>()->generalGameType == GMT_TEAMS && tLXOptions->bColorizeNicks)
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clTeamColors[iTeam],WormName);
@@ -1127,7 +1127,7 @@ void CWorm::Draw(SDL_Surface * bmpDest, CViewport *v)
 				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,WormName);
 		} else { // local human worm
 			if(iAFK != AFK_BACK_ONLINE) {
-				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,".. " + sAFKMessage + " ..");
+				tLX->cOutlineFont.DrawCentre(bmpDest,x,y-WormNameY,tLX->clPlayerName,".. " + sAFKMessage.get() + " ..");
 			}
 		}
 	}
@@ -1205,7 +1205,7 @@ void CWorm::Kill(bool serverside)
 		addDeath();
 
 		if(iLives != WRM_UNLIM)
-			iLives--;
+			iLives = (int)iLives - 1;
 	}
 }
 

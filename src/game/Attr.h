@@ -67,7 +67,8 @@ struct Attr {
 		return &desc;
 	}
 	ParentT* parent() { return (ParentT*)(uintptr_t(this) - memOffsetF()); }
-	operator T() { return value; }
+	T get() const { return value; }
+	operator T() const { return get(); }
 	Attr& operator=(const T& v) {
 		AttrUpdateInfo info;
 		info.parent = parent()->thisWeakRef;
@@ -75,12 +76,13 @@ struct Attr {
 		info.oldValue = ScriptVar_t(value);
 		pushAttrUpdateInfo(info);
 		value = v;
+		return *this;
 	}
 };
 
 #define ATTR(parentType, type, name, attrId) \
 static const char* _ ## name ## _getAttrName() { return #name; } \
-static intptr_t _ ## name ## _getAttrMemOffset() { return __OLX_OFFSETOF(parentType, name); } \
+static intptr_t _ ## name ## _getAttrMemOffset() { return (intptr_t)__OLX_OFFSETOF(parentType, name); } \
 Attr<parentType, type, \
 &_ ## name ## _getAttrMemOffset, \
 &_ ## name ## _getAttrName, \

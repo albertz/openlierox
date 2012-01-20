@@ -34,6 +34,7 @@
 #include "DynDraw.h"
 #include "CGameObject.h"
 #include "util/VecTimeRecorder.h"
+#include "game/Attr.h"
 
 // TODO: remove this after we changed network
 #include "CBytestream.h"
@@ -185,8 +186,8 @@ protected:
 	int			iID;
 	WormType*	m_type;
 	bool		bLocal;
-	int			iTeam;
-	std::string	sName;
+	ATTR(CWorm, int,	iTeam, 1);
+	ATTR(CWorm, std::string,	sName, 2);
 	int			iRanking;
 	bool		bAlreadyKilled;
 	bool		bSpectating;
@@ -230,8 +231,8 @@ protected:
 
 	// Game
 	bool		bDrawMuzzle;
-	int			iLives;
-	bool		bAlive;
+	ATTR(CWorm, int,	iLives, 3);
+	ATTR(CWorm, bool,	bAlive, 4);
 	AbsTime		fTimeofDeath;
 	DIR_TYPE	iFaceDirectionSide;
 	DIR_TYPE	iMoveDirectionSide;
@@ -239,11 +240,11 @@ protected:
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
-	float		fSpeedFactor;
-	bool		bCanUseNinja;
-	float		fDamageFactor;
-	float		fShieldFactor;
-	bool		bCanAirJump; // For instant air jump
+	ATTR(CWorm,	float,	fSpeedFactor, 5);
+	ATTR(CWorm, bool,	bCanUseNinja, 6);
+	ATTR(CWorm, float,	fDamageFactor, 7);
+	ATTR(CWorm, float,	fShieldFactor, 8);
+	ATTR(CWorm, bool,	bCanAirJump, 9); // For instant air jump
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
@@ -295,12 +296,13 @@ protected:
 
 
 	// Arsenal
-	bool		bWeaponsReady;
+	ATTR(CWorm, bool,	bWeaponsReady,  2);
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
-	AFK_TYPE	iAFK;
-	std::string	sAFKMessage;
+
+	ATTR(CWorm,	int,	iAFK,	3);
+	ATTR(CWorm, std::string,	sAFKMessage, 100);
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
@@ -574,8 +576,8 @@ public:
 	bool		isSpectating()				{ return bSpectating; }
 	void		setSpectating(bool _s)		{ bSpectating = _s; }
 
-	AFK_TYPE	getAFK()				{ return iAFK; }
-	const std::string & getAFKMessage()		{ return sAFKMessage; }
+	AFK_TYPE	getAFK()				{ return (AFK_TYPE)(int)iAFK; }
+	std::string getAFKMessage()		{ return sAFKMessage; }
 	void		setAFK(AFK_TYPE _f, const std::string & msg);
 
 	void	addTotalWins(int _w = 1)		{ iTotalWins += _w; }
