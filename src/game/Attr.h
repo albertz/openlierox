@@ -53,15 +53,17 @@ uint32_t attrId
 >
 struct Attr {
 	T value;
-	Attr() : value() {}
+	Attr() : value() { /* to init attrDesc */ attrDesc(); }
 	AttrDesc* attrDesc() {
+		static bool inited = false;
 		static AttrDesc desc;
-		if(desc.attrId == 0) {
+		if(!inited) {
 			desc.objTypeId = LuaID<ParentT>::value;
 			desc.attrType = GetType<T>::value;
 			desc.attrMemOffset = memOffsetF();
 			desc.attrName = nameF();
 			desc.attrId = attrId;
+			inited = true;
 			registerAttrDesc(desc);
 		}
 		return &desc;
