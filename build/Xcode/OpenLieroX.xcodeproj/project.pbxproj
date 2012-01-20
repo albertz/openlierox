@@ -93,6 +93,7 @@
 		232250D414A6D93A00757A40 /* x86_operand_list.c in Sources */ = {isa = PBXBuildFile; fileRef = 232250B914A6D93A00757A40 /* x86_operand_list.c */; };
 		232250D714A6D98000757A40 /* crash_generation_client.cc in Sources */ = {isa = PBXBuildFile; fileRef = 232250D514A6D98000757A40 /* crash_generation_client.cc */; };
 		232250DA14A6DB5500757A40 /* stabs_reader.cc in Sources */ = {isa = PBXBuildFile; fileRef = 232250D814A6DB5400757A40 /* stabs_reader.cc */; };
+		23240F0714C8E69F00EC859C /* Attr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 23240F0614C8E69F00EC859C /* Attr.cpp */; };
 		2326B02910CE9F4300D3F035 /* gusanos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B02710CE9F4300D3F035 /* gusanos.cpp */; };
 		2326B29C10CF090A00D3F035 /* WormInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B29B10CF090A00D3F035 /* WormInputHandler.cpp */; };
 		2326B34310CF0F8500D3F035 /* CWormBot.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2326B34110CF0F8500D3F035 /* CWormBot.cpp */; };
@@ -831,6 +832,7 @@
 		232250D914A6DB5500757A40 /* stabs_reader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stabs_reader.h; sourceTree = "<group>"; };
 		23240F0414C570C100EC859C /* WeakRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WeakRef.h; sourceTree = "<group>"; };
 		23240F0514C570DE00EC859C /* Attr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Attr.h; sourceTree = "<group>"; };
+		23240F0614C8E69F00EC859C /* Attr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Attr.cpp; sourceTree = "<group>"; };
 		2326B02710CE9F4300D3F035 /* gusanos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gusanos.cpp; sourceTree = "<group>"; };
 		2326B02810CE9F4300D3F035 /* gusanos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gusanos.h; sourceTree = "<group>"; };
 		2326B29A10CF090A00D3F035 /* WormInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WormInputHandler.h; sourceTree = "<group>"; };
@@ -1827,6 +1829,7 @@
 				23B7BC3614B1570A00B5E8EC /* Game_loadMod.cpp */,
 				23B7BC3914B1631300B5E8EC /* Game_loadWeaponRestrictions.cpp */,
 				2365B0D914B22965002D5BF9 /* Game_loadMap.cpp */,
+				23240F0614C8E69F00EC859C /* Attr.cpp */,
 			);
 			path = game;
 			sourceTree = "<group>";
@@ -3762,6 +3765,7 @@
 				2365B0DA14B22965002D5BF9 /* Game_loadMap.cpp in Sources */,
 				232F590E14BA4BBD003D2E95 /* ClientConnectionRequestInfo.cpp in Sources */,
 				2334DB1614BB7D53003F21D4 /* CLabel.cpp in Sources */,
+				23240F0714C8E69F00EC859C /* Attr.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
