@@ -248,8 +248,8 @@ void Game::cleanupAfterGameloopEnd() {
 		// call gameover because we may do some important cleanup there
 		game.gameMode()->GameOver();
 	
-	reset();
 	gusGame.unload();
+	reset();
 	
 	PhysicsEngine::UnInit();
 	
@@ -331,6 +331,15 @@ void Game::onNewPlayer_Lua(CWormInputHandler* p) {
 	}
 }
 
+void Game::onRemovePlayer(CWormInputHandler* p) {
+	for(__typeof__(players.begin()) i = players.begin(); i != players.end(); ) {
+		if(*i == p)
+			i = players.erase(i);
+		else
+			++i;
+	}
+}
+
 void Game::onNewHumanPlayer(CWormHumanInputHandler* player) {
 	localPlayers.push_back( player );	
 	player->local = true;
@@ -343,6 +352,15 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 			(lua.call(*i), player->getLuaReference())();
 		}
 	}
+}
+
+void Game::onRemoveHumanPlayer(CWormHumanInputHandler* p) {
+	for(__typeof__(localPlayers.begin()) i = localPlayers.begin(); i != localPlayers.end(); ) {
+		if(*i == p)
+			i = localPlayers.erase(i);
+		else
+			++i;
+	}	
 }
 
 

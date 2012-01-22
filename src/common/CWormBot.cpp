@@ -4142,6 +4142,7 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 }
 
 CWormBotInputHandler::~CWormBotInputHandler() {
+	game.onRemovePlayer(this);
 	// Make sure the pathfinding ends
 	AI_Shutdown();
 }

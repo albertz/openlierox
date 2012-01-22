@@ -675,6 +675,8 @@ CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) 
 }
 
 CWormHumanInputHandler::~CWormHumanInputHandler() {
+	game.onRemoveHumanPlayer(this);
+	game.onRemovePlayer(this);
 	gusShutdown();
 }
 

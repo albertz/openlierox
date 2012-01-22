@@ -140,7 +140,7 @@ void CWorm::deleteThis() {
 
 Weapon* CWorm::getCurrentWeaponRef()
 {
-	if(currentWeapon < 0 || currentWeapon >= m_weapons.size())
+	if(currentWeapon >= m_weapons.size())
 		return NULL;
 	return m_weapons[currentWeapon];
 }
