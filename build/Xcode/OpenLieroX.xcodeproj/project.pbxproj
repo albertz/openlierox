@@ -4084,7 +4084,6 @@
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-DDEBUG",
-					"-D_AI_DEBUG",
 					"-DFUZZY_ERROR_TESTING",
 					"-DFUZZY_ERROR_TESTING_S2C",
 					"-pthread",
@@ -4209,7 +4208,6 @@
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-DDEBUG",
-					"-D_AI_DEBUG",
 					"-DFUZZY_ERROR_TESTING",
 					"-DFUZZY_ERROR_TESTING_C2S",
 					"-pthread",
@@ -4443,7 +4441,6 @@
 				OTHER_CFLAGS = (
 					"-DMACOSX",
 					"-DDEBUG",
-					"-D_AI_DEBUG",
 					"-pthread",
 				);
 				OTHER_LDFLAGS = (
