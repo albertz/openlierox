@@ -433,7 +433,6 @@ public:
 				}
 			}
 			
-			//resetFollow(); // reset follow here, projectiles will maybe re-enable it...
 
 			// Check collisions and move
 			moveAndCheckWormCollision( simulationTime, dt, worm, worm->getPos(), &worm->velocity(), worm->getPos(), jumped );

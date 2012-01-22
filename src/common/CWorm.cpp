@@ -126,8 +126,6 @@ void CWorm::Clear()
 	bOnGround = false;
 	vPos = CVec(0,0);
 	vVelocity = CVec(0,0);
-	vFollowPos = CVec(0,0);
-	bFollowOverride = false;
 	fLastUpdateWritten = AbsTime();
 	tLastState = worm_state_t();
 	fLastAngle = -1;
@@ -1482,8 +1480,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( fLastInputTime );
 	COPY( lastMoveTime );
 	COPY( fServertime );
-	COPY( vFollowPos );
-	COPY( bFollowOverride );
     COPY( fLastCarve );
 	COPY( health );
 	// Do not copy fDamage / suicides / teamkills etc - they are managed by scoreboard routines on server

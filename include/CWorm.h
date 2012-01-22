@@ -208,9 +208,6 @@ protected:
 	
 	TimeDiff	fServertime; // only for CServerConnection: when a wormupdate arrives, the servertime of client (>=beta8)
 	
-	CVec		vFollowPos;
-	bool		bFollowOverride;
-
     AbsTime		fLastCarve;
 	
 
@@ -482,10 +479,6 @@ public:
 	CWorm		*getHookedWorm()			{ return pcHookWorm; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
     CServerConnection     *getClient()            { return cOwner; }
-
-	CVec		getFollowPos()			{ return (bFollowOverride?vFollowPos:vPos); }
-	void		resetFollow()			{ bFollowOverride = false; }
-	void		doFollow(int x, int y)		{ bFollowOverride = true; vFollowPos.x = (float)x; vFollowPos.y = (float)y; }
 
 	bool		isOnGround()				{ return bOnGround; }
 	void		setOnGround(bool g)			{ bOnGround = g; }
