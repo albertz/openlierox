@@ -1088,7 +1088,7 @@ void CWormBotInputHandler::getInput() {
 			rope_angle = RAD2DEG(rope_angle);
 
 			if (fabs(m_worm->fAngle - rope_angle) <= 50)
-				m_worm->cNinjaRope.Release();
+				m_worm->cNinjaRope.Clear();
 		}
 		m_worm->tState.bMove = false;
 
@@ -1766,14 +1766,14 @@ void CWormBotInputHandler::AI_SimpleMove(bool bHaveTarget)
 		else  {
 			AI_Jump();
 			ws->bMove = true;
-			m_worm->cNinjaRope.Release();
+			m_worm->cNinjaRope.Clear();
 		}
 
         return;
     }
 
     // Release the ninja rope
-    m_worm->cNinjaRope.Release();
+    m_worm->cNinjaRope.Clear();
 }
 
 float fLastDirChange = 99999;
@@ -3435,7 +3435,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 	// release the rope if we used it to long
 	if (fRopeAttachedTime > 5.0f) {
-		m_worm->cNinjaRope.Release();
+		m_worm->cNinjaRope.Clear();
 		fRopeAttachedTime = 0;
 	}
 
@@ -3446,7 +3446,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 	if (fRopeHookFallingTime >= 2.0f)  {
 		// Release & walk
-		m_worm->cNinjaRope.Release();
+		m_worm->cNinjaRope.Clear();
 //        ws->bMove = true;
 		fRopeHookFallingTime = 0;
 	}
@@ -3464,7 +3464,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (SIGN(m_worm->vVelocity.x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x) && tLX->currentTime - fLastShoot >= 0.2f && tLX->currentTime - fLastShoot <= 1.0f)  {
 			if (m_worm->cNinjaRope.isAttached() && SIGN(m_worm->cNinjaRope.GetForce().x) == SIGN(vLastShootTargetPos.x - m_worm->vPos.x))
-				m_worm->cNinjaRope.Release();
+				m_worm->cNinjaRope.Clear();
 
 			m_worm->iFaceDirectionSide = m_worm->vPos.x < vLastShootTargetPos.x ? DIR_LEFT : DIR_RIGHT;
 			ws->bMove = true;
@@ -3542,7 +3542,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 
 		// Release any previous rope
 		if (fRopeAttachedTime >= 1.5f)
-			m_worm->cNinjaRope.Release();
+			m_worm->cNinjaRope.Clear();
 
 		// Shoot the rope
 		fireNinja = true;
@@ -3584,7 +3584,7 @@ void CWormBotInputHandler::AI_MoveToTarget()
 	if (canShoot && iAiGameType == GAM_MORTARS)  {
 		if (tLX->currentTime - fLastShoot <= 0.2f)  {
 			if (fRopeAttachedTime >= 0.1f)
-				m_worm->cNinjaRope.Release();
+				m_worm->cNinjaRope.Clear();
 			return;
 		}
 	}
@@ -3656,7 +3656,7 @@ find_one_visible_node:
 
 	// release rope, if it forces us to the wrong direction
 	if(m_worm->cNinjaRope.isAttached() && (m_worm->cNinjaRope.GetForce().Normalize() + m_worm->vPos - nodePos).GetLength2() > (m_worm->vPos - nodePos).GetLength2()) {
-		m_worm->cNinjaRope.Release();
+		m_worm->cNinjaRope.Clear();
 		fRopeAttachedTime = 0;
 	}
 
@@ -3694,7 +3694,7 @@ find_one_visible_node:
 					if(NEW_psLastNode && (i>=3 && i<=5)) {
 						// Stop, if we are not so far away
 						if (fRopeAttachedTime >= 0.7f)
-							m_worm->cNinjaRope.Release();
+							m_worm->cNinjaRope.Clear();
 						return;
 					}
 				}
@@ -3888,7 +3888,7 @@ find_one_visible_node:
 		//float time2 = dist/vVelocity.GetLength();*/
 		float diff = m_worm->vVelocity.y - ((float)cClient->getGameLobby()[FT_WormGravity] * time);
 		if (diff < 0)
-			m_worm->cNinjaRope.Release();
+			m_worm->cNinjaRope.Clear();
 	}
 
 

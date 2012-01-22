@@ -209,7 +209,7 @@ void CWormHumanInputHandler::getInput() {
 		ws->bJump = (ms->Down & SDL_BUTTON(3)) ? true : false;
 		if(ws->bJump) {
 			if(m_worm->cNinjaRope.isReleased())
-				m_worm->cNinjaRope.Release();
+				m_worm->cNinjaRope.Clear();
 		}
 		else if(ms->FirstDown & SDL_BUTTON(2)) {
 			// TODO: this is bad. why isn't there a ws->iNinjaShoot ?
@@ -357,7 +357,7 @@ void CWormHumanInputHandler::getInput() {
 		ws->bJump |= jump;
 
 		if(jump && m_worm->cNinjaRope.isReleased())
-			m_worm->cNinjaRope.Release();
+			m_worm->cNinjaRope.Clear();
 	}
 	
 	// Ninja Rope
@@ -594,7 +594,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 			ws->bJump = true;
 
 			if(cNinjaRope.isReleased())
-				cNinjaRope.Release();
+				cNinjaRope.Clear();
 	}
 
 	// Newer style rope throwing

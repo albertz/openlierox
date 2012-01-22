@@ -67,7 +67,6 @@ CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_
 	// set all pointers to NULL
 	m_inputHandler = NULL;
 	cOwner = NULL;
-	pcHookWorm = NULL;
 	m_type = NULL;
 	m_node = NULL;
 	m_interceptor = NULL;
@@ -144,8 +143,6 @@ void CWorm::Clear()
 	iCurrentWeapon = 0;
 
 	bGotTarget = false;
-	bHooked = false;
-	pcHookWorm = NULL;
 
 	bTagIT = false;
 	fTagTime = 0;
@@ -482,7 +479,6 @@ void CWorm::Spawn(CVec position) {
 
 	fFrame = 0;
 	bDrawMuzzle = false;
-	bHooked = false;
 	bForceWeapon_Name = false;
 
 	bOnGround = false;
@@ -1492,8 +1488,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( cNinjaRope );
 	COPY( bVisibleForWorm );
 	COPY( fVisibilityChangeTime );
-	COPY( bHooked );
-	COPY( pcHookWorm );
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
 	COPY( fLastAirJumpTime );
@@ -1520,3 +1514,15 @@ void CWorm::NewNet_InitWormState(int seed)
 	fSpawnTime = AbsTime();
 	fLastAirJumpTime = AbsTime();
 }
+
+
+const Version& CWorm::getClientVersion() {
+	if(game.isServer())
+		return cOwner->getClientVersion();
+	return cClientVersion;
+}
+
+void CWorm::setClientVersion(const Version & v) {
+	cClientVersion = v;
+}
+

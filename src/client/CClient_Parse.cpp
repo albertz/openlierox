@@ -2204,8 +2204,10 @@ void CClientNetEngine::ParseWormDown(CBytestream *bs)
 		// If the respawn time is 0, the worm can be spawned even before the simulation is done
 		// Therefore the check for isAlive in the simulation does not work in all cases
 		// Because of that, we unattach the rope here, just to be sure
-		if (w->getHookedWorm())
-			w->getHookedWorm()->getNinjaRope()->UnAttachPlayer();  // HINT: hookedWorm is reset here (set to NULL)
+		for_each_iterator(CWorm*, w2, game.worms()) {
+			if(w2->get()->getNinjaRope()->getAttachedPlayer() == w)
+				w2->get()->getNinjaRope()->UnAttachPlayer();
+		}
 
 		w->Kill(false);
 		if (w->getLocal() && w->getType() == PRF_HUMAN)

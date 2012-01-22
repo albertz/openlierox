@@ -89,7 +89,6 @@ public:
 	CVec		GetForce();
     
 	bool		isReleased()		{ return Released; }
-	void		Release();
 	void		UnAttachPlayer();
 	void		AttachToPlayer(CWorm *worm);
 

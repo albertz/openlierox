@@ -172,21 +172,21 @@ protected:
 
 	
 	// Score
-	int			iKills;
-	int			iDeaths;
-	int			iSuicides;
-	int			iTeamkills;
-	float		fDamage;
+	ATTR(CWorm,	int, iKills, 50, {serverside=true;});
+	ATTR(CWorm, int, iDeaths, 51, {serverside=true;});
+	ATTR(CWorm,	int, iSuicides, 52, {serverside=true;});
+	ATTR(CWorm,	int, iTeamkills, 53, {serverside=true;});
+	ATTR(CWorm,	float, fDamage, 54, {serverside=true;});
 
-	int			iTotalWins;
-	int			iTotalLosses;
-	int			iTotalKills;
-	int			iTotalDeaths;
-	int			iTotalSuicides;
+	ATTR(CWorm, int, iTotalWins, 55, {serverside=true;});
+	ATTR(CWorm, int, iTotalLosses, 56, {serverside=true;});
+	ATTR(CWorm, int, iTotalKills, 57, {serverside=true;});
+	ATTR(CWorm, int, iTotalDeaths, 58, {serverside=true;});
+	ATTR(CWorm, int, iTotalSuicides, 59, {serverside=true;});
+
 	Version		cClientVersion;
 
 	// Game
-	bool		bDrawMuzzle;
 	ATTR(CWorm, int,	iLives, 3, {});
 	ATTR(CWorm, bool,	bAlive, 4, {});
 	AbsTime		fTimeofDeath;
@@ -196,19 +196,18 @@ protected:
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
+	
 	ATTR(CWorm,	float,	fSpeedFactor, 5, {});
 	ATTR(CWorm, bool,	bCanUseNinja, 6, {});
 	ATTR(CWorm, float,	fDamageFactor, 7, {});
 	ATTR(CWorm, float,	fShieldFactor, 8, {});
 	ATTR(CWorm, bool,	bCanAirJump, 9, {}); // For instant air jump
+	
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
 	std::vector<bool>	bVisibleForWorm;
 	AbsTime		fVisibilityChangeTime;  // AbsTime when the worm was hidden/shown
-
-	bool		bHooked;
-	CWorm		*pcHookWorm;
 
 	bool		bTagIT;
 	TimeDiff	fTagTime;
@@ -261,6 +260,8 @@ protected:
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
     AbsTime       fForceWeapon_Time;
+
+	bool		bDrawMuzzle;
 
 
 public:
@@ -431,8 +432,6 @@ public:
 
 	AbsTime		getTimeofDeath()		{ return fTimeofDeath; }
 
-	void		setHooked(bool h, CWorm *w)	{ bHooked=h; pcHookWorm=w; }
-	CWorm		*getHookedWorm()			{ return pcHookWorm; }
 	void		setClient(CServerConnection *cl)		{ cOwner = cl; }
     CServerConnection     *getClient()            { return cOwner; }
 
@@ -537,8 +536,8 @@ public:
 	void	addTotalSuicides(int _d = 1)	{ iTotalSuicides += _d; }
 	int		getTotalSuicides()			{ return iTotalSuicides; }
 	
-	const Version & getClientVersion()				{ return cClientVersion; }
-	void	setClientVersion(const Version & v)		{ cClientVersion = v; }
+	const Version & getClientVersion();
+	void	setClientVersion(const Version & v);
 
 
 	float&		frame()						{ return fFrame; }

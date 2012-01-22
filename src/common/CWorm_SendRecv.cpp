@@ -326,7 +326,7 @@ void CWorm::readPacket(CBytestream *bs)
 	if(rope)
 		cNinjaRope.read(bs, iID);
 	else
-		cNinjaRope.Release();
+		cNinjaRope.Clear();
 
 	// Velocity
 	const Version& versionOfSender = getClient()->getClientVersion();
@@ -460,7 +460,7 @@ void CWorm::readPacketState(CBytestream *bs)
 	if(rope)
 		cNinjaRope.read(bs,iID);
 	else
-		cNinjaRope.Release();
+		cNinjaRope.Clear();
 
 	// Safety check
 	if( iCurrentWeapon < 0 || iCurrentWeapon > 4) {

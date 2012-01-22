@@ -76,18 +76,6 @@ void CNinjaRope::Clear()
 }
 
 
-///////////////////
-// Release the ninja rope
-// TODO: there is a name-inconvesion between isReleased and Release
-void CNinjaRope::Release()
-{
-	// Un-hook the rope from the other worm
-	if(HookAttached && PlayerAttached && Worm)
-		Worm->setHooked(false,NULL);
-
-	Clear();
-}
-
 
 ///////////////////
 // Shoot the rope
@@ -193,7 +181,6 @@ void CNinjaRope::UnAttachPlayer()
 	HookShooting = false;
 	HookAttached = false;
 	PlayerAttached = false;
-	Worm->setHooked(false, NULL);
 	Worm = NULL;
 }
 
@@ -203,7 +190,6 @@ void CNinjaRope::AttachToPlayer(CWorm *worm)
 	HookAttached = true;
 	PlayerAttached = true;
 	Worm = worm;
-	worm->setHooked(true, owner);
 }
 
 
@@ -362,8 +348,6 @@ void CNinjaRope::read(CBytestream *bs, int owner)
 		if(id >= 0 && id < MAX_WORMS) {
 			Worm = game.wormById(id, false);
 			if(Worm) {
-				Worm->setHooked(true, this->owner);
-
 				// Set the hook pos on the worm
 				pos() = Worm->getPos();
 			}
