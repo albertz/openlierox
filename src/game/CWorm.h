@@ -112,9 +112,6 @@ struct wpnslot_t {
 	wpnslot_t() : Weapon(NULL), SlotNum(0), Charge(0), Reloading(false), LastFire(0), Enabled(false) {}
 };
 
-struct randweapons_t {
-	int Weap1, Weap2, Weap3, Weap4, Weap5;
-};
 
 // the files have to be included yourself later
 // they are used here; but their headers depends on this header
