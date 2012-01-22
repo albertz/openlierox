@@ -308,7 +308,7 @@ void CWormHumanInputHandler::getInput() {
 	}
 
 	// Safety: clamp the current weapon
-	m_worm->iCurrentWeapon = CLAMP(m_worm->iCurrentWeapon, 0, m_worm->iNumWeaponSlots-1);
+	m_worm->iCurrentWeapon = CLAMP((int)m_worm->iCurrentWeapon, 0, m_worm->iNumWeaponSlots-1);
 
 
 
@@ -548,7 +548,7 @@ void CWorm::NewNet_SimulateWorm( NewNet::KeyState_t keys, NewNet::KeyState_t key
 	}
 
 	// Safety: clamp the current weapon
-	iCurrentWeapon = CLAMP(iCurrentWeapon, 0, iNumWeaponSlots-1);
+	iCurrentWeapon = CLAMP((int)iCurrentWeapon, 0, iNumWeaponSlots-1);
 
 	ws->bShoot = keys.keys[NewNet::K_SHOOT];
 

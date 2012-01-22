@@ -465,13 +465,11 @@ void CClient::InjureWorm(CWorm *w, float damage, int owner)
 	// Do not injure remote worms when playing on Beta9 - server will report us their correct health with REPORTDAMAGE packets
 	if( getServerVersion() < OLXBetaVersion(0,58,1) || 
 		( getServerVersion() >= OLXBetaVersion(0,58,1) && someOwnWorm ) ||
-		( tLX->iGameType == GME_HOST && clientver < OLXBetaVersion(0,58,1) ) || // We're hosting, calculate health for pre-Beta9 clients
+		( game.isServer() && clientver < OLXBetaVersion(0,58,1) ) || // We're hosting, calculate health for pre-Beta9 clients
 		NewNet::Active() ) 
 	{
 		if(w->injure(damage)) {
 			// His dead Jim
-
-			w->setAlreadyKilled(true);
 
 			// Kill someOwnWorm
 			if(someOwnWorm || NewNet::Active() ||

@@ -389,10 +389,11 @@ void CServerNetEngine::ParseDeathPacket(CBytestream *bs) {
 	if (tLXOptions->bServerSideHealth)  {
 		// Cheat prevention check (God Mode etc), make sure killer is the host or the packet is sent by the client owning the worm
 		if (!cl->isLocalClient())  {
-			if (cl->OwnsWorm(victim))  {  // He wants to die, let's fulfill his dream ;)
+			if (cl->OwnsWorm(victim))  {
+				// ignore client death packet and reset alive-state (respawn if needed)
 				CWorm *w = game.wormById(victim);
-				if (!w->getAlreadyKilled())  // Prevents killing the worm twice (once by server and once by the client itself)
-					cClient->getNetEngine()->SendDeath(victim, killer);
+				if(w->getAlive())
+					cl->getNetEngine()->SendSpawnWorm(w, w->pos());
 			} else {
 				warnings << "GameServer::ParseDeathPacket: victim " << victim << " is not one of the clients (" << cl->debugName(true) << ") worms, killer was " << killer << endl;
 				server->netError = "ParseDeathPacket with invalid victim + SSH";

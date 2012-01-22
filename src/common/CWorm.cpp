@@ -99,7 +99,6 @@ void CWorm::Clear()
 	iTeam = 0;
 	bLocal = false;
 	m_type = PRF_HUMAN;
-	iRanking = 0;
 	cOwner = NULL;
 	bSpectating = false;
 	iAFK = AFK_BACK_ONLINE;
@@ -178,7 +177,6 @@ void CWorm::Clear()
 	cHealthBar = DeprecatedGUI::CBar(LoadGameImage("data/frontend/worm_health.png", true), 0, 0, 0, 0, DeprecatedGUI::BAR_LEFTTORIGHT);
 	cHealthBar.SetLabelVisible(false);
 
-	bAlreadyKilled = false;
 	gusSkinVisble = true;
 	
 	fLastSimulationTime = tLX->currentTime;
@@ -468,7 +466,6 @@ void CWorm::Spawn(CVec position) {
 		return;
 	
 	bAlive = true;
-	bAlreadyKilled = false;
 	bSpawnedOnce = true;
 	bCanRespawnNow = false;
 	fVisibilityChangeTime = 0;
@@ -1499,7 +1496,6 @@ void CWorm::NewNet_CopyWormState(const CWorm & w)
 	COPY( pcHookWorm );
 	COPY( fSpawnTime );
 	COPY( iCurrentWeapon );
-	COPY( bAlreadyKilled );
 	COPY( fLastAirJumpTime );
 	COPY( cDamageReport );
 	

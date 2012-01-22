@@ -143,10 +143,12 @@ protected:
 	int			iID;
 	WormType*	m_type;
 	bool		bLocal;
-	ATTR(CWorm, int,	iTeam, 1, {});
-	ATTR(CWorm, std::string,	sName, 2, {});
-	int			iRanking;
-	bool		bAlreadyKilled;
+	CServerConnection *cOwner;
+	CWormInputHandler* m_inputHandler;
+	
+	ATTR(CWorm, int,	iTeam, 1, {serverside = false;});
+	ATTR(CWorm, std::string,	sName, 2, {serverside = false;});
+
 	bool		bSpectating;
 	bool		bSpawnedOnce;
 	bool		bCanRespawnNow; // this is only a hint for the client. the server has its own handling independent of this
@@ -217,8 +219,6 @@ protected:
 	AbsTime		fLastBlood;
 
 
-	// Owner client
-	CServerConnection *cOwner;
 
 	// Network
 	AbsTime		fFrameTimes[NUM_FRAMES];
@@ -250,19 +250,18 @@ protected:
 
 
 	// Arsenal
-	ATTR(CWorm, bool,	bWeaponsReady,  2, {});
+	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;});
+	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;});
 	int			iNumWeaponSlots;
-	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 
-	ATTR(CWorm,	int,	iAFK,	3, {});
-	ATTR(CWorm, std::string,	sAFKMessage, 100, {});
+	ATTR(CWorm,	int,	iAFK,	100, {});
+	ATTR(CWorm, std::string,	sAFKMessage, 101, {});
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
     AbsTime       fForceWeapon_Time;
 
-	CWormInputHandler* m_inputHandler;
 
 public:
 	// Used to print damage numbers over the worm head
@@ -516,9 +515,6 @@ public:
 	CWormSkin&	getSkin()				{ return cSkin; }
 	void		setSkin(const CWormSkin& skin)	{ cSkin = skin; }
 	void		setSkin(const std::string& skin)	{ cSkin.Change(skin); }
-
-	bool		getAlreadyKilled()			{ return bAlreadyKilled; }
-	void		setAlreadyKilled(bool _k)	{ bAlreadyKilled = _k; }
 
 	bool		isShooting()				{ return tState.bShoot; }
 	bool		isWeaponReloading()			{ return getCurWeapon()->Reloading; }
