@@ -48,28 +48,16 @@ void pushAttrUpdateInfo(const AttrUpdateInfo& info);
 
 template <
 typename ParentT, typename T,
-intptr_t (*memOffsetF)(),
-const char* (*nameF)(),
-uint32_t attrId
+typename AttrDescT
 >
 struct Attr {
 	T value;
 	Attr() : value() { /* to init attrDesc */ attrDesc(); }
-	AttrDesc* attrDesc() {
-		static bool inited = false;
-		static AttrDesc desc;
-		if(!inited) {
-			desc.objTypeId = LuaID<ParentT>::value;
-			desc.attrType = GetType<T>::value;
-			desc.attrMemOffset = memOffsetF();
-			desc.attrName = nameF();
-			desc.attrId = attrId;
-			inited = true;
-			registerAttrDesc(desc);
-		}
+	AttrDescT* attrDesc() {
+		static AttrDescT desc;
 		return &desc;
 	}
-	ParentT* parent() { return (ParentT*)(uintptr_t(this) - memOffsetF()); }
+	ParentT* parent() { return (ParentT*)(uintptr_t(this) - attrDesc()->attrMemOffset); }
 	T get() const { return value; }
 	operator T() const { return get(); }
 	Attr& operator=(const T& v) {
@@ -83,12 +71,18 @@ struct Attr {
 	}
 };
 
-#define ATTR(parentType, type, name, attrId) \
-static const char* _ ## name ## _getAttrName() { return #name; } \
-static intptr_t _ ## name ## _getAttrMemOffset() { return (intptr_t)__OLX_OFFSETOF(parentType, name); } \
-Attr<parentType, type, \
-&_ ## name ## _getAttrMemOffset, \
-&_ ## name ## _getAttrName, \
-attrId> name;
+#define ATTR(parentType, type, name, id, attrDescSpecCode) \
+struct _ ## name ## _AttrDesc : AttrDesc { \
+	_ ## name ## _AttrDesc () { \
+		objTypeId = LuaID<parentType>::value; \
+		attrType = GetType<type>::value; \
+		attrMemOffset = (intptr_t)__OLX_OFFSETOF(parentType, name); \
+		attrName = #name ; \
+		attrId = id; \
+		attrDescSpecCode; \
+		registerAttrDesc(*this); \
+	} \
+}; \
+Attr<parentType, type, _ ## name ## _AttrDesc> name;
 
 #endif

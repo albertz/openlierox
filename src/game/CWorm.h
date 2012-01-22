@@ -143,8 +143,8 @@ protected:
 	int			iID;
 	WormType*	m_type;
 	bool		bLocal;
-	ATTR(CWorm, int,	iTeam, 1);
-	ATTR(CWorm, std::string,	sName, 2);
+	ATTR(CWorm, int,	iTeam, 1, {});
+	ATTR(CWorm, std::string,	sName, 2, {});
 	int			iRanking;
 	bool		bAlreadyKilled;
 	bool		bSpectating;
@@ -185,8 +185,8 @@ protected:
 
 	// Game
 	bool		bDrawMuzzle;
-	ATTR(CWorm, int,	iLives, 3);
-	ATTR(CWorm, bool,	bAlive, 4);
+	ATTR(CWorm, int,	iLives, 3, {});
+	ATTR(CWorm, bool,	bAlive, 4, {});
 	AbsTime		fTimeofDeath;
 	DIR_TYPE	iFaceDirectionSide;
 	DIR_TYPE	iMoveDirectionSide;
@@ -194,11 +194,11 @@ protected:
 	float		fAngle;
     float       fAngleSpeed;
     float		fMoveSpeedX;
-	ATTR(CWorm,	float,	fSpeedFactor, 5);
-	ATTR(CWorm, bool,	bCanUseNinja, 6);
-	ATTR(CWorm, float,	fDamageFactor, 7);
-	ATTR(CWorm, float,	fShieldFactor, 8);
-	ATTR(CWorm, bool,	bCanAirJump, 9); // For instant air jump
+	ATTR(CWorm,	float,	fSpeedFactor, 5, {});
+	ATTR(CWorm, bool,	bCanUseNinja, 6, {});
+	ATTR(CWorm, float,	fDamageFactor, 7, {});
+	ATTR(CWorm, float,	fShieldFactor, 8, {});
+	ATTR(CWorm, bool,	bCanAirJump, 9, {}); // For instant air jump
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
 	CNinjaRope	cNinjaRope;
@@ -250,13 +250,13 @@ protected:
 
 
 	// Arsenal
-	ATTR(CWorm, bool,	bWeaponsReady,  2);
+	ATTR(CWorm, bool,	bWeaponsReady,  2, {});
 	int			iNumWeaponSlots;
 	int			iCurrentWeapon;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 
-	ATTR(CWorm,	int,	iAFK,	3);
-	ATTR(CWorm, std::string,	sAFKMessage, 100);
+	ATTR(CWorm,	int,	iAFK,	3, {});
+	ATTR(CWorm, std::string,	sAFKMessage, 100, {});
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
