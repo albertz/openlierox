@@ -19,7 +19,7 @@
 #include "GfxPrimitives.h"
 #include "CProjectile.h"
 #include "Protocol.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Entity.h"
 #include "MathLib.h"
 #include "CClient.h"

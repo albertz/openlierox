@@ -24,7 +24,7 @@
 #include "olx-types.h"
 #include "Color.h"
 #include "Consts.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 
 struct SDL_Surface;
 class CWorm;

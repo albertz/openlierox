@@ -1,10 +1,10 @@
-#include "CWorm.h"
+#include "game/CWorm.h"
 
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/log.h"
 #include "gusgame.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "game/WormInputHandler.h"
 #include "weapon_type.h"
 #include "particle.h"
@@ -20,7 +20,7 @@
 #include "blitters/blitters.h"
 #endif
 #include "weapon.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "CGameScript.h"
 #include "CGameMode.h"
 

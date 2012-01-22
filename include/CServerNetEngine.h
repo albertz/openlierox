@@ -12,7 +12,7 @@
 #ifndef __CSERVER_NET_ENGINE_H__
 #define __CSERVER_NET_ENGINE_H__
 
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "CVec.h"
 
 class GameServer;

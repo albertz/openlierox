@@ -24,7 +24,7 @@
 #include "StringUtils.h"
 #include "FileUtils.h"
 #include "client/ClientConnectionRequestInfo.h" // WormJoinInfo
-#include "CWorm.h"
+#include "game/CWorm.h"
 
 typedef std::list<SmartPointer<profile_t> > ProfileList;
 static ProfileList tProfiles;

@@ -21,7 +21,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "AuxLib.h"
 #include "DeprecatedGUI/CLabel.h"

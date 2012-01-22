@@ -12,9 +12,9 @@
 #include "raytracing.h"
 #include "util/macros.h"
 #include "game/Game.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "SafeVector.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Geometry.h"
 
 

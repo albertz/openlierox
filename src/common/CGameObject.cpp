@@ -7,10 +7,10 @@
  *
  */
 
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "game/Game.h"
 #include "CGameScript.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "PhysicsLX56.h"
 #include "util/vec.h"
 #include "util/angle.h"

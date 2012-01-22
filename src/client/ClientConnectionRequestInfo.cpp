@@ -9,7 +9,7 @@
 #include "ClientConnectionRequestInfo.h"
 #include "ProfileSystem.h"
 #include "game/Game.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Debug.h"
 #include "CBytestream.h"
 

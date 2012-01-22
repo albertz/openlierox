@@ -19,7 +19,7 @@
 
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"

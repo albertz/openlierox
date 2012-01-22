@@ -6,7 +6,7 @@
 #ifndef DEDICATED_ONLY
 #include "../font.h"
 #endif
-#include "CMap.h"
+#include "game/CMap.h"
 
 #ifndef DEDICATED_ONLY
 

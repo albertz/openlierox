@@ -11,7 +11,7 @@
 
 #include "CodeAttributes.h"
 #include "CVec.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 /*

@@ -9,14 +9,14 @@
 
 #include <iostream>
 #include "CHideAndSeek.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Options.h"
 #include "Consts.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "LieroX.h"
 #include "CGameMode.h"
 #include "Consts.h"

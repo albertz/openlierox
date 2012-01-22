@@ -22,7 +22,7 @@
 #include "CServer.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "DeprecatedGUI/CBar.h"
 #include "MathLib.h"
 #include "CServerConnection.h"

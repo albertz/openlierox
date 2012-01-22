@@ -21,7 +21,7 @@
 #endif
 #include "sprite_set.h"
 #include "network.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 
 #include "script.h"

@@ -19,7 +19,7 @@
 #include "SkinnedGUI/CWidget.h"
 #include "SkinnedGUI/CBorder.h"
 #include "SkinnedGUI/CScrollbar.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "Cursor.h"
 
 

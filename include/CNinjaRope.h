@@ -17,7 +17,7 @@
 #ifndef __CNINJAROPE_H__
 #define __CNINJAROPE_H__
 
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "gusanos/events.h"
 #include "util/vec.h"
 #include "util/angle.h"

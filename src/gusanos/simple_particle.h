@@ -1,7 +1,7 @@
 #ifndef VERMES_BLOOD_H
 #define VERMES_BLOOD_H
 
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "util/vec.h"
 
 class SimpleParticle : public CGameObject

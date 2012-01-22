@@ -13,7 +13,7 @@
 #include "Debug.h"
 #include "NewNetEngine.h"
 #include "LieroX.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "CClient.h"
 #include "CProjectile.h"
 #include "CBonus.h"

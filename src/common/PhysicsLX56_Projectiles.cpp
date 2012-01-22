@@ -25,7 +25,7 @@
 #include "CodeAttributes.h"
 #include "ProjAction.h"
 #include "CGameScript.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "CProjectile.h"
 #include "CClient.h"
 #include "ProjectileDesc.h"

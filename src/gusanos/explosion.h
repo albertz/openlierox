@@ -1,7 +1,7 @@
 #ifndef EXPLOSION_H
 #define EXPLOSION_H
 
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "exp_type.h"
 #include "util/vec.h"
 //#include "animators.h"

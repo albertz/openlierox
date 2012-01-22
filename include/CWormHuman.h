@@ -13,7 +13,7 @@
 #ifndef __CWORMHUMAN_H__
 #define __CWORMHUMAN_H__
 
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 
 

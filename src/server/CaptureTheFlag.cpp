@@ -9,7 +9,7 @@
 
 #include "CGameMode.h"
 #include "CServer.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "FlagInfo.h"
 #include "gusanos/gusgame.h"
 #include "game/Game.h"

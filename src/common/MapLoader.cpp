@@ -10,7 +10,7 @@
 #include "MapLoader.h"
 #include "PreInitVar.h"
 #include "Cache.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "EndianSwap.h"
 #include "PixelFunctors.h"
 #ifndef DEDICATED_ONLY

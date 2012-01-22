@@ -1,7 +1,7 @@
 #include "events.h"
 
-#include "CWorm.h"
-#include "CGameObject.h"
+#include "game/CWorm.h"
+#include "game/CGameObject.h"
 #include "base_action.h"
 //#include "game_actions.h"
 #include "util/macros.h"

@@ -2,7 +2,7 @@
 #include "gconsole.h"
 #include "gusgame.h"
 #include "net_worm.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 #include "part_type.h"
 #include "network.h"
@@ -10,7 +10,7 @@
 #include "util/macros.h"
 #include "util/log.h"
 #include "encoding.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 #include "netstream.h"

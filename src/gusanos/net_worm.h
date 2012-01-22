@@ -2,8 +2,8 @@
 #define NET_WORM_H
 
 //#include "vec.h"
-//#include "CGameObject.h"
-#include "CWorm.h"
+//#include "game/CGameObject.h"
+#include "game/CWorm.h"
 //#include "sprite.h"
 
 #include "netstream.h"

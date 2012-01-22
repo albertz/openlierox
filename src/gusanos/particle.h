@@ -1,7 +1,7 @@
 #ifndef PARTICLE_H
 #define PARTICLE_H
 
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "part_type.h"
 #include "util/vec.h"
 #include "util/angle.h"

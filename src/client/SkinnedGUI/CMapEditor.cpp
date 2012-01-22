@@ -22,7 +22,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "Cursor.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "SkinnedGUI/CMapEditor.h"
 
 

@@ -33,7 +33,7 @@
 #include "CBonus.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "AuxLib.h"
 #include "Timer.h"
 #include "ProfileSystem.h"

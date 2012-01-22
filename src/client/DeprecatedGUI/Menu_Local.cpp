@@ -50,7 +50,7 @@
 #include "game/SinglePlayer.h"
 #include "game/SettingsPreset.h"
 #include "client/ClientConnectionRequestInfo.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 
 
 namespace DeprecatedGUI {

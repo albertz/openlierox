@@ -18,7 +18,7 @@
 #include "LieroX.h"
 #include "Debug.h"
 #include "GfxPrimitives.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "CServer.h"
 #include "MathLib.h"

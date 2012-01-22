@@ -1,8 +1,8 @@
 #include "particle.h"
 
 #include "gusgame.h"
-#include "CGameObject.h"
-#include "CWorm.h"
+#include "game/CGameObject.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
@@ -26,7 +26,7 @@
 #include "network.h"
 #include "netstream.h"
 #include "posspd_replicator.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 #include <vector>
 #include <iostream>

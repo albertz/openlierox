@@ -19,7 +19,7 @@
 #include "StringUtils.h"
 #include "CClient.h"
 #include "Protocol.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "MathLib.h"
 #include "ChatCommand.h"
 #include "OLXCommand.h"

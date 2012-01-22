@@ -18,7 +18,7 @@
 #include "ProfileSystem.h"
 #include "CServerConnection.h"
 #include "CBonus.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Error.h"
 #include "Protocol.h"
 #include "StringUtils.h"

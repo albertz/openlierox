@@ -4,7 +4,7 @@
 #include <iostream>
 #include "util/vec.h"
 #include "gusgame.h"
-#include "CMap.h"
+#include "game/CMap.h"
 using std::cerr;
 using std::endl;
 

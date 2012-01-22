@@ -1,7 +1,7 @@
 #include "weapon.h"
 #include "weapon_type.h"
 #include "events.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "gusgame.h"
 #include "util/vec.h"
 #include "util/angle.h"
@@ -12,7 +12,7 @@
 #include "sprite.h"
 #include "luaapi/context.h"
 #include "network.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 #include <iostream>
 

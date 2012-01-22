@@ -1,7 +1,7 @@
 #ifndef OBJECTS_LIST
 #define OBJECTS_LIST
 
-//#include "CGameObject.h"
+//#include "game/CGameObject.h"
 #include <list>
 #include <vector>
 

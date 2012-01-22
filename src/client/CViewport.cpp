@@ -19,7 +19,7 @@
 #include "Debug.h"
 #include "CClient.h"
 #include "Options.h" // for controls_t
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "MathLib.h"
 #include "sound/sfx.h"
 

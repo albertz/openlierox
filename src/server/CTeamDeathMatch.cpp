@@ -9,7 +9,7 @@
 
 #include <iostream>
 #include <string>
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Options.h"
 #include "Consts.h"
 #include "CServer.h"

@@ -1,5 +1,5 @@
 #include "level.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
@@ -16,7 +16,7 @@
 #include "culling.h"
 #include "events.h"
 #include "gusgame.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/Game.h"
 
 #include "gusanos/allegro.h"

@@ -9,7 +9,7 @@
 
 #include "CGameMode.h"
 #include "CServer.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/Game.h"
 
 class CDemolitionsMatch : public CGameMode {

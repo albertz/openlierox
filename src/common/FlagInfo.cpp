@@ -12,7 +12,7 @@
 #include <map>
 #include "Debug.h"
 #include "FlagInfo.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "CServer.h"
 #include "CClient.h"
 #include "LieroX.h"
@@ -24,7 +24,7 @@
 #include "CGameSkin.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "GfxPrimitives.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 #define FLAG_FRAME_WIDTH 32

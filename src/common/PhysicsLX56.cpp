@@ -25,7 +25,7 @@
 #include "CGameScript.h"
 #include "Frame.h"
 #include "MathLib.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Entity.h"
 #include "CBonus.h"
 #include "CClient.h"

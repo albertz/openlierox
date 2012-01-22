@@ -24,7 +24,7 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "CGameScript.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "StringUtils.h"
 #include "Timer.h"
 #include "Options.h"

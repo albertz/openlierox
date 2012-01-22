@@ -24,7 +24,7 @@
 #include "CServerNetEngine.h"
 #include "CChannel.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "ConfigHandler.h"
 #include "ChatCommand.h"

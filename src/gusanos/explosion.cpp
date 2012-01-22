@@ -2,8 +2,8 @@
 
 #include "util/vec.h"
 #include "gusgame.h"
-#include "CGameObject.h"
-#include "CWorm.h"
+#include "game/CGameObject.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 #include "exp_type.h"
 #include "events.h"
@@ -17,7 +17,7 @@
 #include "animators.h"
 #endif
 #include "detect_event.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 #include <vector>
 

@@ -13,7 +13,7 @@
 #ifndef __CWORMBOT_H__
 #define __CWORMBOT_H__
 
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 
 class searchpath_base;

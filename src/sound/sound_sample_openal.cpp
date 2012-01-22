@@ -2,7 +2,7 @@
 
 #include "sound_sample_openal.h"
 #include "gusanos/resource_list.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "gusanos/allegro.h"
 
 #ifdef __APPLE__

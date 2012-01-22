@@ -5,7 +5,7 @@
 #include "util/vec.h"
 #include "encoding.h"
 #include "gusgame.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include <utility>
 using std::cerr;
 using std::endl;

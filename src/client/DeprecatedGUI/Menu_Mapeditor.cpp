@@ -27,7 +27,7 @@
 #include "sound/SoundsBase.h"
 #include "EndianSwap.h"
 #include "FileUtils.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 
 namespace DeprecatedGUI {

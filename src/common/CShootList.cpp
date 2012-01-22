@@ -18,7 +18,7 @@
 
 #include "LieroX.h"
 #include "CShootList.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "MathLib.h"
 #include "WeaponDesc.h"

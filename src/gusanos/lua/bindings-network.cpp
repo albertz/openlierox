@@ -7,7 +7,7 @@
 #include "../network.h"
 #include "../gusgame.h"
 #include "game/WormInputHandler.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "../particle.h"
 #include "../encoding.h"
 #include "util/log.h"

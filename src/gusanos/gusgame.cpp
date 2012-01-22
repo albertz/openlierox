@@ -1,10 +1,10 @@
 #include "gusgame.h"
 
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "part_type.h"
 #include "exp_type.h"
 #include "weapon_type.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "CWormHuman.h"
 #include "particle.h"
 #include "explosion.h"

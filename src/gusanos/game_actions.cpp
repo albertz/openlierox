@@ -21,8 +21,8 @@
 #include "util/vec.h"
 #include "util/macros.h"
 #include "util/log.h"
-#include "CGameObject.h"
-#include "CWorm.h"
+#include "game/CGameObject.h"
+#include "game/CWorm.h"
 #include "weapon.h"
 #include "level_effect.h"
 

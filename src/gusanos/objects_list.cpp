@@ -1,5 +1,5 @@
 #include "objects_list.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 
 #include <list>
 #include <vector>

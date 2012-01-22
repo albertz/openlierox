@@ -23,7 +23,7 @@
 #include "Debug.h"
 #include "Mutex.h"
 #include "Condition.h"
-#include "CMap.h" // for CMap::DrawObjectShadow
+#include "game/CMap.h" // for CMap::DrawObjectShadow
 #include "PixelFunctors.h"
 
 // global mutex to force only one execution at time

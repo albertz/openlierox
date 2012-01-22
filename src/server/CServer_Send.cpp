@@ -24,11 +24,11 @@
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"
 #include "Protocol.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Timer.h"
 #include "Consts.h"
 #include "CChannel.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #ifdef DEBUG
 #include "MathLib.h"
 #endif

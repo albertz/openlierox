@@ -7,14 +7,14 @@
 
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "../particle.h"
 #include "../weapon.h"
 #include "../weapon_type.h"
 #include "../gusgame.h"
 #include "../glua.h"
 #include "util/log.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 #include <cmath>

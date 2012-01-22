@@ -1,7 +1,7 @@
 #include "detect_event.h"
 
 #include "events.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "gusgame.h"
 #include "util/macros.h"
 #include "game/Game.h"

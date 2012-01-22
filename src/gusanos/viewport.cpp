@@ -6,14 +6,14 @@
 #include "sound/sfx.h"
 #include "gfx.h"
 #include "gusanos/allegro.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "glua.h"
 #include "lua/bindings-gfx.h"
 #include "blitters/blitters.h"
 #include "culling.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 #include <list>
 

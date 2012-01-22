@@ -26,13 +26,13 @@
 #include "Options.h" // for control_t
 #include "Frame.h"
 #include "DeprecatedGUI/CBar.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "CGameSkin.h"
 #include "Entity.h"
 #include "NewNetEngine.h" // For NetSyncedRandom
 #include "Version.h"
 #include "DynDraw.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "util/VecTimeRecorder.h"
 #include "game/Attr.h"
 

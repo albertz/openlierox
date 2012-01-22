@@ -29,7 +29,7 @@
 #include "GfxPrimitives.h"
 #include "FindFile.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "Error.h"
 #include "MathLib.h"

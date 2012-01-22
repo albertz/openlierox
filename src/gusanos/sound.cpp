@@ -6,7 +6,7 @@
 #include "sound/sfxdriver.h"
 #include "sound/sfx.h"
 #include "gusanos/resource_list.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "util/math_func.h"
 
 #include <cstdio>

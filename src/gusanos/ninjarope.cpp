@@ -3,8 +3,8 @@
 #include "util/vec.h"
 #include "util/macros.h"
 #include "gusgame.h"
-#include "CGameObject.h"
-#include "CWorm.h"
+#include "game/CGameObject.h"
+#include "game/CWorm.h"
 #include "part_type.h"
 #ifndef DEDICATED_ONLY
 #include "sprite_set.h"
@@ -14,7 +14,7 @@
 #include "CViewport.h"
 #endif
 #include "part_type.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "context.h"
 
 #include <vector>

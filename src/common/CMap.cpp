@@ -21,7 +21,7 @@
 
 #include "LieroX.h"
 #include "CViewport.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "EndianSwap.h"
 #include "MathLib.h"
 #include "Error.h"
@@ -31,7 +31,7 @@
 #include "FindFile.h"
 #include "StringUtils.h"
 #include "InputEvents.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Entity.h"
 #include "CServer.h"
 #include "ProfileSystem.h"

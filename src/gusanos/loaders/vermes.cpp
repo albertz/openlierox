@@ -10,7 +10,7 @@
 #include "../game_actions.h"
 #include "../parser.h"
 #include "util/macros.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include <string>
 
 #include "../omfgscript/omfg_script.h"

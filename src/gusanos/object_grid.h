@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <boost/utility.hpp>
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 
 #include <iostream>
 #include <cassert>

@@ -1,28 +1,26 @@
 #include "net_worm.h"
-
+#include "game/CWorm.h"
 #include "util/vec.h"
 #include "util/angle.h"
 #include "util/log.h"
 #include "gusgame.h"
 #include "weapon.h"
 #include "weapon_type.h"
-#include "CWorm.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "game/WormInputHandler.h"
 #include "network.h"
 #include "vector_replicator.h"
 #include "posspd_replicator.h"
 #include "encoding.h"
 #include "gconsole.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 #include "CServer.h"
 #include "CGameScript.h"
+#include "netstream.h"
 
 #include <math.h>
 #include <vector>
-#include "netstream.h"
-#include "CWorm.h"
 
 using namespace std;
 

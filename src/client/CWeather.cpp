@@ -20,7 +20,7 @@
 #include "CViewport.h"
 #include "CWeather.h"
 #include "MathLib.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 

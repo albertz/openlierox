@@ -22,7 +22,7 @@
 #include "CViewport.h"
 #include "CGameScript.h"
 #include "CClient.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "game/Game.h"
 
 

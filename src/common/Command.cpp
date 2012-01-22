@@ -25,7 +25,7 @@
 #include "OLXConsole.h"
 #include "StringUtils.h"
 #include "sex.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "AuxLib.h"
 #include "Version.h"
 #include "CClientNetEngine.h"

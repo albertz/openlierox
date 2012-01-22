@@ -7,7 +7,7 @@
 //
 
 #include "Game.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "Cache.h"
 #include "Level.h"
 #include "Settings.h"

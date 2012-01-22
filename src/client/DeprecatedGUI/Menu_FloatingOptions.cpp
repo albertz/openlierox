@@ -32,7 +32,7 @@
 #include "ConversationLogger.h"
 #include "game/Game.h"
 #include "LieroX.h"
-#include "CMap.h"
+#include "game/CMap.h"
 
 
 namespace DeprecatedGUI {

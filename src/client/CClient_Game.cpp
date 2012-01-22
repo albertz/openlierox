@@ -27,7 +27,7 @@
 #include "GfxPrimitives.h"
 #include "DeprecatedGUI/Graphics.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Entity.h"
 #include "Protocol.h"
 #include "Physics.h"

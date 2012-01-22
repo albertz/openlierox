@@ -23,7 +23,7 @@
 #include "DeprecatedGUI/Menu.h"
 #include "GfxPrimitives.h"
 #include "StringUtils.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "DeprecatedGUI/CButton.h"
 #include "DeprecatedGUI/CTextbox.h"

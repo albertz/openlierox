@@ -18,8 +18,8 @@
 #define __CMINIMAP_H__SKINNED_GUI__
 
 
-#include "CMap.h"
-#include "CWorm.h"
+#include "game/CMap.h"
+#include "game/CWorm.h"
 #include "SkinnedGUI/CWidget.h"
 #include "SkinnedGUI/CBorder.h"
 

@@ -10,7 +10,7 @@
 #include "CGameMode.h"
 #include "CServer.h"
 #include "Options.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "Protocol.h"
 #include "CServerConnection.h"
 #include "CServerNetEngine.h"

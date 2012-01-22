@@ -2,13 +2,13 @@
 
 #include "util/vec.h"
 #include "gusgame.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #ifndef DEDICATED_ONLY
 #include "gfx.h"
 #include "blitters/blitters.h"
 #include "CViewport.h"
 #endif
-#include "CMap.h"
+#include "game/CMap.h"
 
 #define BOOST_NO_MT
 #include <boost/pool/pool.hpp>

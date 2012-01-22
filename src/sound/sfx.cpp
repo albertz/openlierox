@@ -12,7 +12,7 @@ using namespace boost::assign;
 #include "sfxdriver.h"
 #include "sfxdriver_openal.h"
 #include "gusanos/gconsole.h"
-#include "CGameObject.h"
+#include "game/CGameObject.h"
 #include "util/macros.h"
 #include "sound_sample.h"
 

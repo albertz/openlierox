@@ -21,7 +21,7 @@
 #include "LieroX.h"
 #include "GfxPrimitives.h"
 #include "InputEvents.h"
-#include "CWorm.h"
+#include "game/CWorm.h"
 #include "MathLib.h"
 #include "Entity.h"
 #include "CClient.h"

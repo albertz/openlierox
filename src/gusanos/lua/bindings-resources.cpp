@@ -15,7 +15,7 @@
 #include "../part_type.h"
 #include "../weapon_type.h"
 #include "../glua.h"
-#include "CMap.h"
+#include "game/CMap.h"
 #include "sound/sfx.h"
 
 //TEMP:
