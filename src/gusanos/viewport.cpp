@@ -50,7 +50,7 @@ struct TestCuller : public Culler<TestCuller>
 
 	bool block(int x, int y)
 	{
-		return !gusGame.level().unsafeGetMaterial(x, y).worm_pass;
+		return !game.gameMap()->unsafeGetMaterial(x, y).worm_pass;
 	}
 
 	void line(int y, int x1, int x2)
@@ -130,7 +130,7 @@ void CViewport::drawLight(IVec const& v)
 	IVec off(Left,Top);
 	IVec loff(v - IVec(testLight->w/2, testLight->h/2));
 
-	Rect r(0, 0, gusGame.level().GetWidth() - 1, gusGame.level().GetHeight() - 1);
+	Rect r(0, 0, game.gameMap()->GetWidth() - 1, game.gameMap()->GetHeight() - 1);
 	r &= Rect(testLight) + loff;
 
 	TestCuller testCuller(fadeBuffer, testLight, -off.x, -off.y, -loff.x, -loff.y, r);
@@ -161,15 +161,15 @@ void CViewport::gusRender()
 	int offX = static_cast<int>(WorldX);
 	int offY = static_cast<int>(WorldY);
 
-	gusGame.level().gusDraw(dest, offX, offY);
+	game.gameMap()->gusDraw(dest, offX, offY);
 
-	if ( gusGame.level().config()->darkMode && gusGame.level().lightmap )
-		blit( gusGame.level().lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
+	if ( game.gameMap()->config()->darkMode && game.gameMap()->lightmap )
+		blit( game.gameMap()->lightmap, fadeBuffer, offX,offY, 0, 0, fadeBuffer->w, fadeBuffer->h );
 
 	for ( Grid::iterator iter = game.objects.beginAll(); iter; ++iter)
 		iter->draw(this);
 
-	if(gusGame.level().config()->darkMode)
+	if(game.gameMap()->config()->darkMode)
 		drawSprite_mult_8(dest, fadeBuffer, 0, 0);
 
 	// only use the player/worm specific drawings in gus mods

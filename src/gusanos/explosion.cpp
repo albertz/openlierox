@@ -128,7 +128,7 @@ void Explosion::draw(CViewport* viewport)
 		}
 		else
 		{
-			gusGame.level().specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(Vec(pos())), blitter );
+			game.gameMap()->specialDrawSprite( m_sprite->getSprite(m_animator->getFrame(), Angle(0)), where, rPos, IVec(Vec(pos())), blitter );
 		}
 	}
 	if (m_type->distortion)
@@ -137,7 +137,7 @@ void Explosion::draw(CViewport* viewport)
 	}
 	if ( m_type->lightHax )
 	{
-		gusGame.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
+		game.gameMap()->culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 

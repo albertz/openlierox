@@ -296,7 +296,7 @@ void GusGame::think()
 #endif
 
 	if(isLevelLoaded())
-		level().gusThink();
+		game.gameMap()->gusThink();
 
 	if ( !m_node )
 		return;
@@ -319,8 +319,8 @@ void GusGame::think()
 					case eHole:
 					{
 						int index = Encoding::decode(*data, levelEffectList.size());
-						BaseVec<int> v = level().intVectorEncoding.decode<BaseVec<int> >(*data);
-						level().applyEffect( levelEffectList[index], v.x, v.y );
+						BaseVec<int> v = game.gameMap()->intVectorEncoding.decode<BaseVec<int> >(*data);
+						game.gameMap()->applyEffect( levelEffectList[index], v.x, v.y );
 					}
 					break;
 					
@@ -373,7 +373,7 @@ void GusGame::think()
 					BitStream *data = new BitStream;
 					addEvent(data, eHole);
 					Encoding::encode(*data, iter->index, levelEffectList.size());
-					level().intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
+					game.gameMap()->intVectorEncoding.encode(*data, BaseVec<int>(iter->x, iter->y));
 					
 					m_node->sendEventDirect(eNet_ReliableOrdered, data, conn_id );
 				}
@@ -392,13 +392,13 @@ void GusGame::applyLevelEffect( LevelEffect* effect, int x, int y )
 {
 	if ( !network.isClient() )
 	{
-		if ( level().applyEffect( effect, x, y ) && m_node && network.isHost() )
+		if ( game.gameMap()->applyEffect( effect, x, y ) && m_node && network.isHost() )
 		{
 			BitStream *data = new BitStream;
 
 			addEvent(data, eHole);
 			Encoding::encode(*data, effect->getIndex(), levelEffectList.size());
-			level().intVectorEncoding.encode(*data, BaseVec<int>(x, y));
+			game.gameMap()->intVectorEncoding.encode(*data, BaseVec<int>(x, y));
 
 			m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 			
@@ -494,7 +494,7 @@ void GusGame::runInitScripts()
 	}
 	
 	if(isLevelLoaded()) {
-		const std::string mapscript = "map_" + level().getName();
+		const std::string mapscript = "map_" + game.gameMap()->getName();
 		Script* levelScript = scriptLocator.load(mapscript);
 		if(!levelScript) {
 			notes << "init script " << mapscript << ".lua not found, trying map_common.lua" << endl;
@@ -637,7 +637,7 @@ void GusGame::_prepareLoad(const std::string& path) {
 
 void GusGame::_finishLoad() {
 	if(isLevelLoaded())
-		game.objects.resize(0, 0, level().GetWidth(), level().GetHeight());
+		game.objects.resize(0, 0, game.gameMap()->GetWidth(), game.gameMap()->GetHeight());
 	
 	//cerr << "Loading mod" << endl;
 	_loadMod();
@@ -664,7 +664,7 @@ bool GusGame::changeLevel(ResourceLocator<CMap>::BaseLoader* loader, const std::
 	
 	_prepareLoad(levelPath);
 	
-	if(!m) m = &level();
+	if(!m) m = game.gameMap();
 	
 	if(!loader->load(m, levelPath))
 	{
@@ -823,10 +823,6 @@ bool GusGame::checkCRCs(BitStream& data)
 	}
 	
 	return true;
-}
-
-CMap& GusGame::level() {
-	return *game.gameMap();
 }
 
 bool GusGame::isLevelLoaded() {

@@ -111,7 +111,7 @@ void CNinjaRope::think()
 		}
 		else
 		*/
-		if(!gusGame.level().getMaterial( ipos.x, ipos.y ).particle_pass)
+		if(!game.gameMap()->getMaterial( ipos.x, ipos.y ).particle_pass)
 		{
 			if(!attached)
 			{

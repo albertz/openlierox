@@ -178,7 +178,7 @@ void Weapon::drawBottom(ALLEGRO_BITMAP* where, int x, int y )
 		}
 		Vec posDiff;
 		float intensity = m_type->laserSightIntensity;
-		while ( gusGame.level().getMaterial( (int)(m_owner->pos().x+posDiff.x), (int)(m_owner->pos().y+posDiff.y) ).particle_pass ) {
+		while ( game.gameMap()->getMaterial( (int)(m_owner->pos().x+posDiff.x), (int)(m_owner->pos().y+posDiff.y) ).particle_pass ) {
 			if ( rnd() < intensity ) {
 				if ( m_type->laserSightBlender != NONE )
 					gfx.setBlender( m_type->laserSightBlender, m_type->laserSightAlpha );

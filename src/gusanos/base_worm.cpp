@@ -256,7 +256,7 @@ void CWorm::calculateReactionForce(BaseVec<long> origin, Direction d)
 
 
 	for(reacts[d] = 0; len > 0; --len) {
-		Material const& g = gusGame.level().getMaterial(origin.x, origin.y);
+		Material const& g = game.gameMap()->getMaterial(origin.x, origin.y);
 
 		if(!g.worm_pass) {
 			++reacts[d];
@@ -282,12 +282,12 @@ void CWorm::calculateAllReactionForces(BaseVec<float>& nextPos, BaseVec<long>& i
 	// Add more if the worm is outside the screen
 	if(inextPos.x < 5)
 		reacts[Right] += 5;
-	else if(inextPos.x > (long)gusGame.level().GetWidth() - 5)
+	else if(inextPos.x > (long)game.gameMap()->GetWidth() - 5)
 		reacts[Left] += 5;
 
 	if(inextPos.y < 5)
 		reacts[Down] += 5;
-	else if(inextPos.y > (long)gusGame.level().GetHeight() - 5)
+	else if(inextPos.y > (long)game.gameMap()->GetHeight() - 5)
 		reacts[Up] += 5;
 
 	if(reacts[Down] < 2 && reacts[Up] > 0
@@ -698,7 +698,7 @@ void CWorm::respawn()
 	if(m_isAuthority || !m_node) {
 		// Check if its already allowed to respawn
 		if ( m_timeSinceDeath > gusGame.options.minRespawnTime ) {
-			Vec pos = gusGame.level().getSpawnLocation( m_owner );
+			Vec pos = game.gameMap()->getSpawnLocation( m_owner );
 			
 			if(game.gameMode()->Spawn(this, CVec(pos)))
 				respawn( pos );
@@ -733,7 +733,7 @@ void CWorm::respawn( const Vec& newPos)
 		/*
 		 data->addFloat(pos.x,32);
 		 data->addFloat(pos.y,32);*/
-		gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
+		game.gameMap()->vectorEncoding.encode<Vec>(*data, pos());
 		m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 	}	
 }
@@ -748,7 +748,7 @@ void CWorm::dig()
 			if( m_isAuthority && m_node ) {
 				BitStream *data = new BitStream;
 				addEvent(data, Dig);
-				gusGame.level().vectorEncoding.encode<Vec>(*data, pos());
+				game.gameMap()->vectorEncoding.encode<Vec>(*data, pos());
 				data->addInt(int(getPointingAngle()), Angle::prec);
 				m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_ALL, data);
 			}

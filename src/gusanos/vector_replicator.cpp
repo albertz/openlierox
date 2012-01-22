@@ -15,7 +15,7 @@ VectorReplicator::VectorReplicator(Net_ReplicatorSetup *_setup, CVec *_data) :
 	m_flags |= Net_REPLICATOR_INITIALIZED;
 }
 
-Encoding::VectorEncoding& VectorReplicator::encoding() { return gusGame.level().vectorEncoding; }
+Encoding::VectorEncoding& VectorReplicator::encoding() { return game.gameMap()->vectorEncoding; }
 
 bool VectorReplicator::checkState()
 {
@@ -36,7 +36,7 @@ void VectorReplicator::packData(BitStream *_stream)
 {
 #ifdef COMPACT_FLOATS
 	/*
-		dynamic_bitset<> n = gusGame.level().vectorEncoding.encode(*m_ptr);
+		dynamic_bitset<> n = game.gameMap()->vectorEncoding.encode(*m_ptr);
 		Encoding::writeBitset(*_stream, n);
 	*/
 	encoding().encode(*_stream, *m_ptr);
@@ -53,8 +53,8 @@ void VectorReplicator::unpackData(BitStream *_stream, bool _store)
 	if (_store) {
 #ifdef COMPACT_FLOATS
 		/*
-				dynamic_bitset<> n = Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
-				*m_ptr = gusGame.level().vectorEncoding.decode<Vec>(n);*/
+				dynamic_bitset<> n = Encoding::readBitset(*_stream, game.gameMap()->vectorEncoding.bits);
+				*m_ptr = game.gameMap()->vectorEncoding.decode<Vec>(n);*/
 		*m_ptr = CVec(encoding().decode<Vec>(*_stream));
 #else
 
@@ -64,7 +64,7 @@ void VectorReplicator::unpackData(BitStream *_stream, bool _store)
 
 	} else {
 #ifdef COMPACT_FLOATS
-		//Encoding::readBitset(*_stream, gusGame.level().vectorEncoding.bits);
+		//Encoding::readBitset(*_stream, game.gameMap()->vectorEncoding.bits);
 		encoding().decode<Vec>(*_stream);
 #else
 
@@ -81,8 +81,8 @@ void* VectorReplicator::peekData()
 	Vec *retVec = new Vec;
 #ifdef COMPACT_FLOATS
 	/*
-		dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), gusGame.level().vectorEncoding.bits);
-		*retVec = gusGame.level().vectorEncoding.decode<Vec>(n);*/
+		dynamic_bitset<> n = Encoding::readBitset(*getPeekStream(), game.gameMap()->vectorEncoding.bits);
+		*retVec = game.gameMap()->vectorEncoding.decode<Vec>(n);*/
 	*retVec = encoding().decode<Vec>(*getPeekStream());
 #else
 

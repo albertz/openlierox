@@ -145,7 +145,6 @@ public:
 	void displayKillMsg( CWormInputHandler* killed, CWormInputHandler* killer );
 	void displayMessage( ScreenMessage const& msg );
 	
-	CMap& level();
 	bool isEngineNeeded();
 	
 	std::vector<WeaponType*> weaponList;

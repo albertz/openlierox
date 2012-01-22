@@ -323,7 +323,7 @@ void Particle::think()
 			for ( int y = -iradius; y <= iradius; ++y )
 				for ( int x = -iradius; x <= iradius; ++x )
 				{
-					if ( !gusGame.level().getMaterial( iPos.x + x, iPos.y + y ).particle_pass ) {
+					if ( !game.gameMap()->getMaterial( iPos.x + x, iPos.y + y ).particle_pass ) {
 						averageCorrection += getCorrectionBox( pos() , iPos + IVec( x, y ), radius );
 						++n;
 					}
@@ -341,12 +341,12 @@ void Particle::think()
 		}
 
 		bool collision = false;
-		if ( !gusGame.level().getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
+		if ( !game.gameMap()->getMaterial( roundAny(pos().x + velocity().x), roundAny(pos().y) ).particle_pass) {
 			velocity().x *= -m_type->bounceFactor; // TODO: Precompute the negative of this
 			velocity().y *= m_type->groundFriction;
 			collision = true;
 		}
-		if ( !gusGame.level().getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
+		if ( !game.gameMap()->getMaterial( roundAny(pos().x), roundAny(pos().y + velocity().y) ).particle_pass) {
 			velocity().y *= -m_type->bounceFactor; // TODO: Precompute the negative of this
 			velocity().x *= m_type->groundFriction;
 			collision = true;
@@ -497,15 +497,15 @@ void Particle::draw(CViewport* viewport)
 			//Blitters::drawSpriteRotate_solid_32(where, m_sprite->getSprite(m_animator->getFrame())->m_bitmap, x, y, -m_angle.toRad());
 		} else {
 			Sprite* renderSprite = m_sprite->getSprite(m_animator->getFrame(), m_angle);
-			gusGame.level().culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
+			game.gameMap()->culledDrawSprite(renderSprite, viewport, IVec(Vec(pos())), (int)m_alpha );
 		}
 	}
 
 	if (m_type->distortion) {
 		m_type->distortion->apply( where, x, y, m_type->distortMagnitude );
 	}
-	if ( gusGame.level().config()->darkMode && m_type->lightHax ) {
-		gusGame.level().culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
+	if ( game.gameMap()->config()->darkMode && m_type->lightHax ) {
+		game.gameMap()->culledDrawLight( m_type->lightHax, viewport, IVec(Vec(pos())), (int)m_alpha );
 	}
 }
 #endif

@@ -96,9 +96,9 @@ struct CaptureTheFlag : public CGameMode {
 	}
 	
 	CVec getTeamBasePos(int team, CVec fallback) {
-		for(size_t i = 0; i < gusGame.level().config()->teamBases.size(); ++i) {
-			if(gusGame.level().config()->teamBases[i].team == team + 1) // Gus team numbers
-				return CVec(gusGame.level().config()->teamBases[i].pos);
+		for(size_t i = 0; i < game.gameMap()->config()->teamBases.size(); ++i) {
+			if(game.gameMap()->config()->teamBases[i].team == team + 1) // Gus team numbers
+				return CVec(game.gameMap()->config()->teamBases[i].pos);
 		}
 		
 		return fallback;

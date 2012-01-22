@@ -31,7 +31,7 @@ void SimpleParticle::think()
 {
 	velocity().y += gravity;
 	CVec nextPos = pos() + velocity();
-	if(!gusGame.level().getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
+	if(!game.gameMap()->getMaterial(int(nextPos.x), int(nextPos.y)).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 	else
@@ -40,7 +40,7 @@ void SimpleParticle::think()
 	/*
 	spdy += gravity;
 	
-	if(!gusGame.level().getMaterial(posx >> 8, posy >> 8).particle_pass
+	if(!game.gameMap()->getMaterial(posx >> 8, posy >> 8).particle_pass
 	|| --timeout == 0)
 		deleteMe = true;
 		

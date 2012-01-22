@@ -434,7 +434,7 @@ METHODC(CGameObject, baseObject_getClosestWorm,  {
 			//if(worm->isActive())
 			{
 				float distSqr = (Vec(worm->pos()) - from).lengthSqr();
-				if(distSqr < minDistSqr && !gusGame.level().trace(fromx, fromy, int(worm->pos().x), int(worm->pos().y), CMap::ParticleBlockPredicate()))
+				if(distSqr < minDistSqr && !game.gameMap()->trace(fromx, fromy, int(worm->pos().x), int(worm->pos().y), CMap::ParticleBlockPredicate()))
 				{
 					minDistSqr = distSqr;
 					minWorm = worm;

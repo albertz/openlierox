@@ -151,13 +151,13 @@ void CWorm::NetWorm_think()
 						pos.y = data->getFloat(32);
 						spd.x = data->getFloat(32);
 						spd.y = data->getFloat(32);*/
-						pos() = CVec(gusGame.level().vectorEncoding.decode<Vec>(*data));
-						velocity() = CVec(gusGame.level().vectorEncoding.decode<Vec>(*data));
+						pos() = CVec(game.gameMap()->vectorEncoding.decode<Vec>(*data));
+						velocity() = CVec(game.gameMap()->vectorEncoding.decode<Vec>(*data));
 					}
 					break;
 					case Respawn:
 					{
-						Vec newpos = gusGame.level().vectorEncoding.decode<Vec>(*data);
+						Vec newpos = game.gameMap()->vectorEncoding.decode<Vec>(*data);
 						//newpos.x = data->getFloat(32);
 						//newpos.y = data->getFloat(32);
 						CWorm::respawn( newpos );
@@ -165,7 +165,7 @@ void CWorm::NetWorm_think()
 					break;
 					case Dig:
 					{
-						Vec digPos = gusGame.level().vectorEncoding.decode<Vec>(*data);
+						Vec digPos = game.gameMap()->vectorEncoding.decode<Vec>(*data);
 						Angle digAngle = Angle((int)data->getInt(Angle::prec));
 						CWorm::dig(digPos, digAngle);
 					}
@@ -285,8 +285,8 @@ void CWorm::correctOwnerPosition()
 	data->addFloat(pos.y,32);
 	data->addFloat(spd.x,32);
 	data->addFloat(spd.y,32);*/
-	gusGame.level().vectorEncoding.encode<Vec>(*data, pos()); // ...nah ;o
-	gusGame.level().vectorEncoding.encode<Vec>(*data, velocity());
+	game.gameMap()->vectorEncoding.encode<Vec>(*data, pos()); // ...nah ;o
+	game.gameMap()->vectorEncoding.encode<Vec>(*data, velocity());
 	m_node->sendEvent(eNet_ReliableOrdered, Net_REPRULE_AUTH_2_OWNER, data);
 }
 
