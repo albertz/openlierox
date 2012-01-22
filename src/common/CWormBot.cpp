@@ -4330,7 +4330,7 @@ void CWormBotInputHandler::subThink() {
 	}
 	
 	// stupid wpn change code from player_ai.cpp
-	if ( ( m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
+	if ( ( m_worm->getCurrentWeaponRef() && m_worm->getCurrentWeaponRef()->reloading && ( rand() % 8 == 0 ) ) || rand() % 15 == 0)
 	{
 		m_worm->changeWeaponTo(m_worm->getWeaponIndexOffset( rand() % 50 ) );
 	}
