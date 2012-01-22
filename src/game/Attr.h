@@ -46,10 +46,7 @@ struct AttrUpdateInfo {
 
 void pushAttrUpdateInfo(const AttrUpdateInfo& info);
 
-template <
-typename ParentT, typename T,
-typename AttrDescT
->
+template <typename T, typename AttrDescT>
 struct Attr {
 	T value;
 	Attr() : value() { /* to init attrDesc */ attrDesc(); }
@@ -57,7 +54,7 @@ struct Attr {
 		static AttrDescT desc;
 		return &desc;
 	}
-	ParentT* parent() { return (ParentT*)(uintptr_t(this) - attrDesc()->attrMemOffset); }
+	BaseObject* parent() { return (BaseObject*)(uintptr_t(this) - attrDesc()->attrMemOffset); }
 	T get() const { return value; }
 	operator T() const { return get(); }
 	Attr& operator=(const T& v) {
@@ -71,6 +68,42 @@ struct Attr {
 	}
 };
 
+template <typename T, typename AttrDescT>
+struct AttrWithBasicOpts : public Attr<T, AttrDescT> {
+	void operator++(int) { *this += 1; }
+	void operator--(int) { *this -= 1; }
+	AttrWithBasicOpts& operator+=(T i) { *this = this->value + i; return *this; }
+	AttrWithBasicOpts& operator-=(T i) { *this = this->value - i; return *this; }
+	AttrWithBasicOpts& operator=(const T& v) { Attr<T, AttrDescT>::operator=(v); return *this; }
+};
+
+template <typename T, typename AttrDescT>
+struct AttrWithIntOpts : public Attr<T, AttrDescT> {
+	void operator++(int) { *this += 1; }
+	void operator--(int) { *this -= 1; }
+	AttrWithIntOpts& operator+=(T i) { *this = this->value + i; return *this; }
+	AttrWithIntOpts& operator-=(T i) { *this = this->value - i; return *this; }
+	AttrWithIntOpts& operator%=(T i) { *this = this->value % i; return *this; }
+	AttrWithIntOpts& operator=(const T& v) { Attr<T, AttrDescT>::operator=(v); return *this; }
+};
+
+template <typename T, typename AttrDescT>
+struct AttrWithMaybeOpts {
+	typedef Attr<T, AttrDescT> Type;
+};
+
+#define USE_OPTS_FOR(T, k) \
+template <typename AttrDescT> \
+struct AttrWithMaybeOpts<T,AttrDescT> { \
+	typedef AttrWith ## k ## Opts<T,AttrDescT> Type; \
+}
+
+USE_OPTS_FOR(int, Int);
+USE_OPTS_FOR(float, Basic);
+
+#undef USE_OPTS_FOR
+
+
 #define ATTR(parentType, type, name, id, attrDescSpecCode) \
 struct _ ## name ## _AttrDesc : AttrDesc { \
 	_ ## name ## _AttrDesc () { \
@@ -83,6 +116,6 @@ struct _ ## name ## _AttrDesc : AttrDesc { \
 		registerAttrDesc(*this); \
 	} \
 }; \
-Attr<parentType, type, _ ## name ## _AttrDesc> name;
+AttrWithMaybeOpts<type, _ ## name ## _AttrDesc>::Type name;
 
 #endif
