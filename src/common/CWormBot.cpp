@@ -82,6 +82,15 @@ enum {
     AIT_POSITION
 };
 
+// AI Game Type
+enum GAM_AI_TYPE
+{
+	GAM_RIFLES	= 0,
+	GAM_100LT	= 1,
+	GAM_MORTARS	= 2,
+	GAM_OTHER	= 3
+};
+
 
 struct NEW_ai_node_t {
 	float fX, fY;
