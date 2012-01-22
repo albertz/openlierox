@@ -17,6 +17,7 @@
 #include "game/WormInputHandler.h"
 
 class searchpath_base;
+struct NEW_ai_node_t;
 
 class CWormBotInputHandler : public CWormInputHandler {
 public:

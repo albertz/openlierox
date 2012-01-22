@@ -65,6 +65,39 @@ static const unsigned short wormsize = 7;
 */
 
 
+// AI states
+enum {
+    AI_THINK,
+    //AI_FINDTARGET,
+    AI_MOVINGTOTARGET,
+    AI_AIMING,
+    AI_SHOOTING
+};
+
+// Target types
+enum {
+    AIT_NONE,
+    AIT_WORM,
+    AIT_BONUS,
+    AIT_POSITION
+};
+
+
+struct NEW_ai_node_t {
+	float fX, fY;
+	NEW_ai_node_t *psPrev, *psNext;
+	NEW_ai_node_t() : fX(0), fY(0), psPrev(NULL), psNext(NULL) {}
+};
+
+NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
+void delete_ai_nodes(NEW_ai_node_t* start);
+void delete_ai_nodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
+float get_ai_nodes_length(NEW_ai_node_t* start);
+// this do the same as the fct above except that it don't do the sqrt
+float get_ai_nodes_length2(NEW_ai_node_t* start);
+
+
+
 // returns the biggest possible free rectangle with the given point inside
 // (not in every case, but in most it is the biggest; but it is ensured that the given rect is at least free)
 // the return-value of type SquareMatrix consists of the top-left and upper-right pixel

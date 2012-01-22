@@ -123,38 +123,6 @@ class CServerConnection;
 class CBonus;
 
 
-//    Artificial Intelligence
-
-// AI states
-enum {
-    AI_THINK,
-    //AI_FINDTARGET,
-    AI_MOVINGTOTARGET,
-    AI_AIMING,
-    AI_SHOOTING
-};
-
-// Target types
-enum {
-    AIT_NONE,
-    AIT_WORM,
-    AIT_BONUS,
-    AIT_POSITION
-};
-
-
-class NEW_ai_node_t {
-public:
-	float fX, fY;
-	NEW_ai_node_t *psPrev, *psNext;
-};
-
-NEW_ai_node_t* get_last_ai_node(NEW_ai_node_t* n);
-void delete_ai_nodes(NEW_ai_node_t* start);
-void delete_ai_nodes(NEW_ai_node_t* start, NEW_ai_node_t* end);
-float get_ai_nodes_length(NEW_ai_node_t* start);
-// this do the same as the fct above except that it don't do the sqrt
-float get_ai_nodes_length2(NEW_ai_node_t* start);
 
 class CWormInputHandler;
 struct WormJoinInfo;
