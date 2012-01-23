@@ -22,7 +22,6 @@ struct NEW_ai_node_t;
 class CWormBotInputHandler : public CWormInputHandler {
 public:
 	CWormBotInputHandler(CWorm* w);
-	virtual ~CWormBotInputHandler();
 	
 	virtual std::string name() { return "Bot input handler"; }
 	
@@ -36,9 +35,10 @@ public:
 
 	virtual void onRespawn();
 
-	virtual void quit();
+	virtual void deleteThis();
 	
 protected:
+	virtual ~CWormBotInputHandler();
 	
     /*
 	 Artificial Intelligence

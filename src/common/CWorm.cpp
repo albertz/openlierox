@@ -180,7 +180,7 @@ void CWorm::Clear()
 	
 	
 	if(m_inputHandler) {
-		m_inputHandler->quit();
+		m_inputHandler->deleteThis();
 		m_inputHandler = NULL;
 	}
 	
@@ -254,7 +254,7 @@ void CWorm::Prepare()
 	if(m_inputHandler) {
 		warnings << "WARNING: worm " << getName() << " has already the following input handler set: "; warnings.flush();
 		warnings << m_inputHandler->name(); warnings << endl;
-		m_inputHandler->quit();
+		m_inputHandler->deleteThis();
 		m_inputHandler = NULL;
 	}
 
@@ -318,7 +318,7 @@ void CWorm::Unprepare() {
 	fVisibilityChangeTime = 0;
 	
 	if(m_inputHandler) {
-		m_inputHandler->quit();
+		m_inputHandler->deleteThis();
 		m_inputHandler = NULL;
 	}
 	
@@ -1427,7 +1427,8 @@ void CWorm::reinitInputHandler() {
 	}
 	
 	if(m_inputHandler) {
-		m_inputHandler->quit();
+		m_inputHandler->deleteThis();
+		m_inputHandler = NULL;
 	} else
 		warnings << "reinitInputHandler: inputhandler was unset for worm " << getID() << endl;
 	m_inputHandler = m_type->createInputHandler(this);

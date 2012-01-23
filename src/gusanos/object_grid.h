@@ -288,12 +288,11 @@ struct List
 		firstD = 0;
 		count = 0;
 	}
-	
+		
 	void erase(iterator& iter)
 	{
 		T* p = iter.ptr;
 		unlink(iter);
-		//delete p;
 		p->deleteThis();
 	}
 	
@@ -381,9 +380,7 @@ public:
 		
 		Layer(int s)
 		: grid(s + 1), firstDelayed(0), firstDelayedNoCol(0)
-		{
-
-		}
+		{}
 				
 		void clear()
 		{
@@ -441,57 +438,7 @@ public:
 		resize(0,0,100,100);
 	}
 	
-	void resize(int x1_, int y1_, int x2_, int y2_)
-	{
-		// Delete old guard nodes
-		for(std::vector<Layer>::iterator l = layers.begin(); l != layers.end(); ++l)
-		{
-			l->clear();
-			for(std::vector<Layer::Square>::iterator s = l->grid.begin(); s != l->grid.end(); ++s)
-			{
-				if(s->guardNode)
-					delete s->guardNode;
-				s->guardNode = NULL;
-			}
-		}
-		
-		width = x2_ - x1_;
-		height = y2_ - y1_;
-		offsetX = -x1_;
-		offsetY = -y1_;
-		x1 = x1_;
-		y1 = y1_;
-		x2 = x2_;
-		y2 = y2_;
-		squaresH = (width + squareSide - 1) / squareSide;
-		squaresV = (height + squareSide - 1) / squareSide;
-		layers.clear();
-		layers.resize(layerCount, Layer(squaresH * squaresV));
-		
-		for(std::vector<Layer>::iterator l = layers.begin(); l != layers.end(); ++l)
-		{
-			// insertD inserts at the front, so we have to go through the squares in
-			// reverse order.
-			assert(!l->list.beginS() && !l->list.beginD());
-			
-			for(std::vector<Layer::Square>::reverse_iterator s = l->grid.rbegin(); s != l->grid.rend(); ++s)
-			{
-				s->guardNode = new CGameObject;
-				l->list.insertD(s->guardNode);
-			}
-			
-			ObjectList::light_iterator i = l->list.beginD();
-			
-			size_t c = 0;
-			for(; i; ++i)
-			{
-				++c;
-			}
-			
-			assert(c == l->grid.size());
-			//assert(l->grid.size() == squaresH * squaresV + 1);
-		}
-	}
+	void resize(int x1_, int y1_, int x2_, int y2_);
 	
 	friend struct area_iterator;
 	
@@ -622,9 +569,7 @@ public:
 	{
 		friend class Grid;
 		
-		iterator() // curObj gets initialized to an iterator returning false
-		{
-		}
+		iterator() {} // curObj gets initialized to an iterator returning false
 		
 		iterator& operator++()
 		{
@@ -634,19 +579,31 @@ public:
 			return *this;
 		}
 		
-		CGameObject& operator*()
+		CGameObject& operator*() { return *curObj; }		
+		CGameObject* operator->() { return (CGameObject *)curObj; }
+		operator bool() { return curObj != NULL; }
+
+		Layer& curLayer() { return *curLayerIt; }
+		
+		void erase()
 		{
-			return *curObj;
+			curLayerIt->list.erase(curObj);
+			findFirstValid();
 		}
 		
-		CGameObject* operator->()
+		void unlink()
 		{
-			return (CGameObject *)curObj;
+			curLayerIt->list.unlink(curObj);
+			findFirstValid();
 		}
-		
-		operator bool()
+				
+	private:
+		iterator(Grid& grid, int layerBegin, int layerStep, int layerCount)
+		: layersPitch(layerStep), layersLeft(layerCount)
 		{
-			return curObj != NULL;
+			curLayerIt = grid.layers.begin() + layerBegin;
+			curObj = curLayerIt->list.beginS();
+			findFirstValid();
 		}
 		
 		void findFirstValid()
@@ -657,35 +614,15 @@ public:
 				{
 					return;
 				}
-				curLayer += layersPitch;
-				curObj = curLayer->list.beginS();
+				curLayerIt += layersPitch;
+				curObj = curLayerIt->list.beginS();
 			}
 		}
-		
-		void erase()
-		{
-			curLayer->list.erase(curObj);
-			findFirstValid();
-		}
-		
-		void unlink()
-		{
-			curLayer->list.unlink(curObj);
-			findFirstValid();
-		}
-	private:
-		iterator(Grid& grid, int layerBegin, int layerStep, int layerCount)
-		: layersPitch(layerStep), layersLeft(layerCount)
-		{
-			curLayer = grid.layers.begin() + layerBegin;
-			curObj = curLayer->list.beginS();
-			findFirstValid();
-		}
-		
+
 		int layersPitch;
 		int layersLeft;
 		ObjectList::iterator curObj;
-		std::vector<Layer>::iterator curLayer;
+		std::vector<Layer>::iterator curLayerIt;
 	};
 	
 	int getListIndex(Vec const& v)
@@ -730,14 +667,27 @@ public:
 	
 	void insertImmediately(CGameObject* obj, int colLayer, int renderLayer)
 	{
-		int cellIndex = getListIndex(obj->pos());
-		obj->cellIndex_ = cellIndex;
-
 		Layer& layer = layers[colLayer + ColLayerCount*renderLayer];
-		
-		layer.list.insertAfter(layer.grid[cellIndex].guard(), obj);
+		insertImmediately(obj, layer);
 	}
 	
+	void insertImmediately(CGameObject* obj, Layer& layer) {
+		int cellIndex = getListIndex(obj->pos());
+		obj->cellIndex_ = cellIndex;
+		
+		layer.list.insertAfter(layer.grid[cellIndex].guard(), obj);		
+	}
+	
+	void unlink(const CGameObject* obj) {
+		for ( iterator iter = beginAll(); iter;)
+		{
+			if( &*iter == obj )
+				iter.unlink();
+			else
+				++iter;
+		}
+	}
+
 	void flush()
 	{
 		for(std::vector<Layer>::iterator i = layers.begin(); i != layers.end(); ++i)
@@ -755,9 +705,9 @@ public:
 		int realIndex = getListIndex(o->pos());
 		if(realIndex != curIndex)
 		{
-			assert((unsigned int)realIndex < o.curLayer->grid.size());
+			assert((unsigned int)realIndex < o.curLayerIt->grid.size());
 			o->cellIndex_ = realIndex;
-			o.curLayer->list.moveAfter(o.curLayer->grid[realIndex].guard(), ObjectList::light_iterator(o.curObj));
+			o.curLayerIt->list.moveAfter(o.curLayerIt->grid[realIndex].guard(), ObjectList::light_iterator(o.curObj));
 		}
 	}
 	

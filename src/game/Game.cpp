@@ -248,8 +248,8 @@ void Game::cleanupAfterGameloopEnd() {
 		// call gameover because we may do some important cleanup there
 		game.gameMode()->GameOver();
 	
-	gusGame.unload();
 	reset();
+	gusGame.unload();
 	
 	PhysicsEngine::UnInit();
 	
@@ -332,11 +332,17 @@ void Game::onNewPlayer_Lua(CWormInputHandler* p) {
 }
 
 void Game::onRemovePlayer(CWormInputHandler* p) {
-	for(__typeof__(players.begin()) i = players.begin(); i != players.end(); ) {
-		if(*i == p)
-			i = players.erase(i);
-		else
-			++i;
+	foreach(p2, players) {
+		if(*p2 == p) {
+			players.erase(p2);
+			break;
+		}
+	}
+	foreach(p2, localPlayers) {
+		if(*p2 == p) {
+			localPlayers.erase(p2);
+			break;
+		}
 	}
 }
 
@@ -354,24 +360,14 @@ void Game::onNewHumanPlayer_Lua(CWormHumanInputHandler* player) {
 	}
 }
 
-void Game::onRemoveHumanPlayer(CWormHumanInputHandler* p) {
-	for(__typeof__(localPlayers.begin()) i = localPlayers.begin(); i != localPlayers.end(); ) {
-		if(*i == p)
-			i = localPlayers.erase(i);
-		else
-			++i;
-	}	
-}
-
 
 void Game::reset() {
 	notes << "Game::reset" << endl;
 	
 	// Delete all players
-	for ( std::vector<CWormInputHandler*>::iterator iter = players.begin(); iter != players.end(); ++iter)
-	{
-		(*iter)->deleteThis();
-	}
+	std::vector<CWormInputHandler*> playersCopy(players); // copy to avoid problems
+	foreach ( p, playersCopy )
+		(*p)->deleteThis();
 	players.clear();
 	localPlayers.clear();
 	
@@ -385,8 +381,10 @@ void Game::reset() {
 
 void Game::resetWorms() {
 	// as long as we still manage worm deletion manually, we must do this now here
-	for_each_iterator(CWorm*, w, worms())
-		delete w->get();
+	for_each_iterator(CWorm*, w, worms()) {
+		w->get()->Shutdown();
+		w->get()->deleteThis();
+	}
 	m_worms.clear();	
 }
 

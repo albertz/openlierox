@@ -11,7 +11,6 @@ class ProxyPlayer : public CWormInputHandler
 public:
 
 	ProxyPlayer(CWorm* worm);
-	~ProxyPlayer();
 	
 	void subThink();
 #ifndef DEDICATED_ONLY
@@ -23,7 +22,8 @@ public:
 	void getInput() { /* not needed to set LX states, this input handler is only used for Gus right now */ }
 	std::string name() { return "ProxyPlayer"; }
 	
-private:
+protected:
+	~ProxyPlayer();
 
 };
 

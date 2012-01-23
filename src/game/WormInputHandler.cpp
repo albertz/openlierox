@@ -72,19 +72,29 @@ void CWormInputHandler::pushLuaReference()
 	lua.push(getLuaReference());
 }
 
+CWormInputHandler::~CWormInputHandler() {}
+
 void CWormInputHandler::deleteThis()
-{	
+{
+	notes << "CWormInputHandler:deleteThis: " << (m_worm ? m_worm->getName() : "NOWORM") << endl;
+
 	EACH_CALLBACK(i, playerRemoved) {
 		(lua.call(*i), getLuaReference())();
 	}
 	
+	game.onRemovePlayer(this);
+
 	deleted = true; // We set this after the callback loop otherwise getLuaReference() will think the player is already deleted
 	
 	for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter) {
 		objIter->removeRefsToPlayer(this);
 	}
 	
-	removeWorm();
+	if ( m_worm ) {
+		if(m_worm->m_inputHandler == this)
+			m_worm->m_inputHandler = NULL;
+		m_worm = 0;
+	}
 	
 	delete m_node; m_node = 0;
 	delete m_interceptor; m_interceptor = 0;
@@ -94,41 +104,6 @@ void CWormInputHandler::deleteThis()
 		luaReference.reset();
 	} else {
 		delete this;
-	}	
-}
-
-
-
-void CWormInputHandler::gusShutdown()
-{
-	notes << "CWormInputHandler:gusShutdown: " << (m_worm ? m_worm->getName() : "NOWORM") << endl;
-
-	for (Grid::iterator objIter = game.objects.beginAll(); objIter; ++objIter) {
-		objIter->removeRefsToPlayer(this);
-	}
-
-	removeWorm();
-	
-	if(m_node) {
-		delete m_node;
-		m_node = 0;
-	}
-	if(m_interceptor) {
-		delete m_interceptor;
-		m_interceptor = 0;
-	}
-}
-
-void CWormInputHandler::removeWorm()
-{
-	if ( m_worm ) {
-		if(m_worm->m_inputHandler == this)
-			m_worm->m_inputHandler = NULL;
-/*		m_worm->deleteMe = true;
-		if ( m_worm->getNinjaRopeObj() )
-			m_worm->getNinjaRopeObj()->deleteMe = true;*/
-		// worms are managed via game
-		m_worm = 0;
 	}
 }
 
@@ -251,7 +226,7 @@ void CWormInputHandler::think()
 				}
 					break;
 				case eNet_EventRemoved: {
-					quit();
+					deleteThis();
 				}
 					break;
 					
@@ -645,29 +620,3 @@ void CWormInputHandler::addKill() {
 	if(m_worm && game.isServer()) sendWormScoreUpdate(m_worm);
 }
 
-
-void CWormInputHandler::quit() {
-	deleteMe = true;
-	removeWorm();
-	
-	foreach ( p, game.localPlayers )
-	{
-		if ( this == (CWormInputHandler*) *p )
-		{
-			game.localPlayers.erase(p);
-			break;
-		}
-	}
-
-	foreach ( p, game.players )
-	{
-		if ( this == *p )
-		{
-			game.players.erase(p);
-			break;
-		}
-	}
-	
-	// call at very last
-	deleteThis();
-}

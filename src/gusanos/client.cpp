@@ -123,7 +123,7 @@ void Client::Net_cbNodeRequest_Dynamic( Net_ConnID _id, Net_ClassID _requested_c
 		if(worm->m_inputHandler) {
 			warnings << "Net_cbNodeRequest_Dynamic: worm " << worm->getName() << " has already the following input handler set: "; warnings.flush();
 			warnings << worm->m_inputHandler->name() << endl;
-			worm->m_inputHandler->quit();
+			worm->m_inputHandler->deleteThis();
 			worm->m_inputHandler = NULL;			
 		}
 		

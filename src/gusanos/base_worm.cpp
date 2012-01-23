@@ -107,23 +107,18 @@ void CWorm::gusShutdown()
 
 	skin = skinMask = NULL;
 		
-	// We must delete the object now out of the list because this destructor
+	// We must unlink the object now from the list because this destructor
 	// is not called from Gusanos but from CClient.
 	// NOTE: Not really the best way but I don't know a better way
-	// TODO: move this out here
-	for ( Grid::iterator iter = game.objects.beginAll(); iter;)
-	{
-		if( &*iter == this )
-			iter.erase();
-		else
-			++iter;
-	}
+	// Game.onNewWorm has inserted the object into the list.
+	game.objects.unlink(this);
+	game.objects.unlink(&cNinjaRope);
 	
 	NetWorm_Shutdown();
 }
 
 void CWorm::deleteThis() {
-	notes << "CWorm:deleteThis: " << getName() << endl;
+	notes << "CWorm:deleteThis: " << getID() << ":" << getName() << endl;
 	
 	finalize();
 	
@@ -132,9 +127,8 @@ void CWorm::deleteThis() {
 		lua.destroyReference(luaReference);
 		luaReference.reset();
 	}
-
-	// dont delete the object itself because we store it in CClient atm
-	// also dont set deleted=true because we may reuse this object
+	else
+		delete this;
 }
 
 

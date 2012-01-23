@@ -940,9 +940,9 @@ void CWormBotInputHandler::AI_Shutdown()
 	NEW_psLastNode = NULL;
 }
 
-void CWormBotInputHandler::quit() {
+void CWormBotInputHandler::deleteThis() {
 	AI_Shutdown();
-	CWormInputHandler::quit();
+	CWormInputHandler::deleteThis();
 }
 
 
@@ -4142,7 +4142,6 @@ CWormBotInputHandler::CWormBotInputHandler(CWorm* w) : CWormInputHandler(w) {
 }
 
 CWormBotInputHandler::~CWormBotInputHandler() {
-	game.onRemovePlayer(this);
 	// Make sure the pathfinding ends
 	AI_Shutdown();
 }

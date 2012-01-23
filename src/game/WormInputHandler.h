@@ -45,14 +45,16 @@ struct LuaEventDef;
 
 class CWorm;
 class CViewport;
+struct lua_State;
+namespace LuaBindings { int l_player_destroy(lua_State*); }
 
 class CWormInputHandler {
+	friend int LuaBindings::l_player_destroy(lua_State*);
 protected:
 	CWorm* m_worm;
 public:
 	Uint32 uniqueID;
 	CWormInputHandler(CWorm* w) : m_worm(w), uniqueID(0) { gusInit(w); }
-	virtual ~CWormInputHandler() { gusShutdown(); }
 	
 	CWorm* worm() const { return m_worm; }
 	
@@ -67,8 +69,6 @@ public:
     virtual void clearInput() {}
 	
 	virtual void onRespawn() {}
-
-	virtual void quit();
 	
 	
 	// ------------------------------------------------------
@@ -132,10 +132,10 @@ public:
 
 protected:
 	virtual void OlxInputToGusEvents();	
+	virtual ~CWormInputHandler();
 	
 private:
 	void gusInit(CWorm* w);
-	void gusShutdown();
 	
 public:
 	void think();
@@ -149,7 +149,6 @@ public:
 	void assignNetworkRole( bool authority );
 	
 	void assignWorm(CWorm* worm);
-	void removeWorm();
 	
 	void sendSyncMessage( Net_ConnID id ); // Its the initializing message that is sent to new clients that recieve the node.
 	

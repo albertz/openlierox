@@ -45,7 +45,6 @@ public:
 	void onRemovePlayer(CWormInputHandler*);
 	void onNewHumanPlayer(CWormHumanInputHandler*);
 	void onNewHumanPlayer_Lua(CWormHumanInputHandler*);
-	void onRemoveHumanPlayer(CWormHumanInputHandler*);
 	
 	bool isServer();
 	bool isClient() { return !isServer(); }

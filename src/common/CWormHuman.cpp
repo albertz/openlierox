@@ -674,11 +674,7 @@ CWormHumanInputHandler::CWormHumanInputHandler(CWorm* w) : CWormInputHandler(w) 
 	game.onNewPlayer_Lua(this);
 }
 
-CWormHumanInputHandler::~CWormHumanInputHandler() {
-	game.onRemoveHumanPlayer(this);
-	game.onRemovePlayer(this);
-	gusShutdown();
-}
+CWormHumanInputHandler::~CWormHumanInputHandler() {}
 
 void CWormHumanInputHandler::startGame() {
 	initInputSystem();
@@ -983,13 +979,6 @@ void CWormHumanInputHandler::gusInit()
 	walkingLeft=(false);
 	walkingRight=(false);
 	m_viewport=(0);
-}
-
-void CWormHumanInputHandler::gusShutdown()
-{
-#ifndef DEDICATED_ONLY
-	//delete m_viewport; m_viewport = NULL;
-#endif
 }
 
 #ifndef DEDICATED_ONLY

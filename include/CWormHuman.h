@@ -24,7 +24,6 @@ class CViewport;
 class CWormHumanInputHandler : public CWormInputHandler {
 public:
 	CWormHumanInputHandler(CWorm* w);
-	virtual ~CWormHumanInputHandler();
 	virtual std::string name() { return "Human input handler"; }
 
 	virtual void initWeaponSelection();
@@ -35,8 +34,8 @@ public:
 	virtual void getInput(); 
     virtual void clearInput();
 	
-	
 protected:
+	virtual ~CWormHumanInputHandler();
 	
 	// Input
 	CInput		cUp, cDown, cLeft, cRight,
@@ -93,7 +92,6 @@ protected:
 	
 private:
 	void gusInit();
-	void gusShutdown();
 	
 public:
 	void subThink();
