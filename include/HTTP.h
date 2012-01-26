@@ -20,9 +20,6 @@
 #define __HTTP_H__
 
 #include <string>
-#include <curl/curl.h>
-#include <curl/types.h>
-#include <curl/easy.h>
 
 #include "Networking.h"
 #include "Event.h"
@@ -30,6 +27,8 @@
 #include "Mutex.h"
 
 #include "ThreadPool.h"
+
+typedef void CURL;
 
 //
 // Functions
