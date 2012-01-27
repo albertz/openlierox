@@ -30,7 +30,7 @@ using google_breakpad::PDBSourceLineWriter;
 
 using std::wstring;
 
-bool DumpSyms(const std::string& bin, const std::string& symfile) {
+bool DumpSyms(const std::string& bin, const std::string& symfile, const std::string& arch) {
 	FILE* out = fopen(Utf8ToSystemNative(symfile).c_str(), "wb");
 	if(!out) return false;
 	
@@ -60,7 +60,7 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 
 using namespace google_breakpad;
 
-bool DumpSyms(const std::string& bin, const std::string& symfile) {
+bool DumpSyms(const std::string& bin, const std::string& symfile, const std::string& arch) {
 	FILE* out = fopen(symfile.c_str(), "wb");
 	if(!out) return false;
 	

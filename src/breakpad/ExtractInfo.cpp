@@ -69,8 +69,13 @@ int DoCrashReport(int argc, char** argv) {
 	if(argc < 2) return 0;
 	if(std::string(argv[1]) != "-crashreport") return 0;
 	
+	notes << "exec:";
+	for(int i = 0; i < argc; ++i)
+		notes << " \"" << argv[i] << "\"";
+	notes << endl;
+	
 	if(argc < 5) {
-		errors << "usage: " << argv[0] << " -crashreport <dumpdir> <dumpid> <logfile>" << endl;
+		errors << "usage: " << argv[0] << " -crashreport <dumpdir> <dumpid> <logfile> [-debug]" << endl;
 		return 1;
 	}
 
@@ -91,6 +96,14 @@ int DoCrashReport(int argc, char** argv) {
 	// minidumpfile is from cmd parameter, so it is already systemnative.
 	MinidumpExtractInfo(minidumpfile, crashinfo, crashinfoerror);
 
+	if(argc >= 6 && strcmp(argv[5], "-debug") == 0) {
+		std::cout << crashinfo << std::endl;
+		std::cout << "----" << std::endl;
+		std::cout << crashinfoerror << std::endl;
+		std::cout << "---- EOF" << std::endl;
+		return 1;
+	}
+	
 	SmtpClient smtp;
 	smtp.host = "mail.az2000.de:25";
 	smtp.mailfrom = "olxcrash@az2000.de";
@@ -427,18 +440,19 @@ static void ProcessSingleReport(const std::string& minidump_file, std::ostream& 
     //*thread_memory_regions = process_state.thread_memory_regions();
 	
 	for (int thread_index = 0; thread_index < thread_count; ++thread_index) {
-		if (thread_index != requesting_thread) {
+		if (thread_index == requesting_thread)
 			// Don't print the crash thread again, it was already printed.
-			out << std::endl;
-			out << "Thread " << thread_index << std::endl;
-			PrintThread(process_state.threads()->at(thread_index), cpu, out, err);
-			
-			// Optional
-			//google_breakpad::MinidumpMemoryRegion
-			//*thread_stack_bytes = thread_memory_regions->at(thread_index);
-			
-			//thread_stack_bytes->Print();
-		}
+			continue;
+
+		out << std::endl;
+		out << "Thread " << thread_index << std::endl;
+		PrintThread(process_state.threads()->at(thread_index), cpu, out, err);
+		
+		// Optional
+		//google_breakpad::MinidumpMemoryRegion
+		//*thread_stack_bytes = thread_memory_regions->at(thread_index);
+		
+		//thread_stack_bytes->Print();
 	}
 		
 	// Print information about modules

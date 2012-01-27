@@ -159,13 +159,13 @@ bool OnDemandSymbolSupplier::GenerateSymbolFile(const CodeModule *module,
 	
 	// NOTE: We are using systempaths everywhere here.
 	// DumpSyms expects UTF8, so we have to convert that.
-	result = DumpSyms(SystemNativeToUtf8(module_path), symbol_path);
+	result = DumpSyms(SystemNativeToUtf8(module_path), symbol_path, system_info->cpu);
 
 #ifdef WIN32
 	if(!result)
 		// Strange situation, I don't really understand that.
 		// But seems to work sometimes.
-		result = DumpSyms(module_path, symbol_path);
+		result = DumpSyms(module_path, symbol_path, system_info->cpu);
 #endif
 
 	// Add the mapping

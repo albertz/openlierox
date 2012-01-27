@@ -121,7 +121,7 @@ LaunchUploader( const char* dump_dir,
     return true;
 }
 
-#else
+#else // win32
 
 #include "common/convert_UTF.h"
 

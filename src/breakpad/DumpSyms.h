@@ -12,6 +12,6 @@
 
 #include <string>
 
-bool DumpSyms(const std::string& bin, const std::string& symfile);
+bool DumpSyms(const std::string& bin, const std::string& symfile, const std::string& arch);
 
 #endif

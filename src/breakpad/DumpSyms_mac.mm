@@ -36,11 +36,14 @@
 #include <mach-o/arch.h>
 #include <string>
 #include <fstream>
+#include <iostream>
 
 #include "common/mac/dump_syms.h"
 #include "common/mac/macho_utilities.h"
 
-bool DumpSyms(const std::string& bin, const std::string& symfile) {
+bool DumpSyms(const std::string& bin, const std::string& symfile, const std::string& arch_) {
+	std::cerr << "DumpSyms: " << bin << ", " << symfile << std::endl;
+	
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     NSString *module_str = [[NSFileManager defaultManager]
@@ -52,15 +55,20 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 
 	const NXArchInfo *localArchInfo = NXGetLocalArchInfo();
 	if (localArchInfo) {
-		std::string arch;
+		/*std::string arch;
 		if (localArchInfo->cputype & CPU_ARCH_ABI64)
 			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC64) ? "ppc64":
 			"x86_64";
 		else
 			arch = (localArchInfo->cputype == CPU_TYPE_POWERPC) ? "ppc" :
-			"x86";
+			"x86";*/
+		
+		std::string arch = arch_;
+		if(arch == "amd64") arch = "x86_64";
 		
 		if (!dump.SetArchitecture(arch)) {
+			std::cerr << "DumpSyms: failed to set arch " << arch << std::endl;
+			[pool release];
 			return false;
 		}
 	}
@@ -70,9 +78,13 @@ bool DumpSyms(const std::string& bin, const std::string& symfile) {
 		f.open([nssymfile UTF8String]);
 	}
 	catch(...) {
+		std::cerr << "DumpSyms: failed open symbol file" << std::endl;
+		[pool release];
 		return false;
 	}
 	if(!dump.WriteSymbolFile(f, true)) {
+		std::cerr << "DumpSyms: failed to write symbol file" << std::endl;
+		[pool release];
 		return false;
 	}
 	
