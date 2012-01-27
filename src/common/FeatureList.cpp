@@ -11,7 +11,7 @@
 #include "FeatureList.h"
 #include "Version.h"
 #include "CServer.h"
-#include "Settings.h"
+#include "game/Settings.h"
 #include "game/Level.h"
 #include "game/Mod.h"
 #include "game/SettingsPreset.h"

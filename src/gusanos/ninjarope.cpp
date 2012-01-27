@@ -15,7 +15,7 @@
 #endif
 #include "part_type.h"
 #include "game/CMap.h"
-#include "context.h"
+#include "luaapi/context.h"
 
 #include <vector>
 

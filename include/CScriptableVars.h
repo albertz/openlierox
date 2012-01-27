@@ -26,7 +26,7 @@
 #include "PreInitVar.h"
 #include "util/CustomVar.h"
 #include "CVec.h"
-#include "WeakRef.h"
+#include "util/WeakRef.h"
 #include "CodeAttributes.h"
 #include "StaticAssert.h"
 

@@ -42,7 +42,7 @@
 #include "WeaponDesc.h"
 #include "game/Game.h"
 #include "sound/SoundsBase.h"
-#include "Sounds.h"
+#include "game/Sounds.h"
 #include "CGameScript.h"
 
 
