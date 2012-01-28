@@ -90,8 +90,6 @@ CWorm::~CWorm() {
 // Clear the worm details
 void CWorm::Clear()
 {
-	game.onRemoveWorm(this);
-	
 	bSpawnedOnce = false;
 	bCanRespawnNow = false;
 	iID = 0;
@@ -303,9 +301,6 @@ void CWorm::Prepare()
 }
 
 void CWorm::Unprepare() {
-	if(bLocal)
-		game.onRemoveWorm(this);
-
 	bAlive = false;
 	health = 0;
 	bWeaponsReady = false;

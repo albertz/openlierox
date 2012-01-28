@@ -106,13 +106,6 @@ void CWorm::gusShutdown()
 	}
 
 	skin = skinMask = NULL;
-		
-	// We must unlink the object now from the list because this destructor
-	// is not called from Gusanos but from CClient.
-	// NOTE: Not really the best way but I don't know a better way
-	// Game.onNewWorm has inserted the object into the list.
-	game.objects.unlink(this);
-	game.objects.unlink(&cNinjaRope);
 	
 	NetWorm_Shutdown();
 }
@@ -938,6 +931,8 @@ void CWorm::makeReference()
 
 void CWorm::finalize()
 {
+	game.onRemoveWorm(this);
+
 	EACH_CALLBACK(i, wormRemoved) {
 		(lua.call(*i), getLuaReference())();
 	}

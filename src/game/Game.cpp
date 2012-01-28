@@ -303,19 +303,22 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 	return false;
 }
 
-
 void Game::onNewWorm(CWorm* w) {
-	//if(!game.gameScript()->gusEngineUsed()) return;
-
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	objects.insertImmediately(w->getNinjaRope(), 1, 1);
 }
 
 void Game::onRemoveWorm(CWorm* w) {
-/*
-	objects.(w, Grid::WormColLayer, Grid::WormRenderLayer);
-	if(w->getNinjaRopeObj()) objects.insertImmediately(w->getNinjaRopeObj(), 1, 1);
-*/
+	// We must unlink the object now from the list because this destructor
+	// is not called from Gusanos but from CClient.
+	// NOTE: Not really the best way but I don't know a better way
+	// Game.onNewWorm has inserted the object into the list.
+	objects.unlink(w);
+	objects.unlink(w->getNinjaRope());
+
+	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
+	assert(i->second == w);
+	m_worms.erase(i);
 }
 
 void Game::onNewPlayer(CWormInputHandler* player) {
@@ -509,11 +512,8 @@ int Game::getNewUniqueWormId() {
 
 void Game::removeWorm(CWorm* w) {
 	assert(w != NULL);
-	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
-	assert(i != m_worms.end());
-	assert(i->second == w);
-	m_worms.erase(i);
-	w->deleteMe = true;
+	w->Shutdown();
+	w->deleteThis();
 }
 
 static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getName(); }
