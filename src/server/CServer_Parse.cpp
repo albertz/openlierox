@@ -2068,7 +2068,7 @@ void GameServer::ParseServerRegistered(const SmartPointer<NetworkSocket>& tSocke
 
 void CServerNetEngine::ParseRequestWormRespawn(CBytestream* bs) {
 	byte wormId = bs->readByte();
-	if( wormId < 0 || wormId >= MAX_WORMS || !cl->OwnsWorm(wormId) ) {
+	if( wormId >= MAX_WORMS || !cl->OwnsWorm(wormId) ) {
 		warnings << "ParseRequestWormRespawn: worm id " << wormId << " invalid" << endl;
 		return;
 	}
