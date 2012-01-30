@@ -138,13 +138,14 @@ sigjmp_buf longJumpBuffer;
 
 static ThreadPoolItem* mainLoopThread = NULL;
 
-
+#ifndef SINGLETHREADED
 static SDL_Event QuitEventThreadEvent() {
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
 	ev.user.code = UE_QuitEventThread;	
 	return ev;
 }
+#endif
 
 
 void startMainLockDetector() {
@@ -478,11 +479,13 @@ startpoint:
 	}
 	startupCommands.clear(); // don't execute them again
 		
-//#ifndef SINGLETHREADED
+#ifdef SINGLETHREADED
+	static MainLoopTask mainLoop;
+#else
 	mainLoopThread = threadPool->start(new MainLoopTask(), "main loop", false);
 
 	startMainLockDetector();
-//#endif
+#endif
 
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
@@ -490,7 +493,11 @@ startpoint:
 		SDL_Event ev;
 		memset( &ev, 0, sizeof(ev) );
 		while(true) {
+#ifdef SINGLETHREADED
+			while( SDL_PollEvent(&ev) ) {
+#else
 			while( SDL_WaitEvent(&ev) ) {
+#endif
 				if(ev.type == SDL_USEREVENT) {
 					switch(ev.user.code) {
 						case UE_QuitEventThread:
@@ -514,8 +521,13 @@ startpoint:
 				mainQueue->push(ev);
 			}
 			
+#ifdef SINGLETHREADED
+			if(NegResult r = mainLoop.handleFrame())
+				break;
+#elif
 			notes << "error while waiting for next event" << endl;
 			SDL_Delay(200);
+#endif
 		}
 	}
 	
@@ -704,6 +716,9 @@ Result MainLoopTask::handle_Menu() {
 	CapFPS();
 	SetCrashHandlerReturnPoint("Menu_Loop");
 
+#ifdef SINGLETHREADED
+	last_frame_was_because_of_an_event = ProcessEvents();
+#else
 	if(last_frame_was_because_of_an_event || bDedicated) {
 		// Use ProcessEvents() here to handle other processes in queue.
 		// There aren't probably any but it has also the effect that
@@ -714,6 +729,7 @@ Result MainLoopTask::handle_Menu() {
 	} else {
 		last_frame_was_because_of_an_event = WaitForNextEvent();
 	}
+#endif
 
 	ProcessIRC();
 
@@ -776,9 +792,11 @@ Result MainLoopTask::handle_AfterGame() {
 }
 
 Result MainLoopTask::handle_Quit() {
+#ifndef SINGLETHREADED
 	SDL_Event quitEv = QuitEventThreadEvent();
 	if(!bDedicated)
 		while(SDL_PushEvent(&quitEv) < 0) {}
+#endif
 	return "quit";
 }
 

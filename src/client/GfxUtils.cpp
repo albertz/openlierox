@@ -71,7 +71,10 @@ struct ScopedBackgroundLoadingAni::Data {
 ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int ry, Color fg, Color bg, LoadingAniType type) {
 	data = NULL;
 	if(bDedicated) return;
-	
+#ifdef SINGLETHREADED
+	return;
+#endif
+
 	data = new Data();
 	struct Animator : Action {
 		int x, y, rx, ry;
