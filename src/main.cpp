@@ -137,7 +137,6 @@ sigjmp_buf longJumpBuffer;
 #endif
 
 static ThreadPoolItem* mainLoopThread = NULL;
-static int MainLoopThread(void*);
 
 
 static SDL_Event QuitEventThreadEvent() {
@@ -307,6 +306,30 @@ struct VideoHandler {
 
 static VideoHandler videoHandler;
 
+struct MainLoopTask : LoopTask {
+	enum State {
+		State_Startup,
+		State_BeforeMenu,
+		State_Menu,
+		State_AfterMenu,
+		State_Game,
+		State_AfterGame,
+		State_Quit
+	};
+	State state;
+	AbsTime menuStartTime;
+	bool last_frame_was_because_of_an_event;
+	MainLoopTask() : state(State_Startup) {}
+	Result handle_Startup();
+	Result handle_BeforeMenu();
+	Result handle_Menu();
+	Result handle_AfterMenu();
+	Result handle_Game();
+	Result handle_AfterGame();
+	Result handle_Quit();
+	Result handleFrame();
+};
+
 
 // ParseArguments will set this eventually to true
 static bool afterCrash = false;
@@ -455,11 +478,11 @@ startpoint:
 	}
 	startupCommands.clear(); // don't execute them again
 		
-#ifndef SINGLETHREADED
-	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
+//#ifndef SINGLETHREADED
+	mainLoopThread = threadPool->start(new MainLoopTask(), "main loop", false);
 
 	startMainLockDetector();
-#endif
+//#endif
 
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
@@ -597,7 +620,7 @@ void doActionInMainThread(Action* act) {
 }
 
 
-static int MainLoopThread(void*) {
+Result MainLoopTask::handle_Startup() {
 	setCurThreadPriority(0.5f);
 	tLX->bQuitGame = false;
 
@@ -627,51 +650,150 @@ static int MainLoopThread(void*) {
 		}
 
 		ShutdownLieroX();
-		return 0;
+		return "quit";
 	}
 
+	state = State_BeforeMenu;
+	return true;
+}
 
-	while(!tLX->bQuitGame) {
-		SetCrashHandlerReturnPoint("MainLoopThread before lobby");
-		
-		cClient->SetSocketWithEvents(true);
-		cServer->SetSocketWithEvents(true);
-		menu_startgame = false; // the menu has a reference to this variable
-		ResetQuitEngineFlag();
-		DeprecatedGUI::Menu_Start();	// Start and run the menu, won't return 'till user joins game / exits
-		cClient->SetSocketWithEvents(false);
-		cServer->SetSocketWithEvents(false);
-		
-		if(!menu_startgame) {
-			// Quit
-			tLX->bQuitGame = true;
-			break;
-		}
-		
-		if(tLX->bQuitEngine)
-			// If we already set the quitengine flag, we want to go back to the menu.
-			// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
-			// a single menu-frame, we quit the menu and set the quitengine flag
-			continue;
-		
-		game.prepareGameloop();
-
-		//
-        // Main game loop
-        //
-		while(!tLX->bQuitEngine)
-			game.frameOuter();
-		
-		game.cleanupAfterGameloopEnd();
+Result MainLoopTask::handle_BeforeMenu() {
+	if(tLX->bQuitGame) {
+		state = State_Quit;
+		return true;
 	}
 
+	SetCrashHandlerReturnPoint("MainLoopThread before lobby");
+
+	cClient->SetSocketWithEvents(true);
+	cServer->SetSocketWithEvents(true);
+	menu_startgame = false; // the menu has a reference to this variable
+	ResetQuitEngineFlag();
+
+	DeprecatedGUI::tMenu->bMenuRunning = true;
+
+	if(!bDedicated) {
+		if(!DeprecatedGUI::iSkipStart) {
+			notes << "Loading main menu" << endl;
+			DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
+			DeprecatedGUI::Menu_MainInitialize();
+		} else
+			DeprecatedGUI::Menu_RedrawMouse(true);
+	}
+
+	DeprecatedGUI::iSkipStart = false;
+
+	menuStartTime = tLX->currentTime = GetTime();
+	last_frame_was_because_of_an_event = true;
+	last_frame_was_because_of_an_event = ProcessEvents();
+
+	state = State_Menu;
+	return true;
+}
+
+Result MainLoopTask::handle_Menu() {
+	if(!DeprecatedGUI::tMenu->bMenuRunning) {
+		state = State_AfterMenu;
+		return true;
+	}
+
+	AbsTime oldtime = tLX->currentTime;
+
+	DeprecatedGUI::Menu_Frame();
+	if(!DeprecatedGUI::tMenu->bMenuRunning) return true;
+	CapFPS();
+	SetCrashHandlerReturnPoint("Menu_Loop");
+
+	if(last_frame_was_because_of_an_event || bDedicated) {
+		// Use ProcessEvents() here to handle other processes in queue.
+		// There aren't probably any but it has also the effect that
+		// we run the loop another time after an event which is sometimes
+		// because of the current code needed. Sometimes after an event,
+		// some new menu elements got initialised but not drawn.
+		last_frame_was_because_of_an_event = ProcessEvents();
+	} else {
+		last_frame_was_because_of_an_event = WaitForNextEvent();
+	}
+
+	ProcessIRC();
+
+	tLX->currentTime = GetTime();
+	tLX->fDeltaTime = tLX->currentTime - oldtime;
+	tLX->fRealDeltaTime = tLX->fDeltaTime;
+
+	// If we have run fine for >=5 seconds, it is probably safe & make sense
+	// to restart the game in case of a crash.
+	if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
+		CrashHandler::restartAfterCrash = true;
+
+	return true;
+}
+
+Result MainLoopTask::handle_AfterMenu() {
+	// If we go out of the menu, it means the user has selected something.
+	// This indicates that everything is fine, so we should restart in case of a crash.
+	// Note that we will set this again to false later on in case the user quitted.
+	CrashHandler::restartAfterCrash = true;
+
+	cClient->SetSocketWithEvents(false);
+	cServer->SetSocketWithEvents(false);
+		
+	if(!menu_startgame) {
+		// Quit
+		tLX->bQuitGame = true;
+		state = State_Quit;
+		return true;
+	}
+
+	if(tLX->bQuitEngine) {
+		// If we already set the quitengine flag, we want to go back to the menu.
+		// Sometimes, when we get both a PrepareGame and a GotoLobby packet in
+		// a single menu-frame, we quit the menu and set the quitengine flag
+		state = State_BeforeMenu;
+		return true;
+	}
+
+	game.prepareGameloop();
+
+	state = State_Game;
+	return true;
+}
+
+Result MainLoopTask::handle_Game() {
+	if(tLX->bQuitEngine) {
+		state = State_AfterGame;
+		return true;
+	}
+
+	game.frameOuter();
+	return true;
+}
+
+Result MainLoopTask::handle_AfterGame() {
+	game.cleanupAfterGameloopEnd();
+	state = State_BeforeMenu;
+	return true;
+}
+
+Result MainLoopTask::handle_Quit() {
 	SDL_Event quitEv = QuitEventThreadEvent();
 	if(!bDedicated)
 		while(SDL_PushEvent(&quitEv) < 0) {}
-
-	return 0;
+	return "quit";
 }
 
+Result MainLoopTask::handleFrame() {
+	switch(state) {
+	case State_Startup: return handle_Startup();
+	case State_BeforeMenu: return handle_BeforeMenu();
+	case State_Menu: return handle_Menu();
+	case State_AfterMenu: return handle_AfterMenu();
+	case State_Game: return handle_Game();
+	case State_AfterGame: return handle_AfterGame();
+	case State_Quit: return handle_Quit();
+	}
+	return "invalid state";
+}
 
 
 ///////////////////

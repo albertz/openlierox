@@ -234,25 +234,6 @@ void Menu_Shutdown()
 }
 
 
-///////////////////
-// Start the menu
-void Menu_Start()
-{
-	tMenu->bMenuRunning = true;
-
-	if(!bDedicated) {
-		if(!iSkipStart) {
-			notes << "Loading main menu" << endl;
-			tMenu->iMenuType = MNU_MAIN;
-			Menu_MainInitialize();
-		} else
-			Menu_RedrawMouse(true);
-	}
-
-	iSkipStart = false;
-	Menu_Loop();
-}
-
 
 ///////////////////
 // Set the skip start bit
@@ -354,52 +335,6 @@ void Menu_Frame() {
 	doVideoFrameInMainThread();
 }
 
-
-///////////////////
-// Main menu loop
-void Menu_Loop()
-{	
-	AbsTime menuStartTime = tLX->currentTime = GetTime();
-		
-	bool last_frame_was_because_of_an_event = false;
-	last_frame_was_because_of_an_event = ProcessEvents();
-	
-	while(tMenu->bMenuRunning) {
-		AbsTime oldtime = tLX->currentTime;
-
-		Menu_Frame();
-		if(!tMenu->bMenuRunning) break;
-		CapFPS();
-		SetCrashHandlerReturnPoint("Menu_Loop");
-		
-		if(last_frame_was_because_of_an_event || bDedicated) {
-			// Use ProcessEvents() here to handle other processes in queue.
-			// There aren't probably any but it has also the effect that
-			// we run the loop another time after an event which is sometimes
-			// because of the current code needed. Sometimes after an event,
-			// some new menu elements got initialised but not drawn.
-			last_frame_was_because_of_an_event = ProcessEvents();
-		} else {
-			last_frame_was_because_of_an_event = WaitForNextEvent();
-		}
-		
-		ProcessIRC();
-
-		tLX->currentTime = GetTime();
-		tLX->fDeltaTime = tLX->currentTime - oldtime;
-		tLX->fRealDeltaTime = tLX->fDeltaTime;
-		
-		// If we have run fine for >=5 seconds, it is probably safe & make sense
-		// to restart the game in case of a crash.
-		if(tLX->currentTime - menuStartTime >= TimeDiff(5.0f))
-			CrashHandler::restartAfterCrash = true;			
-	}
-	
-	// If we go out of the menu, it means the user has selected something.
-	// This indicates that everything is fine, so we should restart in case of a crash.
-	// Note that we will set this again to false later on in case the user quitted.
-	CrashHandler::restartAfterCrash = true;
-}
 
 
 ///////////////////

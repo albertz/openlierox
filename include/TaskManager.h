@@ -40,6 +40,18 @@ struct Task : Action {
 	virtual std::string statusText() { return ""; } // if this is not empty, OLX will show the status of this tasks if you are in the menu
 };
 
+struct LoopTask : Task {
+	virtual Result handleFrame() = 0;
+	virtual Result handle() {
+		while(true) {
+			if(breakSignal) return "break";
+			if(NegResult r = handleFrame())
+				return r.res;
+		}
+		return true;
+	}
+};
+
 // small Task holder helper - task mutex is locked while this exists
 struct ScopedTask : RefCounter {
 	Task* task;
