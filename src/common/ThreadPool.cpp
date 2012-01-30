@@ -115,7 +115,9 @@ ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool hea
 	SDL_mutexP(startMutex); // If start() method will be called from different threads without mutex, hard-to-find crashes will occur
 	SDL_mutexP(mutex);
 	if(availableThreads.size() == 0) {
+#ifndef SINGLETHREADED
 		warnings << "no available thread in ThreadPool for " << name << ", creating new one..." << endl;
+#endif
 		prepareNewThread();
 	}
 	assert(nextAction == NULL);
@@ -209,6 +211,9 @@ void ThreadPool::dumpState(CmdLineIntf& cli) const {
 ThreadPool* threadPool = NULL;
 
 void InitThreadPool(unsigned int size) {
+#ifdef SINGLETHREADED
+    size = 0;
+#endif
 	if(!threadPool)
 		threadPool = new ThreadPool(size);
 	else

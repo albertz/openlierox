@@ -455,8 +455,10 @@ startpoint:
 	}
 	startupCommands.clear(); // don't execute them again
 		
-	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
-	
+#ifndef SINGLETHREADED
+    mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
+#endif
+
 	startMainLockDetector();
 	
 	if(!bDedicated) {
