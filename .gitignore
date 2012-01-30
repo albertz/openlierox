@@ -19,6 +19,8 @@ CMakeScripts
 Makefile
 cmake_install.cmake
 *.cmake.user
+CMakeLists.txt.user*
+/openlierox.cbp
 
 bin
 *~
