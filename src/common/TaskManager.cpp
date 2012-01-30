@@ -97,7 +97,7 @@ void TaskManager::start(Task* t, QueueType queue) {
 			t->manager = this;
 
 			oldTask.task->breakSignal = true;
-			oldTask.task->queuedTask = t;
+			oldTask.task->replacingTask = t;
 			return;
 		}
 		
@@ -124,18 +124,18 @@ void TaskManager::start(Task* t, QueueType queue) {
 				boost::shared_ptr<Mutex> m = task->mutex;
 				Mutex::ScopedLock lock(*m);
 				
-				if(task->queuedTask) {
+				if(task->replacingTask) {
 					if(!task->manager->quitSignal) {
-						Mutex::ScopedLock lock(*task->queuedTask->mutex);
-						task->manager->runningTasks.insert(task->queuedTask);
+						Mutex::ScopedLock lock(*task->replacingTask->mutex);
+						task->manager->runningTasks.insert(task->replacingTask);
 						TaskHandler* handler = new TaskHandler();
-						handler->task = task->queuedTask;
-						task->queuedTask->state = Task::TS_WAITFORIMMSTART;
-						threadPool->start(handler, task->queuedTask->name + " handler", true);
+						handler->task = task->replacingTask;
+						task->replacingTask->state = Task::TS_WAITFORIMMSTART;
+						threadPool->start(handler, task->replacingTask->name + " handler", true);
 					}
 					else
 						// We were requested to quit, i.e. we should not start this queued task anymore.
-						delete task->queuedTask;
+						delete task->replacingTask;
 				}
 				
 				task->manager->runningTasks.erase(task);

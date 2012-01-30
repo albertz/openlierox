@@ -25,7 +25,7 @@ struct CmdLineIntf;
 struct SDL_Surface;
 
 struct Task : Action {
-	Task() : manager(NULL), state(TS_INVALID), mutex(new Mutex()), breakSignal(false), queuedTask(NULL) {}
+	Task() : manager(NULL), state(TS_INVALID), mutex(new Mutex()), breakSignal(false), replacingTask(NULL) {}
 	virtual ~Task() {}
 	
 	TaskManager* manager;
@@ -33,8 +33,8 @@ struct Task : Action {
 	enum State { TS_QUEUED, TS_WAITFORIMMSTART, TS_RUNNING, TS_RUNNINGQUEUED, TS_INVALID } state;
 	boost::shared_ptr<Mutex> mutex;
 	volatile bool breakSignal;
-	Task* queuedTask;
-	
+	Task* replacingTask;
+
 	virtual int handle() = 0;
 	virtual std::string statusText() { return ""; } // if this is not empty, OLX will show the status of this tasks if you are in the menu
 };
