@@ -598,7 +598,6 @@ public:
 	
 	void gusInit();
 	void gusShutdown();
-	void deleteThis();
 		
 	void draw(CViewport* viewport);
 	

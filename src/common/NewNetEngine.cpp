@@ -46,6 +46,8 @@ void SaveState()
 
 void RestoreState()
 {
+	assert(false); // this code here is outdated and should be checked before used!
+
 	netRandom = netRandom_Saved;
 	cClient->fLastSimulationTime = cClientLastSimulationTime;
 	game.gameMap()->NewNet_RestoreFromMemory();

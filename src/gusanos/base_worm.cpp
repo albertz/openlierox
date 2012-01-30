@@ -110,21 +110,6 @@ void CWorm::gusShutdown()
 	NetWorm_Shutdown();
 }
 
-void CWorm::deleteThis() {
-	notes << "CWorm:deleteThis: " << getID() << ":" << getName() << endl;
-	
-	finalize();
-	
-	if(luaReference)
-	{
-		lua.destroyReference(luaReference);
-		luaReference.reset();
-	}
-	else
-		delete this;
-}
-
-
 Weapon* CWorm::getCurrentWeaponRef()
 {
 	if(currentWeapon >= m_weapons.size())
@@ -931,8 +916,6 @@ void CWorm::makeReference()
 
 void CWorm::finalize()
 {
-	game.onRemoveWorm(this);
-
 	EACH_CALLBACK(i, wormRemoved) {
 		(lua.call(*i), getLuaReference())();
 	}
@@ -942,6 +925,9 @@ void CWorm::finalize()
 		m_weapons[i] = 0;
 	}
 	
+	game.onRemoveWorm(this);
+	thisWeakRef.overwriteShared(NULL);
+
 	if(m_node) delete m_node; m_node = 0;
 	if(m_interceptor) delete m_interceptor; m_interceptor = 0;
 }
