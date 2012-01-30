@@ -169,7 +169,7 @@ bool BitStream::testInt()
 	for (int i = 0; i < 32; i++)
 		addInt(1 << i, i + 1);
 	for (int i = 0; i < 32; i++)
-		if (getInt(i + 1) != (1 << i))
+		if (getInt(i + 1) != (uint32_t(1) << i))
 			return false;
 	return true;
 }
