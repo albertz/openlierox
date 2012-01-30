@@ -341,7 +341,7 @@ void Menu_Net_ServerList_Refresher() {
 	if(bDedicated) return; // not needed to do that
 
 	struct Refresher : Action {
-		int handle() {
+		Result handle() {
 			switch(iNetMode) {
 				case net_internet:
 					Menu_Net_NET_ServerList_Refresher();
@@ -356,7 +356,7 @@ void Menu_Net_ServerList_Refresher() {
 					// ignore
 					break;
 			}
-			return 0;
+			return true;
 		}
 	};
 	mainQueue->push(new Refresher());

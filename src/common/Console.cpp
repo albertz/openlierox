@@ -127,7 +127,7 @@ struct IngameConsole : CmdLineIntf {
 		}
 	}
 	
-	int handler() {
+	Result handler() {
 		Mutex::ScopedLock lock(mutex);
 		while(!quit) {
 			{
@@ -140,7 +140,7 @@ struct IngameConsole : CmdLineIntf {
 			if(keyQueue.size() > 0) continue;
 			changeSignal.wait(mutex);
 		}
-		return 0;
+		return true;
 	}
 
 	// -------- CmdLineIntf ---------

@@ -1146,19 +1146,19 @@ struct UdpUpdater : Task {
 	ServerList *m_list;
 
 	UdpUpdater(ServerList *l) : m_list(l) { name = "udp serverlist updater"; }
-	int handle() { return SvrList_UpdaterFunc(); }
-	int SvrList_UpdaterFunc();
+	Result handle() { return SvrList_UpdaterFunc(); }
+	Result SvrList_UpdaterFunc();
 };
 
-int UdpUpdater::SvrList_UpdaterFunc()
+Result UdpUpdater::SvrList_UpdaterFunc()
 {
 	std::list<std::string> tUdpMasterServers = getUdpMasterServerList();
-	if(breakSignal) return -1;
+	if(breakSignal) return "break";
 	
 	// Open socket for networking
 	NetworkSocket sock;
 	if (!sock.OpenUnreliable(0)) 
-		return -1;
+		return "failed to open unreliable socket";
 	
 	// Get serverlist from all the servers in the file
 	int UdpServerIndex = 0;
@@ -1241,7 +1241,7 @@ int UdpUpdater::SvrList_UpdaterFunc()
 	}
 	
 	DeprecatedGUI::Menu_Net_ServerList_Refresher();
-	return 0;
+	return true;
 }
 
 void ServerList::updateUDPList()
@@ -1352,9 +1352,9 @@ struct ServerListUpdater : Task {
 	ServerList *m_list;
 	ServerListUpdater(ServerList *l) : m_statusTxt("Updating server list ..."), m_list(l) { name = "server list updater"; }
 	
-	int handle() {
+	Result handle() {
 		updateServerList();
-		return 0;
+		return true;
 	}
 	
 	std::string statusText() {

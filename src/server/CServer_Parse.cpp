@@ -637,24 +637,24 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 					std::string solution;
 					SuggestionSender(int i, CServerNetEngine* c, const std::string& req, const std::string& sol)
 					: AutocompleteSender(i,c), request(req), solution(sol) {}
-					int handle() {
-						if(!checkValid()) return -1;
+					Result handle() {
+						if(!checkValid()) return "not valid";
 						cl->SendChatCommandCompletionSolution(request, solution);
-						return 0;
+						return true;
 					}
 				};
 
 				struct MsgSender : AutocompleteSender {
 					std::string msg;
 					MsgSender(int i, CServerNetEngine* c, const std::string& m) : AutocompleteSender(i,c), msg(m) {}
-					int handle() {
-						if(!checkValid()) return -1;
+					Result handle() {
+						if(!checkValid()) return "not valid";
 						cl->SendText(msg, TXT_NOTICE);
-						return 0;
+						return true;
 					}
 				};
 								
-				int handle() {
+				Result handle() {
 					AutoComplete(cmdToBeCompleted, cmdToBeCompleted.size(), cli, info);
 					bool fail = false;
 					AutocompletionInfo::InputState replace;
@@ -668,7 +668,7 @@ void CServerNetEngineBeta7::ParseChatCommandCompletionRequest(CBytestream *bs) {
 					if(!fail)
 						// we need to do that from the gameloopthread
 						mainQueue->push(new SuggestionSender(conn.connectionIndex, conn.cl, oldChatCmd, replaceStr));						
-					return 0;
+					return true;
 				}
 			};
 			

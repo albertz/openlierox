@@ -148,7 +148,7 @@ static SDL_Event QuitEventThreadEvent() {
 }
 
 
-static void startMainLockDetector() {
+void startMainLockDetector() {
 	if(!tLXOptions->bUseMainLockDetector) return;
 	
 	struct MainLockDetector : Action {
@@ -163,13 +163,13 @@ static void startMainLockDetector() {
 			}
 			return true;
 		}
-		int handle() {
+		Result handle() {
 			// We should always have tLX!=NULL here as we uninit it after the thread-shutdown now.
 			while(tLX && !tLX->bQuitGame) {
 				AbsTime oldTime = tLX->currentTime;
-				if(!wait(1000)) return 0;
-				if(!tLX) return 0;
-				if(tLX->bQuitGame) return 0;
+				if(!wait(1000)) return true;
+				if(!tLX) return true;
+				if(tLX->bQuitGame) return true;
 				if(IsWaitingForEvent()) continue;
 				
 				// HINT: Comment that out and you'll find a lot of things in OLX which could be improved.
@@ -182,7 +182,7 @@ static void startMainLockDetector() {
 					//OlxWriteCoreDump("mainlock");
 					//RaiseDebugger();
 					
-					if(!wait(5*1000)) return 0;
+					if(!wait(5*1000)) return true;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						hints << "Still locked after 5 seconds. Current threads:" << endl;
 						threadPool->dumpState(stdoutCLI());
@@ -192,7 +192,7 @@ static void startMainLockDetector() {
 					else continue;
 					
 					// pause for a while, don't be so hard
-					if(!wait(25*1000)) return 0;
+					if(!wait(25*1000)) return true;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						warnings << "we still are locked after 30 seconds" << endl;
 						if(tLXOptions && tLXOptions->bFullscreen) {
@@ -205,7 +205,7 @@ static void startMainLockDetector() {
 					else continue;
 				
 					// pause for a while, don't be so hard
-					if(!wait(25*1000)) return 0;
+					if(!wait(25*1000)) return true;
 					if(tLX && !tLX->bQuitGame && oldTime == tLX->currentTime) {
 						errors << "we still are locked after 60 seconds" << endl;
 						if(!AmIBeingDebugged()) {
@@ -215,7 +215,7 @@ static void startMainLockDetector() {
 					}
 				}
 			}
-			return 0;
+			return true;
 		}
 	};
 	threadPool->start(new MainLockDetector(), "main lock detector", true);
@@ -456,11 +456,11 @@ startpoint:
 	startupCommands.clear(); // don't execute them again
 		
 #ifndef SINGLETHREADED
-    mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
-#endif
+	mainLoopThread = threadPool->start(MainLoopThread, NULL, "mainloop");
 
 	startMainLockDetector();
-	
+#endif
+
 	if(!bDedicated) {
 		// Get all SDL events and push them to our event queue.
 		// We have to do that in the same thread where we inited the video because of SDL.
@@ -1249,16 +1249,16 @@ void updateFileListCaches() {
 	// just create one single task for all because it wouldn't make it faster by doing that parallel
 	struct Updater : Task {
 		Updater() { name = "updateFileListCaches"; }
-		int handle() {
-			if(breakSignal) return -1;
+		Result handle() {
+			if(breakSignal) return "break";
 			mapList->update();
-			if(breakSignal) return -1;
+			if(breakSignal) return "break";
 			modList->update();
-			if(breakSignal) return -1;
+			if(breakSignal) return "break";
 			skinList->update();
-			if(breakSignal) return -1;
+			if(breakSignal) return "break";
 			settingsPresetList->update();
-			return 0;
+			return true;
 		}
 		std::string statusText() {
 			return "Updating file list cache ...";

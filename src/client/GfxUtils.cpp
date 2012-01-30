@@ -79,7 +79,7 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 		Color fg, bg;
 		Data* data;
 		
-		int handle() {
+		Result handle() {
 			Mutex::ScopedLock lock(data->mutex);
 			while(!data->quit) {
 				// Kind of a hack: we update the time so that mainlockdetector does not break this
@@ -93,7 +93,7 @@ ScopedBackgroundLoadingAni::ScopedBackgroundLoadingAni(int x, int y, int rx, int
 				
 				data->breakSig.wait(data->mutex, 10);
 			}
-			return 0;
+			return true;
 		}
 	};
 	

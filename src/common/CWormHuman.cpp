@@ -90,12 +90,13 @@ void CWormHumanInputHandler::getInput() {
 	
 	if(mouseControl)
 	{
+		// TODO: this will not work ...
 		struct CenterMouse: public Action
 		{
-			int handle()
+			Result handle()
 			{
 				SDL_WarpMouse(640/2, 480/2); // Should be called from main thread, or you'll get race condition with libX11
-				return 0;
+				return true;
 			} 
 		};
 		doActionInMainThread( new CenterMouse() );

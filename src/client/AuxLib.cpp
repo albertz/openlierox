@@ -1227,10 +1227,10 @@ void EnableSystemMouseCursor(bool enable)
 		bool Enable;
 		
 		EnableMouseCursor(bool b): Enable(b) {};
-		int handle()
+		Result handle()
 		{
 			SDL_ShowCursor(Enable ? SDL_ENABLE : SDL_DISABLE ); // Should be called from main thread, or you'll get race condition with libX11
-			return 0;
+			return true;
 		} 
 	};
 	doActionInMainThread( new EnableMouseCursor(enable) );

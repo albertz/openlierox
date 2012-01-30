@@ -100,8 +100,8 @@ struct CGameSkin::Thread {
 		struct SkinActionHandler : Action {
 			CGameSkin* skin;
 			SkinActionHandler(CGameSkin* s) : skin(s) {}
-			int handle() {
-				int lastRet = 0;
+			Result handle() {
+				Result lastRet(true);
 				Mutex::ScopedLock lock(skin->thread->mutex);
 				while(skin->thread->actionQueue.size() > 0) {
 					skin->thread->curAction = skin->thread->actionQueue.front();
@@ -194,11 +194,11 @@ CGameSkin::~CGameSkin()
 struct SkinAction_Load : Skin_Action {
 	bool genPreview;
 	SkinAction_Load(CGameSkin* s, bool p) : Skin_Action(s), genPreview(p) {}
-	int handle() {
+	Result handle() {
 		skin->Load_Execute(breakSignal);
-		if(breakSignal) return 0;
+		if(breakSignal) return true;
 		if(genPreview) skin->GeneratePreview();	
-		return 0;
+		return true;
 	}
 };
 
@@ -624,9 +624,9 @@ void CGameSkin::DrawShadowOnMap(CMap* cMap, CViewport* v, SDL_Surface *surf, int
 
 struct SkinAction_Colorize : Skin_Action {
 	SkinAction_Colorize(CGameSkin* s) : Skin_Action(s) {}
-	int handle() {
+	Result handle() {
 		skin->Colorize_Execute(breakSignal);
-		return 0;
+		return true;
 	}
 };
 

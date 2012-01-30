@@ -346,7 +346,7 @@ void Menu_Frame() {
 
 	// we need to clone the screen buffer because of the current way we are drawing the menu
 	struct CopyScreenBuffer : Action {
-		int handle() { VideoPostProcessor::cloneBuffer(); return 0; }
+		Result handle() { VideoPostProcessor::cloneBuffer(); return true; }
 	};
 	doVppOperation(new CopyScreenBuffer());
 	

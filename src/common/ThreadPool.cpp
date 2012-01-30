@@ -138,7 +138,7 @@ ThreadPoolItem* ThreadPool::start(Action* act, const std::string& name, bool hea
 ThreadPoolItem* ThreadPool::start(ThreadFunc fct, void* param, const std::string& name) {
 	struct StaticAction : Action {
 		ThreadFunc fct; void* param;
-		int handle() { return (*fct) (param); }
+		Result handle() { return (*fct) (param); }
 	};
 	StaticAction* act = new StaticAction();
 	act->fct = fct;
@@ -212,7 +212,7 @@ ThreadPool* threadPool = NULL;
 
 void InitThreadPool(unsigned int size) {
 #ifdef SINGLETHREADED
-    size = 0;
+	size = 0;
 #endif
 	if(!threadPool)
 		threadPool = new ThreadPool(size);

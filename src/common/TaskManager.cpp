@@ -38,7 +38,7 @@ TaskManager::TaskManager() {
 	struct QueuedTaskHandler : Action {
 		TaskManager* manager;
 		QueuedTaskHandler(TaskManager* m) : manager(m) {}
-		int handle() {
+		Result handle() {
 			ScopedLock lock(manager->mutex);
 			while(true) {
 				if(manager->queuedTasks.size() > 0) {
@@ -51,7 +51,7 @@ TaskManager::TaskManager() {
 					continue;
 				}
 				if(manager->quitSignal) {
-					return 0;
+					return true;
 				}
 				SDL_CondWait(manager->queueThreadWakeup, manager->mutex);
 			}
@@ -97,7 +97,7 @@ void TaskManager::start(Task* t, QueueType queue) {
 			t->manager = this;
 
 			oldTask.task->breakSignal = true;
-			oldTask.task->replacingTask = t;
+						oldTask.task->replacingTask = t;
 			return;
 		}
 		
@@ -109,33 +109,35 @@ void TaskManager::start(Task* t, QueueType queue) {
 	
 	struct TaskHandler : Action {
 		Task* task;
-		int handle() {
+		Result handle() {
 			if(task->manager == NULL) {
 				errors << "TaskManager::TaskHandler: invalid task with unset manager" << endl;
-				return -1;
+				return "invalid task with unset manager";
 			}
 			{
 				Mutex::ScopedLock lock(*task->mutex);
 				task->state = Task::TS_QUEUED ? Task::TS_RUNNINGQUEUED : Task::TS_RUNNING;
 			}
-			int ret = task->breakSignal ? -1 : task->handle();
+			Result ret = task->breakSignal ?
+						Result("breaked even before start") :
+						task->handle();
 			{
 				SDL_mutexP(task->manager->mutex);
 				boost::shared_ptr<Mutex> m = task->mutex;
 				Mutex::ScopedLock lock(*m);
 				
-				if(task->replacingTask) {
+								if(task->replacingTask) {
 					if(!task->manager->quitSignal) {
-						Mutex::ScopedLock lock(*task->replacingTask->mutex);
-						task->manager->runningTasks.insert(task->replacingTask);
+												Mutex::ScopedLock lock(*task->replacingTask->mutex);
+												task->manager->runningTasks.insert(task->replacingTask);
 						TaskHandler* handler = new TaskHandler();
-						handler->task = task->replacingTask;
-						task->replacingTask->state = Task::TS_WAITFORIMMSTART;
-						threadPool->start(handler, task->replacingTask->name + " handler", true);
+												handler->task = task->replacingTask;
+												task->replacingTask->state = Task::TS_WAITFORIMMSTART;
+												threadPool->start(handler, task->replacingTask->name + " handler", true);
 					}
 					else
 						// We were requested to quit, i.e. we should not start this queued task anymore.
-						delete task->replacingTask;
+												delete task->replacingTask;
 				}
 				
 				task->manager->runningTasks.erase(task);

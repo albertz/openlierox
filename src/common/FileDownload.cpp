@@ -305,7 +305,7 @@ DownloadError CHttpDownloader::GetError()
 
 /////////////
 // The main function for the threaded downloading
-int ManagerMain(void *param)
+Result ManagerMain(void *param)
 {
 	CHttpDownloadManager *_this = (CHttpDownloadManager *)param;
 
@@ -318,7 +318,7 @@ int ManagerMain(void *param)
 			SDL_Delay(50);
 	}
 
-	return 0;
+	return true;
 }
 
 /////////////////

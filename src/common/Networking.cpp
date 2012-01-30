@@ -718,7 +718,7 @@ NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
 			return false;			
 		}
 		
-		int handle() {
+		Result handle() {
 			const int maxFPS = tLXOptions ? tLXOptions->nMaxFPS : 100;
 			TimeDiff max_frame_time = TimeDiff(MAX(0.01f, (maxFPS > 0) ? 1.0f/(float)maxFPS : 0.0f));
 			AbsTime lastTime = GetTime();
@@ -742,7 +742,7 @@ NetworkSocket::EventHandler::EventHandler(NetworkSocket* sock) {
 				lastTime = curTime;
 			}
 			
-			return 0;
+			return true;
 		}
 	};
 	
@@ -925,7 +925,7 @@ void NetworkSocket::Close() {
 	
 	struct CloseSocketWorker : Task {
 		NLsocket sock;
-		int handle() {
+		Result handle() {
 			nlSystemUseChangeLock.startReadAccess();
 			int ret = -1;
 			if(bNetworkInited) { // only do that if we have the network system still up
@@ -935,7 +935,7 @@ void NetworkSocket::Close() {
 				ret = (nlClose(sock) != NL_FALSE) ? 0 : -1;
 			}
 			nlSystemUseChangeLock.endReadAccess();
-			return ret;
+						return ret == 0;
 		}
 	};
 	CloseSocketWorker* worker = new CloseSocketWorker();
@@ -1408,7 +1408,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 		std::string addr_name;
 		NetAddrInternal::Ptr_t address;
 		
-		int handle() {
+		Result handle() {
 			if(GetAddrFromNameAsync_Internal(addr_name.c_str(), address.get())) {
 				// TODO: we use default DNS record expire time of 1 hour, we should include some DNS client to make it in correct way
 				AddToDnsCache(addr_name, NetworkAddr(NetAddrInternal(*address.get())));
@@ -1423,7 +1423,7 @@ bool GetNetAddrFromNameAsync(const std::string& name, NetworkAddr& addr)
 			Mutex::ScopedLock l(PendingDnsQueriesMutex);
 			PendingDnsQueries.erase(addr_name);
 			
-			return 0;
+						return true;
 		}
 	};
 	GetAddrFromNameAsync_Executer* data = new GetAddrFromNameAsync_Executer();

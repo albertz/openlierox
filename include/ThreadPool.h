@@ -12,17 +12,18 @@
 
 #include <set>
 #include <string>
+#include "util/Result.h"
 
 struct SDL_mutex;
 struct SDL_cond;
 struct SDL_Thread;
 class ThreadPool;
-typedef int (*ThreadFunc) (void*);
+typedef Result (*ThreadFunc) (void*);
 struct CmdLineIntf;
 
 struct Action {
 	virtual ~Action() {}
-	virtual int handle() = 0;
+	virtual Result handle() = 0;
 };
 
 struct ThreadPoolItem {
@@ -72,10 +73,10 @@ void UnInitThreadPool();
 
 template<typename _T>
 struct _ThreadFuncWrapper {
-	typedef int (_T::* FuncPointer)();
+	typedef Result (_T::* FuncPointer)();
 	template< FuncPointer _func >
 		struct Wrapper {
-			static int wrapper(void* obj) {
+			static Result wrapper(void* obj) {
 				return (((_T*)obj) ->* _func)();
 			}
 			

@@ -166,7 +166,7 @@ struct CurlThread : Action {
 		//curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, (void *)this);	
 	}
 	
-	int handle();
+	Result handle();
 
 	CHttp *			parent;
 	CURL *			curl;
@@ -279,7 +279,7 @@ void CHttp::SendData(const std::list<HTTPPostField>& data, const std::string url
 	threadPool->start(curlThread, "CHttp: " + Url, true);
 }
 
-int CurlThread::handle()
+Result CurlThread::handle()
 {
 	CURLcode res = curl_easy_perform(curl); // Blocks until processing finished
 
@@ -310,7 +310,7 @@ int CurlThread::handle()
 	
 	curl_easy_cleanup(curl);
 
-	return 0;
+	return true;
 }
 
 void CHttp::CancelProcessing() // Non-blocking

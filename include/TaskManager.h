@@ -19,6 +19,7 @@
 #include "ThreadPool.h"
 #include "Mutex.h"
 #include "RefCounter.h"
+#include "util/Result.h"
 
 class TaskManager;
 struct CmdLineIntf;
@@ -35,7 +36,7 @@ struct Task : Action {
 	volatile bool breakSignal;
 	Task* replacingTask;
 
-	virtual int handle() = 0;
+	virtual Result handle() = 0;
 	virtual std::string statusText() { return ""; } // if this is not empty, OLX will show the status of this tasks if you are in the menu
 };
 

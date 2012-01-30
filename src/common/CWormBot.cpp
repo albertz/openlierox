@@ -696,7 +696,7 @@ public:
 
 private:
 	// main-function used by the thread
-	static int threadSearch(void* b) {
+	static Result threadSearch(void* b) {
 
 		searchpath_base* base = (searchpath_base*)b;
 		NEW_ai_node_t* ret;
@@ -707,7 +707,7 @@ private:
 				// was there a break-signal?
 				if(base->shouldBreakThread()) {
 					//printf("got break signal(1) for %i\n", (long)base);
-					return 0;
+					return true;
 				}
 				SDL_Delay(100);
 			}
@@ -738,6 +738,8 @@ private:
 			// we are ready now
 			base->setReady(true);
 		}
+
+		return "should not happen";
 	}
 
 	

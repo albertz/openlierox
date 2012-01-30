@@ -40,7 +40,7 @@ template< typename _Data > class Event;
 
 class CustomEventHandler : public Action {
 public:
-	virtual int handle() = 0;
+	virtual Result handle() = 0;
 	virtual const _Event* owner() const = 0;
 	virtual CustomEventHandler* copy(_Event* newOwner = NULL) const = 0;
 	virtual ~CustomEventHandler() {}
@@ -52,9 +52,9 @@ public:
 	Event<_Data>* m_event;
 	_Data m_data;
 	EventThrower(Event<_Data>* e, _Data d) : m_event(e), m_data(d) {}
-	virtual int handle() {
+	virtual Result handle() {
 		m_event->occurred( m_data );
-		return 0;
+		return true;
 	}
 	virtual const _Event* owner() const { return m_event; }
 	virtual CustomEventHandler* copy(_Event* newOwner) const {

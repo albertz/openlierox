@@ -169,7 +169,7 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 	// Pipe functions
 	
 	// reading lines from pipe-out and put them to pipeOutput
-	static int pipeThreadFunc(void* o) {
+	static Result pipeThreadFunc(void* o) {
 		ScriptCmdLineIntf* owner = (ScriptCmdLineIntf*)o;
 
 		while(!owner->pipe.out().eof()) {
@@ -178,7 +178,7 @@ struct ScriptCmdLineIntf : CmdLineIntf {
 			
 			Execute( owner, buf );
 		}
-		return 0;
+		return true;
 	}
 	
 };
@@ -211,7 +211,7 @@ struct StdinCmdLineIntf : CmdLineIntf {
 	
 	
 	// reading lines from stdin and put them to pipeOutput
-	static int stdinThreadFunc(void* o) {
+	static Result stdinThreadFunc(void* o) {
 		StdinCmdLineIntf* owner = (StdinCmdLineIntf*)o;
 
 #ifndef WIN32
@@ -224,21 +224,21 @@ struct StdinCmdLineIntf : CmdLineIntf {
 			std::string buf;
 			while(true) {
 				SDL_Delay(10); // TODO: select() here
-				if(tLX->bQuitGame) return 0;
+				if(tLX->bQuitGame) return true;
 
 				char c;
 
 				if(read(0, &c, 1) >= 0) {
 					if(c == '\n') break;
 					// TODO: why is this needed? is that WIN32 only?
-					if(c == -52) return 0;  // CTRL-C
+					if(c == -52) return true;  // CTRL-C
 					buf += c;
 				}
 			}
 
 			Execute( owner, buf );
 		}
-		return 0;
+		return true;
 	}	
 };
 
@@ -534,9 +534,9 @@ void DedicatedControl::WormLeft_Signal(CWorm* w) { internData->Sig_WormLeft(w); 
 void DedicatedControl::ChatMessage_Signal(CWorm* w, const std::string& message) { internData->Sig_ChatMessage(w,message); }
 void DedicatedControl::PrivateMessage_Signal(CWorm* w, CWorm* to, const std::string& message) { internData->Sig_PrivateMessage(w,to,message); }
 void DedicatedControl::WormDied_Signal(CWorm* worm, CWorm* killer) { internData->Sig_WormDied(worm->getID(), killer ? killer->getID() : -1); }
-void DedicatedControl::WormSpawned_Signal(CWorm* worm){ internData->Sig_WormSpawned(worm); };
-void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ internData->Sig_WormGotAdmin(worm); };
-void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ internData->Sig_WormAuthorized(worm); };
+void DedicatedControl::WormSpawned_Signal(CWorm* worm){ internData->Sig_WormSpawned(worm); }
+void DedicatedControl::WormGotAdmin_Signal(CWorm* worm){ internData->Sig_WormGotAdmin(worm); }
+void DedicatedControl::WormAuthorized_Signal(CWorm* worm){ internData->Sig_WormAuthorized(worm); }
 void DedicatedControl::Custom_Signal(const std::list<std::string>& args) { internData->pushSignal("custom", args); }
 
 void DedicatedControl::Menu_Frame() { internData->Frame_Basic(); }

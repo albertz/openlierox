@@ -583,10 +583,10 @@ void Cmd_coreDump::exec(CmdLineIntf* caller, const std::vector<std::string>& par
 	caller->writeMsg("Dumping core ...", CNC_NORMAL);
 	doVideoFrameInMainThread();
 	struct Dumper : Action {
-		int handle() {
+		Result handle() {
 			OlxWriteCoreDump("OlxCoreDump.dmp");
 			hints << "Dumping core finished" << endl; // don't use caller here because it's not sure that it still exists
-			return 0;
+			return true;
 		}
 	};
 	doActionInMainThread(new Dumper());
@@ -912,7 +912,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 	{
 		std::vector<std::string> params;
 		WaitThread(const std::vector<std::string>& _params): params(_params) {};
-		int handle()
+		Result handle()
 		{
 			int seconds = atoi(params[0]);
 			if(seconds == 0)
@@ -943,7 +943,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 			}
 			
 			if( ! (tLX && !tLX->bQuitGame) ) // TODO: put mutex here
-				return 1;
+				return "OLX exited";
 				
 			for( std::vector<std::string>::iterator it = (++params.begin()); it != params.end(); )
 			{
@@ -963,10 +963,10 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 					{
 						Command * cmd;
 						std::string params;
-						int handle()
+						Result handle()
 						{
 							cmd->exec( &stdoutCLI(), params );
-							return 0;
+							return true;
 						}
 					};
 					ExecCmd * execCmd = new ExecCmd();
@@ -976,7 +976,7 @@ void Cmd_wait::exec(CmdLineIntf* caller, const std::vector<std::string>& params)
 					mainQueue->push( execCmd );
 				}
 			}
-			return 0;
+			return true;
 		}
 	};
 	
@@ -2311,14 +2311,14 @@ void Cmd_createDummyTask::exec(CmdLineIntf* caller, const std::vector<std::strin
 	struct DummyTask : Task {
 		int counter;
 		DummyTask() : counter(30) { name = "dummy task"; }
-		int handle() {
+		Result handle() {
 			while(counter > 0) {
 				SDL_Delay(1000);
-				if(breakSignal) return -1;
+				if(breakSignal) return "break";
 				Mutex::ScopedLock lock(*mutex);
 				counter--;
 			}
-			return 0;
+			return true;
 		}
 		std::string statusText() {
 			Mutex::ScopedLock lock(*mutex);

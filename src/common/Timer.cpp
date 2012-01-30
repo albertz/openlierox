@@ -173,7 +173,7 @@ struct TimerData {
 			TimerData* data;
 			
 			// thread function
-			int handle() {
+			Result handle() {
 	
 				SDL_mutexP(data->mutex);
 				while(true) {
@@ -187,11 +187,11 @@ struct TimerData {
 						// we have to return it here to ensure that this callback is never called again
 						// we also have to ensure that there is only *one* event with lastEvent=true
 						// (and this event has to be of course the last event for this timer in the queue)
-						return 0;
+						return true;
 					}
 				}
 		
-				return -1;
+				return "should not happen";
 			}
 		
 			TimerHandler(TimerData* d) : data(d) {}

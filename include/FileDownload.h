@@ -151,7 +151,7 @@ private:
 	SDL_mutex					*tMutex;
 	size_t						 iActiveDownloads;
 
-	friend int ManagerMain(void *param);
+	friend Result ManagerMain(void *param);
 	bool						bBreakThread;
 
 public:

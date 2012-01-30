@@ -720,7 +720,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 			CChannel* chan;
 			SmartPointer< ThreadVar<bool> > scope;
 			
-			int handle() {
+			Result handle() {
 				int c = 0;
 				while(true) {
 					{
@@ -736,7 +736,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 					c++; c %= 10;
 					SDL_Delay(100);
 				}
-				return 0;
+				return true;
 			}
 		};
 		
