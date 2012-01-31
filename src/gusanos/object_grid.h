@@ -190,19 +190,6 @@ struct List
 		T const* ptr;
 	};
 	
-/**
-	void insert(T* obj)
-	{
-		obj->nextS_ = firstS;
-		obj->nextD_ = firstD;
-		
-		if(firstD)
-			firstD->prevD_ = obj;
-		firstD = obj;
-		firstS = obj;
-		//++count;
-	}
-	*/
 	void insertS(T* obj)
 	{
 		obj->nextS_ = firstS;
@@ -247,7 +234,6 @@ struct List
 	
 	void unlink(iterator& iter)
 	{
-		//assert(false);
 		if(iter.prev)
 			iter.prev->nextS_ = iter->nextS_;
 		else
@@ -263,8 +249,13 @@ struct List
 			if(iter->nextD_)
 				iter->nextD_->prevD_ = iter->prevD_;
 		}
-		
-		iter.ptr = iter->nextS_;
+
+		T* ptr = iter->nextS_;
+		iter->prevD_ = NULL;
+		iter->nextD_ = NULL;
+		iter->nextS_ = NULL;
+		iter->cellIndex_ = -1;
+		iter.ptr = ptr;
 
 		--count;
 	}
@@ -281,14 +272,7 @@ struct List
 		if(iter->nextD_)
 			iter->nextD_->prevD_ = iter->prevD_;
 	}
-	
-	void unlinkAll()
-	{
-		firstS = 0;
-		firstD = 0;
-		count = 0;
-	}
-		
+			
 	void erase(iterator& iter)
 	{
 		T* p = iter.ptr;
@@ -651,6 +635,7 @@ public:
 	
 	void insert(CGameObject* obj, int colLayer, int renderLayer)
 	{
+		assert(obj->cellIndex_ < 0); // not yet set
 		int squareIndex = getListIndex(obj->pos());
 		obj->cellIndex_ = squareIndex;
 
@@ -672,6 +657,7 @@ public:
 	}
 	
 	void insertImmediately(CGameObject* obj, Layer& layer) {
+		assert(obj->cellIndex_ < 0); // not yet set
 		int cellIndex = getListIndex(obj->pos());
 		obj->cellIndex_ = cellIndex;
 		
@@ -710,47 +696,6 @@ public:
 			o.curLayerIt->list.moveAfter(o.curLayerIt->grid[realIndex].guard(), ObjectList::light_iterator(o.curObj));
 		}
 	}
-	
-/*
-	void relocate()
-	{
-		std::vector<Layer>::iterator i = layers.begin();
-		for(; i != layers.end(); ++i)
-		{
-			ObjectList::iterator o = i->list.begins(), next;
-			for(; i; i = next)
-			{
-				next = boost::next(i);
-				
-				if(o->deleteMe)
-				{
-					i->list.erase(o);
-				}
-				else
-				{
-					int realIndex = getListIndex(o->pos);
-					if(realIndex != o->getListIndex())
-					{
-						o->setListIndex(realIndex);
-						i->list.moveAfter(i->grid[realIndex].guard, o);
-						relocationList.insert(i);
-					}
-				}
-			}
-		}
-		
-		// Move new and relocated objects
-		
-		ObjectList::const_iterator o = relocationList.begin();
-		
-		for(; o; ++o)
-		{
-			lists[o->getListIndex()].insert(o);
-		}
-		
-		relocationList.unlinkAll();
-	}
-*/
 
 	area_iterator beginArea(int x1, int y1, int x2, int y2, int layer)
 	{
