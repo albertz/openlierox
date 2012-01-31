@@ -39,6 +39,10 @@
 #include "game/GameMode.h"
 #include "CodeAttributes.h"
 #include "CGameScript.h"
+#include "gusanos/base_animator.h"
+#include "gusanos/sprite_set.h"
+#include "gusanos/animators.h"
+#include "gusanos/weapon.h"
 
 
 struct CWorm::SkinDynDrawer : DynDrawIntf {
@@ -71,25 +75,7 @@ CWorm::CWorm() : cNinjaRope(this), cSparkles(this), m_fireconeAnimator(NULL), m_
 	m_node = NULL;
 	m_interceptor = NULL;
 
-	Clear();
-	
-	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
-}
-
-CWorm::~CWorm() {	
-	Shutdown();
-	
-	{
-		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
-		skinPreviewDrawerP->worm = NULL;
-	}
-}
-
-
-///////////////////
-// Clear the worm details
-void CWorm::Clear()
-{
+	bPrepared = false;
 	bSpawnedOnce = false;
 	bCanRespawnNow = false;
 	iID = 0;
@@ -100,7 +86,7 @@ void CWorm::Clear()
 	bSpectating = false;
 	iAFK = AFK_BACK_ONLINE;
 	sAFKMessage = "";
-	
+
 	iKills = 0;
 	iDeaths = 0;
 	iSuicides = 0;
@@ -135,7 +121,7 @@ void CWorm::Clear()
 	setShieldFactor(1);
 	setCanAirJump(false);
 	fLastAirJumpTime = 0;
-	
+
 	bWeaponsReady = false;
 	iNumWeaponSlots = 2;
 	iCurrentWeapon = 0;
@@ -159,8 +145,8 @@ void CWorm::Clear()
 
 	for(i=0; i<5; i++)
 		tWeapons[i].Weapon = NULL;
-	
-	
+
+
 
 	bmpGibs = NULL;
 
@@ -173,43 +159,28 @@ void CWorm::Clear()
 	cHealthBar.SetLabelVisible(false);
 
 	gusSkinVisble = true;
-	
+
 	fLastSimulationTime = tLX->currentTime;
-	
-	
+
+
 	if(m_inputHandler) {
 		m_inputHandler->deleteThis();
 		m_inputHandler = NULL;
 	}
-	
+
 	cDamageReport.clear();
 
-	gusShutdown();
-	gusInit();
+	skinPreviewDrawer = skinPreviewDrawerP = new SkinDynDrawer(this);
 }
 
-
-///////////////////
-// Initialize the worm
-void CWorm::Init()
-{
-	// TODO: is this needed?
-	// WARNING: this works only because it does not contain any classes
-	tState = worm_state_t();
-	bVisibleForWorm.clear();
-	fVisibilityChangeTime = 0;
-
-	gusInit();
-}
-
-
-///////////////////
-// Shutdown the worm
-void CWorm::Shutdown()
-{
-	gusShutdown();
-	Unprepare();
+CWorm::~CWorm() {
+	if(bPrepared) Unprepare();
 	FreeGraphics();
+	
+	{
+		Mutex::ScopedLock lock(skinPreviewDrawerP->mutex);
+		skinPreviewDrawerP->worm = NULL;
+	}
 }
 
 
@@ -218,6 +189,19 @@ void CWorm::Shutdown()
 void CWorm::FreeGraphics()
 {
 	bmpGibs = NULL;
+
+#ifndef DEDICATED_ONLY
+	if(m_animator) {
+		delete m_animator;
+		m_animator = 0;
+	}
+	if(m_fireconeAnimator) {
+		delete m_fireconeAnimator;
+		m_fireconeAnimator = 0;
+	}
+#endif
+
+	skin = skinMask = NULL;
 }
 
 
@@ -228,9 +212,20 @@ void CWorm::FreeGraphics()
 void CWorm::Prepare()
 {
 	if(game.gameScript() == NULL || !game.gameScript()->isLoaded()) {
-		errors << "CWorm::Prepare for worm " << getID() << ":" << getName() << ": gamescript not loaded" << endl;
+		errors << "CWorm::Prepare " << getID() << ":" << getName() << ": gamescript not loaded" << endl;
 		return;
 	}
+
+	if(bPrepared) {
+		errors << "CWorm::Prepare " << getID() << ":" << getName() << ": already prepared" << endl;
+		// It is safer to re-prepare the worm now because the earlier Prepare might have been the
+		// wrong one and some things might be update. Re-preparing should always be safe.
+		Unprepare();
+	}
+
+	tState = worm_state_t();
+	bVisibleForWorm.clear();
+	fVisibilityChangeTime = 0;
 
 	bVisibleForWorm.clear();
 	fVisibilityChangeTime = 0;
@@ -256,10 +251,45 @@ void CWorm::Prepare()
 		m_inputHandler = NULL;
 	}
 
-	// reinit to be sure that objects are up-to-date (we would have bad references otherwise for skin/skinMask)
-	// NOTE: this is only a workaround for now and not very elegant
-	gusShutdown();
-	gusInit();
+	m_isAuthority = false;
+
+	skin = skinMask = NULL;
+	aimSpeed=(AngleDiff(0.0f)); aimAngle=(Angle(90.0f)); m_lastHurt=(0);
+	animate=(false); changing=(false);
+	m_dir=(1);
+	m_animator = m_fireconeAnimator = NULL;
+	m_currentFirecone = NULL;
+
+#ifndef DEDICATED_ONLY
+	skin = spriteList.load("skin");
+	skinMask = spriteList.load("skin-mask");
+	m_animator = new AnimLoopRight(skin,35);
+
+	m_fireconeTime = 0;
+	m_currentFirecone = NULL;
+	m_fireconeAnimator = NULL;
+	m_fireconeDistance = 0;
+#endif
+
+	m_timeSinceDeath = 0;
+
+	aimRecoilSpeed = 0;
+
+	currentWeapon = 0;
+
+	m_weapons.assign(gusGame.options.maxWeapons, 0 );
+	m_weaponCount = 0;
+
+	if(gusGame.weaponList.size() > 0)
+		for ( size_t i = 0; i < m_weapons.size(); ++i ) {
+			m_weapons[i] = new Weapon(gusGame.weaponList[rndInt(gusGame.weaponList.size())], this);
+			m_weaponCount++;
+		}
+
+	cNinjaRope.gusInit();
+	movingLeft = false;
+	movingRight = false;
+	jumping = false;
 	
 	if(game.isServer()) {
 		// register network worm-node
@@ -297,9 +327,18 @@ void CWorm::Prepare()
 	bAlive = false; // the worm is dead at the beginning, spawn it to make it alive
 	health = 0;
 	posRecordings.clear();
+
+	bPrepared = true;
+
+	game.onPrepareWorm(this);
 }
 
 void CWorm::Unprepare() {
+	if(!bPrepared) {
+		errors << "CWorm::Unprepare " << getID() << ":" << getName() << ": not prepared" << endl;
+		return;
+	}
+
 	bAlive = false;
 	health = 0;
 	bWeaponsReady = false;
@@ -316,7 +355,17 @@ void CWorm::Unprepare() {
 		m_inputHandler = NULL;
 	}
 	
-	gusShutdown();
+	for ( size_t i = 0; i < m_weapons.size(); ++i) {
+		luaDelete(m_weapons[i]);
+		m_weapons[i] = 0;
+	}
+
+	NetWorm_Shutdown();
+	FreeGraphics();
+
+	bPrepared = false;
+
+	game.onUnprepareWorm(this);
 }
 
 void CWorm::StartGame() {

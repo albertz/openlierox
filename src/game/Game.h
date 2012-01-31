@@ -38,7 +38,8 @@ public:
 	void frameInner();
 	void cleanupAfterGameloopEnd();
 		
-	void onNewWorm(CWorm* w);
+	void onPrepareWorm(CWorm* w);
+	void onUnprepareWorm(CWorm* w);
 	void onRemoveWorm(CWorm* w);
 	void onNewPlayer(CWormInputHandler*);
 	void onNewPlayer_Lua(CWormInputHandler*);

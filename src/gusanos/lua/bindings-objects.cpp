@@ -8,6 +8,7 @@
 #include "game/WormInputHandler.h"
 #include "CWormHuman.h"
 #include "game/CWorm.h"
+#include "CNinjaRope.h"
 #include "../particle.h"
 #include "../weapon.h"
 #include "../weapon_type.h"
@@ -234,11 +235,21 @@ LBINOP(CWorm, worm_eq,  (
 	return 1;
 ))*/
 
-METHOD(CWorm, worm_destroy,  {
-	notes << "Lua: worm delete of " << p->getID() << ":" << p->getName() << endl;
-	delete p;
+METHOD(CWorm, worm_destroy, {
+	// worm deletion is handled outside, thus delete only if safe
+	if(p->deleted) {
+	   notes << "Lua: worm delete of " << p->getID() << ":" << p->getName() << endl;
+	   delete p;
+	}
 	return 0;
 })
+
+METHOD(CNinjaRope, ninjarope_destroy, {
+	// ninjarope deletion is handled outside, always owned by worm atm
+	(void)p; // avoid warning of unused var
+	return 0;
+})
+
 
 /*! Object:angle()
 
@@ -666,7 +677,23 @@ void initObjects()
 	context.tableSetField(LuaID<CWorm>::value);
 	context.tableSetField(LuaID<CGameObject>::value);
 	CWorm::metaTable = context.createReference();
+
+	// CNinjaRope
 	
+	lua_newtable(context);
+	context.tableFunctions()
+		("__gc", l_ninjarope_destroy)
+	;
+	lua_pushstring(context, "__index");
+	lua_newtable(context);
+	addBaseObjectFunctions(context);
+	lua_rawset(context, -3);
+	context.tableSetField(LuaID<CNinjaRope>::value);
+	context.tableSetField(LuaID<CGameObject>::value);
+	CNinjaRope::metaTable = context.createReference();
+
+	// ----
+
 	CLASSM_(Weapon,  
 		("__gc", l_weaponinst_destroy)
 	,

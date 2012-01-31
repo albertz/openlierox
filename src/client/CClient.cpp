@@ -1795,8 +1795,7 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 			if(cServer->getClients()[ii].isLocalClient()) continue;
 			if(cServer->getClients()[ii].getStatus() != NET_CONNECTED) continue;
 			if(cServer->getClients()[ii].getNetEngine() == NULL) continue;
-			cServer->getClients()[ii].getNetEngine()->SendUpdateWorm(w);
-			
+			cServer->getClients()[ii].getNetEngine()->SendUpdateWorm(w);			
 		}
 		
 		// handling for connect during game

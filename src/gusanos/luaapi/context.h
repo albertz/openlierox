@@ -286,19 +286,19 @@ public:
 		lua_setmetatable(m_State, -2);
 	}
 	
-	template<class T>
+	/*template<class T>
 	void pushFullReference(T& x)
 	{
 		T** i = (T **)lua_newuserdata_init (m_State, sizeof(T*));
 		*i = &x;
-	}
+	}*/
 	
-	template<class T>
+	/*template<class T>
 	void pushObject(T const& x)
 	{
 		T* i = (T *)lua_newuserdata_init (m_State, sizeof(T));
 		*i = x;
-	}
+	}*/
 	
 	/*
 	template<class T>

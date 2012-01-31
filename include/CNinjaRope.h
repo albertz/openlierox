@@ -122,6 +122,8 @@ public:
 	// ----------------------
 	
 public:
+	static LuaReference metaTable;
+
 	void gusInit();
 	void shoot(Vec _pos, Vec _spd);
 	void remove();

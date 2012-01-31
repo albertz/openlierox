@@ -189,8 +189,7 @@ void Game::frameInner()
 	if(tLXOptions->bEnableChat)
 		ProcessIRC();
 
-	//if(gusGame.isEngineNeeded()) {
-	// do lua frames in all cases
+	// do lua/gus frames in all cases
 	{
 		// convert speed to lua if needed
 		std::vector< SmartPointer<CGameObject::ScopedGusCompatibleSpeed> > scopedSpeeds;
@@ -200,10 +199,6 @@ void Game::frameInner()
 		
 		gusLogicFrame();		
 	}
-	/*} else {
-		// do stuff here which we took from Gusanos, which is done in gusLogicFrame and should be done in any case
-		sfx.think();
-	}*/
 	
 	// Local
 	switch (tLX->iGameType)  {
@@ -303,19 +298,23 @@ bool Warning_QuitEngineFlagSet(const std::string& preText) {
 	return false;
 }
 
-void Game::onNewWorm(CWorm* w) {
+void Game::onPrepareWorm(CWorm* w) {
 	objects.insertImmediately(w, Grid::WormColLayer, Grid::WormRenderLayer);
 	objects.insertImmediately(w->getNinjaRope(), 1, 1);
 }
 
-void Game::onRemoveWorm(CWorm* w) {
+void Game::onUnprepareWorm(CWorm* w) {
 	// We must unlink the object now from the list because this destructor
 	// is not called from Gusanos but from CClient.
 	// NOTE: Not really the best way but I don't know a better way
 	// Game.onNewWorm has inserted the object into the list.
 	objects.unlink(w);
 	objects.unlink(w->getNinjaRope());
+}
 
+void Game::onRemoveWorm(CWorm* w) {
+	if(w->isPrepared())
+		w->Unprepare(); // also to call onUnprepareWorm and to unlink it
 	std::map<int,CWorm*>::iterator i = m_worms.find(w->getID());
 	assert(i->second == w);
 	m_worms.erase(i);
@@ -376,18 +375,15 @@ void Game::reset() {
 	
 	// we must call this first because the references to weapons, ninjarope and what may be deleted
 	for_each_iterator(CWorm*, w, worms())
-		w->get()->gusShutdown();
+		w->get()->Unprepare();
 	
 	// Delete all objects
 	objects.clear();
 }
 
 void Game::resetWorms() {
-	// as long as we still manage worm deletion manually, we must do this now here
-	for_each_iterator(CWorm*, w, worms()) {
-		w->get()->Shutdown();
+	for_each_iterator(CWorm*, w, FullCopyIterator(worms()))
 		w->get()->deleteThis();
-	}
 	m_worms.clear();	
 }
 
@@ -497,7 +493,6 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setClientVersion(clientVersion);
 	w->setProfile(profile);
 	m_worms[wormId] = w;
-	onNewWorm(w);
 	return w;
 }
 
@@ -513,8 +508,8 @@ int Game::getNewUniqueWormId() {
 
 void Game::removeWorm(CWorm* w) {
 	assert(w != NULL);
-	w->Shutdown();
 	w->deleteThis();
+	// onRemoveWorm will be called and will remove the worm from the list
 }
 
 static std::string _wormName(CWorm* w) { return itoa(w->getID()) + ":" + w->getName(); }

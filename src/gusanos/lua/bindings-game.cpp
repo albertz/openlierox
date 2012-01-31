@@ -338,7 +338,9 @@ METHODC(CWormInputHandler, player_selectWeapons,  {
 })
 
 METHOD(CWormInputHandler, player_destroy, {
-	delete p;
+	// player deletion is handled outside, thus delete only if safe
+	if(p->deleted)
+	   delete p;
 	return 0;
 })
 

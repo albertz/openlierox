@@ -15,6 +15,7 @@ template<> struct LuaID<name_> { static uint32_t const value = id_; }
 
 class CGameObject;
 class CWorm;
+class CNinjaRope;
 class Particle;
 struct ALLEGRO_BITMAP;
 class CViewport;
@@ -66,6 +67,7 @@ CLASSID(OmfgGUI::ListNode, 21);
 CLASSID(OmfgGUI::Edit, 22);
 CLASSID(OmfgGUI::Check, 23);
 CLASSID(OmfgGUI::Label, 24);
+CLASSID(CNinjaRope, 25);
 
 #undef CLASSID
 

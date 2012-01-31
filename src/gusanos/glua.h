@@ -61,33 +61,18 @@ extern LuaCallbacks luaCallbacks;
 
 struct LuaObject : BaseObject
 {
-#ifndef NDEBUG
-	LuaObject()
-	: deleted(false)
-	{
-	}
-#endif
-	
-	void pushLuaReference();
-	
-	LuaReference getLuaReference();
-	
+	bool deleted;
+	LuaReference luaReference;
+
+	LuaObject() : deleted(false) {}
+	virtual ~LuaObject() {}
+
+	void pushLuaReference();	
+	LuaReference getLuaReference();	
 	virtual void makeReference();
 	
-	virtual void finalize()
-	{
-	}
-	
-	virtual void deleteThis();
-	
-	virtual ~LuaObject()
-	{
-	}
-	
-	LuaReference luaReference;
-#ifndef NDEBUG
-	bool deleted;
-#endif
+	virtual void finalize() {}
+	virtual void deleteThis();	
 };
 
 template<class T>

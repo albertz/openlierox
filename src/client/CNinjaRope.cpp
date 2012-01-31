@@ -27,6 +27,8 @@
 #include "Geometry.h"
 
 
+LuaReference CNinjaRope::metaTable;
+
 CNinjaRope::~CNinjaRope() {
 	// We must delete the object now out of the list because this destructor
 	// is not called from Gusanos but from CClient.

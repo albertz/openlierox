@@ -145,9 +145,10 @@ protected:
 	bool		bLocal;
 	CServerConnection *cOwner;
 	CWormInputHandler* m_inputHandler;
-	
-	ATTR(CWorm, int,	iTeam, 1, {serverside = false;});
-	ATTR(CWorm, std::string,	sName, 2, {serverside = false;});
+	bool            bPrepared;
+
+	ATTR(CWorm, int,	iTeam, 1, {serverside = false;})
+	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
 	bool		bSpectating;
 	bool		bSpawnedOnce;
@@ -172,23 +173,23 @@ protected:
 
 	
 	// Score
-	ATTR(CWorm,	int, iKills, 50, {serverside=true;});
-	ATTR(CWorm, int, iDeaths, 51, {serverside=true;});
-	ATTR(CWorm,	int, iSuicides, 52, {serverside=true;});
-	ATTR(CWorm,	int, iTeamkills, 53, {serverside=true;});
-	ATTR(CWorm,	float, fDamage, 54, {serverside=true;});
+	ATTR(CWorm,	int, iKills, 50, {serverside=true;})
+	ATTR(CWorm, int, iDeaths, 51, {serverside=true;})
+	ATTR(CWorm,	int, iSuicides, 52, {serverside=true;})
+	ATTR(CWorm,	int, iTeamkills, 53, {serverside=true;})
+	ATTR(CWorm,	float, fDamage, 54, {serverside=true;})
 
-	ATTR(CWorm, int, iTotalWins, 55, {serverside=true;});
-	ATTR(CWorm, int, iTotalLosses, 56, {serverside=true;});
-	ATTR(CWorm, int, iTotalKills, 57, {serverside=true;});
-	ATTR(CWorm, int, iTotalDeaths, 58, {serverside=true;});
-	ATTR(CWorm, int, iTotalSuicides, 59, {serverside=true;});
+	ATTR(CWorm, int, iTotalWins, 55, {serverside=true;})
+	ATTR(CWorm, int, iTotalLosses, 56, {serverside=true;})
+	ATTR(CWorm, int, iTotalKills, 57, {serverside=true;})
+	ATTR(CWorm, int, iTotalDeaths, 58, {serverside=true;})
+	ATTR(CWorm, int, iTotalSuicides, 59, {serverside=true;})
 
 	Version		cClientVersion;
 
 	// Game
-	ATTR(CWorm, int,	iLives, 3, {});
-	ATTR(CWorm, bool,	bAlive, 4, {});
+	ATTR(CWorm, int,	iLives, 3, {})
+	ATTR(CWorm, bool,	bAlive, 4, {})
 	AbsTime		fTimeofDeath;
 	DIR_TYPE	iFaceDirectionSide;
 	DIR_TYPE	iMoveDirectionSide;
@@ -197,11 +198,11 @@ protected:
     float       fAngleSpeed;
     float		fMoveSpeedX;
 	
-	ATTR(CWorm,	float,	fSpeedFactor, 5, {});
-	ATTR(CWorm, bool,	bCanUseNinja, 6, {});
-	ATTR(CWorm, float,	fDamageFactor, 7, {});
-	ATTR(CWorm, float,	fShieldFactor, 8, {});
-	ATTR(CWorm, bool,	bCanAirJump, 9, {}); // For instant air jump
+	ATTR(CWorm,	float,	fSpeedFactor, 5, {})
+	ATTR(CWorm, bool,	bCanUseNinja, 6, {})
+	ATTR(CWorm, float,	fDamageFactor, 7, {})
+	ATTR(CWorm, float,	fShieldFactor, 8, {})
+	ATTR(CWorm, bool,	bCanAirJump, 9, {}) // For instant air jump
 	
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
@@ -249,13 +250,13 @@ protected:
 
 
 	// Arsenal
-	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;});
-	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;});
+	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
+	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
 	int			iNumWeaponSlots;
 	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
 
-	ATTR(CWorm,	int,	iAFK,	100, {});
-	ATTR(CWorm, std::string,	sAFKMessage, 101, {});
+	ATTR(CWorm,	int,	iAFK,	100, {})
+	ATTR(CWorm, std::string,	sAFKMessage, 101, {})
 
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
@@ -277,16 +278,6 @@ private:
 
 public:
 	// Methods
-
-
-	//
-	// General
-	//
-	void		Clear();
-	void		Init();
-	//void		CopyProfile(plyprofile_t *profile);
-	void		Shutdown();
-
 
 	// TODO: move this out here (to network engine)
 	//
@@ -390,6 +381,8 @@ public:
 
 	void		setLocal(bool _l)			{ bLocal = _l; }
 	bool		getLocal()				{ return bLocal; }
+
+	bool		isPrepared() const { return bPrepared; }
 
 	void		setSpawnedOnce()			{ bSpawnedOnce = true; }
 	bool		haveSpawnedOnce()			{ return bSpawnedOnce; }
@@ -595,9 +588,6 @@ public:
 	
 	static LuaReference metaTable;
 	//static int const luaID = 2;
-	
-	void gusInit();
-	void gusShutdown();
 		
 	void draw(CViewport* viewport);
 	

@@ -60,6 +60,7 @@ void LuaObject::pushLuaReference()
 	lua.push(getLuaReference());
 }
 
+// this function is overriden by each sub-object-type (e.g. CWorm, etc.)
 void LuaObject::makeReference()
 {
 	lua_pushnil(lua);
@@ -82,9 +83,7 @@ void LuaObject::deleteThis()
 {
 	finalize();
 
-#ifndef NDEBUG
 	deleted = true;
-#endif
 	
 	if(luaReference)
 	{
@@ -93,6 +92,4 @@ void LuaObject::deleteThis()
 	}
 	else
 		delete this;
-	
-	
 }
