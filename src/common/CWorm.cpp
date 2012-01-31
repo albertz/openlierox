@@ -260,7 +260,6 @@ void CWorm::Prepare()
 	// NOTE: this is only a workaround for now and not very elegant
 	gusShutdown();
 	gusInit();
-	game.onNewWorm(this);
 	
 	if(game.isServer()) {
 		// register network worm-node

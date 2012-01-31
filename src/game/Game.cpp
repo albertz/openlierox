@@ -497,6 +497,7 @@ CWorm* Game::createNewWorm(int wormId, bool local, const SmartPointer<profile_t>
 	w->setClientVersion(clientVersion);
 	w->setProfile(profile);
 	m_worms[wormId] = w;
+	onNewWorm(w);
 	return w;
 }
 
