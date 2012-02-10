@@ -1,8 +1,9 @@
-= OpenLieroX
+# OpenLieroX
 
-This is the game OpenLieroX!
+This is the game OpenLieroX! Homepage: <http://openlierox.net>
 
 Content of this file:
+
 * Description
 * About
 * Compilation
@@ -11,22 +12,23 @@ Content of this file:
 * Thank you
 
 
-== Description
+## Description
 
-It's some type of a real-time, excessive clone of Worms.
+It's some type of a real-time, excessive clone of Worms. Or like 2D Quake with worms and ninja ropes.
 
 
-== About
+## About
 
-OpenLieroX is based on Jason Boettcher's famous Liero Xtreme. ( Take a look here: <http://lxalliance.net/lierox/> )
+OpenLieroX is based on Jason Boettcher's famous Liero Xtreme.
+
 Jason B. has released his work in 2006 under the zlib-licence and after some months of work, we ported and enhanced his work and got OpenLieroX.
 
 
-== Compilation
+## Compilation
 
 For more details, read here: <http://www.openlierox.net/wiki/index.php/Compile_OpenLieroX>
 
-=== Linux/Unix:
+### Linux/Unix:
 
 Use `CMake`, e.g.:
 	
@@ -40,16 +42,16 @@ followed by:
 
 	make -j4
 
-=== Mac OS X
+### Mac OS X
 
 Use the Xcode project under `build/Xcode`.
 
-=== Windows
+### Windows
 
 Use the MSVC project under `build/msvc 2010`.
 
 
-== Game search paths
+## Game search paths
 
 The game uses case insensitive filenames (it will use the first found on case sensitive filesystems).
 The game searches the paths `~/.OpenLieroX`, `./` and `/usr/share/games/OpenLieroX` for game-data (all path are relative to this bases) (in this order) by default.
@@ -59,7 +61,12 @@ Own modified configs, screenshots and other stuff always will be stored in `~/.O
 More details: <http://www.openlierox.net/wiki/index.php/Virtual_File_System>
 
 
-== Report bugs / feature requests
+## Development
+
+If you are interested in the development, either in how we work, the work / source code itself or if you want to support us in any way, read here: <http://www.openlierox.net/wiki/index.php/Development>
+
+
+## Report bugs / feature requests
 
 If you find a bug in OpenLieroX, please fill in a bug report! If you have a nice idea about a feature or if you just miss something, please fill in a feature request. We have a tracker for this: <https://github.com/albertz/openlierox/issues>
 
@@ -80,14 +87,17 @@ Another way is similar to Unix, just call it via console (e.g. with the `/Applic
 For Windows, there should be a file stdout.txt in the OpenLieroX directory containing all the output.
 
 
-== Thanks for all the fish
+## Thanks for all the fish
 
 So, well, I think that was all the important stuff.
 Look at the Homepage for further details.
 
-Official homepage of OpenLieroX: <http://openlierox.sourceforge.net>
-Project site on Sourceforge: <http://sourceforge.net/projects/openlierox/>
-Homepage of Albert Zeyer: <http://www.az2000.de/>
+* Official homepage of OpenLieroX: <http://openlierox.net>
+* Wiki containing many further details: <http://openlierox.net/wiki>
+* Forum around the game: <http://openlierox.net/forum>
+* GitHub project page: <https://github.com/albertz/openlierox>
+* SourceForge project page: <http://sourceforge.net/projects/openlierox/>
+* Homepage of Albert Zeyer: <http://www.az2000.de/>
 
 Thank you for enjoying it!
 
