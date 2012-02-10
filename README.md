@@ -8,6 +8,7 @@ Content of this file:
 * About
 * Compilation
 * Game search paths
+* Development
 * Report bugs / feature requests
 * Thank you
 
