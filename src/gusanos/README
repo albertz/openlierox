@@ -1,24 +1,16 @@
-Vermes doesn't require installation beyond putting all of its files in a 
-directory somewhere. If you can read this, you're probably already ready to
-play. You may want to edit default/config.cfg first, though, to set up your
-nickname and key bindings.
+The code in this directory (and now also somewhat spread around other parts of OLX) is based on the Vermes code. It is in no way independent of the rest of OLX anymore.
 
-For instructions on building Vermes from source, see BUILD
+This directory right now contains all the code which defines the Gusanos engine.
 
-Vermes is released under the terms of the GNU Public License Version 2.0. For 
-the terms of this license, see LICENSE
+The Gusanos engine consists of Lua scripting, an alternative particle engine ("projectiles" in the term of LX) and an alternative physics engine.
 
-Vermes is based on Gusanos 0.9c, available at:
- http://gusanos.sourceforge.net/
- 
-For more information about the creators of Gusanos and Vermes, see CREDITS
+Other parts of Gusanos like enhanced graphics effects, sound effects were heavily merged with OLX code.
 
-And if you'd like to get developing, check out our TODO - patches welcome! The
-source for Vermes currently lives at http://home.dubdot.com/vermes/ - that's 
-an SVN repository, so feel free to grab the code. And email dominic@dubdot.com
-if you'd like karma.
+See our Wiki for more details: http://www.openlierox.net/wiki/index.php/Gusanos
 
 ===
+
+FAQ by the Vermes author:
 
 What is Vermes?
  Vermes is a fork of the popular Liero clone, Gusanos.
@@ -46,3 +38,48 @@ Why fork Gusanos?
  That's not to say anything bad about Basra and Gliptic. They've put a lot
  of work into this game. In fact, for now, 99% of the code in Vermes was 
  written by them. See CREDITS for more details.
+
+===
+
+This is some of the source code from Gusanos CVS (should be Gusanos 0.9c).
+
+You can checkout their full CVS with these commands:
+
+  cvs -d:pserver:anonymous@gusanos.cvs.sourceforge.net:/cvsroot/gusanos login 
+  cvs -z3 -d:pserver:anonymous@gusanos.cvs.sourceforge.net:/cvsroot/gusanos co -P .
+
+Or take a look here:
+  http://gusanos.cvs.sourceforge.net/gusanos/
+
+The code here should contain the core parts of Gusanos.
+
+I will start to modify this code so that it can be used in OpenLieroX.
+
+Obsolete code will be removed later.
+
+- Albert, 03-05-2009
+
+===
+
+Vermes notes:
+
+Vermes doesn't require installation beyond putting all of its files in a 
+directory somewhere. If you can read this, you're probably already ready to
+play. You may want to edit default/config.cfg first, though, to set up your
+nickname and key bindings.
+
+For instructions on building Vermes from source, see BUILD
+
+Vermes is released under the terms of the GNU Public License Version 2.0. For 
+the terms of this license, see LICENSE
+
+Vermes is based on Gusanos 0.9c, available at:
+ http://gusanos.sourceforge.net/
+ 
+For more information about the creators of Gusanos and Vermes, see CREDITS
+
+And if you'd like to get developing, check out our TODO - patches welcome! The
+source for Vermes currently lives at http://home.dubdot.com/vermes/ - that's 
+an SVN repository, so feel free to grab the code. And email dominic@dubdot.com
+if you'd like karma.
+
