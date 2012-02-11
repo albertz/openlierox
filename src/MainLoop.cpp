@@ -115,8 +115,6 @@ static VideoHandler videoHandler;
 sigjmp_buf longJumpBuffer;
 #endif
 
-static ThreadPoolItem* mainLoopThread = NULL;
-
 #ifndef SINGLETHREADED
 static SDL_Event QuitEventThreadEvent() {
 	SDL_Event ev;
@@ -228,9 +226,9 @@ struct MainLoopTask : LoopTask {
 
 void doMainLoop() {
 #ifdef SINGLETHREADED
-	static MainLoopTask mainLoop;
+	MainLoopTask mainLoop;
 #else
-	mainLoopThread = threadPool->start(new MainLoopTask(), "main loop", false);
+	ThreadPoolItem* mainLoopThread = threadPool->start(new MainLoopTask(), "main loop", false);
 
 	startMainLockDetector();
 #endif
@@ -280,8 +278,11 @@ void doMainLoop() {
 	}
 
 quit:
+#ifndef SINGLETHREADED
 	threadPool->wait(mainLoopThread, NULL);
 	mainLoopThread = NULL;
+#endif
+	{}
 }
 
 // note: important to have const char* here because std::string is too dynamic, could be screwed up when returning
