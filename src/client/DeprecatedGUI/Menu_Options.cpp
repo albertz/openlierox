@@ -447,7 +447,7 @@ bool Menu_OptionsInitialize()
 
 
 bool Menu_StartWithSysOptionsMenu(void*) {
-	iSkipStart = true;
+	bSkipStart = true;
 	Menu_OptionsInitialize();
 	OptionsMode = 2;
 	return true;

@@ -393,7 +393,7 @@ Result MainLoopTask::handle_BeforeMenu() {
 	DeprecatedGUI::tMenu->bMenuWantsGameStart = false;
 
 	if(!bDedicated) {
-		if(!DeprecatedGUI::iSkipStart) {
+		if(!DeprecatedGUI::bSkipStart) {
 			notes << "Loading main menu" << endl;
 			DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 			DeprecatedGUI::Menu_MainInitialize();
@@ -401,7 +401,7 @@ Result MainLoopTask::handle_BeforeMenu() {
 			DeprecatedGUI::Menu_RedrawMouse(true);
 	}
 
-	DeprecatedGUI::iSkipStart = false;
+	DeprecatedGUI::bSkipStart = false;
 
 	menuStartTime = tLX->currentTime = GetTime();
 	last_frame_was_because_of_an_event = true;

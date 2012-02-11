@@ -268,7 +268,7 @@ class frontendinfo_t { public:
 
 // Menu structure
 struct menu_t {
-    menu_t();
+	menu_t();
 
 	// Graphics
 	//SmartPointer<SDL_Surface> bmpMainBack;
@@ -310,7 +310,7 @@ struct menu_t {
 
 	// Other
 	bool			bMenuRunning;
-    bool            bMenuWantsGameStart;
+	bool            bMenuWantsGameStart;
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
@@ -352,7 +352,7 @@ extern	menu_t		*tMenu;
 extern	int			iNetMode;
 extern	int			iJoinMenu;
 extern	int			iHostType;
-extern	int			iSkipStart;
+extern	bool		bSkipStart;
 extern  bool		bHost_Update;
 extern	bool		bJoin_Update;
 extern  CWidgetList	LayoutWidgets[LAYOUT_COUNT];

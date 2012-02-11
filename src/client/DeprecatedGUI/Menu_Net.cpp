@@ -144,7 +144,7 @@ void Menu_Net_GotoHostLobby()
 	Menu_Net_HostGotoLobby();
 
 	SetQuitEngineFlag("Menu_Net_GotoHostLobby");
-	iSkipStart = true;
+	bSkipStart = true;
 }
 
 
@@ -398,6 +398,6 @@ void GotoJoinLobby()
 	}
 	
 	SetQuitEngineFlag("GotoJoinLobby");
-	iSkipStart = true;
+	bSkipStart = true;
 }
 

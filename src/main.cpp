@@ -241,7 +241,7 @@ startpoint:
 
 	// speedup for Menu_Start()
 	DrawLoading(90, "Loading main menu");
-	DeprecatedGUI::iSkipStart = true;
+	DeprecatedGUI::bSkipStart = true;
 	DeprecatedGUI::tMenu->iMenuType = DeprecatedGUI::MNU_MAIN;
 	DeprecatedGUI::Menu_MainInitialize();
 

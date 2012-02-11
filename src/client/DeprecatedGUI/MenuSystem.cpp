@@ -62,7 +62,7 @@ namespace DeprecatedGUI {
 menu_t	*tMenu = NULL;
 
 
-int			iSkipStart = false;
+bool		bSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
 static bool Menu_InitSockets() {
@@ -241,7 +241,7 @@ void Menu_Shutdown()
 // Set the skip start bit
 void Menu_SetSkipStart(int s)
 {
-    iSkipStart = s;
+    bSkipStart = s;
 }
 	
 void Menu_Frame() {
