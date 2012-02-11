@@ -267,7 +267,8 @@ class frontendinfo_t { public:
 };
 
 // Menu structure
-class menu_t { public:
+struct menu_t {
+    menu_t();
 
 	// Graphics
 	//SmartPointer<SDL_Surface> bmpMainBack;
@@ -309,6 +310,7 @@ class menu_t { public:
 
 	// Other
 	bool			bMenuRunning;
+    bool            bMenuWantsGameStart;
 	int				iMenuType;
 	frontendinfo_t	tFrontendInfo;
 	std::string		sSavedChatText;
@@ -347,7 +349,6 @@ enum {
 	
 // Menu globals
 extern	menu_t		*tMenu;
-extern	bool		*bGame;
 extern	int			iNetMode;
 extern	int			iJoinMenu;
 extern	int			iHostType;
@@ -364,7 +365,7 @@ extern bool		bShowFloatingOptions;
 
 
 // Routines
-bool	Menu_Initialize(bool *game);
+bool	Menu_Initialize();
 void	Menu_LoadFrontendInfo();
 void	Menu_Shutdown();
 void    Menu_Frame();

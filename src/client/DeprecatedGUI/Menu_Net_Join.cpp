@@ -668,7 +668,7 @@ void Menu_Net_JoinLobbyFrame(int mouse)
         cClient->SetupViewports();
 
 		// Leave the frontend
-		*bGame = true;
+		tMenu->bMenuWantsGameStart = true;
 		tMenu->bMenuRunning = false;
 		tLX->iGameType = GME_JOIN;
 

@@ -62,7 +62,6 @@ namespace DeprecatedGUI {
 menu_t	*tMenu = NULL;
 
 
-bool		*bGame = NULL;
 int			iSkipStart = false;
 CWidgetList	LayoutWidgets[LAYOUT_COUNT];
 
@@ -96,12 +95,15 @@ static bool Menu_InitSockets() {
 	return true;
 }
 
+menu_t::menu_t() {
+    bMenuRunning = false;
+    bMenuWantsGameStart = false;
+}
+
 ///////////////////
 // Initialize the menu system
-bool Menu_Initialize(bool *game)
+bool Menu_Initialize()
 {
-	bGame = game;
-	*bGame = false;
 	bJoin_Update = true;
 	bHost_Update = true;
 

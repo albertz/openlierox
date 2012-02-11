@@ -1311,7 +1311,7 @@ bool Menu_Net_HostStartGame()
 	cClient->SetupViewports();
 
 	// Leave the frontend
-	*bGame = true;
+	tMenu->bMenuWantsGameStart = true;
 	tMenu->bMenuRunning = false;
 	tLX->iGameType = GME_HOST;
 

@@ -411,7 +411,7 @@ struct DedIntern {
 		// If we have started, leave the frontend
 		if(cClient->getGameReady()) {
 			// Leave the frontend
-			*DeprecatedGUI::bGame = true;
+			DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 			DeprecatedGUI::tMenu->bMenuRunning = false;
 			tLX->iGameType = GME_JOIN;
 			Sig_ClientGameStarted();

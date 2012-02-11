@@ -867,7 +867,7 @@ void Menu_LocalStartGame()
 		ok = singlePlayerGame.startGame();
 
 	if(ok) {
-		*bGame = true;
+		tMenu->bMenuWantsGameStart = true;
 		tMenu->bMenuRunning = false;
 		tLX->iGameType = GME_LOCAL;
 		

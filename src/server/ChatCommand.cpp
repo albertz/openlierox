@@ -807,7 +807,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 		}
 		
 		// Leave the frontend
-		*DeprecatedGUI::bGame = true;
+		DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 		DeprecatedGUI::tMenu->bMenuRunning = false;
 		tLX->iGameType = GME_HOST;
 	}

@@ -1042,7 +1042,7 @@ void Cmd_setViewport::exec(CmdLineIntf* caller, const std::vector<std::string>& 
 
 COMMAND_EXTRA(quit, "quit game", "", 0, 0, registerCommand("exit", this));
 void Cmd_quit::exec(CmdLineIntf* caller, const std::vector<std::string>&) {
-	*DeprecatedGUI::bGame = false; // this means if we were in menu => quit
+	DeprecatedGUI::tMenu->bMenuWantsGameStart = false; // this means if we were in menu => quit
 	DeprecatedGUI::tMenu->bMenuRunning = false; // if we were in menu, quit menu
 
 	tLX->bQuitGame = true; // quit main-main-loop
@@ -1928,7 +1928,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 	}
 
 	// Leave the frontend
-	*DeprecatedGUI::bGame = true;
+	DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 	DeprecatedGUI::tMenu->bMenuRunning = false;
 }
 

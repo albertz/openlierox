@@ -285,8 +285,8 @@ void SetQuitEngineFlag(const std::string& reason) {
 		DeprecatedGUI::tMenu->bMenuRunning = false;
 	// If we were in menu, because we forced the menu restart above,
 	// we must set this, otherwise OLX would quit (because of current maingamelogic).
-	if(DeprecatedGUI::bGame)
-		*DeprecatedGUI::bGame = true;
+	if(DeprecatedGUI::tMenu)
+		DeprecatedGUI::tMenu->bMenuWantsGameStart = true;
 }
 
 bool Warning_QuitEngineFlagSet(const std::string& preText) {
