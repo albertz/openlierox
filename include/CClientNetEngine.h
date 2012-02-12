@@ -52,9 +52,7 @@ public:
 	virtual void		SendReportDamage(bool flush = false) { return; }
 	virtual void		QueueReportDamage(int victim, float damage, int offender) { return; }
 	virtual void		SendNewNetChecksum() { return; }
-	
-	void		SendRequestWormRespawn(int wormId);
-	
+		
 #ifdef FUZZY_ERROR_TESTING
 	void				SendRandomPacket();
 #endif

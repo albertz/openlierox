@@ -231,6 +231,7 @@ void CWorm::Prepare()
 	fVisibilityChangeTime = 0;
 	gusSkinVisble = true;
 	bCanRespawnNow = false;
+	bRespawnRequested = false;
 	
 	setTeamkills(0);
 	setSuicides(0);
@@ -508,6 +509,7 @@ void CWorm::Spawn(CVec position) {
 	bAlive = true;
 	bSpawnedOnce = true;
 	bCanRespawnNow = false;
+	bRespawnRequested = false;
 	fVisibilityChangeTime = 0;
 	resetAngleAndDir();
 	fMoveSpeedX = 0;
@@ -1233,6 +1235,7 @@ void CWorm::Kill(bool serverside)
 	bAlive = false;
 	fTimeofDeath = GetPhysicsTime();
 	bCanRespawnNow = false;
+	bRespawnRequested = false;
 
 	// score handling only serverside - client will get update via scoreupdate package
 	if(serverside) {

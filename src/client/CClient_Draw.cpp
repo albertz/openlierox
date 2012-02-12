@@ -469,7 +469,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		// Go through and draw the first two worms select menus
 		if (!bWaitingForMod) {
 			for_each_iterator(CWorm*, w, game.localWorms())
-				ready = ready && w->get()->getWeaponsReady();
+				ready = ready && w->get()->bWeaponsReady;
 		} else // Waiting for a mod to download
 			ready = false;
 
@@ -738,7 +738,7 @@ void CClient::Draw(SDL_Surface * bmpDest)
 		for_each_iterator(CWorm*, w, game.localWorms()) {
 			++i;
 			if(i >= num) break;
-			if(!w->get()->getWeaponsReady())
+			if(!w->get()->bWeaponsReady)
 				w->get()->doWeaponSelectionFrame(bmpDest, &cViewports[i]);
 		}
 	}
@@ -1250,7 +1250,7 @@ void CClient::DrawViewport(SDL_Surface * bmpDest, int viewport_index)
 			x += 2;
 			w -= 4;
 			CWormHumanInputHandler* wInput = dynamic_cast<CWormHumanInputHandler*>(worm->inputHandler());
-			if(wInput && worm->canRespawnNow()) {
+			if(wInput && worm->bCanRespawnNow) {
 				DrawRectFill(bmpDest, x, y, x + w, y + h, Color(0,0,0,100));
 				tLX->cFont.DrawCentre(bmpDest, x + w*0.5, y + h*0.5, tLX->clNormalLabel,
 									  "Press Jump (" + wInput->getInputJump().getEventName() + ") to respawn");
@@ -2605,7 +2605,7 @@ void CClient::UpdateIngameScore(DeprecatedGUI::CListview *Left, DeprecatedGUI::C
 		lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getName(), (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, iColor);
 
 		if (WaitForPlayers)
-			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->getWeaponsReady() ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->getWeaponsReady() ? tLX->clReady : tLX->clWaiting);
+			lv->AddSubitem(DeprecatedGUI::LVS_TEXT, p->bWeaponsReady ? "Ready" : "Waiting", (DynDrawIntf*)NULL, NULL, DeprecatedGUI::VALIGN_MIDDLE, p->bWeaponsReady ? tLX->clReady : tLX->clWaiting);
 		else  {
 			// Lives
 			switch (p->getLives())  {
@@ -2663,7 +2663,7 @@ void CClient::DrawPlayerWaitingColumn(SDL_Surface * bmpDest, int x, int y, std::
 		int cur_x = x + 5;
 
 		// Ready
-		if (wrm->getWeaponsReady())
+		if (wrm->bWeaponsReady)
 			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyReady.get()->h) / 2);
 		else
 			DrawImage(bmpDest, DeprecatedGUI::tMenu->bmpLobbyNotReady, cur_x, cur_y + (wrmPicImg->h - DeprecatedGUI::tMenu->bmpLobbyNotReady.get()->h) / 2);

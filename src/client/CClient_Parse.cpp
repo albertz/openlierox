@@ -641,10 +641,6 @@ bool CClientNetEngine::ParsePacket(CBytestream *bs)
 				network.olxParseUpdate(NetConnID_server(), *bs);
 				break;
 
-			case S2C_CANRESPAWNNOW:
-				ParseWormCanRespawnNow(bs);
-				break;
-				
 			default:
 #if !defined(FUZZY_ERROR_TESTING_S2C)
 				warnings << "cl: Unknown packet " << (unsigned)cmd << endl;
@@ -1063,7 +1059,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 		w->setTeamkills(0);
 		w->setDamage(0);
 		w->setHealth(100);
-		w->setWeaponsReady(false);
+		w->bWeaponsReady = false;
 
 		// Prepare for battle!
 		w->Prepare();
@@ -1078,7 +1074,7 @@ bool CClientNetEngine::ParsePrepareGame(CBytestream *bs)
 	if (!client->bWaitingForMod)
 		for_each_iterator(CWorm*, w, game.localWorms()) {
 			// we already prepared all the worms (cRemoteWorms) above
-			if(!w->get()->getWeaponsReady())
+			if(!w->get()->bWeaponsReady)
 				w->get()->initWeaponSelection();
 		}
 	
@@ -1267,7 +1263,7 @@ void CClientNetEngine::ParseStartGame(CBytestream *bs)
 		notes << ", back to game" << endl;
 		client->iNetStatus = NET_PLAYING;
 		for_each_iterator(CWorm*, w, game.localWorms()) {
-			if(w->get()->getWeaponsReady())
+			if(w->get()->bWeaponsReady)
 				w->get()->StartGame();
 		}
 		return;
@@ -1945,7 +1941,7 @@ void CClientNetEngine::ParseCLReady(CBytestream *bs)
 		}
 		
 		if(!w->getLocal())
-			w->setWeaponsReady(true);
+			w->bWeaponsReady = true;
 
 		// Read the weapon info
 		//notes << "Client:ParseCLReady: ";
@@ -2708,7 +2704,7 @@ void CClientNetEngineBeta9::ParseSelectWeapons(CBytestream* bs) {
 	CWorm* w = getWorm(client, bs, "ParseSelectWeapons");
 	if(!w) return;
 	
-	w->setWeaponsReady(false);
+	w->bWeaponsReady = false;
 	if(client->OwnsWorm(w->getID())) {
 		notes << "server sends us SelectWeapons for worm " << w->getID() << endl;
 		
@@ -2736,11 +2732,5 @@ void CClientNetEngineBeta9::ParsePlaySound(CBytestream* bs) {
 	}
 	
 	PlayGameSound(fn);
-}
-
-void CClientNetEngine::ParseWormCanRespawnNow(CBytestream* bs) {
-	CWorm* w = getWorm(client, bs, "ParseWormCanRespawnNow");
-	if(!w) return;
-	w->setCanRespawnNow(true);
 }
 

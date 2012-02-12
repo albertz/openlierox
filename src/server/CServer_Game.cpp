@@ -197,7 +197,7 @@ void GameServer::SimulateGame()
 			if (!w->getClient()->getGameReady())
 				continue;
 
-		if(!w->getAlive() && w->getLives() != WRM_OUT && w->getWeaponsReady()) {
+		if(!w->getAlive() && w->getLives() != WRM_OUT && w->bWeaponsReady) {
 
 			// Check to see if they have been dead for longer than fRespawnTime (originally 2.5 seconds)
 			if(!w->haveSpawnedOnce() || (tLX->currentTime > w->getTimeofDeath() + TimeDiff((float)gameSettings[FT_RespawnTime])) )
@@ -209,10 +209,10 @@ void GameServer::SimulateGame()
 				}
 				else { // MaxRespawnTime disabled or not yet reached
 					// only spawn if the client cannot. otherwise wait for clientside respawn request
-					if(!CanWormHandleClientSideRespawn(w))
+					if(w->bRespawnRequested || !CanWormHandleClientSideRespawn(w))
 						SpawnWorm(w);
 					else
-						SendWormCanRespawnNow(w);
+						w->bCanRespawnNow = true;
 				}
 			}
 		}

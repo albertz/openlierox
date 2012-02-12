@@ -257,7 +257,6 @@ public:
 	void		SetWormCanAirJump(int wormID, bool b);
 	
 	bool		CanWormHandleClientSideRespawn(CWorm* w);
-	void		SendWormCanRespawnNow(CWorm* w);
 	
 	// Connectionless packets only here
 	void		ParseConnectionlessPacket(const SmartPointer<NetworkSocket>& tSocket, CBytestream *bs, const std::string& ip);

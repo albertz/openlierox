@@ -55,7 +55,6 @@ public:
 	void		 ParseSendFile(CBytestream *bs);
 
 	bool		 ParseChatCommand(const std::string& message);
-	void		ParseRequestWormRespawn(CBytestream* bs);
 	
 	// Sending
 	
@@ -86,9 +85,7 @@ public:
 	virtual void SendSelectWeapons(CWorm* worm);
 	virtual void SendUpdateWorm(CWorm* w);
 	void SendPlaySound(const std::string& name);
-	
-	void SendCanRespawnNow(CWorm* w);
-	
+		
 	int getConnectionArrayIndex();
 	
 protected:

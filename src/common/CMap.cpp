@@ -3071,7 +3071,7 @@ CVec CMap::FindSpotCloseToTeam(int t, CWorm* exceptionWorm, bool keepDistanceToE
 	
 	for_each_iterator(CWorm*, w_, game.worms()) {
 		CWorm* w = w_->get();
-		if( w->getLives() == WRM_OUT || !w->getWeaponsReady() || !w->getAlive())
+		if( w->getLives() == WRM_OUT || !w->bWeaponsReady || !w->getAlive())
 			continue;
 		if(exceptionWorm && exceptionWorm->getID() == w->getID())
 			continue;

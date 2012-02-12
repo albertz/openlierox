@@ -1915,7 +1915,7 @@ void Cmd_startGame::exec(CmdLineIntf* caller, const std::vector<std::string>& pa
 			 If we have host-worm-does-wpn-selection activated, we would skip the new
 			 wpn selection if we don't force it by this way.
 			 */
-			w->get()->setWeaponsReady(false);
+			w->get()->bWeaponsReady = false;
 		}
 	}
 	
@@ -2204,7 +2204,7 @@ void Cmd_selectWeapons::exec(CmdLineIntf* caller, const std::vector<std::string>
 		return;
 	}
 	
-	w->setWeaponsReady(false);
+	w->bWeaponsReady = false;
 	w->getClient()->setGameReady(false);
 	w->getClient()->getNetEngine()->SendSelectWeapons(w);
 }

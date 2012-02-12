@@ -302,7 +302,7 @@ public:
 				4) weapons selected
 			*/
 
-		if(cClient && local && !cClient->isGameMenu() && !cClient->isChatTyping() && !cClient->isGameOver() && !Con_IsVisible() && worm->getWeaponsReady()) {
+		if(cClient && local && !cClient->isGameMenu() && !cClient->isChatTyping() && !cClient->isGameOver() && !Con_IsVisible() && worm->bWeaponsReady) {
 			int old_weapon = worm->getCurrentWeapon();
 
 			worm->getInput();

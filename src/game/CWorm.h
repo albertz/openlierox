@@ -147,12 +147,26 @@ protected:
 	CWormInputHandler* m_inputHandler;
 	bool            bPrepared;
 
+public:
 	ATTR(CWorm, int,	iTeam, 1, {serverside = false;})
 	ATTR(CWorm, std::string,	sName, 2, {serverside = false;})
 
+	// Game
+	ATTR(CWorm, int,	iLives, 3, {})
+	ATTR(CWorm, bool,	bAlive, 4, {})
+
 	bool		bSpectating;
 	bool		bSpawnedOnce;
-	bool		bCanRespawnNow; // this is only a hint for the client. the server has its own handling independent of this
+	ATTR(CWorm, bool, bCanRespawnNow, 10, {serverside = true;})
+	ATTR(CWorm, bool, bRespawnRequested, 11, {serverside = false;})
+
+	// Arsenal
+	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
+	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
+	int			iNumWeaponSlots;
+	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
+
+protected:
 	SmartPointer<profile_t> tProfile; // used to read (AI)nDifficulty and read/write human player weapons
 	
 	// Simulation
@@ -171,25 +185,8 @@ protected:
     AbsTime		fLastCarve;
 	
 
-	
-	// Score
-	ATTR(CWorm,	int, iKills, 50, {serverside=true;})
-	ATTR(CWorm, int, iDeaths, 51, {serverside=true;})
-	ATTR(CWorm,	int, iSuicides, 52, {serverside=true;})
-	ATTR(CWorm,	int, iTeamkills, 53, {serverside=true;})
-	ATTR(CWorm,	float, fDamage, 54, {serverside=true;})
-
-	ATTR(CWorm, int, iTotalWins, 55, {serverside=true;})
-	ATTR(CWorm, int, iTotalLosses, 56, {serverside=true;})
-	ATTR(CWorm, int, iTotalKills, 57, {serverside=true;})
-	ATTR(CWorm, int, iTotalDeaths, 58, {serverside=true;})
-	ATTR(CWorm, int, iTotalSuicides, 59, {serverside=true;})
-
 	Version		cClientVersion;
 
-	// Game
-	ATTR(CWorm, int,	iLives, 3, {})
-	ATTR(CWorm, bool,	bAlive, 4, {})
 	AbsTime		fTimeofDeath;
 	DIR_TYPE	iFaceDirectionSide;
 	DIR_TYPE	iMoveDirectionSide;
@@ -198,11 +195,11 @@ protected:
     float       fAngleSpeed;
     float		fMoveSpeedX;
 	
-	ATTR(CWorm,	float,	fSpeedFactor, 5, {})
-	ATTR(CWorm, bool,	bCanUseNinja, 6, {})
-	ATTR(CWorm, float,	fDamageFactor, 7, {})
-	ATTR(CWorm, float,	fShieldFactor, 8, {})
-	ATTR(CWorm, bool,	bCanAirJump, 9, {}) // For instant air jump
+	ATTR(CWorm,	float,	fSpeedFactor, 30, {})
+	ATTR(CWorm, bool,	bCanUseNinja, 31, {})
+	ATTR(CWorm, float,	fDamageFactor, 32, {})
+	ATTR(CWorm, float,	fShieldFactor, 33, {})
+	ATTR(CWorm, bool,	bCanAirJump, 34, {}) // For instant air jump
 	
 	AbsTime		fLastAirJumpTime; // For relative air-jump
 	float		fFrame;
@@ -249,21 +246,27 @@ protected:
 	DeprecatedGUI::CBar		cHealthBar;
 
 
-	// Arsenal
-	ATTR(CWorm, bool,	bWeaponsReady,  20, {serverside = false;})
-	ATTR(CWorm,	int,	iCurrentWeapon,	21, {serverside = false;})
-	int			iNumWeaponSlots;
-	wpnslot_t	tWeapons[MAX_WEAPONSLOTS];
-
-	ATTR(CWorm,	int,	iAFK,	100, {})
-	ATTR(CWorm, std::string,	sAFKMessage, 101, {})
-
     // Force the showing of the current weapon
     bool        bForceWeapon_Name;
     AbsTime       fForceWeapon_Time;
 
 	bool		bDrawMuzzle;
 
+	// Score
+	ATTR(CWorm,	int, iKills, 50, {serverside=true;})
+	ATTR(CWorm, int, iDeaths, 51, {serverside=true;})
+	ATTR(CWorm,	int, iSuicides, 52, {serverside=true;})
+	ATTR(CWorm,	int, iTeamkills, 53, {serverside=true;})
+	ATTR(CWorm,	float, fDamage, 54, {serverside=true;})
+
+	ATTR(CWorm, int, iTotalWins, 55, {serverside=true;})
+	ATTR(CWorm, int, iTotalLosses, 56, {serverside=true;})
+	ATTR(CWorm, int, iTotalKills, 57, {serverside=true;})
+	ATTR(CWorm, int, iTotalDeaths, 58, {serverside=true;})
+	ATTR(CWorm, int, iTotalSuicides, 59, {serverside=true;})
+
+	ATTR(CWorm,	int,	iAFK,	100, {})
+	ATTR(CWorm, std::string,	sAFKMessage, 101, {})
 
 public:
 	// Used to print damage numbers over the worm head
@@ -467,13 +470,9 @@ public:
 	bool		canAirJump() const { return bCanAirJump; }
 	void		setLastAirJumpTime(AbsTime t) { fLastAirJumpTime = t; }
 	AbsTime		getLastAirJumpTime() { return fLastAirJumpTime; }
-	void		setCanRespawnNow(bool v) { bCanRespawnNow = v; }
-	bool		canRespawnNow() { return bCanRespawnNow; }
 	
 	void		setDrawMuzzle(bool _d)		{ bDrawMuzzle = _d; }
 
-	bool		getWeaponsReady()		{ return bWeaponsReady; }
-	void		setWeaponsReady(bool _w)	{ bWeaponsReady = _w; }
 	wpnslot_t	*getCurWeapon()			{ return &tWeapons[MIN(4, iCurrentWeapon)]; }
 	int			getCurrentWeapon()		{ return MIN(4, iCurrentWeapon); }
 	void		setCurrentWeapon(int _w)	{ iCurrentWeapon = MIN(4,_w); }

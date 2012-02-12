@@ -425,7 +425,7 @@ int GameServer::StartGame(std::string* errMsg)
 		w->get()->setDeaths(0);
 		w->get()->setTeamkills(0);
 		w->get()->setDamage(0);
-		w->get()->setWeaponsReady(false);
+		w->get()->bWeaponsReady = false;
 		w->get()->Prepare();
 	}
 
@@ -478,7 +478,7 @@ int GameServer::StartGame(std::string* errMsg)
 			if(w->get()->isSpectating()) {
 				haveSpectating = true;
 				w->get()->GetRandomWeapons();
-				w->get()->setWeaponsReady(true);
+				w->get()->bWeaponsReady = true;
 			}
 		}
 
@@ -512,18 +512,18 @@ int GameServer::StartGame(std::string* errMsg)
 void GameServer::PrepareWorm(CWorm* worm) {
 	// initial server side weapon handling
 	if(gameSettings[FT_SameWeaponsAsHostWorm] && game.localWorms()->tryGet()) {
-		if(cClient->getGameReady() && game.localWorms()->tryGet()->getWeaponsReady()) {
+		if(cClient->getGameReady() && game.localWorms()->tryGet()->bWeaponsReady) {
 			worm->CloneWeaponsFrom(game.localWorms()->tryGet());
-			worm->setWeaponsReady(true);
+			worm->bWeaponsReady = true;
 		}
 		// in the case that the host worm is not ready, we will get the weapons later
 	}
 	else if(gameSettings[FT_ForceRandomWeapons]) {
 		worm->GetRandomWeapons();
-		worm->setWeaponsReady(true);
+		worm->bWeaponsReady = true;
 	}
 	
-	if(worm->getWeaponsReady()) {
+	if(worm->bWeaponsReady) {
 		// TODO: move that out here
 		CBytestream bs;
 		bs.writeByte(S2C_WORMWEAPONINFO);
@@ -1383,9 +1383,9 @@ void GameServer::CheckWeaponSelectionTime()
 		
 		if( cl->isLocalClient() ) {
 			for_each_iterator(CWorm*, w, game.localWorms()) {
-				if(!w->get()->getWeaponsReady()) {
+				if(!w->get()->bWeaponsReady) {
 					warnings << "CheckWeaponSelectionTime: own worm " << w->get()->getID() << ":" << w->get()->getName() << " is selecting weapons too long, forcing random weapons" << endl;
-					w->get()->setWeaponsReady(true);
+					w->get()->bWeaponsReady = true;
 				}
 			}
 			if(game.localWorms()->size() == 0) {
@@ -1809,7 +1809,7 @@ CWorm* GameServer::AddWorm(const WormJoinInfo& wormInfo) {
 	w->setKills(0);
 	w->setDeaths(0);
 	w->setTeamkills(0);
-	w->setWeaponsReady(false);
+	w->bWeaponsReady = false;
 		
 	if( DedicatedControl::Get() )
 		DedicatedControl::Get()->NewWorm_Signal(w);
@@ -2178,7 +2178,7 @@ void GameServer::authorizeWorm(int wormID)
 void GameServer::cloneWeaponsToAllWorms(CWorm* worm) {
 	for_each_iterator(CWorm*, w, game.worms()) {
 		w->get()->CloneWeaponsFrom(worm);
-		w->get()->setWeaponsReady(true);
+		w->get()->bWeaponsReady = true;
 	}
 
 	SendWeapons();
@@ -2363,7 +2363,7 @@ void GameServer::DumpGameState(CmdLineIntf* caller) {
 			msg << ", alive";
 		else
 			msg << ", dead";
-		if(!w->getWeaponsReady()) msg << ", still weapons selecting";
+		if(!w->bWeaponsReady) msg << ", still weapons selecting";
 		msg << ", lives=" << w->getLives();
 		msg << ", kills=" << w->getKills();
 		if(w->getClient())

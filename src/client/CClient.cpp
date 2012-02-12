@@ -1828,10 +1828,10 @@ static std::list<int> updateAddedWorms(bool outOfGame) {
 		// status==NET_PLAYING means that we are already playing
 		if( cClient->getGameReady() ) {
 						
-			if(!w->getWeaponsReady())
+			if(!w->bWeaponsReady)
 				w->initWeaponSelection();
 			
-			if(!w->getWeaponsReady()) {
+			if(!w->bWeaponsReady) {
 				// Note for bots: In the normal case (for bots), they already should have selected their weapons in initWeaponSelection().
 				// In case of forcerandomwpns, we have set the wpns in GameServer::PrepareWorm, so they also should be ready.
 				// In case of samewpnsashostwrm, it could be that we are waiting for the host worm.

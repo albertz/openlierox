@@ -55,8 +55,8 @@ void CWormHumanInputHandler::getInput() {
 	const bool rightOnce = cRight.isDownOnce();
 
 	if(!m_worm->getAlive()) {
-		if(m_worm->canRespawnNow() && jump)
-			cClient->getNetEngine()->SendRequestWormRespawn(m_worm->getID());
+		if(m_worm->bCanRespawnNow && jump)
+			m_worm->bRespawnRequested = true;
 		clearInput();
 		return;
 	}

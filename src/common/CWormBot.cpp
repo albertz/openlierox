@@ -1021,9 +1021,8 @@ void CWormBotInputHandler::startGame() {
 // Simulate the AI
 void CWormBotInputHandler::getInput() {
 	if(!m_worm->getAlive()) {
-		if(m_worm->canRespawnNow()) {
-			cClient->getNetEngine()->SendRequestWormRespawn(m_worm->getID());
-		}
+		if(m_worm->bCanRespawnNow)
+			m_worm->bRespawnRequested = true;
 		return;
 	}
 	
@@ -4217,7 +4216,7 @@ void CWormBotInputHandler::initWeaponSelection() {
 	for(int i = 0; i < 5; ++i)
 		m_worm->tWeapons[i].Enabled = m_worm->tWeapons[i].Weapon != NULL;
 	
-	m_worm->setWeaponsReady(true);
+	m_worm->bWeaponsReady = true;
 
 }
 
