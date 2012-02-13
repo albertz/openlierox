@@ -17,6 +17,8 @@
 #include "StringUtils.h"
 #include "FeatureList.h"
 #include "CodeAttributes.h"
+#include "game/Game.h"
+#include "CGameScript.h"
 
 // TODO: move this? or is there sth like this in boost/stdlib?
 template<typename T>
@@ -72,9 +74,14 @@ struct __OlxVariable {
 
 template<typename T1, typename T2, FeatureIndex index, T1 (*getConvert) (T2), T2 (*putConvert) (T1)>
 struct _OlxVariable_Helpers {
-	static ScriptVar_t& writeVar() { return modSettings.set(index); }
 	static T1 getFct() { return (*getConvert)( (T2)gameSettings[index] ); }
-	static void putFct(T1 v) { writeVar() = (*putConvert)(v); }
+	static void putFct(T1 v) {
+		// We only want to overwrite variables by Gusanos code if
+		// we really use a Gusanos mod. Otherwise, Gusanos might still
+		// be loaded but we ignore any write-access to the game settings.
+		if(game.gameScript() && game.gameScript()->gusEngineUsed())
+			modSettings.set(index) = (*putConvert)(v);
+	}
 };
 
 template<typename T1, typename T2, FeatureIndex index, T1 (*getConvert) (T2), T2 (*putConvert) (T1)>
