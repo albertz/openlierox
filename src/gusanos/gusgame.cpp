@@ -181,6 +181,7 @@ GusGame::GusGame()
 {
 	NRPartType = NULL;
 	deathObject = NULL;
+	digObject = NULL;
 	loaded = false;
 	m_node = NULL;
 }
@@ -561,6 +562,12 @@ void GusGame::unload()
 #ifndef DEDICATED_ONLY
 	OmfgGUI::menu.clear();
 #endif
+
+	NRPartType = NULL;
+	deathObject = NULL;
+	digObject = NULL;
+	chatSound = NULL;
+	infoFont = NULL;
 }
 
 bool GusGame::isLoaded()
