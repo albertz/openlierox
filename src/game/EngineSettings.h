@@ -9,9 +9,18 @@
 #ifndef OpenLieroX_EngineSettings_h
 #define OpenLieroX_EngineSettings_h
 
+#include "Debug.h"
 #include "FeatureList.h"
 #include "Game.h"
 #include "util/macros.h"
+
+/*
+  EngineSettings is used by the client (CClient) to store the current
+  game settings. It is set by the server over network.
+  In case we are the server, it is all wrapped to gameSettings
+  and writing to it is disallowed (because server-code should directly
+  modify gameSettings).
+  */
 
 struct EngineSettings {
 private:

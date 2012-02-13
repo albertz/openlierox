@@ -544,6 +544,13 @@ std::string GetLogTimeStamp()
 	return std::string(buf);
 }
 
+/*
+  1. param: minCoutVerb
+  2. param: minIngameConVerb
+  3. param: minCallstackVerb
+  The verbosity is defined by GameOptions.Misc.Verbosity (default: 0).
+  */
+
 Logger notes(0,2,1000, "n: ");
 Logger hints(0,1,100, "H: ");
 Logger warnings(0,0,10, "W: ");
