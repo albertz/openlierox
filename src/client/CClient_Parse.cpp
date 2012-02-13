@@ -1161,6 +1161,7 @@ bool CClientNetEngineBeta7::ParsePrepareGame(CBytestream *bs)
 
 void CClientNetEngineBeta9::ParseFeatureSettings(CBytestream* bs) {
 	// FeatureSettings() constructor initializes with default values, and we want here an unset values
+	if(game.isClient())
 	for(size_t i = 0; i < FeatureArrayLen; ++i) {
 		if(client->getServerVersion() < OLXBetaVersion(0,59,6)) {
 			// Before 0.59b6, many settings have been outside of the FT array.

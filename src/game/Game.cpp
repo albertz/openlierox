@@ -69,7 +69,7 @@ void Game::prepareGameloop() {
 		if(cServer->getState() == SVS_LOBBY) {
 			notes << "prepareGameloop: starting game" << endl;
 			std::string errMsg;
-			if(!cServer->StartGame(&errMsg)) {
+			if(!cServer->PrepareGame(&errMsg)) {
 				errors << "starting game in local game failed for reason: " << errMsg << endl;
 				DeprecatedGUI::Menu_MessageBox("Error", "Error while starting game: " + errMsg);
 				if (tLX->iGameType == GME_LOCAL)

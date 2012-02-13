@@ -802,7 +802,7 @@ std::string ProcessStart(const std::vector<std::string>& params, int sender_id)
 	else  {
 		// Start the game
 		std::string errMsg;
-		if(!cServer->StartGame(&errMsg)) {	// start in dedicated mode
+		if(!cServer->PrepareGame(&errMsg)) {	// start in dedicated mode
 			return "cannot start the game: " + errMsg;
 		}
 		

@@ -1294,7 +1294,7 @@ bool Menu_Net_HostStartGame()
 
 	// Start the game
 	std::string errMsg;
-	if(!cServer->StartGame(&errMsg)) {	// Dedicated if no start button pressed
+	if(!cServer->PrepareGame(&errMsg)) {	// Dedicated if no start button pressed
 		errors << "Could not start the game for reason: " << errMsg << endl;
 		cClient->getChatbox()->AddText("Error while starting game: " + errMsg, tLX->clNotice, TXT_IMPORTANT, tLX->currentTime);
 		return false;

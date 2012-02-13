@@ -336,7 +336,7 @@ void GameServer::SetSocketWithEvents(bool v) {
 
 ///////////////////
 // Start the game (prepare it for weapon selection, BeginMatch is the actual start)
-int GameServer::StartGame(std::string* errMsg)
+int GameServer::PrepareGame(std::string* errMsg)
 {	
 	// TODO: remove that as soon as we do the gamescript loading in a seperate thread
 	ScopedBackgroundLoadingAni backgroundLoadingAni(320, 280, 50, 50, Color(128,128,128), Color(64,64,64));
@@ -353,7 +353,7 @@ int GameServer::StartGame(std::string* errMsg)
 
 	CBytestream bs;
 	
-	notes << "GameServer::StartGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
+	notes << "GameServer::PrepareGame(), mod: " << gameSettings[FT_Mod].as<ModInfo>()->name << ", time: " << GetDateTimeText() << endl;
 	
 	// reset here because we may set it already when we load the map and we don't want to overwrite that later on
 	cClient->SetPermanentText("");
@@ -470,7 +470,6 @@ int GameServer::StartGame(std::string* errMsg)
 	{
 		if( !cClients[i].isConnected() )
 			continue;
-		//cClients[i].getNetEngine()->SendPrepareGame(); // Already sent
 
 		// Force random weapons for spectating clients
 		bool haveSpectating = false;
@@ -506,6 +505,7 @@ int GameServer::StartGame(std::string* errMsg)
 	
 	// update about all other vars
 	UpdateGameLobby();
+
 	return true;
 }
 
