@@ -131,8 +131,8 @@ USE_OPTS_FOR(CVec, Basic);
 
 
 #define ATTR(parentType, type, name, id, attrDescSpecCode) \
-struct _ ## name ## _AttrDesc : AttrDesc { \
-	_ ## name ## _AttrDesc () { \
+struct _ ## parentType ## _AttrDesc ## id : AttrDesc { \
+	_ ## parentType ## _AttrDesc ## id () { \
 		objTypeId = LuaID<parentType>::value; \
 		attrType = GetType<type>::value; \
 		attrMemOffset = (intptr_t)__OLX_OFFSETOF(parentType, name); \
@@ -143,7 +143,7 @@ struct _ ## name ## _AttrDesc : AttrDesc { \
 		registerAttrDesc(*this); \
 	} \
 }; \
-typedef AttrWithMaybeOpts<type, _ ## name ## _AttrDesc>::Type name ## _Type; \
+typedef AttrWithMaybeOpts<type, _ ## parentType ## _AttrDesc ## id>::Type name ## _Type; \
 name ## _Type name;
 
 #endif
