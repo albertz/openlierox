@@ -5,13 +5,21 @@
 #include "util/log.h"
 #include "CodeAttributes.h"
 
-template<class T>
-struct LuaID
-{
+template<class T> struct LuaID {};
+template<uint32_t id> struct LuaClassInfo {
+	static const char* name(uint32_t) { assert(false); return NULL; }
 };
 
 #define CLASSID(name_, id_) \
-template<> struct LuaID<name_> { static uint32_t const value = id_; }
+template<> struct LuaID<name_> { static uint32_t const value = id_; }; \
+template<> struct LuaClassInfo<id_> { \
+	static const char* name() { return # name_; } \
+	static const char* name(uint32_t id2_) { \
+		if(id_ == id2_) return name(); \
+		else if(id2_ > id_) { assert(false); return NULL; } \
+		else return LuaClassInfo<id_-1>::name(id2_); \
+	} \
+}
 
 class CGameObject;
 class CWorm;
@@ -70,6 +78,10 @@ CLASSID(OmfgGUI::Label, 24);
 CLASSID(CNinjaRope, 25);
 
 #undef CLASSID
+
+INLINE const char* LuaClassName(uint32_t id_) {
+	return LuaClassInfo<25>::name(id_);
+}
 
 template<class T>
 INLINE T* getObject(LuaContext& context, int idx)

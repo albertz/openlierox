@@ -39,6 +39,7 @@
 #include "game/SettingsPreset.h"
 #include "CGameScript.h"
 #include "ProfileSystem.h"
+#include "Attr.h"
 
 #include <boost/shared_ptr.hpp>
 #include <boost/lambda/lambda.hpp>
@@ -229,6 +230,8 @@ void Game::frameInner()
 			
 	} // SWITCH
 	
+	iterAttrUpdates(NULL);
+
 	cClient->resetDebugStr();
 	
 	EnableSystemMouseCursor(false);

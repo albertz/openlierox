@@ -30,3 +30,20 @@ VectorD2<int> from_string< VectorD2<int> >(const std::string& s, bool& fail) {
 	if(fail) return VectorD2<int>();
 	return v;
 }
+
+template<>
+VectorD2<float> from_string< VectorD2<float> >(const std::string& s, bool& fail) {
+	std::string tmp = s;
+	TrimSpaces(tmp);
+	if(tmp.size() > 2 && tmp[0] == '(' && tmp[tmp.size()-1] == ')')
+		tmp = tmp.substr(1, tmp.size() - 2);
+	size_t f = tmp.find(',');
+	if(f == std::string::npos) { fail = true; return VectorD2<float>(); }
+	VectorD2<float> v;
+	fail = false;
+	v.x = from_string<float>(tmp.substr(0, f), fail);
+	if(fail) return VectorD2<float>();
+	v.y = from_string<float>(tmp.substr(f + 1), fail);
+	if(fail) return VectorD2<float>();
+	return v;
+}

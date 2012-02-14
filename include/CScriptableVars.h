@@ -133,7 +133,7 @@ struct PODForClass {
 	bool operator<(const T& o) const { return get() < o; }
 };
 
-// Helper wrapper for common var types (used in GUI skinning)
+
 class ScriptVar_t
 {
 public:
@@ -350,6 +350,7 @@ struct __ScriptVarPtrRaw {
 	// we use union to save some memory
 	union
 	{
+		void* voidPt;
 		bool * b;	// Pointer to static var
 		int * i;
 		float * f;
@@ -380,7 +381,11 @@ struct ScriptVarPtr_t
 	ScriptVarPtr_t( T * v, const T& def = T() )
 	: type(GetType<T>::value), isUnsigned(false), defaultValue(def)
 	{ __ScriptVarPtrRaw_ptr<T>(ptr) = v; }
-	
+
+	explicit ScriptVarPtr_t( ScriptVarType_t t, void * v, const ScriptVar_t& def )
+	: type(t), isUnsigned(false), defaultValue(def)
+	{ ptr.voidPt = v; }
+
 	ScriptVarPtr_t( ScriptCallback_t v ) : type(SVT_CALLBACK), isUnsigned(false) { ptr.cb = v; }
 	ScriptVarPtr_t( _DynamicVar* v, const ScriptVar_t& def ) : type(SVT_DYNAMIC), isUnsigned(false), defaultValue(def) { ptr.dynVar = v; }
 	

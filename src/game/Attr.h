@@ -18,40 +18,44 @@
 #include "util/macros.h"
 #include "util/BaseObject.h"
 
+struct AttrExt {
+	bool updated;
+	AttrExt() : updated(false) {}
+};
+
 struct AttrDesc {
 	uint32_t objTypeId;
 	ScriptVarType_t attrType;
 	intptr_t attrMemOffset;
+	intptr_t attrExtMemOffset;
 	std::string attrName;
 	uint32_t attrId;
 	ScriptVar_t defaultValue;
 
 	bool serverside;
-	boost::function<bool(void* base, AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
-	boost::function<void(void* base, AttrDesc* attrDesc)> sync;
+	boost::function<bool(void* base, const AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
+	boost::function<void(void* base, const AttrDesc* attrDesc)> sync;
 	
 	AttrDesc()
 	: objTypeId(0), attrType(SVT_INVALID), attrMemOffset(0), attrId(0) {}
 
-	uintptr_t getPtr(void* base) { return uintptr_t(base) + attrMemOffset; }
-	template<typename T> T& get(void* base) { return *(T*)getPtr(base); }
+	void* getValuePtr(void* base) const { return (void*)(uintptr_t(base) + attrMemOffset); }
+	AttrExt* getAttrExtPtr(void* base) const { return (AttrExt*)(uintptr_t(base) + attrMemOffset + attrExtMemOffset); }
+	ScriptVarPtr_t get(void* base) const { return ScriptVarPtr_t(attrType, (void*)getValuePtr(base), defaultValue); }
+
+	std::string description() const;
 };
 
 void registerAttrDesc(AttrDesc& attrDesc);
-
-struct AttrUpdateInfo {
-	WeakRef<BaseObject> parent;
-	const AttrDesc* attrDesc;
-	ScriptVar_t oldValue;
-};
-
-void pushAttrUpdateInfo(const AttrUpdateInfo& info);
+void pushObjAttrUpdate(WeakRef<BaseObject> obj);
+void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc, ScriptVar_t oldValue)> callback);
 
 template <typename T, typename AttrDescT>
 struct Attr {
 	typedef T ValueType;
 	typedef AttrDescT AttrDescType;
 	T value;
+	AttrExt ext;
 	Attr() {
 		// also inits attrDesc which is needed here
 		value = (T) attrDesc()->defaultValue;
@@ -64,11 +68,19 @@ struct Attr {
 	T get() const { return value; }
 	operator T() const { return get(); }
 	T& write() {
-		AttrUpdateInfo info;
-		info.parent = parent()->thisWeakRef;
-		info.attrDesc = attrDesc();
-		info.oldValue = ScriptVar_t(value);
-		pushAttrUpdateInfo(info);
+		if(parent()->attrUpdates.empty())
+			pushObjAttrUpdate(parent()->thisWeakRef);
+		if(!ext.updated || parent()->attrUpdates.empty()) {
+			void* valuePt = &value;
+			void* valuePt2 = attrDesc()->getValuePtr(parent());
+			assert(valuePt == valuePt2);
+			assert(&ext == attrDesc()->getAttrExtPtr(parent()));
+			AttrUpdateInfo info;
+			info.attrDesc = attrDesc();
+			info.oldValue = ScriptVar_t(value);
+			parent()->attrUpdates.push_back(info);
+			ext.updated = true;
+		}
 		return value;
 	}
 	Attr& operator=(const T& v) {
@@ -136,6 +148,8 @@ struct _ ## parentType ## _AttrDesc ## id : AttrDesc { \
 		objTypeId = LuaID<parentType>::value; \
 		attrType = GetType<type>::value; \
 		attrMemOffset = (intptr_t)__OLX_OFFSETOF(parentType, name); \
+		struct Dummy { type x; AttrExt ext; }; \
+		attrExtMemOffset = (intptr_t)__OLX_OFFSETOF(Dummy, ext); \
 		attrName = #name ; \
 		attrId = id; \
 		defaultValue = ScriptVar_t(type()); \

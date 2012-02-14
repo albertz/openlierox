@@ -12,6 +12,7 @@
 #include "Debug.h"
 #include "StringUtils.h"
 #include "StaticAssert.h"
+#include "CVec.h"
 
 #include <sstream>
 
@@ -81,13 +82,14 @@ std::string ScriptVar_t::toString() const {
 bool ScriptVar_t::fromString( const std::string & s )
 {
 	switch(type) {
-		case SVT_BOOL: b = from_string<bool>(s); break;
-		case SVT_INT: i = from_string<int>(s); break;
-		case SVT_FLOAT: f = from_string<float>(s); break;
-		case SVT_STRING: str.get() = s; break;
-		case SVT_COLOR: col.get() = StrToCol(s); break;
-		case SVT_CUSTOM: custom.get().get().fromString(s); break;
-		default: assert(false); return false;
+	case SVT_BOOL: b = from_string<bool>(s); break;
+	case SVT_INT: i = from_string<int>(s); break;
+	case SVT_FLOAT: f = from_string<float>(s); break;
+	case SVT_STRING: str.get() = s; break;
+	case SVT_COLOR: col.get() = StrToCol(s); break;
+	case SVT_VEC2: vec2.get() = from_string<CVec>(s); break;
+	case SVT_CUSTOM: custom.get().get().fromString(s); break;
+	default: assert(false); return false;
 	}
 	return true;
 }
@@ -95,15 +97,16 @@ bool ScriptVar_t::fromString( const std::string & s )
 std::string ScriptVarPtr_t::toString() const
 {
 	switch(type) {
-		case SVT_BOOL: return to_string(*ptr.b);
-		case SVT_INT: return to_string(*ptr.i);
-		case SVT_FLOAT: return to_string(*ptr.f);
-		case SVT_STRING: return *ptr.s;
-		case SVT_COLOR: return ColToHex(*ptr.cl);
-		case SVT_CUSTOM: return ptr.custom->get().toString();
-		case SVT_DYNAMIC: return ptr.dynVar->asScriptVar().toString();
-		case SVT_CALLBACK: return "callback(0x" + hex((long)ptr.cb) + ")";
-		default: assert(false); return "";
+	case SVT_BOOL: return to_string(*ptr.b);
+	case SVT_INT: return to_string(*ptr.i);
+	case SVT_FLOAT: return to_string(*ptr.f);
+	case SVT_STRING: return *ptr.s;
+	case SVT_COLOR: return ColToHex(*ptr.cl);
+	case SVT_VEC2: return to_string(*ptr.vec2);
+	case SVT_CUSTOM: return ptr.custom->get().toString();
+	case SVT_DYNAMIC: return ptr.dynVar->asScriptVar().toString();
+	case SVT_CALLBACK: return "callback(0x" + hex((long)ptr.cb) + ")";
+	default: assert(false); return "";
 	}
 }
 
@@ -111,31 +114,32 @@ bool ScriptVarPtr_t::fromString( const std::string & _str) const {
 	std::string str = _str; TrimSpaces(str);
 	
 	switch(type) {
-		case SVT_BOOL: *ptr.b = from_string<bool>(str); break;
-		case SVT_INT:
-			// TODO: why is that here and not in ScriptVar_t::fromString ?
-			if (isUnsigned && str.size() == 0)
-				*ptr.i = -1; // Infinite
-			else
-				*ptr.i = from_string<int>(str); 
+	case SVT_BOOL: *ptr.b = from_string<bool>(str); break;
+	case SVT_INT:
+		// TODO: why is that here and not in ScriptVar_t::fromString ?
+		if (isUnsigned && str.size() == 0)
+			*ptr.i = -1; // Infinite
+		else
+			*ptr.i = from_string<int>(str);
 		break;
-		case SVT_FLOAT: 
-			// TODO: why is that here and not in ScriptVar_t::fromString ?
-			if (isUnsigned && str.size() == 0)
-				*ptr.f = -1;
-			else
-				*ptr.f = from_string<float>(str); 
+	case SVT_FLOAT:
+		// TODO: why is that here and not in ScriptVar_t::fromString ?
+		if (isUnsigned && str.size() == 0)
+			*ptr.f = -1;
+		else
+			*ptr.f = from_string<float>(str);
 		break;
-		case SVT_STRING: *ptr.s = str; break;
-		case SVT_COLOR: *ptr.cl = StrToCol(str); break;
-		case SVT_CUSTOM: return ptr.custom->get().fromString(_str);
-		case SVT_DYNAMIC: {
-			ScriptVar_t var = ptr.dynVar->asScriptVar();
-			if(!var.fromString(str)) return false;
-			ptr.dynVar->fromScriptVar(var);
-			return true;
-		}
-		default: assert(false); return false;
+	case SVT_STRING: *ptr.s = str; break;
+	case SVT_COLOR: *ptr.cl = StrToCol(str); break;
+	case SVT_VEC2: *ptr.vec2 = from_string<CVec>(str); break;
+	case SVT_CUSTOM: return ptr.custom->get().fromString(_str);
+	case SVT_DYNAMIC: {
+		ScriptVar_t var = ptr.dynVar->asScriptVar();
+		if(!var.fromString(str)) return false;
+		ptr.dynVar->fromScriptVar(var);
+		return true;
+	}
+	default: assert(false); return false;
 	}
 	return true;
 }

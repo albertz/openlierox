@@ -9,14 +9,24 @@
 #ifndef OpenLieroX_BaseObject_h
 #define OpenLieroX_BaseObject_h
 
+#include <vector>
 #include "CodeAttributes.h"
 #include "WeakRef.h"
+#include "CScriptableVars.h"
+
+struct AttrDesc;
+
+struct AttrUpdateInfo {
+	const AttrDesc* attrDesc;
+	ScriptVar_t oldValue;
+};
 
 struct BaseObject : DontCopyTag {
 	BaseObject();
 	virtual ~BaseObject();
 	
-	WeakRef<BaseObject> thisWeakRef;	
+	std::vector<AttrUpdateInfo> attrUpdates;
+	WeakRef<BaseObject> thisWeakRef;
 };
 
 #endif
