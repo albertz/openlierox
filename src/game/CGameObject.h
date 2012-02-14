@@ -49,7 +49,7 @@ protected:
 	typedef CVec vPos_Type;
 	typedef CVec vVelocity_Type;
 
-	ATTR(CGameObject, float, health, 4, {serverside = false;})
+	ATTR(CGameObject, float, health, 4, {serverside = false; defaultValue = 100.0f; })
 
 public:
 

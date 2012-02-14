@@ -10,10 +10,20 @@
 #ifndef OpenLieroX_CodeAttributes_h
 #define OpenLieroX_CodeAttributes_h
 
+#include <assert.h>
+
 #ifdef _MSC_VER
 #define INLINE __forceinline
 #else
 #define INLINE __attribute__((always_inline)) inline
 #endif
+
+class DontCopyTag {
+public:
+	DontCopyTag() {}
+private:
+	DontCopyTag(const DontCopyTag&) { assert(false); }
+	DontCopyTag& operator=(const DontCopyTag&) { assert(false); return *this; }
+};
 
 #endif

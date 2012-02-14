@@ -21,8 +21,8 @@
 
 LuaReference CGameObject::metaTable;
 
-CGameObject::CGameObject() { health = 100.0f; gusInit(); }
-CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { health = 100.0f; gusInit(owner, pos_, spd_); }
+CGameObject::CGameObject() { gusInit(); }
+CGameObject::CGameObject(CWormInputHandler* owner, Vec pos_, Vec spd_) { gusInit(owner, pos_, spd_); }
 CGameObject::~CGameObject() { gusShutdown(); }
 
 

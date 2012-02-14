@@ -9,9 +9,10 @@
 #ifndef OpenLieroX_BaseObject_h
 #define OpenLieroX_BaseObject_h
 
+#include "CodeAttributes.h"
 #include "WeakRef.h"
 
-struct BaseObject {
+struct BaseObject : DontCopyTag {
 	BaseObject();
 	virtual ~BaseObject();
 	

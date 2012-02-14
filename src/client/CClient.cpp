@@ -2267,12 +2267,12 @@ void CClient::SetupGameInputs()
 
 void CClient::NewNet_SaveProjectiles()
 {
-	NewNet_SavedProjectiles = cProjectiles;
+//	NewNet_SavedProjectiles = cProjectiles;
 }
 
 void CClient::NewNet_LoadProjectiles()
 {
-	cProjectiles = NewNet_SavedProjectiles;
+//	cProjectiles = NewNet_SavedProjectiles;
 }
 
 long CClient::MapPosIndex::index(const CMap* m) const {

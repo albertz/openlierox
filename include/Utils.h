@@ -50,15 +50,6 @@ int highestBit(T d) {
 }
 
 
-class DontCopyTag {
-public:
-	DontCopyTag() {}
-private:
-	DontCopyTag(const DontCopyTag&) { assert(false); }
-	DontCopyTag& operator=(const DontCopyTag&) { assert(false); return *this; }
-};
-
-
 template<typename T>
 std::vector<T> ListAsVector(const std::list<T>& l) {
 	return std::vector<T>(l.begin(), l.end());

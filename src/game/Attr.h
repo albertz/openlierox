@@ -24,7 +24,8 @@ struct AttrDesc {
 	intptr_t attrMemOffset;
 	std::string attrName;
 	uint32_t attrId;
-	
+	ScriptVar_t defaultValue;
+
 	bool serverside;
 	boost::function<bool(void* base, AttrDesc* attrDesc, ScriptVar_t oldValue)> onUpdate;
 	boost::function<void(void* base, AttrDesc* attrDesc)> sync;
@@ -40,7 +41,7 @@ void registerAttrDesc(AttrDesc& attrDesc);
 
 struct AttrUpdateInfo {
 	WeakRef<BaseObject> parent;
-	AttrDesc* attrDesc;
+	const AttrDesc* attrDesc;
 	ScriptVar_t oldValue;
 };
 
@@ -51,9 +52,12 @@ struct Attr {
 	typedef T ValueType;
 	typedef AttrDescT AttrDescType;
 	T value;
-	Attr() : value() { /* to init attrDesc */ attrDesc(); }
-	AttrDescT* attrDesc() {
-		static AttrDescT desc;
+	Attr() {
+		// also inits attrDesc which is needed here
+		value = (T) attrDesc()->defaultValue;
+	}
+	const AttrDescT* attrDesc() {
+		static const AttrDescT desc;
 		return &desc;
 	}
 	BaseObject* parent() { return (BaseObject*)(uintptr_t(this) - attrDesc()->attrMemOffset); }
@@ -114,6 +118,7 @@ struct _ ## name ## _AttrDesc : AttrDesc { \
 		attrMemOffset = (intptr_t)__OLX_OFFSETOF(parentType, name); \
 		attrName = #name ; \
 		attrId = id; \
+		defaultValue = ScriptVar_t(type()); \
 		attrDescSpecCode; \
 		registerAttrDesc(*this); \
 	} \
