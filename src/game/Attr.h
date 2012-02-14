@@ -71,9 +71,7 @@ struct Attr {
 		if(parent()->attrUpdates.empty())
 			pushObjAttrUpdate(parent()->thisWeakRef);
 		if(!ext.updated || parent()->attrUpdates.empty()) {
-			void* valuePt = &value;
-			void* valuePt2 = attrDesc()->getValuePtr(parent());
-			assert(valuePt == valuePt2);
+			assert(&value == attrDesc()->getValuePtr(parent()));
 			assert(&ext == attrDesc()->getAttrExtPtr(parent()));
 			AttrUpdateInfo info;
 			info.attrDesc = attrDesc();

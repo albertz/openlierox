@@ -17,7 +17,7 @@
 #include "gusanos/luaapi/classes.h"
 
 std::string AttrDesc::description() const {
-	return std::string(LuaClassName(objTypeId)) + ":" + attrName + "(" + to_string(attrId) + ")";
+	return std::string(LuaClassName(objTypeId)) + ":" + attrName;
 }
 
 static std::vector< WeakRef<BaseObject> > objUpdates;
@@ -37,15 +37,20 @@ void iterAttrUpdates(boost::function<void(BaseObject*, const AttrDesc* attrDesc,
 		if(oPt == NULL) continue;
 
 		foreach(u, oPt->attrUpdates) {
-			u->attrDesc->getAttrExtPtr(oPt)->updated = false;
-			if(u->oldValue == u->attrDesc->get(oPt).asScriptVar()) continue;
+			const AttrDesc* const attrDesc = u->attrDesc;
+			ScriptVar_t& oldValue = u->oldValue;
+
+			attrDesc->getAttrExtPtr(oPt)->updated = false;
+			if(oldValue == attrDesc->get(oPt).asScriptVar()) continue;
 
 			if(callback)
-				callback(oPt, u->attrDesc, u->oldValue);
-			if(u->attrDesc->onUpdate)
-				u->attrDesc->onUpdate(oPt, u->attrDesc, u->oldValue);
+				callback(oPt, attrDesc, oldValue);
+			if(attrDesc->onUpdate)
+				attrDesc->onUpdate(oPt, attrDesc, oldValue);
 
-			notes << "<" << typeid(*oPt).name() << " 0x" << hex((uintptr_t)oPt) << "> " << u->attrDesc->description() << ": update " << u->oldValue.toString() << " -> " << u->attrDesc->get(oPt).toString() << endl;
+			if(attrDesc->objTypeId == LuaID<CGameObject>::value && attrDesc->attrId <= 3 /* vPos or vVel */)
+				continue; // no debug msg, too annoying
+			notes << "<" << typeid(*oPt).name() << " 0x" << hex((uintptr_t)oPt) << "> " << attrDesc->description() << ": update " << oldValue.toString() << " -> " << attrDesc->get(oPt).toString() << endl;
 		}
 
 		oPt->attrUpdates.clear();
