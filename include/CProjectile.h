@@ -91,7 +91,6 @@ public:
 		fLastTrailProj = AbsTime(0);
 		iRandom = 0;
         fRotation = 0;
-		health = 0;
 	}
 
 	// Types
